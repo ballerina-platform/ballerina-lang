@@ -15,25 +15,22 @@
 *  specific language governing permissions and limitations
 *  under the License.
 */
-
 package org.ballerinalang.langserver.completions.resolvers;
 
 import org.antlr.v4.runtime.Token;
-import org.antlr.v4.runtime.TokenStream;
 import org.ballerinalang.langserver.common.UtilSymbolKeys;
-import org.ballerinalang.langserver.common.utils.CommonUtil;
-import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
-import org.ballerinalang.langserver.compiler.LSContextManager;
-import org.ballerinalang.langserver.compiler.LSPackageCache;
+import org.ballerinalang.langserver.compiler.LSPackageLoader;
 import org.ballerinalang.langserver.compiler.LSServiceOperationContext;
+import org.ballerinalang.langserver.compiler.common.modal.BallerinaPackage;
+import org.ballerinalang.langserver.completions.CompletionKeys;
 import org.ballerinalang.langserver.completions.util.ItemResolverConstants;
-import org.ballerinalang.model.elements.PackageID;
 import org.eclipse.lsp4j.CompletionItem;
 import org.eclipse.lsp4j.CompletionItemKind;
-import org.wso2.ballerinalang.compiler.util.CompilerContext;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * Completion Item Resolver for the Package name context.
@@ -41,76 +38,63 @@ import java.util.List;
 public class PackageNameContextResolver extends AbstractItemResolver {
     
     @Override
-    public ArrayList<CompletionItem> resolveItems(LSServiceOperationContext completionContext) {
+    public List<CompletionItem> resolveItems(LSServiceOperationContext ctx) {
         ArrayList<CompletionItem> completionItems = new ArrayList<>();
-        TokenStream tokenStream = completionContext.get(DocumentServiceKeys.TOKEN_STREAM_KEY);
-        int currentIndex = completionContext.get(DocumentServiceKeys.TOKEN_INDEX_KEY);
-        if (tokenStream.get(currentIndex).getText().equals(UtilSymbolKeys.IMPORT_KEYWORD_KEY)) {
-            completionItems.addAll(this.getOrgNameCompletionItems());
-        } else {
-            StringBuilder orgNameComponent = new StringBuilder();
-            while (true) {
-                if (currentIndex < 0) {
-                    return new ArrayList<>();
-                }
-                Token token = CommonUtil.getPreviousDefaultToken(tokenStream, currentIndex);
-                if (token.getText().equals(UtilSymbolKeys.IMPORT_KEYWORD_KEY)) {
-                    break;
-                }
-                orgNameComponent.append(token.getText());
-                currentIndex = token.getTokenIndex();
-            }
-
-            if (orgNameComponent.toString().contains("/")) {
-                String orgName = orgNameComponent.toString().replace("/", "").trim();
-                completionItems.addAll(this.getPackageNameCompletions(orgName));
-            } else {
-                completionItems.addAll(this.getOrgNameCompletionItems());
-            }
+        List<BallerinaPackage> packagesList = new ArrayList<>();
+        Stream.of(LSPackageLoader.getSdkPackages(), LSPackageLoader.getHomeRepoPackages())
+                .forEach(packagesList::addAll);
+        List<String> poppedTokens = ctx.get(CompletionKeys.FORCE_CONSUMED_TOKENS_KEY)
+                .stream()
+                .map(Token::getText)
+                .collect(Collectors.toList());
+        
+        if (poppedTokens.contains(UtilSymbolKeys.SLASH_KEYWORD_KEY)) {
+            String orgName = poppedTokens.get(poppedTokens.indexOf(UtilSymbolKeys.SLASH_KEYWORD_KEY) - 1);
+            completionItems.addAll(this.getPackageNameCompletions(orgName, packagesList));
+        } else if (poppedTokens.contains(UtilSymbolKeys.IMPORT_KEYWORD_KEY)) {
+            completionItems.addAll(this.getOrgNameCompletionItems(packagesList));
         }
 
         return completionItems;
     }
 
-    private ArrayList<CompletionItem> getOrgNameCompletionItems() {
+    private ArrayList<CompletionItem> getOrgNameCompletionItems(List<BallerinaPackage> packagesList) {
         List<String> orgNames = new ArrayList<>();
         ArrayList<CompletionItem> completionItems = new ArrayList<>();
-        CompilerContext context = LSContextManager.getInstance().getBuiltInPackagesCompilerContext();
-        LSPackageCache.getInstance(context).getPackageMap().entrySet().forEach(pkgEntry -> {
-            if (!orgNames.contains(pkgEntry.getValue().packageID.getOrgName().toString())) {
-                orgNames.add(pkgEntry.getValue().packageID.getOrgName().toString());
-            }
-        });
 
-        orgNames.forEach(orgName -> {
-            String insertText = orgName + "/";
-            fillImportCompletion(orgName, insertText, completionItems);
+        packagesList.forEach(pkg -> {
+            if (!orgNames.contains(pkg.getOrgName())) {
+                completionItems.add(getImportCompletion(pkg.getOrgName(), pkg.getOrgName()));
+                orgNames.add(pkg.getOrgName());
+            }
         });
 
         return completionItems;
     }
 
-    private ArrayList<CompletionItem> getPackageNameCompletions(String orgName) {
+    private ArrayList<CompletionItem> getPackageNameCompletions(String orgName, List<BallerinaPackage> packagesList) {
         ArrayList<CompletionItem> completionItems = new ArrayList<>();
-        CompilerContext context = LSContextManager.getInstance().getBuiltInPackagesCompilerContext();
-        LSPackageCache.getInstance(context).getPackageMap().entrySet().forEach(pkgEntry -> {
-            PackageID packageID = pkgEntry.getValue().packageID;
-            if (orgName.equals(packageID.orgName.getValue())) {
-                String label = packageID.getName().getValue();
+        List<String> pkgNameLabels = new ArrayList<>();
+
+        packagesList.forEach(ballerinaPackage -> {
+            String label = ballerinaPackage.getPackageName();
+            if (orgName.equals(ballerinaPackage.getOrgName()) && !pkgNameLabels.contains(label)) {
+                pkgNameLabels.add(label);
                 String insertText = label + ";";
-                fillImportCompletion(label, insertText, completionItems);
+                completionItems.add(getImportCompletion(label, insertText));
             }
         });
         
         return completionItems;
     }
     
-    private static void fillImportCompletion(String label, String insertText, List<CompletionItem> completionItems) {
+    private static CompletionItem getImportCompletion(String label, String insertText) {
         CompletionItem item = new CompletionItem();
         item.setLabel(label);
         item.setInsertText(insertText);
         item.setKind(CompletionItemKind.File);
         item.setDetail(ItemResolverConstants.PACKAGE_TYPE);
-        completionItems.add(item);
+        
+        return item;
     }
 }

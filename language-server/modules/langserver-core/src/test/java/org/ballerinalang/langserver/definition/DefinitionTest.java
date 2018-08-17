@@ -20,7 +20,6 @@ package org.ballerinalang.langserver.definition;
 import org.ballerinalang.langserver.common.util.CommonUtil;
 import org.eclipse.lsp4j.Position;
 import org.testng.Assert;
-import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
@@ -28,33 +27,24 @@ import org.testng.annotations.Test;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
-import java.nio.file.Paths;
+import java.nio.file.Path;
 
 /**
  * Test goto definition language server feature.
  */
-@Test(groups = "broken")
 public class DefinitionTest {
-    private static final String DEFINITION_TESTS_SAMPLES = "src" + File.separator + "test" + File.separator
-            + "resources" + File.separator + "definition";
-    private static final String ROOT_DIR = Paths.get("").toAbsolutePath().toString() + File.separator;
-    private static final String SAMPLES_COPY_DIR = ROOT_DIR + "samples" + File.separator + "definition";
     private static final String METHOD = "textDocument/definition";
-    private String balPath1 = SAMPLES_COPY_DIR + File.separator + "definition1.bal";
-    private String balPath2 = SAMPLES_COPY_DIR + File.separator + "definition2.bal";
+    private Path definitionsPath = new File(getClass().getClassLoader().getResource("definition").getFile()).toPath();
+    private Path balPath1 = definitionsPath.resolve("test.definition.pkg").resolve("definition1.bal");
+    private Path balPath2 = definitionsPath.resolve("test.definition.pkg").resolve("definition2.bal");
     private String balFile1Content;
     private String balFile2Content;
 
     @BeforeClass
-    public void loadLangServer() throws Exception {
-        File source = new File(DEFINITION_TESTS_SAMPLES);
-        File destination = new File(SAMPLES_COPY_DIR);
-        org.apache.commons.io.FileUtils.copyDirectory(source, destination);
-        File dotBallerinaDir = new File(ROOT_DIR + "samples" + File.separator + ".ballerina");
-        dotBallerinaDir.mkdir();
-        byte[] encoded1 = Files.readAllBytes(Paths.get(balPath1));
+    public void init() throws Exception {
+        byte[] encoded1 = Files.readAllBytes(balPath1);
         balFile1Content = new String(encoded1);
-        byte[] encoded2 = Files.readAllBytes(Paths.get(balPath2));
+        byte[] encoded2 = Files.readAllBytes(balPath2);
         balFile2Content = new String(encoded2);
     }
 
@@ -104,10 +94,10 @@ public class DefinitionTest {
         return new Object[][]{
                 {new Position(23, 7),
                         new DefinitionTestDataModel("localFunctionInSameFile.json",
-                                Paths.get(balPath1).toUri().toString(), balPath1, balFile1Content)},
+                                balPath1.toUri().toString(), balPath1.toString(), balFile1Content)},
                 {new Position(44, 7),
                         new DefinitionTestDataModel("localFunctionInAnotherFile.json",
-                                Paths.get(balPath2).toUri().toString(), balPath1, balFile1Content)}
+                                balPath2.toUri().toString(), balPath1.toString(), balFile1Content)}
         };
     }
 
@@ -116,10 +106,10 @@ public class DefinitionTest {
         return new Object[][]{
                 {new Position(36, 7),
                         new DefinitionTestDataModel("recordInSameFile.json",
-                                Paths.get(balPath1).toUri().toString(), balPath1, balFile1Content)},
+                                balPath1.toUri().toString(), balPath1.toString(), balFile1Content)},
                 {new Position(13, 7),
                         new DefinitionTestDataModel("recordInAnotherFile.json",
-                                Paths.get(balPath2).toUri().toString(), balPath1, balFile1Content)}
+                                balPath2.toUri().toString(), balPath1.toString(), balFile1Content)}
         };
     }
 
@@ -128,10 +118,10 @@ public class DefinitionTest {
         return new Object[][]{
                 {new Position(41, 53),
                         new DefinitionTestDataModel("readOnlyVariableInSameFile.json",
-                                Paths.get(balPath1).toUri().toString(), balPath1, balFile1Content)},
+                                balPath1.toUri().toString(), balPath1.toString(), balFile1Content)},
                 {new Position(11, 18),
                         new DefinitionTestDataModel("readOnlyVariableInAnotherFile.json",
-                                Paths.get(balPath1).toUri().toString(), balPath2, balFile2Content)}
+                                balPath1.toUri().toString(), balPath2.toString(), balFile2Content)}
         };
     }
 
@@ -140,25 +130,20 @@ public class DefinitionTest {
         return new Object[][]{
                 {new Position(47, 9),
                         new DefinitionTestDataModel("localVariableInFunction.json",
-                                Paths.get(balPath1).toUri().toString(), balPath1, balFile1Content)},
+                                balPath1.toUri().toString(), balPath1.toString(), balFile1Content)},
                 {new Position(51, 12),
                         new DefinitionTestDataModel("localVariableInIfStatement.json",
-                                Paths.get(balPath1).toUri().toString(), balPath1, balFile1Content)},
+                                balPath1.toUri().toString(), balPath1.toString(), balFile1Content)},
                 {new Position(40, 10),
                         new DefinitionTestDataModel("localVariableInForeachStatement.json",
-                                Paths.get(balPath1).toUri().toString(), balPath1, balFile1Content)},
+                                balPath1.toUri().toString(), balPath1.toString(), balFile1Content)},
                 {new Position(39, 25),
                         new DefinitionTestDataModel("localVariableOnForeachStatement.json",
-                                Paths.get(balPath1).toUri().toString(), balPath1, balFile1Content)},
+                                balPath1.toUri().toString(), balPath1.toString(), balFile1Content)},
                 {new Position(39, 25),
                         new DefinitionTestDataModel("localVariableOfRecord.json",
-                                Paths.get(balPath1).toUri().toString(), balPath1, balFile1Content)}
+                                balPath1.toUri().toString(), balPath1.toString(), balFile1Content)}
         };
-    }
-
-    @AfterClass
-    public void cleanSamples() throws IOException {
-        org.apache.commons.io.FileUtils.deleteDirectory(new File(ROOT_DIR + "samples"));
     }
 
     /**
@@ -169,8 +154,9 @@ public class DefinitionTest {
      * @return string content read from the json file.
      */
     private String getExpectedValue(String expectedFile, String expectedFileURI) throws IOException {
-        String expectedFilePath = SAMPLES_COPY_DIR + File.separator + "expected" + File.separator + expectedFile;
-        byte[] expectedByte = Files.readAllBytes(Paths.get(expectedFilePath));
+        Path expectedFilePath = definitionsPath.resolve("expected").resolve(expectedFile);
+
+        byte[] expectedByte = Files.readAllBytes(expectedFilePath);
         String positionRange = new String(expectedByte);
 
         return "{\"id\":\"324\",\"result\":[{\"uri\":" +

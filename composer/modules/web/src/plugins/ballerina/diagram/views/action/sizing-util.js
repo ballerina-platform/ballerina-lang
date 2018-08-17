@@ -48,6 +48,7 @@ class SizingUtil extends DefaultSizingUtil {
         // Action invocation statements.
         if (
             TreeUtil.statementIsInvocation(node) ||
+            (TreeUtil.statementIsAwaitResponse(node) && TreeUtil.findCompatibleStart(node)) ||
             TreeUtil.isIf(node) ||
             TreeUtil.isWhile(node) ||
             TreeUtil.isEndpointTypeVariableDef(node) ||

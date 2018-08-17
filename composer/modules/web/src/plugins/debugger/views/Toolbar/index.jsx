@@ -16,7 +16,7 @@
  * under the License.
  */
 import React from 'react';
-import './toolbar.css';
+import './toolbar.scss';
 import DebugManager from './../../DebugManager';
 import ToolSetView from './tool-set';
 import ToolItemView from './tool-item-view';
@@ -41,22 +41,22 @@ class DebugToolbarView extends React.Component {
      * @param tool
      */
     onToolClickHandler(id) {
-        const dispatch = this.props.dispatch;
+        const {dispatch, threadId} = this.props;
         switch (id) {
             case 'debugStop':
-                dispatch(COMMANDS.STOP);
+                dispatch(COMMANDS.STOP, threadId);
                 break;
             case 'debugResume':
-                dispatch(COMMANDS.RESUME);
+                dispatch(COMMANDS.RESUME, threadId);
                 break;
             case 'debugStepOver':
-                dispatch(COMMANDS.STEP_OVER);
+                dispatch(COMMANDS.STEP_OVER, threadId);
                 break;
             case 'debugStepIn':
-                dispatch(COMMANDS.STEP_IN);
+                dispatch(COMMANDS.STEP_IN, threadId);
                 break;
             case 'debugStepOut':
-                dispatch(COMMANDS.STEP_OUT);
+                dispatch(COMMANDS.STEP_OUT, threadId);
                 break;
         }
         DebugManager.trigger('resume-execution');
@@ -76,7 +76,7 @@ class DebugToolbarView extends React.Component {
         }
         return (
             <ToolSetView
-                id='debugger-tools'
+                className='debugger-tools'
             >
                 {/* Stop */}
                 <ToolItemView

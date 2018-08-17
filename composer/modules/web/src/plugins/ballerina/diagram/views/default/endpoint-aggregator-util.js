@@ -40,33 +40,59 @@ class EndpointAggregatorUtil {
     aggregateResourceNode(node) {
         this.aggregateAllVisibleEndpoints(node);
     }
-    
-    aggregateAllVisibleEndpoints(node) {
-        const visibleOuterEndpoints = TreeUtil.getAllEndpoints(node.parent);
-        const invocationStmts = node.body? _.filter(node.body.statements, function (statement) {
-            return ((TreeUtil.isExpressionStatement(statement) || TreeUtil.isAssignment(statement))
-            && TreeUtil.isInvocation(statement.expression)
-            && statement.expression.actionInvocation);
-        }) : [];
 
-        node.endpointNodes = _.filter(node.endpointNodes, function (endpoint) {
+    aggregateAllVisibleEndpoints(node) {
+        if (!node.body) {
+            return;
+        }
+
+        const visibleOuterEndpoints = TreeUtil.getAllEndpoints(node.parent);
+        const invocationStmts = [];
+
+        if (node.workers && node.workers.length > 0) {
+            // aggregate worker invocation statements
+            node.workers.forEach((workerNode) => {
+                workerNode.body.accept({
+                    beginVisit: (statement) => {
+                        if (TreeUtil.isInvocation(statement) && statement.actionInvocation) {
+                            if (!TreeUtil.statementIsClientResponder(statement)) {
+                                invocationStmts.push(statement);
+                            }
+                        }
+                    },
+                    endVisit: (statement) => {},
+                });
+            });
+        } else {
+            node.body.accept({
+                beginVisit: (statement) => {
+                    if (TreeUtil.isInvocation(statement) && statement.actionInvocation) {
+                        if (!TreeUtil.statementIsClientResponder(statement)) {
+                            invocationStmts.push(statement);
+                        }
+                    }
+                },
+                endVisit: (statement) => {},
+            });
+        }
+        node.endpointNodes = _.filter(node.endpointNodes, (endpoint) => {
             return endpoint.id;
         });
-        _.forEach(visibleOuterEndpoints, function (ep) {
-            const invocationIndex = _.findIndex(invocationStmts, function (invocation) {
-                return invocation.expression.expression.variableName.value === ep.name.value;
+        _.forEach(visibleOuterEndpoints, (ep) => {
+            const invocationIndex = _.findIndex(invocationStmts, (invocation) => {
+                return invocation.expression.variableName.value === ep.name.value;
             });
             if (invocationIndex >= 0) {
                 const epClone = {
                     name: ep.name,
                     viewState: {
                         alias: undefined,
-                        bBox: new SimpleBBox()
+                        bBox: new SimpleBBox(),
                     },
                     kind: ep.kind,
                     endPointType: ep.endPointType,
                     parent: ep.parent,
-                    skipSourceGen: true
+                    skipSourceGen: true,
                 };
                 node.endpointNodes.push(epClone);
             }

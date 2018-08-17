@@ -18,7 +18,7 @@ package org.ballerinalang.connector.impl;
 
 import org.ballerinalang.connector.api.Struct;
 import org.ballerinalang.connector.api.Value;
-import org.ballerinalang.model.values.BStruct;
+import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.model.values.BValueType;
 
@@ -91,8 +91,9 @@ public class ValueImpl implements Value {
             case BOOLEAN:
                 val.booleanValue = ((BValueType) value).booleanValue();
                 break;
-            case STRUCT:
-                val.structValue = new StructImpl((BStruct) value);
+            case OBJECT:
+            case RECORD:
+                val.structValue = new StructImpl((BMap<String, BValue>) value);
                 break;
             case NULL:
                 break;

@@ -1,1 +1,0 @@
-<b>function generateGreeting(string name)(string)</b><br><DL><DT>Generates a greeting</DT></DL><DL><DT><b>Parameters:</b></DT><DD>name - name of the person</DD></DL><DL><DT><b>Returns:</b></DT><DD>greeting message</DD></DL>

@@ -17,14 +17,16 @@
  */
 
 import React from 'react';
+import _ from 'lodash';
 import PropTypes from 'prop-types';
-import { Button } from 'semantic-ui-react';
+import { Button, Form } from 'semantic-ui-react';
 import View from 'core/view/view';
 import { VIEWS, COMMANDS } from './../constants';
 import './DebuggerPanel.scss';
 import Toolbar from '../views/Toolbar';
 import Frames from '../views/Frames';
 import { processFrames } from '../views/Frames/utils';
+import ThreadSelector from './ThreadSelector';
 
 
 /**
@@ -47,13 +49,22 @@ class DebuggerPanel extends View {
             active: false,
             navigation: false,
             isDebugging: false,
-            message: { frames: [] },
+            messages: [],
             connecting: false,
             showRetry: false,
+            threadId: null,
         };
     }
 
     componentDidMount() {
+        // Resume previous debuggin state if panel was closed.
+        this.setState({
+            active: this.props.LaunchManager.active,
+            isDebugging: this.props.DebugManager.active,
+            messages: this.props.DebugManager.debugHits,
+            threadId: this.props.DebugManager.activeDebugHit &&
+                this.props.DebugManager.activeDebugHit.threadId,
+        });
         this.props.LaunchManager.on('execution-started', () => {
             this.setState({
                 active: true,
@@ -69,15 +80,9 @@ class DebuggerPanel extends View {
         this.props.DebugManager.on('debugging-started', () => {
             this.setState({
                 isDebugging: true,
+                active: true,
                 connecting: false,
                 showRetry: false,
-            });
-        });
-        this.props.DebugManager.on('debug-hit', (message) => {
-            this.setState({
-                navigation: true,
-                isDebugging: true,
-                message: processFrames(message),
             });
         });
 
@@ -85,14 +90,18 @@ class DebuggerPanel extends View {
             this.setState({
                 active: false,
                 isDebugging: false,
+                messages: [],
+                threadId: null,
             });
         });
 
-        this.props.DebugManager.on('resume-execution', () => {
+        this.props.DebugManager.on('active-debug-hit', (activeDebugHit = {}) => {
             this.setState({
-                navigation: false,
-                isDebugging: false,
-                message: { frames: [] },
+                threadId: activeDebugHit.threadId,
+                active: true,
+                navigation: true,
+                isDebugging: true,
+                messages: this.props.DebugManager.debugHits,
             });
         });
 
@@ -139,10 +148,21 @@ class DebuggerPanel extends View {
         });
     }
 
+    onChangeThread(threadId) {
+        this.setState({ threadId });
+        const activeDebugHit = _.find(this.state.messages, (message) => {
+            return threadId === message.threadId;
+        });
+        this.props.DebugManager.changeActiveDebugHit(activeDebugHit);
+    }
+
     /**
      * @inheritdoc
      */
     render() {
+        const threadsArray = this.state.messages.map((message) => {
+            return message.threadId;
+        });
         if (this.state.showRetry) {
             return (
                 <div>
@@ -177,16 +197,29 @@ class DebuggerPanel extends View {
             return (
                 <div>
                     <div className='btn-group col-xs-12'>
-                        <Toolbar navigation={this.state.navigation} dispatch={this.props.commandProxy.dispatch} />
+                        <Toolbar
+                            navigation={this.state.navigation}
+                            dispatch={this.props.commandProxy.dispatch}
+                            threadId={this.state.threadId}
+                        />
+                        <ThreadSelector
+                            threads={threadsArray}
+                            threadId={this.state.threadId}
+                            onChangeThread={(threadId) => this.onChangeThread(threadId)}
+                        />
                     </div>
                     <div>
-                        <Frames message={this.state.message} />
+                        {this.state.messages.map((message) => {
+                            if (this.state.threadId === message.threadId) {
+                                return <Frames message={message} />;
+                            }
+                        })}
                     </div>
 
                 </div>
             );
         }
-        if (this.state.active) {
+        if (this.state.active || this.props.DebugManager.active) {
             return (
                 <div className='debug-buttons'>
                     <Button

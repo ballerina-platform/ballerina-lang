@@ -27,6 +27,7 @@ import CompilationUnitNode from './../model/tree/compilation-unit-node';
 import { EVENTS } from '../constants';
 import DesignViewErrorBoundary from './DesignViewErrorBoundary';
 import DiagramMenu from './diagram-menu';
+import GraphicalEditor from '../graphical-editor/graphical-editor';
 
 class DesignView extends React.Component {
 
@@ -43,6 +44,8 @@ class DesignView extends React.Component {
         this.getOverlayContainer = this.getOverlayContainer.bind(this);
         this.setDiagramContainer = this.setDiagramContainer.bind(this);
         this.getDiagramContainer = this.getDiagramContainer.bind(this);
+        this.setGraphicalEditorContainer = this.setGraphicalEditorContainer.bind(this);
+        this.getGraphicalEditorContainer = this.getGraphicalEditorContainer.bind(this);
         this.setToolPaletteContainer = this.setToolPaletteContainer.bind(this);
         this.getToolPaletteContainer = this.getToolPaletteContainer.bind(this);
         this.props.commandProxy.on('go-to-node', (node) => {
@@ -56,10 +59,11 @@ class DesignView extends React.Component {
      */
     getChildContext() {
         return {
-            fitToWidth: this.props.fitToWidth,
+            editMode: this.props.editMode,
             designView: this,
             getOverlayContainer: this.getOverlayContainer,
             getDiagramContainer: this.getDiagramContainer,
+            getGraphicalEditorContainer: this.getGraphicalEditorContainer,
         };
     }
 
@@ -128,6 +132,14 @@ class DesignView extends React.Component {
         return this.diagramContainer;
     }
 
+    getGraphicalEditorContainer () {
+        return this.graphicalEditorContainer;
+    }
+
+    setGraphicalEditorContainer(ref) {
+        this.graphicalEditorContainer = ref;
+    }
+
     setOverlayContainer(ref) {
         this.overlayContainer = ref;
     }
@@ -165,24 +177,29 @@ class DesignView extends React.Component {
             >
                 <div className='outerCanvasDiv'>
                     <DragLayer />
+                    <DiagramMenu
+                            width={this.props.width}
+                            model={this.props.model}
+                            onModeChange={(data) => { this.props.onModeChange(data); }}
+                            onCodeExpandToggle={(data) => { this.props.onCodeExpandToggle(data); }}
+                            editMode={this.props.editMode}
+                            mode={this.props.mode} />
                     <Scrollbars
                         style={{
                             width: this.props.width,
                             height: this.props.height,
                         }}
+                        renderThumbVertical={props => <div {...props} className='scrollbar-thumb-vertical' />}
+                        renderTrackVertical={props => <div {...props} className='scrollbar scrollbar-track-vertical' />}
+                        renderThumbHorizontal={props => <div {...props} className='scrollbar-thumb-horizontal' />}
+                        renderTrackHorizontal={props => <div {...props} className='scrollbar scrollbar-track-horizontal' />}
                         ref={(scrollbars) => { this.scrollbars = scrollbars; }}
                         onScrollFrame={this.onScroll}
                     >
-                        <DiagramMenu
-                            width={this.props.width}
-                            model={this.props.model}
-                            onModeChange={(data) => { this.props.onModeChange(data); }}
-                            fitToWidth={this.props.fitToWidth}
-                            mode={this.props.mode}
-                        />
                         <div className='canvas-container'>
                             <div className='canvas-top-controls-container' />
                             <div className='html-overlay' ref={this.setOverlayContainer} />
+                            <div className='graphical-editor' ref={this.setGraphicalEditorContainer} />
                             <div className='diagram root' ref={this.setDiagramContainer} >
                                 {this.props.model &&
                                     <DesignViewErrorBoundary>
@@ -192,7 +209,12 @@ class DesignView extends React.Component {
                                             width={this.props.width}
                                             height={this.props.height}
                                             disabled={this.props.disabled}
-                                            fitToWidth={this.props.fitToWidth}
+                                            editMode={this.props.editMode}
+                                        />
+                                        <GraphicalEditor
+                                            model={this.props.model}
+                                            mode={this.props.mode}
+                                            editMode={this.props.editMode}
                                         />
                                     </DesignViewErrorBoundary>
                                 }
@@ -208,7 +230,6 @@ class DesignView extends React.Component {
                         />
                     }
                 </div>
-                <div className='tool-palette-container' ref={this.setToolPaletteContainer} />
             </div>
         );
     }
@@ -228,7 +249,7 @@ DesignView.propTypes = {
     disabled: PropTypes.bool.isRequired,
     zoomLevel: PropTypes.number,
     setZoom: PropTypes.func.isRequired,
-    fitToWidth: PropTypes.bool,
+    editMode: PropTypes.bool,
 };
 
 DesignView.defaultProps = {
@@ -236,7 +257,7 @@ DesignView.defaultProps = {
     model: undefined,
     disabled: false,
     zoomLevel: 1,
-    fitToWidth: true,
+    editMode: true,
 };
 
 DesignView.contextTypes = {
@@ -248,7 +269,8 @@ DesignView.childContextTypes = {
     designView: PropTypes.instanceOf(DesignView).isRequired,
     getDiagramContainer: PropTypes.instanceOf(Object).isRequired,
     getOverlayContainer: PropTypes.instanceOf(Object).isRequired,
-    fitToWidth: PropTypes.bool,
+    getGraphicalEditorContainer: PropTypes.instanceOf(Object).isRequired,
+    editMode: PropTypes.bool,
 };
 
 export default DesignView;

@@ -21,6 +21,7 @@ package org.ballerinalang.testerina.test;
 import org.ballerinalang.testerina.core.BTestRunner;
 import org.ballerinalang.testerina.core.TesterinaRegistry;
 import org.testng.Assert;
+import org.testng.annotations.AfterMethod;
 import org.testng.annotations.Test;
 
 import java.nio.file.Path;
@@ -30,6 +31,9 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 
+/**
+ * Test cases for list grouping.
+ */
 public class ListGroupsTest {
 
     @Test
@@ -37,8 +41,6 @@ public class ListGroupsTest {
 
         String sourceRoot = "src/test/resources/annotations-test";
         Path[] filePaths = {Paths.get("groups-test.bal")};
-
-        cleanup();
         BTestRunner testRunner = new BTestRunner();
         List<String> resultList = new ArrayList<>(Arrays.asList("g1", "g2", "g3", "g4", "g5"));
         testRunner.listGroups(sourceRoot, filePaths);
@@ -46,8 +48,8 @@ public class ListGroupsTest {
         Assert.assertTrue(resultList.containsAll(groupList));
     }
 
+    @AfterMethod
     private void cleanup() {
-
         TesterinaRegistry.getInstance().setProgramFiles(new ArrayList<>());
         TesterinaRegistry.getInstance().setTestSuites(new HashMap<>());
     }

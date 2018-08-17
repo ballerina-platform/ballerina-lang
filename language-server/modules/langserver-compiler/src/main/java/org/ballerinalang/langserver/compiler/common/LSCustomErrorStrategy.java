@@ -30,6 +30,8 @@ import org.wso2.ballerinalang.compiler.parser.antlr4.BallerinaParserErrorStrateg
  * Custom error strategy for language server.
  */
 public class LSCustomErrorStrategy extends BallerinaParserErrorStrategy {
+    private static final String ACTION_INVOCATION_SYMBOL = "->";
+    
     public LSCustomErrorStrategy(LSContext context) {
         super(context.get(DocumentServiceKeys.COMPILER_CONTEXT_KEY), null);
     }
@@ -64,10 +66,9 @@ public class LSCustomErrorStrategy extends BallerinaParserErrorStrategy {
         if (context instanceof BallerinaParser.CallableUnitBodyContext) {
             context.exception = null;
             return;
-        } else if (context instanceof BallerinaParser.SimpleVariableReferenceContext) {
+        } else if (context instanceof BallerinaParser.SimpleVariableReferenceContext
+                && parser.getCurrentToken().getText().equals(ACTION_INVOCATION_SYMBOL)) {
             context.exception = null;
-        } else {
-            context.exception = e;
         }
         // Note: Following check added, when the context is variable definition and the type name context is hit,
         // We need to set the error for the variable definition as well.
@@ -112,12 +113,16 @@ public class LSCustomErrorStrategy extends BallerinaParserErrorStrategy {
         }
         if (conditionalContext instanceof BallerinaParser.IfClauseContext) {
             conditionalContext.getParent().exception = e;
-        } else if (conditionalContext instanceof BallerinaParser.WhileStatementContext) {
+        } else if (conditionalContext instanceof BallerinaParser.WhileStatementContext
+                || conditionalContext instanceof BallerinaParser.TypeConversionExpressionContext) {
             conditionalContext.exception = e;
         } else if (conditionalContext instanceof BallerinaParser.BinaryEqualExpressionContext) {
             setContextIfConditionalStatement(conditionalContext, e);
         } else if (conditionalContext instanceof BallerinaParser.CheckedExpressionContext) {
             setContextIfCheckedExpression(context, e);
+        } else if (conditionalContext instanceof BallerinaParser.ThrowStatementContext) {
+            // TODO: need to migrate this check to a top layer
+            conditionalContext.exception = e;
         }
     }
 }

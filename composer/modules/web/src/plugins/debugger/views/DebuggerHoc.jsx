@@ -42,7 +42,7 @@ function debuggerHoc(WrappedComponent) {
         componentDidMount() {
             DebugManager.on('breakpoint-added', this.updateBreakpoints, this);
             DebugManager.on('breakpoint-removed', this.updateBreakpoints, this);
-            DebugManager.on('debug-hit', this.debugHit, this);
+            DebugManager.on('active-debug-hit', this.debugHit, this);
             DebugManager.on('execution-ended', this.end, this);
             DebugManager.on('resume-execution', this.end, this);
         }
@@ -52,7 +52,7 @@ function debuggerHoc(WrappedComponent) {
         componentWillUnmount() {
             DebugManager.off('breakpoint-added', this.updateBreakpoints, this);
             DebugManager.off('breakpoint-removed', this.updateBreakpoints, this);
-            DebugManager.off('debug-hit', this.debugHit, this);
+            DebugManager.off('active-debug-hit', this.debugHit, this);
             DebugManager.off('execution-ended', this.end, this);
             DebugManager.off('resume-execution', this.end, this);
         }
@@ -72,8 +72,7 @@ function debuggerHoc(WrappedComponent) {
          * @returns string - Package name
          */
         getPackageName() {
-            const { astRoot } = this.context;
-            return TreeUtil.getPackageNameString(astRoot);
+            return this.props.file.debugPackagePath;
         }
         /**
          * indicate debughit

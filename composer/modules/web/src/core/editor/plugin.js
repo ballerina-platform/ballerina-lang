@@ -25,6 +25,7 @@ import { REGIONS, COMMANDS as LAYOUT_COMMANDS } from './../layout/constants';
 import { getCommandDefinitions } from './commands';
 import { getHandlerDefinitions } from './handlers';
 import { getMenuDefinitions } from './menus';
+import { exists } from './../workspace/fs-util';
 import { PLUGIN_ID, VIEWS as VIEW_IDS, HISTORY, COMMANDS as COMMMAND_IDS,
     EVENTS, TOOLS as TOOL_IDS, DIALOGS as DIALOG_IDS } from './constants';
 import { EVENTS as WORKSPACE_EVENTS, COMMANDS as WORKSPACE_COMMANDS } from './../workspace/constants';
@@ -35,6 +36,7 @@ import Editor from './model/Editor';
 
 import DirtyFileCloseConfirmDialog from './dialogs/DirtyFileCloseConfirmDialog';
 import OpenedFileDeleteConfirmDialog from './dialogs/OpenedFileDeleteConfirmDialog';
+import NonExistentFileOpenConfirmDialog from './dialogs/NonExistentFileOpenConfirmDialog';
 
 /**
  * Editor Plugin is responsible for providing editors to opening files.
@@ -183,6 +185,15 @@ class EditorPlugin extends Plugin {
      * @param {EditorTab} editor
      */
     setActiveEditor(editor) {
+        if (editor instanceof Editor && !editor.file.fullPath.endsWith("untitled.bal")) {
+            exists(editor.file.fullPath).then((response) => {
+                if (response.exists === false) {
+                    this.showNonExistentFileOpenDialog(editor);
+                }
+            }).catch(() => {
+                this.showNonExistentFileOpenDialog(editor);
+            });
+        }
         this.activeEditor = editor;
         this.activeEditorID = editor ? editor.id : undefined;
         const { pref: { history }, workspace, command: { dispatch } } = this.appContext;
@@ -195,6 +206,31 @@ class EditorPlugin extends Plugin {
             }, 100);
         }
         dispatch(EVENTS.ACTIVE_TAB_CHANGE, { editor });
+    }
+
+    /**
+     * Shows non-existent file open dialog box.
+     * @param {Editor} editor Editor instance
+     */
+    showNonExistentFileOpenDialog(editor) {
+        const {command: {dispatch}} = this.appContext;
+        dispatch(LAYOUT_COMMANDS.POPUP_DIALOG, {
+            id: DIALOG_IDS.NON_EXISTENT_FILE_OPEN_CONFIRM,
+            additionalProps: {
+                file: editor.file,
+                onConfirm: () => {
+                    this.closeTab(editor);
+                },
+                onSave: () => {
+                    dispatch(WORKSPACE_COMMANDS.SAVE_FILE, {
+                        file: editor.file,
+                        onSaveSuccess: () => {
+                            this.closeTab(editor);
+                        },
+                    });
+                },
+            },
+        });
     }
 
     /**
@@ -246,24 +282,28 @@ class EditorPlugin extends Plugin {
      */
     onTabClose(targetEditor) {
         const { appContext: { command: { dispatch } } } = this;
-        if (targetEditor.isDirty) {
-            dispatch(LAYOUT_COMMANDS.POPUP_DIALOG, {
-                id: DIALOG_IDS.DIRTY_CLOSE_CONFIRM,
-                additionalProps: {
-                    file: targetEditor.file,
-                    onConfirm: () => {
-                        this.closeTab(targetEditor);
+        if(targetEditor.isDirty){
+            if(targetEditor.file.content === '' && targetEditor.file.name === 'untitled'){
+                this.closeTab(targetEditor);
+            } else {
+                dispatch(LAYOUT_COMMANDS.POPUP_DIALOG, {
+                    id: DIALOG_IDS.DIRTY_CLOSE_CONFIRM,
+                    additionalProps: {
+                        file: targetEditor.file,
+                        onConfirm: () => {
+                            this.closeTab(targetEditor);
+                        },
+                        onSave: () => {
+                            dispatch(WORKSPACE_COMMANDS.SAVE_FILE, {
+                                file: targetEditor.file,
+                                onSaveSuccess: () => {
+                                    this.closeTab(targetEditor);
+                                },
+                            });
+                        },
                     },
-                    onSave: () => {
-                        dispatch(WORKSPACE_COMMANDS.SAVE_FILE, {
-                            file: targetEditor.file,
-                            onSaveSuccess: () => {
-                                this.closeTab(targetEditor);
-                            },
-                        });
-                    },
-                },
-            });
+                });
+            }
         } else {
             this.closeTab(targetEditor);
         }
@@ -399,6 +439,15 @@ class EditorPlugin extends Plugin {
                 {
                     id: DIALOG_IDS.OPENED_FILE_DELETE_CONFIRM,
                     component: OpenedFileDeleteConfirmDialog,
+                    propsProvider: () => {
+                        return {
+                            editorPlugin: this,
+                        };
+                    },
+                },
+                {
+                    id: DIALOG_IDS.NON_EXISTENT_FILE_OPEN_CONFIRM,
+                    component: NonExistentFileOpenConfirmDialog,
                     propsProvider: () => {
                         return {
                             editorPlugin: this,

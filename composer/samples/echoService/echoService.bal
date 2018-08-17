@@ -9,12 +9,12 @@ service<http> echo {
     }
     resource echo (http:Connection conn, http:Request req) {
         http:Response resp = {};
-        var payload, payloadError = req.getStringPayload();
+        var payload, payloadError = req.getTextPayload();
         if (payloadError == null) {
-            resp.setStringPayload(payload);
+            resp.setTextPayload(payload);
         } else {
             resp.statusCode = 500;
-            resp.setStringPayload(payloadError.message);
+            resp.setTextPayload(payloadError.message);
         }
 
         _ = conn.respond(resp);

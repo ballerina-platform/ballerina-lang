@@ -111,7 +111,7 @@ public class SiddhiManager {
     }
 
     /**
-     * Method to set sink handler manager that would create sink handlers for each sink
+     * Method to set sink handler manager that would create sink handlers for each sink.
      *
      * @param sinkHandlerManager Sink Handler Manager Implementation to be used.
      */
@@ -120,7 +120,7 @@ public class SiddhiManager {
     }
 
     /**
-     * Method to set source handler manager that would create source handlers for each source
+     * Method to set source handler manager that would create source handlers for each source.
      *
      * @param sourceHandlerManager Source Handler Manager Implementation to be used.
      */
@@ -129,7 +129,7 @@ public class SiddhiManager {
     }
 
     /**
-     * Method to set record table handler manager that would create record table handlers for each record table
+     * Method to set record table handler manager that would create record table handlers for each record table.
      *
      * @param recordTableHandlerManager Record Table Handler Manager Implementation to be used.
      */

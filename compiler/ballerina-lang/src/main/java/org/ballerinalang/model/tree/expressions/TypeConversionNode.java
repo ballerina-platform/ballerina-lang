@@ -34,6 +34,4 @@ public interface TypeConversionNode extends ExpressionNode {
 
     void setTypeNode(TypeNode typeNode);
 
-    InvocationNode getTransformerInvocation();
-
 }

@@ -25,16 +25,12 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BNilType;
 import org.wso2.ballerinalang.compiler.tree.BLangAction;
-import org.wso2.ballerinalang.compiler.tree.BLangConnector;
 import org.wso2.ballerinalang.compiler.tree.BLangEndpoint;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
-import org.wso2.ballerinalang.compiler.tree.BLangObject;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
-import org.wso2.ballerinalang.compiler.tree.BLangRecord;
 import org.wso2.ballerinalang.compiler.tree.BLangResource;
 import org.wso2.ballerinalang.compiler.tree.BLangService;
-import org.wso2.ballerinalang.compiler.tree.BLangTransformer;
 import org.wso2.ballerinalang.compiler.tree.BLangTypeDefinition;
 import org.wso2.ballerinalang.compiler.tree.BLangVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangWorker;
@@ -49,11 +45,14 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangForeach;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangForkJoin;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangIf;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangScope;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangTransaction;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangTryCatchFinally;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangTupleDestructure;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangVariableDef;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangWhile;
+import org.wso2.ballerinalang.compiler.tree.types.BLangObjectTypeNode;
+import org.wso2.ballerinalang.compiler.tree.types.BLangRecordTypeNode;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -169,24 +168,6 @@ public class DefinitionTreeVisitor extends LSNodeVisitor {
 
             if (resourceNode.body != null) {
                 this.acceptNode(resourceNode.body);
-            }
-        }
-    }
-
-    @Override
-    public void visit(BLangConnector connectorNode) {
-        if (connectorNode.name.getValue()
-                .equals(this.context.get(NodeContextKeys.NODE_OWNER_KEY))) {
-            if (connectorNode.params != null) {
-                connectorNode.params.forEach(this::acceptNode);
-            }
-
-            if (connectorNode.varDefs != null) {
-                connectorNode.varDefs.forEach(this::acceptNode);
-            }
-
-            if (connectorNode.actions != null) {
-                connectorNode.actions.forEach(this::acceptNode);
             }
         }
     }
@@ -341,29 +322,6 @@ public class DefinitionTreeVisitor extends LSNodeVisitor {
     }
 
     @Override
-    public void visit(BLangTransformer transformerNode) {
-        if (transformerNode.source != null) {
-            acceptNode(transformerNode.source);
-        }
-
-        if (transformerNode.requiredParams != null) {
-            transformerNode.requiredParams.forEach(this::acceptNode);
-        }
-
-        if (transformerNode.retParams != null) {
-            transformerNode.retParams.forEach(this::acceptNode);
-        }
-
-        if (transformerNode.body != null) {
-            acceptNode(transformerNode.body);
-        }
-
-        if (transformerNode.workers != null) {
-            transformerNode.workers.forEach(this::acceptNode);
-        }
-    }
-
-    @Override
     public void visit(BLangEndpoint endpointNode) {
         if (endpointNode.name.getValue()
                 .equals(this.context.get(NodeContextKeys.VAR_NAME_OF_NODE_KEY))) {
@@ -392,8 +350,8 @@ public class DefinitionTreeVisitor extends LSNodeVisitor {
     }
 
     @Override
-    public void visit(BLangObject objectNode) {
-        if (objectNode.name.getValue()
+    public void visit(BLangObjectTypeNode objectNode) {
+        if (objectNode.symbol.name.getValue()
                 .equals(this.context.get(NodeContextKeys.VAR_NAME_OF_NODE_KEY))) {
             this.context.put(NodeContextKeys.NODE_KEY, objectNode);
             terminateVisitor = true;
@@ -413,6 +371,24 @@ public class DefinitionTreeVisitor extends LSNodeVisitor {
 
         if (objectNode.receiver != null) {
             this.acceptNode(objectNode.receiver);
+        }
+    }
+
+    @Override
+    public void visit(BLangRecordTypeNode record) {
+        if (record.symbol.name.getValue()
+                .equals(this.context.get(NodeContextKeys.VAR_NAME_OF_NODE_KEY))) {
+            this.context.put(NodeContextKeys.NODE_KEY, record);
+            terminateVisitor = true;
+        }
+
+        if (record.fields != null) {
+            record.fields.forEach(this::acceptNode);
+        }
+
+        if (record.initFunction != null &&
+                !(record.initFunction.returnTypeNode.type instanceof BNilType)) {
+            this.acceptNode(record.initFunction);
         }
     }
 
@@ -457,24 +433,6 @@ public class DefinitionTreeVisitor extends LSNodeVisitor {
     }
 
     @Override
-    public void visit(BLangRecord record) {
-        if (record.name.getValue()
-                .equals(this.context.get(NodeContextKeys.VAR_NAME_OF_NODE_KEY))) {
-            this.context.put(NodeContextKeys.NODE_KEY, record);
-            terminateVisitor = true;
-        }
-
-        if (record.fields != null) {
-            record.fields.forEach(this::acceptNode);
-        }
-
-        if (record.initFunction != null &&
-                !(record.initFunction.returnTypeNode.type instanceof BNilType)) {
-            this.acceptNode(record.initFunction);
-        }
-    }
-
-    @Override
     public void visit(BLangRecordLiteral recordLiteral) {
         if (recordLiteral.keyValuePairs != null) {
             recordLiteral.keyValuePairs.forEach((bLangRecordKeyValue -> {
@@ -501,9 +459,15 @@ public class DefinitionTreeVisitor extends LSNodeVisitor {
             this.acceptNode(typeDefinition.typeNode);
         }
 
-        if (typeDefinition.valueSpace != null) {
-            typeDefinition.valueSpace.forEach(this::acceptNode);
+    }
+
+    @Override
+    public void visit(BLangScope scopeNode) {
+        if (scopeNode.scopeBody != null) {
+            this.acceptNode(scopeNode.scopeBody);
         }
+
+        visit(scopeNode.compensationFunction);
     }
 
     /**

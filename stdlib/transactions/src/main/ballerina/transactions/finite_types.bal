@@ -14,22 +14,22 @@
 // specific language governing permissions and limitations
 // under the License.
 
-public type TransactionState "active" | "prepared" | "committed" | "aborted";
+public type TransactionState "active"|"prepared"|"committed"|"aborted";
 @final public TransactionState TXN_STATE_ACTIVE = "active";
 @final public TransactionState TXN_STATE_PREPARED = "prepared";
 @final TransactionState TXN_STATE_COMMITTED = "committed";
 @final TransactionState TXN_STATE_ABORTED = "aborted";
 
-type PrepareResult "prepared" | "aborted" | "committed" | "read-only";
+type PrepareResult "prepared"|"aborted"|"committed"|"read-only";
 @final PrepareResult PREPARE_RESULT_PREPARED = "prepared";
 @final PrepareResult PREPARE_RESULT_ABORTED = "aborted";
 @final PrepareResult PREPARE_RESULT_COMMITTED = "committed";
 @final PrepareResult PREPARE_RESULT_READ_ONLY = "read-only";
 
-type NotifyResult "committed" | "aborted";
+type NotifyResult "committed"|"aborted";
 @final NotifyResult NOTIFY_RESULT_COMMITTED = "committed";
 @final NotifyResult NOTIFY_RESULT_ABORTED = "aborted";
 
-type PrepareDecision "commit" | "abort";
+type PrepareDecision "commit"|"abort";
 @final PrepareDecision PREPARE_DECISION_COMMIT = "commit";
 @final PrepareDecision PREPARE_DECISION_ABORT = "abort";

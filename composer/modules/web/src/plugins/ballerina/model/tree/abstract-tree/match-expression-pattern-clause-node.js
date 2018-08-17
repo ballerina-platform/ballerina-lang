@@ -17,17 +17,17 @@
  */
 
 import _ from 'lodash';
-import Node from '../node';
+import ExpressionNode from '../expression-node';
 
-class AbstractMatchExpressionPatternClauseNode extends Node {
+class AbstractMatchExpressionPatternClauseNode extends ExpressionNode {
 
 
-    setVariableNode(newValue, silent, title) {
-        const oldValue = this.variableNode;
+    setExpression(newValue, silent, title) {
+        const oldValue = this.expression;
         title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
-        this.variableNode = newValue;
+        this.expression = newValue;
 
-        this.variableNode.parent = this;
+        this.expression.parent = this;
 
         if (!silent) {
             this.trigger('tree-modified', {
@@ -35,7 +35,7 @@ class AbstractMatchExpressionPatternClauseNode extends Node {
                 type: 'modify-node',
                 title,
                 data: {
-                    attributeName: 'variableNode',
+                    attributeName: 'expression',
                     newValue,
                     oldValue,
                 },
@@ -43,18 +43,16 @@ class AbstractMatchExpressionPatternClauseNode extends Node {
         }
     }
 
-    getVariableNode() {
-        return this.variableNode;
+    getExpression() {
+        return this.expression;
     }
 
 
 
-    setStatement(newValue, silent, title) {
-        const oldValue = this.statement;
+    setPatternClauses(newValue, silent, title) {
+        const oldValue = this.patternClauses;
         title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
-        this.statement = newValue;
-
-        this.statement.parent = this;
+        this.patternClauses = newValue;
 
         if (!silent) {
             this.trigger('tree-modified', {
@@ -62,7 +60,7 @@ class AbstractMatchExpressionPatternClauseNode extends Node {
                 type: 'modify-node',
                 title,
                 data: {
-                    attributeName: 'statement',
+                    attributeName: 'patternClauses',
                     newValue,
                     oldValue,
                 },
@@ -70,10 +68,104 @@ class AbstractMatchExpressionPatternClauseNode extends Node {
         }
     }
 
-    getStatement() {
-        return this.statement;
+    getPatternClauses() {
+        return this.patternClauses;
     }
 
+
+    addPatternClauses(node, i = -1, silent) {
+        node.parent = this;
+        let index = i;
+        if (i === -1) {
+            this.patternClauses.push(node);
+            index = this.patternClauses.length;
+        } else {
+            this.patternClauses.splice(i, 0, node);
+        }
+        if (!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'child-added',
+                title: `Add ${node.kind}`,
+                data: {
+                    node,
+                    index,
+                },
+            });
+        }
+    }
+
+    removePatternClauses(node, silent) {
+        const index = this.getIndexOfPatternClauses(node);
+        this.removePatternClausesByIndex(index, silent);
+        if (!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'child-removed',
+                title: `Removed ${node.kind}`,
+                data: {
+                    node,
+                    index,
+                },
+            });
+        }
+    }
+
+    removePatternClausesByIndex(index, silent) {
+        this.patternClauses.splice(index, 1);
+        if (!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'child-removed',
+                title: `Removed ${this.kind}`,
+                data: {
+                    node: this,
+                    index,
+                },
+            });
+        }
+    }
+
+    replacePatternClauses(oldChild, newChild, silent) {
+        const index = this.getIndexOfPatternClauses(oldChild);
+        this.patternClauses[index] = newChild;
+        newChild.parent = this;
+        if (!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'child-added',
+                title: `Change ${this.kind}`,
+                data: {
+                    node: this,
+                    index,
+                },
+            });
+        }
+    }
+
+    replacePatternClausesByIndex(index, newChild, silent) {
+        this.patternClauses[index] = newChild;
+        newChild.parent = this;
+        if (!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'child-added',
+                title: `Change ${this.kind}`,
+                data: {
+                    node: this,
+                    index,
+                },
+            });
+        }
+    }
+
+    getIndexOfPatternClauses(child) {
+        return _.findIndex(this.patternClauses, ['id', child.id]);
+    }
+
+    filterPatternClauses(predicateFunction) {
+        return _.filter(this.patternClauses, predicateFunction);
+    }
 
 
 }

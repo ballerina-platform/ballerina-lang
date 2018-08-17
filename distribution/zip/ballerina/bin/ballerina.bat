@@ -45,9 +45,6 @@ rem ----- set BALLERINA_HOME ----------------------------
 :checkServer
 rem %~sdp0 is expanded pathname of the current script under NT with spaces in the path removed
 set BALLERINA_HOME=%~sdp0..
-SET curDrive=%cd:~0,1%
-SET ballerinaDrive=%BALLERINA_HOME:~0,1%
-if not "%curDrive%" == "%ballerinaDrive%" %ballerinaDrive%:
 
 goto updateClasspath
 
@@ -66,6 +63,15 @@ set BALLERINA_CLASSPATH="%JAVA_HOME%\lib\tools.jar";%BALLERINA_CLASSPATH%;
 
 set BALLERINA_CLASSPATH=!BALLERINA_CLASSPATH!;"%BALLERINA_HOME%\bre\lib\*"
 
+set BALLERINA_CLI_HEIGHT=
+set BALLERINA_CLI_WIDTH=
+for /F "tokens=2 delims=:" %%a in ('mode con') do for %%b in (%%a) do (
+  if not defined BALLERINA_CLI_HEIGHT (
+     set "BALLERINA_CLI_HEIGHT=%%b"
+  ) else if not defined BALLERINA_CLI_WIDTH (
+     set "BALLERINA_CLI_WIDTH=%%b"
+  )
+)
 rem ----- Process the input command -------------------------------------------
 
 rem Slurp the command line arguments. This loop allows for an unlimited number
@@ -99,8 +105,23 @@ goto end
 :doneStart
 if "%OS%"=="Windows_NT" @setlocal
 if "%OS%"=="WINNT" @setlocal
-goto runServer
+rem find the version of the jdk
+:findJdk
 
+set CMD=RUN %*
+
+:checkJdk8AndHigher
+set JVER=
+for /f tokens^=2-5^ delims^=.-_^" %%j in ('"%JAVA_HOME%\bin\java" -fullversion 2^>^&1') do set "JVER=%%j%%k"
+if %JVER% EQU 18 goto jdk8
+goto unknownJdk
+
+:unknownJdk
+echo Ballerina is supported only on JDK 1.8
+goto end
+
+:jdk8
+goto runServer
 
 rem ----------------- Execute The Requested Command ----------------------------
 
@@ -112,7 +133,7 @@ rem ---------- Add jars to classpath ----------------
 
 set BALLERINA_CLASSPATH=.\bre\lib\bootstrap;%BALLERINA_CLASSPATH%
 
-set CMD_LINE_ARGS=-Xbootclasspath/a:%BALLERINA_XBOOTCLASSPATH% -Xms256m -Xmx1024m -XX:+HeapDumpOnOutOfMemoryError -XX:HeapDumpPath="%BALLERINA_HOME%\heap-dump.hprof"  -Dcom.sun.management.jmxremote -classpath %BALLERINA_CLASSPATH% %JAVA_OPTS% -Dballerina.home="%BALLERINA_HOME%"  -Djava.command="%JAVA_HOME%\bin\java" -Djava.opts="%JAVA_OPTS%" -Denable.nonblocking=false -Dfile.encoding=UTF8 -Dballerina.version=${project.version} -Djava.util.logging.config.file="%BALLERINA_HOME%\bre\conf\logging.properties" -Djava.util.logging.manager="org.ballerinalang.logging.BLogManager"
+set CMD_LINE_ARGS=-Xbootclasspath/a:%BALLERINA_XBOOTCLASSPATH% -Xms256m -Xmx1024m -XX:+HeapDumpOnOutOfMemoryError -XX:HeapDumpPath="%BALLERINA_HOME%\heap-dump.hprof"  -Dcom.sun.management.jmxremote -classpath %BALLERINA_CLASSPATH% %JAVA_OPTS% -Dballerina.home="%BALLERINA_HOME%"  -Djava.command="%JAVA_HOME%\bin\java" -Djava.opts="%JAVA_OPTS%" -Denable.nonblocking=false -Dfile.encoding=UTF8 -Dballerina.version=${project.version} -Djava.util.logging.config.class="org.ballerinalang.logging.util.LogConfigReader" -Djava.util.logging.manager="org.ballerinalang.logging.BLogManager"
 
 
 :runJava

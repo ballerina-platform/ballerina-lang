@@ -18,9 +18,10 @@
 
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Header, Icon, Grid, Popup, Button, Label } from 'semantic-ui-react';
+import { Icon, Popup, Label } from 'semantic-ui-react';
 import CompilationUnitNode from '../model/tree/compilation-unit-node';
 import TreeUtil from '../model/tree-util';
+import { RESPOSIVE_MENU_TRIGGER } from '../constants';
 
 class DefinitionViewMenu extends React.Component {
 
@@ -64,83 +65,132 @@ class DefinitionViewMenu extends React.Component {
     render() {
         let structs = [];
         let endpoints = [];
+        let records = [];
 
         if (this.props.model) {
-            structs = this.props.model.topLevelNodes.filter((node) => { return TreeUtil.isStruct(node); });
+            structs = this.props.model.topLevelNodes.filter((node) => { return TreeUtil.isObject(node); });
             endpoints = this.props.model.topLevelNodes.filter((node) => { return TreeUtil.isEndpoint(node); });
+            records = this.props.model.topLevelNodes.filter((node) => { return TreeUtil.isRecord(node); });
         }
+
         return (
-            <Popup 
-                trigger={ 
-                    <Button as='div' labelPosition='right'>
-                        <Grid divided className='top-bar' columns={2}>
-                            <Grid.Row>
-                                <Grid.Column mobile={16} tablet={8} computer={8} floated='right'>
-                                    <Grid.Row className='top-bar-row'>
-                                        <Label> 
+            <div className={'top-bar ' + (this.props.width > RESPOSIVE_MENU_TRIGGER.ICON_MODE ? '' : 'mobile-top-bar')}>
+                { structs.length > 0 &&
+                    <Popup
+                        trigger={
+                            <Label as='a' color='white'>
+                                <Icon name={'fw fw-struct'} />
+                                <span>Objects</span>
+                                <Label.Detail>{structs.length}</Label.Detail>
+                            </Label>
+                        }
+                        className='definitions-popup-window'
+                        position='bottom right'
+                        flowing
+                        wide
+                        hideOnScroll
+                    >
+                        {
+                            <div>
+                                { this.props.width < RESPOSIVE_MENU_TRIGGER.ICON_MODE &&
+                                    <div className='definitions-popup-window-header'>
+                                        <Label as='span' color='white'>
                                             <Icon name={'fw fw-struct'} />
+                                            <span>Objects</span>
                                         </Label>
-                                        <Label >Objects</Label>
-                                        <Label >{structs.length}</Label>
-                                    </Grid.Row>
-                                </Grid.Column>
-                                <Grid.Column mobile={16} tablet={8} computer={8} floated='right'>
-                                    <Grid.Row className='top-bar-row'>
-                                        <Label> 
-                                            <Icon name={'fw fw-endpoint'} />
-                                        </Label>
-                                        <Label left >Endpoints</Label>
-                                        <Label >{endpoints.length}</Label>
-                                    </Grid.Row>
-                                </Grid.Column>
-                            </Grid.Row>
-                        </Grid>
-                    </Button>
-                    }
-                flowing
-                hoverable
-                wide
-                position='bottom center'
-                open={this.state.isOpen}
-                onClose={this.handleClose}
-                onOpen={this.handleOpen}
-            >
-                {
-                    <Grid divided columns={2} className='menu-pop-content'>
-                            <Grid.Column mobile={16} tablet={8} computer={8}>
-                                <Header as='h5'>
-                                    <Icon name={'fw fw-struct'} />
-                                    <Header.Content>Objects</Header.Content>
-                                </Header>
+                                        <hr />
+                                    </div>
+                                }
                                 {
                                     structs.map((element) => {
                                         return this.getItem(element.getName().getValue(),
                                                             () => { this.onDelete(element); });
                                     })
                                 }
-                            </Grid.Column>
-                            <Grid.Column mobile={16} tablet={8} computer={8}>
-                                <Header as='h5'>
-                                    <Icon size='mini' name={'fw fw-endpoint'} />
-                                    <Header.Content>Endpoints</Header.Content>
-                                </Header>
+                            </div>
+                        }
+                    </Popup>
+                }
+                { records.length > 0 &&
+                    <Popup
+                        trigger={
+                            <Label as='a' color='white'>
+                                <Icon name={'fw fw-records'} />
+                                <span>Records</span>
+                                <Label.Detail>{records.length}</Label.Detail>
+                            </Label>
+                        }
+                        className='definitions-popup-window'
+                        position='bottom right'
+                        flowing
+                        wide
+                        hideOnScroll
+                    >
+                        {
+                            <div>
+                                { this.props.width < RESPOSIVE_MENU_TRIGGER.ICON_MODE &&
+                                    <div className='definitions-popup-window-header'>
+                                        <Label as='span' color='white'>
+                                            <Icon name={'fw fw-records'} />
+                                            <span>Records</span>
+                                        </Label>
+                                        <hr />
+                                    </div>
+                                }
                                 {
-                                    endpoints.map((element) => {
+                                    records.map((element) => {
                                         return this.getItem(element.getName().getValue(),
                                                             () => { this.onDelete(element); });
                                     })
                                 }
-                            </Grid.Column>
-                    </Grid>
-            }
-
-            </Popup>
+                            </div>
+                        }
+                    </Popup>
+                }
+                { endpoints.length > 0 &&
+                    <Popup
+                        trigger={
+                            <Label as='a' color='white'>
+                                <Icon name={'fw fw-endpoint'} />
+                                <span>Endpoints</span>
+                                <Label.Detail>{endpoints.length}</Label.Detail>
+                            </Label>
+                        }
+                        className='definitions-popup-window'
+                        position='bottom right'
+                        flowing
+                        wide
+                        hideOnScroll
+                    >
+                            {
+                                <div>
+                                    { this.props.width < RESPOSIVE_MENU_TRIGGER.ICON_MODE &&
+                                        <div className='definitions-popup-window-header'>
+                                            <Label as='span' color='white'>
+                                                <Icon name={'fw fw-endpoint'} />
+                                                <span>Endpoints</span>
+                                            </Label>
+                                            <hr />
+                                        </div>
+                                    }
+                                    {
+                                        endpoints.map((element) => {
+                                            return this.getItem(element.getName().getValue(),
+                                                                () => { this.onDelete(element); });
+                                        })
+                                    }
+                                </div>
+                            }
+                    </Popup>
+                }
+            </div>
         );
     }
 }
 
 DefinitionViewMenu.propTypes = {
     model: PropTypes.instanceOf(CompilationUnitNode).isRequired,
+    width: PropTypes.number.isRequired,
 };
 
 DefinitionViewMenu.defaultProps = {

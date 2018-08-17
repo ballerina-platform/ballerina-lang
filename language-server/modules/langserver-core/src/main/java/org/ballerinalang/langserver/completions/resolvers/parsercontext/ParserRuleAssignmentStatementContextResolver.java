@@ -24,21 +24,18 @@ import org.eclipse.lsp4j.CompletionItem;
 import org.wso2.ballerinalang.compiler.parser.antlr4.BallerinaParser;
 
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * assignment statement context resolver for the completion items.
  */
 public class ParserRuleAssignmentStatementContextResolver extends AbstractItemResolver {
     @Override
-    public ArrayList<CompletionItem> resolveItems(LSServiceOperationContext completionContext) {
-
-        // TODO: left hand side of the assignment statement should analyze when suggesting the completions
-        // TODO: at the moment we are using the same completion resolving criteria as the variable definition
-
+    public List<CompletionItem> resolveItems(LSServiceOperationContext completionContext) {
         ArrayList<CompletionItem> completionItems = new ArrayList<>();
         Class parserRuleContext = BallerinaParser.VariableDefinitionStatementContext.class;
-        completionItems.addAll(
-                CompletionItemResolver.getResolverByClass(parserRuleContext).resolveItems(completionContext));
+        completionItems.addAll(CompletionItemResolver.getResolverByClass(parserRuleContext)
+                .resolveItems(completionContext));
 
         return completionItems;
     }

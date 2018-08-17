@@ -19,7 +19,7 @@
     <parent>
         <artifactId>swagger-ballerina</artifactId>
         <groupId>org.ballerinalang</groupId>
-        <version>0.970.0-beta6-SNAPSHOT</version>
+        <version>0.981.1-SNAPSHOT</version>
         <relativePath>../../pom.xml</relativePath>
     </parent>
     <modelVersion>4.0.0</modelVersion>
@@ -53,15 +53,6 @@
         <dependency>
             <groupId>org.ballerinalang</groupId>
             <artifactId>ballerina-builtin</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.ballerinalang</groupId>
-            <artifactId>ballerina-http</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.ballerinalang</groupId>
-            <artifactId>composer-ballerina-parser-service</artifactId>
-            <version>${project.version}</version>
         </dependency>
     </dependencies>
 

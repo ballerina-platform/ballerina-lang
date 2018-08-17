@@ -17,21 +17,27 @@
 */
 package org.ballerinalang.langserver.completions.resolvers.parsercontext;
 
+import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.compiler.LSServiceOperationContext;
 import org.ballerinalang.langserver.completions.CompletionKeys;
 import org.ballerinalang.langserver.completions.SymbolInfo;
 import org.ballerinalang.langserver.completions.resolvers.AbstractItemResolver;
 import org.ballerinalang.langserver.completions.util.ItemResolverConstants;
 import org.ballerinalang.langserver.completions.util.Snippet;
-import org.ballerinalang.langserver.completions.util.filters.ConnectorInitExpressionItemFilter;
-import org.ballerinalang.langserver.completions.util.filters.PackageActionFunctionAndTypesFilter;
+import org.ballerinalang.langserver.completions.util.filters.DelimiterBasedContentFilter;
 import org.ballerinalang.langserver.completions.util.filters.StatementTemplateFilter;
 import org.ballerinalang.langserver.completions.util.filters.SymbolFilters;
+import org.ballerinalang.langserver.completions.util.sorters.ActionAndFieldAccessContextItemSorter;
 import org.ballerinalang.langserver.completions.util.sorters.ItemSorters;
 import org.eclipse.lsp4j.CompletionItem;
 import org.eclipse.lsp4j.InsertTextFormat;
+import org.eclipse.lsp4j.jsonrpc.messages.Either;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
+import org.wso2.ballerinalang.util.Flags;
 
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Parser rule based statement context resolver.
@@ -39,20 +45,27 @@ import java.util.ArrayList;
 public class ParserRuleStatementContextResolver extends AbstractItemResolver {
     @Override
     @SuppressWarnings("unchecked")
-    public ArrayList<CompletionItem> resolveItems(LSServiceOperationContext completionContext) {
+    public List<CompletionItem> resolveItems(LSServiceOperationContext completionContext) {
         ArrayList<CompletionItem> completionItems = new ArrayList<>();
-        ArrayList<SymbolInfo> filteredSymbols = new ArrayList<>();
+        Either<List<CompletionItem>, List<SymbolInfo>> itemList;
 
+        Class itemSorterClass;
         if (isInvocationOrFieldAccess(completionContext)) {
-            filteredSymbols.addAll(SymbolFilters.getFilterByClass(PackageActionFunctionAndTypesFilter.class)
-                    .filterItems(completionContext));
+            itemSorterClass = ActionAndFieldAccessContextItemSorter.class;
+            itemList = SymbolFilters.get(DelimiterBasedContentFilter.class)
+                    .filterItems(completionContext);
         } else {
-            filteredSymbols.addAll(SymbolFilters.getFilterByClass(ConnectorInitExpressionItemFilter.class)
-                    .filterItems(completionContext));
-            filteredSymbols.addAll(this.removeInvalidStatementScopeSymbols(completionContext
-                    .get(CompletionKeys.VISIBLE_SYMBOLS_KEY)));
-            completionItems.addAll(SymbolFilters.getFilterByClass(StatementTemplateFilter.class)
-                    .filterItems(completionContext));
+            itemSorterClass = completionContext.get(CompletionKeys.BLOCK_OWNER_KEY).getClass();
+            List<SymbolInfo> filteredSymbols = completionContext.get(CompletionKeys.VISIBLE_SYMBOLS_KEY);
+            filteredSymbols.removeIf(CommonUtil.invalidSymbolsPredicate());
+            
+            filteredSymbols.removeIf(symbolInfo -> {
+                BSymbol bSymbol = symbolInfo.getScopeEntry().symbol;
+                return bSymbol instanceof BInvokableSymbol && ((bSymbol.flags & Flags.ATTACHED) == Flags.ATTACHED);
+            });
+            completionItems.addAll(this.getCompletionItemList(filteredSymbols));
+            itemList = SymbolFilters.get(StatementTemplateFilter.class)
+                    .filterItems(completionContext);
 
             CompletionItem xmlns = new CompletionItem();
             xmlns.setLabel(ItemResolverConstants.XMLNS);
@@ -67,13 +80,12 @@ public class ParserRuleStatementContextResolver extends AbstractItemResolver {
             varKeyword.setDetail(ItemResolverConstants.KEYWORD_TYPE);
             completionItems.add(varKeyword);
         }
-
-        this.populateCompletionItemList(filteredSymbols, completionItems);
+        
+        completionItems.addAll(this.getCompletionsFromEither(itemList));
         
         // Now we need to sort the completion items and populate the completion items specific to the scope owner
         // as an example, resource, action, function scopes are different from the if-else, while, and etc
-        Class itemSorter = completionContext.get(CompletionKeys.BLOCK_OWNER_KEY).getClass();
-        ItemSorters.getSorterByClass(itemSorter).sortItems(completionContext, completionItems);
+        ItemSorters.get(itemSorterClass).sortItems(completionContext, completionItems);
 
         return completionItems;
     }

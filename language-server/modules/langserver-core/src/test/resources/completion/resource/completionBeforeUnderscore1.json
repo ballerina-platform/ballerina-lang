@@ -1,0 +1,151 @@
+{
+  "position": {
+    "line": 11,
+    "character": 10
+  },
+  "source": "resource/source/completionBeforeUnderscore1.bal",
+  "items": [
+    {
+      "label": "openFile(string path, io:Mode accessMode)(ballerina/io:ByteChannel)",
+      "kind": "Function",
+      "detail": "Function",
+      "sortText": "121",
+      "insertText": "openFile(${1:path}, ${2:accessMode})",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "openSecureSocket(string host, int port, io:SocketProperties options)(ballerina/io:Socket|error)",
+      "kind": "Function",
+      "detail": "Function",
+      "sortText": "121",
+      "insertText": "openSecureSocket(${1:host}, ${2:port}, ${3:options})",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "createMemoryChannel(byte[] content)(ballerina/io:ByteChannel)",
+      "kind": "Function",
+      "detail": "Function",
+      "sortText": "121",
+      "insertText": "createMemoryChannel(${1:content})",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "openCsvFile(string path, io:Mode mode \u003d r, io:Separator fieldSeparator \u003d ,, string charset \u003d UTF-8, int skipHeaders \u003d 0)(ballerina/io:CSVChannel)",
+      "kind": "Function",
+      "detail": "Function",
+      "sortText": "121",
+      "insertText": "openCsvFile(${1:path}, mode \u003d ${5:r}, fieldSeparator \u003d ${6:,}, charset \u003d ${7:\"UTF-8\"}, skipHeaders \u003d ${8:0})",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "print()",
+      "kind": "Function",
+      "detail": "Function",
+      "sortText": "121",
+      "insertText": "print()",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "println()",
+      "kind": "Function",
+      "detail": "Function",
+      "sortText": "121",
+      "insertText": "println()",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "sprintf(string format)(string)",
+      "kind": "Function",
+      "detail": "Function",
+      "sortText": "121",
+      "insertText": "sprintf(${1:format})",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "readln(any a)(string)",
+      "kind": "Function",
+      "detail": "Function",
+      "sortText": "121",
+      "insertText": "readln(${1:a})",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "SocketProperties",
+      "detail": "BType",
+      "sortText": "171",
+      "insertText": "SocketProperties"
+    },
+    {
+      "label": "Format",
+      "detail": "BType",
+      "sortText": "171",
+      "insertText": "Format"
+    },
+    {
+      "label": "Separator",
+      "detail": "BType",
+      "sortText": "171",
+      "insertText": "Separator"
+    },
+    {
+      "label": "ByteOrder",
+      "detail": "BType",
+      "sortText": "171",
+      "insertText": "ByteOrder"
+    },
+    {
+      "label": "Mode",
+      "detail": "BType",
+      "sortText": "171",
+      "insertText": "Mode"
+    },
+    {
+      "label": "ByteChannel",
+      "detail": "BType",
+      "sortText": "171",
+      "insertText": "ByteChannel"
+    },
+    {
+      "label": "CharacterChannel",
+      "detail": "BType",
+      "sortText": "171",
+      "insertText": "CharacterChannel"
+    },
+    {
+      "label": "CSVChannel",
+      "detail": "BType",
+      "sortText": "171",
+      "insertText": "CSVChannel"
+    },
+    {
+      "label": "DataChannel",
+      "detail": "BType",
+      "sortText": "171",
+      "insertText": "DataChannel"
+    },
+    {
+      "label": "DelimitedTextRecordChannel",
+      "detail": "BType",
+      "sortText": "171",
+      "insertText": "DelimitedTextRecordChannel"
+    },
+    {
+      "label": "Socket",
+      "detail": "BType",
+      "sortText": "171",
+      "insertText": "Socket"
+    },
+    {
+      "label": "ServerSocket",
+      "detail": "BType",
+      "sortText": "171",
+      "insertText": "ServerSocket"
+    },
+    {
+      "label": "StringReader",
+      "detail": "BType",
+      "sortText": "171",
+      "insertText": "StringReader"
+    }
+  ]
+}

@@ -1,6 +1,6 @@
 .menu-item-common {
     @extend .unseletable-content;
-    color: #c7c7c7;
+    color: #e2e2e2;
     cursor: default;
 }
 
@@ -12,7 +12,7 @@
     border-bottom: none;
     &.rc-menu-submenu-active {
         border-bottom: none;
-        > .rc-menu-submenu-title {
+        >.rc-menu-submenu-title {
             @extend .menu-active-common;
         }
     }
@@ -37,7 +37,7 @@
         .rc-menu-submenu.root-item {
             @extend .sub-menu-item-common;
             &.rc-menu-submenu-active {
-                & > .rc-menu-submenu-title {
+                &>.rc-menu-submenu-title {
                     background-color: $brand-primary;
                     color: white;
                 }
@@ -52,15 +52,49 @@
         .rc-menu-item {
             padding: 0 7px;
             border-bottom: none;
-            & div>div:not(.menu-label){
-                top:2px;
-            }
             @extend .menu-item-common;
             &.rc-menu-item-disabled {
                 color: #999;
             }
             &.rc-menu-item-active {
                 @extend .menu-active-common;
+            }
+        }
+    }
+}
+
+.monaco-editor.vs-dark,
+.monaco-editor.hc-black {
+    .context-view.monaco-menu-container {
+        font-family: "Roboto", Arial, Helvetica, sans-serif;
+        box-shadow: none;
+        color: #d4d4d4;
+        background-color: #565656;
+        .monaco-menu .monaco-action-bar.vertical {
+            .action-item {
+                .action-label {
+                    color: #d4d4d4;
+                    font-size: 13px;
+                    &:focus {
+                        color: #fff;
+                        text-shadow: 0px 0px 0.15px #fff;
+                        font-weight: 400;
+                    }
+                }
+                &:hover {
+                    color: #1e1e1e;
+                    .action-label:focus {
+                        color: #1e1e1e;
+                        font-weight: 400;
+                    }
+                    &:not(.disabled) {
+                        background-color: #d4d4d4;
+                        color: #565656;
+                        & .action-label {
+                            color: #565656;
+                        }
+                    }
+                }
             }
         }
     }

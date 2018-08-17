@@ -21,17 +21,17 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import org.ballerinalang.composer.server.core.Server;
 import org.ballerinalang.composer.server.core.ServerConfig;
-import org.ballerinalang.composer.server.launcher.browser.BrowserLauncher;
 import org.ballerinalang.composer.server.launcher.command.ServerCommand;
-import org.ballerinalang.composer.server.launcher.log.LogManagerUtils;
+import org.ballerinalang.packerina.BrowserLauncher;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintStream;
-import java.net.DatagramSocket;
-import java.net.ServerSocket;
+import java.net.Socket;
+import java.util.logging.Level;
+import java.util.logging.LogManager;
 
 /**
  * Launcher for ballerina composer backend server.
@@ -48,14 +48,13 @@ public class ServerLauncher {
     private static Logger logger;
 
     static {
-        try {
-            // Update the default log manager.
-            LogManagerUtils composerLogManagerUtils = new LogManagerUtils();
-            composerLogManagerUtils.updateLogManager();
-            logger = LoggerFactory.getLogger(ServerLauncher.class);
-        } catch (IOException e) {
-            logger.debug("Error occurred while setting logging properties.", e);
-        }
+        initLogger();
+        logger = LoggerFactory.getLogger(ServerLauncher.class);
+    }
+
+    public static void initLogger() {
+        java.util.logging.Logger rootLogger = LogManager.getLogManager().getLogger("");
+        rootLogger.setLevel(Level.OFF);
     }
 
     public static void main(String[] args) {
@@ -104,23 +103,7 @@ public class ServerLauncher {
                 }
             }
         }
-        // give precedence to command line arg for port
-        if (cmdLineArgs.port != null) {
-            config.setPort(cmdLineArgs.port);
-        }
-        // if no port is provided via cmd args or config file, try to grab an open port
-        if (config.getPort() == 0) {
-            config.setPort(getAvailablePort(DEFAULT_PORT));
-        }
-        // if the selected port is not available, print an error & exit
-        if (!isPortAvailable(config.getPort())) {
-            PrintStream err = System.err;
-            err.println("Error: Looks like you may be running the Ballerina composer already ?");
-            err.println(String.format("In any case, it appears someone is already using port %d, " +
-                    "please kick them out or tell me a different port to use.", config.getPort()));
-            printUsage();
-            System.exit(1);
-        }
+
         // give precedence to interface provided via cmd args
         if (cmdLineArgs.host != null) {
             config.setHost(cmdLineArgs.host);
@@ -131,6 +114,29 @@ public class ServerLauncher {
         }
         // set msf4j host property
         System.setProperty(PROP_MSF4J_HOST, config.getHost());
+
+        // give precedence to command line arg for port
+        if (cmdLineArgs.port != null) {
+            config.setPort(cmdLineArgs.port);
+        } else {
+            config.setPort(DEFAULT_PORT);
+        }
+        
+        // if no port is provided via cmd args or config file, try to grab an open port
+        if (config.getPort() == 0) {
+            config.setPort(getAvailablePort(config.getHost(), DEFAULT_PORT));
+        }
+        // if the selected port is not available, print an error & exit
+        if (!isPortAvailable(config.getHost(), config.getPort())) {
+            PrintStream err = System.err;
+            err.println("Error: Looks like you may be running the Ballerina composer already ?");
+            err.println(String.format("In any case, it appears someone is already using port %d, " +
+                                              "please kick them out or tell me a different port to use.",
+                                      config.getPort()));
+            printUsage();
+            System.exit(1);
+        }
+
         // give precedence to command line arg for public folder
         if (cmdLineArgs.publicPath != null) {
             config.setPublicPath(cmdLineArgs.publicPath);
@@ -156,7 +162,7 @@ public class ServerLauncher {
         out.println("  Options:");
         out.println("    --port <port_number>           Specify a custom port for file server to start.");
         out.println("    --host <interface>             Specify a custom interface to bind the server.");
-        out.println("    --publicPath <public_path>     Specify a custom path to server the public content from.");
+        //out.println("    --publicPath <public_path>     Specify a custom path to serve the public content from.");
         out.println("    --help -h help                 for more information.");
         out.println("");
     }
@@ -168,43 +174,33 @@ public class ServerLauncher {
      * @return <tt>true</tt> if the port is available, or <tt>false</tt> if not
      * @throws IllegalArgumentException is thrown if the port number is out of range
      */
-    private static boolean isPortAvailable(int port) {
-        ServerSocket ss = null;
-        DatagramSocket ds = null;
+    private static boolean isPortAvailable(String host, int port) {
+        Socket socket = null;
         try {
-            ss = new ServerSocket(port);
-            ss.setReuseAddress(true);
-            ds = new DatagramSocket(port);
-            ds.setReuseAddress(true);
-            return true;
+            socket = new Socket(host, port);
+            return false;
         } catch (IOException e) {
             // Do nothing
         } finally {
-            if (ds != null) {
-                ds.close();
-            }
-
-            if (ss != null) {
+            if (socket != null) {
                 try {
-                    ss.close();
+                    socket.close();
                 } catch (IOException e) {
                     /* should not be thrown */
                 }
             }
         }
-
-        return false;
+        return true;
     }
 
     /**
-     * return a available port from the seed port.
-     * If the seed port is available it will return that.
+     * return a available port from the seed port. If the seed port is available it will return that.
      *
      * @param seed to check port
      * @return seed
      */
-    private static int getAvailablePort(int seed) {
-        while (!isPortAvailable(seed)) {
+    private static int getAvailablePort(String host, int seed) {
+        while (!isPortAvailable(host, seed)) {
             seed++;
         }
         return seed;

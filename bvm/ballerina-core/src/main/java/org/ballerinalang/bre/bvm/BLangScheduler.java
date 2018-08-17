@@ -22,7 +22,8 @@ import org.ballerinalang.bre.bvm.CPU.HandleErrorException;
 import org.ballerinalang.config.ConfigRegistry;
 import org.ballerinalang.model.NativeCallableUnit;
 import org.ballerinalang.model.types.BType;
-import org.ballerinalang.model.values.BStruct;
+import org.ballerinalang.model.values.BMap;
+import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.runtime.threadpool.ThreadPoolFactory;
 import org.ballerinalang.util.FunctionFlags;
 import org.ballerinalang.util.codegen.CallableUnitInfo;
@@ -33,6 +34,7 @@ import org.ballerinalang.util.observability.ObserverContext;
 import org.ballerinalang.util.program.BLangVMUtils;
 
 import java.io.PrintStream;
+import java.util.Optional;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -129,7 +131,7 @@ public class BLangScheduler {
         return resume(ctx, runInCaller);
     }
     
-    public static WorkerExecutionContext errorThrown(WorkerExecutionContext ctx, BStruct error) {
+    public static WorkerExecutionContext errorThrown(WorkerExecutionContext ctx, BMap<String, BValue> error) {
         ctx.setError(error);
         if (!ctx.isRootContext()) {
             try {
@@ -227,11 +229,14 @@ public class BLangScheduler {
     private static void checkAndObserveNativeAsync(Context nativeCtx, AsyncInvocableWorkerResponseContext respCtx,
                                               CallableUnitInfo callableUnitInfo, int flags) {
         if (ObservabilityUtils.isObservabilityEnabled() && FunctionFlags.isObserved(flags)) {
-            ObserverContext observerContext = ObservabilityUtils.startClientObservation(callableUnitInfo.attachedToType
-                            .toString(), callableUnitInfo.getName(), nativeCtx.getParentWorkerExecutionContext());
-            respCtx.registerResponseCallback(new CallbackObserver(observerContext));
-            ObservabilityUtils.setObserverContextToWorkerExecutionContext(nativeCtx.getParentWorkerExecutionContext(),
-                    observerContext);
+            Optional<ObserverContext> observerContext = ObservabilityUtils
+                    .startClientObservation(callableUnitInfo.attachedToType.toString(),
+                            callableUnitInfo.getName(), nativeCtx.getParentWorkerExecutionContext());
+            if (observerContext.isPresent()) {
+                respCtx.registerResponseCallback(new CallbackObserver(observerContext.get()));
+                ObservabilityUtils.setObserverContextToWorkerExecutionContext(
+                        nativeCtx.getParentWorkerExecutionContext(), observerContext.get());
+            }
         }
     }
 
@@ -286,11 +291,11 @@ public class BLangScheduler {
                 BLangVMUtils.populateWorkerResultWithValues(result, this.nativeCtx.getReturnValues(), retTypes);
                 runInCaller = this.respCtx.signal(new WorkerSignal(null, SignalType.RETURN, result));
             } catch (BLangNullReferenceException e) {
-                BStruct error = BLangVMErrors.createNullRefException(this.nativeCtx.getCallableUnitInfo());
+                BMap<String, BValue> error = BLangVMErrors.createNullRefException(this.nativeCtx);
                 runInCaller = this.respCtx.signal(new WorkerSignal(new WorkerExecutionContext(error), 
                         SignalType.ERROR, result));
             } catch (Throwable e) {
-                BStruct error = BLangVMErrors.createError(this.nativeCtx.getCallableUnitInfo(), e.getMessage());
+                BMap<String, BValue> error = BLangVMErrors.createError(this.nativeCtx, e.getMessage());
                 runInCaller = this.respCtx.signal(new WorkerSignal(new WorkerExecutionContext(error), 
                         SignalType.ERROR, result));
             } finally {
@@ -328,7 +333,7 @@ public class BLangScheduler {
         }
 
         @Override
-        public synchronized void notifyFailure(BStruct error) {
+        public synchronized void notifyFailure(BMap<String, BValue> error) {
             CallableUnitInfo cui = this.nativeCallCtx.getCallableUnitInfo();
             WorkerData result = BLangVMUtils.createWorkerData(cui.retWorkerIndex);
             BType[] retTypes = cui.getRetParamTypes();

@@ -16,13 +16,18 @@ public class StringConverter implements Converter<String> {
     }
 
     @Override
-    public Stream<String> latest(String s) {
+    public Stream<String> latest(String s, PackageID packageID) {
         return Stream.of(s + "/semVer(*)");
     }
 
     @Override
-    public Stream<String> expandBal(String t) {
+    public Stream<String> expandBalWithTest(String t) {
         return Stream.of(t + "/**~test~resources/*.bal");
+    }
+
+    @Override
+    public Stream<String> expandBal(String s) {
+        return Stream.of(s + "/**~resources/*.bal");
     }
 
     @Override

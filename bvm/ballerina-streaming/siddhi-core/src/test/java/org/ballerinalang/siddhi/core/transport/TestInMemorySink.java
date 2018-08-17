@@ -24,6 +24,10 @@ import org.ballerinalang.siddhi.annotation.Parameter;
 import org.ballerinalang.siddhi.annotation.util.DataType;
 import org.ballerinalang.siddhi.core.stream.output.sink.InMemorySink;
 
+/**
+ * Test in-memory sink implementation.
+ */
+
 @Extension(
         name = "testInMemory",
         namespace = "sink",

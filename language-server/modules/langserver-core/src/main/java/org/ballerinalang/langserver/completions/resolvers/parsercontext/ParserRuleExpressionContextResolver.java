@@ -18,14 +18,15 @@
 package org.ballerinalang.langserver.completions.resolvers.parsercontext;
 
 import org.antlr.v4.runtime.ParserRuleContext;
-import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
 import org.ballerinalang.langserver.compiler.LSServiceOperationContext;
+import org.ballerinalang.langserver.completions.CompletionKeys;
 import org.ballerinalang.langserver.completions.resolvers.AbstractItemResolver;
 import org.ballerinalang.langserver.completions.util.CompletionItemResolver;
 import org.eclipse.lsp4j.CompletionItem;
 import org.wso2.ballerinalang.compiler.parser.antlr4.BallerinaParser;
 
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * expression context resolver for the completion items.
@@ -33,16 +34,15 @@ import java.util.ArrayList;
  */
 public class ParserRuleExpressionContextResolver extends AbstractItemResolver {
     @Override
-    public ArrayList<CompletionItem> resolveItems(LSServiceOperationContext completionContext) {
-        ParserRuleContext contextParent = completionContext
-                .get(DocumentServiceKeys.PARSER_RULE_CONTEXT_KEY).getParent();
-        // TODO: Specially add the check in case of binary expressions
+    public List<CompletionItem> resolveItems(LSServiceOperationContext context) {
+        ParserRuleContext contextParent = context.get(CompletionKeys.PARSER_RULE_CONTEXT_KEY).getParent();
         if (contextParent instanceof BallerinaParser.BinaryEqualExpressionContext) {
             contextParent = contextParent.getParent();
         }
         if (contextParent != null) {
-            return CompletionItemResolver.getResolverByClass(contextParent.getClass()).resolveItems(completionContext);
+            return CompletionItemResolver.getResolverByClass(contextParent.getClass()).resolveItems(context);
         }
+
         return new ArrayList<>();
     }
 }

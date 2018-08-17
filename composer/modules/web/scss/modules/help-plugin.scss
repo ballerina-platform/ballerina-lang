@@ -1,17 +1,13 @@
 .modal-about {
-
     .ui.header {
-        margin-left: 15px;
         .version {
             font-size: 12px;
         }
     }
-
     .logo {
         height: 50px;
         margin-bottom: 10px;
     }
-
     .appname {
         color: $brand-primary;
         margin-left: 5px;
@@ -19,35 +15,14 @@
         vertical-align: 27px;
         font-weight: 300;
         font-family: Roboto, Arial, Helvetica, sans-serif;
-    } 
-
+    }
     .modal-footer {
         .fw {
             font-size: 35px;
             vertical-align: middle;
         }
-
         a {
             text-decoration: none;
-        }  
-    }
-}
-
-.editor-area {
-    .rc-tabs-tab-active {
-        .tab-title-wrapper {
-            &.welcome-page-tab-title {
-                background-color:$primaryBackgroundColor;
-                color: #7D7D7D;
-                height: 30px;
-                .close-tab {
-                    background: $primaryBackgroundColor !important;
-                    &:hover{
-                        color: #474747;
-                    }
-                }
-            }
         }
     }
 }
-

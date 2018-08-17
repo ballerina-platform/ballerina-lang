@@ -21,21 +21,22 @@ package org.ballerinalang.model.values;
 import io.ballerina.messaging.broker.core.BrokerException;
 import io.ballerina.messaging.broker.core.Consumer;
 import io.ballerina.messaging.broker.core.Message;
-import io.netty.buffer.UnpooledByteBufAllocator;
-import io.netty.buffer.UnpooledHeapByteBuf;
-import org.ballerinalang.broker.BrokerUtils;
-import org.ballerinalang.model.types.BAnyType;
+import org.ballerinalang.bre.bvm.CPU;
+import org.ballerinalang.broker.BallerinaBroker;
+import org.ballerinalang.broker.BallerinaBrokerByteBuf;
+import org.ballerinalang.model.types.BField;
 import org.ballerinalang.model.types.BIndexedType;
 import org.ballerinalang.model.types.BStreamType;
-import org.ballerinalang.model.types.BStructType;
+import org.ballerinalang.model.types.BStructureType;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.BTypes;
-import org.ballerinalang.model.types.BUnionType;
 import org.ballerinalang.model.types.TypeTags;
 import org.ballerinalang.siddhi.core.stream.input.InputHandler;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.ballerinalang.util.program.BLangFunctions;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 /**
@@ -51,6 +52,8 @@ public class BStream implements BRefType<Object> {
 
     private String streamId = "";
 
+    private BallerinaBroker brokerInstance;
+
     /**
      * The name of the underlying broker topic representing the stream object.
      */
@@ -60,14 +63,20 @@ public class BStream implements BRefType<Object> {
         if (((BStreamType) type).getConstrainedType() == null) {
             throw new BallerinaException("a stream cannot be declared without a constraint");
         }
+        try {
+            this.brokerInstance = BallerinaBroker.getBrokerInstance();
+        } catch (Exception e) {
+            throw new BallerinaException("Error starting up internal broker for streams");
+        }
         this.constraintType = ((BStreamType) type).getConstrainedType();
-        if (constraintType.getName() != null) {
-            this.topicName = TOPIC_NAME_PREFIX + constraintType.getName().toUpperCase() + "_" + name;
-        } else if (constraintType instanceof BIndexedType) {
+        if (constraintType instanceof BIndexedType) {
             this.topicName = TOPIC_NAME_PREFIX + ((BIndexedType) constraintType).getElementType() + "_" + name;
+        } else if (constraintType != null) {
+            this.topicName = TOPIC_NAME_PREFIX + constraintType + "_" + name;
         } else {
             this.topicName = TOPIC_NAME_PREFIX + name; //TODO: check for improvement
         }
+        topicName = topicName.concat("_").concat(UUID.randomUUID().toString());
         this.streamId = name;
     }
 
@@ -105,15 +114,12 @@ public class BStream implements BRefType<Object> {
      * @param data the data to publish to the stream
      */
     public void publish(BValue data) {
-        //TODO: refactor and move checks to compile time
         BType dataType = data.getType();
-        if (!dataType.equals(this.constraintType) && !(constraintType instanceof BUnionType
-                                        && ((BUnionType) constraintType).getMemberTypes().contains(dataType))
-                                        && !(constraintType instanceof BAnyType)) {
-            throw new BallerinaException("incompatible types: value of type:" + dataType.getName()
-                    + " cannot be added to a stream of type:" + this.constraintType.getName());
+        if (!CPU.checkCast(data, constraintType)) {
+            throw new BallerinaException("incompatible types: value of type:" + dataType
+                    + " cannot be added to a stream of type:" + this.constraintType);
         }
-        BrokerUtils.publish(topicName, new BallerinaStreamByteBuf(data));
+        brokerInstance.publish(topicName, new BallerinaBrokerByteBuf(data));
     }
 
     /**
@@ -124,37 +130,50 @@ public class BStream implements BRefType<Object> {
      */
     public void subscribe(BFunctionPointer functionPointer) {
         BType[] parameters = functionPointer.funcRefCPEntry.getFunctionInfo().getParamTypes();
-        if (parameters[0].getTag() != constraintType.getTag() || (constraintType instanceof BStructType
-                                          && ((BStructType) parameters[0]).structInfo.getType() != constraintType)) {
-            throw new BallerinaException("incompatible function: subscription function needs to be a function accepting"
-                                                 + ":" + this.constraintType.getName());
+        int lastArrayIndex = parameters.length - 1;
+        if (!CPU.isAssignable(constraintType, parameters[lastArrayIndex])) {
+            throw new BallerinaException("incompatible function: subscription function needs to be a function"
+                                                 + " accepting:" + this.constraintType);
         }
         String queueName = String.valueOf(System.currentTimeMillis()) + UUID.randomUUID().toString();
-        BrokerUtils.addSubscription(topicName, new StreamSubscriber(queueName, functionPointer));
+        brokerInstance.addSubscription(topicName, new StreamSubscriber(queueName, functionPointer));
     }
 
     public void subscribe(InputHandler inputHandler) {
-        if (constraintType.getTag() != TypeTags.STRUCT_TAG) {
+        if (constraintType.getTag() != TypeTags.OBJECT_TYPE_TAG
+                && constraintType.getTag() != TypeTags.RECORD_TYPE_TAG) {
             throw new BallerinaException("Streaming Support is only available with streams accepting objects");
         }
         String queueName = String.valueOf(UUID.randomUUID());
-        BrokerUtils.addSubscription(topicName, new InternalStreamSubscriber(topicName, queueName, inputHandler));
+        brokerInstance.addSubscription(topicName, new InternalStreamSubscriber(topicName, queueName, inputHandler));
     }
 
     private class StreamSubscriber extends Consumer {
         final String queueName;
         final BFunctionPointer functionPointer;
+        List<BValue> closureArgs = new ArrayList<>();
 
         StreamSubscriber(String queueName, BFunctionPointer functionPointer) {
             this.queueName = queueName;
             this.functionPointer = functionPointer;
+            for (BClosure closure : functionPointer.getClosureVars()) {
+                closureArgs.add(closure.value());
+            }
         }
 
         @Override
-        protected void send(Message message) throws BrokerException {
-            BValue data =
-                    ((BallerinaStreamByteBuf) (message.getContentChunks().get(0).getByteBuf()).unwrap()).streamEvent;
-            BLangFunctions.invokeCallable(functionPointer.value().getFunctionInfo(), new BValue[] { data });
+        protected void send(Message message) {
+            try {
+                BValue data =
+                        ((BallerinaBrokerByteBuf) (message.getContentChunks().get(0).getByteBuf()).unwrap()).getValue();
+                List<BValue> argsList = new ArrayList<>();
+                argsList.addAll(closureArgs);
+                argsList.add(data);
+                BLangFunctions.invokeCallable(functionPointer.value().getFunctionInfo(),
+                                              argsList.toArray(new BValue[argsList.size()]));
+            } catch (Exception e) {
+                throw new BallerinaException("Error delivering event to subscriber: ", e);
+            }
         }
 
         @Override
@@ -193,8 +212,8 @@ public class BStream implements BRefType<Object> {
         @Override
         protected void send(Message message) throws BrokerException {
             BValue data =
-                    ((BallerinaStreamByteBuf) (message.getContentChunks().get(0).getByteBuf()).unwrap()).streamEvent;
-            Object[] event = createEvent((BStruct) data);
+                    ((BallerinaBrokerByteBuf) (message.getContentChunks().get(0).getByteBuf()).unwrap()).getValue();
+            Object[] event = createEvent((BMap) data);
             try {
                 inputHandler.send(event);
             } catch (InterruptedException e) {
@@ -203,27 +222,23 @@ public class BStream implements BRefType<Object> {
             }
         }
 
-        private Object[] createEvent(BStruct data) {
-            BStructType streamType = data.getType();
-            int intValueIndex = -1;
-            int floatValueIndex = -1;
-            int stringValueIndex = -1;
-            int boolValueIndex = -1;
-            Object[] event = new Object[streamType.getStructFields().length];
-            for (int index = 0; index < streamType.getStructFields().length; index++) {
-                BStructType.StructField field = streamType.getStructFields()[index];
+        private Object[] createEvent(BMap<String, BValue> data) {
+            BStructureType streamType = (BStructureType) data.getType();
+            Object[] event = new Object[streamType.getFields().length];
+            for (int index = 0; index < streamType.getFields().length; index++) {
+                BField field = streamType.getFields()[index];
                 switch (field.getFieldType().getTag()) {
                     case TypeTags.INT_TAG:
-                        event[index] = data.getIntField(++intValueIndex);
+                        event[index] = ((BInteger) data.get(field.fieldName)).intValue();
                         break;
                     case TypeTags.FLOAT_TAG:
-                        event[index] = data.getFloatField(++floatValueIndex);
+                        event[index] = ((BFloat) data.get(field.fieldName)).floatValue();
                         break;
                     case TypeTags.BOOLEAN_TAG:
-                        event[index] = data.getBooleanField(++boolValueIndex);
+                        event[index] = ((BBoolean) data.get(field.fieldName)).booleanValue();
                         break;
                     case TypeTags.STRING_TAG:
-                        event[index] = data.getStringField(++stringValueIndex);
+                        event[index] = data.get(field.fieldName).stringValue();
                         break;
                     default:
                         throw new BallerinaException("Fields in streams do not support data types other than int, " +
@@ -251,19 +266,6 @@ public class BStream implements BRefType<Object> {
         @Override
         public boolean isReady() {
             return true;
-        }
-    }
-
-    /**
-     * Implementation of {@link io.netty.buffer.ByteBuf} for Ballerina Streams, to hold a {@link BValue}
-     */
-    private class BallerinaStreamByteBuf extends UnpooledHeapByteBuf {
-
-        private final BValue streamEvent;
-
-        BallerinaStreamByteBuf(BValue streamEvent) {
-            super(UnpooledByteBufAllocator.DEFAULT, 0, 0);
-            this.streamEvent = streamEvent;
         }
     }
 }

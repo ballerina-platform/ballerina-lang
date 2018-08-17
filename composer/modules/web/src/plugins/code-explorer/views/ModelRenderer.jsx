@@ -93,6 +93,9 @@ class ModelRenderer extends React.Component {
     }
 
     renderDefaultNode(node) {
+        if (!node || !node.name || !node.name.value) {
+            return null;
+        }
         return (
             <div
                 className={this.getNodeClassName(node)}

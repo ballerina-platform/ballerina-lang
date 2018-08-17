@@ -31,17 +31,13 @@ class SignatureKeys {
             = new LSContext.Key<>();
     static final LSContext.Key<String> ITEM_DELIMITER
             = new LSContext.Key<>();
-    static final LSContext.Key<List<SymbolInfo>> FILTERED_FUNCTIONS
+    static final LSContext.Key<List<SymbolInfo>> VISIBLE_SYMBOLS_KEY
             = new LSContext.Key<>();
     /**
      * If os:get... then identifier against is os
      * If res.send(.. then identifier against is res
      */
     static final LSContext.Key<String> IDENTIFIER_AGAINST
-            = new LSContext.Key<>();
-    static final LSContext.Key<String> IDENTIFIER_TYPE
-            = new LSContext.Key<>();
-    static final LSContext.Key<String> IDENTIFIER_PKGID
             = new LSContext.Key<>();
     static final LSContext.Key<Integer> PARAMETER_COUNT
             = new LSContext.Key<>();

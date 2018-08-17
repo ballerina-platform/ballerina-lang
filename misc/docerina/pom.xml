@@ -21,7 +21,7 @@
     <parent>
         <groupId>org.ballerinalang</groupId>
         <artifactId>ballerina-parent</artifactId>
-        <version>0.970.0-beta6-SNAPSHOT</version>
+        <version>0.981.1-SNAPSHOT</version>
         <relativePath>../../pom.xml</relativePath>
     </parent>
 
@@ -56,6 +56,12 @@
         <dependency>
             <groupId>org.ballerinalang</groupId>
             <artifactId>language-server-core</artifactId>
+            <exclusions>
+                <exclusion>
+                    <groupId>com.h2database</groupId>
+                    <artifactId>h2</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>org.ballerinalang</groupId>
@@ -83,6 +89,11 @@
             <version>0.11.0</version>
         </dependency>
         <dependency>
+            <groupId>com.atlassian.commonmark</groupId>
+            <artifactId>commonmark-ext-gfm-tables</artifactId>
+            <version>0.11.0</version>
+        </dependency>
+        <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-api</artifactId>
         </dependency>
@@ -91,35 +102,75 @@
             <artifactId>slf4j-jdk14</artifactId>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>org.ballerinalang</groupId>
+            <artifactId>ballerina-http</artifactId>
+            <type>zip</type>
+            <classifier>ballerina-binary-repo</classifier>
+        </dependency>
     </dependencies>
 
     <build>
         <plugins>
             <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-dependency-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>unpack-dependencies</id>
+                        <phase>generate-resources</phase>
+                        <goals>
+                            <goal>unpack-dependencies</goal>
+                        </goals>
+                        <configuration>
+                            <includeClassifiers>ballerina-binary-repo</includeClassifiers>
+                            <outputDirectory>${project.build.directory}/lib</outputDirectory>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <configuration>
+                    <argLine>-Dfile.encoding=UTF-8 ${jacoco.agent.argLine}</argLine>
+                    <systemPropertyVariables>
+                        <ballerina.home>${project.build.directory}</ballerina.home>
+                    </systemPropertyVariables>
+                    <suiteXmlFiles>
+                        <suiteXmlFile>src/test/resources/testng.xml</suiteXmlFile>
+                    </suiteXmlFiles>
+                </configuration>
+            </plugin>
+            <plugin>
                 <groupId>org.jacoco</groupId>
                 <artifactId>jacoco-maven-plugin</artifactId>
                 <version>0.7.8</version>
-                <configuration>
-                    <excludes>
-                    </excludes>
-                    <destFile>${basedir}/target/coverage-reports/jacoco-unit.exec</destFile>
-                </configuration>
                 <executions>
                     <execution>
-                        <id>jacoco-initialize</id>
+                        <id>prepare-it-test-agent</id>
                         <goals>
                             <goal>prepare-agent</goal>
                         </goals>
+                        <configuration>
+                            <append>true</append>
+                            <inclNoLocationClasses>true</inclNoLocationClasses>
+                            <propertyName>jacoco.agent.argLine</propertyName>
+                            <destFile>${project.build.directory}/coverage-reports/jacoco.exec</destFile>
+                        </configuration>
                     </execution>
                     <execution>
-                        <id>jacoco-site</id>
-                        <phase>package</phase>
+                        <id>it-report</id>
+                        <phase>verify</phase>
                         <goals>
-                            <goal>report</goal>
+                            <goal>report-aggregate</goal>
                         </goals>
                         <configuration>
-                            <dataFile>${basedir}/target/coverage-reports/jacoco-unit.exec</dataFile>
-                            <outputDirectory>${basedir}/target/coverage-reports/site</outputDirectory>
+                            <dataFileIncludes>
+                                <dataFileInclude>**/coverage-reports/jacoco.exec</dataFileInclude>
+                            </dataFileIncludes>
+                            <outputDirectory>${project.build.directory}/coverage-reports/site</outputDirectory>
                         </configuration>
                     </execution>
                 </executions>
@@ -152,6 +203,7 @@
                         <includes>
                             <include>com.github.jknack:handlebars</include>
                             <include>com.atlassian.commonmark:commonmark</include>
+                            <include>com.atlassian.commonmark:commonmark-ext-gfm-tables</include>
                         </includes>
                     </artifactSet>
                     <filters>

@@ -1,0 +1,347 @@
+/*DOCS ONLY*/
+@font-face {
+ font-family: CalibreWeb-Semibold;
+ src: url(../ballerina-fonts/CalibreWeb-Regular.woff);
+        
+        ;
+    
+}
+
+.navbar-nav.cTopNav > li:first-child, .navbar-nav.cTopNav > li:nth-child(2) {
+    display: block;
+}
+
+.wy-nav-content {
+    background-color: #ffffff;
+}
+
+
+.col-lg-3.cBallerina-io-Home-Left-col , .col-lg-3.cBallerina-io-Home-Right-col {
+    width: 22%;
+    padding-top: 0px;
+}
+
+.col-lg-6.cBallerina-io-Home-Middle-col {
+    width: 56%;
+    padding: 0 7px;
+    background-color: transparent;
+
+}
+
+.cBallerina-io-Home-Left-col .cBlallerina-io-docs-left-nav-box a {
+    font-size: 12px;
+    line-height: 24px;
+    padding: 1px 0;
+}
+
+.cBlallerina-io-docs-left-nav-box li:first-child {
+    display: none;
+} 
+
+.wy-nav-content {
+    padding: 0;
+}
+
+#mkdocs-search-query {
+    background-color: #e6e9ea;
+height: 30px;
+font-size: 10px;
+width: 100%;
+border: none;
+padding-left: 7px;
+border-radius: 0;
+}
+
+
+.wy-menu-vertical li.current {
+    background: transparent;
+}
+
+
+  
+
+.cBlallerina-io-docs-content-container {
+    display: inherit;
+    padding: 25px 30px;
+    background: #ffffff;
+}
+
+.cBlallerina-io-docs-content-container a {
+    color: #17b8b1 !important;
+}
+
+nav.stickynav , .affix {
+    position: static;
+    width: 100%;
+}
+.nav.stickynav {
+    padding: 20px;
+
+}
+
+.wy-nav-side {
+    background-color: transparent;
+}
+
+.cBlallerina-io-docs-left-nav-box , .cBlallerina-io-docs-right-nav-box {
+    background-color: #ffffff;
+    display: inline-block;
+    padding:  20px;
+    width: 100%;
+}
+
+.wy-menu-vertical .subnav a {
+    padding: 0px 0px;
+    color: #585a5e !important;
+}
+.wy-menu-vertical .subnav a:hover {
+    background: #ffffff !important;
+    color: #22b7b1 !important;
+}
+.wy-menu-vertical .subnav li.current > a {
+    border: none;
+
+}
+.wy-menu-vertical .subnav li.current > ul li a {
+    border: none;
+    padding-top: 0;
+    padding-bottom: 0;
+}
+.wy-menu-vertical span {
+    padding: 10px 0;
+    font-weight: 600;
+    color: #585a5e;
+}
+
+.cBlallerina-io-docs-right-nav-box a {
+     padding: 0px 0px;
+        color: #585a5e;
+        font-size: 10px;
+}
+.cBlallerina-io-docs-right-nav-box a:hover {
+     background: transparent !important;
+    color: #22b7b1 !important;
+}
+
+
+.cBallerina-io-docs-Title {
+ color: #22b7b1;
+
+padding-bottom: 15px;
+
+margin-bottom: 0px;
+
+border-bottom: 1px solid #a6a8ab;
+
+font-family: "CalibreWeb-Semibold";
+
+letter-spacing: 1px;
+
+margin-bottom: 15px;
+    
+}
+
+.cBallerina-io-Gray-row {
+    padding-top: 20px;
+}
+
+.cBlallerina-io-docs-left-nav-container {
+    display: inline-block;
+    background: transparent;
+    width: 100%;
+}
+
+.cBlallerina-io-docs-right-nav-container {
+    padding: 0px 0px 10px 10px;
+    display: inline-block;
+    background: transparent;
+    width: 100%;
+}
+
+.cBallerina-io-breadcrumbs {
+    padding: 0 30px 10px 30px;
+}
+
+.cBallerina-io-docs-Title {
+    
+}
+
+li.current a.current {
+    display: none;
+    
+}
+
+
+.cBallerina-io-Home-Left-col a {
+    color: #57595d;
+}
+
+/*.cBallerina-io p {
+    font-size: 12px;
+    line-height: 15px;
+    margin-bottom: 10px;
+    
+}
+
+.cBallerina-io li {
+     font-size: 12px;
+    line-height: 15px;
+} */
+
+
+h1 {
+    font-size: 25px;
+    font-weight: normal;
+    padding-bottom: 0px;
+    margin-bottom: 20px;
+}
+
+h2 {
+     font-size: 20px;
+    font-weight: normal;
+    padding: 0;
+    margin: 30px 0 10px 0;
+   
+}
+
+h3 {
+      font-size: 15px;
+    font-weight: normal;
+    
+/*    color: #22b7b1;*/
+
+   margin: 20px 0 10px 0;
+    padding: 0px;
+}
+
+pre {
+    border: none;
+    border-radius: 0;
+}
+pre code {
+    border: none;
+    border-radius: 0;
+}
+
+
+.cSideBar-Button {
+    display: none;
+}
+
+table.docutils ,  table.docutils tbody , table.docutils thead {
+    width: 100%;
+}
+.wy-breadcrumbs li, .wy-breadcrumbs li a {
+    color: #22b7b1 !important;
+}
+
+.wy-breadcrumbs li a {
+    padding-right: 0;
+}
+
+.rst-content .section ol li, .rst-content ol.arabic li, .wy-plain-list-decimal li, article ol li {
+    font-size: 13px;
+}
+
+/*#iGitEdit a {
+    color: #57595d !important;
+}*/
+
+/* #iBallerinaFooter p {
+        line-height: 14px !important;
+    }*/
+    
+
+@media screen and (max-width: 990px) {
+    
+    .col-lg-3.cBallerina-io-Home-Left-col , .col-lg-3.cBallerina-io-Home-Right-col {
+        width: 30% !important;
+        
+
+    }
+
+    .col-lg-6.cBallerina-io-Home-Middle-col {
+        width: 70% !important;
+        padding-right: 15px;
+    }
+    
+}
+
+
+@media screen and (max-width: 768px) {
+    
+    
+
+     .cBlallerina-io-docs-left-nav-box, .cBlallerina-io-docs-right-nav-box {
+        padding: 0px;
+    }
+    
+      .col-lg-6.cBallerina-io-Home-Middle-col {
+        padding: 0 15px !important;
+    }
+   
+    
+    .col-lg-3.cBallerina-io-Home-Left-col  {
+        width: 50% !important;
+        position: fixed;
+        height: 100vh;
+        left: -50%;
+        top: 0;
+        box-shadow: 0 0 20px rgba(0, 0, 0, 0.3);
+        z-index: 999;
+        background-color: #ffffff;
+        overflow: scroll;
+        transition: all 0.2s ease 0s;
+        
+        
+
+    }
+    
+    .col-lg-3.cBallerina-io-Home-Left-col.cOpen-col {
+        left: 0%;
+        transition: all 0.2s ease 0s;
+    }
+
+    .col-lg-6.cBallerina-io-Home-Middle-col {
+        width: 100% !important;
+        padding-right: 15px;
+    }
+    
+    .col-lg-3.cBallerina-io-Home-Right-col {
+        display: none;
+    }
+    
+    
+    .cSideBar-Button {
+        position: fixed;
+        left: 0;
+        top: 137px;
+        display: block;
+        transition: all 0.2s ease 0s;
+        height: 34px;
+        width: 34px;
+        display: inline-block;
+        background-color: #3ad1ca;
+    box-shadow: 5px 0px 8px rgba(0, 0, 0, 0.4);
+        cursor: pointer;
+    }
+
+    .cSideBar-Button.cOpen {
+
+        left: 50%;
+     
+          transition: all 0.2s ease 0s;
+
+    }
+    .cSideBar-Button.cOpen img {
+           transform: rotate(180deg);
+             transition: all 0.2s ease 0s;
+    }
+    
+   
+
+    
+    
+    
+    
+}

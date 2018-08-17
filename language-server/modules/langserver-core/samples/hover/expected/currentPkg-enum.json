@@ -1,0 +1,1 @@
+{"id":"324","result":{"contents":[{"left":"**Description**\r\n```\r\nTest enum for request methods\r\n\r\n```\r\n**Field**\r\n```\r\nPOST: enumerator for post method\r\nGET: enumerator for get method\r\n\r\n```\r\n"}]},"jsonrpc":"2.0"}

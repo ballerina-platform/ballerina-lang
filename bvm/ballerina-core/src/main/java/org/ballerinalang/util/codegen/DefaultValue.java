@@ -28,6 +28,7 @@ public class DefaultValue {
 
     private int valueCPIndex = -1;
     private long intValue;
+    private byte byteValue;
     private double floatValue;
     private String stringValue;
     private boolean booleanValue;
@@ -83,5 +84,13 @@ public class DefaultValue {
 
     public void setBooleanValue(boolean booleanValue) {
         this.booleanValue = booleanValue;
+    }
+
+    public byte getByteValue() {
+        return byteValue;
+    }
+
+    public void setByteValue(byte byteValue) {
+        this.byteValue = byteValue;
     }
 }

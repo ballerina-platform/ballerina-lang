@@ -153,7 +153,7 @@ class ResourceNode extends React.Component {
                                 <LifeLineDecorator
                                     title='default'
                                     bBox={this.props.model.viewState.components.defaultWorkerLine}
-                                    classes={classes}
+                                    className='worker'
                                     icon={ImageUtil.getCodePoint('worker')}
                                     model={this.props.model}
                                 />

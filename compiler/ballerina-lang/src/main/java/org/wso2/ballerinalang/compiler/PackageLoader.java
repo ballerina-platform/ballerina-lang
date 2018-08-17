@@ -30,12 +30,15 @@ import org.ballerinalang.repository.PackageRepository;
 import org.ballerinalang.repository.PackageSource;
 import org.ballerinalang.spi.SystemPackageRepositoryProvider;
 import org.ballerinalang.toml.model.Dependency;
+import org.ballerinalang.toml.model.LockFile;
 import org.ballerinalang.toml.model.Manifest;
+import org.ballerinalang.toml.parser.LockFileProcessor;
 import org.ballerinalang.toml.parser.ManifestProcessor;
 import org.wso2.ballerinalang.compiler.packaging.GenericPackageSource;
 import org.wso2.ballerinalang.compiler.packaging.Patten;
 import org.wso2.ballerinalang.compiler.packaging.RepoHierarchy;
 import org.wso2.ballerinalang.compiler.packaging.RepoHierarchyBuilder;
+import org.wso2.ballerinalang.compiler.packaging.RepoHierarchyBuilder.RepoNode;
 import org.wso2.ballerinalang.compiler.packaging.Resolution;
 import org.wso2.ballerinalang.compiler.packaging.converters.Converter;
 import org.wso2.ballerinalang.compiler.packaging.repo.BinaryRepo;
@@ -60,6 +63,7 @@ import org.wso2.ballerinalang.compiler.util.ProjectDirs;
 import org.wso2.ballerinalang.compiler.util.diagnotic.BLangDiagnosticLog;
 import org.wso2.ballerinalang.util.RepoUtils;
 
+import java.io.PrintStream;
 import java.net.URI;
 import java.nio.file.Files;
 import java.nio.file.LinkOption;
@@ -75,8 +79,10 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
+import static org.ballerinalang.compiler.CompilerOptionName.LOCK_ENABLED;
 import static org.ballerinalang.compiler.CompilerOptionName.OFFLINE;
 import static org.ballerinalang.compiler.CompilerOptionName.PROJECT_DIR;
+import static org.ballerinalang.compiler.CompilerOptionName.TEST_ENABLED;
 import static org.wso2.ballerinalang.compiler.packaging.Patten.path;
 import static org.wso2.ballerinalang.compiler.packaging.RepoHierarchyBuilder.node;
 import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.PACKAGE_MD_FILE_NAME;
@@ -93,7 +99,10 @@ public class PackageLoader {
             new CompilerContext.Key<>();
     private final RepoHierarchy repos;
     private final boolean offline;
+    private final boolean testEnabled;
+    private final boolean lockEnabled;
     private final Manifest manifest;
+    private final LockFile lockFile;
 
     private final CompilerOptions options;
     private final Parser parser;
@@ -103,7 +112,8 @@ public class PackageLoader {
     private final CompiledPackageSymbolEnter compiledPkgSymbolEnter;
     private final Names names;
     private final BLangDiagnosticLog dlog;
-    private static final boolean shouldReadBalo = Boolean.parseBoolean(System.getenv("BALLERINA_READ_BALO"));
+    private static final boolean shouldReadBalo = true;
+    private static PrintStream outStream = System.out;
 
     public static PackageLoader getInstance(CompilerContext context) {
         PackageLoader loader = context.get(PACKAGE_LOADER_KEY);
@@ -130,37 +140,40 @@ public class PackageLoader {
         this.names = Names.getInstance(context);
         this.dlog = BLangDiagnosticLog.getInstance(context);
         this.offline = Boolean.parseBoolean(options.get(OFFLINE));
+        this.testEnabled = Boolean.parseBoolean(options.get(TEST_ENABLED));
+        this.lockEnabled = Boolean.parseBoolean(options.get(LOCK_ENABLED));
         this.repos = genRepoHierarchy(Paths.get(options.get(PROJECT_DIR)));
-        this.manifest = ManifestProcessor.parseTomlContentAsStream(sourceDirectory.getManifestContent());
+        this.manifest = ManifestProcessor.getInstance(context).getManifest();
+        this.lockFile = LockFileProcessor.getInstance(context).getLockFile();
     }
 
     private RepoHierarchy genRepoHierarchy(Path sourceRoot) {
         Path balHomeDir = RepoUtils.createAndGetHomeReposPath();
         Path projectHiddenDir = sourceRoot.resolve(".ballerina");
-        RepoHierarchyBuilder.RepoNode[] systemArr = loadSystemRepos();
         Converter<Path> converter = sourceDirectory.getConverter();
 
-        Repo remote = new RemoteRepo(URI.create("https://api.central.ballerina.io/packages/"));
+        RepoNode system = node(new BinaryRepo(RepoUtils.getLibDir()));
+        Repo remote = new RemoteRepo(URI.create(RepoUtils.getRemoteRepoURL()));
         Repo homeCacheRepo = new CacheRepo(balHomeDir, ProjectDirConstants.BALLERINA_CENTRAL_DIR_NAME);
         Repo homeRepo = shouldReadBalo ? new BinaryRepo(balHomeDir) : new ZipRepo(balHomeDir);
         Repo projectCacheRepo = new CacheRepo(projectHiddenDir, ProjectDirConstants.BALLERINA_CENTRAL_DIR_NAME);
         Repo projectRepo = shouldReadBalo ? new BinaryRepo(projectHiddenDir) : new ZipRepo(projectHiddenDir);
 
 
-        RepoHierarchyBuilder.RepoNode homeCacheNode;
+        RepoNode homeCacheNode;
 
         if (offline) {
-            homeCacheNode = node(homeCacheRepo, systemArr);
+            homeCacheNode = node(homeCacheRepo, system);
         } else {
-            homeCacheNode = node(homeCacheRepo, node(remote, systemArr));
+            homeCacheNode = node(homeCacheRepo, node(remote, system));
         }
-        RepoHierarchyBuilder.RepoNode nonLocalRepos = node(projectRepo,
-                                                           node(projectCacheRepo, homeCacheNode),
-                                                           node(homeRepo, homeCacheNode));
-        RepoHierarchyBuilder.RepoNode fullRepoGraph;
+        RepoNode nonLocalRepos = node(projectRepo,
+                                      node(projectCacheRepo, homeCacheNode),
+                                      node(homeRepo, homeCacheNode));
+        RepoNode fullRepoGraph;
         if (converter != null) {
             Repo programingSource = new ProgramingSourceRepo(converter);
-            Repo projectSource = new ProjectSourceRepo(converter);
+            Repo projectSource = new ProjectSourceRepo(converter, testEnabled);
             fullRepoGraph = node(programingSource,
                                  node(projectSource,
                                       nonLocalRepos));
@@ -171,8 +184,8 @@ public class PackageLoader {
 
     }
 
-    private RepoHierarchyBuilder.RepoNode[] loadSystemRepos() {
-        List<RepoHierarchyBuilder.RepoNode> systemList;
+    private RepoNode[] loadSystemRepos() {
+        List<RepoNode> systemList;
         ServiceLoader<SystemPackageRepositoryProvider> loader
                 = ServiceLoader.load(SystemPackageRepositoryProvider.class);
         systemList = StreamSupport.stream(loader.spliterator(), false)
@@ -180,11 +193,11 @@ public class PackageLoader {
                                   .filter(Objects::nonNull)
                                   .map(r -> node(r))
                                   .collect(Collectors.toList());
-        return systemList.toArray(new RepoHierarchyBuilder.RepoNode[systemList.size()]);
+        return systemList.toArray(new RepoNode[systemList.size()]);
     }
 
-    private PackageEntity loadPackageEntity(PackageID pkgId) {
-        updateVersionFromToml(pkgId);
+    private PackageEntity loadPackageEntity(PackageID pkgId, PackageID enclPackageId) {
+        updateVersionFromToml(pkgId, enclPackageId);
         Resolution resolution = repos.resolve(pkgId);
         if (resolution == Resolution.NOT_FOUND) {
             return null;
@@ -198,33 +211,65 @@ public class PackageLoader {
         }
     }
 
-    private void updateVersionFromToml(PackageID pkgId) {
+    private void updateVersionFromToml(PackageID pkgId, PackageID enclPackageId) {
         String orgName = pkgId.orgName.value;
         String pkgName = pkgId.name.value;
         String pkgAlias = orgName + "/" + pkgName;
+        if (!lockEnabled) {
+            // TODO: make getDependencies return a map
+            Optional<Dependency> dependency = manifest.getDependencies()
+                                                      .stream()
+                                                      .filter(d -> d.getPackageName().equals(pkgAlias))
+                                                      .findFirst();
+            if (dependency.isPresent()) {
+                if (pkgId.version.value.isEmpty()) {
+                    pkgId.version = new Name(dependency.get().getVersion());
+                } else {
+                    throw new BLangCompilerException("dependency version in Ballerina.toml mismatches" +
+                                                             " with the version in the source for package " + pkgAlias);
+                }
+            }
+        } else {
+            // Read from lock file
+            if (enclPackageId != null) { // Not a top level package or bal
+                String enclPkgAlias = enclPackageId.orgName.value + "/" + enclPackageId.name.value;
 
-        // TODO: make getDependencies return a map
-        Optional<Dependency> dependency = manifest.getDependencies()
-                                                  .stream()
-                                                  .filter(d -> d.getPackageName().equals(pkgAlias))
-                                                  .findFirst();
-        if (dependency.isPresent()) {
-            if (pkgId.version.value.isEmpty()) {
-                pkgId.version = new Name(dependency.get().getVersion());
-            } else {
-                throw new BLangCompilerException("dependency version in Ballerina.toml mismatches" +
-                                                 " with the version in the source for package " + pkgAlias);
+                Optional<LockFilePackage> lockFilePackage = lockFile.getPackageList()
+                                                                    .stream()
+                                                                    .filter(pkg -> {
+                                                                        String org = pkg.getOrg();
+                                                                        if (org.isEmpty()) {
+                                                                            org = manifest.getName();
+                                                                        }
+                                                                        String alias = org + "/" + pkg.getName();
+                                                                        return alias.equals(enclPkgAlias);
+                                                                    })
+                                                                    .findFirst();
+                if (lockFilePackage.isPresent()) {
+                    Optional<LockFilePackage> dependency = lockFilePackage.get().getDependencies()
+                                                                          .stream()
+                                                                          .filter(pkg -> {
+                                                                              String alias = pkg.getOrg() + "/"
+                                                                                      + pkg.getName();
+                                                                              return alias.equals(pkgAlias);
+                                                                          })
+                                                                          .findFirst();
+                    dependency.ifPresent(dependencyPkg -> pkgId.version = new Name(dependencyPkg.getVersion()));
+                }
             }
         }
     }
 
-    public BLangPackage loadEntryPackage(PackageID pkgId) {
+    public BLangPackage loadEntryPackage(PackageID pkgId, PackageID enclPackageId, boolean isBuild) {
+        if (isBuild) {
+            outStream.println("    " + (pkgId.isUnnamed ? pkgId.sourceFileName.value : pkgId.toString()));
+        }
         //even entry package may be already loaded through an import statement.
         BLangPackage bLangPackage = packageCache.get(pkgId);
         if (bLangPackage != null) {
             return bLangPackage;
         }
-        PackageEntity pkgEntity = loadPackageEntity(pkgId);
+        PackageEntity pkgEntity = loadPackageEntity(pkgId, enclPackageId);
         if (pkgEntity == null) {
             throw ProjectDirs.getPackageNotFoundError(pkgId);
         }
@@ -234,49 +279,50 @@ public class PackageLoader {
             return packageNode;
         }
 
-        addImportPkg(packageNode, Names.BUILTIN_ORG.value, Names.RUNTIME_PACKAGE.value, Names.EMPTY.value);
         define(packageNode);
         return packageNode;
     }
 
-    public BLangPackage loadPackage(PackageID pkgId, PackageRepository packageRepo) {
+    public BLangPackage loadPackage(PackageID pkgId, PackageID enclPackageId, PackageRepository packageRepo) {
         // TODO Remove this method()
         BLangPackage bLangPackage = packageCache.get(pkgId);
         if (bLangPackage != null) {
             return bLangPackage;
         }
 
-        BLangPackage packageNode = loadPackageFromEntity(pkgId, loadPackageEntity(pkgId));
+        BLangPackage packageNode = loadPackageFromEntity(pkgId, loadPackageEntity(pkgId, enclPackageId));
         if (packageNode == null) {
             throw ProjectDirs.getPackageNotFoundError(pkgId);
         }
         return packageNode;
     }
 
-    public BLangPackage loadAndDefinePackage(String orgName, String pkgName) {
+    public BLangPackage loadAndDefinePackage(String orgName, String pkgName, String version) {
         // TODO This is used only to load the builtin package.
-        PackageID pkgId = getPackageID(orgName, pkgName);
+        PackageID pkgId = getPackageID(orgName, pkgName, version);
         return loadAndDefinePackage(pkgId);
     }
 
     public BLangPackage loadAndDefinePackage(PackageID pkgId) {
         // TODO this used only by the language server component and the above method.
-        BLangPackage bLangPackage = loadPackage(pkgId, null);
+        BLangPackage bLangPackage = loadPackage(pkgId, null, null);
         if (bLangPackage == null) {
             return null;
         }
 
         this.symbolEnter.definePackage(bLangPackage);
+        bLangPackage.symbol.compiledPackage = createInMemoryCompiledPackage(bLangPackage);
         return bLangPackage;
     }
 
-    public BPackageSymbol loadPackageSymbol(PackageID packageId, PackageRepository packageRepo) {
+    public BPackageSymbol loadPackageSymbol(PackageID packageId, PackageID enclPackageId,
+                                            PackageRepository packageRepo) {
         BPackageSymbol packageSymbol = this.packageCache.getSymbol(packageId);
         if (packageSymbol != null) {
             return packageSymbol;
         }
 
-        PackageEntity pkgEntity = loadPackageEntity(packageId);
+        PackageEntity pkgEntity = loadPackageEntity(packageId, enclPackageId);
         if (pkgEntity == null) {
             return null;
         }
@@ -312,16 +358,16 @@ public class PackageLoader {
         importDcl.orgName = orgNameNode;
         importDcl.version = versionNode;
         BLangIdentifier alias = (BLangIdentifier) TreeBuilder.createIdentifierNode();
-        alias.setValue(names.merge(Names.DOT, nameComps.get(nameComps.size() - 1)).value);
+        alias.setValue(names.merge(Names.ORG_NAME_SEPARATOR, nameComps.get(nameComps.size() - 1)).value);
         importDcl.alias = alias;
         bLangPackage.imports.add(importDcl);
     }
 
-    private PackageID getPackageID(String org, String sourcePkg) {
+    private PackageID getPackageID(String org, String sourcePkg, String version) {
         // split from '.', '\' and '/'
         List<Name> pkgNameComps = getPackageNameComps(sourcePkg);
         Name orgName = new Name(org);
-        return new PackageID(orgName, pkgNameComps, Names.DEFAULT_VERSION);
+        return new PackageID(orgName, pkgNameComps, new Name(version));
     }
 
     private List<Name> getPackageNameComps(String sourcePkg) {
@@ -376,31 +422,27 @@ public class PackageLoader {
 
     private CompiledPackage createInMemoryCompiledPackage(BLangPackage pkgNode) {
         PackageID packageID = pkgNode.packageID;
-        // TODO find a better solution
-        if (Names.BUILTIN_ORG.value.equals(packageID.getOrgName().value)) {
-            return null;
-        }
         InMemoryCompiledPackage compiledPackage = new InMemoryCompiledPackage(packageID);
 
         // Get the list of source entries.
         Path projectPath = this.sourceDirectory.getPath();
-        ProjectSourceRepo projectSourceRepo = new ProjectSourceRepo(projectPath);
+        ProjectSourceRepo projectSourceRepo = new ProjectSourceRepo(projectPath, testEnabled);
         Patten packageIDPattern = projectSourceRepo.calculate(packageID);
         if (packageIDPattern != Patten.NULL) {
-            Stream<Path> srcPathStream = packageIDPattern.convert(projectSourceRepo.getConverterInstance());
+            Stream<Path> srcPathStream = packageIDPattern.convert(projectSourceRepo.getConverterInstance(), packageID);
             compiledPackage.srcEntries = srcPathStream
                     .filter(path -> Files.exists(path, LinkOption.NOFOLLOW_LINKS))
                     .map(projectPath::relativize)
-                    .map(path -> new PathBasedCompiledPackageEntry(path, CompilerOutputEntry.Kind.SRC))
+                    .map(path -> new PathBasedCompiledPackageEntry(projectPath, path, CompilerOutputEntry.Kind.SRC))
                     .collect(Collectors.toList());
 
             // Get the Package.md file
             Patten pkgMDPattern = packageIDPattern.sibling(path(PACKAGE_MD_FILE_NAME));
-            pkgMDPattern.convert(projectSourceRepo.getConverterInstance())
+            pkgMDPattern.convert(projectSourceRepo.getConverterInstance(), packageID)
                     .filter(pkgMDPath -> Files.exists(pkgMDPath, LinkOption.NOFOLLOW_LINKS))
                     .map(projectPath::relativize)
-                    .map(pkgMDPath -> new PathBasedCompiledPackageEntry(pkgMDPath,
-                            CompilerOutputEntry.Kind.ROOT))
+                    .map(pkgMDPath -> new PathBasedCompiledPackageEntry(projectPath, pkgMDPath,
+                                                                        CompilerOutputEntry.Kind.ROOT))
                     .findAny()
                     .ifPresent(pkgEntry -> compiledPackage.pkgMDEntry = pkgEntry);
         }

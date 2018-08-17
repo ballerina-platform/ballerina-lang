@@ -4,7 +4,7 @@
         overflow: hidden;
         border-bottom: none;
         .rc-tabs-content {
-            height: calc(100% - 20px);
+            height: calc(100% - 30px);
             .editor-split-view {
                 position: relative;
                 .text-editor {
@@ -16,21 +16,19 @@
             border-bottom: none;
             height: 30px;
             & .rc-tabs-nav-container {
-                background-color: #282828;
+                background-color: $rc-tabs-bgcolor;
             }
             & .rc-tabs-nav-container-scrolling {
-                & .rc-tabs-tab-next, .rc-tabs-tab-prev {
+                & .rc-tabs-tab-next,
+                .rc-tabs-tab-prev {
                     @extend .unseletable-content;
-
-                    background-color: #565656;  
-                    color: #999;
-                    height: 20px;
-                    padding: 2px 0 2px 0;
-                    border-left: 1px solid #3c3c3c;
-                    border-right: 1px solid #3c3c3c;
-                    line-height: 1;
+                    background-color: $rc-tabs-bgcolor;
+                    color: $white03;
+                    border-left: 1px solid $rc-tabs-tab-borderColor;
+                    border-right: 1px solid $rc-tabs-tab-borderColor;
+                    line-height: 30px;
                     &.rc-tabs-tab-btn-disabled {
-                        color: #686868;
+                        color: $gray07;
                     }
                 }
             }
@@ -40,55 +38,89 @@
         }
         .rc-tabs-tab {
             @extend .unseletable-content;
-            background-color: #3c3c3c;
-            color: #e7eaeb;
-            height: 24px;
-            min-width: 120px;
+            background-color: $rc-tabs-tab-color;
+            color: $rc-tabs-text-color;
             padding: 0;
             margin-right: 0;
-            border-right: 1px solid #16191d;
             font-weight: 300;
             height: 30px;
             .tab-title-wrapper {
-                padding: 4px 5px 0 5px;
+                border-left: 2px solid $rc-tabs-tab-color;
+                border-right: 1px solid $gray01;
+                padding: 0 2px 0 0;
+                line-height: 30px;
                 .dirty-indicator {
                     margin-left: 5px;
                 }
+                &.try-it-title {
+                    background-color: #777;
+                    color: #fff;
+                    padding-left: 8px;
+                }
+                &.welcome-page-tab-title {
+                    font-style: italic;
+                    .close-tab {
+                        font-style: normal;
+                    }
+                    .tab-icon {
+                        color: #2fb8b0;
+                    }
+                }
             }
             .tab-icon {
-                margin-right: 10px;
                 font-size: 10px;
                 position: relative;
-                bottom: 1px;
+                padding: 0 8px 0 7px;
             }
-            &:hover{
-                color: #bebebe;
-                background-color: #3c3c3c;
+            &:hover {
+                color: $rc-tabs-active-color;
+                background-color: $rc-tabs-tab-color;
+                .close-tab {
+                    visibility: visible;
+                }
             }
             &.rc-tabs-tab-active {
-                &.inverse {
-                    color: #333;
-                    background: white;
+                .tab-title-wrapper {
+                    border-left-color: #2fb8b0;
+                    &.welcome-page-tab-title {
+                        background-color: $primaryBackgroundColor;
+                        color: #1a1b1d;
+                        height: 30px;
+                        .close-tab {
+                            background: $primaryBackgroundColor !important;
+                            color: #7D7D7D;
+                            &:hover {
+                                color: #474747;
+                            }
+                        }
+                        .tab-icon {
+                            color: #2fb8b0;
+                        }
+                    }
                 }
-                color: #bebebe;
-                background-color: #1e1e1e;
-                border-top: 1px solid #282828;
+                &.inverse {
+                    color: $tab-header-active-inverse-color;
+                    background: $tab-header-active-inverse-bgcolor;
+                }
+                color: $rc-tabs-active-color;
+                background-color: $rc-tabs-active-bgcolor;
                 .close-tab {
-                    background: #1e1e1e;
+                    visibility: visible;
                 }
             }
             .close-tab {
-                color: #999;
-                margin: 2px 2px 0 5px;
-                line-height: 15px;
+                color: $white01;
+                line-height: 28px;
                 text-shadow: none;
                 border: 0;
-                background: #3c3c3c;
+                background: transparent;
                 outline-color: transparent;
-                &:hover{
-                    color: #bebebe;
+                visibility: hidden;
+                cursor: pointer;
+                &:hover {
+                    color: $rc-tabs-active-color;
                 }
-                &:active{
+                &:active {
                     outline: none;
                 }
             }
@@ -97,7 +129,7 @@
             height: 100%;
             overflow: hidden;
             position: relative;
-            background: #1e1e1e;
+            background: $rc-tabs-active-bgcolor;
         }
     }
     .split-view-controls-container {
@@ -105,8 +137,7 @@
         bottom: 20px;
         right: 50px;
         z-index: 30;
-        background: $bottom-right-controls-bgcolor;
-        color: #fff;
+        color: $rc-tabs-text-color;
         padding: 0;
         line-height: 40px;
         .btn-icon {
@@ -115,13 +146,12 @@
             span {
                 font-size: 12px;
                 padding-left: 5px;
-                width:95px;
+                width: 95px;
             }
             &:hover:after {
                 opacity: 0.5
             }
         }
-        
         .bottom-view-label {
             font-size: 12px;
             float: left;

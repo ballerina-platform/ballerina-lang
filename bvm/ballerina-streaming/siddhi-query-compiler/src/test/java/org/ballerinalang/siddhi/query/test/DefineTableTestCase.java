@@ -26,6 +26,9 @@ import org.ballerinalang.siddhi.query.compiler.exception.SiddhiParserException;
 import org.testng.AssertJUnit;
 import org.testng.annotations.Test;
 
+/**
+ * Testcase for defining event tables.
+ */
 public class DefineTableTestCase {
 
     @Test

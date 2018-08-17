@@ -22,16 +22,14 @@ import org.ballerinalang.langserver.compiler.LSServiceOperationContext;
 import org.ballerinalang.langserver.completions.CompletionKeys;
 import org.eclipse.lsp4j.CompletionItem;
 
-import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Parameter context resolver for resolving the items of the parameter context.
  */
 public class ParameterContextResolver extends AbstractItemResolver {
     @Override
-    public ArrayList<CompletionItem> resolveItems(LSServiceOperationContext completionContext) {
-        ArrayList<CompletionItem> completionItems = new ArrayList<>();
-        this.populateBasicTypes(completionItems, completionContext.get(CompletionKeys.VISIBLE_SYMBOLS_KEY));
-        return completionItems;
+    public List<CompletionItem> resolveItems(LSServiceOperationContext completionContext) {
+        return this.populateBasicTypes(completionContext.get(CompletionKeys.VISIBLE_SYMBOLS_KEY));
     }
 }

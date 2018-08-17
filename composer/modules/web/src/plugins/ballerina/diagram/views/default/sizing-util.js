@@ -327,6 +327,9 @@ class SizingUtil {
      * @param {object} node function node
      */
     sizeFunctionNode(node) {
+        if (!node.body) {
+            return; // This is to handle function pointers in objects.
+        }
         const viewState = node.viewState;
         const functionBodyViewState = node.body.viewState;
         const cmp = viewState.components;
@@ -415,7 +418,7 @@ class SizingUtil {
         }
 
         if (TreeUtil.isFunction(node) && !TreeUtil.isMainFunction(node)) {
-            if (node.getReceiver()) {
+            if (node.getReceiver() && node.getReceiver().getTypeNode()) {
                 cmp.receiver.w = this.getTextWidth(node.getReceiver().getTypeNode().getTypeName().value, 0).w + 50;
             }
         }
@@ -564,6 +567,17 @@ class SizingUtil {
         this.sizeStatement(node.getSource(true, true), viewState);
     }
 
+    /**
+     * Calculate dimention of PostIncrementNode nodes.
+     *
+     * @param {object} node
+     *
+     */
+    sizePostIncrementNode(node) {
+        const viewState = node.viewState;
+        this.sizeStatement(node.getSource(true, true), viewState);
+    }
+
 
     /**
      * Calculate dimention of Service nodes.
@@ -578,7 +592,7 @@ class SizingUtil {
         cmp.heading = new SimpleBBox();
         cmp.body = new SimpleBBox();
         cmp.initFunction = new SimpleBBox();
-        cmp.transportLine = new SimpleBBox();
+        cmp.serverConnector = new SimpleBBox();
         cmp.connectors = new SimpleBBox();
         cmp.annotation = new SimpleBBox();
         cmp.title = new SimpleBBox();
@@ -590,24 +604,15 @@ class SizingUtil {
         // Set the service/connector definition height according to the resources/connector definitions
         // This is due to the logic re-use by the connector nodes as well
         let children = [];
-        if (TreeUtil.isService(node)) {
-            children = node.getResources();
-        } else if (TreeUtil.isConnector(node)) {
-            children = node.getActions();
-        }
+        children = node.getResources();
+
         let variables = [];
         let endpoints = [];
-        if (TreeUtil.isService(node)) {
-            variables = node.getVariables();
-            endpoints = node.filterVariables((statement) => {
-                return TreeUtil.isEndpointTypeVariableDef(statement);
-            });
-        } else if (TreeUtil.isConnector(node)) {
-            variables = node.getVariableDefs();
-            endpoints = node.filterVariableDefs((statement) => {
-                return TreeUtil.isEndpointTypeVariableDef(statement);
-            });
-        }
+        variables = node.getVariables();
+        endpoints = node.filterVariables((statement) => {
+            return TreeUtil.isEndpointTypeVariableDef(statement);
+        });
+
         // calculate the annotation height.
         cmp.annotation.h = (!viewState.showAnnotationContainer) ? 0 : this._getAnnotationHeight(node, 35);
 
@@ -652,9 +657,11 @@ class SizingUtil {
         width += connectorWidth;
         cmp.connectors.w = connectorWidth;
         // calculate header related components.
-        const textWidth = this.getTextWidth(node.getName().value);
+        const textWidth = this.getTextWidth(node.getName().value, 0);
         viewState.titleWidth = textWidth.w;
         viewState.trimmedTitle = textWidth.text;
+
+        cmp.serverConnector.typeName = this.getTextWidth(node.getType(), 0);
         // set the heading height
         cmp.heading.h = this.config.panel.heading.height;
 
@@ -662,23 +669,6 @@ class SizingUtil {
 
         viewState.bBox.h = cmp.annotation.h + cmp.body.h + cmp.heading.h + connectorHeight;
 
-        if (TreeUtil.isConnector(node)) {
-            cmp.argParameterHolder = {};
-            // Creating components for argument parameters
-            if (node.getParameters()) {
-                // Creating component for opening bracket of the parameters view.
-                cmp.argParameterHolder.openingParameter = {};
-                cmp.argParameterHolder.openingParameter.w = this.getTextWidth('(', 0).w;
-
-                // Creating component for closing bracket of the parameters view.
-                cmp.argParameterHolder.closingParameter = {};
-                cmp.argParameterHolder.closingParameter.w = this.getTextWidth(')', 0).w;
-
-                cmp.heading.w += cmp.argParameterHolder.openingParameter.w
-                    + cmp.argParameterHolder.closingParameter.w
-                    + this.getParameterTypeWidth(node.getParameters()) + (this.config.panel.buttonWidth * 3);
-            }
-        }
         // set the components.
         viewState.components = cmp;
 
@@ -1094,6 +1084,7 @@ class SizingUtil {
         this.adjustToLambdaSize(node, viewState);
         this.sizeActionInvocationStatement(node);
         this.sizeClientResponderStatement(node);
+        this.sizeAwaitResponseStatement(node);
     }
 
     /**
@@ -1627,6 +1618,25 @@ class SizingUtil {
             viewState.bBox.h = this.config.actionInvocationStatement.height;
             viewState.components['statement-box'].h = this.config.actionInvocationStatement.height;
             viewState.alias = 'InvocationNode';
+            // Check if action invocation is async call.
+            if (TreeUtil.statementIsASync(node)) {
+                viewState.async = true;
+            }
+        }
+    }
+
+    /**
+     * Size statements containing await response invocation statements
+     * @param {node} node node to size
+     */
+    sizeAwaitResponseStatement(node) {
+        // This function gets called by statements containing action invocation expressions
+        if (TreeUtil.statementIsAwaitResponse(node) && TreeUtil.findCompatibleStart(node)) {
+            const viewState = node.viewState;
+            viewState.bBox.h = this.config.statement.height;
+            viewState.components['statement-box'].h = this.config.actionInvocationStatement.height;
+            viewState.alias = 'AwaitResponseNode';
+            viewState.expression = (TreeUtil.isAssignment(node)) ? node.variable.variableName.value : '';
         }
     }
 
@@ -1648,7 +1658,10 @@ class SizingUtil {
                 viewState.displayText = displayText.text;
             }
             if (TreeUtil.isAssignment(node)) {
-                const exp = node.getExpression();
+                let exp = node.getExpression();
+                if (TreeUtil.isMatchExpression(exp)) {
+                    exp = exp.getExpression();
+                }
                 const argExpSource = exp.getArgumentExpressions().map((arg) => {
                     return arg.getSource(true, true);
                 }).join(', ');
@@ -1666,8 +1679,11 @@ class SizingUtil {
                 viewState.displayText = displayText.text;
             }
             if (TreeUtil.isExpressionStatement(node)) {
-                const exp = node.getExpression();
-                const argExpSource = exp.getArgumentExpressions().map((arg) => {
+                let exp2 = node.getExpression();
+                if (TreeUtil.isMatchExpression(exp2)) {
+                    exp2 = exp2.expression;
+                }
+                const argExpSource = exp2.argumentExpressions.map((arg) => {
                     return arg.getSource(true, true);
                 }).join(', ');
                 const displayText = this.getTextWidth(argExpSource, 0,
@@ -1853,6 +1869,16 @@ class SizingUtil {
      *
      */
     sizeValueTypeNode(node) {
+        // Not implemented.
+    }
+
+    /**
+     * Calculate dimention of AwaitExprNode nodes.
+     *
+     * @param {object} node
+     *
+     */
+    sizeAwaitExprNode(node) {
         // Not implemented.
     }
 

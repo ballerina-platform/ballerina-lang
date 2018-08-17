@@ -21,7 +21,7 @@
     <parent>
         <groupId>org.ballerinalang</groupId>
         <artifactId>composer</artifactId>
-        <version>0.970.0-beta6-SNAPSHOT</version>
+        <version>0.981.1-SNAPSHOT</version>
         <relativePath>../../pom.xml</relativePath>
     </parent>
 
@@ -61,6 +61,40 @@
                             <descriptors>
                                 <descriptor>${basedir}/library/assembly/bin.xml</descriptor>
                             </descriptors>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>electron-distribution</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>attached</goal>
+                        </goals>
+                        <configuration>
+                            <descriptors>
+                                <descriptor>${basedir}/assembly/electron-bin.xml</descriptor>
+                            </descriptors>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-antrun-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>set-npm-executable</id>
+                        <phase>validate</phase>
+                        <goals>
+                            <goal>run</goal>
+                        </goals>
+                        <configuration>
+                            <target>
+                                <!-- set executable names based on OS family -->
+                                <condition property="npm.executable" value="npm.cmd" else="npm">
+                                    <os family="windows" />
+                                </condition>
+                            </target>
+                            <exportAntProperties>true</exportAntProperties>
                         </configuration>
                     </execution>
                 </executions>
@@ -124,6 +158,21 @@
                             <arguments>
                                 <argument>run</argument>
                                 <argument>${npm.build.command}</argument>
+                            </arguments>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>npm run build (compile) Electron</id>
+                        <goals>
+                            <goal>exec</goal>
+                        </goals>
+                        <phase>compile</phase>
+                        <configuration>
+                            <skip>${skipClientSideBuild}</skip>
+                            <executable>${npm.executable}</executable>
+                            <arguments>
+                                <argument>run</argument>
+                                <argument>build-electron</argument>
                             </arguments>
                         </configuration>
                     </execution>
@@ -203,8 +252,8 @@
                             <value>"version": "\${parsedVersion.majorVersion}.\${parsedVersion.minorVersion}.\${parsedVersion.incrementalVersion}",</value>
                         </replacement>
                         <replacement>
-                            <token>className="version"&gt;v(.*?)&lt;</token>
-                            <value>className="version"&gt;v\${parsedVersion.majorVersion}.\${parsedVersion.minorVersion}.\${parsedVersion.incrementalVersion}.\${parsedVersion.qualifier}&lt;</value>
+                            <token>className='version'&gt;v(.*?)&lt;</token>
+                            <value>className='version'&gt;v\${parsedVersion.majorVersion}.\${parsedVersion.minorVersion}.\${parsedVersion.incrementalVersion}.\${parsedVersion.qualifier}&lt;</value>
                         </replacement>
                         <replacement>
                             <token>https://ballerinalang.org/docs/api/(.*?)/</token>

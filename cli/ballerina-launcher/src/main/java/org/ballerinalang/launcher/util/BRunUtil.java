@@ -97,8 +97,11 @@ public class BRunUtil {
             throw new RuntimeException("Function '" + functionName + "' is not defined");
         }
 
-        if (functionInfo.getParamTypes().length != args.length) {
-            throw new RuntimeException("Size of input argument arrays is not equal to size of function parameters");
+        int requiredArgNo = functionInfo.getParamTypes().length;
+        int providedArgNo = args.length;
+        if (requiredArgNo != providedArgNo) {
+            throw new RuntimeException("Wrong number of arguments. Required: " + requiredArgNo + " , found: " +
+                    providedArgNo + ".");
         }
 
         BValue[] response = BLangFunctions.invokeCallable(functionInfo,
@@ -130,12 +133,11 @@ public class BRunUtil {
             throw new IllegalStateException(compileResult.toString());
         }
         ProgramFile programFile = compileResult.getProgFile();
-        PackageInfo packageInfo = programFile.getPackageInfo(packageName);
         WorkerExecutionContext context = new WorkerExecutionContext(programFile);
         Debugger debugger = new Debugger(programFile);
         programFile.setDebugger(debugger);
         compileResult.setContext(context);
-        BLangFunctions.invokePackageInitFunction(packageInfo.getInitFunctionInfo(), context);
+        BLangFunctions.invokePackageInitFunctions(programFile, context);
     }
 
     /**
@@ -182,15 +184,7 @@ public class BRunUtil {
      * @return return values of the function
      */
     public static BValue[] invoke(CompileResult compileResult, String functionName, BValue[] args) {
-        if (compileResult.getErrorCount() > 0) {
-            throw new IllegalStateException(compileResult.toString());
-        }
-        ProgramFile programFile = compileResult.getProgFile();
-        Debugger debugger = new Debugger(programFile);
-        programFile.setDebugger(debugger);
-
-        BValue[] response = BLangFunctions.invokeEntrypointCallable(programFile,
-                programFile.getEntryPkgName(), functionName, args);
+        BValue[] response = invokeFunction(compileResult, functionName, args);
         return spreadToBValueArray(response);
     }
 
@@ -215,6 +209,16 @@ public class BRunUtil {
         return response;
     }
 
+    /**
+     * Invoke a ballerina function to get BReference Value Objects.
+     *
+     * @param compileResult CompileResult instance
+     * @param functionName Name of the function to invoke
+     * @return return values of the function
+     */
+    public static BValue[] invokeFunction(CompileResult compileResult, String functionName) {
+        return invokeFunction(compileResult, functionName, new BValue[] {});
+    }
 
     private static BValue[] spreadToBValueArray(BValue[] response) {
         if (!(response != null && response.length > 0 && response[0] instanceof BRefValueArray)) {

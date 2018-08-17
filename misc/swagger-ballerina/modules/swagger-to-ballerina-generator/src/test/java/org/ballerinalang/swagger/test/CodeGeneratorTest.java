@@ -30,14 +30,15 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 
 /**
- * Unit tests for {@link org.ballerinalang.swagger.CodeGenerator}
+ * Unit tests for {@link org.ballerinalang.swagger.CodeGenerator}.
  */
 public class CodeGeneratorTest {
     private Path projectPath;
 
     @BeforeClass()
     public void setup() {
-        String resourcePath = CodeGeneratorTest.class.getProtectionDomain().getCodeSource().getLocation().getPath();
+        String resourcePath = new File(CodeGeneratorTest.class.getProtectionDomain().getCodeSource().getLocation()
+                .getPath()).getAbsolutePath();
         projectPath = Paths.get(resourcePath);
     }
 

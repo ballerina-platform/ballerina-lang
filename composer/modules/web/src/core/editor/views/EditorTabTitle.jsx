@@ -18,6 +18,7 @@
  */
 
 import React from 'react';
+import cn from 'classnames';
 import PropTypes from 'prop-types';
 import { EVENTS as WORKSPACE_EVENTS } from './../../workspace/constants';
 
@@ -102,8 +103,13 @@ class EditorTabTitle extends React.Component {
                 >
                     ×
                 </button>
-                <i className="fw fw-ballerina tab-icon" />
-                {file.name}
+                {/* TODO: Add a new contribution point to get icons for each ext and use them here */}
+                <i className={
+                        cn('fw', 'tab-icon', { 'fw-ballerina': file.extension === 'bal' },
+                        { 'fw-document': file.extension !== 'bal' })
+                    }
+                />
+                {file.name + '.' + file.extension}
                 {this.state.isFileDirty && <span className="dirty-indicator">*</span> }
             </div>
         );

@@ -31,6 +31,9 @@ import org.testng.AssertJUnit;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
+/**
+ * Testcase for delete operation in tables.
+ */
 public class DeleteFromTableTestCase {
     private static final Logger log = LoggerFactory.getLogger(DeleteFromTableTestCase.class);
     private int inEventCount;

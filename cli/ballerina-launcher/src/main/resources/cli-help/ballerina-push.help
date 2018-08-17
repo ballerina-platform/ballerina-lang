@@ -1,0 +1,29 @@
+NAME
+    Ballerina push - Upload package to Ballerina Central
+
+SYNOPSIS
+    ballerina push <package-name>
+
+DESCRIPTION
+     Uploads the given package to Ballerina Central 
+     (https://central.ballerina.io/) repository. 
+
+     Before you can push, you must enter your Ballerina Central
+     access token in Settings.toml in your home repository 
+     (<USER_HOME>/.ballerina/). To get your token, register
+     on Ballerina Central and visit the user dashboard at 
+     https://central.ballerina.io/dashboard.  
+
+     When you push a package to Ballerina Central, the runtime will 
+     validate organizations for the user against the org-name defined in 
+     your package’s Ballerina.toml file. Therefore, when you have more 
+     than one organization in Ballerina Central, be sure to pick the 
+     organization name that you intend to push the package into and 
+     set that as org-name in the package Ballerina.toml file. 
+
+OPTIONS
+     Ballerina push command takes no options.
+
+EXAMPLES
+     Push math package to Ballerina Central 
+     $ ballerina push math

@@ -26,6 +26,9 @@ import { getHandlerDefinitions } from './handlers';
 import { getMenuDefinitions } from './menus';
 import WelcomeTab from './views/welcome-tab';
 import { LABELS, VIEWS as WELCOME_TAB_VIEWS, WELCOME_TAB_PLUGIN_ID, COMMANDS as COMMAND_IDS } from './constants';
+import allBBes from './sample-data/all-bbes.json';
+import builtBBes from './sample-data/built-bbes.json';
+import skipBBes from './sample-data/skip-bbes.json';
 
 /**
  * Plugin for Welcome tab.
@@ -40,12 +43,12 @@ class WelcomeTabPlugin extends Plugin {
     }
 
     /**
-     * Creates new tab.
+     * Creates new project.
      * @memberof WelcomeTabPlugin
      */
     createNewHandler() {
         const { command } = this.appContext;
-        command.dispatch(WORKSPACE_COMMANDS.CREATE_NEW_FILE, '');
+        command.dispatch(WORKSPACE_COMMANDS.SHOW_CREATE_PROJECT_WIZARD, {});
     }
 
     /**
@@ -66,7 +69,7 @@ class WelcomeTabPlugin extends Plugin {
         command.dispatch(WORKSPACE_COMMANDS.SHOW_FOLDER_OPEN_WIZARD, '');
     }
 
-     /**
+    /**
      * @inheritdoc
      */
     onAfterInitialRender() {
@@ -81,35 +84,45 @@ class WelcomeTabPlugin extends Plugin {
      * @inheritdoc
      */
     getContributions() {
+        // remove unbuilt samples
+        const cleaned = allBBes.map((group) => {
+            group.samples = group.samples.filter((item) => {
+                if (skipBBes.indexOf(item.url) > -1) {
+                    return false;
+                }
+                return builtBBes.indexOf(item.url) > -1;
+            });
+            return group;
+        });
+
         const { COMMANDS, HANDLERS, MENUS, VIEWS } = CONTRIBUTIONS;
         return {
             [COMMANDS]: getCommandDefinitions(this),
             [HANDLERS]: getHandlerDefinitions(this),
             [MENUS]: getMenuDefinitions(this),
-            [VIEWS]: [
-                {
-                    id: WELCOME_TAB_VIEWS.WELCOME_TAB_VIEW_ID,
-                    component: WelcomeTab,
-                    propsProvider: () => {
-                        const { command } = this.appContext;
-                        return {
-                            createNew: this.createNewHandler.bind(this),
-                            openFile: this.openFileHandler.bind(this),
-                            openDirectory: this.openDirectoryHandler.bind(this),
-                            userGuide: this.config.userGuide,
-                            balHome: this.appContext.balHome,
-                            samples: this.config.samples,
-                            commandManager: command,
-                        };
-                    },
-                    region: REGIONS.EDITOR_TABS,
-                    // region specific options for editor-tabs views
-                    regionOptions: {
-                        tabTitle: LABELS.WELCOME,
-                        customTitleClass: 'welcome-page-tab-title',
-                    },
+            [VIEWS]: [{
+                id: WELCOME_TAB_VIEWS.WELCOME_TAB_VIEW_ID,
+                component: WelcomeTab,
+                propsProvider: () => {
+                    const { command } = this.appContext;
+                    return {
+                        createNew: this.createNewHandler.bind(this),
+                        openFile: this.openFileHandler.bind(this),
+                        openDirectory: this.openDirectoryHandler.bind(this),
+                        userGuide: this.config.userGuide,
+                        samplesDir: this.appContext.samplesDir,
+                        samples: cleaned,
+                        commandManager: command,
+                    };
                 },
-            ],
+                region: REGIONS.EDITOR_TABS,
+                // region specific options for editor-tabs views
+                regionOptions: {
+                    tabTitle: LABELS.WELCOME,
+                    customTitleClass: 'welcome-page-tab-title',
+                    tabIcon: 'ballerina',
+                },
+            }, ],
         };
     }
 

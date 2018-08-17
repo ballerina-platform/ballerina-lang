@@ -35,11 +35,13 @@ class ServiceNode extends AbstractServiceNode {
         let basePathValue;
         this.getAnnotationAttachments().forEach((annotationNode) => {
             if (annotationNode.getPackageAlias().getValue() === httpPackageAlias &&
-                annotationNode.getAnnotationName().getValue() === 'configuration') {
-                annotationNode.getAttributes().forEach((annotationAttribute) => {
-                    if (annotationAttribute.getName().getValue() === 'basePath') {
-                        const pathAnnotationAttributeValue = annotationAttribute.getValue();
-                        basePathValue = pathAnnotationAttributeValue.getValue().getValue();
+                annotationNode.getAnnotationName().getValue() === 'ServiceConfig' &&
+                annotationNode.getExpression() &&
+                annotationNode.getExpression().keyValuePairs &&
+                annotationNode.getExpression().keyValuePairs[0]) {
+                annotationNode.getExpression().keyValuePairs.forEach((node) => {
+                    if (node.value.kind === 'Literal') {
+                        basePathValue = node.value.value;
                     }
                 });
             }
@@ -155,6 +157,9 @@ class ServiceNode extends AbstractServiceNode {
                 }
                 return false;
             });
+            if(endpoint === undefined){
+                return 'Unknown';
+            }
             pkg = endpoint.endPointType.packageAlias.value;
             name = endpoint.endPointType.typeName.value;
         }

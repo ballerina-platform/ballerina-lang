@@ -34,6 +34,15 @@ public abstract class BValueType implements BValue {
     public abstract long intValue();
 
     /**
+     * Returns the value of the specified number as an {@code byte},
+     * which may involve rounding or truncation.
+     *
+     * @return  the numeric value represented by this object after conversion
+     *          to type {@code byte}.
+     */
+    public abstract byte byteValue();
+
+    /**
      * Returns the value of the specified number as a {@code float},
      * which may involve rounding.
      *
@@ -43,9 +52,6 @@ public abstract class BValueType implements BValue {
     public abstract double floatValue();
 
     public abstract boolean booleanValue();
-
-    public abstract byte[] blobValue();
-
     /**
      * Default BValueType toString implementation.
      * @return The string representation of this object

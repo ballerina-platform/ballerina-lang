@@ -1,5 +1,5 @@
 /*
-*  Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+*  Copyright (c) 2018, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
 *
 *  WSO2 Inc. licenses this file to you under the Apache License,
 *  Version 2.0 (the "License"); you may not use this file except
@@ -17,57 +17,35 @@
 */
 package org.ballerinalang.util.codegen;
 
+import org.ballerinalang.model.types.BStructureType;
 import org.ballerinalang.util.codegen.attributes.AttributeInfo;
-import org.ballerinalang.util.codegen.attributes.AttributeInfoPool;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
- * @since 0.87
+ * {@code StructureTypeInfo} contains metadata of a Ballerina structure entry in the program file.
+ *
+ * @since 0.971.0
  */
-public class StructureTypeInfo implements AttributeInfoPool {
-    protected int pkgPathCPIndex;
-    protected String packagePath;
+public abstract class StructureTypeInfo implements TypeInfo {
 
-    protected int nameCPIndex;
-    protected String name;
-
-    public int flags;
-
-    private PackageInfo packageInfo;
+    private List<StructFieldInfo> fieldInfoEntries = new ArrayList<>();
+    public Map<String, AttachedFunctionInfo> funcInfoEntries = new HashMap<>();
+    //TODO separate below when record init function is removed
+    public AttachedFunctionInfo initializer;
+    public AttachedFunctionInfo defaultsValuesInitFunc;
 
     private Map<AttributeInfo.Kind, AttributeInfo> attributeInfoMap = new HashMap<>();
 
-    public StructureTypeInfo(int pkgPathCPIndex, String packagePath,
-                             int nameCPIndex, String name, int flags) {
-        this.pkgPathCPIndex = pkgPathCPIndex;
-        this.packagePath = packagePath;
-        this.nameCPIndex = nameCPIndex;
-        this.name = name;
-        this.flags = flags;
+    public void addFieldInfo(StructFieldInfo fieldInfo) {
+        fieldInfoEntries.add(fieldInfo);
     }
 
-    public int getNameCPIndex() {
-        return nameCPIndex;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public String getPackagePath() {
-        return packagePath;
-    }
-
-    public PackageInfo getPackageInfo() {
-        return packageInfo;
-    }
-
-    protected void setPackageInfo(PackageInfo packageInfo) {
-        this.packageInfo = packageInfo;
-        // Update Cache values.
-//        name = ((UTF8CPEntry) packageInfo.getCPEntry(nameCPIndex)).getValue();
+    public StructFieldInfo[] getFieldInfoEntries() {
+        return fieldInfoEntries.toArray(new StructFieldInfo[0]);
     }
 
     @Override
@@ -84,4 +62,6 @@ public class StructureTypeInfo implements AttributeInfoPool {
     public AttributeInfo[] getAttributeInfoEntries() {
         return attributeInfoMap.values().toArray(new AttributeInfo[0]);
     }
+
+    public abstract BStructureType getType();
 }

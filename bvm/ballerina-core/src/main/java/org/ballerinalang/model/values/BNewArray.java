@@ -31,14 +31,15 @@ import java.lang.reflect.Array;
 // TODO Change this class name
 public abstract class BNewArray implements BRefType, BCollection {
 
+    protected BType arrayType;
+
     /**
      * The maximum size of arrays to allocate.
      * <p>
      * This is same as Java
      */
-    protected static final int MAX_ARRAY_SIZE = Integer.MAX_VALUE - 8;
-    protected static final int DEFAULT_ARRAY_SIZE = 100;
-
+    protected int maxArraySize = Integer.MAX_VALUE - 8;
+    private static final int DEFAULT_ARRAY_SIZE = 100;
     protected int size = 0;
 
     public abstract void grow(int newLength);
@@ -50,19 +51,19 @@ public abstract class BNewArray implements BRefType, BCollection {
 
     @Override
     public BType getType() {
-        return null; //todo
+        return arrayType;
     }
 
     @Override
-    public BRefType value() {
+    public BRefType<?> value() {
         return null;
     }
-
 
     // Private methods
 
     protected Object newArrayInstance(Class<?> componentType) {
-        return Array.newInstance(componentType, DEFAULT_ARRAY_SIZE);
+        return (size > 0) ?
+                Array.newInstance(componentType, size) : Array.newInstance(componentType, DEFAULT_ARRAY_SIZE);
     }
 
     protected void prepareForAdd(long index, int currentArraySize) {
@@ -79,12 +80,12 @@ public abstract class BNewArray implements BRefType, BCollection {
     }
 
     protected void rangeCheck(long index, int size) {
-        if (index > MAX_ARRAY_SIZE || index < Integer.MIN_VALUE) {
+        if (index > Integer.MAX_VALUE || index < Integer.MIN_VALUE) {
             throw BLangExceptionHelper.getRuntimeException(
                     RuntimeErrors.INDEX_NUMBER_TOO_LARGE, index);
         }
 
-        if ((int) index < 0) {
+        if ((int) index < 0 || index >= maxArraySize) {
             throw BLangExceptionHelper.getRuntimeException(
                     RuntimeErrors.ARRAY_INDEX_OUT_OF_RANGE, index, size);
         }
@@ -107,7 +108,7 @@ public abstract class BNewArray implements BRefType, BCollection {
             newArraySize = Math.max(newArraySize, requestedCapacity);
 
             // Now get the minimum value of new array size and maximum array size
-            newArraySize = Math.min(newArraySize, MAX_ARRAY_SIZE);
+            newArraySize = Math.min(newArraySize, maxArraySize);
             grow(newArraySize);
         }
     }

@@ -19,7 +19,7 @@ package org.ballerinalang.langserver.completions.util.positioning.resolvers;
 
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
-import org.ballerinalang.langserver.compiler.LSServiceOperationContext;
+import org.ballerinalang.langserver.compiler.LSContext;
 import org.ballerinalang.langserver.completions.TreeVisitor;
 import org.wso2.ballerinalang.compiler.semantics.model.Scope;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
@@ -46,7 +46,7 @@ public class MatchStatementScopeResolver extends CursorPositionResolver {
      */
     @Override
     public boolean isCursorBeforeNode(DiagnosticPos nodePosition, BLangNode node, TreeVisitor treeVisitor,
-                                      LSServiceOperationContext completionContext) {
+                                      LSContext completionContext) {
         if (!(treeVisitor.getBlockOwnerStack().peek() instanceof BLangMatch)) {
             // In the ideal case, this will not get triggered
             return false;
@@ -57,24 +57,24 @@ public class MatchStatementScopeResolver extends CursorPositionResolver {
         List<BLangMatch.BLangMatchStmtPatternClause> patternClauseList = matchNode.getPatternClauses();
         int line = completionContext.get(DocumentServiceKeys.POSITION_KEY).getPosition().getLine();
         int col = completionContext.get(DocumentServiceKeys.POSITION_KEY).getPosition().getCharacter();
-        int nodeLine = nodePos.getStartLine();
+        int nodeStartLine = nodePos.getStartLine();
+        int nodeEndLine = nodePos.getEndLine();
         int nodeCol = nodePos.getStartColumn();
         boolean isBeforeNode = false;
         
-        if ((line < nodeLine) || (line == nodeLine && col < nodeCol)) {
-            isBeforeNode = true;
-        } else if (patternClauseList.indexOf(node) == patternClauseList.size() - 1) {
-            isBeforeNode = (line < matchNodePos.getEndLine()) 
-                    || (line == matchNodePos.getEndLine() && col < matchNodePos.getEndColumn());
-        }
-        
-        if (isBeforeNode) {
+        if ((line < nodeStartLine)
+                || (line == nodeStartLine && col < nodeCol)
+                || (matchNodePos.getStartLine() <= line
+                && matchNodePos.getEndLine() >= line
+                && patternClauseList.indexOf(node) == patternClauseList.size() - 1)
+                && nodeEndLine < line) {
             Map<Name, Scope.ScopeEntry> visibleSymbolEntries =
                     treeVisitor.resolveAllVisibleSymbols(treeVisitor.getSymbolEnv());
             SymbolEnv matchEnv = createMatchEnv(matchNode, treeVisitor.getSymbolEnv());
             treeVisitor.populateSymbols(visibleSymbolEntries, matchEnv);
-            treeVisitor.setTerminateVisitor(true);
+            treeVisitor.forceTerminateVisitor();
             treeVisitor.setNextNode(node);
+            isBeforeNode = true;
         }
         
         return isBeforeNode;

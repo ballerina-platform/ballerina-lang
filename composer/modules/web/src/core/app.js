@@ -31,6 +31,7 @@ import WorkspacePlugin from './workspace/plugin';
 import EditorPlugin from './editor/plugin';
 import PreferencesPlugin from './preferences/plugin';
 import { makeImutable } from './utils/object-utils';
+import { isOnElectron } from './utils/client-info';
 
 /**
  * Composer Application
@@ -59,6 +60,7 @@ class Application {
             services: config.services,
             // TODO avoid hardcoding, provide a config contributing mechanism from BE
             balHome: config.balHome,
+            samplesDir: config.samplesDir,
             debuggerPath: config.debuggerPath,
         };
 
@@ -221,6 +223,12 @@ class Application {
         this.plugins.forEach((plugin) => {
             plugin.onAfterInitialRender();
         });
+        if (isOnElectron()) {
+            setTimeout(() => {
+                const { ipcRenderer } = require('electron');
+                ipcRenderer.send('composer-rendered');
+            }, 200);
+        }
     }
 
     /**

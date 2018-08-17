@@ -1,0 +1,18 @@
+NAME
+    Ballerina grpc - Generate Ballerina gRPC client stub
+
+SYNOPSIS
+    ballerina grpc --input <proto-file-path> [--output <path>]
+        
+DESCRIPTION
+     Generates the Ballerina gRPC client stub for gRPC service for a given gRPC protoc definition.
+
+OPTIONS
+     --input <proto-file-path>
+         Input .proto file.
+
+     --output <path>
+         Generated Ballerina source files location.
+
+EXAMPLES
+     $ ballerina grpc --input chat.proto

@@ -1,0 +1,23 @@
+{
+  "position": {
+    "line": 5,
+    "character": 1
+  },
+  "source": "annotation/source/serviceAnnotation2.bal",
+  "items": [
+    {
+      "label":"http:ServiceConfig",
+      "detail":"Annotation",
+      "sortText":"110",
+      "insertText":"http:ServiceConfig {\n\t${1}\n}",
+      "insertTextFormat":"Snippet"
+    },
+    {
+      "label":"http:WebSocketServiceConfig",
+      "detail":"Annotation",
+      "sortText":"110",
+      "insertText":"http:WebSocketServiceConfig {\n\t${1}\n}",
+      "insertTextFormat":"Snippet"
+    }
+  ]
+}

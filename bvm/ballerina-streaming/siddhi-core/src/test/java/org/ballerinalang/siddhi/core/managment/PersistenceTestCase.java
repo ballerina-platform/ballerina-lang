@@ -41,6 +41,9 @@ import org.testng.annotations.Test;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.atomic.AtomicInteger;
 
+/**
+ * Testcase for snapshot persistence.
+ */
 public class PersistenceTestCase {
     private static final Logger log = LoggerFactory.getLogger(PersistenceTestCase.class);
     private int count;

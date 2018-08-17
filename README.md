@@ -1,12 +1,22 @@
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-[![Build Status](https://wso2.org/jenkins/view/All%20Builds/job/ballerina-platform/job/ballerina/badge/icon)](https://wso2.org/jenkins/view/All%20Builds/job/ballerina-platform/job/ballerina/)
-[![GitHub (pre-)release](https://img.shields.io/github/release/ballerina-platform/ballerina-lang/all.svg)](https://github.com/ballerina-platform/ballerina-lang/releases)
-[![GitHub (Pre-)Release Date](https://img.shields.io/github/release-date-pre/ballerina-platform/ballerina-lang.svg)](https://github.com/ballerina-platform/ballerina-lang/releases)
-[![GitHub last commit](https://img.shields.io/github/last-commit/ballerina-platform/ballerina-lang.svg)](https://github.com/ballerina-platform/ballerina-lang/commits/master)
-[![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
+# Ballerina
+  [![Jenkins Build Status](https://wso2.org/jenkins/view/All%20Builds/job/ballerina-platform/job/ballerina/badge/icon)](https://wso2.org/jenkins/view/All%20Builds/job/ballerina-platform/job/ballerina/)
+  [![AppVeyor Build Status](https://ci.appveyor.com/api/projects/status/97xlytm8di5l0pmb/branch/master?svg=true)](https://ci.appveyor.com/project/WSO2/ballerina-lang/branch/master)
+  [![GitHub (pre-)release](https://img.shields.io/github/release/ballerina-platform/ballerina-lang/all.svg)](https://github.com/ballerina-platform/ballerina-lang/releases)
+  [![GitHub (Pre-)Release Date](https://img.shields.io/github/release-date-pre/ballerina-platform/ballerina-lang.svg)](https://github.com/ballerina-platform/ballerina-lang/releases)
+  [![GitHub last commit](https://img.shields.io/github/last-commit/ballerina-platform/ballerina-lang.svg)](https://github.com/ballerina-platform/ballerina-lang/commits/master)
+  [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 
-Ballerina allows you to code with a statically-typed, interaction-centric programming language where microservices, APIs, and streams are first-class constructs. You can use your preferred IDE and CI/CD tools. Discover, consume, and share packages that integrate endpoints with Ballerina Central. Build binaries, containers, and Kubernetes artifacts and deploy as chaos-ready services on cloud and serverless infrastructure. Integrate distributed endpoints with simple syntax for resiliency, circuit breakers, transactions, and events.
+Ballerina is a compiled, type safe, concurrent programming language designed to make it simple to write microservices that integrate APIs.
 
+#### Integration Syntax
+A compiled, transactional, statically and strongly typed programming language with textual and graphical syntaxes. Ballerina incorporates fundamental concepts of distributed system integration and offers a type safe, concurrent environment to implement microservices.
+
+#### Networked Type System
+A type system that embraces network payload variability with primitive, object, union, and tuple types.
+
+#### Concurrency
+An execution model composed of lightweight parallel worker units that are non-blocking where no function can lock an executing thread manifesting sequence concurrency. 
+ 
 ## Table of contents
 
 - [Getting started](#getting-started)
@@ -19,11 +29,10 @@ Ballerina allows you to code with a statically-typed, interaction-centric progra
 
 You can use one of the following options to try out Ballerina.
 
-* Getting Started 
-* [Quick Tour](https://github.com/ballerina-platform/ballerina-lang/blob/master/docs/quick-tour.md)
-* [Ballerina by Example](https://ballerina.io/) 
-* [Ballerina by Guide](https://ballerina.io/)
-* [Language Specification](https://github.com/ballerina-platform/ballerina-specs/tree/master/language)
+* [Getting Started](https://ballerina.io/learn/getting-started/)
+* [Quick Tour](https://ballerina.io/learn/quick-tour/)
+* [Ballerina by Example](https://ballerina.io/learn/by-example/) 
+* [Ballerina by Guide](https://ballerina.io/learn/by-guide/)
 
 ## Download and install
 
@@ -37,8 +46,9 @@ Alternatively, you can install Ballerina from the source using the following ins
 
 #### Prerequisites
 
-* [Maven](https://maven.apache.org/download.cgi)
-* [Node (v8.9.x or latest LTS release) + npm (v5.6.0 or later)](https://nodejs.org/en/download/)
+* [Oracle JDK 8](http://www.oracle.com/technetwork/java/javase/downloads/jdk8-downloads-2133151.html) or [OpenJDK 8](http://openjdk.java.net/install/)
+* [Maven 3.5.0 or later](https://maven.apache.org/download.cgi)
+* [Node (v8.9.x) + npm (v5.6.0 or later)](https://nodejs.org/en/download/)
 * [Docker](https://www.docker.com/get-docker)
 
 #### Building the source
@@ -70,5 +80,5 @@ Ballerina code is distributed under [Apache license 2.0](https://github.com/ball
 ## Useful links
 
 * The ballerina-dev@googlegroups.com mailing list is for discussing code changes to the Ballerina project.
-* Chat live with us on our [Slack channel](https://ballerina-platform.slack.com/).
-* User support should be posted on Stack Overflow with the #ballerina tag.
+* Chat live with us on our [Slack channel](https://ballerina.io/open-source/slack/).
+* Technical questions should be posted on Stack Overflow with the [#ballerina](https://stackoverflow.com/questions/tagged/ballerina) tag.

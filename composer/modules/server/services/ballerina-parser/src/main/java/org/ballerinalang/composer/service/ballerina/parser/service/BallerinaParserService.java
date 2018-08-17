@@ -39,12 +39,15 @@ import org.ballerinalang.composer.service.ballerina.parser.service.model.lang.Mo
 import org.ballerinalang.composer.service.ballerina.parser.service.util.BLangFragmentParser;
 import org.ballerinalang.composer.service.ballerina.parser.service.util.ParserUtils;
 import org.ballerinalang.langserver.compiler.LSCompiler;
+import org.ballerinalang.langserver.compiler.LSCompilerException;
+import org.ballerinalang.langserver.compiler.LSCompilerUtil;
 import org.ballerinalang.langserver.compiler.common.modal.BallerinaFile;
+import org.ballerinalang.langserver.compiler.format.JSONGenerationException;
 import org.ballerinalang.langserver.compiler.workspace.ExtendedWorkspaceDocumentManagerImpl;
 import org.ballerinalang.langserver.compiler.workspace.WorkspaceDocumentManager;
 import org.ballerinalang.model.Whitespace;
+import org.ballerinalang.model.elements.AttachPoint;
 import org.ballerinalang.model.elements.Flag;
-import org.ballerinalang.model.tree.IdentifierNode;
 import org.ballerinalang.model.tree.Node;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.OperatorKind;
@@ -53,12 +56,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotation;
-import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachmentPoint;
 import org.wso2.ballerinalang.compiler.tree.BLangCompilationUnit;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
-import org.wso2.ballerinalang.compiler.tree.BLangStruct;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
 
 import java.io.IOException;
@@ -79,10 +80,9 @@ import javax.ws.rs.OPTIONS;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-
-import static org.ballerinalang.langserver.compiler.LSCompiler.UNTITLED_BAL;
 
 /**
  * Micro service for ballerina parser.
@@ -131,6 +131,73 @@ public class BallerinaParserService implements ComposerService {
     }
 
     @OPTIONS
+    @Path("/endpoints")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response getEndpointOptions() {
+        return Response.ok()
+                .header(HttpHeaderNames.ACCESS_CONTROL_MAX_AGE.toString(), "600 ")
+                .header(HttpHeaderNames.ACCESS_CONTROL_ALLOW_ORIGIN.toString(), "*")
+                .header(HttpHeaderNames.ACCESS_CONTROL_ALLOW_CREDENTIALS.toString(), "true")
+                .header(HttpHeaderNames.ACCESS_CONTROL_ALLOW_METHODS.toString(),
+                        "POST, GET, PUT, UPDATE, DELETE, OPTIONS, HEAD")
+                .header(HttpHeaderNames.ACCESS_CONTROL_ALLOW_HEADERS.toString(),
+                        HttpHeaderNames.CONTENT_TYPE.toString() + ", " + HttpHeaderNames.ACCEPT.toString() +
+                                ", X-Requested-With").build();
+    }
+
+    @GET
+    @Path("/endpoints")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response getEndpoints() {
+        JsonObject response = new JsonObject();
+        // add package info into response
+        Gson gson = new Gson();
+        String json = gson.toJson(ParserUtils.getEndpoints());
+        JsonParser parser = new JsonParser();
+        JsonArray packagesArray = parser.parse(json).getAsJsonArray();
+        response.add("packages", packagesArray);
+        return Response.status(Response.Status.OK)
+                .entity(response)
+                .header("Access-Control-Allow-Origin", '*').type(MediaType.APPLICATION_JSON).build();
+    }
+
+    @OPTIONS
+    @Path("/actions")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response getActionsOptions() {
+        return Response.ok()
+                .header(HttpHeaderNames.ACCESS_CONTROL_MAX_AGE.toString(), "600 ")
+                .header(HttpHeaderNames.ACCESS_CONTROL_ALLOW_ORIGIN.toString(), "*")
+                .header(HttpHeaderNames.ACCESS_CONTROL_ALLOW_CREDENTIALS.toString(), "true")
+                .header(HttpHeaderNames.ACCESS_CONTROL_ALLOW_METHODS.toString(),
+                        "POST, GET, PUT, UPDATE, DELETE, OPTIONS, HEAD")
+                .header(HttpHeaderNames.ACCESS_CONTROL_ALLOW_HEADERS.toString(),
+                        HttpHeaderNames.CONTENT_TYPE.toString() + ", " + HttpHeaderNames.ACCEPT.toString() +
+                                ", X-Requested-With").build();
+    }
+
+    @GET
+    @Path("/actions")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response getActions(@QueryParam(value = "pkgName") String pkgName,
+                               @QueryParam(value = "typeName") String typeName) {
+        JsonObject response = new JsonObject();
+        // add package info into response
+        Gson gson = new Gson();
+        String json = gson.toJson(ParserUtils.getActions(pkgName, typeName));
+        JsonParser parser = new JsonParser();
+        JsonArray packagesArray = parser.parse(json).getAsJsonArray();
+        response.add("packages", packagesArray);
+        return Response.status(Response.Status.OK)
+                .entity(response)
+                .header("Access-Control-Allow-Origin", '*').type(MediaType.APPLICATION_JSON).build();
+    }
+
+    @OPTIONS
     @Path("/built-in-types")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
@@ -168,8 +235,7 @@ public class BallerinaParserService implements ComposerService {
     @Path("/file/validate-and-parse")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    public Response validateAndParseBFile(BFile bFileRequest) throws IOException, InvocationTargetException,
-            IllegalAccessException {
+    public Response validateAndParseBFile(BFile bFileRequest) throws LSCompilerException, JSONGenerationException {
         return Response.status(Response.Status.OK)
                 .entity(validateAndParse(bFileRequest))
                 .header(HttpHeaderNames.ACCESS_CONTROL_ALLOW_ORIGIN.toString(), '*').type(MediaType.APPLICATION_JSON)
@@ -218,8 +284,7 @@ public class BallerinaParserService implements ComposerService {
                                 ", X-Requested-With").build();
     }
 
-    public static JsonElement generateJSON(Node node, Map<String, Node> anonStructs)
-            throws InvocationTargetException, IllegalAccessException {
+    public static JsonElement generateJSON(Node node, Map<String, Node> anonStructs) throws JSONGenerationException {
         if (node == null) {
             return JsonNull.INSTANCE;
         }
@@ -281,7 +346,12 @@ public class BallerinaParserService implements ComposerService {
                 continue;
             }
 
-            Object prop = m.invoke(node);
+            Object prop = null;
+            try {
+                prop = m.invoke(node);
+            } catch (IllegalAccessException | InvocationTargetException e) {
+                throw new JSONGenerationException("Error while generating JSON for node:" + node.toString(), e);
+            }
 
             /* Literal class - This class is escaped in backend to address cases like "ss\"" and 8.0 and null */
             if (node.getKind() == NodeKind.LITERAL && "value".equals(jsonName)) {
@@ -298,26 +368,25 @@ public class BallerinaParserService implements ComposerService {
                     && node instanceof BLangAnnotation) {
                 JsonArray attachmentPoints = new JsonArray();
                 ((BLangAnnotation) node)
-                        .getAttachmentPoints()
+                        .getAttachPoints()
                         .stream()
-                        .map(BLangAnnotationAttachmentPoint::getAttachmentPoint)
-                        .map(BLangAnnotationAttachmentPoint.AttachmentPoint::getValue)
+                        .map(AttachPoint::getValue)
                         .map(JsonPrimitive::new)
                         .forEach(attachmentPoints::add);
                 nodeJson.add("attachmentPoints", attachmentPoints);
             }
-
-            if (node.getKind() == NodeKind.USER_DEFINED_TYPE && jsonName.equals("typeName")) {
-                IdentifierNode typeNode = (IdentifierNode) prop;
-                Node structNode;
-                if (typeNode.getValue().startsWith("$anonStruct$") &&
-                        (structNode = anonStructs.remove(typeNode.getValue())) != null) {
-                    JsonObject anonStruct = generateJSON(structNode, anonStructs).getAsJsonObject();
-                    anonStruct.addProperty("anonStruct", true);
-                    nodeJson.add("anonStruct", anonStruct);
-                    continue;
-                }
-            }
+            // TODO: revisit logic for user defined types
+//            if (node.getKind() == NodeKind.USER_DEFINED_TYPE && jsonName.equals("typeName")) {
+//                IdentifierNode typeNode = (IdentifierNode) prop;
+//                Node structNode;
+//                if (typeNode.getValue().startsWith("$anonStruct$") &&
+//                        (structNode = anonStructs.remove(typeNode.getValue())) != null) {
+//                    JsonObject anonStruct = generateJSON(structNode, anonStructs).getAsJsonObject();
+//                    anonStruct.addProperty("anonStruct", true);
+//                    nodeJson.add("anonStruct", anonStruct);
+//                    continue;
+//                }
+//            }
 
             if (prop instanceof List && jsonName.equals("types")) {
                 // Currently we don't need any Symbols for the UI. So skipping for now.
@@ -336,11 +405,6 @@ public class BallerinaParserService implements ComposerService {
                     if (listPropItem instanceof Node) {
                         /* Remove top level anon func and struct */
                         if (node.getKind() == NodeKind.COMPILATION_UNIT) {
-                            if (listPropItem instanceof BLangStruct && ((BLangStruct) listPropItem).isAnonymous) {
-                                anonStructs.put(((BLangStruct) listPropItem).getName().getValue(),
-                                        ((BLangStruct) listPropItem));
-                                continue;
-                            }
                             if (listPropItem instanceof BLangFunction
                                     && (((BLangFunction) listPropItem)).name.value.startsWith("$lambda$")) {
                                 continue;
@@ -383,6 +447,13 @@ public class BallerinaParserService implements ComposerService {
                 nodeJson.addProperty(jsonName, (Boolean) prop);
             } else if (prop instanceof Enum) {
                 nodeJson.addProperty(jsonName, StringUtils.lowerCase(((Enum) prop).name()));
+            } else if (prop instanceof int[]) {
+                int[] intArray = ((int[]) prop);
+                JsonArray intArrayPropJson = new JsonArray();
+                nodeJson.add(jsonName, intArrayPropJson);
+                for (int intProp : intArray) {
+                    intArrayPropJson.add(intProp);
+                }
             } else if (prop != null) {
                 nodeJson.addProperty(jsonName, prop.toString());
                 String message = "Node " + node.getClass().getSimpleName() +
@@ -419,37 +490,41 @@ public class BallerinaParserService implements ComposerService {
      * @param bFileRequest - Object which holds data about Ballerina content.
      * @return List of errors if any
      */
-    private synchronized JsonObject validateAndParse(BFile bFileRequest) throws InvocationTargetException,
-                                                                                IllegalAccessException {
+    private synchronized JsonObject validateAndParse(BFile bFileRequest) throws LSCompilerException,
+                                                                                JSONGenerationException {
         final String fileName = bFileRequest.getFileName();
         final String content = bFileRequest.getContent();
 
         String programDir = "";
+        String debugPackagePath = ".";
         java.nio.file.Path filePath;
-        if (UNTITLED_BAL.equals(fileName)) {
-            filePath = LSCompiler.createAndGetTempFile(UNTITLED_BAL);
+        if (LSCompilerUtil.UNTITLED_BAL.equals(fileName)) {
+            filePath = LSCompilerUtil.createTempFile(LSCompilerUtil.UNTITLED_BAL);
         } else {
             filePath = Paths.get(bFileRequest.getFilePath(), bFileRequest.getFileName());
         }
 
         BallerinaFile bFile;
         ExtendedWorkspaceDocumentManagerImpl documentManager = ExtendedWorkspaceDocumentManagerImpl.getInstance();
-        Optional<Lock> lock = documentManager.lockFile(filePath);
-        documentManager.enableExplicitMode(filePath);
+        Optional<Lock> lock = documentManager.enableExplicitMode(filePath);
+        LSCompiler lsCompiler = new LSCompiler(documentManager);
         try {
-            bFile = LSCompiler.compileContent(content, filePath, CompilerPhase.CODE_ANALYZE, documentManager, true);
+            bFile = lsCompiler.updateAndCompileFile(filePath, content, CompilerPhase.CODE_ANALYZE, documentManager);
         } finally {
-            documentManager.disableExplicitMode();
-            lock.ifPresent(Lock::unlock);
+            documentManager.disableExplicitMode(lock.orElse(null));
         }
-        programDir = (bFile.isBallerinaProject()) ? LSCompiler.getSourceRoot(filePath) : "";
+        programDir = (bFile.isBallerinaProject()) ? LSCompilerUtil.getSourceRoot(filePath) : "";
 
-        final BLangPackage model = bFile.getBLangPackage();
-        final List<Diagnostic> diagnostics = bFile.getDiagnostics();
+        if (bFile.isBallerinaProject() && bFile.getBLangPackage().isPresent()) {
+            debugPackagePath = bFile.getBLangPackage().get().packageID.toString();
+        }
+
+        Optional<BLangPackage> model = bFile.getBLangPackage();
+        Optional<List<Diagnostic>> diagnostics = bFile.getDiagnostics();
 
         ErrorCategory errorCategory = ErrorCategory.NONE;
-        if (!diagnostics.isEmpty()) {
-            if (model == null || model.symbol == null) {
+        if (diagnostics.isPresent() && !diagnostics.get().isEmpty()) {
+            if (!model.isPresent() || model.get().symbol == null) {
                 errorCategory = ErrorCategory.SYNTAX;
             } else {
                 errorCategory = ErrorCategory.SEMANTIC;
@@ -457,7 +532,7 @@ public class BallerinaParserService implements ComposerService {
         }
         JsonArray errors = new JsonArray();
         final String errorCategoryName = errorCategory.name();
-        diagnostics.forEach(diagnostic -> {
+        diagnostics.ifPresent(d -> d.forEach(diagnostic -> {
 
             JsonObject error = new JsonObject();
             Diagnostic.DiagnosticPosition position = diagnostic.getPosition();
@@ -465,40 +540,43 @@ public class BallerinaParserService implements ComposerService {
                 if (!diagnostic.getSource().getCompilationUnitName().equals(fileName)) {
                     return;
                 }
-
-                error.addProperty("row", position.getStartLine());
-                error.addProperty("column", position.getStartColumn());
-                error.addProperty("type", "error");
-                error.addProperty("category", errorCategoryName);
+                error.addProperty(JSONModelConstants.ROW, position.getStartLine());
+                error.addProperty(JSONModelConstants.COLUMN, position.getStartColumn());
+                error.addProperty(JSONModelConstants.TYPE, JSONModelConstants.ERROR);
+                error.addProperty(JSONModelConstants.CATEGORY, errorCategoryName);
             } else {
                 // position == null means it's a bug in core side.
-                error.addProperty("category", ErrorCategory.RUNTIME.name());
+                error.addProperty(JSONModelConstants.CATEGORY, ErrorCategory.RUNTIME.name());
             }
 
-            error.addProperty("text", diagnostic.getMessage());
+            error.addProperty(JSONModelConstants.TEXT, diagnostic.getMessage());
             errors.add(error);
-        });
+        }));
         JsonObject result = new JsonObject();
-        result.add("errors", errors);
+        result.add(JSONModelConstants.ERRORS, errors);
 
         JsonElement diagnosticsJson = GSON.toJsonTree(diagnostics);
-        result.add("diagnostics", diagnosticsJson);
+        result.add(JSONModelConstants.DIAGNOSTICS, diagnosticsJson);
 
-        if (model != null && model.symbol != null && bFileRequest.needTree()) {
-            BLangCompilationUnit compilationUnit = model.getCompilationUnits().stream().
-                    filter(compUnit -> fileName.equals(compUnit.getName())).findFirst().get();
+        if (model.isPresent() && model.get().symbol != null && bFileRequest.needTree()) {
+            BLangCompilationUnit compilationUnit = model.get().getCompilationUnits().stream()
+                    .filter(compUnit -> fileName.equals(compUnit.getName()))
+                    .findFirst().orElse(null);
             JsonElement modelElement = generateJSON(compilationUnit, new HashMap<>());
-            result.add("model", modelElement);
+            result.add(JSONModelConstants.MODEL, modelElement);
         }
 
         final Map<String, ModelPackage> modelPackage = new HashMap<>();
-        ParserUtils.loadPackageMap("Current Package", bFile.getBLangPackage(), modelPackage);
-        Optional<ModelPackage> packageInfoJson = modelPackage.values().stream().findFirst();
-        if (packageInfoJson.isPresent() && bFileRequest.needPackageInfo()) {
-            JsonElement packageInfo = GSON.toJsonTree(packageInfoJson.get());
-            result.add("packageInfo", packageInfo);
-        }
-        result.addProperty("programDirPath", programDir);
+        ParserUtils.loadPackageMap(JSONModelConstants.CURRENT_PACKAGE_NAME, bFile.getBLangPackage().orElse(null),
+                                   modelPackage);
+
+        modelPackage.values().stream().findFirst().filter(pkg -> bFileRequest.needPackageInfo())
+                .ifPresent(aPackage -> {
+                    JsonElement packageInfo = GSON.toJsonTree(aPackage);
+                    result.add(JSONModelConstants.PACKAGE_INFO, packageInfo);
+                });
+        result.addProperty(JSONModelConstants.PROGRAM_DIR_PATH, programDir);
+        result.addProperty("debugPackagePath", debugPackagePath);
         return result;
     }
 

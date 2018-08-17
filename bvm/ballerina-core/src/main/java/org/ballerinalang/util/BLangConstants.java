@@ -25,7 +25,7 @@ package org.ballerinalang.util;
 public class BLangConstants {
 
     public static final int MAGIC_NUMBER = 0xBA1DA4CE;
-    public static final short VERSION_NUMBER = 17;
+    public static final short VERSION_NUMBER = 20;
 
     public static final String MAIN_FUNCTION_NAME = "main";
     public static final String INIT_FUNCTION_SUFFIX = ".<init>";
@@ -42,14 +42,13 @@ public class BLangConstants {
     public static final String BLANG_COMPILED_PACKAGE_FILE_EXT = "balo";
     public static final String BLANG_COMPILED_PACKAGE_FILE_SUFFIX = "." + BLANG_COMPILED_PACKAGE_FILE_EXT;
 
-    // int, float, string, boolean, blob, reference type
-    public static final int NO_OF_VAR_TYPE_CATEGORIES = 6;
+    // int, float, string, boolean, reference type
+    public static final int NO_OF_VAR_TYPE_CATEGORIES = 5;
     public static final int INT_OFFSET = 0;
     public static final int FLOAT_OFFSET = 1;
     public static final int STRING_OFFSET = 2;
     public static final int BOOL_OFFSET = 3;
-    public static final int BLOB_OFFSET = 4;
-    public static final int REF_OFFSET = 5;
+    public static final int REF_OFFSET = 4;
 
     public static final String USER_REPO_ENV_KEY = "BALLERINA_REPOSITORY";
     public static final String USER_REPO_DEFAULT_DIRNAME = ".ballerina";
@@ -60,11 +59,19 @@ public class BLangConstants {
 
     public static final String BALLERINA_BUILTIN_PKG_PREFIX = "ballerina";
 
+    public static final String ORG_NAME_SEPARATOR = "/";
     public static final String USER_HOME = "user.home";
-    
+    public static final String BALLERINA_HOME = "ballerina.home";
+    public static final String BALLERINA_PACKAGE_PREFIX = "ballerina" + ORG_NAME_SEPARATOR;
+    public static final String BALLERINA_BUILTIN_PKG = BALLERINA_PACKAGE_PREFIX + "builtin";
+    public static final String BALLERINA_RUNTIME_PKG = BALLERINA_PACKAGE_PREFIX + "runtime";
+
     // Zero value for string
     public static final String STRING_NULL_VALUE = null;
     
     // Empty value for string
     public static final String STRING_EMPTY_VALUE = "";
+
+    public static final Integer BBYTE_MIN_VALUE = 0;
+    public static final Integer BBYTE_MAX_VALUE = 255;
 }

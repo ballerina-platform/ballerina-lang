@@ -22,18 +22,17 @@ import com.google.gson.JsonArray;
 import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
 import org.ballerinalang.langserver.compiler.LSCompiler;
 import org.ballerinalang.langserver.compiler.LSServiceOperationContext;
+import org.ballerinalang.langserver.compiler.workspace.WorkspaceDocumentException;
 import org.ballerinalang.langserver.compiler.workspace.WorkspaceDocumentManager;
 import org.ballerinalang.langserver.compiler.workspace.WorkspaceDocumentManagerImpl;
 import org.ballerinalang.langserver.completions.CompletionCustomErrorStrategy;
 import org.ballerinalang.langserver.completions.CompletionKeys;
-import org.ballerinalang.langserver.completions.TreeVisitor;
-import org.ballerinalang.langserver.completions.resolvers.TopLevelResolver;
-import org.ballerinalang.langserver.completions.util.CompletionItemResolver;
+import org.ballerinalang.langserver.completions.CompletionSubRuleParser;
+import org.ballerinalang.langserver.completions.util.CompletionUtil;
 import org.eclipse.lsp4j.CompletionItem;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.TextDocumentIdentifier;
 import org.eclipse.lsp4j.TextDocumentPositionParams;
-import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 
 import java.nio.file.Path;
@@ -69,12 +68,13 @@ public class CompletionTestUtil {
     private static String getCompletionItemPropertyString(CompletionItem completionItem) {
 
         // TODO: Need to add kind and sort text as well
-        return "{" +
+        // Here we replace the Windows specific \r\n to \n for evaluation only
+        return ("{" +
                 completionItem.getInsertText() + "," +
                 completionItem.getDetail() + "," +
                 completionItem.getDocumentation() + "," +
                 completionItem.getLabel() +
-                "}";
+                "}").replace("\r\n", "\n");
     }
 
     private static List<String> getStringListForEvaluation(List<CompletionItem> completionItems) {
@@ -105,34 +105,47 @@ public class CompletionTestUtil {
     }
 
     /**
+     * Check whether list2 does not contains all the elements in list1.
+     *
+     * @param list1 - negative completion item list being checked
+     * @param list2 - completion item list being checked against
+     * @return whether list1 is a subset of list2
+     */
+    public static boolean containsAtLeastOne(List<CompletionItem> list1, List<CompletionItem> list2) {
+        List<String> pivotList = getStringListForEvaluation(list2);
+        for (String negativeItem : getStringListForEvaluation(list1)) {
+            if (pivotList.contains(negativeItem)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
      * Get the completions list.
      *
+     * @param lsCompiler LS Compiler
      * @param documentManager Document manager instance
      * @param pos             {@link TextDocumentPositionParams} position params
      */
-    public static List<CompletionItem> getCompletions(WorkspaceDocumentManager documentManager,
+    public static List<CompletionItem> getCompletions(LSCompiler lsCompiler,
+                                                      WorkspaceDocumentManager documentManager,
                                                       TextDocumentPositionParams pos) {
         List<CompletionItem> completions;
         LSServiceOperationContext completionContext = new LSServiceOperationContext();
         completionContext.put(DocumentServiceKeys.POSITION_KEY, pos);
         completionContext.put(DocumentServiceKeys.FILE_URI_KEY, pos.getTextDocument().getUri());
-        BLangPackage bLangPackage = LSCompiler.getBLangPackage(completionContext, documentManager,
-                                                               false, CompletionCustomErrorStrategy.class, false).get(
-                0);
+        completionContext.put(CompletionKeys.DOC_MANAGER_KEY, documentManager);
+        BLangPackage bLangPackage = lsCompiler.getBLangPackage(completionContext, documentManager, false,
+                CompletionCustomErrorStrategy.class, false).getRight();
         completionContext.put(DocumentServiceKeys.CURRENT_PACKAGE_NAME_KEY,
                               bLangPackage.symbol.getName().getValue());
-        // Visit the package to resolve the symbols
-        TreeVisitor treeVisitor = new TreeVisitor(completionContext);
-        bLangPackage.accept(treeVisitor);
+        completionContext.put(DocumentServiceKeys.CURRENT_BLANG_PACKAGE_CONTEXT_KEY, bLangPackage);
 
-        BLangNode symbolEnvNode = completionContext.get(CompletionKeys.SYMBOL_ENV_NODE_KEY);
-        if (symbolEnvNode == null) {
-            completions = CompletionItemResolver.getResolverByClass(TopLevelResolver.class)
-                    .resolveItems(completionContext);
-        } else {
-            completions = CompletionItemResolver.getResolverByClass(symbolEnvNode.getClass())
-                    .resolveItems(completionContext);
-        }
+        CompletionUtil.resolveSymbols(completionContext);
+        CompletionSubRuleParser.parse(completionContext);
+        completions = CompletionUtil.getCompletionItems(completionContext);
 
         return completions;
     }
@@ -140,17 +153,24 @@ public class CompletionTestUtil {
     /**
      * Prepare the Document manager instance with the given file and issue the did open operation.
      *
-     * @param uri        File Uri
+     * @param filePath        File path
      * @param balContent File Content
      * @return {@link WorkspaceDocumentManager}
      */
-    public static WorkspaceDocumentManagerImpl prepareDocumentManager(String uri, String balContent) {
-        Path openedPath;
+    public static WorkspaceDocumentManagerImpl prepareDocumentManager(Path filePath, String balContent)
+            throws WorkspaceDocumentException {
         WorkspaceDocumentManagerImpl documentManager = WorkspaceDocumentManagerImpl.getInstance();
-
-        openedPath = Paths.get(uri);
-        documentManager.openFile(openedPath, balContent);
-
+        documentManager.openFile(filePath, balContent);
         return documentManager;
+    }
+
+    /**
+     * Clear the Document manager instance given.
+     * @param documentManager document manager
+     * @param filePath file path
+     */
+    public static void clearDocumentManager(WorkspaceDocumentManager documentManager, Path filePath)
+            throws WorkspaceDocumentException {
+        documentManager.closeFile(filePath);
     }
 }

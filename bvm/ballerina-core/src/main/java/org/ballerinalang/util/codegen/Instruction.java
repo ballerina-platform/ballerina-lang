@@ -19,7 +19,9 @@ package org.ballerinalang.util.codegen;
 
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.util.codegen.cpentries.ForkJoinCPEntry;
+import org.ballerinalang.util.codegen.cpentries.FunctionRefCPEntry;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.StringJoiner;
 
@@ -147,32 +149,6 @@ public class Instruction {
     }
 
     /**
-     * {@code InstructionTCALL} represents the TCALL instruction in Ballerina bytecode.
-     * <p>
-     * The TCALL instruction performs an transformer invocation in BVM.
-     *
-     * @since 0.95.6
-     */
-    public static class InstructionTCALL extends Instruction {
-
-        public int transformerRefCPIndex;
-        public TransformerInfo transformerInfo;
-        public int flags;
-        public int[] argRegs;
-        public int[] retRegs;
-
-        InstructionTCALL(int opcode, int transformerRefCPIndex, TransformerInfo transformerInfo, int flags,
-                         int[] argRegs, int[] retRegs) {
-            super(opcode);
-            this.transformerRefCPIndex = transformerRefCPIndex;
-            this.transformerInfo = transformerInfo;
-            this.flags = flags;
-            this.argRegs = argRegs;
-            this.retRegs = retRegs;
-        }
-    }
-
-    /**
      * {@code InstructionWRKSendReceive} represents the worker send/receive operation in Ballerina.
      *
      * @since 0.95.6
@@ -290,6 +266,60 @@ public class Instruction {
                 sj.add(types[i].toString());
                 sj.add(String.valueOf(pkgRefs[i]));
                 sj.add(String.valueOf(varRegs[i]));
+            }
+            return Mnemonics.getMnem(opcode) + " " + sj.toString();
+        }
+    }
+
+    /**
+     * {@code {@link InstructionCompensate}} represents the COMPENSATE instruction in Ballerina bytecode.
+     */
+    public static class InstructionCompensate extends Instruction {
+        public String scopeName;
+        public ArrayList<String> childScopes = new ArrayList<>();
+
+        InstructionCompensate(int opcode, String scopeName, ArrayList<String> childScopes) {
+            super(opcode);
+            this.scopeName = scopeName;
+            this.childScopes = childScopes;
+        }
+
+        @Override
+
+        public String toString() {
+            StringJoiner sj = new StringJoiner(" ");
+            sj.add(String.valueOf(scopeName));
+            for (String child : childScopes) {
+                sj.add(child);
+            }
+            return Mnemonics.getMnem(opcode) + " " + sj.toString();
+        }
+    }
+
+    /**
+     * {@code {@link InstructionScopeEnd}} represents end of a SCOPE block in Ballerina bytecode.
+     */
+    public static class InstructionScopeEnd extends Instruction {
+
+        public FunctionInfo function;
+        public ArrayList<String> childScopes;
+        public String scopeName;
+        public FunctionRefCPEntry functionCP;
+
+        InstructionScopeEnd(int opcode, FunctionInfo function, ArrayList<String> childScopes,
+                String scopeName, FunctionRefCPEntry funcCP) {
+            super(opcode);
+            this.function = function;
+            this.childScopes = childScopes;
+            this.scopeName = scopeName;
+        }
+
+        @Override
+        public String toString() {
+            StringJoiner sj = new StringJoiner(" ");
+            sj.add(String.valueOf(scopeName));
+            for (String child : childScopes) {
+                sj.add(child);
             }
             return Mnemonics.getMnem(opcode) + " " + sj.toString();
         }

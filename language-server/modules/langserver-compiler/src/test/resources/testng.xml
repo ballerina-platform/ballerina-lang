@@ -27,7 +27,7 @@ under the License.
             </run>
         </groups>
         <packages>
-            <package name="org.ballerinalang.langserver.*"/>
+            <package name="org.ballerinalang.langserver.compiler.*"/>
         </packages>
     </test>
 </suite>

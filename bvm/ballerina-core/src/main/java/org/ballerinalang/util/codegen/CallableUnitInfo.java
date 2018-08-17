@@ -68,6 +68,8 @@ public class CallableUnitInfo implements AttributeInfoPool, WorkerInfoPool {
     private NativeCallableUnit nativeCallableUnit;
     
     private WorkerSet workerSet = new WorkerSet();
+    
+    private boolean hasReturnType;
 
     private WorkerDataIndex calculateWorkerDataIndex(BType[] retTypes) {
         WorkerDataIndex index = new WorkerDataIndex();
@@ -78,6 +80,9 @@ public class CallableUnitInfo implements AttributeInfoPool, WorkerInfoPool {
             case TypeTags.INT_TAG:
                 index.retRegs[i] = index.longRegCount++;
                 break;
+            case TypeTags.BYTE_TAG:
+                index.retRegs[i] = index.intRegCount++;
+                break;
             case TypeTags.FLOAT_TAG:
                 index.retRegs[i] = index.doubleRegCount++;
                 break;
@@ -86,9 +91,6 @@ public class CallableUnitInfo implements AttributeInfoPool, WorkerInfoPool {
                 break;
             case TypeTags.BOOLEAN_TAG:
                 index.retRegs[i] = index.intRegCount++;
-                break;
-            case TypeTags.BLOB_TAG:
-                index.retRegs[i] = index.byteRegCount++;
                 break;
             default:
                 index.retRegs[i] = index.refRegCount++;
@@ -154,8 +156,13 @@ public class CallableUnitInfo implements AttributeInfoPool, WorkerInfoPool {
     public void setRetParamTypes(BType[] retParamType) {
         this.retParamTypes = retParamType;
         this.retWorkerIndex = this.calculateWorkerDataIndex(this.retParamTypes);
+        this.hasReturnType = this.retParamTypes != null && this.retParamTypes.length > 0;
     }
 
+    public boolean hasReturnType() {
+        return hasReturnType;
+    }
+    
     public String getSignature() {
         if (signature != null) {
             return signature;

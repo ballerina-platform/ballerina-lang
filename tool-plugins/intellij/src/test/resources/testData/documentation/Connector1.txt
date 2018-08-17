@@ -1,1 +1,0 @@
-<b>connector ClientConnector(string serviceUri)</b><br><DL><DT>Native HTTP Client Connector</DT></DL>

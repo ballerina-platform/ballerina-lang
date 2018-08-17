@@ -34,7 +34,16 @@ public class Field extends Variable {
      * @param href         link of the data type.
      */
     public Field(String name, String dataType, String description, String defaultValue, String href) {
-        super(name, dataType, description, href);
+        super(name, clean(dataType), description, href);
         this.defaultValue = defaultValue;
     }
+
+    private static String clean(String type) {
+        // remove organization
+        type = type.replaceAll("[A-Za-z0-9]+/([A-Za-z0-9]+:)", "$1");
+        // remove version
+        type = type.replaceAll(":\\d\\.\\d\\.\\d", "");
+        return type;
+    }
+
 }

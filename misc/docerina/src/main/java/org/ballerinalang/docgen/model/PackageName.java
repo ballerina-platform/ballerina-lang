@@ -45,7 +45,6 @@ public class PackageName extends Caption {
      * @return Package names as a link.
      */
     public static List<Link> convertList(List<String> packageNames) {
-        // TODO currently org name doesn't come, hence hard coding ballerina/
         return packageNames.stream().map(packageName -> new PackageName(BallerinaDocDataHolder.getInstance()
                 .getOrgName(), packageName)).map(packageObj -> new Link(packageObj, packageObj.suffix, true)).collect
                 (Collectors.toList());

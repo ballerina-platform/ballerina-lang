@@ -33,7 +33,9 @@ import org.testng.annotations.Test;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
-
+/**
+ * Testcase for table queries within partition.
+ */
 public class TablePartitionTestCase {
     private static final Logger log = LoggerFactory.getLogger(TablePartitionTestCase.class);
     private AtomicInteger count = new AtomicInteger(0);

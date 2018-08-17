@@ -1,0 +1,15 @@
+{
+  "position": {
+    "line": 8,
+    "character": 0
+  },
+  "source": "service/source/suggestServiceAsBTypeNegative.bal",
+  "items": [
+    {
+      "label":"hello",
+      "detail":"BType",
+      "sortText":"170",
+      "insertText":"hello"
+    }
+  ]
+}

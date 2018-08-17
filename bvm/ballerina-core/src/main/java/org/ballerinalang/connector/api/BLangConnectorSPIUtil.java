@@ -21,16 +21,18 @@ import org.ballerinalang.bre.bvm.BLangVMStructs;
 import org.ballerinalang.connector.impl.ConnectorSPIModelHelper;
 import org.ballerinalang.model.types.BServiceType;
 import org.ballerinalang.model.types.TypeTags;
-import org.ballerinalang.model.values.BStruct;
+import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BTypeDescValue;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.util.codegen.ObjectTypeInfo;
 import org.ballerinalang.util.codegen.PackageInfo;
 import org.ballerinalang.util.codegen.PackageVarInfo;
 import org.ballerinalang.util.codegen.ProgramFile;
 import org.ballerinalang.util.codegen.ServiceInfo;
-import org.ballerinalang.util.codegen.StructInfo;
+import org.ballerinalang.util.codegen.StructureTypeInfo;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.ballerinalang.util.program.BLangFunctions;
+import org.wso2.ballerinalang.compiler.util.Names;
 
 /**
  * Utils for accessing runtime information for Ballerina Connector SPI.
@@ -47,10 +49,10 @@ public final class BLangConnectorSPIUtil {
      */
     public static Struct getConnectorEndpointStruct(Context context) {
         BValue result = context.getRefArgument(0);
-        if (result == null || result.getType().getTag() != TypeTags.STRUCT_TAG) {
+        if (result == null || result.getType().getTag() != TypeTags.OBJECT_TYPE_TAG) {
             throw new BallerinaException("Can't get connector endpoint struct");
         }
-        return ConnectorSPIModelHelper.createStruct((BStruct) result);
+        return ConnectorSPIModelHelper.createStruct((BMap<String, BValue>) result);
     }
 
     /**
@@ -83,46 +85,58 @@ public final class BLangConnectorSPIUtil {
      * @param values     values to be copied to struct field in the defined order
      * @return created struct
      */
-    public static BStruct createBStruct(Context context, String pkgPath, String structName, Object... values) {
+    public static BMap<String, BValue> createBStruct(Context context, String pkgPath, String structName,
+                                                     Object... values) {
         return createBStruct(context.getProgramFile(), pkgPath, structName, values);
     }
 
-    public static BStruct createBStruct(ProgramFile programFile, String pkgPath, String structName, Object... values) {
+    public static BMap<String, BValue> createBStruct(ProgramFile programFile, String pkgPath, String structName,
+                                                     Object... values) {
         PackageInfo packageInfo = programFile.getPackageInfo(pkgPath);
         if (packageInfo == null) {
             throw new BallerinaConnectorException("package - " + pkgPath + " does not exist");
         }
-        StructInfo structInfo = packageInfo.getStructInfo(structName);
-        if (structInfo == null) {
-            throw new BallerinaConnectorException("struct - " + structName + " does not exist");
-        }
-        return BLangVMStructs.createBStruct(structInfo, values);
-    }
-
-
-    public static BStruct createObject(Context context, String pkgPath, String structName, BValue... values) {
-        return createObject(context.getProgramFile(), pkgPath, structName, values);
-    }
-
-    public static BStruct createObject(ProgramFile programFile, String pkgPath, String structName, BValue... values) {
-        PackageInfo packageInfo = programFile.getPackageInfo(pkgPath);
-        if (packageInfo == null) {
-            throw new BallerinaConnectorException("package - " + pkgPath + " does not exist");
-        }
-        StructInfo structInfo = packageInfo.getStructInfo(structName);
-        if (structInfo == null) {
-            throw new BallerinaConnectorException("struct - " + structName + " does not exist");
-        }
-        return BLangVMStructs.createObject(structInfo, values);
+        StructureTypeInfo structureInfo = packageInfo.getStructInfo(structName);
+        return BLangVMStructs.createBStruct(structureInfo, values);
     }
 
     /**
-     * Wrap BVM struct value to {@link Struct}
+     * This is a helper method to create a object in native code.
+     *
+     * WARNING - please be cautious when using this method, if you have non blocking calls inside the
+     * object constructor, then using this method may cause thread blocking scenarios.
+     *
+     * @param context to be used
+     * @param pkgPath of the object
+     * @param structName of the object
+     * @param values to be passed into constructor
+     * @return created object
+     */
+    public static BMap<String, BValue> createObject(Context context, String pkgPath, String structName,
+                                                    BValue... values) {
+        return createObject(context.getProgramFile(), pkgPath, structName, values);
+    }
+
+    public static BMap<String, BValue> createObject(ProgramFile programFile, String pkgPath, String objectName,
+                                                    BValue... values) {
+        PackageInfo packageInfo = programFile.getPackageInfo(pkgPath);
+        if (packageInfo == null) {
+            throw new BallerinaConnectorException("package - " + pkgPath + " does not exist");
+        }
+        StructureTypeInfo typeInfo = packageInfo.getStructInfo(objectName);
+        if (typeInfo == null || typeInfo.getType().getTag() != TypeTags.OBJECT_TYPE_TAG) {
+            throw new BallerinaConnectorException("object - " + objectName + " does not exist");
+        }
+        return BLangVMStructs.createObject((ObjectTypeInfo) typeInfo, values);
+    }
+
+    /**
+     * Wrap BVM struct value to {@link Struct}.
      *
      * @param bStruct value.
      * @return wrapped value.
      */
-    public static Struct toStruct(BStruct bStruct) {
+    public static Struct toStruct(BMap<String, BValue> bStruct) {
         return ConnectorSPIModelHelper.createStruct(bStruct);
     }
 
@@ -138,8 +152,10 @@ public final class BLangConnectorSPIUtil {
         return getService(programFile, (BServiceType) vmValue.value());
     }
 
-    public static BStruct getPackageEndpoint(ProgramFile programFile, String pkgName, String endpointName) {
-        final PackageInfo packageInfo = programFile.getPackageInfo(pkgName);
+    public static BMap<String, BValue> getPackageEndpoint(ProgramFile programFile, String pkgName, String version,
+                                             String endpointName) {
+        String pkgID = getPackageID(pkgName, version);
+        final PackageInfo packageInfo = programFile.getPackageInfo(pkgID);
         if (packageInfo == null) {
             throw new BallerinaConnectorException("Incorrect package name");
         }
@@ -147,7 +163,7 @@ public final class BLangConnectorSPIUtil {
         if (packageVarInfo == null) {
             throw new BallerinaConnectorException("Can't locate " + endpointName + " endpoint variable");
         }
-        return (BStruct) programFile.globalMemArea.getRefField(packageInfo.pkgIndex,
+        return (BMap<String, BValue>) programFile.globalMemArea.getRefField(packageInfo.pkgIndex,
                 packageVarInfo.getGlobalMemIndex());
     }
 
@@ -155,5 +171,12 @@ public final class BLangConnectorSPIUtil {
         final ServiceInfo serviceInfo = programFile.getPackageInfo(serviceType.getPackagePath())
                 .getServiceInfo(serviceType.getName());
         return ConnectorSPIModelHelper.createService(programFile, serviceInfo);
+    }
+
+    private static String getPackageID(String pkgName, String version) {
+        if (version == null || Names.EMPTY.value.equals(version)) {
+            return pkgName;
+        }
+        return String.join(Names.VERSION_SEPARATOR.value, pkgName, version);
     }
 }

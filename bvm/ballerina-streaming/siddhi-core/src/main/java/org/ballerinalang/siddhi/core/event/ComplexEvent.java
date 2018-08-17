@@ -43,7 +43,7 @@ public interface ComplexEvent extends Serializable {
     void setType(Type type);
 
     /**
-     * Enums to represent Event.Type
+     * Enums to represent Event.Type.
      */
     enum Type {
         CURRENT,

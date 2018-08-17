@@ -17,25 +17,31 @@
  */
 package org.ballerinalang.protobuf;
 
+import java.io.File;
+
 /**
  * Bal Generation Tool contants class.
  */
 public class BalGenerationConstants {
     public static final String OS_NAME_SYSTEM_PROPERTY = "os.name";
     public static final String OS_ARCH_SYSTEM_PROPERTY = "os.arch";
-    public static final String META_LOCATION = "desc_gen/";
-    public static final String META_DEPENDENCY_LOCATION = "desc_gen/dependencies";
-    public static final String FILE_SEPARATOR = System.getProperty("file.separator");
+    public static final String FILE_SEPARATOR = File.separator;
+    public static final String BUILD_COMMAND_NAME = "build";
+    public static final String META_LOCATION = "desc_gen";
+    public static final String TEMP_GOOGLE_DIRECTORY = "google";
+    public static final String TEMP_PROTOBUF_DIRECTORY = "protobuf";
+    public static final String TEMP_COMPILER_DIRECTORY = "compiler";
+
+    public static final String META_DEPENDENCY_LOCATION = "desc_gen" + FILE_SEPARATOR
+            + "dependencies";
     public static final String NEW_LINE_CHARACTER = System.getProperty("line.separator");
-    public static final String GOOGLE_STANDARD_LIB = "google/protobuf";
-    public static final String NEW_LINE_CHARATER = "\\\n";
-    public static final String SPACE_CHARATER = " ";
+    public static final String GOOGLE_STANDARD_LIB = "google" + FILE_SEPARATOR + "protobuf";
+    public static final String SPACE_CHARACTER = " ";
     public static final String EMPTY_STRING = "";
     public static final String EXE_PATH_PLACEHOLDER = "{{EXE_PATH}}";
     public static final String PROTO_PATH_PLACEHOLDER = "{{PROTO_PATH}}";
     public static final String PROTO_FOLDER_PLACEHOLDER = "{{PROTO_FOLDER}}";
     public static final String DESC_PATH_PLACEHOLDER = "{{DESC_PATH}}";
-    public static final String PLUGIN_PROTO_FILEPATH = "google/protobuf/compiler/plugin.proto";
     public static final String COMPONENT_IDENTIFIER = "grpc";
     public static final String PROTOC_PLUGIN_EXE_PREFIX = ".exe";
     public static final String PROTO_SUFFIX = ".proto";

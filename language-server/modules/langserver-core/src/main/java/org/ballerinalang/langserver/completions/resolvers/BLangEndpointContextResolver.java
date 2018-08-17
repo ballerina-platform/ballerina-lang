@@ -17,55 +17,86 @@
 */
 package org.ballerinalang.langserver.completions.resolvers;
 
+import org.antlr.v4.runtime.Token;
+import org.ballerinalang.langserver.common.UtilSymbolKeys;
+import org.ballerinalang.langserver.common.utils.CommonUtil;
+import org.ballerinalang.langserver.common.utils.completion.BLangRecordLiteralUtil;
 import org.ballerinalang.langserver.compiler.LSServiceOperationContext;
 import org.ballerinalang.langserver.completions.CompletionKeys;
 import org.ballerinalang.langserver.completions.SymbolInfo;
+import org.ballerinalang.langserver.completions.util.filters.DelimiterBasedContentFilter;
+import org.ballerinalang.langserver.completions.util.filters.SymbolFilters;
+import org.ballerinalang.langserver.completions.util.sorters.DefaultItemSorter;
+import org.ballerinalang.langserver.completions.util.sorters.ItemSorters;
 import org.eclipse.lsp4j.CompletionItem;
-import org.wso2.ballerinalang.compiler.semantics.model.Scope;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BStructSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BStructType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
+import org.eclipse.lsp4j.jsonrpc.messages.Either;
 import org.wso2.ballerinalang.compiler.tree.BLangEndpoint;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * BLangEndpoint context Item Resolver.
  */
 public class BLangEndpointContextResolver extends AbstractItemResolver {
     
-    private static final String INIT = "init";
-    
     @Override
     @SuppressWarnings("unchecked")
-    public ArrayList<CompletionItem> resolveItems(LSServiceOperationContext completionContext) {
-        BLangNode bLangEndpoint = completionContext.get(CompletionKeys.SYMBOL_ENV_NODE_KEY);
+    public List<CompletionItem> resolveItems(LSServiceOperationContext ctx) {
+        BLangNode bLangEndpoint = ctx.get(CompletionKeys.SYMBOL_ENV_NODE_KEY);
         ArrayList<CompletionItem> completionItems = new ArrayList<>();
-        ArrayList<SymbolInfo> configurationFields = new ArrayList<>();
-        List<BStructSymbol.BAttachedFunction> attachedFunctions = new ArrayList<>();
-        
-        if (((BLangEndpoint) bLangEndpoint).type.tsymbol instanceof BStructSymbol) {
-            attachedFunctions.addAll(((BStructSymbol) ((BLangEndpoint) bLangEndpoint).type.tsymbol).attachedFuncs);
+
+        // In order to extract the completion items, then the valid symbol should both be a BLangEndpoint and
+        // the configuration expression should be a record literal. otherwise return the empty list
+        if (!(bLangEndpoint instanceof  BLangEndpoint)
+                || !(((BLangEndpoint) bLangEndpoint).configurationExpr instanceof BLangRecordLiteral)) {
+            return completionItems;
         }
 
-        BStructSymbol.BAttachedFunction initFunction = attachedFunctions.stream()
-                .filter(bAttachedFunction -> bAttachedFunction.funcName.getValue().equals(INIT))
-                .findFirst()
-                .orElseGet(null);
-
-        BVarSymbol configSymbol = initFunction.symbol.getParameters().get(0);
-
-        BType configSymbolType = configSymbol.getType();
-        if (configSymbolType instanceof BStructType) {
-            ((BStructType) configSymbolType).getFields().forEach(bStructField -> configurationFields.add(
-                    new SymbolInfo(bStructField.getName().getValue(), new Scope.ScopeEntry(bStructField.symbol, null))
-            ));
+        List<String> poppedTokens = ctx.get(CompletionKeys.FORCE_CONSUMED_TOKENS_KEY)
+                .stream()
+                .map(Token::getText)
+                .collect(Collectors.toList());
+        if (poppedTokens.indexOf(UtilSymbolKeys.PKG_DELIMITER_KEYWORD) == 1) {
+            /*
+            Try to get completions for the field from the visible symbols
+            Eg: port: config:<cursor>
+             */
+            if (this.isInvocationOrFieldAccess(ctx)) {
+                Either<List<CompletionItem>, List<SymbolInfo>> filteredList =
+                        SymbolFilters.get(DelimiterBasedContentFilter.class).filterItems(ctx);
+                completionItems.addAll(this.getCompletionItemList(filteredList));
+            } else {
+                completionItems.addAll(this.getVarDefCompletionItems(ctx));
+            }
+            ItemSorters.get(DefaultItemSorter.class).sortItems(ctx, completionItems);
+        } else {
+            BLangRecordLiteral recordLiteral
+                    = (BLangRecordLiteral) ((BLangEndpoint) bLangEndpoint).configurationExpr;
+            completionItems.addAll(BLangRecordLiteralUtil.getFieldsForMatchingRecord(recordLiteral, ctx));
         }
-        this.populateCompletionItemList(configurationFields, completionItems);
 
         return completionItems;
+    }
+
+    /**
+     * Check whether the token stream corresponds to a action invocation or a function invocation.
+     *
+     * @param context               Completion operation context
+     * @return {@link Boolean}      Whether invocation or Field Access
+     */
+    @Override
+    protected boolean isInvocationOrFieldAccess(LSServiceOperationContext context) {
+        List<String> poppedTokens = context.get(CompletionKeys.FORCE_CONSUMED_TOKENS_KEY)
+                .stream()
+                .map(Token::getText)
+                .collect(Collectors.toList());
+        String topMostPoppedToken = CommonUtil.getLastItem(poppedTokens);
+        return (poppedTokens.size() > 2)
+                && (UtilSymbolKeys.PKG_DELIMITER_KEYWORD.equals(topMostPoppedToken)
+                || UtilSymbolKeys.DOT_SYMBOL_KEY.equals(topMostPoppedToken));
     }
 }

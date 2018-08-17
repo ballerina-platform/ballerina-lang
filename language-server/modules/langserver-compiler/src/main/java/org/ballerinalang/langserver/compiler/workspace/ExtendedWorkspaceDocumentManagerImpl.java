@@ -21,10 +21,15 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Optional;
+import java.util.concurrent.locks.Lock;
 
 /**
  * This class provides an abstraction layer for a given filePath. All other changes are reflected to the underline
  * WorkspaceDocumentManagerImpl except given filePath.
+ *
+ * This class is being used by the composer to provide a flexible Workspace DocumentManager. Operations such as
+ * openFile() are aware of the browser refreshes that may cause file already opened exceptions.
  */
 public class ExtendedWorkspaceDocumentManagerImpl extends WorkspaceDocumentManagerImpl {
 
@@ -32,7 +37,7 @@ public class ExtendedWorkspaceDocumentManagerImpl extends WorkspaceDocumentManag
 
     private volatile WorkspaceDocument tempDocument;
 
-    private boolean explicitMode;
+    private volatile boolean isExplicitMode;
 
     private static final ExtendedWorkspaceDocumentManagerImpl INSTANCE = new ExtendedWorkspaceDocumentManagerImpl();
 
@@ -44,75 +49,130 @@ public class ExtendedWorkspaceDocumentManagerImpl extends WorkspaceDocumentManag
         super();
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public boolean isFileOpen(Path filePath) {
-        if (!isExplicitMode() && !isTempFile(filePath)) {
-            return super.isFileOpen(filePath);
+        if (isExplicitMode && isTempFile(filePath)) {
+            return true;
         }
-        return true;
+        return super.isFileOpen(filePath);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
-    public void openFile(Path filePath, String content) {
-        if (isExplicitMode() && isTempFile(filePath)) {
+    public Optional<Lock> openFile(Path filePath, String content) throws WorkspaceDocumentException {
+        // If file is already open; gracefully handle it
+        return openOrUpdateFile(filePath, content);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public Optional<Lock> updateFile(Path filePath, String updatedContent) throws WorkspaceDocumentException {
+        // if file is not already open; gracefully handle it
+        return openOrUpdateFile(filePath, updatedContent);
+    }
+
+    private Optional<Lock> openOrUpdateFile(Path filePath, String content) throws WorkspaceDocumentException {
+        if (isExplicitMode && isTempFile(filePath)) {
+            // If explicit mode is on and temp file, handle it locally
+            Optional<Lock> lock = super.lockFile(filePath);
             tempDocument.setContent(content);
+            return lock;
+        } else {
+            // Or else, call parent class
+            return (super.isFileOpen(filePath)) ?
+                    super.updateFile(filePath, content)
+                    : super.openFile(filePath, content);
         }
-        super.openFile(filePath, content);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
-    public void updateFile(Path filePath, String updatedContent) {
-        if (isExplicitMode() && isTempFile(filePath)) {
-            tempDocument.setContent(updatedContent);
-        }
-        super.updateFile(filePath, updatedContent);
-    }
-
-    @Override
-    public void closeFile(Path filePath) {
-        if (!isExplicitMode() && !isTempFile(filePath)) {
+    public void closeFile(Path filePath) throws WorkspaceDocumentException {
+        if (!isExplicitMode && !isTempFile(filePath)) {
             super.closeFile(filePath);
         }
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
-    public String getFileContent(Path filePath) {
-        if (isExplicitMode() && isTempFile(filePath)) {
+    public String getFileContent(Path filePath) throws WorkspaceDocumentException {
+        if (isExplicitMode && isTempFile(filePath)) {
+            // If explicit mode is on and temp file, return local file content
             return tempDocument.getContent();
         }
+        // Or else, call parent class
         return super.getFileContent(filePath);
     }
 
     private boolean isTempFile(Path filePath) {
         try {
-            return Files.isSameFile(tempDocument.getPath(), filePath);
+            return tempDocument != null && Files.isSameFile(tempDocument.getPath(), filePath);
         } catch (IOException e) {
             return false;
         }
     }
 
-    public boolean isExplicitMode() {
-        return explicitMode;
-    }
-
     /**
      * Enables explicit mode. When explicit mode is enabled; changes for the temp file will not be reflected to the
      * WorkspaceDocument Manager and kept in an abstraction layer. Changes for the other files will be served as usual.
+     *
+     * Usage example:
+     * <pre>
+     * Optional&lt;Lock&gt; lock = documentManager.enableExplicitMode(tempFile);
+     * try {
+     *      //your code
+     * } finally {
+     *      documentManager.disableExplicitMode(lock.orElse(null));
+     * }
+     * </pre>
+     *
      * @param tempFile temp file path
+     * @return file lock
+     *
+     * @see ExtendedWorkspaceDocumentManagerImpl#disableExplicitMode(Lock)
      */
-    public void enableExplicitMode(Path tempFile) {
+    public Optional<Lock> enableExplicitMode(Path tempFile) {
+        // Acquire a lock for the temp-file
+        Optional<Lock> lock = super.lockFile(tempFile);
         if (tempDocument == null) {
             tempDocument = new WorkspaceDocument(tempFile, "");
         } else {
             tempDocument.setPath(tempFile);
         }
-        this.explicitMode = true;
+        this.isExplicitMode = true;
+        return lock;
     }
 
     /**
      * Disables explicit mode. When explicit mode is disabled; All changes for the files will be served as usual.
+     * Usage example:
+     * <pre>
+     * Optional&lt;Lock&gt; lock = documentManager.enableExplicitMode(tempFile);
+     * try {
+     *      //your code
+     * } finally {
+     *      documentManager.disableExplicitMode(lock.orElse(null));
+     * }
+     * </pre>
+     *
+     * @param lock that returned from enableExplicitMode
+     *
+     * @see ExtendedWorkspaceDocumentManagerImpl#enableExplicitMode
      */
-    public void disableExplicitMode() {
-        this.explicitMode = false;
+    public void disableExplicitMode(Lock lock) {
+        this.isExplicitMode = false;
+        // Release the lock of the temp-file
+        Optional.ofNullable(lock).ifPresent(Lock::unlock);
     }
 }

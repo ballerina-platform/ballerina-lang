@@ -16,8 +16,6 @@
 
 package org.ballerinalang.code.generator;
 
-import java.io.File;
-
 /**
  * Constants for ballerina code generator.
  */
@@ -46,10 +44,10 @@ public class GeneratorConstants {
 
     public static final String TEMPLATES_SUFFIX = ".mustache";
     public static final String TEMPLATES_DIR_PATH_KEY = "templates.dir.path";
-    public static final String DEFAULT_TEMPLATE_DIR = File.separator + "templates";
-    public static final String DEFAULT_CLIENT_DIR = DEFAULT_TEMPLATE_DIR + File.separator + "client";
-    public static final String DEFAULT_OPEN_API_DIR = DEFAULT_TEMPLATE_DIR + File.separator + "oas3";
-    public static final String DEFAULT_SWAGGER_DIR = DEFAULT_TEMPLATE_DIR + File.separator + "swagger2";
+    public static final String DEFAULT_TEMPLATE_DIR = "/templates";
+    public static final String DEFAULT_CLIENT_DIR = DEFAULT_TEMPLATE_DIR + "/client";
+    public static final String DEFAULT_OPEN_API_DIR = DEFAULT_TEMPLATE_DIR + "/oas3";
+    public static final String DEFAULT_SWAGGER_DIR = DEFAULT_TEMPLATE_DIR + "/swagger2";
 
     public static final String RES_CONFIG_ANNOTATION = "ResourceConfig";
     public static final String HTTP_PKG_ALIAS = "http";

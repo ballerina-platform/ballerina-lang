@@ -19,6 +19,7 @@ package org.ballerinalang.testerina.core.entity;
 
 import org.ballerinalang.bre.bvm.WorkerExecutionContext;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.testerina.core.TesterinaRegistry;
 import org.ballerinalang.util.codegen.FunctionInfo;
 import org.ballerinalang.util.codegen.ProgramFile;
 import org.ballerinalang.util.debugger.Debugger;
@@ -80,7 +81,14 @@ public class TesterinaFunction {
     }
 
     public BValue[] invoke() throws BallerinaException {
-        return invoke(new BValue[] {});
+        if (this.type == Type.INIT) {
+            BLangFunctions.invokePackageInitFunctions(programFile);
+            BLangFunctions.invokePackageStartFunctions(programFile);
+            TesterinaRegistry.getInstance().addInitializedPackage(programFile.getEntryPkgName());
+            return new BValue[] {};
+        } else {
+            return invoke(new BValue[] {});
+        }
     }
 
     /**

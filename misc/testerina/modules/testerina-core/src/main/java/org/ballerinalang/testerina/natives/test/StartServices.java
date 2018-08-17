@@ -28,8 +28,11 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
 import org.ballerinalang.testerina.core.TesterinaRegistry;
 import org.ballerinalang.testerina.util.Utils;
+import org.ballerinalang.util.LaunchListener;
 import org.ballerinalang.util.codegen.PackageInfo;
 import org.ballerinalang.util.codegen.ProgramFile;
+
+import java.util.ServiceLoader;
 
 /**
  * Native function ballerina.test:startServices.
@@ -53,12 +56,16 @@ public class StartServices extends BlockingNativeCallableUnit {
     public void execute(Context ctx) {
         String packageName = ctx.getStringArgument(0);
 
+        packageName = Utils.getFullPackageName(packageName);
         for (ProgramFile programFile : TesterinaRegistry.getInstance().getProgramFiles()) {
             // Get the service package
             PackageInfo servicesPackage = programFile.getEntryPackage();
             if (servicesPackage == null || !servicesPackage.getPkgPath().equals(packageName)) {
                 continue;
             }
+
+            ServiceLoader<LaunchListener> listeners = ServiceLoader.load(LaunchListener.class);
+            listeners.forEach(listener -> listener.beforeRunProgram(true));
 
             Utils.startService(programFile);
             ctx.setReturnValues(new BBoolean(true));

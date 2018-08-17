@@ -28,7 +28,6 @@ import org.ballerinalang.util.codegen.ProgramFile;
 import org.ballerinalang.util.debugger.Debugger;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.ballerinalang.util.program.BLangFunctions;
-import org.wso2.ballerinalang.compiler.util.CompilerUtils;
 
 /**
  * This class contains utilities to execute Ballerina main and service programs.
@@ -51,13 +50,8 @@ public class BLangProgramRunner {
         Debugger debugger = new Debugger(programFile);
         initDebugger(programFile, debugger);
 
-        boolean distributedTxEnabled = CompilerUtils.isDistributedTransactionsEnabled();
-        programFile.setDistributedTransactionEnabled(distributedTxEnabled);
-
-        // Invoke package init function
-        BLangFunctions.invokePackageInitFunction(servicesPackage.getInitFunctionInfo());
-
-        BLangFunctions.invokeVMUtilFunction(servicesPackage.getStartFunctionInfo());
+        BLangFunctions.invokePackageInitFunctions(programFile);
+        BLangFunctions.invokePackageStartFunctions(programFile);
     }
 
     public static void runMain(ProgramFile programFile, String[] args) {
@@ -71,17 +65,17 @@ public class BLangProgramRunner {
         Debugger debugger = new Debugger(programFile);
         initDebugger(programFile, debugger);
 
-        boolean distributedTxEnabled = CompilerUtils.isDistributedTransactionsEnabled();
-        programFile.setDistributedTransactionEnabled(distributedTxEnabled);
-
         FunctionInfo mainFuncInfo = getMainFunction(mainPkgInfo);
         try {
-            BLangFunctions.invokeEntrypointCallable(programFile, mainPkgInfo, mainFuncInfo, extractMainArgs(args));
+            BLangFunctions.invokeEntrypointCallable(programFile, mainFuncInfo, extractMainArgs(args));
         } finally {
+            if (programFile.isServiceEPAvailable()) {
+                return;
+            }
             if (debugger.isDebugEnabled()) {
                 debugger.notifyExit();
             }
-            BLangFunctions.invokeVMUtilFunction(mainPkgInfo.getStopFunctionInfo());
+            BLangFunctions.invokePackageStopFunctions(programFile);
         }
     }
 

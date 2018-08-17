@@ -28,6 +28,8 @@ import org.wso2.ballerinalang.compiler.packaging.converters.Converter;
 import org.wso2.ballerinalang.compiler.packaging.repo.RemoteRepo;
 import org.wso2.ballerinalang.compiler.packaging.repo.Repo;
 import org.wso2.ballerinalang.compiler.util.Name;
+import org.wso2.ballerinalang.compiler.util.Names;
+import org.wso2.ballerinalang.util.RepoUtils;
 
 import java.io.PrintStream;
 import java.net.URI;
@@ -88,6 +90,10 @@ public class PullCommand implements BLauncherCmd {
         int orgNameIndex = resourceName.indexOf("/");
         if (orgNameIndex != -1) {
             orgName = resourceName.substring(0, orgNameIndex);
+            if (orgName.equals("ballerina")) {
+                throw new BLangCompilerException("`Ballerina` is the builtin organization and its packages are " +
+                                                         "included in the runtime.");
+            }
         } else {
             throw new BLangCompilerException("no package-name provided");
         }
@@ -99,11 +105,11 @@ public class PullCommand implements BLauncherCmd {
             version = resourceName.substring(packageNameIndex + 1, resourceName.length());
         } else {
             packageName = resourceName.substring(orgNameIndex + 1, resourceName.length());
-            version = "*";
+            version = Names.EMPTY.getValue();
         }
 
-        URI baseURI = URI.create("https://api.central.ballerina.io/packages/");
-        Repo remoteRepo = new RemoteRepo(baseURI);
+        URI baseURI = URI.create(RepoUtils.getRemoteRepoURL());
+        Repo remoteRepo = new RemoteRepo(baseURI, false);
 
         PackageID packageID = new PackageID(new Name(orgName), new Name(packageName), new Name(version));
 

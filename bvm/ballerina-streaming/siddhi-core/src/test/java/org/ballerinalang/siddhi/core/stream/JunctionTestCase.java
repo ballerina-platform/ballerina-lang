@@ -35,6 +35,9 @@ import org.testng.annotations.Test;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+/**
+ * Testcase for stream junction validation.
+ */
 public class JunctionTestCase {
     private static final Logger log = LoggerFactory.getLogger(JunctionTestCase.class);
     private int count;

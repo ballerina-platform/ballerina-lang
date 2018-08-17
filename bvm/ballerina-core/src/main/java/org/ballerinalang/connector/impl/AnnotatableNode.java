@@ -25,7 +25,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * {@code AnnotatableNode} represents a node which contains annotations
+ * {@code AnnotatableNode} represents a node which contains annotations.
  *
  * @since 0.94
  */

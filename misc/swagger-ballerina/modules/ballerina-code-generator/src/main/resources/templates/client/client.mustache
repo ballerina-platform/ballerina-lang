@@ -4,7 +4,7 @@ import ballerina/http;
 //=====================================
 //============Client Config============
 //=====================================
-public type {{name}}ClientConfig {
+public type {{name}}ClientConfig record {
     string serviceUrl;
 };
 
@@ -23,7 +23,7 @@ public type {{name}}ClientEp object {
 
 public function {{name}}ClientEp::init({{name}}ClientConfig config) {
     endpoint http:Client httpEp {
-        targets:[{url: config.serviceUrl}]
+        url: config.serviceUrl
     };
 
     self.client = httpEp;
@@ -43,11 +43,21 @@ public type {{name}}Client object {
     }
 
     new (clientEp) {}
-    {{#resources}}
-    public function {{name}}({{#parameters}}{{type}} {{name}}{{#unless @last}}, {{/unless}}{{/parameters}}) returns http:Response | error;{{/resources}}
+    {{#resources}}{{#isMultiMethod}}{{#supportedMethods}}
+    public function {{lower .}}{{name}}({{#parameters}}{{type}} {{name}}{{#unless @last}}, {{/unless}}{{/parameters}}) returns http:Response | error;{{/supportedMethods}}{{/isMultiMethod}}{{^isMultiMethod}}
+    public function {{name}}({{#parameters}}{{type}} {{name}}{{#unless @last}}, {{/unless}}{{/parameters}}) returns http:Response | error;{{/isMultiMethod}}{{/resources}}
 };
+{{#resources}}{{#isMultiMethod}}{{#supportedMethods}}
+public function {{../../name}}Client::{{lower .}}{{../name}}({{#parameters}}{{type}} {{../name}}{{#unless @last}}, {{/unless}}{{/parameters}}) returns http:Response | error {
+    endpoint http:Client ep = self.clientEp.client;
+    http:Request request = new;
 
-{{#resources}}
+    //Create the required request as needed{{#contentType}}
+    request.setHeader("Content-Type", "{{contentType}}");{{/contentType}}
+    string path = string `{{path}}`;
+    return check ep->{{lower .}}(path, request = request);
+}
+{{/supportedMethods}}{{/isMultiMethod}}{{^isMultiMethod}}
 public function {{../name}}Client::{{name}}({{#parameters}}{{type}} {{name}}{{#unless @last}}, {{/unless}}{{/parameters}}) returns http:Response | error {
     endpoint http:Client ep = self.clientEp.client;
     http:Request request = new;
@@ -55,34 +65,27 @@ public function {{../name}}Client::{{name}}({{#parameters}}{{type}} {{name}}{{#u
     //Create the required request as needed{{#contentType}}
     request.setHeader("Content-Type", "{{contentType}}");{{/contentType}}
     string path = string `{{path}}`;
-    var res = ep -> {{lower method}}(path, request);
-
-    match res {
-        http:HttpConnectorError httpError => {
-            error err = {message: httpError.message};
-            return err;
-        }
-        http:Response resp => return resp;
-    }
-}
+    return check ep->{{lower method}}(path, request = request);
+}{{/isMultiMethod}}
 {{/resources}}
 {{#if endpoints}}//======================================================
 //============Invocation of Generated Client============
 //======================================================
-function main (string[] args) { {{#endpoints}}
+function main (string... args) { {{#endpoints}}
     endpoint {{../name}}ClientEp ep{{@index}} {
         serviceUrl: "{{url}}"
     };{{/endpoints}}
 
     {{#resources.0}}
-    // Sample invocation of the generated client connector
-    var res = ep0 -> {{name}}({{#parameters}}{{>arguments}}{{/parameters}});
+    // Sample invocation of the generated client connector{{#isMultiMethod}}{{#supportedMethods.0}}
+    var res = ep0->{{lower .}}{{name}}({{#parameters}}{{>arguments}}{{/parameters}});{{/supportedMethods.0}}{{/isMultiMethod}}{{^isMultiMethod}}
+    var res = ep0->{{name}}({{#parameters}}{{>arguments}}{{/parameters}});{{/isMultiMethod}}
     match (res) {
         error err => io:println(err.message);
             http:Response resp => {
-                var payload = resp.getStringPayload();
+                var payload = resp.getTextPayload();
                 match payload {
-                    http:PayloadError err => io:println(err.message);
+                    error err => io:println(err.message);
                     string message => io:println(message);
                 }
             }

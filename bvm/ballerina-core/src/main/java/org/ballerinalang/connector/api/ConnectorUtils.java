@@ -19,11 +19,12 @@ package org.ballerinalang.connector.api;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.connector.impl.ConnectorSPIModelHelper;
-import org.ballerinalang.model.types.BStructType;
-import org.ballerinalang.model.values.BStruct;
+import org.ballerinalang.model.types.BStructureType;
+import org.ballerinalang.model.values.BMap;
+import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.util.codegen.PackageInfo;
 import org.ballerinalang.util.codegen.ProgramFile;
-import org.ballerinalang.util.codegen.StructInfo;
+import org.ballerinalang.util.codegen.StructureTypeInfo;
 
 /**
  * {@code ConnectorUtil} Utilities related to connector processing.
@@ -34,18 +35,6 @@ import org.ballerinalang.util.codegen.StructInfo;
 public class ConnectorUtils extends ConnectorSPIModelHelper {
 
     /**
-     * This method is used to create a struct given the resource and required struct details.
-     *
-     * @param resource to get required details.
-     * @param packageName package name of the struct definition.
-     * @param structName struct name.
-     * @return created struct.
-     */
-    public static BStruct createStruct(Resource resource, String packageName, String structName) {
-        return null;
-    }
-
-    /**
      * This method is used to create a struct given the context and required struct details.
      *
      * @param context to get program file.
@@ -54,19 +43,16 @@ public class ConnectorUtils extends ConnectorSPIModelHelper {
      * @return created struct.
      * @throws BallerinaConnectorException if an error occurs
      */
-    public static BStruct createAndGetStruct(Context context, String packagePath, String structName)
+    public static BMap<String, BValue> createAndGetStruct(Context context, String packagePath, String structName)
             throws BallerinaConnectorException {
         PackageInfo packageInfo = context.getProgramFile()
                 .getPackageInfo(packagePath);
         if (packageInfo == null) {
             throw new BallerinaConnectorException("package - " + packagePath + " does not exist");
         }
-        StructInfo structInfo = packageInfo.getStructInfo(structName);
-        if (structInfo == null) {
-            throw new BallerinaConnectorException("struct - " + structName + " does not exist");
-        }
-        BStructType structType = structInfo.getType();
-        BStruct bStruct = new BStruct(structType);
+        StructureTypeInfo structureInfo = packageInfo.getStructInfo(structName);
+        BStructureType structType = structureInfo.getType();
+        BMap<String, BValue> bStruct = new BMap<>(structType);
 
         return bStruct;
     }

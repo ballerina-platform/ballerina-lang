@@ -17,7 +17,8 @@
  */
 
 const { 
-    DebugSession, InitializedEvent, StoppedEvent, OutputEvent, TerminatedEvent, LoggingDebugSession,
+    DebugSession, InitializedEvent, StoppedEvent, OutputEvent, TerminatedEvent, 
+    ContinuedEvent, LoggingDebugSession,
 } = require('vscode-debugadapter');
 const DebugManager = require('./DebugManager');
 const fs = require('fs');
@@ -31,13 +32,25 @@ class BallerinaDebugSession extends LoggingDebugSession {
         response.body.supportsConfigurationDoneRequest = true;
         this.packagePaths = {};
         this.dirPaths = {};
+        this.threadIndexes = {};
+        this.threads = [];
+        this.debugArgs = {};
         this.debugManager = new DebugManager();
-        this.started = false;
 
         this.debugManager.on('debug-hit', debugArgs => {
-            this.debugArgs = debugArgs;
-            this.currentThread = debugArgs.threadId;
-            this.sendEvent(new StoppedEvent('breakpoint', 1));
+            const threadId = debugArgs.threadId || debugArgs.workerId;
+            this.debugArgs[threadId] = debugArgs;
+            this.currentThreadId = threadId;
+            if (!this.threadIndexes[threadId]) {
+                const index = this.threads.length + 1;
+                this.threads.push({
+                    threadId,
+                    index, 
+                    name: threadId.split('-')[0],
+                });
+                this.threadIndexes[threadId] = index;
+            }
+            this.sendEvent(new StoppedEvent('breakpoint', this.threadIndexes[threadId]));
         });
 
         this.debugManager.on('execution-ended', () => {
@@ -61,8 +74,8 @@ class BallerinaDebugSession extends LoggingDebugSession {
     }
 
     launchRequest(response, args) {
-        if (!args['ballerina.sdk']) {
-            this.terminate("Couldn't start the debug server. Please set ballerina.sdk.");
+        if (!args['ballerina.home']) {
+            this.terminate("Couldn't start the debug server. Please set ballerina.home.");
             return;
         }
 
@@ -81,7 +94,7 @@ class BallerinaDebugSession extends LoggingDebugSession {
             fileName = path.join(...pkgParts);
         }
 
-        let executable = path.join(args['ballerina.sdk'], 'bin', 'ballerina');
+        let executable = path.join(args['ballerina.home'], 'bin', 'ballerina');
         if (process.platform === 'win32') {
             executable += '.bat';
         }
@@ -100,8 +113,6 @@ class BallerinaDebugSession extends LoggingDebugSession {
                 { cwd }
             );
     
-            this.startTimeout(args['debugServerTimeout']||5000);
-
             debugServer.on('error', (err) => {
                 this.terminate("Could not start the debug server.");
             });
@@ -110,13 +121,7 @@ class BallerinaDebugSession extends LoggingDebugSession {
                 if (`${data}`.indexOf('Ballerina remote debugger is activated on port') > -1) {
                     this.debugManager.connect(`ws://127.0.0.1:${port}/debug`, () => {
                         this.sendResponse(response);
-                        this.started = true;
-
-                        if (this.timedOut) {
-                            this.debugManager.kill();
-                        } else {
-                            this.sendEvent(new InitializedEvent());
-                        }
+                        this.sendEvent(new InitializedEvent());
                     });
                 }
 
@@ -166,16 +171,18 @@ class BallerinaDebugSession extends LoggingDebugSession {
 
     threadsRequest(response, args) {
         const a = args;
-        response.body = {
-          threads: [ {id : 1, name: this.currentThread} ]
-        };
+        const threads = this.threads.map(thread => (
+            {id: thread.index, name: thread.name}
+        ));
+        response.body = { threads };
         this.sendResponse(response);
     }
 
-    stackTraceRequest(response, args) {
-        const { packagePath } = this.debugArgs.location;
+    stackTraceRequest(response, args) { 
+        const threadId = this.getThreadId(args);
+        const { packagePath } = this.debugArgs[threadId].location;
 
-        const stk = this.debugArgs.frames.map((frame, i) => {
+        const stk = this.debugArgs[threadId].frames.map((frame, i) => {
             let root = this.dirPaths[frame.fileName];
             if (packagePath !== '.') {
                 root = this.packagePaths[packagePath];
@@ -191,8 +198,6 @@ class BallerinaDebugSession extends LoggingDebugSession {
                 }
             };
         });
-
-        const debugArgs = this.debugArgs;
 
         response.body = {
             stackFrames: stk,
@@ -226,7 +231,7 @@ class BallerinaDebugSession extends LoggingDebugSession {
             scope = "Global";
             frameId = frameId - 1000;
         }
-        const frame = this.debugArgs.frames[frameId];
+        const frame = this.debugArgs[this.currentThreadId].frames[frameId];
         const varsInScope = frame.variables.filter(v => v.scope === scope);
         response.body = {
             variables: varsInScope.map(variable => ({
@@ -239,23 +244,27 @@ class BallerinaDebugSession extends LoggingDebugSession {
         this.sendResponse(response);
     }
 
-    continueRequest(response, args) {
-        this.debugManager.resume();
+    continueRequest(response, args) { 
+        const threadId = this.getThreadId(args);
+        this.sendEvent(new ContinuedEvent(threadId, false));
+        this.debugManager.resume(threadId);
+    }
+
+    nextRequest(response, args) { 
+        const threadId = this.getThreadId(args);
+        this.debugManager.stepOver(threadId);
         this.sendResponse(response);
     }
 
-    nextRequest(response, args) {
-        this.debugManager.stepOver();
-        this.sendResponse(response);
-    }
-
-    stepInRequest(response, args) {
-        this.debugManager.stepIn();
+    stepInRequest(response, args) { 
+        const threadId = this.getThreadId(args);
+        this.debugManager.stepIn(threadId);
         this.sendResponse(response);
     }
 
     stepOutRequest(response, args) {
-        this.debugManager.stepOut();
+        const threadId = this.getThreadId(args);
+        this.debugManager.stepOut(threadId);
         this.sendResponse(response);
     }
 
@@ -267,19 +276,14 @@ class BallerinaDebugSession extends LoggingDebugSession {
         this.sendResponse(response);
     }
 
-    // timeout waiting for the debug server
-    startTimeout(timeout=5000) {
-        setTimeout(() => {
-            if(!this.started) {
-                this.timedOut = true;
-                this.terminate('Timeout. Debug server did not start');
-            }
-        }, timeout);
-    }
-
     terminate(msg) {
         this.sendEvent(new OutputEvent(msg));
         this.sendEvent(new TerminatedEvent());
+    }
+
+    getThreadId(args) {
+        const threadIndex = args.threadId;
+        return this.threads[threadIndex - 1].threadId;
     }
 }
 

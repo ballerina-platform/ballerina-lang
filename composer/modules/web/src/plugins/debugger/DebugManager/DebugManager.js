@@ -49,6 +49,7 @@ class DebugManager extends EventChannel {
         this.on('execution-ended session-error', () => {
             this.active = false;
         });
+        this.debugHits = [];
     }
 
     get active() {
@@ -59,13 +60,28 @@ class DebugManager extends EventChannel {
         this._active = active;
     }
 
+    removeDebugHit(threadId) {
+        this.debugHits = _.filter(this.debugHits, (hit) => {
+            return hit.threadId !== threadId;
+        });
+        if (this.debugHits[0]) {
+            this.changeActiveDebugHit(this.debugHits[0]);
+        }
+    }
+
+    changeActiveDebugHit(activeDebugHit) {
+        this.activeDebugHit = activeDebugHit;
+        this.trigger('active-debug-hit', activeDebugHit);
+    }
+
     /**
      * Send call to backend to step in
      *
      * @memberof DebugManager
      */
-    stepIn() {
-        const message = { command: 'STEP_IN', threadId: this.currentThreadId };
+    stepIn(threadId) {
+        const message = { command: 'STEP_IN', threadId };
+        this.removeDebugHit(threadId);
         this.channel.sendMessage(message);
     }
     /**
@@ -73,8 +89,9 @@ class DebugManager extends EventChannel {
      *
      * @memberof DebugManager
      */
-    stepOut() {
-        const message = { command: 'STEP_OUT', threadId: this.currentThreadId };
+    stepOut(threadId) {
+        const message = { command: 'STEP_OUT', threadId };
+        this.removeDebugHit(threadId);
         this.channel.sendMessage(message);
     }
     /**
@@ -92,8 +109,9 @@ class DebugManager extends EventChannel {
      *
      * @memberof DebugManager
      */
-    stepOver() {
-        const message = { command: 'STEP_OVER', threadId: this.currentThreadId };
+    stepOver(threadId) {
+        const message = { command: 'STEP_OVER', threadId };
+        this.removeDebugHit(threadId);
         this.channel.sendMessage(message);
     }
     /**
@@ -101,8 +119,9 @@ class DebugManager extends EventChannel {
      *
      * @memberof DebugManager
      */
-    resume() {
-        const message = { command: 'RESUME', threadId: this.currentThreadId };
+    resume(threadId) {
+        const message = { command: 'RESUME', threadId };
+        this.removeDebugHit(threadId);
         this.channel.sendMessage(message);
     }
     /**
@@ -122,8 +141,12 @@ class DebugManager extends EventChannel {
      */
     processMesssage(message) {
         if (message.code === 'DEBUG_HIT') {
-            this.trigger('debug-hit', message);
-            this.currentThreadId = message.threadId;
+            this.debugHits.unshift(message);
+            this.debugHits = _.uniqBy(this.debugHits, (hit) => {
+                return hit.threadId;
+            });
+            this.changeActiveDebugHit(message);
+            this.trigger('debug-hit', message, this.debugHits);
         }
         if (message.code === 'COMPLETE' || message.code === 'EXIT') {
             this.trigger('execution-ended');
@@ -149,6 +172,7 @@ class DebugManager extends EventChannel {
             this.startDebug();
         });
         this.channel.on('session-ended session-terminated connection-closed', () => {
+            this.debugHits = [];
             this.trigger('execution-ended');
         });
         this.channel.on('session-error', () => {

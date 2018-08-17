@@ -1,4 +1,5 @@
 import ballerina/http;
+import ballerina/mime;
 import ballerina/test;
 import ballerina/config;
 
@@ -22,15 +23,14 @@ function testService () {
 
     test:assertTrue(isServiceSkeletonStarted, msg = "Service skeleton failed to start");
 
-    http:Request req = new;
     // Send a GET request to the specified endpoint
-    var response = httpEndpoint -> get("/pets", req);
+    var response = httpEndpoint -> get("/pets");
     match response {
                http:Response resp => {
-                    var strRes = resp.getStringPayload();
+                    var strRes = resp.getTextPayload();
                     string expected = "Sample listPets Response";
                     test:assertEquals(strRes, expected);
                }
-               http:HttpConnectorError err => test:assertFail(msg = "Failed to call the endpoint: "+uri);
+               error err => test:assertFail(msg = "Failed to call the endpoint: "+uri);
     }
 }

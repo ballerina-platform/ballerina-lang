@@ -19,13 +19,13 @@ package org.ballerinalang.langserver.completions.util.positioning.resolvers;
 
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
-import org.ballerinalang.langserver.compiler.LSServiceOperationContext;
+import org.ballerinalang.langserver.compiler.LSContext;
 import org.ballerinalang.langserver.completions.TreeVisitor;
 import org.wso2.ballerinalang.compiler.semantics.model.Scope;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
-import org.wso2.ballerinalang.compiler.tree.BLangObject;
 import org.wso2.ballerinalang.compiler.tree.BLangVariable;
+import org.wso2.ballerinalang.compiler.tree.types.BLangObjectTypeNode;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 
@@ -46,19 +46,18 @@ public class ObjectTypeScopeResolver extends CursorPositionResolver {
      */
     @Override
     public boolean isCursorBeforeNode(DiagnosticPos nodePosition, BLangNode node, TreeVisitor treeVisitor,
-                                      LSServiceOperationContext completionContext) {
-        if (!(treeVisitor.getBlockOwnerStack().peek() instanceof BLangObject)) {
+                                      LSContext completionContext) {
+        if (!(treeVisitor.getBlockOwnerStack().peek() instanceof BLangObjectTypeNode)) {
             return false;
         }
-        BLangObject ownerObject = (BLangObject) treeVisitor.getBlockOwnerStack().peek();
+        BLangObjectTypeNode ownerObject = (BLangObjectTypeNode) treeVisitor.getBlockOwnerStack().peek();
         DiagnosticPos zeroBasedPos = CommonUtil.toZeroBasedPosition(nodePosition);
-        DiagnosticPos blockOwnerPos = CommonUtil
-                .toZeroBasedPosition((DiagnosticPos) treeVisitor.getBlockOwnerStack().peek().getPosition());
+        DiagnosticPos blockOwnerPos = CommonUtil.toZeroBasedPosition(
+                ((BLangObjectTypeNode) treeVisitor.getBlockOwnerStack().peek()).parent.getPosition());
         int line = completionContext.get(DocumentServiceKeys.POSITION_KEY).getPosition().getLine();
         int col = completionContext.get(DocumentServiceKeys.POSITION_KEY).getPosition().getCharacter();
         boolean isLastField = false;
-        
-        
+
         if ((!ownerObject.fields.isEmpty() && node instanceof BLangVariable
                 && ownerObject.fields.indexOf(node) == ownerObject.fields.size() - 1
                 && ownerObject.functions.isEmpty())
@@ -66,7 +65,7 @@ public class ObjectTypeScopeResolver extends CursorPositionResolver {
                 && ownerObject.functions.indexOf(node) == ownerObject.functions.size() - 1)) {
             isLastField = true;
         }
-        
+
         if ((line < zeroBasedPos.getStartLine()
                 || (line == zeroBasedPos.getStartLine() && col < zeroBasedPos.getStartColumn()))
                 || (isLastField && ((blockOwnerPos.getEndLine() > line && zeroBasedPos.getEndLine() < line)
@@ -74,8 +73,8 @@ public class ObjectTypeScopeResolver extends CursorPositionResolver {
             
             Map<Name, Scope.ScopeEntry> visibleSymbolEntries =
                     treeVisitor.resolveAllVisibleSymbols(treeVisitor.getSymbolEnv());
-            treeVisitor.populateSymbols(visibleSymbolEntries, null);
-            treeVisitor.setTerminateVisitor(true);
+            treeVisitor.populateSymbols(visibleSymbolEntries, treeVisitor.getSymbolEnv());
+            treeVisitor.forceTerminateVisitor();
             treeVisitor.setNextNode(node);
             return true;
         }

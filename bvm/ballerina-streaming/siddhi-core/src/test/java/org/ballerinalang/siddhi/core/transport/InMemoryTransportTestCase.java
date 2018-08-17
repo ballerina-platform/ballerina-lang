@@ -38,6 +38,9 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 
+/**
+ * Testcase for in-memory transport.
+ */
 public class InMemoryTransportTestCase {
     private static final Logger log = LoggerFactory.getLogger(InMemoryTransportTestCase.class);
     private AtomicInteger wso2Count = new AtomicInteger(0);

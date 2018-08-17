@@ -50,7 +50,7 @@ public class BInvokableType extends BType implements InvokableType {
 
     @Override
     public String getDesc() {
-        return TypeDescriptor.SIG_FUNCTION;
+        return TypeDescriptor.SIG_FUNCTION + "(" + getDescriptors(paramTypes) + ")(" + retType.getDesc() + ")";
     }
 
     @Override
@@ -106,6 +106,12 @@ public class BInvokableType extends BType implements InvokableType {
                 br.append(",");
             }
         }
+        return br.toString();
+    }
+
+    private static String getDescriptors(List<BType> types) {
+        StringBuffer br = new StringBuffer();
+        types.forEach(type -> br.append(type.getDesc()));
         return br.toString();
     }
 }

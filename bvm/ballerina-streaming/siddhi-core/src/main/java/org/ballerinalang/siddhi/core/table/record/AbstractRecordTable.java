@@ -71,7 +71,7 @@ public abstract class AbstractRecordTable extends Table {
     }
 
     /**
-     * Initializing the Record Table
+     * Initializing the Record Table.
      *
      * @param tableDefinition definition of the table with annotations if any
      * @param configReader    this hold the {@link AbstractRecordTable} configuration reader.
@@ -101,7 +101,7 @@ public abstract class AbstractRecordTable extends Table {
     }
 
     /**
-     * Add records to the Table
+     * Add records to the Table.
      *
      * @param records records that need to be added to the table, each Object[] represent a record and it will match
      *                the attributes of the Table Definition.

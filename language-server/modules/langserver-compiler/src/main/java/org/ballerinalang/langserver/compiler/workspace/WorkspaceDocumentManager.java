@@ -19,6 +19,7 @@ package org.ballerinalang.langserver.compiler.workspace;
 
 import java.nio.file.Path;
 import java.util.Optional;
+import java.util.Set;
 import java.util.concurrent.locks.Lock;
 
 /**
@@ -37,39 +38,76 @@ public interface WorkspaceDocumentManager {
     /**
      * Opens the given file in document manager.
      *
+     * Usage example:
+     *
+     * Optional&lt;Lock&gt; lock = Optional.empty();
+     * try {
+     *     lock = documentManager.openFile(filePath, "");
+     * } finally {
+     *     lock.ifPresent(Lock:unlock);
+     * }
+     *
      * @param filePath Path of the file
      * @param content  Content of the file
+     * @return {@link Lock} retrieving a lock for the file. You must call Lock.unlock() once you are done with the work.
      */
-    void openFile(Path filePath, String content);
+    Optional<Lock> openFile(Path filePath, String content) throws WorkspaceDocumentException;
 
     /**
      * Updates given file in document manager with new content.
      *
+     * Usage example:
+     * <pre>
+     * Optional&lt;Lock&gt; lock = Optional.empty();
+     * try {
+     *     lock = documentManager.updateFile(filePath, "");
+     * } finally {
+     *     lock.ifPresent(Lock:unlock);
+     * }
+     * </pre>
+     *
      * @param filePath       Path of the file
      * @param updatedContent New content of the file
+     * @return {@link Lock} retrieving a lock for the file. You must call Lock.unlock() once you are done with the work.
      */
-    void updateFile(Path filePath, String updatedContent);
+    Optional<Lock> updateFile(Path filePath, String updatedContent) throws WorkspaceDocumentException;
 
     /**
      * Close the given file in document manager.
      *
      * @param filePath Path of the file
      */
-    void closeFile(Path filePath);
+    void closeFile(Path filePath) throws WorkspaceDocumentException;
 
     /**
-     * Gets uptodate content of the file.
+     * Returns the content of the file.
      *
      * @param filePath Path of the file
      * @return Content of the file
      */
-    String getFileContent(Path filePath);
+    String getFileContent(Path filePath) throws WorkspaceDocumentException;
 
     /**
      * Acquire a file lock.
      *
+     * Usage example:
+     * <pre>
+     * Optional&lt;Lock&gt; lock = documentManager.lockFile(filePath);
+     * try {
+     *     //your code
+     * } finally {
+     *     lock.ifPresent(Lock:unlock);
+     * }
+     * </pre>
+     *
      * @param filePath Path of the file
-     * @return lock or null
+     * @return {@link Lock} retrieving a lock for the file. You must call Lock.unlock() once you are done with the work.
      */
     Optional<Lock> lockFile(Path filePath);
+
+    /**
+     * Returns a list of all file paths.
+     * @return set of {@link Path}
+     */
+    Set<Path> getAllFilePaths();
 }

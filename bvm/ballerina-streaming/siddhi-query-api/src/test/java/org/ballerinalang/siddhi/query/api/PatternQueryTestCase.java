@@ -28,6 +28,9 @@ import org.ballerinalang.siddhi.query.api.expression.condition.Compare;
 import org.ballerinalang.siddhi.query.api.expression.constant.TimeConstant;
 import org.testng.annotations.Test;
 
+/**
+ * Testcase for pattern queries.
+ */
 public class PatternQueryTestCase {
 
 

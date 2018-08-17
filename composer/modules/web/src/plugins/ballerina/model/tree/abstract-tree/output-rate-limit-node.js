@@ -120,29 +120,6 @@ class AbstractOutputRateLimitNode extends Node {
         }
     }
 
-
-    isEventBasedRateLimit() {
-        return this.eventBasedRateLimit;
-    }
-
-    setEventBasedRateLimit(newValue, silent, title) {
-        const oldValue = this.eventBasedRateLimit;
-        title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
-        this.eventBasedRateLimit = newValue;
-        if (!silent) {
-            this.trigger('tree-modified', {
-                origin: this,
-                type: 'modify-node',
-                title,
-                data: {
-                    attributeName: 'eventBasedRateLimit',
-                    newValue,
-                    oldValue,
-                },
-            });
-        }
-    }
-
 }
 
 export default AbstractOutputRateLimitNode;

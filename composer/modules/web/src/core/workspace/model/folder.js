@@ -49,7 +49,9 @@ class Folder {
      */
     set fullPath(fullPath) {
         this._fullPath = fullPath;
-        this._name = _.last(fullPath.split(getPathSeperator()));
+        const pathSegments = fullPath.split(getPathSeperator());
+        this._name = fullPath.endsWith(getPathSeperator()) ? _.nth(pathSegments, pathSegments.length - 2)
+                            : _.last(pathSegments);
         this._parent = _.dropRight(fullPath.split(getPathSeperator()), 1).join(getPathSeperator());
     }
 

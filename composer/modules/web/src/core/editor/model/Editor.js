@@ -36,9 +36,28 @@ class Editor extends EventChannel {
         this._file = file;
         this._definition = definition;
         this._customTitleClass = definition.tabTitleClass || '';
-        this.undoManager = new UndoManager();
+        this._undoManager = new UndoManager();
         this._props = {};
     }
+
+    /**
+     * Gets current undo manager
+     *
+     * @returns {UndoManager} current undo manager
+     */
+    get undoManager() {
+        return this._undoManager;
+    }
+
+    /**
+     * Sets undo manager
+     *
+     * @param {UndoManager} undoManager
+     */
+    set undoManager(undoManager) {
+        this._undoManager = undoManager;
+    }
+
 
     /**
      * Returns id

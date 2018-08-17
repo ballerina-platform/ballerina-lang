@@ -30,6 +30,9 @@ import org.testng.AssertJUnit;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
+/**
+ * Testcase for UUID function.
+ */
 public class UUIDFunctionTestCase {
 
     private static final Logger log = LoggerFactory.getLogger(UUIDFunctionTestCase.class);

@@ -32,6 +32,10 @@ import org.ballerinalang.siddhi.query.api.definition.Attribute.Type;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * Test extension for custom attribute aggregator.
+ */
+
 @Extension(
         name = "getAll",
         namespace = "custom",
@@ -57,7 +61,7 @@ public class StringConcatAggregatorString extends AttributeAggregator {
     private boolean appendAbc = false;
 
     /**
-     * The initialization method for FunctionExecutor
+     * The initialization method for FunctionExecutor.
      *
      * @param attributeExpressionExecutors are the executors of each attributes in the function
      * @param configReader                 this hold the {@link StringConcatAggregatorString} configuration reader.

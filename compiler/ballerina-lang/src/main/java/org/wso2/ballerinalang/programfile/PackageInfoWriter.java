@@ -18,6 +18,7 @@
 package org.wso2.ballerinalang.programfile;
 
 import org.wso2.ballerinalang.compiler.util.TypeDescriptor;
+import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.programfile.Instruction.Operand;
 import org.wso2.ballerinalang.programfile.attributes.AttributeInfo;
 import org.wso2.ballerinalang.programfile.attributes.CodeAttributeInfo;
@@ -32,6 +33,8 @@ import org.wso2.ballerinalang.programfile.attributes.ParameterAttributeInfo;
 import org.wso2.ballerinalang.programfile.attributes.TaintTableAttributeInfo;
 import org.wso2.ballerinalang.programfile.attributes.VarTypeCountAttributeInfo;
 import org.wso2.ballerinalang.programfile.cpentries.ActionRefCPEntry;
+import org.wso2.ballerinalang.programfile.cpentries.BlobCPEntry;
+import org.wso2.ballerinalang.programfile.cpentries.ByteCPEntry;
 import org.wso2.ballerinalang.programfile.cpentries.ConstantPoolEntry;
 import org.wso2.ballerinalang.programfile.cpentries.FloatCPEntry;
 import org.wso2.ballerinalang.programfile.cpentries.ForkJoinCPEntry;
@@ -40,7 +43,6 @@ import org.wso2.ballerinalang.programfile.cpentries.IntegerCPEntry;
 import org.wso2.ballerinalang.programfile.cpentries.PackageRefCPEntry;
 import org.wso2.ballerinalang.programfile.cpentries.StringCPEntry;
 import org.wso2.ballerinalang.programfile.cpentries.StructureRefCPEntry;
-import org.wso2.ballerinalang.programfile.cpentries.TransformerRefCPEntry;
 import org.wso2.ballerinalang.programfile.cpentries.TypeRefCPEntry;
 import org.wso2.ballerinalang.programfile.cpentries.UTF8CPEntry;
 import org.wso2.ballerinalang.programfile.cpentries.WorkerDataChannelRefCPEntry;
@@ -85,6 +87,10 @@ public class PackageInfoWriter {
                     long longVal = ((IntegerCPEntry) cpEntry).getValue();
                     dataOutStream.writeLong(longVal);
                     break;
+                case CP_ENTRY_BYTE:
+                    byte byteVal = ((ByteCPEntry) cpEntry).getValue();
+                    dataOutStream.writeByte(byteVal);
+                    break;
                 case CP_ENTRY_FLOAT:
                     double doubleVal = ((FloatCPEntry) cpEntry).getValue();
                     dataOutStream.writeDouble(doubleVal);
@@ -92,6 +98,11 @@ public class PackageInfoWriter {
                 case CP_ENTRY_STRING:
                     nameCPIndex = ((StringCPEntry) cpEntry).getStringCPIndex();
                     dataOutStream.writeInt(nameCPIndex);
+                    break;
+                case CP_ENTRY_BLOB:
+                    byte[] blobValue = ((BlobCPEntry) cpEntry).getValue();
+                    dataOutStream.writeInt(blobValue.length);
+                    dataOutStream.write(blobValue);
                     break;
                 case CP_ENTRY_PACKAGE:
                     nameCPIndex = ((PackageRefCPEntry) cpEntry).nameCPIndex;
@@ -126,11 +137,6 @@ public class PackageInfoWriter {
                     WorkerDataChannelRefCPEntry workerDataChannelCPEntry = (WorkerDataChannelRefCPEntry) cpEntry;
                     dataOutStream.writeInt(workerDataChannelCPEntry.getUniqueNameCPIndex());
                     break;
-                case CP_ENTRY_TRANSFORMER_REF:
-                    TransformerRefCPEntry transformerRefEntry = (TransformerRefCPEntry) cpEntry;
-                    dataOutStream.writeInt(transformerRefEntry.packageCPIndex);
-                    dataOutStream.writeInt(transformerRefEntry.nameCPIndex);
-                    break;
             }
         }
     }
@@ -148,28 +154,30 @@ public class PackageInfoWriter {
         writeCP(dataOutStream, packageInfo.getConstPoolEntries());
 
         // Write package name and version number
+        dataOutStream.writeInt(packageInfo.orgNameCPIndex);
         dataOutStream.writeInt(packageInfo.nameCPIndex);
         dataOutStream.writeInt(packageInfo.versionCPIndex);
 
         // Write import package entries
         dataOutStream.writeShort(packageInfo.importPkgInfoSet.size());
         for (ImportPackageInfo importPkgInfo : packageInfo.importPkgInfoSet) {
+            dataOutStream.writeInt(importPkgInfo.orgNameCPIndex);
             dataOutStream.writeInt(importPkgInfo.nameCPIndex);
             dataOutStream.writeInt(importPkgInfo.versionCPIndex);
         }
 
-        // Emit struct info entries
-        StructInfo[] structTypeInfoEntries = packageInfo.getStructInfoEntries();
-        dataOutStream.writeShort(structTypeInfoEntries.length);
-        for (StructInfo structInfo : structTypeInfoEntries) {
-            writeStructInfo(dataOutStream, structInfo);
+        // Write Type Definition entries
+        TypeDefInfo[] typeDefEntries = packageInfo.getTypeDefInfoEntries();
+        dataOutStream.writeShort(typeDefEntries.length);
+        for (TypeDefInfo typeDefInfo : typeDefEntries) {
+            writeTypeDefInfo(dataOutStream, typeDefInfo);
         }
 
-        // Write Type Definition entries
-        TypeDefinitionInfo[] typeDefEntries = packageInfo.getTypeDefinitionInfoEntries();
-        dataOutStream.writeShort(typeDefEntries.length);
-        for (TypeDefinitionInfo typeDefInfo : typeDefEntries) {
-            writeTypeDefinitionInfo(dataOutStream, typeDefInfo);
+        // Write Annotation entries
+        AnnotationInfo[] annotationEntries = packageInfo.getAnnotationInfoEntries();
+        dataOutStream.writeShort(annotationEntries.length);
+        for (AnnotationInfo annotationInfo : annotationEntries) {
+            writeAnnotatoinInfo(dataOutStream, annotationInfo);
         }
 
         // TODO Emit service info entries
@@ -220,6 +228,7 @@ public class PackageInfoWriter {
         for (PackageVarInfo packageVarInfo : packageVarInfoEntry) {
             dataOutStream.writeInt(packageVarInfo.nameCPIndex);
             dataOutStream.writeInt(packageVarInfo.signatureCPIndex);
+            dataOutStream.writeInt(packageVarInfo.flags);
             dataOutStream.writeInt(packageVarInfo.globalMemIndex);
 
             writeAttributeInfoEntries(dataOutStream, packageVarInfo.getAttributeInfoEntries());
@@ -227,7 +236,7 @@ public class PackageInfoWriter {
     }
 
     /**
-     * Write function info and transformer info entries to the compiling file.
+     * Write function info entries to the compiling file.
      *
      * @param dataOutStream    Output stream to write
      * @param callableUnitInfo Info object of the callable unit
@@ -274,45 +283,102 @@ public class PackageInfoWriter {
         dataOutStream.writeInt(dataChannelInfo.getDataChannelRefIndex());
     }
 
-    private static void writeStructInfo(DataOutputStream dataOutStream,
-                                        StructInfo structInfo) throws IOException {
-        dataOutStream.writeInt(structInfo.nameCPIndex);
-        dataOutStream.writeInt(structInfo.flags);
+    private static void writeTypeDefInfo(DataOutputStream dataOutStream,
+                                                TypeDefInfo typeDefInfo) throws IOException {
+        dataOutStream.writeInt(typeDefInfo.nameCPIndex);
+        dataOutStream.writeInt(typeDefInfo.flags);
+        dataOutStream.writeBoolean(typeDefInfo.isLabel);
+        dataOutStream.writeInt(typeDefInfo.typeTag);
 
+        if (typeDefInfo.isLabel) {
+            writeLabelTypeDefInfo(dataOutStream, (LabelTypeInfo) typeDefInfo.typeInfo);
+            // Write attribute info
+            writeAttributeInfoEntries(dataOutStream, typeDefInfo.getAttributeInfoEntries());
+            return;
+        }
+        switch (typeDefInfo.typeTag) {
+            case TypeTags.OBJECT:
+                writeObjectTypeDefInfo(dataOutStream, (ObjectTypeInfo) typeDefInfo.typeInfo);
+                break;
+            case TypeTags.RECORD:
+                writeRecordTypeDefInfo(dataOutStream, (RecordTypeInfo) typeDefInfo.typeInfo);
+                break;
+            case TypeTags.FINITE:
+                writeFiniteTypeDefInfo(dataOutStream, (FiniteTypeInfo) typeDefInfo.typeInfo);
+                break;
+            default:
+                writeLabelTypeDefInfo(dataOutStream, (LabelTypeInfo) typeDefInfo.typeInfo);
+                break;
+        }
+
+        // Write attribute info
+        writeAttributeInfoEntries(dataOutStream, typeDefInfo.getAttributeInfoEntries());
+    }
+
+    private static void writeAnnotatoinInfo(DataOutputStream dataOutStream,
+                                         AnnotationInfo typeDefInfo) throws IOException {
+        dataOutStream.writeInt(typeDefInfo.nameCPIndex);
+        dataOutStream.writeInt(typeDefInfo.flags);
+        dataOutStream.writeInt(typeDefInfo.attachPoints);
+        dataOutStream.writeInt(typeDefInfo.signatureCPIndex);
+    }
+
+    private static void writeObjectTypeDefInfo(DataOutputStream dataOutStream,
+                                         ObjectTypeInfo objectInfo) throws IOException {
         // Write struct field info entries
-        dataOutStream.writeShort(structInfo.fieldInfoEntries.size());
-        for (StructFieldInfo structFieldInfoEntry : structInfo.fieldInfoEntries) {
+        dataOutStream.writeShort(objectInfo.fieldInfoEntries.size());
+        for (StructFieldInfo structFieldInfoEntry : objectInfo.fieldInfoEntries) {
             writeStructFieldInfo(dataOutStream, structFieldInfoEntry);
         }
 
         // Write attached function info entries
-        dataOutStream.writeShort(structInfo.attachedFuncInfoEntries.size());
-        for (AttachedFunctionInfo attachedFuncInfo : structInfo.attachedFuncInfoEntries) {
+        dataOutStream.writeShort(objectInfo.attachedFuncInfoEntries.size());
+        for (AttachedFunctionInfo attachedFuncInfo : objectInfo.attachedFuncInfoEntries) {
             writeAttachedFunctionInfo(dataOutStream, attachedFuncInfo);
         }
 
         // Write attribute info
-        writeAttributeInfoEntries(dataOutStream, structInfo.getAttributeInfoEntries());
+        writeAttributeInfoEntries(dataOutStream, objectInfo.getAttributeInfoEntries());
     }
 
-    private static void writeTypeDefinitionInfo(DataOutputStream dataOutStream,
-                                                TypeDefinitionInfo typeDefinitionInfo) throws IOException {
-        dataOutStream.writeInt(typeDefinitionInfo.nameCPIndex);
-        dataOutStream.writeInt(typeDefinitionInfo.flags);
-        ValueSpaceItemInfo[] valueSpaceItemInfos = typeDefinitionInfo.
-                valueSpaceItemInfos.toArray(new ValueSpaceItemInfo[0]);
-        dataOutStream.writeShort(typeDefinitionInfo.typeDescCPIndexes.size());
-        for (int typeDescCPindex : typeDefinitionInfo.typeDescCPIndexes) {
-            dataOutStream.writeInt(typeDescCPindex);
+    private static void writeRecordTypeDefInfo(DataOutputStream dataOutStream,
+                                               RecordTypeInfo recordInfo) throws IOException {
+        if (recordInfo.recordType.sealed) {
+            dataOutStream.writeBoolean(true);
+        } else {
+            dataOutStream.writeBoolean(false);
+            dataOutStream.writeInt(recordInfo.restFieldTypeSigCPIndex);
         }
+        // Write struct field info entries
+        dataOutStream.writeShort(recordInfo.fieldInfoEntries.size());
+        for (StructFieldInfo structFieldInfoEntry : recordInfo.fieldInfoEntries) {
+            writeStructFieldInfo(dataOutStream, structFieldInfoEntry);
+        }
+
+        // Write attached function info entries TODO remove below segment once record init function removed
+        dataOutStream.writeShort(recordInfo.attachedFuncInfoEntries.size());
+        for (AttachedFunctionInfo attachedFuncInfo : recordInfo.attachedFuncInfoEntries) {
+            writeAttachedFunctionInfo(dataOutStream, attachedFuncInfo);
+        }
+
+        // Write attribute info
+        writeAttributeInfoEntries(dataOutStream, recordInfo.getAttributeInfoEntries());
+    }
+
+    private static void writeFiniteTypeDefInfo(DataOutputStream dataOutStream,
+                                                FiniteTypeInfo finiteTypeDefInfo) throws IOException {
+        ValueSpaceItemInfo[] valueSpaceItemInfos = finiteTypeDefInfo.
+                valueSpaceItemInfos.toArray(new ValueSpaceItemInfo[0]);
 
         dataOutStream.writeShort(valueSpaceItemInfos.length);
         for (ValueSpaceItemInfo valueSpaceItem : valueSpaceItemInfos) {
             writeDefaultValue(dataOutStream, valueSpaceItem.value);
         }
+    }
 
-        // Write attribute info
-        writeAttributeInfoEntries(dataOutStream, typeDefinitionInfo.getAttributeInfoEntries());
+    private static void writeLabelTypeDefInfo(DataOutputStream dataOutStream,
+                                               LabelTypeInfo labelTypeInfo) throws IOException {
+        dataOutStream.writeInt(labelTypeInfo.typeSigCPIndex);
     }
 
     private static void writeServiceInfo(DataOutputStream dataOutStream,
@@ -431,14 +497,12 @@ public class PackageInfoWriter {
                 attrDataOutStream.writeShort(codeAttributeInfo.maxDoubleLocalVars);
                 attrDataOutStream.writeShort(codeAttributeInfo.maxStringLocalVars);
                 attrDataOutStream.writeShort(codeAttributeInfo.maxIntLocalVars);
-                attrDataOutStream.writeShort(codeAttributeInfo.maxByteLocalVars);
                 attrDataOutStream.writeShort(codeAttributeInfo.maxRefLocalVars);
 
                 attrDataOutStream.writeShort(codeAttributeInfo.maxLongRegs);
                 attrDataOutStream.writeShort(codeAttributeInfo.maxDoubleRegs);
                 attrDataOutStream.writeShort(codeAttributeInfo.maxStringRegs);
                 attrDataOutStream.writeShort(codeAttributeInfo.maxIntRegs);
-                attrDataOutStream.writeShort(codeAttributeInfo.maxByteRegs);
                 attrDataOutStream.writeShort(codeAttributeInfo.maxRefRegs);
                 break;
 
@@ -448,7 +512,6 @@ public class PackageInfoWriter {
                 attrDataOutStream.writeShort(varCountAttributeInfo.getMaxDoubleVars());
                 attrDataOutStream.writeShort(varCountAttributeInfo.getMaxStringVars());
                 attrDataOutStream.writeShort(varCountAttributeInfo.getMaxIntVars());
-                attrDataOutStream.writeShort(varCountAttributeInfo.getMaxByteVars());
                 attrDataOutStream.writeShort(varCountAttributeInfo.getMaxRefVars());
                 break;
 
@@ -519,7 +582,8 @@ public class PackageInfoWriter {
                 attrDataOutStream.writeShort(docAttrInfo.paramDocInfoList.size());
                 for (ParameterDocumentInfo paramDocInfo : docAttrInfo.paramDocInfoList) {
                     attrDataOutStream.writeInt(paramDocInfo.nameCPIndex);
-                    attrDataOutStream.writeInt(paramDocInfo.typeSigCPIndex);
+                    //TODO remove below line ASAP, adding dummy value as we can't change binary file right now
+                    attrDataOutStream.writeInt(1);
                     attrDataOutStream.writeInt(paramDocInfo.paramKindCPIndex);
                     attrDataOutStream.writeInt(paramDocInfo.descriptionCPIndex);
                 }
@@ -548,6 +612,7 @@ public class PackageInfoWriter {
         dataOutStream.writeInt(structFieldInfo.nameCPIndex);
         dataOutStream.writeInt(structFieldInfo.signatureCPIndex);
         dataOutStream.writeInt(structFieldInfo.flags);
+        dataOutStream.writeInt(structFieldInfo.varIndex);
 
         // Write attribute info
         writeAttributeInfoEntries(dataOutStream, structFieldInfo.getAttributeInfoEntries());
@@ -565,6 +630,9 @@ public class PackageInfoWriter {
         dataOutStream.writeInt(localVariableInfo.varNameCPIndex);
         dataOutStream.writeInt(localVariableInfo.varIndex);
         dataOutStream.writeInt(localVariableInfo.varTypeSigCPIndex);
+
+        dataOutStream.writeInt(localVariableInfo.scopeStartLineNumber);
+        dataOutStream.writeInt(localVariableInfo.scopeEndLineNumber);
 
         int[] attachmentsIndexes = localVariableInfo.attachmentIndexes;
         dataOutStream.writeShort(attachmentsIndexes.length);

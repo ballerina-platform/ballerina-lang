@@ -22,6 +22,18 @@ import { COMMANDS, DIALOG_IDS, VIEWS as VIEW_IDS } from './constants';
 import LaunchManager from './LaunchManager';
 import DebugManager from './DebugManager';
 
+function saveFile(dispatch, activeEditor, onSaveSuccess) {
+    if (!activeEditor.file.isDirty) {
+        onSaveSuccess();
+    } else {
+        dispatch(WORKSPACE_COMMANDS.SAVE_FILE, {
+            file: activeEditor.file,
+            onSaveSuccess,
+        });
+    }
+
+}
+
 /**
  * Provides command handler definitions of debugger plugin.
  * @param {debugger} debugger plugin instance
@@ -36,14 +48,11 @@ export function getHandlerDefinitions(debuggerPlugin) {
                 const activeEditor = debuggerPlugin.appContext.editor.getActiveEditor();
                 const { command: { dispatch } } = debuggerPlugin.appContext;
                 if (activeEditor && activeEditor.file) {
-                    dispatch(WORKSPACE_COMMANDS.SAVE_FILE, {
-                        file: activeEditor.file,
-                        onSaveSuccess: () => {
-                            dispatch(LAYOUT_COMMANDS.SHOW_BOTTOM_PANEL);
-                            dispatch(LAYOUT_COMMANDS.SHOW_VIEW, { id: VIEW_IDS.DEBUGGER_PANEL });
-                            LaunchManager.run(activeEditor.file, true,
-                                debuggerPlugin.getArgumentConfigs(activeEditor.file));
-                        },
+                    saveFile(dispatch, activeEditor, () => {
+                        dispatch(LAYOUT_COMMANDS.SHOW_BOTTOM_PANEL);
+                        dispatch(LAYOUT_COMMANDS.SHOW_VIEW, { id: VIEW_IDS.DEBUGGER_PANEL });
+                        LaunchManager.run(activeEditor.file, true,
+                            debuggerPlugin.getArgumentConfigs(activeEditor.file));
                     });
                     dispatch('debugger-run-with-debug-executed', activeEditor.file);
                 }
@@ -68,16 +77,22 @@ export function getHandlerDefinitions(debuggerPlugin) {
                 const activeEditor = debuggerPlugin.appContext.editor.getActiveEditor();
                 const { command: { dispatch } } = debuggerPlugin.appContext;
                 if (activeEditor && activeEditor.file) {
-                    dispatch(WORKSPACE_COMMANDS.SAVE_FILE, {
-                        file: activeEditor.file,
-                        onSaveSuccess: () => {
-                            dispatch(LAYOUT_COMMANDS.SHOW_BOTTOM_PANEL);
-                            dispatch(LAYOUT_COMMANDS.SHOW_VIEW, { id: VIEW_IDS.DEBUGGER_PANEL });
-                            LaunchManager.run(activeEditor.file, false,
-                                debuggerPlugin.getArgumentConfigs(activeEditor.file));
-                        },
+                    saveFile(dispatch, activeEditor, () => {
+                        dispatch(LAYOUT_COMMANDS.SHOW_BOTTOM_PANEL);
+                        dispatch(LAYOUT_COMMANDS.SHOW_VIEW, { id: VIEW_IDS.DEBUGGER_PANEL });
+                        LaunchManager.run(activeEditor.file, false,
+                            debuggerPlugin.getArgumentConfigs(activeEditor.file));
                     });
                     dispatch('debugger-run-executed', activeEditor.file);
+                }
+            },
+        },
+        {
+            cmdID: COMMANDS.INPUT,
+            handler: (input) => {
+                const activeEditor = debuggerPlugin.appContext.editor.getActiveEditor();
+                if (activeEditor && activeEditor.file) {
+                    LaunchManager.sendInput(activeEditor.file, input);
                 }
             },
         },
@@ -99,26 +114,26 @@ export function getHandlerDefinitions(debuggerPlugin) {
         },
         {
             cmdID: COMMANDS.RESUME,
-            handler: () => {
-                DebugManager.resume();
+            handler: (threadId) => {
+                DebugManager.resume(threadId);
             },
         },
         {
             cmdID: COMMANDS.STEP_OVER,
-            handler: () => {
-                DebugManager.stepOver();
+            handler: (threadId) => {
+                DebugManager.stepOver(threadId);
             },
         },
         {
             cmdID: COMMANDS.STEP_IN,
-            handler: () => {
-                DebugManager.stepIn();
+            handler: (threadId) => {
+                DebugManager.stepIn(threadId);
             },
         },
         {
             cmdID: COMMANDS.STEP_OUT,
-            handler: () => {
-                DebugManager.stepOut();
+            handler: (threadId) => {
+                DebugManager.stepOut(threadId);
             },
         },
     ];

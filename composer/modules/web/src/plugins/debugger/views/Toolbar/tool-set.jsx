@@ -17,7 +17,6 @@
  */
 import React from 'react';
 import { Button } from 'semantic-ui-react';
-import './toolbar.css';
 
 /**
  * Tool Component which render a tool in toolbar.
@@ -38,6 +37,7 @@ class ToolSetView extends React.Component {
         return (
             <Button.Group
                 fluid
+                className={this.props.className}
             >
                 {this.props.children}
             </Button.Group>

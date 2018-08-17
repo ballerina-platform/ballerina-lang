@@ -26,6 +26,13 @@
     <fileSets>
         <fileSet>
             <directory>
+                ${project.build.directory}/lib
+            </directory>
+            <outputDirectory>lib</outputDirectory>
+            <fileMode>0444</fileMode>
+        </fileSet>
+        <fileSet>
+            <directory>
                 ${project.build.directory}/extracted-distributions/ballerina-zip/ballerina-${project.version}
             </directory>
             <outputDirectory>.</outputDirectory>
@@ -34,7 +41,7 @@
             <directory>
                 ${project.build.directory}/extracted-distributions/ballerina-composer-web-zip/ballerina-composer-web-${project.version}
             </directory>
-            <outputDirectory>.</outputDirectory>
+            <outputDirectory>lib</outputDirectory>
         </fileSet>
         <fileSet>
             <directory>
@@ -42,25 +49,24 @@
             </directory>
             <outputDirectory>src</outputDirectory>
         </fileSet>
-        <!--<fileSet>-->
-            <!--<directory>-->
-                <!--${project.build.directory}/api-docs-->
-            <!--</directory>-->
-            <!--<outputDirectory>docs/api</outputDirectory>-->
-        <!--</fileSet>-->
-        <!-- TODO remove below and find a better solution later -->
         <fileSet>
             <directory>
-                ../../../composer/samples
+                ${project.build.directory}/api-docs
             </directory>
-            <outputDirectory>resources/composer/samples</outputDirectory>
+            <outputDirectory>docs/api/ballerina</outputDirectory>
+        </fileSet>
+        <fileSet>
+            <directory>
+                ${project.build.directory}/ballerina-examples-zip/ballerina-examples-${ballerina.version}/examples
+            </directory>
+            <outputDirectory>docs/examples</outputDirectory>
         </fileSet>
     </fileSets>
 
     <files>
         <file>
             <source>bin/version.txt</source>
-            <outputDirectory>bin/</outputDirectory>
+            <outputDirectory>lib/</outputDirectory>
             <filtered>true</filtered>
             <fileMode>644</fileMode>
         </file>
@@ -83,7 +89,7 @@
             <fileMode>644</fileMode>
         </file>
         <file>
-            <source>README</source>
+            <source>README.md</source>
             <outputDirectory>.</outputDirectory>
             <filtered>true</filtered>
             <fileMode>644</fileMode>
@@ -100,7 +106,15 @@
             <source>
                 ${project.build.directory}/extracted-distributions/composer-server-distribution-jar/netty-transports.yml
             </source>
-            <outputDirectory>resources/composer/services</outputDirectory>
+            <outputDirectory>lib/resources/composer/services</outputDirectory>
+            <filtered>true</filtered>
+            <fileMode>644</fileMode>
+        </file>
+        <file>
+            <source>
+                ${project.build.directory}/extracted-distributions/language-server-core-zip/target/lang-server-index.sql
+            </source>
+            <outputDirectory>lib/resources/composer</outputDirectory>
             <filtered>true</filtered>
             <fileMode>644</fileMode>
         </file>
@@ -108,19 +122,7 @@
             <source>
                 ${project.build.directory}/extracted-distributions/composer-server-distribution-jar/deployment.yaml
             </source>
-            <outputDirectory>resources/composer/services</outputDirectory>
-            <filtered>true</filtered>
-            <fileMode>644</fileMode>
-        </file>
-        <file>
-            <source>${project.build.directory}/extracted-distributions/composer-server-distribution-jar/composer-logging.properties</source>
-            <outputDirectory>resources/composer/conf</outputDirectory>
-            <filtered>true</filtered>
-            <fileMode>644</fileMode>
-        </file>
-        <file>
-            <source>conf/composer-config.yml</source>
-            <outputDirectory>resources/composer/conf</outputDirectory>
+            <outputDirectory>lib/resources/composer/services</outputDirectory>
             <filtered>true</filtered>
             <fileMode>644</fileMode>
         </file>
@@ -133,6 +135,7 @@
                 <include>org.ballerinalang:ballerina-cli-utils:jar</include>
                 <include>org.ballerinalang:testerina-core:jar</include>
                 <include>org.ballerinalang:swagger-to-ballerina-generator:jar</include>
+                <include>org.ballerinalang:ballerina-packerina:jar</include>
                 <include>org.ballerinalang:protobuf-ballerina:jar</include>
                 <include>org.ballerinalang:ballerina-codegen:jar</include>
                 <include>org.ballerinalang:docerina:jar</include>
@@ -146,7 +149,7 @@
 
         <!-- Composer specific artifacts -->
         <dependencySet>
-            <outputDirectory>resources/composer/services</outputDirectory>
+            <outputDirectory>lib/resources/composer/services</outputDirectory>
             <includes>
                 <include>org.ballerinalang:composer-server-distribution:jar</include>
             </includes>

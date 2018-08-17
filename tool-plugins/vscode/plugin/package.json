@@ -2,13 +2,17 @@
     "name": "ballerina",
     "displayName": "Ballerina",
     "description": "Intellisense, Diagram View, Debugging, code formatting and refactoring for Ballerina",
-    "version": "0.970.0-beta4-SNAPSHOT",
+    "version": "0.981.1-SNAPSHOT",
     "publisher": "ballerina",
     "repository": {
         "type": "git",
         "url": "https://github.com/ballerina-lang/ballerina"
     },
     "icon": "images/ballerina.png",
+    "galleryBanner": {
+        "color": "#e7eaeb",
+        "theme": "light"
+    },
     "engines": {
         "vscode": "^1.0.0"
     },
@@ -43,13 +47,13 @@
             "type": "object",
             "title": "Ballerina configuration",
             "properties": {
-                "ballerina.sdk": {
+                "ballerina.home": {
                     "type": [
                         "string",
                         "null"
                     ],
                     "default": null,
-                    "description": "Specifies the path to the ballerina sdk"
+                    "description": "Specifies the path to the ballerina home directory"
                 },
                 "ballerina.showLSErrors": {
                     "type": [
@@ -57,7 +61,19 @@
                     ],
                     "default": false,
                     "description": "If set to true the language server's error log will be printed in the plugins console"
+                },
+                "ballerina.debugLog": {
+                    "type": [
+                        "boolean"
+                    ],
+                    "default": false,
+                    "description": "If set to true the stdout and stderr of back end services will be printed in the plugins output channel"
                 }
+            }
+        },
+        "configurationDefaults": {
+            "[ballerina]": {
+                "editor.wordBasedSuggestions": false
             }
         },
         "breakpoints": [
@@ -161,6 +177,7 @@
         "package": "vsce package"
     },
     "dependencies": {
+        "glob": "^7.1.2",
         "lodash": "^4.17.5",
         "openport": "0.0.4",
         "request-promise": "^4.2.2",

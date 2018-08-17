@@ -38,14 +38,22 @@ public enum OperatorKind {
     LESS_THAN("<"),
     LESS_EQUAL("<="),
     IS_ASSIGNABLE("isassignable"),
-    POW("^"),
     NOT("!"),
     LENGTHOF("lengthof"),
     UNTAINT("untaint"),
     INCREMENT("++"),
     DECREMENT("--"),
     CHECK("check"),
-    ELVIS("?:");
+    ELVIS("?:"),
+    BITWISE_AND("&"),
+    BITWISE_OR("|"),
+    BITWISE_XOR("^"),
+    BITWISE_COMPLEMENT("~"),
+    BITWISE_LEFT_SHIFT("<<"),
+    BITWISE_RIGHT_SHIFT(">>"),
+    BITWISE_UNSIGNED_RIGHT_SHIFT(">>>"),
+    CLOSED_RANGE("..."),
+    HALF_OPEN_RANGE("..<");
 
     private final String opValue;
 

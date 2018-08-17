@@ -148,7 +148,7 @@ class ServiceNode extends React.Component {
 
         // TODO: Check whether the service is a http/https and then only allow. JMS services does not need swagger defs.
         // eslint-disable-next-line no-constant-condition
-        if (this.props.model.getType() === 'http') {
+        if (this.props.model.getType() === 'http:Service' || this.props.model.getType() === 'http:Listener') {
             // Pushing swagger edit button.
             rightComponents.push({
                 component: PanelDecoratorButton,
@@ -159,13 +159,6 @@ class ServiceNode extends React.Component {
                     onClick: () => this.onSwaggerButtonClicked(),
                 },
             });
-        }
-
-        const resources = model.getResources();
-        this.props.model.viewState.components.transportLine.y2 = 0;
-        if (resources[resources.length - 1]) {
-            this.props.model.viewState.components.transportLine.y2
-                = resources[resources.length - 1].body.viewState.bBox.y - 15;
         }
 
         let panelAdditionalProps = {};
@@ -210,7 +203,7 @@ class ServiceNode extends React.Component {
                     {endpoints}
                 </PanelDecorator>
                 <ServerConnectorProperties
-                    bBox={this.props.model.viewState.components.transportLine}
+                    bBox={this.props.model.viewState.components.serverConnector}
                     model={this.props.model}
                     protocol={model.getType()}
                 />

@@ -1,90 +1,254 @@
 {
   "position": {
-    "line": 2,
+    "line": 1,
     "character": 4
   },
   "source": "function/source/emptyLinePrimitiveDataTypes.bal",
   "items": [
     {
-      "label": "boolean",
-      "kind": 2,
-      "detail": "BType",
-      "documentation": null,
-      "sortText": 6,
-      "insertText": "boolean",
-      "data": null
-    }, {
-      "label": "int",
-      "kind": 2,
-      "detail": "BType",
-      "documentation": null,
-      "sortText": 6,
-      "insertText": "int",
-      "data": null
-    }, {
-      "label": "any",
-      "kind": 2,
-      "detail": "BType",
-      "documentation": null,
-      "sortText": 6,
-      "insertText": "any",
-      "data": null
-    }, {
-      "label": "table",
-      "kind": 2,
-      "detail": "BType",
-      "documentation": null,
-      "sortText": 6,
-      "insertText": "table",
-      "data": null
-    }, {
-      "label": "xml",
-      "kind": 2,
-      "detail": "BType",
-      "documentation": null,
-      "sortText": 6,
-      "insertText": "xml",
-      "data": null
-    }, {
-      "label": "map",
-      "kind": 2,
-      "detail": "BType",
-      "documentation": null,
-      "sortText": 6,
-      "insertText": "map",
-      "data": null
-    }, {
-      "label": "float",
-      "kind": 2,
-      "detail": "BType",
-      "documentation": null,
-      "sortText": 6,
-      "insertText": "float",
-      "data": null
-    }, {
-      "label": "blob",
-      "kind": 2,
-      "detail": "BType",
-      "documentation": null,
-      "sortText": 6,
-      "insertText": "blob",
-      "data": null
-    }, {
-      "label": "string",
-      "kind": 2,
-      "detail": "BType",
-      "documentation": null,
-      "sortText": 6,
-      "insertText": "string",
-      "data": null
-    }, {
-      "label": "json",
-      "kind": 2,
-      "detail": "BType",
-      "documentation": null,
-      "sortText": 6,
-      "insertText": "json",
-      "data": null
+      "label":"xmlns",
+      "detail":"Snippet",
+      "sortText":"190",
+      "insertText":"xmlns \"${1}\" as ${2:ns};",
+      "insertTextFormat":"Snippet"
+    },
+    {
+      "label":"var",
+      "detail":"Keyword",
+      "sortText":"210",
+      "insertText":"var "
+    },
+    {
+      "label":"foreach",
+      "detail":"Statement",
+      "sortText":"200",
+      "insertText":"foreach ${1:item} in ${2:itemList} {\n\t${3}\n}",
+      "insertTextFormat":"Snippet"
+    },
+    {
+      "label":"fork",
+      "detail":"Statement",
+      "sortText":"200",
+      "insertText":"fork {\n\t${1}\n} join (${2:all}) (map ${3:results}) {\n\t${4}\n}",
+      "insertTextFormat":"Snippet"
+    },
+    {
+      "label":"if",
+      "detail":"Statement",
+      "sortText":"200",
+      "insertText":"if (${1:true}) {\n\t${2}\n}",
+      "insertTextFormat":"Snippet"
+    },
+    {
+      "label":"lock",
+      "detail":"Statement",
+      "sortText":"200",
+      "insertText":"lock {\n\t${1}\n}",
+      "insertTextFormat":"Snippet"
+    },
+    {
+      "label":"match",
+      "detail":"Statement",
+      "sortText":"200",
+      "insertText":"match ",
+      "insertTextFormat":"Snippet"
+    },
+    {
+      "label":"return",
+      "detail":"Statement",
+      "sortText":"200",
+      "insertText":"return;",
+      "insertTextFormat":"Snippet"
+    },
+    {
+      "label":"throw",
+      "detail":"Statement",
+      "sortText":"200",
+      "insertText":"throw ",
+      "insertTextFormat":"Snippet"
+    },
+    {
+      "label":"transaction",
+      "detail":"Statement",
+      "sortText":"200",
+      "insertText":"transaction with retries \u003d ${1:1}, oncommit \u003d ${2:onCommitFunction}, onabort \u003d ${3:onAbortFunction} {\n\t${4}\n} onretry {\n\t${5}\n}",
+      "insertTextFormat":"Snippet"
+    },
+    {
+      "label":"try",
+      "detail":"Statement",
+      "sortText":"200",
+      "insertText":"try {\n\t${1}\n} catch (${2:error} ${3:err}) {\n\t${4}\n}",
+      "insertTextFormat":"Snippet"
+    },
+    {
+      "label":"while",
+      "detail":"Statement",
+      "sortText":"200",
+      "insertText":"while (${1:true}) {\n\t${2}\n}",
+      "insertTextFormat":"Snippet"
+    },
+    {
+      "label":"wrply   Worker Reply Statement",
+      "detail":"Statement",
+      "sortText":"200",
+      "insertText":"${1} \u003c- ${2};",
+      "insertTextFormat":"Snippet"
+    },
+    {
+      "label":"wtrg   Worker Trigger Statement",
+      "detail":"Statement",
+      "sortText":"200",
+      "insertText":"${1} -\u003e ${2};",
+      "insertTextFormat":"Snippet"
+    },
+    {
+      "label":"xml",
+      "detail":"BType",
+      "sortText":"170",
+      "insertText":"xml"
+    },
+    {
+      "label":"queryTableWithJoinClause(string sqlQuery, table fromTable, table joinTable, any parameters, any retType)(table)",
+      "kind":"Function",
+      "detail":"Function",
+      "sortText":"120",
+      "insertText":"queryTableWithJoinClause(${1:sqlQuery}, ${2:fromTable}, ${3:joinTable}, ${4:parameters}, ${5:retType})",
+      "insertTextFormat":"Snippet"
+    },
+    {
+      "label":"TableConfig",
+      "detail":"BType",
+      "sortText":"170",
+      "insertText":"TableConfig"
+    },
+    {
+      "label":"byte",
+      "detail":"BType",
+      "sortText":"170",
+      "insertText":"byte"
+    },
+    {
+      "label":"queryTableWithoutJoinClause(string sqlQuery, table fromTable, any parameters, any retType)(table)",
+      "kind":"Function",
+      "detail":"Function",
+      "sortText":"120",
+      "insertText":"queryTableWithoutJoinClause(${1:sqlQuery}, ${2:fromTable}, ${3:parameters}, ${4:retType})",
+      "insertTextFormat":"Snippet"
+    },
+    {
+      "label":"startForever(string streamQuery, any inStreamRefs, any inTableRefs, any outStreamRefs, any outTableRefs, any funcPointers)",
+      "kind":"Function",
+      "detail":"Function",
+      "sortText":"120",
+      "insertText":"startForever(${1:streamQuery}, ${2:inStreamRefs}, ${3:inTableRefs}, ${4:outStreamRefs}, ${5:outTableRefs}, ${6:funcPointers})",
+      "insertTextFormat":"Snippet"
+    },
+    {
+      "label":"stream",
+      "detail":"BType",
+      "sortText":"170",
+      "insertText":"stream"
+    },
+    {
+      "label":"map",
+      "detail":"BType",
+      "sortText":"170",
+      "insertText":"map"
+    },
+    {
+      "label":"table",
+      "detail":"BType",
+      "sortText":"170",
+      "insertText":"table"
+    },
+    {
+      "label":"testFunction()",
+      "kind":"Function",
+      "detail":"Function",
+      "sortText":"120",
+      "insertText":"testFunction()",
+      "insertTextFormat":"Snippet"
+    },
+    {
+      "label":"future",
+      "detail":"BType",
+      "sortText":"170",
+      "insertText":"future"
+    },
+    {
+      "label":"typedesc",
+      "detail":"BType",
+      "sortText":"170",
+      "insertText":"typedesc"
+    },
+    {
+      "label":"float",
+      "detail":"BType",
+      "sortText":"170",
+      "insertText":"float"
+    },
+    {
+      "label":"null",
+      "detail":"BType",
+      "sortText":"170",
+      "insertText":"null"
+    },
+    {
+      "label":"string",
+      "detail":"BType",
+      "sortText":"170",
+      "insertText":"string"
+    },
+    {
+      "label":"error",
+      "detail":"BType",
+      "sortText":"170",
+      "insertText":"error"
+    },
+    {
+      "label":"json",
+      "detail":"BType",
+      "sortText":"170",
+      "insertText":"json"
+    },
+    {
+      "label":"any",
+      "detail":"BType",
+      "sortText":"170",
+      "insertText":"any"
+    },
+    {
+      "label":"int",
+      "detail":"BType",
+      "sortText":"170",
+      "insertText":"int"
+    },
+    {
+      "label":"docData",
+      "detail":"BType",
+      "sortText":"170",
+      "insertText":"docData"
+    },
+    {
+      "label":"boolean",
+      "detail":"BType",
+      "sortText":"170",
+      "insertText":"boolean"
+    },
+    {
+      "label":"endpoint",
+      "detail":"Snippet",
+      "sortText":"190",
+      "insertText":"endpoint ${1:http:Listener} ${2:listener} {\n\t${3}\n};",
+      "insertTextFormat":"Snippet"
+    },
+    {
+      "label":"worker",
+      "detail":"Snippet",
+      "sortText":"190",
+      "insertText":"worker ${1:name} {\n\t${2}\n}",
+      "insertTextFormat":"Snippet"
     }
   ]
 }

@@ -17,8 +17,8 @@
  */
 package org.ballerinalang.model;
 
-import org.ballerinalang.model.types.BStructType;
-import org.ballerinalang.model.values.BStruct;
+import org.ballerinalang.model.types.BStructureType;
+import org.ballerinalang.model.values.BMap;
 
 import java.util.List;
 
@@ -35,6 +35,8 @@ public interface DataIterator {
 
     void close(boolean isInTransaction);
 
+    void reset(boolean isInTransaction);
+
     String getString(int columnIndex);
 
     long getInt(int columnIndex);
@@ -49,9 +51,9 @@ public interface DataIterator {
 
     Object[] getArray(int columnIndex);
 
-    BStruct generateNext();
+    BMap<?, ?> generateNext();
 
     List<ColumnDefinition> getColumnDefinitions();
 
-    BStructType getStructType();
+    BStructureType getStructType();
 }

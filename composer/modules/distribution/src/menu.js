@@ -17,39 +17,77 @@
  *
  */
 
-const {ipcMain, Menu} = require('electron');
+const { ipcMain, Menu, app } = require('electron');
 
 function registerMenuLoader() {
     // remove the stock menu
     Menu.setApplicationMenu(Menu.buildFromTemplate([]));
 
-    ipcMain.on('main-menu-loaded', (event, menu) => {
-        _addClickHandlers(menu, event.sender);
-        Menu.setApplicationMenu(Menu.buildFromTemplate(menu));
-    });
-}
-
-function _addClickHandlers(menus, webContents) {
-    Object.keys(menus).forEach(menuId => {
-        const menu = menus[menuId];
-        _addClickHandler(menu, webContents);
-    });
-}
-
-function _addClickHandler(menuItem, webContents) {
-    if(menuItem.submenu){
-        menuItem.submenu.map(subItem => {
-            return _addClickHandler(subItem, webContents);
+    ipcMain.on('main-menu-loaded', (event, menus) => {
+        const template = menus.map((menu) => {
+            const childrenWithSeparators = menu.children.reduce((r, e) => {
+                if (e.divider) {
+                    if (e.divider.before) {
+                        r.push({ separator: true });
+                        r.push(e);
+                    } else if (e.divider.after) {
+                        r.push(e);
+                        r.push({ separator: true });
+                    }
+                } else {
+                    r.push(e);
+                }
+                return r;
+            }, []);
+            return {
+                label: menu.label,
+                enabled: (typeof(menu.gen.isActive) === 'boolean')
+                        ? menu.gen.isActive 
+                        : true,
+                submenu: childrenWithSeparators.map((childMenu) => {
+                    if (childMenu.separator) {
+                        return {
+                            type: 'separator'
+                        };
+                    }
+                    return {
+                        label: childMenu.label,
+                        click: () => {
+                            event.sender.send('menu-item-clicked', childMenu.command);
+                        },
+                        accelerator: childMenu.gen.shortcut,
+                        enabled:(typeof(childMenu.gen.isActive) === 'boolean')
+                                ? childMenu.gen.isActive 
+                                : true,
+                    }
+                })
+            }
         });
-    }
-
-    if(menuItem.commandId){
-        var commandId = menuItem.commandId;
-        menuItem.click = () => {
-            webContents.send('menu-item-clicked', commandId);
-        };
-        delete menuItem.commandId;
-    }
+        if (process.platform === 'darwin') {
+            template.splice(0, 0, {
+                label: 'Ballerina Composer',
+                submenu: [
+                    {
+                        label: 'About',
+                        click: () => {
+                            event.sender.send('menu-item-clicked', 'help-about');
+                        }
+                    },
+                    {
+                        type: 'separator'
+                    },
+                    {
+                        label: 'Quit Composer',
+                        role: 'quit',
+                        click: () => {
+                            app.quit();
+                        }
+                    }
+                ]
+            });
+        }
+        Menu.setApplicationMenu(Menu.buildFromTemplate(template));
+    });
 }
 
 module.exports = registerMenuLoader;

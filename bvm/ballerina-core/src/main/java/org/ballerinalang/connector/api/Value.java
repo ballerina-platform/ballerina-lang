@@ -27,8 +27,7 @@ import org.ballerinalang.model.values.BValue;
 public interface Value {
 
     /**
-     * Returns type of the Value;
-     *
+     * Returns the type of the value.
      * @return type of the value.
      */
     Type getType();
@@ -85,7 +84,8 @@ public interface Value {
         BOOLEAN(TypeTags.BOOLEAN_TAG),
         ARRAY(TypeTags.ARRAY_TAG),
         MAP(TypeTags.MAP_TAG),
-        STRUCT(TypeTags.STRUCT_TAG),
+        OBJECT(TypeTags.OBJECT_TYPE_TAG),
+        RECORD(TypeTags.RECORD_TYPE_TAG),
         JSON(TypeTags.JSON_TAG),
         XML(TypeTags.XML_TAG),
         TYPEDESC(TypeTags.TYPEDESC_TAG),

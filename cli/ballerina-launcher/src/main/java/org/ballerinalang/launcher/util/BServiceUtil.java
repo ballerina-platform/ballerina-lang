@@ -37,6 +37,12 @@ public class BServiceUtil {
         // Initialize server connectors before starting the test cases
         ServerConnectorRegistry serverConnectorRegistry = new ServerConnectorRegistry();
         serverConnectorRegistry.initServerConnectors();
+
+        // Terminate, if there are compile errors
+        if (compileResult.getErrorCount() > 0) {
+            throw new IllegalStateException(compileResult.toString());
+        }
+
         compileResult.getProgFile().setServerConnectorRegistry(serverConnectorRegistry);
         BLangProgramRunner.runService(compileResult.getProgFile());
     }

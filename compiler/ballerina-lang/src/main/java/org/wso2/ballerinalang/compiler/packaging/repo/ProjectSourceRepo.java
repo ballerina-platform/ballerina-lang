@@ -12,16 +12,23 @@ import java.nio.file.Path;
  */
 public class ProjectSourceRepo extends NonSysRepo<Path> {
 
-    public ProjectSourceRepo(Converter<Path> converter) {
+    private final boolean testEnabled;
+
+    public ProjectSourceRepo(Converter<Path> converter, boolean testEnabled) {
         super(converter);
+        this.testEnabled = testEnabled;
     }
 
-    public ProjectSourceRepo(Path projectRoot) {
-        this(new PathConverter(projectRoot));
+    public ProjectSourceRepo(Path projectRoot, boolean testEnabled) {
+        this(new PathConverter(projectRoot), testEnabled);
     }
 
     @Override
     public Patten calculateNonSysPkg(PackageID pkg) {
+        if (testEnabled) {
+            return new Patten(Patten.path(pkg.getName().value),
+                              Patten.WILDCARD_SOURCE_WITH_TEST);
+        }
         return new Patten(Patten.path(pkg.getName().value),
                           Patten.WILDCARD_SOURCE);
     }

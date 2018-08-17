@@ -33,12 +33,9 @@ import EndpointAggregatorUtil from './views/default/endpoint-aggregator-util';
 
 import DefaultWorkerInvocationSyncUtil from './views/default/worker-invocation-sync-util';
 import WorkerInvocationArrowPositionUtil from './views/default/worker-invocation-arrow-position-util';
-import DefaultErrorCollectorUtil from './views/default/error-rendering-util';
 
 
 const components = {};
-
-const CONTROLLER_SUFFIX = 'Ctrl';
 
 // We need to refactor this big time for the time being implementing the functionality.
 // extend configs from default
@@ -54,7 +51,6 @@ const endpointAggregatorUtil = new EndpointAggregatorUtil();
 
 const defaultWorkerInvocationSyncUtil = new DefaultWorkerInvocationSyncUtil();
 const defaultInvocationArrowPositionUtil = new WorkerInvocationArrowPositionUtil();
-const defaultErrorCollectorUtil = new DefaultErrorCollectorUtil();
 
 // assign configs to utils.
 defaultPositioningUtil.config = DefaultConfig;
@@ -153,10 +149,6 @@ function getEndpointAggregatorUtil(mode) {
 }
 
 
-function getErrorCollectorUtil(mode) {
-    return defaultErrorCollectorUtil;
-}
-
 function getWorkerInvocationSyncUtil(mode) {
     return defaultWorkerInvocationSyncUtil;
 }
@@ -208,43 +200,5 @@ export {
     getWorkerInvocationSyncUtil,
     getInvocationArrowPositionUtil,
     getOverlayComponent,
-    getErrorCollectorUtil,
     getConfig,
 };
-
-// WIP please do not remove.
-export class DiagramUtil {
-
-    static getNodeControllers(node, mode) {
-        // lets load controllers of modes.
-        components.default = requireAll(require.context('./views/default/components/controllers', true, /\.jsx$/));
-        components.action = requireAll(require.context('./views/action/components/controllers', true, /\.jsx$/));
-
-        // hide hidden elements
-        if (node.viewState && node.viewState.hidden) {
-            return undefined;
-        }
-
-        let compName = node.viewState.alias || node.kind;
-        compName += CONTROLLER_SUFFIX;
-
-        const props = {
-            model: node,
-            // set the key to prevent warning
-            // see: https://facebook.githubg.io/react/docs/lists-and-keys.html#keys
-            key: node.getID(),
-        };
-
-        return DiagramUtil.createComponent(components, mode, compName, props);
-    }
-
-    static createComponent(comps, mode, name, props) {
-        if (comps[mode][name]) {
-            return React.createElement(comps[mode][name], props, null);
-        } else if (comps.default[name]) {
-            return React.createElement(comps.default[name], props, null);
-        }
-        return undefined;
-    }
-
-}

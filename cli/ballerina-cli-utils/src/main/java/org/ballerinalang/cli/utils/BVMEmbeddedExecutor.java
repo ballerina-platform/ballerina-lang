@@ -33,14 +33,17 @@ import java.net.URL;
 @JavaSPIService("org.ballerinalang.spi.EmbeddedExecutor")
 public class BVMEmbeddedExecutor implements EmbeddedExecutor {
     @Override
-    public void execute(String balxPath, String... args) {
+    public void execute(String balxPath, boolean isFunction, String... args) {
         URL resource = BVMEmbeddedExecutor.class.getClassLoader()
                                                 .getResource("META-INF/ballerina/" + balxPath);
+        if (resource == null) {
+            throw new BLangCompilerException("Missing internal modules when retrieving remote package");
+        }
         try {
             URI balxResource = resource.toURI();
-            ExecutorUtils.execute(balxResource, args);
+            ExecutorUtils.execute(balxResource, isFunction, args);
         } catch (URISyntaxException e) {
-            throw new BLangCompilerException("Missing internal modules when building package");
+            throw new BLangCompilerException("Error loading internal modules when retrieving remote package");
         }
     }
 }

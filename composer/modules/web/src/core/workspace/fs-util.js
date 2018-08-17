@@ -26,6 +26,20 @@ const CONTENT_TYPE_JSON_HEADER = {
 
 const FS_SERVICE = 'filesystem';
 
+const derriveErrorMsg = (error) => {
+    let errMsg = error && error.message ? error.message : 'Unknown error while fs operation call.';
+    const response = error.response;
+    if (response && response.data) {
+        const respData = response.data;
+        if (respData.Error) {
+            errMsg = respData.Error;
+        } else if (respData.error) {
+            errMsg = respData.error;
+        }
+    }
+    throw Error(errMsg);
+};
+
 /**
  * Reads a file from file system.
  *
@@ -53,7 +67,7 @@ export function read(targetFilePath) {
                         isPersisted: true,
                         isDirty: false,
                     });
-                });
+                }).catch(derriveErrorMsg);
 }
 
 /**
@@ -77,8 +91,10 @@ export function createOrUpdate(path, name, content, isBase64Encoded) {
     return axios.post(serviceEP, data, { headers: CONTENT_TYPE_JSON_HEADER })
         .then((response) => {
             return response.data;
-        });
+        })
+        .catch(derriveErrorMsg);
 }
+
 
 /**
  * Removes given file/folder from file system.
@@ -94,7 +110,7 @@ export function remove(path) {
     return axios.post(serviceEP, data, { headers: CONTENT_TYPE_JSON_HEADER })
         .then((response) => {
             return response.data;
-        });
+        }).catch(derriveErrorMsg);
 }
 
 
@@ -117,7 +133,7 @@ export function create(fullPath, type, content) {
     return axios.post(serviceEP, data, { headers: CONTENT_TYPE_JSON_HEADER })
         .then((response) => {
             return response.data;
-        });
+        }).catch(derriveErrorMsg);
 }
 
 
@@ -138,7 +154,7 @@ export function move(srcPath, destPath) {
     return axios.post(serviceEP, data, { headers: CONTENT_TYPE_JSON_HEADER })
             .then((response) => {
                 return response.data;
-            });
+            }).catch(derriveErrorMsg);
 }
 
 /**
@@ -158,7 +174,7 @@ export function copy(srcPath, destPath) {
     return axios.post(serviceEP, data, { headers: CONTENT_TYPE_JSON_HEADER })
             .then((response) => {
                 return response.data;
-            });
+            }).catch(derriveErrorMsg);
 }
 
 /**
@@ -171,10 +187,25 @@ export function exists(path) {
     const data = {
         path,
     };
-    return new Promise((resolve, reject) => {
-        axios.post(endpoint, data, { headers: CONTENT_TYPE_JSON_HEADER })
+    return axios.post(endpoint, data, { headers: CONTENT_TYPE_JSON_HEADER })
             .then((response) => {
-                resolve(response.data);
-            }).catch(error => reject(error));
-    });
+                return response.data;
+            }).catch(derriveErrorMsg);
+}
+
+
+/**
+ * Create project
+ *
+ * @returns {Promise} Resolves status or reject with error.
+ */
+export function createProject(path) {
+    const endpoint = `${getServiceEndpoint(FS_SERVICE)}/project/create`;
+    const data = {
+        path,
+    };
+    return axios.post(endpoint, data, { headers: CONTENT_TYPE_JSON_HEADER })
+                .then((response) => {
+                    return response.data;
+                }).catch(derriveErrorMsg);
 }

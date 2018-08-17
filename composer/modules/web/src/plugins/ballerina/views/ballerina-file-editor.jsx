@@ -25,7 +25,7 @@ import { Loader, Dimmer } from 'semantic-ui-react';
 import CSSTransitionGroup from 'react-transition-group/CSSTransitionGroup';
 import DebugManager from 'plugins/debugger/DebugManager/DebugManager'; // FIXME: Importing from debugger plugin
 import TreeUtil from 'plugins/ballerina/model/tree-util.js';
-import { parseFile } from 'api-client/api-client';
+import { parseFile, getSwaggerDefinition } from 'api-client/api-client';
 import { CONTENT_MODIFIED, UNDO_EVENT, REDO_EVENT } from 'plugins/ballerina/constants/events';
 import { GO_TO_POSITION, FORMAT } from 'plugins/ballerina/constants/commands';
 import File from 'core/workspace/model/file';
@@ -49,8 +49,9 @@ import CompilationUnitNode from './../model/tree/compilation-unit-node';
 import FragmentUtils from '../utils/fragment-utils';
 import ErrorMappingVisitor from './../visitors/error-mapping-visitor';
 import SyncErrorsVisitor from './../visitors/sync-errors';
-import { EVENTS } from '../constants';
+import { EVENTS, RESPOSIVE_MENU_TRIGGER } from '../constants';
 import ViewButton from './view-button';
+import MonacoBasedUndoManager from './../utils/monaco-based-undo-manager';
 
 /**
  * React component for BallerinaFileEditor.
@@ -78,54 +79,22 @@ class BallerinaFileEditor extends React.Component {
             activeView: this.fetchState('activeView', SPLIT_VIEW),
             splitSize: this.fetchState('splitSize', (this.props.width / 2)),
             diagramMode: this.fetchState('diagramMode', 'action'),
-            diagramFitToWidth: this.fetchState('diagramFitToWidth', true),
+            diagramEditMode: this.fetchState('diagramEditMode', true),
+            isDiagramOnEditMode: false,
             lastRenderedTimestamp: undefined,
         };
         this.skipLoadingOverlay = false;
 
-        // create debounced model update callbacks
-        // we will use this to gracefull update design
-        // view during source view (split mode) changes or redo/undo
-        const updateUponSourceChange = _.debounce(() => {
-            this.state.isASTInvalid = true;
-            this.update(true);
-        }, 500);
-        const updateUponUndoRedo = _.debounce(() => {
-            this.state.isASTInvalid = true;
-            this.update(true);
-        }, 100);
-
-
         // listen for the changes to file content
         this.props.file.on(CONTENT_MODIFIED, (evt) => {
             const originEvtType = evt.originEvt.type;
-            if (originEvtType === CHANGE_EVT_TYPES.TREE_MODIFIED) {
-                // Change was done from design view
-                // do an immediate update to reflect tree changes
-                this.forceUpdate();
-                // since the source is changed, we need to sync
-                // current AST with new position info
-                this.skipLoadingOverlay = true;
-                this.validateAndParseFile()
-                    .then((state) => {
-                        const newAST = state.model;
-                        const currentAST = this.state.model;
-                        // update environment object with updated current package info
-                        this.updateEnvironment(this.environment, state.packageInfo);
-                        this.syncASTs(currentAST, newAST);
+            if (originEvtType !== CHANGE_EVT_TYPES.SOURCE_MODIFIED &&
+                originEvtType !== CHANGE_EVT_TYPES.TREE_MODIFIED) {
+                const newContent = evt.newContent;
+                this.sourceEditorRef.setContent(newContent, true);
+            }
 
-                        // remove new AST from new state to be set
-                        delete state.model;
-                        this.skipLoadingOverlay = false;
-                        this.setState(state);
-                        this.props.editorModel.setProperty('ast', currentAST);
-                    })
-                    .catch(error => log.error(error));
-            } else if (originEvtType === CHANGE_EVT_TYPES.SOURCE_MODIFIED) {
-                updateUponSourceChange();
-            } else if (originEvtType === UNDO_EVENT || originEvtType === REDO_EVENT) {
-                updateUponUndoRedo();
-            } else {
+            if (originEvtType !== CHANGE_EVT_TYPES.TREE_MODIFIED) {
                 // upon code format
                 this.state.isASTInvalid = true;
                 this.update(true);
@@ -135,6 +104,8 @@ class BallerinaFileEditor extends React.Component {
         this.props.editorModel.setProperty('balEnvironment', this.environment);
 
         this.hideSwaggerAceEditor = false;
+        this.swagger = '';
+        this.swaggerEditorID = '';
 
         // Resize the canvas
         props.commandProxy.on('resize', () => {
@@ -143,18 +114,19 @@ class BallerinaFileEditor extends React.Component {
         // Format the source code.
         props.commandProxy.on(FORMAT, () => {
             if (this.props.isActive()) {
-                let newContent = this.state.model.getSource(true);
-                newContent = _.trim(newContent, '\n');
-                // set the underlaying file.
-                this.props.file.setContent(newContent, {
-                    type: CHANGE_EVT_TYPES.CODE_FORMAT,
-                });
+                this.sourceEditorRef.editorInstance.trigger('','editor.action.formatDocument');
             }
         });
+
+        if (this.props.file.name === 'untitled' && this.fetchState('diagramMode') === undefined) {
+            this.state.diagramFitToWidth = false;
+        }
 
         this.resetSwaggerView = this.resetSwaggerView.bind(this);
         this.handleSplitChange = this.handleSplitChange.bind(this);
         this.onModeChange = this.onModeChange.bind(this);
+        this.onCodeExpandToggle = this.onCodeExpandToggle.bind(this);
+        this.sourceEditorRef = undefined;
     }
 
     /**
@@ -168,6 +140,10 @@ class BallerinaFileEditor extends React.Component {
             astRoot: this.state.model,
             environment: this.environment,
             isPreviewViewEnabled: this.props.isPreviewViewEnabled,
+            setSourceEditorRef: (sourceEditorRef) => {
+                this.sourceEditorRef = sourceEditorRef;
+                this.props.editorModel.undoManager = new MonacoBasedUndoManager(sourceEditorRef);
+            },
         };
     }
 
@@ -206,14 +182,40 @@ class BallerinaFileEditor extends React.Component {
      */
     onASTModified(evt) {
         TreeBuilder.modify(evt.origin);
-
         const newContent = this.state.model.getSource();
         // set breakpoints to model
         // this.reCalculateBreakpoints(this.state.model);
         // create a wrapping event object to indicate tree modification
         this.props.file.setContent(newContent, {
-            type: CHANGE_EVT_TYPES.TREE_MODIFIED, originEvt: evt,
+            type: CHANGE_EVT_TYPES.TREE_MODIFIED,
+            originEvt: evt,
+            data: {
+                sourceEditor: this.sourceEditorRef,
+            },
         });
+        this.sourceEditorRef.setContent(newContent, true);
+
+        // Change was done from design view
+        // do an immediate update to reflect tree changes
+        this.forceUpdate();
+        // since the source is changed, we need to sync
+        // current AST with new position info
+        this.skipLoadingOverlay = true;
+        this.validateAndParseFile()
+            .then((state) => {
+                const newAST = state.model;
+                const currentAST = this.state.model;
+                // update environment object with updated current package info
+                this.updateEnvironment(this.environment, state.packageInfo);
+                this.syncASTs(currentAST, newAST);
+
+                // remove new AST from new state to be set
+                delete state.model;
+                this.skipLoadingOverlay = false;
+                this.setState(state);
+                this.props.editorModel.setProperty('ast', currentAST);
+            })
+            .catch(error => log.error(error));
         this.props.commandProxy.dispatch(EVENTS.ACTIVE_BAL_AST_CHANGED, { ast: this.state.model });
         if (evt.type === EVENTS.UPDATE_PACKAGE_DECLARATION) {
             this.props.commandProxy.dispatch(EVENTS.UPDATE_PACKAGE_DECLARATION, {
@@ -232,18 +234,6 @@ class BallerinaFileEditor extends React.Component {
         return TreeUtil.getPackageNameString(astRoot);
     }
 
-    /**
-     * Get the top most parent of the node
-     * @param node - node that is to be added
-     */
-    getParent(node) {
-        let parentNode = node.parent;
-        if (!TreeUtils.isService(parentNode) && !TreeUtils.isConnector(parentNode) && !TreeUtils.isFunction(parentNode)
-            && !TreeUtils.isResource(parentNode) && !TreeUtils.isAction(parentNode)) {
-            parentNode = this.getParent(parentNode);
-        }
-        return parentNode;
-    }
     /**
      * set active view
      * @param {string} newView ID of the new View
@@ -272,8 +262,20 @@ class BallerinaFileEditor extends React.Component {
      */
     onModeChange(data) {
         this.setState({
+            diagramEditMode: data.editMode,
+        });
+        this.persistState();
+    }
+
+    /**
+     * Toggle code expand/collapse.
+     *
+     * @param {any} data event data
+     * @memberof BallerinaFileEditor
+     */
+    onCodeExpandToggle(data) {
+        this.setState({
             diagramMode: data.mode,
-            diagramFitToWidth: data.fitToWidth,
         });
         this.persistState();
     }
@@ -291,12 +293,31 @@ class BallerinaFileEditor extends React.Component {
      * @param {any} newState
      * @memberof BallerinaFileEditor
      */
-    handleFitToWidthChange(state) {
-        this.setState({ diagramFitToWidth: state });
+    handleEditModeChange(state) {
+        this.setState({ diagramEditMode: state });
         this.persistState();
     }
 
     handleSplitChange(size) {
+        const designWidth = (this.state.activeView === DESIGN_VIEW) ? this.props.width :
+            this.props.width - this.state.splitSize;
+
+        if (designWidth < RESPOSIVE_MENU_TRIGGER.HIDDEN_MODE && !this.fetchState('diagramEditMode', true)) {
+            this.setState({
+                isDiagramOnEditMode: true,
+            });
+            this.onModeChange({ editMode: true });
+            this.onCodeExpandToggle({ mode: 'action' });
+        }
+
+        if (this.state.isDiagramOnEditMode && designWidth > (RESPOSIVE_MENU_TRIGGER.HIDDEN_MODE - 10)) {
+            this.setState({
+                isDiagramOnEditMode: false,
+            });
+            this.onModeChange({ editMode: false });
+            this.onCodeExpandToggle({ mode: 'action' });
+        }
+
         this.setState({ splitSize: size });
     }
     /**
@@ -373,12 +394,27 @@ class BallerinaFileEditor extends React.Component {
      *
      * @param {ServiceDefinition} serviceDef Service def node to display
      */
-    showSwaggerViewForService(serviceDef) {
-        // not using setState to avoid multiple re-renders
-        // this.update() will finally trigger re-render
-        this.state.swaggerViewTargetService = serviceDef;
-        this.state.activeView = SWAGGER_VIEW;
-        this.update();
+    showSwaggerViewForService(service) {
+        if (!_.isNil(service)) {
+            getSwaggerDefinition(this.state.model.getSource(), service.getName().getValue())
+                .then((swaggerDefinition) => {
+                    if (swaggerDefinition) {
+                        this.swagger = swaggerDefinition;
+                        this.swaggerEditorID = `z-${service.id}-swagger-editor`;
+                        // not using setState to avoid multiple re-renders
+                        // this.update() will finally trigger re-render
+                        this.state.swaggerViewTargetService = service;
+                        this.state.activeView = SWAGGER_VIEW;
+                        this.forceUpdate();
+                    } else {
+                        log.error('Error building swagger definition.');
+                    }
+                })
+                .catch(error => log.error(error));
+        } else {
+            this.swagger = undefined;
+            this.swaggerEditorID = undefined;
+        }
     }
 
     /**
@@ -539,7 +575,7 @@ class BallerinaFileEditor extends React.Component {
         appContext.pref.put(this.props.file.id, {
             activeView: this.state.activeView,
             splitSize: this.state.splitSize,
-            diagramFitToWidth: this.state.diagramFitToWidth,
+            diagramEditMode: this.state.diagramEditMode,
             diagramMode: this.state.diagramMode,
         });
     }
@@ -611,6 +647,9 @@ class BallerinaFileEditor extends React.Component {
             this.state.splitSize;
         const designWidth = (this.state.activeView === DESIGN_VIEW) ? this.props.width :
             this.props.width - this.state.splitSize;
+        const designHeight = (designWidth > RESPOSIVE_MENU_TRIGGER.HIDDEN_MODE) ? this.props.height - 56 :
+            this.props.height; // diagram height reduces on responsive non hidden mode to accommodate top bar
+        const height = this.props.height;
 
         const sourceView = (
             <SourceView
@@ -621,7 +660,7 @@ class BallerinaFileEditor extends React.Component {
                 show={showSourceView}
                 panelResizeInProgress={this.props.panelResizeInProgress}
                 width={sourceWidth}
-                height={this.props.height}
+                height={height - 10} // height is reduced to accommodate scroll bars
             />
         );
 
@@ -644,12 +683,13 @@ class BallerinaFileEditor extends React.Component {
                     file={this.props.file}
                     commandProxy={this.props.commandProxy}
                     width={designWidth}
-                    height={this.props.height}
+                    height={designHeight}
                     panelResizeInProgress={this.props.panelResizeInProgress}
                     disabled={this.state.parseFailed}
                     onModeChange={this.onModeChange}
+                    onCodeExpandToggle={this.onCodeExpandToggle}
                     mode={this.state.diagramMode}
-                    fitToWidth={this.state.diagramFitToWidth}
+                    editMode={this.state.diagramEditMode}
                 />
             </div>
         );
@@ -698,6 +738,9 @@ class BallerinaFileEditor extends React.Component {
                         resetSwaggerViewFun={this.resetSwaggerView}
                         height={this.props.height}
                         width={this.props.width}
+                        visible={showSwaggerView}
+                        swagger={this.swagger}
+                        swaggerEditorID={this.swaggerEditorID}
                     />
                 </div>
                 { !showSwaggerView &&
@@ -761,6 +804,7 @@ BallerinaFileEditor.childContextTypes = {
     editor: PropTypes.instanceOf(BallerinaFileEditor).isRequired,
     environment: PropTypes.instanceOf(PackageScopedEnvironment).isRequired,
     isPreviewViewEnabled: PropTypes.bool.isRequired,
+    setSourceEditorRef: PropTypes.func.isRequired,
 };
 
 export default BallerinaFileEditor;

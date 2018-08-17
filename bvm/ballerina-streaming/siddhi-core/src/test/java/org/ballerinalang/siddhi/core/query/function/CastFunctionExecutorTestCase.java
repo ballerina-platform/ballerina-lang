@@ -34,6 +34,9 @@ import org.testng.annotations.Test;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
+/**
+ * Testcase for cast function.
+ */
 public class CastFunctionExecutorTestCase {
     private static final Logger log = LoggerFactory.getLogger(CastFunctionExecutorTestCase.class);
     private AtomicInteger count = new AtomicInteger(0);

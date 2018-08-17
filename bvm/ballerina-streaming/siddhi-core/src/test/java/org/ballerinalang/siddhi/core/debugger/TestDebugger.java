@@ -34,7 +34,9 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
-
+/**
+ * Testcase for Debugger.
+ */
 public class TestDebugger {
     private static final Logger log = LoggerFactory.getLogger(TestDebugger.class);
     private static volatile int count;

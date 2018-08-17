@@ -30,15 +30,10 @@ import org.wso2.ballerinalang.compiler.semantics.analyzer.SymbolResolver;
 import org.wso2.ballerinalang.compiler.semantics.model.Scope;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BOperatorSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.tree.BLangAction;
 import org.wso2.ballerinalang.compiler.tree.BLangCompilationUnit;
-import org.wso2.ballerinalang.compiler.tree.BLangConnector;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
@@ -48,6 +43,7 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangCatch;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangForeach;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangIf;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangScope;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangTransaction;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangTryCatchFinally;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangVariableDef;
@@ -60,7 +56,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Stack;
-import java.util.stream.Collectors;
 
 /**
  * Tree visitor to traverse through the ballerina node tree and find the scope of a given cursor position.
@@ -71,7 +66,7 @@ public class SignatureTreeVisitor extends LSNodeVisitor {
     private boolean terminateVisitor = false;
     private SymbolEnter symbolEnter;
     private SymbolTable symTable;
-    private LSServiceOperationContext documentServiceContext;
+    private LSServiceOperationContext lsContext;
     private Stack<Node> blockOwnerStack;
 
     /**
@@ -80,22 +75,22 @@ public class SignatureTreeVisitor extends LSNodeVisitor {
      */
     public SignatureTreeVisitor(LSServiceOperationContext textDocumentServiceContext) {
         blockOwnerStack = new Stack<>();
-        this.documentServiceContext = textDocumentServiceContext;
-        init(documentServiceContext.get(DocumentServiceKeys.COMPILER_CONTEXT_KEY));
+        this.lsContext = textDocumentServiceContext;
+        init(lsContext.get(DocumentServiceKeys.COMPILER_CONTEXT_KEY));
     }
 
     private void init(CompilerContext compilerContext) {
         symbolEnter = SymbolEnter.getInstance(compilerContext);
         symTable = SymbolTable.getInstance(compilerContext);
         symbolResolver = SymbolResolver.getInstance(compilerContext);
-        documentServiceContext.put(DocumentServiceKeys.SYMBOL_TABLE_KEY, symTable);
+        lsContext.put(DocumentServiceKeys.SYMBOL_TABLE_KEY, symTable);
     }
 
     @Override
     public void visit(BLangPackage pkgNode) {
         SymbolEnv pkgEnv = symTable.pkgEnvMap.get(pkgNode.symbol);
         // Then visit each top-level element sorted using the compilation unit
-        String fileName = documentServiceContext.get(DocumentServiceKeys.FILE_NAME_KEY);
+        String fileName = lsContext.get(DocumentServiceKeys.FILE_NAME_KEY);
         BLangCompilationUnit compilationUnit = pkgNode.getCompilationUnits().stream()
                 .filter(bLangCompilationUnit -> bLangCompilationUnit.getName().equals(fileName))
                 .findFirst().orElse(null);
@@ -147,13 +142,6 @@ public class SignatureTreeVisitor extends LSNodeVisitor {
     }
 
     @Override
-    public void visit(BLangConnector connectorNode) {
-        BSymbol connectorSymbol = connectorNode.symbol;
-        SymbolEnv connectorEnv = SymbolEnv.createConnectorEnv(connectorNode, connectorSymbol.scope, symbolEnv);
-        connectorNode.actions.forEach(action -> this.acceptNode(action, connectorEnv));
-    }
-
-    @Override
     public void visit(BLangAction actionNode) {
         BSymbol actionSymbol = actionNode.symbol;
         SymbolEnv actionEnv = SymbolEnv.createResourceActionSymbolEnv(actionNode, actionSymbol.scope, symbolEnv);
@@ -185,14 +173,7 @@ public class SignatureTreeVisitor extends LSNodeVisitor {
         this.blockOwnerStack.pop();
 
         if (ifNode.elseStmt != null) {
-            if (!(ifNode.elseStmt instanceof BLangIf)) {
-                this.blockOwnerStack.push(ifNode.elseStmt);
-            }
-
             acceptNode(ifNode.elseStmt, symbolEnv);
-            if (!(ifNode.elseStmt instanceof BLangIf)) {
-                this.blockOwnerStack.pop();
-            }
         }
     }
 
@@ -251,6 +232,15 @@ public class SignatureTreeVisitor extends LSNodeVisitor {
         this.blockOwnerStack.pop();
     }
 
+    @Override
+    public void visit(BLangScope scopeNode) {
+        this.blockOwnerStack.push(scopeNode);
+        this.acceptNode(scopeNode.scopeBody, symbolEnv);
+        this.blockOwnerStack.pop();
+
+        this.acceptNode(scopeNode.compensationFunction, symbolEnv);
+    }
+
     // Private Methods
     private void acceptNode(BLangNode node, SymbolEnv env) {
         if (this.terminateVisitor) {
@@ -264,7 +254,7 @@ public class SignatureTreeVisitor extends LSNodeVisitor {
     }
 
     private boolean isCursorWithinBlock() {
-        Position cursorPosition = this.documentServiceContext.get(DocumentServiceKeys.POSITION_KEY).getPosition();
+        Position cursorPosition = this.lsContext.get(DocumentServiceKeys.POSITION_KEY).getPosition();
         Node blockOwner = blockOwnerStack.peek();
         DiagnosticPos nodePosition = CommonUtil.toZeroBasedPosition((DiagnosticPos) blockOwner.getPosition());
         int cursorLine = cursorPosition.getLine();
@@ -290,64 +280,10 @@ public class SignatureTreeVisitor extends LSNodeVisitor {
      * @param symbolEntries symbol entries
      */
     private void populateSymbols(Map<Name, Scope.ScopeEntry> symbolEntries) {
-        // TODO: Populate only the visible functions
         this.terminateVisitor = true;
-        String identifierAgainst = documentServiceContext.get(SignatureKeys.IDENTIFIER_AGAINST);
         List<SymbolInfo> visibleSymbols = new ArrayList<>();
 
-        /*
-          During the first iteration we filter out the functions and if there is, the variable reference against which
-          the function is called.
-         */
-        symbolEntries.forEach((k, v) -> {
-            if (v.symbol instanceof BInvokableSymbol && !(v.symbol instanceof BOperatorSymbol)
-                    && !v.symbol.getName().getValue().contains("<init>")) {
-                SymbolInfo symbolInfo = new SymbolInfo(k.getValue(), v);
-                visibleSymbols.add(symbolInfo);
-            } else if (v.symbol instanceof BVarSymbol && k.getValue().equals(identifierAgainst)) {
-                documentServiceContext.put(SignatureKeys.IDENTIFIER_TYPE, v.symbol.type.toString());
-            } else if (v.symbol instanceof BPackageSymbol && k.getValue().equals(identifierAgainst)) {
-                documentServiceContext.put(SignatureKeys.IDENTIFIER_PKGID, v.symbol.pkgID.toString());
-                documentServiceContext.put(SignatureKeys.IDENTIFIER_TYPE, v.symbol.type.toString());
-                visibleSymbols.addAll(this.getInvokableSymbolsInPackage((BPackageSymbol) v.symbol));
-            }
-        });
-        
-        /*
-          In this iteration we filter out the functions either having a receiver or otherwise.
-          If the identifier against value is a valid value, then check whether the receiver type equals to identifier
-          type. If there is no identifier, filter out functions without the receiver
-         */
-        List<SymbolInfo> filteredSymbols = new ArrayList<>();
-        visibleSymbols.forEach(symbolInfo -> {
-            BVarSymbol receiver = ((BInvokableSymbol) symbolInfo.getScopeEntry().symbol).receiverSymbol;
-            String[] nameTokens = symbolInfo.getSymbolName().split("\\.");
-            String funcNameFromSymbol = nameTokens[nameTokens.length - 1];
-            String functionName = documentServiceContext.get(SignatureKeys.CALLABLE_ITEM_NAME);
-            String identifierPkgName = documentServiceContext.get(SignatureKeys.IDENTIFIER_PKGID);
-            boolean onIdentifierTypePkg = "package".equals(documentServiceContext.get(SignatureKeys.IDENTIFIER_TYPE))
-                    && symbolInfo.getScopeEntry().symbol.pkgID.toString().equals(identifierPkgName);
-            boolean onReceiverTypeMatchIdentifier = receiver != null &&
-                    receiver.type.toString().equals(documentServiceContext.get(SignatureKeys.IDENTIFIER_TYPE));
-            boolean onIdentifierAgainstNull = (receiver == null
-                    && (identifierAgainst == null || identifierAgainst.equals("")));
-
-            if ((onIdentifierTypePkg || onReceiverTypeMatchIdentifier || onIdentifierAgainstNull)
-                    && funcNameFromSymbol.equals(functionName)) {
-                filteredSymbols.add(symbolInfo);
-            }
-        });
-
-        documentServiceContext.put(SignatureKeys.FILTERED_FUNCTIONS, filteredSymbols);
-    }
-
-    private List<SymbolInfo> getInvokableSymbolsInPackage(BPackageSymbol packageSymbol) {
-        Map<Name, Scope.ScopeEntry> scopeEntries = packageSymbol.scope.entries;
-
-        List<Scope.ScopeEntry> entriesList = scopeEntries.values().stream().collect(Collectors.toList());
-        return entriesList.stream()
-                .filter(scopeEntry -> scopeEntry.symbol instanceof BInvokableSymbol)
-                .map(scopeEntry -> new SymbolInfo(scopeEntry.symbol.name.getValue(), scopeEntry))
-                .collect(Collectors.toList());
+        symbolEntries.forEach((k, v) -> visibleSymbols.add(new SymbolInfo(k.getValue(), v)));
+        lsContext.put(SignatureKeys.VISIBLE_SYMBOLS_KEY, visibleSymbols);
     }
 }

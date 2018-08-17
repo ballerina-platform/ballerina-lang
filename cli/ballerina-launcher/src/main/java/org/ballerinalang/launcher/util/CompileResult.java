@@ -59,7 +59,8 @@ public class CompileResult {
     }
 
     public Diagnostic[] getDiagnostics() {
-        diagnostics.sort(Comparator.comparingInt(a -> a.getPosition().getStartLine()));
+        diagnostics.sort(Comparator.comparing((Diagnostic d) -> d.getSource().getCompilationUnitName()).
+                thenComparingInt(d -> d.getPosition().getStartLine()));
         return diagnostics.toArray(new Diagnostic[diagnostics.size()]);
     }
 

@@ -17,20 +17,17 @@
  */
 package org.ballerinalang.compiler.plugins;
 
+import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.tree.ActionNode;
 import org.ballerinalang.model.tree.AnnotationAttachmentNode;
 import org.ballerinalang.model.tree.AnnotationNode;
-import org.ballerinalang.model.tree.ConnectorNode;
 import org.ballerinalang.model.tree.EndpointNode;
 import org.ballerinalang.model.tree.EnumNode;
 import org.ballerinalang.model.tree.FunctionNode;
-import org.ballerinalang.model.tree.ObjectNode;
 import org.ballerinalang.model.tree.PackageNode;
-import org.ballerinalang.model.tree.RecordNode;
 import org.ballerinalang.model.tree.ResourceNode;
 import org.ballerinalang.model.tree.ServiceNode;
-import org.ballerinalang.model.tree.StructNode;
-import org.ballerinalang.model.tree.TransformerNode;
+import org.ballerinalang.model.tree.TypeDefinition;
 import org.ballerinalang.model.tree.VariableNode;
 import org.ballerinalang.util.diagnostic.DiagnosticLog;
 
@@ -60,23 +57,12 @@ public abstract class AbstractCompilerPlugin implements CompilerPlugin {
     }
 
     @Override
-    public void process(ConnectorNode connectorNode, List<AnnotationAttachmentNode> annotations) {
-    }
-
-    @Override
     public void process(ActionNode actionNode, List<AnnotationAttachmentNode> annotations) {
     }
 
     @Override
-    public void process(StructNode serviceNode, List<AnnotationAttachmentNode> annotations) {
-    }
+    public void process(TypeDefinition typeDefinition, List<AnnotationAttachmentNode> annotations) {
 
-    @Override
-    public void process(ObjectNode objectNode, List<AnnotationAttachmentNode> annotations) {
-    }
-
-    @Override
-    public void process(RecordNode recordNode, List<AnnotationAttachmentNode> annotations) {
     }
 
     @Override
@@ -96,14 +82,10 @@ public abstract class AbstractCompilerPlugin implements CompilerPlugin {
     }
 
     @Override
-    public void process(TransformerNode transformerNode, List<AnnotationAttachmentNode> annotations) {
-    }
-
-    @Override
     public void process(EndpointNode endpointNode, List<AnnotationAttachmentNode> annotations) {
     }
 
     @Override
-    public void codeGenerated(Path binaryPath) {
+    public void codeGenerated(PackageID packageID, Path binaryPath) {
     }
 }

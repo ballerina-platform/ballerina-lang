@@ -18,7 +18,9 @@
 
 import { VIEWS as WELCOME_TAB_VIEWS } from 'plugins/welcome-tab/constants';
 import { COMMANDS as LAYOUT_COMMANDS } from 'core/layout/constants';
+import { isOnElectron } from 'core/utils/client-info';
 import { COMMANDS, DIALOG } from './constants';
+
 
 /**
  * Provides command handler definitions of debugger plugin.
@@ -31,9 +33,28 @@ export function getHandlerDefinitions(plugin) {
         {
             cmdID: COMMANDS.SHOW_IMPORT_SWAGGER_DIALOG,
             handler: () => {
-                const { command: { dispatch } } = plugin.appContext;
-                const id = DIALOG.IMPORT_SWAGGER;
-                dispatch(LAYOUT_COMMANDS.POPUP_DIALOG, { id });
+                if (isOnElectron()) {
+                    const { ipcRenderer } = require('electron');
+                    ipcRenderer.send('show-file-open-dialog',
+                            'Import Swagger Definition',
+                            'select a swagger definition file to import',
+                            [{ name: 'swagger definitions', extensions: ['json', 'yml'] }]
+                    );
+                    ipcRenderer.once('file-open-wizard-closed', (e, file) => {
+                        if (file) {
+                            plugin.openSwaggerDefinition(file[0])
+                                .catch((err) => {
+                                    ipcRenderer.send('show-error-dialog',
+                                        'Error importing swagger definition',
+                                        err);
+                                });
+                        }
+                    });
+                } else {
+                    const { command: { dispatch } } = plugin.appContext;
+                    const id = DIALOG.IMPORT_SWAGGER;
+                    dispatch(LAYOUT_COMMANDS.POPUP_DIALOG, { id });
+                }
             },
         },
         {

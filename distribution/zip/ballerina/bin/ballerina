@@ -90,6 +90,17 @@ if $os400; then
   export QIBM_MULTI_THREADED
 fi
 
+if ! type "tput" > /dev/null 2>&1; then
+  BALLERINA_CLI_WIDTH="80"
+else
+	if ! tput cols >/dev/null 2>&1; then
+	    BALLERINA_CLI_WIDTH="80"
+	else
+	    BALLERINA_CLI_WIDTH=`tput cols`
+	fi
+fi
+export BALLERINA_CLI_WIDTH
+
 # For Migwn, ensure paths are in UNIX format before anything is touched
 if $mingw ; then
   [ -n "$BALLERINA_HOME" ] &&
@@ -146,6 +157,12 @@ if [ "$CMD" = "--java.debug" ]; then
   echo "Please start the remote debugging client to continue..."
 fi
 
+JDK_18=`$JAVA_HOME/bin/java -version 2>&1 | grep -e "1.8."`
+if [ "$JDK_18" = "" ]; then
+    echo "Error: Ballerina is supported only on JDK 1.8"
+    exit 1
+fi
+
 BALLERINA_XBOOTCLASSPATH=""
 for f in "$BALLERINA_HOME"/bre/lib/bootstrap/xboot/*.jar
 do
@@ -196,7 +213,7 @@ $JAVACMD \
 	-classpath "$BALLERINA_CLASSPATH" \
 	-Dballerina.home=$BALLERINA_HOME \
 	-Dballerina.version=${project.version} \
-	-Djava.util.logging.config.file="$BALLERINA_HOME/bre/conf/logging.properties" \
+	-Djava.util.logging.config.class="org.ballerinalang.logging.util.LogConfigReader" \
 	-Djava.util.logging.manager="org.ballerinalang.logging.BLogManager" \
 	-Denable.nonblocking=false \
 	-Djava.security.egd=file:/dev/./urandom \

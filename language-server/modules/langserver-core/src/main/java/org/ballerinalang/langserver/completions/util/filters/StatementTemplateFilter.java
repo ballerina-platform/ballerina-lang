@@ -19,10 +19,12 @@ package org.ballerinalang.langserver.completions.util.filters;
 
 import org.ballerinalang.langserver.compiler.LSServiceOperationContext;
 import org.ballerinalang.langserver.completions.CompletionKeys;
+import org.ballerinalang.langserver.completions.SymbolInfo;
 import org.ballerinalang.langserver.completions.util.ItemResolverConstants;
 import org.ballerinalang.langserver.completions.util.Snippet;
 import org.eclipse.lsp4j.CompletionItem;
 import org.eclipse.lsp4j.InsertTextFormat;
+import org.eclipse.lsp4j.jsonrpc.messages.Either;
 
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -33,7 +35,7 @@ import java.util.List;
  */
 public class StatementTemplateFilter extends AbstractSymbolFilter {
     @Override
-    public List filterItems(LSServiceOperationContext completionContext) {
+    public Either<List<CompletionItem>, List<SymbolInfo>> filterItems(LSServiceOperationContext completionContext) {
         ArrayList<CompletionItem> completionItems = new ArrayList<>();
 
         // Populate the statement templates
@@ -65,13 +67,6 @@ public class StatementTemplateFilter extends AbstractSymbolFilter {
         forEachItem.setInsertText(Snippet.FOREACH.toString());
         forEachItem.setDetail(ItemResolverConstants.STATEMENT_TYPE);
         completionItems.add(forEachItem);
-
-        // Populate Bind Statement template
-        CompletionItem bindItem = new CompletionItem();
-        bindItem.setLabel(ItemResolverConstants.BIND);
-        bindItem.setInsertText(Snippet.BIND.toString());
-        bindItem.setDetail(ItemResolverConstants.STATEMENT_TYPE);
-        completionItems.add(bindItem);
 
         // Populate Fork Statement template
         // TODO: Should make this a snippet type and move to specific sorters
@@ -119,12 +114,12 @@ public class StatementTemplateFilter extends AbstractSymbolFilter {
         if (completionContext.get(CompletionKeys.LOOP_COUNT_KEY) > 0
                 && !completionContext.get(CompletionKeys.CURRENT_NODE_TRANSACTION_KEY)) {
             /*
-            Populate Next Statement template only if enclosed within a looping construct
+            Populate Continue Statement template only if enclosed within a looping construct
             and not in immediate transaction construct
              */
             CompletionItem nextItem = new CompletionItem();
-            nextItem.setLabel(ItemResolverConstants.NEXT);
-            nextItem.setInsertText(Snippet.NEXT.toString());
+            nextItem.setLabel(ItemResolverConstants.CONTINUE);
+            nextItem.setInsertText(Snippet.CONTINUE.toString());
             nextItem.setDetail(ItemResolverConstants.STATEMENT_TYPE);
             completionItems.add(nextItem);
         }
@@ -152,13 +147,26 @@ public class StatementTemplateFilter extends AbstractSymbolFilter {
             abortItem.setInsertText(Snippet.ABORT.toString());
             abortItem.setDetail(ItemResolverConstants.STATEMENT_TYPE);
             completionItems.add(abortItem);
+
+            CompletionItem retryItem = new CompletionItem();
+            retryItem.setLabel(ItemResolverConstants.RETRY);
+            retryItem.setInsertText(Snippet.RETRY.toString());
+            retryItem.setDetail(ItemResolverConstants.STATEMENT_TYPE);
+            completionItems.add(retryItem);
         }
+
+        // Populate Throw Statement template
+        CompletionItem throwItem = new CompletionItem();
+        throwItem.setLabel(ItemResolverConstants.THROW);
+        throwItem.setInsertText(Snippet.THROW.toString());
+        throwItem.setDetail(ItemResolverConstants.STATEMENT_TYPE);
+        completionItems.add(throwItem);
 
         completionItems.sort(Comparator.comparing(CompletionItem::getLabel));
 
         // Set the insert text format to be snippet supported format
         completionItems.forEach(completionItem -> completionItem.setInsertTextFormat(InsertTextFormat.Snippet));
 
-        return completionItems;
+        return Either.forLeft(completionItems);
     }
 }

@@ -24,15 +24,16 @@ import com.beust.jcommander.MissingCommandException;
 import com.beust.jcommander.Parameter;
 import com.beust.jcommander.ParameterException;
 import com.beust.jcommander.Parameters;
+import org.ballerinalang.compiler.BLangCompilerException;
 import org.ballerinalang.config.cipher.AESCipherTool;
 import org.ballerinalang.config.cipher.AESCipherToolException;
+import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.util.VMOptions;
 import org.ballerinalang.util.exceptions.BLangRuntimeException;
-import org.ballerinalang.util.exceptions.ParserException;
-import org.ballerinalang.util.exceptions.SemanticException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintStream;
 import java.nio.file.Path;
@@ -63,21 +64,18 @@ public class Main {
         try {
             Optional<BLauncherCmd> optionalInvokedCmd = getInvokedCmd(args);
             optionalInvokedCmd.ifPresent(BLauncherCmd::execute);
-        } catch (ParserException | SemanticException | BLangRuntimeException e) {
+        } catch (BLangRuntimeException e) {
             outStream.println(e.getMessage());
+            Runtime.getRuntime().exit(1);
+        } catch (BLangCompilerException e) {
+            outStream.println(prepareCompilerErrorMessage(e.getMessage()));
             Runtime.getRuntime().exit(1);
         } catch (BLauncherException e) {
             LauncherUtils.printLauncherException(e, outStream);
             Runtime.getRuntime().exit(1);
         } catch (Throwable e) {
-            String msg = e.getMessage();
-            if (msg == null) {
-                msg = "ballerina: internal error occurred";
-            } else {
-                msg = "ballerina: " + LauncherUtils.makeFirstLetterLowerCase(msg);
-            }
-            outStream.println(msg);
-            breLog.error(msg, e);
+            outStream.println(getMessageForInternalErrors());
+            breLog.error(e.getMessage(), e);
             Runtime.getRuntime().exit(1);
         }
     }
@@ -95,12 +93,12 @@ public class Main {
 
             // Run command
             RunCmd runCmd = new RunCmd();
-            JCommander jcRunCmd = addSubCommand(cmdParser, "run", runCmd);
+            JCommander jcRunCmd = addSubCommand(cmdParser, BallerinaCliCommands.RUN, runCmd);
             runCmd.setParentCmdParser(cmdParser);
             runCmd.setSelfCmdParser(jcRunCmd);
 
             HelpCmd helpCmd = new HelpCmd();
-            cmdParser.addCommand("help", helpCmd);
+            cmdParser.addCommand(BallerinaCliCommands.HELP, helpCmd);
             helpCmd.setParentCmdParser(cmdParser);
 
             // loading additional commands via SPI
@@ -112,11 +110,11 @@ public class Main {
 
             // Build Version Command
             VersionCmd versionCmd = new VersionCmd();
-            cmdParser.addCommand("version", versionCmd);
+            cmdParser.addCommand(BallerinaCliCommands.VERSION, versionCmd);
             versionCmd.setParentCmdParser(cmdParser);
 
             EncryptCmd encryptCmd = new EncryptCmd();
-            cmdParser.addCommand("encrypt", encryptCmd);
+            cmdParser.addCommand(BallerinaCliCommands.ENCRYPT, encryptCmd);
             encryptCmd.setParentCmdParser(cmdParser);
 
             cmdParser.setProgramName("ballerina");
@@ -156,26 +154,9 @@ public class Main {
         }
     }
 
-    private static void printUsageInfo(JCommander cmdParser) {
-        StringBuilder out = new StringBuilder();
-        out.append("Ballerina is a general purpose, concurrent and strongly typed programming language \n");
-        out.append("with both textual and graphical syntaxes, optimized for integration.\n");
-        out.append("\n");
-        out.append("* Find more information at http://ballerinalang.org\n");
-        out.append("\n");
-        out.append("Usage:\n");
-        out.append("  ballerina [command] [options]\n");
-        out.append("\n");
-
-        out.append("Available Commands:\n");
-        BLauncherCmd.printCommandList(cmdParser, out);
-
-        out.append("\n");
-        BLauncherCmd.printFlags(cmdParser.getParameters(), out);
-
-        out.append("\n");
-        out.append("Use \"ballerina help [command]\" for more information about a command.");
-        outStream.println(out.toString());
+    private static void printUsageInfo(String commandName) {
+        String usageInfo = BLauncherCmd.getCommandUsageInfo(commandName);
+        outStream.println(usageInfo);
     }
 
     private static void printVersionInfo() {
@@ -191,6 +172,20 @@ public class Main {
         }
     }
 
+    private static String getMessageForInternalErrors() {
+        String errorMsg;
+        try {
+            errorMsg = BCompileUtil.readFileAsString("cli-help/internal-error-message.txt");
+        } catch (IOException e) {
+            errorMsg = "ballerina: internal error occurred";
+        }
+        return errorMsg;
+    }
+
+    private static String prepareCompilerErrorMessage(String message) {
+        return "ballerina: " + LauncherUtils.makeFirstLetterLowerCase(message);
+    }
+
     /**
      * This class represents the "run" command and it holds arguments and flags specified by the user.
      *
@@ -199,18 +194,13 @@ public class Main {
     @Parameters(commandNames = "run", commandDescription = "compile and run Ballerina program")
     private static class RunCmd implements BLauncherCmd {
 
-        private JCommander parentCmdParser;
-
         @Parameter(arity = 1, description = "arguments")
         private List<String> argList;
-
-        @Parameter(names = {"--service", "-s"}, description = "run services instead of main")
-        private boolean runServices;
 
         @Parameter(names = {"--sourceroot"}, description = "path to the directory containing source files and packages")
         private String sourceRoot;
 
-        @Parameter(names = {"--help", "-h"}, hidden = true)
+        @Parameter(names = {"--help", "-h", "?"}, hidden = true)
         private boolean helpFlag;
 
         @Parameter(names = {"--offline"})
@@ -236,8 +226,7 @@ public class Main {
 
         public void execute() {
             if (helpFlag) {
-                String commandUsageInfo = BLauncherCmd.getCommandUsageInfo(parentCmdParser, "run");
-                outStream.println(commandUsageInfo);
+                printUsageInfo(BallerinaCliCommands.RUN);
                 return;
             }
 
@@ -253,17 +242,6 @@ public class Main {
             Path sourceRootPath = LauncherUtils.getSourceRootPath(sourceRoot);
             System.setProperty("ballerina.source.root", sourceRootPath.toString());
             VMOptions.getInstance().addOptions(vmOptions);
-
-            // Start all services, if the services flag is set.
-            if (runServices) {
-                if (argList.size() > 1) {
-                    throw LauncherUtils.createUsageException("too many arguments");
-                }
-
-                LauncherUtils.runProgram(sourceRootPath, Paths.get(argList.get(0)), true, runtimeParams,
-                        configFilePath, new String[0], offline, observeFlag);
-                return;
-            }
 
             Path sourcePath = Paths.get(argList.get(0));
             // Filter out the list of arguments given to the ballerina program.
@@ -281,7 +259,7 @@ public class Main {
 
         @Override
         public String getName() {
-            return "run";
+            return BallerinaCliCommands.RUN;
         }
 
         @Override
@@ -305,7 +283,6 @@ public class Main {
 
         @Override
         public void setParentCmdParser(JCommander parentCmdParser) {
-            this.parentCmdParser = parentCmdParser;
         }
 
         @Override
@@ -331,7 +308,7 @@ public class Main {
 
         public void execute() {
             if (helpCommands == null) {
-                printUsageInfo(parentCmdParser);
+                printUsageInfo(BallerinaCliCommands.HELP);
                 return;
 
             } else if (helpCommands.size() > 1) {
@@ -343,13 +320,13 @@ public class Main {
                 throw LauncherUtils.createUsageException("unknown help topic `" + userCommand + "`");
             }
 
-            String commandUsageInfo = BLauncherCmd.getCommandUsageInfo(parentCmdParser, userCommand);
+            String commandUsageInfo = BLauncherCmd.getCommandUsageInfo(userCommand);
             outStream.println(commandUsageInfo);
         }
 
         @Override
         public String getName() {
-            return "help";
+            return BallerinaCliCommands.HELP;
         }
 
         @Override
@@ -385,15 +362,14 @@ public class Main {
         @Parameter(names = "--java.debug", hidden = true)
         private String javaDebugPort;
 
-        @Parameter(names = {"--help", "-h"}, hidden = true)
+        @Parameter(names = {"--help", "-h", "?"}, hidden = true)
         private boolean helpFlag;
 
         private JCommander parentCmdParser;
 
         public void execute() {
             if (helpFlag) {
-                String commandUsageInfo = BLauncherCmd.getCommandUsageInfo(parentCmdParser, "version");
-                outStream.println(commandUsageInfo);
+                printUsageInfo(BallerinaCliCommands.VERSION);
                 return;
             }
 
@@ -412,7 +388,7 @@ public class Main {
 
         @Override
         public String getName() {
-            return "version";
+            return BallerinaCliCommands.VERSION;
         }
 
         @Override
@@ -448,16 +424,13 @@ public class Main {
         @Parameter(names = "--java.debug", hidden = true)
         private String javaDebugPort;
 
-        @Parameter(names = {"--help", "-h"}, hidden = true)
+        @Parameter(names = {"--help", "-h", "?"}, hidden = true)
         private boolean helpFlag;
-
-        private JCommander parentCmdParser;
 
         @Override
         public void execute() {
             if (helpFlag) {
-                String commandUsageInfo = BLauncherCmd.getCommandUsageInfo(parentCmdParser, "encrypt");
-                outStream.println(commandUsageInfo);
+                printUsageInfo(BallerinaCliCommands.ENCRYPT);
                 return;
             }
 
@@ -503,7 +476,7 @@ public class Main {
 
         @Override
         public String getName() {
-            return "encrypt";
+            return BallerinaCliCommands.ENCRYPT;
         }
 
         @Override
@@ -525,7 +498,6 @@ public class Main {
 
         @Override
         public void setParentCmdParser(JCommander parentCmdParser) {
-            this.parentCmdParser = parentCmdParser;
         }
 
         @Override
@@ -546,7 +518,7 @@ public class Main {
      */
     private static class DefaultCmd implements BLauncherCmd {
 
-        @Parameter(names = {"--help", "-h"}, description = "for more information")
+        @Parameter(names = { "--help", "-h", "?" }, hidden = true, description = "for more information")
         private boolean helpFlag;
 
         @Parameter(names = "--debug <port>", description = "start Ballerina in remote debugging mode")
@@ -555,16 +527,27 @@ public class Main {
         @Parameter(names = "--java.debug", hidden = true)
         private String javaDebugPort;
 
-        private JCommander parentCmdParser;
+        @Parameter(names = { "--version", "-v" }, hidden = true)
+        private boolean versionFlag;
 
         @Override
         public void execute() {
-            printUsageInfo(parentCmdParser);
+            if (helpFlag) {
+                printUsageInfo(BallerinaCliCommands.HELP);
+                return;
+            }
+
+            if (versionFlag) {
+                printVersionInfo();
+                return;
+            }
+
+            printUsageInfo(BallerinaCliCommands.DEFAULT);
         }
 
         @Override
         public String getName() {
-            return "default-cmd";
+            return BallerinaCliCommands.DEFAULT;
         }
 
         @Override
@@ -578,7 +561,6 @@ public class Main {
 
         @Override
         public void setParentCmdParser(JCommander parentCmdParser) {
-            this.parentCmdParser = parentCmdParser;
         }
 
         @Override
@@ -586,4 +568,3 @@ public class Main {
         }
     }
 }
-

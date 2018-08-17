@@ -21,19 +21,24 @@ import org.ballerinalang.compiler.BLangCompilerException;
 import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.model.Name;
 import org.ballerinalang.model.TreeBuilder;
+import org.ballerinalang.model.elements.DocAttachment;
+import org.ballerinalang.model.elements.DocAttachment.DocAttribute;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.symbols.SymbolKind;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.OperatorKind;
+import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.util.FunctionFlags;
 import org.ballerinalang.util.TransactionStatus;
 import org.wso2.ballerinalang.compiler.PackageCache;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAnnotationSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAttachedFunction;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BStructSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BStructSymbol.BAttachedFunction;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BRecordTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
@@ -42,18 +47,15 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.TaintRecord;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BFiniteType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BMapType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BStructType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BObjectType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 import org.wso2.ballerinalang.compiler.tree.BLangAction;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotAttribute;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotation;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
-import org.wso2.ballerinalang.compiler.tree.BLangConnector;
-import org.wso2.ballerinalang.compiler.tree.BLangDocumentation;
 import org.wso2.ballerinalang.compiler.tree.BLangEndpoint;
 import org.wso2.ballerinalang.compiler.tree.BLangEnum;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
@@ -61,13 +63,9 @@ import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
 import org.wso2.ballerinalang.compiler.tree.BLangInvokableNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
-import org.wso2.ballerinalang.compiler.tree.BLangObject;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
-import org.wso2.ballerinalang.compiler.tree.BLangRecord;
 import org.wso2.ballerinalang.compiler.tree.BLangResource;
 import org.wso2.ballerinalang.compiler.tree.BLangService;
-import org.wso2.ballerinalang.compiler.tree.BLangStruct;
-import org.wso2.ballerinalang.compiler.tree.BLangTransformer;
 import org.wso2.ballerinalang.compiler.tree.BLangTypeDefinition;
 import org.wso2.ballerinalang.compiler.tree.BLangVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangWorker;
@@ -81,22 +79,21 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrayLiteral.BLangJ
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangAwaitExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBracedOrTupleExpr;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangDocumentationAttribute;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangElvisExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess.BLangEnumeratorAccessExpr;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess.BLangStructFieldAccessExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess.BLangStructFunctionVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess.BLangArrayAccessExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess.BLangJSONAccessExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess.BLangMapAccessExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess.BLangStructFieldAccessExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess.BLangTupleAccessExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess.BLangXMLAccessExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIntRangeExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation.BFunctionPointerInvocation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation.BLangActionInvocation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation.BLangAttachedFunctionInvocation;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation.BLangTransformerInvocation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIsAssignableExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLambdaFunction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
@@ -135,6 +132,8 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangAssignment;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBreak;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangCatch;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangCompensate;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangContinue;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangDone;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangExpressionStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangForeach;
@@ -143,9 +142,9 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangForkJoin;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangIf;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangLock;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangNext;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangRetry;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangReturn;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangScope;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangStatement;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangThrow;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangTransaction;
@@ -155,11 +154,17 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangWhile;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangWorkerReceive;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangWorkerSend;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangXMLNSStatement;
+import org.wso2.ballerinalang.compiler.tree.types.BLangFiniteTypeNode;
+import org.wso2.ballerinalang.compiler.tree.types.BLangObjectTypeNode;
+import org.wso2.ballerinalang.compiler.tree.types.BLangRecordTypeNode;
+import org.wso2.ballerinalang.compiler.util.BArrayState;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.CompilerUtils;
 import org.wso2.ballerinalang.compiler.util.FieldKind;
+import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
+import org.wso2.ballerinalang.programfile.AnnotationInfo;
 import org.wso2.ballerinalang.programfile.AttachedFunctionInfo;
 import org.wso2.ballerinalang.programfile.CallableUnitInfo;
 import org.wso2.ballerinalang.programfile.CompiledBinaryFile;
@@ -167,6 +172,7 @@ import org.wso2.ballerinalang.programfile.CompiledBinaryFile.PackageFile;
 import org.wso2.ballerinalang.programfile.CompiledBinaryFile.ProgramFile;
 import org.wso2.ballerinalang.programfile.DefaultValue;
 import org.wso2.ballerinalang.programfile.ErrorTableEntry;
+import org.wso2.ballerinalang.programfile.FiniteTypeInfo;
 import org.wso2.ballerinalang.programfile.ForkjoinInfo;
 import org.wso2.ballerinalang.programfile.FunctionInfo;
 import org.wso2.ballerinalang.programfile.ImportPackageInfo;
@@ -175,17 +181,18 @@ import org.wso2.ballerinalang.programfile.Instruction.Operand;
 import org.wso2.ballerinalang.programfile.Instruction.RegIndex;
 import org.wso2.ballerinalang.programfile.InstructionCodes;
 import org.wso2.ballerinalang.programfile.InstructionFactory;
+import org.wso2.ballerinalang.programfile.LabelTypeInfo;
 import org.wso2.ballerinalang.programfile.LineNumberInfo;
 import org.wso2.ballerinalang.programfile.LocalVariableInfo;
+import org.wso2.ballerinalang.programfile.ObjectTypeInfo;
 import org.wso2.ballerinalang.programfile.PackageInfo;
 import org.wso2.ballerinalang.programfile.PackageInfoWriter;
 import org.wso2.ballerinalang.programfile.PackageVarInfo;
+import org.wso2.ballerinalang.programfile.RecordTypeInfo;
 import org.wso2.ballerinalang.programfile.ResourceInfo;
 import org.wso2.ballerinalang.programfile.ServiceInfo;
 import org.wso2.ballerinalang.programfile.StructFieldInfo;
-import org.wso2.ballerinalang.programfile.StructInfo;
-import org.wso2.ballerinalang.programfile.TransformerInfo;
-import org.wso2.ballerinalang.programfile.TypeDefinitionInfo;
+import org.wso2.ballerinalang.programfile.TypeDefInfo;
 import org.wso2.ballerinalang.programfile.ValueSpaceItemInfo;
 import org.wso2.ballerinalang.programfile.WorkerDataChannelInfo;
 import org.wso2.ballerinalang.programfile.WorkerInfo;
@@ -202,6 +209,8 @@ import org.wso2.ballerinalang.programfile.attributes.ParamDefaultValueAttributeI
 import org.wso2.ballerinalang.programfile.attributes.ParameterAttributeInfo;
 import org.wso2.ballerinalang.programfile.attributes.TaintTableAttributeInfo;
 import org.wso2.ballerinalang.programfile.attributes.VarTypeCountAttributeInfo;
+import org.wso2.ballerinalang.programfile.cpentries.BlobCPEntry;
+import org.wso2.ballerinalang.programfile.cpentries.ByteCPEntry;
 import org.wso2.ballerinalang.programfile.cpentries.ConstantPool;
 import org.wso2.ballerinalang.programfile.cpentries.FloatCPEntry;
 import org.wso2.ballerinalang.programfile.cpentries.ForkJoinCPEntry;
@@ -210,7 +219,6 @@ import org.wso2.ballerinalang.programfile.cpentries.IntegerCPEntry;
 import org.wso2.ballerinalang.programfile.cpentries.PackageRefCPEntry;
 import org.wso2.ballerinalang.programfile.cpentries.StringCPEntry;
 import org.wso2.ballerinalang.programfile.cpentries.StructureRefCPEntry;
-import org.wso2.ballerinalang.programfile.cpentries.TransformerRefCPEntry;
 import org.wso2.ballerinalang.programfile.cpentries.TypeRefCPEntry;
 import org.wso2.ballerinalang.programfile.cpentries.UTF8CPEntry;
 import org.wso2.ballerinalang.programfile.cpentries.WorkerDataChannelRefCPEntry;
@@ -218,7 +226,7 @@ import org.wso2.ballerinalang.programfile.cpentries.WorkerDataChannelRefCPEntry;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Iterator;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -231,8 +239,9 @@ import static org.wso2.ballerinalang.compiler.codegen.CodeGenerator.VariableInde
 import static org.wso2.ballerinalang.compiler.codegen.CodeGenerator.VariableIndex.Kind.LOCAL;
 import static org.wso2.ballerinalang.compiler.codegen.CodeGenerator.VariableIndex.Kind.PACKAGE;
 import static org.wso2.ballerinalang.compiler.codegen.CodeGenerator.VariableIndex.Kind.REG;
-import static org.wso2.ballerinalang.programfile.ProgramFileConstants.BLOB_OFFSET;
+import static org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef.BLangTypeLoad;
 import static org.wso2.ballerinalang.programfile.ProgramFileConstants.BOOL_OFFSET;
+import static org.wso2.ballerinalang.programfile.ProgramFileConstants.BYTE_NEGATIVE_OFFSET;
 import static org.wso2.ballerinalang.programfile.ProgramFileConstants.FLOAT_OFFSET;
 import static org.wso2.ballerinalang.programfile.ProgramFileConstants.INT_OFFSET;
 import static org.wso2.ballerinalang.programfile.ProgramFileConstants.REF_OFFSET;
@@ -275,6 +284,11 @@ public class CodeGenerator extends BLangNodeVisitor {
 
     private List<RegIndex> regIndexList = new ArrayList<>();
 
+    /**
+     * This structure holds child scopes of a given scope.
+     */
+    private Map<String, Stack<String>> childScopesMap = new HashMap<>();
+
     private SymbolEnv env;
     // TODO Remove this dependency from the code generator
     private final SymbolTable symTable;
@@ -304,6 +318,8 @@ public class CodeGenerator extends BLangNodeVisitor {
     private Stack<Instruction> loopExitInstructionStack = new Stack<>();
     private Stack<Instruction> abortInstructions = new Stack<>();
     private Stack<Instruction> failInstructions = new Stack<>();
+    private Stack<Integer> tryCatchErrorRangeFromIPStack = new Stack<>();
+    private Stack<Integer> tryCatchErrorRangeToIPStack = new Stack<>();
 
     private int workerChannelCount = 0;
     private int forkJoinCount = 0;
@@ -325,10 +341,6 @@ public class CodeGenerator extends BLangNodeVisitor {
 
     public ProgramFile generateBALX(BLangPackage pkgNode) {
         ProgramFile programFile = new ProgramFile();
-
-        // TODO: Fix this. Added temporally for codegen. Load this from VM side.
-        programFile.packageFileMap.put(this.symTable.builtInPackageSymbol.pkgID.bvmAlias(),
-                this.symTable.builtInPackageSymbol.packageFile);
 
         // Add all the packages to the program file structure.
         addPackageInfo(pkgNode.symbol, programFile);
@@ -385,16 +397,19 @@ public class CodeGenerator extends BLangNodeVisitor {
         }
 
         pkgNode.imports.forEach(impPkgNode -> {
-            int impPkgNameCPIndex = addUTF8CPEntry(this.currentPkgInfo, impPkgNode.symbol.pkgID.bvmAlias());
+            int impPkgOrgNameCPIndex = addUTF8CPEntry(this.currentPkgInfo, impPkgNode.symbol.pkgID.orgName.value);
+            int impPkgNameCPIndex = addUTF8CPEntry(this.currentPkgInfo, impPkgNode.symbol.pkgID.name.value);
             int impPkgVersionCPIndex = addUTF8CPEntry(this.currentPkgInfo, impPkgNode.symbol.pkgID.version.value);
-            ImportPackageInfo importPkgInfo = new ImportPackageInfo(impPkgNameCPIndex, impPkgVersionCPIndex);
+            ImportPackageInfo importPkgInfo =
+                    new ImportPackageInfo(impPkgOrgNameCPIndex, impPkgNameCPIndex, impPkgVersionCPIndex);
             this.currentPkgInfo.importPkgInfoSet.add(importPkgInfo);
         });
 
         // Add the current package to the program file
         BPackageSymbol pkgSymbol = pkgNode.symbol;
         currentPkgID = pkgSymbol.pkgID;
-        currentPkgInfo.nameCPIndex = addUTF8CPEntry(currentPkgInfo, currentPkgID.bvmAlias());
+        currentPkgInfo.orgNameCPIndex = addUTF8CPEntry(currentPkgInfo, currentPkgID.orgName.value);
+        currentPkgInfo.nameCPIndex = addUTF8CPEntry(currentPkgInfo, currentPkgID.name.value);
         currentPkgInfo.versionCPIndex = addUTF8CPEntry(currentPkgInfo, currentPkgID.version.value);
 
         // Insert the package reference to the constant pool of the current package
@@ -412,8 +427,8 @@ public class CodeGenerator extends BLangNodeVisitor {
                 new LocalVariableAttributeInfo(pkgVarAttrNameIndex));
 
         pkgNode.globalVars.forEach(this::createPackageVarInfo);
-        pkgNode.structs.forEach(this::createStructInfoEntry);
         pkgNode.typeDefinitions.forEach(this::createTypeDefinitionInfoEntry);
+        pkgNode.annotations.forEach(this::createAnnotationInfoEntry);
         pkgNode.functions.forEach(this::createFunctionInfoEntry);
         pkgNode.services.forEach(this::createServiceInfoEntry);
         pkgNode.functions.forEach(this::createFunctionInfoEntry);
@@ -500,6 +515,8 @@ public class CodeGenerator extends BLangNodeVisitor {
         if ((ownerSymTag & SymTag.INVOKABLE) == SymTag.INVOKABLE) {
             varSymbol.varIndex = getLVIndex(varSymbol.type.tag);
             LocalVariableInfo localVarInfo = getLocalVarAttributeInfo(varSymbol);
+            setVariableScopeStart(localVarInfo, varNode);
+            setVariableScopeEnd(localVarInfo, varNode);
             localVarAttrInfo.localVars.add(localVarInfo);
         } else {
             // TODO Support other variable nodes
@@ -511,13 +528,6 @@ public class CodeGenerator extends BLangNodeVisitor {
             rhsExpr.regIndex = varSymbol.varIndex;
             genNode(rhsExpr, this.env);
         }
-    }
-
-    public void visit(BLangTransformer transformerNode) {
-        SymbolEnv transformerEnv =
-                SymbolEnv.createTransformerEnv(transformerNode, transformerNode.symbol.scope, this.env);
-        currentCallableUnitInfo = currentPkgInfo.transformerInfoMap.get(transformerNode.symbol.name.value);
-        visitInvokableNode(transformerNode, currentCallableUnitInfo, transformerEnv);
     }
 
     // Statements
@@ -545,14 +555,14 @@ public class CodeGenerator extends BLangNodeVisitor {
         switch (typeTag) {
             case TypeTags.INT:
                 return InstructionCodes.IRET;
+            case TypeTags.BYTE:
+                return InstructionCodes.BRET;
             case TypeTags.FLOAT:
                 return InstructionCodes.FRET;
             case TypeTags.STRING:
                 return InstructionCodes.SRET;
             case TypeTags.BOOLEAN:
                 return InstructionCodes.BRET;
-            case TypeTags.BLOB:
-                return InstructionCodes.LRET;
             default:
                 return InstructionCodes.RRET;
         }
@@ -577,6 +587,12 @@ public class CodeGenerator extends BLangNodeVisitor {
                     int intCPEntryIndex = currentPkgInfo.addCPEntry(new IntegerCPEntry(longVal));
                     emit(InstructionCodes.ICONST, getOperand(intCPEntryIndex), regIndex);
                 }
+                break;
+
+            case TypeTags.BYTE:
+                byte byteVal = (Byte) literalExpr.value;
+                int byteCPEntryIndex = currentPkgInfo.addCPEntry(new ByteCPEntry(byteVal));
+                emit(InstructionCodes.BICONST, getOperand(byteCPEntryIndex), regIndex);
                 break;
 
             case TypeTags.FLOAT:
@@ -607,6 +623,15 @@ public class CodeGenerator extends BLangNodeVisitor {
                 }
                 emit(opcode, regIndex);
                 break;
+
+            case TypeTags.ARRAY:
+                if (TypeTags.BYTE == ((BArrayType) literalExpr.type).eType.tag) {
+                    BlobCPEntry blobCPEntry = new BlobCPEntry((byte[]) literalExpr.value);
+                    int blobCPIndex = currentPkgInfo.addCPEntry(blobCPEntry);
+                    emit(InstructionCodes.BACONST, getOperand(blobCPIndex), regIndex);
+                }
+                break;
+
             case TypeTags.NIL:
                 emit(InstructionCodes.RCONST_NULL, regIndex);
         }
@@ -622,10 +647,16 @@ public class CodeGenerator extends BLangNodeVisitor {
         }
 
         // Emit create array instruction
-        int opcode = getOpcode(etype.tag, InstructionCodes.INEWARRAY);
+        int opcode = getOpcodeForArrayOperations(etype.tag, InstructionCodes.INEWARRAY);
         Operand arrayVarRegIndex = calcAndGetExprRegIndex(arrayLiteral);
         Operand typeCPIndex = getTypeCPIndex(arrayLiteral.type);
-        emit(opcode, arrayVarRegIndex, typeCPIndex);
+
+        long size = arrayLiteral.type.tag == TypeTags.ARRAY &&
+                ((BArrayType) arrayLiteral.type).state != BArrayState.UNSEALED ?
+                (long) ((BArrayType) arrayLiteral.type).size : -1L;
+        BLangLiteral arraySizeLiteral = generateIntegerLiteralNode(arrayLiteral, size);
+
+        emit(opcode, arrayVarRegIndex, typeCPIndex, arraySizeLiteral.regIndex);
 
         // Emit instructions populate initial array values;
         for (int i = 0; i < arrayLiteral.exprs.size(); i++) {
@@ -638,25 +669,27 @@ public class CodeGenerator extends BLangNodeVisitor {
             indexLiteral.type = symTable.intType;
             genNode(indexLiteral, this.env);
 
-            opcode = getOpcode(argExpr.type.tag, InstructionCodes.IASTORE);
+            opcode = getOpcodeForArrayOperations(argExpr.type.tag, InstructionCodes.IASTORE);
             emit(opcode, arrayVarRegIndex, indexLiteral.regIndex, argExpr.regIndex);
         }
     }
 
     @Override
     public void visit(BLangJSONArrayLiteral arrayLiteral) {
-        arrayLiteral.regIndex = calcAndGetExprRegIndex(arrayLiteral);
-        List<BLangExpression> argExprs = arrayLiteral.exprs;
+        // Emit create array instruction
+        int opcode = getOpcodeForArrayOperations(arrayLiteral.type.tag, InstructionCodes.INEWARRAY);
+        Operand arrayVarRegIndex = calcAndGetExprRegIndex(arrayLiteral);
+        Operand typeCPIndex = getTypeCPIndex(arrayLiteral.type);
 
-        BLangLiteral arraySizeLiteral = new BLangLiteral();
-        arraySizeLiteral.pos = arrayLiteral.pos;
-        arraySizeLiteral.value = (long) argExprs.size();
-        arraySizeLiteral.type = symTable.intType;
-        genNode(arraySizeLiteral, this.env);
-        emit(InstructionCodes.JSONNEWARRAY, arrayLiteral.regIndex, arraySizeLiteral.regIndex);
+        long size = arrayLiteral.type.tag == TypeTags.ARRAY &&
+                ((BArrayType) arrayLiteral.type).state != BArrayState.UNSEALED ?
+                (long) ((BArrayType) arrayLiteral.type).size : -1L;
+        BLangLiteral arraySizeLiteral = generateIntegerLiteralNode(arrayLiteral, size);
 
-        for (int i = 0; i < argExprs.size(); i++) {
-            BLangExpression argExpr = argExprs.get(i);
+        emit(opcode, arrayVarRegIndex, typeCPIndex, arraySizeLiteral.regIndex);
+
+        for (int i = 0; i < arrayLiteral.exprs.size(); i++) {
+            BLangExpression argExpr = arrayLiteral.exprs.get(i);
             genNode(argExpr, this.env);
 
             BLangLiteral indexLiteral = new BLangLiteral();
@@ -672,7 +705,7 @@ public class CodeGenerator extends BLangNodeVisitor {
     public void visit(BLangJSONLiteral jsonLiteral) {
         jsonLiteral.regIndex = calcAndGetExprRegIndex(jsonLiteral);
         Operand typeCPIndex = getTypeCPIndex(jsonLiteral.type);
-        emit(InstructionCodes.NEWJSON, jsonLiteral.regIndex, typeCPIndex);
+        emit(InstructionCodes.NEWMAP, jsonLiteral.regIndex, typeCPIndex);
 
         for (BLangRecordKeyValue keyValue : jsonLiteral.keyValuePairs) {
             BLangExpression keyExpr = keyValue.key.expr;
@@ -714,13 +747,13 @@ public class CodeGenerator extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangStructLiteral structLiteral) {
-        BStructSymbol structSymbol = (BStructSymbol) structLiteral.type.tsymbol;
+        BRecordTypeSymbol structSymbol = (BRecordTypeSymbol) structLiteral.type.tsymbol;
         int pkgCPIndex = addPackageRefCPEntry(currentPkgInfo, structSymbol.pkgID);
         int structNameCPIndex = addUTF8CPEntry(currentPkgInfo, structSymbol.name.value);
         StructureRefCPEntry structureRefCPEntry = new StructureRefCPEntry(pkgCPIndex, structNameCPIndex);
         Operand structCPIndex = getOperand(currentPkgInfo.addCPEntry(structureRefCPEntry));
 
-        //Emit an instruction to create a new struct.
+        // Emit an instruction to create a new record.
         RegIndex structRegIndex = calcAndGetExprRegIndex(structLiteral);
         emit(InstructionCodes.NEWSTRUCT, structCPIndex, structRegIndex);
 
@@ -753,23 +786,32 @@ public class CodeGenerator extends BLangNodeVisitor {
         // Generate code the struct literal.
         for (BLangRecordKeyValue keyValue : structLiteral.keyValuePairs) {
             BLangRecordKey key = keyValue.key;
-            Operand fieldIndex = key.fieldSymbol.varIndex;
+            genNode(key.expr, this.env);
 
             genNode(keyValue.valueExpr, this.env);
-
-            int opcode = getOpcode(key.fieldSymbol.type.tag, InstructionCodes.IFIELDSTORE);
-            emit(opcode, structRegIndex, fieldIndex, keyValue.valueExpr.regIndex);
+            storeStructField(keyValue.valueExpr, structRegIndex, key.expr.regIndex);
         }
     }
 
     @Override
     public void visit(BLangTableLiteral tableLiteral) {
-        genNode(tableLiteral.configurationExpr, this.env);
-        Operand varRefRegIndex = tableLiteral.configurationExpr.regIndex;
-
         tableLiteral.regIndex = calcAndGetExprRegIndex(tableLiteral);
         Operand typeCPIndex = getTypeCPIndex(tableLiteral.type);
-        emit(InstructionCodes.NEWTABLE, tableLiteral.regIndex, typeCPIndex, varRefRegIndex);
+        ArrayList<BLangExpression> dataRows = new ArrayList<>();
+        for (int i = 0; i < tableLiteral.tableDataRows.size(); i++) {
+            BLangExpression dataRowExpr = tableLiteral.tableDataRows.get(i);
+            genNode(dataRowExpr, this.env);
+            dataRows.add(dataRowExpr);
+        }
+        BLangArrayLiteral arrayLiteral = (BLangArrayLiteral) TreeBuilder.createArrayLiteralNode();
+        arrayLiteral.exprs = dataRows;
+        arrayLiteral.type = new BArrayType(symTable.anyType);
+        genNode(arrayLiteral, this.env);
+        genNode(tableLiteral.indexColumnsArrayLiteral, this.env);
+        genNode(tableLiteral.keyColumnsArrayLiteral, this.env);
+        emit(InstructionCodes.NEWTABLE, tableLiteral.regIndex, typeCPIndex,
+                tableLiteral.indexColumnsArrayLiteral.regIndex, tableLiteral.keyColumnsArrayLiteral.regIndex,
+                arrayLiteral.regIndex);
     }
 
     @Override
@@ -795,20 +837,18 @@ public class CodeGenerator extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangFieldVarRef fieldVarRef) {
-        RegIndex fieldIndex = fieldVarRef.varSymbol.varIndex;
+        String fieldName = fieldVarRef.varSymbol.name.value;
+        RegIndex fieldNameRegIndex = createStringLiteral(fieldName, null, env);
 
         // This is a connector field.
         // the connector reference must be stored in the current reference register index.
         Operand varRegIndex = getOperand(0);
         if (varAssignment) {
-            int opcode = getOpcode(fieldVarRef.type.tag, InstructionCodes.IFIELDSTORE);
-            emit(opcode, varRegIndex, fieldIndex, fieldVarRef.regIndex);
+            storeStructField(fieldVarRef, varRegIndex, fieldNameRegIndex);
             return;
         }
 
-        int opcode = getOpcode(fieldVarRef.type.tag, InstructionCodes.IFIELDLOAD);
-        RegIndex exprRegIndex = calcAndGetExprRegIndex(fieldVarRef);
-        emit(opcode, varRegIndex, fieldIndex, exprRegIndex);
+        loadStructField(fieldVarRef, varRegIndex, fieldNameRegIndex);
     }
 
     @Override
@@ -839,7 +879,7 @@ public class CodeGenerator extends BLangNodeVisitor {
     }
 
     @Override
-    public void visit(BLangSimpleVarRef.BLangTypeLoad typeLoad) {
+    public void visit(BLangTypeLoad typeLoad) {
         Operand typeCPIndex = getTypeCPIndex(typeLoad.symbol.type);
         emit(InstructionCodes.TYPELOAD, typeCPIndex, calcAndGetExprRegIndex(typeLoad));
     }
@@ -852,14 +892,13 @@ public class CodeGenerator extends BLangNodeVisitor {
         genNode(fieldAccessExpr.expr, this.env);
         Operand varRefRegIndex = fieldAccessExpr.expr.regIndex;
 
-        int opcode;
-        Operand fieldIndex = fieldAccessExpr.varSymbol.varIndex;
+        genNode(fieldAccessExpr.indexExpr, this.env);
+        Operand keyRegIndex = fieldAccessExpr.indexExpr.regIndex;
+
         if (variableStore) {
-            opcode = getOpcode(fieldAccessExpr.symbol.type.tag, InstructionCodes.IFIELDSTORE);
-            emit(opcode, varRefRegIndex, fieldIndex, fieldAccessExpr.regIndex);
+            storeStructField(fieldAccessExpr, varRefRegIndex, keyRegIndex);
         } else {
-            opcode = getOpcode(fieldAccessExpr.symbol.type.tag, InstructionCodes.IFIELDLOAD);
-            emit(opcode, varRefRegIndex, fieldIndex, calcAndGetExprRegIndex(fieldAccessExpr));
+            loadStructField(fieldAccessExpr, varRefRegIndex, keyRegIndex);
         }
 
         this.varAssignment = variableStore;
@@ -884,7 +923,7 @@ public class CodeGenerator extends BLangNodeVisitor {
         BMapType mapType = (BMapType) mapKeyAccessExpr.expr.type;
         if (variableStore) {
             int opcode = getValueToRefTypeCastOpcode(mapType.constraint.tag);
-            if (opcode == InstructionCodes.NOP) {
+            if (opcode == InstructionCodes.NOP || !mapKeyAccessExpr.except) {
                 emit(InstructionCodes.MAPSTORE, varRefRegIndex, keyRegIndex, mapKeyAccessExpr.regIndex);
             } else {
                 RegIndex refRegMapValue = getRegIndex(TypeTags.ANY);
@@ -895,13 +934,48 @@ public class CodeGenerator extends BLangNodeVisitor {
             IntegerCPEntry exceptCPEntry = new IntegerCPEntry(mapKeyAccessExpr.except ? 1 : 0);
             Operand except = getOperand(currentPkgInfo.addCPEntry(exceptCPEntry));
             int opcode = getRefToValueTypeCastOpcode(mapType.constraint.tag);
-            if (opcode == InstructionCodes.NOP) {
+            if (opcode == InstructionCodes.NOP || !mapKeyAccessExpr.except) {
                 emit(InstructionCodes.MAPLOAD, varRefRegIndex, keyRegIndex, calcAndGetExprRegIndex(mapKeyAccessExpr),
                         except);
             } else {
                 RegIndex refRegMapValue = getRegIndex(TypeTags.ANY);
                 emit(InstructionCodes.MAPLOAD, varRefRegIndex, keyRegIndex, refRegMapValue, except);
                 emit(opcode, refRegMapValue, calcAndGetExprRegIndex(mapKeyAccessExpr));
+            }
+        }
+
+        this.varAssignment = variableStore;
+    }
+
+    @Override
+    public void visit(BLangTupleAccessExpr tupleIndexAccessExpr) {
+        boolean variableStore = this.varAssignment;
+        this.varAssignment = false;
+
+        genNode(tupleIndexAccessExpr.expr, this.env);
+        Operand varRefRegIndex = tupleIndexAccessExpr.expr.regIndex;
+
+        genNode(tupleIndexAccessExpr.indexExpr, this.env);
+        Operand indexRegIndex = tupleIndexAccessExpr.indexExpr.regIndex;
+
+        if (variableStore) {
+            int opcode = getValueToRefTypeCastOpcode(tupleIndexAccessExpr.type.tag);
+            if (opcode == InstructionCodes.NOP) {
+                emit(InstructionCodes.RASTORE, varRefRegIndex, indexRegIndex, tupleIndexAccessExpr.regIndex);
+            } else {
+                RegIndex refRegTupleValue = getRegIndex(TypeTags.ANY);
+                emit(opcode, tupleIndexAccessExpr.regIndex, refRegTupleValue);
+                emit(InstructionCodes.RASTORE, varRefRegIndex, indexRegIndex, refRegTupleValue);
+            }
+        } else {
+            int opcode = getRefToValueTypeCastOpcode(tupleIndexAccessExpr.type.tag);
+            if (opcode == InstructionCodes.NOP) {
+                emit(InstructionCodes.RALOAD,
+                        varRefRegIndex, indexRegIndex, calcAndGetExprRegIndex(tupleIndexAccessExpr));
+            } else {
+                RegIndex refRegTupleValue = getRegIndex(TypeTags.ANY);
+                emit(InstructionCodes.RALOAD, varRefRegIndex, indexRegIndex, refRegTupleValue);
+                emit(opcode, refRegTupleValue, calcAndGetExprRegIndex(tupleIndexAccessExpr));
             }
         }
 
@@ -972,10 +1046,10 @@ public class CodeGenerator extends BLangNodeVisitor {
 
         BArrayType arrayType = (BArrayType) arrayIndexAccessExpr.expr.type;
         if (variableStore) {
-            int opcode = getOpcode(arrayType.eType.tag, InstructionCodes.IASTORE);
+            int opcode = getOpcodeForArrayOperations(arrayType.eType.tag, InstructionCodes.IASTORE);
             emit(opcode, varRefRegIndex, indexRegIndex, arrayIndexAccessExpr.regIndex);
         } else {
-            int opcode = getOpcode(arrayType.eType.tag, InstructionCodes.IALOAD);
+            int opcode = getOpcodeForArrayOperations(arrayType.eType.tag, InstructionCodes.IALOAD);
             emit(opcode, varRefRegIndex, indexRegIndex, calcAndGetExprRegIndex(arrayIndexAccessExpr));
         }
 
@@ -1004,7 +1078,18 @@ public class CodeGenerator extends BLangNodeVisitor {
             genNode(binaryExpr.lhsExpr, this.env);
             genNode(binaryExpr.rhsExpr, this.env);
             RegIndex regIndex = calcAndGetExprRegIndex(binaryExpr);
-            emit(binaryExpr.opSymbol.opcode, binaryExpr.lhsExpr.regIndex, binaryExpr.rhsExpr.regIndex, regIndex);
+            int opCode = binaryExpr.opSymbol.opcode;
+            if (opCode == InstructionCodes.INT_RANGE) {
+                if (binaryExpr.parent instanceof BLangForeach) {
+                    // Avoid creating an array if the range is only used in a foreach statement
+                    emit(InstructionCodes.NEW_INT_RANGE, binaryExpr.lhsExpr.regIndex, binaryExpr.rhsExpr.regIndex,
+                         regIndex);
+                } else {
+                    emit(opCode, binaryExpr.lhsExpr.regIndex, binaryExpr.rhsExpr.regIndex, regIndex);
+                }
+            } else {
+                emit(opCode, binaryExpr.lhsExpr.regIndex, binaryExpr.rhsExpr.regIndex, regIndex);
+            }
         }
     }
 
@@ -1024,7 +1109,10 @@ public class CodeGenerator extends BLangNodeVisitor {
         // Emit create array instruction
         RegIndex exprRegIndex = calcAndGetExprRegIndex(bracedOrTupleExpr);
         Operand typeCPIndex = getTypeCPIndex(bracedOrTupleExpr.type);
-        emit(InstructionCodes.RNEWARRAY, exprRegIndex, typeCPIndex);
+        BLangLiteral sizeLiteral =
+                generateIntegerLiteralNode(bracedOrTupleExpr, (long) bracedOrTupleExpr.expressions.size());
+
+        emit(InstructionCodes.RNEWARRAY, exprRegIndex, typeCPIndex, sizeLiteral.regIndex);
 
         // Emit instructions populate initial array values;
         for (int i = 0; i < bracedOrTupleExpr.expressions.size(); i++) {
@@ -1134,7 +1222,7 @@ public class CodeGenerator extends BLangNodeVisitor {
 
     public void visit(BLangAttachedFunctionInvocation iExpr) {
         Operand[] operands = getFuncOperands(iExpr);
-        if (iExpr.expr.type.tag == TypeTags.STRUCT) {
+        if (iExpr.expr.type.tag == TypeTags.OBJECT) {
             Operand[] vCallOperands = new Operand[operands.length + 1];
             vCallOperands[0] = iExpr.expr.regIndex;
             System.arraycopy(operands, 0, vCallOperands, 1, operands.length);
@@ -1142,18 +1230,6 @@ public class CodeGenerator extends BLangNodeVisitor {
         } else {
             emit(InstructionCodes.CALL, operands);
         }
-    }
-
-    public void visit(BLangTransformerInvocation iExpr) {
-        BInvokableSymbol transformerSymbol = (BInvokableSymbol) iExpr.symbol;
-        int pkgRefCPIndex = addPackageRefCPEntry(currentPkgInfo, transformerSymbol.pkgID);
-        int transformerNameCPIndex = addUTF8CPEntry(currentPkgInfo, transformerSymbol.name.value);
-        TransformerRefCPEntry transformerRefCPEntry = new TransformerRefCPEntry(pkgRefCPIndex, transformerNameCPIndex);
-
-        int transformerRefCPIndex = currentPkgInfo.addCPEntry(transformerRefCPEntry);
-        Operand[] operands = getFuncOperands(iExpr, transformerRefCPIndex);
-
-        emit(InstructionCodes.TCALL, operands);
     }
 
     public void visit(BFunctionPointerInvocation iExpr) {
@@ -1182,11 +1258,11 @@ public class CodeGenerator extends BLangNodeVisitor {
                 opcode == InstructionCodes.ANY2T ||
                 opcode == InstructionCodes.ANY2C ||
                 opcode == InstructionCodes.ANY2E ||
-                opcode == InstructionCodes.ANY2M ||
                 opcode == InstructionCodes.T2JSON ||
                 opcode == InstructionCodes.MAP2JSON ||
                 opcode == InstructionCodes.JSON2MAP ||
                 opcode == InstructionCodes.JSON2ARRAY ||
+                opcode == InstructionCodes.O2JSON ||
                 opcode == InstructionCodes.CHECKCAST) {
             Operand typeCPIndex = getTypeCPIndex(convExpr.targetType);
             emit(opcode, convExpr.expr.regIndex, typeCPIndex, convExprRegIndex);
@@ -1277,6 +1353,65 @@ public class CodeGenerator extends BLangNodeVisitor {
                 bLangStatementExpression.expr.regIndex, bLangStatementExpression.regIndex);
     }
 
+    public void visit(BLangScope scopeNode) {
+        // add the child nodes to the map
+        childScopesMap.put(scopeNode.name.getValue(), scopeNode.childScopes);
+        visit(scopeNode.scopeBody);
+
+        // generating scope end instruction
+        int pkgRefCPIndex = addPackageRefCPEntry(currentPkgInfo, currentPkgID);
+        int funcNameCPIndex = addUTF8CPEntry(currentPkgInfo, Names.GEN_VAR_PREFIX + scopeNode.name.getValue());
+        FunctionRefCPEntry funcRefCPEntry = new FunctionRefCPEntry(pkgRefCPIndex, funcNameCPIndex);
+        int funcRefCPIndex =  currentPkgInfo.addCPEntry(funcRefCPEntry);
+        int i = 0;
+        //functionRefCP, scopenameUTF8CP, nChild, children
+        Operand[] operands = new Operand[3 + scopeNode.childScopes.size()];
+        operands[i++] = getOperand(funcRefCPIndex);
+        int scopeNameCPIndex = addUTF8CPEntry(currentPkgInfo, scopeNode.getScopeName().getValue());
+        operands[i++] = getOperand(scopeNameCPIndex);
+
+        operands[i++] = getOperand(scopeNode.childScopes.size());
+
+        for (String child : scopeNode.childScopes) {
+            int childScopeNameIndex = addUTF8CPEntry(currentPkgInfo, child);
+            operands[i++] = getOperand(childScopeNameIndex);
+        }
+
+        Operand typeCPIndex = getTypeCPIndex(scopeNode.compensationFunction.function.symbol.type);
+        RegIndex nextIndex = calcAndGetExprRegIndex(scopeNode.compensationFunction);
+        Operand[] closureOperands = calcClosureOperands(scopeNode.compensationFunction.function, funcRefCPIndex,
+                nextIndex, typeCPIndex);
+
+        Operand[] finalOperands = new Operand[operands.length + closureOperands.length];
+        System.arraycopy(operands, 0, finalOperands, 0, operands.length);
+        System.arraycopy(closureOperands, 0, finalOperands, operands.length, closureOperands.length);
+
+        emit(InstructionCodes.SCOPE_END, finalOperands);
+    }
+
+    public void visit(BLangCompensate compensate) {
+        Operand jumpAddr = getOperand(nextIP());
+        //Add child function refs
+        Stack children = childScopesMap.get(compensate.scopeName.getValue());
+
+        int i = 0;
+        //scopeName, child count, children
+        Operand[] operands = new Operand[2 + children.size()];
+
+        int scopeNameCPIndex = addUTF8CPEntry(currentPkgInfo, compensate.invocation.name.value);
+        operands[i++] = getOperand(scopeNameCPIndex);
+
+        operands[i++] = getOperand(children.size());
+        while (children != null && !children.isEmpty()) {
+            String childName = (String) children.pop();
+            int childNameCP = currentPkgInfo.addCPEntry(new UTF8CPEntry(childName));
+            operands[i++] = getOperand(childNameCP);
+        }
+
+        emit(InstructionCodes.COMPENSATE, operands);
+        emit(InstructionCodes.LOOP_COMPENSATE, jumpAddr);
+    }
+
     // private methods
 
     private <T extends BLangNode, U extends SymbolEnv> T genNode(T t, U u) {
@@ -1301,11 +1436,23 @@ public class CodeGenerator extends BLangNodeVisitor {
         return "(" + generateSig(paramTypes) + ")()";
     }
 
+    private BLangLiteral generateIntegerLiteralNode(BLangNode node, long integer) {
+        BLangLiteral literal = new BLangLiteral();
+        literal.pos = node.pos;
+        literal.value = integer;
+        literal.type = symTable.intType;
+        genNode(literal, this.env);
+        return literal;
+    }
+
     private int getNextIndex(int typeTag, VariableIndex indexes) {
         int index;
         switch (typeTag) {
             case TypeTags.INT:
                 index = ++indexes.tInt;
+                break;
+            case TypeTags.BYTE:
+                index = ++indexes.tBoolean;
                 break;
             case TypeTags.FLOAT:
                 index = ++indexes.tFloat;
@@ -1315,9 +1462,6 @@ public class CodeGenerator extends BLangNodeVisitor {
                 break;
             case TypeTags.BOOLEAN:
                 index = ++indexes.tBoolean;
-                break;
-            case TypeTags.BLOB:
-                index = ++indexes.tBlob;
                 break;
             default:
                 index = ++indexes.tRef;
@@ -1339,11 +1483,40 @@ public class CodeGenerator extends BLangNodeVisitor {
             case TypeTags.STRING:
                 opcode = baseOpcode + STRING_OFFSET;
                 break;
+            case TypeTags.BYTE:
             case TypeTags.BOOLEAN:
                 opcode = baseOpcode + BOOL_OFFSET;
                 break;
-            case TypeTags.BLOB:
-                opcode = baseOpcode + BLOB_OFFSET;
+            default:
+                opcode = baseOpcode + REF_OFFSET;
+                break;
+        }
+
+        return opcode;
+    }
+
+    /**
+     * This is a separate method that calculates opcode values for array related operations such as INEWARRAY, IALOAD,
+     * IALOAD. A separate methods is added to adhere to the same pattern of using INT as a base opcode and to support
+     * byte array related operations.
+     */
+    private int getOpcodeForArrayOperations(int typeTag, int baseOpcode) {
+        int opcode;
+        switch (typeTag) {
+            case TypeTags.BYTE:
+                opcode = baseOpcode - BYTE_NEGATIVE_OFFSET;
+                break;
+            case TypeTags.INT:
+                opcode = baseOpcode;
+                break;
+            case TypeTags.FLOAT:
+                opcode = baseOpcode + FLOAT_OFFSET;
+                break;
+            case TypeTags.STRING:
+                opcode = baseOpcode + STRING_OFFSET;
+                break;
+            case TypeTags.BOOLEAN:
+                opcode = baseOpcode + BOOL_OFFSET;
                 break;
             default:
                 opcode = baseOpcode + REF_OFFSET;
@@ -1449,6 +1622,13 @@ public class CodeGenerator extends BLangNodeVisitor {
         // Add local variable indexes to the parameters and return parameters
         visitInvokableNodeParams(invokableNode.symbol, callableUnitInfo, localVarAttributeInfo);
 
+        if (invokableNode.pos != null) {
+            localVarAttributeInfo.localVars.forEach(param -> {
+                param.scopeStartLineNumber = invokableNode.pos.sLine;
+                param.scopeEndLineNumber = invokableNode.pos.eLine;
+            });
+        }
+
         if (Symbols.isNative(invokableNode.symbol)) {
             this.processWorker(callableUnitInfo.defaultWorkerInfo, null,
                     localVarAttributeInfo, invokableSymbolEnv, null);
@@ -1543,7 +1723,6 @@ public class CodeGenerator extends BLangNodeVisitor {
         vIndexes.tFloat = that.tFloat;
         vIndexes.tString = that.tString;
         vIndexes.tBoolean = that.tBoolean;
-        vIndexes.tBlob = that.tBlob;
         vIndexes.tRef = that.tRef;
         return vIndexes;
     }
@@ -1557,14 +1736,12 @@ public class CodeGenerator extends BLangNodeVisitor {
         codeAttributeInfo.maxDoubleLocalVars = lvIndexes.tFloat + 1;
         codeAttributeInfo.maxStringLocalVars = lvIndexes.tString + 1;
         codeAttributeInfo.maxIntLocalVars = lvIndexes.tBoolean + 1;
-        codeAttributeInfo.maxByteLocalVars = lvIndexes.tBlob + 1;
         codeAttributeInfo.maxRefLocalVars = lvIndexes.tRef + 1;
 
         codeAttributeInfo.maxLongRegs = codeAttributeInfo.maxLongLocalVars + maxRegIndexes.tInt + 1;
         codeAttributeInfo.maxDoubleRegs = codeAttributeInfo.maxDoubleLocalVars + maxRegIndexes.tFloat + 1;
         codeAttributeInfo.maxStringRegs = codeAttributeInfo.maxStringLocalVars + maxRegIndexes.tString + 1;
         codeAttributeInfo.maxIntRegs = codeAttributeInfo.maxIntLocalVars + maxRegIndexes.tBoolean + 1;
-        codeAttributeInfo.maxByteRegs = codeAttributeInfo.maxByteLocalVars + maxRegIndexes.tBlob + 1;
         codeAttributeInfo.maxRefRegs = codeAttributeInfo.maxRefLocalVars + maxRegIndexes.tRef + 1;
 
         // Update register indexes.
@@ -1572,6 +1749,9 @@ public class CodeGenerator extends BLangNodeVisitor {
             switch (regIndex.typeTag) {
                 case TypeTags.INT:
                     regIndex.value = regIndex.value + codeAttributeInfo.maxLongLocalVars;
+                    break;
+                case TypeTags.BYTE:
+                    regIndex.value = regIndex.value + codeAttributeInfo.maxIntLocalVars;
                     break;
                 case TypeTags.FLOAT:
                     regIndex.value = regIndex.value + codeAttributeInfo.maxDoubleLocalVars;
@@ -1581,9 +1761,6 @@ public class CodeGenerator extends BLangNodeVisitor {
                     break;
                 case TypeTags.BOOLEAN:
                     regIndex.value = regIndex.value + codeAttributeInfo.maxIntLocalVars;
-                    break;
-                case TypeTags.BLOB:
-                    regIndex.value = regIndex.value + codeAttributeInfo.maxByteLocalVars;
                     break;
                 default:
                     regIndex.value = regIndex.value + codeAttributeInfo.maxRefLocalVars;
@@ -1602,7 +1779,6 @@ public class CodeGenerator extends BLangNodeVisitor {
         max.tFloat = (max.tFloat > current.tFloat) ? max.tFloat : current.tFloat;
         max.tString = (max.tString > current.tString) ? max.tString : current.tString;
         max.tBoolean = (max.tBoolean > current.tBoolean) ? max.tBoolean : current.tBoolean;
-        max.tBlob = (max.tBlob > current.tBlob) ? max.tBlob : current.tBlob;
         max.tRef = (max.tRef > current.tRef) ? max.tRef : current.tRef;
     }
 
@@ -1611,7 +1787,6 @@ public class CodeGenerator extends BLangNodeVisitor {
         indexes.tFloat++;
         indexes.tString++;
         indexes.tBoolean++;
-        indexes.tBlob++;
         indexes.tRef++;
     }
 
@@ -1640,7 +1815,6 @@ public class CodeGenerator extends BLangNodeVisitor {
         varCountAttribInfo.setMaxDoubleVars(fieldCount.tFloat);
         varCountAttribInfo.setMaxStringVars(fieldCount.tString);
         varCountAttribInfo.setMaxIntVars(fieldCount.tBoolean);
-        varCountAttribInfo.setMaxByteVars(fieldCount.tBlob);
         varCountAttribInfo.setMaxRefVars(fieldCount.tRef);
         attributeInfoPool.addAttributeInfo(AttributeInfo.Kind.VARIABLE_TYPE_COUNT_ATTRIBUTE, varCountAttribInfo);
     }
@@ -1721,7 +1895,6 @@ public class CodeGenerator extends BLangNodeVisitor {
         varCountAttribInfo.setMaxDoubleVars(fieldCount[FLOAT_OFFSET]);
         varCountAttribInfo.setMaxStringVars(fieldCount[STRING_OFFSET]);
         varCountAttribInfo.setMaxIntVars(fieldCount[BOOL_OFFSET]);
-        varCountAttribInfo.setMaxByteVars(fieldCount[BLOB_OFFSET]);
         varCountAttribInfo.setMaxRefVars(fieldCount[REF_OFFSET]);
         attributeInfoPool.addAttributeInfo(AttributeInfo.Kind.VARIABLE_TYPE_COUNT_ATTRIBUTE, varCountAttribInfo);
     }
@@ -1736,6 +1909,10 @@ public class CodeGenerator extends BLangNodeVisitor {
             case TypeTags.INT:
                 defaultValue.intValue = (Long) literalExpr.value;
                 defaultValue.valueCPIndex = currentPkgInfo.addCPEntry(new IntegerCPEntry(defaultValue.intValue));
+                break;
+            case TypeTags.BYTE:
+                defaultValue.byteValue = (Byte) literalExpr.value;
+                defaultValue.valueCPIndex = currentPkgInfo.addCPEntry(new ByteCPEntry(defaultValue.byteValue));
                 break;
             case TypeTags.FLOAT:
                 defaultValue.floatValue = (Double) literalExpr.value;
@@ -1787,49 +1964,105 @@ public class CodeGenerator extends BLangNodeVisitor {
         // TODO Populate annotation attribute
 
         // Add documentation attributes
-        addDocumentAttachmentAttrInfo(varNode.docAttachments, pkgVarInfo);
+        addDocAttachmentAttrInfo(varNode.symbol.documentation, pkgVarInfo);
     }
 
-    private void createStructInfoEntry(BLangStruct structNode) {
-        BStructSymbol structSymbol = (BStructSymbol) structNode.symbol;
+    public void visit(BLangTypeDefinition typeDefinition) {
+        //TODO
+    }
+
+    private void createAnnotationInfoEntry(BLangAnnotation annotation) {
+        int nameCPIndex = addUTF8CPEntry(currentPkgInfo, annotation.name.value);
+        int typeSigCPIndex = -1;
+        if (annotation.typeNode != null) {
+            typeSigCPIndex = addUTF8CPEntry(currentPkgInfo, annotation.typeNode.type.getDesc());
+        }
+
+        AnnotationInfo annotationInfo = new AnnotationInfo(nameCPIndex, typeSigCPIndex,
+                annotation.symbol.flags, ((BAnnotationSymbol) annotation.symbol).attachPoints);
+        currentPkgInfo.annotationInfoMap.put(annotation.name.value, annotationInfo);
+    }
+
+    private void createTypeDefinitionInfoEntry(BLangTypeDefinition typeDefinition) {
+        BTypeSymbol typeDefSymbol = typeDefinition.symbol;
+        int typeDefNameCPIndex = addUTF8CPEntry(currentPkgInfo, typeDefSymbol.name.value);
+        TypeDefInfo typeDefInfo = new TypeDefInfo(currentPackageRefCPIndex,
+                typeDefNameCPIndex, typeDefSymbol.flags);
+        typeDefInfo.isLabel = typeDefinition.symbol.isLabel;
+
+        typeDefInfo.typeTag = typeDefSymbol.type.tag;
+
+        if (typeDefinition.symbol.isLabel) {
+            createLabelTypeTypeDef(typeDefinition, typeDefInfo);
+            // Add documentation attributes
+            addDocAttachmentAttrInfo(typeDefinition.symbol.documentation, typeDefInfo);
+
+            currentPkgInfo.addTypeDefInfo(typeDefSymbol.name.value, typeDefInfo);
+            return;
+        }
+
+        switch (typeDefinition.symbol.tag) {
+            case SymTag.OBJECT:
+                createObjectTypeTypeDef(typeDefinition, typeDefInfo, typeDefSymbol);
+                break;
+            case SymTag.RECORD:
+                createRecordTypeTypeDef(typeDefinition, typeDefInfo, typeDefSymbol);
+                break;
+            case SymTag.FINITE_TYPE:
+                createFiniteTypeTypeDef(typeDefinition, typeDefInfo);
+                break;
+            default:
+                createLabelTypeTypeDef(typeDefinition, typeDefInfo);
+                break;
+        }
+        // Add documentation attributes
+        addDocAttachmentAttrInfo(typeDefinition.symbol.documentation, typeDefInfo);
+
+        currentPkgInfo.addTypeDefInfo(typeDefSymbol.name.value, typeDefInfo);
+    }
+
+    private void createObjectTypeTypeDef(BLangTypeDefinition typeDefinition,
+                                         TypeDefInfo typeDefInfo, BTypeSymbol typeDefSymbol) {
+        ObjectTypeInfo objInfo = new ObjectTypeInfo();
+        BObjectTypeSymbol objectSymbol = (BObjectTypeSymbol) typeDefSymbol;
         // Add Struct name as an UTFCPEntry to the constant pool
-        int structNameCPIndex = addUTF8CPEntry(currentPkgInfo, structSymbol.name.value);
-        StructInfo structInfo = new StructInfo(currentPackageRefCPIndex, structNameCPIndex, structSymbol.flags);
-        currentPkgInfo.addStructInfo(structSymbol.name.value, structInfo);
-        structInfo.structType = (BStructType) structSymbol.type;
+        objInfo.objectType = (BObjectType) objectSymbol.type;
 
-        List<BLangVariable> structFields = structNode.fields;
-        for (BLangVariable structField : structFields) {
+        BLangObjectTypeNode objectTypeNode = (BLangObjectTypeNode) typeDefinition.typeNode;
+
+        List<BLangVariable> objFields = objectTypeNode.fields;
+        for (BLangVariable objField : objFields) {
             // Create StructFieldInfo Entry
-            int fieldNameCPIndex = addUTF8CPEntry(currentPkgInfo, structField.name.value);
-            int sigCPIndex = addUTF8CPEntry(currentPkgInfo, structField.type.getDesc());
+            int fieldNameCPIndex = addUTF8CPEntry(currentPkgInfo, objField.name.value);
+            int sigCPIndex = addUTF8CPEntry(currentPkgInfo, objField.type.getDesc());
 
-            StructFieldInfo structFieldInfo = new StructFieldInfo(fieldNameCPIndex,
-                    sigCPIndex, structField.symbol.flags);
-            structFieldInfo.fieldType = structField.type;
+            objField.symbol.varIndex = getFieldIndex(objField.symbol.type.tag);
+            StructFieldInfo objFieldInfo = new StructFieldInfo(fieldNameCPIndex,
+                    sigCPIndex, objField.symbol.flags, objField.symbol.varIndex.value);
+            objFieldInfo.fieldType = objField.type;
 
             // Populate default values
-            if (structField.expr != null && structField.expr.getKind() == NodeKind.LITERAL) {
-                DefaultValueAttributeInfo defaultVal = getDefaultValueAttributeInfo((BLangLiteral) structField.expr);
-                structFieldInfo.addAttributeInfo(AttributeInfo.Kind.DEFAULT_VALUE_ATTRIBUTE, defaultVal);
+            if (objField.expr != null && (objField.expr.getKind() == NodeKind.LITERAL &&
+                    objField.expr.type.getKind() != TypeKind.ARRAY)) {
+                DefaultValueAttributeInfo defaultVal = getDefaultValueAttributeInfo((BLangLiteral) objField.expr);
+                objFieldInfo.addAttributeInfo(AttributeInfo.Kind.DEFAULT_VALUE_ATTRIBUTE, defaultVal);
             }
 
-            structInfo.fieldInfoEntries.add(structFieldInfo);
-            structField.symbol.varIndex = getFieldIndex(structField.symbol.type.tag);
+            objInfo.fieldInfoEntries.add(objFieldInfo);
 
             // Add documentation attributes
-            addDocumentAttachmentAttrInfo(structField.docAttachments, structFieldInfo);
+            addDocAttachmentAttrInfo(objField.symbol.documentation, objFieldInfo);
         }
 
         // Create variable count attribute info
         prepareIndexes(fieldIndexes);
         int[] fieldCount = new int[]{fieldIndexes.tInt, fieldIndexes.tFloat,
-                fieldIndexes.tString, fieldIndexes.tBoolean, fieldIndexes.tBlob, fieldIndexes.tRef};
-        addVariableCountAttributeInfo(currentPkgInfo, structInfo, fieldCount);
+                fieldIndexes.tString, fieldIndexes.tBoolean, fieldIndexes.tRef};
+        addVariableCountAttributeInfo(currentPkgInfo, objInfo, fieldCount);
         fieldIndexes = new VariableIndex(FIELD);
 
         // Create attached function info entries
-        for (BAttachedFunction attachedFunc : structSymbol.attachedFuncs) {
+        for (BAttachedFunction attachedFunc : objectSymbol.attachedFuncs) {
             int funcNameCPIndex = addUTF8CPEntry(currentPkgInfo, attachedFunc.funcName.value);
 
             // Remove the first type. The first type is always the type to which the function is attached to
@@ -1837,45 +2070,91 @@ public class CodeGenerator extends BLangNodeVisitor {
             int sigCPIndex = addUTF8CPEntry(currentPkgInfo,
                     generateFunctionSig(paramTypes, attachedFunc.type.retType));
             int flags = attachedFunc.symbol.flags;
-            structInfo.attachedFuncInfoEntries.add(new AttachedFunctionInfo(funcNameCPIndex, sigCPIndex, flags));
+            objInfo.attachedFuncInfoEntries.add(new AttachedFunctionInfo(funcNameCPIndex, sigCPIndex, flags));
         }
 
-        // Add documentation attributes
-        addDocumentAttachmentAttrInfo(structNode.docAttachments, structInfo);
+        //TODO decide what happens to documentations for interface functions and their implementations.
+
+        typeDefInfo.typeInfo = objInfo;
     }
 
-    public void visit(BLangTypeDefinition typeDefinition) {
-        //TODO
-    }
+    private void createRecordTypeTypeDef(BLangTypeDefinition typeDefinition,
+                                         TypeDefInfo typeDefInfo, BTypeSymbol typeDefSymbol) {
+        RecordTypeInfo recordInfo = new RecordTypeInfo();
+        BRecordTypeSymbol recordSymbol = (BRecordTypeSymbol) typeDefSymbol;
+        // Add Struct name as an UTFCPEntry to the constant pool
+        recordInfo.recordType = (BRecordType) recordSymbol.type;
 
-    private void createTypeDefinitionInfoEntry(BLangTypeDefinition typeDefinition) {
-        BTypeSymbol typeDefSymbol = (BTypeSymbol) typeDefinition.symbol;
+        if (!recordInfo.recordType.sealed) {
+            recordInfo.restFieldTypeSigCPIndex = addUTF8CPEntry(currentPkgInfo,
+                                                                recordInfo.recordType.restFieldType.getDesc());
+        }
 
-        int typeDefNameCPIndex = addUTF8CPEntry(currentPkgInfo, typeDefSymbol.name.value);
-        TypeDefinitionInfo typeDefInfo = new TypeDefinitionInfo(currentPackageRefCPIndex,
-                typeDefNameCPIndex, typeDefSymbol.flags);
-        currentPkgInfo.addTypeDefinitionInfo(typeDefSymbol.name.value, typeDefInfo);
-        typeDefInfo.finiteType = (BFiniteType) typeDefSymbol.type;
+        BLangRecordTypeNode recordTypeNode = (BLangRecordTypeNode) typeDefinition.typeNode;
 
-        for (BType bType : typeDefInfo.finiteType.memberTypes) {
-            if (bType.tag == TypeTags.UNION) {
-                BUnionType unionType = (BUnionType) bType;
-                unionType.memberTypes.forEach(t -> {
-                    typeDefInfo.typeDescCPIndexes.add(getTypeCPIndex(t).value);
-                });
-            } else {
-                typeDefInfo.typeDescCPIndexes.add(getTypeCPIndex(bType).value);
+        List<BLangVariable> recordFields = recordTypeNode.fields;
+        for (BLangVariable recordField : recordFields) {
+            // Create StructFieldInfo Entry
+            int fieldNameCPIndex = addUTF8CPEntry(currentPkgInfo, recordField.name.value);
+            int sigCPIndex = addUTF8CPEntry(currentPkgInfo, recordField.type.getDesc());
+
+            recordField.symbol.varIndex = getFieldIndex(recordField.symbol.type.tag);
+            StructFieldInfo recordFieldInfo = new StructFieldInfo(fieldNameCPIndex,
+                    sigCPIndex, recordField.symbol.flags, recordField.symbol.varIndex.value);
+            recordFieldInfo.fieldType = recordField.type;
+
+            // Populate default values
+            if (recordField.expr != null && (recordField.expr.getKind() == NodeKind.LITERAL &&
+                    recordField.expr.type.getKind() != TypeKind.ARRAY)) {
+                DefaultValueAttributeInfo defaultVal
+                        = getDefaultValueAttributeInfo((BLangLiteral) recordField.expr);
+                recordFieldInfo.addAttributeInfo(AttributeInfo.Kind.DEFAULT_VALUE_ATTRIBUTE, defaultVal);
             }
+
+            recordInfo.fieldInfoEntries.add(recordFieldInfo);
+
+            // Add documentation attributes
+            addDocAttachmentAttrInfo(recordField.symbol.documentation, recordFieldInfo);
         }
 
-        Iterator<BLangExpression> valueSpaceIterator = typeDefInfo.finiteType.valueSpace.iterator();
-        while (valueSpaceIterator.hasNext()) {
-            BLangExpression literal = valueSpaceIterator.next();
-            typeDefInfo.valueSpaceItemInfos.add(new ValueSpaceItemInfo(getDefaultValue((BLangLiteral) literal)));
+        // Create variable count attribute info
+        prepareIndexes(fieldIndexes);
+        int[] fieldCount = new int[]{fieldIndexes.tInt, fieldIndexes.tFloat,
+                fieldIndexes.tString, fieldIndexes.tBoolean, fieldIndexes.tRef};
+        addVariableCountAttributeInfo(currentPkgInfo, recordInfo, fieldCount);
+        fieldIndexes = new VariableIndex(FIELD);
+
+        // ----- TODO remove below block once record init function removed ------------
+        BAttachedFunction attachedFunc = recordSymbol.initializerFunc;
+        int funcNameCPIndex = addUTF8CPEntry(currentPkgInfo, attachedFunc.funcName.value);
+
+        // Remove the first type. The first type is always the type to which the function is attached to
+        BType[] paramTypes = attachedFunc.type.paramTypes.toArray(new BType[0]);
+        int sigCPIndex = addUTF8CPEntry(currentPkgInfo,
+                                        generateFunctionSig(paramTypes, attachedFunc.type.retType));
+        int flags = attachedFunc.symbol.flags;
+        recordInfo.attachedFuncInfoEntries.add(new AttachedFunctionInfo(funcNameCPIndex, sigCPIndex, flags));
+        // ------------- end of temp block--------------
+
+        typeDefInfo.typeInfo = recordInfo;
+    }
+
+    private void createFiniteTypeTypeDef(BLangTypeDefinition typeDefinition,
+                                         TypeDefInfo typeDefInfo) {
+        BLangFiniteTypeNode typeNode = (BLangFiniteTypeNode) typeDefinition.typeNode;
+        FiniteTypeInfo typeInfo = new FiniteTypeInfo();
+
+        for (BLangExpression literal : typeNode.valueSpace) {
+            typeInfo.valueSpaceItemInfos.add(new ValueSpaceItemInfo(getDefaultValue((BLangLiteral) literal)));
         }
 
-        // Add documentation attributes
-        addDocumentAttachmentAttrInfo(typeDefinition.docAttachments, typeDefInfo);
+        typeDefInfo.typeInfo = typeInfo;
+    }
+
+    private void createLabelTypeTypeDef(BLangTypeDefinition typeDefinition,
+                                         TypeDefInfo typeDefInfo) {
+        int sigCPIndex = addUTF8CPEntry(currentPkgInfo, typeDefinition.typeNode.type.getDesc());
+        typeDefInfo.typeInfo = new LabelTypeInfo(sigCPIndex);
     }
 
     /**
@@ -1905,34 +2184,9 @@ public class CodeGenerator extends BLangNodeVisitor {
         addParameterAttributeInfo(funcNode, funcInfo);
 
         // Add documentation attributes
-        addDocumentAttachmentAttrInfo(funcNode.docAttachments, funcInfo);
+        addDocAttachmentAttrInfo(funcNode.symbol.documentation, funcInfo);
 
         this.currentPkgInfo.functionInfoMap.put(funcSymbol.name.value, funcInfo);
-    }
-
-    private void createTransformerInfoEntry(BLangInvokableNode invokable) {
-        BInvokableSymbol transformerSymbol = invokable.symbol;
-        BInvokableType transformerType = (BInvokableType) transformerSymbol.type;
-
-        // Add transformer name as an UTFCPEntry to the constant pool
-        int transformerNameCPIndex = this.addUTF8CPEntry(currentPkgInfo, transformerSymbol.name.value);
-
-        TransformerInfo transformerInfo = new TransformerInfo(currentPackageRefCPIndex, transformerNameCPIndex);
-        transformerInfo.paramTypes = transformerType.paramTypes.toArray(new BType[0]);
-        populateInvokableSignature(transformerType, transformerInfo);
-
-        transformerInfo.retParamTypes = new BType[1];
-        transformerInfo.retParamTypes[0] = transformerType.retType;
-        transformerInfo.flags = transformerSymbol.flags;
-
-        this.addWorkerInfoEntries(transformerInfo, invokable.getWorkers());
-
-        // Add parameter default value info
-        addParameterAttributeInfo(invokable, transformerInfo);
-        this.currentPkgInfo.transformerInfoMap.put(transformerSymbol.name.value, transformerInfo);
-
-        // Add documentation attributes
-        addDocumentAttachmentAttrInfo(invokable.docAttachments, transformerInfo);
     }
 
     private void populateInvokableSignature(BInvokableType bInvokableType, CallableUnitInfo callableUnitInfo) {
@@ -1990,7 +2244,7 @@ public class CodeGenerator extends BLangNodeVisitor {
             serviceNode.resources.forEach(res -> createResourceInfoEntry(res, serviceInfo));
 
             // Add documentation attributes
-            addDocumentAttachmentAttrInfo(serviceNode.docAttachments, serviceInfo);
+            addDocAttachmentAttrInfo(serviceNode.symbol.documentation, serviceInfo);
         }
     }
 
@@ -2012,7 +2266,7 @@ public class CodeGenerator extends BLangNodeVisitor {
         serviceInfo.resourceInfoMap.put(resourceNode.name.getValue(), resourceInfo);
 
         // Add documentation attributes
-        addDocumentAttachmentAttrInfo(resourceNode.docAttachments, resourceInfo);
+        addDocAttachmentAttrInfo(resourceNode.symbol.documentation, resourceInfo);
     }
 
     private void addWorkerInfoEntry(BLangWorker worker, CallableUnitInfo callableUnitInfo) {
@@ -2101,7 +2355,7 @@ public class CodeGenerator extends BLangNodeVisitor {
     }
 
     private int addPackageRefCPEntry(ConstantPool pool, PackageID pkgID) {
-        int nameCPIndex = addUTF8CPEntry(pool, pkgID.bvmAlias());
+        int nameCPIndex = addUTF8CPEntry(pool, pkgID.toString());
         int versionCPIndex = addUTF8CPEntry(pool, pkgID.version.value);
         PackageRefCPEntry packageRefCPEntry = new PackageRefCPEntry(nameCPIndex, versionCPIndex);
         return pool.addCPEntry(packageRefCPEntry);
@@ -2124,7 +2378,6 @@ public class CodeGenerator extends BLangNodeVisitor {
         int tFloat = -1;
         int tString = -1;
         int tBoolean = -1;
-        int tBlob = -1;
         int tRef = -1;
         Kind kind;
 
@@ -2138,8 +2391,7 @@ public class CodeGenerator extends BLangNodeVisitor {
             result[1] = this.tFloat;
             result[2] = this.tString;
             result[3] = this.tBoolean;
-            result[4] = this.tBlob;
-            result[5] = this.tRef;
+            result[4] = this.tRef;
             return result;
         }
 
@@ -2243,6 +2495,7 @@ public class CodeGenerator extends BLangNodeVisitor {
 
         RegIndex timeoutRegIndex = new RegIndex(-1, TypeTags.INT);
         addToRegIndexList(timeoutRegIndex);
+
         if (forkJoin.timeoutExpression != null) {
             forkjoinInfo.setTimeoutAvailable(true);
             this.genNode(forkJoin.timeoutExpression, forkJoinEnv);
@@ -2257,7 +2510,17 @@ public class CodeGenerator extends BLangNodeVisitor {
         this.emit(InstructionCodes.FORKJOIN, forkJoinCPIndex, timeoutRegIndex,
                 joinVarRegIndex, joinBlockAddr, timeoutVarRegIndex, timeoutBlockAddr);
 
+        VariableIndex lvIndexesCopy = copyVarIndex(this.lvIndexes);
+        VariableIndex regIndexesCopy = this.regIndexes;
+        VariableIndex maxRegIndexesCopy = this.maxRegIndexes;
+        List<RegIndex> regIndexListCopy = this.regIndexList;
+
         this.processJoinWorkers(forkJoin, forkjoinInfo, forkJoinEnv);
+
+        this.lvIndexes = lvIndexesCopy;
+        this.regIndexes = regIndexesCopy;
+        this.maxRegIndexes = maxRegIndexesCopy;
+        this.regIndexList = regIndexListCopy;
 
         int i = 0;
         int[] joinWrkrNameCPIndexes = new int[forkJoin.joinedWorkers.size()];
@@ -2351,9 +2614,6 @@ public class CodeGenerator extends BLangNodeVisitor {
         }
     }
 
-    public void visit(BLangConnector connectorNode) {
-    }
-
     public void visit(BLangAction actionNode) {
     }
 
@@ -2362,17 +2622,6 @@ public class CodeGenerator extends BLangNodeVisitor {
     }
 
     public void visit(BLangSimpleVarRef varRefExpr) {
-        /* ignore */
-    }
-
-    public void visit(BLangStruct structNode) {
-    }
-
-    public void visit(BLangObject objectNode) {
-        /* ignore */
-    }
-
-    public void visit(BLangRecord recordNode) {
         /* ignore */
     }
 
@@ -2427,8 +2676,8 @@ public class CodeGenerator extends BLangNodeVisitor {
         varAssignment = false;
     }
 
-    public void visit(BLangNext nextNode) {
-        generateFinallyInstructions(nextNode, NodeKind.WHILE, NodeKind.FOREACH);
+    public void visit(BLangContinue continueNode) {
+        generateFinallyInstructions(continueNode, NodeKind.WHILE, NodeKind.FOREACH);
         this.emit(this.loopResetInstructionStack.peek());
     }
 
@@ -2645,7 +2894,7 @@ public class CodeGenerator extends BLangNodeVisitor {
         generateFinallyInstructions(abortNode, NodeKind.TRANSACTION);
         this.emit(abortInstructions.peek());
     }
-    
+
     public void visit(BLangDone doneNode) {
         generateFinallyInstructions(doneNode, NodeKind.DONE);
         this.emit(InstructionCodes.HALT);
@@ -2869,33 +3118,68 @@ public class CodeGenerator extends BLangNodeVisitor {
     }
 
     public void visit(BLangTryCatchFinally tryNode) {
+        int toIPPlaceHolder = -1;
         Operand gotoTryCatchEndAddr = getOperand(-1);
         Instruction instructGotoTryCatchEnd = InstructionFactory.get(InstructionCodes.GOTO, gotoTryCatchEndAddr);
         List<int[]> unhandledErrorRangeList = new ArrayList<>();
         ErrorTableAttributeInfo errorTable = createErrorTableIfAbsent(currentPkgInfo);
 
-        // Handle try block.
         int fromIP = nextIP();
+        tryCatchErrorRangeToIPStack.push(toIPPlaceHolder);
+        // Handle try block.
         genNode(tryNode.tryBody, env);
-        int toIP = nextIP() - 1;
+
+        // Pop out the final additional IP pushed on to the stack, if pushed when generating finally instrructions due
+        // to a return statement being present in the try block
+        if (!tryCatchErrorRangeFromIPStack.empty()) {
+            tryCatchErrorRangeFromIPStack.pop();
+        }
+
+        while (!tryCatchErrorRangeFromIPStack.empty() && !tryCatchErrorRangeToIPStack.empty()
+                && tryCatchErrorRangeToIPStack.peek() != toIPPlaceHolder) {
+            unhandledErrorRangeList.add(new int[]{tryCatchErrorRangeFromIPStack.pop(),
+                                                    tryCatchErrorRangeToIPStack.pop()});
+        }
+
+        int toIP = tryCatchErrorRangeToIPStack.pop();
+        toIP = (toIP == toIPPlaceHolder) ? (nextIP() - 1) : toIP;
+
+        unhandledErrorRangeList.add(new int[]{fromIP, toIP});
 
         // Append finally block instructions.
         if (tryNode.finallyBody != null) {
             genNode(tryNode.finallyBody, env);
         }
         emit(instructGotoTryCatchEnd);
-        unhandledErrorRangeList.add(new int[]{fromIP, toIP});
+
         // Handle catch blocks.
+        // Temporary error range list for new error ranges identified in catch blocks
+        List<int[]> unhandledCatchErrorRangeList = new ArrayList<>();
         int order = 0;
         for (BLangCatch bLangCatch : tryNode.getCatchBlocks()) {
             addLineNumberInfo(bLangCatch.pos);
             int targetIP = nextIP();
+            tryCatchErrorRangeToIPStack.push(toIPPlaceHolder);
             genNode(bLangCatch, env);
-            unhandledErrorRangeList.add(new int[]{targetIP, nextIP() - 1});
+
+            if (!tryCatchErrorRangeFromIPStack.empty()) {
+                tryCatchErrorRangeFromIPStack.pop();
+            }
+
+            while (tryCatchErrorRangeFromIPStack.size() > 1 && !tryCatchErrorRangeToIPStack.empty()
+                    && tryCatchErrorRangeToIPStack.peek() != toIPPlaceHolder) {
+                unhandledCatchErrorRangeList.add(new int[]{tryCatchErrorRangeFromIPStack.pop(),
+                        tryCatchErrorRangeToIPStack.pop()});
+            }
+            int catchToIP = tryCatchErrorRangeToIPStack.pop();
+            catchToIP = (catchToIP == toIPPlaceHolder) ? (nextIP() - 1) : catchToIP;
+            unhandledCatchErrorRangeList.add(new int[]{targetIP, catchToIP});
+
             // Append finally block instructions.
             if (tryNode.finallyBody != null) {
                 genNode(tryNode.finallyBody, env);
             }
+
             emit(instructGotoTryCatchEnd);
             // Create Error table entry for this catch block
             BTypeSymbol structSymbol = bLangCatch.param.symbol.type.tsymbol;
@@ -2904,11 +3188,18 @@ public class CodeGenerator extends BLangNodeVisitor {
             int structNameCPIndex = addUTF8CPEntry(currentPkgInfo, structSymbol.name.value);
             StructureRefCPEntry structureRefCPEntry = new StructureRefCPEntry(pkgCPIndex, structNameCPIndex);
             int structCPEntryIndex = currentPkgInfo.addCPEntry(structureRefCPEntry);
-            ErrorTableEntry errorTableEntry = new ErrorTableEntry(fromIP, toIP, targetIP, order++, structCPEntryIndex);
-            errorTable.addErrorTableEntry(errorTableEntry);
+
+            int currentOrder = order++;
+            for (int[] range : unhandledErrorRangeList) {
+                ErrorTableEntry errorTableEntry = new ErrorTableEntry(range[0], range[1], targetIP, currentOrder,
+                                                                      structCPEntryIndex);
+                errorTable.addErrorTableEntry(errorTableEntry);
+            }
         }
 
         if (tryNode.finallyBody != null) {
+            unhandledErrorRangeList.addAll(unhandledCatchErrorRangeList);
+
             // Create Error table entry for unhandled errors in try and catch(s) blocks
             for (int[] range : unhandledErrorRangeList) {
                 ErrorTableEntry errorTableEntry = new ErrorTableEntry(range[0], range[1], nextIP(), order++, -1);
@@ -2945,16 +3236,6 @@ public class CodeGenerator extends BLangNodeVisitor {
         genNode(endExpr, env);
         rangeExpr.regIndex = calcAndGetExprRegIndex(rangeExpr);
 
-        if (!rangeExpr.includeStart || !rangeExpr.includeEnd) {
-            RegIndex const1RegIndex = getRegIndex(TypeTags.INT);
-            emit(InstructionCodes.ICONST_1, const1RegIndex);
-            if (!rangeExpr.includeStart) {
-                emit(InstructionCodes.IADD, startExpr.regIndex, const1RegIndex, startExpr.regIndex);
-            }
-            if (!rangeExpr.includeEnd) {
-                emit(InstructionCodes.ISUB, endExpr.regIndex, const1RegIndex, endExpr.regIndex);
-            }
-        }
         emit(InstructionCodes.NEW_INT_RANGE, startExpr.regIndex, endExpr.regIndex, rangeExpr.regIndex);
     }
 
@@ -2985,29 +3266,52 @@ public class CodeGenerator extends BLangNodeVisitor {
         int pkgRefCPIndex = addPackageRefCPEntry(currentPkgInfo, funcSymbol.pkgID);
         int funcNameCPIndex = addUTF8CPEntry(currentPkgInfo, funcSymbol.name.value);
         FunctionRefCPEntry funcRefCPEntry = new FunctionRefCPEntry(pkgRefCPIndex, funcNameCPIndex);
+        Operand typeCPIndex = getTypeCPIndex(funcSymbol.type);
 
         int funcRefCPIndex = currentPkgInfo.addCPEntry(funcRefCPEntry);
         RegIndex nextIndex = calcAndGetExprRegIndex(fpExpr);
         Operand[] operands;
-        if (!(fpExpr instanceof BLangLambdaFunction)) {
-            operands = new Operand[3];
-            operands[0] = getOperand(funcRefCPIndex);
-            operands[1] = nextIndex;
-            operands[2] = new Operand(0);
+        if (NodeKind.LAMBDA == fpExpr.getKind()) {
+            operands = calcClosureOperands(((BLangLambdaFunction) fpExpr).function, funcRefCPIndex, nextIndex,
+                    typeCPIndex);
+        } else if (NodeKind.FIELD_BASED_ACCESS_EXPR == fpExpr.getKind()) {
+            operands = calcObjectAttachedFPOperands((BLangStructFunctionVarRef) fpExpr, typeCPIndex, funcRefCPIndex,
+                    nextIndex);
         } else {
-            Operand[] closureIndexes = calcAndGetClosureIndexes(((BLangLambdaFunction) fpExpr).function);
-            operands = new Operand[2 + closureIndexes.length];
+            operands = new Operand[4];
             operands[0] = getOperand(funcRefCPIndex);
             operands[1] = nextIndex;
-            System.arraycopy(closureIndexes, 0, operands, 2, closureIndexes.length);
+            operands[2] = typeCPIndex;
+            operands[3] = new Operand(0);
         }
         emit(InstructionCodes.FPLOAD, operands);
     }
 
-    private Operand[] calcAndGetClosureIndexes(BLangFunction function) {
-        List<Operand> operands = new ArrayList<>();
+    /**
+     * This is a helper method which calculate the required additional indexes needed for object attached function
+     * invoked as a function pointer scenario.
+     */
+    private Operand[] calcObjectAttachedFPOperands(BLangStructFunctionVarRef fpExpr, Operand typeCPIndex,
+                                                   int funcRefCPIndex, RegIndex nextIndex) {
+        Operand[] operands = new Operand[6];
+        operands[0] = getOperand(funcRefCPIndex);
+        operands[1] = nextIndex;
+        operands[2] = typeCPIndex;
+        operands[3] = getOperand(2);
+        operands[4] = getOperand(((BVarSymbol) fpExpr.expr.symbol).type.tag);
+        operands[5] = getOperand(((BVarSymbol) fpExpr.expr.symbol).varIndex.value);
+        return operands;
+    }
 
-        int closureOperandPairs = 0;
+    /**
+     * This is a helper method which calculate the required additional indexes needed for closure scenarios.
+     * If there are no closure variables found, then this method will just add 0 as the termination index
+     * which is used at runtime.
+     */
+    private Operand[] calcClosureOperands(BLangFunction function, int funcRefCPIndex, RegIndex nextIndex,
+                                          Operand typeCPIndex) {
+        List<Operand> closureOperandList = new ArrayList<>();
+
 
         for (BVarSymbol symbol : function.symbol.params) {
             if (!symbol.closure || function.requiredParams.stream().anyMatch(var -> var.symbol.equals(symbol))) {
@@ -3015,13 +3319,26 @@ public class CodeGenerator extends BLangNodeVisitor {
             }
             Operand type = new Operand(symbol.type.tag);
             Operand index = new Operand(symbol.varIndex.value);
-            operands.add(type);
-            operands.add(index);
-            closureOperandPairs++;
+            closureOperandList.add(type);
+            closureOperandList.add(index);
         }
-
-        operands.add(0, new Operand(closureOperandPairs));
-        return operands.toArray(new Operand[]{});
+        Operand[] operands;
+        if (!closureOperandList.isEmpty()) {
+            Operand[] closureIndexes = closureOperandList.toArray(new Operand[]{});
+            operands = new Operand[4 + closureIndexes.length];
+            operands[0] = getOperand(funcRefCPIndex);
+            operands[1] = nextIndex;
+            operands[2] = typeCPIndex;
+            operands[3] = getOperand(closureIndexes.length);
+            System.arraycopy(closureIndexes, 0, operands, 4, closureIndexes.length);
+        } else {
+            operands = new Operand[4];
+            operands[0] = getOperand(funcRefCPIndex);
+            operands[1] = nextIndex;
+            operands[2] = typeCPIndex;
+            operands[3] = getOperand(0);
+        }
+        return operands;
     }
 
     private void generateFinallyInstructions(BLangStatement statement) {
@@ -3029,7 +3346,9 @@ public class CodeGenerator extends BLangNodeVisitor {
     }
 
     private void generateFinallyInstructions(BLangStatement statement, NodeKind... expectedParentKinds) {
+        int returnInFinallyToIPPlaceHolder = -2;
         BLangStatement current = statement;
+        boolean hasReturn = false;
         while (current != null && current.statementLink.parent != null) {
             BLangStatement parent = current.statementLink.parent.statement;
             for (NodeKind expected : expectedParentKinds) {
@@ -3037,10 +3356,37 @@ public class CodeGenerator extends BLangNodeVisitor {
                     return;
                 }
             }
+
+            if (current.getKind() == NodeKind.RETURN) {
+                hasReturn = true;
+            }
+
             if (NodeKind.TRY == parent.getKind()) {
+                boolean returnInFinally = false;
+                if (hasReturn) {
+                    //if generateFinallyInstructions is called due to a return statement being present in a try,
+                    // catch block, maintain the current IP (before code generation for the finally block)
+                    // to use as the toIP of the error table entry
+                    if (!tryCatchErrorRangeToIPStack.isEmpty()) {
+                        if (tryCatchErrorRangeToIPStack.peek() != returnInFinallyToIPPlaceHolder) {
+                            tryCatchErrorRangeToIPStack.push(nextIP() - 1);
+                        } else {
+                            returnInFinally = true;
+                        }
+                    } else {
+                        tryCatchErrorRangeToIPStack.push(nextIP() - 1);
+                    }
+                }
+
                 BLangTryCatchFinally tryCatchFinally = (BLangTryCatchFinally) parent;
                 if (tryCatchFinally.finallyBody != null && current != tryCatchFinally.finallyBody) {
+                    tryCatchErrorRangeToIPStack.push(returnInFinallyToIPPlaceHolder);
                     genNode(tryCatchFinally.finallyBody, env);
+                    tryCatchErrorRangeToIPStack.pop();
+                }
+
+                if (!returnInFinally) {
+                    tryCatchErrorRangeFromIPStack.push(nextIP() + 1);
                 }
             } else if (NodeKind.LOCK == parent.getKind()) {
                 BLangLock lockNode = (BLangLock) parent;
@@ -3062,9 +3408,10 @@ public class CodeGenerator extends BLangNodeVisitor {
             return createStringLiteral(null, null, env);
         }
 
-        // If the namespace is defined within a callable unit, get the URI index in the local var registry.
-        // Otherwise get the URI index in the global var registry.
-        if ((namespaceSymbol.owner.tag & SymTag.INVOKABLE) == SymTag.INVOKABLE) {
+        // If the namespace is defined within a callable unit or service, get the URI index in the 
+        // local var registry. Otherwise get the URI index in the global var registry.
+        if ((namespaceSymbol.owner.tag & SymTag.INVOKABLE) == SymTag.INVOKABLE ||
+                (namespaceSymbol.owner.tag & SymTag.SERVICE) == SymTag.SERVICE) {
             return (RegIndex) namespaceSymbol.nsURIIndex;
         }
 
@@ -3143,6 +3490,7 @@ public class CodeGenerator extends BLangNodeVisitor {
      * @return String registry index of the generated string
      */
     private RegIndex createStringLiteral(String value, RegIndex regIndex, SymbolEnv env) {
+        // TODO: remove RegIndex arg
         BLangLiteral prefixLiteral = (BLangLiteral) TreeBuilder.createLiteralExpression();
         prefixLiteral.value = value;
         prefixLiteral.typeTag = TypeTags.STRING;
@@ -3192,23 +3540,20 @@ public class CodeGenerator extends BLangNodeVisitor {
         return getOperand(currentPkgInfo.addCPEntry(typeRefCPEntry));
     }
 
-    private void addDocumentAttachmentAttrInfo(List<BLangDocumentation> docNodeList, AttributeInfoPool attrInfoPool) {
-        docNodeList.forEach(docNode -> addDocumentAttachmentAttrInfo(docNode, attrInfoPool));
-    }
-
-
-    private void addDocumentAttachmentAttrInfo(BLangDocumentation docNode, AttributeInfoPool attrInfoPool) {
+    private void addDocAttachmentAttrInfo(DocAttachment docAttachment, AttributeInfoPool attrInfoPool) {
+        if (docAttachment == null) {
+            return;
+        }
         int docAttrIndex = addUTF8CPEntry(currentPkgInfo, AttributeInfo.Kind.DOCUMENT_ATTACHMENT_ATTRIBUTE.value());
-        int descCPIndex = addUTF8CPEntry(currentPkgInfo, docNode.documentationText);
+        int descCPIndex = addUTF8CPEntry(currentPkgInfo, docAttachment.description);
         DocumentationAttributeInfo docAttributeInfo = new DocumentationAttributeInfo(docAttrIndex, descCPIndex);
 
-        for (BLangDocumentationAttribute paramDocNode : docNode.attributes) {
-            int nameCPIndex = addUTF8CPEntry(currentPkgInfo, paramDocNode.documentationField.value);
-            int typeSigCPIndex = addUTF8CPEntry(currentPkgInfo, paramDocNode.type.getDesc());
-            int paramKindCPIndex = addUTF8CPEntry(currentPkgInfo, paramDocNode.docTag.getValue());
-            int descriptionCPIndex = addUTF8CPEntry(currentPkgInfo, paramDocNode.documentationText);
-            ParameterDocumentInfo paramDocInfo = new ParameterDocumentInfo(
-                    nameCPIndex, typeSigCPIndex, paramKindCPIndex, descriptionCPIndex);
+        for (DocAttribute docAttribute : docAttachment.attributes) {
+            int nameCPIndex = addUTF8CPEntry(currentPkgInfo, docAttribute.name);
+            int paramKindCPIndex = addUTF8CPEntry(currentPkgInfo, docAttribute.docTag.getValue());
+            int descriptionCPIndex = addUTF8CPEntry(currentPkgInfo, docAttribute.description);
+            ParameterDocumentInfo paramDocInfo = new ParameterDocumentInfo(nameCPIndex, paramKindCPIndex,
+                    descriptionCPIndex);
             docAttributeInfo.paramDocInfoList.add(paramDocInfo);
         }
 
@@ -3225,11 +3570,11 @@ public class CodeGenerator extends BLangNodeVisitor {
         paramAttrInfo.defaultableParamsCount = invokableNode.defaultableParams.size();
         paramAttrInfo.restParamCount = invokableNode.restParam != null ? 1 : 0;
         callableUnitInfo.addAttributeInfo(AttributeInfo.Kind.PARAMETERS_ATTRIBUTE, paramAttrInfo);
-        
+
         // Add parameter default values
         addParameterDefaultValues(invokableNode, callableUnitInfo);
     }
-    
+
     private void addParameterDefaultValues(BLangInvokableNode invokableNode, CallableUnitInfo callableUnitInfo) {
         int paramDefaultsAttrNameIndex =
                 addUTF8CPEntry(currentPkgInfo, AttributeInfo.Kind.PARAMETER_DEFAULTS_ATTRIBUTE.value());
@@ -3251,6 +3596,9 @@ public class CodeGenerator extends BLangNodeVisitor {
             case TypeTags.INT:
                 opcode = InstructionCodes.I2ANY;
                 break;
+            case TypeTags.BYTE:
+                opcode = InstructionCodes.BI2ANY;
+                break;
             case TypeTags.FLOAT:
                 opcode = InstructionCodes.F2ANY;
                 break;
@@ -3259,9 +3607,6 @@ public class CodeGenerator extends BLangNodeVisitor {
                 break;
             case TypeTags.BOOLEAN:
                 opcode = InstructionCodes.B2ANY;
-                break;
-            case TypeTags.BLOB:
-                opcode = InstructionCodes.L2ANY;
                 break;
             default:
                 opcode = InstructionCodes.NOP;
@@ -3276,6 +3621,9 @@ public class CodeGenerator extends BLangNodeVisitor {
             case TypeTags.INT:
                 opcode = InstructionCodes.ANY2I;
                 break;
+            case TypeTags.BYTE:
+                opcode = InstructionCodes.ANY2BI;
+                break;
             case TypeTags.FLOAT:
                 opcode = InstructionCodes.ANY2F;
                 break;
@@ -3284,9 +3632,6 @@ public class CodeGenerator extends BLangNodeVisitor {
                 break;
             case TypeTags.BOOLEAN:
                 opcode = InstructionCodes.ANY2B;
-                break;
-            case TypeTags.BLOB:
-                opcode = InstructionCodes.ANY2L;
                 break;
             default:
                 opcode = InstructionCodes.NOP;
@@ -3299,15 +3644,18 @@ public class CodeGenerator extends BLangNodeVisitor {
         BLangPackage pkgNode = this.packageCache.get(packageSymbol.pkgID);
         if (pkgNode == null) {
             // This is a package loaded from a BALO
-            if (!programFile.packageFileMap.containsKey(packageSymbol.pkgID.bvmAlias())) {
-                programFile.packageFileMap.put(packageSymbol.pkgID.bvmAlias(), packageSymbol.packageFile);
+            packageSymbol.imports.forEach(importPkdSymbol -> addPackageInfo(importPkdSymbol, programFile));
+            if (!programFile.packageFileMap.containsKey(packageSymbol.pkgID.toString())
+                    && !packageSymbol.pkgID.orgName.equals(Names.BUILTIN_ORG)) {
+                programFile.packageFileMap.put(packageSymbol.pkgID.toString(), packageSymbol.packageFile);
             }
             return;
         }
 
         pkgNode.imports.forEach(importPkdNode -> addPackageInfo(importPkdNode.symbol, programFile));
-        if (!programFile.packageFileMap.containsKey(packageSymbol.pkgID.bvmAlias())) {
-            programFile.packageFileMap.put(packageSymbol.pkgID.bvmAlias(), packageSymbol.packageFile);
+        if (!programFile.packageFileMap.containsKey(packageSymbol.pkgID.toString())
+                && !packageSymbol.pkgID.orgName.equals(Names.BUILTIN_ORG)) {
+            programFile.packageFileMap.put(packageSymbol.pkgID.toString(), packageSymbol.packageFile);
         }
     }
 
@@ -3318,6 +3666,62 @@ public class CodeGenerator extends BLangNodeVisitor {
             // This code will not be executed under normal condition
             throw new BLangCompilerException("failed to generate bytecode for package '" +
                     pkgNode.packageID + "': " + e.getMessage(), e);
+        }
+    }
+
+    private void storeStructField(BLangExpression fieldAccessExpr, Operand varRefRegIndex, Operand keyRegIndex) {
+        int opcode;
+        opcode = getValueToRefTypeCastOpcode(fieldAccessExpr.type.tag);
+        if (opcode == InstructionCodes.NOP) {
+            // If the field is ref type, then struct field store will pick the value from ref reg.
+            emit(InstructionCodes.MAPSTORE, varRefRegIndex, keyRegIndex, fieldAccessExpr.regIndex);
+        } else {
+            // Cast the value to ref type and put it in ref reg.
+            // Then struct field store will take the value from ref reg.
+            RegIndex valueRegIndex = getRegIndex(TypeTags.ANY);
+            emit(opcode, fieldAccessExpr.regIndex, valueRegIndex);
+            emit(InstructionCodes.MAPSTORE, varRefRegIndex, keyRegIndex, valueRegIndex);
+        }
+    }
+
+    private void loadStructField(BLangExpression fieldAccessExpr, Operand varRefRegIndex, Operand keyRegIndex) {
+        // Flag indicating whether to throw runtime error if the field does not exist.
+        // This is currently set to false always, since the fields are checked during compile time.
+        final int except = 0;
+
+        IntegerCPEntry exceptCPEntry = new IntegerCPEntry(except);
+        Operand exceptOp = getOperand(currentPkgInfo.addCPEntry(exceptCPEntry));
+        int opcode = getRefToValueTypeCastOpcode(fieldAccessExpr.type.tag);
+        if (opcode == InstructionCodes.NOP) {
+            emit(InstructionCodes.MAPLOAD, varRefRegIndex, keyRegIndex, calcAndGetExprRegIndex(fieldAccessExpr),
+                    exceptOp);
+        } else {
+            // Get the value from struct, and put it in ref reg. Then cast the ref value to the value type
+            RegIndex targetRegIndex = getRegIndex(TypeTags.ANY);
+            emit(InstructionCodes.MAPLOAD, varRefRegIndex, keyRegIndex, targetRegIndex, exceptOp);
+            emit(opcode, targetRegIndex, calcAndGetExprRegIndex(fieldAccessExpr));
+        }
+    }
+
+    private void setVariableScopeStart(LocalVariableInfo localVarInfo, BLangVariable varNode) {
+        if (varNode.pos != null) {
+            localVarInfo.scopeStartLineNumber = varNode.pos.sLine;
+        }
+    }
+
+    private void setVariableScopeEnd(LocalVariableInfo localVarInfo, BLangVariable varNode) {
+        if ((varNode.parent == null) && (varNode.pos != null)) {
+            localVarInfo.scopeEndLineNumber = varNode.pos.eLine;
+            return;
+        }
+        BLangNode parentNode = varNode;
+        while ((parentNode.parent != null)) {
+            parentNode = parentNode.parent;
+            if ((parentNode.getKind().equals(NodeKind.BLOCK)) && (parentNode.parent != null) &&
+                    (parentNode.parent.pos != null)) {
+                localVarInfo.scopeEndLineNumber = parentNode.parent.pos.eLine;
+                break;
+            }
         }
     }
 }

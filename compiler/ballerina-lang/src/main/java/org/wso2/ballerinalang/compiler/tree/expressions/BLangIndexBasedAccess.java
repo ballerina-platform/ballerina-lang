@@ -19,6 +19,7 @@ package org.wso2.ballerinalang.compiler.tree.expressions;
 
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.expressions.IndexBasedAccessNode;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 import org.wso2.ballerinalang.compiler.util.FieldKind;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
@@ -142,6 +143,42 @@ public class BLangIndexBasedAccess extends BLangAccessExpression implements Inde
             this.expr = varRef;
             this.indexExpr = indexExpr;
             this.fieldType = fieldType;
+        }
+
+        @Override
+        public void accept(BLangNodeVisitor visitor) {
+            visitor.visit(this);
+        }
+    }
+
+    /**
+     * @since 0.94
+     */
+    public static class BLangStructFieldAccessExpr extends BLangIndexBasedAccess {
+
+        public BLangStructFieldAccessExpr(DiagnosticPos pos, BLangVariableReference varRef, BLangExpression keyExpr,
+                BVarSymbol fieldSymbol) {
+            this.pos = pos;
+            this.expr = varRef;
+            this.indexExpr = keyExpr;
+            this.symbol = fieldSymbol;
+        }
+
+        @Override
+        public void accept(BLangNodeVisitor visitor) {
+            visitor.visit(this);
+        }
+    }
+
+    /**
+     * @since 0.980.0
+     */
+    public static class BLangTupleAccessExpr extends BLangIndexBasedAccess {
+
+        public BLangTupleAccessExpr(DiagnosticPos pos, BLangVariableReference varRef, BLangExpression indexExpr) {
+            this.pos = pos;
+            this.expr = varRef;
+            this.indexExpr = indexExpr;
         }
 
         @Override

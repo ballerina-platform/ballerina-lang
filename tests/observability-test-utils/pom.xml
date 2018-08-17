@@ -22,13 +22,12 @@
     <parent>
         <groupId>org.ballerinalang</groupId>
         <artifactId>ballerina-parent</artifactId>
-        <version>0.970.0-beta6-SNAPSHOT</version>
+        <version>0.981.1-SNAPSHOT</version>
         <relativePath>../../pom.xml</relativePath>
     </parent>
 
     <modelVersion>4.0.0</modelVersion>
     <artifactId>observability-test-utils</artifactId>
-    <packaging>jar</packaging>
     <name>Ballerina - Observability - Tracing Test Utils</name>
     <url>http://ballerina-lang.org</url>
 
@@ -41,6 +40,16 @@
             <groupId>io.opentracing</groupId>
             <artifactId>opentracing-mock</artifactId>
             <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.ballerinalang</groupId>
+            <artifactId>lib-creator</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.ballerinalang</groupId>
+            <artifactId>ballerina-builtin</artifactId>
+            <type>zip</type>
+            <classifier>ballerina-binary-repo</classifier>
         </dependency>
     </dependencies>
 
@@ -62,15 +71,24 @@
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-compiler-plugin</artifactId>
-            </plugin>
-            <plugin>
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>exec-maven-plugin</artifactId>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-checkstyle-plugin</artifactId>
+                <artifactId>maven-assembly-plugin</artifactId>
+                <version>2.5.2</version>
+                <executions>
+                    <execution>
+                        <id>distribution</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>attached</goal>
+                        </goals>
+                        <configuration>
+                            <descriptors>
+                                <descriptor>assembly/balo.xml</descriptor>
+                                <descriptor>assembly/source.xml</descriptor>
+                            </descriptors>
+                            <descriptorSourceDirectory>assembly</descriptorSourceDirectory>
+                        </configuration>
+                    </execution>
+                </executions>
             </plugin>
             <!-- For ballerina annotation processing -->
             <plugin>
@@ -82,7 +100,7 @@
                         <processor>org.ballerinalang.codegen.BallerinaAnnotationProcessor</processor>
                     </processors>
                     <options>
-                        <nativeEntityProviderPackage>org.ballerina.testing.generated.providers
+                        <nativeEntityProviderPackage>org.ballerina.testobserve.generated.providers
                         </nativeEntityProviderPackage>
                         <nativeEntityProviderClass>StandardNativeElementProvider</nativeEntityProviderClass>
                     </options>
@@ -115,6 +133,7 @@
                             <artifactSet>
                                 <includes>
                                     <include>io.opentracing:opentracing-mock</include>
+                                    <include>com.google.code.gson:gson</include>
                                 </includes>
                             </artifactSet>
                             <filters>
@@ -134,6 +153,59 @@
                         </configuration>
                     </execution>
                 </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-dependency-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>unpack-dependencies</id>
+                        <phase>generate-resources</phase>
+                        <goals>
+                            <goal>unpack-dependencies</goal>
+                        </goals>
+                        <configuration>
+                            <includeClassifiers>ballerina-binary-repo</includeClassifiers>
+                            <outputDirectory>${project.build.directory}/lib</outputDirectory>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>exec-maven-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>gen-balo</id>
+                        <goals>
+                            <goal>java</goal>
+                        </goals>
+                        <phase>compile</phase>
+                        <configuration>
+                            <systemProperties>
+                                <systemProperty>
+                                    <key>BALLERINA_DEV_MODE_COMPILE</key>
+                                    <value>true</value>
+                                </systemProperty>
+                            </systemProperties>
+                            <arguments>
+                                <!--is built in pkg loaded from source-->
+                                <argument>false</argument>
+                                <!--source project dir-->
+                                <argument>${basedir}/src/main/ballerina/</argument>
+                                <!--balo destination-->
+                                <argument>${project.build.directory}/generated-balo/repo/ballerina</argument>
+                                <!--ballerina home-->
+                                <argument>${project.build.directory}</argument>
+                                <!--not used-->
+                                <argument>${project.version}</argument>
+                            </arguments>
+                        </configuration>
+                    </execution>
+                </executions>
+                <configuration>
+                    <mainClass>org.ballerinalang.stdlib.utils.GenerateBalo</mainClass>
+                </configuration>
             </plugin>
         </plugins>
     </build>

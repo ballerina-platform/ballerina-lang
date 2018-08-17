@@ -30,6 +30,10 @@ import org.ballerinalang.siddhi.core.util.transport.DynamicOptions;
 import org.ballerinalang.siddhi.core.util.transport.OptionHolder;
 import org.ballerinalang.siddhi.query.api.definition.StreamDefinition;
 
+/**
+ * Test InMemory sink implementation.
+ */
+
 @Extension(
         name = "testFailingInMemory2",
         namespace = "sink",

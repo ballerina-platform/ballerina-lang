@@ -17,15 +17,14 @@
 */
 package org.ballerinalang.bre.bvm;
 
+import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BRefType;
-import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.util.codegen.CallableUnitInfo;
 import org.ballerinalang.util.codegen.PackageInfo;
 import org.ballerinalang.util.codegen.WorkerInfo;
 import org.ballerinalang.util.codegen.attributes.CodeAttributeInfo;
 
-import java.util.Arrays;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
@@ -39,7 +38,6 @@ public class StackFrame {
     double[] doubleRegs;
     String[] stringRegs;
     int[] intRegs;
-    byte[][] byteRegs;
     BRefType[] refRegs;
 
     // Return address of the caller
@@ -49,7 +47,7 @@ public class StackFrame {
     int[] retRegIndexes;
 
     // Error thrown by current stack.
-    BStruct errorThrown;
+    BMap<String, BValue> errorThrown;
 
     CallableUnitInfo callableUnitInfo;
     PackageInfo packageInfo;
@@ -80,8 +78,6 @@ public class StackFrame {
         this.doubleRegs = new double[codeAttribInfo.getMaxDoubleRegs()];
         this.stringRegs = new String[codeAttribInfo.getMaxStringRegs()];
         this.intRegs = new int[codeAttribInfo.getMaxIntRegs()];
-        this.byteRegs = new byte[codeAttribInfo.getMaxByteRegs()][];
-        Arrays.fill(this.byteRegs, new byte[0]);
         this.refRegs = new BRefType[codeAttribInfo.getMaxRefRegs()];
 
         this.retAddrs = retAddrs;
@@ -99,8 +95,6 @@ public class StackFrame {
         this.doubleRegs = new double[codeAttribInfo.getMaxDoubleRegs()];
         this.stringRegs = new String[codeAttribInfo.getMaxStringRegs()];
         this.intRegs = new int[codeAttribInfo.getMaxIntRegs()];
-        this.byteRegs = new byte[codeAttribInfo.getMaxByteRegs()][];
-        Arrays.fill(this.byteRegs, new byte[0]);
         this.refRegs = new BRefType[codeAttribInfo.getMaxRefRegs()];
 
         this.retAddrs = retAddrs;
@@ -124,10 +118,6 @@ public class StackFrame {
         return intRegs;
     }
 
-    public byte[][] getByteRegs() {
-        return byteRegs;
-    }
-
     public BRefType[] getRefRegs() {
         return refRegs;
     }
@@ -148,10 +138,6 @@ public class StackFrame {
         this.intRegs = intRegs;
     }
 
-    public void setByteRegs(byte[][] byteRegs) {
-        this.byteRegs = byteRegs;
-    }
-
     public void setRefRegs(BRefType[] refRegs) {
         this.refRegs = refRegs;
     }
@@ -160,11 +146,11 @@ public class StackFrame {
         return retAddrs;
     }
 
-    public BStruct getErrorThrown() {
+    public BMap<String, BValue> getErrorThrown() {
         return errorThrown;
     }
 
-    public void setErrorThrown(BStruct errorThrown) {
+    public void setErrorThrown(BMap<String, BValue> errorThrown) {
         this.errorThrown = errorThrown;
     }
 

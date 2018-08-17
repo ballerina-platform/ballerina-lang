@@ -29,6 +29,9 @@ import org.testng.AssertJUnit;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
+/**
+ * Testcase for sequence queries within partition.
+ */
 public class SequencePartitionTestCase {
 
     private static final Logger log = LoggerFactory.getLogger(SequencePartitionTestCase.class);

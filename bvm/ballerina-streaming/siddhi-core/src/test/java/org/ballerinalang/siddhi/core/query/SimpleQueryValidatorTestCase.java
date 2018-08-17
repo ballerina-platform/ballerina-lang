@@ -27,6 +27,9 @@ import org.ballerinalang.siddhi.query.compiler.SiddhiCompiler;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
+/**
+ * Testcase for simple query validation.
+ */
 public class SimpleQueryValidatorTestCase {
     private SiddhiContext siddhiContext;
 

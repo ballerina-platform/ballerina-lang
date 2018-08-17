@@ -18,6 +18,11 @@
 import _ from 'lodash';
 import log from 'log';
 import Plugin from 'core/plugin/plugin';
+import {
+    BaseLanguageClient, CloseAction, ErrorAction,
+    createConnection, MonacoToProtocolConverter, ProtocolToMonacoConverter,
+    MonacoCommands, MonacoLanguages, MonacoWorkspace, ConsoleWindow
+} from 'monaco-languageclient';
 import { listen } from 'vscode-ws-jsonrpc';
 import { setTimeout } from 'timers';
 import ReconnectingWebSocket from 'reconnecting-websocket';
@@ -33,6 +38,7 @@ import { PLUGIN_ID, EDITOR_ID, DOC_VIEW_ID, COMMANDS as COMMAND_IDS, TOOLS as TO
             DIALOGS as DIALOG_IDS, EVENTS } from './constants';
 import OpenProgramDirConfirmDialog from './dialogs/OpenProgramDirConfirmDialog';
 import FixPackageNameOrPathConfirmDialog from './dialogs/FixPackageNameOrPathConfirmDialog';
+import InvalidSwaggerDialog from './dialogs/InvalidSwaggerDialog';
 import { isInCorrectPath, getCorrectPackageForPath, getCorrectPathForPackage } from './utils/program-dir-utils';
 import TreeBuilder from './model/tree-builder';
 import FragmentUtils from './utils/fragment-utils';
@@ -49,6 +55,7 @@ class BallerinaPlugin extends Plugin {
     constructor() {
         super();
         this.langServerConnection = undefined;
+        this.lsCommands = [];
         this.getLangServerConnection = this.getLangServerConnection.bind(this);
     }
 
@@ -77,10 +84,65 @@ class BallerinaPlugin extends Plugin {
             if (this.langServerConnection) {
                 resolve(this.langServerConnection);
             } else {
-                // Wait some time till the connection is available
-                setTimeout(() => {
-                    resolve(this.langServerConnection);
-                }, 1000);
+                const socketOptions = {
+                    maxReconnectionDelay: 10000,
+                    minReconnectionDelay: 1000,
+                    reconnectionDelayGrowFactor: 1.3,
+                    connectionTimeout: 10000,
+                    maxRetries: Infinity,
+                    debug: false,
+                };
+                // create the web socket
+                const url = getServiceEndpoint('ballerina-langserver');
+                const webSocket = new ReconnectingWebSocket(url, undefined, socketOptions);
+                const m2p = new MonacoToProtocolConverter();
+                const p2m = new ProtocolToMonacoConverter();
+                // listen when the web socket is opened
+                listen({
+                    webSocket,
+                    onConnection: (connection) => {
+                        // create and start the language client
+                        const languageClient = new BaseLanguageClient({
+                            name: 'Ballerina Language Client',
+                            clientOptions: {
+                                // use a language id as a document selector
+                                documentSelector: ['ballerina-lang'],
+                                // disable the default error handler
+                                errorHandler: {
+                                    error: () => ErrorAction.Continue,
+                                    closed: () => CloseAction.DoNotRestart,
+                                },
+                            },
+                            services: {
+                                commands: {
+                                    registerCommand: (command, callback, thisArg) => {
+                                        this.lsCommands.push({
+                                            command,
+                                            callback,
+                                            thisArg,
+                                        });
+                                        return { dispose: () => {} };
+                                    },
+                                },
+                                languages: new MonacoLanguages(p2m, m2p),
+                                workspace: new MonacoWorkspace(p2m, m2p),
+                                window: new ConsoleWindow(),
+                            },
+                            // create a language client connection from the JSON RPC connection on demand
+                            connectionProvider: {
+                                get: (errorHandler, closeHandler) => {
+                                    return Promise.resolve(createConnection(connection, errorHandler, closeHandler));
+                                },
+                            },
+                        });
+                        languageClient.onReady().then(() => {
+                            this.langServerConnection = connection;
+                            resolve(this.langServerConnection);
+                        });
+                        const disposable = languageClient.start();
+                        connection.onClose(() => disposable.dispose());
+                    },
+                });
             }
         });
     }
@@ -90,24 +152,6 @@ class BallerinaPlugin extends Plugin {
      */
     activate(appContext) {
         super.activate(appContext);
-        const socketOptions = {
-            maxReconnectionDelay: 10000,
-            minReconnectionDelay: 1000,
-            reconnectionDelayGrowFactor: 1.3,
-            connectionTimeout: 10000,
-            maxRetries: Infinity,
-            debug: false,
-        };
-        // create the web socket
-        const url = getServiceEndpoint('ballerina-langserver');
-        const webSocket = new ReconnectingWebSocket(url, undefined, socketOptions);
-        // listen when the web socket is opened
-        listen({
-            webSocket,
-            onConnection: (connection) => {
-                this.langServerConnection = connection;
-            },
-        });
     }
 
     /**
@@ -127,18 +171,7 @@ class BallerinaPlugin extends Plugin {
                         };
                     },
                     newFileContentProvider: (fileFullPath) => {
-                        if (!fileFullPath) {
-                            return '';
-                        }
-                        const { workspace } = this.appContext;
-                        const pathSep = getPathSeperator();
-                        const pathParts = fileFullPath.split(pathSep);
-                        pathParts.splice(-1, 1);
-                        const filePath = pathParts.join(pathSep);
-                        const workspaceDir = workspace.getExplorerFolderForPath(filePath);
-                        const programDir = workspaceDir ? workspaceDir.fullPath : undefined;
-                        const pkg = getCorrectPackageForPath(programDir, filePath);
-                        return pkg ? `package ${pkg};` : '';
+                        return '';
                     },
                 },
             ],
@@ -227,7 +260,7 @@ class BallerinaPlugin extends Plugin {
                                         }
                                     })
                                     .catch((error) => {
-                                        log.error(error);
+                                        log.error(error.message);
                                     });
                                 };
 
@@ -267,7 +300,7 @@ class BallerinaPlugin extends Plugin {
                     cmdID: WORKSPACE_EVENTS.FILE_OPENED,
                     handler: ({ file }) => {
                         parseFile(file)
-                            .then(({ programDirPath = undefined }) => {
+                            .then(({ programDirPath = undefined, debugPackagePath }) => {
                                 const { workspace, command: { dispatch } } = this.appContext;
                                 if (programDirPath && !workspace.isFilePathOpenedInExplorer(programDirPath)) {
                                     dispatch(LAYOUT_COMMANDS.POPUP_DIALOG, {
@@ -280,6 +313,9 @@ class BallerinaPlugin extends Plugin {
                                             },
                                         },
                                     });
+                                }
+                                if (debugPackagePath) {
+                                    file.debugPackagePath = debugPackagePath;
                                 }
                             });
                     },
@@ -298,6 +334,15 @@ class BallerinaPlugin extends Plugin {
                 {
                     id: DIALOG_IDS.FIX_PACKAGE_NAME_OR_PATH_CONFIRM,
                     component: FixPackageNameOrPathConfirmDialog,
+                    propsProvider: () => {
+                        return {
+                            ballerinaPlugin: this,
+                        };
+                    },
+                },
+                {
+                    id: DIALOG_IDS.INVALID_SWAGGER_DIALOG,
+                    component: InvalidSwaggerDialog,
                     propsProvider: () => {
                         return {
                             ballerinaPlugin: this,

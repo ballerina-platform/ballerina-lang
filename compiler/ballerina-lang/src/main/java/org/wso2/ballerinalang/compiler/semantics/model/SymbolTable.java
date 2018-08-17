@@ -25,7 +25,7 @@ import org.ballerinalang.model.types.TypeKind;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BConversionOperatorSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BOperatorSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BStructSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BRecordTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
@@ -38,8 +38,8 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BJSONType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BMapType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BNilType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BNoType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStreamType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BStructType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
@@ -69,7 +69,13 @@ public class SymbolTable {
 
     public static final PackageID BUILTIN = new PackageID(Names.BUILTIN_ORG,
                                                           Names.BUILTIN_PACKAGE,
-                                                          Names.DEFAULT_VERSION);
+                                                          Names.EMPTY);
+    public static final PackageID RUNTIME = new PackageID(Names.BUILTIN_ORG,
+            Names.RUNTIME_PACKAGE,
+            Names.EMPTY);
+
+    public static final Integer BBYTE_MIN_VALUE = 0;
+    public static final Integer BBYTE_MAX_VALUE = 255;
 
     public final BLangPackage rootPkgNode;
     public final BPackageSymbol rootPkgSymbol;
@@ -79,10 +85,10 @@ public class SymbolTable {
     public final BType noType = new BNoType(TypeTags.NONE);
     public final BType nilType = new BNilType();
     public final BType intType = new BType(TypeTags.INT, null);
+    public final BType byteType = new BType(TypeTags.BYTE, null);
     public final BType floatType = new BType(TypeTags.FLOAT, null);
     public final BType stringType = new BType(TypeTags.STRING, null);
     public final BType booleanType = new BType(TypeTags.BOOLEAN, null);
-    public final BType blobType = new BType(TypeTags.BLOB, null);
     public final BType typeDesc = new BType(TypeTags.TYPEDESC, null);
     public final BType jsonType = new BJSONType(TypeTags.JSON, noType, null);
     public final BType xmlType = new BXMLType(TypeTags.XML, null);
@@ -92,13 +98,14 @@ public class SymbolTable {
     public final BType mapType = new BMapType(TypeTags.MAP, anyType, null);
     public final BType futureType = new BFutureType(TypeTags.FUTURE, nilType, null);
     public final BType xmlAttributesType = new BXMLAttributesType(TypeTags.XML_ATTRIBUTES);
-    public final BType endpointType = new BType(TypeTags.CONNECTOR, null);
+    public final BType endpointType = new BType(TypeTags.ENDPOINT, null);
     public final BType arrayType = new BArrayType(noType);
+    public final BType intArrayType = new BArrayType(intType);
 
     public final BTypeSymbol errSymbol;
     public final BType errType;
 
-    public BStructType errStructType;
+    public BRecordType errStructType;
 
     public BPackageSymbol builtInPackageSymbol;
     private Names names;
@@ -127,10 +134,10 @@ public class SymbolTable {
                 rootPkgSymbol.pkgID, noType, rootPkgSymbol);
         // Initialize built-in types in Ballerina
         initializeType(intType, TypeKind.INT.typeName());
+        initializeType(byteType, TypeKind.BYTE.typeName());
         initializeType(floatType, TypeKind.FLOAT.typeName());
         initializeType(stringType, TypeKind.STRING.typeName());
         initializeType(booleanType, TypeKind.BOOLEAN.typeName());
-        initializeType(blobType, TypeKind.BLOB.typeName());
         initializeType(typeDesc, TypeKind.TYPEDESC.typeName());
         initializeType(jsonType, TypeKind.JSON.typeName());
         initializeType(xmlType, TypeKind.XML.typeName());
@@ -148,9 +155,10 @@ public class SymbolTable {
         defineType(errType, errSymbol);
 
         // Initialize Ballerina error struct type temporally.
-        BTypeSymbol errorStructSymbol = new BStructSymbol(SymTag.STRUCT, Flags.PUBLIC, Names.ERROR,
+        BTypeSymbol errorStructSymbol = new BRecordTypeSymbol(SymTag.RECORD, Flags.PUBLIC, Names.ERROR,
                 rootPkgSymbol.pkgID, null, rootPkgSymbol);
-        this.errStructType = new BStructType(errorStructSymbol);
+        this.errStructType = new BRecordType(errorStructSymbol);
+        this.errStructType.restFieldType = new BAnyType(TypeTags.ANY, null);
         errorStructSymbol.type = this.errStructType;
         errorStructSymbol.scope = new Scope(errorStructSymbol);
         defineType(this.errStructType, errorStructSymbol);
@@ -163,14 +171,14 @@ public class SymbolTable {
         switch (tag) {
             case TypeTags.INT:
                 return intType;
+            case TypeTags.BYTE:
+                return byteType;
             case TypeTags.FLOAT:
                 return floatType;
             case TypeTags.STRING:
                 return stringType;
             case TypeTags.BOOLEAN:
                 return booleanType;
-            case TypeTags.BLOB:
-                return blobType;
             case TypeTags.JSON:
                 return jsonType;
             case TypeTags.XML:
@@ -231,9 +239,28 @@ public class SymbolTable {
         defineBinaryOperator(OperatorKind.MOD, intType, intType, intType, InstructionCodes.IMOD);
         defineBinaryOperator(OperatorKind.MOD, floatType, intType, floatType, InstructionCodes.FMOD);
         defineBinaryOperator(OperatorKind.MOD, intType, floatType, floatType, InstructionCodes.FMOD);
+        defineBinaryOperator(OperatorKind.BITWISE_AND, byteType, byteType, byteType, InstructionCodes.BIAND);
+        defineBinaryOperator(OperatorKind.BITWISE_AND, intType, intType, intType, InstructionCodes.IAND);
+        defineBinaryOperator(OperatorKind.BITWISE_OR, byteType, byteType, byteType, InstructionCodes.BIOR);
+        defineBinaryOperator(OperatorKind.BITWISE_OR, intType, intType, intType, InstructionCodes.IOR);
+        defineBinaryOperator(OperatorKind.BITWISE_XOR, byteType, byteType, byteType, InstructionCodes.BIXOR);
+        defineBinaryOperator(OperatorKind.BITWISE_XOR, intType, intType, intType, InstructionCodes.IXOR);
+        defineBinaryOperator(OperatorKind.BITWISE_LEFT_SHIFT, intType, intType, intType, InstructionCodes.ILSHIFT);
+        defineBinaryOperator(OperatorKind.BITWISE_LEFT_SHIFT, intType, byteType, intType, InstructionCodes.ILSHIFT);
+        defineBinaryOperator(OperatorKind.BITWISE_LEFT_SHIFT, byteType, byteType, byteType, InstructionCodes.BILSHIFT);
+        defineBinaryOperator(OperatorKind.BITWISE_LEFT_SHIFT, byteType, intType, byteType, InstructionCodes.BILSHIFT);
+        defineBinaryOperator(OperatorKind.BITWISE_RIGHT_SHIFT, intType, intType, intType, InstructionCodes.IRSHIFT);
+        defineBinaryOperator(OperatorKind.BITWISE_RIGHT_SHIFT, intType, byteType, intType, InstructionCodes.IRSHIFT);
+        defineBinaryOperator(OperatorKind.BITWISE_RIGHT_SHIFT, byteType, byteType, byteType, InstructionCodes.BIRSHIFT);
+        defineBinaryOperator(OperatorKind.BITWISE_RIGHT_SHIFT, byteType, intType, byteType, InstructionCodes.BIRSHIFT);
+        defineBinaryOperator(OperatorKind.BITWISE_UNSIGNED_RIGHT_SHIFT, intType, intType, intType,
+                InstructionCodes.IURSHIFT);
+        defineBinaryOperator(OperatorKind.BITWISE_UNSIGNED_RIGHT_SHIFT, intType, byteType, intType,
+                InstructionCodes.IURSHIFT);
 
         // Binary equality operators ==, !=
         defineBinaryOperator(OperatorKind.EQUAL, intType, intType, booleanType, InstructionCodes.IEQ);
+        defineBinaryOperator(OperatorKind.EQUAL, byteType, byteType, booleanType, InstructionCodes.BEQ);
         defineBinaryOperator(OperatorKind.EQUAL, floatType, floatType, booleanType, InstructionCodes.FEQ);
         defineBinaryOperator(OperatorKind.EQUAL, booleanType, booleanType, booleanType, InstructionCodes.BEQ);
         defineBinaryOperator(OperatorKind.EQUAL, stringType, stringType, booleanType, InstructionCodes.SEQ);
@@ -255,6 +282,7 @@ public class SymbolTable {
         defineBinaryOperator(OperatorKind.EQUAL, stringType, nilType, booleanType, InstructionCodes.SEQ_NULL);
         defineBinaryOperator(OperatorKind.EQUAL, nilType, stringType, booleanType, InstructionCodes.SEQ_NULL);
         defineBinaryOperator(OperatorKind.NOT_EQUAL, intType, intType, booleanType, InstructionCodes.INE);
+        defineBinaryOperator(OperatorKind.NOT_EQUAL, byteType, byteType, booleanType, InstructionCodes.BNE);
         defineBinaryOperator(OperatorKind.NOT_EQUAL, floatType, floatType, booleanType, InstructionCodes.FNE);
         defineBinaryOperator(OperatorKind.NOT_EQUAL, booleanType, booleanType, booleanType, InstructionCodes.BNE);
         defineBinaryOperator(OperatorKind.NOT_EQUAL, stringType, stringType, booleanType, InstructionCodes.SNE);
@@ -297,6 +325,9 @@ public class SymbolTable {
         defineBinaryOperator(OperatorKind.GREATER_EQUAL, intType, floatType, booleanType, InstructionCodes.FGE);
         defineBinaryOperator(OperatorKind.GREATER_EQUAL, floatType, floatType, booleanType, InstructionCodes.FGE);
 
+        defineBinaryOperator(OperatorKind.CLOSED_RANGE, intType, intType, intArrayType, InstructionCodes.INT_RANGE);
+        defineBinaryOperator(OperatorKind.HALF_OPEN_RANGE, intType, intType, intArrayType, InstructionCodes.INT_RANGE);
+
         defineBinaryOperator(OperatorKind.AND, booleanType, booleanType, booleanType, -1);
         defineBinaryOperator(OperatorKind.OR, booleanType, booleanType, booleanType, -1);
 
@@ -308,37 +339,38 @@ public class SymbolTable {
         defineUnaryOperator(OperatorKind.SUB, intType, intType, InstructionCodes.INEG);
 
         defineUnaryOperator(OperatorKind.NOT, booleanType, booleanType, InstructionCodes.BNOT);
+        defineUnaryOperator(OperatorKind.BITWISE_COMPLEMENT, byteType, byteType, -1);
+        defineUnaryOperator(OperatorKind.BITWISE_COMPLEMENT, intType, intType, -1);
 
         defineUnaryOperator(OperatorKind.LENGTHOF, jsonType, intType, InstructionCodes.LENGTHOF);
         defineUnaryOperator(OperatorKind.LENGTHOF, arrayType, intType, InstructionCodes.LENGTHOF);
         defineUnaryOperator(OperatorKind.LENGTHOF, xmlType, intType, InstructionCodes.LENGTHOF);
         defineUnaryOperator(OperatorKind.LENGTHOF, mapType, intType, InstructionCodes.LENGTHOF);
         defineUnaryOperator(OperatorKind.LENGTHOF, stringType, intType, InstructionCodes.LENGTHOF);
-        defineUnaryOperator(OperatorKind.LENGTHOF, blobType, intType, InstructionCodes.LENGTHOF);
 
         defineConversionOperators();
     }
 
     private void defineConversionOperators() {
         // Define both implicit and explicit conversion operators
-        defineImplicitConversionOperator(intType, jsonType, true, InstructionCodes.I2JSON);
+        defineImplicitConversionOperator(intType, jsonType, true, InstructionCodes.I2ANY);
         defineImplicitConversionOperator(intType, anyType, true, InstructionCodes.I2ANY);
         defineImplicitConversionOperator(intType, floatType, true, InstructionCodes.I2F);
-        defineImplicitConversionOperator(floatType, jsonType, true, InstructionCodes.F2JSON);
+        defineImplicitConversionOperator(byteType, anyType, true, InstructionCodes.BI2ANY);
+        defineImplicitConversionOperator(floatType, jsonType, true, InstructionCodes.F2ANY);
         defineImplicitConversionOperator(floatType, anyType, true, InstructionCodes.F2ANY);
-        defineImplicitConversionOperator(stringType, jsonType, true, InstructionCodes.S2JSON);
+        defineImplicitConversionOperator(stringType, jsonType, true, InstructionCodes.S2ANY);
         defineImplicitConversionOperator(stringType, anyType, true, InstructionCodes.S2ANY);
-        defineImplicitConversionOperator(booleanType, jsonType, true, InstructionCodes.B2JSON);
+        defineImplicitConversionOperator(booleanType, jsonType, true, InstructionCodes.B2ANY);
         defineImplicitConversionOperator(booleanType, anyType, true, InstructionCodes.B2ANY);
-        defineImplicitConversionOperator(blobType, anyType, true, InstructionCodes.L2ANY);
         defineImplicitConversionOperator(typeDesc, anyType, true, InstructionCodes.NOP);
 
         // Define explicit conversion operators
         defineConversionOperator(anyType, intType, false, InstructionCodes.CHECKCAST);
+        defineConversionOperator(anyType, byteType, false, InstructionCodes.CHECKCAST);
         defineConversionOperator(anyType, floatType, false, InstructionCodes.CHECKCAST);
         defineConversionOperator(anyType, stringType, false, InstructionCodes.CHECKCAST);
         defineConversionOperator(anyType, booleanType, false, InstructionCodes.CHECKCAST);
-        defineConversionOperator(anyType, blobType, false, InstructionCodes.CHECKCAST);
         defineConversionOperator(anyType, typeDesc, false, InstructionCodes.ANY2TYPE);
         defineConversionOperator(anyType, jsonType, false, InstructionCodes.ANY2JSON);
         defineConversionOperator(anyType, xmlType, false, InstructionCodes.ANY2XML);
@@ -356,6 +388,8 @@ public class SymbolTable {
 //        defineConversionOperator(intType, floatType, true, InstructionCodes.I2F);
         defineConversionOperator(intType, booleanType, true, InstructionCodes.I2B);
         defineConversionOperator(intType, stringType, true, InstructionCodes.I2S);
+        defineConversionOperator(intType, byteType, false, InstructionCodes.I2BI);
+        defineConversionOperator(byteType, intType, true, InstructionCodes.BI2I);
         defineConversionOperator(floatType, intType, true, InstructionCodes.F2I);
         defineConversionOperator(floatType, booleanType, true, InstructionCodes.F2B);
         defineConversionOperator(floatType, stringType, true, InstructionCodes.F2S);

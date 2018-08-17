@@ -24,6 +24,7 @@ import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.repository.CompiledPackage;
 import org.ballerinalang.repository.CompilerOutputEntry;
 import org.wso2.ballerinalang.compiler.codegen.CodeGenerator;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.ProjectDirConstants;
@@ -35,6 +36,7 @@ import org.wso2.ballerinalang.programfile.ProgramFileWriter;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.PrintStream;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ServiceLoader;
@@ -56,6 +58,7 @@ public class BinaryFileWriter {
 
     private final CodeGenerator codeGenerator;
     private final SourceDirectory sourceDirectory;
+    private static PrintStream outStream = System.out;
 
     public static BinaryFileWriter getInstance(CompilerContext context) {
         BinaryFileWriter binaryFileWriter = context.get(BINARY_FILE_WRITER_KEY);
@@ -79,14 +82,19 @@ public class BinaryFileWriter {
     }
 
     public void write(BLangPackage packageNode) {
+        if (packageNode.symbol.entryPointExists) {
+            writeExecutableBinary(packageNode);
+        }
         writeLibraryPackage(packageNode);
-        writeExecutableBinary(packageNode);
     }
 
     public void write(BLangPackage packageNode, String fileName) {
         // TODO Reuse binary content in PackageFile when writing the program file..
+        if (packageNode.symbol.entryPointExists) {
+            outStream.println("Generating executable");
+            writeExecutableBinary(packageNode, fileName);
+        }
         writeLibraryPackage(packageNode);
-        writeExecutableBinary(packageNode, fileName);
     }
 
     public void writeExecutableBinary(BLangPackage packageNode) {
@@ -95,11 +103,6 @@ public class BinaryFileWriter {
     }
 
     public void writeExecutableBinary(BLangPackage packageNode, String fileName) {
-        // Filter out package which doesn't have entry points
-        if (!packageNode.symbol.entryPointExists) {
-            return;
-        }
-
         String execFileName = cleanupExecFileName(fileName);
 
         // Generate code for the given executable
@@ -115,24 +118,26 @@ public class BinaryFileWriter {
                 .toByteArray()), execFileName);
         ServiceLoader<CompilerPlugin> processorServiceLoader = ServiceLoader.load(CompilerPlugin.class);
         processorServiceLoader.forEach(plugin -> {
-            plugin.codeGenerated(execFilePath);
+            plugin.codeGenerated(packageNode.packageID, execFilePath);
         });
     }
 
     public void writeLibraryPackage(BLangPackage packageNode) {
         String fileName = getOutputFileName(packageNode, BLANG_COMPILED_PKG_EXT);
-        writeLibraryPackage(packageNode, fileName);
+        writeLibraryPackage(packageNode.symbol, fileName);
     }
 
-    public void writeLibraryPackage(BLangPackage packageNode, String compiledPackageFileName) {
+    public void writeLibraryPackage(BPackageSymbol symbol, String compiledPackageFileName) {
+        PackageID packageID = symbol.pkgID;
+
         // Filter out packages which loaded from BALOs
-        CompiledPackage compiledPackage = packageNode.symbol.compiledPackage;
+        CompiledPackage compiledPackage = symbol.compiledPackage;
         if (compiledPackage.getKind() == CompiledPackage.Kind.FROM_BINARY) {
             return;
         }
 
         // Filter out unnamed packages
-        if (packageNode.packageID.isUnnamed) {
+        if (packageID.isUnnamed) {
             return;
         }
 
@@ -144,14 +149,13 @@ public class BinaryFileWriter {
             compiledPackageFileName += BLANG_COMPILED_PKG_EXT;
         }
 
-        Path destDirPath = getPackageDirPathInProjectRepo(packageNode.packageID);
+        Path destDirPath = getPackageDirPathInProjectRepo(packageID);
         try {
-            addPackageBinaryContent(packageNode.packageID,
-                    packageNode.symbol.packageFile, compiledPackage);
+            addPackageBinaryContent(packageID, symbol.packageFile, compiledPackage);
             this.sourceDirectory.saveCompiledPackage(compiledPackage, destDirPath, compiledPackageFileName);
         } catch (IOException e) {
             String msg = "error writing the compiled package(balo) of '" +
-                    packageNode.packageID + "' to '" + destDirPath + "': " + e.getMessage();
+                    packageID + "' to '" + destDirPath + "': " + e.getMessage();
             throw new BLangCompilerException(msg, e);
         }
     }

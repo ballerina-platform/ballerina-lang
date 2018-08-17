@@ -1,0 +1,17 @@
+{
+  "position": {
+    "line": 5,
+    "character": 8
+  },
+  "source": "resource/source/suggestResourceAsFunctionNegative.bal",
+  "items": [
+    {
+      "label":"sayHello(http:Listener client, http:Request request)",
+      "kind":"Function",
+      "detail":"Function",
+      "sortText":"120",
+      "insertText":"sayHello(${1:client}, ${2:request})",
+      "insertTextFormat":"Snippet"
+    }
+  ]
+}

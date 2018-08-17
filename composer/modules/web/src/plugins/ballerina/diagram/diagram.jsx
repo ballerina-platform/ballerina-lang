@@ -19,11 +19,9 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import CanvasDecorator from './views/default/components/decorators/canvas-decorator';
-import ControllerOverlay from './views/default/components/decorators/controller-overlay';
 import PositionVisitor from './visitors/position-visitor';
 import EndpointAggregatorVisitor from './visitors/endpoint-aggregator-visitor';
 import DimensionVisitor from './visitors/dimension-visitor';
-import ErrorRenderer from './visitors/error-rendering-visitor';
 import WorkerInvocationSyncVisitor from './visitors/worker-invocation-sync-visitor';
 import InvocationArrowPositionVisitor from './visitors/worker-invocation-arrow-position-sync-visitor';
 // import ArrowConflictResolver from '../visitors/arrow-conflict-resolver';
@@ -36,9 +34,7 @@ import {
     getWorkerInvocationSyncUtil,
     getInvocationArrowPositionUtil,
     getConfig,
-//    getErrorCollectorUtil,
 } from './diagram-util';
-import ActiveArbiter from './views/default/components/decorators/active-arbiter';
 import CompilationUnitNode from './../model/tree/compilation-unit-node';
 
 const padding = 5;
@@ -61,7 +57,6 @@ class Diagram extends React.Component {
         this.dimentionVisitor = new DimensionVisitor();
         this.positionCalc = new PositionVisitor();
         this.endpointAggregator = new EndpointAggregatorVisitor();
-        this.errorRenderer = new ErrorRenderer();
         this.workerInvocationSynVisitor = new WorkerInvocationSyncVisitor();
         this.invocationArrowPositionVisitor = new InvocationArrowPositionVisitor();
     }
@@ -73,10 +68,10 @@ class Diagram extends React.Component {
     getChildContext() {
         return {
             astRoot: this.props.model,
-            activeArbiter: new ActiveArbiter(),
             mode: this.props.mode,
             designer: getSizingUtil(this.props.mode),
             config: getConfig(this.props.mode),
+            editMode: this.props.editMode,
         };
     }
 
@@ -91,7 +86,7 @@ class Diagram extends React.Component {
 
         this.endpointAggregator.setAggregatorUtil(getEndpointAggregatorUtil(this.props.mode));
         this.props.model.accept(this.endpointAggregator);
-        
+
         // 2. We will visit the model tree and calculate width and height of all
         //    the elements. We will run the DimensionVisitor.
         this.dimentionVisitor.setSizingUtil(getSizingUtil(this.props.mode));
@@ -110,7 +105,7 @@ class Diagram extends React.Component {
             width: this.props.width - padding,
             height: this.props.height - padding,
         };
-        
+
         // 5. Now we will visit the model again and calculate position of each node
         //    in the tree. We will use PositionCalcVisitor for this.
         this.positionCalc.setPositioningUtil(getPositioningUtil(this.props.mode));
@@ -133,7 +128,6 @@ class Diagram extends React.Component {
         const tln = (this.props.model.getTopLevelNodes()) ? this.props.model.getTopLevelNodes() : [];
         const children = getComponentForNodeArray(tln, this.props.mode);
 
-        const overlay = <ControllerOverlay model={this.props.model} />;
         // get container dimentions to fit svg when mode is fit-to-screen
         const { width, height } = this.props;
 
@@ -142,7 +136,6 @@ class Diagram extends React.Component {
         return (<CanvasDecorator
             dropTarget={this.props.model}
             bBox={viewState.bBox}
-            overlay={overlay}
             containerSize={{
                 width,
                 height,
@@ -160,6 +153,7 @@ Diagram.propTypes = {
     width: PropTypes.number.isRequired,
     height: PropTypes.number.isRequired,
     disabled: PropTypes.bool.isRequired,
+    editMode: PropTypes.bool,
 };
 
 Diagram.contextTypes = {
@@ -174,14 +168,15 @@ Diagram.contextTypes = {
 Diagram.childContextTypes = {
     astRoot: PropTypes.instanceOf(CompilationUnitNode).isRequired,
     mode: PropTypes.string,
-    activeArbiter: PropTypes.instanceOf(ActiveArbiter).isRequired,
     designer: PropTypes.instanceOf(Object).isRequired,
     config: PropTypes.instanceOf(Object).isRequired,
+    editMode: PropTypes.bool,
 };
 
 Diagram.defaultProps = {
     mode: 'default',
     disabled: false,
+    editMode: true,
 };
 
 export default Diagram;

@@ -36,6 +36,9 @@ import java.util.concurrent.atomic.AtomicInteger;
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertTrue;
 
+/**
+ * Testcase for external time batch defined window.
+ */
 public class ExternalTimeBatchWindowTestCase {
 
 

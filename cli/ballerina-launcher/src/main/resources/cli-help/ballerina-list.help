@@ -1,0 +1,19 @@
+NAME
+    Ballerina list - List dependencies for project or package
+
+SYNOPSIS
+      ballerina list <package-name>
+
+DESCRIPTION
+     Ballerina list command prints a complete tree of dependant 
+     packages for a given Ballerina project or package.
+
+OPTIONS
+     Ballerina list command takes no options.
+
+EXAMPLES
+     List packages and local transitive dependencies of a project
+     $ ballerina list
+
+     List dependencies for math package 
+     $ ballerina list math

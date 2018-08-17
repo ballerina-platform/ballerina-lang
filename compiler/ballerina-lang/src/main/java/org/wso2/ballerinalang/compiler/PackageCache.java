@@ -57,7 +57,7 @@ public class PackageCache {
     }
 
     public BLangPackage get(PackageID packageID) {
-        return packageMap.get(packageID.bvmAlias());
+        return packageMap.get(getCacheID(packageID));
     }
 
     public BLangPackage get(String pkgPath) {
@@ -68,14 +68,26 @@ public class PackageCache {
         if (bLangPackage != null) {
             bLangPackage.packageID = packageID;
         }
-        packageMap.put(packageID.bvmAlias(), bLangPackage);
+        packageMap.put(getCacheID(packageID), bLangPackage);
+    }
+
+    public static String getCacheID(PackageID packageID) {
+        String bvmAlias = packageID.toString();
+        if (packageID.sourceFileName != null) {
+            bvmAlias = bvmAlias + "-" + packageID.sourceFileName.getValue();
+        }
+        return bvmAlias;
     }
 
     public BPackageSymbol getSymbol(PackageID packageID) {
-        return this.packageSymbolMap.get(packageID.bvmAlias());
+        return getSymbol(packageID.toString());
+    }
+
+    public BPackageSymbol getSymbol(String bvmAlias) {
+        return this.packageSymbolMap.get(bvmAlias);
     }
 
     public void putSymbol(PackageID packageID, BPackageSymbol packageSymbol) {
-        this.packageSymbolMap.put(packageID.bvmAlias(), packageSymbol);
+        this.packageSymbolMap.put(packageID.toString(), packageSymbol);
     }
 }

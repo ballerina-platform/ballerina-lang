@@ -14,8 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-
-public type TransactionContext {
+public type TransactionContext record {
     @readonly string contextVersion = "1.0";
     @readonly string transactionId;
     @readonly int transactionBlockId;
@@ -23,13 +22,13 @@ public type TransactionContext {
     @readonly string registerAtURL;
 };
 
-type RegistrationRequest {
+type RegistrationRequest record {
     string transactionId;
     string participantId;
     RemoteProtocol[] participantProtocols;
 };
 
-type RegistrationResponse {
+type RegistrationResponse record {
     string transactionId;
     RemoteProtocol[] coordinatorProtocols;
 };
@@ -37,29 +36,29 @@ type RegistrationResponse {
 function toProtocolArray(RemoteProtocol[] remoteProtocols) returns Protocol[] {
     Protocol[] protocols;
     foreach remoteProtocol in remoteProtocols {
-        Protocol proto = {name: remoteProtocol.name};
+        Protocol proto = {name:remoteProtocol.name};
         protocols[lengthof protocols] = proto;
     }
     return protocols;
 }
 
-public type RequestError {
+public type RequestError record {
     string errorMessage;
 };
 
-public type PrepareRequest {
+public type PrepareRequest record {
     string transactionId;
 };
 
-public type PrepareResponse {
+public type PrepareResponse record {
     string message;
 };
 
-public type NotifyRequest {
+public type NotifyRequest record {
     string transactionId;
     string message;
 };
 
-public type NotifyResponse {
+public type NotifyResponse record {
     string message;
 };

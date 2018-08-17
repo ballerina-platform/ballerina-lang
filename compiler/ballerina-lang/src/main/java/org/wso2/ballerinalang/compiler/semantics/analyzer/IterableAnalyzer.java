@@ -525,7 +525,8 @@ public class IterableAnalyzer {
                 // 1. whether number of return values of the lambda function is 1.
                 // 2. Whether it is a struct that is returned
                 // 3. Whether the returned struct is compatible with the constraint struct of the expected type(table)
-                if (tupleType.getTupleTypes().size() == 1 && tupleType.getTupleTypes().get(0).tag == TypeTags.STRUCT
+                if (tupleType.getTupleTypes().size() == 1 && (tupleType.getTupleTypes().get(0).tag == TypeTags.OBJECT
+                        || tupleType.getTupleTypes().get(0).tag == TypeTags.RECORD)
                         && types.isAssignable(tupleType.getTupleTypes().get(0), ((BTableType) expectedType)
                         .constraint)) {
                     context.resultType = symTable.tableType;

@@ -20,6 +20,8 @@ package org.ballerinalang.packerina.init;
 
 import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.CompileResult;
+import org.ballerinalang.packerina.init.models.FileType;
+import org.ballerinalang.packerina.init.models.PackageMdFile;
 import org.ballerinalang.packerina.init.models.SrcFile;
 import org.ballerinalang.toml.model.Manifest;
 import org.testng.Assert;
@@ -54,13 +56,20 @@ public class InitHandlerTest {
         manifest.setName("wso2");
         manifest.setVersion("1.0.0");
     
-        SrcFile packageFile = new SrcFile("wso2_abc", SrcFile.SrcFileType.SERVICE);
-        SrcFile mainFile = new SrcFile("main_runner", SrcFile.SrcFileType.MAIN);
+        SrcFile packageFile = new SrcFile("wso2_abc", FileType.SERVICE);
+        SrcFile mainFile = new SrcFile("main_runner", FileType.MAIN);
         List<SrcFile> srcFiles = new ArrayList<>();
         srcFiles.add(packageFile);
         srcFiles.add(mainFile);
-        
-        InitHandler.initialize(tmpDir, manifest, srcFiles);
+
+        List<PackageMdFile> packageMdFiles = new ArrayList<>();
+        PackageMdFile packageMdFileForService = new PackageMdFile("wso2_abc", FileType.SERVICE);
+        PackageMdFile packageMdFileForMain = new PackageMdFile("main_runner", FileType.MAIN);
+
+        packageMdFiles.add(packageMdFileForService);
+        packageMdFiles.add(packageMdFileForMain);
+
+        InitHandler.initialize(tmpDir, manifest, srcFiles, packageMdFiles);
     
         Path tomlFile = tmpDir.resolve("Ballerina.toml");
         byte[] tomlFileBytes = Files.readAllBytes(tomlFile);

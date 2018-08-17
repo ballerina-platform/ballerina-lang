@@ -17,7 +17,9 @@
 */
 package org.ballerinalang.bre.bvm;
 
-import org.ballerinalang.model.values.BStruct;
+import org.ballerinalang.config.ConfigRegistry;
+import org.ballerinalang.model.values.BMap;
+import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.util.codegen.CallableUnitInfo;
 import org.ballerinalang.util.codegen.Instruction;
 import org.ballerinalang.util.codegen.ProgramFile;
@@ -70,18 +72,22 @@ public class WorkerExecutionContext {
     
     public boolean runInCaller;
 
-    private BStruct error;
+    private BMap<String, BValue> error;
 
     private DebugContext debugContext;
+
+    private static final String DISTRIBUTED_TRANSACTIONS = "b7a.distributed.transactions.enabled";
+
+    private static final String FALSE = "false";
 
     public WorkerExecutionContext(ProgramFile programFile) {
         this.programFile = programFile;
         this.globalProps = new HashMap<>();
         this.runInCaller = true;
-        setGlobalTransactionEnabled(programFile.isDistributedTransactionEnabled());
+        configureDistributedTransactions();
     }
     
-    public WorkerExecutionContext(BStruct error) {
+    public WorkerExecutionContext(BMap<String, BValue> error) {
         this.error = error;
         this.workerInfo = new WorkerInfo(0, WORKER_NAME_NATIVE);
     }
@@ -142,11 +148,11 @@ public class WorkerExecutionContext {
         this.programFile.getDebugger().addWorkerContext(this);
     }
     
-    public void setError(BStruct error) {
+    public void setError(BMap<String, BValue> error) {
         this.error = error;
     }
     
-    public BStruct getError() {
+    public BMap<String, BValue> getError() {
         return error;
     }
 
@@ -160,10 +166,6 @@ public class WorkerExecutionContext {
 
     public LocalTransactionInfo getLocalTransactionInfo() {
         return BLangVMUtils.getTransactionInfo(this);
-    }
-
-    public void setGlobalTransactionEnabled(boolean isGlobalTransactionEnabled) {
-        BLangVMUtils.setGlobalTransactionEnabledStatus(this, isGlobalTransactionEnabled);
     }
 
     public boolean getGlobalTransactionEnabled() {
@@ -196,5 +198,14 @@ public class WorkerExecutionContext {
     public boolean equals(Object rhs) {
         return this == rhs;
     }
-    
+
+    private void configureDistributedTransactions() {
+        String distributedTransactionsEnabledConfig = ConfigRegistry.getInstance()
+                .getAsString(DISTRIBUTED_TRANSACTIONS);
+        boolean distributedTransactionEnabled = true;
+        if (distributedTransactionsEnabledConfig != null && distributedTransactionsEnabledConfig.equals(FALSE)) {
+            distributedTransactionEnabled = false;
+        }
+        BLangVMUtils.setGlobalTransactionEnabledStatus(this, distributedTransactionEnabled);
+    }
 }

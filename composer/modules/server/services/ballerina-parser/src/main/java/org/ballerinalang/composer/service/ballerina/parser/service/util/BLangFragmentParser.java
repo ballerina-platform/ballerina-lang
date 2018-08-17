@@ -20,20 +20,22 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.composer.service.ballerina.parser.service.BLangFragmentParserConstants;
-import org.ballerinalang.composer.service.ballerina.parser.service.BLangJSONModelConstants;
+import org.ballerinalang.composer.service.ballerina.parser.service.JSONModelConstants;
 import org.ballerinalang.composer.service.ballerina.parser.service.model.BLangSourceFragment;
 import org.ballerinalang.langserver.compiler.LSCompiler;
+import org.ballerinalang.langserver.compiler.LSCompilerException;
+import org.ballerinalang.langserver.compiler.LSCompilerUtil;
 import org.ballerinalang.langserver.compiler.common.modal.BallerinaFile;
+import org.ballerinalang.langserver.compiler.format.JSONGenerationException;
 import org.ballerinalang.langserver.compiler.format.TextDocumentFormatUtil;
 import org.ballerinalang.langserver.compiler.workspace.WorkspaceDocumentManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.ballerinalang.compiler.tree.BLangCompilationUnit;
 
-import java.io.IOException;
+import java.nio.file.Path;
 import java.util.HashMap;
-
-import static org.ballerinalang.langserver.compiler.LSCompiler.UNTITLED_BAL;
+import java.util.Optional;
 
 /**
  * Utility for parsing BLang source fragments.
@@ -69,29 +71,37 @@ public class BLangFragmentParser {
 
     protected static JsonObject getJsonNodeForFragment(JsonObject jsonModel, BLangSourceFragment fragment) {
         JsonObject fragmentNode = null;
-        JsonArray jsonArray = jsonModel.getAsJsonArray(BLangJSONModelConstants.TOP_LEVEL_NODES);
+        JsonArray jsonArray = jsonModel.getAsJsonArray(JSONModelConstants.TOP_LEVEL_NODES);
         JsonObject rootConstruct = jsonArray.get(0).getAsJsonObject(); // 0 is package def
         switch (fragment.getExpectedNodeType()) {
             case BLangFragmentParserConstants.TOP_LEVEL_NODE:
                 fragmentNode = rootConstruct;
                 break;
             case BLangFragmentParserConstants.SERVICE_RESOURCE:
-                fragmentNode = rootConstruct.getAsJsonArray(BLangJSONModelConstants.RESOURCES).get(0).getAsJsonObject();
+                fragmentNode = rootConstruct.getAsJsonArray(JSONModelConstants.RESOURCES).get(0).getAsJsonObject();
                 break;
             case BLangFragmentParserConstants.CONNECTOR_ACTION:
-                fragmentNode = rootConstruct.getAsJsonArray(BLangJSONModelConstants.ACTIONS).get(0).getAsJsonObject();
+                fragmentNode = rootConstruct.getAsJsonArray(JSONModelConstants.ACTIONS).get(0).getAsJsonObject();
                 break;
             case BLangFragmentParserConstants.WORKER:
-                fragmentNode = rootConstruct.getAsJsonArray(BLangJSONModelConstants.WORKERS)
+                fragmentNode = rootConstruct.getAsJsonArray(JSONModelConstants.WORKERS)
                         .get(0).getAsJsonObject();
                 break;
             case BLangFragmentParserConstants.VARIABLE_REFERENCE_LIST:
                 // 0 & 1 are function args and return types, 2 is the assignment statement
-                JsonObject assignmentStmt = rootConstruct.getAsJsonArray(BLangJSONModelConstants.CHILDREN)
+                JsonObject assignmentStmt = rootConstruct.getAsJsonArray(JSONModelConstants.CHILDREN)
                         .get(2).getAsJsonObject();
                 // 0th child is the var ref list expression of assignment stmt
-                fragmentNode = assignmentStmt.getAsJsonArray(BLangJSONModelConstants.CHILDREN)
+                fragmentNode = assignmentStmt.getAsJsonArray(JSONModelConstants.CHILDREN)
                         .get(0).getAsJsonObject();
+                break;
+            case BLangFragmentParserConstants.FIELD_DEFINITION_LIST:
+                // 0th element in the fields property of the record is fieldVariable.
+                fragmentNode = rootConstruct.getAsJsonObject(JSONModelConstants.TYPE_NODE)
+                        .getAsJsonArray(JSONModelConstants.FIELDS).get(0).getAsJsonObject();
+                break;
+            case BLangFragmentParserConstants.ANON_RECORD:
+                fragmentNode = jsonModel;
                 break;
             case BLangFragmentParserConstants.TRANSACTION_FAILED:
             case BLangFragmentParserConstants.EXPRESSION:
@@ -99,24 +109,24 @@ public class BLangFragmentParser {
                 // For Expression - 0th child is the var ref expression of var def stmt
                 // For Statement - 0 & 1 are function args and return types, 2 is the statement came from source
                 // fragment
-                fragmentNode = rootConstruct.getAsJsonObject(BLangJSONModelConstants.BODY)
-                        .getAsJsonArray(BLangJSONModelConstants.STATEMENTS).get(0).getAsJsonObject();
+                fragmentNode = rootConstruct.getAsJsonObject(JSONModelConstants.BODY)
+                        .getAsJsonArray(JSONModelConstants.STATEMENTS).get(0).getAsJsonObject();
                 break;
             case BLangFragmentParserConstants.ENDPOINT_VAR_DEF:
-                fragmentNode = rootConstruct.getAsJsonArray(BLangJSONModelConstants.ENDPOINT_NODES)
+                fragmentNode = rootConstruct.getAsJsonArray(JSONModelConstants.ENDPOINT_NODES)
                         .get(0).getAsJsonObject();
                 break;
             case BLangFragmentParserConstants.JOIN_CONDITION:
-                JsonObject bodyJsonObj = rootConstruct.getAsJsonObject(BLangJSONModelConstants.BODY);
-                fragmentNode = bodyJsonObj.getAsJsonArray(BLangJSONModelConstants.STATEMENTS).get(0).getAsJsonObject();
+                JsonObject bodyJsonObj = rootConstruct.getAsJsonObject(JSONModelConstants.BODY);
+                fragmentNode = bodyJsonObj.getAsJsonArray(JSONModelConstants.STATEMENTS).get(0).getAsJsonObject();
                 break;
             case BLangFragmentParserConstants.ARGUMENT_PARAMETER:
-                fragmentNode = rootConstruct.getAsJsonArray(BLangJSONModelConstants.PARAMETERS)
+                fragmentNode = rootConstruct.getAsJsonArray(JSONModelConstants.PARAMETERS)
                         .get(0)
                         .getAsJsonObject();
                 break;
             case BLangFragmentParserConstants.RETURN_PARAMETER:
-                fragmentNode = rootConstruct.getAsJsonArray(BLangJSONModelConstants.RETURN_PARAMETERS)
+                fragmentNode = rootConstruct.getAsJsonArray(JSONModelConstants.RETURN_PARAMETERS)
                         .get(0)
                         .getAsJsonObject();
                 break;
@@ -128,15 +138,16 @@ public class BLangFragmentParser {
     }
 
     protected static JsonElement getJsonModel(WorkspaceDocumentManager documentManager, String source)
-            throws IOException {
-        BLangCompilationUnit compilationUnit = null;
-        java.nio.file.Path filePath = LSCompiler.createAndGetTempFile(UNTITLED_BAL);
-        BallerinaFile model = LSCompiler.compileContent(source, filePath, CompilerPhase.DEFINE, documentManager, true);
-        if (model.getBLangPackage() != null) {
-            compilationUnit = model.getBLangPackage().getCompilationUnits().stream().
-                    filter(compUnit -> UNTITLED_BAL.equals(compUnit.getName())).findFirst().get();
-        }
-        return TextDocumentFormatUtil.generateJSON(compilationUnit, new HashMap<>());
+            throws LSCompilerException, JSONGenerationException {
+        Path filePath = LSCompilerUtil.createTempFile(LSCompilerUtil.UNTITLED_BAL);
+        LSCompiler lsCompiler = new LSCompiler(documentManager);
+        BallerinaFile model = lsCompiler.updateAndCompileFile(filePath, source, CompilerPhase.DEFINE,
+                                                              documentManager);
+        Optional<BLangCompilationUnit> compilationUnit = model.getBLangPackage()
+                .map(b -> b.getCompilationUnits().stream().filter(
+                        compUnit -> LSCompilerUtil.UNTITLED_BAL.equals(compUnit.getName())
+                ).findFirst().orElse(null));
+        return TextDocumentFormatUtil.generateJSON(compilationUnit.orElse(null), new HashMap<>());
     }
 
     protected static String getParsableString(BLangSourceFragment sourceFragment) {
@@ -158,6 +169,7 @@ public class BLangFragmentParser {
             case BLangFragmentParserConstants.WORKER:
             case BLangFragmentParserConstants.ENDPOINT_VAR_DEF:
             case BLangFragmentParserConstants.STATEMENT:
+            case BLangFragmentParserConstants.ANON_RECORD:
                 parsableText = getFromTemplate(BLangFragmentParserConstants.FUNCTION_BODY_STMT_WRAPPER, source);
                 break;
             case BLangFragmentParserConstants.JOIN_CONDITION:
@@ -175,6 +187,9 @@ public class BLangFragmentParser {
                 break;
             case BLangFragmentParserConstants.VARIABLE_REFERENCE_LIST:
                 parsableText = getFromTemplate(BLangFragmentParserConstants.VAR_REFERENCE_LIST_WRAPPER, source);
+                break;
+            case BLangFragmentParserConstants.FIELD_DEFINITION_LIST:
+                parsableText = getFromTemplate(BLangFragmentParserConstants.RECORD_BODY_WRAPPER, source);
                 break;
             default:
                 parsableText = "";

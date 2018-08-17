@@ -19,6 +19,7 @@ package org.wso2.ballerinalang.compiler.semantics.model.symbols;
 import org.ballerinalang.model.elements.PackageID;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.util.Name;
+import org.wso2.ballerinalang.compiler.util.Names;
 
 import java.util.List;
 import java.util.Map;
@@ -36,5 +37,15 @@ public class BConnectorSymbol extends BTypeSymbol {
 
     public BConnectorSymbol(int flags, Name name, PackageID pkgID, BType type, BSymbol owner) {
         super(SymTag.CONNECTOR, flags, name, pkgID, type, owner);
+    }
+
+    @Override
+    public BConnectorSymbol createLabelSymbol() {
+        BConnectorSymbol copy = Symbols.createConnectorSymbol(flags, Names.EMPTY, pkgID, type, owner);
+        copy.params = params;
+        copy.initFunctionSymbol = initFunctionSymbol;
+        copy.taintTable = taintTable;
+        copy.isLabel = true;
+        return copy;
     }
 }

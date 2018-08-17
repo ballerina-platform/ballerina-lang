@@ -136,7 +136,7 @@ class CommandPlugin extends Plugin {
      * @param {Object} args args for the command handler
      *
      */
-    dispatch(cmdID, args) {
+    dispatch(cmdID, args = {}) {
         if (!_.isUndefined(cmdID)) {
             const cmd = _.find(this.commands, ['id', cmdID]);
             if (true) {

@@ -1,85 +1,89 @@
+$white:#fff;
+$white01:#e7eaeb;
+$white02:#bebebe;
+$white03:#f8f8f8;
+$white04:#a5a5a5;
+$black: #000;
+$gray01:#1a1b1d;
+$gray02:#1e1e1e;
+$gray03:#282828;
+$gray04:#2b2b2b;
+$gray05:#3c3c3c;
+$gray06:#575a5e;
+$gray07:#616467;
+$gray08:#777;
+
 $brand-primary: #2fb8b0;
-$primaryBackgroundColor: #e7eaeb;
-$secondary-color:#575a5e;
+$brand-primary-hover: #30a9a2;
+$primaryBackgroundColor:$white01;
+$primaryBackgroundColorHover:$white01;
+$secondary-color:$gray06;
+$secondary-color-hover:$gray07;
 
-$header-bgcolor: #1a1b1d;
-$header-brand-color: #fff;
+$diagram-background:$white01;
+$text-color:$gray05;
+$statementTextColor:$gray08;
 
-$footer-bgcolor: #3C3F41;
-$footer-color: #cbcbcb;
+$header-bgcolor: $gray01;
+$header-brand-color: $white;
 
-$menubar-link-color: #c7c7c7;
-$menubar-link-hover-color: #eee;
-$menubar-link-disabled-color: #afafaf;
-$menubar-link-hover-bgcolor: #16191d;
-$menubar-file-dropdown-menu-bgcolor: #565656;
-$menubar-file-dropdown-menu-link-hover-color: $menubar-file-dropdown-menu-bgcolor;
-$menubar-file-dropdown-menu-link-hover-bgcolor: #d4d4d4;
+$rc-tabs-hover-color:$white02;
+$rc-tabs-tab-color:$gray05;
+$rc-tabs-tab-borderColor:$gray05;
+$rc-tabs-bgcolor:$gray03;
+$rc-tabs-text-color:$white04;
+$rc-tabs-disable-color:$gray07;
+$rc-tabs-close-color:$gray07;
+$rc-tabs-close-bgcolor:$gray07;
+$rc-tabs-active-bgcolor:$gray02;
+$rc-tabs-active-color:$white;
 
-$breadcrumb-bgcolor: #3C3F41;
-$breadcrumb-active-color: #fff;
+$menu-pop-content-bgcolor:$white03;
 
-$left-toolbar-bgcolor: #2b2b2b;
-$left-toolbar-link-color: #999999;
+$left-toolbar-bgcolor: $gray04;
+$left-toolbar-link-color: $gray04;
 
-$tab-container-bgcolor: #fff;
-$tab-header-bgcolor: #282828;
-$tab-header-active-tab-bgcolor: #fff;
+$tab-container-bgcolor: $white;
+$tab-header-bgcolor: $gray04;
+$tab-header-active-inverse-bgcolor: $white01;
+$tab-header-active-inverse-color:$gray05;
+$tab-header-active-tab-bgcolor: $white01;
+$tab-header-active-tab-inverse-color:$gray04;
 $tab-header-inactive-tab-bgcolor: #565656;
-$tab-header-active-inverse-tab-bgcolor: #3c3c3c;
-$tab-content-wrapper-bgcolor: #fff;
+$tab-header-active-inverse-tab-bgcolor: $gray05;
+$tab-content-wrapper-bgcolor: $white;
 $tab-content-wrapper-grid-color: #eee;
 
-$bottom-right-controls-bgcolor: #707276;
+$split-pane:$gray05;
 
-$source-editor-color: #F8F8F8;
+$source-editor-color:#707276;
 $source-editor-bgcolor: $tab-header-active-inverse-tab-bgcolor;
 $source-editor-gutter-color: #E2E2E2;
 $source-editor-gutter-bgcolor: #313131;
 
-$tool-palette-container-bgcolor: #fff;
-$tool-group-header-bgcolor: #eee;
-$tool-group-header-text-color: #333;
-$tool-title-color:#666769;
-$tool-separator-color: $tool-group-header-bgcolor;
-
 $panel-header-bgcolor: #dcdcdc;
 $panel-header-border-color: $panel-header-bgcolor;
-$panel-header-color: #333;
-$panel-body-bgcolor: #fff;
+$panel-header-color: $gray05;
+$panel-body-bgcolor: $white;
 $panel-body-border-color: $panel-header-border-color;
-$panel-body-dropzone-bgcolor: #fff;
+$panel-body-dropzone-bgcolor: $white;
 
-$package-configs-bgcolor: #eee;
 $worker-color: #0070af;
 $connector-color:#26A69A;
-$package-definition-color: #fff;
+$package-definition-color: $white;
 
-$package-definition-color: #000;
+$package-definition-color: $black;
 
 $btn-primary-bgcolor: $brand-primary;
 $btn-secondary-bgcolor: #484848;
 
-$welcome-details-content-wrapper-bgcolor: transparentize(#e4e4e4, 0.5);
-$welcome-tile-view-wrapper-bgcolor: #fff;
-
-$modal-btn-default-bgcolor: #2c2c2c;
-$modal-btn-default-color: #fff;
-$modal-btn-default-hover-bgcolor: lighten($modal-btn-default-bgcolor, 10%);
-$modal-btn-default-hover-color: #fff;
-$modal-btn-primary-bgcolor: #F57E30;
-$modal-btn-primary-color: #fff;
-$modal-btn-primary-hover-bgcolor: darken($modal-btn-primary-bgcolor, 10%);
-$modal-btn-primary-hover-color: #fff;
+$welcome-details-content-bgcolor: #f1f1f1;
+$welcome-tile-view-wrapper-bgcolor: $white;
 
 $primary-line-bgcolor: #555;
 $default-worker-lifeline-color: $worker-color;
 $worker-lifeline-color: $worker-color;
 $connector-lifeline-color: $connector-color;
-
-$annotation-wrapper-bgcolor: #eee;
-$annotation-wrapper-text-color: #666769;
-$argument-parameter-group-wrapper-bgcolor:#b5bec7;
 
 @import '../layout.scss';
 @import '../main.scss';

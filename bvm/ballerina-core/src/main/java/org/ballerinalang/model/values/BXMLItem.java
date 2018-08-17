@@ -33,9 +33,9 @@ import org.apache.axiom.om.impl.llom.OMAttributeImpl;
 import org.apache.axiom.om.impl.llom.OMDocumentImpl;
 import org.apache.axiom.om.impl.llom.OMElementImpl;
 import org.apache.axiom.om.impl.llom.OMProcessingInstructionImpl;
-import org.apache.axiom.om.util.AXIOMUtil;
 import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.model.util.XMLNodeType;
+import org.ballerinalang.model.util.XMLUtils;
 import org.ballerinalang.model.util.XMLValidationUtils;
 import org.ballerinalang.util.exceptions.BLangRuntimeException;
 import org.ballerinalang.util.exceptions.BallerinaException;
@@ -45,7 +45,7 @@ import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Set;
+
 import javax.xml.XMLConstants;
 import javax.xml.namespace.QName;
 
@@ -87,7 +87,7 @@ public final class BXMLItem extends BXML<OMNode> {
         }
 
         try {
-            omNode = AXIOMUtil.stringToOM(xmlValue);
+            omNode = XMLUtils.stringToOM(xmlValue);
             setXMLNodeType();
         } catch (Throwable t) {
             handleXmlException("failed to create xml: ", t);
@@ -115,7 +115,8 @@ public final class BXMLItem extends BXML<OMNode> {
         }
 
         try {
-            omNode = OMXMLBuilderFactory.createOMBuilder(inputStream).getDocumentElement();
+            omNode = OMXMLBuilderFactory.createOMBuilder(XMLUtils.STAX_PARSER_CONFIGURATION,
+                    inputStream).getDocumentElement();
             setXMLNodeType();
         } catch (Throwable t) {
             handleXmlException("failed to create xml: ", t);
@@ -366,8 +367,7 @@ public final class BXMLItem extends BXML<OMNode> {
         }
         
         String localName, uri;
-        Set<String> attributeQNames = attributes.keySet();
-        for (String qname : attributeQNames) {
+        for (String qname : attributes.keys()) {
             if (qname.startsWith("{") && qname.indexOf('}') > 0) {
                 localName = qname.substring(qname.indexOf('}') + 1, qname.length());
                 uri = qname.substring(1, qname.indexOf('}'));
@@ -590,9 +590,9 @@ public final class BXMLItem extends BXML<OMNode> {
      * {@inheritDoc}
      */
     @Override
-    public void serializeData(OutputStream outputStream) {
+    public void serialize(OutputStream outputStream) {
         try {
-            this.omNode.serialize(outputStream);
+            this.omNode.serializeAndConsume(outputStream);
         } catch (Throwable t) {
             handleXmlException("error occurred during writing the message to the output stream: ", t);
         }

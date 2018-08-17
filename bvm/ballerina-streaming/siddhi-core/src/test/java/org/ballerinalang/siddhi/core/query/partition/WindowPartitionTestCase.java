@@ -29,6 +29,9 @@ import org.testng.AssertJUnit;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
+/**
+ * Testcase for window queries within partiton.
+ */
 public class WindowPartitionTestCase {
     private static final Logger log = LoggerFactory.getLogger(WindowPartitionTestCase.class);
     private int inEventCount;

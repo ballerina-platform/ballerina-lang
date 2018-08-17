@@ -1,0 +1,79 @@
+NAME
+    Ballerina doc - Generate API documentation
+
+SYNOPSIS
+    ballerina doc [-t|--template] [--sourceroot <path>] 
+        [-o <path>|--output <path>] [-n|--native]
+        [-e <package, ...>|--exclude <package, ...>]
+        [-c <path>|--config <path>] [-v|--verbose] [-e] 
+        [<balfile>|<packagename]
+
+DESCRIPTION
+     Ballerina doc command generates API documentation for a given 
+     program or package. 
+
+     By default if no source or package name is given, it will generate 
+     API documentation for all the packages in the current project
+     folder. 
+
+     The default output location of API docs is a folder named 
+     api-docs. 
+
+OPTIONS
+     -t <path>
+     --template <path>
+         Path to a custom templates directory. Templates will be used 
+         to format the generated API documentation.
+  
+     --sourceroot <path>     
+         Path to the directory containing source files and packages.
+
+     -o <path>
+     --output <path>
+         Path to the output directory. Generated API documents will be 
+         placed inside this directory. 
+    
+     -n
+     --native
+         Reads the source as native Ballerina code. 
+
+     -e <package, ...>
+     --exclude <package, ...>
+         Comma-separated list of package names to be excluded from 
+         generated documentation. 
+
+     -c <path>
+     --config <path>
+         Provides the path to a Ballerina configuration file.
+         The configuration file format is a subset of the TOML file
+         format. It supports key/value pairs, tables, comments, and
+         string, int, float and boolean value types. If a config
+         file is not specified using [-c|--config], Ballerina looks
+         for a default configuration file named `ballerina.conf`
+         in the directory the source file(s) reside in.
+
+     -v
+     --verbose
+         Prints debug level logs while generating documentation.
+
+     -e <key=value>
+         Sets Ballerina environment parameters as key/value pairs.
+         If multiple parameters need to be provided, each parameter
+         has to be specified using its own -e flag. Details of the
+         environment parameters that the Ballerina standard library
+         packages support can be found in the relevant API
+         documentation.
+
+EXAMPLES
+     Generate API documentation for current project 
+     $ ballerina doc
+
+     Generate API documentation for hello_service.bal 
+     $ ballerina doc hello_service.bal 
+
+     Generate API documentation for hello_service.bal and write 
+     output to docs folder
+     $ ballerina doc -o docs hello_service.bal 
+
+     Generate API documentation for math package  
+     $ ballerina doc math

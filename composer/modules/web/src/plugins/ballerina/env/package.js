@@ -127,6 +127,18 @@ class Package {
         this.addEndpoints(endpoints);
     }
 
+    setOrg(org) {
+        if (!_.isNil(org) && _.isString(org)) {
+            this._org = org;
+        } else {
+            log.error('Invalid value for package org: ', org);
+        }
+    }
+
+    getOrg() {
+        return this._org;
+    }
+
     setName(name) {
         if (!_.isNil(name) && _.isString(name)) {
             this._name = name;
@@ -464,6 +476,7 @@ class Package {
     }
 
     initFromJson(jsonNode) {
+        this.setOrg(jsonNode.org);
         this.setName(jsonNode.name);
 
         _.each(jsonNode.connectors, (connectorNode) => {

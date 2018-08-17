@@ -22,6 +22,31 @@ import Node from '../node';
 class AbstractPatternStreamingInputNode extends Node {
 
 
+    setTimeScale(newValue, silent, title) {
+        const oldValue = this.timeScale;
+        title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
+        this.timeScale = newValue;
+
+        if (!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'modify-node',
+                title,
+                data: {
+                    attributeName: 'timeScale',
+                    newValue,
+                    oldValue,
+                },
+            });
+        }
+    }
+
+    getTimeScale() {
+        return this.timeScale;
+    }
+
+
+
     setPatternStreamingInput(newValue, silent, title) {
         const oldValue = this.patternStreamingInput;
         title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
@@ -168,12 +193,10 @@ class AbstractPatternStreamingInputNode extends Node {
     }
 
 
-    setTimeExpr(newValue, silent, title) {
-        const oldValue = this.timeExpr;
+    setTimeDurationValue(newValue, silent, title) {
+        const oldValue = this.timeDurationValue;
         title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
-        this.timeExpr = newValue;
-
-        this.timeExpr.parent = this;
+        this.timeDurationValue = newValue;
 
         if (!silent) {
             this.trigger('tree-modified', {
@@ -181,7 +204,7 @@ class AbstractPatternStreamingInputNode extends Node {
                 type: 'modify-node',
                 title,
                 data: {
-                    attributeName: 'timeExpr',
+                    attributeName: 'timeDurationValue',
                     newValue,
                     oldValue,
                 },
@@ -189,8 +212,8 @@ class AbstractPatternStreamingInputNode extends Node {
         }
     }
 
-    getTimeExpr() {
-        return this.timeExpr;
+    getTimeDurationValue() {
+        return this.timeDurationValue;
     }
 
 
@@ -303,6 +326,29 @@ class AbstractPatternStreamingInputNode extends Node {
                 title,
                 data: {
                     attributeName: 'orOnly',
+                    newValue,
+                    oldValue,
+                },
+            });
+        }
+    }
+
+
+    isCommaSeparated() {
+        return this.commaSeparated;
+    }
+
+    setCommaSeparated(newValue, silent, title) {
+        const oldValue = this.commaSeparated;
+        title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
+        this.commaSeparated = newValue;
+        if (!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'modify-node',
+                title,
+                data: {
+                    attributeName: 'commaSeparated',
                     newValue,
                     oldValue,
                 },

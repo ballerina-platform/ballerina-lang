@@ -25,8 +25,8 @@ import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BEndpointVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BServiceSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BStructSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
@@ -124,12 +124,11 @@ public class EndpointDesugar {
         if (serviceSymbol.boundEndpoints.isEmpty()) {
             return;
         }
-        final BSymbol enclosingSymbol = pkgEnv.enclPkg.symbol;
         final BSymbol varSymbol = pkgEnv.enclPkg.startFunction.symbol;
         final BLangBlockStmt startBlock = pkgEnv.enclPkg.startFunction.body;
         serviceSymbol.boundEndpoints.forEach(endpointVarSymbol -> {
             final BLangBlockStmt generateCode = generateServiceRegistered(endpointVarSymbol, service, pkgEnv,
-                    enclosingSymbol, varSymbol);
+                    endpointVarSymbol.owner, varSymbol);
             ASTBuilderUtil.prependStatements(generateCode, startBlock);
         });
     }
@@ -151,9 +150,8 @@ public class EndpointDesugar {
 
         BEndpointVarSymbol varSymbol = new BEndpointVarSymbol(0, names.fromIdNode(ep.name),
                 env.enclPkg.symbol.pkgID, service.endpointType, env.enclPkg.symbol);
-        if (service.endpointType.tsymbol.kind == SymbolKind.OBJECT
-                || service.endpointType.tsymbol.kind == SymbolKind.RECORD) {
-            endpointSPIAnalyzer.populateEndpointSymbol((BStructSymbol) service.endpointType.tsymbol, varSymbol);
+        if (service.endpointType.tsymbol.kind == SymbolKind.OBJECT) {
+            endpointSPIAnalyzer.populateEndpointSymbol((BObjectTypeSymbol) service.endpointType.tsymbol, varSymbol);
         }
         ep.symbol = varSymbol;
         env.enclPkg.symbol.scope.define(varSymbol.name, varSymbol);
@@ -229,7 +227,7 @@ public class EndpointDesugar {
         } else if (endpoint.configurationExpr != null
                 && endpoint.configurationExpr.getKind() == NodeKind.RECORD_LITERAL_EXPR) {
             // Handle Endpoint initialization.
-            newExpr = ASTBuilderUtil.createEmptyRecordLiteral(pos, endpoint.symbol.type);
+            newExpr = ASTBuilderUtil.createEmptyTypeInit(pos, endpoint.symbol.type);
         } else {
             newExpr = null;
         }

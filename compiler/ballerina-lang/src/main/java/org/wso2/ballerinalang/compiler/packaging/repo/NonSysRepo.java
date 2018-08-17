@@ -21,6 +21,8 @@ import org.ballerinalang.model.elements.PackageID;
 import org.wso2.ballerinalang.compiler.packaging.Patten;
 import org.wso2.ballerinalang.compiler.packaging.converters.Converter;
 
+import static org.wso2.ballerinalang.util.RepoUtils.COMPILE_BALLERINA_ORG;
+
 /**
  * Patent of all the non-system repos.
  * Sub classes of this class can't load pakages in the reserved org name ('ballerina')
@@ -29,7 +31,6 @@ import org.wso2.ballerinalang.compiler.packaging.converters.Converter;
  */
 public abstract class NonSysRepo<I> implements Repo<I> {
     private final Converter<I> converter;
-    private final boolean allowBalOrg = Boolean.parseBoolean(System.getProperty("BALLERINA_DEV_MODE_COMPILE"));
 
     public NonSysRepo(Converter<I> converter) {
         this.converter = converter;
@@ -37,12 +38,8 @@ public abstract class NonSysRepo<I> implements Repo<I> {
 
     @Override
     public final Patten calculate(PackageID pkgId) {
-        // TODO: remove pkg name check, only org should be checked.
         String orgName = pkgId.getOrgName().getValue();
-        if (!allowBalOrg &&
-            "ballerina".equals(orgName) ||
-            "ballerinax".equals(orgName) ||
-            pkgId.getName().getValue().startsWith("ballerina.")) {
+        if (!COMPILE_BALLERINA_ORG && ("ballerina".equals(orgName) || "ballerinax".equals(orgName))) {
             return Patten.NULL;
         } else {
             return calculateNonSysPkg(pkgId);

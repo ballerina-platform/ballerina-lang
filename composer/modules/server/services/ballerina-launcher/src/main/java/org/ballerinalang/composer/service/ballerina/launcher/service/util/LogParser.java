@@ -40,11 +40,10 @@ public class LogParser {
 
     static final Pattern ID_PATTERN = Pattern.compile("id: ([a-z0-9]*)");
     static final Pattern DIRECTION = Pattern.compile("(INBOUND|OUTBOUND)");
-    static final Pattern HEADER = Pattern.compile("(?:INBOUND|OUTBOUND): ([\\s\\S]*)");
+    static final Pattern HEADER = Pattern.compile("(?:INBOUND|OUTBOUND): (.*[\\n\\r])([\\s\\S]*)");
     static final Pattern HTTP_METHOD = Pattern.compile("(GET|POST|HEAD|POST|PUT|DELETE|CONNECT|OPTIONS|TRACE|PATCH)");
     static final Pattern PATH = Pattern.compile("(?:GET|POST|HEAD|POST|PUT|DELETE|CONNECT|OPTIONS|TRACE|PATCH)"
             + " ([^\\s]+)");
-
     static final Pattern CONTENT_TYPE = Pattern.compile("(?:content-type): ?(.*)",  Pattern.CASE_INSENSITIVE);
 
     public static LogParser getLogParserInstance() {
@@ -54,24 +53,27 @@ public class LogParser {
         return logParserInstance;
     }
 
-    public void startListner(LaunchManager launchManagerInstance) {
+    public void startListener(LaunchManager launchManagerInstance) {
         try {
             listenSocket = new ServerSocket(5010);
             Socket dataSocket = listenSocket.accept();
             logReader = new BufferedReader(new InputStreamReader(dataSocket.getInputStream()));
             String line;
             while ((line = logReader.readLine()) != null) {
-                JsonElement jelement = new JsonParser().parse(line);
-                JsonObject jobject = jelement.getAsJsonObject();
-                String rawRecord;
                 try {
-                    rawRecord = jobject.get("record").getAsJsonObject().get("message").getAsString();
+                    JsonElement jelement = new JsonParser().parse(line);
+                    JsonObject jobject = jelement.getAsJsonObject();
+                    String rawRecord;
+                    try {
+                        rawRecord = jobject.get("record").getAsJsonObject().get("message").getAsString();
+                    } catch (Exception e) {
+                        rawRecord = jelement.getAsString();
+                    }
+                    jobject.addProperty("meta", parseLogLine(rawRecord));
+                    launchManagerInstance.pushLogToClient(jobject.toString());
                 } catch (Exception e) {
-                    rawRecord = jelement.getAsString();
+                    // do nothing
                 }
-                jobject.addProperty("meta", parseLogLine(rawRecord));
-
-                launchManagerInstance.pushLogToClient(jobject.toString());
             }
         } catch (Exception e) {
             stopListner();
@@ -107,10 +109,19 @@ public class LogParser {
         }
     }
 
-    private String getHeader(String logLine) {
+    private String getHeaderType(String logLine) {
         Matcher matcher = HEADER.matcher(logLine);
         if (matcher.find()) {
             return matcher.group(1);
+        } else {
+            return "";
+        }
+    }
+
+    private String getHeader(String logLine) {
+        Matcher matcher = HEADER.matcher(logLine);
+        if (matcher.find()) {
+            return matcher.group(2);
         } else {
             return "";
         }
@@ -151,6 +162,16 @@ public class LogParser {
         return "";
     }
 
+    /**
+     * Remove payload from header.
+     * @param header String
+     * @param payload String
+     * @return header String
+     */
+    private String removePayload(String header, String payload) {
+        return header.substring(0, header.length() - payload.length());
+    }
+
     private String parseLogLine(String logLine) {
 
         Gson gson = new Gson();
@@ -158,11 +179,14 @@ public class LogParser {
         log.setId(getId(logLine));
         log.setDirection(getDirection(logLine));
         String header = getHeader(logLine);
-        log.setHeaders(header);
+        String headerType = getHeaderType(logLine);
+        String payload = getPayload(header);
+        log.setHeaders(removePayload(header, payload));
+        log.setHeaderType(headerType);
         log.setContentType(getContentType(logLine));
         log.setHttpMethod(getHttpMethod(logLine));
         log.setPath(getPath(logLine));
-        log.setPayload(getPayload(header));
+        log.setPayload(payload);
 
         String json = gson.toJson(log);
         return json;

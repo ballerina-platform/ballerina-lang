@@ -43,10 +43,6 @@ class AbstractTreeUtil {
         return node.kind === 'CompilationUnit';
     }
 
-    isConnector(node) {
-        return node.kind === 'Connector';
-    }
-
     isDeprecated(node) {
         return node.kind === 'Deprecated';
     }
@@ -61,10 +57,6 @@ class AbstractTreeUtil {
 
     isEnum(node) {
         return node.kind === 'Enum';
-    }
-
-    isEnumerator(node) {
-        return node.kind === 'Enumerator';
     }
 
     isFunction(node) {
@@ -87,10 +79,6 @@ class AbstractTreeUtil {
         return node.kind === 'PackageDeclaration';
     }
 
-    isRecordLiteralKeyValue(node) {
-        return node.kind === 'RecordLiteralKeyValue';
-    }
-
     isResource(node) {
         return node.kind === 'Resource';
     }
@@ -99,8 +87,8 @@ class AbstractTreeUtil {
         return node.kind === 'Service';
     }
 
-    isStruct(node) {
-        return node.kind === 'Struct';
+    isTypeDefinition(node) {
+        return node.kind === 'TypeDefinition';
     }
 
     isVariable(node) {
@@ -109,18 +97,6 @@ class AbstractTreeUtil {
 
     isWorker(node) {
         return node.kind === 'Worker';
-    }
-
-    isXmlns(node) {
-        return node.kind === 'Xmlns';
-    }
-
-    isTransformer(node) {
-        return node.kind === 'Transformer';
-    }
-
-    isStreamlet(node) {
-        return node.kind === 'Streamlet';
     }
 
     isDocumentationAttribute(node) {
@@ -141,6 +117,14 @@ class AbstractTreeUtil {
 
     isBinaryExpr(node) {
         return node.kind === 'BinaryExpr';
+    }
+
+    isElvisExpr(node) {
+        return node.kind === 'ElvisExpr';
+    }
+
+    isBracedTupleExpr(node) {
+        return node.kind === 'BracedTupleExpr';
     }
 
     isTypeInitExpr(node) {
@@ -187,8 +171,12 @@ class AbstractTreeUtil {
         return node.kind === 'TernaryExpr';
     }
 
-    isTypeofExpression(node) {
-        return node.kind === 'TypeofExpression';
+    isAwaitExpr(node) {
+        return node.kind === 'AwaitExpr';
+    }
+
+    isTypedescExpression(node) {
+        return node.kind === 'TypedescExpression';
     }
 
     isTypeCastExpr(node) {
@@ -203,28 +191,28 @@ class AbstractTreeUtil {
         return node.kind === 'UnaryExpr';
     }
 
-    isXmlQname(node) {
-        return node.kind === 'XmlQname';
+    isRestArgsExpr(node) {
+        return node.kind === 'RestArgsExpr';
     }
 
-    isXmlAttribute(node) {
-        return node.kind === 'XmlAttribute';
+    isNamedArgsExpr(node) {
+        return node.kind === 'NamedArgsExpr';
     }
 
-    isXmlAttributeAccessExpr(node) {
-        return node.kind === 'XmlAttributeAccessExpr';
+    isStatementExpression(node) {
+        return node.kind === 'StatementExpression';
     }
 
-    isXmlQuotedString(node) {
-        return node.kind === 'XmlQuotedString';
+    isMatchExpression(node) {
+        return node.kind === 'MatchExpression';
     }
 
-    isXmlTextLiteral(node) {
-        return node.kind === 'XmlTextLiteral';
+    isMatchExpressionPatternClause(node) {
+        return node.kind === 'MatchExpressionPatternClause';
     }
 
-    isXmlPiLiteral(node) {
-        return node.kind === 'XmlPiLiteral';
+    isCheckExpr(node) {
+        return node.kind === 'CheckExpr';
     }
 
     isSelectExpression(node) {
@@ -233,6 +221,14 @@ class AbstractTreeUtil {
 
     isAbort(node) {
         return node.kind === 'Abort';
+    }
+
+    isDone(node) {
+        return node.kind === 'Done';
+    }
+
+    isRetry(node) {
+        return node.kind === 'Retry';
     }
 
     isAssignment(node) {
@@ -257,10 +253,6 @@ class AbstractTreeUtil {
 
     isBreak(node) {
         return node.kind === 'Break';
-    }
-
-    isNext(node) {
-        return node.kind === 'Next';
     }
 
     isExpressionStatement(node) {
@@ -307,6 +299,10 @@ class AbstractTreeUtil {
         return node.kind === 'Try';
     }
 
+    isTupleDestructure(node) {
+        return node.kind === 'TupleDestructure';
+    }
+
     isVariableDef(node) {
         return node.kind === 'VariableDef';
     }
@@ -335,8 +331,8 @@ class AbstractTreeUtil {
         return node.kind === 'UnionTypeNode';
     }
 
-    isBuiltInRefType(node) {
-        return node.kind === 'BuiltInRefType';
+    isTupleTypeNode(node) {
+        return node.kind === 'TupleTypeNode';
     }
 
     isConstrainedType(node) {
@@ -352,15 +348,31 @@ class AbstractTreeUtil {
     }
 
     isEndpointType(node) {
-        return node.kind === 'Endpoint';
+        return node.kind === 'EndpointType';
     }
 
     isValueType(node) {
         return node.kind === 'ValueType';
     }
 
+    isRecordType(node) {
+        return node.kind === 'RecordType';
+    }
+
+    isObjectType(node) {
+        return node.kind === 'ObjectType';
+    }
+
     isOrderBy(node) {
         return node.kind === 'OrderBy';
+    }
+
+    isOrderByVariable(node) {
+        return node.kind === 'OrderByVariable';
+    }
+
+    isLimit(node) {
+        return node.kind === 'Limit';
     }
 
     isGroupBy(node) {
@@ -399,8 +411,28 @@ class AbstractTreeUtil {
         return node.kind === 'PatternStreamingInput';
     }
 
-    isCheckExpr(node) {
-        return node.kind === 'CheckExpr';
+    isStreamingQuery(node) {
+        return node.kind === 'StreamingQuery';
+    }
+
+    isWithin(node) {
+        return node.kind === 'Within';
+    }
+
+    isPatternClause(node) {
+        return node.kind === 'PatternClause';
+    }
+
+    isOutputRateLimit(node) {
+        return node.kind === 'OutputRateLimit';
+    }
+
+    isForever(node) {
+        return node.kind === 'Forever';
+    }
+
+    isTransformer(node) {
+        return node.kind === 'Transformer';
     }
 }
 

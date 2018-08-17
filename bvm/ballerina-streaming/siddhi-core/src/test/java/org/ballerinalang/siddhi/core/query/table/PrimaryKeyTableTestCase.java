@@ -39,6 +39,9 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
+/**
+ * Testcase for tables with primary keys.
+ */
 public class PrimaryKeyTableTestCase {
     private static final Logger log = LoggerFactory.getLogger(PrimaryKeyTableTestCase.class);
     private AtomicInteger inEventCount = new AtomicInteger(0);

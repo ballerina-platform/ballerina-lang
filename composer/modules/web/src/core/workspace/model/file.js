@@ -76,7 +76,9 @@ class File extends EventChannel {
      * Sets fullPath
      */
     set fullPath(newPath) {
+        const oldPath = this._fullPath;
         this._fullPath = newPath;
+        this.trigger(EVENTS.FILE_PATH_CHANGED, { oldPath, newPath });
         this.trigger(EVENTS.FILE_UPDATED, this);
     }
 
@@ -250,6 +252,24 @@ class File extends EventChannel {
      */
     setProperty(propertyName, propertyValue) {
         this._props[propertyName] = propertyValue;
+    }
+    
+    /**
+     *
+     *
+     * @memberof File
+     */
+    get debugPackagePath() {
+        return this._debugPackagePath;
+    }
+
+    /**
+     *
+     *
+     * @memberof File
+     */
+    set debugPackagePath(debugPackagePath) {
+        this._debugPackagePath = debugPackagePath;
     }
 
     /**

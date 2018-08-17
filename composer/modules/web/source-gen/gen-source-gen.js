@@ -20,7 +20,7 @@
 import fs from 'fs';
 import path from 'path';
 import _ from 'lodash';
-import defaultWS from './defualt-ws.json';
+import defaultWS from './default-ws.json';
 
 const tab = i => _.repeat('    ', i + 2);
 const tab1 = tab(1);
@@ -29,7 +29,6 @@ const template = fs.readFileSync(templatePath, 'utf8').split('// auto-gen-code')
 const emptyDefaultWS = {};
 
 function join(arr, sep, indent) {
-    // const indentLen = indent.lenght;
     const maxLen = 65;
     const str = arr.join(sep);
     let s = 0;

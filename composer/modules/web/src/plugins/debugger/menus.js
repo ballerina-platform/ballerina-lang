@@ -15,7 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-
+import _ from 'lodash';
 import { MENU_DEF_TYPES } from 'core/menu/constants';
 import { MENUS, COMMANDS, LABELS } from './constants';
 
@@ -45,9 +45,9 @@ export function getMenuDefinitions(debuggerInstance) {
             parent: MENUS.DEBUG_MENU,
             label: 'Run',
             isActive: (appContext) => {
-                const activeEditor = debuggerInstance.appContext.editor.getActiveEditor();
-                return activeEditor && activeEditor.definition &&
-                    activeEditor.definition.id === 'composer.editor.ballerina' && !LaunchManager.active;
+                const { editor } = debuggerInstance.appContext;
+                const activeTab = editor.getActiveEditor();
+                return !_.isNil(activeTab) && !_.isNil(activeTab.file) && activeTab.file.extension === 'bal';
             },
             command: COMMANDS.RUN,
             icon: 'start',
@@ -58,9 +58,9 @@ export function getMenuDefinitions(debuggerInstance) {
             parent: MENUS.DEBUG_MENU,
             label: 'Debug',
             isActive: (appContext) => {
-                const activeEditor = debuggerInstance.appContext.editor.getActiveEditor();
-                return activeEditor && activeEditor.definition &&
-                    activeEditor.definition.id === 'composer.editor.ballerina' && !DebugManager.active;
+                const { editor } = debuggerInstance.appContext;
+                const activeTab = editor.getActiveEditor();
+                return !_.isNil(activeTab) && !_.isNil(activeTab.file) && activeTab.file.extension === 'bal';
             },
             command: COMMANDS.RUN_WITH_DEBUG,
             icon: 'bug',

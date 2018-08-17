@@ -16,8 +16,8 @@
 
 package org.ballerinalang.composer.service.ballerina.parser.service.model.lang;
 
+import org.ballerinalang.model.elements.AttachPoint;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
-import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachmentPoint;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -83,15 +83,12 @@ public class AnnotationAttachment {
      * @param annotationAttachment The langconstruct to be converted.
      * @return Converted langconstruct.
      */
-    public static AnnotationAttachment convertToPackageModel(BLangAnnotationAttachmentPoint annotationAttachment) {
+    public static AnnotationAttachment convertToPackageModel(AttachPoint annotationAttachment) {
         if (null != annotationAttachment) {
             AnnotationAttachment tempAnnotationAttachment = new AnnotationAttachment();
 //            tempAnnotationAttachment.setPackagePath(annotationAttachment.getPkgPath());
-            BLangAnnotationAttachmentPoint.AttachmentPoint attachmentPoint = annotationAttachment.getAttachmentPoint();
-            if (attachmentPoint != null) {
-                tempAnnotationAttachment.setAttachedPoint(attachmentPoint.getValue());
-            }
-        
+            tempAnnotationAttachment.setAttachedPoint(annotationAttachment.getValue());
+
             return tempAnnotationAttachment;
         } else {
             return null;

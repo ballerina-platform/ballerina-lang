@@ -1,4 +1,121 @@
+.tree-node-tool-tip {
+    background-color: black;
+    border-radius: 0;
+    font-size: 14px;
+}
+
 .file-tree {
+    .tree-node {
+        color: #c7c7c7;
+        cursor: pointer;
+        overflow-y: hidden;
+        &.empty {
+            .tree-node-header {
+                margin-left: 18px;
+                .tree-node-arrow {
+                    display: none;
+                }
+            }
+        }
+        .tree-node-header {
+            white-space: nowrap;
+            overflow-x: hidden;
+            .tooltip {
+                background-color: white;
+            }
+            &.active,
+            &.active:hover {
+                .tree-node-highlight-row {
+                    background: #444;
+                }
+            }
+            &:hover {
+                .tree-node-highlight-row {
+                    background: #444;
+                    opacity: .5;
+                }
+                .tree-node-label,
+                &.tree-node-arrow,
+                &.tree-node-icon {
+                    color: #f1f1f1 !important;
+                }
+            }
+            .tree-node-highlight-row {
+                left: 0;
+                width: 100%;
+                height: 24px;
+                position: absolute;
+                z-index: -2;
+            }
+            .tree-node-focus-highlighter {
+                position: absolute;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background-color: black;
+                margin-top: 1px;
+                opacity: .4;
+                z-index: 5;
+            }
+            .tree-node-name-input-wrapper {
+                display: inline;
+                .tree-node-name-input {
+                    z-index: 6;
+                    position: relative;
+                    background-color: #3D3D3D;
+                    padding-left: 5px;
+                    padding-right: 5px;
+                    border: 1px #2fb8b0 solid;
+                    width: calc(100% - 20px);
+                }
+                &.error {
+                    .tree-node-name-input {
+                        border: 1px red solid;
+                    }
+                    .tree-node-name-input-error {
+                        position: absolute;
+                        word-wrap: normal;
+                        white-space: normal;
+                        padding: 5px;
+                        z-index: 6;
+                        border: 1px red solid;
+                        background-color: #6D1717;
+                    }
+                }
+            }
+            .tree-node-loading {
+                margin-right: 5px;
+            }
+            .tree-node-arrow {
+                transition: all 0.1s;
+                margin-right: 6px;
+                display: inline-block;
+                &::after {
+                    content: '▾';
+                }
+            }
+            .tree-node-icon {
+                margin-right: 5px;
+                &:before {
+                    vertical-align: text-top;
+                }
+            }
+        }
+        .tree-node-children {
+            margin-left: 16px;
+        }
+        &.collapsed {
+            .tree-node-header {
+                .tree-node-arrow {
+                    transform: rotate(-90deg);
+                }
+            }
+            .tree-node-children {
+                height: 0px;
+            }
+        }
+    }
     .rc-tree {
         .rc-tree-node-selected {
             border: none;
@@ -11,18 +128,17 @@
         height: 24px;
         position: absolute;
         margin-left: -300px;
-        z-index: -2; 
+        z-index: -2;
     }
     .file-tree-item:hover {
         background-color: #2E2E2E;
     }
-
     .active-file-node {
         width: calc(100% + 600px);
         background: #232323;
         height: 24px;
         position: absolute;
         margin-left: -600px;
-        z-index: -2;    
+        z-index: -2;
     }
 }

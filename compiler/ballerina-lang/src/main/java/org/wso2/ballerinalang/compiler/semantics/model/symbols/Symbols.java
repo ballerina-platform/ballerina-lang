@@ -50,32 +50,22 @@ public class Symbols {
         return pkgSymbol;
     }
 
-    public static BTypeSymbol createStructSymbol(int flags,
-                                                 Name name,
-                                                 PackageID pkgID,
-                                                 BType type,
-                                                 BSymbol owner) {
-        BTypeSymbol typeSymbol = new BStructSymbol(SymTag.STRUCT, flags, name, pkgID, type, owner);
-        typeSymbol.kind = SymbolKind.STRUCT;
-        return typeSymbol;
-    }
-
     public static BTypeSymbol createObjectSymbol(int flags,
                                                  Name name,
                                                  PackageID pkgID,
                                                  BType type,
                                                  BSymbol owner) {
-        BStructSymbol typeSymbol = new BStructSymbol(SymTag.OBJECT, flags, name, pkgID, type, owner);
+        BObjectTypeSymbol typeSymbol = new BObjectTypeSymbol(SymTag.OBJECT, flags, name, pkgID, type, owner);
         typeSymbol.kind = SymbolKind.OBJECT;
         return typeSymbol;
     }
 
-    public static BTypeSymbol createRecordSymbol(int flags,
-                                                 Name name,
-                                                 PackageID pkgID,
-                                                 BType type,
-                                                 BSymbol owner) {
-        BStructSymbol typeSymbol = new BStructSymbol(SymTag.RECORD, flags, name, pkgID, type, owner);
+    public static BRecordTypeSymbol createRecordSymbol(int flags,
+                                                       Name name,
+                                                       PackageID pkgID,
+                                                       BType type,
+                                                       BSymbol owner) {
+        BRecordTypeSymbol typeSymbol = new BRecordTypeSymbol(SymTag.RECORD, flags, name, pkgID, type, owner);
         typeSymbol.kind = SymbolKind.RECORD;
         return typeSymbol;
     }
@@ -90,16 +80,6 @@ public class Symbols {
         return typeSymbol;
     }
 
-    public static BTypeSymbol createTypeDefinitionSymbol(int flags,
-                                                         Name name,
-                                                         PackageID pkgID,
-                                                         BType type,
-                                                         BSymbol owner) {
-        BTypeSymbol typeSymbol = createTypeSymbol(SymTag.TYPE_DEF, flags, name, pkgID, type, owner);
-        typeSymbol.kind = SymbolKind.TYPE_DEF;
-        return typeSymbol;
-    }
-
     @Deprecated
     public static BAnnotationAttributeSymbol createAnnotationAttributeSymbol(Name name,
                                                                              PackageID pkgID,
@@ -110,11 +90,9 @@ public class Symbols {
         return annotationAttributeSymbol;
     }
 
-    public static BAnnotationSymbol createAnnotationSymbol(int flags, Name name,
-                                                           PackageID pkgID,
-                                                           BType type,
-                                                           BSymbol owner) {
-        BAnnotationSymbol annotationSymbol = new BAnnotationSymbol(name, flags, pkgID, type, owner);
+    public static BAnnotationSymbol createAnnotationSymbol(int flags, int attachPoints, Name name, PackageID pkgID,
+                                                           BType type, BSymbol owner) {
+        BAnnotationSymbol annotationSymbol = new BAnnotationSymbol(name, flags, attachPoints, pkgID, type, owner);
         annotationSymbol.kind = SymbolKind.ANNOTATION;
         return annotationSymbol;
     }
@@ -257,17 +235,17 @@ public class Symbols {
                 case TypeTags.INT:
                     opcode = InstructionCodes.ANY2I;
                     break;
+                case TypeTags.BYTE:
+                    opcode = InstructionCodes.ANY2BI;
+                    break;
                 case TypeTags.FLOAT:
                     opcode = InstructionCodes.ANY2F;
                     break;
                 case TypeTags.STRING:
                     opcode = InstructionCodes.ANY2S;
                     break;
-                case TypeTags.BOOLEAN:
-                    opcode = InstructionCodes.ANY2B;
-                    break;
                 default:
-                    opcode = InstructionCodes.ANY2L;
+                    opcode = InstructionCodes.ANY2B;
                     break;
             }
         }
@@ -277,18 +255,6 @@ public class Symbols {
         BConversionOperatorSymbol symbol = new BConversionOperatorSymbol(null, opType,
                 null, false, true, opcode);
         symbol.kind = SymbolKind.CONVERSION_OPERATOR;
-        return symbol;
-    }
-
-    public static BTransformerSymbol createTransformerSymbol(int flags,
-                                                             Name name,
-                                                             PackageID pkgID,
-                                                             BType type,
-                                                             boolean safe,
-                                                             BSymbol owner) {
-        BTransformerSymbol symbol = new BTransformerSymbol(name, pkgID, type, owner, safe);
-        symbol.kind = SymbolKind.TRANSFORMER;
-        symbol.scope = new Scope(symbol);
         return symbol;
     }
 
@@ -310,5 +276,15 @@ public class Symbols {
 
     public static boolean isFlagOn(int mask, int flag) {
         return (mask & flag) == flag;
+    }
+
+    public static boolean isAttachPointPresent(int mask, int attachPoint) {
+        return (mask & attachPoint) == attachPoint;
+    }
+
+    public static BTypeSymbol createScopeSymbol(Name name, PackageID pkgID, BType type, BSymbol owner) {
+        BTypeSymbol typeSymbol = createTypeSymbol(SymTag.SCOPE, 0, name, pkgID, type, owner);
+        typeSymbol.kind = SymbolKind.SCOPE;
+        return typeSymbol;
     }
 }

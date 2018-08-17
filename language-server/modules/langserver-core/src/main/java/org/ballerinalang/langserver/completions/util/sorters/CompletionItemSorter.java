@@ -54,40 +54,11 @@ public abstract class CompletionItemSorter {
 
     /**
      * Set the priorities in the default order.
-     * @param completionItems   list of completion items
+     *
+     * @param completionItems list of completion items
      */
     void setPriorities(List<CompletionItem> completionItems) {
-        completionItems.forEach(completionItem -> {
-            switch (completionItem.getDetail()) {
-                case ItemResolverConstants.NONE:
-                    completionItem.setSortText(Priority.PRIORITY220.toString());
-                    break;
-                case ItemResolverConstants.KEYWORD_TYPE:
-                    completionItem.setSortText(Priority.PRIORITY210.toString());
-                    break;
-                case ItemResolverConstants.STATEMENT_TYPE:
-                    completionItem.setSortText(Priority.PRIORITY200.toString());
-                    break;
-                case ItemResolverConstants.SNIPPET_TYPE:
-                    completionItem.setSortText(Priority.PRIORITY190.toString());
-                    break;
-                case ItemResolverConstants.FIELD_TYPE:
-                    completionItem.setSortText(Priority.PRIORITY180.toString());
-                    break;
-                case ItemResolverConstants.B_TYPE:
-                    completionItem.setSortText(Priority.PRIORITY170.toString());
-                    break;
-                case ItemResolverConstants.PACKAGE_TYPE:
-                    completionItem.setSortText(Priority.PRIORITY140.toString());
-                    break;
-                case ItemResolverConstants.FUNCTION_TYPE:
-                    completionItem.setSortText(Priority.PRIORITY120.toString());
-                    break;
-                default:
-                    completionItem.setSortText(Priority.PRIORITY110.toString());
-                    break;
-            }
-        });
+        completionItems.forEach(this::setPriority);
     }
 
     CompletionItem getEndpointSnippet() {
@@ -106,5 +77,38 @@ public abstract class CompletionItemSorter {
      */
     void removeCompletionsByType(List<String> types, List<CompletionItem> completionItems) {
         completionItems.removeIf(completionItem -> types.contains(completionItem.getDetail()));
+    }
+
+     void setPriority(CompletionItem completionItem) {
+        String detail = completionItem.getDetail();
+        switch (detail) {
+            case ItemResolverConstants.NONE:
+                completionItem.setSortText(Priority.PRIORITY220.toString());
+                break;
+            case ItemResolverConstants.KEYWORD_TYPE:
+                completionItem.setSortText(Priority.PRIORITY210.toString());
+                break;
+            case ItemResolverConstants.STATEMENT_TYPE:
+                completionItem.setSortText(Priority.PRIORITY200.toString());
+                break;
+            case ItemResolverConstants.SNIPPET_TYPE:
+                completionItem.setSortText(Priority.PRIORITY190.toString());
+                break;
+            case ItemResolverConstants.FIELD_TYPE:
+                completionItem.setSortText(Priority.PRIORITY180.toString());
+                break;
+            case ItemResolverConstants.B_TYPE:
+                completionItem.setSortText(Priority.PRIORITY170.toString());
+                break;
+            case ItemResolverConstants.PACKAGE_TYPE:
+                completionItem.setSortText(Priority.PRIORITY140.toString());
+                break;
+            case ItemResolverConstants.FUNCTION_TYPE:
+                completionItem.setSortText(Priority.PRIORITY120.toString());
+                break;
+            default:
+                completionItem.setSortText(Priority.PRIORITY110.toString());
+                break;
+        }
     }
 }

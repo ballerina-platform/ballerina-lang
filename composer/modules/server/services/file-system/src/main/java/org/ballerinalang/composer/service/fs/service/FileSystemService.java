@@ -25,6 +25,7 @@ import org.ballerinalang.composer.server.spi.ServiceType;
 import org.ballerinalang.composer.service.fs.Constants;
 import org.ballerinalang.composer.service.fs.FileSystem;
 import org.ballerinalang.composer.service.fs.service.request.CreateFileRequest;
+import org.ballerinalang.composer.service.fs.service.request.CreateProjectRequest;
 import org.ballerinalang.composer.service.fs.service.request.DeleteFileRequest;
 import org.ballerinalang.composer.service.fs.service.request.FileExistsRequest;
 import org.ballerinalang.composer.service.fs.service.request.ListFilesRequest;
@@ -33,6 +34,7 @@ import org.ballerinalang.composer.service.fs.service.request.ReadFileRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.nio.charset.Charset;
 import java.nio.file.AccessDeniedException;
@@ -43,9 +45,12 @@ import java.nio.file.NoSuchFileException;
 import java.nio.file.NotDirectoryException;
 import java.nio.file.Paths;
 import java.nio.file.ReadOnlyFileSystemException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Base64;
 import java.util.List;
+import java.util.Locale;
+
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
 import javax.ws.rs.OPTIONS;
@@ -293,6 +298,46 @@ public class FileSystemService implements ComposerService {
             logger.error("/userHome service error", throwable.getMessage(), throwable);
             return createErrorResponse(throwable);
         }
+    }
+
+    @OPTIONS
+    @Path("/project/create")
+    public Response createProjectOptions() {
+        return createCORSResponse();
+    }
+
+    @POST
+    @Path("/project/create")
+    @Consumes(MIME_APPLICATION_JSON)
+    @Produces(MIME_APPLICATION_JSON)
+    public Response createProject(CreateProjectRequest request) {
+        try {
+            List<String> commandList = new ArrayList<>();
+            // path to ballerina
+            String ballerinaExecute = System.getProperty("ballerina.home") + File.separator + "bin" + File.separator +
+                    "ballerina";
+
+            if (isWindows()) {
+                ballerinaExecute += ".bat";
+            }
+            commandList.add(ballerinaExecute);
+            commandList.add("init");
+            String projectPath = request.getPath();
+            Process p = Runtime.getRuntime().exec(commandList.toArray(new String[0]), null, new File(projectPath));
+            p.waitFor();
+
+            JsonObject entity = new JsonObject();
+            entity.addProperty(STATUS, SUCCESS);
+            return createOKResponse(entity);
+        } catch (Throwable throwable) {
+            logger.error("/createProject service error", throwable.getMessage(), throwable);
+            return createErrorResponse(throwable);
+        }
+    }
+
+    private boolean isWindows() {
+        String os = System.getProperty("os.name").toLowerCase(Locale.getDefault());
+        return (os.contains("win"));
     }
 
     /**

@@ -118,12 +118,9 @@ export function getContextMenuItems(node, parentNode, command,
         handler: () => {
             const { editor } = reactContext;
             const deleteFile = () => {
-                remove(node.id)
+                return remove(node.id)
                     .then(() => {
                         onNodeRefresh(parentNode);
-                    })
-                    .catch((err) => {
-                        log.error(err);
                     });
             };
             if (editor.isFileOpenedInEditor(node.id)) {
@@ -133,8 +130,9 @@ export function getContextMenuItems(node, parentNode, command,
                     additionalProps: {
                         file: targetEditor.file,
                         onConfirm: () => {
-                            editor.closeEditor(targetEditor);
-                            deleteFile();
+                            return deleteFile().then(() => {
+                                editor.closeEditor(targetEditor);
+                            });
                         },
                     },
                 });
@@ -256,7 +254,7 @@ export function getContextMenuItems(node, parentNode, command,
         case 'root': {
             menu.push({
                 icon: '',
-                label: 'Remove Program Directory',
+                label: 'Remove Project Directory',
                 handler: () => {
                     dispatch(WORKSPACE_CMDS.REMOVE_FOLDER, { folderPath: node.id });
                 },

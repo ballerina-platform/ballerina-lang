@@ -32,7 +32,7 @@ import java.util.Collection;
 public interface CollectionExecutor {
 
     /**
-     * Find the Events matching to the condition, used on the primary call
+     * Find the Events matching to the condition, used on the primary call.
      *
      * @param matchingEvent      matching input event
      * @param indexedEventHolder indexed EventHolder containing data
@@ -44,7 +44,7 @@ public interface CollectionExecutor {
             storeEventCloner);
 
     /**
-     * Find the Events matching to the condition, used for consecutive calls from parent CollectionExecutor
+     * Find the Events matching to the condition, used for consecutive calls from parent CollectionExecutor.
      *
      * @param matchingEvent      matching input event
      * @param indexedEventHolder indexed EventHolder containing data

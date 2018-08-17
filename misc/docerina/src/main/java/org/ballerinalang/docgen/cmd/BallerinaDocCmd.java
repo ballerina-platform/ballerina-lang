@@ -22,7 +22,6 @@ import com.beust.jcommander.DynamicParameter;
 import com.beust.jcommander.JCommander;
 import com.beust.jcommander.Parameter;
 import com.beust.jcommander.Parameters;
-import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.ballerinalang.config.ConfigRegistry;
 import org.ballerinalang.docgen.docs.BallerinaDocConstants;
 import org.ballerinalang.docgen.docs.BallerinaDocGenerator;
@@ -44,30 +43,24 @@ import java.util.Map;
 @Parameters(commandNames = "doc", commandDescription = "generate Ballerina API documentation")
 public class BallerinaDocCmd implements BLauncherCmd {
     private final PrintStream out = System.out;
-    private final PrintStream err = System.err;
 
-    private JCommander parentCmdParser;
-
-    @Parameter(arity = 1, description = "either the path to the directories where Ballerina source files reside or a "
-            + "path to a Ballerina file which does not belong to a package")
+    @Parameter(arity = 1, description = "either the path to the directories where Ballerina source files reside or a " +
+            "path to a Ballerina file which does not belong to a package")
     private List<String> argList;
 
-    @Parameter(names = { "--output", "-o" },
-            description = "path to the output directory where the API documentation will be written to", hidden = false)
+    @Parameter(names = {"--output", "-o"}, description = "path to the output directory where the API documentation "
+            + "will be written to")
     private String outputDir;
 
-    @Parameter(names = { "--template", "-t" },
-            description = "path to a custom templates directory to be used for API documentation generation",
-            hidden = false)
+    @Parameter(names = {"--template", "-t"}, description = "path to a custom templates directory to be used for API "
+            + "documentation generation")
     private String templatesDir;
 
-    @Parameter(names = { "--exclude", "-e" },
-            description = "a comma separated list of package names to be filtered from the documentation",
-            hidden = false)
+    @Parameter(names = {"--exclude", "-e"}, description = "a comma separated list of package names to be filtered " +
+            "from the documentation")
     private String packageFilter;
 
-    @Parameter(names = { "--native", "-n" },
-            description = "read the source as native ballerina code", hidden = false)
+    @Parameter(names = {"--native", "-n"}, description = "read the source as native ballerina code")
     private boolean nativeSource;
 
     @DynamicParameter(names = "-e", description = "Ballerina environment parameters")
@@ -76,20 +69,22 @@ public class BallerinaDocCmd implements BLauncherCmd {
     @Parameter(names = {"--config", "-c"}, description = "path to the docerina configuration file")
     private String configFilePath;
 
-    @Parameter(names = { "--verbose", "-v" },
-            description = "enable debug level logs", hidden = false)
+    @Parameter(names = {"--verbose", "-v"}, description = "enable debug level logs")
     private boolean debugEnabled;
 
     @Parameter(names = {"--sourceroot"}, description = "path to the directory containing source files and packages")
     private String sourceRoot;
 
-    @Parameter(names = { "--help", "-h" }, hidden = true)
+    @Parameter(names = {"--help", "-h"}, hidden = true)
     private boolean helpFlag;
+
+    @Parameter(names = {"--offline"}, hidden = true)
+    private boolean offline;
 
     @Override
     public void execute() {
         if (helpFlag) {
-            String commandUsageInfo = BLauncherCmd.getCommandUsageInfo(parentCmdParser, "doc");
+            String commandUsageInfo = BLauncherCmd.getCommandUsageInfo("doc");
             out.println(commandUsageInfo);
             return;
         }
@@ -115,13 +110,8 @@ public class BallerinaDocCmd implements BLauncherCmd {
         }
 
         String[] sources = argList.toArray(new String[argList.size()]);
-        try {
-            BallerinaDocGenerator.generateApiDocs(sourceRootPath.toString(), outputDir, packageFilter, nativeSource,
-                    sources);
-        } catch (Throwable e) {
-            err.println(ExceptionUtils.getStackTrace(e));
-            System.exit(1);
-        }
+        BallerinaDocGenerator.generateApiDocs(sourceRootPath.toString(), outputDir, packageFilter, nativeSource,
+                offline, sources);
     }
 
     @Override
@@ -148,7 +138,6 @@ public class BallerinaDocCmd implements BLauncherCmd {
 
     @Override
     public void setParentCmdParser(JCommander parentCmdParser) {
-        this.parentCmdParser = parentCmdParser;
     }
 
     @Override

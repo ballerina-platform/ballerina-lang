@@ -16,24 +16,17 @@
 package org.ballerinalang.langserver.signature;
 
 import org.ballerinalang.langserver.common.UtilSymbolKeys;
-import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
-import org.ballerinalang.langserver.compiler.LSPackageCache;
+import org.ballerinalang.langserver.common.utils.CommonUtil;
+import org.ballerinalang.langserver.common.utils.FilterUtils;
 import org.ballerinalang.langserver.compiler.LSServiceOperationContext;
 import org.ballerinalang.langserver.completions.SymbolInfo;
+import org.ballerinalang.model.elements.DocAttachment;
 import org.ballerinalang.model.elements.DocTag;
 import org.eclipse.lsp4j.ParameterInformation;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.SignatureHelp;
 import org.eclipse.lsp4j.SignatureInformation;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
-import org.wso2.ballerinalang.compiler.tree.BLangDocumentation;
-import org.wso2.ballerinalang.compiler.tree.BLangFunction;
-import org.wso2.ballerinalang.compiler.tree.BLangPackage;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
-import org.wso2.ballerinalang.compiler.util.CompilerContext;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -102,22 +95,36 @@ public class SignatureHelpUtil {
     /**
      * Get the functionSignatureHelp instance.
      *
-     * @param context                   Signature help context
+     * @param ctx                       Signature help context
      * @return {@link SignatureHelp}    Signature help for the completion
      */
-    public static SignatureHelp getFunctionSignatureHelp(LSServiceOperationContext context) {
-        // Get the functions List
-        List<SymbolInfo> functions = context.get(SignatureKeys.FILTERED_FUNCTIONS);
+    public static SignatureHelp getFunctionSignatureHelp(LSServiceOperationContext ctx) {
+        String delimiter = ctx.get(SignatureKeys.ITEM_DELIMITER);
+        String idAgainst = ctx.get(SignatureKeys.IDENTIFIER_AGAINST);
+        String funcName = ctx.get(SignatureKeys.CALLABLE_ITEM_NAME);
+        List<SymbolInfo> visibleSymbols = ctx.get(SignatureKeys.VISIBLE_SYMBOLS_KEY);
+        List<SymbolInfo> functions;
+
+        visibleSymbols.removeIf(CommonUtil.invalidSymbolsPredicate());
+        
+        if (!idAgainst.isEmpty() && (delimiter.equals(UtilSymbolKeys.DOT_SYMBOL_KEY)
+                || delimiter.equals(UtilSymbolKeys.PKG_DELIMITER_KEYWORD))) {
+            functions = FilterUtils.getInvocationAndFieldSymbolsOnVar(ctx, idAgainst, delimiter, visibleSymbols);
+        } else {
+            functions = visibleSymbols;
+        }
+
+        functions.removeIf(symbolInfo -> !CommonUtil.isValidInvokableSymbol(symbolInfo.getScopeEntry().symbol));
         List<SignatureInformation> signatureInformationList = functions
                 .stream()
-                .map(symbolInfo -> getSignatureInformation((BInvokableSymbol) symbolInfo.getScopeEntry().symbol,
-                        context))
+                .map(symbolInfo
+                        -> getSignatureInformation((BInvokableSymbol) symbolInfo.getScopeEntry().symbol, funcName))
                 .filter(Objects::nonNull)
                 .collect(Collectors.toList());
 
         SignatureHelp signatureHelp = new SignatureHelp();
         signatureHelp.setSignatures(signatureInformationList);
-        signatureHelp.setActiveParameter(context.get(SignatureKeys.PARAMETER_COUNT));
+        signatureHelp.setActiveParameter(ctx.get(SignatureKeys.PARAMETER_COUNT));
         signatureHelp.setActiveSignature(0);
 
         return signatureHelp;
@@ -127,16 +134,18 @@ public class SignatureHelpUtil {
      * Get the signature information for the given Ballerina function.
      *
      * @param bInvokableSymbol BLang Invokable symbol
-     * @param signatureContext Signature operation context
      * @return {@link SignatureInformation}     Signature information for the function
      */
-    private static SignatureInformation getSignatureInformation(BInvokableSymbol bInvokableSymbol,
-                                                                LSServiceOperationContext signatureContext) {
+    private static SignatureInformation getSignatureInformation(BInvokableSymbol bInvokableSymbol, String funcName) {
         List<ParameterInformation> parameterInformationList = new ArrayList<>();
         SignatureInformation signatureInformation = new SignatureInformation();
-        SignatureInfoModel signatureInfoModel = getSignatureInfoModel(bInvokableSymbol, signatureContext);
-        String functionName = bInvokableSymbol.getName().getValue();
+        List<String> nameComps = Arrays.asList(bInvokableSymbol.getName().getValue().split("\\."));
+        
+        if (!funcName.equals(CommonUtil.getLastItem(nameComps))) {
+            return null;
+        }
 
+        SignatureInfoModel signatureInfoModel = getSignatureInfoModel(bInvokableSymbol);
         // Join the function parameters to generate the function's signature
         String paramsJoined = signatureInfoModel.getParameterInfoModels().stream().map(parameterInfoModel -> {
             // For each of the parameters, create a parameter info instance
@@ -146,7 +155,7 @@ public class SignatureHelpUtil {
 
             return parameterInfoModel.toString();
         }).collect(Collectors.joining(", "));
-        signatureInformation.setLabel(functionName + "(" + paramsJoined + ")");
+        signatureInformation.setLabel(CommonUtil.getLastItem(nameComps) + "(" + paramsJoined + ")");
         signatureInformation.setParameters(parameterInformationList);
         signatureInformation.setDocumentation(signatureInfoModel.signatureDescription);
 
@@ -157,63 +166,20 @@ public class SignatureHelpUtil {
      * Get the required signature information filled model.
      *
      * @param bInvokableSymbol                  Invokable symbol
-     * @param signatureContext                  Signature operation context
      * @return {@link SignatureInfoModel}       SignatureInfoModel containing signature information
      */
-    private static SignatureInfoModel getSignatureInfoModel(BInvokableSymbol bInvokableSymbol,
-                                                             LSServiceOperationContext signatureContext) {
+    private static SignatureInfoModel getSignatureInfoModel(BInvokableSymbol bInvokableSymbol) {
         Map<String, String> paramDescMap = new HashMap<>();
         SignatureInfoModel signatureInfoModel = new SignatureInfoModel();
         List<ParameterInfoModel> paramModels = new ArrayList<>();
-        String functionName = signatureContext.get(SignatureKeys.CALLABLE_ITEM_NAME);
-        CompilerContext compilerContext = signatureContext.get(DocumentServiceKeys.COMPILER_CONTEXT_KEY);
-        LSPackageCache lsPackageCache = LSPackageCache.getInstance(compilerContext);
-        BLangPackage bLangPackage = lsPackageCache.findPackage(compilerContext, bInvokableSymbol.pkgID);
-        BLangFunction blangFunction = bLangPackage.getFunctions().stream()
-                .filter(bLangFunction -> bLangFunction.getName().getValue().equals(functionName))
-                .findFirst()
-                .orElse(null);
-
-
-        if (!blangFunction.getDocumentationAttachments().isEmpty()) {
-            // Get the first documentation attachment
-            BLangDocumentation bLangDocumentation = blangFunction.getDocumentationAttachments().get(0);
-            signatureInfoModel.setSignatureDescription(bLangDocumentation.documentationText.trim());
-            bLangDocumentation.attributes.forEach(attribute -> {
-                if (attribute.docTag.equals(DocTag.PARAM)) {
-                    paramDescMap.put(attribute.documentationField.getValue(), attribute.documentationText.trim());
-                }
-            });
-        } else {
-            // TODO: Should be deprecated in due course
-            // Iterate over the attachments list and extract the attachment Description Map
-            blangFunction.getAnnotationAttachments().forEach(annotationAttachment -> {
-                BLangExpression expr = annotationAttachment.expr;
-                if (expr instanceof BLangRecordLiteral) {
-                    List<BLangRecordLiteral.BLangRecordKeyValue> recordKeyValues =
-                            ((BLangRecordLiteral) expr).keyValuePairs;
-                    for (BLangRecordLiteral.BLangRecordKeyValue recordKeyValue : recordKeyValues) {
-                        BLangExpression key = recordKeyValue.key.expr;
-                        BLangExpression value = recordKeyValue.getValue();
-                        if (key instanceof BLangSimpleVarRef
-                                && ((BLangSimpleVarRef) key).getVariableName().getValue().equals("value")
-                                && value instanceof BLangLiteral) {
-                            String annotationValue = ((BLangLiteral) value).getValue().toString();
-                            if (annotationAttachment.getAnnotationName().getValue().equals("Param")) {
-                                String paramName = annotationValue
-                                        .substring(0, annotationValue.indexOf(UtilSymbolKeys.PKG_DELIMITER_KEYWORD));
-                                String annotationDesc = annotationValue
-                                        .substring(annotationValue.indexOf(UtilSymbolKeys.PKG_DELIMITER_KEYWORD) + 1)
-                                        .trim();
-                                paramDescMap.put(paramName, annotationDesc);
-                            } else if (annotationAttachment.getAnnotationName().getValue().equals("Description")) {
-                                signatureInfoModel.setSignatureDescription(annotationValue);
-                            }
-                        }
-                    }
-                }
-            });
-        }
+        DocAttachment docAttachment = bInvokableSymbol.getDocAttachment();
+        
+        signatureInfoModel.setSignatureDescription(docAttachment.getDescription().trim());
+        docAttachment.attributes.forEach(attribute -> {
+            if (attribute.docTag.equals(DocTag.PARAM)) {
+                paramDescMap.put(attribute.getName(), attribute.getDescription());
+            }
+        });
 
         bInvokableSymbol.getParameters().forEach(bVarSymbol -> {
             ParameterInfoModel parameterInfoModel = new ParameterInfoModel();
@@ -241,7 +207,11 @@ public class SignatureHelpUtil {
                     || TERMINAL_CHARACTERS.contains(Character.toString(c))) {
                 callableItemName = line.substring(counter + 1, startPosition + 1);
                 delimiter = String.valueOf(line.charAt(counter));
-                captureIdentifierAgainst(line, counter, signatureContext);
+                if (">".equals(delimiter) && "-".equals(String.valueOf(line.charAt(counter - 1)))) {
+                    counter--;
+                    delimiter = String.valueOf(line.charAt(counter)) + delimiter;
+                }
+                captureIdentifierAgainst(line, counter, signatureContext, delimiter);
                 break;
             }
             counter--;
@@ -257,11 +227,12 @@ public class SignatureHelpUtil {
      * @param signatureContext  Signature help context
      */
     private static void captureIdentifierAgainst(String line, int startPosition,
-                                                 LSServiceOperationContext signatureContext) {
+                                                 LSServiceOperationContext signatureContext, String delimiter) {
         int counter = startPosition;
         String identifier = "";
-        if (".".equals(Character.toString(line.charAt(counter)))
-                || ":".equals(Character.toString(line.charAt(counter)))) {
+        if (UtilSymbolKeys.DOT_SYMBOL_KEY.equals(delimiter)
+                || UtilSymbolKeys.PKG_DELIMITER_KEYWORD.equals(delimiter)
+                || UtilSymbolKeys.ACTION_INVOCATION_SYMBOL_KEY.equals(delimiter)) {
             counter--;
             while (true) {
                 if (counter < 0) {
@@ -317,11 +288,11 @@ public class SignatureHelpUtil {
 
         private String signatureDescription;
 
-        public List<ParameterInfoModel> getParameterInfoModels() {
+        List<ParameterInfoModel> getParameterInfoModels() {
             return parameterInfoModels;
         }
 
-        public void setParameterInfoModels(List<ParameterInfoModel> parameterInfoModels) {
+        void setParameterInfoModels(List<ParameterInfoModel> parameterInfoModels) {
             this.parameterInfoModels = parameterInfoModels;
         }
 
@@ -329,7 +300,7 @@ public class SignatureHelpUtil {
             return signatureDescription;
         }
 
-        public void setSignatureDescription(String signatureDescription) {
+        void setSignatureDescription(String signatureDescription) {
             this.signatureDescription = signatureDescription;
         }
     }

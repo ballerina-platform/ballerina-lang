@@ -28,7 +28,9 @@ import org.wso2.ballerinalang.util.RepoUtils;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.PrintStream;
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.nio.file.AccessDeniedException;
 import java.nio.file.DirectoryNotEmptyException;
 import java.nio.file.FileSystem;
@@ -54,7 +56,8 @@ import static org.wso2.ballerinalang.util.LambdaExceptionUtils.rethrow;
 public class FileSystemProjectDirectory extends FileSystemProgramDirectory {
     private final Path projectDirPath;
     private List<String> packageNames;
-    private boolean scanned = false;
+    protected boolean scanned = false;
+    private static PrintStream outStream = System.out;
 
     public FileSystemProjectDirectory(Path projectDirPath) {
         super(projectDirPath);
@@ -100,12 +103,13 @@ public class FileSystemProjectDirectory extends FileSystemProgramDirectory {
     }
 
     private boolean isSpecialDirectory(Path dirName) {
-        List<String> ignoreDirs = Arrays.asList(ProjectDirConstants.DOT_BALLERINA_DIR_NAME,
-                                                ProjectDirConstants.TEST_DIR_NAME,
+        List<String> ignoreDirs = Arrays.asList(//TODO : Top level test directory is needed for testerina and
+                                                // removing this check till it's handled properly.
+                                                //ProjectDirConstants.TEST_DIR_NAME,
                                                 ProjectDirConstants.TARGET_DIR_NAME,
-                                                ProjectDirConstants.RESOURCE_DIR_NAME,
-                                                ProjectDirConstants.DOT_GIT_DIR_NAME);
-        return ignoreDirs.contains(dirName.toString());
+                                                ProjectDirConstants.RESOURCE_DIR_NAME);
+        String dirNameStr = dirName.toString();
+        return dirNameStr.startsWith(".") || dirName.toFile().isHidden() || ignoreDirs.contains(dirNameStr);
     }
 
     @Override
@@ -122,13 +126,21 @@ public class FileSystemProjectDirectory extends FileSystemProgramDirectory {
 
     @Override
     public InputStream getLockFileContent() {
-        return null;
+        Path tomlFilePath = projectDirPath.resolve(ProjectDirConstants.TARGET_DIR_NAME).resolve("Ballerina.lock");
+        if (Files.exists(tomlFilePath)) {
+            try {
+                return Files.newInputStream(tomlFilePath);
+            } catch (IOException ignore) {
+            }
+        }
+        return new ByteArrayInputStream(new byte[0]);
     }
 
     @Override
     public Path saveCompiledProgram(InputStream source, String fileName) {
         Path targetFilePath = ensureAndGetTargetDirPath().resolve(fileName);
         try {
+            outStream.println("    ./target/" + fileName);
             Files.copy(source, targetFilePath, StandardCopyOption.REPLACE_EXISTING);
             return targetFilePath;
         } catch (DirectoryNotEmptyException e) {
@@ -154,10 +166,19 @@ public class FileSystemProjectDirectory extends FileSystemProgramDirectory {
         Map<String, String> fsEnv = new HashMap<String, String>() {{
             put("create", "true");
         }};
-        URI compiledPkgURI = URI.create("jar:file:" + compiledPkgPath.toUri().getPath());
-        try (FileSystem fs = FileSystems.newFileSystem(compiledPkgURI, fsEnv)) {
-            compiledPackage.getAllEntries()
-                    .forEach(rethrow(entry -> addCompilerOutputEntry(fs, entry)));
+        URI filepath = compiledPkgPath.toUri();
+        URI zipFileURI;
+        try {
+            zipFileURI = new URI("jar:" + filepath.getScheme(),
+                                 filepath.getUserInfo(), filepath.getHost(), filepath.getPort(),
+                                 filepath.getPath() + "!/",
+                                 filepath.getQuery(), filepath.getFragment());
+            try (FileSystem fs = FileSystems.newFileSystem(zipFileURI, fsEnv)) {
+                compiledPackage.getAllEntries()
+                               .forEach(rethrow(entry -> addCompilerOutputEntry(fs, entry)));
+            }
+        } catch (URISyntaxException e) {
+            throw new BLangCompilerException("error creating artifact: " + compiledPkgPath.getFileName());
         }
     }
 

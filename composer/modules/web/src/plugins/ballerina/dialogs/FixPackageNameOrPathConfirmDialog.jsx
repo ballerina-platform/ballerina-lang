@@ -23,7 +23,7 @@ import { Button } from 'semantic-ui-react';
 import Dialog from 'core/view/Dialog';
 
 /**
- * Ask user's confirmation to move the File to correct program directory upon
+ * Ask user's confirmation to move the File to correct Project Directory upon
  * changing the package declaration or fix package name to match file structure.
  *
  * @extends React.Component

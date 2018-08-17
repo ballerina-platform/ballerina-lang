@@ -24,11 +24,10 @@ import org.ballerinalang.config.ConfigRegistry;
 import org.ballerinalang.connector.impl.ServerConnectorRegistry;
 import org.ballerinalang.logging.BLogManager;
 import org.ballerinalang.runtime.threadpool.ThreadPoolFactory;
-import org.ballerinalang.util.BLangConstants;
 import org.ballerinalang.util.LaunchListener;
 import org.ballerinalang.util.codegen.ProgramFile;
 import org.ballerinalang.util.codegen.ProgramFileReader;
-import org.ballerinalang.util.exceptions.BallerinaException;
+import org.ballerinalang.util.exceptions.BLangRuntimeException;
 import org.ballerinalang.util.observability.ObservabilityConstants;
 import org.wso2.ballerinalang.compiler.Compiler;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
@@ -62,6 +61,8 @@ import static org.ballerinalang.compiler.CompilerOptionName.COMPILER_PHASE;
 import static org.ballerinalang.compiler.CompilerOptionName.OFFLINE;
 import static org.ballerinalang.compiler.CompilerOptionName.PRESERVE_WHITESPACE;
 import static org.ballerinalang.compiler.CompilerOptionName.PROJECT_DIR;
+import static org.ballerinalang.util.BLangConstants.BLANG_EXEC_FILE_SUFFIX;
+import static org.ballerinalang.util.BLangConstants.BLANG_SRC_FILE_SUFFIX;
 
 /**
  * Contains utility methods for executing a Ballerina program.
@@ -78,22 +79,29 @@ public class LauncherUtils {
         Path fullPath = sourceRootPath.resolve(sourcePath);
         loadConfigurations(sourceRootPath, runtimeParams, configFilePath, observeFlag);
 
-        if (srcPathStr.endsWith(BLangConstants.BLANG_EXEC_FILE_SUFFIX)) {
+        if (srcPathStr.endsWith(BLANG_EXEC_FILE_SUFFIX)) {
             programFile = BLangProgramLoader.read(sourcePath);
         } else if (Files.isRegularFile(fullPath) &&
-                srcPathStr.endsWith(BLangConstants.BLANG_SRC_FILE_SUFFIX) &&
+                srcPathStr.endsWith(BLANG_SRC_FILE_SUFFIX) &&
                 !RepoUtils.hasProjectRepo(sourceRootPath)) {
             programFile = compile(fullPath.getParent(), fullPath.getFileName(), offline);
         } else if (Files.isDirectory(sourceRootPath)) {
+            if (Files.isDirectory(fullPath) && !RepoUtils.hasProjectRepo(sourceRootPath)) {
+                throw LauncherUtils.createLauncherException(
+                        "error: did you mean to run the Ballerina package as a project? If so run 'ballerina init' to" +
+                                " make it a project with a .ballerina directory");
+            }
             programFile = compile(sourceRootPath, sourcePath, offline);
         } else {
-            throw new BallerinaException("Invalid Ballerina source path, it should either be a directory or a file " +
-                                                 "with a \'" + BLangConstants.BLANG_SRC_FILE_SUFFIX + "\' extension.");
+            throw LauncherUtils.createLauncherException(
+                    "error: only packages, " + BLANG_SRC_FILE_SUFFIX + " and " + BLANG_EXEC_FILE_SUFFIX +
+                            " files can be used with the 'ballerina run' command.");
         }
 
         // If there is no main or service entry point, throw an error
         if (!programFile.isMainEPAvailable() && !programFile.isServiceEPAvailable()) {
-            throw new RuntimeException("main function not found in '" + programFile.getProgramFilePath() + "'");
+            throw LauncherUtils.createLauncherException(
+                    "error: '" + programFile.getProgramFilePath() + "' does not contain a main function or a service");
         }
 
         boolean runServicesOrNoMainEP = runServices || !programFile.isMainEPAvailable();
@@ -116,6 +124,9 @@ public class LauncherUtils {
 
     public static void runMain(ProgramFile programFile, String[] args) {
         BLangProgramRunner.runMain(programFile, args);
+        if (programFile.isServiceEPAvailable()) {
+            return;
+        }
         try {
             ThreadPoolFactory.getInstance().getWorkerExecutor().shutdown();
             ThreadPoolFactory.getInstance().getWorkerExecutor().awaitTermination(10000, TimeUnit.MILLISECONDS);
@@ -298,7 +309,7 @@ public class LauncherUtils {
      * @param configFilePath config file path
      * @param observeFlag    to indicate whether observability is enabled
      */
-    private static void loadConfigurations(Path sourceRootPath, Map<String, String> runtimeParams,
+    public static void loadConfigurations(Path sourceRootPath, Map<String, String> runtimeParams,
                                            String configFilePath, boolean observeFlag) {
         Path ballerinaConfPath = sourceRootPath.resolve("ballerina.conf");
         try {
@@ -313,8 +324,10 @@ public class LauncherUtils {
             }
 
         } catch (IOException e) {
-            throw new RuntimeException(
+            throw new BLangRuntimeException(
                     "failed to read the specified configuration file: " + ballerinaConfPath.toString(), e);
+        } catch (RuntimeException e) {
+            throw new BLangRuntimeException(e.getMessage(), e);
         }
     }
 }

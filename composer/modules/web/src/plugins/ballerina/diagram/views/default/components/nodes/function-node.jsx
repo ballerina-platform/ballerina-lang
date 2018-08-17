@@ -27,7 +27,6 @@ import FunctionNodeModel from '../../../../../model/tree/function-node';
 import { getComponentForNodeArray } from './../../../../diagram-util';
 import TreeUtil from '../../../../../model/tree-util';
 import EndpointDecorator from '../decorators/endpoint-decorator';
-import ReceiverNode from './receiver-node';
 
 class FunctionNode extends React.Component {
 
@@ -87,14 +86,6 @@ class FunctionNode extends React.Component {
                     bBox={endpointNode.viewState.bBox}
                 />);
         });
-        const nodeDetails = ({ x, y }) => (
-            <ReceiverNode
-                x={x}
-                y={y}
-                model={model}
-                showStructBinding={this.state.showStructBinding}
-            />
-        );
         let receiverType;
         if (model.getReceiver()) {
             receiverType = model.getReceiver().getTypeNode().getTypeName().value + ' ' +
@@ -108,7 +99,6 @@ class FunctionNode extends React.Component {
                 <PanelDecorator
                     bBox={bBox}
                     model={this.props.model}
-                    headerComponent={nodeDetails}
                     icon={icons}
                     dropTarget={this.props.model}
                     canDrop={this.canDropToPanelBody}
@@ -124,7 +114,7 @@ class FunctionNode extends React.Component {
                             <LifeLine
                                 title='default'
                                 bBox={this.props.model.viewState.components.defaultWorkerLine}
-                                classes={classes}
+                                className='worker'
                                 icon={ImageUtil.getCodePoint('worker')}
                                 model={this.props.model}
                             />

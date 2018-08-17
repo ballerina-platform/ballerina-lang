@@ -18,9 +18,10 @@
 package org.ballerinalang.util.codegen;
 
 import org.ballerinalang.bre.bvm.GlobalMemoryArea;
+import org.ballerinalang.bre.bvm.GlobalMemoryBlock;
 import org.ballerinalang.connector.impl.ServerConnectorRegistry;
-import org.ballerinalang.model.types.BStructType;
-import org.ballerinalang.model.values.BStruct;
+import org.ballerinalang.model.types.BRecordType;
+import org.ballerinalang.model.types.BStructureType;
 import org.ballerinalang.model.values.LockableStructureType;
 import org.ballerinalang.util.codegen.attributes.AttributeInfo;
 import org.ballerinalang.util.codegen.attributes.AttributeInfoPool;
@@ -62,6 +63,10 @@ public class ProgramFile implements ConstantPool, AttributeInfoPool {
     private ServerConnectorRegistry serverConnectorRegistry;
     private boolean mainFucAvailable = false;
     private boolean servicesAvailable = false;
+
+    //This is the current package's global memory area index value which gets incremented when reading package info
+    //entries of this program file.
+    public int currentPkgIndex = 0;
 
     private Debugger debugger;
     private boolean distributedTransactionEnabled = false;
@@ -222,9 +227,9 @@ public class ProgramFile implements ConstantPool, AttributeInfoPool {
 
             // TODO Introduce an abstraction for memory blocks
             // Initialize global memory block
-            BStructType dummyType = new BStructType(null, "", "", 0);
+            BStructureType dummyType = new BRecordType(null, "", "", 0);
             dummyType.setFieldTypeCount(globalVarCount);
-            this.globalMemoryBlock = new BStruct(dummyType);
+            this.globalMemoryBlock = new GlobalMemoryBlock(dummyType);
         }
     }
 

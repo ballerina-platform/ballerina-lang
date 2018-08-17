@@ -28,6 +28,8 @@ import { createOrUpdate, exists as checkFileExists } from 'core/workspace/fs-uti
 import { DIALOGS } from 'core/workspace/constants';
 import { COMMANDS as LAYOUT_COMMANDS } from 'core/layout/constants';
 import ScrollBarsWithContextAPI from 'core/view/scroll-bars/ScrollBarsWithContextAPI';
+import { isOnElectron } from 'core/utils/client-info';
+
 
 const FILE_TYPE = 'file';
 const HISTORY_LAST_ACTIVE_PATH = 'composer.history.workspace.export-diagram-dialog.last-active-path';
@@ -87,6 +89,12 @@ class ExportDiagramDialog extends React.Component {
             });
             return;
         }
+        if (fileType.trim() === '' && (!_.endsWith(fileName, '.svg') && !_.endsWith(fileName, '.png'))) {
+            this.setState({
+                error: 'Please select export file type',
+            });
+            return;
+        }
         const derivedFileType = !_.endsWith(fileName, '.svg') && !_.endsWith(fileName, '.png')
             ? (!_.isEmpty(fileType) ? fileType : 'SVG')
             : (_.endsWith(fileName, '.svg') ? 'SVG' : 'PNG');
@@ -124,7 +132,7 @@ class ExportDiagramDialog extends React.Component {
                     this.props.command.dispatch(LAYOUT_COMMANDS.POPUP_DIALOG, {
                         id: DIALOGS.REPLACE_FILE_CONFIRM,
                         additionalProps: {
-                            filePath: derivedFilePath + derivedFileName,
+                            target: derivedFilePath + derivedFileName,
                             onConfirm: () => {
                                 this.sendPayload(derivedFilePath, derivedFileName, derivedFileType, saveFile);
                             },
@@ -159,19 +167,32 @@ class ExportDiagramDialog extends React.Component {
      * @return {string} svg.
      * */
     getSVG() {
-        const tab = $(('#bal-file-editor-' + this.props.file.id).replace(/(:|\.|\[|\]|\/|,|=)/g, '\\$1'));
-        const svgElement = tab.find('.svg-container');
-        const svgElementClone = tab.find('.svg-container').clone(true);
+        const tab = document.getElementById('bal-file-editor-' + this.props.file.id);
+        const svgElement = tab.getElementsByClassName('svg-container')[0];
+        const svgElementClone = svgElement.cloneNode(true);
 
         // Create a svg element with actual height and width of the diagram.
         let svg = `<svg version="1.1" xmlns="http://www.w3.org/2000/svg" xml:space="preserve" 
                 style='fill:rgb(255,255,255);font-family:"Roboto",Arial,Helvetica,sans-serif;
-                font-size:14px;' width="${svgElement.width()}" height="${svgElement.height()}">
-                <rect style="fill: rgb(255,255,255);fill-opacity: 1;" width="${svgElement.width()}"
-                height="${svgElement.height()}" x="0" y="0"></rect>`;
+                font-size:14px;' width="${svgElement.getBoundingClientRect().width}" height="${svgElement.getBoundingClientRect().height}">
+                <style>
+                @font-face{
+                font-family: font-ballerina;
+                   src: url(${require("font-ballerina/fonts/font-ballerina.eot")});
+                   src: url(${require("font-ballerina/fonts/font-ballerina.eot")}) format("embedded-opentype"),
+                        url(${require("font-ballerina/fonts/font-ballerina.woff2")}) format("woff2"),
+                        url(${require("font-ballerina/fonts/font-ballerina.woff")}) format("woff"),
+                        url(${require("font-ballerina/fonts/font-ballerina.ttf")}) format("truetype"),
+                        url(${require("font-ballerina/fonts/font-ballerina.svg")}) format("svg");
+                  font-weight:normal;
+                  font-style:normal;
+                }
+                </style>
+                <rect style="fill: rgb(255,255,255);fill-opacity: 1;" width="${svgElement.getBoundingClientRect().width}"
+                height="${svgElement.getBoundingClientRect().height}" x="0" y="0"></rect>`;
 
         this.elementIterator(svgElement, svgElementClone);
-        svg += svgElementClone.html();
+        svg += svgElementClone.innerHTML;
         svg += '</svg>';
         return svg;
     }
@@ -335,12 +356,12 @@ class ExportDiagramDialog extends React.Component {
      * @param {element} svgClone - cloned svg.
      * */
     elementIterator(svgOri, svgClone) {
-        if (svgOri.children().length !== 0) {
-            for (let i = 0; i < svgOri.children().length; i++) {
-                this.elementIterator($(svgOri.children()[i]), $(svgClone.children()[i]));
+        if (svgOri.children.length !== 0) {
+            for (let i = 0; i < svgOri.children.length; i++) {
+                this.elementIterator(svgOri.children[i], svgClone.children[i]);
             }
         }
-        this.styleAllocator(svgOri[0], svgClone[0]);
+        this.styleAllocator(svgOri, svgClone);
         $(svgClone).removeClass();
     }
 
@@ -355,11 +376,13 @@ class ExportDiagramDialog extends React.Component {
     sendPayload(location, configName, fileType, callServer) {
         const svgContent = this.getSVG();
         if (fileType === 'SVG') {
-            callServer(btoa(svgContent));
+            callServer(btoa(unescape(encodeURIComponent(svgContent))));
         } else if (fileType === 'PNG') {
-            const tab = $(('#bal-file-editor-' + this.props.file.id).replace(/(:|\.|\[|\]|\/|,|=)/g, '\\$1'));
-            const svgElement = tab.find('.svg-container');
-            const canvas = $(`<canvas width='${svgElement.width()}' height='${svgElement.height()}'/>`)[0];
+            const tab = document.getElementById('bal-file-editor-' + this.props.file.id);
+            const svgElement = tab.getElementsByClassName('svg-container')[0];
+            const canvas = document.createElement('canvas');
+            canvas.width = svgElement.getBoundingClientRect().width;
+            canvas.height = svgElement.getBoundingClientRect().height;
             const ctx = canvas.getContext('2d');
             const image = new Image();
             image.onload = function load() {
@@ -405,7 +428,7 @@ class ExportDiagramDialog extends React.Component {
                             <Form.Input
                                 fluid
                                 className='inverted'
-                                label='File Path'
+                                label='Directory'
                                 placeholder='eg: /home/user/diagrams'
                                 value={this.state.filePath}
                                 onChange={(evt) => {
@@ -414,6 +437,26 @@ class ExportDiagramDialog extends React.Component {
                                         filePath: evt.target.value,
                                     });
                                 }}
+                                action={isOnElectron() &&
+                                    <Button
+                                        icon='folder open'
+                                        content='Select'
+                                        onClick={(evt) => {
+                                            const { ipcRenderer } = require('electron');
+                                            ipcRenderer.send('show-folder-open-dialog', 'Select Directory to Export',
+                                                'select directory to export the image');
+                                            ipcRenderer.once('folder-open-wizard-closed', (e, filePath) => {
+                                                if (filePath) {
+                                                    this.setState({
+                                                        error: '',
+                                                        filePath,
+                                                    });
+                                                }
+                                            });
+                                            evt.preventDefault();
+                                        }}
+                                    />
+                                }
                             />
                         </Form.Group>
                         <Form.Group controlId='fileName' inline className='inverted'>
@@ -438,37 +481,44 @@ class ExportDiagramDialog extends React.Component {
                                 width={3}
                                 compact
                                 options={[{ text: 'SVG', value: 'SVG' }, { text: 'PNG', value: 'PNG' }]}
+                                onChange={(evt) => {
+                                    this.setState({
+                                         fileType: evt.target.innerText
+                                      });
+                                }}
                             />
 
                         </Form.Group>
                     </Form>
-                    <ScrollBarsWithContextAPI
-                        style={{
-                            height: 300,
-                        }}
-                        autoHide
-                    >
-                        <FileTree
-                            activeKey={this.state.filePath}
-                            onSelect={
-                                (node) => {
-                                    let filePath = node.id;
-                                    let fileName = this.state.fileName;
-                                    if (node.type === FILE_TYPE) {
-                                        filePath = node.filePath;
-                                        fileName = node.fileName + '.' + node.extension;
+                    {!isOnElectron() &&
+                        <ScrollBarsWithContextAPI
+                            style={{
+                                height: 300,
+                            }}
+                            autoHide
+                        >
+                            <FileTree
+                                activeKey={this.state.filePath}
+                                onSelect={
+                                    (node) => {
+                                        let filePath = node.id;
+                                        let fileName = this.state.fileName;
+                                        if (node.type === FILE_TYPE) {
+                                            filePath = node.filePath;
+                                            fileName = node.fileName + '.' + node.extension;
+                                        }
+                                        const { history } = this.props.appContext.pref;
+                                        history.put(HISTORY_LAST_ACTIVE_PATH, filePath);
+                                        this.setState({
+                                            error: '',
+                                            filePath,
+                                            fileName,
+                                        });
                                     }
-                                    const { history } = this.props.appContext.pref;
-                                    history.put(HISTORY_LAST_ACTIVE_PATH, filePath);
-                                    this.setState({
-                                        error: '',
-                                        filePath,
-                                        fileName,
-                                    });
                                 }
-                            }
-                        />
-                    </ScrollBarsWithContextAPI>
+                            />
+                        </ScrollBarsWithContextAPI>
+                    }
                 </Dialog>
             </div>
         );

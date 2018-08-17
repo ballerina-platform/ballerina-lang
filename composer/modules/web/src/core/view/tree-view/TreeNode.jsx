@@ -123,7 +123,8 @@ class TreeNode extends React.Component {
         });
         const { parent, id, type } = this.props.node;
         let derrivedName = inputValue;
-        if (type === NODE_TYPES.FILE && !_.endsWith(derrivedName, EXT)) {
+        // FIXME: Remove redundant logic for adding bal extension implicitly
+        if (type === NODE_TYPES.FILE && derrivedName.indexOf('.') === -1 && !_.endsWith(derrivedName, EXT)) {
             derrivedName += EXT;
         }
         const newFullPath = parent + getPathSeperator() + derrivedName;
@@ -177,7 +178,10 @@ class TreeNode extends React.Component {
     onEditComplete() {
         const { node, node: { id, editType, parent, type }, onNodeDelete } = this.props;
         let newFullPath = parent + getPathSeperator() + this.state.inputValue;
-        if (type === NODE_TYPES.FILE && !_.endsWith(newFullPath, EXT)) {
+        // Disable adding bal ext automatically to newly created files from explorer
+        // if an ext is already given. TODO: Fix this properly by adding a submenu to new-file menu
+        // to display all possible file types
+        if (type === NODE_TYPES.FILE && newFullPath.indexOf('.') === -1 && !_.endsWith(newFullPath, EXT)) {
             newFullPath += EXT;
         }
         if (_.isEmpty(this.state.inputValue) && editType === EDIT_TYPES.NEW) {
@@ -192,12 +196,9 @@ class TreeNode extends React.Component {
                         }
                     })
                     .catch((error) => {
-                        log.error(error.message);
-                        if (_.has(error, 'response.data.Error')) {
-                            this.setState({
-                                editError: error.response.data.Error,
-                            });
-                        }
+                        this.setState({
+                            editError: error.message,
+                        });
                     });
             }
         } else if (!_.isEmpty(this.state.inputValue) && editType === EDIT_TYPES.RENAME) {
@@ -213,23 +214,19 @@ class TreeNode extends React.Component {
                             const { editor, command: { dispatch } } = this.context;
                             if (editor.isFileOpenedInEditor(node.id)) {
                                 const targetEditor = editor.getEditorByID(node.id);
-                                const wasActive = editor.getActiveEditor().id === targetEditor.id;
+                                editor.closeEditor(targetEditor);
                                 dispatch(WORKSPACE_CMDS.OPEN_FILE, {
                                     filePath: newFullPath,
-                                    activate: wasActive,
+                                    activate: true,
                                 });
-                                editor.closeEditor(targetEditor, wasActive ? editor.getActiveEditor() : undefined);
                             }
                             this.props.onNodeRefresh(this.props.parentNode);
                         }
                     })
                     .catch((error) => {
-                        log.error(error.message);
-                        if (_.has(error, 'response.data.Error')) {
-                            this.setState({
-                                editError: error.response.data.Error,
-                            });
-                        }
+                        this.setState({
+                            editError: error.message,
+                        });
                     });
             }
         }
@@ -266,11 +263,12 @@ class TreeNode extends React.Component {
             onNodeUpdate,
             onNodeRefresh,
             onNodeDelete,
+            enableContextMenu
         } = this.props;
         const treeNodeHeader = (
             <div
-                data-placement="bottom"
-                data-toggle="tooltip"
+                data-placement='bottom'
+                data-toggle='tooltip'
                 title={id}
                 className={classnames('tree-node-header', { active })}
                 onClick={() => {
@@ -287,22 +285,25 @@ class TreeNode extends React.Component {
                     this.nodeRef = ref;
                 }}
             >
-                <div className="tree-node-highlight-row" />
-                {!node.loading && <div className="tree-node-arrow" />}
-                {node.loading && <i className="tree-node-loading fw fw-loader4 fw-spin" />}
+                <div className='tree-node-highlight-row' />
+                {!node.loading && <div className='tree-node-arrow' />}
+                {node.loading && <i className='tree-node-loading fw fw-loader4 fw-spin' />}
                 <i
                     className={
                         classnames(
                             'tree-node-icon',
-                            'fw',
-                            { 'fw-folder': type === NODE_TYPES.FOLDER },
-                            { 'fw-document': type === NODE_TYPES.FILE }
+                            'fw fw-fw',
+                            { 'fw-ballerina-package-fill': enableContextMenu && type === NODE_TYPES.FOLDER },
+                            { 'fw-folder-open': !collapsed && !enableContextMenu && type === NODE_TYPES.FOLDER },
+                            { 'fw-folder': collapsed && !enableContextMenu && type === NODE_TYPES.FOLDER },
+                            { 'fw-ballerina': id.endsWith('bal') && type === NODE_TYPES.FILE },
+                            { 'fw-document': !id.endsWith('bal') && type === NODE_TYPES.FILE }
                         )
                     }
                 />
                 {enableEdit &&
                     <div
-                        className="tree-node-focus-highlighter"
+                        className='tree-node-focus-highlighter'
                         onClick={() => {
                             if (!_.isEmpty(this.state.editError)) {
                                 this.onEditEscape();
@@ -313,13 +314,13 @@ class TreeNode extends React.Component {
                         ref={(ref) => {
                             this.focusHighligher = ref;
                         }}
-                        title=""
+                        title=''
                     />
                 }
                 {enableEdit &&
                     <div className={classnames('tree-node-name-input-wrapper', { error: !_.isEmpty(this.state.editError) })} >
                         <input
-                            type="text"
+                            type='text'
                             className={classnames('tree-node-name-input')}
                             spellCheck={false}
                             value={this.state.inputValue}
@@ -335,11 +336,11 @@ class TreeNode extends React.Component {
                             ref={(nameInput) => {
                                 this.nameInput = nameInput;
                             }}
-                            title=""
+                            title=''
                         />
                         {!_.isEmpty(this.state.editError) && this.nameInput &&
                             <div
-                                className="tree-node-name-input-error"
+                                className='tree-node-name-input-error'
                                 style={{
                                     top: this.nameInput.offsetTop + this.nameInput.clientHeight,
                                     left: this.nameInput.offsetLeft,
@@ -361,7 +362,7 @@ class TreeNode extends React.Component {
                     </div>
                 }
                 {!enableEdit &&
-                    <span className="tree-node-label" >
+                    <span className='tree-node-label'>
                         {label}
                     </span>
                 }
@@ -393,7 +394,7 @@ class TreeNode extends React.Component {
                 </ContextMenuTrigger>
                 }
                 {(!this.props.enableContextMenu || enableEdit) && treeNodeHeader}
-                <div className="tree-node-children">
+                <div className='tree-node-children'>
                     {collapsed ? null : children}
                 </div>
             </div>

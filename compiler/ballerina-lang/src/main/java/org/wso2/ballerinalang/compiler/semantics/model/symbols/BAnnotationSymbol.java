@@ -20,8 +20,8 @@ package org.wso2.ballerinalang.compiler.semantics.model.symbols;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.symbols.AnnotationSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
-import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachmentPoint;
 import org.wso2.ballerinalang.compiler.util.Name;
+import org.wso2.ballerinalang.compiler.util.Names;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -36,21 +36,17 @@ public class BAnnotationSymbol extends BTypeSymbol implements AnnotationSymbol {
     @Deprecated
     public List<BAnnotationAttributeSymbol> attributes;
     public BTypeSymbol attachedType;
-    public List<BLangAnnotationAttachmentPoint> attachmentPoints;
+    public int attachPoints;
 
-    public BAnnotationSymbol(Name name, int flags, PackageID pkgID, BType type, BSymbol owner) {
+    public BAnnotationSymbol(Name name, int flags, int attachPoints, PackageID pkgID, BType type, BSymbol owner) {
         super(ANNOTATION, flags, name, pkgID, type, owner);
+        this.attachPoints = attachPoints;
         attributes = new ArrayList<>();
-        attachmentPoints =  new ArrayList<>();
     }
 
     @Override
     public List<BAnnotationAttributeSymbol> getAttributes() {
         return attributes;
-    }
-
-    public List<BLangAnnotationAttachmentPoint> getAttachmentPoints() {
-        return attachmentPoints;
     }
 
     @Override
@@ -60,7 +56,16 @@ public class BAnnotationSymbol extends BTypeSymbol implements AnnotationSymbol {
     }
 
     public String bvmAlias() {
-        String pkg = pkgID.bvmAlias();
+        String pkg = pkgID.toString();
         return !pkg.equals(".") ? pkg + ":" + this.name : this.name.toString();
+    }
+
+    @Override
+    public BAnnotationSymbol createLabelSymbol() {
+        BAnnotationSymbol copy = Symbols.createAnnotationSymbol(flags, attachPoints, Names.EMPTY, pkgID, type, owner);
+        copy.attributes = attributes;
+        copy.attachedType = attachedType;
+        copy.isLabel = true;
+        return copy;
     }
 }

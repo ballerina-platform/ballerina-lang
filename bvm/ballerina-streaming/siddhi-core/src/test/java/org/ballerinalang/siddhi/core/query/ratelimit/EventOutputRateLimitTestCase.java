@@ -31,6 +31,9 @@ import org.testng.AssertJUnit;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
+/**
+ * Testcase for event output rate limiting.
+ */
 public class EventOutputRateLimitTestCase {
     private static final Logger log = LoggerFactory.getLogger(EventOutputRateLimitTestCase.class);
     private volatile int count;

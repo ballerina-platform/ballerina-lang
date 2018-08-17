@@ -5,14 +5,9 @@
 
 ## Building from the source
 
-1. Clone the repository using the following command.
+Run `./gradlew buildPlugin`. In the **build/distributions** directory, **ballerina-intellij-idea-plugin-[VERSION].zip** will be created.
 
-    ```
-    git clone --recursive https://github.com/ballerinalang/plugin-intellij.git
-    ```
-2. Navigate into the cloned repository and run `./gradlew buildPlugin`. In the **build/distributions** directory, **Ballerina-Plugin.zip** will be created.
-
-   **Note:** On Windows, you don’t need the leading `./` in front of the `gradlew` command
+**Note:** On Windows, you don’t need the leading `./` in front of the `gradlew` command
 
 ## Installing the plugin to IDEA
 
@@ -42,6 +37,14 @@ IntelliJ Platfom.
 ## Getting started
 
 Please refer the [Getting Started](getting-started) section.
+
+## Semantic Analyzing
+
+Ballerina IDEA plugin provides semantic analyzing capabilities through Ballerina SDK. But this feature is disabled by default due to performance related reasons.
+
+You can enable this in `Settings -> Languages & Frameworks -> Ballerina -> Semantic Analyzer`.
+
+![alt text](getting-started/features/images/SemanticAnalyzing.png)
 
 ## How to contribute
 Pull requests are highly encouraged and we recommend you to create a GitHub issue to discuss the issue or feature that you are contributing to.

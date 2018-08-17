@@ -28,9 +28,9 @@ public enum NodeKind {
     ANNOTATION_ATTRIBUTE,
     CATCH,
     COMPILATION_UNIT,
-    CONNECTOR,
     DEPRECATED,
     DOCUMENTATION,
+    MARKDOWN_DOCUMENTATION,
     ENDPOINT,
     ENUM,
     ENUMERATOR,
@@ -42,15 +42,12 @@ public enum NodeKind {
     RECORD_LITERAL_KEY_VALUE,
     RESOURCE,
     SERVICE,
-    STRUCT,
     TYPE_DEFINITION,
-    RECORD,
-    OBJECT,
     TABLE,
+    TABLE_COLUMN,
     VARIABLE,
     WORKER,
     XMLNS,
-    TRANSFORMER,
 
     /* Expressions */
     DOCUMENTATION_ATTRIBUTE,
@@ -93,6 +90,9 @@ public enum NodeKind {
     MATCH_EXPRESSION_PATTERN_CLAUSE,
     CHECK_EXPR,
 
+    DOCUMENTATION_DESCRIPTION,
+    DOCUMENTATION_PARAMETER,
+
     /* streams/tables expressions */
     SELECT_EXPRESSION,
     TABLE_QUERY_EXPRESSION,
@@ -127,10 +127,13 @@ public enum NodeKind {
     WORKER_RECEIVE,
     WORKER_SEND,
     STREAM,
+    SCOPE,
+    COMPENSATE,
 
     /* Types */
     ARRAY_TYPE,
     UNION_TYPE_NODE,
+    FINITE_TYPE_NODE,
     TUPLE_TYPE_NODE,
     BUILT_IN_REF_TYPE,
     CONSTRAINED_TYPE,
@@ -138,6 +141,8 @@ public enum NodeKind {
     USER_DEFINED_TYPE,
     ENDPOINT_TYPE,
     VALUE_TYPE,
+    RECORD_TYPE,
+    OBJECT_TYPE,
 
     /* Clauses */
     ORDER_BY,

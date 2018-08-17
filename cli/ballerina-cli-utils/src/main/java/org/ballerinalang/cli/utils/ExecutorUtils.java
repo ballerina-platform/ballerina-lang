@@ -42,13 +42,19 @@ public class ExecutorUtils {
      * Run balx that lives within jars.
      *
      * @param balxResource URI of the balx resource
+     * @param isFunction   if a function or service is to be invoked
      * @param args         arguments passed to the function
      */
-    public static void execute(URI balxResource, String... args) {
+    public static void execute(URI balxResource, boolean isFunction, String... args) {
         initFileSystem(balxResource);
         Path baloFilePath = Paths.get(balxResource);
         ProgramFile programFile = readExecutableProgram(baloFilePath);
-        BLangProgramRunner.runMain(programFile, args);
+
+        if (isFunction) {
+            BLangProgramRunner.runMain(programFile, args);
+        } else {
+            BLangProgramRunner.runService(programFile);
+        }
     }
 
     /**

@@ -17,13 +17,16 @@
 */
 package org.ballerinalang.util;
 
-import org.ballerinalang.model.types.BStructType;
+import org.ballerinalang.model.types.BArrayType;
+import org.ballerinalang.model.types.BField;
+import org.ballerinalang.model.types.BStructureType;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.TypeTags;
+import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BRefType;
 import org.ballerinalang.model.values.BRefValueArray;
 import org.ballerinalang.model.values.BStringArray;
-import org.ballerinalang.model.values.BStruct;
+import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.util.exceptions.BallerinaException;
 
 import java.io.ByteArrayInputStream;
@@ -84,7 +87,7 @@ public class TableProvider {
     }
 
 
-    public String createTable(String fromTableName, String joinTableName,  String query, BStructType tableType,
+    public String createTable(String fromTableName, String joinTableName,  String query, BStructureType tableType,
                               BRefValueArray params) {
         String newTableName = TableConstants.TABLE_PREFIX + tableType.getName().toUpperCase()
                            + "_" + getTableID();
@@ -97,18 +100,18 @@ public class TableProvider {
         return newTableName;
     }
 
-    public String createTable(String fromTableName, String query, BStructType tableType,
+    public String createTable(String fromTableName, String query, BStructureType tableType,
                               BRefValueArray params) {
         return createTable(fromTableName, null, query, tableType, params);
     }
 
-    public String insertData(String tableName, BStruct constrainedType) {
+    public String insertData(String tableName, BMap<String, BValue> constrainedType) {
         String sqlStmt = TableUtils.generateInsertDataStatment(tableName, constrainedType);
         prepareAndExecuteStatement(sqlStmt, constrainedType);
         return tableName;
     }
 
-    public void deleteData(String tableName, BStruct constrainedType) {
+    public void deleteData(String tableName, BMap<String, BValue> constrainedType) {
         String sqlStmt = TableUtils.generateDeleteDataStatment(tableName, constrainedType);
         prepareAndExecuteStatement(sqlStmt, constrainedType);
     }
@@ -118,7 +121,7 @@ public class TableProvider {
         executeStatement(sqlStmt);
     }
 
-    public TableIterator createIterator(String tableName, BStructType type) {
+    public TableIterator createIterator(String tableName, BStructureType type) {
         TableIterator itr;
         Statement stmt = null;
         Connection conn = this.getConnection();
@@ -149,9 +152,9 @@ public class TableProvider {
     private String generateCreateTableStatment(String tableName, BType constrainedType, BStringArray primaryKeys) {
         StringBuilder sb = new StringBuilder();
         sb.append(TableConstants.SQL_CREATE).append(tableName).append(" (");
-        BStructType.StructField[] structFields = ((BStructType) constrainedType).getStructFields();
+        BField[] structFields = ((BStructureType) constrainedType).getFields();
         String seperator = "";
-        for (BStructType.StructField sf : structFields) {
+        for (BField sf : structFields) {
             int type = sf.getFieldType().getTag();
             String name = sf.getFieldName();
             sb.append(seperator).append(name).append(" ");
@@ -172,11 +175,13 @@ public class TableProvider {
                 case TypeTags.XML_TAG:
                     sb.append(TableConstants.SQL_TYPE_CLOB);
                     break;
-                case TypeTags.BLOB_TAG:
-                    sb.append(TableConstants.SQL_TYPE_BLOB);
-                    break;
                 case TypeTags.ARRAY_TAG:
-                    sb.append(TableConstants.SQL_TYPE_ARRAY);
+                    BType elementType = ((BArrayType) sf.getFieldType()).getElementType();
+                    if (elementType.getTag() == TypeTags.BYTE_TAG) {
+                        sb.append(TableConstants.SQL_TYPE_BLOB);
+                    } else {
+                        sb.append(TableConstants.SQL_TYPE_ARRAY);
+                    }
                     break;
                 default:
                     throw new BallerinaException("Unsupported column type for table : " + sf.getFieldType());
@@ -259,13 +264,15 @@ public class TableProvider {
                     case TypeTags.JSON_TAG:
                         stmt.setString(index, (String) param.value());
                         break;
-                    case TypeTags.BLOB_TAG:
-                        byte[] blobData = (byte[]) param.value();
-                        stmt.setBlob(index, new ByteArrayInputStream(blobData), blobData.length);
-                        break;
                     case TypeTags.ARRAY_TAG:
-                        Object[] arrayData = TableUtils.getArrayData(param);
-                        stmt.setObject(index, arrayData);
+                        BType elementType = ((BArrayType) param.getType()).getElementType();
+                        if (elementType.getTag() == TypeTags.BYTE_TAG) {
+                            byte[] blobData = (byte[]) param.value();
+                            stmt.setBlob(index, new ByteArrayInputStream(blobData), blobData.length);
+                        } else {
+                            Object[] arrayData = TableUtils.getArrayData(param);
+                            stmt.setObject(index, arrayData);
+                        }
                         break;
                 }
             }
@@ -278,7 +285,7 @@ public class TableProvider {
         }
     }
 
-    private void prepareAndExecuteStatement(String queryStatement, BStruct constrainedType) {
+    private void prepareAndExecuteStatement(String queryStatement, BMap<String, BValue> constrainedType) {
         PreparedStatement stmt = null;
         Connection conn = this.getConnection();
         try {

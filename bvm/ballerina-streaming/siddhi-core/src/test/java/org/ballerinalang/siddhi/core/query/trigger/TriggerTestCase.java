@@ -34,6 +34,9 @@ import org.testng.AssertJUnit;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
+/**
+ * Testcase for triggers.
+ */
 public class TriggerTestCase {
     private static final Logger log = LoggerFactory.getLogger(TriggerTestCase.class);
     private volatile int count;

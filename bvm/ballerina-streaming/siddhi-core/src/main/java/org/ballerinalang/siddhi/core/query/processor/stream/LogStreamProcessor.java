@@ -43,7 +43,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Input attributes to log is (priority (String), log.message (String), is.event.logged (Bool))
+ * Input attributes to log is (priority (String), log.message (String), is.event.logged (Bool)).
  */
 @Extension(
         name = "log",
@@ -102,7 +102,7 @@ public class LogStreamProcessor extends StreamProcessor {
     private String logPrefix;
 
     /**
-     * The init method of the StreamFunction
+     * The init method of the StreamFunction.
      *
      * @param inputDefinition              the incoming stream definition
      * @param attributeExpressionExecutors the executors for the function parameters

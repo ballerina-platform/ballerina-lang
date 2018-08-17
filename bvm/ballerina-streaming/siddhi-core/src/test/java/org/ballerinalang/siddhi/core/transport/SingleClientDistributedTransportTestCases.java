@@ -32,7 +32,9 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 
-
+/**
+ * Testcase to validate single client distributed transport.
+ */
 public class SingleClientDistributedTransportTestCases {
     private static final Logger log = LoggerFactory.getLogger(SingleClientDistributedTransportTestCases.class);
     private AtomicInteger topic1Count = new AtomicInteger(0);

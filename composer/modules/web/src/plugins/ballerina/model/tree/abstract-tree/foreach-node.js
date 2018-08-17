@@ -49,6 +49,33 @@ class AbstractForeachNode extends StatementNode {
 
 
 
+    setCollection(newValue, silent, title) {
+        const oldValue = this.collection;
+        title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
+        this.collection = newValue;
+
+        this.collection.parent = this;
+
+        if (!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'modify-node',
+                title,
+                data: {
+                    attributeName: 'collection',
+                    newValue,
+                    oldValue,
+                },
+            });
+        }
+    }
+
+    getCollection() {
+        return this.collection;
+    }
+
+
+
     setVariables(newValue, silent, title) {
         const oldValue = this.variables;
         title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
@@ -166,33 +193,6 @@ class AbstractForeachNode extends StatementNode {
     filterVariables(predicateFunction) {
         return _.filter(this.variables, predicateFunction);
     }
-
-
-    setCollection(newValue, silent, title) {
-        const oldValue = this.collection;
-        title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
-        this.collection = newValue;
-
-        this.collection.parent = this;
-
-        if (!silent) {
-            this.trigger('tree-modified', {
-                origin: this,
-                type: 'modify-node',
-                title,
-                data: {
-                    attributeName: 'collection',
-                    newValue,
-                    oldValue,
-                },
-            });
-        }
-    }
-
-    getCollection() {
-        return this.collection;
-    }
-
 
 
 }

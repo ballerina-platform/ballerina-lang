@@ -30,6 +30,9 @@ import org.testng.AssertJUnit;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
+/**
+ * Testcase for frequent window queries.
+ */
 public class FrequentWindowTestCase {
     private static final Logger log = LoggerFactory.getLogger(FrequentWindowTestCase.class);
 

@@ -1,20 +1,20 @@
 /*
-*  Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
-*
-*  WSO2 Inc. licenses this file to you under the Apache License,
-*  Version 2.0 (the "License"); you may not use this file except
-*  in compliance with the License.
-*  You may obtain a copy of the License at
-*
-*    http://www.apache.org/licenses/LICENSE-2.0
-*
-*  Unless required by applicable law or agreed to in writing,
-*  software distributed under the License is distributed on an
-*  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-*  KIND, either express or implied.  See the License for the
-*  specific language governing permissions and limitations
-*  under the License.
-*/
+ *  Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ *  WSO2 Inc. licenses this file to you under the Apache License,
+ *  Version 2.0 (the "License"); you may not use this file except
+ *  in compliance with the License.
+ *  You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing,
+ *  software distributed under the License is distributed on an
+ *  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ *  KIND, either express or implied.  See the License for the
+ *  specific language governing permissions and limitations
+ *  under the License.
+ */
 package org.ballerinalang.util.diagnostic;
 
 /**
@@ -35,16 +35,22 @@ public enum DiagnosticCode {
     REDECLARED_BUILTIN_SYMBOL("redeclared.builtin.symbol"),
     UNDEFINED_SYMBOL("undefined.symbol"),
     UNDEFINED_FUNCTION("undefined.function"),
-    UNDEFINED_FUNCTION_IN_STRUCT("undefined.function.in.struct"),
+    UNDEFINED_FUNCTION_IN_OBJECT("undefined.function.in.object"),
     UNDEFINED_CONNECTOR("undefined.connector"),
-    UNDEFINED_STRUCT_FIELD("undefined.field.in.struct"),
-    UNDEFINED_OBJECT_FIELD("undefined.field.in.object"),
+    UNDEFINED_TABLE_COLUMN("undefined.column.in.table"),
+    TABLE_CANNOT_BE_CREATED_WITHOUT_CONSTRAINT("table.cannot.be.created.without.constraint"),
+    OBJECT_TYPE_NOT_ALLOWED("object.type.not.allowed"),
+    UNDEFINED_STRUCTURE_FIELD("undefined.field.in.structure"),
     CANNOT_INFER_OBJECT_TYPE_FROM_LHS("cannot.infer.object.type.from.lhs"),
     OBJECT_UN_INITIALIZABLE_FIELD("object.non.initialised.field"),
     CYCLIC_TYPE_REFERENCE("cyclic.type.reference"),
-    ATTEMPT_REFER_NON_PUBLIC_SYMBOL("attempt.refer.non.public.symbol"),
+    ATTEMPT_REFER_NON_ACCESSIBLE_SYMBOL("attempt.refer.non.accessible.symbol"),
+    ATTEMPT_EXPOSE_NON_PUBLIC_SYMBOL("attempt.expose.non.public.symbol"),
     UNDEFINED_PARAMETER("undefined.parameter"),
     CANNOT_FIND_MATCHING_FUNCTION("cannot.find.function.sig.for.function.in.object"),
+    CANNOT_ATTACH_FUNCTIONS_TO_RECORDS("cannot.attach.functions.to.records"),
+    ATTACHED_FUNC_CANT_HAVE_VISIBILITY_MODIFIERS("attached.functions.cannot.have.visibility.modifiers"),
+    ATTACHED_FUNCTIONS_MUST_HAVE_BODY("attached.functions.must.have.body"),
     IMPLEMENTATION_ALREADY_EXIST("implementation.already.exist"),
     CANNOT_INITIALIZE_OBJECT("cannot.initialize.object"),
     CANNOT_FIND_MATCHING_INTERFACE("cannot.find.matching.interface.function"),
@@ -71,19 +77,29 @@ public enum DiagnosticCode {
     FORK_JOIN_WORKER_CANNOT_RETURN("fork.join.worker.cannot.return"),
     FORK_JOIN_INVALID_WORKER_COUNT("fork.join.invalid.worker.count"),
     UNREACHABLE_CODE("unreachable.code"),
-    NEXT_CANNOT_BE_OUTSIDE_LOOP("next.cannot.be.outside.loop"),
+    CONTINUE_CANNOT_BE_OUTSIDE_LOOP("continue.cannot.be.outside.loop"),
     BREAK_CANNOT_BE_OUTSIDE_LOOP("break.cannot.be.outside.loop"),
+
+    INTEGER_TOO_LARGE("integer.too.large"),
+    INTEGER_TOO_SMALL("integer.too.small"),
+    HEXADECIMAL_TOO_LARGE("hexadecimal.too.large"),
+    HEXADECIMAL_TOO_SMALL("hexadecimal.too.small"),
+    BINARY_TOO_LARGE("binary.too.large"),
+    BINARY_TOO_SMALL("binary.too.small"),
 
     //Transaction related error codes
     ABORT_CANNOT_BE_OUTSIDE_TRANSACTION_BLOCK("abort.cannot.be.outside.transaction.block"),
     FAIL_CANNOT_BE_OUTSIDE_TRANSACTION_BLOCK("fail.cannot.be.outside.transaction.block"),
     BREAK_CANNOT_BE_USED_TO_EXIT_TRANSACTION("break.statement.cannot.be.used.to.exit.from.a.transaction"),
-    NEXT_CANNOT_BE_USED_TO_EXIT_TRANSACTION("next.statement.cannot.be.used.to.exit.from.a.transaction"),
+    CONTINUE_CANNOT_BE_USED_TO_EXIT_TRANSACTION("continue.statement.cannot.be.used.to.exit.from.a.transaction"),
     RETURN_CANNOT_BE_USED_TO_EXIT_TRANSACTION("return.statement.cannot.be.used.to.exit.from.a.transaction"),
     DONE_CANNOT_BE_USED_TO_EXIT_TRANSACTION("done.statement.cannot.be.used.to.exit.from.a.transaction"),
     INVALID_RETRY_COUNT("invalid.retry.count"),
     INVALID_TRANSACTION_HANDLER_ARGS("invalid.transaction.handler.args"),
+    INVALID_TRANSACTION_HANDLER_SIGNATURE("invalid.transaction.handler.signature"),
     LAMBDA_REQUIRED_FOR_TRANSACTION_HANDLER("lambda.required.for.transaction.handler"),
+    TRANSACTION_CANNOT_BE_USED_WITHIN_HANDLER("transaction.cannot.be.used.within.handler"),
+    INVALID_FUNCTION_POINTER_ASSIGNMENT_FOR_HANDLER("invalid.function.pointer.assignment.for.handler"),
 
     // Service, endpoint related errors codes
     SERVICE_OBJECT_TYPE_REQUIRED("service.object.type.required"),
@@ -102,16 +118,6 @@ public enum DiagnosticCode {
     INVALID_ACTION_INVOCATION("invalid.action.invocation"),
     UNDEFINED_ACTION("undefined.action"),
 
-    // Transformer related error codes
-    UNDEFINED_TRANSFORMER("undefined.transformer"),
-    TRANSFORMER_INVALID_OUTPUT_USAGE("transformer.invalid.output.usage"),
-    TRANSFORMER_INVALID_INPUT_UPDATE("transformer.invalid.input.update"),
-    INVALID_STATEMENT_IN_TRANSFORMER("invalid.statement.in.transformer"),
-    TRANSFORMER_MUST_HAVE_OUTPUT("transformer.must.have.output"),
-    TOO_MANY_OUTPUTS_FOR_TRANSFORMER("too.many.outputs.for.transformer"),
-    TRANSFORMER_CONFLICTS_WITH_CONVERSION("transformer.conflicts.with.conversion"),
-    TRANSFORMER_UNSUPPORTED_TYPES("transformer.unsupported.types"),
-
     // Cast and conversion related codes
     INCOMPATIBLE_TYPES_CAST("incompatible.types.cast"),
     INCOMPATIBLE_TYPES_CAST_WITH_SUGGESTION("incompatible.types.cast.with.suggestion"),
@@ -123,12 +129,16 @@ public enum DiagnosticCode {
     INVALID_LITERAL_FOR_TYPE("invalid.literal.for.type"),
     ARRAY_LITERAL_NOT_ALLOWED("array.literal.not.allowed"),
     STRING_TEMPLATE_LIT_NOT_ALLOWED("string.template.literal.not.allowed"),
-    INVALID_STRUCT_LITERAL_KEY("invalid.struct.literal.key"),
+    INVALID_RECORD_LITERAL_KEY("invalid.record.literal.key"),
     INVALID_FIELD_NAME_RECORD_LITERAL("invalid.field.name.record.lit"),
+    REST_FIELD_NOT_ALLOWED_IN_SEALED_RECORDS("rest.field.not.allowed"),
+    OPEN_RECORD_CONSTRAINT_NOT_ALLOWED("open.record.constraint.not.allowed"),
+    INVALID_RECORD_REST_DESCRIPTOR("invalid.record.rest.descriptor"),
     AMBIGUOUS_TYPES("ambiguous.type"),
 
     NOT_ENOUGH_ARGS_FUNC_CALL("not.enough.args.call"),
     TOO_MANY_ARGS_FUNC_CALL("too.many.args.call"),
+    DEFAULTABLE_ARG_PASSED_AS_REQUIRED_ARG("defaultable.arg.passed.as.required.arg"),
     ASSIGNMENT_COUNT_MISMATCH("assignment.count.mismatch"),
     ASSIGNMENT_REQUIRED("assignment.required"),
     MULTI_VAL_IN_SINGLE_VAL_CONTEXT("multi.value.in.single.value.context"),
@@ -136,10 +146,9 @@ public enum DiagnosticCode {
     DOES_NOT_RETURN_VALUE("does.not.return.value"),
     FUNC_DEFINED_ON_NOT_SUPPORTED_TYPE("func.defined.on.not.supported.type"),
     FUNC_DEFINED_ON_NON_LOCAL_TYPE("func.defined.on.non.local.type"),
-    STRUCT_FIELD_AND_FUNC_WITH_SAME_NAME("struct.field.and.func.with.same.name"),
-    INVALID_STRUCT_INITIALIZER_FUNCTION("invalid.struct.initializer.function"),
-    ATTEMPT_CREATE_NON_PUBLIC_INITIALIZER("attempt.to.create.struct.non.public.initializer"),
-    STRUCT_INITIALIZER_INVOKED("explicit.invocation.of.struct.init.is.not.allowed"),
+    OBJECT_FIELD_AND_FUNC_WITH_SAME_NAME("object.field.and.func.with.same.name"),
+    INVALID_OBJECT_CONSTRUCTOR("invalid.object.constructor"),
+    RECORD_INITIALIZER_INVOKED("explicit.invocation.of.record.init.is.not.allowed"),
     PKG_ALIAS_NOT_ALLOWED_HERE("pkg.alias.not.allowed.here"),
     INVALID_REST_ARGS("invalid.rest.args"),
 
@@ -165,13 +174,21 @@ public enum DiagnosticCode {
     OPERATION_DOES_NOT_SUPPORT_INDEXING("operation.does.not.support.indexing"),
     OPERATION_DOES_NOT_SUPPORT_FIELD_ACCESS("operation.does.not.support.field.access"),
     INVALID_INDEX_EXPR_STRUCT_FIELD_ACCESS("invalid.index.expr.struct.field.access"),
+    INVALID_INDEX_EXPR_TUPLE_FIELD_ACCESS("invalid.index.expr.tuple.field.access"),
     INVALID_ENUM_EXPR("invalid.enum.expr"),
     INVALID_EXPR_IN_MATCH_STMT("invalid.expr.in.match.stmt"),
     UNINITIALIZED_VARIABLE("uninitialized.variable"),
     INVALID_ANY_VAR_DEF("invalid.any.var.def"),
     INVALID_RECORD_LITERAL("invalid.record.literal"),
     INVALID_ARRAY_LITERAL("invalid.array.literal"),
+    INVALID_TUPLE_LITERAL("invalid.tuple.literal"),
+    MISMATCHING_ARRAY_LITERAL_VALUES("mismatching.array.literal.values"),
+    SEALED_ARRAY_TYPE_NOT_INITIALIZED("sealed.array.type.not.initialized"),
+    SEALED_ARRAY_TYPE_CAN_NOT_INFER_SIZE("sealed.array.type.can.not.infer.size"),
+    ARRAY_INDEX_OUT_OF_RANGE("array.index.out.of.range"),
+    TUPLE_INDEX_OUT_OF_RANGE("tuple.index.out.of.range"),
     INVALID_TYPE_NEW_LITERAL("invalid.type.new.literal"),
+    INVALID_USAGE_OF_KEYWORD("invalid.usage.of.keyword"),
 
     INVALID_NAMESPACE_PREFIX("invalid.namespace.prefix"),
     XML_TAGS_MISMATCH("mismatching.xml.start.end.tags"),
@@ -185,6 +202,21 @@ public enum DiagnosticCode {
     ANNOTATION_ATTACHMENT_NO_VALUE("annotation.attachment.no.value"),
     INCOMPATIBLE_TYPES_ARRAY_FOUND("incompatible.types.array.found"),
     CANNOT_GET_ALL_FIELDS("cannot.get.all.fields"),
+
+    UNDOCUMENTED_PARAMETER("undocumented.parameter"),
+    NO_SUCH_DOCUMENTABLE_PARAMETER("no.such.documentable.parameter"),
+    PARAMETER_ALREADY_DOCUMENTED("parameter.already.documented"),
+
+    UNDOCUMENTED_FIELD("undocumented.field"),
+    NO_SUCH_DOCUMENTABLE_FIELD("no.such.documentable.field"),
+    FIELD_ALREADY_DOCUMENTED("field.already.documented"),
+
+    UNDOCUMENTED_VARIABLE("undocumented.variable"),
+    NO_SUCH_DOCUMENTABLE_VARIABLE("no.such.documentable.variable"),
+    VARIABLE_ALREADY_DOCUMENTED("variable.already.documented"),
+
+    UNDOCUMENTED_RETURN_PARAMETER("undocumented.return.parameter"),
+    NO_DOCUMENTABLE_RETURN_PARAMETER("no.documentable.return.parameter"),
 
     NO_SUCH_DOCUMENTABLE_ATTRIBUTE("no.such.documentable.attribute"),
     INVALID_USE_OF_ENDPOINT_DOCUMENTATION_ATTRIBUTE("invalid.use.of.endpoint.documentation.attribute"),
@@ -214,10 +246,10 @@ public enum DiagnosticCode {
 
     // Safe Assignment operator related errors
     SAFE_ASSIGN_STMT_INVALID_USAGE("safe.assign.stmt.invalid.usage"),
-    
+
     // Safe navigation operator related errors
     SAFE_NAVIGATION_NOT_REQUIRED("safe.navigation.not.required"),
-    INVALID_SAFE_NAVIGATION_ON_LHS("invalid.safe.navigation.on.lhs"),
+    INVALID_ERROR_LIFTING_ON_LHS("invalid.error.lifting.on.lhs"),
 
     // Checked expression related errors
     CHECKED_EXPR_INVALID_USAGE_NO_ERROR_TYPE_IN_RHS("checked.expr.invalid.usage.no.error.type.rhs"),
@@ -234,6 +266,7 @@ public enum DiagnosticCode {
     MISMATCHED_INPUT("mismatched.input"),
     FAILED_PREDICATE("failed.predicate"),
     SYNTAX_ERROR("syntax.error"),
+    INVALID_SHIFT_OPERATOR("invalid.shift.operator"),
 
     // Streaming related codes
     UNDEFINED_STREAM_REFERENCE("undefined.stream.reference"),
@@ -241,6 +274,8 @@ public enum DiagnosticCode {
     INCOMPATIBLE_STREAM_ACTION_ARGUMENT("incompatible.stream.action.argument"),
     INVALID_STREAM_ACTION_ARGUMENT_COUNT("invalid.stream.action.argument.count"),
     INVALID_STREAM_ACTION_ARGUMENT_TYPE("invalid.stream.action.argument.type"),
+    INVALID_STREAM_ATTRIBUTE_TYPE("invalid.stream.attribute.type"),
+    STREAMING_INCOMPATIBLE_TYPES("streaming.incompatible.types"),
 
     // Taint checking related codes
     ENTRY_POINT_PARAMETERS_CANNOT_BE_SENSITIVE("entry.point.parameters.cannot.be.sensitive"),

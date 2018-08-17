@@ -21,7 +21,7 @@ import org.ballerinalang.testerina.core.BTestRunner;
 import org.ballerinalang.testerina.core.TesterinaRegistry;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.testng.Assert;
-import org.testng.annotations.BeforeClass;
+import org.testng.annotations.AfterMethod;
 import org.testng.annotations.Test;
 
 import java.nio.file.Path;
@@ -36,13 +36,8 @@ public class DataProviderTest {
 
     private String sourceRoot = "src/test/resources/annotations-test";
 
-    @BeforeClass
-    public void setup() {
-    }
-
     @Test
     public void testBefore() {
-        cleanup();
         BTestRunner runner = new BTestRunner();
         runner.runTest(sourceRoot, new Path[]{Paths.get("data-provider-test.bal")}, new
                 ArrayList<>());
@@ -53,7 +48,6 @@ public class DataProviderTest {
     @Test(expectedExceptions = BallerinaException.class, expectedExceptionsMessageRegExp = ".*Data provider " +
             "function \\[invalidDataGen\\] should return an array of arrays.*")
     public void testInvalidDataProviderNonArrayOfArraysReturn() {
-        cleanup();
         new BTestRunner().runTest(sourceRoot, new Path[]{Paths.get
                         ("invalid-data-provider-test.bal")},
                 new ArrayList<>());
@@ -63,7 +57,6 @@ public class DataProviderTest {
 //    @Test(expectedExceptions = BallerinaException.class, expectedExceptionsMessageRegExp = ".*Data provider function"
 //            + "\\[invalidDataGen\\] should have only one return type.*")
     public void testInvalidDataProviderMultiReturn() {
-        cleanup();
         new BTestRunner().runTest(sourceRoot, new Path[]{Paths.get
                 ("invalid-data-provider-test-2.bal")}, new ArrayList<>());
     }
@@ -71,13 +64,12 @@ public class DataProviderTest {
     @Test(expectedExceptions = BallerinaException.class, expectedExceptionsMessageRegExp = ".*Data provider " +
             "function \\[invalidDataGen\\] should return an array of arrays.*")
     public void testInvalidDataProviderPrimitiveReturn() {
-        cleanup();
         new BTestRunner().runTest(sourceRoot, new Path[]{Paths.get
-                        ("invalid-data-provider-test-3.bal")},
-                new ArrayList<>());
+                        ("invalid-data-provider-test-3.bal")}, new ArrayList<>());
 
     }
 
+    @AfterMethod
     private void cleanup() {
         TesterinaRegistry.getInstance().setProgramFiles(new ArrayList<>());
         TesterinaRegistry.getInstance().setTestSuites(new HashMap<>());

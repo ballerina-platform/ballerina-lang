@@ -25,9 +25,10 @@ import java.util.List;
  */
 public class FunctionDoc extends Documentable {
 
-    public final List<Variable> parameters;
+    public final List<Field> parameters;
     public final List<Variable> returnParams;
     public final boolean isFunction;
+    public final boolean isConstructor;
 
     /**
      * Constructor.
@@ -37,11 +38,17 @@ public class FunctionDoc extends Documentable {
      * @param parameters parameters of the function.
      * @param returnParams return parameters of the function.
      */
-    public FunctionDoc(String name, String description, ArrayList<Documentable> children,
-                       List<Variable> parameters, List<Variable> returnParams) {
+    public FunctionDoc(String name, String description, ArrayList<Documentable> children, List<Field> parameters,
+                       List<Variable> returnParams) {
         super(name, "fw-function", description, children);
         this.parameters = parameters;
         this.returnParams = returnParams;
-        isFunction = true;
+        if (name.equals("new")) {
+            isConstructor = true;
+            super.icon = "fw-constructor";
+        } else {
+            isConstructor = false;
+        }
+        isFunction = !isConstructor;
     }
 }

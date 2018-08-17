@@ -8,7 +8,7 @@ import ballerina/reflect;
 @Field{value:"The assertion error message"}
 @Field{value:"The error which caused the assertion error"}
 @Field{value:"The assert error category"}
-type AssertError {
+type AssertError record {
     string message;
     error? cause;
     string category;
@@ -50,7 +50,7 @@ public function assertEquals(any actual, any expected, string msg = "Assertion F
     if (!reflect:equals(actual,expected)) {
         string expectedStr = <string> expected;
         string actualStr = <string> actual;
-        string errorMsg = string `{{msg}}: expected {{expectedStr}} but found {{actualStr}}`;
+        string errorMsg = string `{{msg}}: expected '{{expectedStr}}' but found '{{actualStr}}'`;
         throw createBallerinaError(errorMsg, assertFailureErrorCategory);
     }
 }
@@ -63,7 +63,7 @@ public function assertNotEquals(any actual, any expected, string msg = "Assertio
     if (reflect:equals(actual,expected)) {
         string expectedStr = <string> expected;
         string actualStr = <string> actual;
-        string errorMsg = string `{{msg}}: expected the actual value not to be {{expectedStr}}`;
+        string errorMsg = string `{{msg}}: expected the actual value not to be '{{expectedStr}}'`;
         throw createBallerinaError(errorMsg, assertFailureErrorCategory);
     }
 }

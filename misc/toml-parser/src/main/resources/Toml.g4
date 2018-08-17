@@ -2,7 +2,7 @@ grammar Toml;
 toml : expression ( newline expression )*;
 
 ALPHA : [A-Z] | [a-z];
-alpha : ALPHA | TRUE | FALSE | NAN | INF | E | UPPERCASE_T | LOWERCASE_T | UPPERCASE_Z;
+alpha : ALPHA | TRUE | FALSE | NAN | INF | E | UPPERCASE_T | LOWERCASE_T | UPPERCASE_Z | BIN_PREFIX | HEX_PREFIX | OCT_PREFIX ;
 SPACE : ' ';
 HYPHEN : '-';
 PERIOD : '.';
@@ -113,16 +113,16 @@ PLUS    : '+';
 DIGIT07 : [0-7];
 DIGIT01 : [0-1];
 
-hexPrefix : '0x';
-octPrefix : '0o';
-binPrefix : '0b';
+HEX_PREFIX : '0x';
+OCT_PREFIX : '0o';
+BIN_PREFIX : '0b';
 
 decInt : ( minus | PLUS )? unsignedDecInt;
 unsignedDecInt : digit | DIGIT19 ( digit | UNDERSCORE digit )*;
 
-hexInt : hexPrefix HEXDIG *( HEXDIG | UNDERSCORE HEXDIG );
-octInt : octPrefix DIGIT07 *( DIGIT07 | UNDERSCORE DIGIT07 );
-binInt : binPrefix DIGIT01 *( DIGIT01 | UNDERSCORE DIGIT01 );
+hexInt : HEX_PREFIX HEXDIG *( HEXDIG | UNDERSCORE HEXDIG );
+octInt : OCT_PREFIX DIGIT07 *( DIGIT07 | UNDERSCORE DIGIT07 );
+binInt : BIN_PREFIX DIGIT01 *( DIGIT01 | UNDERSCORE DIGIT01 );
 
 // Float
 
@@ -213,7 +213,7 @@ inlineTableKeyvalsNonEmpty : key keyValSep val ;
 
 // Table
 
-table : stdTable;
+table : stdTable | arrayTable;
 
 // Standard Table
 
@@ -221,3 +221,10 @@ stdTable : stdTableOpen key stdTableClose;
 
 stdTableOpen  : '[';
 stdTableClose : ']';
+
+// Array table
+
+arrayTable : arrayTableOpen key arrayTableClose;
+
+arrayTableOpen  : '[[';
+arrayTableClose : ']]';

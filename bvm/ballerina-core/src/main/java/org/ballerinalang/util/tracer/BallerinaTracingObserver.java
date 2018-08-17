@@ -17,22 +17,9 @@
  */
 package org.ballerinalang.util.tracer;
 
-import org.ballerinalang.bre.bvm.BLangVMErrors;
-import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.util.observability.BallerinaObserver;
 import org.ballerinalang.util.observability.ObserverContext;
-
-import java.util.HashMap;
-import java.util.Map;
-
-import static org.ballerinalang.util.observability.ObservabilityConstants.PROPERTY_BSTRUCT_ERROR;
-import static org.ballerinalang.util.observability.ObservabilityConstants.PROPERTY_TRACE_PROPERTIES;
-import static org.ballerinalang.util.tracer.TraceConstants.KEY_SPAN;
-import static org.ballerinalang.util.tracer.TraceConstants.LOG_ERROR_KIND_EXCEPTION;
-import static org.ballerinalang.util.tracer.TraceConstants.LOG_EVENT_TYPE_ERROR;
-import static org.ballerinalang.util.tracer.TraceConstants.LOG_KEY_ERROR_KIND;
-import static org.ballerinalang.util.tracer.TraceConstants.LOG_KEY_EVENT_TYPE;
-import static org.ballerinalang.util.tracer.TraceConstants.LOG_KEY_MESSAGE;
+import org.ballerinalang.util.observability.TracingUtils;
 
 /**
  * Observe the runtime and start/stop tracing.
@@ -41,52 +28,21 @@ public class BallerinaTracingObserver implements BallerinaObserver {
 
     @Override
     public void startServerObservation(ObserverContext observerContext) {
-        BSpan span = new BSpan(observerContext, false);
-        span.setConnectorName(observerContext.getServiceName());
-        span.setActionName(observerContext.getResourceName());
-        Map<String, String> httpHeaders = (Map<String, String>) observerContext.getProperty(PROPERTY_TRACE_PROPERTIES);
-        if (httpHeaders != null) {
-            httpHeaders.entrySet().stream()
-                    .filter(c -> TraceConstants.TRACE_HEADER.equals(c.getKey()))
-                    .forEach(e -> span.addProperty(e.getKey(), e.getValue()));
-        }
-        observerContext.addProperty(KEY_SPAN, span);
-        span.startSpan();
+        TracingUtils.startObservation(observerContext, false);
     }
 
     @Override
     public void startClientObservation(ObserverContext observerContext) {
-        BSpan activeSpan = new BSpan(observerContext, true);
-        observerContext.addProperty(KEY_SPAN, activeSpan);
-        activeSpan.setConnectorName(observerContext.getConnectorName());
-        activeSpan.setActionName(observerContext.getActionName());
-        observerContext.addProperty(PROPERTY_TRACE_PROPERTIES, activeSpan.getProperties());
-        activeSpan.startSpan();
+        TracingUtils.startObservation(observerContext, true);
     }
 
     @Override
     public void stopServerObservation(ObserverContext observerContext) {
-        stopObservation(observerContext);
+        TracingUtils.stopObservation(observerContext);
     }
 
     @Override
     public void stopClientObservation(ObserverContext observerContext) {
-        stopObservation(observerContext);
+        TracingUtils.stopObservation(observerContext);
     }
-
-    public void stopObservation(ObserverContext observerContext) {
-        BSpan span = (BSpan) observerContext.getProperty(KEY_SPAN);
-        if (span != null) {
-            BStruct error = (BStruct) observerContext.getProperty(PROPERTY_BSTRUCT_ERROR);
-            if (error != null) {
-                Map<String, Object> logProps = new HashMap<>();
-                logProps.put(LOG_KEY_ERROR_KIND, LOG_ERROR_KIND_EXCEPTION);
-                logProps.put(LOG_KEY_MESSAGE, BLangVMErrors.getPrintableStackTrace(error));
-                logProps.put(LOG_KEY_EVENT_TYPE, LOG_EVENT_TYPE_ERROR);
-                span.logError(logProps);
-            }
-            span.addTags(observerContext.getTags());
-            span.finishSpan();
-        }
     }
-}

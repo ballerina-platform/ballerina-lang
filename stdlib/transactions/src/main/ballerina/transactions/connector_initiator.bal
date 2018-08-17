@@ -14,32 +14,32 @@
 // specific language governing permissions and limitations
 // under the License.
 
-
 import ballerina/http;
 
-type InitiatorClientConfig {
+type InitiatorClientConfig record {
     string registerAtURL;
     int timeoutMillis;
-    {
+    record {
         int count;
         int interval;
     } retryConfig;
 };
 
 type InitiatorClientEP object {
-    private {
-        http:Client httpClient;
-    }
+    http:Client httpClient;
 
-    function init (InitiatorClientConfig conf) {
-        endpoint http:Client httpEP {url:conf.registerAtURL,
-                                            timeoutMillis:conf.timeoutMillis,
-                                            retryConfig:{count:conf.retryConfig.count,
-                                                      interval:conf.retryConfig.interval}};
+    function init(InitiatorClientConfig conf) {
+        endpoint http:Client httpEP {
+            url:conf.registerAtURL,
+            timeoutMillis:conf.timeoutMillis,
+            retryConfig:{
+                count:conf.retryConfig.count, interval:conf.retryConfig.interval
+            }
+        };
         self.httpClient = httpEP;
     }
 
-    function getCallerActions () returns InitiatorClient {
+    function getCallerActions() returns InitiatorClient {
         InitiatorClient client = new;
         client.clientEP = self;
         return client;
@@ -47,24 +47,25 @@ type InitiatorClientEP object {
 };
 
 type InitiatorClient object {
-    private {
-        InitiatorClientEP clientEP;
+    InitiatorClientEP clientEP;
+
+    new() {
+
     }
 
-    new() {}
+    function register(string transactionId, int transactionBlockId, RemoteProtocol[] participantProtocols)
+        returns RegistrationResponse|error {
 
-
-    function register(string transactionId, int transactionBlockId,
-                        RemoteProtocol[] participantProtocols) returns RegistrationResponse|error {
         endpoint http:Client httpClient = self.clientEP.httpClient;
         string participantId = getParticipantId(transactionBlockId);
-        RegistrationRequest regReq = {transactionId:transactionId, participantId:participantId,
-                                        participantProtocols:participantProtocols};
+        RegistrationRequest regReq = {
+            transactionId:transactionId, participantId:participantId, participantProtocols:participantProtocols
+        };
 
         json reqPayload = check <json>regReq;
         http:Request req = new;
         req.setJsonPayload(reqPayload);
-        var result = httpClient -> post("", request = req);
+        var result = httpClient->post("", req);
         http:Response res = check result;
         int statusCode = res.statusCode;
         if (statusCode != http:OK_200) {

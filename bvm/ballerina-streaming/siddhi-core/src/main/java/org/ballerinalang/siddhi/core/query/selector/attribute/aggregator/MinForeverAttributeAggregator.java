@@ -61,7 +61,7 @@ public class MinForeverAttributeAggregator extends AttributeAggregator {
     private MinForeverAttributeAggregator minForeverAttributeAggregator;
 
     /**
-     * The initialization method for FunctionExecutor
+     * The initialization method for FunctionExecutor.
      *
      * @param attributeExpressionExecutors are the executors of each attributes in the function
      * @param configReader                 this hold the {@link MinForeverAttributeAggregator} configuration reader.

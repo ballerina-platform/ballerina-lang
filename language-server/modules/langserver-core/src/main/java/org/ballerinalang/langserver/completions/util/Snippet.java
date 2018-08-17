@@ -17,58 +17,143 @@
 */
 package org.ballerinalang.langserver.completions.util;
 
+import org.ballerinalang.langserver.common.utils.CommonUtil;
+
 /**
  * Snippet for the Ballerina language constructs.
  */
 public enum Snippet {
     ABORT("abort;"),
+
     ANNOTATION_DEFINITION("annotation<${1:attachmentPoint}> ${2:name};"),
-    BIND("bind ${1:__connector} with ${2:__endpoint}"),
+
+    BIND("bind "),
+
     BREAK("break;"),
-    ENDPOINT("endpoint ${1:http:Listener} ${2:listener} {\n\t${3}\n};"),
-    FOREACH("foreach ${1:varRefList} in ${2:listReference} {\n\t${3}\n}"),
-    FORK("fork {\n\t${1}\n} join (${2:all}) (map ${3:results}) {\n\t${4}\n}"),
-    FUNCTION("function ${1:name} (${2}) {\n\t${3}\n}"),
-    FUNCTION_SIGNATURE("function ${1:name} (${2});"),
-    IF("if (${1:true}) {\n\t${2}\n}"),
-    LOCK("lock {\n\t${1}\n}"),
-    MAIN_FUNCTION("function main (string... args) {\n\t${1}\n}"),
-    MATCH("match "),
-    NAMESPACE_DECLARATION("xmlns \"${1}\" as ${2:ns};"),
-    NEXT("next;"),
-    RESOURCE("${1:newResource} (endpoint ${2:caller}, ${3:http:Request request}) {\n\t${4}\n}"),
-    RETURN("return;"),
-    SERVICE("service<${1:http:Service}> ${2:serviceName} {\n\t${3:newResource} (endpoint ${4:caller}, " +
-            "${5:http:Request request}) {\n\t}\n}"),
-    TRANSACTION("transaction with retries(${1}), oncommit(${2:foo}), onabort(${3:bar}) " +
-            "{\n\t${4}\n} onretry {\n\t${5}\n}"),
-    TRIGGER_WORKER("${1} -> ${2};"),
-    TRY_CATCH("try {\n\t${1}\n} catch (${2:error} ${3:err}) {\n\t${4}\n}"),
-    WHILE("while (${1:true}) {\n\t${2}\n}"),
-    WORKER_REPLY("${1} <- ${2};"),
-    WORKER("worker ${1:name} {\n\t${2}\n}"),
-    XML_ATTRIBUTE_REFERENCE("\"${1}\"@[\"${2}\"]"),
-    VAR_KEYWORD_SNIPPET("var "),
+
+    BUT("but {" + CommonUtil.LINE_SEPARATOR + "\t${1}" + CommonUtil.LINE_SEPARATOR + "};"),
+
     CHECK_KEYWORD_SNIPPET("check "),
-    OBJECT_SNIPPET("type ${1:ObjectName} object {\n\t${2}\n}"),
-    RECORD_SNIPPET("type ${1:RecordName} {\n\t${2}\n};"),
-    NEW_OBJECT_CONSTRUCTOR("new (${1:args}) {\n\t${2}\n}"),
-    PUBLIC_BLOCK("public {\n\t${1}\n}"),
-    PRIVATE_BLOCK("private {\n\t${1}\n}"),
+
+    CONTINUE("continue;"),
+
+    ENDPOINT("endpoint ${1:http:Listener} ${2:listener} {" + CommonUtil.LINE_SEPARATOR + "\t${3}"
+            + CommonUtil.LINE_SEPARATOR + "};"),
+
+    FOREACH("foreach ${1:item} in ${2:itemList} {" + CommonUtil.LINE_SEPARATOR + "\t${3}"
+            + CommonUtil.LINE_SEPARATOR + "}"),
+
+    FORK("fork {" + CommonUtil.LINE_SEPARATOR + "\t${1}" + CommonUtil.LINE_SEPARATOR
+            + "} join (${2:all}) (map ${3:results}) {" + CommonUtil.LINE_SEPARATOR + "\t${4}"
+            + CommonUtil.LINE_SEPARATOR + "}"),
+
+    FUNCTION("function ${1:name} (${2}) {" + CommonUtil.LINE_SEPARATOR + "\t${3}" + CommonUtil.LINE_SEPARATOR + "}"),
+
+    FUNCTION_SIGNATURE("function ${1:name} (${2});"),
+
+    IF("if (${1:true}) {" + CommonUtil.LINE_SEPARATOR + "\t${2}" + CommonUtil.LINE_SEPARATOR + "}"),
     
+    LENGTHOF("lengthof "),
+
+    LOCK("lock {" + CommonUtil.LINE_SEPARATOR + "\t${1}" + CommonUtil.LINE_SEPARATOR + "}"),
+
+    MAIN_FUNCTION("function main (string... args) {" + CommonUtil.LINE_SEPARATOR + "\t${1}"
+            + CommonUtil.LINE_SEPARATOR + "}"),
+
+    MATCH("match "),
+
+    NAMESPACE_DECLARATION("xmlns \"${1}\" as ${2:ns};"),
+
+    NEW_OBJECT_CONSTRUCTOR("public new (${1:args}) {" + CommonUtil.LINE_SEPARATOR + "\t${2}" + CommonUtil.LINE_SEPARATOR
+            + "}"),
+
+    OBJECT_SNIPPET("type ${1:ObjectName} object {" + CommonUtil.LINE_SEPARATOR + "\t${2}"
+            + CommonUtil.LINE_SEPARATOR + "};"),
+
+    PRIVATE_BLOCK("private {" + CommonUtil.LINE_SEPARATOR + "\t${1}" + CommonUtil.LINE_SEPARATOR + "}"),
+
+    PUBLIC_BLOCK("public {" + CommonUtil.LINE_SEPARATOR + "\t${1}" + CommonUtil.LINE_SEPARATOR + "}"),
+
+    PUBLIC_KEYWORD_SNIPPET("public "),
+
+    RECORD_SNIPPET("type ${1:RecordName} record {" + CommonUtil.LINE_SEPARATOR + "\t${2}" + CommonUtil.LINE_SEPARATOR
+            + "};"),
+
+    RESOURCE("${1:newResource} (endpoint ${2:caller}, ${3:http:Request request}) {" + CommonUtil.LINE_SEPARATOR
+            + "\t${4}" + CommonUtil.LINE_SEPARATOR + "}"),
+
+    RETRY("retry;"),
+
+    RETURN("return;"),
+
+    SERVICE("service<${1:http:Service}> ${2:serviceName} bind { port: 9090 } {" + CommonUtil.LINE_SEPARATOR
+            + "\t${3:newResource} (endpoint ${4:caller}, " + "${5:http:Request request}) {"
+            + CommonUtil.LINE_SEPARATOR + "\t}" + CommonUtil.LINE_SEPARATOR + "}"),
+
+    SERVICE_WEBSOCKET("service<http:WebSocketService> ${1:serviceName} bind { port: 9090 } {"
+            + CommonUtil.LINE_SEPARATOR + "\tonOpen(endpoint caller) {"
+            + CommonUtil.LINE_SEPARATOR + "\t\t" + CommonUtil.LINE_SEPARATOR + "\t}" + CommonUtil.LINE_SEPARATOR
+            + "\tonText(endpoint caller, string text, boolean final) {" + CommonUtil.LINE_SEPARATOR + "\t\t"
+            + CommonUtil.LINE_SEPARATOR + "\t}" + CommonUtil.LINE_SEPARATOR
+            + "\tonClose(endpoint caller, int statusCode, string reason) {"
+            + CommonUtil.LINE_SEPARATOR + "\t\t" + CommonUtil.LINE_SEPARATOR + "\t}" + CommonUtil.LINE_SEPARATOR + "}"),
+
+    SERVICE_WEBSUB("service<websub:Service> ${1:websubSubscriber} bind {port: 9090} {" + CommonUtil.LINE_SEPARATOR
+            + "\tonIntentVerification(endpoint caller, websub:IntentVerificationRequest request) {"
+            + CommonUtil.LINE_SEPARATOR + "\t\t" + CommonUtil.LINE_SEPARATOR + "\t}" + CommonUtil.LINE_SEPARATOR
+            + "\tonNotification(websub:Notification notification) {" + CommonUtil.LINE_SEPARATOR + "\t\t"
+            + CommonUtil.LINE_SEPARATOR + "\t}" + CommonUtil.LINE_SEPARATOR + "}"),
+
+    THROW("throw "),
+
+    TRANSACTION("transaction with retries = ${1:1}, oncommit = ${2:onCommitFunction}, "
+            + "onabort = ${3:onAbortFunction} " + "{" + CommonUtil.LINE_SEPARATOR
+            + "\t${4}" + CommonUtil.LINE_SEPARATOR + "} onretry {" + CommonUtil.LINE_SEPARATOR + "\t${5}"
+            + CommonUtil.LINE_SEPARATOR + "}"),
+
+    TRIGGER_WORKER("${1} -> ${2};"),
+
+    TRY_CATCH("try {" + CommonUtil.LINE_SEPARATOR + "\t${1}" + CommonUtil.LINE_SEPARATOR
+            + "} catch (${2:error} ${3:err}) {" + CommonUtil.LINE_SEPARATOR + "\t${4}"
+            + CommonUtil.LINE_SEPARATOR + "}"),
+
+    VAR_KEYWORD_SNIPPET("var "),
+
+    WHILE("while (${1:true}) {" + CommonUtil.LINE_SEPARATOR + "\t${2}" + CommonUtil.LINE_SEPARATOR + "}"),
+
+    WORKER_REPLY("${1} <- ${2};"),
+
+    WORKER("worker ${1:name} {" + CommonUtil.LINE_SEPARATOR + "\t${2}" + CommonUtil.LINE_SEPARATOR + "}"),
+
+    XML_ATTRIBUTE_REFERENCE("\"${1}\"@[\"${2}\"]"),
+
+
     // Constants for the Iterable operators
-    ITR_FOREACH("foreach(function (%params%) {\n\t${1}\n});"),
-    ITR_MAP("map(function (%params%) (any){\n\t${1}\n});"),
-    ITR_FILTER("filter(function (%params%) (boolean){\n\t${1}\n});"),
+    ITR_FOREACH("foreach((%params%) => {" + CommonUtil.LINE_SEPARATOR + "\t${1}"
+            + CommonUtil.LINE_SEPARATOR + "});"),
+
+    ITR_MAP("map((%params%) => (any) {" + CommonUtil.LINE_SEPARATOR + "\t${1}"
+            + CommonUtil.LINE_SEPARATOR + "});"),
+
+    ITR_FILTER("filter((%params%) => (boolean) {" + CommonUtil.LINE_SEPARATOR + "\t${1}"
+            + CommonUtil.LINE_SEPARATOR + "});"),
+
     ITR_COUNT("count();"),
+
     ITR_MIN("min();"),
+
     ITR_MAX("max();"),
+
     ITR_AVERAGE("average();"),
+
     ITR_SUM("sum();"),
-    
+
+
     // Iterable operators' lambda function parameters
     ITR_ON_MAP_PARAMS("string k, any v"),
+
     ITR_ON_JSON_PARAMS("json v"),
+
     ITR_ON_XML_PARAMS("xml v");
 
     private String value;

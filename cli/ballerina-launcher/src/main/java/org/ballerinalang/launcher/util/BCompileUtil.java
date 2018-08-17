@@ -16,14 +16,15 @@
  */
 package org.ballerinalang.launcher.util;
 
+import org.ballerinalang.bre.bvm.BLangVMStructs;
 import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.launcher.LauncherUtils;
 import org.ballerinalang.model.elements.PackageID;
-import org.ballerinalang.model.types.BStructType;
-import org.ballerinalang.model.values.BStruct;
+import org.ballerinalang.model.values.BMap;
+import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.util.codegen.PackageInfo;
 import org.ballerinalang.util.codegen.ProgramFile;
-import org.ballerinalang.util.codegen.StructInfo;
+import org.ballerinalang.util.codegen.StructureTypeInfo;
 import org.ballerinalang.util.diagnostic.Diagnostic;
 import org.ballerinalang.util.diagnostic.DiagnosticListener;
 import org.wso2.ballerinalang.compiler.Compiler;
@@ -32,7 +33,6 @@ import org.wso2.ballerinalang.compiler.SourceDirectory;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.CompilerOptions;
-import org.wso2.ballerinalang.compiler.util.CompilerUtils;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.programfile.CompiledBinaryFile;
@@ -56,6 +56,7 @@ import java.util.stream.Collectors;
 import static org.ballerinalang.compiler.CompilerOptionName.COMPILER_PHASE;
 import static org.ballerinalang.compiler.CompilerOptionName.PRESERVE_WHITESPACE;
 import static org.ballerinalang.compiler.CompilerOptionName.PROJECT_DIR;
+import static org.ballerinalang.compiler.CompilerOptionName.TEST_ENABLED;
 
 /**
  * Utility methods for compile Ballerina files.
@@ -203,31 +204,27 @@ public class BCompileUtil {
         options.put(COMPILER_PHASE, compilerPhase.toString());
         options.put(PRESERVE_WHITESPACE, "false");
 
-        CompileResult comResult = new CompileResult();
+        return compile(context, packageName, compilerPhase);
+    }
 
-        // catch errors
-        DiagnosticListener listener = comResult::addDiagnostic;
-        context.put(DiagnosticListener.class, listener);
 
-        // compile
-        Compiler compiler = Compiler.getInstance(context);
-        BLangPackage packageNode = compiler.compile(packageName);
-        comResult.setAST(packageNode);
-        if (comResult.getErrorCount() > 0 || CompilerPhase.CODE_GEN.compareTo(compilerPhase) > 0) {
-            return comResult;
-        }
+    /**
+     * Compile with tests and return the semantic errors.
+     *
+     * @param sourceRoot    root path of the source packages
+     * @param packageName   name of the package to compile
+     * @param compilerPhase Compiler phase
+     * @return Semantic errors
+     */
+    public static CompileResult compileWithTests(String sourceRoot, String packageName, CompilerPhase compilerPhase) {
+        CompilerContext context = new CompilerContext();
+        CompilerOptions options = CompilerOptions.getInstance(context);
+        options.put(PROJECT_DIR, sourceRoot);
+        options.put(COMPILER_PHASE, compilerPhase.toString());
+        options.put(PRESERVE_WHITESPACE, "false");
+        options.put(TEST_ENABLED, "true");
 
-        CompiledBinaryFile.ProgramFile programFile = compiler.getExecutableProgram(packageNode);
-        if (programFile != null) {
-            ProgramFile pFile = LauncherUtils.getExecutableProgram(programFile);
-            comResult.setProgFile(pFile);
-            if (pFile != null) {
-                boolean distributedTxEnabled = CompilerUtils.isDistributedTransactionsEnabled();
-                pFile.setDistributedTransactionEnabled(distributedTxEnabled);
-            }
-        }
-
-        return comResult;
+        return compile(context, packageName, compilerPhase);
     }
 
     public static CompileResult compile(String sourceRoot, String packageName, CompilerPhase compilerPhase,
@@ -254,6 +251,29 @@ public class BCompileUtil {
             comResult.setProgFile(LauncherUtils.getExecutableProgram(programFile));
         }
 
+        return comResult;
+    }
+
+    private static CompileResult compile(CompilerContext context, String packageName,
+                                         CompilerPhase compilerPhase) {
+        CompileResult comResult = new CompileResult();
+        // catch errors
+        DiagnosticListener listener = comResult::addDiagnostic;
+        context.put(DiagnosticListener.class, listener);
+
+        // compile
+        Compiler compiler = Compiler.getInstance(context);
+        BLangPackage packageNode = compiler.compile(packageName, true);
+        comResult.setAST(packageNode);
+        if (comResult.getErrorCount() > 0 || CompilerPhase.CODE_GEN.compareTo(compilerPhase) > 0) {
+            return comResult;
+        }
+
+        CompiledBinaryFile.ProgramFile programFile = compiler.getExecutableProgram(packageNode);
+        if (programFile != null) {
+            ProgramFile pFile = LauncherUtils.getExecutableProgram(programFile);
+            comResult.setProgFile(pFile);
+        }
         return comResult;
     }
 
@@ -341,11 +361,11 @@ public class BCompileUtil {
         return sb.toString();
     }
 
-    public static BStruct createAndGetStruct(ProgramFile programFile, String packagePath, String structName) {
+    public static BMap<String, BValue> createAndGetStruct(ProgramFile programFile, String packagePath,
+                                                          String structName) {
         PackageInfo structPackageInfo = programFile.getPackageInfo(packagePath);
-        StructInfo structInfo = structPackageInfo.getStructInfo(structName);
-        BStructType structType = structInfo.getType();
-        return new BStruct(structType);
+        StructureTypeInfo typeInfo = structPackageInfo.getStructInfo(structName);
+        return BLangVMStructs.createBStruct(typeInfo);
     }
 
 

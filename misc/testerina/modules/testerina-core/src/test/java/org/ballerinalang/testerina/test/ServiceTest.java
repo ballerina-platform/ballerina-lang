@@ -19,8 +19,10 @@ package org.ballerinalang.testerina.test;
 
 import org.ballerinalang.testerina.core.BTestRunner;
 import org.ballerinalang.testerina.core.TesterinaRegistry;
+import org.ballerinalang.testerina.util.Utils;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
+import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
@@ -38,10 +40,8 @@ public class ServiceTest {
 
     String sourceRoot = "src/test/resources";
 
-    // TODO : Added as a temporary solution to create .ballerina directory
     @BeforeClass
     public void createDir() throws IOException {
-        // TODO : Done as a workaround to create the .ballerina directory
         Path filePath = Paths.get(sourceRoot + "/.ballerina");
         Files.deleteIfExists(filePath);
         Files.createDirectory(filePath);
@@ -53,24 +53,26 @@ public class ServiceTest {
         System.setProperty("java.util.logging.config.file", "logging.properties");
     }
 
-    @Test
+    @Test(enabled = false)
     public void testBefore() {
-        cleanup();
+        TesterinaRegistry.getInstance().setOrgName("$anon");
         BTestRunner bTestRunner = new BTestRunner();
         bTestRunner.runTest("src/test/resources", new Path[]{Paths.get("servicemocktest"), Paths.get
                 ("servicemocktest2")}, new ArrayList<>());
         Assert.assertEquals(bTestRunner.getTesterinaReport().getTestSummary("servicemocktest", "passed"), 1);
     }
 
+    @AfterMethod
     private void cleanup() {
         TesterinaRegistry.getInstance().setProgramFiles(new ArrayList<>());
         TesterinaRegistry.getInstance().setTestSuites(new HashMap<>());
+        TesterinaRegistry.getInstance().getInitializedPackages().clear();
+        TesterinaRegistry.getInstance().setOrgName(null);
     }
 
-    // TODO : Added as a temporary solution to cleanup .ballerina directory
     @AfterClass
     public void cleanDirectory() throws IOException {
-        Files.deleteIfExists(Paths.get(sourceRoot + "/.ballerina"));
+        Utils.cleanUpDir(Paths.get(sourceRoot + "/.ballerina"));
     }
 
 }

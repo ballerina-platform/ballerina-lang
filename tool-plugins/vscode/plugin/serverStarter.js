@@ -21,22 +21,49 @@ const net = require('net');
 const path = require('path');
 const { spawn } = require('child_process');
 const openport = require('openport');
-const { workspace } = require('vscode');
+const { workspace, window } = require('vscode');
+const glob = require('glob');
 
 let serverProcess;
-const libPath = '/bre/lib/*'
-const composerlibPath = '/resources/composer/services/*';
+const libPath = '/bre/lib/*';
+const jrePath = '/bre/lib/jre*';
+const composerlibPath = '/lib/resources/composer/services/*';
 const main = 'org.ballerinalang.vscode.server.Main';
+const log = require('./logger');
 
 let LSService;
 let parserService;
 
 function getClassPath() {
-    const sdkPath = workspace.getConfiguration('ballerina').get('sdk');
+    const customClassPath = workspace.getConfiguration('ballerina').get('classpath');
+    const sdkPath = workspace.getConfiguration('ballerina').get('home');
     const jarPath = path.join(__dirname, 'server-build', 'plugin-vscode-server.jar');
 	// in windows class path seperated by ';'
 	const sep = process.platform === 'win32' ? ';' : ':';
-    return path.join(sdkPath, composerlibPath) + sep + path.join(sdkPath, libPath) + sep + jarPath;
+    let classpath = path.join(sdkPath, composerlibPath) + sep + path.join(sdkPath, libPath) + sep + jarPath;
+
+    if (customClassPath) {
+        classpath =  customClassPath + sep + classpath;
+    }
+    return classpath;
+}
+
+function getExcecutable() {
+    var glob = require("glob")
+
+    let excecutable = 'java';
+    const { JAVA_HOME } = process.env;
+    const sdkPath = workspace.getConfiguration('ballerina').get('home');
+    const files = glob.sync(path.join(sdkPath, jrePath));
+
+    if (files[0]) {
+        log(`Using java from ballerina.home: ${files[0]}`);
+        excecutable = path.join(files[0], 'bin', 'java');
+    } else if (JAVA_HOME) {
+        log(`Using java from JAVA_HOME: ${JAVA_HOME}`);
+        excecutable = path.join(JAVA_HOME, 'bin', 'java');
+    }
+    return excecutable;
 }
 
 function startServices() {
@@ -62,32 +89,59 @@ function startServices() {
 
     openport.find({count: 2}, (err, [LSPort, parserPort]) => {
         let server = net.createServer(stream => {
-            console.log('Ballerina Language Server connected');
             // Server is closed so that no more connections will be accepted
             server.close();
             onLSStarted({ reader: stream, writer: stream });
+            log(`Ballerina Language Server connected on port: ${LSPort}`);
         });
         server.on('error', onLSError);
         server.listen(LSPort, () => {
-            console.log('Listening for Ballerina Language Server on: ', LSPort);
+            log(`Listening for Ballerina Language Server on: ${LSPort}`);
             server.removeListener('error', onLSError);
 
-            const args = ['-cp', getClassPath()]
+            const args = ['-cp', getClassPath()];
 
             if (process.env.LSDEBUG === "true") {
-                args.push('-agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=5005,quiet=y')
+                log('LSDEBUG is set to "true". Services will run on debug mode');
+                args.push('-agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=5005,quiet=y');
             }
 
-            serverProcess = spawn('java', [...args, main, LSPort, parserPort]);
+            const balHomePath = workspace.getConfiguration('ballerina').get('home');
+            const balHomeSysProp = `-Dballerina.home=${balHomePath}`;
+
+            const balDebugLog = workspace.getConfiguration('ballerina').get('debugLog');
+            const balDebugLogSysProp = `-Dballerina.debugLog=${balDebugLog}`;
+
+            log(`Starting parser service on: ${parserPort}`);
+
+            serverProcess = spawn(getExcecutable(), [balHomeSysProp, balDebugLogSysProp, ...args, main, LSPort,
+                                                     parserPort]);
+
+            serverProcess.on('error', (e) => {
+                log(`Could not start services ${e}\n`, true);
+                onParserError(e);
+                onLSError(e);
+            });
+
+            let parserStarted = false;
+            let aggregatedStdout = '';
 
             serverProcess.stdout.on('data', (data) => {
-                console.log(`ls: ${data}`);
-                if (`${data}`.indexOf('Parser started successfully') > -1) {
+                log(`${data}`);
+
+                if (parserStarted) {
+                    return;
+                }
+
+                aggregatedStdout = `${aggregatedStdout}${data}`;
+                if (aggregatedStdout.indexOf('Parser started successfully') > -1) {
+                    log(`Parser started successfully on port: ${parserPort}`);
                     onParserStarted({port: parserPort});
+                    parserStarted = true;
                 }
             });
             serverProcess.stderr.on('data', (data) => {
-                console.log(`ls: ${data}`);
+                log(`${data}`);
             });
         });
     });

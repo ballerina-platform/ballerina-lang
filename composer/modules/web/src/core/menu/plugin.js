@@ -20,13 +20,14 @@ import _ from 'lodash';
 import Plugin from './../plugin/plugin';
 import { CONTRIBUTIONS } from './../plugin/constants';
 
-import { REGIONS } from './../layout/constants';
+import { REGIONS, COMMANDS as LAYOUT_COMMANDS } from './../layout/constants';
 
 import { getCommandDefinitions } from './commands';
 import { getHandlerDefinitions } from './handlers';
 import { PLUGIN_ID, VIEW_IDS, MENU_DEF_TYPES } from './constants';
 
 import AppMenuView from './views/AppMenu';
+import { isOnElectron } from '../utils/client-info';
 
 /**
  * MenuPlugin is responsible for rendering menu items.
@@ -39,6 +40,7 @@ class MenuPlugin extends Plugin {
         super();
         this.menus = [];
         this.roots = [];
+        this.getLabelForCommand = this.getLabelForCommand.bind(this);
     }
 
     /**
@@ -113,6 +115,60 @@ class MenuPlugin extends Plugin {
     /**
      * @inheritdoc
      */
+    onAfterInitialRender() {
+        if (isOnElectron()) {
+            const { ipcRenderer } = require('electron');
+            const { command: { dispatch, on } } = this.appContext;
+            const populateNativeMenuItem = (node) => {
+                node.gen = {
+                    isActive: true,
+                    shortcut: node.command ? this.getShortcutForCommand(node.command) : '',
+                    subLabel: node.command ? this.getLabelForCommand(node.command) : '',
+                };
+                if (typeof node.isActive === 'function') {
+                    node.gen.isActive = node.isActive();
+                }
+            };
+            const populateNativeMenu = (roots) => {
+                roots.forEach((root) => {
+                    populateNativeMenuItem(root);
+                    root.children.forEach((child) => {
+                        populateNativeMenuItem(child);
+                    });
+                });
+                return roots;
+            };
+            ipcRenderer.send('main-menu-loaded', populateNativeMenu(this.roots));
+            ipcRenderer.on('menu-item-clicked', (e, commandId) => {
+                dispatch(commandId);
+            });
+            on(LAYOUT_COMMANDS.UPDATE_ALL_ACTION_TRIGGERS, () => {
+                ipcRenderer.send('main-menu-loaded', populateNativeMenu(this.roots));
+            });
+        }
+    }
+
+    /**
+     * Gets the shortcut label for command
+     * @param {String} cmdID command ID
+     */
+    getLabelForCommand(cmdID) {
+        const cmd = this.appContext.command.findCommand(cmdID);
+        return _.get(cmd, 'shortcut.derived.label', '');
+    }
+
+    /**
+     * Gets the shortcut for command
+     * @param {String} cmdID command ID
+     */
+    getShortcutForCommand(cmdID) {
+        const cmd = this.appContext.command.findCommand(cmdID);
+        return _.get(cmd, 'shortcut.derived.key', '');
+    }
+
+    /**
+     * @inheritdoc
+     */
     getContributions() {
         const { COMMANDS, HANDLERS, VIEWS } = CONTRIBUTIONS;
         return {
@@ -126,10 +182,7 @@ class MenuPlugin extends Plugin {
                         return {
                             dispatch: this.appContext.command.dispatch,
                             menu: this.roots,
-                            getLabelForCommand: (cmdID) => {
-                                const cmd = this.appContext.command.findCommand(cmdID);
-                                return _.get(cmd, 'shortcut.derived.label', '');
-                            },
+                            getLabelForCommand: this.getLabelForCommand,
                         };
                     },
                     region: REGIONS.HEADER,

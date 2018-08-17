@@ -31,10 +31,12 @@ import java.nio.file.Path;
  */
 public class PathBasedCompiledPackageEntry implements CompilerOutputEntry {
 
+    private Path root;
     private Path path;
     private Kind kind;
 
-    public PathBasedCompiledPackageEntry(Path path, Kind kind) {
+    public PathBasedCompiledPackageEntry(Path root, Path path, Kind kind) {
+        this.root = root;
         this.path = path;
         this.kind = kind;
     }
@@ -51,6 +53,6 @@ public class PathBasedCompiledPackageEntry implements CompilerOutputEntry {
 
     @Override
     public InputStream getInputStream() throws IOException {
-        return Files.newInputStream(this.path);
+        return Files.newInputStream(this.root.resolve(this.path));
     }
 }

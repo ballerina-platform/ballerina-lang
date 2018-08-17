@@ -32,6 +32,9 @@ import org.testng.AssertJUnit;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
+/**
+ * Testcase for stream outer joins.
+ */
 public class OuterJoinTestCase {
     private static final Logger log = LoggerFactory.getLogger(OuterJoinTestCase.class);
     private int inEventCount;

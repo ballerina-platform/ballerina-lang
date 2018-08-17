@@ -17,11 +17,11 @@
 package org.ballerinalang.langserver.completions.resolvers;
 
 import org.antlr.v4.runtime.ParserRuleContext;
-import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
+import org.antlr.v4.runtime.Token;
 import org.ballerinalang.langserver.compiler.LSServiceOperationContext;
-import org.ballerinalang.langserver.completions.resolvers.parsercontext
-        .ParserRuleGlobalVariableDefinitionContextResolver;
-import org.ballerinalang.langserver.completions.resolvers.parsercontext.ParserRuleTypeNameContextResolver;
+import org.ballerinalang.langserver.completions.CompletionKeys;
+import org.ballerinalang.langserver.completions.resolvers.parsercontext.ParserRuleAnnotationAttachmentResolver;
+import org.ballerinalang.langserver.completions.resolvers.parsercontext.ParserRuleGlobalVariableDefinitionContextResolver;
 import org.ballerinalang.langserver.completions.util.CompletionItemResolver;
 import org.ballerinalang.langserver.completions.util.ItemResolverConstants;
 import org.ballerinalang.langserver.completions.util.Snippet;
@@ -29,10 +29,10 @@ import org.ballerinalang.langserver.completions.util.sorters.DefaultItemSorter;
 import org.ballerinalang.langserver.completions.util.sorters.ItemSorters;
 import org.eclipse.lsp4j.CompletionItem;
 import org.eclipse.lsp4j.InsertTextFormat;
-import org.wso2.ballerinalang.compiler.parser.antlr4.BallerinaParser;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Stack;
 
 /**
  * Resolves all items that can appear as a top level element in the file.
@@ -40,43 +40,30 @@ import java.util.List;
 public class TopLevelResolver extends AbstractItemResolver {
 
     @Override
-    public ArrayList<CompletionItem> resolveItems(LSServiceOperationContext completionContext) {
+    public List<CompletionItem> resolveItems(LSServiceOperationContext ctx) {
         ArrayList<CompletionItem> completionItems = new ArrayList<>();
-
-        ParserRuleContext parserRuleContext = completionContext.get(DocumentServiceKeys.PARSER_RULE_CONTEXT_KEY);
-        AbstractItemResolver errorContextResolver = parserRuleContext == null ? null :
+        ParserRuleContext parserRuleContext = ctx.get(CompletionKeys.PARSER_RULE_CONTEXT_KEY);
+        AbstractItemResolver itemResolver = parserRuleContext == null ? null :
                 CompletionItemResolver.getResolverByClass(parserRuleContext.getClass());
+        Stack<Token> poppedTokens = ctx.get(CompletionKeys.FORCE_CONSUMED_TOKENS_KEY);
 
-        if (parserRuleContext instanceof BallerinaParser.ServiceBodyContext) {
-            // NOTE: This is a special case for annotations in resource only
-            completionItems.addAll(errorContextResolver.resolveItems(completionContext));
-            return completionItems;
-        }
-
-        boolean isAnnotation = this.isAnnotationContext(completionContext);
-        if (isAnnotation) {
+        if (this.isAnnotationStart(ctx)) {
             completionItems.addAll(CompletionItemResolver
-                    .getResolverByClass(AnnotationAttachmentResolver.class).resolveItems(completionContext));
+                    .getResolverByClass(ParserRuleAnnotationAttachmentResolver.class).resolveItems(ctx));
+        } else if (itemResolver == null
+                || (itemResolver instanceof ParserRuleGlobalVariableDefinitionContextResolver
+                && poppedTokens.size() < 2)) {
+                addTopLevelItems(completionItems);
+                completionItems.addAll(this.populateBasicTypes(ctx.get(CompletionKeys.VISIBLE_SYMBOLS_KEY)));
         } else {
-            if (errorContextResolver == null || errorContextResolver == this) {
-                addTopLevelItems(completionItems);
-            }
-            if (errorContextResolver instanceof PackageNameContextResolver) {
-                completionItems.addAll(errorContextResolver.resolveItems(completionContext));
-            } else if (errorContextResolver instanceof ParserRuleGlobalVariableDefinitionContextResolver) {
-                addTopLevelItems(completionItems);
-                completionItems.addAll(errorContextResolver.resolveItems(completionContext));
-            } else if (errorContextResolver instanceof ParserRuleTypeNameContextResolver) {
-                addTopLevelItems(completionItems);
-                completionItems.addAll(errorContextResolver.resolveItems(completionContext));
-            }
+            completionItems.addAll(itemResolver.resolveItems(ctx));
         }
 
-        ItemSorters.getSorterByClass(DefaultItemSorter.class).sortItems(completionContext, completionItems);
+        ItemSorters.get(DefaultItemSorter.class).sortItems(ctx, completionItems);
         return completionItems;
     }
 
-    void addStaticItem(List<CompletionItem> completionItems, String label, String insertText, String detail) {
+    private void addStaticItem(List<CompletionItem> completionItems, String label, String insertText, String detail) {
         CompletionItem item = new CompletionItem();
         item.setLabel(label);
         item.setInsertText(insertText);
@@ -99,6 +86,10 @@ public class TopLevelResolver extends AbstractItemResolver {
                 ItemResolverConstants.SNIPPET_TYPE);
         addStaticItem(completionItems, ItemResolverConstants.SERVICE, Snippet.SERVICE.toString(),
                 ItemResolverConstants.SNIPPET_TYPE);
+        addStaticItem(completionItems, ItemResolverConstants.SERVICE_WEBSOCKET, Snippet.SERVICE_WEBSOCKET.toString(),
+                ItemResolverConstants.SNIPPET_TYPE);
+        addStaticItem(completionItems, ItemResolverConstants.SERVICE_WEBSUB, Snippet.SERVICE_WEBSUB.toString(),
+                ItemResolverConstants.SNIPPET_TYPE);
         addStaticItem(completionItems, ItemResolverConstants.ANNOTATION, Snippet.ANNOTATION_DEFINITION.toString(),
                 ItemResolverConstants.SNIPPET_TYPE);
         addStaticItem(completionItems, ItemResolverConstants.XMLNS, Snippet.NAMESPACE_DECLARATION.toString(),
@@ -110,6 +101,8 @@ public class TopLevelResolver extends AbstractItemResolver {
         addStaticItem(completionItems, ItemResolverConstants.ENDPOINT, Snippet.ENDPOINT.toString(),
                 ItemResolverConstants.SNIPPET_TYPE);
         addStaticItem(completionItems, ItemResolverConstants.TYPE_TYPE, ItemResolverConstants.TYPE,
+                ItemResolverConstants.KEYWORD_TYPE);
+        addStaticItem(completionItems, ItemResolverConstants.PUBLIC_KEYWORD, Snippet.PUBLIC_KEYWORD_SNIPPET.toString(),
                 ItemResolverConstants.KEYWORD_TYPE);
     }
 }

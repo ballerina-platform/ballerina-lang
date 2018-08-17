@@ -16,7 +16,7 @@
  * under the License.
  *
  */
-
+import _ from 'lodash';
 import { MENUS, COMMANDS, LABELS } from './constants';
 import { MENU_DEF_TYPES } from './../menu/constants';
 
@@ -73,6 +73,17 @@ export function getMenuDefinitions(workspaceManager) {
             command: COMMANDS.SHOW_FOLDER_OPEN_WIZARD,
             icon: 'folder-open',
             type: MENU_DEF_TYPES.ITEM,
+        },
+        {
+            id: MENUS.SHOW_CREATE_PROJECT_WIZARD,
+            parent: MENUS.FILE_MENU,
+            label: LABELS.SHOW_CREATE_PROJECT_WIZARD,
+            isActive: (appContext) => {
+                return true;
+            },
+            command: COMMANDS.SHOW_CREATE_PROJECT_WIZARD,
+            icon: 'folder-open',
+            type: MENU_DEF_TYPES.ITEM,
             divider: {
                 after: true,
             },
@@ -84,7 +95,7 @@ export function getMenuDefinitions(workspaceManager) {
             isActive: () => {
                 const { editor } = workspaceManager.appContext;
                 const activeTab = editor.getActiveEditor();
-                return activeTab && activeTab.isDirty;
+                return !_.isNil(activeTab) && !_.isNil(activeTab.file) && activeTab.isDirty;
             },
             command: COMMANDS.SAVE_FILE,
             icon: 'save',
@@ -97,7 +108,7 @@ export function getMenuDefinitions(workspaceManager) {
             isActive: () => {
                 const { editor } = workspaceManager.appContext;
                 const activeTab = editor.getActiveEditor();
-                return activeTab && activeTab.file;
+                return !_.isNil(activeTab) && !_.isNil(activeTab.file);
             },
             command: COMMANDS.SAVE_FILE_AS,
             icon: 'folder-open',

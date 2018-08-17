@@ -28,6 +28,7 @@ import com.github.jknack.handlebars.io.FileTemplateLoader;
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.parser.OpenAPIV3Parser;
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.ballerinalang.swagger.exception.BallerinaOpenApiException;
 import org.ballerinalang.swagger.model.BallerinaOpenApi;
 import org.ballerinalang.swagger.model.GenSrcFile;
@@ -100,8 +101,12 @@ public class CodeGenerator {
     public List<GenSrcFile> generate(GenType type, String definitionPath)
             throws IOException, BallerinaOpenApiException {
         OpenAPI api = new OpenAPIV3Parser().read(definitionPath);
+
         if (api == null) {
             throw new BallerinaOpenApiException("Couldn't read the definition from file: " + definitionPath);
+        }
+        if (StringUtils.isEmpty(api.getInfo().getTitle())) {
+            api.getInfo().setTitle(GeneratorConstants.UNTITLED_SERVICE);
         }
 
         // modelPackage is not in use at the moment. All models will be written into same package as other src files.
@@ -158,6 +163,7 @@ public class CodeGenerator {
     }
 
     private Template compileTemplate(String defaultTemplateDir, String templateName) throws IOException {
+        defaultTemplateDir = defaultTemplateDir.replaceAll("\\\\", "/");
         String templatesDirPath = System.getProperty(GeneratorConstants.TEMPLATES_DIR_PATH_KEY, defaultTemplateDir);
         ClassPathTemplateLoader cpTemplateLoader = new ClassPathTemplateLoader((templatesDirPath));
         FileTemplateLoader fileTemplateLoader = new FileTemplateLoader(templatesDirPath);
@@ -173,8 +179,12 @@ public class CodeGenerator {
             if (param0 == null) {
                 throw new IllegalArgumentException("found 'null', expected 'string'");
             }
-            if (object != null && object.toString().equals(param0.toString())) {
-                result = options.fn(options.context);
+            if (object != null) {
+                if (object.toString().equals(param0.toString())) {
+                    result = options.fn(options.context);
+                } else {
+                    result = options.inverse();
+                }
             } else {
                 result = null;
             }

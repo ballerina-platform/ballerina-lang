@@ -15,22 +15,31 @@
  */
 package org.ballerinalang.langserver;
 
+import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
+import org.ballerinalang.langserver.compiler.LSContext;
 import org.ballerinalang.langserver.compiler.LSContextManager;
 import org.ballerinalang.langserver.compiler.LSPackageCache;
 import org.ballerinalang.langserver.compiler.LSPackageLoader;
-import org.ballerinalang.model.AttachmentPoint;
+import org.ballerinalang.langserver.compiler.common.modal.BallerinaPackage;
 import org.ballerinalang.model.elements.PackageID;
+import org.ballerinalang.model.symbols.SymbolKind;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.wso2.ballerinalang.compiler.tree.BLangAnnotation;
-import org.wso2.ballerinalang.compiler.tree.BLangPackage;
+import org.wso2.ballerinalang.compiler.semantics.model.Scope;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAnnotationSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
+import org.wso2.ballerinalang.compiler.util.Name;
+import org.wso2.ballerinalang.compiler.util.Names;
+import org.wso2.ballerinalang.util.AttachPoints;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 /**
@@ -44,10 +53,12 @@ public class LSAnnotationCache {
 
     private static final Logger logger = LoggerFactory.getLogger(LSPackageCache.class);
 
-    private final HashMap<PackageID, List<BLangAnnotation>> serviceAnnotations = new HashMap<>();
-    private HashMap<PackageID, List<BLangAnnotation>> resourceAnnotations = new HashMap<>();
-    private HashMap<PackageID, List<BLangAnnotation>> functionAnnotations = new HashMap<>();
+    private static HashMap<PackageID, List<BAnnotationSymbol>> serviceAnnotations = new HashMap<>();
+    private static HashMap<PackageID, List<BAnnotationSymbol>> resourceAnnotations = new HashMap<>();
+    private static HashMap<PackageID, List<BAnnotationSymbol>> functionAnnotations = new HashMap<>();
+    private static HashMap<PackageID, List<BAnnotationSymbol>> endpointAnnotations = new HashMap<>();
     private static LSAnnotationCache lsAnnotationCache = null;
+    private static List<PackageID> processedPackages = new ArrayList<>();
     
     private LSAnnotationCache() {
     }
@@ -60,92 +71,97 @@ public class LSAnnotationCache {
         if (lsAnnotationCache == null) {
             lsAnnotationCache = new LSAnnotationCache();
             CompilerContext context = LSContextManager.getInstance().getBuiltInPackagesCompilerContext();
-            Map<String, BLangPackage> packages = loadPackagesMap(context);
-            lsAnnotationCache.loadAnnotations(packages.values().stream().collect(Collectors.toList()));
+            new Thread(() -> {
+                Map<String, BPackageSymbol> packages = loadPackagesMap(context);
+                loadAnnotations(new ArrayList<>(packages.values()));
+            }).start();
         }
     }
 
-    private static Map<String, BLangPackage> loadPackagesMap(CompilerContext tempCompilerContext) {
-        Map<String, BLangPackage> staticPackages = new HashMap<>();
-        for (String staticPkgName : LSPackageLoader.getStaticPkgNames()) {
-            PackageID packageID = new PackageID(new org.wso2.ballerinalang.compiler.util.Name("ballerina"),
-                    new org.wso2.ballerinalang.compiler.util.Name(staticPkgName),
-                    new org.wso2.ballerinalang.compiler.util.Name("0.0.0"));
+    private static Map<String, BPackageSymbol> loadPackagesMap(CompilerContext tempCompilerContext) {
+        Map<String, BPackageSymbol> staticPackages = new HashMap<>();
+
+        // Annotation cache will only load the sk packages initially and the others will load in the runtime
+        for (BallerinaPackage sdkPackage : LSPackageLoader.getSdkPackages()) {
+            PackageID packageID = new PackageID(new org.wso2.ballerinalang.compiler.util.Name(sdkPackage.getOrgName()),
+                    new org.wso2.ballerinalang.compiler.util.Name(sdkPackage.getPackageName()), Names.DEFAULT_VERSION);
             try {
                 // We will wrap this with a try catch to prevent LS crashing due to compiler errors.
-                BLangPackage bLangPackage = LSPackageLoader.getPackageById(tempCompilerContext, packageID);
-                staticPackages.put(bLangPackage.packageID.bvmAlias(), bLangPackage);
+                BPackageSymbol bPackageSymbol = LSPackageLoader.getPackageSymbolById(tempCompilerContext, packageID);
+                staticPackages.put(bPackageSymbol.pkgID.toString(), bPackageSymbol);
             } catch (Exception e) {
-                logger.warn("Error while loading package :" + staticPkgName);
+                logger.warn("Error while loading package :" + sdkPackage.getPackageName());
             }
         }
 
         return staticPackages;
     }
     
-    private void loadAnnotations(List<BLangPackage> packageList) {
-        packageList.forEach(bLangPackage -> {
-            bLangPackage.getAnnotations().forEach(bLangAnnotation -> {
-                bLangAnnotation.getAttachmentPoints().forEach(attachmentPoint -> {
-                    switch (attachmentPoint.attachmentPoint) {
-                        case SERVICE:
-                            this.addAttachment(bLangAnnotation, serviceAnnotations, bLangPackage.packageID);
-                            break;
-                        case RESOURCE:
-                            this.addAttachment(bLangAnnotation, resourceAnnotations, bLangPackage.packageID);
-                            break;
-                        case FUNCTION:
-                            this.addAttachment(bLangAnnotation, functionAnnotations, bLangPackage.packageID);
-                            break;
-                        default:
-                            break;
-                    }
-                });
-            });
-        });
+    private static void loadAnnotations(List<BPackageSymbol> packageList) {
+        packageList.forEach(LSAnnotationCache::loadAnnotationsFromPackage);
     }
     
-    private void addAttachment(BLangAnnotation bLangAnnotation, HashMap<PackageID, List<BLangAnnotation>> map,
-                               PackageID packageID) {
+    private static void addAttachment(BAnnotationSymbol bAnnotationSymbol,
+                                      HashMap<PackageID, List<BAnnotationSymbol>> map, PackageID packageID) {
         if (map.containsKey(packageID)) {
-            map.get(packageID).add(bLangAnnotation);
+            map.get(packageID).add(bAnnotationSymbol);
             return;
         }
-        map.put(packageID, new ArrayList<>(Collections.singletonList(bLangAnnotation)));
+        map.put(packageID, new ArrayList<>(Collections.singletonList(bAnnotationSymbol)));
     }
 
-    public HashMap<PackageID, List<BLangAnnotation>> getServiceAnnotations() {
+    public HashMap<PackageID, List<BAnnotationSymbol>> getServiceAnnotations() {
         return serviceAnnotations;
     }
 
-    public HashMap<PackageID, List<BLangAnnotation>> getResourceAnnotations() {
+    public HashMap<PackageID, List<BAnnotationSymbol>> getResourceAnnotations() {
         return resourceAnnotations;
     }
 
-    public HashMap<PackageID, List<BLangAnnotation>> getFunctionAnnotations() {
+    public HashMap<PackageID, List<BAnnotationSymbol>> getFunctionAnnotations() {
         return functionAnnotations;
+    }
+
+    public static HashMap<PackageID, List<BAnnotationSymbol>> getEndpointAnnotations() {
+        return endpointAnnotations;
     }
 
     /**
      * Get the annotation map for the given type.
+     *
      * @param attachmentPoint   Attachment point
+     * @param ctx               LSContext
      * @return {@link HashMap}  Map of annotation lists
      */
-    public HashMap<PackageID, List<BLangAnnotation>> getAnnotationMapForType(AttachmentPoint attachmentPoint) {
-        HashMap<PackageID, List<BLangAnnotation>> annotationMap;
+    public HashMap<PackageID, List<BAnnotationSymbol>> getAnnotationMapForType(String attachmentPoint, LSContext ctx) {
+        HashMap<PackageID, List<BAnnotationSymbol>> annotationMap;
+        
+        // Check whether the imported packages in the current bLang package has been already processed
+        ctx.get(DocumentServiceKeys.CURRENT_BLANG_PACKAGE_CONTEXT_KEY).getImports()
+                .forEach(bLangImportPackage -> {
+                    if (!isPackageProcessed(bLangImportPackage.symbol.pkgID)
+                            && !bLangImportPackage.symbol.pkgID.getName().getValue().equals("runtime")) {
+                        loadAnnotationsFromPackage(LSPackageLoader.getPackageSymbolById(
+                                ctx.get(DocumentServiceKeys.COMPILER_CONTEXT_KEY), bLangImportPackage.symbol.pkgID));
+                    }
+                });
+
         if (attachmentPoint == null) {
             // TODO: Here return the common annotations
             annotationMap = new HashMap<>();
         } else {
             switch (attachmentPoint) {
-                case SERVICE:
+                case "service":
                     annotationMap = serviceAnnotations;
                     break;
-                case RESOURCE:
+                case "resource":
                     annotationMap = resourceAnnotations;
                     break;
-                case FUNCTION:
+                case "function":
                     annotationMap = functionAnnotations;
+                    break;
+                case "endpoint":
+                    annotationMap = endpointAnnotations;
                     break;
                 default:
                     annotationMap = new HashMap<>();
@@ -154,5 +170,51 @@ public class LSAnnotationCache {
         }
 
         return annotationMap;
+    }
+
+    /**
+     * Load annotations from the package.
+     * @param bPackageSymbol      BLang Package Symbol to load annotations
+     */
+    private static void loadAnnotationsFromPackage(BPackageSymbol bPackageSymbol) {
+        List<Scope.ScopeEntry> scopeEntries = extractAnnotationDefinitions(bPackageSymbol.scope.entries);
+
+        scopeEntries.forEach(annotationEntry -> {
+            if (annotationEntry.symbol instanceof BAnnotationSymbol) {
+                BAnnotationSymbol annotationSymbol = ((BAnnotationSymbol) annotationEntry.symbol);
+                int attachPoints = ((BAnnotationSymbol) annotationEntry.symbol).attachPoints;
+
+                if (Symbols.isAttachPointPresent(attachPoints, AttachPoints.SERVICE)) {
+                    addAttachment(annotationSymbol, serviceAnnotations, bPackageSymbol.pkgID);
+                }
+                if (Symbols.isAttachPointPresent(attachPoints, AttachPoints.RESOURCE)) {
+                    addAttachment(annotationSymbol, resourceAnnotations, bPackageSymbol.pkgID);
+                }
+                if (Symbols.isAttachPointPresent(attachPoints, AttachPoints.FUNCTION)) {
+                    addAttachment(annotationSymbol, functionAnnotations, bPackageSymbol.pkgID);
+                }
+                if (Symbols.isAttachPointPresent(attachPoints, AttachPoints.ENDPOINT)) {
+                    addAttachment(annotationSymbol, endpointAnnotations, bPackageSymbol.pkgID);
+                }
+            }
+        });
+        
+        processedPackages.add(bPackageSymbol.pkgID);
+    }
+    
+    private static List<Scope.ScopeEntry> extractAnnotationDefinitions(Map<Name, Scope.ScopeEntry> scopeEntries) {
+        return scopeEntries.entrySet().stream().map(entry -> {
+            if (entry.getValue().symbol.kind == SymbolKind.ANNOTATION) {
+                return entry.getValue();
+            }
+            return null;
+        }).filter(Objects::nonNull).collect(Collectors.toList());
+    }
+    
+    private boolean isPackageProcessed(PackageID packageID) {
+        return processedPackages.stream()
+                .map(PackageID::toString)
+                .collect(Collectors.toList())
+                .contains(packageID.toString());
     }
 }

@@ -23,6 +23,9 @@ import org.ballerinalang.siddhi.query.api.definition.TableDefinition;
 import org.ballerinalang.siddhi.query.api.exception.DuplicateAttributeException;
 import org.testng.annotations.Test;
 
+/**
+ * Testcase for defining event tables.
+ */
 public class DefineTableTestCase {
 
     //define stream StockStream (symbol string, price int, volume float );

@@ -16,7 +16,6 @@
  * under the License.
  *
  */
-
 module.exports = {
     ErrorCodes : {
         'JAVA_NOT_FOUND': 101,

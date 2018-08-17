@@ -20,25 +20,14 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import BallerinaFileEditor from 'plugins/ballerina/views/ballerina-file-editor';
-import { EVENTS as EDITOR_EVENTS } from 'core/editor/constants';
-import { withUndoRedoSupport } from 'core/editor/views/utils';
 import { EVENTS as WORKSPACE_EVENTS } from 'core/workspace/constants';
-import UndoableBalEditorOperation from './../operations/undoable-bal-editor-operation';
 
 
 /**
  * Editor for Bal Files
  */
 class Editor extends React.Component {
-
-    /**
-     * @inheritdoc
-     */
-    constructor(...args) {
-        super(...args);
-        this.onFileContentModified = this.onFileContentModified.bind(this);
-    }
-
+    
      /**
      * @inheritdoc
      */
@@ -60,20 +49,6 @@ class Editor extends React.Component {
      */
     shouldComponentUpdate(nextProps) {
         return nextProps.isActive();
-    }
-
-    /**
-     * On File Modifications
-     */
-    onFileContentModified(changeEvent) {
-        if (changeEvent.originEvt.type !== EDITOR_EVENTS.UNDO_EVENT
-            && changeEvent.originEvt.type !== EDITOR_EVENTS.REDO_EVENT) {
-            const undoableOp = new UndoableBalEditorOperation({
-                file: this.props.file,
-                changeEvent,
-            });
-            this.props.onUndoableOperation(undoableOp);
-        }
     }
 
     /**
@@ -121,4 +96,4 @@ Editor.defaultProps = {
     isPreviewViewEnabled: false,
 };
 
-export default withUndoRedoSupport(Editor);
+export default Editor;

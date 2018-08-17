@@ -5,8 +5,9 @@ import ballerina/http;
 //=====================================
 //============Client Config============
 //=====================================
-public type {{cut info.title " "}}ClientConfig {
+public type {{cut info.title " "}}ClientConfig record {
     string serviceUrl,
+    http:ClientEndpointConfig clientConfig,
 };
 
 //=======================================
@@ -20,7 +21,9 @@ public type {{cut info.title " "}}ClientEp object {
 
     public function init({{cut info.title " "}}ClientConfig config) {
         endpoint http:Client httpEp {
-            targets:[{url: config.serviceUrl}]
+            url: config.serviceUrl,
+            auth: config.clientConfig.auth,
+            cache: config.clientConfig.cache
         };
 
         self.client = httpEp;
@@ -41,21 +44,32 @@ public type {{cut info.title " "}}Client object {
     }
 
     new (clientEp) {}
-{{#paths}}{{#value}}{{#operations}}{{#value}}
-    public function {{operationId}}({{#parameters}}{{>pathParams}}{{/parameters}}) returns http:Response | error {
+{{#paths}}{{#value}}{{#operations}}{{#value}}{{#equals key "multi"}}{{#if methods}}{{#methods}}
+    public function {{lower .}}{{operationId}}({{#parameters}}{{>pathParams}}{{/parameters}}) returns http:Response | error {
         endpoint http:Client ep = self.clientEp.client;
         http:Request request = new;
 
-        //Create the required request as needed
-        var res = ep -> {{key}}("{{../../key}}", request);
-
-        match res {
-            http:HttpConnectorError httpError => {
-                error err = {message: httpError.message};
-                return err;
-            }
-            http:Response resp => return resp;
-        }
+        // TODO: Update the request as needed
+        return check ep->{{lower .}}("{{../../../key}}", request = request);
     }
-{{/value}}{{/operations}}{{/value}}{{/paths}}
+    {{/methods}}{{else}}{{#allMethods}}
+    public function {{lower .}}{{operationId}}({{#parameters}}{{>pathParams}}{{/parameters}}) returns http:Response | error {
+        endpoint http:Client ep = self.clientEp.client;
+        http:Request request = new;
+
+        // TODO: Update the request as needed
+        return check ep->{{lower .}}("{{../../../key}}", request = request);
+    }
+    {{/allMethods}}{{/if}}{{else}}
+    public function {{operationId}}({{#requestBody}}{{>reqBody}}{{/requestBody}}{{#parameters}}{{>pathParams}}{{/parameters}}) returns http:Response | error {
+        endpoint http:Client _{{operationId}}Ep = self.clientEp.client;
+        http:Request request = new;{{#requestBody}}{{#equals requestBody.selectedMedia.mediaType "application/json"}}
+        json _{{operationId}}JsonBody = check <json> _{{operationId}}Body;
+        request.setPayload(_{{operationId}}JsonBody);{{else}}
+        request.setPayload(_{{operationId}}Body);{{/equals}}{{/requestBody}}
+
+        // TODO: Update the request as needed
+        return check _{{operationId}}Ep->{{key}}("{{../../key}}", request = request);
+    }
+    {{/equals}}{{/value}}{{/operations}}{{/value}}{{/paths}}
 };

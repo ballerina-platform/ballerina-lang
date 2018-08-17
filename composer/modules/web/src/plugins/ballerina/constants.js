@@ -36,12 +36,18 @@ export const TOOLS = {
 export const DIALOGS = {
     OPEN_PROGRAM_DIR_CONFIRM: 'composer.dialog.ballerina.open-program-dir-confirm',
     FIX_PACKAGE_NAME_OR_PATH_CONFIRM: 'composer.dialog.ballerina.fix-package-name-or-path-confirm',
+    INVALID_SWAGGER_DIALOG: 'composer.dialog.ballerina.invalid-swagger-dialog',
 };
 
 export const EVENTS = {
     ACTIVE_BAL_AST_CHANGED: 'active-bal-ast-changed',
     UPDATE_PACKAGE_DECLARATION: 'update-bal-file-package-declaration',
     SCROLL_DESIGN_VIEW: 'scroll-design-view',
+};
+
+export const RESPOSIVE_MENU_TRIGGER = {
+    ICON_MODE: 650,
+    HIDDEN_MODE: 460,
 };
 
 export const VIEWS = {

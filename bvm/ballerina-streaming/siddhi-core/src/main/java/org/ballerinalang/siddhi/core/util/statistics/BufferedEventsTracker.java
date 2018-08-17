@@ -23,7 +23,7 @@ package org.ballerinalang.siddhi.core.util.statistics;
  */
 public interface BufferedEventsTracker {
     /**
-     * Register the EventBufferHolder that needs to be measured the used capacity usage
+     * Register the EventBufferHolder that needs to be measured the used capacity usage.
      *
      * @param eventBufferHolder EventBufferHolder
      * @param name              An unique value to identify the object.

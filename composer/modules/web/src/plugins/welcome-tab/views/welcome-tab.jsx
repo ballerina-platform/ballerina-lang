@@ -17,8 +17,9 @@
  */
 
 import React from 'react';
+import _ from 'lodash';
 import PropTypes from 'prop-types';
-import { Button, Grid, Menu, Divider, List, Card } from 'semantic-ui-react';
+import { Button, Grid, Menu } from 'semantic-ui-react';
 import { getPathSeperator } from 'api-client/api-client';
 import { COMMANDS as WORKSPACE_COMMANDS, VIEWS as WORKSPACE_VIEWS } from 'core/workspace/constants';
 import { COMMANDS as LAYOUT_COMMANDS } from 'core/layout/constants';
@@ -39,12 +40,13 @@ class WelcomeTab extends React.Component {
         super();
         this.state = {
             logoLoaded: false,
+            searchQuery: '',
         };
     }
 
     renderSamples() {
         const pathSeperator = getPathSeperator();
-        const ballerinaHome = this.props.balHome;
+        const samplesDir = this.props.samplesDir;
         let sampleConfigs = [];
         sampleConfigs = this.props.samples.map(sample => ({
             sampleName: sample.name,
@@ -55,18 +57,18 @@ class WelcomeTab extends React.Component {
                 const sampleFolder = sample.folder ? sample.folder.split('/').join(pathSeperator) : '';
                 if (sample.isFile) {
                     this.props.commandManager.dispatch(WORKSPACE_COMMANDS.OPEN_FILE, {
-                        filePath: ballerinaHome + sampleFile,
+                        filePath: samplesDir + sampleFile,
                         ext: 'bal',
                     });
                 } else {
                     if (sample.openFolder) {
                         this.props.commandManager.dispatch(WORKSPACE_COMMANDS.OPEN_FOLDER, {
-                            folderPath: ballerinaHome + sampleFolder,
+                            folderPath: samplesDir + sampleFolder,
                         });
                         this.props.commandManager.dispatch(LAYOUT_COMMANDS.SHOW_VIEW, { id: WORKSPACE_VIEWS.EXPLORER });
                     }
                     this.props.commandManager.dispatch(WORKSPACE_COMMANDS.OPEN_FILE, {
-                        filePath: ballerinaHome + sampleFile,
+                        filePath: samplesDir + sampleFile,
                         ext: 'bal',
                     });
                 }
@@ -79,6 +81,53 @@ class WelcomeTab extends React.Component {
         );
     }
 
+    getColumnContents() {
+        const columns = [];
+        this.props.samples.forEach((sample) => {
+            columns[sample.column] = columns[sample.column] || [];
+            columns[sample.column].push(sample);
+        });
+
+        return columns;
+    }
+
+    openSampleDir(url) {
+        const pathSeperator = getPathSeperator();
+        const samplesDir = this.props.samplesDir;
+        const folderPath = `${samplesDir}${pathSeperator}${url}`;
+
+        this.props.commandManager.dispatch(WORKSPACE_COMMANDS.OPEN_FOLDER, {
+            folderPath,
+        });
+        this.props.commandManager.dispatch(LAYOUT_COMMANDS.SHOW_VIEW, { id: WORKSPACE_VIEWS.EXPLORER });
+        this.props.commandManager.dispatch(WORKSPACE_COMMANDS.OPEN_FILE, {
+            filePath: `${folderPath}${pathSeperator}${url.replace(/-/g, '_')}.bal`,
+            ext: 'bal',
+        });
+    }
+
+    renderColumnItem(column) {
+        return (
+            <ul>
+                <li className='title'>{column.title}</li>
+                <ul>
+                    {
+                        column.samples.map((sample) => {
+                            return (<li className='list-item'>
+                                <a
+                                    href='#'
+                                    onClick={
+                                        () => this.openSampleDir(sample.url)}
+                                >
+                                    {sample.name}
+                                </a>
+                            </li>);
+                        })
+                    }
+                </ul>
+            </ul>
+        );
+    }
     /**
      * Renders view for welcome view.
      *
@@ -86,7 +135,7 @@ class WelcomeTab extends React.Component {
      * @memberof WelcomeTab
      */
     render() {
-        const samplesView = this.renderSamples();
+        const samples = this.getColumnContents();
         return (
             <Grid className='welcome-page'>
                 <Grid.Row className='welcome-navbar' columns={2}>
@@ -95,9 +144,18 @@ class WelcomeTab extends React.Component {
                     </Grid.Column>
                     <Grid.Column>
                         <Menu className='top-nav-links' position='right'>
-                            <Menu.Item name='Getting started'/>
-                            <Menu.Item name='Ballerina by Example' href={this.props.userGuide} target='_blank' rel='noopener noreferrer'/>
-                            <Menu.Item name='API Reference'/>
+                            <a
+                                rel='noopener noreferrer'
+                                target='_blank'
+                                href='https://ballerina.io/learn/api-docs/ballerina/http.html'
+                                onClick={(event) => {
+                                    event.preventDefault();
+                                    this.props.commandManager.dispatch(WORKSPACE_COMMANDS.SHOW_EXTERNAL_LINK,
+                                         { url: event.currentTarget.href });
+                                }}
+                            >
+                                <Menu.Item name='API Reference' />
+                            </a>
                         </Menu>
                     </Grid.Column>
                 </Grid.Row>
@@ -114,7 +172,7 @@ class WelcomeTab extends React.Component {
                                 <i className='fw fw-loader2 fw-spin fw-lg loader-center' />
                             }
                         </a>
-                        <Grid.Column className='button-wrapper'>        
+                        <Grid.Column className='button-wrapper'>
                             <Button
                                 id='btn-welcome-new'
                                 className='btn-primary'
@@ -134,7 +192,7 @@ class WelcomeTab extends React.Component {
                                 className='btn-secondary'
                                 onClick={this.props.openFile}
                             >
-                                Create Script
+                                Open File
                             </Button>
                         </Grid.Column>
                         {/* <Divider />
@@ -144,50 +202,43 @@ class WelcomeTab extends React.Component {
                             </Grid.Column>
                             <Grid.Column className='opened-wrapper'>
                                 <List.Item className='resentlyOpen'>
-                                    <i className='fw fw-folder-open'/> 
+                                    <i className='fw fw-folder-open'/>
                                     <span>serviceChaining</span>
                                 </List.Item>
                                 <List.Item className='resentlyOpen'>
-                                    <i className='fw fw-document'/> 
+                                    <i className='fw fw-document'/>
                                     <span>ATMLocatorService.bal</span>
                                 </List.Item>
                                 <List.Item className='resentlyOpen'>
-                                    <i className='fw fw-document'/> 
+                                    <i className='fw fw-document'/>
                                     <span>echoService.bal</span>
                                 </List.Item>
                                 <List.Item className='resentlyOpen'>
-                                    <i className='fw fw-folder-open'/> 
+                                    <i className='fw fw-folder-open'/>
                                     <span>serviceChaining</span>
                                 </List.Item>
                                 <List.Item className='resentlyOpen'>
-                                    <i className='fw fw-document'/> 
+                                    <i className='fw fw-document'/>
                                     <span>nyseStockQuoteService.bal</span>
                                 </List.Item>
                             </Grid.Column>
                         </Grid.Column> */}
                     </Grid.Column>
                     <Grid.Column mobile={9} tablet={11} computer={13} className='rightContainer'>
+                        <h2>Examples</h2>
                         <Grid>
-                            <Grid.Row columns={2} className='sample-wrapper'>
-                                <Grid.Column mobile={1} tablet={1} computer={1} className='wrapper-label'>
-                                    <span>Samples</span> 
+                            <Grid.Row columns={4} className='sample-wrapper'>
+                                <Grid.Column mobile={16} tablet={16} computer={4} className=''>
+                                    {samples[0].map(column => this.renderColumnItem(column))}
                                 </Grid.Column>
-                                <Grid.Column mobile={13} tablet={14} computer={15} className='thumbnail-container'>
-                                    <Grid className='inner-samples' columns='equal'>
-                                        {samplesView}
-                                    </Grid>
+                                <Grid.Column mobile={16} tablet={16} computer={4} className=''>
+                                    {samples[1].map(column => this.renderColumnItem(column))}
                                 </Grid.Column>
-                            </Grid.Row>
-                        </Grid>
-                        <Grid>
-                            <Grid.Row columns={2} className='template-wrapper'>
-                                <Grid.Column mobile={1} tablet={1} computer={1} className='wrapper-label'>
-                                    <span>Template</span> 
+                                <Grid.Column mobile={16} tablet={16} computer={4} className=''>
+                                    {samples[2].map(column => this.renderColumnItem(column))}
                                 </Grid.Column>
-                                <Grid.Column mobile={14} tablet={14} computer={15} className='thumbnail-container'>
-                                    <Grid className='inner-samples' columns='equal'>
-                                        {samplesView}
-                                    </Grid>
+                                <Grid.Column mobile={16} tablet={16} computer={4} className=''>
+                                    {samples[3].map(column => this.renderColumnItem(column))}
                                 </Grid.Column>
                             </Grid.Row>
                         </Grid>
@@ -201,7 +252,6 @@ WelcomeTab.propTypes = {
     createNew: PropTypes.func.isRequired,
     openFile: PropTypes.func.isRequired,
     openDirectory: PropTypes.func.isRequired,
-    userGuide: PropTypes.string.isRequired,
     samples: PropTypes.arrayOf(PropTypes.shape({
         name: PropTypes.string.isRequired,
         isFile: PropTypes.bool,
@@ -209,7 +259,7 @@ WelcomeTab.propTypes = {
         path: PropTypes.string.isRequired,
         image: PropTypes.string.isRequired,
     })).isRequired,
-    balHome: PropTypes.string.isRequired,
+    samplesDir: PropTypes.string.isRequired,
     commandManager: PropTypes.objectOf(Object).isRequired,
 };
 

@@ -1,20 +1,20 @@
 /*
-*  Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
-*
-*  WSO2 Inc. licenses this file to you under the Apache License,
-*  Version 2.0 (the "License"); you may not use this file except
-*  in compliance with the License.
-*  You may obtain a copy of the License at
-*
-*    http://www.apache.org/licenses/LICENSE-2.0
-*
-*  Unless required by applicable law or agreed to in writing,
-*  software distributed under the License is distributed on an
-*  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-*  KIND, either express or implied.  See the License for the
-*  specific language governing permissions and limitations
-*  under the License.
-*/
+ *  Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ *  WSO2 Inc. licenses this file to you under the Apache License,
+ *  Version 2.0 (the "License"); you may not use this file except
+ *  in compliance with the License.
+ *  You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing,
+ *  software distributed under the License is distributed on an
+ *  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ *  KIND, either express or implied.  See the License for the
+ *  specific language governing permissions and limitations
+ *  under the License.
+ */
 package org.wso2.ballerinalang.compiler.tree;
 
 import org.ballerinalang.model.elements.Flag;
@@ -24,18 +24,21 @@ import org.ballerinalang.model.tree.DocumentationNode;
 import org.ballerinalang.model.tree.EndpointNode;
 import org.ballerinalang.model.tree.FunctionNode;
 import org.ballerinalang.model.tree.IdentifierNode;
+import org.ballerinalang.model.tree.MarkdownDocumentationNode;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.ResourceNode;
 import org.ballerinalang.model.tree.ServiceNode;
 import org.ballerinalang.model.tree.expressions.RecordLiteralNode;
 import org.ballerinalang.model.tree.expressions.SimpleVariableReferenceNode;
 import org.ballerinalang.model.tree.statements.VariableDefinitionNode;
+import org.ballerinalang.model.tree.statements.XMLNSDeclStatementNode;
 import org.ballerinalang.model.tree.types.UserDefinedTypeNode;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BStructType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BObjectType;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangVariableDef;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangXMLNSStatement;
 import org.wso2.ballerinalang.compiler.tree.types.BLangUserDefinedType;
 
 import java.util.ArrayList;
@@ -47,7 +50,7 @@ import java.util.Set;
  * @since 0.94
  */
 public class BLangService extends BLangNode implements ServiceNode {
-    
+
     public BLangIdentifier name;
     public BLangUserDefinedType serviceTypeStruct;
     public List<BLangVariableDef> vars;
@@ -55,12 +58,14 @@ public class BLangService extends BLangNode implements ServiceNode {
     public Set<Flag> flagSet;
     public List<BLangAnnotationAttachment> annAttachments;
     public List<BLangDocumentation> docAttachments;
+    public BLangMarkdownDocumentation markdownDocumentationAttachment;
     public List<BLangEndpoint> endpoints;
     public BLangFunction initFunction;
     public List<BLangDeprecatedNode> deprecatedAttachments;
     public List<BLangSimpleVarRef> boundEndpoints;
-    public BStructType endpointType, endpointClientType;
+    public BObjectType endpointType, endpointClientType;
     public BLangRecordLiteral anonymousEndpointBind;
+    public List<BLangXMLNSStatement> nsDeclarations;
 
     public BSymbol symbol;
 
@@ -73,13 +78,14 @@ public class BLangService extends BLangNode implements ServiceNode {
         this.docAttachments = new ArrayList<>();
         this.deprecatedAttachments = new ArrayList<>();
         this.boundEndpoints = new ArrayList<>();
+        this.nsDeclarations = new ArrayList<>();
     }
 
     @Override
     public BLangIdentifier getName() {
         return name;
     }
-    
+
     @Override
     public void setName(IdentifierNode name) {
         this.name = (BLangIdentifier) name;
@@ -99,7 +105,7 @@ public class BLangService extends BLangNode implements ServiceNode {
     public List<BLangVariableDef> getVariables() {
         return vars;
     }
-    
+
     @Override
     public void addVariable(VariableDefinitionNode var) {
         this.getVariables().add((BLangVariableDef) var);
@@ -109,7 +115,7 @@ public class BLangService extends BLangNode implements ServiceNode {
     public List<BLangResource> getResources() {
         return resources;
     }
-    
+
     @Override
     public void addResource(ResourceNode resource) {
         this.resources.add((BLangResource) resource);
@@ -129,7 +135,7 @@ public class BLangService extends BLangNode implements ServiceNode {
     public Set<Flag> getFlags() {
         return null;
     }
-    
+
     @Override
     public void addFlag(Flag flag) {
         this.getFlags().add(flag);
@@ -139,10 +145,20 @@ public class BLangService extends BLangNode implements ServiceNode {
     public List<BLangAnnotationAttachment> getAnnotationAttachments() {
         return annAttachments;
     }
-    
+
     @Override
     public void addAnnotationAttachment(AnnotationAttachmentNode annAttachment) {
         this.getAnnotationAttachments().add((BLangAnnotationAttachment) annAttachment);
+    }
+
+    @Override
+    public BLangMarkdownDocumentation getMarkdownDocumentationAttachment() {
+        return markdownDocumentationAttachment;
+    }
+
+    @Override
+    public void setMarkdownDocumentationAttachment(MarkdownDocumentationNode documentationNode) {
+        this.markdownDocumentationAttachment = (BLangMarkdownDocumentation) documentationNode;
     }
 
     @Override
@@ -189,6 +205,16 @@ public class BLangService extends BLangNode implements ServiceNode {
     @Override
     public void addAnonymousEndpointBind(RecordLiteralNode recordLiteralNode) {
         this.anonymousEndpointBind = (BLangRecordLiteral) recordLiteralNode;
+    }
+
+    @Override
+    public List<BLangXMLNSStatement> getNamespaceDeclarations() {
+        return nsDeclarations;
+    }
+
+    @Override
+    public void addNamespaceDeclaration(XMLNSDeclStatementNode xmlns) {
+        this.nsDeclarations.add((BLangXMLNSStatement) xmlns);
     }
 
     @Override

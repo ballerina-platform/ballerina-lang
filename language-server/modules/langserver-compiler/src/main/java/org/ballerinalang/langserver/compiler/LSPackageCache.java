@@ -25,6 +25,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Package context to keep the builtin and the current package.
@@ -59,19 +60,11 @@ public class LSPackageCache {
 
     /**
      * Find the package by Package ID.
-     * @param compilerContext       compiler context
      * @param pkgId                 Package Id to lookup
      * @return {@link BLangPackage} BLang Package resolved
      */
-    public BLangPackage findPackage(CompilerContext compilerContext, PackageID pkgId) {
-        BLangPackage bLangPackage = packageCache.get(pkgId);
-        if (bLangPackage != null) {
-            return bLangPackage;
-        } else {
-            bLangPackage = LSPackageLoader.getPackageById(compilerContext, pkgId);
-            addPackage(bLangPackage.packageID, bLangPackage);
-            return bLangPackage;
-        }
+    public BLangPackage get(PackageID pkgId) {
+        return packageCache.get(pkgId);
     }
 
     /**
@@ -79,7 +72,7 @@ public class LSPackageCache {
      *
      * @param packageID ballerina package id to be removed.
      */
-    public void removePackage(PackageID packageID) {
+    public void invalidate(PackageID packageID) {
         packageCache.remove(packageID);
     }
     
@@ -92,7 +85,7 @@ public class LSPackageCache {
      *
      * @param bLangPackage ballerina package to be added.
      */
-    public void addPackage(PackageID packageID, BLangPackage bLangPackage) {
+    public void put(PackageID packageID, BLangPackage bLangPackage) {
         if (bLangPackage != null) {
             bLangPackage.packageID = packageID;
             packageCache.put(packageID, bLangPackage);
@@ -115,6 +108,7 @@ public class LSPackageCache {
             super(context);
             Cache<String, BLangPackage> cache = CacheBuilder.newBuilder().maximumSize(MAX_CACHE_COUNT).build();
             this.packageMap = cache.asMap();
+            this.packageSymbolMap = new ConcurrentHashMap<>();
         }
 
         public Map<String, BLangPackage> getMap() {
@@ -122,13 +116,32 @@ public class LSPackageCache {
         }
 
         public void remove(PackageID packageID) {
+            // TODO: Revisit cache update/ compiler context reuse process
             if (packageID != null) {
-                this.packageMap.remove(packageID.bvmAlias());
+                this.packageMap.forEach((key, value) -> {
+                    String alias = packageID.getName().toString();
+                    if (key.contains(alias + ":") || key.contains(alias)) {
+                        this.packageMap.remove(key);
+                    }
+                });
+                this.packageSymbolMap.forEach((key, value) -> {
+                    String alias = packageID.getName().toString();
+                    if (key.contains(alias + ":") || key.contains(alias)) {
+                        this.packageSymbolMap.remove(key);
+                    }
+                });
+                this.packageSymbolMap.entrySet().forEach(entry -> {
+                    String alias = packageID.getName().toString();
+                    if (entry.getKey().contains(alias + ":") || entry.getKey().contains(alias)) {
+                        this.packageSymbolMap.remove(entry.getKey());
+                    }
+                });
             }
         }
         
         public void clearCache() {
             this.packageMap.clear();
+            this.packageSymbolMap.clear();
         }
     }
 }

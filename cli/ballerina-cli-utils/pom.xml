@@ -21,7 +21,7 @@
     <parent>
         <groupId>org.ballerinalang</groupId>
         <artifactId>ballerina-parent</artifactId>
-        <version>0.970.0-beta6-SNAPSHOT</version>
+        <version>0.981.1-SNAPSHOT</version>
         <relativePath>../../pom.xml</relativePath>
     </parent>
 
@@ -54,12 +54,46 @@
         </dependency>
         <dependency>
             <groupId>org.ballerinalang</groupId>
+            <artifactId>ballerina-internal</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.ballerinalang</groupId>
             <artifactId>ballerina-mime</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.ballerinalang</groupId>
+            <artifactId>ballerina-http</artifactId>
+            <type>zip</type>
+            <classifier>ballerina-binary-repo</classifier>
+        </dependency>
+        <dependency>
+            <groupId>org.ballerinalang</groupId>
+            <artifactId>ballerina-internal</artifactId>
+            <type>zip</type>
+            <classifier>ballerina-binary-repo</classifier>
         </dependency>
     </dependencies>
 
     <build>
         <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-dependency-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>unpack-dependencies</id>
+                        <phase>generate-resources</phase>
+                        <goals>
+                            <goal>unpack-dependencies</goal>
+                        </goals>
+                        <configuration>
+                            <includeClassifiers>ballerina-binary-repo</includeClassifiers>
+                            <outputDirectory>${project.build.directory}/lib</outputDirectory>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+
             <!-- For ballerina annotation processing -->
             <plugin>
                 <groupId>org.bsc.maven</groupId>
@@ -97,8 +131,14 @@
                         </goals>
                         <phase>compile</phase>
                         <configuration>
+                            <systemProperties>
+                                <systemProperty>
+                                    <key>ballerina.home</key>
+                                    <value>${project.build.directory}</value>
+                                </systemProperty>
+                            </systemProperties>
                             <arguments>
-                                <argument>${ballerina.source.directory}/packaging.pull</argument>
+                                <argument>${ballerina.source.directory}/packaging_pull</argument>
                             </arguments>
                         </configuration>
                     </execution>
@@ -110,7 +150,7 @@
                         <phase>compile</phase>
                         <configuration>
                             <arguments>
-                                <argument>${ballerina.source.directory}/packaging.push</argument>
+                                <argument>${ballerina.source.directory}/packaging_push</argument>
                             </arguments>
                         </configuration>
                     </execution>
@@ -122,7 +162,19 @@
                         <phase>compile</phase>
                         <configuration>
                             <arguments>
-                                <argument>${ballerina.source.directory}/packaging.search</argument>
+                                <argument>${ballerina.source.directory}/packaging_search</argument>
+                            </arguments>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>ballerina.token.updater</id>
+                        <goals>
+                            <goal>java</goal>
+                        </goals>
+                        <phase>compile</phase>
+                        <configuration>
+                            <arguments>
+                                <argument>${ballerina.source.directory}/packaging_token_updater</argument>
                             </arguments>
                         </configuration>
                     </execution>
@@ -167,9 +219,10 @@
                         </goals>
                         <configuration>
                             <tasks>
-                                <delete file="${ballerina.source.directory}/packaging.pull/ballerina.pull.balx" />
-                                <delete file="${ballerina.source.directory}/packaging.push/ballerina.push.balx" />
-                                <delete file="${ballerina.source.directory}/packaging.search/ballerina.search.balx" />
+                                <delete file="${ballerina.source.directory}/packaging_pull/packaging_pull.balx" />
+                                <delete file="${ballerina.source.directory}/packaging_push/packaging_push.balx" />
+                                <delete file="${ballerina.source.directory}/packaging_search/packaging_search.balx" />
+                                <delete file="${ballerina.source.directory}/packaging_token_updater/packaging_token_updater.balx" />
                             </tasks>
                         </configuration>
                     </execution>

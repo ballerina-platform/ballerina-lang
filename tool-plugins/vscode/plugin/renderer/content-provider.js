@@ -1,5 +1,6 @@
 const vscode = require('vscode');
 const fs = require('fs');
+const path = require('path');
 const { render, activate } = require('./renderer');
 
 class DiagramProvider {
@@ -31,4 +32,13 @@ class DiagramProvider {
     }
 }
 
-module.exports = DiagramProvider;
+class StaticProvider {
+    provideTextDocumentContent(uri) {
+        return require(`.${uri.path}`);
+    }
+}
+
+module.exports = {
+    DiagramProvider,
+    StaticProvider,
+};

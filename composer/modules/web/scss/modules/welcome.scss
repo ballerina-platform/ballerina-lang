@@ -2,16 +2,9 @@
   background-color: $primaryBackgroundColor;
   height: auto;
   margin:0 !important;
-  .ballarina-top-strip {
-    margin: 0;
-    .brand-strip {
-      background: $brand-primary;
-      height: 10px;
-    }
-  }
   .welcome-navbar {
     color: $secondary-color;
-    margin-top: 50px;
+    margin-top: 30px;
     .nav-tagline {
       font-size: 16px;
       padding-left: 35px !important;
@@ -20,15 +13,17 @@
       padding-right: 5px;
       float: right;
       .item {
-        color: #333;
+        color: $text-color;
         &:before {
           display: none;
+        }
+        &:hover{
+          color: $brand-primary;
         }
       }
     }
   }
   .welcome-content-wrapper {
-    margin-top: 20px;
     margin-bottom: 8%;
     .leftContainer {
       padding: 0 35px !important;
@@ -47,150 +42,50 @@
           text-shadow: none;
           &.btn-primary {
             background-color: $brand-primary !important;
-            color: #fff;
+            color: $white;
             &:hover {
-              background-color: #30a9a2 !important;
+              background-color: $brand-primary-hover !important;
               font-weight: 400;
             }
           }
           &.btn-secondary {
             background-color: $secondary-color !important;
-            color: #fff;
+            color: $white;
             &:hover {
-              background-color: #616467 !important;
+              background-color: $secondary-color-hover !important;
               font-weight: 400;
             }
-          }
-        }
-      }
-      .recentWrapper {
-        margin: 10px 0;
-      }
-      .opened-wrapper {
-        margin: 15px 0 !important;
-        .resentlyOpen {
-          color: $secondary-color;
-          padding-left: 10px;
-          cursor: pointer;
-          margin: 5px 0;
-          i.fw {
-            padding-right: 10px !important;
-          }
-          &:hover {
-            color: $brand-primary;
-            font-weight: 400;
           }
         }
       }
     }
     .rightContainer {
-      padding: 0 50px;
-      .template-wrapper,
+      background-color: $welcome-details-content-bgcolor;
+      padding: 0 35px!important;
+
       .sample-wrapper {
-        margin: 20px 0 !important;
-        .thumbnail-container {
-          background: #fff;
-          .inner-samples {
-            padding: 10px 10px 10px 0;
-            .thumbnail-wrapper {
-              margin: 7px;
-              .thumbnail {
-                background: #fff;
-                border: 1px solid #ccc;
-                margin: 10px 7px;
-                width: 100%;
-                .caption {
-                  padding: 0 10px;
-                  bottom: 0;
-                  font-weight: 400 !important;
-                  text-align: left;
-                  h4 {
-                    margin-top: 10 !important;
-                    font-weight: 400 !important;
-                    text-align: left;
-                  }
-                }
-              }
+        ul{
+            padding: 0;
+            li {
+                list-style: none;
+                font-size: 16px;
             }
-          }
-        }
-      }
-      .wrapper-label {
-        min-width: 82px;
-        height: 39px;
-        -webkit-transform: rotate(-90deg) !important;
-        -moz-transform: rotate(-90deg) !important;
-        -ms-transform: rotate(-90deg) !important;
-        -o-transform: rotate(-90deg) !important;
-        filter: progid:DXImageTransform.Microsoft.BasicImage(rotation=3) !important;
-        margin-right: -34px !important;
-        padding: 6px 10px;
-        background: #fff;
-        overflow: hidden;
-        margin-top: 21px !important;
-      }
-      .rotate {
-        -webkit-transform: rotate(-90deg) !important;
-        -moz-transform: rotate(-90deg) !important;
-        -ms-transform: rotate(-90deg) !important;
-        -o-transform: rotate(-90deg) !important;
-        filter: progid:DXImageTransform.Microsoft.BasicImage(rotation=3) !important;
-      }
-    }
-  }
-  .media-welcome-container {
-    height: auto;
-    padding: 20px;
-    display: flex;
-    align-items: stretch;
-    .media-left {
-      width: 300px;
-      padding: 20px 40px 20px 20px;
-      border-right: 1px solid #ccc;
-      height: auto;
-      .logo {
-        width: 200px;
-        padding: 10px;
-        margin-bottom: 30px;
-        height: 50px;
-      }
-      .button {
-        width: 200px;
-        height: 37px;
-        border: 0;
-        margin: 15px 0 0 0;
-        color: #fff;
-        font-size: 16px;
-        cursor: pointer;
-        font-weight: 300;
-        text-shadow: none;
-        &.btn-primary {
-          background-color: $brand-primary !important;
-          &:hover {
-            background-color: #30a9a2 !important;
-            font-weight: 400;
-          }
-        }
-        &.btn-secondary {
-          background-color: #444 !important;
-          &:hover {
-            background-color: #333 !important;
-            font-weight: 400;
-          }
-        }
-      }
-      .nav {
-        li {
-          list-style: none;
-          a {
-            color: $brand-primary;
-            text-decoration: none;
-            &:hover {
-              background-color: #f9f9f9;
-              color: #333;
-              font-weight: 400;
+            a {
+                color: $text-color;
             }
-          }
+            a:hover {
+                color: $brand-primary-hover;
+            }
+        }
+        .title {
+            font-weight: 600;
+            border-bottom: 1px solid #cecfd0;
+            color: $text-color!important;
+            padding: 10px 0;
+        }
+        .list-item {
+            border-bottom: 1px solid #cecfd0;
+            padding: 4px 15px;
         }
       }
     }

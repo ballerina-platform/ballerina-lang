@@ -17,13 +17,18 @@
  */
 package org.wso2.ballerinalang.compiler;
 
+import org.ballerinalang.compiler.BLangCompilerException;
 import org.ballerinalang.model.elements.PackageID;
+import org.ballerinalang.toml.model.Manifest;
+import org.ballerinalang.toml.parser.ManifestProcessor;
+import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.ProjectDirs;
 import org.wso2.ballerinalang.compiler.util.diagnotic.BLangDiagnosticLog;
 import org.wso2.ballerinalang.programfile.CompiledBinaryFile.ProgramFile;
 
+import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -36,13 +41,28 @@ public class Compiler {
 
     private static final CompilerContext.Key<Compiler> COMPILER_KEY =
             new CompilerContext.Key<>();
+    private static PrintStream outStream = System.out;
 
     private final SourceDirectoryManager sourceDirectoryManager;
     private final CompilerDriver compilerDriver;
     private final BinaryFileWriter binaryFileWriter;
+    private final LockFileWriter lockFileWriter;
     private final DependencyTree dependencyTree;
     private final BLangDiagnosticLog dlog;
     private final PackageLoader pkgLoader;
+    private final Manifest manifest;
+
+    private Compiler(CompilerContext context) {
+        context.put(COMPILER_KEY, this);
+        this.sourceDirectoryManager = SourceDirectoryManager.getInstance(context);
+        this.compilerDriver = CompilerDriver.getInstance(context);
+        this.binaryFileWriter = BinaryFileWriter.getInstance(context);
+        this.lockFileWriter = LockFileWriter.getInstance(context);
+        this.dependencyTree = DependencyTree.getInstance(context);
+        this.dlog = BLangDiagnosticLog.getInstance(context);
+        this.pkgLoader = PackageLoader.getInstance(context);
+        this.manifest = ManifestProcessor.getInstance(context).getManifest();
+    }
 
     public static Compiler getInstance(CompilerContext context) {
         Compiler compiler = context.get(COMPILER_KEY);
@@ -52,38 +72,45 @@ public class Compiler {
         return compiler;
     }
 
-    private Compiler(CompilerContext context) {
-        context.put(COMPILER_KEY, this);
-
-        this.sourceDirectoryManager = SourceDirectoryManager.getInstance(context);
-        this.compilerDriver = CompilerDriver.getInstance(context);
-        this.binaryFileWriter = BinaryFileWriter.getInstance(context);
-        this.dependencyTree = DependencyTree.getInstance(context);
-        this.dlog = BLangDiagnosticLog.getInstance(context);
-        this.pkgLoader = PackageLoader.getInstance(context);
+    public BLangPackage compile(String sourcePackage) {
+        return compile(sourcePackage, false);
     }
 
-    public BLangPackage compile(String sourcePackage) {
+    public BLangPackage compile(String sourcePackage, boolean isBuild) {
         PackageID packageID = this.sourceDirectoryManager.getPackageID(sourcePackage);
         if (packageID == null) {
             throw ProjectDirs.getPackageNotFoundError(sourcePackage);
         }
 
-        return compilePackage(packageID);
+        return compilePackage(packageID, isBuild);
     }
 
-    public void build() {
-        compilePackages().forEach(this.binaryFileWriter::write);
+    public List<BLangPackage> build() {
+        return compilePackages();
     }
 
-    public void build(String sourcePackage, String targetFileName) {
-        BLangPackage bLangPackage = compile(sourcePackage);
+    public BLangPackage build(String sourcePackage) {
+        outStream.println("Compiling source");
+        BLangPackage bLangPackage = compile(sourcePackage, true);
         if (bLangPackage.diagCollector.hasErrors()) {
-            return;
+            throw new BLangCompilerException("compilation contains errors");
         }
+        return bLangPackage;
+    }
 
-        // Code gen and save...
+    public void write(List<BLangPackage> packageList) {
+        if (packageList.stream().anyMatch(bLangPackage -> bLangPackage.symbol.entryPointExists)) {
+            outStream.println("Generating executables");
+        }
+        packageList.forEach(this.binaryFileWriter::write);
+        packageList.forEach(bLangPackage -> lockFileWriter.addEntryPkg(bLangPackage.symbol));
+        this.lockFileWriter.writeLockFile(this.manifest);
+    }
+
+    public void write(BLangPackage bLangPackage, String targetFileName) {
         this.binaryFileWriter.write(bLangPackage, targetFileName);
+        this.lockFileWriter.addEntryPkg(bLangPackage.symbol);
+        this.lockFileWriter.writeLockFile(this.manifest);
     }
 
     public void list() {
@@ -93,7 +120,7 @@ public class Compiler {
     public void list(String sourcePackage) {
         BLangPackage bLangPackage = compile(sourcePackage);
         if (bLangPackage.diagCollector.hasErrors()) {
-            return;
+            throw new BLangCompilerException("compilation contains errors");
         }
 
         this.dependencyTree.listDependencyPackages(bLangPackage);
@@ -109,36 +136,40 @@ public class Compiler {
 
     // private methods
 
-    private List<BLangPackage> compilePackages(Stream<PackageID> pkgIdStream) {
+    private List<BLangPackage> compilePackages(Stream<PackageID> pkgIdStream, boolean isBuild) {
         // TODO This is hack to load the builtin package. We will fix this with BALO support
         this.compilerDriver.loadBuiltinPackage();
 
         // 1) Load all source packages. i.e. source-code -> BLangPackageNode
         // 2) Define all package level symbols for all the packages including imported packages in the AST
         List<BLangPackage> packages = pkgIdStream
-                .map(this.pkgLoader::loadEntryPackage)
+                .filter(p -> !SymbolTable.BUILTIN.equals(p))
+                .map((PackageID pkgId) -> this.pkgLoader.loadEntryPackage(pkgId, null, isBuild))
                 .collect(Collectors.toList());
 
         // 3) Invoke compiler phases. e.g. type_check, code_analyze, taint_analyze, desugar etc.
         packages.stream()
 //                .filter(pkgNode -> !pkgNode.diagCollector.hasErrors())
                 .filter(pkgNode -> pkgNode.symbol != null)
-                .forEach(this.compilerDriver::compilePackage);
-
+                .forEach(this.compilerDriver::compilePackage
+                );
         return packages;
     }
 
     private List<BLangPackage> compilePackages() {
-        List<BLangPackage> compiledPackages = compilePackages(
-                this.sourceDirectoryManager.listSourceFilesAndPackages());
-        if (this.dlog.errorCount > 0) {
+        List<PackageID> pkgList = this.sourceDirectoryManager.listSourceFilesAndPackages().collect(Collectors.toList());
+        if (pkgList.size() == 0) {
             return new ArrayList<>();
         }
-
+        outStream.println("Compiling source");
+        List<BLangPackage> compiledPackages = compilePackages(pkgList.stream(), true);
+        if (this.dlog.errorCount > 0) {
+            throw new BLangCompilerException("compilation contains errors");
+        }
         return compiledPackages;
     }
 
-    private BLangPackage compilePackage(PackageID packageID) {
-        return compilePackages(Stream.of(packageID)).get(0);
+    private BLangPackage compilePackage(PackageID packageID, boolean isBuild) {
+        return compilePackages(Stream.of(packageID), isBuild).get(0);
     }
 }

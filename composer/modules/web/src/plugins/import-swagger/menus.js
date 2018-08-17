@@ -15,7 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-
+import _ from 'lodash';
 import { MENUS, COMMANDS, LABELS } from './constants';
 import { MENUS as TOOLS_MENUS } from './../tools/constants';
 import { MENU_DEF_TYPES } from './../../core/menu/constants';
@@ -33,7 +33,9 @@ export function getMenuDefinitions(plugin) {
             parent: TOOLS_MENUS.TOOLS_MENU,
             label: LABELS.IMPORT_SWAGGER_MENU_TITLE,
             isActive: (appContext) => {
-                return true;
+                const { editor } = plugin.appContext;
+                const activeTab = editor.getActiveEditor();
+                return !_.isNil(activeTab) && !_.isNil(activeTab.file) && activeTab.file.extension === 'bal';
             },
             icon: 'swagger',
             order: 2,

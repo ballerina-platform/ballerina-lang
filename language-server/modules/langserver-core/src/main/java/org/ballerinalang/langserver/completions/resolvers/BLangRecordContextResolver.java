@@ -18,20 +18,39 @@
 
 package org.ballerinalang.langserver.completions.resolvers;
 
+import org.antlr.v4.runtime.Token;
+import org.ballerinalang.langserver.common.UtilSymbolKeys;
 import org.ballerinalang.langserver.compiler.LSServiceOperationContext;
 import org.ballerinalang.langserver.completions.CompletionKeys;
+import org.ballerinalang.langserver.completions.util.CompletionItemResolver;
 import org.eclipse.lsp4j.CompletionItem;
+import org.wso2.ballerinalang.compiler.parser.antlr4.BallerinaParser;
 
 import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
 
 /**
- * Item Resolver for the BLangStruct node context.
+ * Item Resolver for the BLangRecord node context.
  */
 public class BLangRecordContextResolver extends AbstractItemResolver {
     @Override
-    public ArrayList<CompletionItem> resolveItems(LSServiceOperationContext completionContext) {
+    public List<CompletionItem> resolveItems(LSServiceOperationContext completionContext) {
         ArrayList<CompletionItem> completionItems = new ArrayList<>();
-        this.populateBasicTypes(completionItems, completionContext.get(CompletionKeys.VISIBLE_SYMBOLS_KEY));
+        List<String> poppedTokens = completionContext.get(CompletionKeys.FORCE_CONSUMED_TOKENS_KEY)
+                .stream()
+                .map(Token::getText)
+                .collect(Collectors.toList());
+        if (poppedTokens.contains(UtilSymbolKeys.EQUAL_SYMBOL_KEY)) {
+            // If the popped tokens contains the equal symbol, then the variable definition is being writing
+            // This parser rule context is used to select the proper sorter.
+            completionContext.put(CompletionKeys.PARSER_RULE_CONTEXT_KEY,
+                    new BallerinaParser.VariableDefinitionStatementContext(null, -1));
+            return CompletionItemResolver
+                    .getResolverByClass(BallerinaParser.VariableDefinitionStatementContext.class)
+                    .resolveItems(completionContext);
+        }
+        completionItems.addAll(this.populateBasicTypes(completionContext.get(CompletionKeys.VISIBLE_SYMBOLS_KEY)));
         return completionItems;
     }
 }

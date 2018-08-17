@@ -23,8 +23,8 @@ import org.ballerinalang.model.tree.expressions.ExpressionNode;
 import org.ballerinalang.model.tree.expressions.VariableReferenceNode;
 
 /**
- * x++;
- * y--;
+ * x++;.
+ * y--;.
  *
  * @since 0.965.0
  */

@@ -23,6 +23,8 @@ import org.antlr.v4.runtime.CharStream;
 import org.antlr.v4.runtime.tree.ParseTreeWalker;
 import org.ballerinalang.toml.model.Manifest;
 import org.ballerinalang.toml.util.TomlProcessor;
+import org.wso2.ballerinalang.compiler.SourceDirectory;
+import org.wso2.ballerinalang.compiler.util.CompilerContext;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -33,6 +35,29 @@ import java.io.InputStream;
  * @since 0.964
  */
 public class ManifestProcessor {
+
+    private static final CompilerContext.Key<ManifestProcessor> MANIFEST_PROC_KEY = new CompilerContext.Key<>();
+    private final Manifest manifest;
+
+    public static ManifestProcessor getInstance(CompilerContext context) {
+        ManifestProcessor manifestProcessor = context.get(MANIFEST_PROC_KEY);
+        if (manifestProcessor == null) {
+            SourceDirectory sourceDirectory = context.get(SourceDirectory.class);
+            Manifest manifest = ManifestProcessor.parseTomlContentAsStream(sourceDirectory.getManifestContent());
+            ManifestProcessor instance = new ManifestProcessor(manifest);
+            context.put(MANIFEST_PROC_KEY, instance);
+            return instance;
+        }
+        return manifestProcessor;
+    }
+
+    private ManifestProcessor(Manifest manifest) {
+        this.manifest = manifest;
+    }
+
+    public Manifest getManifest() {
+        return manifest;
+    }
 
     /**
      * Get the char stream of the content from file.

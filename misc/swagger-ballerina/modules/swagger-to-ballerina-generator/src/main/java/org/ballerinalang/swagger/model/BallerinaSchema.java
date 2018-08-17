@@ -49,11 +49,11 @@ import java.util.Set;
  */
 public class BallerinaSchema implements BallerinaSwaggerObject<BallerinaSchema, Schema> {
     private static final String LIST_SUFFIX = "List";
-    private static final String OAS_PATH_SEPARATOR = "/";
     private static final String UNSUPPORTED_PROPERTY_MSG = "// Unsupported Property Found.";
 
     private Schema oasSchema;
     private String type;
+    private boolean isComposed;
     private Set<Map.Entry<String, Schema>> properties;
 
     @Override
@@ -72,8 +72,15 @@ public class BallerinaSchema implements BallerinaSwaggerObject<BallerinaSchema, 
             return this;
         } else if (schema.get$ref() != null) {
             String refType = getReferenceType(schema.get$ref());
-            this.type = refType;
             schema = openAPI.getComponents().getSchemas().get(refType);
+            if (schema == null) {
+                throw new BallerinaOpenApiException("Reference schema " + refType + " not found.");
+            }
+
+            // recurse with the reference schema found until we meet a concrete schema
+            BallerinaSchema concreteSchema = new BallerinaSchema().buildContext(schema, openAPI);
+            concreteSchema.setType(refType);
+            return concreteSchema;
         } else if (schema.getProperties() == null) {
             if (schema.getType() == null) {
                 throw new BallerinaOpenApiException("Unsupported schema type in schema: " + schema.getName());
@@ -122,7 +129,7 @@ public class BallerinaSchema implements BallerinaSwaggerObject<BallerinaSchema, 
 
     private String getReferenceType(String refPath) {
         // null check on refPath is not required since swagger parser always make sure this is not null
-        return refPath.substring(refPath.lastIndexOf(OAS_PATH_SEPARATOR) + 1);
+        return refPath.substring(refPath.lastIndexOf(GeneratorConstants.OAS_PATH_SEPARATOR) + 1);
     }
 
     private String getPropertyType(Schema prop) {
@@ -183,6 +190,7 @@ public class BallerinaSchema implements BallerinaSwaggerObject<BallerinaSchema, 
 
     private void extractComposedSchema(ComposedSchema cSchema, OpenAPI openAPI) throws BallerinaOpenApiException {
         this.properties = new LinkedHashSet<>();
+        this.isComposed = true;
         List<Schema> allOf = cSchema.getAllOf();
 
         List<BallerinaSchema> childSchemas = new ArrayList<>();
@@ -190,12 +198,21 @@ public class BallerinaSchema implements BallerinaSwaggerObject<BallerinaSchema, 
             childSchemas.add(new BallerinaSchema().buildContext(schema, openAPI));
         }
 
-        childSchemas.forEach(schema -> this.properties.addAll(schema.getProperties()));
+        childSchemas.forEach(schema -> {
+            if (schema.getProperties() != null) {
+                this.properties.addAll(schema.getProperties());
+            }
+        });
     }
 
     /**
-     * Verify if {@code origName} is reserved ballerina keyword and prefix the {@code origName} with an '_'.
-     * Ex: toPropertyName("type") will return "_type".
+     * Change the provided property name to ballerina property name.
+     * <p>Following actions will be taken for the conversion</p>
+     * <ol>
+     * <li>Verify if {@code origName} is reserved ballerina keyword and prefix the {@code origName} with an '_'.
+     * Ex: toPropertyName("type") will return "_type".</li>
+     * <li>Escape invalid special characters</li>
+     * </ol>
      *
      * @param origName original property name
      * @return keyword escaped property name
@@ -207,6 +224,7 @@ public class BallerinaSchema implements BallerinaSwaggerObject<BallerinaSchema, 
             escapedName = '_' + origName;
         }
 
+        escapedName = escapedName.replaceAll("[^a-zA-Z0-9_]+", "_");
         return escapedName;
     }
 
@@ -230,5 +248,13 @@ public class BallerinaSchema implements BallerinaSwaggerObject<BallerinaSchema, 
 
     public String getType() {
         return type;
+    }
+
+    public void setType(String type) {
+        this.type = type;
+    }
+
+    public boolean isComposed() {
+        return isComposed;
     }
 }

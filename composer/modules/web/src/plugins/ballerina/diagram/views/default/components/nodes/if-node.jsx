@@ -55,6 +55,7 @@ class IfNode extends React.Component {
             ? this.getLastElseIf(this.props.model.elseStatement)
             : this.props.model;
         const parent = !lastElseIf ? this.props.model : lastElseIf;
+        parent.ladderParent = true;
         elseNode.clearWS();
         parent.setElseStatement(elseNode);
     }

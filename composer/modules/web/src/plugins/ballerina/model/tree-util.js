@@ -109,69 +109,6 @@ class TreeUtil extends AbstractTreeUtil {
                 node.getName().setValue(`${serviceDefaultName}1`, true);
                 node.setName(node.getName(), true);
             }
-        } else if (this.isConnector(node)) {
-            const connectorDefaultName = 'ClientConnector';
-            const connectorNodes = root.filterTopLevelNodes(this.isConnector);
-            const names = {};
-            for (let i = 0; i < connectorNodes.length; i++) {
-                const name = connectorNodes[i].getName().value;
-                names[name] = name;
-            }
-
-            if (connectorNodes.length > 0) {
-                for (let i = 1; i <= connectorNodes.length + 1; i++) {
-                    if (!names[`${connectorDefaultName}${i}`]) {
-                        node.getName().setValue(`${connectorDefaultName}${i}`, true);
-                        node.setName(node.getName(), true);
-                        break;
-                    }
-                }
-            } else {
-                node.getName().setValue(`${connectorDefaultName}1`, true);
-                node.setName(node.getName(), true);
-            }
-        } else if (this.isStruct(node)) {
-            const structDefaultName = 'Struct';
-            const structNodes = root.filterTopLevelNodes(this.isStruct);
-            const names = {};
-
-            for (let i = 0; i < structNodes.length; i++) {
-                const name = structNodes[i].getName().value;
-                names[name] = name;
-            }
-
-            if (structNodes.length > 0) {
-                for (let i = 1; i <= structNodes.length + 1; i++) {
-                    if (!names[`${structDefaultName}${i}`]) {
-                        node.getName().setValue(`${structDefaultName}${i}`, true);
-                        node.setName(node.getName(), true);
-                    }
-                }
-            } else {
-                node.getName().setValue(`${structDefaultName}1`, true);
-                node.setName(node.getName(), true);
-            }
-        } else if (this.isEnum(node)) {
-            const enumDefaultName = 'name';
-            const enumNodes = root.filterTopLevelNodes(this.isEnum);
-            const names = {};
-
-            for (let i = 0; i < enumNodes.length; i++) {
-                const name = enumNodes[i].getName().value;
-                names[name] = name;
-            }
-
-            if (enumNodes.length > 0) {
-                for (let i = 1; i <= enumNodes.length + 1; i++) {
-                    if (!names[`${enumDefaultName}${i}`]) {
-                        node.getName().setValue(`${enumDefaultName}${i}`, true);
-                        node.setName(node.getName(), true);
-                    }
-                }
-            } else {
-                node.getName().setValue(`${enumDefaultName}1`, true);
-                node.setName(node.getName(), true);
-            }
         }
         return undefined;
     }
@@ -246,6 +183,68 @@ class TreeUtil extends AbstractTreeUtil {
         }
         return (invocationExpression && this.isInvocation(invocationExpression)
         && invocationExpression.actionInvocation);
+    }
+
+    getInvocation(node) {
+        let invocationExpression;
+        if (this.isAssignment(node) || this.isExpressionStatement(node)) {
+            invocationExpression = _.get(node, 'expression');
+        } else if (this.isVariableDef(node)) {
+            invocationExpression = _.get(node, 'variable.initialExpression');
+        }
+
+        if (invocationExpression && this.isCheckExpr(invocationExpression)) {
+            invocationExpression = invocationExpression.expression;
+        }
+        if (invocationExpression && this.isInvocation(invocationExpression)
+        && invocationExpression.actionInvocation) { return invocationExpression.actionInvocation; }
+        return undefined;
+    }
+
+    /**
+     * Check whether the node is an async invocation expression
+     * @param {object} node - variable def node object
+     * @returns {boolean} - whether the node is an invocation node
+     */
+    statementIsASync(node) {
+        let found = false;
+        node.acceptFunc((element) => {
+            if (element.async) {
+                found = true;
+            }
+        });
+        return found;
+    }
+
+    statementIsAwaitResponse(node) {
+        let found = false;
+        node.acceptFunc((element) => {
+            if (element.kind === 'AwaitExpr') {
+                found = true;
+            }
+        });
+        return found;
+    }
+
+    findCompatibleStart(node) {
+        // get the future name.
+        const futureName = _.get(node, 'expression.variableName.value');
+        // traverse parent statements.
+        if (node.parent && this.isBlock(node.parent)) {
+            const compatible = node.parent.statements.find((element) => {
+                if (this.statementIsASync(element)) {
+                    if (this.isVariableDef(element) && this.statementIsInvocation(element)) {
+                        if (_.get(node, 'variable.name.value') === futureName) {
+                            return true;
+                        }
+                    }
+                    // ToDo add adtional cases.
+                }
+                return false;
+            });
+            return compatible;
+        }
+        return undefined;
     }
 
     /**
@@ -481,8 +480,6 @@ class TreeUtil extends AbstractTreeUtil {
             // replace the old node with new node.
             if (this.isService(statementParentNode)) {
                 statementParentNode.replaceVariables(node, newStatementNode, false);
-            } else if (this.isConnector(statementParentNode)) {
-                statementParentNode.replaceVariableDefs(node, newStatementNode, false);
             } else if (this.isTransaction(newStatementNode)) {
                 statementParentNode.parent.setCondition(newStatementNode.getCondition());
                 statementParentNode.replaceStatements(node, newStatementNode.getFailedBody().getStatements()[0], false);
@@ -771,7 +768,7 @@ class TreeUtil extends AbstractTreeUtil {
         const defaultName = 'ep';
         let defaultIndex = 0;
         const names = this.getCurrentEndpoints(parent)
-                        .map((endpoint) => { return endpoint.getName().getValue(); })
+                        .map((endpoint) => { return endpoint.name.getValue(); })
                         .sort();
         names.every((endpoint, i) => {
             if (names[i] !== defaultName + (i + 1)) {
@@ -781,7 +778,7 @@ class TreeUtil extends AbstractTreeUtil {
                 return true;
             }
         });
-        node.getName()
+        node.name
         .setValue(`${defaultName + (defaultIndex === 0 ? names.length + 1 : defaultIndex)}`, true);
     }
 
@@ -833,6 +830,14 @@ class TreeUtil extends AbstractTreeUtil {
             endpoints = endpoints.concat(this.getAllEndpoints(node.parent));
         }
         return endpoints;
+    }
+
+    isObject(node) {
+        return node.typeNode && (node.typeNode.kind === 'ObjectType');
+    }
+
+    isRecord(node) {
+        return node.typeNode && (node.typeNode.kind === 'RecordType');
     }
 }
 

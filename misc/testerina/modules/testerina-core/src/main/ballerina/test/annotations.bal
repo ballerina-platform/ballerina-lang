@@ -6,7 +6,7 @@
 @Field {value:"before: Name of the function to be run before the test is run"}
 @Field {value:"after: Name of the function to be run after the test is run"}
 @Field {value:"dependsOn: A list of function names the test function depends on, and will be run before the test"}
-public type TestConfig {
+public type TestConfig record {
     boolean enable = true;
     string[] groups;
     string dataProvider;
@@ -18,7 +18,7 @@ public type TestConfig {
 @Description { value:"Configuration of the function to be mocked."}
 @Field {value:"packageName: Name of the package that the function to be mocked resides in"}
 @Field {value:"functionName: Name of the function to be mocked"}
-public type MockConfig {
+public type MockConfig record {
     string packageName = ".";
     string functionName;
 };

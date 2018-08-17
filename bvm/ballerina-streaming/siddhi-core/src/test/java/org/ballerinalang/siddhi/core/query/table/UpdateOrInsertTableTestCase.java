@@ -31,6 +31,9 @@ import org.testng.AssertJUnit;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
+/**
+ * Testcase for update or insert operation on tables.
+ */
 public class UpdateOrInsertTableTestCase {
     private static final Logger log = LoggerFactory.getLogger(UpdateOrInsertTableTestCase.class);
     private int inEventCount;

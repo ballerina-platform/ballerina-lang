@@ -10,7 +10,7 @@ options {
 // starting point for parsing a bal file
 compilationUnit
     :   (importDeclaration | namespaceDeclaration)*
-        (documentationAttachment? deprecatedAttachment? annotationAttachment* definition)*
+        ((documentationAttachment|documentationString)? deprecatedAttachment? annotationAttachment* definition)*
         EOF
     ;
 
@@ -49,11 +49,11 @@ serviceEndpointAttachments
     ;
 
 serviceBody
-    :   LEFT_BRACE endpointDeclaration* variableDefinitionStatement* resourceDefinition* RIGHT_BRACE
+    :   LEFT_BRACE endpointDeclaration* (variableDefinitionStatement | namespaceDeclarationStatement)* resourceDefinition* RIGHT_BRACE
     ;
 
 resourceDefinition
-    :   annotationAttachment* documentationAttachment? deprecatedAttachment? Identifier LEFT_PARENTHESIS resourceParameterList? RIGHT_PARENTHESIS callableUnitBody
+    :   annotationAttachment* (documentationAttachment|documentationString)? deprecatedAttachment? Identifier LEFT_PARENTHESIS resourceParameterList? RIGHT_PARENTHESIS callableUnitBody
     ;
 
 resourceParameterList
@@ -62,14 +62,12 @@ resourceParameterList
     ;
 
 callableUnitBody
-    : LEFT_BRACE endpointDeclaration* statement* RIGHT_BRACE
-    | LEFT_BRACE endpointDeclaration* workerDeclaration+ RIGHT_BRACE
+    : LEFT_BRACE endpointDeclaration* (statement* | workerDeclaration+) RIGHT_BRACE
     ;
 
 
 functionDefinition
-    :   (PUBLIC)? (NATIVE)? FUNCTION (LT parameter GT)? callableUnitSignature (callableUnitBody | SEMICOLON)
-    |   (PUBLIC)? (NATIVE)? FUNCTION Identifier DOUBLE_COLON callableUnitSignature callableUnitBody
+    :   (PUBLIC)? (EXTERN)? FUNCTION ((Identifier | typeName) DOUBLE_COLON)? callableUnitSignature (callableUnitBody | SEMICOLON)
     ;
 
 lambdaFunction
@@ -85,19 +83,11 @@ typeDefinition
     ;
 
 objectBody
-    : publicObjectFields? privateObjectFields? objectInitializer? objectFunctions?
-    ;
-
-publicObjectFields
-    :   PUBLIC LEFT_BRACE fieldDefinition* RIGHT_BRACE
-    ;
-
-privateObjectFields
-    :   PRIVATE LEFT_BRACE fieldDefinition* RIGHT_BRACE
+    :   objectFieldDefinition* objectInitializer? objectFunctions?
     ;
 
 objectInitializer
-    :   annotationAttachment* documentationAttachment? (PUBLIC)? (NATIVE)? NEW objectInitializerParameterList callableUnitBody
+    :   annotationAttachment* (documentationAttachment|documentationString)? (PUBLIC)? NEW objectInitializerParameterList callableUnitBody
     ;
 
 objectInitializerParameterList
@@ -105,40 +95,44 @@ objectInitializerParameterList
     ;
 
 objectFunctions
-    :   (annotationAttachment* documentationAttachment? deprecatedAttachment? objectFunctionDefinition)+
+    :   objectFunctionDefinition+
     ;
 
-// TODO merge with fieldDefinition later
+objectFieldDefinition
+    :   annotationAttachment* documentationAttachment? deprecatedAttachment? (PUBLIC | PRIVATE)? typeName Identifier (ASSIGN expression)? (COMMA | SEMICOLON)
+    ;
+
 fieldDefinition
     :   annotationAttachment* typeName Identifier (ASSIGN expression)? (COMMA | SEMICOLON)
     ;
 
-// TODO try to merge with formalParameterList later
+recordRestFieldDefinition
+    :   typeName restDescriptorPredicate ELLIPSIS
+    |   sealedLiteral
+    ;
+
+sealedLiteral
+    :   NOT restDescriptorPredicate ELLIPSIS
+    ;
+
+restDescriptorPredicate : {_input.get(_input.index() -1).getType() != WS}? ;
+
 objectParameterList
     :   (objectParameter | objectDefaultableParameter) (COMMA (objectParameter | objectDefaultableParameter))* (COMMA restParameter)?
     |   restParameter
     ;
 
-// TODO try to merge with parameter later
 objectParameter
     :   annotationAttachment* typeName? Identifier
     ;
 
-// TODO try to merge with defaultableParameter later
 objectDefaultableParameter
     :   objectParameter ASSIGN expression
     ;
 
-// TODO merge with functionDefinition later
 objectFunctionDefinition
-    :   (PUBLIC)? (NATIVE)? FUNCTION objectCallableUnitSignature (callableUnitBody | SEMICOLON)
+    :   annotationAttachment* (documentationAttachment|documentationString)? deprecatedAttachment? (PUBLIC | PRIVATE)? (EXTERN)? FUNCTION callableUnitSignature (callableUnitBody | SEMICOLON)
     ;
-
-//TODO merge with callableUnitSignature later
-objectCallableUnitSignature
-    :   anyIdentifierName LEFT_PARENTHESIS formalParameterList? RIGHT_PARENTHESIS returnParameter?
-    ;
-
 
 annotationDefinition
     : (PUBLIC)? ANNOTATION  (LT attachmentPoint (COMMA attachmentPoint)* GT)?  Identifier userDefineTypeName? SEMICOLON
@@ -194,18 +188,18 @@ finiteTypeUnit
     ;
 
 typeName
-    :   simpleTypeName                                                      # simpleTypeNameLabel
-    |   typeName (LEFT_BRACKET RIGHT_BRACKET)+                              # arrayTypeNameLabel
-    |   typeName (PIPE typeName)+                                           # unionTypeNameLabel
-    |   typeName QUESTION_MARK                                              # nullableTypeNameLabel
-    |   LEFT_PARENTHESIS typeName RIGHT_PARENTHESIS                         # groupTypeNameLabel
-    |   LEFT_PARENTHESIS typeName (COMMA typeName)* RIGHT_PARENTHESIS       # tupleTypeNameLabel
-    |   OBJECT LEFT_BRACE objectBody RIGHT_BRACE                            # objectTypeNameLabel
-    |   LEFT_BRACE fieldDefinitionList RIGHT_BRACE                          # recordTypeNameLabel
+    :   simpleTypeName                                                                          # simpleTypeNameLabel
+    |   typeName (LEFT_BRACKET (integerLiteral | sealedLiteral)? RIGHT_BRACKET)+                # arrayTypeNameLabel
+    |   typeName (PIPE typeName)+                                                               # unionTypeNameLabel
+    |   typeName QUESTION_MARK                                                                  # nullableTypeNameLabel
+    |   LEFT_PARENTHESIS typeName RIGHT_PARENTHESIS                                             # groupTypeNameLabel
+    |   LEFT_PARENTHESIS typeName (COMMA typeName)* RIGHT_PARENTHESIS                           # tupleTypeNameLabel
+    |   OBJECT LEFT_BRACE objectBody RIGHT_BRACE                                                # objectTypeNameLabel
+    |   RECORD LEFT_BRACE recordFieldDefinitionList RIGHT_BRACE                                 # recordTypeNameLabel
     ;
 
-fieldDefinitionList
-    :   fieldDefinition*
+recordFieldDefinitionList
+    :   fieldDefinition* recordRestFieldDefinition?
     ;
 
 // Temporary production rule name
@@ -229,9 +223,9 @@ userDefineTypeName
 valueTypeName
     :   TYPE_BOOL
     |   TYPE_INT
+    |   TYPE_BYTE
     |   TYPE_FLOAT
     |   TYPE_STRING
-    |   TYPE_BLOB
     ;
 
 builtInReferenceTypeName
@@ -273,7 +267,7 @@ statement
     |   matchStatement
     |   foreachStatement
     |   whileStatement
-    |   nextStatement
+    |   continueStatement
     |   breakStatement
     |   forkJoinStatement
     |   tryCatchStatement
@@ -289,6 +283,8 @@ statement
     |   foreverStatement
     |   streamingQueryStatement
     |   doneStatement
+    |   scopeStatement
+    |   compensateStatement
     ;
 
 variableDefinitionStatement
@@ -309,11 +305,28 @@ recordKey
     ;
 
 tableLiteral
-    :   TYPE_TABLE tableInitialization
+    :   TYPE_TABLE LEFT_BRACE tableColumnDefinition? (COMMA tableDataArray)? RIGHT_BRACE
     ;
 
-tableInitialization
-    :   recordLiteral
+tableColumnDefinition
+    :   LEFT_BRACE (tableColumn (COMMA tableColumn)*)? RIGHT_BRACE
+    ;
+
+tableColumn
+    :   PRIMARYKEY? Identifier
+    ;
+
+tableDataArray
+    :   LEFT_BRACKET tableDataList? RIGHT_BRACKET
+    ;
+
+tableDataList
+    :   tableData (COMMA tableData)*
+    |   expressionList
+    ;
+
+tableData
+    :   LEFT_BRACE expressionList RIGHT_BRACE
     ;
 
 arrayLiteral
@@ -363,11 +376,11 @@ ifElseStatement
     ;
 
 ifClause
-    :   IF LEFT_PARENTHESIS expression RIGHT_PARENTHESIS LEFT_BRACE statement* RIGHT_BRACE
+    :   IF expression LEFT_BRACE statement* RIGHT_BRACE
     ;
 
 elseIfClause
-    :   ELSE IF LEFT_PARENTHESIS expression RIGHT_PARENTHESIS LEFT_BRACE statement* RIGHT_BRACE
+    :   ELSE IF expression LEFT_BRACE statement* RIGHT_BRACE
     ;
 
 elseClause
@@ -384,7 +397,7 @@ matchPatternClause
     ;
 
 foreachStatement
-    :   FOREACH LEFT_PARENTHESIS? variableReferenceList IN  (expression | intRangeExpression) RIGHT_PARENTHESIS? LEFT_BRACE statement* RIGHT_BRACE
+    :   FOREACH LEFT_PARENTHESIS? variableReferenceList IN expression RIGHT_PARENTHESIS? LEFT_BRACE statement* RIGHT_BRACE
     ;
 
 intRangeExpression
@@ -392,15 +405,31 @@ intRangeExpression
     ;
 
 whileStatement
-    :   WHILE LEFT_PARENTHESIS expression RIGHT_PARENTHESIS LEFT_BRACE statement* RIGHT_BRACE
+    :   WHILE expression LEFT_BRACE statement* RIGHT_BRACE
     ;
 
-nextStatement
-    :   NEXT SEMICOLON
+continueStatement
+    :   CONTINUE SEMICOLON
     ;
 
 breakStatement
     :   BREAK SEMICOLON
+    ;
+
+scopeStatement
+    :   scopeClause compensationClause
+    ;
+
+scopeClause
+    : SCOPE Identifier LEFT_BRACE statement* RIGHT_BRACE
+    ;
+
+compensationClause
+    : COMPENSATION callableUnitBody
+    ;
+
+compensateStatement
+    :  COMPENSATE Identifier SEMICOLON
     ;
 
 // typeName is only message
@@ -581,19 +610,21 @@ expression
     |   typeInitExpr                                                        # typeInitExpression
     |   tableQuery                                                          # tableQueryExpression
     |   LT typeName (COMMA functionInvocation)? GT expression               # typeConversionExpression
-    |   (ADD | SUB | NOT | LENGTHOF | UNTAINT) expression                   # unaryExpression
+    |   (ADD | SUB | BIT_COMPLEMENT | NOT | LENGTHOF | UNTAINT) expression  # unaryExpression
     |   LEFT_PARENTHESIS expression (COMMA expression)* RIGHT_PARENTHESIS   # bracedOrTupleExpression
-    |   expression POW expression                                           # binaryPowExpression
+    |	CHECK expression										            # checkedExpression
     |   expression (DIV | MUL | MOD) expression                             # binaryDivMulModExpression
     |   expression (ADD | SUB) expression                                   # binaryAddSubExpression
+    |   expression (shiftExpression) expression                             # bitwiseShiftExpression
     |   expression (LT_EQUAL | GT_EQUAL | GT | LT) expression               # binaryCompareExpression
     |   expression (EQUAL | NOT_EQUAL) expression                           # binaryEqualExpression
+    |   expression (BIT_AND | BIT_XOR | PIPE) expression                    # bitwiseExpression
     |   expression AND expression                                           # binaryAndExpression
     |   expression OR expression                                            # binaryOrExpression
+    |   expression (ELLIPSIS | HALF_OPEN_RANGE) expression                  # integerRangeExpression
     |   expression QUESTION_MARK expression COLON expression                # ternaryExpression
     |   awaitExpression                                                     # awaitExprExpression
     |	expression matchExpression										    # matchExprExpression
-    |	CHECK expression										            # checkedExpression
     |   expression ELVIS expression                                         # elvisExpression
     |   typeName                                                            # typeAccessExpression
     ;
@@ -601,6 +632,14 @@ expression
 awaitExpression
     :   AWAIT expression                                                    # awaitExpr
     ;
+
+shiftExpression
+    : GT shiftExprPredicate GT
+    | LT shiftExprPredicate LT
+    | GT shiftExprPredicate GT shiftExprPredicate GT
+    ;
+
+shiftExprPredicate : {_input.get(_input.index() -1).getType() != WS}? ;
 
 matchExpression
     :   BUT LEFT_BRACE matchExpressionPatternClause (COMMA matchExpressionPatternClause)* RIGHT_BRACE
@@ -660,23 +699,33 @@ formalParameterList
 
 simpleLiteral
     :   (SUB)? integerLiteral
-    |   (SUB)? FloatingPointLiteral
+    |   (SUB)? floatingPointLiteral
     |   QuotedStringLiteral
     |   BooleanLiteral
     |   emptyTupleLiteral
+    |   blobLiteral
     |   NullLiteral
+    ;
+
+floatingPointLiteral
+    :   DecimalFloatingPointNumber
+    |   HexadecimalFloatingPointLiteral
     ;
 
 // §3.10.1 Integer Literals
 integerLiteral
     :   DecimalIntegerLiteral
     |   HexIntegerLiteral
-    |   OctalIntegerLiteral
     |   BinaryIntegerLiteral
     ;
 
 emptyTupleLiteral
     :   LEFT_PARENTHESIS RIGHT_PARENTHESIS
+    ;
+
+blobLiteral
+    : Base16BlobLiteral
+    | Base64BlobLiteral
     ;
 
 namedArgs
@@ -775,6 +824,7 @@ reservedWord
     :   FOREACH
     |   TYPE_MAP
     |   START
+    |   CONTINUE
     ;
 
 
@@ -807,7 +857,7 @@ patternClause
     ;
 
 withinClause
-    :   WITHIN expression
+    :   WITHIN DecimalIntegerLiteral timeScale
     ;
 
 orderByClause
@@ -845,7 +895,7 @@ havingClause
     ;
 
 streamingAction
-    :   EQUAL_GT LEFT_PARENTHESIS formalParameterList? RIGHT_PARENTHESIS LEFT_BRACE statement* RIGHT_BRACE
+    :   EQUAL_GT LEFT_PARENTHESIS parameter RIGHT_PARENTHESIS LEFT_BRACE statement* RIGHT_BRACE
     ;
 
 setClause
@@ -857,7 +907,8 @@ setAssignmentClause
     ;
 
 streamingInput
-    :   variableReference whereClause?  windowClause? whereClause? (AS alias=Identifier)?
+    :   expression whereClause? functionInvocation* windowClause? functionInvocation* whereClause? (AS
+    alias=Identifier)?
     ;
 
 joinStreamingInput
@@ -872,7 +923,7 @@ outputRateLimit
 patternStreamingInput
     :   patternStreamingEdgeInput ( FOLLOWED BY | COMMA ) patternStreamingInput
     |   LEFT_PARENTHESIS patternStreamingInput RIGHT_PARENTHESIS
-    |   NOT patternStreamingEdgeInput (AND patternStreamingEdgeInput | FOR simpleLiteral)
+    |   NOT patternStreamingEdgeInput (AND patternStreamingEdgeInput | FOR DecimalIntegerLiteral timeScale)
     |   patternStreamingEdgeInput (AND | OR ) patternStreamingEdgeInput
     |   patternStreamingEdgeInput
     ;
@@ -902,12 +953,12 @@ joinType
     ;
 
 timeScale
-    : SECOND
-    | MINUTE
-    | HOUR
-    | DAY
-    | MONTH
-    | YEAR
+    : SECOND | SECONDS
+    | MINUTE | MINUTES
+    | HOUR | HOURS
+    | DAY | DAYS
+    | MONTH | MONTHS
+    | YEAR | YEARS
     ;
 
 // Deprecated parsing.
@@ -938,9 +989,6 @@ doubleBackTickDeprecatedInlineCode
 tripleBackTickDeprecatedInlineCode
     :   TBDeprecatedInlineCodeStart TripleBackTickInlineCode? TripleBackTickInlineCodeEnd
     ;
-
-
-// Documentation parsing.
 
 documentationAttachment
     :   DocumentationTemplateStart documentationTemplateContent? DocumentationTemplateEnd
@@ -978,3 +1026,87 @@ tripleBackTickDocInlineCode
     :   TBDocInlineCodeStart TripleBackTickInlineCode? TripleBackTickInlineCodeEnd
     ;
 
+// Markdown documentation
+documentationString
+    :   documentationLine+ parameterDocumentationLine* returnParameterDocumentationLine?
+    ;
+
+documentationLine
+    :   DocumentationLineStart documentationContent
+    ;
+
+parameterDocumentationLine
+    :   (ParameterDocumentationStart parameterDocumentation) (DocumentationLineStart parameterDescription)*
+    ;
+
+returnParameterDocumentationLine
+    :   (ReturnParameterDocumentationStart returnParameterDocumentation) (DocumentationLineStart returnParameterDescription)*
+    ;
+
+documentationContent
+    :   documentationText?
+    ;
+
+parameterDescription
+    :   documentationText?
+    ;
+
+returnParameterDescription
+    :   documentationText?
+    ;
+
+documentationText
+    :   (DocumentationText | ReferenceType | VARIABLE | MODULE | DocumentationEscapedCharacters | documentationReference | singleBacktickedBlock | doubleBacktickedBlock | tripleBacktickedBlock | DefinitionReference)+
+    ;
+
+documentationReference
+    :   definitionReference
+    ;
+
+definitionReference
+    :   definitionReferenceType singleBacktickedBlock
+    ;
+
+definitionReferenceType
+    :   DefinitionReference
+    ;
+
+parameterDocumentation
+    :   docParameterName DescriptionSeparator docParameterDescription
+    ;
+
+returnParameterDocumentation
+    :   docParameterDescription
+    ;
+
+docParameterName
+    :   ParameterName
+    ;
+
+docParameterDescription
+    :   documentationText?
+    ;
+
+singleBacktickedBlock
+    :   SingleBacktickStart singleBacktickedContent SingleBacktickEnd
+    ;
+
+singleBacktickedContent
+    :   SingleBacktickContent
+    ;
+
+doubleBacktickedBlock
+    :   DoubleBacktickStart doubleBacktickedContent DoubleBacktickEnd
+    ;
+
+doubleBacktickedContent
+    :   DoubleBacktickContent
+    ;
+
+tripleBacktickedBlock
+    :   TripleBacktickStart tripleBacktickedContent TripleBacktickEnd
+    ;
+
+tripleBacktickedContent
+    :   TripleBacktickContent
+    ;

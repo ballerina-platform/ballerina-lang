@@ -25,6 +25,9 @@ import org.slf4j.LoggerFactory;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
+/**
+ * Testcase for Siddhi APP validation.
+ */
 public class ValidateTestCase {
     private static final Logger log = LoggerFactory.getLogger(ValidateTestCase.class);
     private int count;

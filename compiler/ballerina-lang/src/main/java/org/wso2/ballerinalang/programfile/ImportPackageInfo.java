@@ -26,10 +26,13 @@ import java.util.Objects;
  * @since 0.963.0
  */
 public class ImportPackageInfo {
+
+    public int orgNameCPIndex;
     public int nameCPIndex;
     public int versionCPIndex;
 
-    public ImportPackageInfo(int nameCPIndex, int versionCPIndex) {
+    public ImportPackageInfo(int orgNameCPIndex, int nameCPIndex, int versionCPIndex) {
+        this.orgNameCPIndex = orgNameCPIndex;
         this.nameCPIndex = nameCPIndex;
         this.versionCPIndex = versionCPIndex;
     }
@@ -45,7 +48,8 @@ public class ImportPackageInfo {
         }
 
         ImportPackageInfo that = (ImportPackageInfo) o;
-        return nameCPIndex == that.nameCPIndex &&
+        return orgNameCPIndex == that.orgNameCPIndex && 
+                nameCPIndex == that.nameCPIndex &&
                 versionCPIndex == that.versionCPIndex;
     }
 

@@ -88,8 +88,8 @@ public class BallerinaServer implements BallerinaSwaggerObject<BallerinaServer, 
 
     @Override
     public BallerinaServer getDefaultValue() {
-        this.host = "localhost";
-        this.port = 80;
+        this.host = null; // host not required for default binding
+        this.port = 9090;
         this.basePath = "/";
 
         return this;

@@ -1,0 +1,137 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ ~ Copyright (c) 2016, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ ~
+ ~ Licensed under the Apache License, Version 2.0 (the "License");
+ ~ you may not use this file except in compliance with the License.
+ ~ You may obtain a copy of the License at
+ ~
+ ~      http://www.apache.org/licenses/LICENSE-2.0
+ ~
+ ~ Unless required by applicable law or agreed to in writing, software
+ ~ distributed under the License is distributed on an "AS IS" BASIS,
+ ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ ~ See the License for the specific language governing permissions and
+ ~ limitations under the License.
+-->
+
+<!DOCTYPE suite SYSTEM "http://testng.org/testng-1.0.dtd" >
+
+<suite name="Ballerina-Test-Suite">
+    <listeners>
+        <listener class-name="org.ballerinalang.test.listener.TestExecutionListener"/>
+        <listener class-name="org.ballerinalang.test.listener.TestNGListener"/>
+    </listeners>
+
+    <!-- Below tests should run sequentially since it will use same port in each test -->
+    <test name="ballerina-http-tests" parallel="false">
+        <groups>
+            <run>
+                <exclude name="broken"/>
+            </run>
+        </groups>
+
+        <packages>
+            <package name="org.ballerinalang.test.service.http.*"/>
+        </packages>
+    </test>
+
+    <test name="ballerina-resiliency-tests" parallel="methods" thread-count="6">
+        <packages>
+            <package name="org.ballerinalang.test.service.resiliency"/>
+        </packages>
+    </test>
+
+    <test name="ballerina-http2-tests" parallel="false">
+        <packages>
+            <package name="org.ballerinalang.test.service.http2"/>
+        </packages>
+    </test>
+
+    <test name="ballerina-auth-tests" parallel="methods" thread-count="6">
+        <groups>
+            <run>
+                <exclude name="broken"/>
+            </run>
+        </groups>
+        <packages>
+            <package name="org.ballerinalang.test.auth"/>
+        </packages>
+    </test>
+
+    <test name="ballerina-filter-tests" parallel="methods" thread-count="6">
+        <packages>
+            <package name="org.ballerinalang.test.filter"/>
+        </packages>
+    </test>
+
+    <test name="ballerina-transaction-tests" parallel="methods" thread-count="6">
+        <packages>
+            <package name="org.ballerinalang.test.transaction"/>
+        </packages>
+    </test>
+
+    <test name="ballerina-secure-listener-tests" parallel="methods" thread-count="6">
+        <groups>
+            <run>
+                <exclude name="broken"/>
+            </run>
+        </groups>
+        <packages>
+            <package name="org.ballerinalang.test.securelistener"/>
+        </packages>
+    </test>
+
+    <test name="ballerina-websocket-tests" parallel="false">
+        <packages>
+            <package name="org.ballerinalang.test.service.websocket"/>
+        </packages>
+    </test>
+
+    <test name="ballerina-grpc-tests" parallel="false">
+        <packages>
+            <package name="org.ballerinalang.test.service.grpc.*"/>
+        </packages>
+    </test>
+
+    <test name="ballerina-observability-tests" parallel="false">
+        <classes>
+            <class name="org.ballerinalang.test.observability.tracing.TracingTestCase"/>
+            <class name="org.ballerinalang.test.observability.metrics.MetricsTestCase"/>
+        </classes>
+    </test>
+
+    <test name="ballerina-streaming-tests" parallel="false">
+        <classes>
+            <class name="org.ballerinalang.test.streaming.StreamsWithinServicesTestCase"/>
+        </classes>
+    </test>
+
+    <test name="ballerina-security-tests" parallel="false">
+        <classes>
+            <class name="org.ballerinalang.test.security.HTTPResponseXMLSecurityTestCase"/>
+        </classes>
+    </test>
+
+    <test name="ballerina-jms-tests" parallel="false">
+        <packages>
+            <package name="org.ballerinalang.test.jms"/>
+        </packages>
+    </test>
+
+    <test name="ballerina-websub-tests" parallel="false">
+        <classes>
+            <class name="org.ballerinalang.test.service.websub.WebSubAutoIntentVerificationTestCase"/>
+            <class name="org.ballerinalang.test.service.websub.WebSubContentTypeSupportTestCase"/>
+            <class name="org.ballerinalang.test.service.websub.WebSubDiscoveryWithMultipleSubscribersTestCase"/>
+            <class name="org.ballerinalang.test.service.websub.WebSubRedirectionTestCase"/>
+            <class name="org.ballerinalang.test.service.websub.WebSubSubscriptionChangeTestCase"/>
+            <class name="org.ballerinalang.test.service.websub.WebSubWithSecretTestCase"/>
+        </classes>
+    </test>
+    <test name="ballerina-data-streaming-tests">
+        <packages>
+            <package name="org.ballerinalang.test.data.streaming"/>
+        </packages>
+    </test>
+</suite>

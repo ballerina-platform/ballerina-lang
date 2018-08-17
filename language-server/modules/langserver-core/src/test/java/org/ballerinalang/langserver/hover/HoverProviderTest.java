@@ -20,39 +20,30 @@ package org.ballerinalang.langserver.hover;
 import org.ballerinalang.langserver.LSAnnotationCache;
 import org.ballerinalang.langserver.common.util.CommonUtil;
 import org.ballerinalang.langserver.compiler.LSContextManager;
+import org.ballerinalang.langserver.completion.util.FileUtils;
 import org.eclipse.lsp4j.Position;
 import org.testng.Assert;
-import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
-import java.io.File;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.nio.file.Files;
-import java.nio.file.Paths;
+import java.nio.file.Path;
 
 /**
  * Test hover feature in language server.
  */
-@Test(groups = "broken")
 public class HoverProviderTest {
-    private static final String TESTS_SAMPLES = "src" + File.separator + "test" + File.separator + "resources"
-            + File.separator + "hover";
-    private static final String ROOT_DIR = Paths.get("").toAbsolutePath().toString() + File.separator;
-    private static final String SAMPLES_COPY_DIR = ROOT_DIR + "samples" + File.separator + "hover";
     private static final String METHOD = "textDocument/hover";
-    private String balPath = SAMPLES_COPY_DIR + File.separator + "hover.bal";
+    private Path balPath = FileUtils.RES_DIR.resolve("hover").resolve("hover.bal");
     private String balFileContent;
 
     @BeforeClass
     public void loadLangServer() throws IOException {
-        File source = new File(TESTS_SAMPLES);
-        File destination = new File(SAMPLES_COPY_DIR);
-        org.apache.commons.io.FileUtils.copyDirectory(source, destination);
-        byte[] encoded = Files.readAllBytes(Paths.get(balPath));
+        byte[] encoded = Files.readAllBytes(balPath);
         balFileContent = new String(encoded);
         LSAnnotationCache.initiate();
     }
@@ -66,7 +57,7 @@ public class HoverProviderTest {
             enabled = false)
     public void hoverForBuiltInFunctionTest(Position position, String expectedFile)
             throws URISyntaxException, InterruptedException, IOException {
-        Assert.assertEquals(CommonUtil.getLanguageServerResponseMessageAsString(position, balPath,
+        Assert.assertEquals(CommonUtil.getLanguageServerResponseMessageAsString(position, balPath.toString(),
                 balFileContent, METHOD), getExpectedValue(expectedFile), "Did not match the hover content for "
                 + expectedFile + " and position line:" + position.getLine() + " character:" + position.getCharacter());
     }
@@ -75,7 +66,7 @@ public class HoverProviderTest {
             dataProvider = "hoverCurrentPackageFuncPosition")
     public void hoverForCurrentPackageFunctionTest(Position position, String expectedFile)
             throws InterruptedException, IOException {
-        Assert.assertEquals(CommonUtil.getLanguageServerResponseMessageAsString(position, balPath,
+        Assert.assertEquals(CommonUtil.getLanguageServerResponseMessageAsString(position, balPath.toString(),
                 balFileContent, METHOD), getExpectedValue(expectedFile), "Did not match the hover content for "
                 + expectedFile + " and position line:" + position.getLine() + " character:" + position.getCharacter());
     }
@@ -84,7 +75,7 @@ public class HoverProviderTest {
             enabled = false)
     public void hoverForCurrentPackageEnumTest(Position position, String expectedFile)
             throws InterruptedException, IOException {
-        Assert.assertEquals(CommonUtil.getLanguageServerResponseMessageAsString(position, balPath,
+        Assert.assertEquals(CommonUtil.getLanguageServerResponseMessageAsString(position, balPath.toString(),
                 balFileContent, METHOD), getExpectedValue(expectedFile), "Did not match the hover content for "
                 + expectedFile + " and position line:" + position.getLine() + " character:" + position.getCharacter());
     }
@@ -93,7 +84,7 @@ public class HoverProviderTest {
             dataProvider = "hoverCurrentPackageRecordPosition")
     public void hoverForCurrentPackageRecordTest(Position position, String expectedFile)
             throws InterruptedException, IOException {
-        Assert.assertEquals(CommonUtil.getLanguageServerResponseMessageAsString(position, balPath,
+        Assert.assertEquals(CommonUtil.getLanguageServerResponseMessageAsString(position, balPath.toString(),
                 balFileContent, METHOD), getExpectedValue(expectedFile), "Did not match the hover content for "
                 + expectedFile + " and position line:" + position.getLine() + " character:" + position.getCharacter());
     }
@@ -101,15 +92,15 @@ public class HoverProviderTest {
     @DataProvider(name = "hoverBuiltinFuncPosition")
     public Object[][] getBuiltinFunctionPositions() {
         return new Object[][]{
-                {new Position(41, 7), "builtin-function1.json"},
-                {new Position(42, 19), "builtin-function2.json"}
+                {new Position(45, 7), "builtin-function1.json"},
+                {new Position(46, 19), "builtin-function2.json"}
         };
     }
 
     @DataProvider(name = "hoverCurrentPackageFuncPosition")
     public Object[][] getCurrentPackageFunctionPositions() {
         return new Object[][]{
-                {new Position(43, 15), "currentPkg-function1.json"}
+                {new Position(47, 15), "currentPkg-function1.json"}
         };
     }
 
@@ -128,15 +119,10 @@ public class HoverProviderTest {
     @DataProvider(name = "hoverCurrentPackageRecordPosition")
     public Object[][] getCurrentPackageStructPositions() {
         return new Object[][]{
-                {new Position(44, 7), "currentPkg-record.json"},
-                {new Position(49, 19), "currentPkg-record.json"},
-                {new Position(50, 8), "currentPkg-record.json"}
+                {new Position(48, 7), "currentPkg-record.json"},
+                {new Position(53, 19), "currentPkg-record.json"},
+                {new Position(54, 8), "currentPkg-record.json"}
         };
-    }
-
-    @AfterClass
-    public void cleanSamplesCopy() throws IOException {
-        org.apache.commons.io.FileUtils.deleteDirectory(new File(ROOT_DIR + "samples"));
     }
 
     /**
@@ -146,8 +132,8 @@ public class HoverProviderTest {
      * @return string content read from the json file.
      */
     private String getExpectedValue(String expectedFile) throws IOException {
-        String expectedFilePath = SAMPLES_COPY_DIR + File.separator + "expected" + File.separator + expectedFile;
-        byte[] expectedByte = Files.readAllBytes(Paths.get(expectedFilePath));
+        Path expectedFilePath = FileUtils.RES_DIR.resolve("hover").resolve("expected").resolve(expectedFile);
+        byte[] expectedByte = Files.readAllBytes(expectedFilePath);
         return new String(expectedByte);
     }
 }

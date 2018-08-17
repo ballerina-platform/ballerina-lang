@@ -18,7 +18,8 @@
 package org.ballerinalang.model;
 
 import org.apache.axiom.om.ds.AbstractPushOMDataSource;
-import org.ballerinalang.model.types.BStructType;
+import org.ballerinalang.model.types.BField;
+import org.ballerinalang.model.types.BStructureType;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.types.TypeTags;
@@ -60,12 +61,12 @@ public class TableOMDataSource extends AbstractPushOMDataSource {
     public void serialize(XMLStreamWriter xmlStreamWriter) throws XMLStreamException {
         xmlStreamWriter.writeStartElement("", this.rootWrapper, "");
         while (table.hasNext(this.isInTransaction)) {
-            table.next();
+            table.moveToNext();
             xmlStreamWriter.writeStartElement("", this.rowWrapper, "");
-            BStructType structType = table.getStructType();
-            BStructType.StructField[] structFields = null;
+            BStructureType structType = table.getStructType();
+            BField[] structFields = null;
             if (structType != null) {
-                structFields = structType.getStructFields();
+                structFields = structType.getFields();
             }
             int index = 1;
             for (ColumnDefinition col : table.getColumnDefs()) {
@@ -81,12 +82,11 @@ public class TableOMDataSource extends AbstractPushOMDataSource {
             xmlStreamWriter.writeEndElement();
         }
         xmlStreamWriter.writeEndElement();
-        table.close(isInTransaction);
         xmlStreamWriter.flush();
     }
 
     private void writeElement(XMLStreamWriter xmlStreamWriter, String name, TypeKind type, int index,
-            BStructType.StructField[] structFields) throws XMLStreamException {
+            BField[] structFields) throws XMLStreamException {
         boolean isArray = false;
         xmlStreamWriter.writeStartElement("", name, "");
         String value = null;
@@ -111,7 +111,8 @@ public class TableOMDataSource extends AbstractPushOMDataSource {
             Object[] array = table.getArray(index);
             processArray(xmlStreamWriter, array);
             break;
-        case STRUCT:
+        case OBJECT:
+        case RECORD:
             isArray = true;
             Object[] structData = table.getStruct(index);
             if (structFields == null) {
@@ -146,13 +147,14 @@ public class TableOMDataSource extends AbstractPushOMDataSource {
     }
 
     private void processStruct(XMLStreamWriter xmlStreamWriter, Object[] structData,
-            BStructType.StructField[] structFields, int index) throws XMLStreamException {
+            BField[] structFields, int index) throws XMLStreamException {
         try {
             int i = 0;
             boolean structError = true;
             BType internaltType = structFields[index - 1].fieldType;
-            if (internaltType.getTag() == TypeTags.STRUCT_TAG) {
-                BStructType.StructField[] interanlStructFields = ((BStructType) internaltType).getStructFields();
+            if (internaltType.getTag() == TypeTags.OBJECT_TYPE_TAG
+                    || internaltType.getTag() == TypeTags.RECORD_TYPE_TAG) {
+                BField[] interanlStructFields = ((BStructureType) internaltType).getFields();
                 if (interanlStructFields != null) {
                     for (Object val : structData) {
                         xmlStreamWriter.writeStartElement("", interanlStructFields[i].fieldName, "");

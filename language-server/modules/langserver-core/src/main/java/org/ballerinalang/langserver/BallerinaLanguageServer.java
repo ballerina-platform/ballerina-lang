@@ -16,8 +16,10 @@
 package org.ballerinalang.langserver;
 
 import org.ballerinalang.langserver.common.constants.CommandConstants;
+import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.compiler.workspace.WorkspaceDocumentManager;
 import org.ballerinalang.langserver.compiler.workspace.WorkspaceDocumentManagerImpl;
+import org.ballerinalang.langserver.index.LSIndexImpl;
 import org.eclipse.lsp4j.CompletionOptions;
 import org.eclipse.lsp4j.ExecuteCommandOptions;
 import org.eclipse.lsp4j.InitializeParams;
@@ -31,6 +33,7 @@ import org.eclipse.lsp4j.services.LanguageServer;
 import org.eclipse.lsp4j.services.TextDocumentService;
 import org.eclipse.lsp4j.services.WorkspaceService;
 
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -55,6 +58,7 @@ public class BallerinaLanguageServer implements LanguageServer, LanguageClientAw
         lsGlobalContext.put(LSGlobalContextKeys.LANGUAGE_SERVER_KEY, this);
         lsGlobalContext.put(LSGlobalContextKeys.DOCUMENT_MANAGER_KEY, documentManager);
         LSAnnotationCache.initiate();
+        initLSIndex();
 
         textService = new BallerinaTextDocumentService(lsGlobalContext);
         workspaceService = new BallerinaWorkspaceService(lsGlobalContext);
@@ -68,7 +72,9 @@ public class BallerinaLanguageServer implements LanguageServer, LanguageClientAw
         final InitializeResult res = new InitializeResult(new ServerCapabilities());
         final SignatureHelpOptions signatureHelpOptions = new SignatureHelpOptions(Arrays.asList("(", ","));
         final List<String> commandList = new ArrayList<>(Arrays.asList(CommandConstants.CMD_IMPORT_PACKAGE,
-                CommandConstants.CMD_ADD_DOCUMENTATION, CommandConstants.CMD_ADD_ALL_DOC));
+                                                                       CommandConstants.CMD_ADD_DOCUMENTATION,
+                                                                       CommandConstants.CMD_ADD_ALL_DOC,
+                                                                       CommandConstants.CMD_CREATE_FUNCTION));
         final ExecuteCommandOptions executeCommandOptions = new ExecuteCommandOptions(commandList);
         final CompletionOptions completionOptions = new CompletionOptions();
         completionOptions.setTriggerCharacters(Arrays.asList(":", ".", ">", "@"));
@@ -84,6 +90,7 @@ public class BallerinaLanguageServer implements LanguageServer, LanguageClientAw
         res.getCapabilities().setExecuteCommandProvider(executeCommandOptions);
         res.getCapabilities().setDocumentFormattingProvider(true);
         res.getCapabilities().setRenameProvider(true);
+        res.getCapabilities().setWorkspaceSymbolProvider(true);
 
         return CompletableFuture.supplyAsync(() -> res);
     }
@@ -108,6 +115,14 @@ public class BallerinaLanguageServer implements LanguageServer, LanguageClientAw
     @Override
     public void connect(LanguageClient languageClient) {
         this.client = languageClient;
+    }
+    
+    // Private Methods
+
+    private void initLSIndex() {
+        String indexDumpPath = Paths.get(CommonUtil.BALLERINA_HOME + "/lib/resources/composer/lang-server-index.sql")
+                .toString();
+        LSIndexImpl.getInstance().initFromIndexDump(indexDumpPath);
     }
 }
 

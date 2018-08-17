@@ -66,6 +66,7 @@ public interface CompilerOutputEntry {
      * Returns the content as an input stream.
      *
      * @return the {@link InputStream} of the entry
+     * @throws IOException if input is not resolved
      */
     InputStream getInputStream() throws IOException;
 }

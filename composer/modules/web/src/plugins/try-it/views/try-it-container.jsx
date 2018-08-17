@@ -76,10 +76,10 @@ class TryItContainer extends React.Component {
      * @memberof TryItContainer
      */
     filterServices(type) {
-        if (this.state.compilationUnit) {
+        if (this.state.compilationUnit && type) {
             const services = this.state.compilationUnit.filterTopLevelNodes({ kind: 'Service' });
             return services.filter((serviceNode) => {
-                return serviceNode.getServiceTypeStruct().getPackageAlias().getValue() === type;
+                return serviceNode.getType().startsWith(`${type}:`);
             });
         } else {
             return [];
@@ -177,12 +177,8 @@ class TryItContainer extends React.Component {
      * @memberof TryItContainer
      */
     render() {
-        const clientTypePills = this.renderClientTypePills();
         const clientView = this.renderClientView();
         return (<div className='try-it-container'>
-            <div className='client-type-pills-wrapper'>
-                {clientTypePills}
-            </div>
             {clientView}
         </div>);
     }

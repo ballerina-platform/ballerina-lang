@@ -17,11 +17,13 @@
 */
 package org.ballerinalang.util.codegen;
 
+import org.ballerinalang.model.types.TypeTags;
 import org.ballerinalang.util.codegen.attributes.AttributeInfo;
 import org.ballerinalang.util.codegen.attributes.AttributeInfoPool;
 import org.ballerinalang.util.codegen.attributes.LineNumberTableAttributeInfo;
 import org.ballerinalang.util.codegen.cpentries.ConstantPool;
 import org.ballerinalang.util.codegen.cpentries.ConstantPoolEntry;
+import org.ballerinalang.util.exceptions.BallerinaException;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -37,6 +39,7 @@ import java.util.Map;
  */
 public class PackageInfo implements ConstantPool, AttributeInfoPool {
 
+    public int orgNameCPIndex;
     public int nameCPIndex;
     public String pkgPath;
     public int versionCPIndex;
@@ -59,17 +62,13 @@ public class PackageInfo implements ConstantPool, AttributeInfoPool {
 
     private Map<String, FunctionInfo> functionInfoMap = new LinkedHashMap<>();
 
-    private Map<String, StructInfo> structInfoMap = new HashMap<>();
-
     private Map<String, ServiceInfo> serviceInfoMap = new HashMap<>();
 
-    private Map<String, StructureTypeInfo> structureTypeInfoMap = new HashMap<>();
+    private Map<String, CustomTypeInfo> structureTypeInfoMap = new HashMap<>();
 
     private Map<AttributeInfo.Kind, AttributeInfo> attributeInfoMap = new HashMap<>();
 
-    private Map<String, TransformerInfo> transformerInfoMap = new LinkedHashMap<>();
-
-    public Map<String, TypeDefinitionInfo> typeDefInfoMap = new HashMap<>();
+    public Map<String, TypeDefInfo> typeDefInfoMap = new HashMap<>();
 
     // cache values.
     ProgramFile programFile;
@@ -147,29 +146,29 @@ public class PackageInfo implements ConstantPool, AttributeInfoPool {
         return functionInfoMap.values().toArray(new FunctionInfo[0]);
     }
 
-    public StructInfo getStructInfo(String structName) {
-        return structInfoMap.get(structName);
+    public StructureTypeInfo getStructInfo(String name) {
+        TypeInfo typeInfo = typeDefInfoMap.get(name).typeInfo;
+        if (typeInfo == null || (typeInfo.getType().getTag() != TypeTags.OBJECT_TYPE_TAG
+                && typeInfo.getType().getTag() != TypeTags.RECORD_TYPE_TAG)) {
+            throw new BallerinaException("structure - " + name + " does not exist");
+        }
+        return (StructureTypeInfo) typeDefInfoMap.get(name).typeInfo;
     }
 
-    public void addStructInfo(String structName, StructInfo structInfo) {
-        structInfoMap.put(structName, structInfo);
-        structureTypeInfoMap.put(structName, structInfo);
+    public TypeInfo getTypeInfo(String name) {
+        return typeDefInfoMap.get(name).typeInfo;
     }
 
-    public StructInfo[] getStructInfoEntries() {
-        return structInfoMap.values().toArray(new StructInfo[0]);
-    }
-
-    public void addTypeDefinitionInfo(String typeDefinitionName, TypeDefinitionInfo typeDefinitionInfo) {
+    public void addTypeDefInfo(String typeDefinitionName, TypeDefInfo typeDefinitionInfo) {
         typeDefInfoMap.put(typeDefinitionName, typeDefinitionInfo);
         structureTypeInfoMap.put(typeDefinitionName, typeDefinitionInfo);
     }
 
-    public TypeDefinitionInfo[] getTypeDefinitionInfoEntries() {
-        return typeDefInfoMap.values().toArray(new TypeDefinitionInfo[0]);
+    public TypeDefInfo[] getTypeDefInfoEntries() {
+        return typeDefInfoMap.values().toArray(new TypeDefInfo[0]);
     }
 
-    public TypeDefinitionInfo getTypeDefinitionInfo(String typeDefName) {
+    public TypeDefInfo getTypeDefInfo(String typeDefName) {
         return typeDefInfoMap.get(typeDefName);
     }
 
@@ -187,20 +186,8 @@ public class PackageInfo implements ConstantPool, AttributeInfoPool {
         structureTypeInfoMap.put(serviceName, serviceInfo);
     }
 
-    public StructureTypeInfo getStructureTypeInfo(String structureTypeName) {
+    public CustomTypeInfo getStructureTypeInfo(String structureTypeName) {
         return structureTypeInfoMap.get(structureTypeName);
-    }
-
-    public void addTransformerInfo(String transformerName, TransformerInfo transformerInfo) {
-        transformerInfoMap.put(transformerName, transformerInfo);
-    }
-
-    public TransformerInfo[] getTransformerInfoEntries() {
-        return transformerInfoMap.values().toArray(new TransformerInfo[0]);
-    }
-
-    public TransformerInfo getTransformerInfo(String transformerName) {
-        return transformerInfoMap.get(transformerName);
     }
 
     public int addInstruction(Instruction instruction) {

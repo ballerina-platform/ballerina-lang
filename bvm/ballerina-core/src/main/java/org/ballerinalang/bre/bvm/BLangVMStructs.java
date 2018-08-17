@@ -17,18 +17,20 @@
 */
 package org.ballerinalang.bre.bvm;
 
-import org.ballerinalang.model.types.BStructType;
+import org.ballerinalang.model.types.BField;
+import org.ballerinalang.model.types.BStructureType;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.TypeTags;
-import org.ballerinalang.model.values.BBlob;
 import org.ballerinalang.model.values.BBoolean;
+import org.ballerinalang.model.values.BByte;
 import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BInteger;
+import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BRefType;
-import org.ballerinalang.model.values.BStruct;
+import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.model.values.StructureType;
-import org.ballerinalang.util.codegen.StructInfo;
+import org.ballerinalang.util.codegen.ObjectTypeInfo;
+import org.ballerinalang.util.codegen.StructureTypeInfo;
 import org.ballerinalang.util.program.BLangFunctions;
 
 /**
@@ -41,102 +43,103 @@ public class BLangVMStructs {
     /**
      * Create BStruct for given StructInfo and BValues.
      *
-     * @param structInfo {@link StructInfo} of the BStruct
+     * @param structInfo {@link StructureTypeInfo} of the BStruct
      * @param values     field values of the BStruct.
-     * @return BStruct instance.
+     * @return Struct value.
      */
-    public static BStruct createBStruct(StructInfo structInfo, Object... values) {
-        BStructType structType = structInfo.getType();
-        BStruct bStruct = new BStruct(structType);
+    public static BMap<String, BValue> createBStruct(StructureTypeInfo structInfo, Object... values) {
+        BStructureType structType = structInfo.getType();
+        BMap<String, BValue> bStruct = new BMap<>(structType);
 
-        int[] indexes = new int[] {-1, -1, -1, -1, -1, -1};
-        BStructType.StructField[] structFields = structType.getStructFields();
+        BField[] structFields = structType.getFields();
         for (int i = 0; i < structFields.length; i++) {
-            if (values.length < i + 1) {
-                break;
+            BValue value;
+            if (values.length >= i + 1) {
+                value = getBValue(structFields[i].fieldType, values[i]);
+            } else {
+                value = structFields[i].fieldType.getEmptyValue();
             }
-            BType paramType = structFields[i].getFieldType();
-            setValue(bStruct, indexes, paramType.getTag(), values[i]);
+            bStruct.put(structFields[i].fieldName, value);
         }
         return bStruct;
     }
 
     /**
-     * Create ballerina object.
+     * This is a helper method to create a object in native code.
      *
-     * @param structInfo {@link StructInfo} of the BStruct
+     * WARNING - please be cautious when using this method, if you have non blocking calls inside the
+     * object constructor, then using this method may cause thread blocking scenarios.
+     *
+     * @param objectInfo {@link ObjectTypeInfo} of the BStruct
      * @param values     field values of the BStruct.
-     * @return BStruct instance.
+     * @return Object instance.
      */
-    public static BStruct createObject(StructInfo structInfo, BValue... values) {
-        BStructType structType = structInfo.getType();
-        BStruct bStruct = new BStruct(structType);
+    public static BMap<String, BValue> createObject(ObjectTypeInfo objectInfo, BValue... values) {
+        BStructureType structType = objectInfo.getType();
+        BMap<String, BValue> bStruct = new BMap<>(structType);
         BValue[] vals = new BValue[values.length + 1];
         vals[0] = bStruct;
         System.arraycopy(values, 0, vals, 1, values.length);
-        BLangFunctions.invokeCallable(structInfo.initializer.functionInfo, vals);
+        BLangFunctions.invokeCallable(objectInfo.initializer.functionInfo, vals);
         return bStruct;
     }
 
-    @SuppressWarnings("rawtypes")
-    private static void setValue(StructureType structureType, int[] regIndexes, int typeTag, Object value) {
-        int index;
-        switch (typeTag) {
+    private static BValue getBValue(BType type, Object value) {
+        switch (type.getTag()) {
             case TypeTags.INT_TAG:
-                index = ++regIndexes[0];
-                if (value != null) {
-                    if (value instanceof Integer) {
-                        structureType.setIntField(index, (Integer) value);
-                    } else if (value instanceof Long) {
-                        structureType.setIntField(index, (Long) value);
-                    } else if (value instanceof BInteger) {
-                        structureType.setIntField(index, ((BInteger) value).intValue());
-                    }
+                if (value instanceof Integer) {
+                    return new BInteger(((Integer) value).longValue());
+                } else if (value instanceof Long) {
+                    return new BInteger(((Long) value).longValue());
+                } else if (value instanceof BInteger) {
+                    return (BInteger) value;
+                }
+                break;
+            case TypeTags.BYTE_TAG:
+                if (value instanceof Byte) {
+                    return new BByte(((Byte) value));
+                } else if (value instanceof Integer) {
+                    return new BByte(((Integer) value).byteValue());
+                } else if (value instanceof BByte) {
+                    return (BByte) value;
                 }
                 break;
             case TypeTags.FLOAT_TAG:
-                index = ++regIndexes[1];
                 if (value != null) {
                     if (value instanceof Float) {
-                        structureType.setFloatField(index, (Float) value);
+                        return new BFloat(((Float) value).floatValue());
                     } else if (value instanceof Double) {
-                        structureType.setFloatField(index, (Double) value);
+                        return new BFloat(((Double) value).doubleValue());
                     } else if (value instanceof BFloat) {
-                        structureType.setFloatField(index, ((BFloat) value).floatValue());
+                        return (BFloat) value;
                     }
                 }
                 break;
             case TypeTags.STRING_TAG:
-                index = ++regIndexes[2];
                 if (value != null) {
                     if (value instanceof String) {
-                        structureType.setStringField(index, (String) value);
-                    } else if (value instanceof BValue) {
-                        structureType.setStringField(index, ((BValue) value).stringValue());
+                        return new BString((String) value);
+                    } else if (value instanceof BString) {
+                        return (BString) value;
                     }
                 }
                 break;
             case TypeTags.BOOLEAN_TAG:
-                index = ++regIndexes[3];
                 if (value != null) {
                     if (value instanceof Boolean) {
-                        structureType.setBooleanField(index, (Boolean) value ? 1 : 0);
+                        return new BBoolean((Boolean) value);
                     } else if (value instanceof BBoolean) {
-                        structureType.setBooleanField(index, ((BBoolean) value).booleanValue() ? 1 : 0);
+                        return (BBoolean) value;
                     }
                 }
                 break;
-            case TypeTags.BLOB_TAG:
-                index = ++regIndexes[4];
-                if (value != null && value instanceof BBlob) {
-                    structureType.setBlobField(index, ((BBlob) value).blobValue());
+            default:
+                if (value != null && (value instanceof BRefType)) {
+                    return (BRefType) value;
                 }
                 break;
-            default:
-                index = ++regIndexes[5];
-                if (value != null && (value instanceof BRefType)) {
-                    structureType.setRefField(index, (BRefType) value);
-                }
         }
+        
+        return null;
     }
 }

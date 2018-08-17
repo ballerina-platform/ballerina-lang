@@ -17,14 +17,22 @@
 */
 package org.ballerinalang.langserver.compiler.workspace;
 
+import org.ballerinalang.langserver.compiler.LSCompilerUtil;
+import org.ballerinalang.langserver.compiler.workspace.repository.LangServerFSProjectDirectory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.IOException;
+import java.nio.charset.Charset;
+import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
 /**
  * An in-memory document manager that keeps dirty files in-memory and will match the collection of files currently open
@@ -34,7 +42,7 @@ public class WorkspaceDocumentManagerImpl implements WorkspaceDocumentManager {
 
     private static final Logger logger = LoggerFactory.getLogger(WorkspaceDocumentManagerImpl.class);
 
-    private volatile Map<Path, WorkspaceDocument> documentList = new ConcurrentHashMap<>();
+    private volatile Map<Path, DocumentPair> documentList = new ConcurrentHashMap<>();
 
     private static WorkspaceDocumentManagerImpl instance = new WorkspaceDocumentManagerImpl();
 
@@ -45,55 +53,158 @@ public class WorkspaceDocumentManagerImpl implements WorkspaceDocumentManager {
         return instance;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public boolean isFileOpen(Path filePath) {
-        return filePath != null && documentList.containsKey(filePath);
+        return filePath != null
+                && documentList.containsKey(filePath)
+                && documentList.get(filePath).getDocument().isPresent();
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
-    public void openFile(Path filePath, String content) {
-        if (!isFileOpen(filePath)) {
-            documentList.put(filePath, new WorkspaceDocument(filePath, content));
-        } else {
-            logger.warn("File " + filePath.toString() + " already opened in document manager.");
-        }
-    }
-
-    @Override
-    public void updateFile(Path filePath, String updatedContent) {
+    public Optional<Lock> openFile(Path filePath, String content) throws WorkspaceDocumentException {
         if (isFileOpen(filePath)) {
-            documentList.get(filePath).setContent(updatedContent);
-        } else {
-            logger.error("File " + filePath.toString() + " is not opened in document manager.");
+            throw new WorkspaceDocumentException(
+                    "File " + filePath.toString() + " is already opened in document manager."
+            );
         }
+        Optional<Lock> lock = lockFile(filePath);
+        documentList.put(filePath, new DocumentPair(new WorkspaceDocument(filePath, content)));
+        rescanProjectRoot(filePath);
+        return lock;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
-    public void closeFile(Path filePath) {
+    public Optional<Lock> updateFile(Path filePath, String updatedContent) throws WorkspaceDocumentException {
         if (isFileOpen(filePath)) {
-            documentList.remove(filePath);
+            Optional<Lock> lock = lockFile(filePath);
+            documentList.get(filePath).getDocument().ifPresent(document -> document.setContent(updatedContent));
+            return lock;
+        }
+        throw new WorkspaceDocumentException("File " + filePath.toString() + " is not opened in document manager.");
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void closeFile(Path filePath) throws WorkspaceDocumentException {
+        if (isFileOpen(filePath)) {
+            documentList.get(filePath).setDocument(null);
+            rescanProjectRoot(filePath);
         } else {
-            logger.error("File " + filePath.toString() + " is not opened in document manager.");
+            throw new WorkspaceDocumentException("File " + filePath.toString() + " is not opened in document manager.");
         }
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
-    public String getFileContent(Path filePath) {
-        return isFileOpen(filePath) ? documentList.get(filePath).getContent() : null;
+    public String getFileContent(Path filePath) throws WorkspaceDocumentException {
+        if (isFileOpen(filePath) && documentList.get(filePath) != null) {
+            return documentList.get(filePath).getDocument().map(WorkspaceDocument::getContent).orElse(null);
+        }
+        return readFromFileSystem(filePath);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public Optional<Lock> lockFile(Path filePath) {
-        if (filePath == null) {
-            return Optional.empty();
+        Optional<Lock> lock = Optional.ofNullable(filePath).map(path -> Optional.ofNullable(documentList.get(path))
+                .map(DocumentPair::getLock)
+                .orElseGet(() -> {
+                    synchronized (this) {
+                        // No lock found, double-check
+                        return Optional.ofNullable(documentList.get(path))
+                                .map(DocumentPair::getLock)
+                                .orElseGet(() -> {
+                                    // No lock found, create and return a new DocumentPair
+                                    DocumentPair docPair = new DocumentPair(null);
+                                    documentList.put(filePath, docPair);
+                                    return docPair.getLock();
+                                });
+                    }
+                })
+        );
+        lock.ifPresent(Lock::lock);
+        return lock;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public Set<Path> getAllFilePaths() {
+        return documentList.keySet();
+    }
+
+    private String readFromFileSystem(Path filePath) throws WorkspaceDocumentException {
+        try {
+            if (Files.exists(filePath)) {
+                byte[] encoded = Files.readAllBytes(filePath);
+                return new String(encoded, Charset.defaultCharset());
+            }
+            throw new WorkspaceDocumentException("Error in reading non-existent file '" + filePath);
+        } catch (IOException e) {
+            throw new WorkspaceDocumentException("Error in reading file '" + filePath + "': " + e.getMessage(), e);
         }
-        WorkspaceDocument document = documentList.get(filePath);
-        if (document == null) {
-            document = new WorkspaceDocument(filePath, "");
-            documentList.put(filePath, document);
+    }
+
+    private void rescanProjectRoot(Path filePath) {
+        Path projectRoot = Paths.get(LSCompilerUtil.getSourceRoot(filePath));
+        LangServerFSProjectDirectory projectDirectory = LangServerFSProjectDirectory.getInstance(projectRoot, this);
+        projectDirectory.rescanProjectRoot();
+    }
+
+    /**
+     * This class holds workspace document and its lock.
+     */
+    public static class DocumentPair {
+
+        private final Lock lock;
+        private WorkspaceDocument document;
+
+        public DocumentPair(WorkspaceDocument document) {
+            this.document = document;
+            lock = new ReentrantLock(true);
         }
-        Lock lock = document.getLock();
-        lock.lock();
-        return Optional.of(lock);
+
+        /**
+         * Returns the associated lock for the file.
+         *
+         * @return {@link Lock}
+         */
+        public Lock getLock() {
+            return this.lock;
+        }
+
+        /**
+         * Returns the workspace document.
+         *
+         * @return {@link WorkspaceDocumentManager}
+         */
+        public Optional<WorkspaceDocument> getDocument() {
+            return Optional.ofNullable(this.document);
+        }
+
+        /**
+         * Set workspace document.
+         *
+         * @param document {@link WorkspaceDocument}
+         */
+        public void setDocument(WorkspaceDocument document) {
+            this.document = document;
+        }
     }
 }

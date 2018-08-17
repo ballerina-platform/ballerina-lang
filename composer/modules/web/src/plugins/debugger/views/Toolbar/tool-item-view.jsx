@@ -17,7 +17,7 @@
  */
 import React from 'react';
 import { Button } from 'semantic-ui-react';
-import './toolbar.css';
+
 /**
  * Tool Component which render a tool in toolbar.
  *

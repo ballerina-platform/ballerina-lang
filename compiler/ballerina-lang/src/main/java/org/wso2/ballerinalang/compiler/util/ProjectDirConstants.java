@@ -38,12 +38,18 @@ public class ProjectDirConstants {
     public static final String DOT_BALLERINA_REPO_DIR_NAME = "repo";
     public static final String TARGET_DIR_NAME = "target";
     public static final String RESOURCE_DIR_NAME = "resource";
-    public static final String TEST_DIR_NAME = "test";
+    public static final String TEST_DIR_NAME = "tests";
     public static final String CACHES_DIR_NAME = "caches";
     public static final String BALLERINA_CENTRAL_DIR_NAME = "central.ballerina.io";
+    public static final String USER_REPO_OBJ_DIRNAME = "obj";
 
     public static final String HOME_REPO_ENV_KEY = "BALLERINA_HOME_DIR";
     public static final String HOME_REPO_DEFAULT_DIRNAME = ".ballerina";
     public static final String SETTINGS_FILE_NAME = "Settings.toml";
-    public static final String DOT_GIT_DIR_NAME = ".git";
+
+    public static final String BALLERINA_HOME = "ballerina.home";
+    public static final String BALLERINA_HOME_LIB = "lib";
+
+    public static final String BALLERINA_VERSION = "ballerina.version";
+    public static final String PROPERTIES_FILE = "/META-INF/launcher.properties";
 }

@@ -27,7 +27,7 @@ public class Patten {
     public static final Part WILDCARD_SOURCE_WITH_TEST = new Part();
     public static final Patten NULL = new Patten() {
         @Override
-        public <T> Stream<T> convert(Converter<T> converter) {
+        public <T> Stream<T> convert(Converter<T> converter, PackageID packageID) {
             return Stream.of();
         }
     };
@@ -59,16 +59,16 @@ public class Patten {
         return new Part(path);
     }
 
-    public <T> Stream<T> convert(Converter<T> converter) {
+    public <T> Stream<T> convert(Converter<T> converter, PackageID packageID) {
         Stream<T> aggregate = Stream.of(converter.start());
         for (Part part : parts) {
             if (part == LATEST_VERSION_DIR) {
-                aggregate = aggregate.flatMap(converter::latest);
+                aggregate = aggregate.flatMap(t -> converter.latest(t, packageID));
             } else if (part == WILDCARD_SOURCE) {
                 aggregate = aggregate.flatMap(converter::expandBal);
             } else if (part == WILDCARD_SOURCE_WITH_TEST) {
                 //TODO: add test patten converter
-                aggregate = aggregate.flatMap(converter::expandBal);
+                aggregate = aggregate.flatMap(converter::expandBalWithTest);
             } else {
                 aggregate = aggregate.map(t -> callReduceForEach(t, part.values, converter));
             }
@@ -78,11 +78,11 @@ public class Patten {
 
     @SuppressWarnings("unchecked")
     public Stream<CompilerInput> convertToSources(Converter converter, PackageID id) {
-        return convert(converter).flatMap(t -> converter.finalize(t, id));
+        return convert(converter, id).flatMap(t -> converter.finalize(t, id));
     }
 
     public String toString() {
-        return convert(STRING_CONVERTER).findFirst()
+        return convert(STRING_CONVERTER, null).findFirst()
                                         .orElse("#");
     }
 

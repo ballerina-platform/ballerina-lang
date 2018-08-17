@@ -57,10 +57,10 @@ class AboutDialog extends React.Component {
                 title={
                     <div>
                         <div className='brand'>
-                            <i className='fw fw-ballerina-logo fw-lg'/>
-                            <i className='fw fw-composer fw-lg brand-color'/>
+                            <i className='fw fw-ballerina-logo fw-lg' />
+                            <i className='fw fw-composer fw-lg brand-color' />
                         </div>
-                        <div className='version'>v0.970.0-beta0</div>
+                        <div className='version'>v0.981.1.SNAPSHOT</div>
                     </div>
                 }
                 onHide={this.onDialogHide}
@@ -79,7 +79,8 @@ class AboutDialog extends React.Component {
                     <a
                         rel='noopener noreferrer'
                         target='_blank'
-                        href='https://github.com/ballerinalang/composer/issues'
+                        href='https://github.com/ballerina-platform/ballerina-lang/issues?q=is%3Aopen+is%3Aissue+
+                        label%3Acomponent%2FComposer'
                     >
                         GitHub issues
                     </a>

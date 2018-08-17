@@ -22,33 +22,6 @@ import ExpressionNode from '../expression-node';
 class AbstractTypeConversionExprNode extends ExpressionNode {
 
 
-    setExpression(newValue, silent, title) {
-        const oldValue = this.expression;
-        title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
-        this.expression = newValue;
-
-        this.expression.parent = this;
-
-        if (!silent) {
-            this.trigger('tree-modified', {
-                origin: this,
-                type: 'modify-node',
-                title,
-                data: {
-                    attributeName: 'expression',
-                    newValue,
-                    oldValue,
-                },
-            });
-        }
-    }
-
-    getExpression() {
-        return this.expression;
-    }
-
-
-
     setTypeNode(newValue, silent, title) {
         const oldValue = this.typeNode;
         title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
@@ -76,12 +49,12 @@ class AbstractTypeConversionExprNode extends ExpressionNode {
 
 
 
-    setTransformerInvocation(newValue, silent, title) {
-        const oldValue = this.transformerInvocation;
+    setExpression(newValue, silent, title) {
+        const oldValue = this.expression;
         title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
-        this.transformerInvocation = newValue;
+        this.expression = newValue;
 
-        this.transformerInvocation.parent = this;
+        this.expression.parent = this;
 
         if (!silent) {
             this.trigger('tree-modified', {
@@ -89,7 +62,7 @@ class AbstractTypeConversionExprNode extends ExpressionNode {
                 type: 'modify-node',
                 title,
                 data: {
-                    attributeName: 'transformerInvocation',
+                    attributeName: 'expression',
                     newValue,
                     oldValue,
                 },
@@ -97,8 +70,8 @@ class AbstractTypeConversionExprNode extends ExpressionNode {
         }
     }
 
-    getTransformerInvocation() {
-        return this.transformerInvocation;
+    getExpression() {
+        return this.expression;
     }
 
 

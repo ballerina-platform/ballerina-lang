@@ -18,8 +18,9 @@
 package org.ballerinalang.util.codegen;
 
 import org.ballerinalang.bre.bvm.CPU;
-import org.ballerinalang.model.types.BStructType;
-import org.ballerinalang.model.values.BStruct;
+import org.ballerinalang.model.types.BStructureType;
+import org.ballerinalang.model.values.BMap;
+import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.util.codegen.attributes.AttributeInfo;
 import org.ballerinalang.util.codegen.attributes.ErrorTableAttributeInfo;
 
@@ -40,7 +41,7 @@ public class ErrorTableEntry {
     protected int errorStructCPIndex = -100;
 
     // Cache values.
-    private StructInfo error;
+    private TypeDefInfo error;
     private PackageInfo packageInfo;
 
     public ErrorTableEntry(int ipFrom, int ipTo, int ipTarget, int priority, int errorStructCPIndex) {
@@ -81,11 +82,11 @@ public class ErrorTableEntry {
         this.packageInfo = packageInfo;
     }
 
-    public StructInfo getError() {
+    public TypeDefInfo getError() {
         return error;
     }
 
-    public void setError(StructInfo error) {
+    public void setError(TypeDefInfo error) {
         this.error = error;
     }
 
@@ -109,7 +110,7 @@ public class ErrorTableEntry {
         int ipSize;
     }
 
-    public static ErrorTableEntry getMatch(PackageInfo packageInfo, int currentIP, final BStruct error) {
+    public static ErrorTableEntry getMatch(PackageInfo packageInfo, int currentIP, final BMap<String, BValue> error) {
         ErrorTableAttributeInfo errorTable =
                 (ErrorTableAttributeInfo) packageInfo.getAttributeInfo(AttributeInfo.Kind.ERROR_TABLE);
         List<ErrorTableEntry> errorTableEntries = errorTable != null ?
@@ -124,12 +125,12 @@ public class ErrorTableEntry {
                         // match any.
                         entry.status = 2;
                         rangeMatched.add(entry);
-                    } else if (errorTableEntry.getError().getType().equals(error.getType())) {
+                    } else if (errorTableEntry.getError().typeInfo.getType().equals(error.getType())) {
                         // exact match.
                         entry.status = 0;
                         rangeMatched.add(entry);
-                    } else if (CPU.checkStructEquivalency((BStructType) error.getType(),
-                            (BStructType) errorTableEntry.getError().getType())) {
+                    } else if (CPU.checkStructEquivalency((BStructureType) error.getType(),
+                            ((StructureTypeInfo) errorTableEntry.getError().typeInfo).getType())) {
                         entry.status = 1;
                         rangeMatched.add(entry);
                     }

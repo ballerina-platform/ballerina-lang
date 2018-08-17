@@ -26,7 +26,7 @@ import org.ballerinalang.siddhi.query.api.expression.condition.Compare;
 import org.testng.annotations.Test;
 
 /**
- * Test case to validate output rate limiting
+ * Test case to validate output rate limiting.
  */
 public class OutputRateTestCase {
 

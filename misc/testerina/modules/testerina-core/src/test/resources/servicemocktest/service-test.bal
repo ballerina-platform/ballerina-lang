@@ -1,4 +1,3 @@
-
 import ballerina/http;
 import ballerina/io;
 import ballerina/test;
@@ -43,12 +42,11 @@ function verify() {
         url:url2
     };
 
-    http:Request req = new;
     // Send a GET request to the specified endpoint - this should return connection refused
-    var response = httpEndpoint -> get("/events", req);
+    var response = httpEndpoint -> get("/events");
     match response {
         http:Response resp =>  test:assertFail(msg = "Service stop has failed for: "+url2);
-        http:HttpConnectorError err => {
+        error err => {
             test:assertEquals(err.message, "Connection refused: /0.0.0.0:9090");
         }
     }
@@ -64,16 +62,15 @@ function testService () {
     test:assertTrue(isPortalServiceStarted, msg = "Portal service failed to start");
     test:assertFalse(isNonExistingServiceStarted);
 
-    http:Request req = new;
     // Send a GET request to the specified endpoint
-    var response = httpEndpoint -> get("/events", req);
+    var response = httpEndpoint -> get("/events");
     match response {
                http:Response resp => {
                     var jsonRes = resp.getJsonPayload();
                     json expected = {"a":"b"};
                     test:assertEquals(jsonRes, expected);
                }
-               http:HttpConnectorError err => test:assertFail(msg = "Failed to call the endpoint: "+url2);
+               error err => test:assertFail(msg = "Failed to call the endpoint: "+url2);
     }
 
     test:stopServices("servicemocktest");

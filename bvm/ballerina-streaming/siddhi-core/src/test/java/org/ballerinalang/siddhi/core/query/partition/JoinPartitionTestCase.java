@@ -32,6 +32,9 @@ import org.testng.annotations.Test;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
+/**
+ * Testcase for stream joins within partitions.
+ */
 public class JoinPartitionTestCase {
     private static final Logger log = LoggerFactory.getLogger(JoinPartitionTestCase.class);
     private AtomicInteger count = new AtomicInteger(0);

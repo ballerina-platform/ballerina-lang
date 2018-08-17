@@ -23,10 +23,7 @@ import org.ballerinalang.config.ConfigRegistry;
 import org.ballerinalang.util.tracer.exception.InvalidConfigurationException;
 
 import java.io.PrintStream;
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.ServiceLoader;
 
@@ -35,12 +32,12 @@ import static org.ballerinalang.util.tracer.TraceConstants.JAEGER;
 import static org.ballerinalang.util.tracer.TraceConstants.TRACER_NAME_CONFIG;
 
 /**
- * Class that creates the list of tracers for a given service.
+ * Class that creates the tracer for a given service.
  */
-class TracersStore {
+public class TracersStore {
 
-    private List<TracerGenerator> tracers;
-    private Map<String, Map<String, Tracer>> tracerStore;
+    private TracerGenerator tracer;
+    private Map<String, Tracer> tracerStore;
     private static final PrintStream consoleError = System.err;
     private static TracersStore instance = new TracersStore();
 
@@ -55,7 +52,6 @@ class TracersStore {
         ConfigRegistry configRegistry = ConfigRegistry.getInstance();
         if (configRegistry.getAsBoolean(CONFIG_TRACING_ENABLED)) {
 
-            this.tracers = new ArrayList<>();
             this.tracerStore = new HashMap<>();
 
             ServiceLoader<OpenTracer> openTracers = ServiceLoader.load(OpenTracer.class);
@@ -64,11 +60,11 @@ class TracersStore {
 
             String tracerName = configRegistry.getConfigOrDefault(TRACER_NAME_CONFIG, JAEGER);
 
-            OpenTracer tracer = tracerMap.get(tracerName.toLowerCase());
-            if (tracer != null) {
+            OpenTracer openTracer = tracerMap.get(tracerName.toLowerCase());
+            if (openTracer != null) {
                 try {
-                    tracer.init();
-                    this.tracers.add(new TracerGenerator(tracer.getName(), tracer));
+                    openTracer.init();
+                    tracer = new TracerGenerator(openTracer.getName(), openTracer);
                 } catch (InvalidConfigurationException e) {
                     consoleError.println("ballerina: error in observability tracing configurations: " + e.getMessage());
                 }
@@ -77,38 +73,36 @@ class TracersStore {
                         "ballerina: observability enabled but no tracing extension found for name " + tracerName);
             }
         } else {
-            this.tracers = Collections.emptyList();
             this.tracerStore = new HashMap<>();
         }
     }
 
     /**
-     * Return trace implementations for a specific service
+     * Return trace implementations for a specific service.
      *
      * @param serviceName name of service of whose trace implementations are needed
      * @return trace implementations i.e: zipkin, jaeger
      */
-    Map<String, Tracer> getTracers(String serviceName) {
+    public Tracer getTracer(String serviceName) {
         if (tracerStore.containsKey(serviceName)) {
             return tracerStore.get(serviceName);
         } else {
-            Map<String, Tracer> tracerMap = new HashMap<>();
-            for (TracerGenerator tracerGenerator : tracers) {
+            Tracer openTracer = null;
+            if (tracer != null) {
                 try {
-                    Tracer tracer = tracerGenerator.generate(serviceName);
-                    tracerMap.put(tracerGenerator.name, tracer);
+                    openTracer = tracer.generate(serviceName);
                 } catch (Throwable e) {
                     consoleError.println("ballerina: error getting tracer for "
-                            + tracerGenerator.name + ". " + e.getMessage());
+                            + tracer.name + ". " + e.getMessage());
                 }
             }
-            tracerStore.put(serviceName, tracerMap);
-            return tracerMap;
+            tracerStore.put(serviceName, openTracer);
+            return openTracer;
         }
     }
 
     /**
-     * Holds the tracerExt and properties, and generates a tracer upon request.
+     * Holds the tracerExt and generates a tracer upon request.
      */
     private static class TracerGenerator {
         String name;
@@ -122,5 +116,14 @@ class TracersStore {
         Tracer generate(String serviceName) {
             return tracer.getTracer(name, serviceName);
         }
+    }
+
+    /**
+     * Checks whether the tracer store is initialized.
+     *
+     * @return boolean value whether it's initialized.
+     */
+    public boolean isInitialized() {
+        return this.tracerStore != null;
     }
 }

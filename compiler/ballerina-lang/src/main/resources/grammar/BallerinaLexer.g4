@@ -17,11 +17,12 @@ IMPORT      : 'import' ;
 AS          : 'as' ;
 PUBLIC      : 'public' ;
 PRIVATE     : 'private' ;
-NATIVE      : 'native' ;
+EXTERN      : 'extern' ;
 SERVICE     : 'service' ;
 RESOURCE    : 'resource' ;
 FUNCTION    : 'function' ;
 OBJECT      : 'object' ;
+RECORD      : 'record' ;
 ANNOTATION  : 'annotation' ;
 PARAMETER   : 'parameter' ;
 TRANSFORMER : 'transformer' ;
@@ -48,14 +49,14 @@ INTO        : 'into' ;
 UPDATE      : {inSiddhi}? 'update' { inSiddhi = false; } ;
 DELETE      : {inSiddhi}? 'delete' { inSiddhi = false; } ;
 SET         : 'set' ;
-FOR         : 'for' ;
+FOR         : 'for' { inSiddhiTimeScaleQuery = true; } ;
 WINDOW      : 'window' ;
 QUERY       : 'query' ;
 EXPIRED     : 'expired' ;
 CURRENT     : 'current' ;
 EVENTS      : {inSiddhiInsertQuery}? 'events' { inSiddhiInsertQuery = false; } ;
 EVERY       : 'every' ;
-WITHIN      : 'within' ;
+WITHIN      : 'within' { inSiddhiTimeScaleQuery = true; } ;
 LAST        : {inSiddhiOutputRateLimit}? 'last' { inSiddhiOutputRateLimit = false; } ;
 FIRST       : {inSiddhiOutputRateLimit}? 'first' { inSiddhiOutputRateLimit = false; } ;
 SNAPSHOT    : 'snapshot' ;
@@ -73,16 +74,22 @@ HOUR        : {inSiddhiTimeScaleQuery}? 'hour' { inSiddhiTimeScaleQuery = false;
 DAY         : {inSiddhiTimeScaleQuery}? 'day' { inSiddhiTimeScaleQuery = false; } ;
 MONTH       : {inSiddhiTimeScaleQuery}? 'month' { inSiddhiTimeScaleQuery = false; } ;
 YEAR        : {inSiddhiTimeScaleQuery}? 'year' { inSiddhiTimeScaleQuery = false; } ;
+SECONDS      : {inSiddhiTimeScaleQuery}? 'seconds' { inSiddhiTimeScaleQuery = false; } ;
+MINUTES      : {inSiddhiTimeScaleQuery}? 'minutes' { inSiddhiTimeScaleQuery = false; } ;
+HOURS        : {inSiddhiTimeScaleQuery}? 'hours' { inSiddhiTimeScaleQuery = false; } ;
+DAYS         : {inSiddhiTimeScaleQuery}? 'days' { inSiddhiTimeScaleQuery = false; } ;
+MONTHS      : {inSiddhiTimeScaleQuery}? 'months' { inSiddhiTimeScaleQuery = false; } ;
+YEARS        : {inSiddhiTimeScaleQuery}? 'years' { inSiddhiTimeScaleQuery = false; } ;
 FOREVER     : 'forever' ;
 LIMIT       : 'limit' ;
 ASCENDING   : 'ascending' ;
 DESCENDING  : 'descending' ;
 
 TYPE_INT        : 'int' ;
+TYPE_BYTE       : 'byte' ;
 TYPE_FLOAT      : 'float' ;
 TYPE_BOOL       : 'boolean' ;
 TYPE_STRING     : 'string' ;
-TYPE_BLOB       : 'blob' ;
 TYPE_MAP        : 'map' ;
 TYPE_JSON       : 'json' ;
 TYPE_XML        : 'xml' ;
@@ -100,7 +107,7 @@ MATCH       : 'match' ;
 ELSE        : 'else' ;
 FOREACH     : 'foreach' ;
 WHILE       : 'while' ;
-NEXT        : 'next' ;
+CONTINUE    : 'continue' ;
 BREAK       : 'break' ;
 FORK        : 'fork' ;
 JOIN        : 'join' ;
@@ -129,6 +136,10 @@ AWAIT       : 'await' ;
 BUT         : 'but' ;
 CHECK       : 'check' ;
 DONE        : 'done' ;
+SCOPE       : 'scope';
+COMPENSATION : 'compensation';
+COMPENSATE  : 'compensate' ;
+PRIMARYKEY  : 'primarykey' ;
 
 // Separators
 
@@ -145,6 +156,11 @@ LEFT_BRACKET        : '[' ;
 RIGHT_BRACKET       : ']' ;
 QUESTION_MARK       : '?' ;
 
+// Documentation markdown
+
+fragment
+HASH                : '#' ;
+
 // Arithmetic operators
 
 ASSIGN  : '=' ;
@@ -152,7 +168,6 @@ ADD     : '+' ;
 SUB     : '-' ;
 MUL     : '*' ;
 DIV     : '/' ;
-POW     : '^' ;
 MOD     : '%';
 
 // Relational operators
@@ -166,6 +181,12 @@ GT_EQUAL    : '>=' ;
 LT_EQUAL    : '<=' ;
 AND         : '&&' ;
 OR          : '||' ;
+
+// Bitwise Operators
+
+BIT_AND          : '&' ;
+BIT_XOR          : '^' ;
+BIT_COMPLEMENT   : '~' ;
 
 // Additional symbols 
 
@@ -192,36 +213,31 @@ COMPOUND_DIV   : '/=' ;
 INCREMENT      : '++' ;
 DECREMENT      : '--' ;
 
+// Integer Range Operators.
+// CLOSED_RANGE - ELLIPSIS
+HALF_OPEN_RANGE   : '..<' ;
+
 DecimalIntegerLiteral
-    :   DecimalNumeral IntegerTypeSuffix?
+    :   DecimalNumeral
     ;
 
 HexIntegerLiteral
-    :   HexNumeral IntegerTypeSuffix?
-    ;
-
-OctalIntegerLiteral
-    :   OctalNumeral IntegerTypeSuffix?
+    :   HexNumeral
     ;
 
 BinaryIntegerLiteral
-    :   BinaryNumeral IntegerTypeSuffix?
-    ;
-
-fragment
-IntegerTypeSuffix
-    :   [lL]
+    :   BinaryNumeral
     ;
 
 fragment
 DecimalNumeral
     :   '0'
-    |   NonZeroDigit (Digits? | Underscores Digits)
+    |   NonZeroDigit Digits?
     ;
 
 fragment
 Digits
-    :   Digit (DigitOrUnderscore* Digit)?
+    :   Digit+
     ;
 
 fragment
@@ -236,56 +252,30 @@ NonZeroDigit
     ;
 
 fragment
-DigitOrUnderscore
-    :   Digit
-    |   '_'
-    ;
-
-fragment
-Underscores
-    :   '_'+
-    ;
-
-fragment
 HexNumeral
     :   '0' [xX] HexDigits
     ;
 
 fragment
+DottedHexNumber
+    :   HexDigits DOT HexDigits
+    |   DOT HexDigits
+    ;
+
+fragment
+DottedDecimalNumber
+    :   DecimalNumeral DOT Digits
+    |   DOT Digit+
+    ;
+
+fragment
 HexDigits
-    :   HexDigit (HexDigitOrUnderscore* HexDigit)?
+    :   HexDigit+
     ;
 
 fragment
 HexDigit
     :   [0-9a-fA-F]
-    ;
-
-fragment
-HexDigitOrUnderscore
-    :   HexDigit
-    |   '_'
-    ;
-
-fragment
-OctalNumeral
-    :   '0' Underscores? OctalDigits
-    ;
-
-fragment
-OctalDigits
-    :   OctalDigit (OctalDigitOrUnderscore* OctalDigit)?
-    ;
-
-fragment
-OctalDigit
-    :   [0-7]
-    ;
-
-fragment
-OctalDigitOrUnderscore
-    :   OctalDigit
-    |   '_'
     ;
 
 fragment
@@ -295,7 +285,7 @@ BinaryNumeral
 
 fragment
 BinaryDigits
-    :   BinaryDigit (BinaryDigitOrUnderscore* BinaryDigit)?
+    :   BinaryDigit+
     ;
 
 fragment
@@ -303,25 +293,15 @@ BinaryDigit
     :   [01]
     ;
 
-fragment
-BinaryDigitOrUnderscore
-    :   BinaryDigit
-    |   '_'
-    ;
-
 // §3.10.2 Floating-Point Literals
 
-FloatingPointLiteral
-    :   DecimalFloatingPointLiteral
-    |   HexadecimalFloatingPointLiteral
+HexadecimalFloatingPointLiteral
+    :   HexIndicator HexFloatingPointNumber
     ;
 
-fragment
-DecimalFloatingPointLiteral
-    :   Digits '.' (Digits ExponentPart? FloatTypeSuffix? | Digits? ExponentPart FloatTypeSuffix? | Digits? ExponentPart? FloatTypeSuffix)
-    |   '.' Digits ExponentPart? FloatTypeSuffix?
-    |   Digits ExponentPart FloatTypeSuffix?
-    |   Digits FloatTypeSuffix
+DecimalFloatingPointNumber
+    :   DecimalNumeral ExponentPart
+    |   DottedDecimalNumber ExponentPart?
     ;
 
 fragment
@@ -345,19 +325,14 @@ Sign
     ;
 
 fragment
-FloatTypeSuffix
-    :   [fFdD]
+HexIndicator
+    :   '0' [xX]
     ;
 
 fragment
-HexadecimalFloatingPointLiteral
-    :   HexSignificand BinaryExponent FloatTypeSuffix?
-    ;
-
-fragment
-HexSignificand
-    :   HexNumeral '.'?
-    |   '0' [xX] HexDigits? '.' HexDigits
+HexFloatingPointNumber
+    :   HexDigits BinaryExponent
+    |   DottedHexNumber BinaryExponent?
     ;
 
 fragment
@@ -399,15 +374,7 @@ StringCharacter
 fragment
 EscapeSequence
     :   '\\' [btnfr"'\\]
-    |   OctalEscape
     |   UnicodeEscape
-    ;
-
-fragment
-OctalEscape
-    :   '\\' OctalDigit
-    |   '\\' OctalDigit OctalDigit
-    |   '\\' ZeroToThree OctalDigit OctalDigit
     ;
 
 fragment
@@ -415,10 +382,39 @@ UnicodeEscape
     :   '\\' 'u' HexDigit HexDigit HexDigit HexDigit
     ;
 
-fragment
-ZeroToThree
-    :   [0-3]
+// Blob Literal
+
+Base16BlobLiteral
+    : 'base16' WS* BACKTICK HexGroup* WS* BACKTICK
     ;
+
+fragment
+HexGroup
+    : WS* HexDigit WS* HexDigit
+    ;
+
+Base64BlobLiteral
+    : 'base64' WS* BACKTICK Base64Group* PaddedBase64Group? WS* BACKTICK
+    ;
+
+fragment
+Base64Group
+    : WS* Base64Char WS* Base64Char WS* Base64Char WS* Base64Char
+    ;
+
+fragment
+PaddedBase64Group
+    : WS* Base64Char WS* Base64Char WS* Base64Char WS* PaddingChar
+    | WS* Base64Char WS* Base64Char WS* PaddingChar WS* PaddingChar
+    ;
+
+fragment
+Base64Char
+    : [a-zA-Z0-9+/]
+    ;
+
+fragment
+PaddingChar : '=';
 
 // §3.10.7 The Null Literal
 
@@ -457,6 +453,18 @@ StringTemplateLiteralStart
     :   TYPE_STRING WS* BACKTICK   { inTemplate = true; } -> pushMode(STRING_TEMPLATE)
     ;
 
+DocumentationLineStart
+    :   HASH DocumentationSpace? -> pushMode(MARKDOWN_DOCUMENTATION)
+    ;
+
+ParameterDocumentationStart
+    :   HASH DocumentationSpace? ADD DocumentationSpace* -> pushMode(MARKDOWN_DOCUMENTATION_PARAM)
+    ;
+
+ReturnParameterDocumentationStart
+    :   HASH DocumentationSpace? ADD DocumentationSpace* RETURN DocumentationSpace* SUB DocumentationSpace* -> pushMode(MARKDOWN_DOCUMENTATION)
+    ;
+
 DocumentationTemplateStart
     :   DOCUMENTATION WS* LEFT_BRACE   { inDocTemplate = true; } -> pushMode(DOCUMENTATION_TEMPLATE)
     ;
@@ -466,7 +474,7 @@ DeprecatedTemplateStart
     ;
 
 ExpressionEnd
-    :   {inTemplate}? RIGHT_BRACE WS* RIGHT_BRACE   ->  popMode
+    :   {inTemplate}? RIGHT_BRACE RIGHT_BRACE   ->  popMode
     ;
 
 DocumentationTemplateAttributeEnd
@@ -499,6 +507,100 @@ IdentifierLiteralEscapeSequence
     : '\\' [|"\\/]
     | '\\\\' [btnfr]
     | UnicodeEscape
+    ;
+
+mode MARKDOWN_DOCUMENTATION;
+
+VARIABLE    : 'variable';
+MODULE      : 'module';
+
+ReferenceType
+    :   TYPE|ENDPOINT|SERVICE|VARIABLE|VAR|ANNOTATION|MODULE|FUNCTION|PARAMETER
+    ;
+
+DocumentationText
+    :   DocumentationTextCharacter+
+    ;
+
+SingleBacktickStart
+    :   BACKTICK -> pushMode(SINGLE_BACKTICKED_DOCUMENTATION)
+    ;
+
+DoubleBacktickStart
+    :   BACKTICK BACKTICK -> pushMode(DOUBLE_BACKTICKED_DOCUMENTATION)
+    ;
+
+TripleBacktickStart
+    :   BACKTICK BACKTICK BACKTICK -> pushMode(TRIPLE_BACKTICKED_DOCUMENTATION)
+    ;
+
+DefinitionReference
+    :   ReferenceType DocumentationSpace+
+    ;
+
+fragment
+DocumentationTextCharacter
+    :   ~[`\n+\- ]
+    |   '\\' BACKTICK
+    ;
+
+DocumentationEscapedCharacters
+    :   DocumentationSpace | [+-]
+    ;
+
+DocumentationSpace
+    :   [ ]
+    ;
+
+DocumentationEnd
+    :   [\n] -> channel(HIDDEN), popMode
+    ;
+
+mode MARKDOWN_DOCUMENTATION_PARAM;
+
+ParameterName
+    :   Identifier
+    ;
+
+DescriptionSeparator
+    :   DocumentationSpace* SUB DocumentationSpace* -> popMode, pushMode(MARKDOWN_DOCUMENTATION)
+    ;
+
+DocumentationParamEnd
+    :   [\n] -> channel(HIDDEN), popMode
+    ;
+
+mode SINGLE_BACKTICKED_DOCUMENTATION;
+
+SingleBacktickContent
+    :   ((~[`\n] | '\\' BACKTICK)* [\n])? (DocumentationLineStart (~[`\n] | '\\' BACKTICK)* [\n]?)+
+    |   (~[`\n] | '\\' BACKTICK)+
+    ;
+
+SingleBacktickEnd
+    :   BACKTICK -> popMode
+    ;
+
+mode DOUBLE_BACKTICKED_DOCUMENTATION;
+
+DoubleBacktickContent
+    :   ((~[`\n] | BACKTICK ~[`])* [\n])? (DocumentationLineStart (~[`\n] | BACKTICK ~[`])* [\n]?)+
+    |   (~[`\n] | BACKTICK ~[`])+
+    ;
+
+DoubleBacktickEnd
+    :   BACKTICK BACKTICK -> popMode
+    ;
+
+mode TRIPLE_BACKTICKED_DOCUMENTATION;
+
+TripleBacktickContent
+    :   ((~[`\n] | BACKTICK ~[`] | BACKTICK BACKTICK ~[`])* [\n])? (DocumentationLineStart (~[`\n] | BACKTICK ~[`] | BACKTICK BACKTICK ~[`])* [\n]?)+
+    |   (~[`\n] | BACKTICK ~[`] | BACKTICK BACKTICK ~[`])+
+    ;
+
+TripleBacktickEnd
+    :   BACKTICK BACKTICK BACKTICK -> popMode
     ;
 
 
@@ -599,7 +701,7 @@ XMLQName
     ;
 
 XML_TAG_WS
-    :   [ \t\r\n]   -> skip 
+    :   [ \t\r\n]   -> channel(HIDDEN)
     ;
 
 XMLTagExpressionStart

@@ -49,31 +49,6 @@ class AbstractIntRangeExprNode extends ExpressionNode {
 
 
 
-    setEndExpression(newValue, silent, title) {
-        const oldValue = this.endExpression;
-        title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
-        this.endExpression = newValue;
-
-        if (!silent) {
-            this.trigger('tree-modified', {
-                origin: this,
-                type: 'modify-node',
-                title,
-                data: {
-                    attributeName: 'endExpression',
-                    newValue,
-                    oldValue,
-                },
-            });
-        }
-    }
-
-    getEndExpression() {
-        return this.endExpression;
-    }
-
-
-
     setStartExpression(newValue, silent, title) {
         const oldValue = this.startExpression;
         title = (_.isNil(title)) ? `Modify ${this.kind}` : title;

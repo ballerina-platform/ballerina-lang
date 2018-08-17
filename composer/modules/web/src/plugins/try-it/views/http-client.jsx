@@ -21,7 +21,7 @@ import _ from 'lodash';
 import { invokeTryIt, getTryItUrl } from 'api-client/api-client';
 import cn from 'classnames';
 import AceEditor from 'react-ace';
-import { Container, Grid, Form, Item, Button, Message, Divider, Segment, Icon, Select } from 'semantic-ui-react';
+import { Loader, Container, Accordion, Form, Button, Divider, Segment, Icon, Select } from 'semantic-ui-react';
 import copy from 'copy-to-clipboard';
 import PropTypes from 'prop-types';
 import React from 'react';
@@ -57,13 +57,17 @@ class HttpClient extends React.Component {
      */
     constructor(props) {
         super(props);
+
+        const selectedServiceObj = this.getSelectedService(props);
+
         this.state = {
             httpMethod: 'GET',
             httpMethods: this.getHttpMethods(),
             baseUrls: [],
             baseUrl: '',
-            appendUrl: '',
-            contentType: '',
+            pathUrls: [],
+            appendUrl: selectedServiceObj.appendUrl,
+            contentType: selectedServiceObj.contentType,
             responseBody: '',
             responseCode: '',
             responseHeaders: '',
@@ -77,8 +81,10 @@ class HttpClient extends React.Component {
             selectedService: undefined,
             selectedResource: undefined,
             showCopyUrlNotification: false,
+            activeIndex: 0,
         };
 
+        this.handleAccordionClick = this.handleAccordionClick.bind(this);
         this.onAddNewHeader = this.onAddNewHeader.bind(this);
         this.onAppendUrlChange = this.onAppendUrlChange.bind(this);
         this.onContentTypeChange = this.onContentTypeChange.bind(this);
@@ -94,6 +100,7 @@ class HttpClient extends React.Component {
         this.onResourceSelected = this.onResourceSelected.bind(this);
         this.onChangeUrl = this.onChangeUrl.bind(this);
         this.headerKey = undefined;
+        this.handlePathAdditions = this.handlePathAdditions.bind(this);
     }
 
     /**
@@ -105,10 +112,12 @@ class HttpClient extends React.Component {
             .then((baseUrls) => {
                 this.setState({
                     baseUrls: baseUrls || [],
+                    baseUrl: baseUrls[0] || '',
                 });
             }).catch(() => {
             });
         this.onAddNewHeader(false);
+        this.renderPathsDropdown();
     }
 
     /**
@@ -117,12 +126,22 @@ class HttpClient extends React.Component {
      * @memberof HttpClient
      */
     componentWillReceiveProps(nextProps) {
-        if (nextProps.serviceNodes.length > 0) {
+        const selectedServiceObj = this.getSelectedService(nextProps);
+        this.setState({
+            selectedService: selectedServiceObj.selectedService,
+            selectedResource: selectedServiceObj.selectedResource,
+            appendUrl: selectedServiceObj.appendUrl,
+            contentType: selectedServiceObj.contentType,
+        });
+    }
+
+    getSelectedService(props) {
+        if (props.serviceNodes.length > 0) {
             let selectedService;
             let selectedResource;
             let selectedContentType = '';
-            if (nextProps.serviceNodes.length === 1) {
-                selectedService = nextProps.serviceNodes[0];
+            if (props.serviceNodes.length === 1) {
+                selectedService = props.serviceNodes[0];
                 if (selectedService.getResources().length === 1) {
                     selectedResource = selectedService.getResources()[0];
                     if (selectedResource.getConsumeTypes().length === 1) {
@@ -130,12 +149,12 @@ class HttpClient extends React.Component {
                     }
                 }
             }
-            this.setState({
+            return { 
                 selectedService,
                 selectedResource,
                 appendUrl: this.compileURL(selectedResource),
                 contentType: selectedContentType,
-            });
+            };
         }
     }
 
@@ -204,9 +223,15 @@ class HttpClient extends React.Component {
         const newHeaders = this.state.requestHeaders.filter((header) => {
             return header.id !== id;
         });
-        this.setState({
-            requestHeaders: newHeaders,
-        });
+        if (newHeaders === undefined || newHeaders.length === 0) {
+            this.setState({
+                requestHeaders: [{ id: uuid(), key: '', value: '' }],
+            });
+        } else {
+            this.setState({
+                requestHeaders: newHeaders,
+            });
+        }
     }
 
     onChangeHeader(i, header) {
@@ -258,6 +283,7 @@ class HttpClient extends React.Component {
     onInvoke() {
         this.setState({
             waitingForResponse: true,
+            activeIndex: 1, // switch accordion active item for response.
         });
         const tryItPayload = _.cloneDeep(this.state);
         delete tryItPayload.selectedService;
@@ -415,6 +441,14 @@ class HttpClient extends React.Component {
         return '';
     }
 
+    handleAccordionClick(e, titleProps) {
+        const { index } = titleProps;
+        const { activeIndex } = this.state;
+        const newIndex = activeIndex === index ? -1 : index;
+
+        this.setState({ activeIndex: newIndex });
+    }
+
     /**
      * Gets the url for invoking a resrouce.
      * @param {ResourceNode} resourceNode The resourceNode.
@@ -452,18 +486,15 @@ class HttpClient extends React.Component {
             });
         });
 
-        return (
-            <Select
-                search
-                allowAdditions
-                selection
-                placeholder='Select path'
-                options={urlItems}
-                defaultValue={this.state.appendUrl}
-                onChange={this.onAppendUrlChange}
-                className='paths-dropdown'
-            />
-        );
+        this.setState({
+            pathUrls: urlItems,
+        });
+    }
+
+    handlePathAdditions(e, { value }) {
+        this.setState({
+            pathUrls: [{ text: value, value }, ...this.state.pathUrls],
+        });
     }
 
     /**
@@ -505,8 +536,6 @@ class HttpClient extends React.Component {
             const httpBaseUrl = `http://${this.state.baseUrl}`;
             const sendOrCancelButton = this.renderSendOrCancelButton();
 
-            // Getting service name views
-            const pathsDropdown = this.renderPathsDropdown();
             return (
                 <div
                     className='http-client-main-wrapper inverted'
@@ -523,8 +552,9 @@ class HttpClient extends React.Component {
                                         selection
                                         options={this.state.httpMethods}
                                         onChange={this.onHttpMethodChanged}
-                                        defaultValue={this.state.httpMethod}
+                                        value={this.state.httpMethod}
                                         className='select-method'
+                                        defaultValue={this.state.httpMethod}
                                     />
                                     <Select
                                         search
@@ -538,7 +568,17 @@ class HttpClient extends React.Component {
                                         onChange={this.onChangeUrl}
                                         value={this.state.baseUrl}
                                     />
-                                    {pathsDropdown}
+                                    <Select
+                                        search
+                                        allowAdditions
+                                        selection
+                                        placeholder='Select path'
+                                        options={this.state.pathUrls}
+                                        value={this.state.appendUrl}
+                                        onChange={this.onAppendUrlChange}
+                                        onAddItem={this.handlePathAdditions}
+                                        className='paths-dropdown'
+                                    />
                                     {sendOrCancelButton}
                                     <Button
                                         title='Copy URL'
@@ -566,12 +606,18 @@ class HttpClient extends React.Component {
      */
     renderSendOrCancelButton() {
         if (this.state.waitingForResponse === false) {
-            return (<Button primary className='send-request' onClick={this.onInvoke} >Send</Button>);
+            return (
+                <Button primary className='send-request' onClick={this.onInvoke} >
+                    Send
+                </Button>
+            );
         } else {
-            return (<Button primary className='cancel-request' onClick={this.onInvokeCancel} >
-                <i className='fw fw-loader5 fw-spin fw-1x' />
-                <span>Cancel</span>
-            </Button>);
+            return (
+                <Button primary className='cancel-request' onClick={this.onInvokeCancel} >
+                    <Loader active inline size='mini' />
+                    <span>&nbsp;Cancel</span>
+                </Button>
+            );
         }
     }
 
@@ -616,212 +662,198 @@ class HttpClient extends React.Component {
      * @memberof HttpClient
      */
     render() {
-        const { requestHeaders } = this.state;
+        const { requestHeaders, activeIndex } = this.state;
         const mainControlComponent = this.renderMainControlComponent();
         const contentTypesControl = this.renderContentTypes();
         return (
             <Container fluid>
                 {mainControlComponent}
-                <Grid>
-                    <Grid.Row className='http-client-wrapper'>
-                        <Grid.Column width={8}>
-                            <Item.Group>
-                                <Item>
-                                    <div className='http-client-request'>
-                                        <Item.Content>
-                                            <Segment inverted>
-                                                <Item.Header >Request</Item.Header>
-                                                <Divider />
-                                                <Form inverted>
-                                                    <Form.Group inline>
-                                                        <label htmlFor='content-types'>Content-Type</label>
-                                                        {contentTypesControl}
-                                                    </Form.Group>
-                                                </Form>
-                                                <Form.Field width={16}>
-                                                    <h3>Headers</h3>
-                                                    <Divider />
-                                                    <div className='current-headers'>
-                                                        {
-                                                            requestHeaders.map((header, i) => {
-                                                                return (<RequestHeaderItem
-                                                                    header={header}
-                                                                    onChange={newHeader => this.onChangeHeader(i, newHeader)}
-                                                                    onAddNew={this.onAddNewHeader}
-                                                                    key={header.id}
-                                                                    onDelete={() => this.onHeaderDelete(header.id)}
-                                                                />);
-                                                            })
-                                                        }
-                                                    </div>
-                                                </Form.Field>
-                                                <Form.Field width={16} className='http-client-body-wrapper'>
-                                                    <label htmlFor='http-body'>Body</label>
-                                                    <Divider />
-                                                    <div className='ACE-editor-wrapper'>
-                                                        <AceEditor
-                                                            mode={this.getRequestBodyMode()}
-                                                            theme='monokai'
-                                                            onChange={this.onRequestBodyChange}
-                                                            value={this.state.requestBody}
-                                                            name='RequestBody'
-                                                            editorProps={{
-                                                                $blockScrolling: Infinity,
-                                                            }}
-                                                            setOptions={{
-                                                                showLineNumbers: false,
-                                                            }}
-                                                            maxLines={Infinity}
-                                                            minLines={10}
-                                                            width='auto'
-                                                            showPrintMargin={false}
-                                                        />
-                                                    </div>
-                                                </Form.Field>
-                                            </Segment>
-                                        </Item.Content>
-                                    </div>
-                                </Item>
-                            </Item.Group>
-                        </Grid.Column>
-                        <Grid.Column width={8}>
-                            <Item.Group>
-                                <Item>
-                                    <div className='http-client-request'>
-                                        <Item.Content>
-                                            <Segment inverted>
-                                                <Item.Header >Response</Item.Header>
-                                                <Divider />
+                <div className='http-client-wrapper'>
+                    <Segment inverted>
+                        <Accordion>
+                            <Accordion.Title active={activeIndex === 0} index={0} onClick={this.handleAccordionClick}>
+                                <Segment inverted>
+                                    <h3 className='request-title'>
+                                        <Icon name='dropdown' />
+                                        Request
+                                    </h3>
+                                </Segment>
+                            </Accordion.Title>
+                            <Accordion.Content active={activeIndex === 0} >
+                                <div className='http-client-request'>
+                                    <Form inverted>
+                                        <Form.Group inline>
+                                            <label htmlFor='content-types'>Content-Type</label>
+                                            {contentTypesControl}
+                                        </Form.Group>
+                                    </Form>
+                                    <Form.Field>
+                                        <label htmlFor='headers'>Headers</label>
+                                        <div className='current-headers'>
+                                            {
+                                                requestHeaders.map((header, i) => {
+                                                    return (<RequestHeaderItem
+                                                        header={header}
+                                                        onChange={newHeader => this.onChangeHeader(i, newHeader)}
+                                                        onAddNew={this.onAddNewHeader}
+                                                        key={header.id}
+                                                        onDelete={() => this.onHeaderDelete(header.id)}
+                                                    />);
+                                                })
+                                            }
+                                        </div>
+                                    </Form.Field>
+                                    <Form.Field className='http-client-body-wrapper'>
+                                        <label htmlFor='http-body'>Request Body</label>
+                                        <div className='ACE-editor-wrapper'>
+                                            <AceEditor
+                                                mode={this.getRequestBodyMode()}
+                                                theme='monokai'
+                                                onChange={this.onRequestBodyChange}
+                                                value={this.state.requestBody}
+                                                name='RequestBody'
+                                                editorProps={{
+                                                    $blockScrolling: Infinity,
+                                                }}
+                                                setOptions={{
+                                                    showLineNumbers: false,
+                                                }}
+                                                maxLines={Infinity}
+                                                minLines={10}
+                                                width='auto'
+                                                showPrintMargin={false}
+                                            />
+                                        </div>
+                                    </Form.Field>
+                                </div>
+                            </Accordion.Content>
+
+                            <Accordion.Title active={activeIndex === 1} index={1} onClick={this.handleAccordionClick}>
+                                <Segment inverted>
+                                    <h3 className='request-title'>
+                                        <Icon name='dropdown' />
+                                        Response
+                                    </h3>
+                                </Segment>
+                            </Accordion.Title>
+                            <Accordion.Content active={activeIndex === 1}>
+                                <div className='http-client-request'>
+                                    <Segment inverted>
+                                        {
+                                            this.state.responseHeaders.length > 0 ? (
                                                 <Form>
-                                                    <Form.Group>
-                                                        <Form.Field className='http-client-response-attributes'>
-                                                            <p>Request URL :
-                                                                <span
-                                                                    className={cn('attribute-value',
-                                                                        this.getStatusCodeClass(this.state.responseCode))}
-                                                                >
-                                                                    {this.state.requestUrl}
-                                                                </span>
-                                                            </p>
-                                                            <p>Reponse Code :
-                                                                <span
-                                                                    className={cn('attribute-value',
-                                                                        this.getStatusCodeClass(
-                                                                            this.state.responseCode))}
-                                                                >
-                                                                    {this.state.responseCode}
-                                                                </span>
-                                                            </p>
-                                                            <p>Request HTTP Method :
-                                                                <span
-                                                                    className={cn('attribute-value',
-                                                                        this.getStatusCodeClass(
-                                                                            this.state.responseCode))}
-                                                                >
-                                                                    {this.state.responseHttpMethod}
-                                                                </span>
-                                                            </p>
-                                                            <p>Time Consumed :
-                                                                <span
-                                                                    className={cn('attribute-value',
-                                                                        this.getStatusCodeClass(
-                                                                            this.state.responseCode))}
-                                                                >
-                                                                    {this.state.timeConsumed} ms
-                                                                </span>
-                                                            </p>
-                                                        </Form.Field>
-                                                    </Form.Group>
+                                                    <div className='http-client-response-attributes'>
+                                                        <p>Request URL :
+                                                            <span
+                                                                className={cn('attribute-value',
+                                                                this.getStatusCodeClass(this.state.responseCode))}
+                                                            >
+                                                                {this.state.requestUrl}
+                                                            </span>
+                                                        </p>
+                                                        <p>Reponse Code :
+                                                            <span
+                                                                className={cn('attribute-value',
+                                                                    this.getStatusCodeClass(
+                                                                        this.state.responseCode))}
+                                                            >
+                                                                {this.state.responseCode}
+                                                            </span>
+                                                        </p>
+                                                        <p>Request HTTP Method :
+                                                            <span
+                                                                className={cn('attribute-value',
+                                                                    this.getStatusCodeClass(
+                                                                        this.state.responseCode))}
+                                                            >
+                                                                {this.state.responseHttpMethod}
+                                                            </span>
+                                                        </p>
+                                                        <p>Time Consumed :
+                                                            <span
+                                                                className={cn('attribute-value',
+                                                                    this.getStatusCodeClass(
+                                                                        this.state.responseCode))}
+                                                            >
+                                                                {this.state.timeConsumed} ms
+                                                            </span>
+                                                        </p>
+                                                    </div>
                                                     <Form.Group>
                                                         <Form.Field width={16}>
-                                                            <h3> Headers </h3>
-                                                            <Divider />
                                                             <div className='header-content'>
                                                                 <div
                                                                     className='response-headers'
                                                                 >
-                                                                    <h4>Response Headers </h4>
-                                                                    {this.state.responseHeaders.length > 0 ? (
-                                                                        <div>
-                                                                            {
-                                                                                Object.entries(JSON.parse(this.state.responseHeaders)).map(([key, value]) => {
-                                                                                    return (<div className='header-attribute' key={`response-${key}`}>
-                                                                                        <div className='key'>{key}</div>
-                                                                                        :
-                                                                                        <div className='value'>{value}</div>
-                                                                                    </div>);
-                                                                                })}
-                                                                        </div>
-                                                                    ) : (
-                                                                        <Message
-                                                                            warning
-                                                                            list={[
-                                                                                'Hit the send button to see the headers.',
-                                                                            ]}
-                                                                        />
-                                                                    )}
+                                                                    <label htmlFor='reponse-headers'>Response Headers </label>
+                                                                    <div>
+                                                                        {
+                                                                            Object.entries(JSON.parse(this.state.responseHeaders)).map(([key, value]) => {
+                                                                                return (<div className='header-attribute' key={`response-${key}`}>
+                                                                                    <div className='key'>{key}</div>
+                                                                                    :
+                                                                                    <div className='value'>{value}</div>
+                                                                                </div>);
+                                                                            })}
+                                                                    </div>
 
                                                                 </div>
-                                                                <div className='request-headers'>
-                                                                    <h4>Request Headers</h4>
-                                                                    {this.state.returnedRequestHeaders.length > 0 ? (
-                                                                        <div>
-                                                                            {
-                                                                                Object.entries(JSON.parse(this.state.returnedRequestHeaders)).map(([key, value]) => {
-                                                                                    return (<div className='header-attribute' key={`returned-request-${key}`}>
-                                                                                        <div className='key'>{key}</div>
-                                                                                        :
-                                                                                        <div className='value'>{value}</div>
-                                                                                    </div>);
-                                                                                })}
-                                                                        </div>
-                                                                    ) : (
-                                                                        <Message
-                                                                            warning
-                                                                            list={[
-                                                                                'Hit the send button to see the headers.',
-                                                                            ]}
-                                                                        />
-                                                                    )}
+                                                                <label htmlFor='response-body'>Response Body</label>
+                                                                <div className='body-content'>
+                                                                    <AceEditor
+                                                                        mode={this.getResponseBodyMode()}
+                                                                        theme='monokai'
+                                                                        name='ResponseBody'
+                                                                        value={this.state.responseBody}
+                                                                        editorProps={{
+                                                                            $blockScrolling: Infinity,
+                                                                        }}
+                                                                        setOptions={{
+                                                                            showLineNumbers: false,
+                                                                        }}
+                                                                        maxLines={Infinity}
+                                                                        minLines={10}
+                                                                        readOnly
+                                                                        width='auto'
+                                                                        showPrintMargin={false}
+                                                                    />
                                                                 </div>
-                                                            </div>
-                                                        </Form.Field>
-                                                    </Form.Group>
-                                                    <Form.Group>
-                                                        <Form.Field width={16} className='http-client-response-attributes'>
-                                                            <label htmlFor='body-content'>Body</label>
-                                                            <Divider />
-                                                            <div className='body-content'>
-                                                                <AceEditor
-                                                                    mode={this.getResponseBodyMode()}
-                                                                    theme='monokai'
-                                                                    name='ResponseBody'
-                                                                    value={this.state.responseBody}
-                                                                    editorProps={{
-                                                                        $blockScrolling: Infinity,
-                                                                    }}
-                                                                    setOptions={{
-                                                                        showLineNumbers: false,
-                                                                    }}
-                                                                    maxLines={Infinity}
-                                                                    minLines={10}
-                                                                    readOnly
-                                                                    width='auto'
-                                                                    showPrintMargin={false}
-                                                                />
+                                                                <Divider />
+                                                                <div className='request-headers'>
+                                                                    <label htmlFor='response-headers'>Request Headers</label>
+                                                                    <div>
+                                                                        {
+                                                                            Object.entries(JSON.parse(this.state.returnedRequestHeaders)).map(([key, value]) => {
+                                                                                return (<div className='header-attribute' key={`returned-request-${key}`}>
+                                                                                    <div className='key'>{key}</div>
+                                                                                    :
+                                                                                    <div className='value'>{value}</div>
+                                                                                </div>);
+                                                                            })}
+                                                                    </div>
+                                                                </div>
                                                             </div>
                                                         </Form.Field>
                                                     </Form.Group>
                                                 </Form>
-                                            </Segment>
-                                        </Item.Content>
-                                    </div>
-                                </Item>
-                            </Item.Group>
-                        </Grid.Column>
-                    </Grid.Row>
-                </Grid>
-            </Container>);
+                                            ) : (
+                                                <Segment inverted loading={this.state.waitingForResponse} className='response-empty-segment'>
+                                                    <p className='response-empty'>
+                                                        Click Send button to send a request.
+                                                    </p>
+                                                </Segment>
+                                            )
+                                        }
+
+                                    </Segment>
+                                </div>
+                            </Accordion.Content>
+                        </Accordion>
+                    </Segment>
+                </div>
+
+
+            </Container >);
     }
 }
 

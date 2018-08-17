@@ -18,13 +18,17 @@
 package org.ballerinalang.langserver.completion.packageimport;
 
 import com.google.gson.JsonObject;
+import org.ballerinalang.langserver.compiler.workspace.WorkspaceDocumentException;
 import org.ballerinalang.langserver.completion.CompletionTest;
 import org.ballerinalang.langserver.completion.util.FileUtils;
+import org.ballerinalang.langserver.index.LSIndexImpl;
 import org.testng.Assert;
+import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 import java.io.File;
+import java.nio.file.Paths;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -34,6 +38,12 @@ import java.util.concurrent.TimeUnit;
  */
 public class PackageImportDelayTest extends CompletionTest {
     private static final long MAX_DELAY_THRESHOLD = 1L;
+
+    @BeforeClass
+    private void initLSIndex() {
+        String indexDumpPath = Paths.get("target/lang-server-index.sql").toAbsolutePath().toString();
+        LSIndexImpl.getInstance().initFromIndexDump(indexDumpPath);
+    }
 
     @DataProvider(name = "completion-data-provider")
     @Override
@@ -45,8 +55,8 @@ public class PackageImportDelayTest extends CompletionTest {
 
     @Test(dataProvider = "completion-data-provider", enabled = false)
     @Override
-    public void test(String config, String configPath) {
-        String configJsonPath = SAMPLES_COPY_DIR + File.separator + configPath + File.separator + config;
+    public void test(String config, String configPath) throws WorkspaceDocumentException {
+        String configJsonPath = configPath + File.separator + config;
         JsonObject configJsonObject = FileUtils.fileContentAsObject(configJsonPath);
 
         // Allow warmup and caching

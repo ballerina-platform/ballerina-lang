@@ -28,7 +28,7 @@ import java.util.Objects;
  *
  * @since 0.87
  */
-public class ServiceInfo extends StructureTypeInfo {
+public class ServiceInfo extends CustomTypeInfo {
 
     private BServiceType serviceType;
     private int endpointNameCPIndex;

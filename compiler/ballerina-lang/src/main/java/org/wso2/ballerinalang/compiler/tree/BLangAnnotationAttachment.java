@@ -17,6 +17,7 @@
 */
 package org.wso2.ballerinalang.compiler.tree;
 
+import org.ballerinalang.model.elements.AttachPoint;
 import org.ballerinalang.model.tree.AnnotationAttachmentNode;
 import org.ballerinalang.model.tree.IdentifierNode;
 import org.ballerinalang.model.tree.NodeKind;
@@ -38,7 +39,7 @@ public class BLangAnnotationAttachment extends BLangNode implements AnnotationAt
     @Deprecated
     public List<BLangAnnotAttachmentAttribute> attributes;
     public BLangIdentifier annotationName;
-    public BLangAnnotationAttachmentPoint attachmentPoint;
+    public AttachPoint attachPoint;
     public BLangIdentifier pkgAlias;
     public BAnnotationSymbol annotationSymbol;
 
