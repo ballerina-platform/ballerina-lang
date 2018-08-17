@@ -119,9 +119,6 @@
                                         <available file="${ballerina.unit.test.coverage}/${individual.test.report.name}" />
                                         <available file="${ballerina.integration.test.coverage}/${individual.test.report.name}" />
                                         <available file="${ballerina.compiler.plugin.test.coverage}/${individual.test.report.name}" />
-                                        <available file="${siddhi.core.test.coverage}/${individual.test.report.name}" />
-                                        <available file="${siddhi.query.api.test.coverage}/${individual.test.report.name}" />
-                                        <available file="${siddhi.query.compiler.test.coverage}/${individual.test.report.name}" />
                                         <available file="${docerina.test.coverage}/${individual.test.report.name}" />
                                         <available file="${ballerina.metrics.extension.test.coverage}/${individual.test.report.name}" />
                                         <available file="${ballerina.to.swagger.test.coverage}/${individual.test.report.name}" />
@@ -142,15 +139,6 @@
                                                     <include name="${individual.test.report.name}" />
                                                 </fileset>
                                                 <fileset dir="${ballerina.compiler.plugin.test.coverage}">
-                                                    <include name="${individual.test.report.name}" />
-                                                </fileset>
-                                                <fileset dir="${siddhi.core.test.coverage}">
-                                                    <include name="${individual.test.report.name}" />
-                                                </fileset>
-                                                <fileset dir="${siddhi.query.api.test.coverage}">
-                                                    <include name="${individual.test.report.name}" />
-                                                </fileset>
-                                                <fileset dir="${siddhi.query.compiler.test.coverage}">
                                                     <include name="${individual.test.report.name}" />
                                                 </fileset>
                                                 <fileset dir="${docerina.test.coverage}">
@@ -175,10 +163,6 @@
                                                         <fileset dir="${basedir}/../../bvm/ballerina-config/target/classes" />
                                                         <fileset dir="${basedir}/../../bvm/ballerina-core/target/classes" />
                                                         <fileset dir="${basedir}/../../bvm/ballerina-logging/target/classes" />
-                                                        <fileset dir="${basedir}/../../bvm/ballerina-streaming/siddhi-annotations/target/classes" />
-                                                        <fileset dir="${basedir}/../../bvm/ballerina-streaming/siddhi-core/target/classes" />
-                                                        <fileset dir="${basedir}/../../bvm/ballerina-streaming/siddhi-query-api/target/classes" />
-                                                        <fileset dir="${basedir}/../../bvm/ballerina-streaming/siddhi-query-compiler/target/classes" />
                                                         <fileset dir="${basedir}/../../cli/ballerina-cli-utils/target/classes" />
                                                         <fileset dir="${basedir}/../../cli/ballerina-launcher/target/classes" />
                                                         <fileset dir="${basedir}/../../cli/ballerina-packerina/target/classes" />
@@ -226,10 +210,6 @@
                                                         <fileset dir="${basedir}/../../bvm/ballerina-config/src/main/java" />
                                                         <fileset dir="${basedir}/../../bvm/ballerina-core/src/main/java" />
                                                         <fileset dir="${basedir}/../../bvm/ballerina-logging/src/main/java" />
-                                                        <fileset dir="${basedir}/../../bvm/ballerina-streaming/siddhi-annotations/src/main/java" />
-                                                        <fileset dir="${basedir}/../../bvm/ballerina-streaming/siddhi-core/src/main/java" />
-                                                        <fileset dir="${basedir}/../../bvm/ballerina-streaming/siddhi-query-api/src/main/java" />
-                                                        <fileset dir="${basedir}/../../bvm/ballerina-streaming/siddhi-query-compiler/src/main/java" />
                                                         <fileset dir="${basedir}/../../cli/ballerina-cli-utils/src/main/java" />
                                                         <fileset dir="${basedir}/../../cli/ballerina-launcher/src/main/java" />
                                                         <fileset dir="${basedir}/../../cli/ballerina-packerina/src/main/java" />
@@ -313,9 +293,6 @@
         <ballerina.unit.test.coverage>${basedir}/../ballerina-unit-test/target/coverage-reports</ballerina.unit.test.coverage>
         <ballerina.integration.test.coverage>${basedir}/../ballerina-integration-test/target/coverage-reports</ballerina.integration.test.coverage>
         <ballerina.compiler.plugin.test.coverage>${basedir}/../ballerina-compiler-plugin-test/target/coverage-reports</ballerina.compiler.plugin.test.coverage>
-        <siddhi.core.test.coverage>${basedir}/../../bvm/ballerina-streaming/siddhi-core/target/coverage-reports</siddhi.core.test.coverage>
-        <siddhi.query.api.test.coverage>${basedir}/../../bvm/ballerina-streaming/siddhi-query-api/target/coverage-reports</siddhi.query.api.test.coverage>
-        <siddhi.query.compiler.test.coverage>${basedir}/../../bvm/ballerina-streaming/siddhi-query-api/target/coverage-reports</siddhi.query.compiler.test.coverage>
         <docerina.test.coverage>${basedir}/../../misc/docerina/target/coverage-reports</docerina.test.coverage>
         <ballerina.metrics.extension.test.coverage>${basedir}/../../misc/metrics-extensions/modules/ballerina-metrics-extension/target/coverage-reports</ballerina.metrics.extension.test.coverage>
         <ballerina.to.swagger.test.coverage>${basedir}/../../misc/swagger-ballerina/modules/ballerina-to-swagger/target/coverage-reports</ballerina.to.swagger.test.coverage>
