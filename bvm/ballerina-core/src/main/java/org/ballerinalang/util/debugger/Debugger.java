@@ -433,37 +433,36 @@ public class Debugger {
      * @return Constructed global variable.
      */
     public static VariableDTO constructGlobalVariable(WorkerExecutionContext ctx, PackageVarInfo packVarInfo) {
-        int pkgIndex = ctx.callableUnitInfo.getPackageInfo().pkgIndex;
-        VariableDTO variableDTO = new VariableDTO(packVarInfo.getName(), GLOBAL);
+        int pkgIndex = ctx.callableUnitInfo.getPackageInfo().pkgIndex;VariableDTO variableDTO = new VariableDTO(packVarInfo.getName(), GLOBAL);
+                switch (packVarInfo.getType().getTag()) {
+                    case TypeTags.INT_TAG:
+                        variableDTO.setBValue(new BInteger(ctx.programFile.globalMemArea.getIntField(pkgIndex,
+                                packVarInfo.getGlobalMemIndex())));
+                        break;
+                    case TypeTags.BYTE_TAG:
+                        variableDTO.setBValue(new BByte((byte) (ctx.programFile.globalMemArea.getBooleanField(pkgIndex,
+                                packVarInfo.getGlobalMemIndex()))));
+                        break;
+                    case TypeTags.FLOAT_TAG:
+                        variableDTO.setBValue(new BFloat(ctx.programFile.globalMemArea.getFloatField(pkgIndex,
+                                packVarInfo.getGlobalMemIndex())));
+                        break;
+                    case TypeTags.STRING_TAG:
+                        variableDTO.setBValue(new BString(ctx.programFile.globalMemArea.getStringField(pkgIndex,
+                                packVarInfo.getGlobalMemIndex())));
+                        break;
+                    case TypeTags.BOOLEAN_TAG:
+                        variableDTO.setBValue(new BBoolean(ctx.programFile.globalMemArea.getBooleanField(pkgIndex,
+                                packVarInfo.getGlobalMemIndex()) == 1));
+                        break;
+                    default:
+                        variableDTO.setBValue(ctx.programFile.globalMemArea.getRefField(pkgIndex,
+                                packVarInfo.getGlobalMemIndex()));
+                        break;
+                }
+                returnvariableDTO;
+            }
 
-        switch (packVarInfo.getType().getTag()) {
-            case TypeTags.INT_TAG:
-                variableDTO.setBValue(new BInteger(ctx.programFile.globalMemArea.getIntField(pkgIndex,
-                        packVarInfo.getGlobalMemIndex())));
-                break;
-            case TypeTags.BYTE_TAG:
-                variableDTO.setBValue(new BByte((byte) (ctx.programFile.globalMemArea.getBooleanField(pkgIndex,
-                        packVarInfo.getGlobalMemIndex()))));
-                break;
-            case TypeTags.FLOAT_TAG:
-                variableDTO.setBValue(new BFloat(ctx.programFile.globalMemArea.getFloatField(pkgIndex,
-                        packVarInfo.getGlobalMemIndex())));
-                break;
-            case TypeTags.STRING_TAG:
-                variableDTO.setBValue(new BString(ctx.programFile.globalMemArea.getStringField(pkgIndex,
-                        packVarInfo.getGlobalMemIndex())));
-                break;
-            case TypeTags.BOOLEAN_TAG:
-                variableDTO.setBValue(new BBoolean(ctx.programFile.globalMemArea.getBooleanField(pkgIndex,
-                        packVarInfo.getGlobalMemIndex()) == 1));
-                break;
-            default:
-                variableDTO.setBValue(ctx.programFile.globalMemArea.getRefField(pkgIndex,
-                        packVarInfo.getGlobalMemIndex()));
-                break;
-        }
-        return variableDTO;
-    }
 
     /**
      * Method to construct a @{@link VariableDTO} that represents a local variable.
