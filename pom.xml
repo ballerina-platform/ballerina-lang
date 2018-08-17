@@ -792,6 +792,11 @@
             </dependency>
             <dependency>
                 <groupId>org.ballerinalang</groupId>
+                <artifactId>ballerina-backend-llvm</artifactId>
+                <version>${ballerina.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.ballerinalang</groupId>
                 <artifactId>ballerina-launcher</artifactId>
                 <version>${ballerina.version}</version>
             </dependency>
@@ -1640,7 +1645,7 @@
                 <module>bvm/ballerina-logging</module>
                 <module>cli/ballerina-launcher</module>
                 <module>cli/ballerina-packerina</module>
-                <module>compiler/llvm-backend</module>
+                <module>compiler/ballerina-backend-llvm</module>
 
                 <!--Should Run Before tests/ballerina-test-->
                 <module>misc/protobuf-ballerina</module>
@@ -1721,7 +1726,7 @@
                 <module>bvm/ballerina-logging</module>
                 <module>cli/ballerina-launcher</module>
                 <module>cli/ballerina-packerina</module>
-                <module>compiler/llvm-backend</module>
+                <module>compiler/ballerina-backend-llvm</module>
 
                 <!--Should Run Before tests/ballerina-test-->
                 <module>misc/protobuf-ballerina</module>
@@ -1799,7 +1804,7 @@
                 <module>bvm/ballerina-logging</module>
                 <module>cli/ballerina-launcher</module>
                 <module>cli/ballerina-packerina</module>
-                <module>compiler/llvm-backend</module>
+                <module>compiler/ballerina-backend-llvm</module>
 
                 <!--Should Run Before tests/ballerina-test-->
                 <module>misc/protobuf-ballerina</module>
