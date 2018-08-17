@@ -48,11 +48,12 @@ public class BallerinaResolveFunctionTest extends BallerinaResolveTestBase {
         doFileTest(function);
     }
 
-//    public void testFunctionInDifferentPackageInvokeInFunction() throws IOException {
-//        doFileTest(function, "org/test/test.bal");
-//    }
-//
-//    public void testFunctionInDifferentPackageInvokeInService() throws IOException {
-//        doFileTest(function, "org/test/test.bal");
-//    }
+    //TODO: Uncomment after fixing resolving issue
+    //    public void testFunctionInDifferentPackageInvokeInFunction() throws IOException {
+    //        doFileTest(function, "org/test/test.bal");
+    //    }
+    //
+    //    public void testFunctionInDifferentPackageInvokeInService() throws IOException {
+    //        doFileTest(function, "org/test/test.bal");
+    //    }
 }

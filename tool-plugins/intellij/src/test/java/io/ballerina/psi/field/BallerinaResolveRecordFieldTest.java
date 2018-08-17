@@ -21,12 +21,12 @@ import io.ballerina.psi.BallerinaResolveTestBase;
 import java.io.IOException;
 
 /**
- * Test resolving struct fields.
+ * Test resolving record fields.
  */
 public class BallerinaResolveRecordFieldTest extends BallerinaResolveTestBase {
 
-    private String struct = "public type testRecord record {\n    string /*def*/s;\n}";
-    private String struct2 =
+    private String record1 = "public type testRecord record {\n    string /*def*/s;\n}";
+    private String record2 =
             "public type Name record {\n    string firstName;\n}\npublic type Person record " + "{\n    Name "
                     + "/*def*/name;\n}";
 
@@ -68,67 +68,67 @@ public class BallerinaResolveRecordFieldTest extends BallerinaResolveTestBase {
     }
 
     public void testSingleLevelFieldInDifferentFileAccessInFunction1() throws IOException {
-        doFileTest(struct);
+        doFileTest(record1);
     }
 
     public void testSingleLevelFieldInDifferentFileAccessInFunction2() throws IOException {
-        doFileTest(struct);
+        doFileTest(record1);
     }
 
     public void testSingleLevelFieldInDifferentFileAccessInService1() throws IOException {
-        doFileTest(struct);
+        doFileTest(record1);
     }
 
     public void testSingleLevelFieldInDifferentFileAccessInService2() throws IOException {
-        doFileTest(struct);
+        doFileTest(record1);
     }
 
     public void testMultiLevelFieldInDifferentFileAccessInFunction1() throws IOException {
-        doFileTest(struct2);
+        doFileTest(record2);
     }
 
     public void testMultiLevelFieldInDifferentFileAccessInFunction2() throws IOException {
-        doFileTest(struct2);
+        doFileTest(record2);
     }
 
     public void testMultiLevelFieldInDifferentFileAccessInService1() throws IOException {
-        doFileTest(struct2);
+        doFileTest(record2);
     }
 
     public void testMultiLevelFieldInDifferentFileAccessInService2() throws IOException {
-        doFileTest(struct2);
+        doFileTest(record2);
     }
 
     //TODO: Uncomment after fixing
-    //    public void testSingleLevelFieldInDifferentPackageAccessInFunction1() throws IOException {
-    //        doFileTest(struct, "org/test/test.bal");
-    //    }
+//        public void testSingleLevelFieldInDifferentPackageAccessInFunction1() throws IOException {
+    //            doFileTest(record2, "org/test/test.bal");
+    //        }
     //
-    //    public void testSingleLevelFieldInDifferentPackageAccessInFunction2() throws IOException {
-    //        doFileTest(struct, "org/test/test.bal");
-    //    }
+    //        public void testSingleLevelFieldInDifferentPackageAccessInFunction2() throws IOException {
+    //            doFileTest(record2, "org/test/test.bal");
+    //        }
     //
-    //    public void testSingleLevelFieldInDifferentPackageAccessInService1() throws IOException {
-    //        doFileTest(struct, "org/test/test.bal");
-    //    }
+    //        public void testSingleLevelFieldInDifferentPackageAccessInService1() throws IOException {
+    //            doFileTest(record2, "org/test/test.bal");
+    //        }
     //
-    //    public void testSingleLevelFieldInDifferentPackageAccessInService2() throws IOException {
-    //        doFileTest(struct, "org/test/test.bal");
-    //    }
+    //        public void testSingleLevelFieldInDifferentPackageAccessInService2() throws IOException {
+    //            doFileTest(record2, "org/test/test.bal");
+    //        }
     //
-    //    public void testMultiLevelFieldInDifferentPackageAccessInFunction1() throws IOException {
-    //        doFileTest(struct2, "org/test/test.bal");
-    //    }
+    //        public void testMultiLevelFieldInDifferentPackageAccessInFunction1() throws IOException {
+    //            doFileTest(record2, "org/test/test.bal");
+    //        }
     //
-    //    public void testMultiLevelFieldInDifferentPackageAccessInFunction2() throws IOException {
-    //        doFileTest(struct2, "org/test/test.bal");
-    //    }
+    //        public void testMultiLevelFieldInDifferentPackageAccessInFunction2() throws IOException {
+    //            doFileTest(record2, "org/test/test.bal");
+    //        }
     //
-    //    public void testMultiLevelFieldInDifferentPackageAccessInService1() throws IOException {
-    //        doFileTest(struct2, "org/test/test.bal");
-    //    }
+    //        public void testMultiLevelFieldInDifferentPackageAccessInService1() throws IOException {
+    //            doFileTest(record2, "org/test/test.bal");
+    //        }
     //
-    //    public void testMultiLevelFieldInDifferentPackageAccessInService2() throws IOException {
-    //        doFileTest(struct2, "org/test/test.bal");
-    //    }
+    //        public void testMultiLevelFieldInDifferentPackageAccessInService2() throws IOException {
+    //            doFileTest(record2, "org/test/test.bal");
+    //        }
 }

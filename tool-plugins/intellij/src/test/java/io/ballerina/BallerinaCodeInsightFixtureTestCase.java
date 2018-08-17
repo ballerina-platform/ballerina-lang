@@ -36,6 +36,8 @@ import java.io.File;
  */
 public abstract class BallerinaCodeInsightFixtureTestCase extends LightPlatformCodeInsightFixtureTestCase {
 
+    private static String MOCK_SDK_VERSION = "0.981.0";
+
     protected static String getTestDataPath(String path) {
         return "src/test/resources/testData/" + path;
     }
@@ -47,7 +49,7 @@ public abstract class BallerinaCodeInsightFixtureTestCase extends LightPlatformC
             @NotNull
             @Override
             public Sdk getSdk() {
-                return createMockSdk("0.95.4");
+                return createMockSdk(MOCK_SDK_VERSION);
             }
 
             @NotNull
