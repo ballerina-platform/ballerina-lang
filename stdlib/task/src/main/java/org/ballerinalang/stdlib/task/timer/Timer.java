@@ -19,13 +19,11 @@
 package org.ballerinalang.stdlib.task.timer;
 
 import org.ballerinalang.bre.Context;
-import org.ballerinalang.model.NativeCallableUnit;
 import org.ballerinalang.stdlib.task.SchedulingException;
 import org.ballerinalang.stdlib.task.TaskExecutor;
 import org.ballerinalang.stdlib.task.TaskIdGenerator;
 import org.ballerinalang.stdlib.task.TaskRegistry;
 import org.ballerinalang.util.codegen.FunctionInfo;
-import org.ballerinalang.util.codegen.ProgramFile;
 
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -41,7 +39,6 @@ public class Timer {
     /**
      * Triggers the timer.
      *
-     * @param fn                Trigger function
      * @param ctx               The ballerina context.
      * @param delay             The initial delay.
      * @param interval          The interval between two task executions.
@@ -49,7 +46,7 @@ public class Timer {
      * @param onErrorFunction   The function which will be triggered in the error situation.
      * @throws SchedulingException if cannot create the scheduler
      */
-    public Timer(NativeCallableUnit fn, Context ctx, long delay, long interval,
+    public Timer(Context ctx, long delay, long interval,
                  FunctionInfo onTriggerFunction,
                  FunctionInfo onErrorFunction) throws SchedulingException {
 
@@ -58,7 +55,7 @@ public class Timer {
         }
 
         final Runnable schedulerFunc = () -> {
-            callTriggerFunction(fn, ctx, onTriggerFunction, onErrorFunction);
+            callTriggerFunction(ctx, onTriggerFunction, onErrorFunction);
         };
         
         executorService.scheduleWithFixedDelay(schedulerFunc, delay, interval, TimeUnit.MILLISECONDS);
@@ -73,11 +70,9 @@ public class Timer {
      * @param onTriggerFunction The main function which will be triggered by the task.
      * @param onErrorFunction   The function which will be triggered in the error situation.
      */
-    private static void callTriggerFunction(NativeCallableUnit fn, Context parentCtx,
-                                            FunctionInfo onTriggerFunction,
+    private static void callTriggerFunction(Context parentCtx, FunctionInfo onTriggerFunction,
                                             FunctionInfo onErrorFunction) {
-        ProgramFile programFile = parentCtx.getProgramFile();
-        TaskExecutor.execute(fn, parentCtx, onTriggerFunction, onErrorFunction, programFile);
+        TaskExecutor.execute(parentCtx, onTriggerFunction, onErrorFunction);
     }
 
     public String getId() {

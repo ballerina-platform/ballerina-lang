@@ -70,8 +70,7 @@ public class Start extends BlockingNativeCallableUnit {
         }
 
         try {
-            Timer timer =
-                    new Timer(this, ctx, delay, interval, onTriggerFunctionRef, onErrorFunctionRef);
+            Timer timer = new Timer(ctx, delay, interval, onTriggerFunctionRef, onErrorFunctionRef);
             task.put(TIMER_TASK_ID_FIELD, new BString(timer.getId()));
             task.put(TIMER_IS_RUNNING_FIELD, new BBoolean(true));
         } catch (SchedulingException e) {

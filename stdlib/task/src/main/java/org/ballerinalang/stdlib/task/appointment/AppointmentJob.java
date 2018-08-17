@@ -19,10 +19,8 @@
 package org.ballerinalang.stdlib.task.appointment;
 
 import org.ballerinalang.bre.Context;
-import org.ballerinalang.model.NativeCallableUnit;
 import org.ballerinalang.stdlib.task.TaskExecutor;
 import org.ballerinalang.util.codegen.FunctionInfo;
-import org.ballerinalang.util.codegen.ProgramFile;
 import org.quartz.Job;
 import org.quartz.JobDataMap;
 import org.quartz.JobExecutionContext;
@@ -39,8 +37,6 @@ public class AppointmentJob implements Job {
     @Override
     public void execute(JobExecutionContext jobExecutionContext) throws JobExecutionException {
         JobDataMap jobDataMap = jobExecutionContext.getMergedJobDataMap();
-        NativeCallableUnit fn =
-                (NativeCallableUnit) jobDataMap.get(AppointmentConstants.BALLERINA_FUNCTION);
         Context balParentContext =
                 (Context) jobDataMap.get(AppointmentConstants.BALLERINA_PARENT_CONTEXT);
         FunctionInfo onTriggerFunction =
@@ -48,7 +44,6 @@ public class AppointmentJob implements Job {
         FunctionInfo onErrorFunction =
                 (FunctionInfo) jobDataMap.get(AppointmentConstants.BALLERINA_ON_ERROR_FUNCTION);
 
-        ProgramFile programFile = balParentContext.getProgramFile();
-        TaskExecutor.execute(fn, balParentContext, onTriggerFunction, onErrorFunction, programFile);
+        TaskExecutor.execute(balParentContext, onTriggerFunction, onErrorFunction);
     }
 }
