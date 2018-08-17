@@ -29,8 +29,21 @@ import org.ballerinalang.util.debugger.dto.VariableDTO;
 import java.util.Arrays;
 import java.util.List;
 
+/**
+ * {@code ExpressionEvaluator} Handles expression evaluation related actions.
+ *
+ * @since 0.981
+ */
 public class ExpressionEvaluator {
 
+    /**
+     * Method to evaluate a variable.
+     *
+     * @param ctx             Current worker execution context.
+     * @param currentExecLine Current execution line.
+     * @param variableName    Name of the variable to be evaluated.
+     * @return Evaluated results.
+     */
     public String evaluateVariable(WorkerExecutionContext ctx, LineNumberInfo currentExecLine, String variableName) {
         int currentExecLineNum = currentExecLine.getLineNumber();
 
