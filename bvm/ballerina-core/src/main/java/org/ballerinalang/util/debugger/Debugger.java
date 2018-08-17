@@ -413,7 +413,6 @@ public class Debugger {
         localVarAttrInfo.getLocalVariables().forEach(variableInfo -> {
             // TODO: Need to change the 'contains' logic, if we allow user-defined variable names to have '$'
             if (!variableInfo.getVariableName().contains(META_DATA_VAR_PATTERN)) {
-
                 VariableDTO variableDTO = constructLocalVariable(ctx, variableInfo);
 
                 // Show only the variables within the current scope
