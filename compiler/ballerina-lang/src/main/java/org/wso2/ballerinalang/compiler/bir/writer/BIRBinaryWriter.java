@@ -19,6 +19,7 @@ package org.wso2.ballerinalang.compiler.bir.writer;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
+import org.ballerinalang.compiler.BLangCompilerException;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRBasicBlock;
 import org.wso2.ballerinalang.compiler.bir.writer.CPEntry.IntegerCPEntry;
@@ -27,8 +28,8 @@ import org.wso2.ballerinalang.compiler.bir.writer.CPEntry.StringCPEntry;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 
+import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
@@ -44,7 +45,7 @@ public class BIRBinaryWriter {
 
     private ConstantPool cp = new ConstantPool();
 
-    public void write(BIRNode.BIRPackage birPackage, FileOutputStream out) throws IOException {
+    public byte[] write(BIRNode.BIRPackage birPackage) {
         ByteBuf birbuf = Unpooled.buffer();
 
         // Write the package details in the form of constant pool entry
@@ -60,11 +61,16 @@ public class BIRBinaryWriter {
         // Write the constant pool entries.
         // TODO Only one constant pool is available for now. This will change in future releases
         // TODO e.g., strtab, shstrtab, rodata.
-        DataOutputStream dataOut = new DataOutputStream(out);
-        dataOut.write(BIR_MAGIC);
-        dataOut.writeInt(BIR_VERSION);
-        writeCP(dataOut);
-        out.write(birbuf.nioBuffer().array(), 0, birbuf.nioBuffer().limit());
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        try (DataOutputStream dataOut = new DataOutputStream(baos)) {
+            dataOut.write(BIR_MAGIC);
+            dataOut.writeInt(BIR_VERSION);
+            writeCP(dataOut);
+            dataOut.write(birbuf.nioBuffer().array(), 0, birbuf.nioBuffer().limit());
+            return baos.toByteArray();
+        } catch (IOException e) {
+            throw new BLangCompilerException("failed to serialize the bir", e);
+        }
     }
 
     // private methods
