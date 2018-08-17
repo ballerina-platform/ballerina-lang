@@ -28,6 +28,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BIterableTypeVisitor;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BJSONType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BMapType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
@@ -370,6 +371,23 @@ public class IterableAnalyzer {
         }
 
         @Override
+        public List<BType> visit(BRecordType type, Operation op) {
+            if (op.arity < 2) {
+                if (op.arity == 1 && (op.kind == IterableKind.SUM || op.kind == IterableKind.COUNT ||
+                        op.kind == IterableKind.AVERAGE || op.kind == IterableKind.MAX ||
+                        op.kind == IterableKind.MIN)) {
+                    return Lists.of(symTable.anyType);
+                }
+                logNotEnoughVariablesError(op, 2);
+                return Lists.of(symTable.errType);
+            } else if (op.arity == 2) {
+                return Lists.of(symTable.stringType, symTable.anyType);
+            }
+            logTooMayVariablesError(op);
+            return Lists.of(symTable.errType);
+        }
+
+        @Override
         public List<BType> visit(BIntermediateCollectionType collectionType, Operation op) {
             BTupleType type = collectionType.tupleType;
             if (type.tupleTypes.size() == op.arity) {
@@ -518,6 +536,11 @@ public class IterableAnalyzer {
                 // Convert result into a map.
                 context.resultType = new BMapType(TypeTags.MAP, tupleType.tupleTypes.get(1), null);
                 return;
+            } else if (expectedType.tag == TypeTags.RECORD && tupleType.tupleTypes.size() == 2
+                    && tupleType.tupleTypes.get(0).tag == TypeTags.STRING) {
+                // Convert result into a record
+                context.resultType = context.collectionExpr.type;
+                return;
             } else if (expectedType.tag == TypeTags.TABLE) {
                 // expectedTypes hold the types of expected return values (types of references) of the iterable
                 // function call.
@@ -532,7 +555,8 @@ public class IterableAnalyzer {
                     context.resultType = symTable.tableType;
                 } else {
                     context.resultType = types.checkType(lastOperation.pos, outputType,
-                            ((BTableType) expectedType).constraint, DiagnosticCode.INCOMPATIBLE_TYPES);
+                                                         ((BTableType) expectedType).constraint,
+                                                         DiagnosticCode.INCOMPATIBLE_TYPES);
                 }
                 return;
             } else if (expectedType.tag == TypeTags.TUPLE) {

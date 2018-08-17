@@ -20,6 +20,7 @@ package org.wso2.ballerinalang.compiler.semantics.analyzer;
 import org.ballerinalang.model.TreeBuilder;
 import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.symbols.SymbolKind;
+import org.ballerinalang.util.diagnostic.Diagnostic;
 import org.ballerinalang.util.diagnostic.DiagnosticCode;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAttachedFunction;
@@ -462,6 +463,17 @@ public class Types {
                 } else {
                     maxSupportedTypes = 1;
                     errorTypes = Lists.of(tableType.constraint);
+                }
+                break;
+            case TypeTags.RECORD:
+                if (variableSize == 1) {
+                    dlog.error(collection.pos, DiagnosticCode.ITERABLE_REQUIRES_N_VARIABLES, collectionType, 2);
+                    return Lists.of(symTable.errType);
+                } else if (variableSize == 2) {
+                    return Lists.of(symTable.stringType, symTable.anyType);
+                } else {
+                    maxSupportedTypes = 2;
+                    errorTypes = Lists.of(symTable.stringType, symTable.anyType);
                 }
                 break;
             case TypeTags.ERROR:

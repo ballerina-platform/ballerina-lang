@@ -139,6 +139,11 @@ public abstract class BIterableTypeVisitor implements BTypeVisitor<Operation, Li
         }
 
         @Override
+        public List<BType> visit(BRecordType t, Operation operation) {
+            return Lists.of(calculateType(operation, t));
+        }
+
+        @Override
         public List<BType> visit(BXMLType t, Operation operation) {
             return Lists.of(calculateType(operation, t));
         }

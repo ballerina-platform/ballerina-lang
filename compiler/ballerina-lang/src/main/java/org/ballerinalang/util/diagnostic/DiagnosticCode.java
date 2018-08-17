@@ -231,6 +231,7 @@ public enum DiagnosticCode {
     ITERABLE_NOT_SUPPORTED_OPERATION("iterable.not.supported.operation"),
     ITERABLE_TOO_MANY_VARIABLES("iterable.too.many.variables"),
     ITERABLE_NOT_ENOUGH_VARIABLES("iterable.not.enough.variables"),
+    ITERABLE_REQUIRES_N_VARIABLES("iterable.requires.n.variables"),
     ITERABLE_TOO_MANY_RETURN_VARIABLES("iterable.too.many.return.args"),
     ITERABLE_NOT_ENOUGH_RETURN_VARIABLES("iterable.not.enough.return.args"),
     ITERABLE_LAMBDA_REQUIRED("iterable.lambda.required"),

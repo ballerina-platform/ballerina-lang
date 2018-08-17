@@ -412,6 +412,7 @@ public class IterableCodeDesugar {
                 defStmt.var.expr = arrayInit;
                 break;
             case TypeTags.MAP:
+            case TypeTags.RECORD:
                 defStmt.var.expr = ASTBuilderUtil.createEmptyRecordLiteral(pos, ctx.resultType);
                 break;
             case TypeTags.TABLE:
@@ -452,6 +453,7 @@ public class IterableCodeDesugar {
                 generateArrayAggregator(blockStmt, ctx);
                 return;
             case TypeTags.MAP:
+            case TypeTags.RECORD:
                 generateMapAggregator(blockStmt, ctx);
                 return;
             case TypeTags.TABLE:
