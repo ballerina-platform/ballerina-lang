@@ -412,3 +412,11 @@ function testGetAnyStreamAsString(io:ByteChannel byteChannel, string contentType
     return entity.getBodyAsString();
 }
 
+function testByteArrayWithContentType(io:ByteChannel byteChannel, string contentTypeValue) returns byte[]|error {
+    mime:Entity entity = new;
+    entity.setByteChannel(byteChannel, contentType = contentTypeValue);
+    //First time the json will be constructed from the byte channel
+    json firstTime =  check entity.getJson();
+    //Then get the body as byte[]
+    return entity.getByteArray();
+}

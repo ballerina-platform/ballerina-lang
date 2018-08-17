@@ -46,6 +46,7 @@ import org.ballerinalang.net.http.HttpUtil;
 import org.ballerinalang.stdlib.io.channels.base.Channel;
 import org.ballerinalang.test.services.testutils.HTTPTestRequest;
 import org.ballerinalang.test.services.testutils.MessageUtils;
+import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.carbon.messaging.Header;
@@ -133,11 +134,7 @@ public class Util {
      */
     static BMap<String, BValue> getTextFilePart(CompileResult result) {
         try {
-            File file = File.createTempFile("test", ".txt");
-            file.deleteOnExit();
-            BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(file));
-            bufferedWriter.write("Ballerina text as a file part");
-            bufferedWriter.close();
+            File file = getTemporaryFile("test", ".txt", "Ballerina text as a file part");
             BMap<String, BValue> bodyPart = getEntityStruct(result);
             bodyPart.addNativeData(ENTITY_BYTE_CHANNEL, EntityBodyHandler.getByteChannelForTempFile(
                     file.getAbsolutePath()));
@@ -161,11 +158,7 @@ public class Util {
     static BMap<String, BValue> getTextFilePartWithEncoding(String contentTransferEncoding, String message,
                                                             CompileResult result) {
         try {
-            File file = File.createTempFile("test", ".txt");
-            file.deleteOnExit();
-            BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(file));
-            bufferedWriter.write(message);
-            bufferedWriter.close();
+            File file = getTemporaryFile("test", ".txt", message);
             BMap<String, BValue> bodyPart = getEntityStruct(result);
             bodyPart.addNativeData(ENTITY_BYTE_CHANNEL, EntityBodyHandler.getByteChannelForTempFile(
                     file.getAbsolutePath()));
@@ -205,11 +198,7 @@ public class Util {
      */
     static BMap<String, BValue> getJsonFilePart(CompileResult result) {
         try {
-            File file = File.createTempFile("test", ".json");
-            file.deleteOnExit();
-            BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(file));
-            bufferedWriter.write("{'name':'wso2'}");
-            bufferedWriter.close();
+            File file = getTemporaryFile("test", ".json", "{'name':'wso2'}");
             BMap<String, BValue> bodyPart = getEntityStruct(result);
             bodyPart.addNativeData(ENTITY_BYTE_CHANNEL, EntityBodyHandler.getByteChannelForTempFile(
                     file.getAbsolutePath()));
@@ -246,11 +235,7 @@ public class Util {
      */
     static BMap<String, BValue> getXmlFilePart(CompileResult result) {
         try {
-            File file = File.createTempFile("test", ".xml");
-            file.deleteOnExit();
-            BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(file));
-            bufferedWriter.write("<name>Ballerina xml file part</name>");
-            bufferedWriter.close();
+            File file = getTemporaryFile("test", ".xml", "<name>Ballerina xml file part</name>");
             BMap<String, BValue> bodyPart = getEntityStruct(result);
             bodyPart.addNativeData(ENTITY_BYTE_CHANNEL, EntityBodyHandler.getByteChannelForTempFile(
                     file.getAbsolutePath()));
@@ -285,11 +270,7 @@ public class Util {
      */
     static BMap<String, BValue> getBinaryFilePart(CompileResult result) {
         try {
-            File file = File.createTempFile("test", ".tmp");
-            file.deleteOnExit();
-            BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(file));
-            bufferedWriter.write("Ballerina binary file part");
-            bufferedWriter.close();
+            File file = getTemporaryFile("test", ".tmp", "Ballerina binary file part");
             BMap<String, BValue> bodyPart = getEntityStruct(result);
             bodyPart.addNativeData(ENTITY_BYTE_CHANNEL, EntityBodyHandler.getByteChannelForTempFile(
                     file.getAbsolutePath()));
@@ -441,7 +422,7 @@ public class Util {
     private static void prepareRequestWithMultiparts(HttpCarbonMessage outboundRequest,
                                                      BMap<String, BValue> requestStruct) {
         BMap<String, BValue> entityStruct = requestStruct.get(REQUEST_ENTITY_FIELD) != null ?
-                                (BMap<String, BValue>) requestStruct.get(REQUEST_ENTITY_FIELD) : null;
+                (BMap<String, BValue>) requestStruct.get(REQUEST_ENTITY_FIELD) : null;
         if (entityStruct != null) {
             BRefValueArray bodyParts = entityStruct.getNativeData(BODY_PARTS) != null ?
                     (BRefValueArray) entityStruct.getNativeData(BODY_PARTS) : null;
@@ -627,5 +608,15 @@ public class Util {
 
     public static BMap<String, BValue> getByteChannelStruct(CompileResult result) {
         return BCompileUtil.createAndGetStruct(result.getProgFile(), PROTOCOL_PACKAGE_IO, BYTE_CHANNEL_STRUCT);
+    }
+
+    @NotNull
+    static File getTemporaryFile(String fileName, String fileType, String valueTobeWritten) throws IOException {
+        File file = File.createTempFile(fileName, fileType);
+        file.deleteOnExit();
+        BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(file));
+        bufferedWriter.write(valueTobeWritten);
+        bufferedWriter.close();
+        return file;
     }
 }
