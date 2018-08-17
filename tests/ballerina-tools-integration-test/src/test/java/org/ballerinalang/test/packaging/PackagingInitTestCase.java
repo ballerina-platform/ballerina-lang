@@ -17,7 +17,6 @@
  */
 package org.ballerinalang.test.packaging;
 
-import org.ballerinalang.test.IntegrationTestCase;
 import org.ballerinalang.test.context.BallerinaTestException;
 import org.ballerinalang.test.context.Constant;
 import org.ballerinalang.test.context.LogLeecher;
@@ -41,7 +40,7 @@ import java.util.Map;
 /**
  * Testing init, build with tests and run on a ballerina project.
  */
-public class PackagingInitTestCase extends IntegrationTestCase {
+public class PackagingInitTestCase {
     private String serverZipPath;
     private Path tempProjectDirectory;
 

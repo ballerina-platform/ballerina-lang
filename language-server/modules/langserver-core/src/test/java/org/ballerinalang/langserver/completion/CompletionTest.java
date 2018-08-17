@@ -19,6 +19,8 @@ package org.ballerinalang.langserver.completion;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
+import org.ballerinalang.langserver.compiler.LSCompiler;
+import org.ballerinalang.langserver.compiler.workspace.WorkspaceDocumentException;
 import org.ballerinalang.langserver.compiler.workspace.WorkspaceDocumentManager;
 import org.ballerinalang.langserver.completion.util.CompletionTestUtil;
 import org.ballerinalang.langserver.completion.util.FileUtils;
@@ -33,6 +35,7 @@ import org.testng.annotations.Test;
 import org.testng.log4testng.Logger;
 
 import java.io.File;
+import java.nio.file.Path;
 import java.util.List;
 
 /**
@@ -43,7 +46,7 @@ public abstract class CompletionTest {
     private static final Logger LOGGER = Logger.getLogger(CompletionTest.class);
 
     @Test(dataProvider = "completion-data-provider")
-    public void test(String config, String configPath) {
+    public void test(String config, String configPath) throws WorkspaceDocumentException {
         String configJsonPath = "completion" + File.separator + configPath + File.separator + config;
         JsonObject configJsonObject = FileUtils.fileContentAsObject(configJsonPath);
         List<CompletionItem> responseItemList = getResponseItemList(configJsonObject);
@@ -51,18 +54,24 @@ public abstract class CompletionTest {
         Assert.assertTrue(CompletionTestUtil.isSubList(expectedList, responseItemList));
     }
 
-    protected List<CompletionItem> getResponseItemList(JsonObject configJsonObject) {
+    protected List<CompletionItem> getResponseItemList(JsonObject configJsonObject) throws WorkspaceDocumentException {
         JsonObject positionObj = configJsonObject.get("position").getAsJsonObject();
         String balPath = "completion" + File.separator + configJsonObject.get("source").getAsString();
         Position position = new Position();
         String content = FileUtils.fileContent(balPath);
         position.setLine(positionObj.get("line").getAsInt());
         position.setCharacter(positionObj.get("character").getAsInt());
+
+        Path filePath = FileUtils.RES_DIR.resolve(balPath);
         TextDocumentPositionParams positionParams =
-                CompletionTestUtil.getPositionParams(position, FileUtils.RES_DIR.resolve(balPath).toString());
+                CompletionTestUtil.getPositionParams(position, filePath.toString());
         WorkspaceDocumentManager documentManager =
-                CompletionTestUtil.prepareDocumentManager(FileUtils.RES_DIR.resolve(balPath).toString(), content);
-        return CompletionTestUtil.getCompletions(documentManager, positionParams);
+                CompletionTestUtil.prepareDocumentManager(filePath, content);
+        LSCompiler lsCompiler = new LSCompiler(documentManager);
+        List<CompletionItem> completions = CompletionTestUtil.getCompletions(lsCompiler, documentManager,
+                                                                             positionParams);
+        CompletionTestUtil.clearDocumentManager(documentManager, filePath);
+        return completions;
     }
 
     protected List<CompletionItem> getExpectedList(JsonObject configJsonObject) {
