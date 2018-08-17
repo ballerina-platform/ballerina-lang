@@ -19,7 +19,7 @@ documentation {
 }
 public type Algorithm "SHA1"|"SHA256"|"MD5";
 
-documentation { The `SHA1` hashing algorithm" }
+documentation { The `SHA1` hashing algorithm }
 @final public Algorithm SHA1 = "SHA1";
 documentation { The `SHA256` hashing algorithm }
 @final public Algorithm SHA256 = "SHA256";
@@ -31,11 +31,11 @@ documentation {
 }
 public type Encoding "UTF-8"|"BASE64"|"HEX";
 
-documentation { The `UTF-8` encoding" }
+documentation { The `UTF-8` encoding }
 @final public Encoding UTF8 = "UTF-8";
-documentation { The `BASE64` encoding" }
+documentation { The `BASE64` encoding }
 @final public Encoding BASE64 = "BASE64";
-documentation { The `HEX` encoding" }
+documentation { The `HEX` encoding }
 @final public Encoding HEX = "HEX";
 
 documentation {
