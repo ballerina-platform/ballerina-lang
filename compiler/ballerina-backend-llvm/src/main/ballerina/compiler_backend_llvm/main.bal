@@ -11,3 +11,11 @@ function main(string... args) {
     genPackage(readPackage(channel),destFilePath);
 }
 
+function genObjectFile(byte[] birBinary, string destFilePath, boolean dumpLLVMIR) {
+    io:ByteChannel channel = io:createMemoryChannel(birBinary);
+    var magic = channel.read(4);
+    var versionValue = readInt(channel);
+    readCp(channel);
+    genPackage(readPackage(channel), destFilePath);
+}
+

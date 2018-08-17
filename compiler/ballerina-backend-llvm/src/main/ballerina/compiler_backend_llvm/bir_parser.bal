@@ -8,6 +8,7 @@ int[] cpInts;
 function getFileChannel(string filePath,
                         io:Mode permission) returns io:ByteChannel {
     io:ByteChannel channel = io:openFile(filePath, permission);
+
     return channel;
 }
 function readBytes(io:ByteChannel channel,
