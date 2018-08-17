@@ -17,7 +17,6 @@
  */
 package org.ballerinalang.test.packaging.grpc;
 
-import org.ballerinalang.test.IntegrationTestCase;
 import org.ballerinalang.test.context.Constant;
 import org.ballerinalang.test.context.LogLeecher;
 import org.ballerinalang.test.context.ServerInstance;
@@ -37,7 +36,7 @@ import java.util.Map;
 /**
  * Test packaged gRPC service with nested ballerina record type for input and output.
  */
-public class ServicePackagingTestCase extends IntegrationTestCase {
+public class ServicePackagingTestCase {
 
     private Path tempProjectDirectory;
     private String serverZipPath = System.getProperty(Constant.SYSTEM_PROP_SERVER_ZIP);

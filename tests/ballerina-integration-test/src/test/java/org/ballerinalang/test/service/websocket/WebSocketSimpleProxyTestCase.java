@@ -18,7 +18,6 @@
 
 package org.ballerinalang.test.service.websocket;
 
-import org.ballerinalang.test.context.BallerinaTestException;
 import org.ballerinalang.test.util.websocket.client.WebSocketTestClient;
 import org.ballerinalang.test.util.websocket.server.WebSocketRemoteServer;
 import org.testng.Assert;
@@ -34,16 +33,16 @@ import java.util.concurrent.TimeUnit;
 /**
  * Test case to test simple WebSocket pass through scenarios.
  */
+@Test(groups = "websocket-test")
 public class WebSocketSimpleProxyTestCase extends WebSocketTestCommons {
 
     private WebSocketRemoteServer remoteServer;
-    private static final String URL = "ws://localhost:9090";
+    private static final String URL = "ws://localhost:9099";
 
     @BeforeClass(description = "Initializes Ballerina")
-    public void setup() throws InterruptedException, BallerinaTestException {
+    public void setup() throws InterruptedException {
         remoteServer = new WebSocketRemoteServer(REMOTE_SERVER_PORT);
         remoteServer.run();
-        initBallerinaServer("simple_proxy_server.bal");
     }
 
     @Test(priority = 1, description = "Tests sending and receiving of text frames in WebSockets")
@@ -73,8 +72,7 @@ public class WebSocketSimpleProxyTestCase extends WebSocketTestCommons {
     }
 
     @AfterClass(description = "Stops Ballerina")
-    public void cleanup() throws BallerinaTestException {
-        stopBallerinaServerInstance();
+    public void cleanup() {
         remoteServer.stop();
     }
 }

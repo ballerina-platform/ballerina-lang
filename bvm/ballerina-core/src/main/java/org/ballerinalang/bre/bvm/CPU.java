@@ -35,6 +35,7 @@ import org.ballerinalang.model.types.TypeConstants;
 import org.ballerinalang.model.types.TypeTags;
 import org.ballerinalang.model.util.Flags;
 import org.ballerinalang.model.util.JSONUtils;
+import org.ballerinalang.model.util.ListUtils;
 import org.ballerinalang.model.util.StringUtils;
 import org.ballerinalang.model.util.XMLUtils;
 import org.ballerinalang.model.values.BBoolean;
@@ -1121,7 +1122,6 @@ public class CPU {
         BFloatArray bFloatArray;
         BStringArray bStringArray;
         BBooleanArray bBooleanArray;
-        BRefValueArray bArray;
         BMap<String, BRefType> bMap;
         switch (opcode) {
             case InstructionCodes.IMOVE:
@@ -1238,14 +1238,13 @@ public class CPU {
                 i = operands[0];
                 j = operands[1];
                 k = operands[2];
-                bArray = (BRefValueArray) sf.refRegs[i];
-                if (bArray == null) {
+                BNewArray bNewArray = (BNewArray) sf.refRegs[i];
+                if (bNewArray == null) {
                     handleNullRefError(ctx);
                     break;
                 }
-
                 try {
-                    sf.refRegs[k] = bArray.get(sf.longRegs[j]);
+                    sf.refRegs[k] = ListUtils.execListGetOperation(bNewArray, sf.longRegs[j]);
                 } catch (Exception e) {
                     ctx.setError(BLangVMErrors.createError(ctx, e.getMessage()));
                     handleError(ctx);
@@ -1426,18 +1425,25 @@ public class CPU {
                 i = operands[0];
                 j = operands[1];
                 k = operands[2];
-                bArray = (BRefValueArray) sf.refRegs[i];
-                if (bArray == null) {
+                BNewArray list = (BNewArray) sf.refRegs[i];
+                if (list == null) {
                     handleNullRefError(ctx);
                     break;
                 }
 
-                try {
-                    bArray.add(sf.longRegs[j], sf.refRegs[k]);
-                } catch (Exception e) {
-                    ctx.setError(BLangVMErrors.createError(ctx, e.getMessage()));
+                long index = sf.longRegs[j];
+                BRefType refReg = sf.refRegs[k];
+                BType elementType = (list.getType().getTag() == TypeTags.ARRAY_TAG)
+                        ? ((BArrayType) list.getType()).getElementType()
+                        : ((BTupleType) list.getType()).getTupleTypes().get((int) index);
+                if (!checkCast(refReg, elementType)) {
+                    ctx.setError(BLangVMErrors.createError(ctx,
+                            BLangExceptionHelper.getErrorMessage(RuntimeErrors.INCOMPATIBLE_TYPE,
+                                    elementType, (refReg != null) ? refReg.getType() : BTypes.typeNull)));
                     handleError(ctx);
+                    break;
                 }
+                ListUtils.execListAddOperation(list, index, refReg);
                 break;
             case InstructionCodes.JSONASTORE:
                 i = operands[0];
@@ -2943,6 +2949,11 @@ public class CPU {
 
     public static boolean checkCast(BValue rhsValue, BType lhsType) {
         BType rhsType = BTypes.typeNull;
+
+        if (rhsValue == null && lhsType.getTag() == TypeTags.JSON_TAG) {
+            return true;
+        }
+
         if (rhsValue != null) {
             rhsType = rhsValue.getType();
         }
@@ -3048,6 +3059,10 @@ public class CPU {
             return true;
         }
 
+        if (targetMapType.getConstrainedType().getTag() == TypeTags.ANY_TAG) {
+            return true;
+        }
+
         if ((sourceMapType.getConstrainedType().getTag() == TypeTags.OBJECT_TYPE_TAG
                 || sourceMapType.getConstrainedType().getTag() == TypeTags.RECORD_TYPE_TAG)
                 && (targetMapType.getConstrainedType().getTag() == TypeTags.OBJECT_TYPE_TAG
@@ -3068,8 +3083,12 @@ public class CPU {
             }
 
             return checkArrayCast(sourceArrayType.getElementType(), targetArrayType.getElementType());
-        } else if (sourceType.getTag() == TypeTags.ARRAY_TAG) {
-            return targetType.getTag() == TypeTags.ANY_TAG;
+        } else if (targetType.getTag() == TypeTags.UNION_TAG) {
+            return checkUnionAssignable(sourceType, targetType);
+        }
+
+        if (targetType.getTag() == TypeTags.ANY_TAG) {
+            return true;
         }
 
         return sourceType.equals(targetType);
@@ -3230,11 +3249,38 @@ public class CPU {
         return true;
     }
 
+    private static boolean checkFunctionTypeEqualityForObjectType(BFunctionType source, BFunctionType target) {
+        if (source.paramTypes.length != target.paramTypes.length ||
+                source.retParamTypes.length != target.retParamTypes.length) {
+            return false;
+        }
+
+        for (int i = 0; i < source.paramTypes.length; i++) {
+            if (!isAssignable(source.paramTypes[i], target.paramTypes[i])) {
+                return false;
+            }
+        }
+
+        if (source.retParamTypes == null && target.retParamTypes == null) {
+            return true;
+        } else if (source.retParamTypes == null || target.retParamTypes == null) {
+            return false;
+        }
+
+        for (int i = 0; i < source.retParamTypes.length; i++) {
+            if (!isAssignable(source.retParamTypes[i], target.retParamTypes[i])) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
     private static BAttachedFunction getMatchingInvokableType(BAttachedFunction[] rhsFuncs,
                                                                          BAttachedFunction lhsFunc) {
         return Arrays.stream(rhsFuncs)
                 .filter(rhsFunc -> lhsFunc.funcName.equals(rhsFunc.funcName))
-                .filter(rhsFunc -> checkFunctionTypeEquality(lhsFunc.type, rhsFunc.type))
+                .filter(rhsFunc -> checkFunctionTypeEqualityForObjectType(rhsFunc.type, lhsFunc.type))
                 .findFirst()
                 .orElse(null);
     }
@@ -3430,6 +3476,8 @@ public class CPU {
                     return false;
                 }
                 return checkJSONEquivalency(json, (BJSONType) sourceType, (BJSONType) targetType);
+            case TypeTags.ANY_TAG:
+                return true;
             default:
                 return false;
         }
@@ -3440,7 +3488,10 @@ public class CPU {
         int j = operands[1];
 
         // TODO: do validation for type?
-        sf.refRegs[j] = sf.refRegs[i];
+        BMap newMap = new BMap(BTypes.typeMap);
+        ((BMap) sf.refRegs[i]).getMap().forEach((key, value)
+                -> newMap.put(key, value == null ? null : ((BValue) value).copy()));
+        sf.refRegs[j] = newMap;
     }
 
     private static void convertStructToJSON(WorkerExecutionContext ctx, int[] operands, WorkerData sf) {

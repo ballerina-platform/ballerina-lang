@@ -19,10 +19,7 @@
 package org.ballerinalang.test.service.websocket;
 
 import io.netty.handler.codec.http.websocketx.WebSocketHandshakeException;
-import org.ballerinalang.test.context.BallerinaTestException;
 import org.ballerinalang.test.util.websocket.client.WebSocketTestClient;
-import org.testng.annotations.AfterClass;
-import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 import java.net.URISyntaxException;
@@ -30,36 +27,27 @@ import java.net.URISyntaxException;
 /**
  * This Class tests the not finding a service/resource to handle a webSocket request.
  */
+@Test(groups = "websocket-test")
 public class WebSocketServiceNotFoundTest extends WebSocketTestCommons {
 
     private WebSocketTestClient client;
 
-    @BeforeClass(description = "Initializes Ballerina with the service_not_found.bal file")
-    public void setup() throws BallerinaTestException {
-        initBallerinaServer("service_not_found.bal");
-    }
-
     @Test(description = "Tests the service not found scenario",
-          expectedExceptions = WebSocketHandshakeException.class,
-          expectedExceptionsMessageRegExp = "Invalid handshake response getStatus: 404 Not Found")
+            expectedExceptions = WebSocketHandshakeException.class,
+            expectedExceptionsMessageRegExp = "Invalid handshake response getStatus: 404 Not Found")
     public void testServiceNotFound() throws InterruptedException, URISyntaxException {
-        client = new WebSocketTestClient("ws://localhost:9090/prox");
+        client = new WebSocketTestClient("ws://localhost:9098/prox");
         client.handshake();
         client.shutDown();
     }
 
     @Test(description = "Tests resource not found scenario",
-          expectedExceptions = WebSocketHandshakeException.class,
-          expectedExceptionsMessageRegExp = "Invalid handshake response getStatus: 404 Not Found")
+            expectedExceptions = WebSocketHandshakeException.class,
+            expectedExceptionsMessageRegExp = "Invalid handshake response getStatus: 404 Not Found")
     public void testResourceNotFound() throws InterruptedException, URISyntaxException {
         client = new WebSocketTestClient("ws://localhost:9090/proxy/cancell");
         client.handshake();
         client.shutDown();
-    }
-
-    @AfterClass(description = "Stops Ballerina")
-    public void cleanup() throws BallerinaTestException {
-       stopBallerinaServerInstance();
     }
 }
 

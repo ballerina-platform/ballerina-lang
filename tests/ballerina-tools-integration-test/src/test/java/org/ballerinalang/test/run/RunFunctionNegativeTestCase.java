@@ -17,13 +17,12 @@
  */
 package org.ballerinalang.test.run;
 
-import org.ballerinalang.test.IntegrationTestCase;
 import org.ballerinalang.test.context.BallerinaTestException;
-import org.ballerinalang.test.context.Constant;
 import org.ballerinalang.test.context.LogLeecher;
 import org.ballerinalang.test.context.ServerInstance;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.AfterMethod;
-import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
@@ -40,18 +39,17 @@ import java.io.IOException;
  *      }
  *  TODO: Needs to be refactored to unzip distro just once, once the required changes are merged
  */
-public class RunFunctionNegativeTestCase extends IntegrationTestCase {
+public class RunFunctionNegativeTestCase {
 
-    private String serverZipPath = System.getProperty(Constant.SYSTEM_PROP_SERVER_ZIP);
     private ServerInstance serverInstance;
 
     private String filePath = (new File("src/test/resources/run/file/test_entry_function.bal")).getAbsolutePath();
 
     private String sourceArg;
 
-    @BeforeMethod()
+    @BeforeClass()
     public void setUp() throws BallerinaTestException, IOException {
-        serverInstance = new ServerInstance(serverZipPath);
+        serverInstance = ServerInstance.initBallerinaServer();
     }
 
     @Test
@@ -296,8 +294,13 @@ public class RunFunctionNegativeTestCase extends IntegrationTestCase {
     }
 
     @AfterMethod
-    public void tearDown() throws BallerinaTestException {
+    public void stopServer() throws BallerinaTestException {
         serverInstance.stopServer();
+    }
+
+    @AfterClass
+    public void tearDown() throws BallerinaTestException {
+        serverInstance.cleanup();
     }
 
     @DataProvider(name = "byteValues")
