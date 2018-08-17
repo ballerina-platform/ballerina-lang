@@ -20,6 +20,7 @@ package org.ballerinalang.packerina.cmd;
 import com.beust.jcommander.JCommander;
 import com.beust.jcommander.Parameter;
 import com.beust.jcommander.Parameters;
+import org.ballerinalang.compiler.backend.llvm.NativeGen;
 import org.ballerinalang.launcher.BLauncherCmd;
 import org.ballerinalang.launcher.LauncherUtils;
 import org.ballerinalang.packerina.BuilderUtils;
@@ -59,6 +60,15 @@ public class BuildCommand implements BLauncherCmd {
     @Parameter(arity = 1)
     private List<String> argList;
 
+    @Parameter(names = {"--native"}, hidden = true, description = "compile Ballerina program to a native binary")
+    private boolean nativeBinary;
+
+    @Parameter(names = "--dump-bir", hidden = true)
+    private boolean dumpBIR;
+
+    @Parameter(names = "--dump-llvm-ir", hidden = true)
+    private boolean dumpLLVMIR;
+
     @Parameter(names = {"--help", "-h"}, hidden = true)
     private boolean helpFlag;
 
@@ -78,7 +88,9 @@ public class BuildCommand implements BLauncherCmd {
 
         // Get source root path.
         Path sourceRootPath = Paths.get(System.getProperty(USER_DIR));
-        if (argList == null || argList.size() == 0) {
+        if (nativeBinary) {
+            genNativeBinary(sourceRootPath, argList);
+        } else if (argList == null || argList.size() == 0) {
             // ballerina build
             BuilderUtils.compileWithTestsAndWrite(sourceRootPath, offline, lockEnabled, skiptests);
         } else {
@@ -128,5 +140,18 @@ public class BuildCommand implements BLauncherCmd {
 
     @Override
     public void setSelfCmdParser(JCommander selfCmdParser) {
+    }
+
+    private void genNativeBinary(Path projectDirPath, List<String> argList) {
+        if (argList == null || argList.size() != 1) {
+            throw LauncherUtils.createUsageException("no Ballerina program given");
+        }
+        String programName = argList.get(0);
+
+        // TODO Check whether we need to remove last slash from program name.
+        // Ballerina program name is used as the output filename if it is not given by the user.
+        String targetFilename = outputFileName == null || outputFileName.isEmpty() ? programName : outputFileName;
+        NativeGen.genBinaryExecutable(projectDirPath, programName, targetFilename,
+                offline, lockEnabled, dumpBIR, dumpLLVMIR);
     }
 }
