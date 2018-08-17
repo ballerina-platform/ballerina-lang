@@ -124,7 +124,10 @@ function testToJson(string jdbcUrl, string userName, string password) returns (j
     try {
         table dt = check testDB->select("SELECT int_type, long_type, float_type, double_type,
                   boolean_type, string_type from DataTable WHERE row_id = 1", ());
-        return check <json>dt;
+        json result = check <json>dt;
+        // Converting to string to make sure the json is built before returning.
+        _ = result.toString();
+        return result;
     } finally {
         testDB.stop();
     }
@@ -142,7 +145,10 @@ function testToXml(string jdbcUrl, string userName, string password) returns (xm
         table dt = check testDB->select("SELECT int_type, long_type, float_type, double_type,
                    boolean_type, string_type from DataTable WHERE row_id = 1", ());
 
-        return check <xml>dt;
+        xml convertedVal = check <xml>dt;
+        // Converting to string to make sure the xml is built before returning.
+        _ = io:sprintf("%l", convertedVal);
+        return convertedVal;
     } finally {
         testDB.stop();
     }
@@ -226,7 +232,10 @@ function toXmlComplex(string jdbcUrl, string userName, string password) returns 
                     float_array, double_type, boolean_type, string_type, double_array, boolean_array, string_array
                     from MixTypes where row_id =1", ());
 
-        return check <xml>dt;
+        xml convertedVal = check <xml>dt;
+        // Converting to string to make sure the xml is built before returning.
+        _ = io:sprintf("%l", convertedVal);
+        return convertedVal;
     } finally {
         testDB.stop();
     }
@@ -245,7 +254,10 @@ function testToXmlComplexWithStructDef(string jdbcUrl, string userName, string p
                     float_array, double_type, boolean_type, string_type, double_array, boolean_array, string_array
                     from MixTypes where row_id =1", TestTypeData);
 
-        return check <xml>dt;
+        xml convertedVal = check <xml>dt;
+        // Converting to string to make sure the xml is built before returning.
+        _ = io:sprintf("%l", convertedVal);
+        return convertedVal;
     } finally {
         testDB.stop();
     }
@@ -265,7 +277,10 @@ function testToJsonComplex(string jdbcUrl, string userName, string password) ret
                     float_array, double_type, boolean_type, string_type, double_array, boolean_array, string_array
                     from MixTypes where row_id =1", ());
 
-        return check <json>dt;
+        json convertedVal = check <json>dt;
+        // Converting to string to make sure the json is built before returning.
+        _ = convertedVal.toString();
+        return convertedVal;
     } finally {
         testDB.stop();
     }
@@ -285,7 +300,10 @@ function testToJsonComplexWithStructDef(string jdbcUrl, string userName, string 
                     float_array, double_type, boolean_type, string_type, double_array, boolean_array, string_array
                     from MixTypes where row_id =1", TestTypeData);
 
-        return check <json>dt;
+        json convertedVal = check <json>dt;
+        // Converting to string to make sure the json is built before returning.
+        _ = convertedVal.toString();
+        return convertedVal;
     } finally {
         testDB.stop();
     }
@@ -303,7 +321,10 @@ function testJsonWithNull(string jdbcUrl, string userName, string password) retu
         table dt = check testDB->select("SELECT int_type, long_type, float_type, double_type,
                   boolean_type, string_type from DataTable WHERE row_id = 2", ());
 
-        return check <json>dt;
+        json convertedVal = check <json>dt;
+        // Converting to string to make sure the json is built before returning.
+        _ = convertedVal.toString();
+        return convertedVal;
     } finally {
         testDB.stop();
     }
@@ -321,7 +342,10 @@ function testXmlWithNull(string jdbcUrl, string userName, string password) retur
         table dt = check testDB->select("SELECT int_type, long_type, float_type, double_type,
                    boolean_type, string_type from DataTable WHERE row_id = 2", ());
 
-        return check <xml>dt;
+        xml convertedVal = check <xml>dt;
+        // Converting to string to make sure the xml is built before returning.
+        _ = io:sprintf("%l", convertedVal);
+        return convertedVal;
     } finally {
         testDB.stop();
     }
@@ -741,7 +765,8 @@ function testTableAutoClose(string jdbcUrl, string userName, string password) re
               boolean_type, string_type from DataTable WHERE row_id = 1", ());
 
     json jsonData = check <json>dt2;
-    _ = jsonData.remove("int_type");
+    // Converting to string to make sure the json is built before returning.
+    _ = jsonData.toString();
 
     _ = testDB->select("SELECT int_type, long_type, float_type, double_type,
               boolean_type, string_type from DataTable WHERE row_id = 1", ());
@@ -1143,16 +1168,23 @@ function testJsonXMLConversionwithDuplicateColumnNames(string jdbcUrl, string us
         poolOptions: { maximumPoolSize: 2 }
     };
 
-    table dt = check testDB->select("SELECT dt1.row_id, dt1.int_type, dt2.row_id, dt2.int_type from DataTable dt1 left
+    try {
+        table dt = check testDB->select("SELECT dt1.row_id, dt1.int_type, dt2.row_id, dt2.int_type from DataTable dt1 left
             join DataTableRep dt2 on dt1.row_id = dt2.row_id WHERE dt1.row_id = 1", ());
-    json j = check <json>dt;
+        json j = check <json>dt;
+        // Converting to string to make sure the json is built before returning.
+        _ = j.toString();
 
-    table dt2 = check testDB->select("SELECT dt1.row_id, dt1.int_type, dt2.row_id, dt2.int_type from DataTable dt1 left
+        table dt2 = check testDB->select("SELECT dt1.row_id, dt1.int_type, dt2.row_id, dt2.int_type from DataTable dt1 left
             join DataTableRep dt2 on dt1.row_id = dt2.row_id WHERE dt1.row_id = 1", ());
-    xml x = check <xml>dt2;
+        xml x = check <xml>dt2;
 
-    testDB.stop();
-    return (j, x);
+        // Converting to string to make sure the xml is built before returning.
+        _ = io:sprintf("%l", x);
+        return (j, x);
+    } finally {
+        testDB.stop();
+    }
 }
 
 function testStructFieldNotMatchingColumnName(string jdbcUrl, string userName, string password) returns (int, int, int,

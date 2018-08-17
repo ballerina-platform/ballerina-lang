@@ -27,7 +27,6 @@ import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BFloatArray;
 import org.ballerinalang.model.values.BIntArray;
 import org.ballerinalang.model.values.BInteger;
-import org.ballerinalang.model.values.BJSON;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BTable;
@@ -117,19 +116,10 @@ public class TypeCastExprTest {
     public void testStringToJSON() {
         BValue[] args = {new BString("{\"name\":\"chanaka\"}")};
         BValue[] returns = BRunUtil.invoke(result, "testStringToJson", args);
-        Assert.assertTrue(returns[0] instanceof BJSON);
+        Assert.assertTrue(returns[0] instanceof BString);
         final String expected = "{\"name\":\"chanaka\"}";
         Assert.assertEquals(returns[0].stringValue(), expected);
     }
-
-    /*@Test
-    public void testStringToXML() {
-        BValue[] args = {new BString("<name>chanaka</name>")};
-        BValue[] returns = BTestUtils.invoke(result, "stringtoxml", args);
-        Assert.assertTrue(returns[0] instanceof BXML);
-        final String expected = "<name>chanaka</name>";
-        Assert.assertEquals(returns[0].stringValue(), expected);
-    }*/
 
     @Test
     public void testIntToString() {
@@ -447,8 +437,8 @@ public class TypeCastExprTest {
     @Test(description = "Test casting a json as any type to json")
     public void testAnyJsonToJson() {
         BValue[] returns = BRunUtil.invoke(result, "testAnyJsonToJson");
-        Assert.assertTrue(returns[0] instanceof BJSON);
-        Assert.assertEquals(((BJSON) returns[0]).value().toString(), "{\"home\":\"SriLanka\"}");
+        Assert.assertTrue(returns[0] instanceof BMap);
+        Assert.assertEquals(returns[0].toString(), "{\"home\":\"SriLanka\"}");
     }
 
     @Test(description = "Test casting a any to table")
@@ -459,12 +449,10 @@ public class TypeCastExprTest {
                 + "name:\"Jane\"}, {id:2, name:\"Anne\"}]}");
     }
 
-    @Test(description = "Test casting a null as any type to json",
-            expectedExceptions = { BLangRuntimeException.class },
-            expectedExceptionsMessageRegExp = "error: ballerina/runtime:NullReferenceException.*")
+    @Test(description = "Test casting a null as any type to json")
     public void testAnyNullToJson() {
         BValue[] returns = BRunUtil.invoke(result, "testAnyNullToJson");
-        Assert.assertEquals(returns[0], null);
+        Assert.assertNull(returns[0]);
     }
 
     @Test(description = "Test casting an array as any type to json",

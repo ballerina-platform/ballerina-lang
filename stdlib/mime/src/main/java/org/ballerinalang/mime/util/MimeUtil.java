@@ -25,9 +25,15 @@ import io.netty.util.internal.PlatformDependent;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BLangVMErrors;
 import org.ballerinalang.connector.api.BLangConnectorSPIUtil;
+import org.ballerinalang.model.types.BArrayType;
+import org.ballerinalang.model.types.BMapType;
+import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.BTypes;
+import org.ballerinalang.model.types.TypeTags;
+import org.ballerinalang.model.values.BByteArray;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BMap;
+import org.ballerinalang.model.values.BStreamingJSON;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.util.exceptions.BallerinaException;
@@ -36,8 +42,9 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.nio.charset.StandardCharsets;
 import java.util.Enumeration;
-import java.util.Set;
+import java.util.Locale;
 
 import javax.activation.MimeType;
 import javax.activation.MimeTypeParameterList;
@@ -56,6 +63,8 @@ import static org.ballerinalang.mime.util.MimeConstants.DEFAULT_SUB_TYPE;
 import static org.ballerinalang.mime.util.MimeConstants.DISPOSITION_FIELD;
 import static org.ballerinalang.mime.util.MimeConstants.DOUBLE_QUOTE;
 import static org.ballerinalang.mime.util.MimeConstants.FORM_DATA_PARAM;
+import static org.ballerinalang.mime.util.MimeConstants.JSON_SUFFIX;
+import static org.ballerinalang.mime.util.MimeConstants.JSON_TYPE_IDENTIFIER;
 import static org.ballerinalang.mime.util.MimeConstants.MEDIA_TYPE;
 import static org.ballerinalang.mime.util.MimeConstants.MEDIA_TYPE_FIELD;
 import static org.ballerinalang.mime.util.MimeConstants.MULTIPART_AS_PRIMARY_TYPE;
@@ -234,8 +243,7 @@ public class MimeUtil {
             contentDisposition.put(DISPOSITION_FIELD, new BString(dispositionValue));
             BMap<String, BValue> paramMap = HeaderUtil.getParamMap(contentDispositionHeaderWithParams);
             if (paramMap != null) {
-                Set<String> keys = paramMap.keySet();
-                for (String key : keys) {
+                for (String key : paramMap.keys()) {
                     BString paramValue = (BString) paramMap.get(key);
                     switch (key) {
                         case CONTENT_DISPOSITION_FILE_NAME:
@@ -434,5 +442,65 @@ public class MimeUtil {
      */
     public static BMap<String, BValue> createError(Context context, String errMsg) {
         return BLangVMErrors.createError(context, errMsg);
+    }
+
+    public static boolean isJSONContentType(BMap<String, BValue> entityStruct) {
+        String baseType;
+        try {
+            baseType = HeaderUtil.getBaseType(entityStruct);
+            if (baseType == null) {
+                return false;
+            }
+            return baseType.toLowerCase(Locale.getDefault()).endsWith(JSON_TYPE_IDENTIFIER) ||
+                    baseType.toLowerCase(Locale.getDefault()).endsWith(JSON_SUFFIX);
+        } catch (MimeTypeParseException e) {
+            throw new BallerinaException("Error while parsing Content-Type value: " + e.getMessage());
+        }
+    }
+
+    public static boolean isJSONCompatible(BType type) {
+        switch (type.getTag()) {
+            case TypeTags.INT_TAG:
+            case TypeTags.FLOAT_TAG:
+            case TypeTags.STRING_TAG:
+            case TypeTags.BOOLEAN_TAG:
+            case TypeTags.JSON_TAG:
+                return true;
+            case TypeTags.ARRAY_TAG:
+                return isJSONCompatible(((BArrayType) type).getElementType());
+            case TypeTags.MAP_TAG:
+                return isJSONCompatible(((BMapType) type).getConstrainedType());
+            default:
+                return false;
+        }
+    }
+
+    public static BString getMessageAsString(BValue dataSource) {
+        BType type = dataSource.getType();
+        if (type.getTag() == TypeTags.STRING_TAG) {
+            return (BString) dataSource;
+        } else if (type.getTag() == TypeTags.ARRAY_TAG &&
+                ((BArrayType) type).getElementType().getTag() == TypeTags.BYTE_TAG) {
+            return new BString(new String(((BByteArray) dataSource).getBytes(), StandardCharsets.UTF_8));
+        }
+
+        return new BString(dataSource.stringValue());
+    }
+
+    /**
+     * Check whether a given value should be serialized specifically as a JSON.
+     *
+     * @param value Value to serialize
+     * @param entityRecord Entity record
+     * @return flag indicating whether the given value should be serialized specifically as a JSON
+     */
+    public static boolean generateAsJSON(BValue value, BMap<String, BValue> entityRecord) {
+        if (value instanceof BStreamingJSON) {
+            // Streaming JSON should be serialized using the serialize() method.
+            // Hence returning false.
+            return false;
+        }
+
+        return isJSONContentType(entityRecord) && isJSONCompatible(value.getType());
     }
 }

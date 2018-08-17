@@ -3,7 +3,7 @@
     <parent>
         <groupId>org.ballerinalang</groupId>
         <artifactId>ballerina-parent</artifactId>
-        <version>0.980.2-SNAPSHOT</version>
+        <version>0.981.1-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
 
@@ -13,6 +13,124 @@
 
     <name>Ballerina - Language Server - Parent</name>
     <url>http://ballerinalang.org</url>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.jacoco</groupId>
+                <artifactId>jacoco-maven-plugin</artifactId>
+                <configuration>
+                    <destFile>${basedir}/target/coverage-reports/jacoco-unit.exec</destFile>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>jacoco-initialize</id>
+                        <goals>
+                            <goal>prepare-agent</goal>
+                        </goals>
+                    </execution>
+                    <execution>
+                        <id>jacoco-site</id>
+                        <phase>test</phase>
+                        <goals>
+                            <goal>report</goal>
+                        </goals>
+                        <configuration>
+                            <dataFile>${basedir}/target/coverage-reports/jacoco-unit.exec</dataFile>
+                            <outputDirectory>${basedir}/target/coverage-reports/site</outputDirectory>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-antrun-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <phase>post-integration-test</phase>
+                        <goals>
+                            <goal>run</goal>
+                        </goals>
+
+                        <configuration>
+                            <target name="mergeReports">
+                                <taskdef resource="net/sf/antcontrib/antcontrib.properties" classpathref="maven.plugin.classpath" />
+                                <if>
+                                    <and>
+                                        <available file="${language.server.compiler}/${target}/${coverge-report}/${individual.test.report.name}" />
+                                        <available file="${language.server.core}/${target}/${coverge-report}/${individual.test.report.name}" />
+                                        <!-- After adding the test cases need to list the exec files here-->
+                                    </and>
+                                    <then>
+                                        <taskdef name="report" classname="org.jacoco.ant.ReportTask">
+                                            <classpath path="${basedir}/target/jacoco-jars/org.jacoco.ant.jar" />
+                                        </taskdef>
+                                        <mkdir dir="${basedir}/target/coverage-report" />
+                                        <report>
+                                            <executiondata>
+                                                <fileset dir="${language.server.compiler}/${target}/${coverge-report}">
+                                                    <include name="${individual.test.report.name}" />
+                                                </fileset>
+                                                <fileset dir="${language.server.core}/${target}/${coverge-report}">
+                                                    <include name="${individual.test.report.name}" />
+                                                </fileset>
+                                            </executiondata>
+                                            <structure name="Language Server Component Coverage Report">
+                                                    <group name="language.server.compiler">
+                                                        <classfiles>
+                                                            <fileset dir="${language.server.compiler}/${target}/${classes}" />
+                                                        </classfiles>
+                                                        <sourcefiles encoding="UTF-8">
+                                                            <fileset dir="${language.server.compiler}/${source}" />
+                                                        </sourcefiles>
+                                                    </group>
+                                                    <group name="language.server.core">
+                                                        <classfiles>
+                                                            <fileset dir="${language.server.core}/${target}/${classes}" />
+                                                        </classfiles>
+                                                        <sourcefiles encoding="UTF-8">
+                                                            <fileset dir="${language.server.core}/${source}" />
+                                                        </sourcefiles>
+                                                    </group>
+                                            </structure>
+                                            <html destdir="${basedir}/target/coverage-report/site" />
+                                        </report>
+                                    </then>
+                                </if>
+                            </target>
+                        </configuration>
+                    </execution>
+                </executions>
+                <dependencies>
+                    <dependency>
+                        <groupId>org.jacoco</groupId>
+                        <artifactId>org.jacoco.ant</artifactId>
+                        <version>${jacoco.ant.verision}</version>
+                    </dependency>
+                    <dependency>
+                        <groupId>ant-contrib</groupId>
+                        <artifactId>ant-contrib</artifactId>
+                        <version>${ant.contrib.version}</version>
+                        <exclusions>
+                            <exclusion>
+                                <groupId>ant</groupId>
+                                <artifactId>ant</artifactId>
+                            </exclusion>
+                        </exclusions>
+                    </dependency>
+                </dependencies>
+            </plugin>
+        </plugins>
+        <pluginManagement>
+            <plugins>
+                <plugin>
+                    <groupId>org.jacoco</groupId>
+                    <artifactId>jacoco-maven-plugin</artifactId>
+                    <version>${jacoco.maven.plugin.version}</version>
+                </plugin>
+            </plugins>
+        </pluginManagement>
+    </build>
 
     <dependencyManagement>
         <dependencies>
@@ -44,6 +162,21 @@
         <lsp4j.version>0.3.0</lsp4j.version>
         <apache.commons.io.version>2.6</apache.commons.io.version>
         <google.guava.version>21.0</google.guava.version>
+
+        <!-- Test Coverage -->
+        <jacoco.maven.plugin.version>0.7.8</jacoco.maven.plugin.version>
+        <jacoco.ant.verision>0.7.5.201505241946</jacoco.ant.verision>
+        <ant.contrib.version>1.0b3</ant.contrib.version>
+
+        <target>target</target>
+        <coverge-report>coverage-reports</coverge-report>
+        <individual.test.report.name>jacoco-unit.exec</individual.test.report.name>
+        <classes>classes</classes>
+        <source>src/main/java</source>
+
+        <language.server.compiler>${basedir}/modules/langserver-compiler</language.server.compiler>
+        <language.server.core>${basedir}/modules/langserver-core</language.server.core>
+        <language.server.stdio.launcher>${basedir}/modules/launchers/stdio-launcher</language.server.stdio.launcher>
     </properties>
     <modules>
         <module>modules/langserver-compiler</module>

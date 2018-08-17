@@ -28,7 +28,7 @@ import ExportDiagramPlugin from './plugins/export-diagram/plugin';
 import CodeExplorerPlugin from './plugins/code-explorer/plugin';
 import { PLUGIN_ID as HELP_PLUGIN_ID } from './plugins/help/constants';
 import { WELCOME_TAB_PLUGIN_ID } from './plugins/welcome-tab/constants';
-import ImportStructPlugin from './plugins/import-struct/plugin';
+import ImportRecordPlugin from './plugins/import-record/plugin';
 import ToolsPlugin from './plugins/tools/plugin';
 import TextEditorPlugin from './plugins/text-file-editor/plugin';
 
@@ -43,7 +43,7 @@ export default {
             ToolsPlugin,
             WelcomeTabPlugin,
             ImportSwaggerPlugin,
-            ImportStructPlugin,
+            ImportRecordPlugin,
             ExportDiagramPlugin,
             TextEditorPlugin,
         ],

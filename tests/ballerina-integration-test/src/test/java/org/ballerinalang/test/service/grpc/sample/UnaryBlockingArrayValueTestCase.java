@@ -21,6 +21,7 @@ package org.ballerinalang.test.service.grpc.sample;
 import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.CompileResult;
+import org.ballerinalang.model.types.BArrayType;
 import org.ballerinalang.model.types.BStructureType;
 import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BBooleanArray;
@@ -33,14 +34,11 @@ import org.ballerinalang.model.values.BRefValueArray;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BStringArray;
 import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.test.IntegrationTestCase;
-import org.ballerinalang.test.context.BallerinaTestException;
-import org.ballerinalang.test.context.ServerInstance;
+import org.ballerinalang.test.BaseTest;
 import org.ballerinalang.test.util.TestUtils;
 import org.ballerinalang.util.codegen.PackageInfo;
 import org.ballerinalang.util.codegen.StructureTypeInfo;
 import org.testng.Assert;
-import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
@@ -49,25 +47,22 @@ import java.nio.file.Paths;
 
 /**
  * Test class for gRPC unary service with array input/output.
- *
  */
-public class UnaryBlockingArrayValueTestCase extends IntegrationTestCase {
+@Test(groups = "grpc-test")
+public class UnaryBlockingArrayValueTestCase extends BaseTest {
 
-    private ServerInstance ballerinaServer;
-    
-    @BeforeClass
+    private CompileResult result;
+
+    @BeforeClass(alwaysRun = true)
     private void setup() throws Exception {
-        ballerinaServer = ServerInstance.initBallerinaServer(9090);
-        Path serviceBalPath = Paths.get("src", "test", "resources", "grpc", "array_field_type_service.bal");
-        ballerinaServer.startBallerinaServer(serviceBalPath.toAbsolutePath().toString());
+        Path balFilePath = Paths.get("src", "test", "resources", "grpc", "clients", "array_field_type_client.bal");
+        result = BCompileUtil.compile(balFilePath.toAbsolutePath().toString());
         TestUtils.prepareBalo(this);
     }
 
     @Test
     public void testIntArrayInputClient() {
         //TestInt intArray = {values:[1,2,3,4,5]};
-        Path balFilePath = Paths.get("src", "test", "resources", "grpc", "array_field_type_client.bal");
-        CompileResult result = BCompileUtil.compile(balFilePath.toAbsolutePath().toString());
         PackageInfo packageInfo = result.getProgFile().getPackageInfo(".");
         StructureTypeInfo requestInfo = packageInfo.getStructInfo("TestInt");
         BStructureType requestType = requestInfo.getType();
@@ -90,8 +85,6 @@ public class UnaryBlockingArrayValueTestCase extends IntegrationTestCase {
     @Test
     public void testStringArrayInputClient() {
         //TestString stringArray = {values:["A", "B", "C"]};
-        Path balFilePath = Paths.get("src", "test", "resources", "grpc", "array_field_type_client.bal");
-        CompileResult result = BCompileUtil.compile(balFilePath.toAbsolutePath().toString());
         PackageInfo packageInfo = result.getProgFile().getPackageInfo(".");
         StructureTypeInfo requestInfo = packageInfo.getStructInfo("TestString");
         BStructureType requestType = requestInfo.getType();
@@ -112,8 +105,6 @@ public class UnaryBlockingArrayValueTestCase extends IntegrationTestCase {
     @Test
     public void testFloatArrayInputClient() {
         //TestFloat floatArray = {values:[1.1, 1.2, 1.3, 1.4, 1.5]};
-        Path balFilePath = Paths.get("src", "test", "resources", "grpc", "array_field_type_client.bal");
-        CompileResult result = BCompileUtil.compile(balFilePath.toAbsolutePath().toString());
         PackageInfo packageInfo = result.getProgFile().getPackageInfo(".");
         StructureTypeInfo requestInfo = packageInfo.getStructInfo("TestFloat");
         BStructureType requestType = requestInfo.getType();
@@ -136,8 +127,6 @@ public class UnaryBlockingArrayValueTestCase extends IntegrationTestCase {
     @Test
     public void testBooleanArrayInputClient() {
         //TestBoolean booleanArray = {values:[true, false, true]};
-        Path balFilePath = Paths.get("src", "test", "resources", "grpc", "array_field_type_client.bal");
-        CompileResult result = BCompileUtil.compile(balFilePath.toAbsolutePath().toString());
         PackageInfo packageInfo = result.getProgFile().getPackageInfo(".");
         StructureTypeInfo requestInfo = packageInfo.getStructInfo("TestBoolean");
         BStructureType requestType = requestInfo.getType();
@@ -160,15 +149,13 @@ public class UnaryBlockingArrayValueTestCase extends IntegrationTestCase {
         //    A a1 = {name: "Sam"};
         //    A a2 = {name: "John"};
         //    TestStruct structArray = {values:[a1, a2]};
-        Path balFilePath = Paths.get("src", "test", "resources", "grpc", "array_field_type_client.bal");
-        CompileResult result = BCompileUtil.compile(balFilePath.toAbsolutePath().toString());
         PackageInfo packageInfo = result.getProgFile().getPackageInfo(".");
         StructureTypeInfo requestInfo = packageInfo.getStructInfo("TestStruct");
         BStructureType requestType = requestInfo.getType();
         BMap<String, BValue> requestStruct = new BMap<String, BValue>(requestType);
-        BRefValueArray refArray = new BRefValueArray();
         StructureTypeInfo aInfo = packageInfo.getStructInfo("A");
         BStructureType aType = aInfo.getType();
+        BRefValueArray refArray = new BRefValueArray(new BArrayType(aType));
         BMap<String, BValue> a1 = new BMap<String, BValue>(aType);
         a1.put("name", new BString("Sam"));
         BMap<String, BValue> a2 = new BMap<String, BValue>(aType);
@@ -176,7 +163,6 @@ public class UnaryBlockingArrayValueTestCase extends IntegrationTestCase {
         refArray.add(0, a1);
         refArray.add(1, a2);
         requestStruct.put("values", refArray);
-
         BValue[] responses = BRunUtil.invoke(result, "testStructArrayInput", new BValue[]{requestStruct});
         Assert.assertEquals(responses.length, 1);
         Assert.assertTrue(responses[0] instanceof BString);
@@ -186,9 +172,6 @@ public class UnaryBlockingArrayValueTestCase extends IntegrationTestCase {
 
     @Test
     public void testIntArrayOutputClient() {
-        Path balFilePath = Paths.get("src", "test", "resources", "grpc", "array_field_type_client.bal");
-        CompileResult result = BCompileUtil.compile(balFilePath.toAbsolutePath().toString());
-
         BValue[] responses = BRunUtil.invoke(result, "testIntArrayOutput", new BValue[]{});
         Assert.assertEquals(responses.length, 1);
         Assert.assertTrue(responses[0] instanceof BMap);
@@ -206,9 +189,6 @@ public class UnaryBlockingArrayValueTestCase extends IntegrationTestCase {
 
     @Test
     public void testStringArrayOutputClient() {
-        Path balFilePath = Paths.get("src", "test", "resources", "grpc", "array_field_type_client.bal");
-        CompileResult result = BCompileUtil.compile(balFilePath.toAbsolutePath().toString());
-
         BValue[] responses = BRunUtil.invoke(result, "testStringArrayOutput", new BValue[]{});
         Assert.assertEquals(responses.length, 1);
         Assert.assertTrue(responses[0] instanceof BMap);
@@ -224,9 +204,6 @@ public class UnaryBlockingArrayValueTestCase extends IntegrationTestCase {
 
     @Test
     public void testFloatArrayOutputClient() {
-        Path balFilePath = Paths.get("src", "test", "resources", "grpc", "array_field_type_client.bal");
-        CompileResult result = BCompileUtil.compile(balFilePath.toAbsolutePath().toString());
-
         BValue[] responses = BRunUtil.invoke(result, "testFloatArrayOutput", new BValue[]{});
         Assert.assertEquals(responses.length, 1);
         Assert.assertTrue(responses[0] instanceof BMap);
@@ -242,9 +219,6 @@ public class UnaryBlockingArrayValueTestCase extends IntegrationTestCase {
 
     @Test
     public void testBooleanArrayOutputClient() {
-        Path balFilePath = Paths.get("src", "test", "resources", "grpc", "array_field_type_client.bal");
-        CompileResult result = BCompileUtil.compile(balFilePath.toAbsolutePath().toString());
-
         BValue[] responses = BRunUtil.invoke(result, "testBooleanArrayOutput", new BValue[]{});
         Assert.assertEquals(responses.length, 1);
         Assert.assertTrue(responses[0] instanceof BMap);
@@ -260,9 +234,6 @@ public class UnaryBlockingArrayValueTestCase extends IntegrationTestCase {
 
     @Test
     public void testStructArrayOutputClient() {
-        Path balFilePath = Paths.get("src", "test", "resources", "grpc", "array_field_type_client.bal");
-        CompileResult result = BCompileUtil.compile(balFilePath.toAbsolutePath().toString());
-
         BValue[] responses = BRunUtil.invoke(result, "testStructArrayOutput", new BValue[]{});
         Assert.assertEquals(responses.length, 1);
         Assert.assertTrue(responses[0] instanceof BMap);
@@ -272,10 +243,5 @@ public class UnaryBlockingArrayValueTestCase extends IntegrationTestCase {
         final BRefValueArray structArray = (BRefValueArray) response.get("values");
         Assert.assertEquals(structArray.size(), 2);
         Assert.assertEquals(((BMap<String, BValue>) structArray.get(0)).get("name").stringValue(), "Sam");
-    }
-    
-    @AfterClass
-    private void cleanup() throws BallerinaTestException {
-        ballerinaServer.stopServer();
     }
 }

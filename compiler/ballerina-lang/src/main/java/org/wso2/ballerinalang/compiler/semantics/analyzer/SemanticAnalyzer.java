@@ -195,6 +195,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
     private DiagnosticCode diagCode;
     private BType resType;
     private boolean isSiddhiRuntimeEnabled;
+    private boolean isGroupByAvailable;
 
     private Map<BLangBlockStmt, SymbolEnv> blockStmtEnvMap = new HashMap<>();
 
@@ -1211,19 +1212,23 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         isSiddhiRuntimeEnabled = foreverStatement.isSiddhiRuntimeEnabled();
         foreverStatement.setEnv(env);
         for (StreamingQueryStatementNode streamingQueryStatement : foreverStatement.getStreamingQueryStatements()) {
-            analyzeStmt((BLangStatement) streamingQueryStatement, env);
+            SymbolEnv stmtEnv = SymbolEnv.createStreamingQueryEnv(
+                    (BLangStreamingQueryStatement) streamingQueryStatement, env);
+            analyzeStmt((BLangStatement) streamingQueryStatement, stmtEnv);
         }
 
         if (isSiddhiRuntimeEnabled) {
             //Validate output attribute names with stream/struct
             for (StreamingQueryStatementNode streamingQueryStatement : foreverStatement.getStreamingQueryStatements()) {
-                checkOutputAttributes((BLangStatement) streamingQueryStatement);
+                checkOutputAttributesWithOutputConstraint((BLangStatement) streamingQueryStatement);
                 validateOutputAttributeTypes((BLangStatement) streamingQueryStatement);
             }
         }
     }
 
     public void visit(BLangStreamingQueryStatement streamingQueryStatement) {
+        defineSelectorAttributes(this.env, streamingQueryStatement);
+
         StreamingInput streamingInput = streamingQueryStatement.getStreamingInput();
         if (streamingInput != null) {
             ((BLangStreamingInput) streamingInput).accept(this);
@@ -1334,6 +1339,11 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         if (variableReferenceNode != null) {
             ((BLangVariableReference) variableReferenceNode).accept(this);
         }
+        if (!isSiddhiRuntimeEnabled && isGroupByAvailable) {
+            for (BLangExpression arg : invocationExpr.argExprs) {
+                typeChecker.checkExpr(arg, env);
+            }
+        }
     }
 
     @Override
@@ -1359,6 +1369,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
     public void visit(BLangSelectClause selectClause) {
         GroupByNode groupByNode = selectClause.getGroupBy();
         if (groupByNode != null) {
+            isGroupByAvailable = true;
             ((BLangGroupBy) groupByNode).accept(this);
         }
 
@@ -1373,6 +1384,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                 ((BLangSelectExpression) selectExpressionNode).accept(this);
             }
         }
+        isGroupByAvailable = false;
     }
 
     @Override
@@ -1409,7 +1421,11 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
     public void visit(BLangSelectExpression selectExpression) {
         ExpressionNode expressionNode = selectExpression.getExpression();
         if (!isSiddhiRuntimeEnabled) {
-            this.typeChecker.checkExpr((BLangExpression) expressionNode, env);
+            if (isGroupByAvailable && expressionNode.getKind() == NodeKind.INVOCATION) {
+                ((BLangExpression) expressionNode).accept(this);
+            } else {
+                this.typeChecker.checkExpr((BLangExpression) expressionNode, env);
+            }
         } else {
             ((BLangExpression) expressionNode).accept(this);
         }
@@ -1817,13 +1833,14 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         return varRefExpr.type;
     }
 
-    private void checkOutputAttributes(BLangStatement streamingQueryStatement) {
-
+    private void checkOutputAttributesWithOutputConstraint(BLangStatement streamingQueryStatement) {
         List<? extends SelectExpressionNode> selectExpressions =
                 ((BLangStreamingQueryStatement) streamingQueryStatement).getSelectClause().getSelectExpressions();
 
         List<String> variableList = new ArrayList<>();
+        boolean isSelectAll = true;
         if (!((BLangStreamingQueryStatement) streamingQueryStatement).getSelectClause().isSelectAll()) {
+            isSelectAll = false;
             for (SelectExpressionNode expressionNode : selectExpressions) {
                 String variableName;
                 if (expressionNode.getIdentifier() != null) {
@@ -1837,13 +1854,20 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                 }
                 variableList.add(variableName);
             }
-        } else {
+        }
+
+        // Validate whether input stream constraint type only contains attribute type that can be processed by Siddhi
+        if (((BLangStreamingQueryStatement) streamingQueryStatement).getStreamingInput() != null) {
             List<BField> fields = ((BStructureType) ((BStreamType) ((BLangExpression)
                     (((BLangStreamingQueryStatement) streamingQueryStatement).getStreamingInput()).
                             getStreamReference()).type).constraint).fields;
 
             for (BField structField : fields) {
-                variableList.add(structField.name.value);
+                validateStreamEventType(((BLangStreamingQueryStatement) streamingQueryStatement).pos, structField);
+                if (isSelectAll) {
+                    //create the variable list to validate when select * clause is used in query
+                    variableList.add(structField.name.value);
+                }
             }
         }
 
@@ -1857,6 +1881,8 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                 List<BField> structFieldList = ((BStructureType) structType).fields;
                 List<String> structFieldNameList = new ArrayList<>();
                 for (BField structField : structFieldList) {
+                    validateStreamEventType(((BLangStreamAction) ((BLangStreamingQueryStatement)
+                            streamingQueryStatement).getStreamingAction()).pos, structField);
                     structFieldNameList.add(structField.name.value);
                 }
 
@@ -1866,6 +1892,29 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                 }
             }
         }
+    }
+
+    private void validateStreamEventType(DiagnosticPos pos, BField field) {
+        if (!(field.type.tag == TypeTags.INT || field.type.tag == TypeTags.BOOLEAN || field.type.tag == TypeTags.STRING
+                || field.type.tag == TypeTags.FLOAT)) {
+            dlog.error(pos, DiagnosticCode.INVALID_STREAM_ATTRIBUTE_TYPE);
+        }
+    }
+
+    private void validateStreamingEventType(DiagnosticPos pos, BType actualType, String attributeName, BType expType,
+                                           DiagnosticCode diagCode) {
+        if (expType.tag == TypeTags.ERROR) {
+            return;
+        } else if (expType.tag == TypeTags.NONE) {
+            return;
+        } else if (actualType.tag == TypeTags.ERROR) {
+            return;
+        } else if (this.types.isAssignable(actualType, expType)) {
+            return;
+        }
+
+        // e.g. incompatible types: expected 'int' for attribute 'name', found 'string'
+        dlog.error(pos, diagCode, expType, attributeName, actualType);
     }
 
     private void validateOutputAttributeTypes(BLangStatement streamingQueryStatement) {
@@ -1932,10 +1981,10 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                         for (int i = 0; i < inputStreamFields.size(); i++) {
                             BField inputStructField = inputStreamFields.get(i);
                             BField outputStructField = outputStreamFieldList.get(i);
-                            this.types.checkType(((BLangStreamAction) ((BLangStreamingQueryStatement)
+                            validateStreamingEventType(((BLangStreamAction) ((BLangStreamingQueryStatement)
                                             streamingQueryStatement).getStreamingAction()).pos,
-                                    outputStructField.getType(), inputStructField.getType(),
-                                    DiagnosticCode.INCOMPATIBLE_TYPES);
+                                    outputStructField.getType(), outputStructField.getName().getValue(),
+                                    inputStructField.getType(), DiagnosticCode.STREAMING_INCOMPATIBLE_TYPES);
                         }
                     }
                 }
@@ -1944,7 +1993,6 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
     }
 
     private List<BField> getFieldListFromStreamInput(StreamingInput streamingInput) {
-
         return ((BStructureType) ((BStreamType) ((BLangSimpleVarRef)
                 streamingInput.getStreamReference()).type).constraint).fields;
     }
@@ -1974,10 +2022,10 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                                                    BField outputStructField) {
 
         if (structField != null) {
-            this.types.checkType(((BLangStreamAction) ((BLangStreamingQueryStatement)
+            validateStreamingEventType(((BLangStreamAction) ((BLangStreamingQueryStatement)
                             streamingQueryStatement).getStreamingAction()).pos,
-                    outputStructField.getType(), structField.getType(),
-                    DiagnosticCode.INCOMPATIBLE_TYPES);
+                    outputStructField.getType(), attributeName, structField.getType(),
+                    DiagnosticCode.STREAMING_INCOMPATIBLE_TYPES);
         }
     }
 
@@ -2011,6 +2059,24 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                 || ((BArrayType) functionParameters.get(0).type).eType.tag == TypeTags.RECORD)) {
             dlog.error((streamAction).pos, DiagnosticCode.INVALID_STREAM_ACTION_ARGUMENT_TYPE,
                     ((BArrayType) functionParameters.get(0).type).eType.getKind());
+        }
+    }
+
+    private void defineSelectorAttributes(SymbolEnv stmtEnv, StreamingQueryStatementNode node) {
+        if (node.getStreamingAction() == null) {
+            return;
+        }
+        BType streamActionArgumentType = ((BLangLambdaFunction) node.getStreamingAction()
+                .getInvokableBody()).function.requiredParams.get(0).type;
+        if (streamActionArgumentType.tag != TypeTags.ARRAY) {
+            return;
+        }
+        BType structType = (((BArrayType) streamActionArgumentType).eType);
+        if (structType.tag == TypeTags.OBJECT || structType.tag == TypeTags.RECORD) {
+            List<BField> outputStreamFieldList = ((BStructureType) structType).fields;
+            for (BField field : outputStreamFieldList) {
+                stmtEnv.scope.define(field.name, field.symbol);
+            }
         }
     }
 

@@ -19,4 +19,4 @@ documentation {
 
     R{{}} Mock tracers object in json format
 }
-public native function getMockTracers () returns json;
+public extern function getMockTracers () returns json;

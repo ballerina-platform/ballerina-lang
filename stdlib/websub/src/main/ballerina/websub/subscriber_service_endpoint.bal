@@ -69,9 +69,9 @@ public type Listener object {
     }
     public function stop();
 
-    native function initWebSubSubscriberServiceEndpoint();
+    extern function initWebSubSubscriberServiceEndpoint();
 
-    native function registerWebSubSubscriberServiceEndpoint(typedesc serviceType);
+    extern function registerWebSubSubscriberServiceEndpoint(typedesc serviceType);
 
     documentation {
         Sends subscription requests to the specified/discovered hubs if specified to subscribe on startup.
@@ -81,7 +81,7 @@ public type Listener object {
     documentation {
         Start the registered WebSub Subscriber service.
     }
-    native function startWebSubSubscriberServiceEndpoint();
+    extern function startWebSubSubscriberServiceEndpoint();
 
     documentation {
         Sets the topic to which this service is subscribing, for auto intent verification.
@@ -89,7 +89,7 @@ public type Listener object {
         P{{webSubServiceName}} The name of the service for which subscription happened for a topic
         P{{topic}} The topic the subscription happened for
     }
-    native function setTopic(string webSubServiceName, string topic);
+    extern function setTopic(string webSubServiceName, string topic);
 
     documentation {
         Retrieves the parameters specified for subscription as annotations and the callback URL to which notification
@@ -97,7 +97,7 @@ public type Listener object {
 
         R{{}} `map[]` array of maps containing subscription details for each service
     }
-    native function retrieveSubscriptionParameters() returns map[];
+    extern function retrieveSubscriptionParameters() returns map[];
 
 };
 
@@ -196,19 +196,59 @@ documentation {
     F{{host}} The host name/IP of the endpoint
     F{{port}} The port to which the endpoint should bind to
     F{{httpServiceSecureSocket}} The SSL configurations for the service endpoint
-    F{{topicIdentifier}} The identifier based on which dispatching should happen for custom subscriber services
-    F{{topicHeader}} The header to consider if required with dispatching for custom services
-    F{{topicPayloadKeys}} The payload keys to consider if required with dispatching for custom services
-    F{{topicResourceMap}} The mapping between topics and resources if required for custom services
+    F{{extensionConfig}}    The extension configuration to introduce custom subscriber services (webhooks)
 }
 public type SubscriberServiceEndpointConfiguration record {
     string host;
     int port;
     http:ServiceSecureSocket? httpServiceSecureSocket;
-    TopicIdentifier? topicIdentifier;
+    ExtensionConfig? extensionConfig;
+};
+
+documentation {
+    The extension configuration to introduce custom subscriber services.
+
+    F{{topicIdentifier}}                The identifier based on which dispatching should happen for custom subscriber
+                                            services
+    F{{topicHeader}}                    The header to consider if required with dispatching for custom services
+    F{{headerResourceMap}}              The mapping between header value and resource details
+    F{{payloadKeyResourceMap}}          The mapping between value for a particular JSON payload key and resource details
+    F{{headerAndPayloadKeyResourceMap}} The mapping between values for the header and a particular JSON payload key and resource details
+}
+public type ExtensionConfig record {
+    TopicIdentifier topicIdentifier = TOPIC_ID_HEADER;
+
+    // TODO: make `Link` the default header and special case `Link` to extract the topic (rel="self").
+    // <link href="<HUB_URL>"; rel="hub", href="<TOPIC_URL>"; rel="self"/>
     string? topicHeader;
-    string[]? topicPayloadKeys;
-    map<map<string>>? topicResourceMap;
+
+    // e.g.,
+    //  headerResourceMap = {
+    //    "watch" : ("onWatch", WatchEvent),
+    //    "create" : ("onCreate", CreateEvent)
+    //  };
+    map<(string, typedesc)>? headerResourceMap;
+
+    // e.g.,
+    //  payloadKeyResourceMap = {
+    //    "eventType" : {
+    //        "branch.created":  ("onBranchCreate", BranchCreatedEvent),
+    //        "branch.deleted":  ("onBranchDelete", BranchDeletedEvent)
+    //    }
+    //  };
+    map<map<(string, typedesc)>>? payloadKeyResourceMap;
+
+    // e.g.,
+    //  headerAndPayloadKeyResourceMap = {
+    //    "issue_comment" : { <--- value for header
+    //        "action" : { <--- payload key
+    //            "created" : ("onIssueCommentCreated", IssueCommentEvent), <--- "created" - value for key "action"
+    //            "edited" : ("onIssueCommentEdited", IssueCommentEvent),
+    //            "deleted" : ("onIssueCommentDeleted", IssueCommentEvent)
+    //        }
+    //    }
+    //  };
+    map<map<map<(string, typedesc)>>>? headerAndPayloadKeyResourceMap;
 };
 
 documentation {

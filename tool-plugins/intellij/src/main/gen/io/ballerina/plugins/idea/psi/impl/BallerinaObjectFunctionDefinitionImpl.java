@@ -73,20 +73,26 @@ public class BallerinaObjectFunctionDefinitionImpl extends BallerinaCompositeEle
 
   @Override
   @Nullable
+  public BallerinaDocumentationString getDocumentationString() {
+    return PsiTreeUtil.getChildOfType(this, BallerinaDocumentationString.class);
+  }
+
+  @Override
+  @Nullable
   public PsiElement getSemicolon() {
     return findChildByType(SEMICOLON);
+  }
+
+  @Override
+  @Nullable
+  public PsiElement getExtern() {
+    return findChildByType(EXTERN);
   }
 
   @Override
   @NotNull
   public PsiElement getFunction() {
     return notNullChild(findChildByType(FUNCTION));
-  }
-
-  @Override
-  @Nullable
-  public PsiElement getNative() {
-    return findChildByType(NATIVE);
   }
 
   @Override

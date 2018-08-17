@@ -19,21 +19,21 @@ documentation {
 
     R{{}} Boolean flag indicating whether the XML sequence contains only a single element
 }
-public native function xml::isSingleton() returns (boolean);
+public extern function xml::isSingleton() returns (boolean);
 
 documentation {
     Check whether the XML sequence is empty.
 
     R{{}} Boolean flag indicating whether the XML sequence is empty
 }
-public native function xml::isEmpty() returns (boolean);
+public extern function xml::isEmpty() returns (boolean);
 
 documentation {
     Get all the items that are of element type in an XML sequence.
 
     R{{}} All the elements-type items in the given XML sequence
 }
-public native function xml::elements() returns (xml);
+public extern function xml::elements() returns (xml);
 
 documentation {
     Get all the items that are of element type, and matches the given qualified name, in an XML sequence.
@@ -41,7 +41,7 @@ documentation {
     P{{qname}} Qualified name of the element
     R{{}} All the elements-type items in the given XML sequence, that matches the qualified name
 }
-public native function xml::select(string qname) returns (xml);
+public extern function xml::select(string qname) returns (xml);
 
 documentation {
     Get the type of a XML as a string. If the XML is singleton, type can be one of 'element', 'text', 'comment' or 'pi'.
@@ -49,14 +49,14 @@ documentation {
 
     R{{}} Type of the XML as a string
 }
-public native function xml::getItemType() returns (string);
+public extern function xml::getItemType() returns (string);
 
 documentation {
     Get the fully qualified name of the element as a string. Returns an empty string if the XML is not a singleton.
 
     R{{}} Qualified name of the XML as a string
 }
-public native function xml::getElementName() returns (string);
+public extern function xml::getElementName() returns (string);
 
 documentation {
     Get the text value of a XML. If the XML is a sequence, concatenation of the text values of the members of the
@@ -65,28 +65,28 @@ documentation {
 
     R{{}} Text value of the xml
 }
-public native function xml::getTextValue() returns (string);
+public extern function xml::getTextValue() returns (string);
 
 documentation {
     Set the children of an XML if its a singleton. An Error otherwise. Any existing children will be removed.
 
     P{{children}} children
 }
-public native function xml::setChildren(xml children);
+public extern function xml::setChildren(xml children);
 
 documentation {
     Make a deep copy of an XML.
 
     R{{}} A Copy of the XML
 }
-public native function xml::copy() returns (xml);
+public extern function xml::copy() returns (xml);
 
 documentation {
     Strips any text items from an XML sequence that are all whitespace.
 
     R{{}} Striped sequence
 }
-public native function xml::strip() returns (xml);
+public extern function xml::strip() returns (xml);
 
 documentation {
     Slice and return a subsequence of the an XML sequence.
@@ -95,14 +95,14 @@ documentation {
     P{{endIndex}} End index, exclusive
     R{{}} Sliced sequence
 }
-public native function xml::slice(int startIndex, int endIndex) returns (xml);
+public extern function xml::slice(int startIndex, int endIndex) returns (xml);
 
 documentation {
     Sets the attributes to the provided attributes map.
 
     P{{attributes}} Attributes map
 }
-public native function xml::setAttributes(map attributes);
+public extern function xml::setAttributes(map attributes);
 
 documentation {
     Converts a XML object to a JSON representation.
@@ -110,7 +110,7 @@ documentation {
     P{{options}} xmlOptions struct for XML to JSON conversion properties
     R{{}} JSON representation of the given XML
 }
-public native function xml::toJSON(record {
+public extern function xml::toJSON(record {
                                          string attributePrefix = "@",
                                          boolean preserveNamespaces = true,
                                      } options) returns (json);
@@ -122,11 +122,11 @@ documentation {
     P{{qname}} Qualified name of the element
     R{{}} All the descendants that matches the given qualified name, as a sequence
 }
-public native function xml::selectDescendants(string qname) returns (xml);
+public extern function xml::selectDescendants(string qname) returns (xml);
 
 documentation {
     Remove an attribute from an XML.
 
     P{{qname}} Qualified name of the attribute
 }
-public native function xml::removeAttribute(string qname);
+public extern function xml::removeAttribute(string qname);

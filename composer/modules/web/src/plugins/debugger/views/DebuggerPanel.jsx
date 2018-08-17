@@ -57,6 +57,14 @@ class DebuggerPanel extends View {
     }
 
     componentDidMount() {
+        // Resume previous debuggin state if panel was closed.
+        this.setState({
+            active: this.props.LaunchManager.active,
+            isDebugging: this.props.DebugManager.active,
+            messages: this.props.DebugManager.debugHits,
+            threadId: this.props.DebugManager.activeDebugHit &&
+                this.props.DebugManager.activeDebugHit.threadId,
+        });
         this.props.LaunchManager.on('execution-started', () => {
             this.setState({
                 active: true,
@@ -72,34 +80,27 @@ class DebuggerPanel extends View {
         this.props.DebugManager.on('debugging-started', () => {
             this.setState({
                 isDebugging: true,
+                active: true,
                 connecting: false,
                 showRetry: false,
             });
-        });
-        this.props.DebugManager.on('debug-hit', (m, messages) => {
-            _.forEach(messages, (message) => {
-                processFrames(message);
-            });
-            this.setState({
-                navigation: true,
-                isDebugging: true,
-                threadId: m.threadId,
-                messages,
-            });
-            // switch to new thread
-            this.onChangeThread(m.threadId);
         });
 
         this.props.DebugManager.on('execution-ended', () => {
             this.setState({
                 active: false,
                 isDebugging: false,
+                messages: [],
+                threadId: null,
             });
         });
 
         this.props.DebugManager.on('active-debug-hit', (activeDebugHit = {}) => {
             this.setState({
                 threadId: activeDebugHit.threadId,
+                active: true,
+                navigation: true,
+                isDebugging: true,
                 messages: this.props.DebugManager.debugHits,
             });
         });

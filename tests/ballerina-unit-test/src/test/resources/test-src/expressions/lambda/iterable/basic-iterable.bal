@@ -237,3 +237,34 @@ function testInStatement () returns int {
     }
     return 0;
 }
+
+function testIterableOutputPrint() returns (any, any, any, any, any) {
+    map<string> m = {a:"abc", b:"cd", c:"pqr"};
+    any count = m.count();
+    foo(count);
+    foo(m.count());
+
+    int[] a = [-5, 2, 4, 5, 7, -8, -3, 2];
+
+    foo(a.average());
+    any b = a.average();
+    foo(b);
+
+    foo(a.min());
+    any c = a.min();
+    foo(c);
+
+    foo(a.max());
+    any d = a.max();
+    foo(d);
+
+    foo(a.sum());
+    any e = a.sum();
+    foo(e);
+
+    return (count, b, c, d, e);
+}
+
+function foo(any a) {
+    //do nothing
+}

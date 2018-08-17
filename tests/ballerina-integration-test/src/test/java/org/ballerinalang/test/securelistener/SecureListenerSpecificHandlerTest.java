@@ -1,25 +1,25 @@
 /*
-*  Copyright (c) 2018, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
-*
-*  WSO2 Inc. licenses this file to you under the Apache License,
-*  Version 2.0 (the "License"); you may not use this file except
-*  in compliance with the License.
-*  You may obtain a copy of the License at
-*
-*  http://www.apache.org/licenses/LICENSE-2.0
-*
-*  Unless required by applicable law or agreed to in writing,
-*  software distributed under the License is distributed on an
-*  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-*  KIND, either express or implied.  See the License for the
-*  specific language governing permissions and limitations
-*  under the License.
-*/
+ *  Copyright (c) 2018, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ *  WSO2 Inc. licenses this file to you under the Apache License,
+ *  Version 2.0 (the "License"); you may not use this file except
+ *  in compliance with the License.
+ *  You may obtain a copy of the License at
+ *
+ *  http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing,
+ *  software distributed under the License is distributed on an
+ *  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ *  KIND, either express or implied.  See the License for the
+ *  specific language governing permissions and limitations
+ *  under the License.
+ */
 
 package org.ballerinalang.test.securelistener;
 
 import io.netty.handler.codec.http.HttpHeaderNames;
-import org.ballerinalang.test.IntegrationTestCase;
+import org.ballerinalang.test.BaseTest;
 import org.ballerinalang.test.context.ServerInstance;
 import org.ballerinalang.test.util.HttpClientRequest;
 import org.ballerinalang.test.util.HttpResponse;
@@ -37,7 +37,7 @@ import java.util.Map;
  * Test cases for verifying specific auth handler with secured listener.
  */
 @Test(groups = "broken")
-public class SecureListenerSpecificHandlerTest extends IntegrationTestCase {
+public class SecureListenerSpecificHandlerTest extends BaseTest {
     private ServerInstance ballerinaServer;
 
     @BeforeClass
@@ -85,7 +85,28 @@ public class SecureListenerSpecificHandlerTest extends IntegrationTestCase {
         Assert.assertEquals(response.getResponseCode(), 401, "Response code mismatched");
     }
 
-    @AfterClass public void tearDown() throws Exception {
+    @Test(description = "Authn and authz success test case for a request with path parameters")
+    public void testAuthSuccessWithPathParameter() throws Exception {
+        Map<String, String> headers = new HashMap<>();
+        headers.put(HttpHeaderNames.CONTENT_TYPE.toString(), TestConstant.CONTENT_TYPE_TEXT_PLAIN);
+        headers.put("Authorization", "Basic aXN1cnU6eHh4");
+        HttpResponse response = HttpClientRequest.doGet(ballerinaServer.getServiceURLHttp("echo/path/1"), headers);
+        Assert.assertNotNull(response);
+        Assert.assertEquals(response.getResponseCode(), 200, "Response code mismatched");
+    }
+
+    @Test(description = "Authn and authz failure test case for a request with path parameters")
+    public void testAuthFailureWithPathParameter() throws Exception {
+        Map<String, String> headers = new HashMap<>();
+        headers.put(HttpHeaderNames.CONTENT_TYPE.toString(), TestConstant.CONTENT_TYPE_TEXT_PLAIN);
+        headers.put("Authorization", "Basic dGVzdDp0ZXN0MTIz");
+        HttpResponse response = HttpClientRequest.doGet(ballerinaServer.getServiceURLHttp("echo/path/1"), headers);
+        Assert.assertNotNull(response);
+        Assert.assertEquals(response.getResponseCode(), 401, "Response code mismatched");
+    }
+
+    @AfterClass
+    public void tearDown() throws Exception {
         ballerinaServer.stopServer();
     }
 }

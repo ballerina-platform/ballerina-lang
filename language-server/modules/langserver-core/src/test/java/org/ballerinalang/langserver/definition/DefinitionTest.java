@@ -18,13 +18,13 @@
 package org.ballerinalang.langserver.definition;
 
 import org.ballerinalang.langserver.common.util.CommonUtil;
-import org.ballerinalang.langserver.completion.util.FileUtils;
 import org.eclipse.lsp4j.Position;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
+import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -34,15 +34,14 @@ import java.nio.file.Path;
  */
 public class DefinitionTest {
     private static final String METHOD = "textDocument/definition";
-    private Path balPath1 = FileUtils.RES_DIR.resolve("definition").resolve("test.definition.pkg")
-            .resolve("definition1.bal");
-    private Path balPath2 = FileUtils.RES_DIR.resolve("definition").resolve("test.definition.pkg")
-            .resolve("definition2.bal");
+    private Path definitionsPath = new File(getClass().getClassLoader().getResource("definition").getFile()).toPath();
+    private Path balPath1 = definitionsPath.resolve("test.definition.pkg").resolve("definition1.bal");
+    private Path balPath2 = definitionsPath.resolve("test.definition.pkg").resolve("definition2.bal");
     private String balFile1Content;
     private String balFile2Content;
 
     @BeforeClass
-    public void loadLangServer() throws Exception {
+    public void init() throws Exception {
         byte[] encoded1 = Files.readAllBytes(balPath1);
         balFile1Content = new String(encoded1);
         byte[] encoded2 = Files.readAllBytes(balPath2);
@@ -155,7 +154,8 @@ public class DefinitionTest {
      * @return string content read from the json file.
      */
     private String getExpectedValue(String expectedFile, String expectedFileURI) throws IOException {
-        Path expectedFilePath = FileUtils.RES_DIR.resolve("definition").resolve("expected").resolve(expectedFile);
+        Path expectedFilePath = definitionsPath.resolve("expected").resolve(expectedFile);
+
         byte[] expectedByte = Files.readAllBytes(expectedFilePath);
         String positionRange = new String(expectedByte);
 

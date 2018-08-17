@@ -19,21 +19,21 @@ documentation {
     close is required only if it is not fully iterated.
 
 }
-public native function table::close();
+public extern function table::close();
 
 documentation {
     Checks for a new row in the given table. If a new row is found, moves the cursor to it.
 
     R{{}} True if there is a new row; false otherwise
 }
-public native function table::hasNext() returns boolean;
+public extern function table::hasNext() returns boolean;
 
 documentation {
     Retrives the current row and return a record with the data in the columns.
 
     R{{}} The resulting row as a record
 }
-public native function table::getNext() returns any;
+public extern function table::getNext() returns any;
 
 documentation {
     Add record to the table.
@@ -41,7 +41,7 @@ documentation {
     P{{data}} A record with data
     R{{}} An `error` will be returned if there is any error occured during adding data or else nil is returned
 }
-public native function table::add(any data) returns error|();
+public extern function table::add(any data) returns error|();
 
 documentation {
     Remove data from the table.
@@ -49,7 +49,7 @@ documentation {
     P{{func}} The function pointer for delete crieteria
     R{{}} An `int` the number of deleted record count or `error` if any error occured during removing data
 }
-public native function table::remove(function (any) returns (boolean) func) returns int|error;
+public extern function table::remove(function (any) returns (boolean) func) returns int|error;
 
 documentation {
     Execute the given sql query to fetch the records and return as a new in memory table.
@@ -60,7 +60,7 @@ documentation {
     P{{parameters}} liternal parameters to be passed to prepared statement 'sqlQuery'
     P{{retType}} return type of the resultant table instance
 }
-native function queryTableWithJoinClause(string sqlQuery, table fromTable, table joinTable, any parameters,
+extern function queryTableWithJoinClause(string sqlQuery, table fromTable, table joinTable, any parameters,
                                          any retType) returns table;
 
 documentation {
@@ -71,7 +71,7 @@ documentation {
     P{{parameters}} literal parameters to be passed to prepared statement 'sqlQuery'
     P{{retType}} return type of the resultant table instance
 }
-native function queryTableWithoutJoinClause(string sqlQuery, table fromTable, any parameters,
+extern function queryTableWithoutJoinClause(string sqlQuery, table fromTable, any parameters,
                                             any retType) returns table;
 
 documentation {

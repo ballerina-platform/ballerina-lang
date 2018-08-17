@@ -26,12 +26,12 @@ import org.ballerinalang.mime.util.MimeUtil;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.util.XMLUtils;
 import org.ballerinalang.model.values.BMap;
+import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.model.values.BXML;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.natives.annotations.ReturnType;
-import org.ballerinalang.runtime.message.MessageDataSource;
 
 import java.util.Locale;
 
@@ -62,13 +62,14 @@ public class GetXml extends BlockingNativeCallableUnit {
             String baseType = HeaderUtil.getBaseType(entityStruct);
             if (baseType != null && (baseType.toLowerCase(Locale.getDefault()).endsWith(XML_TYPE_IDENTIFIER) ||
                     baseType.toLowerCase(Locale.getDefault()).endsWith(XML_SUFFIX))) {
-                MessageDataSource dataSource = EntityBodyHandler.getMessageDataSource(entityStruct);
+                BValue dataSource = EntityBodyHandler.getMessageDataSource(entityStruct);
                 if (dataSource != null) {
                     if (dataSource instanceof BXML) {
                         result = (BXML) dataSource;
                     } else {
-                        // else, build the XML from the string representation of the payload.
-                        result = XMLUtils.parse(dataSource.getMessageAsString());
+                        // Build the XML from string representation of the payload.
+                        BString payload = MimeUtil.getMessageAsString(dataSource);
+                        result = XMLUtils.parse(payload.stringValue());
                     }
                 } else {
                     result = EntityBodyHandler.constructXmlDataSource(entityStruct);

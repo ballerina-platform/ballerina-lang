@@ -27,6 +27,7 @@ import io.netty.handler.codec.http.HttpHeaders;
 import io.netty.handler.codec.http.HttpMethod;
 import io.netty.handler.codec.http.HttpResponseStatus;
 import io.netty.handler.codec.http.HttpVersion;
+
 import org.apache.commons.lang3.StringUtils;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BLangVMErrors;
@@ -69,8 +70,8 @@ import org.wso2.transport.http.netty.config.SslConfiguration;
 import org.wso2.transport.http.netty.contract.HttpResponseFuture;
 import org.wso2.transport.http.netty.contract.HttpWsConnectorFactory;
 import org.wso2.transport.http.netty.contractimpl.DefaultHttpWsConnectorFactory;
-import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
 import org.wso2.transport.http.netty.message.Http2PushPromise;
+import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 import org.wso2.transport.http.netty.message.HttpMessageDataStreamer;
 
 import java.io.IOException;
@@ -143,7 +144,7 @@ public class HttpUtil {
 
     public static BValue[] getProperty(Context context, boolean isRequest) {
         BMap<String, BValue> httpMessageStruct = (BMap<String, BValue>) context.getRefArgument(0);
-        HTTPCarbonMessage httpCarbonMessage = HttpUtil
+        HttpCarbonMessage httpCarbonMessage = HttpUtil
                 .getCarbonMsg(httpMessageStruct, HttpUtil.createHttpCarbonMessage(isRequest));
         String propertyName = context.getStringArgument(0);
 
@@ -166,7 +167,7 @@ public class HttpUtil {
         String propertyValue = context.getStringArgument(1);
 
         if (propertyName != null && propertyValue != null) {
-            HTTPCarbonMessage httpCarbonMessage = HttpUtil
+            HttpCarbonMessage httpCarbonMessage = HttpUtil
                     .getCarbonMsg(httpMessageStruct, HttpUtil.createHttpCarbonMessage(isRequest));
             httpCarbonMessage.setProperty(propertyName, propertyValue);
         }
@@ -180,7 +181,7 @@ public class HttpUtil {
      */
     public static BMap<String, BValue> createNewEntity(Context context, BMap<String, BValue> httpMessageStruct) {
         BMap<String, BValue> entity = ConnectorUtils.createAndGetStruct(context, PROTOCOL_PACKAGE_MIME, ENTITY);
-        HTTPCarbonMessage httpCarbonMessage = HttpUtil.getCarbonMsg(httpMessageStruct,
+        HttpCarbonMessage httpCarbonMessage = HttpUtil.getCarbonMsg(httpMessageStruct,
                 HttpUtil.createHttpCarbonMessage(isRequestStruct(httpMessageStruct)));
         entity.addNativeData(ENTITY_HEADERS, httpCarbonMessage.getHeaders());
         entity.addNativeData(ENTITY_BYTE_CHANNEL, null);
@@ -199,7 +200,7 @@ public class HttpUtil {
     public static void setEntity(Context context, boolean isRequest) {
         BMap<String, BValue> httpMessageStruct = (BMap<String, BValue>) context.getRefArgument(HTTP_MESSAGE_INDEX);
 
-        HTTPCarbonMessage httpCarbonMessage = HttpUtil.getCarbonMsg(httpMessageStruct,
+        HttpCarbonMessage httpCarbonMessage = HttpUtil.getCarbonMsg(httpMessageStruct,
                 HttpUtil.createHttpCarbonMessage(isRequest));
         BMap<String, BValue> entity = (BMap<String, BValue>) context.getRefArgument(ENTITY_INDEX);
         String contentType = MimeUtil.getContentTypeWithParameters(entity);
@@ -235,7 +236,7 @@ public class HttpUtil {
             if (entityBodyRequired && !byteChannelAlreadySet) {
                 populateEntityBody(context, httpMessageStruct, entity, isRequest);
             }
-            
+
             // Entity cannot be null, since it is not a nullable field in http:Request or http:Response
             if (entity.isEmpty()) {
                 entity = createNewEntity(context, httpMessageStruct);
@@ -257,7 +258,7 @@ public class HttpUtil {
      */
     public static void populateEntityBody(Context context, BMap<String, BValue> httpMessageStruct,
                                           BMap<String, BValue> entity, boolean isRequest) {
-        HTTPCarbonMessage httpCarbonMessage = HttpUtil
+        HttpCarbonMessage httpCarbonMessage = HttpUtil
                 .getCarbonMsg(httpMessageStruct, HttpUtil.createHttpCarbonMessage(isRequest));
         HttpMessageDataStreamer httpMessageDataStreamer = new HttpMessageDataStreamer(httpCarbonMessage);
         String contentType = httpCarbonMessage.getHeader(HttpHeaderNames.CONTENT_TYPE.toString());
@@ -304,8 +305,8 @@ public class HttpUtil {
         }
     }
 
-    public static void prepareOutboundResponse(Context context, HTTPCarbonMessage inboundRequestMsg,
-                                               HTTPCarbonMessage outboundResponseMsg,
+    public static void prepareOutboundResponse(Context context, HttpCarbonMessage inboundRequestMsg,
+                                               HttpCarbonMessage outboundResponseMsg,
                                                BMap<String, BValue> outboundResponseStruct) {
 
         HttpUtil.checkEntityAvailability(context, outboundResponseStruct);
@@ -330,8 +331,8 @@ public class HttpUtil {
                 .findFirst().get().trim().substring(HttpConstants.SESSION_ID.length());
     }
 
-    public static void addHTTPSessionAndCorsHeaders(Context context, HTTPCarbonMessage requestMsg,
-                                                    HTTPCarbonMessage responseMsg) {
+    public static void addHTTPSessionAndCorsHeaders(Context context, HttpCarbonMessage requestMsg,
+                                                    HttpCarbonMessage responseMsg) {
         //TODO Remove once service session LC is introduced
 //        Session session = (Session) requestMsg.getProperty(HttpConstants.HTTP_SESSION);
 //        if (session != null) {
@@ -356,8 +357,8 @@ public class HttpUtil {
         }
     }
 
-    public static HttpResponseFuture sendOutboundResponse(HTTPCarbonMessage requestMsg,
-                                                          HTTPCarbonMessage responseMsg) {
+    public static HttpResponseFuture sendOutboundResponse(HttpCarbonMessage requestMsg,
+                                                          HttpCarbonMessage responseMsg) {
         HttpResponseFuture responseFuture;
         try {
             responseFuture = requestMsg.respond(responseMsg);
@@ -375,7 +376,7 @@ public class HttpUtil {
      * @param pushPromise  the push promise associated with the server push
      * @return the future to get notifications of the operation asynchronously
      */
-    public static HttpResponseFuture pushResponse(HTTPCarbonMessage requestMsg, HTTPCarbonMessage pushResponse,
+    public static HttpResponseFuture pushResponse(HttpCarbonMessage requestMsg, HttpCarbonMessage pushResponse,
                                                   Http2PushPromise pushPromise) {
         HttpResponseFuture responseFuture;
         try {
@@ -393,7 +394,7 @@ public class HttpUtil {
      * @param pushPromise the push promise message
      * @return the future to get notifications of the operation asynchronously
      */
-    public static HttpResponseFuture pushPromise(HTTPCarbonMessage requestMsg, Http2PushPromise pushPromise) {
+    public static HttpResponseFuture pushPromise(HttpCarbonMessage requestMsg, Http2PushPromise pushPromise) {
         HttpResponseFuture responseFuture;
         try {
             responseFuture = requestMsg.pushPromise(pushPromise);
@@ -403,20 +404,20 @@ public class HttpUtil {
         return responseFuture;
     }
 
-    public static void handleFailure(HTTPCarbonMessage requestMessage, BallerinaConnectorException ex) {
+    public static void handleFailure(HttpCarbonMessage requestMessage, BallerinaConnectorException ex) {
         String errorMsg = ex.getMessage();
         int statusCode = getStatusCode(requestMessage, errorMsg);
         sendOutboundResponse(requestMessage, createErrorMessage(errorMsg, statusCode));
     }
 
-    public static void handleFailure(HTTPCarbonMessage requestMessage, BMap<String, BValue> error) {
+    public static void handleFailure(HttpCarbonMessage requestMessage, BMap<String, BValue> error) {
         String errorMsg = error.get(BLangVMErrors.ERROR_MESSAGE_FIELD).stringValue();
         int statusCode = getStatusCode(requestMessage, errorMsg);
         ErrorHandlerUtils.printError("error: " + BLangVMErrors.getPrintableStackTrace(error));
         sendOutboundResponse(requestMessage, createErrorMessage(errorMsg, statusCode));
     }
 
-    private static int getStatusCode(HTTPCarbonMessage requestMessage, String errorMsg) {
+    private static int getStatusCode(HttpCarbonMessage requestMessage, String errorMsg) {
         Object carbonStatusCode = requestMessage.getProperty(HttpConstants.HTTP_STATUS_CODE);
         if (carbonStatusCode == null) {
             //log only the internal server errors
@@ -426,8 +427,8 @@ public class HttpUtil {
         return Integer.parseInt(carbonStatusCode.toString());
     }
 
-    public static HTTPCarbonMessage createErrorMessage(String payload, int statusCode) {
-        HTTPCarbonMessage response = HttpUtil.createHttpCarbonMessage(false);
+    public static HttpCarbonMessage createErrorMessage(String payload, int statusCode) {
+        HttpCarbonMessage response = HttpUtil.createHttpCarbonMessage(false);
         response.waitAndReleaseAllEntities();
         if (payload != null) {
             payload = lowerCaseTheFirstLetter(payload);
@@ -449,7 +450,7 @@ public class HttpUtil {
         return payload;
     }
 
-    private static void setHttpStatusCodes(int statusCode, HTTPCarbonMessage response) {
+    private static void setHttpStatusCodes(int statusCode, HttpCarbonMessage response) {
         HttpHeaders httpHeaders = response.getHeaders();
         httpHeaders.set(HttpHeaderNames.CONTENT_TYPE, org.wso2.transport.http.netty.common.Constants.TEXT_PLAIN);
 
@@ -482,8 +483,8 @@ public class HttpUtil {
         }
     }
 
-    public static HTTPCarbonMessage getCarbonMsg(BMap<String, BValue> struct, HTTPCarbonMessage defaultMsg) {
-        HTTPCarbonMessage httpCarbonMessage = (HTTPCarbonMessage) struct.getNativeData(TRANSPORT_MESSAGE);
+    public static HttpCarbonMessage getCarbonMsg(BMap<String, BValue> struct, HttpCarbonMessage defaultMsg) {
+        HttpCarbonMessage httpCarbonMessage = (HttpCarbonMessage) struct.getNativeData(TRANSPORT_MESSAGE);
         if (httpCarbonMessage != null) {
             return httpCarbonMessage;
         }
@@ -541,12 +542,12 @@ public class HttpUtil {
         return new Http2PushPromise(method, path);
     }
 
-    public static void addCarbonMsg(BMap<String, BValue> struct, HTTPCarbonMessage httpCarbonMessage) {
+    public static void addCarbonMsg(BMap<String, BValue> struct, HttpCarbonMessage httpCarbonMessage) {
         struct.addNativeData(TRANSPORT_MESSAGE, httpCarbonMessage);
     }
 
     public static void populateInboundRequest(BMap<String, BValue> inboundRequestStruct, BMap<String, BValue> entity,
-                                              BMap<String, BValue> mediaType, HTTPCarbonMessage inboundRequestMsg,
+                                              BMap<String, BValue> mediaType, HttpCarbonMessage inboundRequestMsg,
                                               ProgramFile programFile) {
         inboundRequestStruct.addNativeData(TRANSPORT_MESSAGE, inboundRequestMsg);
         inboundRequestStruct.addNativeData(REQUEST, true);
@@ -569,7 +570,7 @@ public class HttpUtil {
     }
 
     private static void enrichWithInboundRequestHeaders(BMap<String, BValue> inboundRequestStruct,
-                                                        HTTPCarbonMessage inboundRequestMsg) {
+                                                        HttpCarbonMessage inboundRequestMsg) {
         if (inboundRequestMsg.getHeader(HttpHeaderNames.USER_AGENT.toString()) != null) {
             String agent = inboundRequestMsg.getHeader(HttpHeaderNames.USER_AGENT.toString());
             inboundRequestStruct.put(HttpConstants.REQUEST_USER_AGENT_FIELD, new BString(agent));
@@ -578,7 +579,7 @@ public class HttpUtil {
     }
 
     private static void enrichWithInboundRequestInfo(BMap<String, BValue> inboundRequestStruct,
-                                                     HTTPCarbonMessage inboundRequestMsg) {
+                                                     HttpCarbonMessage inboundRequestMsg) {
         inboundRequestStruct.put(HttpConstants.REQUEST_RAW_PATH_FIELD,
                 new BString((String) inboundRequestMsg.getProperty(HttpConstants.REQUEST_URL)));
         inboundRequestStruct.put(HttpConstants.REQUEST_METHOD_FIELD,
@@ -599,7 +600,7 @@ public class HttpUtil {
      * @param connection Represent the connection struct
      * @param inboundMsg Represent carbon message.
      */
-    public static void enrichConnectionInfo(BMap<String, BValue> connection, HTTPCarbonMessage inboundMsg,
+    public static void enrichConnectionInfo(BMap<String, BValue> connection, HttpCarbonMessage inboundMsg,
                                             Struct config) {
         connection.addNativeData(HttpConstants.TRANSPORT_MESSAGE, inboundMsg);
         connection.put(HttpConstants.HTTP_CONNECTOR_CONFIG_FIELD, (BMap<String, BValue>) config.getVMValue());
@@ -612,7 +613,7 @@ public class HttpUtil {
      * @param inboundMsg Represent carbon message.
      * @param httpResource Represent Http Resource.
      */
-    public static void enrichServiceEndpointInfo(BMap<String, BValue> serviceEndpoint, HTTPCarbonMessage inboundMsg,
+    public static void enrichServiceEndpointInfo(BMap<String, BValue> serviceEndpoint, HttpCarbonMessage inboundMsg,
                                                  HttpResource httpResource, Struct config) {
         BMap<String, BValue> remote = BLangConnectorSPIUtil.createBStruct(
                 httpResource.getBalResource().getResourceInfo().getServiceInfo().getPackageInfo().getProgramFile(),
@@ -656,7 +657,7 @@ public class HttpUtil {
      */
     public static void populateInboundResponse(BMap<String, BValue> inboundResponse, BMap<String, BValue> entity,
                                                BMap<String, BValue> mediaType, ProgramFile programFile,
-                                               HTTPCarbonMessage inboundResponseMsg) {
+                                               HttpCarbonMessage inboundResponseMsg) {
         inboundResponse.addNativeData(TRANSPORT_MESSAGE, inboundResponseMsg);
         int statusCode = (Integer) inboundResponseMsg.getProperty(HTTP_STATUS_CODE);
         inboundResponse.put(RESPONSE_STATUS_CODE_FIELD, new BInteger(statusCode));
@@ -696,7 +697,7 @@ public class HttpUtil {
      * @param cMsg      Represent a carbon message
      */
     private static void populateEntity(BMap<String, BValue> entity, BMap<String, BValue> mediaType,
-                                       HTTPCarbonMessage cMsg) {
+                                       HttpCarbonMessage cMsg) {
         String contentType = cMsg.getHeader(HttpHeaderNames.CONTENT_TYPE.toString());
         MimeUtil.setContentType(mediaType, entity, contentType);
         long contentLength = -1;
@@ -716,13 +717,13 @@ public class HttpUtil {
      * @param outboundMsg    transport Http carbon message.
      * @param outboundStruct req/resp struct.
      */
-    public static void enrichOutboundMessage(HTTPCarbonMessage outboundMsg, BMap<String, BValue> outboundStruct) {
+    public static void enrichOutboundMessage(HttpCarbonMessage outboundMsg, BMap<String, BValue> outboundStruct) {
         setHeadersToTransportMessage(outboundMsg, outboundStruct);
         setPropertiesToTransportMessage(outboundMsg, outboundStruct);
     }
 
     @SuppressWarnings("unchecked")
-    private static void setHeadersToTransportMessage(HTTPCarbonMessage outboundMsg, BMap<String, BValue> struct) {
+    private static void setHeadersToTransportMessage(HttpCarbonMessage outboundMsg, BMap<String, BValue> struct) {
         BMap<String, BValue> entityStruct = (BMap<String, BValue>) struct
                 .get(isRequestStruct(struct) ? REQUEST_ENTITY_FIELD : RESPONSE_ENTITY_FIELD);
         HttpHeaders transportHeaders = outboundMsg.getHeaders();
@@ -730,7 +731,7 @@ public class HttpUtil {
             addRemovedPropertiesBackToHeadersMap(struct, transportHeaders);
             // Since now the InRequest & OutRequest are merged to a single Request and InResponse & OutResponse
             // are merged to a single Response, without returning need to populate all headers from the struct
-            // to the HTTPCarbonMessage.
+            // to the HttpCarbonMessage.
             // TODO: refactor this logic properly.
             // return;
         }
@@ -769,7 +770,7 @@ public class HttpUtil {
         }
     }
 
-    private static void setPropertiesToTransportMessage(HTTPCarbonMessage outboundResponseMsg,
+    private static void setPropertiesToTransportMessage(HttpCarbonMessage outboundResponseMsg,
                                                         BMap<String, BValue> struct) {
         if (isResponseStruct(struct)) {
             long statusCode = ((BInteger) struct.get(RESPONSE_STATUS_CODE_FIELD)).intValue();
@@ -809,7 +810,7 @@ public class HttpUtil {
         return (entityStruct != null && EntityBodyHandler.getMessageDataSource(entityStruct) != null);
     }
 
-    private static void setCompressionHeaders(Context context, HTTPCarbonMessage requestMsg, HTTPCarbonMessage
+    private static void setCompressionHeaders(Context context, HttpCarbonMessage requestMsg, HttpCarbonMessage
             outboundResponseMsg) {
         Service serviceInstance = BLangConnectorSPIUtil.getService(context.getProgramFile(),
                 context.getServiceInfo().getType());
@@ -995,25 +996,25 @@ public class HttpUtil {
         }
     }
 
-    public static HTTPCarbonMessage createHttpCarbonMessage(boolean isRequest) {
-        HTTPCarbonMessage httpCarbonMessage;
+    public static HttpCarbonMessage createHttpCarbonMessage(boolean isRequest) {
+        HttpCarbonMessage httpCarbonMessage;
         if (isRequest) {
-            httpCarbonMessage = new HTTPCarbonMessage(
+            httpCarbonMessage = new HttpCarbonMessage(
                     new DefaultHttpRequest(HttpVersion.HTTP_1_1, HttpMethod.GET, ""));
         } else {
-            httpCarbonMessage = new HTTPCarbonMessage(
+            httpCarbonMessage = new HttpCarbonMessage(
                     new DefaultHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.OK));
         }
         httpCarbonMessage.completeMessage();
         return httpCarbonMessage;
     }
 
-    public static void checkFunctionValidity(BMap<String, BValue> connectionStruct, HTTPCarbonMessage reqMsg) {
+    public static void checkFunctionValidity(BMap<String, BValue> connectionStruct, HttpCarbonMessage reqMsg) {
         serverConnectionStructCheck(reqMsg);
         methodInvocationCheck(connectionStruct, reqMsg);
     }
 
-    private static void methodInvocationCheck(BMap<String, BValue> bStruct, HTTPCarbonMessage reqMsg) {
+    private static void methodInvocationCheck(BMap<String, BValue> bStruct, HttpCarbonMessage reqMsg) {
         if (bStruct.getNativeData(METHOD_ACCESSED) != null || reqMsg == null) {
             throw new IllegalStateException("illegal function invocation");
         }
@@ -1023,13 +1024,13 @@ public class HttpUtil {
         }
     }
 
-    public static void serverConnectionStructCheck(HTTPCarbonMessage reqMsg) {
+    public static void serverConnectionStructCheck(HttpCarbonMessage reqMsg) {
         if (reqMsg == null) {
             throw new BallerinaException("operation not allowed:invalid Connection variable");
         }
     }
 
-    private static boolean is100ContinueRequest(HTTPCarbonMessage reqMsg) {
+    private static boolean is100ContinueRequest(HttpCarbonMessage reqMsg) {
         return HttpConstants.HEADER_VAL_100_CONTINUE.equalsIgnoreCase(
                 reqMsg.getHeader(HttpHeaderNames.EXPECT.toString()));
     }
@@ -1107,7 +1108,7 @@ public class HttpUtil {
         return intVal;
     }
 
-    public static String getContentTypeFromTransportMessage(HTTPCarbonMessage transportMessage) {
+    public static String getContentTypeFromTransportMessage(HttpCarbonMessage transportMessage) {
         return transportMessage.getHeader(HttpHeaderNames.CONTENT_TYPE.toString());
     }
 
@@ -1119,7 +1120,7 @@ public class HttpUtil {
      * @param contentType      Represent the Content-Type header value
      * @return The boundary string that was extracted from header or the newly generated one
      */
-    public static String addBoundaryIfNotExist(HTTPCarbonMessage transportMessage, String contentType) {
+    public static String addBoundaryIfNotExist(HttpCarbonMessage transportMessage, String contentType) {
         String boundaryString;
         BString boundaryValue = HeaderUtil.extractBoundaryParameter(contentType);
         boundaryString = boundaryValue != null ? boundaryValue.toString() :
@@ -1134,7 +1135,7 @@ public class HttpUtil {
      * @param contentType      Represent the Content-Type header value
      * @return The newly generated boundary string
      */
-    private static String addBoundaryParameter(HTTPCarbonMessage transportMessage, String contentType) {
+    private static String addBoundaryParameter(HttpCarbonMessage transportMessage, String contentType) {
         String boundaryString = null;
         if (contentType != null && contentType.startsWith(MULTIPART_AS_PRIMARY_TYPE)) {
             boundaryString = MimeUtil.getNewMultipartDelimiter();
@@ -1148,7 +1149,7 @@ public class HttpUtil {
         return new DefaultHttpWsConnectorFactory();
     }
 
-    public static void checkAndObserveHttpRequest(Context context, HTTPCarbonMessage message) {
+    public static void checkAndObserveHttpRequest(Context context, HttpCarbonMessage message) {
         Optional<ObserverContext> observerContext = ObservabilityUtils.getParentContext(context);
         observerContext.ifPresent(ctx -> {
             HttpUtil.injectHeaders(message, ObservabilityUtils.getContextProperties(ctx, TraceConstants.TRACE_HEADER));
@@ -1165,13 +1166,13 @@ public class HttpUtil {
         });
     }
 
-    public static void injectHeaders(HTTPCarbonMessage msg, Map<String, String> headers) {
+    public static void injectHeaders(HttpCarbonMessage msg, Map<String, String> headers) {
         if (headers != null) {
             headers.forEach((key, value) -> msg.setHeader(key, String.valueOf(value)));
         }
     }
 
-    private static void setChunkingHeader(Context context, HTTPCarbonMessage
+    private static void setChunkingHeader(Context context, HttpCarbonMessage
             outboundResponseMsg) {
         Service serviceInstance = BLangConnectorSPIUtil.getService(context.getProgramFile(),
                 context.getServiceInfo().getType());
@@ -1186,13 +1187,13 @@ public class HttpUtil {
     }
 
     /**
-     * Creates InResponse using the native {@code HTTPCarbonMessage}.
+     * Creates InResponse using the native {@code HttpCarbonMessage}.
      *
      * @param context           ballerina context
-     * @param httpCarbonMessage the HTTPCarbonMessage
+     * @param httpCarbonMessage the HttpCarbonMessage
      * @return the Response struct
      */
-    public static BMap<String, BValue> createResponseStruct(Context context, HTTPCarbonMessage httpCarbonMessage) {
+    public static BMap<String, BValue> createResponseStruct(Context context, HttpCarbonMessage httpCarbonMessage) {
         BMap<String, BValue> responseStruct = BLangConnectorSPIUtil.createBStruct(context,
                 HttpConstants.PROTOCOL_PACKAGE_HTTP, HttpConstants.RESPONSE);
         BMap<String, BValue> entity =
@@ -1288,5 +1289,26 @@ public class HttpUtil {
         sslConfiguration.setTrustStoreFile(String.valueOf(
                 Paths.get(System.getProperty("ballerina.home"), "bre", "security", "ballerinaTruststore.p12")));
         sslConfiguration.setTrustStorePass("ballerina");
+    }
+
+    public static String sanitizeBasePath(String basePath) {
+        basePath = basePath.trim();
+
+        if (!basePath.startsWith(HttpConstants.DEFAULT_BASE_PATH)) {
+            basePath = HttpConstants.DEFAULT_BASE_PATH.concat(basePath);
+        }
+
+        if ((basePath.endsWith(HttpConstants.DEFAULT_BASE_PATH) && basePath.length() != 1)) {
+            basePath = basePath.substring(0, basePath.length() - 1);
+        }
+
+        if (basePath.endsWith("*")) {
+            basePath = basePath.substring(0, basePath.length() - 1);
+        }
+
+        return basePath;
+    }
+
+    private HttpUtil() {
     }
 }

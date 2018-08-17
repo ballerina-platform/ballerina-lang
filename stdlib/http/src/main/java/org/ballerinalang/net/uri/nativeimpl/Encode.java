@@ -31,7 +31,7 @@ import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 
 /**
- * Native function to encode URLs.
+ * Extern function to encode URLs.
  * ballerina/http:encode
  */
 

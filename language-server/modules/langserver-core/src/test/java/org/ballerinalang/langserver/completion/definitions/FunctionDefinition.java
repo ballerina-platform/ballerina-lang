@@ -50,6 +50,12 @@ public class FunctionDefinition extends CompletionTest {
                 {"recordVarDef1.json", "function"},
                 {"recordVarDef2.json", "function"},
                 {"functionPointerAsParameter.json", "function"},
+                {"matchStatementSuggestions1.json", "function"},
+                {"matchStatementSuggestions2.json", "function"},
+                {"matchStatementSuggestions3.json", "function"},
+                {"matchStatementSuggestions4.json", "function"},
+                {"errorLiftingSuggestions1.json", "function"},
+                {"errorLiftingSuggestions2.json", "function"},
         };
     }
 }

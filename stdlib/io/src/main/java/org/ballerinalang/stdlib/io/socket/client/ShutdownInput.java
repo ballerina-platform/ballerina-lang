@@ -34,7 +34,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Native function to ShutdownInput in a socket.
+ * Extern function to ShutdownInput in a socket.
  *
  * @since 0.970.0
  */

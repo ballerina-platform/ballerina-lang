@@ -19,7 +19,7 @@ package org.ballerinalang.net.http;
 import org.ballerinalang.bre.bvm.CallableUnitCallback;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BValue;
-import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
+import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 
 /**
  * {@code HttpCallableUnitCallback} is the responsible for acting on notifications received from Ballerina side.
@@ -27,9 +27,9 @@ import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
  * @since 0.94
  */
 public class HttpCallableUnitCallback implements CallableUnitCallback {
-    private HTTPCarbonMessage requestMessage;
+    private HttpCarbonMessage requestMessage;
 
-    public HttpCallableUnitCallback(HTTPCarbonMessage requestMessage) {
+    public HttpCallableUnitCallback(HttpCarbonMessage requestMessage) {
         this.requestMessage = requestMessage;
     }
 

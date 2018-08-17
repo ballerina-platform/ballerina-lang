@@ -323,9 +323,8 @@ public class Types {
             return false;
         }
 
-        // Now both types are not array types and they have to be equal
-        if (target == source) {
-            // TODO Figure out this.
+        // Now both types are not array types and they have to be assignable
+        if (isAssignable(source, target)) {
             return true;
         }
 
@@ -810,7 +809,7 @@ public class Types {
                 return getExplicitArrayConversionOperator(t, s, t, s);
             } else if (s.tag == TypeTags.UNION) {
                 if (checkUnionTypeToJSONConvertibility((BUnionType) s, t)) {
-                    return createConversionOperatorSymbol(s, t, false, InstructionCodes.CHECK_CONVERSION);
+                    return createConversionOperatorSymbol(s, t, false, InstructionCodes.O2JSON);
                 }
                 return symTable.notFoundSymbol;
             } else if (s.tag == TypeTags.MAP) {

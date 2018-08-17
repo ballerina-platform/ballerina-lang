@@ -33,17 +33,18 @@ documentation {
     P{{algorithm}} The hashing algorithm to be used
     R{{}} The hashed string
 }
-public native function hash(string baseString, Algorithm algorithm) returns (string);
+public extern function hash(string baseString, Algorithm algorithm) returns (string);
 
 documentation {
     Returns the HMAC value of the provided base string.
 
     P{{baseString}} The string to be hashed
     P{{keyString}} The key string
+    P{{keyEncoding}} The encoding of the key
     P{{algorithm}} The hashing algorithm to be used
     R{{}} The hashed string
 }
-public native function hmac(string baseString, string keyString, Algorithm algorithm) returns (string);
+public extern function hmac(string baseString, string keyString, string keyEncoding = "UTF-8", Algorithm algorithm) returns (string);
 
 documentation {
     Returns the CRC32 hash for the provided element. This accepts `string`, `byte[]`, `json` and `xml` content.
@@ -51,4 +52,4 @@ documentation {
     P{{content}} The content to be hashed
     R{{}} The generated hash
 }
-public native function crc32(any content) returns (string);
+public extern function crc32(any content) returns (string);
