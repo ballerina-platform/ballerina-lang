@@ -89,6 +89,11 @@
     </test>
 
     <test name="ballerina-grpc-tests" parallel="false">
+        <groups>
+            <run>
+                <exclude name="broken"/>
+            </run>
+        </groups>
         <packages>
             <package name="org.ballerinalang.test.service.grpc.*"/>
         </packages>
