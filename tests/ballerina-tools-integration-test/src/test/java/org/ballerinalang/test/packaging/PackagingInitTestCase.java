@@ -342,11 +342,7 @@ public class PackagingInitTestCase {
         ballerinaServer = createNewBallerinaServer();
         ballerinaServer.runMain(clientArgsForBuild, getEnvVariables(), "build", projectPath.toString());
 
-        Path generatedBalx = genExecPath.resolve("foo.balx");
-        Assert.assertTrue(Files.exists(generatedBalx));
-
-        // Test ballerina run with balx
-        runMainFunction(projectPath, generatedBalx.toString());
+        Assert.assertTrue(Files.exists(genExecPath.resolve("foo.balx")));
     }
 
     /**
