@@ -48,7 +48,7 @@ import java.nio.file.Paths;
 /**
  * Test class for gRPC unary service with array input/output.
  */
-@Test(groups = "grpc-test")
+@Test(groups = {"broken"})
 public class UnaryBlockingArrayValueTestCase extends BaseTest {
 
     private CompileResult result;

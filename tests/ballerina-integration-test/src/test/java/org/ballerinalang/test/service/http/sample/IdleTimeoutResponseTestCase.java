@@ -233,7 +233,7 @@ public class IdleTimeoutResponseTestCase extends BaseTest {
     }
 
     @Test(description = "Tests if 500 response is returned when the server times out. In this case a sleep is " +
-            "introduced in the server.")
+            "introduced in the server.", enabled = false)
     public void test500Response() throws Exception {
         HttpResponse response = HttpClientRequest.doGet(serverInstance.getServiceURLHttp(servicePort,
                                                                                          "idle/timeout500"));
