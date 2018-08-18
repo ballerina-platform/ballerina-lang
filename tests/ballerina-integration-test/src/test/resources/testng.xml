@@ -127,6 +127,7 @@
             <class name="org.ballerinalang.test.service.websub.WebSubRedirectionTestCase"/>
             <class name="org.ballerinalang.test.service.websub.WebSubSubscriptionChangeTestCase"/>
             <class name="org.ballerinalang.test.service.websub.WebSubWithSecretTestCase"/>
+            <class name="org.ballerinalang.test.service.websub.WebSubServiceExtensionTestCase"/>
         </classes>
     </test>
     <test name="ballerina-data-streaming-tests">
