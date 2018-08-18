@@ -256,7 +256,7 @@ public class JsonSerializer implements ObjectToJsonSerializer, BValueSerializer 
             }
         }
         if (obj instanceof Character) {
-            return new BInteger((long) ((Character) obj).charValue());
+            return new BInteger((long) (Character) obj);
         }
         if (obj instanceof Number) {
             if (obj instanceof Integer) {
@@ -372,6 +372,6 @@ public class JsonSerializer implements ObjectToJsonSerializer, BValueSerializer 
     public <T> T deserialize(String serialized, Class<T> destinationType) {
         BRefType<?> objTree = JsonParser.parse(new StringReader(serialized));
         JsonDeserializer jsonDeserializer = new JsonDeserializer(objTree);
-        return destinationType.cast(jsonDeserializer.deserialize(destinationType));
+        return (T) jsonDeserializer.deserialize(destinationType);
     }
 }

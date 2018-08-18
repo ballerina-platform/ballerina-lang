@@ -308,6 +308,39 @@ public class JsonSerializerTest {
         Assert.assertTrue(arr[1].obj.equals("Item2"));
     }
 
+    @Test(description = "Test serializing Char/char")
+    public void testCharSerialization() {
+        char ch = '2';
+        String serial = new JsonSerializer().serialize(ch);
+        Character deserialize = new JsonSerializer().deserialize(serial, char.class);
+        Assert.assertEquals(Character.valueOf(ch), deserialize);
+    }
+
+    @Test(description = "Test serializing short")
+    public void testShortSerialization() {
+        short sh = 2;
+        String serial = new JsonSerializer().serialize(sh);
+        Short deserialize = new JsonSerializer().deserialize(serial, short.class);
+        Assert.assertEquals(Short.valueOf(sh), deserialize);
+    }
+
+    @Test(description = "Test serializing byte")
+    public void testByteSerialization() {
+        Byte b = 2;
+        String serial = new JsonSerializer().serialize(b);
+        Byte deserialize = new JsonSerializer().deserialize(serial, byte.class);
+        Assert.assertEquals(Byte.valueOf(b), deserialize);
+    }
+
+    @Test(description = "Test serializing Char[]")
+    public void testCharArraySerialization() {
+        char[] chs = new char[]{'a', 'b', 'c'};
+        String serial = new JsonSerializer().serialize(chs);
+        char[] deserialize = new JsonSerializer().deserialize(serial, char[].class);
+
+        Assert.assertEquals(chs, deserialize);
+    }
+
     public static class TestClass {
         Object obj;
 

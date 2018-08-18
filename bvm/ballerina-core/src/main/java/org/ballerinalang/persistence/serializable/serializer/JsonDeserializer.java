@@ -106,6 +106,9 @@ class JsonDeserializer implements BValueDeserializer {
             if (targetType == Byte.class || targetType == byte.class) {
                 return (byte) ((BInteger) jValue).intValue();
             }
+            if (targetType == Character.class || targetType == char.class) {
+                return (char) ((BInteger) jValue).intValue();
+            }
             return ((BInteger) jValue).intValue();
         }
         if (jValue instanceof BFloat) {
