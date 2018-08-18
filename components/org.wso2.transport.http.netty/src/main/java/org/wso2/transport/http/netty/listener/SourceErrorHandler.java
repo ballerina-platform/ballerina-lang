@@ -31,8 +31,6 @@ import io.netty.handler.codec.http.HttpResponse;
 import io.netty.handler.codec.http.HttpResponseStatus;
 import io.netty.handler.codec.http.HttpVersion;
 import io.netty.handler.codec.http.LastHttpContent;
-import io.netty.handler.timeout.IdleState;
-import io.netty.handler.timeout.IdleStateEvent;
 import io.netty.util.CharsetUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -48,14 +46,12 @@ import java.nio.channels.ClosedChannelException;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import static io.netty.buffer.Unpooled.copiedBuffer;
-import static org.wso2.transport.http.netty.common.Constants
-        .IDLE_TIMEOUT_TRIGGERED_BEFORE_INITIATING_100_CONTINUE_RESPONSE;
+import static org.wso2.transport.http.netty.common.Constants.IDLE_TIMEOUT_TRIGGERED_BEFORE_INITIATING_100_CONTINUE_RESPONSE;
 import static org.wso2.transport.http.netty.common.Constants.IDLE_TIMEOUT_TRIGGERED_BEFORE_INITIATING_INBOUND_REQUEST;
 import static org.wso2.transport.http.netty.common.Constants.IDLE_TIMEOUT_TRIGGERED_BEFORE_INITIATING_OUTBOUND_RESPONSE;
 import static org.wso2.transport.http.netty.common.Constants.IDLE_TIMEOUT_TRIGGERED_WHILE_WRITING_100_CONTINUE_RESPONSE;
 import static org.wso2.transport.http.netty.common.Constants.IDLE_TIMEOUT_TRIGGERED_WHILE_WRITING_OUTBOUND_RESPONSE;
-import static org.wso2.transport.http.netty.common.Constants
-        .REMOTE_CLIENT_CLOSED_BEFORE_INITIATING_100_CONTINUE_RESPONSE;
+import static org.wso2.transport.http.netty.common.Constants.REMOTE_CLIENT_CLOSED_BEFORE_INITIATING_100_CONTINUE_RESPONSE;
 import static org.wso2.transport.http.netty.common.Constants.REMOTE_CLIENT_CLOSED_BEFORE_INITIATING_INBOUND_REQUEST;
 import static org.wso2.transport.http.netty.common.Constants.REMOTE_CLIENT_CLOSED_BEFORE_INITIATING_OUTBOUND_RESPONSE;
 import static org.wso2.transport.http.netty.common.Constants.REMOTE_CLIENT_CLOSED_WHILE_READING_INBOUND_REQUEST;
@@ -122,8 +118,7 @@ public class SourceErrorHandler {
         }
     }
 
-    ChannelFuture handleIdleErrorScenario(HttpCarbonMessage inboundRequestMsg, ChannelHandlerContext ctx,
-                                          IdleStateEvent evt) {
+    ChannelFuture handleIdleErrorScenario(HttpCarbonMessage inboundRequestMsg, ChannelHandlerContext ctx) {
         this.inboundRequestMsg = inboundRequestMsg;
         try {
             switch (state) {
@@ -144,19 +139,15 @@ public class SourceErrorHandler {
                 case EXPECT_100_CONTINUE_HEADER_RECEIVED:
                 case ENTITY_BODY_RECEIVED:
                     // This means we have received the complete inbound request. But nothing happened after that.
-                    if (evt.state() != IdleState.READER_IDLE) {
-                        //500 Internal Server error is sent if the idle timeout is reached
-                        String responseValue = "Server time out";
-                        return sendRequestTimeoutResponse(ctx, HttpResponseStatus.INTERNAL_SERVER_ERROR,
-                                                          copiedBuffer(responseValue, CharsetUtil.UTF_8),
-                                                          responseValue.length());
-                    }
-
                     String errorMsg = state.equals(ENTITY_BODY_RECEIVED) ?
                             IDLE_TIMEOUT_TRIGGERED_BEFORE_INITIATING_OUTBOUND_RESPONSE :
                             IDLE_TIMEOUT_TRIGGERED_BEFORE_INITIATING_100_CONTINUE_RESPONSE;
                     serverConnectorFuture.notifyErrorListener(new ServerConnectorException(errorMsg));
-                    break;
+                    //500 Internal Server error is sent if the idle timeout is reached
+                    String responseValue = "Server time out";
+                    return sendRequestTimeoutResponse(ctx, HttpResponseStatus.INTERNAL_SERVER_ERROR,
+                                                      copiedBuffer(responseValue, CharsetUtil.UTF_8),
+                                                      responseValue.length());
                 case SENDING_ENTITY_BODY:
                     // OutboundResponseStatusFuture will be notified asynchronously via OutboundResponseListener.
                     log.error(IDLE_TIMEOUT_TRIGGERED_WHILE_WRITING_OUTBOUND_RESPONSE);
