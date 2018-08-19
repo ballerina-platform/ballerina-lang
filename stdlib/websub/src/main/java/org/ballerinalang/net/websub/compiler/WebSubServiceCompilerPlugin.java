@@ -29,7 +29,6 @@ import java.util.List;
 
 import static org.ballerinalang.net.websub.WebSubSubscriberConstants.ANN_NAME_WEBSUB_SUBSCRIBER_SERVICE_CONFIG;
 import static org.ballerinalang.net.websub.WebSubSubscriberConstants.GENERIC_SUBSCRIBER_SERVICE_TYPE;
-import static org.ballerinalang.net.websub.WebSubSubscriberConstants.RESOURCE_NAME_ON_INTENT_VERIFICATION;
 import static org.ballerinalang.net.websub.WebSubSubscriberConstants.RESOURCE_NAME_ON_NOTIFICATION;
 import static org.ballerinalang.net.websub.WebSubSubscriberConstants.WEBSUB_PACKAGE;
 import static org.ballerinalang.net.websub.WebSubSubscriberServiceValidator.validateDefaultResources;
@@ -55,30 +54,40 @@ public class WebSubServiceCompilerPlugin extends AbstractCompilerPlugin {
     @Override
     public void process(ServiceNode serviceNode, List<AnnotationAttachmentNode> annotations) {
         final UserDefinedTypeNode serviceType = serviceNode.getServiceTypeStruct();
+
+        int webSubAnnotationConfigCount = 0;
+        for (AnnotationAttachmentNode annotation : annotations) {
+            if (ANN_NAME_WEBSUB_SUBSCRIBER_SERVICE_CONFIG.equals(annotation.getAnnotationName().getValue())) {
+                webSubAnnotationConfigCount++;
+                // TODO: 8/19/18 intro annotation validation if required
+            }
+        }
+
+        if (webSubAnnotationConfigCount > 1) {
+            dlog.logDiagnostic(Diagnostic.Kind.ERROR, serviceNode.getPosition(),
+                               "cannot have more than one '" + ANN_NAME_WEBSUB_SUBSCRIBER_SERVICE_CONFIG
+                                       + "' annotations");
+        }
+
         if (serviceType != null && GENERIC_SUBSCRIBER_SERVICE_TYPE.equals(serviceType.getTypeName().getValue())) {
-            int webSubAnnotationConfigCount = 0;
-            for (AnnotationAttachmentNode annotation : annotations) {
-                if (ANN_NAME_WEBSUB_SUBSCRIBER_SERVICE_CONFIG.equals(annotation.getAnnotationName().getValue())) {
-                    webSubAnnotationConfigCount++;
-                    // TODO: 8/19/18 intro annotation validation if required
-                }
-            }
-
-            if (webSubAnnotationConfigCount > 1) {
-                dlog.logDiagnostic(Diagnostic.Kind.ERROR, serviceNode.getPosition(),
-                   "cannot have more than one " + ANN_NAME_WEBSUB_SUBSCRIBER_SERVICE_CONFIG + " annotations");
-            }
-
             List<BLangResource> resources = (List<BLangResource>) serviceNode.getResources();
             if (resources.size() > 2) {
                 dlog.logDiagnostic(Diagnostic.Kind.ERROR, serviceNode.getPosition(),
-                                   "only two resources allowed with " + WEBSUB_PACKAGE + ":"
-                                       + GENERIC_SUBSCRIBER_SERVICE_TYPE + ", '" + RESOURCE_NAME_ON_INTENT_VERIFICATION
-                                       + "' and '" + RESOURCE_NAME_ON_NOTIFICATION + "'");
+                               "cannot have more than two resources with " + WEBSUB_PACKAGE + ":"
+                                       + GENERIC_SUBSCRIBER_SERVICE_TYPE);
+                return;
             }
             resources.forEach(res -> {
                 validateDefaultResources(res, dlog);
             });
+
+            if (resources.size() < 1
+                    || (resources.size() == 1
+                                && !(RESOURCE_NAME_ON_NOTIFICATION.equals(resources.get(0).getName().getValue())))) {
+                dlog.logDiagnostic(Diagnostic.Kind.ERROR, serviceNode.getPosition(),
+                               "required resource '" + RESOURCE_NAME_ON_NOTIFICATION + "' not "
+                                       + "specified with " +  WEBSUB_PACKAGE + ":" + GENERIC_SUBSCRIBER_SERVICE_TYPE);
+            }
         }
         // get value from endpoint.
         // ((BLangSimpleVarRef) serviceNode.getBoundEndpoints().get(0)).varSymbol.getType().tsymbol.name.value
