@@ -31,8 +31,8 @@ public class BTypes {
     public static BType typeXML = new BXMLType(TypeConstants.XML_TNAME, null);
     public static BType typeJSON = new BJSONType(TypeConstants.JSON_TNAME, null);
     public static BType typeTable = new BTableType(TypeConstants.TABLE_TNAME, null);
-    public static BType typeStream = new BStreamType(TypeConstants.STREAM_TNAME, null);
     public static BType typeAny = new BAnyType(TypeConstants.ANY_TNAME, null);
+    public static BType typeStream = new BStreamType(TypeConstants.STREAM_TNAME, typeAny, null);
     public static BType typeDesc = new BTypeDesc(TypeConstants.TYPEDESC_TNAME, null);
     public static BType typeMap = new BMapType(TypeConstants.MAP_TNAME, typeAny, null);
     public static BType typeFuture = new BFutureType(TypeConstants.FUTURE_TNAME, null);
