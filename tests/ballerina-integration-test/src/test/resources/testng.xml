@@ -130,6 +130,7 @@
             <class name="org.ballerinalang.test.service.websub.WebSubServiceExtensionTestCase"/>
         </classes>
     </test>
+
     <test name="ballerina-data-streaming-tests">
         <packages>
             <package name="org.ballerinalang.test.data.streaming"/>

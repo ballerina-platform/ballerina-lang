@@ -60,13 +60,14 @@ public class WebSubServiceExtensionTestCase extends WebSubBaseTest {
     private LogLeecher byKeyCreatedLogLeecher = new LogLeecher(BY_KEY_CREATED_LOG);
     private LogLeecher byKeyFeatureLogLeecher = new LogLeecher(BY_KEY_FEATURE_LOG);
 
-    private LogLeecher byHeaderIssueLog = new LogLeecher(BY_HEADER_ISSUE_LOG);
-    private LogLeecher byHeaderCommitLog = new LogLeecher(BY_HEADER_COMMIT_LOG);
+    private LogLeecher byHeaderIssueLogLeecher = new LogLeecher(BY_HEADER_ISSUE_LOG);
+    private LogLeecher byHeaderCommitLogLeecher = new LogLeecher(BY_HEADER_COMMIT_LOG);
 
-    private LogLeecher byHeaderAndPayloadIssueCreatedLog = new LogLeecher(BY_HEADER_AND_PAYLOAD_ISSUE_CREATED_LOG);
-    private LogLeecher byHeaderAndPayloadFeaturePullLog = new LogLeecher(BY_HEADER_AND_PAYLOAD_FEATURE_PULL_LOG);
-    private LogLeecher byHeaderAndPayloadHeaderOnlyLog = new LogLeecher(BY_HEADER_AND_PAYLOAD_HEADER_ONLY_LOG);
-    private LogLeecher byHeaderAndPayloadKeyOnlyLog = new LogLeecher(BY_HEADER_AND_PAYLOAD_KEY_ONLY_LOG);
+    private LogLeecher byHeaderAndPayloadIssueCreatedLogLeecher =
+            new LogLeecher(BY_HEADER_AND_PAYLOAD_ISSUE_CREATED_LOG);
+    private LogLeecher byHeaderAndPayloadFeaturePullLogLeecher = new LogLeecher(BY_HEADER_AND_PAYLOAD_FEATURE_PULL_LOG);
+    private LogLeecher byHeaderAndPayloadHeaderOnlyLogLeecher = new LogLeecher(BY_HEADER_AND_PAYLOAD_HEADER_ONLY_LOG);
+    private LogLeecher byHeaderAndPayloadKeyOnlyLogLeecher = new LogLeecher(BY_HEADER_AND_PAYLOAD_KEY_ONLY_LOG);
 
     @BeforeClass
     public void setup() throws BallerinaTestException {
@@ -76,15 +77,14 @@ public class WebSubServiceExtensionTestCase extends WebSubBaseTest {
 
         webSubSubscriber.addLogLeecher(byKeyCreatedLogLeecher);
         webSubSubscriber.addLogLeecher(byKeyFeatureLogLeecher);
-        webSubSubscriber.addLogLeecher(byHeaderIssueLog);
-        webSubSubscriber.addLogLeecher(byHeaderCommitLog);
-        webSubSubscriber.addLogLeecher(byHeaderAndPayloadIssueCreatedLog);
-        webSubSubscriber.addLogLeecher(byHeaderAndPayloadHeaderOnlyLog);
-        webSubSubscriber.addLogLeecher(byHeaderAndPayloadFeaturePullLog);
-        webSubSubscriber.addLogLeecher(byHeaderAndPayloadKeyOnlyLog);
+        webSubSubscriber.addLogLeecher(byHeaderIssueLogLeecher);
+        webSubSubscriber.addLogLeecher(byHeaderCommitLogLeecher);
+        webSubSubscriber.addLogLeecher(byHeaderAndPayloadIssueCreatedLogLeecher);
+        webSubSubscriber.addLogLeecher(byHeaderAndPayloadHeaderOnlyLogLeecher);
+        webSubSubscriber.addLogLeecher(byHeaderAndPayloadFeaturePullLogLeecher);
+        webSubSubscriber.addLogLeecher(byHeaderAndPayloadKeyOnlyLogLeecher);
 
-        String[] subscriberArgs = {};
-        webSubSubscriber.startBallerinaServer(subscriberBal, subscriberArgs, 8181);
+        webSubSubscriber.startBallerinaServer(subscriberBal, new String[]{}, 8181);
     }
 
     @Test
@@ -111,14 +111,14 @@ public class WebSubServiceExtensionTestCase extends WebSubBaseTest {
         HttpResponse response = HttpClientRequest.doPost("http://localhost:8282/header", "{\"action\":\"deleted\"}",
                                                          headers);
         Assert.assertEquals(response.getResponseCode(), 202);
-        byHeaderIssueLog.waitForText(3000);
+        byHeaderIssueLogLeecher.waitForText(3000);
 
         headers = new HashMap<>();
         headers.put(HttpHeaderNames.CONTENT_TYPE.toString(), TestConstant.CONTENT_TYPE_JSON);
         headers.put(MOCK_HEADER, "commit");
         response = HttpClientRequest.doPost("http://localhost:8282/header", "{\"action\":\"created\"}", headers);
         Assert.assertEquals(response.getResponseCode(), 202);
-        byHeaderCommitLog.waitForText(3000);
+        byHeaderCommitLogLeecher.waitForText(3000);
     }
 
     @Test
@@ -129,7 +129,7 @@ public class WebSubServiceExtensionTestCase extends WebSubBaseTest {
         HttpResponse response = HttpClientRequest.doPost("http://localhost:8383/headerAndPayload",
                                                          "{\"action\":\"created\"}", headers);
         Assert.assertEquals(response.getResponseCode(), 202);
-        byHeaderAndPayloadIssueCreatedLog.waitForText(3000);
+        byHeaderAndPayloadIssueCreatedLogLeecher.waitForText(3000);
 
         headers = new HashMap<>();
         headers.put(HttpHeaderNames.CONTENT_TYPE.toString(), TestConstant.CONTENT_TYPE_JSON);
@@ -137,7 +137,7 @@ public class WebSubServiceExtensionTestCase extends WebSubBaseTest {
         response = HttpClientRequest.doPost("http://localhost:8383/headerAndPayload", "{\"domain\":\"feature\"}",
                                             headers);
         Assert.assertEquals(response.getResponseCode(), 202);
-        byHeaderAndPayloadFeaturePullLog.waitForText(3000);
+        byHeaderAndPayloadFeaturePullLogLeecher.waitForText(3000);
     }
 
     @Test
@@ -148,7 +148,7 @@ public class WebSubServiceExtensionTestCase extends WebSubBaseTest {
         HttpResponse response = HttpClientRequest.doPost("http://localhost:8383/headerAndPayload",
                                                          "{\"action\":\"header_only\"}", headers);
         Assert.assertEquals(response.getResponseCode(), 202);
-        byHeaderAndPayloadHeaderOnlyLog.waitForText(3000);
+        byHeaderAndPayloadHeaderOnlyLogLeecher.waitForText(3000);
     }
 
     @Test
@@ -159,7 +159,7 @@ public class WebSubServiceExtensionTestCase extends WebSubBaseTest {
         HttpResponse response = HttpClientRequest.doPost("http://localhost:8383/headerAndPayload",
                                                          "{\"action\":\"keyonly\"}", headers);
         Assert.assertEquals(response.getResponseCode(), 202);
-        byHeaderAndPayloadHeaderOnlyLog.waitForText(3000);
+        byHeaderAndPayloadHeaderOnlyLogLeecher.waitForText(3000);
     }
 
     @AfterClass
