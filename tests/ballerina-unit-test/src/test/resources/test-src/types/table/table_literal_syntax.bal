@@ -133,3 +133,23 @@ function testTableAddOnConstrainedTableWithViolation2() returns (string) {
     }
     return s;
 }
+
+function testTableAddWhileIterating() returns (int, int) {
+    table<Person> t1 = table {
+        { primarykey id, primarykey salary, name, age, married }
+    };
+
+    Person p1 = { id: 1, age: 30, salary: 300.50, name: "jane", married: true };
+    Person p2 = { id: 2, age: 30, salary: 350.50, name: "jane", married: true };
+    _ = t1.add(p1);
+
+    int loopVariable = 0;
+
+    while(t1.hasNext()) {
+        loopVariable = loopVariable + 1;
+        _ = t1.add(p2);
+        any data = t1.getNext();
+    }
+    int count = t1.count();
+    return (loopVariable, count);
+}

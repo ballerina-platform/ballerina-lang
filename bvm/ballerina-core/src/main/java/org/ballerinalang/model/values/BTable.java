@@ -33,7 +33,7 @@ import java.util.List;
 import java.util.StringJoiner;
 
 /**
- * The {@code BTable} represents a data set in Ballerina.
+ * The {@code BTable} represents a two dimensional data set in Ballerina.
  *
  * @since 0.8.0
  */
@@ -319,9 +319,6 @@ public class BTable implements BRefType<Object>, BCollection {
     private void insertInitialData(BRefValueArray data) {
         int count = (int) data.size();
         for (int i = 0; i < count; i++) {
-            if (!(data.get(i) instanceof BMap)) {
-                throw new BallerinaException("initial data should be in struct type");
-            }
             addData((BMap<String, BValue>) data.get(i));
         }
     }
