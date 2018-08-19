@@ -72,6 +72,14 @@ public class SimpleTypeCastExprTest {
     }
 
     @Test
+    public void intToFloatExplicit() {
+        testIntToFloatCast(-1, -1.0);
+        testIntToFloatCast(0, 0.0);
+        testIntToFloatCast(1, 1.0);
+        testIntToFloatCast(150000000, 150000000.0);
+    }
+
+    @Test
     public void testFloatToBooleanExplicit() {
         testFloatToBooleanCast(1.0f, true);
         testFloatToBooleanCast(0.1f, true);
@@ -112,4 +120,11 @@ public class SimpleTypeCastExprTest {
         Assert.assertEquals(((BBoolean) returns[0]).booleanValue(), excepted);
     }
 
+    private void testIntToFloatCast(int input, double expected) {
+        BValue[] args = { new BInteger(input) };
+        BValue[] returns = BRunUtil.invoke(result, "intToFloatExplicit", args);
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertEquals(returns[0].getClass(), BFloat.class);
+        Assert.assertEquals(((BFloat) returns[0]).floatValue(), expected);
+    }
 }

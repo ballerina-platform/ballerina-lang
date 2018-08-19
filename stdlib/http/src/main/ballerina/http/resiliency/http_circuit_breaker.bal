@@ -716,7 +716,7 @@ function getCurrentFailureRatio(CircuitHealth circuitHealth) returns float {
         totalCount =  totalCount + bucket.failureCount + (bucket.totalCount - (bucket.failureCount + bucket.rejectedCount));
         totalFailures = totalFailures + bucket.failureCount;
     }
-    float ratio = 0;
+    float ratio = 0.0;
     if (totalCount > 0) {
         ratio = <float> totalFailures / totalCount;
     }
