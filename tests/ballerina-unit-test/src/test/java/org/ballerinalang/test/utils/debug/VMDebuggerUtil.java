@@ -111,10 +111,12 @@ public class VMDebuggerUtil {
         String functionName = MAIN;
 
         if (programArg.contains(COLON)) {
-            //assumes one colon
             String[] programArgConstituents = programArg.split(COLON);
-            srcPath = programArgConstituents[0];
-            functionName = programArgConstituents[1];
+            functionName = programArgConstituents[programArgConstituents.length - 1];
+            if (functionName.isEmpty() || programArg.endsWith(COLON)) {
+                Assert.fail("usage error: expected function name after final ':'");
+            }
+            srcPath = programArg.replace(COLON.concat(functionName), "");
         }
 
         CompileResult result = BCompileUtil.compile(srcPath);

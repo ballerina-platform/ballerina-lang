@@ -62,6 +62,15 @@ public class RunFunctionNegativeTestCase {
     }
 
     @Test
+    public void testEmptyEntryFunctionName() throws BallerinaTestException {
+        sourceArg = filePath + ":";
+        LogLeecher errLogLeecher = new LogLeecher("usage error: expected function name after final ':'");
+        serverInstance.addErrorLogLeecher(errLogLeecher);
+        serverInstance.runMain(new String[]{sourceArg});
+        errLogLeecher.waitForText(2000);
+    }
+
+    @Test
     public void testTooManyArgs() throws BallerinaTestException {
         String functionName = "publicNonMainEntry";
         sourceArg = filePath + ":" + functionName;

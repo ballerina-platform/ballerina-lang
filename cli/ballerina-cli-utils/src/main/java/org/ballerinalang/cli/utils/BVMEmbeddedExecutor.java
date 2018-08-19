@@ -41,10 +41,12 @@ public class BVMEmbeddedExecutor implements EmbeddedExecutor {
         String functionName = MAIN;
 
         if (isFunction && programArg.contains(COLON)) {
-            //assumes one colon
             String[] programArgConstituents = programArg.split(COLON);
-            balxPath = programArgConstituents[0];
-            functionName = programArgConstituents[1];
+            functionName = programArgConstituents[programArgConstituents.length - 1];
+            if (functionName.isEmpty() || programArg.endsWith(COLON)) {
+                throw new BLangCompilerException("usage error: expected function name after final ':'");
+            }
+            balxPath = programArg.replace(COLON.concat(functionName), "");
         }
 
         URL resource = BVMEmbeddedExecutor.class.getClassLoader()

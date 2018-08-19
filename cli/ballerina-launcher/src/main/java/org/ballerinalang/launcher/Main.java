@@ -253,8 +253,11 @@ public class Main {
             Path sourcePath;
             if (programArg.contains(COLON)) {
                 String[] programArgConstituents = programArg.split(COLON);
-                sourcePath = Paths.get(programArgConstituents[0]);
-                functionName = programArgConstituents[1];
+                functionName = programArgConstituents[programArgConstituents.length - 1];
+                if (functionName.isEmpty() || programArg.endsWith(COLON)) {
+                    throw LauncherUtils.createLauncherException("usage error: expected function name after final ':'");
+                }
+                sourcePath = Paths.get(programArg.replace(COLON.concat(functionName), ""));
             } else {
                 sourcePath = Paths.get(argList.get(0));
             }
