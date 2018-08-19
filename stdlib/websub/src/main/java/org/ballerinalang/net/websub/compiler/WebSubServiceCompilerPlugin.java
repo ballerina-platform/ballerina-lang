@@ -66,7 +66,7 @@ public class WebSubServiceCompilerPlugin extends AbstractCompilerPlugin {
         if (webSubAnnotationConfigCount > 1) {
             dlog.logDiagnostic(Diagnostic.Kind.ERROR, serviceNode.getPosition(),
                                "cannot have more than one '" + ANN_NAME_WEBSUB_SUBSCRIBER_SERVICE_CONFIG
-                                       + "' annotations");
+                                       + "' annotation");
         }
 
         if (serviceType != null && GENERIC_SUBSCRIBER_SERVICE_TYPE.equals(serviceType.getTypeName().getValue())) {

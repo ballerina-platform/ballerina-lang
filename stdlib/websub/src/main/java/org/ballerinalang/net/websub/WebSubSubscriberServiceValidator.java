@@ -41,9 +41,6 @@ import static org.ballerinalang.net.websub.WebSubSubscriberConstants.STRUCT_WEBS
 import static org.ballerinalang.net.websub.WebSubSubscriberConstants.STRUCT_WEBSUB_NOTIFICATION_REQUEST;
 import static org.ballerinalang.net.websub.WebSubSubscriberConstants.WEBSUB_PACKAGE;
 import static org.ballerinalang.net.websub.WebSubUtils.retrieveResourceDetails;
-import static org.ballerinalang.net.websub.WebSubUtils.validateCustomParamNumber;
-import static org.ballerinalang.net.websub.WebSubUtils.validateParamNumber;
-import static org.ballerinalang.net.websub.WebSubUtils.validateStructType;
 
 /**
  * Resource validator for WebSub Subscriber Services.
@@ -71,23 +68,25 @@ public class WebSubSubscriberServiceValidator {
 
     private static void validateOnIntentVerificationResource(BLangResource resource, DiagnosticLog dlog) {
         List<BLangVariable> paramDetails = resource.getParameters();
-        validateParamNumber(paramDetails, 2, resource.getName().getValue());
-        validateStructType(resource.getName().getValue(), paramDetails.get(0), WEBSUB_PACKAGE, SERVICE_ENDPOINT,
-                           "first", dlog);
-        validateStructType(resource.getName().getValue(), paramDetails.get(1), WEBSUB_PACKAGE,
-                           STRUCT_WEBSUB_INTENT_VERIFICATION_REQUEST, "second", dlog);
+        if (isValidParamNumber(resource, paramDetails, 2, resource.getName().getValue(), dlog)) {
+            validateStructType(resource.getName().getValue(), paramDetails.get(0), WEBSUB_PACKAGE, SERVICE_ENDPOINT,
+                               "first", dlog);
+            validateStructType(resource.getName().getValue(), paramDetails.get(1), WEBSUB_PACKAGE,
+                               STRUCT_WEBSUB_INTENT_VERIFICATION_REQUEST, "second", dlog);
+        }
     }
 
     private static void validateOnNotificationResource(BLangResource resource, DiagnosticLog dlog) {
         List<BLangVariable> paramDetails = resource.getParameters();
-        validateParamNumber(paramDetails, 1, resource.getName().getValue());
-        validateStructType(resource.getName().getValue(), paramDetails.get(0), WEBSUB_PACKAGE,
-                           STRUCT_WEBSUB_NOTIFICATION_REQUEST, "first", dlog);
+        if (isValidParamNumber(resource, paramDetails, 1, resource.getName().getValue(), dlog)) {
+            validateStructType(resource.getName().getValue(), paramDetails.get(0), WEBSUB_PACKAGE,
+                               STRUCT_WEBSUB_NOTIFICATION_REQUEST, "first", dlog);
+        }
     }
 
     private static void validateCustomNotificationResource(Resource resource, String packageName, String structName) {
         List<ParamDetail> paramDetails = resource.getParamDetails();
-        validateCustomParamNumber(paramDetails, 2, resource.getName());
+        validateCustomParamNumber(paramDetails, resource.getName());
         validateStructType(resource.getName(), paramDetails.get(0), WEBSUB_PACKAGE, STRUCT_WEBSUB_NOTIFICATION_REQUEST);
         validateStructType(resource.getName(), paramDetails.get(1), packageName, structName);
     }
@@ -121,4 +120,47 @@ public class WebSubSubscriberServiceValidator {
         return invalidResourceNames;
     }
 
+    private static boolean isValidParamNumber(BLangResource resource, List<BLangVariable> paramDetails,
+                                              int expectedSize, String resourceName, DiagnosticLog dlog) {
+        if (paramDetails == null || paramDetails.size() != expectedSize) {
+            dlog.logDiagnostic(Diagnostic.Kind.ERROR, resource.pos, "invalid param count for WebSub Resource '"
+                    + resourceName + "', expected: " + expectedSize + " found: "
+                    + (paramDetails == null ? 0 : paramDetails.size()));
+            return false;
+        }
+        return true;
+    }
+
+    private static void validateCustomParamNumber(List<ParamDetail> paramDetails, String resourceName) {
+        if (paramDetails == null || paramDetails.size() < 2) {
+            throw new BallerinaException(String.format("Invalid param count for WebSub Resource \"%s\"",
+                                                       resourceName));
+        }
+    }
+
+    private static void validateStructType(String resourceName, BLangVariable paramDetail, String packageName,
+                                           String structuralTypeName, String paramPosition, DiagnosticLog dlog) {
+        if (!(packageName.concat(":").concat(structuralTypeName)).equals((paramDetail.type).toString())) {
+            dlog.logDiagnostic(Diagnostic.Kind.ERROR, paramDetail.pos, "invalid resource signature for '" + resourceName
+                    + "', expected '" + packageName.concat(":").concat(structuralTypeName) + "' as " + paramPosition
+                    + " parameter");
+        }
+    }
+
+    private static void validateStructType(String resourceName, ParamDetail paramDetail, String packageName,
+                                   String structName) {
+        if (!paramDetail.getVarType().getPackagePath().equals(packageName)) {
+            throw new BallerinaException(
+                    String.format("Invalid parameter type %s:%s %s in resource %s. Requires %s:%s",
+                                  paramDetail.getVarType().getPackagePath(), paramDetail.getVarType().getName(),
+                                  paramDetail.getVarName(), resourceName, packageName, structName));
+        }
+
+        if (!paramDetail.getVarType().getName().equals(structName)) {
+            throw new BallerinaException(
+                    String.format("Invalid parameter type %s:%s %s in resource %s. Requires %s:%s",
+                                  paramDetail.getVarType().getPackagePath(), paramDetail.getVarType().getName(),
+                                  paramDetail.getVarName(), resourceName, packageName, structName));
+        }
+    }
 }

@@ -20,7 +20,6 @@ package org.ballerinalang.net.websub;
 
 import org.ballerinalang.connector.api.BLangConnectorSPIUtil;
 import org.ballerinalang.connector.api.BallerinaConnectorException;
-import org.ballerinalang.connector.api.ParamDetail;
 import org.ballerinalang.mime.util.EntityBodyHandler;
 import org.ballerinalang.mime.util.MimeUtil;
 import org.ballerinalang.model.types.BStructureType;
@@ -32,14 +31,9 @@ import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BTypeDescValue;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.util.codegen.ProgramFile;
-import org.ballerinalang.util.diagnostic.Diagnostic;
-import org.ballerinalang.util.diagnostic.DiagnosticLog;
-import org.ballerinalang.util.exceptions.BallerinaException;
-import org.wso2.ballerinalang.compiler.tree.BLangVariable;
 import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 
 import java.util.HashMap;
-import java.util.List;
 
 import static org.ballerinalang.mime.util.MimeConstants.ENTITY;
 import static org.ballerinalang.mime.util.MimeConstants.ENTITY_BYTE_CHANNEL;
@@ -145,46 +139,6 @@ public class WebSubUtils {
                 });
             });
         });
-    }
-
-    static void validateParamNumber(List<BLangVariable> paramDetails, int expectedSize, String resourceName) {
-        if (paramDetails == null || paramDetails.size() < expectedSize) {
-            throw new BallerinaException(String.format("invalid param count for WebSub Resource \"%s\"",
-                                                       resourceName));
-        }
-    }
-
-    static void validateCustomParamNumber(List<ParamDetail> paramDetails, int expectedSize, String resourceName) {
-        if (paramDetails == null || paramDetails.size() < expectedSize) {
-            throw new BallerinaException(String.format("Invalid param count for WebSub Resource \"%s\"",
-                                                       resourceName));
-        }
-    }
-
-    static void validateStructType(String resourceName, BLangVariable paramDetail, String packageName,
-                                   String structuralTypeName, String paramPosition, DiagnosticLog dlog) {
-        if (!(packageName.concat(":").concat(structuralTypeName)).equals((paramDetail.type).toString())) {
-            dlog.logDiagnostic(Diagnostic.Kind.ERROR, paramDetail.pos, "invalid resource signature for '" + resourceName
-                    + "', expected '" + packageName.concat(":").concat(structuralTypeName) + "' as " + paramPosition
-                    + " parameter");
-        }
-    }
-
-    static void validateStructType(String resourceName, ParamDetail paramDetail, String packageName,
-                                   String structName) {
-        if (!paramDetail.getVarType().getPackagePath().equals(packageName)) {
-            throw new BallerinaException(
-                    String.format("Invalid parameter type %s:%s %s in resource %s. Requires %s:%s",
-                                  paramDetail.getVarType().getPackagePath(), paramDetail.getVarType().getName(),
-                                  paramDetail.getVarName(), resourceName, packageName, structName));
-        }
-
-        if (!paramDetail.getVarType().getName().equals(structName)) {
-            throw new BallerinaException(
-                    String.format("Invalid parameter type %s:%s %s in resource %s. Requires %s:%s",
-                                  paramDetail.getVarType().getPackagePath(), paramDetail.getVarType().getName(),
-                                  paramDetail.getVarName(), resourceName, packageName, structName));
-        }
     }
 
     // TODO: 8/1/18 Handle duplicate code
