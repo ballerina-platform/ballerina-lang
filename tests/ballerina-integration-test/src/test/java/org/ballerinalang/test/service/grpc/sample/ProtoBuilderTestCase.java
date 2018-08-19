@@ -28,6 +28,9 @@ import org.testng.annotations.Test;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
+/**
+ * Test class for proto file builder compiler plugin.
+ */
 @Test(groups = "grpc-test")
 public class ProtoBuilderTestCase extends BaseTest {
 
@@ -40,8 +43,8 @@ public class ProtoBuilderTestCase extends BaseTest {
     public void testUnaryServiceWithPrimitiveParams() {
         Path balFilePath = Paths.get("src", "test", "resources", "grpc", "grpcservices", "unary_server1.bal");
         CompileResult result = BCompileUtil.compile(balFilePath.toAbsolutePath().toString());
-        Assert.assertEquals(result.getAST().getServices().size(), 1, "File should have one service defined.");
         Assert.assertEquals(result.getErrorCount(), 0, "Compilation errors in unary_server1.bal");
+        Assert.assertEquals(result.getAST().getServices().size(), 1, "File should have one service defined.");
         Assert.assertEquals(result.getAST().getServices().get(0).getAnnotationAttachments().size(), 1, "Service " +
                 "node should have one default annotation");
         Assert.assertEquals(result.getAST().getServices().get(0).getAnnotationAttachments().get(0).getAnnotationName
@@ -52,8 +55,8 @@ public class ProtoBuilderTestCase extends BaseTest {
     public void testUnaryServiceWithHeaderParams() {
         Path balFilePath = Paths.get("src", "test", "resources", "grpc", "grpcservices", "unary_service3.bal");
         CompileResult result = BCompileUtil.compile(balFilePath.toAbsolutePath().toString());
-        Assert.assertEquals(result.getAST().getServices().size(), 1, "File should have one service defined.");
         Assert.assertEquals(result.getErrorCount(), 0, "Compilation errors in unary_server3.bal");
+        Assert.assertEquals(result.getAST().getServices().size(), 1, "File should have one service defined.");
         Assert.assertEquals(result.getAST().getServices().get(0).getAnnotationAttachments().size(), 1, "Service " +
                 "node should have one default annotation");
         Assert.assertEquals(result.getAST().getServices().get(0).getAnnotationAttachments().get(0).getAnnotationName
@@ -65,8 +68,8 @@ public class ProtoBuilderTestCase extends BaseTest {
         Path balFilePath = Paths.get("src", "test", "resources", "grpc", "grpcservices", "server_streaming_service" +
                 ".bal");
         CompileResult result = BCompileUtil.compile(balFilePath.toAbsolutePath().toString());
-        Assert.assertEquals(result.getAST().getServices().size(), 1, "File should have one service defined.");
         Assert.assertEquals(result.getErrorCount(), 0, "Compilation errors in server_streaming_service.bal");
+        Assert.assertEquals(result.getAST().getServices().size(), 1, "File should have one service defined.");
         Assert.assertEquals(result.getAST().getServices().get(0).getAnnotationAttachments().size(), 1, "Service " +
                 "node should have one default annotation");
         Assert.assertEquals(result.getAST().getServices().get(0).getAnnotationAttachments().get(0).getAnnotationName
@@ -78,8 +81,8 @@ public class ProtoBuilderTestCase extends BaseTest {
         Path balFilePath = Paths.get("src", "test", "resources", "grpc", "grpcservices", "client_streaming_service" +
                 ".bal");
         CompileResult result = BCompileUtil.compile(balFilePath.toAbsolutePath().toString());
-        Assert.assertEquals(result.getAST().getServices().size(), 1, "File should have one service defined.");
         Assert.assertEquals(result.getErrorCount(), 0, "Compilation errors in client_streaming_service.bal");
+        Assert.assertEquals(result.getAST().getServices().size(), 1, "File should have one service defined.");
         Assert.assertEquals(result.getAST().getServices().get(0).getAnnotationAttachments().size(), 2, "Service " +
                 "node should have one default annotation");
         Assert.assertEquals(result.getAST().getServices().get(0).getAnnotationAttachments().get(0).getAnnotationName
@@ -93,8 +96,8 @@ public class ProtoBuilderTestCase extends BaseTest {
         Path balFilePath = Paths.get("src", "test", "resources", "grpc", "grpcservices",
                 "bidirectional_streaming_service.bal");
         CompileResult result = BCompileUtil.compile(balFilePath.toAbsolutePath().toString());
-        Assert.assertEquals(result.getAST().getServices().size(), 1, "File should have one service defined.");
         Assert.assertEquals(result.getErrorCount(), 0, "Compilation errors in bidirectional_streaming_service.bal");
+        Assert.assertEquals(result.getAST().getServices().size(), 1, "File should have one service defined.");
         Assert.assertEquals(result.getAST().getServices().get(0).getAnnotationAttachments().size(), 2, "Service " +
                 "node should have one default annotation");
         Assert.assertEquals(result.getAST().getServices().get(0).getAnnotationAttachments().get(0).getAnnotationName
@@ -108,8 +111,8 @@ public class ProtoBuilderTestCase extends BaseTest {
         Path balFilePath = Paths.get("src", "test", "resources", "grpc", "grpcservices",
                 "array_field_type_service.bal");
         CompileResult result = BCompileUtil.compile(balFilePath.toAbsolutePath().toString());
-        Assert.assertEquals(result.getAST().getServices().size(), 1, "File should have one service defined.");
         Assert.assertEquals(result.getErrorCount(), 0, "Compilation errors in array_field_type_service.bal");
+        Assert.assertEquals(result.getAST().getServices().size(), 1, "File should have one service defined.");
         Assert.assertEquals(result.getAST().getServices().get(0).getAnnotationAttachments().size(), 1, "Service " +
                 "node should have one default annotation");
         Assert.assertEquals(result.getAST().getServices().get(0).getAnnotationAttachments().get(0).getAnnotationName
@@ -121,8 +124,8 @@ public class ProtoBuilderTestCase extends BaseTest {
         Path balFilePath = Paths.get("src", "test", "resources", "grpc", "grpcservices",
                 "advanced_type_service.bal");
         CompileResult result = BCompileUtil.compile(balFilePath.toAbsolutePath().toString());
-        Assert.assertEquals(result.getAST().getServices().size(), 1, "File should have one service defined.");
         Assert.assertEquals(result.getErrorCount(), 0, "Compilation errors in advanced_type_service.bal");
+        Assert.assertEquals(result.getAST().getServices().size(), 1, "File should have one service defined.");
         Assert.assertEquals(result.getAST().getServices().get(0).getAnnotationAttachments().size(), 1, "Service " +
                 "node should have one default annotation");
         Assert.assertEquals(result.getAST().getServices().get(0).getAnnotationAttachments().get(0).getAnnotationName
