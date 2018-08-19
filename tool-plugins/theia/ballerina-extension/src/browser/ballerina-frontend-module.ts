@@ -16,6 +16,8 @@ import { PreviewHandler } from '@theia/preview/lib/browser';
 import { BallerinaPreviewHandler } from './ballerina-preview-handler';
 import { BALLERINA_PREVIEW_WIDGET_FACTORY_ID, BallerinaPreviewContribution} from './ballerina-preview-contribution';
 import { BallerinaPreviewWidget } from './ballerina-preview-widget';
+import { LabelProviderContribution } from "@theia/core/lib/browser/label-provider";
+import { BallerinaLabelProviderContribution } from './ballerina-label-contribution';
 
 import { ContainerModule } from "inversify";
 
@@ -35,4 +37,5 @@ export default new ContainerModule(bind => {
     bind(LanguageGrammarDefinitionContribution).to(BallerinaGrammarContribution).inSingletonScope();
     bind(BallerinaPreviewHandler).toSelf().inSingletonScope();
     bind(PreviewHandler).toService(BallerinaPreviewHandler);
+    bind(LabelProviderContribution).to(BallerinaLabelProviderContribution).inSingletonScope();
 });
