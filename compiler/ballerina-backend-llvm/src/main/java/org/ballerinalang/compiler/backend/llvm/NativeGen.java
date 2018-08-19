@@ -73,6 +73,9 @@ public class NativeGen {
                                            boolean dumpLLVMIR) {
         // First compile the given Ballerina program
         BLangPackage bLangPackage = compileProgram(projectPath, progPath, offline, lockEnabled);
+        if (bLangPackage.diagCollector.hasErrors()) {
+            throw new BLangCompilerException("compilation contains errors");
+        }
 
         // TODO Check compilation errors
 
