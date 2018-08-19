@@ -293,6 +293,17 @@ public class RunFunctionNegativeTestCase {
         errLogLeecher.waitForText(2000);
     }
 
+    @Test (dataProvider = "typedescValues")
+    public void testInvalidTypedescArg(String arg) throws BallerinaTestException {
+        String functionName = "typedescEntry";
+        sourceArg = filePath + ":" + functionName;
+        LogLeecher errLogLeecher = new LogLeecher("usage error: unsupported/unknown typedesc expected with entry "
+                                                          + "function '" + arg + "'");
+        serverInstance.addErrorLogLeecher(errLogLeecher);
+        serverInstance.runMain(new String[]{sourceArg, arg});
+        errLogLeecher.waitForText(2000);
+    }
+
     @AfterMethod
     public void stopServer() throws BallerinaTestException {
         serverInstance.stopServer();
@@ -308,6 +319,16 @@ public class RunFunctionNegativeTestCase {
         return new Object[][] {
                 { "-1" },
                 { "256" }
+        };
+    }
+
+    @DataProvider(name = "typedescValues")
+    public Object[][] typedescValues() {
+        return new Object[][] {
+                { "strings" },
+                { "int[]" },
+                { "map<float>" },
+                { "Employee" }
         };
     }
 }

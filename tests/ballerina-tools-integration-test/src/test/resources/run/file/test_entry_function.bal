@@ -20,6 +20,10 @@ public function arrayUnionEntry(int[]|float[]|boolean[]|json[] arr) returns any 
     return arr;
 }
 
+public function typedescEntry(typedesc t) returns typedesc {
+    return t;
+}
+
 public function defaultableParamEntry(int i = 1, boolean b, string s = "default hello", string s2) returns string {
     return <string> i + " " + s + " world: " + s2 + " " + <string> b;
 }

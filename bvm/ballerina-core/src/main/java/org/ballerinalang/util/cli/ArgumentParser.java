@@ -240,11 +240,11 @@ public class ArgumentParser {
                 try {
                     return new BTypeDescValue(getTypeFromName(value));
                 } catch (IllegalStateException e) {
-                    throw new BLangUsageException("unsupported/unknown typedesc expected with main function '" + value
+                    throw new BLangUsageException("unsupported/unknown typedesc expected with entry function '" + value
                                                     + "'");
                 }
             default:
-                throw new BLangUsageException("unsupported type expected with main function '" + type + "'");
+                throw new BLangUsageException("unsupported type expected with entry function '" + type + "'");
         }
     }
 

@@ -72,6 +72,16 @@ public class RunFunctionPositiveTestCase {
         serverInstance.runMain(new String[]{PRINT_RETURN, sourceArg, arg});
         outLogLeecher.waitForText(2000);
     }
+
+    @Test (dataProvider = "typedescValues")
+    public void testTypedescArg(String arg) throws BallerinaTestException {
+        String functionName = "typedescEntry";
+        sourceArg = filePath + ":" + functionName;
+        LogLeecher outLogLeecher = new LogLeecher(arg);
+        serverInstance.addLogLeecher(outLogLeecher);
+        serverInstance.runMain(new String[]{PRINT_RETURN, sourceArg, arg});
+        outLogLeecher.waitForText(2000);
+    }
     
     @Test (dataProvider = "arrayValues")
     public void testValidArrayArg(String arg) throws BallerinaTestException {
@@ -172,6 +182,25 @@ public class RunFunctionPositiveTestCase {
                 { "1.0" },
                 { "true" },
                 { "{\"name\":\"Maryam\"}" }
+        };
+    }
+
+    @DataProvider(name = "typedescValues")
+    public Object[][] typedescValues() {
+        return new Object[][] {
+                { "string" },
+                { "int" },
+                { "float" },
+                { "byte" },
+                { "boolean" },
+                { "json" },
+                { "xml" },
+                { "map" },
+                { "future" },
+                { "table" },
+                { "stream" },
+                { "any" },
+                { "typedesc" }
         };
     }
 
