@@ -44,6 +44,31 @@
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-dependency-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>copy</goal>
+                        </goals>
+                        <configuration>
+                            <artifactItems>
+                                <artifactItem>
+                                    <groupId>org.ballerinalang</groupId>
+                                    <artifactId>ballerina-integration-test-utils</artifactId>
+                                    <version>${project.version}</version>
+                                    <type>jar</type>
+                                    <overWrite>true</overWrite>
+                                    <outputDirectory>${project.build.directory}</outputDirectory>
+                                </artifactItem>
+                            </artifactItems>
+                            <overWriteReleases>false</overWriteReleases>
+                            <overWriteSnapshots>true</overWriteSnapshots>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
                 <configuration>
                     <argLine>${jacoco.agent.argLine}</argLine>
@@ -51,6 +76,8 @@
                         <server.zip>
                             ${basedir}/../../distribution/zip/ballerina-tools/target/ballerina-tools-${project.version}.zip
                         </server.zip>
+                        <jacoco.agent.argLine>${jacoco.agent.argLine}</jacoco.agent.argLine>
+                        <ballerina.test.exit.agent.location>${project.build.directory}/ballerina-integration-test-utils-${project.version}.jar</ballerina.test.exit.agent.location>
                         <integration.test.utils.service.file>
                             ${basedir}/../../tests/ballerina-integration-test-utils/src/main/ballerina/httpService/common_backend.bal
                         </integration.test.utils.service.file>
@@ -67,7 +94,6 @@
             <plugin>
                 <groupId>org.jacoco</groupId>
                 <artifactId>jacoco-maven-plugin</artifactId>
-                <version>0.7.8</version>
                 <executions>
                     <execution>
                         <id>prepare-it-test-agent</id>
@@ -285,7 +311,7 @@
                     <dependency>
                         <groupId>org.jacoco</groupId>
                         <artifactId>org.jacoco.ant</artifactId>
-                        <version>${jacoco.version}</version>
+                        <version>${jacoco.agent.version}</version>
                     </dependency>
                     <dependency>
                         <groupId>ant-contrib</groupId>
