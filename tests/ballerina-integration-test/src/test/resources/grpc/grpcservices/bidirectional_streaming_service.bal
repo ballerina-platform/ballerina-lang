@@ -14,9 +14,6 @@
 // specific language governing permissions and limitations
 // under the License.
 // This is server implementation for bidirectional streaming scenario
-// import ballerina/io;
-// import ballerina/grpc;
-// import ballerina/log;
 
 import ballerina/grpc;
 import ballerina/io;
