@@ -44,9 +44,9 @@ public class InvalidServiceMethodTestCase extends BaseTest {
 
     @BeforeClass
     private void setup() throws Exception {
+        TestUtils.prepareBalo(this);
         Path balFilePath = Paths.get("src", "test", "resources", "grpc", "clients", "invalid_resource_client.bal");
         result = BCompileUtil.compile(balFilePath.toAbsolutePath().toString());
-        TestUtils.prepareBalo(this);
     }
 
     @Test(description = "Test invoking service method with invalid method name. Connector error is expected " +
