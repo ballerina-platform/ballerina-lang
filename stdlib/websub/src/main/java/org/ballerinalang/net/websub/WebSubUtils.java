@@ -32,7 +32,10 @@ import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BTypeDescValue;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.util.codegen.ProgramFile;
+import org.ballerinalang.util.diagnostic.Diagnostic;
+import org.ballerinalang.util.diagnostic.DiagnosticLog;
 import org.ballerinalang.util.exceptions.BallerinaException;
+import org.wso2.ballerinalang.compiler.tree.BLangVariable;
 import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 
 import java.util.HashMap;
@@ -144,10 +147,26 @@ public class WebSubUtils {
         });
     }
 
-    static void validateParamNumber(List<ParamDetail> paramDetails, int expectedSize, String resourceName) {
+    static void validateParamNumber(List<BLangVariable> paramDetails, int expectedSize, String resourceName) {
+        if (paramDetails == null || paramDetails.size() < expectedSize) {
+            throw new BallerinaException(String.format("invalid param count for WebSub Resource \"%s\"",
+                                                       resourceName));
+        }
+    }
+
+    static void validateCustomParamNumber(List<ParamDetail> paramDetails, int expectedSize, String resourceName) {
         if (paramDetails == null || paramDetails.size() < expectedSize) {
             throw new BallerinaException(String.format("Invalid param count for WebSub Resource \"%s\"",
                                                        resourceName));
+        }
+    }
+
+    static void validateStructType(String resourceName, BLangVariable paramDetail, String packageName,
+                                   String structuralTypeName, String paramPosition, DiagnosticLog dlog) {
+        if (!(packageName.concat(":").concat(structuralTypeName)).equals((paramDetail.type).toString())) {
+            dlog.logDiagnostic(Diagnostic.Kind.ERROR, paramDetail.pos, "invalid resource signature for '" + resourceName
+                    + "', expected '" + packageName.concat(":").concat(structuralTypeName) + "' as " + paramPosition
+                    + " parameter");
         }
     }
 

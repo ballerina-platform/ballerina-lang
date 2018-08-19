@@ -18,7 +18,21 @@ package org.ballerinalang.net.websub.compiler;
 
 import org.ballerinalang.compiler.plugins.AbstractCompilerPlugin;
 import org.ballerinalang.compiler.plugins.SupportEndpointTypes;
+import org.ballerinalang.model.tree.AnnotationAttachmentNode;
+import org.ballerinalang.model.tree.ServiceNode;
+import org.ballerinalang.model.tree.types.UserDefinedTypeNode;
+import org.ballerinalang.util.diagnostic.Diagnostic;
 import org.ballerinalang.util.diagnostic.DiagnosticLog;
+import org.wso2.ballerinalang.compiler.tree.BLangResource;
+
+import java.util.List;
+
+import static org.ballerinalang.net.websub.WebSubSubscriberConstants.ANN_NAME_WEBSUB_SUBSCRIBER_SERVICE_CONFIG;
+import static org.ballerinalang.net.websub.WebSubSubscriberConstants.GENERIC_SUBSCRIBER_SERVICE_TYPE;
+import static org.ballerinalang.net.websub.WebSubSubscriberConstants.RESOURCE_NAME_ON_INTENT_VERIFICATION;
+import static org.ballerinalang.net.websub.WebSubSubscriberConstants.RESOURCE_NAME_ON_NOTIFICATION;
+import static org.ballerinalang.net.websub.WebSubSubscriberConstants.WEBSUB_PACKAGE;
+import static org.ballerinalang.net.websub.WebSubSubscriberServiceValidator.validateDefaultResources;
 
 /**
  * Compiler plugin for validating WebSub service.
@@ -30,11 +44,44 @@ import org.ballerinalang.util.diagnostic.DiagnosticLog;
 )
 public class WebSubServiceCompilerPlugin extends AbstractCompilerPlugin {
 
-//    private DiagnosticLog dlog = null;
+    private DiagnosticLog dlog = null;
 
     @Override
     public void init(DiagnosticLog diagnosticLog) {
-//        dlog = diagnosticLog;
+        dlog = diagnosticLog;
+    }
+
+    @SuppressWarnings("unchecked")
+    @Override
+    public void process(ServiceNode serviceNode, List<AnnotationAttachmentNode> annotations) {
+        final UserDefinedTypeNode serviceType = serviceNode.getServiceTypeStruct();
+        if (serviceType != null && GENERIC_SUBSCRIBER_SERVICE_TYPE.equals(serviceType.getTypeName().getValue())) {
+            int webSubAnnotationConfigCount = 0;
+            for (AnnotationAttachmentNode annotation : annotations) {
+                if (ANN_NAME_WEBSUB_SUBSCRIBER_SERVICE_CONFIG.equals(annotation.getAnnotationName().getValue())) {
+                    webSubAnnotationConfigCount++;
+                    // TODO: 8/19/18 intro annotation validation if required
+                }
+            }
+
+            if (webSubAnnotationConfigCount > 1) {
+                dlog.logDiagnostic(Diagnostic.Kind.ERROR, serviceNode.getPosition(),
+                   "cannot have more than one " + ANN_NAME_WEBSUB_SUBSCRIBER_SERVICE_CONFIG + " annotations");
+            }
+
+            List<BLangResource> resources = (List<BLangResource>) serviceNode.getResources();
+            if (resources.size() > 2) {
+                dlog.logDiagnostic(Diagnostic.Kind.ERROR, serviceNode.getPosition(),
+                                   "only two resources allowed with " + WEBSUB_PACKAGE + ":"
+                                       + GENERIC_SUBSCRIBER_SERVICE_TYPE + ", '" + RESOURCE_NAME_ON_INTENT_VERIFICATION
+                                       + "' and '" + RESOURCE_NAME_ON_NOTIFICATION + "'");
+            }
+            resources.forEach(res -> {
+                validateDefaultResources(res, dlog);
+            });
+        }
+        // get value from endpoint.
+        // ((BLangSimpleVarRef) serviceNode.getBoundEndpoints().get(0)).varSymbol.getType().tsymbol.name.value
     }
 
 }
