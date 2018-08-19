@@ -93,7 +93,6 @@ public class ProtoBuilderTestCase extends BaseTest {
         assertUnaryCompileResult(result);
     }
 
-
     private void assertUnaryCompileResult(CompileResult result) {
         Assert.assertEquals(result.getErrorCount(), 0, "Compilation errors in source file");
         Assert.assertEquals(result.getAST().getServices().size(), 1, "File should have one service defined.");
@@ -102,7 +101,6 @@ public class ProtoBuilderTestCase extends BaseTest {
         Assert.assertEquals(result.getAST().getServices().get(0).getAnnotationAttachments().get(0).getAnnotationName
                 ().getValue(), "ServiceDescriptor");
     }
-
 
     private void assertStreamingCompileResult(CompileResult result) {
         Assert.assertEquals(result.getErrorCount(), 0, "Compilation errors in source file");
