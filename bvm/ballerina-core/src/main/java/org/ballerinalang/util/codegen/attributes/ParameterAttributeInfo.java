@@ -21,7 +21,7 @@ package org.ballerinalang.util.codegen.attributes;
  * {@code ParameterAttributeInfo} contains common metadata of parameters
  * of a Ballerina function/resource/action in the program file.
  *
- * @since 0.981.0 todo: change
+ * @since 0.982.0
  */
 public class ParameterAttributeInfo implements AttributeInfo {
 

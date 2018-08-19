@@ -37,19 +37,28 @@ import java.io.IOException;
  *      public function nomoremain(int i, string s, string... args) {
  *          ...
  *      }
- *  TODO: Needs to be refactored to unzip distro just once, once the required changes are merged
  */
 public class RunFunctionNegativeTestCase {
 
     private ServerInstance serverInstance;
 
-    private String filePath = (new File("src/test/resources/run/file/test_entry_function.bal")).getAbsolutePath();
+    private String fileName = "test_entry_function.bal";
+    private String filePath = (new File("src/test/resources/run/file/" + fileName)).getAbsolutePath();
 
     private String sourceArg;
 
     @BeforeClass()
     public void setUp() throws BallerinaTestException, IOException {
         serverInstance = ServerInstance.initBallerinaServer();
+    }
+
+    @Test
+    public void testNonPublicMainFunction() throws BallerinaTestException {
+        LogLeecher errLogLeecher = new LogLeecher("error: '" + fileName
+                                                          + "' does not contain a main function or a service");
+        serverInstance.addErrorLogLeecher(errLogLeecher);
+        serverInstance.runMain(new String[]{filePath});
+        errLogLeecher.waitForText(2000);
     }
 
     @Test

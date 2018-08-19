@@ -37,7 +37,6 @@ import java.io.IOException;
  *      public function nomoremain(int i, string s, string... args) {
  *          ...
  *      }
- *  TODO: Needs to be refactored to unzip distro just once, once the required changes are merged
  */
 public class RunFunctionPositiveTestCase {
 

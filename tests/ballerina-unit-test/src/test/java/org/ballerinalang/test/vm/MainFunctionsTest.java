@@ -45,7 +45,4 @@ public class MainFunctionsTest {
         args.add(1, "V2");
         BRunUtil.invoke(result, "main", new BValue[] { args });
     }
-
-    // TODO: 8/6/18 Add non-public main test 
-
 }

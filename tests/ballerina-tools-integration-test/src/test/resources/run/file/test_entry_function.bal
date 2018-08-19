@@ -1,5 +1,9 @@
 import ballerina/io;
 
+function main() {
+    // do nothing
+}
+
 public function noParamEntry() returns int {
     return 1;
 }

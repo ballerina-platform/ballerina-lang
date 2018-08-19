@@ -77,7 +77,7 @@ import static org.ballerinalang.util.BLangConstants.MAIN_FUNCTION_NAME;
  */
 public class LauncherUtils {
 
-    private static PrintStream outStream = System.out; // TODO: 8/5/18 or err?
+    private static PrintStream outStream = System.out;
 
     public static void runProgram(Path sourceRootPath, Path sourcePath, boolean runServices, String functionName,
                                   Map<String, String> runtimeParams, String configFilePath, String[] args,
