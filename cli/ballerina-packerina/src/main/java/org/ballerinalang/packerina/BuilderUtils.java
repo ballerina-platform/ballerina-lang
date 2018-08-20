@@ -64,7 +64,7 @@ public class BuilderUtils {
 
         if (skiptests) {
             outStream.println();
-            compiler.write(bLangPackage, packagePath);
+            compiler.write(bLangPackage, targetPath);
         } else {
             Utils.testWithBuild(sourceRootPath, Collections.singletonList(packagePath));
             compiler.write(bLangPackage, targetPath);
