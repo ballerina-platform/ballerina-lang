@@ -53,7 +53,7 @@ function testInvokeFuncWithoutRestParams() returns (int, float, string, int, str
 //------------- Testing a function having only named parameters --------
 
 function testInvokeFuncWithOnlyNamedParams1() returns (int, float, string, int, string) {
-    return foo:functionWithOnlyNamedParams(b = 20, e="Bob", d=30, a=10 , c="Alex");
+    return foo:functionWithOnlyNamedParams(b = 20.0, e="Bob", d=30, a=10 , c="Alex");
 }
 
 function testInvokeFuncWithOnlyNamedParams2() returns (int, float, string, int, string) {

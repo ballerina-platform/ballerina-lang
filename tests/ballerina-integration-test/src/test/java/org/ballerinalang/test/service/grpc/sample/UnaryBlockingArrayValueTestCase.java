@@ -55,9 +55,9 @@ public class UnaryBlockingArrayValueTestCase extends BaseTest {
 
     @BeforeClass(alwaysRun = true)
     private void setup() throws Exception {
+        TestUtils.prepareBalo(this);
         Path balFilePath = Paths.get("src", "test", "resources", "grpc", "clients", "array_field_type_client.bal");
         result = BCompileUtil.compile(balFilePath.toAbsolutePath().toString());
-        TestUtils.prepareBalo(this);
     }
 
     @Test

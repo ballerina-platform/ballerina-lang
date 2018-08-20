@@ -21,6 +21,8 @@ package org.ballerinalang.test.service.http.sample;
 import org.ballerinalang.test.BaseTest;
 import org.ballerinalang.test.util.HttpClientRequest;
 import org.ballerinalang.test.util.HttpResponse;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
@@ -37,6 +39,7 @@ import java.nio.channels.SocketChannel;
 @Test(groups = "http-test")
 public class IdleTimeoutResponseTestCase extends BaseTest {
 
+    private static final Logger log = LoggerFactory.getLogger(IdleTimeoutResponseTestCase.class);
     /**
      * A larger client payload to be sent in chunks.
      */
@@ -120,7 +123,7 @@ public class IdleTimeoutResponseTestCase extends BaseTest {
     private final int servicePort = 9112;
 
     @Test(description = "Tests if 408 response is returned when the request times out. In this case a delay is " +
-            "introduced between the first and second chunk.", enabled = false)
+            "introduced between the first and second chunk.")
     public void test408Response() throws IOException, InterruptedException {
         SocketChannel clientSocket = connectToRemoteEndpoint();
         writeDelayedRequest(clientSocket);
@@ -200,7 +203,7 @@ public class IdleTimeoutResponseTestCase extends BaseTest {
         count = socketChannel.read(buffer);
         Assert.assertTrue(count > 0);
         // Loop while data is available; channel is non-blocking
-        do {
+        while (count > 0) {
             // Make buffer readable
             buffer.flip();
 
@@ -208,26 +211,32 @@ public class IdleTimeoutResponseTestCase extends BaseTest {
             while (buffer.hasRemaining()) {
                 inboundContent.append((char) buffer.get());
             }
-            String response = inboundContent.toString().trim();
-            //Ignore the server header
-            int newLineIndex = response.lastIndexOf("\r\n");
-            Assert.assertEquals(response.substring(0, newLineIndex), expected.trim());
             // Empty buffer
             buffer.clear();
+            try {
+                count = socketChannel.read(buffer);
+            } catch (IOException e) {
+                //Ignores this exception because the read cannot succeed if the connection is closed in the middle.
+                log.warn("Cannot read more data when connection is closed", e);
+            }
         }
-        while ((count = socketChannel.read(buffer)) > 0);
 
         if (count < 0) {
             // Close channel on EOF, invalidates the key
             socketChannel.close();
         }
+
+        String response = inboundContent.toString().trim();
+        //Ignore the server header
+        int newLineIndex = response.lastIndexOf("\r\n");
+        Assert.assertEquals(response.substring(0, newLineIndex), expected.trim());
     }
 
     @Test(description = "Tests if 500 response is returned when the server times out. In this case a sleep is " +
             "introduced in the server.")
     public void test500Response() throws Exception {
         HttpResponse response = HttpClientRequest.doGet(serverInstance.getServiceURLHttp(servicePort,
-                "idle/timeout500"));
+                                                                                         "idle/timeout500"));
         Assert.assertNotNull(response);
         Assert.assertEquals(response.getResponseCode(), 500, "Response code mismatched");
     }

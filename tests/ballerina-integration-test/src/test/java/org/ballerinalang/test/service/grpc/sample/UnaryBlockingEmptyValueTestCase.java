@@ -48,9 +48,9 @@ public class UnaryBlockingEmptyValueTestCase extends BaseTest {
 
     @BeforeClass
     private void setup() throws Exception {
+        TestUtils.prepareBalo(this);
         Path balFilePath = Paths.get("src", "test", "resources", "grpc", "clients", "advanced_type_client.bal");
         result = BCompileUtil.compile(balFilePath.toAbsolutePath().toString());
-        TestUtils.prepareBalo(this);
     }
 
     @Test
