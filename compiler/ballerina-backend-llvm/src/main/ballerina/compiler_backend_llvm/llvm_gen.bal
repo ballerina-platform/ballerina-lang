@@ -139,11 +139,16 @@ function genBasicBlockTerminator(BIRFunction func, BIRBasicBlock bb, llvm:LLVMBu
         }
         Call callIns => {
             var thenBB = getBBById(func, callIns.thenBB.id.value);
-            var arg1 = loadOprand(func, callIns.args[0], builder);
             var lhsTmpName = localVarName(callIns.lhsOp.variableDcl) + "_temp";
-            llvm:LLVMValueRef[] args = [arg1];
+            llvm:LLVMValueRef[] args = [];
+            var argsCount = lengthof callIns.args;
+            int i = 0;
+            while (i < argsCount) {
+                args[i] = loadOprand(func, callIns.args[i], builder);
+                i++;
+            }
             var funcRef = getFuncByName(callIns.name);
-            llvm:LLVMValueRef callReturn = llvm:LLVMBuildCall(builder, funcRef, args, 1, lhsTmpName);
+            llvm:LLVMValueRef callReturn = llvm:LLVMBuildCall(builder, funcRef, args, argsCount, lhsTmpName);
             llvm:LLVMValueRef lhsRef = getLocalVarById(func, callIns.lhsOp.variableDcl.name.value);
             var loaded = llvm:LLVMBuildStore(builder, callReturn, lhsRef);
             var brInsRef = llvm:LLVMBuildBr(builder, thenBB);
@@ -175,6 +180,7 @@ function genBasicBlockBody(BIRFunction func, BIRBasicBlock bb, llvm:LLVMValueRef
                 var rhsOp2 = loadOprand(func, binaryIns.rhsOp2, builder);
                 var kind = binaryIns.kind;
                 if (kind == "LESS_THAN"){
+                    // TODO: import these consts from llvm pkg
                     // LLVMIntSLT = 40
                     var ifReturn = llvm:LLVMBuildICmp(builder, 40, rhsOp1, rhsOp2, lhsTmpName);
                     var loaded = llvm:LLVMBuildStore(builder, ifReturn, lhsRef);
@@ -190,6 +196,10 @@ function genBasicBlockBody(BIRFunction func, BIRBasicBlock bb, llvm:LLVMValueRef
                     var loaded = llvm:LLVMBuildStore(builder, ifReturn, lhsRef);
                 } else if (kind == "MUL"){
                     var ifReturn = llvm:LLVMBuildMul(builder, rhsOp1, rhsOp2, lhsTmpName);
+                    var loaded = llvm:LLVMBuildStore(builder, ifReturn, lhsRef);
+                } else if (kind == "LESS_EQUAL"){
+                    // LLVMIntSLE = 41
+                    var ifReturn = llvm:LLVMBuildICmp(builder, 41, rhsOp1, rhsOp2, lhsTmpName);
                     var loaded = llvm:LLVMBuildStore(builder, ifReturn, lhsRef);
                 } else {
                     error err = { message: "unknown binary op kind" };
