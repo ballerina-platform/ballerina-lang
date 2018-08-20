@@ -791,7 +791,8 @@ public class CPU {
             keyVal = extractValue(ctx.workerLocal, keyType, keyReg);
         }
         BRefType dataVal = extractValue(ctx.workerLocal, dataType, dataReg);
-        ChannelRegistry.PendingContext pendingCtx = ChannelManager.channelSenderAction(channelName, keyVal, dataVal);
+        ChannelRegistry.PendingContext pendingCtx = ChannelManager.channelSenderAction(channelName, keyVal, dataVal,
+                keyType, dataType);
         if (pendingCtx != null) {
             //inject the value to the ctx
             copyArgValueForWorkerReceive(pendingCtx.context.workerLocal, pendingCtx.regIndex, dataType, dataVal);
@@ -817,7 +818,8 @@ public class CPU {
         if (keyType != null) {
             keyVal = extractValue(ctx.workerLocal, keyType, keyIndex);
         }
-        BValue value = ChannelManager.channelReceiverAction(channelName, keyVal, ctx, receiverReg);
+        BValue value = ChannelManager.channelReceiverAction(channelName, keyVal, keyType, ctx, receiverReg,
+                receiverType);
         if (value != null) {
             copyArgValueForWorkerReceive(ctx.workerLocal, receiverReg, receiverType, (BRefType) value);
             return true;
@@ -832,7 +834,8 @@ public class CPU {
         List<BClosure> closureVars = fp.getClosureVars();
         int[] argRegs = funcCallCPEntry.getArgRegs();
         if (closureVars.isEmpty()) {
-            return BLangFunctions.invokeCallable(functionInfo, ctx, argRegs, funcCallCPEntry.getRetRegs(), false);
+            return BLangFunctions.invokeCallable(functionInfo, ctx, argRegs, funcCallCPEntry.getRetRegs(),
+                    false);
         }
 
         int[] newArgRegs = new int[argRegs.length + closureVars.size()];

@@ -18,6 +18,7 @@ package org.ballerinalang.channels;
 
 import org.ballerinalang.bre.bvm.BLangScheduler;
 import org.ballerinalang.bre.bvm.WorkerExecutionContext;
+import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.values.BValue;
 
 /**
@@ -25,25 +26,28 @@ import org.ballerinalang.model.values.BValue;
  */
 public class ChannelManager {
 
-    public static synchronized BValue channelReceiverAction(String channelName, BValue key, WorkerExecutionContext
-            ctx, int regIndex) {
-        BValue msg = DatabaseUtils.getMessage(channelName, key);
+    public static synchronized BValue channelReceiverAction(String channelName, BValue key, BType keyType,
+                                                            WorkerExecutionContext ctx, int regIndex,
+                                                            BType receiverType) {
+        BValue msg = DatabaseUtils.getMessage(channelName, key, keyType, receiverType);
         if (msg != null) {
             return msg;
         } else {
             ChannelRegistry.getInstance().addWaitingContext(channelName, key, ctx, regIndex);
             BLangScheduler.workerWaitForResponse(ctx);
         }
-        return null; //need to return data retrieved from DB
+        return null;
     }
 
     public static synchronized ChannelRegistry.PendingContext channelSenderAction(String channelName, BValue key,
-                                                                                  BValue value) {
+                                                                                  BValue value, BType keyType,
+                                                                                  BType valType) {
+
         ChannelRegistry.PendingContext ctx = ChannelRegistry.getInstance().pollOnChannel(channelName, key);
         if (ctx != null) {
             return ctx;
         }
-        DatabaseUtils.addEntry(channelName, key, value);
+        DatabaseUtils.addEntry(channelName, key, value, keyType, valType);
         return null;
     }
 }

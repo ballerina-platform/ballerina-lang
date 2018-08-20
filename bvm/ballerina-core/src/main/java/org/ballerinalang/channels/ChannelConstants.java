@@ -12,4 +12,49 @@ public class ChannelConstants {
     public static final String CONF_USERNAME = "username";
     public static final String CONF_PASSWORD = "password";
     public static final String CONF_DB = "database";
+    public static final String CONF_DB_TYPE = "dbType";
+    public static final String CONF_HOST_OR_PATH = "hostOrPath";
+    public static final String CONF_PORT = "port";
+    public static final String CONF_DB_NAME = "dbName";
+    public static final String CONF_DB_OPTIONS = "dbOptions";
+
+    /**
+     * DB Types with first class support.
+     */
+    public static final class DBTypes {
+        public static final String SQLSERVER = "SQLSERVER";
+        public static final String ORACLE = "ORACLE";
+        public static final String SYBASE = "SYBASE";
+        public static final String POSTGRESQL = "POSTGRESQL";
+        public static final String IBMDB2 = "DB2";
+
+        public static final String DERBY_SERVER = "DERBY_SERVER";
+        public static final String DERBY_FILE = "DERBY_FILE";
+
+        public static final String HSQLDB = "HSQLDB";
+        public static final String HSQLDB_SERVER = "HSQLDB_SERVER";
+        public static final String HSQLDB_FILE = "HSQLDB_FILE";
+
+        public static final String MYSQL = "MYSQL";
+
+        public static final String H2 = "H2";
+        public static final String H2_SERVER = "H2_SERVER";
+        public static final String H2_FILE = "H2_FILE";
+        public static final String H2_MEMORY = "H2_MEMORY";
+    }
+
+    /**
+     * Constants default DB ports.
+     */
+    public static final class DefaultPort {
+        public static final int MYSQL = 3306;
+        public static final int SQLSERVER = 1433;
+        public static final int ORACLE = 1521;
+        public static final int SYBASE = 5000;
+        public static final int POSTGRES = 5432;
+        public static final int IBMDB2 = 50000;
+        public static final int HSQLDB_SERVER = 9001;
+        public static final int H2_SERVER = 9092;
+        public static final int DERBY_SERVER = 1527;
+    }
 }

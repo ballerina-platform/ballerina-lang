@@ -3,14 +3,32 @@ package org.ballerinalang.channels;
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
 import org.ballerinalang.config.ConfigRegistry;
+import org.ballerinalang.model.types.BArrayType;
+import org.ballerinalang.model.types.BType;
+import org.ballerinalang.model.types.TypeTags;
+import org.ballerinalang.model.util.JsonParser;
+import org.ballerinalang.model.util.XMLUtils;
+import org.ballerinalang.model.values.BBoolean;
+import org.ballerinalang.model.values.BBooleanArray;
+import org.ballerinalang.model.values.BByteArray;
+import org.ballerinalang.model.values.BFloat;
+import org.ballerinalang.model.values.BFloatArray;
+import org.ballerinalang.model.values.BIntArray;
+import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BString;
+import org.ballerinalang.model.values.BStringArray;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.util.exceptions.BallerinaException;
 
+import java.io.ByteArrayInputStream;
+import java.io.File;
+import java.sql.Blob;
 import java.sql.Connection;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.Base64;
+import java.sql.Types;
+import java.util.Locale;
 
 /**
  * Utility methods for storing/fetching channel messages.
@@ -20,23 +38,21 @@ public class DatabaseUtils {
     private static HikariDataSource hikariDataSource;
     private static Connection con;
     private static HikariConfig config;
-    private static String dbName = ChannelConstants.DB_NAME;
+    private static ConfigRegistry registry = ConfigRegistry.getInstance();
+    private static final String H2_MEM_URL = "jdbc:h2:mem:" + ChannelConstants.DB_NAME;
 
     private static void createDBConnection() {
         if (hikariDataSource == null) {
             config = new HikariConfig();
-            config.setUsername(ChannelConstants.DB_USERNAME);
-            config.setPassword(ChannelConstants.DB_PASSWORD);
+            setCredentials();
 
-            readConfigs();
-            String jdbcUrl = "jdbc:h2:mem:";
-            jdbcUrl.concat(dbName);
+            String jdbcUrl = constructJDBCURL();
             config.setJdbcUrl(jdbcUrl);
             hikariDataSource = new HikariDataSource(config);
 
             try {
                 con = hikariDataSource.getConnection();
-                con.prepareStatement("create table messages (" +
+                con.prepareStatement("create table IF NOT EXISTS messages (" +
                         "  msgId int NOT NULL AUTO_INCREMENT," +
                         "  channelName  varchar(200)," +
                         "  key    varchar(200)," +
@@ -58,17 +74,16 @@ public class DatabaseUtils {
         }
     }
 
-    public static void addEntry(String channelName, BValue key, BValue value) {
+    public static void addEntry(String channelName, BValue key, BValue value, BType keyType, BType valType) {
         createDBConnection();
-        String encodedKey = Base64.getEncoder().encodeToString(key.stringValue().getBytes());
-        String encodedValue = Base64.getEncoder().encodeToString(value.stringValue().getBytes());
         String addStatement = "INSERT into messages (channelName, key, value) values ('"
-                + channelName + "', '"
-                + encodedKey + "', '"
-                + encodedValue + "')";
+                + channelName + "', ?, ?)";
         try {
             con = hikariDataSource.getConnection();
-            con.prepareStatement(addStatement).execute();
+            PreparedStatement stmt = con.prepareStatement(addStatement);
+            setParam(stmt, key, keyType, 1);
+            setParam(stmt, value, valType, 2);
+            stmt.execute();
         } catch (SQLException e) {
             throw new BallerinaException("error in get connection to persist channel message " + e.getMessage(),
                     e);
@@ -81,25 +96,24 @@ public class DatabaseUtils {
         }
     }
 
-    public static BValue getMessage(String channelName, BValue key) {
+    public static BValue getMessage(String channelName, BValue key, BType keyType, BType receiverType) {
         createDBConnection();
-        String encodedKey = Base64.getEncoder().encodeToString(key.stringValue().getBytes());
-        String stmt = "SELECT msgId,value FROM messages WHERE channelName = '" + channelName + "' AND key = '" +
-                encodedKey + "'";
+        String stmt = "SELECT msgId,value FROM messages WHERE channelName = '" + channelName + "' AND key = ?";
         ResultSet result;
         try {
             con = hikariDataSource.getConnection();
-            result = con.prepareStatement(stmt).executeQuery();
+            PreparedStatement prpStmt = con.prepareStatement(stmt);
+            setParam(prpStmt, key, keyType, 1);
+            result = prpStmt.executeQuery();
             if (result.next()) {
-                byte[] bytes = Base64.getDecoder().decode(result.getString(2));
-                String stringVal = new String(bytes);
                 int msgId = result.getInt(1);
+                BValue value = getValue(result, receiverType);
                 con.prepareStatement("DELETE FROM messages where msgId = " + msgId).execute();
                 //todo: should fix for all types
-                return new BString(stringVal);
+                return value;
             }
         } catch (SQLException e) {
-            throw new BallerinaException("error in get connection to persist channel message " + e.getMessage(),
+            throw new BallerinaException("error retrieving channel message" + e.getMessage(),
                     e);
         } finally {
             try {
@@ -111,22 +125,241 @@ public class DatabaseUtils {
         return null;
     }
 
-    private static void readConfigs() {
-        ConfigRegistry registry = ConfigRegistry.getInstance();
+    private static BValue getValue(ResultSet resultSet, BType bType) throws SQLException {
+        int type = bType.getTag();
+
+        switch (type) {
+            case TypeTags.INT_TAG:
+                return new BInteger(resultSet.getLong(2));
+            case TypeTags.STRING_TAG:
+                return new BString(resultSet.getString(2));
+            case TypeTags.FLOAT_TAG:
+                return new BFloat(resultSet.getDouble(2));
+            case TypeTags.BOOLEAN_TAG:
+                return new BBoolean(resultSet.getBoolean(2));
+            case TypeTags.XML_TAG:
+                return XMLUtils.parse(resultSet.getString(2));
+            case TypeTags.JSON_TAG:
+                return JsonParser.parse(resultSet.getString(2));
+            case TypeTags.ARRAY_TAG:
+                boolean isBlobType =
+                        ((BArrayType) bType).getElementType().getTag() == TypeTags.BYTE_TAG;
+                if (isBlobType) {
+                    Blob blob =  resultSet.getBlob(2);
+                    int length = (int) blob.length();
+
+                    if (blob != null) {
+                        return new BByteArray(blob.getBytes(1, length));
+                    } else {
+                        return new BByteArray();
+                    }
+                } else {
+//                    Object[] arrayData = getBArrayValue(resultSet, bType);
+//                    stmt.setObject(index, arrayData);
+                    throw new BallerinaException("unsupported data type for array parameter");
+                }
+            default:
+                return null;
+        }
+    }
+
+    private static void setCredentials() {
         if (registry.contains(ChannelConstants.CONF_NAMESPACE + ChannelConstants.CONF_PASSWORD)) {
             config.setPassword(registry.getAsString(ChannelConstants.CONF_NAMESPACE +
                     ChannelConstants.CONF_PASSWORD));
+        } else {
+            config.setPassword(ChannelConstants.DB_PASSWORD);
         }
 
         if (registry.contains(ChannelConstants.CONF_NAMESPACE + ChannelConstants.CONF_USERNAME)) {
             config.setUsername(registry.getAsString(ChannelConstants.CONF_NAMESPACE +
                     ChannelConstants.CONF_USERNAME));
-        }
-
-        if (registry.contains(ChannelConstants.CONF_NAMESPACE + ChannelConstants.CONF_DB)) {
-            dbName = registry.getAsString(ChannelConstants.CONF_NAMESPACE + ChannelConstants.CONF_DB);
+        } else {
+            config.setUsername(ChannelConstants.DB_USERNAME);
         }
 
     }
 
+    private static void setParam(PreparedStatement stmt, BValue value, BType bType, int index) throws SQLException {
+
+        int type = bType.getTag();
+
+        switch (type) {
+            case TypeTags.INT_TAG:
+                stmt.setLong(index, ((BInteger) value).intValue());
+                break;
+            case TypeTags.STRING_TAG:
+                stmt.setString(index, value.stringValue());
+                break;
+            case TypeTags.FLOAT_TAG:
+                stmt.setDouble(index, ((BFloat) value).floatValue());
+                break;
+            case TypeTags.BOOLEAN_TAG:
+                stmt.setBoolean(index, ((BBoolean) value).booleanValue());
+                break;
+            case TypeTags.XML_TAG:
+            case TypeTags.JSON_TAG:
+                stmt.setString(index, value.toString());
+                break;
+            case TypeTags.ARRAY_TAG:
+                boolean isBlobType =
+                        ((BArrayType) value).getElementType().getTag() == TypeTags.BYTE_TAG;
+                if (isBlobType) {
+                    if (value != null) {
+                        byte[] blobData = ((BByteArray) value).getBytes();
+                        stmt.setBlob(index, new ByteArrayInputStream(blobData), blobData.length);
+                    } else {
+                        stmt.setNull(index, Types.BLOB);
+                    }
+                } else {
+                    Object[] arrayData = getArrayData(value);
+                    stmt.setObject(index, arrayData);
+                }
+                break;
+        }
+    }
+
+    static Object[] getArrayData(BValue value) {
+
+        if (value == null) {
+            return new Object[]{null};
+        }
+        int typeTag = ((BArrayType) value.getType()).getElementType().getTag();
+        Object[] arrayData;
+        int arrayLength;
+        switch (typeTag) {
+            case TypeTags.INT_TAG:
+                arrayLength = (int) ((BIntArray) value).size();
+                arrayData = new Long[arrayLength];
+                for (int i = 0; i < arrayLength; i++) {
+                    arrayData[i] = ((BIntArray) value).get(i);
+                }
+                break;
+            case TypeTags.FLOAT_TAG:
+                arrayLength = (int) ((BFloatArray) value).size();
+                arrayData = new Double[arrayLength];
+                for (int i = 0; i < arrayLength; i++) {
+                    arrayData[i] = ((BFloatArray) value).get(i);
+                }
+                break;
+            case TypeTags.STRING_TAG:
+                arrayLength = (int) ((BStringArray) value).size();
+                arrayData = new String[arrayLength];
+                for (int i = 0; i < arrayLength; i++) {
+                    arrayData[i] = ((BStringArray) value).get(i);
+                }
+                break;
+            case TypeTags.BOOLEAN_TAG:
+                arrayLength = (int) ((BBooleanArray) value).size();
+                arrayData = new Boolean[arrayLength];
+                for (int i = 0; i < arrayLength; i++) {
+                    arrayData[i] = ((BBooleanArray) value).get(i) > 0;
+                }
+                break;
+            default:
+                throw new BallerinaException("unsupported data type for array parameter");
+        }
+        return arrayData;
+    }
+
+    private static String constructJDBCURL() {
+
+        String dbType = registry.getAsString(ChannelConstants.CONF_NAMESPACE + ChannelConstants.CONF_DB_TYPE);
+        String hostOrPath = registry.getAsString(ChannelConstants.CONF_NAMESPACE +
+                ChannelConstants.CONF_HOST_OR_PATH);
+        long port = -1;
+        if (registry.contains(ChannelConstants.CONF_NAMESPACE + ChannelConstants.CONF_PORT)) {
+            port = registry.getAsInt(ChannelConstants.CONF_NAMESPACE + ChannelConstants.CONF_PORT);
+        }
+        String dbName = registry.getAsString(ChannelConstants.CONF_NAMESPACE + ChannelConstants.CONF_DB_NAME);
+        String userName = registry.getAsString(ChannelConstants.CONF_NAMESPACE + ChannelConstants.CONF_USERNAME);
+        String password = registry.getAsString(ChannelConstants.CONF_NAMESPACE + ChannelConstants.CONF_PASSWORD);
+
+        StringBuilder jdbcUrl = new StringBuilder();
+        if (dbType == null) {
+            return H2_MEM_URL;
+        }
+        dbType = dbType.toUpperCase(Locale.ENGLISH);
+        if (hostOrPath != null) {
+            hostOrPath = hostOrPath.replaceAll("/$", "");
+        }
+
+        switch (dbType) {
+            case ChannelConstants.DBTypes.MYSQL:
+                if (port <= 0) {
+                    port = ChannelConstants.DefaultPort.MYSQL;
+                }
+                jdbcUrl.append("jdbc:mysql://").append(hostOrPath).append(":").append(port).append("/").append(dbName);
+                break;
+            case ChannelConstants.DBTypes.SQLSERVER:
+                if (port <= 0) {
+                    port = ChannelConstants.DefaultPort.SQLSERVER;
+                }
+                jdbcUrl.append("jdbc:sqlserver://").append(hostOrPath).append(":").append(port).append(";databaseName=")
+                        .append(dbName);
+                break;
+            case ChannelConstants.DBTypes.ORACLE:
+                if (port <= 0) {
+                    port = ChannelConstants.DefaultPort.ORACLE;
+                }
+                jdbcUrl.append("jdbc:oracle:thin:").append(userName).append("/").append(password).append("@")
+                        .append(hostOrPath).append(":").append(port).append("/").append(dbName);
+                break;
+            case ChannelConstants.DBTypes.SYBASE:
+                if (port <= 0) {
+                    port = ChannelConstants.DefaultPort.SYBASE;
+                }
+                jdbcUrl.append("jdbc:sybase:Tds:").append(hostOrPath).append(":").append(port).append("/")
+                        .append(dbName);
+                break;
+            case ChannelConstants.DBTypes.POSTGRESQL:
+                if (port <= 0) {
+                    port = ChannelConstants.DefaultPort.POSTGRES;
+                }
+                jdbcUrl.append("jdbc:postgresql://").append(hostOrPath).append(":").append(port).append("/")
+                        .append(dbName);
+                break;
+            case ChannelConstants.DBTypes.IBMDB2:
+                if (port <= 0) {
+                    port = ChannelConstants.DefaultPort.IBMDB2;
+                }
+                jdbcUrl.append("jdbc:db2:").append(hostOrPath).append(":").append(port).append("/").append(dbName);
+                break;
+            case ChannelConstants.DBTypes.HSQLDB_SERVER:
+                if (port <= 0) {
+                    port = ChannelConstants.DefaultPort.HSQLDB_SERVER;
+                }
+                jdbcUrl.append("jdbc:hsqldb:hsql://").append(hostOrPath).append(":").append(port).append("/")
+                        .append(dbName);
+                break;
+            case ChannelConstants.DBTypes.HSQLDB_FILE:
+                jdbcUrl.append("jdbc:hsqldb:file:").append(hostOrPath).append(File.separator).append(dbName);
+                break;
+            case ChannelConstants.DBTypes.H2_SERVER:
+                if (port <= 0) {
+                    port = ChannelConstants.DefaultPort.H2_SERVER;
+                }
+                jdbcUrl.append("jdbc:h2:tcp:").append(hostOrPath).append(":").append(port).append("/").append(dbName);
+                break;
+            case ChannelConstants.DBTypes.H2_FILE:
+                jdbcUrl.append("jdbc:h2:file:").append(hostOrPath).append(File.separator).append(dbName);
+                break;
+            case ChannelConstants.DBTypes.H2_MEMORY:
+                jdbcUrl.append("jdbc:h2:mem:").append(dbName);
+                break;
+            case ChannelConstants.DBTypes.DERBY_SERVER:
+                if (port <= 0) {
+                    port = ChannelConstants.DefaultPort.DERBY_SERVER;
+                }
+                jdbcUrl.append("jdbc:derby:").append(hostOrPath).append(":").append(port).append("/").append(dbName);
+                break;
+            case ChannelConstants.DBTypes.DERBY_FILE:
+                jdbcUrl.append("jdbc:derby:").append(hostOrPath).append(File.separator).append(dbName);
+                break;
+            default:
+                throw new BallerinaException("cannot generate url for unknown database type : " + dbType);
+        }
+
+        return jdbcUrl.toString();
+    }
 }

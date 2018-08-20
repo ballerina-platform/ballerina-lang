@@ -30,7 +30,7 @@ import java.util.Map;
  */
 public class ChannelRegistry {
     private static ChannelRegistry channelRegistry = null;
-    private Map<String, Map<BValue, LinkedList<PendingContext>>> channelList;
+    private Map<String, Map<String, LinkedList<PendingContext>>> channelList;
 
     private ChannelRegistry() {
         channelList = new HashMap<>();
@@ -65,14 +65,15 @@ public class ChannelRegistry {
     public void addWaitingContext(String channel, BValue key, WorkerExecutionContext ctx, int regIndex) {
         //add channel if absent
         addChannel(channel);
-        Map<BValue, LinkedList<PendingContext>> channelEntries = channelList.get(channel);
-        LinkedList<PendingContext> ctxList = channelEntries.computeIfAbsent(key, bValue -> new LinkedList<>());
+        Map<String, LinkedList<PendingContext>> channelEntries = channelList.get(channel);
+        LinkedList<PendingContext> ctxList = channelEntries.computeIfAbsent(key.stringValue(),
+                bValue -> new LinkedList<>());
 
         PendingContext pContext = new PendingContext();
         pContext.regIndex = regIndex;
         pContext.context = ctx;
         ctxList.add(pContext);
-        channelEntries.put(key, ctxList);
+        channelEntries.put(key.stringValue(), ctxList);
     }
 
     /**
@@ -84,7 +85,7 @@ public class ChannelRegistry {
     public PendingContext pollOnChannel(String channel, BValue key) {
         //add channel if absent
         addChannel(channel);
-        LinkedList<PendingContext> pendingCtxs = channelList.get(channel).get(key);
+        LinkedList<PendingContext> pendingCtxs = channelList.get(channel).get(key.stringValue());
         if (pendingCtxs != null) {
             return pendingCtxs.poll();
         }
