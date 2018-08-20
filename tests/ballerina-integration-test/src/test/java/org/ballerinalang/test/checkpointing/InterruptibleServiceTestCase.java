@@ -21,7 +21,7 @@ package org.ballerinalang.test.checkpointing;
 import org.awaitility.Awaitility;
 import org.ballerinalang.config.ConfigRegistry;
 import org.ballerinalang.persistence.store.impl.FileStorageProvider;
-import org.ballerinalang.test.IntegrationTestCase;
+import org.ballerinalang.test.BaseTest;
 import org.ballerinalang.test.context.BallerinaTestException;
 import org.ballerinalang.test.context.ServerInstance;
 import org.ballerinalang.test.util.HttpClientRequest;
@@ -40,7 +40,7 @@ import java.util.concurrent.TimeUnit;
  *
  * @since 0.981.1
  */
-public class InterruptibleServiceTestCase extends IntegrationTestCase {
+public class InterruptibleServiceTestCase extends BaseTest {
 
     private ServerInstance ballerinaServer;
 

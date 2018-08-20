@@ -17,8 +17,6 @@
  */
 package org.ballerinalang.persistence.serializable.reftypes.impl;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BRefType;
 import org.ballerinalang.model.values.BValue;
@@ -71,15 +69,5 @@ public class SerializableBMap<K, V extends BValue> implements SerializableRefTyp
         nativeData.forEach((s, o) -> bMap.addNativeData(s, state.deserialize(o, programFile, deserializer)));
         map.forEach((k, v) -> bMap.put(k, (V) state.deserialize(v, programFile, deserializer)));
         return bMap;
-    }
-
-    public String serialize() {
-        Gson gson = new GsonBuilder().create();
-        return gson.toJson(this);
-    }
-
-    public static SerializableBMap deserialize(String jsonString) {
-        Gson gson = new GsonBuilder().create();
-        return gson.fromJson(jsonString, SerializableBMap.class);
     }
 }

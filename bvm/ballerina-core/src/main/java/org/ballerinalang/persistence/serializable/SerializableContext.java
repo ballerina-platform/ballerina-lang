@@ -196,21 +196,4 @@ public class SerializableContext {
             props.forEach((s, o) -> properties.put(s, state.serialize(o)));
         }
     }
-
-    public String serialize() {
-        Gson gson = new GsonBuilder().create();
-        return gson.toJson(this);
-    }
-
-    public String getParent() {
-        return parent;
-    }
-
-    public void setParent(String parent) {
-        this.parent = parent;
-    }
-
-    public WorkerState getState() {
-        return state;
-    }
 }
