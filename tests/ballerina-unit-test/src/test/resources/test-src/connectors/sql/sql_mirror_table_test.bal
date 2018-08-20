@@ -129,7 +129,6 @@ function testAddToMirrorTableNegative(string jdbcUrl, string userName, string pa
     table dt = check testDB->getProxyTable("employeeAddNegative", Employee);
 
     Employee e1 = { id: 1, name: "Manuri", address: "Sri Lanka" };
-
     var result = dt.add(e1);
 
     testDB.stop();
