@@ -40,14 +40,18 @@ insert into CustomersTrx2 (customerId,firstName,lastName,registrationID,creditLi
 CREATE PROCEDURE InsertPersonDataSuccessful(IN regid1 INT, IN regid2 INT)
   MODIFIES SQL DATA
   BEGIN ATOMIC
-  INSERT INTO Customers (firstName,lastName,registrationID,creditLimit,country) values ('James', 'Clerk', regid1, 5000.75, 'USA');
-  INSERT INTO Customers (firstName,lastName,registrationID,creditLimit,country) values ('James', 'Clerk', regid2, 5000.75, 'USA');
+  INSERT INTO Customers (firstName, lastName, registrationID, creditLimit, country)
+  values ('James', 'Clerk', regid1, 5000.75, 'USA');
+  INSERT INTO Customers (firstName, lastName, registrationID, creditLimit, country)
+  values ('James', 'Clerk', regid2, 5000.75, 'USA');
   END
 /
 CREATE PROCEDURE InsertPersonDataFailure(IN regid1 INT, IN regid2 INT)
   MODIFIES SQL DATA
   BEGIN ATOMIC
-  INSERT INTO Customers (firstName,lastName,registrationID,creditLimit,country) values ('James', 'Clerk', regid1, 5000.75, 'USA');
-  INSERT INTO Customers (firstName,lastName,registrationID,creditLimit,country) values ('James', 'Clerk', regid2, 'invalid', 'USA');
+  INSERT INTO Customers (firstName, lastName, registrationID, creditLimit, country)
+  values ('James', 'Clerk', regid1, 5000.75, 'USA');
+  INSERT INTO Customers (firstName, lastName, registrationID, creditLimit, country)
+  values ('James', 'Clerk', regid2, 'invalid', 'USA');
   END
 /

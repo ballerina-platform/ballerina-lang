@@ -76,10 +76,10 @@ function testLocalTransactionUpdateWithGeneratedKeys() returns (int, int) {
     int returnVal = 0;
     int count;
     transaction {
-        _ = testDB->updateWithGeneratedKeys("Insert into Customers (firstName,lastName,registrationID,creditLimit,country)
-                                values ('James', 'Clerk', 615, 5000.75, 'USA')", ());
-        _ = testDB->updateWithGeneratedKeys("Insert into Customers (firstName,lastName,registrationID,creditLimit,country)
-                                values ('James', 'Clerk', 615, 5000.75, 'USA')", ());
+        _ = testDB->updateWithGeneratedKeys("Insert into Customers
+        (firstName,lastName,registrationID,creditLimit,country) values ('James', 'Clerk', 615, 5000.75, 'USA')", ());
+        _ = testDB->updateWithGeneratedKeys("Insert into Customers
+        (firstName,lastName,registrationID,creditLimit,country) values ('James', 'Clerk', 615, 5000.75, 'USA')", ());
     } onretry {
         returnVal = -1;
     }
@@ -226,10 +226,10 @@ function testLocalTransactionBatchUpdate() returns (int, int) {
     sql:Parameter[] parameters2 = [para1, para2, para3, para4, para5];
 
     transaction {
-        int[] updateCount1 = check testDB->batchUpdate("Insert into Customers (firstName,lastName,registrationID,creditLimit,country)
-                                     values (?,?,?,?,?)", parameters1, parameters2);
-        int[] updateCount2 = check testDB->batchUpdate("Insert into Customers (firstName,lastName,registrationID,creditLimit,country)
-                                     values (?,?,?,?,?)", parameters1, parameters2);
+        int[] updateCount1 = check testDB->batchUpdate("Insert into Customers
+        (firstName,lastName,registrationID,creditLimit,country) values (?,?,?,?,?)", parameters1, parameters2);
+        int[] updateCount2 = check testDB->batchUpdate("Insert into Customers
+        (firstName,lastName,registrationID,creditLimit,country) values (?,?,?,?,?)", parameters1, parameters2);
     } onretry {
         returnVal = -1;
     }
@@ -271,10 +271,10 @@ function testLocalTransactionRollbackBatchUpdate() returns (int, int) {
     sql:Parameter[] parameters2 = [para1, para2, para3, para4, para5];
 
     transaction {
-        int[] updateCount1 = check testDB->batchUpdate("Insert into Customers (firstName,lastName,registrationID,creditLimit,country)
-                                     values (?,?,?,?,?)", parameters1, parameters2);
-        int[] updateCount2 = check testDB->batchUpdate("Insert into Customers2 (firstName,lastName,registrationID,creditLimit,country)
-                                     values (?,?,?,?,?)", parameters1, parameters2);
+        int[] updateCount1 = check testDB->batchUpdate("Insert into Customers
+        (firstName,lastName,registrationID,creditLimit,country) values (?,?,?,?,?)", parameters1, parameters2);
+        int[] updateCount2 = check testDB->batchUpdate("Insert into Customers2
+        (firstName,lastName,registrationID,creditLimit,country) values (?,?,?,?,?)", parameters1, parameters2);
     } onretry {
         returnVal = -1;
     }
