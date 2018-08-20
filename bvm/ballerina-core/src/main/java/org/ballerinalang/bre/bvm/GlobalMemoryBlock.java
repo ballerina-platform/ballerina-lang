@@ -16,19 +16,13 @@
 
 package org.ballerinalang.bre.bvm;
 
-import org.ballerinalang.model.types.BField;
 import org.ballerinalang.model.types.BStructureType;
-import org.ballerinalang.model.types.BType;
-import org.ballerinalang.model.types.BTypes;
-import org.ballerinalang.model.util.Flags;
 import org.ballerinalang.model.values.BRefType;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.model.values.LockableStructureType;
 import org.ballerinalang.util.BLangConstants;
 
 import java.util.Arrays;
-import java.util.HashMap;
-import java.util.StringJoiner;
 
 /**
  * The {@code GlobalMemoryBlock} represents the global memory block in Ballerina VM.
@@ -37,8 +31,6 @@ import java.util.StringJoiner;
  */
 
 public final class GlobalMemoryBlock implements BRefType, LockableStructureType {
-    private HashMap<String, Object> nativeData = new HashMap<>();
-
     private long[] longFields;
     private VarLock[] longLocks;
     private double[] doubleFields;
@@ -83,36 +75,7 @@ public final class GlobalMemoryBlock implements BRefType, LockableStructureType 
      */
     @Override
     public String stringValue() {
-        int stringIndex = 0,
-                intIndex = 0,
-                longIndex = 0,
-                doubleIndex = 0,
-                refValIndex = 0;
-
-        StringJoiner sj = new StringJoiner(", ", "{", "}");
-        for (BField field : structType.getFields()) {
-            if (Flags.isFlagOn(field.flags, Flags.PUBLIC)) {
-                String fieldName = field.getFieldName();
-                Object fieldVal;
-                BType fieldType = field.getFieldType();
-                if (fieldType == BTypes.typeString) {
-                    fieldVal = "\"" + stringFields[stringIndex++] + "\"";
-                } else if (fieldType == BTypes.typeInt) {
-                    fieldVal = longFields[longIndex++];
-                } else if (fieldType == BTypes.typeByte) {
-                    fieldVal = (byte) intFields[intIndex++];
-                } else if (fieldType == BTypes.typeFloat) {
-                    fieldVal = doubleFields[doubleIndex++];
-                } else if (fieldType == BTypes.typeBoolean) {
-                    fieldVal = intFields[intIndex++] == 1;
-                } else {
-                    BValue val = refFields[refValIndex++];
-                    fieldVal = val == null ? null : val.stringValue();
-                }
-                sj.add(fieldName + ":" + fieldVal);
-            }
-        }
-        return sj.toString();
+        return null;
     }
 
     @Override
@@ -332,30 +295,9 @@ public final class GlobalMemoryBlock implements BRefType, LockableStructureType 
         bStruct.refFields = Arrays.copyOf(refFields, refFields.length);
         return bStruct;
     }
-
-    /**
-     * Add natively accessible data to a struct.
-     *
-     * @param key  key to store data with
-     * @param data data to be stored
-     */
-    public void addNativeData(String key, Object data) {
-        nativeData.put(key, data);
-    }
-
-    /**
-     * Get natively accessible data from struct.
-     *
-     * @param key key by which data was stored
-     * @return data which was stored with given key or null if no value corresponding to key
-     */
-    public Object getNativeData(String key) {
-        return nativeData.get(key);
-    }
     
     @Override
     public String toString() {
         return this.stringValue();
     }
-    
 }
