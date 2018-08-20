@@ -113,7 +113,7 @@ public class DefinitionUtil {
 
         Location l = new Location();
         TextDocumentPositionParams position = definitionContext.get(DocumentServiceKeys.POSITION_KEY);
-        Path parentPath = CommonUtil.getPath(new LSDocument(position.getTextDocument().getUri())).getParent();
+        Path parentPath = new LSDocument(position.getTextDocument().getUri()).getPath().getParent();
         if (parentPath != null) {
             String fileName = bLangNode.getPosition().getSource().getCompilationUnitName();
             Path filePath = Paths

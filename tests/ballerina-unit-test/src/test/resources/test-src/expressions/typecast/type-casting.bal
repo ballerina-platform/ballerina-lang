@@ -83,12 +83,6 @@ function anyjsontostring() returns (string) {
     return result;
 }
 
-function intarrtofloatarr() returns (float[]) {
-    float[] numbers;
-    numbers = [999,95,889];
-    return numbers;
-}
-
 function testJsonToStringCast() returns (string) {
     json j = "hello";
     string value;

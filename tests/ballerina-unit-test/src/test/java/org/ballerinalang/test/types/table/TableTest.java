@@ -680,15 +680,15 @@ public class TableTest {
     }
 
     @Test(groups = TABLE_TEST, description = "Check select data with multiple rows for primitive types.")
-    public void testMutltipleRows() {
-        BValue[] returns = BRunUtil.invoke(result, "testMutltipleRows", connectionArgs);
+    public void testMultipleRows() {
+        BValue[] returns = BRunUtil.invoke(result, "testMultipleRows", connectionArgs);
         Assert.assertEquals(((BInteger) returns[0]).intValue(), 100);
         Assert.assertEquals(((BInteger) returns[1]).intValue(), 200);
     }
 
     @Test(groups = TABLE_TEST, description = "Check select data with multiple rows accessing without getNext.")
-    public void testMutltipleRowsWithoutLoop() {
-        BValue[] returns = BRunUtil.invoke(result, "testMutltipleRowsWithoutLoop", connectionArgs);
+    public void testMultipleRowsWithoutLoop() {
+        BValue[] returns = BRunUtil.invoke(result, "testMultipleRowsWithoutLoop", connectionArgs);
         Assert.assertEquals(returns.length, 6);
         Assert.assertEquals(((BInteger) returns[0]).intValue(), 100);
         Assert.assertEquals(((BInteger) returns[1]).intValue(), 200);
@@ -873,8 +873,8 @@ public class TableTest {
     }
 
     @Test(groups = TABLE_TEST, description = "Check retrieving data using foreach with multiple rows")
-    public void testMutltipleRowsWithForEach() {
-        BValue[] returns = BRunUtil.invoke(result, "testMutltipleRowsWithForEach", connectionArgs);
+    public void testMultipleRowsWithForEach() {
+        BValue[] returns = BRunUtil.invoke(result, "testMultipleRowsWithForEach", connectionArgs);
         Assert.assertEquals(((BInteger) returns[0]).intValue(), 100);
         Assert.assertEquals(((BInteger) returns[1]).intValue(), 200);
     }
@@ -890,6 +890,14 @@ public class TableTest {
     public void testTableRemoveInvalid() {
         BValue[] returns = BRunUtil.invoke(result, "testTableRemoveInvalid", connectionArgs);
         Assert.assertEquals((returns[0]).stringValue(), "data cannot be deleted from a table returned from a database");
+    }
+
+    @Test(groups = TABLE_TEST,
+          description = "Test performing operation over a closed table",
+          expectedExceptions = BLangRuntimeException.class,
+          expectedExceptionsMessageRegExp = ".*trying to perform an operation over a closed table.*")
+    public void tableGetNextInvalid() {
+        BRunUtil.invoke(result, "tableGetNextInvalid", connectionArgs);
     }
     
     //Nillable mapping tests
@@ -1327,7 +1335,7 @@ public class TableTest {
     }
 
     @Test(groups = {TABLE_TEST, MYSQL_NOT_SUPPORTED},
-          description = "Test mapping an array to invald union type.",
+          description = "Test mapping an array to invalid union type.",
           expectedExceptions = BLangRuntimeException.class,
           expectedExceptionsMessageRegExp = INVALID_UNION_FIELD_ASSIGNMENT)
     public void testAssignInvalidUnionArray() {
@@ -1335,7 +1343,7 @@ public class TableTest {
     }
 
     @Test(groups = {TABLE_TEST, MYSQL_NOT_SUPPORTED},
-          description = "Test mapping an array to invald union type.",
+          description = "Test mapping an array to invalid union type.",
           expectedExceptions = BLangRuntimeException.class,
           expectedExceptionsMessageRegExp = INVALID_UNION_FIELD_ASSIGNMENT)
     public void testAssignInvalidUnionArray2() {
@@ -1343,7 +1351,7 @@ public class TableTest {
     }
 
     @Test(groups = {TABLE_TEST, MYSQL_NOT_SUPPORTED},
-          description = "Test mapping an array to invald union type.",
+          description = "Test mapping an array to invalid union type.",
           expectedExceptions = BLangRuntimeException.class,
           expectedExceptionsMessageRegExp = INVALID_UNION_FIELD_ASSIGNMENT)
     public void testAssignInvalidUnionArrayElement() {

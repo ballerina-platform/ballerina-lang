@@ -17,7 +17,6 @@
  */
 package org.ballerinalang.test.packaging;
 
-import org.ballerinalang.test.IntegrationTestCase;
 import org.ballerinalang.test.context.BallerinaTestException;
 import org.ballerinalang.test.context.Constant;
 import org.ballerinalang.test.context.LogLeecher;
@@ -41,7 +40,7 @@ import java.util.Map;
 /**
  * Testing init, build with tests and run on a ballerina project.
  */
-public class PackagingInitTestCase extends IntegrationTestCase {
+public class PackagingInitTestCase {
     private String serverZipPath;
     private Path tempProjectDirectory;
 
@@ -314,6 +313,36 @@ public class PackagingInitTestCase extends IntegrationTestCase {
 
         // Test ballerina run with balx
         runMainFunction(projectPath, generatedBalx.toString());
+    }
+
+    @Test(description = "Test building a project with a single bal file using the target path")
+    public void testBuildWithTarget() throws Exception {
+        // Test ballerina init
+        ServerInstance ballerinaServer = createNewBallerinaServer();
+        Path projectPath = tempProjectDirectory.resolve("testPackageWithTarget");
+        Path genExecPath = tempProjectDirectory.resolve("generatedExec");
+        Files.createDirectories(projectPath);
+        Files.createDirectories(genExecPath);
+
+        String[] clientArgsForInit = {"-i"};
+        String[] options = {"\n", "\n", "\n", "m\n", "\n", "f"};
+        ballerinaServer.runMainWithClientOptions(clientArgsForInit, options, getEnvVariables(), "init",
+                                                 projectPath.toString());
+
+        Path sourceFilePath = projectPath.resolve("main.bal");
+        Assert.assertTrue(Files.exists(sourceFilePath));
+        Assert.assertTrue(Files.exists(projectPath.resolve("Ballerina.toml")));
+
+        // Remove the .ballerina inside the project because we only want the bal file
+        Files.deleteIfExists(projectPath.resolve(".ballerina").resolve(".gitignore"));
+        Files.deleteIfExists(projectPath.resolve(".ballerina"));
+
+        // Test ballerina build
+        String[] clientArgsForBuild = {"main.bal", "-o", genExecPath.resolve("foo.bal").toString()};
+        ballerinaServer = createNewBallerinaServer();
+        ballerinaServer.runMain(clientArgsForBuild, getEnvVariables(), "build", projectPath.toString());
+
+        Assert.assertTrue(Files.exists(genExecPath.resolve("foo.balx")));
     }
 
     /**

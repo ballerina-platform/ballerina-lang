@@ -19,12 +19,13 @@
 package org.ballerinalang.test.streaming;
 
 import io.netty.handler.codec.http.HttpHeaderNames;
-import org.ballerinalang.test.IntegrationTestCase;
-import org.ballerinalang.test.context.ServerInstance;
+import org.ballerinalang.test.BaseTest;
 import org.ballerinalang.test.util.HttpClientRequest;
 import org.ballerinalang.test.util.HttpResponse;
 import org.ballerinalang.test.util.TestConstant;
 import org.testng.Assert;
+import org.testng.annotations.AfterClass;
+import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 import java.io.File;
@@ -34,55 +35,52 @@ import java.util.Map;
 /**
  * This class tests the streaming functionality in a service.
  */
-public class StreamsWithinServicesTestCase extends IntegrationTestCase {
+public class StreamsWithinServicesTestCase extends BaseTest {
 
-    private ServerInstance ballerinaServer;
+    @BeforeClass
+    public void setup() throws Exception {
+        String relativePath = new File("src" + File.separator + "test" + File.separator + "resources"
+                + File.separator + "streaming" + File.separator +
+                "streams-within-services.bal").getAbsolutePath();
+        serverInstance.startBallerinaServer(relativePath);
+    }
 
     @Test(description = "Test the service with sample streaming rules")
     public void testStreamsWithinServices() throws Exception {
-        try {
-            String relativePath = new File("src" + File.separator + "test" + File.separator + "resources"
-                                           + File.separator + "streaming" + File.separator +
-                                           "streams-within-services.bal").getAbsolutePath();
-            int count = 0;
-            String responseMsg;
-            String requestMessage = "{'message' : 'Hello There'}";
+        int count = 0;
+        String responseMsg;
+        String requestMessage = "{'message' : 'Hello There'}";
 
-            startServer(relativePath);
-            Map<String, String> headers = new HashMap<>();
-            headers.put(HttpHeaderNames.CONTENT_TYPE.toString(), TestConstant.CONTENT_TYPE_JSON);
+        Map<String, String> headers = new HashMap<>();
+        headers.put(HttpHeaderNames.CONTENT_TYPE.toString(), TestConstant.CONTENT_TYPE_JSON);
 
-            for (int i = 0; i < 10; i++) {
-                HttpResponse response = HttpClientRequest.doPost(ballerinaServer.getServiceURLHttp("requests"),
-                                                                 requestMessage, headers);
-                Assert.assertNotNull(response);
-                Assert.assertEquals(response.getResponseCode(), 200, "Response code mismatched");
-                Assert.assertEquals(response.getHeaders().get(HttpHeaderNames.CONTENT_TYPE.toString())
-                        , TestConstant.CONTENT_TYPE_JSON, "Content-Type mismatched");
-                Assert.assertEquals(response.getData(), "\"{'message' : 'request successfully received'}\"",
-                                    "Message content mismatched");
-                Thread.sleep(100);
-            }
-
-            do {
-                count++;
-                HttpResponse response = HttpClientRequest.doGet(ballerinaServer.getServiceURLHttp("hosts"), headers);
-                Assert.assertNotNull(response);
-                Assert.assertEquals(response.getResponseCode(), 200, "Response code mismatched");
-                Assert.assertEquals(response.getHeaders().get(HttpHeaderNames.CONTENT_TYPE.toString())
-                        , TestConstant.CONTENT_TYPE_JSON, "Content-Type mismatched");
-                responseMsg = response.getData();
-                Thread.sleep(1000);
-            } while (count != 10 || responseMsg.equals("\"{'message' : 'NotAssigned'}\""));
-            Assert.assertNotEquals(responseMsg, "\"{'message' : 'NotAssigned'}\"");
-
-        } finally {
-            ballerinaServer.stopServer();
+        for (int i = 0; i < 10; i++) {
+            HttpResponse response = HttpClientRequest.doPost(serverInstance.getServiceURLHttp("requests"),
+                    requestMessage, headers);
+            Assert.assertNotNull(response);
+            Assert.assertEquals(response.getResponseCode(), 200, "Response code mismatched");
+            Assert.assertEquals(response.getHeaders().get(HttpHeaderNames.CONTENT_TYPE.toString())
+                    , TestConstant.CONTENT_TYPE_JSON, "Content-Type mismatched");
+            Assert.assertEquals(response.getData(), "\"{'message' : 'request successfully received'}\"",
+                    "Message content mismatched");
+            Thread.sleep(100);
         }
+
+        do {
+            count++;
+            HttpResponse response = HttpClientRequest.doGet(serverInstance.getServiceURLHttp("hosts"), headers);
+            Assert.assertNotNull(response);
+            Assert.assertEquals(response.getResponseCode(), 200, "Response code mismatched");
+            Assert.assertEquals(response.getHeaders().get(HttpHeaderNames.CONTENT_TYPE.toString())
+                    , TestConstant.CONTENT_TYPE_JSON, "Content-Type mismatched");
+            responseMsg = response.getData();
+            Thread.sleep(1000);
+        } while (count != 10 || responseMsg.equals("\"{'message' : 'NotAssigned'}\""));
+        Assert.assertNotEquals(responseMsg, "\"{'message' : 'NotAssigned'}\"");
     }
 
-    private void startServer(String balFile) throws Exception {
-        ballerinaServer = ServerInstance.initBallerinaServer();
-        ballerinaServer.startBallerinaServer(balFile);
+    @AfterClass
+    private void cleanup() throws Exception {
+        serverInstance.stopServer();
     }
 }
