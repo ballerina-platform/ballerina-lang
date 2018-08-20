@@ -16,7 +16,7 @@
  * under the License.
  */
 
-package org.ballerinalang.test.streaming;
+package org.ballerinalang.test.streaming.legacy;
 
 import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BRunUtil;
@@ -36,7 +36,7 @@ public class SequenceTest {
 
     @BeforeClass
     public void setup() {
-        result = BCompileUtil.compile("test-src/streaming/sequence-streaming-test.bal");
+        result = BCompileUtil.compile("test-src/streaming/legacy/sequence-streaming-test.bal");
     }
 
     @Test(description = "Test sequence streaming query")

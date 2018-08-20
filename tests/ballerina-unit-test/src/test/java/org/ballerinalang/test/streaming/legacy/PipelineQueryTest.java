@@ -15,7 +15,7 @@
 *  specific language governing permissions and limitations
 *  under the License.
 */
-package org.ballerinalang.test.streaming;
+package org.ballerinalang.test.streaming.legacy;
 
 import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BRunUtil;
@@ -38,7 +38,7 @@ public class PipelineQueryTest {
 
     @BeforeClass
     public void setup() {
-        result = BCompileUtil.compile("test-src/streaming/pipeline-streaming-test.bal");
+        result = BCompileUtil.compile("test-src/streaming/legacy/pipeline-streaming-test.bal");
     }
 
     @Test(description = "Test streaming pipeline query.")

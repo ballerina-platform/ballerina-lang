@@ -15,7 +15,7 @@
 *  specific language governing permissions and limitations
 *  under the License.
 */
-package org.ballerinalang.test.streaming;
+package org.ballerinalang.test.streaming.legacy;
 
 import org.ballerinalang.launcher.util.BAssertUtil;
 import org.ballerinalang.launcher.util.BCompileUtil;
@@ -36,9 +36,9 @@ public class StreamingActionTest {
 
     @BeforeClass
     public void setup() {
-        resultNegativeInvalidType = BCompileUtil.compile("test-src/streaming/streaming-action-negative-test-v1.bal");
+        resultNegativeInvalidType = BCompileUtil.compile("test-src/streaming/negative/streaming-action-negative-test-v1.bal");
         resultNegativeInvalidArgumentCount = BCompileUtil.
-                compile("test-src/streaming/streaming-action-negative-test-v2.bal");
+                compile("test-src/streaming/negative/streaming-action-negative-test-v2.bal");
     }
 
     @Test(description = "Test streaming action query with errors")

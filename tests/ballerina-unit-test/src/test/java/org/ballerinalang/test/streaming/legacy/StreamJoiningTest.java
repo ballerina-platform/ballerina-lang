@@ -15,7 +15,7 @@
 *  specific language governing permissions and limitations
 *  under the License.
 */
-package org.ballerinalang.test.streaming;
+package org.ballerinalang.test.streaming.legacy;
 
 import org.ballerinalang.launcher.util.BAssertUtil;
 import org.ballerinalang.launcher.util.BCompileUtil;
@@ -38,8 +38,8 @@ public class StreamJoiningTest {
 
     @BeforeClass
     public void setup() {
-        result = BCompileUtil.compile("test-src/streaming/join-streaming-test.bal");
-        resultNegative = BCompileUtil.compile("test-src/streaming/join-streaming-negative-test.bal");
+        result = BCompileUtil.compile("test-src/streaming/legacy/join-streaming-test.bal");
+        resultNegative = BCompileUtil.compile("test-src/streaming/negative/join-streaming-negative-test.bal");
     }
 
     @Test(description = "Test streaming join query.")

@@ -15,7 +15,7 @@
 *  specific language governing permissions and limitations
 *  under the License.
 */
-package org.ballerinalang.test.streaming;
+package org.ballerinalang.test.streaming.negative;
 
 import org.ballerinalang.launcher.util.BAssertUtil;
 import org.ballerinalang.launcher.util.BCompileUtil;
@@ -36,9 +36,9 @@ public class IncompatibleRecordTypeTest {
 
     @BeforeClass
     public void setup() {
-        resultNegative = BCompileUtil.compile("test-src/streaming/streaming-invalid-record-type-negative-test.bal");
+        resultNegative = BCompileUtil.compile("test-src/streaming/negative/streaming-invalid-record-type-negative-test.bal");
         resultNegativeForInvalidOrder = BCompileUtil.
-                compile("test-src/streaming/streaming-output-attribute-order-negative-test.bal");
+                compile("test-src/streaming/negative/streaming-output-attribute-order-negative-test.bal");
     }
 
     @Test(description = "Test filter streaming query with invalid stream attribute type")

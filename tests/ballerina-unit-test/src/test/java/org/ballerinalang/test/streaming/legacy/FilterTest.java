@@ -15,7 +15,7 @@
 *  specific language governing permissions and limitations
 *  under the License.
 */
-package org.ballerinalang.test.streaming;
+package org.ballerinalang.test.streaming.legacy;
 
 import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BRunUtil;
@@ -39,8 +39,8 @@ public class FilterTest {
 
     @BeforeClass
     public void setup() {
-        result = BCompileUtil.compile("test-src/streaming/filter-streaming-test.bal");
-        resultWithReference = BCompileUtil.compile("test-src/streaming/filter-streaming-with-reference-test.bal");
+        result = BCompileUtil.compile("test-src/streaming/legacy/filter-streaming-test.bal");
+        resultWithReference = BCompileUtil.compile("test-src/streaming/legacy/filter-streaming-with-reference-test.bal");
     }
 
     @Test(description = "Test filter streaming query")
