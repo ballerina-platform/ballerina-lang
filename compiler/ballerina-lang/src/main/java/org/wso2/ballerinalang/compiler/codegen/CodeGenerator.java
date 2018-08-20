@@ -3259,7 +3259,8 @@ public class CodeGenerator extends BLangNodeVisitor {
             argRegs = new Operand[4];
             argRegs[i++] = getOperand(false);
         }
-        int channelName = addUTF8CPEntry(currentPkgInfo, channelSend.getWorkerName().getValue());
+        int channelName = addUTF8CPEntry(currentPkgInfo, channelSend.env.enclPkg.symbol.name + "."
+                + channelSend.getWorkerName().getValue());
         argRegs[i++] = getOperand(channelName);
 
         genNode(channelSend.expr, this.env);
@@ -3292,7 +3293,8 @@ public class CodeGenerator extends BLangNodeVisitor {
             chnReceiveArgRegs[i++] = getOperand(false);
         }
 
-        int chnName = addUTF8CPEntry(currentPkgInfo, channelReceive.getWorkerName().getValue());
+        int chnName = addUTF8CPEntry(currentPkgInfo, channelReceive.env.enclPkg.symbol.name + "."
+                + channelReceive.getWorkerName().getValue());
         chnReceiveArgRegs[i++] = getOperand(chnName);
 
         BLangExpression receiverExpr = channelReceive.expr;

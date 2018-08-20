@@ -1558,6 +1558,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
 
     private void visitChannelReceive(BLangWorkerReceive node, BSymbol symbol) {
         node.isChannel = true;
+        node.env = this.env;
         if (symbol == null) {
             symbol = symResolver.lookupSymbol(env, names.fromString(node.getWorkerName()
                     .getValue()), SymTag.VARIABLE);

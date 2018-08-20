@@ -55,7 +55,7 @@ public class DatabaseUtils {
                 con.prepareStatement("create table IF NOT EXISTS messages (" +
                         "  msgId int NOT NULL AUTO_INCREMENT," +
                         "  channelName  varchar(200)," +
-                        "  key    varchar(200)," +
+                        "  msgKey    varchar(200)," +
                         "  value    varchar(200)," +
                         "  constraint pk primary key ( msgId )" +
                         ")").execute();
@@ -76,7 +76,7 @@ public class DatabaseUtils {
 
     public static void addEntry(String channelName, BValue key, BValue value, BType keyType, BType valType) {
         createDBConnection();
-        String addStatement = "INSERT into messages (channelName, key, value) values ('"
+        String addStatement = "INSERT into messages (channelName, msgKey, value) values ('"
                 + channelName + "', ?, ?)";
         try {
             con = hikariDataSource.getConnection();
@@ -98,7 +98,7 @@ public class DatabaseUtils {
 
     public static BValue getMessage(String channelName, BValue key, BType keyType, BType receiverType) {
         createDBConnection();
-        String stmt = "SELECT msgId,value FROM messages WHERE channelName = '" + channelName + "' AND key = ?";
+        String stmt = "SELECT msgId,value FROM messages WHERE channelName = '" + channelName + "' AND msgKey = ?";
         ResultSet result;
         try {
             con = hikariDataSource.getConnection();
