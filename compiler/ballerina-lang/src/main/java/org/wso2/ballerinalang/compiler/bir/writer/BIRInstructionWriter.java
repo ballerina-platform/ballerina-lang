@@ -99,7 +99,10 @@ public class BIRInstructionWriter extends BIRVisitor {
         int pkgIndex = cp.addCPEntry(new CPEntry.PackageCPEntry(orgCPIndex, nameCPIndex, versionCPIndex));
         buf.writeInt(pkgIndex);
         buf.writeInt(addStringCPEntry(birCall.name.getValue()));
-        birCall.args[0].accept(this);
+        buf.writeInt(birCall.args.length);
+        for (BIROperand arg : birCall.args) {
+            arg.accept(this);
+        }
         birCall.lhsOp.accept(this);
         addCpAndWriteString(birCall.thenBB.id.value);
     }

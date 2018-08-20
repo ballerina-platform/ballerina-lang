@@ -40,6 +40,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangVariable;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef.BLangLocalVarRef;
@@ -53,6 +54,8 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangVariableDef;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangWhile;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.Names;
+
+import java.util.List;
 
 /**
  * Lower the AST to BIR.
@@ -190,8 +193,12 @@ public class BIRGen extends BLangNodeVisitor {
         BIRBasicBlock thenBB = new BIRBasicBlock(this.env.nextBBId(names));
         this.env.enclFunc.basicBlocks.add(thenBB);
 
-        invocationExpr.requiredArgs.get(0).accept(this);
-        BIROperand rhsOp1 = this.env.targetOperand;
+        BIROperand[] args = new BIROperand[invocationExpr.requiredArgs.size()];
+        List<BLangExpression> requiredArgs = invocationExpr.requiredArgs;
+        for (int i = 0; i < requiredArgs.size(); i++) {
+            requiredArgs.get(i).accept(this);
+             args[i] = this.env.targetOperand;
+        }
 
         // Create a temporary variable to store the return operation result.
         BIRVariableDcl tempVarDcl = new BIRVariableDcl(invocationExpr.type,
@@ -200,7 +207,6 @@ public class BIRGen extends BLangNodeVisitor {
         BIRVarRef lhsOp = new BIRVarRef(tempVarDcl);
         this.env.targetOperand = lhsOp;
 
-        BIROperand[] args = {rhsOp1};
         this.env.enclBB.terminator = new BIRTerminator.Call(invocationExpr.symbol.pkgID,
                                                             names.fromString(invocationExpr.name.value),
                                                             args,
