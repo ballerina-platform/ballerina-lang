@@ -322,6 +322,16 @@ public class RunFunctionNegativeTestCase {
         errLogLeecher.waitForText(2000);
     }
 
+    @Test (dataProvider = "sensitiveParamedFunction")
+    public void testSensitiveParamedFunction(String functionName) throws BallerinaTestException {
+        sourceArg = filePath + ":" + functionName;
+        LogLeecher errLogLeecher = new LogLeecher(
+                "usage error: function with sensitive parameters cannot be invoked as the entry function");
+        serverInstance.addErrorLogLeecher(errLogLeecher);
+        serverInstance.runMain(new String[]{sourceArg});
+        errLogLeecher.waitForText(2000);
+    }
+
     @AfterMethod
     public void stopServer() throws BallerinaTestException {
         serverInstance.stopServer();
@@ -347,6 +357,14 @@ public class RunFunctionNegativeTestCase {
                 { "int[]" },
                 { "map<float>" },
                 { "Employee" }
+        };
+    }
+
+    @DataProvider(name = "sensitiveParamedFunction")
+    public Object[][] sensitiveParamedFunction() {
+        return new Object[][] {
+                { "oneSensitiveParamEntry" },
+                { "allSensitiveParamsEntry" }
         };
     }
 }

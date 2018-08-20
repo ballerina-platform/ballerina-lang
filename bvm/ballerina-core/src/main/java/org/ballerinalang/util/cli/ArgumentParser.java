@@ -50,6 +50,7 @@ import org.ballerinalang.util.codegen.LocalVariableInfo;
 import org.ballerinalang.util.codegen.attributes.LocalVariableAttributeInfo;
 import org.ballerinalang.util.codegen.attributes.ParamDefaultValueAttributeInfo;
 import org.ballerinalang.util.codegen.attributes.ParameterAttributeInfo;
+import org.ballerinalang.util.codegen.attributes.TaintTableAttributeInfo;
 import org.ballerinalang.util.exceptions.BLangUsageException;
 import org.ballerinalang.util.exceptions.BallerinaException;
 
@@ -62,6 +63,7 @@ import static org.ballerinalang.model.types.BTypes.getTypeFromName;
 import static org.ballerinalang.util.codegen.attributes.AttributeInfo.Kind.LOCAL_VARIABLES_ATTRIBUTE;
 import static org.ballerinalang.util.codegen.attributes.AttributeInfo.Kind.PARAMETERS_ATTRIBUTE;
 import static org.ballerinalang.util.codegen.attributes.AttributeInfo.Kind.PARAMETER_DEFAULTS_ATTRIBUTE;
+import static org.ballerinalang.util.codegen.attributes.AttributeInfo.Kind.TAINT_TABLE;
 
 /**
  * Argument Parser class used to parse function args specified on the CLI.
@@ -88,6 +90,12 @@ public class ArgumentParser {
         int requiredParamsCount = parameterAttributeInfo.requiredParamsCount;
         int defaultableParamsCount = parameterAttributeInfo.defaultableParamsCount;
         int restParamCount = parameterAttributeInfo.restParamCount;
+
+        TaintTableAttributeInfo taintTableAttributeInfo =
+                (TaintTableAttributeInfo) entryFuncInfo.getAttributeInfo(TAINT_TABLE);
+        if (taintTableAttributeInfo.rowCount - 1 != requiredParamsCount + defaultableParamsCount + restParamCount) {
+            throw new BLangUsageException("function with sensitive parameters cannot be invoked as the entry function");
+        }
 
         LocalVariableAttributeInfo localVariableAttributeInfo =
                 (LocalVariableAttributeInfo) entryFuncInfo.getAttributeInfo(LOCAL_VARIABLES_ATTRIBUTE);

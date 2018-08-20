@@ -58,6 +58,15 @@ public function mapEntry(map<int> intMap, map<string> strMap, map<float> floatMa
             + empMap.test.name;
 }
 
+public function oneSensitiveParamEntry(string s, @sensitive int i, float f = 3.0, json... j) returns int {
+    return 1;
+}
+
+public function allSensitiveParamsEntry(@sensitive string s, @sensitive int i, @sensitive float f = 3.0,
+                                        @sensitive Employee e, @sensitive json... j) returns int {
+    return 1;
+}
+
 public type Employee record {
    string name;
 };
