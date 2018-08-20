@@ -36,9 +36,11 @@ function genPackage(BIRPackage pkg, string targetObjectFilePath) {
     llvm:BytePointer features;
     var targetMachine = llvm:LLVMCreateTargetMachine(targetRef, targetTripleBP, cpu, features, 0, 0, 0);
 
+    //string nullTermObjectFilePath = targetObjectFilePath;
+    byte[] filenameBytes = targetObjectFilePath.toByteArray("UTF-8");
     // Creates a null terminated string
-    string nullTermObjectFilePath = targetObjectFilePath + "\\0";
-    byte[] filenameBytes = nullTermObjectFilePath.toByteArray("UTF-8");
+    filenameBytes[lengthof filenameBytes] = 0;
+
     byte[] errorMsg;
     int i = llvm:LLVMTargetMachineEmitToFile(targetMachine, mod, filenameBytes, 1, errorMsg);
     // TODO error reporting
