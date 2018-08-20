@@ -134,11 +134,9 @@ function testLocalTransactionStoredProcedure() returns (int, int) {
     int returnVal = 0;
     int count;
 
-    sql:Parameter para1 = { sqlType: sql:TYPE_INTEGER, value: 628, direction: sql:DIRECTION_IN };
-
     transaction {
-        _ = testDB->call("{call InsertPersonDataSuccessful(?, ?)}", (), para1, para1);
-        _ = testDB->call("{call InsertPersonDataSuccessful(?, ?)}", (), para1, para1);
+        _ = testDB->call("{call InsertPersonDataSuccessful(?, ?)}", (), 628, 628);
+        _ = testDB->call("{call InsertPersonDataSuccessful(?, ?)}", (), 628, 628);
     } onretry {
         returnVal = -1;
     }
@@ -165,13 +163,9 @@ function testLocalTransactionRollbackStoredProcedure() returns (int, int, int, i
     int count2;
     int count3;
 
-    sql:Parameter para1 = { sqlType: sql:TYPE_INTEGER, value: 629, direction: sql:DIRECTION_IN };
-    sql:Parameter para2 = { sqlType: sql:TYPE_INTEGER, value: 631, direction: sql:DIRECTION_IN };
-    sql:Parameter para3 = { sqlType: sql:TYPE_INTEGER, value: 632, direction: sql:DIRECTION_IN };
-
     transaction {
-        _ = testDB->call("{call InsertPersonDataSuccessful(?, ?)}", (), para1, para1);
-        _ = testDB->call("{call InsertPersonDataFailure(?, ?)}", (), para2, para3);
+        _ = testDB->call("{call InsertPersonDataSuccessful(?, ?)}", (), 629, 629);
+        _ = testDB->call("{call InsertPersonDataFailure(?, ?)}", (), 631, 632);
     } onretry {
         returnVal = -1;
     }
