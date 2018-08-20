@@ -124,10 +124,17 @@ public class SSLHandlerFactory {
 
     public ReferenceCountedOpenSslContext getServerReferenceCountedOpenSslContext(boolean enableOcsp)
             throws SSLException {
-        return (ReferenceCountedOpenSslContext) SslContextBuilder
-                .forServer(kmf).sslProvider(SslProvider.OPENSSL).enableOcsp(true)
-                .keyManager(kmf).trustManager(tmf).protocols(sslConfig.getEnableProtocols()).enableOcsp(enableOcsp)
-                .clientAuth(needClientAuth ? ClientAuth.REQUIRE : ClientAuth.NONE).build();
+        if (sslConfig.getKeyStore() != null) {
+            return (ReferenceCountedOpenSslContext) SslContextBuilder.forServer(kmf).sslProvider(SslProvider.OPENSSL)
+                    .enableOcsp(true).keyManager(kmf).trustManager(tmf).protocols(sslConfig.getEnableProtocols())
+                    .enableOcsp(enableOcsp).clientAuth(needClientAuth ? ClientAuth.REQUIRE : ClientAuth.NONE).build();
+        } else {
+            return (ReferenceCountedOpenSslContext) SslContextBuilder
+                    .forServer(sslConfig.getServerCertificates(), sslConfig.getServerKeyFile())
+                    .sslProvider(SslProvider.OPENSSL).enableOcsp(true)
+                    .trustManager(sslConfig.getServerTrustCertificates()).protocols(sslConfig.getEnableProtocols())
+                    .enableOcsp(enableOcsp).clientAuth(needClientAuth ? ClientAuth.REQUIRE : ClientAuth.NONE).build();
+        }
     }
 
     /**
@@ -149,7 +156,7 @@ public class SSLHandlerFactory {
      * @param engine client/server ssl engine.
      * @return sslEngine
      */
-    private SSLEngine addCommonConfigs(SSLEngine engine) {
+    public SSLEngine addCommonConfigs(SSLEngine engine) {
         if (sslConfig.getCipherSuites() != null && sslConfig.getCipherSuites().length > 0) {
             engine.setEnabledCipherSuites(sslConfig.getCipherSuites());
         }
@@ -161,9 +168,16 @@ public class SSLHandlerFactory {
     }
 
     public ReferenceCountedOpenSslContext buildClientReferenceCountedOpenSslContext() throws SSLException {
-        return (ReferenceCountedOpenSslContext) SslContextBuilder.forClient()
-                .sslProvider(SslProvider.OPENSSL).enableOcsp(true).keyManager(kmf)
-                .trustManager(tmf).protocols(sslConfig.getEnableProtocols()).build();
+        if (sslConfig.getKeyStore() != null) {
+            return (ReferenceCountedOpenSslContext) SslContextBuilder.forClient().sslProvider(SslProvider.OPENSSL)
+                    .enableOcsp(true).keyManager(kmf).trustManager(tmf).protocols(sslConfig.getEnableProtocols())
+                    .build();
+        } else {
+            return (ReferenceCountedOpenSslContext) SslContextBuilder.forClient().sslProvider(SslProvider.OPENSSL)
+                    .enableOcsp(true).keyManager(sslConfig.getClientCertificates(), sslConfig.getClientKeyFile())
+                    .trustManager(sslConfig.getClientTrustCertificates()).protocols(sslConfig.getEnableProtocols())
+                    .build();
+        }
     }
 
     /**
@@ -182,15 +196,59 @@ public class SSLHandlerFactory {
                 Arrays.asList(sslConfig.getCipherSuites()) :
                 Http2SecurityUtil.CIPHERS;
         SslProvider provider = SslProvider.OPENSSL;
+        if (sslConfig.getKeyStore() != null) {
+            return SslContextBuilder.forServer(this.getKeyManagerFactory()).trustManager(this.getTrustStoreFactory())
+                    .sslProvider(provider).ciphers(ciphers, SupportedCipherSuiteFilter.INSTANCE)
+                    .clientAuth(needClientAuth ? ClientAuth.REQUIRE : ClientAuth.NONE).applicationProtocolConfig(
+                            new ApplicationProtocolConfig(ApplicationProtocolConfig.Protocol.ALPN,
+                                    ApplicationProtocolConfig.SelectorFailureBehavior.NO_ADVERTISE,
+                                    ApplicationProtocolConfig.SelectedListenerFailureBehavior.ACCEPT,
+                                    ApplicationProtocolNames.HTTP_2, ApplicationProtocolNames.HTTP_1_1))
+                    .enableOcsp(enableOcsp).build();
+        } else {
+            return SslContextBuilder.forServer(sslConfig.getServerCertificates(), sslConfig.getServerKeyFile())
+                    .trustManager(sslConfig.getServerTrustCertificates()).sslProvider(provider)
+                    .sslProvider(provider).ciphers(ciphers, SupportedCipherSuiteFilter.INSTANCE)
+                    .clientAuth(needClientAuth ? ClientAuth.REQUIRE : ClientAuth.NONE).applicationProtocolConfig(
+                            new ApplicationProtocolConfig(ApplicationProtocolConfig.Protocol.ALPN,
+                                    ApplicationProtocolConfig.SelectorFailureBehavior.NO_ADVERTISE,
+                                    ApplicationProtocolConfig.SelectedListenerFailureBehavior.ACCEPT,
+                                    ApplicationProtocolNames.HTTP_2, ApplicationProtocolNames.HTTP_1_1))
+                    .enableOcsp(enableOcsp).build();
+        }
+    }
 
-        return SslContextBuilder.forServer(this.getKeyManagerFactory()).trustManager(this.getTrustStoreFactory())
-                .sslProvider(provider).ciphers(ciphers, SupportedCipherSuiteFilter.INSTANCE)
-                .clientAuth(needClientAuth ? ClientAuth.REQUIRE : ClientAuth.NONE).applicationProtocolConfig(
-                        new ApplicationProtocolConfig(ApplicationProtocolConfig.Protocol.ALPN,
-                                ApplicationProtocolConfig.SelectorFailureBehavior.NO_ADVERTISE,
-                                ApplicationProtocolConfig.SelectedListenerFailureBehavior.ACCEPT,
-                                ApplicationProtocolNames.HTTP_2, ApplicationProtocolNames.HTTP_1_1))
-                .enableOcsp(enableOcsp).build();
+    /**
+     * This method will provide netty ssl context which supports HTTP over TLS using.
+     *
+     * @return instance of {@link SslContext}
+     * @throws SSLException if any error occurred during building SSL context.
+     */
+    public SslContext createHttpTLSContextForServer() throws SSLException {
+
+        SslProvider provider = SslProvider.JDK;
+        SslContext sslContext = SslContextBuilder
+                .forServer(sslConfig.getServerCertificates(), sslConfig.getServerKeyFile())
+                .trustManager(sslConfig.getServerTrustCertificates()).sslProvider(provider)
+                .clientAuth(needClientAuth ? ClientAuth.REQUIRE : ClientAuth.NONE).build();
+        return sslContext;
+    }
+
+
+    /**
+     * This method will provide netty ssl context which supports HTTP over TLS using.
+     *
+     * @return instance of {@link SslContext}
+     * @throws SSLException if any error occurred during building SSL context.
+     */
+    public SslContext createHttpTLSContextForClient() throws SSLException {
+
+        SslContext sslContext = null;
+        SslProvider provider = SslProvider.JDK;
+        sslContext = SslContextBuilder.forClient().sslProvider(provider)
+                .keyManager(sslConfig.getClientCertificates(), sslConfig.getClientKeyFile())
+                .trustManager(sslConfig.getClientTrustCertificates()).build();
+        return sslContext;
     }
 
     public SslContext createHttp2TLSContextForClient(boolean enableOcsp) throws SSLException {
@@ -201,16 +259,26 @@ public class SSLHandlerFactory {
         List<String> ciphers = sslConfig.getCipherSuites() != null && sslConfig.getCipherSuites().length > 0 ?
                 Arrays.asList(sslConfig.getCipherSuites()) :
                 Http2SecurityUtil.CIPHERS;
-
-        return SslContextBuilder.forClient().sslProvider(provider).keyManager(kmf).trustManager(tmf)
-                .protocols(sslConfig.getEnableProtocols()).ciphers(ciphers, SupportedCipherSuiteFilter.INSTANCE)
-                .applicationProtocolConfig(new ApplicationProtocolConfig(ApplicationProtocolConfig.Protocol.ALPN,
-                        // NO_ADVERTISE is currently the only mode supported by both OpenSsl and JDK providers.
-                        ApplicationProtocolConfig.SelectorFailureBehavior.NO_ADVERTISE,
-                        // ACCEPT is currently the only mode supported by both OpenSsl and JDK providers.
-                        ApplicationProtocolConfig.SelectedListenerFailureBehavior.ACCEPT,
-                        ApplicationProtocolNames.HTTP_2, ApplicationProtocolNames.HTTP_1_1)).enableOcsp(enableOcsp).
-                        build();
+        if (sslConfig.getTrustStore() != null) {
+            return SslContextBuilder.forClient().sslProvider(provider).keyManager(kmf).trustManager(tmf)
+                    .protocols(sslConfig.getEnableProtocols()).ciphers(ciphers, SupportedCipherSuiteFilter.INSTANCE)
+                    .applicationProtocolConfig(new ApplicationProtocolConfig(ApplicationProtocolConfig.Protocol.ALPN,
+                            // NO_ADVERTISE is currently the only mode supported by both OpenSsl and JDK providers.
+                            ApplicationProtocolConfig.SelectorFailureBehavior.NO_ADVERTISE,
+                            // ACCEPT is currently the only mode supported by both OpenSsl and JDK providers.
+                            ApplicationProtocolConfig.SelectedListenerFailureBehavior.ACCEPT,
+                            ApplicationProtocolNames.HTTP_2, ApplicationProtocolNames.HTTP_1_1)).enableOcsp(enableOcsp).
+                            build();
+        } else {
+            return SslContextBuilder.forClient().trustManager(sslConfig.getClientTrustCertificates())
+                    .keyManager(sslConfig.getClientCertificates(), sslConfig.getClientKeyFile())
+                    .protocols(sslConfig.getEnableProtocols()).ciphers(ciphers, SupportedCipherSuiteFilter.INSTANCE)
+                    .applicationProtocolConfig(new ApplicationProtocolConfig(ApplicationProtocolConfig.Protocol.ALPN,
+                            ApplicationProtocolConfig.SelectorFailureBehavior.NO_ADVERTISE,
+                            ApplicationProtocolConfig.SelectedListenerFailureBehavior.ACCEPT,
+                            ApplicationProtocolNames.HTTP_2, ApplicationProtocolNames.HTTP_1_1)).enableOcsp(enableOcsp).
+                            build();
+        }
     }
 
     private KeyManagerFactory getKeyManagerFactory() {

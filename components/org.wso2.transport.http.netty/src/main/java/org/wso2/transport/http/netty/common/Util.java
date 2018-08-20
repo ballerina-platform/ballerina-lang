@@ -38,6 +38,7 @@ import io.netty.handler.codec.http2.Http2Headers;
 import io.netty.handler.codec.http2.HttpConversionUtil;
 import io.netty.handler.ssl.ReferenceCountedOpenSslContext;
 import io.netty.handler.ssl.ReferenceCountedOpenSslEngine;
+import io.netty.handler.ssl.SslContext;
 import io.netty.handler.ssl.SslHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -69,6 +70,7 @@ import java.util.regex.Pattern;
 
 import javax.net.ssl.SSLEngine;
 import javax.net.ssl.SSLException;
+import javax.net.ssl.SSLParameters;
 
 import static org.wso2.transport.http.netty.common.Constants.COLON;
 import static org.wso2.transport.http.netty.common.Constants.HEADER_VAL_100_CONTINUE;
@@ -320,8 +322,20 @@ public class Util {
                 socketChannel.pipeline().addLast(new OCSPStaplingHandler(engine));
             }
         } else {
-            SSLEngine sslEngine = instantiateAndConfigSSL(sslConfig, host, port,
-                    sslConfig.isHostNameVerificationEnabled());
+            SSLEngine sslEngine;
+            if (sslConfig.getTrustStore() != null) {
+                sslEngine = instantiateAndConfigSSL(sslConfig, host, port, sslConfig.isHostNameVerificationEnabled());
+            } else {
+                SSLHandlerFactory sslHandlerFactory = new SSLHandlerFactory(sslConfig);
+                SslContext sslContext = sslHandlerFactory.createHttpTLSContextForClient();
+                SslHandler sslHandler = sslContext.newHandler(socketChannel.alloc(), host, port);
+                sslEngine = sslHandler.engine();
+                sslHandlerFactory.addCommonConfigs(sslEngine);
+                sslHandlerFactory.setSNIServerNames(sslEngine, host);
+                if (sslConfig.isHostNameVerificationEnabled()) {
+                    setHostNameVerfication(sslEngine);
+                }
+            }
             pipeline.addLast(Constants.SSL_HANDLER, new SslHandler(sslEngine));
             if (sslConfig.isValidateCertEnabled()) {
                 pipeline.addLast(Constants.HTTP_CERT_VALIDATION_HANDLER, new CertificateValidationHandler(
@@ -755,5 +769,12 @@ public class Util {
     public static boolean is100ContinueRequest(HttpCarbonMessage inboundRequestMsg) {
         return HEADER_VAL_100_CONTINUE.equalsIgnoreCase(
                 inboundRequestMsg.getHeader(HttpHeaderNames.EXPECT.toString()));
+    }
+
+
+    public static void setHostNameVerfication(SSLEngine sslEngine) {
+        SSLParameters sslParams = sslEngine.getSSLParameters();
+        sslParams.setEndpointIdentificationAlgorithm(Constants.HTTPS_SCHEME);
+        sslEngine.setSSLParameters(sslParams);
     }
 }

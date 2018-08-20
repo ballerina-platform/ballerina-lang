@@ -69,8 +69,8 @@ public class DefaultHttpWsConnectorFactory implements HttpWsConnectorFactory {
             ListenerConfiguration listenerConfig) {
         ServerConnectorBootstrap serverConnectorBootstrap = new ServerConnectorBootstrap(allChannels);
         serverConnectorBootstrap.addSocketConfiguration(serverBootstrapConfiguration);
-        serverConnectorBootstrap.addSecurity(listenerConfig.getListenerSSLConfig());
         SSLConfig sslConfig = listenerConfig.getListenerSSLConfig();
+        serverConnectorBootstrap.addSecurity(sslConfig);
         if (sslConfig != null) {
             serverConnectorBootstrap
                     .addcertificateRevocationVerifier(sslConfig.isValidateCertEnabled());

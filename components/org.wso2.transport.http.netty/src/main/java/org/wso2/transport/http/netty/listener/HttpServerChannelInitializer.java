@@ -56,6 +56,7 @@ import org.wso2.transport.http.netty.sender.CertificateValidationHandler;
 
 import java.io.IOException;
 import java.security.KeyStoreException;
+import java.security.cert.CertificateException;
 import java.util.concurrent.TimeUnit;
 import javax.net.ssl.SSLEngine;
 
@@ -98,8 +99,7 @@ public class HttpServerChannelInitializer extends ChannelInitializer<SocketChann
 
         if (http2Enabled) {
             if (sslHandlerFactory != null) {
-                SslContext sslCtx = sslHandlerFactory
-                        .createHttp2TLSContextForServer(ocspStaplingEnabled);
+                SslContext sslCtx = sslHandlerFactory.createHttp2TLSContextForServer(ocspStaplingEnabled);
                 if (ocspStaplingEnabled) {
                     OCSPResp response = getOcspResponse();
 
@@ -125,8 +125,8 @@ public class HttpServerChannelInitializer extends ChannelInitializer<SocketChann
         }
     }
 
-    private OCSPResp getOcspResponse() throws IOException, KeyStoreException,
-                   CertificateVerificationException {
+    private OCSPResp getOcspResponse()
+            throws IOException, KeyStoreException, CertificateVerificationException, CertificateException {
         OCSPResp response = OCSPResponseBuilder.generatetOcspResponse(sslConfig, cacheSize, cacheDelay);
         if (!OpenSsl.isAvailable()) {
             throw new IllegalStateException("OpenSSL is not available!");
@@ -138,7 +138,7 @@ public class HttpServerChannelInitializer extends ChannelInitializer<SocketChann
     }
 
     private void configureSslForHttp(ChannelPipeline serverPipeline, SocketChannel ch)
-            throws CertificateVerificationException, KeyStoreException, IOException {
+            throws CertificateVerificationException, KeyStoreException, IOException, CertificateException {
 
         if (ocspStaplingEnabled) {
             OCSPResp response = getOcspResponse();
@@ -151,7 +151,15 @@ public class HttpServerChannelInitializer extends ChannelInitializer<SocketChann
             engine.setOcspResponse(response.getEncoded());
             ch.pipeline().addLast(sslHandler);
         } else {
-            SSLEngine sslEngine = sslHandlerFactory.buildServerSSLEngine();
+            SSLEngine sslEngine = null;
+            if (sslConfig.getServerKeyFile() != null) {
+                SSLHandlerFactory sslHandlerFactory = new SSLHandlerFactory(sslConfig);
+                SslContext sslContext = sslHandlerFactory.createHttpTLSContextForServer();
+                SslHandler sslHandler = sslContext.newHandler(ch.alloc());
+                sslEngine = sslHandler.engine();
+            } else {
+                sslEngine = sslHandlerFactory.buildServerSSLEngine();
+            }
             serverPipeline.addLast(Constants.SSL_HANDLER, new SslHandler(sslEngine));
             if (validateCertEnabled) {
                 serverPipeline.addLast(Constants.HTTP_CERT_VALIDATION_HANDLER,

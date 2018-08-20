@@ -54,9 +54,11 @@ import org.wso2.transport.http.netty.sender.http2.Http2ClientChannel;
 import org.wso2.transport.http.netty.sender.http2.Http2ConnectionManager;
 import org.wso2.transport.http.netty.sender.http2.Http2TargetHandler;
 
+import javax.net.ssl.SSLEngine;
 import javax.net.ssl.SSLException;
 
 import static io.netty.handler.logging.LogLevel.TRACE;
+import static org.wso2.transport.http.netty.common.Util.setHostNameVerfication;
 
 /**
  * A class that responsible for initialize target server pipeline.
@@ -165,9 +167,15 @@ public class HttpClientChannelInitializer extends ChannelInitializer<SocketChann
                 ch.pipeline().addLast(new OCSPStaplingHandler(engine));
             }
         } else {
-            SslContext sslCtx = new SSLHandlerFactory(sslConfig).createHttp2TLSContextForClient(false);
-            SslHandler sslHandler = sslCtx.newHandler(ch.alloc());
-            clientPipeline.addLast(sslHandler);
+            SSLHandlerFactory sslHandlerFactory = new SSLHandlerFactory(sslConfig);
+            SslContext sslCtx = sslHandlerFactory.createHttp2TLSContextForClient(false);
+            SslHandler sslHandler = sslCtx.newHandler(ch.alloc(), httpRoute.getHost(), httpRoute.getPort());
+            SSLEngine sslEngine = sslHandler.engine();
+            sslHandlerFactory.setSNIServerNames(sslEngine, httpRoute.getHost());
+            if (sslConfig.isHostNameVerificationEnabled()) {
+                setHostNameVerfication(sslEngine);
+            }
+            clientPipeline.addLast(new SslHandler(sslEngine));
             if (sslConfig.isValidateCertEnabled()) {
                 clientPipeline.addLast(Constants.HTTP_CERT_VALIDATION_HANDLER,
                         new CertificateValidationHandler(sslHandler.engine(), sslConfig.getCacheValidityPeriod(),

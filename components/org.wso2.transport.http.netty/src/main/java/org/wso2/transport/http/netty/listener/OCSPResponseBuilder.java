@@ -40,9 +40,13 @@ import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
 import java.security.cert.Certificate;
 import java.security.cert.CertificateException;
+import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
+import java.util.ArrayList;
 import java.util.Enumeration;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 /**
  * A class for generating OCSP response.
@@ -52,11 +56,14 @@ public class OCSPResponseBuilder {
     }
 
     private static OCSPResp response = null;
+    static final Set<X509Certificate> rootCerts = new HashSet<X509Certificate>();
 
     public static OCSPResp generatetOcspResponse(SSLConfig sslConfig, int cacheAllcatedSize, int cacheDelay)
-            throws IOException, KeyStoreException, CertificateVerificationException {
+            throws IOException, KeyStoreException, CertificateVerificationException, CertificateException {
 
         Certificate[] certificateChain;
+        List<X509Certificate> certList = new ArrayList<>();
+
         X509Certificate userCertificate = null;
         X509Certificate issuer = null;
         int cacheSize = Constants.CACHE_DEFAULT_ALLOCATED_SIZE;
@@ -74,6 +81,7 @@ public class OCSPResponseBuilder {
         OCSPCache ocspCache = OCSPCache.getCache();
         ocspCache.init(cacheSize, cacheDelayMins);
 
+        if (sslConfig.getKeyStore() != null) {
         KeyStore keyStore = getKeyStore(sslConfig.getKeyStore(), sslConfig.getKeyStorePass(),
                 sslConfig.getTLSStoreType());
 
@@ -97,6 +105,19 @@ public class OCSPResponseBuilder {
                 //issuer certificate is in the last position of a certificate chain.
                 issuer = (X509Certificate) certificateChain[certificateChain.length - 1];
             }
+        }
+        } else {
+            CertificateFactory certificateFactory = CertificateFactory.getInstance("X509");
+            FileInputStream in=new FileInputStream(sslConfig.getServerCertificates());
+            int i = 0;
+            while (in.available() > 0) {
+                Certificate cert=certificateFactory.generateCertificate(in);
+                addRootCertificate((X509Certificate)cert);
+                certList.add((X509Certificate) cert);
+                i++;
+            }
+            //X509Certificate[] certificate = (X509Certificate)certificateFactory.generateCertificate(in);
+        }
             List<String> locations;
             if (userCertificate != null) {
                 //Check whether the ocsp response is still there in the cache.
@@ -114,7 +135,6 @@ public class OCSPResponseBuilder {
                     return getOCSPResponse(locations, request, userCertificate, ocspCache);
                 }
             }
-        }
         throw new CertificateVerificationException("Could not get revocation status from OCSP.");
     }
 
@@ -139,6 +159,10 @@ public class OCSPResponseBuilder {
             }
         }
         return keyStore;
+    }
+
+    public static void addRootCertificate(X509Certificate cert) {
+        rootCerts.add(cert);
     }
 
     /**
