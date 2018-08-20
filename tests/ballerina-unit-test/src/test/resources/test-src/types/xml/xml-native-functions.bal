@@ -884,3 +884,17 @@ function testRemoveChildrenWithNamesapces() returns (xml, xml) {
     x1.removeChildren(ns0:name);
     return (children, x1.*);
 }
+
+function testRemoveComplexChildren() returns (xml, xml) {
+    xml x1 = xml `<person><name>John</name><address><street>Palm Grove</street><city>Colombo 03</city><country><name>Sri Lanka</name><code>LK</code></country></address><age>50</age></person>`;
+    xml children = x1.*;
+    x1.removeChildren("address");
+    return (children, x1.*);
+}
+
+function testRemoveInnerChildren() returns (xml, xml) {
+    xml x1 = xml `<person><name>John</name><address><street>Palm Grove</street><city>Colombo 03</city><country><name>Sri Lanka</name><code>LK</code></country></address><age>50</age></person>`;
+    xml children = x1.*;
+    x1.address.country.removeChildren("code");
+    return (children, x1.*);
+}

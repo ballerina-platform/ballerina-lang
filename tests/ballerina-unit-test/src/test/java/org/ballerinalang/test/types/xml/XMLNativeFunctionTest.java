@@ -1440,4 +1440,27 @@ public class XMLNativeFunctionTest {
         Assert.assertEquals(returns[1].stringValue(), "<name xmlns:ns0=\"http://wso2.com\">John</name>" +
                 "<age xmlns:ns0=\"http://wso2.com\">50</age><name xmlns:ns0=\"http://wso2.com\">Doe</name>");
     }
+    
+    @Test
+    public void testRemoveComplexChildren() {
+        BValue[] returns = BRunUtil.invoke(result, "testRemoveComplexChildren");
+        Assert.assertEquals(returns.length, 2);
+        Assert.assertTrue(returns[0] instanceof BXML);
+        Assert.assertEquals(returns[0].stringValue(), "<name>John</name><address><street>Palm Grove</street><city>" +
+                "Colombo 03</city><country><name>Sri Lanka</name><code>LK</code></country></address><age>50</age>");
+        Assert.assertTrue(returns[1] instanceof BXML);
+        Assert.assertEquals(returns[1].stringValue(), "<name>John</name><age>50</age>");
+    }
+    
+    @Test
+    public void testRemoveInnerChildren() {
+        BValue[] returns = BRunUtil.invoke(result, "testRemoveInnerChildren");
+        Assert.assertEquals(returns.length, 2);
+        Assert.assertTrue(returns[0] instanceof BXML);
+        Assert.assertEquals(returns[1].stringValue(), "<name>John</name><address><street>Palm Grove</street><city>" +
+                "Colombo 03</city><country><name>Sri Lanka</name></country></address><age>50</age>");
+        Assert.assertTrue(returns[1] instanceof BXML);
+        Assert.assertEquals(returns[1].stringValue(), "<name>John</name><address><street>Palm Grove</street><city>" +
+                "Colombo 03</city><country><name>Sri Lanka</name></country></address><age>50</age>");
+    }
 }
