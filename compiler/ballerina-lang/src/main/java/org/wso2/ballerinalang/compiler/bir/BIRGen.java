@@ -40,10 +40,12 @@ import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangVariable;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef.BLangLocalVarRef;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangAssignment;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangExpressionStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangIf;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangReturn;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangStatement;
@@ -177,6 +179,37 @@ public class BIRGen extends BLangNodeVisitor {
         BIRVarRef varRef = new BIRVarRef(this.env.symbolVarMap.get(astVarRef.symbol));
         emit(new Move(this.env.targetOperand, varRef));
     }
+
+    public void visit(BLangExpressionStmt exprStmtNode) {
+        //        this.acceptNode(exprStmtNode.expr);
+        exprStmtNode.expr.accept(this);
+    }
+
+    public void visit(BLangInvocation invocationExpr) {
+        // Lets create a block the jump after successful function return
+        BIRBasicBlock thenBB = new BIRBasicBlock(this.env.nextBBId(names));
+        this.env.enclFunc.basicBlocks.add(thenBB);
+
+        invocationExpr.requiredArgs.get(0).accept(this);
+        BIROperand rhsOp1 = this.env.targetOperand;
+
+        // Create a temporary variable to store the return operation result.
+        BIRVariableDcl tempVarDcl = new BIRVariableDcl(invocationExpr.type,
+                                                       this.env.nextLocalVarId(names), VarKind.TEMP);
+        this.env.enclFunc.localVars.add(tempVarDcl);
+        BIRVarRef lhsOp = new BIRVarRef(tempVarDcl);
+        this.env.targetOperand = lhsOp;
+
+        BIROperand[] args = {rhsOp1};
+        this.env.enclBB.terminator = new BIRTerminator.Call(invocationExpr.symbol.pkgID,
+                                                            names.fromString(invocationExpr.name.value),
+                                                            args,
+                                                            lhsOp,
+                                                            thenBB);
+
+        this.env.enclBB = thenBB;
+    }
+
 
     public void visit(BLangReturn astReturnStmt) {
         astReturnStmt.expr.accept(this);

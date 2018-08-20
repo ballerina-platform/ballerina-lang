@@ -187,6 +187,16 @@ function readTerminator(io:ByteChannel channel, map<BIRVariableDcl> localVarMap)
     } else if (kindTag == 4){
         InstructionKind kind = "RETURN";
         return new Return(kind);
+    } else if (kindTag == 2){
+        InstructionKind kind = "CALL";
+        var pkgIdCp = readInt(channel);
+        var name = readStringViaCp(channel);
+        var arg = readVarRef(channel, localVarMap);
+        var lhsOp = readVarRef(channel, localVarMap);
+        BIRBasicBlock thenBB = readBBRef(channel);
+        BIROperand[] args = [arg];
+        return new Call(args, kind, lhsOp, {value: name}, thenBB);
+
     }
     error err = { message: "instrucion kind " + kindTag + " not impl." };
     throw err;
@@ -198,39 +208,43 @@ function readBBRef(io:ByteChannel channel) returns BIRBasicBlock {
 
 function readInstruction(io:ByteChannel channel, map<BIRVariableDcl> localVarMap) returns BIRInstruction {
     var kindTag = readByte(channel);
+    InstructionKind kind = "CONST_LOAD";
+    // this is hacky, but hard to solve without null-to-error mapping
     if (kindTag == 6){
         //TODO: remove redundent
         var bType = readBType(channel);
-        InstructionKind kind = "CONST_LOAD";
+        kind = "CONST_LOAD";
         var constLoad = new ConstantLoad(kind,
             readVarRef(channel, localVarMap),
             bType,
             readIntViaCp(channel));
         return constLoad;
     } else if (kindTag == 5){
-        InstructionKind kind = "MOVE";
+        kind = "MOVE";
         var rhsOp = readVarRef(channel, localVarMap);
         var lhsOp = readVarRef(channel, localVarMap);
         return new Move(kind, lhsOp, rhsOp);
     } else if (kindTag == 16){
-        InstructionKind kind = "LESS_THAN";
-        var rhsOp1 = readVarRef(channel, localVarMap);
-        var rhsOp2 = readVarRef(channel, localVarMap);
-        var lhsOp = readVarRef(channel, localVarMap);
-        return new BinaryOp (kind, lhsOp, rhsOp1, rhsOp2,
-            //TODO: remove type, not used
-            "int");
+        kind = "LESS_THAN";
+    } else if (kindTag == 13){
+        kind = "NOT_EQUAL";
+    } else if (kindTag == 8){
+        kind = "SUB";
+    } else if (kindTag == 9){
+        kind = "MUL";
     } else if (kindTag == 7){
-        InstructionKind kind = "ADD";
-        var rhsOp1 = readVarRef(channel, localVarMap);
-        var rhsOp2 = readVarRef(channel, localVarMap);
-        var lhsOp = readVarRef(channel, localVarMap);
-        return new BinaryOp (kind, lhsOp, rhsOp1, rhsOp2,
-            //TODO: remove type, not used
-            "int");
+        kind = "ADD";
+    } else {
+        error err = { message: "instrucion kind " + kindTag + " not impl." };
+        throw err;
     }
-    error err = { message: "instrucion kind " + kindTag + " not impl." };
-    throw err;
+
+    var rhsOp1 = readVarRef(channel, localVarMap);
+    var rhsOp2 = readVarRef(channel, localVarMap);
+    var lhsOp = readVarRef(channel, localVarMap);
+    return new BinaryOp (kind, lhsOp, rhsOp1, rhsOp2,
+        //TODO: remove type, not used
+        "int");
 }
 
 function readVarRef(io:ByteChannel channel, map<BIRVariableDcl> localVarMap) returns BIRVarRef {

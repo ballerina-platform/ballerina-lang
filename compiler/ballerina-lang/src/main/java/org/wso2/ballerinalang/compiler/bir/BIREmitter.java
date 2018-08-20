@@ -77,6 +77,16 @@ public class BIREmitter extends BIRVisitor {
         sb.append("\t}\n\n");
     }
 
+    public void visit(BIRTerminator.Call birCall) {
+        sb.append("\t\t");
+        birCall.lhsOp.accept(this);
+        sb.append(" = ").append(birCall.name.getValue()).append("(");
+        birCall.args[0].accept(this);
+        sb.append(") -> ");
+        sb.append(birCall.thenBB.id);
+
+        sb.append(";\n");
+    }
 
     // Non-terminating instructions
     public void visit(BIRNonTerminator.Move birMove) {

@@ -1,7 +1,9 @@
 import ballerina/llvm;
 import ballerina/io;
 
+// TODO: make these non-globle variables
 map localVarRefs;
+map functionRefs;
 map<llvm:LLVMBasicBlockRef> bbs;
 
 function genPackage(BIRPackage pkg, string targetObjectFilePath) {
@@ -9,7 +11,11 @@ function genPackage(BIRPackage pkg, string targetObjectFilePath) {
     var mod = llvm:LLVMModuleCreateWithName(c);
     var builder = llvm:LLVMCreateBuilder();
     foreach func in pkg.functions {
-        genFunction(func, builder, mod);
+        genFunctionBody(func, builder, mod);
+    }
+
+    foreach func in pkg.functions {
+        genFunctionEnd(func, builder);
     }
 
     optimize(mod);
@@ -43,82 +49,128 @@ function genPackage(BIRPackage pkg, string targetObjectFilePath) {
 
 
 function optimize(llvm:LLVMModuleRef mod) {
-    llvm:LLVMPassManagerRef pass = llvm:LLVMCreatePassManager();
-    llvm:LLVMAddConstantPropagationPass(pass);
-    llvm:LLVMAddInstructionCombiningPass(pass);
-    llvm:LLVMAddPromoteMemoryToRegisterPass(pass);
-    llvm:LLVMAddGVNPass(pass);
-    llvm:LLVMAddCFGSimplificationPass(pass);
-    llvm:LLVMAddLoopUnrollPass(pass);
+    var passBuilder = llvm:LLVMPassManagerBuilderCreate();
+    llvm:LLVMPassManagerBuilderSetOptLevel(passBuilder, 3);
+
+    var pass = llvm:LLVMCreatePassManager();
+    llvm:LLVMPassManagerBuilderPopulateFunctionPassManager(passBuilder, pass);
+    llvm:LLVMPassManagerBuilderPopulateModulePassManager(passBuilder, pass);
+
     var optResult = llvm:LLVMRunPassManager(pass, mod);
+
     // TODO error reporting
+    llvm:LLVMPassManagerBuilderDispose(passBuilder);
     llvm:LLVMDisposePassManager(pass);
 }
 
-function genFunction(BIRFunction func, llvm:LLVMBuilderRef builder, llvm:LLVMModuleRef mod) {
+function genFunctionBody(BIRFunction func, llvm:LLVMBuilderRef builder, llvm:LLVMModuleRef mod) {
     var name = func.name.value;
-    var main_arg_type = llvm:LLVMVoidType();
-    var main_return_type = llvm:LLVMInt32Type();
-    var functionTy = llvm:LLVMFunctionType0(main_return_type, main_arg_type, 0, 0);
-    var main_func = llvm:LLVMAddFunction(mod, name, functionTy);
+    llvm:LLVMTypeRef[] argTypes;
+    if (func.argsCount == 0){
+        argTypes = [llvm:LLVMVoidType()];
+    } else {
+        int i = 0;
+        while (i < func.argsCount) {
+            argTypes[i] = llvm:LLVMInt64Type();
+            i++;
+        }
+    }
+    var main_return_type = llvm:LLVMInt64Type();
+    var functionTy = llvm:LLVMFunctionType1(main_return_type, argTypes, func.argsCount, 0);
+    var funcRef = llvm:LLVMAddFunction(mod, name, functionTy);
+    llvm:LLVMSetFunctionCallConv(funcRef, 0);
+    functionRefs[name] = funcRef;
 
-    var varAllocBB = llvm:LLVMAppendBasicBlock(main_func, "var_allloc");
+    var varAllocBB = llvm:LLVMAppendBasicBlock(funcRef, "var_allloc");
     llvm:LLVMPositionBuilderAtEnd(builder, varAllocBB);
+    int argI = 0;
     foreach localVar in func.localVars{
-        llvm:LLVMValueRef llvmValueRef = llvm:LLVMBuildAlloca(builder, llvm:LLVMInt32Type(), localVarName(localVar));
-        localVarRefs[localVar.name.value] = llvmValueRef;
+        var varName = localVarName(localVar);
+        var varType = genBType(localVar.typeValue);
+        llvm:LLVMValueRef llvmValueRef;
+        llvmValueRef = llvm:LLVMBuildAlloca(builder, varType, varName);
+        localVarRefs[func.name.value + "." + localVar.name.value] = llvmValueRef;
+        match localVar.kind {
+            ArgVarKind => {
+                var parmRef = llvm:LLVMGetParam(funcRef, argI);
+                var loaded = llvm:LLVMBuildStore(builder, parmRef, llvmValueRef);
+                argI++;
+            }
+            any => {}
+        }
     }
 
     foreach bb in func.basicBlocks {
-        genBasicBlockBody(bb, main_func, builder);
-    }
-
-    foreach bb in func.basicBlocks {
-        genBasicBlockTerminator(bb, builder);
+        var bbRef = genBasicBlockBody(func, bb, funcRef, builder);
+        bbs[func.name.value + "." + bb.id.value] = bbRef;
     }
 
     llvm:LLVMPositionBuilderAtEnd(builder, varAllocBB);
-
-    var brInsRef = llvm:LLVMBuildBr(builder, getBBById("bb0"));
+    var brInsRef = llvm:LLVMBuildBr(builder, getBBById(func, "bb0"));
 }
 
-function genBasicBlockTerminator(BIRBasicBlock bb, llvm:LLVMBuilderRef builder) {
-    var bbRef = getBBById(bb.id.value);
+function genBType(BType bType) returns llvm:LLVMTypeRef {
+    match bType {
+        BTypeInt => return llvm:LLVMInt64Type();
+        BTypeBoolean => return llvm:LLVMInt1Type();
+    }
+}
+
+function genFunctionEnd(BIRFunction func, llvm:LLVMBuilderRef builder) {
+    foreach bb in func.basicBlocks {
+        genBasicBlockTerminator(func, bb, builder);
+    }
+}
+
+function genBasicBlockTerminator(BIRFunction func, BIRBasicBlock bb, llvm:LLVMBuilderRef builder) {
+    var bbRef = getBBById(func, bb.id.value);
     llvm:LLVMPositionBuilderAtEnd(builder, bbRef);
 
     match bb.terminator {
         GOTO gotoIns => {
-            var brInsRef = llvm:LLVMBuildBr(builder, getBBById(gotoIns.targetBB.id.value));
+            var brInsRef = llvm:LLVMBuildBr(builder, getBBById(func, gotoIns.targetBB.id.value));
         }
         Branch brIns => {
-            var ifTrue = getBBById(brIns.trueBB.id.value);
-            var ifFalse = getBBById(brIns.falseBB.id.value);
-            var vrInsRef = llvm:LLVMBuildCondBr(builder, loadOprand(brIns.op, builder), ifTrue, ifFalse);
+            var ifTrue = getBBById(func, brIns.trueBB.id.value);
+            var ifFalse = getBBById(func, brIns.falseBB.id.value);
+            var vrInsRef = llvm:LLVMBuildCondBr(builder, loadOprand(func, brIns.op, builder), ifTrue, ifFalse);
+        }
+        Call callIns => {
+            var thenBB = getBBById(func, callIns.thenBB.id.value);
+            var arg1 = loadOprand(func, callIns.args[0], builder);
+            var lhsTmpName = localVarName(callIns.lhsOp.variableDcl) + "_temp";
+            llvm:LLVMValueRef[] args = [arg1];
+            var funcRef = getFuncByName(callIns.name);
+            llvm:LLVMValueRef callReturn = llvm:LLVMBuildCall(builder, funcRef, args, 1, lhsTmpName);
+            llvm:LLVMValueRef lhsRef = getLocalVarById(func, callIns.lhsOp.variableDcl.name.value);
+            var loaded = llvm:LLVMBuildStore(builder, callReturn, lhsRef);
+            var brInsRef = llvm:LLVMBuildBr(builder, thenBB);
         }
         Return => {
-            var retValueRef = llvm:LLVMBuildLoad(builder, getLocalVarById("%0"), "retrun_temp");
+            var retValueRef = llvm:LLVMBuildLoad(builder, getLocalVarById(func, "%0"), "retrun_temp");
             var ret = llvm:LLVMBuildRet(builder, retValueRef);
         }
     }
 }
 
-function genBasicBlockBody(BIRBasicBlock bb, llvm:LLVMValueRef func, llvm:LLVMBuilderRef builder) {
-    var bbRef = llvm:LLVMAppendBasicBlock(func, bb.id.value);
-    bbs[bb.id.value] = bbRef;
+function genBasicBlockBody(BIRFunction func, BIRBasicBlock bb, llvm:LLVMValueRef funcRef, llvm:LLVMBuilderRef builder)
+             returns llvm:LLVMBasicBlockRef {
+
+    var bbRef = llvm:LLVMAppendBasicBlock(funcRef, bb.id.value);
     llvm:LLVMPositionBuilderAtEnd(builder, bbRef);
     foreach i in bb.instructions {
         match i {
             Move moveIns => {
-                llvm:LLVMValueRef lhsRef = getLocalVarById(moveIns.lhsOp.variableDcl.name.value);
+                llvm:LLVMValueRef lhsRef = getLocalVarById(func, moveIns.lhsOp.variableDcl.name.value);
                 var rhsVarOp = moveIns.rhsOp;
-                llvm:LLVMValueRef rhsVarOpRef = loadOprand(rhsVarOp, builder);
+                llvm:LLVMValueRef rhsVarOpRef = loadOprand(func, rhsVarOp, builder);
                 var loaded = llvm:LLVMBuildStore(builder, rhsVarOpRef, lhsRef);
             }
             BinaryOp binaryIns => {
                 var lhsTmpName = localVarName(binaryIns.lhsOp.variableDcl) + "_temp";
-                var lhsRef = getLocalVarById(binaryIns.lhsOp.variableDcl.name.value);
-                var rhsOp1 = loadOprand(binaryIns.rhsOp1, builder);
-                var rhsOp2 = loadOprand(binaryIns.rhsOp2, builder);
+                var lhsRef = getLocalVarById(func, binaryIns.lhsOp.variableDcl.name.value);
+                var rhsOp1 = loadOprand(func, binaryIns.rhsOp1, builder);
+                var rhsOp2 = loadOprand(func, binaryIns.rhsOp2, builder);
                 var kind = binaryIns.kind;
                 if (kind == "LESS_THAN"){
                     // LLVMIntSLT = 40
@@ -127,23 +179,38 @@ function genBasicBlockBody(BIRBasicBlock bb, llvm:LLVMValueRef func, llvm:LLVMBu
                 } else if (kind == "ADD"){
                     var addReturn = llvm:LLVMBuildAdd(builder, rhsOp1, rhsOp2, lhsTmpName);
                     var loaded = llvm:LLVMBuildStore(builder, addReturn, lhsRef);
-
+                } else if (kind == "NOT_EQUAL"){
+                    // LLVMIntNE = 33
+                    var ifReturn = llvm:LLVMBuildICmp(builder, 33, rhsOp1, rhsOp2, lhsTmpName);
+                    var loaded = llvm:LLVMBuildStore(builder, ifReturn, lhsRef);
+                } else if (kind == "SUB"){
+                    var ifReturn = llvm:LLVMBuildSub(builder, rhsOp1, rhsOp2, lhsTmpName);
+                    var loaded = llvm:LLVMBuildStore(builder, ifReturn, lhsRef);
+                } else if (kind == "MUL"){
+                    var ifReturn = llvm:LLVMBuildMul(builder, rhsOp1, rhsOp2, lhsTmpName);
+                    var loaded = llvm:LLVMBuildStore(builder, ifReturn, lhsRef);
+                } else {
+                    error err = { message: "unknown binary op kind" };
+                    throw err;
                 }
             }
             ConstantLoad constOp => {
-                llvm:LLVMValueRef lhsRef = getLocalVarById(constOp.lhsOp.variableDcl.name.value);
-                var constRef = llvm:LLVMConstInt(llvm:LLVMInt32Type(), constOp.value, 0);
+                llvm:LLVMValueRef lhsRef = getLocalVarById(func, constOp.lhsOp.variableDcl.name.value);
+                var constRef = llvm:LLVMConstInt(llvm:LLVMInt64Type(), constOp.value, 0);
                 var loaded = llvm:LLVMBuildStore(builder, constRef, lhsRef);
             }
 
         }
     }
+    return bbRef;
 }
 
-function getBBById(string id) returns llvm:LLVMBasicBlockRef {
-    match bbs[id] {
-        llvm:LLVMBasicBlockRef bb => return bb;
-        () => {
+function getBBById(BIRFunction func, string id) returns llvm:LLVMBasicBlockRef {
+    match bbs[func.name.value + "." + id] {
+        llvm:LLVMBasicBlockRef bb => {
+            return bb;
+        }
+        any => {
             error err = { message: "bb '" + id + "' dosn't exist" };
             throw err;
         }
@@ -151,17 +218,33 @@ function getBBById(string id) returns llvm:LLVMBasicBlockRef {
 }
 
 
-function loadOprand(BIROperand oprand, llvm:LLVMBuilderRef builder) returns llvm:LLVMValueRef {
+function loadOprand(BIRFunction func, BIROperand oprand, llvm:LLVMBuilderRef builder) returns llvm:LLVMValueRef {
     match oprand {
         BIRVarRef refOprand => {
             string tempName = localVarName(refOprand.variableDcl) + "_temp";
-            return llvm:LLVMBuildLoad(builder, getLocalVarById(refOprand.variableDcl.name.value), tempName);
+            return llvm:LLVMBuildLoad(builder, getLocalVarById(func, refOprand.variableDcl.name.value), tempName);
         }
     }
 }
 
-function getLocalVarById(string id) returns llvm:LLVMValueRef {
-    return check <llvm:LLVMValueRef>localVarRefs[id];
+function getLocalVarById(BIRFunction fun, string id) returns llvm:LLVMValueRef {
+    match localVarRefs[fun.name.value + "." + id] {
+        llvm:LLVMValueRef varRef => return varRef;
+        any => {
+            error err = { message: "Local var by name '" + id + "' dosn't exist in " + fun.name.value };
+            throw err;
+        }
+    }
+}
+
+function getFuncByName(Name name) returns llvm:LLVMValueRef {
+    match functionRefs[name.value] {
+        llvm:LLVMValueRef func => return func;
+        any => {
+            error err = { message: "functtion '" + name.value + "' dosn't exist" };
+            throw err;
+        }
+    }
 }
 
 function localVarName(BIRVariableDcl localVar) returns string {
