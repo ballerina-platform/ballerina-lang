@@ -1,6 +1,6 @@
-import '../../../../../../../lib/bundle.css';
-import '../../../../../../../lib/theme.css';
-import '../../../../../../../lib/less.css';
+import '../../../resources/lib/bundle.css';
+import '../../../resources/lib/theme.css';
+import '../../../resources/lib/less.css';
 
 import { injectable } from "inversify";
 import URI from "@theia/core/lib/common/uri";
@@ -9,7 +9,7 @@ import { PreviewHandler, RenderContentParams } from '@theia/preview/lib/browser'
 
 import { ParserReply, parseContent } from '../common';
 
-const { renderEditableDiagram } = require('../../../../../../../lib/ballerina-diagram-library');
+const { renderEditableDiagram } = require('../../../resources/lib/ballerina-diagram-library');
 
 let lastRenderedAST: Object | undefined = undefined;
 

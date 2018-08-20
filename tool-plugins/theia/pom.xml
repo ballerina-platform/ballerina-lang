@@ -27,5 +27,7 @@
     <modules>
         <module>parser</module>
     </modules>
+    <properties>
+    </properties>
 </project>
 

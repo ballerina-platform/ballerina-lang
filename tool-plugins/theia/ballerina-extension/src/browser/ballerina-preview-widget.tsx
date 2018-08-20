@@ -7,14 +7,14 @@ import * as React from 'react';
 import * as lsp from 'vscode-languageserver-types';
 import { parseContent, ParserReply, BALLERINA_LANGUAGE_ID } from '../common'
 
-import '../../../../../../../lib/bundle.css';
-import '../../../../../../../lib/theme.css';
-import '../../../../../../../lib/less.css';
+import '../../../resources/lib/bundle.css';
+import '../../../resources/lib/theme.css';
+import '../../../resources/lib/less.css';
 
 import '../../src/browser/style/preview.css';
 
 
-const { BallerinaDesignView, TreeBuilder } = require('../../../../../../../lib/ballerina-diagram-library');
+const { BallerinaDesignView, TreeBuilder } = require('../../../resources/lib/ballerina-diagram-library');
 
 const TREE_MODIFIED = 'tree-modified';
 export interface EditModeChangeEvent {
