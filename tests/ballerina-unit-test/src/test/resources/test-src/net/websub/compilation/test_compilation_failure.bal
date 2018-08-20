@@ -19,14 +19,14 @@ import ballerina/http;
 import ballerina/websub;
 
 @websub:SubscriberServiceConfig {
-    path:"/websub",
-    subscribeOnStartUp:true,
+    path: "/websub",
+    subscribeOnStartUp: true,
     topic: "http://websubpubtopic.com",
     hub: "http://websubpubhub.com"
 }
 @websub:SubscriberServiceConfig {
-    path:"/websub",
-    subscribeOnStartUp:true,
+    path: "/websub",
+    subscribeOnStartUp: true,
     topic: "http://websubpubtopictwo.com",
     hub: "http://websubpubhubtwo.com"
 }
@@ -39,8 +39,8 @@ service<websub:Service> websubSubscriber {
 }
 
 @websub:SubscriberServiceConfig {
-    path:"/websub",
-    subscribeOnStartUp:true,
+    path: "/websub",
+    subscribeOnStartUp: true,
     topic: "http://websubpubtopictwo.com",
     hub: "http://websubpubhubtwo.com"
 }
@@ -53,8 +53,8 @@ service<websub:Service> websubSubscriberTwo {
 }
 
 @websub:SubscriberServiceConfig {
-    path:"/websub",
-    subscribeOnStartUp:true,
+    path: "/websub",
+    subscribeOnStartUp: true,
     topic: "http://websubpubtopictwo.com",
     hub: "http://websubpubhubtwo.com"
 }
@@ -64,8 +64,8 @@ service<websub:Service> websubSubscriberThree {
 }
 
 @websub:SubscriberServiceConfig {
-    path:"/websub",
-    subscribeOnStartUp:true,
+    path: "/websub",
+    subscribeOnStartUp: true,
     topic: "http://websubpubtopictwo.com",
     hub: "http://websubpubhubtwo.com"
 }
@@ -75,8 +75,8 @@ service<websub:Service> websubSubscriberFour {
 }
 
 @websub:SubscriberServiceConfig {
-    path:"/websub",
-    subscribeOnStartUp:true,
+    path: "/websub",
+    subscribeOnStartUp: true,
     topic: "http://websubpubtopictwo.com",
     hub: "http://websubpubhubtwo.com"
 }
@@ -89,8 +89,8 @@ service<websub:Service> websubSubscriberFive {
 }
 
 @websub:SubscriberServiceConfig {
-    path:"/websub",
-    subscribeOnStartUp:true,
+    path: "/websub",
+    subscribeOnStartUp: true,
     topic: "http://websubpubtopictwo.com",
     hub: "http://websubpubhubtwo.com"
 }
@@ -103,8 +103,8 @@ service<websub:Service> websubSubscriberSix {
 }
 
 @websub:SubscriberServiceConfig {
-    path:"/websub",
-    subscribeOnStartUp:true,
+    path: "/websub",
+    subscribeOnStartUp: true,
     topic: "http://websubpubtopictwo.com",
     hub: "http://websubpubhubtwo.com"
 }

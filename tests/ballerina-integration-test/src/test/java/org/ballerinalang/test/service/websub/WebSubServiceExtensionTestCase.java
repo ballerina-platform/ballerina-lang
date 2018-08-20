@@ -18,6 +18,7 @@
 package org.ballerinalang.test.service.websub;
 
 import io.netty.handler.codec.http.HttpHeaderNames;
+import io.netty.handler.codec.http.HttpResponseStatus;
 import org.ballerinalang.test.context.BallerinaTestException;
 import org.ballerinalang.test.context.LogLeecher;
 import org.ballerinalang.test.util.HttpClientRequest;
@@ -39,6 +40,7 @@ import java.util.Map;
 public class WebSubServiceExtensionTestCase extends WebSubBaseTest {
 
     private static final String MOCK_HEADER = "MockHeader";
+    private static final int LOG_LEECHER_TIMEOUT = 3000;
 
     private static final String BY_KEY_CREATED_LOG = "Created Notification Received, action: created";
     private static final String BY_KEY_FEATURE_LOG = "Feature Notification Received, domain: feature";
@@ -89,77 +91,75 @@ public class WebSubServiceExtensionTestCase extends WebSubBaseTest {
 
     @Test
     public void testDispatchingByKey() throws BallerinaTestException, IOException {
-        Map<String, String> headers = new HashMap<>();
+        Map<String, String> headers = new HashMap<>(1);
         headers.put(HttpHeaderNames.CONTENT_TYPE.toString(), TestConstant.CONTENT_TYPE_JSON);
         HttpResponse response = HttpClientRequest.doPost("http://localhost:8181/key", "{\"action\":\"created\"}",
                                                          headers);
-        Assert.assertEquals(response.getResponseCode(), 202);
-        byKeyCreatedLogLeecher.waitForText(3000);
+        Assert.assertEquals(response.getResponseCode(), HttpResponseStatus.ACCEPTED.code());
+        byKeyCreatedLogLeecher.waitForText(LOG_LEECHER_TIMEOUT);
 
-        headers = new HashMap<>();
-        headers.put(HttpHeaderNames.CONTENT_TYPE.toString(), TestConstant.CONTENT_TYPE_JSON);
         response = HttpClientRequest.doPost("http://localhost:8181/key", "{\"domain\":\"feature\"}", headers);
-        Assert.assertEquals(response.getResponseCode(), 202);
-        byKeyCreatedLogLeecher.waitForText(3000);
+        Assert.assertEquals(response.getResponseCode(), HttpResponseStatus.ACCEPTED.code());
+        byKeyCreatedLogLeecher.waitForText(LOG_LEECHER_TIMEOUT);
     }
 
     @Test
     public void testDispatchingByHeader() throws BallerinaTestException, IOException {
-        Map<String, String> headers = new HashMap<>();
+        Map<String, String> headers = new HashMap<>(2);
         headers.put(HttpHeaderNames.CONTENT_TYPE.toString(), TestConstant.CONTENT_TYPE_JSON);
         headers.put(MOCK_HEADER, "issue");
         HttpResponse response = HttpClientRequest.doPost("http://localhost:8282/header", "{\"action\":\"deleted\"}",
                                                          headers);
-        Assert.assertEquals(response.getResponseCode(), 202);
-        byHeaderIssueLogLeecher.waitForText(3000);
+        Assert.assertEquals(response.getResponseCode(), HttpResponseStatus.ACCEPTED.code());
+        byHeaderIssueLogLeecher.waitForText(LOG_LEECHER_TIMEOUT);
 
-        headers = new HashMap<>();
+        headers = new HashMap<>(2);
         headers.put(HttpHeaderNames.CONTENT_TYPE.toString(), TestConstant.CONTENT_TYPE_JSON);
         headers.put(MOCK_HEADER, "commit");
         response = HttpClientRequest.doPost("http://localhost:8282/header", "{\"action\":\"created\"}", headers);
-        Assert.assertEquals(response.getResponseCode(), 202);
-        byHeaderCommitLogLeecher.waitForText(3000);
+        Assert.assertEquals(response.getResponseCode(), HttpResponseStatus.ACCEPTED.code());
+        byHeaderCommitLogLeecher.waitForText(LOG_LEECHER_TIMEOUT);
     }
 
     @Test
     public void testDispatchingByHeaderAndPayloadKey() throws BallerinaTestException, IOException {
-        Map<String, String> headers = new HashMap<>();
+        Map<String, String> headers = new HashMap<>(2);
         headers.put(HttpHeaderNames.CONTENT_TYPE.toString(), TestConstant.CONTENT_TYPE_JSON);
         headers.put(MOCK_HEADER, "issue");
         HttpResponse response = HttpClientRequest.doPost("http://localhost:8383/headerAndPayload",
                                                          "{\"action\":\"created\"}", headers);
-        Assert.assertEquals(response.getResponseCode(), 202);
-        byHeaderAndPayloadIssueCreatedLogLeecher.waitForText(3000);
+        Assert.assertEquals(response.getResponseCode(), HttpResponseStatus.ACCEPTED.code());
+        byHeaderAndPayloadIssueCreatedLogLeecher.waitForText(LOG_LEECHER_TIMEOUT);
 
-        headers = new HashMap<>();
+        headers = new HashMap<>(2);
         headers.put(HttpHeaderNames.CONTENT_TYPE.toString(), TestConstant.CONTENT_TYPE_JSON);
         headers.put(MOCK_HEADER, "pull");
         response = HttpClientRequest.doPost("http://localhost:8383/headerAndPayload", "{\"domain\":\"feature\"}",
                                             headers);
-        Assert.assertEquals(response.getResponseCode(), 202);
-        byHeaderAndPayloadFeaturePullLogLeecher.waitForText(3000);
+        Assert.assertEquals(response.getResponseCode(), HttpResponseStatus.ACCEPTED.code());
+        byHeaderAndPayloadFeaturePullLogLeecher.waitForText(LOG_LEECHER_TIMEOUT);
     }
 
     @Test
     public void testDispatchingByHeaderAndPayloadKeyForOnlyHeader() throws BallerinaTestException, IOException {
-        Map<String, String> headers = new HashMap<>();
+        Map<String, String> headers = new HashMap<>(2);
         headers.put(HttpHeaderNames.CONTENT_TYPE.toString(), TestConstant.CONTENT_TYPE_JSON);
         headers.put(MOCK_HEADER, "headeronly");
         HttpResponse response = HttpClientRequest.doPost("http://localhost:8383/headerAndPayload",
                                                          "{\"action\":\"header_only\"}", headers);
-        Assert.assertEquals(response.getResponseCode(), 202);
-        byHeaderAndPayloadHeaderOnlyLogLeecher.waitForText(3000);
+        Assert.assertEquals(response.getResponseCode(), HttpResponseStatus.ACCEPTED.code());
+        byHeaderAndPayloadHeaderOnlyLogLeecher.waitForText(LOG_LEECHER_TIMEOUT);
     }
 
     @Test
     public void testDispatchingByHeaderAndPayloadKeyForOnlyKey() throws BallerinaTestException, IOException {
-        Map<String, String> headers = new HashMap<>();
+        Map<String, String> headers = new HashMap<>(2);
         headers.put(HttpHeaderNames.CONTENT_TYPE.toString(), TestConstant.CONTENT_TYPE_JSON);
         headers.put(MOCK_HEADER, "key_only");
         HttpResponse response = HttpClientRequest.doPost("http://localhost:8383/headerAndPayload",
                                                          "{\"action\":\"keyonly\"}", headers);
-        Assert.assertEquals(response.getResponseCode(), 202);
-        byHeaderAndPayloadHeaderOnlyLogLeecher.waitForText(3000);
+        Assert.assertEquals(response.getResponseCode(), HttpResponseStatus.ACCEPTED.code());
+        byHeaderAndPayloadHeaderOnlyLogLeecher.waitForText(LOG_LEECHER_TIMEOUT);
     }
 
     @AfterClass

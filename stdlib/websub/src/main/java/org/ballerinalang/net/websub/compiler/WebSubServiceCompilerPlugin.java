@@ -89,8 +89,6 @@ public class WebSubServiceCompilerPlugin extends AbstractCompilerPlugin {
                                        + "specified with " +  WEBSUB_PACKAGE + ":" + GENERIC_SUBSCRIBER_SERVICE_TYPE);
             }
         }
-        // get value from endpoint.
-        // ((BLangSimpleVarRef) serviceNode.getBoundEndpoints().get(0)).varSymbol.getType().tsymbol.name.value
     }
 
 }
