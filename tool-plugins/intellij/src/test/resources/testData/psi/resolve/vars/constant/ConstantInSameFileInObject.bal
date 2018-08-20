@@ -1,5 +1,5 @@
 @final int /*def*/a;
 
-function test() {
+type test object {
     int value = /*ref*/a;
 }

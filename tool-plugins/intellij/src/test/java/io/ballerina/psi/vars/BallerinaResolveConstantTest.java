@@ -40,11 +40,27 @@ public class BallerinaResolveConstantTest extends BallerinaResolveTestBase {
         doFileTest();
     }
 
+    public void testConstantInSameFileInObject() {
+        doFileTest();
+    }
+
+    public void testConstantInSameFileInRecord() {
+        doFileTest();
+    }
+
     public void testConstantInDifferentFileInFunction() throws IOException {
         doFileTest(constant);
     }
 
     public void testConstantInDifferentFileInService() throws IOException {
+        doFileTest(constant);
+    }
+
+    public void testConstantInDifferentFileInObject() throws IOException {
+        doFileTest(constant);
+    }
+
+    public void testConstantInDifferentFileInRecord() throws IOException {
         doFileTest(constant);
     }
 
@@ -54,6 +70,14 @@ public class BallerinaResolveConstantTest extends BallerinaResolveTestBase {
     //    }
     //
     //    public void testConstantInDifferentPackageInService() throws IOException {
+    //        doFileTest(constant, "org/test/test.bal");
+    //    }
+    //
+    //    public void testConstantInDifferentPackageInObject() throws IOException {
+    //        doFileTest(constant, "org/test/test.bal");
+    //    }
+    //
+    //    public void testConstantInDifferentPackageInRecord() throws IOException {
     //        doFileTest(constant, "org/test/test.bal");
     //    }
 }

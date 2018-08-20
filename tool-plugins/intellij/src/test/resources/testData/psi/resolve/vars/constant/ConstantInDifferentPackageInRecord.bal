@@ -1,5 +1,5 @@
 import org/test;
 
-function test() {
+type testRecord record {
     int value = test:/*ref*/a;
-}
+};
