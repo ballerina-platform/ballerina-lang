@@ -156,11 +156,12 @@ public class TaintedStatusPropagationTest {
     @Test
     public void testXMLNegative() {
         CompileResult result = BCompileUtil.compile("test-src/taintchecking/propagation/xml-negative.bal");
-        Assert.assertTrue(result.getDiagnostics().length == 4);
+        Assert.assertTrue(result.getDiagnostics().length == 5);
         BAssertUtil.validateError(result, 0, "tainted value passed to sensitive parameter 'secureIn'", 7, 20);
         BAssertUtil.validateError(result, 1, "tainted value passed to sensitive parameter 'secureIn'", 10, 20);
         BAssertUtil.validateError(result, 2, "tainted value passed to sensitive parameter 'secureIn'", 13, 20);
         BAssertUtil.validateError(result, 3, "tainted value passed to sensitive parameter 'secureIn'", 14, 20);
+        BAssertUtil.validateError(result, 4, "tainted value passed to sensitive parameter 'secureIn'", 18, 20);
     }
 
     @Test
