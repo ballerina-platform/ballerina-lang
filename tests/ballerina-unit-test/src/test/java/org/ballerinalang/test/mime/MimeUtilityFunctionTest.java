@@ -100,6 +100,17 @@ public class MimeUtilityFunctionTest {
         Assert.assertEquals(map.get("boundary").stringValue(), "032a1ab685934650abbe059cb45d6ff3");
     }
 
+    @Test(description = "Test whether an error is returned while constructing MediaType object with an " +
+            "incorrect content type value")
+    public void getMediaTypeWithIncorrectContentType() {
+        String contentType = "testContentType";
+        BValue[] args = {new BString(contentType)};
+        BValue[] returns = BRunUtil.invoke(compileResult, "testGetMediaType", args);
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertEquals(((BMap<String, BValue>) returns[0]).get(ERROR_MESSAGE_FIELD).stringValue(),
+                "Error while parsing Content-Type value: Unable to find a sub type.");
+    }
+
     @Test(description = "Test 'getBaseType' function in ballerina/mime package")
     public void testGetBaseTypeOnMediaType() {
         BMap<String, BValue> mediaType = BCompileUtil
@@ -592,7 +603,7 @@ public class MimeUtilityFunctionTest {
             Assert.assertEquals(StringUtils.getStringFromInputStream(byteChannel.getInputStream()),
                     "Hello Ballerina!");
         } catch (IOException e) {
-            log.error("Error occurred in testSetByteChannel", e.getMessage());
+            log.error("Error occurred in testSetBodyAndGetByteChannel", e.getMessage());
         }
     }
 
@@ -678,7 +689,7 @@ public class MimeUtilityFunctionTest {
             Assert.assertEquals(returns.length, 1);
             Assert.assertEquals(returns[0].stringValue(), "{'code':'123'}");
         } catch (IOException e) {
-            log.error("Error occurred in testTempFileDeletion", e.getMessage());
+            log.error("Error occurred in testGetAnyStreamAsString", e.getMessage());
         }
     }
 
@@ -697,7 +708,7 @@ public class MimeUtilityFunctionTest {
             Assert.assertEquals(new String(((BByteArray) returns[0]).getBytes()), "{\"code\":\"123\"}",
                     "Entity body is not properly set");
         } catch (IOException e) {
-            log.error("Error occurred in testSetByteChannel", e.getMessage());
+            log.error("Error occurred in testByteArrayWithContentType", e.getMessage());
         }
     }
 
@@ -716,7 +727,7 @@ public class MimeUtilityFunctionTest {
             Assert.assertEquals(new String(((BByteArray) returns[0]).getBytes()), "{\"test\":\"菜鸟驿站\"}",
                     "Entity body is not properly set");
         } catch (IOException e) {
-            log.error("Error occurred in testSetByteChannel", e.getMessage());
+            log.error("Error occurred in testByteArrayWithCharset", e.getMessage());
         }
     }
 
@@ -746,5 +757,57 @@ public class MimeUtilityFunctionTest {
         Assert.assertEquals(returns.length, 1);
         Assert.assertEquals(((BMap<String, BValue>) returns[0]).get(ERROR_MESSAGE_FIELD).stringValue(),
                 "Entity body is not a type of composite media type. Received content-type : application/json");
+    }
+
+    @Test(description = "Test whether an error is returned when trying convert body parts as a " +
+            "byte channel when the actual content is not composite media type")
+    public void getChannelFromParts() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "getChannelFromParts");
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertEquals(((BMap<String, BValue>) returns[0]).get(ERROR_MESSAGE_FIELD).stringValue(),
+                "Entity doesn't contain body parts");
+    }
+
+    @Test(description = "Test whether an error is returned when trying to retrieve a byte channel from a multipart" +
+            "entity")
+    public void getChannelFromMultipartEntity() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "getChannelFromMultipartEntity");
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertEquals(((BMap<String, BValue>) returns[0]).get(ERROR_MESSAGE_FIELD).stringValue(),
+                "Byte channel is not available since payload contains a set of body parts");
+    }
+
+    @Test
+    public void getAnyStreamAsStringFromCache() {
+        try {
+            File file = getTemporaryFile("testFile", ".tmp", "{'code':'123'}");
+            BMap<String, BValue> byteChannelStruct = Util.getByteChannelStruct(compileResult);
+            byteChannelStruct.addNativeData(IOConstants.BYTE_CHANNEL_NAME, EntityBodyHandler.getByteChannelForTempFile
+                    (file.getAbsolutePath()));
+            BValue[] args = {byteChannelStruct, new BString("application/json")};
+            BValue[] returns = BRunUtil.invoke(compileResult, "getAnyStreamAsStringFromCache", args);
+            Assert.assertEquals(returns.length, 1);
+            Assert.assertEquals(returns[0].stringValue(), "{'code':'123'}{'code':'123'}");
+        } catch (IOException e) {
+            log.error("Error occurred in getAnyStreamAsStringFromCache", e.getMessage());
+        }
+    }
+
+    @Test(description = "Test whether the xml content can be constructed properly once the body has been retrieved " +
+            "as a byte array first")
+    public void testXmlWithByteArrayContent() {
+        try {
+            File file = getTemporaryFile("testFile", ".tmp", "<name>Ballerina xml content</name>");
+            BMap<String, BValue> byteChannelStruct = Util.getByteChannelStruct(compileResult);
+            byteChannelStruct.addNativeData(IOConstants.BYTE_CHANNEL_NAME, EntityBodyHandler.getByteChannelForTempFile
+                    (file.getAbsolutePath()));
+            BString contentType = new BString("application/xml; charset=utf8");
+            BValue[] args = {byteChannelStruct, contentType};
+            BValue[] returns = BRunUtil.invoke(compileResult, "testXmlWithByteArrayContent", args);
+            Assert.assertEquals(returns.length, 1);
+            Assert.assertEquals(returns[0].stringValue(), "<name>Ballerina xml content</name>");
+        } catch (IOException e) {
+            log.error("Error occurred in testXmlWithByteArrayContent", e.getMessage());
+        }
     }
 }
