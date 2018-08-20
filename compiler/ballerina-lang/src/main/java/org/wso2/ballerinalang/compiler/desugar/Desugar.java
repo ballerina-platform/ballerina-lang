@@ -1394,7 +1394,10 @@ public class Desugar extends BLangNodeVisitor {
             result = rewriteExpr(bracedOrTupleExpr.expressions.get(0));
             return;
         }
-        bracedOrTupleExpr.expressions.forEach(expr -> types.setImplicitCastExpr(expr, expr.type, symTable.anyType));
+        bracedOrTupleExpr.expressions.forEach(expr -> {
+            BType expType = expr.impConversionExpr == null ? expr.type : expr.impConversionExpr.type;
+            types.setImplicitCastExpr(expr, expType, symTable.anyType);
+        });
         bracedOrTupleExpr.expressions = rewriteExprs(bracedOrTupleExpr.expressions);
         result = bracedOrTupleExpr;
     }
@@ -1718,7 +1721,7 @@ public class Desugar extends BLangNodeVisitor {
                 patternClauses));
         BLangVariableReference tempResultVarRef =
                 ASTBuilderUtil.createVariableRef(bLangMatchExpression.pos, tempResultVar.symbol);
-        BLangStatementExpression statementExpr = ASTBuilderUtil.creatStatementExpression(stmts, tempResultVarRef);
+        BLangStatementExpression statementExpr = ASTBuilderUtil.createStatementExpression(stmts, tempResultVarRef);
         statementExpr.type = bLangMatchExpression.type;
         result = rewriteExpr(statementExpr);
     }
@@ -1771,7 +1774,7 @@ public class Desugar extends BLangNodeVisitor {
         BLangSimpleVarRef tempCheckedExprVarRef = ASTBuilderUtil.createVariableRef(
                 checkedExpr.pos, checkedExprVar.symbol);
 
-        BLangStatementExpression statementExpr = ASTBuilderUtil.creatStatementExpression(
+        BLangStatementExpression statementExpr = ASTBuilderUtil.createStatementExpression(
                 generatedStmtBlock, tempCheckedExprVarRef);
         statementExpr.type = checkedExpr.type;
         result = rewriteExpr(statementExpr);
@@ -1871,7 +1874,7 @@ public class Desugar extends BLangNodeVisitor {
     private BLangArrayLiteral createArrayLiteralExprNode() {
         BLangArrayLiteral expr = (BLangArrayLiteral) TreeBuilder.createArrayLiteralNode();
         expr.exprs = new ArrayList<>();
-        expr.type = symTable.anyType;
+        expr.type = new BArrayType(symTable.anyType);
         return expr;
     }
 
@@ -2595,7 +2598,7 @@ public class Desugar extends BLangNodeVisitor {
         BLangMatch matcEXpr = this.matchStmtStack.firstElement();
         BLangBlockStmt blockStmt =
                 ASTBuilderUtil.createBlockStmt(accessExpr.pos, Lists.of(tempResultVarDef, matcEXpr));
-        BLangStatementExpression stmtExpression = ASTBuilderUtil.creatStatementExpression(blockStmt, tempResultVarRef);
+        BLangStatementExpression stmtExpression = ASTBuilderUtil.createStatementExpression(blockStmt, tempResultVarRef);
         stmtExpression.type = originalExprType;
 
         // Reset the variables

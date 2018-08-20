@@ -35,7 +35,7 @@ type EmployeeSalaryCompatible record {
 
 int idValue = -1;
 int ageValue = -1;
-float salValue = -1;
+float salValue = -1.0;
 string nameValue = "";
 
 function testForEachInTableWithStmt() returns (int, int, float, string) {
@@ -320,9 +320,9 @@ function getEmployeeSalaryCompatibleInputOutput(EmployeeCompatible e) returns (E
 function createTable() returns (table<Employee>) {
     table<Employee> dt = table{};
 
-    Employee e1 = { id: 1, name: "A", salary: 100 };
-    Employee e2 = { id: 2, name: "B", salary: 200 };
-    Employee e3 = { id: 3, name: "C", salary: 300 };
+    Employee e1 = { id: 1, name: "A", salary: 100.0 };
+    Employee e2 = { id: 2, name: "B", salary: 200.0 };
+    Employee e3 = { id: 3, name: "C", salary: 300.0 };
 
     _ = dt.add(e1);
     _ = dt.add(e2);

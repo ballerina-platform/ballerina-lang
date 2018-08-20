@@ -27,14 +27,11 @@ import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BRefValueArray;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.test.IntegrationTestCase;
-import org.ballerinalang.test.context.BallerinaTestException;
-import org.ballerinalang.test.context.ServerInstance;
+import org.ballerinalang.test.BaseTest;
 import org.ballerinalang.test.util.TestUtils;
 import org.ballerinalang.util.codegen.PackageInfo;
 import org.ballerinalang.util.codegen.StructureTypeInfo;
 import org.testng.Assert;
-import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
@@ -43,26 +40,22 @@ import java.nio.file.Paths;
 
 /**
  * Test class for gRPC unary service with empty input/output.
- *
  */
-public class UnaryBlockingEmptyValueTestCase extends IntegrationTestCase {
+@Test(groups = "grpc-test")
+public class UnaryBlockingEmptyValueTestCase extends BaseTest {
 
-    private ServerInstance ballerinaServer;
-    
+    private CompileResult result;
+
     @BeforeClass
     private void setup() throws Exception {
-        ballerinaServer = ServerInstance.initBallerinaServer(9090);
-        Path serviceBalPath = Paths.get("src", "test", "resources", "grpc", "advanced_type_service.bal");
-        ballerinaServer.startBallerinaServer(serviceBalPath.toAbsolutePath().toString());
         TestUtils.prepareBalo(this);
+        Path balFilePath = Paths.get("src", "test", "resources", "grpc", "clients", "advanced_type_client.bal");
+        result = BCompileUtil.compile(balFilePath.toAbsolutePath().toString());
     }
 
     @Test
     public void testNoInputOutputStructClient() {
         //Person p = {name:"Danesh", address:{postalCode:10300, state:"Western", country:"Sri Lanka"}};
-        Path balFilePath = Paths.get("src", "test", "resources", "grpc", "advanced_type_client.bal");
-        CompileResult result = BCompileUtil.compile(balFilePath.toAbsolutePath().toString());
-
         BValue[] responses = BRunUtil.invoke(result, "testNoInputOutputStruct", new BValue[]{});
         Assert.assertEquals(responses.length, 1);
         Assert.assertTrue(responses[0] instanceof BMap);
@@ -76,8 +69,6 @@ public class UnaryBlockingEmptyValueTestCase extends IntegrationTestCase {
 
     @Test
     public void testInputStructNoOutputClient() {
-        Path balFilePath = Paths.get("src", "test", "resources", "grpc", "advanced_type_client.bal");
-        CompileResult result = BCompileUtil.compile(balFilePath.toAbsolutePath().toString());
         PackageInfo packageInfo = result.getProgFile().getPackageInfo(".");
         // Stock Quote struct
         // StockQuote quote2 = {symbol: "Ballerina", name:"ballerina/io", last:1.0, low:0.5, high:2.0};
@@ -94,11 +85,6 @@ public class UnaryBlockingEmptyValueTestCase extends IntegrationTestCase {
         Assert.assertEquals(responses.length, 1);
         Assert.assertTrue(responses[0] instanceof BString);
         final BString response = (BString) responses[0];
-        Assert.assertEquals(response.stringValue() , "No Response");
-    }
-    
-    @AfterClass
-    private void cleanup() throws BallerinaTestException {
-        ballerinaServer.stopServer();
+        Assert.assertEquals(response.stringValue(), "No Response");
     }
 }

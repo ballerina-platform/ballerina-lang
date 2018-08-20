@@ -26,6 +26,7 @@ import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.BServiceUtil;
 import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.mime.util.EntityBodyHandler;
+import org.ballerinalang.mime.util.MimeConstants;
 import org.ballerinalang.mime.util.MimeUtil;
 import org.ballerinalang.model.util.JsonParser;
 import org.ballerinalang.model.util.StringUtils;
@@ -47,6 +48,7 @@ import org.ballerinalang.test.utils.ResponseReader;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
+import org.wso2.ballerinalang.util.Lists;
 import org.wso2.carbon.messaging.Header;
 import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 import org.wso2.transport.http.netty.message.HttpMessageDataStreamer;
@@ -637,5 +639,16 @@ public class RequestNativeFunctionSuccessTest {
         BValue[] returns = BRunUtil.invokeStateful(result, "testSetPayloadAndGetText", args);
         Assert.assertEquals(returns.length, 1);
         Assert.assertEquals(returns[0].stringValue(), textContent.stringValue());
+    }
+
+    @Test
+    public void testAccessingPayloadAsStringAndJSON() {
+        CompileResult service = BServiceUtil.setupProgramFile(this,
+                "test-src/statements/services/nativeimpl/request/get_request_as_string_and_json.bal");
+        String payload = "{ \"foo\" : \"bar\"}";
+        Header header = new Header(HttpHeaderNames.CONTENT_TYPE.toString(), MimeConstants.APPLICATION_JSON);
+        HTTPTestRequest requestMsg = MessageUtils.generateHTTPMessage("/foo/bar", "POST", Lists.of(header), payload);
+        HttpCarbonMessage responseMsg = Services.invokeNew(service, "testEP", requestMsg);
+        Assert.assertEquals(ResponseReader.getReturnValue(responseMsg), "bar");
     }
 }
