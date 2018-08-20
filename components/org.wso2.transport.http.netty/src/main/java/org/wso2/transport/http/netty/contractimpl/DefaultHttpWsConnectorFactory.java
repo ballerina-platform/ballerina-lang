@@ -25,6 +25,7 @@ import io.netty.channel.group.DefaultChannelGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.util.concurrent.GlobalEventExecutor;
 import org.wso2.transport.http.netty.common.Constants;
+import org.wso2.transport.http.netty.common.ssl.SSLConfig;
 import org.wso2.transport.http.netty.common.ssl.SSLHandlerFactory;
 import org.wso2.transport.http.netty.config.ListenerConfiguration;
 import org.wso2.transport.http.netty.config.SenderConfiguration;
@@ -68,17 +69,19 @@ public class DefaultHttpWsConnectorFactory implements HttpWsConnectorFactory {
             ListenerConfiguration listenerConfig) {
         ServerConnectorBootstrap serverConnectorBootstrap = new ServerConnectorBootstrap(allChannels);
         serverConnectorBootstrap.addSocketConfiguration(serverBootstrapConfiguration);
-        serverConnectorBootstrap.addSecurity(listenerConfig.getSSLConfig());
-        serverConnectorBootstrap.addcertificateRevocationVerifier(listenerConfig.validateCertEnabled());
-        serverConnectorBootstrap.addCacheDelay(listenerConfig.getCacheValidityPeriod());
-        serverConnectorBootstrap.addCacheSize(listenerConfig.getCacheSize());
-        serverConnectorBootstrap.addOcspStapling(listenerConfig.isOcspStaplingEnabled());
+        SSLConfig sslConfig = listenerConfig.getListenerSSLConfig();
+        serverConnectorBootstrap.addSecurity(sslConfig);
+        if (sslConfig != null) {
+            serverConnectorBootstrap
+                    .addcertificateRevocationVerifier(sslConfig.isValidateCertEnabled());
+            serverConnectorBootstrap.addCacheDelay(sslConfig.getCacheValidityPeriod());
+            serverConnectorBootstrap.addCacheSize(sslConfig.getCacheSize());
+            serverConnectorBootstrap.addOcspStapling(sslConfig.isOcspStaplingEnabled());
+            serverConnectorBootstrap.addSslHandlerFactory(new SSLHandlerFactory(sslConfig));
+        }
         serverConnectorBootstrap.addIdleTimeout(listenerConfig.getSocketIdleTimeout());
         if (Constants.HTTP_2_0 == Float.valueOf(listenerConfig.getVersion())) {
             serverConnectorBootstrap.setHttp2Enabled(true);
-        }
-        if (listenerConfig.getSSLConfig() != null) {
-            serverConnectorBootstrap.addSslHandlerFactory(new SSLHandlerFactory(listenerConfig.getSSLConfig()));
         }
         serverConnectorBootstrap.addHttpTraceLogHandler(listenerConfig.isHttpTraceLogEnabled());
         serverConnectorBootstrap.addHttpAccessLogHandler(listenerConfig.isHttpAccessLogEnabled());

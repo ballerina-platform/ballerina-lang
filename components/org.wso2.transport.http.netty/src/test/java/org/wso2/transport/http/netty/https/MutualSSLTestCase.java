@@ -86,7 +86,6 @@ public class MutualSSLTestCase {
         listenerConfiguration.setKeyStoreFile(TestUtil.getAbsolutePath(TestUtil.KEY_STORE_FILE_PATH));
         listenerConfiguration.setTrustStorePass(TestUtil.KEY_STORE_PASSWORD);
         listenerConfiguration.setKeyStorePass(TestUtil.KEY_STORE_PASSWORD);
-        listenerConfiguration.setCertPass(TestUtil.KEY_STORE_PASSWORD);
         listenerConfiguration.setScheme(HTTPS_SCHEME);
         return listenerConfiguration;
     }
@@ -95,7 +94,7 @@ public class MutualSSLTestCase {
         SenderConfiguration senderConfiguration = new SenderConfiguration();
         senderConfiguration.setKeyStoreFile(TestUtil.getAbsolutePath(TestUtil.KEY_STORE_FILE_PATH));
         senderConfiguration.setTrustStoreFile(TestUtil.getAbsolutePath(TestUtil.TRUST_STORE_FILE_PATH));
-        senderConfiguration.setKeyStorePassword(TestUtil.KEY_STORE_PASSWORD);
+        senderConfiguration.setKeyStorePass(TestUtil.KEY_STORE_PASSWORD);
         senderConfiguration.setTrustStorePass(TestUtil.KEY_STORE_PASSWORD);
         senderConfiguration.setScheme(HTTPS_SCHEME);
         return senderConfiguration;

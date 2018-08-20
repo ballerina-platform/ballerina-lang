@@ -80,7 +80,6 @@ public class PKCSTest {
         String keyStoreFile = "/simple-test-config/wso2carbon.p12";
         listenerConfiguration.setKeyStoreFile(TestUtil.getAbsolutePath(keyStoreFile));
         listenerConfiguration.setKeyStorePass(password);
-        listenerConfiguration.setCertPass(password);
         listenerConfiguration.setScheme(HTTPS_SCHEME);
         listenerConfiguration.setTLSStoreType(tlsStoreType);
         return listenerConfiguration;

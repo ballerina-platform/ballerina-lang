@@ -48,14 +48,13 @@ public class SSLConfig {
     private boolean wantClientAuth;
     private String[] serverNames;
     private String[] sniMatchers;
+    private boolean validateCertEnabled;
+    private int cacheSize = 50;
+    private int cacheValidityPeriod = 15;
+    private boolean ocspStaplingEnabled = false;
+    private boolean hostNameVerificationEnabled = true;
 
-    public SSLConfig(File keyStore, String keyStorePass) {
-        if (LOGGER.isDebugEnabled()) {
-            LOGGER.debug("Using key store {}", keyStore);
-        }
-        this.keyStore = keyStore;
-        this.keyStorePass = keyStorePass;
-    }
+    public SSLConfig() {}
 
     public String getCertPass() {
         return certPass;
@@ -189,5 +188,53 @@ public class SSLConfig {
             LOGGER.debug("Set supported cipherSuites {}", cipherSuites);
         }
         this.cipherSuites = cipherSuites.replaceAll("\\s+", "").split(SEPARATOR);
+    }
+
+    public void setKeyStore(File keyStore) {
+        this.keyStore = keyStore;
+    }
+
+    public void setKeyStorePass(String keyStorePass) {
+        this.keyStorePass = keyStorePass;
+    }
+
+    public boolean isValidateCertEnabled() {
+        return validateCertEnabled;
+    }
+
+    public void setValidateCertEnabled(boolean validateCertEnabled) {
+        this.validateCertEnabled = validateCertEnabled;
+    }
+
+    public int getCacheSize() {
+        return cacheSize;
+    }
+
+    public void setCacheSize(int cacheSize) {
+        this.cacheSize = cacheSize;
+    }
+
+    public int getCacheValidityPeriod() {
+        return cacheValidityPeriod;
+    }
+
+    public void setCacheValidityPeriod(int cacheValidityPeriod) {
+        this.cacheValidityPeriod = cacheValidityPeriod;
+    }
+
+    public boolean isOcspStaplingEnabled() {
+        return ocspStaplingEnabled;
+    }
+
+    public void setOcspStaplingEnabled(boolean ocspStaplingEnabled) {
+        this.ocspStaplingEnabled = ocspStaplingEnabled;
+    }
+
+    public boolean isHostNameVerificationEnabled() {
+        return hostNameVerificationEnabled;
+    }
+
+    public void setHostNameVerificationEnabled(boolean hostNameVerificationEnabled) {
+        this.hostNameVerificationEnabled = hostNameVerificationEnabled;
     }
 }

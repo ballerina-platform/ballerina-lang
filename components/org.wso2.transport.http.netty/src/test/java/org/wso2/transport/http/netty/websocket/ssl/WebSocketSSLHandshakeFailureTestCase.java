@@ -75,7 +75,6 @@ public class WebSocketSSLHandshakeFailureTestCase {
         listenerConfiguration.setKeyStoreFile(TestUtil.getAbsolutePath(keyStoreFile));
         listenerConfiguration.setScheme("https");
         listenerConfiguration.setKeyStorePass(password);
-        listenerConfiguration.setCertPass(password);
         listenerConfiguration.setTLSStoreType(tlsStoreType);
         return listenerConfiguration;
     }
