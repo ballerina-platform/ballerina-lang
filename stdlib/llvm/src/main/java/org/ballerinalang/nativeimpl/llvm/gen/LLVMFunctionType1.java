@@ -28,6 +28,7 @@ import org.bytedeco.javacpp.LLVM;
 import org.bytedeco.javacpp.LLVM.LLVMTypeRef;
 import org.bytedeco.javacpp.PointerPointer;
 
+import static org.ballerinalang.model.types.TypeKind.ARRAY;
 import static org.ballerinalang.model.types.TypeKind.INT;
 import static org.ballerinalang.model.types.TypeKind.RECORD;
 import static org.bytedeco.javacpp.LLVM.LLVMFunctionType;
@@ -40,7 +41,7 @@ import static org.bytedeco.javacpp.LLVM.LLVMFunctionType;
         functionName = "LLVMFunctionType1",
         args = {
                 @Argument(name = "returnType", type = RECORD, structType = "LLVMTypeRef"),
-                @Argument(name = "paramTypes", type = RECORD, structType = "PointerPointer"),
+                @Argument(name = "paramTypes", type = ARRAY, elementType = RECORD),
                 @Argument(name = "paramCount", type = INT),
                 @Argument(name = "isVarArg", type = INT),
         },
@@ -53,10 +54,11 @@ public class LLVMFunctionType1 extends BlockingNativeCallableUnit {
     @Override
     public void execute(Context context) {
         LLVM.LLVMTypeRef returnType = FFIUtil.getRecodeArgumentNative(context, 0);
-        PointerPointer paramTypes = FFIUtil.getRecodeArgumentNative(context, 1);
+        LLVMTypeRef[] paramTypes = FFIUtil.getRecodeArrayArgumentNative(context, 1, LLVMTypeRef[]::new);
+        PointerPointer<LLVMTypeRef> paramTypesWrapped = new PointerPointer<>(paramTypes);
         int paramCount = (int) context.getIntArgument(0);
         int isVarArg = (int) context.getIntArgument(1);
-        LLVMTypeRef returnValue = LLVMFunctionType(returnType, paramTypes, paramCount, isVarArg);
+        LLVMTypeRef returnValue = LLVMFunctionType(returnType, paramTypesWrapped, paramCount, isVarArg);
         BMap<String, BValue> rerunWrapperRecode = FFIUtil.newRecord(context, "LLVMTypeRef");
         FFIUtil.addNativeToRecode(returnValue, rerunWrapperRecode);
         context.setReturnValues(rerunWrapperRecode);

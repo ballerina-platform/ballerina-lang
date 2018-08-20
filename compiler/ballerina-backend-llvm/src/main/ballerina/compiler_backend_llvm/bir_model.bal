@@ -28,18 +28,20 @@ type Name record {
 
 type BIRInstruction Move|BinaryOp|ConstantLoad;
 
-type BIRTerminator Branch|GOTO|Return;
+type BIRTerminator Call|Branch|GOTO|Return;
 
 type InstructionKind "GOTO"|"CALL"|"BRANCH"|"RETURN"|"MOVE"|"CONST_LOAD"|"ADD"|"SUB"|"MUL"|"DIV"|"MOD"|"EQUAL"|
 "NOT_EQUAL"|"GREATER_THAN"|"GREATER_EQUAL"|"LESS_THAN"|"LESS_EQUAL";
+
+type ArgVarKind "ARG";
+
+type VarKind "LOCAL" | "TEMP" | "RETURN" | ArgVarKind;
 
 type BIRVariableDcl record {
     VarKind kind;
     Name name;
     BType typeValue;
 };
-
-type VarKind "LOCAL"|"ARG"|"TEMP"|"RETURN";
 
 type BTypeInt "int";
 
@@ -153,6 +155,15 @@ type BinaryOp object {
     BIROperand rhsOp2;
     BType typeValue;
     new(kind, lhsOp, rhsOp1, rhsOp2, typeValue) {}
+};
+
+type Call object {
+    BIROperand[] args;
+    InstructionKind kind;
+    BIRVarRef lhsOp;
+    Name name;
+    BIRBasicBlock thenBB;
+    new (args, kind, lhsOp, name, thenBB){}
 };
 
 type Branch object {

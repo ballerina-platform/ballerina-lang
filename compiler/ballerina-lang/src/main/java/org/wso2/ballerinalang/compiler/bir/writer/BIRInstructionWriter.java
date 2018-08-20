@@ -18,6 +18,7 @@
 package org.wso2.ballerinalang.compiler.bir.writer;
 
 import io.netty.buffer.ByteBuf;
+import org.ballerinalang.model.elements.PackageID;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRBasicBlock;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator;
 import org.wso2.ballerinalang.compiler.bir.model.BIROperand;
@@ -67,10 +68,6 @@ public class BIRInstructionWriter extends BIRVisitor {
         addCpAndWriteString(birGoto.targetBB.id.value);
     }
 
-    public void visit(BIRTerminator.Call birCall) {
-        throw new AssertionError();
-    }
-
     public void visit(BIRTerminator.Return birReturn) {
         buf.writeByte(birReturn.kind.getValue());
     }
@@ -91,6 +88,20 @@ public class BIRInstructionWriter extends BIRVisitor {
         buf.writeByte(birMove.kind.getValue());
         birMove.rhsOp.accept(this);
         birMove.lhsOp.accept(this);
+    }
+
+    public void visit(BIRTerminator.Call birCall) {
+        buf.writeByte(birCall.kind.getValue());
+        PackageID calleePkg = birCall.calleePkg;
+        int orgCPIndex = addStringCPEntry(calleePkg.orgName.value);
+        int nameCPIndex = addStringCPEntry(calleePkg.name.value);
+        int versionCPIndex = addStringCPEntry(calleePkg.version.value);
+        int pkgIndex = cp.addCPEntry(new CPEntry.PackageCPEntry(orgCPIndex, nameCPIndex, versionCPIndex));
+        buf.writeInt(pkgIndex);
+        buf.writeInt(addStringCPEntry(birCall.name.getValue()));
+        birCall.args[0].accept(this);
+        birCall.lhsOp.accept(this);
+        addCpAndWriteString(birCall.thenBB.id.value);
     }
 
     public void visit(BIRNonTerminator.BinaryOp birBinaryOp) {

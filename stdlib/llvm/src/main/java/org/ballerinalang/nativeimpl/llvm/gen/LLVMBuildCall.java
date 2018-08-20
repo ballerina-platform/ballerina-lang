@@ -28,6 +28,7 @@ import org.bytedeco.javacpp.LLVM;
 import org.bytedeco.javacpp.LLVM.LLVMValueRef;
 import org.bytedeco.javacpp.PointerPointer;
 
+import static org.ballerinalang.model.types.TypeKind.ARRAY;
 import static org.ballerinalang.model.types.TypeKind.INT;
 import static org.ballerinalang.model.types.TypeKind.RECORD;
 import static org.ballerinalang.model.types.TypeKind.STRING;
@@ -42,7 +43,7 @@ import static org.bytedeco.javacpp.LLVM.LLVMBuildCall;
         args = {
                 @Argument(name = "arg0", type = RECORD, structType = "LLVMBuilderRef"),
                 @Argument(name = "fn", type = RECORD, structType = "LLVMValueRef"),
-                @Argument(name = "args", type = RECORD, structType = "PointerPointer"),
+                @Argument(name = "args", type = ARRAY, elementType = RECORD, structType = "PointerPointer"),
                 @Argument(name = "numArgs", type = INT),
                 @Argument(name = "name", type = STRING),
         },
@@ -56,10 +57,11 @@ public class LLVMBuildCall extends BlockingNativeCallableUnit {
     public void execute(Context context) {
         LLVM.LLVMBuilderRef arg0 = FFIUtil.getRecodeArgumentNative(context, 0);
         LLVM.LLVMValueRef fn = FFIUtil.getRecodeArgumentNative(context, 1);
-        PointerPointer args = FFIUtil.getRecodeArgumentNative(context, 2);
+        LLVMValueRef[] args = FFIUtil.getRecodeArrayArgumentNative(context, 2, LLVMValueRef[]::new);
+        PointerPointer<LLVMValueRef> argsWrapped = new PointerPointer<>(args);
         int numArgs = (int) context.getIntArgument(0);
         String name = context.getStringArgument(0);
-        LLVMValueRef returnValue = LLVMBuildCall(arg0, fn, args, numArgs, name);
+        LLVMValueRef returnValue = LLVMBuildCall(arg0, fn, argsWrapped, numArgs, name);
         BMap<String, BValue> rerunWrapperRecode = FFIUtil.newRecord(context, "LLVMValueRef");
         FFIUtil.addNativeToRecode(returnValue, rerunWrapperRecode);
         context.setReturnValues(rerunWrapperRecode);
