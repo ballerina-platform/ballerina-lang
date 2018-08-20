@@ -62,6 +62,25 @@ function testForEachInTableWithStmt() returns (int, int, float, string) {
     return (id, age, salary, name);
 }
 
+function testForEachInTableWithIndex() returns (string, string) {
+    endpoint jdbc:Client testDB {
+        url: "jdbc:hsqldb:file:./target/tempdb/TEST_DATA_TABLE__ITR_DB",
+        username: "SA",
+        poolOptions: { maximumPoolSize: 1 }
+    };
+
+    table<Person> dt = check testDB->select("SELECT * from Person where id < 10 order by id", Person);
+
+    string indexStr;
+    string idStr;
+    foreach i,x in dt {
+        indexStr = indexStr + "," + i;
+        idStr = idStr + "," + x.id;
+    }
+    testDB.stop();
+    return (idStr, indexStr);
+}
+
 function testForEachInTable() returns (int, int, float, string) {
     endpoint jdbc:Client testDB {
         url: "jdbc:hsqldb:file:./target/tempdb/TEST_DATA_TABLE__ITR_DB",
@@ -115,7 +134,7 @@ function testFilterTable() returns (int, int, int) {
     return (count, id1, id2);
 }
 
-function testFilterWithAnnonymousFuncOnTable() returns (int, int, int) {
+function testFilterWithAnonymousFuncOnTable() returns (int, int, int) {
     endpoint jdbc:Client testDB {
         url: "jdbc:hsqldb:file:./target/tempdb/TEST_DATA_TABLE__ITR_DB",
         username: "SA",
