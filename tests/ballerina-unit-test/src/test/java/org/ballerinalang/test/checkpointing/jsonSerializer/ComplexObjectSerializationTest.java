@@ -30,6 +30,7 @@ import org.ballerinalang.persistence.serializable.serializer.JsonSerializer;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
+import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -78,6 +79,17 @@ public class ComplexObjectSerializationTest {
         Assert.assertEquals(((Shadowee) newSh).i, ((Shadowee) sh).i);
     }
 
+    @Test(description = "Respect readResolve method in java.io.Serializable")
+    public void testSerializableReadResolveMethod() {
+        ReadResolverClass obj = new ReadResolverClass(42);
+        String serialize = new JsonSerializer().serialize(obj);
+        ReadResolverClass deserialize = new JsonSerializer().deserialize(serialize, ReadResolverClass.class);
+
+        // readResolve method of ReadResolverClass makes this.resolved field true.
+        Assert.assertTrue(deserialize.resolved);
+        Assert.assertEquals(deserialize.i, 42);
+    }
+
     private static class Shadowee {
         private int i;
 
@@ -92,6 +104,20 @@ public class ComplexObjectSerializationTest {
         public Shadower(double i, int j) {
             super(j);
             this.i = i;
+        }
+    }
+
+    private static class ReadResolverClass implements Serializable {
+        int i;
+        public boolean resolved = false;
+
+        public ReadResolverClass(int i) {
+            this.i = i;
+        }
+
+        private Object readResolve() {
+            resolved = true;
+            return this;
         }
     }
 }

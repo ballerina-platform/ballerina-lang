@@ -21,6 +21,9 @@ import org.ballerinalang.model.values.BValue;
 
 /**
  * Provide Mapping relationship between Java objects and BValue Objects.
+ * <p>
+ * When deserializing if the type to be serialized implement Serializable interface and contains a readResolve method,
+ * you  don't have to execute it in {@code toBValue} method as it will be executed by {@link JsonDeserializer} class.
  *
  * @param <T> Type to be serialized
  */

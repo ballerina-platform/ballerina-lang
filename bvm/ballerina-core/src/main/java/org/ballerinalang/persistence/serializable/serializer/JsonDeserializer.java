@@ -36,8 +36,11 @@ import org.ballerinalang.persistence.serializable.serializer.providers.instance.
 import org.ballerinalang.persistence.serializable.serializer.providers.instance.WorkerStateInstanceProvider;
 import org.ballerinalang.util.exceptions.BallerinaException;
 
+import java.io.Serializable;
 import java.lang.reflect.Array;
 import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.HashMap;
 import java.util.List;
@@ -168,25 +171,67 @@ class JsonDeserializer implements BValueDeserializer {
             return existingReference;
         }
 
-        // try BValueProvider
         String typeName = getTargetTypeName(targetType, jBMap);
+        Object object = null;
+
+        // try BValueProvider
         if (typeName != null) {
             SerializationBValueProvider provider = this.bValueProvider.find(typeName);
             if (provider != null) {
-                return provider.toObject(jBMap, this);
+                object = provider.toObject(jBMap, this);
             }
         }
 
-        Object emptyInstance = createInstance(jBMap, targetType);
-        addObjReference(jBMap, emptyInstance);
-        Object object = deserializeObject(jBMap, emptyInstance, targetType);
+        if (object == null) {
+            Object emptyInstance = createInstance(jBMap, targetType);
+            addObjReference(jBMap, emptyInstance);
+            object = deserializeObject(jBMap, emptyInstance, targetType);
 
-        // check to make sure deserializeObject returns the populated 'emptyInstance'.
-        // It's important  that it does not create own objects as it may interfere with handling of existing references.
-        if (object != emptyInstance) {
-            throw new BallerinaException("Internal error: deserializeObject should not create it's own objects.");
+            // check to make sure deserializeObject returns the populated 'emptyInstance'.
+            // It's important  that it does not create own objects as it may interfere with
+            // handling of existing references.
+            if (object != emptyInstance) {
+                throw new BallerinaException("Internal error: deserializeObject should not create it's own objects.");
+            }
+        }
+
+        // execute Serializable.readResolve if available
+        Object rr = readResolve(jBMap, targetType, object);
+        if (rr != null) {
+            return rr;
         }
         return object;
+    }
+
+    /**
+     * Comply with {@link java.io.Serializable} interface's {@code readResolve} method, if it's available.
+     *
+     * @param jBMap
+     * @param targetType
+     * @param object     object instance.
+     * @return if readResolve is available then the return value of it.
+     */
+    private Object readResolve(BMap<String, BValue> jBMap, Class<?> targetType, Object object) {
+        Class<?> clz;
+        if (targetType != null) {
+            clz = targetType;
+        } else {
+            String targetTypeName = getTargetTypeName(targetType, jBMap);
+            clz = findClass(targetTypeName);
+        }
+
+        if (clz != null && Serializable.class.isAssignableFrom(clz)) {
+            try {
+                Method readResolved = clz.getDeclaredMethod("readResolve");
+                if (readResolved != null) {
+                    readResolved.setAccessible(true);
+                    return readResolved.invoke(object, new Object[]{});
+                }
+            } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
+                // no op
+            }
+        }
+        return null;
     }
 
     private String getTargetTypeName(Class<?> targetType, BMap<String, BValue> jBMap) {

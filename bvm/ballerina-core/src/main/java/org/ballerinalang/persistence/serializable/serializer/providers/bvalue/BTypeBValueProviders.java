@@ -32,6 +32,7 @@ import org.ballerinalang.persistence.serializable.serializer.SerializationBValue
 import org.ballerinalang.util.codegen.ObjectTypeInfo;
 import org.ballerinalang.util.codegen.RecordTypeInfo;
 
+import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 
 /**
@@ -66,7 +67,9 @@ public class BTypeBValueProviders {
             String typeName = type.getName();
             Class<?> clazz = type.getValueClass();
 
-            map.put(PACKAGE_PATH, new BString(packagePath));
+            if (packagePath != null) {
+                map.put(PACKAGE_PATH, new BString(packagePath));
+            }
             map.put(TYPE_NAME, new BString(typeName));
             map.put(VALUE_CLASS, serializer.toBValue(clazz, null));
 
@@ -78,15 +81,16 @@ public class BTypeBValueProviders {
             BMap<String, BValue> map =
                     (BMap<String, BValue>) BValueProviderHelper.getPayload((BMap<String, BValue>) bValue);
             String typeName = map.get(TYPE_NAME).stringValue();
-            String pkgPath = map.get(PACKAGE_PATH).stringValue();
+            String pkgPath = null;
+            BValue pkgP = map.get(PACKAGE_PATH);
+            if (pkgP != null) {
+                pkgPath = pkgP.stringValue();
+            }
 
-
-            BAnyType bAnyType = null;
             try {
-                bAnyType = BAnyType.class
-                        .getConstructor(String.class, String.class)
-                        .newInstance(new String[]{typeName, pkgPath});
-                return bAnyType;
+                Constructor<BAnyType> constructor = BAnyType.class.getDeclaredConstructor(String.class, String.class);
+                constructor.setAccessible(true);
+                return constructor.newInstance(new String[]{typeName, pkgPath});
             } catch (InstantiationException | IllegalAccessException |
                     InvocationTargetException | NoSuchMethodException e) {
                 return null;
