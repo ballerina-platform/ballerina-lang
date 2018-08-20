@@ -6,7 +6,7 @@ public float glbVarFloat = 99.34323;
 
 public any glbVarAny = 88343;
 
-public float glbVarFloatChange = 99;
+public float glbVarFloatChange = 99.0;
 
 public float glbVarFloat1 = glbVarFloat;
 

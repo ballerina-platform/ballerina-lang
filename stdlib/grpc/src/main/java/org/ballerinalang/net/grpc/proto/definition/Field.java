@@ -96,8 +96,8 @@ public class Field {
         }
 
         public Builder setType(BType type) throws GrpcServerException {
-            fieldType = BALLERINA_TO_PROTO_MAP.get(type.toString()) != null ? BALLERINA_TO_PROTO_MAP.get(type
-                    .toString()) : type.toString();
+            fieldType = BALLERINA_TO_PROTO_MAP.get(type.tsymbol.name.value) != null ? BALLERINA_TO_PROTO_MAP.get(type
+                    .tsymbol.name.value) : type.tsymbol.name.value;
             DescriptorProtos.FieldDescriptorProto.Type primType = STRING_TYPE_MAP.get(fieldType);
             if (primType != null) {
                 fieldDescriptorBuilder.setType(primType);

@@ -398,6 +398,18 @@
       {
         "name": "Secured Service With Basic Auth",
         "url": "secured-service-with-basic-auth"
+      },
+      {
+        "name":"Secured Client With Basic Auth",
+        "url": "secured-client-with-basic-auth" 
+      },
+      {
+        "name":"Secured Client With JWT Auth",
+        "url": "secured-client-with-jwt-auth"
+      },
+      {
+        "name":"Secured Client With OAuth2",
+        "url": "secured-client-with-oauth2"
       }
     ]
   },
@@ -542,7 +554,7 @@
     "column": 2,
     "samples": [
       {
-        "name": "Header Based Routing",
+        "name": "Header-Based Routing",
         "url": "header-based-routing"
       },
       {
@@ -550,7 +562,7 @@
         "url": "passthrough"
       },
       {
-        "name": "Content Based Routing",
+        "name": "Content-Based Routing",
         "url": "content-based-routing"
       }
     ]
@@ -626,6 +638,10 @@
       {
         "name": "WebSub Hub Client Sample",
         "url": "websub-hub-client-sample"
+      },
+      {
+        "name": "WebSub Service Integration Sample",
+        "url": "websub-service-integration-sample"
       }
     ]
   },
@@ -836,11 +852,11 @@
         "url": "tracing"
       },
       {
-        "name": "Counter based Metrics",
+        "name": "Counter-Based Metrics",
         "url": "counter-metrics"
       },
       {
-        "name": "Gauge based Metrics",
+        "name": "Gauge-Based Metrics",
         "url": "gauge-metrics"
       }
     ]

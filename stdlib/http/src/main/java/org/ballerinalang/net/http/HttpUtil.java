@@ -27,11 +27,9 @@ import io.netty.handler.codec.http.HttpHeaders;
 import io.netty.handler.codec.http.HttpMethod;
 import io.netty.handler.codec.http.HttpResponseStatus;
 import io.netty.handler.codec.http.HttpVersion;
-
 import org.apache.commons.lang3.StringUtils;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BLangVMErrors;
-import org.ballerinalang.connector.api.AnnAttrValue;
 import org.ballerinalang.connector.api.Annotation;
 import org.ballerinalang.connector.api.BLangConnectorSPIUtil;
 import org.ballerinalang.connector.api.BallerinaConnectorException;
@@ -64,7 +62,6 @@ import org.slf4j.LoggerFactory;
 import org.wso2.transport.http.netty.config.ChunkConfig;
 import org.wso2.transport.http.netty.config.ForwardedExtensionConfig;
 import org.wso2.transport.http.netty.config.KeepAliveConfig;
-import org.wso2.transport.http.netty.config.ListenerConfiguration;
 import org.wso2.transport.http.netty.config.Parameter;
 import org.wso2.transport.http.netty.config.SslConfiguration;
 import org.wso2.transport.http.netty.contract.HttpResponseFuture;
@@ -83,7 +80,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 import static io.netty.handler.codec.http.HttpHeaderNames.CACHE_CONTROL;
@@ -236,7 +232,7 @@ public class HttpUtil {
             if (entityBodyRequired && !byteChannelAlreadySet) {
                 populateEntityBody(context, httpMessageStruct, entity, isRequest);
             }
-            
+
             // Entity cannot be null, since it is not a nullable field in http:Request or http:Response
             if (entity.isEmpty()) {
                 entity = createNewEntity(context, httpMessageStruct);
@@ -881,121 +877,6 @@ public class HttpUtil {
         return forwardedConfig;
     }
 
-    private static void extractHttpsConfig(Annotation configInfo, Set<ListenerConfiguration> listenerConfSet) {
-        // Retrieve secure port from either http of ws configuration annotation.
-        AnnAttrValue httpsPortAttrVal;
-        if (configInfo.getAnnAttrValue(HttpConstants.ANN_CONFIG_ATTR_HTTPS_PORT) == null) {
-            httpsPortAttrVal =
-                    configInfo.getAnnAttrValue(WebSocketConstants.ANN_CONFIG_ATTR_WSS_PORT);
-        } else {
-            httpsPortAttrVal = configInfo.getAnnAttrValue(HttpConstants.ANN_CONFIG_ATTR_HTTPS_PORT);
-        }
-
-        AnnAttrValue keyStoreFileAttrVal = configInfo.getAnnAttrValue(HttpConstants.ANN_CONFIG_ATTR_KEY_STORE_FILE);
-        AnnAttrValue keyStorePasswordAttrVal = configInfo.getAnnAttrValue(HttpConstants.ANN_CONFIG_ATTR_KEY_STORE_PASS);
-        AnnAttrValue certPasswordAttrVal = configInfo.getAnnAttrValue(HttpConstants.ANN_CONFIG_ATTR_CERT_PASS);
-        AnnAttrValue trustStoreFileAttrVal = configInfo.getAnnAttrValue(HttpConstants.ANN_CONFIG_ATTR_TRUST_STORE_FILE);
-        AnnAttrValue trustStorePasswordAttrVal = configInfo.getAnnAttrValue(
-                HttpConstants.ANN_CONFIG_ATTR_TRUST_STORE_PASS);
-        AnnAttrValue sslVerifyClientAttrVal = configInfo.getAnnAttrValue(
-                HttpConstants.ANN_CONFIG_ATTR_SSL_VERIFY_CLIENT);
-        AnnAttrValue sslEnabledProtocolsAttrVal = configInfo
-                .getAnnAttrValue(HttpConstants.ANN_CONFIG_ATTR_SSL_ENABLED_PROTOCOLS);
-        AnnAttrValue ciphersAttrVal = configInfo.getAnnAttrValue(HttpConstants.ANN_CONFIG_ATTR_CIPHERS);
-        AnnAttrValue sslProtocolAttrVal = configInfo.getAnnAttrValue(HttpConstants.ANN_CONFIG_ATTR_SSL_PROTOCOL);
-        AnnAttrValue hostAttrVal = configInfo.getAnnAttrValue(HttpConstants.ANN_CONFIG_ATTR_HOST);
-        AnnAttrValue certificateValidationEnabledAttrValue = configInfo
-                .getAnnAttrValue(HttpConstants.ANN_CONFIG_ATTR_VALIDATE_CERT_ENABLED);
-        AnnAttrValue cacheSizeAttrValue = configInfo.getAnnAttrValue(HttpConstants.ANN_CONFIG_ATTR_CACHE_SIZE);
-        AnnAttrValue cacheValidityPeriodAttrValue = configInfo
-                .getAnnAttrValue(HttpConstants.ANN_CONFIG_ATTR_CACHE_VALIDITY_PERIOD);
-
-        ListenerConfiguration listenerConfiguration = new ListenerConfiguration();
-        if (httpsPortAttrVal != null && httpsPortAttrVal.getIntValue() > 0) {
-            listenerConfiguration.setPort(Math.toIntExact(httpsPortAttrVal.getIntValue()));
-            listenerConfiguration.setScheme(HttpConstants.PROTOCOL_HTTPS);
-
-            if (hostAttrVal != null && hostAttrVal.getStringValue() != null) {
-                listenerConfiguration.setHost(hostAttrVal.getStringValue());
-            } else {
-                listenerConfiguration.setHost(HttpConstants.HTTP_DEFAULT_HOST);
-            }
-
-            if (keyStoreFileAttrVal == null || keyStoreFileAttrVal.getStringValue() == null) {
-                //TODO get from language pack, and add location
-                throw new BallerinaConnectorException("Keystore location must be provided for secure connection");
-            }
-            if (keyStorePasswordAttrVal == null || keyStorePasswordAttrVal.getStringValue() == null) {
-                //TODO get from language pack, and add location
-                throw new BallerinaConnectorException("Keystore password value must be provided for secure connection");
-            }
-            if (certPasswordAttrVal == null || certPasswordAttrVal.getStringValue() == null) {
-                //TODO get from language pack, and add location
-                throw new BallerinaConnectorException(
-                        "Certificate password value must be provided for secure connection");
-            }
-            if ((trustStoreFileAttrVal == null || trustStoreFileAttrVal.getStringValue() == null)
-                    && sslVerifyClientAttrVal != null) {
-                //TODO get from language pack, and add location
-                throw new BallerinaException("Truststore location must be provided to enable Mutual SSL");
-            }
-            if ((trustStorePasswordAttrVal == null || trustStorePasswordAttrVal.getStringValue() == null)
-                    && sslVerifyClientAttrVal != null) {
-                //TODO get from language pack, and add location
-                throw new BallerinaException("Truststore password value must be provided to enable Mutual SSL");
-            }
-
-            listenerConfiguration.setTLSStoreType(HttpConstants.PKCS_STORE_TYPE);
-            listenerConfiguration.setKeyStoreFile(keyStoreFileAttrVal.getStringValue());
-            listenerConfiguration.setKeyStorePass(keyStorePasswordAttrVal.getStringValue());
-            listenerConfiguration.setCertPass(certPasswordAttrVal.getStringValue());
-
-            if (sslVerifyClientAttrVal != null) {
-                listenerConfiguration.setVerifyClient(sslVerifyClientAttrVal.getStringValue());
-            }
-            if (trustStoreFileAttrVal != null) {
-                listenerConfiguration.setTrustStoreFile(trustStoreFileAttrVal.getStringValue());
-            }
-            if (trustStorePasswordAttrVal != null) {
-                listenerConfiguration.setTrustStorePass(trustStorePasswordAttrVal.getStringValue());
-            }
-            if (certificateValidationEnabledAttrValue != null && certificateValidationEnabledAttrValue
-                    .getBooleanValue()) {
-                listenerConfiguration.setValidateCertEnabled(certificateValidationEnabledAttrValue.getBooleanValue());
-                if (cacheSizeAttrValue != null) {
-                    listenerConfiguration.setCacheSize((int) cacheSizeAttrValue.getIntValue());
-                }
-                if (cacheValidityPeriodAttrValue != null) {
-                    listenerConfiguration.setCacheValidityPeriod((int) cacheValidityPeriodAttrValue.getIntValue());
-                }
-            }
-            List<Parameter> serverParams = new ArrayList<>();
-            Parameter serverCiphers;
-            if (sslEnabledProtocolsAttrVal != null && sslEnabledProtocolsAttrVal.getStringValue() != null) {
-                serverCiphers = new Parameter(HttpConstants.ANN_CONFIG_ATTR_SSL_ENABLED_PROTOCOLS,
-                        sslEnabledProtocolsAttrVal.getStringValue());
-                serverParams.add(serverCiphers);
-            }
-
-            if (ciphersAttrVal != null && ciphersAttrVal.getStringValue() != null) {
-                serverCiphers = new Parameter(HttpConstants.ANN_CONFIG_ATTR_CIPHERS, ciphersAttrVal.getStringValue());
-                serverParams.add(serverCiphers);
-            }
-
-            if (!serverParams.isEmpty()) {
-                listenerConfiguration.setParameters(serverParams);
-            }
-
-            if (sslProtocolAttrVal != null) {
-                listenerConfiguration.setSSLProtocol(sslProtocolAttrVal.getStringValue());
-            }
-
-            listenerConfiguration
-                    .setId(getListenerInterface(listenerConfiguration.getHost(), listenerConfiguration.getPort()));
-            listenerConfSet.add(listenerConfiguration);
-        }
-    }
-
     public static HttpCarbonMessage createHttpCarbonMessage(boolean isRequest) {
         HttpCarbonMessage httpCarbonMessage;
         if (isRequest) {
@@ -1229,7 +1110,7 @@ public class HttpUtil {
             }
             String keyStorePassword = keyStore.getStringField(HttpConstants.PASSWORD);
             if (StringUtils.isNotBlank(keyStorePassword)) {
-                sslConfiguration.setKeyStorePassword(keyStorePassword);
+                sslConfiguration.setKeyStorePass(keyStorePassword);
             }
         }
         if (protocols != null) {
@@ -1289,5 +1170,26 @@ public class HttpUtil {
         sslConfiguration.setTrustStoreFile(String.valueOf(
                 Paths.get(System.getProperty("ballerina.home"), "bre", "security", "ballerinaTruststore.p12")));
         sslConfiguration.setTrustStorePass("ballerina");
+    }
+
+    public static String sanitizeBasePath(String basePath) {
+        basePath = basePath.trim();
+
+        if (!basePath.startsWith(HttpConstants.DEFAULT_BASE_PATH)) {
+            basePath = HttpConstants.DEFAULT_BASE_PATH.concat(basePath);
+        }
+
+        if ((basePath.endsWith(HttpConstants.DEFAULT_BASE_PATH) && basePath.length() != 1)) {
+            basePath = basePath.substring(0, basePath.length() - 1);
+        }
+
+        if (basePath.endsWith("*")) {
+            basePath = basePath.substring(0, basePath.length() - 1);
+        }
+
+        return basePath;
+    }
+
+    private HttpUtil() {
     }
 }

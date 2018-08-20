@@ -40,6 +40,7 @@ import org.testng.annotations.Optional;
 import org.testng.annotations.Parameters;
 import org.testng.annotations.Test;
 
+import java.io.File;
 import java.util.Calendar;
 
 import static org.ballerinalang.test.utils.SQLDBUtils.DBType.H2;
@@ -136,7 +137,10 @@ public class SQLActionsTest {
     public void testGeneratedKeyOnInsertEmptyResults() {
         BValue[] returns = BRunUtil.invoke(result, "testGeneratedKeyOnInsertEmptyResults", connectionArgs);
         BInteger retValue = (BInteger) returns[0];
-        Assert.assertEquals(retValue.intValue(), 0);
+
+        // Postgres returns all columns when there is no returning clause
+        int columnCount = (dbType == POSTGRES) ? 5 : 0;
+        Assert.assertEquals(retValue.intValue(), columnCount);
     }
 
     @Test(groups = CONNECTOR_TEST)
@@ -636,7 +640,7 @@ public class SQLActionsTest {
         Assert.assertNull(returns[3].stringValue());
     }
 
-    @Test(groups = {CONNECTOR_TEST, MYSQL_NOT_SUPPORTED, H2_NOT_SUPPORTED})
+    @Test(groups = {CONNECTOR_TEST, MYSQL_NOT_SUPPORTED, H2_NOT_SUPPORTED, POSTGRES_NOT_SUPPORTED})
     public void testStructOutParameters() {
         BValue[] returns = BRunUtil.invoke(result, "testStructOutParameters", connectionArgs);
         BString retValue = (BString) returns[0];
@@ -748,9 +752,7 @@ public class SQLActionsTest {
         if (dbType == MYSQL) {
             errorMessage = "execute update failed: Duplicate entry '1' for key 'PRIMARY'";
         } else if (dbType == POSTGRES) {
-            errorMessage = "{message:\"execute update failed: ERROR: duplicate key value violates unique constraint "
-                    + "\"employeeaddnegative_pkey\"\n"
-                    + "  Detail: Key (id)=(1) already exists.\", cause:null}";
+            errorMessage = "execute update failed: ERROR: duplicate key value violates unique constraint";
         } else if (dbType == H2) {
             errorMessage = "execute update failed: Unique index or primary key violation: \"PRIMARY KEY ON"
                     + " PUBLIC.EMPLOYEEADDNEGATIVE(ID)";
@@ -819,6 +821,46 @@ public class SQLActionsTest {
                 + "name:\"Manuri\", address:\"Sri Lanka\"}, {id:2, name:\"Devni\", address:\"Sri Lanka\"}, {id:3, "
                 + "name:\"Thurani\", address:\"Sri Lanka\"}], {message:\"Trying to perform hasNext operation over a "
                 + "closed table\", cause:null})");
+    }
+
+    @Test(groups = CONNECTOR_TEST, description = "Test re-init endpoint")
+    public void testReInitEndpoint() {
+        TestDatabase testDatabase2;
+        String validationQuery;
+
+        switch (dbType) {
+        case MYSQL:
+            testDatabase2 = new ContainerizedTestDatabase(dbType);
+            validationQuery = "SELECT 1";
+            break;
+        case POSTGRES:
+            testDatabase2 = new ContainerizedTestDatabase(dbType);
+            validationQuery = "SELECT 1";
+            break;
+        case H2:
+            testDatabase2 = new FileBasedTestDatabase(dbType,
+                    "." + File.separator + "target" + File.separator + "H2Client2" + File.separator,
+                    "TEST_SQL_CONNECTOR_H2_2");
+            validationQuery = "SELECT 1";
+            break;
+        case HSQLDB:
+            testDatabase2 = new FileBasedTestDatabase(dbType,
+                    "." + File.separator + "target" + File.separator + "HSQLDBClient2" + File.separator,
+                    "TEST_SQL_CONNECTOR_2");
+            validationQuery = "SELECT 1 FROM INFORMATION_SCHEMA.SYSTEM_USERS";
+            break;
+        default:
+            throw new UnsupportedOperationException("Unsupported database type: " + dbType);
+        }
+
+        BValue[] args = new BValue[5];
+        System.arraycopy(connectionArgs, 0, args, 0, 3);
+        args[3] = new BString(testDatabase2.getJDBCUrl());
+        args[4] = new BString(validationQuery);
+
+        BValue[] returns = BRunUtil.invoke(result, "testReInitEndpoint", args);
+        Assert.assertEquals(((BInteger) returns[0]).intValue(), 1);
+        testDatabase2.stop();
     }
 
     @AfterSuite

@@ -140,6 +140,7 @@ class Diagram extends React.Component {
                 width,
                 height,
             }}
+            zoom={this.props.zoom}
             disabled={this.props.disabled}
         >
             { children }
@@ -150,6 +151,7 @@ class Diagram extends React.Component {
 Diagram.propTypes = {
     model: PropTypes.instanceOf(CompilationUnitNode).isRequired,
     mode: PropTypes.string,
+    zoom: PropTypes.number.isRequired,
     width: PropTypes.number.isRequired,
     height: PropTypes.number.isRequired,
     disabled: PropTypes.bool.isRequired,

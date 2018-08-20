@@ -58,7 +58,7 @@ public enum CompilerPhase {
                 return TYPE_CHECK;
             case "codeAnalyze":
                 return CODE_ANALYZE;
-            case "documentationAnalyzer":
+            case "documentationAnalyze":
                 return DOCUMENTATION_ANALYZE;
             case "taintAnalyze":
                 return TAINT_ANALYZE;

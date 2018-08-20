@@ -52,7 +52,7 @@ public type Client object {
 
         P{{c}} The ClientEndpointConfiguration of the endpoint
     }
-    function init(ClientEndpointConfiguration c) {
+    public function init(ClientEndpointConfiguration c) {
         self.mysqlClient = createClient(c);
     }
 

@@ -15,17 +15,8 @@
 // under the License.
 
 import ballerina/http;
-import ballerina/io;
 
-endpoint http:WebSocketListener wsCaller {
-    host: "0.0.0.0",
-    port: 9090
-};
-
-@http:WebSocketServiceConfig {
-    path: "/"
-}
-service<http:WebSocketService> wsService bind wsCaller {
+service<http:WebSocketService> wsService bind { port: 9090 } {
 
     onText(endpoint caller, int text, boolean final) {
     }

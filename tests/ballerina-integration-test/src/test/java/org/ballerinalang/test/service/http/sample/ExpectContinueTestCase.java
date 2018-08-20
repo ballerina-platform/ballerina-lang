@@ -27,33 +27,19 @@ import io.netty.handler.codec.http.HttpHeaderValues;
 import io.netty.handler.codec.http.HttpMethod;
 import io.netty.handler.codec.http.HttpResponseStatus;
 import io.netty.handler.codec.http.HttpVersion;
-import org.ballerinalang.test.context.ServerInstance;
+import org.ballerinalang.test.BaseTest;
 import org.ballerinalang.test.util.TestUtils;
 import org.ballerinalang.test.util.client.HttpClient;
 import org.testng.Assert;
-import org.testng.annotations.AfterClass;
-import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
-import java.io.File;
-import java.nio.file.Paths;
 import java.util.List;
 
 /**
  * Test case for verifying the server-side 100-continue behaviour.
  */
-public class ExpectContinueTestCase {
-
-    private ServerInstance ballerinaServer;
-
-    @BeforeClass
-    public void setup() throws Exception {
-        ballerinaServer = ServerInstance.initBallerinaServer();
-        String resourceRoot = new File(getClass().getProtectionDomain().getCodeSource().getLocation().toURI().getPath())
-                .getAbsolutePath();
-        String balFile = Paths.get(resourceRoot, "httpService", "100_continue.bal").toAbsolutePath().toString();
-        ballerinaServer.startBallerinaServer(balFile);
-    }
+@Test(groups = "http-test")
+public class ExpectContinueTestCase extends BaseTest {
 
     @Test
     public void test100Continue() {
@@ -80,11 +66,6 @@ public class ExpectContinueTestCase {
         Assert.assertEquals(responsePayload, TestUtils.LARGE_ENTITY);
         Assert.assertEquals(responsePayload.getBytes().length, TestUtils.LARGE_ENTITY.getBytes().length);
         Assert.assertEquals(Integer.parseInt(responses.get(1).headers().get(HttpHeaderNames.CONTENT_LENGTH)),
-                            TestUtils.LARGE_ENTITY.getBytes().length);
-    }
-
-    @AfterClass
-    public void cleanup() throws Exception {
-        ballerinaServer.stopServer();
+                TestUtils.LARGE_ENTITY.getBytes().length);
     }
 }
