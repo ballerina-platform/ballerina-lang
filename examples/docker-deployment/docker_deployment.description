@@ -1,0 +1,3 @@
+//Ballerina supports generating Docker images, Dockerfile based on annotations.
+//Refer [Docker samples](https://github.com/ballerinax/docker/tree/master/samples) for more advanced use-cases.
+
