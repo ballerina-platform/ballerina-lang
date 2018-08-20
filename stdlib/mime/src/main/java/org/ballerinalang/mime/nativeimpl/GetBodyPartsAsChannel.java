@@ -42,7 +42,6 @@ public class GetBodyPartsAsChannel extends BlockingNativeCallableUnit {
     @Override
     public void execute(Context context) {
         try {
-            BMap<String, BValue> byteChannelStruct;
             BMap<String, BValue> entityStruct = (BMap<String, BValue>) context.getRefArgument(FIRST_PARAMETER_INDEX);
             String contentType = getContentTypeWithParameters(entityStruct);
             if (isMultipart(contentType)) {
@@ -54,7 +53,7 @@ public class GetBodyPartsAsChannel extends BlockingNativeCallableUnit {
                 multipartDataSource.serialize(outputStream);
                 EntityBodyChannel entityBodyChannel = new EntityBodyChannel(new ByteArrayInputStream(
                         outputStream.toByteArray()));
-                byteChannelStruct = BLangConnectorSPIUtil.createBStruct(context, IOConstants.IO_PACKAGE,
+                BMap<String, BValue> byteChannelStruct = BLangConnectorSPIUtil.createBStruct(context, IOConstants.IO_PACKAGE,
                         BYTE_CHANNEL_STRUCT);
                 byteChannelStruct.addNativeData(IOConstants.BYTE_CHANNEL_NAME, new EntityWrapper(entityBodyChannel));
                 context.setReturnValues(byteChannelStruct);

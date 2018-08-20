@@ -777,7 +777,7 @@ public class MimeUtilityFunctionTest {
                 "Byte channel is not available since payload contains a set of body parts");
     }
 
-    @Test
+    @Test(description = "Test whether the string body is retrieved from the cache")
     public void getAnyStreamAsStringFromCache() {
         try {
             File file = getTemporaryFile("testFile", ".tmp", "{'code':'123'}");
@@ -808,6 +808,25 @@ public class MimeUtilityFunctionTest {
             Assert.assertEquals(returns[0].stringValue(), "<name>Ballerina xml content</name>");
         } catch (IOException e) {
             log.error("Error occurred in testXmlWithByteArrayContent", e.getMessage());
+        }
+    }
+
+    @Test(description = "Test whether an error is returned when trying to construct body parts from an invalid " +
+            "channel")
+    public void getPartsFromInvalidChannel() {
+        try {
+            File file = getTemporaryFile("testFile", ".tmp", "test file");
+            BMap<String, BValue> byteChannelStruct = Util.getByteChannelStruct(compileResult);
+            byteChannelStruct.addNativeData(IOConstants.BYTE_CHANNEL_NAME, EntityBodyHandler.getByteChannelForTempFile
+                    (file.getAbsolutePath()));
+            BString contentType = new BString("multipart/form-data");
+            BValue[] args = {byteChannelStruct, contentType};
+            BValue[] returns = BRunUtil.invoke(compileResult, "getPartsFromInvalidChannel", args);
+            Assert.assertEquals(returns.length, 1);
+            Assert.assertEquals(((BMap<String, BValue>) returns[0]).get(ERROR_MESSAGE_FIELD).stringValue(),
+                    "Error occurred while extracting body parts from entity: Missing start boundary");
+        } catch (IOException e) {
+            log.error("Error occurred in getPartsFromInvalidChannel", e.getMessage());
         }
     }
 }

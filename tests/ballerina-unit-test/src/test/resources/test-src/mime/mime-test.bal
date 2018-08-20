@@ -149,23 +149,23 @@ function testGetJsonMultipleTimes(json jsonContent) returns (json) {
 
     match returnContent1 {
         error err => log:printInfo("error in returnContent1");
-        json j => {
-            content1 = j;
+        json jsonBody => {
+            content1 = jsonBody;
         }
 
     }
 
     match returnContent2 {
         error err => log:printInfo("error in returnContent2");
-        json j => {
-            content2 = j;
+        json jsonBody => {
+            content2 = jsonBody;
         }
     }
 
     match returnContent3 {
         error err => log:printInfo("error in returnContent3");
-        json j => {
-            content3 = j;
+        json jsonBody => {
+            content3 = jsonBody;
         }
     }
 
@@ -192,22 +192,22 @@ function testGetXmlMultipleTimes(xml xmlContent) returns (xml) {
 
     match returnContent1 {
         error err => log:printInfo("error in returnContent1");
-        xml j => {
-            content1 = j;
+        xml xmlBody => {
+            content1 = xmlBody;
         }
     }
 
     match returnContent2 {
         error err => log:printInfo("error in returnContent2");
-        xml j => {
-            content2 = j;
+        xml xmlBody => {
+            content2 = xmlBody;
         }
     }
 
     match returnContent3 {
         error err => log:printInfo("error in returnContent3");
-        xml j => {
-            content3 = j;
+        xml xmlBody => {
+            content3 = xmlBody;
         }
     }
 
@@ -516,4 +516,10 @@ function testXmlWithByteArrayContent(io:ByteChannel byteChannel, string contentT
     entity.setByteChannel(byteChannel, contentType = contentTypeValue);
     byte[] binaryPayload = check entity.getByteArray();
     return entity.getXml();
+}
+
+function getPartsFromInvalidChannel(io:ByteChannel byteChannel, string contentType) returns mime:Entity[]|error {
+    mime:Entity entity = new;
+    entity.setByteChannel(byteChannel, contentType = contentType);
+    return entity.getBodyParts();
 }
