@@ -27,6 +27,14 @@
             <artifactId>ballerina-lang</artifactId>
         </dependency>
         <dependency>
+            <groupId>org.ballerinalang</groupId>
+            <artifactId>ballerina-packerina</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.ballerinalang</groupId>
+            <artifactId>ballerina-launcher</artifactId>
+        </dependency>
+        <dependency>
             <groupId>org.awaitility</groupId>
             <artifactId>awaitility</artifactId>
             <scope>test</scope>
@@ -71,7 +79,7 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
                 <configuration>
-                    <argLine>${jacoco.agent.argLine}</argLine>
+                    <!--<argLine>${jacoco.agent.argLine}</argLine>-->
                     <systemPropertyVariables>
                         <server.zip>
                             ${basedir}/../../distribution/zip/ballerina-tools/target/ballerina-tools-${project.version}.zip
@@ -144,6 +152,7 @@
                                     <and>
                                         <available file="${ballerina.unit.test.coverage}/${individual.test.report.name}" />
                                         <available file="${ballerina.integration.test.coverage}/${individual.test.report.name}" />
+                                        <available file="${ballerina.tools.integration.test.coverage}/${individual.test.report.name}" />
                                         <available file="${ballerina.compiler.plugin.test.coverage}/${individual.test.report.name}" />
                                         <available file="${docerina.test.coverage}/${individual.test.report.name}" />
                                         <available file="${ballerina.metrics.extension.test.coverage}/${individual.test.report.name}" />
@@ -162,6 +171,9 @@
                                                     <include name="${individual.test.report.name}" />
                                                 </fileset>
                                                 <fileset dir="${ballerina.integration.test.coverage}">
+                                                    <include name="${individual.test.report.name}" />
+                                                </fileset>
+                                                <fileset dir="${ballerina.tools.integration.test.coverage}">
                                                     <include name="${individual.test.report.name}" />
                                                 </fileset>
                                                 <fileset dir="${ballerina.compiler.plugin.test.coverage}">
@@ -318,6 +330,7 @@
 
         <ballerina.unit.test.coverage>${basedir}/../ballerina-unit-test/target/coverage-reports</ballerina.unit.test.coverage>
         <ballerina.integration.test.coverage>${basedir}/../ballerina-integration-test/target/coverage-reports</ballerina.integration.test.coverage>
+        <ballerina.tools.integration.test.coverage>${build.directory}/coverage-reports</ballerina.tools.integration.test.coverage>
         <ballerina.compiler.plugin.test.coverage>${basedir}/../ballerina-compiler-plugin-test/target/coverage-reports</ballerina.compiler.plugin.test.coverage>
         <docerina.test.coverage>${basedir}/../../misc/docerina/target/coverage-reports</docerina.test.coverage>
         <ballerina.metrics.extension.test.coverage>${basedir}/../../misc/metrics-extensions/modules/ballerina-metrics-extension/target/coverage-reports</ballerina.metrics.extension.test.coverage>
