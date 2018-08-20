@@ -170,13 +170,7 @@ public class TestUtil {
      * @return {@link Endpoint}     Service Endpoint
      */
     public static Endpoint initializeLanguageSever() {
-        BallerinaLanguageServer server = new BallerinaLanguageServer();
-//        Launcher<LanguageClient> launcher = LSPLauncher.createServerLauncher(server, System.in, System.out);
-
-//        LanguageClient client = launcher.getRemoteProxy();
-//        server.connect(client);
-//        launcher.startListening();
-        return ServiceEndpoints.toEndpoint(server);
+        return ServiceEndpoints.toEndpoint(new BallerinaLanguageServer());
     }
     
     public static void shutdownLanguageServer(Endpoint serviceEndpoint) {
