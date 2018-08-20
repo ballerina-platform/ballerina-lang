@@ -44,7 +44,7 @@ class UnsafeObjectAllocator {
         return null;
     }
 
-    static boolean isInstantiable(Class<?> clazz) {
+    private static boolean isInstantiable(Class<?> clazz) {
         int modifiers = clazz.getModifiers();
         return !(Modifier.isInterface(modifiers) && Modifier.isAbstract(modifiers));
     }

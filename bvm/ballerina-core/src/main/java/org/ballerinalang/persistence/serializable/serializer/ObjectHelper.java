@@ -160,4 +160,8 @@ public class ObjectHelper {
         return targetType.getComponentType();
     }
 
+    static boolean isInstantiable(Class<?> clazz) {
+        int modifiers = clazz.getModifiers();
+        return !(Modifier.isInterface(modifiers) && Modifier.isAbstract(modifiers));
+    }
 }

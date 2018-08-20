@@ -75,7 +75,7 @@ class JsonDeserializer implements BValueDeserializer {
     }
 
     Object deserialize(Class<?> destinationType) {
-        if (UnsafeObjectAllocator.isInstantiable(destinationType)) {
+        if (ObjectHelper.isInstantiable(destinationType)) {
             return deserialize(treeHead, destinationType);
         } else {
             throw new BallerinaException(String.format("%s is not instantiable", destinationType.getName()));
