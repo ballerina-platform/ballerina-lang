@@ -4,7 +4,7 @@ import ballerina/io;
 map localVarRefs;
 map<llvm:LLVMBasicBlockRef> bbs;
 
-function genPackage(BIRPackage pkg, string path) {
+function genPackage(BIRPackage pkg, string targetObjectFilePath) {
     var c = pkg.org.value + pkg.name.value + pkg.versionValue.value;
     var mod = llvm:LLVMModuleCreateWithName(c);
     var builder = llvm:LLVMCreateBuilder();
@@ -15,7 +15,7 @@ function genPackage(BIRPackage pkg, string path) {
     optimize(mod);
 
     //llvm:LLVMDumpModule(mod);
-    //var out = llvm:LLVMWriteBitcodeToFile(mod, path);
+    //var out = llvm:LLVMWriteBitcodeToFile(mod, targetObjectFilePath);
 
     // Initialize all the targets for emitting object code
     llvm:LLVMInitializeAllTargetInfos();
@@ -30,7 +30,9 @@ function genPackage(BIRPackage pkg, string path) {
     llvm:BytePointer features;
     var targetMachine = llvm:LLVMCreateTargetMachine(targetRef, targetTripleBP, cpu, features, 0, 0, 0);
 
-    byte[] filenameBytes = path.toByteArray("UTF-8");
+    // Creates a null terminated string
+    string nullTermObjectFilePath = targetObjectFilePath + "\0";
+    byte[] filenameBytes = nullTermObjectFilePath.toByteArray("UTF-8");
     byte[] errorMsg;
     int i = llvm:LLVMTargetMachineEmitToFile(targetMachine, mod, filenameBytes, 1, errorMsg);
     // TODO error reporting

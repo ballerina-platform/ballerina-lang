@@ -149,9 +149,7 @@ public class BuildCommand implements BLauncherCmd {
         String programName = argList.get(0);
 
         // TODO Check whether we need to remove last slash from program name.
-        // Ballerina program name is used as the output filename if it is not given by the user.
-        String targetFilename = outputFileName == null || outputFileName.isEmpty() ? programName : outputFileName;
-        NativeGen.genBinaryExecutable(projectDirPath, programName, targetFilename,
+        NativeGen.genBinaryExecutable(projectDirPath, programName, outputFileName,
                 offline, lockEnabled, dumpBIR, dumpLLVMIR);
     }
 }

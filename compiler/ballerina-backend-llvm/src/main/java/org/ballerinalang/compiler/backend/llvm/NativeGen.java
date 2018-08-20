@@ -34,9 +34,12 @@ import org.wso2.ballerinalang.compiler.bir.writer.BIRBinaryWriter;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.CompilerOptions;
+import org.wso2.ballerinalang.compiler.util.ProjectDirConstants;
 
+import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.io.PrintStream;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -48,6 +51,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import static org.ballerinalang.compiler.CompilerOptionName.COMPILER_PHASE;
 import static org.ballerinalang.compiler.CompilerOptionName.LOCK_ENABLED;
@@ -63,6 +67,8 @@ public class NativeGen {
 
     private static PrintStream out = System.out;
     private static final String EXEC_RESOURCE_FILE_NAME = "compiler_backend_llvm.balx";
+    private static final String TMP_OBJECT_FILE_NAME = "ballerina_native_objf.o";
+
 
     public static void genBinaryExecutable(Path projectPath,
                                            String progPath,
@@ -77,8 +83,6 @@ public class NativeGen {
             throw new BLangCompilerException("compilation contains errors");
         }
 
-        // TODO Check compilation errors
-
         // Get the generated BIR
         BIRPackage bir = bLangPackage.symbol.bir;
 
@@ -86,10 +90,13 @@ public class NativeGen {
         dumpBIR(dumpBIR, bir);
 
         // Generate the native object file from the bir
-        // TODO get the path of the object file
-        genObjectFile(bir, targetPath, dumpLLVMIR);
+        Path objectFilePath = genObjectFile(bir, dumpLLVMIR);
 
-        // TODO exec gcc or any other alternative.
+        // Figure out the executable file name
+        String execFilename = resolveTargetPath(progPath, targetPath);
+
+        // Generate the native executable file
+        genExecutable(objectFilePath, execFilename);
     }
 
     private static BLangPackage compileProgram(Path projectPath,
@@ -117,7 +124,7 @@ public class NativeGen {
         out.println(birText);
     }
 
-    private static void genObjectFile(BIRPackage bir, String targetPath, boolean dumpLLVMIR) {
+    private static Path genObjectFile(BIRPackage bir, boolean dumpLLVMIR) {
         // Get the resource URI
         URI resURI = getExecResourceURIFromThisJar();
 
@@ -127,15 +134,25 @@ public class NativeGen {
         // Load the executable program file
         ProgramFile programFile = loadProgramFile(resBytes);
 
+        // Get the path of the object file
+        Path osTempDirPath = Paths.get(System.getProperty("java.io.tmpdir"));
+        Path objectFilePath = osTempDirPath.resolve(TMP_OBJECT_FILE_NAME);
+
         // Now prepare function arguments.
-        BValue[] args = getFunctionArgs(bir, targetPath, dumpLLVMIR);
+        BValue[] args = getFunctionArgs(bir, objectFilePath.toString(), dumpLLVMIR);
 
         // Generate the object file
-        // TODO why do we need to set the debugger
-        Debugger debugger = new Debugger(programFile);
-        programFile.setDebugger(debugger);
-        BLangFunctions.invokeEntrypointCallable(programFile,
-                programFile.getEntryPkgName(), "genObjectFile", args);
+        try {
+            // TODO why do we need to set the debugger
+            Debugger debugger = new Debugger(programFile);
+            programFile.setDebugger(debugger);
+            BLangFunctions.invokeEntrypointCallable(programFile,
+                    programFile.getEntryPkgName(), "genObjectFile", args);
+        } catch (Exception e) {
+            throw new BLangCompilerException("object file generation failed: " + e.getMessage(), e);
+        }
+
+        return objectFilePath;
     }
 
     private static URI getExecResourceURIFromThisJar() {
@@ -186,5 +203,75 @@ public class NativeGen {
     private static byte[] getBinaryForm(BIRPackage bir) {
         BIRBinaryWriter binaryWriter = new BIRBinaryWriter();
         return binaryWriter.write(bir);
+    }
+
+    private static void genExecutable(Path objectFilePath, String execFilename) {
+        // Check whether gcc is installed
+        checkGCCAvailability();
+
+        // Create the os-specific gcc command
+        ProcessBuilder gccProcessBuilder = createOSSpecificGCCCommand(objectFilePath, execFilename);
+
+        try {
+            // Execute gcc
+            Process gccProcess = gccProcessBuilder.start();
+            int exitCode = gccProcess.waitFor();
+            if (exitCode != 0) {
+                throw new BLangCompilerException("linker failed: " + getProcessErrorOutput(gccProcess));
+            }
+        } catch (IOException | InterruptedException e) {
+            throw new BLangCompilerException("linker failed: " + e.getMessage(), e);
+        }
+    }
+
+    private static String getProcessErrorOutput(Process process) {
+        BufferedReader errReader = new BufferedReader(new InputStreamReader(process.getErrorStream()));
+        return errReader.lines().collect(Collectors.joining(", "));
+    }
+
+    private static ProcessBuilder createOSSpecificGCCCommand(Path objectFilePath, String execFilename) {
+        String osName = System.getProperty("os.name").toLowerCase();
+        ProcessBuilder gccProcessBuilder = new ProcessBuilder();
+        if (osName.startsWith("windows")) {
+            // TODO Window environment
+            gccProcessBuilder.command("cmd.exe", "/c", "dir");
+        } else if (osName.startsWith("mac os x")) {
+            // Mac OS X environment
+            gccProcessBuilder.command("gcc", objectFilePath.toString(), "-o", execFilename);
+        } else {
+            // TODO Is this assumption correct?
+            // Linux environment
+            gccProcessBuilder.command("gcc", objectFilePath.toString(), "-static", "-o", execFilename);
+        }
+        return gccProcessBuilder;
+    }
+
+    private static void checkGCCAvailability() {
+        Runtime rt = Runtime.getRuntime();
+        try {
+            Process gccCheckProc = rt.exec("gcc -v");
+            int exitVal = gccCheckProc.waitFor();
+            if (exitVal != 0) {
+                throw new BLangCompilerException("'gcc' is not installed in your environment");
+            }
+        } catch (IOException | InterruptedException e) {
+            throw new BLangCompilerException("probably, 'gcc' is not installed in your environment: " +
+                    e.getMessage(), e);
+        }
+    }
+
+    private static String resolveTargetPath(String progName, String targetFilename) {
+        // Ballerina program name is used as the output filename if it is not given by the user.
+        if (targetFilename != null && !targetFilename.isEmpty()) {
+            return targetFilename;
+        }
+
+        String target = progName;
+        int srcExtIndex = target.lastIndexOf(ProjectDirConstants.BLANG_SOURCE_EXT);
+        if (srcExtIndex != -1) {
+            target = target.substring(0, srcExtIndex);
+        }
+
+        return target;
     }
 }
