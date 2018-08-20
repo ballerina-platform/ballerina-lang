@@ -95,9 +95,9 @@ public class JSONUtils {
     }
 
     /**
-     * Convert {@link BIntArray} to {@link BJSON}.
+     * Convert {@link BIntArray} to JSON.
      *
-     * @param intArray {@link BIntArray} to be converted to {@link BJSON}
+     * @param intArray {@link BIntArray} to be converted to JSON
      * @return JSON representation of the provided intArray
      */
     public static BRefValueArray convertArrayToJSON(BIntArray intArray) {
@@ -110,9 +110,9 @@ public class JSONUtils {
     }
 
     /**
-     * Convert {@link BFloatArray} to {@link BJSON}.
+     * Convert {@link BFloatArray} to JSON.
      *
-     * @param floatArray {@link BFloatArray} to be converted to {@link BJSON}
+     * @param floatArray {@link BFloatArray} to be converted to JSON
      * @return JSON representation of the provided floatArray
      */
     public static BRefValueArray convertArrayToJSON(BFloatArray floatArray) {
@@ -125,9 +125,9 @@ public class JSONUtils {
     }
 
     /**
-     * Convert {@link BStringArray} to {@link BJSON}.
+     * Convert {@link BStringArray} to JSON.
      *
-     * @param stringArray {@link BStringArray} to be converted to {@link BJSON}
+     * @param stringArray {@link BStringArray} to be converted to JSON
      * @return JSON representation of the provided stringArray
      */
     public static BRefValueArray convertArrayToJSON(BStringArray stringArray) {
@@ -140,9 +140,9 @@ public class JSONUtils {
     }
 
     /**
-     * Convert {@link BBooleanArray} to {@link BJSON}.
+     * Convert {@link BBooleanArray} to JSON.
      *
-     * @param booleanArray {@link BBooleanArray} to be converted to {@link BJSON}
+     * @param booleanArray {@link BBooleanArray} to be converted to JSON
      * @return JSON representation of the provided booleanArray
      */
     public static BRefValueArray convertArrayToJSON(BBooleanArray booleanArray) {
@@ -155,9 +155,9 @@ public class JSONUtils {
     }
 
     /**
-     * Convert {@link BNewArray} to {@link BJSON}.
+     * Convert {@link BNewArray} to JSON.
      *
-     * @param bArray {@link BNewArray} to be converted to {@link BJSON}
+     * @param bArray {@link BNewArray} to be converted to JSON
      * @return JSON representation of the provided bArray
      */
     public static BRefValueArray convertArrayToJSON(BNewArray bArray) {
@@ -173,14 +173,14 @@ public class JSONUtils {
             return convertRefArrayToJSON((BRefValueArray) bArray);
         }
 
-        throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.INCOMPATIBLE_TYPE_FOR_CASTING, BTypes.typeJSON,
+        throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.INCOMPATIBLE_TYPE, BTypes.typeJSON,
                 bArray.getType());
     }
 
     /**
-     * Convert {@link BRefValueArray} to {@link BJSON}.
+     * Convert {@link BRefValueArray} to JSON.
      *
-     * @param refValueArray {@link BRefValueArray} to be converted to {@link BJSON}
+     * @param refValueArray {@link BRefValueArray} to be converted to JSON
      * @return JSON representation of the provided refValueArray
      */
     @SuppressWarnings({ "rawtypes" })
@@ -205,7 +205,7 @@ public class JSONUtils {
                     json.append(convertArrayToJSON((BNewArray) value));
                     break;
                 default:
-                    throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.INCOMPATIBLE_TYPE_FOR_CASTING,
+                    throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.INCOMPATIBLE_TYPE,
                             BTypes.typeJSON, value.getType());
             }
         }
@@ -213,7 +213,7 @@ public class JSONUtils {
     }
 
     /**
-     * Convert map value to {@link BJSON}.
+     * Convert map value to JSON.
      *
      * @param map value {@link BMap} to be converted to JSON
      * @param targetType the target JSON type to be convert to
@@ -233,7 +233,7 @@ public class JSONUtils {
             }
         } else {
             if (!CPU.checkCast(map, targetType.getConstrainedType())) {
-                throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.INCOMPATIBLE_TYPE_FOR_CASTING_JSON,
+                throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.INCOMPATIBLE_TYPE,
                         targetType, map.getType());
             }
 
@@ -270,7 +270,7 @@ public class JSONUtils {
                     json.put(key, convertMapToJSON((BMap<String, BValue>) value, (BJSONType) exptType));
                     break;
                 default:
-                    throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.INCOMPATIBLE_TYPE_FOR_CASTING,
+                    throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.INCOMPATIBLE_TYPE,
                             BTypes.typeJSON, value.getType());
             }
         } catch (Exception e) {
@@ -359,17 +359,17 @@ public class JSONUtils {
     /**
      * Get an element from a JSON array.
      * 
-     * @param json JSON array to get the element from
+     * @param jsonArray JSON array to get the element from
      * @param index Index of the element needed
      * @return Element at the given index, if the provided JSON is an array. Null, otherwise. 
      */
-    public static BRefType<?> getArrayElement(BRefType<?> json, long index) {
-        if (!isJSONArray(json)) {
+    public static BRefType<?> getArrayElement(BRefType<?> jsonArray, long index) {
+        if (!isJSONArray(jsonArray)) {
             return null;
         }
 
         try {
-            return (BRefType<?>) ((BRefValueArray) json).getBValue(index);
+            return ListUtils.execListGetOperation((BNewArray) jsonArray, index);
         } catch (Throwable t) {
             throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.JSON_GET_ERROR, t.getMessage());
         }
@@ -383,13 +383,20 @@ public class JSONUtils {
      * @param index Index of the element to be set
      * @param element Element to be set
      */
-    public static void setArrayElement(BValue json, long index, BRefType<?> element) {
+    public static void setArrayElement(BValue json, long index, BRefType element) {
         if (!isJSONArray(json)) {
             return;
         }
 
+        BArrayType jsonArray = (BArrayType) json.getType();
+        BType elementType = jsonArray.getElementType();
+        if (!CPU.checkCast(element, elementType)) {
+            throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.INCOMPATIBLE_TYPE,
+                    elementType, (element != null) ? element.getType() : BTypes.typeNull);
+        }
+
         try {
-            ((BRefValueArray) json).add(index, element);
+            ListUtils.execListAddOperation((BNewArray) json, index, element);
         } catch (Throwable t) {
             throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.JSON_SET_ERROR, t.getMessage());
         }
@@ -594,7 +601,7 @@ public class JSONUtils {
      */
     public static BMap<String, ?> jsonToBMap(BValue json, BMapType mapType) {
         if (json == null || !isJSONObject(json)) {
-            throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.INCOMPATIBLE_TYPE_FOR_CASTING,
+            throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.INCOMPATIBLE_TYPE,
                     getComplexObjectTypeName(OBJECT), getTypeName(json));
         }
 
@@ -627,7 +634,7 @@ public class JSONUtils {
      */
     public static BMap<String, BValue> convertJSONToStruct(BValue json, BStructureType structType) {
         if (json == null || !isJSONObject(json)) {
-            throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.INCOMPATIBLE_TYPE_FOR_CASTING,
+            throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.INCOMPATIBLE_TYPE,
                     getComplexObjectTypeName(OBJECT), getTypeName(json));
         }
 
@@ -666,7 +673,7 @@ public class JSONUtils {
                 return jsonNodeToBool(jsonValue);
             case TypeTags.JSON_TAG:
                 if (jsonValue != null && !CPU.checkCast(jsonValue, targetType)) {
-                    throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.INCOMPATIBLE_TYPE_FOR_CASTING,
+                    throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.INCOMPATIBLE_TYPE,
                             targetType, getTypeName(jsonValue));
                 }
                 // fall through
@@ -696,17 +703,17 @@ public class JSONUtils {
                 }
                 // fall through
             default:
-                throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.INCOMPATIBLE_TYPE_FOR_CASTING, targetType,
+                throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.INCOMPATIBLE_TYPE, targetType,
                         getTypeName(jsonValue));
         }
-        throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.INCOMPATIBLE_TYPE_FOR_CASTING, targetType,
+        throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.INCOMPATIBLE_TYPE, targetType,
                 getTypeName(jsonValue));
     }
 
     /**
      * Returns the keys of a JSON as a {@link BStringArray}.
      * 
-     * @param json {@link BJSON} to get the keys
+     * @param json JSON to get the keys
      * @return Keys of the JSON as a {@link BStringArray}
      */
     public static BStringArray getKeys(BValue json) {
@@ -738,7 +745,7 @@ public class JSONUtils {
             case TypeTags.JSON_TAG:
                 return source;
             default:
-                throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.INCOMPATIBLE_TYPE_FOR_CASTING,
+                throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.INCOMPATIBLE_TYPE,
                         BTypes.typeJSON, source.getType());
         }
     }
@@ -767,7 +774,7 @@ public class JSONUtils {
      */
     private static BNewArray convertJSONToBArray(BValue json, BArrayType targetArrayType) {
         if (!(json instanceof BNewArray)) {
-            throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.INCOMPATIBLE_TYPE_FOR_CASTING,
+            throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.INCOMPATIBLE_TYPE,
                     getComplexObjectTypeName(ARRAY), getTypeName(json));
         }
 

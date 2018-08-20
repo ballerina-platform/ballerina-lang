@@ -39,6 +39,9 @@ public interface BallerinaObjectFieldDefinition extends BallerinaCompositeElemen
   BallerinaDocumentationAttachment getDocumentationAttachment();
 
   @Nullable
+  BallerinaDocumentationString getDocumentationString();
+
+  @Nullable
   PsiElement getAssign();
 
   @Nullable

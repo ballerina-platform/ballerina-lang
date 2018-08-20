@@ -61,7 +61,8 @@ public class DelimiterBasedContentFilter extends AbstractSymbolFilter {
         for (String poppedToken : poppedTokens) {
             if (poppedToken.equals(UtilSymbolKeys.DOT_SYMBOL_KEY)
                     || poppedToken.equals(UtilSymbolKeys.PKG_DELIMITER_KEYWORD)
-                    || poppedToken.equals(UtilSymbolKeys.ACTION_INVOCATION_SYMBOL_KEY)) {
+                    || poppedToken.equals(UtilSymbolKeys.ACTION_INVOCATION_SYMBOL_KEY)
+                    || poppedToken.equals(UtilSymbolKeys.BANG_SYMBOL_KEY)) {
                 delimiter = poppedToken;
                 break;
             }
@@ -71,7 +72,8 @@ public class DelimiterBasedContentFilter extends AbstractSymbolFilter {
         String tokenBeforeDelimiter = poppedTokens.get(poppedTokens.lastIndexOf(delimiter) - 1);
 
         if (UtilSymbolKeys.DOT_SYMBOL_KEY.equals(delimiter)
-                || UtilSymbolKeys.ACTION_INVOCATION_SYMBOL_KEY.equals(delimiter)) {
+                || UtilSymbolKeys.ACTION_INVOCATION_SYMBOL_KEY.equals(delimiter)
+                || UtilSymbolKeys.BANG_SYMBOL_KEY.equals(delimiter)) {
             returnSymbolsInfoList.addAll(FilterUtils.getInvocationAndFieldSymbolsOnVar(completionContext,
                     tokenBeforeDelimiter,
                     delimiter,

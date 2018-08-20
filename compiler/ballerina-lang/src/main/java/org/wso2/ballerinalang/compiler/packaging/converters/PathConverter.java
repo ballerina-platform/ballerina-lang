@@ -40,7 +40,7 @@ public class PathConverter implements Converter<Path> {
     }
 
     @Override
-    public Stream<Path> latest(Path path, PackageID packageID) {
+    public Stream<Path> getLatestVersion(Path path, PackageID packageID) {
         if (Files.isDirectory(path)) {
             try {
                 List<Path> pathList = Files.list(path)

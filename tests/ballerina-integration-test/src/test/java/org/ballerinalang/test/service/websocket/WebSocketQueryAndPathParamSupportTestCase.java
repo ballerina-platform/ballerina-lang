@@ -18,11 +18,8 @@
 
 package org.ballerinalang.test.service.websocket;
 
-import org.ballerinalang.test.context.BallerinaTestException;
 import org.ballerinalang.test.util.websocket.client.WebSocketTestClient;
 import org.testng.Assert;
-import org.testng.annotations.AfterClass;
-import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 import java.net.URISyntaxException;
@@ -32,12 +29,8 @@ import java.util.concurrent.TimeUnit;
 /**
  * Test WebSocket Path and Query Parameters.
  */
-public class WebSocketQueryAndPathParamSupportTestCase extends WebSocketIntegrationTest {
-
-    @BeforeClass(description = "Initializes Ballerina")
-    public void setup() throws BallerinaTestException {
-        initBallerinaServer("query_and_path_param_support.bal");
-    }
+@Test(groups = "websocket-test")
+public class WebSocketQueryAndPathParamSupportTestCase extends WebSocketTestCommons {
 
     @Test(description = "Tests path and query parameters support for WebSockets in Ballerina")
     public void testPathAndQueryParams() throws URISyntaxException, InterruptedException {
@@ -45,7 +38,7 @@ public class WebSocketQueryAndPathParamSupportTestCase extends WebSocketIntegrat
         String path2 = "path2";
         String query1 = "query1";
         String query2 = "query2";
-        String url = String.format("ws://localhost:9090/simple/%s/%s?q1=%s&q2=%s", path1, path2, query1, query2);
+        String url = String.format("ws://localhost:9096/simple6/%s/%s?q1=%s&q2=%s", path1, path2, query1, query2);
         WebSocketTestClient client = new WebSocketTestClient(url);
         CountDownLatch countDownLatch = new CountDownLatch(1);
         client.setCountDownLatch(countDownLatch);
@@ -55,10 +48,5 @@ public class WebSocketQueryAndPathParamSupportTestCase extends WebSocketIntegrat
         countDownLatch.await(TIMEOUT_IN_SECS, TimeUnit.SECONDS);
         Assert.assertEquals(client.getTextReceived(), expectedMsg);
         client.shutDown();
-    }
-
-    @AfterClass(description = "Stops Ballerina")
-    public void cleanup() throws BallerinaTestException {
-        stopBallerinaServerInstance();
     }
 }

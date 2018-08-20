@@ -33,6 +33,7 @@ import org.ballerinalang.model.types.TypeTags;
 import org.ballerinalang.model.values.BByteArray;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BMap;
+import org.ballerinalang.model.values.BStreamingJSON;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.util.exceptions.BallerinaException;
@@ -484,5 +485,22 @@ public class MimeUtil {
         }
 
         return new BString(dataSource.stringValue());
+    }
+
+    /**
+     * Check whether a given value should be serialized specifically as a JSON.
+     *
+     * @param value Value to serialize
+     * @param entityRecord Entity record
+     * @return flag indicating whether the given value should be serialized specifically as a JSON
+     */
+    public static boolean generateAsJSON(BValue value, BMap<String, BValue> entityRecord) {
+        if (value instanceof BStreamingJSON) {
+            // Streaming JSON should be serialized using the serialize() method.
+            // Hence returning false.
+            return false;
+        }
+
+        return isJSONContentType(entityRecord) && isJSONCompatible(value.getType());
     }
 }

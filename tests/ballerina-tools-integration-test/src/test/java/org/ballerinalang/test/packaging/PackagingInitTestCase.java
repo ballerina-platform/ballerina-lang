@@ -17,7 +17,6 @@
  */
 package org.ballerinalang.test.packaging;
 
-import org.ballerinalang.test.IntegrationTestCase;
 import org.ballerinalang.test.context.BallerinaTestException;
 import org.ballerinalang.test.context.Constant;
 import org.ballerinalang.test.context.LogLeecher;
@@ -41,7 +40,7 @@ import java.util.Map;
 /**
  * Testing init, build with tests and run on a ballerina project.
  */
-public class PackagingInitTestCase extends IntegrationTestCase {
+public class PackagingInitTestCase {
     private String serverZipPath;
     private Path tempProjectDirectory;
 
@@ -283,6 +282,37 @@ public class PackagingInitTestCase extends IntegrationTestCase {
 
         Assert.assertTrue(Files.exists(projectPath.resolve(".ballerina")));
         Assert.assertTrue(Files.exists(projectPath.resolve("Ballerina.toml")));
+    }
+
+    @Test(description = "Test creating a project with invalid package")
+    public void testInitWithInvalidPackage() throws Exception {
+        // Test ballerina init
+        ServerInstance ballerinaServer = createNewBallerinaServer();
+        Path projectPath = tempProjectDirectory.resolve("invalidTestWithPackage");
+        Files.createDirectories(projectPath);
+
+        String[] clientArgsForInit = {"-i"};
+        String[] options = {"\n", "\n", "\n", "m\n", "foo-bar\n", "foo bar package\n", "foo$bar\n", "foobar\n", "f\n"};
+        ballerinaServer.runMainWithClientOptions(clientArgsForInit, options, getEnvVariables(), "init",
+                                                 projectPath.toString());
+
+        Assert.assertTrue(Files.exists(projectPath.resolve("foobar").resolve("main.bal")));
+        Assert.assertTrue(Files.exists(projectPath.resolve("Ballerina.toml")));
+        Assert.assertTrue(Files.exists(projectPath.resolve("foobar").resolve("tests").resolve("main_test.bal")));
+
+        // Test ballerina build
+        ballerinaServer = createNewBallerinaServer();
+        ballerinaServer.runMain(new String[0], getEnvVariables(), "build", projectPath.toString());
+        Path generatedBalx = projectPath.resolve("target").resolve("foobar.balx");
+        Assert.assertTrue(Files.exists(generatedBalx));
+        Assert.assertTrue(Files.exists(projectPath.resolve(".ballerina").resolve("repo").resolve(getOrgName())
+                                                  .resolve("foobar").resolve("0.0.1").resolve("foobar.zip")));
+
+        // Test ballerina run
+        runMainFunction(projectPath, "foobar");
+
+        // Test ballerina run with balx
+        runMainFunction(projectPath, generatedBalx.toString());
     }
 
     /**
