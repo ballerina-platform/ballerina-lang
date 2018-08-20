@@ -119,7 +119,6 @@ public class SQLConnectorInitTest {
                   + "Database does not exists: ./target/tempdb/NON_EXISTING_DB.*")
     public void testConnectionFailure() {
         BRunUtil.invokeFunction(result, "testConnectionFailure");
-        Assert.fail("Expected exception should have been thrown by this point");
     }
 
     @AfterSuite
