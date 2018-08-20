@@ -15,7 +15,7 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-package org.ballerinalang.langserver.common.util;
+package org.ballerinalang.langserver.util;
 
 import com.google.gson.Gson;
 import org.ballerinalang.langserver.BallerinaLanguageServer;
@@ -34,6 +34,9 @@ import org.eclipse.lsp4j.jsonrpc.messages.ResponseError;
 import org.eclipse.lsp4j.jsonrpc.messages.ResponseMessage;
 import org.eclipse.lsp4j.jsonrpc.services.ServiceEndpoints;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
@@ -41,7 +44,7 @@ import java.util.concurrent.ExecutionException;
 /**
  * Common utils that are reused within test suits.
  */
-public class CommonUtil {
+public class TestUtil {
 
     /**
      * Get the definition response message as a string.
@@ -53,32 +56,24 @@ public class CommonUtil {
      * @return json string value of the response
      */
     public static String getLanguageServerResponseMessageAsString(Position position, String file, String fileContent,
-                                                                  String method) throws InterruptedException {
+                                                                  String method, Endpoint serviceEndpoint)
+            throws InterruptedException {
         Gson gson = new Gson();
-        BallerinaLanguageServer ballerinaLanguageServer = new BallerinaLanguageServer();
-        Endpoint serviceEndpoint = ServiceEndpoints.toEndpoint(ballerinaLanguageServer);
         CompletableFuture result = null;
         switch (method) {
             case "textDocument/hover":
-            case "textDocument/definition":
+            case "textDocument/signatureHelp":
+            case "textDocument/definition": {
                 TextDocumentPositionParams positionParams = new TextDocumentPositionParams();
                 TextDocumentIdentifier identifier = new TextDocumentIdentifier();
                 identifier.setUri(Paths.get(file).toUri().toString());
                 positionParams.setTextDocument(identifier);
 
                 positionParams.setPosition(new Position(position.getLine(), position.getCharacter()));
-
-                DidOpenTextDocumentParams documentParams = new DidOpenTextDocumentParams();
-                TextDocumentItem textDocumentItem = new TextDocumentItem();
-                textDocumentItem.setUri(identifier.getUri());
-                textDocumentItem.setText(fileContent);
-                documentParams.setTextDocument(textDocumentItem);
-
-                serviceEndpoint.notify("textDocument/didOpen", documentParams);
                 result = serviceEndpoint.request(method, positionParams);
-                serviceEndpoint.notify("textDocument/didClose", new DidCloseTextDocumentParams(identifier));
                 break;
-            case "textDocument/references":
+            }
+            case "textDocument/references": {
                 ReferenceParams referenceParams = new ReferenceParams();
 
                 TextDocumentIdentifier documentIdentifier = new TextDocumentIdentifier();
@@ -91,17 +86,10 @@ public class CommonUtil {
                 referenceParams.setTextDocument(documentIdentifier);
                 referenceParams.setContext(referenceContext);
 
-                DidOpenTextDocumentParams didOpenTextDocumentParams = new DidOpenTextDocumentParams();
-                TextDocumentItem textDocument = new TextDocumentItem();
-                textDocument.setUri(documentIdentifier.getUri());
-                textDocument.setText(fileContent);
-                didOpenTextDocumentParams.setTextDocument(textDocument);
-
-                serviceEndpoint.notify("textDocument/didOpen", didOpenTextDocumentParams);
                 result = serviceEndpoint.request(method, referenceParams);
-                serviceEndpoint.notify("textDocument/didClose", new DidCloseTextDocumentParams(documentIdentifier));
                 break;
-            case "textDocument/formatting":
+            }
+            case "textDocument/formatting": {
                 DocumentFormattingParams documentFormattingParams = new DocumentFormattingParams();
 
                 TextDocumentIdentifier textDocumentIdentifier1 = new TextDocumentIdentifier();
@@ -123,8 +111,10 @@ public class CommonUtil {
                 serviceEndpoint.notify("textDocument/didOpen", didOpenTextDocumentParams1);
                 result = serviceEndpoint.request(method, documentFormattingParams);
                 break;
-            default:
+            }
+            default: {
                 break;
+            }
         }
 
         ResponseMessage jsonrpcResponse = new ResponseMessage();
@@ -145,5 +135,51 @@ public class CommonUtil {
         }
 
         return gson.toJson(jsonrpcResponse);
+    }
+
+    /**
+     * Open a document.
+     * 
+     * @param serviceEndpoint   Language Server Service Endpoint
+     * @param filePath          Path of the document to open
+     * @throws IOException      Exception while reading the file content
+     */
+    public static void openDocument(Endpoint serviceEndpoint, Path filePath) throws IOException {
+        DidOpenTextDocumentParams documentParams = new DidOpenTextDocumentParams();
+        TextDocumentItem textDocumentItem = new TextDocumentItem();
+        TextDocumentIdentifier identifier = new TextDocumentIdentifier();
+
+        byte[] encodedContent = Files.readAllBytes(filePath);
+        identifier.setUri(filePath.toUri().toString());
+        textDocumentItem.setUri(identifier.getUri());
+        textDocumentItem.setText(new String(encodedContent));
+        documentParams.setTextDocument(textDocumentItem);
+        
+        serviceEndpoint.notify("textDocument/didOpen", documentParams);
+    }
+    
+    public static void closeDocument(Endpoint serviceEndpoint, Path filePath) {
+        TextDocumentIdentifier documentIdentifier = new TextDocumentIdentifier();
+        documentIdentifier.setUri(filePath.toUri().toString());
+        serviceEndpoint.notify("textDocument/didClose", new DidCloseTextDocumentParams(documentIdentifier));
+    }
+
+    /**
+     * Initialize the language server instance to use.
+     * 
+     * @return {@link Endpoint}     Service Endpoint
+     */
+    public static Endpoint initializeLanguageSever() {
+        BallerinaLanguageServer server = new BallerinaLanguageServer();
+//        Launcher<LanguageClient> launcher = LSPLauncher.createServerLauncher(server, System.in, System.out);
+
+//        LanguageClient client = launcher.getRemoteProxy();
+//        server.connect(client);
+//        launcher.startListening();
+        return ServiceEndpoints.toEndpoint(server);
+    }
+    
+    public static void shutdownLanguageServer(Endpoint serviceEndpoint) {
+        serviceEndpoint.notify("shutdown", null);
     }
 }

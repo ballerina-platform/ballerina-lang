@@ -126,6 +126,21 @@ public class LSIndexImpl implements LSIndex {
     }
 
     /**
+     * Close the Language Server Index Connection.
+     *
+     * @return Whether the operation is success or not
+     */
+    @Override
+    public boolean closeConnection() {
+        try {
+            this.connection.close();
+        } catch (SQLException e) {
+            logger.error("Failed to close the Index DB connection");
+        }
+        return true;
+    }
+
+    /**
      * Get the Query Processor Instance.
      * @return {@link LSIndexQueryProcessor}    Index Query Processor Instance
      */

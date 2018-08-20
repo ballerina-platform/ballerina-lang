@@ -17,21 +17,29 @@
 */
 package org.ballerinalang.langserver.definition;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+
 /**
  * Class to hold the data for the definition tests.
  */
 public class DefinitionTestDataModel {
+
     private String expectedFileName;
+
     private String definitionFileURI;
+
     private String ballerinaFilePath;
+
     private String ballerinaFileContent;
 
-    public DefinitionTestDataModel(String expectedFileName, String definitionFileURI,
-                                   String ballerinaFilePath, String ballerinaFileContent) {
+    public DefinitionTestDataModel(String expectedFileName, Path definitionPath, Path filePath) throws IOException {
+        byte[] encodedContent = Files.readAllBytes(filePath);
         this.expectedFileName = expectedFileName;
-        this.definitionFileURI = definitionFileURI;
-        this.ballerinaFilePath = ballerinaFilePath;
-        this.ballerinaFileContent = ballerinaFileContent;
+        this.definitionFileURI = definitionPath.toUri().toString();
+        this.ballerinaFilePath = filePath.toString();
+        this.ballerinaFileContent = new String(encodedContent);
     }
 
     public String getExpectedFileName() {
