@@ -91,8 +91,6 @@ function startFilterQuery() returns (Employee[]) {
 function printEmployeeNumber(Employee e) {
 
     outputEventCount++;
-    io:println(e);
-
     if (outputEventCount % 10000 == 0) {
         time:Time time = time:currentTime();
         int endTime = time.time;
