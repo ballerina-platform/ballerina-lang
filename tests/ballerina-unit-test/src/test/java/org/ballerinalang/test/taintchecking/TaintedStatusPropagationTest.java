@@ -456,7 +456,7 @@ public class TaintedStatusPropagationTest {
     }
 
     @Test
-    public void testSimpleWorkerInteractionBlockedNegative() {
+    public void testSimpleBlockedWorkerInteractionNegative() {
         CompileResult result = BCompileUtil
                 .compile("test-src/taintchecking/propagation/simple-worker-interaction-blocked-negative.bal");
         Assert.assertTrue(result.getDiagnostics().length == 1);
