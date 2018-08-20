@@ -127,11 +127,11 @@ public class InitEndpoint extends AbstractHttpNativeFunction {
             listenerConfiguration.setVersion(httpVersion);
         }
 
+        listenerConfiguration.setServerHeader(getServerName());
+
         if (sslConfig != null) {
             return setSslConfig(sslConfig, listenerConfiguration);
         }
-
-        listenerConfiguration.setServerHeader(getServerName());
 
         return listenerConfiguration;
     }
