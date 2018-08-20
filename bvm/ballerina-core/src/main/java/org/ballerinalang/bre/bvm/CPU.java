@@ -1465,10 +1465,6 @@ public class CPU {
                 k = operands[2];
                 BXML lhsXMLVal = (BXML) sf.refRegs[i];
                 BXML rhsXMLVal = (BXML) sf.refRegs[j];
-                if (lhsXMLVal == null || rhsXMLVal == null) {
-                    handleNullRefError(ctx);
-                    break;
-                }
 
                 // Here it is assumed that a refType addition can only be a xml-concat.
                 sf.refRegs[k] = XMLUtils.concatenate(lhsXMLVal, rhsXMLVal);
@@ -2052,7 +2048,7 @@ public class CPU {
 
                 bRefType = sf.refRegs[i];
                 if (bRefType == null) {
-                    handleNullRefError(ctx);
+                    handleTypeConversionError(ctx, sf, j, BTypes.typeNull, BTypes.typeXML);
                     break;
                 }
 
@@ -2422,6 +2418,11 @@ public class CPU {
                                             String sourceType, String targetType) {
         BMap<String, BValue> errorVal = BLangVMErrors.createTypeCastError(ctx, sourceType, targetType);
         sf.refRegs[errorRegIndex] = errorVal;
+    }
+
+    private static void handleTypeConversionError(WorkerExecutionContext ctx, WorkerData sf, int errorRegIndex,
+                                                  BType sourceType, BType targetType) {
+        handleTypeConversionError(ctx, sf, errorRegIndex, sourceType.toString(), targetType.toString());
     }
 
     private static void handleTypeConversionError(WorkerExecutionContext ctx, WorkerData sf, int errorRegIndex,
@@ -3212,7 +3213,7 @@ public class CPU {
 
         BRefType<?> json = sf.refRegs[i];
         if (json == null) {
-            handleNullRefError(ctx);
+            handleTypeConversionError(ctx, sf, j, BTypes.typeNull, targetType);
             return;
         }
 
@@ -3249,7 +3250,7 @@ public class CPU {
 
         BRefType<?> json = sf.refRegs[i];
         if (json == null) {
-            handleNullRefError(ctx);
+            handleTypeConversionError(ctx, sf, j, BTypes.typeNull, targetType);
             return;
         }
 
@@ -3269,11 +3270,6 @@ public class CPU {
 
         TypeRefCPEntry typeRefCPEntry = (TypeRefCPEntry) ctx.constPool[cpIndex];
         BMap<String, BValue> bMap = (BMap<String, BValue>) sf.refRegs[i];
-        if (bMap == null) {
-            handleNullRefError(ctx);
-            return;
-        }
-
         BStructureType structType = (BStructureType) typeRefCPEntry.getType();
         BMap<String, BValue> bStruct = new BMap<>(structType);
         StructureTypeInfo structInfo = ctx.callableUnitInfo
@@ -3361,7 +3357,8 @@ public class CPU {
         TypeRefCPEntry typeRefCPEntry = (TypeRefCPEntry) ctx.constPool[cpIndex];
         BRefType<?> bjson = sf.refRegs[i];
         if (bjson == null) {
-            handleNullRefError(ctx);
+            handleTypeConversionError(ctx, sf, j, bjson != null ? bjson.getType() : BTypes.typeNull,
+                    typeRefCPEntry.getType());
             return;
         }
 
@@ -3410,12 +3407,7 @@ public class CPU {
         TypeRefCPEntry typeRefCPEntry = (TypeRefCPEntry) ctx.constPool[cpIndex];
         int typeTag = typeRefCPEntry.getType().getTag();
         if (typeTag == TypeTags.STRING_TAG) {
-            String value = sf.stringRegs[i];
-            if (value == null) {
-                handleNullRefError(ctx);
-            } else {
-                sf.longRegs[j] = value.length();
-            }
+            sf.longRegs[j] = sf.stringRegs[i].length();
             return;
         }
 

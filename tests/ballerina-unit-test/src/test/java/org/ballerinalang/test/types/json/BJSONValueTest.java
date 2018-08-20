@@ -488,13 +488,13 @@ public class BJSONValueTest {
     }
 
     @Test(expectedExceptions = { BLangRuntimeException.class },
-            expectedExceptionsMessageRegExp = "error: ballerina/runtime:NullReferenceException.*")
+            expectedExceptionsMessageRegExp = "error: error, message: 'null' cannot be converted to 'map'.*")
     public void testNullJsonToMap() {
         BRunUtil.invoke(compileResult, "testNullJsonToMap");
     }
 
     @Test(expectedExceptions = { BLangRuntimeException.class },
-            expectedExceptionsMessageRegExp = "error: ballerina/runtime:NullReferenceException.*")
+            expectedExceptionsMessageRegExp = "error: error, message: 'null' cannot be converted to 'int\\[\\].*")
     public void testNullJsonToArray() {
         BRunUtil.invoke(compileResult, "testNullJsonToArray");
     }
