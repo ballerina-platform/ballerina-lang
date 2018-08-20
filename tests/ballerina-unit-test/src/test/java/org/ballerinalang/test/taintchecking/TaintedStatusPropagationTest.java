@@ -185,9 +185,11 @@ public class TaintedStatusPropagationTest {
     @Test
     public void testIfConditionNegative() {
         CompileResult result = BCompileUtil.compile("test-src/taintchecking/propagation/if-condition-negative.bal");
-        Assert.assertTrue(result.getDiagnostics().length == 2);
+        Assert.assertTrue(result.getDiagnostics().length == 4);
         BAssertUtil.validateError(result, 0, "tainted value passed to sensitive parameter 'secureIn'", 8, 20);
         BAssertUtil.validateError(result, 1, "tainted value passed to sensitive parameter 'secureIn'", 16, 20);
+        BAssertUtil.validateError(result, 2, "tainted value passed to sensitive parameter 'secureIn'", 24, 20);
+        BAssertUtil.validateError(result, 3, "tainted value passed to sensitive parameter 'secureIn'", 32, 20);
     }
 
     @Test
