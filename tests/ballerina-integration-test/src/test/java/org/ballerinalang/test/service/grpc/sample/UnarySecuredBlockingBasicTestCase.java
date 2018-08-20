@@ -24,6 +24,7 @@ import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.test.BaseTest;
+import org.ballerinalang.test.util.TestUtils;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -39,7 +40,8 @@ import java.nio.file.Paths;
 public class UnarySecuredBlockingBasicTestCase extends BaseTest {
 
     @BeforeClass
-    public void setup() {
+    public void setup() throws Exception {
+        TestUtils.prepareBalo(this);
         System.setProperty("ballerina.home", serverInstance.getServerHome());
     }
 
