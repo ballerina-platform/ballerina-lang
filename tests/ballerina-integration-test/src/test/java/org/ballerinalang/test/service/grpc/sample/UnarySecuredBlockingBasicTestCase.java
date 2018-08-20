@@ -23,11 +23,9 @@ import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.test.IntegrationTestCase;
-import org.ballerinalang.test.context.BallerinaTestException;
-import org.ballerinalang.test.context.ServerInstance;
+import org.ballerinalang.test.BaseTest;
+import org.ballerinalang.test.util.TestUtils;
 import org.testng.Assert;
-import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
@@ -38,34 +36,25 @@ import java.nio.file.Paths;
  * Test class for WebSocket client connector.
  * This test the mediation of wsClient <-> balServer <-> balWSClient <-> remoteServer.
  */
-public class UnarySecuredBlockingBasicTestCase extends IntegrationTestCase {
-    
-    private ServerInstance ballerinaServer;
-    
+@Test(groups = "grpc-test")
+public class UnarySecuredBlockingBasicTestCase extends BaseTest {
+
     @BeforeClass
-    private void setup() throws Exception {
-        ballerinaServer = ServerInstance.initBallerinaServer(8085);
-        System.setProperty("ballerina.home", ballerinaServer.getServerHome());
-        Path serviceBalPath = Paths.get("src", "test", "resources", "grpc", "grpc_secured_unary_service.bal");
-        ballerinaServer.startBallerinaServer(serviceBalPath.toAbsolutePath().toString());
+    public void setup() throws Exception {
+        TestUtils.prepareBalo(this);
+        System.setProperty("ballerina.home", serverInstance.getServerHome());
     }
-    
+
     @Test
     public void testUnarySecuredBlocking() {
-        
-        Path balFilePath = Paths.get("src", "test", "resources", "grpc", "grpc_secured_unary_client.bal");
+        Path balFilePath = Paths.get("src", "test", "resources", "grpc", "clients", "grpc_secured_unary_client.bal");
         CompileResult result = BCompileUtil.compile(balFilePath.toAbsolutePath().toString());
         final String serverMsg = "Hello WSO2";
-        
-        BValue[] responses = BRunUtil.invoke(result, "testUnarySecuredBlocking", new BValue[] {});
+
+        BValue[] responses = BRunUtil.invoke(result, "testUnarySecuredBlocking", new BValue[]{});
         Assert.assertEquals(responses.length, 1);
         Assert.assertTrue(responses[0] instanceof BString);
         BString responseValues = (BString) responses[0];
         Assert.assertEquals(responseValues.stringValue(), serverMsg);
-    }
-    
-    @AfterClass
-    private void cleanup() throws BallerinaTestException {
-        ballerinaServer.stopServer();
     }
 }

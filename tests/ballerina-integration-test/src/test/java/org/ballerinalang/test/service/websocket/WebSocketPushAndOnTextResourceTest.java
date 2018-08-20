@@ -19,11 +19,8 @@
 package org.ballerinalang.test.service.websocket;
 
 import io.netty.handler.codec.http.websocketx.CloseWebSocketFrame;
-import org.ballerinalang.test.context.BallerinaTestException;
 import org.ballerinalang.test.util.websocket.client.WebSocketTestClient;
 import org.testng.Assert;
-import org.testng.annotations.AfterClass;
-import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 import java.net.URISyntaxException;
@@ -37,14 +34,9 @@ public class WebSocketPushAndOnTextResourceTest extends WebSocketTestCommons {
 
     private WebSocketTestClient client;
 
-    @BeforeClass(description = "Initializes Ballerina")
-    public void setup() throws BallerinaTestException {
-        initBallerinaServer("push_and_onText.bal");
-    }
-
     @Test(description = "Tests string support for pushText and onText")
     public void testString() throws URISyntaxException, InterruptedException {
-        String url = "http://localhost:9090/onTextString";
+        String url = "http://localhost:9080/onTextString";
         client = new WebSocketTestClient(url);
         client.handshake();
         String msg = "Hello";
@@ -54,13 +46,13 @@ public class WebSocketPushAndOnTextResourceTest extends WebSocketTestCommons {
 
     @Test(description = "Tests JSON support for pushText and onText")
     public void testJson() throws URISyntaxException, InterruptedException {
-        String url = "http://localhost:9091/onTextJSON";
+        String url = "http://localhost:9081/onTextJSON";
         testJsonAndRecord(url);
     }
 
     @Test(description = "Tests XML support for pushText and onText")
     public void testXml() throws URISyntaxException, InterruptedException {
-        String url = "http://localhost:9092/onTextXML";
+        String url = "http://localhost:9082/onTextXML";
         client = new WebSocketTestClient(url);
         client.handshake();
         String msg = "<note><to>Tove</to></note>";
@@ -74,13 +66,13 @@ public class WebSocketPushAndOnTextResourceTest extends WebSocketTestCommons {
 
     @Test(description = "Tests Record support for pushText and onText")
     public void testRecord() throws URISyntaxException, InterruptedException {
-        String url = "http://localhost:9093/onTextRecord";
+        String url = "http://localhost:9083/onTextRecord";
         testJsonAndRecord(url);
     }
 
     @Test(description = "Tests byte array support for pushText and onText")
     public void testByteArray() throws URISyntaxException, InterruptedException {
-        String url = "http://localhost:9094/onTextByteArray";
+        String url = "http://localhost:9084/onTextByteArray";
         client = new WebSocketTestClient(url);
         client.handshake();
         String msg = "Hello";
@@ -129,10 +121,5 @@ public class WebSocketPushAndOnTextResourceTest extends WebSocketTestCommons {
         client.sendText(msg[msg.length - 1], true);
         countDownLatch.await(TIMEOUT_IN_SECS, TimeUnit.SECONDS);
         Assert.assertEquals(client.getTextReceived(), expectedMsg, "Invalid message received");
-    }
-
-    @AfterClass(description = "Stops Ballerina")
-    public void cleanup() throws BallerinaTestException {
-        stopBallerinaServerInstance();
     }
 }

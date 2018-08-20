@@ -18,6 +18,7 @@
 package org.ballerinalang.net.http;
 
 import io.netty.handler.codec.CorruptedFrameException;
+import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BLangVMErrors;
 import org.ballerinalang.bre.bvm.BLangVMStructs;
 import org.ballerinalang.bre.bvm.CallableUnitCallback;
@@ -310,7 +311,9 @@ public class WebSocketDispatcher {
         }
         BValue[] bValues = new BValue[onErrorResource.getParamDetails().size()];
         bValues[0] = connectionInfo.getWebSocketEndpoint();
-        bValues[1] = getError(webSocketService, throwable);
+        Context context = connectionInfo.getContext();
+        bValues[1] = context != null ? getError(context.getProgramFile(), throwable) : getError(
+                webSocketService.getServiceInfo().getPackageInfo().getProgramFile(), throwable);
         CallableUnitCallback onErrorCallback = new CallableUnitCallback() {
             @Override
             public void notifySuccess() {
@@ -325,8 +328,7 @@ public class WebSocketDispatcher {
         Executor.submit(onErrorResource, onErrorCallback, null, null, bValues);
     }
 
-    private static BMap<String, BValue> getError(WebSocketService webSocketService, Throwable throwable) {
-        ProgramFile programFile = webSocketService.getServiceInfo().getPackageInfo().getProgramFile();
+    private static BMap<String, BValue> getError(ProgramFile programFile, Throwable throwable) {
         PackageInfo errorPackageInfo = programFile.getPackageInfo(BLangConstants.BALLERINA_BUILTIN_PKG);
         StructureTypeInfo errorStructInfo = errorPackageInfo.getStructInfo(BLangVMErrors.STRUCT_GENERIC_ERROR);
         String errMsg;

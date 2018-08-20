@@ -23,12 +23,9 @@ import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BStringArray;
 import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.test.IntegrationTestCase;
-import org.ballerinalang.test.context.BallerinaTestException;
-import org.ballerinalang.test.context.ServerInstance;
+import org.ballerinalang.test.BaseTest;
 import org.ballerinalang.test.util.TestUtils;
 import org.testng.Assert;
-import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
@@ -37,24 +34,19 @@ import java.nio.file.Paths;
 
 /**
  * Test class for gRPC client streaming service with non-blocking client.
- *
  */
-public class ClientStreamingTestCase extends IntegrationTestCase {
-
-    private ServerInstance ballerinaServer;
+@Test(groups = "grpc-test")
+public class ClientStreamingTestCase extends BaseTest {
 
     @BeforeClass
     private void setup() throws Exception {
-        ballerinaServer = ServerInstance.initBallerinaServer(9090);
-        Path serviceBalPath = Paths.get("src", "test", "resources", "grpc", "client_streaming_service.bal");
-        ballerinaServer.startBallerinaServer(serviceBalPath.toAbsolutePath().toString());
         TestUtils.prepareBalo(this);
     }
 
     @Test
     public void testNonBlockingBallerinaClient() {
 
-        Path balFilePath = Paths.get("src", "test", "resources", "grpc", "client_streaming_client.bal");
+        Path balFilePath = Paths.get("src", "test", "resources", "grpc", "clients", "client_streaming_client.bal");
         CompileResult result = BCompileUtil.compile(balFilePath.toAbsolutePath().toString());
         BStringArray stringArray = new BStringArray();
         stringArray.add(0, "Hi Sam");
@@ -67,10 +59,5 @@ public class ClientStreamingTestCase extends IntegrationTestCase {
         Assert.assertTrue(responses[0] instanceof BString);
         BString response = (BString) responses[0];
         Assert.assertEquals(response.stringValue(), serverMsg);
-    }
-
-    @AfterClass
-    private void cleanup() throws BallerinaTestException {
-        ballerinaServer.stopServer();
     }
 }
