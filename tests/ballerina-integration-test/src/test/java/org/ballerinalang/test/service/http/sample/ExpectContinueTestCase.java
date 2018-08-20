@@ -27,7 +27,7 @@ import io.netty.handler.codec.http.HttpHeaderValues;
 import io.netty.handler.codec.http.HttpMethod;
 import io.netty.handler.codec.http.HttpResponseStatus;
 import io.netty.handler.codec.http.HttpVersion;
-import org.ballerinalang.test.BaseTest;
+import org.ballerinalang.test.util.BaseTest;
 import org.ballerinalang.test.util.TestUtils;
 import org.ballerinalang.test.util.client.HttpClient;
 import org.testng.Assert;

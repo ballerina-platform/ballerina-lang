@@ -18,8 +18,8 @@
 
 package org.ballerinalang.test.transaction;
 
-import org.ballerinalang.test.BaseTest;
 import org.ballerinalang.test.context.BallerinaTestException;
+import org.ballerinalang.test.util.BaseTest;
 import org.ballerinalang.test.util.HttpClientRequest;
 import org.ballerinalang.test.util.HttpResponse;
 import org.ballerinalang.test.util.SQLDBUtils;

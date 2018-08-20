@@ -18,9 +18,9 @@
 
 package org.ballerinalang.test.service.websub;
 
-import org.ballerinalang.test.BaseTest;
 import org.ballerinalang.test.context.BallerinaTestException;
 import org.ballerinalang.test.context.ServerInstance;
+import org.ballerinalang.test.util.BaseTest;
 import org.testng.annotations.AfterSuite;
 import org.testng.annotations.BeforeSuite;
 

@@ -15,8 +15,7 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-
-package org.ballerinalang.test;
+package org.ballerinalang.test.util;
 
 import org.ballerinalang.test.context.BallerinaTestException;
 import org.ballerinalang.test.context.ServerInstance;
@@ -29,7 +28,7 @@ import org.testng.annotations.BeforeSuite;
  * by all the test cases throughout.
  */
 public class BaseTest {
-    protected static ServerInstance serverInstance;
+    public static ServerInstance serverInstance;
 
     @BeforeSuite(alwaysRun = true)
     public void initialize() throws BallerinaTestException {

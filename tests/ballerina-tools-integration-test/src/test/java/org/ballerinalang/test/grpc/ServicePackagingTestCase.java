@@ -15,12 +15,11 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.ballerinalang.test.packaging.grpc;
+package org.ballerinalang.test.grpc;
 
-import org.ballerinalang.test.context.Constant;
 import org.ballerinalang.test.context.LogLeecher;
-import org.ballerinalang.test.context.ServerInstance;
 import org.ballerinalang.test.context.Utils;
+import org.ballerinalang.test.util.BaseTest;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -36,15 +35,13 @@ import java.util.Map;
 /**
  * Test packaged gRPC service with nested ballerina record type for input and output.
  */
-public class ServicePackagingTestCase {
+public class ServicePackagingTestCase extends BaseTest {
 
     private Path tempProjectDirectory;
-    private String serverZipPath = System.getProperty(Constant.SYSTEM_PROP_SERVER_ZIP);
 
     @BeforeClass()
     public void setup() throws IOException {
         tempProjectDirectory = Files.createTempDirectory("bal-test-integration-packaging-project-");
-        serverZipPath = System.getProperty(Constant.SYSTEM_PROP_SERVER_ZIP);
     }
 
     @Test(description = "Test packaged service with nested ballerina record type for input and output")
@@ -53,37 +50,37 @@ public class ServicePackagingTestCase {
         Files.createDirectories(projectPath);
 
         // perform ballerina init and copy grpc service to the project.
-        ServerInstance ballerinaBuildServer = new ServerInstance(serverZipPath);
         String[] args = {"-i"};
         String[] options = {"\n", "\n", "\n", "s\n", "foo\n", "f\n"};
-        ballerinaBuildServer.runMainWithClientOptions(args, options, getEnvVariables(), "init",
-                projectPath.toString());
+        serverInstance.runMainWithClientOptions(args, options, getEnvVariables(), "init",
+                                                projectPath.toString());
         Files.copy(Paths.get("src", "test", "resources", "grpc", "nested_type_service.bal"), Paths.get
                 (projectPath.resolve("foo").toString(), "nested_type_service.bal"));
         Files.deleteIfExists(projectPath.resolve("foo").resolve("hello_service.bal"));
 
         // perform ballerina build and generate balx file.
-        ballerinaBuildServer = new ServerInstance(serverZipPath);
-        ballerinaBuildServer.runMain(new String[0], getEnvVariables(), "build", projectPath.toString());
+        serverInstance.runMain(new String[0], getEnvVariables(), "build", projectPath.toString());
         Path generatedBalx = projectPath.resolve("target").resolve("foo.balx");
         // Run gRPC service from the balx file.
-        ServerInstance ballerinaServerForService = ServerInstance.initBallerinaServer();
-        ballerinaServerForService.startBallerinaServer(generatedBalx.toString());
+        serverInstance.startBallerinaServer(generatedBalx.toString());
 
         try {
             // run gRPC client to connect with the service.
             Path balFilePath = Paths.get("src", "test", "resources", "grpc", "nested_type_client.bal");
-            ServerInstance ballerinaClientServer = new ServerInstance(serverZipPath);
             String[] clientArgsForRun = {balFilePath.toAbsolutePath().toString()};
             LogLeecher logLeecher1 = new LogLeecher("testInputNestedStruct output: Submitted name: Danesh");
             LogLeecher logLeecher2 = new LogLeecher("testOutputNestedStruct output: Sam");
-            ballerinaClientServer.addLogLeecher(logLeecher1);
-            ballerinaClientServer.addLogLeecher(logLeecher2);
-            ballerinaClientServer.runMain(clientArgsForRun, getEnvVariables(), "run");
+
+            // Reset the server log reader
+            serverInstance.resetServerLogReader();
+
+            serverInstance.addLogLeecher(logLeecher1);
+            serverInstance.addLogLeecher(logLeecher2);
+            serverInstance.runMain(clientArgsForRun, getEnvVariables(), "run");
             logLeecher1.waitForText(10000);
             logLeecher2.waitForText(10000);
         } finally {
-            ballerinaServerForService.stopServer();
+            serverInstance.stopServer();
         }
 
     }

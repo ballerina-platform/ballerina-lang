@@ -26,8 +26,8 @@
     <test name="ballerina-packaging-sample-tests" preserve-order="true" parallel="false">
         <classes>
             <class name="org.ballerinalang.test.packaging.PackagingTestCase"/>
-            <class name="org.ballerinalang.test.packaging.PackagingInitTestCase"/>
-            <class name="org.ballerinalang.test.packaging.grpc.ServicePackagingTestCase"/>
+            <class name="org.ballerinalang.test.packaging.PackagingNegativeTestCase"/>
+            <class name="org.ballerinalang.test.grpc.ServicePackagingTestCase"/>
             <class name="org.ballerinalang.test.packaging.PackagingSingleBalBuildTestCase"/>
         </classes>
     </test>

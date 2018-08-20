@@ -18,8 +18,8 @@
 
 package org.ballerinalang.test.service.http;
 
-import org.ballerinalang.test.BaseTest;
 import org.ballerinalang.test.context.BallerinaTestException;
+import org.ballerinalang.test.util.BaseTest;
 import org.testng.annotations.AfterGroups;
 import org.testng.annotations.BeforeGroups;
 
