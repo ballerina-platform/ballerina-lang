@@ -22,6 +22,7 @@ import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.values.BValue;
 import org.testng.annotations.BeforeClass;
+import org.testng.annotations.Ignore;
 import org.testng.annotations.Test;
 
 /**
@@ -38,6 +39,7 @@ public class StreamingPerformanceTest {
         result = BCompileUtil.compile("test-src/streaming/streaming-performance-test.bal");
     }
 
+    @Ignore
     @Test(description = "Test performance of streaming query")
     public void testFilterQuery() {
         BValue[] outputEmployeeEvents = BRunUtil.invoke(result, "startFilterQuery");
