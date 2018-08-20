@@ -1,5 +1,5 @@
 int /*def*/a;
 
-function test () {
+function test() {
     /*ref*/a = 10;
 }
