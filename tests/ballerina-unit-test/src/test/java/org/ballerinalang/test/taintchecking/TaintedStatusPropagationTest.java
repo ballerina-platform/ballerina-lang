@@ -454,6 +454,14 @@ public class TaintedStatusPropagationTest {
     }
 
     @Test
+    public void testSimpleWorkerInteractionBlockedNegative() {
+        CompileResult result = BCompileUtil
+                .compile("test-src/taintchecking/propagation/simple-worker-interaction-blocked-negative.bal");
+        Assert.assertTrue(result.getDiagnostics().length == 1);
+        BAssertUtil.validateError(result, 0, "tainted value passed to sensitive parameter 'secureIn'", 5, 24);
+    }
+
+    @Test
     public void testSimpleWorkerInteractionWithTupleAssignment() {
         CompileResult result = BCompileUtil
                 .compile("test-src/taintchecking/propagation/simple-worker-interaction-with-tuple-assignment.bal");
