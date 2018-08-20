@@ -15,7 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.ballerinalang.test.checkpointing;
+package org.ballerinalang.test.checkpointing.jsonSerializer;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.handler.codec.http.DefaultFullHttpResponse;
@@ -30,7 +30,10 @@ import org.ballerinalang.persistence.serializable.serializer.JsonSerializer;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
-public class ComplexObjectGraphSerializationTest {
+import java.util.HashMap;
+import java.util.Map;
+
+public class ComplexObjectSerializationTest {
     @Test(description = "Test serialize/deserialize HttpResponse Object")
     public void testJsonDeserializeHttpResponse() {
         BValue bTree = new BMap<String, BValue>();
@@ -47,7 +50,26 @@ public class ComplexObjectGraphSerializationTest {
         Assert.assertTrue(deserializedResponse.status().equals(HttpResponseStatus.OK));
     }
 
-    @Test(description = "Test serialize/deserialize field shadowing")
+    @Test(description = "Test serializing complex keys in a Map")
+    public void testComplexKeysInAMap() {
+        JsonSerializer jsonSerializer = new JsonSerializer();
+        String serialize = jsonSerializer.serialize(mockComplexKeyMap());
+
+        Map map = jsonSerializer.deserialize(serialize, HashMap.class);
+        boolean matchedKey1 = map.keySet().stream().anyMatch(k -> ((JsonSerializerTest.StringFieldA) k).a.equals("Key1"));
+        boolean matchedKey2 = map.keySet().stream().anyMatch(k -> ((JsonSerializerTest.StringFieldA) k).a.equals("Key2"));
+        Assert.assertTrue(matchedKey1 && matchedKey2);
+    }
+
+    private Map mockComplexKeyMap() {
+        Map<JsonSerializerTest.StringFieldA, String> map = new HashMap<>();
+        map.put(new JsonSerializerTest.StringFieldA("Key1"), "Key1");
+        map.put(new JsonSerializerTest.StringFieldA("Key2"), "Key2");
+
+        return map;
+    }
+
+    @Test(description = "Test serialize/deserialize field shadowing on inherited class")
     public void testJsonDeserializeFieldShadowing() {
         Shadower sh = new Shadower(55.55, 2);
         String serialize = new JsonSerializer().serialize(sh);

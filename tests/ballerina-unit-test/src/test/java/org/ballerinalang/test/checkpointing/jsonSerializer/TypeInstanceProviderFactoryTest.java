@@ -15,7 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.ballerinalang.test.checkpointing;
+package org.ballerinalang.test.checkpointing.jsonSerializer;
 
 import org.ballerinalang.persistence.serializable.serializer.TypeInstanceProvider;
 import org.ballerinalang.persistence.serializable.serializer.TypeInstanceProviderFactory;

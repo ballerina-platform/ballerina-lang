@@ -15,7 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.ballerinalang.test.checkpointing;
+package org.ballerinalang.test.checkpointing.jsonSerializer;
 
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BValue;
@@ -31,41 +31,38 @@ import static org.ballerinalang.persistence.serializable.serializer.JsonSerializ
 
 public class SerializationBValueProviderTest {
 
+    private static final String NUMBER  = "2345232323";
+
     @Test(description = "test BigInt to BValue conversion")
     public void testBigIntBValueProviderToBValue() {
         NumericBValueProviders.BigIntegerBValueProvider provider =
                 new NumericBValueProviders.BigIntegerBValueProvider();
-        String num = "2345232323";
-        BValue value = provider.toBValue(new BigInteger(num), new JsonSerializer());
-
-        Assert.assertTrue(value instanceof BMap);
+        BValue value = provider.toBValue(new BigInteger(NUMBER), new JsonSerializer());
 
         BMap<String, BValue> map = (BMap<String, BValue>) value;
         BValue payload = map.get(PAYLOAD_TAG);
-        Assert.assertTrue(payload.stringValue().equals(num));
+        Assert.assertTrue(payload.stringValue().equals(NUMBER));
     }
 
     @Test(description = "test BValue to BigInt conversion")
     public void testBigIntBValueProviderToBigInt() {
         NumericBValueProviders.BigIntegerBValueProvider provider =
                 new NumericBValueProviders.BigIntegerBValueProvider();
-        String num = "2345232323";
-        BValue value = provider.toBValue(new BigInteger(num), new JsonSerializer());
+        BValue value = provider.toBValue(new BigInteger(NUMBER), new JsonSerializer());
 
         Object object = provider.toObject(value, null);
         Assert.assertTrue(object instanceof BigInteger);
-        Assert.assertTrue(((BigInteger) object).toString(10).equals(num));
+        Assert.assertTrue(((BigInteger) object).toString(10).equals(NUMBER));
     }
 
     @Test(description = "test BValue to/from BigDecimal conversion")
     public void testBigIntBValueProviderBigDecimal() {
         NumericBValueProviders.BigDecimalBValueProvider provider =
                 new NumericBValueProviders.BigDecimalBValueProvider();
-        String num = "2345232323";
-        BValue value = provider.toBValue(new BigDecimal(num), new JsonSerializer());
+        BValue value = provider.toBValue(new BigDecimal(NUMBER), new JsonSerializer());
 
-        Object object = provider.toObject(value, null);
-        Assert.assertTrue(object instanceof BigDecimal);
-        Assert.assertTrue(((BigDecimal) object).toString().equals(num));
+        BigDecimal object = provider.toObject(value, null);
+        Assert.assertTrue(object != null);
+        Assert.assertTrue(object.toString().equals(NUMBER));
     }
 }
