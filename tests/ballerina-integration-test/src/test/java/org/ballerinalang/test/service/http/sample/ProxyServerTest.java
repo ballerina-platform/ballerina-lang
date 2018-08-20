@@ -30,6 +30,7 @@ import java.io.File;
 /**
  * A test case for http proxy scenario.
  */
+@Test(groups = "http-test")
 public class ProxyServerTest extends BaseTest {
 
     private ServerInstance ballerinaClient;
