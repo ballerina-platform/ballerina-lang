@@ -148,6 +148,13 @@ public class BIRGen extends BLangNodeVisitor {
         for (BLangStatement astStmt : astBlockStmt.stmts) {
             astStmt.accept(this);
         }
+
+        // Due to the current algorithm, some basic blocks will not contain any instructions or a terminator.
+        // These basic blocks will be remove by the optimizer, but for now just add a return terminator
+        BIRBasicBlock enclBB = this.env.enclBB;
+        if (enclBB.instructions.size() == 0 && enclBB.terminator == null) {
+            enclBB.terminator = new BIRTerminator.GOTO(this.env.returnBB);
+        }
     }
 
     public void visit(BLangVariableDef astVarDefStmt) {
