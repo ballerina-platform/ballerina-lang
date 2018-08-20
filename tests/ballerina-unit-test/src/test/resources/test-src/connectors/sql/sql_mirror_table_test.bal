@@ -136,11 +136,9 @@ function testAddToMirrorTableInvalidRecord(string jdbcUrl, string userName, stri
     table dt = check testDB->getProxyTable("employeeAdd", Employee);
 
     Employee2 e = { id: 2, name: "Devni", address: "Sri Lanka", age: 24 };
-
     var result = dt.add(e);
 
     testDB.stop();
-
     return result;
 }
 
