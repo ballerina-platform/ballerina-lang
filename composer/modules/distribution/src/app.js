@@ -60,6 +60,7 @@ function createSplashWindow(show = true) {
         icon: path.join(__dirname, '../icons/png/64x64.png'),
         title: 'Composer',
         show,
+        resizable: false,
     });
     const splashScreenUrl = url.format({
         pathname: path.join(__dirname, '..', 'pages', 'loading.html'),
