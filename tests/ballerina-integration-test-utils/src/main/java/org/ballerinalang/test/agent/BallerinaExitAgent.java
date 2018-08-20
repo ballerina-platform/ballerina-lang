@@ -23,6 +23,8 @@ import java.util.Map;
 
 /**
  * JAVA agent which will be attached to Ballerina run time and trigger the shutdown sequence.
+ *
+ * @since 0.982.0
  */
 public class BallerinaExitAgent {
     /**
@@ -69,7 +71,7 @@ public class BallerinaExitAgent {
             return;
         }
 
-        Thread haltThread = new Thread(() -> {
+        Thread killThread = new Thread(() -> {
             long startTime = System.currentTimeMillis();
             long endTime = startTime;
             while (endTime - startTime < timeout) {
@@ -84,8 +86,8 @@ public class BallerinaExitAgent {
                 }
             }
         });
-        haltThread.setDaemon(true);
-        haltThread.start();
+        killThread.setDaemon(true);
+        killThread.start();
     }
 
     private static Map<String, String> decodeAgentArgs(final String agentArgs) {
