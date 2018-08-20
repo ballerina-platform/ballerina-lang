@@ -53,8 +53,8 @@ public class GetBodyPartsAsChannel extends BlockingNativeCallableUnit {
                 multipartDataSource.serialize(outputStream);
                 EntityBodyChannel entityBodyChannel = new EntityBodyChannel(new ByteArrayInputStream(
                         outputStream.toByteArray()));
-                BMap<String, BValue> byteChannelStruct = BLangConnectorSPIUtil.createBStruct(context, IOConstants.IO_PACKAGE,
-                        BYTE_CHANNEL_STRUCT);
+                BMap<String, BValue> byteChannelStruct = BLangConnectorSPIUtil.createBStruct(context,
+                        IOConstants.IO_PACKAGE, BYTE_CHANNEL_STRUCT);
                 byteChannelStruct.addNativeData(IOConstants.BYTE_CHANNEL_NAME, new EntityWrapper(entityBodyChannel));
                 context.setReturnValues(byteChannelStruct);
             } else {
