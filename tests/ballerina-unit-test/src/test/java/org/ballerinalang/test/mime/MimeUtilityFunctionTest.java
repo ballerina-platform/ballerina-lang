@@ -23,6 +23,7 @@ import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.mime.util.EntityBodyHandler;
 import org.ballerinalang.mime.util.MimeUtil;
+import org.ballerinalang.mime.util.MultipartDecoder;
 import org.ballerinalang.model.util.JsonParser;
 import org.ballerinalang.model.util.StringUtils;
 import org.ballerinalang.model.util.XMLUtils;
@@ -36,6 +37,7 @@ import org.ballerinalang.stdlib.io.utils.Base64ByteChannel;
 import org.ballerinalang.stdlib.io.utils.Base64Wrapper;
 import org.ballerinalang.stdlib.io.utils.IOConstants;
 import org.ballerinalang.test.utils.ByteArrayUtils;
+import org.jvnet.mimepull.MIMEPart;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.testng.Assert;
@@ -48,6 +50,8 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Base64;
+import java.util.List;
+import javax.activation.MimeTypeParseException;
 
 import static org.ballerinalang.mime.util.MimeConstants.CONTENT_DISPOSITION_FILENAME_FIELD;
 import static org.ballerinalang.mime.util.MimeConstants.CONTENT_DISPOSITION_NAME_FIELD;
@@ -60,6 +64,7 @@ import static org.ballerinalang.mime.util.MimeConstants.PROTOCOL_PACKAGE_MIME;
 import static org.ballerinalang.mime.util.MimeConstants.SUBTYPE_FIELD;
 import static org.ballerinalang.mime.util.MimeConstants.SUFFIX_FIELD;
 import static org.ballerinalang.test.mime.Util.getTemporaryFile;
+import static org.ballerinalang.test.mime.Util.validateBodyPartContent;
 
 /**
  * Unit tests for MIME package utilities.
@@ -713,5 +718,33 @@ public class MimeUtilityFunctionTest {
         } catch (IOException e) {
             log.error("Error occurred in testSetByteChannel", e.getMessage());
         }
+    }
+
+    @Test(description = "Test whether the body parts in a multipart entity can be retrieved as a byte channel")
+    public void testGetBodyPartsAsChannel() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testGetBodyPartsAsChannel");
+        Assert.assertEquals(returns.length, 1);
+        BMap<String, BValue> byteChannel = (BMap<String, BValue>) returns[0];
+        Channel channel = (Channel) byteChannel.getNativeData(IOConstants.BYTE_CHANNEL_NAME);
+        try {
+            List<MIMEPart> mimeParts = MultipartDecoder.decodeBodyParts("multipart/mixed; " +
+                    "boundary=e3a0b9ad7b4e7cdt", channel.getInputStream());
+            Assert.assertEquals(mimeParts.size(), 4);
+            BMap<String, BValue> bodyPart = Util.getEntityStruct(compileResult);
+            validateBodyPartContent(mimeParts, bodyPart);
+        } catch (MimeTypeParseException e) {
+            log.error("Error occurred while testing mulitpart/mixed encoding", e.getMessage());
+        } catch (IOException e) {
+            log.error("Error occurred while decoding binary part", e.getMessage());
+        }
+    }
+
+    @Test(description = "Test whether an error is returned when trying to extract body parts from an " +
+            "entity that has discrete media type content")
+    public void getBodyPartsFromDiscreteTypeEntity() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "getBodyPartsFromDiscreteTypeEntity");
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertEquals(((BMap<String, BValue>) returns[0]).get(ERROR_MESSAGE_FIELD).stringValue(),
+                "Entity body is not a type of composite media type. Received content-type : application/json");
     }
 }
