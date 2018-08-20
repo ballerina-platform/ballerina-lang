@@ -191,14 +191,19 @@ function readTerminator(io:ByteChannel channel, map<BIRVariableDcl> localVarMap)
         InstructionKind kind = "CALL";
         var pkgIdCp = readInt(channel);
         var name = readStringViaCp(channel);
-        var arg = readVarRef(channel, localVarMap);
+        var argsCount = readInt(channel);
+        BIROperand[] args = [];
+        int i = 0;
+        while (i < argsCount) {
+            args[i] = readVarRef(channel, localVarMap);
+            i++;
+        }
         var lhsOp = readVarRef(channel, localVarMap);
         BIRBasicBlock thenBB = readBBRef(channel);
-        BIROperand[] args = [arg];
         return new Call(args, kind, lhsOp, {value: name}, thenBB);
 
     }
-    error err = { message: "instrucion kind " + kindTag + " not impl." };
+    error err = { message: "term instrucion kind " + kindTag + " not impl." };
     throw err;
 }
 
@@ -224,16 +229,18 @@ function readInstruction(io:ByteChannel channel, map<BIRVariableDcl> localVarMap
         var rhsOp = readVarRef(channel, localVarMap);
         var lhsOp = readVarRef(channel, localVarMap);
         return new Move(kind, lhsOp, rhsOp);
-    } else if (kindTag == 16){
-        kind = "LESS_THAN";
-    } else if (kindTag == 13){
-        kind = "NOT_EQUAL";
+    } else if (kindTag == 7){
+        kind = "ADD";
     } else if (kindTag == 8){
         kind = "SUB";
     } else if (kindTag == 9){
         kind = "MUL";
-    } else if (kindTag == 7){
-        kind = "ADD";
+    } else if (kindTag == 13){
+        kind = "NOT_EQUAL";
+    } else if (kindTag == 16){
+        kind = "LESS_THAN";
+    } else if (kindTag == 17){
+        kind = "LESS_EQUAL";
     } else {
         error err = { message: "instrucion kind " + kindTag + " not impl." };
         throw err;
@@ -256,11 +263,11 @@ function readVarRef(io:ByteChannel channel, map<BIRVariableDcl> localVarMap) ret
 function getDecl(map<BIRVariableDcl> localVarMap, string varName) returns BIRVariableDcl {
     var posibalDcl = localVarMap[varName];
     match posibalDcl {
+        BIRVariableDcl dcl => return dcl;
         () => {
-            error err = {};
+            error err = { message: "local var missing " + varName};
             throw err;
         }
-        BIRVariableDcl dcl => return dcl;
     }
 }
 
