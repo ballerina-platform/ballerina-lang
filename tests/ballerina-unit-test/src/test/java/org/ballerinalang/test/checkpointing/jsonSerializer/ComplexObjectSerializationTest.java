@@ -56,7 +56,7 @@ public class ComplexObjectSerializationTest {
         JsonSerializer jsonSerializer = new JsonSerializer();
         String serialize = jsonSerializer.serialize(mockComplexKeyMap());
 
-        Map map = jsonSerializer.deserialize(serialize, HashMap.class);
+        HashMap map = jsonSerializer.deserialize(serialize, HashMap.class);
         boolean matchedKey1 = map.keySet().stream().anyMatch(k -> ((JsonSerializerTest.StringFieldA) k).a.equals("Key1"));
         boolean matchedKey2 = map.keySet().stream().anyMatch(k -> ((JsonSerializerTest.StringFieldA) k).a.equals("Key2"));
         Assert.assertTrue(matchedKey1 && matchedKey2);
@@ -64,9 +64,8 @@ public class ComplexObjectSerializationTest {
 
     private Map mockComplexKeyMap() {
         Map<JsonSerializerTest.StringFieldA, String> map = new HashMap<>();
-        map.put(new JsonSerializerTest.StringFieldA("Key1"), "Key1");
-        map.put(new JsonSerializerTest.StringFieldA("Key2"), "Key2");
-
+        map.put(new JsonSerializerTest.StringFieldA("Key1"), "Key1_Value");
+        map.put(new JsonSerializerTest.StringFieldA("Key2"), "Key2_Value");
         return map;
     }
 

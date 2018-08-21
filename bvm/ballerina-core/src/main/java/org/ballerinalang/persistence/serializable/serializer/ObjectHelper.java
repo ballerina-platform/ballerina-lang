@@ -45,9 +45,11 @@ public class ObjectHelper {
         HashMap<String, Field> fieldMap = new HashMap<>();
         for (Field declaredField : targetClass.getDeclaredFields()) {
             int modifiers = declaredField.getModifiers();
-            if (Modifier.isTransient(modifiers)
-                    || (Modifier.isStatic(modifiers) && Modifier.isFinal(modifiers))) {
+            if (Modifier.isTransient(modifiers)) {
                 // transient fields should not be serialized
+                continue;
+            }
+            if (compileTimeConst(modifiers, declaredField.getType())) {
                 continue;
             }
             String name;
@@ -62,6 +64,18 @@ public class ObjectHelper {
             fieldMap.putAll(getAllFields(targetClass.getSuperclass(), depth + 1));
         }
         return fieldMap;
+    }
+
+    private static boolean compileTimeConst(int modifiers, Class<?> type) {
+        return Modifier.isFinal(modifiers) && Modifier.isStatic(modifiers) &&
+                (type == int.class
+                        || type == long.class
+                        || type == short.class
+                        || type == byte.class
+                        || type == char.class
+                        || type == float.class
+                        || type == double.class
+                        || type == String.class);
     }
 
     /**
@@ -107,11 +121,11 @@ public class ObjectHelper {
             return new Byte(getByte((Long) obj));
         }
 
-        if (targetType == char.class) {
+        if (targetType == char.class && obj instanceof Long) {
             return getChar((Long) obj);
         }
 
-        if (targetType == Character.class) {
+        if (targetType == Character.class && obj instanceof Long) {
             return new Character(getChar((Long) obj));
         }
 

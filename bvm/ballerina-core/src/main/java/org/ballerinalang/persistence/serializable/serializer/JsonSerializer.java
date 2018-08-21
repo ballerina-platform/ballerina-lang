@@ -112,7 +112,7 @@ public class JsonSerializer implements ObjectToJsonSerializer, BValueSerializer 
      * @return
      */
     @Override
-    public String serialize(Object object) {
+    public synchronized String serialize(Object object) {
         try {
             if (object == null) {
                 return null;
