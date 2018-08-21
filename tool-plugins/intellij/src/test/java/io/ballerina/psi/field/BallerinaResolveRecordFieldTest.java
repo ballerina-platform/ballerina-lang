@@ -32,7 +32,7 @@ public class BallerinaResolveRecordFieldTest extends BallerinaResolveTestBase {
 
     @Override
     protected String getTestDataPath() {
-        return getTestDataPath("psi/resolve/field/record");
+        return getTestDataPath("psi/resolve/field/type");
     }
 
     public void testSingleLevelFieldAccessInFunction1() {

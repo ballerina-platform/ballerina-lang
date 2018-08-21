@@ -25,7 +25,7 @@ import java.io.IOException;
  */
 public class BallerinaResolveFunctionTest extends BallerinaResolveTestBase {
 
-    private String function = "public function /*def*/fun () returns string {\n    return \"\";\n}";
+    private String function = "public function /*def*/fun() returns string {\n    return \"\";\n}";
 
     @Override
     protected String getTestDataPath() {
@@ -50,10 +50,10 @@ public class BallerinaResolveFunctionTest extends BallerinaResolveTestBase {
 
     //TODO: Uncomment after fixing resolving issue
     //    public void testFunctionInDifferentPackageInvokeInFunction() throws IOException {
-    //        doFileTest(function, "org/test/test.bal");
+    //        doFileTest(function, "test/test.bal");
     //    }
     //
     //    public void testFunctionInDifferentPackageInvokeInService() throws IOException {
-    //        doFileTest(function, "org/test/test.bal");
+    //        doFileTest(function, "test/test.bal");
     //    }
 }

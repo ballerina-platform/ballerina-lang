@@ -14,7 +14,7 @@
  *  limitations under the License.
  */
 
-package io.ballerina.psi.record;
+package io.ballerina.psi.type;
 
 import io.ballerina.psi.BallerinaResolveTestBase;
 
@@ -29,7 +29,7 @@ public class BallerinaResolveRecordTest extends BallerinaResolveTestBase {
 
     @Override
     protected String getTestDataPath() {
-        return getTestDataPath("psi/resolve/record");
+        return getTestDataPath("psi/resolve/type");
     }
 
     public void testRecordInSameFileInFunction() {

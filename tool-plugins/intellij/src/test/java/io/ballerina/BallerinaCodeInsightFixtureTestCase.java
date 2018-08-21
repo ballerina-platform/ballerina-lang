@@ -90,13 +90,9 @@ public abstract class BallerinaCodeInsightFixtureTestCase extends LightPlatformC
                 dummyRoot.refresh(false, false);
 
                 VirtualFile srcRoot;
-                try {
-                    srcRoot = dummyRoot;
-                    cleanSourceRoot(srcRoot);
-                }
-                catch (IOException e) {
-                    throw new RuntimeException(e);
-                }
+
+                srcRoot = dummyRoot;
+                //    cleanSourceRoot(srcRoot);
 
                 IndexableFileSet indexableFileSet = new IndexableFileSet() {
                     @Override
@@ -116,13 +112,14 @@ public abstract class BallerinaCodeInsightFixtureTestCase extends LightPlatformC
                     }
                 };
                 FileBasedIndex.getInstance().registerIndexableSet(indexableFileSet, null);
-                Disposer.register(module.getProject(), () -> FileBasedIndex.getInstance().removeIndexableSet(indexableFileSet));
+                Disposer.register(module.getProject(),
+                        () -> FileBasedIndex.getInstance().removeIndexableSet(indexableFileSet));
 
                 return srcRoot;
             }
 
             private void cleanSourceRoot(@NotNull VirtualFile contentRoot) throws IOException {
-                TempFileSystem tempFs = (TempFileSystem)contentRoot.getFileSystem();
+                TempFileSystem tempFs = (TempFileSystem) contentRoot.getFileSystem();
                 for (VirtualFile child : contentRoot.getChildren()) {
                     if (!tempFs.exists(child)) {
                         tempFs.createChildFile(this, contentRoot, child.getName());
@@ -153,7 +150,7 @@ public abstract class BallerinaCodeInsightFixtureTestCase extends LightPlatformC
 
     @Override
     protected LightProjectDescriptor getProjectDescriptor() {
-        return isSdkAware() ? createMockProjectDescriptor() : createMockProjectDescriptorWithoutSourceRoot();
+        return isSdkAware() ? createMockProjectDescriptor() : null;
     }
 
     protected boolean isSdkAware() {
