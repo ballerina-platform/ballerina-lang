@@ -373,10 +373,8 @@ public class IterableAnalyzer {
         @Override
         public List<BType> visit(BRecordType type, Operation op) {
             if (op.arity < 2) {
-                if (op.arity == 1 && (op.kind == IterableKind.SUM || op.kind == IterableKind.COUNT ||
-                        op.kind == IterableKind.AVERAGE || op.kind == IterableKind.MAX ||
-                        op.kind == IterableKind.MIN)) {
-                    return Lists.of(symTable.anyType);
+                if (op.arity == 1 && op.kind.isTerminal() && !op.kind.isLambdaRequired()) {
+                    return Lists.of(type);
                 }
                 logNotEnoughVariablesError(op, 2);
                 return Lists.of(symTable.errType);
