@@ -462,4 +462,13 @@ public final class BXMLSequence extends BXML<BRefValueArray> {
             return cursor < value.sequence.size();
         }
     }
+
+    @Override
+    public void removeChildren(String qname) {
+        if (sequence.size() != 1) {
+            throw new BallerinaException("not an " + XMLNodeType.ELEMENT);
+        }
+
+        ((BXMLItem) sequence.get(0)).removeChildren(qname);
+    }
 }
