@@ -34,8 +34,8 @@ import org.ballerinalang.docgen.model.PackageName;
 import org.ballerinalang.docgen.model.Page;
 import org.ballerinalang.docgen.model.RecordDoc;
 import org.ballerinalang.langserver.compiler.LSCompiler;
+import org.ballerinalang.langserver.compiler.LSCompilerException;
 import org.ballerinalang.langserver.compiler.common.modal.BallerinaFile;
-import org.ballerinalang.langserver.compiler.workspace.WorkspaceDocumentManagerImpl;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -713,13 +713,21 @@ public class HtmlDocTest {
      * @return BLangPackage
      */
     private BLangPackage createPackage(String source) {
-        LSCompiler lsCompiler = new LSCompiler(WorkspaceDocumentManagerImpl.getInstance());
-        BallerinaFile ballerinaFile = lsCompiler.compileContent(source, CompilerPhase.TYPE_CHECK);
-        if (!ballerinaFile.getDiagnostics().isEmpty()) {
-            ballerinaFile.getDiagnostics().forEach(System.err::println);
-            throw new IllegalStateException("Compilation errors detected.");
+        try {
+            BallerinaFile ballerinaFile = LSCompiler.compileContent(source, CompilerPhase.TYPE_CHECK);
+
+            ballerinaFile.getDiagnostics().ifPresent(
+                    diagnostics -> {
+                        if (!diagnostics.isEmpty()) {
+                            diagnostics.forEach(System.err::println);
+                            throw new IllegalStateException("Compilation errors detected.");
+                        }
+                    }
+            );
+            return ballerinaFile.getBLangPackage().orElse(null);
+        } catch (LSCompilerException e) {
+            throw new IllegalStateException("Compilation errors detected.", e);
         }
-        return ballerinaFile.getBLangPackage();
     }
 
     /**

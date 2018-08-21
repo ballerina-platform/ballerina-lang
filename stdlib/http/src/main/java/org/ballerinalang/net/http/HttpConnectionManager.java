@@ -63,8 +63,7 @@ public class HttpConnectionManager {
 
     public ServerConnector createHttpServerConnector(ListenerConfiguration listenerConfig) {
         String listenerInterface = listenerConfig.getHost() + ":" + listenerConfig.getPort();
-        HttpServerConnectorContext httpServerConnectorContext =
-                serverConnectorPool.get(listenerInterface);
+        HttpServerConnectorContext httpServerConnectorContext = serverConnectorPool.get(listenerInterface);
         if (httpServerConnectorContext != null) {
             if (checkForConflicts(listenerConfig, httpServerConnectorContext)) {
                 throw new BallerinaConnectorException("Conflicting configuration detected for listener " +

@@ -126,4 +126,15 @@
         transition: opacity .3s;
         -webkit-transition: opacity .3s;
     }
+    .grabbable {
+        cursor: move;
+        cursor: grab;
+        cursor: -moz-grab;
+        cursor: -webkit-grab;
+    }
+    .grabbable.grabbing {
+        cursor: grabbing;
+        cursor: -moz-grabbing;
+        cursor: -webkit-grabbing;
+    }
 }

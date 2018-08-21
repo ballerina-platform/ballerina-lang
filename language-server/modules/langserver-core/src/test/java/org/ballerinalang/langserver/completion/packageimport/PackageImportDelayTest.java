@@ -18,6 +18,7 @@
 package org.ballerinalang.langserver.completion.packageimport;
 
 import com.google.gson.JsonObject;
+import org.ballerinalang.langserver.compiler.workspace.WorkspaceDocumentException;
 import org.ballerinalang.langserver.completion.CompletionTest;
 import org.ballerinalang.langserver.completion.util.FileUtils;
 import org.ballerinalang.langserver.index.LSIndexImpl;
@@ -54,7 +55,7 @@ public class PackageImportDelayTest extends CompletionTest {
 
     @Test(dataProvider = "completion-data-provider", enabled = false)
     @Override
-    public void test(String config, String configPath) {
+    public void test(String config, String configPath) throws WorkspaceDocumentException {
         String configJsonPath = configPath + File.separator + config;
         JsonObject configJsonObject = FileUtils.fileContentAsObject(configJsonPath);
 

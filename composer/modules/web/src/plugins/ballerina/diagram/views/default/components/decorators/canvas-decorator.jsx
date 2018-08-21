@@ -70,16 +70,19 @@ class CanvasDecorator extends React.Component {
             h: editMode ? heightDiff : this.props.bBox.h,
         };
 
+        const zoomLevel = this.props.zoom;
+
         const viewBox = editMode ? `0 0 ${this.props.bBox.w} ${this.props.bBox.h}` : '';
+
         return (
-            <div className='' style={{ width: svgSize.w, height: svgSize.h }} >
+            <div className='' style={{ width: svgSize.w * zoomLevel, height: svgSize.h * zoomLevel }} >
                 <div ref={(x) => { setCanvasOverlay(x); }}>
                     {/* This space is used to render html elements over svg */ }
                 </div>
                 <svg
                     className='svg-container'
-                    width={svgSize.w}
-                    height={svgSize.h}
+                    width={svgSize.w * zoomLevel}
+                    height={svgSize.h * zoomLevel}
                     viewBox={viewBox}
                     preserveAspectRatio='xMinYMin'
                     style={{ pointerEvents: editMode ? 'none' : 'auto' }}
@@ -106,6 +109,7 @@ CanvasDecorator.propTypes = {
         height: PropTypes.number.isRequired,
         width: PropTypes.number.isRequired,
     }).isRequired,
+    zoom: PropTypes.number.isRequired,
     bBox: PropTypes.shape({
         h: PropTypes.number.isRequired,
         w: PropTypes.number.isRequired,

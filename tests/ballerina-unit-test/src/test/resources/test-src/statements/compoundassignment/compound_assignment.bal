@@ -133,13 +133,13 @@ function testStringIntCompoundAssignmentAddition() returns (string){
 }
 
 function testIncrementOperatorFloat() returns (float){
-    float x = 100;
+    float x = 100.0;
     x++;
     return x;
 }
 
 function testDecrementOperatorFloat() returns (float){
-    float x = 100;
+    float x = 100.0;
     x--;
     return x;
 }

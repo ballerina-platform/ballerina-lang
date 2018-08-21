@@ -18,6 +18,7 @@
 package org.ballerinalang.langserver.completion;
 
 import com.google.gson.JsonObject;
+import org.ballerinalang.langserver.compiler.workspace.WorkspaceDocumentException;
 import org.ballerinalang.langserver.completion.util.CompletionTestUtil;
 import org.ballerinalang.langserver.completion.util.FileUtils;
 import org.eclipse.lsp4j.CompletionItem;
@@ -34,7 +35,7 @@ import java.util.List;
 public abstract class CompletionNegativeTest extends CompletionTest {
     @Override
     @Test(dataProvider = "completion-negative-data-provider")
-    public void test(String config, String configPath) {
+    public void test(String config, String configPath) throws WorkspaceDocumentException {
         String configJsonPath = "completion" + File.separator + configPath + File.separator + config;
         JsonObject configJsonObject = FileUtils.fileContentAsObject(configJsonPath);
         List<CompletionItem> responseItemList = getResponseItemList(configJsonObject);

@@ -259,8 +259,8 @@ function performRetryAction(@sensitive string path, Request request, HttpOperati
     int interval = retryClient.retryConfig.interval;
     float backOffFactor = retryClient.retryConfig.backOffFactor;
     int maxWaitInterval = retryClient.retryConfig.maxWaitInterval;
-    if (backOffFactor <= 0) {
-        backOffFactor = 1;
+    if (backOffFactor <= 0.0) {
+        backOffFactor = 1.0;
     }
     if (maxWaitInterval == 0) {
         maxWaitInterval = 60000;

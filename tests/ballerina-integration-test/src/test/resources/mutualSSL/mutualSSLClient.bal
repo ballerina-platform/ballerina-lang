@@ -3,7 +3,7 @@ import ballerina/io;
 import ballerina/mime;
 
 endpoint http:Client clientEP {
-    url:"https://localhost:9095",
+    url:"https://localhost:9116",
     secureSocket:{
         keyStore:{
             path:"${ballerina.home}/bre/security/ballerinaKeystore.p12",

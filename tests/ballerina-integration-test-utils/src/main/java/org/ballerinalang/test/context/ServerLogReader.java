@@ -82,6 +82,13 @@ public class ServerLogReader implements Runnable {
     }
 
     /**
+     * Removes all added log leechers from this instance.
+     */
+    public void removeAllLeechers() {
+        leechers.forEach(e -> leechers.remove(e));
+    }
+
+    /**
      * Feed the current log line to all the leechers to validate.
      *
      * @param logLine The currently read log line
