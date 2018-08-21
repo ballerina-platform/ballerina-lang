@@ -32,7 +32,6 @@ import org.wso2.ballerinalang.compiler.tree.BLangAnnotAttribute;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotation;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
 import org.wso2.ballerinalang.compiler.tree.BLangCompilationUnit;
-import org.wso2.ballerinalang.compiler.tree.BLangEnum;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
 import org.wso2.ballerinalang.compiler.tree.BLangImportPackage;
@@ -151,10 +150,6 @@ public class SymbolFindingVisitor extends BLangNodeVisitor {
         serviceNode.getResources().forEach(bLangResource -> bLangResource.accept(this));
     }
 
-    public void visit(BLangEnum enumNode) {
-        this.addSymbol(enumNode, enumNode.symbol, SymbolKind.Enum);
-    }
-
     public void visit(BLangVariable variableNode) {
         SymbolKind kind;
         String btype = variableNode.getTypeNode().toString();
@@ -215,10 +210,6 @@ public class SymbolFindingVisitor extends BLangNodeVisitor {
     }
 
     public void visit(BLangAction actionNode) {
-        // ignore
-    }
-
-    public void visit(BLangEnum.BLangEnumerator enumeratorNode) {
         // ignore
     }
 

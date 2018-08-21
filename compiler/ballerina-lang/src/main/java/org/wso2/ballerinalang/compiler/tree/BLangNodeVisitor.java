@@ -17,7 +17,6 @@
  */
 package org.wso2.ballerinalang.compiler.tree;
 
-import org.wso2.ballerinalang.compiler.tree.BLangEnum.BLangEnumerator;
 import org.wso2.ballerinalang.compiler.tree.BLangXMLNS.BLangLocalXMLNS;
 import org.wso2.ballerinalang.compiler.tree.BLangXMLNS.BLangPackageXMLNS;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangFunctionClause;
@@ -184,14 +183,6 @@ public abstract class BLangNodeVisitor {
     }
 
     public void visit(BLangTypeDefinition typeDefinition) {
-        throw new AssertionError();
-    }
-
-    public void visit(BLangEnum enumNode) {
-        throw new AssertionError();
-    }
-
-    public void visit(BLangEnumerator enumeratorNode) {
         throw new AssertionError();
     }
 

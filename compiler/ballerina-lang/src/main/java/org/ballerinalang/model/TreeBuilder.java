@@ -25,7 +25,6 @@ import org.ballerinalang.model.tree.CompilationUnitNode;
 import org.ballerinalang.model.tree.DeprecatedNode;
 import org.ballerinalang.model.tree.DocumentationNode;
 import org.ballerinalang.model.tree.EndpointNode;
-import org.ballerinalang.model.tree.EnumNode;
 import org.ballerinalang.model.tree.FunctionNode;
 import org.ballerinalang.model.tree.IdentifierNode;
 import org.ballerinalang.model.tree.ImportPackageNode;
@@ -146,8 +145,6 @@ import org.wso2.ballerinalang.compiler.tree.BLangCompilationUnit;
 import org.wso2.ballerinalang.compiler.tree.BLangDeprecatedNode;
 import org.wso2.ballerinalang.compiler.tree.BLangDocumentation;
 import org.wso2.ballerinalang.compiler.tree.BLangEndpoint;
-import org.wso2.ballerinalang.compiler.tree.BLangEnum;
-import org.wso2.ballerinalang.compiler.tree.BLangEnum.BLangEnumerator;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
 import org.wso2.ballerinalang.compiler.tree.BLangImportPackage;
@@ -462,15 +459,7 @@ public class TreeBuilder {
     public static TypeDefinition createTypeDefinition() {
         return new BLangTypeDefinition();
     }
-
-    public static EnumNode createEnumNode() {
-        return new BLangEnum();
-    }
-
-    public static EnumNode.Enumerator createEnumeratorNode() {
-        return new BLangEnumerator();
-    }
-
+    
     public static ActionNode createActionNode() {
         return new BLangAction();
     }

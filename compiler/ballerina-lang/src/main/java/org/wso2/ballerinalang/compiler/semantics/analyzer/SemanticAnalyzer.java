@@ -73,7 +73,6 @@ import org.wso2.ballerinalang.compiler.tree.BLangAnnotation;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
 import org.wso2.ballerinalang.compiler.tree.BLangDocumentation;
 import org.wso2.ballerinalang.compiler.tree.BLangEndpoint;
-import org.wso2.ballerinalang.compiler.tree.BLangEnum;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
 import org.wso2.ballerinalang.compiler.tree.BLangImportPackage;
@@ -365,14 +364,6 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         analyzeDef(recordTypeNode.initFunction, structEnv);
 
         validateDefaultable(recordTypeNode);
-    }
-
-    @Override
-    public void visit(BLangEnum enumNode) {
-        BSymbol enumSymbol = enumNode.symbol;
-        SymbolEnv enumEnv = SymbolEnv.createPkgLevelSymbolEnv(enumNode, enumSymbol.scope, env);
-
-        enumNode.docAttachments.forEach(doc -> analyzeDef(doc, enumEnv));
     }
 
     @Override

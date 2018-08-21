@@ -32,8 +32,6 @@ public enum NodeKind {
     DOCUMENTATION,
     MARKDOWN_DOCUMENTATION,
     ENDPOINT,
-    ENUM,
-    ENUMERATOR,
     FUNCTION,
     IDENTIFIER,
     IMPORT,

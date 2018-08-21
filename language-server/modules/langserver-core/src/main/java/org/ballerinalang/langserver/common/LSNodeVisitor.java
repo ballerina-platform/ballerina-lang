@@ -24,7 +24,6 @@ import org.wso2.ballerinalang.compiler.tree.BLangCompilationUnit;
 import org.wso2.ballerinalang.compiler.tree.BLangDeprecatedNode;
 import org.wso2.ballerinalang.compiler.tree.BLangDocumentation;
 import org.wso2.ballerinalang.compiler.tree.BLangEndpoint;
-import org.wso2.ballerinalang.compiler.tree.BLangEnum;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
 import org.wso2.ballerinalang.compiler.tree.BLangImportPackage;
@@ -179,16 +178,6 @@ public class LSNodeVisitor extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangTypeDefinition typeDefinition) {
-        // No implementation
-    }
-
-    @Override
-    public void visit(BLangEnum enumNode) {
-        // No implementation
-    }
-
-    @Override
-    public void visit(BLangEnum.BLangEnumerator enumeratorNode) {
         // No implementation
     }
 

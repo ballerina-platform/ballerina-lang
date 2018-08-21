@@ -32,7 +32,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 import org.wso2.ballerinalang.compiler.tree.BLangAction;
 import org.wso2.ballerinalang.compiler.tree.BLangEndpoint;
-import org.wso2.ballerinalang.compiler.tree.BLangEnum;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
@@ -437,21 +436,6 @@ public class ReferencesTreeVisitor extends LSNodeVisitor {
     public void visit(BLangFieldBasedAccess fieldAccessExpr) {
         if (fieldAccessExpr.expr != null) {
             this.acceptNode(fieldAccessExpr.expr);
-        }
-    }
-
-    @Override
-    public void visit(BLangEnum enumNode) {
-        if (enumNode.symbol.owner.name.getValue().equals(this.context.get(NodeContextKeys.NODE_OWNER_KEY)) &&
-                enumNode.symbol.owner.pkgID.name.getValue()
-                        .equals(this.context.get(NodeContextKeys.NODE_OWNER_PACKAGE_KEY).name.getValue()) &&
-                enumNode.name.getValue().equals(this.context.get(NodeContextKeys.NAME_OF_NODE_KEY))) {
-            // Fixing the issue with enum end positions by
-            // replacing end line and end column with start line and column values
-            enumNode.getPosition().eLine = enumNode.getPosition().sLine;
-            enumNode.getPosition().eCol = enumNode.getPosition().sCol;
-            addLocation(enumNode, enumNode.symbol.owner.pkgID.name.getValue(),
-                        enumNode.pos.getSource().pkgID.name.getValue());
         }
     }
 

@@ -50,7 +50,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
 import org.wso2.ballerinalang.compiler.tree.BLangEndpoint;
-import org.wso2.ballerinalang.compiler.tree.BLangEnum;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangImportPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
@@ -610,12 +609,6 @@ public class TreeVisitor extends LSNodeVisitor {
     public void visit(BLangContinue continueNode) {
         CursorPositionResolvers.getResolverByClass(cursorPositionResolver)
                 .isCursorBeforeNode(continueNode.getPosition(), continueNode, this, this.lsContext);
-    }
-
-    @Override
-    public void visit(BLangEnum enumNode) {
-        CursorPositionResolvers.getResolverByClass(cursorPositionResolver)
-                .isCursorBeforeNode(enumNode.getPosition(), enumNode, this, this.lsContext);
     }
 
     @Override
