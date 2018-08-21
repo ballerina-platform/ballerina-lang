@@ -19,7 +19,7 @@ export class BallerinaLabelProviderContribution implements LabelProviderContribu
      * returns an icon class for the given element.
      */
     getIcon(element: URI): MaybePromise<string> {
-        return 'java-icon';
+        return 'fw-ballerina';
     }
 
     /**
