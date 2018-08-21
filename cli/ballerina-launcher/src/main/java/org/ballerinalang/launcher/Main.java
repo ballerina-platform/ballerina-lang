@@ -125,14 +125,14 @@ public class Main {
             return Optional.of(parsedCommands.get(parsedCommands.size() - 1).getCommand());
         } catch (CommandLine.UnmatchedArgumentException e) {
             String errorMessage = e.getMessage();
-            if (errorMessage != null) {
-                if (errorMessage.contains(UNMATCHED_ARGUMENT_PREFIX)) {
-                    throw LauncherUtils.createUsageException("unknown command '" + getFirstUnknownArg(errorMessage)
-                                                                     + "'");
-                }
-                throw LauncherUtils.createUsageException(LauncherUtils.makeFirstLetterLowerCase(errorMessage));
+            if (errorMessage == null) {
+                throw LauncherUtils.createUsageException("internal error occurred");
             }
-            throw LauncherUtils.createUsageException("internal error occurred");
+            if (errorMessage.contains(UNMATCHED_ARGUMENT_PREFIX)) {
+                throw LauncherUtils.createUsageException("unknown command '" + getFirstUnknownArg(errorMessage)
+                                                                 + "'");
+            }
+            throw LauncherUtils.createUsageException(LauncherUtils.makeFirstLetterLowerCase(errorMessage));
         } catch (CommandLine.ParameterException e) {
             String msg = e.getMessage();
             if (msg == null) {
