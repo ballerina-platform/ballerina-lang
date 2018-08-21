@@ -209,6 +209,49 @@ public class PackagingNegativeTestCase extends BaseTest {
         serverInstance.runMain(new String[0], envVariables, "install");
     }
 
+    @Test(description = "Test build with too many arguments")
+    public void testBuildWithTooManyArgs() throws Exception {
+        String msg = "ballerina: too many arguments\n Run 'ballerina help' for usage.";
+        addLogLeecher(msg);
+        serverInstance.runMain(new String[] {"hello", "world"}, envVariables, "build");
+    }
+
+    @Test(description = "Test install with too many arguments")
+    public void testInstallWithTooManyArgs() throws Exception {
+        String msg = "ballerina: too many arguments\n Run 'ballerina help' for usage.";
+        addLogLeecher(msg);
+        serverInstance.runMain(new String[] {"foo", "bar"}, envVariables, "install");
+    }
+
+    @Test(description = "Test push with too many arguments")
+    public void testPushWithTooManyArgs() throws Exception {
+        String msg = "ballerina: too many arguments\n Run 'ballerina help' for usage.";
+        addLogLeecher(msg);
+        serverInstance.runMain(new String[] {"integrationtests", "foo"}, envVariables, "push");
+    }
+
+    @Test(description = "Test list with too many arguments")
+    public void testSearchWithTooManyArgs() throws Exception {
+        String msg = "ballerina: too many arguments\n Run 'ballerina help' for usage.";
+        addLogLeecher(msg);
+        serverInstance.runMain(new String[] {"wso2", "twitter"}, envVariables, "list");
+    }
+
+    @Test(description = "Test push without any packages in the project")
+    public void testPushAllWithoutPackages() throws Exception {
+        Path projectPath = tempProjectDirectory.resolve("projectWithoutPackages");
+        Files.createDirectories(projectPath);
+
+        Files.createFile(projectPath.resolve("main.bal"));
+        String content = "import ballerina/io;\n \n function main(string... args) {\n" +
+                         "    io:println(\"Hello World!\");\n }\n";
+        writeToFile(projectPath.resolve("main.bal"), content);
+
+        String msg = "ballerina: no packages found to push in " + projectPath.toString();
+        addLogLeecher(msg);
+        serverInstance.runMain(new String[0], envVariables, "push", projectPath.toString());
+    }
+
     /**
      * Init project used to test the scenario.
      *

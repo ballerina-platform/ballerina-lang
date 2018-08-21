@@ -584,6 +584,32 @@ public class PackagingTestCase extends BaseTest {
         runMainFunction(projectPath, generatedBalx.toString());
     }
 
+    @Test(description = "Test push all packages in project to central")
+    public void testPushAllPackages() throws Exception {
+        // Test ballerina init
+        Path projectPath = tempProjectDirectory.resolve("pushAllPackageTest");
+        Files.createDirectories(projectPath);
+
+        String firstPackage = "firstTestPkg" + PackagingTestUtils.randomPackageName(10);
+        String secondPackage = "secondTestPkg" + PackagingTestUtils.randomPackageName(10);
+
+        String[] clientArgsForInit = {"-i"};
+        String[] options = {"\n", orgName + "\n", "\n", "m\n", firstPackage + "\n", "m\n", secondPackage + "\n", "f\n"};
+        serverInstance.runMainWithClientOptions(clientArgsForInit, options, envVariables, "init",
+                                                projectPath.toString());
+
+        // Reset the server log reader
+        serverInstance.resetServerLogReader();
+
+        String msg = orgName + "/" + firstPackage + ":0.0.1 [project repo -> central]\n" +
+                orgName + "/" + secondPackage + ":0.0.1 [project repo -> central]";
+
+        LogLeecher clientLeecher = new LogLeecher(msg);
+        serverInstance.addLogLeecher(clientLeecher);
+        serverInstance.runMain(new String[0], envVariables, "push", projectPath.toString());
+        clientLeecher.waitForText(5000);
+    }
+
     /**
      * Run and test main function in project.
      *
