@@ -26,15 +26,18 @@ import org.eclipse.lsp4j.ParameterInformation;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.SignatureHelp;
 import org.eclipse.lsp4j.SignatureInformation;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BEndpointVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 
+import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Deque;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.Stack;
 import java.util.stream.Collectors;
 
 /**
@@ -49,6 +52,9 @@ public class SignatureHelpUtil {
     private static final String COMMA = ",";
 
     private static final List<String> TERMINAL_CHARACTERS = Arrays.asList(OPEN_BRACKET, COMMA, ".");
+
+    private SignatureHelpUtil() {
+    }
 
     /**
      * Capture the callable item information such as name, package of the item, delimiter (. or :), and etc.
@@ -67,7 +73,7 @@ public class SignatureHelpUtil {
         String line = lineTokens[lineNumber];
 
         int backTrackPosition = character - 1;
-        Stack<String> closeBracketStack = new Stack<>();
+        Deque<String> closeBracketStack = new ArrayDeque<>();
 
         while (true) {
             if (backTrackPosition < 0) {
@@ -110,6 +116,8 @@ public class SignatureHelpUtil {
         if (!idAgainst.isEmpty() && (delimiter.equals(UtilSymbolKeys.DOT_SYMBOL_KEY)
                 || delimiter.equals(UtilSymbolKeys.PKG_DELIMITER_KEYWORD))) {
             functions = FilterUtils.getInvocationAndFieldSymbolsOnVar(ctx, idAgainst, delimiter, visibleSymbols);
+        } else if (!idAgainst.isEmpty() && (delimiter.equals(UtilSymbolKeys.ACTION_INVOCATION_SYMBOL_KEY))) {
+            functions = getEndpointActionsByName(idAgainst, visibleSymbols);
         } else {
             functions = visibleSymbols;
         }
@@ -197,27 +205,26 @@ public class SignatureHelpUtil {
     private static void setItemInfo(String line, int startPosition, LSServiceOperationContext signatureContext) {
         int counter = startPosition;
         String callableItemName = "";
-        String delimiter = "";
-        while (true) {
-            if (counter < 0) {
-                break;
-            }
+        StringBuilder delimiter = new StringBuilder();
+        while (counter > 0) {
             char c = line.charAt(counter);
-            if (!(Character.isLetterOrDigit(c) || "_".equals(Character.toString(c)))
+            if (!(Character.isLetterOrDigit(c)
+                    || "_".equals(Character.toString(c)))
                     || TERMINAL_CHARACTERS.contains(Character.toString(c))) {
                 callableItemName = line.substring(counter + 1, startPosition + 1);
-                delimiter = String.valueOf(line.charAt(counter));
-                if (">".equals(delimiter) && "-".equals(String.valueOf(line.charAt(counter - 1)))) {
+                if (">".equals(String.valueOf(c)) && "-".equals(String.valueOf(line.charAt(counter - 1)))) {
+                    delimiter.append(UtilSymbolKeys.ACTION_INVOCATION_SYMBOL_KEY);
                     counter--;
-                    delimiter = String.valueOf(line.charAt(counter)) + delimiter;
+                } else {
+                    delimiter.append(String.valueOf(c));
                 }
-                captureIdentifierAgainst(line, counter, signatureContext, delimiter);
+                captureIdentifierAgainst(line, counter, signatureContext, delimiter.toString());
                 break;
             }
             counter--;
         }
         signatureContext.put(SignatureKeys.CALLABLE_ITEM_NAME, callableItemName);
-        signatureContext.put(SignatureKeys.ITEM_DELIMITER, delimiter);
+        signatureContext.put(SignatureKeys.ITEM_DELIMITER, delimiter.toString());
     }
 
     /**
@@ -234,10 +241,7 @@ public class SignatureHelpUtil {
                 || UtilSymbolKeys.PKG_DELIMITER_KEYWORD.equals(delimiter)
                 || UtilSymbolKeys.ACTION_INVOCATION_SYMBOL_KEY.equals(delimiter)) {
             counter--;
-            while (true) {
-                if (counter < 0) {
-                    break;
-                }
+            while (counter > 0) {
                 char c = line.charAt(counter);
                 if (TERMINAL_CHARACTERS.contains(Character.toString(c)) || Character.toString(c).equals(" ")
                         || Character.toString(c).equals("\n")) {
@@ -249,6 +253,22 @@ public class SignatureHelpUtil {
         }
         signatureContext.put(SignatureKeys.IDENTIFIER_AGAINST, identifier.trim());
     }
+    
+    private static List<SymbolInfo> getEndpointActionsByName(String epName, List<SymbolInfo> symbolInfoList) {
+        List<SymbolInfo> filteredList = new ArrayList<>();
+        SymbolInfo filteredSymbol = symbolInfoList.stream()
+                .filter(symbolInfo -> {
+                    BSymbol bSymbol = symbolInfo.getScopeEntry().symbol;
+                    return bSymbol.getName().getValue().equals(epName) && bSymbol instanceof BEndpointVarSymbol;
+                })
+                .findFirst().orElse(null);
+        if (filteredSymbol != null) {
+            filteredList.addAll(FilterUtils
+                    .getEndpointActions((BEndpointVarSymbol) filteredSymbol.getScopeEntry().symbol));
+        }
+        
+        return filteredList;
+    } 
 
     /**
      * Parameter information model to hold the parameter information meta data.
@@ -294,10 +314,6 @@ public class SignatureHelpUtil {
 
         void setParameterInfoModels(List<ParameterInfoModel> parameterInfoModels) {
             this.parameterInfoModels = parameterInfoModels;
-        }
-
-        public String getSignatureDescription() {
-            return signatureDescription;
         }
 
         void setSignatureDescription(String signatureDescription) {
