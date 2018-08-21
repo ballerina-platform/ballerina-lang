@@ -117,7 +117,6 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeInit;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangVariableReference;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangAbort;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangAssignment;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangBind;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBreak;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangCatch;
@@ -621,16 +620,6 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
 
         expType = new BTupleType(expTypes);
         typeChecker.checkExpr(tupleDeStmt.expr, this.env, expType);
-    }
-
-    public void visit(BLangBind bindNode) {
-        BType expType;
-        // Check each LHS expression.
-        BLangExpression varRef = bindNode.varRef;
-        ((BLangVariableReference) varRef).lhsVar = true;
-        expType = typeChecker.checkExpr(varRef, env);
-        checkConstantAssignment(varRef);
-        typeChecker.checkExpr(bindNode.expr, this.env, expType);
     }
 
     private void checkConstantAssignment(BLangExpression varRef) {

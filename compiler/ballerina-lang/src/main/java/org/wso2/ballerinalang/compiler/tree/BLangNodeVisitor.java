@@ -104,7 +104,6 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLSequenceLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLTextLiteral;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangAbort;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangAssignment;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangBind;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBreak;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangCatch;
@@ -253,10 +252,6 @@ public abstract class BLangNodeVisitor {
     }
 
     public void visit(BLangCompoundAssignment compoundAssignNode) {
-        throw new AssertionError();
-    }
-
-    public void visit(BLangBind bindNode) {
         throw new AssertionError();
     }
 

@@ -90,7 +90,6 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLQuotedString;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLTextLiteral;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangAbort;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangAssignment;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangBind;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBreak;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangCatch;
@@ -740,12 +739,6 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         this.checkStatementExecutionValidity(stmt);
         analyzeExprs(stmt.varRefs);
         analyzeExpr(stmt.expr);
-    }
-
-    public void visit(BLangBind bindNode) {
-        this.checkStatementExecutionValidity(bindNode);
-        analyzeExpr(bindNode.varRef);
-        analyzeExpr(bindNode.expr);
     }
 
     public void visit(BLangBreak breakNode) {
