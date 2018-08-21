@@ -3,21 +3,15 @@ package org.ballerinalang.channels;
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
 import org.ballerinalang.config.ConfigRegistry;
-import org.ballerinalang.model.types.BArrayType;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.TypeTags;
 import org.ballerinalang.model.util.JsonParser;
 import org.ballerinalang.model.util.XMLUtils;
 import org.ballerinalang.model.values.BBoolean;
-import org.ballerinalang.model.values.BBooleanArray;
 import org.ballerinalang.model.values.BByte;
-import org.ballerinalang.model.values.BByteArray;
 import org.ballerinalang.model.values.BFloat;
-import org.ballerinalang.model.values.BFloatArray;
-import org.ballerinalang.model.values.BIntArray;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BString;
-import org.ballerinalang.model.values.BStringArray;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.util.exceptions.BallerinaException;
 
@@ -182,6 +176,7 @@ public class DatabaseUtils {
                 break;
             case TypeTags.BYTE_TAG:
                 stmt.setByte(index, ((BByte) value).byteValue());
+                break;
             default:
                 stmt.setString(index, value.toString());
         }
