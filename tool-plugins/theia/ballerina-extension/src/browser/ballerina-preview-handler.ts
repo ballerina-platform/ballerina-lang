@@ -7,9 +7,10 @@ import URI from "@theia/core/lib/common/uri";
 
 import { PreviewHandler, RenderContentParams } from '@theia/preview/lib/browser';
 
-import { ParserReply, parseContent } from '../common';
+import { parseContent } from './ballerina-preview-widget';
 
 const { renderEditableDiagram } = require('../../../resources/lib/ballerina-diagram-library');
+import { ParserReply } from './diagram/ballerina-diagram'; 
 
 let lastRenderedAST: Object | undefined = undefined;
 

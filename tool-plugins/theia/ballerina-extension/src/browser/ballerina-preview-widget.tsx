@@ -1,3 +1,4 @@
+import axios from "axios";
 import { ReactWidget } from '@theia/core/lib/browser/widgets/react-widget';
 import { Widget } from '@theia/core/lib/browser/widgets/widget';
 import { injectable, postConstruct, inject } from 'inversify';
@@ -5,37 +6,32 @@ import { EditorManager, TextEditor, EditorWidget, TextDocumentChangeEvent } from
 import { DisposableCollection } from '@theia/core/lib/common/disposable';
 import * as React from 'react';
 import * as lsp from 'vscode-languageserver-types';
-import { parseContent, ParserReply, BALLERINA_LANGUAGE_ID } from '../common'
+import { BALLERINA_LANGUAGE_ID } from '../common'
 
-import '../../../resources/lib/bundle.css';
-import '../../../resources/lib/theme.css';
-import '../../../resources/lib/less.css';
+import { BallerinaDiagram, BallerinaDiagramChangeEvent, ParserReply } from './diagram/ballerina-diagram'; 
 
-import '../../src/browser/style/preview.css';
-
-
-const { BallerinaDesignView, TreeBuilder } = require('../../../resources/lib/ballerina-diagram-library');
-
-const TREE_MODIFIED = 'tree-modified';
-export interface EditModeChangeEvent {
-    editMode: boolean,
+export function parseContent(content: String) : Promise<ParserReply> {
+    const parseOpts = {
+        content,
+        includePackageInfo: true,
+        includeProgramDir: true,
+        includeTree: true,
+    }
+    return axios.post(
+                    'https://parser.playground.preprod.ballerina.io/api/parser',
+                    parseOpts,
+                    { 
+                        headers: {
+                            'content-type': 'application/json; charset=utf-8',
+                        } 
+                    })
+                .then(response => response.data);
 }
-export interface DiagramModeChangeEvent {
-    mode: string,
-}
 
-export interface AST {
-    on(evt: string, handler: Function): void;
-    off(evt: string, handler: Function): void;
-    getSource(): string;
-}
 @injectable()
 export class BallerinaPreviewWidget extends ReactWidget {
 
-    protected currentAST: AST | undefined;
     protected readonly toDisposePerCurrentEditor = new DisposableCollection();
-    protected editMode: boolean = true;
-    protected diagramMode: string = 'action';
 
     constructor(
         @inject(EditorManager) readonly editorManager: EditorManager
@@ -55,28 +51,10 @@ export class BallerinaPreviewWidget extends ReactWidget {
 
     protected onResize(msg: Widget.ResizeMessage): void {
         super.onResize(msg);
-        super.update();
-    }
-
-    update() : void {
-        this.getAST()
-                .then((parserReply: ParserReply) => {
-                    if (parserReply.model) {
-                        if (this.currentAST) {
-                            this.currentAST.off(TREE_MODIFIED, this.onModelUpdate);
-                        }
-                        this.currentAST = TreeBuilder.build(parserReply.model);
-                        if (this.currentAST) {
-                            this.currentAST.on(TREE_MODIFIED, this.onModelUpdate.bind(this));
-                        }
-                        super.update();
-                    }
-                });
-        super.update();
+        this.update();
     }
 
     protected onCurrentEditorChanged(editorWidget: EditorWidget | undefined): void {
-        this.currentAST = undefined;
         this.toDisposePerCurrentEditor.dispose();
         if (editorWidget) {
             const { editor } = editorWidget;
@@ -95,33 +73,37 @@ export class BallerinaPreviewWidget extends ReactWidget {
         }
     }
 
-    protected onModelUpdate(evt: any) {
-        if (this.currentAST) {
-            const newContent = this.currentAST.getSource();
-            const currentEditor: TextEditor | undefined = this.getCurrentEditor();
-            if (currentEditor && currentEditor.document.languageId === BALLERINA_LANGUAGE_ID) {
-                const endLine = currentEditor.document.lineCount;
-                const endOffset = currentEditor.document.getLineContent(endLine).length;
-                const startPosition = lsp.Position.create(0,0);
-                const endPosition = lsp.Position.create(endLine, endOffset);
-                const editOperation: lsp.TextEdit = {
-                    newText: newContent,
-                    range: lsp.Range.create(startPosition, endPosition)
-                };
-                currentEditor.executeEdits([editOperation])
-            }
-            console.log(newContent);
+    protected onChange(evt: BallerinaDiagramChangeEvent) {
+        const newContent = evt.newContent;
+        const currentEditor: TextEditor | undefined = this.getCurrentEditor();
+        if (currentEditor && currentEditor.document.languageId === BALLERINA_LANGUAGE_ID) {
+            const endLine = currentEditor.document.lineCount;
+            const endOffset = currentEditor.document.getLineContent(endLine).length;
+            const startPosition = lsp.Position.create(0,0);
+            const endPosition = lsp.Position.create(endLine, endOffset);
+            const editOperation: lsp.TextEdit = {
+                newText: newContent,
+                range: lsp.Range.create(startPosition, endPosition)
+            };
+            currentEditor.executeEdits([editOperation])
         }
     }
 
     protected onDocumentContentChanged(editor: TextEditor, event: TextDocumentChangeEvent): void {
-        if (event.contentChanges.length > 0) {
-            this.update();
-        }
+        this.update();
     }
 
     protected render(): React.ReactNode {
         const currentEditor = this.getCurrentEditor();
+        if (!currentEditor) {
+            return (
+                <div className="ballerina-preview">
+                    <div>
+                        {'No bal file is open.'}
+                    </div>
+                </div>
+            )
+        }
         if (currentEditor && currentEditor.document.languageId !== BALLERINA_LANGUAGE_ID) {
             return (
                 <div className="ballerina-preview">
@@ -131,40 +113,17 @@ export class BallerinaPreviewWidget extends ReactWidget {
                 </div>
             )
         }
-        if (!this.currentAST) {
-            return (
-                <div className='spinnerContainer'>
-                    <div className='fa fa-spinner fa-pulse fa-3x fa-fw' style={{ color: "grey" }}></div>
-                </div>
-            )
-        } 
         return <React.Fragment>
                 <div className='ballerina-editor design-view-container'>
-                    <BallerinaDesignView 
-                        model={this.currentAST}
-                        mode={this.diagramMode}
-                        editMode={this.editMode}
+                    <BallerinaDiagram 
+                        content={currentEditor.document.getText()}
+                        parseContent={parseContent}
+                        onChange={this.onChange.bind(this)}
                         height={this.node.clientHeight}
                         width={this.node.clientWidth}
-                        onModeChange={(evt: EditModeChangeEvent) => {
-                            this.editMode = evt.editMode;
-                            this.update();
-                        }}
-                        onCodeExpandToggle={(evt: DiagramModeChangeEvent) => {
-                            this.diagramMode = evt.mode;
-                            this.update();
-                        }}
                     />
                 </div>
             </React.Fragment>;
-    }
-
-    protected getAST(): Promise<ParserReply> {
-        const currentEditor: TextEditor | undefined = this.getCurrentEditor();
-        if (currentEditor) {
-            return parseContent(currentEditor.document.getText());
-        }
-        return Promise.resolve({});
     }
 
     protected getCurrentEditor(): TextEditor | undefined {
