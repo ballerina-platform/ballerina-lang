@@ -170,9 +170,9 @@ public abstract class ConnectionAction implements NativeCallableUnit {
             BMap<String, BValue> httpConnectorError =  HttpUtil.getError(dataContext.context, throwable);
             if (outboundMsgDataStreamer != null) {
                 if (throwable instanceof IOException) {
-                    this.outboundMsgDataStreamer.setIoException((IOException) throwable);
+                    this.dataContext.getOutboundRequest().setIoException((IOException) throwable);
                 } else {
-                    this.outboundMsgDataStreamer.setIoException(new IOException(throwable.getMessage()));
+                    this.dataContext.getOutboundRequest().setIoException(new IOException(throwable.getMessage()));
                 }
             }
             this.dataContext.notifyOutboundResponseStatus(httpConnectorError);

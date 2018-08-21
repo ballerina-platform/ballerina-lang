@@ -339,11 +339,10 @@ public abstract class AbstractHTTPAction implements NativeCallableUnit {
 
         HttpUtil.checkAndObserveHttpRequest(dataContext.context, outboundRequestMsg);
 
-        final HttpMessageDataStreamer outboundMsgDataStreamer = getHttpMessageDataStreamer(outboundRequestMsg);
-
         final HTTPClientConnectorListener httpClientConnectorLister = ObservabilityUtils.isObservabilityEnabled() ?
-                new ObservableHttpClientConnectorListener(dataContext, outboundMsgDataStreamer) :
-                new HTTPClientConnectorListener(dataContext, outboundMsgDataStreamer);
+                new ObservableHttpClientConnectorListener(dataContext) :
+                new HTTPClientConnectorListener(dataContext);
+        final HttpMessageDataStreamer outboundMsgDataStreamer = getHttpMessageDataStreamer(outboundRequestMsg);
         final OutputStream messageOutputStream = outboundMsgDataStreamer.getOutputStream();
         HttpResponseFuture future = clientConnector.send(outboundRequestMsg);
         if (async) {
@@ -459,12 +458,9 @@ public abstract class AbstractHTTPAction implements NativeCallableUnit {
     private class HTTPClientConnectorListener implements HttpClientConnectorListener {
 
         private DataContext dataContext;
-        private HttpMessageDataStreamer outboundMsgDataStreamer;
-        // Reference for post validation.
 
-        private HTTPClientConnectorListener(DataContext dataContext, HttpMessageDataStreamer outboundMsgDataStreamer) {
+        private HTTPClientConnectorListener(DataContext dataContext) {
             this.dataContext = dataContext;
-            this.outboundMsgDataStreamer = outboundMsgDataStreamer;
         }
 
         @Override
@@ -490,10 +486,10 @@ public abstract class AbstractHTTPAction implements NativeCallableUnit {
                                                                          HttpConstants.PROTOCOL_PACKAGE_HTTP,
                                                                          HttpConstants.HTTP_TIMEOUT_ERROR);
             } else if (throwable instanceof IOException) {
-                this.outboundMsgDataStreamer.setIoException((IOException) throwable);
+                this.dataContext.getOutboundRequest().setIoException((IOException) throwable);
                 httpConnectorError = HttpUtil.getError(this.dataContext.context, throwable);
             } else {
-                this.outboundMsgDataStreamer.setIoException(new IOException(throwable.getMessage()));
+                this.dataContext.getOutboundRequest().setIoException(new IOException(throwable.getMessage()));
                 httpConnectorError = HttpUtil.getError(this.dataContext.context, throwable);
             }
             httpConnectorError.put(BLangVMErrors.ERROR_MESSAGE_FIELD, new BString(throwable.getMessage()));
@@ -508,9 +504,8 @@ public abstract class AbstractHTTPAction implements NativeCallableUnit {
 
         private final Context context;
 
-        private ObservableHttpClientConnectorListener(DataContext dataContext,
-                                                      HttpMessageDataStreamer outboundMsgDataStreamer) {
-            super(dataContext, outboundMsgDataStreamer);
+        private ObservableHttpClientConnectorListener(DataContext dataContext) {
+            super(dataContext);
             this.context = dataContext.context;
         }
 
