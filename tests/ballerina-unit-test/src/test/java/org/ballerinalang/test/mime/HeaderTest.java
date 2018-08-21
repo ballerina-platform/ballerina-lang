@@ -161,4 +161,13 @@ public class HeaderTest {
         Assert.assertEquals(returns.length, 1);
         Assert.assertFalse(Boolean.parseBoolean(returns[0].stringValue()));
     }
+
+    @Test(description = "Test headers with a newly created entity")
+    public void testHeaderWithNewEntity() {
+        BValue[] args = {};
+        BValue[] returns = BRunUtil.invoke(compileResult, "testHeaderWithNewEntity", args);
+        Assert.assertEquals(returns.length, 2);
+        Assert.assertFalse(Boolean.parseBoolean(returns[0].stringValue()));
+        Assert.assertEquals(returns[1].stringValue(), "[]");
+    }
 }
