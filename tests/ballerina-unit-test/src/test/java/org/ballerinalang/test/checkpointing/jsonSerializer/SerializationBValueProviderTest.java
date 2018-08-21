@@ -21,17 +21,20 @@ import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.persistence.serializable.serializer.JsonSerializer;
 import org.ballerinalang.persistence.serializable.serializer.providers.bvalue.NumericBValueProviders;
+import org.joda.time.DateTime;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.time.Instant;
+import java.util.Date;
 
 import static org.ballerinalang.persistence.serializable.serializer.JsonSerializerConst.PAYLOAD_TAG;
 
 public class SerializationBValueProviderTest {
 
-    private static final String NUMBER  = "2345232323";
+    private static final String NUMBER = "2345232323";
 
     @Test(description = "test BigInt to BValue conversion")
     public void testBigIntBValueProviderToBValue() {
@@ -64,5 +67,22 @@ public class SerializationBValueProviderTest {
         BigDecimal object = provider.toObject(value, null);
         Assert.assertTrue(object != null);
         Assert.assertTrue(object.toString().equals(NUMBER));
+    }
+
+    @Test(description = "test Date SerializationBValue")
+    public void testDateBValueProvider() {
+        Date date = DateTime.now().toDate();
+        String serialize = new JsonSerializer().serialize(date);
+        Date dsDate = new JsonSerializer().deserialize(serialize, Date.class);
+        Assert.assertEquals(date, dsDate);
+    }
+
+    @Test(description = "test Time serialization")
+    public void testTimeBValueProvider() {
+        Instant now = Instant.now();
+        JsonSerializer serializer = new JsonSerializer();
+        String serialize = serializer.serialize(now);
+        Instant deserialize = serializer.deserialize(serialize, Instant.now().getClass());
+        Assert.assertEquals(now, deserialize);
     }
 }

@@ -42,6 +42,7 @@ import org.ballerinalang.persistence.serializable.serializer.providers.bvalue.BT
 import org.ballerinalang.persistence.serializable.serializer.providers.bvalue.BallerinaBrokerByteBufBValueProvider;
 import org.ballerinalang.persistence.serializable.serializer.providers.bvalue.ClassBValueProvider;
 import org.ballerinalang.persistence.serializable.serializer.providers.bvalue.ConcurrentHashMapBValueProvider;
+import org.ballerinalang.persistence.serializable.serializer.providers.bvalue.DateTimeBValueProviders;
 import org.ballerinalang.persistence.serializable.serializer.providers.bvalue.NumericBValueProviders;
 import org.ballerinalang.persistence.serializable.serializer.providers.bvalue.SerializedKeyBValueProvider;
 import org.ballerinalang.util.exceptions.BallerinaException;
@@ -90,6 +91,8 @@ public class JsonSerializer implements ObjectToJsonSerializer, BValueSerializer 
         bValueProvider.register(new BTypeBValueProviders.BAnyTypeBValueProvider());
         bValueProvider.register(new BTypeBValueProviders.BArrayTypeBValueProvider());
         bValueProvider.register(new SerializedKeyBValueProvider());
+        bValueProvider.register(new DateTimeBValueProviders.DateBValueProvider());
+        bValueProvider.register(new DateTimeBValueProviders.InstantBValueProvider());
     }
 
     public JsonSerializer() {
