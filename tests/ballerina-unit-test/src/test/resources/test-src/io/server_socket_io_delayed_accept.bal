@@ -17,6 +17,7 @@
 import ballerina/io;
 
 string returnValue;
+io:ServerSocket server;
 
 function getResultValue() returns string {
     return returnValue;
@@ -55,10 +56,13 @@ function readCharacters(int numberOfCharacters, io:CharacterChannel characterCha
     }
 }
 
-function startServerSocket(int port, string welcomeMsg) {
-    io:ServerSocket server = new();
-    io:println("Server started");
+function initServer(int port) {
+    server = new();
     check server.bindAddress(port);
+    io:println("Server started");
+}
+
+function startServerSocket(string welcomeMsg) {
     match server.accept() {
         io:Socket s => {
             io:println("Client socket accepted!!!");
@@ -104,7 +108,7 @@ function startServerSocket(int port, string welcomeMsg) {
             io:println("Client done.");
         }
         error e10 => {
-            io:println("Socket accept error: " , e10.message);
+            io:println("Socket accept error: ", e10.message);
         }
     }
     check server.close();
