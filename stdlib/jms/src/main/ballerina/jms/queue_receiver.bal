@@ -34,15 +34,14 @@ public type QueueReceiver object {
         self.consumerActions.queueReceiver = self;
         match (c.session) {
             Session s => {
-                match (c.destination) {
-                    Destination destination => {
-                        validateQueue(destination);
+                match (c.queueName) {
+                    string queueName => {
                         self.createQueueReceiver(s, c.messageSelector);
                     }
                     () => {}
                 }
             }
-            () => { log:printInfo("Message receiver not properly initialised for queue" ); }
+            () => { log:printInfo("Message receiver is not properly initialised for queue " + c.queueName); }
         }
     }
 
@@ -55,7 +54,7 @@ public type QueueReceiver object {
 
     extern function registerListener(typedesc serviceType, QueueReceiverActions actions);
 
-    extern function createQueueReceiver(Session session, string messageSelector);
+    extern function createQueueReceiver(Session session, string messageSelector, Destination? destination = ());
 
     documentation { Starts the endpoint. Function is ignored by the receiver endpoint }
     public function start() {
@@ -79,13 +78,13 @@ public type QueueReceiver object {
 
 documentation { Configurations related to the QueueReceiver endpoint
     F{{session}} JMS session object
-    F{{destination}} JMS destination
+    F{{queueName}} Name of the queue
     F{{messageSelector}} JMS selector statement
     F{{identifier}} unique identifier for the subscription
 }
 public type QueueReceiverEndpointConfiguration record {
     Session? session;
-    Destination? destination;
+    string? queueName;
     string messageSelector;
     string identifier;
 };
@@ -123,13 +122,14 @@ function QueueReceiverActions::receiveFrom(Destination destination, int timeoutI
             match (queueReceiver.config.session) {
                 Session s => {
                     validateQueue(destination);
-                    queueReceiver.config.destination = destination;
-                    queueReceiver.createQueueReceiver(s, queueReceiver.config.messageSelector);
+                    queueReceiver.createQueueReceiver(s, queueReceiver.config.messageSelector, destination = destination
+                    );
                 }
                 () => {}
             }
         }
-        () => { log:printInfo("Message receiver not properly initialised for queue" ); }
+        () => { log:printInfo("Message receiver is not properly initialised for queue " +
+                destination.destinationName); }
     }
     var result = self.receive(timeoutInMilliSeconds = timeoutInMilliSeconds);
     self.queueReceiver.closeQueueReceiver(self);

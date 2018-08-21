@@ -33,6 +33,7 @@ import org.ballerinalang.net.jms.Constants;
 import org.ballerinalang.net.jms.JMSUtils;
 import org.ballerinalang.net.jms.nativeimpl.endpoint.common.SessionConnector;
 import org.ballerinalang.net.jms.utils.BallerinaAdapter;
+import org.ballerinalang.util.exceptions.BallerinaException;
 
 import javax.jms.Destination;
 import javax.jms.JMSException;
@@ -49,7 +50,9 @@ import javax.jms.Session;
         packageName = "jms",
         functionName = "initTopicPublisher",
         receiver = @Receiver(type = TypeKind.OBJECT, structType = "TopicPublisher", structPackage = "ballerina/jms"),
-        args = { @Argument(name = "session", type = TypeKind.OBJECT, structType = "Session") },
+        args = { @Argument(name = "session", type = TypeKind.OBJECT, structType = "Session"),
+                @Argument(name = "destination", type = TypeKind.OBJECT)
+                },
         isPublic = true
 )
 public class InitTopicPublisher extends AbstractBlockingAction {
@@ -57,34 +60,31 @@ public class InitTopicPublisher extends AbstractBlockingAction {
     @Override
     public void execute(Context context, CallableUnitCallback callback) {
         Struct topicProducerBObject = BallerinaAdapter.getReceiverObject(context);
+
         Struct topicProducerConfig = topicProducerBObject.getStructField(Constants.TOPIC_PUBLISHER_FIELD_CONFIG);
-        Struct destinationConfig = topicProducerConfig.getStructField(Constants.ALIAS_DESTINATION);
-        String topicPattern = destinationConfig.getStringField(Constants.DESTINATION_NAME);
+        String topicPattern = JMSUtils.getTopicPattern(topicProducerConfig);
 
         BMap<String, BValue> sessionBObject = (BMap<String, BValue>) context.getRefArgument(1);
         Session session = BallerinaAdapter.getNativeObject(sessionBObject,
-                                                           Constants.JMS_SESSION,
-                                                           Session.class,
-                                                           context);
-        Destination destination = null;
-        if (destinationConfig.getNativeData(Constants.JMS_DESTINATION_OBJECT) != null) {
-            destination = BallerinaAdapter.getNativeObject(destinationConfig,
-                    Constants.JMS_DESTINATION_OBJECT,
-                    Destination.class,
-                    context);
+                                                            Constants.JMS_SESSION,
+                                                            Session.class,
+                                                            context);
+        BMap<String, BValue> destinationBObject = (BMap<String, BValue>) context.getNullableRefArgument(2);
+        Destination destinationObject = JMSUtils.getDestination(context, destinationBObject);
+
+        if (JMSUtils.isNullOrEmptyAfterTrim(topicPattern) && destinationObject == null) {
+            throw new BallerinaException("Topic pattern and destination cannot be null at the same time", context);
         }
 
         try {
-
-            if (destination == null) {
-                destination = JMSUtils.getTopic(session, topicPattern);
-            }
-            MessageProducer producer = session.createProducer(destination);
+            Destination topic = destinationObject != null ? destinationObject :
+                    JMSUtils.getTopic(session, topicPattern);
+            MessageProducer producer = session.createProducer(topic);
             Struct topicProducerConnectorBObject
                     = topicProducerBObject.getStructField(Constants.TOPIC_PUBLISHER_FIELD_PRODUCER_ACTIONS);
             topicProducerConnectorBObject.addNativeData(Constants.JMS_PRODUCER_OBJECT, producer);
             topicProducerConnectorBObject.addNativeData(Constants.SESSION_CONNECTOR_OBJECT,
-                                                        new SessionConnector(session));
+                    new SessionConnector(session));
         } catch (JMSException e) {
             BallerinaAdapter.throwBallerinaException("Error creating topic producer", context, e);
         }

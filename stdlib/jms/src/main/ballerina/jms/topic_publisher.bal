@@ -38,19 +38,18 @@ public type TopicPublisher object {
         self.producerActions.topicPublisher = self;
         match (c.session) {
             Session s => {
-                match (c.destination) {
-                    Destination destination => {
-                        validateTopic(destination);
+                match (c.topicPattern) {
+                    string topicPattern => {
                         self.initTopicPublisher(s);
                     }
-                    () => {}
+                    () => {log:printInfo("Topic publisher is not properly initialized for the topic "+ c.topicPattern);}
                 }
             }
             () => {}
         }
     }
 
-    public extern function initTopicPublisher(Session session);
+    public extern function initTopicPublisher(Session session, Destination? destination = ());
 
     documentation { Register topic publisher endpoint
         P{{serviceType}} Type descriptor of the service
@@ -77,11 +76,11 @@ public type TopicPublisher object {
 
 documentation { Configuration related to the topic publisher endpoint
     F{{session}} Session object used to create topic publisher
-    F{{destination}} Topic name pattern
+    F{{topicPattern}} Topic name pattern
 }
 public type TopicPublisherEndpointConfiguration record {
     Session? session;
-    Destination? destination;
+    string? topicPattern;
 };
 
 documentation { Actions that topic publisher endpoint could perform }
@@ -109,13 +108,12 @@ function TopicPublisherActions::sendTo(Destination destination, Message message)
             match (topicPublisher.config.session) {
                 Session s => {
                     validateTopic(destination);
-                    topicPublisher.config.destination = destination;
-                    topicPublisher.initTopicPublisher(s);
+                    topicPublisher.initTopicPublisher(s, destination = destination);
                 }
                 () => {}
             }
         }
-        () => {}
+        () => {log:printInfo("Topic publisher is not properly initialized.");}
     }
     return self.send(message);
 }

@@ -39,19 +39,18 @@ public type QueueSender object {
         self.producerActions.queueSender = self;
         match (c.session) {
             Session s => {
-                match (c.destination) {
-                    Destination destination => {
-                        validateQueue(destination);
+                match (c.queueName) {
+                    string queueName => {
                         self.initQueueSender(s);
                     }
                     () => {}
                 }
             }
-            () => {}
+            () => {log:printInfo("Message producer not properly initialised for queue " + c.queueName);}
         }
     }
 
-    extern function initQueueSender(Session session);
+    extern function initQueueSender(Session session, Destination? destination = ());
 
     documentation { Registers the endpoint in the service.
         This method is not used since QueueSender is a non-service endpoint.
@@ -79,11 +78,11 @@ public type QueueSender object {
 
 documentation { Configurations related to a QueueSender object
     F{{session}} JMS session object used to create the consumer
-    F{{destination}} JMS destination
+    F{{queueName}} name of the target queue
 }
 public type QueueSenderEndpointConfiguration record {
     Session? session;
-    Destination? destination;
+    string? queueName;
 };
 
 documentation { JMS QueueSender action handling object }
@@ -111,13 +110,12 @@ function QueueSenderActions::sendTo(Destination destination, Message message) re
             match (queueSender.config.session) {
                 Session s => {
                     validateQueue(destination);
-                    queueSender.config.destination = destination;
-                    queueSender.initQueueSender(s);
+                    queueSender.initQueueSender(s, destination = destination);
                 }
                 () => {}
             }
         }
-        () => {}
+        () => {log:printInfo("Message producer not properly initialised for queue " + destination.destinationName);}
     }
     return self.send(message);
 }

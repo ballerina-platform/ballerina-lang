@@ -30,13 +30,12 @@ import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.net.jms.Constants;
+import org.ballerinalang.net.jms.JMSUtils;
 import org.ballerinalang.net.jms.nativeimpl.endpoint.common.SessionConnector;
 import org.ballerinalang.net.jms.utils.BallerinaAdapter;
+import org.ballerinalang.util.exceptions.BallerinaException;
 
-import javax.jms.Destination;
-import javax.jms.JMSException;
-import javax.jms.MessageProducer;
-import javax.jms.Session;
+import javax.jms.*;
 
 /**
  * Get the ID of the connection.
@@ -49,7 +48,8 @@ import javax.jms.Session;
         functionName = "initQueueSender",
         receiver = @Receiver(type = TypeKind.OBJECT, structType = "QueueSender", structPackage = "ballerina/jms"),
         args = {
-                @Argument(name = "session", type = TypeKind.OBJECT, structType = "Session")
+                @Argument(name = "session", type = TypeKind.OBJECT, structType = "Session"),
+                @Argument(name = "destination", type = TypeKind.OBJECT)
         }
 )
 public class InitQueueSender implements NativeCallableUnit {
@@ -58,33 +58,29 @@ public class InitQueueSender implements NativeCallableUnit {
     public void execute(Context context, CallableUnitCallback callableUnitCallback) {
         Struct queueSenderBObject = BallerinaAdapter.getReceiverObject(context);
         Struct queueSenderConfig = queueSenderBObject.getStructField(Constants.QUEUE_SENDER_FIELD_CONFIG);
-        Struct destinationConfig = queueSenderConfig.getStructField(Constants.ALIAS_DESTINATION);
-        String destinationName = destinationConfig.getStringField(Constants.DESTINATION_NAME);
+        String queueName = JMSUtils.getQueueName(queueSenderConfig);
+
         BMap<String, BValue> sessionBObject = (BMap<String, BValue>) context.getRefArgument(1);
-
         Session session = BallerinaAdapter.getNativeObject(sessionBObject,
-                                                           Constants.JMS_SESSION,
-                                                           Session.class,
-                                                           context);
+                Constants.JMS_SESSION,
+                Session.class,
+                context);
 
-        Destination destination = null;
-        if (destinationConfig.getNativeData(Constants.JMS_DESTINATION_OBJECT) != null) {
-            destination = BallerinaAdapter.getNativeObject(destinationConfig,
-                                                            Constants.JMS_DESTINATION_OBJECT,
-                                                            Destination.class,
-                                                            context);
+        BMap<String, BValue> destinationBObject = (BMap<String, BValue>) context.getNullableRefArgument(2);
+        Destination destinationObject = JMSUtils.getDestination(context, destinationBObject);
+
+        if (JMSUtils.isNullOrEmptyAfterTrim(queueName) && destinationObject == null) {
+            throw new BallerinaException("Queue name and destination cannot be null at the same time", context);
         }
 
         try {
-            if (destination == null) {
-                destination = session.createQueue(destinationName);
-            }
-            MessageProducer producer = session.createProducer(destination);
+            Destination queue = destinationObject != null ? destinationObject : session.createQueue(queueName);
+            MessageProducer producer = session.createProducer(queue);
             Struct queueSenderConnectorBObject
                     = queueSenderBObject.getStructField(Constants.QUEUE_SENDER_FIELD_PRODUCER_ACTIONS);
             queueSenderConnectorBObject.addNativeData(Constants.JMS_PRODUCER_OBJECT, producer);
             queueSenderConnectorBObject.addNativeData(Constants.SESSION_CONNECTOR_OBJECT,
-                                                      new SessionConnector(session));
+                    new SessionConnector(session));
         } catch (JMSException e) {
             BallerinaAdapter.throwBallerinaException("Error creating queue sender.", context, e);
         }

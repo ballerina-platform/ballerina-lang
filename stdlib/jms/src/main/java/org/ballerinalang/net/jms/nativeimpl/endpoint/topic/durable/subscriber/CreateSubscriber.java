@@ -51,8 +51,8 @@ import javax.jms.Topic;
         packageName = "jms",
         functionName = "createSubscriber",
         receiver = @Receiver(type = TypeKind.OBJECT,
-                             structType = "DurableTopicSubscriber",
-                             structPackage = "ballerina/jms"),
+                structType = "DurableTopicSubscriber",
+                structPackage = "ballerina/jms"),
         args = {
                 @Argument(name = "session", type = TypeKind.OBJECT, structType = "Session"),
                 @Argument(name = "messageSelector", type = TypeKind.STRING)
@@ -68,12 +68,11 @@ public class CreateSubscriber extends AbstractBlockingAction {
         BMap<String, BValue> sessionBObject = (BMap<String, BValue>) context.getRefArgument(1);
         String messageSelector = context.getStringArgument(0);
         Session session = BallerinaAdapter.getNativeObject(sessionBObject,
-                                                           Constants.JMS_SESSION,
-                                                           Session.class,
-                                                           context);
+                Constants.JMS_SESSION,
+                Session.class,
+                context);
         Struct topicSubscriberConfigBRecord = topicSubscriberBObject.getStructField(Constants.CONSUMER_CONFIG);
-        Struct destinationConfig = topicSubscriberConfigBRecord.getStructField(Constants.ALIAS_DESTINATION);
-        String topicPattern = destinationConfig.getStringField(Constants.DESTINATION_NAME);
+        String topicPattern = topicSubscriberConfigBRecord.getStringField(Constants.TOPIC_PATTERN);
         String consumerId = topicSubscriberConfigBRecord.getStringField(Constants.CONSUMER_IDENTIFIER);
         if (JMSUtils.isNullOrEmptyAfterTrim(consumerId)) {
             throw new BallerinaException("Please provide a durable subscription ID", context);

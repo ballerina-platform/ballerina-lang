@@ -34,16 +34,15 @@ public type TopicSubscriber object {
         self.consumerActions.topicSubscriber = self;
         match (c.session) {
             Session s => {
-                match (c.destination) {
-                    Destination destination => {
-                        validateTopic(destination);
+                match (c.topicPattern) {
+                    string topicPattern => {
                         self.createSubscriber(s, c.messageSelector);
-                        log:printInfo("Subscriber created for topic " + destination.destinationName);
+                        log:printInfo("Subscriber created for topic " + c.topicPattern);
                     }
                     () => {}
                 }
             }
-            () => {}
+            () => {log:printInfo("Topic subscriber is not properly initialised for topic" + c.topicPattern);}
         }
     }
 
@@ -52,11 +51,11 @@ public type TopicSubscriber object {
     }
     public function register(typedesc serviceType) {
         self.registerListener(serviceType, consumerActions);
-    }
+    };
 
     extern function registerListener(typedesc serviceType, TopicSubscriberActions actions);
 
-    extern function createSubscriber(Session session, string messageSelector);
+    extern function createSubscriber(Session session, string messageSelector, Destination? destination = ());
 
     documentation { Start topic subscriber endpoint }
     public function start() {
@@ -78,13 +77,13 @@ public type TopicSubscriber object {
 
 documentation { Configuration related to topic subscriber endpoint
     F{{session}} Session object used to create topic subscriber
-    F{{destination}} JMS destination
+    F{{topicPattern}} Topic name pattern
     F{{messageSelector}} Message selector condition to filter messages
     F{{identifier}} Identifier of topic subscriber endpoint
 }
 public type TopicSubscriberEndpointConfiguration record {
     Session? session;
-    Destination? destination;
+    string? topicPattern;
     string messageSelector;
     string identifier;
 };
@@ -122,13 +121,14 @@ function TopicSubscriberActions::receiveFrom(Destination destination, int timeou
             match (topicSubscriber.config.session) {
                 Session s => {
                     validateTopic(destination);
-                    topicSubscriber.config.destination = destination;
-                    topicSubscriber.createSubscriber(s, topicSubscriber.config.messageSelector);
+                    topicSubscriber.createSubscriber(s, topicSubscriber.config.messageSelector, destination =
+                        destination);
+                    log:printInfo("Subscriber created for topic " + destination.destinationName);
                 }
                 () => {}
             }
         }
-        () => {}
+        () => {log:printInfo("Topic subscriber is not properly initialized.");}
     }
     var result = self.receive(timeoutInMilliSeconds = timeoutInMilliSeconds);
     self.topicSubscriber.closeSubscriber(self);

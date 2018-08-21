@@ -22,6 +22,7 @@ package org.ballerinalang.net.jms.nativeimpl.endpoint.queue.receiver;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.CallableUnitCallback;
 import org.ballerinalang.connector.api.Struct;
+import org.ballerinalang.connector.api.Value;
 import org.ballerinalang.model.NativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BMap;
@@ -30,8 +31,10 @@ import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.net.jms.Constants;
+import org.ballerinalang.net.jms.JMSUtils;
 import org.ballerinalang.net.jms.nativeimpl.endpoint.common.SessionConnector;
 import org.ballerinalang.net.jms.utils.BallerinaAdapter;
+import org.ballerinalang.util.exceptions.BallerinaException;
 
 import javax.jms.Destination;
 import javax.jms.JMSException;
@@ -49,8 +52,9 @@ import javax.jms.Session;
         packageName = "jms",
         functionName = "createQueueReceiver",
         receiver = @Receiver(type = TypeKind.OBJECT, structType = "QueueReceiver", structPackage = "ballerina/jms"),
-        args = {@Argument(name = "session", type = TypeKind.OBJECT, structType = "Session"),
-                @Argument(name = "messageSelector", type = TypeKind.STRING)
+        args = { @Argument(name = "session", type = TypeKind.OBJECT, structType = "Session"),
+                 @Argument(name = "messageSelector", type = TypeKind.STRING),
+                 @Argument(name = "destination", type = TypeKind.OBJECT)
         },
         isPublic = true
 )
@@ -66,20 +70,17 @@ public class CreateConsumer implements NativeCallableUnit {
                                                            Session.class,
                                                            context);
         Struct queueConsumerConfigBRecord = queueConsumerBObject.getStructField(Constants.CONSUMER_CONFIG);
-        Struct destinationConfig = queueConsumerConfigBRecord.getStructField(Constants.ALIAS_DESTINATION);
-        String destinationName = destinationConfig.getStringField(Constants.DESTINATION_NAME);
-        Destination destination = null;
-        if (destinationConfig.getNativeData(Constants.JMS_DESTINATION_OBJECT) != null) {
-            destination = BallerinaAdapter.getNativeObject(destinationConfig,
-                                                           Constants.JMS_DESTINATION_OBJECT,
-                                                           Destination.class,
-                                                           context);
+        String queueName = JMSUtils.getQueueName(queueConsumerConfigBRecord);
+        BMap<String, BValue> destinationBObject = (BMap<String, BValue>) context.getNullableRefArgument(2);
+        Destination destinationObject = JMSUtils.getDestination(context, destinationBObject);
+
+        if (JMSUtils.isNullOrEmptyAfterTrim(queueName) && destinationObject == null) {
+            throw new BallerinaException("Queue name and destination cannot be null at the same time", context);
         }
+
         try {
-            if (destination == null) {
-                destination = session.createQueue(destinationName);
-            }
-            MessageConsumer consumer = session.createConsumer(destination, messageSelector);
+            Destination queue = destinationObject != null ? destinationObject : session.createQueue(queueName);
+            MessageConsumer consumer = session.createConsumer(queue, messageSelector);
             Struct consumerConnectorBObject = queueConsumerBObject.getStructField(Constants.CONSUMER_ACTIONS);
             consumerConnectorBObject.addNativeData(Constants.JMS_CONSUMER_OBJECT, consumer);
             consumerConnectorBObject.addNativeData(Constants.SESSION_CONNECTOR_OBJECT, new SessionConnector(session));
