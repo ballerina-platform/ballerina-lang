@@ -746,8 +746,8 @@ public class SQLActionsTest {
     }
 
     @Test(groups = CONNECTOR_TEST, description = "Test failure scenario in adding data to mirrored table")
-    public void testAddToMirrorTableNegative() throws Exception {
-        BValue[] returns = BRunUtil.invoke(resultMirror, "testAddToMirrorTableNegative", connectionArgs);
+    public void testAddToMirrorTableConstraintViolation() throws Exception {
+        BValue[] returns = BRunUtil.invoke(resultMirror, "testAddToMirrorTableConstraintViolation", connectionArgs);
         String errorMessage;
         if (dbType == MYSQL) {
             errorMessage = "execute update failed: Duplicate entry '1' for key 'PRIMARY'";
@@ -759,6 +759,25 @@ public class SQLActionsTest {
         } else {
             errorMessage = "execute update failed: integrity constraint violation: unique constraint or index "
                     + "violation";
+        }
+        Assert.assertNotNull(returns);
+        Assert.assertTrue(returns[0].stringValue().contains(errorMessage));
+    }
+
+    @Test(groups = CONNECTOR_TEST, description = "Test failure scenario in adding data to mirrored table")
+    public void testAddToMirrorTableInvalidRecord() throws Exception {
+        BValue[] returns = BRunUtil.invoke(resultMirror, "testAddToMirrorTableInvalidRecord", connectionArgs);
+        String errorMessage;
+        if (dbType == MYSQL) {
+            errorMessage = "execute update failed: Unknown column 'age' in 'field list'";
+        } else if (dbType == POSTGRES) {
+            errorMessage = "execute update failed: ERROR: column \"age\" of relation \"employeeadd\" does not exist";
+        } else if (dbType == H2) {
+            errorMessage = "execute add failed: Column \"AGE\" not found; SQL statement:\n"
+                    + "INSERT INTO employeeAdd (id ,name ,address ,age ) values (?,?,?,?)";
+        } else {
+            errorMessage = "user lacks privilege or object not found: AGE in statement [INSERT INTO employeeAdd (id ,"
+                    + "name ,address ,age ) values (?,?,?,?)]";
         }
         Assert.assertNotNull(returns);
         Assert.assertTrue(returns[0].stringValue().contains(errorMessage));
