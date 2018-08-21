@@ -172,7 +172,8 @@ public abstract class ConnectionAction implements NativeCallableUnit {
                 if (throwable instanceof IOException) {
                     this.dataContext.getOutboundRequest().setIoException((IOException) throwable);
                 } else {
-                    this.dataContext.getOutboundRequest().setIoException(new IOException(throwable.getMessage()));
+                    this.dataContext.getOutboundRequest()
+                            .setIoException(new IOException(throwable.getMessage(), throwable));
                 }
             }
             this.dataContext.notifyOutboundResponseStatus(httpConnectorError);

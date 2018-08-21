@@ -489,7 +489,8 @@ public abstract class AbstractHTTPAction implements NativeCallableUnit {
                 this.dataContext.getOutboundRequest().setIoException((IOException) throwable);
                 httpConnectorError = HttpUtil.getError(this.dataContext.context, throwable);
             } else {
-                this.dataContext.getOutboundRequest().setIoException(new IOException(throwable.getMessage()));
+                this.dataContext.getOutboundRequest()
+                        .setIoException(new IOException(throwable.getMessage(), throwable));
                 httpConnectorError = HttpUtil.getError(this.dataContext.context, throwable);
             }
             httpConnectorError.put(BLangVMErrors.ERROR_MESSAGE_FIELD, new BString(throwable.getMessage()));
