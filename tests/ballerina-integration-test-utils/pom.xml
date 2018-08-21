@@ -51,10 +51,6 @@
             <artifactId>testng</artifactId>
             <scope>compile</scope>
         </dependency>
-        <dependency>
-            <groupId>com.sun</groupId>
-            <artifactId>tools</artifactId>
-        </dependency>
     </dependencies>
 
     <build>
@@ -65,19 +61,6 @@
                 <version>${os.maven.plugin.version}</version>
             </extension>
         </extensions>
-        <plugins>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-jar-plugin</artifactId>
-                <configuration>
-                    <archive>
-                        <manifestEntries>
-                            <Agent-Class>org.ballerinalang.test.agent.BallerinaExitAgent</Agent-Class>
-                        </manifestEntries>
-                    </archive>
-                </configuration>
-            </plugin>
-        </plugins>
     </build>
 
     <properties>

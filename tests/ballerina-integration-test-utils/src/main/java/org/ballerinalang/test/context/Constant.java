@@ -44,5 +44,4 @@ public class Constant {
     public static final String VFS_LOCATION = "FTPLocation";
 
     public static final String PROJECT_BUILD_DIR = "project.build.directory";
-    public static final String EXIT_AGENT_LOCATION = "ballerina.test.exit.agent.location";
 }
