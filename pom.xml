@@ -1645,7 +1645,7 @@
                 <module>tests/ballerina-compiler-plugin-test</module>
                 <module>tool-plugins/intellij</module>
                 <module>tool-plugins/vscode</module>
-                <module>tool-plugins/theia</module>
+                <!--<module>tool-plugins/theia</module> -->
 
                 <module>benchmarks</module>
             </modules>
@@ -1804,7 +1804,7 @@
                 <!-- Intellij build disabled in default build -->
                 <!--<module>tool-plugins/intellij</module>-->
                 <module>tool-plugins/vscode</module>
-                <module>tool-plugins/theia</module>
+                <!--<module>tool-plugins/theia</module> -->
 
                 <module>benchmarks</module>
             </modules>
