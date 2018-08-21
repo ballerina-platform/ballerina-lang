@@ -512,5 +512,5 @@ function writeSample(string path) {
             value: "0.0.0"
         }
     };
-    genPackage(ifSample, path);
+    genPackage(ifSample, path, false);
 }

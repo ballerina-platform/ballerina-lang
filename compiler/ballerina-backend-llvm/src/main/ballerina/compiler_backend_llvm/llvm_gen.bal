@@ -6,7 +6,7 @@ map localVarRefs;
 map functionRefs;
 map<llvm:LLVMBasicBlockRef> bbs;
 
-function genPackage(BIRPackage pkg, string targetObjectFilePath) {
+function genPackage(BIRPackage pkg, string targetObjectFilePath, boolean dumpLLVMIR) {
     var c = pkg.org.value + pkg.name.value + pkg.versionValue.value;
     var mod = llvm:LLVMModuleCreateWithName(c);
     var builder = llvm:LLVMCreateBuilder();
@@ -20,7 +20,9 @@ function genPackage(BIRPackage pkg, string targetObjectFilePath) {
 
     optimize(mod);
 
-    //llvm:LLVMDumpModule(mod);
+    if(dumpLLVMIR) {
+        llvm:LLVMDumpModule(mod);
+    }
     //var out = llvm:LLVMWriteBitcodeToFile(mod, targetObjectFilePath);
 
     // Initialize all the targets for emitting object code
@@ -184,22 +186,34 @@ function genBasicBlockBody(BIRFunction func, BIRBasicBlock bb, llvm:LLVMValueRef
                     // LLVMIntSLT = 40
                     var ifReturn = llvm:LLVMBuildICmp(builder, 40, rhsOp1, rhsOp2, lhsTmpName);
                     var loaded = llvm:LLVMBuildStore(builder, ifReturn, lhsRef);
+                } else if (kind == "LESS_EQUAL"){
+                    // LLVMIntSLE = 41
+                    var ifReturn = llvm:LLVMBuildICmp(builder, 41, rhsOp1, rhsOp2, lhsTmpName);
+                    var loaded = llvm:LLVMBuildStore(builder, ifReturn, lhsRef);
+                } else if (kind == "GREATER_THAN"){
+                    var ifReturn = llvm:LLVMBuildICmp(builder, 38, rhsOp1, rhsOp2, lhsTmpName);
+                    var loaded = llvm:LLVMBuildStore(builder, ifReturn, lhsRef);
+                } else if (kind == "GREATER_EQUAL"){
+                    var ifReturn = llvm:LLVMBuildICmp(builder, 39, rhsOp1, rhsOp2, lhsTmpName);
+                    var loaded = llvm:LLVMBuildStore(builder, ifReturn, lhsRef);
                 } else if (kind == "ADD"){
                     var addReturn = llvm:LLVMBuildAdd(builder, rhsOp1, rhsOp2, lhsTmpName);
                     var loaded = llvm:LLVMBuildStore(builder, addReturn, lhsRef);
-                } else if (kind == "NOT_EQUAL"){
-                    // LLVMIntNE = 33
-                    var ifReturn = llvm:LLVMBuildICmp(builder, 33, rhsOp1, rhsOp2, lhsTmpName);
-                    var loaded = llvm:LLVMBuildStore(builder, ifReturn, lhsRef);
                 } else if (kind == "SUB"){
                     var ifReturn = llvm:LLVMBuildSub(builder, rhsOp1, rhsOp2, lhsTmpName);
                     var loaded = llvm:LLVMBuildStore(builder, ifReturn, lhsRef);
                 } else if (kind == "MUL"){
                     var ifReturn = llvm:LLVMBuildMul(builder, rhsOp1, rhsOp2, lhsTmpName);
                     var loaded = llvm:LLVMBuildStore(builder, ifReturn, lhsRef);
-                } else if (kind == "LESS_EQUAL"){
-                    // LLVMIntSLE = 41
-                    var ifReturn = llvm:LLVMBuildICmp(builder, 41, rhsOp1, rhsOp2, lhsTmpName);
+                } else if (kind == "DIV"){
+                    var ifReturn = llvm:LLVMBuildSDiv(builder, rhsOp1, rhsOp2, lhsTmpName);
+                    var loaded = llvm:LLVMBuildStore(builder, ifReturn, lhsRef);
+                } else if (kind == "EQUAL"){
+                    var ifReturn = llvm:LLVMBuildICmp(builder, 32, rhsOp1, rhsOp2, lhsTmpName);
+                    var loaded = llvm:LLVMBuildStore(builder, ifReturn, lhsRef);
+                } else if (kind == "NOT_EQUAL"){
+                    // LLVMIntNE = 33
+                    var ifReturn = llvm:LLVMBuildICmp(builder, 33, rhsOp1, rhsOp2, lhsTmpName);
                     var loaded = llvm:LLVMBuildStore(builder, ifReturn, lhsRef);
                 } else {
                     error err = { message: "unknown binary op kind" };

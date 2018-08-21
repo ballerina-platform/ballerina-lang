@@ -235,8 +235,16 @@ function readInstruction(io:ByteChannel channel, map<BIRVariableDcl> localVarMap
         kind = "SUB";
     } else if (kindTag == 9){
         kind = "MUL";
+    } else if (kindTag == 10){
+        kind = "DIV";
+    } else if (kindTag == 12){
+        kind = "EQUAL";
     } else if (kindTag == 13){
         kind = "NOT_EQUAL";
+    } else if (kindTag == 14){
+        kind = "GREATER_THAN";
+    } else if (kindTag == 15){
+        kind = "GREATER_EQUAL";
     } else if (kindTag == 16){
         kind = "LESS_THAN";
     } else if (kindTag == 17){
