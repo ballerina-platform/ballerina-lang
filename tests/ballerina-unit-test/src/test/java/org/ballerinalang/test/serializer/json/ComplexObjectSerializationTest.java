@@ -60,11 +60,8 @@ public class ComplexObjectSerializationTest {
         String serialize = jsonSerializer.serialize(mockComplexKeyMap());
 
         HashMap map = jsonSerializer.deserialize(serialize, HashMap.class);
-        boolean matchedKey1 = map.keySet().stream()
-                .anyMatch(k -> ((JsonSerializerTest.StringFieldA) k).a.equals("Key1"));
-
-        boolean matchedKey2 = map.keySet().stream()
-                .anyMatch(k -> ((JsonSerializerTest.StringFieldA) k).a.equals("Key2"));
+        boolean matchedKey1 = map.keySet().stream().anyMatch(k -> ((JsonSerializerTest.StringFieldA) k).a.equals("Key1"));
+        boolean matchedKey2 = map.keySet().stream().anyMatch(k -> ((JsonSerializerTest.StringFieldA) k).a.equals("Key2"));
         Assert.assertTrue(matchedKey1 && matchedKey2);
     }
 

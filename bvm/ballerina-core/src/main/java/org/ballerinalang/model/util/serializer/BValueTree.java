@@ -63,7 +63,27 @@ public class BValueTree implements BValueSerializer, Closeable {
         isClosed = false;
     }
 
-    BRefType toBValueTree(Object src) {
+    public JsonSerializer() {
+    }
+
+    /**
+     * Get the BValueProvider associated with this JsonSerializer instance.
+     * Use this instance to add SerializationBValueProvider implementations for this {@link JsonSerializer} instance.
+     *
+     * @return
+     */
+    public BValueProvider getBValueProviderRegistry() {
+        return this.bValueProvider;
+    }
+
+    /**
+     * Generate JSON serialized output from the given Java object instance.
+     *
+     * @param object instance to be serialized
+     * @return
+     */
+    @Override
+    public synchronized String serialize(Object object) {
         try {
             BRefType tree = toBValue(src, src.getClass());
             BValueHelper.trimTree(tree, repeatedReferenceSet);
