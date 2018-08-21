@@ -115,7 +115,7 @@ public class BValueTree implements BValueSerializer, Closeable {
      * @return
      */
     @Override
-    public synchronized String serialize(Object object) {
+    public String serialize(Object object) {
         try {
             BRefType tree = toBValue(src, src.getClass());
             BValueHelper.trimTree(tree, repeatedReferenceSet);
