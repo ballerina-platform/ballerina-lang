@@ -21,11 +21,15 @@ package org.ballerinalang.net.jms.nativeimpl.endpoint.session;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.CallableUnitCallback;
+import org.ballerinalang.connector.api.BLangConnectorSPIUtil;
 import org.ballerinalang.connector.api.Struct;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.natives.annotations.Argument;
+import org.ballerinalang.model.values.BMap;
+import org.ballerinalang.model.values.BString;
+import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
+import org.ballerinalang.natives.annotations.ReturnType;
 import org.ballerinalang.net.jms.AbstractBlockingAction;
 import org.ballerinalang.net.jms.Constants;
 import org.ballerinalang.net.jms.utils.BallerinaAdapter;
@@ -34,41 +38,41 @@ import org.slf4j.LoggerFactory;
 
 import javax.jms.JMSException;
 import javax.jms.Session;
+import javax.jms.Topic;
 
 /**
- * Unsubscribe a durable subscriber.
+ * Create Text JMS Message.
  */
-@BallerinaFunction(orgName = "ballerina",
-                   packageName = "jms",
-                   functionName = "unsubscribe",
-                   receiver = @Receiver(type = TypeKind.OBJECT,
-                                        structType = "Session",
+@BallerinaFunction(orgName = "ballerina", packageName = "jms",
+                   functionName = "createTemporaryTopic",
+                   receiver = @Receiver(type = TypeKind.OBJECT, structType = "Session",
                                         structPackage = "ballerina/jms"),
-                   args = {
-                           @Argument(name = "subscriptionId",
-                                     type = TypeKind.STRING)
+                   returnType = {
+                           @ReturnType(type = TypeKind.OBJECT, structPackage = "ballerina/jms",
+                                        structType = "Destination")
                    },
                    isPublic = true)
-public class Unsubscribe extends AbstractBlockingAction {
+public class CreateTemporaryTopic extends AbstractBlockingAction {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(Unsubscribe.class);
+    public static final Logger LOGGER = LoggerFactory.getLogger(CreateTemporaryTopic.class);
 
     @Override
     public void execute(Context context, CallableUnitCallback callableUnitCallback) {
 
+        Topic jmsDestination;
         Struct sessionBObject = BallerinaAdapter.getReceiverObject(context);
-
-        Session session = BallerinaAdapter.getNativeObject(sessionBObject,
-                                                           Constants.JMS_SESSION,
-                                                           Session.class,
+        Session session = BallerinaAdapter.getNativeObject(sessionBObject, Constants.JMS_SESSION, Session.class,
                                                            context);
-
-        String subscriptionId = context.getStringArgument(0);
-
+        BMap<String, BValue> bStruct = BLangConnectorSPIUtil.createBStruct(context, Constants.BALLERINA_PACKAGE_JMS,
+                                                              Constants.JMS_DESTINATION_STRUCT_NAME);
         try {
-            session.unsubscribe(subscriptionId);
+            jmsDestination = session.createTemporaryTopic();
+            bStruct.addNativeData(Constants.JMS_DESTINATION_OBJECT, jmsDestination);
+            bStruct.put(Constants.DESTINATION_NAME, new BString(jmsDestination.getTopicName()));
+            bStruct.put(Constants.DESTINATION_TYPE, new BString("topic"));
         } catch (JMSException e) {
-            BallerinaAdapter.returnError("Unsubscribe request failed.", context, e);
+            BallerinaAdapter.returnError("Failed to create temporary destination.", context, e);
         }
+        context.setReturnValues(bStruct);
     }
 }

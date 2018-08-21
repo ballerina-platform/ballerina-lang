@@ -23,6 +23,8 @@ import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.CallableUnitCallback;
 import org.ballerinalang.connector.api.Struct;
 import org.ballerinalang.model.types.TypeKind;
+import org.ballerinalang.model.values.BMap;
+import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
@@ -30,26 +32,26 @@ import org.ballerinalang.net.jms.AbstractBlockingAction;
 import org.ballerinalang.net.jms.Constants;
 import org.ballerinalang.net.jms.utils.BallerinaAdapter;
 
+import javax.jms.Destination;
 import javax.jms.JMSException;
 import javax.jms.Message;
 
 /**
- * Set a boolean property in the JMS Message.
+ * Set a string property in the JMS Message.
  */
 @BallerinaFunction(
         orgName = "ballerina",
         packageName = "jms",
-        functionName = "setBooleanProperty",
+        functionName = "setReplyTo",
         receiver = @Receiver(type = TypeKind.OBJECT,
                              structType = "Message",
                              structPackage = "ballerina/jms"),
-        args = {
-                @Argument(name = "key", type = TypeKind.STRING),
-                @Argument(name = "value", type = TypeKind.BOOLEAN)
+        args = { @Argument(type = TypeKind.OBJECT, structType = "Session",
+                           structPackage = "ballerina/jms", name = "replyTo")
         },
         isPublic = true
 )
-public class SetBooleanProperty extends AbstractBlockingAction {
+public class SetReplyTo extends AbstractBlockingAction {
 
     @Override
     public void execute(Context context, CallableUnitCallback callableUnitCallback) {
@@ -59,13 +61,15 @@ public class SetBooleanProperty extends AbstractBlockingAction {
                                                            Constants.JMS_MESSAGE_OBJECT,
                                                            Message.class,
                                                            context);
-        String key = context.getStringArgument(0);
-        boolean value = context.getBooleanArgument(0);
-
+        BMap<String, BValue> destinationBObject = ((BMap<String, BValue>) context.getRefArgument(1));
+        Destination destination = BallerinaAdapter.getNativeObject(destinationBObject,
+                                                            Constants.JMS_DESTINATION_OBJECT,
+                                                            Destination.class,
+                                                            context);
         try {
-            message.setBooleanProperty(key, value);
+            message.setJMSReplyTo(destination);
         } catch (JMSException e) {
-            BallerinaAdapter.returnError("Error when setting boolean property", context, e);
+            BallerinaAdapter.returnError("Error when setting replyTo destination", context, e);
         }
     }
 }
