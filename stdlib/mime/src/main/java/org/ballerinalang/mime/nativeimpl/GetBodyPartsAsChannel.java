@@ -16,6 +16,8 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.natives.annotations.ReturnType;
 import org.ballerinalang.stdlib.io.utils.IOConstants;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -39,6 +41,8 @@ import static org.ballerinalang.mime.util.MimeUtil.getNewMultipartDelimiter;
         isPublic = true
 )
 public class GetBodyPartsAsChannel extends BlockingNativeCallableUnit {
+    private static final Logger log = LoggerFactory.getLogger(GetBodyPartsAsChannel.class);
+
     @Override
     public void execute(Context context) {
         try {
@@ -60,9 +64,10 @@ public class GetBodyPartsAsChannel extends BlockingNativeCallableUnit {
             } else {
                 context.setReturnValues(MimeUtil.createError(context, "Entity doesn't contain body parts"));
             }
-        } catch (Throwable e) {
+        } catch (Throwable err) {
+            log.error("Error occurred while constructing a byte channel out of body parts", err);
             context.setReturnValues(MimeUtil.createError(context, "Error occurred while constructing a byte " +
-                    "channel out of body parts : " + e.getMessage()));
+                    "channel out of body parts : " + err.getMessage()));
         }
     }
 }
