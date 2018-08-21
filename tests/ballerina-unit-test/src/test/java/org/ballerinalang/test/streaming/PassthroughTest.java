@@ -35,14 +35,33 @@ import org.testng.annotations.Test;
 public class PassthroughTest {
 
     private CompileResult result;
+    private CompileResult result2;
 
     @BeforeClass
     public void setup() {
         result = BCompileUtil.compile("test-src/streaming/passthrough-streaming-test.bal");
+        result2 = BCompileUtil.compile("test-src/streaming/passthrough-streaming-without-select-test.bal");
     }
 
     @Test(description = "Test passthrough streaming query")
     public void testPassthroughQuery() {
+        BValue[] outputEmployeeEvents = BRunUtil.invoke(result, "startPassthroughQuery");
+
+        Assert.assertNotNull(outputEmployeeEvents);
+
+        Assert.assertEquals(outputEmployeeEvents.length, 3, "Expected events are not received");
+
+        BMap<String, BValue> employee0 = (BMap<String, BValue>) outputEmployeeEvents[0];
+        BMap<String, BValue> employee1 = (BMap<String, BValue>) outputEmployeeEvents[1];
+        BMap<String, BValue> employee2 = (BMap<String, BValue>) outputEmployeeEvents[2];
+
+        Assert.assertEquals(employee0.get("name").stringValue(), "Raja");
+        Assert.assertEquals(((BInteger) employee1.get("age")).intValue(), 33);
+        Assert.assertEquals(employee2.get("status").stringValue(), "married");
+    }
+
+    @Test(description = "Test passthrough streaming query without select")
+    public void testPassthroughQueryWithoutSelect() {
         BValue[] outputEmployeeEvents = BRunUtil.invoke(result, "startPassthroughQuery");
 
         Assert.assertNotNull(outputEmployeeEvents);

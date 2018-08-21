@@ -25,13 +25,7 @@ service<http:WebSocketService> clientFailure bind { port: 9091 } {
 
     onOpen(endpoint wsEp) {
         endpoint http:WebSocketClient wsClientEp {
-            url: REMOTE_BACKEND_URL1,
-            callbackService: clientCallbackService1,
-            readyOnConnect: false
+            url: REMOTE_BACKEND_URL1
         };
     }
-}
-
-service<http:WebSocketClientService> clientCallbackService1 {
-
 }

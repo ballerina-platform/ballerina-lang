@@ -5,7 +5,7 @@ public float glbVarFloat = 99.34323;
 public any glbVarAny = 88343;
 public int glbVarAnyInt = 88343;
 
-public float glbVarFloatChange = 99;
+public float glbVarFloatChange = 99.0;
 
 public function getIntValue() returns (int) {
     return 8876;

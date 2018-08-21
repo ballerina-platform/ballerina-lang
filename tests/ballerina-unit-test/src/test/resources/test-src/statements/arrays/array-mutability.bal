@@ -85,9 +85,9 @@ function testCovarianceIntOrNilArray() {
 }
 
 function testCovarianceBooleanOrFloatOrRecordArray() {
-    (boolean|float)[] x = [true, 2, true, 15];
+    (boolean|float)[] x = [true, 2.0, true, 15.0];
     (boolean|float|Person)[] y = x;
-    y[0] = 1;
+    y[0] = 1.0;
     y[1] = person1;  // Runtime Exception
 }
 

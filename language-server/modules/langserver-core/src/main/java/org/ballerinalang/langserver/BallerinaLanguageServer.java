@@ -97,6 +97,7 @@ public class BallerinaLanguageServer implements LanguageServer, LanguageClientAw
 
     public CompletableFuture<Object> shutdown() {
         shutdown = 0;
+        LSIndexImpl.getInstance().closeConnection();
         return CompletableFuture.supplyAsync(Object::new);
     }
 

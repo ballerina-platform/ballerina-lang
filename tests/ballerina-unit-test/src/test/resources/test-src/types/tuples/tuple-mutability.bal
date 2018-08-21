@@ -101,15 +101,15 @@ function testCovarianceIntOrNilTuple() {
 function testCovarianceBooleanOrFloatOrRecordTuple() {
     (boolean|float, int) x = (true, 5);
     (boolean|float|Person, int?) y = x;
-    y[0] = 1;
+    y[0] = 1.0;
     y[0] = person1;  // Runtime Exception
 }
 
 function testComplexTupleTypes() returns (float, json, boolean, json, float) {
-    ((float|boolean), float) var1 = (12, 5);
+    ((float|boolean), float) var1 = (12.0, 5.0);
     (json|int, Person) var2 = (true, person1);
     ((int|boolean, float), (float|json, string)) var3 = ((true, 6.0), ("json", "string"));
-    (((float|boolean, int), float), boolean) var4 = (((12, 2), 3), true);
+    (((float|boolean, int), float), boolean) var4 = (((12.0, 2), 3.0), true);
 
     float|boolean x1 = var1[0];
     float x2 = var1[1];

@@ -47,6 +47,7 @@ import static io.ballerina.plugins.idea.psi.BallerinaTypes.ATTACHMENT_POINT;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.AWAIT;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.BIND;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.BLOCK;
+import static io.ballerina.plugins.idea.psi.BallerinaTypes.BRACED_OR_TUPLE_EXPRESSION;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.BREAK;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.BUT;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.BY;
@@ -213,6 +214,7 @@ import static io.ballerina.plugins.idea.psi.BallerinaTypes.TRANSACTION_PROPERTY_
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.TRIGGER_WORKER;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.TRY;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.TUPLE_TYPE_NAME;
+import static io.ballerina.plugins.idea.psi.BallerinaTypes.TYPE;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.TYPE_CONVERSION_EXPRESSION;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.UNARY_EXPRESSION;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.UNIDIRECTIONAL;
@@ -237,6 +239,8 @@ import static io.ballerina.plugins.idea.psi.BallerinaTypes.YEAR;
  * Builds the Ballerina file formatting model.
  */
 public class BallerinaFormattingModelBuilder implements FormattingModelBuilder {
+
+    // TODO Fix formatting rules for XML literals
 
     @NotNull
     @Override
@@ -485,6 +489,8 @@ public class BallerinaFormattingModelBuilder implements FormattingModelBuilder {
                 .between(FORK, SEMICOLON).spaceIf(false)
                 .around(FORK).spaceIf(true)
 
+                .between(TYPE,IDENTIFIER).spaceIf(true)
+
                 .between(IDENTIFIER, FINITE_TYPE).spaceIf(true)
                 .between(IDENTIFIER, ENDPOINT_INITIALIZATION).spaceIf(true)
 
@@ -542,9 +548,11 @@ public class BallerinaFormattingModelBuilder implements FormattingModelBuilder {
 
                 .betweenInside(RIGHT_PARENTHESIS, LEFT_BRACE, IF_CLAUSE).spaceIf(true)
                 .betweenInside(RIGHT_PARENTHESIS, LEFT_BRACE, ELSE_IF_CLAUSE).spaceIf(true)
+                .betweenInside(RIGHT_PARENTHESIS, LEFT_BRACE, CATCH_CLAUSE).spaceIf(true)
 
                 .betweenInside(EXPRESSION, LEFT_BRACE, IF_CLAUSE).spaceIf(true)
                 .betweenInside(SIMPLE_LITERAL_EXPRESSION, LEFT_BRACE, IF_CLAUSE).spaceIf(true)
+                .betweenInside(BRACED_OR_TUPLE_EXPRESSION,LEFT_BRACE,IF_CLAUSE).spaceIf(true)
                 .betweenInside(EXPRESSION, LEFT_BRACE, ELSE_IF_CLAUSE).spaceIf(true)
                 .betweenInside(SIMPLE_LITERAL_EXPRESSION, LEFT_BRACE, ELSE_IF_CLAUSE).spaceIf(true)
 

@@ -215,39 +215,22 @@ public class Symbols {
 
     public static BConversionOperatorSymbol createUnboxValueTypeOpSymbol(BType sourceType, BType targetType) {
         int opcode;
-        if (sourceType.tag == TypeTags.JSON) {
-            switch (targetType.tag) {
+        switch (targetType.tag) {
             case TypeTags.INT:
-                opcode = InstructionCodes.JSON2I;
+                opcode = InstructionCodes.ANY2I;
+                break;
+            case TypeTags.BYTE:
+                opcode = InstructionCodes.ANY2BI;
                 break;
             case TypeTags.FLOAT:
-                opcode = InstructionCodes.JSON2F;
+                opcode = InstructionCodes.ANY2F;
                 break;
             case TypeTags.STRING:
-                opcode = InstructionCodes.JSON2S;
+                opcode = InstructionCodes.ANY2S;
                 break;
             default:
-                opcode = InstructionCodes.JSON2B;
+                opcode = InstructionCodes.ANY2B;
                 break;
-            }
-        } else {
-            switch (targetType.tag) {
-                case TypeTags.INT:
-                    opcode = InstructionCodes.ANY2I;
-                    break;
-                case TypeTags.BYTE:
-                    opcode = InstructionCodes.ANY2BI;
-                    break;
-                case TypeTags.FLOAT:
-                    opcode = InstructionCodes.ANY2F;
-                    break;
-                case TypeTags.STRING:
-                    opcode = InstructionCodes.ANY2S;
-                    break;
-                default:
-                    opcode = InstructionCodes.ANY2B;
-                    break;
-            }
         }
 
         List<BType> paramTypes = Lists.of(sourceType, targetType);

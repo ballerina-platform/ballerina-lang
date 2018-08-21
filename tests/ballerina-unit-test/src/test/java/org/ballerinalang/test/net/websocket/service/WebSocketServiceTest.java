@@ -45,6 +45,7 @@ public class WebSocketServiceTest {
         String serviceName = "riyafaService";
         when(service.getName()).thenReturn(serviceName);
         when(service.getResources()).thenReturn(new Resource[]{});
+        when(service.getEndpointName()).thenReturn(WebSocketConstants.WEBSOCKET_ENDPOINT_NAME);
         WebSocketService webSocketService = new WebSocketService(service);
         String path = webSocketService.getBasePath();
         Assert.assertEquals(path, "/" + serviceName, "Incorrect path name");
@@ -74,6 +75,7 @@ public class WebSocketServiceTest {
                 annotationList);
 
         when(service.getResources()).thenReturn(new Resource[]{});
+        when(service.getEndpointName()).thenReturn(WebSocketConstants.WEBSOCKET_ENDPOINT_NAME);
         WebSocketService webSocketService = new WebSocketService(service);
         String path = webSocketService.getBasePath();
         Assert.assertEquals(path, pathName, "Incorrect path name");

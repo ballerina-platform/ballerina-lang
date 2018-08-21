@@ -42,7 +42,7 @@ function useILAsrefType()returns (json) {
 }
 
 function useILAsArrayIndex() returns (float) {
-    float[] ^"float array" = [234, 8834.834,88];
+    float[] ^"float array" = [234.0, 8834.834, 88.0];
     int ^"array index" = 1;
     return ^"float array"[^"array index"];
 }

@@ -14,12 +14,12 @@
 // specific language governing permissions and limitations
 // under the License.
 // This is server implementation for bidirectional streaming scenario
-// import ballerina/io;
-// import ballerina/grpc;
-// import ballerina/log;
+
+import ballerina/grpc;
+import ballerina/io;
 
 // Server endpoint configuration
-endpoint grpc:Service ep5 {
+endpoint grpc:Listener ep5 {
     host:"localhost",
     port:9095
 };
@@ -27,35 +27,35 @@ endpoint grpc:Service ep5 {
 @grpc:ServiceConfig {name:"chat",
     clientStreaming:true,
     serverStreaming:true}
-service<grpc:Listener> Chat bind ep5 {
+service Chat bind ep5 {
     map consMap;
     onOpen(endpoint client) {
         consMap[<string>client.id] = client;
     }
 
     onMessage(endpoint client, ChatMessage5 chatMsg) {
-        endpoint grpc:Service con;
+        endpoint grpc:Listener con;
         string msg = string `{{chatMsg.name}}: {{chatMsg.message}}`;
         io:println(msg);
         string[] conKeys = consMap.keys();
         int len = lengthof conKeys;
         int i = 0;
         while (i < len) {
-            con = check <grpc:Service>consMap[conKeys[i]];
+            con = check <grpc:Listener>consMap[conKeys[i]];
             error? err = con->send(msg);
             io:println(err.message but { () => "" });
             i = i + 1;
         }
     }
 
-    onError(endpoint client, grpc:ServerError err) {
+    onError(endpoint client, error err) {
         if (err != ()) {
             io:println("Something unexpected happens at server : " + err.message);
         }
     }
 
     onComplete(endpoint client) {
-        endpoint grpc:Service con;
+        endpoint grpc:Listener con;
         string msg = string `{{client.id}} left the chat`;
         io:println(msg);
         var v = consMap.remove(<string>client.id);
@@ -63,7 +63,7 @@ service<grpc:Listener> Chat bind ep5 {
         int len = lengthof conKeys;
         int i = 0;
         while (i < len) {
-            con = check <grpc:Service>consMap[conKeys[i]];
+            con = check <grpc:Listener>consMap[conKeys[i]];
             error? err = con->send(msg);
             io:println(err.message but { () => "" });
             i = i + 1;

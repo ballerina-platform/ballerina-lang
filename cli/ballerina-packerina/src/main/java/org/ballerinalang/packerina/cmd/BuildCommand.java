@@ -82,18 +82,15 @@ public class BuildCommand implements BLauncherCmd {
         } else {
             // ballerina build pkgName [-o outputFileName]
             String targetFileName;
-            String pkgName = argList.get(0);
-            if (pkgName.endsWith("/")) {
-                pkgName = pkgName.substring(0, pkgName.length() - 1);
-            }
+            Path sourcePath = Paths.get(argList.get(0));
             if (outputFileName != null && !outputFileName.isEmpty()) {
                 targetFileName = outputFileName;
             } else {
-                targetFileName = pkgName;
+                targetFileName = sourcePath.toString();
             }
 
-            BuilderUtils.compileWithTestsAndWrite(sourceRootPath, pkgName, targetFileName, buildCompiledPkg, offline,
-                                                  lockEnabled, skiptests);
+            BuilderUtils.compileWithTestsAndWrite(sourceRootPath, sourcePath.toString(), targetFileName,
+                                                  buildCompiledPkg, offline, lockEnabled, skiptests);
         }
         Runtime.getRuntime().exit(0);
     }
