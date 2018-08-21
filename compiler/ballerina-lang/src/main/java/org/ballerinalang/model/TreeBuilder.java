@@ -84,7 +84,6 @@ import org.ballerinalang.model.tree.expressions.StringTemplateLiteralNode;
 import org.ballerinalang.model.tree.expressions.TableLiteralNode;
 import org.ballerinalang.model.tree.expressions.TableQueryExpression;
 import org.ballerinalang.model.tree.expressions.TernaryExpressionNode;
-import org.ballerinalang.model.tree.expressions.TypeCastNode;
 import org.ballerinalang.model.tree.expressions.TypeConversionNode;
 import org.ballerinalang.model.tree.expressions.TypeInitNode;
 import org.ballerinalang.model.tree.expressions.TypedescExpressionNode;
@@ -209,7 +208,6 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangStringTemplateLiter
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTableLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTableQueryExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTernaryExpr;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeCastExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeConversionExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeInit;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypedescExpr;
@@ -435,10 +433,6 @@ public class TreeBuilder {
 
     public static BracedOrTupleExpression createBracedOrTupleExpression() {
         return new BLangBracedOrTupleExpr();
-    }
-
-    public static TypeCastNode createTypeCastNode() {
-        return new BLangTypeCastExpr();
     }
 
     public static TypedescExpressionNode createTypeAccessNode() {

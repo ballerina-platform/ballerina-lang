@@ -112,7 +112,6 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangStringTemplateLiter
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTableLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTableQueryExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTernaryExpr;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeCastExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeConversionExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeInit;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypedescExpr;
@@ -1440,12 +1439,6 @@ public class Desugar extends BLangNodeVisitor {
                     symTable.intType, symTable.intType);
         }
         result = rewriteExpr(binaryExpr);
-    }
-
-    @Override
-    public void visit(BLangTypeCastExpr castExpr) {
-        castExpr.expr = rewriteExpr(castExpr.expr);
-        result = castExpr;
     }
 
     @Override

@@ -52,7 +52,6 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangMatchExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTernaryExpr;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeCastExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeConversionExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeInit;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangUnaryExpr;
@@ -501,17 +500,6 @@ public class ReferencesTreeVisitor extends LSNodeVisitor {
 
         if (binaryExpr.rhsExpr != null) {
             acceptNode(binaryExpr.rhsExpr);
-        }
-    }
-
-    @Override
-    public void visit(BLangTypeCastExpr castExpr) {
-        if (castExpr.typeNode != null) {
-            this.acceptNode(castExpr.typeNode);
-        }
-
-        if (castExpr.expr != null) {
-            this.acceptNode(castExpr.expr);
         }
     }
 

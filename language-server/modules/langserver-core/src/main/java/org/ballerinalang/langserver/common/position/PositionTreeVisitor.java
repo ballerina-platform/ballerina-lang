@@ -59,7 +59,6 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangStringTemplateLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTernaryExpr;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeCastExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeConversionExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeInit;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangUnaryExpr;
@@ -666,17 +665,6 @@ public class PositionTreeVisitor extends LSNodeVisitor {
 
         if (connectorInitExpr.argsExpr != null) {
             connectorInitExpr.argsExpr.forEach(this::acceptNode);
-        }
-    }
-
-    public void visit(BLangTypeCastExpr castExpr) {
-        setPreviousNode(castExpr);
-        if (castExpr.typeNode != null) {
-            this.acceptNode(castExpr.typeNode);
-        }
-
-        if (castExpr.expr != null) {
-            this.acceptNode(castExpr.expr);
         }
     }
 
