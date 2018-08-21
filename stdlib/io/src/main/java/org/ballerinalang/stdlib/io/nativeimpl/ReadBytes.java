@@ -53,7 +53,8 @@ import java.util.Arrays;
 @BallerinaFunction(
         orgName = "ballerina", packageName = "io",
         functionName = "read",
-        receiver = @Receiver(type = TypeKind.OBJECT, structType = "ByteChannel", structPackage = "ballerina/io"),
+        receiver = @Receiver(type = TypeKind.OBJECT, structType = "ReadableByteChannel",
+                structPackage = "ballerina/io"),
         args = {@Argument(name = "nBytes", type = TypeKind.INT)},
         returnType = {@ReturnType(type = TypeKind.ARRAY, elementType = TypeKind.BYTE),
                 @ReturnType(type = TypeKind.INT),
