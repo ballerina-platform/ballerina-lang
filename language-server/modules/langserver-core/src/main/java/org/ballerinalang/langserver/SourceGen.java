@@ -4776,18 +4776,21 @@ public class SourceGen {
                 node.addProperty("isAnonType", true);
             }
 
-            if (node.has("initialExpression") &&
-                    node.getAsJsonObject("initialExpression").has("async") &&
-                    node.getAsJsonObject("initialExpression").get("async").getAsBoolean()) {
-                if (node.has("ws")) {
-                    JsonArray ws = node.getAsJsonArray("ws");
-                    for (int i = 0; i < ws.size(); i++) {
-                        if (ws.get(i).getAsJsonObject().get("text").getAsString().equals("start")) {
-                            if (node.getAsJsonObject("initialExpression").has("ws")) {
-                                node.getAsJsonObject("initialExpression").add("ws",
-                                        addDataToArray(0, node.getAsJsonArray("ws").get(i),
-                                                node.getAsJsonObject("initialExpression").getAsJsonArray("ws")));
-                                node.getAsJsonArray("ws").remove(i);
+            if (node.has("initialExpression")) {
+                node.getAsJsonObject("initialExpression").addProperty("isExpression", true);
+                if (node.getAsJsonObject("initialExpression").has("async") &&
+                        node.getAsJsonObject("initialExpression").get("async").getAsBoolean()) {
+                    if (node.has("ws")) {
+                        JsonArray ws = node.getAsJsonArray("ws");
+                        for (int i = 0; i < ws.size(); i++) {
+                            if (ws.get(i).getAsJsonObject().get("text").getAsString().equals("start")) {
+                                if (node.getAsJsonObject("initialExpression").has("ws")) {
+                                    node.getAsJsonObject("initialExpression").add("ws",
+                                            addDataToArray(0, node.getAsJsonArray("ws").get(i),
+                                                    node.getAsJsonObject("initialExpression")
+                                                            .getAsJsonArray("ws")));
+                                    node.getAsJsonArray("ws").remove(i);
+                                }
                             }
                         }
                     }

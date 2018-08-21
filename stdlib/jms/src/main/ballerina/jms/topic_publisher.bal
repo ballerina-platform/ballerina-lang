@@ -35,13 +35,21 @@ public type TopicPublisher object {
     }
     public function init(TopicPublisherEndpointConfiguration c) {
         self.config = c;
+        self.producerActions.topicPublisher = self;
         match (c.session) {
-            Session s => self.initTopicPublisher(s);
+            Session s => {
+                match (c.topicPattern) {
+                    string topicPattern => {
+                        self.initTopicPublisher(s);
+                    }
+                    () => {log:printInfo("Topic publisher is not properly initialized for the topic");}
+                }
+            }
             () => {}
         }
     }
 
-    public extern function initTopicPublisher(Session session);
+    public extern function initTopicPublisher(Session session, Destination? destination = ());
 
     documentation { Register topic publisher endpoint
         P{{serviceType}} Type descriptor of the service
@@ -72,11 +80,13 @@ documentation { Configuration related to the topic publisher endpoint
 }
 public type TopicPublisherEndpointConfiguration record {
     Session? session;
-    string topicPattern;
+    string? topicPattern;
 };
 
 documentation { Actions that topic publisher endpoint could perform }
 public type TopicPublisherActions object {
+
+    public TopicPublisher? topicPublisher;
 
     documentation { Sends a message to the JMS provider
         P{{message}} Message to be sent to the JMS provider
@@ -89,5 +99,21 @@ public type TopicPublisherActions object {
         P{{destination}} destination used for the message sender
         P{{message}} message to be sent to the JMS provider
     }
-    public extern function sendTo(Destination destination, Message message) returns error?;
+    public function sendTo(Destination destination, Message message) returns error?;
 };
+
+function TopicPublisherActions::sendTo(Destination destination, Message message) returns error? {
+    match (self.topicPublisher) {
+        TopicPublisher topicPublisher => {
+            match (topicPublisher.config.session) {
+                Session s => {
+                    validateTopic(destination);
+                    topicPublisher.initTopicPublisher(s, destination = destination);
+                }
+                () => {}
+            }
+        }
+        () => {log:printInfo("Topic publisher is not properly initialized.");}
+    }
+    return self.send(message);
+}

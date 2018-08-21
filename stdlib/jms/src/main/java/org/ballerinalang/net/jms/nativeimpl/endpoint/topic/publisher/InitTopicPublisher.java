@@ -28,16 +28,17 @@ import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
-import org.ballerinalang.net.jms.AbstractBlockinAction;
+import org.ballerinalang.net.jms.AbstractBlockingAction;
 import org.ballerinalang.net.jms.Constants;
 import org.ballerinalang.net.jms.JMSUtils;
 import org.ballerinalang.net.jms.nativeimpl.endpoint.common.SessionConnector;
 import org.ballerinalang.net.jms.utils.BallerinaAdapter;
+import org.ballerinalang.util.exceptions.BallerinaException;
 
+import javax.jms.Destination;
 import javax.jms.JMSException;
 import javax.jms.MessageProducer;
 import javax.jms.Session;
-import javax.jms.Topic;
 
 /**
  * Initialize the topic producer.
@@ -49,34 +50,41 @@ import javax.jms.Topic;
         packageName = "jms",
         functionName = "initTopicPublisher",
         receiver = @Receiver(type = TypeKind.OBJECT, structType = "TopicPublisher", structPackage = "ballerina/jms"),
-        args = { @Argument(name = "session", type = TypeKind.OBJECT, structType = "Session") },
+        args = { @Argument(name = "session", type = TypeKind.OBJECT, structType = "Session"),
+                @Argument(name = "destination", type = TypeKind.OBJECT)
+                },
         isPublic = true
 )
-public class InitTopicPublisher extends AbstractBlockinAction {
+public class InitTopicPublisher extends AbstractBlockingAction {
 
     @Override
     public void execute(Context context, CallableUnitCallback callback) {
         Struct topicProducerBObject = BallerinaAdapter.getReceiverObject(context);
+
         Struct topicProducerConfig = topicProducerBObject.getStructField(Constants.TOPIC_PUBLISHER_FIELD_CONFIG);
-        String topicPattern = topicProducerConfig.getStringField(Constants.TOPIC_PUBLISHER_FIELD_TOPIC_PATTERN);
+        String topicPattern = JMSUtils.getTopicPattern(topicProducerConfig);
 
         BMap<String, BValue> sessionBObject = (BMap<String, BValue>) context.getRefArgument(1);
         Session session = BallerinaAdapter.getNativeObject(sessionBObject,
-                                                           Constants.JMS_SESSION,
-                                                           Session.class,
-                                                           context);
-        try {
+                                                            Constants.JMS_SESSION,
+                                                            Session.class,
+                                                            context);
+        BMap<String, BValue> destinationBObject = (BMap<String, BValue>) context.getNullableRefArgument(2);
+        Destination destinationObject = JMSUtils.getDestination(context, destinationBObject);
 
-            Topic topic = null;
-            if (!JMSUtils.isNullOrEmptyAfterTrim(topicPattern)) {
-                topic = JMSUtils.getTopic(session, topicPattern);
-            }
+        if (JMSUtils.isNullOrEmptyAfterTrim(topicPattern) && destinationObject == null) {
+            throw new BallerinaException("Topic pattern and destination cannot be null at the same time", context);
+        }
+
+        try {
+            Destination topic = destinationObject != null ? destinationObject :
+                    JMSUtils.getTopic(session, topicPattern);
             MessageProducer producer = session.createProducer(topic);
             Struct topicProducerConnectorBObject
                     = topicProducerBObject.getStructField(Constants.TOPIC_PUBLISHER_FIELD_PRODUCER_ACTIONS);
             topicProducerConnectorBObject.addNativeData(Constants.JMS_PRODUCER_OBJECT, producer);
             topicProducerConnectorBObject.addNativeData(Constants.SESSION_CONNECTOR_OBJECT,
-                                                        new SessionConnector(session));
+                    new SessionConnector(session));
         } catch (JMSException e) {
             BallerinaAdapter.throwBallerinaException("Error creating topic producer", context, e);
         }

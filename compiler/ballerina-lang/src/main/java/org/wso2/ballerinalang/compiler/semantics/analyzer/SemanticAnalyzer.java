@@ -196,6 +196,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
     private BType resType;
     private boolean isSiddhiRuntimeEnabled;
     private boolean isGroupByAvailable;
+    private boolean isWindowAvailable;
 
     private Map<BLangBlockStmt, SymbolEnv> blockStmtEnvMap = new HashMap<>();
 
@@ -1212,7 +1213,9 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         isSiddhiRuntimeEnabled = foreverStatement.isSiddhiRuntimeEnabled();
         foreverStatement.setEnv(env);
         for (StreamingQueryStatementNode streamingQueryStatement : foreverStatement.getStreamingQueryStatements()) {
-            analyzeStmt((BLangStatement) streamingQueryStatement, env);
+            SymbolEnv stmtEnv = SymbolEnv.createStreamingQueryEnv(
+                    (BLangStreamingQueryStatement) streamingQueryStatement, env);
+            analyzeStmt((BLangStatement) streamingQueryStatement, stmtEnv);
         }
 
         if (isSiddhiRuntimeEnabled) {
@@ -1225,6 +1228,8 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
     }
 
     public void visit(BLangStreamingQueryStatement streamingQueryStatement) {
+        defineSelectorAttributes(this.env, streamingQueryStatement);
+
         StreamingInput streamingInput = streamingQueryStatement.getStreamingInput();
         if (streamingInput != null) {
             ((BLangStreamingInput) streamingInput).accept(this);
@@ -1325,8 +1330,10 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangWindow windowClause) {
+        isWindowAvailable = true;
         ExpressionNode expressionNode = windowClause.getFunctionInvocation();
         ((BLangExpression) expressionNode).accept(this);
+        isWindowAvailable = false;
     }
 
     @Override
@@ -1335,7 +1342,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         if (variableReferenceNode != null) {
             ((BLangVariableReference) variableReferenceNode).accept(this);
         }
-        if (!isSiddhiRuntimeEnabled && isGroupByAvailable) {
+        if (!isSiddhiRuntimeEnabled && (isGroupByAvailable || isWindowAvailable)) {
             for (BLangExpression arg : invocationExpr.argExprs) {
                 typeChecker.checkExpr(arg, env);
             }
@@ -1393,7 +1400,10 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangHaving having) {
-        // Note: Some stream attributes might not be resolved at this phase. Therefore, skipping this phase.
+        ExpressionNode expressionNode = having.getExpression();
+        if (expressionNode != null) {
+            ((BLangExpression) expressionNode).accept(this);
+        }
     }
 
     @Override
@@ -2052,6 +2062,24 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                 || ((BArrayType) functionParameters.get(0).type).eType.tag == TypeTags.RECORD)) {
             dlog.error((streamAction).pos, DiagnosticCode.INVALID_STREAM_ACTION_ARGUMENT_TYPE,
                     ((BArrayType) functionParameters.get(0).type).eType.getKind());
+        }
+    }
+
+    private void defineSelectorAttributes(SymbolEnv stmtEnv, StreamingQueryStatementNode node) {
+        if (node.getStreamingAction() == null) {
+            return;
+        }
+        BType streamActionArgumentType = ((BLangLambdaFunction) node.getStreamingAction()
+                .getInvokableBody()).function.requiredParams.get(0).type;
+        if (streamActionArgumentType.tag != TypeTags.ARRAY) {
+            return;
+        }
+        BType structType = (((BArrayType) streamActionArgumentType).eType);
+        if (structType.tag == TypeTags.OBJECT || structType.tag == TypeTags.RECORD) {
+            List<BField> outputStreamFieldList = ((BStructureType) structType).fields;
+            for (BField field : outputStreamFieldList) {
+                stmtEnv.scope.define(field.name, field.symbol);
+            }
         }
     }
 

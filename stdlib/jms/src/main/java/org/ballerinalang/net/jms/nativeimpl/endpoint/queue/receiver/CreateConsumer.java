@@ -33,6 +33,7 @@ import org.ballerinalang.net.jms.Constants;
 import org.ballerinalang.net.jms.JMSUtils;
 import org.ballerinalang.net.jms.nativeimpl.endpoint.common.SessionConnector;
 import org.ballerinalang.net.jms.utils.BallerinaAdapter;
+import org.ballerinalang.util.exceptions.BallerinaException;
 
 import javax.jms.Destination;
 import javax.jms.JMSException;
@@ -51,7 +52,8 @@ import javax.jms.Session;
         functionName = "createQueueReceiver",
         receiver = @Receiver(type = TypeKind.OBJECT, structType = "QueueReceiver", structPackage = "ballerina/jms"),
         args = { @Argument(name = "session", type = TypeKind.OBJECT, structType = "Session"),
-                 @Argument(name = "messageSelector", type = TypeKind.STRING)
+                 @Argument(name = "messageSelector", type = TypeKind.STRING),
+                 @Argument(name = "destination", type = TypeKind.OBJECT)
         },
         isPublic = true
 )
@@ -67,27 +69,20 @@ public class CreateConsumer implements NativeCallableUnit {
                                                            Session.class,
                                                            context);
         Struct queueConsumerConfigBRecord = queueConsumerBObject.getStructField(Constants.CONSUMER_CONFIG);
-        String queueName = null;
-        if (queueConsumerConfigBRecord.getRefField(Constants.QUEUE_NAME) != null) {
-            queueName = queueConsumerConfigBRecord.getRefField(Constants.QUEUE_NAME).getStringValue();
+        String queueName = JMSUtils.getQueueName(queueConsumerConfigBRecord);
+        BMap<String, BValue> destinationBObject = (BMap<String, BValue>) context.getNullableRefArgument(2);
+        Destination destinationObject = JMSUtils.getDestination(context, destinationBObject);
+
+        if (JMSUtils.isNullOrEmptyAfterTrim(queueName) && destinationObject == null) {
+            throw new BallerinaException("Queue name and destination cannot be null at the same time", context);
         }
-        
+
         try {
-            //if queue is emtpy, leave consumer open for temporary receivers
-            // otherwise create a dedicated consumer for the destination
-            if (JMSUtils.isNullOrEmptyAfterTrim(queueName)) {
-                Struct consumerConnectorBObject = queueConsumerBObject.getStructField(Constants.CONSUMER_ACTIONS);
-                consumerConnectorBObject.addNativeData(Constants.SESSION_CONNECTOR_OBJECT, 
-                                                        new SessionConnector(session));
-            } else {
-                Destination queue = session.createQueue(queueName);
-                MessageConsumer consumer = session.createConsumer(queue, messageSelector);
-                Struct consumerConnectorBObject = queueConsumerBObject.getStructField(Constants.CONSUMER_ACTIONS);
-                consumerConnectorBObject.addNativeData(Constants.JMS_CONSUMER_OBJECT, consumer);
-                consumerConnectorBObject.addNativeData(Constants.SESSION_CONNECTOR_OBJECT, 
-                                                        new SessionConnector(session));
-            }
-           
+            Destination queue = destinationObject != null ? destinationObject : session.createQueue(queueName);
+            MessageConsumer consumer = session.createConsumer(queue, messageSelector);
+            Struct consumerConnectorBObject = queueConsumerBObject.getStructField(Constants.CONSUMER_ACTIONS);
+            consumerConnectorBObject.addNativeData(Constants.JMS_CONSUMER_OBJECT, consumer);
+            consumerConnectorBObject.addNativeData(Constants.SESSION_CONNECTOR_OBJECT, new SessionConnector(session));
         } catch (JMSException e) {
             BallerinaAdapter.throwBallerinaException("Error while creating queue consumer.", context, e);
         }

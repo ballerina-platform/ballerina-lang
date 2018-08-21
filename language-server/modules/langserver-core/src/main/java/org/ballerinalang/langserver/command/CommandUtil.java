@@ -22,6 +22,7 @@ import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.common.utils.CommonUtil.FunctionGenerator;
 import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
 import org.ballerinalang.langserver.compiler.LSCompiler;
+import org.ballerinalang.langserver.compiler.LSCompilerUtil;
 import org.ballerinalang.langserver.compiler.LSPackageLoader;
 import org.ballerinalang.langserver.compiler.LSServiceOperationContext;
 import org.ballerinalang.langserver.compiler.common.LSCustomErrorStrategy;
@@ -102,18 +103,20 @@ public class CommandUtil {
      * @param diagnostic     Diagnostic to get the command against
      * @param params         Code Action parameters
      * @param documentManager Document manager
+     * @param lsCompiler
      * @return {@link List}    List of commands related to the given diagnostic
      */
     public static List<Command> getCommandsByDiagnostic(Diagnostic diagnostic, CodeActionParams params,
-                                                        WorkspaceDocumentManager documentManager) {
+                                                        WorkspaceDocumentManager documentManager,
+                                                        LSCompiler lsCompiler) {
         String diagnosticMessage = diagnostic.getMessage();
         List<Command> commands = new ArrayList<>();
         if (isUndefinedPackage(diagnosticMessage)) {
             String packageAlias = diagnosticMessage.substring(diagnosticMessage.indexOf("'") + 1,
                                                               diagnosticMessage.lastIndexOf("'"));
             LSDocument sourceDocument = new LSDocument(params.getTextDocument().getUri());
-            Path openedPath = CommonUtil.getPath(sourceDocument);
-            String sourceRoot = LSCompiler.getSourceRoot(openedPath);
+            Path openedPath = sourceDocument.getPath();
+            String sourceRoot = LSCompilerUtil.getSourceRoot(openedPath);
             sourceDocument.setSourceRoot(sourceRoot);
             List<BallerinaPackage> packagesList = new ArrayList<>();
             Stream.of(LSPackageLoader.getSdkPackages(), LSPackageLoader.getHomeRepoPackages())
@@ -134,7 +137,7 @@ public class CommandUtil {
                                                  new ArrayList<>(Arrays.asList(pkgArgument, docUriArgument))));
                     });
         } else if (isUndefinedFunction(diagnosticMessage)) {
-            BLangInvocation functionNode = getFunctionNode(params, documentManager);
+            BLangInvocation functionNode = getFunctionNode(params, documentManager, lsCompiler);
             String functionName = functionNode.name.getValue();
             List<Object> args = new ArrayList<>();
             BLangNode parent = functionNode.parent;
@@ -408,7 +411,8 @@ public class CommandUtil {
     }
 
     private static BLangInvocation getFunctionNode(CodeActionParams params,
-                                                   WorkspaceDocumentManager documentManager) {
+                                                   WorkspaceDocumentManager documentManager,
+                                                   LSCompiler lsCompiler) {
         LSServiceOperationContext renameContext = new LSServiceOperationContext();
         List<Location> contents = new ArrayList<>();
         Position position = params.getRange().getStart();
@@ -416,7 +420,7 @@ public class CommandUtil {
         renameContext.put(DocumentServiceKeys.FILE_URI_KEY, params.getTextDocument().getUri());
         renameContext.put(DocumentServiceKeys.POSITION_KEY,
                           new TextDocumentPositionParams(params.getTextDocument(), position));
-        List<BLangPackage> bLangPackages = LSCompiler.getBLangPackage(renameContext, documentManager, false,
+        List<BLangPackage> bLangPackages = lsCompiler.getBLangPackage(renameContext, documentManager, false,
                                                                       LSCustomErrorStrategy.class, true).getLeft();
         // Get the current package.
         BLangPackage currentBLangPackage = CommonUtil.getCurrentPackageByFileName(bLangPackages,

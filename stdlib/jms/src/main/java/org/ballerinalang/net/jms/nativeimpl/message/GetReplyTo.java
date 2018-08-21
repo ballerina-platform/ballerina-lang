@@ -20,6 +20,7 @@
 package org.ballerinalang.net.jms.nativeimpl.message;
 
 import org.ballerinalang.bre.Context;
+import org.ballerinalang.bre.bvm.BLangVMErrors;
 import org.ballerinalang.bre.bvm.CallableUnitCallback;
 import org.ballerinalang.connector.api.BLangConnectorSPIUtil;
 import org.ballerinalang.connector.api.Struct;
@@ -30,7 +31,7 @@ import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.natives.annotations.ReturnType;
-import org.ballerinalang.net.jms.AbstractBlockinAction;
+import org.ballerinalang.net.jms.AbstractBlockingAction;
 import org.ballerinalang.net.jms.Constants;
 import org.ballerinalang.net.jms.utils.BallerinaAdapter;
 
@@ -52,7 +53,7 @@ import javax.jms.Topic;
                                         structPackage = "ballerina/jms")},
         isPublic = true
 )
-public class GetReplyTo extends AbstractBlockinAction {
+public class GetReplyTo extends AbstractBlockingAction {
 
     @Override
     public void execute(Context context, CallableUnitCallback callableUnitCallback) {
@@ -72,13 +73,14 @@ public class GetReplyTo extends AbstractBlockinAction {
                 bStruct.put(Constants.DESTINATION_NAME, new BString(replyTo.getQueueName()));
                 bStruct.put(Constants.DESTINATION_TYPE, new BString("queue"));
                 context.setReturnValues(bStruct);
-            } else {
-                //it must be a topic
+            } else if (destination instanceof Topic) {
                 Topic replyTo = (Topic) destination;
                 bStruct.addNativeData(Constants.JMS_DESTINATION_OBJECT, replyTo);
                 bStruct.put(Constants.DESTINATION_NAME, new BString(replyTo.getTopicName()));
                 bStruct.put(Constants.DESTINATION_TYPE, new BString("topic"));
                 context.setReturnValues(bStruct);
+            } else {
+                context.setReturnValues(BLangVMErrors.createError(context, "ReplyTo header has not been set"));
             }
         } catch (JMSException e) {
             BallerinaAdapter.returnError("Error when retrieving replyTo", context, e);

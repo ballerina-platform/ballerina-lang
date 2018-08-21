@@ -31,12 +31,18 @@ public type TopicSubscriber object {
     }
     public function init(TopicSubscriberEndpointConfiguration c) {
         self.config = c;
+        self.consumerActions.topicSubscriber = self;
         match (c.session) {
             Session s => {
-                self.createSubscriber(s, c.messageSelector);
-                log:printInfo("Subscriber created for topic " + c.topicPattern);
+                match (c.topicPattern) {
+                    string topicPattern => {
+                        self.createSubscriber(s, c.messageSelector);
+                        log:printInfo("Subscriber created for topic " + topicPattern);
+                    }
+                    () => {}
+                }
             }
-            () => {}
+            () => {log:printInfo("Topic subscriber is not properly initialised for topic");}
         }
     }
 
@@ -49,7 +55,7 @@ public type TopicSubscriber object {
 
     extern function registerListener(typedesc serviceType, TopicSubscriberActions actions);
 
-    extern function createSubscriber(Session session, string messageSelector);
+    extern function createSubscriber(Session session, string messageSelector, Destination? destination = ());
 
     documentation { Start topic subscriber endpoint }
     public function start() {
@@ -77,13 +83,15 @@ documentation { Configuration related to topic subscriber endpoint
 }
 public type TopicSubscriberEndpointConfiguration record {
     Session? session;
-    string topicPattern;
+    string? topicPattern;
     string messageSelector;
     string identifier;
 };
 
 documentation { Actions that topic subscriber endpoint could perform }
 public type TopicSubscriberActions object {
+
+    public TopicSubscriber? topicSubscriber;
 
     documentation { Acknowledges a received message
         P{{message}} JMS message to be acknowledged
@@ -103,5 +111,38 @@ public type TopicSubscriberActions object {
         P{{timeoutInMilliSeconds}} Time to wait until a message is received
         R{{}} Returns a message or nill if the timeout exceededs. Returns an error on jms provider internal error.
     }
-    public extern function receiveFrom(Destination destination, int timeoutInMilliSeconds = 0) returns (Message|error)?;
+    public function receiveFrom(Destination destination, int timeoutInMilliSeconds = 0) returns (Message|error)?;
 };
+
+function TopicSubscriberActions::receiveFrom(Destination destination, int timeoutInMilliSeconds = 0) returns (Message|
+        error)? {
+    match (self.topicSubscriber) {
+        TopicSubscriber topicSubscriber => {
+            match (topicSubscriber.config.session) {
+                Session s => {
+                    validateTopic(destination);
+                    topicSubscriber.createSubscriber(s, topicSubscriber.config.messageSelector, destination =
+                        destination);
+                    log:printInfo("Subscriber created for topic " + destination.destinationName);
+                }
+                () => {}
+            }
+        }
+        () => {log:printInfo("Topic subscriber is not properly initialized.");}
+    }
+    var result = self.receive(timeoutInMilliSeconds = timeoutInMilliSeconds);
+    self.topicSubscriber.closeSubscriber(self);
+    return result;
+}
+
+function validateTopic(Destination destination) {
+    if (destination.destinationName == "") {
+        string errorMessage = "Destination name cannot be empty";
+        error topicSubscriberConfigError = { message: errorMessage };
+        throw topicSubscriberConfigError;
+    } else if (destination.destinationType != "topic") {
+        string errorMessage = "Destination should should be a topic";
+        error topicSubscriberConfigError = { message: errorMessage };
+        throw topicSubscriberConfigError;
+    }
+}

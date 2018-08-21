@@ -26,6 +26,7 @@ public class ProgramFileConstants {
     public static final short VERSION_NUMBER = 20;
     public static final short MIN_SUPPORTED_VERSION = 20;
     public static final short MAX_SUPPORTED_VERSION = 20;
+    public static final int VERSION_BYTE = 6;
 
     // int, float, string, boolean, reference type
     public static final int NO_OF_VAR_TYPE_CATEGORIES = 5;

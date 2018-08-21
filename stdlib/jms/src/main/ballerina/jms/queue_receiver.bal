@@ -31,14 +31,18 @@ public type QueueReceiver object {
     }
     public function init(QueueReceiverEndpointConfiguration c) {
         self.config = c;
+        self.consumerActions.queueReceiver = self;
         match (c.session) {
             Session s => {
-                self.createQueueReceiver(s, c.messageSelector);
-                log:printInfo("Message receiver created for queue " + c.queueName);
+                match (c.queueName) {
+                    string queueName => {
+                        self.createQueueReceiver(s, c.messageSelector);
+                    }
+                    () => {}
+                }
             }
-            () => { log:printInfo("Message receiver not properly initialised for queue " + c.queueName); }
+            () => { log:printInfo("Message receiver is not properly initialised for queue"); }
         }
-
     }
 
     documentation { Binds the queue receiver endpoint to a service
@@ -50,7 +54,7 @@ public type QueueReceiver object {
 
     extern function registerListener(typedesc serviceType, QueueReceiverActions actions);
 
-    extern function createQueueReceiver(Session session, string messageSelector);
+    extern function createQueueReceiver(Session session, string messageSelector, Destination? destination = ());
 
     documentation { Starts the endpoint. Function is ignored by the receiver endpoint }
     public function start() {
@@ -80,13 +84,15 @@ documentation { Configurations related to the QueueReceiver endpoint
 }
 public type QueueReceiverEndpointConfiguration record {
     Session? session;
-    string queueName;
+    string? queueName;
     string messageSelector;
     string identifier;
 };
 
 documentation { Caller actions related to queue receiver endpoint }
 public type QueueReceiverActions object {
+
+    public QueueReceiver? queueReceiver;
 
     documentation { Acknowledges a received message
         P{{message}} JMS message to be acknowledged
@@ -95,7 +101,7 @@ public type QueueReceiverActions object {
 
     documentation { Synchronously receive a message from the JMS provider
         P{{timeoutInMilliSeconds}} time to wait until a message is received
-        R{{}} Returns a message or nill if the timeout exceededs. Returns an error on jms provider internal error.
+        R{{}} Returns a message or () if the timeout exceededs. Returns an error on jms provider internal error.
     }
     public extern function receive(int timeoutInMilliSeconds = 0) returns (Message|error)?;
 
@@ -104,7 +110,40 @@ public type QueueReceiverActions object {
 
         P{{destination}} destination to subscribe to.
         P{{timeoutInMilliSeconds}} time to wait until a message is received
-        R{{}} Returns a message or nill if the timeout exceededs. Returns an error on jms provider internal error.
+        R{{}} Returns a message or () if the timeout exceededs. Returns an error on jms provider internal error.
     }
-    public extern function receiveFrom(Destination destination, int timeoutInMilliSeconds = 0) returns (Message|error)?;
+    public function receiveFrom(Destination destination, int timeoutInMilliSeconds = 0) returns (Message|error)?;
 };
+
+function QueueReceiverActions::receiveFrom(Destination destination, int timeoutInMilliSeconds = 0) returns (Message|
+        error)? {
+    match (self.queueReceiver) {
+        QueueReceiver queueReceiver => {
+            match (queueReceiver.config.session) {
+                Session s => {
+                    validateQueue(destination);
+                    queueReceiver.createQueueReceiver(s, queueReceiver.config.messageSelector, destination = destination
+                    );
+                }
+                () => {}
+            }
+        }
+        () => { log:printInfo("Message receiver is not properly initialised for queue " +
+                destination.destinationName); }
+    }
+    var result = self.receive(timeoutInMilliSeconds = timeoutInMilliSeconds);
+    self.queueReceiver.closeQueueReceiver(self);
+    return result;
+}
+
+function validateQueue(Destination destination) {
+    if (destination.destinationName == "") {
+        string errorMessage = "Destination name cannot be empty";
+        error queueReceiverConfigError = { message: errorMessage };
+        throw queueReceiverConfigError;
+    } else if (destination.destinationType != "queue") {
+        string errorMessage = "Destination should should be a queue";
+        error queueReceiverConfigError = { message: errorMessage };
+        throw queueReceiverConfigError;
+    }
+}
