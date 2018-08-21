@@ -40,11 +40,19 @@ public class BallerinaResolveRecordTest extends BallerinaResolveTestBase {
         doFileTest();
     }
 
+    public void testRecordInSameFileInWorker() {
+        doFileTest();
+    }
+
     public void testRecordInDifferentFileInFunction() throws IOException {
         doFileTest(recordDefinition);
     }
 
     public void testRecordInDifferentFileInService() throws IOException {
+        doFileTest(recordDefinition);
+    }
+
+    public void testRecordInDifferentFileInWorker() throws IOException {
         doFileTest(recordDefinition);
     }
 
@@ -55,5 +63,10 @@ public class BallerinaResolveRecordTest extends BallerinaResolveTestBase {
     //
     //    public void testRecordInDifferentPackageInService() throws IOException {
     //        doFileTest(recordDefinition, "org/test/test.bal");
-    //}
+    //    }
+    //
+    //    public void testRecordInDifferentPackageInWorker() throws IOException {
+    //        doFileTest(recordDefinition, "org/test/test.bal");
+    //    }
+
 }

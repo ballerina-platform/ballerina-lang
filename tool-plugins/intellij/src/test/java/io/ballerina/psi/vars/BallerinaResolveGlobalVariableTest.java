@@ -48,6 +48,10 @@ public class BallerinaResolveGlobalVariableTest extends BallerinaResolveTestBase
         doFileTest();
     }
 
+    public void testGlobalVariableInSameFileInWorker() {
+        doFileTest();
+    }
+
     public void testGlobalVariableInDifferentFileInFunction() throws IOException {
         doFileTest(globalVariable);
     }
@@ -61,6 +65,10 @@ public class BallerinaResolveGlobalVariableTest extends BallerinaResolveTestBase
     }
 
     public void testGlobalVariableInDifferentFileInRecord() throws IOException {
+        doFileTest(globalVariable);
+    }
+
+    public void testGlobalVariableInDifferentFileInWorker() throws IOException {
         doFileTest(globalVariable);
     }
 
@@ -78,6 +86,10 @@ public class BallerinaResolveGlobalVariableTest extends BallerinaResolveTestBase
     //    }
     //
     //    public void testGlobalVariableInDifferentPackageInRecord() throws IOException {
+    //        doFileTest(globalVariable, "org/test/test.bal");
+    //    }
+    //
+    //    public void testGlobalVariableInDifferentPackageInWorker() throws IOException {
     //        doFileTest(globalVariable, "org/test/test.bal");
     //    }
 }

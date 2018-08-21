@@ -40,11 +40,19 @@ public class BallerinaResolveFunctionTest extends BallerinaResolveTestBase {
         doFileTest();
     }
 
+    public void testFunctionInSameFileInvokeInWorker() {
+        doFileTest();
+    }
+
     public void testFunctionInDifferentFileInvokeInFunction() throws IOException {
         doFileTest(function);
     }
 
     public void testFunctionInDifferentFileInvokeInService() throws IOException {
+        doFileTest(function);
+    }
+
+    public void testFunctionInDifferentFileInvokeInWorker() throws IOException {
         doFileTest(function);
     }
 
@@ -54,6 +62,10 @@ public class BallerinaResolveFunctionTest extends BallerinaResolveTestBase {
     //    }
     //
     //    public void testFunctionInDifferentPackageInvokeInService() throws IOException {
+    //        doFileTest(function, "test/test.bal");
+    //    }
+    //
+    //    public void testFunctionInDifferentPackageInvokeInWorker() throws IOException {
     //        doFileTest(function, "test/test.bal");
     //    }
 }
