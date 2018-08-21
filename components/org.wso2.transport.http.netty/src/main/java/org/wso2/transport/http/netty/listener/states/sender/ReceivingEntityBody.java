@@ -25,36 +25,37 @@ import io.netty.handler.codec.http.DefaultLastHttpContent;
 import io.netty.handler.codec.http.HttpContent;
 import io.netty.handler.codec.http.HttpResponse;
 import io.netty.handler.codec.http.LastHttpContent;
-import io.netty.handler.codec.http2.Http2CodecUtil;
 import io.netty.handler.timeout.IdleStateEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.wso2.transport.http.netty.common.Constants;
 import org.wso2.transport.http.netty.contract.HttpResponseFuture;
 import org.wso2.transport.http.netty.contract.ServerConnectorFuture;
 import org.wso2.transport.http.netty.listener.states.StateContext;
 import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 import org.wso2.transport.http.netty.sender.TargetHandler;
-import org.wso2.transport.http.netty.sender.http2.OutboundMsgHolder;
 
 import static org.wso2.transport.http.netty.common.Constants.IDLE_TIMEOUT_TRIGGERED_WHILE_READING_INBOUND_RESPONSE;
 import static org.wso2.transport.http.netty.common.Constants.REMOTE_SERVER_CLOSED_WHILE_READING_INBOUND_RESPONSE;
+import static org.wso2.transport.http.netty.common.Util.isKeepAlive;
+import static org.wso2.transport.http.netty.common.Util.isLastHttpContent;
 
 /**
  * State between start and end of inbound request headers read.
  */
-public class ReceivingHeaders implements SenderState {
+public class ReceivingEntityBody implements SenderState {
 
-    private static Logger log = LoggerFactory.getLogger(ReceivingHeaders.class);
+    private static Logger log = LoggerFactory.getLogger(ReceivingEntityBody.class);
     private final StateContext stateContext;
-    private TargetHandler targetHandler;
+    private final TargetHandler targetHandler;
 
-    public ReceivingHeaders(StateContext stateContext) {
+    public ReceivingEntityBody(StateContext stateContext, TargetHandler targetHandler) {
         this.stateContext = stateContext;
+        this.targetHandler = targetHandler;
     }
 
     @Override
-    public void writeOutboundRequestHeaders(HttpCarbonMessage httpOutboundRequest,
-                                            HttpContent httpContent) {
+    public void writeOutboundRequestHeaders(HttpCarbonMessage httpOutboundRequest, HttpContent httpContent) {
 
     }
 
@@ -65,29 +66,25 @@ public class ReceivingHeaders implements SenderState {
 
     @Override
     public void readInboundResponseHeaders(TargetHandler targetHandler, HttpResponse httpInboundResponse) {
-        this.targetHandler = targetHandler;
-        OutboundMsgHolder msgHolder = targetHandler.getHttp2TargetHandler()
-                .getHttp2ClientChannel().getInFlightMessage(Http2CodecUtil.HTTP_UPGRADE_STREAM_ID);
-        if (msgHolder != null) {
-            // Response received over HTTP/1.x connection, so mark no push promises available in the channel
-            msgHolder.markNoPromisesReceived();
-        }
-        if (targetHandler.getHttpResponseFuture() != null) {
-            targetHandler.getHttpResponseFuture().notifyHttpListener(targetHandler.getInboundResponseMsg());
-        } else {
-            log.error("Cannot notify the response to client as there is no associated responseFuture");
-        }
 
-        if (httpInboundResponse.decoderResult().isFailure()) {
-            log.warn(httpInboundResponse.decoderResult().cause().getMessage());
-        }
     }
 
     @Override
     public void readInboundResponseEntityBody(ChannelHandlerContext ctx, HttpContent httpContent,
                                               HttpCarbonMessage inboundResponseMsg) throws Exception {
-        stateContext.setSenderState(new ReceivingEntityBody(stateContext, targetHandler));
-        stateContext.getSenderState().readInboundResponseEntityBody(ctx, httpContent, inboundResponseMsg);
+        inboundResponseMsg.addHttpContent(httpContent);
+
+        if (isLastHttpContent(httpContent)) {
+            targetHandler.resetInboundMsg();
+            targetHandler.getTargetChannel().getChannel().pipeline().remove(Constants.IDLE_STATE_HANDLER);
+            stateContext.setSenderState(new EntityBodyReceived(stateContext));
+
+//            targetErrorHandler.setState(ENTITY_BODY_RECEIVED);
+            if (!isKeepAlive(targetHandler.getKeepAliveConfig(), targetHandler.getOutboundRequestMsg())) {
+                targetHandler.closeChannel(ctx);
+            }
+            targetHandler.getConnectionManager().returnChannel(targetHandler.getTargetChannel());
+        }
     }
 
     @Override

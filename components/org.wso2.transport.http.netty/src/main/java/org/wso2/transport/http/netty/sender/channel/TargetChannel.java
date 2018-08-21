@@ -78,6 +78,7 @@ public class TargetChannel {
     private long contentLength = 0;
     private final ConnectionAvailabilityFuture connectionAvailabilityFuture;
     private TargetErrorHandler targetErrorHandler;
+    private HttpResponseFuture httpInboundResponseFuture;
 
     public TargetChannel(HttpClientChannelInitializer httpClientChannelInitializer, ChannelFuture channelFuture,
                          HttpRoute httpRoute, ConnectionAvailabilityFuture connectionAvailabilityFuture) {
@@ -159,6 +160,8 @@ public class TargetChannel {
         handler.setConnectionManager(connectionManager);
         handler.setTargetChannel(this);
 
+        this.httpInboundResponseFuture = httpInboundResponseFuture;
+
         targetErrorHandler = handler.getTargetErrorHandler();
         targetErrorHandler.setResponseFuture(httpInboundResponseFuture);
     }
@@ -201,8 +204,9 @@ public class TargetChannel {
 
         StateContext stateContext = new StateContext();
         httpOutboundRequest.setStateContext(stateContext);
-        httpOutboundRequest.getStateContext().setSenderState(new SendingHeaders(httpVersion, chunkConfig, this.getChannel()));
-
+        httpOutboundRequest.getStateContext()
+                .setSenderState(new SendingHeaders(stateContext, this, httpVersion, chunkConfig,
+                                                   httpInboundResponseFuture));
         httpOutboundRequest.getHttpContentAsync().setMessageListener((httpContent ->
                 this.channel.eventLoop().execute(() -> {
                     try {
@@ -221,52 +225,52 @@ public class TargetChannel {
 //        targetErrorHandler.setState(SENDING_ENTITY_BODY);
 
 
-        if (Util.isLastHttpContent(httpContent)) {
-            if (!this.requestHeaderWritten) {
-                // this means we need to send an empty payload
-                // depending on the http verb
-                if (Util.isEntityBodyAllowed(getHttpMethod(httpOutboundRequest))) {
-                    if (chunkConfig == ChunkConfig.ALWAYS && (Util.isVersionCompatibleForChunking(httpVersion)) || Util
-                            .shouldEnforceChunkingforHttpOneZero(chunkConfig, httpVersion)) {
-                        Util.setupChunkedRequest(httpOutboundRequest);
-                    } else {
-                        contentLength += httpContent.content().readableBytes();
-                        Util.setupContentLengthRequest(httpOutboundRequest, contentLength);
-                    }
-                }
-                writeOutboundRequestHeaders(httpOutboundRequest);
-            }
-
-            writeOutboundRequestBody(httpContent);
-
-            if (handlerExecutor != null) {
-                handlerExecutor.executeAtTargetRequestSending(httpOutboundRequest);
-            }
-        } else {
-            if ((chunkConfig == ChunkConfig.ALWAYS || chunkConfig == ChunkConfig.AUTO) && (Util
-                    .isVersionCompatibleForChunking(httpVersion)) || Util
-                    .shouldEnforceChunkingforHttpOneZero(chunkConfig, httpVersion)) {
-                if (!this.requestHeaderWritten) {
-                    Util.setupChunkedRequest(httpOutboundRequest);
-                    writeOutboundRequestHeaders(httpOutboundRequest);
-                }
-                this.getChannel().writeAndFlush(httpContent);
-            } else {
-                this.contentList.add(httpContent);
-                contentLength += httpContent.content().readableBytes();
-            }
-        }
+//        if (Util.isLastHttpContent(httpContent)) {
+//            if (!this.requestHeaderWritten) {
+//                // this means we need to send an empty payload
+//                // depending on the http verb
+//                if (Util.isEntityBodyAllowed(getHttpMethod(httpOutboundRequest))) {
+//                    if (chunkConfig == ChunkConfig.ALWAYS && (Util.isVersionCompatibleForChunking(httpVersion)) || Util
+//                            .shouldEnforceChunkingforHttpOneZero(chunkConfig, httpVersion)) {
+//                        Util.setupChunkedRequest(httpOutboundRequest);
+//                    } else {
+//                        contentLength += httpContent.content().readableBytes();
+//                        Util.setupContentLengthRequest(httpOutboundRequest, contentLength);
+//                    }
+//                }
+//                writeOutboundRequestHeaders(httpOutboundRequest);
+//            }
+//
+//            writeOutboundRequestBody(httpContent);
+//
+//            if (handlerExecutor != null) {
+//                handlerExecutor.executeAtTargetRequestSending(httpOutboundRequest);
+//            }
+//        } else {
+//            if ((chunkConfig == ChunkConfig.ALWAYS || chunkConfig == ChunkConfig.AUTO) && (Util
+//                    .isVersionCompatibleForChunking(httpVersion)) || Util
+//                    .shouldEnforceChunkingforHttpOneZero(chunkConfig, httpVersion)) {
+//                if (!this.requestHeaderWritten) {
+//                    Util.setupChunkedRequest(httpOutboundRequest);
+//                    writeOutboundRequestHeaders(httpOutboundRequest);
+//                }
+//                this.getChannel().writeAndFlush(httpContent);
+//            } else {
+//                this.contentList.add(httpContent);
+//                contentLength += httpContent.content().readableBytes();
+//            }
+//        }
     }
 
-    private void writeOutboundRequestBody(HttpContent lastHttpContent) {
-        if (chunkConfig == ChunkConfig.NEVER || !Util.isVersionCompatibleForChunking(httpVersion)) {
-            for (HttpContent cachedHttpContent : contentList) {
-                this.getChannel().writeAndFlush(cachedHttpContent);
-            }
-        }
-        ChannelFuture outboundRequestChannelFuture = this.getChannel().writeAndFlush(lastHttpContent);
-        targetErrorHandler.checkForRequestWriteStatus(outboundRequestChannelFuture);
-    }
+//    private void writeOutboundRequestBody(HttpContent lastHttpContent) {
+//        if (chunkConfig == ChunkConfig.NEVER || !Util.isVersionCompatibleForChunking(httpVersion)) {
+//            for (HttpContent cachedHttpContent : contentList) {
+//                this.getChannel().writeAndFlush(cachedHttpContent);
+//            }
+//        }
+//        ChannelFuture outboundRequestChannelFuture = this.getChannel().writeAndFlush(lastHttpContent);
+//        targetErrorHandler.checkForRequestWriteStatus(outboundRequestChannelFuture);
+//    }
 
     private void resetTargetChannelState() {
         requestHeaderWritten = false;
@@ -274,13 +278,13 @@ public class TargetChannel {
         contentLength = 0;
     }
 
-    private void writeOutboundRequestHeaders(HttpCarbonMessage httpOutboundRequest) {
-        this.setHttpVersionProperty(httpOutboundRequest);
-        HttpRequest httpRequest = Util.createHttpRequest(httpOutboundRequest);
-        this.setRequestHeaderWritten(true);
-        ChannelFuture outboundHeaderFuture = this.getChannel().write(httpRequest);
-        targetErrorHandler.notifyIfHeaderFailure(outboundHeaderFuture);
-    }
+//    private void writeOutboundRequestHeaders(HttpCarbonMessage httpOutboundRequest) {
+//        this.setHttpVersionProperty(httpOutboundRequest);
+//        HttpRequest httpRequest = Util.createHttpRequest(httpOutboundRequest);
+//        this.setRequestHeaderWritten(true);
+//        ChannelFuture outboundHeaderFuture = this.getChannel().write(httpRequest);
+//        targetErrorHandler.notifyIfHeaderFailure(outboundHeaderFuture);
+//    }
 
 
 
@@ -304,5 +308,9 @@ public class TargetChannel {
         }
         log.warn("Both Forwarded and X-Forwarded-- headers are present. Hence updating only the forwarded header");
         headerUpdater.setForwardedHeader();
+    }
+
+    public String getHttpVersion() {
+        return httpVersion;
     }
 }

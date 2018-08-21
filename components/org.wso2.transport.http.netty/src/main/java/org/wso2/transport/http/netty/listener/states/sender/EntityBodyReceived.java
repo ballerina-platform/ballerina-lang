@@ -20,54 +20,54 @@ package org.wso2.transport.http.netty.listener.states.sender;
 
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.http.HttpContent;
-import io.netty.handler.timeout.IdleStateEvent;
+import io.netty.handler.codec.http.HttpResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.wso2.transport.http.netty.contract.ServerConnectorFuture;
+import org.wso2.transport.http.netty.contract.HttpResponseFuture;
 import org.wso2.transport.http.netty.listener.states.StateContext;
 import org.wso2.transport.http.netty.message.HttpCarbonMessage;
+import org.wso2.transport.http.netty.sender.TargetHandler;
 
 /**
- * State of successfully written response
+ * State between start and end of inbound request headers read.
  */
-public class EntityBodySent implements SenderState {
+public class EntityBodyReceived implements SenderState {
 
-    private static Logger log = LoggerFactory.getLogger(EntityBodySent.class);
+    private static Logger log = LoggerFactory.getLogger(EntityBodyReceived.class);
     private final StateContext stateContext;
 
-    public EntityBodySent(StateContext stateContext) {
+    public EntityBodyReceived(StateContext stateContext) {
         this.stateContext = stateContext;
     }
 
     @Override
-    public void writeOutboundRequestHeaders(HttpCarbonMessage httpOutboundRequest,
-                                            HttpContent httpContent) {
+    public void writeOutboundRequestHeaders(HttpCarbonMessage httpOutboundRequest, HttpContent httpContent) {
+    }
+
+    @Override
+    public void writeOutboundRequestEntityBody(HttpCarbonMessage httpOutboundRequest, HttpContent httpContent) {
 
     }
 
     @Override
-    public void writeOutboundRequestEntityBody(
-            HttpCarbonMessage httpOutboundRequest, HttpContent httpContent) {
+    public void readInboundResponseHeaders(TargetHandler targetHandler,
+                                           HttpResponse httpInboundResponse) {
 
     }
 
     @Override
-    public void readInboundResponseHeaders() {
+    public void readInboundResponseEntityBody(ChannelHandlerContext ctx,
+                                              HttpContent httpContent,
+                                              HttpCarbonMessage inboundResponseMsg) {
 
     }
 
     @Override
-    public void readInboundResponseEntityBody() {
-
+    public void handleAbruptChannelClosure(HttpResponseFuture httpResponseFuture) {
     }
 
     @Override
-    public void handleAbruptChannelClosure(ServerConnectorFuture serverConnectorFuture) {
+    public void handleIdleTimeoutConnectionClosure(HttpResponseFuture httpResponseFuture, String channelID) {
 
-    }
-
-    @Override
-    public void handleIdleTimeoutConnectionClosure(ServerConnectorFuture serverConnectorFuture,
-                                                            ChannelHandlerContext ctx, IdleStateEvent evt) {
     }
 }

@@ -139,29 +139,29 @@ public class TargetErrorHandler {
         this.httpResponseFuture = httpResponseFuture;
     }
 
-    public void checkForRequestWriteStatus(ChannelFuture outboundRequestChannelFuture) {
-        outboundRequestChannelFuture.addListener(writeOperationPromise -> {
-            if (writeOperationPromise.cause() != null) {
-                notifyResponseFutureListener(writeOperationPromise);
-            } else {
-                this.setState(ENTITY_BODY_SENT);
-            }
-        });
-    }
+//    public void checkForRequestWriteStatus(ChannelFuture outboundRequestChannelFuture) {
+//        outboundRequestChannelFuture.addListener(writeOperationPromise -> {
+//            if (writeOperationPromise.cause() != null) {
+//                notifyResponseFutureListener(writeOperationPromise);
+//            } else {
+//                this.setState(ENTITY_BODY_SENT);
+//            }
+//        });
+//    }
 
-    public void notifyIfHeaderFailure(ChannelFuture outboundRequestChannelFuture) {
-        outboundRequestChannelFuture.addListener(writeOperationPromise -> {
-            if (writeOperationPromise.cause() != null) {
-                notifyResponseFutureListener(writeOperationPromise);
-            }
-        });
-    }
+//    public void notifyIfHeaderFailure(ChannelFuture outboundRequestChannelFuture) {
+//        outboundRequestChannelFuture.addListener(writeOperationPromise -> {
+//            if (writeOperationPromise.cause() != null) {
+//                notifyResponseFutureListener(writeOperationPromise);
+//            }
+//        });
+//    }
 
-    private void notifyResponseFutureListener(Future<? super Void> writeOperationPromise) {
-        Throwable throwable = writeOperationPromise.cause();
-        if (throwable instanceof ClosedChannelException) {
-            throwable = new IOException(CLIENT_TO_REMOTE_HOST_CONNECTION_CLOSED);
-        }
-        httpResponseFuture.notifyHttpListener(throwable);
-    }
+//    private void notifyResponseFutureListener(Future<? super Void> writeOperationPromise) {
+//        Throwable throwable = writeOperationPromise.cause();
+//        if (throwable instanceof ClosedChannelException) {
+//            throwable = new IOException(CLIENT_TO_REMOTE_HOST_CONNECTION_CLOSED);
+//        }
+//        httpResponseFuture.notifyHttpListener(throwable);
+//    }
 }
