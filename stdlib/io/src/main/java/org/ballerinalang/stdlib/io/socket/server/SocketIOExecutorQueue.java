@@ -42,7 +42,6 @@ public class SocketIOExecutorQueue {
     }
 
     private Map<Integer, Queue<EventExecutor>> readRegistry = new HashMap<>();
-    private Map<Integer, Queue<EventExecutor>> writeRegistry = new HashMap<>();
 
     /**
      * Register EventExecutor for a read operation against a channel.
