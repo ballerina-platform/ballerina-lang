@@ -48,9 +48,13 @@ import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 
 import java.net.SocketAddress;
 import java.util.Map;
+import java.util.PriorityQueue;
+import java.util.Queue;
 import java.util.concurrent.ConcurrentHashMap;
 
+import static org.wso2.transport.http.netty.common.Constants.EXPECTED_SEQUENCE_NUMBER;
 import static org.wso2.transport.http.netty.common.Constants.IDLE_TIMEOUT_TRIGGERED_WHILE_READING_INBOUND_REQUEST;
+import static org.wso2.transport.http.netty.common.Constants.NUMBER_OF_INITIAL_EVENTS_HELD;
 import static org.wso2.transport.http.netty.common.SourceInteractiveState.CONNECTED;
 import static org.wso2.transport.http.netty.common.SourceInteractiveState.ENTITY_BODY_RECEIVED;
 import static org.wso2.transport.http.netty.common.SourceInteractiveState.ENTITY_BODY_SENT;
@@ -81,6 +85,10 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
     private SocketAddress remoteAddress;
     private SourceErrorHandler sourceErrorHandler;
     private boolean continueRequest = false;
+
+    private final int maximumEvents = 3; //We should let the user provide a value for this
+    private int sequenceId = 1; //Keep track of the request order for http 1.1 pipelining
+    private final Queue holdingQueue = new PriorityQueue<>(NUMBER_OF_INITIAL_EVENTS_HELD);
 
     public SourceHandler(ServerConnectorFuture serverConnectorFuture, String interfaceId, ChunkConfig chunkConfig,
                          KeepAliveConfig keepAliveConfig, String serverName, ChannelGroup allChannels) {
@@ -161,6 +169,11 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
                 outboundRespFuture.setHttpConnectorListener(
                         new HttpOutboundRespListener(ctx, httpRequestMsg, chunkConfig, keepAliveConfig, serverName,
                                                      sourceErrorHandler, continueRequest));
+                //Set the pipelining properties just before notifying the listener about the request for the first time
+                //because in case the response got ready before receiving the last HTTP content there's a possibility
+                //of seeing an incorrect sequence number
+                setPipeliningProperties();
+                httpRequestMsg.setSourceContext(ctx);
                 this.serverConnectorFuture.notifyHttpListener(httpRequestMsg);
             } catch (Exception e) {
                 log.error("Error while notifying listeners", e);
@@ -268,5 +281,19 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
 
     public ChannelHandlerContext getInboundChannelContext() {
         return ctx;
+    }
+
+    private void setPipeliningProperties() {
+        inboundRequestMsg.setSequenceId(sequenceId);
+        sequenceId++;
+        if (ctx.channel().attr(Constants.NEXT_SEQUENCE_NUMBER).get() == null) {
+            ctx.channel().attr(Constants.MAX_RESPONSES_ALLOWED_TO_BE_QUEUED).set(maximumEvents);
+        }
+        if (ctx.channel().attr(Constants.RESPONSE_QUEUE).get() == null) {
+            ctx.channel().attr(Constants.RESPONSE_QUEUE).set(holdingQueue);
+        }
+        if (ctx.channel().attr(Constants.NEXT_SEQUENCE_NUMBER).get() == null) {
+            ctx.channel().attr(Constants.NEXT_SEQUENCE_NUMBER).set(EXPECTED_SEQUENCE_NUMBER);
+        }
     }
 }

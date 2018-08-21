@@ -41,4 +41,13 @@ public class HttpCarbonResponse extends HttpCarbonMessage {
     public void setStatus(HttpResponseStatus httpResponseStatus) {
         this.httpResponse.setStatus(httpResponseStatus);
     }
+
+    @Override
+    public boolean equals(Object obj) {
+        return super.equals(obj);
+    }
+    @Override
+    public synchronized int hashCode() {
+        return super.hashCode();
+    }
 }

@@ -151,6 +151,9 @@ public class HttpOutboundRespListener implements HttpConnectorListener {
                 keepAlive = false;
             }
             sourceErrorHandler.setState(SENDING_ENTITY_BODY);
+            Integer nextSequenceNumber = sourceContext.channel().attr(Constants.NEXT_SEQUENCE_NUMBER).get();
+            nextSequenceNumber++;
+            sourceContext.channel().attr(Constants.NEXT_SEQUENCE_NUMBER).set(nextSequenceNumber);
         }
 
         ChannelFuture outboundChannelFuture;

@@ -19,6 +19,7 @@
 package org.wso2.transport.http.netty.message;
 
 import io.netty.buffer.ByteBuf;
+import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.http.DefaultFullHttpResponse;
 import io.netty.handler.codec.http.DefaultHttpHeaders;
 import io.netty.handler.codec.http.DefaultHttpRequest;
@@ -41,11 +42,16 @@ import java.nio.ByteBuffer;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
+
+import static org.wso2.transport.http.netty.common.Constants.MEANINGFULLY_EQUAL;
+import static org.wso2.transport.http.netty.common.Constants.NOT_MEANINGFULLY_EQUAL;
+import static org.wso2.transport.http.netty.common.Constants.RESPONSE_QUEUING_NOT_NEEDED;
 
 /**
  * HTTP based representation for HttpCarbonMessage.
  */
-public class HttpCarbonMessage {
+public class HttpCarbonMessage implements Comparable<HttpCarbonMessage> {
 
     protected HttpMessage httpMessage;
     private EntityCollector blockingEntityCollector;
@@ -56,6 +62,9 @@ public class HttpCarbonMessage {
     private final DefaultHttpResponseFuture httpOutboundRespStatusFuture = new DefaultHttpResponseFuture();
     private final Observable contentObservable = new DefaultObservable();
     private IOException ioException;
+
+    private int sequenceId;
+    private ChannelHandlerContext sourceContext;
 
     public HttpCarbonMessage(HttpMessage httpMessage, Listener contentListener) {
         this.httpMessage = httpMessage;
@@ -386,5 +395,42 @@ public class HttpCarbonMessage {
 
     public synchronized void setIoException(IOException ioException) {
         this.ioException = ioException;
+    }
+
+    public int getSequenceId() {
+        return sequenceId;
+    }
+    public void setSequenceId(int sequenceId) {
+        this.sequenceId = sequenceId;
+    }
+
+    public ChannelHandlerContext getSourceContext() {
+        return sourceContext;
+    }
+
+    public void setSourceContext(ChannelHandlerContext sourceContext) {
+        this.sourceContext = sourceContext;
+    }
+
+    @Override
+    public int compareTo(HttpCarbonMessage other) {
+        if (this.sequenceId == RESPONSE_QUEUING_NOT_NEEDED) {
+            return this.equals(other) ? MEANINGFULLY_EQUAL : NOT_MEANINGFULLY_EQUAL;
+        }
+        return this.sequenceId - other.getSequenceId();
+    }
+    @Override
+    public boolean equals(Object obj) {
+        if (this.sequenceId == RESPONSE_QUEUING_NOT_NEEDED) {
+            return super.equals(obj);
+        }
+        return obj instanceof HttpCarbonMessage && compareTo((HttpCarbonMessage) obj) == MEANINGFULLY_EQUAL;
+    }
+    @Override
+    public int hashCode() {
+        if (this.sequenceId == RESPONSE_QUEUING_NOT_NEEDED) {
+            return super.hashCode();
+        }
+        return Objects.hashCode(sequenceId);
     }
 }
