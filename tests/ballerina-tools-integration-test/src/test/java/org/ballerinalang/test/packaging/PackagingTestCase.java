@@ -29,6 +29,7 @@ import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import org.wso2.ballerinalang.compiler.util.ProjectDirConstants;
+import org.wso2.ballerinalang.util.RepoUtils;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -64,20 +65,22 @@ public class PackagingTestCase extends BaseTest {
 
     @Test(description = "Test init a ballerina project to be pushed to central")
     public void testInitProject() throws Exception {
+        Path projectPath = tempProjectDirectory.resolve("initProject");
+        Files.createDirectories(projectPath);
+
         String[] clientArgsForInit = {"-i"};
         String[] options = {"\n", orgName + "\n", "\n", "m\n", packageName + "\n", "f\n"};
         serverInstance.runMainWithClientOptions(clientArgsForInit, options, envVariables, "init",
-                                                tempProjectDirectory.toString());
-        Path tomlPath = tempProjectDirectory.resolve("Ballerina.toml");
-        Assert.assertTrue(Files.exists(tempProjectDirectory.resolve(packageName).resolve("main.bal")));
+                                                projectPath.toString());
+        Path tomlPath = projectPath.resolve("Ballerina.toml");
+        Assert.assertTrue(Files.exists(projectPath.resolve(packageName).resolve("main.bal")));
         Assert.assertTrue(Files.exists(tomlPath));
-        Assert.assertTrue(Files.exists(tempProjectDirectory.resolve(packageName)
-                                                           .resolve("tests")
-                                                           .resolve("main_test.bal")));
+        Assert.assertTrue(Files.exists(projectPath.resolve(packageName).resolve("tests").resolve("main_test.bal")));
     }
 
     @Test(description = "Test pushing a package to central", dependsOnMethods = "testInitProject")
     public void testPush() throws Exception {
+        Path projectPath = tempProjectDirectory.resolve("initProject");
         String[] clientArgs = {packageName};
         DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy-MM-dd-EE");
         datePushed = dtf.format(LocalDateTime.now());
@@ -89,14 +92,16 @@ public class PackagingTestCase extends BaseTest {
 
         LogLeecher clientLeecher = new LogLeecher(msg);
         serverInstance.addLogLeecher(clientLeecher);
-        serverInstance.runMain(clientArgs, envVariables, "push", tempProjectDirectory.toString());
+        serverInstance.runMain(clientArgs, envVariables, "push", projectPath.toString());
         clientLeecher.waitForText(5000);
     }
 
-    @Test(description = "Test pushing a package to the home repository (installing a package)")
+    @Test(description = "Test pushing a package to the home repository (installing a package)",
+            dependsOnMethods = "testInitProject")
     public void testInstall() throws Exception {
+        Path projectPath = tempProjectDirectory.resolve("initProject");
         String[] clientArgs = {packageName};
-        serverInstance.runMain(clientArgs, envVariables, "install", tempProjectDirectory.toString());
+        serverInstance.runMain(clientArgs, envVariables, "install", projectPath.toString());
 
         Path dirPath = Paths.get(ProjectDirConstants.DOT_BALLERINA_REPO_DIR_NAME, orgName, packageName, "0.0.1");
         Assert.assertTrue(Files.exists(tempHomeDirectory.resolve(dirPath)));
@@ -141,6 +146,191 @@ public class PackagingTestCase extends BaseTest {
         serverInstance.addLogLeecher(clientLeecher);
         serverInstance.runMain(clientArgs, envVariables, "search");
         clientLeecher.waitForText(3000);
+    }
+
+
+    @Test(description = "Test listing dependencies of a package", dependsOnMethods = "testInitProject")
+    public void testListDependenciesOfPackage() throws Exception {
+        String[] clientArgs = {packageName};
+        Path projectPath = tempProjectDirectory.resolve("initProject");
+
+        // Reset the server log reader
+        serverInstance.resetServerLogReader();
+
+        String msg = orgName + "/" + packageName + ":0.0.1\n" +
+                "└── ballerina/io";
+        LogLeecher clientLeecher = new LogLeecher(msg);
+        serverInstance.addLogLeecher(clientLeecher);
+        serverInstance.runMain(clientArgs, envVariables, "list", projectPath.toString());
+        clientLeecher.waitForText(3000);
+
+    }
+
+    @Test(description = "Test listing dependencies of a single bal file", dependsOnMethods = "testInitProject")
+    public void testListDependenciesOfBalFile() throws Exception {
+        Path projectPath = tempProjectDirectory.resolve("initProject");
+
+        String content = "import ballerina/io;\n import ballerina/http; \n \n function main(string... args) {\n    " +
+                "io:println(\"Hello World!\"); \n }\n";
+        Files.write(projectPath.resolve("main.bal"), content.getBytes(), StandardOpenOption.CREATE_NEW);
+        String[] clientArgs = {"main.bal"};
+
+        // Reset the server log reader
+        serverInstance.resetServerLogReader();
+
+        String msg = "main.bal\n" +
+                "├── ballerina/io\n" +
+                "└── ballerina/http\n" +
+                "    ├── ballerina/reflect\n" +
+                "    ├── ballerina/auth\n" +
+                "    │   ├── ballerina/crypto\n" +
+                "    │   ├── ballerina/config\n" +
+                "    │   │   └── ballerina/system\n" +
+                "    │   ├── ballerina/system\n" +
+                "    │   ├── ballerina/time\n" +
+                "    │   ├── ballerina/log\n" +
+                "    │   ├── ballerina/internal\n" +
+                "    │   │   ├── ballerina/time\n" +
+                "    │   │   ├── ballerina/file\n" +
+                "    │   │   ├── ballerina/log\n" +
+                "    │   │   └── ballerina/io\n" +
+                "    │   ├── ballerina/cache\n" +
+                "    │   │   ├── ballerina/task\n" +
+                "    │   │   ├── ballerina/system\n" +
+                "    │   │   └── ballerina/time\n" +
+                "    │   └── ballerina/runtime\n" +
+                "    ├── ballerina/internal\n" +
+                "    │   ├── ballerina/time\n" +
+                "    │   ├── ballerina/file\n" +
+                "    │   ├── ballerina/log\n" +
+                "    │   └── ballerina/io\n" +
+                "    ├── ballerina/config\n" +
+                "    │   └── ballerina/system\n" +
+                "    ├── ballerina/math\n" +
+                "    ├── ballerina/crypto\n" +
+                "    ├── ballerina/mime\n" +
+                "    │   ├── ballerina/io\n" +
+                "    │   └── ballerina/file\n" +
+                "    ├── ballerina/file\n" +
+                "    ├── ballerina/time\n" +
+                "    ├── ballerina/io\n" +
+                "    ├── ballerina/runtime\n" +
+                "    ├── ballerina/cache\n" +
+                "    │   ├── ballerina/task\n" +
+                "    │   ├── ballerina/system\n" +
+                "    │   └── ballerina/time\n" +
+                "    └── ballerina/log\n";
+        LogLeecher clientLeecher = new LogLeecher(msg);
+        serverInstance.addLogLeecher(clientLeecher);
+        serverInstance.runMain(clientArgs, envVariables, "list", projectPath.toString());
+        clientLeecher.waitForText(3000);
+    }
+
+    @Test(description = "Test listing dependencies of a project", dependsOnMethods = "testListDependenciesOfBalFile")
+    public void testListDependenciesOfProject() throws Exception {
+        Path projectPath = tempProjectDirectory.resolve("initProject");
+        // Reset the server log reader
+        serverInstance.resetServerLogReader();
+
+        String msg = "main.bal\n" +
+                "├── ballerina/io\n" +
+                "└── ballerina/http\n" +
+                "    ├── ballerina/reflect\n" +
+                "    ├── ballerina/auth\n" +
+                "    │   ├── ballerina/crypto\n" +
+                "    │   ├── ballerina/config\n" +
+                "    │   │   └── ballerina/system\n" +
+                "    │   ├── ballerina/system\n" +
+                "    │   ├── ballerina/time\n" +
+                "    │   ├── ballerina/log\n" +
+                "    │   ├── ballerina/internal\n" +
+                "    │   │   ├── ballerina/time\n" +
+                "    │   │   ├── ballerina/file\n" +
+                "    │   │   ├── ballerina/log\n" +
+                "    │   │   └── ballerina/io\n" +
+                "    │   ├── ballerina/cache\n" +
+                "    │   │   ├── ballerina/task\n" +
+                "    │   │   ├── ballerina/system\n" +
+                "    │   │   └── ballerina/time\n" +
+                "    │   └── ballerina/runtime\n" +
+                "    ├── ballerina/internal\n" +
+                "    │   ├── ballerina/time\n" +
+                "    │   ├── ballerina/file\n" +
+                "    │   ├── ballerina/log\n" +
+                "    │   └── ballerina/io\n" +
+                "    ├── ballerina/config\n" +
+                "    │   └── ballerina/system\n" +
+                "    ├── ballerina/math\n" +
+                "    ├── ballerina/crypto\n" +
+                "    ├── ballerina/mime\n" +
+                "    │   ├── ballerina/io\n" +
+                "    │   └── ballerina/file\n" +
+                "    ├── ballerina/file\n" +
+                "    ├── ballerina/time\n" +
+                "    ├── ballerina/io\n" +
+                "    ├── ballerina/runtime\n" +
+                "    ├── ballerina/cache\n" +
+                "    │   ├── ballerina/task\n" +
+                "    │   ├── ballerina/system\n" +
+                "    │   └── ballerina/time\n" +
+                "    └── ballerina/log\n" +
+                orgName + "/" + packageName + ":0.0.1\n" +
+                "└── ballerina/io\n";
+
+        LogLeecher clientLeecher = new LogLeecher(msg);
+        serverInstance.addLogLeecher(clientLeecher);
+        serverInstance.runMain(new String[0], envVariables, "list", projectPath.toString());
+        clientLeecher.waitForText(3000);
+    }
+
+
+    @Test(description = "Test ballerina version")
+    public void testBallerinaVersion() throws Exception {
+        // Reset the server log reader
+        serverInstance.resetServerLogReader();
+
+        LogLeecher clientLeecher = new LogLeecher(RepoUtils.getBallerinaVersion());
+        serverInstance.addLogLeecher(clientLeecher);
+        serverInstance.runMain(new String[0], envVariables, "version", tempProjectDirectory.toString());
+    }
+
+    @Test(description = "Test doc generation for package", dependsOnMethods = "testInitProject")
+    public void testDocGenerationForPackage() throws Exception {
+        Path projectPath = tempProjectDirectory.resolve("initProject");
+
+        String[] clientArgs = {packageName};
+        serverInstance.runMain(clientArgs, envVariables, "doc", projectPath.toString());
+
+        Path apiDocsGenerated = projectPath.resolve("target").resolve("api-docs");
+        Assert.assertTrue(Files.exists(apiDocsGenerated.resolve("index.html")));
+        Assert.assertTrue(Files.exists(apiDocsGenerated.resolve("package-list.html")));
+        Assert.assertTrue(Files.exists(apiDocsGenerated.resolve(packageName + ".html")));
+    }
+
+    @Test(description = "Test doc generation for single bal file", dependsOnMethods = "testInitProject")
+    public void testDocGenerationForSingleBalFile() throws Exception {
+        Path projectPath = tempProjectDirectory.resolve("initProject");
+
+        String[] clientArgs = {"main.bal"};
+        serverInstance.runMain(clientArgs, envVariables, "doc", projectPath.resolve(packageName).toString());
+
+        Path apiDocsGenerated = projectPath.resolve(packageName).resolve("target").resolve("api-docs");
+        Assert.assertTrue(Files.exists(apiDocsGenerated.resolve("index.html")));
+        Assert.assertTrue(Files.exists(apiDocsGenerated.resolve("package-list.html")));
+        Assert.assertTrue(Files.exists(apiDocsGenerated.resolve("main.bal.html")));
+    }
+
+    @Test(description = "Test doc generation for a project", dependsOnMethods = "testInitWithMainServiceInDiffPackage")
+    public void testDocGenerationForProject() throws Exception {
+        Path projectPath = tempProjectDirectory.resolve("secondTestWithPackages");
+
+        serverInstance.runMain(new String[0], envVariables, "doc", projectPath.toString());
+
+        Path apiDocsGenerated = projectPath.resolve("target").resolve("api-docs");
+        Assert.assertTrue(Files.exists(apiDocsGenerated.resolve("index.html")));
+        Assert.assertTrue(Files.exists(apiDocsGenerated.resolve("package-list.html")));
+        Assert.assertTrue(Files.exists(apiDocsGenerated.resolve("foo.html")));
+        Assert.assertTrue(Files.exists(apiDocsGenerated.resolve("bar.html")));
     }
 
     @Test(description = "Test creating a project with a main in a package")
