@@ -17,10 +17,6 @@
  */
 package org.ballerinalang.test.context;
 
-import com.sun.tools.attach.AgentInitializationException;
-import com.sun.tools.attach.AgentLoadException;
-import com.sun.tools.attach.AttachNotSupportedException;
-import com.sun.tools.attach.VirtualMachine;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.mina.util.ConcurrentHashSet;
 import org.slf4j.Logger;
@@ -35,10 +31,6 @@ import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.nio.charset.Charset;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.Locale;
 import java.util.Map;
@@ -229,21 +221,9 @@ public class ServerInstance implements Server {
                     killServer.waitFor(15, TimeUnit.SECONDS);
                     killServer.destroy();
                 } else {
-                    String exitAgentPath = System.getProperty(Constant.EXIT_AGENT_LOCATION);
-
-                    if (exitAgentPath == null || exitAgentPath.isEmpty()) {
-                        log.warn("Ballerina test exit agent not provided, hence integration " +
-                                "test coverage won't be available");
-                        Process killServer = Runtime.getRuntime().exec("kill -9 " + pid);
-                        killServer.waitFor(15, TimeUnit.SECONDS);
-                        killServer.destroy();
-                    } else {
-                        VirtualMachine vm = VirtualMachine.attach(pid);
-                        vm.loadAgent(exitAgentPath, "exitStatus=1,timeout=15000,killStatus=5");
-
-                        //TODO remove below sleep by correctly waiting for the port
-                        Thread.sleep(1000);
-                    }
+                    Process killServer = Runtime.getRuntime().exec("kill -9 " + pid);
+                    killServer.waitFor(15, TimeUnit.SECONDS);
+                    killServer.destroy();
                 }
             } catch (IOException e) {
                 log.error("Error getting process id for the server in port - " + httpServerPort
@@ -251,18 +231,6 @@ public class ServerInstance implements Server {
                 throw new BallerinaTestException("Error while getting the server process id", e);
             } catch (InterruptedException e) {
                 log.error("Error stopping the server in port - " + httpServerPort + " error - " + e.getMessage(), e);
-                throw new BallerinaTestException("Error waiting for services to stop", e);
-            } catch (AttachNotSupportedException e) {
-                log.error("Error stopping the server in port - " + httpServerPort + ", " +
-                        "ballerina agent attachment failed, error - " + e.getMessage(), e);
-                throw new BallerinaTestException("Error waiting for services to stop", e);
-            } catch (AgentInitializationException e) {
-                log.error("Error stopping the server in port - " + httpServerPort + ", " +
-                        "ballerina agent initialization failed, error - " + e.getMessage(), e);
-                throw new BallerinaTestException("Error waiting for services to stop", e);
-            } catch (AgentLoadException e) {
-                log.error("Error stopping the server in port - " + httpServerPort + ", " +
-                        "ballerina agent loading failed, error - " + e.getMessage(), e);
                 throw new BallerinaTestException("Error waiting for services to stop", e);
             }
             process.destroy();
@@ -459,7 +427,6 @@ public class ServerInstance implements Server {
      * @throws BallerinaTestException if configuring server failed
      */
     protected void configServer() throws BallerinaTestException {
-        modifyScriptsWithJacoco();
     }
 
     /**
@@ -584,37 +551,6 @@ public class ServerInstance implements Server {
         } catch (IOException e) {
             throw new BallerinaTestException("Error starting services", e);
         }
-    }
-
-    /**
-     * This is a helper method to add jacoco agent arg line to ballerina scripts if available.
-     */
-    private void modifyScriptsWithJacoco() {
-        String jacocoArgLine = System.getProperty("jacoco.agent.argLine");
-        if (jacocoArgLine == null || jacocoArgLine.isEmpty()) {
-            log.warn("Running integration test without jacoco test coverage");
-            return;
-        }
-        //Modifying only sh file for the time being
-        Path path = Paths.get(serverHome + File.separator + "bin" +
-                File.separator + Constant.BALLERINA_SERVER_SCRIPT_NAME);
-        Charset charset = StandardCharsets.UTF_8;
-
-        try {
-            String content = new String(Files.readAllBytes(path), charset);
-            if (content.contains("-javaagent")) {
-                return;
-            }
-
-            content = content.replaceAll("-classpath \"\\$BALLERINA_CLASSPATH\" \\\\",
-                    jacocoArgLine + " \\\\\n\t"
-                            + "-classpath \"\\$BALLERINA_CLASSPATH\" \\\\");
-            Files.write(path, content.getBytes(charset));
-        } catch (IOException e) {
-            log.warn("Ballerina script modification failed, Running tests without jacoco test coverage");
-        }
-
-        //TODO add this for windows scripts (ballerina.bat)
     }
 
     /**
