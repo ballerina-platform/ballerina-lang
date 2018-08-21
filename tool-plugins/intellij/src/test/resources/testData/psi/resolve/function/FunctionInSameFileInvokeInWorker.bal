@@ -4,6 +4,6 @@ function test() {
     }
 }
 
-function / *def * /fun () {
+function /*def*/fun () {
 
 }
