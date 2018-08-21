@@ -24,7 +24,6 @@ import org.ballerinalang.composer.service.ballerina.parser.service.model.lang.An
 import org.ballerinalang.composer.service.ballerina.parser.service.model.lang.AnnotationDef;
 import org.ballerinalang.composer.service.ballerina.parser.service.model.lang.Connector;
 import org.ballerinalang.composer.service.ballerina.parser.service.model.lang.Endpoint;
-import org.ballerinalang.composer.service.ballerina.parser.service.model.lang.Enum;
 import org.ballerinalang.composer.service.ballerina.parser.service.model.lang.Enumerator;
 import org.ballerinalang.composer.service.ballerina.parser.service.model.lang.Function;
 import org.ballerinalang.composer.service.ballerina.parser.service.model.lang.ModelPackage;
