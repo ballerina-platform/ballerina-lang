@@ -17,19 +17,31 @@
 package io.ballerina;
 
 import com.intellij.openapi.application.ApplicationManager;
+import com.intellij.openapi.module.Module;
 import com.intellij.openapi.module.ModuleType;
 import com.intellij.openapi.projectRoots.ProjectJdkTable;
 import com.intellij.openapi.projectRoots.Sdk;
 import com.intellij.openapi.projectRoots.impl.ProjectJdkImpl;
+import com.intellij.openapi.roots.ContentIterator;
 import com.intellij.openapi.roots.ProjectRootManager;
+import com.intellij.openapi.util.Disposer;
+import com.intellij.openapi.vfs.VfsUtilCore;
+import com.intellij.openapi.vfs.VirtualFile;
+import com.intellij.openapi.vfs.VirtualFileManager;
+import com.intellij.openapi.vfs.VirtualFileVisitor;
+import com.intellij.openapi.vfs.ex.temp.TempFileSystem;
 import com.intellij.testFramework.LightProjectDescriptor;
 import com.intellij.testFramework.fixtures.DefaultLightProjectDescriptor;
 import com.intellij.testFramework.fixtures.LightPlatformCodeInsightFixtureTestCase;
+import com.intellij.util.indexing.FileBasedIndex;
+import com.intellij.util.indexing.IndexableFileSet;
 import io.ballerina.plugins.idea.BallerinaModuleType;
 import io.ballerina.plugins.idea.sdk.BallerinaSdkType;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
+import java.io.IOException;
 
 /**
  * Parent class related to code insight tests.
@@ -60,6 +72,67 @@ public abstract class BallerinaCodeInsightFixtureTestCase extends LightPlatformC
         };
     }
 
+    @NotNull
+    private static DefaultLightProjectDescriptor createMockProjectDescriptorWithoutSourceRoot() {
+        return new DefaultLightProjectDescriptor() {
+
+            @NotNull
+            @Override
+            public ModuleType getModuleType() {
+                return BallerinaModuleType.getInstance();
+            }
+
+            @Nullable
+            @Override
+            protected VirtualFile createSourceRoot(@NotNull Module module, String srcPath) {
+                VirtualFile dummyRoot = VirtualFileManager.getInstance().findFileByUrl("temp:///");
+                assert dummyRoot != null;
+                dummyRoot.refresh(false, false);
+
+                VirtualFile srcRoot;
+                try {
+                    srcRoot = dummyRoot;
+                    cleanSourceRoot(srcRoot);
+                }
+                catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
+
+                IndexableFileSet indexableFileSet = new IndexableFileSet() {
+                    @Override
+                    public boolean isInSet(@NotNull VirtualFile file) {
+                        return file.getFileSystem() == srcRoot.getFileSystem() && module.getProject().isOpen();
+                    }
+
+                    @Override
+                    public void iterateIndexableFilesIn(@NotNull VirtualFile file, @NotNull ContentIterator iterator) {
+                        VfsUtilCore.visitChildrenRecursively(file, new VirtualFileVisitor() {
+                            @Override
+                            public boolean visitFile(@NotNull VirtualFile file) {
+                                iterator.processFile(file);
+                                return true;
+                            }
+                        });
+                    }
+                };
+                FileBasedIndex.getInstance().registerIndexableSet(indexableFileSet, null);
+                Disposer.register(module.getProject(), () -> FileBasedIndex.getInstance().removeIndexableSet(indexableFileSet));
+
+                return srcRoot;
+            }
+
+            private void cleanSourceRoot(@NotNull VirtualFile contentRoot) throws IOException {
+                TempFileSystem tempFs = (TempFileSystem)contentRoot.getFileSystem();
+                for (VirtualFile child : contentRoot.getChildren()) {
+                    if (!tempFs.exists(child)) {
+                        tempFs.createChildFile(this, contentRoot, child.getName());
+                    }
+                    child.delete(this);
+                }
+            }
+        };
+    }
+
     protected void setUpProjectSdk() {
         ApplicationManager.getApplication().runWriteAction(() -> {
             Sdk sdk = getProjectDescriptor().getSdk();
@@ -80,7 +153,7 @@ public abstract class BallerinaCodeInsightFixtureTestCase extends LightPlatformC
 
     @Override
     protected LightProjectDescriptor getProjectDescriptor() {
-        return isSdkAware() ? createMockProjectDescriptor() : null;
+        return isSdkAware() ? createMockProjectDescriptor() : createMockProjectDescriptorWithoutSourceRoot();
     }
 
     protected boolean isSdkAware() {
