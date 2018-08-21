@@ -10,6 +10,7 @@ import org.ballerinalang.model.util.JsonParser;
 import org.ballerinalang.model.util.XMLUtils;
 import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BBooleanArray;
+import org.ballerinalang.model.values.BByte;
 import org.ballerinalang.model.values.BByteArray;
 import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BFloatArray;
@@ -20,14 +21,11 @@ import org.ballerinalang.model.values.BStringArray;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.util.exceptions.BallerinaException;
 
-import java.io.ByteArrayInputStream;
 import java.io.File;
-import java.sql.Blob;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Types;
 import java.util.Locale;
 
 /**
@@ -133,6 +131,8 @@ public class DatabaseUtils {
                 return new BInteger(resultSet.getLong(2));
             case TypeTags.STRING_TAG:
                 return new BString(resultSet.getString(2));
+            case TypeTags.BYTE_TAG:
+                return new BByte(resultSet.getByte(2));
             case TypeTags.FLOAT_TAG:
                 return new BFloat(resultSet.getDouble(2));
             case TypeTags.BOOLEAN_TAG:
@@ -141,25 +141,8 @@ public class DatabaseUtils {
                 return XMLUtils.parse(resultSet.getString(2));
             case TypeTags.JSON_TAG:
                 return JsonParser.parse(resultSet.getString(2));
-            case TypeTags.ARRAY_TAG:
-                boolean isBlobType =
-                        ((BArrayType) bType).getElementType().getTag() == TypeTags.BYTE_TAG;
-                if (isBlobType) {
-                    Blob blob =  resultSet.getBlob(2);
-                    int length = (int) blob.length();
-
-                    if (blob != null) {
-                        return new BByteArray(blob.getBytes(1, length));
-                    } else {
-                        return new BByteArray();
-                    }
-                } else {
-//                    Object[] arrayData = getBArrayValue(resultSet, bType);
-//                    stmt.setObject(index, arrayData);
-                    throw new BallerinaException("unsupported data type for array parameter");
-                }
             default:
-                return null;
+                throw new BallerinaException("unsupported data type " + type + ", for channel data");
         }
     }
 
@@ -197,69 +180,11 @@ public class DatabaseUtils {
             case TypeTags.BOOLEAN_TAG:
                 stmt.setBoolean(index, ((BBoolean) value).booleanValue());
                 break;
-            case TypeTags.XML_TAG:
-            case TypeTags.JSON_TAG:
-                stmt.setString(index, value.toString());
-                break;
-            case TypeTags.ARRAY_TAG:
-                boolean isBlobType =
-                        ((BArrayType) value).getElementType().getTag() == TypeTags.BYTE_TAG;
-                if (isBlobType) {
-                    if (value != null) {
-                        byte[] blobData = ((BByteArray) value).getBytes();
-                        stmt.setBlob(index, new ByteArrayInputStream(blobData), blobData.length);
-                    } else {
-                        stmt.setNull(index, Types.BLOB);
-                    }
-                } else {
-                    Object[] arrayData = getArrayData(value);
-                    stmt.setObject(index, arrayData);
-                }
-                break;
-        }
-    }
-
-    static Object[] getArrayData(BValue value) {
-
-        if (value == null) {
-            return new Object[]{null};
-        }
-        int typeTag = ((BArrayType) value.getType()).getElementType().getTag();
-        Object[] arrayData;
-        int arrayLength;
-        switch (typeTag) {
-            case TypeTags.INT_TAG:
-                arrayLength = (int) ((BIntArray) value).size();
-                arrayData = new Long[arrayLength];
-                for (int i = 0; i < arrayLength; i++) {
-                    arrayData[i] = ((BIntArray) value).get(i);
-                }
-                break;
-            case TypeTags.FLOAT_TAG:
-                arrayLength = (int) ((BFloatArray) value).size();
-                arrayData = new Double[arrayLength];
-                for (int i = 0; i < arrayLength; i++) {
-                    arrayData[i] = ((BFloatArray) value).get(i);
-                }
-                break;
-            case TypeTags.STRING_TAG:
-                arrayLength = (int) ((BStringArray) value).size();
-                arrayData = new String[arrayLength];
-                for (int i = 0; i < arrayLength; i++) {
-                    arrayData[i] = ((BStringArray) value).get(i);
-                }
-                break;
-            case TypeTags.BOOLEAN_TAG:
-                arrayLength = (int) ((BBooleanArray) value).size();
-                arrayData = new Boolean[arrayLength];
-                for (int i = 0; i < arrayLength; i++) {
-                    arrayData[i] = ((BBooleanArray) value).get(i) > 0;
-                }
-                break;
+            case TypeTags.BYTE_TAG:
+                stmt.setByte(index, ((BByte) value).byteValue());
             default:
-                throw new BallerinaException("unsupported data type for array parameter");
+                stmt.setString(index, value.toString());
         }
-        return arrayData;
     }
 
     private static String constructJDBCURL() {

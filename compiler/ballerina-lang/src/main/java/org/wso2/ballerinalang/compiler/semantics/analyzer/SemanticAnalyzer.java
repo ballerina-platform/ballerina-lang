@@ -1540,10 +1540,12 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
 
         if (symTable.notFoundSymbol.equals(channelSymbol)) {
             dlog.error(node.pos, DiagnosticCode.UNDEFINED_SYMBOL, node.getWorkerName().getValue());
+            return;
         }
 
         if (TypeTags.CHANNEL != channelSymbol.type.tag) {
             dlog.error(node.pos, DiagnosticCode.INCOMPATIBLE_TYPES, symTable.channelType, channelSymbol.type);
+            return;
         }
 
         if (node.keyExpr != null) {
@@ -1553,6 +1555,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         BType constraint = ((BChannelType) channelSymbol.type).constraint;
         if (node.expr.type.tag != constraint.tag) {
             dlog.error(node.pos, DiagnosticCode.INCOMPATIBLE_TYPES, constraint, node.expr.type);
+            return;
         }
     }
 
@@ -1566,16 +1569,19 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
 
         if (symTable.notFoundSymbol.equals(symbol)) {
             dlog.error(node.pos, DiagnosticCode.UNDEFINED_SYMBOL, node.getWorkerName().getValue());
+            return;
         }
 
         if (TypeTags.CHANNEL != symbol.type.tag) {
             dlog.error(node.pos, DiagnosticCode.INCOMPATIBLE_TYPES, symTable.channelType, symbol.type);
+            return;
         }
         typeChecker.checkExpr(node.expr, env);
 
         BType constraint = ((BChannelType) symbol.type).constraint;
         if (node.expr.type.tag != constraint.tag) {
             dlog.error(node.pos, DiagnosticCode.INCOMPATIBLE_TYPES, constraint, node.expr.type);
+            return;
         }
 
         if (node.keyExpr != null) {

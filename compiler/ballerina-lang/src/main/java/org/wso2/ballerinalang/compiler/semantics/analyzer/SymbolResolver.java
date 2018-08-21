@@ -703,6 +703,12 @@ public class SymbolResolver extends BLangNodeVisitor {
         } else if (type.tag == TypeTags.MAP) {
             resultType = new BMapType(TypeTags.MAP, constraintType, type.tsymbol);
         } else if (type.tag == TypeTags.CHANNEL) {
+            // only the simpleTypes, json and xml are allowed as channel data type.
+            if (constraintType.tag > 8 || constraintType.tag == 6) {
+                dlog.error(constrainedTypeNode.pos, DiagnosticCode.INCOMPATIBLE_TYPE_CONSTRAINT, type, constraintType);
+                resultType = symTable.errType;
+                return;
+            }
             resultType = new BChannelType(TypeTags.CHANNEL, constraintType, type.tsymbol);
         } else {
             if (!types.checkStructToJSONCompatibility(constraintType) && constraintType != symTable.errType) {
