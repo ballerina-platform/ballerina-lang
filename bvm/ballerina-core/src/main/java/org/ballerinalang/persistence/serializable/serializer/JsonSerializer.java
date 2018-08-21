@@ -292,10 +292,10 @@ public class JsonSerializer implements ObjectToJsonSerializer, BValueSerializer 
 
     @SuppressWarnings("unchecked")
     private BMap convertReferenceSemanticObject(Object obj, Class<?> leftSideType) {
-        if (identityMap.containsKey(obj)) {
+        if (isPreviouslySeen(obj)) {
             return createExistingReferenceNode(obj);
         }
-        identityMap.put(obj, obj);
+        registerAsSeen(obj);
 
         String className = getTrimmedClassName(obj);
         SerializationBValueProvider provider = bValueProvider.find(className);
@@ -338,6 +338,14 @@ public class JsonSerializer implements ObjectToJsonSerializer, BValueSerializer 
         String trimmedName = getTrimmedClassName(componentType);
         bMap.put(JsonSerializerConst.COMPONENT_TYPE, createBString(trimmedName));
         return bMap;
+    }
+
+    private void registerAsSeen(Object obj) {
+        identityMap.put(obj, obj);
+    }
+
+    private boolean isPreviouslySeen(Object obj) {
+        return identityMap.containsKey(obj);
     }
 
     private BMap<String, BValue> createExistingReferenceNode(Object obj) {
