@@ -63,7 +63,7 @@ import static org.ballerinalang.protobuf.utils.BalFileGenerationUtils.saveFile;
  */
 @CommandLine.Command(
         name = "grpc",
-        description = "Generates ballerina gRPC client stub for gRPC service for a given grpc protoc " +
+        description = "Generates Ballerina gRPC client stub for gRPC service for a given gRPC protoc " +
                 "definition.")
 public class GrpcCmd implements BLauncherCmd {
     private static final Logger LOG = LoggerFactory.getLogger(GrpcCmd.class);

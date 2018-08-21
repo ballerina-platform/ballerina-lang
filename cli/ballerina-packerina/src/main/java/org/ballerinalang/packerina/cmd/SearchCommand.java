@@ -33,7 +33,7 @@ import static org.ballerinalang.runtime.Constants.SYSTEM_PROP_BAL_DEBUG;
  *
  * @since 0.964
  */
-@CommandLine.Command(name = SEARCH_COMMAND, description = "searches for packages within Ballerina Central")
+@CommandLine.Command(name = SEARCH_COMMAND, description = "Searches for packages within Ballerina Central")
 public class SearchCommand implements BLauncherCmd {
     private static PrintStream outStream = System.err;
 

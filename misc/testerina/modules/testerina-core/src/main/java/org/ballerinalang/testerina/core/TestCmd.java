@@ -43,7 +43,7 @@ import static org.ballerinalang.runtime.Constants.SYSTEM_PROP_BAL_DEBUG;
 /**
  * Test command for ballerina launcher.
  */
-@CommandLine.Command(name = "test", description = "test Ballerina program")
+@CommandLine.Command(name = "test", description = "Tests Ballerina programs")
 public class TestCmd implements BLauncherCmd {
 
     private static final PrintStream errStream = System.err;
@@ -65,7 +65,7 @@ public class TestCmd implements BLauncherCmd {
     @CommandLine.Option(names = "-B", description = "Ballerina VM options")
     private Map<String, String> vmOptions = new HashMap<>();
 
-    @CommandLine.Option(names = {"--config", "-c"}, description = "path to the testerina configuration file")
+    @CommandLine.Option(names = {"--config", "-c"}, description = "path to the Testerina configuration file")
     private String configFilePath;
 
     @CommandLine.Option(names = "--debug", description = "remote debug testerina programs")

@@ -32,7 +32,7 @@ public class ServerCommand {
     public String host;
 
     @CommandLine.Option(names = "--publicPath",
-            description = "Specify a custom path to server the public content from.")
+            description = "Specify a custom path to serve the public content from.")
     public String publicPath;
 
     @CommandLine.Option(names = "--debug", hidden = true)

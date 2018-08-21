@@ -62,7 +62,7 @@ public class CommandParserTestCase {
     }
 
     @Test (description = "Test arguments starting with a dash", dataProvider = "valuesWithDashPrefix")
-    public void testNegativeNumberArg(String argWithDashPrefix) throws BallerinaTestException {
+    public void testDashPrefixedArg(String argWithDashPrefix) throws BallerinaTestException {
         LogLeecher outLogLeecher = new LogLeecher(argWithDashPrefix);
         serverInstance.addLogLeecher(outLogLeecher);
         serverInstance.runMain(new String[]{sourceArg, argWithDashPrefix});

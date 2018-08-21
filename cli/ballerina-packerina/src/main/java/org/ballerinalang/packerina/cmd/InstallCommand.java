@@ -32,7 +32,7 @@ import static org.ballerinalang.packerina.cmd.Constants.INSTALL_COMMAND;
  *
  * @since 0.90
  */
-@CommandLine.Command(name = INSTALL_COMMAND, description = "install packages to the home repository")
+@CommandLine.Command(name = INSTALL_COMMAND, description = "Installs packages to the home repository")
 public class InstallCommand implements BLauncherCmd {
 
     private static PrintStream outStream = System.err;

@@ -34,7 +34,7 @@ import static org.ballerinalang.packerina.cmd.Constants.BUILD_COMMAND;
  *
  * @since 0.90
  */
-@CommandLine.Command(name = BUILD_COMMAND, description = "build the Ballerina source")
+@CommandLine.Command(name = BUILD_COMMAND, description = "Builds the Ballerina source")
 public class BuildCommand implements BLauncherCmd {
     private static final String USER_DIR = "user.dir";
     private static PrintStream outStream = System.err;

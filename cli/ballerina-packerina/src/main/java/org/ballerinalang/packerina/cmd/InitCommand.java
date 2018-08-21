@@ -44,7 +44,7 @@ import static org.ballerinalang.packerina.cmd.Constants.INIT_COMMAND;
 /**
  * Init command for creating a ballerina project.
  */
-@CommandLine.Command(name = INIT_COMMAND, description = "initialize ballerina project")
+@CommandLine.Command(name = INIT_COMMAND, description = "Initializes a Ballerina project")
 public class InitCommand implements BLauncherCmd {
 
     public static final String DEFAULT_VERSION = "0.0.1";

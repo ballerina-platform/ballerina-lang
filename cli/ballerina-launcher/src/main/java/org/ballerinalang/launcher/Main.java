@@ -187,7 +187,7 @@ public class Main {
      *
      * @since 0.8.0
      */
-    @CommandLine.Command(name = "run", description = "compile and run Ballerina program")
+    @CommandLine.Command(name = "run", description = "Compiles and runs Ballerina programs")
     private static class RunCmd implements BLauncherCmd {
 
         @CommandLine.Parameters(description = "arguments")
@@ -293,7 +293,7 @@ public class Main {
      *
      * @since 0.8.0
      */
-    @CommandLine.Command(name = "help", description = "print usage information")
+    @CommandLine.Command(name = "help", description = "Prints usage information")
     private static class HelpCmd implements BLauncherCmd {
 
         @CommandLine.Parameters(description = "Command name")
@@ -351,7 +351,7 @@ public class Main {
      *
      * @since 0.8.1
      */
-    @CommandLine.Command(name = "version", description = "print Ballerina version")
+    @CommandLine.Command(name = "version", description = "Prints Ballerina version")
     private static class VersionCmd implements BLauncherCmd {
 
         @CommandLine.Parameters(description = "Command name")
@@ -416,7 +416,7 @@ public class Main {
      *
      * @since 0.966.0
      */
-    @CommandLine.Command(name = "encrypt", description = "encrypt sensitive data")
+    @CommandLine.Command(name = "encrypt", description = "Encrypts sensitive data")
     public static class EncryptCmd implements BLauncherCmd {
 
         @CommandLine.Option(names = "--java.debug", hidden = true)

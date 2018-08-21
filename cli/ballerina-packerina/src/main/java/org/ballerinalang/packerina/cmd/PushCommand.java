@@ -33,8 +33,8 @@ import static org.ballerinalang.runtime.Constants.SYSTEM_PROP_BAL_DEBUG;
  *
  * @since 0.964
  */
-@CommandLine.Command(name = PUSH_COMMAND, description = "pushes a package source and binaries available locally to "
-        + "ballerina central,")
+@CommandLine.Command(name = PUSH_COMMAND, description = "Pushes package source and binaries available locally to "
+        + "Ballerina Central")
 public class PushCommand implements BLauncherCmd {
     private static PrintStream outStream = System.err;
 
@@ -44,7 +44,7 @@ public class PushCommand implements BLauncherCmd {
     @CommandLine.Option(names = {"--help", "-h"}, hidden = true)
     private boolean helpFlag;
 
-    @CommandLine.Option(names = "--java.debug", hidden = true, description = "remote java debugging port")
+    @CommandLine.Option(names = "--java.debug", hidden = true, description = "remote Java debugging port")
     private String javaDebugPort;
 
     @CommandLine.Option(names = "--debug", hidden = true)

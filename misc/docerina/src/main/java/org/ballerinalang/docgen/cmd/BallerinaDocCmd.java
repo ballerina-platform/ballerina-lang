@@ -37,7 +37,7 @@ import java.util.Map;
 /**
  * doc command for ballerina which generates documentation for Ballerina packages.
  */
-@CommandLine.Command(name = "doc", description = "generate Ballerina API documentation")
+@CommandLine.Command(name = "doc", description = "Generates Ballerina API documentation")
 public class BallerinaDocCmd implements BLauncherCmd {
     private final PrintStream out = System.out;
 
@@ -63,7 +63,7 @@ public class BallerinaDocCmd implements BLauncherCmd {
     @CommandLine.Option(names = "-e", description = "Ballerina environment parameters")
     private Map<String, String> runtimeParams = new HashMap<>();
 
-    @CommandLine.Option(names = {"--config", "-c"}, description = "path to the docerina configuration file")
+    @CommandLine.Option(names = {"--config", "-c"}, description = "path to the Docerina configuration file")
     private String configFilePath;
 
     @CommandLine.Option(names = {"--verbose", "-v"}, description = "enable debug level logs")

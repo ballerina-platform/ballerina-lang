@@ -43,7 +43,7 @@ import static org.ballerinalang.runtime.Constants.SYSTEM_PROP_BAL_DEBUG;
  * @since 0.964
  */
 @CommandLine.Command(name = PULL_COMMAND,
-                description = "downloads the package source and binaries from a remote repository,")
+                description = "Downloads the package source and binaries from a remote repository")
 public class PullCommand implements BLauncherCmd {
     private static PrintStream outStream = System.err;
 

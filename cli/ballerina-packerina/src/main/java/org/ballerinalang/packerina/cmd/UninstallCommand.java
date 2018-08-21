@@ -32,7 +32,7 @@ import static org.ballerinalang.packerina.cmd.Constants.UNINSTALL_COMMAND;
  *
  * @since 0.90
  */
-@CommandLine.Command(name = UNINSTALL_COMMAND, description = "uninstall packages from the user repository")
+@CommandLine.Command(name = UNINSTALL_COMMAND, description = "Uninstalls packages from the user repository")
 public class UninstallCommand implements BLauncherCmd {
 
     private static PrintStream outStream = System.err;
