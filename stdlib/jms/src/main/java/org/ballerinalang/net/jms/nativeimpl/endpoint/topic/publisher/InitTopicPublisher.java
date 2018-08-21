@@ -28,16 +28,16 @@ import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
-import org.ballerinalang.net.jms.AbstractBlockinAction;
+import org.ballerinalang.net.jms.AbstractBlockingAction;
 import org.ballerinalang.net.jms.Constants;
 import org.ballerinalang.net.jms.JMSUtils;
 import org.ballerinalang.net.jms.nativeimpl.endpoint.common.SessionConnector;
 import org.ballerinalang.net.jms.utils.BallerinaAdapter;
 
+import javax.jms.Destination;
 import javax.jms.JMSException;
 import javax.jms.MessageProducer;
 import javax.jms.Session;
-import javax.jms.Topic;
 
 /**
  * Initialize the topic producer.
@@ -52,26 +52,34 @@ import javax.jms.Topic;
         args = { @Argument(name = "session", type = TypeKind.OBJECT, structType = "Session") },
         isPublic = true
 )
-public class InitTopicPublisher extends AbstractBlockinAction {
+public class InitTopicPublisher extends AbstractBlockingAction {
 
     @Override
     public void execute(Context context, CallableUnitCallback callback) {
         Struct topicProducerBObject = BallerinaAdapter.getReceiverObject(context);
         Struct topicProducerConfig = topicProducerBObject.getStructField(Constants.TOPIC_PUBLISHER_FIELD_CONFIG);
-        String topicPattern = topicProducerConfig.getStringField(Constants.TOPIC_PUBLISHER_FIELD_TOPIC_PATTERN);
+        Struct destinationConfig = topicProducerConfig.getStructField(Constants.ALIAS_DESTINATION);
+        String topicPattern = destinationConfig.getStringField(Constants.DESTINATION_NAME);
 
         BMap<String, BValue> sessionBObject = (BMap<String, BValue>) context.getRefArgument(1);
         Session session = BallerinaAdapter.getNativeObject(sessionBObject,
                                                            Constants.JMS_SESSION,
                                                            Session.class,
                                                            context);
+        Destination destination = null;
+        if (destinationConfig.getNativeData(Constants.JMS_DESTINATION_OBJECT) != null) {
+            destination = BallerinaAdapter.getNativeObject(destinationConfig,
+                    Constants.JMS_DESTINATION_OBJECT,
+                    Destination.class,
+                    context);
+        }
+
         try {
 
-            Topic topic = null;
-            if (!JMSUtils.isNullOrEmptyAfterTrim(topicPattern)) {
-                topic = JMSUtils.getTopic(session, topicPattern);
+            if (destination == null) {
+                destination = JMSUtils.getTopic(session, topicPattern);
             }
-            MessageProducer producer = session.createProducer(topic);
+            MessageProducer producer = session.createProducer(destination);
             Struct topicProducerConnectorBObject
                     = topicProducerBObject.getStructField(Constants.TOPIC_PUBLISHER_FIELD_PRODUCER_ACTIONS);
             topicProducerConnectorBObject.addNativeData(Constants.JMS_PRODUCER_OBJECT, producer);

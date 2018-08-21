@@ -28,7 +28,7 @@ import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
-import org.ballerinalang.net.jms.AbstractBlockinAction;
+import org.ballerinalang.net.jms.AbstractBlockingAction;
 import org.ballerinalang.net.jms.Constants;
 import org.ballerinalang.net.jms.JMSUtils;
 import org.ballerinalang.net.jms.nativeimpl.endpoint.common.SessionConnector;
@@ -59,7 +59,7 @@ import javax.jms.Topic;
         },
         isPublic = true
 )
-public class CreateSubscriber extends AbstractBlockinAction {
+public class CreateSubscriber extends AbstractBlockingAction {
 
     @Override
     public void execute(Context context, CallableUnitCallback callback) {
@@ -72,7 +72,8 @@ public class CreateSubscriber extends AbstractBlockinAction {
                                                            Session.class,
                                                            context);
         Struct topicSubscriberConfigBRecord = topicSubscriberBObject.getStructField(Constants.CONSUMER_CONFIG);
-        String topicPattern = topicSubscriberConfigBRecord.getStringField(Constants.TOPIC_PATTERN);
+        Struct destinationConfig = topicSubscriberConfigBRecord.getStructField(Constants.ALIAS_DESTINATION);
+        String topicPattern = destinationConfig.getStringField(Constants.DESTINATION_NAME);
         String consumerId = topicSubscriberConfigBRecord.getStringField(Constants.CONSUMER_IDENTIFIER);
         if (JMSUtils.isNullOrEmptyAfterTrim(consumerId)) {
             throw new BallerinaException("Please provide a durable subscription ID", context);

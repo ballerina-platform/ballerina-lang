@@ -36,8 +36,17 @@ public type QueueSender object {
     }
     public function init(QueueSenderEndpointConfiguration c) {
         self.config = c;
+        self.producerActions.queueSender = self;
         match (c.session) {
-            Session s => self.initQueueSender(s);
+            Session s => {
+                match (c.destination) {
+                    Destination destination => {
+                        validateQueue(destination);
+                        self.initQueueSender(s);
+                    }
+                    () => {}
+                }
+            }
             () => {}
         }
     }
@@ -70,15 +79,17 @@ public type QueueSender object {
 
 documentation { Configurations related to a QueueSender object
     F{{session}} JMS session object used to create the consumer
-    F{{queueName}} name of the target queue
+    F{{destination}} JMS destination
 }
 public type QueueSenderEndpointConfiguration record {
     Session? session;
-    string? queueName;
+    Destination? destination;
 };
 
 documentation { JMS QueueSender action handling object }
 public type QueueSenderActions object {
+
+    public QueueSender? queueSender;
 
     documentation { Sends a message to the JMS provider
         P{{message}} message to be sent to the JMS provider
@@ -91,5 +102,22 @@ public type QueueSenderActions object {
         P{{destination}} destination used for the message sender
         P{{message}} message to be sent to the JMS provider
     }
-    public extern function sendTo(Destination destination, Message message) returns error?;
+    public function sendTo(Destination destination, Message message) returns error?;
 };
+
+function QueueSenderActions::sendTo(Destination destination, Message message) returns error? {
+    match (self.queueSender) {
+        QueueSender queueSender => {
+            match (queueSender.config.session) {
+                Session s => {
+                    validateQueue(destination);
+                    queueSender.config.destination = destination;
+                    queueSender.initQueueSender(s);
+                }
+                () => {}
+            }
+        }
+        () => {}
+    }
+    return self.send(message);
+}

@@ -30,7 +30,6 @@ import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.net.jms.Constants;
-import org.ballerinalang.net.jms.JMSUtils;
 import org.ballerinalang.net.jms.nativeimpl.endpoint.common.SessionConnector;
 import org.ballerinalang.net.jms.utils.BallerinaAdapter;
 
@@ -50,8 +49,8 @@ import javax.jms.Session;
         packageName = "jms",
         functionName = "createQueueReceiver",
         receiver = @Receiver(type = TypeKind.OBJECT, structType = "QueueReceiver", structPackage = "ballerina/jms"),
-        args = { @Argument(name = "session", type = TypeKind.OBJECT, structType = "Session"),
-                 @Argument(name = "messageSelector", type = TypeKind.STRING)
+        args = {@Argument(name = "session", type = TypeKind.OBJECT, structType = "Session"),
+                @Argument(name = "messageSelector", type = TypeKind.STRING)
         },
         isPublic = true
 )
@@ -67,27 +66,23 @@ public class CreateConsumer implements NativeCallableUnit {
                                                            Session.class,
                                                            context);
         Struct queueConsumerConfigBRecord = queueConsumerBObject.getStructField(Constants.CONSUMER_CONFIG);
-        String queueName = null;
-        if (queueConsumerConfigBRecord.getRefField(Constants.QUEUE_NAME) != null) {
-            queueName = queueConsumerConfigBRecord.getRefField(Constants.QUEUE_NAME).getStringValue();
+        Struct destinationConfig = queueConsumerConfigBRecord.getStructField(Constants.ALIAS_DESTINATION);
+        String destinationName = destinationConfig.getStringField(Constants.DESTINATION_NAME);
+        Destination destination = null;
+        if (destinationConfig.getNativeData(Constants.JMS_DESTINATION_OBJECT) != null) {
+            destination = BallerinaAdapter.getNativeObject(destinationConfig,
+                                                           Constants.JMS_DESTINATION_OBJECT,
+                                                           Destination.class,
+                                                           context);
         }
-        
         try {
-            //if queue is emtpy, leave consumer open for temporary receivers
-            // otherwise create a dedicated consumer for the destination
-            if (JMSUtils.isNullOrEmptyAfterTrim(queueName)) {
-                Struct consumerConnectorBObject = queueConsumerBObject.getStructField(Constants.CONSUMER_ACTIONS);
-                consumerConnectorBObject.addNativeData(Constants.SESSION_CONNECTOR_OBJECT, 
-                                                        new SessionConnector(session));
-            } else {
-                Destination queue = session.createQueue(queueName);
-                MessageConsumer consumer = session.createConsumer(queue, messageSelector);
-                Struct consumerConnectorBObject = queueConsumerBObject.getStructField(Constants.CONSUMER_ACTIONS);
-                consumerConnectorBObject.addNativeData(Constants.JMS_CONSUMER_OBJECT, consumer);
-                consumerConnectorBObject.addNativeData(Constants.SESSION_CONNECTOR_OBJECT, 
-                                                        new SessionConnector(session));
+            if (destination == null) {
+                destination = session.createQueue(destinationName);
             }
-           
+            MessageConsumer consumer = session.createConsumer(destination, messageSelector);
+            Struct consumerConnectorBObject = queueConsumerBObject.getStructField(Constants.CONSUMER_ACTIONS);
+            consumerConnectorBObject.addNativeData(Constants.JMS_CONSUMER_OBJECT, consumer);
+            consumerConnectorBObject.addNativeData(Constants.SESSION_CONNECTOR_OBJECT, new SessionConnector(session));
         } catch (JMSException e) {
             BallerinaAdapter.throwBallerinaException("Error while creating queue consumer.", context, e);
         }

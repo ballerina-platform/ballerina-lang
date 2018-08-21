@@ -15,6 +15,20 @@
 // under the License.
 
 documentation {
+    Defines the possible values for the destination type in JMS `Destination`.
+
+    `queue`: Destination type queue
+    `topic`: Destination type topic
+}
+public type DestinationType "queue" | "topic";
+
+documentation {Constant for jms destination type queue}
+@final public DestinationType QUEUE = "queue";
+
+documentation {Constant for jms destination type topic}
+@final public DestinationType TOPIC = "topic";
+
+documentation {
     Destination object
 
     F{{destinationName}} name of the destination
@@ -23,4 +37,6 @@ documentation {
 public type Destination object {
     public string destinationName;
     public string destinationType;
+
+    public new(destinationName, destinationType) {}
 };

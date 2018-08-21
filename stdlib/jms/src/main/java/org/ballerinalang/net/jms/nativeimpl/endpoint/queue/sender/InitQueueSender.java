@@ -22,7 +22,6 @@ package org.ballerinalang.net.jms.nativeimpl.endpoint.queue.sender;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.CallableUnitCallback;
 import org.ballerinalang.connector.api.Struct;
-import org.ballerinalang.connector.api.Value;
 import org.ballerinalang.model.NativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BMap;
@@ -31,13 +30,12 @@ import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.net.jms.Constants;
-import org.ballerinalang.net.jms.JMSUtils;
 import org.ballerinalang.net.jms.nativeimpl.endpoint.common.SessionConnector;
 import org.ballerinalang.net.jms.utils.BallerinaAdapter;
 
+import javax.jms.Destination;
 import javax.jms.JMSException;
 import javax.jms.MessageProducer;
-import javax.jms.Queue;
 import javax.jms.Session;
 
 /**
@@ -60,24 +58,28 @@ public class InitQueueSender implements NativeCallableUnit {
     public void execute(Context context, CallableUnitCallback callableUnitCallback) {
         Struct queueSenderBObject = BallerinaAdapter.getReceiverObject(context);
         Struct queueSenderConfig = queueSenderBObject.getStructField(Constants.QUEUE_SENDER_FIELD_CONFIG);
-        Value vQueueName = queueSenderConfig.getRefField(Constants.QUEUE_SENDER_FIELD_QUEUE_NAME);
-
-        String queueName = null;
-        if (vQueueName != null) {
-            queueName = vQueueName.getStringValue();
-        }
-
+        Struct destinationConfig = queueSenderConfig.getStructField(Constants.ALIAS_DESTINATION);
+        String destinationName = destinationConfig.getStringField(Constants.DESTINATION_NAME);
         BMap<String, BValue> sessionBObject = (BMap<String, BValue>) context.getRefArgument(1);
+
         Session session = BallerinaAdapter.getNativeObject(sessionBObject,
                                                            Constants.JMS_SESSION,
                                                            Session.class,
                                                            context);
+
+        Destination destination = null;
+        if (destinationConfig.getNativeData(Constants.JMS_DESTINATION_OBJECT) != null) {
+            destination = BallerinaAdapter.getNativeObject(destinationConfig,
+                                                            Constants.JMS_DESTINATION_OBJECT,
+                                                            Destination.class,
+                                                            context);
+        }
+
         try {
-            Queue queue = null;
-            if (!JMSUtils.isNullOrEmptyAfterTrim(queueName)) {
-                queue = session.createQueue(queueName);
+            if (destination == null) {
+                destination = session.createQueue(destinationName);
             }
-            MessageProducer producer = session.createProducer(queue);
+            MessageProducer producer = session.createProducer(destination);
             Struct queueSenderConnectorBObject
                     = queueSenderBObject.getStructField(Constants.QUEUE_SENDER_FIELD_PRODUCER_ACTIONS);
             queueSenderConnectorBObject.addNativeData(Constants.JMS_PRODUCER_OBJECT, producer);

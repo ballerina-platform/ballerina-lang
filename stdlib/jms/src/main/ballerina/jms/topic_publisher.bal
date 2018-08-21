@@ -35,8 +35,17 @@ public type TopicPublisher object {
     }
     public function init(TopicPublisherEndpointConfiguration c) {
         self.config = c;
+        self.producerActions.topicPublisher = self;
         match (c.session) {
-            Session s => self.initTopicPublisher(s);
+            Session s => {
+                match (c.destination) {
+                    Destination destination => {
+                        validateTopic(destination);
+                        self.initTopicPublisher(s);
+                    }
+                    () => {}
+                }
+            }
             () => {}
         }
     }
@@ -68,15 +77,17 @@ public type TopicPublisher object {
 
 documentation { Configuration related to the topic publisher endpoint
     F{{session}} Session object used to create topic publisher
-    F{{topicPattern}} Topic name pattern
+    F{{destination}} Topic name pattern
 }
 public type TopicPublisherEndpointConfiguration record {
     Session? session;
-    string topicPattern;
+    Destination? destination;
 };
 
 documentation { Actions that topic publisher endpoint could perform }
 public type TopicPublisherActions object {
+
+    public TopicPublisher? topicPublisher;
 
     documentation { Sends a message to the JMS provider
         P{{message}} Message to be sent to the JMS provider
@@ -89,5 +100,22 @@ public type TopicPublisherActions object {
         P{{destination}} destination used for the message sender
         P{{message}} message to be sent to the JMS provider
     }
-    public extern function sendTo(Destination destination, Message message) returns error?;
+    public function sendTo(Destination destination, Message message) returns error?;
 };
+
+function TopicPublisherActions::sendTo(Destination destination, Message message) returns error? {
+    match (self.topicPublisher) {
+        TopicPublisher topicPublisher => {
+            match (topicPublisher.config.session) {
+                Session s => {
+                    validateTopic(destination);
+                    topicPublisher.config.destination = destination;
+                    topicPublisher.initTopicPublisher(s);
+                }
+                () => {}
+            }
+        }
+        () => {}
+    }
+    return self.send(message);
+}
