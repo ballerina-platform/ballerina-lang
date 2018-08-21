@@ -19,6 +19,8 @@ import org.ballerinalang.langserver.common.constants.CommandConstants;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.compiler.workspace.WorkspaceDocumentManager;
 import org.ballerinalang.langserver.compiler.workspace.WorkspaceDocumentManagerImpl;
+import org.ballerinalang.langserver.extensions.parser.BallerinaParserService;
+import org.ballerinalang.langserver.extensions.parser.BallerinaParserServiceImpl;
 import org.ballerinalang.langserver.index.LSIndexImpl;
 import org.eclipse.lsp4j.CompletionOptions;
 import org.eclipse.lsp4j.ExecuteCommandOptions;
@@ -27,6 +29,7 @@ import org.eclipse.lsp4j.InitializeResult;
 import org.eclipse.lsp4j.ServerCapabilities;
 import org.eclipse.lsp4j.SignatureHelpOptions;
 import org.eclipse.lsp4j.TextDocumentSyncKind;
+import org.eclipse.lsp4j.jsonrpc.services.JsonDelegate;
 import org.eclipse.lsp4j.services.LanguageClient;
 import org.eclipse.lsp4j.services.LanguageClientAware;
 import org.eclipse.lsp4j.services.LanguageServer;
@@ -46,6 +49,7 @@ public class BallerinaLanguageServer implements LanguageServer, LanguageClientAw
     private LanguageClient client = null;
     private TextDocumentService textService;
     private WorkspaceService workspaceService;
+    private BallerinaParserService parserService;
     private int shutdown = 1;
 
     public BallerinaLanguageServer() {
@@ -62,6 +66,7 @@ public class BallerinaLanguageServer implements LanguageServer, LanguageClientAw
 
         textService = new BallerinaTextDocumentService(lsGlobalContext);
         workspaceService = new BallerinaWorkspaceService(lsGlobalContext);
+        parserService = new BallerinaParserServiceImpl();
     }
 
     public LanguageClient getClient() {
@@ -113,6 +118,11 @@ public class BallerinaLanguageServer implements LanguageServer, LanguageClientAw
         return this.workspaceService;
     }
 
+    @JsonDelegate
+    public BallerinaParserService getParserService() {
+        return parserService;
+    }
+
     @Override
     public void connect(LanguageClient languageClient) {
         this.client = languageClient;
@@ -125,5 +135,7 @@ public class BallerinaLanguageServer implements LanguageServer, LanguageClientAw
                 .toString();
         LSIndexImpl.getInstance().initFromIndexDump(indexDumpPath);
     }
+
+
 }
 
