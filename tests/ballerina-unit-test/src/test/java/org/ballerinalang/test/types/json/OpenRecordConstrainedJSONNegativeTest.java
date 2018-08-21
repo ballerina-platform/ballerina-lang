@@ -27,6 +27,8 @@ import org.testng.annotations.Test;
 
 /**
  * Negative test cases for constraining json types with open records.
+ *
+ * @since 0.982.0
  */
 public class OpenRecordConstrainedJSONNegativeTest {
 
