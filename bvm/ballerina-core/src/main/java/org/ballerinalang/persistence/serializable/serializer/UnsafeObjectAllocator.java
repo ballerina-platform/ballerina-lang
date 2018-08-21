@@ -18,8 +18,8 @@
 package org.ballerinalang.persistence.serializable.serializer;
 
 import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
 
 /**
  * Use sun.misc.Unsafe.allocateInstance to allocate empty object of {@code clazz}.
@@ -28,24 +28,18 @@ import java.lang.reflect.Modifier;
  * other reasons, failing to create the instance will return {@code null}.
  */
 class UnsafeObjectAllocator {
-    static Object allocateFor(Class<?> clazz) {
-        try {
-            Class<?> unsafeClass = Class.forName("sun.misc.Unsafe");
-            Field f = unsafeClass.getDeclaredField("theUnsafe");
-            f.setAccessible(true);
-            Object unsafe = f.get(null);
-            Method allocateInstance = unsafeClass.getMethod("allocateInstance", Class.class);
-            if (isInstantiable(clazz)) {
-                return clazz.cast(allocateInstance.invoke(unsafe, clazz));
-            }
-        } catch (Exception e) {
-            return null;
-        }
-        return null;
-    }
+    static Object allocateFor(Class<?> clazz) throws
+            ClassNotFoundException,
+            NoSuchFieldException,
+            NoSuchMethodException,
+            IllegalAccessException,
+            InvocationTargetException {
 
-    private static boolean isInstantiable(Class<?> clazz) {
-        int modifiers = clazz.getModifiers();
-        return !(Modifier.isInterface(modifiers) && Modifier.isAbstract(modifiers));
+        Class<?> unsafeClass = Class.forName("sun.misc.Unsafe");
+        Field f = unsafeClass.getDeclaredField("theUnsafe");
+        f.setAccessible(true);
+        Object unsafe = f.get(null);
+        Method allocateInstance = unsafeClass.getMethod("allocateInstance", Class.class);
+        return clazz.cast(allocateInstance.invoke(unsafe, clazz));
     }
 }

@@ -35,7 +35,7 @@ public class TypeInstanceProviderFactory {
     public TypeInstanceProvider createProvider(String fullClassName) {
         try {
             Class<?> clazz = Class.forName(fullClassName);
-            assertClassClass(clazz);
+            assertInstantiable(clazz);
             try {
                 Constructor<?> declaredConstructor = clazz.getDeclaredConstructor();
                 if (declaredConstructor == null) {
@@ -46,6 +46,7 @@ public class TypeInstanceProviderFactory {
                     return implement;
                 }
             } catch (NoSuchMethodException e) {
+                // When no-param constructor is not found, try unsafe allocator.
                 return implementUnsafe(clazz);
             }
             return null;
@@ -54,10 +55,10 @@ public class TypeInstanceProviderFactory {
         }
     }
 
-    private void assertClassClass(Class<?> clazz) {
-        if (clazz == Class.class) {
-            throw new BallerinaException("Can not instantiate object of Class class, " +
-                    "provide a SerializationBValueProvider for containing type");
+    private void assertInstantiable(Class<?> clazz) {
+        if (!ObjectHelper.isInstantiable(clazz)) {
+            throw new BallerinaException("Can not generate instance provider for un-instantiable class: " +
+                    clazz.getName());
         }
     }
 
@@ -94,15 +95,22 @@ public class TypeInstanceProviderFactory {
 
             @Override
             public Object newInstance() {
-                Object obj = UnsafeObjectAllocator.allocateFor(clazz);
-                if (obj == null) {
+                try {
+                    return UnsafeObjectAllocator.allocateFor(clazz);
+                } catch (ClassNotFoundException
+                        | NoSuchFieldException
+                        | NoSuchMethodException
+                        | IllegalAccessException
+                        | InvocationTargetException e) {
+                    // Not even sun.misc.Unsafe can create a instance of this class
+                    // only option is to provide a SerializationBValueProvider or
+                    // TypeInstanceProvider for this type.
                     throw new BallerinaException(
                             String.format("%s cannot instantiate object of %s, maybe add a %s",
                                     JsonSerializer.class.getSimpleName(),
                                     clazz.getName(),
                                     TypeInstanceProvider.class.getSimpleName()));
                 }
-                return obj;
             }
 
             @Override

@@ -78,6 +78,33 @@ public class ComplexObjectSerializationTest {
         Assert.assertEquals(((Shadowee) newSh).i, ((Shadowee) sh).i);
     }
 
+    @Test(description = "Test BMap containing BMaps")
+    public void testNestedBMaps() {
+        BMap<String, BMap<String, BString>> nested = new BMap<>();
+        BMap<String, BString> child1 = new BMap<>();
+        child1.put("foo", new BString("Foo"));
+        child1.put("bar", new BString("Bar"));
+        child1.put("baz", new BString("Baz"));
+        nested.put("child1", child1);
+
+        BMap<String, BString> child2 = new BMap<>();
+        child2.put("foo+", new BString("Foo"));
+        child2.put("bar+", new BString("Bar"));
+        child2.put("baz+", new BString("Baz"));
+        nested.put("child2", child2);
+
+        String serialize = new JsonSerializer().serialize(nested);
+        BMap deserialized = new JsonSerializer().deserialize(serialize, BMap.class);
+
+        BMap<String, BString> dChild1 = (BMap<String, BString>) deserialized.get("child1");
+        BString dFoo = dChild1.get("foo");
+        Assert.assertEquals(dFoo.value(), "Foo");
+
+        BMap<String, BString> dChild2 = (BMap<String, BString>) deserialized.get("child2");
+        BString dBar = dChild2.get("bar+");
+        Assert.assertEquals(dBar.value(), "Bar");
+    }
+
     @Test(description = "Respect readResolve method in java.io.Serializable")
     public void testSerializableReadResolveMethod() {
         ReadResolverClass obj = new ReadResolverClass(42);

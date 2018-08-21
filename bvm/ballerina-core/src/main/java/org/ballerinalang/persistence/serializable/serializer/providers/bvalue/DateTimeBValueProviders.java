@@ -55,6 +55,9 @@ public class DateTimeBValueProviders {
         }
     }
 
+    /**
+     * Convert {@link Instant} into {@link BValue} object and back to facilitate serialization.
+     */
     public static class InstantBValueProvider implements SerializationBValueProvider<Instant> {
 
         @Override

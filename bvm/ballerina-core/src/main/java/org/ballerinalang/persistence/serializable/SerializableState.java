@@ -40,7 +40,6 @@ import java.util.Map;
  * @since 0.981.1
  */
 public class SerializableState {
-    private static final Logger log = LoggerFactory.getLogger(SerializableState.class);
 
     private String id;
 
