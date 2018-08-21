@@ -194,6 +194,7 @@ public class DatabaseUtils {
         String dbName = registry.getAsString(ChannelConstants.CONF_NAMESPACE + ChannelConstants.CONF_DB_NAME);
         String userName = registry.getAsString(ChannelConstants.CONF_NAMESPACE + ChannelConstants.CONF_USERNAME);
         String password = registry.getAsString(ChannelConstants.CONF_NAMESPACE + ChannelConstants.CONF_PASSWORD);
+        String dbOptions = registry.getAsString(ChannelConstants.CONF_NAMESPACE + ChannelConstants.CONF_DB_OPTIONS);
 
         StringBuilder jdbcUrl = new StringBuilder();
         if (dbType == null) {
@@ -280,6 +281,6 @@ public class DatabaseUtils {
                 throw new BallerinaException("cannot generate url for unknown database type : " + dbType);
         }
 
-        return jdbcUrl.toString();
+        return dbOptions == null ? jdbcUrl.toString() : jdbcUrl.append(dbOptions).toString();
     }
 }
