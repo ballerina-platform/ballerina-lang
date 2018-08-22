@@ -19,8 +19,11 @@ import org.ballerinalang.langserver.common.constants.CommandConstants;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.compiler.workspace.WorkspaceDocumentManager;
 import org.ballerinalang.langserver.compiler.workspace.WorkspaceDocumentManagerImpl;
+import org.ballerinalang.langserver.extensions.ExtendedLanguageServer;
 import org.ballerinalang.langserver.extensions.parser.BallerinaParserService;
 import org.ballerinalang.langserver.extensions.parser.BallerinaParserServiceImpl;
+import org.ballerinalang.langserver.extensions.parser.ParserReply;
+import org.ballerinalang.langserver.extensions.parser.ParserRequest;
 import org.ballerinalang.langserver.index.LSIndexImpl;
 import org.eclipse.lsp4j.CompletionOptions;
 import org.eclipse.lsp4j.ExecuteCommandOptions;
@@ -45,7 +48,7 @@ import java.util.concurrent.CompletableFuture;
 /**
  * Language server implementation for Ballerina.
  */
-public class BallerinaLanguageServer implements LanguageServer, LanguageClientAware {
+public class BallerinaLanguageServer implements ExtendedLanguageServer, LanguageClientAware {
     private LanguageClient client = null;
     private TextDocumentService textService;
     private WorkspaceService workspaceService;
@@ -118,9 +121,8 @@ public class BallerinaLanguageServer implements LanguageServer, LanguageClientAw
         return this.workspaceService;
     }
 
-    @JsonDelegate
     public BallerinaParserService getParserService() {
-        return parserService;
+        return this.parserService;
     }
 
     @Override
@@ -135,7 +137,6 @@ public class BallerinaLanguageServer implements LanguageServer, LanguageClientAw
                 .toString();
         LSIndexImpl.getInstance().initFromIndexDump(indexDumpPath);
     }
-
 
 }
 

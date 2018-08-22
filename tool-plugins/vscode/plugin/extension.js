@@ -22,7 +22,7 @@ const { LanguageClient, LanguageClientOptions, ServerOptions } = require('vscode
 const { exec } = require('child_process');
 const path = require('path');
 const fs = require('fs');
-const { getLSService } = require('./serverStarter');
+const { getServerOptions } = require('./server');
 const { activate:activateRenderer, errored:rendererErrored } = require('./renderer');
 const msgs = require('./messages');
 
@@ -134,12 +134,11 @@ exports.activate = function(context) {
 		clientOptions.outputChannel = dropOutputChannel;
 	}
 
-	const serverOptions = getLSService;
-
-	const langClientDisposable = new LanguageClient('ballerina-vscode', 'Ballerina vscode lanugage client',
-		serverOptions, clientOptions).start();
+	const langClient = new LanguageClient('ballerina-vscode', 'Ballerina vscode lanugage client',
+		getServerOptions(), clientOptions);
+	const langClientDisposable = langClient.start();
 	
-	activateRenderer(context);
+	activateRenderer(context, langClient);
 
 	// Push the disposable to the context's subscriptions so that the 
 	// client can be deactivated on extension deactivation

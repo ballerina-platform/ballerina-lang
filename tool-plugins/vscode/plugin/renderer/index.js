@@ -25,8 +25,8 @@ const { DiagramProvider, StaticProvider } = require('./content-provider');
 let diagramProvider;
 const DEBOUNCE_WAIT = 500;
 
-exports.activate = function(context) {
-	const provider = diagramProvider = new DiagramProvider();
+exports.activate = function(context, langClient) {
+	const provider = diagramProvider = new DiagramProvider(langClient);
 
 	workspace.onDidChangeTextDocument(_.debounce((e) => {
         if ((window.activeTextEditor) && (e.document === window.activeTextEditor.document) &&

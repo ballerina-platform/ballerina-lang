@@ -1,5 +1,4 @@
 const request = require('request-promise');
-const { getParserService } = require('../serverStarter');
 const log = require('../logger');
 
 const RETRY_COUNT = 5;
@@ -8,7 +7,7 @@ const RETRY_WAIT = 1000;
 let jsonModel;
 
 
-function render (content, retries=1) {
+function render (content, langClient, retries=1) {
     const parseOpts = {
         content,
         filename: 'file.bal',
@@ -17,36 +16,42 @@ function render (content, retries=1) {
         includeTree: true,
     }
 
-    return getParserService()
-    .then(({port}) => {
-        return request.post({
-            url: `http://127.0.0.1:${port||9091}/composer/ballerina/parser/file/validate-and-parse`,
-            json: parseOpts,
-        })
-    })
-    .then((body) => {
-        let stale = true;
-        if (body.model) {
-            stale = false;
-            jsonModel = body.model;
-        }
-        return renderDiagram(jsonModel, stale);
-    })
-    .catch((e) => {
-        log(`Error in parser service`);
-        return new Promise((res, rej) => {
-            if (retries > RETRY_COUNT) {
-                log.append('Could not render');
-                res(renderError());
-                return;
-            }
-
-            setTimeout(() => {
-                log(`Retrying rendering ${retries}/${RETRY_COUNT}\n`);
-                res(render(content, retries + 1));
-            }, RETRY_WAIT);
+    return langClient.sendRequest("ballerinaParser/parseContent", parseOpts)
+        .then((data) => {
+            console.log(data);
+        }).catch((err) => {
+            console.log(data);
         });
-    });
+    // return getParserService()
+    // .then(({port}) => {
+    //     return request.post({
+    //         url: `http://127.0.0.1:${port||9091}/composer/ballerina/parser/file/validate-and-parse`,
+    //         json: parseOpts,
+    //     })
+    // })
+    // .then((body) => {
+    //     let stale = true;
+    //     if (body.model) {
+    //         stale = false;
+    //         jsonModel = body.model;
+    //     }
+    //     return renderDiagram(jsonModel, stale);
+    // })
+    // .catch((e) => {
+    //     log(`Error in parser service`);
+    //     return new Promise((res, rej) => {
+    //         if (retries > RETRY_COUNT) {
+    //             log.append('Could not render');
+    //             res(renderError());
+    //             return;
+    //         }
+
+    //         setTimeout(() => {
+    //             log(`Retrying rendering ${retries}/${RETRY_COUNT}\n`);
+    //             res(render(content, retries + 1));
+    //         }, RETRY_WAIT);
+    //     });
+    // });
 };
 
 function renderDiagram(jsonModelObj, stale) {
@@ -178,5 +183,5 @@ function renderError() {
 
 module.exports.render = render;
 module.exports.activate = () => {
-    return getParserService();
+    return Promise.resolve(true);
 }

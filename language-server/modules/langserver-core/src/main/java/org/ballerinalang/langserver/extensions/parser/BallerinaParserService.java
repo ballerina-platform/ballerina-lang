@@ -18,8 +18,10 @@ package org.ballerinalang.langserver.extensions.parser;
 import org.eclipse.lsp4j.jsonrpc.services.JsonRequest;
 import org.eclipse.lsp4j.jsonrpc.services.JsonSegment;
 
+import java.util.concurrent.CompletableFuture;
+
 @JsonSegment("ballerinaParser")
 public interface BallerinaParserService {
     @JsonRequest
-    ParserReply parseContent(ParserRequest request);
+    CompletableFuture<ParserReply> parseContent(ParserRequest request);
 }

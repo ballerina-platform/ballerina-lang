@@ -5,7 +5,8 @@ const { render, activate } = require('./renderer');
 
 class DiagramProvider {
 
-    constructor() {
+    constructor(langClient) {
+        this._langClient = langClient;
         this._onDidChange = new vscode.EventEmitter();
         this.onDidChange = this._onDidChange.event;
     }
@@ -23,7 +24,7 @@ class DiagramProvider {
             return "";
         }
 
-        const text = render(editor.document.getText());
+        const text = render(editor.document.getText(), this._langClient);
         return text;
     }
 

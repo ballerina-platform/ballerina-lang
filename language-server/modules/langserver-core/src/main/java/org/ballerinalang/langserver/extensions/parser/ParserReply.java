@@ -20,11 +20,21 @@ import com.google.gson.JsonObject;
 public class ParserReply {
     private JsonObject model;
 
+    private boolean parseSuccess;
+
     public JsonObject getModel() {
         return model;
     }
 
     public void setModel(JsonObject model) {
         this.model = model;
+    }
+
+    public boolean isParseSuccess() {
+        return parseSuccess;
+    }
+
+    public void setParseSuccess(boolean parseSuccess) {
+        this.parseSuccess = parseSuccess;
     }
 }

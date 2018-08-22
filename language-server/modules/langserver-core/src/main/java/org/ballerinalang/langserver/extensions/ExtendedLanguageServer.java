@@ -13,16 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.ballerinalang.langserver.extensions.parser;
+package org.ballerinalang.langserver.extensions;
 
-import java.util.concurrent.CompletableFuture;
+import org.ballerinalang.langserver.extensions.parser.BallerinaParserService;
+import org.eclipse.lsp4j.jsonrpc.services.JsonDelegate;
+import org.eclipse.lsp4j.services.LanguageServer;
 
-public class BallerinaParserServiceImpl implements BallerinaParserService {
-
-    @Override
-    public CompletableFuture<ParserReply> parseContent(ParserRequest request) {
-        ParserReply reply = new ParserReply();
-        reply.setParseSuccess(false);
-        return CompletableFuture.supplyAsync(() -> reply);
-    }
+public interface ExtendedLanguageServer extends LanguageServer {
+    @JsonDelegate
+    BallerinaParserService getParserService();
 }
