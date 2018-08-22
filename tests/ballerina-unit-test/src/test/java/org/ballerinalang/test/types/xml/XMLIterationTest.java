@@ -31,6 +31,8 @@ import org.testng.annotations.Test;
 
 /**
  * Test cases for XML iteration.
+ *
+ * @since 0.982.0
  */
 public class XMLIterationTest {
 
