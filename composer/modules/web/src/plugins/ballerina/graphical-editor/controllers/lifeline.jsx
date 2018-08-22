@@ -315,7 +315,7 @@ class ActionBox extends React.Component {
         const { viewState: { bBox } } = model.getBody();
 
         const top = model.viewState.components.defaultWorker.y + 20;
-        const left = bBox.x;
+        const left = bBox.x + 12;
 
         const onDelete = () => { model.remove(); };
         const onJumptoCodeLine = () => {
@@ -325,7 +325,7 @@ class ActionBox extends React.Component {
 
         return (
             <Toolbox
-                onDelete={onDelete}
+                disableButtons={{ delete: true }}
                 onJumptoCodeLine={onJumptoCodeLine}
                 show
                 style={{

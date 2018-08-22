@@ -262,13 +262,28 @@ class ActionBox extends React.Component {
         const { viewState: { bBox } } = model.getBody();
 
         const top = bBox.y - 30;
-        const left = bBox.x;
+        let left = bBox.x;
 
         const onDelete = () => { model.remove(); };
         const onJumptoCodeLine = () => {
             const { editor } = this.context;
             editor.goToSource(model);
         };
+
+        if (model.name.value === 'default') {
+            left += 12;
+            return (
+                <Toolbox
+                    disableButtons={{ delete: true }}
+                    onJumptoCodeLine={onJumptoCodeLine}
+                    show
+                    style={{
+                        top,
+                        left,
+                    }}
+                />
+            );
+        }
 
         return (
             <Toolbox
