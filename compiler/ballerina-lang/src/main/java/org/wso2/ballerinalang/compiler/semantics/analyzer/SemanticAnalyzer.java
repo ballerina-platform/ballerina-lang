@@ -45,14 +45,12 @@ import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.util.diagnostic.DiagnosticCode;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAnnotationAttributeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAnnotationSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAttachedFunction;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BEndpointVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BOperatorSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BServiceSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
@@ -2089,8 +2087,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         }
         int ownerSymTag = env.scope.owner.tag;
         if ((ownerSymTag & SymTag.ANNOTATION) == SymTag.ANNOTATION) {
-            if (attributeSymbol.tag != SymTag.ANNOTATION_ATTRIBUTE
-                    || ((BAnnotationAttributeSymbol) attributeSymbol).docTag != attribute.docTag) {
+            if (attributeSymbol.tag != SymTag.ANNOTATION_ATTRIBUTE) {
                 this.dlog.warning(attribute.pos, DiagnosticCode.NO_SUCH_DOCUMENTABLE_ATTRIBUTE,
                         attribute.documentationField, attribute.docTag.getValue());
                 return;
