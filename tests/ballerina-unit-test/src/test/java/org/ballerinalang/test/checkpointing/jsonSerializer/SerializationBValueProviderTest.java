@@ -19,12 +19,19 @@ package org.ballerinalang.test.checkpointing.jsonSerializer;
 
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.persistence.serializable.serializer.BValueSerializer;
+import org.ballerinalang.persistence.serializable.serializer.BValueTree;
 import org.ballerinalang.persistence.serializable.serializer.JsonSerializer;
 import org.ballerinalang.persistence.serializable.serializer.providers.bvalue.NumericBValueProviders;
 import org.joda.time.DateTime;
 import org.testng.Assert;
+import org.testng.annotations.AfterMethod;
+import org.testng.annotations.BeforeClass;
+import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.time.Instant;
@@ -35,12 +42,25 @@ import static org.ballerinalang.persistence.serializable.serializer.JsonSerializ
 public class SerializationBValueProviderTest {
 
     private static final String NUMBER = "2345232323";
+    BValueSerializer serializer;
+
+    @BeforeMethod
+    public void setup() throws NoSuchMethodException, IllegalAccessException, InvocationTargetException, InstantiationException {
+        Constructor<BValueTree> constructor = BValueTree.class.getDeclaredConstructor();
+        constructor.setAccessible(true);
+        serializer = constructor.newInstance();
+    }
+
+    @AfterMethod
+    public void reset() {
+        serializer = null;
+    }
 
     @Test(description = "test BigInt to BValue conversion")
     public void testBigIntBValueProviderToBValue() {
         NumericBValueProviders.BigIntegerBValueProvider provider =
                 new NumericBValueProviders.BigIntegerBValueProvider();
-        BValue value = provider.toBValue(new BigInteger(NUMBER), new JsonSerializer());
+        BValue value = provider.toBValue(new BigInteger(NUMBER), serializer);
 
         BMap<String, BValue> map = (BMap<String, BValue>) value;
         BValue payload = map.get(PAYLOAD_TAG);
@@ -51,7 +71,7 @@ public class SerializationBValueProviderTest {
     public void testBigIntBValueProviderToBigInt() {
         NumericBValueProviders.BigIntegerBValueProvider provider =
                 new NumericBValueProviders.BigIntegerBValueProvider();
-        BValue value = provider.toBValue(new BigInteger(NUMBER), new JsonSerializer());
+        BValue value = provider.toBValue(new BigInteger(NUMBER), serializer);
 
         Object object = provider.toObject(value, null);
         Assert.assertTrue(object instanceof BigInteger);
@@ -62,7 +82,7 @@ public class SerializationBValueProviderTest {
     public void testBigIntBValueProviderBigDecimal() {
         NumericBValueProviders.BigDecimalBValueProvider provider =
                 new NumericBValueProviders.BigDecimalBValueProvider();
-        BValue value = provider.toBValue(new BigDecimal(NUMBER), new JsonSerializer());
+        BValue value = provider.toBValue(new BigDecimal(NUMBER), serializer);
 
         BigDecimal object = provider.toObject(value, null);
         Assert.assertTrue(object != null);

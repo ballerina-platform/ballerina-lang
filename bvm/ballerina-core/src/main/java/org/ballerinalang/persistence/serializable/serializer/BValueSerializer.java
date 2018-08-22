@@ -23,5 +23,5 @@ import org.ballerinalang.model.values.BValue;
  * Convert Java object into {@link BValue} representation.
  */
 public interface BValueSerializer {
-    BValue toBValue(Object obj, Class<?> leftSideType);
+    BValue toBValue(Object src, Class<?> leftSideType);
 }
