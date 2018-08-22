@@ -915,8 +915,8 @@ public class CodeAnalyzer extends BLangNodeVisitor {
                 parent = parent.parent;
                 continue;
             } else if (kind == NodeKind.ELVIS_EXPR
-                    && ((BLangElvisExpr) parent).lhsExpr.getKind() == NodeKind.INVOCATION
-                    && ((BLangInvocation) ((BLangElvisExpr) parent).lhsExpr).actionInvocation) {
+                    && ((BLangElvisExpr) parent).getLeftExpression().getKind() == NodeKind.INVOCATION
+                    && ((BLangInvocation) ((BLangElvisExpr) parent).getLeftExpression()).actionInvocation) {
                 parent = parent.parent;
                 continue;
             }
@@ -946,8 +946,8 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     }
 
     public void visit(BLangElvisExpr elvisExpr) {
-        analyzeExpr(elvisExpr.lhsExpr);
-        analyzeExpr(elvisExpr.rhsExpr);
+        analyzeExpr(elvisExpr.getLeftExpression());
+        analyzeExpr(elvisExpr.getRightExpression());
     }
 
     @Override

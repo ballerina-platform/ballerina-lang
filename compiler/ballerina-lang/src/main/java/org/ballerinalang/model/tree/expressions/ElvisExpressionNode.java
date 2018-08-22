@@ -19,9 +19,11 @@
 package org.ballerinalang.model.tree.expressions;
 
 /**
+ * {@code ElvisExpressionNode} represents an elvis expression in Ballerina.
+ *
  * @since 0.964.1
  */
-public interface ElvisExpressionNode {
+public interface ElvisExpressionNode extends ExpressionNode {
 
     ExpressionNode getLeftExpression();
 
