@@ -34,6 +34,7 @@ import org.testng.annotations.Test;
 import java.io.File;
 import java.nio.file.Path;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -86,6 +87,20 @@ public class CommandExecutionTest {
         Assert.assertTrue(responseJson.equals(expected));
     }
 
+    @Test(dataProvider = "add-all-doc-data-provider")
+    public void testAddAllDocumentation(String config, String source) {
+        String configJsonPath = "command" + File.separator + config;
+        Path sourcePath = sourcesPath.resolve("source").resolve(source);
+        JsonObject configJsonObject = FileUtils.fileContentAsObject(configJsonPath);
+        JsonObject expected = configJsonObject.get("expected").getAsJsonObject();
+        List<Object> args = Collections.singletonList(
+                new CommandUtil.CommandArgument("doc.uri", sourcePath.toUri().toString()));
+        JsonObject responseJson = getCommandResponse(args, CommandConstants.CMD_ADD_ALL_DOC);
+        responseJson.get("result").getAsJsonObject().get("edit").getAsJsonObject().getAsJsonArray("documentChanges")
+                .forEach(element -> element.getAsJsonObject().remove("textDocument"));
+        Assert.assertTrue(responseJson.equals(expected));
+    }
+
     @DataProvider(name = "package-import-data-provider")
     public Object[][] addImportDataProvider() {
         return new Object[][] {
@@ -103,6 +118,13 @@ public class CommandExecutionTest {
                 {"addSingleServiceDocumentation.json", "commonDocumentation.bal"},
                 {"addSingleRecordDocumentation.json", "commonDocumentation.bal"},
                 {"addSingleObjectDocumentation.json", "commonDocumentation.bal"},
+        };
+    }
+
+    @DataProvider(name = "add-all-doc-data-provider")
+    public Object[][] addAllDocDataProvider() {
+        return new Object[][] {
+                {"addAllDocumentation.json", "commonDocumentation.bal"}
         };
     }
 

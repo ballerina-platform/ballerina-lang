@@ -17,10 +17,10 @@
                   },
                   "end":{
                     "line":7,
-                    "character":1
+                    "character":0
                   }
                 },
-                "newText":"\nimport ballerina/io;\n\nfunction testImportCommand() {\n    io:println(\"Hello World\");\n}"
+                "newText":"\nimport ballerina/io;\n\nfunction testImportCommand() {\n    io:println(\"Hello World\");\n}\n"
               }
             ]
           }

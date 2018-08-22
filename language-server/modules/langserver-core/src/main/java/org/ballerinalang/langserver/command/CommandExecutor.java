@@ -27,7 +27,6 @@ import org.ballerinalang.langserver.compiler.common.LSCustomErrorStrategy;
 import org.ballerinalang.langserver.compiler.workspace.WorkspaceDocumentException;
 import org.ballerinalang.langserver.compiler.workspace.WorkspaceDocumentManager;
 import org.ballerinalang.model.tree.Node;
-import org.ballerinalang.model.tree.TopLevelNode;
 import org.eclipse.lsp4j.ApplyWorkspaceEditParams;
 import org.eclipse.lsp4j.ExecuteCommandParams;
 import org.eclipse.lsp4j.Position;
@@ -73,8 +72,6 @@ public class CommandExecutor {
     private static final String ARG_KEY = "argumentK";
 
     private static final String ARG_VALUE = "argumentV";
-
-    private static final String RUNTIME_PKG_ALIAS = ".runtime";
 
     private CommandExecutor() {
     }
@@ -229,7 +226,7 @@ public class CommandExecutor {
         String fileContent = documentManager.getFileContent(compilationPath);
         String[] contentComponents = fileContent.split("\\n|\\r\\n|\\r");
         int totalLines = contentComponents.length;
-        int lastNewLineCharIndex = Math.max(fileContent.lastIndexOf("\n"), fileContent.lastIndexOf("\r"));
+        int lastNewLineCharIndex = Math.max(fileContent.lastIndexOf('\n'), fileContent.lastIndexOf('\r'));
         int lastCharCol = fileContent.substring(lastNewLineCharIndex + 1).length();
 
         LSCompiler lsCompiler = context.get(ExecuteCommandKeys.LS_COMPILER_KEY);
@@ -370,9 +367,6 @@ public class CommandExecutor {
             case UtilSymbolKeys.ENDPOINT_KEYWORD_KEY:
                 docAttachmentInfo = CommandUtil.getEndpointDocumentationByPosition(bLangPackage, line);
                 break;
-            case UtilSymbolKeys.RESOURCE_KEYWORD_KEY:
-                docAttachmentInfo = CommandUtil.getResourceDocumentationByPosition(bLangPackage, line);
-                break;
             case UtilSymbolKeys.SERVICE_KEYWORD_KEY:
                 docAttachmentInfo = CommandUtil.getServiceDocumentationByPosition(bLangPackage, line);
                 break;
@@ -415,11 +409,6 @@ public class CommandExecutor {
                 // TODO: Here we need to check for the doc attachments of the endpoint.
                 replaceFrom = CommonUtil.toZeroBasedPosition(((BLangEndpoint) node).getPosition()).getStartLine();
                 docAttachmentInfo = CommandUtil.getEndpointNodeDocumentation((BLangEndpoint) node, replaceFrom);
-                break;
-            case OBJECT_TYPE:
-            case RECORD_TYPE:
-                replaceFrom = CommonUtil.toZeroBasedPosition((DiagnosticPos) node.getPosition()).getStartLine();
-                docAttachmentInfo = CommandUtil.getTypeNodeDocumentation((TopLevelNode) node, replaceFrom);
                 break;
             case RESOURCE:
                 if (((BLangResource) node).docAttachments.isEmpty()) {
@@ -474,7 +463,9 @@ public class CommandExecutor {
         WorkspaceEdit workspaceEdit = new WorkspaceEdit();
         workspaceEdit.setDocumentChanges(textDocumentEdits);
         ApplyWorkspaceEditParams applyWorkspaceEditParams = new ApplyWorkspaceEditParams(workspaceEdit);
-        client.applyEdit(applyWorkspaceEditParams);
+        if (client != null) {
+            client.applyEdit(applyWorkspaceEditParams);
+        }
         return applyWorkspaceEditParams;
     }
 }
