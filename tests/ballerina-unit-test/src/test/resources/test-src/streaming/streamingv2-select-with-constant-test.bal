@@ -17,7 +17,6 @@
 import ballerina/runtime;
 import ballerina/io;
 import ballerina/streams;
-import ballerina/reflect;
 
 type Teacher record {
     string name;
@@ -27,56 +26,44 @@ type Teacher record {
     string school;
 };
 
-type TeacherOutput record {
-    string name;
+type TeacherOutput record{
+    string teacherName;
     int age;
-    int sumAge;
-    int count;
 };
 
 int index = 0;
 stream<Teacher> inputStream;
 stream<TeacherOutput> outputStream;
+TeacherOutput[] globalEmployeeArray = [];
 
-TeacherOutput[] globalTeacherOutputArray = [];
-
-function startAggregationWithGroupByQuery() returns TeacherOutput[] {
+function startSelectQuery() returns (TeacherOutput[]) {
 
     Teacher[] teachers = [];
-    Teacher t1 = { name: "Mohan", age: 30, status: "single", batch: "LK2014", school: "Hindu College" };
-    Teacher t2 = { name: "Raja", age: 45, status: "single", batch: "LK2014", school: "Hindu College" };
+    Teacher t1 = { name: "Raja", age: 25, status: "single", batch: "LK2014", school: "Ananda College" };
+    Teacher t2 = { name: "Mohan", age: 45, status: "single", batch: "LK2014", school: "Hindu College" };
+    Teacher t3 = { name: "Shareek", age: 50, status: "single", batch: "LK2014", school: "Zahira College" };
     teachers[0] = t1;
     teachers[1] = t2;
-    teachers[2] = t2;
-    teachers[3] = t1;
+    teachers[2] = t3;
 
-    foo();
+    testSelectQuery();
 
     outputStream.subscribe(printTeachers);
     foreach t in teachers {
         inputStream.publish(t);
     }
+
     runtime:sleep(1000);
-    return globalTeacherOutputArray;
+    return globalEmployeeArray;
 }
 
+function testSelectQuery() {
 
-//  ------------- Query to be implemented -------------------------------------------------------
-//  from inputStream where inputStream.age > 25
-//  select inputStream.name, inputStream.age, sum (inputStream.age) as sumAge, count() as count
-//  group by inputStream.name
-//      => (TeacherOutput [] o) {
-//            outputStream.publish(o);
-//      }
-//
-
-function foo() {
     forever {
-        from inputStream where inputStream.age > 25
-        select inputStream.name, inputStream.age, sum (inputStream.age) as sumAge, count() as count
-        group by inputStream.name
-        => (TeacherOutput [] o) {
-            outputStream.publish(o);
+        from inputStream
+        select inputStream.name as teacherName, 25 as age
+        => (TeacherOutput[] emp) {
+            outputStream.publish(emp);
         }
     }
 }
@@ -86,6 +73,6 @@ function printTeachers(TeacherOutput e) {
 }
 
 function addToGlobalEmployeeArray(TeacherOutput e) {
-    globalTeacherOutputArray[index] = e;
+    globalEmployeeArray[index] = e;
     index = index + 1;
 }

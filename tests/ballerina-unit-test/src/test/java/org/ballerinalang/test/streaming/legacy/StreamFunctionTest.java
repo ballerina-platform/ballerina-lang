@@ -15,12 +15,11 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-package org.ballerinalang.test.streaming;
+package org.ballerinalang.test.streaming.legacy;
 
 import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.CompileResult;
-import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BValue;
@@ -29,29 +28,30 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 /**
- * This contains methods to test boolean type conversion of Ballerina Streaming.
+ * This contains methods to test stream functions' behaviour of Ballerina Streaming.
  *
- * @since 0.970.1
+ * @since 0.970.0
  */
-public class BooleanTypeTest {
+public class StreamFunctionTest {
 
     private CompileResult result;
 
     @BeforeClass
     public void setup() {
-        result = BCompileUtil.compile("test-src/streaming/boolean-type-test.bal");
+        result = BCompileUtil.compile("test-src/streaming/legacy/stream-functions-test.bal");
     }
 
-    @Test(description = "Test Boolean types in streaming query")
+    @Test(description = "Test stream functions")
     public void testFilterQuery() {
-        BValue[] outputRequestCountObjs = BRunUtil.invoke(result, "startStreamingQuery");
-        Assert.assertNotNull(outputRequestCountObjs);
+        BValue[] outputEmployeeEvents = BRunUtil.invoke(result, "startStreamingQuery");
+        Assert.assertNotNull(outputEmployeeEvents);
 
-        Assert.assertEquals(outputRequestCountObjs.length, 1, "Expected events are not received");
+        Assert.assertEquals(outputEmployeeEvents.length, 2, "Expected events are not received");
 
-        BMap<String, BValue> requestCount = (BMap<String, BValue>) outputRequestCountObjs[0];
+        BMap<String, BValue> employee0 = (BMap<String, BValue>) outputEmployeeEvents[0];
+        BMap<String, BValue> employee1 = (BMap<String, BValue>) outputEmployeeEvents[1];
 
-        Assert.assertEquals(((BInteger) requestCount.get("count")).intValue(), 7);
-        Assert.assertTrue(((BBoolean) requestCount.get("test")).booleanValue());
+        Assert.assertEquals(((BInteger) employee0.get("age")).intValue(), 33);
+        Assert.assertEquals(((BInteger) employee1.get("age")).intValue(), 45);
     }
 }

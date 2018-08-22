@@ -15,6 +15,7 @@
 *  specific language governing permissions and limitations
 *  under the License.
 */
+
 package org.ballerinalang.test.streaming;
 
 import org.ballerinalang.launcher.util.BCompileUtil;
@@ -28,48 +29,37 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 /**
- * This contains methods to test filter behaviour of Ballerina Streaming.
+ * This contains methods to test constant value in select clause  in Ballerina Streaming V2.
  *
- * @since 0.965.0
+ * @since 0.980.0
  */
-public class FilterTest {
+public class BallerinaStreamsV2SelectorWithConstantTest {
 
     private CompileResult result;
-    private CompileResult resultWithReference;
 
     @BeforeClass
     public void setup() {
-        result = BCompileUtil.compile("test-src/streaming/filter-streaming-test.bal");
-        resultWithReference = BCompileUtil.compile("test-src/streaming/filter-streaming-with-reference-test.bal");
+        System.setProperty("enable.siddhiRuntime", "false");
+        result = BCompileUtil.compile("test-src/streaming/streamingv2-select-with-constant-test.bal");
     }
 
     @Test(description = "Test filter streaming query")
-    public void testFilterQuery() {
-        BValue[] outputEmployeeEvents = BRunUtil.invoke(result, "startFilterQuery");
+    public void testSelectQuery() {
+        BValue[] outputEmployeeEvents = BRunUtil.invoke(result, "startSelectQuery");
+        System.setProperty("enable.siddhiRuntime", "true");
         Assert.assertNotNull(outputEmployeeEvents);
 
-        Assert.assertEquals(outputEmployeeEvents.length, 2, "Expected events are not received");
+        Assert.assertEquals(outputEmployeeEvents.length, 3, "Expected events are not received");
 
         BMap<String, BValue> employee0 = (BMap<String, BValue>) outputEmployeeEvents[0];
         BMap<String, BValue> employee1 = (BMap<String, BValue>) outputEmployeeEvents[1];
+        BMap<String, BValue> employee2 = (BMap<String, BValue>) outputEmployeeEvents[2];
 
-        Assert.assertEquals(((BInteger) employee0.get("age")).intValue(), 33);
-        Assert.assertEquals(((BInteger) employee1.get("age")).intValue(), 45);
+        Assert.assertEquals(employee0.get("teacherName").stringValue(), "Raja");
+        Assert.assertEquals(((BInteger) employee0.get("age")).intValue(), 25);
+        Assert.assertEquals(employee1.get("teacherName").stringValue(), "Mohan");
+        Assert.assertEquals(((BInteger) employee1.get("age")).intValue(), 25);
+        Assert.assertEquals(employee2.get("teacherName").stringValue(), "Shareek");
+        Assert.assertEquals(((BInteger) employee2.get("age")).intValue(), 25);
     }
-
-
-    @Test(description = "Test filter streaming query")
-    public void testFilterQueryWithFuntionParam() {
-        BValue[] outputEmployeeEvents = BRunUtil.invoke(resultWithReference, "startFilterQuery");
-        Assert.assertNotNull(outputEmployeeEvents);
-
-        Assert.assertEquals(outputEmployeeEvents.length, 2, "Expected events are not received");
-
-        BMap<String, BValue> employee0 = (BMap<String, BValue>) outputEmployeeEvents[0];
-        BMap<String, BValue> employee1 = (BMap<String, BValue>) outputEmployeeEvents[1];
-
-        Assert.assertEquals(((BInteger) employee0.get("age")).intValue(), 33);
-        Assert.assertEquals(((BInteger) employee1.get("age")).intValue(), 45);
-    }
-
 }

@@ -15,7 +15,7 @@
 *  specific language governing permissions and limitations
 *  under the License.
 */
-package org.ballerinalang.test.streaming;
+package org.ballerinalang.test.streaming.legacy;
 
 import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BRunUtil;
@@ -28,32 +28,31 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 /**
- * This contains methods to test window behaviour of Ballerina Streaming.
+ * This contains methods to test filter behaviour of Ballerina Streaming.
  *
  * @since 0.965.0
  */
-public class WindowTest {
+public class FilterWithInlineStreamTest {
 
     private CompileResult result;
 
     @BeforeClass
     public void setup() {
-        result = BCompileUtil.compile("test-src/streaming/window-streaming-test.bal");
+        result = BCompileUtil.compile("test-src/streaming/legacy/filter-streaming-test-v2.bal");
     }
 
-    @Test(description = "Test window streaming query with groupby and aggregation function.")
-    public void testWindowQuery() {
-        BValue[] outputStatusCountArray = BRunUtil.invoke(result, "startWindowQuery");
+    @Test(description = "Test filter streaming query")
+    public void testFilterQuery() {
+        BValue[] outputEmployeeEvents = BRunUtil.invoke(result, "startFilterQuery");
+        Assert.assertNotNull(outputEmployeeEvents);
 
-        Assert.assertNotNull(outputStatusCountArray);
+        Assert.assertEquals(outputEmployeeEvents.length, 2, "Expected events are not received");
 
-        Assert.assertEquals(outputStatusCountArray.length, 2, "Expected events are not received");
+        BMap<String, BValue> employee0 = (BMap<String, BValue>) outputEmployeeEvents[0];
+        BMap<String, BValue> employee1 = (BMap<String, BValue>) outputEmployeeEvents[1];
 
-        BMap<String, BValue> statusCount0 = (BMap<String, BValue>) outputStatusCountArray[0];
-        BMap<String, BValue> statusCount1 = (BMap<String, BValue>) outputStatusCountArray[1];
-
-        Assert.assertEquals(((BInteger) statusCount0.get("totalCount")).intValue(), 2);
-        Assert.assertEquals(((BInteger) statusCount1.get("totalCount")).intValue(), 1);
+        Assert.assertEquals(((BInteger) employee0.get("age")).intValue(), 33);
+        Assert.assertEquals(((BInteger) employee1.get("age")).intValue(), 45);
     }
 
 }
