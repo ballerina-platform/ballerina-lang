@@ -1297,8 +1297,8 @@ public class CodeGenerator extends BLangNodeVisitor {
         } else {
             valueRegIndex = this.getOperand(-1);
         }
-        genNode(awaitExpr.expr, this.env);
-        Operand futureRegIndex = awaitExpr.expr.regIndex;
+        genNode(awaitExpr.getExpression(), this.env);
+        Operand futureRegIndex = awaitExpr.getExpression().regIndex;
         this.emit(InstructionCodes.AWAIT, futureRegIndex, valueRegIndex);
     }
 

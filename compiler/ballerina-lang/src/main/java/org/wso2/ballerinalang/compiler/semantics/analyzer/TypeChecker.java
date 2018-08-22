@@ -759,7 +759,7 @@ public class TypeChecker extends BLangNodeVisitor {
 
     public void visit(BLangAwaitExpr awaitExpr) {
         BType actualType;
-        BType expType = checkExpr(awaitExpr.expr, env, this.symTable.noType);
+        BType expType = checkExpr(awaitExpr.getExpression(), env, this.symTable.noType);
         if (expType == symTable.errType) {
             actualType = symTable.errType;
         } else {

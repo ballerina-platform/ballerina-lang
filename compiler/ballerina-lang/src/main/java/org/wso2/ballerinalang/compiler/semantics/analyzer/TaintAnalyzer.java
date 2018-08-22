@@ -954,7 +954,7 @@ public class TaintAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangAwaitExpr awaitExpr) {
-        awaitExpr.expr.accept(this);
+        awaitExpr.getExpression().accept(this);
     }
 
     @Override
