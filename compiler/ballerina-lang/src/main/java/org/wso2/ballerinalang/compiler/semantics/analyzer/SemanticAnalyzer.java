@@ -76,7 +76,6 @@ import org.wso2.ballerinalang.compiler.tree.BLangEndpoint;
 import org.wso2.ballerinalang.compiler.tree.BLangEnum;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
-import org.wso2.ballerinalang.compiler.tree.BLangImportPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangInvokableNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
@@ -258,16 +257,6 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                 .filter(func -> !func.isTypeChecked)
                 .forEach(func -> analyzeDef(func, pkgEnv));
         Collections.reverse(functions);
-    }
-
-    public void visit(BLangImportPackage importPkgNode) {
-        BPackageSymbol pkgSymbol = importPkgNode.symbol;
-        SymbolEnv pkgEnv = this.symTable.pkgEnvMap.get(pkgSymbol);
-        if (pkgEnv == null) {
-            return;
-        }
-
-        analyzeDef(pkgEnv.node, pkgEnv);
     }
 
     public void visit(BLangXMLNS xmlnsNode) {
