@@ -118,7 +118,7 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
     private static final String NEXT_PROCESS_METHOD_NAME = "process";
     private static final String STREAM_EVENT_OBJECT_NAME = "StreamEvent";
     private static final String FILTER_OBJECT_NAME = "Filter";
-    private static final String WINDOW_OBJECT_NAME = "LengthWindow";
+    private static final String WINDOW_OBJECT_NAME = "Window";
     private static final String OUTPUT_PROCESS_OBJECT_NAME = "OutputProcess";
     private static final String CREATE_OUTPUT_PROCESS_METHOD_NAME = "createOutputProcess";
     private static final String CREATE_FILTER_METHOD_NAME = "createFilter";
