@@ -192,7 +192,6 @@ function genBasicBlockTerminator(BIRFunction func, BIRBasicBlock bb, llvm:LLVMBu
         }
         Return => {
             if (func.typeValue.retType != "()"){ //TODO: use BTypeNil
-                io:println(func.typeValue);
                 var retValueRef = llvm:LLVMBuildLoad(builder, getLocalVarById(func, "%0"), "retrun_temp");
                 var ret = llvm:LLVMBuildRet(builder, retValueRef);
             } else {
