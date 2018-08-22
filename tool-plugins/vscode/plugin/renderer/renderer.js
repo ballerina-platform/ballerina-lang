@@ -17,41 +17,29 @@ function render (content, langClient, retries=1) {
     }
 
     return langClient.sendRequest("ballerinaParser/parseContent", parseOpts)
-        .then((data) => {
-            console.log(data);
-        }).catch((err) => {
-            console.log(data);
-        });
-    // return getParserService()
-    // .then(({port}) => {
-    //     return request.post({
-    //         url: `http://127.0.0.1:${port||9091}/composer/ballerina/parser/file/validate-and-parse`,
-    //         json: parseOpts,
-    //     })
-    // })
-    // .then((body) => {
-    //     let stale = true;
-    //     if (body.model) {
-    //         stale = false;
-    //         jsonModel = body.model;
-    //     }
-    //     return renderDiagram(jsonModel, stale);
-    // })
-    // .catch((e) => {
-    //     log(`Error in parser service`);
-    //     return new Promise((res, rej) => {
-    //         if (retries > RETRY_COUNT) {
-    //             log.append('Could not render');
-    //             res(renderError());
-    //             return;
-    //         }
+        .then((body) => {
+            let stale = true;
+            if (body.model) {
+                stale = false;
+                jsonModel = body.model;
+            }
+            return renderDiagram(jsonModel, stale);
+        })
+        .catch((e) => {
+            log(`Error in parser service`);
+            return new Promise((res, rej) => {
+                if (retries > RETRY_COUNT) {
+                    log.append('Could not render');
+                    res(renderError());
+                    return;
+                }
 
-    //         setTimeout(() => {
-    //             log(`Retrying rendering ${retries}/${RETRY_COUNT}\n`);
-    //             res(render(content, retries + 1));
-    //         }, RETRY_WAIT);
-    //     });
-    // });
+                setTimeout(() => {
+                    log(`Retrying rendering ${retries}/${RETRY_COUNT}\n`);
+                    res(render(content, retries + 1));
+                }, RETRY_WAIT);
+            });
+        });
 };
 
 function renderDiagram(jsonModelObj, stale) {
