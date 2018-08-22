@@ -58,9 +58,9 @@ import static org.ballerinalang.util.observability.ObservabilityConstants.TAG_KE
 @BallerinaFunction(
         orgName = "ballerina", packageName = "http",
         functionName = "nativeRespond",
-        args = { @Argument(name = "connection", type = TypeKind.OBJECT),
+        args = {@Argument(name = "connection", type = TypeKind.OBJECT),
                 @Argument(name = "res", type = TypeKind.OBJECT, structType = "Response",
-                structPackage = "ballerina/http")},
+                        structPackage = "ballerina/http")},
         returnType = @ReturnType(type = TypeKind.RECORD, structType = "HttpConnectorError",
                 structPackage = "ballerina/http"),
         isPublic = true
@@ -97,13 +97,15 @@ public class Respond extends ConnectionAction {
 
         try {
             boolean pipeliningNeeded = true;
-            if(pipeliningNeeded) { //keep-alive true, http2 false
+            String httpVersion = (String) inboundRequestMsg.getProperty(Constants.HTTP_VERSION);
+            if (inboundRequestMsg.isKeepAlive() && !Constants.HTTP2_VERSION.equalsIgnoreCase(httpVersion)) {
                 PipelinedResponse pipelinedResponse = new PipelinedResponse(inboundRequestMsg.getSequenceId(),
                         inboundRequestMsg, outboundResponseMsg, dataContext, outboundResponseStruct);
                 outboundResponseMsg.setPipelineListener(new PipelineResponseListener());
                 ChannelHandlerContext sourceContext = inboundRequestMsg.getSourceContext();
                 Queue<PipelinedResponse> responseQueue = sourceContext.channel().attr(Constants.RESPONSE_QUEUE).get();
-                Integer maxQueuedResponses = sourceContext.channel().attr(Constants.MAX_RESPONSES_ALLOWED_TO_BE_QUEUED).get();
+                Integer maxQueuedResponses = sourceContext.channel()
+                        .attr(Constants.MAX_RESPONSES_ALLOWED_TO_BE_QUEUED).get();
                 if (responseQueue.size() > maxQueuedResponses) {
                     //Cannot queue up indefinitely which might cause out of memory issues, so closing the connection
                     sourceContext.close();
@@ -123,7 +125,7 @@ public class Respond extends ConnectionAction {
                     // under any circumstance.  nextSequenceNumber should be updated only when the last http
                     // content of this message has been written to the socket because in case if one response has
                     //delayed http contents, there's a good chance that the contents of another response will be sent
-                    //out which would result in out of order contents to be sent to the client.
+                    //out before its turn.
                     PipeliningHandler.sendOutboundResponseRobust(queuedPipelinedResponse.getDataContext(),
                             queuedPipelinedResponse.getInboundRequestMsg(),
                             queuedPipelinedResponse.getOutboundResponseStruct(),
