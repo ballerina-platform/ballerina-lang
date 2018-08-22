@@ -79,8 +79,11 @@ public class BIREmitter extends BIRVisitor {
 
     public void visit(BIRTerminator.Call birCall) {
         sb.append("\t\t");
-        birCall.lhsOp.accept(this);
-        sb.append(" = ").append(birCall.name.getValue()).append("(");
+        if (birCall.lhsOp != null) {
+            birCall.lhsOp.accept(this);
+            sb.append(" = ");
+        }
+        sb.append(birCall.name.getValue()).append("(");
         BIROperand[] args = birCall.args;
         for (int i = 0; i < args.length; i++) {
             if (i != 0) {

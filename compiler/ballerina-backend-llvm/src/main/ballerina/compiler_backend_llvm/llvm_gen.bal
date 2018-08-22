@@ -5,15 +5,24 @@ import ballerina/io;
 map localVarRefs;
 map functionRefs;
 map<llvm:LLVMBasicBlockRef> bbs;
+llvm:LLVMValueRef printfRef;
 
 function genPackage(BIRPackage pkg, string targetObjectFilePath, boolean dumpLLVMIR) {
     var c = pkg.org.value + pkg.name.value + pkg.versionValue.value;
     var mod = llvm:LLVMModuleCreateWithName(c);
     var builder = llvm:LLVMCreateBuilder();
+
+    // Adding printf decl
+    llvm:LLVMTypeRef[] pointer_to_char_type = [llvm:LLVMPointerType(llvm:LLVMInt8Type(), 0)];
+    llvm:LLVMTypeRef printfType = llvm:LLVMFunctionType1(llvm:LLVMInt32Type(), pointer_to_char_type, 1, 1);
+    printfRef = llvm:LLVMAddFunction(mod, "printf", printfType);
+
+    // Gen each func's sig and body execpt terminals
     foreach func in pkg.functions {
         genFunctionBody(func, builder, mod);
     }
 
+    // Fill each func's each bb's last instruction (aka terminals)
     foreach func in pkg.functions {
         genFunctionEnd(func, builder);
     }
@@ -59,6 +68,8 @@ function optimize(llvm:LLVMModuleRef mod) {
     var pass = llvm:LLVMCreatePassManager();
     llvm:LLVMPassManagerBuilderPopulateFunctionPassManager(passBuilder, pass);
     llvm:LLVMPassManagerBuilderPopulateModulePassManager(passBuilder, pass);
+    // comment above two lines and uncomment below when debuing
+    //llvm:LLVMAddPromoteMemoryToRegisterPass(pass);
 
     var optResult = llvm:LLVMRunPassManager(pass, mod);
 
@@ -79,8 +90,9 @@ function genFunctionBody(BIRFunction func, llvm:LLVMBuilderRef builder, llvm:LLV
             i++;
         }
     }
-    var main_return_type = llvm:LLVMInt64Type();
-    var functionTy = llvm:LLVMFunctionType1(main_return_type, argTypes, func.argsCount, 0);
+    var retType = func.typeValue.retType;
+    var retTypeRef = genBType(retType);
+    var functionTy = llvm:LLVMFunctionType1(retTypeRef, argTypes, func.argsCount, 0);
     var funcRef = llvm:LLVMAddFunction(mod, name, functionTy);
     llvm:LLVMSetFunctionCallConv(funcRef, 0);
     functionRefs[name] = funcRef;
@@ -117,6 +129,7 @@ function genBType(BType bType) returns llvm:LLVMTypeRef {
     match bType {
         BTypeInt => return llvm:LLVMInt64Type();
         BTypeBoolean => return llvm:LLVMInt1Type();
+        BTypeNil => return llvm:LLVMVoidType();
     }
 }
 
@@ -124,6 +137,16 @@ function genFunctionEnd(BIRFunction func, llvm:LLVMBuilderRef builder) {
     foreach bb in func.basicBlocks {
         genBasicBlockTerminator(func, bb, builder);
     }
+}
+
+function stringMul(string str, int factor) returns string {
+    int i;
+    string result;
+    while i < factor {
+        result = result + str;
+        i++;
+    }
+    return result;
 }
 
 function genBasicBlockTerminator(BIRFunction func, BIRBasicBlock bb, llvm:LLVMBuilderRef builder) {
@@ -141,7 +164,6 @@ function genBasicBlockTerminator(BIRFunction func, BIRBasicBlock bb, llvm:LLVMBu
         }
         Call callIns => {
             var thenBB = getBBById(func, callIns.thenBB.id.value);
-            var lhsTmpName = localVarName(callIns.lhsOp.variableDcl) + "_temp";
             llvm:LLVMValueRef[] args = [];
             var argsCount = lengthof callIns.args;
             int i = 0;
@@ -149,16 +171,52 @@ function genBasicBlockTerminator(BIRFunction func, BIRBasicBlock bb, llvm:LLVMBu
                 args[i] = loadOprand(func, callIns.args[i], builder);
                 i++;
             }
-            var funcRef = getFuncByName(callIns.name);
-            llvm:LLVMValueRef callReturn = llvm:LLVMBuildCall(builder, funcRef, args, argsCount, lhsTmpName);
-            llvm:LLVMValueRef lhsRef = getLocalVarById(func, callIns.lhsOp.variableDcl.name.value);
-            var loaded = llvm:LLVMBuildStore(builder, callReturn, lhsRef);
+            // TODO: check pkg, evntulay remove
+            if (callIns.name.value == "print"){
+                genCallToPrintf(builder, args, false);
+            } else if (callIns.name.value == "println"){
+                genCallToPrintf(builder, args, true);
+            } else {
+                llvm:LLVMValueRef funcRef = getFuncByName(callIns.name);
+                llvm:LLVMValueRef callReturn = llvm:LLVMBuildCall(builder, funcRef, args, argsCount, "");
+                match callIns.lhsOp {
+                    BIRVarRef lhsOp => {
+                        llvm:LLVMValueRef lhsRef = getLocalVarById(func, lhsOp.variableDcl.name.value);
+                        var loaded = llvm:LLVMBuildStore(builder, callReturn, lhsRef);
+                    }
+                    () => {}
+                }
+            }
             var brInsRef = llvm:LLVMBuildBr(builder, thenBB);
+
         }
         Return => {
-            var retValueRef = llvm:LLVMBuildLoad(builder, getLocalVarById(func, "%0"), "retrun_temp");
-            var ret = llvm:LLVMBuildRet(builder, retValueRef);
+            if (func.typeValue.retType != "()"){ //TODO: use BTypeNil
+                io:println(func.typeValue);
+                var retValueRef = llvm:LLVMBuildLoad(builder, getLocalVarById(func, "%0"), "retrun_temp");
+                var ret = llvm:LLVMBuildRet(builder, retValueRef);
+            } else {
+                var ret = llvm:LLVMBuildRetVoid(builder);
+            }
         }
+
+    }
+}
+
+function genCallToPrintf(llvm:LLVMBuilderRef builder, llvm:LLVMValueRef[] args, boolean hasNewLine) {
+    var argsCount = lengthof args;
+    var newLine = hasNewLine ? "\n" : "";
+    var printLnIntPatten = llvm:LLVMBuildGlobalStringPtr(builder, stringMul("%ld", argsCount) + newLine, "");
+    llvm:LLVMValueRef[] printArgs = [printLnIntPatten];
+    appendAllTo(printArgs, args);
+    llvm:LLVMValueRef callReturn = llvm:LLVMBuildCall(builder, printfRef, printArgs, argsCount + 1, "");
+}
+
+function appendAllTo(any[] a, any[] b) {
+    int i = lengthof a;
+    foreach bI in b{
+        a[i] = bI;
+        i++;
     }
 }
 

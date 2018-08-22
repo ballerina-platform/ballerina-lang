@@ -39,11 +39,13 @@ import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangVariable;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrayLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef.BLangLocalVarRef;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeConversionExpr;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangAssignment;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangExpressionStmt;
@@ -54,7 +56,9 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangVariableDef;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangWhile;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.Names;
+import org.wso2.ballerinalang.compiler.util.TypeTags;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -114,10 +118,12 @@ public class BIRGen extends BLangNodeVisitor {
         this.env.enclPkg.functions.add(birFunc);
         this.env.enclFunc = birFunc;
 
-        // Special %0 location for storing return values
-        BIRVariableDcl retVarDcl = new BIRVariableDcl(astFunc.symbol.retType,
-                this.env.nextLocalVarId(names), VarKind.RETURN);
-        birFunc.localVars.add(retVarDcl);
+        if (astFunc.symbol.retType.tag != TypeTags.NIL) {
+            // Special %0 location for storing return values
+            BIRVariableDcl retVarDcl = new BIRVariableDcl(astFunc.symbol.retType,
+                                                          this.env.nextLocalVarId(names), VarKind.RETURN);
+            birFunc.localVars.add(retVarDcl);
+        }
 
         // Create variable declaration for function params
         for (BLangVariable requiredParam : astFunc.requiredParams) {
@@ -200,23 +206,47 @@ public class BIRGen extends BLangNodeVisitor {
         BIRBasicBlock thenBB = new BIRBasicBlock(this.env.nextBBId(names));
         this.env.enclFunc.basicBlocks.add(thenBB);
 
-        BIROperand[] args = new BIROperand[invocationExpr.requiredArgs.size()];
         List<BLangExpression> requiredArgs = invocationExpr.requiredArgs;
-        for (int i = 0; i < requiredArgs.size(); i++) {
-            requiredArgs.get(i).accept(this);
-             args[i] = this.env.targetOperand;
+        List<BLangExpression> restArgs = invocationExpr.restArgs;
+        List<BIROperand> args = new ArrayList<>();
+
+        for (BLangExpression requiredArg : requiredArgs) {
+            requiredArg.accept(this);
+            args.add(this.env.targetOperand);
         }
 
-        // Create a temporary variable to store the return operation result.
-        BIRVariableDcl tempVarDcl = new BIRVariableDcl(invocationExpr.type,
-                                                       this.env.nextLocalVarId(names), VarKind.TEMP);
-        this.env.enclFunc.localVars.add(tempVarDcl);
-        BIRVarRef lhsOp = new BIRVarRef(tempVarDcl);
-        this.env.targetOperand = lhsOp;
+        //TODO: We unroll this array for now because LLVM side can't handle arrays yet, remove this later
+        // seems like restArgs.size() is always 1 or 0, but lets iterate just in case
+        for (BLangExpression arg : restArgs) {
+            if (arg instanceof BLangArrayLiteral) {
+                BLangArrayLiteral arrArg = (BLangArrayLiteral) arg;
+                List<BLangExpression> exprs = arrArg.exprs;
+                for (BLangExpression expr : exprs) {
+                    if (expr instanceof BLangTypeConversionExpr) {
+                        BLangExpression innerExpr = ((BLangTypeConversionExpr) expr).expr;
+                        innerExpr.accept(this);
+                        args.add(this.env.targetOperand);
+                    } else {
+                        expr.accept(this);
+                        args.add(this.env.targetOperand);
+                    }
+                }
+            }
+        }
+
+        BIRVarRef lhsOp = null;
+        if (invocationExpr.type.tag != TypeTags.NIL) {
+            // Create a temporary variable to store the return operation result.
+            BIRVariableDcl tempVarDcl = new BIRVariableDcl(invocationExpr.type,
+                                                           this.env.nextLocalVarId(names), VarKind.TEMP);
+            this.env.enclFunc.localVars.add(tempVarDcl);
+            lhsOp = new BIRVarRef(tempVarDcl);
+            this.env.targetOperand = lhsOp;
+        }
 
         this.env.enclBB.terminator = new BIRTerminator.Call(invocationExpr.symbol.pkgID,
                                                             names.fromString(invocationExpr.name.value),
-                                                            args,
+                                                            args.toArray(new BIROperand[0]),
                                                             lhsOp,
                                                             thenBB);
 
@@ -225,9 +255,11 @@ public class BIRGen extends BLangNodeVisitor {
 
 
     public void visit(BLangReturn astReturnStmt) {
-        astReturnStmt.expr.accept(this);
-        BIRVarRef retVarRef = new BIRVarRef(this.env.enclFunc.localVars.get(0));
-        emit(new Move(this.env.targetOperand, retVarRef));
+        if (astReturnStmt.expr.type.tag != TypeTags.NIL) {
+            astReturnStmt.expr.accept(this);
+            BIRVarRef retVarRef = new BIRVarRef(this.env.enclFunc.localVars.get(0));
+            emit(new Move(this.env.targetOperand, retVarRef));
+        }
 
         // Check whether this function already has returnBB.
         // A given function can have only one BB that has a return instruction.
