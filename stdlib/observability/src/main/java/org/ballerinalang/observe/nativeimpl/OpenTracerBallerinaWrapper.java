@@ -32,6 +32,7 @@ import org.ballerinalang.util.tracer.TracersStore;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.ballerinalang.util.observability.ObservabilityConstants.CONFIG_TRACING_ENABLED;
@@ -137,13 +138,21 @@ public class OpenTracerBallerinaWrapper {
      * @param tagKey   the key of the tag
      * @param tagValue the value of the tag
      * @param spanId   id of the Span
+     * @param context  native context
      * @return boolean to indicate if tag was added to the span
      */
-    public boolean addTag(String tagKey, String tagValue, int spanId) {
+    public boolean addTag(String tagKey, String tagValue, int spanId, Context context) {
         if (!enabled) {
             return false;
         }
         ObserverContext observerContext = observerContextList.get(spanId);
+        if (spanId == -1) {
+            Optional<ObserverContext> observer = ObservabilityUtils.getParentContext(context);
+            if (observer.isPresent()) {
+                observer.get().addTag(tagKey, tagValue);
+                return true;
+            }
+        }
         if (observerContext != null) {
             observerContext.addTag(tagKey, tagValue);
             return true;
