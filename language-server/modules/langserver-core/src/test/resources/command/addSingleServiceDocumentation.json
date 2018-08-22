@@ -1,6 +1,6 @@
 {
-  "nodeType": "function",
-  "nodeLine": "2",
+  "nodeType": "service",
+  "nodeLine": "11",
   "expected": {
     "result":{
       "edit":{
@@ -17,11 +17,11 @@
                     "character":0
                   },
                   "end":{
-                    "line":2,
-                    "character":30
+                    "line":11,
+                    "character":58
                   }
                 },
-                "newText":"import ballerina/io;\n\ndocumentation {\n\t\n}\nfunction testDocumentation() {"
+                "newText":"import ballerina/io;\nimport ballerina/http;\n\nfunction testDocumentation() {\n    \n}\n\nendpoint http:Listener listener {\n    \n};\n\ndocumentation {\n\t\n}\nservice<http:Service> testDocService bind { port: 9090 } {"
               }
             ]
           }

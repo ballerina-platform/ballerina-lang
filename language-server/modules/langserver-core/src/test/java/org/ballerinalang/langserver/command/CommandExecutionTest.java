@@ -38,6 +38,7 @@ import java.util.List;
 
 /**
  * Command Execution Test Cases.
+ * @since v0.982.0
  */
 public class CommandExecutionTest {
 
@@ -98,6 +99,10 @@ public class CommandExecutionTest {
         return new Object[][] {
                 {"addSingleFunctionDocumentation1.json", "addSingleFunctionDocumentation1.bal"},
                 {"addSingleFunctionDocumentation2.json", "addSingleFunctionDocumentation2.bal"},
+                {"addSingleEndpointDocumentation.json", "commonDocumentation.bal"},
+                {"addSingleServiceDocumentation.json", "commonDocumentation.bal"},
+                {"addSingleRecordDocumentation.json", "commonDocumentation.bal"},
+                {"addSingleObjectDocumentation.json", "commonDocumentation.bal"},
         };
     }
 

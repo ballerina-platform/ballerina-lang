@@ -1,6 +1,6 @@
 {
-  "nodeType": "function",
-  "nodeLine": "2",
+  "nodeType": "endpoint",
+  "nodeLine": "7",
   "expected": {
     "result":{
       "edit":{
@@ -17,11 +17,11 @@
                     "character":0
                   },
                   "end":{
-                    "line":2,
-                    "character":30
+                    "line":7,
+                    "character":33
                   }
                 },
-                "newText":"import ballerina/io;\n\ndocumentation {\n\t\n}\nfunction testDocumentation() {"
+                "newText":"import ballerina/io;\nimport ballerina/http;\n\nfunction testDocumentation() {\n    \n}\n\ndocumentation {\n\t\n}\nendpoint http:Listener listener {"
               }
             ]
           }

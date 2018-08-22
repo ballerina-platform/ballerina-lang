@@ -364,8 +364,8 @@ public class CommandUtil {
             DiagnosticPos typeNodePos;
             typeNodePos = (DiagnosticPos) topLevelNode.getPosition();
             if ((topLevelNode instanceof BLangTypeDefinition &&
-                    (((BLangTypeDefinition) topLevelNode).symbol.getKind() == SymbolKind.OBJECT
-                            || ((BLangTypeDefinition) topLevelNode).symbol.getKind() == SymbolKind.RECORD))
+                    (((BLangTypeDefinition) topLevelNode).symbol.kind == SymbolKind.OBJECT
+                            || ((BLangTypeDefinition) topLevelNode).symbol.kind == SymbolKind.RECORD))
                     && typeNodePos.getStartLine() - 1 == line) {
                 return getTypeNodeDocumentation(topLevelNode, line);
             }
@@ -380,13 +380,13 @@ public class CommandUtil {
         int offset = typeNodePos.getStartColumn();
         List<VariableNode> publicFields = new ArrayList<>();
         if (typeNode instanceof BLangTypeDefinition &&
-                ((BLangTypeDefinition) typeNode).symbol.getKind() == SymbolKind.OBJECT) {
+                ((BLangTypeDefinition) typeNode).symbol.kind == SymbolKind.OBJECT) {
             publicFields.addAll(((BLangObjectTypeNode) ((BLangTypeDefinition) typeNode).typeNode).getFields().stream()
                     .filter(field -> field.getFlags().contains(Flag.PUBLIC)).collect(Collectors.toList()));
             
         } else if (typeNode instanceof BLangTypeDefinition &&
-                ((BLangTypeDefinition) typeNode).symbol.getKind() == SymbolKind.RECORD) {
-            publicFields.addAll(((BLangObjectTypeNode) ((BLangTypeDefinition) typeNode).typeNode).getFields());
+                ((BLangTypeDefinition) typeNode).symbol.kind == SymbolKind.RECORD) {
+            publicFields.addAll(((BLangRecordTypeNode) ((BLangTypeDefinition) typeNode).typeNode).getFields());
         }
         
         publicFields.forEach(variableNode -> {
