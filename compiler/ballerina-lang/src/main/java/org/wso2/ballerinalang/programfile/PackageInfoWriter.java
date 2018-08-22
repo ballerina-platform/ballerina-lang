@@ -541,7 +541,7 @@ public class PackageInfoWriter {
             case LINE_NUMBER_TABLE_ATTRIBUTE:
                 LineNumberTableAttributeInfo lnNoTblAttrInfo = (LineNumberTableAttributeInfo) attributeInfo;
                 LineNumberInfo[] lineNumberInfoEntries = lnNoTblAttrInfo.getLineNumberInfoEntries();
-                attrDataOutStream.writeShort(lineNumberInfoEntries.length);
+                attrDataOutStream.writeInt(lineNumberInfoEntries.length);
                 for (LineNumberInfo lineNumberInfo : lineNumberInfoEntries) {
                     writeLineNumberInfo(attrDataOutStream, lineNumberInfo);
                 }
