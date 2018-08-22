@@ -37,6 +37,8 @@ public class BallerinaStreamsV2SelectorWithFunctionTest {
 
     private CompileResult result;
     private CompileResult resultForFunctionArgs;
+    private CompileResult resultForFunctionArgs2;
+    private CompileResult resultForFunctionArgs3;
 
     @BeforeClass
     public void setup() {
@@ -44,9 +46,13 @@ public class BallerinaStreamsV2SelectorWithFunctionTest {
         result = BCompileUtil.compile("test-src/streaming/streamingv2-select-with-function-test.bal");
         resultForFunctionArgs = BCompileUtil.
                 compile("test-src/streaming/streamingv2-select-with-function-args-test.bal");
+        resultForFunctionArgs2 = BCompileUtil.
+                compile("test-src/streaming/streamingv2-select-with-function-args-test2.bal");
+        resultForFunctionArgs3 = BCompileUtil.
+                compile("test-src/streaming/streamingv2-select-with-function-args-test3.bal");
     }
 
-    @Test(description = "Test filter streaming query")
+    @Test(description = "Test selector streaming query with function")
     public void testSelectQuery() {
         BValue[] outputEmployeeEvents = BRunUtil.invoke(result, "startSelectQuery");
         System.setProperty("enable.siddhiRuntime", "true");
@@ -66,7 +72,7 @@ public class BallerinaStreamsV2SelectorWithFunctionTest {
         Assert.assertEquals(((BInteger) employee2.get("age")).intValue(), 20);
     }
 
-    @Test(description = "Test filter streaming query")
+    @Test(description = "Test queries which have functions in select clause")
     public void testSelectQueryWithFunctionArgs() {
         BValue[] outputEmployeeEvents = BRunUtil.invoke(resultForFunctionArgs, "startSelectQuery");
         System.setProperty("enable.siddhiRuntime", "true");
@@ -84,5 +90,45 @@ public class BallerinaStreamsV2SelectorWithFunctionTest {
         Assert.assertEquals(((BInteger) employee1.get("age")).intValue(), 25);
         Assert.assertEquals(employee2.get("teacherName").stringValue(), "Shareek");
         Assert.assertEquals(((BInteger) employee2.get("age")).intValue(), 25);
+    }
+
+    @Test(description = "Test queries which have functions with args in select clause")
+    public void testSelectQueryWithFunctionArgs2() {
+        BValue[] outputEmployeeEvents = BRunUtil.invoke(resultForFunctionArgs2, "startSelectQuery");
+        System.setProperty("enable.siddhiRuntime", "true");
+        Assert.assertNotNull(outputEmployeeEvents);
+
+        Assert.assertEquals(outputEmployeeEvents.length, 3, "Expected events are not received");
+
+        BMap<String, BValue> employee0 = (BMap<String, BValue>) outputEmployeeEvents[0];
+        BMap<String, BValue> employee1 = (BMap<String, BValue>) outputEmployeeEvents[1];
+        BMap<String, BValue> employee2 = (BMap<String, BValue>) outputEmployeeEvents[2];
+
+        Assert.assertEquals(employee0.get("teacherName").stringValue(), "Raja");
+        Assert.assertEquals(((BInteger) employee0.get("age")).intValue(), 25);
+        Assert.assertEquals(employee1.get("teacherName").stringValue(), "Mohan");
+        Assert.assertEquals(((BInteger) employee1.get("age")).intValue(), 45);
+        Assert.assertEquals(employee2.get("teacherName").stringValue(), "Shareek");
+        Assert.assertEquals(((BInteger) employee2.get("age")).intValue(), 50);
+    }
+
+    @Test(description = "Test queries which have functions with multiple args in select clause")
+    public void testSelectQueryWithFunctionArgs3() {
+        BValue[] outputEmployeeEvents = BRunUtil.invoke(resultForFunctionArgs3, "startSelectQuery");
+        System.setProperty("enable.siddhiRuntime", "true");
+        Assert.assertNotNull(outputEmployeeEvents);
+
+        Assert.assertEquals(outputEmployeeEvents.length, 3, "Expected events are not received");
+
+        BMap<String, BValue> employee0 = (BMap<String, BValue>) outputEmployeeEvents[0];
+        BMap<String, BValue> employee1 = (BMap<String, BValue>) outputEmployeeEvents[1];
+        BMap<String, BValue> employee2 = (BMap<String, BValue>) outputEmployeeEvents[2];
+
+        Assert.assertEquals(employee0.get("teacherName").stringValue(), "Raja");
+        Assert.assertEquals(((BInteger) employee0.get("age")).intValue(), 50);
+        Assert.assertEquals(employee1.get("teacherName").stringValue(), "Mohan");
+        Assert.assertEquals(((BInteger) employee1.get("age")).intValue(), 90);
+        Assert.assertEquals(employee2.get("teacherName").stringValue(), "Shareek");
+        Assert.assertEquals(((BInteger) employee2.get("age")).intValue(), 100);
     }
 }

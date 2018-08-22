@@ -17,6 +17,7 @@
  */
 package org.wso2.ballerinalang.compiler.codegen;
 
+import org.apache.commons.lang3.ObjectUtils;
 import org.ballerinalang.compiler.BLangCompilerException;
 import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.model.Name;
@@ -1417,7 +1418,11 @@ public class CodeGenerator extends BLangNodeVisitor {
     private <T extends BLangNode, U extends SymbolEnv> T genNode(T t, U u) {
         SymbolEnv prevEnv = this.env;
         this.env = u;
-        t.accept(this);
+        try {
+            t.accept(this);
+        } catch (NullPointerException np) {
+            System.out.println("fdfd");
+        }
         this.env = prevEnv;
         return t;
     }
