@@ -20,7 +20,6 @@ package org.ballerinalang.stdlib.task;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BLangVMErrors;
-import org.ballerinalang.model.NativeCallableUnit;
 import org.ballerinalang.model.values.BClosure;
 import org.ballerinalang.model.values.BFunctionPointer;
 import org.ballerinalang.model.values.BMap;
