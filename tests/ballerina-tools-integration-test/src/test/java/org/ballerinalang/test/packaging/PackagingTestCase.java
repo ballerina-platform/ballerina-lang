@@ -610,6 +610,24 @@ public class PackagingTestCase extends BaseTest {
         clientLeecher.waitForText(5000);
     }
 
+    @Test(description = "Test building a package in a project")
+    public void testBuildPackage() throws Exception {
+        // Test ballerina init
+        Path projectPath = tempProjectDirectory.resolve("testBuildPackage");
+        Files.createDirectories(projectPath);
+
+        String[] clientArgsForInit = {"-i"};
+        String[] options = {"\n", orgName + "\n", "\n", "m\n", "foo\n", "f\n"};
+        serverInstance.runMainWithClientOptions(clientArgsForInit, options, envVariables, "init",
+                                                projectPath.toString());
+
+        // Test ballerina build
+        serverInstance.runMain(new String[]{"foo"}, envVariables, "build", projectPath.toString());
+        Assert.assertTrue(Files.exists(projectPath.resolve("target").resolve("foo.balx")));
+        Assert.assertTrue(Files.exists(projectPath.resolve(".ballerina").resolve("repo").resolve("integrationtests")
+                                                  .resolve("foo").resolve("0.0.1").resolve("foo.zip")));
+    }
+
     /**
      * Run and test main function in project.
      *
