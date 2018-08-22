@@ -117,8 +117,9 @@ public class SerializableContext {
 
     public WorkerExecutionContext getWorkerExecutionContext(ProgramFile programFile, SerializableState state,
                                                             Deserializer deserializer) {
-        if (deserializer.getTempContexts().containsKey(contextKey)) {
-            return deserializer.getTempContexts().get(contextKey);
+        WorkerExecutionContext workerExecutionContext = deserializer.getContexts().get(contextKey);
+        if (workerExecutionContext != null) {
+            return workerExecutionContext;
         }
         CallableUnitInfo callableUnitInfo = null;
         WorkerInfo workerInfo = null;
@@ -156,7 +157,6 @@ public class SerializableContext {
                 }
             }
         }
-        WorkerExecutionContext workerExecutionContext;
         if (parent == null) {
             // this is the root context
             workerExecutionContext = new WorkerExecutionContext(programFile);
@@ -174,7 +174,7 @@ public class SerializableContext {
         workerExecutionContext.localProps = prepareProps(localProps, state, programFile, deserializer);
         workerExecutionContext.ip = ip;
         workerExecutionContext.interruptible = interruptible;
-        deserializer.getTempContexts().put(contextKey, workerExecutionContext);
+        deserializer.getContexts().put(contextKey, workerExecutionContext);
         return workerExecutionContext;
     }
 

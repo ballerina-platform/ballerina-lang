@@ -14,4 +14,4 @@
 // specific language governing permissions and limitations
 // under the License.
 
-public annotation <resource, service> Interruptible;
+public annotation <resource, service> interruptible;

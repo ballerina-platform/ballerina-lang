@@ -33,7 +33,7 @@ service<http:Service> s1 bind { port: 9090 } {
         path: "/r1"
     }
 
-    @Interruptible
+    @interruptible
     r1(endpoint conn, http:Request req) {
         io:println("Starting flow..");
         f1();

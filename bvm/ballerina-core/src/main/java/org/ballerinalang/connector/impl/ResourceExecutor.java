@@ -62,8 +62,8 @@ public class ResourceExecutor {
         }
         ResourceInfo resourceInfo = resource.getResourceInfo();
         if (properties != null) {
-            Object o = properties.get(Constants.IS_INTERRUPTIBLE);
-            if (o != null && (boolean) o) {
+            Object interruptible = properties.get(Constants.IS_INTERRUPTIBLE);
+            if (interruptible != null && (boolean) interruptible) {
                 String stateId = UUID.randomUUID().toString();
                 properties.put(Constants.STATE_ID, stateId);
                 RuntimeStates.add(new State(context, stateId));

@@ -33,28 +33,28 @@ import java.util.concurrent.ConcurrentHashMap;
 public class Deserializer {
 
     // These data structures will be used store deserialize objects temporary to manage sharable objects.
-    private Map<String, BRefType> tempRefTypes = new ConcurrentHashMap<>();
+    private Map<String, BRefType> refTypes = new ConcurrentHashMap<>();
 
-    private Map<String, WorkerExecutionContext> tempContexts = new ConcurrentHashMap<>();
+    private Map<String, WorkerExecutionContext> contexts = new ConcurrentHashMap<>();
 
-    private Map<String, CallableWorkerResponseContext> tempRespContexts = new ConcurrentHashMap<>();
+    private Map<String, CallableWorkerResponseContext> respContexts = new ConcurrentHashMap<>();
 
     public void cleanUpDeserializer() {
-        tempRefTypes.clear();
-        tempContexts.clear();
-        tempRespContexts.clear();
+        refTypes.clear();
+        contexts.clear();
+        respContexts.clear();
     }
 
-    public Map<String, BRefType> getTempRefTypes() {
-        return tempRefTypes;
+    public Map<String, BRefType> getRefTypes() {
+        return refTypes;
     }
 
-    public Map<String, WorkerExecutionContext> getTempContexts() {
-        return tempContexts;
+    public Map<String, WorkerExecutionContext> getContexts() {
+        return contexts;
     }
 
-    public Map<String, CallableWorkerResponseContext> getTempRespContexts() {
-        return tempRespContexts;
+    public Map<String, CallableWorkerResponseContext> getRespContexts() {
+        return respContexts;
     }
 
 }

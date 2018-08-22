@@ -117,13 +117,14 @@ public class SerializableState {
     public CallableWorkerResponseContext getResponseContext(String respCtxKey, ProgramFile programFile,
                                                             CallableUnitInfo callableUnitInfo,
                                                             Deserializer deserializer) {
-        CallableWorkerResponseContext responseContext = deserializer.getTempRespContexts().get(respCtxKey);
-        if (responseContext == null) {
-            SerializableRespContext serializableRespContext = sRespContexts.get(respCtxKey);
-            responseContext = serializableRespContext.getResponseContext(programFile, callableUnitInfo,
-                                                                         this, deserializer);
-            deserializer.getTempRespContexts().put(respCtxKey, responseContext);
+        CallableWorkerResponseContext responseContext = deserializer.getRespContexts().get(respCtxKey);
+        if (responseContext != null) {
+            return responseContext;
         }
+        SerializableRespContext serializableRespContext = sRespContexts.get(respCtxKey);
+        responseContext = serializableRespContext.getResponseContext(programFile, callableUnitInfo,
+                                                                     this, deserializer);
+        deserializer.getRespContexts().put(respCtxKey, responseContext);
         return responseContext;
     }
 
@@ -167,14 +168,14 @@ public class SerializableState {
     public Object deserialize(Object o, ProgramFile programFile, Deserializer deserializer) {
         if (o instanceof SerializedKey) {
             SerializedKey key = (SerializedKey) o;
-            BRefType bRefType = deserializer.getTempRefTypes().get(key.key);
+            BRefType bRefType = deserializer.getRefTypes().get(key.key);
             if (bRefType != null) {
                 return bRefType;
             } else {
                 SerializableRefType sRefType = sRefTypes.get(key.key);
-                BRefType refType = sRefType.getBRefType(programFile, this, deserializer);
-                deserializer.getTempRefTypes().put(key.key, refType);
-                return refType;
+                bRefType = sRefType.getBRefType(programFile, this, deserializer);
+                deserializer.getRefTypes().put(key.key, bRefType);
+                return bRefType;
             }
         } else {
             return o;

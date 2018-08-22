@@ -22,11 +22,20 @@ package org.ballerinalang.model;
  * @{@link NativeCallableUnit}.
  *
  * @since 0.981.1
- *
  */
 public interface InterruptibleNativeCallableUnit extends NativeCallableUnit {
 
+    /**
+     * Provide whether to persist the state of the execution before the interruptible native call.
+     *
+     * @return true if persist the state else false
+     */
     boolean persistBeforeOperation();
 
+    /**
+     * Provide whether to persist the state of the execution after the interruptible native call.
+     *
+     * @return true if persist the state else false
+     */
     boolean persistAfterOperation();
 }
