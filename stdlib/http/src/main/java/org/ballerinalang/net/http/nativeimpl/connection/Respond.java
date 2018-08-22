@@ -32,6 +32,7 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
 import org.ballerinalang.net.http.DataContext;
 import org.ballerinalang.net.http.HttpUtil;
+import org.ballerinalang.net.http.PipelineResponseListener;
 import org.ballerinalang.net.http.caching.ResponseCacheControlStruct;
 import org.ballerinalang.net.http.util.CacheUtils;
 import org.ballerinalang.util.observability.ObservabilityUtils;
@@ -99,6 +100,7 @@ public class Respond extends ConnectionAction {
             if(pipeliningNeeded) { //keep-alive true, http2 false
                 PipelinedResponse pipelinedResponse = new PipelinedResponse(inboundRequestMsg.getSequenceId(),
                         inboundRequestMsg, outboundResponseMsg, dataContext, outboundResponseStruct);
+                outboundResponseMsg.setPipelineListener(new PipelineResponseListener());
                 ChannelHandlerContext sourceContext = inboundRequestMsg.getSourceContext();
                 Queue<PipelinedResponse> responseQueue = sourceContext.channel().attr(Constants.RESPONSE_QUEUE).get();
                 Integer maxQueuedResponses = sourceContext.channel().attr(Constants.MAX_RESPONSES_ALLOWED_TO_BE_QUEUED).get();
@@ -116,37 +118,17 @@ public class Respond extends ConnectionAction {
                         break;
                     }
                     responseQueue.remove();
-                    //TODO:
-                    //ctx.write(queuedPipelinedResponse.getResponse());
-                    //call send response robust
+
+                    //IMPORTANT: Do not increment the nextSequenceNumber after 'sendOutboundResponseRobust()' call
+                    // under any circumstance.  nextSequenceNumber should be updated only when the last http
+                    // content of this message has been written to the socket because in case if one response has
+                    //delayed http contents, there's a good chance that the contents of another response will be sent
+                    //out which would result in out of order contents to be sent to the client.
                     PipeliningHandler.sendOutboundResponseRobust(queuedPipelinedResponse.getDataContext(),
                             queuedPipelinedResponse.getInboundRequestMsg(),
                             queuedPipelinedResponse.getOutboundResponseStruct(),
                             queuedPipelinedResponse.getOutboundResponseMsg());
                 }
-
-                /*while (!responseQueue.isEmpty()) {
-                    Integer nextSequenceNumber = sourceContext.channel().attr(Constants.NEXT_SEQUENCE_NUMBER).get();
-                    final HttpCarbonMessage queuedPipelinedResponse = responseQueue.peek();
-                    int currentSequenceNumber = queuedPipelinedResponse.getSequenceId();
-                    if (currentSequenceNumber != RESPONSE_QUEUING_NOT_NEEDED) {
-                        if (currentSequenceNumber != nextSequenceNumber) {
-                            break;
-                        }
-                *//*Remove the piped response from the queue even if not all the content has been received. When there are
-                 delayed contents, pipeline listener will trigger this method again with delayed content as the next
-                 runnable task queued up in same IO thread. We do not have to worry about other responses
-                 getting executed before the delayed content because the nextSequence number will get updated
-                 only when the last http content of the delayed message has been received.*//*
-                        responseQueue.remove();
-                        while (!queuedPipelinedResponse.isEmpty()) {
-                            sendQueuedResponse(sourceContext, nextSequenceNumber, queuedPipelinedResponse, respListener);
-                        }
-                    } else { //No queuing needed since this has not come from source handler
-                        responseQueue.remove();
-                        respListener.sendResponse(queuedPipelinedResponse, KEEP_ALIVE_TRUE);
-                    }
-                }*/
 
             } else {
                 sendOutboundResponseRobust(dataContext, inboundRequestMsg, outboundResponseStruct, outboundResponseMsg);
