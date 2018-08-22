@@ -19,12 +19,24 @@ documentation {
 }
 public type Algorithm "SHA1"|"SHA256"|"MD5";
 
-documentation { The `SHA1` hashing algorithm" }
+documentation { The `SHA1` hashing algorithm }
 @final public Algorithm SHA1 = "SHA1";
 documentation { The `SHA256` hashing algorithm }
 @final public Algorithm SHA256 = "SHA256";
 documentation { The `MD5` hashing algorithm }
 @final public Algorithm MD5 = "MD5";
+
+documentation {
+    The encoding types supported for the HMAC key, by this package.
+}
+public type Encoding "UTF-8"|"BASE64"|"HEX";
+
+documentation { The `UTF-8` encoding }
+@final public Encoding UTF8 = "UTF-8";
+documentation { The `BASE64` encoding }
+@final public Encoding BASE64 = "BASE64";
+documentation { The `HEX` encoding }
+@final public Encoding HEX = "HEX";
 
 documentation {
     Returns the hash of the given string using the specified algorithm.
@@ -44,7 +56,7 @@ documentation {
     P{{algorithm}} The hashing algorithm to be used
     R{{}} The hashed string
 }
-public extern function hmac(string baseString, string keyString, string keyEncoding = "UTF-8", Algorithm algorithm) returns (string);
+public extern function hmac(string baseString, string keyString, Encoding? keyEncoding = (), Algorithm algorithm) returns (string);
 
 documentation {
     Returns the CRC32 hash for the provided element. This accepts `string`, `byte[]`, `json` and `xml` content.

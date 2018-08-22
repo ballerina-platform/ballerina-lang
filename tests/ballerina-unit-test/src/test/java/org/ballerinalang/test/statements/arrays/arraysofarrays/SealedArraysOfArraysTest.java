@@ -76,10 +76,9 @@ public class SealedArraysOfArraysTest {
     @Test
     public void testIntegerSealedArraysOfArrays() {
 
-        BIntArray arrayValue = new BIntArray(3);
+        BIntArray arrayValue = new BIntArray(2);
         arrayValue.add(0, 10);
         arrayValue.add(1, 12);
-        arrayValue.add(2, 13);
         BValue[] args = {arrayValue};
 
         BValue[] returnValues = BRunUtil.invoke(compileResult, "twoDArrayIntAssignment", args);

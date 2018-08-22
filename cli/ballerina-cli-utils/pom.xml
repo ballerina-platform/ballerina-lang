@@ -139,6 +139,7 @@
                             </systemProperties>
                             <arguments>
                                 <argument>${ballerina.source.directory}/packaging_pull</argument>
+                                <argument>packaging_pull.bal</argument>
                             </arguments>
                         </configuration>
                     </execution>
@@ -151,6 +152,7 @@
                         <configuration>
                             <arguments>
                                 <argument>${ballerina.source.directory}/packaging_push</argument>
+                                <argument>packaging_push.bal</argument>
                             </arguments>
                         </configuration>
                     </execution>
@@ -163,6 +165,7 @@
                         <configuration>
                             <arguments>
                                 <argument>${ballerina.source.directory}/packaging_search</argument>
+                                <argument>packaging_search.bal</argument>
                             </arguments>
                         </configuration>
                     </execution>
@@ -175,6 +178,7 @@
                         <configuration>
                             <arguments>
                                 <argument>${ballerina.source.directory}/packaging_token_updater</argument>
+                                <argument>packaging_token_updater.bal</argument>
                             </arguments>
                         </configuration>
                     </execution>

@@ -65,7 +65,7 @@ public class ProjectionTest {
     public void testProjectionNegativeCases() {
         Assert.assertEquals(resultNegative.getErrorCount(), 1);
         BAssertUtil.validateError(resultNegative, 0,
-                "Incompatible stream action argument type 'Employee' defined",
+                "incompatible stream action argument type 'Employee' defined",
                 45, 9);
     }
 

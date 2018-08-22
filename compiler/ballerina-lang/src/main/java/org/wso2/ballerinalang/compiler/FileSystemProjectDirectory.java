@@ -56,7 +56,7 @@ import static org.wso2.ballerinalang.util.LambdaExceptionUtils.rethrow;
 public class FileSystemProjectDirectory extends FileSystemProgramDirectory {
     private final Path projectDirPath;
     private List<String> packageNames;
-    private boolean scanned = false;
+    protected boolean scanned = false;
     private static PrintStream outStream = System.out;
 
     public FileSystemProjectDirectory(Path projectDirPath) {

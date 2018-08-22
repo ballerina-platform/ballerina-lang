@@ -175,3 +175,13 @@ function testPropertiesGetUsedOnlyIfDataSourceGiven() returns (json) {
     testDB.stop();
     return j;
 }
+
+function testConnectionFailure() {
+    endpoint jdbc:Client testDB {
+        url: "jdbc:hsqldb:file:./target/tempdb/NON_EXISTING_DB",
+        username: "SA",
+        password: "",
+        poolOptions: { maximumPoolSize: 1 },
+        dbOptions: { "ifexists": true }
+    };
+}

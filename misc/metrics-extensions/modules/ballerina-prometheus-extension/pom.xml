@@ -120,6 +120,7 @@
                             </systemProperties>
                             <arguments>
                                 <argument>${ballerina.source.directory}/prometheus</argument>
+                                <argument>reporter.bal</argument>
                             </arguments>
                         </configuration>
                     </execution>

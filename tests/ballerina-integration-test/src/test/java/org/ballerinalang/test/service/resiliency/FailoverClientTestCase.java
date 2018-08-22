@@ -20,14 +20,13 @@ package org.ballerinalang.test.service.resiliency;
 import io.netty.handler.codec.http.HttpHeaderNames;
 import io.netty.util.internal.PlatformDependent;
 import io.netty.util.internal.StringUtil;
-import org.ballerinalang.test.IntegrationTestCase;
-import org.ballerinalang.test.context.ServerInstance;
+import org.ballerinalang.test.BaseTest;
 import org.ballerinalang.test.util.HttpClientRequest;
 import org.ballerinalang.test.util.HttpResponse;
 import org.ballerinalang.test.util.TestConstant;
 import org.testng.Assert;
-import org.testng.annotations.AfterMethod;
-import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.AfterClass;
+import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Test;
 
 import java.io.File;
@@ -38,24 +37,22 @@ import java.util.Map;
 /**
  * Test cases for the failover scenarios.
  */
-public class FailoverClientTestCase extends IntegrationTestCase {
-    private ServerInstance ballerinaServer;
+public class FailoverClientTestCase extends BaseTest {
     private static final String TYPICAL_SERVICE_PATH = "fo" + File.separator + "typical";
 
-    @BeforeMethod
+    @BeforeTest(alwaysRun = true)
     private void setup() throws Exception {
-        ballerinaServer = ServerInstance.initBallerinaServer();
-        String balFile = new File("src" + File.separator + "test" + File.separator + "resources"
-                + File.separator + "resiliency" + File.separator + "http_failover.bal").getAbsolutePath();
-        ballerinaServer.startBallerinaServer(balFile);
+        String sourcePath = new File("src" + File.separator + "test" + File.separator + "resources"
+                + File.separator + "resiliency").getAbsolutePath();
+        String[] args = new String[]{"--sourceroot", sourcePath};
+        serverInstance.startBallerinaServer("resiliencyservices", args);
     }
 
     @Test(description = "Test basic failover functionality")
     public void testSimpleFailover() throws IOException {
         Map<String, String> headers = new HashMap<>();
         headers.put(HttpHeaderNames.CONTENT_TYPE.toString(), TestConstant.CONTENT_TYPE_JSON);
-        HttpResponse response = HttpClientRequest.doPost(ballerinaServer
-                        .getServiceURLHttp(TYPICAL_SERVICE_PATH)
+        HttpResponse response = HttpClientRequest.doPost(serverInstance.getServiceURLHttp(9090, TYPICAL_SERVICE_PATH)
                 , "{\"Name\":\"Ballerina\"}", headers);
         Assert.assertEquals(response.getResponseCode(), 200, "Response code mismatched");
         Assert.assertEquals(response.getHeaders().get(HttpHeaderNames.CONTENT_TYPE.toString())
@@ -82,9 +79,8 @@ public class FailoverClientTestCase extends IntegrationTestCase {
                 "--" + multipartDataBoundary + "--" + "\r\n";
         Map<String, String> headers = new HashMap<>();
         headers.put(HttpHeaderNames.CONTENT_TYPE.toString(), "multipart/form-data; boundary=" +
- multipartDataBoundary);
-        HttpResponse response = HttpClientRequest.doPost(ballerinaServer
-                        .getServiceURLHttp(TYPICAL_SERVICE_PATH)
+                multipartDataBoundary);
+        HttpResponse response = HttpClientRequest.doPost(serverInstance.getServiceURLHttp(9091, TYPICAL_SERVICE_PATH)
                 , multipartBody, headers);
         Assert.assertEquals(response.getResponseCode(), 200, "Response code mismatched");
         Assert.assertTrue(response.getHeaders().get(HttpHeaderNames.CONTENT_TYPE.toString())
@@ -137,8 +133,8 @@ public class FailoverClientTestCase extends IntegrationTestCase {
                 "Child Part 2";
         Map<String, String> headers = new HashMap<>();
         headers.put(HttpHeaderNames.CONTENT_TYPE.toString(), "multipart/form-data; boundary=" +
- multipartDataBoundary);
-        HttpResponse response = HttpClientRequest.doPost(ballerinaServer.getServiceURLHttp(TYPICAL_SERVICE_PATH)
+                multipartDataBoundary);
+        HttpResponse response = HttpClientRequest.doPost(serverInstance.getServiceURLHttp(9092, TYPICAL_SERVICE_PATH)
                 , nestedMultipartBody, headers);
         Assert.assertEquals(response.getResponseCode(), 200, "Response code mismatched");
         Assert.assertTrue(response.getHeaders().get(HttpHeaderNames.CONTENT_TYPE.toString())
@@ -154,8 +150,7 @@ public class FailoverClientTestCase extends IntegrationTestCase {
                 " triggered before initiating inbound response";
         Map<String, String> headers = new HashMap<>();
         headers.put(HttpHeaderNames.CONTENT_TYPE.toString(), TestConstant.CONTENT_TYPE_JSON);
-        HttpResponse response = HttpClientRequest.doPost(ballerinaServer
-                        .getServiceURLHttp("fo/failures")
+        HttpResponse response = HttpClientRequest.doPost(serverInstance.getServiceURLHttp(9093, "fo/failures")
                 , "{\"Name\":\"Ballerina\"}", headers);
         Assert.assertEquals(response.getResponseCode(), 500, "Response code mismatched");
         Assert.assertEquals(response.getHeaders().get(HttpHeaderNames.CONTENT_TYPE.toString())
@@ -169,8 +164,7 @@ public class FailoverClientTestCase extends IntegrationTestCase {
                 "Last endpoint returned response is: 503 Service Unavailable";
         Map<String, String> headers = new HashMap<>();
         headers.put(HttpHeaderNames.CONTENT_TYPE.toString(), TestConstant.CONTENT_TYPE_JSON);
-        HttpResponse response = HttpClientRequest.doPost(ballerinaServer
-                        .getServiceURLHttp("fo/failurecodes")
+        HttpResponse response = HttpClientRequest.doPost(serverInstance.getServiceURLHttp(9094, "fo/failurecodes")
                 , "{\"Name\":\"Ballerina\"}", headers);
         Assert.assertEquals(response.getResponseCode(), 500, "Response code mismatched");
         Assert.assertEquals(response.getHeaders().get(HttpHeaderNames.CONTENT_TYPE.toString())
@@ -182,15 +176,13 @@ public class FailoverClientTestCase extends IntegrationTestCase {
     public void testFailoverStartingPosition() throws IOException {
         Map<String, String> headers = new HashMap<>();
         headers.put(HttpHeaderNames.CONTENT_TYPE.toString(), TestConstant.CONTENT_TYPE_JSON);
-        HttpResponse response = HttpClientRequest.doPost(ballerinaServer
-                        .getServiceURLHttp("fo/index")
+        HttpResponse response = HttpClientRequest.doPost(serverInstance.getServiceURLHttp(9095, "fo/index")
                 , "{\"Name\":\"Ballerina\"}", headers);
         Assert.assertEquals(response.getResponseCode(), 200, "Response code mismatched");
         Assert.assertEquals(response.getHeaders().get(HttpHeaderNames.CONTENT_TYPE.toString())
                 , TestConstant.CONTENT_TYPE_TEXT_PLAIN, "Content-Type mismatched");
         Assert.assertEquals(response.getData(), "Failover start index is : 0", "Message content mismatched");
-        HttpResponse secondResponse = HttpClientRequest.doPost(ballerinaServer
-                        .getServiceURLHttp("fo/index")
+        HttpResponse secondResponse = HttpClientRequest.doPost(serverInstance.getServiceURLHttp(9095, "fo/index")
                 , "{\"Name\":\"Ballerina\"}", headers);
         Assert.assertEquals(secondResponse.getResponseCode(), 200, "Response code mismatched");
         Assert.assertEquals(secondResponse.getHeaders().get(HttpHeaderNames.CONTENT_TYPE.toString())
@@ -198,8 +190,8 @@ public class FailoverClientTestCase extends IntegrationTestCase {
         Assert.assertEquals(secondResponse.getData(), "Failover start index is : 2", "Message content mismatched");
     }
 
-    @AfterMethod
+    @AfterClass
     private void cleanup() throws Exception {
-        ballerinaServer.stopServer();
+        serverInstance.stopServer();
     }
 }

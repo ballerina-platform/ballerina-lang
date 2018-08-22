@@ -33,20 +33,18 @@ import java.util.concurrent.TimeUnit;
 /**
  * This Class tests receiving and sending of custom headers by Ballerina WebSocket client.
  */
+@Test(groups = "websocket-test")
 public class CustomHeaderClientSupportTest extends WebSocketTestCommons {
 
     private WebSocketRemoteServer remoteServer;
     private WebSocketTestClient client;
-    private static final String URL = "ws://localhost:9090/pingpong/ws";
+    private static final String URL = "ws://localhost:9092/pingpong/ws";
     private static final String RECEIVED_TEXT = "some-header-value";
 
     @BeforeClass(description = "Initializes the Ballerina server with the custom_header_client.bal file")
-    public void setup() throws InterruptedException, BallerinaTestException, URISyntaxException {
+    public void setup() throws InterruptedException, URISyntaxException {
         remoteServer = new WebSocketRemoteServer(REMOTE_SERVER_PORT);
         remoteServer.run();
-
-        initBallerinaServer("custom_header_client.bal");
-
         client = new WebSocketTestClient(URL);
         client.handshake();
     }
@@ -71,7 +69,6 @@ public class CustomHeaderClientSupportTest extends WebSocketTestCommons {
 
     @AfterClass(description = "Stops the Ballerina server")
     public void cleanup() throws BallerinaTestException, InterruptedException {
-        stopBallerinaServerInstance();
         client.shutDown();
         remoteServer.stop();
     }

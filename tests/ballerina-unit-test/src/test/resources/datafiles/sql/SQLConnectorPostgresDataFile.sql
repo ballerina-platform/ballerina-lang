@@ -173,7 +173,7 @@ TIMESTAMP, INOUT timestampVal TIMESTAMPTZ) AS '
   END
 ' LANGUAGE plpgsql;
 /
-CREATE FUNCTION TestArrayINOutParams (IN id INT, OUT insertedCount INTEGER, INOUT intArray INTEGER ARRAY,
+CREATE FUNCTION TestArrayINOutParams (IN id INTEGER, OUT insertedCount INTEGER, INOUT intArray BIGINT ARRAY,
   INOUT longArray BIGINT ARRAY, INOUT floatArray FLOAT ARRAY, INOUT doubleArray DOUBLE PRECISION ARRAY,
   INOUT boolArray BOOLEAN ARRAY, INOUT varcharArray VARCHAR(50) ARRAY) AS '
   BEGIN
@@ -191,11 +191,11 @@ CREATE FUNCTION TestArrayINOutParams (IN id INT, OUT insertedCount INTEGER, INOU
   END
 ' LANGUAGE plpgsql;
 /
-CREATE DOMAIN customtype AS INTEGER;
+CREATE TYPE customtype AS (val INTEGER);
 /
 CREATE TABLE structdatatable(id INTEGER, structdata customtype);
 /
-INSERT INTO structdatatable(id,structdata) VALUES (1,10);
+INSERT INTO structdatatable(id,structdata) VALUES (1,ROW(10)::customtype);
 /
 CREATE FUNCTION TestStructOut (OUT var customtype) AS '
   BEGIN

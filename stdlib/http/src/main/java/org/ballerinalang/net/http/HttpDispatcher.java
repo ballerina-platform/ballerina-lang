@@ -111,7 +111,7 @@ public class HttpDispatcher {
         inboundReqMsg.setProperty(HttpConstants.RAW_QUERY_STR, requestUri.getRawQuery());
     }
 
-    private static URI getValidatedURI(String uriStr) {
+    public static URI getValidatedURI(String uriStr) {
         URI requestUri;
         try {
             requestUri = URI.create(uriStr);

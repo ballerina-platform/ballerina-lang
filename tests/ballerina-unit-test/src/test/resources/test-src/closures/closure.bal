@@ -510,7 +510,7 @@ function test26() returns string {
 }
 
 function testLocalVarModifyWithinClosureScope() returns (float){
-    float fadd = 0;
+    float fadd = 0.0;
     float[] fa = [1.1, 2.2, -3.3, 4.4, 5.5];
     fa.foreach((float i) => { fadd = fadd + i;});
     float fsum = fadd;
