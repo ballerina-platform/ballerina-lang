@@ -66,7 +66,6 @@ import java.time.format.DateTimeFormatter;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
 import javax.net.ssl.SSLEngine;
 import javax.net.ssl.SSLException;
 
@@ -755,5 +754,22 @@ public class Util {
     public static boolean is100ContinueRequest(HttpCarbonMessage inboundRequestMsg) {
         return HEADER_VAL_100_CONTINUE.equalsIgnoreCase(
                 inboundRequestMsg.getHeader(HttpHeaderNames.EXPECT.toString()));
+    }
+
+    // Decides whether to close the connection after sending the response
+    public static boolean isKeepAliveForResponse(KeepAliveConfig keepAliveConfig, String requestConnectionHeader,
+                                          String httpVersion) {
+        if (keepAliveConfig == null || keepAliveConfig == KeepAliveConfig.AUTO) {
+
+            if (Float.valueOf(httpVersion) <= Constants.HTTP_1_0) {
+                return requestConnectionHeader != null && requestConnectionHeader
+                        .equalsIgnoreCase(Constants.CONNECTION_KEEP_ALIVE);
+            } else {
+                return requestConnectionHeader == null || !requestConnectionHeader
+                        .equalsIgnoreCase(Constants.CONNECTION_CLOSE);
+            }
+        } else {
+            return keepAliveConfig == KeepAliveConfig.ALWAYS;
+        }
     }
 }

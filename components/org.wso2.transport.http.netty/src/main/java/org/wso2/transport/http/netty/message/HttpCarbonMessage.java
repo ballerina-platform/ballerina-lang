@@ -68,6 +68,7 @@ public class HttpCarbonMessage implements Comparable<HttpCarbonMessage> {
     private int sequenceId;
     private ChannelHandlerContext sourceContext;
     private HttpPipelineListener pipelineListener;
+    private boolean isKeepAlive;
 
     public HttpCarbonMessage(HttpMessage httpMessage, Listener contentListener) {
         this.httpMessage = httpMessage;
@@ -421,6 +422,14 @@ public class HttpCarbonMessage implements Comparable<HttpCarbonMessage> {
 
     public void setPipelineListener(HttpPipelineListener pipelineListener) {
         this.pipelineListener = pipelineListener;
+    }
+
+    public boolean isKeepAlive() {
+        return isKeepAlive;
+    }
+
+    public void setKeepAlive(boolean keepAlive) {
+        isKeepAlive = keepAlive;
     }
 
     @Override

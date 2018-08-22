@@ -28,6 +28,7 @@ import io.netty.channel.EventLoop;
 import io.netty.channel.group.ChannelGroup;
 import io.netty.channel.socket.ChannelInputShutdownReadComplete;
 import io.netty.handler.codec.http.HttpContent;
+import io.netty.handler.codec.http.HttpHeaderNames;
 import io.netty.handler.codec.http.HttpRequest;
 import io.netty.handler.codec.http.HttpServerUpgradeHandler;
 import io.netty.handler.ssl.SslCloseCompletionEvent;
@@ -174,6 +175,10 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
                 //of seeing an incorrect sequence number
                 setPipeliningProperties();
                 httpRequestMsg.setSourceContext(ctx);
+                String connectionHeaderValue = httpRequestMsg.getHeader(HttpHeaderNames.CONNECTION.toString());
+                String httpVersion = (String) httpRequestMsg.getProperty(Constants.HTTP_VERSION);
+                httpRequestMsg.setKeepAlive(Util.isKeepAliveForResponse(keepAliveConfig, connectionHeaderValue,
+                        httpVersion));
                 this.serverConnectorFuture.notifyHttpListener(httpRequestMsg);
             } catch (Exception e) {
                 log.error("Error while notifying listeners", e);
