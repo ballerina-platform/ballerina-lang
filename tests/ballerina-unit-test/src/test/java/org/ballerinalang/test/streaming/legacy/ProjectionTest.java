@@ -15,8 +15,9 @@
 *  specific language governing permissions and limitations
 *  under the License.
 */
-package org.ballerinalang.test.streaming;
+package org.ballerinalang.test.streaming.legacy;
 
+import org.ballerinalang.launcher.util.BAssertUtil;
 import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.CompileResult;
@@ -28,24 +29,24 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 /**
- * This contains methods to test passthrough behaviour of Ballerina Streaming.
+ * This contains methods to test projection behaviour of Ballerina Streaming.
  *
  * @since 0.965.0
  */
-public class PassthroughTest {
+public class ProjectionTest {
 
     private CompileResult result;
-    private CompileResult result2;
+    private CompileResult resultNegative;
 
     @BeforeClass
     public void setup() {
-        result = BCompileUtil.compile("test-src/streaming/passthrough-streaming-test.bal");
-        result2 = BCompileUtil.compile("test-src/streaming/passthrough-streaming-without-select-test.bal");
+        result = BCompileUtil.compile("test-src/streaming/legacy/projection-streaming-test.bal");
+        resultNegative = BCompileUtil.compile("test-src/streaming/negative/projection-streaming-negative-test.bal");
     }
 
-    @Test(description = "Test passthrough streaming query")
-    public void testPassthroughQuery() {
-        BValue[] outputEmployeeEvents = BRunUtil.invoke(result, "startPassthroughQuery");
+    @Test(description = "Test projection streaming query")
+    public void testProjectionQuery() {
+        BValue[] outputEmployeeEvents = BRunUtil.invoke(result, "startProjectionQuery");
 
         Assert.assertNotNull(outputEmployeeEvents);
 
@@ -60,21 +61,12 @@ public class PassthroughTest {
         Assert.assertEquals(employee2.get("status").stringValue(), "married");
     }
 
-    @Test(description = "Test passthrough streaming query without select")
-    public void testPassthroughQueryWithoutSelect() {
-        BValue[] outputEmployeeEvents = BRunUtil.invoke(result, "startPassthroughQuery");
-
-        Assert.assertNotNull(outputEmployeeEvents);
-
-        Assert.assertEquals(outputEmployeeEvents.length, 3, "Expected events are not received");
-
-        BMap<String, BValue> employee0 = (BMap<String, BValue>) outputEmployeeEvents[0];
-        BMap<String, BValue> employee1 = (BMap<String, BValue>) outputEmployeeEvents[1];
-        BMap<String, BValue> employee2 = (BMap<String, BValue>) outputEmployeeEvents[2];
-
-        Assert.assertEquals(employee0.get("name").stringValue(), "Raja");
-        Assert.assertEquals(((BInteger) employee1.get("age")).intValue(), 33);
-        Assert.assertEquals(employee2.get("status").stringValue(), "married");
+    @Test(description = "Test streaming projection query with errors")
+    public void testProjectionNegativeCases() {
+        Assert.assertEquals(resultNegative.getErrorCount(), 1);
+        BAssertUtil.validateError(resultNegative, 0,
+                "incompatible stream action argument type 'Employee' defined",
+                45, 9);
     }
 
 }

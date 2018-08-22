@@ -34,14 +34,14 @@ import org.testng.annotations.Test;
  *
  * @since 0.980.0
  */
-public class BallerinaStreamsV2AggregationWithGroupByTest {
+public class NativeBallerinaStreamsAggregationWithGroupByTest {
 
     private CompileResult result;
 
     @BeforeClass
     public void setup() {
         System.setProperty("enable.siddhiRuntime", "false");
-        result = BCompileUtil.compile("test-src/streaming/streamingv2-aggregation-with-groupby-test.bal");
+        result = BCompileUtil.compile("test-src/streaming/native/streamingv2-aggregation-with-groupby-test.bal");
     }
 
     @Test(description = "Test streaming query with aggregation and group by.")
