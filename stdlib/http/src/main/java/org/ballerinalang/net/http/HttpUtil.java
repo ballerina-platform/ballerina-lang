@@ -1110,7 +1110,7 @@ public class HttpUtil {
             }
             String keyStorePassword = keyStore.getStringField(HttpConstants.PASSWORD);
             if (StringUtils.isNotBlank(keyStorePassword)) {
-                sslConfiguration.setKeyStorePass(keyStorePassword);
+                sslConfiguration.setKeyStorePassword(keyStorePassword);
             }
         }
         if (protocols != null) {

@@ -22,6 +22,7 @@ import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.model.values.BStringArray;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.persistence.RecoveryTask;
 import org.ballerinalang.util.codegen.FunctionInfo;
 import org.ballerinalang.util.codegen.PackageInfo;
 import org.ballerinalang.util.codegen.ProgramFile;
@@ -52,6 +53,10 @@ public class BLangProgramRunner {
 
         BLangFunctions.invokePackageInitFunctions(programFile);
         BLangFunctions.invokePackageStartFunctions(programFile);
+    }
+
+    public static void resumeStates(ProgramFile programFile) {
+        new Thread(new RecoveryTask(programFile)).start();
     }
 
     public static void runMain(ProgramFile programFile, String[] args) {
