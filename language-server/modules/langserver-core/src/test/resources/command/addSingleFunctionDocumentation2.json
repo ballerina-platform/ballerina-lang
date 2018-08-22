@@ -1,0 +1,33 @@
+{
+  "nodeType": "function",
+  "nodeLine": "2",
+  "expected": {
+    "result":{
+      "edit":{
+        "changes":{
+
+        },
+        "documentChanges":[
+          {
+            "edits":[
+              {
+                "range":{
+                  "start":{
+                    "line":0,
+                    "character":0
+                  },
+                  "end":{
+                    "line":2,
+                    "character":30
+                  }
+                },
+                "newText":"import ballerina/io;\n\ndocumentation {\n\t\n}\nfunction testDocumentation() {"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    "jsonrpc":"2.0"
+  }
+}

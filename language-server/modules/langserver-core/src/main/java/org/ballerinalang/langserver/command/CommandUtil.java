@@ -69,6 +69,9 @@ import java.util.stream.Stream;
  */
 public class CommandUtil {
 
+    private CommandUtil() {
+    }
+
     /**
      * Get the command for auto documentation Generation.
      * @param nodeType          Type of the node on which the documentation generated
@@ -440,7 +443,7 @@ public class CommandUtil {
     /**
      * Inner class for the command argument holding argument key and argument value.
      */
-    private static class CommandArgument {
+    public static class CommandArgument {
         private String argumentK;
 
         private String argumentV;

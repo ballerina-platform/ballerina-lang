@@ -362,8 +362,6 @@ class BallerinaTextDocumentService implements TextDocumentService {
         return CompletableFuture.supplyAsync(() -> {
             List<Command> commands = new ArrayList<>();
             String fileUri = params.getTextDocument().getUri();
-            Path codeActionFilePath = new LSDocument(fileUri).getPath();
-            Path compilationPath = getUntitledFilePath(codeActionFilePath.toString()).orElse(codeActionFilePath);
             try {
                 Position start = params.getRange().getStart();
                 String topLevelNodeType = CommonUtil
@@ -373,9 +371,6 @@ class BallerinaTextDocumentService implements TextDocumentService {
                     commands.add(CommandUtil.getAllDocGenerationCommand(fileUri));
                 }
                 if (!params.getContext().getDiagnostics().isEmpty()) {
-                    LSContextManager lsContextManager = LSContextManager.getInstance();
-                    String sourceRoot = LSCompilerUtil.getSourceRoot(compilationPath);
-                    CompilerContext compilerContext = lsContextManager.getCompilerContext(sourceRoot, documentManager);
                     params.getContext().getDiagnostics().forEach(diagnostic -> {
                         if (start.getLine() == diagnostic.getRange().getStart().getLine()) {
                             commands.addAll(CommandUtil.getCommandsByDiagnostic(diagnostic, params, documentManager,

@@ -1,0 +1,32 @@
+{
+  "package": "ballerina/io",
+  "expected": {
+    "result":{
+      "edit":{
+        "changes":{
+
+        },
+        "documentChanges":[
+          {
+            "edits":[
+              {
+                "range":{
+                  "start":{
+                    "line":0,
+                    "character":0
+                  },
+                  "end":{
+                    "line":4,
+                    "character":1
+                  }
+                },
+                "newText":"import ballerina/io;\nfunction testImportCommand() {\n    io:println(\"Hello World\");\n}"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    "jsonrpc":"2.0"
+  }
+}
