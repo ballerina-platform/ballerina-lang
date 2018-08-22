@@ -321,7 +321,7 @@ public class BCompileUtil {
             throw new RuntimeException("main function not found in '" + programFile.getProgramFilePath() + "'");
         }
 
-        if (programFile.isMainEPAvailable()) {
+        if (programFile.isMainEPAvailable() || !MAIN.equals(functionName)) {
             LauncherUtils.runMain(programFile, functionName, new String[0], false);
         } else {
             LauncherUtils.runServices(programFile);
