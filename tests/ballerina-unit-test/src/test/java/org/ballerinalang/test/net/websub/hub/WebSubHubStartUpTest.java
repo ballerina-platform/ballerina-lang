@@ -1,4 +1,4 @@
-package org.ballerinalang.test.net.websub;
+package org.ballerinalang.test.net.websub.hub;
 
 import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BRunUtil;
@@ -26,7 +26,7 @@ public class WebSubHubStartUpTest {
 
     @BeforeClass
     public void setup() {
-        result = BCompileUtil.compile("test-src/net/websub/hub_startup_test.bal");
+        result = BCompileUtil.compile("test-src/net/websub/hub/hub_startup_test.bal");
     }
 
     @Test(description = "Test hub start up and URL identification")

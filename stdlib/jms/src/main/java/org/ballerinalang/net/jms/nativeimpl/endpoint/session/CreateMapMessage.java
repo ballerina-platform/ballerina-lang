@@ -35,7 +35,7 @@ import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.natives.annotations.ReturnType;
-import org.ballerinalang.net.jms.AbstractBlockinAction;
+import org.ballerinalang.net.jms.AbstractBlockingAction;
 import org.ballerinalang.net.jms.Constants;
 import org.ballerinalang.net.jms.utils.BallerinaAdapter;
 import org.slf4j.Logger;
@@ -58,7 +58,7 @@ import javax.jms.Session;
                 @ReturnType(type = TypeKind.OBJECT, structPackage = "ballerina/jms", structType = "Message")
         },
         isPublic = true)
-public class CreateMapMessage extends AbstractBlockinAction {
+public class CreateMapMessage extends AbstractBlockingAction {
 
     public static final Logger LOGGER = LoggerFactory.getLogger(CreateMapMessage.class);
 

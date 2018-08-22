@@ -20,9 +20,12 @@ package org.ballerinalang.packerina.cmd;
 import org.ballerinalang.launcher.BLauncherCmd;
 import org.ballerinalang.launcher.LauncherUtils;
 import org.ballerinalang.packerina.BuilderUtils;
+import org.ballerinalang.util.BLangConstants;
+import org.wso2.ballerinalang.util.RepoUtils;
 import picocli.CommandLine;
 
 import java.io.PrintStream;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
@@ -82,17 +85,70 @@ public class BuildCommand implements BLauncherCmd {
         } else {
             // ballerina build pkgName [-o outputFileName]
             String targetFileName;
-            Path sourcePath = Paths.get(argList.get(0));
+            String pkgName = argList.get(0);
+            if (pkgName.endsWith("/")) {
+                pkgName = pkgName.substring(0, pkgName.length() - 1);
+            }
             if (outputFileName != null && !outputFileName.isEmpty()) {
                 targetFileName = outputFileName;
             } else {
-                targetFileName = sourcePath.toString();
+                targetFileName = pkgName;
             }
 
-            BuilderUtils.compileWithTestsAndWrite(sourceRootPath, sourcePath.toString(), targetFileName,
-                                                  buildCompiledPkg, offline, lockEnabled, skiptests);
+            Path sourcePath = Paths.get(pkgName);
+            Path resolvedFullPath = sourceRootPath.resolve(sourcePath);
+            // If the source is a single bal file which is not inside a project
+            if (Files.isRegularFile(resolvedFullPath) &&
+                    sourcePath.toString().endsWith(BLangConstants.BLANG_SRC_FILE_SUFFIX) &&
+                    !RepoUtils.hasProjectRepo(sourceRootPath)) {
+                // If there is no output file name provided, then the executable (balx) should be created in the user's
+                // current directory with the same source file name with a balx extension. So if there's no output file
+                // name provided (with flag -o) and the target file name contains the full path (along with its parent
+                // path) and not only the source file name, then we extract the name of the source file to be the target
+                // file name
+                targetFileName = getTargetFileName(Paths.get(targetFileName));
+
+                // The source root path should be the parent of the source file
+                Path parent = resolvedFullPath.getParent();
+                sourceRootPath = parent != null ? parent : sourceRootPath;
+
+                // The package name/source should be the source file name
+                Path resolvedFileName = resolvedFullPath.getFileName();
+                pkgName = resolvedFileName != null ? resolvedFileName.toString() : pkgName;
+
+            } else if (Files.isDirectory(sourceRootPath)) { // If the source is a package from a project
+                // Checks if the source is a package and if its inside a project (with a .ballerina folder)
+                if (Files.isDirectory(resolvedFullPath) && !RepoUtils.hasProjectRepo(sourceRootPath)) {
+                    outStream.println("error: do you mean to build the ballerina package as a project? If so run" +
+                                              " ballerina init to make it a project with a .ballerina directory");
+                    return;
+                }
+            } else {
+                // Invalid source file provided
+                outStream.println("error: invalid Ballerina source path, it should either be a directory or a" +
+                                          "file  with a \'" + BLangConstants.BLANG_SRC_FILE_SUFFIX + "\' extension");
+                return;
+            }
+            BuilderUtils.compileWithTestsAndWrite(sourceRootPath, pkgName, targetFileName, buildCompiledPkg,
+                                                  offline, lockEnabled, skiptests);
         }
         Runtime.getRuntime().exit(0);
+    }
+
+    /**
+     * Get the target file path for a single bal file.
+     *
+     * @param targetPath target path given
+     * @return actual target path
+     */
+    private String getTargetFileName(Path targetPath) {
+        if (outputFileName == null && targetPath.getParent() != null) {
+            Path targetFileName = targetPath.getFileName();
+            if (targetFileName != null) {
+                return targetFileName.toString();
+            }
+        }
+        return targetPath.toString();
     }
 
     @Override

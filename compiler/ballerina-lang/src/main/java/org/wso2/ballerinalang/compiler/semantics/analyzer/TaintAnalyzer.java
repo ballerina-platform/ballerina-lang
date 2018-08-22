@@ -846,12 +846,6 @@ public class TaintAnalyzer extends BLangNodeVisitor {
         TaintedStatus isTainted = TaintedStatus.UNTAINTED;
         for (BLangRecordLiteral.BLangRecordKeyValue keyValuePair : recordLiteral.keyValuePairs) {
             keyValuePair.valueExpr.accept(this);
-            // Update field symbols with tainted status of the individual field (Example: struct).
-            if (keyValuePair.key.fieldSymbol != null) {
-                if (overridingAnalysis || !keyValuePair.key.fieldSymbol.tainted) {
-                    setTaintedStatus(keyValuePair.key.fieldSymbol, this.taintedStatus);
-                }
-            }
             // Used to update the variable this literal is getting assigned to.
             if (this.taintedStatus == TaintedStatus.TAINTED) {
                 isTainted = TaintedStatus.TAINTED;

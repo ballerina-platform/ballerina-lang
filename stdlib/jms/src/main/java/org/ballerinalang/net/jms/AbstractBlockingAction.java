@@ -24,7 +24,7 @@ import org.ballerinalang.model.NativeCallableUnit;
 /**
  * A blocking action to be run on BVM.
  */
-public abstract class AbstractBlockinAction implements NativeCallableUnit {
+public abstract class AbstractBlockingAction implements NativeCallableUnit {
 
     @Override
     public final boolean isBlocking() {

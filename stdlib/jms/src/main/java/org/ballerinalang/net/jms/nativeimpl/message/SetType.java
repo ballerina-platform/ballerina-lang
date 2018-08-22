@@ -26,7 +26,7 @@ import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
-import org.ballerinalang.net.jms.AbstractBlockinAction;
+import org.ballerinalang.net.jms.AbstractBlockingAction;
 import org.ballerinalang.net.jms.Constants;
 import org.ballerinalang.net.jms.utils.BallerinaAdapter;
 
@@ -46,7 +46,7 @@ import javax.jms.Message;
         args = {@Argument(name = "messageType", type = TypeKind.STRING)},
         isPublic = true
 )
-public class SetType extends AbstractBlockinAction {
+public class SetType extends AbstractBlockingAction {
 
     @Override
     public void execute(Context context, CallableUnitCallback callableUnitCallback) {
