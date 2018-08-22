@@ -37,7 +37,7 @@ import static org.ballerinalang.packerina.cmd.Constants.LIST_COMMAND;
  *
  * @since 0.970
  */
-@CommandLine.Command(name = LIST_COMMAND, description = "Lists dependencies of packages")
+@CommandLine.Command(name = LIST_COMMAND, description = "list dependencies of packages")
 public class ListCommand implements BLauncherCmd {
     private static final String USER_DIR = "user.dir";
     private static PrintStream outStream = System.err;

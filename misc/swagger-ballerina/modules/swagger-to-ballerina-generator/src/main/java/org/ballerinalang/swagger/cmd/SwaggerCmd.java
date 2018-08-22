@@ -35,7 +35,7 @@ import java.util.Locale;
  * Ex: ballerina swagger (mock | client) (swaggerFile | balFile) -p(package name) -o(output directory name)
  */
 @CommandLine.Command(name = "swagger",
-            description = "Generates client/service using Swagger definition or exports swagger file for a Ballerina"
+            description = "generate client/service using Swagger definition or exports swagger file for a Ballerina"
                     + " Service")
 public class SwaggerCmd implements BLauncherCmd {
     private static final String client = "CLIENT";

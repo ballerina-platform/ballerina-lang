@@ -43,7 +43,7 @@ import static org.ballerinalang.runtime.Constants.SYSTEM_PROP_BAL_DEBUG;
 /**
  * Test command for ballerina launcher.
  */
-@CommandLine.Command(name = "test", description = "Tests Ballerina programs")
+@CommandLine.Command(name = "test", description = "test Ballerina programs")
 public class TestCmd implements BLauncherCmd {
 
     private static final PrintStream errStream = System.err;
