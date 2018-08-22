@@ -315,6 +315,26 @@ public class PackagingInitTestCase {
         runMainFunction(projectPath, generatedBalx.toString());
     }
 
+    @Test(description = "Test building a package in a project")
+    public void testBuildPackage() throws Exception {
+        // Test ballerina init
+        ServerInstance ballerinaServer = createNewBallerinaServer();
+        Path projectPath = tempProjectDirectory.resolve("testBuildPackage");
+        Files.createDirectories(projectPath);
+
+        String[] clientArgsForInit = {"-i"};
+        String[] options = {"\n", "integrationtests\n", "\n", "m\n", "foo\n", "f\n"};
+        ballerinaServer.runMainWithClientOptions(clientArgsForInit, options, getEnvVariables(), "init",
+                                                 projectPath.toString());
+
+        // Test ballerina build
+        ballerinaServer = createNewBallerinaServer();
+        ballerinaServer.runMain(new String[] {"foo"}, getEnvVariables(), "build", projectPath.toString());
+
+        Assert.assertTrue(Files.exists(projectPath.resolve("target").resolve("foo.balx")));
+        Assert.assertTrue(Files.exists(projectPath.resolve(".ballerina").resolve("repo").resolve("integrationtests")
+                                                  .resolve("foo").resolve("0.0.1").resolve("foo.zip")));
+    }
     @Test(description = "Test building a project with a single bal file using the target path")
     public void testBuildWithTarget() throws Exception {
         // Test ballerina init
