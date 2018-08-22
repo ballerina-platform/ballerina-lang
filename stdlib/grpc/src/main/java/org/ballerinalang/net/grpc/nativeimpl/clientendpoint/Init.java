@@ -153,7 +153,7 @@ public class Init extends BlockingNativeCallableUnit {
                 }
                 String keyStorePassword = keyStore.getStringField(PASSWORD);
                 if (StringUtils.isNotBlank(keyStorePassword)) {
-                    senderConfiguration.setKeyStorePass(keyStorePassword);
+                    senderConfiguration.setKeyStorePassword(keyStorePassword);
                 }
             }
             senderConfiguration.setTLSStoreType(GrpcConstants.PKCS_STORE_TYPE);
