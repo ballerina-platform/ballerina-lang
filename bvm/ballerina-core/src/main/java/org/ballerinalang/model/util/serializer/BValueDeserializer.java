@@ -15,27 +15,16 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.ballerinalang.persistence.serializable.serializer.providers.instance;
+package org.ballerinalang.model.util.serializer;
 
-import org.ballerinalang.bre.bvm.WorkerState;
-import org.ballerinalang.model.util.serializer.TypeInstanceProvider;
+import org.ballerinalang.model.values.BMap;
+import org.ballerinalang.model.values.BValue;
 
 /**
- * Provide object instance to serialize {@link WorkerState}.
+ * Convert {@link BValue} representation into Java objects.
  */
-public class WorkerStateInstanceProvider implements TypeInstanceProvider {
-    @Override
-    public String getTypeName() {
-        return getTypeClass().getName();
-    }
-
-    @Override
-    public Object newInstance() {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public Class getTypeClass() {
-        return WorkerState.class;
-    }
+public interface BValueDeserializer {
+    Object deserialize(BValue jValue, Class<?> targetType);
+    void addObjReference(BMap<String, BValue> jBMap, Object object);
+    Object getExistingObjRef(String key);
 }

@@ -16,19 +16,23 @@
  */
 package org.ballerinalang.persistence;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
+import org.ballerinalang.model.util.serializer.BValueProvider;
+import org.ballerinalang.model.util.serializer.InstanceProviderRegistry;
+import org.ballerinalang.model.util.serializer.JsonSerializer;
+import org.ballerinalang.model.util.serializer.ObjectToJsonSerializer;
 import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BByte;
 import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BString;
-import org.ballerinalang.persistence.adapters.ArrayListAdapter;
-import org.ballerinalang.persistence.adapters.HashMapAdapter;
-import org.ballerinalang.persistence.adapters.RefTypeAdaptor;
-import org.ballerinalang.persistence.serializable.reftypes.SerializableRefType;
-import org.ballerinalang.persistence.serializable.serializer.JsonSerializer;
-import org.ballerinalang.persistence.serializable.serializer.ObjectToJsonSerializer;
+import org.ballerinalang.persistence.serializable.serializer.providers.bvalue.SerializedKeyBValueProvider;
+import org.ballerinalang.persistence.serializable.serializer.providers.instance.SerializableBMapInstanceProvider;
+import org.ballerinalang.persistence.serializable.serializer.providers.instance.SerializableBRefArrayInstanceProvider;
+import org.ballerinalang.persistence.serializable.serializer.providers.instance.SerializableContextInstanceProvider;
+import org.ballerinalang.persistence.serializable.serializer.providers.instance.SerializableStateInstanceProvider;
+import org.ballerinalang.persistence.serializable.serializer.providers.instance.SerializableWorkerDataInstanceProvider;
+import org.ballerinalang.persistence.serializable.serializer.providers.instance.SerializedKeyInstanceProvider;
+import org.ballerinalang.persistence.serializable.serializer.providers.instance.WorkerStateInstanceProvider;
 
 import java.net.InetSocketAddress;
 import java.util.ArrayList;
@@ -42,7 +46,9 @@ import java.util.List;
  */
 public class Serializer {
 
-    private static List<String> serializableClasses = new ArrayList<>();
+    private static final List<String> serializableClasses = new ArrayList<>();
+    private static final BValueProvider bValueProvider = BValueProvider.getInstance();
+    private static final InstanceProviderRegistry instanceProvider = InstanceProviderRegistry.getInstance();
 
     private static Gson gson;
     static {
@@ -59,15 +65,16 @@ public class Serializer {
         serializableClasses.add(BBoolean.class.getName());
         serializableClasses.add(BFloat.class.getName());
         serializableClasses.add(BByte.class.getName());
-        GsonBuilder gsonBuilder = new GsonBuilder();
-        gsonBuilder.registerTypeAdapter(SerializableRefType.class, new RefTypeAdaptor());
-        gsonBuilder.registerTypeAdapter(HashMap.class, new HashMapAdapter());
-        gsonBuilder.registerTypeAdapter(ArrayList.class, new ArrayListAdapter());
-        gson = gsonBuilder.create();
-    }
 
-    public static Gson getGson() {
-        return gson;
+        bValueProvider.register(new SerializedKeyBValueProvider());
+
+        instanceProvider.add(new SerializableStateInstanceProvider());
+        instanceProvider.add(new SerializableWorkerDataInstanceProvider());
+        instanceProvider.add(new SerializableContextInstanceProvider());
+        instanceProvider.add(new WorkerStateInstanceProvider());
+        instanceProvider.add(new SerializableBMapInstanceProvider());
+        instanceProvider.add(new SerializedKeyInstanceProvider());
+        instanceProvider.add(new SerializableBRefArrayInstanceProvider());
     }
 
     public static boolean isSerializable(Object o) {

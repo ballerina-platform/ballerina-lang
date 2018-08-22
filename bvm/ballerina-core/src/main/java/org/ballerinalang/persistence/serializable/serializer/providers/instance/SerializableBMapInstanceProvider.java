@@ -17,10 +17,10 @@
  */
 package org.ballerinalang.persistence.serializable.serializer.providers.instance;
 
+import org.ballerinalang.model.util.serializer.TypeInstanceProvider;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.persistence.serializable.SerializableState;
 import org.ballerinalang.persistence.serializable.reftypes.impl.SerializableBMap;
-import org.ballerinalang.persistence.serializable.serializer.TypeInstanceProvider;
 
 /**
  * Provide object instance to represent {@link SerializableBMap}.

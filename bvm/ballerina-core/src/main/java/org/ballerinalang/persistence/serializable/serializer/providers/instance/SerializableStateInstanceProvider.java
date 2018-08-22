@@ -17,8 +17,8 @@
  */
 package org.ballerinalang.persistence.serializable.serializer.providers.instance;
 
+import org.ballerinalang.model.util.serializer.TypeInstanceProvider;
 import org.ballerinalang.persistence.serializable.SerializableState;
-import org.ballerinalang.persistence.serializable.serializer.TypeInstanceProvider;
 
 /**
  * Provide object instance to serialize {@link SerializableState}.

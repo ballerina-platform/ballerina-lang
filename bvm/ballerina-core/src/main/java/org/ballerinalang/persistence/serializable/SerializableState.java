@@ -19,6 +19,7 @@ package org.ballerinalang.persistence.serializable;
 
 import org.ballerinalang.bre.bvm.CallableWorkerResponseContext;
 import org.ballerinalang.bre.bvm.WorkerExecutionContext;
+import org.ballerinalang.model.util.serializer.ObjectToJsonSerializer;
 import org.ballerinalang.model.values.BRefType;
 import org.ballerinalang.persistence.Deserializer;
 import org.ballerinalang.persistence.Serializer;

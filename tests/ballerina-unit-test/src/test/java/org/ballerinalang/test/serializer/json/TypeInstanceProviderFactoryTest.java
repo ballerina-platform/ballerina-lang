@@ -15,27 +15,28 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.ballerinalang.persistence.serializable.serializer.providers.instance;
+package org.ballerinalang.test.serializer.json;
 
-import org.ballerinalang.bre.bvm.WorkerState;
 import org.ballerinalang.model.util.serializer.TypeInstanceProvider;
+import org.ballerinalang.model.util.serializer.TypeInstanceProviderFactory;
+import org.testng.Assert;
+import org.testng.annotations.Test;
 
 /**
- * Provide object instance to serialize {@link WorkerState}.
+ * TypeInstanceProviderFactory test cases.
+ * <p>
+ * {@link TypeInstanceProviderFactory} dynamically create TypeInstanceProvider implementations.
  */
-public class WorkerStateInstanceProvider implements TypeInstanceProvider {
-    @Override
-    public String getTypeName() {
-        return getTypeClass().getName();
+public class TypeInstanceProviderFactoryTest {
+    @Test
+    public void testNoParamConstructorObject() {
+        TypeInstanceProvider provider = new TypeInstanceProviderFactory().createProvider(Foo.class.getName());
+        Object o = provider.newInstance();
+        Assert.assertTrue(o instanceof Foo);
+        Assert.assertTrue(((Foo) o).secretNum == 42);
     }
 
-    @Override
-    public Object newInstance() {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public Class getTypeClass() {
-        return WorkerState.class;
+    public static class Foo {
+        public int secretNum = 42;
     }
 }

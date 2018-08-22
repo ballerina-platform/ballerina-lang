@@ -15,35 +15,41 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.ballerinalang.persistence.serializable.serializer.providers.bvalue;
+package org.ballerinalang.model.util.serializer.providers.bvalue;
 
 import org.ballerinalang.model.util.serializer.BValueDeserializer;
 import org.ballerinalang.model.util.serializer.BValueSerializer;
 import org.ballerinalang.model.util.serializer.SerializationBValueProvider;
-import org.ballerinalang.model.util.serializer.providers.bvalue.BValueProviderHelper;
+import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BMap;
-import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.persistence.serializable.SerializedKey;
 
 /**
- * Convert {@link SerializedKey} into {@link BValue} object and back to facilitate serialization.
+ * Provide mapping between {@link Class} and {@link BValue} representation of it.
  */
-public class SerializedKeyBValueProvider implements SerializationBValueProvider<SerializedKey> {
+public class BBooleanBValueProvider implements SerializationBValueProvider<BBoolean> {
+    @Override
+    public String typeName() {
+        return getType().getSimpleName();
+    }
+
     @Override
     public Class<?> getType() {
-        return SerializedKey.class;
+        return BBoolean.class;
     }
 
     @Override
-    public BValue toBValue(SerializedKey object, BValueSerializer serializer) {
-        return BValueProviderHelper.wrap(typeName(), new BString(object.key));
+    public BValue toBValue(BBoolean bBoolean, BValueSerializer serializer) {
+        return BValueProviderHelper.wrap(typeName(), bBoolean);
     }
 
     @Override
-    @SuppressWarnings("unchecked")
-    public SerializedKey toObject(BValue bValue, BValueDeserializer bValueDeserializer) {
-        String s = BValueProviderHelper.getPayload((BMap<String, BValue>) bValue).stringValue();
-        return new SerializedKey(s);
+    public BBoolean toObject(BValue bValue, BValueDeserializer bValueDeserializer) {
+        if (bValue instanceof BMap) {
+            @SuppressWarnings("unchecked")
+            BMap<String, BValue> wrapper = (BMap<String, BValue>) bValue;
+            return (BBoolean) BValueProviderHelper.getPayload(wrapper);
+        }
+        throw BValueProviderHelper.deserializationIncorrectType(bValue, typeName());
     }
 }

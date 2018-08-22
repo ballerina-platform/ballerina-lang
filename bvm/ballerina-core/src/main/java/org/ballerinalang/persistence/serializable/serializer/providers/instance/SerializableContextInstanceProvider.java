@@ -18,9 +18,9 @@
 package org.ballerinalang.persistence.serializable.serializer.providers.instance;
 
 import org.ballerinalang.bre.bvm.WorkerExecutionContext;
+import org.ballerinalang.model.util.serializer.TypeInstanceProvider;
 import org.ballerinalang.persistence.serializable.SerializableContext;
 import org.ballerinalang.persistence.serializable.SerializableState;
-import org.ballerinalang.persistence.serializable.serializer.TypeInstanceProvider;
 import org.ballerinalang.util.codegen.ProgramFile;
 
 /**

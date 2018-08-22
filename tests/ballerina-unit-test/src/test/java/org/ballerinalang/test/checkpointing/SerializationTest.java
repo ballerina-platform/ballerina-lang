@@ -23,6 +23,8 @@ import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.types.BArrayType;
 import org.ballerinalang.model.types.BTypes;
+import org.ballerinalang.model.util.serializer.JsonSerializer;
+import org.ballerinalang.model.util.serializer.ObjectToJsonSerializer;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BRefType;
 import org.ballerinalang.model.values.BRefValueArray;
@@ -32,18 +34,16 @@ import org.ballerinalang.persistence.Deserializer;
 import org.ballerinalang.persistence.serializable.SerializableState;
 import org.ballerinalang.persistence.serializable.reftypes.SerializableRefType;
 import org.ballerinalang.persistence.serializable.reftypes.impl.SerializableBMap;
-import org.ballerinalang.persistence.serializable.serializer.JsonSerializer;
-import org.ballerinalang.persistence.serializable.serializer.ObjectToJsonSerializer;
 import org.ballerinalang.persistence.states.State;
 import org.ballerinalang.persistence.store.PersistenceStore;
 import org.ballerinalang.persistence.store.StorageProvider;
 import org.ballerinalang.runtime.Constants;
 import org.ballerinalang.stdlib.io.channels.base.Channel;
 import org.ballerinalang.stdlib.io.channels.base.CharacterChannel;
-import org.ballerinalang.test.checkpointing.jsonSerializer.JsonSerializerTest;
 import org.ballerinalang.test.nativeimpl.functions.io.MockByteChannel;
 import org.ballerinalang.test.nativeimpl.functions.io.socket.ServerSocketTest;
 import org.ballerinalang.test.nativeimpl.functions.io.util.TestUtil;
+import org.ballerinalang.test.serializer.json.JsonSerializerTest;
 import org.ballerinalang.test.utils.debug.TestDebugger;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -68,6 +68,8 @@ import java.util.List;
  */
 public class SerializationTest {
 
+    public static final String KEY_STR = "bmapKey1";
+    public static final BigDecimal BIG_DECIMAL = new BigDecimal("123456789999");
     private static final String STATE_ID = "test123";
     private static final String INSTANCE_ID = "2334";
     private static final String BMAP_KEY = "key";
@@ -82,12 +84,10 @@ public class SerializationTest {
     private static final String INNER_BMAP_KEY = "obj1";
     private static final String BSRING_CONTENT = "BString Content";
     private static final String BSTRING = "bstring";
-    public static final String KEY_STR = "bmapKey1";
     private CompileResult compileResult;
     private List<State> stateList;
     private String serializedString;
     private org.ballerinalang.test.checkpointing.TestStorageProvider storageProvider;
-    public static final BigDecimal BIG_DECIMAL = new BigDecimal("123456789999");
 
     @BeforeClass
     public void setup() {
@@ -173,11 +173,13 @@ public class SerializationTest {
         SerializableState state = serializableState.deserialize(json);
 
         SerializableRefType bmapKey1 = state.sRefTypes.get(BMAP_KEY);
-        BMap<String, BValue> bmap = (BMap) bmapKey1.getBRefType(compileResult.getProgFile(), state, new Deserializer());
+        BMap<String, BValue> bmap =
+                (BMap) bmapKey1.getBRefType(compileResult.getProgFile(), state, new Deserializer());
         BString value = (BString) bmap.get(KEY_STR);
         Assert.assertEquals(value.value(), BSRING_CONTENT);
 
-        JsonSerializerTest.StringFieldAB multiLevel = (JsonSerializerTest.StringFieldAB) state.globalProps.get(MULTI_LEVEL_KEY);
+        JsonSerializerTest.StringFieldAB multiLevel =
+                (JsonSerializerTest.StringFieldAB) state.globalProps.get(MULTI_LEVEL_KEY);
         Assert.assertEquals(multiLevel.b, "B");
         Assert.assertEquals(multiLevel.a, "A");
 
