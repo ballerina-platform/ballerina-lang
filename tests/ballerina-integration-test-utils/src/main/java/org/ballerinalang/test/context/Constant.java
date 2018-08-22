@@ -45,4 +45,5 @@ public class Constant {
 
     public static final String PROJECT_BUILD_DIR = "project.build.directory";
     public static final String EXIT_AGENT_LOCATION = "ballerina.test.exit.agent.location";
+    public static final String TOOLS_JAR_LOCATION = "ballerina.test.tools.jar.location";
 }
