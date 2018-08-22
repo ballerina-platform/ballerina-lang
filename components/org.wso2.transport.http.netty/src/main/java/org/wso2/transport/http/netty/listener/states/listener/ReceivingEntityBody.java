@@ -50,8 +50,8 @@ import org.wso2.transport.http.netty.listener.states.StateContext;
 import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 
 import static io.netty.handler.codec.http.HttpResponseStatus.REQUEST_TIMEOUT;
-import static org.wso2.transport.http.netty.common.Constants.IDLE_TIMEOUT_TRIGGERED_WHILE_READING_INBOUND_REQUEST;
-import static org.wso2.transport.http.netty.common.Constants.REMOTE_CLIENT_CLOSED_WHILE_READING_INBOUND_REQUEST;
+import static org.wso2.transport.http.netty.common.Constants.IDLE_TIMEOUT_TRIGGERED_WHILE_READING_INBOUND_REQUEST_BODY;
+import static org.wso2.transport.http.netty.common.Constants.REMOTE_CLIENT_CLOSED_WHILE_READING_INBOUND_REQUEST_BODY;
 
 /**
  * State between start and end of payload read
@@ -118,7 +118,7 @@ public class ReceivingEntityBody implements ListenerState {
 
     @Override
     public void handleAbruptChannelClosure(ServerConnectorFuture serverConnectorFuture) {
-        handleIncompleteInboundRequest(REMOTE_CLIENT_CLOSED_WHILE_READING_INBOUND_REQUEST);
+        handleIncompleteInboundRequest(REMOTE_CLIENT_CLOSED_WHILE_READING_INBOUND_REQUEST_BODY);
     }
 
     @Override
@@ -131,7 +131,7 @@ public class ReceivingEntityBody implements ListenerState {
                 log.warn("Failed to send: {}", cause.getMessage());
             }
             sourceHandler.channelInactive(ctx);
-            handleIncompleteInboundRequest(IDLE_TIMEOUT_TRIGGERED_WHILE_READING_INBOUND_REQUEST);
+            handleIncompleteInboundRequest(IDLE_TIMEOUT_TRIGGERED_WHILE_READING_INBOUND_REQUEST_BODY);
         });
         return outboundRespFuture;
     }

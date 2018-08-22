@@ -80,7 +80,8 @@ public class Expect100ContinueHeaderReceived implements ListenerState {
     @Override
     public void writeOutboundResponseEntityBody(HttpOutboundRespListener outboundResponseListener,
                                                 HttpCarbonMessage outboundResponseMsg, HttpContent httpContent) {
-        stateContext.setListenerState(new Response100ContinueSent(outboundResponseListener, sourceHandler, stateContext));
+        stateContext.setListenerState(
+                new Response100ContinueSent(outboundResponseListener, sourceHandler, stateContext));
         stateContext.getListenerState().writeOutboundResponseEntityBody(outboundResponseListener, outboundResponseMsg,
                                                                         httpContent);
     }

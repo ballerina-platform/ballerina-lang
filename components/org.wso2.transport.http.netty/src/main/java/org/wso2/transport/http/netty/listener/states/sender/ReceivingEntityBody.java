@@ -25,18 +25,16 @@ import io.netty.handler.codec.http.DefaultLastHttpContent;
 import io.netty.handler.codec.http.HttpContent;
 import io.netty.handler.codec.http.HttpResponse;
 import io.netty.handler.codec.http.LastHttpContent;
-import io.netty.handler.timeout.IdleStateEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.transport.http.netty.common.Constants;
 import org.wso2.transport.http.netty.contract.HttpResponseFuture;
-import org.wso2.transport.http.netty.contract.ServerConnectorFuture;
 import org.wso2.transport.http.netty.listener.states.StateContext;
 import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 import org.wso2.transport.http.netty.sender.TargetHandler;
 
-import static org.wso2.transport.http.netty.common.Constants.IDLE_TIMEOUT_TRIGGERED_WHILE_READING_INBOUND_RESPONSE;
-import static org.wso2.transport.http.netty.common.Constants.REMOTE_SERVER_CLOSED_WHILE_READING_INBOUND_RESPONSE;
+import static org.wso2.transport.http.netty.common.Constants.IDLE_TIMEOUT_TRIGGERED_WHILE_READING_INBOUND_RESPONSE_BODY;
+import static org.wso2.transport.http.netty.common.Constants.REMOTE_SERVER_CLOSED_WHILE_READING_INBOUND_RESPONSE_BODY;
 import static org.wso2.transport.http.netty.common.Util.isKeepAlive;
 import static org.wso2.transport.http.netty.common.Util.isLastHttpContent;
 
@@ -56,17 +54,17 @@ public class ReceivingEntityBody implements SenderState {
 
     @Override
     public void writeOutboundRequestHeaders(HttpCarbonMessage httpOutboundRequest, HttpContent httpContent) {
-
+        // Not a dependant action of this state.
     }
 
     @Override
     public void writeOutboundRequestEntityBody(HttpCarbonMessage httpOutboundRequest, HttpContent httpContent) {
-
+        // Not a dependant action of this state.
     }
 
     @Override
     public void readInboundResponseHeaders(TargetHandler targetHandler, HttpResponse httpInboundResponse) {
-
+        // Not a dependant action of this state.
     }
 
     @Override
@@ -79,7 +77,6 @@ public class ReceivingEntityBody implements SenderState {
             targetHandler.getTargetChannel().getChannel().pipeline().remove(Constants.IDLE_STATE_HANDLER);
             stateContext.setSenderState(new EntityBodyReceived(stateContext));
 
-//            targetErrorHandler.setState(ENTITY_BODY_RECEIVED);
             if (!isKeepAlive(targetHandler.getKeepAliveConfig(), targetHandler.getOutboundRequestMsg())) {
                 targetHandler.closeChannel(ctx);
             }
@@ -90,13 +87,13 @@ public class ReceivingEntityBody implements SenderState {
     @Override
     public void handleAbruptChannelClosure(HttpResponseFuture httpResponseFuture) {
         handleIncompleteInboundResponse(targetHandler.getInboundResponseMsg(),
-                                        REMOTE_SERVER_CLOSED_WHILE_READING_INBOUND_RESPONSE);
+                                        REMOTE_SERVER_CLOSED_WHILE_READING_INBOUND_RESPONSE_BODY);
     }
 
     @Override
     public void handleIdleTimeoutConnectionClosure(HttpResponseFuture httpResponseFuture, String channelID) {
         handleIncompleteInboundResponse(targetHandler.getInboundResponseMsg(),
-                                        IDLE_TIMEOUT_TRIGGERED_WHILE_READING_INBOUND_RESPONSE);
+                                        IDLE_TIMEOUT_TRIGGERED_WHILE_READING_INBOUND_RESPONSE_BODY);
     }
 
     private void handleIncompleteInboundResponse(HttpCarbonMessage inboundResponseMsg, String errorMessage) {

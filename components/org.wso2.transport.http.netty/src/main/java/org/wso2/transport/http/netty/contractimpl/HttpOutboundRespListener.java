@@ -74,8 +74,6 @@ public class HttpOutboundRespListener implements HttpConnectorListener {
                 handlerExecutor.executeAtSourceResponseReceiving(outboundResponseMsg);
             }
 
-//            resetOutboundListenerState();
-
             outboundResponseMsg.getHttpContentAsync().setMessageListener(httpContent ->
                     this.sourceContext.channel().eventLoop().execute(() -> {
                         try {
@@ -105,12 +103,6 @@ public class HttpOutboundRespListener implements HttpConnectorListener {
     private void writeOutboundResponse(HttpCarbonMessage outboundResponseMsg, HttpContent httpContent) {
         stateContext.getListenerState().writeOutboundResponseEntityBody(this, outboundResponseMsg, httpContent);
     }
-
-//    private void resetOutboundListenerState() {
-//        contentList.clear();
-//        contentLength = 0;
-//        headerWritten = false;
-//    }
 
     // Decides whether to close the connection after sending the response
     public boolean isKeepAlive() {

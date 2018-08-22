@@ -47,8 +47,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static org.wso2.transport.http.netty.common.Constants.HTTP_HEAD_METHOD;
-import static org.wso2.transport.http.netty.common.Constants.IDLE_TIMEOUT_TRIGGERED_WHILE_WRITING_OUTBOUND_RESPONSE;
-import static org.wso2.transport.http.netty.common.Constants.REMOTE_CLIENT_CLOSED_WHILE_WRITING_OUTBOUND_RESPONSE;
+import static org.wso2.transport.http.netty.common.Constants
+        .IDLE_TIMEOUT_TRIGGERED_WHILE_WRITING_OUTBOUND_RESPONSE_BODY;
+import static org.wso2.transport.http.netty.common.Constants.REMOTE_CLIENT_CLOSED_WHILE_WRITING_OUTBOUND_RESPONSE_BODY;
 import static org.wso2.transport.http.netty.common.Constants.REMOTE_CLIENT_TO_HOST_CONNECTION_CLOSED;
 import static org.wso2.transport.http.netty.common.Util.createFullHttpResponse;
 import static org.wso2.transport.http.netty.common.Util.setupContentLengthRequest;
@@ -62,7 +63,7 @@ public class SendingEntityBody implements ListenerState {
     private final HandlerExecutor handlerExecutor;
     private final HttpResponseFuture outboundRespStatusFuture;
     private final StateContext stateContext;
-    private final boolean headersWritten;
+    private boolean headersWritten;
     private long contentLength = 0;
     private boolean headRequest;
     private List<HttpContent> contentList = new ArrayList<>();
@@ -135,7 +136,7 @@ public class SendingEntityBody implements ListenerState {
     @Override
     public void handleAbruptChannelClosure(ServerConnectorFuture serverConnectorFuture) {
         // OutboundResponseStatusFuture will be notified asynchronously via OutboundResponseListener.
-        log.error(REMOTE_CLIENT_CLOSED_WHILE_WRITING_OUTBOUND_RESPONSE);
+        log.error(REMOTE_CLIENT_CLOSED_WHILE_WRITING_OUTBOUND_RESPONSE_BODY);
     }
 
     @Override
@@ -143,7 +144,7 @@ public class SendingEntityBody implements ListenerState {
                                                             ChannelHandlerContext ctx,
                                                             IdleStateEvent evt) {
         // OutboundResponseStatusFuture will be notified asynchronously via OutboundResponseListener.
-        log.error(IDLE_TIMEOUT_TRIGGERED_WHILE_WRITING_OUTBOUND_RESPONSE);
+        log.error(IDLE_TIMEOUT_TRIGGERED_WHILE_WRITING_OUTBOUND_RESPONSE_BODY);
         return null;
     }
 
@@ -209,5 +210,7 @@ public class SendingEntityBody implements ListenerState {
 
     private void resetOutboundListenerState() {
         contentList.clear();
+        contentLength = 0;
+        headersWritten = false;
     }
 }

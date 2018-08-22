@@ -23,7 +23,6 @@ import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.http.HttpContent;
 import io.netty.handler.codec.http.HttpRequest;
 import io.netty.handler.codec.http.HttpResponse;
-import io.netty.handler.timeout.IdleStateEvent;
 import io.netty.util.concurrent.Future;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -31,7 +30,6 @@ import org.wso2.transport.http.netty.common.Constants;
 import org.wso2.transport.http.netty.common.Util;
 import org.wso2.transport.http.netty.config.ChunkConfig;
 import org.wso2.transport.http.netty.contract.HttpResponseFuture;
-import org.wso2.transport.http.netty.contract.ServerConnectorFuture;
 import org.wso2.transport.http.netty.listener.states.StateContext;
 import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 import org.wso2.transport.http.netty.sender.TargetHandler;
@@ -41,8 +39,10 @@ import java.io.IOException;
 import java.nio.channels.ClosedChannelException;
 
 import static org.wso2.transport.http.netty.common.Constants.CLIENT_TO_REMOTE_HOST_CONNECTION_CLOSED;
-import static org.wso2.transport.http.netty.common.Constants.IDLE_TIMEOUT_TRIGGERED_WHILE_WRITING_OUTBOUND_REQUEST;
-import static org.wso2.transport.http.netty.common.Constants.REMOTE_SERVER_CLOSED_WHILE_WRITING_OUTBOUND_REQUEST;
+import static org.wso2.transport.http.netty.common.Constants
+        .IDLE_TIMEOUT_TRIGGERED_WHILE_WRITING_OUTBOUND_REQUEST_HEADERS;
+import static org.wso2.transport.http.netty.common.Constants
+        .REMOTE_SERVER_CLOSED_WHILE_WRITING_OUTBOUND_REQUEST_HEADERS;
 import static org.wso2.transport.http.netty.common.Util.isEntityBodyAllowed;
 import static org.wso2.transport.http.netty.common.Util.isLastHttpContent;
 import static org.wso2.transport.http.netty.common.Util.setupChunkedRequest;
@@ -101,29 +101,26 @@ public class SendingHeaders implements SenderState {
     }
 
     @Override
-    public void readInboundResponseHeaders(TargetHandler targetHandler,
-                                           HttpResponse httpInboundResponse) {
-
+    public void readInboundResponseHeaders(TargetHandler targetHandler, HttpResponse httpInboundResponse) {
+        // Not a dependant action of this state.
     }
 
     @Override
-    public void readInboundResponseEntityBody(ChannelHandlerContext ctx,
-                                              HttpContent httpContent,
+    public void readInboundResponseEntityBody(ChannelHandlerContext ctx, HttpContent httpContent,
                                               HttpCarbonMessage inboundResponseMsg) {
-
+        // Not a dependant action of this state.
     }
 
     @Override
     public void handleAbruptChannelClosure(HttpResponseFuture httpResponseFuture) {
-        // HttpResponseFuture will be notified asynchronously via Target channel.
-        log.error(REMOTE_SERVER_CLOSED_WHILE_WRITING_OUTBOUND_REQUEST);
-
+        // HttpResponseFuture will be notified asynchronously via writeOutboundRequestHeaders method.
+        log.error(REMOTE_SERVER_CLOSED_WHILE_WRITING_OUTBOUND_REQUEST_HEADERS);
     }
 
     @Override
     public void handleIdleTimeoutConnectionClosure(HttpResponseFuture httpResponseFuture, String channelID) {
-        // HttpResponseFuture will be notified asynchronously via Target channel.
-        log.error("Error in HTTP client: {}", IDLE_TIMEOUT_TRIGGERED_WHILE_WRITING_OUTBOUND_REQUEST);
+        // HttpResponseFuture will be notified asynchronously via writeOutboundRequestHeaders method.
+        log.error("Error in HTTP client: {}", IDLE_TIMEOUT_TRIGGERED_WHILE_WRITING_OUTBOUND_REQUEST_HEADERS);
     }
 
     private boolean checkChunkingCompatibility() {
@@ -158,8 +155,8 @@ public class SendingHeaders implements SenderState {
 
     private void writeResponse(HttpCarbonMessage outboundResponseMsg, HttpContent httpContent, boolean headersWritten)
             throws Exception {
-        stateContext.setSenderState(new SendingEntityBody(stateContext, chunkConfig, targetChannel,
-                                                          headersWritten, httpInboundResponseFuture));
+        stateContext.setSenderState(new SendingEntityBody(stateContext, targetChannel, headersWritten,
+                                                          httpInboundResponseFuture));
         stateContext.getSenderState().writeOutboundRequestEntityBody(outboundResponseMsg, httpContent);
     }
 

@@ -22,12 +22,10 @@ import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.http.HttpContent;
 import io.netty.handler.codec.http.HttpResponse;
 import io.netty.handler.codec.http.HttpResponseStatus;
-import io.netty.handler.timeout.IdleStateEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.transport.http.netty.contract.HttpResponseFuture;
 import org.wso2.transport.http.netty.contract.ServerConnectorException;
-import org.wso2.transport.http.netty.contract.ServerConnectorFuture;
 import org.wso2.transport.http.netty.exception.EndpointTimeOutException;
 import org.wso2.transport.http.netty.listener.states.StateContext;
 import org.wso2.transport.http.netty.message.HttpCarbonMessage;
@@ -49,28 +47,25 @@ public class RequestCompleted implements SenderState {
     }
 
     @Override
-    public void writeOutboundRequestHeaders(HttpCarbonMessage httpOutboundRequest,
-                                            HttpContent httpContent) {
-
+    public void writeOutboundRequestHeaders(HttpCarbonMessage httpOutboundRequest, HttpContent httpContent) {
+        // Not a dependant action of this state.
     }
 
     @Override
     public void writeOutboundRequestEntityBody(HttpCarbonMessage httpOutboundRequest, HttpContent httpContent) {
-
+        // Not a dependant action of this state.
     }
 
     @Override
     public void readInboundResponseHeaders(TargetHandler targetHandler, HttpResponse httpInboundResponse) {
         stateContext.setSenderState(new ReceivingHeaders(stateContext));
-        stateContext.getSenderState().readInboundResponseHeaders(targetHandler, httpInboundResponse
-        );
+        stateContext.getSenderState().readInboundResponseHeaders(targetHandler, httpInboundResponse);
     }
 
     @Override
-    public void readInboundResponseEntityBody(ChannelHandlerContext ctx,
-                                              HttpContent httpContent,
+    public void readInboundResponseEntityBody(ChannelHandlerContext ctx, HttpContent httpContent,
                                               HttpCarbonMessage inboundResponseMsg) {
-
+        // Not a dependant action of this state.
     }
 
     @Override

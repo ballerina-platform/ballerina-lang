@@ -38,9 +38,9 @@ import java.io.IOException;
 import java.nio.channels.ClosedChannelException;
 
 import static org.wso2.transport.http.netty.common.Constants.CHUNKING_CONFIG;
-import static org.wso2.transport.http.netty.common.Constants.IDLE_TIMEOUT_TRIGGERED_WHILE_WRITING_OUTBOUND_RESPONSE;
+import static org.wso2.transport.http.netty.common.Constants.IDLE_TIMEOUT_TRIGGERED_WHILE_WRITING_OUTBOUND_RESPONSE_HEADERS;
 import static org.wso2.transport.http.netty.common.Constants.REMOTE_CLIENT_CLOSED_BEFORE_INITIATING_OUTBOUND_RESPONSE;
-import static org.wso2.transport.http.netty.common.Constants.REMOTE_CLIENT_CLOSED_WHILE_WRITING_OUTBOUND_RESPONSE;
+import static org.wso2.transport.http.netty.common.Constants.REMOTE_CLIENT_CLOSED_WHILE_WRITING_OUTBOUND_RESPONSE_HEADERS;
 import static org.wso2.transport.http.netty.common.Util.createHttpResponse;
 import static org.wso2.transport.http.netty.common.Util.isLastHttpContent;
 import static org.wso2.transport.http.netty.common.Util.isVersionCompatibleForChunking;
@@ -85,7 +85,7 @@ public class SendingHeaders implements ListenerState {
     @Override
     public void handleAbruptChannelClosure(ServerConnectorFuture serverConnectorFuture) {
         // OutboundResponseStatusFuture will be notified asynchronously via OutboundResponseListener.
-        log.error(REMOTE_CLIENT_CLOSED_WHILE_WRITING_OUTBOUND_RESPONSE);
+        log.error(REMOTE_CLIENT_CLOSED_WHILE_WRITING_OUTBOUND_RESPONSE_HEADERS);
     }
 
     @Override
@@ -93,7 +93,7 @@ public class SendingHeaders implements ListenerState {
                                                             ChannelHandlerContext ctx,
                                                             IdleStateEvent evt) {
         // OutboundResponseStatusFuture will be notified asynchronously via OutboundResponseListener.
-        log.error(IDLE_TIMEOUT_TRIGGERED_WHILE_WRITING_OUTBOUND_RESPONSE);
+        log.error(IDLE_TIMEOUT_TRIGGERED_WHILE_WRITING_OUTBOUND_RESPONSE_HEADERS);
         return null;
     }
 

@@ -42,32 +42,32 @@ public class EntityBodyReceived implements SenderState {
 
     @Override
     public void writeOutboundRequestHeaders(HttpCarbonMessage httpOutboundRequest, HttpContent httpContent) {
+        // Not a dependant action of this state.
     }
 
     @Override
     public void writeOutboundRequestEntityBody(HttpCarbonMessage httpOutboundRequest, HttpContent httpContent) {
-
+        // Not a dependant action of this state.
     }
 
     @Override
-    public void readInboundResponseHeaders(TargetHandler targetHandler,
-                                           HttpResponse httpInboundResponse) {
-
+    public void readInboundResponseHeaders(TargetHandler targetHandler, HttpResponse httpInboundResponse) {
+        // Not a dependant action of this state.
     }
 
     @Override
-    public void readInboundResponseEntityBody(ChannelHandlerContext ctx,
-                                              HttpContent httpContent,
+    public void readInboundResponseEntityBody(ChannelHandlerContext ctx, HttpContent httpContent,
                                               HttpCarbonMessage inboundResponseMsg) {
-
+        // Not a dependant action of this state.
     }
 
     @Override
     public void handleAbruptChannelClosure(HttpResponseFuture httpResponseFuture) {
+        // Not a dependant action of this state.
     }
 
     @Override
     public void handleIdleTimeoutConnectionClosure(HttpResponseFuture httpResponseFuture, String channelID) {
-
+        // Not a dependant action of this state.
     }
 }

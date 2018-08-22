@@ -48,8 +48,8 @@ import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 
 import static io.netty.buffer.Unpooled.EMPTY_BUFFER;
 import static io.netty.handler.codec.http.HttpResponseStatus.REQUEST_TIMEOUT;
-import static org.wso2.transport.http.netty.common.Constants.IDLE_TIMEOUT_TRIGGERED_WHILE_READING_INBOUND_REQUEST;
-import static org.wso2.transport.http.netty.common.Constants.REMOTE_CLIENT_CLOSED_WHILE_READING_INBOUND_REQUEST;
+import static org.wso2.transport.http.netty.common.Constants.IDLE_TIMEOUT_TRIGGERED_WHILE_READING_INBOUND_REQUEST_HEADERS;
+import static org.wso2.transport.http.netty.common.Constants.REMOTE_CLIENT_CLOSED_WHILE_READING_INBOUND_REQUEST_HEADERS;
 import static org.wso2.transport.http.netty.common.Util.is100ContinueRequest;
 
 /**
@@ -62,7 +62,6 @@ public class ReceivingHeaders implements ListenerState {
     private final HandlerExecutor handlerExecutor;
     private final StateContext stateContext;
     private HttpCarbonMessage inboundRequestMsg;
-    private boolean continueRequest;
 
     public ReceivingHeaders(SourceHandler sourceHandler, StateContext stateContext) {
         this.sourceHandler = sourceHandler;
@@ -73,7 +72,7 @@ public class ReceivingHeaders implements ListenerState {
     @Override
     public void readInboundRequestHeaders(HttpCarbonMessage inboundRequestMsg, HttpRequest inboundRequestHeaders) {
         this.inboundRequestMsg = inboundRequestMsg;
-        continueRequest = is100ContinueRequest(inboundRequestMsg);
+        boolean continueRequest = is100ContinueRequest(inboundRequestMsg);
         if (continueRequest) {
             stateContext.setListenerState(new Expect100ContinueHeaderReceived(stateContext, sourceHandler));
         }
@@ -125,7 +124,7 @@ public class ReceivingHeaders implements ListenerState {
 
     @Override
     public void handleAbruptChannelClosure(ServerConnectorFuture serverConnectorFuture) {
-        handleIncompleteInboundRequest(REMOTE_CLIENT_CLOSED_WHILE_READING_INBOUND_REQUEST);
+        handleIncompleteInboundRequest(REMOTE_CLIENT_CLOSED_WHILE_READING_INBOUND_REQUEST_HEADERS);
     }
 
     @Override
@@ -138,7 +137,7 @@ public class ReceivingHeaders implements ListenerState {
                 log.warn("Failed to send: {}", cause.getMessage());
             }
             sourceHandler.channelInactive(ctx);
-            handleIncompleteInboundRequest(IDLE_TIMEOUT_TRIGGERED_WHILE_READING_INBOUND_REQUEST);
+            handleIncompleteInboundRequest(IDLE_TIMEOUT_TRIGGERED_WHILE_READING_INBOUND_REQUEST_HEADERS);
         });
         return outboundRespFuture;
     }

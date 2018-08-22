@@ -26,18 +26,16 @@ import io.netty.handler.codec.http.HttpContent;
 import io.netty.handler.codec.http.HttpResponse;
 import io.netty.handler.codec.http.LastHttpContent;
 import io.netty.handler.codec.http2.Http2CodecUtil;
-import io.netty.handler.timeout.IdleStateEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.transport.http.netty.contract.HttpResponseFuture;
-import org.wso2.transport.http.netty.contract.ServerConnectorFuture;
 import org.wso2.transport.http.netty.listener.states.StateContext;
 import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 import org.wso2.transport.http.netty.sender.TargetHandler;
 import org.wso2.transport.http.netty.sender.http2.OutboundMsgHolder;
 
-import static org.wso2.transport.http.netty.common.Constants.IDLE_TIMEOUT_TRIGGERED_WHILE_READING_INBOUND_RESPONSE;
-import static org.wso2.transport.http.netty.common.Constants.REMOTE_SERVER_CLOSED_WHILE_READING_INBOUND_RESPONSE;
+import static org.wso2.transport.http.netty.common.Constants.IDLE_TIMEOUT_TRIGGERED_WHILE_READING_INBOUND_RESPONSE_HEADERS;
+import static org.wso2.transport.http.netty.common.Constants.REMOTE_SERVER_CLOSED_WHILE_READING_INBOUND_RESPONSE_HEADERS;
 
 /**
  * State between start and end of inbound request headers read.
@@ -53,14 +51,13 @@ public class ReceivingHeaders implements SenderState {
     }
 
     @Override
-    public void writeOutboundRequestHeaders(HttpCarbonMessage httpOutboundRequest,
-                                            HttpContent httpContent) {
-
+    public void writeOutboundRequestHeaders(HttpCarbonMessage httpOutboundRequest, HttpContent httpContent) {
+        // Not a dependant action of this state.
     }
 
     @Override
     public void writeOutboundRequestEntityBody(HttpCarbonMessage httpOutboundRequest, HttpContent httpContent) {
-
+        // Not a dependant action of this state.
     }
 
     @Override
@@ -93,13 +90,13 @@ public class ReceivingHeaders implements SenderState {
     @Override
     public void handleAbruptChannelClosure(HttpResponseFuture httpResponseFuture) {
         handleIncompleteInboundResponse(targetHandler.getInboundResponseMsg(),
-                                        REMOTE_SERVER_CLOSED_WHILE_READING_INBOUND_RESPONSE);
+                                        REMOTE_SERVER_CLOSED_WHILE_READING_INBOUND_RESPONSE_HEADERS);
     }
 
     @Override
     public void handleIdleTimeoutConnectionClosure(HttpResponseFuture httpResponseFuture, String channelID) {
         handleIncompleteInboundResponse(targetHandler.getInboundResponseMsg(),
-                                        IDLE_TIMEOUT_TRIGGERED_WHILE_READING_INBOUND_RESPONSE);
+                                        IDLE_TIMEOUT_TRIGGERED_WHILE_READING_INBOUND_RESPONSE_HEADERS);
     }
 
     private void handleIncompleteInboundResponse(HttpCarbonMessage inboundResponseMsg, String errorMessage) {

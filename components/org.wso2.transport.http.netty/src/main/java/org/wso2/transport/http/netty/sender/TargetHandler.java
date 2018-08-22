@@ -61,11 +61,6 @@ public class TargetHandler extends ChannelInboundHandlerAdapter {
     private HandlerExecutor handlerExecutor;
     private KeepAliveConfig keepAliveConfig;
     private boolean idleTimeoutTriggered;
-    private TargetErrorHandler targetErrorHandler;
-
-    public TargetHandler() {
-        targetErrorHandler = new TargetErrorHandler();
-    }
 
     @SuppressWarnings("unchecked")
     @Override
@@ -109,7 +104,6 @@ public class TargetHandler extends ChannelInboundHandlerAdapter {
         if (!idleTimeoutTriggered) {
             outboundRequestMsg.getStateContext().getSenderState().handleAbruptChannelClosure(httpResponseFuture);
         }
-
         connectionManager.invalidateTargetChannel(targetChannel);
 
         if (handlerExecutor != null) {
@@ -121,7 +115,7 @@ public class TargetHandler extends ChannelInboundHandlerAdapter {
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
         closeChannel(ctx);
-        targetErrorHandler.exceptionCaught(cause);
+        log.warn("Exception occurred in TargetHandler : {}", cause.getMessage());
     }
 
     @Override
@@ -216,10 +210,6 @@ public class TargetHandler extends ChannelInboundHandlerAdapter {
 
     void setHttp2TargetHandler(Http2TargetHandler http2TargetHandler) {
         this.http2TargetHandler = http2TargetHandler;
-    }
-
-    public TargetErrorHandler getTargetErrorHandler() {
-        return targetErrorHandler;
     }
 
     public HttpCarbonMessage getInboundResponseMsg() {

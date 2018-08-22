@@ -162,7 +162,8 @@ public class TimeoutHandler  implements Http2DataEventListener {
             if (nextDelay <= 0) {
                 closeStream(streamId, ctx);
                 if (msgHolder.getResponse() != null) {
-                    handleIncompleteInboundResponse(Constants.IDLE_TIMEOUT_TRIGGERED_WHILE_READING_INBOUND_RESPONSE);
+                    handleIncompleteInboundResponse(
+                            Constants.IDLE_TIMEOUT_TRIGGERED_WHILE_READING_INBOUND_RESPONSE_BODY);
                 } else if (msgHolder.isRequestWritten()) {
                     msgHolder.getResponseFuture().notifyHttpListener(
                             new EndpointTimeOutException(

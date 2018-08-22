@@ -74,7 +74,6 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
     private ChannelGroup allChannels;
     protected ChannelHandlerContext ctx;
     private SocketAddress remoteAddress;
-    private SourceErrorHandler sourceErrorHandler;
 
     public SourceHandler(ServerConnectorFuture serverConnectorFuture, String interfaceId, ChunkConfig chunkConfig,
                          KeepAliveConfig keepAliveConfig, String serverName, ChannelGroup allChannels) {
@@ -86,7 +85,6 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
         this.idleTimeout = false;
         this.serverName = serverName;
         this.allChannels = allChannels;
-        this.sourceErrorHandler = new SourceErrorHandler(this.serverConnectorFuture, serverName);
     }
 
     @SuppressWarnings("unchecked")
@@ -117,8 +115,6 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
     @Override
     public void channelActive(final ChannelHandlerContext ctx) {
         this.ctx = ctx;
-//        execute().channelActive(ctx);
-
         this.allChannels.add(ctx.channel());
         handlerExecutor = HttpTransportContextHolder.getInstance().getHandlerExecutor();
         if (handlerExecutor != null) {
@@ -160,7 +156,7 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
         if (ctx != null && ctx.channel().isActive()) {
             ctx.writeAndFlush(Unpooled.EMPTY_BUFFER).addListener(ChannelFutureListener.CLOSE);
         }
-        sourceErrorHandler.exceptionCaught(cause);
+        log.warn("Exception occurred in SourceHandler : {}", cause.getMessage());
     }
 
     @Override
@@ -242,10 +238,6 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
 
     public String getServerName() {
         return serverName;
-    }
-
-    public SourceErrorHandler getSourceErrorHandler() {
-        return sourceErrorHandler;
     }
 
     public void removeRequestEntry(HttpCarbonMessage inboundRequestMsg) {

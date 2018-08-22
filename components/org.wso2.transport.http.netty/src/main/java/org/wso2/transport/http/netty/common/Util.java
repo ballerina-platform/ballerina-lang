@@ -79,7 +79,7 @@ import static org.wso2.transport.http.netty.common.Constants.HTTP_PORT;
 import static org.wso2.transport.http.netty.common.Constants.HTTP_SCHEME;
 import static org.wso2.transport.http.netty.common.Constants.IS_PROXY_ENABLED;
 import static org.wso2.transport.http.netty.common.Constants.PROTOCOL;
-import static org.wso2.transport.http.netty.common.Constants.REMOTE_CLIENT_CLOSED_WHILE_WRITING_OUTBOUND_RESPONSE;
+import static org.wso2.transport.http.netty.common.Constants.REMOTE_CLIENT_CLOSED_WHILE_WRITING_OUTBOUND_RESPONSE_HEADERS;
 import static org.wso2.transport.http.netty.common.Constants.TO;
 import static org.wso2.transport.http.netty.common.Constants.URL_AUTHORITY;
 
@@ -699,7 +699,7 @@ public class Util {
             Throwable throwable = writeOperationPromise.cause();
             if (throwable != null) {
                 if (throwable instanceof ClosedChannelException) {
-                    throwable = new IOException(REMOTE_CLIENT_CLOSED_WHILE_WRITING_OUTBOUND_RESPONSE);
+                    throwable = new IOException(REMOTE_CLIENT_CLOSED_WHILE_WRITING_OUTBOUND_RESPONSE_HEADERS);
                 }
                 outboundRespStatusFuture.notifyHttpListener(throwable);
             } else {
@@ -720,7 +720,7 @@ public class Util {
             Throwable throwable = writeOperationPromise.cause();
             if (throwable != null) {
                 if (throwable instanceof ClosedChannelException) {
-                    throwable = new IOException(REMOTE_CLIENT_CLOSED_WHILE_WRITING_OUTBOUND_RESPONSE);
+                    throwable = new IOException(REMOTE_CLIENT_CLOSED_WHILE_WRITING_OUTBOUND_RESPONSE_HEADERS);
                 }
                 outboundRespStatusFuture.notifyHttpListener(throwable);
             }
