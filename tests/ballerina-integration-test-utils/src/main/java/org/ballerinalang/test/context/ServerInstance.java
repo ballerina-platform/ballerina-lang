@@ -234,20 +234,6 @@ public class ServerInstance implements Server {
                         killServer.waitFor(15, TimeUnit.SECONDS);
                         killServer.destroy();
                     }
-
-//                    if (exitAgentPath == null || exitAgentPath.isEmpty()) {
-//                        log.warn("Ballerina test exit agent not provided, hence integration " +
-//                                "test coverage won't be available");
-//                        Process killServer = Runtime.getRuntime().exec("kill -9 " + pid);
-//                        killServer.waitFor(15, TimeUnit.SECONDS);
-//                        killServer.destroy();
-//                    } else {
-//                        VirtualMachine vm = VirtualMachine.attach(pid);
-//                        vm.loadAgent(exitAgentPath, "exitStatus=1,timeout=15000,killStatus=5");
-//
-//                        //TODO remove below sleep by correctly waiting for the port
-//                        Thread.sleep(1000);
-//                    }
                 }
             } catch (IOException e) {
                 log.error("Error getting process id for the server in port - " + httpServerPort
@@ -294,16 +280,15 @@ public class ServerInstance implements Server {
             loader = new URLClassLoader(new URL[]{toolsJar.toURI().toURL()}, loader);
             Class<?> vmClass = loader.loadClass(cls);
             Object vm = vmClass.getMethod("attach", new Class<?>[]{String.class}).invoke(null, pid);
-            vmClass.getMethod("loadAgent", new Class[]{String.class}).invoke(vm, exitJarLoc,
+            vmClass.getMethod("loadAgent", new Class[]{String.class, String.class}).invoke(vm, exitJarLoc,
                     "exitStatus=1,timeout=15000,killStatus=5");
 
             //TODO remove below sleep by correctly waiting for the port
             Thread.sleep(1000);
             return true;
-//        vmClass.getMethod("detach", new Class[]{}).invoke(vm);
         } catch (Throwable e) {
             log.warn("Error stopping the server through agent, hence falling back to default kill, " +
-                    "hence integration test coverage won't be available, error " + e.getMessage(), e);
+                    "hence integration test coverage won't be available, error - " + e.getMessage(), e);
             return false;
         }
 
