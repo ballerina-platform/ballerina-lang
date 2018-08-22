@@ -46,6 +46,7 @@ import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+import java.util.Queue;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.wso2.transport.http.netty.common.Constants.CHUNKING_CONFIG;
@@ -151,9 +152,19 @@ public class HttpOutboundRespListener implements HttpConnectorListener {
                 keepAlive = false;
             }
             sourceErrorHandler.setState(SENDING_ENTITY_BODY);
+
+            //Do the if check //not http2 pipeline needed etc...
             Integer nextSequenceNumber = sourceContext.channel().attr(Constants.NEXT_SEQUENCE_NUMBER).get();
             nextSequenceNumber++;
             sourceContext.channel().attr(Constants.NEXT_SEQUENCE_NUMBER).set(nextSequenceNumber);
+            Queue responseQueue = sourceContext.channel().attr(Constants.RESPONSE_QUEUE).get();
+            if (!responseQueue.isEmpty()) {
+                //Notify ballerina to send the response which is next in queue
+                //This is needed because, if the other responses got ready before the nextSequenceNumber gets updated
+                //then the ballerina respond() won't start serializing the responses in queue. So somebody has to
+                //trigger that process again.
+                outboundResponseMsg.getPipelineListener().onResponseSend(sourceContext);
+            }
         }
 
         ChannelFuture outboundChannelFuture;

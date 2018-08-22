@@ -31,10 +31,12 @@ import io.netty.handler.codec.http.HttpRequest;
 import io.netty.handler.codec.http.HttpResponse;
 import io.netty.handler.codec.http.LastHttpContent;
 import org.wso2.transport.http.netty.common.Constants;
+import org.wso2.transport.http.netty.contract.HttpConnectorListener;
 import org.wso2.transport.http.netty.contract.HttpResponseFuture;
 import org.wso2.transport.http.netty.contract.ServerConnectorException;
 import org.wso2.transport.http.netty.contract.ServerConnectorFuture;
 import org.wso2.transport.http.netty.contractimpl.DefaultHttpResponseFuture;
+import org.wso2.transport.http.netty.contractimpl.HttpPipelineListener;
 import org.wso2.transport.http.netty.contractimpl.HttpWsServerConnectorFuture;
 
 import java.io.IOException;
@@ -65,6 +67,7 @@ public class HttpCarbonMessage implements Comparable<HttpCarbonMessage> {
 
     private int sequenceId;
     private ChannelHandlerContext sourceContext;
+    private HttpPipelineListener pipelineListener;
 
     public HttpCarbonMessage(HttpMessage httpMessage, Listener contentListener) {
         this.httpMessage = httpMessage;
@@ -410,6 +413,14 @@ public class HttpCarbonMessage implements Comparable<HttpCarbonMessage> {
 
     public void setSourceContext(ChannelHandlerContext sourceContext) {
         this.sourceContext = sourceContext;
+    }
+
+    public HttpPipelineListener getPipelineListener() {
+        return pipelineListener;
+    }
+
+    public void setPipelineListener(HttpPipelineListener pipelineListener) {
+        this.pipelineListener = pipelineListener;
     }
 
     @Override
