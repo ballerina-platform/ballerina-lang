@@ -1,5 +1,3 @@
-import ballerina/io;
-
 // Sample XML taken from: https://www.w3schools.com/xml/books.xml
 xml bookstore = xml `<bookstore>
                         <book category="cooking">
@@ -49,8 +47,6 @@ function foreachOpTest() returns (int, string)[] {
     int count = 0;
 
     bookstore["book"].foreach(((int, xml) entry) => {
-        io:println(entry);
-        io:println("AAA");
         var (index, value) = entry;
         titles[count] = (index, value["title"].getTextValue());
         count++;
