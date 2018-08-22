@@ -26,6 +26,13 @@ public type StreamEvent record {
     int timestamp;
 };
 
+public type Window object {
+
+    public function process(StreamEvent[] streamEvents) {
+
+    }
+};
+
 public type LengthWindow object {
 
     public int size;

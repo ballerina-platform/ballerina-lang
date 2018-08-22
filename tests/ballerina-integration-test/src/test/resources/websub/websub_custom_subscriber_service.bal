@@ -47,6 +47,10 @@ service<WebhookServiceForPayload> keyWebhook bind listenerOneEP {
     onFeature(websub:Notification notification, MockDomainEvent event) {
         io:println("Feature Notification Received, domain: ", event.domain);
     }
+
+    onStatus(websub:Notification notification, MockActionEvent event) {
+        // do nothing - test start up
+    }
 }
 
 endpoint WebhookListenerForHeader listenerTwoEP {
@@ -65,6 +69,10 @@ service<WebhookServiceForHeader> headerWebhook bind listenerTwoEP {
     onCommit(websub:Notification notification, MockActionEvent event) {
         io:println("Commit Notification Received, header value: ", notification.getHeader(MOCK_HEADER),
             " action: ", event.action);
+    }
+
+    onStatus(websub:Notification notification, MockActionEvent event) {
+        // do nothing - test start up
     }
 }
 
@@ -95,6 +103,10 @@ service<WebhookServiceForHeaderAndPayload> headerAndPayloadWebhook bind listener
         io:println("KeyOnly Notification Received, header value: ", notification.getHeader(MOCK_HEADER),
             " action: ", event.action);
     }
+
+    onStatus(websub:Notification notification, MockActionEvent event) {
+        // do nothing - test start up
+    }
 }
 
 /////////////////// Specific Webhook for dispatching by key ///////////////////
@@ -122,7 +134,8 @@ public type WebhookListenerForPayload object {
             payloadKeyResourceMap: {
                 "action" : {
                     "created" : ("onCreated", MockActionEvent),
-                    "deleted" : ("onDeleted", MockActionEvent)
+                    "deleted" : ("onDeleted", MockActionEvent),
+                    "statuscheck" : ("onStatus", MockActionEvent)
                 },
                 "domain" : {
                     "issue" : ("onIssue", MockDomainEvent),
@@ -177,7 +190,8 @@ public type WebhookListenerForHeader object {
             topicHeader: MOCK_HEADER,
             headerResourceMap: {
                 "issue" : ("onIssue", MockActionEvent),
-                "commit" : ("onCommit", MockActionEvent)
+                "commit" : ("onCommit", MockActionEvent),
+                "status" : ("onStatus", MockActionEvent)
             }
         };
         websub:SubscriberServiceEndpointConfiguration sseConfig = { host: config.host, port: config.port,
@@ -226,7 +240,8 @@ public type WebhookListenerForHeaderAndPayload object {
             topicIdentifier: websub:TOPIC_ID_HEADER_AND_PAYLOAD,
             topicHeader: MOCK_HEADER,
             headerResourceMap: {
-                "headeronly" : ("onHeaderOnly", MockActionEvent)
+                "headeronly" : ("onHeaderOnly", MockActionEvent),
+                "status" : ("onStatus", MockActionEvent )
             },
             payloadKeyResourceMap: {
                 "action" : {

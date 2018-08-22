@@ -34,10 +34,11 @@ import java.util.concurrent.TimeUnit;
 /**
  * Tests success and failure of client endpoint creation based on the different ways of its creation.
  */
+@Test(groups = "websocket-test")
 public class ClientServiceTest extends WebSocketTestCommons {
 
     private WebSocketTestClient client;
-    private static final String URL = "ws://localhost:9090/client/service";
+    private static final String URL = "ws://localhost:9200/client/service";
     private WebSocketRemoteServer remoteServer;
 
     @BeforeClass(description = "Initializes the Ballerina server with the client_service.bal file")
@@ -47,7 +48,7 @@ public class ClientServiceTest extends WebSocketTestCommons {
         client = new WebSocketTestClient(URL);
     }
 
-    @Test(priority = 1, description = "Tests the client initialization without a callback service")
+    @Test(description = "Tests the client initialization without a callback service")
     public void testClientSuccessWithoutService() throws InterruptedException {
         CountDownLatch countDownLatch = new CountDownLatch(1);
         client.setCountDownLatch(countDownLatch);
@@ -59,8 +60,8 @@ public class ClientServiceTest extends WebSocketTestCommons {
         Assert.assertEquals(text, "Client worked");
     }
 
-    @Test(priority = 2,
-          description = "Tests the client initialization with a WebSocketClientService but without any resources")
+    @Test(description = "Tests the client initialization with a WebSocketClientService but without any resources",
+            dependsOnMethods = "testClientSuccessWithoutService")
     public void testClientSuccessWithWebSocketClientService() throws InterruptedException {
         CountDownLatch countDownLatch = new CountDownLatch(1);
         client.sendText("hey");
@@ -72,7 +73,8 @@ public class ClientServiceTest extends WebSocketTestCommons {
         Assert.assertEquals(text, "Client worked");
     }
 
-    @Test(priority = 3, description = "Tests the client initialization failure when used with a WebSocketService")
+    @Test(description = "Tests the client initialization failure when used with a WebSocketService",
+            dependsOnMethods = "testClientSuccessWithWebSocketClientService")
     public void testClientFailureWithWebSocketService() throws InterruptedException {
         CountDownLatch countDownLatch = new CountDownLatch(1);
         client.sendBinary(ByteBuffer.wrap("hey".getBytes()));

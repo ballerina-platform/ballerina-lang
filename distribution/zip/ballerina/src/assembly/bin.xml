@@ -209,6 +209,9 @@
                 <include>org.wso2.andes.wso2:andes-client:jar</include>
                 <include>org.wso2.securevault:org.wso2.securevault:jar</include>
 
+                <!-- Check-pointing dependencies -->
+                <include>com.google.code.gson:gson</include>
+
             </includes>
         </dependencySet>
 

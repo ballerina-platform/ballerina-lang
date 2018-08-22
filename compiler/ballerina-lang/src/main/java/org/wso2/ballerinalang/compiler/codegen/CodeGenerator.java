@@ -3256,12 +3256,16 @@ public class CodeGenerator extends BLangNodeVisitor {
         int funcRefCPIndex = currentPkgInfo.addCPEntry(funcRefCPEntry);
         RegIndex nextIndex = calcAndGetExprRegIndex(fpExpr);
         Operand[] operands;
+        if (NodeKind.FIELD_BASED_ACCESS_EXPR == fpExpr.getKind()) {
+            operands = calcObjectAttachedFPOperands((BLangStructFunctionVarRef) fpExpr, typeCPIndex, funcRefCPIndex,
+                    nextIndex);
+            //Separating this with a instruction code, so that at runtime, actual function can be loaded
+            emit(InstructionCodes.VFPLOAD, operands);
+            return;
+        }
         if (NodeKind.LAMBDA == fpExpr.getKind()) {
             operands = calcClosureOperands(((BLangLambdaFunction) fpExpr).function, funcRefCPIndex, nextIndex,
                     typeCPIndex);
-        } else if (NodeKind.FIELD_BASED_ACCESS_EXPR == fpExpr.getKind()) {
-            operands = calcObjectAttachedFPOperands((BLangStructFunctionVarRef) fpExpr, typeCPIndex, funcRefCPIndex,
-                    nextIndex);
         } else {
             operands = new Operand[4];
             operands[0] = getOperand(funcRefCPIndex);
