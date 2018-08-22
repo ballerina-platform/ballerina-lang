@@ -40,7 +40,8 @@ public class FilterTest {
     @BeforeClass
     public void setup() {
         result = BCompileUtil.compile("test-src/streaming/legacy/filter-streaming-test.bal");
-        resultWithReference = BCompileUtil.compile("test-src/streaming/legacy/filter-streaming-with-reference-test.bal");
+        resultWithReference = BCompileUtil.
+                compile("test-src/streaming/legacy/filter-streaming-with-reference-test.bal");
     }
 
     @Test(description = "Test filter streaming query")

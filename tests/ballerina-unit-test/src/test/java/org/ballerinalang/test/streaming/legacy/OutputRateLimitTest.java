@@ -39,7 +39,8 @@ public class OutputRateLimitTest {
     @BeforeClass
     public void setup() {
         result = BCompileUtil.compile("test-src/streaming/legacy/output-rate-limiting-test.bal");
-        resultForTimeBasedRateLimiting = BCompileUtil.compile("test-src/streaming/legacy/output-rate-limiting-time-test.bal");
+        resultForTimeBasedRateLimiting = BCompileUtil.
+                compile("test-src/streaming/legacy/output-rate-limiting-time-test.bal");
     }
 
     @Test(description = "Test output rate limiting query")

@@ -36,7 +36,8 @@ public class StreamingActionTest {
 
     @BeforeClass
     public void setup() {
-        resultNegativeInvalidType = BCompileUtil.compile("test-src/streaming/negative/streaming-action-negative-test-v1.bal");
+        resultNegativeInvalidType = BCompileUtil.
+                compile("test-src/streaming/negative/streaming-action-negative-test-v1.bal");
         resultNegativeInvalidArgumentCount = BCompileUtil.
                 compile("test-src/streaming/negative/streaming-action-negative-test-v2.bal");
     }

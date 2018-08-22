@@ -36,7 +36,8 @@ public class IncompatibleRecordTypeTest {
 
     @BeforeClass
     public void setup() {
-        resultNegative = BCompileUtil.compile("test-src/streaming/negative/streaming-invalid-record-type-negative-test.bal");
+        resultNegative = BCompileUtil.
+                compile("test-src/streaming/negative/streaming-invalid-record-type-negative-test.bal");
         resultNegativeForInvalidOrder = BCompileUtil.
                 compile("test-src/streaming/negative/streaming-output-attribute-order-negative-test.bal");
     }
