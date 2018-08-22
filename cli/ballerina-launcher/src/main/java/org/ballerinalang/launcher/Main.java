@@ -88,9 +88,9 @@ public class Main {
 
             // Run command
             RunCmd runCmd = new RunCmd();
-            CommandLine jcRunCmd = addSubCommand(cmdParser, BallerinaCliCommands.RUN, runCmd);
+            CommandLine pcRunCmd = addSubCommand(cmdParser, BallerinaCliCommands.RUN, runCmd);
             runCmd.setParentCmdParser(cmdParser);
-            runCmd.setSelfCmdParser(jcRunCmd);
+            runCmd.setSelfCmdParser(pcRunCmd);
 
             HelpCmd helpCmd = new HelpCmd();
             cmdParser.addSubcommand(BallerinaCliCommands.HELP, helpCmd);
@@ -510,7 +510,7 @@ public class Main {
     }
 
     /**
-     * This class represents the "main" command required by the JCommander.
+     * This class represents the "default" command required by picocli.
      *
      * @since 0.8.0
      */

@@ -31,6 +31,8 @@ import java.io.IOException;
 
 /**
  * This class tests CLI parsing.
+ *
+ * @since 0.981.2
  */
 public class CommandParserTestCase {
 

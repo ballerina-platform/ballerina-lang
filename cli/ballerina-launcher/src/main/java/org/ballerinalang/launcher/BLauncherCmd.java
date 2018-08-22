@@ -29,18 +29,52 @@ import java.io.IOException;
  */
 public interface BLauncherCmd {
 
+    /**
+     * Execute the command.
+     */
     void execute();
 
+    /**
+     * Retrieve the command name.
+     *
+     * @return the name of the command
+     */
     String getName();
 
+    /**
+     * Print the detailed description of the command.
+     *
+     * @param out a {@link StringBuilder} instance
+     */
     void printLongDesc(StringBuilder out);
 
+    /**
+     * Print usgae info for the command.
+     *
+     * @param out a {@link StringBuilder} instance
+     */
     void printUsage(StringBuilder out);
 
+    /**
+     * Set the parent {@link CommandLine} object to which commands are added as sub commands.
+     *
+     * @param parentCmdParser the parent {@link CommandLine} object
+     */
     void setParentCmdParser(CommandLine parentCmdParser);
 
+    /**
+     * Set the {@link CommandLine} object representing this command.
+     *
+     * @param selfCmdParser the {@link CommandLine} object representing the command
+     */
     void setSelfCmdParser(CommandLine selfCmdParser);
 
+    /**
+     * Retrieve command usage info.
+     *
+     * @param  commandName the name of the command
+     * @return usage info for the specified command
+     */
     static String getCommandUsageInfo(String commandName) {
         if (commandName == null) {
             throw LauncherUtils.createUsageException("invalid command");
