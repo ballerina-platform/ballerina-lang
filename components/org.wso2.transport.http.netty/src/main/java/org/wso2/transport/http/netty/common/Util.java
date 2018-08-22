@@ -45,8 +45,6 @@ import org.wso2.transport.http.netty.common.ssl.SSLConfig;
 import org.wso2.transport.http.netty.common.ssl.SSLHandlerFactory;
 import org.wso2.transport.http.netty.config.ChunkConfig;
 import org.wso2.transport.http.netty.config.KeepAliveConfig;
-import org.wso2.transport.http.netty.config.Parameter;
-import org.wso2.transport.http.netty.config.SslConfiguration;
 import org.wso2.transport.http.netty.contract.HttpResponseFuture;
 import org.wso2.transport.http.netty.exception.ConfigurationException;
 import org.wso2.transport.http.netty.listener.SourceHandler;
@@ -59,16 +57,15 @@ import org.wso2.transport.http.netty.message.PooledDataStreamerFactory;
 import org.wso2.transport.http.netty.sender.CertificateValidationHandler;
 import org.wso2.transport.http.netty.sender.OCSPStaplingHandler;
 
-import java.io.File;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.nio.channels.ClosedChannelException;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
 import javax.net.ssl.SSLEngine;
 import javax.net.ssl.SSLException;
 
@@ -297,122 +294,20 @@ public class Util {
         return chunkConfig == ChunkConfig.ALWAYS && Float.valueOf(httpVersion) >= Constants.HTTP_1_0;
     }
 
-    public static SSLConfig getSSLConfigForListener(String certPass, String keyStorePass, String keyStoreFilePath,
-            String trustStoreFilePath, String trustStorePass, List<Parameter> parametersList, String verifyClient,
-            String sslProtocol, String tlsStoreType) {
-        if (certPass == null) {
-            certPass = keyStorePass;
-        }
-        if (keyStoreFilePath == null || keyStorePass == null) {
-            throw new IllegalArgumentException("keyStoreFile or keyStorePassword not defined for HTTPS scheme");
-        }
-        File keyStore = new File(substituteVariables(keyStoreFilePath));
-        if (!keyStore.exists()) {
-            throw new IllegalArgumentException("KeyStore File " + keyStoreFilePath + " not found");
-        }
-        SSLConfig sslConfig = new SSLConfig(keyStore, keyStorePass).setCertPass(certPass);
-        for (Parameter parameter : parametersList) {
-            switch (parameter.getName()) {
-                case Constants.SERVER_SUPPORT_CIPHERS:
-                    sslConfig.setCipherSuites(parameter.getValue());
-                    break;
-                case Constants.SERVER_SUPPORT_SSL_PROTOCOLS:
-                    sslConfig.setEnableProtocols(parameter.getValue());
-                    break;
-                case Constants.SERVER_SUPPORTED_SNIMATCHERS:
-                    sslConfig.setSniMatchers(parameter.getValue());
-                    break;
-                case Constants.SERVER_SUPPORTED_SERVER_NAMES:
-                    sslConfig.setServerNames(parameter.getValue());
-                    break;
-                case Constants.SERVER_ENABLE_SESSION_CREATION:
-                    sslConfig.setEnableSessionCreation(Boolean.parseBoolean(parameter.getValue()));
-                    break;
-                default:
-                    //do nothing
-                    break;
-            }
-        }
-        if ("require".equalsIgnoreCase(verifyClient)) {
-            sslConfig.setNeedClientAuth(true);
-        }
-
-        sslProtocol = sslProtocol != null ? sslProtocol : "TLS";
-        sslConfig.setSSLProtocol(sslProtocol);
-        tlsStoreType = tlsStoreType != null ? tlsStoreType : "JKS";
-        sslConfig.setTLSStoreType(tlsStoreType);
-
-        if (trustStoreFilePath != null) {
-
-            File trustStore = new File(substituteVariables(trustStoreFilePath));
-
-            if (!trustStore.exists()) {
-                throw new IllegalArgumentException("trustStore File " + trustStoreFilePath + " not found");
-            }
-            if (trustStorePass == null) {
-                throw new IllegalArgumentException("trustStorePass is not defined for HTTPS scheme");
-            }
-            sslConfig.setTrustStore(trustStore).setTrustStorePass(trustStorePass);
-        }
-        return sslConfig;
-    }
-
-    public static SSLConfig getSSLConfigForSender(String certPass, String keyStorePass, String keyStoreFilePath,
-            String trustStoreFilePath, String trustStorePass, List<Parameter> parametersList, String sslProtocol,
-            String tlsStoreType) {
-
-        if (certPass == null) {
-            certPass = keyStorePass;
-        }
-        if (trustStoreFilePath == null || trustStorePass == null) {
-            throw new IllegalArgumentException("TrustStoreFile or trustStorePassword not defined for HTTPS/WSS scheme");
-        }
-        SSLConfig sslConfig = new SSLConfig(null, null).setCertPass(null);
-
-        if (keyStoreFilePath != null) {
-            File keyStore = new File(substituteVariables(keyStoreFilePath));
-            if (!keyStore.exists()) {
-                throw new IllegalArgumentException("KeyStore File " + trustStoreFilePath + " not found");
-            }
-            sslConfig = new SSLConfig(keyStore, keyStorePass).setCertPass(certPass);
-        }
-        File trustStore = new File(substituteVariables(trustStoreFilePath));
-
-        sslConfig.setTrustStore(trustStore).setTrustStorePass(trustStorePass);
-        sslProtocol = sslProtocol != null ? sslProtocol : "TLS";
-        sslConfig.setSSLProtocol(sslProtocol);
-        tlsStoreType = tlsStoreType != null ? tlsStoreType : "JKS";
-        sslConfig.setTLSStoreType(tlsStoreType);
-        if (parametersList != null) {
-            for (Parameter parameter : parametersList) {
-                String paramName = parameter.getName();
-                if (Constants.CLIENT_SUPPORT_CIPHERS.equals(paramName)) {
-                    sslConfig.setCipherSuites(parameter.getValue());
-                } else if (Constants.CLIENT_SUPPORT_SSL_PROTOCOLS.equals(paramName)) {
-                    sslConfig.setEnableProtocols(parameter.getValue());
-                } else if (Constants.CLIENT_ENABLE_SESSION_CREATION.equals(paramName)) {
-                    sslConfig.setEnableSessionCreation(Boolean.parseBoolean(parameter.getValue()));
-                }
-            }
-        }
-        return sslConfig;
-    }
-
     /**
      * Configure outbound HTTP pipeline for SSL configuration.
      *
      * @param socketChannel Socket channel of outbound connection
-     * @param sslConfiguration {@link SslConfiguration}
+     * @param sslConfig {@link SSLConfig}
      * @param host host of the connection
      * @param port port of the connection
      * @throws SSLException if any error occurs in the SSL connection
      */
     public static void configureHttpPipelineForSSL(SocketChannel socketChannel, String host, int port,
-            SslConfiguration sslConfiguration) throws SSLException {
+            SSLConfig sslConfig) throws SSLException {
         log.debug("adding ssl handler");
-        SSLConfig sslConfig = sslConfiguration.generateSSLConfig();
         ChannelPipeline pipeline = socketChannel.pipeline();
-        if (sslConfiguration.isOcspStaplingEnabled()) {
+        if (sslConfig.isOcspStaplingEnabled()) {
             SSLHandlerFactory sslHandlerFactory = new SSLHandlerFactory(sslConfig);
             ReferenceCountedOpenSslContext referenceCountedOpenSslContext = sslHandlerFactory
                     .buildClientReferenceCountedOpenSslContext();
@@ -425,11 +320,11 @@ public class Util {
             }
         } else {
             SSLEngine sslEngine = instantiateAndConfigSSL(sslConfig, host, port,
-                    sslConfiguration.hostNameVerificationEnabled());
+                    sslConfig.isHostNameVerificationEnabled());
             pipeline.addLast(Constants.SSL_HANDLER, new SslHandler(sslEngine));
-            if (sslConfiguration.validateCertEnabled()) {
+            if (sslConfig.isValidateCertEnabled()) {
                 pipeline.addLast(Constants.HTTP_CERT_VALIDATION_HANDLER, new CertificateValidationHandler(
-                        sslEngine, sslConfiguration.getCacheValidityPeriod(), sslConfiguration.getCacheSize()));
+                        sslEngine, sslConfig.getCacheValidityPeriod(), sslConfig.getCacheSize()));
             }
         }
     }
@@ -588,7 +483,7 @@ public class Util {
      * @param value string value to substitute
      * @return String substituted string
      */
-    private static String substituteVariables(String value) {
+    public static String substituteVariables(String value) {
         Matcher matcher = varPattern.matcher(value);
         boolean found = matcher.find();
         if (!found) {

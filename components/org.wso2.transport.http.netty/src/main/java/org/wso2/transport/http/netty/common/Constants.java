@@ -103,6 +103,9 @@ public final class Constants {
     public static final String HTTPS_SCHEME = "https";
     public static final String HTTP_VERSION = "HTTP_VERSION";
     public static final String HTTP_METHOD = "HTTP_METHOD";
+    public static final String JKS = "JKS";
+    public static final String TLS_PROTOCOL = "TLS";
+    public static final String REQUIRE = "require";
 
     public static final String TEXT_PLAIN = "text/plain";
 

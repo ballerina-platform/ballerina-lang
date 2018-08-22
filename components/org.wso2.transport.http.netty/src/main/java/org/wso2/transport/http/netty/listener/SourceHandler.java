@@ -167,7 +167,7 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
             if (!requestList.isEmpty()) {
                 requestList.forEach(inboundMsg -> {
                     ChannelFuture outboundRespFuture = inboundMsg.getStateContext().getListenerState()
-                            .handleIdleTimeoutConnectionClosure(serverConnectorFuture, ctx, (IdleStateEvent) evt);
+                            .handleIdleTimeoutConnectionClosure(serverConnectorFuture, ctx);
                     if (outboundRespFuture == null) {
                         this.channelInactive(ctx);
                     }
