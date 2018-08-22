@@ -126,8 +126,7 @@ function readFunction(io:ByteChannel channel) returns BIRFunction {
     var name = readStringViaCp(channel);
     var isDeclaration = readBoolean(channel);
     var visibility = readVisibility(channel);
-    //TODO assign to func
-    var sigCp = readInt(channel);
+    var sig = readStringViaCp(channel);
     var argsCount = readInt(channel);
     var numLocalVars = readInt(channel);
 
@@ -155,10 +154,22 @@ function readFunction(io:ByteChannel channel) returns BIRFunction {
         visibility: visibility,
         localVars: dcls,
         basicBlocks: basicBlocks,
-        argsCount: argsCount
-        //typeValue:
+        argsCount: argsCount,
+        typeValue: parseSig(sig)
     };
 }
+
+function parseSig(string sig) returns BInvokableType {
+    BType returnType = "int";
+    //TODO: add boolean
+    if (sig.lastIndexOf("(N)") == (lengthof sig - 3)){
+        returnType = "()";
+    }
+    return {
+        retType: returnType
+    };
+}
+
 function readBB(io:ByteChannel channel, map<BIRVariableDcl> localVarMap) returns BIRBasicBlock {
     var id = readStringViaCp(channel);
     var numInstruction = readInt(channel) - 1;
@@ -198,7 +209,11 @@ function readTerminator(io:ByteChannel channel, map<BIRVariableDcl> localVarMap)
             args[i] = readVarRef(channel, localVarMap);
             i++;
         }
-        var lhsOp = readVarRef(channel, localVarMap);
+        var hasLhs = readBoolean(channel);
+        BIRVarRef? lhsOp = ();
+        if (hasLhs){
+            lhsOp = readVarRef(channel, localVarMap);
+        }
         BIRBasicBlock thenBB = readBBRef(channel);
         return new Call(args, kind, lhsOp, {value: name}, thenBB);
 
@@ -345,9 +360,13 @@ function readIntViaCp(io:ByteChannel channel) returns int {
 }
 
 function readString(io:ByteChannel channel) returns string {
-    var stringLen = readInt(channel);
-    var (strBytes, strLen) = check channel.read(untaint stringLen);
-    return internal:byteArrayToString(strBytes, "UTF-8");
+    var stringLen = untaint readInt(channel);
+    if (stringLen > 0){
+        var (strBytes, strLen) = check channel.read(untaint stringLen);
+        return internal:byteArrayToString(strBytes, "UTF-8");
+    } else {
+        return "";
+    }
 }
 
 

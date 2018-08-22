@@ -43,11 +43,14 @@ type BIRVariableDcl record {
     BType typeValue;
 };
 
+type BTypeNil "()";
+
 type BTypeInt "int";
 
 type BTypeBoolean "boolean";
 
-type BType BTypeInt | BTypeBoolean;
+type BType BTypeInt | BTypeBoolean | BTypeNil;
+
 
 type BTypeSymbol record {
     boolean closure;
@@ -115,8 +118,6 @@ type Scope record {
 type BInvokableType record {
     BType[] paramTypes;
     BType retType;
-    int tag;
-    BTypeSymbol tsymbol;
 };
 
 type Visibility "PACKAGE_PRIVATE"|"PRIVATE"|"PUBLIC";
@@ -160,7 +161,7 @@ type BinaryOp object {
 type Call object {
     BIROperand[] args;
     InstructionKind kind;
-    BIRVarRef lhsOp;
+    BIRVarRef? lhsOp;
     Name name;
     BIRBasicBlock thenBB;
     new (args, kind, lhsOp, name, thenBB){}

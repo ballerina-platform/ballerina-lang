@@ -103,7 +103,12 @@ public class BIRInstructionWriter extends BIRVisitor {
         for (BIROperand arg : birCall.args) {
             arg.accept(this);
         }
-        birCall.lhsOp.accept(this);
+        if (birCall.lhsOp != null) {
+            buf.writeByte(1);
+            birCall.lhsOp.accept(this);
+        } else {
+            buf.writeByte(0);
+        }
         addCpAndWriteString(birCall.thenBB.id.value);
     }
 
