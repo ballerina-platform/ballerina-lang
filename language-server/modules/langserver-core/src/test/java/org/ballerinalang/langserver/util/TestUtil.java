@@ -61,7 +61,7 @@ public class TestUtil {
     }
 
     /**
-     * Get the textDocument/hover response
+     * Get the textDocument/hover response.
      *
      * @param filePath          Path of the Bal file
      * @param position          Cursor Position
@@ -74,7 +74,7 @@ public class TestUtil {
     }
 
     /**
-     * Get the textDocument/signatureHelp response
+     * Get the textDocument/signatureHelp response.
      *
      * @param filePath          Path of the Bal file
      * @param position          Cursor Position
@@ -88,7 +88,7 @@ public class TestUtil {
     }
 
     /**
-     * Get the textDocument/definition response
+     * Get the textDocument/definition response.
      *
      * @param filePath          Path of the Bal file
      * @param position          Cursor Position
@@ -102,7 +102,7 @@ public class TestUtil {
     }
 
     /**
-     * Get the textDocument/reference response
+     * Get the textDocument/reference response.
      *
      * @param filePath          Path of the Bal file
      * @param position          Cursor Position
