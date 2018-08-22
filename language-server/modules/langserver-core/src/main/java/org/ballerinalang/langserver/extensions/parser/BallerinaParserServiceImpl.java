@@ -15,6 +15,10 @@
  */
 package org.ballerinalang.langserver.extensions.parser;
 
+import org.ballerinalang.langserver.compiler.LSCompilerException;
+import org.ballerinalang.langserver.compiler.TreeUtil;
+import org.ballerinalang.langserver.compiler.format.JSONGenerationException;
+
 import java.util.concurrent.CompletableFuture;
 
 public class BallerinaParserServiceImpl implements BallerinaParserService {
@@ -22,7 +26,12 @@ public class BallerinaParserServiceImpl implements BallerinaParserService {
     @Override
     public CompletableFuture<ParserReply> parseContent(ParserRequest request) {
         ParserReply reply = new ParserReply();
-        reply.setParseSuccess(false);
+        try {
+            reply.setModel(TreeUtil.getTreeForContent(request.getContent()));
+            reply.setParseSuccess(true);
+        } catch (LSCompilerException | JSONGenerationException e) {
+            reply.setParseSuccess(false);
+        }
         return CompletableFuture.supplyAsync(() -> reply);
     }
 }

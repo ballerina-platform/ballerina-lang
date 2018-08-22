@@ -15,18 +15,18 @@
  */
 package org.ballerinalang.langserver.extensions.parser;
 
-import com.google.gson.JsonObject;
+import com.google.gson.JsonElement;
 
 public class ParserReply {
-    private JsonObject model;
+    private JsonElement model;
 
     private boolean parseSuccess;
 
-    public JsonObject getModel() {
+    public JsonElement getModel() {
         return model;
     }
 
-    public void setModel(JsonObject model) {
+    public void setModel(JsonElement model) {
         this.model = model;
     }
 
