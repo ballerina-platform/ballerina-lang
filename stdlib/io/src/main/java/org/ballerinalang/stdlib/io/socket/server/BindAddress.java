@@ -28,7 +28,7 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.stdlib.io.socket.SelectorManager;
 import org.ballerinalang.stdlib.io.socket.SocketConstants;
-import org.ballerinalang.stdlib.io.utils.BallerinaIOException;
+import org.ballerinalang.stdlib.io.utils.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -75,7 +75,7 @@ public class BindAddress extends BlockingNativeCallableUnit {
         } catch (Throwable e) {
             String message = "Error occurred while bind the socket address: " + e.getMessage();
             log.error(message, e);
-            throw new BallerinaIOException(message, e);
+            context.setReturnValues(IOUtils.createError(context, message));
         }
     }
 }

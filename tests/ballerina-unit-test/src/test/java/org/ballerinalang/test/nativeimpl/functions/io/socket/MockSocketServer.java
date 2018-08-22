@@ -41,7 +41,7 @@ public class MockSocketServer {
 
     public static final int SERVER_PORT = 47826;
     static final String SERVER_HOST = "localhost";
-    private static final String POISON_PILL = "Bye";
+    public static final String POISON_PILL = "Bye";
 
     public static void main(String[] args) throws IOException {
         Selector selector = Selector.open();
@@ -84,7 +84,6 @@ public class MockSocketServer {
             client.close();
             log.info("Not accepting client messages anymore");
         }
-
         buffer.flip();
         client.write(buffer);
         buffer.clear();
