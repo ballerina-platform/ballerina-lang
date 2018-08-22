@@ -368,7 +368,8 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
         // streams:Select variable name
         BLangVariable selectWithGroupByInvokableTypeVariable = ASTBuilderUtil.
                 createVariable(selectClause.pos, getVariableName(SELECT_WITH_GROUP_BY_FUNC_REFERENCE),
-                        selectWithGroupByInvokableType, selectWithGroupByInvocation, selectWithGroupByInvokableTypeVarSymbol);
+                        selectWithGroupByInvokableType, selectWithGroupByInvocation,
+                        selectWithGroupByInvokableTypeVarSymbol);
 
         // streams:Select - user defined data type node
         BLangUserDefinedType userDefinedType = (BLangUserDefinedType) TreeBuilder.createUserDefinedTypeNode();
