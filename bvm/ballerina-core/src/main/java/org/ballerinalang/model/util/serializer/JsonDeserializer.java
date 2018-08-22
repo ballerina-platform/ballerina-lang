@@ -52,21 +52,21 @@ import static org.ballerinalang.model.util.serializer.ObjectHelper.cast;
  * Reconstruct Java object tree from JSON input.
  */
 class JsonDeserializer implements BValueDeserializer {
-    private static final TypeInstanceProviderRegistry instanceProvider = TypeInstanceProviderRegistry.getInstance();
+    private static final InstanceProviderRegistry instanceProvider = InstanceProviderRegistry.getInstance();
     private final BValueProvider bValueProvider;
     private final HashMap<String, Object> identityMap;
     private final BRefType<?> treeHead;
 
     static {
-        instanceProvider.addTypeProvider(new SerializableStateInstanceProvider());
-        instanceProvider.addTypeProvider(new SerializableWorkerDataInstanceProvider());
-        instanceProvider.addTypeProvider(new SerializableContextInstanceProvider());
-        instanceProvider.addTypeProvider(new MapInstanceProvider());
-        instanceProvider.addTypeProvider(new ListInstanceProvider());
-        instanceProvider.addTypeProvider(new WorkerStateInstanceProvider());
-        instanceProvider.addTypeProvider(new SerializableBMapInstanceProvider());
-        instanceProvider.addTypeProvider(new SerializedKeyInstanceProvider());
-        instanceProvider.addTypeProvider(new SerializableBRefArrayInstanceProvider());
+        instanceProvider.add(new SerializableStateInstanceProvider());
+        instanceProvider.add(new SerializableWorkerDataInstanceProvider());
+        instanceProvider.add(new SerializableContextInstanceProvider());
+        instanceProvider.add(new MapInstanceProvider());
+        instanceProvider.add(new ListInstanceProvider());
+        instanceProvider.add(new WorkerStateInstanceProvider());
+        instanceProvider.add(new SerializableBMapInstanceProvider());
+        instanceProvider.add(new SerializedKeyInstanceProvider());
+        instanceProvider.add(new SerializableBRefArrayInstanceProvider());
     }
 
     JsonDeserializer(BRefType<?> objTree) {

@@ -17,7 +17,6 @@
  */
 package org.ballerinalang.persistence.serializable.reftypes.impl;
 
-import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BRefType;
 import org.ballerinalang.model.values.BValue;

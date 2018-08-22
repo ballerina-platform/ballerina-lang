@@ -19,7 +19,7 @@ package org.ballerinalang.persistence.serializable;
 
 import org.ballerinalang.bre.bvm.CallableWorkerResponseContext;
 import org.ballerinalang.bre.bvm.WorkerExecutionContext;
-import org.ballerinalang.model.util.serializer.ObjectToJsonSerializer;
+import org.ballerinalang.model.util.serializer.JsonSerializer;
 import org.ballerinalang.model.values.BRefType;
 import org.ballerinalang.persistence.Deserializer;
 import org.ballerinalang.persistence.Serializer;
@@ -27,8 +27,6 @@ import org.ballerinalang.persistence.serializable.reftypes.Serializable;
 import org.ballerinalang.persistence.serializable.reftypes.SerializableRefType;
 import org.ballerinalang.util.codegen.CallableUnitInfo;
 import org.ballerinalang.util.codegen.ProgramFile;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -44,13 +42,13 @@ public class SerializableState {
 
     private String id;
 
-    public String currentContextKey;
+    private String currentContextKey;
 
-    public Map<String, SerializableContext> sContexts = new HashMap<>();
+    private Map<String, SerializableContext> sContexts = new HashMap<>();
 
-    public Map<String, SerializableRespContext> sRespContexts = new HashMap<>();
+    private Map<String, SerializableRespContext> sRespContexts = new HashMap<>();
 
-    public Map<String, SerializableRefType> sRefTypes = new HashMap<>();
+    private Map<String, SerializableRefType> sRefTypes = new HashMap<>();
 
     public HashMap<String, Object> globalProps = new HashMap<>();
 
@@ -63,12 +61,8 @@ public class SerializableState {
     }
 
     public static SerializableState deserialize(String json) {
-        long t = System.nanoTime();
-        Gson gson = Serializer.getGson();
-        SerializableState deserialize = gson.fromJson(json, SerializableState.class);
-        long diff = System.nanoTime() - t;
-        log.error("d - time: " + diff / 1000 + "  us");
-        return deserialize;
+        JsonSerializer jsonSerializer = Serializer.getJsonSerializer();
+        return jsonSerializer.deserialize(json, SerializableState.class);
     }
 
     public SerializableState(WorkerExecutionContext executionContext, int ip) {
@@ -77,16 +71,12 @@ public class SerializableState {
         }
         currentContextKey = String.valueOf(executionContext.hashCode());
         SerializableContext serializableContext = new SerializableContext(currentContextKey, executionContext,
-                this, ip);
+                                                                          this, ip);
         sContexts.put(currentContextKey, serializableContext);
     }
 
     public String serialize() {
-        long t = System.nanoTime();
-        String s = Serializer.getGson().toJson(this);
-        long diff = System.nanoTime() - t;
-        log.error("s - time: " + diff / 1000 + "  us");
-        return s;
+        return Serializer.getJsonSerializer().serialize(this);
     }
 
     public WorkerExecutionContext getExecutionContext(ProgramFile programFile, Deserializer deserializer) {
@@ -126,14 +116,14 @@ public class SerializableState {
     public CallableWorkerResponseContext getResponseContext(String respCtxKey, ProgramFile programFile,
                                                             CallableUnitInfo callableUnitInfo,
                                                             Deserializer deserializer) {
-        CallableWorkerResponseContext responseContext = deserializer.getTempRespContexts().get(respCtxKey);
-        if (responseContext == null) {
-            SerializableRespContext serializableRespContext = sRespContexts.get(respCtxKey);
-            responseContext =
-                    serializableRespContext.getResponseContext(programFile, callableUnitInfo,
-                            this, deserializer);
-            deserializer.getTempRespContexts().put(respCtxKey, responseContext);
+        CallableWorkerResponseContext responseContext = deserializer.getRespContexts().get(respCtxKey);
+        if (responseContext != null) {
+            return responseContext;
         }
+        SerializableRespContext serializableRespContext = sRespContexts.get(respCtxKey);
+        responseContext = serializableRespContext.getResponseContext(programFile, callableUnitInfo,
+                                                                     this, deserializer);
+        deserializer.getRespContexts().put(respCtxKey, responseContext);
         return responseContext;
     }
 

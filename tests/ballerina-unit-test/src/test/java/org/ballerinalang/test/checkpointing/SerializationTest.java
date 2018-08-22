@@ -53,6 +53,7 @@ import org.testng.annotations.Ignore;
 import org.testng.annotations.Test;
 
 import java.io.IOException;
+import java.lang.reflect.Field;
 import java.math.BigDecimal;
 import java.net.URISyntaxException;
 import java.nio.channels.ByteChannel;
@@ -60,6 +61,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Serialization and Deserialization test case.
@@ -146,7 +148,7 @@ public class SerializationTest {
     }
 
     @Test(description = "Test deserialization of JSON into SerializableState object")
-    public void testJsonDeserializeSerializableState() {
+    public void testJsonDeserializeSerializableState() throws NoSuchFieldException, IllegalAccessException {
         WorkerExecutionContext weContext = new WorkerExecutionContext(compileResult.getProgFile());
         SerializableState serializableState = new SerializableState(weContext, 0);
         serializableState.setId(INSTANCE_ID);
@@ -163,7 +165,8 @@ public class SerializationTest {
     }
 
     @Test(description = "Test deserialization of Deeply nested BMap in SerializableState")
-    public void testJsonDeserializeSerializableStateDeepBMapReconstruction() {
+    public void testJsonDeserializeSerializableStateDeepBMapReconstruction() throws
+            NoSuchFieldException, IllegalAccessException {
         WorkerExecutionContext weContext = new WorkerExecutionContext(compileResult.getProgFile());
         SerializableState serializableState = new SerializableState(weContext, 0);
         serializableState.setId(INSTANCE_ID);
@@ -172,7 +175,9 @@ public class SerializationTest {
 
         SerializableState state = serializableState.deserialize(json);
 
-        SerializableRefType bmapKey1 = state.sRefTypes.get(BMAP_KEY);
+
+        SerializableRefType bmapKey1 = getSRefTypesMap(state).get(BMAP_KEY);;
+
         BMap<String, BValue> bmap =
                 (BMap) bmapKey1.getBRefType(compileResult.getProgFile(), state, new Deserializer());
         BString value = (BString) bmap.get(KEY_STR);
@@ -192,6 +197,14 @@ public class SerializationTest {
         Assert.assertTrue(gProp1 == bstring);
     }
 
+    private Map<String, SerializableRefType> getSRefTypesMap(SerializableState state) throws
+            NoSuchFieldException, IllegalAccessException {
+        Field sRefTypes = state.getClass().getDeclaredField("sRefTypes");
+        sRefTypes.setAccessible(true);
+        Map<String, SerializableRefType> map = (Map<String, SerializableRefType>) sRefTypes.get(state);
+        return map;
+    }
+
     private BRefType getInnerBMap() {
         BMap<String, BRefType> map = new BMap<>();
         map.put("map.A", new BString("A"));
@@ -203,7 +216,7 @@ public class SerializationTest {
         return map;
     }
 
-    private void mock(SerializableState serializableState) {
+    private void mock(SerializableState serializableState) throws NoSuchFieldException, IllegalAccessException {
         BString sharedString = new BString(BSTRING_VALUE); // use in multiple places to test reference sharing.
 
         serializableState.globalProps.put(PROP_KEY_1, sharedString);
@@ -215,7 +228,8 @@ public class SerializationTest {
         bMap.put(KEY_STR, new BString(BSRING_CONTENT));
         bMap.put(INNER_BMAP_KEY, getInnerBMap());
         bMap.put(BSTRING, sharedString);
-        serializableState.sRefTypes.put(BMAP_KEY, new SerializableBMap(bMap, serializableState));
+        SerializableBMap value = new SerializableBMap(bMap, serializableState);
+        getSRefTypesMap(serializableState).put(BMAP_KEY, value);
     }
 
     /**

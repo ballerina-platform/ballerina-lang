@@ -31,21 +31,6 @@ import org.ballerinalang.model.values.BRefValueArray;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BStringArray;
 import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.persistence.serializable.SerializableState;
-import org.ballerinalang.persistence.serializable.serializer.providers.bvalue.ArrayListBValueProvider;
-import org.ballerinalang.persistence.serializable.serializer.providers.bvalue.BBooleanBValueProvider;
-import org.ballerinalang.persistence.serializable.serializer.providers.bvalue.BIntegerBValueProvider;
-import org.ballerinalang.persistence.serializable.serializer.providers.bvalue.BMapBValueProvider;
-import org.ballerinalang.persistence.serializable.serializer.providers.bvalue.BRefValueArrayBValueProvider;
-import org.ballerinalang.persistence.serializable.serializer.providers.bvalue.BStringBValueProvider;
-import org.ballerinalang.persistence.serializable.serializer.providers.bvalue.BTypeBValueProviders;
-import org.ballerinalang.persistence.serializable.serializer.providers.bvalue.BallerinaBrokerByteBufBValueProvider;
-import org.ballerinalang.persistence.serializable.serializer.providers.bvalue.ClassBValueProvider;
-import org.ballerinalang.persistence.serializable.serializer.providers.bvalue.ConcurrentHashMapBValueProvider;
-import org.ballerinalang.persistence.serializable.serializer.providers.bvalue.DateTimeBValueProviders;
-import org.ballerinalang.persistence.serializable.serializer.providers.bvalue.NumericBValueProviders;
-import org.ballerinalang.persistence.serializable.serializer.providers.bvalue.SerializedKeyBValueProvider;
-import org.ballerinalang.util.exceptions.BallerinaException;
 
 import java.io.Closeable;
 import java.lang.reflect.Array;
@@ -74,48 +59,11 @@ public class BValueTree implements BValueSerializer, Closeable {
     private static final BValueProvider bValueProvider = BValueProvider.getInstance();
     private boolean isClosed;
 
-    static {
-        bValueProvider.register(new NumericBValueProviders.BigIntegerBValueProvider());
-        bValueProvider.register(new NumericBValueProviders.BigDecimalBValueProvider());
-        bValueProvider.register(new BStringBValueProvider());
-        bValueProvider.register(new BRefValueArrayBValueProvider());
-        bValueProvider.register(new BMapBValueProvider());
-        bValueProvider.register(new ClassBValueProvider());
-        bValueProvider.register(new BallerinaBrokerByteBufBValueProvider());
-        bValueProvider.register(new ConcurrentHashMapBValueProvider());
-        bValueProvider.register(new BIntegerBValueProvider());
-        bValueProvider.register(new BBooleanBValueProvider());
-        bValueProvider.register(new ArrayListBValueProvider());
-        bValueProvider.register(new BTypeBValueProviders.BObjectTypeBValueProvider());
-        bValueProvider.register(new BTypeBValueProviders.BRecordTypeBValueProvider());
-        bValueProvider.register(new BTypeBValueProviders.BAnyTypeBValueProvider());
-        bValueProvider.register(new BTypeBValueProviders.BArrayTypeBValueProvider());
-        bValueProvider.register(new SerializedKeyBValueProvider());
-        bValueProvider.register(new DateTimeBValueProviders.DateBValueProvider());
-        bValueProvider.register(new DateTimeBValueProviders.InstantBValueProvider());
+    BValueTree() {
+        isClosed = false;
     }
 
-    public JsonSerializer() {
-    }
-
-    /**
-     * Get the BValueProvider associated with this JsonSerializer instance.
-     * Use this instance to add SerializationBValueProvider implementations for this {@link JsonSerializer} instance.
-     *
-     * @return
-     */
-    public BValueProvider getBValueProviderRegistry() {
-        return this.bValueProvider;
-    }
-
-    /**
-     * Generate JSON serialized output from the given Java object instance.
-     *
-     * @param object instance to be serialized
-     * @return
-     */
-    @Override
-    public String serialize(Object object) {
+    BRefType toBValueTree(Object src) {
         try {
             BRefType tree = toBValue(src, src.getClass());
             BValueHelper.trimTree(tree, repeatedReferenceSet);

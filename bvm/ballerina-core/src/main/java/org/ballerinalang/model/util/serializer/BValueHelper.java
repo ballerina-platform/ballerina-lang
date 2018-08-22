@@ -30,7 +30,7 @@ import java.util.HashSet;
 /**
  * Helper methods to convert Java objects to BValue objects.
  */
-class BValueHelper {
+public class BValueHelper {
     static BMap<String, BValue> wrapObject(String type, BValue payload) {
         BMap<String, BValue> map = new BMap<>();
         map.put(JsonSerializerConst.TYPE_TAG, createBString(type));
@@ -89,7 +89,7 @@ class BValueHelper {
      * @param repeatedReferenceSet
      */
     @SuppressWarnings("unchecked")
-    static void trimTree(BValue jsonObj, HashSet<String> repeatedReferenceSet) {
+    public static void trimTree(BValue jsonObj, HashSet<String> repeatedReferenceSet) {
         if (jsonObj == null) {
             return;
         }

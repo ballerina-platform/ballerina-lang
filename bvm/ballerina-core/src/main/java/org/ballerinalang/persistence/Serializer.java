@@ -19,7 +19,6 @@ package org.ballerinalang.persistence;
 import org.ballerinalang.model.util.serializer.BValueProvider;
 import org.ballerinalang.model.util.serializer.InstanceProviderRegistry;
 import org.ballerinalang.model.util.serializer.JsonSerializer;
-import org.ballerinalang.model.util.serializer.ObjectToJsonSerializer;
 import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BByte;
 import org.ballerinalang.model.values.BFloat;
@@ -36,7 +35,6 @@ import org.ballerinalang.persistence.serializable.serializer.providers.instance.
 
 import java.net.InetSocketAddress;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 
 /**
@@ -50,7 +48,6 @@ public class Serializer {
     private static final BValueProvider bValueProvider = BValueProvider.getInstance();
     private static final InstanceProviderRegistry instanceProvider = InstanceProviderRegistry.getInstance();
 
-    private static Gson gson;
     static {
         serializableClasses.add(String.class.getName());
         serializableClasses.add(Integer.class.getName());
@@ -82,5 +79,9 @@ public class Serializer {
             return true;
         }
         return serializableClasses.contains(o.getClass().getName());
+    }
+
+    public static JsonSerializer getJsonSerializer() {
+        return new JsonSerializer();
     }
 }

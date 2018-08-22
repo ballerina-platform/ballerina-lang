@@ -23,8 +23,6 @@ import org.ballerinalang.model.util.serializer.JsonSerializer;
 import org.ballerinalang.model.util.serializer.providers.bvalue.NumericBValueProviders;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.persistence.serializable.serializer.JsonSerializer;
-import org.ballerinalang.persistence.serializable.serializer.providers.bvalue.NumericBValueProviders;
 import org.joda.time.DateTime;
 import org.testng.Assert;
 import org.testng.annotations.AfterMethod;
@@ -46,6 +44,19 @@ import static org.ballerinalang.model.util.serializer.JsonSerializerConst.PAYLOA
 public class SerializationBValueProviderTest {
 
     private static final String NUMBER = "2345232323";
+    BValueSerializer serializer;
+
+    @BeforeMethod
+    public void setup() throws NoSuchMethodException, IllegalAccessException, InvocationTargetException, InstantiationException {
+        Constructor<BValueTree> constructor = BValueTree.class.getDeclaredConstructor();
+        constructor.setAccessible(true);
+        serializer = constructor.newInstance();
+    }
+
+    @AfterMethod
+    public void reset() {
+        serializer = null;
+    }
 
     @Test(description = "test BigInt to BValue conversion")
     public void testBigIntBValueProviderToBValue() {
