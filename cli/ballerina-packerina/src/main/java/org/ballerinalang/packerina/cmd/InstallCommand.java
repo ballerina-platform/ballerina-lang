@@ -50,8 +50,9 @@ public class InstallCommand implements BLauncherCmd {
             description = "path to the directory containing source files and packages")
     private String sourceRoot;
 
-    @Parameter(names = {"--build"}, description = "build sources before installing to the home repository")
-    private boolean build;
+    @Parameter(names = {"--y"}, description = " Assume yes to all queries and do not prompt confirmation when " +
+            "installing the package to the home repository")
+    private boolean installToHome;
 
     @Override
     public void execute() {
@@ -62,10 +63,10 @@ public class InstallCommand implements BLauncherCmd {
         }
 
         if (argList == null || argList.size() == 0) {
-            PushUtils.pushAllPackages(sourceRoot, "home", build);
+            PushUtils.pushAllPackages(sourceRoot, "home", installToHome);
         } else if (argList.size() == 1) {
             String packageStr = argList.get(0);
-            PushUtils.pushPackages(packageStr, sourceRoot, "home", build);
+            PushUtils.pushPackages(packageStr, sourceRoot, "home", installToHome);
         } else {
             throw LauncherUtils.createUsageException("too many arguments");
         }
