@@ -40,6 +40,7 @@ import org.testng.annotations.Optional;
 import org.testng.annotations.Parameters;
 import org.testng.annotations.Test;
 
+import java.io.File;
 import java.util.Calendar;
 
 import static org.ballerinalang.test.utils.SQLDBUtils.DBType.H2;
@@ -745,8 +746,8 @@ public class SQLActionsTest {
     }
 
     @Test(groups = CONNECTOR_TEST, description = "Test failure scenario in adding data to mirrored table")
-    public void testAddToMirrorTableNegative() throws Exception {
-        BValue[] returns = BRunUtil.invoke(resultMirror, "testAddToMirrorTableNegative", connectionArgs);
+    public void testAddToMirrorTableConstraintViolation() throws Exception {
+        BValue[] returns = BRunUtil.invoke(resultMirror, "testAddToMirrorTableConstraintViolation", connectionArgs);
         String errorMessage;
         if (dbType == MYSQL) {
             errorMessage = "execute update failed: Duplicate entry '1' for key 'PRIMARY'";
@@ -758,6 +759,25 @@ public class SQLActionsTest {
         } else {
             errorMessage = "execute update failed: integrity constraint violation: unique constraint or index "
                     + "violation";
+        }
+        Assert.assertNotNull(returns);
+        Assert.assertTrue(returns[0].stringValue().contains(errorMessage));
+    }
+
+    @Test(groups = CONNECTOR_TEST, description = "Test failure scenario in adding data to mirrored table")
+    public void testAddToMirrorTableInvalidRecord() throws Exception {
+        BValue[] returns = BRunUtil.invoke(resultMirror, "testAddToMirrorTableInvalidRecord", connectionArgs);
+        String errorMessage;
+        if (dbType == MYSQL) {
+            errorMessage = "execute update failed: Unknown column 'age' in 'field list'";
+        } else if (dbType == POSTGRES) {
+            errorMessage = "execute update failed: ERROR: column \"age\" of relation \"employeeadd\" does not exist";
+        } else if (dbType == H2) {
+            errorMessage = "execute add failed: Column \"AGE\" not found; SQL statement:\n"
+                    + "INSERT INTO employeeAdd (id ,name ,address ,age ) values (?,?,?,?)";
+        } else {
+            errorMessage = "user lacks privilege or object not found: AGE in statement [INSERT INTO employeeAdd (id ,"
+                    + "name ,address ,age ) values (?,?,?,?)]";
         }
         Assert.assertNotNull(returns);
         Assert.assertTrue(returns[0].stringValue().contains(errorMessage));
@@ -820,6 +840,46 @@ public class SQLActionsTest {
                 + "name:\"Manuri\", address:\"Sri Lanka\"}, {id:2, name:\"Devni\", address:\"Sri Lanka\"}, {id:3, "
                 + "name:\"Thurani\", address:\"Sri Lanka\"}], {message:\"Trying to perform hasNext operation over a "
                 + "closed table\", cause:null})");
+    }
+
+    @Test(groups = CONNECTOR_TEST, description = "Test re-init endpoint")
+    public void testReInitEndpoint() {
+        TestDatabase testDatabase2;
+        String validationQuery;
+
+        switch (dbType) {
+        case MYSQL:
+            testDatabase2 = new ContainerizedTestDatabase(dbType);
+            validationQuery = "SELECT 1";
+            break;
+        case POSTGRES:
+            testDatabase2 = new ContainerizedTestDatabase(dbType);
+            validationQuery = "SELECT 1";
+            break;
+        case H2:
+            testDatabase2 = new FileBasedTestDatabase(dbType,
+                    "." + File.separator + "target" + File.separator + "H2Client2" + File.separator,
+                    "TEST_SQL_CONNECTOR_H2_2");
+            validationQuery = "SELECT 1";
+            break;
+        case HSQLDB:
+            testDatabase2 = new FileBasedTestDatabase(dbType,
+                    "." + File.separator + "target" + File.separator + "HSQLDBClient2" + File.separator,
+                    "TEST_SQL_CONNECTOR_2");
+            validationQuery = "SELECT 1 FROM INFORMATION_SCHEMA.SYSTEM_USERS";
+            break;
+        default:
+            throw new UnsupportedOperationException("Unsupported database type: " + dbType);
+        }
+
+        BValue[] args = new BValue[5];
+        System.arraycopy(connectionArgs, 0, args, 0, 3);
+        args[3] = new BString(testDatabase2.getJDBCUrl());
+        args[4] = new BString(validationQuery);
+
+        BValue[] returns = BRunUtil.invoke(result, "testReInitEndpoint", args);
+        Assert.assertEquals(((BInteger) returns[0]).intValue(), 1);
+        testDatabase2.stop();
     }
 
     @AfterSuite

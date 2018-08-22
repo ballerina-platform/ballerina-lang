@@ -148,6 +148,7 @@ public class Mnemonics {
         mnemonics[InstructionCodes.ERRSTORE] = "errstore";
         mnemonics[InstructionCodes.FPCALL] = "fp_call";
         mnemonics[InstructionCodes.FPLOAD] = "fp_load";
+        mnemonics[InstructionCodes.VFPLOAD] = "vfp_load";
 
         mnemonics[InstructionCodes.I2F] = "i2f";
         mnemonics[InstructionCodes.I2S] = "i2s";
@@ -168,10 +169,6 @@ public class Mnemonics {
         mnemonics[InstructionCodes.B2F] = "b2f";
         mnemonics[InstructionCodes.B2S] = "b2s";
         mnemonics[InstructionCodes.B2ANY] = "b2any";
-        mnemonics[InstructionCodes.JSON2I] = "json2i";
-        mnemonics[InstructionCodes.JSON2F] = "json2f";
-        mnemonics[InstructionCodes.JSON2S] = "json2s";
-        mnemonics[InstructionCodes.JSON2B] = "json2b";
         mnemonics[InstructionCodes.T2JSON] = "t2json";
         mnemonics[InstructionCodes.JSON2T] = "json2t";
         mnemonics[InstructionCodes.JSON2MAP] = "json2map";
@@ -181,7 +178,6 @@ public class Mnemonics {
         mnemonics[InstructionCodes.ANY2SCONV] = "any2sconv";
         mnemonics[InstructionCodes.IS_ASSIGNABLE] = "is_assignable";
 
-        mnemonics[InstructionCodes.TYPEOF] = "typeof";
         mnemonics[InstructionCodes.TYPELOAD] = "typeload";
 
         // Type cast
@@ -219,7 +215,6 @@ public class Mnemonics {
         mnemonics[InstructionCodes.SNEWARRAY] = "snewarray";
         mnemonics[InstructionCodes.BNEWARRAY] = "bnewarray";
         mnemonics[InstructionCodes.RNEWARRAY] = "rnewarray";
-        mnemonics[InstructionCodes.ARRAYLEN] = "arraylength";
 
         mnemonics[InstructionCodes.NEWSTRUCT] = "newstruct";
         mnemonics[InstructionCodes.NEWMAP] = "newmap";
@@ -254,7 +249,6 @@ public class Mnemonics {
         mnemonics[InstructionCodes.XMLLOAD] = "xmlload";
         mnemonics[InstructionCodes.XMLLOADALL] = "xmlloadall";
         mnemonics[InstructionCodes.NEWXMLSEQ] = "newxmlseq";
-        mnemonics[InstructionCodes.S2XML] = "s2xml";
         mnemonics[InstructionCodes.XML2S] = "xml2s";
         mnemonics[InstructionCodes.LOCK] = "lock";
         mnemonics[InstructionCodes.UNLOCK] = "unlock";

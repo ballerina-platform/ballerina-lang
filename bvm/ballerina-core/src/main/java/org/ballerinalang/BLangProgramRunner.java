@@ -18,6 +18,7 @@
 package org.ballerinalang;
 
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.persistence.RecoveryTask;
 import org.ballerinalang.util.codegen.FunctionInfo;
 import org.ballerinalang.util.codegen.PackageInfo;
 import org.ballerinalang.util.codegen.ProgramFile;
@@ -52,6 +53,10 @@ public class BLangProgramRunner {
 
         BLangFunctions.invokePackageInitFunctions(programFile);
         BLangFunctions.invokePackageStartFunctions(programFile);
+    }
+
+    public static void resumeStates(ProgramFile programFile) {
+        new Thread(new RecoveryTask(programFile)).start();
     }
 
     public static BValue[] runEntryFunc(ProgramFile programFile, String functionName, String[] args) {
@@ -106,7 +111,7 @@ public class BLangProgramRunner {
         if (functionInfo == null) {
             throw new BallerinaException(errorMsg);
         }
-        
+
         if (!functionInfo.isPublic()) {
             throw new BallerinaException("non public function '" + functionName + "' not allowed as entry function");
         }

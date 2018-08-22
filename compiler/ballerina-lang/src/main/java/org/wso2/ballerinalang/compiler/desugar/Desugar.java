@@ -560,49 +560,8 @@ public class Desugar extends BLangNodeVisitor {
         if (varNode.expr == null) {
             varNode.expr = getInitExpr(varNode);
         }
+        result = varDefNode;
 
-        if (!varNode.safeAssignment) {
-            result = varDefNode;
-            return;
-        }
-
-        // Desugar the =? operator with the match statement
-        //
-        //  e.g.
-        //      var f =? openFile("/tmp/foo.txt"); // openFile: () -> (File | error)
-        //
-        //      {
-        //          File f;
-        //          match openFile("/tmp/foo.txt") {
-        //              File _$_f1 => f = _$_f1;
-        //              error e => throw e | return e
-        //          }
-        //      }
-
-        // Create the pattern to match the success case
-        BLangMatchStmtPatternClause patternSuccessCase = getSafeAssignSuccessPattern(varNode.pos,
-                varNode.symbol.type, true, varNode.symbol, null);
-        BLangMatchStmtPatternClause patternErrorCase = getSafeAssignErrorPattern(varNode.pos, varNode.symbol.owner);
-
-
-        // Create the match statement
-        BLangMatch matchStmt = ASTBuilderUtil.createMatchStatement(varNode.expr.pos,
-                varNode.expr, new ArrayList<BLangMatchStmtPatternClause>() {{
-                    add(patternSuccessCase);
-                    add(patternErrorCase);
-                }});
-
-        // var f =? foo() -> var f;
-        varNode.expr = null;
-        varNode.safeAssignment = false;
-
-        BLangBlockStmt safeAssignmentBlock = ASTBuilderUtil.createBlockStmt(varDefNode.pos,
-                new ArrayList<BLangStatement>() {{
-                    add(varDefNode);
-                    add(matchStmt);
-                }});
-
-        result = rewrite(safeAssignmentBlock, this.env);
     }
 
     @Override
@@ -619,55 +578,6 @@ public class Desugar extends BLangNodeVisitor {
         assignNode.expr = rewriteExpr(assignNode.expr);
         result = assignNode;
 
-        if (!assignNode.safeAssignment) {
-            return;
-        }
-
-        // Desugar the =? operator with the match statement
-        //
-        //  e.g.
-        //      File f;
-        //      .....
-        //      f =? openFile("/tmp/foo.txt"); // openFile: () -> (File | error)
-        //
-        //      {
-        //          match openFile("/tmp/foo.txt") {
-        //              File _$_f1 => f = _$_f1;
-        //              error e => throw e | return e
-        //          }
-        //      }
-        BLangBlockStmt safeAssignmentBlock = ASTBuilderUtil.createBlockStmt(assignNode.pos, new ArrayList<>());
-        BLangExpression lhsExpr = assignNode.varRef;
-        BLangMatchStmtPatternClause patternSuccessCase;
-        if (assignNode.declaredWithVar) {
-            BVarSymbol varSymbol = ((BLangSimpleVarRef) lhsExpr).varSymbol;
-            BLangVariable variable = ASTBuilderUtil.createVariable(assignNode.pos, "", lhsExpr.type, null, varSymbol);
-            BLangVariableDef variableDef = ASTBuilderUtil.createVariableDef(assignNode.pos, variable);
-            safeAssignmentBlock.stmts.add(variableDef);
-            patternSuccessCase = getSafeAssignSuccessPattern(assignNode.pos, lhsExpr.type,
-                    true, varSymbol, null);
-        } else {
-            patternSuccessCase = getSafeAssignSuccessPattern(assignNode.pos, lhsExpr.type,
-                    false, null, lhsExpr);
-        }
-
-        // Create the pattern to match the success case
-        BLangMatchStmtPatternClause patternErrorCase = getSafeAssignErrorPattern(assignNode.pos,
-                this.env.enclInvokable.symbol);
-
-
-        // Create the match statement
-        BLangMatch matchStmt = ASTBuilderUtil.createMatchStatement(assignNode.pos,
-                assignNode.expr, new ArrayList<BLangMatchStmtPatternClause>() {{
-                    add(patternSuccessCase);
-                    add(patternErrorCase);
-                }});
-
-        // var f =? foo() -> var f;
-        assignNode.expr = null;
-        assignNode.safeAssignment = false;
-        safeAssignmentBlock.stmts.add(matchStmt);
-        result = rewrite(safeAssignmentBlock, this.env);
     }
 
     @Override
@@ -2156,55 +2066,6 @@ public class Desugar extends BLangNodeVisitor {
             throwStmt.pos = pos;
             throwStmt.expr = patternFailureCaseVarRef;
             patternBlockFailureCase.stmts.add(throwStmt);
-        }
-
-        return ASTBuilderUtil.createMatchStatementPattern(pos, patternFailureCaseVar, patternBlockFailureCase);
-    }
-
-    // TODO Remove this method when refactoring the =? operator
-    private BLangMatchStmtPatternClause getSafeAssignErrorPattern(DiagnosticPos pos, BSymbol invokableSymbol) {
-        // From here onwards we assume that this function has only one return type
-        // Owner of the variable symbol must be an invokable symbol
-        boolean noRetParams = ((BInvokableType) invokableSymbol.type).retType == null;
-        boolean returnErrorType = false;
-        if (!noRetParams) {
-            BType retType = ((BInvokableType) invokableSymbol.type).retType;
-            Set<BType> returnTypeSet = retType.tag == TypeTags.UNION ?
-                    ((BUnionType) retType).memberTypes :
-                    new LinkedHashSet<BType>() {{
-                        add(retType);
-                    }};
-            returnErrorType = returnTypeSet
-                    .stream()
-                    .anyMatch(type -> types.isAssignable(type, symTable.errStructType));
-        }
-
-        // Create the pattern to match the error type
-        //      1) Create the pattern variable
-        String patternFailureCaseVarName = GEN_VAR_PREFIX.value + "t_failure";
-        BLangVariable patternFailureCaseVar = ASTBuilderUtil.createVariable(pos,
-                patternFailureCaseVarName, symTable.errStructType, null, new BVarSymbol(0,
-                        names.fromString(patternFailureCaseVarName),
-                        this.env.scope.owner.pkgID, symTable.errStructType, this.env.scope.owner));
-
-        //      2) Create the pattern block
-        BLangVariableReference patternFailureCaseVarRef = ASTBuilderUtil.createVariableRef(pos,
-                patternFailureCaseVar.symbol);
-
-        BLangBlockStmt patternBlockFailureCase = (BLangBlockStmt) TreeBuilder.createBlockNode();
-        patternBlockFailureCase.pos = pos;
-        if (noRetParams || !returnErrorType) {
-            // throw e
-            BLangThrow throwStmt = (BLangThrow) TreeBuilder.createThrowNode();
-            throwStmt.pos = pos;
-            throwStmt.expr = patternFailureCaseVarRef;
-            patternBlockFailureCase.stmts.add(throwStmt);
-        } else {
-            //return e;
-            BLangReturn returnStmt = (BLangReturn) TreeBuilder.createReturnNode();
-            returnStmt.pos = pos;
-            returnStmt.expr = patternFailureCaseVarRef;
-            patternBlockFailureCase.stmts.add(returnStmt);
         }
 
         return ASTBuilderUtil.createMatchStatementPattern(pos, patternFailureCaseVar, patternBlockFailureCase);

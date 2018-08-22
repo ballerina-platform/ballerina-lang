@@ -3186,6 +3186,10 @@ public class BLangPackageBuilder {
 
         if (!selectClausesStack.empty()) {
             streamingQueryStatementNode.setSelectClause(selectClausesStack.pop());
+        } else {
+            SelectClauseNode selectClauseNode = new BLangSelectClause();
+            selectClauseNode.setSelectAll(true);
+            streamingQueryStatementNode.setSelectClause(selectClauseNode);
         }
 
         if (!orderByClauseStack.empty()) {

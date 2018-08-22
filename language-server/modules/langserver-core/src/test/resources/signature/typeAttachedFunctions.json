@@ -1,0 +1,26 @@
+{
+  "position": {
+    "line": 2,
+    "character": 24
+  },
+  "expected": {
+    "id":"324",
+    "result":{
+      "signatures":[
+        {
+          "label":"contains(string substring)",
+          "documentation":"Returns a Boolean value indicating whether a string contains the specified substring.",
+          "parameters":[
+            {
+              "label":"substring",
+              "documentation":" The substring to be compared\n    "
+            }
+          ]
+        }
+      ],
+      "activeSignature":0,
+      "activeParameter":0
+    },
+    "jsonrpc":"2.0"
+  }
+}

@@ -196,6 +196,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
     private BType resType;
     private boolean isSiddhiRuntimeEnabled;
     private boolean isGroupByAvailable;
+    private boolean isWindowAvailable;
 
     private Map<BLangBlockStmt, SymbolEnv> blockStmtEnvMap = new HashMap<>();
 
@@ -1329,8 +1330,10 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangWindow windowClause) {
+        isWindowAvailable = true;
         ExpressionNode expressionNode = windowClause.getFunctionInvocation();
         ((BLangExpression) expressionNode).accept(this);
+        isWindowAvailable = false;
     }
 
     @Override
@@ -1339,7 +1342,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         if (variableReferenceNode != null) {
             ((BLangVariableReference) variableReferenceNode).accept(this);
         }
-        if (!isSiddhiRuntimeEnabled && isGroupByAvailable) {
+        if (!isSiddhiRuntimeEnabled && (isGroupByAvailable || isWindowAvailable)) {
             for (BLangExpression arg : invocationExpr.argExprs) {
                 typeChecker.checkExpr(arg, env);
             }

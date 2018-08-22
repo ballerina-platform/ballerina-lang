@@ -27,18 +27,17 @@ import java.util.List;
  * @since 0.95.6
  */
 class SignatureKeys {
-    static final LSContext.Key<String> CALLABLE_ITEM_NAME
-            = new LSContext.Key<>();
-    static final LSContext.Key<String> ITEM_DELIMITER
-            = new LSContext.Key<>();
-    static final LSContext.Key<List<SymbolInfo>> VISIBLE_SYMBOLS_KEY
-            = new LSContext.Key<>();
+
+    private SignatureKeys() {
+    }
+
+    static final LSContext.Key<String> CALLABLE_ITEM_NAME = new LSContext.Key<>();
+    static final LSContext.Key<String> ITEM_DELIMITER = new LSContext.Key<>();
+    static final LSContext.Key<List<SymbolInfo>> VISIBLE_SYMBOLS_KEY = new LSContext.Key<>();
     /**
      * If os:get... then identifier against is os
      * If res.send(.. then identifier against is res
      */
-    static final LSContext.Key<String> IDENTIFIER_AGAINST
-            = new LSContext.Key<>();
-    static final LSContext.Key<Integer> PARAMETER_COUNT
-            = new LSContext.Key<>();
+    static final LSContext.Key<String> IDENTIFIER_AGAINST = new LSContext.Key<>();
+    static final LSContext.Key<Integer> PARAMETER_COUNT = new LSContext.Key<>();
 }

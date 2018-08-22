@@ -78,37 +78,38 @@ public class InitEndpoint extends BlockingNativeCallableUnit {
 
         String remoteUrl = clientEndpointConfig.getStringField(WebSocketConstants.CLIENT_URL_CONFIG);
         Value clientServiceType = clientEndpointConfig.getTypeField(WebSocketConstants.CLIENT_SERVICE_CONFIG);
-        Service service = BLangConnectorSPIUtil.getServiceFromType(context.getProgramFile(), clientServiceType);
-        if (service == null) {
-            throw new BallerinaConnectorException("Cannot find client service: " + clientServiceType);
-        }
-        if (WebSocketConstants.WEBSOCKET_CLIENT_ENDPOINT_NAME.equals(service.getEndpointName())) {
-            WebSocketService wsService = new WebSocketService(service);
-            WebSocketClientConnectorConfig clientConnectorConfig = new WebSocketClientConnectorConfig(remoteUrl);
-            populateClientConnectorConfig(clientEndpointConfig, clientConnectorConfig);
-
-            HttpWsConnectorFactory connectorFactory = HttpUtil.createHttpWsConnectionFactory();
-            WebSocketClientConnector clientConnector = connectorFactory.createWsClientConnector(
-                    clientConnectorConfig);
-            WebSocketClientConnectorListener clientConnectorListener = new WebSocketClientConnectorListener();
-            boolean readyOnConnect = clientEndpointConfig.getBooleanField(WebSocketConstants.CLIENT_READY_ON_CONNECT);
-            ClientHandshakeFuture handshakeFuture = clientConnector.connect();
-            handshakeFuture.setWebSocketConnectorListener(clientConnectorListener);
-            CountDownLatch countDownLatch = new CountDownLatch(1);
-            handshakeFuture.setClientHandshakeListener(
-                    new WebSocketClientHandshakeListener(context, wsService, clientConnectorListener,
-                                                         readyOnConnect, countDownLatch));
-            try {
-                if (!countDownLatch.await(60, TimeUnit.SECONDS)) {
-                    throw new BallerinaConnectorException("Waiting for WebSocket handshake has not been successful");
-                }
-            } catch (InterruptedException e) {
-                Thread.currentThread().interrupt();
-                throw new BallerinaConnectorException("Error occurred: " + e.getMessage());
-
+        WebSocketService wsService;
+        if (clientServiceType != null) {
+            Service service = BLangConnectorSPIUtil.getServiceFromType(context.getProgramFile(), clientServiceType);
+            if (!WebSocketConstants.WEBSOCKET_CLIENT_ENDPOINT_NAME.equals(service.getEndpointName())) {
+                throw new BallerinaConnectorException("The callback service should be of type WebSocketClientService");
             }
+            wsService = new WebSocketService(service);
         } else {
-            throw new BallerinaConnectorException("Incorrect endpoint: " + service.getEndpointName());
+            wsService = new WebSocketService();
+        }
+        WebSocketClientConnectorConfig clientConnectorConfig = new WebSocketClientConnectorConfig(remoteUrl);
+        populateClientConnectorConfig(clientEndpointConfig, clientConnectorConfig);
+
+        HttpWsConnectorFactory connectorFactory = HttpUtil.createHttpWsConnectionFactory();
+        WebSocketClientConnector clientConnector = connectorFactory.createWsClientConnector(
+                clientConnectorConfig);
+        WebSocketClientConnectorListener clientConnectorListener = new WebSocketClientConnectorListener();
+        boolean readyOnConnect = clientEndpointConfig.getBooleanField(WebSocketConstants.CLIENT_READY_ON_CONNECT);
+        ClientHandshakeFuture handshakeFuture = clientConnector.connect();
+        handshakeFuture.setWebSocketConnectorListener(clientConnectorListener);
+        CountDownLatch countDownLatch = new CountDownLatch(1);
+        handshakeFuture.setClientHandshakeListener(
+                new WebSocketClientHandshakeListener(context, wsService, clientConnectorListener,
+                                                     readyOnConnect, countDownLatch));
+        try {
+            if (!countDownLatch.await(60, TimeUnit.SECONDS)) {
+                throw new BallerinaConnectorException("Waiting for WebSocket handshake has not been successful");
+            }
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            throw new BallerinaConnectorException("Error occurred: " + e.getMessage());
+
         }
         context.setReturnValues();
     }
@@ -171,12 +172,11 @@ public class InitEndpoint extends BlockingNativeCallableUnit {
             //using only one service endpoint in the client as there can be only one connection.
             BMap<String, BValue> webSocketClientEndpoint = ((BMap<String, BValue>) context.getRefArgument(0));
             webSocketClientEndpoint.put(WebSocketConstants.CLIENT_RESPONSE_FIELD,
-                                                HttpUtil.createResponseStruct(context, carbonResponse));
+                                        HttpUtil.createResponseStruct(context, carbonResponse));
             BMap<String, BValue> webSocketConnector = BLangConnectorSPIUtil.createObject(
-                    wsService.getResources()[0].getResourceInfo().getServiceInfo().getPackageInfo().getProgramFile(),
-                    PROTOCOL_PACKAGE_HTTP, WebSocketConstants.WEBSOCKET_CONNECTOR);
-            WebSocketOpenConnectionInfo connectionInfo =
-                    new WebSocketOpenConnectionInfo(wsService, webSocketConnection, webSocketClientEndpoint);
+                    context, PROTOCOL_PACKAGE_HTTP, WebSocketConstants.WEBSOCKET_CONNECTOR);
+            WebSocketOpenConnectionInfo connectionInfo = new WebSocketOpenConnectionInfo(
+                    wsService, webSocketConnection, webSocketClientEndpoint, context);
             webSocketConnector.addNativeData(WebSocketConstants.NATIVE_DATA_WEBSOCKET_CONNECTION_INFO, connectionInfo);
             WebSocketUtil.populateEndpoint(webSocketConnection, webSocketClientEndpoint);
             clientConnectorListener.setConnectionInfo(connectionInfo);
@@ -193,7 +193,7 @@ public class InitEndpoint extends BlockingNativeCallableUnit {
             if (response != null) {
                 BMap<String, BValue> webSocketClientEndpoint = ((BMap<String, BValue>) context.getRefArgument(0));
                 webSocketClientEndpoint.put(WebSocketConstants.CLIENT_RESPONSE_FIELD,
-                                                    HttpUtil.createResponseStruct(context, response));
+                                            HttpUtil.createResponseStruct(context, response));
             }
             countDownLatch.countDown();
             throw new BallerinaConnectorException("Error occurred: " + throwable.getMessage());

@@ -60,8 +60,8 @@ service HelloWorld bind ep {
     }
 
     testNoInputOutputStruct(endpoint caller) {
-        StockQuote res = {symbol:"WSO2", name:"WSO2 Inc.", last:14, low:15, high:16};
-        StockQuote res1 = {symbol:"Google", name:"Google Inc.", last:100, low:101, high:102};
+        StockQuote res = {symbol:"WSO2", name:"WSO2 Inc.", last:14.0, low:15.0, high:16.0};
+        StockQuote res1 = {symbol:"Google", name:"Google Inc.", last:100.0, low:101.0, high:102.0};
         StockQuotes quotes = {stock:[res, res1]};
         io:println(quotes);
 

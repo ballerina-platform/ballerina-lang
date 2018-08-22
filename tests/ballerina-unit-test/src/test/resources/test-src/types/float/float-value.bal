@@ -63,7 +63,7 @@ function testFloatValues() returns (float, float, float, float) {
 }
 
 function testHexFloatingPointLiterals() returns (float, float, float, float) {
-    float a = 0X12Ab;
+    float a = 0X12Ab.0;
     float b = 0x8.0;
     float c = 0xaP-1;
     float d = 0x3p2;

@@ -33,7 +33,7 @@ import java.util.List;
 import java.util.StringJoiner;
 
 /**
- * The {@code BTable} represents a data set in Ballerina.
+ * The {@code BTable} represents a two dimensional data set in Ballerina.
  *
  * @since 0.8.0
  */
@@ -225,7 +225,7 @@ public class BTable implements BRefType<Object>, BCollection {
      */
     public void performRemoveOperation(Context context, BFunctionPointer lambdaFunction) {
         try {
-            BType functionInputType = lambdaFunction.funcRefCPEntry.getFunctionInfo().getParamTypes()[0];
+            BType functionInputType = lambdaFunction.value().getParamTypes()[0];
             if (functionInputType != this.constraintType) {
                 throw new BallerinaException("incompatible types: function with record type:"
                         + functionInputType.getName() + " cannot be used to remove records from a table with type:"
@@ -235,7 +235,7 @@ public class BTable implements BRefType<Object>, BCollection {
             while (this.hasNext(false)) {
                 BMap<String, BValue> data = this.getNext();
                 BValue[] args = { data };
-                BValue[] returns = BLangFunctions.invokeCallable(lambdaFunction.value().getFunctionInfo(), args);
+                BValue[] returns = BLangFunctions.invokeCallable(lambdaFunction.value(), args);
                 if (((BBoolean) returns[0]).booleanValue()) {
                     ++deletedCount;
                     tableProvider.deleteData(tableName, data);
@@ -319,9 +319,6 @@ public class BTable implements BRefType<Object>, BCollection {
     private void insertInitialData(BRefValueArray data) {
         int count = (int) data.size();
         for (int i = 0; i < count; i++) {
-            if (!(data.get(i) instanceof BMap)) {
-                throw new BallerinaException("initial data should be in struct type");
-            }
             addData((BMap<String, BValue>) data.get(i));
         }
     }

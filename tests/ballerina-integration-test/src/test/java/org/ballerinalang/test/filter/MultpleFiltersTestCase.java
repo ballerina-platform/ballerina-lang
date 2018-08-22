@@ -24,8 +24,8 @@ import org.ballerinalang.test.util.HttpClientRequest;
 import org.ballerinalang.test.util.HttpResponse;
 import org.ballerinalang.test.util.TestConstant;
 import org.testng.Assert;
-import org.testng.annotations.AfterTest;
-import org.testng.annotations.BeforeTest;
+import org.testng.annotations.AfterGroups;
+import org.testng.annotations.BeforeGroups;
 import org.testng.annotations.Test;
 
 import java.io.File;
@@ -85,7 +85,7 @@ public class MultpleFiltersTestCase extends BaseTest {
         Assert.assertEquals(response.getResponseCode(), 500, "Response code mismatched");
     }
 
-    @BeforeTest(groups = "filter-test")
+    @BeforeGroups(value = "filter-test", alwaysRun = true)
     public void start() throws BallerinaTestException {
         String basePath = new File("src" + File.separator + "test" + File.separator + "resources" + File.separator +
                 "filter").getAbsolutePath();
@@ -93,7 +93,7 @@ public class MultpleFiltersTestCase extends BaseTest {
         serverInstance.startBallerinaServer("filterservices", args);
     }
 
-    @AfterTest(groups = "filter-test")
+    @AfterGroups(value = "filter-test", alwaysRun = true)
     public void cleanup() throws Exception {
         serverInstance.removeAllLeechers();
         serverInstance.stopServer();

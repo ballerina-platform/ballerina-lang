@@ -26,7 +26,7 @@ import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.natives.annotations.ReturnType;
-import org.ballerinalang.net.jms.AbstractBlockinAction;
+import org.ballerinalang.net.jms.AbstractBlockingAction;
 import org.ballerinalang.net.jms.nativeimpl.endpoint.common.ReceiveActionHandler;
 
 /**
@@ -49,7 +49,7 @@ import org.ballerinalang.net.jms.nativeimpl.endpoint.common.ReceiveActionHandler
                    },
                    isPublic = true
 )
-public class QueueReceive extends AbstractBlockinAction {
+public class QueueReceive extends AbstractBlockingAction {
 
     @Override
     public void execute(Context context, CallableUnitCallback callback) {

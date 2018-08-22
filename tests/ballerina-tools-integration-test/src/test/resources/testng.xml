@@ -28,6 +28,7 @@
             <class name="org.ballerinalang.test.packaging.PackagingTestCase"/>
             <class name="org.ballerinalang.test.packaging.PackagingInitTestCase"/>
             <class name="org.ballerinalang.test.packaging.grpc.ServicePackagingTestCase"/>
+            <class name="org.ballerinalang.test.packaging.PackagingSingleBalBuildTestCase"/>
         </classes>
     </test>
 

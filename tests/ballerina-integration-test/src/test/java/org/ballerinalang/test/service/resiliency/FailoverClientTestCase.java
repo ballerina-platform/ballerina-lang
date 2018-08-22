@@ -25,7 +25,7 @@ import org.ballerinalang.test.util.HttpClientRequest;
 import org.ballerinalang.test.util.HttpResponse;
 import org.ballerinalang.test.util.TestConstant;
 import org.testng.Assert;
-import org.testng.annotations.AfterClass;
+import org.testng.annotations.AfterTest;
 import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Test;
 
@@ -190,7 +190,7 @@ public class FailoverClientTestCase extends BaseTest {
         Assert.assertEquals(secondResponse.getData(), "Failover start index is : 2", "Message content mismatched");
     }
 
-    @AfterClass
+    @AfterTest(alwaysRun = true)
     private void cleanup() throws Exception {
         serverInstance.stopServer();
     }

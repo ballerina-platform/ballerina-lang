@@ -22,8 +22,8 @@ import org.ballerinalang.test.context.BallerinaTestException;
 import org.ballerinalang.test.util.HttpClientRequest;
 import org.ballerinalang.test.util.HttpResponse;
 import org.testng.Assert;
-import org.testng.annotations.AfterTest;
-import org.testng.annotations.BeforeTest;
+import org.testng.annotations.AfterGroups;
+import org.testng.annotations.BeforeGroups;
 import org.testng.annotations.Test;
 
 import java.io.File;
@@ -35,7 +35,7 @@ import java.io.IOException;
 @Test(groups = "http2-test")
 public class Http2ServerPushTestCase extends BaseTest {
 
-    @BeforeTest(groups = "http2-test")
+    @BeforeGroups(value = "http2-test", alwaysRun = true)
     public void start() throws BallerinaTestException {
         String balFile = new File("src" + File.separator + "test" + File.separator + "resources" + File.separator +
                 "http2").getAbsolutePath();
@@ -43,7 +43,7 @@ public class Http2ServerPushTestCase extends BaseTest {
         serverInstance.startBallerinaServer("http2services", args);
     }
 
-    @AfterTest(groups = "http2-test")
+    @AfterGroups(value = "http2-test", alwaysRun = true)
     public void cleanup() throws Exception {
         serverInstance.removeAllLeechers();
         serverInstance.stopServer();

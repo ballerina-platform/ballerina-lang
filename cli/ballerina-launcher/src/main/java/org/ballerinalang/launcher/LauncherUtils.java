@@ -128,7 +128,7 @@ public class LauncherUtils {
         } else {
             runMain(programFile, functionName, args, printReturn);
         }
-
+        BLangProgramRunner.resumeStates(programFile);
         listeners.forEach(listener -> listener.afterRunProgram(runServicesOrNoFunctionEP));
     }
 

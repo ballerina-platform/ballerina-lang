@@ -1147,8 +1147,12 @@ public class SQLDatasourceUtils {
         String password = clientEndpointConfig.getStringField(Constants.EndpointConfig.PASSWORD);
         org.ballerinalang.connector.api.Struct options = clientEndpointConfig
                 .getStructField(Constants.EndpointConfig.POOL_OPTIONS);
-        return createSQLDataSource(context, options, "", dbType, host, port, username, password, name, urlOptions,
-                null);
+
+        SQLDatasource.SQLDatasourceParamsBuilder builder = new SQLDatasource.SQLDatasourceParamsBuilder(dbType);
+        SQLDatasource.SQLDatasourceParams sqlDatasourceParams = builder.withHostOrPath(host).withPort(port)
+                .withJdbcUrl("").withOptions(options).withUsername(username).withPassword(password).withDbName(name)
+                .withUrlOptions(urlOptions).build();
+        return createSQLDataSource(context, sqlDatasourceParams);
     }
 
     public static BMap<String, BValue> createSQLDBClient(Context context,
@@ -1160,7 +1164,13 @@ public class SQLDatasourceUtils {
         org.ballerinalang.connector.api.Struct options = clientEndpointConfig
                 .getStructField(Constants.EndpointConfig.POOL_OPTIONS);
         String dbType = url.split(":")[1].toUpperCase(Locale.getDefault());
-        return createSQLDataSource(context, options, url, dbType, "", 0, username, password, "", "", dbOptions);
+
+        SQLDatasource.SQLDatasourceParamsBuilder builder = new SQLDatasource.SQLDatasourceParamsBuilder(dbType);
+        SQLDatasource.SQLDatasourceParams sqlDatasourceParams = builder.withJdbcUrl("").withOptions(options)
+                .withOptions(options).withJdbcUrl(url).withHostOrPath("").withPort(0).withUsername(username)
+                .withPassword(password).withDbName("").withUrlOptions("").withDbOptionsMap(dbOptions).build();
+
+        return createSQLDataSource(context, sqlDatasourceParams);
     }
 
     public static BMap<String, BValue> createMultiModeDBClient(Context context, String dbType,
@@ -1186,8 +1196,13 @@ public class SQLDatasourceUtils {
         String password = clientEndpointConfig.getStringField(Constants.EndpointConfig.PASSWORD);
         org.ballerinalang.connector.api.Struct options = clientEndpointConfig
                 .getStructField(Constants.EndpointConfig.POOL_OPTIONS);
-        return createSQLDataSource(context, options, "", dbType, hostOrPath, port, username, password, name, urlOptions,
-                null);
+
+        SQLDatasource.SQLDatasourceParamsBuilder builder = new SQLDatasource.SQLDatasourceParamsBuilder(dbType);
+        SQLDatasource.SQLDatasourceParams sqlDatasourceParams = builder.withOptions(options).withJdbcUrl("")
+                .withDbType(dbType).withHostOrPath(hostOrPath).withPort(port).withUsername(username)
+                .withPassword(password).withDbName(name).withUrlOptions(urlOptions).build();
+
+        return createSQLDataSource(context, sqlDatasourceParams);
     }
 
     private static void registerArrayOutParameter(PreparedStatement stmt, int index, int sqlType,
@@ -1214,12 +1229,10 @@ public class SQLDatasourceUtils {
         }
     }
 
-    private static BMap<String, BValue>
-            createSQLDataSource(Context context, org.ballerinalang.connector.api.Struct options, String url,
-                                String dbType, String hostOrPath, int port, String username, String password,
-                                String dbName, String dbOptions, Map dbOptionsMap) {
+    private static BMap<String, BValue> createSQLDataSource(Context context,
+            SQLDatasource.SQLDatasourceParams sqlDatasourceParams) {
         SQLDatasource datasource = new SQLDatasource();
-        datasource.init(options, url, dbType, hostOrPath, port, username, password, dbName, dbOptions, dbOptionsMap);
+        datasource.init(sqlDatasourceParams);
         BMap<String, BValue> sqlClient = BLangConnectorSPIUtil
                 .createBStruct(context.getProgramFile(), Constants.SQL_PACKAGE_PATH, Constants.CALLER_ACTIONS);
         sqlClient.addNativeData(Constants.CALLER_ACTIONS, datasource);

@@ -1,6 +1,7 @@
 import ballerina/jdbc;
 import ballerina/io;
 import ballerina/runtime;
+import ballerina/sql;
 
 type ResultCount record {
     int COUNTVAL,
@@ -53,12 +54,227 @@ function testTransactonRollback() returns (int, int) {
     } onretry {
         returnVal = -1;
     }
-
-
     //check whether update action is performed
     table dt = check testDB->select("Select COUNT(*) as countval from Customers where registrationID = 210", ResultCount
     );
 
+    while (dt.hasNext()) {
+        ResultCount rs = check <ResultCount>dt.getNext();
+        count = rs.COUNTVAL;
+    }
+    testDB.stop();
+    return (returnVal, count);
+}
+
+function testLocalTransactionUpdateWithGeneratedKeys() returns (int, int) {
+    endpoint jdbc:Client testDB {
+        url: "jdbc:hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR_TR",
+        username: "SA",
+        poolOptions: { maximumPoolSize: 1 }
+    };
+
+    int returnVal = 0;
+    int count;
+    transaction {
+        _ = testDB->updateWithGeneratedKeys("Insert into Customers
+        (firstName,lastName,registrationID,creditLimit,country) values ('James', 'Clerk', 615, 5000.75, 'USA')", ());
+        _ = testDB->updateWithGeneratedKeys("Insert into Customers
+        (firstName,lastName,registrationID,creditLimit,country) values ('James', 'Clerk', 615, 5000.75, 'USA')", ());
+    } onretry {
+        returnVal = -1;
+    }
+    //check whether update action is performed
+    table dt = check testDB->select("Select COUNT(*) as countval from Customers where registrationID = 615", ResultCount
+    );
+    while (dt.hasNext()) {
+        ResultCount rs = check <ResultCount>dt.getNext();
+        count = rs.COUNTVAL;
+    }
+    testDB.stop();
+    return (returnVal, count);
+}
+
+function testTransactionRollbackUpdateWithGeneratedKeys() returns (int, int) {
+    endpoint jdbc:Client testDB {
+        url: "jdbc:hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR_TR",
+        username: "SA",
+        poolOptions: { maximumPoolSize: 1 }
+    };
+
+    int returnVal = 0;
+    int count;
+
+    transaction {
+        _ = testDB->updateWithGeneratedKeys("Insert into Customers (firstName,lastName,registrationID,
+                creditLimit,country) values ('James', 'Clerk', 618, 5000.75, 'USA')", ());
+        _ = testDB->updateWithGeneratedKeys("Insert into Customers2 (firstName,lastName,registrationID,
+                creditLimit,country) values ('James', 'Clerk', 618, 5000.75, 'USA')", ());
+    } onretry {
+        returnVal = -1;
+    }
+    //check whether update action is performed
+    table dt = check testDB->select("Select COUNT(*) as countval from Customers where registrationID = 618", ResultCount
+    );
+
+    while (dt.hasNext()) {
+        ResultCount rs = check <ResultCount>dt.getNext();
+        count = rs.COUNTVAL;
+    }
+    testDB.stop();
+    return (returnVal, count);
+}
+
+function testLocalTransactionStoredProcedure() returns (int, int) {
+    endpoint jdbc:Client testDB {
+        url: "jdbc:hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR_TR",
+        username: "SA",
+        poolOptions: { maximumPoolSize: 1 }
+    };
+
+    int returnVal = 0;
+    int count;
+
+    transaction {
+        _ = testDB->call("{call InsertPersonDataSuccessful(?, ?)}", (), 628, 628);
+        _ = testDB->call("{call InsertPersonDataSuccessful(?, ?)}", (), 628, 628);
+    } onretry {
+        returnVal = -1;
+    }
+    //check whether update action is performed
+    table dt = check testDB->select("Select COUNT(*) as countval from Customers where registrationID = 628", ResultCount
+    );
+    while (dt.hasNext()) {
+        ResultCount rs = check <ResultCount>dt.getNext();
+        count = rs.COUNTVAL;
+    }
+    testDB.stop();
+    return (returnVal, count);
+}
+
+function testLocalTransactionRollbackStoredProcedure() returns (int, int, int, int) {
+    endpoint jdbc:Client testDB {
+        url: "jdbc:hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR_TR",
+        username: "SA",
+        poolOptions: { maximumPoolSize: 3 }
+    };
+
+    int returnVal = 0;
+    int count1;
+    int count2;
+    int count3;
+
+    transaction {
+        _ = testDB->call("{call InsertPersonDataSuccessful(?, ?)}", (), 629, 629);
+        _ = testDB->call("{call InsertPersonDataFailure(?, ?)}", (), 631, 632);
+    } onretry {
+        returnVal = -1;
+    }
+    //check whether update action is performed
+    table dt1 = check testDB->select("Select COUNT(*) as countval from Customers where registrationID = 629",
+        ResultCount);
+    table dt2 = check testDB->select("Select COUNT(*) as countval from Customers where registrationID = 631",
+        ResultCount);
+    table dt3 = check testDB->select("Select COUNT(*) as countval from Customers where registrationID = 632",
+        ResultCount);
+
+    while (dt1.hasNext()) {
+        ResultCount rs = check <ResultCount>dt1.getNext();
+        count1 = rs.COUNTVAL;
+    }
+    while (dt2.hasNext()) {
+        ResultCount rs = check <ResultCount>dt2.getNext();
+        count2 = rs.COUNTVAL;
+    }
+    while (dt3.hasNext()) {
+        ResultCount rs = check <ResultCount>dt3.getNext();
+        count3 = rs.COUNTVAL;
+    }
+    testDB.stop();
+    return (returnVal, count1, count2, count3);
+}
+
+function testLocalTransactionBatchUpdate() returns (int, int) {
+    endpoint jdbc:Client testDB {
+        url: "jdbc:hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR_TR",
+        username: "SA",
+        poolOptions: { maximumPoolSize: 1 }
+    };
+
+    int returnVal = 0;
+    int count;
+
+    //Batch 1
+    sql:Parameter para1 = { sqlType: sql:TYPE_VARCHAR, value: "Alex" };
+    sql:Parameter para2 = { sqlType: sql:TYPE_VARCHAR, value: "Smith" };
+    sql:Parameter para3 = { sqlType: sql:TYPE_INTEGER, value: 611 };
+    sql:Parameter para4 = { sqlType: sql:TYPE_DOUBLE, value: 3400.5 };
+    sql:Parameter para5 = { sqlType: sql:TYPE_VARCHAR, value: "Colombo" };
+    sql:Parameter[] parameters1 = [para1, para2, para3, para4, para5];
+
+    //Batch 2
+    para1 = { sqlType: sql:TYPE_VARCHAR, value: "Alex" };
+    para2 = { sqlType: sql:TYPE_VARCHAR, value: "Smith" };
+    para3 = { sqlType: sql:TYPE_INTEGER, value: 611 };
+    para4 = { sqlType: sql:TYPE_DOUBLE, value: 3400.5 };
+    para5 = { sqlType: sql:TYPE_VARCHAR, value: "Colombo" };
+    sql:Parameter[] parameters2 = [para1, para2, para3, para4, para5];
+
+    transaction {
+        int[] updateCount1 = check testDB->batchUpdate("Insert into Customers
+        (firstName,lastName,registrationID,creditLimit,country) values (?,?,?,?,?)", parameters1, parameters2);
+        int[] updateCount2 = check testDB->batchUpdate("Insert into Customers
+        (firstName,lastName,registrationID,creditLimit,country) values (?,?,?,?,?)", parameters1, parameters2);
+    } onretry {
+        returnVal = -1;
+    }
+    //check whether update action is performed
+    table dt = check testDB->select("Select COUNT(*) as countval from Customers where registrationID = 611", ResultCount
+    );
+    while (dt.hasNext()) {
+        ResultCount rs = check <ResultCount>dt.getNext();
+        count = rs.COUNTVAL;
+    }
+    testDB.stop();
+    return (returnVal, count);
+}
+
+function testLocalTransactionRollbackBatchUpdate() returns (int, int) {
+    endpoint jdbc:Client testDB {
+        url: "jdbc:hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR_TR",
+        username: "SA",
+        poolOptions: { maximumPoolSize: 1 }
+    };
+
+    int returnVal = 0;
+    int count;
+
+    //Batch 1
+    sql:Parameter para1 = { sqlType: sql:TYPE_VARCHAR, value: "Alex" };
+    sql:Parameter para2 = { sqlType: sql:TYPE_VARCHAR, value: "Smith" };
+    sql:Parameter para3 = { sqlType: sql:TYPE_INTEGER, value: 612 };
+    sql:Parameter para4 = { sqlType: sql:TYPE_DOUBLE, value: 3400.5 };
+    sql:Parameter para5 = { sqlType: sql:TYPE_VARCHAR, value: "Colombo" };
+    sql:Parameter[] parameters1 = [para1, para2, para3, para4, para5];
+
+    //Batch 2
+    para1 = { sqlType: sql:TYPE_VARCHAR, value: "Alex" };
+    para2 = { sqlType: sql:TYPE_VARCHAR, value: "Smith" };
+    para3 = { sqlType: sql:TYPE_INTEGER, value: 612 };
+    para4 = { sqlType: sql:TYPE_DOUBLE, value: 3400.5 };
+    para5 = { sqlType: sql:TYPE_VARCHAR, value: "Colombo" };
+    sql:Parameter[] parameters2 = [para1, para2, para3, para4, para5];
+
+    transaction {
+        int[] updateCount1 = check testDB->batchUpdate("Insert into Customers
+        (firstName,lastName,registrationID,creditLimit,country) values (?,?,?,?,?)", parameters1, parameters2);
+        int[] updateCount2 = check testDB->batchUpdate("Insert into Customers2
+        (firstName,lastName,registrationID,creditLimit,country) values (?,?,?,?,?)", parameters1, parameters2);
+    } onretry {
+        returnVal = -1;
+    }
+    //check whether update action is performed
+    table dt = check testDB->select("Select COUNT(*) as countval from Customers where registrationID = 612", ResultCount
+    );
     while (dt.hasNext()) {
         ResultCount rs = check <ResultCount>dt.getNext();
         count = rs.COUNTVAL;
