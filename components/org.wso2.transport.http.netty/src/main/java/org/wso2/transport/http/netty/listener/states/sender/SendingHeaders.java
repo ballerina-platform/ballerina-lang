@@ -18,16 +18,12 @@
 
 package org.wso2.transport.http.netty.listener.states.sender;
 
-import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.http.HttpContent;
-import io.netty.handler.codec.http.HttpRequest;
 import io.netty.handler.codec.http.HttpResponse;
-import io.netty.util.concurrent.Future;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.transport.http.netty.common.Constants;
-import org.wso2.transport.http.netty.common.Util;
 import org.wso2.transport.http.netty.config.ChunkConfig;
 import org.wso2.transport.http.netty.contract.HttpResponseFuture;
 import org.wso2.transport.http.netty.listener.states.StateContext;
@@ -35,10 +31,6 @@ import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 import org.wso2.transport.http.netty.sender.TargetHandler;
 import org.wso2.transport.http.netty.sender.channel.TargetChannel;
 
-import java.io.IOException;
-import java.nio.channels.ClosedChannelException;
-
-import static org.wso2.transport.http.netty.common.Constants.CLIENT_TO_REMOTE_HOST_CONNECTION_CLOSED;
 import static org.wso2.transport.http.netty.common.Constants
         .IDLE_TIMEOUT_TRIGGERED_WHILE_WRITING_OUTBOUND_REQUEST_HEADERS;
 import static org.wso2.transport.http.netty.common.Constants
@@ -46,9 +38,12 @@ import static org.wso2.transport.http.netty.common.Constants
 import static org.wso2.transport.http.netty.common.Util.isEntityBodyAllowed;
 import static org.wso2.transport.http.netty.common.Util.isLastHttpContent;
 import static org.wso2.transport.http.netty.common.Util.setupChunkedRequest;
+import static org.wso2.transport.http.netty.common.Util.setupContentLengthRequest;
+import static org.wso2.transport.http.netty.listener.states.StateUtil.checkChunkingCompatibility;
+import static org.wso2.transport.http.netty.listener.states.StateUtil.writeRequestHeaders;
 
 /**
- * State between start and end of outbound response entity body write
+ * State between start and end of outbound request header write
  */
 public class SendingHeaders implements SenderState {
 
@@ -73,20 +68,20 @@ public class SendingHeaders implements SenderState {
             throws Exception {
         if (isLastHttpContent(httpContent)) {
             if (isEntityBodyAllowed(getHttpMethod(httpOutboundRequest))) {
-                if (chunkConfig == ChunkConfig.ALWAYS && checkChunkingCompatibility()) {
+                if (chunkConfig == ChunkConfig.ALWAYS && checkChunkingCompatibility(httpVersion, chunkConfig)) {
                     setupChunkedRequest(httpOutboundRequest);
                 } else {
                     long contentLength = httpContent.content().readableBytes();
-                    Util.setupContentLengthRequest(httpOutboundRequest, contentLength);
+                    setupContentLengthRequest(httpOutboundRequest, contentLength);
                 }
             }
-            writeHeaders(httpOutboundRequest);
+            writeRequestHeaders(httpOutboundRequest, httpInboundResponseFuture, httpVersion, targetChannel);
             writeResponse(httpOutboundRequest, httpContent, true);
         } else {
             if ((chunkConfig == ChunkConfig.ALWAYS || chunkConfig == ChunkConfig.AUTO) &&
-                    checkChunkingCompatibility()) {
+                    checkChunkingCompatibility(httpVersion, chunkConfig)) {
                 setupChunkedRequest(httpOutboundRequest);
-                writeHeaders(httpOutboundRequest);
+                writeRequestHeaders(httpOutboundRequest, httpInboundResponseFuture, httpVersion, targetChannel);
                 writeResponse(httpOutboundRequest, httpContent, true);
                 return;
             }
@@ -123,11 +118,6 @@ public class SendingHeaders implements SenderState {
         log.error("Error in HTTP client: {}", IDLE_TIMEOUT_TRIGGERED_WHILE_WRITING_OUTBOUND_REQUEST_HEADERS);
     }
 
-    private boolean checkChunkingCompatibility() {
-        return Util.isVersionCompatibleForChunking(httpVersion) || Util
-                .shouldEnforceChunkingforHttpOneZero(chunkConfig, httpVersion);
-    }
-
     private String getHttpMethod(HttpCarbonMessage httpOutboundRequest) throws Exception {
         String httpMethod = (String) httpOutboundRequest.getProperty(Constants.HTTP_METHOD);
         if (httpMethod == null) {
@@ -136,43 +126,10 @@ public class SendingHeaders implements SenderState {
         return httpMethod;
     }
 
-    private void writeHeaders(HttpCarbonMessage httpOutboundRequest) {
-        setHttpVersionProperty(httpOutboundRequest);
-        HttpRequest httpRequest = Util.createHttpRequest(httpOutboundRequest);
-        targetChannel.setRequestHeaderWritten(true);
-        ChannelFuture outboundHeaderFuture = this.targetChannel.getChannel().write(httpRequest);
-        notifyIfHeaderFailure(outboundHeaderFuture);
-    }
-
-    private void setHttpVersionProperty(HttpCarbonMessage httpOutboundRequest) {
-        if (Float.valueOf(httpVersion) == Constants.HTTP_2_0) {
-            // Upgrade request of HTTP/2 should be a HTTP/1.1 request
-            httpOutboundRequest.setProperty(Constants.HTTP_VERSION, String.valueOf(Constants.HTTP_1_1));
-        } else {
-            httpOutboundRequest.setProperty(Constants.HTTP_VERSION, httpVersion);
-        }
-    }
-
     private void writeResponse(HttpCarbonMessage outboundResponseMsg, HttpContent httpContent, boolean headersWritten)
             throws Exception {
         stateContext.setSenderState(new SendingEntityBody(stateContext, targetChannel, headersWritten,
                                                           httpInboundResponseFuture));
         stateContext.getSenderState().writeOutboundRequestEntityBody(outboundResponseMsg, httpContent);
-    }
-
-    private void notifyIfHeaderFailure(ChannelFuture outboundRequestChannelFuture) {
-        outboundRequestChannelFuture.addListener(writeOperationPromise -> {
-            if (writeOperationPromise.cause() != null) {
-                notifyResponseFutureListener(writeOperationPromise);
-            }
-        });
-    }
-
-    private void notifyResponseFutureListener(Future<? super Void> writeOperationPromise) {
-        Throwable throwable = writeOperationPromise.cause();
-        if (throwable instanceof ClosedChannelException) {
-            throwable = new IOException(CLIENT_TO_REMOTE_HOST_CONNECTION_CLOSED);
-        }
-        httpInboundResponseFuture.notifyHttpListener(throwable);
     }
 }

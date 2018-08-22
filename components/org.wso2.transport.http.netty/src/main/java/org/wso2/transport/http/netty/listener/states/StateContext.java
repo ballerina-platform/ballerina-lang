@@ -23,7 +23,7 @@ import org.wso2.transport.http.netty.listener.states.listener.ListenerState;
 import org.wso2.transport.http.netty.listener.states.sender.SenderState;
 
 /**
- * Context class to manipulate current listenerState.
+ * Context class to manipulate current state.
  */
 public class StateContext {
 

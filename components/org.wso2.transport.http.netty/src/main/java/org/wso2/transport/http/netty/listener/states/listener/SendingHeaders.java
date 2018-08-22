@@ -23,7 +23,6 @@ import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.http.HttpContent;
 import io.netty.handler.codec.http.HttpRequest;
 import io.netty.handler.codec.http.HttpResponse;
-import io.netty.handler.timeout.IdleStateEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.transport.http.netty.config.ChunkConfig;
@@ -34,18 +33,17 @@ import org.wso2.transport.http.netty.contractimpl.HttpOutboundRespListener;
 import org.wso2.transport.http.netty.listener.states.StateContext;
 import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 
-import java.io.IOException;
-import java.nio.channels.ClosedChannelException;
-
 import static org.wso2.transport.http.netty.common.Constants.CHUNKING_CONFIG;
-import static org.wso2.transport.http.netty.common.Constants.IDLE_TIMEOUT_TRIGGERED_WHILE_WRITING_OUTBOUND_RESPONSE_HEADERS;
+import static org.wso2.transport.http.netty.common.Constants
+        .IDLE_TIMEOUT_TRIGGERED_WHILE_WRITING_OUTBOUND_RESPONSE_HEADERS;
 import static org.wso2.transport.http.netty.common.Constants.REMOTE_CLIENT_CLOSED_BEFORE_INITIATING_OUTBOUND_RESPONSE;
-import static org.wso2.transport.http.netty.common.Constants.REMOTE_CLIENT_CLOSED_WHILE_WRITING_OUTBOUND_RESPONSE_HEADERS;
+import static org.wso2.transport.http.netty.common.Constants
+        .REMOTE_CLIENT_CLOSED_WHILE_WRITING_OUTBOUND_RESPONSE_HEADERS;
 import static org.wso2.transport.http.netty.common.Util.createHttpResponse;
 import static org.wso2.transport.http.netty.common.Util.isLastHttpContent;
-import static org.wso2.transport.http.netty.common.Util.isVersionCompatibleForChunking;
 import static org.wso2.transport.http.netty.common.Util.setupChunkedRequest;
-import static org.wso2.transport.http.netty.common.Util.shouldEnforceChunkingforHttpOneZero;
+import static org.wso2.transport.http.netty.listener.states.StateUtil.checkChunkingCompatibility;
+import static org.wso2.transport.http.netty.listener.states.StateUtil.notifyIfHeaderWriteFailure;
 
 /**
  * State between start and end of outbound response headers write
@@ -90,8 +88,7 @@ public class SendingHeaders implements ListenerState {
 
     @Override
     public ChannelFuture handleIdleTimeoutConnectionClosure(ServerConnectorFuture serverConnectorFuture,
-                                                            ChannelHandlerContext ctx,
-                                                            IdleStateEvent evt) {
+                                                            ChannelHandlerContext ctx) {
         // OutboundResponseStatusFuture will be notified asynchronously via OutboundResponseListener.
         log.error(IDLE_TIMEOUT_TRIGGERED_WHILE_WRITING_OUTBOUND_RESPONSE_HEADERS);
         return null;
@@ -105,15 +102,17 @@ public class SendingHeaders implements ListenerState {
             this.setChunkConfig(responseChunkConfig);
         }
         outboundRespStatusFuture = outboundResponseListener.getInboundRequestMsg().getHttpOutboundRespStatusFuture();
+        String httpVersion = outboundResponseListener.getRequestDataHolder().getHttpVersion();
+
         if (isLastHttpContent(httpContent)) {
-            if (chunkConfig == ChunkConfig.ALWAYS && checkChunkingCompatibility(outboundResponseListener)) {
+            if (chunkConfig == ChunkConfig.ALWAYS && checkChunkingCompatibility(httpVersion, chunkConfig)) {
                 writeHeaders(outboundResponseMsg, keepAlive, outboundRespStatusFuture);
                 writeResponse(outboundResponseMsg, httpContent, true);
                 return;
             }
         } else {
             if ((chunkConfig == ChunkConfig.ALWAYS || chunkConfig == ChunkConfig.AUTO) && (
-                    checkChunkingCompatibility(outboundResponseListener))) {
+                    checkChunkingCompatibility(httpVersion, chunkConfig))) {
                 writeHeaders(outboundResponseMsg, keepAlive, outboundRespStatusFuture);
                 writeResponse(outboundResponseMsg, httpContent, true);
                 return;
@@ -128,17 +127,12 @@ public class SendingHeaders implements ListenerState {
                                                                         httpContent);
     }
 
-    boolean checkChunkingCompatibility(HttpOutboundRespListener outboundResponseListener) {
-        String httpVersion = outboundResponseListener.getRequestDataHolder().getHttpVersion();
-        return isVersionCompatibleForChunking(httpVersion) ||
-                shouldEnforceChunkingforHttpOneZero(chunkConfig, httpVersion);
-    }
-
     private void writeHeaders(HttpCarbonMessage outboundResponseMsg, boolean keepAlive,
                               HttpResponseFuture outboundRespStatusFuture) {
         setupChunkedRequest(outboundResponseMsg);
         ChannelFuture outboundHeaderFuture = writeResponseHeaders(outboundResponseMsg, keepAlive);
-        addResponseWriteFailureListener(outboundRespStatusFuture, outboundHeaderFuture);
+        notifyIfHeaderWriteFailure(outboundRespStatusFuture, outboundHeaderFuture,
+                                   REMOTE_CLIENT_CLOSED_BEFORE_INITIATING_OUTBOUND_RESPONSE);
     }
 
     void setChunkConfig(ChunkConfig chunkConfig) {
@@ -150,18 +144,5 @@ public class SendingHeaders implements ListenerState {
                                                    outboundResponseListener.getRequestDataHolder().getHttpVersion(),
                                                    outboundResponseListener.getServerName(), keepAlive);
         return outboundResponseListener.getSourceContext().write(response);
-    }
-
-    void addResponseWriteFailureListener(HttpResponseFuture outboundRespStatusFuture,
-                                         ChannelFuture channelFuture) {
-        channelFuture.addListener(writeOperationPromise -> {
-            Throwable throwable = writeOperationPromise.cause();
-            if (throwable != null) {
-                if (throwable instanceof ClosedChannelException) {
-                    throwable = new IOException(REMOTE_CLIENT_CLOSED_BEFORE_INITIATING_OUTBOUND_RESPONSE);
-                }
-                outboundRespStatusFuture.notifyHttpListener(throwable);
-            }
-        });
     }
 }

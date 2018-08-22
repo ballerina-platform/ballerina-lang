@@ -243,4 +243,8 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
     public void removeRequestEntry(HttpCarbonMessage inboundRequestMsg) {
         this.requestList.remove(inboundRequestMsg);
     }
+
+    public void resetInboundRequestMsg() {
+        inboundRequestMsg = null;
+    }
 }

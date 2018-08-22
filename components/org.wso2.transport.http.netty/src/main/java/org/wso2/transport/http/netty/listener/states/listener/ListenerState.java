@@ -22,7 +22,6 @@ import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.http.HttpContent;
 import io.netty.handler.codec.http.HttpRequest;
-import io.netty.handler.timeout.IdleStateEvent;
 import org.wso2.transport.http.netty.contract.ServerConnectorException;
 import org.wso2.transport.http.netty.contract.ServerConnectorFuture;
 import org.wso2.transport.http.netty.contractimpl.HttpOutboundRespListener;
@@ -45,5 +44,5 @@ public interface ListenerState {
     void handleAbruptChannelClosure(ServerConnectorFuture serverConnectorFuture);
 
     ChannelFuture handleIdleTimeoutConnectionClosure(ServerConnectorFuture serverConnectorFuture,
-                                                     ChannelHandlerContext ctx, IdleStateEvent evt);
+                                                     ChannelHandlerContext ctx);
 }

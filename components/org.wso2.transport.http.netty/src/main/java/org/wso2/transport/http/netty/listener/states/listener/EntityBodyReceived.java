@@ -29,8 +29,6 @@ import io.netty.handler.codec.http.HttpRequest;
 import io.netty.handler.codec.http.HttpResponse;
 import io.netty.handler.codec.http.HttpResponseStatus;
 import io.netty.handler.codec.http.HttpVersion;
-import io.netty.handler.timeout.IdleState;
-import io.netty.handler.timeout.IdleStateEvent;
 import io.netty.util.CharsetUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -94,30 +92,25 @@ public class EntityBodyReceived implements ListenerState {
 
     @Override
     public ChannelFuture handleIdleTimeoutConnectionClosure(ServerConnectorFuture serverConnectorFuture,
-                                                            ChannelHandlerContext ctx, IdleStateEvent evt) {
-        if (evt.state() != IdleState.READER_IDLE) {
-            String responseValue = "Server time out";
-            ChannelFuture outboundRespFuture = sendRequestTimeoutResponse(ctx, HttpResponseStatus.INTERNAL_SERVER_ERROR,
-                                                                          copiedBuffer(responseValue,
-                                                                                       CharsetUtil.UTF_8),
-                                                                          responseValue.length());
-            outboundRespFuture.addListener((ChannelFutureListener) channelFuture -> {
-                Throwable cause = channelFuture.cause();
-                if (cause != null) {
-                    log.warn("Failed to send: {}", cause.getMessage());
-                }
-                sourceHandler.channelInactive(ctx);
-            });
-            return outboundRespFuture;
-        }
-
+                                                            ChannelHandlerContext ctx) {
         try {
             serverConnectorFuture.notifyErrorListener(
                     new ServerConnectorException(IDLE_TIMEOUT_TRIGGERED_BEFORE_INITIATING_OUTBOUND_RESPONSE));
         } catch (ServerConnectorException e) {
             log.error("Error while notifying error state to server-connector listener");
         }
-        return null;
+        String responseValue = "Server time out";
+        ChannelFuture outboundRespFuture =
+                sendRequestTimeoutResponse(ctx, HttpResponseStatus.INTERNAL_SERVER_ERROR,
+                                           copiedBuffer(responseValue, CharsetUtil.UTF_8), responseValue.length());
+        outboundRespFuture.addListener((ChannelFutureListener) channelFuture -> {
+            Throwable cause = channelFuture.cause();
+            if (cause != null) {
+                log.warn("Failed to send: {}", cause.getMessage());
+            }
+            sourceHandler.channelInactive(ctx);
+        });
+        return outboundRespFuture;
     }
 
     private ChannelFuture sendRequestTimeoutResponse(ChannelHandlerContext ctx, HttpResponseStatus status,

@@ -25,7 +25,6 @@ import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.http.HttpContent;
 import io.netty.handler.codec.http.HttpRequest;
 import io.netty.handler.codec.http.HttpResponse;
-import io.netty.handler.timeout.IdleStateEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.transport.http.netty.config.ChunkConfig;
@@ -42,10 +41,13 @@ import java.nio.channels.ClosedChannelException;
 
 import static org.wso2.transport.http.netty.common.Constants.CHUNKING_CONFIG;
 import static org.wso2.transport.http.netty.common.Constants.IDLE_TIMEOUT_TRIGGERED_WHILE_WRITING_100_CONTINUE_RESPONSE;
+import static org.wso2.transport.http.netty.common.Constants.REMOTE_CLIENT_CLOSED_BEFORE_INITIATING_OUTBOUND_RESPONSE;
 import static org.wso2.transport.http.netty.common.Constants.REMOTE_CLIENT_CLOSED_WHILE_WRITING_100_CONTINUE_RESPONSE;
 import static org.wso2.transport.http.netty.common.Constants.REMOTE_CLIENT_TO_HOST_CONNECTION_CLOSED;
 import static org.wso2.transport.http.netty.common.Util.createFullHttpResponse;
 import static org.wso2.transport.http.netty.common.Util.setupChunkedRequest;
+import static org.wso2.transport.http.netty.listener.states.StateUtil.checkChunkingCompatibility;
+import static org.wso2.transport.http.netty.listener.states.StateUtil.notifyIfHeaderWriteFailure;
 
 /**
  * Special state of sending 100-continue response
@@ -94,11 +96,14 @@ public class Response100ContinueSent extends SendingHeaders {
             super.setChunkConfig(responseChunkConfig);
         }
         outboundRespStatusFuture = outboundResponseListener.getInboundRequestMsg().getHttpOutboundRespStatusFuture();
+        String httpVersion = outboundResponseListener.getRequestDataHolder().getHttpVersion();
+
         ChannelFuture outboundHeaderFuture;
-        if (chunkConfig == ChunkConfig.ALWAYS && checkChunkingCompatibility(outboundResponseListener)) {
+        if (chunkConfig == ChunkConfig.ALWAYS && checkChunkingCompatibility(httpVersion, chunkConfig)) {
             setupChunkedRequest(outboundResponseMsg);
             outboundHeaderFuture = writeResponseHeaders(outboundResponseMsg, keepAlive);
-            addResponseWriteFailureListener(outboundRespStatusFuture, outboundHeaderFuture);
+            notifyIfHeaderWriteFailure(outboundRespStatusFuture, outboundHeaderFuture,
+                                       REMOTE_CLIENT_CLOSED_BEFORE_INITIATING_OUTBOUND_RESPONSE);
         } else {
             CompositeByteBuf allContent = Unpooled.compositeBuffer();
             allContent.addComponent(true, httpContent.content());
@@ -122,8 +127,7 @@ public class Response100ContinueSent extends SendingHeaders {
 
     @Override
     public ChannelFuture handleIdleTimeoutConnectionClosure(ServerConnectorFuture serverConnectorFuture,
-                                                            ChannelHandlerContext ctx,
-                                                            IdleStateEvent evt) {
+                                                            ChannelHandlerContext ctx) {
         // OutboundResponseStatusFuture will be notified asynchronously via OutboundResponseListener.
         log.error(IDLE_TIMEOUT_TRIGGERED_WHILE_WRITING_100_CONTINUE_RESPONSE);
         return null;

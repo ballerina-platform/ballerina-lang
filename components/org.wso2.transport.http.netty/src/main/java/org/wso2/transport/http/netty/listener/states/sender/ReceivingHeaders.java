@@ -38,7 +38,7 @@ import static org.wso2.transport.http.netty.common.Constants.IDLE_TIMEOUT_TRIGGE
 import static org.wso2.transport.http.netty.common.Constants.REMOTE_SERVER_CLOSED_WHILE_READING_INBOUND_RESPONSE_HEADERS;
 
 /**
- * State between start and end of inbound request headers read.
+ * State between start and end of inbound response headers read.
  */
 public class ReceivingHeaders implements SenderState {
 

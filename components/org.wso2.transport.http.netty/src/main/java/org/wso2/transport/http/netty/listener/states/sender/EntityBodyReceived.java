@@ -29,7 +29,7 @@ import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 import org.wso2.transport.http.netty.sender.TargetHandler;
 
 /**
- * State between start and end of inbound request headers read.
+ * State of successfully read response
  */
 public class EntityBodyReceived implements SenderState {
 

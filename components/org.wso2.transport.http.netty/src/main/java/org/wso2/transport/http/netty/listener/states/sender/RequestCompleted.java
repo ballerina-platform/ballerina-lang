@@ -35,7 +35,7 @@ import static org.wso2.transport.http.netty.common.Constants.IDLE_TIMEOUT_TRIGGE
 import static org.wso2.transport.http.netty.common.Constants.REMOTE_SERVER_CLOSED_BEFORE_INITIATING_INBOUND_RESPONSE;
 
 /**
- * State of successfully written response
+ * State between end of payload write and start of response headers read
  */
 public class RequestCompleted implements SenderState {
 

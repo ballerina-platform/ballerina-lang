@@ -39,7 +39,7 @@ import static org.wso2.transport.http.netty.common.Util.isKeepAlive;
 import static org.wso2.transport.http.netty.common.Util.isLastHttpContent;
 
 /**
- * State between start and end of inbound request headers read.
+ * State between start and end of inbound response entity body read.
  */
 public class ReceivingEntityBody implements SenderState {
 
