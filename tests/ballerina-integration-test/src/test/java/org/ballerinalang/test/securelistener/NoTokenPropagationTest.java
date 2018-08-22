@@ -24,8 +24,8 @@ import org.ballerinalang.test.context.BallerinaTestException;
 import org.ballerinalang.test.util.HttpClientRequest;
 import org.ballerinalang.test.util.HttpResponse;
 import org.testng.Assert;
-import org.testng.annotations.AfterTest;
-import org.testng.annotations.BeforeTest;
+import org.testng.annotations.AfterGroups;
+import org.testng.annotations.BeforeGroups;
 import org.testng.annotations.Test;
 
 import java.io.File;
@@ -38,7 +38,7 @@ import java.util.Map;
 @Test(groups = "secure-listener-test")
 public class NoTokenPropagationTest extends BaseTest {
 
-    @BeforeTest(groups = "secure-listener-test")
+    @BeforeGroups(value = "secure-listener-test", alwaysRun = true)
     public void start() throws BallerinaTestException {
         String basePath = new File("src" + File.separator + "test" + File.separator + "resources" + File.separator +
                 "secureListener").getAbsolutePath();
@@ -56,7 +56,7 @@ public class NoTokenPropagationTest extends BaseTest {
         Assert.assertEquals(response.getResponseCode(), 401, "Response code mismatched");
     }
 
-    @AfterTest(groups = "secure-listener-test")
+    @AfterGroups(value = "secure-listener-test", alwaysRun = true)
     public void cleanup() throws Exception {
         serverInstance.stopServer();
     }
