@@ -968,9 +968,9 @@ public class TaintAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangElvisExpr elvisExpr) {
-        elvisExpr.getLeftExpression().accept(this);
+        elvisExpr.lhsExpr.accept(this);
         TaintedStatus lhsTaintedCheckResult = this.taintedStatus;
-        elvisExpr.getRightExpression().accept(this);
+        elvisExpr.rhsExpr.accept(this);
         TaintedStatus rhsTaintedCheckResult = this.taintedStatus;
         this.taintedStatus = getCombinedTaintedStatus(lhsTaintedCheckResult, rhsTaintedCheckResult);
     }

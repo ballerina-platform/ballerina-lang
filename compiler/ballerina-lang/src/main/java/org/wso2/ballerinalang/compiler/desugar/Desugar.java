@@ -1274,9 +1274,9 @@ public class Desugar extends BLangNodeVisitor {
     }
 
     public void visit(BLangElvisExpr elvisExpr) {
-        BLangMatchExpression matchExpr = ASTBuilderUtil.createMatchExpression(elvisExpr.getLeftExpression());
+        BLangMatchExpression matchExpr = ASTBuilderUtil.createMatchExpression(elvisExpr.lhsExpr);
         matchExpr.patternClauses.add(getMatchNullPatternGivenExpression(elvisExpr.pos,
-                rewriteExpr(elvisExpr.getRightExpression())));
+                rewriteExpr(elvisExpr.rhsExpr)));
         matchExpr.type = elvisExpr.type;
         matchExpr.pos = elvisExpr.pos;
         result = rewriteExpr(matchExpr);
