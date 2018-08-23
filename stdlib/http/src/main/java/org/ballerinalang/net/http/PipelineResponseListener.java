@@ -33,15 +33,17 @@ public class PipelineResponseListener implements HttpPipelineListener {
                 break;
             }
             responseQueue.remove();
-            //TODO:
-            //ctx.write(queuedPipelinedResponse.getResponse());
-            //call send response robust
-            PipeliningHandler.sendOutboundResponseRobust(queuedPipelinedResponse.getDataContext(),
-                    queuedPipelinedResponse.getInboundRequestMsg(),
-                    queuedPipelinedResponse.getOutboundResponseStruct(),
-                    queuedPipelinedResponse.getOutboundResponseMsg());
+
+            if (queuedPipelinedResponse.getDataContext() != null &&
+                    queuedPipelinedResponse.getOutboundResponseStruct() != null) {
+                PipeliningHandler.sendOutboundResponseRobust(queuedPipelinedResponse.getDataContext(),
+                        queuedPipelinedResponse.getInboundRequestMsg(),
+                        queuedPipelinedResponse.getOutboundResponseStruct(),
+                        queuedPipelinedResponse.getOutboundResponseMsg());
+            } else {
+                PipeliningHandler.sendPipelinedResponse(queuedPipelinedResponse.getInboundRequestMsg(),
+                        queuedPipelinedResponse.getOutboundResponseMsg());
+            }
         }
     }
-
-
 }
