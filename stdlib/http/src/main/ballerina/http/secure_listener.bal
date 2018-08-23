@@ -81,6 +81,8 @@ documentation {
     F{{filters}} Filters to be applied to the request before being dispatched to the actual `resource`
     F{{timeoutMillis}} Period of time in milliseconds that a connection waits for a read/write operation. Use value 0
                        to disable timeout
+    F{{pipelining}} Indicates whether HTTP pipelining should be enabled or not. Even though the pipelining is enabled
+                    by default, this will have an effect only when keepAlive is true and for HTTP 1.1 version
     F{{authProviders}} The array of authentication providers which are used to authenticate the users
 }
 public type SecureEndpointConfiguration record {
@@ -92,6 +94,7 @@ public type SecureEndpointConfiguration record {
     RequestLimits? requestLimits,
     Filter[] filters,
     int timeoutMillis = DEFAULT_LISTENER_TIMEOUT,
+    boolean pipelining = true,
     AuthProvider[]? authProviders,
 };
 

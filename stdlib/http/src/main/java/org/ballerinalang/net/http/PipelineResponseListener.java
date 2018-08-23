@@ -18,6 +18,7 @@ public class PipelineResponseListener implements HttpPipelineListener {
     public void onResponseSend(ChannelHandlerContext sourceContext) {
 
         Queue<PipelinedResponse> responseQueue = sourceContext.channel().attr(Constants.RESPONSE_QUEUE).get();
+
         Integer maxQueuedResponses = sourceContext.channel().attr(Constants.MAX_RESPONSES_ALLOWED_TO_BE_QUEUED).get();
         if (responseQueue.size() > maxQueuedResponses) {
             //Cannot queue up indefinitely which might cause out of memory issues, so closing the connection
@@ -40,7 +41,6 @@ public class PipelineResponseListener implements HttpPipelineListener {
                     queuedPipelinedResponse.getOutboundResponseStruct(),
                     queuedPipelinedResponse.getOutboundResponseMsg());
         }
-
     }
 
 

@@ -290,6 +290,7 @@ public class HttpConstants {
     public static final String REQUEST_LIMITS_MAXIMUM_URL_LENGTH = "maxUriLength";
     public static final String REQUEST_LIMITS_MAXIMUM_HEADER_SIZE = "maxHeaderSize";
     public static final String REQUEST_LIMITS_MAXIMUM_ENTITY_BODY_SIZE = "maxEntityBodySize";
+    public static final String ENDPOINT_CONFIG_PIPELINING = "pipelining";
 
     public static final String ENDPOINT_CONFIG_SECURE_SOCKET = "secureSocket";
 

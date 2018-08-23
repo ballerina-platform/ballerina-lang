@@ -78,7 +78,7 @@ public class Respond extends ConnectionAction {
         BMap<String, BValue> outboundResponseStruct = (BMap<String, BValue>) context.getRefArgument(1);
         HttpCarbonMessage outboundResponseMsg = HttpUtil
                 .getCarbonMsg(outboundResponseStruct, HttpUtil.createHttpCarbonMessage(false));
-
+        outboundResponseMsg.setPipeliningNeeded(inboundRequestMsg.isPipeliningNeeded());
         setCacheControlHeader(outboundResponseStruct, outboundResponseMsg);
         HttpUtil.prepareOutboundResponse(context, inboundRequestMsg, outboundResponseMsg, outboundResponseStruct);
 
@@ -96,42 +96,43 @@ public class Respond extends ConnectionAction {
                 String.valueOf(outboundResponseStruct.get(RESPONSE_STATUS_CODE_FIELD))));
 
         try {
-            boolean pipeliningNeeded = true;
             String httpVersion = (String) inboundRequestMsg.getProperty(Constants.HTTP_VERSION);
-            if (inboundRequestMsg.isKeepAlive() && !Constants.HTTP2_VERSION.equalsIgnoreCase(httpVersion)) {
+            if (inboundRequestMsg.isPipeliningNeeded() && inboundRequestMsg.isKeepAlive() &&
+                    !Constants.HTTP2_VERSION.equalsIgnoreCase(httpVersion)) {
                 PipelinedResponse pipelinedResponse = new PipelinedResponse(inboundRequestMsg.getSequenceId(),
                         inboundRequestMsg, outboundResponseMsg, dataContext, outboundResponseStruct);
                 outboundResponseMsg.setPipelineListener(new PipelineResponseListener());
                 ChannelHandlerContext sourceContext = inboundRequestMsg.getSourceContext();
                 Queue<PipelinedResponse> responseQueue = sourceContext.channel().attr(Constants.RESPONSE_QUEUE).get();
-                Integer maxQueuedResponses = sourceContext.channel()
-                        .attr(Constants.MAX_RESPONSES_ALLOWED_TO_BE_QUEUED).get();
-                if (responseQueue.size() > maxQueuedResponses) {
-                    //Cannot queue up indefinitely which might cause out of memory issues, so closing the connection
-                    sourceContext.close();
-                    return;
-                }
-                responseQueue.add(pipelinedResponse);
-                while (!responseQueue.isEmpty()) {
-                    Integer nextSequenceNumber = sourceContext.channel().attr(Constants.NEXT_SEQUENCE_NUMBER).get();
-                    final PipelinedResponse queuedPipelinedResponse = responseQueue.peek();
-                    int currentSequenceNumber = queuedPipelinedResponse.getSequenceId();
-                    if (currentSequenceNumber != nextSequenceNumber) {
-                        break;
+                synchronized (responseQueue) {
+                    Integer maxQueuedResponses = sourceContext.channel()
+                            .attr(Constants.MAX_RESPONSES_ALLOWED_TO_BE_QUEUED).get();
+                    if (responseQueue.size() > maxQueuedResponses) {
+                        //Cannot queue up indefinitely which might cause out of memory issues, so closing the connection
+                        sourceContext.close();
+                        return;
                     }
-                    responseQueue.remove();
+                    responseQueue.add(pipelinedResponse);
+                    while (!responseQueue.isEmpty()) {
+                        Integer nextSequenceNumber = sourceContext.channel().attr(Constants.NEXT_SEQUENCE_NUMBER).get();
+                        final PipelinedResponse queuedPipelinedResponse = responseQueue.peek();
+                        int currentSequenceNumber = queuedPipelinedResponse.getSequenceId();
+                        if (currentSequenceNumber != nextSequenceNumber) {
+                            break;
+                        }
+                        responseQueue.remove();
 
-                    //IMPORTANT: Do not increment the nextSequenceNumber after 'sendOutboundResponseRobust()' call
-                    // under any circumstance.  nextSequenceNumber should be updated only when the last http
-                    // content of this message has been written to the socket because in case if one response has
-                    //delayed http contents, there's a good chance that the contents of another response will be sent
-                    //out before its turn.
-                    PipeliningHandler.sendOutboundResponseRobust(queuedPipelinedResponse.getDataContext(),
-                            queuedPipelinedResponse.getInboundRequestMsg(),
-                            queuedPipelinedResponse.getOutboundResponseStruct(),
-                            queuedPipelinedResponse.getOutboundResponseMsg());
+                        //IMPORTANT: Do not increment the nextSequenceNumber after 'sendOutboundResponseRobust()' call
+                        // under any circumstance.  nextSequenceNumber should be updated only when the last http
+                        // content of this message has been written to the socket because in case if one response has
+                        //delayed http contents, there's a good chance that the contents of another response will be sent
+                        //out before its turn.
+                        PipeliningHandler.sendOutboundResponseRobust(queuedPipelinedResponse.getDataContext(),
+                                queuedPipelinedResponse.getInboundRequestMsg(),
+                                queuedPipelinedResponse.getOutboundResponseStruct(),
+                                queuedPipelinedResponse.getOutboundResponseMsg());
+                    }
                 }
-
             } else {
                 sendOutboundResponseRobust(dataContext, inboundRequestMsg, outboundResponseStruct, outboundResponseMsg);
             }
