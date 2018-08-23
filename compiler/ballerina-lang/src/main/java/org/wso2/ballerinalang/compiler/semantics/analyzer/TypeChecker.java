@@ -44,7 +44,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BXMLNSSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BEnumType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BField;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BFiniteType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BFutureType;
@@ -1984,26 +1983,6 @@ public class TypeChecker extends BLangNodeVisitor {
                     }
                 }
                 actualType = symTable.jsonType;
-                break;
-            case TypeTags.ENUM:
-                // Enumerator access expressions only allow enum type name as the first part e.g state.INSTALLED,
-                BEnumType enumType = (BEnumType) varRefType;
-                if (fieldAccessExpr.expr.getKind() != NodeKind.SIMPLE_VARIABLE_REF ||
-                        !((BLangSimpleVarRef) fieldAccessExpr.expr).variableName.value.equals(
-                                enumType.tsymbol.name.value)) {
-                    dlog.error(fieldAccessExpr.pos, DiagnosticCode.INVALID_ENUM_EXPR, enumType.tsymbol.name.value);
-                    break;
-                }
-
-                BSymbol symbol = symResolver.lookupMemberSymbol(fieldAccessExpr.pos,
-                        enumType.tsymbol.scope, this.env, fieldName, SymTag.VARIABLE);
-                if (symbol == symTable.notFoundSymbol) {
-                    dlog.error(fieldAccessExpr.pos, DiagnosticCode.UNDEFINED_SYMBOL, fieldName.value);
-                    break;
-                }
-                fieldAccessExpr.symbol = symbol;
-                actualType = fieldAccessExpr.expr.type;
-
                 break;
             case TypeTags.XML:
                 if (fieldAccessExpr.lhsVar) {

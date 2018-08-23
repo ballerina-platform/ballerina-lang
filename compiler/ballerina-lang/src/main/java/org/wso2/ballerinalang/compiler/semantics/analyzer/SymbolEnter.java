@@ -53,7 +53,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BXMLNSSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BAnnotationType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BEnumType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BField;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
@@ -67,8 +66,6 @@ import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
 import org.wso2.ballerinalang.compiler.tree.BLangCompilationUnit;
 import org.wso2.ballerinalang.compiler.tree.BLangDocumentation;
 import org.wso2.ballerinalang.compiler.tree.BLangEndpoint;
-import org.wso2.ballerinalang.compiler.tree.BLangEnum;
-import org.wso2.ballerinalang.compiler.tree.BLangEnum.BLangEnumerator;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
 import org.wso2.ballerinalang.compiler.tree.BLangImportPackage;
@@ -385,31 +382,6 @@ public class SymbolEnter extends BLangNodeVisitor {
         typeDefinition.symbol = typeDefSymbol;
 
         defineSymbol(typeDefinition.name.pos, typeDefSymbol);
-    }
-
-    @Override
-    public void visit(BLangEnum enumNode) {
-        BTypeSymbol enumSymbol = Symbols.createEnumSymbol(Flags.asMask(enumNode.flagSet),
-                names.fromIdNode(enumNode.name), env.enclPkg.symbol.pkgID, null, env.scope.owner);
-        enumSymbol.documentation = getDocAttachment(enumNode.docAttachments);
-        enumNode.symbol = enumSymbol;
-        defineSymbol(enumNode.name.pos, enumSymbol);
-
-        BEnumType enumType = new BEnumType(enumSymbol, null);
-        enumSymbol.type = enumType;
-
-        SymbolEnv enumEnv = SymbolEnv.createPkgLevelSymbolEnv(enumNode, enumSymbol.scope, this.env);
-        for (int i = 0; i < enumNode.enumerators.size(); i++) {
-            BLangEnumerator enumerator = enumNode.enumerators.get(i);
-            BVarSymbol enumeratorSymbol = new BVarSymbol(Flags.PUBLIC,
-                    names.fromIdNode(enumerator.name), enumSymbol.pkgID, enumType, enumSymbol);
-            enumeratorSymbol.docTag = DocTag.FIELD;
-            enumerator.symbol = enumeratorSymbol;
-
-            if (symResolver.checkForUniqueSymbol(enumerator.pos, enumEnv, enumeratorSymbol, enumeratorSymbol.tag)) {
-                enumEnv.scope.define(enumeratorSymbol.name, enumeratorSymbol);
-            }
-        }
     }
 
     @Override
@@ -845,9 +817,6 @@ public class SymbolEnter extends BLangNodeVisitor {
                 break;
             case FUNCTION:
                 pkgNode.functions.add((BLangFunction) node);
-                break;
-            case ENUM:
-                pkgNode.enums.add((BLangEnum) node);
                 break;
             case TYPE_DEFINITION:
                 pkgNode.typeDefinitions.add((BLangTypeDefinition) node);
