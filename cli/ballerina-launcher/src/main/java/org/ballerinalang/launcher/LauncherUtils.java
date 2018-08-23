@@ -79,7 +79,7 @@ public class LauncherUtils {
 
     private static PrintStream outStream = System.out;
 
-    public static void runProgram(Path sourceRootPath, Path sourcePath, boolean runServices, String functionName,
+    public static void runProgram(Path sourceRootPath, Path sourcePath, String functionName,
                                   Map<String, String> runtimeParams, String configFilePath, String[] args,
                                   boolean offline, boolean observeFlag, boolean printReturn) {
         ProgramFile programFile;
@@ -113,14 +113,13 @@ public class LauncherUtils {
                     "error: '" + programFile.getProgramFilePath() + "' does not contain a main function or a service");
         }
 
-        boolean runServicesOrNoFunctionEP = runServices
-                                                || (MAIN.equals(functionName) && !programFile.isMainEPAvailable());
+        boolean runServicesOnly = functionName == null || MAIN.equals(functionName) && !programFile.isMainEPAvailable();
 
         // Load launcher listeners
         ServiceLoader<LaunchListener> listeners = ServiceLoader.load(LaunchListener.class);
-        listeners.forEach(listener -> listener.beforeRunProgram(runServicesOrNoFunctionEP));
+        listeners.forEach(listener -> listener.beforeRunProgram(runServicesOnly));
 
-        if (runServicesOrNoFunctionEP) {
+        if (runServicesOnly) {
             if (args.length > 0) {
                 throw LauncherUtils.createUsageException("too many arguments");
             }
@@ -129,7 +128,7 @@ public class LauncherUtils {
             runMain(programFile, functionName, args, printReturn);
         }
         BLangProgramRunner.resumeStates(programFile);
-        listeners.forEach(listener -> listener.afterRunProgram(runServicesOrNoFunctionEP));
+        listeners.forEach(listener -> listener.afterRunProgram(runServicesOnly));
     }
 
     public static void runMain(ProgramFile programFile, String functionName, String[] args, boolean printReturn) {

@@ -67,6 +67,8 @@ import static org.ballerinalang.util.codegen.attributes.AttributeInfo.Kind.TAINT
 
 /**
  * Argument Parser class used to parse function args specified on the CLI.
+ *
+ * @since 0.982.0
  */
 public class ArgumentParser {
 

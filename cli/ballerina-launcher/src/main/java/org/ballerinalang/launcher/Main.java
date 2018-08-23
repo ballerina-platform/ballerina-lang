@@ -271,7 +271,7 @@ public class Main {
                 programArgs = new String[0];
             }
 
-            LauncherUtils.runProgram(sourceRootPath, sourcePath, false, functionName, runtimeParams,
+            LauncherUtils.runProgram(sourceRootPath, sourcePath, functionName, runtimeParams,
                                      configFilePath, programArgs, offline, observeFlag, printReturn);
         }
 
