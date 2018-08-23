@@ -50,8 +50,8 @@ public class InstallCommand implements BLauncherCmd {
             description = "path to the directory containing source files and packages")
     private String sourceRoot;
 
-    @Parameter(names = {"--y"}, description = " Assume yes to all queries and do not prompt confirmation when " +
-            "installing the package to the home repository")
+    @CommandLine.Option(names = {"--y"}, description = " Assume yes to all queries and do not prompt confirmation " +
+            "when installing the package to the home repository")
     private boolean installToHome;
 
     @Override

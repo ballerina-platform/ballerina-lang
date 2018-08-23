@@ -57,8 +57,8 @@ public class PushCommand implements BLauncherCmd {
             description = "path to the directory containing source files and packages")
     private String sourceRoot;
 
-    @Parameter(names = {"--y"}, description = " Assume yes to all queries and do not prompt confirmation when " +
-            "pushing the package to central")
+    @CommandLine.Option(names = {"--y"}, description = " Assume yes to all queries and do not prompt confirmation " +
+            "when pushing the package to central")
     private boolean pushToCentral;
 
     @Override
