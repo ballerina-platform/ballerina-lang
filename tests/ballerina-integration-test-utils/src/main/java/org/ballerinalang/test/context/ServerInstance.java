@@ -50,9 +50,13 @@ public class ServerInstance implements Server {
     private ServerLogReader serverInfoLogReader;
     private ServerLogReader serverErrorLogReader;
     private boolean isServerRunning;
-    private int pidPort = Constant.DEFAULT_HTTP_PORT;
-    private int[] httpServerPorts = new int[] {Constant.DEFAULT_HTTP_PORT};
+    private int[] httpServicePorts = new int[]{Constant.DEFAULT_HTTP_PORT};
     private ConcurrentHashSet<LogLeecher> tmpLeechers = new ConcurrentHashSet<>();
+
+    /**
+     * The pidPort value is used with identifying the process id when shutting down the ballerina server.
+     */
+    private int pidPort = Constant.DEFAULT_HTTP_PORT;
 
     /**
      * The parent directory which the ballerina runtime will be extracted to.
@@ -92,14 +96,14 @@ public class ServerInstance implements Server {
      */
     public void startBallerinaServer(String balFile, int httpServerPort) throws BallerinaTestException {
         this.pidPort = httpServerPort;
-        this.httpServerPorts = new int[] {httpServerPort};
+        this.httpServicePorts = new int[]{httpServerPort};
         String[] args = {balFile};
         setArguments(args);
         startServer();
     }
 
     public void startBallerinaServer(String balFile, Map<String, String> envProperties) throws BallerinaTestException {
-        String[] args = { balFile };
+        String[] args = {balFile};
         setArguments(args);
         setEnvProperties(envProperties);
         startServer();
@@ -116,7 +120,7 @@ public class ServerInstance implements Server {
      */
     public void startBallerinaServer(String balFile, String[] args, int httpServerPort) throws BallerinaTestException {
         this.pidPort = httpServerPort;
-        this.httpServerPorts = new int[] {httpServerPort};
+        this.httpServicePorts = new int[]{httpServerPort};
         startBallerinaServer(balFile, args);
     }
 
@@ -131,7 +135,7 @@ public class ServerInstance implements Server {
      */
     public void startBallerinaServer(String balFile, String[] args, int[] httpServerPorts)
             throws BallerinaTestException {
-        this.httpServerPorts = httpServerPorts;
+        this.httpServicePorts = httpServerPorts;
         this.pidPort = httpServerPorts[0];
         startBallerinaServer(balFile, args);
     }
@@ -172,7 +176,7 @@ public class ServerInstance implements Server {
             throw new IllegalArgumentException("No Argument provided for server startup.");
         }
 
-        Utils.checkPortsAvailability(httpServerPorts);
+        Utils.checkPortsAvailability(httpServicePorts);
 
         log.info("Starting server..");
 
@@ -184,7 +188,7 @@ public class ServerInstance implements Server {
         serverErrorLogReader = new ServerLogReader("errorStream", process.getErrorStream());
         serverErrorLogReader.start();
         log.info("Waiting for ports to open");
-        Utils.waitForPorts(httpServerPorts, 1000 * 60 * 2, false, "localhost");
+        Utils.waitForPorts(httpServicePorts, 1000 * 60 * 2, false, "localhost");
         log.info("Server Started Successfully.");
         isServerRunning = true;
     }
@@ -198,7 +202,6 @@ public class ServerInstance implements Server {
         if (serverHome == null) {
             setUpServerHome(serverDistribution);
             log.info("Server Home " + serverHome);
-            configServer();
         }
     }
 
@@ -237,8 +240,8 @@ public class ServerInstance implements Server {
             serverErrorLogReader.stop();
             process = null;
             //wait until port to close
-            Utils.waitForPortsToClosed(httpServerPorts, 30000);
-            httpServerPorts = new int[] {Constant.DEFAULT_HTTP_PORT};
+            Utils.waitForPortsToClosed(httpServicePorts, 30000);
+            httpServicePorts = new int[] {Constant.DEFAULT_HTTP_PORT};
             log.info("Server Stopped Successfully");
         }
 
@@ -356,7 +359,7 @@ public class ServerInstance implements Server {
      * @param command      command name
      * @param commandDir   working directory
      * @return process executed
-     * @throws IOException
+     * @throws IOException thrown on error while executing
      */
     private Process executeProcess(String[] args, String[] envVariables, String command, File commandDir)
             throws IOException {
@@ -384,7 +387,7 @@ public class ServerInstance implements Server {
      *
      * @param options client options
      * @param process process executed
-     * @throws IOException
+     * @throws IOException thrown on error while writing
      */
     private void writeClientOptionsToProcess(String[] options, Process process) throws IOException {
         OutputStream stdin = process.getOutputStream();
@@ -418,14 +421,6 @@ public class ServerInstance implements Server {
 
     private void setEnvProperties(Map<String, String> envProperties) {
         this.envProperties = envProperties;
-    }
-    /**
-     * to change the server configuration if required. This method can be overriding when initialising
-     * the object of this class.
-     *
-     * @throws BallerinaTestException if configuring server failed
-     */
-    protected void configServer() throws BallerinaTestException {
     }
 
     /**
