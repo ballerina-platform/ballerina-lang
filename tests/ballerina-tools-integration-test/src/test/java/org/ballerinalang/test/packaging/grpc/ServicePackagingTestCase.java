@@ -67,7 +67,7 @@ public class ServicePackagingTestCase {
         ballerinaBuildServer.runMain(new String[0], getEnvVariables(), "build", projectPath.toString());
         Path generatedBalx = projectPath.resolve("target").resolve("foo.balx");
         // Run gRPC service from the balx file.
-        ServerInstance ballerinaServerForService = ServerInstance.initBallerinaServer(9090);
+        ServerInstance ballerinaServerForService = ServerInstance.initBallerinaServer();
         ballerinaServerForService.startBallerinaServer(generatedBalx.toString());
 
         try {
