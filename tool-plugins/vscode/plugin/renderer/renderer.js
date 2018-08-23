@@ -16,6 +16,7 @@ function render (content, langClient, retries=1) {
         includeTree: true,
     }
 
+
     return langClient.sendRequest("ballerinaParser/parseContent", parseOpts)
         .then((body) => {
             let stale = true;
@@ -23,7 +24,7 @@ function render (content, langClient, retries=1) {
                 stale = false;
                 jsonModel = body.model;
             }
-            return renderDiagram(jsonModel, stale);
+            return renderDiagram(content, jsonModel, stale);
         })
         .catch((e) => {
             log(`Error in parser service`);
@@ -42,7 +43,7 @@ function render (content, langClient, retries=1) {
         });
 };
 
-function renderDiagram(jsonModelObj, stale) {
+function renderDiagram(content, jsonModelObj, stale) {
     const jsonModel = JSON.stringify(jsonModelObj);
 
     const page = `
@@ -102,6 +103,7 @@ function renderDiagram(jsonModelObj, stale) {
     <script charset="UTF-8" src="file://${__dirname}/resources/ballerina-diagram-library.js"></script>
     <script>
         (function() {
+            const content = ${JSON.stringify(content)};
             const json = ${jsonModel};
             const stale = ${JSON.stringify(stale)};
 
@@ -113,12 +115,27 @@ function renderDiagram(jsonModelObj, stale) {
                 return;
             }
 
+            function parseContent(contenst) {
+                console.log('parsing ' + JSON.stringify(json));
+                return Promise.resolve({ model: json });
+            }
+
+            function onChange(newContent) {
+                console.log(newContent);
+            }
+
             function drawDiagram() {
                 try {
-                    ballerinaDiagram.renderStaticDiagram(document.getElementById("diagram"), json, {
-                        width: window.innerWidth - 6, height: window.innerHeight
-                    });
-                    console.log('Successfully rendered')
+                    let width = window.innerWidth - 6;
+                    let height = window.innerHeight;
+                    console.log('rendering ' + width);
+                    ballerinaDiagram.renderEditableDiagram(document.getElementById("diagram"), content,
+                        width, height , parseContent, onChange
+                    );
+                    // ballerinaDiagram.renderStaticDiagram(document.getElementById("diagram"), json,
+                    //     { width, height } 
+                    // );
+                    console.log('Successfully rendered');
                 } catch(e) {
                     console.log(e.stack);
                     drawError('Oops. Something went wrong.');

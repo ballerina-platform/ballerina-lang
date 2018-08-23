@@ -23,6 +23,7 @@ import React, { createElement } from 'react';
 import { DragDropContext } from 'react-dnd';
 import HTML5Backend from 'react-dnd-html5-backend';
 import PropTypes from 'prop-types';
+import ReactDOM from 'react-dom';
 
 import Diagram from 'plugins/ballerina/diagram/diagram.jsx';
 import DesignView from 'plugins/ballerina/views/design-view.jsx';
@@ -141,7 +142,24 @@ BallerinaDiagram.propTypes = {
     height: PropTypes.number.isRequired,
 };
 
+function renderEditableDiagram(target, content, width, height,
+    parseContent = () => Promise.resolve({}),
+    onChange = () => {}) {
+    const props = {
+        parseContent,
+        onChange,
+        content,
+        width,
+        height,
+    };
+    const BalDiagramElement = createElement(BallerinaDiagram, props);
+    ReactDOM.render(BalDiagramElement, target);
+}
+
 export {
-    BallerinaDiagram,
     renderStaticDiagram,
+    renderEditableDiagram,
+    TreeBuilder,
+    BallerinaDesignView,
+    BallerinaDiagram,
 };
