@@ -19,6 +19,7 @@ package org.wso2.ballerinalang.compiler.tree.expressions;
 
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.expressions.AwaitExpressionNode;
+import org.ballerinalang.model.tree.expressions.ExpressionNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 
 /**
@@ -48,7 +49,7 @@ public class BLangAwaitExpr extends BLangExpression implements AwaitExpressionNo
     }
 
     @Override
-    public BLangExpression getExpression() {
+    public ExpressionNode getExpression() {
         return expr;
     }
     
