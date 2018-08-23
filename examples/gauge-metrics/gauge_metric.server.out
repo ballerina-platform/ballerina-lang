@@ -1,6 +1,6 @@
 # To start the service, navigate to the directory that contains the
 # `.bal` file and use the `ballerina run` command with `--observe` param.
-$ ballerina run --observe counter-metrics.bal
+$ ballerina run --observe gauge_metrics.bal
 ballerina: started publishing tracers to Jaeger on localhost:5775
 ballerina: initiating service(s) in 'ballerina-home/lib/balx/prometheus/reporter.balx'
 ballerina: started HTTP/WS endpoint 0.0.0.0:9797
