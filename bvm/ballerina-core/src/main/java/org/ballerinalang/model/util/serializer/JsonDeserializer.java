@@ -150,15 +150,7 @@ class JsonDeserializer implements BValueDeserializer {
         Class<?> componentType = destinationArray.getClass().getComponentType();
         for (int i = 0; i < valueArray.size(); i++) {
             Object obj = deserialize(valueArray.get(i), componentType);
-            if (componentType == int.class && obj instanceof Long) {
-                Array.set(destinationArray, i, ((Long) obj).intValue());
-            } else if (componentType == byte.class && obj instanceof Long) {
-                Array.set(destinationArray, i, (byte) ((Long) obj).intValue());
-            } else if (componentType == char.class && obj instanceof Long) {
-                Array.set(destinationArray, i, (char) ((Long) obj).intValue());
-            } else {
-                Array.set(destinationArray, i, obj);
-            }
+            Array.set(destinationArray, i, cast(obj, componentType));
         }
         return destinationArray;
     }
@@ -477,18 +469,38 @@ class JsonDeserializer implements BValueDeserializer {
     }
 
     private Class<?> findClass(String typeName) {
-        switch (typeName) {
-            case "byte":
-                return byte.class;
-            case "char":
-                return char.class;
+        Class<?> primitiveClass = findPrimitiveClass(typeName);
+        if (primitiveClass != null) {
+            return primitiveClass;
         }
 
         SerializationBValueProvider provider = this.bValueProvider.find(typeName);
         if (provider != null) {
             return provider.getType();
         }
+
         TypeInstanceProvider typeProvider = this.instanceProvider.findInstanceProvider(typeName);
         return typeProvider.getTypeClass();
+    }
+
+    private Class<?> findPrimitiveClass(String typeName) {
+        switch (typeName) {
+            case "byte":
+                return byte.class;
+            case "char":
+                return char.class;
+            case "float":
+                return float.class;
+            case "double":
+                return double.class;
+            case "short":
+                return short.class;
+            case "int":
+                return int.class;
+            case "long":
+                return long.class;
+            default:
+                return null;
+        }
     }
 }

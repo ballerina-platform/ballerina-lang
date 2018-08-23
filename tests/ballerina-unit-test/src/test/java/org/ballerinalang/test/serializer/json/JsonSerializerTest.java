@@ -240,6 +240,33 @@ public class JsonSerializerTest {
         Assert.assertEquals(chs, deserialize);
     }
 
+    @Test(description = "Test serializing Enum")
+    public void testCharEnumSerialization() {
+        TestEnum[] enumArray = new TestEnum[]{TestEnum.Item_1, TestEnum.Item_N};
+        String serial = new JsonSerializer().serialize(enumArray);
+        TestEnum[] deserialize = new JsonSerializer().deserialize(serial, TestEnum[].class);
+
+        Assert.assertEquals(deserialize, enumArray);
+    }
+
+    @Test(description = "Test serializing float array")
+    public void testCharFloatSerialization() {
+        float[] floats = new float[]{2.0f, 3.6f, 35066.22045f};
+        String serial = new JsonSerializer().serialize(floats);
+        float[] deserialize = new JsonSerializer().deserialize(serial, float[].class);
+
+        Assert.assertEquals(deserialize, floats);
+    }
+
+    @Test(description = "Test serializing double array")
+    public void testCharDoubleSerialization() {
+        double[] doubles = new double[]{2.0, 3.6, 35066.22045};
+        String serial = new JsonSerializer().serialize(doubles);
+        double[] deserialize = new JsonSerializer().deserialize(serial, double[].class);
+
+        Assert.assertEquals(deserialize, doubles);
+    }
+
     public static class TestClass {
         Object obj;
 
@@ -271,5 +298,10 @@ public class JsonSerializerTest {
         public ArrayField(int[] array) {
             this.array = array;
         }
+    }
+
+
+    public enum TestEnum {
+        Item_1, Item_2, Item_N
     }
 }

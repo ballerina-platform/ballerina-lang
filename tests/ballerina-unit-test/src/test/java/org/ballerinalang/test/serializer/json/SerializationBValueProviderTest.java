@@ -47,7 +47,8 @@ public class SerializationBValueProviderTest {
     BValueSerializer serializer;
 
     @BeforeMethod
-    public void setup() throws NoSuchMethodException, IllegalAccessException, InvocationTargetException, InstantiationException {
+    public void setup() throws NoSuchMethodException,
+            IllegalAccessException, InvocationTargetException, InstantiationException {
         Constructor<BValueTree> constructor = BValueTree.class.getDeclaredConstructor();
         constructor.setAccessible(true);
         serializer = constructor.newInstance();
