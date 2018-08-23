@@ -88,6 +88,7 @@ public class HttpServerChannelInitializer extends ChannelInitializer<SocketChann
     private int cacheSize;
     private ChannelGroup allChannels;
     private boolean ocspStaplingEnabled = false;
+    private boolean pipeliningNeeded = false;
 
     @Override
     public void initChannel(SocketChannel ch) throws Exception {
@@ -197,7 +198,8 @@ public class HttpServerChannelInitializer extends ChannelInitializer<SocketChann
                          new WebSocketServerHandshakeHandler(this.serverConnectorFuture, this.interfaceId));
         serverPipeline.addLast(Constants.HTTP_SOURCE_HANDLER,
                                new SourceHandler(this.serverConnectorFuture, this.interfaceId, this.chunkConfig,
-                                                 keepAliveConfig, this.serverName, this.allChannels));
+                                                 keepAliveConfig, this.serverName, this.allChannels,
+                                       this.pipeliningNeeded));
         if (socketIdleTimeout >= 0) {
             serverPipeline.addBefore(Constants.HTTP_SOURCE_HANDLER, Constants.IDLE_STATE_HANDLER,
                     new IdleStateHandler(socketIdleTimeout, socketIdleTimeout, socketIdleTimeout,
@@ -321,6 +323,10 @@ public class HttpServerChannelInitializer extends ChannelInitializer<SocketChann
      */
     void setHttp2Enabled(boolean http2Enabled) {
         this.http2Enabled = http2Enabled;
+    }
+
+    void setPipeliningNeeded(boolean pipeliningNeeded) {
+        this.pipeliningNeeded = pipeliningNeeded;
     }
 
     /**

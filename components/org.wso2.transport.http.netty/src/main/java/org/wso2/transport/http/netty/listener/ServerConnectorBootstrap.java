@@ -55,6 +55,7 @@ public class ServerConnectorBootstrap {
     private boolean initialized;
     private boolean isHttps = false;
     private ChannelGroup allChannels;
+    private boolean pipeliningNeeded = false;
 
     public ServerConnectorBootstrap(ChannelGroup allChannels) {
         serverBootstrap = new ServerBootstrap();
@@ -154,6 +155,10 @@ public class ServerConnectorBootstrap {
 
     public void addServerHeader(String serverName) {
         httpServerChannelInitializer.setServerName(serverName);
+    }
+
+    public void setPipeliningNeeded(boolean pipeliningNeeded) {
+        httpServerChannelInitializer.setPipeliningNeeded(pipeliningNeeded);
     }
 
     class HttpServerConnector implements ServerConnector {

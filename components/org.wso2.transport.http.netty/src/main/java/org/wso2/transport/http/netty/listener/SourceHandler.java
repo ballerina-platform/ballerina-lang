@@ -86,13 +86,15 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
     private SocketAddress remoteAddress;
     private SourceErrorHandler sourceErrorHandler;
     private boolean continueRequest = false;
+    private boolean pipeliningNeeded = false;
 
     private final int maximumEvents = 3; //We should let the user provide a value for this
     private int sequenceId = 1; //Keep track of the request order for http 1.1 pipelining
     private final Queue holdingQueue = new PriorityQueue<>(NUMBER_OF_INITIAL_EVENTS_HELD);
 
     public SourceHandler(ServerConnectorFuture serverConnectorFuture, String interfaceId, ChunkConfig chunkConfig,
-                         KeepAliveConfig keepAliveConfig, String serverName, ChannelGroup allChannels) {
+                         KeepAliveConfig keepAliveConfig, String serverName, ChannelGroup allChannels, boolean
+                         pipeliningNeeded) {
         this.serverConnectorFuture = serverConnectorFuture;
         this.interfaceId = interfaceId;
         this.chunkConfig = chunkConfig;
@@ -102,6 +104,7 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
         this.serverName = serverName;
         this.allChannels = allChannels;
         this.sourceErrorHandler = new SourceErrorHandler(this.serverConnectorFuture, serverName);
+        this.pipeliningNeeded = pipeliningNeeded;
     }
 
     @SuppressWarnings("unchecked")
@@ -179,6 +182,7 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
                 String httpVersion = (String) httpRequestMsg.getProperty(Constants.HTTP_VERSION);
                 httpRequestMsg.setKeepAlive(Util.isKeepAliveForResponse(keepAliveConfig, connectionHeaderValue,
                         httpVersion));
+                httpRequestMsg.setPipeliningNeeded(pipeliningNeeded);
                 this.serverConnectorFuture.notifyHttpListener(httpRequestMsg);
             } catch (Exception e) {
                 log.error("Error while notifying listeners", e);

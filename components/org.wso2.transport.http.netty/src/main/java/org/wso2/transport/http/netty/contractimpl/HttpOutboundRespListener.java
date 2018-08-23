@@ -181,19 +181,22 @@ public class HttpOutboundRespListener implements HttpConnectorListener {
             } else {
                 String httpVersion = (String) inboundRequestMsg.getProperty(Constants.HTTP_VERSION);
 
-                if (!Constants.HTTP2_VERSION.equalsIgnoreCase(httpVersion)) {
-                    Integer nextSequenceNumber = sourceContext.channel().attr(Constants.NEXT_SEQUENCE_NUMBER).get();
-                    if (updateNextSequenceNumber) {
-                        nextSequenceNumber++;
-                        sourceContext.channel().attr(Constants.NEXT_SEQUENCE_NUMBER).set(nextSequenceNumber);
-                    }
+                if (outboundResponseMsg.isPipeliningNeeded() && !Constants.HTTP2_VERSION.equalsIgnoreCase
+                        (httpVersion)) {
                     Queue responseQueue = sourceContext.channel().attr(Constants.RESPONSE_QUEUE).get();
-                    if (!responseQueue.isEmpty()) {
-                        //Notify ballerina to send the response which is next in queue
-                        //This is needed because, if the other responses got ready before the nextSequenceNumber
-                        // gets updated then the ballerina respond() won't start serializing the responses
-                        // in queue. So somebody has to trigger that process again.
-                        outboundResponseMsg.getPipelineListener().onResponseSend(sourceContext);
+                    synchronized (responseQueue) {
+                        Integer nextSequenceNumber = sourceContext.channel().attr(Constants.NEXT_SEQUENCE_NUMBER).get();
+                        if (updateNextSequenceNumber) {
+                            nextSequenceNumber++;
+                            sourceContext.channel().attr(Constants.NEXT_SEQUENCE_NUMBER).set(nextSequenceNumber);
+                        }
+                        if (!responseQueue.isEmpty()) {
+                            //Notify ballerina to send the response which is next in queue
+                            //This is needed because, if the other responses got ready before the nextSequenceNumber
+                            // gets updated then the ballerina respond() won't start serializing the responses
+                            // in queue. So somebody has to trigger that process again.
+                            outboundResponseMsg.getPipelineListener().onResponseSend(sourceContext);
+                        }
                     }
                 }
             }
