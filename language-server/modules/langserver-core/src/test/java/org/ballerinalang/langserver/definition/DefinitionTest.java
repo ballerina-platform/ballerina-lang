@@ -35,7 +35,6 @@ import java.nio.file.Path;
  * Test goto definition language server feature.
  */
 public class DefinitionTest {
-    private static final String METHOD = "textDocument/definition";
     private Path definitionsPath = new File(getClass().getClassLoader().getResource("definition").getFile()).toPath();
     private Path balPath1 = definitionsPath.resolve("test.definition.pkg").resolve("definition1.bal");
     private Path balPath2 = definitionsPath.resolve("test.definition.pkg").resolve("definition2.bal");
@@ -51,8 +50,7 @@ public class DefinitionTest {
     @Test(description = "Test goto definition for local functions", dataProvider = "localFuncPosition")
     public void definitionForLocalFunctionsTest(Position position, DefinitionTestDataModel dataModel)
             throws InterruptedException, IOException {
-        Assert.assertEquals(TestUtil.getLanguageServerResponseMessageAsString(position,
-                dataModel.getBallerinaFilePath(), dataModel.getBallerinaFileContent(), METHOD, serviceEndpoint),
+        Assert.assertEquals(TestUtil.getDefinitionResponse(dataModel.getBallerinaFilePath(), position, serviceEndpoint),
                 getExpectedValue(dataModel.getExpectedFileName(), dataModel.getDefinitionFileURI()),
                 "Did not match the definition content for " + dataModel.getExpectedFileName()
                         + " and position line:" + position.getLine() + " character:" + position.getCharacter());
@@ -61,8 +59,7 @@ public class DefinitionTest {
     @Test(description = "Test goto definition for records", dataProvider = "recordPositions")
     public void definitionForRecordsTest(Position position, DefinitionTestDataModel dataModel)
             throws InterruptedException, IOException {
-        Assert.assertEquals(TestUtil.getLanguageServerResponseMessageAsString(position,
-                dataModel.getBallerinaFilePath(), dataModel.getBallerinaFileContent(), METHOD, serviceEndpoint),
+        Assert.assertEquals(TestUtil.getDefinitionResponse(dataModel.getBallerinaFilePath(), position, serviceEndpoint),
                 getExpectedValue(dataModel.getExpectedFileName(), dataModel.getDefinitionFileURI()),
                 "Did not match the definition content for " + dataModel.getExpectedFileName()
                         + " and position line:" + position.getLine() + " character:" + position.getCharacter());
@@ -71,8 +68,7 @@ public class DefinitionTest {
     @Test(description = "Test goto definition for readonly variables", dataProvider = "readOnlyVariablePositions")
     public void definitionForReadOnlyVariablesTest(Position position, DefinitionTestDataModel dataModel)
             throws InterruptedException, IOException {
-        Assert.assertEquals(TestUtil.getLanguageServerResponseMessageAsString(position,
-                dataModel.getBallerinaFilePath(), dataModel.getBallerinaFileContent(), METHOD, serviceEndpoint),
+        Assert.assertEquals(TestUtil.getDefinitionResponse(dataModel.getBallerinaFilePath(), position, serviceEndpoint),
                 getExpectedValue(dataModel.getExpectedFileName(), dataModel.getDefinitionFileURI()),
                 "Did not match the definition content for " + dataModel.getExpectedFileName() +
                         " and position line:" + position.getLine() + " character:" + position.getCharacter());
@@ -82,8 +78,7 @@ public class DefinitionTest {
             enabled = false)
     public void definitionForLocalVariablesTest(Position position, DefinitionTestDataModel dataModel)
             throws InterruptedException, IOException {
-        Assert.assertEquals(TestUtil.getLanguageServerResponseMessageAsString(position,
-                dataModel.getBallerinaFilePath(), dataModel.getBallerinaFileContent(), METHOD, serviceEndpoint),
+        Assert.assertEquals(TestUtil.getDefinitionResponse(dataModel.getBallerinaFilePath(), position, serviceEndpoint),
                 getExpectedValue(dataModel.getExpectedFileName(), dataModel.getDefinitionFileURI()),
                 "Did not match the definition content for " + dataModel.getExpectedFileName() +
                         " and position line:" + position.getLine() + " character:" + position.getCharacter());

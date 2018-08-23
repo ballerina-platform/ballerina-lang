@@ -73,7 +73,6 @@ import org.wso2.ballerinalang.compiler.tree.BLangAnnotation;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
 import org.wso2.ballerinalang.compiler.tree.BLangDocumentation;
 import org.wso2.ballerinalang.compiler.tree.BLangEndpoint;
-import org.wso2.ballerinalang.compiler.tree.BLangEnum;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
 import org.wso2.ballerinalang.compiler.tree.BLangImportPackage;
@@ -118,7 +117,6 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeInit;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangVariableReference;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangAbort;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangAssignment;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangBind;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBreak;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangCatch;
@@ -365,14 +363,6 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         analyzeDef(recordTypeNode.initFunction, structEnv);
 
         validateDefaultable(recordTypeNode);
-    }
-
-    @Override
-    public void visit(BLangEnum enumNode) {
-        BSymbol enumSymbol = enumNode.symbol;
-        SymbolEnv enumEnv = SymbolEnv.createPkgLevelSymbolEnv(enumNode, enumSymbol.scope, env);
-
-        enumNode.docAttachments.forEach(doc -> analyzeDef(doc, enumEnv));
     }
 
     @Override
@@ -630,16 +620,6 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
 
         expType = new BTupleType(expTypes);
         typeChecker.checkExpr(tupleDeStmt.expr, this.env, expType);
-    }
-
-    public void visit(BLangBind bindNode) {
-        BType expType;
-        // Check each LHS expression.
-        BLangExpression varRef = bindNode.varRef;
-        ((BLangVariableReference) varRef).lhsVar = true;
-        expType = typeChecker.checkExpr(varRef, env);
-        checkConstantAssignment(varRef);
-        typeChecker.checkExpr(bindNode.expr, this.env, expType);
     }
 
     private void checkConstantAssignment(BLangExpression varRef) {
