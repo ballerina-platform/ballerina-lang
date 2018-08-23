@@ -35,13 +35,15 @@ public abstract class BallerinaCompletionTestBase extends BallerinaCodeInsightFi
             .asList("package", "import", "documentation", "#", "@", "deprecated", "service", "public", "extern",
                     "function", "type", "annotation", "endpoint");
 
-    static final List<String> DATA_TYPES = Arrays.asList("int", "byte", "float", "boolean", "string");
+    static final List<String> DATA_TYPES = Arrays.asList("int", "float", "boolean", "string");
 
     static final List<String> REFERENCE_TYPES = Arrays.asList("map", "future", "xml", "json", "table", "stream");
 
+    static final List<String> OTHER_TYPES = Arrays.asList("any", "type");
+
     static final List<String> XMLNS_TYPE = Collections.singletonList("xmlns");
 
-    static final List<String> OTHER_TYPES = Arrays.asList("any", "type", "var");
+    static final List<String> VAR_TYPE = Collections.singletonList("var");
 
     static final List<String> COMMON_KEYWORDS = Arrays
             .asList("if", "else", "fork", "join", "timeout", "worker", "transaction", "abort", "try", "catch",
@@ -68,6 +70,16 @@ public abstract class BallerinaCompletionTestBase extends BallerinaCodeInsightFi
         List<String> lookupElementStrings = myFixture.getLookupElementStrings();
         assertNotNull(lookupElementStrings);
         assertSameElements(lookupElementStrings, expectedLookups);
+    }
+
+    void doTestContains(String fileContent, String... expectedLookups) {
+        if (fileContent != null) {
+            myFixture.configureByText("test.bal", fileContent);
+        }
+        myFixture.complete(CompletionType.BASIC, 1);
+        List<String> lookupElementStrings = myFixture.getLookupElementStrings();
+        assertNotNull(lookupElementStrings);
+        assertContainsElements(lookupElementStrings, expectedLookups);
     }
 
     void doCheckResult(@NotNull String relativePath, @NotNull String before, String after, @Nullable Character c,
