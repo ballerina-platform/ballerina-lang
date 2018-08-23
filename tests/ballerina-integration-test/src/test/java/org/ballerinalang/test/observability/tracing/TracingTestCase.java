@@ -54,7 +54,7 @@ public class TracingTestCase extends BaseTest {
 
     @BeforeGroups(value = "tracing-test", alwaysRun = true)
     private void setup() throws Exception {
-        int[] requiredPorts = new int[] {9090, 9091, 9092};
+        int[] requiredPorts = new int[]{9090, 9091, 9092};
         copyFile(new File(System.getProperty(TEST_NATIVES_JAR)), new File(serverInstance.getServerHome()
                 + DEST_FUNCTIONS_JAR));
 
