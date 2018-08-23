@@ -253,6 +253,24 @@ class File extends EventChannel {
     setProperty(propertyName, propertyValue) {
         this._props[propertyName] = propertyValue;
     }
+    
+    /**
+     *
+     *
+     * @memberof File
+     */
+    get debugPackagePath() {
+        return this._debugPackagePath;
+    }
+
+    /**
+     *
+     *
+     * @memberof File
+     */
+    set debugPackagePath(debugPackagePath) {
+        this._debugPackagePath = debugPackagePath;
+    }
 
     /**
      * Gives the URI of file.

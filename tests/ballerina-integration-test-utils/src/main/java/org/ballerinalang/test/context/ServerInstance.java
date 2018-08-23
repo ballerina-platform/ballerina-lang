@@ -1,20 +1,20 @@
 /*
-*  Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
-*
-*  WSO2 Inc. licenses this file to you under the Apache License,
-*  Version 2.0 (the "License"); you may not use this file except
-*  in compliance with the License.
-*  You may obtain a copy of the License at
-*
-*  http://www.apache.org/licenses/LICENSE-2.0
-*
-*  Unless required by applicable law or agreed to in writing,
-*  software distributed under the License is distributed on an
-*  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-*  KIND, either express or implied.  See the License for the
-*  specific language governing permissions and limitations
-*  under the License.
-*/
+ *  Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ *  WSO2 Inc. licenses this file to you under the Apache License,
+ *  Version 2.0 (the "License"); you may not use this file except
+ *  in compliance with the License.
+ *  You may obtain a copy of the License at
+ *
+ *  http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing,
+ *  software distributed under the License is distributed on an
+ *  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ *  KIND, either express or implied.  See the License for the
+ *  specific language governing permissions and limitations
+ *  under the License.
+ */
 package org.ballerinalang.test.context;
 
 import org.apache.commons.lang3.ArrayUtils;
@@ -23,10 +23,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.OutputStream;
+import java.io.OutputStreamWriter;
 import java.nio.charset.Charset;
 import java.util.Arrays;
 import java.util.Locale;
@@ -47,7 +50,7 @@ public class ServerInstance implements Server {
     private ServerLogReader serverInfoLogReader;
     private ServerLogReader serverErrorLogReader;
     private boolean isServerRunning;
-    private int httpServerPort = 9099; //Constant.DEFAULT_HTTP_PORT;
+    private int httpServerPort = Constant.DEFAULT_HTTP_PORT;
     private ConcurrentHashSet<LogLeecher> tmpLeechers = new ConcurrentHashSet<>();
 
     /**
@@ -77,9 +80,7 @@ public class ServerInstance implements Server {
      */
     public static ServerInstance initBallerinaServer(int port) throws BallerinaTestException {
         String serverZipPath = System.getProperty(Constant.SYSTEM_PROP_SERVER_ZIP);
-        ServerInstance ballerinaServer = new ServerInstance(serverZipPath, port);
-
-        return ballerinaServer;
+        return new ServerInstance(serverZipPath, port);
     }
 
     /**
@@ -91,9 +92,7 @@ public class ServerInstance implements Server {
     public static ServerInstance initBallerinaServer() throws BallerinaTestException {
         int defaultPort = Constant.DEFAULT_HTTP_PORT;
         String serverZipPath = System.getProperty(Constant.SYSTEM_PROP_SERVER_ZIP);
-        ServerInstance ballerinaServer = new ServerInstance(serverZipPath, defaultPort);
-
-        return ballerinaServer;
+        return new ServerInstance(serverZipPath, defaultPort);
     }
 
     public void startBallerinaServer(String balFile) throws BallerinaTestException {
@@ -103,17 +102,44 @@ public class ServerInstance implements Server {
         startServer();
     }
 
+    /**
+     * Starts the ballerina server instance along with checking the given http port for availability before starting
+     * the server.
+     * @param balFile - path of the ballerina distribution (zip).
+     * @param httpServerPort - the http port to check for availability before starting the server instance.
+     * @throws BallerinaTestException If any exception is thrown when starting the ballerina server
+     */
+    public void startBallerinaServer(String balFile, int httpServerPort) throws BallerinaTestException {
+        this.httpServerPort = httpServerPort;
+        String[] args = {balFile};
+        setArguments(args);
+        startServer();
+    }
+
     public void startBallerinaServer(String balFile, Map<String, String> envProperties) throws BallerinaTestException {
         String[] args = { balFile };
         setArguments(args);
         setEnvProperties(envProperties);
-
         startServer();
+    }
+
+    /**
+     * Starts the ballerina server instance along with checking the given http port for availability before starting
+     * the server.
+     *
+     * @param balFile - path of the ballerina distribution (zip).
+     * @param args - additional arguments to be used with starting the server.
+     * @param httpServerPort - the http port to check for availability before starting the server instance.
+     * @throws BallerinaTestException If any exception is thrown when starting the ballerina server
+     */
+    public void startBallerinaServer(String balFile, String[] args, int httpServerPort) throws BallerinaTestException {
+        this.httpServerPort = httpServerPort;
+        startBallerinaServer(balFile, args);
     }
 
     public void startBallerinaServer(String balFile, String[] args) throws BallerinaTestException {
         String[] newArgs = {balFile};
-        newArgs = ArrayUtils.addAll(args, newArgs);
+        newArgs = ArrayUtils.addAll(newArgs, args);
         setArguments(newArgs);
 
         startServer();
@@ -129,8 +155,7 @@ public class ServerInstance implements Server {
     public void startBallerinaServerWithConfigPath(String balFile, String ballerinaConfPath) throws
             BallerinaTestException {
         String balConfigPathArg = "--config ";
-        String balConfigPathVal = ballerinaConfPath;
-        String[] args = {balConfigPathArg, balConfigPathVal, balFile};
+        String[] args = {balConfigPathArg, ballerinaConfPath, balFile};
         setArguments(args);
 
         startServer();
@@ -202,7 +227,7 @@ public class ServerInstance implements Server {
                 }
             } catch (IOException e) {
                 log.error("Error getting process id for the server in port - " + httpServerPort
-                                  + " error - " + e.getMessage(), e);
+                        + " error - " + e.getMessage(), e);
                 throw new BallerinaTestException("Error while getting the server process id", e);
             } catch (InterruptedException e) {
                 log.error("Error stopping the server in port - " + httpServerPort + " error - " + e.getMessage(), e);
@@ -214,10 +239,28 @@ public class ServerInstance implements Server {
             process = null;
             //wait until port to close
             Utils.waitForPortToClosed(httpServerPort, 30000);
+            httpServerPort = Constant.DEFAULT_HTTP_PORT;
             log.info("Server Stopped Successfully");
-
-            deleteWorkDir();
         }
+
+        if (serverInfoLogReader != null) {
+            serverInfoLogReader.stop();
+            serverErrorLogReader.removeAllLeechers();
+            serverInfoLogReader = null;
+        }
+
+        if (serverErrorLogReader != null) {
+            serverErrorLogReader.stop();
+            serverErrorLogReader.removeAllLeechers();
+            serverErrorLogReader = null;
+        }
+    }
+
+    /**
+     * Clean up this server instance by removing the work directory.
+     */
+    public void cleanup() {
+        deleteWorkDir();
     }
 
     /**
@@ -240,37 +283,31 @@ public class ServerInstance implements Server {
      * @throws BallerinaTestException if the main could not be started
      */
     public void runMain(String[] args) throws BallerinaTestException {
-        runMain(args, null, "run");
+        runMain(args, null, "run", serverHome);
+    }
+
+    /**
+     * Run main with args.
+     *
+     * @param args string arguments
+     * @throws BallerinaTestException if the main could not be started
+     */
+    public void runMain(String[] args, String[] envVariables, String command) throws BallerinaTestException {
+        runMain(args, envVariables, command, serverHome);
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public void runMain(String[] args, String[] envVariables, String command) throws BallerinaTestException {
-
+    public void runMain(String[] args, String[] envVariables, String command, String dirPath)
+            throws BallerinaTestException {
         initialize();
-
-        String scriptName = Constant.BALLERINA_SERVER_SCRIPT_NAME;
-        String[] cmdArray;
-        File commandDir = new File(serverHome);
-
+        File commandDir = new File(dirPath);
         Process process;
 
         try {
-            if (Utils.getOSName().toLowerCase(Locale.ENGLISH).contains("windows")) {
-                commandDir = new File(serverHome + File.separator + "bin");
-                cmdArray = new String[]{"cmd.exe", "/c", scriptName + ".bat", command};
-                String[] cmdArgs = Stream.concat(Arrays.stream(cmdArray), Arrays.stream(args))
-                                         .toArray(String[]::new);
-                process = Runtime.getRuntime().exec(cmdArgs, envVariables, commandDir);
-
-            } else {
-                cmdArray = new String[]{"bash", "bin/" + scriptName, command};
-                String[] cmdArgs = Stream.concat(Arrays.stream(cmdArray), Arrays.stream(args))
-                                         .toArray(String[]::new);
-                process = Runtime.getRuntime().exec(cmdArgs, envVariables, commandDir);
-            }
+            process = executeProcess(args, envVariables, command, commandDir);
             serverInfoLogReader = new ServerLogReader("inputStream", process.getInputStream());
             tmpLeechers.forEach(leacher -> serverInfoLogReader.addLeecher(leacher));
             serverInfoLogReader.start();
@@ -278,12 +315,87 @@ public class ServerInstance implements Server {
             serverErrorLogReader.start();
 
             process.waitFor();
-            deleteWorkDir();
         } catch (IOException e) {
             throw new BallerinaTestException("Error executing ballerina", e);
         } catch (InterruptedException e) {
             throw new BallerinaTestException("Error waiting for execution to finish", e);
         }
+    }
+    /**
+     * Run command with client options.
+     *
+     * @param args         client arguments
+     * @param options      options
+     * @param envVariables environment variables
+     * @param command      command name
+     * @param dir          working directory name
+     * @throws BallerinaTestException
+     */
+    public void runMainWithClientOptions(String[] args, String[] options, String[] envVariables, String command,
+                                         String dir) throws BallerinaTestException {
+        initialize();
+        File commandDir = new File(dir);
+        Process process;
+
+        try {
+            process = executeProcess(args, envVariables, command, commandDir);
+            // Wait until the options are prompted
+            Thread.sleep(3000);
+            writeClientOptionsToProcess(options, process);
+            deleteWorkDir();
+        } catch (IOException e) {
+            throw new BallerinaTestException("Error executing ballerina", e);
+        } catch (InterruptedException ignore) {
+        }
+    }
+
+    /**
+     * Execute process.
+     *
+     * @param args         client arguments
+     * @param envVariables environment variables
+     * @param command      command name
+     * @param commandDir   working directory
+     * @return process executed
+     * @throws IOException
+     */
+    private Process executeProcess(String[] args, String[] envVariables, String command, File commandDir)
+            throws IOException {
+        String scriptName = Constant.BALLERINA_SERVER_SCRIPT_NAME;
+        String[] cmdArray;
+        Process process;
+        if (Utils.getOSName().toLowerCase(Locale.ENGLISH).contains("windows")) {
+            cmdArray = new String[]{"cmd.exe", "/c", serverHome + File.separator + "bin" + File.separator + scriptName
+                    + ".bat", command};
+            String[] cmdArgs = Stream.concat(Arrays.stream(cmdArray), Arrays.stream(args))
+                                     .toArray(String[]::new);
+            process = Runtime.getRuntime().exec(cmdArgs, envVariables, commandDir);
+
+        } else {
+            cmdArray = new String[]{"bash", serverHome + File.separator + "bin/" + scriptName, command};
+            String[] cmdArgs = Stream.concat(Arrays.stream(cmdArray), Arrays.stream(args))
+                                     .toArray(String[]::new);
+            process = Runtime.getRuntime().exec(cmdArgs, envVariables, commandDir);
+        }
+        return process;
+    }
+
+    /**
+     * Write client options to process.
+     *
+     * @param options client options
+     * @param process process executed
+     * @throws IOException
+     */
+    private void writeClientOptionsToProcess(String[] options, Process process) throws IOException {
+        OutputStream stdin = process.getOutputStream();
+        BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(stdin));
+
+        for (String arguments : options) {
+            writer.write(arguments);
+        }
+        writer.flush();
+        writer.close();
     }
 
     /**
@@ -337,6 +449,18 @@ public class ServerInstance implements Server {
     }
 
     /**
+     * A utility method to construct and return the service URL by using the given port.
+     *
+     * @param port - the port to be used to create the service url.
+     * @param servicePath -  http url of the given service.
+     * @return The service URL.
+     */
+    public String getServiceURLHttp(int port, String servicePath) {
+        return "http://localhost:" + port + "/" + servicePath;
+    }
+
+
+    /**
      * Add a Leecher which is going to listen to an expected text.
      *
      * @param leecher The Leecher instance
@@ -347,6 +471,15 @@ public class ServerInstance implements Server {
             return;
         }
         serverInfoLogReader.addLeecher(leecher);
+    }
+
+    /**
+     * Removes all added log leechers from this instance.
+     */
+    public void removeAllLeechers() {
+        serverInfoLogReader.removeAllLeechers();
+        serverErrorLogReader.removeAllLeechers();
+        tmpLeechers.forEach(logLeecher -> tmpLeechers.remove(logLeecher));
     }
 
     /**
@@ -370,9 +503,7 @@ public class ServerInstance implements Server {
         if (fileSeparator.equals("\\")) {
             serverZipFile = serverZipFile.replace("/", "\\");
         }
-        String extractedCarbonDir =
-                serverZipFile.substring(serverZipFile.lastIndexOf(fileSeparator) + 1,
-                                        indexOfZip);
+        String extractedCarbonDir = serverZipFile.substring(serverZipFile.lastIndexOf(fileSeparator) + 1, indexOfZip);
         String baseDir = (System.getProperty(Constant.SYSTEM_PROP_BASE_DIR, ".")) + File.separator + "target";
 
         extractDir = new File(baseDir).getAbsolutePath() + File.separator + "ballerinatmp" + System.currentTimeMillis();

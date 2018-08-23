@@ -17,176 +17,169 @@
  */
 package org.ballerinalang.test.jms;
 
-import org.ballerinalang.test.IntegrationTestCase;
-import org.ballerinalang.test.jms.util.BallerinaClientHandler;
-import org.ballerinalang.test.jms.util.BallerinaServiceHandler;
+import org.ballerinalang.test.BaseTest;
+import org.ballerinalang.test.context.BallerinaTestException;
+import org.ballerinalang.test.context.LogLeecher;
 import org.ballerinalang.test.jms.util.EmbeddedBroker;
+import org.ballerinalang.test.jms.util.JMSClientHandler;
 import org.testng.annotations.AfterClass;
+import org.testng.annotations.AfterGroups;
 import org.testng.annotations.BeforeClass;
+import org.testng.annotations.BeforeGroups;
 import org.testng.annotations.Test;
 
+import java.io.File;
 import java.util.concurrent.TimeUnit;
 
 /**
  * Testing Mutual SSL.
  */
-public class JMSConnectorTestCase extends IntegrationTestCase {
+@Test(groups = "jms-test")
+public class JMSConnectorTestCase extends BaseTest {
 
     private EmbeddedBroker embeddedBroker;
+    private JMSClientHandler clientHandler;
 
-    @BeforeClass()
+    @BeforeClass(alwaysRun = true)
     public void setUp() throws Exception {
         embeddedBroker = new EmbeddedBroker();
         embeddedBroker.startBroker();
+        clientHandler = new JMSClientHandler();
     }
 
     @Test(description = "Test JMS Connector Queue consumer producer")
     public void testQueueConsumerProducer() throws Exception {
-        BallerinaServiceHandler serviceHandler = new BallerinaServiceHandler("jms_queue_consumer.bal",
-                                                                             "Message : Test Text");
-        serviceHandler.start();
+        LogLeecher serverLog = addServerLogLeecher("Message : Test Text");
 
-        BallerinaClientHandler clientHandler = new BallerinaClientHandler("jms_queue_producer.bal",
-                                                                          "Message successfully sent by QueueSender");
-        clientHandler.start();
+        LogLeecher clientLog = clientHandler.start("jms_queue_producer.bal", "Message successfully sent by " +
+                "QueueSender");
 
-        serviceHandler.waitForText(TimeUnit.SECONDS, 20);
-        clientHandler.waitForText(TimeUnit.SECONDS, 20);
+        waitForText(serverLog, TimeUnit.SECONDS, 20);
+        waitForText(clientLog, TimeUnit.SECONDS, 20);
 
-        serviceHandler.stop();
         clientHandler.stop();
     }
 
     @Test(description = "Test JMS Connector topic subscriber producer")
     public void testTopicSubscriberPublisher() throws Exception {
-        BallerinaServiceHandler serviceHandler = new BallerinaServiceHandler("jms_topic_subscriber.bal",
-                                                                             "Message : Test Text");
-        serviceHandler.start();
+        LogLeecher serverLog = addServerLogLeecher("Message : Test Text");
 
-        BallerinaClientHandler clientHandler
-                = new BallerinaClientHandler("jms_topic_publisher.bal",
-                                             "Message successfully sent by TopicPublisher");
-        clientHandler.start();
+        LogLeecher clientLog = clientHandler.start("jms_topic_publisher.bal", "Message successfully sent by " +
+                "TopicPublisher");
 
-        serviceHandler.waitForText(TimeUnit.SECONDS, 20);
-        clientHandler.waitForText(TimeUnit.SECONDS, 20);
+        waitForText(serverLog, TimeUnit.SECONDS, 20);
+        waitForText(clientLog, TimeUnit.SECONDS, 20);
 
-        serviceHandler.stop();
         clientHandler.stop();
     }
 
     @Test(description = "Test JMS Connector durable topic subscriber producer")
     public void testDurableTopicSubscriberPublisher() throws Exception {
-        BallerinaServiceHandler serviceHandler = new BallerinaServiceHandler("jms_durable_topic_subscriber.bal",
-                                                                             "Message : Test Text");
-        serviceHandler.start();
+        LogLeecher serverLog = addServerLogLeecher("Message : Test Text");
 
-        BallerinaClientHandler clientHandler
-                = new BallerinaClientHandler("jms_durable_topic_publisher.bal",
-                                             "Message successfully sent by DurableTopicPublisher");
-        clientHandler.start();
+        LogLeecher clientLog = clientHandler.start("jms_durable_topic_publisher.bal",
+                "Message successfully sent by DurableTopicPublisher");
 
-        serviceHandler.waitForText(TimeUnit.SECONDS, 20);
-        clientHandler.waitForText(TimeUnit.SECONDS, 20);
+        waitForText(serverLog, TimeUnit.SECONDS, 20);
+        waitForText(clientLog, TimeUnit.SECONDS, 20);
 
-        serviceHandler.stop();
         clientHandler.stop();
     }
 
     @Test(description = "Test JMS Connector simple queue receiver and producer")
     public void testJmsSimpleQueueReceiverProducer() throws Exception {
-        BallerinaServiceHandler serviceHandler = new BallerinaServiceHandler("jms_simple_queue_consumer.bal",
-                                                                             "Message : Test Text");
-        serviceHandler.start();
+        LogLeecher serverLog = addServerLogLeecher("Message : Test Text");
 
-        BallerinaClientHandler clientHandler
-                = new BallerinaClientHandler("jms_simple_queue_producer.bal",
-                                             "Message successfully sent by jms:SimpleQueueSender");
-        clientHandler.start();
+        LogLeecher clientLog = clientHandler.start("jms_simple_queue_producer.bal",
+                "Message successfully sent by jms:SimpleQueueSender");
 
-        serviceHandler.waitForText(TimeUnit.SECONDS, 20);
-        clientHandler.waitForText(TimeUnit.SECONDS, 20);
+        waitForText(serverLog, TimeUnit.SECONDS, 20);
+        waitForText(clientLog, TimeUnit.SECONDS, 20);
 
-        serviceHandler.stop();
         clientHandler.stop();
     }
 
     @Test(description = "Test JMS property setters and getters")
     public void testJMSProperties() throws Exception {
-        BallerinaServiceHandler serviceHandler =
-                new BallerinaServiceHandler("jms_properties_queue_receiver.bal",
-                                            "booleanVal:false|intVal:10|floatVal:10.5|stringVal:TestString|"
-                                                    + "message:Test Text");
-        serviceHandler.start();
+        String expectedLog = "booleanVal:false|intVal:10|floatVal:10.5|stringVal:TestString|message:Test Text";
+        LogLeecher serverLog = addServerLogLeecher(expectedLog);
 
-        BallerinaClientHandler clientHandler
-                = new BallerinaClientHandler("jms_properties_queue_sender.bal",
-                                             "Message successfully sent by jms:SimpleQueueSender");
-        clientHandler.start();
+        LogLeecher clientLog = clientHandler.start("jms_properties_queue_sender.bal",
+                "Message successfully sent by jms:SimpleQueueSender");
 
-        serviceHandler.waitForText(TimeUnit.SECONDS, 20);
-        clientHandler.waitForText(TimeUnit.SECONDS, 20);
+        waitForText(serverLog, TimeUnit.SECONDS, 20);
+        waitForText(clientLog, TimeUnit.SECONDS, 20);
 
-        serviceHandler.stop();
         clientHandler.stop();
     }
 
     @Test(description = "Test MB Connector simple queue receiver and producer")
     public void testMbSimpleQueueReceiverProducer() throws Exception {
-        BallerinaServiceHandler serviceHandler = new BallerinaServiceHandler("mb_simple_queue_consumer.bal",
-                                                                             "Message : Test Text");
-        serviceHandler.start();
+        LogLeecher serverLog = addServerLogLeecher("Message : Test Text");
 
-        BallerinaClientHandler clientHandler
-                = new BallerinaClientHandler("mb_simple_queue_producer.bal",
-                                             "Message successfully sent by mb:SimpleQueueSender");
-        clientHandler.start();
+        LogLeecher clientLog = clientHandler.start("mb_simple_queue_producer.bal",
+                "Message successfully sent by mb:SimpleQueueSender");
 
-        serviceHandler.waitForText(TimeUnit.SECONDS, 20);
-        clientHandler.waitForText(TimeUnit.SECONDS, 20);
+        waitForText(serverLog, TimeUnit.SECONDS, 20);
+        waitForText(clientLog, TimeUnit.SECONDS, 20);
 
-        serviceHandler.stop();
         clientHandler.stop();
     }
 
     @Test(description = "Test MB Connector simple topic subscriber and publisher")
     public void testMbSimpleTopicSubscriberPublisher() throws Exception {
-        BallerinaServiceHandler serviceHandler = new BallerinaServiceHandler("mb_simple_topic_subscriber.bal",
-                                                                             "Message : Test Text");
-        serviceHandler.start();
+        LogLeecher serverLog = addServerLogLeecher("Message : Test Text");
 
-        BallerinaClientHandler clientHandler
-                = new BallerinaClientHandler("mb_simple_topic_publisher.bal",
-                                             "Message successfully sent by mb:SimpleTopicPublisher");
-        clientHandler.start();
+        LogLeecher clientLog = clientHandler.start("mb_simple_topic_publisher.bal",
+                "Message successfully sent by mb:SimpleTopicPublisher");
 
-        serviceHandler.waitForText(TimeUnit.SECONDS, 20);
-        clientHandler.waitForText(TimeUnit.SECONDS, 20);
+        waitForText(serverLog, TimeUnit.SECONDS, 20);
+        waitForText(clientLog, TimeUnit.SECONDS, 20);
 
-        serviceHandler.stop();
         clientHandler.stop();
     }
+
     @Test(description = "Test MB Connector simple topic subscriber and publisher")
     public void testJMSMapMessagePublisherAndSubscriber() throws Exception {
-        BallerinaServiceHandler serviceHandler = new BallerinaServiceHandler("jms_map_message_subscriber.bal",
-                "1abctrue1.2");
-        serviceHandler.start();
 
-        BallerinaClientHandler clientHandler
-                = new BallerinaClientHandler("jms_map_message_publisher.bal",
+        LogLeecher serverLog = addServerLogLeecher("1abctrue1.2");
+
+        LogLeecher clientLog = clientHandler.start("jms_map_message_publisher.bal",
                 "Message successfully sent by TopicPublisher");
-        clientHandler.start();
 
-        serviceHandler.waitForText(TimeUnit.SECONDS, 20);
-        clientHandler.waitForText(TimeUnit.SECONDS, 20);
+        waitForText(serverLog, TimeUnit.SECONDS, 20);
+        waitForText(clientLog, TimeUnit.SECONDS, 20);
 
-        serviceHandler.stop();
         clientHandler.stop();
     }
 
-    @AfterClass()
+    @AfterClass(alwaysRun = true)
     private void cleanup() throws Exception {
         embeddedBroker.stop();
+        clientHandler.clean();
+    }
+
+    private void waitForText(LogLeecher logLeecher, TimeUnit timeUnit, int length) throws BallerinaTestException {
+        logLeecher.waitForText(timeUnit.toMillis(length));
+    }
+
+    private LogLeecher addServerLogLeecher(String expectedLog) {
+        LogLeecher logLeecher = new LogLeecher(expectedLog);
+        serverInstance.addLogLeecher(logLeecher);
+        return logLeecher;
+    }
+
+    @BeforeGroups(value = "jms-test", alwaysRun = true)
+    public void start() throws BallerinaTestException {
+        String basePath = new File("src" + File.separator + "test" + File.separator + "resources" + File.separator +
+                "jms").getAbsolutePath();
+        String[] args = new String[]{"--sourceroot", basePath};
+        serverInstance.startBallerinaServer("jmsservices", args);
+    }
+
+    @AfterGroups(value = "jms-test", alwaysRun = true)
+    public void stop() throws BallerinaTestException {
+        serverInstance.stopServer();
     }
 
 }

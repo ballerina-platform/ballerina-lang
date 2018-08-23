@@ -28,7 +28,7 @@ import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
-import org.ballerinalang.net.jms.AbstractBlockinAction;
+import org.ballerinalang.net.jms.AbstractBlockingAction;
 import org.ballerinalang.net.jms.Constants;
 import org.ballerinalang.net.jms.JMSUtils;
 import org.ballerinalang.net.jms.nativeimpl.endpoint.common.SessionConnector;
@@ -51,15 +51,15 @@ import javax.jms.Topic;
         packageName = "jms",
         functionName = "createSubscriber",
         receiver = @Receiver(type = TypeKind.OBJECT,
-                             structType = "DurableTopicSubscriber",
-                             structPackage = "ballerina/jms"),
+                structType = "DurableTopicSubscriber",
+                structPackage = "ballerina/jms"),
         args = {
                 @Argument(name = "session", type = TypeKind.OBJECT, structType = "Session"),
                 @Argument(name = "messageSelector", type = TypeKind.STRING)
         },
         isPublic = true
 )
-public class CreateSubscriber extends AbstractBlockinAction {
+public class CreateSubscriber extends AbstractBlockingAction {
 
     @Override
     public void execute(Context context, CallableUnitCallback callback) {
@@ -68,9 +68,9 @@ public class CreateSubscriber extends AbstractBlockinAction {
         BMap<String, BValue> sessionBObject = (BMap<String, BValue>) context.getRefArgument(1);
         String messageSelector = context.getStringArgument(0);
         Session session = BallerinaAdapter.getNativeObject(sessionBObject,
-                                                           Constants.JMS_SESSION,
-                                                           Session.class,
-                                                           context);
+                Constants.JMS_SESSION,
+                Session.class,
+                context);
         Struct topicSubscriberConfigBRecord = topicSubscriberBObject.getStructField(Constants.CONSUMER_CONFIG);
         String topicPattern = topicSubscriberConfigBRecord.getStringField(Constants.TOPIC_PATTERN);
         String consumerId = topicSubscriberConfigBRecord.getStringField(Constants.CONSUMER_IDENTIFIER);

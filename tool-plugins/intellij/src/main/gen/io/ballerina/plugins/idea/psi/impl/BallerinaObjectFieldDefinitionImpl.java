@@ -73,6 +73,12 @@ public class BallerinaObjectFieldDefinitionImpl extends BallerinaCompositeElemen
 
   @Override
   @Nullable
+  public BallerinaDocumentationString getDocumentationString() {
+    return PsiTreeUtil.getChildOfType(this, BallerinaDocumentationString.class);
+  }
+
+  @Override
+  @Nullable
   public PsiElement getAssign() {
     return findChildByType(ASSIGN);
   }

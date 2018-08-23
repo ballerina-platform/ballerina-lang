@@ -18,6 +18,7 @@
 
 package org.ballerinalang.testerina.core;
 
+import org.ballerinalang.compiler.BLangCompilerException;
 import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.compiler.plugins.CompilerPlugin;
 import org.ballerinalang.launcher.util.BCompileUtil;
@@ -174,7 +175,7 @@ public class BTestRunner {
                                           + diagnostic.getPosition() + " " + diagnostic.getMessage());
             }
             if (compileResult.getErrorCount() > 0) {
-                throw new BallerinaException("error : compilation failed");
+                throw new BLangCompilerException("compilation contains errors");
             }
             // set the debugger
             ProgramFile programFile = compileResult.getProgFile();

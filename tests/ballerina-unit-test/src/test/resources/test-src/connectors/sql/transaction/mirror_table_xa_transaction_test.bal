@@ -33,8 +33,8 @@ function testXATransactionSuccess() returns (int, int) {
     table dt1 = check testDB2->getProxyTable("SalaryTrx", SalaryTrx);
 
     transaction {
-        CustomersTrx c1 = { customerId: 1, name: "Anne", creditLimit: 1000, country: "UK" };
-        SalaryTrx s1 = { id: 1, value: 1000 };
+        CustomersTrx c1 = { customerId: 1, name: "Anne", creditLimit: 1000.0, country: "UK" };
+        SalaryTrx s1 = { id: 1, value: 1000.0 };
 
         var result1 = dt0.add(c1);
         var result2 = dt1.add(s1);
@@ -79,8 +79,8 @@ function testXATransactionFailed1() returns (int, int) {
 
     try {
         transaction {
-            CustomersTrx c1 = { customerId: 2, name: "John", creditLimit: 1000, country: "UK" };
-            SalaryTrx s1 = { id: 20, value: 1000 };
+            CustomersTrx c1 = { customerId: 2, name: "John", creditLimit: 1000.0, country: "UK" };
+            SalaryTrx s1 = { id: 20, value: 1000.0 };
 
             var result1 = dt0.add(c1);
             var result2 = dt1.add(s1);
@@ -127,8 +127,8 @@ function testXATransactionFailed2() returns (int, int) {
 
     try {
         transaction {
-            CustomersTrx c1 = { customerId: 30, name: "John", creditLimit: 1000, country: "UK" };
-            SalaryTrx s1 = { id: 3, value: 1000 };
+            CustomersTrx c1 = { customerId: 30, name: "John", creditLimit: 1000.0, country: "UK" };
+            SalaryTrx s1 = { id: 3, value: 1000.0 };
 
             var result1 = dt0.add(c1);
             var result2 = dt1.add(s1);
@@ -179,9 +179,9 @@ function testXATransactionRetry() returns (int, int) {
 
     try {
         transaction {
-            CustomersTrx c1 = { customerId: 30, name: "John", creditLimit: 1000, country: "UK" };
-            CustomersTrx c2 = { customerId: 4, name: "John", creditLimit: 1000, country: "UK" };
-            SalaryTrx s1 = { id: 4, value: 1000 };
+            CustomersTrx c1 = { customerId: 30, name: "John", creditLimit: 1000.0, country: "UK" };
+            CustomersTrx c2 = { customerId: 4, name: "John", creditLimit: 1000.0, country: "UK" };
+            SalaryTrx s1 = { id: 4, value: 1000.0 };
             if (i == 2) {
                 var result1 = dt0.add(c2);
             } else {

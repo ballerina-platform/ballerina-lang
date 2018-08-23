@@ -560,49 +560,8 @@ public class Desugar extends BLangNodeVisitor {
         if (varNode.expr == null) {
             varNode.expr = getInitExpr(varNode);
         }
+        result = varDefNode;
 
-        if (!varNode.safeAssignment) {
-            result = varDefNode;
-            return;
-        }
-
-        // Desugar the =? operator with the match statement
-        //
-        //  e.g.
-        //      var f =? openFile("/tmp/foo.txt"); // openFile: () -> (File | error)
-        //
-        //      {
-        //          File f;
-        //          match openFile("/tmp/foo.txt") {
-        //              File _$_f1 => f = _$_f1;
-        //              error e => throw e | return e
-        //          }
-        //      }
-
-        // Create the pattern to match the success case
-        BLangMatchStmtPatternClause patternSuccessCase = getSafeAssignSuccessPattern(varNode.pos,
-                varNode.symbol.type, true, varNode.symbol, null);
-        BLangMatchStmtPatternClause patternErrorCase = getSafeAssignErrorPattern(varNode.pos, varNode.symbol.owner);
-
-
-        // Create the match statement
-        BLangMatch matchStmt = ASTBuilderUtil.createMatchStatement(varNode.expr.pos,
-                varNode.expr, new ArrayList<BLangMatchStmtPatternClause>() {{
-                    add(patternSuccessCase);
-                    add(patternErrorCase);
-                }});
-
-        // var f =? foo() -> var f;
-        varNode.expr = null;
-        varNode.safeAssignment = false;
-
-        BLangBlockStmt safeAssignmentBlock = ASTBuilderUtil.createBlockStmt(varDefNode.pos,
-                new ArrayList<BLangStatement>() {{
-                    add(varDefNode);
-                    add(matchStmt);
-                }});
-
-        result = rewrite(safeAssignmentBlock, this.env);
     }
 
     @Override
@@ -619,55 +578,6 @@ public class Desugar extends BLangNodeVisitor {
         assignNode.expr = rewriteExpr(assignNode.expr);
         result = assignNode;
 
-        if (!assignNode.safeAssignment) {
-            return;
-        }
-
-        // Desugar the =? operator with the match statement
-        //
-        //  e.g.
-        //      File f;
-        //      .....
-        //      f =? openFile("/tmp/foo.txt"); // openFile: () -> (File | error)
-        //
-        //      {
-        //          match openFile("/tmp/foo.txt") {
-        //              File _$_f1 => f = _$_f1;
-        //              error e => throw e | return e
-        //          }
-        //      }
-        BLangBlockStmt safeAssignmentBlock = ASTBuilderUtil.createBlockStmt(assignNode.pos, new ArrayList<>());
-        BLangExpression lhsExpr = assignNode.varRef;
-        BLangMatchStmtPatternClause patternSuccessCase;
-        if (assignNode.declaredWithVar) {
-            BVarSymbol varSymbol = ((BLangSimpleVarRef) lhsExpr).varSymbol;
-            BLangVariable variable = ASTBuilderUtil.createVariable(assignNode.pos, "", lhsExpr.type, null, varSymbol);
-            BLangVariableDef variableDef = ASTBuilderUtil.createVariableDef(assignNode.pos, variable);
-            safeAssignmentBlock.stmts.add(variableDef);
-            patternSuccessCase = getSafeAssignSuccessPattern(assignNode.pos, lhsExpr.type,
-                    true, varSymbol, null);
-        } else {
-            patternSuccessCase = getSafeAssignSuccessPattern(assignNode.pos, lhsExpr.type,
-                    false, null, lhsExpr);
-        }
-
-        // Create the pattern to match the success case
-        BLangMatchStmtPatternClause patternErrorCase = getSafeAssignErrorPattern(assignNode.pos,
-                this.env.enclInvokable.symbol);
-
-
-        // Create the match statement
-        BLangMatch matchStmt = ASTBuilderUtil.createMatchStatement(assignNode.pos,
-                assignNode.expr, new ArrayList<BLangMatchStmtPatternClause>() {{
-                    add(patternSuccessCase);
-                    add(patternErrorCase);
-                }});
-
-        // var f =? foo() -> var f;
-        assignNode.expr = null;
-        assignNode.safeAssignment = false;
-        safeAssignmentBlock.stmts.add(matchStmt);
-        result = rewrite(safeAssignmentBlock, this.env);
     }
 
     @Override
@@ -1394,7 +1304,10 @@ public class Desugar extends BLangNodeVisitor {
             result = rewriteExpr(bracedOrTupleExpr.expressions.get(0));
             return;
         }
-        bracedOrTupleExpr.expressions.forEach(expr -> types.setImplicitCastExpr(expr, expr.type, symTable.anyType));
+        bracedOrTupleExpr.expressions.forEach(expr -> {
+            BType expType = expr.impConversionExpr == null ? expr.type : expr.impConversionExpr.type;
+            types.setImplicitCastExpr(expr, expType, symTable.anyType);
+        });
         bracedOrTupleExpr.expressions = rewriteExprs(bracedOrTupleExpr.expressions);
         result = bracedOrTupleExpr;
     }
@@ -1492,7 +1405,7 @@ public class Desugar extends BLangNodeVisitor {
             }
             xmlns.namespaceURI = attribute.value.concatExpr;
             xmlns.prefix = ((BLangXMLQName) attribute.name).localname;
-            xmlns.symbol = (BXMLNSSymbol) attribute.symbol;
+            xmlns.symbol = attribute.symbol;
 
             xmlElementLiteral.inlineNamespaces.add(xmlns);
             attributesItr.remove();
@@ -1718,7 +1631,7 @@ public class Desugar extends BLangNodeVisitor {
                 patternClauses));
         BLangVariableReference tempResultVarRef =
                 ASTBuilderUtil.createVariableRef(bLangMatchExpression.pos, tempResultVar.symbol);
-        BLangStatementExpression statementExpr = ASTBuilderUtil.creatStatementExpression(stmts, tempResultVarRef);
+        BLangStatementExpression statementExpr = ASTBuilderUtil.createStatementExpression(stmts, tempResultVarRef);
         statementExpr.type = bLangMatchExpression.type;
         result = rewriteExpr(statementExpr);
     }
@@ -1771,7 +1684,7 @@ public class Desugar extends BLangNodeVisitor {
         BLangSimpleVarRef tempCheckedExprVarRef = ASTBuilderUtil.createVariableRef(
                 checkedExpr.pos, checkedExprVar.symbol);
 
-        BLangStatementExpression statementExpr = ASTBuilderUtil.creatStatementExpression(
+        BLangStatementExpression statementExpr = ASTBuilderUtil.createStatementExpression(
                 generatedStmtBlock, tempCheckedExprVarRef);
         statementExpr.type = checkedExpr.type;
         result = rewriteExpr(statementExpr);
@@ -1871,7 +1784,7 @@ public class Desugar extends BLangNodeVisitor {
     private BLangArrayLiteral createArrayLiteralExprNode() {
         BLangArrayLiteral expr = (BLangArrayLiteral) TreeBuilder.createArrayLiteralNode();
         expr.exprs = new ArrayList<>();
-        expr.type = symTable.anyType;
+        expr.type = new BArrayType(symTable.anyType);
         return expr;
     }
 
@@ -1901,7 +1814,7 @@ public class Desugar extends BLangNodeVisitor {
             fieldBasedAccess.field = iExpr.name;
             expr = fieldBasedAccess;
         }
-        expr.symbol = (BVarSymbol) iExpr.symbol;
+        expr.symbol = iExpr.symbol;
         expr.type = iExpr.symbol.type;
         expr = rewriteExpr(expr);
         result = new BFunctionPointerInvocation(iExpr, expr);
@@ -2153,55 +2066,6 @@ public class Desugar extends BLangNodeVisitor {
             throwStmt.pos = pos;
             throwStmt.expr = patternFailureCaseVarRef;
             patternBlockFailureCase.stmts.add(throwStmt);
-        }
-
-        return ASTBuilderUtil.createMatchStatementPattern(pos, patternFailureCaseVar, patternBlockFailureCase);
-    }
-
-    // TODO Remove this method when refactoring the =? operator
-    private BLangMatchStmtPatternClause getSafeAssignErrorPattern(DiagnosticPos pos, BSymbol invokableSymbol) {
-        // From here onwards we assume that this function has only one return type
-        // Owner of the variable symbol must be an invokable symbol
-        boolean noRetParams = ((BInvokableType) invokableSymbol.type).retType == null;
-        boolean returnErrorType = false;
-        if (!noRetParams) {
-            BType retType = ((BInvokableType) invokableSymbol.type).retType;
-            Set<BType> returnTypeSet = retType.tag == TypeTags.UNION ?
-                    ((BUnionType) retType).memberTypes :
-                    new LinkedHashSet<BType>() {{
-                        add(retType);
-                    }};
-            returnErrorType = returnTypeSet
-                    .stream()
-                    .anyMatch(type -> types.isAssignable(type, symTable.errStructType));
-        }
-
-        // Create the pattern to match the error type
-        //      1) Create the pattern variable
-        String patternFailureCaseVarName = GEN_VAR_PREFIX.value + "t_failure";
-        BLangVariable patternFailureCaseVar = ASTBuilderUtil.createVariable(pos,
-                patternFailureCaseVarName, symTable.errStructType, null, new BVarSymbol(0,
-                        names.fromString(patternFailureCaseVarName),
-                        this.env.scope.owner.pkgID, symTable.errStructType, this.env.scope.owner));
-
-        //      2) Create the pattern block
-        BLangVariableReference patternFailureCaseVarRef = ASTBuilderUtil.createVariableRef(pos,
-                patternFailureCaseVar.symbol);
-
-        BLangBlockStmt patternBlockFailureCase = (BLangBlockStmt) TreeBuilder.createBlockNode();
-        patternBlockFailureCase.pos = pos;
-        if (noRetParams || !returnErrorType) {
-            // throw e
-            BLangThrow throwStmt = (BLangThrow) TreeBuilder.createThrowNode();
-            throwStmt.pos = pos;
-            throwStmt.expr = patternFailureCaseVarRef;
-            patternBlockFailureCase.stmts.add(throwStmt);
-        } else {
-            //return e;
-            BLangReturn returnStmt = (BLangReturn) TreeBuilder.createReturnNode();
-            returnStmt.pos = pos;
-            returnStmt.expr = patternFailureCaseVarRef;
-            patternBlockFailureCase.stmts.add(returnStmt);
         }
 
         return ASTBuilderUtil.createMatchStatementPattern(pos, patternFailureCaseVar, patternBlockFailureCase);
@@ -2595,7 +2459,7 @@ public class Desugar extends BLangNodeVisitor {
         BLangMatch matcEXpr = this.matchStmtStack.firstElement();
         BLangBlockStmt blockStmt =
                 ASTBuilderUtil.createBlockStmt(accessExpr.pos, Lists.of(tempResultVarDef, matcEXpr));
-        BLangStatementExpression stmtExpression = ASTBuilderUtil.creatStatementExpression(blockStmt, tempResultVarRef);
+        BLangStatementExpression stmtExpression = ASTBuilderUtil.createStatementExpression(blockStmt, tempResultVarRef);
         stmtExpression.type = originalExprType;
 
         // Reset the variables
@@ -2620,7 +2484,7 @@ public class Desugar extends BLangNodeVisitor {
         }
 
         if (!accessExpr.safeNavigate && !accessExpr.expr.type.isNullable()) {
-            accessExpr.type = accessExpr.childType;
+            accessExpr.type = accessExpr.originalType;
             if (this.safeNavigationAssignment != null) {
                 this.safeNavigationAssignment.expr = addConversionExprIfRequired(accessExpr, tempResultVar.type, types,
                         symTable, symResolver);
@@ -2682,7 +2546,7 @@ public class Desugar extends BLangNodeVisitor {
 
         // Create the pattern
         // R b => a = b;
-        BLangMatchStmtPatternClause errorPattern = (BLangMatchStmtPatternClause) ASTBuilderUtil
+        BLangMatchStmtPatternClause errorPattern = ASTBuilderUtil
                 .createMatchStatementPattern(expr.pos, errorPatternVar, patternBody);
         return errorPattern;
     }
@@ -2718,7 +2582,7 @@ public class Desugar extends BLangNodeVisitor {
 
         // Create the pattern
         // R b => a = b;
-        BLangMatchStmtPatternClause nullPattern = (BLangMatchStmtPatternClause) ASTBuilderUtil
+        BLangMatchStmtPatternClause nullPattern = ASTBuilderUtil
                 .createMatchStatementPattern(expr.pos, nullPatternVar, patternBody);
         return nullPattern;
     }
@@ -2738,7 +2602,7 @@ public class Desugar extends BLangNodeVisitor {
         // Type of the field access expression should be always taken from the child type.
         // Because the type assigned to expression contains the inherited error/nil types,
         // and may not reflect the actual type of the child/field expr.
-        accessExpr.type = accessExpr.childType;
+        accessExpr.type = accessExpr.originalType;
 
         BLangVariableReference tempResultVarRef =
                 ASTBuilderUtil.createVariableRef(accessExpr.pos, tempResultVar.symbol);
@@ -2751,8 +2615,8 @@ public class Desugar extends BLangNodeVisitor {
 
         // Create the pattern
         // R b => a = x.foo;
-        BLangMatchStmtPatternClause successPattern = (BLangMatchStmtPatternClause) ASTBuilderUtil
-                .createMatchStatementPattern(accessExpr.pos, successPatternVar, patternBody);
+        BLangMatchStmtPatternClause successPattern =
+                ASTBuilderUtil.createMatchStatementPattern(accessExpr.pos, successPatternVar, patternBody);
         this.safeNavigationAssignment = assignmentStmt;
         return successPattern;
     }
@@ -2811,8 +2675,8 @@ public class Desugar extends BLangNodeVisitor {
         }
 
         BLangVariableReference varRef = ((BLangAccessExpression) expr).expr;
-        if (varRef.type.tag == TypeTags.JSON) {
-            return varRef.type.isNullable();
+        if (varRef.type.isNullable()) {
+            return true;
         }
 
         return safeNavigateLHS(varRef);
@@ -2835,12 +2699,12 @@ public class Desugar extends BLangNodeVisitor {
             if (accessExpr.expr != null) {
                 this.accessExprStack.push(accessExpr);
                 // If the parent of current expr is the root, terminate
-                stmts.addAll(createLHSSafeNavigation((BLangVariableReference) accessExpr.expr, type, rhsExpr,
+                stmts.addAll(createLHSSafeNavigation(accessExpr.expr, type, rhsExpr,
                         safeAssignment));
 
                 this.accessExprStack.pop();
             }
-            accessExpr.type = accessExpr.childType;
+            accessExpr.type = accessExpr.originalType;
 
             // if its the leaf node, assign the original rhs expression to the access expression
             if (accessExpr.leafNode) {
@@ -2851,9 +2715,13 @@ public class Desugar extends BLangNodeVisitor {
                 stmts.add(assignmentStmt);
                 return stmts;
             }
+        } else if (expr.type.tag != TypeTags.JSON) {
+            // Do not create any default init statement for the very first varRef, unless its a JSON.
+            // i.e: In a field access expression a.b.c.d, do not create an init for 'a', if it is not JSON
+            return stmts;
         }
 
-        if (expr.type.isNullable()) {
+        if (expr.type.isNullable() && isDefaultableMappingType(expr.type)) {
             BLangIf ifStmt = getSafeNaviDefaultInitStmt(expr);
             stmts.add(ifStmt);
         }
@@ -2929,7 +2797,7 @@ public class Desugar extends BLangNodeVisitor {
                 throw new IllegalStateException();
         }
 
-        accessExpr.childType = originalAccessExpr.childType;
+        accessExpr.originalType = originalAccessExpr.originalType;
         accessExpr.pos = originalAccessExpr.pos;
         accessExpr.lhsVar = originalAccessExpr.lhsVar;
         accessExpr.symbol = originalAccessExpr.symbol;
@@ -2938,7 +2806,7 @@ public class Desugar extends BLangNodeVisitor {
         // Type of the field access expression should be always taken from the child type.
         // Because the type assigned to expression contains the inherited error/nil types,
         // and may not reflect the actual type of the child/field expr.
-        accessExpr.type = originalAccessExpr.childType;
+        accessExpr.type = originalAccessExpr.originalType;
         return accessExpr;
     }
 
@@ -2960,8 +2828,8 @@ public class Desugar extends BLangNodeVisitor {
     }
 
     private BLangExpression getDefaultValueExpr(BLangAccessExpression accessExpr) {
-        BType fieldType = accessExpr.type;
-        BType type = accessExpr.expr.type;
+        BType fieldType = accessExpr.originalType;
+        BType type = getSafeType(accessExpr.expr.type, false);
         switch (type.tag) {
             case TypeTags.JSON:
                 if (accessExpr.getKind() == NodeKind.INDEX_BASED_ACCESS_EXPR &&
@@ -2970,7 +2838,9 @@ public class Desugar extends BLangNodeVisitor {
                 }
                 return new BLangJSONLiteral(new ArrayList<>(), fieldType);
             case TypeTags.MAP:
-                return new BLangMapLiteral(new ArrayList<>(), fieldType);
+                return new BLangMapLiteral(new ArrayList<>(), type);
+            case TypeTags.RECORD:
+                return new BLangRecordLiteral(type);
             default:
                 throw new IllegalStateException();
         }
@@ -3031,4 +2901,14 @@ public class Desugar extends BLangNodeVisitor {
         return literal;
     }
 
+    private boolean isDefaultableMappingType(BType type) {
+        switch (getSafeType(type, false).tag) {
+            case TypeTags.JSON:
+            case TypeTags.MAP:
+            case TypeTags.RECORD:
+                return true;
+            default:
+                return false;
+        }
+    }
 }

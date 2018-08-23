@@ -84,16 +84,16 @@ public class WebSocketUtil {
             @Override
             public void onSuccess(WebSocketConnection webSocketConnection) {
                 BMap<String, BValue> webSocketEndpoint = BLangConnectorSPIUtil.createObject(
-                        wsService.getResources()[0].getResourceInfo().getServiceInfo().getPackageInfo()
-                                .getProgramFile(), PROTOCOL_PACKAGE_HTTP, WebSocketConstants.WEBSOCKET_ENDPOINT);
+                        wsService.getServiceInfo().getPackageInfo().getProgramFile(), PROTOCOL_PACKAGE_HTTP,
+                        WebSocketConstants.WEBSOCKET_ENDPOINT);
                 BMap<String, BValue> webSocketConnector = BLangConnectorSPIUtil.createObject(
-                        wsService.getResources()[0].getResourceInfo().getServiceInfo().getPackageInfo()
-                                .getProgramFile(), PROTOCOL_PACKAGE_HTTP, WebSocketConstants.WEBSOCKET_CONNECTOR);
+                        wsService.getServiceInfo().getPackageInfo().getProgramFile(), PROTOCOL_PACKAGE_HTTP,
+                        WebSocketConstants.WEBSOCKET_CONNECTOR);
 
                 webSocketEndpoint.put(WebSocketConstants.LISTENER_CONNECTOR_FIELD, webSocketConnector);
                 populateEndpoint(webSocketConnection, webSocketEndpoint);
                 WebSocketOpenConnectionInfo connectionInfo =
-                        new WebSocketOpenConnectionInfo(wsService, webSocketConnection, webSocketEndpoint);
+                        new WebSocketOpenConnectionInfo(wsService, webSocketConnection, webSocketEndpoint, context);
                 connectionManager.addConnection(webSocketConnection.getChannelId(), connectionInfo);
                 webSocketConnector.addNativeData(WebSocketConstants.NATIVE_DATA_WEBSOCKET_CONNECTION_INFO,
                                                  connectionInfo);
@@ -161,11 +161,11 @@ public class WebSocketUtil {
                                         BMap<String, BValue> webSocketEndpoint) {
         webSocketEndpoint.put(WebSocketConstants.LISTENER_ID_FIELD, new BString(webSocketConnection.getChannelId()));
         webSocketEndpoint.put(WebSocketConstants.LISTENER_NEGOTIATED_SUBPROTOCOLS_FIELD,
-                new BString(webSocketConnection.getNegotiatedSubProtocol()));
+                              new BString(webSocketConnection.getNegotiatedSubProtocol()));
         webSocketEndpoint.put(WebSocketConstants.LISTENER_IS_SECURE_FIELD,
-                new BBoolean(webSocketConnection.isSecure()));
+                              new BBoolean(webSocketConnection.isSecure()));
         webSocketEndpoint.put(WebSocketConstants.LISTENER_IS_OPEN_FIELD,
-                new BBoolean(webSocketConnection.isOpen()));
+                              new BBoolean(webSocketConnection.isOpen()));
     }
 
     public static void handleWebSocketCallback(Context context, CallableUnitCallback callback,
@@ -181,23 +181,6 @@ public class WebSocketUtil {
         });
     }
 
-    /**
-     * Refactor the given URI.
-     *
-     * @param uri URI to refactor.
-     * @return refactored URI.
-     */
-    public static String refactorUri(String uri) {
-        if (!uri.startsWith("/")) {
-            uri = "/".concat(uri);
-        }
-
-        if (uri.endsWith("/")) {
-            uri = uri.substring(0, uri.length() - 1);
-        }
-        return uri;
-    }
-
     public static void readFirstFrame(WebSocketConnection webSocketConnection,
                                       BMap<String, BValue> webSocketConnector) {
         webSocketConnection.readNextFrame();
@@ -206,6 +189,7 @@ public class WebSocketUtil {
 
     /**
      * Closes the connection with the unexpected failure status code.
+     *
      * @param webSocketConnection the websocket connection to be closed.
      */
     static void closeDuringUnexpectedCondition(WebSocketConnection webSocketConnection) {

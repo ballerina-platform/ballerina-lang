@@ -30,6 +30,8 @@ import org.slf4j.LoggerFactory;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 
+import static org.ballerinalang.net.websub.WebSubSubscriberServiceValidator.validateCustomResources;
+
 /**
  * The WebSub service registry which uses an {@link HTTPServicesRegistry} to maintain WebSub Subscriber HTTP services.
  *
@@ -121,7 +123,10 @@ public class WebSubServicesRegistry extends HTTPServicesRegistry {
         sortedServiceURIs.add(httpService.getBasePath());
         sortedServiceURIs.sort((basePath1, basePath2) -> basePath2.length() - basePath1.length());
 
-        WebSubSubscriberServiceValidator.validateResources(httpService, topicIdentifier, this);
+        if (topicIdentifier != null) {
+            // i.e., extension config exists
+            validateCustomResources(httpService.getResources(), this);
+        }
     }
 
 }

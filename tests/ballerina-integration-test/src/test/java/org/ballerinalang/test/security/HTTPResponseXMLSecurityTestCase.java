@@ -19,8 +19,7 @@
 package org.ballerinalang.test.security;
 
 import io.netty.handler.codec.http.HttpHeaderNames;
-import org.ballerinalang.test.IntegrationTestCase;
-import org.ballerinalang.test.context.ServerInstance;
+import org.ballerinalang.test.BaseTest;
 import org.ballerinalang.test.util.HttpClientRequest;
 import org.ballerinalang.test.util.HttpResponse;
 import org.ballerinalang.test.util.TestConstant;
@@ -36,17 +35,14 @@ import java.util.Map;
 /**
  * Testing actual runtime behaviour of the XML parser from security point of view.
  */
-public class HTTPResponseXMLSecurityTestCase  extends IntegrationTestCase {
+public class HTTPResponseXMLSecurityTestCase extends BaseTest {
 
-    private ServerInstance ballerinaServer;
-
-    @BeforeClass
+    @BeforeClass(alwaysRun = true)
     public void setup() throws Exception {
         String balFilePath = new File("src" + File.separator + "test" + File.separator + "resources"
                 + File.separator + "xmlSecurity" + File.separator +
                 "xml-parsing-service.bal").getAbsolutePath();
-        ballerinaServer = ServerInstance.initBallerinaServer();
-        ballerinaServer.startBallerinaServer(balFilePath);
+        serverInstance.startBallerinaServer(balFilePath);
     }
 
     @Test(description = "Test the service for XML External Entity Injection attack")
@@ -96,8 +92,8 @@ public class HTTPResponseXMLSecurityTestCase  extends IntegrationTestCase {
         return response;
     }
 
-    @AfterClass
+    @AfterClass(alwaysRun = true)
     private void cleanup() throws Exception {
-        ballerinaServer.stopServer();
+        serverInstance.stopServer();
     }
 }

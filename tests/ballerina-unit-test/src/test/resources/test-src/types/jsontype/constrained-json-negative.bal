@@ -83,3 +83,13 @@ function testBooleanArrayToJsonAssignment() returns (json) {
     json j = b;
     return j;
 }
+
+function testInvalidIndexBasedAccessOfRecordConstrainedJSON() {
+    json<Person> j = {name:"John Doe", age:30, address:"London"};
+    string name = <string>j[0];
+}
+
+function testInvalidIndexBasedAccessOfConstrainedJSON() {
+    json j = 12;
+    string name = j[0.0];
+}

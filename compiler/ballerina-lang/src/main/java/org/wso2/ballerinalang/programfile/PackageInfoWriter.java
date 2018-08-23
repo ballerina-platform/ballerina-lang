@@ -541,7 +541,7 @@ public class PackageInfoWriter {
             case LINE_NUMBER_TABLE_ATTRIBUTE:
                 LineNumberTableAttributeInfo lnNoTblAttrInfo = (LineNumberTableAttributeInfo) attributeInfo;
                 LineNumberInfo[] lineNumberInfoEntries = lnNoTblAttrInfo.getLineNumberInfoEntries();
-                attrDataOutStream.writeShort(lineNumberInfoEntries.length);
+                attrDataOutStream.writeInt(lineNumberInfoEntries.length);
                 for (LineNumberInfo lineNumberInfo : lineNumberInfoEntries) {
                     writeLineNumberInfo(attrDataOutStream, lineNumberInfo);
                 }
@@ -630,6 +630,9 @@ public class PackageInfoWriter {
         dataOutStream.writeInt(localVariableInfo.varNameCPIndex);
         dataOutStream.writeInt(localVariableInfo.varIndex);
         dataOutStream.writeInt(localVariableInfo.varTypeSigCPIndex);
+
+        dataOutStream.writeInt(localVariableInfo.scopeStartLineNumber);
+        dataOutStream.writeInt(localVariableInfo.scopeEndLineNumber);
 
         int[] attachmentsIndexes = localVariableInfo.attachmentIndexes;
         dataOutStream.writeShort(attachmentsIndexes.length);
