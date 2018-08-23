@@ -37,7 +37,7 @@ public type Listener object {
 
     public extern function start();
 
-    public extern function stop();
+    //public extern function stop();
 };
 
 documentation {
