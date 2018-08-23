@@ -9,10 +9,10 @@ CREATE TABLE IF NOT EXISTS DataTable(
   PRIMARY KEY (row_id)
 );
 /
-insert into DataTable (row_id, int_type, long_type, float_type, double_type, boolean_type, string_type) values
+INSERT INTO DataTable (row_id, int_type, long_type, float_type, double_type, boolean_type, string_type) VALUES
   (1, 1, 9223372036854774807, 123.34, 2139095039, TRUE, 'Hello');
 /
-insert into DataTable (row_id) values (2);
+INSERT INTO DataTable (row_id) VALUES (2);
 /
 CREATE TABLE IF NOT EXISTS DataTableRep(
   row_id       INTEGER,
@@ -20,10 +20,10 @@ CREATE TABLE IF NOT EXISTS DataTableRep(
   PRIMARY KEY (row_id)
 );
 /
-insert into DataTableRep (row_id, int_type) values
+INSERT INTO DataTableRep (row_id, int_type) VALUES
   (1, 100);
 /
-insert into DataTableRep (row_id, int_type) values
+INSERT INTO DataTableRep (row_id, int_type) VALUES
   (2, 200);
 /
 CREATE TABLE IF NOT EXISTS FloatTable(
@@ -35,7 +35,7 @@ CREATE TABLE IF NOT EXISTS FloatTable(
   PRIMARY KEY (row_id)
 );
 /
-insert into FloatTable (row_id, float_type, double_type, numeric_type, decimal_type) values
+INSERT INTO FloatTable (row_id, float_type, double_type, numeric_type, decimal_type) VALUES
   (1, 238999.34, 238999.34, 238999.34, 238999.34);
 /
 CREATE TABLE IF NOT EXISTS ArrayTypes(
@@ -78,11 +78,11 @@ CREATE TABLE IF NOT EXISTS MixTypes (
   double_array DOUBLE PRECISION ARRAY,
   boolean_array BOOLEAN ARRAY,
   string_array VARCHAR (50) ARRAY,
-PRIMARY KEY (row_id)
+  PRIMARY KEY (row_id)
 );
 /
-INSERT INTO MixTypes (row_id, int_type, long_type, float_type, double_type, boolean_type, string_type, int_array, long_array,
-  float_array, double_array, boolean_array, string_array)
+INSERT INTO MixTypes (row_id, int_type, long_type, float_type, double_type, boolean_type, string_type, int_array,
+  long_array, float_array, double_array, boolean_array, string_array)
 VALUES (1, 1, 9223372036854774807, 123.34, 2139095039, TRUE, 'Hello', ARRAY [1, 2, 3],
   ARRAY [100000000, 200000000, 300000000], ARRAY [245.23, 5559.49, 8796.123],
   ARRAY [245.23, 5559.49, 8796.123], ARRAY [TRUE, FALSE, TRUE], ARRAY ['Hello', 'Ballerina']);
@@ -93,7 +93,7 @@ CREATE TABLE IF NOT EXISTS DateTimeTypes(
   time_type      TIME,
   timestamp_type TIMESTAMPTZ,
   datetime_type  TIMESTAMP,
-PRIMARY KEY (row_id)
+  PRIMARY KEY (row_id)
 );
 /
 CREATE TABLE IF NOT EXISTS IntegerTypes (
@@ -126,15 +126,15 @@ CREATE TABLE IF NOT EXISTS DataTypeTableNillable(
   PRIMARY KEY (row_id)
 );
 /
-insert into DataTypeTableNillable (row_id, int_type, long_type, float_type, double_type, boolean_type, string_type,
+INSERT INTO DataTypeTableNillable (row_id, int_type, long_type, float_type, double_type, boolean_type, string_type,
   numeric_type, decimal_type, real_type, tinyint_type, smallint_type, clob_type, binary_type, date_type,
-  time_type, datetime_type, timestamp_type) values
+  time_type, datetime_type, timestamp_type) VALUES
   (1, 10, 9223372036854774807, 123.34, 2139095039, TRUE, 'Hello', 1234.567, 1234.567, 1234.567, 1, 5555,
   'very long text', E'\\x77736F322062616C6C6572696E612062696E61727920746573742E', '2017-02-03', '11:35:45',
   '2017-02-03 11:53:00', '2017-02-03 11:53:00');
 /
-insert into DataTypeTableNillable (row_id, int_type, long_type, float_type, double_type, boolean_type, string_type,
+INSERT INTO DataTypeTableNillable (row_id, int_type, long_type, float_type, double_type, boolean_type, string_type,
   numeric_type, decimal_type, real_type, tinyint_type, smallint_type, clob_type, binary_type, date_type,
-  time_type, datetime_type, timestamp_type) values
+  time_type, datetime_type, timestamp_type) VALUES
   (2, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null);
 /
