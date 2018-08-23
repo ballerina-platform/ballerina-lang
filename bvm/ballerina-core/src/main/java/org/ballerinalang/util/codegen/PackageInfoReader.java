@@ -1712,7 +1712,7 @@ public class PackageInfoReader {
             PackageFileReader pkgFileReader = new PackageFileReader(this.programFile);
             pkgFileReader.readPackage(pkgPath);
         } catch (IOException e) {
-            throw new BLangRuntimeException("error while reading package: " + pkgPath, e);
+            throw new BLangRuntimeException("error reading package: " + pkgPath, e);
         }
 
         return programFile.getPackageInfo(pkgPath);
