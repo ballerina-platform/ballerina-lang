@@ -17,18 +17,23 @@
  */
 package org.ballerinalang.test.service.grpc.tool;
 
-import com.google.common.io.Files;
+import com.google.protobuf.DescriptorProtos;
 import org.ballerinalang.protobuf.cmd.OSDetector;
 import org.ballerinalang.protobuf.exception.BalGenToolException;
+import org.ballerinalang.protobuf.utils.ProtocCommandBuilder;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.URL;
-import java.nio.file.Path;
+import java.nio.file.Paths;
 
 import static org.ballerinalang.protobuf.BalGenerationConstants.PROTOC_PLUGIN_EXE_PREFIX;
 import static org.ballerinalang.protobuf.BalGenerationConstants.PROTOC_PLUGIN_EXE_URL_SUFFIX;
+import static org.ballerinalang.protobuf.utils.BalFileGenerationUtils.generateDescriptor;
 import static org.ballerinalang.protobuf.utils.BalFileGenerationUtils.grantPermission;
+import static org.ballerinalang.protobuf.utils.BalFileGenerationUtils.resolveProtoFloderPath;
 import static org.ballerinalang.protobuf.utils.BalFileGenerationUtils.saveFile;
 
 /**
@@ -36,39 +41,50 @@ import static org.ballerinalang.protobuf.utils.BalFileGenerationUtils.saveFile;
  */
 public class ProtoDescriptorUtils {
 
-    public static Path getProtocCompiler() {
-        String compilerFilename = "protoc-" + OSDetector.getDetectedClassifier() + ".exe";
-        if (exePath == null) {
-            exePath = "protoc-" + OSDetector.getDetectedClassifier() + ".exe";
-            File exeFile = new File(exePath);
-            exePath = exeFile.getAbsolutePath(); // if file already exists will do nothing
-            if (!exeFile.isFile()) {
-                outStream.println("Downloading proc executor ...");
-                try {
-                    boolean newFile = exeFile.createNewFile();
-                    if (newFile) {
-                        LOG.debug("Successfully created new protoc exe file" + exePath);
-                    }
-                } catch (IOException e) {
-                    throw new BalGenToolException("Exception occurred while creating new file for protoc exe. ", e);
-                }
-                String url = PROTOC_PLUGIN_EXE_URL_SUFFIX + protocVersion + "/protoc-" + protocVersion + "-" +
-                        OSDetector.getDetectedClassifier() + PROTOC_PLUGIN_EXE_PREFIX;
-                try {
-                    saveFile(new URL(url), exePath);
-                    File file = new File(exePath);
-                    //set application user permissions to 455
-                    grantPermission(file);
-                } catch (IOException e) {
-                    throw new BalGenToolException("Exception occurred while writing protoc executable to file. ", e);
-                }
-                outStream.println("Download successfully completed!");
-            } else {
-                grantPermission(exeFile);
-                outStream.println("Continue with existing protoc executor.");
+    /**
+     * Download the protoc executor.
+     */
+    public static File getProtocCompiler() throws IOException  {
+        File protocExeFile = new File(System.getProperty("java.io.tmpdir"), "protoc-" + OSDetector
+                .getDetectedClassifier() + ".exe");
+        String protocExePath = protocExeFile.getAbsolutePath(); // if file already exists will do nothing
+        String protocVersion = "3.4.0";
+        if (!protocExeFile.exists()) {
+            String protocDownloadurl = PROTOC_PLUGIN_EXE_URL_SUFFIX + protocVersion + "/protoc-" + protocVersion
+                    + "-" + OSDetector.getDetectedClassifier() + PROTOC_PLUGIN_EXE_PREFIX;
+            try {
+                saveFile(new URL(protocDownloadurl), protocExePath);
+                //set application user permissions to 455
+                grantPermission(protocExeFile);
+            } catch (BalGenToolException e) {
+                java.nio.file.Files.deleteIfExists(Paths.get(protocExePath));
+                throw e;
             }
         } else {
-            outStream.println("Pre-Downloaded descriptor detected ...");
+            grantPermission(protocExeFile);
+        }
+        return protocExeFile;
+    }
+
+    /**
+     * Generate proto file and convert it to byte array.
+     *
+     * @param exePath        protoc executor path
+     * @param protoPath      .proto file path
+     * @return file descriptor of proto file.
+     */
+    public static DescriptorProtos.FileDescriptorSet getProtoFileDescriptor(File exePath, String protoPath) throws
+            IOException {
+
+        File descriptorFile = File.createTempFile("file-desc-", ".desc");
+        String command = new ProtocCommandBuilder
+                (exePath.getAbsolutePath(), protoPath, resolveProtoFloderPath(protoPath), descriptorFile
+                        .getAbsolutePath()).build();
+        generateDescriptor(command);
+        try (InputStream targetStream = new FileInputStream(descriptorFile)) {
+            return DescriptorProtos.FileDescriptorSet.parseFrom(targetStream);
+        } catch (IOException e) {
+            throw new BalGenToolException("Error reading generated descriptor file.", e);
         }
     }
 }
