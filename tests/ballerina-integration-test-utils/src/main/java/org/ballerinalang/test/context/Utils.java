@@ -84,7 +84,7 @@ public class Utils {
                 }
             }
             if (!isPortOpen) {
-                throw new RuntimeException("Ports are not open");
+                throw new RuntimeException("Port '" + port + "' is not open");
             }
         });
     }
@@ -124,7 +124,7 @@ public class Utils {
 
         //check whether http port is already occupied
         if (isPortOpen(port)) {
-            throw new BallerinaTestException("Unable to start carbon server on port " +
+            throw new BallerinaTestException("Unable to start ballerina server on port " +
                                                      (port) + " : Port already in use");
         }
     }
@@ -138,7 +138,7 @@ public class Utils {
 
         Arrays.stream(ports).parallel().forEach(port -> {
             if (isPortOpen(port)) {
-                throw new RuntimeException("Unable to start carbon server on port " +
+                throw new RuntimeException("Unable to start ballerina server on port " +
                         (port) + " : Port already in use");
             }
         });
