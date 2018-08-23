@@ -15,8 +15,6 @@
  */
 package org.ballerinalang.composer.server.launcher;
 
-import com.beust.jcommander.JCommander;
-import com.beust.jcommander.ParameterException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import org.ballerinalang.composer.server.core.Server;
@@ -25,6 +23,7 @@ import org.ballerinalang.composer.server.launcher.command.ServerCommand;
 import org.ballerinalang.packerina.BrowserLauncher;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import picocli.CommandLine;
 
 import java.io.File;
 import java.io.IOException;
@@ -59,11 +58,11 @@ public class ServerLauncher {
 
     public static void main(String[] args) {
         ServerCommand cmdLineArgs = new ServerCommand();
-        JCommander jCommander = new JCommander(cmdLineArgs);
-        jCommander.setProgramName("composer");
+        CommandLine commandLine = new CommandLine(cmdLineArgs);
+        commandLine.setCommandName("composer");
         try {
-            jCommander.parse(args);
-        } catch (ParameterException e) {
+            commandLine.parse(args);
+        } catch (CommandLine.ParameterException e) {
             PrintStream err = System.err;
             err.println("Invalid argument passed.");
             printUsage();

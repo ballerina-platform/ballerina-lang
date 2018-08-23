@@ -39,7 +39,6 @@ import java.nio.file.Path;
  * Test suit for testing find all references.
  */
 public class ReferencesTest {
-    private static final String METHOD = "textDocument/references";
     private Path balPath1 = FileUtils.RES_DIR.resolve("references").resolve("project").resolve("references1.bal");
     private Path balPath2 = FileUtils.RES_DIR.resolve("references").resolve("project").resolve("pkg1")
             .resolve("references2.bal");
@@ -57,23 +56,20 @@ public class ReferencesTest {
     public void referencesForFunctionInSameFile(ReferencesTestDTO referencesTestDTO, Position position)
             throws InterruptedException, IOException {
         String expected = getExpectedValue(referencesTestDTO.getExpectedFileName());
-        String actual = TestUtil.getLanguageServerResponseMessageAsString(position,
-                referencesTestDTO.getBallerinaFilePath(), referencesTestDTO.getBallerinaFileContent(),
-                METHOD, serviceEndpoint);
+        String actual = TestUtil.getReferencesResponse(referencesTestDTO.getBallerinaFilePath(), position,
+                serviceEndpoint);
         Assert.assertEquals(actual, expected,
                 "Did not match the definition content for " + referencesTestDTO.getExpectedFileName()
                         + " and position line:" + position.getLine() + " character:" + position.getCharacter());
     }
-
 
     @Test(description = "Test references for function in the same file",
             dataProvider = "referencesForFunctionInDifferentPkg", enabled = false)
     public void referencesForFunctionInDifferentPkg(ReferencesTestDTO referencesTestDTO, Position position)
             throws InterruptedException, IOException {
         String expected = getExpectedValue(referencesTestDTO.getExpectedFileName());
-        String actual = TestUtil.getLanguageServerResponseMessageAsString(position,
-                referencesTestDTO.getBallerinaFilePath(), referencesTestDTO.getBallerinaFileContent(),
-                METHOD, serviceEndpoint);
+        String actual = TestUtil.getReferencesResponse(referencesTestDTO.getBallerinaFilePath(), position,
+                serviceEndpoint);
         Assert.assertEquals(actual, expected,
                 "Did not match the definition content for " + referencesTestDTO.getExpectedFileName()
                         + " and position line:" + position.getLine() + " character:" + position.getCharacter());
@@ -84,9 +80,8 @@ public class ReferencesTest {
     public void referencesForRecordInSameFile(ReferencesTestDTO referencesTestDTO, Position position)
             throws InterruptedException, IOException {
         String expected = getExpectedValue(referencesTestDTO.getExpectedFileName());
-        String actual = TestUtil.getLanguageServerResponseMessageAsString(position,
-                referencesTestDTO.getBallerinaFilePath(), referencesTestDTO.getBallerinaFileContent(),
-                METHOD, serviceEndpoint);
+        String actual = TestUtil.getReferencesResponse(referencesTestDTO.getBallerinaFilePath(), position,
+                serviceEndpoint);
         Assert.assertEquals(actual, expected,
                 "Did not match the definition content for " + referencesTestDTO.getExpectedFileName()
                         + " and position line:" + position.getLine() + " character:" + position.getCharacter());
@@ -97,9 +92,8 @@ public class ReferencesTest {
     public void referencesForReadOnlyVarInSameFile(ReferencesTestDTO referencesTestDTO, Position position)
             throws InterruptedException, IOException {
         String expected = getExpectedValue(referencesTestDTO.getExpectedFileName());
-        String actual = TestUtil.getLanguageServerResponseMessageAsString(position,
-                referencesTestDTO.getBallerinaFilePath(), referencesTestDTO.getBallerinaFileContent(),
-                METHOD, serviceEndpoint);
+        String actual = TestUtil.getReferencesResponse(referencesTestDTO.getBallerinaFilePath(), position,
+                serviceEndpoint);
         Assert.assertEquals(actual, expected,
                 "Did not match the definition content for " + referencesTestDTO.getExpectedFileName()
                         + " and position line:" + position.getLine() + " character:" + position.getCharacter());

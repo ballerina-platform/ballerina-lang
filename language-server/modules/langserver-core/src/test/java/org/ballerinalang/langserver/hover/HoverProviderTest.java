@@ -38,15 +38,11 @@ import java.nio.file.Path;
  * Test hover feature in language server.
  */
 public class HoverProviderTest {
-    private static final String METHOD = "textDocument/hover";
     private Path balPath = FileUtils.RES_DIR.resolve("hover").resolve("hover.bal");
-    private String balFileContent;
     private Endpoint serviceEndpoint;
 
     @BeforeClass
     public void loadLangServer() throws IOException {
-        byte[] encoded = Files.readAllBytes(balPath);
-        balFileContent = new String(encoded);
         serviceEndpoint = TestUtil.initializeLanguageSever();
         TestUtil.openDocument(serviceEndpoint, balPath);
     }
@@ -60,8 +56,8 @@ public class HoverProviderTest {
             enabled = false)
     public void hoverForBuiltInFunctionTest(Position position, String expectedFile)
             throws URISyntaxException, InterruptedException, IOException {
-        Assert.assertEquals(TestUtil.getLanguageServerResponseMessageAsString(position, balPath.toString(),
-                balFileContent, METHOD, serviceEndpoint), getExpectedValue(expectedFile),
+        Assert.assertEquals(TestUtil.getHoverResponse(balPath.toString(), position, serviceEndpoint),
+                getExpectedValue(expectedFile),
                 "Did not match the hover content for " + expectedFile + " and position line:" + position.getLine()
                         + " character:" + position.getCharacter());
     }
@@ -70,8 +66,8 @@ public class HoverProviderTest {
             dataProvider = "hoverCurrentPackageFuncPosition")
     public void hoverForCurrentPackageFunctionTest(Position position, String expectedFile)
             throws InterruptedException, IOException {
-        Assert.assertEquals(TestUtil.getLanguageServerResponseMessageAsString(position, balPath.toString(),
-                balFileContent, METHOD, serviceEndpoint), getExpectedValue(expectedFile),
+        Assert.assertEquals(TestUtil.getHoverResponse(balPath.toString(), position, serviceEndpoint),
+                getExpectedValue(expectedFile),
                 "Did not match the hover content for " + expectedFile + " and position line:" + position.getLine()
                         + " character:" + position.getCharacter());
     }
@@ -80,8 +76,8 @@ public class HoverProviderTest {
             enabled = false)
     public void hoverForCurrentPackageEnumTest(Position position, String expectedFile)
             throws InterruptedException, IOException {
-        Assert.assertEquals(TestUtil.getLanguageServerResponseMessageAsString(position, balPath.toString(),
-                balFileContent, METHOD, serviceEndpoint), getExpectedValue(expectedFile),
+        Assert.assertEquals(TestUtil.getHoverResponse(balPath.toString(), position, serviceEndpoint),
+                getExpectedValue(expectedFile),
                 "Did not match the hover content for " + expectedFile + " and position line:" + position.getLine()
                         + " character:" + position.getCharacter());
     }
@@ -90,8 +86,8 @@ public class HoverProviderTest {
             dataProvider = "hoverCurrentPackageRecordPosition")
     public void hoverForCurrentPackageRecordTest(Position position, String expectedFile)
             throws InterruptedException, IOException {
-        Assert.assertEquals(TestUtil.getLanguageServerResponseMessageAsString(position, balPath.toString(),
-                balFileContent, METHOD, serviceEndpoint), getExpectedValue(expectedFile),
+        Assert.assertEquals(TestUtil.getHoverResponse(balPath.toString(), position, serviceEndpoint),
+                getExpectedValue(expectedFile),
                 "Did not match the hover content for " + expectedFile + " and position line:" + position.getLine()
                         + " character:" + position.getCharacter());
     }

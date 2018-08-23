@@ -27,9 +27,17 @@ import java.util.List;
  * @since v0.964.0
  */
 public class ExecuteCommandKeys {
+
     public static final LSContext.Key<WorkspaceDocumentManager> DOCUMENT_MANAGER_KEY = new LSContext.Key<>();
+    
     public static final LSContext.Key<List<Object>> COMMAND_ARGUMENTS_KEY = new LSContext.Key<>();
+    
     public static final LSContext.Key<BallerinaLanguageServer> LANGUAGE_SERVER_KEY = new LSContext.Key<>();
+    
     public static final LSContext.Key<String> PKG_NAME_KEY = new LSContext.Key<>();
+    
     public static final LSContext.Key<LSCompiler> LS_COMPILER_KEY = new LSContext.Key<>();
+    
+    private ExecuteCommandKeys() {
+    }
 }
