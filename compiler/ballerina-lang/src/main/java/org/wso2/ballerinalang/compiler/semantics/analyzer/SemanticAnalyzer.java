@@ -307,6 +307,9 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
 
         // Check for native functions
         if (Symbols.isNative(funcNode.symbol) || funcNode.interfaceFunction) {
+            if (funcNode.body != null) {
+                dlog.error(funcNode.pos, DiagnosticCode.FUNCTION_CANNOT_HAVE_BODY, funcNode.name);
+            }
             return;
         }
 
