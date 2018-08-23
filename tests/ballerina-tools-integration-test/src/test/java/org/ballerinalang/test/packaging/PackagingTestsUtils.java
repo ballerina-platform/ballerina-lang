@@ -25,14 +25,13 @@ import org.testng.Assert;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.ArrayList;
 import java.util.Comparator;
-import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 
 /**
  * Util methods needed for Packaging test cases.
+ *
+ * @since 0.982.0
  */
 public class PackagingTestsUtils {
 
@@ -55,31 +54,13 @@ public class PackagingTestsUtils {
     }
 
     /**
-     * Get org-name of user.
-     *
-     * @return org name
-     */
-    static String getOrgName() {
-        String orgName = System.getProperty("user.name");
-        if (orgName == null) {
-            orgName = "my_org";
-        } else {
-            orgName = orgName.toLowerCase(Locale.getDefault());
-        }
-        return orgName;
-    }
-
-    /**
      * Get environment variables and add ballerina_home as a env variable the tmp directory.
      *
      * @return env directory variable array
      */
     static String[] getEnvVariables() {
-        List<String> variables = new ArrayList<>();
-
         Map<String, String> envVarMap = System.getenv();
-        envVarMap.forEach((key, value) -> variables.add(key + "=" + value));
-        return variables.toArray(new String[variables.size()]);
+        return envVarMap.keySet().stream().map(k -> k + "=" + envVarMap.get(k)).toArray(String[]::new);
     }
 
     /**
