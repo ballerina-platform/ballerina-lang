@@ -316,20 +316,23 @@ public class CommandExecutor {
         String fileContent = context.get(ExecuteCommandKeys.DOCUMENT_MANAGER_KEY).getFileContent(compilationPath);
         String[] contentComponents = fileContent.split(CommonUtil.LINE_SEPARATOR_SPLIT);
         List<TextEdit> textEdits = new ArrayList<>();
-        bLangPackage.topLevelNodes.forEach(topLevelNode -> {
-            CommandUtil.DocAttachmentInfo docAttachmentInfo = getDocumentEditForNode(topLevelNode);
-            if (docAttachmentInfo != null) {
-                textEdits.add(getTextEdit(docAttachmentInfo, contentComponents));
-            }
-            if (topLevelNode instanceof BLangService) {
-                ((BLangService) topLevelNode).getResources().forEach(bLangResource -> {
-                    CommandUtil.DocAttachmentInfo resourceInfo = getDocumentEditForNode(bLangResource);
-                    if (resourceInfo != null) {
-                        textEdits.add(getTextEdit(resourceInfo, contentComponents));
+        String fileName = context.get(DocumentServiceKeys.FILE_NAME_KEY);
+        bLangPackage.topLevelNodes.stream()
+                .filter(node -> node.getPosition().getSource().getCompilationUnitName().equals(fileName))
+                .forEach(topLevelNode -> {
+                    CommandUtil.DocAttachmentInfo docAttachmentInfo = getDocumentEditForNode(topLevelNode);
+                    if (docAttachmentInfo != null) {
+                        textEdits.add(getTextEdit(docAttachmentInfo, contentComponents));
+                    }
+                    if (topLevelNode instanceof BLangService) {
+                        ((BLangService) topLevelNode).getResources().forEach(bLangResource -> {
+                            CommandUtil.DocAttachmentInfo resourceInfo = getDocumentEditForNode(bLangResource);
+                            if (resourceInfo != null) {
+                                textEdits.add(getTextEdit(resourceInfo, contentComponents));
+                            }
+                        });
                     }
                 });
-            }
-        });
         TextDocumentEdit textDocumentEdit = new TextDocumentEdit(textDocumentIdentifier, textEdits);
         return applyWorkspaceEdit(Collections.singletonList(textDocumentEdit),
                 context.get(ExecuteCommandKeys.LANGUAGE_SERVER_KEY).getClient());

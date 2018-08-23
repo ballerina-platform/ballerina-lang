@@ -33,13 +33,15 @@ import org.testng.annotations.Test;
 
 import java.io.File;
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
 /**
  * Command Execution Test Cases.
- * @since v0.982.0
+ *
+ * @since 0.982.0
  */
 public class CommandExecutionTest {
 
@@ -100,6 +102,30 @@ public class CommandExecutionTest {
                 .forEach(element -> element.getAsJsonObject().remove("textDocument"));
         Assert.assertTrue(responseJson.equals(expected));
     }
+    
+    @Test(dataProvider = "create-function-data-provider")
+    public void testCreateFunction(String config, String source) {
+        String configJsonPath = "command" + File.separator + config;
+        Path sourcePath = sourcesPath.resolve("source").resolve(source);
+        JsonObject configJsonObject = FileUtils.fileContentAsObject(configJsonPath);
+        JsonObject expected = configJsonObject.get("expected").getAsJsonObject();
+        List<Object> args = new ArrayList<>();
+        args.add(new CommandUtil.CommandArgument(CommandConstants.ARG_KEY_DOC_URI, sourcePath.toUri().toString()));
+        args.add(new CommandUtil.CommandArgument(CommandConstants.ARG_KEY_FUNC_ARGS,
+                configJsonObject.get("arguments").getAsString()));
+        args.add(new CommandUtil.CommandArgument(CommandConstants.ARG_KEY_FUNC_NAME,
+                configJsonObject.get("functionName").getAsString()));
+        if (configJsonObject.get("returns") != null && configJsonObject.get("returnsDefault") != null) {
+            args.add(new CommandUtil.CommandArgument(CommandConstants.ARG_KEY_RETURN_TYPE,
+                    configJsonObject.get("returns").toString()));
+            args.add(new CommandUtil.CommandArgument(CommandConstants.ARG_KEY_RETURN_DEFAULT_VAL,
+                    configJsonObject.get("returnsDefault").toString()));
+        }
+        JsonObject responseJson = getCommandResponse(args, CommandConstants.CMD_CREATE_FUNCTION);
+        responseJson.get("result").getAsJsonObject().get("edit").getAsJsonObject().getAsJsonArray("documentChanges")
+                .forEach(element -> element.getAsJsonObject().remove("textDocument"));
+        Assert.assertTrue(responseJson.equals(expected));
+    }
 
     @DataProvider(name = "package-import-data-provider")
     public Object[][] addImportDataProvider() {
@@ -124,7 +150,16 @@ public class CommandExecutionTest {
     @DataProvider(name = "add-all-doc-data-provider")
     public Object[][] addAllDocDataProvider() {
         return new Object[][] {
-                {"addAllDocumentation.json", "commonDocumentation.bal"}
+                {"addAllDocumentation.json", "commonDocumentation.bal"},
+                {"addAllDocumentationWithAnnotations.json", "addAllDocumentationWithAnnotations.bal"}
+        };
+    }
+
+    @DataProvider(name = "create-function-data-provider")
+    public Object[][] createFunctionDataProvider() {
+        return new Object[][] {
+                {"createUndefinedFunction1.json", "createUndefinedFunction.bal"},
+                {"createUndefinedFunction2.json", "createUndefinedFunction.bal"},
         };
     }
 
