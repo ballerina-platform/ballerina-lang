@@ -33,6 +33,7 @@ import HoverButton from '../controller-utils/hover-button';
 import Item from '../controller-utils/item';
 import Search from '../controller-utils/search';
 import Toolbox from 'plugins/ballerina/diagram/views/default/components/decorators/action-box';
+import { ACTION_BOX_POSITION } from '../../constants';
 
 class DefaultCtrl extends React.Component {
     render() {
@@ -315,7 +316,7 @@ class ActionBox extends React.Component {
         const { viewState: { bBox } } = model.getBody();
 
         const top = model.viewState.components.defaultWorker.y + 20;
-        const left = bBox.x + 12;
+        const left = bBox.x + ACTION_BOX_POSITION.SINGLE_ACTION_OFFSET;
 
         const onDelete = () => { model.remove(); };
         const onJumptoCodeLine = () => {

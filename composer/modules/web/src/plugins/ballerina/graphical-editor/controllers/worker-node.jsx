@@ -29,6 +29,7 @@ import HoverButton from '../controller-utils/hover-button';
 import Item from '../controller-utils/item';
 import Search from '../controller-utils/search';
 import Toolbox from 'plugins/ballerina/diagram/views/default/components/decorators/action-box';
+import { ACTION_BOX_POSITION } from '../../constants';
 
 // Use your imagination to render suggestions.
 const renderSuggestion = (suggestion, value) => {
@@ -271,7 +272,7 @@ class ActionBox extends React.Component {
         };
 
         if (model.name.value === 'default') {
-            left += 12;
+            left += ACTION_BOX_POSITION.SINGLE_ACTION_OFFSET;
             return (
                 <Toolbox
                     disableButtons={{ delete: true }}
