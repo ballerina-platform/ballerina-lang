@@ -505,10 +505,6 @@ public class SymbolFindingVisitor extends BLangNodeVisitor {
         // ignore
     }
 
-    public void visit(BLangFieldBasedAccess.BLangEnumeratorAccessExpr enumeratorAccessExpr) {
-        // ignore
-    }
-
     public void visit(BLangCompensate node) {
         // ignore
     }

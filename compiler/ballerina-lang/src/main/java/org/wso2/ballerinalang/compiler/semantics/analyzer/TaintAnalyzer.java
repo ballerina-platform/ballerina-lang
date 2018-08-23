@@ -1325,11 +1325,6 @@ public class TaintAnalyzer extends BLangNodeVisitor {
     }
 
     @Override
-    public void visit(BLangFieldBasedAccess.BLangEnumeratorAccessExpr enumeratorAccessExpr) {
-        /* ignore */
-    }
-
-    @Override
     public void visit(BLangXMLSequenceLiteral bLangXMLSequenceLiteral) {
         /* ignore */
     }
