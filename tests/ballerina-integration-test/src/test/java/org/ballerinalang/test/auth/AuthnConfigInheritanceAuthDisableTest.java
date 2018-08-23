@@ -23,8 +23,8 @@ import org.ballerinalang.test.context.BallerinaTestException;
 import org.ballerinalang.test.util.HttpClientRequest;
 import org.ballerinalang.test.util.HttpResponse;
 import org.testng.Assert;
-import org.testng.annotations.AfterTest;
-import org.testng.annotations.BeforeTest;
+import org.testng.annotations.AfterGroups;
+import org.testng.annotations.BeforeGroups;
 import org.testng.annotations.Test;
 
 import java.io.File;
@@ -60,7 +60,7 @@ public class AuthnConfigInheritanceAuthDisableTest extends BaseTest {
         Assert.assertEquals(response.getResponseCode(), 200, "Response code mismatched");
     }
 
-    @BeforeTest(groups = "auth-test")
+    @BeforeGroups(value = "auth-test", alwaysRun = true)
     public void start() throws BallerinaTestException {
         String basePath = new File("src" + File.separator + "test" + File.separator + "resources" + File.separator +
                 "auth").getAbsolutePath();
@@ -69,7 +69,7 @@ public class AuthnConfigInheritanceAuthDisableTest extends BaseTest {
         serverInstance.startBallerinaServer("authservices", args);
     }
 
-    @AfterTest(groups = "auth-test")
+    @AfterGroups(value = "auth-test", alwaysRun = true)
     public void cleanup() throws Exception {
         serverInstance.removeAllLeechers();
         serverInstance.stopServer();

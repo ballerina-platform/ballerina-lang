@@ -42,12 +42,12 @@ public extern function startSpan(string spanName, map<string>? tags = (), int pa
 documentation {
    Add a key value pair as a tag to the span.
 
-    P{{spanId}} Id of span to which the tags should be added
+    P{{spanId}} Id of span to which the tags should be added or -1 to add tags to the current active span
     P{{tagKey}} Key of the tag
     P{{tagValue}} Value of the tag
     R{{error}} An error if an error occured while attaching tag to the span
 }
-public extern function addTagToSpan(int spanId, string tagKey, string tagValue) returns error?;
+public extern function addTagToSpan(int spanId = -1, string tagKey, string tagValue) returns error?;
 
 documentation {
         Finish the current span.
@@ -70,7 +70,7 @@ documentation {
     P{{tags}} The key/value pair tags that associated with the metric that should be looked up.
     R{{metric}} The metric instance.
 }
-public extern function lookupMetric(string name, map<string>? tags=()) returns Counter|Gauge|();
+public extern function lookupMetric(string name, map<string>? tags = ()) returns Counter|Gauge|();
 
 documentation {
     This represents the metric type - counter, that can be only increased by an integer number.
@@ -94,12 +94,12 @@ public type Counter object {
                    will be used.
          F{{tags}} The key/value pair of Tags. If no tags are provided, the default nil value will be used.
     }
-    public new(name, string? desc = "", map<string>? tags=()) {
+    public new(name, string? desc = "", map<string>? tags = ()) {
         description = desc but {
             () => ""
         };
         metricTags = tags but {
-            () =>  DEFAULT_TAGS
+            () => DEFAULT_TAGS
         };
         initialize();
     }
@@ -181,7 +181,7 @@ public type Gauge object {
             () => ""
         };
         metricTags = tags but {
-            () =>  DEFAULT_TAGS
+            () => DEFAULT_TAGS
         };
         statisticConfigs = statisticConfig but {
             () => DEFAULT_GAUGE_STATS_CONFIG

@@ -24,8 +24,8 @@ import org.apache.commons.io.FileUtils;
 import org.ballerinalang.test.BaseTest;
 import org.ballerinalang.test.util.HttpClientRequest;
 import org.testng.Assert;
-import org.testng.annotations.AfterTest;
-import org.testng.annotations.BeforeTest;
+import org.testng.annotations.AfterGroups;
+import org.testng.annotations.BeforeGroups;
 import org.testng.annotations.Test;
 
 import java.io.File;
@@ -52,7 +52,7 @@ public class TracingTestCase extends BaseTest {
     private static final String DEST_FUNCTIONS_JAR = File.separator + "bre" + File.separator + "lib"
             + File.separator + TEST_NATIVES_JAR;
 
-    @BeforeTest(groups = "tracing-test")
+    @BeforeGroups(value = "tracing-test", alwaysRun = true)
     private void setup() throws Exception {
         copyFile(new File(System.getProperty(TEST_NATIVES_JAR)), new File(serverInstance.getServerHome()
                 + DEST_FUNCTIONS_JAR));
@@ -138,7 +138,7 @@ public class TracingTestCase extends BaseTest {
         Files.copy(source.toPath(), dest.toPath(), REPLACE_EXISTING);
     }
 
-    @AfterTest(groups = "tracing-test")
+    @AfterGroups(value = "tracing-test", alwaysRun = true)
     private void cleanup() throws Exception {
         serverInstance.removeAllLeechers();
         serverInstance.stopServer();

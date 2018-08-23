@@ -102,6 +102,10 @@ public class XMLLiteralTest {
         // define namespace with empty URI
         BAssertUtil.validateError(negativeResult, index++, "cannot bind prefix 'ns0' to the empty namespace name",
                 79, 5);
+
+        // XML elements with mismatching start and end tags
+        BAssertUtil.validateError(negativeResult, index++, "mismatching start and end tags found in xml element",
+                                  83, 19);
     }
 
     @Test

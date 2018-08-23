@@ -449,7 +449,7 @@ function testNonArrayJsonToArray () returns (StringArray) {
     return a;
 }
 
-function testNullJsonToStruct () returns (Person | error) {
+function testNullJsonToStruct () returns Person {
     json j;
     var p = check <Person>j;
     return p;

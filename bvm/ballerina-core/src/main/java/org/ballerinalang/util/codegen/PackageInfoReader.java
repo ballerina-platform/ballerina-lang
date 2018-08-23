@@ -996,7 +996,7 @@ public class PackageInfoReader {
                 return localVarAttrInfo;
             case LINE_NUMBER_TABLE_ATTRIBUTE:
                 LineNumberTableAttributeInfo lnNoTblAttrInfo = new LineNumberTableAttributeInfo(attribNameCPIndex);
-                int lineNoInfoCount = dataInStream.readShort();
+                int lineNoInfoCount = dataInStream.readInt();
                 for (int i = 0; i < lineNoInfoCount; i++) {
                     LineNumberInfo lineNumberInfo = getLineNumberInfo(constantPool);
                     lnNoTblAttrInfo.addLineNumberInfo(lineNumberInfo);
@@ -1154,10 +1154,10 @@ public class PackageInfoReader {
                     packageInfo.addInstruction(InstructionFactory.get(opcode, i));
                     break;
 
-                case InstructionCodes.FPLOAD: {
+                case InstructionCodes.VFPLOAD:
+                case InstructionCodes.FPLOAD:
                     readFunctionPointerLoadInstruction(packageInfo, codeStream, opcode);
                     break;
-                }
                 case InstructionCodes.ICONST:
                 case InstructionCodes.FCONST:
                 case InstructionCodes.SCONST:
@@ -1176,7 +1176,6 @@ public class PackageInfoReader {
                 case InstructionCodes.BR_TRUE:
                 case InstructionCodes.BR_FALSE:
                 case InstructionCodes.TR_END:
-                case InstructionCodes.ARRAYLEN:
                 case InstructionCodes.NEWSTRUCT:
                 case InstructionCodes.ITR_NEW:
                 case InstructionCodes.ITR_HAS_NEXT:
@@ -1189,7 +1188,6 @@ public class PackageInfoReader {
                 case InstructionCodes.NEWXMLCOMMENT:
                 case InstructionCodes.NEWXMLTEXT:
                 case InstructionCodes.XMLSEQSTORE:
-                case InstructionCodes.TYPEOF:
                 case InstructionCodes.TYPELOAD:
                 case InstructionCodes.SEQ_NULL:
                 case InstructionCodes.SNE_NULL:
@@ -1223,16 +1221,11 @@ public class PackageInfoReader {
                 case InstructionCodes.B2I:
                 case InstructionCodes.B2F:
                 case InstructionCodes.B2S:
-                case InstructionCodes.JSON2I:
-                case InstructionCodes.JSON2F:
-                case InstructionCodes.JSON2S:
-                case InstructionCodes.JSON2B:
                 case InstructionCodes.DT2XML:
                 case InstructionCodes.DT2JSON:
                 case InstructionCodes.T2MAP:
                 case InstructionCodes.XMLATTRS2MAP:
                 case InstructionCodes.ANY2SCONV:
-                case InstructionCodes.S2XML:
                 case InstructionCodes.XML2S:
                 case InstructionCodes.AWAIT:
                 case InstructionCodes.XMLLOADALL:
