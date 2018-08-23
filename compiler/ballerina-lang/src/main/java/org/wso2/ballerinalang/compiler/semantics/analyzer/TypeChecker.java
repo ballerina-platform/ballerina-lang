@@ -2075,7 +2075,7 @@ public class TypeChecker extends BLangNodeVisitor {
                 break;
             case TypeTags.ARRAY:
                 indexExprType = checkExpr(indexExpr, this.env, symTable.intType);
-                if (indexExprType.tag == TypeTags.INT || indexExprType.tag == TypeTags.BYTE) {
+                if (indexExprType.tag == TypeTags.INT) {
                     actualType = ((BArrayType) varRefType).getElementType();
                 }
                 break;

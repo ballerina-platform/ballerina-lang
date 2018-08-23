@@ -44,7 +44,7 @@ public class TableToXMLStreamingTestCase extends BaseTest {
     private TestDatabase testDatabase;
     private static final String DB_DIRECTORY = "./target/tempdb/";
 
-    @BeforeClass
+    @BeforeClass(alwaysRun = true)
     private void setup() throws Exception {
         setUpDatabase();
         String balFile = Paths.get("src", "test", "resources", "data", "streaming", "xml_streaming_test.bal")

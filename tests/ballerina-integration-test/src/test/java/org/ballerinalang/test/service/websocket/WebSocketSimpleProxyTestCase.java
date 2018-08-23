@@ -45,7 +45,7 @@ public class WebSocketSimpleProxyTestCase extends WebSocketTestCommons {
         remoteServer.run();
     }
 
-    @Test(priority = 1, description = "Tests sending and receiving of text frames in WebSockets")
+    @Test(description = "Tests sending and receiving of text frames in WebSockets")
     public void testSendText() throws URISyntaxException, InterruptedException {
         WebSocketTestClient client = new WebSocketTestClient(URL);
         client.handshake();
@@ -58,7 +58,7 @@ public class WebSocketSimpleProxyTestCase extends WebSocketTestCommons {
         client.shutDown();
     }
 
-    @Test(priority = 2, description = "Tests sending and receiving of binary frames in WebSockets")
+    @Test(description = "Tests sending and receiving of binary frames in WebSockets", dependsOnMethods = "testSendText")
     public void testSendBinary() throws URISyntaxException, InterruptedException {
         WebSocketTestClient client = new WebSocketTestClient(URL);
         client.handshake();

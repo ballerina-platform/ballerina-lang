@@ -37,7 +37,7 @@ import java.util.Map;
  */
 public class StreamsWithinServicesTestCase extends BaseTest {
 
-    @BeforeClass
+    @BeforeClass(alwaysRun = true)
     public void setup() throws Exception {
         String relativePath = new File("src" + File.separator + "test" + File.separator + "resources"
                 + File.separator + "streaming" + File.separator +
@@ -79,7 +79,7 @@ public class StreamsWithinServicesTestCase extends BaseTest {
         Assert.assertNotEquals(responseMsg, "\"{'message' : 'NotAssigned'}\"");
     }
 
-    @AfterClass
+    @AfterClass(alwaysRun = true)
     private void cleanup() throws Exception {
         serverInstance.stopServer();
     }
