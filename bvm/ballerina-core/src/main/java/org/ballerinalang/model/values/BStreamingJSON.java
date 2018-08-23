@@ -149,19 +149,23 @@ public class BStreamingJSON extends BRefValueArray {
 
         @Override
         public BValue[] getNext(int arity) {
+            BValue[] values;
             // If the current index is loaded in to memory, then read from it
             if (cursor < array.size) {
-                long cursor = this.cursor++;
                 if (arity == 1) {
-                    return new BValue[] { array.getBValue(cursor) };
+                    values = new BValue[] { array.getBValue(cursor) };
+                } else {
+                    values = new BValue[] { new BInteger(cursor), array.getBValue(cursor) };
                 }
-                return new BValue[] { new BInteger(cursor), array.getBValue(cursor) };
             } else {
                 // Otherwise read the next value from data-source and cache it in memory
                 BRefType<?> nextVal = array.datasource.next();
                 array.appendToCache(nextVal);
-                return new BValue[] { nextVal };
+                values = new BValue[] { nextVal };
             }
+
+            this.cursor++;
+            return values;
         }
 
         @Override
