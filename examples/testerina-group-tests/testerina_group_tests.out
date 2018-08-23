@@ -2,7 +2,7 @@
 #`.bal` file and run the `ballerina test` command.
 #Note that you need to have the ballerina-tools distribution 
 #installed in order to run this command. 
-$ ballerina test --groups g1,g2 testerina_group_tests.bal
+$ ballerina test testerina_group_tests.bal --groups g1 --groups g2
 Compiling tests
     testerina_group_tests.bal
 
@@ -19,7 +19,7 @@ I'm in test belonging to g1!
 	  0 skipped
 
 
-$ ballerina test --groups g1 testerina_group_tests.bal
+$ ballerina test testerina_group_tests.bal --groups g1
 Compiling tests
     testerina_group_tests.bal
 
@@ -36,7 +36,7 @@ I'm in test belonging to g1!
 	  0 skipped
 
 
-$ ballerina test --disable-groups g2 testerina_group_tests.bal
+$ ballerina test testerina_group_tests.bal --disable-groups g2
 Compiling tests
     testerina_group_tests.bal
 
