@@ -90,16 +90,6 @@
                 <checksumPolicy>ignore</checksumPolicy>
             </releases>
         </repository>
-        <repository>
-            <id>nuiton</id>
-            <name>nuiton Repository</name>
-            <url>http://maven.nuiton.org/release/</url>
-            <releases>
-                <enabled>true</enabled>
-                <updatePolicy>daily</updatePolicy>
-                <checksumPolicy>ignore</checksumPolicy>
-            </releases>
-        </repository>
     </repositories>
 
     <pluginRepositories>
@@ -1500,11 +1490,6 @@
                 <version>${ballerina.examples.version}</version>
                 <type>zip</type>
             </dependency>
-            <dependency>
-                <groupId>com.sun</groupId>
-                <artifactId>tools</artifactId>
-                <version>${com.sun.tools.version}</version>
-            </dependency>
         </dependencies>
     </dependencyManagement>
 
@@ -2282,7 +2267,6 @@
         <chewiebug.gcviewer.version>1.35</chewiebug.gcviewer.version>
 
         <maven.spotbugsplugin.exclude.file>spotbugs-exclude.xml</maven.spotbugsplugin.exclude.file>
-        <com.sun.tools.version>1.7.0.13</com.sun.tools.version>
     </properties>
 
 </project>

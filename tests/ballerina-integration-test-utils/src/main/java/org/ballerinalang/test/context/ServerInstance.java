@@ -30,8 +30,6 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
-import java.net.URL;
-import java.net.URLClassLoader;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -227,9 +225,10 @@ public class ServerInstance implements Server {
                     killServer.waitFor(15, TimeUnit.SECONDS);
                     killServer.destroy();
                 } else {
-                    String exitAgentPath = System.getProperty(Constant.EXIT_AGENT_LOCATION);
-                    String toolsJarPath = System.getProperty(Constant.TOOLS_JAR_LOCATION);
-                    if (!stopServerWithAgent(toolsJarPath, exitAgentPath, pid)) {
+                    Process shutDownServer = Runtime.getRuntime().exec("kill " + pid);
+                    shutDownServer.waitFor(15, TimeUnit.SECONDS);
+                    shutDownServer.destroy();
+                    if (!waitForProcessToShutdown()) {
                         Process killServer = Runtime.getRuntime().exec("kill -9 " + pid);
                         killServer.waitFor(15, TimeUnit.SECONDS);
                         killServer.destroy();
@@ -266,32 +265,17 @@ public class ServerInstance implements Server {
         }
     }
 
-    private boolean stopServerWithAgent(String toolsJarLoc, String exitJarLoc, String pid) {
-        if (toolsJarLoc == null || toolsJarLoc.isEmpty() || exitJarLoc == null || exitJarLoc.isEmpty()) {
-            log.warn("Error stopping the server through agent, relevant jar locations not provided, " +
-                    "hence falling back to default kill, hence integration test coverage won't be available");
-            return false;
-        }
-
+    private boolean waitForProcessToShutdown() {
         try {
-            File toolsJar = new File(toolsJarLoc);
-            ClassLoader loader = Thread.currentThread().getContextClassLoader();
-            String cls = "com.sun.tools.attach.VirtualMachine";
-            loader = new URLClassLoader(new URL[]{toolsJar.toURI().toURL()}, loader);
-            Class<?> vmClass = loader.loadClass(cls);
-            Object vm = vmClass.getMethod("attach", new Class<?>[]{String.class}).invoke(null, pid);
-            vmClass.getMethod("loadAgent", new Class[]{String.class, String.class}).invoke(vm, exitJarLoc,
-                    "exitStatus=1,timeout=15000,killStatus=5");
-
-            //TODO remove below sleep by correctly waiting for the port
+            //TODO remove below thread sleep if it's safe
             Thread.sleep(1000);
-            return true;
+            Utils.waitForPortToClosed(httpServerPort, 30000);
         } catch (Throwable e) {
-            log.warn("Error stopping the server through agent, hence falling back to default kill, " +
-                    "hence integration test coverage won't be available, error - " + e.getMessage(), e);
+            log.warn("Graceful shutdown failed, so integration test coverage won't be available, error - "
+                    + e.getMessage(), e);
             return false;
         }
-
+        return true;
     }
 
     /**

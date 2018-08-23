@@ -39,10 +39,6 @@
             <artifactId>awaitility</artifactId>
             <scope>test</scope>
         </dependency>
-        <dependency>
-            <groupId>com.sun</groupId>
-            <artifactId>tools</artifactId>
-        </dependency>
     </dependencies>
 
     <build>
@@ -72,14 +68,6 @@
                                     <overWrite>true</overWrite>
                                     <outputDirectory>${project.build.directory}</outputDirectory>
                                 </artifactItem>
-                                <artifactItem>
-                                    <groupId>com.sun</groupId>
-                                    <artifactId>tools</artifactId>
-                                    <version>${com.sun.tools.version}</version>
-                                    <type>jar</type>
-                                    <overWrite>true</overWrite>
-                                    <outputDirectory>${project.build.directory}</outputDirectory>
-                                </artifactItem>
                             </artifactItems>
                             <overWriteReleases>false</overWriteReleases>
                             <overWriteSnapshots>true</overWriteSnapshots>
@@ -91,14 +79,12 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
                 <configuration>
-                    <!--<argLine>${jacoco.agent.argLine}</argLine>-->
+                    <argLine>${jacoco.agent.argLine}</argLine>
                     <systemPropertyVariables>
                         <server.zip>
                             ${basedir}/../../distribution/zip/ballerina-tools/target/ballerina-tools-${project.version}.zip
                         </server.zip>
                         <jacoco.agent.argLine>${jacoco.agent.argLine}</jacoco.agent.argLine>
-                        <ballerina.test.exit.agent.location>${project.build.directory}/ballerina-integration-test-utils-${project.version}.jar</ballerina.test.exit.agent.location>
-                        <ballerina.test.tools.jar.location>${project.build.directory}/tools-${com.sun.tools.version}.jar</ballerina.test.tools.jar.location>
                         <integration.test.utils.service.file>
                             ${basedir}/../../tests/ballerina-integration-test-utils/src/main/ballerina/httpService/common_backend.bal
                         </integration.test.utils.service.file>

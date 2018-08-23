@@ -250,14 +250,6 @@
                                     <overWrite>true</overWrite>
                                     <outputDirectory>${project.build.directory}</outputDirectory>
                                 </artifactItem>
-                                <artifactItem>
-                                    <groupId>com.sun</groupId>
-                                    <artifactId>tools</artifactId>
-                                    <version>${com.sun.tools.version}</version>
-                                    <type>jar</type>
-                                    <overWrite>true</overWrite>
-                                    <outputDirectory>${project.build.directory}</outputDirectory>
-                                </artifactItem>
                             </artifactItems>
                             <overWriteReleases>false</overWriteReleases>
                             <overWriteSnapshots>true</overWriteSnapshots>
@@ -287,8 +279,6 @@
                             ${basedir}/../../distribution/zip/ballerina/target/ballerina-${project.version}.zip
                         </server.zip>
                         <jacoco.agent.argLine>${jacoco.agent.argLine}</jacoco.agent.argLine>
-                        <ballerina.test.exit.agent.location>${project.build.directory}/ballerina-integration-test-utils-${project.version}.jar</ballerina.test.exit.agent.location>
-                        <ballerina.test.tools.jar.location>${project.build.directory}/tools-${com.sun.tools.version}.jar</ballerina.test.tools.jar.location>
                         <integration.test.utils.service.file>
                             ${basedir}/../../tests/ballerina-integration-test-utils/src/main/ballerina/httpService/common_backend.bal
                         </integration.test.utils.service.file>
