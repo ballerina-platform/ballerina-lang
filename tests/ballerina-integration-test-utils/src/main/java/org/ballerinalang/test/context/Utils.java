@@ -40,11 +40,11 @@ public class Utils {
     private static final Logger log = LoggerFactory.getLogger(Utils.class);
 
     /**
-     * Wait for ports to open until given timeout period.
+     * This method will wait for given ports to open until given timeout period.
      *
      * @param ports    The port values that needs to be checked
-     * @param timeout The timeout waiting for the port to open
-     * @param verbose if verbose is set to true,
+     * @param timeout  The timeout waiting for the port to open
+     * @param verbose  if verbose is set to true,
      * @param hostName The hostname that needs to be checked
      * @throws RuntimeException if the port is not opened within the timeout
      */
@@ -92,7 +92,7 @@ public class Utils {
     /**
      * This method will wait until given ports are closed within given timeout value in mills.
      *
-     * @param ports    - http ports values
+     * @param ports   - http ports values
      * @param timeout - max time to wait
      */
     public static void waitForPortsToClosed(int[] ports, int timeout) {
@@ -180,7 +180,7 @@ public class Utils {
      *
      * @param sourceFilePath - zip file need to extract
      * @param extractedDir   - destination path given file to extract
-     * @throws IOException if an i/o exception occurs when extracting the file
+     * @throws IOException            if an i/o exception occurs when extracting the file
      * @throws BallerinaTestException if ballerina test exception occurs when extracting the file
      */
     public static void extractFile(String sourceFilePath, String extractedDir) throws IOException,
