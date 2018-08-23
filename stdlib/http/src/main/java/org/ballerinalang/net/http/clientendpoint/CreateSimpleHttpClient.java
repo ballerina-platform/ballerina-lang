@@ -158,7 +158,7 @@ public class CreateSimpleHttpClient extends BlockingNativeCallableUnit {
                 }
                 String keyStorePassword = keyStore.getStringField(HttpConstants.PASSWORD);
                 if (StringUtils.isNotBlank(keyStorePassword)) {
-                    senderConfiguration.setKeyStorePassword(keyStorePassword);
+                    senderConfiguration.setKeyStorePass(keyStorePassword);
                 }
             }
             if (protocols != null) {
