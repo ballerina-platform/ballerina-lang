@@ -115,7 +115,7 @@ function renderDiagram(jsonModelObj, stale) {
 
             function drawDiagram() {
                 try {
-                    ballerinaDiagram.renderDiagram(document.getElementById("diagram"), json, {
+                    ballerinaDiagram.renderStaticDiagram(document.getElementById("diagram"), json, {
                         width: window.innerWidth - 6, height: window.innerHeight
                     });
                     console.log('Successfully rendered')
