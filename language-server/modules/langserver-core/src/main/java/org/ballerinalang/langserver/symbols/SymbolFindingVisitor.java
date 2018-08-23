@@ -31,7 +31,6 @@ import org.wso2.ballerinalang.compiler.tree.BLangAction;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotation;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
 import org.wso2.ballerinalang.compiler.tree.BLangCompilationUnit;
-import org.wso2.ballerinalang.compiler.tree.BLangEnum;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
 import org.wso2.ballerinalang.compiler.tree.BLangImportPackage;
@@ -55,7 +54,6 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangStringTemplateLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTernaryExpr;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeCastExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeConversionExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeInit;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypedescExpr;
@@ -70,7 +68,6 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLQuotedString;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLTextLiteral;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangAbort;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangAssignment;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangBind;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBreak;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangCatch;
@@ -149,10 +146,6 @@ public class SymbolFindingVisitor extends BLangNodeVisitor {
         serviceNode.getResources().forEach(bLangResource -> bLangResource.accept(this));
     }
 
-    public void visit(BLangEnum enumNode) {
-        this.addSymbol(enumNode, enumNode.symbol, SymbolKind.Enum);
-    }
-
     public void visit(BLangVariable variableNode) {
         SymbolKind kind;
         String btype = variableNode.getTypeNode().toString();
@@ -216,10 +209,6 @@ public class SymbolFindingVisitor extends BLangNodeVisitor {
         // ignore
     }
 
-    public void visit(BLangEnum.BLangEnumerator enumeratorNode) {
-        // ignore
-    }
-
     public void visit(BLangWorker workerNode) {
         this.addSymbol(workerNode, workerNode.symbol, SymbolKind.Class);
         workerNode.body.accept(this);
@@ -238,10 +227,6 @@ public class SymbolFindingVisitor extends BLangNodeVisitor {
     }
 
     public void visit(BLangAssignment assignNode) {
-        // ignore
-    }
-
-    public void visit(BLangBind bindNode) {
         // ignore
     }
 
@@ -350,10 +335,6 @@ public class SymbolFindingVisitor extends BLangNodeVisitor {
     }
 
     public void visit(BLangTypedescExpr accessExpr) {
-        // ignore
-    }
-
-    public void visit(BLangTypeCastExpr castExpr) {
         // ignore
     }
 

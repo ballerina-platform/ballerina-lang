@@ -56,7 +56,6 @@ import org.wso2.ballerinalang.compiler.tree.BLangAction;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotation;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
 import org.wso2.ballerinalang.compiler.tree.BLangEndpoint;
-import org.wso2.ballerinalang.compiler.tree.BLangEnum;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
 import org.wso2.ballerinalang.compiler.tree.BLangInvokableNode;
@@ -501,9 +500,6 @@ public class CodeGenerator extends BLangNodeVisitor {
             // Reset the regIndexes structure for every statement
             regIndexes = new VariableIndex(REG);
         }
-    }
-
-    public void visit(BLangEnum enumNode) {
     }
 
     public void visit(BLangVariable varNode) {

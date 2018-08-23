@@ -24,7 +24,6 @@ import org.ballerinalang.composer.service.ballerina.parser.service.model.lang.An
 import org.ballerinalang.composer.service.ballerina.parser.service.model.lang.AnnotationDef;
 import org.ballerinalang.composer.service.ballerina.parser.service.model.lang.Connector;
 import org.ballerinalang.composer.service.ballerina.parser.service.model.lang.Endpoint;
-import org.ballerinalang.composer.service.ballerina.parser.service.model.lang.Enum;
 import org.ballerinalang.composer.service.ballerina.parser.service.model.lang.Enumerator;
 import org.ballerinalang.composer.service.ballerina.parser.service.model.lang.Function;
 import org.ballerinalang.composer.service.ballerina.parser.service.model.lang.ModelPackage;
@@ -41,7 +40,6 @@ import org.ballerinalang.langserver.index.dto.BObjectTypeSymbolDTO;
 import org.ballerinalang.langserver.index.dto.PackageIDDTO;
 import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.elements.PackageID;
-import org.ballerinalang.model.tree.EnumNode;
 import org.ballerinalang.model.tree.VariableNode;
 import org.ballerinalang.model.tree.types.TypeNode;
 import org.ballerinalang.repository.PackageRepository;
@@ -273,29 +271,6 @@ public class ParserUtils {
             modelPackage.setName(packagePath);
 
             modelPackage.addAnnotationsItem(AnnotationDef.convertToPackageModel(annotation));
-            packages.put(packagePath, modelPackage);
-        }
-    }
-
-    /**
-     * Extract Enums from ballerina lang.
-     *
-     * @param packages    packages to send.
-     * @param packagePath packagePath.
-     * @param bLangEnum   enum.
-     */
-    private static void extractEnums(Map<String, ModelPackage> packages, String packagePath,
-                                     EnumNode bLangEnum) {
-        String fileName = bLangEnum.getPosition().getSource().getCompilationUnitName();
-        if (packages.containsKey(packagePath)) {
-            ModelPackage modelPackage = packages.get(packagePath);
-            modelPackage.addEnumItem(createNewEnum(bLangEnum.getName().getValue(), bLangEnum.getEnumerators(),
-                    fileName));
-        } else {
-            ModelPackage modelPackage = new ModelPackage();
-            modelPackage.setName(packagePath);
-            modelPackage.addEnumItem(createNewEnum(bLangEnum.getName().getValue(), bLangEnum.getEnumerators(),
-                    fileName));
             packages.put(packagePath, modelPackage);
         }
     }
@@ -660,23 +635,6 @@ public class ParserUtils {
     private static StructField createNewStructField(String name, String type, String defaultValue) {
         StructField structField = new StructField(name, type, defaultValue);
         return structField;
-    }
-
-    /**
-     * Create new enum.
-     *
-     * @param name        name of the enum
-     * @param enumerators
-     * @return {Enum} enum
-     */
-    private static Enum createNewEnum(String name, List<? extends EnumNode.Enumerator> enumerators, String fileName) {
-        Enum anEnum = new Enum(name);
-        enumerators.forEach((enumeratorItem) -> {
-            Enumerator enumerator = createNewEnumerator(enumeratorItem.getName().getValue());
-            anEnum.addEnumerator(enumerator);
-        });
-        anEnum.setFileName(fileName);
-        return anEnum;
     }
 
     /**
