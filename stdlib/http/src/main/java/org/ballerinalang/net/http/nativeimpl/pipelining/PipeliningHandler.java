@@ -32,11 +32,14 @@ import java.util.Queue;
 import static org.ballerinalang.net.http.HttpUtil.sendOutboundResponse;
 import static org.ballerinalang.net.http.nativeimpl.connection.ResponseWriter.sendResponseRobust;
 
+/**
+ * Handle pipeline responses.
+ */
 public class PipeliningHandler {
 
     private static void sendPipelinedResponseRobust(DataContext dataContext, HttpCarbonMessage requestMessage,
-                                                   BMap<String, BValue> outboundResponseStruct,
-                                                   HttpCarbonMessage responseMessage) {
+                                                    BMap<String, BValue> outboundResponseStruct,
+                                                    HttpCarbonMessage responseMessage) {
         sendResponseRobust(dataContext, requestMessage, outboundResponseStruct, responseMessage);
     }
 
@@ -113,7 +116,8 @@ public class PipeliningHandler {
      * @param responseQueue Represent pipelined response queue
      * @return a boolean indicating whether the maximum queued response count is reached
      */
-    private static boolean thresholdReached(ChannelHandlerContext sourceContext, Queue<PipelinedResponse> responseQueue) {
+    private static boolean thresholdReached(ChannelHandlerContext sourceContext,
+                                            Queue<PipelinedResponse> responseQueue) {
         Integer maxQueuedResponses = sourceContext.channel()
                 .attr(Constants.MAX_RESPONSES_ALLOWED_TO_BE_QUEUED).get();
         if (responseQueue.size() > maxQueuedResponses) {
