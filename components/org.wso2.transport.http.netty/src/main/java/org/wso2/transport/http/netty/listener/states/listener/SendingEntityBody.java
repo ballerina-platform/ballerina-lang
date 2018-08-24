@@ -30,6 +30,7 @@ import io.netty.handler.codec.http.HttpResponse;
 import io.netty.handler.codec.http.LastHttpContent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.wso2.transport.http.netty.common.Constants;
 import org.wso2.transport.http.netty.contract.HttpResponseFuture;
 import org.wso2.transport.http.netty.contract.ServerConnectorException;
 import org.wso2.transport.http.netty.contract.ServerConnectorFuture;
@@ -44,6 +45,7 @@ import java.io.IOException;
 import java.nio.channels.ClosedChannelException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Queue;
 
 import static org.wso2.transport.http.netty.common.Constants.HTTP_HEAD_METHOD;
 import static org.wso2.transport.http.netty.common.Constants
@@ -114,7 +116,10 @@ public class SendingEntityBody implements ListenerState {
 
             if (!outboundRespListener.isKeepAlive()) {
                 outboundChannelFuture.addListener(ChannelFutureListener.CLOSE);
+            }  else {
+                triggerPipeliningLogic(outboundResponseMsg);
             }
+
             if (handlerExecutor != null) {
                 handlerExecutor.executeAtSourceResponseSending(outboundResponseMsg);
             }
@@ -204,6 +209,29 @@ public class SendingEntityBody implements ListenerState {
             stateContext.setListenerState(new ResponseCompleted(sourceHandler, stateContext, inboundRequestMsg));
             resetOutboundListenerState();
         });
+    }
+
+    private void triggerPipeliningLogic(HttpCarbonMessage outboundResponseMsg) {
+        String httpVersion = (String) inboundRequestMsg.getProperty(Constants.HTTP_VERSION);
+        if (outboundResponseMsg.isPipeliningNeeded() && !Constants.HTTP2_VERSION.equalsIgnoreCase
+                (httpVersion)) {
+            synchronized (sourceContext.channel().attr(Constants.RESPONSE_QUEUE).get()) {
+                Queue responseQueue = sourceContext.channel().attr(Constants.RESPONSE_QUEUE).get();
+                Integer nextSequenceNumber = sourceContext.channel().attr(Constants.NEXT_SEQUENCE_NUMBER).get();
+                // if (updateNextSequenceNumber) {
+                //Next sequence number should never be incremented for 100 continue responses
+                nextSequenceNumber++;
+                sourceContext.channel().attr(Constants.NEXT_SEQUENCE_NUMBER).set(nextSequenceNumber);
+                // }
+                if (!responseQueue.isEmpty()) {
+                    //Notify ballerina to send the response which is next in queue. This is needed because,
+                    // if the other responses got ready before the nextSequenceNumber gets updated then the
+                    // ballerina respond() won't start serializing the responses in queue. This is to trigger
+                    // that process again.
+                    outboundResponseMsg.getPipelineListener().onLastHttpContentSent(sourceContext);
+                }
+            }
+        }
     }
 
     private void resetOutboundListenerState() {
