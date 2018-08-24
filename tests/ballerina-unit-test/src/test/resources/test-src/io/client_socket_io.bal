@@ -51,7 +51,9 @@ function read(int size) returns (byte[], int)|error {
 function readRecord() returns string[]|error {
     io:ByteChannel channel = socket.channel;
     io:CharacterChannel characterChannel = new(channel, "UTF-8");
-    io:DelimitedTextRecordChannel rChannel = new io:DelimitedTextRecordChannel(characterChannel, rs = "\r\n", fs = ",");
+    io:DelimitedTextRecordChannel rChannel = new io:DelimitedTextRecordChannel(characterChannel,
+                                                                               rs = "\r\n",
+                                                                               fs = ",");
     if (rChannel.hasNext()){
         var records = rChannel.getNext();
         match records {
