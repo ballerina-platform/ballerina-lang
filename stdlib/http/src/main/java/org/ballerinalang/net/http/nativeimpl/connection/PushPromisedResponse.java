@@ -90,7 +90,7 @@ public class PushPromisedResponse extends ConnectionAction {
                 HttpUtil.pushResponse(requestMessage, responseMessage, http2PushPromise);
         HttpMessageDataStreamer outboundMsgDataStreamer = getMessageDataStreamer(responseMessage);
         HttpConnectorListener outboundResStatusConnectorListener =
-                new HttpResponseConnectorListener(dataContext, outboundMsgDataStreamer);
+                new ResponseWriter.HttpResponseConnectorListener(dataContext, outboundMsgDataStreamer);
         outboundRespStatusFuture.setHttpConnectorListener(outboundResStatusConnectorListener);
         OutputStream messageOutputStream = outboundMsgDataStreamer.getOutputStream();
 

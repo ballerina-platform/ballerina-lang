@@ -19,7 +19,6 @@
 package org.ballerinalang.net.http;
 
 import io.netty.buffer.Unpooled;
-import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.http.DefaultHttpRequest;
 import io.netty.handler.codec.http.DefaultHttpResponse;
 import io.netty.handler.codec.http.DefaultLastHttpContent;
@@ -45,14 +44,13 @@ import org.ballerinalang.mime.util.EntityWrapper;
 import org.ballerinalang.mime.util.HeaderUtil;
 import org.ballerinalang.mime.util.MimeUtil;
 import org.ballerinalang.mime.util.MultipartDecoder;
+import org.ballerinalang.model.util.JsonGenerator;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.net.http.caching.RequestCacheControlStruct;
 import org.ballerinalang.net.http.caching.ResponseCacheControlStruct;
-import org.ballerinalang.net.http.nativeimpl.connection.PipelinedResponse;
-import org.ballerinalang.net.http.nativeimpl.connection.PipeliningHandler;
 import org.ballerinalang.net.http.session.Session;
 import org.ballerinalang.services.ErrorHandlerUtils;
 import org.ballerinalang.util.codegen.ProgramFile;
@@ -62,7 +60,6 @@ import org.ballerinalang.util.observability.ObserverContext;
 import org.ballerinalang.util.tracer.TraceConstants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.wso2.transport.http.netty.common.Constants;
 import org.wso2.transport.http.netty.config.ChunkConfig;
 import org.wso2.transport.http.netty.config.ForwardedExtensionConfig;
 import org.wso2.transport.http.netty.config.KeepAliveConfig;
@@ -84,7 +81,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.Queue;
 import java.util.stream.Collectors;
 
 import static io.netty.handler.codec.http.HttpHeaderNames.CACHE_CONTROL;
@@ -120,6 +116,7 @@ import static org.ballerinalang.net.http.HttpConstants.RESPONSE_CACHE_CONTROL_FI
 import static org.ballerinalang.net.http.HttpConstants.RESPONSE_REASON_PHRASE_FIELD;
 import static org.ballerinalang.net.http.HttpConstants.RESPONSE_STATUS_CODE_FIELD;
 import static org.ballerinalang.net.http.HttpConstants.TRANSPORT_MESSAGE;
+import static org.ballerinalang.net.http.nativeimpl.pipelining.PipeliningHandler.sendPipelinedResponse;
 import static org.ballerinalang.util.observability.ObservabilityConstants.PROPERTY_HTTP_HOST;
 import static org.ballerinalang.util.observability.ObservabilityConstants.PROPERTY_HTTP_PORT;
 import static org.ballerinalang.util.observability.ObservabilityConstants.TAG_KEY_HTTP_METHOD;
@@ -369,55 +366,6 @@ public class HttpUtil {
         return responseFuture;
     }
 
-    public static HttpResponseFuture sendPipelinedResponse(HttpCarbonMessage requestMsg,
-                                                          HttpCarbonMessage responseMsg) {
-        HttpResponseFuture responseFuture = null;
-        try {
-            responseMsg.setPipeliningNeeded(requestMsg.isPipeliningNeeded());
-            String httpVersion = (String) requestMsg.getProperty(Constants.HTTP_VERSION);
-            if (requestMsg.isPipeliningNeeded() && requestMsg.isKeepAlive() &&
-                    !Constants.HTTP2_VERSION.equalsIgnoreCase(httpVersion)) {
-                PipelinedResponse pipelinedResponse = new PipelinedResponse(requestMsg.getSequenceId(),
-                        requestMsg, responseMsg, null, null);
-                responseMsg.setPipelineListener(new PipelineResponseListener());
-                ChannelHandlerContext sourceContext = requestMsg.getSourceContext();
-                Queue<PipelinedResponse> responseQueue = sourceContext.channel().attr(Constants.RESPONSE_QUEUE).get();
-                synchronized (responseQueue) {
-                    Integer maxQueuedResponses = sourceContext.channel()
-                            .attr(Constants.MAX_RESPONSES_ALLOWED_TO_BE_QUEUED).get();
-                    if (responseQueue.size() > maxQueuedResponses) {
-                        //Cannot queue up indefinitely which might cause out of memory issues, so closing the connection
-                        sourceContext.close();
-                        return responseFuture;
-                    }
-                    responseQueue.add(pipelinedResponse);
-                    while (!responseQueue.isEmpty()) {
-                        Integer nextSequenceNumber = sourceContext.channel().attr(Constants.NEXT_SEQUENCE_NUMBER).get();
-                        final PipelinedResponse queuedPipelinedResponse = responseQueue.peek();
-                        int currentSequenceNumber = queuedPipelinedResponse.getSequenceId();
-                        if (currentSequenceNumber != nextSequenceNumber) {
-                            break;
-                        }
-                        responseQueue.remove();
-
-                        //IMPORTANT: Do not increment the nextSequenceNumber after 'sendOutboundResponseRobust()' call
-                        // under any circumstance.  nextSequenceNumber should be updated only when the last http
-                        // content of this message has been written to the socket because in case if one response has
-                        //delayed http contents, there's a good chance that the contents of another response will be sent
-                        //out before its turn.
-                        responseFuture = PipeliningHandler.sendPipelinedResponse(queuedPipelinedResponse.getInboundRequestMsg(),
-                                queuedPipelinedResponse.getOutboundResponseMsg());
-                    }
-                }
-            } else {
-                responseFuture = requestMsg.respond(responseMsg);
-            }
-        } catch (org.wso2.transport.http.netty.contract.ServerConnectorException e) {
-            throw new BallerinaConnectorException("Error occurred during response", e);
-        }
-        return responseFuture;
-    }
-
     /**
      * Sends an HTTP/2 Server Push message back to the client.
      *
@@ -457,7 +405,6 @@ public class HttpUtil {
     public static void handleFailure(HttpCarbonMessage requestMessage, BallerinaConnectorException ex) {
         String errorMsg = ex.getMessage();
         int statusCode = getStatusCode(requestMessage, errorMsg);
-        //sendOutboundResponse(requestMessage, createErrorMessage(errorMsg, statusCode));
         sendPipelinedResponse(requestMessage, createErrorMessage(errorMsg, statusCode));
     }
 
@@ -465,7 +412,6 @@ public class HttpUtil {
         String errorMsg = error.get(BLangVMErrors.ERROR_MESSAGE_FIELD).stringValue();
         int statusCode = getStatusCode(requestMessage, errorMsg);
         ErrorHandlerUtils.printError("error: " + BLangVMErrors.getPrintableStackTrace(error));
-       // sendOutboundResponse(requestMessage, createErrorMessage(errorMsg, statusCode));
         sendPipelinedResponse(requestMessage, createErrorMessage(errorMsg, statusCode));
     }
 
@@ -1244,6 +1190,17 @@ public class HttpUtil {
         }
 
         return basePath;
+    }
+
+    public static void serializeDataSource(BValue outboundMessageSource, BMap<String, BValue> entityStruct,
+                                           OutputStream messageOutputStream) throws IOException {
+        if (MimeUtil.generateAsJSON(outboundMessageSource, entityStruct)) {
+            JsonGenerator gen = new JsonGenerator(messageOutputStream);
+            gen.serialize(outboundMessageSource);
+            gen.flush();
+        } else {
+            outboundMessageSource.serialize(messageOutputStream);
+        }
     }
 
     private HttpUtil() {

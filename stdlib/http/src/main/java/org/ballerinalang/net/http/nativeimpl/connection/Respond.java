@@ -18,7 +18,6 @@
 
 package org.ballerinalang.net.http.nativeimpl.connection;
 
-import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.EncoderException;
 import io.netty.handler.codec.http.HttpHeaderNames;
 import io.netty.handler.codec.http.HttpResponseStatus;
@@ -32,22 +31,23 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
 import org.ballerinalang.net.http.DataContext;
 import org.ballerinalang.net.http.HttpUtil;
-import org.ballerinalang.net.http.PipelineResponseListener;
 import org.ballerinalang.net.http.caching.ResponseCacheControlStruct;
+import org.ballerinalang.net.http.nativeimpl.pipelining.PipelineResponseListener;
+import org.ballerinalang.net.http.nativeimpl.pipelining.PipelinedResponse;
 import org.ballerinalang.net.http.util.CacheUtils;
 import org.ballerinalang.util.observability.ObservabilityUtils;
 import org.ballerinalang.util.observability.ObserverContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.wso2.transport.http.netty.common.Constants;
 import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 
 import java.util.Optional;
-import java.util.Queue;
 
 import static org.ballerinalang.net.http.HttpConstants.HTTP_STATUS_CODE;
 import static org.ballerinalang.net.http.HttpConstants.RESPONSE_CACHE_CONTROL_FIELD;
 import static org.ballerinalang.net.http.HttpConstants.RESPONSE_STATUS_CODE_FIELD;
+import static org.ballerinalang.net.http.nativeimpl.pipelining.PipeliningHandler.executePipeliningLogic;
+import static org.ballerinalang.net.http.nativeimpl.pipelining.PipeliningHandler.pipeliningRequired;
 import static org.ballerinalang.util.observability.ObservabilityConstants.TAG_KEY_HTTP_STATUS_CODE;
 
 /**
@@ -96,43 +96,11 @@ public class Respond extends ConnectionAction {
                 String.valueOf(outboundResponseStruct.get(RESPONSE_STATUS_CODE_FIELD))));
 
         try {
-            String httpVersion = (String) inboundRequestMsg.getProperty(Constants.HTTP_VERSION);
-            if (inboundRequestMsg.isPipeliningNeeded() && inboundRequestMsg.isKeepAlive() &&
-                    !Constants.HTTP2_VERSION.equalsIgnoreCase(httpVersion)) {
+            if (pipeliningRequired(inboundRequestMsg)) {
                 PipelinedResponse pipelinedResponse = new PipelinedResponse(inboundRequestMsg.getSequenceId(),
                         inboundRequestMsg, outboundResponseMsg, dataContext, outboundResponseStruct);
                 outboundResponseMsg.setPipelineListener(new PipelineResponseListener());
-                ChannelHandlerContext sourceContext = inboundRequestMsg.getSourceContext();
-                Queue<PipelinedResponse> responseQueue = sourceContext.channel().attr(Constants.RESPONSE_QUEUE).get();
-                synchronized (responseQueue) {
-                    Integer maxQueuedResponses = sourceContext.channel()
-                            .attr(Constants.MAX_RESPONSES_ALLOWED_TO_BE_QUEUED).get();
-                    if (responseQueue.size() > maxQueuedResponses) {
-                        //Cannot queue up indefinitely which might cause out of memory issues, so closing the connection
-                        sourceContext.close();
-                        return;
-                    }
-                    responseQueue.add(pipelinedResponse);
-                    while (!responseQueue.isEmpty()) {
-                        Integer nextSequenceNumber = sourceContext.channel().attr(Constants.NEXT_SEQUENCE_NUMBER).get();
-                        final PipelinedResponse queuedPipelinedResponse = responseQueue.peek();
-                        int currentSequenceNumber = queuedPipelinedResponse.getSequenceId();
-                        if (currentSequenceNumber != nextSequenceNumber) {
-                            break;
-                        }
-                        responseQueue.remove();
-
-                        //IMPORTANT: Do not increment the nextSequenceNumber after 'sendOutboundResponseRobust()' call
-                        // under any circumstance.  nextSequenceNumber should be updated only when the last http
-                        // content of this message has been written to the socket because in case if one response has
-                        //delayed http contents, there's a good chance that the contents of another response will be sent
-                        //out before its turn.
-                        PipeliningHandler.sendOutboundResponseRobust(queuedPipelinedResponse.getDataContext(),
-                                queuedPipelinedResponse.getInboundRequestMsg(),
-                                queuedPipelinedResponse.getOutboundResponseStruct(),
-                                queuedPipelinedResponse.getOutboundResponseMsg());
-                    }
-                }
+                executePipeliningLogic(inboundRequestMsg.getSourceContext(), pipelinedResponse);
             } else {
                 sendOutboundResponseRobust(dataContext, inboundRequestMsg, outboundResponseStruct, outboundResponseMsg);
             }
