@@ -27,7 +27,7 @@ type testDocObject object {
     public string testString = "hello";
 
     function testFunctionSignature();
-    public function testFunctionWithImpl() {
+    function testFunctionWithImpl() {
         io:println("Hello World!!");
     }
 };
