@@ -52,7 +52,6 @@ public class MockByteChannel extends Channel {
         return false;
     }
 
-    @Override
     public boolean remaining() {
         return false;
     }

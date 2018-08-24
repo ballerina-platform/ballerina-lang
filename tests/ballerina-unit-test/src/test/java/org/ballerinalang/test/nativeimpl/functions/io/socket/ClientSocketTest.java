@@ -158,7 +158,7 @@ public class ClientSocketTest {
         Assert.assertEquals(returnedSize.intValue(), content.length(), "Write content size is not match.");
         final BValue[] readReturns = BRunUtil.invokeStateful(socketClient, "readRecord");
         BStringArray fields = (BStringArray) readReturns[0];
-        Assert.assertEquals(fields.get(0),"Ballerina");
+        Assert.assertEquals(fields.get(0), "Ballerina");
     }
 
     @Test(dependsOnMethods = "testWriteReadContent",
