@@ -24,7 +24,7 @@
     </listeners>
 
     <!-- Below tests should run sequentially since it will use same port in each test -->
-    <!--<test name="ballerina-http-tests" parallel="false">
+    <test name="ballerina-http-tests" parallel="false">
         <groups>
             <run>
                 <exclude name="broken"/>
@@ -138,12 +138,6 @@
     <test name="ballerina-checkpointing-tests" parallel="false">
         <classes>
             <class name="org.ballerinalang.test.checkpointing.InterruptibleServiceTestCase"/>
-        </classes>
-    </test>-->
-    <test name="ballerina-security-tests" parallel="false">
-        <classes>
-            <class name="org.ballerinalang.test.service.http.HttpBaseTest"/>
-            <class name="org.ballerinalang.test.service.http.sample.HttpOptionsTestCase"/>
         </classes>
     </test>
 </suite>
