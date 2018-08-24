@@ -27,7 +27,6 @@ import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BString;
-import org.ballerinalang.model.values.BStringArray;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.test.BaseTest;
 import org.ballerinalang.test.util.TestUtils;
@@ -39,7 +38,6 @@ import org.testng.annotations.Test;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.stream.Stream;
 
 /**
  * Test class for gRPC unary service with blocking and non-blocking client.
@@ -149,11 +147,8 @@ public class UnaryBlockingBasicTestCase extends BaseTest {
 
         BValue[] responses = BRunUtil.invoke(result, "testUnaryNonBlockingClient", new BValue[]{});
         Assert.assertEquals(responses.length, 1);
-        Assert.assertTrue(responses[0] instanceof BStringArray);
-        BStringArray responseValues = (BStringArray) responses[0];
-        Assert.assertEquals(responseValues.size(), 2);
-        Assert.assertTrue(Stream.of(responseValues.getStringArray()).anyMatch(serverMsg::equals));
-        Assert.assertTrue(Stream.of(responseValues.getStringArray()).anyMatch(("Server Complete Sending Response" +
-                ".")::equals));
+        Assert.assertTrue(responses[0] instanceof BInteger);
+        BInteger responseCount = (BInteger) responses[0];
+        Assert.assertEquals(responseCount.intValue(), 2);
     }
 }

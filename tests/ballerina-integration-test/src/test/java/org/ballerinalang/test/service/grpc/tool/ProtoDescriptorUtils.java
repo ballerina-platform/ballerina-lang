@@ -27,6 +27,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
+import java.nio.file.Files;
 import java.nio.file.Paths;
 
 import static org.ballerinalang.protobuf.BalGenerationConstants.PROTOC_PLUGIN_EXE_PREFIX;
@@ -85,6 +86,8 @@ public class ProtoDescriptorUtils {
             return DescriptorProtos.FileDescriptorSet.parseFrom(targetStream);
         } catch (IOException e) {
             throw new BalGenToolException("Error reading generated descriptor file.", e);
+        } finally {
+            Files.deleteIfExists(descriptorFile.toPath());
         }
     }
 }

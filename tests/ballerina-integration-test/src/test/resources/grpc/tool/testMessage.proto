@@ -6,7 +6,7 @@
  *  in compliance with the License.
  *  You may obtain a copy of the License at
  *
- *  http://www.apache.org/licenses/LICENSE-2.0
+ *    http://www.apache.org/licenses/LICENSE-2.0
  *
  *  Unless required by applicable law or agreed to in writing,
  *  software distributed under the License is distributed on an
@@ -15,20 +15,30 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
+syntax = "proto3";
 
-package org.ballerinalang.test.net.grpc;
+message Test1 {
+    string name = 1;
+}
 
-import org.ballerinalang.net.grpc.exception.GrpcServerException;
-import org.ballerinalang.net.grpc.proto.definition.UserDefinedMessage;
-import org.testng.annotations.Test;
+message Test2 {
+    string a = 1;
+    double b = 2;
+    float c = 3;
+    int32 d = 4;
+    int64 e = 5;
+    uint64 f = 6;
+    fixed32 g = 7;
+    fixed64 h = 8;
+}
 
-/**
- * Test class for Proto message.
- */
-public class ProtoMessageTest {
-
-    @Test(description = "Test case for parsing proto message to byte array")
-    public void testParseProtoMessage() throws GrpcServerException {
-        UserDefinedMessage.Builder messageDefBuilder = UserDefinedMessage.newBuilder("Person");
-    }
+message Test3 {
+    repeated string a = 1;
+    repeated double b = 2;
+    repeated float c = 3;
+    repeated int32 d = 4;
+    repeated int64 e = 5;
+    repeated uint64 f = 6;
+    repeated fixed32 g = 7;
+    repeated fixed64 h = 8;
 }
