@@ -11,11 +11,7 @@ public class PipelineResponseListener implements HttpPipelineListener {
 
 
     @Override
-    public void onResponseSend(ChannelHandlerContext sourceContext) {
-
-        if (thresholdReached(sourceContext, sourceContext.channel().attr(Constants.RESPONSE_QUEUE).get())) {
-            return;
-        }
+    public void onLastHttpContentSent(ChannelHandlerContext sourceContext) {
         executePipeliningLogic(sourceContext, null);
     }
 }
