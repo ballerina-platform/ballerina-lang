@@ -27,13 +27,6 @@ import org.ballerinalang.model.values.BRefType;
 import org.ballerinalang.model.values.BRefValueArray;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.persistence.serializable.serializer.providers.instance.SerializableBMapInstanceProvider;
-import org.ballerinalang.persistence.serializable.serializer.providers.instance.SerializableBRefArrayInstanceProvider;
-import org.ballerinalang.persistence.serializable.serializer.providers.instance.SerializableContextInstanceProvider;
-import org.ballerinalang.persistence.serializable.serializer.providers.instance.SerializableStateInstanceProvider;
-import org.ballerinalang.persistence.serializable.serializer.providers.instance.SerializableWorkerDataInstanceProvider;
-import org.ballerinalang.persistence.serializable.serializer.providers.instance.SerializedKeyInstanceProvider;
-import org.ballerinalang.persistence.serializable.serializer.providers.instance.WorkerStateInstanceProvider;
 import org.ballerinalang.util.exceptions.BallerinaException;
 
 import java.io.Serializable;

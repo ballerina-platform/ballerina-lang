@@ -19,6 +19,7 @@ package org.ballerinalang.test.serializer.json;
 
 import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.CompileResult;
+import org.ballerinalang.model.types.BArrayType;
 import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.model.util.serializer.JsonSerializer;
 import org.ballerinalang.model.values.BInteger;
@@ -69,7 +70,7 @@ public class JsonSerializerTest {
 
     @Test(description = "Test deserialization of BRefValueArray")
     public void testJsonDeserializeBRefValueArrayReconstruction() {
-        BRefValueArray array = new BRefValueArray(BTypes.typeAny);
+        BRefValueArray array = new BRefValueArray(new BArrayType(BTypes.typeAny));
         BString str1 = new BString(STRING_1);
         BString str2 = new BString(STRING_2);
         BInteger bint = new BInteger(4343);
@@ -91,7 +92,7 @@ public class JsonSerializerTest {
 
     @Test(description = "Test deserialization of BRefValueArray when elements are maps")
     public void testJsonDeserializeBRefValueArrayReconstructionWithMapElements() {
-        BRefValueArray array = new BRefValueArray(BTypes.typeMap);
+        BRefValueArray array = new BRefValueArray(new BArrayType(BTypes.typeMap));
         BString str1 = new BString(STRING_1);
         BString str2 = new BString(STRING_2);
         BMap<String, BString> map1 = new BMap<>();
@@ -134,6 +135,22 @@ public class JsonSerializerTest {
         Assert.assertTrue(array1[1] == array1[2]);
     }
 
+    @Test(description = "Test deserialization of null value")
+    public void testJsonDeserializeNullValue() {
+        StringFieldA sf0 = new StringFieldA("A");
+        StringFieldA sf1 = new StringFieldA("B");
+        StringFieldA[] array = {sf0, sf1, null};
+
+        String serialize = new JsonSerializer().serialize(array);
+        Object deserialize = new JsonSerializer().deserialize(serialize, StringFieldA[].class);
+
+        StringFieldA[] array1 = (StringFieldA[]) deserialize;
+        Assert.assertEquals(array1.length, array.length);
+        Assert.assertEquals(array1[0].a, array[0].a);
+        Assert.assertEquals(array1[1].a, array[1].a);
+        Assert.assertTrue(array[2] == null);
+    }
+
     @Test(description = "Test source array length == destination array len")
     public void testJsonDeserializeArraySize() {
         int[] array = new int[5];
@@ -151,6 +168,10 @@ public class JsonSerializerTest {
     @Test(description = "Test source array length == destination array list len")
     public void testJsonDeserializeArrayListSize() {
         ArrayList<Integer> integers = new ArrayList<>(5);
+        integers.add(1);
+        integers.add(1);
+        integers.add(1);
+        integers.add(1);
 
         String serialize = new JsonSerializer().serialize(integers);
         ArrayList array1 = new JsonSerializer().deserialize(serialize, ArrayList.class);
@@ -250,7 +271,7 @@ public class JsonSerializerTest {
     }
 
     @Test(description = "Test serializing float array")
-    public void testCharFloatSerialization() {
+    public void testFloatArraySerialization() {
         float[] floats = new float[]{2.0f, 3.6f, 35066.22045f};
         String serial = new JsonSerializer().serialize(floats);
         float[] deserialize = new JsonSerializer().deserialize(serial, float[].class);
@@ -259,12 +280,48 @@ public class JsonSerializerTest {
     }
 
     @Test(description = "Test serializing double array")
-    public void testCharDoubleSerialization() {
+    public void testDoubleArraySerialization() {
         double[] doubles = new double[]{2.0, 3.6, 35066.22045};
         String serial = new JsonSerializer().serialize(doubles);
         double[] deserialize = new JsonSerializer().deserialize(serial, double[].class);
 
         Assert.assertEquals(deserialize, doubles);
+    }
+
+    @Test(description = "Test serializing int array")
+    public void testIntArraySerialization() {
+        int[] ints = new int[]{1, 2, 4, 4, 4};
+        String serial = new JsonSerializer().serialize(ints);
+        int[] deserialize = new JsonSerializer().deserialize(serial, int[].class);
+
+        Assert.assertEquals(deserialize, ints);
+    }
+
+    @Test(description = "Test serializing long array")
+    public void testLongArraySerialization() {
+        long[] longs = new long[]{1, 2, 4, 4, 4};
+        String serial = new JsonSerializer().serialize(longs);
+        long[] deserialize = new JsonSerializer().deserialize(serial, long[].class);
+
+        Assert.assertEquals(deserialize, longs);
+    }
+
+    @Test(description = "Test serializing byte array")
+    public void testByteArraySerialization() {
+        byte[] bytes = new byte[]{1, 2, 4, 4, 4};
+        String serial = new JsonSerializer().serialize(bytes);
+        byte[] deserialize = new JsonSerializer().deserialize(serial, byte[].class);
+
+        Assert.assertEquals(deserialize, bytes);
+    }
+
+    @Test(description = "Test serializing string array")
+    public void testStringArraySerialization() {
+        String[] strings = new String[]{"Foo", "Bar", "Baz", "F"};
+        String serial = new JsonSerializer().serialize(strings);
+        String[] deserialize = new JsonSerializer().deserialize(serial, String[].class);
+
+        Assert.assertEquals(deserialize, strings);
     }
 
     public static class TestClass {

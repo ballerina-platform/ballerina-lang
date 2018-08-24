@@ -16,6 +16,7 @@
  */
 package org.ballerinalang.model.util.serializer;
 
+import org.ballerinalang.model.util.JsonGenerator;
 import org.ballerinalang.model.util.JsonParser;
 import org.ballerinalang.model.util.serializer.providers.bvalue.ArrayListBValueProvider;
 import org.ballerinalang.model.util.serializer.providers.bvalue.BBooleanBValueProvider;
@@ -32,7 +33,9 @@ import org.ballerinalang.model.util.serializer.providers.bvalue.NumericBValuePro
 import org.ballerinalang.model.values.BRefType;
 import org.ballerinalang.persistence.serializable.SerializableState;
 
+import java.io.IOException;
 import java.io.StringReader;
+import java.io.StringWriter;
 
 /**
  * Serialize {@link SerializableState} into JSON and back.
@@ -88,8 +91,19 @@ public class JsonSerializer implements ObjectToJsonSerializer {
         }
         try (BValueTree treeMaker = new BValueTree()) {
             BRefType bValueTree = treeMaker.toBValueTree(object);
-            return bValueTree.stringValue();
+            return generateJson(bValueTree);
         }
+    }
+
+    private String generateJson(BRefType bValueTree) {
+        StringWriter writer = new StringWriter();
+        JsonGenerator generator = new JsonGenerator(writer);
+        try {
+            generator.serialize(bValueTree);
+        } catch (IOException e) {
+            // ignoring, StringWriter does no IO operations
+        }
+        return writer.toString();
     }
 
     @Override

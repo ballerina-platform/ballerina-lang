@@ -20,16 +20,12 @@ package org.ballerinalang.model.util.serializer;
 import org.ballerinalang.model.types.BArrayType;
 import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.model.values.BBoolean;
-import org.ballerinalang.model.values.BByteArray;
 import org.ballerinalang.model.values.BFloat;
-import org.ballerinalang.model.values.BFloatArray;
-import org.ballerinalang.model.values.BIntArray;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BRefType;
 import org.ballerinalang.model.values.BRefValueArray;
 import org.ballerinalang.model.values.BString;
-import org.ballerinalang.model.values.BStringArray;
 import org.ballerinalang.model.values.BValue;
 
 import java.io.Closeable;
@@ -57,10 +53,12 @@ public class BValueTree implements BValueSerializer, Closeable {
     private final IdentityHashMap<Object, Object> identityMap = new IdentityHashMap<>();
     private final HashSet<String> repeatedReferenceSet = new HashSet<>();
     private static final BValueProvider bValueProvider = BValueProvider.getInstance();
+    private BRefValueArrays bRefValueArrays;
     private boolean isClosed;
 
     BValueTree() {
         isClosed = false;
+        bRefValueArrays = new BRefValueArrays(this);
     }
 
     BRefType toBValueTree(Object src) {
@@ -98,47 +96,36 @@ public class BValueTree implements BValueSerializer, Closeable {
         return wrapObject(JsonSerializerConst.MAP_TAG, target);
     }
 
-    private BIntArray toBValue(int[] array) {
-        BIntArray intArray = new BIntArray(array.length);
-        for (int i = 0; i < array.length; i++) {
-            intArray.add(i, array[i]);
-        }
-        return intArray;
+    private BRefValueArray toBValue(int[] array) {
+        return bRefValueArrays.from(array);
     }
 
-    private BIntArray toBValue(long[] array) {
-        return new BIntArray(array);
+    private BRefValueArray toBValue(long[] array) {
+        return bRefValueArrays.from(array);
     }
 
-    private BFloatArray toBValue(double[] array) {
-        return new BFloatArray(array);
+    private BRefValueArray toBValue(double[] array) {
+        return bRefValueArrays.from(array);
     }
 
-    private BStringArray toBValue(String[] array) {
-        return new BStringArray(array);
+    private BRefValueArray toBValue(String[] array) {
+        return bRefValueArrays.from(array);
     }
 
     private BRefValueArray toBValue(Byte[][] array) {
-        BByteArray[] byteArrays = new BByteArray[array.length];
+        BRefValueArray[] byteArrays = new BRefValueArray[array.length];
         for (int i = 0; i < array.length; i++) {
             byteArrays[i] = toBValue(array[i]);
         }
-        return new BRefValueArray(byteArrays, new BArrayType(org.ballerinalang.model.types.BTypes.typeByte));
+        return new BRefValueArray(byteArrays, new BArrayType(BTypes.typeByte));
     }
 
-    private BByteArray toBValue(Byte[] array) {
-        if (array == null) {
-            return null;
-        }
-        BByteArray byteArray = new BByteArray(array.length);
-        for (int i = 0; i < array.length; i++) {
-            byteArray.add(i, array[i]);
-        }
-        return byteArray;
+    private BRefValueArray toBValue(Byte[] array) {
+        return bRefValueArrays.from(array);
     }
 
     private BMap<String, BValue> toBValue(List list) {
-        BRefValueArray array = new BRefValueArray(org.ballerinalang.model.types.BTypes.typeAny);
+        BRefValueArray array = new BRefValueArray(new BArrayType(BTypes.typeAny));
         for (Object item : list) {
             array.append(toBValue(item, Object.class));
         }
@@ -248,7 +235,7 @@ public class BValueTree implements BValueSerializer, Closeable {
     }
 
     private BMap<String, BValue> arrayToBValue(Object array) {
-        BRefValueArray bArray = new BRefValueArray(BTypes.typeAny);
+        BRefValueArray bArray = new BRefValueArray(new BArrayType(BTypes.typeAny));
         int arrayLength = Array.getLength(array);
         for (int i = 0; i < arrayLength; i++) {
             bArray.append(toBValue(Array.get(array, i), null));

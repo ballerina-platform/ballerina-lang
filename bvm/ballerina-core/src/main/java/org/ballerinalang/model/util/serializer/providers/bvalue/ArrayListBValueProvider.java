@@ -17,6 +17,7 @@
  */
 package org.ballerinalang.model.util.serializer.providers.bvalue;
 
+import org.ballerinalang.model.types.BArrayType;
 import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.model.util.serializer.BValueDeserializer;
 import org.ballerinalang.model.util.serializer.BValueSerializer;
@@ -47,7 +48,7 @@ public class ArrayListBValueProvider implements SerializationBValueProvider<Arra
 
     @Override
     public BValue toBValue(ArrayList list, BValueSerializer serializer) {
-        BRefValueArray array = new BRefValueArray(BTypes.typeAny);
+        BRefValueArray array = new BRefValueArray(new BArrayType(BTypes.typeAny));
         for (Object item : list) {
             array.append((BRefType) serializer.toBValue(item, null));
         }

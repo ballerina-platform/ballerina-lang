@@ -17,6 +17,7 @@
  */
 package org.ballerinalang.model.util.serializer;
 
+import org.ballerinalang.model.types.BArrayType;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.util.exceptions.BallerinaException;
 
@@ -39,6 +40,9 @@ import static org.ballerinalang.model.types.TypeConstants.XML_TNAME;
  * Mapping from {@link BType} string representations to {@link BType} instances.
  */
 public class BTypes {
+
+    public static final String ANY_ARRAY = ANY_TNAME + "[]";
+
     public static BType fromString(String typeName) {
         switch (typeName) {
             case INT_TNAME:
@@ -70,6 +74,10 @@ public class BTypes {
             case XML_ATTRIBUTES_TNAME:
                 return org.ballerinalang.model.types.BTypes.typeXMLAttributes;
             default:
+                if (typeName.endsWith("[]")) {
+                    BType elemType = fromString(typeName.substring(0, typeName.length() - 2));
+                    return new BArrayType(elemType);
+                }
                 throw new BallerinaException("Unknown type name: " + typeName);
         }
     }
