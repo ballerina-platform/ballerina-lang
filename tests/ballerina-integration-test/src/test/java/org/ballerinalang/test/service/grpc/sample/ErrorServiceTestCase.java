@@ -32,6 +32,8 @@ import java.nio.file.Paths;
 
 /**
  * Test class for error gRPC service.
+ *
+ * @since 0.982.0
  */
 @Test(groups = "grpc-test")
 public class ErrorServiceTestCase extends BaseTest {

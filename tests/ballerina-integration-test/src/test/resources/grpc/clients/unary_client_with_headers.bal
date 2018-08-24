@@ -35,6 +35,9 @@ function testUnaryBlockingClient(string name) returns (string) {
             (result, resHeaders) = payload;
             io:println("Client Got Response : ");
             io:println(result);
+            if (resHeaders.exists("x-id")) {
+                resHeaders.remove("x-id");
+            }
             return "Client got response: " + result;
         }
         error err => {

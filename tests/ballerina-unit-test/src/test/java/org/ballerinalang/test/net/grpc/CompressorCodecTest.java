@@ -32,6 +32,8 @@ import java.util.zip.GZIPOutputStream;
 
 /**
  * Test class for Encoding.
+ *
+ * @since 0.982.0
  */
 public class CompressorCodecTest {
 

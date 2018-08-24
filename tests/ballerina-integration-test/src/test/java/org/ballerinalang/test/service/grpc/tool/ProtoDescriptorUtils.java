@@ -39,11 +39,15 @@ import static org.ballerinalang.protobuf.utils.BalFileGenerationUtils.saveFile;
 
 /**
  * Test util class contains util functions to retrieve proto descriptor.
+ *
+ * @since 0.982.0
  */
 public class ProtoDescriptorUtils {
 
     /**
      * Download the protoc executor.
+     *
+     * @return protoc compiler file.
      */
     public static File getProtocCompiler() throws IOException  {
         File protocExeFile = new File(System.getProperty("java.io.tmpdir"), "protoc-" + OSDetector

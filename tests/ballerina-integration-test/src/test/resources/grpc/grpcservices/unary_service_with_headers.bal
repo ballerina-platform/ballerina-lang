@@ -27,8 +27,16 @@ service HelloWorld101 bind ep101 {
     hello(endpoint caller, string name, grpc:Headers headers) {
         io:println("name: " + name);
         string message = "Hello " + name;
-        io:println(headers.get("x-id"));
-        headers.setEntry("x-id", "1234567890");
+        if (!headers.exists("x-id")) {
+            error? err = caller->sendError(grpc:ABORTED, "x-id header is missing");
+        } else {
+            io:println("Request Header: " + (headers.get("x-id") ?: ""));
+            headers.removeAll();
+            headers.addEntry("x-id", "1234567890");
+            headers.addEntry("x-id", "2233445677");
+            io:print("Response Headers: ");
+            io:println(headers.getAll("x-id"));
+        }
         error? err = caller->send(message, headers = headers);
         string msg = "Server send response : " + message;
         io:println(err.message but { () => ("Server send response : " + message) });

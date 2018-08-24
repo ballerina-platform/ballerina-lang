@@ -50,7 +50,7 @@ public class UnaryBlockingBasicTestCase extends BaseTest {
     @BeforeClass
     private void setup() throws Exception {
         TestUtils.prepareBalo(this);
-        Path balFilePath = Paths.get("src", "test", "resources", "grpc", "clients", "unary1_blocking_client.bal");
+        Path balFilePath = Paths.get("src", "test", "resources", "grpc", "clients", "unary_blocking_client.bal");
         result = BCompileUtil.compile(balFilePath.toAbsolutePath().toString());
     }
 
@@ -141,7 +141,7 @@ public class UnaryBlockingBasicTestCase extends BaseTest {
 
     @Test
     public void testNonBlockingBallerinaClient() {
-        Path balFilePath = Paths.get("src", "test", "resources", "grpc", "clients", "unary1_nonblocking_client.bal");
+        Path balFilePath = Paths.get("src", "test", "resources", "grpc", "clients", "unary_nonblocking_client.bal");
         CompileResult result = BCompileUtil.compile(balFilePath.toAbsolutePath().toString());
         final String serverMsg = "Hello WSO2";
 

@@ -42,6 +42,8 @@ import java.util.Map;
 
 /**
  * Test class for Proto message.
+ *
+ * @since 0.982.0
  */
 public class ProtoMessageTestCase {
 

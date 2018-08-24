@@ -52,6 +52,7 @@ import static org.ballerinalang.net.grpc.GrpcConstants.WRAPPER_STRING_MESSAGE;
 /**
  * Test class for Proto builder definitions.
  *
+ * @since 0.982.0
  */
 public class ProtoBuilderDefinitionTest {
 
