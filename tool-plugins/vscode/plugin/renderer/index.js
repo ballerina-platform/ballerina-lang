@@ -21,36 +21,66 @@ const { workspace, commands, window, Uri, ViewColumn } = require('vscode');
 const path = require('path');
 const _ = require('lodash');
 
-const { DiagramProvider, StaticProvider } = require('./content-provider');
-let diagramProvider;
+const { StaticProvider } = require('./content-provider');
+const { render } = require('./renderer');
 const DEBOUNCE_WAIT = 500;
 
-exports.activate = function(context, langClient) {
-	const provider = diagramProvider = new DiagramProvider(langClient);
+let previewPanel;
 
+exports.activate = function(context, langClient) {
 	workspace.onDidChangeTextDocument(_.debounce((e) => {
-        if ((window.activeTextEditor) && (e.document === window.activeTextEditor.document) &&
+        if ((previewPanel && window.activeTextEditor) && (e.document === window.activeTextEditor.document) &&
             e.document.fileName.endsWith('.bal')) {
-			provider.update(Uri.parse('ballerina-diagram:///ballerina/diagram'));
+			const editor = window.activeTextEditor;
+			render(editor.document.getText(), langClient)
+				.then((html) => {
+					previewPanel.webview.html = html;
+				})
+				.catch((html) => {
+					previewPanel.webview.html = html;
+				});
 		}
 	}, DEBOUNCE_WAIT));
 
 	window.onDidChangeActiveTextEditor((e) => {
-        if ((window.activeTextEditor) && (e.document === window.activeTextEditor.document) &&
+        if ((previewPanel && window.activeTextEditor) && (e.document === window.activeTextEditor.document) &&
             e.document.fileName.endsWith('.bal')) {
-			provider.update(Uri.parse('ballerina-diagram:///ballerina/diagram'));
+			const editor = window.activeTextEditor;
+			render(editor.document.getText(), langClient)
+				.then((html) => {
+					previewPanel.webview.html = html;
+				})
+				.catch((html) => {
+					previewPanel.webview.html = html;
+				});
 		}
 	})
 
-	let registration = workspace.registerTextDocumentContentProvider('ballerina-diagram', provider);
-
 	const diagramRenderDisposable = commands.registerCommand('ballerina.showDiagram', () => {
-		let uri = Uri.parse('ballerina-diagram:///ballerina/diagram');
-		commands.executeCommand('vscode.previewHtml', uri, ViewColumn.Two, 'Ballerina Diagram');
-	});
-
-	provider.activate();
-	context.subscriptions.push(diagramRenderDisposable, registration);
+		const resourcePath = Uri.file(path.join(context.extensionPath, 'renderer', 'resources'));
+        // Create and show a new webview
+        previewPanel = window.createWebviewPanel(
+            'ballerinaDiagram',
+            "Ballerina Diagram",
+            ViewColumn.Two,
+            {
+				enableScripts: true,
+				localResourceRoots: [resourcePath]
+			}
+		);
+		const editor = window.activeTextEditor;
+		if(!editor) {
+            return "";
+        }
+		render(editor.document.getText(), langClient, resourcePath.with({ scheme: 'vscode-resource' }).toString())
+			.then((html) => {
+				previewPanel.webview.html = html;
+			})
+			.catch((html) => {
+				previewPanel.webview.html = html;
+			});
+    });
+	context.subscriptions.push(diagramRenderDisposable);
 }
 
 exports.errored = function(context) {

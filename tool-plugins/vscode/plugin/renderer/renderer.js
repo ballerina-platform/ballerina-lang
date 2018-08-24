@@ -6,8 +6,7 @@ const RETRY_WAIT = 1000;
 
 let jsonModel;
 
-
-function render (content, langClient, retries=1) {
+function render (content, langClient, resourceRoot, retries=1) {
     const parseOpts = {
         content,
         filename: 'file.bal',
@@ -15,8 +14,6 @@ function render (content, langClient, retries=1) {
         includeProgramDir: true,
         includeTree: true,
     }
-
-
     return langClient.sendRequest("ballerinaParser/parseContent", parseOpts)
         .then((body) => {
             let stale = true;
@@ -24,7 +21,7 @@ function render (content, langClient, retries=1) {
                 stale = false;
                 jsonModel = body.model;
             }
-            return renderDiagram(content, jsonModel, stale);
+            return renderDiagram(content, jsonModel, resourceRoot, stale);
         })
         .catch((e) => {
             log(`Error in parser service`);
@@ -43,7 +40,7 @@ function render (content, langClient, retries=1) {
         });
 };
 
-function renderDiagram(content, jsonModelObj, stale) {
+function renderDiagram(content, jsonModelObj, resourceRoot, stale) {
     const jsonModel = JSON.stringify(jsonModelObj);
 
     const page = `
@@ -53,9 +50,9 @@ function renderDiagram(content, jsonModelObj, stale) {
         <meta charset="utf-8">
         <meta http-equiv="X-UA-Compatible" content="IE=edge">
         <meta name="viewport" content="width=device-width, initial-scale=1">
-        <link rel="stylesheet" href="file://${__dirname}/resources/bundle.css" />
-        <link rel="stylesheet" href="file://${__dirname}/resources/theme.css" />
-        <link rel="stylesheet" href="file://${__dirname}/resources/less.css" />
+        <link rel="stylesheet" href="${resourceRoot}/bundle.css" />
+        <link rel="stylesheet" href="${resourceRoot}/theme.css" />
+        <link rel="stylesheet" href="${resourceRoot}/less.css" />
         <style>
             .overlay {
                 display: none;
@@ -100,7 +97,7 @@ function renderDiagram(content, jsonModelObj, stale) {
     <div class="ballerina-editor design-view-container" id="diagram">
     </div>
     </body>
-    <script charset="UTF-8" src="file://${__dirname}/resources/ballerina-diagram-library.js"></script>
+    <script charset="UTF-8" src="${resourceRoot}/ballerina-diagram-library.js"></script>
     <script>
         (function() {
             const content = ${JSON.stringify(content)};
@@ -187,6 +184,3 @@ function renderError() {
 }
 
 module.exports.render = render;
-module.exports.activate = () => {
-    return Promise.resolve(true);
-}
