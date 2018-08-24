@@ -72,7 +72,7 @@ public class DirectoryListenerConnectorTest {
         }
     }
 
-    @Test(description = "Check the valid succesful usecase.")
+    @Test(description = "Check the valid successful usecase.")
     public void testValidLocalFileSystemServerConnectorSyntax() {
         CompileResult compileResult = BCompileUtil.compileAndSetup("test-src/file/file-system.bal");
         BServiceUtil.runService(compileResult);
@@ -89,15 +89,15 @@ public class DirectoryListenerConnectorTest {
         for (int i = 0; i < 20; i++) {
             BValue[] result = BRunUtil.invokeStateful(compileResult, "isCreateInvoked");
             if (((BBoolean) result[0]).booleanValue()) {
-                isCreateInvoked = ((BBoolean) result[0]).booleanValue();
+                isCreateInvoked = true;
             }
             result = BRunUtil.invokeStateful(compileResult, "isModifyInvoked");
             if (((BBoolean) result[0]).booleanValue()) {
-                isModifyInvoked = ((BBoolean) result[0]).booleanValue();
+                isModifyInvoked = true;
             }
             result = BRunUtil.invokeStateful(compileResult, "isDeleteInvoked");
             if (((BBoolean) result[0]).booleanValue()) {
-                isDeleteInvoked = ((BBoolean) result[0]).booleanValue();
+                isDeleteInvoked = true;
             }
             if (isCreateInvoked && isModifyInvoked && isDeleteInvoked) {
                 break;
