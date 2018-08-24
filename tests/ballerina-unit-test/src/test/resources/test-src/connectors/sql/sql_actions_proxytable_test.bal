@@ -8,11 +8,6 @@ type Employee record {
     string address,
 };
 
-type Salary record {
-    float salaryValue,
-};
-
-
 function testIterateMirrorTable(string jdbcUrl, string userName, string password) returns (Employee[], Employee[]) {
     endpoint jdbc:Client testDB {
         url: jdbcUrl,
