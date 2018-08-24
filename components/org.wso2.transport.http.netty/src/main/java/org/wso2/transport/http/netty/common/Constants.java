@@ -294,12 +294,16 @@ public final class Constants {
     // Idle timeout error scenarios
     public static final String IDLE_TIMEOUT_TRIGGERED_BEFORE_INITIATING_INBOUND_REQUEST
             = "Idle timeout triggered before initiating inbound request";
-    public static final String IDLE_TIMEOUT_TRIGGERED_WHILE_READING_INBOUND_REQUEST
-            = "Idle timeout triggered while reading inbound request";
+    public static final String IDLE_TIMEOUT_TRIGGERED_WHILE_READING_INBOUND_REQUEST_HEADERS
+            = "Idle timeout triggered while reading inbound request headers";
+    public static final String IDLE_TIMEOUT_TRIGGERED_WHILE_READING_INBOUND_REQUEST_BODY
+            = "Idle timeout triggered while reading inbound request entity body";
     public static final String IDLE_TIMEOUT_TRIGGERED_BEFORE_INITIATING_OUTBOUND_RESPONSE
             = "Idle timeout triggered before initiating outbound response";
-    public static final String IDLE_TIMEOUT_TRIGGERED_WHILE_WRITING_OUTBOUND_RESPONSE
-                = "Idle timeout triggered while writing outbound response";
+    public static final String IDLE_TIMEOUT_TRIGGERED_WHILE_WRITING_OUTBOUND_RESPONSE_HEADERS
+                = "Idle timeout triggered while writing outbound response headers";
+    public static final String IDLE_TIMEOUT_TRIGGERED_WHILE_WRITING_OUTBOUND_RESPONSE_BODY
+                = "Idle timeout triggered while writing outbound response entity body";
     public static final String IDLE_TIMEOUT_TRIGGERED_BEFORE_INITIATING_100_CONTINUE_RESPONSE
             = "Idle timeout triggered before initiating 100 continue response";
     public static final String IDLE_TIMEOUT_TRIGGERED_WHILE_WRITING_100_CONTINUE_RESPONSE
@@ -307,12 +311,16 @@ public final class Constants {
 
     public static final String IDLE_TIMEOUT_TRIGGERED_BEFORE_INITIATING_OUTBOUND_REQUEST
             = "Idle timeout triggered before initiating outbound request";
-    public static final String IDLE_TIMEOUT_TRIGGERED_WHILE_WRITING_OUTBOUND_REQUEST
-            = "Idle timeout triggered while writing outbound request";
+    public static final String IDLE_TIMEOUT_TRIGGERED_WHILE_WRITING_OUTBOUND_REQUEST_HEADERS
+            = "Idle timeout triggered while writing outbound request headers";
+    public static final String IDLE_TIMEOUT_TRIGGERED_WHILE_WRITING_OUTBOUND_REQUEST_BODY
+            = "Idle timeout triggered while writing outbound request entity body";
     public static final String IDLE_TIMEOUT_TRIGGERED_BEFORE_INITIATING_INBOUND_RESPONSE
             = "Idle timeout triggered before initiating inbound response";
-    public static final String IDLE_TIMEOUT_TRIGGERED_WHILE_READING_INBOUND_RESPONSE
-            = "Idle timeout triggered while reading inbound response";
+    public static final String IDLE_TIMEOUT_TRIGGERED_WHILE_READING_INBOUND_RESPONSE_HEADERS
+            = "Idle timeout triggered while reading inbound response headers";
+    public static final String IDLE_TIMEOUT_TRIGGERED_WHILE_READING_INBOUND_RESPONSE_BODY
+            = "Idle timeout triggered while reading inbound response entity body";
 
     public static final String EXCEPTION_CAUGHT_WHILE_READING_REQUEST
             = "Exception caught while reading inbound request";
@@ -322,12 +330,16 @@ public final class Constants {
     // Client connection closure error scenarios
     public static final String REMOTE_CLIENT_CLOSED_BEFORE_INITIATING_INBOUND_REQUEST
             = "Remote client closed the connection before initiating inbound request";
-    public static final String REMOTE_CLIENT_CLOSED_WHILE_READING_INBOUND_REQUEST
-            = "Remote client closed the connection while reading inbound request";
+    public static final String REMOTE_CLIENT_CLOSED_WHILE_READING_INBOUND_REQUEST_HEADERS
+            = "Remote client closed the connection while reading inbound request headers";
+    public static final String REMOTE_CLIENT_CLOSED_WHILE_READING_INBOUND_REQUEST_BODY
+            = "Remote client closed the connection while reading inbound request entity body";
     public static final String REMOTE_CLIENT_CLOSED_BEFORE_INITIATING_OUTBOUND_RESPONSE
             = "Remote client closed the connection before initiating outbound response";
-    public static final String REMOTE_CLIENT_CLOSED_WHILE_WRITING_OUTBOUND_RESPONSE
-            = "Remote client closed the connection while writing outbound response";
+    public static final String REMOTE_CLIENT_CLOSED_WHILE_WRITING_OUTBOUND_RESPONSE_HEADERS
+            = "Remote client closed the connection while writing outbound response headers";
+    public static final String REMOTE_CLIENT_CLOSED_WHILE_WRITING_OUTBOUND_RESPONSE_BODY
+            = "Remote client closed the connection while writing outbound response entity body";
     public static final String REMOTE_CLIENT_CLOSED_BEFORE_INITIATING_100_CONTINUE_RESPONSE
             = "Remote client closed the connection before initiating 100 continue response";
     public static final String REMOTE_CLIENT_CLOSED_WHILE_WRITING_100_CONTINUE_RESPONSE
@@ -336,12 +348,16 @@ public final class Constants {
     // Server connection closure error scenarios
     public static final String REMOTE_SERVER_CLOSED_BEFORE_INITIATING_OUTBOUND_REQUEST
             = "Remote host closed the connection before initiating outbound request";
-    public static final String REMOTE_SERVER_CLOSED_WHILE_WRITING_OUTBOUND_REQUEST
-            = "Remote host closed the connection while writing outbound request";
+    public static final String REMOTE_SERVER_CLOSED_WHILE_WRITING_OUTBOUND_REQUEST_HEADERS
+            = "Remote host closed the connection while writing outbound request headers";
+    public static final String REMOTE_SERVER_CLOSED_WHILE_WRITING_OUTBOUND_REQUEST_BODY
+            = "Remote host closed the connection while writing outbound request entity body";
     public static final String REMOTE_SERVER_CLOSED_BEFORE_INITIATING_INBOUND_RESPONSE
             = "Remote host closed the connection before initiating inbound response";
-    public static final String REMOTE_SERVER_CLOSED_WHILE_READING_INBOUND_RESPONSE
-            = "Remote host closed the connection while reading inbound response";
+    public static final String REMOTE_SERVER_CLOSED_WHILE_READING_INBOUND_RESPONSE_HEADERS
+            = "Remote host closed the connection while reading inbound response headers";
+    public static final String REMOTE_SERVER_CLOSED_WHILE_READING_INBOUND_RESPONSE_BODY
+            = "Remote host closed the connection while reading inbound response body";
 
     public static final String REMOTE_CLIENT_TO_HOST_CONNECTION_CLOSED
             = "Connection between remote client and host is closed";

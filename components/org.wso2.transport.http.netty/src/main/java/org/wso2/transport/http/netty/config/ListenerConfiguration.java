@@ -52,7 +52,7 @@ public class ListenerConfiguration extends SslConfiguration {
     private String serverHeader = "wso2-http-transport";
     private List<Parameter> parameters = getDefaultParameters();
     private RequestSizeValidationConfig requestSizeValidationConfig = new RequestSizeValidationConfig();
-    private boolean pipeliningNeeded = false;
+    private boolean pipeliningNeeded;
 
     public ListenerConfiguration() {
     }

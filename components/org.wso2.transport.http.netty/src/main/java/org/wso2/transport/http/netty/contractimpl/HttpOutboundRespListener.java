@@ -19,46 +19,26 @@
 
 package org.wso2.transport.http.netty.contractimpl;
 
-import io.netty.buffer.CompositeByteBuf;
-import io.netty.buffer.Unpooled;
-import io.netty.channel.ChannelFuture;
-import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandlerContext;
-import io.netty.handler.codec.http.DefaultLastHttpContent;
 import io.netty.handler.codec.http.HttpContent;
-import io.netty.handler.codec.http.HttpResponse;
-import io.netty.handler.codec.http.LastHttpContent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.transport.http.netty.common.Constants;
-import org.wso2.transport.http.netty.common.SourceInteractiveState;
+import org.wso2.transport.http.netty.common.Util;
 import org.wso2.transport.http.netty.config.ChunkConfig;
 import org.wso2.transport.http.netty.config.KeepAliveConfig;
 import org.wso2.transport.http.netty.contract.HttpConnectorListener;
-import org.wso2.transport.http.netty.contract.HttpResponseFuture;
 import org.wso2.transport.http.netty.internal.HandlerExecutor;
 import org.wso2.transport.http.netty.internal.HttpTransportContextHolder;
 import org.wso2.transport.http.netty.listener.RequestDataHolder;
-import org.wso2.transport.http.netty.listener.SourceErrorHandler;
+import org.wso2.transport.http.netty.listener.SourceHandler;
+import org.wso2.transport.http.netty.listener.states.StateContext;
 import org.wso2.transport.http.netty.message.Http2PushPromise;
 import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Locale;
-import java.util.Queue;
-import java.util.concurrent.atomic.AtomicInteger;
 
-import static org.wso2.transport.http.netty.common.Constants.CHUNKING_CONFIG;
-import static org.wso2.transport.http.netty.common.SourceInteractiveState.RESPONSE_100_CONTINUE_SENT;
-import static org.wso2.transport.http.netty.common.SourceInteractiveState.SENDING_ENTITY_BODY;
-import static org.wso2.transport.http.netty.common.Util.createFullHttpResponse;
-import static org.wso2.transport.http.netty.common.Util.createHttpResponse;
-import static org.wso2.transport.http.netty.common.Util.isLastHttpContent;
-import static org.wso2.transport.http.netty.common.Util.isVersionCompatibleForChunking;
-import static org.wso2.transport.http.netty.common.Util.setupChunkedRequest;
-import static org.wso2.transport.http.netty.common.Util.setupContentLengthRequest;
-import static org.wso2.transport.http.netty.common.Util.shouldEnforceChunkingforHttpOneZero;
+import static org.wso2.transport.http.netty.common.Util.isKeepAliveConnection;
 
 /**
  * Get executed when the response is available.
@@ -66,8 +46,8 @@ import static org.wso2.transport.http.netty.common.Util.shouldEnforceChunkingfor
 public class HttpOutboundRespListener implements HttpConnectorListener {
 
     private static final Logger log = LoggerFactory.getLogger(HttpOutboundRespListener.class);
-    private final SourceErrorHandler sourceErrorHandler;
-    private final boolean headRequest;
+    private final SourceHandler sourceHandler;
+    private final StateContext stateContext;
 
     private ChannelHandlerContext sourceContext;
     private RequestDataHolder requestDataHolder;
@@ -75,26 +55,18 @@ public class HttpOutboundRespListener implements HttpConnectorListener {
     private HttpCarbonMessage inboundRequestMsg;
     private ChunkConfig chunkConfig;
     private KeepAliveConfig keepAliveConfig;
-    private boolean headerWritten = false;
-    private boolean continueRequest;
-    private long contentLength = 0;
     private String serverName;
-    private List<HttpContent> contentList = new ArrayList<>();
-    private AtomicInteger writeCounter = new AtomicInteger(0);
 
-    public HttpOutboundRespListener(ChannelHandlerContext channelHandlerContext, HttpCarbonMessage requestMsg,
-                                    ChunkConfig chunkConfig, KeepAliveConfig keepAliveConfig, String serverName,
-                                    SourceErrorHandler sourceErrorHandler, boolean continueRequest) {
-        this.sourceContext = channelHandlerContext;
+    public HttpOutboundRespListener(HttpCarbonMessage requestMsg, SourceHandler sourceHandler) {
         this.requestDataHolder = new RequestDataHolder(requestMsg);
         this.inboundRequestMsg = requestMsg;
-        this.keepAliveConfig = keepAliveConfig;
+        this.sourceHandler = sourceHandler;
+        this.sourceContext = sourceHandler.getInboundChannelContext();
+        this.chunkConfig = sourceHandler.getChunkConfig();
+        this.keepAliveConfig = sourceHandler.getKeepAliveConfig();
         this.handlerExecutor = HttpTransportContextHolder.getInstance().getHandlerExecutor();
-        this.chunkConfig = chunkConfig;
-        this.serverName = serverName;
-        this.sourceErrorHandler = sourceErrorHandler;
-        this.headRequest = requestDataHolder.getHttpMethod().equalsIgnoreCase(Constants.HTTP_HEAD_METHOD);
-        this.continueRequest = continueRequest;
+        this.serverName = sourceHandler.getServerName();
+        this.stateContext = requestMsg.getStateContext();
     }
 
     @Override
@@ -105,14 +77,10 @@ public class HttpOutboundRespListener implements HttpConnectorListener {
                 handlerExecutor.executeAtSourceResponseReceiving(outboundResponseMsg);
             }
 
-            resetOutboundListenerState();
-
-            boolean keepAlive = isKeepAlive();
-
             outboundResponseMsg.getHttpContentAsync().setMessageListener(httpContent ->
                     this.sourceContext.channel().eventLoop().execute(() -> {
                         try {
-                            writeOutboundResponse(outboundResponseMsg, keepAlive, httpContent);
+                            writeOutboundResponse(outboundResponseMsg, httpContent);
                         } catch (Exception exception) {
                             String errorMsg = "Failed to send the outbound response : "
                                     + exception.getMessage().toLowerCase(Locale.ENGLISH);
@@ -135,179 +103,14 @@ public class HttpOutboundRespListener implements HttpConnectorListener {
                 "Sending Server Push messages is not supported for HTTP/1.x connections"));
     }
 
-    private void writeOutboundResponse(HttpCarbonMessage outboundResponseMsg, boolean keepAlive,
-                                       HttpContent httpContent) {
-        boolean updateNextSequenceNumber = true;
-        ChunkConfig responseChunkConfig = outboundResponseMsg.getProperty(CHUNKING_CONFIG) != null ?
-                (ChunkConfig) outboundResponseMsg.getProperty(CHUNKING_CONFIG) : null;
-        if (responseChunkConfig != null) {
-            this.setChunkConfig(responseChunkConfig);
-        }
-        if (continueRequest) {
-            sourceErrorHandler.setState(RESPONSE_100_CONTINUE_SENT);
-            updateNextSequenceNumber = false;
-            continueRequest = false;
-        } else {
-            if (sourceErrorHandler.getState().equals(SourceInteractiveState.RECEIVING_ENTITY_BODY)) {
-                // Response is being sent before finish reading the inbound request,
-                // hence close the connection once the response is sent.
-                keepAlive = false;
-            }
-            sourceErrorHandler.setState(SENDING_ENTITY_BODY);
-        }
-
-        ChannelFuture outboundChannelFuture;
-        HttpResponseFuture outboundRespStatusFuture = inboundRequestMsg.getHttpOutboundRespStatusFuture();
-        if (isLastHttpContent(httpContent)) {
-            if (!headerWritten) {
-                if (chunkConfig == ChunkConfig.ALWAYS && (
-                        isVersionCompatibleForChunking(requestDataHolder.getHttpVersion()) ||
-                                shouldEnforceChunkingforHttpOneZero(chunkConfig, requestDataHolder.getHttpVersion()))) {
-                    writeHeaders(outboundResponseMsg, keepAlive, outboundRespStatusFuture);
-                    outboundChannelFuture = checkHeadRequestAndWriteOutboundResponseBody(httpContent);
-
-                } else {
-                    contentLength += httpContent.content().readableBytes();
-                    setupContentLengthRequest(outboundResponseMsg, contentLength);
-                    outboundChannelFuture = writeOutboundResponseHeaderAndBody(outboundResponseMsg,
-                            (LastHttpContent) httpContent, keepAlive);
-                }
-            } else {
-                outboundChannelFuture = checkHeadRequestAndWriteOutboundResponseBody(httpContent);
-            }
-
-            if (!keepAlive) {
-                outboundChannelFuture.addListener(ChannelFutureListener.CLOSE);
-            } else {
-                String httpVersion = (String) inboundRequestMsg.getProperty(Constants.HTTP_VERSION);
-
-                if (outboundResponseMsg.isPipeliningNeeded() && !Constants.HTTP2_VERSION.equalsIgnoreCase
-                        (httpVersion)) {
-                    Queue responseQueue = sourceContext.channel().attr(Constants.RESPONSE_QUEUE).get();
-                    synchronized (responseQueue) {
-                        Integer nextSequenceNumber = sourceContext.channel().attr(Constants.NEXT_SEQUENCE_NUMBER).get();
-                        if (updateNextSequenceNumber) {
-                            nextSequenceNumber++;
-                            sourceContext.channel().attr(Constants.NEXT_SEQUENCE_NUMBER).set(nextSequenceNumber);
-                        }
-                        if (!responseQueue.isEmpty()) {
-                            //Notify ballerina to send the response which is next in queue
-                            //This is needed because, if the other responses got ready before the nextSequenceNumber
-                            // gets updated then the ballerina respond() won't start serializing the responses
-                            // in queue. This is to trigger that process again.
-                            outboundResponseMsg.getPipelineListener().onResponseSend(sourceContext);
-                        }
-                    }
-                }
-            }
-            if (handlerExecutor != null) {
-                handlerExecutor.executeAtSourceResponseSending(outboundResponseMsg);
-            }
-        } else {
-            if ((chunkConfig == ChunkConfig.ALWAYS || chunkConfig == ChunkConfig.AUTO) && (
-                    isVersionCompatibleForChunking(requestDataHolder.getHttpVersion()) ||
-                            shouldEnforceChunkingforHttpOneZero(chunkConfig, requestDataHolder.getHttpVersion()))) {
-                if (!headerWritten) {
-                    writeHeaders(outboundResponseMsg, keepAlive, outboundRespStatusFuture);
-                }
-                incrementWriteCount(writeCounter);
-
-                if (headRequest) {
-                    httpContent.release();
-                    return;
-                }
-
-                ChannelFuture outboundResponseChannelFuture = sourceContext.writeAndFlush(httpContent);
-                sourceErrorHandler.addResponseWriteFailureListener(outboundRespStatusFuture,
-                                                                   outboundResponseChannelFuture, writeCounter);
-            } else {
-                this.contentList.add(httpContent);
-                contentLength += httpContent.content().readableBytes();
-            }
-        }
-    }
-
-    private ChannelFuture checkHeadRequestAndWriteOutboundResponseBody(HttpContent httpContent) {
-        ChannelFuture outboundChannelFuture;
-        if (headRequest) {
-            httpContent.release();
-            outboundChannelFuture = writeOutboundResponseBody(new DefaultLastHttpContent());
-        } else {
-            outboundChannelFuture = writeOutboundResponseBody(httpContent);
-        }
-        return outboundChannelFuture;
-    }
-
-    private ChannelFuture writeOutboundResponseHeaderAndBody(HttpCarbonMessage outboundResponseMsg,
-                                                             LastHttpContent lastHttpContent, boolean keepAlive) {
-        HttpResponseFuture outRespStatusFuture = inboundRequestMsg.getHttpOutboundRespStatusFuture();
-
-        CompositeByteBuf allContent = Unpooled.compositeBuffer();
-        for (HttpContent cachedHttpContent : contentList) {
-            allContent.addComponent(true, cachedHttpContent.content());
-        }
-        allContent.addComponent(true, lastHttpContent.content());
-
-        if (headRequest) {
-            allContent.release();
-            allContent = Unpooled.compositeBuffer();
-            allContent.addComponent(true, new DefaultLastHttpContent().content());
-        }
-
-        HttpResponse fullOutboundResponse =
-                createFullHttpResponse(outboundResponseMsg, requestDataHolder.getHttpVersion(),
-                serverName, keepAlive, allContent);
-
-        headerWritten = true;
-        ChannelFuture outboundChannelFuture = sourceContext.writeAndFlush(fullOutboundResponse);
-        sourceErrorHandler.checkForResponseWriteStatus(inboundRequestMsg, outRespStatusFuture, outboundChannelFuture);
-        return outboundChannelFuture;
-    }
-
-    private ChannelFuture writeOutboundResponseBody(HttpContent lastHttpContent) {
-        HttpResponseFuture outRespStatusFuture = inboundRequestMsg.getHttpOutboundRespStatusFuture();
-        incrementWriteCount(writeCounter);
-        ChannelFuture outboundChannelFuture = sourceContext.writeAndFlush(lastHttpContent);
-        sourceErrorHandler.checkForResponseWriteStatus(inboundRequestMsg, outRespStatusFuture, outboundChannelFuture);
-        return outboundChannelFuture;
-    }
-
-    private void writeHeaders(HttpCarbonMessage outboundResponseMsg, boolean keepAlive,
-                              HttpResponseFuture outboundRespStatusFuture) {
-        setupChunkedRequest(outboundResponseMsg);
-        incrementWriteCount(writeCounter);
-        ChannelFuture outboundHeaderFuture = writeOutboundResponseHeaders(outboundResponseMsg, keepAlive);
-        sourceErrorHandler.addResponseWriteFailureListener(outboundRespStatusFuture, outboundHeaderFuture,
-                                                           writeCounter);
-    }
-
-    private void resetOutboundListenerState() {
-        contentList.clear();
-        contentLength = 0;
-        headerWritten = false;
+    private void writeOutboundResponse(HttpCarbonMessage outboundResponseMsg, HttpContent httpContent) {
+        stateContext.getListenerState().writeOutboundResponseEntityBody(this, outboundResponseMsg, httpContent);
     }
 
     // Decides whether to close the connection after sending the response
-    private boolean isKeepAlive() {
-        if (keepAliveConfig == null || keepAliveConfig == KeepAliveConfig.AUTO) {
-            String requestConnectionHeader = requestDataHolder.getConnectionHeaderValue();
-            if (Float.valueOf(requestDataHolder.getHttpVersion()) <= Constants.HTTP_1_0) {
-                return requestConnectionHeader != null && requestConnectionHeader
-                        .equalsIgnoreCase(Constants.CONNECTION_KEEP_ALIVE);
-            } else {
-                return requestConnectionHeader == null || !requestConnectionHeader
-                        .equalsIgnoreCase(Constants.CONNECTION_CLOSE);
-            }
-        } else {
-            return keepAliveConfig == KeepAliveConfig.ALWAYS;
-        }
-    }
-
-    private ChannelFuture writeOutboundResponseHeaders(HttpCarbonMessage outboundResponseMsg, boolean keepAlive) {
-        HttpResponse response = createHttpResponse(outboundResponseMsg, requestDataHolder.getHttpVersion(),
-                serverName, keepAlive);
-        headerWritten = true;
-        return sourceContext.write(response);
+    public boolean isKeepAlive() {
+        return isKeepAliveConnection(keepAliveConfig, requestDataHolder.getConnectionHeaderValue(),
+                requestDataHolder.getHttpVersion());
     }
 
     @Override
@@ -319,11 +122,27 @@ public class HttpOutboundRespListener implements HttpConnectorListener {
         return chunkConfig;
     }
 
-    public void setChunkConfig(ChunkConfig chunkConfig) {
-        this.chunkConfig = chunkConfig;
+    public HttpCarbonMessage getInboundRequestMsg() {
+        return inboundRequestMsg;
     }
 
-    private int incrementWriteCount(AtomicInteger writeCounter) {
-        return writeCounter.incrementAndGet();
+    public RequestDataHolder getRequestDataHolder() {
+        return requestDataHolder;
+    }
+
+    public ChannelHandlerContext getSourceContext() {
+        return sourceContext;
+    }
+
+    public String getServerName() {
+        return serverName;
+    }
+
+    public void setKeepAliveConfig(KeepAliveConfig config) {
+        this.keepAliveConfig = config;
+    }
+
+    public SourceHandler getSourceHandler() {
+        return sourceHandler;
     }
 }
