@@ -17,7 +17,7 @@
  *
  */
 
-const { workspace, commands, window, Uri, ViewColumn } = require('vscode');
+const { workspace, commands, window, Uri, ViewColumn, Range } = require('vscode');
 const path = require('path');
 const _ = require('lodash');
 
@@ -26,18 +26,41 @@ const { render } = require('./renderer');
 const DEBOUNCE_WAIT = 500;
 
 let previewPanel;
+let activeEditor;
+let preventDiagramUpdate = false;
 
 exports.activate = function(context, langClient) {
+	const resourcePath = Uri.file(path.join(context.extensionPath, 'renderer', 'resources'));
+	const resourceRoot = resourcePath.with({ scheme: 'vscode-resource' }).toString();
+
 	workspace.onDidChangeTextDocument(_.debounce((e) => {
-        if ((previewPanel && window.activeTextEditor) && (e.document === window.activeTextEditor.document) &&
+        if ((previewPanel && activeEditor) && (e.document === activeEditor.document) &&
             e.document.fileName.endsWith('.bal')) {
-			const editor = window.activeTextEditor;
-			render(editor.document.getText(), langClient)
-				.then((html) => {
-					previewPanel.webview.html = html;
-				})
-				.catch((html) => {
-					previewPanel.webview.html = html;
+			const content = activeEditor.document.getText();
+			if (preventDiagramUpdate) {
+				return;
+			}
+			const parseOpts = {
+				content,
+				filename: 'file.bal',
+				includePackageInfo: true,
+				includeProgramDir: true,
+				includeTree: true,
+			}
+			langClient.sendRequest("ballerinaParser/parseContent", parseOpts)
+				.then((body) => {
+					let stale = true;
+					let json;
+					if (body.model) {
+						stale = false;
+						json = body.model;
+					}
+					previewPanel.webview.postMessage({ 
+						command: 'update',
+						json,
+						content,
+						stale
+					});
 				});
 		}
 	}, DEBOUNCE_WAIT));
@@ -45,19 +68,35 @@ exports.activate = function(context, langClient) {
 	window.onDidChangeActiveTextEditor((e) => {
         if ((previewPanel && window.activeTextEditor) && (e.document === window.activeTextEditor.document) &&
             e.document.fileName.endsWith('.bal')) {
-			const editor = window.activeTextEditor;
-			render(editor.document.getText(), langClient)
-				.then((html) => {
-					previewPanel.webview.html = html;
-				})
-				.catch((html) => {
-					previewPanel.webview.html = html;
+			activeEditor = window.activeTextEditor;
+			const content = activeEditor.document.getText();
+			const parseOpts = {
+				content,
+				filename: 'file.bal',
+				includePackageInfo: true,
+				includeProgramDir: true,
+				includeTree: true,
+			}
+			langClient.sendRequest("ballerinaParser/parseContent", parseOpts)
+				.then((body) => {
+					let stale = true;
+					let json;
+					if (body.model) {
+						stale = false;
+						json = body.model;
+					}
+					previewPanel.webview.postMessage({ 
+						command: 'update',
+						json,
+						content,
+						stale
+					});
 				});
 		}
 	})
 
 	const diagramRenderDisposable = commands.registerCommand('ballerina.showDiagram', () => {
-		const resourcePath = Uri.file(path.join(context.extensionPath, 'renderer', 'resources'));
+		
         // Create and show a new webview
         previewPanel = window.createWebviewPanel(
             'ballerinaDiagram',
@@ -71,14 +110,32 @@ exports.activate = function(context, langClient) {
 		const editor = window.activeTextEditor;
 		if(!editor) {
             return "";
-        }
-		render(editor.document.getText(), langClient, resourcePath.with({ scheme: 'vscode-resource' }).toString())
+		}
+		activeEditor = editor;
+		render(editor.document.getText(), langClient, resourceRoot)
 			.then((html) => {
 				previewPanel.webview.html = html;
 			})
 			.catch((html) => {
 				previewPanel.webview.html = html;
 			});
+		// Handle messages from the webview
+        previewPanel.webview.onDidReceiveMessage(message => {
+            switch (message.command) {
+				case 'update':
+					if (activeEditor && activeEditor.document.fileName.endsWith('.bal')) {
+						const content = message.content;
+						const replaceRange = new Range(
+							activeEditor.document.positionAt(0),
+							activeEditor.document.positionAt(activeEditor.document.getText().length)
+						)
+						preventDiagramUpdate = true;
+						activeEditor.edit((edit) => edit.replace(replaceRange, content));
+						preventDiagramUpdate = false;
+					}
+                    return;
+            }
+        }, undefined, context.subscriptions);
     });
 	context.subscriptions.push(diagramRenderDisposable);
 }

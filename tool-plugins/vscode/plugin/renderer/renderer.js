@@ -100,9 +100,26 @@ function renderDiagram(content, jsonModelObj, resourceRoot, stale) {
     <script charset="UTF-8" src="${resourceRoot}/ballerina-diagram-library.js"></script>
     <script>
         (function() {
-            const content = ${JSON.stringify(content)};
-            const json = ${jsonModel};
-            const stale = ${JSON.stringify(stale)};
+            let content = ${JSON.stringify(content)};
+            let json = ${jsonModel};
+            let stale = ${JSON.stringify(stale)};
+
+            const vscode = acquireVsCodeApi();
+
+            // Handle the message inside the webview
+            window.addEventListener('message', event => {
+
+                const message = event.data; // The JSON data our extension sent
+
+                switch (message.command) {
+                    case 'update':
+                        json = message.json;
+                        content = message.content;
+                        stale = message.stale;
+                        drawDiagram();
+                        break;
+                }
+            });
 
             if (stale) {
                 showWarning('Cannot update design view due to syntax errors.')
@@ -113,12 +130,14 @@ function renderDiagram(content, jsonModelObj, resourceRoot, stale) {
             }
 
             function parseContent(contenst) {
-                console.log('parsing ' + JSON.stringify(json));
                 return Promise.resolve({ model: json });
             }
 
-            function onChange(newContent) {
-                console.log(newContent);
+            function onChange(evt) {
+                vscode.postMessage({
+                    command: 'update',
+                    content: evt.newContent
+                })
             }
 
             function drawDiagram() {
