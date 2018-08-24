@@ -141,6 +141,20 @@ public class PositionTreeVisitor extends LSNodeVisitor {
             return;
         }
 
+        if (HoverUtil.isMatchingPosition(HoverUtil.getIdentifierPosition(funcNode), this.position)) {
+            this.context.put(NodeContextKeys.NODE_KEY, funcNode);
+            this.context.put(NodeContextKeys.PREVIOUSLY_VISITED_NODE_KEY, this.previousNode);
+            this.context.put(NodeContextKeys.NAME_OF_NODE_KEY, funcNode.name.getValue());
+            this.context.put(NodeContextKeys.PACKAGE_OF_NODE_KEY, funcNode.symbol.pkgID);
+            this.context.put(NodeContextKeys.SYMBOL_KIND_OF_NODE_PARENT_KEY, funcNode.symbol.kind.name());
+            this.context.put(NodeContextKeys.SYMBOL_KIND_OF_NODE_KEY, funcNode.symbol.kind.name());
+            this.context.put(NodeContextKeys.NODE_OWNER_KEY, funcNode.symbol.owner.name.getValue());
+            this.context.put(NodeContextKeys.NODE_OWNER_PACKAGE_KEY, funcNode.symbol.owner.pkgID);
+            this.context.put(NodeContextKeys.VAR_NAME_OF_NODE_KEY, funcNode.name.getValue());
+            setTerminateVisitor(true);
+            return;
+        }
+
         addTopLevelNodeToContext(funcNode, funcNode.name.getValue(), funcNode.symbol.pkgID, funcNode.symbol.kind.name(),
                 funcNode.symbol.kind.name(), funcNode.symbol.owner.name.getValue(), funcNode.symbol.owner.pkgID);
         setPreviousNode(funcNode);
@@ -437,6 +451,20 @@ public class PositionTreeVisitor extends LSNodeVisitor {
     }
 
     public void visit(BLangService serviceNode) {
+        if (HoverUtil.isMatchingPosition(HoverUtil.getIdentifierPosition(serviceNode), this.position)) {
+            this.context.put(NodeContextKeys.NODE_KEY, serviceNode);
+            this.context.put(NodeContextKeys.PREVIOUSLY_VISITED_NODE_KEY, this.previousNode);
+            this.context.put(NodeContextKeys.NAME_OF_NODE_KEY, serviceNode.name.getValue());
+            this.context.put(NodeContextKeys.PACKAGE_OF_NODE_KEY, serviceNode.symbol.pkgID);
+            this.context.put(NodeContextKeys.SYMBOL_KIND_OF_NODE_PARENT_KEY, serviceNode.symbol.kind.name());
+            this.context.put(NodeContextKeys.SYMBOL_KIND_OF_NODE_KEY, serviceNode.symbol.kind.name());
+            this.context.put(NodeContextKeys.NODE_OWNER_KEY, serviceNode.symbol.owner.name.getValue());
+            this.context.put(NodeContextKeys.NODE_OWNER_PACKAGE_KEY, serviceNode.symbol.owner.pkgID);
+            this.context.put(NodeContextKeys.VAR_NAME_OF_NODE_KEY, serviceNode.name.getValue());
+            setTerminateVisitor(true);
+            return;
+        }
+
         addTopLevelNodeToContext(serviceNode, serviceNode.name.getValue(), serviceNode.symbol.pkgID,
                 serviceNode.symbol.kind.name(), serviceNode.symbol.kind.name(),
                 serviceNode.symbol.owner.name.getValue(), serviceNode.symbol.owner.pkgID);
@@ -470,6 +498,19 @@ public class PositionTreeVisitor extends LSNodeVisitor {
     }
 
     public void visit(BLangResource resourceNode) {
+        if (HoverUtil.isMatchingPosition(HoverUtil.getIdentifierPosition(resourceNode), this.position)) {
+            this.context.put(NodeContextKeys.NODE_KEY, resourceNode);
+            this.context.put(NodeContextKeys.PREVIOUSLY_VISITED_NODE_KEY, this.previousNode);
+            this.context.put(NodeContextKeys.NAME_OF_NODE_KEY, resourceNode.name.getValue());
+            this.context.put(NodeContextKeys.PACKAGE_OF_NODE_KEY, resourceNode.symbol.pkgID);
+            this.context.put(NodeContextKeys.SYMBOL_KIND_OF_NODE_PARENT_KEY, resourceNode.symbol.kind.name());
+            this.context.put(NodeContextKeys.SYMBOL_KIND_OF_NODE_KEY, resourceNode.symbol.kind.name());
+            this.context.put(NodeContextKeys.NODE_OWNER_KEY, resourceNode.symbol.owner.name.getValue());
+            this.context.put(NodeContextKeys.NODE_OWNER_PACKAGE_KEY, resourceNode.symbol.owner.pkgID);
+            this.context.put(NodeContextKeys.VAR_NAME_OF_NODE_KEY, resourceNode.name.getValue());
+            setTerminateVisitor(true);
+            return;
+        }
         addTopLevelNodeToContext(resourceNode, resourceNode.name.getValue(), resourceNode.symbol.pkgID,
                 resourceNode.symbol.kind.name(), resourceNode.symbol.kind.name(),
                 resourceNode.symbol.owner.name.getValue(), resourceNode.symbol.owner.pkgID);

@@ -206,8 +206,7 @@ public class LSCompiler {
             File projectDir = new File(sourceRoot);
             Arrays.stream(projectDir.listFiles()).forEach(
                     file -> {
-                        if ((file.isDirectory() && !file.getName().startsWith(".")) ||
-                                (!file.isDirectory() && file.getName().endsWith(BAL_EXTENSION))) {
+                        if (isBallerinaPackage(file) || isBallerinaFile(file)) {
                             PackageID packageID = new PackageID(fileName);
                             CompilerContext compilerContext =
                                     prepareCompilerContext(packageID, packageRepository, sourceDocument,
@@ -239,6 +238,18 @@ public class LSCompiler {
 
             return Either.forRight(bLangPackage);
         }
+    }
+
+    private boolean isBallerinaPackage(File dir) {
+        if (!dir.isDirectory() || dir.getName().startsWith(".")) {
+            return false;
+        }
+        File[] files = dir.listFiles((file, name) -> name.endsWith(BAL_EXTENSION));
+        return files != null && files.length > 0;
+    }
+
+    private boolean isBallerinaFile(File file) {
+        return !file.isDirectory() && file.getName().endsWith(BAL_EXTENSION);
     }
 }
 

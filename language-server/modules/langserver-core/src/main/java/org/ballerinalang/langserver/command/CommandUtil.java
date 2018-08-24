@@ -37,7 +37,6 @@ import org.ballerinalang.model.tree.VariableNode;
 import org.eclipse.lsp4j.CodeActionParams;
 import org.eclipse.lsp4j.Command;
 import org.eclipse.lsp4j.Diagnostic;
-import org.eclipse.lsp4j.Location;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.TextDocumentPositionParams;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BEndpointVarSymbol;
@@ -357,27 +356,25 @@ public class CommandUtil {
     private static BLangInvocation getFunctionNode(CodeActionParams params,
                                                    WorkspaceDocumentManager documentManager,
                                                    LSCompiler lsCompiler) {
-        LSServiceOperationContext renameContext = new LSServiceOperationContext();
-        List<Location> contents = new ArrayList<>();
+        LSServiceOperationContext context = new LSServiceOperationContext();
         Position position = params.getRange().getStart();
         position.setCharacter(position.getCharacter() + 1);
-        renameContext.put(DocumentServiceKeys.FILE_URI_KEY, params.getTextDocument().getUri());
-        renameContext.put(DocumentServiceKeys.POSITION_KEY,
+        context.put(DocumentServiceKeys.FILE_URI_KEY, params.getTextDocument().getUri());
+        context.put(DocumentServiceKeys.POSITION_KEY,
                           new TextDocumentPositionParams(params.getTextDocument(), position));
-        List<BLangPackage> bLangPackages = lsCompiler.getBLangPackage(renameContext, documentManager, false,
+        List<BLangPackage> bLangPackages = lsCompiler.getBLangPackage(context, documentManager, false,
                                                                       LSCustomErrorStrategy.class, true).getLeft();
         // Get the current package.
         BLangPackage currentBLangPackage = CommonUtil.getCurrentPackageByFileName(bLangPackages,
                                                                                   params.getTextDocument().getUri());
 
-        renameContext.put(DocumentServiceKeys.CURRENT_PACKAGE_NAME_KEY,
+        context.put(DocumentServiceKeys.CURRENT_PACKAGE_NAME_KEY,
                           currentBLangPackage.symbol.getName().getValue());
-        renameContext.put(NodeContextKeys.REFERENCE_NODES_KEY, contents);
 
         // Run the position calculator for the current package.
-        PositionTreeVisitor positionTreeVisitor = new PositionTreeVisitor(renameContext);
+        PositionTreeVisitor positionTreeVisitor = new PositionTreeVisitor(context);
         currentBLangPackage.accept(positionTreeVisitor);
-        return (BLangInvocation) renameContext.get(NodeContextKeys.NODE_KEY);
+        return (BLangInvocation) context.get(NodeContextKeys.NODE_KEY);
     }
 
 
