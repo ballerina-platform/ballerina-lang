@@ -17,14 +17,11 @@
  */
 package org.ballerinalang.model.util.serializer;
 
-import org.ballerinalang.model.util.JsonGenerator;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BRefValueArray;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
 
-import java.io.IOException;
-import java.io.StringWriter;
 import java.util.HashSet;
 
 /**
@@ -39,14 +36,10 @@ public class BValueHelper {
     }
 
     static BString createBString(String s) {
-        StringWriter writer = new StringWriter();
-        try {
-            JsonGenerator jsonGenerator = new JsonGenerator(writer);
-            jsonGenerator.writeStringEsc(s.toCharArray());
-        } catch (IOException e) {
-            // StringWriter does not throw IOExceptions
+        if (s == null) {
+            return null;
         }
-        return new BString(writer.toString());
+        return new BString(s);
     }
 
     static BString getHashCode(Object obj) {
