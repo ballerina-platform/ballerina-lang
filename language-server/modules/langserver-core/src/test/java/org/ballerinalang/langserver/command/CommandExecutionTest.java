@@ -139,11 +139,12 @@ public class CommandExecutionTest {
     public Object[][] addDocDataProvider() {
         return new Object[][] {
                 {"addSingleFunctionDocumentation1.json", "addSingleFunctionDocumentation1.bal"},
-                {"addSingleFunctionDocumentation2.json", "addSingleFunctionDocumentation2.bal"},
+                {"addSingleFunctionDocumentation2.json", "commonDocumentation.bal"},
                 {"addSingleEndpointDocumentation.json", "commonDocumentation.bal"},
                 {"addSingleServiceDocumentation.json", "commonDocumentation.bal"},
                 {"addSingleRecordDocumentation.json", "commonDocumentation.bal"},
                 {"addSingleObjectDocumentation.json", "commonDocumentation.bal"},
+                {"serviceDocumentationWithAnnotations.json", "serviceDocumentationWithAnnotations.bal"},
         };
     }
 

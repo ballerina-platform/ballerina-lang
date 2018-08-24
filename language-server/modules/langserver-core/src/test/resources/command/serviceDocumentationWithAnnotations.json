@@ -1,6 +1,6 @@
 {
-  "nodeType": "function",
-  "nodeLine": "3",
+  "nodeType": "service",
+  "nodeLine": "5",
   "expected": {
     "result":{
       "edit":{
@@ -17,11 +17,11 @@
                     "character":0
                   },
                   "end":{
-                    "line":3,
-                    "character":30
+                    "line":5,
+                    "character":56
                   }
                 },
-                "newText":"import ballerina/io;\nimport ballerina/http;\n\ndocumentation {\n\t\n}\nfunction testDocumentation() {"
+                "newText":"import ballerina/http;\n\n@http:ServiceConfig {\n    basePath: \"/testPath\"\n}\ndocumentation {\n\t\n}\nservice<http:Service> helloService bind { port: 9090 } {"
               }
             ]
           }
