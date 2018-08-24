@@ -32,10 +32,11 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+
+import static org.ballerinalang.test.ToolsTestUtils.deleteFiles;
 
 /**
  * Testing init, build with tests and run on a ballerina project.
@@ -422,24 +423,6 @@ public class PackagingInitTestCase {
     @AfterClass
     private void cleanup() throws Exception {
         deleteFiles(tempProjectDirectory);
-    }
-
-    /**
-     * Delete files inside directories.
-     *
-     * @param dirPath direectory path
-     * @throws IOException throw an exception if an issue occurs
-     */
-    private void deleteFiles(Path dirPath) throws IOException {
-        Files.walk(dirPath)
-             .sorted(Comparator.reverseOrder())
-             .forEach(path -> {
-                 try {
-                     Files.delete(path);
-                 } catch (IOException e) {
-                     Assert.fail(e.getMessage(), e);
-                 }
-             });
     }
 
     /**

@@ -41,12 +41,12 @@ import java.nio.file.StandardOpenOption;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import static org.awaitility.Awaitility.given;
+import static org.ballerinalang.test.ToolsTestUtils.deleteFiles;
 import static java.util.concurrent.TimeUnit.SECONDS;
 
 /**
@@ -279,23 +279,5 @@ public class PackagingTestCase {
     private void cleanup() throws Exception {
         deleteFiles(tempHomeDirectory);
         deleteFiles(tempProjectDirectory);
-    }
-
-    /**
-     * Delete files inside directories.
-     *
-     * @param dirPath direectory path
-     * @throws IOException throw an exception if an issue occurs
-     */
-    private void deleteFiles(Path dirPath) throws IOException {
-        Files.walk(dirPath)
-             .sorted(Comparator.reverseOrder())
-             .forEach(path -> {
-                 try {
-                     Files.delete(path);
-                 } catch (IOException e) {
-                     Assert.fail(e.getMessage(), e);
-                 }
-             });
     }
 }

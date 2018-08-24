@@ -20,6 +20,7 @@ package org.ballerinalang.test.command;
 import org.ballerinalang.test.context.BallerinaTestException;
 import org.ballerinalang.test.context.LogLeecher;
 import org.ballerinalang.test.context.ServerInstance;
+import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeClass;
@@ -28,6 +29,10 @@ import org.testng.annotations.Test;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+
+import static org.ballerinalang.test.ToolsTestUtils.deleteFiles;
 
 /**
  * This class tests CLI parsing.
@@ -38,10 +43,12 @@ public class CommandParserTestCase {
 
     private String sourceArg = (new File("src/test/resources/command/test_cmd_parser.bal")).getAbsolutePath();
     private ServerInstance serverInstance;
+    private Path tempProjectDirectory;
 
     @BeforeClass()
     public void setUp() throws BallerinaTestException, IOException {
         serverInstance = ServerInstance.initBallerinaServer();
+        tempProjectDirectory = Files.createTempDirectory("bal-test-option-ordering");
     }
 
     @Test (description = "Tests correct identification of empty strings as args")
@@ -71,6 +78,28 @@ public class CommandParserTestCase {
         outLogLeecher.waitForText(2000);
     }
 
+    @Test(description = "Test option param ordering not being enforced for non run command")
+    public void testBuildWithOutputOptionAfterSource() throws Exception {
+        Path targetDirPath = tempProjectDirectory.resolve("target");
+        Files.createDirectories(targetDirPath);
+        String[] clientArgs = {(new File("src/test/resources/command/test_option_ordering.bal")).getAbsolutePath(),
+                                "-o", targetDirPath.toString().concat(File.separator).concat("order_test_one")};
+        serverInstance.runMain(clientArgs, null, "build", tempProjectDirectory.toString());
+        Path generatedBalx = targetDirPath.resolve("order_test_one.balx");
+        Assert.assertTrue(Files.exists(generatedBalx));
+    }
+
+    @Test(description = "Test option param ordering not being enforced for non run command")
+    public void testBuildWithOutputOptionBeforeSource() throws Exception {
+        Path targetDirPath = tempProjectDirectory.resolve("target");
+        Files.createDirectories(targetDirPath);
+        String[] clientArgs = {"-o", targetDirPath.toString().concat(File.separator).concat("order_test_two"),
+                        (new File("src/test/resources/command/test_option_ordering.bal")).getAbsolutePath()};
+        serverInstance.runMain(clientArgs, null, "build", tempProjectDirectory.toString());
+        Path generatedBalx = targetDirPath.resolve("order_test_two.balx");
+        Assert.assertTrue(Files.exists(generatedBalx));
+    }
+
     @AfterMethod
     public void stopServer() throws BallerinaTestException {
         serverInstance.stopServer();
@@ -79,6 +108,11 @@ public class CommandParserTestCase {
     @AfterClass
     public void tearDown() throws BallerinaTestException {
         serverInstance.cleanup();
+        try {
+            deleteFiles(tempProjectDirectory);
+        } catch (IOException e) {
+            throw new BallerinaTestException("Error deleting temporary directory", e);
+        }
     }
 
     @DataProvider(name = "runCmdOptions")

@@ -31,9 +31,10 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
+
+import static org.ballerinalang.test.ToolsTestUtils.deleteFiles;
 
 /**
  * Testing building of a single bal file.
@@ -127,23 +128,5 @@ public class PackagingSingleBalBuildTestCase {
     @AfterClass
     private void cleanup() throws Exception {
         deleteFiles(tempProjectDirectory);
-    }
-
-    /**
-     * Delete files inside directories.
-     *
-     * @param dirPath directory path
-     * @throws IOException throw an exception if an issue occurs
-     */
-    private void deleteFiles(Path dirPath) throws IOException {
-        Files.walk(dirPath)
-             .sorted(Comparator.reverseOrder())
-             .forEach(path -> {
-                 try {
-                     Files.delete(path);
-                 } catch (IOException e) {
-                     Assert.fail(e.getMessage(), e);
-                 }
-             });
     }
 }
