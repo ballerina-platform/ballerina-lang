@@ -28,6 +28,7 @@ import java.net.InetAddress;
 import java.net.Socket;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Arrays;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
@@ -39,72 +40,78 @@ public class Utils {
     private static final Logger log = LoggerFactory.getLogger(Utils.class);
 
     /**
-     * Wait for port to open until given timeout period.
+     * This method will wait for given ports to open until given timeout period.
      *
-     * @param port    The port that needs to be checked
-     * @param timeout The timeout waiting for the port to open
-     * @param verbose if verbose is set to true,
+     * @param ports    The port values that needs to be checked
+     * @param timeout  The timeout waiting for the port to open
+     * @param verbose  if verbose is set to true,
      * @param hostName The hostname that needs to be checked
      * @throws RuntimeException if the port is not opened within the timeout
      */
-    public static void waitForPort(int port, long timeout, boolean verbose, String hostName)
+    public static void waitForPorts(int[] ports, long timeout, boolean verbose, String hostName)
             throws RuntimeException {
-        long startTime = System.currentTimeMillis();
-        boolean isPortOpen = false;
-        while (!isPortOpen && (System.currentTimeMillis() - startTime) < timeout) {
-            Socket socket = null;
-            try {
-                InetAddress address = InetAddress.getByName(hostName);
-                socket = new Socket(address, port);
-                isPortOpen = socket.isConnected();
-                if (isPortOpen) {
-                    if (verbose) {
-                        log.info("Successfully connected to the server on port " + port);
-                    }
-                    return;
-                }
-            } catch (IOException e) {
-                if (verbose) {
-                    log.info("Waiting until server starts on port " + port);
-                }
+
+        Arrays.stream(ports).parallel().forEach(port -> {
+            long startTime = System.currentTimeMillis();
+            boolean isPortOpen = false;
+            while (!isPortOpen && (System.currentTimeMillis() - startTime) < timeout) {
+                Socket socket = null;
                 try {
-                    Thread.sleep(1000);
-                } catch (InterruptedException ignored) {
-                }
-            } finally {
-                try {
-                    if ((socket != null) && (socket.isConnected())) {
-                        socket.close();
+                    InetAddress address = InetAddress.getByName(hostName);
+                    socket = new Socket(address, port);
+                    isPortOpen = socket.isConnected();
+                    if (isPortOpen) {
+                        if (verbose) {
+                            log.info("Successfully connected to the server on port " + port);
+                        }
                     }
                 } catch (IOException e) {
-                    log.error("Can not close the socket with is used to check the server status ", e);
+                    if (verbose) {
+                        log.info("Waiting until server starts on port " + port);
+                    }
+                    try {
+                        Thread.sleep(1000);
+                    } catch (InterruptedException ignored) {
+                    }
+                } finally {
+                    try {
+                        if ((socket != null) && (socket.isConnected())) {
+                            socket.close();
+                        }
+                    } catch (IOException e) {
+                        log.error("Can not close the socket with is used to check the server status ", e);
+                    }
                 }
             }
-        }
-        throw new RuntimeException("Port " + port + " is not open");
+            if (!isPortOpen) {
+                throw new RuntimeException("Port '" + port + "' is not open");
+            }
+        });
     }
 
     /**
-     * wait until port is closed within given timeout value in mills.
+     * This method will wait until given ports are closed within given timeout value in mills.
      *
-     * @param port    - port number
-     * @param timeout - mat time to wait
+     * @param ports   - http ports values
+     * @param timeout - max time to wait
      */
-    public static void waitForPortToClosed(int port, int timeout) {
-        long time = System.currentTimeMillis() + timeout;
-        boolean portOpen = Utils.isPortOpen(port);
-        while (portOpen && System.currentTimeMillis() < time) {
-            // wait until server shutdown is completed
-            try {
-                Thread.sleep(1000);
-            } catch (InterruptedException ignored) {
-                //ignore
+    public static void waitForPortsToClosed(int[] ports, int timeout) {
+        Arrays.stream(ports).parallel().forEach(port -> {
+            long time = System.currentTimeMillis() + timeout;
+            boolean portOpen = Utils.isPortOpen(port);
+            while (portOpen && System.currentTimeMillis() < time) {
+                // wait until server shutdown is completed
+                try {
+                    Thread.sleep(1000);
+                } catch (InterruptedException ignored) {
+                    //ignore
+                }
+                portOpen = Utils.isPortOpen(port);
             }
-            portOpen = Utils.isPortOpen(port);
-        }
-        if (portOpen) {
-            throw new RuntimeException("Port not closed properly when stopping server");
-        }
+            if (portOpen) {
+                throw new RuntimeException("Port '" + port + "' not closed properly when stopping server");
+            }
+        });
     }
 
     /**
@@ -117,9 +124,24 @@ public class Utils {
 
         //check whether http port is already occupied
         if (isPortOpen(port)) {
-            throw new BallerinaTestException("Unable to start carbon server on port " +
+            throw new BallerinaTestException("Unable to start ballerina server on port " +
                                                      (port) + " : Port already in use");
         }
+    }
+
+    /**
+     * Check whether given ports are in use or not.
+     *
+     * @param ports - http ports values
+     */
+    public static void checkPortsAvailability(int[] ports) {
+
+        Arrays.stream(ports).parallel().forEach(port -> {
+            if (isPortOpen(port)) {
+                throw new RuntimeException("Unable to start ballerina server on port " +
+                        (port) + " : Port already in use");
+            }
+        });
     }
 
     /**
@@ -128,18 +150,18 @@ public class Utils {
      * @param port The port that needs to be checked
      * @return true if the port is open and false otherwise
      */
-    public static boolean isPortOpen(int port) {
+    private static boolean isPortOpen(int port) {
         Socket socket = null;
-        boolean isPortOpen = false;
+        boolean isPortOpen;
         try {
             InetAddress address = InetAddress.getLocalHost();
             socket = new Socket(address, port);
             isPortOpen = socket.isConnected();
             if (isPortOpen) {
-                log.info("Successfully connected to the server on port " + port);
+                log.debug("Successfully connected to the server on port " + port);
             }
         } catch (IOException e) {
-            log.info("Port " + port + " is closed and available for use");
+            log.debug("Port " + port + " is closed and available for use");
             isPortOpen = false;
         } finally {
             try {
@@ -158,7 +180,7 @@ public class Utils {
      *
      * @param sourceFilePath - zip file need to extract
      * @param extractedDir   - destination path given file to extract
-     * @throws IOException if an i/o exception occurs when extracting the file
+     * @throws IOException            if an i/o exception occurs when extracting the file
      * @throws BallerinaTestException if ballerina test exception occurs when extracting the file
      */
     public static void extractFile(String sourceFilePath, String extractedDir) throws IOException,

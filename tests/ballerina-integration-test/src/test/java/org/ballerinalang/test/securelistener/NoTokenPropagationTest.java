@@ -40,11 +40,12 @@ public class NoTokenPropagationTest extends BaseTest {
 
     @BeforeGroups(value = "secure-listener-test", alwaysRun = true)
     public void start() throws BallerinaTestException {
+        int[] requiredPorts = new int[]{9090, 9091, 9092, 9093, 9094, 9095, 9096};
         String basePath = new File("src" + File.separator + "test" + File.separator + "resources" + File.separator +
                 "secureListener").getAbsolutePath();
         String ballerinaConfPath = basePath + File.separator + "ballerina.conf";
         String[] args = new String[]{"--sourceroot", basePath, "--config", ballerinaConfPath};
-        serverInstance.startBallerinaServer("secureservices", args);
+        serverInstance.startBallerinaServer("secureservices", args, requiredPorts);
     }
 
     @Test(description = "No JWT Token propagation, authn failure test")
