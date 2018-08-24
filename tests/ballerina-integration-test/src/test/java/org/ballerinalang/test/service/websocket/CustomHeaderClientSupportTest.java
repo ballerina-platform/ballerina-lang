@@ -43,7 +43,7 @@ public class CustomHeaderClientSupportTest extends WebSocketTestCommons {
 
     @BeforeClass(description = "Initializes the Ballerina server with the custom_header_client.bal file")
     public void setup() throws InterruptedException, URISyntaxException {
-        remoteServer = new WebSocketRemoteServer(REMOTE_SERVER_PORT);
+        remoteServer = new WebSocketRemoteServer(15100);
         remoteServer.run();
         client = new WebSocketTestClient(URL);
         client.handshake();

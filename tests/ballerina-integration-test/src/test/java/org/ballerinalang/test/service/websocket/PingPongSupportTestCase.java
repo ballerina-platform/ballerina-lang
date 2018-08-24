@@ -46,7 +46,7 @@ public class PingPongSupportTestCase extends WebSocketTestCommons {
 
     @BeforeClass(description = "Initializes the Ballerina server with the ping_pong.bal file")
     public void setup() throws InterruptedException, URISyntaxException {
-        remoteServer = new WebSocketRemoteServer(REMOTE_SERVER_PORT);
+        remoteServer = new WebSocketRemoteServer(15200);
         remoteServer.run();
         client = new WebSocketTestClient(URL);
         client.handshake();

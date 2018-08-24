@@ -41,7 +41,7 @@ public class WebSocketSimpleProxyTestCase extends WebSocketTestCommons {
 
     @BeforeClass(description = "Initializes Ballerina")
     public void setup() throws InterruptedException {
-        remoteServer = new WebSocketRemoteServer(REMOTE_SERVER_PORT);
+        remoteServer = new WebSocketRemoteServer(15300);
         remoteServer.run();
     }
 

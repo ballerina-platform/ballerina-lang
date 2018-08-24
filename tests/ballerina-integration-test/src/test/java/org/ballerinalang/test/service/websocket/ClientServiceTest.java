@@ -43,7 +43,7 @@ public class ClientServiceTest extends WebSocketTestCommons {
 
     @BeforeClass(description = "Initializes the Ballerina server with the client_service.bal file")
     public void setup() throws URISyntaxException, InterruptedException {
-        remoteServer = new WebSocketRemoteServer(REMOTE_SERVER_PORT);
+        remoteServer = new WebSocketRemoteServer(15000);
         remoteServer.run();
         client = new WebSocketTestClient(URL);
     }
