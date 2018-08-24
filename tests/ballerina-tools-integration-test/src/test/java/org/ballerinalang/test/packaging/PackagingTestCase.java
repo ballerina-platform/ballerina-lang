@@ -77,7 +77,7 @@ public class PackagingTestCase extends BaseTest {
     @Test(description = "Test pushing a package to central", dependsOnMethods = "testInitProject")
     public void testPush() throws Exception {
         Path projectPath = tempProjectDirectory.resolve("initProject");
-        String[] clientArgs = {packageName};
+        String[] clientArgs = {"--y", packageName};
         DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy-MM-dd-EE");
         datePushed = dtf.format(LocalDateTime.now());
 
@@ -96,7 +96,7 @@ public class PackagingTestCase extends BaseTest {
             dependsOnMethods = "testInitProject")
     public void testInstall() throws Exception {
         Path projectPath = tempProjectDirectory.resolve("initProject");
-        String[] clientArgs = {packageName};
+        String[] clientArgs = {"--y", packageName};
         serverInstance.runMain(clientArgs, envVariables, "install", projectPath.toString());
 
         Path dirPath = Paths.get(ProjectDirConstants.DOT_BALLERINA_REPO_DIR_NAME, orgName, packageName, "0.0.1");
@@ -166,7 +166,7 @@ public class PackagingTestCase extends BaseTest {
 
         LogLeecher clientLeecher = new LogLeecher(msg);
         serverInstance.addLogLeecher(clientLeecher);
-        serverInstance.runMain(new String[0], envVariables, "push", projectPath.toString());
+        serverInstance.runMain(new String[]{"--y"}, envVariables, "push", projectPath.toString());
         clientLeecher.waitForText(5000);
     }
 
@@ -178,6 +178,125 @@ public class PackagingTestCase extends BaseTest {
         LogLeecher clientLeecher = new LogLeecher(RepoUtils.getBallerinaVersion());
         serverInstance.addLogLeecher(clientLeecher);
         serverInstance.runMain(new String[0], envVariables, "version", tempProjectDirectory.toString());
+    }
+
+    @Test(description = "Test pushing a package with syntax errors in source", dependsOnMethods = "testInitProject")
+    public void testPushWithSyntaxErrorsInSource() throws Exception {
+        String[] clientArgs = {"--y", packageName};
+
+        // Add a new bal source file with syntax errors
+        writeInvalidSource();
+
+        // Remove the already created artifact
+        Path dirPath = Paths.get(ProjectDirConstants.DOT_BALLERINA_REPO_DIR_NAME, orgName, packageName, "0.0.1");
+        Files.deleteIfExists(tempProjectDirectory.resolve(".ballerina").resolve(dirPath).resolve(packageName + ".zip"));
+
+        serverInstance.runMain(clientArgs, envVariables, "push", tempProjectDirectory.toString());
+
+        Assert.assertFalse(Files.exists(tempHomeDirectory.resolve(".ballerina").resolve(dirPath)
+                                                         .resolve(packageName + ".zip")));
+
+        // Remove the newly added file
+        Files.deleteIfExists(tempProjectDirectory.resolve(packageName).resolve("main_errors.bal"));
+    }
+
+    @Test(description = "Test pushing a package with test failures", dependsOnMethods = "testInitProject")
+    public void testPushWithTestFailures() throws Exception {
+        String[] clientArgs = {"--y", packageName};
+
+        // Add a new test bal with test failures
+        writeInvalidTestContent();
+
+        // Remove the already created artifact
+        Path dirPath = Paths.get(ProjectDirConstants.DOT_BALLERINA_REPO_DIR_NAME, orgName, packageName, "0.0.1");
+        Files.deleteIfExists(tempProjectDirectory.resolve(".ballerina").resolve(dirPath).resolve(packageName + ".zip"));
+
+        serverInstance.runMain(clientArgs, envVariables, "push", tempProjectDirectory.toString());
+
+        Assert.assertFalse(Files.exists(tempHomeDirectory.resolve(".ballerina").resolve(dirPath)
+                                                         .resolve(packageName + ".zip")));
+
+        // Remove the newly added file
+        Files.deleteIfExists(tempProjectDirectory.resolve(packageName).resolve("tests")
+                                                 .resolve("main_test_errors.bal"));
+    }
+
+    @Test(description = "Test installing a package with syntax errors in source", dependsOnMethods = "testInitProject")
+    public void testInstallWithSyntaxErrorsInSource() throws Exception {
+        String[] clientArgs = {"--y", packageName};
+
+        // Add a new bal source file with syntax errors
+        writeInvalidSource();
+
+        // Remove the already created artifact
+        Path dirPath = Paths.get(ProjectDirConstants.DOT_BALLERINA_REPO_DIR_NAME, orgName, packageName, "0.0.1");
+        Files.deleteIfExists(tempProjectDirectory.resolve(".ballerina").resolve(dirPath).resolve(packageName + ".zip"));
+
+        serverInstance.runMain(clientArgs, envVariables, "install", tempProjectDirectory.toString());
+
+        Assert.assertFalse(Files.exists(tempHomeDirectory.resolve(".ballerina").resolve(dirPath)
+                                                         .resolve(packageName + ".zip")));
+
+        // Remove the newly added file
+        Files.deleteIfExists(tempProjectDirectory.resolve(packageName).resolve("main_errors.bal"));
+    }
+
+    @Test(description = "Test installing a package with test failures", dependsOnMethods = "testInitProject")
+    public void testInstallWithTestFailures() throws Exception {
+        String[] clientArgs = {"--y", packageName};
+
+        // Add a new test bal with test failures
+        writeInvalidTestContent();
+
+        // Remove the already created artifact
+        Path dirPath = Paths.get(ProjectDirConstants.DOT_BALLERINA_REPO_DIR_NAME, orgName, packageName, "0.0.1");
+        Files.deleteIfExists(tempProjectDirectory.resolve(".ballerina").resolve(dirPath).resolve(packageName + ".zip"));
+
+        serverInstance.runMain(clientArgs, envVariables, "install", tempProjectDirectory.toString());
+
+        Assert.assertFalse(Files.exists(tempHomeDirectory.resolve(".ballerina").resolve(dirPath)
+                                                         .resolve(packageName + ".zip")));
+
+        // Remove the newly added file
+        Files.deleteIfExists(tempProjectDirectory.resolve(packageName).resolve("tests")
+                                                 .resolve("main_test_errors.bal"));
+    }
+
+    /**
+     * Write invalid source with compilation errors.
+     * @throws IOException
+     */
+    private void writeInvalidSource() throws IOException {
+        String incorrectContent = "import ballerina/io;\n\n function hello() {\n    io.println(\"Hello World!\");\n" +
+                "}\n";
+        Files.write(tempProjectDirectory.resolve(packageName).resolve("main_errors.bal"), incorrectContent.getBytes(),
+                    StandardOpenOption.CREATE_NEW);
+    }
+
+    /**
+     * Write invalid test content to file.
+     * @throws IOException
+     */
+    private void writeInvalidTestContent() throws IOException {
+        // Add a new bal test source file with syntax errors
+        String incorrectContent =  "import ballerina/test;\n" +
+                                    "\n" +
+                                    "function beforeFunc () {\n" +
+                                    "    io:println(\"I'm the before function!\");\n" +
+                                    "}\n" +
+                                    "@test:Config{\n" +
+                                    "    before:\"beforeFunc\",\n" +
+                                    "    after:\"afterFunc\"\n" +
+                                    "}\n" +
+                                    "function testFunction () {\n" +
+                                    "    io:println(\"I'm in test function!\");\n" +
+                                    "    test:assertTrue(false , msg = \"Failed!\");\n" +
+                                    "}\n" +
+                                    "function afterFunc () {\n" +
+                                    "    io:println(\"I'm the after function!\");\n" +
+                                    "}\n";
+        Files.write(tempProjectDirectory.resolve(packageName).resolve("tests").resolve("main_test_errors.bal"),
+                    incorrectContent.getBytes(), StandardOpenOption.CREATE_NEW);
     }
 
     /**
@@ -206,7 +325,7 @@ public class PackagingTestCase extends BaseTest {
 
     @AfterClass
     private void cleanup() throws Exception {
-        PackagingTestUtils.deleteFiles(tempHomeDirectory);
-        PackagingTestUtils.deleteFiles(tempProjectDirectory);
+        PackagingTestsUtils.deleteFiles(tempHomeDirectory);
+        PackagingTestsUtils.deleteFiles(tempProjectDirectory);
     }
 }
