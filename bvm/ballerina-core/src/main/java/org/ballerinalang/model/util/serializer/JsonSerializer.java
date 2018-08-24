@@ -32,6 +32,7 @@ import org.ballerinalang.model.util.serializer.providers.bvalue.DateTimeBValuePr
 import org.ballerinalang.model.util.serializer.providers.bvalue.NumericBValueProviders;
 import org.ballerinalang.model.values.BRefType;
 import org.ballerinalang.persistence.serializable.SerializableState;
+import org.ballerinalang.util.exceptions.BallerinaException;
 
 import java.io.IOException;
 import java.io.StringReader;
@@ -92,6 +93,8 @@ public class JsonSerializer implements ObjectToJsonSerializer {
         try (BValueTree treeMaker = new BValueTree()) {
             BRefType bValueTree = treeMaker.toBValueTree(object);
             return generateJson(bValueTree);
+        } catch (Exception e) {
+            throw new BallerinaException("Exception in JsonSerializer: ", e);
         }
     }
 

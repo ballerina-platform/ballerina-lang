@@ -78,6 +78,9 @@ public class BValueHelper {
     }
 
     static void addHashValue(Object obj, BMap<String, BValue> map) {
+        if (map == null) {
+            return;
+        }
         map.put(JsonSerializerConst.HASH_TAG, getHashCode(obj));
     }
 

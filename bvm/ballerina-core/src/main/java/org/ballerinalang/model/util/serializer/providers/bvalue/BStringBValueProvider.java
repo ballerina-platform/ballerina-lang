@@ -42,6 +42,9 @@ public class BStringBValueProvider implements SerializationBValueProvider<BStrin
 
     @Override
     public BValue toBValue(BString bString, BValueSerializer serializer) {
+        if (bString.stringValue() == null) {
+            return null;
+        }
         return BValueProviderHelper.wrap(B_STRING, bString);
     }
 

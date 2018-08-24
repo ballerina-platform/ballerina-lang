@@ -83,10 +83,10 @@ public class BValueTree implements BValueSerializer, Closeable {
         for (Map.Entry<Object, Object> entry : source.entrySet()) {
             Object key = entry.getKey();
             if (key instanceof String) {
-                target.put((String) key, toBValue(entry.getValue(), Object.class));
+                target.put((String) key, toBValue(entry.getValue(), null));
             } else {
                 String complexKeyHash = getHashCode(key, JsonSerializerConst.COMPLEX_KEY_TAG, null);
-                target.put(complexKeyHash, toBValue(entry.getValue(), Object.class));
+                target.put(complexKeyHash, toBValue(entry.getValue(), null));
                 complexKeyMap.put(complexKeyHash, toBValue(key, null));
             }
         }
@@ -127,7 +127,7 @@ public class BValueTree implements BValueSerializer, Closeable {
     private BMap<String, BValue> toBValue(List list) {
         BRefValueArray array = new BRefValueArray(new BArrayType(BTypes.typeAny));
         for (Object item : list) {
-            array.append(toBValue(item, Object.class));
+            array.append(toBValue(item, null));
         }
         BMap<String, BValue> bMap = wrapObject(JsonSerializerConst.LIST_TAG, array);
         bMap.put(JsonSerializerConst.LENGTH_TAG, new BInteger(list.size()));
