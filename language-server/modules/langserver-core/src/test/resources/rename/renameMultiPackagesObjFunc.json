@@ -1,0 +1,48 @@
+{
+    "position": {
+        "line": 5,
+        "character": 9
+    },
+    "newName": "newPrint",
+    "expected": [
+        {
+            "range": {
+                "start": {
+                    "line": 0,
+                    "character": 0
+                },
+                "end": {
+                    "line": 7,
+                    "character": 0
+                }
+            },
+            "newText": "import ballerina/io;\r\nimport pkg1;\r\n\r\nfunction main(string... args) {\r\n    pkg1:TestObject obj = new();\r\n    obj.newPrint();\r\n}"
+        },
+        {
+            "range": {
+                "start": {
+                    "line": 0,
+                    "character": 0
+                },
+                "end": {
+                    "line": 8,
+                    "character": 1
+                }
+            },
+            "newText": "import ballerina/io;\r\nimport pkg1;\r\n\r\npublic function func2(){\r\n    io:println(\"func2...\");\r\n    pkg1:TestObject obj = new();\r\n    obj.newPrint();\r\n}"
+        },
+        {
+            "range": {
+                "start": {
+                    "line": 0,
+                    "character": 0
+                },
+                "end": {
+                    "line": 10,
+                    "character": 0
+                }
+            },
+            "newText": "import ballerina/io;\r\n\r\npublic type TestObject object {\r\n    public int age;\r\n    public string name;\r\n    public new(age, name) {}\r\n    public function newPrint(){\r\n        io:println(\"name:\" + name);\r\n    }\r\n};"
+        }
+    ]
+}
