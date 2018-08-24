@@ -87,7 +87,7 @@ public class PackagingSingleBalBuildTestCase extends BaseTest {
         Files.createDirectories(targetDirPath);
 
         // Test ballerina build
-        String[] clientArgs = {balFilePath.toString(), "-o", targetDirPath.resolve("main.bal").toString()};
+        String[] clientArgs = {"-o", targetDirPath.resolve("main.bal").toString(), balFilePath.toString()};
         serverInstance.runMain(clientArgs, envVariables, "build", tempProjectDirectory.toString());
         Path generatedBalx = targetDirPath.resolve("main.balx");
         Assert.assertTrue(Files.exists(generatedBalx));
