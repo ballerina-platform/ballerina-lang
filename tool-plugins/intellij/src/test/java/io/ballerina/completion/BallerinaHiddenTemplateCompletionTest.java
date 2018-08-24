@@ -24,9 +24,6 @@ public class BallerinaHiddenTemplateCompletionTest extends BallerinaCompletionTe
     /**
      * Hidden templates.
      */
-    public void testPackageKeyword() {
-        doCheckResult("test.bal", "package<caret>", "package", null);
-    }
 
     public void testImportKeyword() {
         doCheckResult("test.bal", "import<caret>", "import ", null);

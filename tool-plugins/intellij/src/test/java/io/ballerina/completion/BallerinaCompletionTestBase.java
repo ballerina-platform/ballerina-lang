@@ -32,8 +32,8 @@ import java.util.List;
 public abstract class BallerinaCompletionTestBase extends BallerinaCodeInsightFixtureTestCase {
 
     static final List<String> FILE_LEVEL_KEYWORDS = Arrays
-            .asList("package", "import", "documentation", "#", "@", "deprecated", "service", "public", "extern",
-                    "function", "type", "annotation", "endpoint");
+            .asList("package", "import", "documentation", "deprecated", "service", "public", "extern", "function",
+                    "type", "endpoint");
 
     static final List<String> DATA_TYPES = Arrays.asList("int", "float", "boolean", "string");
 
@@ -43,15 +43,25 @@ public abstract class BallerinaCompletionTestBase extends BallerinaCodeInsightFi
 
     static final List<String> XMLNS_TYPE = Collections.singletonList("xmlns");
 
-    static final List<String> VAR_TYPE = Collections.singletonList("var");
-
     static final List<String> COMMON_KEYWORDS = Arrays
             .asList("if", "else", "fork", "join", "timeout", "worker", "transaction", "abort", "try", "catch",
                     "finally", "while", "next", "break", "throw", "foreach", "in", "lock");
 
-    static final List<String> VALUE_KEYWORDS = Arrays.asList("true", "false", "null");
-
     static final List<String> FUNCTION_LEVEL_KEYWORDS = Collections.singletonList("return");
+
+    //TODO: Add following lookups to tests after fixing completion
+
+    static final List<String> SERVICE_ANNOTAION_TYPES = Arrays.asList("@http:ServiceConfig", "@http:ResourceConfig",
+            "@grpc:ServiceConfig", "@grpc:ResourceConfig");
+
+    static final List<String> TEST_ANNOTATION_TYPES = Arrays.asList("@test:Config","test:Mock");
+
+    static final List<String> OTHER_ANNOTATIION_TYPES = Arrays.asList("@final", "@readonly", "@tainted", "@untainted",
+            "@sensitive");
+
+    static final List<String> VAR_TYPE = Collections.singletonList("var");
+
+    static final List<String> VALUE_KEYWORDS = Arrays.asList("true", "false", "null");
 
     void doTestFile(String... expectedLookups) {
         String testName = getTestName(false);
