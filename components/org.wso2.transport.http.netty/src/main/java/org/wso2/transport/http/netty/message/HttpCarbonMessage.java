@@ -31,7 +31,6 @@ import io.netty.handler.codec.http.HttpRequest;
 import io.netty.handler.codec.http.HttpResponse;
 import io.netty.handler.codec.http.LastHttpContent;
 import org.wso2.transport.http.netty.common.Constants;
-import org.wso2.transport.http.netty.contract.HttpConnectorListener;
 import org.wso2.transport.http.netty.contract.HttpResponseFuture;
 import org.wso2.transport.http.netty.contract.ServerConnectorException;
 import org.wso2.transport.http.netty.contract.ServerConnectorFuture;
@@ -44,16 +43,11 @@ import java.nio.ByteBuffer;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
-
-import static org.wso2.transport.http.netty.common.Constants.MEANINGFULLY_EQUAL;
-import static org.wso2.transport.http.netty.common.Constants.NOT_MEANINGFULLY_EQUAL;
-import static org.wso2.transport.http.netty.common.Constants.RESPONSE_QUEUING_NOT_NEEDED;
 
 /**
  * HTTP based representation for HttpCarbonMessage.
  */
-public class HttpCarbonMessage implements Comparable<HttpCarbonMessage> {
+public class HttpCarbonMessage {
 
     protected HttpMessage httpMessage;
     private EntityCollector blockingEntityCollector;
@@ -65,10 +59,10 @@ public class HttpCarbonMessage implements Comparable<HttpCarbonMessage> {
     private final Observable contentObservable = new DefaultObservable();
     private IOException ioException;
 
-    private int sequenceId;
+    private int sequenceId; //Keep track of request/response order
     private ChannelHandlerContext sourceContext;
     private HttpPipelineListener pipelineListener;
-    private boolean isKeepAlive;
+    private boolean keepAlive;
     private boolean pipeliningNeeded;
 
     public HttpCarbonMessage(HttpMessage httpMessage, Listener contentListener) {
@@ -426,13 +420,12 @@ public class HttpCarbonMessage implements Comparable<HttpCarbonMessage> {
     }
 
     public boolean isKeepAlive() {
-        return isKeepAlive;
+        return keepAlive;
     }
 
     public void setKeepAlive(boolean keepAlive) {
-        isKeepAlive = keepAlive;
+        this.keepAlive = keepAlive;
     }
-
 
     public boolean isPipeliningNeeded() {
         return pipeliningNeeded;
@@ -442,25 +435,4 @@ public class HttpCarbonMessage implements Comparable<HttpCarbonMessage> {
         this.pipeliningNeeded = pipeliningNeeded;
     }
 
-    @Override
-    public int compareTo(HttpCarbonMessage other) {
-        if (this.sequenceId == RESPONSE_QUEUING_NOT_NEEDED) {
-            return this.equals(other) ? MEANINGFULLY_EQUAL : NOT_MEANINGFULLY_EQUAL;
-        }
-        return this.sequenceId - other.getSequenceId();
-    }
-    @Override
-    public boolean equals(Object obj) {
-        if (this.sequenceId == RESPONSE_QUEUING_NOT_NEEDED) {
-            return super.equals(obj);
-        }
-        return obj instanceof HttpCarbonMessage && compareTo((HttpCarbonMessage) obj) == MEANINGFULLY_EQUAL;
-    }
-    @Override
-    public int hashCode() {
-        if (this.sequenceId == RESPONSE_QUEUING_NOT_NEEDED) {
-            return super.hashCode();
-        }
-        return Objects.hashCode(sequenceId);
-    }
 }
