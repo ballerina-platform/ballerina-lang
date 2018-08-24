@@ -52,7 +52,7 @@ public class PipeliningHandler {
                 PipelinedResponse pipelinedResponse = new PipelinedResponse(requestMsg.getSequenceId(),
                         requestMsg, responseMsg);
                 responseMsg.setPipelineListener(new PipelineResponseListener());
-                executePipeliningLogic(requestMsg.getSourceContext(), pipelinedResponse);
+                responseFuture = executePipeliningLogic(requestMsg.getSourceContext(), pipelinedResponse);
             } else {
                 responseFuture = requestMsg.respond(responseMsg);
             }
