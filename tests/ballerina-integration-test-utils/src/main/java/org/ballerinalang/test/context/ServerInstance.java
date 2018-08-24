@@ -188,7 +188,7 @@ public class ServerInstance implements Server {
         serverErrorLogReader = new ServerLogReader("errorStream", process.getErrorStream());
         serverErrorLogReader.start();
         log.info("Waiting for ports to open");
-        Utils.waitForPorts(httpServicePorts, 1000 * 60 * 2, false, "localhost");
+        Utils.waitForPortsToOpen(httpServicePorts, 1000 * 60 * 2, false, "localhost");
         log.info("Server Started Successfully.");
         isServerRunning = true;
     }
@@ -240,7 +240,7 @@ public class ServerInstance implements Server {
             serverErrorLogReader.stop();
             process = null;
             //wait until port to close
-            Utils.waitForPortsToClosed(httpServicePorts, 30000);
+            Utils.waitForPortsToClose(httpServicePorts, 30000);
             httpServicePorts = new int[] {Constant.DEFAULT_HTTP_PORT};
             log.info("Server Stopped Successfully");
         }
