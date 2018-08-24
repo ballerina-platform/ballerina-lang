@@ -50,9 +50,13 @@ import java.net.SocketAddress;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.PriorityQueue;
+import java.util.Queue;
 import java.util.concurrent.ConcurrentHashMap;
 
+import static org.wso2.transport.http.netty.common.Constants.EXPECTED_SEQUENCE_NUMBER;
 import static org.wso2.transport.http.netty.common.Constants.IDLE_TIMEOUT_TRIGGERED_BEFORE_INITIATING_INBOUND_REQUEST;
+import static org.wso2.transport.http.netty.common.Constants.NUMBER_OF_INITIAL_EVENTS_HELD;
 import static org.wso2.transport.http.netty.common.Constants.REMOTE_CLIENT_CLOSED_BEFORE_INITIATING_INBOUND_REQUEST;
 import static org.wso2.transport.http.netty.common.Util.createInboundReqCarbonMsg;
 import static org.wso2.transport.http.netty.common.Util.isKeepAliveConnection;
@@ -78,7 +82,10 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
     protected ChannelHandlerContext ctx;
     private SocketAddress remoteAddress;
 
-    private boolean pipeliningNeeded = false;
+    private boolean pipeliningNeeded;
+    private final int maximumEvents = 3; //TODO: We should let the user configure this
+    private int sequenceId = 1; //Keep track of the request order for http 1.1 pipelining
+    private final Queue holdingQueue = new PriorityQueue<>(NUMBER_OF_INITIAL_EVENTS_HELD);
 
     public SourceHandler(ServerConnectorFuture serverConnectorFuture, String interfaceId, ChunkConfig chunkConfig,
                          KeepAliveConfig keepAliveConfig, String serverName, ChannelGroup allChannels, boolean
@@ -104,6 +111,10 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
             StateContext stateContext = new StateContext();
             inboundRequestMsg.setStateContext(stateContext);
             setRequestProperties();
+            //Set the pipelining properties just before notifying the listener about the request for the first time
+            //because in case the response got ready before receiving the last HTTP content there's a possibility
+            //of seeing an incorrect sequence number
+            setPipeliningProperties();
             stateContext.setListenerState(new ReceivingHeaders(this, stateContext));
             stateContext.getListenerState().readInboundRequestHeaders(inboundRequestMsg, (HttpRequest) msg);
         } else {
@@ -221,6 +232,24 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
         String httpVersion = (String) inboundRequestMsg.getProperty(Constants.HTTP_VERSION);
         inboundRequestMsg.setKeepAlive(isKeepAliveConnection(keepAliveConfig, connectionHeaderValue,
                 httpVersion));
+    }
+
+    /**
+     * Set pipeline related properties. These should be set only once per connection. But sequenceId should be
+     * incremented per request.
+     */
+    private void setPipeliningProperties() {
+        inboundRequestMsg.setSequenceId(sequenceId);
+        sequenceId++;
+        if (ctx.channel().attr(Constants.NEXT_SEQUENCE_NUMBER).get() == null) {
+            ctx.channel().attr(Constants.MAX_RESPONSES_ALLOWED_TO_BE_QUEUED).set(maximumEvents);
+        }
+        if (ctx.channel().attr(Constants.RESPONSE_QUEUE).get() == null) {
+            ctx.channel().attr(Constants.RESPONSE_QUEUE).set(holdingQueue);
+        }
+        if (ctx.channel().attr(Constants.NEXT_SEQUENCE_NUMBER).get() == null) {
+            ctx.channel().attr(Constants.NEXT_SEQUENCE_NUMBER).set(EXPECTED_SEQUENCE_NUMBER);
+        }
     }
 
     public EventLoop getEventLoop() {

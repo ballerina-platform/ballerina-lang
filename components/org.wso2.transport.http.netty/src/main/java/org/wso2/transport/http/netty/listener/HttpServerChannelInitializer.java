@@ -88,7 +88,7 @@ public class HttpServerChannelInitializer extends ChannelInitializer<SocketChann
     private int cacheSize;
     private ChannelGroup allChannels;
     private boolean ocspStaplingEnabled = false;
-    private boolean pipeliningNeeded = false;
+    private boolean pipeliningNeeded;
 
     @Override
     public void initChannel(SocketChannel ch) throws Exception {

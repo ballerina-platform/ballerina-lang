@@ -45,14 +45,9 @@ import org.wso2.transport.http.netty.listener.SourceHandler;
 import org.wso2.transport.http.netty.listener.states.StateContext;
 import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 
-import java.util.PriorityQueue;
-import java.util.Queue;
-
 import static io.netty.buffer.Unpooled.EMPTY_BUFFER;
 import static io.netty.handler.codec.http.HttpResponseStatus.REQUEST_TIMEOUT;
-import static org.wso2.transport.http.netty.common.Constants.EXPECTED_SEQUENCE_NUMBER;
 import static org.wso2.transport.http.netty.common.Constants.IDLE_TIMEOUT_TRIGGERED_WHILE_READING_INBOUND_REQUEST_HEADERS;
-import static org.wso2.transport.http.netty.common.Constants.NUMBER_OF_INITIAL_EVENTS_HELD;
 import static org.wso2.transport.http.netty.common.Constants.REMOTE_CLIENT_CLOSED_WHILE_READING_INBOUND_REQUEST_HEADERS;
 import static org.wso2.transport.http.netty.common.Util.is100ContinueRequest;
 
@@ -66,10 +61,6 @@ public class ReceivingHeaders implements ListenerState {
     private final HandlerExecutor handlerExecutor;
     private final StateContext stateContext;
     private HttpCarbonMessage inboundRequestMsg;
-
-    private final int maximumEvents = 3; //TODO: We should let the user configure this
-    private int sequenceId = 1; //Keep track of the request order for http 1.1 pipelining
-    private final Queue holdingQueue = new PriorityQueue<>(NUMBER_OF_INITIAL_EVENTS_HELD);
 
     public ReceivingHeaders(SourceHandler sourceHandler, StateContext stateContext) {
         this.sourceHandler = sourceHandler;
@@ -104,11 +95,6 @@ public class ReceivingHeaders implements ListenerState {
                 ServerConnectorFuture outboundRespFuture = httpRequestMsg.getHttpResponseFuture();
                 outboundRespFuture.setHttpConnectorListener(
                         new HttpOutboundRespListener(httpRequestMsg, sourceHandler));
-
-                //Set the pipelining properties just before notifying the listener about the request for the first time
-                //because in case the response got ready before receiving the last HTTP content there's a possibility
-                //of seeing an incorrect sequence number
-                setPipeliningProperties();
                 httpRequestMsg.setSourceContext(sourceHandler.getInboundChannelContext());
                 sourceHandler.getServerConnectorFuture().notifyHttpListener(httpRequestMsg);
             } catch (Exception e) {
@@ -181,21 +167,5 @@ public class ReceivingHeaders implements ListenerState {
         lastHttpContent.setDecoderResult(DecoderResult.failure(new DecoderException(errorMessage)));
         this.inboundRequestMsg.addHttpContent(lastHttpContent);
         log.warn(errorMessage);
-    }
-
-    //Set pipeline related properties. These should be set only once per connection.
-    private void setPipeliningProperties() {
-        ChannelHandlerContext inboundChannelContext = sourceHandler.getInboundChannelContext();
-        inboundRequestMsg.setSequenceId(sequenceId);
-        sequenceId++;
-        if (inboundChannelContext.channel().attr(Constants.NEXT_SEQUENCE_NUMBER).get() == null) {
-            inboundChannelContext.channel().attr(Constants.MAX_RESPONSES_ALLOWED_TO_BE_QUEUED).set(maximumEvents);
-        }
-        if (inboundChannelContext.channel().attr(Constants.RESPONSE_QUEUE).get() == null) {
-            inboundChannelContext.channel().attr(Constants.RESPONSE_QUEUE).set(holdingQueue);
-        }
-        if (inboundChannelContext.channel().attr(Constants.NEXT_SEQUENCE_NUMBER).get() == null) {
-            inboundChannelContext.channel().attr(Constants.NEXT_SEQUENCE_NUMBER).set(EXPECTED_SEQUENCE_NUMBER);
-        }
     }
 }
