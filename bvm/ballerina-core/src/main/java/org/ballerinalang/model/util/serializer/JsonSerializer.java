@@ -93,6 +93,7 @@ public class JsonSerializer implements ObjectToJsonSerializer {
     }
 
     @Override
+    @SuppressWarnings("unchecked")
     public <T> T deserialize(String serialized, Class<T> destinationType) {
         BRefType<?> objTree = JsonParser.parse(new StringReader(serialized));
         JsonDeserializer jsonDeserializer = new JsonDeserializer(objTree);

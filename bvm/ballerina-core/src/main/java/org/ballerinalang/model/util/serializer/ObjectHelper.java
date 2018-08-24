@@ -178,4 +178,25 @@ public class ObjectHelper {
         int modifiers = clazz.getModifiers();
         return !(Modifier.isInterface(modifiers) && Modifier.isAbstract(modifiers));
     }
+
+    static Class<?> findPrimitiveClass(String typeName) {
+        switch (typeName) {
+            case "byte":
+                return byte.class;
+            case "char":
+                return char.class;
+            case "float":
+                return float.class;
+            case "double":
+                return double.class;
+            case "short":
+                return short.class;
+            case "int":
+                return int.class;
+            case "long":
+                return long.class;
+            default:
+                return null;
+        }
+    }
 }

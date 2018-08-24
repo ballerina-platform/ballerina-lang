@@ -47,6 +47,7 @@ import java.util.List;
 import java.util.Map;
 
 import static org.ballerinalang.model.util.serializer.ObjectHelper.cast;
+import static org.ballerinalang.model.util.serializer.ObjectHelper.findPrimitiveClass;
 
 /**
  * Reconstruct Java object tree from JSON input.
@@ -58,15 +59,8 @@ class JsonDeserializer implements BValueDeserializer {
     private final BRefType<?> treeHead;
 
     static {
-        instanceProvider.add(new SerializableStateInstanceProvider());
-        instanceProvider.add(new SerializableWorkerDataInstanceProvider());
-        instanceProvider.add(new SerializableContextInstanceProvider());
         instanceProvider.add(new MapInstanceProvider());
         instanceProvider.add(new ListInstanceProvider());
-        instanceProvider.add(new WorkerStateInstanceProvider());
-        instanceProvider.add(new SerializableBMapInstanceProvider());
-        instanceProvider.add(new SerializedKeyInstanceProvider());
-        instanceProvider.add(new SerializableBRefArrayInstanceProvider());
     }
 
     JsonDeserializer(BRefType<?> objTree) {
@@ -474,33 +468,12 @@ class JsonDeserializer implements BValueDeserializer {
             return primitiveClass;
         }
 
-        SerializationBValueProvider provider = this.bValueProvider.find(typeName);
+        SerializationBValueProvider provider = bValueProvider.find(typeName);
         if (provider != null) {
             return provider.getType();
         }
 
-        TypeInstanceProvider typeProvider = this.instanceProvider.findInstanceProvider(typeName);
+        TypeInstanceProvider typeProvider = instanceProvider.findInstanceProvider(typeName);
         return typeProvider.getTypeClass();
-    }
-
-    private Class<?> findPrimitiveClass(String typeName) {
-        switch (typeName) {
-            case "byte":
-                return byte.class;
-            case "char":
-                return char.class;
-            case "float":
-                return float.class;
-            case "double":
-                return double.class;
-            case "short":
-                return short.class;
-            case "int":
-                return int.class;
-            case "long":
-                return long.class;
-            default:
-                return null;
-        }
     }
 }
