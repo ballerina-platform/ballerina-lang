@@ -42,7 +42,7 @@ public class HTTPResponseXMLSecurityTestCase extends BaseTest {
         String balFilePath = new File("src" + File.separator + "test" + File.separator + "resources"
                 + File.separator + "xmlSecurity" + File.separator +
                 "xml-parsing-service.bal").getAbsolutePath();
-        serverInstance.startBallerinaServer(balFilePath);
+        serverInstance.startBallerinaServer(balFilePath, 9090);
     }
 
     @Test(description = "Test the service for XML External Entity Injection attack")

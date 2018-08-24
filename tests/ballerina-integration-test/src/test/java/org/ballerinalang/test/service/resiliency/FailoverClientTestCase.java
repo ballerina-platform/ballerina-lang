@@ -42,10 +42,11 @@ public class FailoverClientTestCase extends BaseTest {
 
     @BeforeTest(alwaysRun = true)
     private void setup() throws Exception {
+        int[] requiredPorts = new int[]{9090, 9091, 9092, 9093, 9094, 9095, 8080, 8081, 8082, 8083, 8084, 8085};
         String sourcePath = new File("src" + File.separator + "test" + File.separator + "resources"
                 + File.separator + "resiliency").getAbsolutePath();
         String[] args = new String[]{"--sourceroot", sourcePath};
-        serverInstance.startBallerinaServer("resiliencyservices", args);
+        serverInstance.startBallerinaServer("resiliencyservices", args, requiredPorts);
     }
 
     @Test(description = "Test basic failover functionality")

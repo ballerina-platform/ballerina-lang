@@ -135,7 +135,7 @@
             <package name="org.ballerinalang.test.data.streaming"/>
         </packages>
     </test>
-    <test name="ballerina-checkpointing-tests" preserve-order="true" parallel="false">
+    <test name="ballerina-checkpointing-tests" parallel="false">
         <classes>
             <class name="org.ballerinalang.test.checkpointing.InterruptibleServiceTestCase"/>
         </classes>
