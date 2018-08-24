@@ -23,8 +23,8 @@ import org.ballerinalang.test.context.BallerinaTestException;
 import org.ballerinalang.test.util.HttpClientRequest;
 import org.ballerinalang.test.util.HttpResponse;
 import org.ballerinalang.test.util.SQLDBUtils;
-import org.testng.annotations.AfterClass;
-import org.testng.annotations.BeforeClass;
+import org.testng.annotations.AfterGroups;
+import org.testng.annotations.BeforeGroups;
 import org.testng.annotations.Test;
 
 import java.io.File;
@@ -161,7 +161,6 @@ public class MicroTransactionTestCase extends BaseTest {
     }
 
     @Test(dependsOnMethods = {"testLocalParticipantAbort"})
-//    @Test
     public void testTransactionInfectableFalse() throws IOException {
         HttpResponse response = HttpClientRequest.doGet(serverInstance.getServiceURLHttp(initiatorServicePort,
                 "testTransactionInfectableFalse"));
@@ -327,8 +326,9 @@ public class MicroTransactionTestCase extends BaseTest {
         }
     }
 
-    @BeforeClass(groups = "transactions-test", alwaysRun = true)
+    @BeforeGroups(value = "transactions-test", alwaysRun = true)
     public void start() throws BallerinaTestException, IOException {
+        int[] requiredPorts = new int[]{initiatorServicePort, participant1ServicePort, participant2ServicePort};
         SQLDBUtils.deleteFiles(new File(SQLDBUtils.DB_DIRECTORY), DB_NAME);
         sqlServer = SQLDBUtils.initDatabase(SQLDBUtils.DB_DIRECTORY, DB_NAME, "transaction/data.sql");
         String basePath = new File("src" + File.separator + "test" + File.separator + "resources" + File.separator +
@@ -339,10 +339,10 @@ public class MicroTransactionTestCase extends BaseTest {
                 new File(serverInstance.getServerHome() + File.separator + "bre" + File.separator + "lib" +
                         File.separator + "hsqldb.jar"));
 
-        serverInstance.startBallerinaServer("transactionservices", args, initiatorServicePort);
+        serverInstance.startBallerinaServer("transactionservices", args, requiredPorts);
     }
 
-    @AfterClass(groups = "transactions-test", alwaysRun = true)
+    @AfterGroups(value = "transactions-test", alwaysRun = true)
     public void stop() throws Exception {
         serverInstance.removeAllLeechers();
         serverInstance.stopServer();

@@ -22,7 +22,9 @@ import org.ballerinalang.util.codegen.ProgramFileReader;
 import org.ballerinalang.util.exceptions.BLangRuntimeException;
 import org.ballerinalang.util.exceptions.ProgramFileFormatException;
 
+import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.nio.file.NoSuchFileException;
 import java.nio.file.Path;
 
 /**
@@ -37,9 +39,11 @@ public class BLangProgramLoader {
         ProgramFileReader programFileReader = new ProgramFileReader();
         try {
             return programFileReader.readProgram(balxFilePath);
+        } catch (FileNotFoundException | NoSuchFileException e) {
+            throw new BLangRuntimeException("ballerina: cannot find program file '" + balxFilePath.toString() + "'",
+                    e);
         } catch (IOException e) {
-            throw new BLangRuntimeException("ballerina: error reading program file '" +
-                    balxFilePath.toString() + "'", e);
+            throw new BLangRuntimeException("ballerina: error reading program file: '" + e.getMessage() + "'", e);
         } catch (BLangRuntimeException e) {
             throw e;
         } catch (Throwable e) {
