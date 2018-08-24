@@ -59,6 +59,6 @@ public final class WebSocketRemoteServer {
         log.info("Shutting down websocket remote server at '" + port + "'");
         bossGroup.shutdownGracefully();
         workerGroup.shutdownGracefully();
-        Utils.waitForPortsToClose(new int[]{port}, 36000);
+        Utils.waitForPortsToClose(new int[]{port}, 30000);
     }
 }
