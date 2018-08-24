@@ -31,7 +31,7 @@ import static org.wso2.transport.http.netty.common.Constants.RESPONSE_QUEUING_NO
 /**
  * Represent a pipelined response. Response order can be determined based on the sequence number.
  *
- * @since 
+ * @since
  */
 public class PipelinedResponse implements Comparable<PipelinedResponse> {
 

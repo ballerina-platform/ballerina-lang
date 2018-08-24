@@ -39,6 +39,9 @@ import java.io.OutputStream;
 
 import static org.ballerinalang.net.http.HttpUtil.extractEntity;
 
+/**
+ * Response writer.
+ */
 public class ResponseWriter {
 
     public static void sendResponseRobust(DataContext dataContext, HttpCarbonMessage requestMessage, BMap<String,
@@ -153,5 +156,4 @@ public class ResponseWriter {
             this.dataContext.notifyOutboundResponseStatus(httpConnectorError);
         }
     }
-
 }
