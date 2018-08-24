@@ -18,6 +18,7 @@
 
 package org.ballerinalang.test.service.websocket;
 
+import org.ballerinalang.test.context.BallerinaTestException;
 import org.ballerinalang.test.util.websocket.client.WebSocketTestClient;
 import org.ballerinalang.test.util.websocket.server.WebSocketRemoteServer;
 import org.testng.Assert;
@@ -40,7 +41,7 @@ public class WebSocketSimpleProxyTestCase extends WebSocketTestCommons {
     private static final String URL = "ws://localhost:9099";
 
     @BeforeClass(description = "Initializes Ballerina")
-    public void setup() throws InterruptedException {
+    public void setup() throws InterruptedException, BallerinaTestException {
         remoteServer = new WebSocketRemoteServer(15300);
         remoteServer.run();
     }

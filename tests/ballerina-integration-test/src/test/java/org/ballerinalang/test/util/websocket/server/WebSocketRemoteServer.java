@@ -24,6 +24,7 @@ import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
 import io.netty.handler.logging.LogLevel;
 import io.netty.handler.logging.LoggingHandler;
+import org.ballerinalang.test.context.BallerinaTestException;
 import org.ballerinalang.test.context.Utils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -43,8 +44,9 @@ public final class WebSocketRemoteServer {
         this.port = port;
     }
 
-    public void run() throws InterruptedException {
+    public void run() throws InterruptedException, BallerinaTestException {
         log.info("Starting websocket remote server at '" + port + "'");
+        Utils.checkPortAvailability(port);
         bossGroup = new NioEventLoopGroup(1);
         workerGroup = new NioEventLoopGroup(5);
 
