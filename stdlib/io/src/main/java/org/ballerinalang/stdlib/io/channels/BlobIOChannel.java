@@ -56,5 +56,4 @@ public class BlobIOChannel extends Channel {
     public boolean remaining() {
         return false;
     }
-
 }
