@@ -996,7 +996,7 @@ public class PackageInfoReader {
                 return localVarAttrInfo;
             case LINE_NUMBER_TABLE_ATTRIBUTE:
                 LineNumberTableAttributeInfo lnNoTblAttrInfo = new LineNumberTableAttributeInfo(attribNameCPIndex);
-                int lineNoInfoCount = dataInStream.readShort();
+                int lineNoInfoCount = dataInStream.readInt();
                 for (int i = 0; i < lineNoInfoCount; i++) {
                     LineNumberInfo lineNumberInfo = getLineNumberInfo(constantPool);
                     lnNoTblAttrInfo.addLineNumberInfo(lineNumberInfo);
@@ -1154,10 +1154,10 @@ public class PackageInfoReader {
                     packageInfo.addInstruction(InstructionFactory.get(opcode, i));
                     break;
 
-                case InstructionCodes.FPLOAD: {
+                case InstructionCodes.VFPLOAD:
+                case InstructionCodes.FPLOAD:
                     readFunctionPointerLoadInstruction(packageInfo, codeStream, opcode);
                     break;
-                }
                 case InstructionCodes.ICONST:
                 case InstructionCodes.FCONST:
                 case InstructionCodes.SCONST:

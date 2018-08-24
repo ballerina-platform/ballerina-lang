@@ -30,6 +30,7 @@ import java.util.concurrent.TimeUnit;
 /**
  * Test WebSocket endpoint method pushText and the onText resource.
  */
+@Test(groups = "websocket-test")
 public class WebSocketPushAndOnTextResourceTest extends WebSocketTestCommons {
 
     private WebSocketTestClient client;

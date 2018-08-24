@@ -113,7 +113,7 @@ public class PipeliningHandler {
      * @param responseQueue Represent pipelined response queue
      * @return a boolean indicating whether the maximum queued response count is reached
      */
-    static boolean thresholdReached(ChannelHandlerContext sourceContext, Queue<PipelinedResponse> responseQueue) {
+    private static boolean thresholdReached(ChannelHandlerContext sourceContext, Queue<PipelinedResponse> responseQueue) {
         Integer maxQueuedResponses = sourceContext.channel()
                 .attr(Constants.MAX_RESPONSES_ALLOWED_TO_BE_QUEUED).get();
         if (responseQueue.size() > maxQueuedResponses) {

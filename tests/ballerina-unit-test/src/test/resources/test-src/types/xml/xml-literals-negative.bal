@@ -78,3 +78,7 @@ function undefinedNamespace() {
 function defineEmptyNamespace() {
     xmlns "" as ns0;
 }
+
+function testMismatchingElementTags() {
+    var x = xml `<book></book12>`;
+}

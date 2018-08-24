@@ -37,6 +37,8 @@ public class WorkerData {
     public int[] intRegs;
 
     public BRefType<?>[] refRegs;
+
+    public WorkerData() {}
     
     public WorkerData(CodeAttributeInfo ci) {
         if (ci.maxLongRegs > 0) {

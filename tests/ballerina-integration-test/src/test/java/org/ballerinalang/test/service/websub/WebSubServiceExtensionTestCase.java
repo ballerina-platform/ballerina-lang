@@ -19,6 +19,7 @@ package org.ballerinalang.test.service.websub;
 
 import io.netty.handler.codec.http.HttpHeaderNames;
 import io.netty.handler.codec.http.HttpResponseStatus;
+import org.awaitility.Duration;
 import org.ballerinalang.test.context.BallerinaTestException;
 import org.ballerinalang.test.context.LogLeecher;
 import org.ballerinalang.test.util.HttpClientRequest;
@@ -31,8 +32,12 @@ import org.testng.annotations.Test;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.ConnectException;
 import java.util.HashMap;
 import java.util.Map;
+
+import static org.awaitility.Awaitility.given;
+import static java.util.concurrent.TimeUnit.SECONDS;
 
 /**
  * This class tests introducing custom/specific webhooks, extending the WebSub Subscriber Service.
@@ -87,6 +92,34 @@ public class WebSubServiceExtensionTestCase extends WebSubBaseTest {
         webSubSubscriber.addLogLeecher(byHeaderAndPayloadKeyOnlyLogLeecher);
 
         webSubSubscriber.startBallerinaServer(subscriberBal, new String[]{}, 8181);
+
+        // Wait for the services to start up
+        Map<String, String> headers = new HashMap<>(2);
+        headers.put(HttpHeaderNames.CONTENT_TYPE.toString(), TestConstant.CONTENT_TYPE_JSON);
+
+        given().ignoreException(ConnectException.class).with().pollInterval(Duration.FIVE_SECONDS).and()
+                .with().pollDelay(Duration.TEN_SECONDS).await().atMost(60, SECONDS).until(() -> {
+            HttpResponse response = HttpClientRequest.doPost("http://localhost:8181/key",
+                                                             "{\"action\":\"statuscheck\"}", headers);
+            return response.getResponseCode() == 202;
+        });
+
+        given().ignoreException(ConnectException.class).with().pollInterval(Duration.FIVE_SECONDS).and()
+                .with().pollDelay(Duration.TEN_SECONDS).await().atMost(60, SECONDS).until(() -> {
+            headers.put(MOCK_HEADER, "status");
+            HttpResponse response = HttpClientRequest.doPost("http://localhost:8282/header", "{\"action\":\"deleted\"}",
+                                                             headers);
+            return response.getResponseCode() == 202;
+        });
+
+        given().ignoreException(ConnectException.class).with().pollInterval(Duration.FIVE_SECONDS).and()
+                .with().pollDelay(Duration.TEN_SECONDS).await().atMost(60, SECONDS).until(() -> {
+            headers.remove(MOCK_HEADER);
+            headers.put(MOCK_HEADER, "status");
+            HttpResponse response = HttpClientRequest.doPost("http://localhost:8383/headerAndPayload",
+                                                             "{\"action\":\"created\"}", headers);
+            return response.getResponseCode() == 202;
+        });
     }
 
     @Test

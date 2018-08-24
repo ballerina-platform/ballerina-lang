@@ -73,7 +73,6 @@ import org.wso2.ballerinalang.compiler.tree.BLangAnnotation;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
 import org.wso2.ballerinalang.compiler.tree.BLangDocumentation;
 import org.wso2.ballerinalang.compiler.tree.BLangEndpoint;
-import org.wso2.ballerinalang.compiler.tree.BLangEnum;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
 import org.wso2.ballerinalang.compiler.tree.BLangImportPackage;
@@ -118,7 +117,6 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeInit;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangVariableReference;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangAbort;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangAssignment;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangBind;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBreak;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangCatch;
@@ -167,7 +165,6 @@ import java.util.Collections;
 import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -310,6 +307,9 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
 
         // Check for native functions
         if (Symbols.isNative(funcNode.symbol) || funcNode.interfaceFunction) {
+            if (funcNode.body != null) {
+                dlog.error(funcNode.pos, DiagnosticCode.FUNCTION_CANNOT_HAVE_BODY, funcNode.name);
+            }
             return;
         }
 
@@ -365,14 +365,6 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         analyzeDef(recordTypeNode.initFunction, structEnv);
 
         validateDefaultable(recordTypeNode);
-    }
-
-    @Override
-    public void visit(BLangEnum enumNode) {
-        BSymbol enumSymbol = enumNode.symbol;
-        SymbolEnv enumEnv = SymbolEnv.createPkgLevelSymbolEnv(enumNode, enumSymbol.scope, env);
-
-        enumNode.docAttachments.forEach(doc -> analyzeDef(doc, enumEnv));
     }
 
     @Override
@@ -504,13 +496,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         // e.g. int a = x + a;
         SymbolEnv varInitEnv = SymbolEnv.createVarInitEnv(varNode, env, varNode.symbol);
 
-        // Return if this not a safe assignment
-        if (!varNode.safeAssignment) {
-            typeChecker.checkExpr(rhsExpr, varInitEnv, lhsType);
-            return;
-        }
-
-        handleSafeAssignment(varNode.pos, lhsType, rhsExpr, varInitEnv);
+        typeChecker.checkExpr(rhsExpr, varInitEnv, lhsType);
     }
 
     // Statements
@@ -605,14 +591,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
 
         // Check each LHS expression.
         BType expType = getTypeOfVarReferenceInAssignment(assignNode.varRef);
-        if (!assignNode.safeAssignment) {
-            typeChecker.checkExpr(assignNode.expr, this.env, expType);
-            return;
-        }
-
-        // Assume that there is only one variable reference in LHS
-        // Continue the validate if this is a safe assignment operator
-        handleSafeAssignment(assignNode.pos, assignNode.varRef.type, assignNode.expr, this.env);
+        typeChecker.checkExpr(assignNode.expr, this.env, expType);
     }
 
     @Override
@@ -630,16 +609,6 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
 
         expType = new BTupleType(expTypes);
         typeChecker.checkExpr(tupleDeStmt.expr, this.env, expType);
-    }
-
-    public void visit(BLangBind bindNode) {
-        BType expType;
-        // Check each LHS expression.
-        BLangExpression varRef = bindNode.varRef;
-        ((BLangVariableReference) varRef).lhsVar = true;
-        expType = typeChecker.checkExpr(varRef, env);
-        checkConstantAssignment(varRef);
-        typeChecker.checkExpr(bindNode.expr, this.env, expType);
     }
 
     private void checkConstantAssignment(BLangExpression varRef) {
@@ -1566,9 +1535,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             return;
         }
         BType rhsType = typeChecker.checkExpr(rhsExpr, this.env, expType);
-        if (safeAssignment) {
-            rhsType = handleSafeAssignmentWithVarDeclaration(varRefExpr.pos, rhsType);
-        }
+
         if (!validateVariableDefinition(rhsExpr)) {
             rhsType = symTable.errType;
         }
@@ -1743,69 +1710,6 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             return false;
         }
         return true;
-    }
-
-    private void handleSafeAssignment(DiagnosticPos lhsPos, BType lhsType, BLangExpression rhsExpr, SymbolEnv env) {
-        // Collect all the lhs types
-        Set<BType> lhsTypes = lhsType.tag == TypeTags.UNION ?
-                ((BUnionType) lhsType).memberTypes :
-                new LinkedHashSet<BType>() {{
-                    add(lhsType);
-                }};
-
-        // If there is at least one lhs type which assignable to the error type, then report an error.
-        for (BType type : lhsTypes) {
-            if (types.isAssignable(symTable.errStructType, type)) {
-                dlog.error(lhsPos, DiagnosticCode.SAFE_ASSIGN_STMT_INVALID_USAGE);
-                typeChecker.checkExpr(rhsExpr, env, symTable.errType);
-                return;
-            }
-        }
-
-        // Create a new union type with the error type and continue the type checking process.
-        lhsTypes.add(symTable.errStructType);
-        BUnionType lhsUnionType = new BUnionType(null, lhsTypes, lhsTypes.contains(symTable.nilType));
-        typeChecker.checkExpr(rhsExpr, env, lhsUnionType);
-
-        if (rhsExpr.type.tag == TypeTags.UNION) {
-            BUnionType rhsUnionType = (BUnionType) rhsExpr.type;
-            for (BType type : rhsUnionType.memberTypes) {
-                if (types.isAssignable(symTable.errStructType, type)) {
-                    return;
-                }
-            }
-        } else if (rhsExpr.type.tag != TypeTags.ERROR) {
-            dlog.error(rhsExpr.pos, DiagnosticCode.SAFE_ASSIGN_STMT_INVALID_USAGE);
-        }
-    }
-
-    private BType handleSafeAssignmentWithVarDeclaration(DiagnosticPos pos, BType rhsType) {
-        if (rhsType.tag != TypeTags.UNION && types.isAssignable(symTable.errStructType, rhsType)) {
-            dlog.error(pos, DiagnosticCode.SAFE_ASSIGN_STMT_INVALID_USAGE);
-            return symTable.errType;
-        } else if (rhsType.tag != TypeTags.UNION) {
-            return rhsType;
-        }
-
-        // Collect all the rhs types from the union type
-        boolean isErrorFound = false;
-        BUnionType unionType = (BUnionType) rhsType;
-        Set<BType> rhsTypeSet = new LinkedHashSet(unionType.memberTypes);
-        for (BType type : unionType.memberTypes) {
-            if (types.isAssignable(type, symTable.errStructType)) {
-                rhsTypeSet.remove(type);
-                isErrorFound = true;
-            }
-        }
-
-        if (rhsTypeSet.isEmpty() || !isErrorFound) {
-            dlog.error(pos, DiagnosticCode.SAFE_ASSIGN_STMT_INVALID_USAGE);
-            return symTable.noType;
-        } else if (rhsTypeSet.size() == 1) {
-            return rhsTypeSet.toArray(new BType[0])[0];
-        }
-
-        return new BUnionType(null, rhsTypeSet, rhsTypeSet.contains(symTable.nilType));
     }
 
     private BType getTypeOfVarReferenceInAssignment(BLangExpression expr) {

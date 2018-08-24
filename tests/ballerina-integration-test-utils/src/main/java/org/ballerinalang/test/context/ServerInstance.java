@@ -139,7 +139,7 @@ public class ServerInstance implements Server {
 
     public void startBallerinaServer(String balFile, String[] args) throws BallerinaTestException {
         String[] newArgs = {balFile};
-        newArgs = ArrayUtils.addAll(newArgs, args);
+        newArgs = ArrayUtils.addAll(args, newArgs);
         setArguments(newArgs);
 
         startServer();
@@ -154,7 +154,7 @@ public class ServerInstance implements Server {
      */
     public void startBallerinaServerWithConfigPath(String balFile, String ballerinaConfPath) throws
             BallerinaTestException {
-        String balConfigPathArg = "--config ";
+        String balConfigPathArg = "--config";
         String[] args = {balConfigPathArg, ballerinaConfPath, balFile};
         setArguments(args);
 

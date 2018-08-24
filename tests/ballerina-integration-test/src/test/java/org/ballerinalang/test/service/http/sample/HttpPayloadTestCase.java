@@ -31,6 +31,7 @@ import java.io.IOException;
 /**
  * Test whether the xml payload gets parsed properly, after the said payload has been retrieved as a byte array.
  */
+@Test(groups = "http-test")
 public class HttpPayloadTestCase extends BaseTest {
     @Test
     public void testXmlPayload() throws IOException {
