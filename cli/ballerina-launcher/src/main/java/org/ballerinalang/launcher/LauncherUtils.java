@@ -79,9 +79,15 @@ public class LauncherUtils {
 
     private static PrintStream outStream = System.out;
 
-    public static void runProgram(Path sourceRootPath, Path sourcePath, String functionName,
-                                  Map<String, String> runtimeParams, String configFilePath, String[] args,
-                                  boolean offline, boolean observeFlag, boolean printReturn) {
+    public static void runProgram(Path sourceRootPath, Path sourcePath, Map<String, String> runtimeParams,
+                                  String configFilePath, String[] args, boolean offline, boolean observeFlag) {
+        runProgram(sourceRootPath, sourcePath, MAIN_FUNCTION_NAME, runtimeParams, configFilePath, args, offline,
+                   observeFlag, false);
+    }
+
+    static void runProgram(Path sourceRootPath, Path sourcePath, String functionName, Map<String, String> runtimeParams,
+                           String configFilePath, String[] args, boolean offline, boolean observeFlag,
+                           boolean printReturn) {
         ProgramFile programFile;
         String srcPathStr = sourcePath.toString();
         Path fullPath = sourceRootPath.resolve(sourcePath);
@@ -113,7 +119,7 @@ public class LauncherUtils {
                     "error: '" + programFile.getProgramFilePath() + "' does not contain a main function or a service");
         }
 
-        boolean runServicesOnly = functionName == null || MAIN.equals(functionName) && !programFile.isMainEPAvailable();
+        boolean runServicesOnly = MAIN.equals(functionName) && !programFile.isMainEPAvailable();
 
         // Load launcher listeners
         ServiceLoader<LaunchListener> listeners = ServiceLoader.load(LaunchListener.class);
