@@ -13,7 +13,7 @@
                 },
                 "end": {
                     "line": 8,
-                    "character": 1
+                    "character": 0
                 }
             },
             "newText": "import ballerina/io;\r\nfunction main(string... args) {\r\n    int a2 = 10;\r\n    while (a2 < 100) {\r\n        a2++;\r\n        a2--;\r\n    }\r\n}"

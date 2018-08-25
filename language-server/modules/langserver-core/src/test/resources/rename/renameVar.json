@@ -13,7 +13,7 @@
                 },
                 "end": {
                     "line": 5,
-                    "character": 1
+                    "character": 0
                 }
             },
             "newText": "import ballerina/io;\r\nfunction main(string... args) {\r\n    var b = 10;\r\n    io:println(b);\r\n}"

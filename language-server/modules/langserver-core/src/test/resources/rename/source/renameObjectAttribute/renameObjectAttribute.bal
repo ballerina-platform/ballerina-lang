@@ -12,4 +12,3 @@ function main(string... args) {
     io:println(obj.age);
     io:println(age);
 }
-

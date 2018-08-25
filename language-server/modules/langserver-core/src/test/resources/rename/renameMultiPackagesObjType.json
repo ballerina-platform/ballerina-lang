@@ -26,7 +26,7 @@
                 },
                 "end": {
                     "line": 8,
-                    "character": 1
+                    "character": 0
                 }
             },
             "newText": "import ballerina/io;\r\nimport pkg1;\r\n\r\npublic function func2(){\r\n    io:println(\"func2...\");\r\n    pkg1:NewTestObject obj = new();\r\n    obj.print();\r\n}"
