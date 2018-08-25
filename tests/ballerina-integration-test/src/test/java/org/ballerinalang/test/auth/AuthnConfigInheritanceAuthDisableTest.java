@@ -62,11 +62,13 @@ public class AuthnConfigInheritanceAuthDisableTest extends BaseTest {
 
     @BeforeGroups(value = "auth-test", alwaysRun = true)
     public void start() throws BallerinaTestException {
+        int[] requirePorts = new int[]{9090, 9091, 9092, 9093, 9094};
+
         String basePath = new File("src" + File.separator + "test" + File.separator + "resources" + File.separator +
                 "auth").getAbsolutePath();
         String ballerinaConfPath = basePath + File.separator + "ballerina.conf";
         String[] args = new String[]{"--sourceroot", basePath, "--config", ballerinaConfPath};
-        serverInstance.startBallerinaServer("authservices", args);
+        serverInstance.startBallerinaServer("authservices", args, requirePorts);
     }
 
     @AfterGroups(value = "auth-test", alwaysRun = true)

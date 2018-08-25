@@ -19,10 +19,13 @@ package org.ballerinalang.langserver.util;
 
 import com.google.gson.Gson;
 import org.ballerinalang.langserver.BallerinaLanguageServer;
+import org.eclipse.lsp4j.CodeActionContext;
+import org.eclipse.lsp4j.CodeActionParams;
 import org.eclipse.lsp4j.DidCloseTextDocumentParams;
 import org.eclipse.lsp4j.DidOpenTextDocumentParams;
 import org.eclipse.lsp4j.ExecuteCommandParams;
 import org.eclipse.lsp4j.Position;
+import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4j.ReferenceContext;
 import org.eclipse.lsp4j.ReferenceParams;
 import org.eclipse.lsp4j.TextDocumentIdentifier;
@@ -54,6 +57,8 @@ public class TestUtil {
     private static final String REFERENCES = "textDocument/references";
     
     private static final String EXECUTE_COMMAND = "workspace/executeCommand";
+    
+    private static final String CODE_ACTION = "textDocument/codeAction";
 
     private static final Gson GSON = new Gson();
 
@@ -120,6 +125,23 @@ public class TestUtil {
         referenceParams.setContext(referenceContext);
 
         CompletableFuture result = serviceEndpoint.request(REFERENCES, referenceParams);
+        return getResponseString(result);
+    }
+
+    /**
+     * Get Code Action Response as String.
+     *
+     * @param serviceEndpoint       Language Server Service endpoint
+     * @param filePath              File path for the current file
+     * @param range                 Cursor range
+     * @param context               Code Action Context
+     * @return {@link String}       code action response as a string
+     */
+    public static String getCodeActionResponse(Endpoint serviceEndpoint, String filePath, Range range,
+                                               CodeActionContext context) {
+        TextDocumentIdentifier identifier = getTextDocumentIdentifier(filePath);
+        CodeActionParams codeActionParams = new CodeActionParams(identifier, range, context);
+        CompletableFuture result = serviceEndpoint.request(CODE_ACTION, codeActionParams);
         return getResponseString(result);
     }
 

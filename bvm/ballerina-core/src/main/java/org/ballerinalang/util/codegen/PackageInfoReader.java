@@ -1700,13 +1700,18 @@ public class PackageInfoReader {
         PackageInfo pkgInfo = programFile.getPackageInfo(pkgPath);
 
         // if the package info is not available in the balx file, then it should be read from the balo
-        if (pkgInfo == null) {
-            PackageFileReader pkgFileReader = new PackageFileReader(this.programFile);
-            pkgFileReader.readPackage(pkgPath);
-            pkgInfo = programFile.getPackageInfo(pkgPath);
+        if (pkgInfo != null) {
+            return pkgInfo;
         }
 
-        return pkgInfo;
+        try {
+            PackageFileReader pkgFileReader = new PackageFileReader(this.programFile);
+            pkgFileReader.readPackage(pkgPath);
+        } catch (IOException e) {
+            throw new BLangRuntimeException("error reading package: " + pkgPath, e);
+        }
+
+        return programFile.getPackageInfo(pkgPath);
     }
 
     private BType getBTypeFromDescriptor(PackageInfo packageInfo, String desc) {
