@@ -26,12 +26,9 @@ import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 import java.util.Objects;
 
 import static org.wso2.transport.http.netty.common.Constants.MEANINGFULLY_EQUAL;
-import static org.wso2.transport.http.netty.common.Constants.RESPONSE_QUEUING_NOT_NEEDED;
 
 /**
  * Represent a pipelined response. Response order can be determined based on the sequence number.
- *
- * @since
  */
 public class PipelinedResponse implements Comparable<PipelinedResponse> {
 
@@ -84,17 +81,11 @@ public class PipelinedResponse implements Comparable<PipelinedResponse> {
 
     @Override
     public boolean equals(Object obj) {
-        if (this.sequenceId == RESPONSE_QUEUING_NOT_NEEDED) {
-            return super.equals(obj);
-        }
-        return obj instanceof PipelinedResponse && compareTo((PipelinedResponse) obj) == MEANINGFULLY_EQUAL;
+        return compareTo((PipelinedResponse) obj) == MEANINGFULLY_EQUAL;
     }
 
     @Override
     public int hashCode() {
-        if (this.sequenceId == RESPONSE_QUEUING_NOT_NEEDED) {
-            return super.hashCode();
-        }
         return Objects.hashCode(sequenceId);
     }
 }
