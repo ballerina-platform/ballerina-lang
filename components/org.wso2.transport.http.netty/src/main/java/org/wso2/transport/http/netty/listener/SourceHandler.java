@@ -111,10 +111,10 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
             StateContext stateContext = new StateContext();
             inboundRequestMsg.setStateContext(stateContext);
             setRequestProperties();
-            //Set the pipelining properties just before notifying the listener about the request for the first time
-            //because in case the response got ready before receiving the last HTTP content there's a possibility
-            //of seeing an incorrect sequence number
-            setPipeliningProperties();
+            //Set the sequence number just before notifying the listener about the request because in case the
+            //response got ready before receiving the last HTTP content there's a possibility of seeing an
+            //incorrect sequence number
+            setSequenceNumber();
             stateContext.setListenerState(new ReceivingHeaders(this, stateContext));
             stateContext.getListenerState().readInboundRequestHeaders(inboundRequestMsg, (HttpRequest) msg);
         } else {
@@ -135,6 +135,7 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
     public void channelActive(final ChannelHandlerContext ctx) {
         this.ctx = ctx;
         this.allChannels.add(ctx.channel());
+        setPipeliningProperties();
         handlerExecutor = HttpTransportContextHolder.getInstance().getHandlerExecutor();
         if (handlerExecutor != null) {
             handlerExecutor.executeAtSourceConnectionInitiation(Integer.toString(ctx.hashCode()));
@@ -235,12 +236,9 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
     }
 
     /**
-     * Set pipeline related properties. These should be set only once per connection. But sequenceId should be
-     * incremented per request.
+     * Set pipeline related properties. These should be set only once per connection.
      */
     private void setPipeliningProperties() {
-        inboundRequestMsg.setSequenceId(sequenceId);
-        sequenceId++;
         if (ctx.channel().attr(Constants.NEXT_SEQUENCE_NUMBER).get() == null) {
             ctx.channel().attr(Constants.MAX_RESPONSES_ALLOWED_TO_BE_QUEUED).set(maximumEvents);
         }
@@ -250,6 +248,14 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
         if (ctx.channel().attr(Constants.NEXT_SEQUENCE_NUMBER).get() == null) {
             ctx.channel().attr(Constants.NEXT_SEQUENCE_NUMBER).set(EXPECTED_SEQUENCE_NUMBER);
         }
+    }
+
+    /**
+     * Sequence number should be incremented per request.
+     */
+    private void setSequenceNumber() {
+        inboundRequestMsg.setSequenceId(sequenceId);
+        sequenceId++;
     }
 
     public EventLoop getEventLoop() {

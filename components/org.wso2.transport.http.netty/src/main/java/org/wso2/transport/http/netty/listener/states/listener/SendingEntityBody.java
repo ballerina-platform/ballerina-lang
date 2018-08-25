@@ -213,16 +213,16 @@ public class SendingEntityBody implements ListenerState {
 
     private void triggerPipeliningLogic(HttpCarbonMessage outboundResponseMsg) {
         String httpVersion = (String) inboundRequestMsg.getProperty(Constants.HTTP_VERSION);
-        if (outboundResponseMsg.isPipeliningNeeded() && !Constants.HTTP2_VERSION.equalsIgnoreCase
+        if (outboundResponseMsg.isPipeliningNeeded() && Constants.HTTP_1_1_VERSION.equalsIgnoreCase
                 (httpVersion)) {
             synchronized (sourceContext.channel().attr(Constants.RESPONSE_QUEUE).get()) {
                 Queue responseQueue = sourceContext.channel().attr(Constants.RESPONSE_QUEUE).get();
                 Integer nextSequenceNumber = sourceContext.channel().attr(Constants.NEXT_SEQUENCE_NUMBER).get();
-                // if (updateNextSequenceNumber) {
-                //Next sequence number should never be incremented for 100 continue responses
+                //IMPORTANT:Next sequence number should never be incremented for interim 100 continue response
+                //because the body of the request is yet to come. Only when the actual response is sent out, this
+                //next sequence number should be updated.
                 nextSequenceNumber++;
                 sourceContext.channel().attr(Constants.NEXT_SEQUENCE_NUMBER).set(nextSequenceNumber);
-                // }
                 if (!responseQueue.isEmpty()) {
                     //Notify ballerina to send the response which is next in queue. This is needed because,
                     // if the other responses got ready before the nextSequenceNumber gets updated then the

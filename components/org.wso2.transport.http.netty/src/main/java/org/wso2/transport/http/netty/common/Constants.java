@@ -161,6 +161,7 @@ public final class Constants {
     public static final float HTTP_1_0 = 1.0f;
     public static final float HTTP_2_0 = 2.0f;
     public static final String HTTP_VERSION_PREFIX = "HTTP/";
+    public static final String HTTP_1_1_VERSION = "1.1";
 
     //Server Connection Related Parameters
     public static final String LOCAL_ADDRESS = "LOCAL_ADDRESS";
@@ -262,9 +263,7 @@ public final class Constants {
     public static final AttributeKey<Integer> NEXT_SEQUENCE_NUMBER = AttributeKey.valueOf("NEXT_SEQUENCE_NUMBER");
     public static final int EXPECTED_SEQUENCE_NUMBER = 1;
     public static final int NUMBER_OF_INITIAL_EVENTS_HELD = 3;
-    public static final int RESPONSE_QUEUING_NOT_NEEDED = 0;
     public static final int MEANINGFULLY_EQUAL = 0;
-    public static final int NOT_MEANINGFULLY_EQUAL = 1;
 
     public static final String UTF8 = "UTF-8";
     public static final String URL_AUTHORITY = "://";
