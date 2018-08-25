@@ -157,7 +157,7 @@ public class RunFunctionNegativeTestCase {
         LogLeecher errLogLeecher = new LogLeecher("usage error: invalid argument '" + arg
                                                           + "', expected byte value");
         serverInstance.addErrorLogLeecher(errLogLeecher);
-        serverInstance.runMain(new String[]{sourceArg, "--", "10", "1.0", "string!", arg, "a", "b", "c", "d"});
+        serverInstance.runMain(new String[]{sourceArg, "10", "1.0", "string!", arg, "a", "b", "c", "d"});
         errLogLeecher.waitForText(2000);
     }
 

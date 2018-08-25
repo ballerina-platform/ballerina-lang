@@ -71,6 +71,14 @@ public class CommandParserTestCase {
         outLogLeecher.waitForText(2000);
     }
 
+    @Test (description = "Test unknown commands", dataProvider = "invalidCommands")
+    public void testUnknownCommand(String unknownCmd) throws BallerinaTestException {
+        LogLeecher errLogLeecher = new LogLeecher("ballerina: unknown command '" + unknownCmd + "'");
+        serverInstance.addErrorLogLeecher(errLogLeecher);
+        serverInstance.runMain(new String[0], null, unknownCmd);
+        errLogLeecher.waitForText(2000);
+    }
+
     @AfterMethod
     public void stopServer() throws BallerinaTestException {
         serverInstance.stopServer();
@@ -97,6 +105,15 @@ public class CommandParserTestCase {
                 { "-5" },
                 { "-1.0" },
                 { "-config" }
+        };
+    }
+
+    @DataProvider(name = "invalidCommands")
+    public Object[][] invalidCommands() {
+        return new Object[][] {
+                { "runs" },
+                { "buil" },
+                { "text" }
         };
     }
 }

@@ -98,7 +98,7 @@ public class RunFunctionPositiveTestCase {
         sourceArg = filePath + ":" + functionName;
         LogLeecher outLogLeecher = new LogLeecher("2 hi world: is false");
         serverInstance.addLogLeecher(outLogLeecher);
-        serverInstance.runMain(new String[]{PRINT_RETURN, sourceArg, "--", "-i=2", "-s=hi", "false", "is"});
+        serverInstance.runMain(new String[]{PRINT_RETURN, sourceArg, "-i=2", "-s=hi", "false", "is"});
         outLogLeecher.waitForText(2000);
     }
 
@@ -108,7 +108,7 @@ public class RunFunctionPositiveTestCase {
         sourceArg = filePath + ":" + functionName;
         LogLeecher outLogLeecher = new LogLeecher("1 hi world: is false");
         serverInstance.addLogLeecher(outLogLeecher);
-        serverInstance.runMain(new String[]{PRINT_RETURN, sourceArg, "--", "-s=hi", "false", "is"});
+        serverInstance.runMain(new String[]{PRINT_RETURN, sourceArg, "-s=hi", "false", "is"});
         outLogLeecher.waitForText(2000);
     }
 
@@ -118,7 +118,7 @@ public class RunFunctionPositiveTestCase {
         sourceArg = filePath + ":" + functionName;
         LogLeecher outLogLeecher = new LogLeecher("1 default hello world: is true");
         serverInstance.addLogLeecher(outLogLeecher);
-        serverInstance.runMain(new String[]{PRINT_RETURN, sourceArg, "--", "true", "is"});
+        serverInstance.runMain(new String[]{PRINT_RETURN, sourceArg, "true", "is"});
         outLogLeecher.waitForText(2000);
     }
 
