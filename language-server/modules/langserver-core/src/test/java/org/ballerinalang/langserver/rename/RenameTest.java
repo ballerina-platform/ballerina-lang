@@ -60,7 +60,7 @@ public class RenameTest {
         Path sourcePath = sourcesPath.resolve("source").resolve(source);
 
         JsonObject configJsonObject = FileUtils.fileContentAsObject(configJsonPath);
-        JsonArray expected = configJsonObject.get("expected").getAsJsonArray();
+        JsonArray expectedJson = configJsonObject.get("expected").getAsJsonArray();
 
         TestUtil.openDocument(this.serviceEndpoint, sourcePath);
         String response = getRenameResponse(configJsonObject, sourcePath);
@@ -74,7 +74,24 @@ public class RenameTest {
             responseJson.addAll(change.getAsJsonObject().getAsJsonArray("edits"));
         }
 
-        Assert.assertEquals(responseJson, expected);
+        Assert.assertTrue(isSubArray(expectedJson, responseJson));
+    }
+
+    private boolean isSubArray(JsonArray subArray, JsonArray array) {
+        boolean isSubList = true;
+        for (JsonElement exp : subArray) {
+            isSubList = false;
+            for (JsonElement res : array) {
+                if (exp.equals(res)) {
+                    isSubList = true;
+                    break;
+                }
+            }
+            if (!isSubList) {
+                break;
+            }
+        }
+        return isSubList;
     }
 
     @DataProvider(name = "rename-data-provider")
