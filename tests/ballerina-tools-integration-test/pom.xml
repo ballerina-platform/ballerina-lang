@@ -4,7 +4,7 @@
     <parent>
         <groupId>org.ballerinalang</groupId>
         <artifactId>ballerina-parent</artifactId>
-        <version>0.981.1-SNAPSHOT</version>
+        <version>0.981.2-SNAPSHOT</version>
         <relativePath>../../pom.xml</relativePath>
     </parent>
 
@@ -27,14 +27,6 @@
             <artifactId>ballerina-lang</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.ballerinalang</groupId>
-            <artifactId>ballerina-packerina</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.ballerinalang</groupId>
-            <artifactId>ballerina-launcher</artifactId>
-        </dependency>
-        <dependency>
             <groupId>org.awaitility</groupId>
             <artifactId>awaitility</artifactId>
             <scope>test</scope>
@@ -52,40 +44,13 @@
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-dependency-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <goals>
-                            <goal>copy</goal>
-                        </goals>
-                        <configuration>
-                            <artifactItems>
-                                <artifactItem>
-                                    <groupId>org.ballerinalang</groupId>
-                                    <artifactId>ballerina-integration-test-utils</artifactId>
-                                    <version>${project.version}</version>
-                                    <type>jar</type>
-                                    <overWrite>true</overWrite>
-                                    <outputDirectory>${project.build.directory}</outputDirectory>
-                                </artifactItem>
-                            </artifactItems>
-                            <overWriteReleases>false</overWriteReleases>
-                            <overWriteSnapshots>true</overWriteSnapshots>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
                 <configuration>
-                    <!--<argLine>${jacoco.agent.argLine}</argLine>-->
+                    <argLine>${jacoco.agent.argLine}</argLine>
                     <systemPropertyVariables>
                         <server.zip>
                             ${basedir}/../../distribution/zip/ballerina-tools/target/ballerina-tools-${project.version}.zip
                         </server.zip>
-                        <jacoco.agent.argLine>${jacoco.agent.argLine}</jacoco.agent.argLine>
-                        <ballerina.test.exit.agent.location>${project.build.directory}/ballerina-integration-test-utils-${project.version}.jar</ballerina.test.exit.agent.location>
                         <integration.test.utils.service.file>
                             ${basedir}/../../tests/ballerina-integration-test-utils/src/main/ballerina/httpService/common_backend.bal
                         </integration.test.utils.service.file>
@@ -102,6 +67,7 @@
             <plugin>
                 <groupId>org.jacoco</groupId>
                 <artifactId>jacoco-maven-plugin</artifactId>
+                <version>0.7.8</version>
                 <executions>
                     <execution>
                         <id>prepare-it-test-agent</id>
@@ -152,7 +118,6 @@
                                     <and>
                                         <available file="${ballerina.unit.test.coverage}/${individual.test.report.name}" />
                                         <available file="${ballerina.integration.test.coverage}/${individual.test.report.name}" />
-                                        <available file="${ballerina.tools.integration.test.coverage}/${individual.test.report.name}" />
                                         <available file="${ballerina.compiler.plugin.test.coverage}/${individual.test.report.name}" />
                                         <available file="${docerina.test.coverage}/${individual.test.report.name}" />
                                         <available file="${ballerina.metrics.extension.test.coverage}/${individual.test.report.name}" />
@@ -171,9 +136,6 @@
                                                     <include name="${individual.test.report.name}" />
                                                 </fileset>
                                                 <fileset dir="${ballerina.integration.test.coverage}">
-                                                    <include name="${individual.test.report.name}" />
-                                                </fileset>
-                                                <fileset dir="${ballerina.tools.integration.test.coverage}">
                                                     <include name="${individual.test.report.name}" />
                                                 </fileset>
                                                 <fileset dir="${ballerina.compiler.plugin.test.coverage}">
@@ -303,7 +265,7 @@
                     <dependency>
                         <groupId>org.jacoco</groupId>
                         <artifactId>org.jacoco.ant</artifactId>
-                        <version>${jacoco.agent.version}</version>
+                        <version>${jacoco.version}</version>
                     </dependency>
                     <dependency>
                         <groupId>ant-contrib</groupId>
@@ -330,7 +292,6 @@
 
         <ballerina.unit.test.coverage>${basedir}/../ballerina-unit-test/target/coverage-reports</ballerina.unit.test.coverage>
         <ballerina.integration.test.coverage>${basedir}/../ballerina-integration-test/target/coverage-reports</ballerina.integration.test.coverage>
-        <ballerina.tools.integration.test.coverage>${build.directory}/coverage-reports</ballerina.tools.integration.test.coverage>
         <ballerina.compiler.plugin.test.coverage>${basedir}/../ballerina-compiler-plugin-test/target/coverage-reports</ballerina.compiler.plugin.test.coverage>
         <docerina.test.coverage>${basedir}/../../misc/docerina/target/coverage-reports</docerina.test.coverage>
         <ballerina.metrics.extension.test.coverage>${basedir}/../../misc/metrics-extensions/modules/ballerina-metrics-extension/target/coverage-reports</ballerina.metrics.extension.test.coverage>

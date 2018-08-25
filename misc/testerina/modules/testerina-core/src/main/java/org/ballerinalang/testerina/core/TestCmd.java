@@ -17,10 +17,6 @@
  */
 package org.ballerinalang.testerina.core;
 
-import com.beust.jcommander.DynamicParameter;
-import com.beust.jcommander.JCommander;
-import com.beust.jcommander.Parameter;
-import com.beust.jcommander.Parameters;
 import org.ballerinalang.config.ConfigRegistry;
 import org.ballerinalang.launcher.BLauncherCmd;
 import org.ballerinalang.launcher.LauncherUtils;
@@ -31,6 +27,7 @@ import org.ballerinalang.util.BLangConstants;
 import org.ballerinalang.util.VMOptions;
 import org.wso2.ballerinalang.compiler.FileSystemProjectDirectory;
 import org.wso2.ballerinalang.compiler.SourceDirectory;
+import picocli.CommandLine;
 
 import java.io.IOException;
 import java.io.PrintStream;
@@ -46,44 +43,45 @@ import static org.ballerinalang.runtime.Constants.SYSTEM_PROP_BAL_DEBUG;
 /**
  * Test command for ballerina launcher.
  */
-@Parameters(commandNames = "test", commandDescription = "test Ballerina program")
+@CommandLine.Command(name = "test", description = "test Ballerina programs")
 public class TestCmd implements BLauncherCmd {
 
     private static final PrintStream errStream = System.err;
     private static final PrintStream outStream = System.out;
 
-    @Parameter(arity = 1, description = "ballerina package/files to be tested")
+    @CommandLine.Parameters
     private List<String> sourceFileList;
 
-    @Parameter(names = { "--help", "-h" }, hidden = true)
+    @CommandLine.Option(names = { "--help", "-h" }, hidden = true)
     private boolean helpFlag;
 
-    @Parameter(names = {"--sourceroot"}, description = "path to the directory containing source files and packages")
+    @CommandLine.Option(names = {"--sourceroot"}, 
+            description = "path to the directory containing source files and packages")
     private String sourceRoot;
 
-    @DynamicParameter(names = "-e", description = "Ballerina environment parameters")
+    @CommandLine.Option(names = "-e", description = "Ballerina environment parameters")
     private Map<String, String> runtimeParams = new HashMap<>();
 
-    @DynamicParameter(names = "-B", description = "Ballerina VM options")
+    @CommandLine.Option(names = "-B", description = "Ballerina VM options")
     private Map<String, String> vmOptions = new HashMap<>();
 
-    @Parameter(names = {"--config", "-c"}, description = "path to the testerina configuration file")
+    @CommandLine.Option(names = {"--config", "-c"}, description = "path to the Testerina configuration file")
     private String configFilePath;
 
-    @Parameter(names = "--debug", description = "remote debug testerina programs")
+    @CommandLine.Option(names = "--debug", description = "remote debug testerina programs")
     private String debugPort;
 
     // Testerina Flags
-    @Parameter(names = {"--list-groups", "-lg"}, description = "list the groups available in the tests")
+    @CommandLine.Option(names = {"--list-groups", "-lg"}, description = "list the groups available in the tests")
     private boolean listGroups;
 
-    @Parameter(names = "--groups", description = "test groups to be executed")
+    @CommandLine.Option(names = "--groups", description = "test groups to be executed")
     private List<String> groupList;
 
-    @Parameter(names = "--disable-groups", description = "test groups to be disabled")
+    @CommandLine.Option(names = "--disable-groups", description = "test groups to be disabled")
     private List<String> disableGroupList;
 
-    @Parameter(names = "--exclude-packages", description = "packages to be excluded")
+    @CommandLine.Option(names = "--exclude-packages", description = "packages to be excluded")
     private List<String> excludedPackageList;
 
     public void execute() {
@@ -181,11 +179,11 @@ public class TestCmd implements BLauncherCmd {
     }
 
     @Override
-    public void setParentCmdParser(JCommander parentCmdParser) {
+    public void setParentCmdParser(CommandLine parentCmdParser) {
     }
 
     @Override
-    public void setSelfCmdParser(JCommander selfCmdParser) {
+    public void setSelfCmdParser(CommandLine selfCmdParser) {
         // ignore
 
     }

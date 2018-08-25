@@ -69,6 +69,9 @@ import java.util.stream.Stream;
  */
 public class CommandUtil {
 
+    private CommandUtil() {
+    }
+
     /**
      * Get the command for auto documentation Generation.
      * @param nodeType          Type of the node on which the documentation generated
@@ -100,11 +103,11 @@ public class CommandUtil {
     /**
      * Get the command instances for a given diagnostic.
      *
-     * @param diagnostic     Diagnostic to get the command against
-     * @param params         Code Action parameters
-     * @param documentManager Document manager
-     * @param lsCompiler
-     * @return {@link List}    List of commands related to the given diagnostic
+     * @param diagnostic        Diagnostic to get the command against
+     * @param params            Code Action parameters
+     * @param documentManager   Document manager
+     * @param lsCompiler        LSCompiler Instance
+     * @return {@link List}     List of commands related to the given diagnostic
      */
     public static List<Command> getCommandsByDiagnostic(Diagnostic diagnostic, CodeActionParams params,
                                                         WorkspaceDocumentManager documentManager,
@@ -180,14 +183,14 @@ public class CommandUtil {
                 filteredFunctions
                         .addAll(((BLangObjectTypeNode) (((BLangTypeDefinition) topLevelNode).typeNode)).getFunctions());
             }
+        }
 
-            for (FunctionNode filteredFunction : filteredFunctions) {
-                DiagnosticPos functionPos =
-                        CommonUtil.toZeroBasedPosition((DiagnosticPos) filteredFunction.getPosition());
-                int functionStart = functionPos.getStartLine();
-                if (functionStart == line) {
-                    return getFunctionNodeDocumentation(filteredFunction, line);
-                }
+        for (FunctionNode filteredFunction : filteredFunctions) {
+            DiagnosticPos functionPos =
+                    CommonUtil.toZeroBasedPosition((DiagnosticPos) filteredFunction.getPosition());
+            int functionStart = functionPos.getStartLine();
+            if (functionStart == line) {
+                return getFunctionNodeDocumentation(filteredFunction, line);
             }
         }
 
@@ -205,36 +208,8 @@ public class CommandUtil {
         }
         bLangFunction.getParameters().forEach(bLangVariable ->
                         attributes.add(getDocAttributeFromBLangVariable((BLangVariable) bLangVariable, offset)));
-        // TODO: Fix with the latest changes properly
-//        bLangFunction.getReturnParameters()
-//                .forEach(bLangVariable -> {
-//                    if (!bLangVariable.getName().getValue().isEmpty()) {
-//                        attributes.add(getDocAttributeFromBLangVariable((BLangVariable) bLangVariable, offset));
-//                    }
-//                });
 
         return new DocAttachmentInfo(getDocumentationAttachment(attributes, functionPos.getStartColumn()), replaceFrom);
-    }
-
-    /**
-     * Get the Documentation attachment for the struct definition.
-     * @param bLangPackage      BLangPackage built
-     * @param line              Start line of the struct in the source
-     * @return {@link DocAttachmentInfo}   Documentation attachment for the struct
-     */
-    static DocAttachmentInfo getRecordOrObjectDocumentationByPosition(BLangPackage bLangPackage, int line) {
-        for (TopLevelNode topLevelNode : bLangPackage.topLevelNodes) {
-            if (topLevelNode instanceof BLangTypeDefinition) {
-                BLangTypeDefinition typeDefNode = (BLangTypeDefinition) topLevelNode;
-                DiagnosticPos structPos = CommonUtil.toZeroBasedPosition(typeDefNode.getPosition());
-                int structStart = structPos.getStartLine();
-                if (structStart == line) {
-                    return getRecordOrObjectDocumentation(typeDefNode, line);
-                }
-            }
-        }
-
-        return null;
     }
 
     static DocAttachmentInfo getRecordOrObjectDocumentation(BLangTypeDefinition typeDef, int replaceFrom) {
@@ -277,37 +252,6 @@ public class CommandUtil {
         DiagnosticPos endpointPos = CommonUtil.toZeroBasedPosition(bLangEndpoint.getPosition());
 
         return new DocAttachmentInfo(getDocumentationAttachment(null, endpointPos.getStartColumn()), replaceFrom);
-    }
-
-    /**
-     * Get the Documentation attachment for the resource.
-     * @param bLangPackage      BLangPackage built
-     * @param line              Start line of the resource in the source
-     * @return {@link DocAttachmentInfo}   Documentation attachment for the resource
-     */
-    static DocAttachmentInfo getResourceDocumentationByPosition(BLangPackage bLangPackage, int line) {
-        // TODO: Currently resource position is invalid and we use the annotation attachment positions.
-        for (TopLevelNode topLevelNode : bLangPackage.topLevelNodes) {
-            if (topLevelNode instanceof BLangService) {
-                BLangService serviceNode = (BLangService) topLevelNode;
-
-                for (BLangResource bLangResource : serviceNode.getResources()) {
-                    List<BLangAnnotationAttachment> annotationAttachments = bLangResource.getAnnotationAttachments();
-                    DiagnosticPos resourcePos = CommonUtil.toZeroBasedPosition(bLangResource.getPosition());
-                    if (!annotationAttachments.isEmpty()) {
-                        DiagnosticPos lastAttachmentPos = CommonUtil.toZeroBasedPosition(
-                                CommonUtil.getLastItem(annotationAttachments).getPosition());
-                        if (lastAttachmentPos.getEndLine() < line && line < resourcePos.getEndLine()) {
-                            return getResourceNodeDocumentation(bLangResource, lastAttachmentPos.getEndLine() + 1);
-                        }
-                    } else if (resourcePos.getStartLine() == line) {
-                        return getResourceNodeDocumentation(bLangResource, line);
-                    }
-                }
-            }
-        }
-
-        return null;
     }
 
     static DocAttachmentInfo getResourceNodeDocumentation(BLangResource bLangResource, int replaceFrom) {
@@ -361,8 +305,8 @@ public class CommandUtil {
             DiagnosticPos typeNodePos;
             typeNodePos = (DiagnosticPos) topLevelNode.getPosition();
             if ((topLevelNode instanceof BLangTypeDefinition &&
-                    (((BLangTypeDefinition) topLevelNode).symbol.getKind() == SymbolKind.OBJECT
-                            || ((BLangTypeDefinition) topLevelNode).symbol.getKind() == SymbolKind.RECORD))
+                    (((BLangTypeDefinition) topLevelNode).symbol.kind == SymbolKind.OBJECT
+                            || ((BLangTypeDefinition) topLevelNode).symbol.kind == SymbolKind.RECORD))
                     && typeNodePos.getStartLine() - 1 == line) {
                 return getTypeNodeDocumentation(topLevelNode, line);
             }
@@ -377,13 +321,13 @@ public class CommandUtil {
         int offset = typeNodePos.getStartColumn();
         List<VariableNode> publicFields = new ArrayList<>();
         if (typeNode instanceof BLangTypeDefinition &&
-                ((BLangTypeDefinition) typeNode).symbol.getKind() == SymbolKind.OBJECT) {
+                ((BLangTypeDefinition) typeNode).symbol.kind == SymbolKind.OBJECT) {
             publicFields.addAll(((BLangObjectTypeNode) ((BLangTypeDefinition) typeNode).typeNode).getFields().stream()
                     .filter(field -> field.getFlags().contains(Flag.PUBLIC)).collect(Collectors.toList()));
             
         } else if (typeNode instanceof BLangTypeDefinition &&
-                ((BLangTypeDefinition) typeNode).symbol.getKind() == SymbolKind.RECORD) {
-            publicFields.addAll(((BLangObjectTypeNode) ((BLangTypeDefinition) typeNode).typeNode).getFields());
+                ((BLangTypeDefinition) typeNode).symbol.kind == SymbolKind.RECORD) {
+            publicFields.addAll(((BLangRecordTypeNode) ((BLangTypeDefinition) typeNode).typeNode).getFields());
         }
         
         publicFields.forEach(variableNode -> {
@@ -440,7 +384,7 @@ public class CommandUtil {
     /**
      * Inner class for the command argument holding argument key and argument value.
      */
-    private static class CommandArgument {
+    public static class CommandArgument {
         private String argumentK;
 
         private String argumentV;

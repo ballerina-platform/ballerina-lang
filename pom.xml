@@ -22,7 +22,7 @@
     <groupId>org.ballerinalang</groupId>
     <artifactId>ballerina-parent</artifactId>
     <packaging>pom</packaging>
-    <version>0.981.1-SNAPSHOT</version>
+    <version>0.981.2-SNAPSHOT</version>
     <name>Ballerina - Parent</name>
 
     <description>
@@ -84,16 +84,6 @@
             <id>wso2-nexus</id>
             <name>WSO2 internal Repository</name>
             <url>http://maven.wso2.org/nexus/content/groups/wso2-public/</url>
-            <releases>
-                <enabled>true</enabled>
-                <updatePolicy>daily</updatePolicy>
-                <checksumPolicy>ignore</checksumPolicy>
-            </releases>
-        </repository>
-        <repository>
-            <id>nuiton</id>
-            <name>nuiton Repository</name>
-            <url>http://maven.nuiton.org/release/</url>
             <releases>
                 <enabled>true</enabled>
                 <updatePolicy>daily</updatePolicy>
@@ -1067,9 +1057,9 @@
                 <version>${jackson.version}</version>
             </dependency>
             <dependency>
-                <groupId>com.beust</groupId>
-                <artifactId>jcommander</artifactId>
-                <version>${jcommander.version}</version>
+                <groupId>info.picocli</groupId>
+                <artifactId>picocli</artifactId>
+                <version>${picocli.version}</version>
             </dependency>
             <dependency>
                 <groupId>io.netty</groupId>
@@ -1161,7 +1151,7 @@
                 <groupId>org.jacoco</groupId>
                 <artifactId>org.jacoco.agent</artifactId>
                 <classifier>runtime</classifier>
-                <version>${jacoco.agent.version}</version>
+                <version>${jacoco.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.apache.maven</groupId>
@@ -1500,11 +1490,6 @@
                 <version>${ballerina.examples.version}</version>
                 <type>zip</type>
             </dependency>
-            <dependency>
-                <groupId>com.sun</groupId>
-                <artifactId>tools</artifactId>
-                <version>${com.sun.tools.version}</version>
-            </dependency>
         </dependencies>
     </dependencyManagement>
 
@@ -1660,6 +1645,7 @@
                 <module>tests/ballerina-compiler-plugin-test</module>
                 <module>tool-plugins/intellij</module>
                 <module>tool-plugins/vscode</module>
+                <!--<module>tool-plugins/theia</module> -->
 
                 <module>benchmarks</module>
             </modules>
@@ -1818,6 +1804,7 @@
                 <!-- Intellij build disabled in default build -->
                 <!--<module>tool-plugins/intellij</module>-->
                 <module>tool-plugins/vscode</module>
+                <!--<module>tool-plugins/theia</module> -->
 
                 <module>benchmarks</module>
             </modules>
@@ -2074,11 +2061,6 @@
                     <artifactId>protobuf-maven-plugin</artifactId>
                     <version>${protobuf.maven.plugin.version}</version>
                 </plugin>
-                <plugin>
-                    <groupId>org.jacoco</groupId>
-                    <artifactId>jacoco-maven-plugin</artifactId>
-                    <version>${maven.jacoco.plugin.version}</version>
-                </plugin>
             </plugins>
         </pluginManagement>
         <plugins>
@@ -2128,8 +2110,8 @@
     </build>
 
     <properties>
-        <ballerina.version>0.981.1-SNAPSHOT</ballerina.version>
-        <ballerina.examples.version>0.981.1-SNAPSHOT</ballerina.examples.version>
+        <ballerina.version>0.981.2-SNAPSHOT</ballerina.version>
+        <ballerina.examples.version>0.981.2-SNAPSHOT</ballerina.examples.version>
         <ballerina.package.export.version>0.8.0</ballerina.package.export.version>
 
         <commons-net.version>3.6</commons-net.version>
@@ -2152,7 +2134,7 @@
         <equinox.osgi.version>3.10.2.v20150203-1939</equinox.osgi.version>
         <equinox.osgi.services.version>3.4.0.v20140312-2051</equinox.osgi.services.version>
         <carbon.kernel.version>5.1.0</carbon.kernel.version>
-        <transport.http.version>6.0.221</transport.http.version>
+        <transport.http.version>6.0.224</transport.http.version>
         <carbon.messaging.version>2.3.7</carbon.messaging.version>
         <carbon.deployment.version>5.0.0</carbon.deployment.version>
         <carbon.config.version>2.1.2</carbon.config.version>
@@ -2171,12 +2153,12 @@
         <geronimo.stax>1.0.1</geronimo.stax>
         <mime4j.version>0.7.2</mime4j.version>
         <staxon.version>1.2.0.wso2v2</staxon.version>
-        <jacoco.agent.version>0.8.1</jacoco.agent.version>
+        <jacoco.version>0.7.5.201505241946</jacoco.version>
         <mockito.version>1.9.0</mockito.version>
         <netty.version>4.1.19.Final</netty.version>
         <commons.pool.version>1.5.6.wso2v1</commons.pool.version>
         <org.snakeyaml.version>1.16.0.wso2v1</org.snakeyaml.version>
-        <jcommander.version>1.60</jcommander.version>
+        <picocli.version>3.3.0</picocli.version>
         <com.zaxxer.hikaricp.version>3.1.0</com.zaxxer.hikaricp.version>
         <hyperSQL.version>2.4.0</hyperSQL.version>
         <h2.version>1.4.197</h2.version>
@@ -2247,7 +2229,6 @@
         <maven.surefire.plugin.version>2.21.0</maven.surefire.plugin.version>
         <maven.exec.plugin.version>1.6.0</maven.exec.plugin.version>
         <maven.replacer.plugin.version>1.5.3</maven.replacer.plugin.version>
-        <maven.jacoco.plugin.version>0.8.1</maven.jacoco.plugin.version>
 
         <apache.rat.plugin.version>0.11</apache.rat.plugin.version>
         <clirr.maven.plugin.version>2.7</clirr.maven.plugin.version>
@@ -2282,7 +2263,7 @@
         <chewiebug.gcviewer.version>1.35</chewiebug.gcviewer.version>
 
         <maven.spotbugsplugin.exclude.file>spotbugs-exclude.xml</maven.spotbugsplugin.exclude.file>
-        <com.sun.tools.version>1.7.0.13</com.sun.tools.version>
+
     </properties>
 
 </project>

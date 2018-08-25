@@ -17,10 +17,6 @@
  */
 package org.ballerinalang.test.context;
 
-import com.sun.tools.attach.AgentInitializationException;
-import com.sun.tools.attach.AgentLoadException;
-import com.sun.tools.attach.AttachNotSupportedException;
-import com.sun.tools.attach.VirtualMachine;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.mina.util.ConcurrentHashSet;
 import org.slf4j.Logger;
@@ -35,10 +31,6 @@ import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.nio.charset.Charset;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.Locale;
 import java.util.Map;
@@ -58,8 +50,13 @@ public class ServerInstance implements Server {
     private ServerLogReader serverInfoLogReader;
     private ServerLogReader serverErrorLogReader;
     private boolean isServerRunning;
-    private int httpServerPort = Constant.DEFAULT_HTTP_PORT;
+    private int[] httpServicePorts = new int[]{Constant.DEFAULT_HTTP_PORT};
     private ConcurrentHashSet<LogLeecher> tmpLeechers = new ConcurrentHashSet<>();
+
+    /**
+     * The pidPort value is used with identifying the process id when shutting down the ballerina server.
+     */
+    private int pidPort = Constant.DEFAULT_HTTP_PORT;
 
     /**
      * The parent directory which the ballerina runtime will be extracted to.
@@ -72,25 +69,6 @@ public class ServerInstance implements Server {
         initialize();
     }
 
-    public ServerInstance(String serverDistributionPath, int serverHttpPort) throws BallerinaTestException {
-        this.serverDistribution = serverDistributionPath;
-        this.httpServerPort = serverHttpPort;
-
-        initialize();
-    }
-
-    /**
-     * Method to start Ballerina server given the port and bal file.
-     *
-     * @param port In which server starts.
-     * @return ballerinaServer      Started server instance.
-     * @throws BallerinaTestException If any exception is thrown when starting the ballerina server
-     */
-    public static ServerInstance initBallerinaServer(int port) throws BallerinaTestException {
-        String serverZipPath = System.getProperty(Constant.SYSTEM_PROP_SERVER_ZIP);
-        return new ServerInstance(serverZipPath, port);
-    }
-
     /**
      * Method to start Ballerina server in default port 9092 with given bal file.
      *
@@ -98,9 +76,8 @@ public class ServerInstance implements Server {
      * @throws BallerinaTestException If any exception is thrown when starting the ballerina server
      */
     public static ServerInstance initBallerinaServer() throws BallerinaTestException {
-        int defaultPort = Constant.DEFAULT_HTTP_PORT;
         String serverZipPath = System.getProperty(Constant.SYSTEM_PROP_SERVER_ZIP);
-        return new ServerInstance(serverZipPath, defaultPort);
+        return new ServerInstance(serverZipPath);
     }
 
     public void startBallerinaServer(String balFile) throws BallerinaTestException {
@@ -118,14 +95,15 @@ public class ServerInstance implements Server {
      * @throws BallerinaTestException If any exception is thrown when starting the ballerina server
      */
     public void startBallerinaServer(String balFile, int httpServerPort) throws BallerinaTestException {
-        this.httpServerPort = httpServerPort;
+        this.pidPort = httpServerPort;
+        this.httpServicePorts = new int[]{httpServerPort};
         String[] args = {balFile};
         setArguments(args);
         startServer();
     }
 
     public void startBallerinaServer(String balFile, Map<String, String> envProperties) throws BallerinaTestException {
-        String[] args = { balFile };
+        String[] args = {balFile};
         setArguments(args);
         setEnvProperties(envProperties);
         startServer();
@@ -141,13 +119,30 @@ public class ServerInstance implements Server {
      * @throws BallerinaTestException If any exception is thrown when starting the ballerina server
      */
     public void startBallerinaServer(String balFile, String[] args, int httpServerPort) throws BallerinaTestException {
-        this.httpServerPort = httpServerPort;
+        this.pidPort = httpServerPort;
+        this.httpServicePorts = new int[]{httpServerPort};
         startBallerinaServer(balFile, args);
     }
 
-    public void startBallerinaServer(String balFile, String[] args) throws BallerinaTestException {
+    /**
+     * Starts the ballerina server instance along with checking all the given http ports for availability before
+     * starting the server.
+     *
+     * @param balFile - path of the ballerina distribution (zip).
+     * @param args - additional arguments to be used with starting the server.
+     * @param httpServerPorts - the http ports to check for availability before starting the server instance.
+     * @throws BallerinaTestException If any exception is thrown when starting the ballerina server
+     */
+    public void startBallerinaServer(String balFile, String[] args, int[] httpServerPorts)
+            throws BallerinaTestException {
+        this.httpServicePorts = httpServerPorts;
+        this.pidPort = httpServerPorts[0];
+        startBallerinaServer(balFile, args);
+    }
+
+    private void startBallerinaServer(String balFile, String[] args) throws BallerinaTestException {
         String[] newArgs = {balFile};
-        newArgs = ArrayUtils.addAll(newArgs, args);
+        newArgs = ArrayUtils.addAll(args, newArgs);
         setArguments(newArgs);
 
         startServer();
@@ -162,7 +157,7 @@ public class ServerInstance implements Server {
      */
     public void startBallerinaServerWithConfigPath(String balFile, String ballerinaConfPath) throws
             BallerinaTestException {
-        String balConfigPathArg = "--config ";
+        String balConfigPathArg = "--config";
         String[] args = {balConfigPathArg, ballerinaConfPath, balFile};
         setArguments(args);
 
@@ -181,7 +176,7 @@ public class ServerInstance implements Server {
             throw new IllegalArgumentException("No Argument provided for server startup.");
         }
 
-        Utils.checkPortAvailability(httpServerPort);
+        Utils.checkPortsAvailability(httpServicePorts);
 
         log.info("Starting server..");
 
@@ -192,8 +187,8 @@ public class ServerInstance implements Server {
         serverInfoLogReader.start();
         serverErrorLogReader = new ServerLogReader("errorStream", process.getErrorStream());
         serverErrorLogReader.start();
-        log.info("Waiting for port " + httpServerPort + " to open");
-        Utils.waitForPort(httpServerPort, 1000 * 60 * 2, false, "localhost");
+        log.info("Waiting for ports to open");
+        Utils.waitForPortsToOpen(httpServicePorts, 1000 * 60 * 2, false, "localhost");
         log.info("Server Started Successfully.");
         isServerRunning = true;
     }
@@ -207,7 +202,6 @@ public class ServerInstance implements Server {
         if (serverHome == null) {
             setUpServerHome(serverDistribution);
             log.info("Server Home " + serverHome);
-            configServer();
         }
     }
 
@@ -229,40 +223,16 @@ public class ServerInstance implements Server {
                     killServer.waitFor(15, TimeUnit.SECONDS);
                     killServer.destroy();
                 } else {
-                    String exitAgentPath = System.getProperty(Constant.EXIT_AGENT_LOCATION);
-
-                    if (exitAgentPath == null || exitAgentPath.isEmpty()) {
-                        log.warn("Ballerina test exit agent not provided, hence integration " +
-                                "test coverage won't be available");
-                        Process killServer = Runtime.getRuntime().exec("kill -9 " + pid);
-                        killServer.waitFor(15, TimeUnit.SECONDS);
-                        killServer.destroy();
-                    } else {
-                        VirtualMachine vm = VirtualMachine.attach(pid);
-                        vm.loadAgent(exitAgentPath, "exitStatus=1,timeout=15000,killStatus=5");
-
-                        //TODO remove below sleep by correctly waiting for the port
-                        Thread.sleep(1000);
-                    }
+                    Process killServer = Runtime.getRuntime().exec("kill -9 " + pid);
+                    killServer.waitFor(15, TimeUnit.SECONDS);
+                    killServer.destroy();
                 }
             } catch (IOException e) {
-                log.error("Error getting process id for the server in port - " + httpServerPort
+                log.error("Error getting process id for the server in port - " + pidPort
                         + " error - " + e.getMessage(), e);
                 throw new BallerinaTestException("Error while getting the server process id", e);
             } catch (InterruptedException e) {
-                log.error("Error stopping the server in port - " + httpServerPort + " error - " + e.getMessage(), e);
-                throw new BallerinaTestException("Error waiting for services to stop", e);
-            } catch (AttachNotSupportedException e) {
-                log.error("Error stopping the server in port - " + httpServerPort + ", " +
-                        "ballerina agent attachment failed, error - " + e.getMessage(), e);
-                throw new BallerinaTestException("Error waiting for services to stop", e);
-            } catch (AgentInitializationException e) {
-                log.error("Error stopping the server in port - " + httpServerPort + ", " +
-                        "ballerina agent initialization failed, error - " + e.getMessage(), e);
-                throw new BallerinaTestException("Error waiting for services to stop", e);
-            } catch (AgentLoadException e) {
-                log.error("Error stopping the server in port - " + httpServerPort + ", " +
-                        "ballerina agent loading failed, error - " + e.getMessage(), e);
+                log.error("Error stopping the server in port - " + pidPort + " error - " + e.getMessage(), e);
                 throw new BallerinaTestException("Error waiting for services to stop", e);
             }
             process.destroy();
@@ -270,8 +240,8 @@ public class ServerInstance implements Server {
             serverErrorLogReader.stop();
             process = null;
             //wait until port to close
-            Utils.waitForPortToClosed(httpServerPort, 30000);
-            httpServerPort = Constant.DEFAULT_HTTP_PORT;
+            Utils.waitForPortsToClose(httpServicePorts, 30000);
+            httpServicePorts = new int[] {Constant.DEFAULT_HTTP_PORT};
             log.info("Server Stopped Successfully");
         }
 
@@ -389,7 +359,7 @@ public class ServerInstance implements Server {
      * @param command      command name
      * @param commandDir   working directory
      * @return process executed
-     * @throws IOException
+     * @throws IOException thrown on error while executing
      */
     private Process executeProcess(String[] args, String[] envVariables, String command, File commandDir)
             throws IOException {
@@ -417,7 +387,7 @@ public class ServerInstance implements Server {
      *
      * @param options client options
      * @param process process executed
-     * @throws IOException
+     * @throws IOException thrown on error while writing
      */
     private void writeClientOptionsToProcess(String[] options, Process process) throws IOException {
         OutputStream stdin = process.getOutputStream();
@@ -452,15 +422,6 @@ public class ServerInstance implements Server {
     private void setEnvProperties(Map<String, String> envProperties) {
         this.envProperties = envProperties;
     }
-    /**
-     * to change the server configuration if required. This method can be overriding when initialising
-     * the object of this class.
-     *
-     * @throws BallerinaTestException if configuring server failed
-     */
-    protected void configServer() throws BallerinaTestException {
-        modifyScriptsWithJacoco();
-    }
 
     /**
      * Return server home path.
@@ -478,7 +439,7 @@ public class ServerInstance implements Server {
      * @return The service URL
      */
     public String getServiceURLHttp(String servicePath) {
-        return "http://localhost:" + httpServerPort + "/" + servicePath;
+        return "http://localhost:" + pidPort + "/" + servicePath;
     }
 
     /**
@@ -587,37 +548,6 @@ public class ServerInstance implements Server {
     }
 
     /**
-     * This is a helper method to add jacoco agent arg line to ballerina scripts if available.
-     */
-    private void modifyScriptsWithJacoco() {
-        String jacocoArgLine = System.getProperty("jacoco.agent.argLine");
-        if (jacocoArgLine == null || jacocoArgLine.isEmpty()) {
-            log.warn("Running integration test without jacoco test coverage");
-            return;
-        }
-        //Modifying only sh file for the time being
-        Path path = Paths.get(serverHome + File.separator + "bin" +
-                File.separator + Constant.BALLERINA_SERVER_SCRIPT_NAME);
-        Charset charset = StandardCharsets.UTF_8;
-
-        try {
-            String content = new String(Files.readAllBytes(path), charset);
-            if (content.contains("-javaagent")) {
-                return;
-            }
-
-            content = content.replaceAll("-classpath \"\\$BALLERINA_CLASSPATH\" \\\\",
-                    jacocoArgLine + " \\\\\n\t"
-                            + "-classpath \"\\$BALLERINA_CLASSPATH\" \\\\");
-            Files.write(path, content.getBytes(charset));
-        } catch (IOException e) {
-            log.warn("Ballerina script modification failed, Running tests without jacoco test coverage");
-        }
-
-        //TODO add this for windows scripts (ballerina.bat)
-    }
-
-    /**
      * reading the server process id.
      *
      * @return process id
@@ -641,7 +571,7 @@ public class ServerInstance implements Server {
                 if (column.length < 5) {
                     continue;
                 }
-                if (column[1].contains(":" + httpServerPort) && column[3].contains("LISTENING")) {
+                if (column[1].contains(":" + pidPort) && column[3].contains("LISTENING")) {
                     log.info(line);
                     pid = column[4];
                     break;
@@ -654,7 +584,7 @@ public class ServerInstance implements Server {
             Process tmp = null;
             try {
                 String[] cmd = {"bash", "-c",
-                        "ss -ltnp \'sport = :" + httpServerPort + "\' | grep LISTEN | awk \'{print $6}\'"};
+                        "ss -ltnp \'sport = :" + pidPort + "\' | grep LISTEN | awk \'{print $6}\'"};
                 tmp = Runtime.getRuntime().exec(cmd);
                 String outPut = readProcessInputStream(tmp.getInputStream());
                 log.info("Output of the PID extraction command : " + outPut);
@@ -670,7 +600,7 @@ public class ServerInstance implements Server {
             } catch (Exception e) {
                 log.warn("Error occurred while extracting the PID with ss " + e.getMessage());
                 // If ss command fails trying with lsof. MacOS doesn't have ss by default
-                pid = getPidWithLsof(httpServerPort);
+                pid = getPidWithLsof(pidPort);
             } finally {
                 if (tmp != null) {
                     tmp.destroy();

@@ -114,3 +114,20 @@ function testMatchErrorWithCauses() {
     }
 }
 
+type Person record {
+    string name,
+    !...
+};
+
+type Employee record {
+    string name,
+    int age,
+    !...
+};
+
+function testRecordMatchIndirectly () returns string {
+    Employee emp = { name: "John" };
+    Employee|Person pUnion = emp;
+    Person person = pUnion but { Employee => { name:"Not John" }};
+    return person.name;
+}
