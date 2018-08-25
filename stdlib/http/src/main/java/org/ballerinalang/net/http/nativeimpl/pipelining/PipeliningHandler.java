@@ -45,7 +45,7 @@ public class PipeliningHandler {
 
     public static HttpResponseFuture sendPipelinedResponse(HttpCarbonMessage requestMsg,
                                                            HttpCarbonMessage responseMsg) {
-        HttpResponseFuture responseFuture = null;
+        HttpResponseFuture responseFuture;
         try {
             responseMsg.setPipeliningNeeded(requestMsg.isPipeliningNeeded());
             if (pipeliningRequired(requestMsg)) {
@@ -83,7 +83,7 @@ public class PipeliningHandler {
                 }
                 responseQueue.remove();
                 //IMPORTANT: Do not increment the nextSequenceNumber after 'sendOutboundResponseRobust()' or
-                // 'sendOutboundResponse()' call under any circumstance.  nextSequenceNumber should be updated only
+                // 'sendOutboundResponse()' under any circumstance.  nextSequenceNumber should be updated only
                 // when the last http content of this message has been written to the socket because in case if
                 // one response has delayed http contents, there's a good chance that the contents of another
                 // response will be sent out before its turn.
@@ -105,7 +105,7 @@ public class PipeliningHandler {
     public static boolean pipeliningRequired(HttpCarbonMessage request) {
         String httpVersion = (String) request.getProperty(Constants.HTTP_VERSION);
         return request.isPipeliningNeeded() && request.isKeepAlive() &&
-                !Constants.HTTP2_VERSION.equalsIgnoreCase(httpVersion);
+                Constants.HTTP_1_1_VERSION.equalsIgnoreCase(httpVersion);
     }
 
     /**
