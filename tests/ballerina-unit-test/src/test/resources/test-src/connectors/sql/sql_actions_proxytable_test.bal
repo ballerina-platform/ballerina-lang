@@ -8,6 +8,13 @@ type Employee record {
     string address,
 };
 
+type Employee2 record {
+    int id,
+    string name,
+    string address,
+    int age,
+};
+
 function testIterateMirrorTable(string jdbcUrl, string userName, string password) returns (Employee[], Employee[]) {
     endpoint jdbc:Client testDB {
         url: jdbcUrl,
@@ -107,7 +114,24 @@ function testAddToMirrorTable(string jdbcUrl, string userName, string password) 
     return employeeArray;
 }
 
-function testAddToMirrorTableNegative(string jdbcUrl, string userName, string password) returns (any) {
+function testAddToMirrorTableInvalidRecord(string jdbcUrl, string userName, string password) returns any {
+    endpoint jdbc:Client testDB {
+        url: jdbcUrl,
+        username: userName,
+        password: password,
+        poolOptions: { maximumPoolSize: 1 }
+    };
+
+    table dt = check testDB->getProxyTable("employeeAdd", Employee);
+
+    Employee2 e = { id: 2, name: "Devni", address: "Sri Lanka", age: 24 };
+    var result = dt.add(e);
+
+    testDB.stop();
+    return result;
+}
+
+function testAddToMirrorTableConstraintViolation(string jdbcUrl, string userName, string password) returns (any) {
     endpoint jdbc:Client testDB {
         url: jdbcUrl,
         username: userName,

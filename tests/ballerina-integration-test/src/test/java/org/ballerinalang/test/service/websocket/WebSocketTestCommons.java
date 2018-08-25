@@ -21,8 +21,8 @@ package org.ballerinalang.test.service.websocket;
 import org.ballerinalang.test.BaseTest;
 import org.ballerinalang.test.context.BallerinaTestException;
 import org.ballerinalang.test.util.websocket.client.WebSocketTestClient;
-import org.testng.annotations.AfterTest;
-import org.testng.annotations.BeforeTest;
+import org.testng.annotations.AfterGroups;
+import org.testng.annotations.BeforeGroups;
 
 import java.io.File;
 import java.util.concurrent.CountDownLatch;
@@ -41,15 +41,17 @@ public class WebSocketTestCommons extends BaseTest {
      *
      * @throws BallerinaTestException on Ballerina related issues.
      */
-    @BeforeTest(groups = "websocket-test")
+    @BeforeGroups(value = "websocket-test", alwaysRun = true)
     public void start() throws BallerinaTestException {
+        int[] requiredPorts = new int[]{9090, 9091, 9092, 9093, 9094, 9095, 9096, 9097, 9098, 9099, 9100, 9081, 9082,
+                9083, 9084};
         String balFile = new File("src" + File.separator + "test" + File.separator + "resources" + File.separator +
                 "websocket").getAbsolutePath();
         String[] args = new String[]{"--sourceroot", balFile};
-        serverInstance.startBallerinaServer("wsservices", args);
+        serverInstance.startBallerinaServer("wsservices", args, requiredPorts);
     }
 
-    @AfterTest(groups = "websocket-test")
+    @AfterGroups(value = "websocket-test", alwaysRun = true)
     public void stop() throws Exception {
         serverInstance.removeAllLeechers();
         serverInstance.stopServer();

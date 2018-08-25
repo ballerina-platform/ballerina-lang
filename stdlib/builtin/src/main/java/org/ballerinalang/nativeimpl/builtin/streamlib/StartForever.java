@@ -93,7 +93,7 @@ public class StartForever extends BlockingNativeCallableUnit {
 
         for (int i = 0; i < functionPointerArray.size(); i++) {
             BFunctionPointer functionPointer = (BFunctionPointer) functionPointerArray.get(i);
-            String functionName = functionPointer.value().getFunctionName();
+            String functionName = functionPointer.value().getName();
             String streamId = "stream" + functionName.replaceAll("\\$", "_");
             StreamingRuntimeManager.getInstance().addCallback(streamId, functionPointer, siddhiAppRuntime);
         }

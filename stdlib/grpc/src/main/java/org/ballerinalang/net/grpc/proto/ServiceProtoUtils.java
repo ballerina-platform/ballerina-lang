@@ -30,7 +30,6 @@ import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.net.grpc.config.ServiceConfiguration;
 import org.ballerinalang.net.grpc.exception.GrpcServerException;
 import org.ballerinalang.net.grpc.proto.definition.EmptyMessage;
-import org.ballerinalang.net.grpc.proto.definition.EnumField;
 import org.ballerinalang.net.grpc.proto.definition.Field;
 import org.ballerinalang.net.grpc.proto.definition.File;
 import org.ballerinalang.net.grpc.proto.definition.Message;
@@ -41,9 +40,7 @@ import org.ballerinalang.net.grpc.proto.definition.StandardDescriptorBuilder;
 import org.ballerinalang.net.grpc.proto.definition.UserDefinedEnumMessage;
 import org.ballerinalang.net.grpc.proto.definition.UserDefinedMessage;
 import org.ballerinalang.net.grpc.proto.definition.WrapperMessage;
-import org.wso2.ballerinalang.compiler.semantics.model.Scope;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BEnumType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BField;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BNilType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStructureType;
@@ -60,14 +57,12 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangIf;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangVariableDef;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangWhile;
-import org.wso2.ballerinalang.compiler.util.Name;
 
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
-import java.util.Map;
 
 import static org.ballerinalang.net.grpc.GrpcConstants.ANN_ATTR_RESOURCE_SERVER_STREAM;
 import static org.ballerinalang.net.grpc.GrpcConstants.ANN_RESOURCE_CONFIG;
@@ -402,14 +397,6 @@ public class ServiceProtoUtils {
                 }
                 break;
             }
-            case ENUM: {
-                if (messageType instanceof org.wso2.ballerinalang.compiler.semantics.model.types.BEnumType) {
-                    org.wso2.ballerinalang.compiler.semantics.model.types.BEnumType enumType = (org
-                            .wso2.ballerinalang.compiler.semantics.model.types.BEnumType) messageType;
-                    message = getEnumMessage(enumType);
-                }
-                break;
-            }
             case NIL: {
                 message = EmptyMessage.newBuilder().build();
                 break;
@@ -431,10 +418,7 @@ public class ServiceProtoUtils {
             String fieldName = structField.getName().getValue();
             BType fieldType = structField.getType();
             String fieldLabel = null;
-            if (fieldType instanceof BEnumType) {
-                BEnumType enumType = (BEnumType) fieldType;
-                messageBuilder.addMessageDefinition(getEnumMessage(enumType));
-            } else if (fieldType instanceof BStructureType) {
+            if (fieldType instanceof BStructureType) {
                 BStructureType structType = (BStructureType) fieldType;
                 messageBuilder.addMessageDefinition(getStructMessage(structType));
             } else if (fieldType instanceof BArrayType) {
@@ -455,18 +439,6 @@ public class ServiceProtoUtils {
         return messageBuilder.build();
     }
 
-    private static UserDefinedEnumMessage getEnumMessage(BEnumType messageType) throws GrpcServerException {
-        UserDefinedEnumMessage.Builder messageBuilder = UserDefinedEnumMessage.newBuilder(messageType.toString());
-        int fieldIndex = 0;
-        Map<Name, Scope.ScopeEntry> enumField = (messageType.tsymbol.scope.entries);
-        for (Map.Entry<Name, Scope.ScopeEntry> field : enumField.entrySet()) {
-            String fieldName = field.getKey().getValue();
-            EnumField messageField = EnumField.newBuilder().setName(fieldName).setIndex(fieldIndex++).build();
-            messageBuilder.addFieldDefinition(messageField);
-        }
-        return messageBuilder.build();
-    }
-    
     private static BLangInvocation getInvocationExpression(BlockNode body) {
         if (body == null) {
             return null;

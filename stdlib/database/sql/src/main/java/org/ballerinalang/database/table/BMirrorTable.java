@@ -105,7 +105,7 @@ public class BMirrorTable extends BTable {
             while (this.hasNext(false)) {
                 BMap<String, BValue> data = this.getNext();
                 BValue[] args = { data };
-                BValue[] returns = BLangFunctions.invokeCallable(lambdaFunction.value().getFunctionInfo(), args);
+                BValue[] returns = BLangFunctions.invokeCallable(lambdaFunction.value(), args);
                 if (((BBoolean) returns[0]).booleanValue()) {
                     ++deletedCount;
                     this.removeData(data, connection);

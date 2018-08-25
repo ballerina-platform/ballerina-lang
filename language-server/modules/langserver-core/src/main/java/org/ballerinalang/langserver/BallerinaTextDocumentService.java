@@ -81,6 +81,7 @@ import org.eclipse.lsp4j.TextDocumentPositionParams;
 import org.eclipse.lsp4j.TextEdit;
 import org.eclipse.lsp4j.WorkspaceEdit;
 import org.eclipse.lsp4j.jsonrpc.messages.Either;
+import org.eclipse.lsp4j.services.LanguageClient;
 import org.eclipse.lsp4j.services.TextDocumentService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -361,8 +362,6 @@ class BallerinaTextDocumentService implements TextDocumentService {
         return CompletableFuture.supplyAsync(() -> {
             List<Command> commands = new ArrayList<>();
             String fileUri = params.getTextDocument().getUri();
-            Path codeActionFilePath = new LSDocument(fileUri).getPath();
-            Path compilationPath = getUntitledFilePath(codeActionFilePath.toString()).orElse(codeActionFilePath);
             try {
                 Position start = params.getRange().getStart();
                 String topLevelNodeType = CommonUtil
@@ -372,9 +371,6 @@ class BallerinaTextDocumentService implements TextDocumentService {
                     commands.add(CommandUtil.getAllDocGenerationCommand(fileUri));
                 }
                 if (!params.getContext().getDiagnostics().isEmpty()) {
-                    LSContextManager lsContextManager = LSContextManager.getInstance();
-                    String sourceRoot = LSCompilerUtil.getSourceRoot(compilationPath);
-                    CompilerContext compilerContext = lsContextManager.getCompilerContext(sourceRoot, documentManager);
                     params.getContext().getDiagnostics().forEach(diagnostic -> {
                         if (start.getLine() == diagnostic.getRange().getStart().getLine()) {
                             commands.addAll(CommandUtil.getCommandsByDiagnostic(diagnostic, params, documentManager,
@@ -564,6 +560,11 @@ class BallerinaTextDocumentService implements TextDocumentService {
 
     private void publishDiagnostics(List<org.ballerinalang.util.diagnostic.Diagnostic> balDiagnostics, Path path) {
         Map<String, List<Diagnostic>> diagnosticsMap = new HashMap<>();
+        LanguageClient client = this.ballerinaLanguageServer.getClient();
+        
+        if (client == null) {
+            return;
+        }
         balDiagnostics.forEach(diagnostic -> {
             Diagnostic d = new Diagnostic();
             d.setSeverity(DiagnosticSeverity.Error);
@@ -609,14 +610,14 @@ class BallerinaTextDocumentService implements TextDocumentService {
             PublishDiagnosticsParams diagnostics = new PublishDiagnosticsParams();
             diagnostics.setUri(entry.getKey());
             diagnostics.setDiagnostics(empty);
-            this.ballerinaLanguageServer.getClient().publishDiagnostics(diagnostics);
+            client.publishDiagnostics(diagnostics);
         }
 
         for (Map.Entry<String, List<Diagnostic>> entry : diagnosticsMap.entrySet()) {
             PublishDiagnosticsParams diagnostics = new PublishDiagnosticsParams();
             diagnostics.setUri(entry.getKey());
             diagnostics.setDiagnostics(entry.getValue());
-            this.ballerinaLanguageServer.getClient().publishDiagnostics(diagnostics);
+            client.publishDiagnostics(diagnostics);
         }
 
         lastDiagnosticMap = diagnosticsMap;

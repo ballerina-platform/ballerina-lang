@@ -109,9 +109,6 @@ class BallerinaWorkspaceService implements WorkspaceService {
         executeCommandContext.put(ExecuteCommandKeys.LANGUAGE_SERVER_KEY, this.ballerinaLanguageServer);
         executeCommandContext.put(ExecuteCommandKeys.LS_COMPILER_KEY, this.lsCompiler);
 
-        return CompletableFuture.supplyAsync(() -> {
-            CommandExecutor.executeCommand(params, executeCommandContext);
-            return true;
-        });
+        return CompletableFuture.supplyAsync(() -> CommandExecutor.executeCommand(params, executeCommandContext));
     }
 }

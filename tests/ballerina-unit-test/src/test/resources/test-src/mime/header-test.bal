@@ -112,3 +112,8 @@ function testHasHeaderForNonExistenceHeader() returns boolean{
     entity.addHeader("heAder1", "value1");
     return entity.hasHeader("header2");
 }
+
+function testHeaderWithNewEntity() returns (boolean, string[]) {
+    mime:Entity entity = new;
+    return (entity.hasHeader("header2"), entity.getHeaderNames());
+}
