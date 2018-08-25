@@ -48,7 +48,7 @@ public class Utils {
      * @param hostName The hostname that needs to be checked
      * @throws RuntimeException if the port is not opened within the timeout
      */
-    public static void waitForPorts(int[] ports, long timeout, boolean verbose, String hostName)
+    public static void waitForPortsToOpen(int[] ports, long timeout, boolean verbose, String hostName)
             throws RuntimeException {
 
         Arrays.stream(ports).parallel().forEach(port -> {
@@ -95,7 +95,7 @@ public class Utils {
      * @param ports   - http ports values
      * @param timeout - max time to wait
      */
-    public static void waitForPortsToClosed(int[] ports, int timeout) {
+    public static void waitForPortsToClose(int[] ports, int timeout) {
         Arrays.stream(ports).parallel().forEach(port -> {
             long time = System.currentTimeMillis() + timeout;
             boolean portOpen = Utils.isPortOpen(port);
