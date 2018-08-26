@@ -38,8 +38,12 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
+import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
 import org.wso2.ballerinalang.compiler.tree.BLangEndpoint;
+import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
+import org.wso2.ballerinalang.compiler.tree.BLangResource;
+import org.wso2.ballerinalang.compiler.tree.BLangService;
 import org.wso2.ballerinalang.compiler.tree.BLangVariable;
 import org.wso2.ballerinalang.compiler.tree.types.BLangArrayType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangConstrainedType;
@@ -316,7 +320,7 @@ public class HoverUtil {
     /**
      * Calculate and returns identifier position of this BLangEndpoint.
      *
-     * @param endpointNode BLangEndpoint
+     * @param endpointNode {@link BLangEndpoint}
      * @return position
      */
     public static DiagnosticPos getIdentifierPosition(BLangEndpoint endpointNode) {
@@ -343,6 +347,84 @@ public class HoverUtil {
             }
             position.eCol += position.sCol + endpointNode.symbol.name.value.length();
         }
+        return position;
+    }
+
+    /**
+     * Calculate and returns identifier position of this BLangFunction.
+     *
+     * @param bLangFunction {@link BLangFunction}
+     * @return position
+     */
+    public static DiagnosticPos getIdentifierPosition(BLangFunction bLangFunction) {
+        DiagnosticPos funcPosition = bLangFunction.getPosition();
+        DiagnosticPos position = new DiagnosticPos(funcPosition.src, funcPosition.sLine, funcPosition.eLine,
+                                                   funcPosition.sCol,
+                                                   funcPosition.eCol);
+        Set<Whitespace> wsSet = bLangFunction.getWS();
+        if (wsSet != null && wsSet.size() > 4) {
+            Whitespace[] wsArray = new Whitespace[wsSet.size()];
+            wsSet.toArray(wsArray);
+            Arrays.sort(wsArray);
+            int functionKeywordLength = wsArray[0].getPrevious().length();
+            int beforeIdentifierWSLength = wsArray[1].getWs().length();
+            if (wsArray[2].getPrevious().equals("::")) {
+                beforeIdentifierWSLength += wsArray[1].getPrevious().length() + "::".length();
+            }
+            position.sCol += (beforeIdentifierWSLength + functionKeywordLength);
+            position.eCol = position.sCol + bLangFunction.name.value.length();
+        }
+        return position;
+    }
+
+    /**
+     * Calculate and returns identifier position of this BLangService.
+     *
+     * @param serviceNode {@link BLangService}
+     * @return position
+     */
+    public static DiagnosticPos getIdentifierPosition(BLangService serviceNode) {
+        DiagnosticPos servPosition = serviceNode.getPosition();
+        DiagnosticPos position = new DiagnosticPos(servPosition.src, servPosition.sLine, servPosition.eLine,
+                                                   servPosition.sCol,
+                                                   servPosition.eCol);
+        Set<Whitespace> wsSet = serviceNode.getWS();
+        if (wsSet != null && wsSet.size() > 4) {
+            Whitespace[] wsArray = new Whitespace[wsSet.size()];
+            wsSet.toArray(wsArray);
+            Arrays.sort(wsArray);
+            int serviceKeywordLength = wsArray[0].getPrevious().length() +
+                    wsArray[1].getPrevious().length() + wsArray[1].getWs().length() +
+                    wsArray[2].getPrevious().length() + wsArray[2].getWs().length() + wsArray[3].getWs().length();
+            int serviceTypeLength = 0;
+            Set<Whitespace> ws = serviceNode.getServiceTypeStruct().getWS();
+            for (Whitespace w : ws) {
+                serviceTypeLength += w.getPrevious().length() + w.getWs().length();
+            }
+            position.sCol += (serviceTypeLength + serviceKeywordLength);
+            position.eCol = position.sCol + serviceNode.name.value.length();
+        }
+        return position;
+    }
+
+    /**
+     * Calculate and returns identifier position of this BLangResource.
+     *
+     * @param resource {@link BLangResource}
+     * @return position
+     */
+    public static DiagnosticPos getIdentifierPosition(BLangResource resource) {
+        DiagnosticPos resPosition = resource.getPosition();
+        DiagnosticPos position = new DiagnosticPos(resPosition.src, resPosition.sLine, resPosition.eLine,
+                                                   resPosition.sCol,
+                                                   resPosition.eCol);
+        int maxELine = 0;
+        List<BLangAnnotationAttachment> annotations = resource.getAnnotationAttachments();
+        for (BLangAnnotationAttachment annotation : annotations) {
+            maxELine = Math.max(annotation.pos.eLine, maxELine);
+        }
+        position.sLine = Math.max(maxELine + 1, position.sLine);
+        position.eCol += resource.symbol.name.value.length();
         return position;
     }
 
