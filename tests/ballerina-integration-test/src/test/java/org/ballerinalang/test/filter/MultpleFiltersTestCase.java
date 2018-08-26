@@ -87,10 +87,11 @@ public class MultpleFiltersTestCase extends BaseTest {
 
     @BeforeGroups(value = "filter-test", alwaysRun = true)
     public void start() throws BallerinaTestException {
+        int[] requiredPorts = new int[]{9090, 9091, 9092, 9093, 9094, 9095, 9096, 9097, 9098};
         String basePath = new File("src" + File.separator + "test" + File.separator + "resources" + File.separator +
                 "filter").getAbsolutePath();
         String[] args = new String[]{"--sourceroot", basePath};
-        serverInstance.startBallerinaServer("filterservices", args);
+        serverInstance.startBallerinaServer("filterservices", args, requiredPorts);
     }
 
     @AfterGroups(value = "filter-test", alwaysRun = true)

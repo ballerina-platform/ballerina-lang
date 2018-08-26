@@ -30,16 +30,20 @@ import java.io.File;
  * and after tests are run.
  */
 public class HttpBaseTest extends BaseTest {
+
     @BeforeGroups(value = "http-test", alwaysRun = true)
     public void start() throws BallerinaTestException {
+        int[] requiredPorts = new int[]{9090, 9091, 9092, 9093, 9094, 9095, 9096, 9097, 9098, 9099, 9100, 9101, 9102,
+                9103, 9104, 9105, 9109, 9110, 9111, 9112, 9113, 9114, 9115, 9116, 9117, 9218, 9219};
         String balFile = new File("src" + File.separator + "test" + File.separator + "resources" + File.separator +
                 "http").getAbsolutePath();
         String[] args = new String[]{"--sourceroot", balFile};
-        serverInstance.startBallerinaServer("httpservices", args);
+        serverInstance.startBallerinaServer("httpservices", args, requiredPorts);
     }
 
     @AfterGroups(value = "http-test", alwaysRun = true)
     public void cleanup() throws Exception {
+
         serverInstance.removeAllLeechers();
         serverInstance.stopServer();
     }
