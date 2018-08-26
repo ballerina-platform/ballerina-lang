@@ -523,7 +523,7 @@ class BallerinaTextDocumentService implements TextDocumentService {
                 lock = documentManager.openFile(compilationPath, content);
                 compileAndSendDiagnostics(openedPath, compilationPath);
             } catch (WorkspaceDocumentException e) {
-                logger.error("Error while opening file:" + openedPath.toString());
+                logger.error("Error while opening file:" + openedPath.toString() + "[" + e.getMessage() + "]");
             } finally {
                 lock.ifPresent(Lock::unlock);
             }

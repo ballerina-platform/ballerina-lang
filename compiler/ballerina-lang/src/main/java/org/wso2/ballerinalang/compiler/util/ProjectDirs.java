@@ -51,7 +51,8 @@ public class ProjectDirs {
             return new BLangCompilerException("cannot find file '" + packageID + "'");
         }
 
-        return new BLangCompilerException("cannot find package '" + packageID + "'");
+        return new BLangCompilerException("cannot find package '" + packageID + "'"
+                + packageID.sourceFileName.toString());
     }
 
     public static BLangCompilerException getPackageNotFoundError(String sourcePackage) {

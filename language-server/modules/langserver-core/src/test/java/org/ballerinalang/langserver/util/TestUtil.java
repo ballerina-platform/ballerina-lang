@@ -31,6 +31,7 @@ import org.eclipse.lsp4j.ReferenceParams;
 import org.eclipse.lsp4j.TextDocumentIdentifier;
 import org.eclipse.lsp4j.TextDocumentItem;
 import org.eclipse.lsp4j.TextDocumentPositionParams;
+import org.eclipse.lsp4j.WorkspaceSymbolParams;
 import org.eclipse.lsp4j.jsonrpc.Endpoint;
 import org.eclipse.lsp4j.jsonrpc.messages.ResponseError;
 import org.eclipse.lsp4j.jsonrpc.messages.ResponseMessage;
@@ -57,6 +58,8 @@ public class TestUtil {
     private static final String REFERENCES = "textDocument/references";
     
     private static final String EXECUTE_COMMAND = "workspace/executeCommand";
+    
+    private static final String WORKSPACE_SYMBOL_COMMAND = "workspace/symbol";
     
     private static final String CODE_ACTION = "textDocument/codeAction";
 
@@ -142,6 +145,19 @@ public class TestUtil {
         TextDocumentIdentifier identifier = getTextDocumentIdentifier(filePath);
         CodeActionParams codeActionParams = new CodeActionParams(identifier, range, context);
         CompletableFuture result = serviceEndpoint.request(CODE_ACTION, codeActionParams);
+        return getResponseString(result);
+    }
+
+    /**
+     * Get the workspace symbol response as String.
+     *
+     * @param serviceEndpoint       Language Server Service Endpoint
+     * @param query                 Symbol query
+     * @return {@link String}       Response string
+     */
+    public static String getWorkspaceSymbolResponse(Endpoint serviceEndpoint, String query) {
+        WorkspaceSymbolParams parms = new WorkspaceSymbolParams(query);
+        CompletableFuture result = serviceEndpoint.request(WORKSPACE_SYMBOL_COMMAND, parms);
         return getResponseString(result);
     }
 
