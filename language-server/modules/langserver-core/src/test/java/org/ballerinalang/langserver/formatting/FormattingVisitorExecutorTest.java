@@ -77,7 +77,8 @@ public class FormattingVisitorExecutorTest {
         return new Object[][]{
                 {"formatted1.bal", "unformatted1.bal"},
                 {"formatted2.bal", "unformatted2.bal"},
-//                {"formatted3.bal", "unformatted3.bal"}
+                {"formatted3.bal", "unformatted3.bal"},
+                {"formatted4.bal", "unformatted4.bal"}
         };
     }
 }
