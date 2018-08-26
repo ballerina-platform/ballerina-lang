@@ -28,6 +28,7 @@ import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4j.ReferenceContext;
 import org.eclipse.lsp4j.ReferenceParams;
+import org.eclipse.lsp4j.RenameParams;
 import org.eclipse.lsp4j.TextDocumentIdentifier;
 import org.eclipse.lsp4j.TextDocumentItem;
 import org.eclipse.lsp4j.TextDocumentPositionParams;
@@ -47,17 +48,19 @@ import java.util.concurrent.ExecutionException;
  * Common utils that are reused within test suits.
  */
 public class TestUtil {
-    
+
     private static final String HOVER = "textDocument/hover";
-    
+
     private static final String SIGNATURE_HELP = "textDocument/signatureHelp";
-    
+
     private static final String DEFINITION = "textDocument/definition";
-    
+
     private static final String REFERENCES = "textDocument/references";
-    
+
+    private static final String RENAME = "textDocument/rename";
+
     private static final String EXECUTE_COMMAND = "workspace/executeCommand";
-    
+
     private static final String CODE_ACTION = "textDocument/codeAction";
 
     private static final Gson GSON = new Gson();
@@ -125,6 +128,27 @@ public class TestUtil {
         referenceParams.setContext(referenceContext);
 
         CompletableFuture result = serviceEndpoint.request(REFERENCES, referenceParams);
+        return getResponseString(result);
+    }
+
+    /**
+     * Get the textDocument/rename response.
+     *
+     * @param filePath        Path of the Bal file
+     * @param position        Cursor Position
+     * @param serviceEndpoint Service Endpoint to Language Server
+     * @param newName         newName
+     * @return {@link String}   Response as String
+     */
+    public static String getRenameResponse(String filePath, Position position, String newName,
+                                           Endpoint serviceEndpoint) {
+        RenameParams renameParams = new RenameParams();
+
+        renameParams.setTextDocument(getTextDocumentIdentifier(filePath));
+        renameParams.setNewName(newName);
+        renameParams.setPosition(new Position(position.getLine(), position.getCharacter()));
+
+        CompletableFuture result = serviceEndpoint.request(RENAME, renameParams);
         return getResponseString(result);
     }
 
@@ -214,15 +238,15 @@ public class TestUtil {
 
         return identifier;
     }
-    
+
     private static TextDocumentPositionParams getTextDocumentPositionParams(String filePath, Position position) {
         TextDocumentPositionParams positionParams = new TextDocumentPositionParams();
         positionParams.setTextDocument(getTextDocumentIdentifier(filePath));
         positionParams.setPosition(new Position(position.getLine(), position.getCharacter()));
-        
+
         return positionParams;
     }
-    
+
     private static String getResponseString(CompletableFuture completableFuture) {
         ResponseMessage jsonrpcResponse = new ResponseMessage();
         try {
