@@ -30,6 +30,8 @@ import org.eclipse.lsp4j.ExecuteCommandParams;
 import org.eclipse.lsp4j.SymbolInformation;
 import org.eclipse.lsp4j.WorkspaceSymbolParams;
 import org.eclipse.lsp4j.services.WorkspaceService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.wso2.ballerinalang.compiler.tree.BLangCompilationUnit;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 
@@ -49,6 +51,8 @@ class BallerinaWorkspaceService implements WorkspaceService {
     private LSGlobalContext lsGlobalContext;
     private LSCompiler lsCompiler;
 
+    Logger logger = LoggerFactory.getLogger(BallerinaWorkspaceService.class);
+
     BallerinaWorkspaceService(LSGlobalContext globalContext) {
         this.lsGlobalContext = globalContext;
         this.ballerinaLanguageServer = this.lsGlobalContext.get(LSGlobalContextKeys.LANGUAGE_SERVER_KEY);
@@ -62,6 +66,7 @@ class BallerinaWorkspaceService implements WorkspaceService {
         LSServiceOperationContext symbolsContext = new LSServiceOperationContext();
         Map<String, Object[]> compUnits = new HashMap<>();
         this.workspaceDocumentManager.getAllFilePaths().forEach(path -> {
+            logger.warn("&&&&&&&&&&& " + path.toUri().toString());
             symbolsContext.put(DocumentServiceKeys.SYMBOL_LIST_KEY, symbols);
             symbolsContext.put(DocumentServiceKeys.FILE_URI_KEY, path.toUri().toString());
             List<BLangPackage> bLangPackage = lsCompiler.getBLangPackage(symbolsContext, workspaceDocumentManager,

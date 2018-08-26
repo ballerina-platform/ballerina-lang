@@ -28,8 +28,6 @@ import org.ballerinalang.repository.PackageRepository;
 import org.ballerinalang.util.diagnostic.Diagnostic;
 import org.ballerinalang.util.diagnostic.DiagnosticListener;
 import org.eclipse.lsp4j.jsonrpc.messages.Either;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.wso2.ballerinalang.compiler.Compiler;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
@@ -51,8 +49,6 @@ import static org.ballerinalang.langserver.compiler.LSCompilerUtil.prepareCompil
  * Language server compiler implementation for Ballerina.
  */
 public class LSCompiler {
-    
-    Logger logger = LoggerFactory.getLogger(LSCompiler.class);
 
     private static final String BAL_EXTENSION = ".bal";
 
@@ -206,11 +202,7 @@ public class LSCompiler {
 
         PackageRepository packageRepository = new WorkspacePackageRepository(sourceRoot, docManager);
         List<BLangPackage> packages = new ArrayList<>();
-        if (compileFullProject && sourceRoot.isEmpty()) {
-            logger.warn("********************* " + uri);
-        }
         if (compileFullProject && !sourceRoot.isEmpty()) {
-            logger.warn("##################### " + uri);
             File projectDir = new File(sourceRoot);
             Arrays.stream(projectDir.listFiles()).forEach(
                     file -> {
