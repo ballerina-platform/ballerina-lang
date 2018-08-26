@@ -26,7 +26,7 @@
                 },
                 "end": {
                     "line": 7,
-                    "character": 1
+                    "character": 0
                 }
             },
             "newText": "import ballerina/io;\r\nimport pkg1;\r\n\r\npublic function func2(){\r\n    io:println(\"func2...\");\r\n    pkg1:newFunc1();\r\n}"
@@ -39,7 +39,7 @@
                 },
                 "end": {
                     "line": 5,
-                    "character": 1
+                    "character": 0
                 }
             },
             "newText": "import ballerina/io;\r\n\r\npublic function newFunc1(){\r\n    io:println(\"func1...\");\r\n}"

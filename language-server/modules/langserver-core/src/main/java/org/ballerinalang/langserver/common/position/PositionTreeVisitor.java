@@ -31,6 +31,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BEndpointVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BNilType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
@@ -116,9 +117,12 @@ public class PositionTreeVisitor extends LSNodeVisitor {
 
     public void visit(BLangPackage pkgNode) {
         // Then visit each top-level element sorted using the compilation unit
-        List<TopLevelNode> topLevelNodes = pkgNode.topLevelNodes.stream().filter(node ->
-                node.getPosition().getSource().getCompilationUnitName().equals(this.fileName)
-        ).collect(Collectors.toList());
+        List<TopLevelNode> topLevelNodes = pkgNode.topLevelNodes.stream()
+                .filter(node ->
+                                node.getPosition().getSource()
+                                        .getCompilationUnitName()
+                                        .equals(this.fileName)
+                ).collect(Collectors.toList());
 
         if (topLevelNodes.isEmpty()) {
             setTerminateVisitor(true);
@@ -142,21 +146,14 @@ public class PositionTreeVisitor extends LSNodeVisitor {
         }
 
         if (HoverUtil.isMatchingPosition(HoverUtil.getIdentifierPosition(funcNode), this.position)) {
-            this.context.put(NodeContextKeys.NODE_KEY, funcNode);
-            this.context.put(NodeContextKeys.PREVIOUSLY_VISITED_NODE_KEY, this.previousNode);
-            this.context.put(NodeContextKeys.NAME_OF_NODE_KEY, funcNode.name.getValue());
-            this.context.put(NodeContextKeys.PACKAGE_OF_NODE_KEY, funcNode.symbol.pkgID);
-            this.context.put(NodeContextKeys.SYMBOL_KIND_OF_NODE_PARENT_KEY, funcNode.symbol.kind.name());
-            this.context.put(NodeContextKeys.SYMBOL_KIND_OF_NODE_KEY, funcNode.symbol.kind.name());
-            this.context.put(NodeContextKeys.NODE_OWNER_KEY, funcNode.symbol.owner.name.getValue());
-            this.context.put(NodeContextKeys.NODE_OWNER_PACKAGE_KEY, funcNode.symbol.owner.pkgID);
-            this.context.put(NodeContextKeys.VAR_NAME_OF_NODE_KEY, funcNode.name.getValue());
+            addPosition(funcNode, this.previousNode, funcNode.name.getValue(), funcSymbol.pkgID, funcSymbol.kind.name(),
+                        funcSymbol.kind.name(), funcNode.name.getValue(), funcSymbol.owner);
             setTerminateVisitor(true);
             return;
         }
 
-        addTopLevelNodeToContext(funcNode, funcNode.name.getValue(), funcNode.symbol.pkgID, funcNode.symbol.kind.name(),
-                funcNode.symbol.kind.name(), funcNode.symbol.owner.name.getValue(), funcNode.symbol.owner.pkgID);
+        addTopLevelNodeToContext(funcNode, funcNode.name.getValue(), funcSymbol.pkgID, funcSymbol.kind.name(),
+                                 funcSymbol.kind.name(), funcSymbol.owner);
         setPreviousNode(funcNode);
         this.addToNodeStack(funcNode);
 
@@ -197,23 +194,18 @@ public class PositionTreeVisitor extends LSNodeVisitor {
                     ? "endpoint<".length()
                     : 0);
             CommonUtil.calculateEndColumnOfGivenName(userDefinedType.getPosition(), userDefinedType.typeName.value,
-                    userDefinedType.pkgAlias.value);
+                                                     userDefinedType.pkgAlias.value);
             if (userDefinedType.type instanceof BUnionType &&
                     HoverUtil.isMatchingPosition(userDefinedType.getPosition(), this.position)) {
                 try {
                     BUnionType bUnionType = (BUnionType) userDefinedType.type;
                     for (BType type : bUnionType.memberTypes) {
                         if (type.tsymbol != null && type.tsymbol.getName().getValue().equals(userDefinedType
-                                .typeName.getValue())) {
-                            this.context.put(NodeContextKeys.NODE_KEY, userDefinedType);
-                            this.context.put(NodeContextKeys.PREVIOUSLY_VISITED_NODE_KEY, this.previousNode);
-                            this.context.put(NodeContextKeys.NAME_OF_NODE_KEY, userDefinedType.typeName.getValue());
-                            this.context.put(NodeContextKeys.PACKAGE_OF_NODE_KEY, type.tsymbol.pkgID);
-                            this.context.put(NodeContextKeys.SYMBOL_KIND_OF_NODE_PARENT_KEY, type.tsymbol.kind.name());
-                            this.context.put(NodeContextKeys.SYMBOL_KIND_OF_NODE_KEY, type.tsymbol.kind.name());
-                            this.context.put(NodeContextKeys.NODE_OWNER_KEY, type.tsymbol.owner.name.getValue());
-                            this.context.put(NodeContextKeys.NODE_OWNER_PACKAGE_KEY, type.tsymbol.owner.pkgID);
-                            this.context.put(NodeContextKeys.VAR_NAME_OF_NODE_KEY, userDefinedType.typeName.getValue());
+                                                                                                     .typeName
+                                                                                                     .getValue())) {
+                            addPosition(userDefinedType, this.previousNode, userDefinedType.typeName.getValue(),
+                                        type.tsymbol.pkgID, type.tsymbol.kind.name(), type.tsymbol.kind.name(),
+                                        userDefinedType.typeName.getValue(), type.tsymbol.owner);
                             setTerminateVisitor(true);
                             break;
                         }
@@ -223,16 +215,10 @@ public class PositionTreeVisitor extends LSNodeVisitor {
                 }
             } else if (userDefinedType.type.tsymbol != null &&
                     HoverUtil.isMatchingPosition(userDefinedType.getPosition(), this.position)) {
-                this.context.put(NodeContextKeys.NODE_KEY, userDefinedType);
-                this.context.put(NodeContextKeys.PREVIOUSLY_VISITED_NODE_KEY, this.previousNode);
-                this.context.put(NodeContextKeys.NAME_OF_NODE_KEY, userDefinedType.typeName.getValue());
-                this.context.put(NodeContextKeys.PACKAGE_OF_NODE_KEY, userDefinedType.type.tsymbol.pkgID);
-                this.context.put(NodeContextKeys.SYMBOL_KIND_OF_NODE_PARENT_KEY,
-                        userDefinedType.type.tsymbol.kind.name());
-                this.context.put(NodeContextKeys.SYMBOL_KIND_OF_NODE_KEY, userDefinedType.type.tsymbol.kind.name());
-                this.context.put(NodeContextKeys.NODE_OWNER_KEY, userDefinedType.type.tsymbol.owner.name.getValue());
-                this.context.put(NodeContextKeys.NODE_OWNER_PACKAGE_KEY, userDefinedType.type.tsymbol.owner.pkgID);
-                this.context.put(NodeContextKeys.VAR_NAME_OF_NODE_KEY, userDefinedType.typeName.getValue());
+                addPosition(userDefinedType, this.previousNode, userDefinedType.typeName.getValue(),
+                            userDefinedType.type.tsymbol.pkgID, userDefinedType.type.tsymbol.kind.name(),
+                            userDefinedType.type.tsymbol.kind.name(),
+                            userDefinedType.typeName.getValue(), userDefinedType.type.tsymbol.owner);
                 setTerminateVisitor(true);
             }
         }
@@ -245,15 +231,9 @@ public class PositionTreeVisitor extends LSNodeVisitor {
             CommonUtil.calculateEndColumnOfGivenName(varNode.getPosition(), varNode.symbol.name.getValue(), "");
             DiagnosticPos identifierPos = HoverUtil.getIdentifierPosition(varNode);
             if (HoverUtil.isMatchingPosition(identifierPos, this.position)) {
-                this.context.put(NodeContextKeys.NODE_KEY, varNode);
-                this.context.put(NodeContextKeys.PREVIOUSLY_VISITED_NODE_KEY, this.previousNode);
-                this.context.put(NodeContextKeys.NAME_OF_NODE_KEY, varNode.symbol.name.getValue());
-                this.context.put(NodeContextKeys.PACKAGE_OF_NODE_KEY, varNode.symbol.pkgID);
-                this.context.put(NodeContextKeys.SYMBOL_KIND_OF_NODE_KEY, ContextConstants.ENDPOINT);
-                this.context.put(NodeContextKeys.SYMBOL_KIND_OF_NODE_PARENT_KEY, ContextConstants.ENDPOINT);
-                this.context.put(NodeContextKeys.VAR_NAME_OF_NODE_KEY, varNode.symbol.name.getValue());
-                this.context.put(NodeContextKeys.NODE_OWNER_KEY, varNode.symbol.owner.name.getValue());
-                this.context.put(NodeContextKeys.NODE_OWNER_PACKAGE_KEY, varNode.symbol.owner.pkgID);
+                addPosition(varNode, this.previousNode, varNode.symbol.name.getValue(), varNode.symbol.pkgID,
+                            ContextConstants.ENDPOINT, ContextConstants.ENDPOINT, varNode.symbol.name.getValue(),
+                            varNode.symbol.owner);
                 setTerminateVisitor(true);
             }
         }
@@ -270,70 +250,46 @@ public class PositionTreeVisitor extends LSNodeVisitor {
     @Override
     public void visit(BLangSimpleVarRef varRefExpr) {
         CommonUtil.calculateEndColumnOfGivenName(varRefExpr.getPosition(), varRefExpr.variableName.value,
-                varRefExpr.pkgAlias.value);
+                                                 varRefExpr.pkgAlias.value);
         if (varRefExpr.symbol != null && varRefExpr.symbol instanceof BEndpointVarSymbol &&
                 HoverUtil.isMatchingPosition(varRefExpr.getPosition(), this.position)) {
-            this.context.put(NodeContextKeys.NODE_KEY, varRefExpr);
-            this.context.put(NodeContextKeys.PREVIOUSLY_VISITED_NODE_KEY, this.previousNode);
-            this.context.put(NodeContextKeys.NAME_OF_NODE_KEY,
-                    ((BEndpointVarSymbol) varRefExpr.symbol).name.getValue());
-            this.context.put(NodeContextKeys.PACKAGE_OF_NODE_KEY, ((BEndpointVarSymbol) varRefExpr.symbol).pkgID);
-            this.context.put(NodeContextKeys.SYMBOL_KIND_OF_NODE_KEY, ContextConstants.ENDPOINT);
-            this.context.put(NodeContextKeys.SYMBOL_KIND_OF_NODE_PARENT_KEY, ContextConstants.ENDPOINT);
-            this.context.put(NodeContextKeys.VAR_NAME_OF_NODE_KEY, varRefExpr.variableName.getValue());
-            this.context.put(NodeContextKeys.NODE_OWNER_KEY, varRefExpr.symbol.owner.name.getValue());
-            this.context.put(NodeContextKeys.NODE_OWNER_PACKAGE_KEY,
-                    varRefExpr.symbol.owner.pkgID);
-
+            addPosition(varRefExpr, this.previousNode, ((BEndpointVarSymbol) varRefExpr.symbol).name.getValue(),
+                        ((BEndpointVarSymbol) varRefExpr.symbol).pkgID, ContextConstants.ENDPOINT,
+                        ContextConstants.ENDPOINT, varRefExpr.variableName.getValue(), varRefExpr.symbol.owner);
             setTerminateVisitor(true);
         } else if (varRefExpr.type != null && varRefExpr.type.tsymbol != null && varRefExpr.type.tsymbol.kind != null
                 && (varRefExpr.type.tsymbol.kind.name().equals(ContextConstants.OBJECT) ||
                 varRefExpr.type.tsymbol.kind.name().equals(ContextConstants.RECORD) ||
                 varRefExpr.type.tsymbol.kind.name().equals(ContextConstants.TYPE_DEF))
                 && HoverUtil.isMatchingPosition(varRefExpr.getPosition(), this.position)) {
-            this.context.put(NodeContextKeys.NODE_KEY, varRefExpr);
-            this.context.put(NodeContextKeys.PREVIOUSLY_VISITED_NODE_KEY, this.previousNode);
-            this.context.put(NodeContextKeys.NAME_OF_NODE_KEY, varRefExpr.type.tsymbol.name.getValue());
-            this.context.put(NodeContextKeys.SYMBOL_KIND_OF_NODE_PARENT_KEY, varRefExpr.type.tsymbol.kind.name());
-            this.context.put(NodeContextKeys.VAR_NAME_OF_NODE_KEY, varRefExpr.variableName.getValue());
-
             if (varRefExpr.symbol != null) {
-                this.context.put(NodeContextKeys.PACKAGE_OF_NODE_KEY, varRefExpr.symbol.pkgID);
-                this.context.put(NodeContextKeys.NODE_OWNER_KEY, varRefExpr.symbol.owner.name.getValue());
-                this.context.put(NodeContextKeys.SYMBOL_KIND_OF_NODE_KEY, ContextConstants.VARIABLE);
-                this.context.put(NodeContextKeys.NODE_OWNER_PACKAGE_KEY, varRefExpr.symbol.owner.pkgID);
+                addPosition(varRefExpr, this.previousNode, varRefExpr.type.tsymbol.name.getValue(),
+                            varRefExpr.symbol.pkgID, ContextConstants.VARIABLE, varRefExpr.type.tsymbol.kind.name(),
+                            varRefExpr.variableName.getValue(), varRefExpr.symbol.owner);
             } else {
-                this.context.put(NodeContextKeys.PACKAGE_OF_NODE_KEY, varRefExpr.type.tsymbol.pkgID);
-                this.context.put(NodeContextKeys.NODE_OWNER_KEY, varRefExpr.type.tsymbol.owner.name.getValue());
-                this.context.put(NodeContextKeys.SYMBOL_KIND_OF_NODE_KEY, varRefExpr.type.tsymbol.kind.name());
-                this.context.put(NodeContextKeys.NODE_OWNER_PACKAGE_KEY, varRefExpr.type.tsymbol.owner.pkgID);
+                addPosition(varRefExpr, this.previousNode, varRefExpr.type.tsymbol.name.getValue(),
+                            varRefExpr.type.tsymbol.pkgID, varRefExpr.type.tsymbol.kind.name(),
+                            varRefExpr.type.tsymbol.kind.name(), varRefExpr.variableName.getValue(),
+                            varRefExpr.type.tsymbol.owner);
             }
             setTerminateVisitor(true);
         } else if (varRefExpr.pkgSymbol != null
                 && HoverUtil.isMatchingPosition(varRefExpr.getPosition(), this.position)) {
-            this.context.put(NodeContextKeys.NODE_KEY, varRefExpr);
-            this.context.put(NodeContextKeys.PREVIOUSLY_VISITED_NODE_KEY, this.previousNode);
-            this.context.put(NodeContextKeys.NAME_OF_NODE_KEY, varRefExpr.variableName.getValue());
-            this.context.put(NodeContextKeys.PACKAGE_OF_NODE_KEY, varRefExpr.pkgSymbol.pkgID);
-            this.context.put(NodeContextKeys.SYMBOL_KIND_OF_NODE_PARENT_KEY, ContextConstants.VARIABLE);
-            this.context.put(NodeContextKeys.SYMBOL_KIND_OF_NODE_KEY, ContextConstants.VARIABLE);
             if (varRefExpr.symbol != null) {
-                this.context.put(NodeContextKeys.NODE_OWNER_KEY, varRefExpr.symbol.owner.name.getValue());
-                this.context.put(NodeContextKeys.NODE_OWNER_PACKAGE_KEY,
-                        varRefExpr.symbol.owner.pkgID);
-                this.context.put(NodeContextKeys.VAR_NAME_OF_NODE_KEY, varRefExpr.variableName.getValue());
+                addPosition(varRefExpr, this.previousNode, varRefExpr.variableName.getValue(),
+                            varRefExpr.pkgSymbol.pkgID, ContextConstants.VARIABLE, ContextConstants.VARIABLE,
+                            varRefExpr.variableName.getValue(), varRefExpr.symbol.owner);
+            } else {
+                addPosition(varRefExpr, this.previousNode, varRefExpr.type.tsymbol.name.getValue(),
+                            varRefExpr.type.tsymbol.pkgID, varRefExpr.type.tsymbol.kind.name(),
+                            varRefExpr.type.tsymbol.kind.name(), varRefExpr.variableName.getValue(),
+                            varRefExpr.type.tsymbol.owner);
             }
             setTerminateVisitor(true);
         } else if (HoverUtil.isMatchingPosition(varRefExpr.getPosition(), this.position) && varRefExpr.symbol != null) {
-            this.context.put(NodeContextKeys.NODE_KEY, varRefExpr);
-            this.context.put(NodeContextKeys.PREVIOUSLY_VISITED_NODE_KEY, this.previousNode);
-            this.context.put(NodeContextKeys.NAME_OF_NODE_KEY, varRefExpr.symbol.name.getValue());
-            this.context.put(NodeContextKeys.PACKAGE_OF_NODE_KEY, varRefExpr.symbol.pkgID);
-            this.context.put(NodeContextKeys.SYMBOL_KIND_OF_NODE_PARENT_KEY, ContextConstants.VARIABLE);
-            this.context.put(NodeContextKeys.SYMBOL_KIND_OF_NODE_KEY, ContextConstants.VARIABLE);
-            this.context.put(NodeContextKeys.NODE_OWNER_KEY, varRefExpr.symbol.owner.name.getValue());
-            this.context.put(NodeContextKeys.NODE_OWNER_PACKAGE_KEY, varRefExpr.symbol.owner.pkgID);
-            this.context.put(NodeContextKeys.VAR_NAME_OF_NODE_KEY, varRefExpr.variableName.getValue());
+            addPosition(varRefExpr, this.previousNode, varRefExpr.symbol.name.getValue(), varRefExpr.symbol.pkgID,
+                        ContextConstants.VARIABLE, ContextConstants.VARIABLE, varRefExpr.variableName.getValue(),
+                        varRefExpr.symbol.owner);
             setTerminateVisitor(true);
         }
     }
@@ -431,8 +387,7 @@ public class PositionTreeVisitor extends LSNodeVisitor {
 
     public void visit(BLangAction actionNode) {
         addTopLevelNodeToContext(actionNode, actionNode.name.getValue(), actionNode.symbol.pkgID,
-                actionNode.symbol.kind.name(), actionNode.symbol.kind.name(),
-                actionNode.symbol.owner.name.getValue(), actionNode.symbol.owner.pkgID);
+                                 actionNode.symbol.kind.name(), actionNode.symbol.kind.name(), actionNode.symbol.owner);
 
         setPreviousNode(actionNode);
         this.addToNodeStack(actionNode);
@@ -452,22 +407,16 @@ public class PositionTreeVisitor extends LSNodeVisitor {
 
     public void visit(BLangService serviceNode) {
         if (HoverUtil.isMatchingPosition(HoverUtil.getIdentifierPosition(serviceNode), this.position)) {
-            this.context.put(NodeContextKeys.NODE_KEY, serviceNode);
-            this.context.put(NodeContextKeys.PREVIOUSLY_VISITED_NODE_KEY, this.previousNode);
-            this.context.put(NodeContextKeys.NAME_OF_NODE_KEY, serviceNode.name.getValue());
-            this.context.put(NodeContextKeys.PACKAGE_OF_NODE_KEY, serviceNode.symbol.pkgID);
-            this.context.put(NodeContextKeys.SYMBOL_KIND_OF_NODE_PARENT_KEY, serviceNode.symbol.kind.name());
-            this.context.put(NodeContextKeys.SYMBOL_KIND_OF_NODE_KEY, serviceNode.symbol.kind.name());
-            this.context.put(NodeContextKeys.NODE_OWNER_KEY, serviceNode.symbol.owner.name.getValue());
-            this.context.put(NodeContextKeys.NODE_OWNER_PACKAGE_KEY, serviceNode.symbol.owner.pkgID);
-            this.context.put(NodeContextKeys.VAR_NAME_OF_NODE_KEY, serviceNode.name.getValue());
+            addPosition(serviceNode, this.previousNode, serviceNode.name.getValue(), serviceNode.symbol.pkgID,
+                        serviceNode.symbol.kind.name(), serviceNode.symbol.kind.name(), serviceNode.name.getValue(),
+                        serviceNode.symbol.owner);
             setTerminateVisitor(true);
             return;
         }
 
         addTopLevelNodeToContext(serviceNode, serviceNode.name.getValue(), serviceNode.symbol.pkgID,
-                serviceNode.symbol.kind.name(), serviceNode.symbol.kind.name(),
-                serviceNode.symbol.owner.name.getValue(), serviceNode.symbol.owner.pkgID);
+                                 serviceNode.symbol.kind.name(), serviceNode.symbol.kind.name(),
+                                 serviceNode.symbol.owner);
 
         setPreviousNode(serviceNode);
         this.addToNodeStack(serviceNode);
@@ -499,21 +448,15 @@ public class PositionTreeVisitor extends LSNodeVisitor {
 
     public void visit(BLangResource resourceNode) {
         if (HoverUtil.isMatchingPosition(HoverUtil.getIdentifierPosition(resourceNode), this.position)) {
-            this.context.put(NodeContextKeys.NODE_KEY, resourceNode);
-            this.context.put(NodeContextKeys.PREVIOUSLY_VISITED_NODE_KEY, this.previousNode);
-            this.context.put(NodeContextKeys.NAME_OF_NODE_KEY, resourceNode.name.getValue());
-            this.context.put(NodeContextKeys.PACKAGE_OF_NODE_KEY, resourceNode.symbol.pkgID);
-            this.context.put(NodeContextKeys.SYMBOL_KIND_OF_NODE_PARENT_KEY, resourceNode.symbol.kind.name());
-            this.context.put(NodeContextKeys.SYMBOL_KIND_OF_NODE_KEY, resourceNode.symbol.kind.name());
-            this.context.put(NodeContextKeys.NODE_OWNER_KEY, resourceNode.symbol.owner.name.getValue());
-            this.context.put(NodeContextKeys.NODE_OWNER_PACKAGE_KEY, resourceNode.symbol.owner.pkgID);
-            this.context.put(NodeContextKeys.VAR_NAME_OF_NODE_KEY, resourceNode.name.getValue());
+            addPosition(resourceNode, this.previousNode, resourceNode.name.getValue(), resourceNode.symbol.pkgID,
+                        resourceNode.symbol.kind.name(), resourceNode.symbol.kind.name(), resourceNode.name.getValue(),
+                        resourceNode.symbol.owner);
             setTerminateVisitor(true);
             return;
         }
         addTopLevelNodeToContext(resourceNode, resourceNode.name.getValue(), resourceNode.symbol.pkgID,
-                resourceNode.symbol.kind.name(), resourceNode.symbol.kind.name(),
-                resourceNode.symbol.owner.name.getValue(), resourceNode.symbol.owner.pkgID);
+                                 resourceNode.symbol.kind.name(), resourceNode.symbol.kind.name(),
+                                 resourceNode.symbol.owner);
 
         setPreviousNode(resourceNode);
         this.addToNodeStack(resourceNode);
@@ -660,16 +603,15 @@ public class PositionTreeVisitor extends LSNodeVisitor {
         }
 
         if (!terminateVisitor && HoverUtil.isMatchingPosition(invocationExpr.getPosition(), this.position)) {
-            this.context.put(NodeContextKeys.NODE_KEY, invocationExpr);
-            this.context.put(NodeContextKeys.PREVIOUSLY_VISITED_NODE_KEY, this.previousNode);
-            this.context.put(NodeContextKeys.NAME_OF_NODE_KEY, invocationExpr.name.getValue());
             BSymbol symbol = invocationExpr.symbol;
             if (symbol != null) {
-                this.context.put(NodeContextKeys.PACKAGE_OF_NODE_KEY, symbol.pkgID);
-                this.context.put(NodeContextKeys.SYMBOL_KIND_OF_NODE_PARENT_KEY, symbol.kind.name());
-                this.context.put(NodeContextKeys.SYMBOL_KIND_OF_NODE_KEY, symbol.kind.name());
-                this.context.put(NodeContextKeys.NODE_OWNER_KEY, symbol.owner.name.getValue());
-                this.context.put(NodeContextKeys.NODE_OWNER_PACKAGE_KEY, symbol.owner.pkgID);
+                addPosition(invocationExpr, this.previousNode, invocationExpr.name.getValue(), symbol.pkgID,
+                            symbol.kind.name(), symbol.kind.name(), invocationExpr.name.getValue(), symbol.owner);
+            } else {
+                BTypeSymbol tSymbol = invocationExpr.type.tsymbol;
+                addPosition(invocationExpr, this.previousNode, invocationExpr.name.getValue(), tSymbol.pkgID,
+                            ContextConstants.FUNCTION, ContextConstants.FUNCTION, invocationExpr.name.getValue(),
+                            tSymbol.owner);
             }
             setTerminateVisitor(true);
         }
@@ -741,15 +683,9 @@ public class PositionTreeVisitor extends LSNodeVisitor {
 
         DiagnosticPos identifierPos = HoverUtil.getIdentifierPosition(endpointNode);
         if (HoverUtil.isMatchingPosition(identifierPos, this.position)) {
-            this.context.put(NodeContextKeys.NODE_KEY, endpointNode);
-            this.context.put(NodeContextKeys.PREVIOUSLY_VISITED_NODE_KEY, this.previousNode);
-            this.context.put(NodeContextKeys.NAME_OF_NODE_KEY, endpointNode.symbol.name.getValue());
-            this.context.put(NodeContextKeys.PACKAGE_OF_NODE_KEY, endpointNode.symbol.pkgID);
-            this.context.put(NodeContextKeys.SYMBOL_KIND_OF_NODE_KEY, ContextConstants.ENDPOINT);
-            this.context.put(NodeContextKeys.SYMBOL_KIND_OF_NODE_PARENT_KEY, ContextConstants.ENDPOINT);
-            this.context.put(NodeContextKeys.VAR_NAME_OF_NODE_KEY, endpointNode.symbol.name.getValue());
-            this.context.put(NodeContextKeys.NODE_OWNER_KEY, endpointNode.symbol.owner.name.getValue());
-            this.context.put(NodeContextKeys.NODE_OWNER_PACKAGE_KEY, endpointNode.symbol.owner.pkgID);
+            addPosition(endpointNode, this.previousNode, endpointNode.symbol.name.getValue(), endpointNode.symbol.pkgID,
+                        ContextConstants.ENDPOINT, ContextConstants.ENDPOINT, endpointNode.symbol.name.getValue(),
+                        endpointNode.symbol.owner);
             setTerminateVisitor(true);
             return;
         }
@@ -827,8 +763,7 @@ public class PositionTreeVisitor extends LSNodeVisitor {
     public void visit(BLangRecordTypeNode recordTypeNode) {
         BSymbol recordSymbol = recordTypeNode.symbol;
         addTopLevelNodeToContext(recordTypeNode, recordSymbol.name.getValue(), recordSymbol.pkgID,
-                recordSymbol.kind.name(), recordSymbol.kind.name(),
-                recordSymbol.owner.name.getValue(), recordSymbol.owner.pkgID);
+                                 recordSymbol.kind.name(), recordSymbol.kind.name(), recordSymbol.owner);
         setPreviousNode(recordTypeNode);
         if (recordTypeNode.fields != null) {
             recordTypeNode.fields.forEach(this::acceptNode);
@@ -935,8 +870,8 @@ public class PositionTreeVisitor extends LSNodeVisitor {
     @Override
     public void visit(BLangTypeDefinition typeDefinition) {
         addTopLevelNodeToContext(typeDefinition, typeDefinition.name.getValue(), typeDefinition.symbol.pkgID,
-                typeDefinition.symbol.kind.name(), typeDefinition.symbol.kind.name(),
-                typeDefinition.symbol.owner.name.getValue(), typeDefinition.symbol.owner.pkgID);
+                                 typeDefinition.symbol.kind.name(), typeDefinition.symbol.kind.name(),
+                                 typeDefinition.symbol.owner);
         setPreviousNode(typeDefinition);
 
         if (typeDefinition.typeNode != null) {
@@ -1020,16 +955,23 @@ public class PositionTreeVisitor extends LSNodeVisitor {
      */
     private void addTopLevelNodeToContext(BLangNode node, String name, PackageID currentPkg,
                                           String symbolKindOfParentNode, String symbolKindOfCurrentNode,
-                                          String ownerName, PackageID ownerPkg) {
+                                          BSymbol owner) {
         if (node.getPosition().sLine == this.position.getLine()) {
-            this.context.put(NodeContextKeys.NODE_KEY, node);
-            this.context.put(NodeContextKeys.PREVIOUSLY_VISITED_NODE_KEY, this.previousNode);
-            this.context.put(NodeContextKeys.NAME_OF_NODE_KEY, name);
-            this.context.put(NodeContextKeys.PACKAGE_OF_NODE_KEY, currentPkg);
-            this.context.put(NodeContextKeys.SYMBOL_KIND_OF_NODE_PARENT_KEY, symbolKindOfParentNode);
-            this.context.put(NodeContextKeys.SYMBOL_KIND_OF_NODE_KEY, symbolKindOfCurrentNode);
-            this.context.put(NodeContextKeys.NODE_OWNER_KEY, ownerName);
-            this.context.put(NodeContextKeys.NODE_OWNER_PACKAGE_KEY, ownerPkg);
+            addPosition(node, this.previousNode, name, currentPkg, symbolKindOfCurrentNode, symbolKindOfParentNode,
+                        name, owner);
         }
+    }
+
+    private void addPosition(BLangNode node, Object previousNode, String name, PackageID pkgID, String nodeKind,
+                             String nodeParentKind, String varName, BSymbol owner) {
+        this.context.put(NodeContextKeys.NODE_KEY, node);
+        this.context.put(NodeContextKeys.PREVIOUSLY_VISITED_NODE_KEY, previousNode);
+        this.context.put(NodeContextKeys.NAME_OF_NODE_KEY, name);
+        this.context.put(NodeContextKeys.PACKAGE_OF_NODE_KEY, pkgID);
+        this.context.put(NodeContextKeys.SYMBOL_KIND_OF_NODE_KEY, nodeKind);
+        this.context.put(NodeContextKeys.SYMBOL_KIND_OF_NODE_PARENT_KEY, nodeParentKind);
+        this.context.put(NodeContextKeys.VAR_NAME_OF_NODE_KEY, varName);
+        this.context.put(NodeContextKeys.NODE_OWNER_KEY, owner.name.getValue());
+        this.context.put(NodeContextKeys.NODE_OWNER_PACKAGE_KEY, owner.pkgID);
     }
 }

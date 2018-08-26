@@ -168,6 +168,12 @@ public class CommonUtil {
         return new DiagnosticPos(diagnosticPos.getSource(), startLine, endLine, startColumn, endColumn);
     }
 
+    /**
+     * Replace and returns a diagnostic position with a new position.
+     *
+     * @param oldPos old position
+     * @param newPos new position
+     */
     public static void replacePosition(DiagnosticPos oldPos, DiagnosticPos newPos) {
         oldPos.sLine = newPos.sLine;
         oldPos.eLine = newPos.eLine;

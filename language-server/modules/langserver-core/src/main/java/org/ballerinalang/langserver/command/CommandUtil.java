@@ -357,8 +357,9 @@ public class CommandUtil {
                                                    WorkspaceDocumentManager documentManager,
                                                    LSCompiler lsCompiler) {
         LSServiceOperationContext context = new LSServiceOperationContext();
-        Position position = params.getRange().getStart();
-        position.setCharacter(position.getCharacter() + 1);
+        Position position = new Position();
+        position.setLine(params.getRange().getStart().getLine());
+        position.setCharacter(params.getRange().getStart().getCharacter() + 1);
         context.put(DocumentServiceKeys.FILE_URI_KEY, params.getTextDocument().getUri());
         context.put(DocumentServiceKeys.POSITION_KEY,
                           new TextDocumentPositionParams(params.getTextDocument(), position));

@@ -13,7 +13,7 @@
                 },
                 "end": {
                     "line": 12,
-                    "character": 1
+                    "character": 0
                 }
             },
             "newText": "import ballerina/io;\r\nfunction main(string... args) {\r\n    int[] a2 = [];\r\n    foreach item in a2 {\r\n        io:println(a2);\r\n    }\r\n    iterate(a2);\r\n}\r\n\r\nfunction iterate(int[] m) {\r\n    io:println(\"\");\r\n}"

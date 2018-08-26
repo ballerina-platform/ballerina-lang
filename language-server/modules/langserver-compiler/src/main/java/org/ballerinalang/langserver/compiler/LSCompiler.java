@@ -244,7 +244,7 @@ public class LSCompiler {
         if (!dir.isDirectory() || dir.getName().startsWith(".")) {
             return false;
         }
-        File[] files = dir.listFiles((file, name) -> name.endsWith(BAL_EXTENSION));
+        File[] files = dir.listFiles((parent, name) -> isBallerinaFile(parent.toPath().resolve(name).toFile()));
         return files != null && files.length > 0;
     }
 
