@@ -143,8 +143,7 @@ public class ArgumentParser {
         int defaultValueIndex = 0;
 
         for (int defaultableParamIndex = requiredParamsCount;
-             defaultableParamIndex < requiredParamsCount + defaultableParamsCount;
-             defaultableParamIndex = defaultableParamIndex + defaultValueIndex) {
+             defaultableParamIndex < requiredParamsCount + defaultableParamsCount; defaultableParamIndex++) {
             LocalVariableInfo localVariableInfo = localVariableInfoList.get(defaultableParamIndex);
             bValueArgs[defaultableParamIndex] = getDefaultValue(localVariableInfo.getVariableType(),
                                                                 defaultValues[defaultValueIndex++]);
