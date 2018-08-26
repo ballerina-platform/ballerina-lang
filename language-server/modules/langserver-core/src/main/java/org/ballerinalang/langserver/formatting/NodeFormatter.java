@@ -26,7 +26,7 @@ import java.util.Map;
 /**
  * Node tree visitor for formatting.
  */
-public class FormattingTreeUtil {
+public class NodeFormatter {
     private static final String TAB = "\t";
     private static final String SPACE_TAB = "    ";
     private static final String BETWEEN_BLOCK_SPACE = System.lineSeparator() + System.lineSeparator();
