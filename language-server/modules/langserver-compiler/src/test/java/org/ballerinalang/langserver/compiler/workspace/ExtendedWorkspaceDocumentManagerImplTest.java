@@ -30,7 +30,9 @@ import java.util.Set;
 import java.util.concurrent.locks.Lock;
 import java.util.stream.Stream;
 
-
+/**
+ * Tests for the ExtendedWorkspaceDocumentManagerImpl.
+ */
 public class ExtendedWorkspaceDocumentManagerImplTest {
     private ExtendedWorkspaceDocumentManagerImpl documentManager;
     private Path filePath;
