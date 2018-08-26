@@ -150,7 +150,7 @@ public class DefinitionTest {
         Path expectedFilePath = definitionsPath.resolve("expected").resolve(expectedFile);
 
         byte[] expectedByte = Files.readAllBytes(expectedFilePath);
-        String positionRange = new String(expectedByte);
+        String positionRange = new String(expectedByte).trim();
 
         return "{\"id\":\"324\",\"result\":[{\"uri\":" +
                 "\"" + expectedFileURI + "\"," +
