@@ -15,7 +15,7 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-package org.ballerinalang.langserver.workspace;
+package org.ballerinalang.langserver.docsymbol;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
@@ -39,60 +39,48 @@ import java.nio.file.Path;
  * 
  * @since 0.982.0
  */
-public class WorkspaceTest {
+public class DocumentSymbolTest {
     
     private Endpoint serviceEndpoint;
 
     private JsonParser parser = new JsonParser();
 
+    private Path sourcesPath = new File(getClass().getClassLoader().getResource("docsymbol").getFile()).toPath();
+
     @BeforeClass
     public void init() throws Exception {
         this.serviceEndpoint = TestUtil.initializeLanguageSever();
-        this.openDocuments();
     }
     
-    @Test(description = "Test the Workspace symbol", dataProvider = "workspace-data-provider")
-    public void testWorkspaceSymbol(String config, String query) throws IOException {
-        String configJsonPath = "workspace" + File.separator + config;
+    @Test(description = "Test the Document symbol", dataProvider = "document-data-provider")
+    public void testWorkspaceSymbol(String config, String source) throws IOException {
+        String configJsonPath = "docsymbol" + File.separator + config;
+        Path sourcePath = sourcesPath.resolve("source").resolve(source);
+        TestUtil.openDocument(serviceEndpoint, sourcePath);
         JsonObject configJsonObject = FileUtils.fileContentAsObject(configJsonPath);
         JsonObject expected = configJsonObject.get("expected").getAsJsonObject();
-        String response = TestUtil.getWorkspaceSymbolResponse(this.serviceEndpoint, query);
+        String response = TestUtil.getDocumentSymbolResponse(this.serviceEndpoint, sourcePath.toString());
         JsonObject jsonResponse = parser.parse(response).getAsJsonObject();
         JsonArray result = jsonResponse.getAsJsonArray("result");
+        TestUtil.closeDocument(serviceEndpoint, sourcePath);
         for (JsonElement element : result) {
             element.getAsJsonObject().get("location").getAsJsonObject().remove("uri");
         }
 
-        JsonArray expectedJsonArray = expected.getAsJsonArray("result");
-        Assert.assertTrue(TestUtil.isArgumentsSubArray(expectedJsonArray, result)
-                && expectedJsonArray.size() == result.size());
+        JsonArray expectedJsonArr = expected.getAsJsonArray("result");
+        Assert.assertTrue(TestUtil.isArgumentsSubArray(expectedJsonArr, result)
+                && expectedJsonArr.size() == result.size());
     }
 
-    @DataProvider(name = "workspace-data-provider")
-    public Object[][] workspaceSymbolDataProvider() {
+    @DataProvider(name = "document-data-provider")
+    public Object[][] documentSymbolDataProvider() {
         return new Object[][] {
-                {"workspaceSymbol.json", ""},
-                {"workspaceSymbolWithQuery.json", "test"},
+                {"documentSymbol.json", "docSymbol.bal"},
         };
     }
     
-    private void openDocuments() throws IOException {
-        Path projectPath = FileUtils.RES_DIR.resolve("workspace").resolve("source").resolve("workspaceSymbolProject");
-        TestUtil.openDocument(this.serviceEndpoint, projectPath.resolve("pkg1").resolve("pkg1Source.bal"));
-        TestUtil.openDocument(this.serviceEndpoint, projectPath.resolve("pkg2").resolve("pkg2Source.bal"));
-        TestUtil.openDocument(this.serviceEndpoint, projectPath.resolve("pkg3").resolve("pkg3Source.bal"));
-    }
-    
-    private void closeDocuments() throws IOException {
-        Path projectPath = FileUtils.RES_DIR.resolve("workspace").resolve("source").resolve("workspaceSymbolProject");
-        TestUtil.closeDocument(this.serviceEndpoint, projectPath.resolve("pkg1").resolve("pkg1Source.bal"));
-        TestUtil.closeDocument(this.serviceEndpoint, projectPath.resolve("pkg2").resolve("pkg2Source.bal"));
-        TestUtil.closeDocument(this.serviceEndpoint, projectPath.resolve("pkg3").resolve("pkg3Source.bal"));
-    }
-    
     @AfterClass
-    public void shutdownLanguageServer() throws IOException {
-        this.closeDocuments();
+    public void shutdownLanguageServer() {
         TestUtil.shutdownLanguageServer(this.serviceEndpoint);
     }
 }
