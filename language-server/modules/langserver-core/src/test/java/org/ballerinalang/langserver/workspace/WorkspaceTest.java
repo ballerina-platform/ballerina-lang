@@ -48,6 +48,7 @@ public class WorkspaceTest {
     @BeforeClass
     public void init() throws Exception {
         this.serviceEndpoint = TestUtil.initializeLanguageSever();
+        this.openDocuments();
     }
     
     @Test(description = "Test the Workspace symbol", dataProvider = "workspace-data-provider")
@@ -55,9 +56,7 @@ public class WorkspaceTest {
         String configJsonPath = "workspace" + File.separator + config;
         JsonObject configJsonObject = FileUtils.fileContentAsObject(configJsonPath);
         JsonObject expected = configJsonObject.get("expected").getAsJsonObject();
-        this.openDocuments();
         String response = TestUtil.getWorkspaceSymbolResponse(this.serviceEndpoint, query);
-        this.closeDocuments();
         JsonObject jsonResponse = parser.parse(response).getAsJsonObject();
         JsonArray result = jsonResponse.getAsJsonArray("result");
         for (JsonElement element : result) {
@@ -100,7 +99,8 @@ public class WorkspaceTest {
     }
     
     @AfterClass
-    public void shutdownLanguageServer() {
+    public void shutdownLanguageServer() throws IOException {
+        this.closeDocuments();
         TestUtil.shutdownLanguageServer(this.serviceEndpoint);
     }
 }
