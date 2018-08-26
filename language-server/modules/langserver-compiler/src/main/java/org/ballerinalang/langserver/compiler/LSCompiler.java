@@ -206,9 +206,12 @@ public class LSCompiler {
 
         PackageRepository packageRepository = new WorkspacePackageRepository(sourceRoot, docManager);
         List<BLangPackage> packages = new ArrayList<>();
+        if (compileFullProject && sourceRoot.isEmpty()) {
+            logger.warn("********************* " + uri);
+        }
         if (compileFullProject && !sourceRoot.isEmpty()) {
+            logger.warn("##################### " + uri);
             File projectDir = new File(sourceRoot);
-            logger.warn("********************* " + projectDir.toString());
             Arrays.stream(projectDir.listFiles()).forEach(
                     file -> {
                         if ((file.isDirectory() && !file.getName().startsWith(".")) ||
