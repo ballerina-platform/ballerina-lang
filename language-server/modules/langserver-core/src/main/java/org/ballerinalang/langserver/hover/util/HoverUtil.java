@@ -320,7 +320,7 @@ public class HoverUtil {
     /**
      * Calculate and returns identifier position of this BLangEndpoint.
      *
-     * @param endpointNode BLangEndpoint
+     * @param endpointNode {@link BLangEndpoint}
      * @return position
      */
     public static DiagnosticPos getIdentifierPosition(BLangEndpoint endpointNode) {
@@ -353,7 +353,7 @@ public class HoverUtil {
     /**
      * Calculate and returns identifier position of this BLangFunction.
      *
-     * @param bLangFunction BLangFunction
+     * @param bLangFunction {@link BLangFunction}
      * @return position
      */
     public static DiagnosticPos getIdentifierPosition(BLangFunction bLangFunction) {
@@ -380,7 +380,7 @@ public class HoverUtil {
     /**
      * Calculate and returns identifier position of this BLangService.
      *
-     * @param serviceNode BLangService
+     * @param serviceNode {@link BLangService}
      * @return position
      */
     public static DiagnosticPos getIdentifierPosition(BLangService serviceNode) {
@@ -407,6 +407,12 @@ public class HoverUtil {
         return position;
     }
 
+    /**
+     * Calculate and returns identifier position of this BLangResource.
+     *
+     * @param resource {@link BLangResource}
+     * @return position
+     */
     public static DiagnosticPos getIdentifierPosition(BLangResource resource) {
         DiagnosticPos resPosition = resource.getPosition();
         DiagnosticPos position = new DiagnosticPos(resPosition.src, resPosition.sLine, resPosition.eLine,
