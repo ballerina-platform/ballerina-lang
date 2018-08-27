@@ -21,6 +21,8 @@ import com.github.jknack.handlebars.Context;
 import com.github.jknack.handlebars.Handlebars;
 import com.github.jknack.handlebars.Template;
 import com.github.jknack.handlebars.context.FieldValueResolver;
+import com.github.jknack.handlebars.context.JavaBeanValueResolver;
+import com.github.jknack.handlebars.context.MapValueResolver;
 import com.github.jknack.handlebars.helper.StringHelpers;
 import com.github.jknack.handlebars.io.ClassPathTemplateLoader;
 import com.github.jknack.handlebars.io.FileTemplateLoader;
@@ -87,6 +89,9 @@ public class BalGenerationUtils {
             case "BytesValue": {
                 return "blob";
             }
+            case "Empty": {
+                return null;
+            }
             default: { // to handle structs
                 return protoType;
             }
@@ -144,7 +149,7 @@ public class BalGenerationUtils {
             }
             case DescriptorProtos.FieldDescriptorProto.Type.TYPE_INT32_VALUE:
             case DescriptorProtos.FieldDescriptorProto.Type.TYPE_FIXED32_VALUE: {
-                return "struct";
+                return "int";
             }
             case DescriptorProtos.FieldDescriptorProto.Type.TYPE_BOOL_VALUE: {
                 return "boolean";
@@ -200,7 +205,10 @@ public class BalGenerationUtils {
         PrintWriter writer = null;
         try {
             Template template = compileTemplate(templateDir, templateName);
-            Context context = Context.newBuilder(object).resolver(FieldValueResolver.INSTANCE).build();
+            Context context = Context.newBuilder(object).resolver(
+                    MapValueResolver.INSTANCE,
+                    JavaBeanValueResolver.INSTANCE,
+                    FieldValueResolver.INSTANCE).build();
             writer = new PrintWriter(outPath, "UTF-8");
             writer.println(template.apply(context));
         } finally {
@@ -232,6 +240,22 @@ public class BalGenerationUtils {
                 result = null;
             }
             
+            return result;
+        });
+
+        handlebars.registerHelper("not_equal", (object, options) -> {
+            CharSequence result;
+            Object param0 = options.param(0);
+
+            if (param0 == null) {
+                throw new IllegalArgumentException("found n'null', expected 'string'");
+            }
+            if (!object.toString().equals(param0.toString())) {
+                result = options.fn(options.context);
+            } else {
+                result = null;
+            }
+
             return result;
         });
         

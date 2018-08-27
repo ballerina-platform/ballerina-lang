@@ -32,10 +32,10 @@ import java.nio.file.Paths;
 
 import static org.ballerinalang.protobuf.BalGenerationConstants.PROTOC_PLUGIN_EXE_PREFIX;
 import static org.ballerinalang.protobuf.BalGenerationConstants.PROTOC_PLUGIN_EXE_URL_SUFFIX;
+import static org.ballerinalang.protobuf.utils.BalFileGenerationUtils.downloadFile;
 import static org.ballerinalang.protobuf.utils.BalFileGenerationUtils.generateDescriptor;
 import static org.ballerinalang.protobuf.utils.BalFileGenerationUtils.grantPermission;
-import static org.ballerinalang.protobuf.utils.BalFileGenerationUtils.resolveProtoFloderPath;
-import static org.ballerinalang.protobuf.utils.BalFileGenerationUtils.saveFile;
+import static org.ballerinalang.protobuf.utils.BalFileGenerationUtils.resolveProtoFolderPath;
 
 /**
  * Test util class contains util functions to retrieve proto descriptor.
@@ -58,7 +58,7 @@ public class ProtoDescriptorUtils {
             String protocDownloadurl = PROTOC_PLUGIN_EXE_URL_SUFFIX + protocVersion + "/protoc-" + protocVersion
                     + "-" + OSDetector.getDetectedClassifier() + PROTOC_PLUGIN_EXE_PREFIX;
             try {
-                saveFile(new URL(protocDownloadurl), protocExePath);
+                downloadFile(new URL(protocDownloadurl), protocExeFile);
                 //set application user permissions to 455
                 grantPermission(protocExeFile);
             } catch (BalGenToolException e) {
@@ -83,7 +83,7 @@ public class ProtoDescriptorUtils {
 
         File descriptorFile = File.createTempFile("file-desc-", ".desc");
         String command = new ProtocCommandBuilder
-                (exePath.getAbsolutePath(), protoPath, resolveProtoFloderPath(protoPath), descriptorFile
+                (exePath.getAbsolutePath(), protoPath, resolveProtoFolderPath(protoPath), descriptorFile
                         .getAbsolutePath()).build();
         generateDescriptor(command);
         try (InputStream targetStream = new FileInputStream(descriptorFile)) {

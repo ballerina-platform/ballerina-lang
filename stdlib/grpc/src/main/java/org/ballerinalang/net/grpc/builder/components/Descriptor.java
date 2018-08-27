@@ -17,41 +17,64 @@
  */
 package org.ballerinalang.net.grpc.builder.components;
 
+import com.google.protobuf.DescriptorProtos;
+import org.ballerinalang.model.values.BString;
+
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+
+import static org.ballerinalang.net.grpc.builder.utils.BalGenConstants.PACKAGE_SEPARATOR;
+import static org.ballerinalang.net.grpc.builder.utils.BalGenerationUtils.bytesToHex;
+
 /**
  * Bean class of client descriptor object.
  */
 public class Descriptor {
     private String descriptorKey;
     private String descriptorData;
-    private String eoe;
     
-    public Descriptor(String descriptorKey, String descriptorData, String eoe) {
+    private Descriptor(String descriptorKey, String descriptorData) {
         this.descriptorKey = descriptorKey;
         this.descriptorData = descriptorData;
-        this.eoe = eoe;
     }
     
-    public String getDescriptorKey() {
+    public String getKey() {
         return descriptorKey;
     }
     
-    public void setDescriptorKey(String descriptorKey) {
-        this.descriptorKey = descriptorKey;
-    }
-    
-    public String getDescriptorData() {
+    public String getData() {
         return descriptorData;
     }
-    
-    public void setDescriptorData(String descriptorData) {
-        this.descriptorData = descriptorData;
+
+
+    public static Descriptor.Builder newBuilder(byte[] descriptorData) {
+        return new Descriptor.Builder(descriptorData);
     }
-    
-    public String getEoe() {
-        return eoe;
-    }
-    
-    public void setEoe(String eoe) {
-        this.eoe = eoe;
+
+    /**
+     * MethodDefinition.Builder.
+     */
+    public static class Builder {
+
+        byte[] descriptorData;
+
+        private Builder(byte[] descriptorData) {
+            this.descriptorData = descriptorData;
+        }
+
+        public Descriptor build() throws IOException {
+            try (InputStream targetStream = new ByteArrayInputStream(descriptorData)) {
+                DescriptorProtos.FileDescriptorProto fileDescriptorSet = DescriptorProtos.FileDescriptorProto
+                        .parseFrom(targetStream);
+                String descriptorKey;
+                if (fileDescriptorSet.getPackage() != null && !fileDescriptorSet.getPackage().isEmpty()) {
+                    descriptorKey = fileDescriptorSet.getPackage() + PACKAGE_SEPARATOR + fileDescriptorSet.getName();
+                } else {
+                    descriptorKey = fileDescriptorSet.getName();
+                }
+                return new Descriptor(descriptorKey, new BString(bytesToHex(descriptorData)).stringValue());
+            }
+        }
     }
 }

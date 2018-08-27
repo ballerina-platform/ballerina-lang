@@ -18,30 +18,22 @@
 package org.ballerinalang.net.grpc.builder.components;
 
 /**
- * Bean class of client get function object.
+ * Bean class of client file object.
  */
-public class StubFunctionBuilder {
-    private String connectorId;
-    private String stubTypeName;
+public class ClientFile {
+    private String serviceName;
+    private boolean blockingEP;
     
-    public StubFunctionBuilder(String connectorId, String stubTypeName) {
-        this.connectorId = connectorId;
-        this.stubTypeName = stubTypeName;
+    public ClientFile(String serviceName, boolean blockingEP) {
+        this.serviceName = serviceName;
+        this.blockingEP = blockingEP;
     }
-    
-    public String getConnectorId() {
-        return connectorId;
+
+    public String getServiceName() {
+        return serviceName;
     }
-    
-    public void setConnectorId(String connectorId) {
-        this.connectorId = connectorId;
-    }
-    
-    public String getStubTypeName() {
-        return stubTypeName;
-    }
-    
-    public void setStubTypeName(String stubTypeName) {
-        this.stubTypeName = stubTypeName;
+
+    public boolean isBlockingEP() {
+        return blockingEP;
     }
 }
