@@ -16,13 +16,13 @@
  */
 package org.ballerinalang.persistence.serializable;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 import org.ballerinalang.bre.bvm.CallableWorkerResponseContext;
 import org.ballerinalang.bre.bvm.WorkerData;
 import org.ballerinalang.bre.bvm.WorkerExecutionContext;
 import org.ballerinalang.bre.bvm.WorkerState;
+import org.ballerinalang.model.util.serializer.JsonSerializer;
 import org.ballerinalang.persistence.Deserializer;
+import org.ballerinalang.persistence.Serializer;
 import org.ballerinalang.runtime.Constants;
 import org.ballerinalang.util.codegen.CallableUnitInfo;
 import org.ballerinalang.util.codegen.PackageInfo;
@@ -74,8 +74,8 @@ public class SerializableContext {
     public String workerName;
 
     public static SerializableContext deserialize(String jsonString) {
-        Gson gson = new GsonBuilder().create();
-        return gson.fromJson(jsonString, SerializableContext.class);
+        JsonSerializer serializer = Serializer.getJsonSerializer();
+        return serializer.deserialize(jsonString, SerializableContext.class);
     }
 
     public SerializableContext(String contextKey, WorkerExecutionContext ctx, SerializableState state, int ip) {
