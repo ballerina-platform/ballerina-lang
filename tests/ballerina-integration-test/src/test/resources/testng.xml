@@ -87,8 +87,8 @@
 
     <test name="ballerina-filter-tests" parallel="false">
         <classes>
-            <class name="org.ballerinalang.test.filter.InvocationContextTestCase"/>
             <class name="org.ballerinalang.test.filter.MultpleFiltersTestCase"/>
+            <class name="org.ballerinalang.test.filter.InvocationContextTestCase"/>
             <class name="org.ballerinalang.test.filter.SingleFilterTestCase"/>
         </classes>
     </test>
@@ -138,9 +138,9 @@
     <test name="ballerina-grpc-tests" parallel="false">
         <classes>
             <class name="org.ballerinalang.test.service.grpc.sample.GrpcBaseTest"/>
+            <class name="org.ballerinalang.test.service.grpc.sample.ClientStreamingTestCase"/>
             <class name="org.ballerinalang.test.service.grpc.sample.UnaryBlockingBasicTestCase"/>
             <class name="org.ballerinalang.test.service.grpc.sample.UnaryBlockingArrayValueTestCase"/>
-            <class name="org.ballerinalang.test.service.grpc.sample.ClientStreamingTestCase"/>
             <class name="org.ballerinalang.test.service.grpc.sample.UnaryBlockingHeaderTestCase"/>
             <class name="org.ballerinalang.test.service.grpc.sample.UnarySecuredBlockingBasicTestCase"/>
             <class name="org.ballerinalang.test.service.grpc.sample.UnaryBlockingNestedStructTestCase"/>
