@@ -4,6 +4,7 @@ package org.ballerinalang.channels;
  * Constants related to channel implementation.
  */
 public class ChannelConstants {
+
     public static final String DB_NAME = "channels";
     public static final String TABLE_NAME = "messages";
     public static final String DB_USERNAME = "SA";
@@ -11,13 +12,22 @@ public class ChannelConstants {
     public static final String CONF_NAMESPACE = "b7a.channel.db.";
     public static final String CONF_USERNAME = "username";
     public static final String CONF_PASSWORD = "password";
-    public static final String CONF_DB = "database";
     public static final String CONF_DB_TYPE = "dbType";
     public static final String CONF_HOST_OR_PATH = "hostOrPath";
     public static final String CONF_PORT = "port";
     public static final String CONF_DB_NAME = "dbName";
     public static final String CONF_DB_OPTIONS = "dbOptions";
 
+    /**
+     * DB queries.
+     */
+    public static final String CREATE = "create table IF NOT EXISTS " + TABLE_NAME + " (msgId int NOT NULL " +
+            "AUTO_INCREMENT,channelName varchar(200),msgKey varchar(200),value varchar(200), constraint pk primary " +
+            "key ( msgId ))";
+    public static final String SELECT = "SELECT msgId,value FROM " + TABLE_NAME + " WHERE channelName = ? AND msgKey " +
+            "= ?";
+    public static final String INSERT = "INSERT into " + TABLE_NAME + " (channelName, msgKey, value) values (?, ?, ?)";
+    public static final String DROP = "DELETE FROM " + TABLE_NAME + " where msgId = ?";
     /**
      * DB Types with first class support.
      */

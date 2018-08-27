@@ -33,48 +33,30 @@ public class DatabaseUtils {
     private static ConfigRegistry registry = ConfigRegistry.getInstance();
     private static final String H2_MEM_URL = "jdbc:h2:mem:" + ChannelConstants.DB_NAME;
 
-    private static void createDBConnection() {
+    private static void createDBConnection() throws SQLException {
         if (hikariDataSource == null) {
             config = new HikariConfig();
             setCredentials();
 
-            String jdbcUrl = constructJDBCURL();
+            String jdbcUrl = getJDBCURL();
             config.setJdbcUrl(jdbcUrl);
             hikariDataSource = new HikariDataSource(config);
-
-            try {
+            if (jdbcUrl.contains(H2_MEM_URL)) {
                 con = hikariDataSource.getConnection();
-                con.prepareStatement("create table IF NOT EXISTS messages (" +
-                        "  msgId int NOT NULL AUTO_INCREMENT," +
-                        "  channelName  varchar(200)," +
-                        "  msgKey    varchar(200)," +
-                        "  value    varchar(200)," +
-                        "  constraint pk primary key ( msgId )" +
-                        ")").execute();
-            } catch (SQLException e) {
-                throw new BallerinaException("error in get connection to persist channel message " + e.getMessage(),
-                        e);
-            } finally {
-                if (con != null) {
-                    try {
-                        con.close();
-                    } catch (SQLException e) {
-                        //ignore
-                    }
-                }
+                con.prepareStatement(ChannelConstants.CREATE).execute();
             }
         }
     }
 
     public static void addEntry(String channelName, BValue key, BValue value, BType keyType, BType valType) {
-        createDBConnection();
-        String addStatement = "INSERT into messages (channelName, msgKey, value) values ('"
-                + channelName + "', ?, ?)";
+
         try {
+            createDBConnection();
             con = hikariDataSource.getConnection();
-            PreparedStatement stmt = con.prepareStatement(addStatement);
-            setParam(stmt, key, keyType, 1);
-            setParam(stmt, value, valType, 2);
+            PreparedStatement stmt = con.prepareStatement(ChannelConstants.INSERT);
+            stmt.setString(1, channelName);
+            setParam(stmt, key, keyType, 2);
+            setParam(stmt, value, valType, 3);
             stmt.execute();
         } catch (SQLException e) {
             throw new BallerinaException("error in get connection to persist channel message " + e.getMessage(),
@@ -89,19 +71,20 @@ public class DatabaseUtils {
     }
 
     public static BValue getMessage(String channelName, BValue key, BType keyType, BType receiverType) {
-        createDBConnection();
-        String stmt = "SELECT msgId,value FROM messages WHERE channelName = '" + channelName + "' AND msgKey = ?";
         ResultSet result;
         try {
+            createDBConnection();
             con = hikariDataSource.getConnection();
-            PreparedStatement prpStmt = con.prepareStatement(stmt);
-            setParam(prpStmt, key, keyType, 1);
+            PreparedStatement prpStmt = con.prepareStatement(ChannelConstants.SELECT);
+            prpStmt.setString(1, channelName);
+            setParam(prpStmt, key, keyType, 2);
             result = prpStmt.executeQuery();
             if (result.next()) {
                 int msgId = result.getInt(1);
                 BValue value = getValue(result, receiverType);
-                con.prepareStatement("DELETE FROM messages where msgId = " + msgId).execute();
-                //todo: should fix for all types
+                PreparedStatement dropStmt = con.prepareStatement(ChannelConstants.DROP);
+                dropStmt.setInt(1, msgId);
+                dropStmt.execute();
                 return value;
             }
         } catch (SQLException e) {
@@ -182,7 +165,7 @@ public class DatabaseUtils {
         }
     }
 
-    private static String constructJDBCURL() {
+    private static String getJDBCURL() {
 
         String dbType = registry.getAsString(ChannelConstants.CONF_NAMESPACE + ChannelConstants.CONF_DB_TYPE);
         String hostOrPath = registry.getAsString(ChannelConstants.CONF_NAMESPACE +
