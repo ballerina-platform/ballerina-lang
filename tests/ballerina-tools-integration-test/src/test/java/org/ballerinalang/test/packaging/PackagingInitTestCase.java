@@ -358,7 +358,7 @@ public class PackagingInitTestCase {
         Files.deleteIfExists(projectPath.resolve(".ballerina"));
 
         // Test ballerina build
-        String[] clientArgsForBuild = {"main.bal", "-o", genExecPath.resolve("foo.bal").toString()};
+        String[] clientArgsForBuild = {"-o", genExecPath.resolve("foo.bal").toString(), "main.bal"};
         ballerinaServer = createNewBallerinaServer();
         ballerinaServer.runMain(clientArgsForBuild, getEnvVariables(), "build", projectPath.toString());
 

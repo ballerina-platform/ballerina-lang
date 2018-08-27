@@ -24,11 +24,17 @@ import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
 import io.netty.handler.logging.LogLevel;
 import io.netty.handler.logging.LoggingHandler;
+import org.ballerinalang.test.context.BallerinaTestException;
+import org.ballerinalang.test.context.Utils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Simple WebSocket server for Test cases.
  */
 public final class WebSocketRemoteServer {
+
+    private static final Logger log = LoggerFactory.getLogger(WebSocketRemoteServer.class);
 
     private final int port;
     private EventLoopGroup bossGroup;
@@ -38,9 +44,9 @@ public final class WebSocketRemoteServer {
         this.port = port;
     }
 
-    public void run() throws InterruptedException {
-
-        System.out.println("***************************** starting remote server on port - " + port);
+    public void run() throws InterruptedException, BallerinaTestException {
+        log.info("Starting websocket remote server at '" + port + "'");
+        Utils.checkPortAvailability(port);
         bossGroup = new NioEventLoopGroup(1);
         workerGroup = new NioEventLoopGroup(5);
 
@@ -52,16 +58,9 @@ public final class WebSocketRemoteServer {
     }
 
     public void stop() {
-        System.out.println("***************************** stopping remote server on port - " + port);
-        try {
-            bossGroup.shutdownGracefully().sync();
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-        try {
-            workerGroup.shutdownGracefully().sync();
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
+        log.info("Shutting down websocket remote server at '" + port + "'");
+        bossGroup.shutdownGracefully();
+        workerGroup.shutdownGracefully();
+        Utils.waitForPortsToClose(new int[]{port}, 30000);
     }
 }

@@ -18,12 +18,17 @@
 package org.ballerinalang.test.launch;
 
 import org.ballerinalang.compiler.BLangCompilerException;
+import org.ballerinalang.launcher.LauncherUtils;
 import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.util.exceptions.BLangRuntimeException;
 import org.testng.Assert;
 import org.testng.annotations.Test;
+
+import java.nio.file.Paths;
+import java.util.HashMap;
 
 /**
  * Tests running packages.
@@ -51,5 +56,12 @@ public class LaunchTest {
         Assert.assertEquals(compileResult.getErrorCount(), 0);
         BValue[] result = BRunUtil.invoke(compileResult, "foo");
         Assert.assertEquals(result[0].stringValue(), "hello!");
+    }
+
+    @Test(expectedExceptions = { BLangRuntimeException.class },
+            expectedExceptionsMessageRegExp = "ballerina: cannot find program file 'non_existing.balx'")
+    public void testNonExistingBalx() {
+        LauncherUtils.runProgram(Paths.get("test-src", "launch"), Paths.get("non_existing.balx"), false,
+                new HashMap<>(), null, new String[] {}, true, false);
     }
 }

@@ -88,14 +88,14 @@ public class PackagingSingleBalBuildTestCase {
         Assert.assertTrue(Files.exists(generatedBalx));
     }
 
-    @Test(description = "Test building a bal file to the output file givenby the user")
+    @Test(description = "Test building a bal file to the output file given by the user")
     public void testBuildingSourceToOutput() throws Exception {
         Path targetDirPath = tempProjectDirectory.resolve("target");
         Files.createDirectories(targetDirPath);
 
         // Test ballerina build
         ServerInstanceOld ballerinaServer = createNewBallerinaServer();
-        String[] clientArgs = {balFilePath.toString(), "-o", targetDirPath.resolve("main.bal").toString()};
+        String[] clientArgs = {balFilePath.toString(), "-o", targetDirPath.resolve("main.bal").toString(), balFilePath.toString()};
         ballerinaServer.runMain(clientArgs, getEnvVariables(), "build", tempProjectDirectory.toString());
         Path generatedBalx = targetDirPath.resolve("main.balx");
         Assert.assertTrue(Files.exists(generatedBalx));

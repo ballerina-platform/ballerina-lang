@@ -43,6 +43,7 @@ public class StreamsWithinServicesTestCase extends BaseTest {
 
     @BeforeClass(alwaysRun = true)
     public void setup() throws Exception {
+        //TODO check port 9090 as required ports - rajith
         String relativePath = new File("src" + File.separator + "test" + File.separator + "resources"
                 + File.separator + "streaming" + File.separator +
                 "streams-within-services.bal").getAbsolutePath();

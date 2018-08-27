@@ -55,4 +55,22 @@ public class AuthnConfigInheritanceAuthDisableTest extends AuthBaseTest {
         Assert.assertNotNull(response);
         Assert.assertEquals(response.getResponseCode(), 200, "Response code mismatched");
     }
+
+    //TODO get required port part and remove below two methods - rajith
+    @BeforeGroups(value = "auth-test", alwaysRun = true)
+    public void start() throws BallerinaTestException {
+        int[] requirePorts = new int[]{9090, 9091, 9092, 9093, 9094};
+
+        String basePath = new File("src" + File.separator + "test" + File.separator + "resources" + File.separator +
+                "auth").getAbsolutePath();
+        String ballerinaConfPath = basePath + File.separator + "ballerina.conf";
+        String[] args = new String[]{"--sourceroot", basePath, "--config", ballerinaConfPath};
+        serverInstance.startBallerinaServer("authservices", args, requirePorts);
+    }
+
+    @AfterGroups(value = "auth-test", alwaysRun = true)
+    public void cleanup() throws Exception {
+        serverInstance.removeAllLeechers();
+        serverInstance.stopServer();
+    }
 }

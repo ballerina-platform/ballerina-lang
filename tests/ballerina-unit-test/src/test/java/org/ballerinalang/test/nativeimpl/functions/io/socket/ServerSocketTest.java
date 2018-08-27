@@ -56,7 +56,7 @@ public class ServerSocketTest {
         normalServer = BCompileUtil.compileAndSetup("test-src/io/server_socket_io.bal");
     }
 
-    @Test(description = "Check server socket accept functionality.")
+    @Test(description = "Check server socket accept functionality.", enabled = false)
     public void testSeverSocketAccept() throws InterruptedException {
         int port = ThreadLocalRandom.current().nextInt(47000, 51000);
         ExecutorService executor = Executors.newSingleThreadExecutor();
@@ -74,7 +74,7 @@ public class ServerSocketTest {
     }
 
     @Test(description = "Check server socket accept functionality.",
-          dependsOnMethods = "testSeverSocketAccept")
+          dependsOnMethods = "testSeverSocketAccept", enabled = false)
     public void testSeverSocketDelayiedAccept() {
         CompileResult delayedStartServer = BCompileUtil
                 .compileAndSetup("test-src/io/server_socket_io_delayed_accept.bal");
