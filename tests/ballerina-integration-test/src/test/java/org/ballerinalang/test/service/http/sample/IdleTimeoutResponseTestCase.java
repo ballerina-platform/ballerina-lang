@@ -27,9 +27,10 @@ import org.testng.Assert;
 import org.testng.annotations.Test;
 
 import java.io.IOException;
-import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
 import java.nio.channels.SocketChannel;
+
+import static org.ballerinalang.test.util.TestUtils.connectToRemoteEndpoint;
 
 /**
  * Test idle timeout response for request timeout and server timeout.
@@ -125,34 +126,13 @@ public class IdleTimeoutResponseTestCase extends BaseTest {
     @Test(description = "Tests if 408 response is returned when the request times out. In this case a delay is " +
             "introduced between the first and second chunk.")
     public void test408Response() throws IOException, InterruptedException {
-        SocketChannel clientSocket = connectToRemoteEndpoint();
+        SocketChannel clientSocket = connectToRemoteEndpoint("127.0.0.1", servicePort, BUFFER_SIZE);
         writeDelayedRequest(clientSocket);
         String expected = "HTTP/1.1 408 Request Timeout\r\n" +
                 "content-length: 0\r\n" +
                 "content-type: text/plain\r\n" +
                 "connection: close";
         readAndAssertResponse(clientSocket, expected);
-    }
-
-    /**
-     * Connects to the remote endpoint.
-     *
-     * @return the channel created from the connection.
-     * @throws IOException if there's an error when connecting to remote endpoint.
-     */
-    private SocketChannel connectToRemoteEndpoint() throws IOException {
-        InetSocketAddress remoteAddress = new InetSocketAddress("127.0.0.1", servicePort);
-
-        SocketChannel clientSocket = SocketChannel.open();
-        clientSocket.configureBlocking(true);
-        clientSocket.socket().setReceiveBufferSize(BUFFER_SIZE);
-        clientSocket.socket().setSendBufferSize(BUFFER_SIZE);
-        clientSocket.connect(remoteAddress);
-
-        if (!clientSocket.finishConnect()) {
-            throw new Error("Cannot connect to server");
-        }
-        return clientSocket;
     }
 
     /**
