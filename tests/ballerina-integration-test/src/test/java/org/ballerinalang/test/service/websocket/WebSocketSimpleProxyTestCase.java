@@ -18,6 +18,7 @@
 
 package org.ballerinalang.test.service.websocket;
 
+import org.ballerinalang.test.context.BallerinaTestException;
 import org.ballerinalang.test.util.websocket.client.WebSocketTestClient;
 import org.ballerinalang.test.util.websocket.server.WebSocketRemoteServer;
 import org.testng.Assert;
@@ -40,12 +41,12 @@ public class WebSocketSimpleProxyTestCase extends WebSocketTestCommons {
     private static final String URL = "ws://localhost:9099";
 
     @BeforeClass(description = "Initializes Ballerina")
-    public void setup() throws InterruptedException {
-        remoteServer = new WebSocketRemoteServer(REMOTE_SERVER_PORT);
+    public void setup() throws InterruptedException, BallerinaTestException {
+        remoteServer = new WebSocketRemoteServer(15300);
         remoteServer.run();
     }
 
-    @Test(priority = 1, description = "Tests sending and receiving of text frames in WebSockets")
+    @Test(description = "Tests sending and receiving of text frames in WebSockets")
     public void testSendText() throws URISyntaxException, InterruptedException {
         WebSocketTestClient client = new WebSocketTestClient(URL);
         client.handshake();
@@ -58,7 +59,7 @@ public class WebSocketSimpleProxyTestCase extends WebSocketTestCommons {
         client.shutDown();
     }
 
-    @Test(priority = 2, description = "Tests sending and receiving of binary frames in WebSockets")
+    @Test(description = "Tests sending and receiving of binary frames in WebSockets", dependsOnMethods = "testSendText")
     public void testSendBinary() throws URISyntaxException, InterruptedException {
         WebSocketTestClient client = new WebSocketTestClient(URL);
         client.handshake();

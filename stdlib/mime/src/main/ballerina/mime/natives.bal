@@ -317,7 +317,7 @@ public type Entity object {
     # Given an entity, gets the body parts as a byte channel.
     #
     # + return - Body parts as a byte channel
-    public extern function getBodyPartsAsChannel() returns @tainted io:ByteChannel;
+    public extern function getBodyPartsAsChannel() returns @tainted io:ByteChannel|error;
 
     # Sets body parts to entity. This method overrides any existing `content-type` headers
     # with the default content type `multipart/form-data`. The default value `multipart/form-data` can be overridden

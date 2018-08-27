@@ -169,6 +169,19 @@ public class CommonUtil {
     }
 
     /**
+     * Replace and returns a diagnostic position with a new position.
+     *
+     * @param oldPos old position
+     * @param newPos new position
+     */
+    public static void replacePosition(DiagnosticPos oldPos, DiagnosticPos newPos) {
+        oldPos.sLine = newPos.sLine;
+        oldPos.eLine = newPos.eLine;
+        oldPos.sCol = newPos.sCol;
+        oldPos.eCol = newPos.eCol;
+    }
+
+    /**
      * Get the previous default token from the given start index.
      *
      * @param tokenStream Token Stream

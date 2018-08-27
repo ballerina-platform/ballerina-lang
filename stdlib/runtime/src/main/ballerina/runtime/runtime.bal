@@ -26,3 +26,6 @@ public extern function sleep(int millis);
 # + name - Name of the property
 # + return - Value of the property if the property exists, an empty string otherwise
 public extern function getProperty(@sensitive string name) returns string;
+
+# Check point the current state of the execution.
+public extern function checkpoint ();

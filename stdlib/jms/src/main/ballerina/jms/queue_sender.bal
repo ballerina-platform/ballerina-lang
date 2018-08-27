@@ -35,13 +35,21 @@ public type QueueSender object {
     # + c - Configurations related to the QueueSender endpoint
     public function init(QueueSenderEndpointConfiguration c) {
         self.config = c;
+        self.producerActions.queueSender = self;
         match (c.session) {
-            Session s => self.initQueueSender(s);
-            () => {}
+            Session s => {
+                match (c.queueName) {
+                    string queueName => {
+                        self.initQueueSender(s);
+                    }
+                    () => {}
+                }
+            }
+            () => {log:printInfo("Message producer not properly initialised for queue");}
         }
     }
 
-    extern function initQueueSender(Session session);
+    extern function initQueueSender(Session session, Destination? destination = ());
 
     # Registers the endpoint in the service.
     # This method is not used since QueueSender is a non-service endpoint.
@@ -73,14 +81,40 @@ public type QueueSender object {
 # + queueName - name of the target queue
 public type QueueSenderEndpointConfiguration record {
     Session? session;
-    string queueName;
+    string? queueName;
 };
 
 # JMS QueueSender action handling object
 public type QueueSenderActions object {
 
+    public QueueSender? queueSender;
+
     # Sends a message to the JMS provider
     #
     # + message - message to be sent to the JMS provider
     public extern function send(Message message) returns error?;
+
+    documentation {
+        Sends a message to the JMS provider
+
+        P{{destination}} destination used for the message sender
+        P{{message}} message to be sent to the JMS provider
+    }
+    public function sendTo(Destination destination, Message message) returns error?;
 };
+
+function QueueSenderActions::sendTo(Destination destination, Message message) returns error? {
+    match (self.queueSender) {
+        QueueSender queueSender => {
+            match (queueSender.config.session) {
+                Session s => {
+                    validateQueue(destination);
+                    queueSender.initQueueSender(s, destination = destination);
+                }
+                () => {}
+            }
+        }
+        () => {log:printInfo("Message producer not properly initialised for queue " + destination.destinationName);}
+    }
+    return self.send(message);
+}

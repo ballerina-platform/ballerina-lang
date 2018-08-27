@@ -1,0 +1,54 @@
+{
+  "expected": {
+    "result": [
+      {
+        "name":"testPackageFunction",
+        "kind":"Function",
+        "location":{
+          "range":{
+            "start":{
+              "line":5,
+              "character":0
+            },
+            "end":{
+              "line":9,
+              "character":1
+            }
+          }
+        }
+      },
+      {
+        "name":"localVar1",
+        "kind":"Number",
+        "location":{
+          "range":{
+            "start":{
+              "line":6,
+              "character":4
+            },
+            "end":{
+              "line":6,
+              "character":22
+            }
+          }
+        }
+      },
+      {
+        "name":"localVar2",
+        "kind":"String",
+        "location":{
+          "range":{
+            "start":{
+              "line":7,
+              "character":4
+            },
+            "end":{
+              "line":7,
+              "character":30
+            }
+          }
+        }
+      }
+    ]
+  }
+}

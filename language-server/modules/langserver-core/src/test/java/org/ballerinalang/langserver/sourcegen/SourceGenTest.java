@@ -26,7 +26,10 @@ import org.ballerinalang.langserver.compiler.workspace.WorkspaceDocumentExceptio
 import org.ballerinalang.langserver.compiler.workspace.WorkspaceDocumentManager;
 import org.ballerinalang.langserver.compiler.workspace.WorkspaceDocumentManagerImpl;
 import org.ballerinalang.langserver.completion.util.FileUtils;
+import org.ballerinalang.langserver.util.TestUtil;
+import org.eclipse.lsp4j.jsonrpc.Endpoint;
 import org.testng.Assert;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
@@ -51,9 +54,11 @@ import static java.nio.file.FileVisitResult.SKIP_SUBTREE;
 public class SourceGenTest {
     private Path examples = FileUtils.RES_DIR.resolve("sourceGen");
     private List<File> ballerinaFiles;
+    private Endpoint serviceEndpoint;
 
     @BeforeClass
     public void loadExampleFiles() throws IOException {
+        this.serviceEndpoint = TestUtil.initializeLanguageSever();
         this.ballerinaFiles = getExampleFiles();
     }
 
@@ -66,14 +71,20 @@ public class SourceGenTest {
         WorkspaceDocumentManager documentManager = WorkspaceDocumentManagerImpl.getInstance();
         byte[] encoded1 = Files.readAllBytes(filePath);
         String expected = new String(encoded1);
-        documentManager.openFile(filePath, expected);
+        TestUtil.openDocument(serviceEndpoint, filePath);
         LSCompiler lsCompiler = new LSCompiler(documentManager);
         JsonObject ast = TextDocumentFormatUtil.getAST(filePath.toUri().toString(), lsCompiler, documentManager,
                                                        formatContext);
         SourceGen sourceGen = new SourceGen(0);
         sourceGen.build(ast.getAsJsonObject("model"), null, "CompilationUnit");
         String actual = sourceGen.getSourceOf(ast.getAsJsonObject("model"), false, false);
+        TestUtil.closeDocument(serviceEndpoint, filePath);
         Assert.assertEquals(actual, expected, "Generated source didn't match the expected");
+    }
+
+    @AfterClass
+    public void shutdownLanguageServer() throws IOException {
+        TestUtil.shutdownLanguageServer(this.serviceEndpoint);
     }
 
     @DataProvider

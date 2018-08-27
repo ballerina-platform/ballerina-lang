@@ -48,7 +48,7 @@
         </packages>
     </test>
 
-    <test name="ballerina-auth-tests" parallel="methods" thread-count="6">
+    <test name="ballerina-auth-tests" parallel="false">
         <groups>
             <run>
                 <exclude name="broken"/>
@@ -59,19 +59,19 @@
         </packages>
     </test>
 
-    <test name="ballerina-filter-tests" parallel="methods" thread-count="6">
+    <test name="ballerina-filter-tests" parallel="false">
         <packages>
             <package name="org.ballerinalang.test.filter"/>
         </packages>
     </test>
 
-    <test name="ballerina-transaction-tests" parallel="methods" thread-count="6">
+    <test name="ballerina-transaction-tests" parallel="false">
         <packages>
             <package name="org.ballerinalang.test.transaction"/>
         </packages>
     </test>
 
-    <test name="ballerina-secure-listener-tests" parallel="methods" thread-count="6">
+    <test name="ballerina-secure-listener-tests" parallel="false">
         <groups>
             <run>
                 <exclude name="broken"/>
@@ -82,11 +82,11 @@
         </packages>
     </test>
 
-    <test name="ballerina-websocket-tests" parallel="false">
-        <packages>
-            <package name="org.ballerinalang.test.service.websocket"/>
-        </packages>
-    </test>
+    <!--<test name="ballerina-websocket-tests" parallel="false">-->
+        <!--<packages>-->
+            <!--<package name="org.ballerinalang.test.service.websocket"/>-->
+        <!--</packages>-->
+    <!--</test>-->
 
     <test name="ballerina-grpc-tests" parallel="false">
         <packages>
@@ -112,7 +112,6 @@
             <class name="org.ballerinalang.test.security.HTTPResponseXMLSecurityTestCase"/>
         </classes>
     </test>
-
     <test name="ballerina-jms-tests" parallel="false">
         <packages>
             <package name="org.ballerinalang.test.jms"/>
@@ -127,11 +126,18 @@
             <class name="org.ballerinalang.test.service.websub.WebSubRedirectionTestCase"/>
             <class name="org.ballerinalang.test.service.websub.WebSubSubscriptionChangeTestCase"/>
             <class name="org.ballerinalang.test.service.websub.WebSubWithSecretTestCase"/>
+            <class name="org.ballerinalang.test.service.websub.WebSubServiceExtensionTestCase"/>
         </classes>
     </test>
-    <test name="ballerina-data-streaming-tests">
+
+    <test name="ballerina-data-streaming-tests" parallel="false">
         <packages>
             <package name="org.ballerinalang.test.data.streaming"/>
         </packages>
+    </test>
+    <test name="ballerina-checkpointing-tests" parallel="false">
+        <classes>
+            <class name="org.ballerinalang.test.checkpointing.InterruptibleServiceTestCase"/>
+        </classes>
     </test>
 </suite>
