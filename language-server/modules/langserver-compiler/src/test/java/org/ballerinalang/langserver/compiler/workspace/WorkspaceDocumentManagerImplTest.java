@@ -34,7 +34,7 @@ import java.util.stream.Stream;
 /**
  * Workspace document manager test class.
  *
- * @since 0.981.1
+ * @since 0.982.0
  */
 public class WorkspaceDocumentManagerImplTest {
 

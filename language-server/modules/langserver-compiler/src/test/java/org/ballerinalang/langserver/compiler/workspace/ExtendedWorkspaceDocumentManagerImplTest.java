@@ -33,7 +33,7 @@ import java.util.stream.Stream;
 /**
  * Tests for the ExtendedWorkspaceDocumentManagerImpl.
  *
- * @since 0.981.2
+ * @since 0.982.0
  */
 public class ExtendedWorkspaceDocumentManagerImplTest {
     private ExtendedWorkspaceDocumentManagerImpl documentManager;

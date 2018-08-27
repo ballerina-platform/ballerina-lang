@@ -38,7 +38,7 @@ import java.nio.file.Paths;
 /**
  * Test class for Renaming.
  *
- * @since 0.981.2
+ * @since 0.982.0
  */
 public class RenameTest {
 

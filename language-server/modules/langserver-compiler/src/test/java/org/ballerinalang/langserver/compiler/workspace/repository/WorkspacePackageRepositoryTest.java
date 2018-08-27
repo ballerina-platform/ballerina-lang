@@ -39,7 +39,7 @@ import java.nio.file.Paths;
 /**
  * Tests for WorkspacePackageRepository.
  *
- * @since 0.981.2
+ * @since 0.982.0
  */
 public class WorkspacePackageRepositoryTest {
     private static final Path RES_DIR = Paths.get("src/test/resources/").toAbsolutePath();

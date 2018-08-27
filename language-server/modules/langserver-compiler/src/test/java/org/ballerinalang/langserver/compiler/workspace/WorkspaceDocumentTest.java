@@ -28,7 +28,7 @@ import java.nio.file.Path;
 /**
  * Tests for WorkspaceDocument.
  *
- * @since 0.981.2
+ * @since 0.982.0
  */
 public class WorkspaceDocumentTest {
 
