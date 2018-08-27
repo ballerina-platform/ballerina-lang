@@ -33,6 +33,7 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
+import java.util.stream.Collectors;
 
 /**
  * An in-memory document manager that keeps dirty files in-memory and will match the collection of files currently open
@@ -146,7 +147,9 @@ public class WorkspaceDocumentManagerImpl implements WorkspaceDocumentManager {
      */
     @Override
     public Set<Path> getAllFilePaths() {
-        return documentList.keySet();
+        return documentList.entrySet().stream()
+                .filter(entry -> entry.getValue().getDocument().isPresent())
+                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue)).keySet();
     }
 
     private String readFromFileSystem(Path filePath) throws WorkspaceDocumentException {

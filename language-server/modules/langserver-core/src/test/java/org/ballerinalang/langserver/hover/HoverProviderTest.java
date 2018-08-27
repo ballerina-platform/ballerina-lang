@@ -94,6 +94,7 @@ public class HoverProviderTest {
 
     @AfterClass
     public void shutDownLanguageServer() {
+        TestUtil.closeDocument(this.serviceEndpoint, balPath);
         TestUtil.shutdownLanguageServer(this.serviceEndpoint);
     }
 
