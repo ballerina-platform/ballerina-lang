@@ -240,7 +240,7 @@ public class ConfigRegistry {
                     return Long.parseLong((String) value);
                 }
                 return (Long) value;
-            } catch (ClassCastException e) {
+            } catch (ClassCastException | NumberFormatException e) {
                 throw new IllegalArgumentException(key + " does not map to a valid int");
             }
         }
@@ -276,7 +276,7 @@ public class ConfigRegistry {
                     return (Long) value;
                 }
                 return (Double) value;
-            } catch (ClassCastException e) {
+            } catch (ClassCastException | NumberFormatException e) {
                 throw new IllegalArgumentException(key + " does not map to a valid float");
             }
         }
@@ -357,28 +357,6 @@ public class ConfigRegistry {
     }
 
     /**
-     * Retrieve the configuration value mapped by the specified key as a char array.
-     *
-     * @param key The key of the configuration value
-     * @return The configuration value as a char array
-     */
-    public char[] getConfigAsCharArray(String key) {
-        String configValue = getAsString(key);
-        return configValue != null ? configValue.toCharArray() : null;
-    }
-
-    /**
-     * Retrieve the configuration value mapped by the specified table header and table field as a char array.
-     *
-     * @param tableHeader The name of the TOML table which contains the configuration
-     * @param tableField  The config key under which the config value is mapped in the table
-     * @return The configuration value as a char array
-     */
-    public char[] getConfigAsCharArray(String tableHeader, String tableField) {
-        return getConfigAsCharArray(getConfigKey(tableHeader, tableField));
-    }
-
-    /**
      * Retrieve the configuration value mapped by the specified key.
      *
      * @param key          The key of the configuration value
@@ -388,27 +366,6 @@ public class ConfigRegistry {
     public String getConfigOrDefault(String key, String defaultValue) {
         String value;
         return ((value = getAsString(key)) != null) ? value : defaultValue;
-    }
-
-    /**
-     * Retrieve the table of configurations specified by the table header.
-     *
-     * @param tableHeader The table name to retrieve
-     * @return The config entries in the specified table
-     */
-    @Deprecated
-    public Map<String, String> getConfigTable(String tableHeader) {
-        Map<String, String> table = new HashMap<>();
-        int subStringIndex = tableHeader.length() + 1;
-
-        // TODO: handle tables properly at the config parsing level
-        configEntries.entrySet().forEach(entry -> {
-            if (entry.getKey().startsWith(tableHeader)) {
-                table.put(entry.getKey().substring(subStringIndex), entry.getValue().toString());
-            }
-        });
-
-        return table;
     }
 
     /**

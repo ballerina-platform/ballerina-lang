@@ -33,6 +33,8 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -80,6 +82,8 @@ public class ConfigProcessor {
     }
 
     private static void lookUpVariables(Map<String, Object> configFileEntries) {
+        List<String> errMsgs = new ArrayList<>();
+
         configFileEntries.entrySet().forEach(entry -> {
             Object val = entry.getValue();
 
@@ -95,15 +99,15 @@ public class ConfigProcessor {
                         try {
                             configFileEntries.put(entry.getKey(), Long.parseLong(envVarVal));
                         } catch (NumberFormatException e) {
-                            throw new IllegalArgumentException(
-                                    "invalid int value received from environment: " + envVarVal);
+                            errMsgs.add("invalid int value received from environment to '" +
+                                                entry.getKey() + "': " + envVarVal);
                         }
                     } else if (val instanceof Double) {
                         try {
                             configFileEntries.put(entry.getKey(), Double.parseDouble(envVarVal));
                         } catch (NumberFormatException e) {
-                            throw new IllegalArgumentException(
-                                    "invalid float value received from environment: " + envVarVal);
+                            errMsgs.add("invalid float value received from environment to '" +
+                                                entry.getKey() + "': " + envVarVal);
                         }
                     } else if (val instanceof Boolean) {
                         configFileEntries.put(entry.getKey(), Boolean.parseBoolean(envVarVal));
@@ -112,6 +116,10 @@ public class ConfigProcessor {
             }
 
         });
+
+        if (!errMsgs.isEmpty()) {
+            throw createInvalidArgException(errMsgs);
+        }
     }
 
     private static String getEnvVarValue(String key) {
@@ -177,5 +185,20 @@ public class ConfigProcessor {
         CommonTokenStream tokenStream = new CommonTokenStream(lexer);
         TomlParser parser = new TomlParser(tokenStream);
         return parser.toml();
+    }
+
+    private static IllegalArgumentException createInvalidArgException(List<String> errMsgs) {
+        StringBuilder errMsgBuilder = new StringBuilder();
+
+        for (int i = 0; i < errMsgs.size() - 1; i++) {
+            errMsgBuilder.append("ballerina: ");
+            errMsgBuilder.append(errMsgs.get(i));
+            errMsgBuilder.append('\n');
+        }
+
+        errMsgBuilder.append("ballerina: ");
+        errMsgBuilder.append(errMsgs.get(errMsgs.size() - 1));
+
+        return new IllegalArgumentException(errMsgBuilder.toString());
     }
 }
