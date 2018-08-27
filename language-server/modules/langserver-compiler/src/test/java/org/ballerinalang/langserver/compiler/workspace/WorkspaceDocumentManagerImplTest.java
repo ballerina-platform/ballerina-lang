@@ -33,6 +33,8 @@ import java.util.stream.Stream;
 
 /**
  * Workspace document manager test class.
+ *
+ * @since 0.981.1
  */
 public class WorkspaceDocumentManagerImplTest {
 
