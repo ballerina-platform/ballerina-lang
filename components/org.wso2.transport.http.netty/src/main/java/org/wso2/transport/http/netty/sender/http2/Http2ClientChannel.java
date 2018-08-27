@@ -112,7 +112,7 @@ public class Http2ClientChannel {
     /**
      * Sets the {@code ChannelFuture} associated with this {@code Http2ClientChannel}.
      *
-     * @param  channelFuture associated ChannelFuture
+     * @param channelFuture associated ChannelFuture
      */
     public void setChannelFuture(ChannelFuture channelFuture) {
         this.channelFuture = channelFuture;
@@ -241,7 +241,7 @@ public class Http2ClientChannel {
     /**
      * Destroys the Http2 client channel.
      */
-    public void destroy() {
+    void destroy() {
         this.connection.removeListener(streamCloseListener);
         inFlightMessages.clear();
         promisedMessages.clear();
@@ -255,9 +255,10 @@ public class Http2ClientChannel {
 
         private Http2ClientChannel http2ClientChannel;
 
-        public StreamCloseListener(Http2ClientChannel http2ClientChannel) {
+        StreamCloseListener(Http2ClientChannel http2ClientChannel) {
             this.http2ClientChannel = http2ClientChannel;
         }
+
         @Override
         public void onStreamClosed(Http2Stream stream) {
             // Channel is no longer exhausted, so we can return it back to the pool
