@@ -19,12 +19,8 @@
 package org.wso2.transport.http.netty.listener.states.sender;
 
 import io.netty.channel.ChannelHandlerContext;
-import io.netty.handler.codec.DecoderException;
-import io.netty.handler.codec.DecoderResult;
-import io.netty.handler.codec.http.DefaultLastHttpContent;
 import io.netty.handler.codec.http.HttpContent;
 import io.netty.handler.codec.http.HttpResponse;
-import io.netty.handler.codec.http.LastHttpContent;
 import io.netty.handler.codec.http2.Http2CodecUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -34,8 +30,11 @@ import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 import org.wso2.transport.http.netty.sender.TargetHandler;
 import org.wso2.transport.http.netty.sender.http2.OutboundMsgHolder;
 
-import static org.wso2.transport.http.netty.common.Constants.IDLE_TIMEOUT_TRIGGERED_WHILE_READING_INBOUND_RESPONSE_HEADERS;
-import static org.wso2.transport.http.netty.common.Constants.REMOTE_SERVER_CLOSED_WHILE_READING_INBOUND_RESPONSE_HEADERS;
+import static org.wso2.transport.http.netty.common.Constants
+        .IDLE_TIMEOUT_TRIGGERED_WHILE_READING_INBOUND_RESPONSE_HEADERS;
+import static org.wso2.transport.http.netty.common.Constants
+        .REMOTE_SERVER_CLOSED_WHILE_READING_INBOUND_RESPONSE_HEADERS;
+import static org.wso2.transport.http.netty.listener.states.StateUtil.handleIncompleteInboundMessage;
 
 /**
  * State between start and end of inbound response headers read.
@@ -89,20 +88,13 @@ public class ReceivingHeaders implements SenderState {
 
     @Override
     public void handleAbruptChannelClosure(HttpResponseFuture httpResponseFuture) {
-        handleIncompleteInboundResponse(targetHandler.getInboundResponseMsg(),
+        handleIncompleteInboundMessage(targetHandler.getInboundResponseMsg(),
                                         REMOTE_SERVER_CLOSED_WHILE_READING_INBOUND_RESPONSE_HEADERS);
     }
 
     @Override
     public void handleIdleTimeoutConnectionClosure(HttpResponseFuture httpResponseFuture, String channelID) {
-        handleIncompleteInboundResponse(targetHandler.getInboundResponseMsg(),
+        handleIncompleteInboundMessage(targetHandler.getInboundResponseMsg(),
                                         IDLE_TIMEOUT_TRIGGERED_WHILE_READING_INBOUND_RESPONSE_HEADERS);
-    }
-
-    private void handleIncompleteInboundResponse(HttpCarbonMessage inboundResponseMsg, String errorMessage) {
-        LastHttpContent lastHttpContent = new DefaultLastHttpContent();
-        lastHttpContent.setDecoderResult(DecoderResult.failure(new DecoderException(errorMessage)));
-        inboundResponseMsg.addHttpContent(lastHttpContent);
-        log.warn(errorMessage);
     }
 }

@@ -30,17 +30,53 @@ import org.wso2.transport.http.netty.sender.TargetHandler;
  */
 public interface SenderState {
 
-    void writeOutboundRequestHeaders(HttpCarbonMessage httpOutboundRequest, HttpContent httpContent) throws Exception;
+    /**
+     * Write headers of outbound request.
+     *
+     * @param httpOutboundRequest {@link HttpCarbonMessage} which represents the outbound message
+     * @param httpContent         the initial content of the entity body
+     */
+    void writeOutboundRequestHeaders(HttpCarbonMessage httpOutboundRequest, HttpContent httpContent);
 
-    void writeOutboundRequestEntityBody(HttpCarbonMessage httpOutboundRequest, HttpContent httpContent)
-            throws Exception;
+    /**
+     * Write entity body of outbound request.
+     *
+     * @param httpOutboundRequest {@link HttpCarbonMessage} which represents the outbound message
+     * @param httpContent         the content of the entity body
+     */
+    void writeOutboundRequestEntityBody(HttpCarbonMessage httpOutboundRequest, HttpContent httpContent);
 
+    /**
+     * Read headers of inbound response.
+     *
+     * @param targetHandler       the target handler
+     * @param httpInboundResponse {@link HttpResponse} which is received at target handler
+     */
     void readInboundResponseHeaders(TargetHandler targetHandler, HttpResponse httpInboundResponse);
 
+    /**
+     * Write headers of outbound request.
+     *
+     * @param ctx                the channel handler context
+     * @param httpContent        the initial content of the entity body
+     * @param inboundResponseMsg {@link HttpCarbonMessage} which represents the inbound message
+     * @throws Exception if an error occurs while reading response
+     */
     void readInboundResponseEntityBody(ChannelHandlerContext ctx, HttpContent httpContent,
                                        HttpCarbonMessage inboundResponseMsg) throws Exception;
 
+    /**
+     * Handle channel closure occurred due to abrupt connection failures.
+     *
+     * @param httpResponseFuture to notify the closure
+     */
     void handleAbruptChannelClosure(HttpResponseFuture httpResponseFuture);
 
+    /**
+     * Handle channel closure occurred due to idle timeout.
+     *
+     * @param httpResponseFuture to notify the closure
+     * @param channelID          the channel id
+     */
     void handleIdleTimeoutConnectionClosure(HttpResponseFuture httpResponseFuture, String channelID);
 }

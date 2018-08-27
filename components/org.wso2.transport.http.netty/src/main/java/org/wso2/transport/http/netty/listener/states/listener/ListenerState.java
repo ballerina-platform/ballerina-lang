@@ -32,17 +32,54 @@ import org.wso2.transport.http.netty.message.HttpCarbonMessage;
  */
 public interface ListenerState {
 
+    /**
+     * Read headers of inbound request.
+     *
+     * @param inboundRequestMsg     {@link HttpCarbonMessage} which represents the inbound message
+     * @param inboundRequestHeaders {@link HttpRequest} which is received at source handler
+     */
     void readInboundRequestHeaders(HttpCarbonMessage inboundRequestMsg, HttpRequest inboundRequestHeaders);
 
+    /**
+     * Read entity body of inbound request.
+     *
+     * @param inboundRequestEntityBody which represents the inbound Http content
+     * @throws ServerConnectorException if an error occurs while notifying to server connector future
+     */
     void readInboundRequestEntityBody(Object inboundRequestEntityBody) throws ServerConnectorException;
 
+    /**
+     * Write headers of outbound response.
+     *
+     * @param outboundResponseMsg {@link HttpCarbonMessage} which represents the outbound message
+     * @param httpContent         the initial content of the entity body
+     */
     void writeOutboundResponseHeaders(HttpCarbonMessage outboundResponseMsg, HttpContent httpContent);
 
+    /**
+     * Write entity body of outbound response.
+     *
+     * @param outboundResponseListener outbound response listener of response future
+     * @param outboundResponseMsg      {@link HttpCarbonMessage} which represents the outbound message
+     * @param httpContent              the content of the entity body
+     */
     void writeOutboundResponseEntityBody(HttpOutboundRespListener outboundResponseListener,
                                          HttpCarbonMessage outboundResponseMsg, HttpContent httpContent);
 
+    /**
+     * Handle channel closure occurred due to abrupt connection failures.
+     *
+     * @param serverConnectorFuture to notify the closure
+     */
     void handleAbruptChannelClosure(ServerConnectorFuture serverConnectorFuture);
 
+    /**
+     * Handle channel closure occurred due to idle timeout.
+     *
+     * @param serverConnectorFuture to notify the closure
+     * @param ctx                   the channel handler context
+     * @return the channel future related to response write operation
+     */
     ChannelFuture handleIdleTimeoutConnectionClosure(ServerConnectorFuture serverConnectorFuture,
                                                      ChannelHandlerContext ctx);
 }
