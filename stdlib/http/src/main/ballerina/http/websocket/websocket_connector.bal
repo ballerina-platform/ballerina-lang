@@ -95,7 +95,20 @@ public type WebSocketConnector object {
                            within waiting period the connection is terminated immediately.
         R{{}} `error` if an error occurs when sending
     }
-    public extern function close(int statusCode, string reason, int timeoutInSecs = 60) returns error?;
+    public function close(int? statusCode = 1000, string? reason = (), int timeoutInSecs = 60) returns error? {
+        match statusCode {
+            int code => {
+                if (code <= 999 || code >= 1004 && code <= 1006 || code >= 1012 && code <= 2999 || code > 4999) {
+                    error err = { message: "Failed to execute close. Invalid status code: " + code };
+                    return err;
+                }
+                return externClose(code, reason ?: "", timeoutInSecs);
+            }
+            () => return externClose(-1, "", timeoutInSecs);
+        }
+    }
+
+    extern function externClose(int statusCode, string reason, int timeoutInSecs) returns error?;
 
     documentation {
         Called when the endpoint is ready to receive messages. Can be called only once per endpoint. For the
