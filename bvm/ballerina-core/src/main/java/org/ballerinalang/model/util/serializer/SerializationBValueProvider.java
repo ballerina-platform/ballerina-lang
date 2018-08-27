@@ -33,7 +33,7 @@ public interface SerializationBValueProvider<T> {
     /**
      * Return typeName used to find the appropriate {@link SerializationBValueProvider} implementation.
      *
-     * @return
+     * @return String representation of type handled by this class.
      */
     default String typeName() {
         return getType().getName();

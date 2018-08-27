@@ -94,7 +94,7 @@ public class BTypeBValueProviders {
             try {
                 Constructor<BAnyType> constructor = BAnyType.class.getDeclaredConstructor(String.class, String.class);
                 constructor.setAccessible(true);
-                return constructor.newInstance(new String[]{typeName, pkgPath});
+                return constructor.newInstance(typeName, pkgPath);
             } catch (InstantiationException | IllegalAccessException |
                     InvocationTargetException | NoSuchMethodException e) {
                 return null;

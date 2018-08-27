@@ -117,9 +117,9 @@ class JsonDeserializer implements BValueDeserializer {
     /**
      * Create and populate array using {@param valueArray} and target type.
      *
-     * @param valueArray
-     * @param targetType
-     * @return
+     * @param valueArray source containing array data.
+     * @param targetType destination array type.
+     * @return new array of targetType type, filled with data from valueArray.
      */
     private Object deserializeBRefValueArray(BRefValueArray valueArray, Class<?> targetType) {
         int size = (int) valueArray.size();
@@ -131,9 +131,9 @@ class JsonDeserializer implements BValueDeserializer {
     /**
      * Populate array using {@param valueArray} provided instance or array object.
      *
-     * @param valueArray
-     * @param destinationArray
-     * @return
+     * @param valueArray       source containing array data.
+     * @param destinationArray target array to be filled with valueArray's data.
+     * @return {@code destinationArray} filled with data from valueArray.
      */
     private Object deserializeBRefValueArray(BRefValueArray valueArray, Object destinationArray) {
         Class<?> componentType = destinationArray.getClass().getComponentType();
@@ -186,17 +186,17 @@ class JsonDeserializer implements BValueDeserializer {
     /**
      * Comply with {@link java.io.Serializable} interface's {@code readResolve} method, if it's available.
      *
-     * @param jBMap
-     * @param targetType
-     * @param object     object instance.
+     * @param jBMap      Json Object structure to create the instance from.
+     * @param targetType Type of object to be created.
+     * @param object     Object instance on which the readResolve method to be executed.
      * @return if readResolve is available then the return value of it.
      */
     private Object readResolve(BMap<String, BValue> jBMap, Class<?> targetType, Object object) {
-        Class<?> clz = null;
+        Class<?> clz;
         if (targetType != null) {
             clz = targetType;
         } else {
-            String targetTypeName = resolveTargetTypeName(clz, jBMap);
+            String targetTypeName = resolveTargetTypeName(null, jBMap);
             clz = findClass(targetTypeName);
         }
 
@@ -208,7 +208,7 @@ class JsonDeserializer implements BValueDeserializer {
                     return readResolved.invoke(object);
                 }
             } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
-                // no op
+                // no op, will return null from end of this method.
             }
         }
         return null;
@@ -252,8 +252,9 @@ class JsonDeserializer implements BValueDeserializer {
     /**
      * Create a empty java object instance for target type.
      *
-     * @param jsonNode
-     * @return
+     * @param jsonNode Data to be populated.
+     * @param target type of which the object to be created.
+     * @return instance of given type.
      */
     private Object createInstance(BMap<String, BValue> jsonNode, Class<?> target) {
         if (target != null && Enum.class.isAssignableFrom(target)) {

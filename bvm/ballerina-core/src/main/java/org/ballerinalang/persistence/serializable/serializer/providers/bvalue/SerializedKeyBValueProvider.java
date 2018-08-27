@@ -28,6 +28,8 @@ import org.ballerinalang.persistence.serializable.SerializedKey;
 
 /**
  * Convert {@link SerializedKey} into {@link BValue} object and back to facilitate serialization.
+ *
+ * @since 0.98.1
  */
 public class SerializedKeyBValueProvider implements SerializationBValueProvider<SerializedKey> {
     @Override

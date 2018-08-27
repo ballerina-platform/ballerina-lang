@@ -83,7 +83,7 @@ public class JsonSerializer implements ObjectToJsonSerializer {
      * Get the {@link InstanceProviderRegistry} used for deserialization.
      * Use this instance to add {@link TypeInstanceProvider} implementations.
      *
-     * @return TypeInstanceProvider instance
+     * @return TypeInstanceProvider instance.
      */
     public InstanceProviderRegistry getInstanceProviderRegistry() {
         return InstanceProviderRegistry.getInstance();
@@ -92,8 +92,8 @@ public class JsonSerializer implements ObjectToJsonSerializer {
     /**
      * Generate JSON serialized output from the given Java object instance.
      *
-     * @param object instance to be serialized
-     * @return
+     * @param object instance to be serialized.
+     * @return Json String.
      */
     @Override
     public String serialize(Object object) {

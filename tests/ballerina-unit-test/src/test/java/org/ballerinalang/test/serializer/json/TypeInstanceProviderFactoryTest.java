@@ -36,6 +36,9 @@ public class TypeInstanceProviderFactoryTest {
         Assert.assertTrue(((Foo) o).secretNum == 42);
     }
 
+    /**
+     * Simple class with a single int field used to testing.
+     */
     public static class Foo {
         public int secretNum = 42;
     }

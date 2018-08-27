@@ -333,7 +333,7 @@ public class JsonSerializerTest {
         Assert.assertEquals(deserialize, bArrayType);
     }
 
-    public static class TestClass {
+    static class TestClass {
         Object obj;
 
         public TestClass(Object obj) {
@@ -341,6 +341,9 @@ public class JsonSerializerTest {
         }
     }
 
+    /**
+     * Class with a single String field.
+     */
     public static class StringFieldA {
         public final String a;
 
@@ -349,6 +352,9 @@ public class JsonSerializerTest {
         }
     }
 
+    /**
+     * Class with single String field which inherits from a similar class.
+     */
     public static class StringFieldAB extends StringFieldA {
         public final String b;
 
@@ -358,7 +364,7 @@ public class JsonSerializerTest {
         }
     }
 
-    public static class ArrayField {
+    static class ArrayField {
         public int[] array;
 
         public ArrayField(int[] array) {
@@ -367,7 +373,7 @@ public class JsonSerializerTest {
     }
 
 
-    public enum TestEnum {
+    enum TestEnum {
         Item_1, Item_2, Item_N
     }
 }

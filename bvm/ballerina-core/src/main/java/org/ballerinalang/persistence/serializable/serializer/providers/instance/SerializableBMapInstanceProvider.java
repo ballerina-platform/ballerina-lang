@@ -24,6 +24,8 @@ import org.ballerinalang.persistence.serializable.reftypes.impl.SerializableBMap
 
 /**
  * Provide object instance to represent {@link SerializableBMap}.
+ *
+ * @since 0.98.1
  */
 public class SerializableBMapInstanceProvider implements TypeInstanceProvider {
     @Override

@@ -24,6 +24,8 @@ import org.ballerinalang.persistence.serializable.reftypes.impl.SerializableBRef
 
 /**
  * Provide object instance to represent {@link SerializableBRefArray}.
+ *
+ * @since 0.98.1
  */
 public class SerializableBRefArrayInstanceProvider implements TypeInstanceProvider {
     @Override

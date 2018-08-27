@@ -121,28 +121,28 @@ public class ComplexObjectSerializationTest {
         Assert.assertEquals(deserialize.i, 42);
     }
 
-    private static class Shadowee {
+    static class Shadowee {
         private int i;
 
-        public Shadowee(int i) {
+        Shadowee(int i) {
             this.i = i;
         }
     }
 
-    private static class Shadower extends Shadowee {
+    static class Shadower extends Shadowee {
         private double i;
 
-        public Shadower(double i, int j) {
+        Shadower(double i, int j) {
             super(j);
             this.i = i;
         }
     }
 
-    private static class ReadResolverClass implements Serializable {
-        public boolean resolved = false;
+    static class ReadResolverClass implements Serializable {
+        boolean resolved = false;
         int i;
 
-        public ReadResolverClass(int i) {
+        ReadResolverClass(int i) {
             this.i = i;
         }
 

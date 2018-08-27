@@ -29,7 +29,7 @@ import java.util.HashSet;
  *
  * @since 0.98.1
  */
-public class BValueHelper {
+class BValueHelper {
     static BMap<String, BValue> wrapObject(String type, BValue payload) {
         BMap<String, BValue> map = new BMap<>();
         map.put(JsonSerializerConst.TYPE_TAG, createBString(type));
@@ -48,7 +48,7 @@ public class BValueHelper {
         return createBString(getHashCode(obj, null, null));
     }
 
-    static String getHashCode(Object obj, String prefix, String sufix) {
+    static String getHashCode(Object obj, String prefix, String suffix) {
         StringBuilder sb = new StringBuilder();
         if (prefix != null) {
             sb.append(prefix);
@@ -68,9 +68,9 @@ public class BValueHelper {
             hash = -2;
         }
         sb.append(hash);
-        if (sufix != null) {
+        if (suffix != null) {
             sb.append("#");
-            sb.append(sufix);
+            sb.append(suffix);
         }
         return sb.toString();
     }

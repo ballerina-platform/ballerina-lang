@@ -32,7 +32,7 @@ public class TypeInstanceProviderFactory {
      * Given fully qualified class name get {@link TypeInstanceProvider} dynamically implemented.
      *
      * @param fullClassName class name of requested {@link TypeInstanceProvider}
-     * @return
+     * @return dynamically implemented {@link TypeInstanceProvider}
      */
     public TypeInstanceProvider createProvider(String fullClassName) {
         try {
@@ -43,16 +43,13 @@ public class TypeInstanceProviderFactory {
                 if (declaredConstructor == null) {
                     return null;
                 }
-                TypeInstanceProvider implement = implementUsingNoParamConstructor(clazz, declaredConstructor);
-                if (implement != null) {
-                    return implement;
-                }
+                return implementUsingNoParamConstructor(clazz, declaredConstructor);
             } catch (NoSuchMethodException e) {
                 // When no-param constructor is not found, try unsafe allocator.
                 return implementUnsafe(clazz);
             }
-            return null;
         } catch (ClassNotFoundException e) {
+            // return null to indicate TypeInstanceProviderFactory cannot create a TypeInstanceProvider for this type.
             return null;
         }
     }
@@ -75,7 +72,7 @@ public class TypeInstanceProviderFactory {
             public Object newInstance() {
                 try {
                     constructor.setAccessible(true);
-                    return constructor.newInstance(null);
+                    return constructor.newInstance();
                 } catch (InstantiationException | IllegalAccessException | InvocationTargetException e) {
                     return null;
                 }

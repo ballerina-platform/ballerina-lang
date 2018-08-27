@@ -22,6 +22,9 @@ import org.ballerinalang.persistence.store.StorageProvider;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Fake storage provider implementation to test {@link org.ballerinalang.model.util.serializer.JsonSerializer}.
+ */
 public class TestStorageProvider implements StorageProvider {
     public String state;
 

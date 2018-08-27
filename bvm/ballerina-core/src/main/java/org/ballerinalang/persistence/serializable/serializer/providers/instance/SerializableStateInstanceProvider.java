@@ -22,6 +22,8 @@ import org.ballerinalang.persistence.serializable.SerializableState;
 
 /**
  * Provide object instance to serialize {@link SerializableState}.
+ *
+ * @since 0.98.1
  */
 public class SerializableStateInstanceProvider implements TypeInstanceProvider {
 

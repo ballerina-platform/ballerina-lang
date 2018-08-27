@@ -22,6 +22,8 @@ import org.ballerinalang.persistence.serializable.SerializedKey;
 
 /**
  * Provide object instance to represent {@link SerializedKey}.
+ *
+ * @since 0.98.1
  */
 public class SerializedKeyInstanceProvider implements TypeInstanceProvider {
     @Override

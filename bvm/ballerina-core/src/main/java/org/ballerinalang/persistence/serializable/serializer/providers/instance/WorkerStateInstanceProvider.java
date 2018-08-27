@@ -22,6 +22,8 @@ import org.ballerinalang.model.util.serializer.TypeInstanceProvider;
 
 /**
  * Provide object instance to serialize {@link WorkerState}.
+ *
+ * @since 0.98.1
  */
 public class WorkerStateInstanceProvider implements TypeInstanceProvider {
     @Override

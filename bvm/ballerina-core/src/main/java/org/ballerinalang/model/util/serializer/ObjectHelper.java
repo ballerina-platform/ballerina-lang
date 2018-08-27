@@ -30,7 +30,7 @@ import java.util.HashMap;
  *
  * @since 0.98.1
  */
-public class ObjectHelper {
+class ObjectHelper {
     private static final String BVALUE_PACKAGE_PATH = getBValuePackagePath();
 
     private ObjectHelper() {
@@ -38,10 +38,12 @@ public class ObjectHelper {
 
     /**
      * Get all fields in the class hierarchy until Object class.
+     * <p>
+     * Skip {@code transient} and compile time constants.
      *
      * @param targetClass from which the fields are inspected.
      * @param depth       depth in the hierarchy; starting class should be 0
-     * @return
+     * @return map of Field objects, field names encoded with class hierarchy depth.
      */
     public static HashMap<String, Field> getAllFields(Class<?> targetClass, int depth) {
         HashMap<String, Field> fieldMap = new HashMap<>();
@@ -68,8 +70,8 @@ public class ObjectHelper {
      * <p>
      * This is mostly because this field is a transient field or this is a compile time constant field.
      *
-     * @param declaredField
-     * @return
+     * @param declaredField Field object under consideration.
+     * @return whether this field should be skipped or not.
      */
     private static boolean skip(Field declaredField) {
         int modifiers = declaredField.getModifiers();
@@ -94,10 +96,13 @@ public class ObjectHelper {
 
     /**
      * Convert to desired type if special conditions are matched.
+     * <p>
+     * For instance, BValue only support double values, and if the desired type is a single precision float this method
+     * will convert BValue double to float.
      *
-     * @param obj
-     * @param targetType
-     * @return
+     * @param obj        object to be converted.
+     * @param targetType type that is object will be assigned to.
+     * @return converted object.
      */
     static Object cast(Object obj, Class targetType) {
         if (obj == null) {
@@ -130,8 +135,8 @@ public class ObjectHelper {
     /**
      * Get default value for primitive types.
      *
-     * @param targetType
-     * @return
+     * @param targetType to be assigned to.
+     * @return default value of primitive types and {@code null} for reference types.
      */
     private static Object getDefaultValue(Class targetType) {
         // get default value for primitive type

@@ -24,6 +24,8 @@ import org.ballerinalang.persistence.serializable.SerializableWorkerData;
 
 /**
  * Provide object instance to serialize {@link SerializableWorkerData}.
+ *
+ * @since 0.98.1
  */
 public class SerializableWorkerDataInstanceProvider implements TypeInstanceProvider {
     @Override
