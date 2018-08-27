@@ -42,8 +42,10 @@ public class BTypeBValueProviders {
     public static final String ELEM_TYPE = "elemType";
     private static final String PACKAGE_PATH = "packagePath";
     private static final String TYPE_NAME = "typeName";
-    private static final String FLAGS = "flags";
     private static final String VALUE_CLASS = "valueClass";
+
+    private BTypeBValueProviders() {
+    }
 
     /**
      * Provide mapping between {@link BAnyType} and {@link BValue} representation of it.
@@ -138,9 +140,7 @@ public class BTypeBValueProviders {
             BType elemType = (BType) bValueDeserializer.deserialize(map.get(ELEM_TYPE), BType.class);
             int size = (int) ((BInteger) map.get(PACKAGE_PATH)).intValue();
 
-            BArrayType bArrayType = new BArrayType(elemType, size);
-
-            return bArrayType;
+            return new BArrayType(elemType, size);
         }
     }
 
@@ -152,7 +152,6 @@ public class BTypeBValueProviders {
         private static final String PACKAGE_PATH = "packagePath";
         private static final String TYPE_NAME = "typeName";
         private static final String FLAGS = "flags";
-        private static final String VALUE_CLASS = "valueClass";
 
         @Override
         public Class<?> getType() {
@@ -203,7 +202,6 @@ public class BTypeBValueProviders {
         private static final String PACKAGE_PATH = "packagePath";
         private static final String TYPE_NAME = "typeName";
         private static final String FLAGS = "flags";
-        private static final String VALUE_CLASS = "valueClass";
 
         @Override
         public Class<?> getType() {

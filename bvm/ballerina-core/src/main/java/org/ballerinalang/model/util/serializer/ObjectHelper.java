@@ -44,12 +44,7 @@ public class ObjectHelper {
     public static HashMap<String, Field> getAllFields(Class<?> targetClass, int depth) {
         HashMap<String, Field> fieldMap = new HashMap<>();
         for (Field declaredField : targetClass.getDeclaredFields()) {
-            int modifiers = declaredField.getModifiers();
-            if (Modifier.isTransient(modifiers)) {
-                // transient fields should not be serialized
-                continue;
-            }
-            if (compileTimeConst(modifiers, declaredField.getType())) {
+            if (skip(declaredField)) {
                 continue;
             }
             String name;
@@ -64,6 +59,23 @@ public class ObjectHelper {
             fieldMap.putAll(getAllFields(targetClass.getSuperclass(), depth + 1));
         }
         return fieldMap;
+    }
+
+    /**
+     * Should this field be skipped from serialization process.
+     * <p>
+     * This is mostly because this field is a transient field or this is a compile time constant field.
+     *
+     * @param declaredField
+     * @return
+     */
+    private static boolean skip(Field declaredField) {
+        int modifiers = declaredField.getModifiers();
+        if (Modifier.isTransient(modifiers)) {
+            // transient fields should not be serialized
+            return true;
+        }
+        return compileTimeConst(modifiers, declaredField.getType());
     }
 
     private static boolean compileTimeConst(int modifiers, Class<?> type) {
@@ -87,49 +99,52 @@ public class ObjectHelper {
      */
     static Object cast(Object obj, Class targetType) {
         if (obj == null) {
-            // get default value for primitive type
-            if (targetType == int.class
-                    || targetType == long.class
-                    || targetType == char.class
-                    || targetType == short.class
-                    || targetType == byte.class) {
-                return 0;
-            } else if (targetType == float.class) {
-                return 0.0f;
-            } else if (targetType == double.class) {
-                return 0.0;
-            }
-            return null;
+            return getDefaultValue(targetType);
         }
 
         Class<?> objClass = obj.getClass();
-        // JsonParser always treat integer numbers as longs, if target field is int then cast to int.
-        if ((targetType == Integer.class || targetType == int.class) && objClass == Long.class) {
-            return ((Long) obj).intValue();
-        }
 
         // JsonParser always treat float numbers as doubles, if target field is float then cast to float.
         if ((targetType == Float.class || targetType == float.class) && objClass == Double.class) {
             return ((Double) obj).floatValue();
         }
 
-        if (targetType == byte.class && obj instanceof Long) {
-            return getByte((Long) obj);
-        }
-
-        if (targetType == Byte.class && obj instanceof Long) {
-            return new Byte(getByte((Long) obj));
-        }
-
-        if (targetType == char.class && obj instanceof Long) {
-            return getChar((Long) obj);
-        }
-
-        if (targetType == Character.class && obj instanceof Long) {
-            return new Character(getChar((Long) obj));
+        if (obj instanceof Long) {
+            // JsonParser always treat integer numbers as longs, if target field is int then cast to int.
+            if ((targetType == Integer.class || targetType == int.class)) {
+                return ((Long) obj).intValue();
+            }
+            if (targetType == byte.class || targetType == Byte.class) {
+                return getByte((Long) obj);
+            }
+            if (targetType == char.class || targetType == Character.class) {
+                return getChar((Long) obj);
+            }
         }
 
         return obj;
+    }
+
+    /**
+     * Get default value for primitive types.
+     *
+     * @param targetType
+     * @return
+     */
+    private static Object getDefaultValue(Class targetType) {
+        // get default value for primitive type
+        if (targetType == int.class
+                || targetType == long.class
+                || targetType == char.class
+                || targetType == short.class
+                || targetType == byte.class) {
+            return 0;
+        } else if (targetType == float.class) {
+            return 0.0f;
+        } else if (targetType == double.class) {
+            return 0.0;
+        }
+        return null;
     }
 
     private static byte getByte(Long obj) {

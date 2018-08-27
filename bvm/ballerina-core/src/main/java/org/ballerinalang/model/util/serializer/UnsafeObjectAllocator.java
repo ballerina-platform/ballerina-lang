@@ -28,6 +28,8 @@ import java.lang.reflect.Method;
  * other reasons, failing to create the instance will return {@code null}.
  */
 class UnsafeObjectAllocator {
+    private UnsafeObjectAllocator() {}
+
     static Object allocateFor(Class<?> clazz) throws
             ClassNotFoundException,
             NoSuchFieldException,

@@ -41,8 +41,6 @@ import static org.ballerinalang.model.types.TypeConstants.XML_TNAME;
  */
 public class BTypes {
 
-    public static final String ANY_ARRAY = ANY_TNAME + "[]";
-
     public static BType fromString(String typeName) {
         switch (typeName) {
             case INT_TNAME:

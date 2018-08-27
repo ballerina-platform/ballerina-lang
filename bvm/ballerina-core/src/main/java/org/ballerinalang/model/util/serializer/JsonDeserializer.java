@@ -148,7 +148,7 @@ class JsonDeserializer implements BValueDeserializer {
             return existingReference;
         }
 
-        String typeName = getTargetTypeName(targetType, jBMap);
+        String typeName = resolveTargetTypeName(targetType, jBMap);
         Object object = null;
 
         // try BValueProvider
@@ -190,11 +190,11 @@ class JsonDeserializer implements BValueDeserializer {
      * @return if readResolve is available then the return value of it.
      */
     private Object readResolve(BMap<String, BValue> jBMap, Class<?> targetType, Object object) {
-        Class<?> clz;
+        Class<?> clz = null;
         if (targetType != null) {
             clz = targetType;
         } else {
-            String targetTypeName = getTargetTypeName(targetType, jBMap);
+            String targetTypeName = resolveTargetTypeName(clz, jBMap);
             clz = findClass(targetTypeName);
         }
 
@@ -203,7 +203,7 @@ class JsonDeserializer implements BValueDeserializer {
                 Method readResolved = clz.getDeclaredMethod("readResolve");
                 if (readResolved != null) {
                     readResolved.setAccessible(true);
-                    return readResolved.invoke(object, new Object[]{});
+                    return readResolved.invoke(object);
                 }
             } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
                 // no op
@@ -212,7 +212,7 @@ class JsonDeserializer implements BValueDeserializer {
         return null;
     }
 
-    private String getTargetTypeName(Class<?> targetType, BMap<String, BValue> jBMap) {
+    private String resolveTargetTypeName(Class<?> targetType, BMap<String, BValue> jBMap) {
         BValue jType = jBMap.get(JsonSerializerConst.TYPE_TAG);
         if (jType != null) {
             return jType.stringValue();
@@ -298,19 +298,12 @@ class JsonDeserializer implements BValueDeserializer {
 
     private Object getObjectOf(Class<?> clazz) {
         String className = ObjectHelper.getTrimmedClassName(clazz);
-        TypeInstanceProvider typeProvider = instanceProvider.findInstanceProvider(className);
-        if (typeProvider != null) {
-            return clazz.cast(typeProvider.newInstance());
-        }
-        return null;
+        return getObjectOf(className);
     }
 
     private Object getObjectOf(String type) {
         TypeInstanceProvider typeProvider = instanceProvider.findInstanceProvider(type);
-        if (typeProvider != null) {
-            return typeProvider.newInstance();
-        }
-        return null;
+        return typeProvider.newInstance();
     }
 
     @SuppressWarnings("unchecked")

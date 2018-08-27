@@ -31,6 +31,10 @@ import java.math.BigInteger;
  * Host class for various Numeric BValue providers.
  */
 public class NumericBValueProviders {
+    private NumericBValueProviders() {
+
+    }
+
     /**
      * Convert {@link BigInteger} into {@link BValue} object and back to facilitate serialization.
      */

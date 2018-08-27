@@ -66,9 +66,6 @@ public class JsonSerializer implements ObjectToJsonSerializer {
         bValueProvider.register(new DateTimeBValueProviders.InstantBValueProvider());
     }
 
-    public JsonSerializer() {
-    }
-
     /**
      * Get the BValueProvider associated with this JsonSerializer instance.
      * Use this instance to add SerializationBValueProvider implementations for this {@link JsonSerializer} instance.
@@ -76,7 +73,7 @@ public class JsonSerializer implements ObjectToJsonSerializer {
      * @return
      */
     public BValueProvider getBValueProviderRegistry() {
-        return this.bValueProvider;
+        return bValueProvider;
     }
 
     /**
