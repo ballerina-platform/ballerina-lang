@@ -112,6 +112,9 @@ public class CommonUtil {
         BALLERINA_HOME = System.getProperty("ballerina.home");
     }
 
+    private CommonUtil() {
+    }
+
     /**
      * Get the package URI to the given package name.
      *
@@ -227,26 +230,6 @@ public class CommonUtil {
     }
 
     /**
-     * Get n number of default tokens from a given start index.
-     * @param tokenStream       Token Stream
-     * @param n                 number of tokens to extract
-     * @param startIndex        Start token index
-     * @return {@link List}     List of tokens extracted
-     */
-    public static List<Token> getNDefaultTokensToRight(TokenStream tokenStream, int n, int startIndex) {
-        List<Token> tokens = new ArrayList<>();
-        Token t;
-        while (n > 0) {
-            t = getDefaultTokenToLeftOrRight(tokenStream, startIndex, 1);
-            tokens.add(t);
-            n--;
-            startIndex = t.getTokenIndex();
-        }
-        
-        return Lists.reverse(tokens);
-    }
-
-    /**
      * Get the Nth Default token to the left of current token index.
      *
      * @param tokenStream Token Stream to traverse
@@ -259,25 +242,6 @@ public class CommonUtil {
         int indexCounter = startIndex;
         for (int i = 0; i < offset; i++) {
             token = getPreviousDefaultToken(tokenStream, indexCounter);
-            indexCounter = token.getTokenIndex();
-        }
-
-        return token;
-    }
-
-    /**
-     * Get the Nth Default token to the right of current token index.
-     *
-     * @param tokenStream Token Stream to traverse
-     * @param startIndex  Start position of the token stream
-     * @param offset      Number of tokens to traverse right
-     * @return {@link Token}    Nth Token
-     */
-    public static Token getNthDefaultTokensToRight(TokenStream tokenStream, int startIndex, int offset) {
-        Token token = null;
-        int indexCounter = startIndex;
-        for (int i = 0; i < offset; i++) {
-            token = getNextDefaultToken(tokenStream, indexCounter);
             indexCounter = token.getTokenIndex();
         }
 
@@ -362,7 +326,6 @@ public class CommonUtil {
      */
     public static String topLevelNodeTypeInLine(TextDocumentIdentifier identifier, Position startPosition,
                                                 WorkspaceDocumentManager docManager) {
-        // TODO: Need to support service and resources as well.
         List<String> topLevelKeywords = Arrays.asList("function", "service", "resource", "endpoint", "type");
         LSDocument document = new LSDocument(identifier.getUri());
 
@@ -832,6 +795,13 @@ public class CommonUtil {
                     + CommonUtil.LINE_SEPARATOR;
         }
 
+        /**
+         * Get the default function return statement.
+         *
+         * @param bLangNode         BLangNode to evaluate
+         * @param returnStatement   return statement to modify
+         * @return {@link String}   Default return statement
+         */
         public static String getFuncReturnDefaultStatement(BLangNode bLangNode, String returnStatement) {
             if (bLangNode.type == null && bLangNode instanceof BLangTupleDestructure) {
                 // Check for tuple assignment eg. (int, int)

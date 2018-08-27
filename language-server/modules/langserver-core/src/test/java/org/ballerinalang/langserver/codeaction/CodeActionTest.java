@@ -160,6 +160,7 @@ public class CodeActionTest {
         return new Object[][] {
                 {"undefinedPackageWithinFunction.json", "codeActionCommon.bal"},
                 {"undefinedFunctionCodeAction.json", "createUndefinedFunction.bal"},
+                {"undefinedFunctionCodeAction2.json", "createUndefinedFunction2.bal"},
         };
     }
 
