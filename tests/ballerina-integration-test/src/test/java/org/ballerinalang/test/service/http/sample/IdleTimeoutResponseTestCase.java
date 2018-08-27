@@ -18,7 +18,7 @@
 
 package org.ballerinalang.test.service.http.sample;
 
-import org.ballerinalang.test.BaseTest;
+import org.ballerinalang.test.service.http.HttpBaseTest;
 import org.ballerinalang.test.util.HttpClientRequest;
 import org.ballerinalang.test.util.HttpResponse;
 import org.slf4j.Logger;
@@ -37,7 +37,7 @@ import java.nio.channels.SocketChannel;
  * @since 0.975.1
  */
 @Test(groups = "http-test")
-public class IdleTimeoutResponseTestCase extends BaseTest {
+public class IdleTimeoutResponseTestCase extends HttpBaseTest {
 
     private static final Logger log = LoggerFactory.getLogger(IdleTimeoutResponseTestCase.class);
     /**

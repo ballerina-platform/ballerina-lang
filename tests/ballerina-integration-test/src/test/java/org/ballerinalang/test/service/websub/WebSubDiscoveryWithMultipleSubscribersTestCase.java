@@ -48,6 +48,8 @@ import static java.util.concurrent.TimeUnit.SECONDS;
  */
 public class WebSubDiscoveryWithMultipleSubscribersTestCase extends WebSubBaseTest {
 
+    private final int subscriberServicePort = 8484;
+
     private static String hubUrl = "https://localhost:9494/websub/hub";
     private static final String INTENT_VERIFICATION_SUBSCRIBER_ONE_LOG = "ballerina: Intent Verification agreed - Mode "
             + "[subscribe], Topic [http://www.websubpubtopic.com], Lease Seconds [3600]";
@@ -67,14 +69,14 @@ public class WebSubDiscoveryWithMultipleSubscribersTestCase extends WebSubBaseTe
 
     @BeforeClass
     public void setup() throws BallerinaTestException {
-        String[] publisherArgs = {new File("src" + File.separator + "test" + File.separator + "resources"
-                + File.separator + "websub" + File.separator + "websub_test_publisher.bal").getAbsolutePath(),
-                "-e b7a.websub.hub.port=9494", "-e b7a.websub.hub.remotepublish=true",
+        String publisherBal = new File("src" + File.separator + "test" + File.separator + "resources"
+                + File.separator + "websub" + File.separator + "websub_test_publisher.bal").getAbsolutePath();
+        String[] publisherArgs = {"-e b7a.websub.hub.port=9494", "-e b7a.websub.hub.remotepublish=true",
                 "-e test.hub.url=" + hubUrl};
 
         String publisherServiceBal = new File("src" + File.separator + "test" + File.separator + "resources"
                 + File.separator + "websub" + File.separator + "websub_test_publisher_service.bal").getAbsolutePath();
-        webSubPublisherService.startBallerinaServer(publisherServiceBal, 9290);
+        webSubPublisherService.startServer(publisherServiceBal);
 
         String subscriberBal = new File("src" + File.separator + "test" + File.separator + "resources"
                 + File.separator + "websub" + File.separator +
@@ -86,7 +88,7 @@ public class WebSubDiscoveryWithMultipleSubscribersTestCase extends WebSubBaseTe
 
         Executors.newSingleThreadExecutor().execute(() -> {
             try {
-                webSubPublisher.runMain(publisherArgs);
+                webSubPublisher.runMain(publisherBal, publisherArgs);
             } catch (BallerinaTestException e) {
                 //ignored since any errors here would be reflected as test failures
             }
@@ -95,12 +97,13 @@ public class WebSubDiscoveryWithMultipleSubscribersTestCase extends WebSubBaseTe
         //Allow to bring up the hub
         given().ignoreException(ConnectException.class).with().pollInterval(Duration.FIVE_SECONDS).and()
                 .with().pollDelay(Duration.TEN_SECONDS).await().atMost(60, SECONDS).until(() -> {
-            HttpResponse response = HttpsClientRequest.doGet(hubUrl, webSubPublisher.getServerHome());
+            //using same pack location, hence server home is same
+            HttpResponse response = HttpsClientRequest.doGet(hubUrl, webSubPublisherService.getServerHome());
             return response.getResponseCode() == 202;
         });
 
         String[] subscriberArgs = {"-e test.hub.url=" + hubUrl};
-        webSubSubscriber.startBallerinaServer(subscriberBal, subscriberArgs, 8484);
+        webSubSubscriber.startServer(subscriberBal, subscriberArgs);
 
         //Allow to start up the subscriber service
         given().ignoreException(ConnectException.class).with().pollInterval(Duration.FIVE_SECONDS).and()
@@ -109,10 +112,16 @@ public class WebSubDiscoveryWithMultipleSubscribersTestCase extends WebSubBaseTe
             headers.put(HttpHeaderNames.CONTENT_TYPE.toString(), TestConstant.CONTENT_TYPE_JSON);
             headers.put("X-Hub-Signature", "SHA256=5262411828583e9dc7eaf63aede0abac8e15212e06320bb021c433a20f27d553");
             HttpResponse response = HttpClientRequest.doPost(
-                    webSubSubscriber.getServiceURLHttp("websub"), "{\"dummy\":\"body\"}",
+                    webSubSubscriber.getServiceURLHttp(subscriberServicePort, "websub"), "{\"dummy\":\"body\"}",
                     headers);
             return response.getResponseCode() == 202;
         });
+    }
+
+    @AfterClass
+    private void cleanup() throws Exception {
+        webSubSubscriber.shutdownServer();
+        webSubPublisherService.shutdownServer();
     }
 
     @Test
@@ -125,13 +134,6 @@ public class WebSubDiscoveryWithMultipleSubscribersTestCase extends WebSubBaseTe
     public void testContentReceipt() throws BallerinaTestException {
         internalHubNotificationLogLeecherOne.waitForText(45000);
         internalHubNotificationLogLeecherTwo.waitForText(45000);
-    }
-
-    @AfterClass
-    private void cleanup() throws Exception {
-        webSubPublisher.stopServer();
-        webSubSubscriber.stopServer();
-        webSubPublisherService.stopServer();
     }
 
 }

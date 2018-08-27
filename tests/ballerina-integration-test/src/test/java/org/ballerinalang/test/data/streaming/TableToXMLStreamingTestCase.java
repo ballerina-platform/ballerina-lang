@@ -18,6 +18,8 @@
 package org.ballerinalang.test.data.streaming;
 
 import org.ballerinalang.test.BaseTest;
+import org.ballerinalang.test.context.BServerInstance;
+import org.ballerinalang.test.context.Constant;
 import org.ballerinalang.test.util.HttpClientRequest;
 import org.ballerinalang.test.util.HttpResponse;
 import org.ballerinalang.test.util.SQLDBUtils;
@@ -41,6 +43,8 @@ import java.util.Map;
  * This test case tests the scenario of streaming the data from a table converted to XML.
  */
 public class TableToXMLStreamingTestCase extends BaseTest {
+    private static BServerInstance serverInstance;
+    private final int servicePort = Constant.DEFAULT_HTTP_PORT;
     private TestDatabase testDatabase;
     private static final String DB_DIRECTORY = "./target/tempdb/";
 
@@ -51,7 +55,8 @@ public class TableToXMLStreamingTestCase extends BaseTest {
                 .toAbsolutePath().toString();
         Map<String, String> envProperties = new HashMap<>(1);
         envProperties.put("JAVA_OPTS", "-Xms100m -Xmx100m");
-        serverInstance.startBallerinaServer(balFile, envProperties);
+        serverInstance = new BServerInstance(balServer);
+        serverInstance.startServer(balFile, null, envProperties);
     }
 
     private void setUpDatabase() throws SQLException {
@@ -63,7 +68,7 @@ public class TableToXMLStreamingTestCase extends BaseTest {
     @Test(description = "Tests streaming a large amount of data from a table, converted to XML")
     public void testStreamingLargeXML() throws Exception {
         HttpResponse response = HttpClientRequest
-                .doGet(serverInstance.getServiceURLHttp("dataService/getData"), 60000, responseBuilder);
+                .doGet(serverInstance.getServiceURLHttp(servicePort, "dataService/getData"), 60000, responseBuilder);
         Assert.assertNotNull(response);
         Assert.assertEquals(response.getResponseCode(), 200);
         Assert.assertEquals(Integer.parseInt(response.getData()), 211288909);
@@ -71,7 +76,7 @@ public class TableToXMLStreamingTestCase extends BaseTest {
 
     @AfterClass(alwaysRun = true)
     private void cleanup() throws Exception {
-        serverInstance.stopServer();
+        serverInstance.shutdownServer();
         if (testDatabase != null) {
             testDatabase.stop();
         }

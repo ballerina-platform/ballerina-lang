@@ -54,6 +54,8 @@ import static java.util.concurrent.TimeUnit.SECONDS;
  */
 public class WebSubAutoIntentVerificationTestCase extends WebSubBaseTest {
 
+    private final int servicePort = 8181;
+
     private static String hubUrl = "https://localhost:9191/websub/hub";
     private static final String INTENT_VERIFICATION_LOG = "ballerina: Intent Verification agreed - Mode [subscribe], "
             + "Topic [http://www.websubpubtopic.com], Lease Seconds [86400]";
@@ -72,9 +74,10 @@ public class WebSubAutoIntentVerificationTestCase extends WebSubBaseTest {
 
     @BeforeClass
     public void setup() throws BallerinaTestException {
-        String[] publisherArgs = {new File("src" + File.separator + "test" + File.separator + "resources"
-                + File.separator + "websub" + File.separator + "websub_test_publisher.bal").getAbsolutePath(),
-                "-e b7a.websub.hub.port=9191", "-e b7a.websub.hub.remotepublish=true", "-e test.hub.url=" + hubUrl};
+        String balFile = new File("src" + File.separator + "test" + File.separator + "resources"
+                + File.separator + "websub" + File.separator + "websub_test_publisher.bal").getAbsolutePath();
+        String[] publisherArgs = {"-e b7a.websub.hub.port=9191", "-e b7a.websub.hub.remotepublish=true",
+                "-e test.hub.url=" + hubUrl};
 
         String subscriberBal = new File("src" + File.separator + "test" + File.separator + "resources"
                 + File.separator + "websub" + File.separator + "websub_test_subscriber.bal").getAbsolutePath();
@@ -85,7 +88,7 @@ public class WebSubAutoIntentVerificationTestCase extends WebSubBaseTest {
 
         Executors.newSingleThreadExecutor().execute(() -> {
             try {
-                webSubPublisher.runMain(publisherArgs);
+                webSubPublisher.runMain(balFile, publisherArgs);
             } catch (BallerinaTestException e) {
                 //ignored since any errors here would be reflected as test failures
             }
@@ -94,12 +97,13 @@ public class WebSubAutoIntentVerificationTestCase extends WebSubBaseTest {
         //Allow to bring up the hub
         given().ignoreException(ConnectException.class).with().pollInterval(Duration.FIVE_SECONDS).and()
                 .with().pollDelay(Duration.TEN_SECONDS).await().atMost(60, SECONDS).until(() -> {
-            HttpResponse response = HttpsClientRequest.doGet(hubUrl, webSubPublisher.getServerHome());
+            //using same pack location, hence server home is same
+            HttpResponse response = HttpsClientRequest.doGet(hubUrl, webSubSubscriber.getServerHome());
             return response.getResponseCode() == 202;
         });
 
         String[] subscriberArgs = {"-e test.hub.url=" + hubUrl};
-        webSubSubscriber.startBallerinaServer(subscriberBal, subscriberArgs, 8181);
+        webSubSubscriber.startServer(subscriberBal, subscriberArgs);
 
         //Allow to start up the subscriber service
         given().ignoreException(ConnectException.class).with().pollInterval(Duration.FIVE_SECONDS).and()
@@ -107,10 +111,15 @@ public class WebSubAutoIntentVerificationTestCase extends WebSubBaseTest {
             Map<String, String> headers = new HashMap<>();
             headers.put(HttpHeaderNames.CONTENT_TYPE.toString(), TestConstant.CONTENT_TYPE_JSON);
             HttpResponse response = HttpClientRequest.doPost(
-                    webSubSubscriber.getServiceURLHttp("websub"), "{\"dummy\":\"body\"}",
+                    webSubSubscriber.getServiceURLHttp(servicePort, "websub"), "{\"dummy\":\"body\"}",
                     headers);
             return response.getResponseCode() == 202;
         });
+    }
+
+    @AfterClass
+    private void cleanup() throws Exception {
+        webSubSubscriber.shutdownServer();
     }
 
     @Test
@@ -144,9 +153,4 @@ public class WebSubAutoIntentVerificationTestCase extends WebSubBaseTest {
         intentVerificationDenialLogLeecher.waitForText(45000);
     }
 
-    @AfterClass
-    private void cleanup() throws Exception {
-        webSubPublisher.stopServer();
-        webSubSubscriber.stopServer();
-    }
 }

@@ -24,7 +24,6 @@ import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BStringArray;
 import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.test.BaseTest;
 import org.ballerinalang.test.util.TestUtils;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
@@ -38,7 +37,7 @@ import java.util.stream.Stream;
  * Test class for gRPC server streaming service with non-blocking client.
  */
 @Test(groups = "grpc-test")
-public class ServerStreamingTestCase extends BaseTest {
+public class ServerStreamingTestCase extends GrpcBaseTest {
 
     @BeforeClass
     private void setup() throws Exception {

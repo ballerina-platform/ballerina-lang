@@ -21,7 +21,7 @@ import org.awaitility.Duration;
 import org.ballerinalang.test.context.BallerinaTestException;
 import org.ballerinalang.test.context.Constant;
 import org.ballerinalang.test.context.LogLeecher;
-import org.ballerinalang.test.context.ServerInstance;
+import org.ballerinalang.test.context.ServerInstanceOld;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -53,7 +53,7 @@ import static java.util.concurrent.TimeUnit.SECONDS;
  * Testing pushing, pulling, searching a package from central and installing package to home repository.
  */
 public class PackagingTestCase {
-    private ServerInstance ballerinaClient;
+    private ServerInstanceOld ballerinaClient;
     private String serverZipPath;
     private Path tempHomeDirectory;
     private Path tempProjectDirectory;
@@ -175,7 +175,7 @@ public class PackagingTestCase {
 
     @Test(description = "Test pushing a package to central")
     public void testPush() throws Exception {
-        ballerinaClient = new ServerInstance(serverZipPath);
+        ballerinaClient = new ServerInstanceOld(serverZipPath);
         String sourceRootPath = projectPath.toString();
         String[] clientArgs = {"--sourceroot", sourceRootPath, packageName};
 
@@ -191,7 +191,7 @@ public class PackagingTestCase {
 
     @Test(description = "Test pushing a package to the home repository (installing a package)")
     public void testInstall() throws Exception {
-        ballerinaClient = new ServerInstance(serverZipPath);
+        ballerinaClient = new ServerInstanceOld(serverZipPath);
         String sourceRootPath = projectPath.toString();
 
         String[] clientArgs = {"--sourceroot", sourceRootPath, packageName};
@@ -212,7 +212,7 @@ public class PackagingTestCase {
         given().with().pollInterval(Duration.TEN_SECONDS).and()
                .with().pollDelay(Duration.FIVE_SECONDS)
                .await().atMost(60, SECONDS).until(() -> {
-            ballerinaClient = new ServerInstance(serverZipPath);
+            ballerinaClient = new ServerInstanceOld(serverZipPath);
             String[] clientArgs = {"integrationtests/" + packageName + ":1.0.0"};
             ballerinaClient.runMain(clientArgs, getEnvVariables(), "pull");
             return Files.exists(tempHomeDirectory.resolve(dirPath).resolve(packageName + ".zip"));
@@ -223,7 +223,7 @@ public class PackagingTestCase {
 
     @Test(description = "Test searching a package from central", dependsOnMethods = "testPush")
     public void testSearch() throws BallerinaTestException, IOException {
-        ballerinaClient = new ServerInstance(serverZipPath);
+        ballerinaClient = new ServerInstanceOld(serverZipPath);
         String[] clientArgs = {packageName};
         String loggedMsg = "Ballerina Central\n" +
                 "=================\n" +

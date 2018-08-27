@@ -19,6 +19,7 @@
 package org.ballerinalang.test.service.websocket;
 
 import org.ballerinalang.test.BaseTest;
+import org.ballerinalang.test.context.BServerInstance;
 import org.ballerinalang.test.context.BallerinaTestException;
 import org.ballerinalang.test.util.websocket.client.WebSocketTestClient;
 import org.testng.annotations.AfterGroups;
@@ -35,6 +36,7 @@ public class WebSocketTestCommons extends BaseTest {
     protected static final int TIMEOUT_IN_SECS = 10;
     protected static final int REMOTE_SERVER_PORT = 15500;
 
+    protected static BServerInstance serverInstance;
 
     /**
      * Initializes ans start Ballerina with the websocket services package.
@@ -45,14 +47,14 @@ public class WebSocketTestCommons extends BaseTest {
     public void start() throws BallerinaTestException {
         String balFile = new File("src" + File.separator + "test" + File.separator + "resources" + File.separator +
                 "websocket").getAbsolutePath();
-        String[] args = new String[]{"--sourceroot", balFile};
-        serverInstance.startBallerinaServer("wsservices", args);
+        serverInstance = new BServerInstance(balServer);
+        serverInstance.startServer(balFile, "wsservices");
     }
 
     @AfterGroups(value = "websocket-test", alwaysRun = true)
     public void stop() throws Exception {
         serverInstance.removeAllLeechers();
-        serverInstance.stopServer();
+        serverInstance.shutdownServer();
     }
 
     /**

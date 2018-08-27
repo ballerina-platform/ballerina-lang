@@ -17,7 +17,6 @@
  */
 package org.ballerinalang.test.service.http2;
 
-import org.ballerinalang.test.BaseTest;
 import org.ballerinalang.test.util.HttpClientRequest;
 import org.ballerinalang.test.util.HttpResponse;
 import org.testng.Assert;
@@ -29,7 +28,7 @@ import java.io.IOException;
  * Test case for HTTP/2.0 server to HTTP/1.1 fallback scenario.
  */
 @Test(groups = "http2-test")
-public class Http2ToHttp1FallbackTestCase extends BaseTest {
+public class Http2ToHttp1FallbackTestCase extends Http2BaseTest {
 
     @Test(description = "Test HTTP/2.0 to HTTP/1.1 server fallback scenario")
     public void testFallback() throws IOException {

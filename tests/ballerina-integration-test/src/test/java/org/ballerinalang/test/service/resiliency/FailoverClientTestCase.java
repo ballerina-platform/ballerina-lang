@@ -21,6 +21,7 @@ import io.netty.handler.codec.http.HttpHeaderNames;
 import io.netty.util.internal.PlatformDependent;
 import io.netty.util.internal.StringUtil;
 import org.ballerinalang.test.BaseTest;
+import org.ballerinalang.test.context.BServerInstance;
 import org.ballerinalang.test.util.HttpClientRequest;
 import org.ballerinalang.test.util.HttpResponse;
 import org.ballerinalang.test.util.TestConstant;
@@ -38,14 +39,21 @@ import java.util.Map;
  * Test cases for the failover scenarios.
  */
 public class FailoverClientTestCase extends BaseTest {
+    private static BServerInstance serverInstance;
     private static final String TYPICAL_SERVICE_PATH = "fo" + File.separator + "typical";
 
     @BeforeTest(alwaysRun = true)
     private void setup() throws Exception {
         String sourcePath = new File("src" + File.separator + "test" + File.separator + "resources"
                 + File.separator + "resiliency").getAbsolutePath();
-        String[] args = new String[]{"--sourceroot", sourcePath};
-        serverInstance.startBallerinaServer("resiliencyservices", args);
+        serverInstance = new BServerInstance(balServer);
+        serverInstance.startServer(sourcePath, "resiliencyservices");
+    }
+
+    @AfterTest(alwaysRun = true)
+    private void cleanup() throws Exception {
+        serverInstance.removeAllLeechers();
+        serverInstance.shutdownServer();
     }
 
     @Test(description = "Test basic failover functionality")
@@ -188,10 +196,5 @@ public class FailoverClientTestCase extends BaseTest {
         Assert.assertEquals(secondResponse.getHeaders().get(HttpHeaderNames.CONTENT_TYPE.toString())
                 , TestConstant.CONTENT_TYPE_TEXT_PLAIN, "Content-Type mismatched");
         Assert.assertEquals(secondResponse.getData(), "Failover start index is : 2", "Message content mismatched");
-    }
-
-    @AfterTest(alwaysRun = true)
-    private void cleanup() throws Exception {
-        serverInstance.stopServer();
     }
 }

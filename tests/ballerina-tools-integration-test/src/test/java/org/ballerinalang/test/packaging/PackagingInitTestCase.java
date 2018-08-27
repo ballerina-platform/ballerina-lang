@@ -20,7 +20,7 @@ package org.ballerinalang.test.packaging;
 import org.ballerinalang.test.context.BallerinaTestException;
 import org.ballerinalang.test.context.Constant;
 import org.ballerinalang.test.context.LogLeecher;
-import org.ballerinalang.test.context.ServerInstance;
+import org.ballerinalang.test.context.ServerInstanceOld;
 import org.ballerinalang.test.util.HttpClientRequest;
 import org.ballerinalang.test.util.HttpResponse;
 import org.testng.Assert;
@@ -53,7 +53,7 @@ public class PackagingInitTestCase {
     @Test(description = "Test creating a project with a main in a package")
     public void testInitWithMainInPackage() throws Exception {
         // Test ballerina init
-        ServerInstance ballerinaServer = createNewBallerinaServer();
+        ServerInstanceOld ballerinaServer = createNewBallerinaServer();
         Path projectPath = tempProjectDirectory.resolve("firstTestWithPackagesMain");
         Files.createDirectories(projectPath);
 
@@ -84,7 +84,7 @@ public class PackagingInitTestCase {
     @Test(description = "Test creating a project with a service in a package")
     public void testInitWithServiceInPackage() throws Exception {
         // Test ballerina init
-        ServerInstance ballerinaServer = createNewBallerinaServer();
+        ServerInstanceOld ballerinaServer = createNewBallerinaServer();
         Path projectPath = tempProjectDirectory.resolve("firstTestWithPackagesService");
         Files.createDirectories(projectPath);
 
@@ -116,7 +116,7 @@ public class PackagingInitTestCase {
     @Test(description = "Test creating a project with a service and main in different packages")
     public void testInitWithMainServiceInDiffPackage() throws Exception {
         // Test ballerina init
-        ServerInstance ballerinaServer = createNewBallerinaServer();
+        ServerInstanceOld ballerinaServer = createNewBallerinaServer();
         Path projectPath = tempProjectDirectory.resolve("secondTestWithPackages");
         Files.createDirectories(projectPath);
 
@@ -153,7 +153,7 @@ public class PackagingInitTestCase {
     @Test(description = "Test creating a project without going to interactive mode")
     public void testInitWithoutGoingToInteractiveMode() throws Exception {
         // Test ballerina init
-        ServerInstance ballerinaServer = createNewBallerinaServer();
+        ServerInstanceOld ballerinaServer = createNewBallerinaServer();
         Path projectPath = tempProjectDirectory.resolve("testWithoutPackage");
         Files.createDirectories(projectPath);
 
@@ -181,7 +181,7 @@ public class PackagingInitTestCase {
     @Test(description = "Test creating a project with a main without a package")
     public void testInitWithoutPackage() throws Exception {
         // Test ballerina init
-        ServerInstance ballerinaServer = createNewBallerinaServer();
+        ServerInstanceOld ballerinaServer = createNewBallerinaServer();
         Path projectPath = tempProjectDirectory.resolve("testWithoutPackageForMain");
         Files.createDirectories(projectPath);
 
@@ -210,7 +210,7 @@ public class PackagingInitTestCase {
             dependsOnMethods = "testInitWithMainInPackage")
     public void testInitOnExistingProject() throws Exception {
         // Test ballerina init
-        ServerInstance ballerinaServer = createNewBallerinaServer();
+        ServerInstanceOld ballerinaServer = createNewBallerinaServer();
         Path projectPath = tempProjectDirectory.resolve("firstTestWithPackagesMain");
         ballerinaServer.runMainWithClientOptions(new String[0], new String[0], getEnvVariables(), "init",
                                                  projectPath.toString());
@@ -237,7 +237,7 @@ public class PackagingInitTestCase {
             dependsOnMethods = "testInitWithMainInPackage")
     public void testInitOnExistingProjectWithNewPackage() throws Exception {
         // Test ballerina init
-        ServerInstance ballerinaServer = createNewBallerinaServer();
+        ServerInstanceOld ballerinaServer = createNewBallerinaServer();
         Path projectPath = tempProjectDirectory.resolve("firstTestWithPackagesMain");
 
         String[] clientArgsForInit = {"-i"};
@@ -271,7 +271,7 @@ public class PackagingInitTestCase {
     @Test(description = "Test creating a project with invalid options")
     public void testInitWithInvalidOptions() throws Exception {
         // Test ballerina init
-        ServerInstance ballerinaServer = createNewBallerinaServer();
+        ServerInstanceOld ballerinaServer = createNewBallerinaServer();
         Path projectPath = tempProjectDirectory.resolve("testsWithoutPackage");
         Files.createDirectories(projectPath);
 
@@ -287,7 +287,7 @@ public class PackagingInitTestCase {
     @Test(description = "Test creating a project with invalid package")
     public void testInitWithInvalidPackage() throws Exception {
         // Test ballerina init
-        ServerInstance ballerinaServer = createNewBallerinaServer();
+        ServerInstanceOld ballerinaServer = createNewBallerinaServer();
         Path projectPath = tempProjectDirectory.resolve("invalidTestWithPackage");
         Files.createDirectories(projectPath);
 
@@ -318,7 +318,7 @@ public class PackagingInitTestCase {
     @Test(description = "Test building a package in a project")
     public void testBuildPackage() throws Exception {
         // Test ballerina init
-        ServerInstance ballerinaServer = createNewBallerinaServer();
+        ServerInstanceOld ballerinaServer = createNewBallerinaServer();
         Path projectPath = tempProjectDirectory.resolve("testBuildPackage");
         Files.createDirectories(projectPath);
 
@@ -338,7 +338,7 @@ public class PackagingInitTestCase {
     @Test(description = "Test building a project with a single bal file using the target path")
     public void testBuildWithTarget() throws Exception {
         // Test ballerina init
-        ServerInstance ballerinaServer = createNewBallerinaServer();
+        ServerInstanceOld ballerinaServer = createNewBallerinaServer();
         Path projectPath = tempProjectDirectory.resolve("testPackageWithTarget");
         Path genExecPath = tempProjectDirectory.resolve("generatedExec");
         Files.createDirectories(projectPath);
@@ -371,8 +371,8 @@ public class PackagingInitTestCase {
      * @return new ballerina server instance
      * @throws BallerinaTestException
      */
-    private ServerInstance createNewBallerinaServer() throws BallerinaTestException {
-        return new ServerInstance(serverZipPath);
+    private ServerInstanceOld createNewBallerinaServer() throws BallerinaTestException {
+        return new ServerInstanceOld(serverZipPath);
     }
 
     /**
@@ -384,7 +384,7 @@ public class PackagingInitTestCase {
      */
     private void runMainFunction(Path projectPath, String pkg)
             throws BallerinaTestException {
-        ServerInstance ballerinaServer = createNewBallerinaServer();
+        ServerInstanceOld ballerinaServer = createNewBallerinaServer();
         String[] clientArgsForRun = {"--sourceroot", projectPath.toString(), pkg};
         LogLeecher logLeecher = new LogLeecher("Hello World!");
         ballerinaServer.addLogLeecher(logLeecher);
@@ -399,7 +399,7 @@ public class PackagingInitTestCase {
      * @throws IOException
      */
     private void runService(Path serviceBalPath) throws BallerinaTestException, IOException {
-        ServerInstance ballerinaServerForService = ServerInstance.initBallerinaServer();
+        ServerInstanceOld ballerinaServerForService = ServerInstanceOld.initBallerinaServer();
         ballerinaServerForService.startBallerinaServer(serviceBalPath.toString());
         HttpResponse response = HttpClientRequest.doGet(ballerinaServerForService.getServiceURLHttp("hello/sayHello"));
         Assert.assertEquals(response.getResponseCode(), 200, "Response code mismatched");

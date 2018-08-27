@@ -19,7 +19,7 @@ package org.ballerinalang.test.packaging.grpc;
 
 import org.ballerinalang.test.context.Constant;
 import org.ballerinalang.test.context.LogLeecher;
-import org.ballerinalang.test.context.ServerInstance;
+import org.ballerinalang.test.context.ServerInstanceOld;
 import org.ballerinalang.test.context.Utils;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -53,7 +53,7 @@ public class ServicePackagingTestCase {
         Files.createDirectories(projectPath);
 
         // perform ballerina init and copy grpc service to the project.
-        ServerInstance ballerinaBuildServer = new ServerInstance(serverZipPath);
+        ServerInstanceOld ballerinaBuildServer = new ServerInstanceOld(serverZipPath);
         String[] args = {"-i"};
         String[] options = {"\n", "\n", "\n", "s\n", "foo\n", "f\n"};
         ballerinaBuildServer.runMainWithClientOptions(args, options, getEnvVariables(), "init",
@@ -63,17 +63,17 @@ public class ServicePackagingTestCase {
         Files.deleteIfExists(projectPath.resolve("foo").resolve("hello_service.bal"));
 
         // perform ballerina build and generate balx file.
-        ballerinaBuildServer = new ServerInstance(serverZipPath);
+        ballerinaBuildServer = new ServerInstanceOld(serverZipPath);
         ballerinaBuildServer.runMain(new String[0], getEnvVariables(), "build", projectPath.toString());
         Path generatedBalx = projectPath.resolve("target").resolve("foo.balx");
         // Run gRPC service from the balx file.
-        ServerInstance ballerinaServerForService = ServerInstance.initBallerinaServer(9090);
+        ServerInstanceOld ballerinaServerForService = ServerInstanceOld.initBallerinaServer(9090);
         ballerinaServerForService.startBallerinaServer(generatedBalx.toString());
 
         try {
             // run gRPC client to connect with the service.
             Path balFilePath = Paths.get("src", "test", "resources", "grpc", "nested_type_client.bal");
-            ServerInstance ballerinaClientServer = new ServerInstance(serverZipPath);
+            ServerInstanceOld ballerinaClientServer = new ServerInstanceOld(serverZipPath);
             String[] clientArgsForRun = {balFilePath.toAbsolutePath().toString()};
             LogLeecher logLeecher1 = new LogLeecher("testInputNestedStruct output: Submitted name: Danesh");
             LogLeecher logLeecher2 = new LogLeecher("testOutputNestedStruct output: Sam");

@@ -37,7 +37,6 @@ public class ServerLogReader implements Runnable {
     private final Logger log = LoggerFactory.getLogger(ServerLogReader.class);
     private String streamType;
     private InputStream inputStream;
-    private Thread thread;
     private volatile boolean running = true;
 
     private ConcurrentHashSet<LogLeecher> leechers = new ConcurrentHashSet<>();
@@ -57,7 +56,7 @@ public class ServerLogReader implements Runnable {
      * Start reading the stream.
      */
     public void start() {
-        thread = new Thread(this);
+        Thread thread = new Thread(this);
         thread.start();
     }
 
@@ -95,7 +94,9 @@ public class ServerLogReader implements Runnable {
      */
     private void feedLeechers(String logLine) {
         // Not doing if (leechers.size() > 0) since it is a costly call in concurrent data structures
+        System.out.println(System.currentTimeMillis() + " leecher count -  " + leechers.size() + ", current line - " + logLine);
         for (LogLeecher leecher : leechers) {
+            System.out.println(System.currentTimeMillis() + " log line - " + logLine + " === expected - " + leecher.text);
             leecher.feedLine(logLine);
         }
     }

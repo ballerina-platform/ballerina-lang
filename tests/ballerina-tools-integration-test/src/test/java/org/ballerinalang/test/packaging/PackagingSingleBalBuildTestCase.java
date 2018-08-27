@@ -19,7 +19,7 @@ package org.ballerinalang.test.packaging;
 
 import org.ballerinalang.test.context.BallerinaTestException;
 import org.ballerinalang.test.context.Constant;
-import org.ballerinalang.test.context.ServerInstance;
+import org.ballerinalang.test.context.ServerInstanceOld;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -71,7 +71,7 @@ public class PackagingSingleBalBuildTestCase {
         Files.createDirectories(currentDirPath);
 
         // Test ballerina build
-        ServerInstance ballerinaServer = createNewBallerinaServer();
+        ServerInstanceOld ballerinaServer = createNewBallerinaServer();
         String[] clientArgs = {balFilePath.toString()};
         ballerinaServer.runMain(clientArgs, getEnvVariables(), "build", currentDirPath.toString());
         Path generatedBalx = currentDirPath.resolve("main.balx");
@@ -81,7 +81,7 @@ public class PackagingSingleBalBuildTestCase {
     @Test(description = "Test building a bal file by giving the path from the current directory")
     public void testBuildingSourceWithCurrentDir() throws Exception {
         // Test ballerina build
-        ServerInstance ballerinaServer = createNewBallerinaServer();
+        ServerInstanceOld ballerinaServer = createNewBallerinaServer();
         String[] clientArgs = {Paths.get("sourcePkg", "main.bal").toString()};
         ballerinaServer.runMain(clientArgs, getEnvVariables(), "build", tempProjectDirectory.toString());
         Path generatedBalx = tempProjectDirectory.resolve("main.balx");
@@ -94,7 +94,7 @@ public class PackagingSingleBalBuildTestCase {
         Files.createDirectories(targetDirPath);
 
         // Test ballerina build
-        ServerInstance ballerinaServer = createNewBallerinaServer();
+        ServerInstanceOld ballerinaServer = createNewBallerinaServer();
         String[] clientArgs = {balFilePath.toString(), "-o", targetDirPath.resolve("main.bal").toString()};
         ballerinaServer.runMain(clientArgs, getEnvVariables(), "build", tempProjectDirectory.toString());
         Path generatedBalx = targetDirPath.resolve("main.balx");
@@ -107,8 +107,8 @@ public class PackagingSingleBalBuildTestCase {
      * @return new ballerina server instance
      * @throws BallerinaTestException
      */
-    private ServerInstance createNewBallerinaServer() throws BallerinaTestException {
-        return new ServerInstance(serverZipPath);
+    private ServerInstanceOld createNewBallerinaServer() throws BallerinaTestException {
+        return new ServerInstanceOld(serverZipPath);
     }
 
     /**

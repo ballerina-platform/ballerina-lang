@@ -44,6 +44,8 @@ import static java.util.concurrent.TimeUnit.SECONDS;
  */
 public class WebSubServiceExtensionTestCase extends WebSubBaseTest {
 
+    private final int servicePort = 8181;
+
     private static final String MOCK_HEADER = "MockHeader";
     private static final int LOG_LEECHER_TIMEOUT = 3000;
 
@@ -91,7 +93,7 @@ public class WebSubServiceExtensionTestCase extends WebSubBaseTest {
         webSubSubscriber.addLogLeecher(byHeaderAndPayloadFeaturePullLogLeecher);
         webSubSubscriber.addLogLeecher(byHeaderAndPayloadKeyOnlyLogLeecher);
 
-        webSubSubscriber.startBallerinaServer(subscriberBal, new String[]{}, 8181);
+        webSubSubscriber.startServer(subscriberBal);
 
         // Wait for the services to start up
         Map<String, String> headers = new HashMap<>(2);
@@ -197,6 +199,6 @@ public class WebSubServiceExtensionTestCase extends WebSubBaseTest {
 
     @AfterClass
     private void cleanup() throws Exception {
-        webSubSubscriber.stopServer();
+        webSubSubscriber.shutdownServer();
     }
 }

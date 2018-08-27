@@ -47,6 +47,9 @@ import static java.util.concurrent.TimeUnit.SECONDS;
  */
 public class WebSubRedirectionTestCase extends WebSubBaseTest {
 
+    private final int publisherServicePort = 9291;
+    private final int subscriberServicePort = 8585;
+
     private static String hubUrl = "https://localhost:9595/websub/hub";
     private static final String INTENT_VERIFICATION_SUBSCRIBER_ONE_LOG = "ballerina: Intent Verification agreed - Mode "
             + "[subscribe], Topic [http://redirectiontopicone.com], Lease Seconds [3600]";
@@ -59,9 +62,9 @@ public class WebSubRedirectionTestCase extends WebSubBaseTest {
 
     @BeforeClass
     public void setup() throws BallerinaTestException {
-        String[] publisherArgs = {new File("src" + File.separator + "test" + File.separator + "resources"
+        String publisherBal = new File("src" + File.separator + "test" + File.separator + "resources"
                 + File.separator + "websub" + File.separator + "redirection" + File.separator
-                + "hub_service.bal").getAbsolutePath()};
+                + "hub_service.bal").getAbsolutePath();
 
         intentVerificationLogLeecherOne = new LogLeecher(INTENT_VERIFICATION_SUBSCRIBER_ONE_LOG);
         intentVerificationLogLeecherTwo = new LogLeecher(INTENT_VERIFICATION_SUBSCRIBER_TWO_LOG);
@@ -69,7 +72,7 @@ public class WebSubRedirectionTestCase extends WebSubBaseTest {
         String publishersBal = new File("src" + File.separator + "test" + File.separator + "resources"
                 + File.separator + "websub" + File.separator + "redirection" + File.separator
                 + "publishers.bal").getAbsolutePath();
-        webSubPublisher.startBallerinaServer(publishersBal, 9291);
+        webSubPublisherService.startServer(publishersBal);
 
         String subscribersBal = new File("src" + File.separator + "test" + File.separator + "resources"
                 + File.separator + "websub" + File.separator + "redirection" + File.separator
@@ -79,7 +82,7 @@ public class WebSubRedirectionTestCase extends WebSubBaseTest {
 
         Executors.newSingleThreadExecutor().execute(() -> {
             try {
-                webSubPublisherService.runMain(publisherArgs);
+                webSubPublisher.runMain(publisherBal);
             } catch (BallerinaTestException e) {
                 //ignored since any errors here would be reflected as test failures
             }
@@ -93,7 +96,7 @@ public class WebSubRedirectionTestCase extends WebSubBaseTest {
         });
 
         String[] subscriberArgs = {};
-        webSubSubscriber.startBallerinaServer(subscribersBal, subscriberArgs, 8585);
+        webSubSubscriber.startServer(subscribersBal, subscriberArgs);
 
         //Allow to start up the subscriber service
         given().ignoreException(ConnectException.class).with().pollInterval(Duration.FIVE_SECONDS).and()
@@ -102,7 +105,7 @@ public class WebSubRedirectionTestCase extends WebSubBaseTest {
             headers.put(HttpHeaderNames.CONTENT_TYPE.toString(), TestConstant.CONTENT_TYPE_JSON);
             headers.put("X-Hub-Signature", "SHA256=5262411828583e9dc7eaf63aede0abac8e15212e06320bb021c433a20f27d553");
             HttpResponse response = HttpClientRequest.doPost(
-                    webSubSubscriber.getServiceURLHttp("websub"), "{\"dummy\":\"body\"}",
+                    webSubSubscriber.getServiceURLHttp(subscriberServicePort, "websub"), "{\"dummy\":\"body\"}",
                     headers);
             return response.getResponseCode() == 202;
         });
@@ -120,9 +123,8 @@ public class WebSubRedirectionTestCase extends WebSubBaseTest {
 
     @AfterClass
     private void cleanup() throws Exception {
-        webSubPublisherService.stopServer();
-        webSubSubscriber.stopServer();
-        webSubPublisher.stopServer();
+        webSubPublisherService.shutdownServer();
+        webSubSubscriber.shutdownServer();
     }
 
 }

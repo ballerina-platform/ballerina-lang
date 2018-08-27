@@ -44,8 +44,8 @@ import java.util.stream.Stream;
 /**
  * This class hold the server information and manage the a server instance.
  */
-public class ServerInstance implements Server {
-    private static final Logger log = LoggerFactory.getLogger(ServerInstance.class);
+public class ServerInstanceOld implements Server {
+    private static final Logger log = LoggerFactory.getLogger(ServerInstanceOld.class);
     private String serverHome;
     private String serverDistribution;
     private String[] args;
@@ -62,13 +62,13 @@ public class ServerInstance implements Server {
      */
     private String extractDir;
 
-    public ServerInstance(String serverDistributionPath) throws BallerinaTestException {
+    public ServerInstanceOld(String serverDistributionPath) throws BallerinaTestException {
         this.serverDistribution = serverDistributionPath;
 
         initialize();
     }
 
-    public ServerInstance(String serverDistributionPath, int serverHttpPort) throws BallerinaTestException {
+    public ServerInstanceOld(String serverDistributionPath, int serverHttpPort) throws BallerinaTestException {
         this.serverDistribution = serverDistributionPath;
         this.httpServerPort = serverHttpPort;
 
@@ -82,9 +82,9 @@ public class ServerInstance implements Server {
      * @return ballerinaServer      Started server instance.
      * @throws BallerinaTestException If any exception is thrown when starting the ballerina server
      */
-    public static ServerInstance initBallerinaServer(int port) throws BallerinaTestException {
+    public static ServerInstanceOld initBallerinaServer(int port) throws BallerinaTestException {
         String serverZipPath = System.getProperty(Constant.SYSTEM_PROP_SERVER_ZIP);
-        return new ServerInstance(serverZipPath, port);
+        return new ServerInstanceOld(serverZipPath, port);
     }
 
     /**
@@ -93,10 +93,10 @@ public class ServerInstance implements Server {
      * @return ballerinaServer      Started server instance.
      * @throws BallerinaTestException If any exception is thrown when starting the ballerina server
      */
-    public static ServerInstance initBallerinaServer() throws BallerinaTestException {
+    public static ServerInstanceOld initBallerinaServer() throws BallerinaTestException {
         int defaultPort = Constant.DEFAULT_HTTP_PORT;
         String serverZipPath = System.getProperty(Constant.SYSTEM_PROP_SERVER_ZIP);
-        return new ServerInstance(serverZipPath, defaultPort);
+        return new ServerInstanceOld(serverZipPath, defaultPort);
     }
 
     public void startBallerinaServer(String balFile) throws BallerinaTestException {

@@ -30,6 +30,8 @@ import static java.util.concurrent.TimeUnit.SECONDS;
  */
 public class WebSubContentTypeSupportTestCase extends WebSubBaseTest {
 
+    private final int servicePort = 8686;
+
     private static String hubUrl = "https://localhost:9696/websub/hub";
     private static final String INTENT_VERIFICATION_SUBSCRIBER_ONE_LOG = "ballerina: Intent Verification agreed - Mode"
             + " [subscribe], Topic [http://www.websubpubtopic.com], Lease Seconds [3000]";
@@ -81,9 +83,10 @@ public class WebSubContentTypeSupportTestCase extends WebSubBaseTest {
 
     @BeforeClass
     public void setup() throws BallerinaTestException {
-        String[] publisherArgs = {new File("src" + File.separator + "test" + File.separator + "resources"
+        String balFile = new File("src" + File.separator + "test" + File.separator + "resources"
                 + File.separator + "websub" + File.separator + "content_types" + File.separator
-                + "publisher.bal").getAbsolutePath(), "-e b7a.websub.hub.remotepublish=true"};
+                + "publisher.bal").getAbsolutePath();
+        String[] publisherArgs = {"-e b7a.websub.hub.remotepublish=true"};
 
         String subscriberBal = new File("src" + File.separator + "test" + File.separator + "resources"
                 + File.separator + "websub" + File.separator + "content_types" + File.separator
@@ -101,7 +104,7 @@ public class WebSubContentTypeSupportTestCase extends WebSubBaseTest {
 
         Executors.newSingleThreadExecutor().execute(() -> {
             try {
-                webSubPublisher.runMain(publisherArgs);
+                webSubPublisher.runMain(balFile, publisherArgs);
             } catch (BallerinaTestException e) {
                 //ignored since any errors here would be reflected as test failures
             }
@@ -110,12 +113,13 @@ public class WebSubContentTypeSupportTestCase extends WebSubBaseTest {
         //Allow to bring up the hub
         given().ignoreException(ConnectException.class).with().pollInterval(Duration.FIVE_SECONDS).and()
                 .with().pollDelay(Duration.TEN_SECONDS).await().atMost(60, SECONDS).until(() -> {
-            HttpResponse response = HttpsClientRequest.doGet(hubUrl, webSubPublisher.getServerHome());
+            //using same pack location, hence server home is same
+            HttpResponse response = HttpsClientRequest.doGet(hubUrl, webSubSubscriber.getServerHome());
             return response.getResponseCode() == 202;
         });
 
         String[] subscriberArgs = {};
-        webSubSubscriber.startBallerinaServer(subscriberBal, subscriberArgs, 8686);
+        webSubSubscriber.startServer(subscriberBal, subscriberArgs);
 
         //Allow to start up the subscriber service
         given().ignoreException(ConnectException.class).with().pollInterval(Duration.FIVE_SECONDS).and()
@@ -124,10 +128,15 @@ public class WebSubContentTypeSupportTestCase extends WebSubBaseTest {
             headers.put(HttpHeaderNames.CONTENT_TYPE.toString(), TestConstant.CONTENT_TYPE_JSON);
             headers.put("X-Hub-Signature", "SHA256=5262411828583e9dc7eaf63aede0abac8e15212e06320bb021c433a20f27d553");
             HttpResponse response = HttpClientRequest.doPost(
-                    webSubSubscriber.getServiceURLHttp("websub"), "{\"dummy\":\"body\"}",
+                    webSubSubscriber.getServiceURLHttp(servicePort, "websub"), "{\"dummy\":\"body\"}",
                     headers);
             return response.getResponseCode() == 202;
         });
+    }
+
+    @AfterClass
+    private void cleanup() throws Exception {
+        webSubSubscriber.shutdownServer();
     }
 
     @Test
@@ -175,11 +184,4 @@ public class WebSubContentTypeSupportTestCase extends WebSubBaseTest {
     public void testUnauthenticatedXmlContentReceiptForRemoteHub() throws BallerinaTestException {
         remoteHubXmlNotificationLogLeecherTwo.waitForText(45000);
     }
-
-    @AfterClass
-    private void cleanup() throws Exception {
-        webSubPublisher.stopServer();
-        webSubSubscriber.stopServer();
-    }
-
 }

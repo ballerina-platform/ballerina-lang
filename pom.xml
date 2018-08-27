@@ -1087,6 +1087,11 @@
                 <version>${netty.version}</version>
             </dependency>
             <dependency>
+                <groupId>org.javassist</groupId>
+                <artifactId>javassist</artifactId>
+                <version>${javassist.version}</version>
+            </dependency>
+            <dependency>
                 <groupId>io.netty</groupId>
                 <artifactId>netty-codec-http</artifactId>
                 <version>${netty.version}</version>
@@ -2160,6 +2165,7 @@
         <staxon.version>1.2.0.wso2v2</staxon.version>
         <jacoco.agent.version>0.8.1</jacoco.agent.version>
         <mockito.version>1.9.0</mockito.version>
+        <javassist.version>3.20.0-GA</javassist.version>
         <netty.version>4.1.19.Final</netty.version>
         <commons.pool.version>1.5.6.wso2v1</commons.pool.version>
         <org.snakeyaml.version>1.16.0.wso2v1</org.snakeyaml.version>

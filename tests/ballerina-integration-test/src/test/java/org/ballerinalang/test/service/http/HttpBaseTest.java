@@ -19,6 +19,7 @@
 package org.ballerinalang.test.service.http;
 
 import org.ballerinalang.test.BaseTest;
+import org.ballerinalang.test.context.BServerInstance;
 import org.ballerinalang.test.context.BallerinaTestException;
 import org.testng.annotations.AfterGroups;
 import org.testng.annotations.BeforeGroups;
@@ -30,17 +31,20 @@ import java.io.File;
  * and after tests are run.
  */
 public class HttpBaseTest extends BaseTest {
+    protected static BServerInstance serverInstance;
+
     @BeforeGroups(value = "http-test", alwaysRun = true)
     public void start() throws BallerinaTestException {
-        String balFile = new File("src" + File.separator + "test" + File.separator + "resources" + File.separator +
-                "http").getAbsolutePath();
-        String[] args = new String[]{"--sourceroot", balFile};
-        serverInstance.startBallerinaServer("httpservices", args);
+        String balFile = new File("src" + File.separator + "test" + File.separator
+                + "resources" + File.separator + "http").getAbsolutePath();
+
+        serverInstance = new BServerInstance(balServer);
+        serverInstance.startServer(balFile, "httpservices");
     }
 
     @AfterGroups(value = "http-test", alwaysRun = true)
     public void cleanup() throws Exception {
         serverInstance.removeAllLeechers();
-        serverInstance.stopServer();
+        serverInstance.shutdownServer();
     }
 }

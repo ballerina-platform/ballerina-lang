@@ -39,6 +39,8 @@ public final class WebSocketRemoteServer {
     }
 
     public void run() throws InterruptedException {
+
+        System.out.println("***************************** starting remote server on port - " + port);
         bossGroup = new NioEventLoopGroup(1);
         workerGroup = new NioEventLoopGroup(5);
 
@@ -50,7 +52,16 @@ public final class WebSocketRemoteServer {
     }
 
     public void stop() {
-        bossGroup.shutdownGracefully();
-        workerGroup.shutdownGracefully();
+        System.out.println("***************************** stopping remote server on port - " + port);
+        try {
+            bossGroup.shutdownGracefully().sync();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        try {
+            workerGroup.shutdownGracefully().sync();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
     }
 }
