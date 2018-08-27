@@ -44,6 +44,8 @@ import static org.ballerinalang.model.util.serializer.ObjectHelper.findPrimitive
 
 /**
  * Reconstruct Java object tree from JSON input.
+ *
+ * @since 0.98.1
  */
 class JsonDeserializer implements BValueDeserializer {
     private static final InstanceProviderRegistry instanceProvider = InstanceProviderRegistry.getInstance();

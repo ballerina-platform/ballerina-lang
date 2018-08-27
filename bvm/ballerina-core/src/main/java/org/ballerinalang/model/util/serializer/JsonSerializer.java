@@ -42,6 +42,8 @@ import java.io.StringWriter;
  * Serialize {@link SerializableState} into JSON and back.
  * <p>
  * Note that {@link JsonSerializer} is not thread safe and each thread needs to have it's own instance.
+ *
+ * @since 0.98.1
  */
 public class JsonSerializer implements ObjectToJsonSerializer {
     private static final BValueProvider bValueProvider = BValueProvider.getInstance();

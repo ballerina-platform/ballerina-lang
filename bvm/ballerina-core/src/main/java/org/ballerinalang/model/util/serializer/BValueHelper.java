@@ -26,6 +26,8 @@ import java.util.HashSet;
 
 /**
  * Helper methods to convert Java objects to BValue objects.
+ *
+ * @since 0.98.1
  */
 public class BValueHelper {
     static BMap<String, BValue> wrapObject(String type, BValue payload) {

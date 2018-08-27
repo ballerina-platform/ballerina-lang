@@ -28,6 +28,8 @@ import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Provide mapping between {@link ConcurrentHashMap} and {@link BValue} representation of it.
+ *
+ * @since 0.98.1
  */
 public class ConcurrentHashMapBValueProvider implements SerializationBValueProvider<ConcurrentHashMap> {
     @Override

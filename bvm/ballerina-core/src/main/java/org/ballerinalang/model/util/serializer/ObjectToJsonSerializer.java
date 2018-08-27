@@ -19,6 +19,8 @@ package org.ballerinalang.model.util.serializer;
 
 /**
  * Serialize any object into JSON structure.
+ *
+ * @since 0.98.1
  */
 public interface ObjectToJsonSerializer {
     String serialize(Object obj);

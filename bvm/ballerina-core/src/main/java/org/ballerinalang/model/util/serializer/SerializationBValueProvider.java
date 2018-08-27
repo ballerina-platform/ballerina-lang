@@ -26,6 +26,8 @@ import org.ballerinalang.model.values.BValue;
  * you  don't have to execute it in {@code toBValue} method as it will be executed by {@link JsonDeserializer} class.
  *
  * @param <T> Type to be serialized
+ *
+ * @since 0.98.1
  */
 public interface SerializationBValueProvider<T> {
     /**

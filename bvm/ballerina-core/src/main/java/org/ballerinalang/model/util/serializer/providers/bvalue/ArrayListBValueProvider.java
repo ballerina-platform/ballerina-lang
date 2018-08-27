@@ -33,6 +33,8 @@ import java.util.ArrayList;
 
 /**
  * Provide mapping between {@link Class} and {@link BValue} representation of it.
+ *
+ * @since 0.98.1
  */
 public class ArrayListBValueProvider implements SerializationBValueProvider<ArrayList> {
 

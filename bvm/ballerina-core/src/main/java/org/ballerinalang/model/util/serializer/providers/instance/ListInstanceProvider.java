@@ -24,6 +24,8 @@ import java.util.ArrayList;
 
 /**
  * Provide object instance to represent list.
+ *
+ * @since 0.98.1
  */
 public class ListInstanceProvider implements TypeInstanceProvider {
     @Override

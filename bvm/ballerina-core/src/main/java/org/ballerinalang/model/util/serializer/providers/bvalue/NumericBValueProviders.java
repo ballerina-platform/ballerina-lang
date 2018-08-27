@@ -29,6 +29,8 @@ import java.math.BigInteger;
 
 /**
  * Host class for various Numeric BValue providers.
+ *
+ * @since 0.98.1
  */
 public class NumericBValueProviders {
     private NumericBValueProviders() {

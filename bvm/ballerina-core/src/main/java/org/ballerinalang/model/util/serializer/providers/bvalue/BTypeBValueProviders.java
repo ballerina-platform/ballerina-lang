@@ -37,6 +37,8 @@ import java.lang.reflect.InvocationTargetException;
 
 /**
  * Contain SerializationBValueProviders for BType derived classes.
+ *
+ * @since 0.98.1
  */
 public class BTypeBValueProviders {
     public static final String ELEM_TYPE = "elemType";

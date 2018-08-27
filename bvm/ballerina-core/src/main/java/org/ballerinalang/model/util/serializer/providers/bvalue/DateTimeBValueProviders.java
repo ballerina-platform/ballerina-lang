@@ -29,6 +29,8 @@ import java.util.Date;
 
 /**
  * Default SerializationBValueProviders for Date and Time classes.
+ *
+ * @since 0.98.1
  */
 public class DateTimeBValueProviders {
     /**

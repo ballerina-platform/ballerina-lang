@@ -24,6 +24,8 @@ import java.util.HashMap;
 
 /**
  * Keep track of {@link TypeInstanceProvider} implementations.
+ *
+ * @since 0.98.1
  */
 public class InstanceProviderRegistry {
     private static final InstanceProviderRegistry INSTANCE = new InstanceProviderRegistry();

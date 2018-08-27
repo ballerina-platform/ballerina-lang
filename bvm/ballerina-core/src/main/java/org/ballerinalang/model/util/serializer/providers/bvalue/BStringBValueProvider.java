@@ -26,6 +26,8 @@ import org.ballerinalang.model.values.BValue;
 
 /**
  * Provide mapping between {@link BString} and {@link BValue} representation of it.
+ *
+ * @since 0.98.1
  */
 public class BStringBValueProvider implements SerializationBValueProvider<BString> {
     private static final String B_STRING = BString.class.getSimpleName();

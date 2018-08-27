@@ -27,6 +27,8 @@ import java.util.HashMap;
 
 /**
  * Helper methods to operate on Objects.
+ *
+ * @since 0.98.1
  */
 public class ObjectHelper {
     private static final String BVALUE_PACKAGE_PATH = getBValuePackagePath();

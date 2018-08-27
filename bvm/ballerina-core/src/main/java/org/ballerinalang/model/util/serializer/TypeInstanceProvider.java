@@ -20,6 +20,8 @@ package org.ballerinalang.model.util.serializer;
 /**
  * Implementors of this interface provide plugable mechanisms to create instance of some specified type of objects.
  * These instances are then used to populate that object's fields reflectively.
+ *
+ * @since 0.98.1
  */
 public interface TypeInstanceProvider {
     String getTypeName();

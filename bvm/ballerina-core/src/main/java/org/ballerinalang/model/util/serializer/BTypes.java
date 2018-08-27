@@ -38,6 +38,8 @@ import static org.ballerinalang.model.types.TypeConstants.XML_TNAME;
 
 /**
  * Mapping from {@link BType} string representations to {@link BType} instances.
+ *
+ * @since 0.98.1
  */
 public class BTypes {
 

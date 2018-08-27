@@ -26,6 +26,8 @@ import org.ballerinalang.model.values.BValue;
 
 /**
  * Provide mapping between {@link Class} and {@link BValue} representation of it.
+ *
+ * @since 0.98.1
  */
 public class BBooleanBValueProvider implements SerializationBValueProvider<BBoolean> {
     @Override

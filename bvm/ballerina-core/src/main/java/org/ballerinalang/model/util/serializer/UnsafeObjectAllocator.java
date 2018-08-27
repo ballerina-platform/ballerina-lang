@@ -26,6 +26,8 @@ import java.lang.reflect.Method;
  * Notice that this attempt may fail due to security restrictions or maybe due to
  * {@link sun.misc.UnSafe} module not being available in JAVA9 plus, or due to many
  * other reasons, failing to create the instance will return {@code null}.
+ *
+ * @since 0.98.1
  */
 class UnsafeObjectAllocator {
     private UnsafeObjectAllocator() {}

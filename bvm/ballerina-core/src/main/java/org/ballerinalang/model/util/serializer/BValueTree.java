@@ -48,6 +48,8 @@ import static org.ballerinalang.model.util.serializer.ObjectHelper.getTrimmedCla
  * <p>
  * Object reference sharing is tracked using an {@link IdentityHashMap},
  * repeated occurrences are marked by a link to previous occurrence.
+ *
+ * @since 0.98.1
  */
 public class BValueTree implements BValueSerializer, Closeable {
     private final IdentityHashMap<Object, Object> identityMap = new IdentityHashMap<>();

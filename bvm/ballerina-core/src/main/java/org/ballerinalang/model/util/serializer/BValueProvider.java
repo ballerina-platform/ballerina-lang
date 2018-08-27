@@ -21,6 +21,8 @@ import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Keep track of {@link SerializationBValueProvider}s.
+ *
+ * @since 0.98.1
  */
 public class BValueProvider {
     private static final BValueProvider INSTANCE = new BValueProvider();
