@@ -24,6 +24,7 @@ const _ = require('lodash');
 const { StaticProvider } = require('./content-provider');
 const { render } = require('./renderer');
 const DEBOUNCE_WAIT = 500;
+const { parseContent } = require('./utils');
 
 let previewPanel;
 let activeEditor;
@@ -40,14 +41,7 @@ exports.activate = function(context, langClient) {
 			if (preventDiagramUpdate) {
 				return;
 			}
-			const parseOpts = {
-				content,
-				filename: 'file.bal',
-				includePackageInfo: true,
-				includeProgramDir: true,
-				includeTree: true,
-			}
-			langClient.sendRequest("ballerinaParser/parseContent", parseOpts)
+			parseContent(langClient, content)
 				.then((body) => {
 					let stale = true;
 					let json;
@@ -70,14 +64,7 @@ exports.activate = function(context, langClient) {
             e.document.fileName.endsWith('.bal')) {
 			activeEditor = window.activeTextEditor;
 			const content = activeEditor.document.getText();
-			const parseOpts = {
-				content,
-				filename: 'file.bal',
-				includePackageInfo: true,
-				includeProgramDir: true,
-				includeTree: true,
-			}
-			langClient.sendRequest("ballerinaParser/parseContent", parseOpts)
+			parseContent(langClient, content)
 				.then((body) => {
 					let stale = true;
 					let json;

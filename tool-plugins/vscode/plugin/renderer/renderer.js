@@ -1,5 +1,6 @@
 const request = require('request-promise');
 const log = require('../logger');
+const { parseContent } = require('./utils');
 
 const RETRY_COUNT = 5;
 const RETRY_WAIT = 1000;
@@ -7,14 +8,7 @@ const RETRY_WAIT = 1000;
 let jsonModel;
 
 function render (content, langClient, resourceRoot, retries=1) {
-    const parseOpts = {
-        content,
-        filename: 'file.bal',
-        includePackageInfo: true,
-        includeProgramDir: true,
-        includeTree: true,
-    }
-    return langClient.sendRequest("ballerinaParser/parseContent", parseOpts)
+    return parseContent(langClient, content)
         .then((body) => {
             let stale = true;
             if (body.model) {
