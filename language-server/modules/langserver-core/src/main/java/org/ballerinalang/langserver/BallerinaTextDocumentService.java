@@ -48,6 +48,7 @@ import org.ballerinalang.langserver.signature.SignatureHelpUtil;
 import org.ballerinalang.langserver.signature.SignatureTreeVisitor;
 import org.ballerinalang.langserver.symbols.SymbolFindingVisitor;
 import org.ballerinalang.langserver.util.Debouncer;
+import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.tree.ImportPackageNode;
 import org.ballerinalang.model.tree.TopLevelNode;
 import org.eclipse.lsp4j.CodeActionParams;
@@ -81,6 +82,7 @@ import org.eclipse.lsp4j.TextDocumentPositionParams;
 import org.eclipse.lsp4j.TextEdit;
 import org.eclipse.lsp4j.WorkspaceEdit;
 import org.eclipse.lsp4j.jsonrpc.messages.Either;
+import org.eclipse.lsp4j.services.LanguageClient;
 import org.eclipse.lsp4j.services.TextDocumentService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -291,12 +293,19 @@ class BallerinaTextDocumentService implements TextDocumentService {
                 PositionTreeVisitor positionTreeVisitor = new PositionTreeVisitor(referenceContext);
                 currentBLangPackage.accept(positionTreeVisitor);
 
+                // Add all compiled package IDs
+                List<PackageID> packageIds = new ArrayList<>();
+                for (BLangPackage bLangPackage : bLangPackages) {
+                    packageIds.add(bLangPackage.packageID);
+                }
+                referenceContext.put(NodeContextKeys.REFERENCE_PKG_IDS_KEY, packageIds);
+                referenceContext.put(NodeContextKeys.REFERENCE_RESULTS_KEY, contents);
+
                 // Run reference visitor for all the packages in project folder.
                 for (BLangPackage bLangPackage : bLangPackages) {
                     referenceContext.put(DocumentServiceKeys.CURRENT_PACKAGE_NAME_KEY,
                                          bLangPackage.symbol.getName().getValue());
-                    referenceContext.put(NodeContextKeys.REFERENCE_NODES_KEY, contents);
-                    contents = ReferenceUtil.getReferences(referenceContext, bLangPackage);
+                    ReferenceUtil.findReferences(referenceContext, bLangPackage);
                 }
 
                 return contents;
@@ -361,8 +370,6 @@ class BallerinaTextDocumentService implements TextDocumentService {
         return CompletableFuture.supplyAsync(() -> {
             List<Command> commands = new ArrayList<>();
             String fileUri = params.getTextDocument().getUri();
-            Path codeActionFilePath = new LSDocument(fileUri).getPath();
-            Path compilationPath = getUntitledFilePath(codeActionFilePath.toString()).orElse(codeActionFilePath);
             try {
                 Position start = params.getRange().getStart();
                 String topLevelNodeType = CommonUtil
@@ -372,9 +379,6 @@ class BallerinaTextDocumentService implements TextDocumentService {
                     commands.add(CommandUtil.getAllDocGenerationCommand(fileUri));
                 }
                 if (!params.getContext().getDiagnostics().isEmpty()) {
-                    LSContextManager lsContextManager = LSContextManager.getInstance();
-                    String sourceRoot = LSCompilerUtil.getSourceRoot(compilationPath);
-                    CompilerContext compilerContext = lsContextManager.getCompilerContext(sourceRoot, documentManager);
                     params.getContext().getDiagnostics().forEach(diagnostic -> {
                         if (start.getLine() == diagnostic.getRange().getStart().getLine()) {
                             commands.addAll(CommandUtil.getCommandsByDiagnostic(diagnostic, params, documentManager,
@@ -478,12 +482,19 @@ class BallerinaTextDocumentService implements TextDocumentService {
 
                 renameContext.put(DocumentServiceKeys.CURRENT_PACKAGE_NAME_KEY,
                                   currentBLangPackage.symbol.getName().getValue());
-                renameContext.put(NodeContextKeys.REFERENCE_NODES_KEY, contents);
+                renameContext.put(NodeContextKeys.REFERENCE_RESULTS_KEY, contents);
 
                 // Run the position calculator for the current package.
                 PositionTreeVisitor positionTreeVisitor = new PositionTreeVisitor(renameContext);
                 currentBLangPackage.accept(positionTreeVisitor);
                 String replaceableSymbolName = renameContext.get(NodeContextKeys.NAME_OF_NODE_KEY);
+
+                // Add all compiled package IDs
+                List<PackageID> packageIds = new ArrayList<>();
+                for (BLangPackage bLangPackage : bLangPackages) {
+                    packageIds.add(bLangPackage.packageID);
+                }
+                renameContext.put(NodeContextKeys.REFERENCE_PKG_IDS_KEY, packageIds);
 
                 // Run reference visitor and rename util for project folder.
                 for (BLangPackage bLangPackage : bLangPackages) {
@@ -496,11 +507,10 @@ class BallerinaTextDocumentService implements TextDocumentService {
                                                                                   documentManager);
                     LSPackageCache.getInstance(context).put(bLangPackage.packageID, bLangPackage);
 
-                    contents = ReferenceUtil.getReferences(renameContext, bLangPackage);
+                    ReferenceUtil.findReferences(renameContext, bLangPackage);
                 }
 
-                workspaceEdit.setDocumentChanges(RenameUtil
-                                                         .getRenameTextEdits(contents, documentManager,
+                workspaceEdit.setDocumentChanges(RenameUtil.getRenameTextEdits(contents, documentManager,
                                                                              params.getNewName(),
                                                                              replaceableSymbolName));
                 return workspaceEdit;
@@ -564,6 +574,11 @@ class BallerinaTextDocumentService implements TextDocumentService {
 
     private void publishDiagnostics(List<org.ballerinalang.util.diagnostic.Diagnostic> balDiagnostics, Path path) {
         Map<String, List<Diagnostic>> diagnosticsMap = new HashMap<>();
+        LanguageClient client = this.ballerinaLanguageServer.getClient();
+        
+        if (client == null) {
+            return;
+        }
         balDiagnostics.forEach(diagnostic -> {
             Diagnostic d = new Diagnostic();
             d.setSeverity(DiagnosticSeverity.Error);
@@ -609,14 +624,14 @@ class BallerinaTextDocumentService implements TextDocumentService {
             PublishDiagnosticsParams diagnostics = new PublishDiagnosticsParams();
             diagnostics.setUri(entry.getKey());
             diagnostics.setDiagnostics(empty);
-            this.ballerinaLanguageServer.getClient().publishDiagnostics(diagnostics);
+            client.publishDiagnostics(diagnostics);
         }
 
         for (Map.Entry<String, List<Diagnostic>> entry : diagnosticsMap.entrySet()) {
             PublishDiagnosticsParams diagnostics = new PublishDiagnosticsParams();
             diagnostics.setUri(entry.getKey());
             diagnostics.setDiagnostics(entry.getValue());
-            this.ballerinaLanguageServer.getClient().publishDiagnostics(diagnostics);
+            client.publishDiagnostics(diagnostics);
         }
 
         lastDiagnosticMap = diagnosticsMap;

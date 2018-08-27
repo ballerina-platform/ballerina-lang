@@ -40,9 +40,9 @@ public class UnaryBlockingHeaderTestCase {
 
     @BeforeClass
     private void setup() throws Exception {
+        TestUtils.prepareBalo(this);
         Path balFilePath = Paths.get("src", "test", "resources", "grpc", "clients", "unary_client.bal");
         result = BCompileUtil.compile(balFilePath.toAbsolutePath().toString());
-        TestUtils.prepareBalo(this);
     }
 
     @Test

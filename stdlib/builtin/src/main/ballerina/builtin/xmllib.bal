@@ -130,3 +130,19 @@ documentation {
     P{{qname}} Qualified name of the attribute
 }
 public extern function xml::removeAttribute(string qname);
+
+documentation {
+    Append children to an XML if its an element type XML. Error otherwise. 
+    New children will be appended at the end of the existing children.
+
+    P{{children}} children
+}
+public extern function xml::appendChildren(xml children);
+
+documentation {
+    Remove children matching the given name from an XML. This operation has no effect
+    if the XML is not an element type XML.
+
+    P{{qname}} Namespace qualified name of the children to be removed
+}
+public extern function xml::removeChildren(string qname);

@@ -1,0 +1,22 @@
+{
+    "position": {
+        "line": 3,
+        "character": 9
+    },
+    "newName": "a2",
+    "expected": [
+        {
+            "range": {
+                "start": {
+                    "line": 0,
+                    "character": 0
+                },
+                "end": {
+                    "line": 28,
+                    "character": 0
+                }
+            },
+            "newText": "import ballerina/io;\r\nfunction main(string... args) {\r\n    //simple assignment\r\n    int a2 = 10;\r\n    int b = a2 + 20;\r\n    io:println(a2);\r\n\r\n    //method invocation\r\n    calculate(a2, 100);\r\n\r\n    //if-else\r\n    if (a2 > 10){\r\n        a2 = 100;\r\n    } else {\r\n        a2 = 50;\r\n    }\r\n\r\n    //tuple\r\n    (a2, b) = getValue();\r\n}\r\n\r\nfunction calculate(int num1, int num2) returns int {\r\n    return num1 + num2;\r\n}\r\n\r\nfunction getValue() returns (int, int) {\r\n    return (5, 5);\r\n}"
+        }
+    ]
+}

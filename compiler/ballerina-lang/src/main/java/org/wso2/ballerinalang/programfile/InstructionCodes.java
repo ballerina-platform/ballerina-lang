@@ -150,6 +150,7 @@ public interface InstructionCodes {
     int ERRSTORE = 124;
     int FPCALL = 125;
     int FPLOAD = 126;
+    int VFPLOAD = 127;
 
     int SEQ_NULL = 128;
     int SNE_NULL = 129;
@@ -167,18 +168,12 @@ public interface InstructionCodes {
     int B2I = 142;
     int B2F = 143;
     int B2S = 144;
-    int JSON2I = 146;
-    int JSON2F = 147;
-    int JSON2S = 148;
-    int JSON2B = 149;
     int DT2JSON = 150;
     int DT2XML = 151;
     int T2MAP = 152;
     int T2JSON = 153;
     int MAP2T = 154;
     int JSON2T = 155;
-
-    int S2XML = 156;
     int XML2S = 157;
 
     int BILSHIFT = 158;
@@ -238,7 +233,6 @@ public interface InstructionCodes {
     int SNEWARRAY = 203;
     int BNEWARRAY = 204;
     int RNEWARRAY = 205;
-    int ARRAYLEN = 207;
     int LENGTHOF = 208;
 
     int NEWSTRUCT = 210;
@@ -282,7 +276,6 @@ public interface InstructionCodes {
     int XMLLOADALL = 249;
     int NEWXMLSEQ = 250;
 
-    int TYPEOF = 251;
     int TYPELOAD = 252;
 
     int TEQ = 253;

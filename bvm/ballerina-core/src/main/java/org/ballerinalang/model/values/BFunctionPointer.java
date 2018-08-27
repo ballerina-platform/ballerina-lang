@@ -19,7 +19,7 @@ package org.ballerinalang.model.values;
 
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.util.BLangConstants;
-import org.ballerinalang.util.codegen.cpentries.FunctionRefCPEntry;
+import org.ballerinalang.util.codegen.FunctionInfo;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -31,9 +31,9 @@ import java.util.Map;
  *
  * @since 0.90
  */
-public class BFunctionPointer implements BRefType<FunctionRefCPEntry> {
+public class BFunctionPointer implements BRefType<FunctionInfo> {
 
-    FunctionRefCPEntry funcRefCPEntry;
+    FunctionInfo functionInfo;
     BType type;
 
     //container which keeps the closure variables values
@@ -42,18 +42,18 @@ public class BFunctionPointer implements BRefType<FunctionRefCPEntry> {
     //map which keeps tracks of additional index count needed for closure vars
     private Map<Integer, Integer> additionalIndexes = new HashMap<>();
 
-    public BFunctionPointer(FunctionRefCPEntry funcRefCPEntryIndex) {
-        this.funcRefCPEntry = funcRefCPEntryIndex;
+    public BFunctionPointer(FunctionInfo functionInfo) {
+        this.functionInfo = functionInfo;
     }
 
-    public BFunctionPointer(FunctionRefCPEntry funcRefCPEntryIndex, BType type) {
-        this.funcRefCPEntry = funcRefCPEntryIndex;
+    public BFunctionPointer(FunctionInfo functionInfo, BType type) {
+        this.functionInfo = functionInfo;
         this.type = type;
     }
 
     @Override
-    public FunctionRefCPEntry value() {
-        return funcRefCPEntry;
+    public FunctionInfo value() {
+        return functionInfo;
     }
 
     public List<BClosure> getClosureVars() {
@@ -84,6 +84,6 @@ public class BFunctionPointer implements BRefType<FunctionRefCPEntry> {
 
     @Override
     public BValue copy() {
-        return new BFunctionPointer(funcRefCPEntry);
+        return new BFunctionPointer(functionInfo);
     }
 }

@@ -16,7 +16,7 @@ function testNullableTypeBasics2() returns int? {
 }
 
 function testNullableArrayTypes1() returns any {
-    float?[] fa = [1.0, 5, 3, ()];
+    float?[] fa = [1.0, 5.0, 3.0, ()];
     float? f = fa[0];
     return f;
 }

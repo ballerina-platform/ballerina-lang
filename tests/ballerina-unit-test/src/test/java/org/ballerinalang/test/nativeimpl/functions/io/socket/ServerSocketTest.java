@@ -36,6 +36,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.net.Socket;
+import java.nio.charset.StandardCharsets;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadLocalRandom;
@@ -46,30 +47,64 @@ import java.util.concurrent.ThreadLocalRandom;
 public class ServerSocketTest {
 
     private static final Logger log = LoggerFactory.getLogger(ServerSocketTest.class);
-    private CompileResult serverBal;
+    private CompileResult normalServer;
+    private final String welcomeMsg = "Hello Ballerina\n";
+    private boolean isConnected = false;
 
     @BeforeClass
     public void setup() {
-        serverBal = BCompileUtil.compileAndSetup("test-src/io/server_socket_io.bal");
+        normalServer = BCompileUtil.compileAndSetup("test-src/io/server_socket_io.bal");
     }
 
-    @Test(description = "Check server socket accept functionality.")
-    public void testSeverSocketAccept() {
+    @Test(description = "Check server socket accept functionality.", enabled = false)
+    public void testSeverSocketAccept() throws InterruptedException {
         int port = ThreadLocalRandom.current().nextInt(47000, 51000);
-        String welcomeMsg = "Hello Ballerina\n";
         ExecutorService executor = Executors.newSingleThreadExecutor();
         executor.execute(() -> {
             try {
                 BValue[] args = { new BInteger(port), new BString(welcomeMsg) };
-                BRunUtil.invokeStateful(serverBal, "startServerSocket", args);
+                BRunUtil.invokeStateful(normalServer, "startServerSocket", args);
             } catch (Throwable e) {
                 log.error(e.getMessage(), e);
             }
         });
+        Thread.sleep(2500);
+        connectClient(port, 1000, normalServer);
+        executor.shutdownNow();
+    }
+
+    @Test(description = "Check server socket accept functionality.",
+          dependsOnMethods = "testSeverSocketAccept", enabled = false)
+    public void testSeverSocketDelayiedAccept() {
+        CompileResult delayedStartServer = BCompileUtil
+                .compileAndSetup("test-src/io/server_socket_io_delayed_accept.bal");
+        SelectorManager.start();
+        int port = ThreadLocalRandom.current().nextInt(47000, 51000);
+        ExecutorService executor = Executors.newSingleThreadExecutor();
+        isConnected = false;
+        executor.execute(() -> {
+            try {
+                BRunUtil.invokeStateful(delayedStartServer, "initServer", new BValue[] { new BInteger(port) });
+                for (int i = 0; i < 10; i++) {
+                    if (isConnected) {
+                        break;
+                    } else {
+                        Thread.sleep(1000);
+                    }
+                }
+                BRunUtil.invokeStateful(delayedStartServer, "startServerSocket",
+                        new BValue[] { new BString(welcomeMsg) });
+            } catch (Throwable e) {
+                log.error(e.getMessage(), e);
+            }
+        });
+        connectClient(port, 200, delayedStartServer);
+        executor.shutdownNow();
+    }
+
+    private void connectClient(int port, int retryInterval, CompileResult compileResult) {
         try {
-            Thread.sleep(2500);
             final int numberOfRetryAttempts = 20;
-            final int retryInterval = 1000;
             final String clientMsg = "This is the first type of message.";
             boolean connected = false;
             for (int retryCount = 0; retryCount < numberOfRetryAttempts; retryCount++) {
@@ -77,7 +112,7 @@ public class ServerSocketTest {
                     BufferedReader input = new BufferedReader(new InputStreamReader(s.getInputStream()));
                     String answer = input.readLine();
                     Assert.assertEquals(welcomeMsg.trim(), answer, "Didn't get the expected response from server.");
-                    try (OutputStreamWriter out = new OutputStreamWriter(s.getOutputStream(), "UTF-8")) {
+                    try (OutputStreamWriter out = new OutputStreamWriter(s.getOutputStream(), StandardCharsets.UTF_8)) {
                         out.write(clientMsg, 0, clientMsg.length());
                         out.flush();
                         out.close();
@@ -89,10 +124,11 @@ public class ServerSocketTest {
                     sleep(retryInterval);
                 }
             }
+            isConnected = true;
             Assert.assertTrue(connected, "Unable to connect to remote server.");
             int i = 0;
             do {
-                final BValue[] resultValues = BRunUtil.invokeStateful(serverBal, "getResultValue");
+                final BValue[] resultValues = BRunUtil.invokeStateful(compileResult, "getResultValue");
                 BString result = (BString) resultValues[0];
                 final String str = result.stringValue();
                 if (str == null || str.isEmpty()) {
@@ -104,9 +140,6 @@ public class ServerSocketTest {
             } while (i++ < 10);
         } catch (Exception e) {
             log.error(e.getMessage(), e);
-        } finally {
-            SelectorManager.stop();
-            executor.shutdownNow();
         }
     }
 

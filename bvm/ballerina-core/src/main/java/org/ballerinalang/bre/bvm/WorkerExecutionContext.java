@@ -80,6 +80,10 @@ public class WorkerExecutionContext {
 
     private static final String FALSE = "false";
 
+    public boolean interruptible;
+
+    public boolean markAsCheckPointed;
+
     public WorkerExecutionContext(ProgramFile programFile) {
         this.programFile = programFile;
         this.globalProps = new HashMap<>();
@@ -105,6 +109,7 @@ public class WorkerExecutionContext {
         this.workerLocal = workerLocal;
         this.workerResult = workerResult;
         this.retRegIndexes = retRegIndexes;
+        this.interruptible = parent.interruptible;
         this.globalProps = parent.globalProps;
         this.ip = this.workerInfo.getCodeAttributeInfo().getCodeAddrs();
         this.runInCaller = runInCaller;
@@ -123,6 +128,7 @@ public class WorkerExecutionContext {
         this.code = callableUnitInfo.getPackageInfo().getInstructions();
         this.workerLocal = workerLocal;
         this.globalProps = parent.globalProps;
+        this.interruptible = parent.interruptible;
         this.ip = this.workerInfo.getCodeAttributeInfo().getCodeAddrs();
         this.runInCaller = runInCaller;
         initDebugger();

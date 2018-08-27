@@ -129,7 +129,7 @@ public class BStream implements BRefType<Object> {
      *                        messages
      */
     public void subscribe(BFunctionPointer functionPointer) {
-        BType[] parameters = functionPointer.funcRefCPEntry.getFunctionInfo().getParamTypes();
+        BType[] parameters = functionPointer.value().getParamTypes();
         int lastArrayIndex = parameters.length - 1;
         if (!CPU.isAssignable(constraintType, parameters[lastArrayIndex])) {
             throw new BallerinaException("incompatible function: subscription function needs to be a function"
@@ -169,7 +169,7 @@ public class BStream implements BRefType<Object> {
                 List<BValue> argsList = new ArrayList<>();
                 argsList.addAll(closureArgs);
                 argsList.add(data);
-                BLangFunctions.invokeCallable(functionPointer.value().getFunctionInfo(),
+                BLangFunctions.invokeCallable(functionPointer.value(),
                                               argsList.toArray(new BValue[argsList.size()]));
             } catch (Exception e) {
                 throw new BallerinaException("Error delivering event to subscriber: ", e);
