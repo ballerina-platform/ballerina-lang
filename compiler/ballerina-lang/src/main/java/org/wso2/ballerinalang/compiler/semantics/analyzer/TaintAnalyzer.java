@@ -193,7 +193,6 @@ public class TaintAnalyzer extends BLangNodeVisitor {
 
     private SymbolEnv env;
     private SymbolEnv currPkgEnv;
-    private PackageID mainPkgId;
     private Names names;
     private SymbolTable symTable;
     private BLangDiagnosticLog dlog;
@@ -228,7 +227,6 @@ public class TaintAnalyzer extends BLangNodeVisitor {
     private static final String ANNOTATION_SENSITIVE = "sensitive";
 
     private static final int ALL_UNTAINTED_TABLE_ENTRY_INDEX = -1;
-    private static final int RETURN_TAINTED_STATUS_COLUMN_INDEX = 0;
 
     private enum AnalyzerPhase {
         INITIAL_ANALYSIS,
@@ -255,11 +253,9 @@ public class TaintAnalyzer extends BLangNodeVisitor {
     }
 
     public BLangPackage analyze(BLangPackage pkgNode) {
-        blockedNode = null;
-        taintErrorSet = new LinkedHashSet<>();
+        resetTempState();
         blockedNodeList = new ArrayList<>();
         blockedEntryPointNodeList = new ArrayList<>();
-        this.mainPkgId = pkgNode.packageID;
         pkgNode.accept(this);
         return pkgNode;
     }
@@ -277,9 +273,10 @@ public class TaintAnalyzer extends BLangNodeVisitor {
 
         pkgNode.topLevelNodes.forEach(e -> {
             ((BLangNode) e).accept(this);
-            this.blockedNode = null;
+            resetTempState();
         });
 
+        resetTempState();
         analyzerPhase = AnalyzerPhase.BLOCKED_NODE_ANALYSIS;
         resolveBlockedInvokable(blockedNodeList);
         resolveBlockedInvokable(blockedEntryPointNodeList);
@@ -1413,6 +1410,14 @@ public class TaintAnalyzer extends BLangNodeVisitor {
         this.env = prevEnv;
     }
 
+    private void resetTempState() {
+        this.stopAnalysis = false;
+        this.overridingAnalysis = true;
+        this.blockedNode = null;
+        this.ignoredInvokableSymbol = null;
+        this.taintErrorSet = new LinkedHashSet<>();
+    }
+
     /**
      * If any one of the given expressions are tainted, the final result will be tainted.
      *
@@ -1833,6 +1838,7 @@ public class TaintAnalyzer extends BLangNodeVisitor {
             }
         }
     }
+
     // Private methods relevant to invocation analysis.
 
     private void analyzeInvocation(BLangInvocation invocationExpr) {
