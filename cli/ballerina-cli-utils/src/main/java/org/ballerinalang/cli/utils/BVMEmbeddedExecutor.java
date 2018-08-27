@@ -25,8 +25,8 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 
-import static org.ballerinalang.BLangProgramRunner.COLON;
-import static org.ballerinalang.BLangProgramRunner.MAIN;
+import static org.ballerinalang.util.BLangConstants.COLON;
+import static org.ballerinalang.util.BLangConstants.MAIN_FUNCTION_NAME;
 
 /**
  * This represents the Ballerina package provider.
@@ -38,7 +38,7 @@ public class BVMEmbeddedExecutor implements EmbeddedExecutor {
     @Override
     public void execute(String programArg, boolean isFunction, String... args) {
         String balxPath = programArg;
-        String functionName = MAIN;
+        String functionName = MAIN_FUNCTION_NAME;
 
         if (isFunction && programArg.contains(COLON)) {
             String[] programArgConstituents = programArg.split(COLON);

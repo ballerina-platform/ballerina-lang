@@ -53,11 +53,11 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static org.ballerinalang.BLangProgramRunner.MAIN;
 import static org.ballerinalang.compiler.CompilerOptionName.COMPILER_PHASE;
 import static org.ballerinalang.compiler.CompilerOptionName.PRESERVE_WHITESPACE;
 import static org.ballerinalang.compiler.CompilerOptionName.PROJECT_DIR;
 import static org.ballerinalang.compiler.CompilerOptionName.TEST_ENABLED;
+import static org.ballerinalang.util.BLangConstants.MAIN_FUNCTION_NAME;
 
 /**
  * Utility methods for compile Ballerina files.
@@ -317,11 +317,12 @@ public class BCompileUtil {
         ProgramFile programFile = result.getProgFile();
 
         // If there is no main or service entry point, throw an error
-        if (MAIN.equals(functionName) && !programFile.isMainEPAvailable() && !programFile.isServiceEPAvailable()) {
+        if (MAIN_FUNCTION_NAME.equals(functionName) && !programFile.isMainEPAvailable()
+                && !programFile.isServiceEPAvailable()) {
             throw new RuntimeException("main function not found in '" + programFile.getProgramFilePath() + "'");
         }
 
-        if (programFile.isMainEPAvailable() || !MAIN.equals(functionName)) {
+        if (programFile.isMainEPAvailable() || !MAIN_FUNCTION_NAME.equals(functionName)) {
             LauncherUtils.runMain(programFile, functionName, new String[0], false);
         } else {
             LauncherUtils.runServices(programFile);

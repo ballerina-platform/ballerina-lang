@@ -26,6 +26,7 @@ import org.ballerinalang.util.debugger.Debugger;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.ballerinalang.util.program.BLangFunctions;
 
+import static org.ballerinalang.util.BLangConstants.MAIN_FUNCTION_NAME;
 import static org.ballerinalang.util.cli.ArgumentParser.extractEntryFuncArgs;
 /**
  * This class contains utilities to execute Ballerina main and service programs.
@@ -33,9 +34,6 @@ import static org.ballerinalang.util.cli.ArgumentParser.extractEntryFuncArgs;
  * @since 0.8.0
  */
 public class BLangProgramRunner {
-
-    public static final String MAIN = "main";
-    public static final String COLON = ":";
 
     public static void runService(ProgramFile programFile) {
         if (!programFile.isServiceEPAvailable()) {
@@ -61,7 +59,7 @@ public class BLangProgramRunner {
 
     public static BValue[] runEntryFunc(ProgramFile programFile, String functionName, String[] args) {
         BValue[] entryFuncResult;
-        if (MAIN.equals(functionName) && !programFile.isMainEPAvailable()) {
+        if (MAIN_FUNCTION_NAME.equals(functionName) && !programFile.isMainEPAvailable()) {
             throw new BallerinaException("main function not found in  '" + programFile.getProgramFilePath() + "'");
         }
         PackageInfo entryPkgInfo = programFile.getEntryPackage();

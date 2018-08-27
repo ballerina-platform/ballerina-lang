@@ -30,8 +30,8 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static org.ballerinalang.BLangProgramRunner.COLON;
-import static org.ballerinalang.BLangProgramRunner.MAIN;
+import static org.ballerinalang.util.BLangConstants.COLON;
+import static org.ballerinalang.util.BLangConstants.MAIN_FUNCTION_NAME;
 
 /**
  * Test debug util class to test debug scenarios.
@@ -108,7 +108,7 @@ public class VMDebuggerUtil {
 
     private static TestDebugger setupProgram(String programArg, BreakPointDTO[] breakPoints) {
         String srcPath = programArg;
-        String functionName = MAIN;
+        String functionName = MAIN_FUNCTION_NAME;
 
         if (programArg.contains(COLON)) {
             String[] programArgConstituents = programArg.split(COLON);

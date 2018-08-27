@@ -40,9 +40,9 @@ import java.util.Optional;
 import java.util.Properties;
 import java.util.ServiceLoader;
 
-import static org.ballerinalang.BLangProgramRunner.COLON;
-import static org.ballerinalang.BLangProgramRunner.MAIN;
 import static org.ballerinalang.runtime.Constants.SYSTEM_PROP_BAL_DEBUG;
+import static org.ballerinalang.util.BLangConstants.COLON;
+import static org.ballerinalang.util.BLangConstants.MAIN_FUNCTION_NAME;
 
 /**
  * This class executes a Ballerina program.
@@ -246,7 +246,7 @@ public class Main {
             VMOptions.getInstance().addOptions(vmOptions);
 
             String programArg = argList.get(0);
-            String functionName = MAIN;
+            String functionName = MAIN_FUNCTION_NAME;
             Path sourcePath;
             if (programArg.contains(COLON)) {
                 String[] programArgConstituents = programArg.split(COLON);

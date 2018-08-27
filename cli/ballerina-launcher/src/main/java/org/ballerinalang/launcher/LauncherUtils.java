@@ -61,7 +61,6 @@ import java.util.ServiceLoader;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.LogManager;
 
-import static org.ballerinalang.BLangProgramRunner.MAIN;
 import static org.ballerinalang.compiler.CompilerOptionName.COMPILER_PHASE;
 import static org.ballerinalang.compiler.CompilerOptionName.OFFLINE;
 import static org.ballerinalang.compiler.CompilerOptionName.PRESERVE_WHITESPACE;
@@ -114,12 +113,13 @@ public class LauncherUtils {
 
         // If a function named main is expected to be the entry point but such a function does not exist and there is
         // no service entry point either, throw an error
-        if ((MAIN.equals(functionName) && !programFile.isMainEPAvailable()) && !programFile.isServiceEPAvailable()) {
+        if ((MAIN_FUNCTION_NAME.equals(functionName) && !programFile.isMainEPAvailable())
+                && !programFile.isServiceEPAvailable()) {
             throw LauncherUtils.createLauncherException(
                     "error: '" + programFile.getProgramFilePath() + "' does not contain a main function or a service");
         }
 
-        boolean runServicesOnly = MAIN.equals(functionName) && !programFile.isMainEPAvailable();
+        boolean runServicesOnly = MAIN_FUNCTION_NAME.equals(functionName) && !programFile.isMainEPAvailable();
 
         // Load launcher listeners
         ServiceLoader<LaunchListener> listeners = ServiceLoader.load(LaunchListener.class);

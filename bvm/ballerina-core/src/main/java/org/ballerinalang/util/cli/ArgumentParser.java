@@ -73,7 +73,7 @@ import static org.ballerinalang.util.codegen.attributes.AttributeInfo.Kind.TAINT
 public class ArgumentParser {
 
     private static final String DEFAULT_PARAM_PREFIX = "-";
-    private static final String DEFAULT_PARAM_DELIMETER = "=";
+    private static final String DEFAULT_PARAM_DELIMITER = "=";
     private static final String INVALID_ARG = "invalid argument: ";
     private static final String INVALID_ARG_AS_REST_ARG = "invalid argument as rest argument: ";
     private static final String JSON_PARSER_ERROR = "at line: ";
@@ -104,30 +104,32 @@ public class ArgumentParser {
         ParamDefaultValueAttributeInfo paramDefaultValueAttributeInfo =
                 (ParamDefaultValueAttributeInfo) entryFuncInfo.getAttributeInfo(PARAMETER_DEFAULTS_ATTRIBUTE);
 
+        String[] requiredAndRestArgs = args;
         if (defaultableParamsCount > 0) {
-            args = populateNamedArgs(args, bValueArgs, localVariableAttributeInfo, paramDefaultValueAttributeInfo,
-                                     requiredParamsCount, defaultableParamsCount);
+            requiredAndRestArgs = populateNamedArgs(args, bValueArgs, localVariableAttributeInfo,
+                                                    paramDefaultValueAttributeInfo, requiredParamsCount,
+                                                    defaultableParamsCount);
         }
 
-        if (args.length < requiredParamsCount) {
+        if (requiredAndRestArgs.length < requiredParamsCount) {
             throw new BLangUsageException("insufficient arguments to call entry function '" + entryFuncInfo.getName()
                                                   + "'");
         }
 
-        if (args.length > requiredParamsCount && restParamCount == 0) {
+        if (requiredAndRestArgs.length > requiredParamsCount && restParamCount == 0) {
             throw new BLangUsageException("too many arguments to call entry function '" + entryFuncInfo.getName()
                                                   + "'");
         }
 
         for (int index = 0; index < paramTypes.length - defaultableParamsCount - restParamCount; index++) {
-            bValueArgs[index] = getBValue(paramTypes[index], args[index]);
+            bValueArgs[index] = getBValue(paramTypes[index], requiredAndRestArgs[index]);
         }
 
         if (restParamCount == 1) {
             bValueArgs[paramTypes.length - 1] = getRestArgArray(paramTypes[paramTypes.length - 1],
-                                                                paramTypes.length - 1 - defaultableParamsCount, args);
+                                                                paramTypes.length - 1 - defaultableParamsCount,
+                                                                requiredAndRestArgs);
         }
-
         return bValueArgs;
     }
 
@@ -163,15 +165,15 @@ public class ArgumentParser {
     }
 
     private static boolean isDefaultParamCandidate(String arg) {
-        return arg.startsWith(DEFAULT_PARAM_PREFIX) && arg.contains(DEFAULT_PARAM_DELIMETER);
+        return arg.startsWith(DEFAULT_PARAM_PREFIX) && arg.contains(DEFAULT_PARAM_DELIMITER);
     }
 
     private static String getParamName(String arg) {
-        return arg.split(DEFAULT_PARAM_DELIMETER, 2)[0].substring(1).trim();
+        return arg.split(DEFAULT_PARAM_DELIMITER, 2)[0].substring(1).trim();
     }
 
     private static String getValueString(String arg) {
-        return arg.split(DEFAULT_PARAM_DELIMETER, 2)[1];
+        return arg.split(DEFAULT_PARAM_DELIMITER, 2)[1];
     }
 
     private static BValue getDefaultValue(BType type, DefaultValue value) {

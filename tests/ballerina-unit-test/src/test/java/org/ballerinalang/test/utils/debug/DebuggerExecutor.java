@@ -32,7 +32,7 @@ import org.slf4j.LoggerFactory;
 
 import java.util.List;
 
-import static org.ballerinalang.BLangProgramRunner.MAIN;
+import static org.ballerinalang.util.BLangConstants.MAIN_FUNCTION_NAME;
 
 /**
  * {@link DebuggerExecutor} represents executor class which runs the main program when debugging.
@@ -62,7 +62,7 @@ public class DebuggerExecutor implements Runnable {
     private void init() {
         ProgramFile programFile = result.getProgFile();
 
-        if ((MAIN.equals(functionName) && !programFile.isMainEPAvailable())) {
+        if ((MAIN_FUNCTION_NAME.equals(functionName) && !programFile.isMainEPAvailable())) {
             throw new BallerinaException("main function not found in  '" + programFile.getProgramFilePath() + "'");
         }
 
