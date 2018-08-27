@@ -310,8 +310,9 @@ public class Util {
             SSLConfig sslConfig) throws SSLException {
         log.debug("adding ssl handler");
         ChannelPipeline pipeline = socketChannel.pipeline();
+        SSLHandlerFactory sslHandlerFactory = new SSLHandlerFactory(sslConfig);
         if (sslConfig.isOcspStaplingEnabled()) {
-            SSLHandlerFactory sslHandlerFactory = new SSLHandlerFactory(sslConfig);
+            sslHandlerFactory.createSSLContextFromKeystores();
             ReferenceCountedOpenSslContext referenceCountedOpenSslContext = sslHandlerFactory
                     .buildClientReferenceCountedOpenSslContext();
 
@@ -324,9 +325,10 @@ public class Util {
         } else {
             SSLEngine sslEngine;
             if (sslConfig.getTrustStore() != null) {
-                sslEngine = instantiateAndConfigSSL(sslConfig, host, port, sslConfig.isHostNameVerificationEnabled());
+                sslHandlerFactory.createSSLContextFromKeystores();
+                sslEngine = instantiateAndConfigSSL(sslConfig, host, port, sslConfig.isHostNameVerificationEnabled(),
+                        sslHandlerFactory);
             } else {
-                SSLHandlerFactory sslHandlerFactory = new SSLHandlerFactory(sslConfig);
                 SslContext sslContext = sslHandlerFactory.createHttpTLSContextForClient();
                 SslHandler sslHandler = sslContext.newHandler(socketChannel.alloc(), host, port);
                 sslEngine = sslHandler.engine();
@@ -354,11 +356,10 @@ public class Util {
      * @return ssl engine
      */
     public static SSLEngine instantiateAndConfigSSL(SSLConfig sslConfig, String host, int port,
-            boolean hostNameVerificationEnabled) {
+            boolean hostNameVerificationEnabled, SSLHandlerFactory sslHandlerFactory) {
         // set the pipeline factory, which creates the pipeline for each newly created channels
         SSLEngine sslEngine = null;
         if (sslConfig != null) {
-            SSLHandlerFactory sslHandlerFactory = new SSLHandlerFactory(sslConfig);
             sslEngine = sslHandlerFactory.buildClientSSLEngine(host, port);
             sslEngine.setUseClientMode(true);
             sslHandlerFactory.setSNIServerNames(sslEngine, host);

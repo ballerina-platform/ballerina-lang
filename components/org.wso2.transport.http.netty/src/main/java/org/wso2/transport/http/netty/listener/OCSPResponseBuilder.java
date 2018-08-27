@@ -25,6 +25,8 @@ import org.bouncycastle.cert.ocsp.OCSPException;
 import org.bouncycastle.cert.ocsp.OCSPReq;
 import org.bouncycastle.cert.ocsp.OCSPResp;
 import org.bouncycastle.cert.ocsp.SingleResp;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.wso2.transport.http.netty.common.certificatevalidation.CertificateVerificationException;
 import org.wso2.transport.http.netty.common.certificatevalidation.Constants;
 import org.wso2.transport.http.netty.common.certificatevalidation.ocsp.OCSPCache;
@@ -44,9 +46,7 @@ import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
 import java.util.ArrayList;
 import java.util.Enumeration;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 /**
  * A class for generating OCSP response.
@@ -56,9 +56,10 @@ public class OCSPResponseBuilder {
     }
 
     private static OCSPResp response = null;
-    static final Set<X509Certificate> rootCerts = new HashSet<X509Certificate>();
+    private static final Logger log = LoggerFactory.getLogger(OCSPResponseBuilder.class);
 
-    public static OCSPResp generatetOcspResponse(SSLConfig sslConfig, int cacheAllcatedSize, int cacheDelay)
+
+    static OCSPResp generatetOcspResponse(SSLConfig sslConfig, int cacheAllcatedSize, int cacheDelay)
             throws IOException, KeyStoreException, CertificateVerificationException, CertificateException {
 
         Certificate[] certificateChain;
@@ -82,59 +83,60 @@ public class OCSPResponseBuilder {
         ocspCache.init(cacheSize, cacheDelayMins);
 
         if (sslConfig.getKeyStore() != null) {
-        KeyStore keyStore = getKeyStore(sslConfig.getKeyStore(), sslConfig.getKeyStorePass(),
-                sslConfig.getTLSStoreType());
+            KeyStore keyStore = getKeyStore(sslConfig.getKeyStore(), sslConfig.getKeyStorePass(),
+                    sslConfig.getTLSStoreType());
 
-        if (keyStore != null) {
-            //Get the own certificate and the issuer certificate.
-            Enumeration<String> aliases = keyStore.aliases();
-            String alias = "";
-            boolean isAliasWithPrivateKey = false;
-            while (aliases.hasMoreElements()) {
-                alias = aliases.nextElement();
-                isAliasWithPrivateKey = keyStore.isKeyEntry(alias);
+            if (keyStore != null) {
+                //Get the own certificate and the issuer certificate.
+                Enumeration<String> aliases = keyStore.aliases();
+                String alias = "";
+                boolean isAliasWithPrivateKey = false;
+                while (aliases.hasMoreElements()) {
+                    alias = aliases.nextElement();
+                    isAliasWithPrivateKey = keyStore.isKeyEntry(alias);
+                    if (isAliasWithPrivateKey) {
+                        break;
+                    }
+                }
                 if (isAliasWithPrivateKey) {
-                    break;
+                    // Load certificate chain
+                    certificateChain = keyStore.getCertificateChain(alias);
+                    //user certificate is there in the 0 th position of a certificate chain.
+                    userCertificate = (X509Certificate) certificateChain[0];
+                    //issuer certificate is in the last position of a certificate chain.
+                    issuer = (X509Certificate) certificateChain[certificateChain.length - 1];
                 }
             }
-            if (isAliasWithPrivateKey) {
-                // Load certificate chain
-                certificateChain = keyStore.getCertificateChain(alias);
-                //user certificate is there in the 0 th position of a certificate chain.
-                userCertificate = (X509Certificate) certificateChain[0];
-                //issuer certificate is in the last position of a certificate chain.
-                issuer = (X509Certificate) certificateChain[certificateChain.length - 1];
-            }
-        }
         } else {
             CertificateFactory certificateFactory = CertificateFactory.getInstance("X509");
-            FileInputStream in=new FileInputStream(sslConfig.getServerCertificates());
-            int i = 0;
-            while (in.available() > 0) {
-                Certificate cert=certificateFactory.generateCertificate(in);
-                addRootCertificate((X509Certificate)cert);
-                certList.add((X509Certificate) cert);
-                i++;
-            }
-            //X509Certificate[] certificate = (X509Certificate)certificateFactory.generateCertificate(in);
-        }
-            List<String> locations;
-            if (userCertificate != null) {
-                //Check whether the ocsp response is still there in the cache.
-                // If it is there, we don't need to get it from CA.
-                if (ocspCache.getOCSPCacheValue(userCertificate.getSerialNumber()) != null) {
-                    return ocspCache.getOCSPCacheValue(userCertificate.getSerialNumber());
-                } else {
-                    OCSPReq request;
-                    try {
-                        request = OCSPVerifier.generateOCSPRequest(issuer, userCertificate.getSerialNumber());
-                    } catch (CertificateVerificationException e) {
-                        throw new CertificateVerificationException("Failed to generate OCSP request", e);
-                    }
-                    locations = getAIALocations(userCertificate);
-                    return getOCSPResponse(locations, request, userCertificate, ocspCache);
+            try (FileInputStream certInpuStream = new FileInputStream(sslConfig.getServerCertificates())) {
+                int i = 0;
+                while (certInpuStream.available() > 1) {
+                    Certificate cert = certificateFactory.generateCertificate(certInpuStream);
+                    certList.add((X509Certificate) cert);
+                    i++;
                 }
+                userCertificate = certList.get(0);
+                issuer = certList.get(1);
             }
+        }
+        List<String> locations;
+        if (userCertificate != null) {
+            //Check whether the ocsp response is still there in the cache.
+            // If it is there, we don't need to get it from CA.
+            if (ocspCache.getOCSPCacheValue(userCertificate.getSerialNumber()) != null) {
+                return ocspCache.getOCSPCacheValue(userCertificate.getSerialNumber());
+            } else {
+                OCSPReq request;
+                try {
+                    request = OCSPVerifier.generateOCSPRequest(issuer, userCertificate.getSerialNumber());
+                } catch (CertificateVerificationException e) {
+                    throw new CertificateVerificationException("Failed to generate OCSP request", e);
+                }
+                locations = getAIALocations(userCertificate);
+                return getOCSPResponse(locations, request, userCertificate, ocspCache);
+            }
+        }
         throw new CertificateVerificationException("Could not get revocation status from OCSP.");
     }
 
@@ -159,10 +161,6 @@ public class OCSPResponseBuilder {
             }
         }
         return keyStore;
-    }
-
-    public static void addRootCertificate(X509Certificate cert) {
-        rootCerts.add(cert);
     }
 
     /**
@@ -207,7 +205,8 @@ public class OCSPResponseBuilder {
                 }
                 basicResponse = (BasicOCSPResp) response.getResponseObject();
                 responses = (basicResponse == null) ? null : basicResponse.getResponses();
-            } catch (OCSPException e) {
+            } catch (OCSPException | CertificateVerificationException e) {
+                log.debug("OCSP response failed for url{}. Hence trying the next url", serviceUrl);
                 continue;
             }
             if (responses != null && responses.length == 1) {
@@ -227,8 +226,7 @@ public class OCSPResponseBuilder {
                 return response;
             }
         }
-        throw new CertificateVerificationException(
-                "Could not get revocation status from OCSP. Response Status :" + response.getStatus());
+        throw new CertificateVerificationException("Could not get revocation status from OCSP.");
     }
 }
 

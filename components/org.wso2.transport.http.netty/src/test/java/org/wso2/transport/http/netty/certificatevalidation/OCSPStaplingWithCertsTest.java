@@ -1,4 +1,22 @@
-package org.wso2.transport.http.netty.hostnameverfication;
+/*
+ * Copyright (c) 2018, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ * WSO2 Inc. licenses this file to you under the Apache License,
+ * Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
+
+package org.wso2.transport.http.netty.certificatevalidation;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -15,14 +33,12 @@ import org.wso2.transport.http.netty.contract.ServerConnector;
 import org.wso2.transport.http.netty.contract.ServerConnectorException;
 import org.wso2.transport.http.netty.contract.ServerConnectorFuture;
 import org.wso2.transport.http.netty.contractimpl.DefaultHttpWsConnectorFactory;
-import org.wso2.transport.http.netty.https.MutualSSLTestCase;
 import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 import org.wso2.transport.http.netty.message.HttpMessageDataStreamer;
 import org.wso2.transport.http.netty.util.DefaultHttpConnectorListener;
 import org.wso2.transport.http.netty.util.TestUtil;
 
 import java.io.BufferedReader;
-import java.io.File;
 import java.io.InputStreamReader;
 import java.util.HashMap;
 import java.util.concurrent.CountDownLatch;
@@ -34,18 +50,16 @@ import static org.testng.AssertJUnit.assertNotNull;
 import static org.wso2.transport.http.netty.common.Constants.HTTPS_SCHEME;
 
 /**
- * Created by bhashinee on 8/15/18.
+ * This test is to test OCSP stapling with certificate chains and keys.
  */
-public class HostNameVerificationWithCerts {
-    private static Logger logger = LoggerFactory.getLogger(MutualSSLTestCase.class);
+public class OCSPStaplingWithCertsTest {
 
+    private static Logger logger = LoggerFactory.getLogger(OCSPStaplingWithCertsTest.class);
     private static HttpClientConnector httpClientConnector;
     private HttpWsConnectorFactory factory;
     private ServerConnector connector;
-    File certFile = new File("/home/bhashinee/TiggerStack/comodoCerts/nginx.crt");
-    File keyFile = new File("/home/bhashinee/TiggerStack/comodoCerts/nginx.key");
-    //                File certFile = new File("/home/bhashinee/TiggerStack/comodoCerts/NewCerts/certificate.crt");
-    //                File keyFile = new File("/home/bhashinee/TiggerStack/comodoCerts/NewCerts/privateKey.key");
+    private String keyFile = "/simple-test-config/certsAndKeys/comodoPrivate.key";
+    private String certChain = "/simple-test-config/certsAndKeys/pfxCertChain.cer";
 
     @BeforeClass
     public void setup() throws InterruptedException {
@@ -65,31 +79,24 @@ public class HostNameVerificationWithCerts {
     private ListenerConfiguration getListenerConfiguration() {
         ListenerConfiguration listenerConfiguration = ListenerConfiguration.getDefault();
         listenerConfiguration.setPort(TestUtil.SERVER_PORT3);
-        listenerConfiguration.setServerKeyFile("/home/bhashinee/TiggerStack/comodoCerts/new_key.key.pcks8");
-        listenerConfiguration.setServerCertificates("/home/bhashinee/TiggerStack/comodoCerts/public.crt");
-        //        listenerConfiguration.setKeyStoreFile(TestUtil.getAbsolutePath(TestUtil.KEY_STORE_FILE_PATH));
-        //        listenerConfiguration.setKeyStorePass(TestUtil.KEY_STORE_PASSWORD);
+        listenerConfiguration.setServerKeyFile(TestUtil.getAbsolutePath(keyFile));
+        listenerConfiguration.setServerCertificates(TestUtil.getAbsolutePath(certChain));
         listenerConfiguration.setScheme(HTTPS_SCHEME);
-//        listenerConfiguration.setOcspStaplingEnabled(true);
+        listenerConfiguration.setOcspStaplingEnabled(true);
         return listenerConfiguration;
     }
 
     private SenderConfiguration getSenderConfigs() {
         SenderConfiguration senderConfiguration = new SenderConfiguration();
-        //        senderConfiguration.setKeyStoreFile(TestUtil.getAbsolutePath(TestUtil.KEY_STORE_FILE_PATH));
-        //        senderConfiguration.setTrustStoreFile(TestUtil.getAbsolutePath(TestUtil.TRUST_STORE_FILE_PATH));
-        //        senderConfiguration.setKeyStorePass(TestUtil.KEY_STORE_PASSWORD);
-        //        senderConfiguration.setTrustStorePass(TestUtil.KEY_STORE_PASSWORD);
-        senderConfiguration
-                .setClientTrustCertificates("/home/bhashinee/TiggerStack/comodoCerts/public.crt");
+        senderConfiguration.setClientTrustCertificates(TestUtil.getAbsolutePath(certChain));
         senderConfiguration.setScheme(HTTPS_SCHEME);
         senderConfiguration.setHostNameVerificationEnabled(false);
-//        senderConfiguration.setOcspStaplingEnabled(true);
+        senderConfiguration.setOcspStaplingEnabled(true);
         return senderConfiguration;
     }
 
     @Test
-    public void testHttpsPost() {
+    public void ocspStaplingWithCertsTest() {
         try {
             String testValue = "Test";
             HttpCarbonMessage msg = TestUtil.createHttpsPostReq(TestUtil.SERVER_PORT3, testValue, "");

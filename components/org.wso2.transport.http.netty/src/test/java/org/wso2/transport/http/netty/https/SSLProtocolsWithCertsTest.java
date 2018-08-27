@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2018, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  * WSO2 Inc. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
@@ -15,6 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+
 
 package org.wso2.transport.http.netty.https;
 
@@ -53,10 +54,9 @@ import static org.testng.AssertJUnit.assertNotNull;
 import static org.wso2.transport.http.netty.common.Constants.HTTPS_SCHEME;
 
 /**
- * Tests for SSL protocols.
+ * Tests for SSL protocols with certs and Keys.
  */
-public class SSLProtocolsTest {
-
+public class SSLProtocolsWithCertsTest {
     private static Logger logger = LoggerFactory.getLogger(SSLProtocolsTest.class);
 
     private static HttpClientConnector httpClientConnector;
@@ -113,10 +113,9 @@ public class SSLProtocolsTest {
         listenerConfiguration.setPort(serverPort);
         String verifyClient = "require";
         listenerConfiguration.setVerifyClient(verifyClient);
-        listenerConfiguration.setTrustStoreFile(TestUtil.getAbsolutePath(TestUtil.TRUST_STORE_FILE_PATH));
-        listenerConfiguration.setKeyStoreFile(TestUtil.getAbsolutePath(TestUtil.KEY_STORE_FILE_PATH));
-        listenerConfiguration.setTrustStorePass(TestUtil.KEY_STORE_PASSWORD);
-        listenerConfiguration.setKeyStorePass(TestUtil.KEY_STORE_PASSWORD);
+        listenerConfiguration.setServerKeyFile(TestUtil.getAbsolutePath(TestUtil.KEY_FILE));
+        listenerConfiguration.setServerCertificates(TestUtil.getAbsolutePath(TestUtil.CERT_FILE));
+        listenerConfiguration.setServerTrustCertificates(TestUtil.getAbsolutePath(TestUtil.TRUST_CERT_CHAIN));
         listenerConfiguration.setScheme(HTTPS_SCHEME);
         listenerConfiguration.setParameters(severParams);
         return listenerConfiguration;
@@ -124,12 +123,12 @@ public class SSLProtocolsTest {
 
     private SenderConfiguration getSenderConfigs() {
         SenderConfiguration senderConfiguration = new SenderConfiguration();
-        senderConfiguration.setKeyStoreFile(TestUtil.getAbsolutePath(TestUtil.KEY_STORE_FILE_PATH));
-        senderConfiguration.setTrustStoreFile(TestUtil.getAbsolutePath(TestUtil.TRUST_STORE_FILE_PATH));
-        senderConfiguration.setTrustStorePass(TestUtil.KEY_STORE_PASSWORD);
-        senderConfiguration.setKeyStorePass(TestUtil.KEY_STORE_PASSWORD);
+        senderConfiguration.setClientKeyFile(TestUtil.getAbsolutePath(TestUtil.KEY_FILE));
+        senderConfiguration.setClientCertificates(TestUtil.getAbsolutePath(TestUtil.CERT_FILE));
+        senderConfiguration.setClientTrustCertificates(TestUtil.getAbsolutePath(TestUtil.TRUST_CERT_CHAIN));
         senderConfiguration.setParameters(clientParams);
         senderConfiguration.setScheme(HTTPS_SCHEME);
+        senderConfiguration.setHostNameVerificationEnabled(false);
         return senderConfiguration;
     }
 
@@ -181,3 +180,4 @@ public class SSLProtocolsTest {
         }
     }
 }
+

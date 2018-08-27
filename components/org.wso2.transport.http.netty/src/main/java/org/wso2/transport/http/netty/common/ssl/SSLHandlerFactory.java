@@ -59,7 +59,7 @@ import javax.net.ssl.TrustManagerFactory;
  */
 public class SSLHandlerFactory {
 
-    private final SSLContext sslContext;
+    private SSLContext sslContext = null;
     private SSLConfig sslConfig;
     private boolean needClientAuth;
     private KeyManagerFactory kmf;
@@ -68,6 +68,10 @@ public class SSLHandlerFactory {
     public SSLHandlerFactory(SSLConfig sslConfig) {
         this.sslConfig = sslConfig;
         needClientAuth = sslConfig.isNeedClientAuth();
+        //createSSLContextFromKeystores();
+    }
+
+    public SSLContext createSSLContextFromKeystores() {
         String protocol = sslConfig.getSSLProtocol();
         try {
             KeyManager[] keyManagers = null;
@@ -91,6 +95,7 @@ public class SSLHandlerFactory {
             }
             sslContext = SSLContext.getInstance(protocol);
             sslContext.init(keyManagers, trustManagers, null);
+            return sslContext;
 
         } catch (UnrecoverableKeyException | KeyManagementException |
                 NoSuchAlgorithmException | KeyStoreException | IOException e) {
@@ -113,9 +118,10 @@ public class SSLHandlerFactory {
     }
 
     /**
+     * @param sslContext sslContext
      * @return instance of {@code SslHandler}
      */
-    public SSLEngine buildServerSSLEngine() {
+    public SSLEngine buildServerSSLEngine(SSLContext sslContext) {
         SSLEngine engine = sslContext.createSSLEngine();
         engine.setUseClientMode(false);
         engine.setNeedClientAuth(needClientAuth);
@@ -168,7 +174,7 @@ public class SSLHandlerFactory {
     }
 
     public ReferenceCountedOpenSslContext buildClientReferenceCountedOpenSslContext() throws SSLException {
-        if (sslConfig.getKeyStore() != null) {
+        if (sslConfig.getTrustStore() != null) {
             return (ReferenceCountedOpenSslContext) SslContextBuilder.forClient().sslProvider(SslProvider.OPENSSL)
                     .enableOcsp(true).keyManager(kmf).trustManager(tmf).protocols(sslConfig.getEnableProtocols())
                     .build();
@@ -225,13 +231,13 @@ public class SSLHandlerFactory {
      * @throws SSLException if any error occurred during building SSL context.
      */
     public SslContext createHttpTLSContextForServer() throws SSLException {
-
         SslProvider provider = SslProvider.JDK;
-        SslContext sslContext = SslContextBuilder
+        String keyPassword = sslConfig.getServerKeyPassword();
+        return SslContextBuilder
                 .forServer(sslConfig.getServerCertificates(), sslConfig.getServerKeyFile())
+                .keyManager(sslConfig.getServerCertificates(), sslConfig.getServerKeyFile(), keyPassword)
                 .trustManager(sslConfig.getServerTrustCertificates()).sslProvider(provider)
                 .clientAuth(needClientAuth ? ClientAuth.REQUIRE : ClientAuth.NONE).build();
-        return sslContext;
     }
 
 
@@ -242,13 +248,11 @@ public class SSLHandlerFactory {
      * @throws SSLException if any error occurred during building SSL context.
      */
     public SslContext createHttpTLSContextForClient() throws SSLException {
-
-        SslContext sslContext = null;
+        String keyPassword = sslConfig.getClientKeyPassword();
         SslProvider provider = SslProvider.JDK;
-        sslContext = SslContextBuilder.forClient().sslProvider(provider)
-                .keyManager(sslConfig.getClientCertificates(), sslConfig.getClientKeyFile())
+        return SslContextBuilder.forClient().sslProvider(provider)
+                .keyManager(sslConfig.getClientCertificates(), sslConfig.getClientKeyFile(), keyPassword)
                 .trustManager(sslConfig.getClientTrustCertificates()).build();
-        return sslContext;
     }
 
     public SslContext createHttp2TLSContextForClient(boolean enableOcsp) throws SSLException {

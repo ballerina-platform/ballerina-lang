@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2018, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  * WSO2 Inc. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
@@ -53,106 +53,76 @@ import static org.testng.AssertJUnit.assertNotNull;
 import static org.wso2.transport.http.netty.common.Constants.HTTPS_SCHEME;
 
 /**
- * Tests for SSL protocols.
+ * Tests for different cipher suites provided by client and server with certs and keys.
  */
-public class SSLProtocolsTest {
-
-    private static Logger logger = LoggerFactory.getLogger(SSLProtocolsTest.class);
-
+public class CipherSuiteswithCertsTest {
     private static HttpClientConnector httpClientConnector;
-    private static HttpWsConnectorFactory httpWsConnectorFactory;
-    private static ServerConnector serverConnector;
     private List<Parameter> clientParams;
+    private ServerConnector serverConnector;
+    private HttpWsConnectorFactory factory;
+    private static Logger logger = LoggerFactory.getLogger(CipherSuitesTest.class);
 
-    @DataProvider(name = "protocols")
+    @DataProvider(name = "ciphers")
 
     public static Object[][] cipherSuites() {
 
-        // true = expecting a SSL hand shake failure.
-        // false = expecting no errors.
-        return new Object[][] { { "TLSv1.1", "TLSv1.1", false, TestUtil.SERVER_PORT1 },
-                { "TLSv1.1", "TLSv1.2", true, TestUtil.SERVER_PORT2 } };
+        return new Object[][] {
+                // true = expecting a SSL hand shake failure.
+                // false = expecting no errors.
+                { "TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256", "TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256", false,
+                        TestUtil.SERVER_CONNECTOR_PORT },
+                { "TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA, TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256",
+                        "TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256", true, TestUtil.HTTPS_SERVER_PORT } };
     }
 
     /**
      * Set up the client and the server
-     * @param clientProtocol SSL enabled protocol of client
-     * @param serverProtocol SSL enabled protocol of server
+     * @param clientCiphers ciphers given by client
+     * @param serverCiphers ciphers supported by server
      * @param hasException expecting an exception true/false
      * @param serverPort port
      */
-    @Test(dataProvider = "protocols")
-    public void setup(String clientProtocol, String serverProtocol, boolean hasException, int serverPort)
+    @Test(dataProvider = "ciphers")
+    public void setup(String clientCiphers, String serverCiphers, boolean hasException, int serverPort)
             throws InterruptedException {
 
-        Parameter clientprotocols = new Parameter("sslEnabledProtocols", clientProtocol);
+        Parameter paramClientCiphers = new Parameter("ciphers", clientCiphers);
         clientParams = new ArrayList<>();
-        clientParams.add(clientprotocols);
+        clientParams.add(paramClientCiphers);
 
-        Parameter serverProtocols = new Parameter("sslEnabledProtocols", serverProtocol);
-        List<Parameter> severParams = new ArrayList<>();
-        severParams.add(serverProtocols);
+        Parameter paramServerCiphers = new Parameter("ciphers", serverCiphers);
+        List<Parameter> serverParams = new ArrayList<>();
+        serverParams.add(paramServerCiphers);
 
-        httpWsConnectorFactory = new DefaultHttpWsConnectorFactory();
-        ListenerConfiguration listenerConfiguration = getListenerConfiguration(serverPort, severParams);
-
-        serverConnector = httpWsConnectorFactory
-                .createServerConnector(TestUtil.getDefaultServerBootstrapConfig(), listenerConfiguration);
+        factory = new DefaultHttpWsConnectorFactory();
+        serverConnector = factory.createServerConnector(TestUtil.getDefaultServerBootstrapConfig(),
+                getListenerConfiguration(serverPort, serverParams));
         ServerConnectorFuture future = serverConnector.start();
         future.setHttpConnectorListener(new EchoMessageListener());
         future.sync();
 
-        httpClientConnector = httpWsConnectorFactory.createHttpClientConnector(new HashMap<>(), getSenderConfigs());
+        httpClientConnector = factory.createHttpClientConnector(new HashMap<>(), getSenderConfigs());
 
-        testSSLProtocols(hasException, serverPort);
-        serverConnector.stop();
+        testCiphersuitesWithCertsAndKeys(hasException, serverPort);
     }
 
-    private ListenerConfiguration getListenerConfiguration(int serverPort, List<Parameter> severParams) {
-        ListenerConfiguration listenerConfiguration = ListenerConfiguration.getDefault();
-        listenerConfiguration.setPort(serverPort);
-        String verifyClient = "require";
-        listenerConfiguration.setVerifyClient(verifyClient);
-        listenerConfiguration.setTrustStoreFile(TestUtil.getAbsolutePath(TestUtil.TRUST_STORE_FILE_PATH));
-        listenerConfiguration.setKeyStoreFile(TestUtil.getAbsolutePath(TestUtil.KEY_STORE_FILE_PATH));
-        listenerConfiguration.setTrustStorePass(TestUtil.KEY_STORE_PASSWORD);
-        listenerConfiguration.setKeyStorePass(TestUtil.KEY_STORE_PASSWORD);
-        listenerConfiguration.setScheme(HTTPS_SCHEME);
-        listenerConfiguration.setParameters(severParams);
-        return listenerConfiguration;
-    }
-
-    private SenderConfiguration getSenderConfigs() {
-        SenderConfiguration senderConfiguration = new SenderConfiguration();
-        senderConfiguration.setKeyStoreFile(TestUtil.getAbsolutePath(TestUtil.KEY_STORE_FILE_PATH));
-        senderConfiguration.setTrustStoreFile(TestUtil.getAbsolutePath(TestUtil.TRUST_STORE_FILE_PATH));
-        senderConfiguration.setTrustStorePass(TestUtil.KEY_STORE_PASSWORD);
-        senderConfiguration.setKeyStorePass(TestUtil.KEY_STORE_PASSWORD);
-        senderConfiguration.setParameters(clientParams);
-        senderConfiguration.setScheme(HTTPS_SCHEME);
-        return senderConfiguration;
-    }
-
-    private void testSSLProtocols(boolean hasException, int serverPort) {
+    private void testCiphersuitesWithCertsAndKeys(boolean hasException, int serverPort) {
         try {
-            String testValue = "Test";
+            String testValue = "successful";
             HttpCarbonMessage msg = TestUtil.createHttpsPostReq(serverPort, testValue, "");
 
             CountDownLatch latch = new CountDownLatch(1);
             SSLConnectorListener listener = new SSLConnectorListener(latch);
             HttpResponseFuture responseFuture = httpClientConnector.send(msg);
             responseFuture.setHttpConnectorListener(listener);
-
             latch.await(5, TimeUnit.SECONDS);
-
             HttpCarbonMessage response = listener.getHttpResponseMessage();
+
             if (hasException) {
                 assertNotNull(listener.getThrowables());
                 boolean hasSSLException = false;
                 for (Throwable throwable : listener.getThrowables()) {
-                    if (throwable.getMessage() != null && (
-                            throwable.getMessage().contains("javax.net.ssl.SSLHandshakeException") || throwable
-                                    .getMessage().contains("handshake_failure"))) {
+                    if (throwable.getMessage() != null && throwable.getMessage().contains("handshake_failure")) {
                         hasSSLException = true;
                         break;
                     }
@@ -166,8 +136,32 @@ public class SSLProtocolsTest {
                 assertEquals(testValue, result);
             }
         } catch (Exception e) {
-            TestUtil.handleException("Exception occurred while running testSSLProtocols", e);
+            TestUtil.handleException("Exception occurred while running testCiphersuites", e);
         }
+    }
+
+    private ListenerConfiguration getListenerConfiguration(int serverPort, List<Parameter> serverParams) {
+        ListenerConfiguration listenerConfiguration = ListenerConfiguration.getDefault();
+        listenerConfiguration.setPort(serverPort);
+        String verifyClient = "require";
+        listenerConfiguration.setVerifyClient(verifyClient);
+        listenerConfiguration.setServerKeyFile(TestUtil.getAbsolutePath(TestUtil.KEY_FILE));
+        listenerConfiguration.setServerCertificates(TestUtil.getAbsolutePath(TestUtil.CERT_FILE));
+        listenerConfiguration.setServerTrustCertificates(TestUtil.getAbsolutePath(TestUtil.TRUST_CERT_CHAIN));
+        listenerConfiguration.setScheme(HTTPS_SCHEME);
+        listenerConfiguration.setParameters(serverParams);
+        return listenerConfiguration;
+    }
+
+    private SenderConfiguration getSenderConfigs() {
+        SenderConfiguration senderConfiguration = new SenderConfiguration();
+        senderConfiguration.setClientKeyFile(TestUtil.getAbsolutePath(TestUtil.KEY_FILE));
+        senderConfiguration.setClientCertificates(TestUtil.getAbsolutePath(TestUtil.CERT_FILE));
+        senderConfiguration.setClientTrustCertificates(TestUtil.getAbsolutePath(TestUtil.TRUST_CERT_CHAIN));
+        senderConfiguration.setScheme(HTTPS_SCHEME);
+        senderConfiguration.setHostNameVerificationEnabled(false);
+        senderConfiguration.setParameters(clientParams);
+        return senderConfiguration;
     }
 
     @AfterClass
@@ -175,9 +169,10 @@ public class SSLProtocolsTest {
         try {
             serverConnector.stop();
             httpClientConnector.close();
-            httpWsConnectorFactory.shutdown();
+            factory.shutdown();
         } catch (Exception e) {
-            logger.warn("Interrupted while waiting for response two", e);
+            logger.warn("Interrupted while waiting for response", e);
         }
     }
 }
+

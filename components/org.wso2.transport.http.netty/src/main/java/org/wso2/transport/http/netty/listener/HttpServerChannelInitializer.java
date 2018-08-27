@@ -58,6 +58,8 @@ import java.io.IOException;
 import java.security.KeyStoreException;
 import java.security.cert.CertificateException;
 import java.util.concurrent.TimeUnit;
+
+import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLEngine;
 
 import static org.wso2.transport.http.netty.common.Constants.ACCESS_LOG;
@@ -81,6 +83,8 @@ public class HttpServerChannelInitializer extends ChannelInitializer<SocketChann
     private String serverName;
     private SSLConfig sslConfig;
     private SSLHandlerFactory sslHandlerFactory;
+    private SSLContext keystoreSslContext;
+    private SslContext certAndKeySslContext;
     private ServerConnectorFuture serverConnectorFuture;
     private RequestSizeValidationConfig reqSizeValidationConfig;
     private boolean http2Enabled = false;
@@ -153,12 +157,11 @@ public class HttpServerChannelInitializer extends ChannelInitializer<SocketChann
         } else {
             SSLEngine sslEngine = null;
             if (sslConfig.getServerKeyFile() != null) {
-                SSLHandlerFactory sslHandlerFactory = new SSLHandlerFactory(sslConfig);
-                SslContext sslContext = sslHandlerFactory.createHttpTLSContextForServer();
-                SslHandler sslHandler = sslContext.newHandler(ch.alloc());
+                SslHandler sslHandler = certAndKeySslContext.newHandler(ch.alloc());
                 sslEngine = sslHandler.engine();
+                sslHandlerFactory.addCommonConfigs(sslEngine);
             } else {
-                sslEngine = sslHandlerFactory.buildServerSSLEngine();
+                sslEngine = sslHandlerFactory.buildServerSSLEngine(keystoreSslContext);
             }
             serverPipeline.addLast(Constants.SSL_HANDLER, new SslHandler(sslEngine));
             if (validateCertEnabled) {
@@ -288,6 +291,14 @@ public class HttpServerChannelInitializer extends ChannelInitializer<SocketChann
 
     void setSslHandlerFactory(SSLHandlerFactory sslHandlerFactory) {
         this.sslHandlerFactory = sslHandlerFactory;
+    }
+
+    void setKeystoreSslContext(SSLContext sslContext) {
+        this.keystoreSslContext = sslContext;
+    }
+
+    void setCertandKeySslContext(SslContext sslContext) {
+        this.certAndKeySslContext = sslContext;
     }
 
     void setReqSizeValidationConfig(RequestSizeValidationConfig reqSizeValidationConfig) {

@@ -58,6 +58,8 @@ public class SSLConfig {
     private File clientCertificates;
     private File serverTrustCertificates;
     private File clientTrustCertificates;
+    private String serverKeyPassword;
+    private String clientKeyPassword;
 
     public SSLConfig() {}
 
@@ -289,5 +291,21 @@ public class SSLConfig {
 
     public void setClientTrustCertificates(File clientTrustCertificates) {
         this.clientTrustCertificates = clientTrustCertificates;
+    }
+
+    public String getServerKeyPassword() {
+        return serverKeyPassword;
+    }
+
+    public void setServerKeyPassword(String serverKeyPassword) {
+        this.serverKeyPassword = serverKeyPassword;
+    }
+
+    public String getClientKeyPassword() {
+        return clientKeyPassword;
+    }
+
+    public void setClientKeyPassword(String clientKeyPassword) {
+        this.clientKeyPassword = clientKeyPassword;
     }
 }

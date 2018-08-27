@@ -42,6 +42,8 @@ import org.wso2.transport.http.netty.sender.channel.pool.ConnectionManager;
 
 import java.util.Map;
 
+import javax.net.ssl.SSLException;
+
 /**
  * Implementation of HttpWsConnectorFactory interface.
  */
@@ -72,12 +74,22 @@ public class DefaultHttpWsConnectorFactory implements HttpWsConnectorFactory {
         SSLConfig sslConfig = listenerConfig.getListenerSSLConfig();
         serverConnectorBootstrap.addSecurity(sslConfig);
         if (sslConfig != null) {
+            SSLHandlerFactory sslHandlerFactory = new SSLHandlerFactory(sslConfig);
             serverConnectorBootstrap
                     .addcertificateRevocationVerifier(sslConfig.isValidateCertEnabled());
             serverConnectorBootstrap.addCacheDelay(sslConfig.getCacheValidityPeriod());
             serverConnectorBootstrap.addCacheSize(sslConfig.getCacheSize());
             serverConnectorBootstrap.addOcspStapling(sslConfig.isOcspStaplingEnabled());
-            serverConnectorBootstrap.addSslHandlerFactory(new SSLHandlerFactory(sslConfig));
+            serverConnectorBootstrap.addSslHandlerFactory(sslHandlerFactory);
+            if (sslConfig.getKeyStore() != null) {
+                serverConnectorBootstrap.addKeystoreSslContext(sslHandlerFactory.createSSLContextFromKeystores());
+            } else {
+                try {
+                    serverConnectorBootstrap.addCertAndKeySslContext(sslHandlerFactory.createHttpTLSContextForServer());
+                } catch (SSLException e) {
+                    throw new RuntimeException("Failed to create ssl context from given certs and key", e);
+                }
+            }
         }
         serverConnectorBootstrap.addIdleTimeout(listenerConfig.getSocketIdleTimeout());
         if (Constants.HTTP_2_0 == Float.valueOf(listenerConfig.getVersion())) {
