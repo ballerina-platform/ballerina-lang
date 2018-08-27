@@ -91,4 +91,8 @@ public class BPackageSymbol extends BTypeSymbol {
     public String toString() {
         return pkgID.toString();
     }
+
+    public BIRNode.BIRPackage getBir() {
+        return bir;
+    }
 }

@@ -43,14 +43,13 @@ public abstract class BIRNode {
         public Name name;
         public Name version;
         public List<BIRFunction> functions;
-        public List<BType> types;
+        //TODO: uncomment: public List<BType> types;
 
         public BIRPackage(Name org, Name name, Name version) {
             this.org = org;
             this.name = name;
             this.version = version;
             this.functions = new ArrayList<>();
-            this.types = new ArrayList<>();
         }
 
         @Override
@@ -141,11 +140,14 @@ public abstract class BIRNode {
 
         // TODO taint table storage
 
-        public BIRFunction(Name name) {
+        public BIRFunction(Name name, Visibility visibility, BInvokableType type) {
             this.name = name;
+            this.visibility = visibility;
+            this.type = type;
             this.localVars = new ArrayList<>();
             this.basicBlocks = new ArrayList<>();
         }
+
 
         @Override
         public void accept(BIRVisitor visitor) {

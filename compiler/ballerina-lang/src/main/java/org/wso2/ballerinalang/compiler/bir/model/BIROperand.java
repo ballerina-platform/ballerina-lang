@@ -28,12 +28,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
  */
 public abstract class BIROperand extends BIRNode {
 
-    public BType type;
-    public Kind kind;
-
     public BIROperand(BType type, Kind kind) {
-        this.type = type;
-        this.kind = kind;
     }
 
     /**

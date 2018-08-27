@@ -17,12 +17,15 @@
  */
 package org.wso2.ballerinalang.compiler.bir;
 
+import org.ballerinalang.compiler.BLangCompilerException;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator;
 import org.wso2.ballerinalang.compiler.bir.model.BIROperand;
 import org.wso2.ballerinalang.compiler.bir.model.BIRTerminator;
 import org.wso2.ballerinalang.compiler.bir.model.BIRVisitor;
 
+import java.util.List;
+import java.util.Locale;
 import java.util.StringJoiner;
 
 /**
@@ -53,7 +56,7 @@ public class BIREmitter extends BIRVisitor {
 
     public void visit(BIRNode.BIRVariableDcl birVariableDcl) {
         sb.append("\t").append(birVariableDcl.type).append(" ").append(birVariableDcl.name).append(";\t\t// ");
-        sb.append(birVariableDcl.kind.name().toLowerCase()).append("\n");
+        sb.append(birVariableDcl.kind.name().toLowerCase(Locale.ENGLISH)).append("\n");
     }
 
     public void visit(BIRNode.BIRFunction birFunction) {
@@ -73,6 +76,9 @@ public class BIREmitter extends BIRVisitor {
         sb.append("\t");
         sb.append(birBasicBlock.id).append(" {\n");
         birBasicBlock.instructions.forEach(instruction -> ((BIRNode) instruction).accept(this));
+        if (birBasicBlock.terminator == null) {
+            throw new BLangCompilerException("Basic block without a terminator : " + birBasicBlock.id);
+        }
         birBasicBlock.terminator.accept(this);
         sb.append("\t}\n\n");
     }
@@ -84,12 +90,12 @@ public class BIREmitter extends BIRVisitor {
             sb.append(" = ");
         }
         sb.append(birCall.name.getValue()).append("(");
-        BIROperand[] args = birCall.args;
-        for (int i = 0; i < args.length; i++) {
+        List<BIROperand> args = birCall.args;
+        for (int i = 0; i < args.size(); i++) {
             if (i != 0) {
                 sb.append(", ");
             }
-            BIROperand arg = args[i];
+            BIROperand arg = args.get(i);
             arg.accept(this);
         }
         sb.append(") -> ");
@@ -110,7 +116,7 @@ public class BIREmitter extends BIRVisitor {
     public void visit(BIRNonTerminator.BinaryOp birBinaryOp) {
         sb.append("\t\t");
         birBinaryOp.lhsOp.accept(this);
-        sb.append(" = ").append(birBinaryOp.kind.name().toLowerCase()).append(" ");
+        sb.append(" = ").append(birBinaryOp.kind.name().toLowerCase(Locale.ENGLISH)).append(" ");
         birBinaryOp.rhsOp1.accept(this);
         sb.append(" ");
         birBinaryOp.rhsOp2.accept(this);
@@ -124,7 +130,7 @@ public class BIREmitter extends BIRVisitor {
     public void visit(BIRNonTerminator.ConstantLoad birConstantLoad) {
         sb.append("\t\t");
         birConstantLoad.lhsOp.accept(this);
-        sb.append(" = ").append(birConstantLoad.kind.name().toLowerCase()).append(" ");
+        sb.append(" = ").append(birConstantLoad.kind.name().toLowerCase(Locale.ENGLISH)).append(" ");
         sb.append(birConstantLoad.value).append(";\n");
     }
 

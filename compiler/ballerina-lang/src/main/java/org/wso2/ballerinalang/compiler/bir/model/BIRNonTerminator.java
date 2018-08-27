@@ -71,7 +71,6 @@ public abstract class BIRNonTerminator extends BIRNode implements BIRInstruction
      * @since 0.980.0
      */
     public static class BinaryOp extends BIRNonTerminator implements BIRAssignInstruction {
-        public BType type;
         public BIRVarRef lhsOp;
         public BIROperand rhsOp1;
         public BIROperand rhsOp2;
@@ -82,7 +81,6 @@ public abstract class BIRNonTerminator extends BIRNode implements BIRInstruction
                         BIROperand rhsOp1,
                         BIROperand rhsOp2) {
             super(kind);
-            this.type = type;
             this.lhsOp = lhsOp;
             this.rhsOp1 = rhsOp1;
             this.rhsOp2 = rhsOp2;
