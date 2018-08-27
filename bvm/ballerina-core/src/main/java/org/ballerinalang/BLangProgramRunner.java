@@ -60,8 +60,7 @@ public class BLangProgramRunner {
     }
 
     public static BValue[] runEntryFunc(ProgramFile programFile, String functionName, String[] args) {
-        BValue[] entryFuncResult = null;
-        RuntimeException runtimeException = null;
+        BValue[] entryFuncResult;
         if (MAIN.equals(functionName) && !programFile.isMainEPAvailable()) {
             throw new BallerinaException("main function not found in  '" + programFile.getProgramFilePath() + "'");
         }
@@ -76,21 +75,13 @@ public class BLangProgramRunner {
         try {
             entryFuncResult = BLangFunctions.invokeEntrypointCallable(programFile, functionInfo,
                                                                       extractEntryFuncArgs(functionInfo, args));
-        } catch (RuntimeException e) {
-            runtimeException = e;
         } finally {
-            if (programFile.isServiceEPAvailable()) {
-                // TODO: 8/5/18 errors not propagated? change to perform subseq logic if
-                // !programFile .isServiceEPAvailable()?
-                return entryFuncResult;
+            if (!programFile.isServiceEPAvailable()) {
+                if (debugger.isDebugEnabled()) {
+                    debugger.notifyExit();
+                }
+                BLangFunctions.invokePackageStopFunctions(programFile);
             }
-            if (debugger.isDebugEnabled()) {
-                debugger.notifyExit();
-            }
-            BLangFunctions.invokePackageStopFunctions(programFile);
-        }
-        if (runtimeException != null) {
-            throw runtimeException;
         }
         return entryFuncResult;
     }
