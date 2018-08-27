@@ -58,6 +58,7 @@ public class Response100ContinueSent extends SendingHeaders {
     private final StateContext stateContext;
     private final HttpOutboundRespListener outboundResponseListener;
     private final SourceHandler sourceHandler;
+    private final float httpVersion;
 
     Response100ContinueSent(HttpOutboundRespListener outboundResponseListener,
                                    SourceHandler sourceHandler,
@@ -68,6 +69,7 @@ public class Response100ContinueSent extends SendingHeaders {
         this.keepAlive = outboundResponseListener.isKeepAlive();
         this.sourceHandler = sourceHandler;
         this.stateContext = stateContext;
+        this.httpVersion = Float.parseFloat(outboundResponseListener.getRequestDataHolder().getHttpVersion());
     }
 
     @Override
@@ -78,7 +80,8 @@ public class Response100ContinueSent extends SendingHeaders {
     @Override
     public void readInboundRequestEntityBody(Object inboundRequestEntityBody) throws ServerConnectorException {
         stateContext.setListenerState(
-                new ReceivingEntityBody(stateContext, outboundResponseListener.getInboundRequestMsg(), sourceHandler));
+                new ReceivingEntityBody(stateContext, outboundResponseListener.getInboundRequestMsg(), sourceHandler,
+                                        httpVersion));
         stateContext.getListenerState().readInboundRequestEntityBody(inboundRequestEntityBody);
     }
 
@@ -96,10 +99,9 @@ public class Response100ContinueSent extends SendingHeaders {
             super.setChunkConfig(responseChunkConfig);
         }
         outboundRespStatusFuture = outboundResponseListener.getInboundRequestMsg().getHttpOutboundRespStatusFuture();
-        String httpVersion = outboundResponseListener.getRequestDataHolder().getHttpVersion();
 
         ChannelFuture outboundHeaderFuture;
-        if (chunkConfig == ChunkConfig.ALWAYS && checkChunkingCompatibility(httpVersion, chunkConfig)) {
+        if (chunkConfig == ChunkConfig.ALWAYS && checkChunkingCompatibility(String.valueOf(httpVersion), chunkConfig)) {
             setupChunkedRequest(outboundResponseMsg);
             outboundHeaderFuture = writeResponseHeaders(outboundResponseMsg, keepAlive);
             notifyIfHeaderWriteFailure(outboundRespStatusFuture, outboundHeaderFuture,

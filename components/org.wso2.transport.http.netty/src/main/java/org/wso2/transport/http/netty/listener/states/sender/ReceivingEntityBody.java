@@ -19,12 +19,8 @@
 package org.wso2.transport.http.netty.listener.states.sender;
 
 import io.netty.channel.ChannelHandlerContext;
-import io.netty.handler.codec.DecoderException;
-import io.netty.handler.codec.DecoderResult;
-import io.netty.handler.codec.http.DefaultLastHttpContent;
 import io.netty.handler.codec.http.HttpContent;
 import io.netty.handler.codec.http.HttpResponse;
-import io.netty.handler.codec.http.LastHttpContent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.transport.http.netty.common.Constants;
@@ -37,6 +33,7 @@ import static org.wso2.transport.http.netty.common.Constants.IDLE_TIMEOUT_TRIGGE
 import static org.wso2.transport.http.netty.common.Constants.REMOTE_SERVER_CLOSED_WHILE_READING_INBOUND_RESPONSE_BODY;
 import static org.wso2.transport.http.netty.common.Util.isKeepAlive;
 import static org.wso2.transport.http.netty.common.Util.isLastHttpContent;
+import static org.wso2.transport.http.netty.listener.states.StateUtil.handleIncompleteInboundMessage;
 
 /**
  * State between start and end of inbound response entity body read.
@@ -86,20 +83,13 @@ public class ReceivingEntityBody implements SenderState {
 
     @Override
     public void handleAbruptChannelClosure(HttpResponseFuture httpResponseFuture) {
-        handleIncompleteInboundResponse(targetHandler.getInboundResponseMsg(),
+        handleIncompleteInboundMessage(targetHandler.getInboundResponseMsg(),
                                         REMOTE_SERVER_CLOSED_WHILE_READING_INBOUND_RESPONSE_BODY);
     }
 
     @Override
     public void handleIdleTimeoutConnectionClosure(HttpResponseFuture httpResponseFuture, String channelID) {
-        handleIncompleteInboundResponse(targetHandler.getInboundResponseMsg(),
+        handleIncompleteInboundMessage(targetHandler.getInboundResponseMsg(),
                                         IDLE_TIMEOUT_TRIGGERED_WHILE_READING_INBOUND_RESPONSE_BODY);
-    }
-
-    private void handleIncompleteInboundResponse(HttpCarbonMessage inboundResponseMsg, String errorMessage) {
-        LastHttpContent lastHttpContent = new DefaultLastHttpContent();
-        lastHttpContent.setDecoderResult(DecoderResult.failure(new DecoderException(errorMessage)));
-        inboundResponseMsg.addHttpContent(lastHttpContent);
-        log.warn(errorMessage);
     }
 }

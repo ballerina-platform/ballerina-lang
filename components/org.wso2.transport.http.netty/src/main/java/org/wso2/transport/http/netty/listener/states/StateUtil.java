@@ -19,8 +19,21 @@
 package org.wso2.transport.http.netty.listener.states;
 
 
+import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelFuture;
+import io.netty.channel.ChannelHandlerContext;
+import io.netty.handler.codec.DecoderException;
+import io.netty.handler.codec.DecoderResult;
+import io.netty.handler.codec.http.DefaultFullHttpResponse;
+import io.netty.handler.codec.http.DefaultLastHttpContent;
+import io.netty.handler.codec.http.HttpHeaderNames;
 import io.netty.handler.codec.http.HttpRequest;
+import io.netty.handler.codec.http.HttpResponse;
+import io.netty.handler.codec.http.HttpResponseStatus;
+import io.netty.handler.codec.http.HttpVersion;
+import io.netty.handler.codec.http.LastHttpContent;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.wso2.transport.http.netty.common.Constants;
 import org.wso2.transport.http.netty.common.Util;
 import org.wso2.transport.http.netty.config.ChunkConfig;
@@ -37,6 +50,8 @@ import static org.wso2.transport.http.netty.common.Constants.CLIENT_TO_REMOTE_HO
  * Utility functions for states
  */
 public class StateUtil {
+
+    private static Logger log = LoggerFactory.getLogger(StateUtil.class);
 
     public static boolean checkChunkingCompatibility(String httpVersion, ChunkConfig chunkConfig) {
         return Util.isVersionCompatibleForChunking(httpVersion) || Util
@@ -74,5 +89,31 @@ public class StateUtil {
         } else {
             httpOutboundRequest.setProperty(Constants.HTTP_VERSION, httpVersion);
         }
+    }
+
+    public static ChannelFuture sendRequestTimeoutResponse(ChannelHandlerContext ctx, HttpResponseStatus status,
+                                                           ByteBuf content, int length, float httpVersion,
+                                                           String serverName) {
+        HttpResponse outboundResponse;
+        if (httpVersion == Constants.HTTP_1_0) {
+            outboundResponse = new DefaultFullHttpResponse(HttpVersion.HTTP_1_0, status, content);
+        } else {
+            outboundResponse = new DefaultFullHttpResponse(HttpVersion.HTTP_1_1, status, content);
+        }
+
+        outboundResponse.headers().set(HttpHeaderNames.CONTENT_LENGTH, length);
+        if (length != 0) {
+            outboundResponse.headers().set(HttpHeaderNames.CONTENT_TYPE, Constants.TEXT_PLAIN);
+        }
+        outboundResponse.headers().set(HttpHeaderNames.CONNECTION.toString(), Constants.CONNECTION_CLOSE);
+        outboundResponse.headers().set(HttpHeaderNames.SERVER.toString(), serverName);
+        return ctx.channel().writeAndFlush(outboundResponse);
+    }
+
+    public static void handleIncompleteInboundMessage(HttpCarbonMessage inboundRequestMsg, String errorMessage) {
+        LastHttpContent lastHttpContent = new DefaultLastHttpContent();
+        lastHttpContent.setDecoderResult(DecoderResult.failure(new DecoderException(errorMessage)));
+        inboundRequestMsg.addHttpContent(lastHttpContent);
+        log.warn(errorMessage);
     }
 }
