@@ -36,7 +36,6 @@ public class ConfigRegistryTest {
 
     private static final ConfigRegistry registry = ConfigRegistry.getInstance();
 
-
     @Test
     public void testAddAndGetConfiguration() throws IOException {
         registry.initRegistry(new HashMap<>(), null, null);

@@ -87,7 +87,8 @@ public class ConfigProcessorTest {
     }
 
     @Test(expectedExceptions = IllegalArgumentException.class,
-          expectedExceptionsMessageRegExp = ".*invalid float value received from environment to 'helloneg.eviction.fac': invalid eviction factor")
+          expectedExceptionsMessageRegExp = ".*invalid float value received from environment to 'helloneg.eviction" +
+                  ".fac': invalid eviction factor")
     public void testEnvLookupNegative2() throws IOException {
         String negativeConf = Paths.get(resourceRoot, "datafiles", "config", "lookupenv_negative2.conf").toString();
         ConfigProcessor.processConfiguration(null, negativeConf, null);
