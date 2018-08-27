@@ -38,6 +38,7 @@ public class DefinitionTest {
     private Path definitionsPath = new File(getClass().getClassLoader().getResource("definition").getFile()).toPath();
     private Path balPath1 = definitionsPath.resolve("test.definition.pkg").resolve("definition1.bal");
     private Path balPath2 = definitionsPath.resolve("test.definition.pkg").resolve("definition2.bal");
+    private Path balPath3 = definitionsPath.resolve("test.definition.pkg").resolve("definition3.bal");
     private Endpoint serviceEndpoint;
 
     @BeforeClass
@@ -45,6 +46,7 @@ public class DefinitionTest {
         this.serviceEndpoint = TestUtil.initializeLanguageSever();
         TestUtil.openDocument(this.serviceEndpoint, balPath1);
         TestUtil.openDocument(this.serviceEndpoint, balPath2);
+        TestUtil.openDocument(this.serviceEndpoint, balPath3);
     }
 
     @Test(description = "Test goto definition for local functions", dataProvider = "localFuncPosition")
@@ -74,8 +76,7 @@ public class DefinitionTest {
                         " and position line:" + position.getLine() + " character:" + position.getCharacter());
     }
 
-    @Test(description = "Test goto definition for local variables", dataProvider = "localVariablePositions",
-            enabled = false)
+    @Test(description = "Test goto definition for local variables", dataProvider = "localVariablePositions")
     public void definitionForLocalVariablesTest(Position position, DefinitionTestDataModel dataModel)
             throws InterruptedException, IOException {
         Assert.assertEquals(TestUtil.getDefinitionResponse(dataModel.getBallerinaFilePath(), position, serviceEndpoint),
@@ -124,7 +125,9 @@ public class DefinitionTest {
                 {new Position(39, 25),
                         new DefinitionTestDataModel("localVariableOnForeachStatement.json", balPath1, balPath1)},
                 {new Position(39, 25),
-                        new DefinitionTestDataModel("localVariableOfRecord.json", balPath1, balPath1)}
+                        new DefinitionTestDataModel("localVariableOfRecord.json", balPath1, balPath1)},
+                {new Position(11, 5),
+                        new DefinitionTestDataModel("localVariableOfEndpoint.json", balPath3, balPath3)}
         };
     }
     
@@ -132,6 +135,7 @@ public class DefinitionTest {
     public void shutDownLanguageServer() throws IOException {
         TestUtil.closeDocument(this.serviceEndpoint, balPath1);
         TestUtil.closeDocument(this.serviceEndpoint, balPath2);
+        TestUtil.closeDocument(this.serviceEndpoint, balPath3);
         TestUtil.shutdownLanguageServer(this.serviceEndpoint);
     }
 
@@ -146,7 +150,7 @@ public class DefinitionTest {
         Path expectedFilePath = definitionsPath.resolve("expected").resolve(expectedFile);
 
         byte[] expectedByte = Files.readAllBytes(expectedFilePath);
-        String positionRange = new String(expectedByte);
+        String positionRange = new String(expectedByte).trim();
 
         return "{\"id\":\"324\",\"result\":[{\"uri\":" +
                 "\"" + expectedFileURI + "\"," +

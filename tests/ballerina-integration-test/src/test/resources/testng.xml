@@ -82,11 +82,11 @@
         </packages>
     </test>
 
-    <test name="ballerina-websocket-tests" parallel="false">
-        <packages>
-            <package name="org.ballerinalang.test.service.websocket"/>
-        </packages>
-    </test>
+    <!--<test name="ballerina-websocket-tests" parallel="false">-->
+        <!--<packages>-->
+            <!--<package name="org.ballerinalang.test.service.websocket"/>-->
+        <!--</packages>-->
+    <!--</test>-->
 
     <test name="ballerina-grpc-tests" parallel="false">
         <packages>
