@@ -355,6 +355,14 @@ public class HttpUtil {
         }
     }
 
+    /**
+     * This method should never be called directly to send out responses for ballerina HTTP 1.1. Use
+     * PipeliningHandler's sendPipelinedResponse() method instead.
+     *
+     * @param requestMsg  Represent the request message
+     * @param responseMsg Represent the corresponding response
+     * @return HttpResponseFuture that represent the future results
+     */
     public static HttpResponseFuture sendOutboundResponse(HttpCarbonMessage requestMsg,
                                                           HttpCarbonMessage responseMsg) {
         HttpResponseFuture responseFuture;
@@ -1192,9 +1200,17 @@ public class HttpUtil {
         return basePath;
     }
 
-    public static void serializeDataSource(BValue outboundMessageSource, BMap<String, BValue> entityStruct,
+    /**
+     * Serialize outbound message.
+     *
+     * @param outboundMessageSource Represent the outbound message datasource
+     * @param entity                Represent the entity of the outbound message
+     * @param messageOutputStream   Represent the output stream
+     * @throws IOException In case an error occurs while writing to output stream
+     */
+    public static void serializeDataSource(BValue outboundMessageSource, BMap<String, BValue> entity,
                                            OutputStream messageOutputStream) throws IOException {
-        if (MimeUtil.generateAsJSON(outboundMessageSource, entityStruct)) {
+        if (MimeUtil.generateAsJSON(outboundMessageSource, entity)) {
             JsonGenerator gen = new JsonGenerator(messageOutputStream);
             gen.serialize(outboundMessageSource);
             gen.flush();

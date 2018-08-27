@@ -40,12 +40,22 @@ import java.io.OutputStream;
 import static org.ballerinalang.net.http.HttpUtil.extractEntity;
 
 /**
- * Response writer.
+ * Response writer contains utility methods to serialize response data.
+ *
+ * @since 0.981.2
  */
 public class ResponseWriter {
 
+    /**
+     * Send outbound response to destination.
+     *
+     * @param dataContext      Represents data context which acts as the callback for response status
+     * @param requestMessage   Represents the request that corresponds to the response
+     * @param outboundResponse Represents ballerina response
+     * @param responseMessage  Represents native response message
+     */
     public static void sendResponseRobust(DataContext dataContext, HttpCarbonMessage requestMessage, BMap<String,
-            BValue> outboundResponseStruct, HttpCarbonMessage responseMessage) {
+            BValue> outboundResponse, HttpCarbonMessage responseMessage) {
         String contentType = HttpUtil.getContentTypeFromTransportMessage(responseMessage);
         String boundaryString = null;
         if (HeaderUtil.isMultipart(contentType)) {
@@ -59,7 +69,7 @@ public class ResponseWriter {
         outboundRespStatusFuture.setHttpConnectorListener(outboundResStatusConnectorListener);
 
         OutputStream messageOutputStream = outboundMsgDataStreamer.getOutputStream();
-        BMap<String, BValue> entityStruct = extractEntity(outboundResponseStruct);
+        BMap<String, BValue> entityStruct = extractEntity(outboundResponse);
         if (entityStruct != null) {
             if (boundaryString != null) {
                 serializeMultiparts(boundaryString, entityStruct, messageOutputStream);
@@ -75,19 +85,19 @@ public class ResponseWriter {
      * if it exist as a byte channel.
      *
      * @param boundaryString      Boundary string that should be used in encoding body parts
-     * @param entityStruct        Represent the entity that holds the actual body
-     * @param messageOutputStream Represent the output stream
+     * @param entity              Represents the entity that holds the actual body
+     * @param messageOutputStream Represents the output stream
      */
-    private static void serializeMultiparts(String boundaryString, BMap<String, BValue> entityStruct,
+    private static void serializeMultiparts(String boundaryString, BMap<String, BValue> entity,
                                             OutputStream messageOutputStream) {
-        BRefValueArray bodyParts = EntityBodyHandler.getBodyPartArray(entityStruct);
+        BRefValueArray bodyParts = EntityBodyHandler.getBodyPartArray(entity);
         if (bodyParts != null && bodyParts.size() > 0) {
-            MultipartDataSource multipartDataSource = new MultipartDataSource(entityStruct, boundaryString);
-            serializeDataSource(multipartDataSource, entityStruct, messageOutputStream);
+            MultipartDataSource multipartDataSource = new MultipartDataSource(entity, boundaryString);
+            serializeDataSource(multipartDataSource, entity, messageOutputStream);
             HttpUtil.closeMessageOutputStream(messageOutputStream);
         } else {
             try {
-                EntityBodyHandler.writeByteChannelToOutputStream(entityStruct, messageOutputStream);
+                EntityBodyHandler.writeByteChannelToOutputStream(entity, messageOutputStream);
                 HttpUtil.closeMessageOutputStream(messageOutputStream);
             } catch (IOException e) {
                 throw new BallerinaException("Error occurred while serializing byte channel content : " +
@@ -96,14 +106,21 @@ public class ResponseWriter {
         }
     }
 
-    static void serializeDataSource(BValue outboundMessageSource, BMap<String, BValue> entityStruct,
+    /**
+     * Serialize message datasource.
+     *
+     * @param outboundMessageSource Outbound message datasource that needs to be serialized
+     * @param entity                Represents the entity that holds headers and body content
+     * @param messageOutputStream   Represents the output stream
+     */
+    static void serializeDataSource(BValue outboundMessageSource, BMap<String, BValue> entity,
                                     OutputStream messageOutputStream) {
         try {
             if (outboundMessageSource != null) {
-                HttpUtil.serializeDataSource(outboundMessageSource, entityStruct, messageOutputStream);
+                HttpUtil.serializeDataSource(outboundMessageSource, entity, messageOutputStream);
                 HttpUtil.closeMessageOutputStream(messageOutputStream);
             } else { //When the entity body is a byte channel
-                EntityBodyHandler.writeByteChannelToOutputStream(entityStruct, messageOutputStream);
+                EntityBodyHandler.writeByteChannelToOutputStream(entity, messageOutputStream);
                 HttpUtil.closeMessageOutputStream(messageOutputStream);
             }
         } catch (IOException e) {
@@ -111,6 +128,12 @@ public class ResponseWriter {
         }
     }
 
+    /**
+     * Get the response data streamer that should be used for serializing data.
+     *
+     * @param outboundResponse Represents native response
+     * @return HttpMessageDataStreamer that should be used for serializing
+     */
     static HttpMessageDataStreamer getResponseDataStreamer(HttpCarbonMessage outboundResponse) {
         final HttpMessageDataStreamer outboundMsgDataStreamer;
         final PooledDataStreamerFactory pooledDataStreamerFactory = (PooledDataStreamerFactory)
@@ -123,6 +146,9 @@ public class ResponseWriter {
         return outboundMsgDataStreamer;
     }
 
+    /**
+     * Response listener class receives notifications once a message has been sent out.
+     */
     static class HttpResponseConnectorListener implements HttpConnectorListener {
 
         private final DataContext dataContext;

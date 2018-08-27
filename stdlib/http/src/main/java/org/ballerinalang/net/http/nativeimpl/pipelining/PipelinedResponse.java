@@ -28,7 +28,9 @@ import java.util.Objects;
 import static org.wso2.transport.http.netty.common.Constants.MEANINGFULLY_EQUAL;
 
 /**
- * Represent a pipelined response. Response order can be determined based on the sequence number.
+ * Represents a pipelined response. Response order can be determined based on the sequence number.
+ *
+ * @since 0.981.2
  */
 public class PipelinedResponse implements Comparable<PipelinedResponse> {
 
@@ -47,8 +49,8 @@ public class PipelinedResponse implements Comparable<PipelinedResponse> {
         this.sequenceId = sequenceId;
     }
 
-    public PipelinedResponse(int sequenceId, HttpCarbonMessage inboundRequestMsg,
-                             HttpCarbonMessage outboundResponseMsg) {
+    PipelinedResponse(int sequenceId, HttpCarbonMessage inboundRequestMsg,
+                      HttpCarbonMessage outboundResponseMsg) {
         this.inboundRequestMsg = inboundRequestMsg;
         this.outboundResponseMsg = outboundResponseMsg;
         this.sequenceId = sequenceId;
@@ -81,7 +83,10 @@ public class PipelinedResponse implements Comparable<PipelinedResponse> {
 
     @Override
     public boolean equals(Object obj) {
-        return compareTo((PipelinedResponse) obj) == MEANINGFULLY_EQUAL;
+        if (obj instanceof PipelinedResponse) {
+            return compareTo((PipelinedResponse) obj) == MEANINGFULLY_EQUAL;
+        }
+        return super.equals(obj);
     }
 
     @Override

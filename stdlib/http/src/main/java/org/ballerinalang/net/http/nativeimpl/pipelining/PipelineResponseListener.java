@@ -24,7 +24,10 @@ import org.wso2.transport.http.netty.contractimpl.HttpPipelineListener;
 import static org.ballerinalang.net.http.nativeimpl.pipelining.PipeliningHandler.executePipeliningLogic;
 
 /**
- * Listener to trigger pipelining logic.
+ * Listener to trigger pipelining logic. This is to be used only on the pipelined responses that are already
+ * in the queue.
+ *
+ * @since 0.981.2
  */
 public class PipelineResponseListener implements HttpPipelineListener {
 

@@ -20,9 +20,6 @@ package org.ballerinalang.net.http.nativeimpl.pipelining;
 
 import io.netty.channel.ChannelHandlerContext;
 import org.ballerinalang.connector.api.BallerinaConnectorException;
-import org.ballerinalang.model.values.BMap;
-import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.net.http.DataContext;
 import org.wso2.transport.http.netty.common.Constants;
 import org.wso2.transport.http.netty.contract.HttpResponseFuture;
 import org.wso2.transport.http.netty.message.HttpCarbonMessage;
@@ -33,16 +30,20 @@ import static org.ballerinalang.net.http.HttpUtil.sendOutboundResponse;
 import static org.ballerinalang.net.http.nativeimpl.connection.ResponseWriter.sendResponseRobust;
 
 /**
- * Handle pipeline responses.
+ * Manages pipelined responses.
+ *
+ * @since 0.981.2
  */
 public class PipeliningHandler {
 
-    private static void sendPipelinedResponseRobust(DataContext dataContext, HttpCarbonMessage requestMessage,
-                                                    BMap<String, BValue> outboundResponseStruct,
-                                                    HttpCarbonMessage responseMessage) {
-        sendResponseRobust(dataContext, requestMessage, outboundResponseStruct, responseMessage);
-    }
-
+    /**
+     * This method should be used whenever a response should be sent out via other places (eg:- error responses,
+     * special scenarios like responses for options method calls etc..)  other than the respond() call.
+     *
+     * @param requestMsg  Represents the request message
+     * @param responseMsg Represents the corresponding response
+     * @return HttpResponseFuture that represent the future results
+     */
     public static HttpResponseFuture sendPipelinedResponse(HttpCarbonMessage requestMsg,
                                                            HttpCarbonMessage responseMsg) {
         HttpResponseFuture responseFuture;
@@ -62,6 +63,13 @@ public class PipeliningHandler {
         return responseFuture;
     }
 
+    /**
+     * Executes pipelining logic.
+     *
+     * @param sourceContext     Represents channel handler context
+     * @param pipelinedResponse Represents pipelined response
+     * @return HttpResponseFuture that represent the future results
+     */
     public static HttpResponseFuture executePipeliningLogic(ChannelHandlerContext sourceContext,
                                                             PipelinedResponse pipelinedResponse) {
         HttpResponseFuture responseFuture = null;
@@ -89,7 +97,7 @@ public class PipeliningHandler {
                 // response will be sent out before its turn.
                 if (queuedPipelinedResponse.getDataContext() != null &&
                         queuedPipelinedResponse.getOutboundResponseStruct() != null) {
-                    sendPipelinedResponseRobust(queuedPipelinedResponse.getDataContext(),
+                    sendResponseRobust(queuedPipelinedResponse.getDataContext(),
                             queuedPipelinedResponse.getInboundRequestMsg(),
                             queuedPipelinedResponse.getOutboundResponseStruct(),
                             queuedPipelinedResponse.getOutboundResponseMsg());
@@ -102,6 +110,12 @@ public class PipeliningHandler {
         }
     }
 
+    /**
+     * Check whether the pipelining is required.
+     *
+     * @param request Represents the request message
+     * @return a boolean indicating whether the pipelining is required
+     */
     public static boolean pipeliningRequired(HttpCarbonMessage request) {
         String httpVersion = (String) request.getProperty(Constants.HTTP_VERSION);
         return request.isPipeliningNeeded() && request.isKeepAlive() &&
@@ -112,8 +126,8 @@ public class PipeliningHandler {
      * When the maximum queued response count reached, close the connection because queuing up indefinitely might cause
      * out of memory issues.
      *
-     * @param sourceContext Represent channel handler context
-     * @param responseQueue Represent pipelined response queue
+     * @param sourceContext Represents channel handler context
+     * @param responseQueue Represents pipelined response queue
      * @return a boolean indicating whether the maximum queued response count is reached
      */
     private static boolean thresholdReached(ChannelHandlerContext sourceContext,
