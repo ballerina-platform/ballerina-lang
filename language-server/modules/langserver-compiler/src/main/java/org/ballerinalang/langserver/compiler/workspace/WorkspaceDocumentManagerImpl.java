@@ -44,13 +44,13 @@ public class WorkspaceDocumentManagerImpl implements WorkspaceDocumentManager {
 
     private volatile Map<Path, DocumentPair> documentList = new ConcurrentHashMap<>();
 
-    private static WorkspaceDocumentManagerImpl instance = new WorkspaceDocumentManagerImpl();
+    private static final WorkspaceDocumentManagerImpl INSTANCE = new WorkspaceDocumentManagerImpl();
 
     protected WorkspaceDocumentManagerImpl() {
     }
     
     public static WorkspaceDocumentManagerImpl getInstance() {
-        return instance;
+        return INSTANCE;
     }
 
     /**
@@ -98,7 +98,14 @@ public class WorkspaceDocumentManagerImpl implements WorkspaceDocumentManager {
     @Override
     public void closeFile(Path filePath) throws WorkspaceDocumentException {
         if (isFileOpen(filePath)) {
-            documentList.get(filePath).setDocument(null);
+            Lock lock = documentList.get(filePath).getLock();
+            try {
+                lock.lock();
+                documentList.get(filePath).setDocument(null);
+                documentList.remove(filePath);
+            } finally {
+                lock.unlock();
+            }
             rescanProjectRoot(filePath);
         } else {
             throw new WorkspaceDocumentException("File " + filePath.toString() + " is not opened in document manager.");
@@ -147,6 +154,14 @@ public class WorkspaceDocumentManagerImpl implements WorkspaceDocumentManager {
     @Override
     public Set<Path> getAllFilePaths() {
         return documentList.keySet();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void clearAllFilePaths() {
+        documentList.clear();
     }
 
     private String readFromFileSystem(Path filePath) throws WorkspaceDocumentException {
