@@ -140,7 +140,7 @@ public class BTypeBValueProviders {
             BMap<String, BValue> map =
                     (BMap<String, BValue>) BValueProviderHelper.getPayload((BMap<String, BValue>) bValue);
             BType elemType = (BType) bValueDeserializer.deserialize(map.get(ELEM_TYPE), BType.class);
-            int size = (int) ((BInteger) map.get(PACKAGE_PATH)).intValue();
+            int size = (int) ((BInteger) map.get(SIZE)).intValue();
 
             return new BArrayType(elemType, size);
         }

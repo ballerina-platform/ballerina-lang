@@ -72,10 +72,21 @@ public class JsonSerializer implements ObjectToJsonSerializer {
      * Get the BValueProvider associated with this JsonSerializer instance.
      * Use this instance to add SerializationBValueProvider implementations for this {@link JsonSerializer} instance.
      *
-     * @return
+     * @return BValueProvider instance
      */
     public BValueProvider getBValueProviderRegistry() {
         return bValueProvider;
+    }
+
+
+    /**
+     * Get the {@link InstanceProviderRegistry} used for deserialization.
+     * Use this instance to add {@link TypeInstanceProvider} implementations.
+     *
+     * @return TypeInstanceProvider instance
+     */
+    public InstanceProviderRegistry getInstanceProviderRegistry() {
+        return InstanceProviderRegistry.getInstance();
     }
 
     /**

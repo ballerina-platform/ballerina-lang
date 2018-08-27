@@ -45,8 +45,10 @@ import java.util.List;
 public class Serializer {
 
     private static final List<String> serializableClasses = new ArrayList<>();
-    private static final BValueProvider bValueProvider = BValueProvider.getInstance();
-    private static final InstanceProviderRegistry instanceProvider = InstanceProviderRegistry.getInstance();
+    private static final JsonSerializer JSON_SERIALIZER = new JsonSerializer();
+    private static final BValueProvider BVALUE_PROVIDER_REGISTRY = JSON_SERIALIZER.getBValueProviderRegistry();
+    private static final InstanceProviderRegistry INSTANCE_PROVIDER_REGISTRY =
+            JSON_SERIALIZER.getInstanceProviderRegistry();
 
     static {
         serializableClasses.add(String.class.getName());
@@ -63,15 +65,15 @@ public class Serializer {
         serializableClasses.add(BFloat.class.getName());
         serializableClasses.add(BByte.class.getName());
 
-        bValueProvider.register(new SerializedKeyBValueProvider());
+        BVALUE_PROVIDER_REGISTRY.register(new SerializedKeyBValueProvider());
 
-        instanceProvider.add(new SerializableStateInstanceProvider());
-        instanceProvider.add(new SerializableWorkerDataInstanceProvider());
-        instanceProvider.add(new SerializableContextInstanceProvider());
-        instanceProvider.add(new WorkerStateInstanceProvider());
-        instanceProvider.add(new SerializableBMapInstanceProvider());
-        instanceProvider.add(new SerializedKeyInstanceProvider());
-        instanceProvider.add(new SerializableBRefArrayInstanceProvider());
+        INSTANCE_PROVIDER_REGISTRY.add(new SerializableStateInstanceProvider());
+        INSTANCE_PROVIDER_REGISTRY.add(new SerializableWorkerDataInstanceProvider());
+        INSTANCE_PROVIDER_REGISTRY.add(new SerializableContextInstanceProvider());
+        INSTANCE_PROVIDER_REGISTRY.add(new WorkerStateInstanceProvider());
+        INSTANCE_PROVIDER_REGISTRY.add(new SerializableBMapInstanceProvider());
+        INSTANCE_PROVIDER_REGISTRY.add(new SerializedKeyInstanceProvider());
+        INSTANCE_PROVIDER_REGISTRY.add(new SerializableBRefArrayInstanceProvider());
     }
 
     public static boolean isSerializable(Object o) {
@@ -82,6 +84,6 @@ public class Serializer {
     }
 
     public static JsonSerializer getJsonSerializer() {
-        return new JsonSerializer();
+        return JSON_SERIALIZER;
     }
 }

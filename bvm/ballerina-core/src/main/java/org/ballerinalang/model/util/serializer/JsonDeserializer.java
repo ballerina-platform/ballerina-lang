@@ -380,7 +380,7 @@ class JsonDeserializer implements BValueDeserializer {
             modifiers.setAccessible(true);
             modifiers.setInt(field, field.getModifiers() & ~Modifier.FINAL);
         } catch (NoSuchFieldException | IllegalAccessException e) {
-            throw new BallerinaException();
+            throw new BallerinaException(e);
         }
     }
 

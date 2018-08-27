@@ -57,11 +57,14 @@ public class BValueHelper {
         sb.append(obj.getClass().getSimpleName());
         sb.append("#");
 
-        // TODO: This is a work around to prevent BArrayTypes .hashCode's NullPointerException preventing progress.
+        // hashCode function may throw an exception probably due to programming error,
+        // and it should not interrupt the serialization process.
+
         int hash;
         try {
             hash = obj.hashCode();
-        } catch (NullPointerException | UnsupportedOperationException e) {
+        } catch (RuntimeException e) {
+            // -2 is just a magic number, indicating exception
             hash = -2;
         }
         sb.append(hash);
@@ -83,8 +86,8 @@ public class BValueHelper {
     /**
      * Walk the object graph and remove the HASH code from nodes that does not repeat.
      *
-     * @param jsonObj
-     * @param repeatedReferenceSet
+     * @param jsonObj BValue tree to be trimmed.
+     * @param repeatedReferenceSet Set of hashCodes of repeated references.
      */
     @SuppressWarnings("unchecked")
     public static void trimTree(BValue jsonObj, HashSet<String> repeatedReferenceSet) {

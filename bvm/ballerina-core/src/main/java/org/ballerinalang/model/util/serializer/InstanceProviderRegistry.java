@@ -37,31 +37,32 @@ public class InstanceProviderRegistry {
         }
     }
 
-    public static InstanceProviderRegistry getInstance() {
+    static InstanceProviderRegistry getInstance() {
         return INSTANCE;
     }
 
     TypeInstanceProvider findInstanceProvider(String type) {
-        TypeInstanceProvider provider = providerMap.get(type);
+        TypeInstanceProvider provider = find(type);
         if (provider != null) {
             return provider;
         }
 
         if (type.endsWith("[]")) {
             ArrayInstanceProvider arrayInstanceProvider = tryCreateArrayInstanceProvider(type);
-            if (arrayInstanceProvider != null) {
-                add(arrayInstanceProvider);
-                return arrayInstanceProvider;
-            }
+            add(arrayInstanceProvider);
+            return arrayInstanceProvider;
         }
 
-        provider = generateProvider(type);
-        if (provider != null) {
-            add(provider);
-            return provider;
+        TypeInstanceProvider instanceProvider = generateProvider(type);
+        if (instanceProvider != null) {
+            add(instanceProvider);
+            return instanceProvider;
         }
-        throw new BallerinaException(String.format(
-                "Can not find or create type instance provider for: %s", type));
+        throw new BallerinaException(String.format("Can not find or create type instance provider for: %s", type));
+    }
+
+    private TypeInstanceProvider find(String type) {
+        return providerMap.get(type);
     }
 
     private ArrayInstanceProvider tryCreateArrayInstanceProvider(String type) {

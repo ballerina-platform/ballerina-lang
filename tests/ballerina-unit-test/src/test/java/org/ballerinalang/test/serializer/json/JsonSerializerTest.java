@@ -324,6 +324,15 @@ public class JsonSerializerTest {
         Assert.assertEquals(deserialize, strings);
     }
 
+    @Test(description = "Test serializing BArray")
+    public void testBArraySerialization() {
+        BArrayType bArrayType = new BArrayType(BTypes.typeString);
+        String serial = new JsonSerializer().serialize(bArrayType);
+        BArrayType deserialize = new JsonSerializer().deserialize(serial, BArrayType.class);
+
+        Assert.assertEquals(deserialize, bArrayType);
+    }
+
     public static class TestClass {
         Object obj;
 

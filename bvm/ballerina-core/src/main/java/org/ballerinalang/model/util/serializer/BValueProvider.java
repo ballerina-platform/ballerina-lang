@@ -34,7 +34,7 @@ public class BValueProvider {
         }
     }
 
-    public static BValueProvider getInstance() {
+    static BValueProvider getInstance() {
         return INSTANCE;
     }
 

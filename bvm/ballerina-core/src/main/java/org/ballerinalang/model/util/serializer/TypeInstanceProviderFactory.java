@@ -104,14 +104,12 @@ public class TypeInstanceProviderFactory {
                         | NoSuchMethodException
                         | IllegalAccessException
                         | InvocationTargetException e) {
-                    // Not even sun.misc.Unsafe can create a instance of this class
-                    // only option is to provide a SerializationBValueProvider or
-                    // TypeInstanceProvider for this type.
-                    throw new BallerinaException(
-                            String.format("%s cannot instantiate object of %s, maybe add a %s",
-                                    JsonSerializer.class.getSimpleName(),
-                                    clazz.getName(),
-                                    TypeInstanceProvider.class.getSimpleName()));
+                    // Control reaching this point means all the attempt at creating an instance of this class failed.
+                    // Only option is to provide a SerializationBValueProvider or TypeInstanceProvider for this type.
+                    throw new BallerinaException(String.format("%s cannot instantiate object of %s, maybe add a %s",
+                            JsonSerializer.class.getSimpleName(),
+                            clazz.getName(),
+                            TypeInstanceProvider.class.getSimpleName()));
                 }
             }
 
