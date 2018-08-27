@@ -1,20 +1,19 @@
 /*
- *   Copyright (c) 2018, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2018, WSO2 Inc. (http://wso2.com) All Rights Reserved.
  *
- *  WSO2 Inc. licenses this file to you under the Apache License,
- *  Version 2.0 (the "License"); you may not use this file except
- *  in compliance with the License.
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
  *  You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *  http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing,
- * software distributed under the License is distributed on an
- * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- * KIND, either express or implied.  See the License for the
- * specific language governing permissions and limitations
- * under the License.
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
  */
+
 package org.ballerinalang.langserver.compiler.workspace;
 
 import org.testng.Assert;
@@ -32,18 +31,17 @@ import java.util.concurrent.locks.Lock;
 import java.util.stream.Stream;
 
 /**
- * Workspace document manager test class.
+ * Tests for the ExtendedWorkspaceDocumentManagerImpl.
  *
  * @since 0.982.0
  */
-public class WorkspaceDocumentManagerImplTest {
-
-    private WorkspaceDocumentManagerImpl documentManager;
+public class ExtendedWorkspaceDocumentManagerImplTest {
+    private ExtendedWorkspaceDocumentManagerImpl documentManager;
     private Path filePath;
 
     @BeforeClass
     public void setUp() {
-        documentManager = WorkspaceDocumentManagerImpl.getInstance();
+        documentManager = ExtendedWorkspaceDocumentManagerImpl.getInstance();
         documentManager.clearAllFilePaths();
         filePath = new File(getClass().getClassLoader().getResource("source").getFile()).toPath()
                 .resolve("singlepackage").resolve("io-sample.bal");
@@ -69,7 +67,7 @@ public class WorkspaceDocumentManagerImplTest {
         Assert.assertNotNull(foundPath);
     }
 
-    @Test(dependsOnMethods = "testOpenFile", expectedExceptions = WorkspaceDocumentException.class)
+    @Test(dependsOnMethods = "testOpenFile")
     public void testOpenFileOnAlreadyOpenFile() throws IOException, WorkspaceDocumentException {
         // Call open file on already open file
         documentManager.openFile(filePath, readAll(filePath.toFile()));
@@ -150,9 +148,25 @@ public class WorkspaceDocumentManagerImplTest {
         documentManager.getFileContent(filePath.resolve("non-existent"));
     }
 
-    @Test(dependsOnMethods = "testCloseFile", expectedExceptions = WorkspaceDocumentException.class)
+    @Test(dependsOnMethods = "testCloseFile")
     public void testUpdateFileOnClosedFile() throws WorkspaceDocumentException {
         documentManager.updateFile(filePath, "");
+    }
+
+    @Test(dependsOnMethods = "testCloseFile")
+    public void testExplicitMode() throws WorkspaceDocumentException {
+        String newContent = "test";
+        Optional<Lock> lock = documentManager.enableExplicitMode(filePath);
+        try {
+            //Update content in explicit mode
+            documentManager.updateFile(filePath, newContent);
+            //Check content in explicit mode
+            Assert.assertEquals(newContent, documentManager.getFileContent(filePath));
+        } finally {
+            documentManager.disableExplicitMode(lock.orElse(null));
+        }
+        //Check the content in other mode
+        Assert.assertNotEquals(newContent, documentManager.getFileContent(filePath));
     }
 
     private String readAll(File filePath) throws IOException {
