@@ -81,8 +81,7 @@ public class Http2ServerPushTestCase {
         future.sync();
 
         TransportsConfiguration transportsConfiguration = new TransportsConfiguration();
-        senderConfiguration =
-                HttpConnectorUtil.getSenderConfiguration(transportsConfiguration, Constants.HTTP_SCHEME);
+        senderConfiguration = HttpConnectorUtil.getSenderConfiguration(transportsConfiguration, Constants.HTTP_SCHEME);
         senderConfiguration.setHttpVersion(String.valueOf(Constants.HTTP_2_0));
 
         httpClientConnector = connectorFactory.createHttpClientConnector(

@@ -33,9 +33,9 @@ import org.wso2.transport.http.netty.message.HttpCarbonRequest;
 import org.wso2.transport.http.netty.message.HttpCarbonResponse;
 import org.wso2.transport.http.netty.util.TestUtil;
 
-import java.io.UnsupportedEncodingException;
 import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 
 /**
  * A utility class which generates HTTP/2.0 requests.
@@ -59,26 +59,23 @@ public class MessageGenerator {
         return httpCarbonMessage;
     }
 
-    public static HttpCarbonMessage generateResponse(String response) throws UnsupportedEncodingException {
+    public static HttpCarbonMessage generateResponse(String response) {
         return generateResponse(response, null);
     }
 
-    public static HttpCarbonMessage generateResponse(String response, HttpResponseStatus status)
-            throws UnsupportedEncodingException {
+    public static HttpCarbonMessage generateResponse(String response, HttpResponseStatus status) {
         if (status == null) {
             status = HttpResponseStatus.OK;
         }
-        HttpCarbonMessage httpResponse =
-                new HttpCarbonResponse(new DefaultHttpResponse(HttpVersion.HTTP_1_1, status));
+        HttpCarbonMessage httpResponse = new HttpCarbonResponse(new DefaultHttpResponse(HttpVersion.HTTP_1_1, status));
         httpResponse.setHeader(HttpHeaderNames.CONNECTION.toString(), HttpHeaderValues.KEEP_ALIVE.toString());
         httpResponse.setHeader(HttpHeaderNames.CONTENT_TYPE.toString(), Constants.TEXT_PLAIN);
         httpResponse.setProperty(Constants.HTTP_STATUS_CODE, status.code());
 
         if (response != null) {
-            byte[] responseByteValues = response.getBytes("UTF-8");
+            byte[] responseByteValues = response.getBytes(StandardCharsets.UTF_8);
             ByteBuffer responseValueByteBuffer = ByteBuffer.wrap(responseByteValues);
-            httpResponse.
-                    addHttpContent(new DefaultLastHttpContent(Unpooled.wrappedBuffer(responseValueByteBuffer)));
+            httpResponse.addHttpContent(new DefaultLastHttpContent(Unpooled.wrappedBuffer(responseValueByteBuffer)));
         } else {
             httpResponse.completeMessage();
         }

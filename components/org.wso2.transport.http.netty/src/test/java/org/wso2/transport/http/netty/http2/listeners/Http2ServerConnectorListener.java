@@ -63,8 +63,7 @@ public class Http2ServerConnectorListener implements HttpConnectorListener {
                 List<Http2PushPromise> promises = new ArrayList<>();
                 if (promisedResources != null) {
                     for (String promisedResource : promisedResources) {
-                        Http2PushPromise promise =
-                                new Http2PushPromise(Constants.HTTP_GET_METHOD, promisedResource);
+                        Http2PushPromise promise = new Http2PushPromise(Constants.HTTP_GET_METHOD, promisedResource);
                         HttpResponseFuture responseFuture = httpRequest.pushPromise(promise);
                         responseFuture.sync();
                         Throwable error = responseFuture.getStatus().getCause();
