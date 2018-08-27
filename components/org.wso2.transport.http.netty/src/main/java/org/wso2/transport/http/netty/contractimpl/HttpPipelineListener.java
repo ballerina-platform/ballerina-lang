@@ -21,7 +21,9 @@ package org.wso2.transport.http.netty.contractimpl;
 import io.netty.channel.ChannelHandlerContext;
 
 /**
- * Listener to trigger pipelining logic once the last http content is sent out the socket.
+ * Listener to trigger pipelining logic once the last http content is written to the socket.
+ *
+ * @since 6.0.225
  */
 public interface HttpPipelineListener {
 

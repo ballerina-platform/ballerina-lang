@@ -256,7 +256,6 @@ public final class Constants {
             .valueOf("CLIENT_CONNECTOR");
     public static final int REDIRECT_SEE_OTHER_303 = 303;
 
-    public static final String INBOUND_REQUEST_SEQUENCE_ID = "INBOUND_REQUEST_SEQUENCE_ID";
     public static final AttributeKey<Integer> MAX_RESPONSES_ALLOWED_TO_BE_QUEUED =
             AttributeKey.valueOf("MAX_RESPONSES_ALLOWED_TO_BE_QUEUED");
     public static final AttributeKey<Queue> RESPONSE_QUEUE = AttributeKey.valueOf("RESPONSE_QUEUE");

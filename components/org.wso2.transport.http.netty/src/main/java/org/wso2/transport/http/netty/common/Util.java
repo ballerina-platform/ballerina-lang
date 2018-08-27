@@ -763,7 +763,6 @@ public class Util {
     public static boolean isKeepAliveConnection(KeepAliveConfig keepAliveConfig, String requestConnectionHeader,
                                                 String httpVersion) {
         if (keepAliveConfig == null || keepAliveConfig == KeepAliveConfig.AUTO) {
-
             if (Float.valueOf(httpVersion) <= Constants.HTTP_1_0) {
                 return requestConnectionHeader != null && requestConnectionHeader
                         .equalsIgnoreCase(Constants.CONNECTION_KEEP_ALIVE);

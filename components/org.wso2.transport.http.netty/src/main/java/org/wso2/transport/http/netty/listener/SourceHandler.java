@@ -82,8 +82,8 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
     protected ChannelHandlerContext ctx;
     private SocketAddress remoteAddress;
 
-    private boolean pipeliningNeeded;
-    private final int maximumEvents = 3; //TODO: We should let the user configure this
+    private boolean pipeliningNeeded; //Based on the pipelining config
+    private final int maximumEvents = 3; //TODO: Let the user configure this
     private int sequenceId = 1; //Keep track of the request order for http 1.1 pipelining
     private final Queue holdingQueue = new PriorityQueue<>(NUMBER_OF_INITIAL_EVENTS_HELD);
 
