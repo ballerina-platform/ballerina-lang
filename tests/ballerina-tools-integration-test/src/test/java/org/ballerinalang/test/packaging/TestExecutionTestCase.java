@@ -36,7 +36,7 @@ import java.nio.file.StandardOpenOption;
  *
  * @since 0.982.0
  */
-public class PackagingTestExecutionTestCase extends BaseTest {
+public class TestExecutionTestCase extends BaseTest {
     private Path tempProjectDirectory;
     private String[] envVariables;
 

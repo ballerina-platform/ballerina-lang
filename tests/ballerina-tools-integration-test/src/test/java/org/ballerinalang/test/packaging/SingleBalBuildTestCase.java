@@ -34,7 +34,7 @@ import java.nio.file.StandardOpenOption;
 /**
  * Testing building of a single bal file.
  */
-public class PackagingSingleBalBuildTestCase extends BaseTest {
+public class SingleBalBuildTestCase extends BaseTest {
     private Path tempProjectDirectory;
     private Path balFilePath;
     private String[] envVariables;

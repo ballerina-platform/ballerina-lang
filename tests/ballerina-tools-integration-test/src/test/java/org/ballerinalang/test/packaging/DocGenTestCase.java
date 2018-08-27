@@ -34,7 +34,7 @@ import java.nio.file.Path;
  *
  * @since 0.982.0
  */
-public class PackagingDocGenTestCase extends BaseTest {
+public class DocGenTestCase extends BaseTest {
     private Path tempProjectDirectory;
     private String[] envVariables;
 
