@@ -36,8 +36,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.ByteBuffer;
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReentrantLock;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.InflaterInputStream;
 
@@ -54,10 +52,6 @@ public class HttpMessageDataStreamer {
     private ByteBufAllocator pooledByteBufAllocator;
     private HttpMessageDataStreamer.ByteBufferInputStream byteBufferInputStream;
     private HttpMessageDataStreamer.ByteBufferOutputStream byteBufferOutputStream;
-    private IOException ioException;
-
-    // Lock to synchronize  byte stream write operation
-    private Lock byteStreamWriteLock = new ReentrantLock();
 
     public HttpMessageDataStreamer(HttpCarbonMessage httpCarbonMessage) {
         this.httpCarbonMessage = httpCarbonMessage;
@@ -168,7 +162,7 @@ public class HttpMessageDataStreamer {
         }
 
         private ByteBuf getBuffer() {
-            if (pooledByteBufAllocator ==  null) {
+            if (pooledByteBufAllocator == null) {
                 return Unpooled.buffer(CONTENT_BUFFER_SIZE);
             } else {
                 return pooledByteBufAllocator.directBuffer(CONTENT_BUFFER_SIZE);
@@ -210,14 +204,5 @@ public class HttpMessageDataStreamer {
             }
         }
         return createInputStreamIfNull();
-    }
-
-    public void setIoException(IOException ioException) {
-        byteStreamWriteLock.lock();
-        try {
-            this.ioException = ioException;
-        } finally {
-            byteStreamWriteLock.unlock();
-        }
     }
 }

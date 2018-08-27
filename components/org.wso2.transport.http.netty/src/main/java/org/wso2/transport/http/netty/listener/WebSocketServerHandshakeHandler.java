@@ -118,11 +118,6 @@ public class WebSocketServerHandshakeHandler extends ChannelInboundHandlerAdapte
     }
 
     @Override
-    public void channelInactive(ChannelHandlerContext ctx) {
-        ctx.close();
-    }
-
-    @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
         ctx.writeAndFlush(new DefaultFullHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.INTERNAL_SERVER_ERROR))
                 .addListener(ChannelFutureListener.CLOSE);
