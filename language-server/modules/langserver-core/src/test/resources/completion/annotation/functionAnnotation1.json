@@ -1,0 +1,23 @@
+{
+  "position": {
+    "line": 2,
+    "character": 1
+  },
+  "source": "annotation/source/functionAnnotation1.bal",
+  "items": [
+    {
+      "label":"Return",
+      "detail":"Annotation",
+      "sortText":"110",
+      "insertText":"Return {\n\t${1}\n}",
+      "insertTextFormat":"Snippet"
+    },
+    {
+      "label":"Param",
+      "detail":"Annotation",
+      "sortText":"110",
+      "insertText":"Param {\n\t${1}\n}",
+      "insertTextFormat":"Snippet"
+    }
+  ]
+}
