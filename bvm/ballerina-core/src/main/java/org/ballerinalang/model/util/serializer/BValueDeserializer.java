@@ -26,7 +26,30 @@ import org.ballerinalang.model.values.BValue;
  * @since 0.98.1
  */
 public interface BValueDeserializer {
+    /**
+     * Covert {@link BValue} object tree into Java object of class {@code targetType}.
+     *
+     * @param jValue     Data to deserialize.
+     * @param targetType Expected Java object type.
+     * @return Populated object of {@code targetType}.
+     */
     Object deserialize(BValue jValue, Class<?> targetType);
+
+    /**
+     * Add deserialized object for reference tracking.
+     * <p>
+     * This reference tracking is used when deserializing objects that links to existing objects.
+     *
+     * @param jBMap  source payload containing hashCode reference information.
+     * @param object Referenced object represented by this reference.
+     */
     void addObjReference(BMap<String, BValue> jBMap, Object object);
+
+    /**
+     * Find the object this reference key is pointing to.
+     *
+     * @param key Reference pointer.
+     * @return Object referenced by {@code key} pointer.
+     */
     Object getExistingObjRef(String key);
 }

@@ -51,7 +51,7 @@ class BRefValueArrays {
         return new BRefValueArray(backing, B_INT_ARRAY_TYPE);
     }
 
-    public BRefValueArray from(long[] array) {
+    BRefValueArray from(long[] array) {
         if (array == null) {
             return null;
         }
@@ -63,7 +63,7 @@ class BRefValueArrays {
         return new BRefValueArray(backing, B_INT_ARRAY_TYPE);
     }
 
-    public BRefValueArray from(double[] array) {
+    BRefValueArray from(double[] array) {
         if (array == null) {
             return null;
         }
@@ -75,7 +75,7 @@ class BRefValueArrays {
         return new BRefValueArray(backing, B_FLOAT_ARRAY_TYPE);
     }
 
-    public BRefValueArray from(String[] array) {
+    BRefValueArray from(String[] array) {
         if (array == null) {
             return null;
         }
@@ -92,7 +92,7 @@ class BRefValueArrays {
         return backing;
     }
 
-    public BRefValueArray from(Byte[] array) {
+    BRefValueArray from(Byte[] array) {
         if (array == null) {
             return null;
         }
