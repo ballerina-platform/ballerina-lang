@@ -129,7 +129,6 @@ public class IdleTimeoutResponseTestCase extends BaseTest {
         writeDelayedRequest(clientSocket);
         String expected = "HTTP/1.1 408 Request Timeout\r\n" +
                 "content-length: 0\r\n" +
-                "content-type: text/plain\r\n" +
                 "connection: close";
         readAndAssertResponse(clientSocket, expected);
     }
