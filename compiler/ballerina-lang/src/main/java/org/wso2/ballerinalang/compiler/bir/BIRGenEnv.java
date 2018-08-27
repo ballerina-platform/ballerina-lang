@@ -17,7 +17,6 @@
  */
 package org.wso2.ballerinalang.compiler.bir;
 
-import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRBasicBlock;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRFunction;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRPackage;
@@ -36,8 +35,6 @@ import java.util.Map;
  * @since 0.980.0
  */
 public class BIRGenEnv {
-
-    public BIRNode node;
 
     public BIRPackage enclPkg;
 

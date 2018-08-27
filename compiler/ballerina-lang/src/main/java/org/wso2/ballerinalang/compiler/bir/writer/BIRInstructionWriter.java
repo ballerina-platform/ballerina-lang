@@ -18,6 +18,7 @@
 package org.wso2.ballerinalang.compiler.bir.writer;
 
 import io.netty.buffer.ByteBuf;
+import org.ballerinalang.compiler.BLangCompilerException;
 import org.ballerinalang.model.elements.PackageID;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRBasicBlock;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator;
@@ -57,6 +58,9 @@ public class BIRInstructionWriter extends BIRVisitor {
         // Adding the terminator instruction as well.
         buf.writeInt(birBasicBlock.instructions.size() + 1);
         birBasicBlock.instructions.forEach(instruction -> ((BIRNonTerminator) instruction).accept(this));
+        if (birBasicBlock.terminator == null) {
+            throw new BLangCompilerException("Basic block without a terminator : " + birBasicBlock.id);
+        }
         birBasicBlock.terminator.accept(this);
     }
 
@@ -99,7 +103,7 @@ public class BIRInstructionWriter extends BIRVisitor {
         int pkgIndex = cp.addCPEntry(new CPEntry.PackageCPEntry(orgCPIndex, nameCPIndex, versionCPIndex));
         buf.writeInt(pkgIndex);
         buf.writeInt(addStringCPEntry(birCall.name.getValue()));
-        buf.writeInt(birCall.args.length);
+        buf.writeInt(birCall.args.size());
         for (BIROperand arg : birCall.args) {
             arg.accept(this);
         }

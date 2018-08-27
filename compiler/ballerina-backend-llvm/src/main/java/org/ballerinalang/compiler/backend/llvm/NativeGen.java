@@ -44,12 +44,14 @@ import java.io.PrintStream;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.FileSystem;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.Map;
 import java.util.stream.Collectors;
 
@@ -224,13 +226,16 @@ public class NativeGen {
         }
     }
 
-    private static String getProcessErrorOutput(Process process) {
-        BufferedReader errReader = new BufferedReader(new InputStreamReader(process.getErrorStream()));
-        return errReader.lines().collect(Collectors.joining(", "));
+    private static String getProcessErrorOutput(Process process) throws IOException {
+        //TODO: check win https://stackoverflow.com/questions/8398277/which-encoding-does-process-getinputstream-use
+        InputStreamReader in = new InputStreamReader(process.getErrorStream(), StandardCharsets.UTF_8);
+        try (BufferedReader errReader = new BufferedReader(in)) {
+            return errReader.lines().collect(Collectors.joining(", "));
+        }
     }
 
     private static ProcessBuilder createOSSpecificGCCCommand(Path objectFilePath, String execFilename) {
-        String osName = System.getProperty("os.name").toLowerCase();
+        String osName = System.getProperty("os.name").toLowerCase(Locale.ENGLISH);
         ProcessBuilder gccProcessBuilder = new ProcessBuilder();
         if (osName.startsWith("windows")) {
             // TODO Window environment

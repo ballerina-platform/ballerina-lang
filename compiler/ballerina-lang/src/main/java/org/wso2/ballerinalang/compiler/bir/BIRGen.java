@@ -108,12 +108,12 @@ public class BIRGen extends BLangNodeVisitor {
     }
 
     public void visit(BLangFunction astFunc) {
-        BIRFunction birFunc = new BIRFunction(astFunc.symbol.name);
+        Visibility visibility = getVisibility(astFunc.symbol);
+        BInvokableType type = astFunc.symbol.getType();
+        BIRFunction birFunc = new BIRFunction(astFunc.symbol.name, visibility, type);
         birFunc.isDeclaration = Symbols.isNative(astFunc.symbol);
-        birFunc.visibility = getVisibility(astFunc.symbol);
         birFunc.argsCount = astFunc.requiredParams.size() +
-                astFunc.defaultableParams.size() + (astFunc.restParam != null ? 1 : 0);
-        birFunc.type = (BInvokableType) astFunc.symbol.type;
+                            astFunc.defaultableParams.size() + (astFunc.restParam != null ? 1 : 0);
 
         this.env.enclPkg.functions.add(birFunc);
         this.env.enclFunc = birFunc;
@@ -246,7 +246,7 @@ public class BIRGen extends BLangNodeVisitor {
 
         this.env.enclBB.terminator = new BIRTerminator.Call(invocationExpr.symbol.pkgID,
                                                             names.fromString(invocationExpr.name.value),
-                                                            args.toArray(new BIROperand[0]),
+                                                            args,
                                                             lhsOp,
                                                             thenBB);
 

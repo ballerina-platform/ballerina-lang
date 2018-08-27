@@ -20,6 +20,8 @@ package org.wso2.ballerinalang.compiler.bir.model;
 import org.ballerinalang.model.Name;
 import org.ballerinalang.model.elements.PackageID;
 
+import java.util.List;
+
 /**
  * Terminators connects basic blocks together.
  * <p>
@@ -66,12 +68,12 @@ public abstract class BIRTerminator extends BIRNode implements BIRInstruction {
      */
     public static class Call extends BIRTerminator implements BIRAssignInstruction {
         public BIROperand.BIRVarRef lhsOp;
-        public BIROperand[] args;
+        public List<BIROperand> args;
         public BIRBasicBlock thenBB;
         public Name name;
         public PackageID calleePkg;
 
-        public Call(PackageID calleePkg, Name name, BIROperand[] args, BIROperand.BIRVarRef lhsOp, BIRBasicBlock
+        public Call(PackageID calleePkg, Name name, List<BIROperand> args, BIROperand.BIRVarRef lhsOp, BIRBasicBlock
                 thenBB) {
             super(InstructionKind.CALL);
             this.lhsOp = lhsOp;

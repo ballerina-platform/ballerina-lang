@@ -17,8 +17,10 @@
 */
 package org.wso2.ballerinalang.compiler.semantics.model.symbols;
 
+import org.ballerinalang.compiler.BLangCompilerException;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.symbols.InvokableSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.util.Name;
 
@@ -58,6 +60,15 @@ public class BInvokableSymbol extends BVarSymbol implements InvokableSymbol {
     public List<BVarSymbol> getParameters() {
         return params;
     }
+
+    public BInvokableType getType() {
+        if (type instanceof BInvokableType) {
+            return (BInvokableType) type;
+        }
+        // Should never come here, this is to please the spotbugs
+        throw new BLangCompilerException("Invokable symbol with non invokable type : " + type);
+    }
+
 
     @Override
     public BType getReturnType() {
