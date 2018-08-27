@@ -187,8 +187,11 @@ public class TargetChannel {
 
         resetTargetChannelState();
 
-        StateContext stateContext = new StateContext();
-        httpOutboundRequest.setStateContext(stateContext);
+        StateContext stateContext = httpOutboundRequest.getStateContext();
+        if (stateContext == null) {
+            stateContext = new StateContext();
+            httpOutboundRequest.setStateContext(stateContext);
+        }
         httpOutboundRequest.getStateContext()
                 .setSenderState(new SendingHeaders(stateContext, this, httpVersion, chunkConfig,
                                                    httpInboundResponseFuture));
