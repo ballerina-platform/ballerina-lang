@@ -129,8 +129,14 @@ function renderDiagram(content, jsonModelObj, resourceRoot, stale) {
 
             function onChange(evt) {
                 vscode.postMessage({
-                    command: 'update',
-                    content: evt.newContent
+                    command: 'astModified',
+                    ast: JSON.stringify(evt.newAST, (key, value) => {
+                        currentKey = key;
+                        if (key === 'parent' || key === 'viewState' || key === '_events'|| key === 'id') {
+                            return undefined;
+                        }
+                        return value;
+                    })
                 })
             }
 

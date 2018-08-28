@@ -136,8 +136,10 @@ exports.activate = function(context) {
 
 	const langClient = new LanguageClient('ballerina-vscode', 'Ballerina vscode lanugage client',
 		getServerOptions(), clientOptions);
-	const langClientDisposable = langClient.start();
-	
+	langClient.onReady(() => {
+		//activateRenderer(context, langClient);
+	});
+	const langClientDisposable = langClient.start();	
 	activateRenderer(context, langClient);
 
 	// Push the disposable to the context's subscriptions so that the 

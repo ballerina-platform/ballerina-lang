@@ -68,13 +68,10 @@ class BallerinaDiagram extends React.Component {
     }
 
     onModelUpdate(evt) {
+        this.forceUpdate();
         const { currentAST } = this.state;
         if (currentAST) {
-            const newContent = currentAST.getSource();
-            this.setState({
-                content: newContent,
-            });
-            this.props.onChange({ newContent });
+            this.props.onChange({ newAST: currentAST });
         }
     }
 

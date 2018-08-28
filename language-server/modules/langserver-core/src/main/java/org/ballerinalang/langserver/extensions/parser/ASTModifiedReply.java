@@ -15,9 +15,8 @@
  */
 package org.ballerinalang.langserver.extensions.parser;
 
-public class ParserRequest {
-
-    private String content;
+public class ASTModifiedReply {
+    String content;
 
     public String getContent() {
         return content;

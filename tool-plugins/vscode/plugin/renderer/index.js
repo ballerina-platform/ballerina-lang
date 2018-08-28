@@ -91,7 +91,8 @@ exports.activate = function(context, langClient) {
             ViewColumn.Two,
             {
 				enableScripts: true,
-				localResourceRoots: [resourcePath]
+				localResourceRoots: [resourcePath],
+				retainContextWhenHidden: true
 			}
 		);
 		const editor = window.activeTextEditor;
@@ -109,16 +110,18 @@ exports.activate = function(context, langClient) {
 		// Handle messages from the webview
         previewPanel.webview.onDidReceiveMessage(message => {
             switch (message.command) {
-				case 'update':
+				case 'astModified':
 					if (activeEditor && activeEditor.document.fileName.endsWith('.bal')) {
-						const content = message.content;
-						const replaceRange = new Range(
-							activeEditor.document.positionAt(0),
-							activeEditor.document.positionAt(activeEditor.document.getText().length)
-						)
 						preventDiagramUpdate = true;
-						activeEditor.edit((edit) => edit.replace(replaceRange, content));
-						preventDiagramUpdate = false;
+						const ast = JSON.parse(message.ast);
+						langClient.sendRequest("ballerinaParser/astModified", {
+							ast,
+							textDocumentIdentifier: {
+								uri: activeEditor.document.uri.toString()
+							}
+						}).then(() => {
+							preventDiagramUpdate = false;
+						});	
 					}
                     return;
             }

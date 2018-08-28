@@ -15,16 +15,28 @@
  */
 package org.ballerinalang.langserver.extensions.parser;
 
-import org.eclipse.lsp4j.jsonrpc.services.JsonRequest;
-import org.eclipse.lsp4j.jsonrpc.services.JsonSegment;
+import com.google.gson.JsonObject;
+import org.eclipse.lsp4j.VersionedTextDocumentIdentifier;
 
-import java.util.concurrent.CompletableFuture;
+public class ASTModifiedRequest {
 
-@JsonSegment("ballerinaParser")
-public interface BallerinaParserService {
-    @JsonRequest
-    CompletableFuture<ParseContentReply> parseContent(ParseContentRequest request);
+    JsonObject ast;
 
-    @JsonRequest
-    CompletableFuture<ASTModifiedReply> astModified(ASTModifiedRequest request);
+    VersionedTextDocumentIdentifier textDocumentIdentifier;
+
+    public JsonObject getAst() {
+        return ast;
+    }
+
+    public void setAst(JsonObject ast) {
+        this.ast = ast;
+    }
+
+    public VersionedTextDocumentIdentifier getTextDocumentIdentifier() {
+        return textDocumentIdentifier;
+    }
+
+    public void setTextDocumentIdentifier(VersionedTextDocumentIdentifier textDocumentIdentifier) {
+        this.textDocumentIdentifier = textDocumentIdentifier;
+    }
 }

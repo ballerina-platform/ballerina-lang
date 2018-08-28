@@ -22,8 +22,6 @@ import org.ballerinalang.langserver.compiler.workspace.WorkspaceDocumentManagerI
 import org.ballerinalang.langserver.extensions.ExtendedLanguageServer;
 import org.ballerinalang.langserver.extensions.parser.BallerinaParserService;
 import org.ballerinalang.langserver.extensions.parser.BallerinaParserServiceImpl;
-import org.ballerinalang.langserver.extensions.parser.ParserReply;
-import org.ballerinalang.langserver.extensions.parser.ParserRequest;
 import org.ballerinalang.langserver.index.LSIndexImpl;
 import org.eclipse.lsp4j.CompletionOptions;
 import org.eclipse.lsp4j.ExecuteCommandOptions;
@@ -32,10 +30,8 @@ import org.eclipse.lsp4j.InitializeResult;
 import org.eclipse.lsp4j.ServerCapabilities;
 import org.eclipse.lsp4j.SignatureHelpOptions;
 import org.eclipse.lsp4j.TextDocumentSyncKind;
-import org.eclipse.lsp4j.jsonrpc.services.JsonDelegate;
 import org.eclipse.lsp4j.services.LanguageClient;
 import org.eclipse.lsp4j.services.LanguageClientAware;
-import org.eclipse.lsp4j.services.LanguageServer;
 import org.eclipse.lsp4j.services.TextDocumentService;
 import org.eclipse.lsp4j.services.WorkspaceService;
 
@@ -69,7 +65,7 @@ public class BallerinaLanguageServer implements ExtendedLanguageServer, Language
 
         textService = new BallerinaTextDocumentService(lsGlobalContext);
         workspaceService = new BallerinaWorkspaceService(lsGlobalContext);
-        parserService = new BallerinaParserServiceImpl();
+        parserService = new BallerinaParserServiceImpl(lsGlobalContext);
     }
 
     public LanguageClient getClient() {

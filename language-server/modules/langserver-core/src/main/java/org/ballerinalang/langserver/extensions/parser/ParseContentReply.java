@@ -17,7 +17,7 @@ package org.ballerinalang.langserver.extensions.parser;
 
 import com.google.gson.JsonElement;
 
-public class ParserReply {
+public class ParseContentReply {
     private JsonElement model;
 
     private boolean parseSuccess;
