@@ -17,6 +17,15 @@
  */
 package org.ballerinalang.net.grpc.builder;
 
+import com.github.jknack.handlebars.Context;
+import com.github.jknack.handlebars.Handlebars;
+import com.github.jknack.handlebars.Template;
+import com.github.jknack.handlebars.context.FieldValueResolver;
+import com.github.jknack.handlebars.context.JavaBeanValueResolver;
+import com.github.jknack.handlebars.context.MapValueResolver;
+import com.github.jknack.handlebars.helper.StringHelpers;
+import com.github.jknack.handlebars.io.ClassPathTemplateLoader;
+import com.github.jknack.handlebars.io.FileTemplateLoader;
 import com.google.protobuf.DescriptorProtos;
 import org.ballerinalang.net.grpc.MethodDescriptor;
 import org.ballerinalang.net.grpc.builder.components.ClientFile;
@@ -37,6 +46,7 @@ import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.PrintWriter;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.Arrays;
@@ -52,7 +62,8 @@ import static org.ballerinalang.net.grpc.builder.utils.BalGenConstants.SAMPLE_TE
 import static org.ballerinalang.net.grpc.builder.utils.BalGenConstants.SERVICE_INDEX;
 import static org.ballerinalang.net.grpc.builder.utils.BalGenConstants.SKELETON_TEMPLATE_NAME;
 import static org.ballerinalang.net.grpc.builder.utils.BalGenConstants.STUB_FILE_PREFIX;
-import static org.ballerinalang.net.grpc.builder.utils.BalGenerationUtils.writeBallerina;
+import static org.ballerinalang.net.grpc.builder.utils.BalGenConstants.TEMPLATES_DIR_PATH_KEY;
+import static org.ballerinalang.net.grpc.builder.utils.BalGenConstants.TEMPLATES_SUFFIX;
 import static org.ballerinalang.net.grpc.proto.ServiceProtoConstants.PROTO_FILE_EXTENSION;
 
 /**
@@ -153,10 +164,10 @@ public class BallerinaFileBuilder {
                 this.balOutPath = BalGenConstants.DEFAULT_PACKAGE;
             }
             String stubFilePath = generateOutputFile(this.balOutPath, filename + STUB_FILE_PREFIX);
-            writeBallerina(stubFileObject, DEFAULT_SKELETON_DIR, SKELETON_TEMPLATE_NAME, stubFilePath);
+            writeOutputFile(stubFileObject, DEFAULT_SKELETON_DIR, SKELETON_TEMPLATE_NAME, stubFilePath);
             if (clientFileObject != null) {
                 String clientFilePath = generateOutputFile(this.balOutPath, filename + SAMPLE_FILE_PREFIX);
-                writeBallerina(clientFileObject, DEFAULT_SAMPLE_DIR, SAMPLE_TEMPLATE_NAME, clientFilePath);
+                writeOutputFile(clientFileObject, DEFAULT_SAMPLE_DIR, SAMPLE_TEMPLATE_NAME, clientFilePath);
             }
         } catch (IOException | GrpcServerException e) {
             throw new BalGenerationException("Error while generating .bal file.", e);
@@ -173,6 +184,77 @@ public class BallerinaFileBuilder {
             Files.createFile(Paths.get(file.getAbsolutePath()));
         }
         return file.getAbsolutePath();
+    }
+
+    /**
+     * Write ballerina definition of a <code>object</code> to a file as described by <code>template.</code>
+     *
+     * @param object       Context object to be used by the template parser
+     * @param templateDir  Directory with all the templates required for generating the source file
+     * @param templateName Name of the parent template to be used
+     * @param outPath      Destination path for writing the resulting source file
+     * @throws IOException when file operations fail
+     */
+    private static void writeOutputFile(Object object, String templateDir, String templateName, String outPath)
+            throws IOException {
+        PrintWriter writer = null;
+        try {
+            Template template = compileTemplate(templateDir, templateName);
+            Context context = Context.newBuilder(object).resolver(
+                    MapValueResolver.INSTANCE,
+                    JavaBeanValueResolver.INSTANCE,
+                    FieldValueResolver.INSTANCE).build();
+            writer = new PrintWriter(outPath, "UTF-8");
+            writer.println(template.apply(context));
+        } finally {
+            if (writer != null) {
+                writer.close();
+            }
+        }
+    }
+
+    private static Template compileTemplate(String defaultTemplateDir, String templateName) throws IOException {
+        String templatesDirPath = System.getProperty(TEMPLATES_DIR_PATH_KEY, defaultTemplateDir);
+        ClassPathTemplateLoader cpTemplateLoader = new ClassPathTemplateLoader((templatesDirPath));
+        FileTemplateLoader fileTemplateLoader = new FileTemplateLoader(templatesDirPath);
+        cpTemplateLoader.setSuffix(TEMPLATES_SUFFIX);
+        fileTemplateLoader.setSuffix(TEMPLATES_SUFFIX);
+
+        Handlebars handlebars = new Handlebars().with(cpTemplateLoader, fileTemplateLoader);
+        handlebars.registerHelpers(StringHelpers.class);
+        handlebars.registerHelper("equals", (object, options) -> {
+            CharSequence result;
+            Object param0 = options.param(0);
+
+            if (param0 == null) {
+                throw new IllegalArgumentException("found n'null', expected 'string'");
+            }
+            if (object != null && object.toString().equals(param0.toString())) {
+                result = options.fn(options.context);
+            } else {
+                result = null;
+            }
+
+            return result;
+        });
+
+        handlebars.registerHelper("not_equal", (object, options) -> {
+            CharSequence result;
+            Object param0 = options.param(0);
+
+            if (param0 == null) {
+                throw new IllegalArgumentException("found n'null', expected 'string'");
+            }
+            if (object == null || !object.toString().equals(param0.toString())) {
+                result = options.fn(options.context);
+            } else {
+                result = null;
+            }
+
+            return result;
+        });
+
+        return handlebars.compile(templateName);
     }
     
     private void setRootDescriptor(byte[] rootDescriptor) {

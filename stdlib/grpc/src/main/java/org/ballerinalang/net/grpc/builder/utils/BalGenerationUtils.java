@@ -17,29 +17,6 @@
  */
 package org.ballerinalang.net.grpc.builder.utils;
 
-import com.github.jknack.handlebars.Context;
-import com.github.jknack.handlebars.Handlebars;
-import com.github.jknack.handlebars.Template;
-import com.github.jknack.handlebars.context.FieldValueResolver;
-import com.github.jknack.handlebars.context.JavaBeanValueResolver;
-import com.github.jknack.handlebars.context.MapValueResolver;
-import com.github.jknack.handlebars.helper.StringHelpers;
-import com.github.jknack.handlebars.io.ClassPathTemplateLoader;
-import com.github.jknack.handlebars.io.FileTemplateLoader;
-import com.google.protobuf.DescriptorProtos;
-import org.ballerinalang.net.grpc.exception.UnsupportedFieldTypeException;
-
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.PrintWriter;
-import java.io.UnsupportedEncodingException;
-import java.nio.file.Path;
-import java.util.HashMap;
-import java.util.Map;
-
-import static org.ballerinalang.net.grpc.builder.utils.BalGenConstants.TEMPLATES_DIR_PATH_KEY;
-import static org.ballerinalang.net.grpc.builder.utils.BalGenConstants.TEMPLATES_SUFFIX;
-
 /**
  * Util functions which are use when generating . bal stub
  */
@@ -61,7 +38,7 @@ public class BalGenerationUtils {
         }
         return new String(hexChars);
     }
-    
+
     /**
      * This function returns the ballerina data type which is mapped to  protobuf data type.
      *
@@ -96,169 +73,5 @@ public class BalGenerationUtils {
                 return protoType;
             }
         }
-    }
-    
-    /**
-     * Method is responsible of writing the bal string payload to .bal file.
-     *
-     * @param payload    .
-     * @param balOutPath .
-     * @throws FileNotFoundException
-     * @throws UnsupportedEncodingException
-     */
-    public static void writeFile(String payload, Path balOutPath) throws FileNotFoundException,
-            UnsupportedEncodingException {
-        PrintWriter writer = new PrintWriter(balOutPath.toFile(), "UTF-8");
-        writer.print(payload);
-        writer.close();
-    }
-    
-    /**
-     * Method is responsible for convert globally defined struct List to map.
-     *
-     * @param list .
-     * @return .
-     */
-    public static Map<String, DescriptorProtos.DescriptorProto> attributeListToMap(java.util.List<DescriptorProtos
-            .DescriptorProto> list) {
-        Map<String, DescriptorProtos.DescriptorProto> stringObjectMap = new HashMap<>();
-        for (DescriptorProtos.DescriptorProto proto : list) {
-            stringObjectMap.put(proto.getName(), proto);
-        }
-        return stringObjectMap;
-    }
-    
-    /**
-     * Method is for getting ballerina data type which is map to the .proto data type.
-     *
-     * @param num .
-     * @return .
-     */
-    public static String getTypeName(int num) {
-        switch (num) {
-            case DescriptorProtos.FieldDescriptorProto.Type.TYPE_DOUBLE_VALUE: {
-                return "float";
-            }
-            case DescriptorProtos.FieldDescriptorProto.Type.TYPE_FLOAT_VALUE: {
-                return "float";
-            }
-            case DescriptorProtos.FieldDescriptorProto.Type.TYPE_INT64_VALUE:
-            case DescriptorProtos.FieldDescriptorProto.Type.TYPE_UINT64_VALUE:
-            case DescriptorProtos.FieldDescriptorProto.Type.TYPE_FIXED64_VALUE: {
-                return "int";
-            }
-            case DescriptorProtos.FieldDescriptorProto.Type.TYPE_INT32_VALUE:
-            case DescriptorProtos.FieldDescriptorProto.Type.TYPE_FIXED32_VALUE: {
-                return "int";
-            }
-            case DescriptorProtos.FieldDescriptorProto.Type.TYPE_BOOL_VALUE: {
-                return "boolean";
-            }
-            case DescriptorProtos.FieldDescriptorProto.Type.TYPE_STRING_VALUE: {
-                return "string";
-            }
-            case DescriptorProtos.FieldDescriptorProto.Type.TYPE_MESSAGE_VALUE: {
-                return "struct";
-            }
-            default: {
-                throw new UnsupportedFieldTypeException("Error while decoding request message. Field " +
-                        "type is not supported : " + num);
-            }
-        }
-    }
-    
-    /**
-     * Method is for getting ballerina data type which is map to the .proto data type.
-     *
-     * @param num .
-     * @return .
-     */
-    public static String getLabelName(int num) {
-        switch (num) {
-            case DescriptorProtos.FieldDescriptorProto.Label.LABEL_REPEATED_VALUE: {
-                return "[]";
-            }
-            case DescriptorProtos.FieldDescriptorProto.Label.LABEL_OPTIONAL_VALUE: {
-                return null;
-            }
-            case DescriptorProtos.FieldDescriptorProto.Label.LABEL_REQUIRED_VALUE: {
-                throw new UnsupportedFieldTypeException("Required type is not supported yet." + num);
-            }
-            default: {
-                throw new UnsupportedFieldTypeException("Error while decoding request message. Field " +
-                        "label is not supported : " + num);
-            }
-        }
-    }
-    
-    /**
-     * Write ballerina definition of a <code>object</code> to a file as described by <code>template.</code>
-     *
-     * @param object       Context object to be used by the template parser
-     * @param templateDir  Directory with all the templates required for generating the source file
-     * @param templateName Name of the parent template to be used
-     * @param outPath      Destination path for writing the resulting source file
-     * @throws IOException when file operations fail
-     */
-    public static void writeBallerina(Object object, String templateDir, String templateName, String outPath)
-            throws IOException {
-        PrintWriter writer = null;
-        try {
-            Template template = compileTemplate(templateDir, templateName);
-            Context context = Context.newBuilder(object).resolver(
-                    MapValueResolver.INSTANCE,
-                    JavaBeanValueResolver.INSTANCE,
-                    FieldValueResolver.INSTANCE).build();
-            writer = new PrintWriter(outPath, "UTF-8");
-            writer.println(template.apply(context));
-        } finally {
-            if (writer != null) {
-                writer.close();
-            }
-        }
-    }
-    
-    private static Template compileTemplate(String defaultTemplateDir, String templateName) throws IOException {
-        String templatesDirPath = System.getProperty(TEMPLATES_DIR_PATH_KEY, defaultTemplateDir);
-        ClassPathTemplateLoader cpTemplateLoader = new ClassPathTemplateLoader((templatesDirPath));
-        FileTemplateLoader fileTemplateLoader = new FileTemplateLoader(templatesDirPath);
-        cpTemplateLoader.setSuffix(TEMPLATES_SUFFIX);
-        fileTemplateLoader.setSuffix(TEMPLATES_SUFFIX);
-        
-        Handlebars handlebars = new Handlebars().with(cpTemplateLoader, fileTemplateLoader);
-        handlebars.registerHelpers(StringHelpers.class);
-        handlebars.registerHelper("equals", (object, options) -> {
-            CharSequence result;
-            Object param0 = options.param(0);
-            
-            if (param0 == null) {
-                throw new IllegalArgumentException("found n'null', expected 'string'");
-            }
-            if (object != null && object.toString().equals(param0.toString())) {
-                result = options.fn(options.context);
-            } else {
-                result = null;
-            }
-            
-            return result;
-        });
-
-        handlebars.registerHelper("not_equal", (object, options) -> {
-            CharSequence result;
-            Object param0 = options.param(0);
-
-            if (param0 == null) {
-                throw new IllegalArgumentException("found n'null', expected 'string'");
-            }
-            if (object == null || !object.toString().equals(param0.toString())) {
-                result = options.fn(options.context);
-            } else {
-                result = null;
-            }
-
-            return result;
-        });
-        
-        return handlebars.compile(templateName);
     }
 }
