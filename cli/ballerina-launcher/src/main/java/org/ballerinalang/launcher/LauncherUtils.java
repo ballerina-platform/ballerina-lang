@@ -23,7 +23,6 @@ import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.config.ConfigRegistry;
 import org.ballerinalang.connector.impl.ServerConnectorRegistry;
 import org.ballerinalang.logging.BLogManager;
-import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.runtime.threadpool.ThreadPoolFactory;
 import org.ballerinalang.util.LaunchListener;
@@ -138,19 +137,10 @@ public class LauncherUtils {
     }
 
     public static void runMain(ProgramFile programFile, String functionName, String[] args, boolean printReturn) {
-        int exitStatus = 0;
         try {
             BValue[] entryFuncResult = BLangProgramRunner.runEntryFunc(programFile, functionName, args);
-            if (entryFuncResult != null && entryFuncResult.length >= 1) {
-                // TODO: 8/5/18 depends on return -  change return to single BValue instead of array and change here?
-                if (MAIN_FUNCTION_NAME.equals(functionName)) {
-                    exitStatus = (int) (((BInteger) entryFuncResult[0]).intValue());
-                    // TODO: 8/11/18 remove/fix
-                }
-
-                if (printReturn) {
-                    outStream.println(entryFuncResult[0] == null ? "()" : entryFuncResult[0].stringValue());
-                }
+            if (printReturn && entryFuncResult != null && entryFuncResult.length >= 1) {
+                outStream.println(entryFuncResult[0] == null ? "()" : entryFuncResult[0].stringValue());
             }
         } catch (BLangUsageException e) {
             throw createLauncherException("usage error: " + makeFirstLetterLowerCase(e.getLocalizedMessage()));
@@ -167,7 +157,7 @@ public class LauncherUtils {
         } catch (InterruptedException ex) {
             // Ignore the error
         }
-        Runtime.getRuntime().exit(exitStatus);
+        Runtime.getRuntime().exit(0);
     }
 
     public static void runServices(ProgramFile programFile) {
