@@ -250,7 +250,7 @@ public class BalGenerationUtils {
             if (param0 == null) {
                 throw new IllegalArgumentException("found n'null', expected 'string'");
             }
-            if (!object.toString().equals(param0.toString())) {
+            if (object == null || !object.toString().equals(param0.toString())) {
                 result = options.fn(options.context);
             } else {
                 result = null;

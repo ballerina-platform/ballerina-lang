@@ -23,9 +23,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * User Defined Message Definition Builder.
+ * Message Definition bean class.
  *
- * @since 1.0.0
+ * @since 0.982.0
  */
 public class Message {
     private List<Field> fieldList;
@@ -49,7 +49,7 @@ public class Message {
     }
 
     /**
-     * MessageDefinition.Builder.
+     * Message Definition.Builder.
      */
     public static class Builder {
         private DescriptorProtos.DescriptorProto messageDescriptor;

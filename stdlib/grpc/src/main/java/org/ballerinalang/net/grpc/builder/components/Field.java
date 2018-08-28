@@ -22,9 +22,9 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Field definition builder.
+ * Field definition bean class.
  *
- * @since 1.0.0
+ * @since 0.982.0
  */
 public class Field {
     private String fieldType;
@@ -60,7 +60,7 @@ public class Field {
     }
 
     /**
-     * Field.Builder.
+     * Field Definition.Builder.
      */
     public static class Builder {
         private DescriptorProtos.FieldDescriptorProto fieldDescriptor;

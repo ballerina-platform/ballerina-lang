@@ -53,6 +53,7 @@ import static org.ballerinalang.net.grpc.builder.utils.BalGenConstants.SERVICE_I
 import static org.ballerinalang.net.grpc.builder.utils.BalGenConstants.SKELETON_TEMPLATE_NAME;
 import static org.ballerinalang.net.grpc.builder.utils.BalGenConstants.STUB_FILE_PREFIX;
 import static org.ballerinalang.net.grpc.builder.utils.BalGenerationUtils.writeBallerina;
+import static org.ballerinalang.net.grpc.proto.ServiceProtoConstants.PROTO_FILE_EXTENSION;
 
 /**
  * Class is responsible of generating the ballerina stub which is mapping proto definition.
@@ -80,7 +81,7 @@ public class BallerinaFileBuilder {
                     .parseFrom(targetStream);
             List<DescriptorProtos.DescriptorProto> messageTypeList = fileDescriptorSet.getMessageTypeList();
             List<DescriptorProtos.EnumDescriptorProto> enumDescriptorProtos = fileDescriptorSet.getEnumTypeList();
-            String filename = new File(fileDescriptorSet.getName()).getName().replace(".proto", "");
+            String filename = new File(fileDescriptorSet.getName()).getName().replace(PROTO_FILE_EXTENSION, "");
             String filePackage = fileDescriptorSet.getPackage();
             StubFile stubFileObject = new StubFile(filename);
             ClientFile clientFileObject = null;

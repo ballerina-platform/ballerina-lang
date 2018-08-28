@@ -21,7 +21,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * This class is responsible for generating client components.
+ * Client Stub File definition bean class.
+ *
+ * @since 0.982.0
  */
 public class StubFile {
     

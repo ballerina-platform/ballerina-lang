@@ -20,9 +20,9 @@ package org.ballerinalang.net.grpc.builder.components;
 import com.google.protobuf.DescriptorProtos;
 
 /**
- * Enum Field definition builder.
+ * Enum Field definition.
  *
- * @since 1.0.0
+ * @since 0.982.0
  */
 public class EnumField {
     private String name;

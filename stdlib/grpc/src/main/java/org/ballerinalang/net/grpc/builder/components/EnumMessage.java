@@ -23,9 +23,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * User Defined Message Definition Builder.
+ * Enum Message Definition.
  *
- * @since 1.0.0
+ * @since 0.982.0
  */
 public class EnumMessage {
     private List<EnumField> fieldList;
@@ -49,7 +49,7 @@ public class EnumMessage {
     }
 
     /**
-     * MessageDefinition.Builder.
+     * Enum Message.Builder.
      */
     public static class Builder {
         private DescriptorProtos.EnumDescriptorProto enumDescriptor;

@@ -18,7 +18,9 @@
 package org.ballerinalang.net.grpc.builder.components;
 
 /**
- * Bean class of client file object.
+ * gRPC client file bean class.
+ *
+ * @since 0.982.0
  */
 public class ClientFile {
     private String serviceName;

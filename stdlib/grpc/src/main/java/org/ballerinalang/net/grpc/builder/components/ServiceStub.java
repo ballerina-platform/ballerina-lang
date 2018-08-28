@@ -7,7 +7,7 @@ import java.util.Collections;
 import java.util.List;
 
 /**
- * Service stub definition.
+ * Service stub definition bean class.
  *
  * @since 0.982.0
  */

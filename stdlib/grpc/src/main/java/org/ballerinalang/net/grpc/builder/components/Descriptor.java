@@ -28,7 +28,9 @@ import static org.ballerinalang.net.grpc.builder.utils.BalGenConstants.PACKAGE_S
 import static org.ballerinalang.net.grpc.builder.utils.BalGenerationUtils.bytesToHex;
 
 /**
- * Bean class of client descriptor object.
+ * Service descriptor definition.
+ *
+ * @since 0.982.0
  */
 public class Descriptor {
     private String descriptorKey;
@@ -53,7 +55,7 @@ public class Descriptor {
     }
 
     /**
-     * MethodDefinition.Builder.
+     * Service Descriptor.Builder.
      */
     public static class Builder {
 

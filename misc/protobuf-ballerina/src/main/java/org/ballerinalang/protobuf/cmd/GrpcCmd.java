@@ -41,6 +41,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
+import static org.ballerinalang.net.grpc.proto.ServiceProtoConstants.TMP_DIRECTORY_PATH;
 import static org.ballerinalang.protobuf.BalGenerationConstants.BUILD_COMMAND_NAME;
 import static org.ballerinalang.protobuf.BalGenerationConstants.COMPONENT_IDENTIFIER;
 import static org.ballerinalang.protobuf.BalGenerationConstants.EMPTY_STRING;
@@ -179,7 +180,7 @@ public class GrpcCmd implements BLauncherCmd {
             LOG.debug("Successfully generated dependent descriptor.");
         } finally {
             //delete temporary meta files
-            File tempDir = new File(System.getProperty("java.io.tmpdir"));
+            File tempDir = new File(TMP_DIRECTORY_PATH);
             delete(new File(tempDir, META_LOCATION));
             delete(new File(tempDir, TEMP_GOOGLE_DIRECTORY));
             LOG.debug("Successfully deleted temporary files.");
@@ -198,6 +199,7 @@ public class GrpcCmd implements BLauncherCmd {
             LOG.error("Error generating ballerina file.", e);
             msg.append("Error generating ballerina file.").append(NEW_LINE_CHARACTER);
             outStream.println(msg.toString());
+            return;
         }
         msg.append("Successfully generated ballerina file.").append(NEW_LINE_CHARACTER);
         outStream.println(msg.toString());
@@ -209,7 +211,7 @@ public class GrpcCmd implements BLauncherCmd {
      * @return Temporary Created meta file.
      */
     private File createTempDirectory() {
-        File parent = new File(System.getProperty("java.io.tmpdir"));
+        File parent = new File(TMP_DIRECTORY_PATH);
         File metadataHome = new File(parent, META_LOCATION);
         if (!metadataHome.exists() && !metadataHome.mkdir()) {
             throw new IllegalStateException("Couldn't create dir: " + metadataHome);
@@ -239,9 +241,8 @@ public class GrpcCmd implements BLauncherCmd {
      * @param resourceName ie.: "/wrapper.proto"
      */
     private static void exportResource(String resourceName, ClassLoader classLoader) {
-        String tempDirPath = System.getProperty("java.io.tmpdir");
         try (InputStream initialStream = classLoader.getResourceAsStream(resourceName);
-             OutputStream resStreamOut = new FileOutputStream(tempDirPath + resourceName
+             OutputStream resStreamOut = new FileOutputStream(TMP_DIRECTORY_PATH + resourceName
                      .replace("stdlib", "protobuf"))) {
             if (initialStream == null) {
                 throw new BalGenToolException("Cannot get resource \"" + resourceName + "\" from Jar file.");
@@ -261,8 +262,7 @@ public class GrpcCmd implements BLauncherCmd {
      */
     private void downloadProtocexe() throws IOException {
         if (protocExePath == null) {
-            File protocExeFile = new File(System.getProperty("java.io.tmpdir"), "protoc-" + OSDetector
-                    .getDetectedClassifier() + ".exe");
+            File protocExeFile = new File(TMP_DIRECTORY_PATH, "protoc-" + OSDetector.getDetectedClassifier() + ".exe");
             protocExePath = protocExeFile.getAbsolutePath(); // if file already exists will do nothing
             if (!protocExeFile.exists()) {
                 outStream.println("Downloading proc executor.");
@@ -294,7 +294,7 @@ public class GrpcCmd implements BLauncherCmd {
     
     @Override
     public void printLongDesc(StringBuilder out) {
-        out.append("Generates ballerina grRPC client stub for gRPC service").append(System.lineSeparator());
+        out.append("Generates ballerina gRPC client stub for gRPC service").append(System.lineSeparator());
         out.append("for a given grpc protoc definition").append(System.lineSeparator());
         out.append(System.lineSeparator());
     }

@@ -32,6 +32,7 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 
+import static org.ballerinalang.net.grpc.proto.ServiceProtoConstants.TMP_DIRECTORY_PATH;
 import static org.ballerinalang.protobuf.BalGenerationConstants.DESC_SUFFIX;
 import static org.ballerinalang.protobuf.BalGenerationConstants.GOOGLE_STANDARD_LIB;
 import static org.ballerinalang.protobuf.BalGenerationConstants.PROTO_SUFFIX;
@@ -48,7 +49,7 @@ public class DescriptorsGenerator {
     public static List<byte[]> generateDependentDescriptor(String exePath, String rootProtoPath, String
             rootDescriptorPath) {
         List<byte[]> dependentDescList = new ArrayList<>();
-        File tempDir = new File(System.getProperty("java.io.tmpdir"));
+        File tempDir = new File(TMP_DIRECTORY_PATH);
         File initialFile = new File(rootDescriptorPath);
         try (InputStream targetStream = new FileInputStream(initialFile)) {
             DescriptorProtos.FileDescriptorSet descSet = DescriptorProtos.FileDescriptorSet.parseFrom(targetStream);
@@ -56,7 +57,7 @@ public class DescriptorsGenerator {
                 if (isWindows()) {
                     dependentFilePath = dependentFilePath.replaceAll("/", "\\\\");
                 }
-                // desc_gen/dependencies + <path>.desc
+                // desc file path: desc_gen/dependencies + <filename>.desc
                 String relativeDescFilepath = BalGenerationConstants.META_DEPENDENCY_LOCATION + dependentFilePath
                         .substring(dependentFilePath.lastIndexOf(BalGenerationConstants.FILE_SEPARATOR),
                                 dependentFilePath.length()).replace(PROTO_SUFFIX, DESC_SUFFIX);

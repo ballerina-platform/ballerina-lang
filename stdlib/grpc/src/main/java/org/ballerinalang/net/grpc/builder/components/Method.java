@@ -25,7 +25,7 @@ import static org.ballerinalang.net.grpc.builder.utils.BalGenConstants.PACKAGE_S
 import static org.ballerinalang.net.grpc.builder.utils.BalGenerationUtils.getMappingBalType;
 
 /**
- * Method definition builder.
+ * Method definition bean class.
  *
  * @since 0.982.0
  */
@@ -75,7 +75,7 @@ public class Method {
     }
 
     /**
-     * MethodDefinition.Builder.
+     * Method Definition.Builder.
      */
     public static class Builder {
 
