@@ -17,7 +17,7 @@
 package org.ballerinalang.composer.service.ballerina.launcher.service;
 
 import org.ballerinalang.composer.service.ballerina.launcher.service.util.LaunchUtils;
-import org.ballerinalang.langserver.compiler.LSCompiler;
+import org.ballerinalang.langserver.compiler.LSCompilerUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.ballerinalang.compiler.util.ProjectDirConstants;
@@ -116,7 +116,7 @@ public class Command {
         }
 
         commandList.add(ballerinaExecute);
-        sourceRoot = LSCompiler.getSourceRoot(Paths.get(filePath + fileName));
+        sourceRoot = LSCompilerUtil.getSourceRoot(Paths.get(filePath + fileName));
         if (ProjectDirConstants.TEST_DIR_NAME.equals(Paths.get(filePath).toFile().getName())) {
             isTestFile = true;
         }
@@ -125,16 +125,6 @@ public class Command {
             commandList.add("run");
         } else {
             commandList.add("test");
-        }
-
-        if (filePath != null && !filePath.equals(sourceRoot + File.separator)) {
-            packageName =
-                    LSCompiler.getPackageNameForGivenFile(sourceRoot, filePath + fileName);
-            commandList.add(packageName);
-            commandList.add("--sourceroot");
-            commandList.add(sourceRoot);
-        } else {
-            commandList.add(getScriptName());
         }
 
         if (debug) {
@@ -148,6 +138,17 @@ public class Command {
 
             commandList.add("-e");
             commandList.add("b7a.http.tracelog.port=5010");
+        }
+
+
+        if (filePath != null && !filePath.equals(sourceRoot + File.separator)) {
+            commandList.add("--sourceroot");
+            commandList.add(sourceRoot);
+            packageName =
+                    LSCompilerUtil.getPackageNameForGivenFile(sourceRoot, filePath + fileName);
+            commandList.add(packageName);
+        } else {
+            commandList.add(getScriptName());
         }
 
         if (this.commandArgs != null) {

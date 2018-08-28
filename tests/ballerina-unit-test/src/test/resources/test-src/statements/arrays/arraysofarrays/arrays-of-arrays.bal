@@ -137,7 +137,7 @@ function testFloatArrayIterator() returns float {
     float[][][] sss;
     float[][] ss;
     float[] s;
-    s[3] = 4;
+    s[3] = 4.0;
     ss[2] = s;
     sss[5] = ss;
 

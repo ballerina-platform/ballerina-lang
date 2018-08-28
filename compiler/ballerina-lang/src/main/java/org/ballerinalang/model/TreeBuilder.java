@@ -25,7 +25,6 @@ import org.ballerinalang.model.tree.CompilationUnitNode;
 import org.ballerinalang.model.tree.DeprecatedNode;
 import org.ballerinalang.model.tree.DocumentationNode;
 import org.ballerinalang.model.tree.EndpointNode;
-import org.ballerinalang.model.tree.EnumNode;
 import org.ballerinalang.model.tree.FunctionNode;
 import org.ballerinalang.model.tree.IdentifierNode;
 import org.ballerinalang.model.tree.ImportPackageNode;
@@ -85,7 +84,6 @@ import org.ballerinalang.model.tree.expressions.StringTemplateLiteralNode;
 import org.ballerinalang.model.tree.expressions.TableLiteralNode;
 import org.ballerinalang.model.tree.expressions.TableQueryExpression;
 import org.ballerinalang.model.tree.expressions.TernaryExpressionNode;
-import org.ballerinalang.model.tree.expressions.TypeCastNode;
 import org.ballerinalang.model.tree.expressions.TypeConversionNode;
 import org.ballerinalang.model.tree.expressions.TypeInitNode;
 import org.ballerinalang.model.tree.expressions.TypedescExpressionNode;
@@ -99,7 +97,6 @@ import org.ballerinalang.model.tree.expressions.XMLQuotedStringNode;
 import org.ballerinalang.model.tree.expressions.XMLTextLiteralNode;
 import org.ballerinalang.model.tree.statements.AbortNode;
 import org.ballerinalang.model.tree.statements.AssignmentNode;
-import org.ballerinalang.model.tree.statements.BindNode;
 import org.ballerinalang.model.tree.statements.BlockNode;
 import org.ballerinalang.model.tree.statements.BreakNode;
 import org.ballerinalang.model.tree.statements.CatchNode;
@@ -148,8 +145,6 @@ import org.wso2.ballerinalang.compiler.tree.BLangCompilationUnit;
 import org.wso2.ballerinalang.compiler.tree.BLangDeprecatedNode;
 import org.wso2.ballerinalang.compiler.tree.BLangDocumentation;
 import org.wso2.ballerinalang.compiler.tree.BLangEndpoint;
-import org.wso2.ballerinalang.compiler.tree.BLangEnum;
-import org.wso2.ballerinalang.compiler.tree.BLangEnum.BLangEnumerator;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
 import org.wso2.ballerinalang.compiler.tree.BLangImportPackage;
@@ -211,7 +206,6 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangStringTemplateLiter
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTableLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTableQueryExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTernaryExpr;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeCastExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeConversionExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeInit;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypedescExpr;
@@ -226,7 +220,6 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLQuotedString;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLTextLiteral;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangAbort;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangAssignment;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangBind;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBreak;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangCatch;
@@ -439,10 +432,6 @@ public class TreeBuilder {
         return new BLangBracedOrTupleExpr();
     }
 
-    public static TypeCastNode createTypeCastNode() {
-        return new BLangTypeCastExpr();
-    }
-
     public static TypedescExpressionNode createTypeAccessNode() {
         return new BLangTypedescExpr();
     }
@@ -474,15 +463,7 @@ public class TreeBuilder {
     public static TypeDefinition createTypeDefinition() {
         return new BLangTypeDefinition();
     }
-
-    public static EnumNode createEnumNode() {
-        return new BLangEnum();
-    }
-
-    public static EnumNode.Enumerator createEnumeratorNode() {
-        return new BLangEnumerator();
-    }
-
+    
     public static ActionNode createActionNode() {
         return new BLangAction();
     }
@@ -497,10 +478,6 @@ public class TreeBuilder {
 
     public static PostIncrementNode createPostIncrementNode() {
         return new BLangPostIncrement();
-    }
-
-    public static BindNode createBindNode() {
-        return new BLangBind();
     }
 
     public static AbortNode createAbortNode() {

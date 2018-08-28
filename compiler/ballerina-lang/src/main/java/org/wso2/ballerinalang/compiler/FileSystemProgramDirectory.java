@@ -31,6 +31,7 @@ import java.nio.file.AccessDeniedException;
 import java.nio.file.DirectoryNotEmptyException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -95,7 +96,9 @@ public class FileSystemProgramDirectory implements SourceDirectory {
 
     @Override
     public Path saveCompiledProgram(InputStream source, String fileName) {
-        Path targetFilePath = programDirPath.resolve(fileName);
+        // When building a single bal file the executable (balx) should be generated in the current directory of
+        // the user
+        Path targetFilePath = Paths.get(fileName);
         try {
             outStream.println("    " + fileName);
             Files.copy(source, targetFilePath, StandardCopyOption.REPLACE_EXISTING);

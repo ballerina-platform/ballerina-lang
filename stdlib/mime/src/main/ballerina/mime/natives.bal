@@ -393,7 +393,7 @@ public type Entity object {
 
         R{{}} Body parts as a byte channel
     }
-    public extern function getBodyPartsAsChannel() returns @tainted io:ByteChannel;
+    public extern function getBodyPartsAsChannel() returns @tainted io:ByteChannel|error;
 
     documentation {
         Sets body parts to entity. This method overrides any existing `content-type` headers

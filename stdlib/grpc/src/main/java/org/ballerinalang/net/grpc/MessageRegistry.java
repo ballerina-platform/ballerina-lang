@@ -39,7 +39,7 @@ public class MessageRegistry {
         return messageRegistry;
     }
 
-    void addMessageDescriptor(String messageName, Descriptors.Descriptor messageDescriptor) {
+    public void addMessageDescriptor(String messageName, Descriptors.Descriptor messageDescriptor) {
         messageDescriptors.put(messageName, messageDescriptor);
     }
 

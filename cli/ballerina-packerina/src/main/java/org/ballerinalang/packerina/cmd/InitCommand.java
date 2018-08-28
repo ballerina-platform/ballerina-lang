@@ -18,15 +18,13 @@
 
 package org.ballerinalang.packerina.cmd;
 
-import com.beust.jcommander.JCommander;
-import com.beust.jcommander.Parameter;
-import com.beust.jcommander.Parameters;
 import org.ballerinalang.launcher.BLauncherCmd;
 import org.ballerinalang.packerina.init.InitHandler;
 import org.ballerinalang.packerina.init.models.FileType;
 import org.ballerinalang.packerina.init.models.PackageMdFile;
 import org.ballerinalang.packerina.init.models.SrcFile;
 import org.ballerinalang.toml.model.Manifest;
+import picocli.CommandLine;
 
 import java.io.IOException;
 import java.io.PrintStream;
@@ -39,24 +37,24 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Scanner;
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import static org.ballerinalang.packerina.cmd.Constants.INIT_COMMAND;
 
 /**
  * Init command for creating a ballerina project.
  */
-@Parameters(commandNames = "init", commandDescription = "initialize ballerina project")
+@CommandLine.Command(name = INIT_COMMAND, description = "initialize a Ballerina project")
 public class InitCommand implements BLauncherCmd {
 
     public static final String DEFAULT_VERSION = "0.0.1";
     private static final String USER_DIR = "user.dir";
     private static final PrintStream outStream = System.err;
-    private JCommander parentCmdParser;
 
-    @Parameter(names = {"--interactive", "-i"})
+    @CommandLine.Option(names = {"--interactive", "-i"})
     private boolean interactiveFlag;
 
-    @Parameter(names = {"--help", "-h"}, hidden = true)
+    @CommandLine.Option(names = {"--help", "-h"}, hidden = true)
     private boolean helpFlag;
 
     private static boolean isDirEmpty(final Path directory) throws IOException {
@@ -76,7 +74,7 @@ public class InitCommand implements BLauncherCmd {
             Manifest manifest = null;
 
             if (helpFlag) {
-                String commandUsageInfo = BLauncherCmd.getCommandUsageInfo(parentCmdParser, "init");
+                String commandUsageInfo = BLauncherCmd.getCommandUsageInfo(INIT_COMMAND);
                 outStream.println(commandUsageInfo);
                 return;
             }
@@ -116,8 +114,11 @@ public class InitCommand implements BLauncherCmd {
                     srcInput = scanner.nextLine().trim();
 
                     if (srcInput.equalsIgnoreCase("service") || srcInput.equalsIgnoreCase("s") || srcInput.isEmpty()) {
-                        out.print("Package for the service : (no package) ");
-                        String packageName = scanner.nextLine().trim();
+                        String packageName;
+                        do {
+                            out.print("Package for the service: (no package) ");
+                            packageName = scanner.nextLine().trim();
+                        } while (!validatePkgName(out, packageName));
                         SrcFile srcFile = new SrcFile(packageName, FileType.SERVICE);
                         sourceFiles.add(srcFile);
                         SrcFile srcTestFile = new SrcFile(packageName, FileType.SERVICE_TEST);
@@ -127,8 +128,11 @@ public class InitCommand implements BLauncherCmd {
                             packageMdFiles.add(packageMdFile);
                         }
                     } else if (srcInput.equalsIgnoreCase("main") || srcInput.equalsIgnoreCase("m")) {
-                        out.print("Package for the main : (no package) ");
-                        String packageName = scanner.nextLine().trim();
+                        String packageName;
+                        do {
+                            out.print("Package for the main: (no package) ");
+                            packageName = scanner.nextLine().trim();
+                        } while (!validatePkgName(out, packageName));
                         SrcFile srcFile = new SrcFile(packageName, FileType.MAIN);
                         sourceFiles.add(srcFile);
                         SrcFile srcTestFile = new SrcFile(packageName, FileType.MAIN_TEST);
@@ -168,7 +172,7 @@ public class InitCommand implements BLauncherCmd {
      */
     @Override
     public String getName() {
-        return "init";
+        return INIT_COMMAND;
     }
 
     /**
@@ -193,15 +197,14 @@ public class InitCommand implements BLauncherCmd {
      * {@inheritDoc}
      */
     @Override
-    public void setParentCmdParser(JCommander parentCmdParser) {
-        this.parentCmdParser = parentCmdParser;
+    public void setParentCmdParser(CommandLine parentCmdParser) {
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public void setSelfCmdParser(JCommander selfCmdParser) {
+    public void setSelfCmdParser(CommandLine selfCmdParser) {
 
     }
 
@@ -213,16 +216,11 @@ public class InitCommand implements BLauncherCmd {
      */
     private boolean validateVersion(PrintStream out, String versionAsString) {
         String semverRegex = "((?:0|[1-9]\\d*)\\.(?:0|[1-9]\\d*)\\.(?:0|[1-9]\\d*))";
-        Pattern pattern = Pattern.compile(semverRegex);
-        Matcher matcher = pattern.matcher(versionAsString);
-        int count = 0;
-        while (matcher.find()) {
-            count++;
-        }
-        if (count != 1) {
+        boolean matches = Pattern.matches(semverRegex, versionAsString);
+        if (!matches) {
             out.println("--Invalid version: \"" + versionAsString + "\"");
         }
-        return count == 1;
+        return matches;
     }
 
     private String guessOrgName() {
@@ -235,4 +233,22 @@ public class InitCommand implements BLauncherCmd {
         return guessOrgName;
     }
 
+    /**
+     * Validates the package name.
+     *
+     * @param pkgName The package name.
+     * @return True if valid package name, else false.
+     */
+    private boolean validatePkgName(PrintStream out, String pkgName) {
+        if (pkgName.isEmpty()) {
+           return true;
+        }
+        String validRegex = "^[a-zA-Z0-9_.]*$";
+        boolean matches = Pattern.matches(validRegex, pkgName);
+        if (!matches) {
+            out.println("--Invalid package name: \"" + pkgName + "\"." + " Package name can only contain " +
+                                "alphanumeric, underscore and DOT");
+        }
+        return matches;
+    }
 }

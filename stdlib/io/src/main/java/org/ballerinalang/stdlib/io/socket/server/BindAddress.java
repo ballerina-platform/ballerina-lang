@@ -65,9 +65,9 @@ public class BindAddress extends BlockingNativeCallableUnit {
             ServerSocketChannel serverSocket = (ServerSocketChannel) serverSocketStruct
                     .getNativeData(SocketConstants.SERVER_SOCKET_KEY);
             if (networkInterface == null) {
-                serverSocket.bind(new InetSocketAddress(port));
+                serverSocket.bind(new InetSocketAddress(port), 1);
             } else {
-                serverSocket.bind(new InetSocketAddress(networkInterface.stringValue(), port));
+                serverSocket.bind(new InetSocketAddress(networkInterface.stringValue(), port), 1);
             }
             final Selector selector = SelectorManager.getInstance();
             serverSocket.register(selector, SelectionKey.OP_ACCEPT, serverSocket);

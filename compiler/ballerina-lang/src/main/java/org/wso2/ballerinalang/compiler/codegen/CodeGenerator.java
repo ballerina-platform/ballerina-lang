@@ -57,7 +57,6 @@ import org.wso2.ballerinalang.compiler.tree.BLangAnnotAttribute;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotation;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
 import org.wso2.ballerinalang.compiler.tree.BLangEndpoint;
-import org.wso2.ballerinalang.compiler.tree.BLangEnum;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
 import org.wso2.ballerinalang.compiler.tree.BLangInvokableNode;
@@ -80,7 +79,6 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrowFunction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangAwaitExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBracedOrTupleExpr;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangElvisExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess.BLangEnumeratorAccessExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess.BLangStructFunctionVarRef;
@@ -507,15 +505,14 @@ public class CodeGenerator extends BLangNodeVisitor {
         }
     }
 
-    public void visit(BLangEnum enumNode) {
-    }
-
     public void visit(BLangVariable varNode) {
         BVarSymbol varSymbol = varNode.symbol;
         int ownerSymTag = env.scope.owner.tag;
         if ((ownerSymTag & SymTag.INVOKABLE) == SymTag.INVOKABLE) {
             varSymbol.varIndex = getLVIndex(varSymbol.type.tag);
             LocalVariableInfo localVarInfo = getLocalVarAttributeInfo(varSymbol);
+            setVariableScopeStart(localVarInfo, varNode);
+            setVariableScopeEnd(localVarInfo, varNode);
             localVarAttrInfo.localVars.add(localVarInfo);
         } else {
             // TODO Support other variable nodes
@@ -804,7 +801,7 @@ public class CodeGenerator extends BLangNodeVisitor {
         }
         BLangArrayLiteral arrayLiteral = (BLangArrayLiteral) TreeBuilder.createArrayLiteralNode();
         arrayLiteral.exprs = dataRows;
-        arrayLiteral.type = symTable.anyType;
+        arrayLiteral.type = new BArrayType(symTable.anyType);
         genNode(arrayLiteral, this.env);
         genNode(tableLiteral.indexColumnsArrayLiteral, this.env);
         genNode(tableLiteral.keyColumnsArrayLiteral, this.env);
@@ -1090,9 +1087,6 @@ public class CodeGenerator extends BLangNodeVisitor {
                 emit(opCode, binaryExpr.lhsExpr.regIndex, binaryExpr.rhsExpr.regIndex, regIndex);
             }
         }
-    }
-
-    public void visit(BLangElvisExpr elvisExpr) {
     }
 
     @Override
@@ -1624,6 +1618,13 @@ public class CodeGenerator extends BLangNodeVisitor {
 
         // Add local variable indexes to the parameters and return parameters
         visitInvokableNodeParams(invokableNode.symbol, callableUnitInfo, localVarAttributeInfo);
+
+        if (invokableNode.pos != null) {
+            localVarAttributeInfo.localVars.forEach(param -> {
+                param.scopeStartLineNumber = invokableNode.pos.sLine;
+                param.scopeEndLineNumber = invokableNode.pos.eLine;
+            });
+        }
 
         if (Symbols.isNative(invokableNode.symbol)) {
             this.processWorker(callableUnitInfo.defaultWorkerInfo, null,
@@ -2890,7 +2891,7 @@ public class CodeGenerator extends BLangNodeVisitor {
         generateFinallyInstructions(abortNode, NodeKind.TRANSACTION);
         this.emit(abortInstructions.peek());
     }
-    
+
     public void visit(BLangDone doneNode) {
         generateFinallyInstructions(doneNode, NodeKind.DONE);
         this.emit(InstructionCodes.HALT);
@@ -3267,12 +3268,16 @@ public class CodeGenerator extends BLangNodeVisitor {
         int funcRefCPIndex = currentPkgInfo.addCPEntry(funcRefCPEntry);
         RegIndex nextIndex = calcAndGetExprRegIndex(fpExpr);
         Operand[] operands;
+        if (NodeKind.FIELD_BASED_ACCESS_EXPR == fpExpr.getKind()) {
+            operands = calcObjectAttachedFPOperands((BLangStructFunctionVarRef) fpExpr, typeCPIndex, funcRefCPIndex,
+                    nextIndex);
+            //Separating this with a instruction code, so that at runtime, actual function can be loaded
+            emit(InstructionCodes.VFPLOAD, operands);
+            return;
+        }
         if (NodeKind.LAMBDA == fpExpr.getKind()) {
             operands = calcClosureOperands(((BLangLambdaFunction) fpExpr).function, funcRefCPIndex, nextIndex,
                     typeCPIndex);
-        } else if (NodeKind.FIELD_BASED_ACCESS_EXPR == fpExpr.getKind()) {
-            operands = calcObjectAttachedFPOperands((BLangStructFunctionVarRef) fpExpr, typeCPIndex, funcRefCPIndex,
-                    nextIndex);
         } else {
             operands = new Operand[4];
             operands[0] = getOperand(funcRefCPIndex);
@@ -3566,11 +3571,11 @@ public class CodeGenerator extends BLangNodeVisitor {
         paramAttrInfo.defaultableParamsCount = invokableNode.defaultableParams.size();
         paramAttrInfo.restParamCount = invokableNode.restParam != null ? 1 : 0;
         callableUnitInfo.addAttributeInfo(AttributeInfo.Kind.PARAMETERS_ATTRIBUTE, paramAttrInfo);
-        
+
         // Add parameter default values
         addParameterDefaultValues(invokableNode, callableUnitInfo);
     }
-    
+
     private void addParameterDefaultValues(BLangInvokableNode invokableNode, CallableUnitInfo callableUnitInfo) {
         int paramDefaultsAttrNameIndex =
                 addUTF8CPEntry(currentPkgInfo, AttributeInfo.Kind.PARAMETER_DEFAULTS_ATTRIBUTE.value());
@@ -3696,6 +3701,28 @@ public class CodeGenerator extends BLangNodeVisitor {
             RegIndex targetRegIndex = getRegIndex(TypeTags.ANY);
             emit(InstructionCodes.MAPLOAD, varRefRegIndex, keyRegIndex, targetRegIndex, exceptOp);
             emit(opcode, targetRegIndex, calcAndGetExprRegIndex(fieldAccessExpr));
+        }
+    }
+
+    private void setVariableScopeStart(LocalVariableInfo localVarInfo, BLangVariable varNode) {
+        if (varNode.pos != null) {
+            localVarInfo.scopeStartLineNumber = varNode.pos.sLine;
+        }
+    }
+
+    private void setVariableScopeEnd(LocalVariableInfo localVarInfo, BLangVariable varNode) {
+        if ((varNode.parent == null) && (varNode.pos != null)) {
+            localVarInfo.scopeEndLineNumber = varNode.pos.eLine;
+            return;
+        }
+        BLangNode parentNode = varNode;
+        while ((parentNode.parent != null)) {
+            parentNode = parentNode.parent;
+            if ((parentNode.getKind().equals(NodeKind.BLOCK)) && (parentNode.parent != null) &&
+                    (parentNode.parent.pos != null)) {
+                localVarInfo.scopeEndLineNumber = parentNode.parent.pos.eLine;
+                break;
+            }
         }
     }
 }

@@ -263,8 +263,9 @@ public abstract class AbstractSQLAction extends BlockingNativeCallableUnit {
         PreparedStatement stmt = null;
         int[] updatedCount;
         int paramArrayCount = 0;
+        boolean isInTransaction = context.isInTransaction();
         try {
-            conn = datasource.getSQLConnection();
+            conn = SQLDatasourceUtils.getDatabaseConnection(context, datasource, isInTransaction);
             stmt = conn.prepareStatement(query);
             conn.setAutoCommit(false);
             if (parameters != null) {
@@ -282,15 +283,19 @@ public abstract class AbstractSQLAction extends BlockingNativeCallableUnit {
                 stmt.addBatch();
             }
             updatedCount = stmt.executeBatch();
-            conn.commit();
+            if (!isInTransaction) {
+                conn.commit();
+            }
         } catch (BatchUpdateException e) {
-            conn.rollback();
+            if (!isInTransaction) {
+                conn.rollback();
+            }
             updatedCount = e.getUpdateCounts();
         } catch (SQLException e) {
             conn.rollback();
             throw new BallerinaException("execute batch update failed: " + e.getMessage(), e);
         } finally {
-            SQLDatasourceUtils.cleanupResources(stmt, conn, false);
+            SQLDatasourceUtils.cleanupResources(stmt, conn, isInTransaction);
         }
         //After a command in a batch update fails to execute properly and a BatchUpdateException is thrown, the driver
         // may or may not continue to process the remaining commands in the batch. If the driver does not continue
@@ -442,7 +447,12 @@ public abstract class AbstractSQLAction extends BlockingNativeCallableUnit {
     }
 
     protected void closeConnections(SQLDatasource datasource) {
-        datasource.closeConnectionPool();
+        // When an exception is thrown during database endpoint init (eg: driver not present) stop operation
+        // of the endpoint is automatically called. But at this point, datasource is null therefore to handle that
+        // situation following null check is needed.
+        if (datasource != null) {
+            datasource.closeConnectionPool();
+        }
     }
 
     private PreparedStatement getPreparedStatement(Connection conn, SQLDatasource datasource, String query,

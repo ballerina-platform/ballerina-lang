@@ -16,7 +16,6 @@
 package org.ballerinalang.langserver.command;
 
 import com.google.gson.internal.LinkedTreeMap;
-import org.ballerinalang.langserver.LSGlobalContext;
 import org.ballerinalang.langserver.common.UtilSymbolKeys;
 import org.ballerinalang.langserver.common.constants.CommandConstants;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
@@ -25,9 +24,9 @@ import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
 import org.ballerinalang.langserver.compiler.LSCompiler;
 import org.ballerinalang.langserver.compiler.LSServiceOperationContext;
 import org.ballerinalang.langserver.compiler.common.LSCustomErrorStrategy;
+import org.ballerinalang.langserver.compiler.workspace.WorkspaceDocumentException;
 import org.ballerinalang.langserver.compiler.workspace.WorkspaceDocumentManager;
 import org.ballerinalang.model.tree.Node;
-import org.ballerinalang.model.tree.TopLevelNode;
 import org.eclipse.lsp4j.ApplyWorkspaceEditParams;
 import org.eclipse.lsp4j.ExecuteCommandParams;
 import org.eclipse.lsp4j.Position;
@@ -37,6 +36,8 @@ import org.eclipse.lsp4j.TextEdit;
 import org.eclipse.lsp4j.VersionedTextDocumentIdentifier;
 import org.eclipse.lsp4j.WorkspaceEdit;
 import org.eclipse.lsp4j.services.LanguageClient;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
 import org.wso2.ballerinalang.compiler.tree.BLangEndpoint;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
@@ -51,6 +52,7 @@ import org.wso2.ballerinalang.compiler.tree.types.BLangRecordTypeNode;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 
 import java.net.URI;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -58,47 +60,61 @@ import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static org.ballerinalang.langserver.compiler.LSCompilerUtil.getUntitledFilePath;
+
 /**
  * Command Executor for Ballerina Workspace service execute command operation.
  * @since v0.964.0
  */
 public class CommandExecutor {
+    private static final Logger logger = LoggerFactory.getLogger(CommandExecutor.class);
+
     private static final String ARG_KEY = "argumentK";
+
     private static final String ARG_VALUE = "argumentV";
-    private static final String RUNTIME_PKG_ALIAS = ".runtime";
+
+    private CommandExecutor() {
+    }
 
     /**
      * Command Execution router.
      * @param params            Parameters for the command
      * @param context           Workspace service context
-     * @param lsGlobalContext   Global Language Server context               
      */
-    public static void executeCommand(ExecuteCommandParams params, LSServiceOperationContext context,
-                                      LSGlobalContext lsGlobalContext) {
-        switch (params.getCommand()) {
-            case CommandConstants.CMD_IMPORT_PACKAGE:
-                executeImportPackage(context, lsGlobalContext);
-                break;
-            case CommandConstants.CMD_CREATE_FUNCTION:
-                executeCreateFunction(context, lsGlobalContext);
-                break;
-            case CommandConstants.CMD_ADD_DOCUMENTATION:
-                executeAddDocumentation(context, lsGlobalContext);
-                break;
-            case CommandConstants.CMD_ADD_ALL_DOC:
-                executeAddAllDocumentation(context, lsGlobalContext);
-                break;
-            default:
-                // Do Nothing
-                break;
+    public static Object executeCommand(ExecuteCommandParams params, LSServiceOperationContext context) {
+        Object result;
+        try {
+            switch (params.getCommand()) {
+                case CommandConstants.CMD_IMPORT_PACKAGE:
+                    result = executeImportPackage(context);
+                    break;
+                case CommandConstants.CMD_CREATE_FUNCTION:
+                    result = executeCreateFunction(context);
+                    break;
+                case CommandConstants.CMD_ADD_DOCUMENTATION:
+                    result = executeAddDocumentation(context);
+                    break;
+                case CommandConstants.CMD_ADD_ALL_DOC:
+                    result = executeAddAllDocumentation(context);
+                    break;
+                default:
+                    // Do Nothing
+                    result = new Object();
+                    break;
+            }
+        } catch (WorkspaceDocumentException e) {
+            logger.error("Error occurred while executing command", e);
+            result = new Object();
         }
+        
+        return result;
     }
 
     /**
      * Execute the command, import package.
      * @param context   Workspace service context
      */
-    private static void executeImportPackage(LSServiceOperationContext context, LSGlobalContext lsGlobalContext) {
+    private static Object executeImportPackage(LSServiceOperationContext context) throws WorkspaceDocumentException {
         String documentUri = null;
         VersionedTextDocumentIdentifier textDocumentIdentifier = new VersionedTextDocumentIdentifier();
         
@@ -111,29 +127,33 @@ public class CommandExecutor {
                 context.put(ExecuteCommandKeys.PKG_NAME_KEY, (String) ((LinkedTreeMap) arg).get(ARG_VALUE));
             }
         }
-        
+
+        WorkspaceDocumentManager documentManager = context.get(ExecuteCommandKeys.DOCUMENT_MANAGER_KEY);
         if (documentUri != null && context.get(ExecuteCommandKeys.PKG_NAME_KEY) != null) {
-            String fileContent = context.get(ExecuteCommandKeys.DOCUMENT_MANAGER_KEY)
-                        .getFileContent(Paths.get(URI.create(documentUri)));
+            Path filePath = Paths.get(URI.create(documentUri));
+            Path compilationPath = getUntitledFilePath(filePath.toString()).orElse(filePath);
+            String fileContent = documentManager.getFileContent(compilationPath);
             String[] contentComponents = fileContent.split(CommonUtil.LINE_SEPARATOR_SPLIT);
             int totalLines = contentComponents.length;
-            int lastNewLineCharIndex = Math.max(fileContent.lastIndexOf("\n"), fileContent.lastIndexOf("\r"));
+            int lastNewLineCharIndex = Math.max(fileContent.lastIndexOf('\n'), fileContent.lastIndexOf('\r'));
             int lastCharCol = fileContent.substring(lastNewLineCharIndex + 1).length();
-            BLangPackage bLangPackage = LSCompiler.getBLangPackage(context,
-                    context.get(ExecuteCommandKeys.DOCUMENT_MANAGER_KEY), false, LSCustomErrorStrategy.class,
-                    false).getRight();
+            LSCompiler lsCompiler = context.get(ExecuteCommandKeys.LS_COMPILER_KEY);
+            BLangPackage bLangPackage = lsCompiler.getBLangPackage(context, documentManager, false,
+                                                                   LSCustomErrorStrategy.class,
+                                                                   false).getRight();
             context.put(DocumentServiceKeys.CURRENT_PACKAGE_NAME_KEY,
-                    bLangPackage.symbol.getName().getValue());
+                        bLangPackage.symbol.getName().getValue());
             String pkgName = context.get(ExecuteCommandKeys.PKG_NAME_KEY);
+            String currentFile = context.get(DocumentServiceKeys.FILE_NAME_KEY);
             DiagnosticPos pos;
 
             // Filter the imports except the runtime import
             List<BLangImportPackage> imports = bLangPackage.getImports().stream()
-                    .filter(bLangImportPackage -> !bLangImportPackage.getAlias().toString().equals(RUNTIME_PKG_ALIAS))
+                    .filter(bLangImportPackage -> bLangImportPackage.getPosition().src.cUnitName.equals(currentFile))
                     .collect(Collectors.toList());
 
             if (!imports.isEmpty()) {
-                BLangImportPackage lastImport = CommonUtil.getLastItem(bLangPackage.getImports());
+                BLangImportPackage lastImport = CommonUtil.getLastItem(imports);
                 pos = lastImport.getPosition();
             } else {
                 pos = null;
@@ -157,9 +177,11 @@ public class CommandExecutor {
                     + remainingTextToReplace;
             Range range = new Range(new Position(endLine, endCol + 1), new Position(totalLines + 1, lastCharCol));
 
-            applySingleTextEdit(editText, range, textDocumentIdentifier,
+            return applySingleTextEdit(editText, range, textDocumentIdentifier,
                     context.get(ExecuteCommandKeys.LANGUAGE_SERVER_KEY).getClient());
         }
+        
+        return new Object();
     }
 
     /**
@@ -167,7 +189,7 @@ public class CommandExecutor {
      *
      * @param context Workspace service context
      */
-    private static void executeCreateFunction(LSServiceOperationContext context, LSGlobalContext lsGlobalContext) {
+    private static Object executeCreateFunction(LSServiceOperationContext context) throws WorkspaceDocumentException {
         String documentUri = null;
         String funcName = null;
         String returnType = null;
@@ -194,34 +216,38 @@ public class CommandExecutor {
         }
 
         if (documentUri == null || funcName == null) {
-            return;
+            return new Object();
         }
 
         WorkspaceDocumentManager documentManager = context.get(ExecuteCommandKeys.DOCUMENT_MANAGER_KEY);
-        String fileContent = documentManager.getFileContent(Paths.get(URI.create(documentUri)));
+
+        Path filePath = Paths.get(URI.create(documentUri));
+        Path compilationPath = getUntitledFilePath(filePath.toString()).orElse(filePath);
+        String fileContent = documentManager.getFileContent(compilationPath);
         String[] contentComponents = fileContent.split("\\n|\\r\\n|\\r");
         int totalLines = contentComponents.length;
-        int lastNewLineCharIndex = Math.max(fileContent.lastIndexOf("\n"), fileContent.lastIndexOf("\r"));
+        int lastNewLineCharIndex = Math.max(fileContent.lastIndexOf('\n'), fileContent.lastIndexOf('\r'));
         int lastCharCol = fileContent.substring(lastNewLineCharIndex + 1).length();
 
-        BLangPackage bLangPackage = LSCompiler.getBLangPackage(context, documentManager, false,
+        LSCompiler lsCompiler = context.get(ExecuteCommandKeys.LS_COMPILER_KEY);
+        BLangPackage bLangPackage = lsCompiler.getBLangPackage(context, documentManager, false,
                                                                LSCustomErrorStrategy.class, false).getRight();
         if (bLangPackage == null) {
-            return;
+            return new Object();
         }
 
         String editText = FunctionGenerator.createFunction(funcName, funcArgs, returnType, returnDefaultValue);
         Range range = new Range(new Position(totalLines, lastCharCol + 1), new Position(totalLines + 3, lastCharCol));
 
         LanguageClient client = context.get(ExecuteCommandKeys.LANGUAGE_SERVER_KEY).getClient();
-        applySingleTextEdit(editText, range, textDocumentIdentifier, client);
+        return applySingleTextEdit(editText, range, textDocumentIdentifier, client);
     }
 
     /**
      * Execute the add documentation command.
      * @param context   Workspace service context
      */
-    private static void executeAddDocumentation(LSServiceOperationContext context, LSGlobalContext lsGlobalContext) {
+    private static Object executeAddDocumentation(LSServiceOperationContext context) throws WorkspaceDocumentException {
         String topLevelNodeType = "";
         String documentUri = "";
         int line = 0;
@@ -237,8 +263,8 @@ public class CommandExecutor {
                 line = Integer.parseInt((String) ((LinkedTreeMap) arg).get(ARG_VALUE));
             }
         }
-
-        BLangPackage bLangPackage = LSCompiler.getBLangPackage(context,
+        LSCompiler lsCompiler = context.get(ExecuteCommandKeys.LS_COMPILER_KEY);
+        BLangPackage bLangPackage = lsCompiler.getBLangPackage(context,
                 context.get(ExecuteCommandKeys.DOCUMENT_MANAGER_KEY), false, LSCustomErrorStrategy.class,
                 false).getRight();
 
@@ -246,26 +272,30 @@ public class CommandExecutor {
                 bLangPackage, line);
 
         if (docAttachmentInfo != null) {
-            String fileContent = context.get(ExecuteCommandKeys.DOCUMENT_MANAGER_KEY)
-                    .getFileContent(Paths.get(URI.create(documentUri)));
+            Path filePath = Paths.get(URI.create(documentUri));
+            Path compilationPath = getUntitledFilePath(filePath.toString()).orElse(filePath);
+            String fileContent = context.get(ExecuteCommandKeys.DOCUMENT_MANAGER_KEY).getFileContent(compilationPath);
             String[] contentComponents = fileContent.split(CommonUtil.LINE_SEPARATOR_SPLIT);
-            int replaceEndCol = contentComponents[line - 1].length();
-            String replaceText = String.join(System.lineSeparator(),
-                    Arrays.asList(Arrays.copyOfRange(contentComponents, 0, line)))
-                    + System.lineSeparator() + docAttachmentInfo.getDocAttachment();
-            Range range = new Range(new Position(0, 0), new Position(line - 1, replaceEndCol));
+            int replaceEndCol = contentComponents[line].length();
+            String textBeforeNode = String.join(CommonUtil.LINE_SEPARATOR,
+                    Arrays.asList(Arrays.copyOfRange(contentComponents, 0, line)));
+            String replaceText = String.join(CommonUtil.LINE_SEPARATOR,
+                    Arrays.asList(textBeforeNode, docAttachmentInfo.getDocAttachment(), contentComponents[line]));
+            Range range = new Range(new Position(0, 0), new Position(line, replaceEndCol));
 
-            applySingleTextEdit(replaceText, range, textDocumentIdentifier,
+            return applySingleTextEdit(replaceText, range, textDocumentIdentifier,
                     context.get(ExecuteCommandKeys.LANGUAGE_SERVER_KEY).getClient());
         }
+
+        return new Object();
     }
 
     /**
      * Generate workspace edit for generating doc comments for all top level nodes and resources.
      * @param context   Workspace Service Context
      */
-    private static void executeAddAllDocumentation(LSServiceOperationContext context,
-                                                   LSGlobalContext lsGlobalContext) {
+    private static Object executeAddAllDocumentation(LSServiceOperationContext context)
+            throws WorkspaceDocumentException {
         String documentUri = "";
         VersionedTextDocumentIdentifier textDocumentIdentifier = new VersionedTextDocumentIdentifier();
 
@@ -276,30 +306,35 @@ public class CommandExecutor {
                 context.put(DocumentServiceKeys.FILE_URI_KEY, documentUri);
             }
         }
-        BLangPackage bLangPackage = LSCompiler.getBLangPackage(context,
+        LSCompiler lsCompiler = context.get(ExecuteCommandKeys.LS_COMPILER_KEY);
+        BLangPackage bLangPackage = lsCompiler.getBLangPackage(context,
                 context.get(ExecuteCommandKeys.DOCUMENT_MANAGER_KEY), false, LSCustomErrorStrategy.class, false)
                 .getRight();
 
-        String fileContent = context.get(ExecuteCommandKeys.DOCUMENT_MANAGER_KEY)
-                .getFileContent(Paths.get(URI.create(documentUri)));
+        Path filePath = Paths.get(URI.create(documentUri));
+        Path compilationPath = getUntitledFilePath(filePath.toString()).orElse(filePath);
+        String fileContent = context.get(ExecuteCommandKeys.DOCUMENT_MANAGER_KEY).getFileContent(compilationPath);
         String[] contentComponents = fileContent.split(CommonUtil.LINE_SEPARATOR_SPLIT);
         List<TextEdit> textEdits = new ArrayList<>();
-        bLangPackage.topLevelNodes.forEach(topLevelNode -> {
-            CommandUtil.DocAttachmentInfo docAttachmentInfo = getDocumentEditForNode(topLevelNode);
-            if (docAttachmentInfo != null) {
-                textEdits.add(getTextEdit(docAttachmentInfo, contentComponents));
-            }
-            if (topLevelNode instanceof BLangService) {
-                ((BLangService) topLevelNode).getResources().forEach(bLangResource -> {
-                    CommandUtil.DocAttachmentInfo resourceInfo = getDocumentEditForNode(bLangResource);
-                    if (resourceInfo != null) {
-                        textEdits.add(getTextEdit(resourceInfo, contentComponents));
+        String fileName = context.get(DocumentServiceKeys.FILE_NAME_KEY);
+        bLangPackage.topLevelNodes.stream()
+                .filter(node -> node.getPosition().getSource().getCompilationUnitName().equals(fileName))
+                .forEach(topLevelNode -> {
+                    CommandUtil.DocAttachmentInfo docAttachmentInfo = getDocumentEditForNode(topLevelNode);
+                    if (docAttachmentInfo != null) {
+                        textEdits.add(getTextEdit(docAttachmentInfo, contentComponents));
+                    }
+                    if (topLevelNode instanceof BLangService) {
+                        ((BLangService) topLevelNode).getResources().forEach(bLangResource -> {
+                            CommandUtil.DocAttachmentInfo resourceInfo = getDocumentEditForNode(bLangResource);
+                            if (resourceInfo != null) {
+                                textEdits.add(getTextEdit(resourceInfo, contentComponents));
+                            }
+                        });
                     }
                 });
-            }
-        });
         TextDocumentEdit textDocumentEdit = new TextDocumentEdit(textDocumentIdentifier, textEdits);
-        applyWorkspaceEdit(Collections.singletonList(textDocumentEdit),
+        return applyWorkspaceEdit(Collections.singletonList(textDocumentEdit),
                 context.get(ExecuteCommandKeys.LANGUAGE_SERVER_KEY).getClient());
     }
 
@@ -332,14 +367,8 @@ public class CommandExecutor {
             case UtilSymbolKeys.FUNCTION_KEYWORD_KEY:
                 docAttachmentInfo = CommandUtil.getFunctionDocumentationByPosition(bLangPackage, line);
                 break;
-            case UtilSymbolKeys.STRUCT_KEYWORD_KEY:
-                docAttachmentInfo = CommandUtil.getRecordOrObjectDocumentationByPosition(bLangPackage, line);
-                break;
             case UtilSymbolKeys.ENDPOINT_KEYWORD_KEY:
                 docAttachmentInfo = CommandUtil.getEndpointDocumentationByPosition(bLangPackage, line);
-                break;
-            case UtilSymbolKeys.RESOURCE_KEYWORD_KEY:
-                docAttachmentInfo = CommandUtil.getResourceDocumentationByPosition(bLangPackage, line);
                 break;
             case UtilSymbolKeys.SERVICE_KEYWORD_KEY:
                 docAttachmentInfo = CommandUtil.getServiceDocumentationByPosition(bLangPackage, line);
@@ -384,11 +413,6 @@ public class CommandExecutor {
                 replaceFrom = CommonUtil.toZeroBasedPosition(((BLangEndpoint) node).getPosition()).getStartLine();
                 docAttachmentInfo = CommandUtil.getEndpointNodeDocumentation((BLangEndpoint) node, replaceFrom);
                 break;
-            case OBJECT_TYPE:
-            case RECORD_TYPE:
-                replaceFrom = CommonUtil.toZeroBasedPosition((DiagnosticPos) node.getPosition()).getStartLine();
-                docAttachmentInfo = CommandUtil.getTypeNodeDocumentation((TopLevelNode) node, replaceFrom);
-                break;
             case RESOURCE:
                 if (((BLangResource) node).docAttachments.isEmpty()) {
                     BLangResource bLangResource = (BLangResource) node;
@@ -422,8 +446,9 @@ public class CommandExecutor {
         return CommonUtil.toZeroBasedPosition(bLangNode.getPosition()).getStartLine();
     }
 
-    private static void applySingleTextEdit(String editText, Range range, VersionedTextDocumentIdentifier identifier,
-                                            LanguageClient client) {
+    private static ApplyWorkspaceEditParams applySingleTextEdit(String editText, Range range,
+                                                                VersionedTextDocumentIdentifier identifier,
+                                                                LanguageClient client) {
         WorkspaceEdit workspaceEdit = new WorkspaceEdit();
         ApplyWorkspaceEditParams applyWorkspaceEditParams = new ApplyWorkspaceEditParams();
         TextEdit textEdit = new TextEdit(range, editText);
@@ -431,13 +456,19 @@ public class CommandExecutor {
                 Collections.singletonList(textEdit));
         workspaceEdit.setDocumentChanges(Collections.singletonList(textDocumentEdit));
         applyWorkspaceEditParams.setEdit(workspaceEdit);
-        client.applyEdit(applyWorkspaceEditParams);
+        if (client != null) {
+            client.applyEdit(applyWorkspaceEditParams);
+        }
+        return applyWorkspaceEditParams;
     }
 
-    private static void applyWorkspaceEdit(List<TextDocumentEdit> textDocumentEdits, LanguageClient client) {
+    private static Object applyWorkspaceEdit(List<TextDocumentEdit> textDocumentEdits, LanguageClient client) {
         WorkspaceEdit workspaceEdit = new WorkspaceEdit();
         workspaceEdit.setDocumentChanges(textDocumentEdits);
         ApplyWorkspaceEditParams applyWorkspaceEditParams = new ApplyWorkspaceEditParams(workspaceEdit);
-        client.applyEdit(applyWorkspaceEditParams);
+        if (client != null) {
+            client.applyEdit(applyWorkspaceEditParams);
+        }
+        return applyWorkspaceEditParams;
     }
 }

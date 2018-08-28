@@ -101,6 +101,13 @@ public class TableLiteralSyntaxTest {
         Assert.assertTrue((returns[0]).stringValue().contains("Unique index or primary key violation:"));
     }
 
+    @Test
+    public void testTableAddWhileIterating() {
+        BValue[] returns = BRunUtil.invoke(result, "testTableAddWhileIterating");
+        Assert.assertEquals(((BInteger) returns[0]).intValue(), 2);
+        Assert.assertEquals(((BInteger) returns[1]).intValue(), 2);
+    }
+
     @Test(description = "Test table remove with function pointer of invalid return type")
     public void testTableReturnNegativeCases() {
         Assert.assertEquals(resultNegative.getErrorCount(), 9);

@@ -41,7 +41,6 @@ import org.wso2.ballerinalang.compiler.tree.BLangCompilationUnit;
 import org.wso2.ballerinalang.compiler.tree.BLangDeprecatedNode;
 import org.wso2.ballerinalang.compiler.tree.BLangDocumentation;
 import org.wso2.ballerinalang.compiler.tree.BLangEndpoint;
-import org.wso2.ballerinalang.compiler.tree.BLangEnum;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
 import org.wso2.ballerinalang.compiler.tree.BLangImportPackage;
@@ -101,7 +100,6 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangStringTemplateLiter
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTableLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTableQueryExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTernaryExpr;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeCastExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeConversionExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeInit;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypedescExpr;
@@ -118,7 +116,6 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLSequenceLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLTextLiteral;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangAbort;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangAssignment;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangBind;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBreak;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangCatch;
@@ -372,16 +369,6 @@ public class TaintAnalyzer extends BLangNodeVisitor {
     }
 
     @Override
-    public void visit(BLangEnum enumNode) {
-        enumNode.symbol.tainted = false;
-    }
-
-    @Override
-    public void visit(BLangEnum.BLangEnumerator enumeratorNode) {
-        /* ignore */
-    }
-
-    @Override
     public void visit(BLangVariable varNode) {
         if (varNode.expr != null) {
             SymbolEnv varInitEnv = SymbolEnv.createVarInitEnv(varNode, env, varNode.symbol);
@@ -547,11 +534,6 @@ public class TaintAnalyzer extends BLangNodeVisitor {
             BLangAccessExpression accessExpr = (BLangAccessExpression) varRef;
             updatedVarRefTaintedState(accessExpr.expr, taintedState);
         }
-    }
-
-    @Override
-    public void visit(BLangBind bindNode) {
-        /* ignore */
     }
 
     @Override
@@ -847,12 +829,6 @@ public class TaintAnalyzer extends BLangNodeVisitor {
         TaintedStatus isTainted = TaintedStatus.UNTAINTED;
         for (BLangRecordLiteral.BLangRecordKeyValue keyValuePair : recordLiteral.keyValuePairs) {
             keyValuePair.valueExpr.accept(this);
-            // Update field symbols with tainted status of the individual field (Example: struct).
-            if (keyValuePair.key.fieldSymbol != null) {
-                if (overridingAnalysis || !keyValuePair.key.fieldSymbol.tainted) {
-                    setTaintedStatus(keyValuePair.key.fieldSymbol, this.taintedStatus);
-                }
-            }
             // Used to update the variable this literal is getting assigned to.
             if (this.taintedStatus == TaintedStatus.TAINTED) {
                 isTainted = TaintedStatus.TAINTED;
@@ -1023,12 +999,6 @@ public class TaintAnalyzer extends BLangNodeVisitor {
     @Override
     public void visit(BLangTypedescExpr accessExpr) {
         this.taintedStatus = TaintedStatus.UNTAINTED;
-    }
-
-    @Override
-    public void visit(BLangTypeCastExpr castExpr) {
-        // Result of the cast is tainted if value being casted is tainted.
-        castExpr.expr.accept(this);
     }
 
     @Override

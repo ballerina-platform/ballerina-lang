@@ -47,7 +47,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BXMLNSSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BEnumType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BField;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BFiniteType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BFutureType;
@@ -885,7 +884,11 @@ public class TypeChecker extends BLangNodeVisitor {
             }
             List<BType> results = new ArrayList<>();
             for (int i = 0; i < bracedOrTupleExpr.expressions.size(); i++) {
-                results.add(checkExpr(bracedOrTupleExpr.expressions.get(i), env, expTypes.get(i)));
+                // Infer type from lhs since lhs might be union
+                // TODO: Need to fix with tuple casting
+                BType expType = expTypes.get(i);
+                BType actualType = checkExpr(bracedOrTupleExpr.expressions.get(i), env, expType);
+                results.add(expType.tag != TypeTags.NONE ? expType : actualType);
             }
             resultType = new BTupleType(results);
             return;
@@ -1141,7 +1144,7 @@ public class TypeChecker extends BLangNodeVisitor {
         bLangXMLElementLiteral.attributes.forEach(attribute -> {
             if (attribute.name.getKind() == NodeKind.XML_QNAME
                     && ((BLangXMLQName) attribute.name).prefix.value.equals(XMLConstants.XMLNS_ATTRIBUTE)) {
-                checkExpr((BLangExpression) attribute, xmlElementEnv, symTable.noType);
+                checkExpr(attribute, xmlElementEnv, symTable.noType);
             }
         });
 
@@ -1149,7 +1152,7 @@ public class TypeChecker extends BLangNodeVisitor {
         bLangXMLElementLiteral.attributes.forEach(attribute -> {
             if (attribute.name.getKind() != NodeKind.XML_QNAME
                     || !((BLangXMLQName) attribute.name).prefix.value.equals(XMLConstants.XMLNS_ATTRIBUTE)) {
-                checkExpr((BLangExpression) attribute, xmlElementEnv, symTable.noType);
+                checkExpr(attribute, xmlElementEnv, symTable.noType);
             }
         });
 
@@ -1209,9 +1212,6 @@ public class TypeChecker extends BLangNodeVisitor {
         }
 
         checkExpr(indexExpr, env, symTable.stringType);
-        if (indexExpr.getKind() == NodeKind.XML_QNAME) {
-            ((BLangXMLQName) indexExpr).isUsedInXML = true;
-        }
 
         if (indexExpr.type.tag == TypeTags.STRING) {
             actualType = symTable.stringType;
@@ -2035,11 +2035,7 @@ public class TypeChecker extends BLangNodeVisitor {
 
             // JSON and any is special cased here, since those are two union types, with null within them.
             // Therefore return 'type' will not include null.
-            if (constraintType == null || constraintType.tag == TypeTags.ANY || constraintType.tag == TypeTags.JSON) {
-                return false;
-            }
-
-            return true;
+            return constraintType != null && constraintType.tag != TypeTags.ANY && constraintType.tag != TypeTags.JSON;
         }
 
         return false;
@@ -2073,26 +2069,6 @@ public class TypeChecker extends BLangNodeVisitor {
                     }
                 }
                 actualType = symTable.jsonType;
-                break;
-            case TypeTags.ENUM:
-                // Enumerator access expressions only allow enum type name as the first part e.g state.INSTALLED,
-                BEnumType enumType = (BEnumType) varRefType;
-                if (fieldAccessExpr.expr.getKind() != NodeKind.SIMPLE_VARIABLE_REF ||
-                        !((BLangSimpleVarRef) fieldAccessExpr.expr).variableName.value.equals(
-                                enumType.tsymbol.name.value)) {
-                    dlog.error(fieldAccessExpr.pos, DiagnosticCode.INVALID_ENUM_EXPR, enumType.tsymbol.name.value);
-                    break;
-                }
-
-                BSymbol symbol = symResolver.lookupMemberSymbol(fieldAccessExpr.pos,
-                        enumType.tsymbol.scope, this.env, fieldName, SymTag.VARIABLE);
-                if (symbol == symTable.notFoundSymbol) {
-                    dlog.error(fieldAccessExpr.pos, DiagnosticCode.UNDEFINED_SYMBOL, fieldName.value);
-                    break;
-                }
-                fieldAccessExpr.symbol = symbol;
-                actualType = fieldAccessExpr.expr.type;
-
                 break;
             case TypeTags.XML:
                 if (fieldAccessExpr.lhsVar) {
@@ -2164,7 +2140,7 @@ public class TypeChecker extends BLangNodeVisitor {
                 break;
             case TypeTags.ARRAY:
                 indexExprType = checkExpr(indexExpr, this.env, symTable.intType);
-                if (indexExprType.tag == TypeTags.INT || indexExprType.tag == TypeTags.BYTE) {
+                if (indexExprType.tag == TypeTags.INT) {
                     actualType = ((BArrayType) varRefType).getElementType();
                 }
                 break;

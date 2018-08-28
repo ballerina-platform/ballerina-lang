@@ -34,19 +34,19 @@ import java.util.concurrent.TimeUnit;
 /**
  * Test case to test simple WebSocket pass through scenarios.
  */
+@Test(groups = "websocket-test")
 public class WebSocketSimpleProxyTestCase extends WebSocketTestCommons {
 
     private WebSocketRemoteServer remoteServer;
-    private static final String URL = "ws://localhost:9090/proxy/ws";
+    private static final String URL = "ws://localhost:9099";
 
     @BeforeClass(description = "Initializes Ballerina")
     public void setup() throws InterruptedException, BallerinaTestException {
-        remoteServer = new WebSocketRemoteServer(REMOTE_SERVER_PORT);
+        remoteServer = new WebSocketRemoteServer(15300);
         remoteServer.run();
-        initBallerinaServer("simple_proxy_server.bal");
     }
 
-    @Test(priority = 1, description = "Tests sending and receiving of text frames in WebSockets")
+    @Test(description = "Tests sending and receiving of text frames in WebSockets")
     public void testSendText() throws URISyntaxException, InterruptedException {
         WebSocketTestClient client = new WebSocketTestClient(URL);
         client.handshake();
@@ -59,7 +59,7 @@ public class WebSocketSimpleProxyTestCase extends WebSocketTestCommons {
         client.shutDown();
     }
 
-    @Test(priority = 2, description = "Tests sending and receiving of binary frames in WebSockets")
+    @Test(description = "Tests sending and receiving of binary frames in WebSockets", dependsOnMethods = "testSendText")
     public void testSendBinary() throws URISyntaxException, InterruptedException {
         WebSocketTestClient client = new WebSocketTestClient(URL);
         client.handshake();
@@ -73,8 +73,7 @@ public class WebSocketSimpleProxyTestCase extends WebSocketTestCommons {
     }
 
     @AfterClass(description = "Stops Ballerina")
-    public void cleanup() throws BallerinaTestException {
-        stopBallerinaServerInstance();
+    public void cleanup() {
         remoteServer.stop();
     }
 }

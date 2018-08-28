@@ -23,6 +23,7 @@ import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
 import org.ballerinalang.langserver.compiler.LSContext;
 import org.ballerinalang.langserver.compiler.common.LSDocument;
 import org.ballerinalang.langserver.compiler.common.modal.BallerinaPackage;
+import org.ballerinalang.langserver.compiler.workspace.WorkspaceDocumentException;
 import org.ballerinalang.langserver.compiler.workspace.WorkspaceDocumentManager;
 import org.ballerinalang.langserver.completions.CompletionKeys;
 import org.ballerinalang.langserver.completions.SymbolInfo;
@@ -36,6 +37,8 @@ import org.eclipse.lsp4j.CompletionItem;
 import org.eclipse.lsp4j.InsertTextFormat;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.TextDocumentIdentifier;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.wso2.ballerinalang.compiler.semantics.model.Scope;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAnnotationSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAttachedFunction;
@@ -74,8 +77,6 @@ import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 
-import java.net.MalformedURLException;
-import java.net.URISyntaxException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -89,10 +90,13 @@ import java.util.Set;
 import java.util.Stack;
 import java.util.function.Predicate;
 
+import static org.ballerinalang.langserver.compiler.LSCompilerUtil.getUntitledFilePath;
+
 /**
  * Common utils to be reuse in language server implementation.
  */
 public class CommonUtil {
+    private static final Logger logger = LoggerFactory.getLogger(CommonUtil.class);
 
     public static final String LINE_SEPARATOR = System.lineSeparator();
 
@@ -140,23 +144,6 @@ public class CommonUtil {
     }
 
     /**
-     * Common utility to get a Path from the given uri string.
-     *
-     * @param document LSDocument object of the file
-     * @return {@link Path}     Path of the uri
-     */
-    public static Path getPath(LSDocument document) {
-        Path path = null;
-        try {
-            path = document.getPath();
-        } catch (URISyntaxException | MalformedURLException e) {
-            // Do Nothing
-        }
-
-        return path;
-    }
-
-    /**
      * Calculate the user defined type position.
      *
      * @param position position of the node
@@ -179,6 +166,19 @@ public class CommonUtil {
         int startColumn = diagnosticPos.getStartColumn() - 1;
         int endColumn = diagnosticPos.getEndColumn() - 1;
         return new DiagnosticPos(diagnosticPos.getSource(), startLine, endLine, startColumn, endColumn);
+    }
+
+    /**
+     * Replace and returns a diagnostic position with a new position.
+     *
+     * @param oldPos old position
+     * @param newPos new position
+     */
+    public static void replacePosition(DiagnosticPos oldPos, DiagnosticPos newPos) {
+        oldPos.sLine = newPos.sLine;
+        oldPos.eLine = newPos.eLine;
+        oldPos.sCol = newPos.sCol;
+        oldPos.eCol = newPos.eCol;
     }
 
     /**
@@ -365,20 +365,27 @@ public class CommonUtil {
         // TODO: Need to support service and resources as well.
         List<String> topLevelKeywords = Arrays.asList("function", "service", "resource", "endpoint", "type");
         LSDocument document = new LSDocument(identifier.getUri());
-        String fileContent = docManager.getFileContent(getPath(document));
-        String[] splitedFileContent = fileContent.split(LINE_SEPARATOR_SPLIT);
-        if ((splitedFileContent.length - 1) >= startPosition.getLine()) {
-            String lineContent = splitedFileContent[startPosition.getLine()];
-            List<String> alphaNumericTokens = new ArrayList<>(Arrays.asList(lineContent.split("[^\\w']+")));
 
-            for (String topLevelKeyword : topLevelKeywords) {
-                if (alphaNumericTokens.contains(topLevelKeyword)) {
-                    return topLevelKeyword;
+        try {
+            Path filePath = document.getPath();
+            Path compilationPath = getUntitledFilePath(filePath.toString()).orElse(filePath);
+            String fileContent = docManager.getFileContent(compilationPath);
+            String[] splitedFileContent = fileContent.split(LINE_SEPARATOR_SPLIT);
+            if ((splitedFileContent.length - 1) >= startPosition.getLine()) {
+                String lineContent = splitedFileContent[startPosition.getLine()];
+                List<String> alphaNumericTokens = new ArrayList<>(Arrays.asList(lineContent.split("[^\\w']+")));
+
+                for (String topLevelKeyword : topLevelKeywords) {
+                    if (alphaNumericTokens.contains(topLevelKeyword)) {
+                        return topLevelKeyword;
+                    }
                 }
             }
+            return null;
+        } catch (WorkspaceDocumentException e) {
+            logger.error("Error occurred while reading content of file: " + document.toString());
+            return null;
         }
-
-        return null;
     }
 
     /**
@@ -389,8 +396,7 @@ public class CommonUtil {
      * @return {@link BLangPackage} current package
      */
     public static BLangPackage getCurrentPackageByFileName(List<BLangPackage> packages, String fileUri) {
-        LSDocument document = new LSDocument(fileUri);
-        Path filePath = getPath(document);
+        Path filePath = new LSDocument(fileUri).getPath();
         Path fileNamePath = filePath.getFileName();
         BLangPackage currentPackage = null;
         try {
@@ -661,7 +667,7 @@ public class CommonUtil {
                 || SymbolKind.FUNCTION.equals(bInvokableSymbol.owner.kind)))
                 || SymbolKind.FUNCTION.equals(bInvokableSymbol.kind));
     }
-    
+
     public static boolean isInvalidSymbol(BSymbol symbol) {
         return ("_".equals(symbol.name.getValue())
                 || "runtime".equals(symbol.getName().getValue())

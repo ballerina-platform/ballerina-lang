@@ -17,7 +17,6 @@
  */
 package org.wso2.ballerinalang.compiler.tree;
 
-import org.wso2.ballerinalang.compiler.tree.BLangEnum.BLangEnumerator;
 import org.wso2.ballerinalang.compiler.tree.BLangXMLNS.BLangLocalXMLNS;
 import org.wso2.ballerinalang.compiler.tree.BLangXMLNS.BLangPackageXMLNS;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangFunctionClause;
@@ -91,7 +90,6 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangStringTemplateLiter
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTableLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTableQueryExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTernaryExpr;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeCastExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeConversionExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeInit;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypedescExpr;
@@ -107,7 +105,6 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLSequenceLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLTextLiteral;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangAbort;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangAssignment;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangBind;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBreak;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangCatch;
@@ -189,14 +186,6 @@ public abstract class BLangNodeVisitor {
         throw new AssertionError();
     }
 
-    public void visit(BLangEnum enumNode) {
-        throw new AssertionError();
-    }
-
-    public void visit(BLangEnumerator enumeratorNode) {
-        throw new AssertionError();
-    }
-
     public void visit(BLangVariable varNode) {
         throw new AssertionError();
     }
@@ -264,10 +253,6 @@ public abstract class BLangNodeVisitor {
     }
 
     public void visit(BLangCompoundAssignment compoundAssignNode) {
-        throw new AssertionError();
-    }
-
-    public void visit(BLangBind bindNode) {
         throw new AssertionError();
     }
 
@@ -499,10 +484,6 @@ public abstract class BLangNodeVisitor {
     }
 
     public void visit(BLangTypedescExpr accessExpr) {
-        throw new AssertionError();
-    }
-
-    public void visit(BLangTypeCastExpr castExpr) {
         throw new AssertionError();
     }
 

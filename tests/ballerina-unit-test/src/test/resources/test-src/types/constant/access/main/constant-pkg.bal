@@ -24,10 +24,10 @@ function getNegativeConstants() returns (int, int, float, float) {
 }
 
 
-@final float a = 4;
+@final float a = 4.0;
 
 function floatIntConversion() returns (float, float, float){
-    float[] f = [1,2,3,4,5,6,8];
+    float[] f = [1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 8.0];
     return (a, f[5], 10.0);
 }
 

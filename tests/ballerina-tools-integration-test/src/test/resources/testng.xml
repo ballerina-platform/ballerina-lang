@@ -27,7 +27,15 @@
         <classes>
             <class name="org.ballerinalang.test.packaging.PackagingTestCase"/>
             <class name="org.ballerinalang.test.packaging.PackagingInitTestCase"/>
+            <class name="org.ballerinalang.test.packaging.grpc.ServicePackagingTestCase"/>
+            <class name="org.ballerinalang.test.packaging.PackagingSingleBalBuildTestCase"/>
         </classes>
+    </test>
+
+    <test name="ballerina-cli-parsing-tests" preserve-order="true" parallel="false">
+        <packages>
+            <package name="org.ballerinalang.test.command.*"/>
+        </packages>
     </test>
 
 </suite>

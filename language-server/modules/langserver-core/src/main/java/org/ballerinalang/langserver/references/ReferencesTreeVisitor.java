@@ -21,18 +21,21 @@ import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
 import org.ballerinalang.langserver.compiler.LSServiceOperationContext;
 import org.ballerinalang.langserver.compiler.common.LSDocument;
+import org.ballerinalang.langserver.hover.util.HoverUtil;
+import org.ballerinalang.model.elements.PackageID;
 import org.eclipse.lsp4j.Location;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4j.TextDocumentPositionParams;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BNilType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 import org.wso2.ballerinalang.compiler.tree.BLangAction;
 import org.wso2.ballerinalang.compiler.tree.BLangEndpoint;
-import org.wso2.ballerinalang.compiler.tree.BLangEnum;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
@@ -53,7 +56,6 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangMatchExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTernaryExpr;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeCastExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeConversionExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeInit;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangUnaryExpr;
@@ -65,6 +67,7 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangForeach;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangForkJoin;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangIf;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangPostIncrement;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangReturn;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangScope;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangTransaction;
@@ -94,7 +97,7 @@ public class ReferencesTreeVisitor extends LSNodeVisitor {
 
     public ReferencesTreeVisitor(LSServiceOperationContext context) {
         this.context = context;
-        this.locations = context.get(NodeContextKeys.REFERENCE_NODES_KEY);
+        this.locations = context.get(NodeContextKeys.REFERENCE_RESULTS_KEY);
     }
 
     @Override
@@ -115,10 +118,8 @@ public class ReferencesTreeVisitor extends LSNodeVisitor {
             return;
         }
 
-        if (this.context.get(NodeContextKeys.PACKAGE_OF_NODE_KEY) != null &&
-                this.context.get(NodeContextKeys.PACKAGE_OF_NODE_KEY).name.getValue()
-                        .equals(funcNode.symbol.pkgID.name.getValue()) && this.context.get(
-                NodeContextKeys.NAME_OF_NODE_KEY).equals(funcNode.name.getValue())) {
+        if (isReferenced(funcNode.name.getValue(), funcNode.symbol.owner, funcNode.symbol.pkgID,
+                         funcNode.symbol.owner.pkgID)) {
             addLocation(funcNode, funcNode.symbol.pkgID.name.getValue(), funcNode.symbol.pkgID.name.getValue());
         }
 
@@ -154,12 +155,9 @@ public class ReferencesTreeVisitor extends LSNodeVisitor {
 
     @Override
     public void visit(BLangService serviceNode) {
-        if (this.context.get(NodeContextKeys.PACKAGE_OF_NODE_KEY) != null && serviceNode.symbol.pkgID.name.getValue()
-                .equals(this.context.get(NodeContextKeys.PACKAGE_OF_NODE_KEY).name.getValue()) &&
-                this.context.get(NodeContextKeys.NAME_OF_NODE_KEY).equals(serviceNode.name.getValue()) &&
-                this.context.get(NodeContextKeys.NODE_OWNER_KEY).equals(serviceNode.symbol.owner.name.getValue())) {
-            addLocation(serviceNode, serviceNode.symbol.pkgID.name.getValue(),
-                        serviceNode.symbol.pkgID.name.getValue());
+        BSymbol servSymbol = serviceNode.symbol;
+        if (isReferenced(serviceNode.name.getValue(), servSymbol.owner, servSymbol.pkgID, servSymbol.owner.pkgID)) {
+            addLocation(serviceNode, servSymbol.pkgID.name.getValue(), servSymbol.pkgID.name.getValue());
         }
 
         if (serviceNode.serviceTypeStruct != null) {
@@ -189,10 +187,9 @@ public class ReferencesTreeVisitor extends LSNodeVisitor {
 
     @Override
     public void visit(BLangResource resourceNode) {
-        if (this.context.get(NodeContextKeys.PACKAGE_OF_NODE_KEY) != null && resourceNode.symbol.pkgID.name.getValue()
-                .equals(this.context.get(NodeContextKeys.PACKAGE_OF_NODE_KEY).name.getValue()) &&
-                this.context.get(NodeContextKeys.NAME_OF_NODE_KEY).equals(resourceNode.name.getValue()) &&
-                this.context.get(NodeContextKeys.NODE_OWNER_KEY).equals(resourceNode.symbol.owner.name.getValue())) {
+        if (isReferenced(resourceNode.name.getValue(), resourceNode.symbol.owner, resourceNode.symbol.pkgID,
+                         resourceNode.symbol.owner.pkgID)) {
+            CommonUtil.replacePosition(resourceNode.getPosition(), HoverUtil.getIdentifierPosition(resourceNode));
             addLocation(resourceNode, resourceNode.symbol.pkgID.name.getValue(),
                         resourceNode.symbol.pkgID.name.getValue());
         }
@@ -208,9 +205,8 @@ public class ReferencesTreeVisitor extends LSNodeVisitor {
 
     @Override
     public void visit(BLangAction actionNode) {
-        if (actionNode.symbol.pkgID.name.getValue()
-                .equals(this.context.get(NodeContextKeys.PACKAGE_OF_NODE_KEY).name.getValue()) &&
-                this.context.get(NodeContextKeys.NAME_OF_NODE_KEY).equals(actionNode.name.getValue())) {
+        if (isReferenced(actionNode.name.getValue(), actionNode.symbol.owner, actionNode.symbol.pkgID,
+                         actionNode.symbol.owner.pkgID)) {
             addLocation(actionNode, actionNode.symbol.pkgID.name.getValue(),
                         actionNode.symbol.pkgID.name.getValue());
         }
@@ -230,14 +226,10 @@ public class ReferencesTreeVisitor extends LSNodeVisitor {
 
     @Override
     public void visit(BLangVariable varNode) {
-        if (!(varNode.type instanceof BUnionType) && (this.context.get(NodeContextKeys.VAR_NAME_OF_NODE_KEY) != null &&
-                this.context.get(NodeContextKeys.VAR_NAME_OF_NODE_KEY).equals(varNode.name.getValue())) &&
-                varNode.symbol.owner.name.getValue().equals(this.context.get(NodeContextKeys.NODE_OWNER_KEY)) &&
-                varNode.symbol.owner.pkgID.getName().getValue()
-                        .equals(this.context.get(NodeContextKeys.NODE_OWNER_PACKAGE_KEY).name.getValue())) {
-
-            addLocation(varNode, varNode.symbol.owner.pkgID.name.getValue(),
-                        varNode.pos.getSource().pkgID.name.getValue());
+        BVarSymbol varSymbol = varNode.symbol;
+        if (!(varNode.type instanceof BUnionType) && isReferenced(varNode.name.getValue(), varSymbol.owner,
+                                                                  varSymbol.pkgID, varSymbol.owner.pkgID)) {
+            addLocation(varNode, varSymbol.owner.pkgID.name.getValue(), varNode.pos.getSource().pkgID.name.getValue());
         }
 
         if (varNode.typeNode != null) {
@@ -301,6 +293,8 @@ public class ReferencesTreeVisitor extends LSNodeVisitor {
 
     @Override
     public void visit(BLangForeach foreach) {
+        this.acceptNode(foreach.collection);
+
         if (foreach.varRefs != null) {
             foreach.varRefs.forEach(this::acceptNode);
         }
@@ -373,24 +367,19 @@ public class ReferencesTreeVisitor extends LSNodeVisitor {
     public void visit(BLangSimpleVarRef varRefExpr) {
         CommonUtil.calculateEndColumnOfGivenName(varRefExpr.getPosition(), varRefExpr.variableName.value,
                                                  varRefExpr.pkgAlias.value);
+        if (varRefExpr.symbol != null && isReferenced(varRefExpr.variableName.getValue(),
+                                                      varRefExpr.symbol.owner,
+                                                      varRefExpr.symbol.pkgID,
+                                                      varRefExpr.symbol.owner.pkgID)) {
+            addLocation(varRefExpr, varRefExpr.symbol.owner.pkgID.name.getValue(),
+                        varRefExpr.pos.getSource().pkgID.name.getValue());
 
-        if (this.context.get(NodeContextKeys.VAR_NAME_OF_NODE_KEY) != null && varRefExpr.variableName.getValue()
-                .equals(this.context.get(NodeContextKeys.VAR_NAME_OF_NODE_KEY))) {
-
-            if (varRefExpr.symbol != null && varRefExpr.symbol.owner.name.getValue()
-                    .equals(this.context.get(NodeContextKeys.NODE_OWNER_KEY)) && varRefExpr.symbol.pkgID.name.getValue()
-                    .equals(this.context.get(NodeContextKeys.PACKAGE_OF_NODE_KEY).name.getValue())) {
-
-                addLocation(varRefExpr, varRefExpr.symbol.owner.pkgID.name.getValue(),
-                            varRefExpr.pos.getSource().pkgID.name.getValue());
-
-            } else if (varRefExpr.type.tsymbol.owner.name.getValue()
-                    .equals(this.context.get(NodeContextKeys.NODE_OWNER_KEY)) &&
-                    varRefExpr.type.tsymbol.pkgID.name.getValue()
-                            .equals(this.context.get(NodeContextKeys.PACKAGE_OF_NODE_KEY).name.getValue())) {
-                addLocation(varRefExpr, varRefExpr.type.tsymbol.owner.pkgID.name.getValue(),
-                            varRefExpr.pos.getSource().pkgID.name.getValue());
-            }
+        } else if (varRefExpr.type.tsymbol != null && isReferenced(varRefExpr.variableName.getValue(),
+                                                                   varRefExpr.type.tsymbol.owner,
+                                                                   varRefExpr.type.tsymbol.pkgID,
+                                                                   varRefExpr.type.tsymbol.owner.pkgID)) {
+            addLocation(varRefExpr, varRefExpr.type.tsymbol.owner.pkgID.name.getValue(),
+                        varRefExpr.pos.getSource().pkgID.name.getValue());
         }
     }
 
@@ -410,12 +399,9 @@ public class ReferencesTreeVisitor extends LSNodeVisitor {
 
     @Override
     public void visit(BLangInvocation invocationExpr) {
-        if (this.context.get(NodeContextKeys.NAME_OF_NODE_KEY) != null &&
-                this.context.get(NodeContextKeys.NAME_OF_NODE_KEY).equals(invocationExpr.name.getValue()) &&
-                invocationExpr.symbol.owner.name.getValue().equals(this.context.get(NodeContextKeys.NODE_OWNER_KEY)) &&
-                invocationExpr.symbol.owner.pkgID.getName().getValue()
-                        .equals(this.context.get(NodeContextKeys.NODE_OWNER_PACKAGE_KEY).name.getValue())) {
-            addLocation(invocationExpr, invocationExpr.symbol.owner.pkgID.name.getValue(),
+        BSymbol inExSymbol = invocationExpr.symbol;
+        if (isReferencedRegardlessPkgs(invocationExpr.name.getValue(), inExSymbol.owner)) {
+            addLocation(invocationExpr, inExSymbol.owner.pkgID.name.getValue(),
                         invocationExpr.pos.getSource().pkgID.name.getValue());
         }
 
@@ -443,24 +429,14 @@ public class ReferencesTreeVisitor extends LSNodeVisitor {
     }
 
     @Override
-    public void visit(BLangFieldBasedAccess fieldAccessExpr) {
-        if (fieldAccessExpr.expr != null) {
-            this.acceptNode(fieldAccessExpr.expr);
+    public void visit(BLangFieldBasedAccess fieldBasedAccess) {
+        BSymbol fbaSymbol = fieldBasedAccess.symbol;
+        if (isReferenced(fieldBasedAccess.field.getValue(), fbaSymbol.owner, fbaSymbol.pkgID, fbaSymbol.owner.pkgID)) {
+            addLocation(fieldBasedAccess, fbaSymbol.owner.pkgID.name.getValue(),
+                        fieldBasedAccess.pos.getSource().pkgID.name.getValue());
         }
-    }
-
-    @Override
-    public void visit(BLangEnum enumNode) {
-        if (enumNode.symbol.owner.name.getValue().equals(this.context.get(NodeContextKeys.NODE_OWNER_KEY)) &&
-                enumNode.symbol.owner.pkgID.name.getValue()
-                        .equals(this.context.get(NodeContextKeys.NODE_OWNER_PACKAGE_KEY).name.getValue()) &&
-                enumNode.name.getValue().equals(this.context.get(NodeContextKeys.NAME_OF_NODE_KEY))) {
-            // Fixing the issue with enum end positions by
-            // replacing end line and end column with start line and column values
-            enumNode.getPosition().eLine = enumNode.getPosition().sLine;
-            enumNode.getPosition().eCol = enumNode.getPosition().sCol;
-            addLocation(enumNode, enumNode.symbol.owner.pkgID.name.getValue(),
-                        enumNode.pos.getSource().pkgID.name.getValue());
+        if (fieldBasedAccess.expr != null) {
+            this.acceptNode(fieldBasedAccess.expr);
         }
     }
 
@@ -471,24 +447,17 @@ public class ReferencesTreeVisitor extends LSNodeVisitor {
                     instanceof BLangEndpointTypeNode ? "endpoint<".length() : 0);
             CommonUtil.calculateEndColumnOfGivenName(userDefinedType.getPosition(), userDefinedType.typeName.value,
                                                      userDefinedType.pkgAlias.value);
-            if (userDefinedType.type.tsymbol != null && userDefinedType.typeName.getValue()
-                    .equals(this.context.get(NodeContextKeys.NAME_OF_NODE_KEY)) &&
-                    userDefinedType.type.tsymbol.owner.name.getValue()
-                            .equals(this.context.get(NodeContextKeys.NODE_OWNER_KEY)) &&
-                    userDefinedType.type.tsymbol.owner.pkgID.name.getValue()
-                            .equals(this.context.get(NodeContextKeys.NODE_OWNER_PACKAGE_KEY).name.getValue())) {
-                addLocation(userDefinedType, userDefinedType.type.tsymbol.owner.pkgID.name.getValue(),
+            BType udType = userDefinedType.type;
+            if (udType.tsymbol != null && isReferencedRegardlessPkgs(userDefinedType.typeName.getValue(),
+                                                                                   udType.tsymbol.owner)) {
+                addLocation(userDefinedType, udType.tsymbol.owner.pkgID.name.getValue(),
                             userDefinedType.pos.getSource().pkgID.name.getValue());
-            } else if (userDefinedType.type instanceof BUnionType) {
+            } else if (udType instanceof BUnionType) {
                 try {
-                    BUnionType bUnionType = (BUnionType) userDefinedType.type;
+                    BUnionType bUnionType = (BUnionType) udType;
                     for (BType type : bUnionType.memberTypes) {
-                        if (type.tsymbol != null && type.tsymbol.getName().getValue()
-                                .equals(this.context.get(NodeContextKeys.NAME_OF_NODE_KEY)) &&
-                                type.tsymbol.owner.name.getValue()
-                                        .equals(this.context.get(NodeContextKeys.NODE_OWNER_KEY)) && type.tsymbol.owner
-                                .pkgID.name.getValue().equals(this.context.get(NodeContextKeys.NODE_OWNER_PACKAGE_KEY)
-                                                                      .name.getValue())) {
+                        if (type.tsymbol != null && isReferencedRegardlessPkgs(type.tsymbol.name.getValue(),
+                                                                               type.tsymbol.owner)) {
                             addLocation(userDefinedType, type.tsymbol.owner.pkgID.name.getValue(),
                                         userDefinedType.pos.getSource().pkgID.name.getValue());
                             break;
@@ -513,17 +482,6 @@ public class ReferencesTreeVisitor extends LSNodeVisitor {
     }
 
     @Override
-    public void visit(BLangTypeCastExpr castExpr) {
-        if (castExpr.typeNode != null) {
-            this.acceptNode(castExpr.typeNode);
-        }
-
-        if (castExpr.expr != null) {
-            this.acceptNode(castExpr.expr);
-        }
-    }
-
-    @Override
     public void visit(BLangTypeConversionExpr conversionExpr) {
         if (conversionExpr.expr != null) {
             acceptNode(conversionExpr.expr);
@@ -536,12 +494,8 @@ public class ReferencesTreeVisitor extends LSNodeVisitor {
 
     @Override
     public void visit(BLangEndpoint endpointNode) {
-        if (endpointNode.symbol.owner.name.getValue().equals(this.context.get(NodeContextKeys.NODE_OWNER_KEY)) &&
-                endpointNode.symbol.owner.pkgID.name.getValue()
-                        .equals(this.context.get(NodeContextKeys.NODE_OWNER_PACKAGE_KEY).name.getValue()) &&
-                this.context.get(NodeContextKeys.PACKAGE_OF_NODE_KEY).name.getValue()
-                        .equals(endpointNode.symbol.pkgID.name.getValue()) &&
-                this.context.get(NodeContextKeys.NAME_OF_NODE_KEY).equals(endpointNode.name.getValue())) {
+        if (isReferenced(endpointNode.name.getValue(), endpointNode.symbol.owner, endpointNode.symbol.pkgID,
+                         endpointNode.symbol.owner.pkgID)) {
             addLocation(endpointNode, endpointNode.symbol.owner.pkgID.name.getValue(),
                         endpointNode.pos.getSource().pkgID.name.getValue());
         }
@@ -605,12 +559,8 @@ public class ReferencesTreeVisitor extends LSNodeVisitor {
     @Override
     public void visit(BLangObjectTypeNode objectTypeNode) {
         BSymbol objectSymbol = objectTypeNode.symbol;
-        if (objectSymbol.owner.name.getValue().equals(this.context.get(NodeContextKeys.NODE_OWNER_KEY)) &&
-                objectSymbol.owner.pkgID.name.getValue()
-                        .equals(this.context.get(NodeContextKeys.NODE_OWNER_PACKAGE_KEY).name.getValue()) &&
-                this.context.get(NodeContextKeys.PACKAGE_OF_NODE_KEY).name.getValue()
-                        .equals(objectSymbol.pkgID.name.getValue()) &&
-                this.context.get(NodeContextKeys.NAME_OF_NODE_KEY).equals(objectSymbol.name.getValue())) {
+        if (isReferenced(objectSymbol.name.getValue(), objectSymbol.owner, objectSymbol.pkgID,
+                         objectSymbol.owner.pkgID)) {
             addLocation(objectTypeNode, objectSymbol.owner.pkgID.name.getValue(),
                         objectTypeNode.pos.getSource().pkgID.name.getValue());
         }
@@ -707,13 +657,9 @@ public class ReferencesTreeVisitor extends LSNodeVisitor {
 
     @Override
     public void visit(BLangTypeDefinition typeDefinition) {
-        if (typeDefinition.symbol.owner.name.getValue().equals(this.context.get(NodeContextKeys.NODE_OWNER_KEY)) &&
-                typeDefinition.symbol.owner.pkgID.name.getValue()
-                        .equals(this.context.get(NodeContextKeys.NODE_OWNER_PACKAGE_KEY).name.getValue()) &&
-                this.context.get(NodeContextKeys.PACKAGE_OF_NODE_KEY).name.getValue()
-                        .equals(typeDefinition.symbol.pkgID.name.getValue()) &&
-                this.context.get(NodeContextKeys.NAME_OF_NODE_KEY).equals(typeDefinition.name.getValue())) {
-            addLocation(typeDefinition, typeDefinition.symbol.owner.pkgID.name.getValue(),
+        BTypeSymbol typeSymbol = typeDefinition.symbol;
+        if (isReferenced(typeDefinition.name.value, typeSymbol.owner, typeSymbol.pkgID, typeSymbol.owner.pkgID)) {
+            addLocation(typeDefinition, typeSymbol.owner.pkgID.name.getValue(),
                         typeDefinition.pos.getSource().pkgID.name.getValue());
         }
 
@@ -757,6 +703,11 @@ public class ReferencesTreeVisitor extends LSNodeVisitor {
         visit(scopeNode.compensationFunction);
     }
 
+    @Override
+    public void visit(BLangPostIncrement increment) {
+        this.acceptNode(increment.varRef);
+    }
+
     /**
      * Accept node to visit.
      *
@@ -781,7 +732,7 @@ public class ReferencesTreeVisitor extends LSNodeVisitor {
         Location l = new Location();
         Range r = new Range();
         TextDocumentPositionParams position = this.context.get(DocumentServiceKeys.POSITION_KEY);
-        Path parentPath = CommonUtil.getPath(new LSDocument(position.getTextDocument().getUri())).getParent();
+        Path parentPath = new LSDocument(position.getTextDocument().getUri()).getPath().getParent();
         if (parentPath != null) {
             String fileName = bLangNode.getPosition().getSource().getCompilationUnitName();
             Path filePath = Paths.get(CommonUtil
@@ -809,5 +760,48 @@ public class ReferencesTreeVisitor extends LSNodeVisitor {
      */
     private void addLocation(BLangNode node, String ownerPkg, String currentPkg) {
         this.locations.add(getLocation(node, ownerPkg, currentPkg));
+    }
+
+    /**
+     * Returns true if the node is referenced.
+     *
+     * @param name name of the node
+     * @param owner owner of the node
+     * @return true if the node is referenced
+     */
+    private boolean isReferencedRegardlessPkgs(String name, BSymbol owner) {
+        return isReferenced(name, owner, null, null);
+    }
+
+    /**
+     * Returns true if the node is referenced.
+     *
+     * @param name name of the node
+     * @param owner owner of the node
+     * @param pkgID package id of the node
+     * @param ownerPkgId package id of the owner of the node
+     * @return true if the node is referenced
+     */
+    private boolean isReferenced(String name, BSymbol owner, PackageID pkgID, PackageID ownerPkgId) {
+        if (this.context.get(NodeContextKeys.NAME_OF_NODE_KEY) == null ||
+                this.context.get(NodeContextKeys.PACKAGE_OF_NODE_KEY) == null ||
+                this.context.get(NodeContextKeys.NODE_OWNER_PACKAGE_KEY) == null) {
+            return false;
+        }
+        boolean isSameVar = this.context.get(NodeContextKeys.VAR_NAME_OF_NODE_KEY) != null &&
+                this.context.get(NodeContextKeys.VAR_NAME_OF_NODE_KEY).equals(name);
+        boolean isSameNode = this.context.get(NodeContextKeys.NAME_OF_NODE_KEY).equals(name);
+        boolean isSameOwner = (owner == null || this.context.get(NodeContextKeys.NODE_OWNER_KEY).equals(
+                owner.name.getValue()));
+        boolean isSameOwnerPkg = ownerPkgId == null ||
+                this.context.get(NodeContextKeys.NODE_OWNER_PACKAGE_KEY).name.getValue().
+                        equals(ownerPkgId.name.getValue());
+        boolean isSamePkg = pkgID == null ||
+                this.context.get(NodeContextKeys.PACKAGE_OF_NODE_KEY).name.getValue().equals(pkgID.name.getValue());
+        List<PackageID> packageIds = this.context.get(NodeContextKeys.REFERENCE_PKG_IDS_KEY);
+        if (!isSamePkg && (isSameNode || isSameVar) && isSameOwner && isSameOwnerPkg && packageIds != null) {
+            return packageIds.stream().anyMatch(pkgID::equals);
+        }
+        return isSamePkg && (isSameNode || isSameVar) && isSameOwner && isSameOwnerPkg;
     }
 }

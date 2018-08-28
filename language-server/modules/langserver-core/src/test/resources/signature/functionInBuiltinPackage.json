@@ -1,0 +1,26 @@
+{
+  "position": {
+    "line": 4,
+    "character": 21
+  },
+  "expected": {
+    "id":"324",
+    "result":{
+      "signatures":[
+        {
+          "label":"parseHeader(string headerValue)",
+          "documentation":"Parses the given header value to extract its value and parameter map.",
+          "parameters":[
+            {
+              "label":"headerValue",
+              "documentation":" The header value\n    "
+            }
+          ]
+        }
+      ],
+      "activeSignature":0,
+      "activeParameter":0
+    },
+    "jsonrpc":"2.0"
+  }
+}

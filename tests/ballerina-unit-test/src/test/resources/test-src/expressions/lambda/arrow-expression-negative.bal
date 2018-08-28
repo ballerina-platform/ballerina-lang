@@ -25,9 +25,3 @@ function testInvalidParamType() returns boolean {
     function (boolean) returns boolean lambda = param1 => !param1;
     return lambda("false");
 }
-
-type Person record {
-    string name,
-    int age,
-    !...
-};

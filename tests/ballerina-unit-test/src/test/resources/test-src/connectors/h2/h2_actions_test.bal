@@ -9,6 +9,10 @@ public type Customer record {
     string country,
 };
 
+public type Result record {
+   int val,
+};
+
 function testSelect() returns (int[]) {
     endpoint h2:Client testDB {
         path: "./target/H2Client/",
@@ -162,8 +166,8 @@ function testAddToMirrorTable() returns (Customer[]) {
         var temp = testDB->getProxyTable("Customers", Customer);
         match (temp) {
             table dt => {
-                Customer c1 = { customerId: 40, name: "Manuri", creditLimit: 1000, country: "Sri Lanka" };
-                Customer c2 = { customerId: 41, name: "Devni", creditLimit: 1000, country: "Sri Lanka" };
+                Customer c1 = { customerId: 40, name: "Manuri", creditLimit: 1000.0, country: "Sri Lanka" };
+                Customer c2 = { customerId: 41, name: "Devni", creditLimit: 1000.0, country: "Sri Lanka" };
 
                 var result1 = dt.add(c1);
                 var result2 = dt.add(c2);
@@ -253,6 +257,39 @@ function testInitWithInvalidDbOptions() returns (int[]) {
             "PAGE_SIZE": 512, "INVALID_PARAM": -1 }
     };
     return selectFunction(testDB);
+}
+
+function testReInitEndpoint() returns int {
+    endpoint h2:Client testDB {
+        path: "./target/H2Client/",
+        name: "TestDBH2",
+        username: "SA",
+        password: "",
+        poolOptions: { maximumPoolSize: 1 }
+    };
+
+    h2:ClientEndpointConfiguration config = {
+        path: "./target/H2Client/",
+        name: "TestDBH2",
+        username: "SA",
+        password: "",
+        poolOptions: { maximumPoolSize: 1 }
+    };
+
+    testDB.stop();
+
+    testDB.init(config);
+
+    table dt = check testDB->select("select 1", Result);
+
+    int count;
+    while (dt.hasNext()) {
+        Result rs = check <Result>dt.getNext();
+        count = rs.val;
+    }
+    testDB.stop();
+
+    return count;
 }
 
 function selectFunction(h2:Client testDBClient) returns (int[]) {

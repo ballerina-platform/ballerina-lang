@@ -176,3 +176,21 @@ function testConstrainedJsonWithFunctionGetKeys() returns (string[] | ()){
     json<Person> j = {name:"John Doe", age:30, address:"London"};
     return j.getKeys();
 }
+
+type StudentObj object {
+    string name;
+    int age;
+
+    function getName() returns string {
+        return name;
+    }
+};
+
+function testJsonObjectConstraint() returns (json, json, string|error, int|error) {
+    json<StudentObj> j = {};
+    j.name = "John Doe";
+    j.age = 30;
+    var name = <string> j["name"];
+    var age = <int> j.age;
+    return (j.name, j.age, name, age);
+}

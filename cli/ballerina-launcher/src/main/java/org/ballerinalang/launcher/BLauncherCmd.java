@@ -17,14 +17,10 @@
  */
 package org.ballerinalang.launcher;
 
-import com.beust.jcommander.JCommander;
-import com.beust.jcommander.ParameterDescription;
-
 import org.ballerinalang.launcher.util.BCompileUtil;
+import picocli.CommandLine;
 
 import java.io.IOException;
-import java.util.Arrays;
-import java.util.List;
 
 /**
  * {@code BLauncherCmd} represents a Ballerina launcher command.
@@ -33,87 +29,53 @@ import java.util.List;
  */
 public interface BLauncherCmd {
 
+    /**
+     * Execute the command.
+     */
     void execute();
 
+    /**
+     * Retrieve the command name.
+     *
+     * @return the name of the command
+     */
     String getName();
 
+    /**
+     * Print the detailed description of the command.
+     *
+     * @param out a {@link StringBuilder} instance
+     */
     void printLongDesc(StringBuilder out);
 
+    /**
+     * Print usgae info for the command.
+     *
+     * @param out a {@link StringBuilder} instance
+     */
     void printUsage(StringBuilder out);
 
-    void setParentCmdParser(JCommander parentCmdParser);
+    /**
+     * Set the parent {@link CommandLine} object to which commands are added as sub commands.
+     *
+     * @param parentCmdParser the parent {@link CommandLine} object
+     */
+    void setParentCmdParser(CommandLine parentCmdParser);
 
-    void setSelfCmdParser(JCommander selfCmdParser);
+    /**
+     * Set the {@link CommandLine} object representing this command.
+     *
+     * @param selfCmdParser the {@link CommandLine} object representing the command
+     */
+    void setSelfCmdParser(CommandLine selfCmdParser);
 
-    @Deprecated
-    static String getCommandUsageInfo(JCommander cmdParser, String commandName) {
-        return getCommandUsageInfo(commandName);
-    }
-
-    static void printCommandList(JCommander cmdParser, StringBuilder out) {
-        int longestNameLen = 0;
-        for (JCommander commander : cmdParser.getCommands().values()) {
-            BLauncherCmd cmd = (BLauncherCmd) commander.getObjects().get(0);
-            if (cmd.getName().equals(BallerinaCliCommands.DEFAULT) || cmd.getName().equals(BallerinaCliCommands.HELP)) {
-                continue;
-            }
-
-            int length = cmd.getName().length() + 2;
-            if (length > longestNameLen) {
-                longestNameLen = length;
-            }
-        }
-
-        for (JCommander commander : cmdParser.getCommands().values()) {
-            BLauncherCmd cmd = (BLauncherCmd) commander.getObjects().get(0);
-            if (cmd.getName().equals(BallerinaCliCommands.DEFAULT) || cmd.getName().equals(BallerinaCliCommands.HELP)) {
-                continue;
-            }
-
-            String cmdName = cmd.getName();
-            String cmdDesc = cmdParser.getCommandDescription(cmdName);
-
-            int noOfSpaces = longestNameLen - (cmd.getName().length() + 2);
-            char[] charArray = new char[noOfSpaces + 4];
-            Arrays.fill(charArray, ' ');
-            out.append("  ").append(cmdName).append(new String(charArray)).append(cmdDesc).append("\n");
-        }
-    }
-
-    static void printFlags(List<ParameterDescription> paramDescs, StringBuilder out) {
-        int longestNameLen = 0;
-        int count = 0;
-        for (ParameterDescription parameterDesc : paramDescs) {
-            if (parameterDesc.getParameter().hidden()) {
-                continue;
-            }
-
-            String names = parameterDesc.getNames();
-            int length = names.length() + 2;
-            if (length > longestNameLen) {
-                longestNameLen = length;
-            }
-            count++;
-        }
-
-        if (count == 0) {
-            return;
-        }
-        out.append("Flags:\n");
-        for (ParameterDescription parameterDesc : paramDescs) {
-            if (parameterDesc.getParameter().hidden()) {
-                continue;
-            }
-            String names = parameterDesc.getNames();
-            String desc = parameterDesc.getDescription();
-            int noOfSpaces = longestNameLen - (names.length() + 2);
-            char[] charArray = new char[noOfSpaces + 4];
-            Arrays.fill(charArray, ' ');
-            out.append("  ").append(names).append(new String(charArray)).append(desc).append("\n");
-        }
-    }
-
-    public static String getCommandUsageInfo(String commandName) {
+    /**
+     * Retrieve command usage info.
+     *
+     * @param  commandName the name of the command
+     * @return usage info for the specified command
+     */
+    static String getCommandUsageInfo(String commandName) {
         if (commandName == null) {
             throw LauncherUtils.createUsageException("invalid command");
         }

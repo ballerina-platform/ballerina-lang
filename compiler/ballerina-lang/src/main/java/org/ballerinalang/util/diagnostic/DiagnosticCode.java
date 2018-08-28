@@ -54,6 +54,7 @@ public enum DiagnosticCode {
     IMPLEMENTATION_ALREADY_EXIST("implementation.already.exist"),
     CANNOT_INITIALIZE_OBJECT("cannot.initialize.object"),
     CANNOT_FIND_MATCHING_INTERFACE("cannot.find.matching.interface.function"),
+    FUNCTION_CANNOT_HAVE_BODY("function.cannot.have.body"),
 
     INCOMPATIBLE_TYPES("incompatible.types"),
     INCOMPATIBLE_TYPES_EXP_TUPLE("incompatible.types.exp.tuple"),
@@ -84,8 +85,6 @@ public enum DiagnosticCode {
     INTEGER_TOO_SMALL("integer.too.small"),
     HEXADECIMAL_TOO_LARGE("hexadecimal.too.large"),
     HEXADECIMAL_TOO_SMALL("hexadecimal.too.small"),
-    OCTAL_TOO_LARGE("octal.too.large"),
-    OCTAL_TOO_SMALL("octal.too.small"),
     BINARY_TOO_LARGE("binary.too.large"),
     BINARY_TOO_SMALL("binary.too.small"),
 
@@ -276,6 +275,8 @@ public enum DiagnosticCode {
     INCOMPATIBLE_STREAM_ACTION_ARGUMENT("incompatible.stream.action.argument"),
     INVALID_STREAM_ACTION_ARGUMENT_COUNT("invalid.stream.action.argument.count"),
     INVALID_STREAM_ACTION_ARGUMENT_TYPE("invalid.stream.action.argument.type"),
+    INVALID_STREAM_ATTRIBUTE_TYPE("invalid.stream.attribute.type"),
+    STREAMING_INCOMPATIBLE_TYPES("streaming.incompatible.types"),
 
     // Taint checking related codes
     ENTRY_POINT_PARAMETERS_CANNOT_BE_SENSITIVE("entry.point.parameters.cannot.be.sensitive"),
