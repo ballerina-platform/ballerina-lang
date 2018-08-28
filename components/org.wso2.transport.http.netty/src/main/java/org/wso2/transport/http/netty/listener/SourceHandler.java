@@ -40,7 +40,7 @@ import org.wso2.transport.http.netty.contract.ServerConnectorException;
 import org.wso2.transport.http.netty.contract.ServerConnectorFuture;
 import org.wso2.transport.http.netty.internal.HandlerExecutor;
 import org.wso2.transport.http.netty.internal.HttpTransportContextHolder;
-import org.wso2.transport.http.netty.listener.states.StateContext;
+import org.wso2.transport.http.netty.listener.states.MessageStateContext;
 import org.wso2.transport.http.netty.listener.states.listener.ReceivingHeaders;
 import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 
@@ -94,13 +94,13 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
             inboundRequestMsg = createInboundReqCarbonMsg((HttpRequest) msg, ctx, this);
             requestList.add(inboundRequestMsg);
 
-            StateContext stateContext = new StateContext();
-            inboundRequestMsg.setStateContext(stateContext);
-            stateContext.setListenerState(new ReceivingHeaders(this, stateContext));
-            stateContext.getListenerState().readInboundRequestHeaders(inboundRequestMsg, (HttpRequest) msg);
+            MessageStateContext messageStateContext = new MessageStateContext();
+            inboundRequestMsg.setMessageStateContext(messageStateContext);
+            messageStateContext.setListenerState(new ReceivingHeaders(this, messageStateContext));
+            messageStateContext.getListenerState().readInboundRequestHeaders(inboundRequestMsg, (HttpRequest) msg);
         } else {
             if (inboundRequestMsg != null) {
-                inboundRequestMsg.getStateContext().getListenerState().readInboundRequestEntityBody(msg);
+                inboundRequestMsg.getMessageStateContext().getListenerState().readInboundRequestBody(msg);
             } else {
                 log.warn("Inconsistent state detected : inboundRequestMsg is null for channel read event");
             }
@@ -128,7 +128,7 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
         ctx.close();
         if (!idleTimeout) {
             if (!requestList.isEmpty()) {
-                requestList.forEach(inboundMsg -> inboundMsg.getStateContext().getListenerState()
+                requestList.forEach(inboundMsg -> inboundMsg.getMessageStateContext().getListenerState()
                         .handleAbruptChannelClosure(serverConnectorFuture));
             } else {
                 notifyErrorListenerAtConnectedState(REMOTE_CLIENT_CLOSED_BEFORE_INITIATING_INBOUND_REQUEST);
@@ -166,7 +166,7 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
 
             if (!requestList.isEmpty()) {
                 requestList.forEach(inboundMsg -> {
-                    ChannelFuture outboundRespFuture = inboundMsg.getStateContext().getListenerState()
+                    ChannelFuture outboundRespFuture = inboundMsg.getMessageStateContext().getListenerState()
                             .handleIdleTimeoutConnectionClosure(serverConnectorFuture, ctx);
                     if (outboundRespFuture == null) {
                         this.channelInactive(ctx);

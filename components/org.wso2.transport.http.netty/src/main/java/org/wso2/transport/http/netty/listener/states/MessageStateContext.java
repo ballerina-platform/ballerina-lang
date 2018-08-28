@@ -23,9 +23,9 @@ import org.wso2.transport.http.netty.listener.states.listener.ListenerState;
 import org.wso2.transport.http.netty.listener.states.sender.SenderState;
 
 /**
- * Context class to manipulate current state.
+ * Context class to manipulate current state of the message.
  */
-public class StateContext {
+public class MessageStateContext {
 
     private ListenerState listenerState;
     private SenderState senderState;

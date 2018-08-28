@@ -46,7 +46,7 @@ public interface ListenerState {
      * @param inboundRequestEntityBody which represents the inbound Http content
      * @throws ServerConnectorException if an error occurs while notifying to server connector future
      */
-    void readInboundRequestEntityBody(Object inboundRequestEntityBody) throws ServerConnectorException;
+    void readInboundRequestBody(Object inboundRequestEntityBody) throws ServerConnectorException;
 
     /**
      * Write headers of outbound response.
@@ -63,8 +63,8 @@ public interface ListenerState {
      * @param outboundResponseMsg      {@link HttpCarbonMessage} which represents the outbound message
      * @param httpContent              the content of the entity body
      */
-    void writeOutboundResponseEntityBody(HttpOutboundRespListener outboundResponseListener,
-                                         HttpCarbonMessage outboundResponseMsg, HttpContent httpContent);
+    void writeOutboundResponseBody(HttpOutboundRespListener outboundResponseListener,
+                                   HttpCarbonMessage outboundResponseMsg, HttpContent httpContent);
 
     /**
      * Handle channel closure occurred due to abrupt connection failures.

@@ -33,7 +33,7 @@ import org.wso2.transport.http.netty.config.KeepAliveConfig;
 import org.wso2.transport.http.netty.contract.HttpResponseFuture;
 import org.wso2.transport.http.netty.internal.HandlerExecutor;
 import org.wso2.transport.http.netty.internal.HttpTransportContextHolder;
-import org.wso2.transport.http.netty.listener.states.StateContext;
+import org.wso2.transport.http.netty.listener.states.MessageStateContext;
 import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 import org.wso2.transport.http.netty.sender.channel.TargetChannel;
 import org.wso2.transport.http.netty.sender.channel.pool.ConnectionManager;
@@ -65,7 +65,7 @@ public class TargetHandler extends ChannelInboundHandlerAdapter {
     @SuppressWarnings("unchecked")
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
-        StateContext stateContext = outboundRequestMsg.getStateContext();
+        MessageStateContext messageStateContext = outboundRequestMsg.getMessageStateContext();
         outboundRequestMsg.setIoException(new IOException(Constants.INBOUND_RESPONSE_ALREADY_RECEIVED));
 
         if (handlerExecutor != null) {
@@ -74,11 +74,11 @@ public class TargetHandler extends ChannelInboundHandlerAdapter {
         if (targetChannel.isRequestHeaderWritten()) {
             if (msg instanceof HttpResponse) {
                 inboundResponseMsg = createInboundRespCarbonMsg(ctx, (HttpResponse) msg, outboundRequestMsg);
-                stateContext.getSenderState().readInboundResponseHeaders(this, (HttpResponse) msg);
+                messageStateContext.getSenderState().readInboundResponseHeaders(this, (HttpResponse) msg);
             } else {
                 if (inboundResponseMsg != null) {
-                    stateContext.getSenderState().readInboundResponseEntityBody(ctx, (HttpContent) msg,
-                                                                                getInboundResponseMsg());
+                    messageStateContext.getSenderState().readInboundResponseEntityBody(ctx, (HttpContent) msg,
+                                                                                       getInboundResponseMsg());
                 }
             }
         } else {
@@ -102,7 +102,7 @@ public class TargetHandler extends ChannelInboundHandlerAdapter {
     public void channelInactive(ChannelHandlerContext ctx) throws Exception {
         closeChannel(ctx);
         if (!idleTimeoutTriggered) {
-            outboundRequestMsg.getStateContext().getSenderState().handleAbruptChannelClosure(httpResponseFuture);
+            outboundRequestMsg.getMessageStateContext().getSenderState().handleAbruptChannelClosure(httpResponseFuture);
         }
         connectionManager.invalidateTargetChannel(targetChannel);
 
@@ -126,7 +126,7 @@ public class TargetHandler extends ChannelInboundHandlerAdapter {
                 targetChannel.getChannel().pipeline().remove(Constants.IDLE_STATE_HANDLER);
                 this.idleTimeoutTriggered = true;
                 this.channelInactive(ctx);
-                outboundRequestMsg.getStateContext().getSenderState().handleIdleTimeoutConnectionClosure(
+                outboundRequestMsg.getMessageStateContext().getSenderState().handleIdleTimeoutConnectionClosure(
                         httpResponseFuture, ctx.channel().id().asLongText());
             }
         } else if (evt instanceof HttpClientUpgradeHandler.UpgradeEvent) {

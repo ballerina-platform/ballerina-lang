@@ -32,7 +32,7 @@ import org.wso2.transport.http.netty.contractimpl.HttpOutboundRespListener;
 import org.wso2.transport.http.netty.internal.HandlerExecutor;
 import org.wso2.transport.http.netty.internal.HttpTransportContextHolder;
 import org.wso2.transport.http.netty.listener.SourceHandler;
-import org.wso2.transport.http.netty.listener.states.StateContext;
+import org.wso2.transport.http.netty.listener.states.MessageStateContext;
 import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 
 import static io.netty.buffer.Unpooled.EMPTY_BUFFER;
@@ -41,6 +41,7 @@ import static org.wso2.transport.http.netty.common.Constants
         .IDLE_TIMEOUT_TRIGGERED_WHILE_READING_INBOUND_REQUEST_HEADERS;
 import static org.wso2.transport.http.netty.common.Constants.REMOTE_CLIENT_CLOSED_WHILE_READING_INBOUND_REQUEST_HEADERS;
 import static org.wso2.transport.http.netty.common.Util.is100ContinueRequest;
+import static org.wso2.transport.http.netty.listener.states.StateUtil.ILLEGAL_STATE_ERROR;
 import static org.wso2.transport.http.netty.listener.states.StateUtil.handleIncompleteInboundMessage;
 import static org.wso2.transport.http.netty.listener.states.StateUtil.sendRequestTimeoutResponse;
 
@@ -52,14 +53,14 @@ public class ReceivingHeaders implements ListenerState {
     private static Logger log = LoggerFactory.getLogger(ReceivingHeaders.class);
     private final SourceHandler sourceHandler;
     private final HandlerExecutor handlerExecutor;
-    private final StateContext stateContext;
+    private final MessageStateContext messageStateContext;
     private HttpCarbonMessage inboundRequestMsg;
     private float httpVersion;
 
-    public ReceivingHeaders(SourceHandler sourceHandler, StateContext stateContext) {
+    public ReceivingHeaders(SourceHandler sourceHandler, MessageStateContext messageStateContext) {
         this.sourceHandler = sourceHandler;
         this.handlerExecutor = HttpTransportContextHolder.getInstance().getHandlerExecutor();
-        this.stateContext = stateContext;
+        this.messageStateContext = messageStateContext;
     }
 
     @Override
@@ -68,7 +69,8 @@ public class ReceivingHeaders implements ListenerState {
         this.httpVersion = Float.parseFloat((String) inboundRequestMsg.getProperty(Constants.HTTP_VERSION));
         boolean continueRequest = is100ContinueRequest(inboundRequestMsg);
         if (continueRequest) {
-            stateContext.setListenerState(new Expect100ContinueHeaderReceived(stateContext, sourceHandler));
+            messageStateContext.setListenerState(
+                    new Expect100ContinueHeaderReceived(messageStateContext, sourceHandler));
         }
         notifyRequestListener(inboundRequestMsg);
 
@@ -100,21 +102,21 @@ public class ReceivingHeaders implements ListenerState {
     }
 
     @Override
-    public void readInboundRequestEntityBody(Object inboundRequestEntityBody) throws ServerConnectorException {
-        stateContext.setListenerState(
-                new ReceivingEntityBody(stateContext, inboundRequestMsg, sourceHandler, httpVersion));
-        stateContext.getListenerState().readInboundRequestEntityBody(inboundRequestEntityBody);
+    public void readInboundRequestBody(Object inboundRequestEntityBody) throws ServerConnectorException {
+        messageStateContext.setListenerState(
+                new ReceivingEntityBody(messageStateContext, inboundRequestMsg, sourceHandler, httpVersion));
+        messageStateContext.getListenerState().readInboundRequestBody(inboundRequestEntityBody);
     }
 
     @Override
     public void writeOutboundResponseHeaders(HttpCarbonMessage outboundResponseMsg, HttpContent httpContent) {
-        // Not a dependant action of this state.
+        log.warn("writeOutboundResponseHeaders {}", ILLEGAL_STATE_ERROR);
     }
 
     @Override
-    public void writeOutboundResponseEntityBody(HttpOutboundRespListener outboundResponseListener,
-                                                HttpCarbonMessage outboundResponseMsg, HttpContent httpContent) {
-        // Not a dependant action of this state.
+    public void writeOutboundResponseBody(HttpOutboundRespListener outboundResponseListener,
+                                          HttpCarbonMessage outboundResponseMsg, HttpContent httpContent) {
+        log.warn("writeOutboundResponseBody {}", ILLEGAL_STATE_ERROR);
     }
 
     @Override

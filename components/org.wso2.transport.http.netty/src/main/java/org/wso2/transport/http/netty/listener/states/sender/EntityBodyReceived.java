@@ -24,50 +24,50 @@ import io.netty.handler.codec.http.HttpResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.transport.http.netty.contract.HttpResponseFuture;
-import org.wso2.transport.http.netty.listener.states.StateContext;
+import org.wso2.transport.http.netty.listener.states.MessageStateContext;
 import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 import org.wso2.transport.http.netty.sender.TargetHandler;
+
+import static org.wso2.transport.http.netty.listener.states.StateUtil.ILLEGAL_STATE_ERROR;
 
 /**
  * State of successfully read response
  */
 public class EntityBodyReceived implements SenderState {
 
-    private static Logger log = LoggerFactory.getLogger(EntityBodyReceived.class);
-    private final StateContext stateContext;
+    private static Logger log = LoggerFactory.getLogger(SendingHeaders.class);
 
-    public EntityBodyReceived(StateContext stateContext) {
-        this.stateContext = stateContext;
+    public EntityBodyReceived(MessageStateContext messageStateContext) {
     }
 
     @Override
     public void writeOutboundRequestHeaders(HttpCarbonMessage httpOutboundRequest, HttpContent httpContent) {
-        // Not a dependant action of this state.
+        log.warn("writeOutboundRequestHeaders {}", ILLEGAL_STATE_ERROR);
     }
 
     @Override
-    public void writeOutboundRequestEntityBody(HttpCarbonMessage httpOutboundRequest, HttpContent httpContent) {
-        // Not a dependant action of this state.
+    public void writeOutboundRequestEntity(HttpCarbonMessage httpOutboundRequest, HttpContent httpContent) {
+        log.warn("writeOutboundRequestEntity {}", ILLEGAL_STATE_ERROR);
     }
 
     @Override
     public void readInboundResponseHeaders(TargetHandler targetHandler, HttpResponse httpInboundResponse) {
-        // Not a dependant action of this state.
+        log.warn("readInboundResponseHeaders {}", ILLEGAL_STATE_ERROR);
     }
 
     @Override
     public void readInboundResponseEntityBody(ChannelHandlerContext ctx, HttpContent httpContent,
                                               HttpCarbonMessage inboundResponseMsg) {
-        // Not a dependant action of this state.
+        log.warn("readInboundResponseEntityBody {}", ILLEGAL_STATE_ERROR);
     }
 
     @Override
     public void handleAbruptChannelClosure(HttpResponseFuture httpResponseFuture) {
-        // Not a dependant action of this state.
+        log.warn("handleAbruptChannelClosure  {}", ILLEGAL_STATE_ERROR);
     }
 
     @Override
     public void handleIdleTimeoutConnectionClosure(HttpResponseFuture httpResponseFuture, String channelID) {
-        // Not a dependant action of this state.
+        log.warn("handleIdleTimeoutConnectionClosure {}", ILLEGAL_STATE_ERROR);
     }
 }

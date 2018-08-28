@@ -33,7 +33,7 @@ import org.wso2.transport.http.netty.contract.ServerConnectorException;
 import org.wso2.transport.http.netty.contract.ServerConnectorFuture;
 import org.wso2.transport.http.netty.contractimpl.HttpOutboundRespListener;
 import org.wso2.transport.http.netty.listener.SourceHandler;
-import org.wso2.transport.http.netty.listener.states.StateContext;
+import org.wso2.transport.http.netty.listener.states.MessageStateContext;
 import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 
 import java.io.IOException;
@@ -46,6 +46,7 @@ import static org.wso2.transport.http.netty.common.Constants.REMOTE_CLIENT_CLOSE
 import static org.wso2.transport.http.netty.common.Constants.REMOTE_CLIENT_TO_HOST_CONNECTION_CLOSED;
 import static org.wso2.transport.http.netty.common.Util.createFullHttpResponse;
 import static org.wso2.transport.http.netty.common.Util.setupChunkedRequest;
+import static org.wso2.transport.http.netty.listener.states.StateUtil.ILLEGAL_STATE_ERROR;
 import static org.wso2.transport.http.netty.listener.states.StateUtil.checkChunkingCompatibility;
 import static org.wso2.transport.http.netty.listener.states.StateUtil.notifyIfHeaderWriteFailure;
 
@@ -55,44 +56,43 @@ import static org.wso2.transport.http.netty.listener.states.StateUtil.notifyIfHe
 public class Response100ContinueSent extends SendingHeaders {
 
     private static Logger log = LoggerFactory.getLogger(Response100ContinueSent.class);
-    private final StateContext stateContext;
+    private final MessageStateContext messageStateContext;
     private final HttpOutboundRespListener outboundResponseListener;
     private final SourceHandler sourceHandler;
     private final float httpVersion;
 
-    Response100ContinueSent(HttpOutboundRespListener outboundResponseListener,
-                                   SourceHandler sourceHandler,
-                                   StateContext stateContext) {
-        super(outboundResponseListener, stateContext);
+    Response100ContinueSent(HttpOutboundRespListener outboundResponseListener, SourceHandler sourceHandler,
+                            MessageStateContext messageStateContext) {
+        super(outboundResponseListener, messageStateContext);
         this.outboundResponseListener = outboundResponseListener;
         this.chunkConfig = outboundResponseListener.getChunkConfig();
         this.keepAlive = outboundResponseListener.isKeepAlive();
         this.sourceHandler = sourceHandler;
-        this.stateContext = stateContext;
+        this.messageStateContext = messageStateContext;
         this.httpVersion = Float.parseFloat(outboundResponseListener.getRequestDataHolder().getHttpVersion());
     }
 
     @Override
     public void readInboundRequestHeaders(HttpCarbonMessage inboundRequestMsg, HttpRequest inboundRequestHeaders) {
-        // Not a dependant action of this state.
+        log.warn("readInboundRequestHeaders {}", ILLEGAL_STATE_ERROR);
     }
 
     @Override
-    public void readInboundRequestEntityBody(Object inboundRequestEntityBody) throws ServerConnectorException {
-        stateContext.setListenerState(
-                new ReceivingEntityBody(stateContext, outboundResponseListener.getInboundRequestMsg(), sourceHandler,
-                                        httpVersion));
-        stateContext.getListenerState().readInboundRequestEntityBody(inboundRequestEntityBody);
+    public void readInboundRequestBody(Object inboundRequestEntityBody) throws ServerConnectorException {
+        messageStateContext.setListenerState(
+                new ReceivingEntityBody(messageStateContext, outboundResponseListener.getInboundRequestMsg(),
+                                        sourceHandler, httpVersion));
+        messageStateContext.getListenerState().readInboundRequestBody(inboundRequestEntityBody);
     }
 
     @Override
     public void writeOutboundResponseHeaders(HttpCarbonMessage outboundResponseMsg, HttpContent httpContent) {
-        // Not a dependant action of this state.
+        log.warn("writeOutboundResponseHeaders {}", ILLEGAL_STATE_ERROR);
     }
 
     @Override
-    public void writeOutboundResponseEntityBody(HttpOutboundRespListener outboundRespListener,
-                                                HttpCarbonMessage outboundResponseMsg, HttpContent httpContent) {
+    public void writeOutboundResponseBody(HttpOutboundRespListener outboundRespListener,
+                                          HttpCarbonMessage outboundResponseMsg, HttpContent httpContent) {
         ChunkConfig responseChunkConfig = outboundResponseMsg.getProperty(CHUNKING_CONFIG) != null ?
                 (ChunkConfig) outboundResponseMsg.getProperty(CHUNKING_CONFIG) : null;
         if (responseChunkConfig != null) {
