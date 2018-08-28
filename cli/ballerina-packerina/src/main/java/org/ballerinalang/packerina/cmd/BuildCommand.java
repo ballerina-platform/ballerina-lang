@@ -61,7 +61,8 @@ public class BuildCommand implements BLauncherCmd {
     @CommandLine.Parameters
     private List<String> argList;
 
-    @CommandLine.Option(names = {"--native"}, hidden = true, description = "compile Ballerina program to a native binary")
+    @CommandLine.Option(names = {"--native"}, hidden = true,
+                        description = "compile Ballerina program to a native binary")
     private boolean nativeBinary;
 
     @CommandLine.Option(names = "--dump-bir", hidden = true)
