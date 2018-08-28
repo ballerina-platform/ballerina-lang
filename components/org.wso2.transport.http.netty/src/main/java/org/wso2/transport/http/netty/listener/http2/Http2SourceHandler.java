@@ -1,20 +1,20 @@
 /*
-*  Copyright (c) 2018, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
-*
-*  WSO2 Inc. licenses this file to you under the Apache License,
-*  Version 2.0 (the "License"); you may not use this file except
-*  in compliance with the License.
-*  You may obtain a copy of the License at
-*
-*    http://www.apache.org/licenses/LICENSE-2.0
-*
-* Unless required by applicable law or agreed to in writing,
-* software distributed under the License is distributed on an
-* "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-* KIND, either express or implied.  See the License for the
-* specific language governing permissions and limitations
-* under the License.
-*/
+ *  Copyright (c) 2018, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ *  WSO2 Inc. licenses this file to you under the Apache License,
+ *  Version 2.0 (the "License"); you may not use this file except
+ *  in compliance with the License.
+ *  You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
 package org.wso2.transport.http.netty.listener.http2;
 
 import io.netty.buffer.ByteBuf;
@@ -55,7 +55,7 @@ import java.util.Map;
 
 /**
  * {@code HTTP2SourceHandler} read the HTTP/2 binary frames sent from client through the channel.
- *
+ * <p>
  * This is also responsible for building the {@link HttpCarbonRequest} and forward to the listener
  * interested in request messages.
  */
@@ -74,7 +74,7 @@ public final class Http2SourceHandler extends ChannelInboundHandlerAdapter {
     private String remoteAddress;
     private Http2ConnectionEncoder encoder;
 
-    public Http2SourceHandler(HttpServerChannelInitializer serverChannelInitializer, Http2ConnectionEncoder encoder,
+    Http2SourceHandler(HttpServerChannelInitializer serverChannelInitializer, Http2ConnectionEncoder encoder,
                        String interfaceId, Http2Connection conn, ServerConnectorFuture serverConnectorFuture,
                        String serverName) {
         this.serverChannelInitializer = serverChannelInitializer;
@@ -101,7 +101,7 @@ public final class Http2SourceHandler extends ChannelInboundHandlerAdapter {
 
     /**
      * Handles the cleartext HTTP upgrade event.
-     *
+     * <p>
      * If an upgrade occurred, message needs to be dispatched to
      * the correct service/resource and response should be delivered over stream 1
      * (the stream specifically reserved for cleartext HTTP upgrade).
@@ -169,8 +169,8 @@ public final class Http2SourceHandler extends ChannelInboundHandlerAdapter {
         }
     }
 
-    private void readTrailerHeaders(int streamId, Http2Headers headers, HttpCarbonMessage responseMessage) throws
-            Http2Exception {
+    private void readTrailerHeaders(int streamId, Http2Headers headers, HttpCarbonMessage responseMessage)
+            throws Http2Exception {
 
         HttpVersion version = new HttpVersion(Constants.HTTP_VERSION_2_0, true);
         LastHttpContent lastHttpContent = new DefaultLastHttpContent();
@@ -197,7 +197,7 @@ public final class Http2SourceHandler extends ChannelInboundHandlerAdapter {
      * Notifies the registered listeners which listen for the incoming carbon messages.
      *
      * @param httpRequestMsg the http request message
-     * @param streamId the id of the stream
+     * @param streamId       the id of the stream
      */
     private void notifyRequestListener(HttpCarbonMessage httpRequestMsg, int streamId) {
         if (serverConnectorFuture != null) {
@@ -237,7 +237,7 @@ public final class Http2SourceHandler extends ChannelInboundHandlerAdapter {
         sourceReqCMsg.setProperty(Constants.CHNL_HNDLR_CTX, this.ctx);
         HttpVersion protocolVersion = httpRequest.protocolVersion();
         sourceReqCMsg.setProperty(Constants.HTTP_VERSION,
-                                  protocolVersion.majorVersion() + "." + protocolVersion.minorVersion());
+                protocolVersion.majorVersion() + "." + protocolVersion.minorVersion());
         sourceReqCMsg.setProperty(Constants.HTTP_METHOD, httpRequest.method().name());
 
         InetSocketAddress localAddress = null;

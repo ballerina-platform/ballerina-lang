@@ -102,13 +102,13 @@ public class Http2ConnectionManager {
         // Configure a listener to remove connection from pool when it is closed
         http2ClientChannel.getChannel().closeFuture().
                 addListener(future -> {
-                                PerRouteConnectionPool pool = connectionPools.get(key);
-                                if (pool != null) {
-                                    pool.removeChannel(http2ClientChannel);
-                                    http2ClientChannel.getDataEventListeners().
-                                            forEach(Http2DataEventListener::destroy);
-                                }
+                            PerRouteConnectionPool pool = connectionPools.get(key);
+                            if (pool != null) {
+                                pool.removeChannel(http2ClientChannel);
+                                http2ClientChannel.getDataEventListeners().
+                                        forEach(Http2DataEventListener::destroy);
                             }
+                        }
                 );
     }
 
@@ -149,11 +149,7 @@ public class Http2ConnectionManager {
         // Maximum number of allowed active streams
         private int maxActiveStreams;
 
-        public PerRouteConnectionPool() {
-            maxActiveStreams = Integer.MAX_VALUE;
-        }
-
-        public PerRouteConnectionPool(int maxActiveStreams) {
+        PerRouteConnectionPool(int maxActiveStreams) {
             this.maxActiveStreams = maxActiveStreams;
         }
 

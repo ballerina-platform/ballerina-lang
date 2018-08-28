@@ -73,7 +73,7 @@ public interface Http2DataEventListener {
      *
      * @param ctx         the channel handler context
      * @param streamId    the related stream id
-     * @param headers        http2 headers
+     * @param headers     http2 headers
      * @param endOfStream whether stream terminate with this data read operation
      * @return whether to continue the execution of rest of the listeners
      */
@@ -94,17 +94,15 @@ public interface Http2DataEventListener {
      * Gets notified on  a stream reset.
      *
      * @param streamId the stream id
-     * @return whether to continue the execution of rest of the listeners
      */
-    boolean onStreamReset(int streamId);
+    void onStreamReset(int streamId);
 
     /**
      * Gets notified on a stream close.
      *
      * @param streamId the related stream id
-     * @return whether to continue the execution of rest of the listeners
      */
-    boolean onStreamClose(int streamId);
+    void onStreamClose(int streamId);
 
     /**
      * Destroy this {@code Http2DataEventListener}.
