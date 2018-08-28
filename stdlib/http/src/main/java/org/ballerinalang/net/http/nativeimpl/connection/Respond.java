@@ -79,6 +79,7 @@ public class Respond extends ConnectionAction {
         HttpCarbonMessage outboundResponseMsg = HttpUtil
                 .getCarbonMsg(outboundResponseStruct, HttpUtil.createHttpCarbonMessage(false));
         outboundResponseMsg.setPipeliningNeeded(inboundRequestMsg.isPipeliningNeeded());
+        outboundResponseMsg.setSequenceId(inboundRequestMsg.getSequenceId());
         setCacheControlHeader(outboundResponseStruct, outboundResponseMsg);
         HttpUtil.prepareOutboundResponse(context, inboundRequestMsg, outboundResponseMsg, outboundResponseStruct);
 
@@ -97,6 +98,10 @@ public class Respond extends ConnectionAction {
 
         try {
             if (pipeliningRequired(inboundRequestMsg)) {
+                if (log.isDebugEnabled()) {
+                    log.debug("Pipelining is required. Sequence id of the request:" +
+                            inboundRequestMsg.getSequenceId());
+                }
                 PipelinedResponse pipelinedResponse = new PipelinedResponse(inboundRequestMsg.getSequenceId(),
                         inboundRequestMsg, outboundResponseMsg, dataContext, outboundResponseStruct);
                 outboundResponseMsg.setPipelineListener(new PipelineResponseListener());
