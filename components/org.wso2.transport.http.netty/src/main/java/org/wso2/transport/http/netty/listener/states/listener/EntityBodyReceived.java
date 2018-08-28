@@ -31,7 +31,7 @@ import org.wso2.transport.http.netty.contract.ServerConnectorException;
 import org.wso2.transport.http.netty.contract.ServerConnectorFuture;
 import org.wso2.transport.http.netty.contractimpl.HttpOutboundRespListener;
 import org.wso2.transport.http.netty.listener.SourceHandler;
-import org.wso2.transport.http.netty.listener.states.StateContext;
+import org.wso2.transport.http.netty.listener.states.MessageStateContext;
 import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 
 import static io.netty.buffer.Unpooled.copiedBuffer;
@@ -45,36 +45,36 @@ import static org.wso2.transport.http.netty.listener.states.StateUtil.sendReques
 public class EntityBodyReceived implements ListenerState {
 
     private static Logger log = LoggerFactory.getLogger(EntityBodyReceived.class);
-    private final StateContext stateContext;
+    private final MessageStateContext messageStateContext;
     private final SourceHandler sourceHandler;
     private final float httpVersion;
 
-    public EntityBodyReceived(StateContext stateContext, SourceHandler sourceHandler, float httpVersion) {
-        this.stateContext = stateContext;
+    public EntityBodyReceived(MessageStateContext messageStateContext, SourceHandler sourceHandler, float httpVersion) {
+        this.messageStateContext = messageStateContext;
         this.sourceHandler = sourceHandler;
         this.httpVersion = httpVersion;
     }
 
     @Override
     public void readInboundRequestHeaders(HttpCarbonMessage inboundRequestMsg, HttpRequest inboundRequestHeaders) {
-        // Not a dependant action of this state.
+        log.warn("readInboundRequestHeaders is not a dependant action of this state");
     }
 
     @Override
-    public void readInboundRequestEntityBody(Object inboundRequestEntityBody) throws ServerConnectorException {
-        // Not a dependant action of this state.
+    public void readInboundRequestBody(Object inboundRequestEntityBody) throws ServerConnectorException {
+        log.warn("readInboundRequestBody is not a dependant action of this state");
     }
 
     @Override
     public void writeOutboundResponseHeaders(HttpCarbonMessage outboundResponseMsg, HttpContent httpContent) {
-        // Not a dependant action of this state.
+        log.warn("writeOutboundResponseHeaders is not a dependant action of this state");
     }
 
     @Override
-    public void writeOutboundResponseEntityBody(HttpOutboundRespListener outboundResponseListener,
-                                                HttpCarbonMessage outboundResponseMsg, HttpContent httpContent) {
-        stateContext.setListenerState(new SendingHeaders(outboundResponseListener, stateContext));
-        stateContext.getListenerState().writeOutboundResponseHeaders(outboundResponseMsg, httpContent);
+    public void writeOutboundResponseBody(HttpOutboundRespListener outboundResponseListener,
+                                          HttpCarbonMessage outboundResponseMsg, HttpContent httpContent) {
+        messageStateContext.setListenerState(new SendingHeaders(outboundResponseListener, messageStateContext));
+        messageStateContext.getListenerState().writeOutboundResponseHeaders(outboundResponseMsg, httpContent);
     }
 
     @Override

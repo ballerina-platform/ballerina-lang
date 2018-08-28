@@ -37,7 +37,7 @@ import org.wso2.transport.http.netty.contract.ServerConnectorException;
 import org.wso2.transport.http.netty.contract.ServerConnectorFuture;
 import org.wso2.transport.http.netty.contractimpl.HttpOutboundRespListener;
 import org.wso2.transport.http.netty.listener.SourceHandler;
-import org.wso2.transport.http.netty.listener.states.StateContext;
+import org.wso2.transport.http.netty.listener.states.MessageStateContext;
 import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 
 import static io.netty.buffer.Unpooled.copiedBuffer;
@@ -45,6 +45,7 @@ import static org.wso2.transport.http.netty.common.Constants
         .IDLE_TIMEOUT_TRIGGERED_BEFORE_INITIATING_100_CONTINUE_RESPONSE;
 import static org.wso2.transport.http.netty.common.Constants
         .REMOTE_CLIENT_CLOSED_BEFORE_INITIATING_100_CONTINUE_RESPONSE;
+import static org.wso2.transport.http.netty.listener.states.StateUtil.ILLEGAL_STATE_ERROR;
 
 /**
  * Special state of receiving request with expect:100-continue header
@@ -52,36 +53,36 @@ import static org.wso2.transport.http.netty.common.Constants
 public class Expect100ContinueHeaderReceived implements ListenerState {
 
     private static Logger log = LoggerFactory.getLogger(Expect100ContinueHeaderReceived.class);
-    private final StateContext stateContext;
+    private final MessageStateContext messageStateContext;
     private final SourceHandler sourceHandler;
 
-    Expect100ContinueHeaderReceived(StateContext stateContext, SourceHandler sourceHandler) {
-        this.stateContext = stateContext;
+    Expect100ContinueHeaderReceived(MessageStateContext messageStateContext, SourceHandler sourceHandler) {
+        this.messageStateContext = messageStateContext;
         this.sourceHandler = sourceHandler;
     }
 
     @Override
     public void readInboundRequestHeaders(HttpCarbonMessage inboundRequestMsg, HttpRequest inboundRequestHeaders) {
-        // Not a dependant action of this state.
+        log.warn("readInboundRequestHeaders {}", ILLEGAL_STATE_ERROR);
     }
 
     @Override
-    public void readInboundRequestEntityBody(Object inboundRequestEntityBody) throws ServerConnectorException {
-        // Not a dependant action of this state.
+    public void readInboundRequestBody(Object inboundRequestEntityBody) throws ServerConnectorException {
+        log.warn("readInboundRequestBody {}", ILLEGAL_STATE_ERROR);
     }
 
     @Override
     public void writeOutboundResponseHeaders(HttpCarbonMessage outboundResponseMsg, HttpContent httpContent) {
-        // Not a dependant action of this state.
+        log.warn("writeOutboundResponseHeaders {}", ILLEGAL_STATE_ERROR);
     }
 
     @Override
-    public void writeOutboundResponseEntityBody(HttpOutboundRespListener outboundResponseListener,
-                                                HttpCarbonMessage outboundResponseMsg, HttpContent httpContent) {
-        stateContext.setListenerState(
-                new Response100ContinueSent(outboundResponseListener, sourceHandler, stateContext));
-        stateContext.getListenerState().writeOutboundResponseEntityBody(outboundResponseListener, outboundResponseMsg,
-                                                                        httpContent);
+    public void writeOutboundResponseBody(HttpOutboundRespListener outboundResponseListener,
+                                          HttpCarbonMessage outboundResponseMsg, HttpContent httpContent) {
+        messageStateContext.setListenerState(
+                new Response100ContinueSent(outboundResponseListener, sourceHandler, messageStateContext));
+        messageStateContext.getListenerState().writeOutboundResponseBody(outboundResponseListener, outboundResponseMsg,
+                                                                         httpContent);
     }
 
     @Override

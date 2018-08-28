@@ -31,7 +31,7 @@ import org.wso2.transport.http.netty.internal.HandlerExecutor;
 import org.wso2.transport.http.netty.internal.HttpTransportContextHolder;
 import org.wso2.transport.http.netty.listener.HttpTraceLoggingHandler;
 import org.wso2.transport.http.netty.listener.SourceHandler;
-import org.wso2.transport.http.netty.listener.states.StateContext;
+import org.wso2.transport.http.netty.listener.states.MessageStateContext;
 import org.wso2.transport.http.netty.listener.states.sender.SendingHeaders;
 import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 import org.wso2.transport.http.netty.sender.ConnectionAvailabilityFuture;
@@ -187,13 +187,13 @@ public class TargetChannel {
 
         resetTargetChannelState();
 
-        StateContext stateContext = httpOutboundRequest.getStateContext();
-        if (stateContext == null) {
-            stateContext = new StateContext();
-            httpOutboundRequest.setStateContext(stateContext);
+        MessageStateContext messageStateContext = httpOutboundRequest.getMessageStateContext();
+        if (messageStateContext == null) {
+            messageStateContext = new MessageStateContext();
+            httpOutboundRequest.setMessageStateContext(messageStateContext);
         }
-        httpOutboundRequest.getStateContext()
-                .setSenderState(new SendingHeaders(stateContext, this, httpVersion, chunkConfig,
+        httpOutboundRequest.getMessageStateContext()
+                .setSenderState(new SendingHeaders(messageStateContext, this, httpVersion, chunkConfig,
                                                    httpInboundResponseFuture));
         httpOutboundRequest.getHttpContentAsync().setMessageListener((httpContent ->
                 this.channel.eventLoop().execute(() -> {
@@ -209,8 +209,8 @@ public class TargetChannel {
     }
 
     private void writeOutboundRequest(HttpCarbonMessage httpOutboundRequest, HttpContent httpContent) throws Exception {
-        httpOutboundRequest.getStateContext().getSenderState()
-                .writeOutboundRequestEntityBody(httpOutboundRequest, httpContent);
+        httpOutboundRequest.getMessageStateContext().getSenderState()
+                .writeOutboundRequestEntity(httpOutboundRequest, httpContent);
     }
 
     private void resetTargetChannelState() {

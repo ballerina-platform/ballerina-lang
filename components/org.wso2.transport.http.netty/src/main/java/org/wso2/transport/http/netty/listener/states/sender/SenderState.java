@@ -44,7 +44,7 @@ public interface SenderState {
      * @param httpOutboundRequest {@link HttpCarbonMessage} which represents the outbound message
      * @param httpContent         the content of the entity body
      */
-    void writeOutboundRequestEntityBody(HttpCarbonMessage httpOutboundRequest, HttpContent httpContent);
+    void writeOutboundRequestEntity(HttpCarbonMessage httpOutboundRequest, HttpContent httpContent);
 
     /**
      * Read headers of inbound response.

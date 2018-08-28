@@ -26,19 +26,23 @@ import org.slf4j.LoggerFactory;
 import org.wso2.transport.http.netty.common.Constants;
 import org.wso2.transport.http.netty.config.ChunkConfig;
 import org.wso2.transport.http.netty.contract.HttpResponseFuture;
-import org.wso2.transport.http.netty.listener.states.StateContext;
+import org.wso2.transport.http.netty.listener.states.MessageStateContext;
 import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 import org.wso2.transport.http.netty.sender.TargetHandler;
 import org.wso2.transport.http.netty.sender.channel.TargetChannel;
 
+import java.io.IOException;
+
 import static org.wso2.transport.http.netty.common.Constants
         .IDLE_TIMEOUT_TRIGGERED_WHILE_WRITING_OUTBOUND_REQUEST_HEADERS;
+import static org.wso2.transport.http.netty.common.Constants.INBOUND_RESPONSE_ALREADY_RECEIVED;
 import static org.wso2.transport.http.netty.common.Constants
         .REMOTE_SERVER_CLOSED_WHILE_WRITING_OUTBOUND_REQUEST_HEADERS;
 import static org.wso2.transport.http.netty.common.Util.isEntityBodyAllowed;
 import static org.wso2.transport.http.netty.common.Util.isLastHttpContent;
 import static org.wso2.transport.http.netty.common.Util.setupChunkedRequest;
 import static org.wso2.transport.http.netty.common.Util.setupContentLengthRequest;
+import static org.wso2.transport.http.netty.listener.states.StateUtil.ILLEGAL_STATE_ERROR;
 import static org.wso2.transport.http.netty.listener.states.StateUtil.checkChunkingCompatibility;
 import static org.wso2.transport.http.netty.listener.states.StateUtil.writeRequestHeaders;
 
@@ -51,12 +55,12 @@ public class SendingHeaders implements SenderState {
     private final String httpVersion;
     private final ChunkConfig chunkConfig;
     private final TargetChannel targetChannel;
-    private final StateContext stateContext;
+    private final MessageStateContext messageStateContext;
     private final HttpResponseFuture httpInboundResponseFuture;
 
-    public SendingHeaders(StateContext stateContext, TargetChannel targetChannel, String httpVersion,
+    public SendingHeaders(MessageStateContext messageStateContext, TargetChannel targetChannel, String httpVersion,
                           ChunkConfig chunkConfig, HttpResponseFuture httpInboundResponseFuture) {
-        this.stateContext = stateContext;
+        this.messageStateContext = messageStateContext;
         this.targetChannel = targetChannel;
         this.httpVersion = httpVersion;
         this.chunkConfig = chunkConfig;
@@ -89,19 +93,23 @@ public class SendingHeaders implements SenderState {
     }
 
     @Override
-    public void writeOutboundRequestEntityBody(HttpCarbonMessage httpOutboundRequest, HttpContent httpContent) {
+    public void writeOutboundRequestEntity(HttpCarbonMessage httpOutboundRequest, HttpContent httpContent) {
         writeOutboundRequestHeaders(httpOutboundRequest, httpContent);
     }
 
     @Override
     public void readInboundResponseHeaders(TargetHandler targetHandler, HttpResponse httpInboundResponse) {
-        // Not a dependant action of this state.
+        // If this method is called, it is an application error. Inbound response is receiving before the completion
+        // of request header write.
+        targetHandler.getOutboundRequestMsg().setIoException(new IOException(INBOUND_RESPONSE_ALREADY_RECEIVED));
+        messageStateContext.setSenderState(new ReceivingHeaders(messageStateContext));
+        messageStateContext.getSenderState().readInboundResponseHeaders(targetHandler, httpInboundResponse);
     }
 
     @Override
     public void readInboundResponseEntityBody(ChannelHandlerContext ctx, HttpContent httpContent,
                                               HttpCarbonMessage inboundResponseMsg) {
-        // Not a dependant action of this state.
+        log.warn("readInboundResponseEntityBody {}", ILLEGAL_STATE_ERROR);
     }
 
     @Override
@@ -125,8 +133,8 @@ public class SendingHeaders implements SenderState {
     }
 
     private void writeResponse(HttpCarbonMessage outboundResponseMsg, HttpContent httpContent, boolean headersWritten) {
-        stateContext.setSenderState(new SendingEntityBody(stateContext, targetChannel, headersWritten,
-                                                          httpInboundResponseFuture));
-        stateContext.getSenderState().writeOutboundRequestEntityBody(outboundResponseMsg, httpContent);
+        messageStateContext.setSenderState(new SendingEntityBody(messageStateContext, targetChannel, headersWritten,
+                                                                 httpInboundResponseFuture));
+        messageStateContext.getSenderState().writeOutboundRequestEntity(outboundResponseMsg, httpContent);
     }
 }
