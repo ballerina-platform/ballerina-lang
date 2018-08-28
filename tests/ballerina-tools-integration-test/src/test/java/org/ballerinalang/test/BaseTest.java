@@ -15,6 +15,7 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
+
 package org.ballerinalang.test;
 
 import org.ballerinalang.test.context.BallerinaTestException;
@@ -23,7 +24,7 @@ import org.testng.annotations.AfterSuite;
 import org.testng.annotations.BeforeSuite;
 
 /**
- * Parent test class for all integration test cases under test-integration module. This will provide basic
+ * Parent test class for all tool integration test cases under tools-test-integration module. This will provide basic
  * functionality for integration test. This will initialize a single ballerina instance which will be used
  * by all the test cases throughout.
  */
