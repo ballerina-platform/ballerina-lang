@@ -47,7 +47,7 @@ public class ClientFrameListener extends Http2EventAdapter {
     public int onDataRead(ChannelHandlerContext ctx, int streamId, ByteBuf data, int padding, boolean endOfStream) {
         if (log.isDebugEnabled()) {
             log.debug("Reading data on channel: {} with stream id: {}, isEndOfStream: {}", http2ClientChannel, streamId,
-                      endOfStream);
+                    endOfStream);
         }
 
         for (Http2DataEventListener listener : http2ClientChannel.getDataEventListeners()) {
@@ -63,8 +63,7 @@ public class ClientFrameListener extends Http2EventAdapter {
 
     @Override
     public void onHeadersRead(ChannelHandlerContext ctx, int streamId, Http2Headers headers,
-                              int streamDependency, short weight, boolean exclusive, int padding,
-                              boolean endStream) throws Http2Exception {
+                              int streamDependency, short weight, boolean exclusive, int padding, boolean endStream) {
         this.onHeadersRead(ctx, streamId, headers, padding, endStream);
     }
 
@@ -73,7 +72,7 @@ public class ClientFrameListener extends Http2EventAdapter {
                               boolean endStream) {
         if (log.isDebugEnabled()) {
             log.debug("Reading Http2 headers on channel: {} with stream id: {}, isEndOfStream: {}", http2ClientChannel,
-                      streamId, endStream);
+                    streamId, endStream);
         }
 
         for (Http2DataEventListener listener : http2ClientChannel.getDataEventListeners()) {
@@ -105,7 +104,7 @@ public class ClientFrameListener extends Http2EventAdapter {
                                   Http2Headers headers, int padding) throws Http2Exception {
         if (log.isDebugEnabled()) {
             log.debug("Received a push promise on channel: {} over stream id: {}, promisedStreamId: {}",
-                      http2ClientChannel, streamId, promisedStreamId);
+                    http2ClientChannel, streamId, promisedStreamId);
         }
         for (Http2DataEventListener listener : http2ClientChannel.getDataEventListeners()) {
             if (!listener.onPushPromiseRead(ctx, streamId, headers, false)) {
@@ -113,8 +112,7 @@ public class ClientFrameListener extends Http2EventAdapter {
             }
         }
 
-        Http2PushPromise pushPromise =
-                new Http2PushPromise(Util.createHttpRequestFromHttp2Headers(headers, streamId));
+        Http2PushPromise pushPromise = new Http2PushPromise(Util.createHttpRequestFromHttp2Headers(headers, streamId));
         pushPromise.setPromisedStreamId(promisedStreamId);
         pushPromise.setStreamId(streamId);
         for (Http2DataEventListener listener : http2ClientChannel.getDataEventListeners()) {

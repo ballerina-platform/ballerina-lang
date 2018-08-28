@@ -48,7 +48,7 @@ public class Http2ClientConnectorBasicTestCase {
 
     private HttpServer http2Server;
     private HttpClientConnector httpClientConnector;
-    private  SenderConfiguration senderConfiguration;
+    private SenderConfiguration senderConfiguration;
     private HttpWsConnectorFactory connectorFactory;
 
     @BeforeClass
@@ -57,8 +57,7 @@ public class Http2ClientConnectorBasicTestCase {
         connectorFactory = new DefaultHttpWsConnectorFactory();
 
         TransportsConfiguration transportsConfiguration = new TransportsConfiguration();
-        senderConfiguration =
-                HttpConnectorUtil.getSenderConfiguration(transportsConfiguration, Constants.HTTP_SCHEME);
+        senderConfiguration = HttpConnectorUtil.getSenderConfiguration(transportsConfiguration, Constants.HTTP_SCHEME);
         senderConfiguration.setHttpVersion(String.valueOf(Constants.HTTP_2_0));
 
         httpClientConnector = connectorFactory.createHttpClientConnector(

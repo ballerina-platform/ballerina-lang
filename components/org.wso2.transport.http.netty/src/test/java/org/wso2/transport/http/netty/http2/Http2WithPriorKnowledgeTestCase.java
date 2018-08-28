@@ -71,8 +71,7 @@ public class Http2WithPriorKnowledgeTestCase {
         future.sync();
 
         TransportsConfiguration transportsConfiguration = new TransportsConfiguration();
-        senderConfiguration =
-                HttpConnectorUtil.getSenderConfiguration(transportsConfiguration, Constants.HTTP_SCHEME);
+        senderConfiguration = HttpConnectorUtil.getSenderConfiguration(transportsConfiguration, Constants.HTTP_SCHEME);
         senderConfiguration.setHttpVersion(String.valueOf(Constants.HTTP_2_0));
         senderConfiguration.setForceHttp2(true);       // Force to use HTTP/2 without an upgrade
         httpClientConnector = connectorFactory.createHttpClientConnector(

@@ -40,7 +40,7 @@ import java.util.concurrent.TimeUnit;
 /**
  * {@code TimeoutHandler} handles the Read/Write Timeout of HTTP/2 streams.
  */
-public class TimeoutHandler  implements Http2DataEventListener {
+public class TimeoutHandler implements Http2DataEventListener {
 
     private static final Logger log = LoggerFactory.getLogger(TimeoutHandler.class);
     private static final long MIN_TIMEOUT_NANOS = TimeUnit.MILLISECONDS.toNanos(1);
@@ -64,7 +64,7 @@ public class TimeoutHandler  implements Http2DataEventListener {
         if (outboundMsgHolder != null) {
             outboundMsgHolder.setLastReadWriteTime(ticksInNanos());
             timerTasks.put(streamId,
-                           schedule(ctx, new IdleTimeoutTask(ctx, streamId), idleTimeNanos, TimeUnit.NANOSECONDS));
+                    schedule(ctx, new IdleTimeoutTask(ctx, streamId), idleTimeNanos));
         }
         return true;
     }
@@ -101,19 +101,17 @@ public class TimeoutHandler  implements Http2DataEventListener {
     }
 
     @Override
-    public boolean onStreamReset(int streamId) {
+    public void onStreamReset(int streamId) {
         onStreamClose(streamId);
-        return true;
     }
 
     @Override
-    public boolean onStreamClose(int streamId) {
+    public void onStreamClose(int streamId) {
         ScheduledFuture timerTask = timerTasks.get(streamId);
         if (timerTask != null) {
             timerTask.cancel(false);
             timerTasks.remove(streamId);
         }
-        return true;
     }
 
     @Override
@@ -150,7 +148,7 @@ public class TimeoutHandler  implements Http2DataEventListener {
         private OutboundMsgHolder msgHolder;
         private int streamId;
 
-        public IdleTimeoutTask(ChannelHandlerContext ctx, int streamId) {
+        IdleTimeoutTask(ChannelHandlerContext ctx, int streamId) {
             this.ctx = ctx;
             this.streamId = streamId;
             this.msgHolder = http2ClientChannel.getInFlightMessage(streamId);
@@ -162,8 +160,7 @@ public class TimeoutHandler  implements Http2DataEventListener {
             if (nextDelay <= 0) {
                 closeStream(streamId, ctx);
                 if (msgHolder.getResponse() != null) {
-                    handleIncompleteInboundResponse(
-                            Constants.IDLE_TIMEOUT_TRIGGERED_WHILE_READING_INBOUND_RESPONSE_BODY);
+                    handleIncompleteInboundResponse();
                 } else if (msgHolder.isRequestWritten()) {
                     msgHolder.getResponseFuture().notifyHttpListener(
                             new EndpointTimeOutException(
@@ -178,15 +175,16 @@ public class TimeoutHandler  implements Http2DataEventListener {
                 http2ClientChannel.removeInFlightMessage(streamId);
             } else {
                 // Write occurred before the timeout - set a new timeout with shorter delay.
-                timerTasks.put(streamId, schedule(ctx, this, nextDelay, TimeUnit.NANOSECONDS));
+                timerTasks.put(streamId, schedule(ctx, this, nextDelay));
             }
         }
 
-        private void handleIncompleteInboundResponse(String errorMessage) {
+        private void handleIncompleteInboundResponse() {
             LastHttpContent lastHttpContent = new DefaultLastHttpContent();
-            lastHttpContent.setDecoderResult(DecoderResult.failure(new DecoderException(errorMessage)));
+            lastHttpContent.setDecoderResult(DecoderResult.failure(new DecoderException(
+                    Constants.IDLE_TIMEOUT_TRIGGERED_WHILE_READING_INBOUND_RESPONSE_BODY)));
             msgHolder.getResponse().addHttpContent(lastHttpContent);
-            log.warn(errorMessage);
+            log.warn(Constants.IDLE_TIMEOUT_TRIGGERED_WHILE_READING_INBOUND_RESPONSE_BODY);
         }
 
         private void closeStream(int streamId, ChannelHandlerContext ctx) {
@@ -200,7 +198,7 @@ public class TimeoutHandler  implements Http2DataEventListener {
         return System.nanoTime();
     }
 
-    private ScheduledFuture<?> schedule(ChannelHandlerContext ctx, Runnable task, long delay, TimeUnit unit) {
-        return ctx.executor().schedule(task, delay, unit);
+    private ScheduledFuture<?> schedule(ChannelHandlerContext ctx, Runnable task, long delay) {
+        return ctx.executor().schedule(task, delay, TimeUnit.NANOSECONDS);
     }
 }
