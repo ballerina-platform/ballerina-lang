@@ -1,43 +1,31 @@
-documentation {
-Gets a access parameter value (`true` or `false`) for a given key. Please note that #foo will always be bigger than #bar.
-Example:
-``SymbolEnv pkgEnv = symbolEnter.packageEnvs.get(pkgNode.symbol);``
-P{{accessMode}} read or write mode
-R{{}} success or not
-}
+# Gets a access parameter value (`true` or `false`) for a given key. Please note that #foo will always be bigger than #bar.
+# Example:
+# ``SymbolEnv pkgEnv = symbolEnter.packageEnvs.get(pkgNode.symbol);``
+# + accessMode - read or write mode
+# + return - success or not
 public function open (string accessMode) returns (boolean) {
     return true;
 }
 
-documentation {
-    Represents a Person type in ballerina.
-}
+# Represents a Person type in ballerina.
 public type Person object {
-    documentation {
-        This is the name of the person.
-    }
+
+    # This is the name of the person.
     private string name;
 
-    documentation {
-        get the users name.
-        P{{val}} integer value
-    }
+    # get the users name.
+    # + val - integer value
     function getName(int val) {
 
     }
 
-    documentation {
-        Indecate whether this is a male or female.
-        R{{}} True if male
-    }
+    # Indecate whether this is a male or female.
+    # + return - True if male
     public function isMale() returns boolean;
 };
 
-documentation {
-    male implementation
-
-    R{{}} true allways
-}
+# male implementation
+# + return - true allways
 function Person::isMale() returns boolean {
     return true;
 }

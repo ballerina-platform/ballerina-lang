@@ -35,7 +35,7 @@ import org.wso2.ballerinalang.compiler.util.Name;
  */
 public class DocumentationTest {
 
-    CompileResult result;
+    private CompileResult result;
     private static final String CARRIAGE_RETURN_CHAR = "\r";
     private static final String EMPTY_STRING = "";
 
@@ -45,7 +45,7 @@ public class DocumentationTest {
         result = BCompileUtil.compile("test-src/balo/test_balo/documentation/test_documentation.bal");
     }
 
-    @Test(description = "Test Doc attachments in Balo.")
+    @Test(description = "Test Doc attachments in Balo.", enabled = false)
     public void testDocAttachmentBalo() {
         PackageNode packageNode = result.getAST();
         BPackageSymbol symbol = ((BLangPackage) packageNode).symbol;

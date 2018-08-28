@@ -284,7 +284,7 @@ public class PackageInfoWriter {
     }
 
     private static void writeTypeDefInfo(DataOutputStream dataOutStream,
-                                                TypeDefInfo typeDefInfo) throws IOException {
+                                         TypeDefInfo typeDefInfo) throws IOException {
         dataOutStream.writeInt(typeDefInfo.nameCPIndex);
         dataOutStream.writeInt(typeDefInfo.flags);
         dataOutStream.writeBoolean(typeDefInfo.isLabel);
@@ -316,7 +316,7 @@ public class PackageInfoWriter {
     }
 
     private static void writeAnnotatoinInfo(DataOutputStream dataOutStream,
-                                         AnnotationInfo typeDefInfo) throws IOException {
+                                            AnnotationInfo typeDefInfo) throws IOException {
         dataOutStream.writeInt(typeDefInfo.nameCPIndex);
         dataOutStream.writeInt(typeDefInfo.flags);
         dataOutStream.writeInt(typeDefInfo.attachPoints);
@@ -324,7 +324,7 @@ public class PackageInfoWriter {
     }
 
     private static void writeObjectTypeDefInfo(DataOutputStream dataOutStream,
-                                         ObjectTypeInfo objectInfo) throws IOException {
+                                               ObjectTypeInfo objectInfo) throws IOException {
         // Write struct field info entries
         dataOutStream.writeShort(objectInfo.fieldInfoEntries.size());
         for (StructFieldInfo structFieldInfoEntry : objectInfo.fieldInfoEntries) {
@@ -366,7 +366,7 @@ public class PackageInfoWriter {
     }
 
     private static void writeFiniteTypeDefInfo(DataOutputStream dataOutStream,
-                                                FiniteTypeInfo finiteTypeDefInfo) throws IOException {
+                                               FiniteTypeInfo finiteTypeDefInfo) throws IOException {
         ValueSpaceItemInfo[] valueSpaceItemInfos = finiteTypeDefInfo.
                 valueSpaceItemInfos.toArray(new ValueSpaceItemInfo[0]);
 
@@ -377,7 +377,7 @@ public class PackageInfoWriter {
     }
 
     private static void writeLabelTypeDefInfo(DataOutputStream dataOutStream,
-                                               LabelTypeInfo labelTypeInfo) throws IOException {
+                                              LabelTypeInfo labelTypeInfo) throws IOException {
         dataOutStream.writeInt(labelTypeInfo.typeSigCPIndex);
     }
 
@@ -582,10 +582,13 @@ public class PackageInfoWriter {
                 attrDataOutStream.writeShort(docAttrInfo.paramDocInfoList.size());
                 for (ParameterDocumentInfo paramDocInfo : docAttrInfo.paramDocInfoList) {
                     attrDataOutStream.writeInt(paramDocInfo.nameCPIndex);
-                    //TODO remove below line ASAP, adding dummy value as we can't change binary file right now
-                    attrDataOutStream.writeInt(1);
-                    attrDataOutStream.writeInt(paramDocInfo.paramKindCPIndex);
                     attrDataOutStream.writeInt(paramDocInfo.descriptionCPIndex);
+                }
+                if (docAttrInfo.returnParameterDescriptionCPIndex != -1) {
+                    attrDataOutStream.writeBoolean(true);
+                    attrDataOutStream.writeInt(docAttrInfo.returnParameterDescriptionCPIndex);
+                } else {
+                    attrDataOutStream.writeBoolean(false);
                 }
                 break;
         }
