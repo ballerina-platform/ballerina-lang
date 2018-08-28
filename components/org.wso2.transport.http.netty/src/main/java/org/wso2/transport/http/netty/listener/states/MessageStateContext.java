@@ -18,7 +18,6 @@
 
 package org.wso2.transport.http.netty.listener.states;
 
-
 import org.wso2.transport.http.netty.listener.states.listener.ListenerState;
 import org.wso2.transport.http.netty.listener.states.sender.SenderState;
 

@@ -37,6 +37,7 @@ import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 import static io.netty.buffer.Unpooled.copiedBuffer;
 import static org.wso2.transport.http.netty.common.Constants.IDLE_TIMEOUT_TRIGGERED_BEFORE_INITIATING_OUTBOUND_RESPONSE;
 import static org.wso2.transport.http.netty.common.Constants.REMOTE_CLIENT_CLOSED_BEFORE_INITIATING_OUTBOUND_RESPONSE;
+import static org.wso2.transport.http.netty.listener.states.StateUtil.CONNECTOR_NOTIFYING_ERROR;
 import static org.wso2.transport.http.netty.listener.states.StateUtil.sendRequestTimeoutResponse;
 
 /**
@@ -83,7 +84,7 @@ public class EntityBodyReceived implements ListenerState {
             serverConnectorFuture.notifyErrorListener(
                     new ServerConnectorException(REMOTE_CLIENT_CLOSED_BEFORE_INITIATING_OUTBOUND_RESPONSE));
         } catch (ServerConnectorException e) {
-            log.error("Error while notifying error state to server-connector listener");
+            log.error(CONNECTOR_NOTIFYING_ERROR, e);
         }
     }
 
@@ -94,7 +95,7 @@ public class EntityBodyReceived implements ListenerState {
             serverConnectorFuture.notifyErrorListener(
                     new ServerConnectorException(IDLE_TIMEOUT_TRIGGERED_BEFORE_INITIATING_OUTBOUND_RESPONSE));
         } catch (ServerConnectorException e) {
-            log.error("Error while notifying error state to server-connector listener");
+            log.error(CONNECTOR_NOTIFYING_ERROR, e);
         }
         String responseValue = "Server time out";
         ChannelFuture outboundRespFuture =

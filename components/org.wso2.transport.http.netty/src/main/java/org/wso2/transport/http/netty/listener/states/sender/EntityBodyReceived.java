@@ -24,10 +24,8 @@ import io.netty.handler.codec.http.HttpResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.transport.http.netty.contract.HttpResponseFuture;
-import org.wso2.transport.http.netty.listener.states.MessageStateContext;
 import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 import org.wso2.transport.http.netty.sender.TargetHandler;
-
 import static org.wso2.transport.http.netty.listener.states.StateUtil.ILLEGAL_STATE_ERROR;
 
 /**
@@ -36,9 +34,6 @@ import static org.wso2.transport.http.netty.listener.states.StateUtil.ILLEGAL_ST
 public class EntityBodyReceived implements SenderState {
 
     private static Logger log = LoggerFactory.getLogger(SendingHeaders.class);
-
-    public EntityBodyReceived(MessageStateContext messageStateContext) {
-    }
 
     @Override
     public void writeOutboundRequestHeaders(HttpCarbonMessage httpOutboundRequest, HttpContent httpContent) {
