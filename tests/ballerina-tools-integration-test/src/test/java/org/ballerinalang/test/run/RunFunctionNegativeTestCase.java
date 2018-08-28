@@ -72,14 +72,24 @@ public class RunFunctionNegativeTestCase {
 
     @Test
     public void testTooManyArgs() throws BallerinaTestException {
-        String functionName = "publicNonMainEntry";
+        String functionName = "intEntry";
         sourceArg = filePath + ":" + functionName;
         LogLeecher errLogLeecher = new LogLeecher("usage error: too many arguments to call entry function '"
                                                    + functionName + "'");
         serverInstance.addErrorLogLeecher(errLogLeecher);
-        serverInstance.runMain(new String[]{sourceArg, "1", "Hello World", "I'm just extra!"});
+        serverInstance.runMain(new String[]{sourceArg, "1", "Hello World"});
         errLogLeecher.waitForText(2000);
+    }
 
+    @Test (dataProvider = "intValues")
+    public void testInvalidIntArg(String arg) throws BallerinaTestException {
+        String functionName = "intEntry";
+        sourceArg = filePath + ":" + functionName;
+        LogLeecher errLogLeecher = new LogLeecher("usage error: invalid argument '" + arg + "', expected integer "
+                                                          + "value");
+        serverInstance.addErrorLogLeecher(errLogLeecher);
+        serverInstance.runMain(new String[]{sourceArg, arg});
+        errLogLeecher.waitForText(2000);
     }
 
     @Test
@@ -101,18 +111,6 @@ public class RunFunctionNegativeTestCase {
                                                           + "' not allowed as entry function");
         serverInstance.addErrorLogLeecher(errLogLeecher);
         serverInstance.runMain(new String[]{sourceArg, "1"});
-        errLogLeecher.waitForText(2000);
-    }
-
-    @Test
-    public void testInvalidIntArg() throws BallerinaTestException {
-        String functionName = "combinedTypeEntry";
-        String argument = "5ss";
-        sourceArg = filePath + ":" + functionName;
-        LogLeecher errLogLeecher = new LogLeecher("usage error: invalid argument '" + argument
-                                                          + "', expected integer value");
-        serverInstance.addErrorLogLeecher(errLogLeecher);
-        serverInstance.runMain(new String[]{sourceArg, argument, "a", "b", "c", "d", "e", "f", "g"});
         errLogLeecher.waitForText(2000);
     }
 
@@ -353,6 +351,19 @@ public class RunFunctionNegativeTestCase {
     public void tearDown() throws BallerinaTestException {
         serverInstance.cleanup();
     }
+
+    @DataProvider(name = "intValues")
+    public Object[][] intValues() {
+        return new Object[][] {
+                { "5ss" },
+                { "0c10" },
+                { "0b2101" },
+                { "0B11015"},
+                { "0xkef" },
+                { "0XFSF1" }
+        };
+    }
+
 
     @DataProvider(name = "invalidByteValues")
     public Object[][] invalidByteValues() {

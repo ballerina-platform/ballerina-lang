@@ -62,6 +62,16 @@ public class RunFunctionPositiveTestCase {
         outLogLeecher.waitForText(2000);
     }
 
+    @Test (dataProvider = "intValues")
+    public void testIntArg(String specifiedInt, String printedInt) throws BallerinaTestException {
+        String functionName = "intEntry";
+        sourceArg = filePath + ":" + functionName;
+        LogLeecher outLogLeecher = new LogLeecher(printedInt);
+        serverInstance.addLogLeecher(outLogLeecher);
+        serverInstance.runMain(new String[]{PRINT_RETURN, sourceArg, specifiedInt});
+        outLogLeecher.waitForText(2000);
+    }
+
     @Test (dataProvider = "jsonValues")
     public void testValidJsonArg(String arg) throws BallerinaTestException {
         String functionName = "jsonEntry";
@@ -172,6 +182,17 @@ public class RunFunctionPositiveTestCase {
     @AfterClass
     public void tearDown() throws BallerinaTestException {
         serverInstance.cleanup();
+    }
+
+    @DataProvider(name = "intValues")
+    public Object[][] intValues() {
+        return new Object[][] {
+                { "10", "10" },
+                { "0b1101", "13" },
+                { "0B110101", "53" },
+                { "0x1efa2", "126882" },
+                { "0XFAF1", "64241" }
+        };
     }
 
     @DataProvider(name = "jsonValues")

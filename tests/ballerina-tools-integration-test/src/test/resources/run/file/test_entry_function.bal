@@ -23,8 +23,8 @@ public function noParamEntry() returns int {
     return 1;
 }
 
-public function publicNonMainEntry(int i, string s) {
-    io:println(i, " ", s);
+public function intEntry(int i) {
+    io:println(i);
 }
 
 function nonPublicEntry(int i) {

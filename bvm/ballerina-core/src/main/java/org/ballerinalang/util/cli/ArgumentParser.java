@@ -82,6 +82,8 @@ public class ArgumentParser {
     private static final String NIL = "()";
     private static final String TRUE = "TRUE";
     private static final String FALSE = "FALSE";
+    private static final String BINARY_PREFIX = "0B";
+    private static final String HEX_PREFIX = "0X";
 
     /**
      * Method to retrieve the {@link BValue} array containing the arguments to invoke the function specified as the
@@ -300,7 +302,12 @@ public class ArgumentParser {
 
     private static long getIntegerValue(String argument) {
         try {
-            return Long.parseLong(argument); // TODO: 8/28/18 support hex, binary
+            if (argument.toUpperCase().startsWith(BINARY_PREFIX)) {
+                return Long.parseLong(argument.toUpperCase().replace(BINARY_PREFIX, ""), 2);
+            } else if (argument.toUpperCase().startsWith(HEX_PREFIX)) {
+                return Long.parseLong(argument.toUpperCase().replace(HEX_PREFIX, ""), 16);
+            }
+            return Long.parseLong(argument);
         } catch (NumberFormatException e) {
             throw new BLangUsageException("invalid argument '" + argument + "', expected integer value");
         }
