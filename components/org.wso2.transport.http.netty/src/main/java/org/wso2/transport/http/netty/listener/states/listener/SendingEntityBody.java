@@ -238,9 +238,9 @@ public class SendingEntityBody implements ListenerState {
                     log.debug("Pipelining logic is triggered from transport");
                 }
                 //Notify ballerina to send the response which is next in queue. This is needed because,
-                // if the other responses got ready before the nextSequenceNumber gets updated then the
-                // ballerina respond() won't start serializing the responses in queue. This is to trigger
-                // that process again.
+                //if the other responses got ready before the nextSequenceNumber gets updated then the
+                //ballerina respond() won't start serializing the responses in queue. This is to trigger
+                //that process again.
                 outboundResponseMsg.getPipelineListener().onLastHttpContentSent(sourceContext);
             }
         }
