@@ -45,7 +45,7 @@ public class DocumentationTest {
         result = BCompileUtil.compile("test-src/balo/test_balo/documentation/test_documentation.bal");
     }
 
-    @Test(description = "Test Doc attachments in Balo.", enabled = false)
+    @Test(description = "Test Doc attachments in Balo.")
     public void testDocAttachmentBalo() {
         PackageNode packageNode = result.getAST();
         BPackageSymbol symbol = ((BLangPackage) packageNode).symbol;
@@ -53,50 +53,49 @@ public class DocumentationTest {
         BPackageSymbol testOrgPackage = (BPackageSymbol) symbol.scope.lookup(new Name("test")).symbol;
         BSymbol functionSymbol = testOrgPackage.scope.lookup(new Name("open")).symbol;
 
-        Assert.assertNotNull(functionSymbol.documentation);
-        Assert.assertEquals(functionSymbol.documentation.description.replaceAll(CARRIAGE_RETURN_CHAR, EMPTY_STRING),
-                "\n" + "Gets a access parameter value (`true` or `false`) for a given key. "
-                        + "Please note that #foo will always be bigger than #bar.\n" + "Example:\n"
-                        + "``SymbolEnv pkgEnv = symbolEnter.packageEnvs.get(pkgNode.symbol);``\n");
-        Assert.assertEquals(functionSymbol.documentation.attributes.size(), 2);
-        Assert.assertEquals(functionSymbol.documentation.attributes.get(0).description
-                .replaceAll(CARRIAGE_RETURN_CHAR, EMPTY_STRING), " read or write mode\n");
-        Assert.assertEquals(functionSymbol.documentation.attributes.get(1).description
-                .replaceAll(CARRIAGE_RETURN_CHAR, EMPTY_STRING), " success or not\n");
+        Assert.assertNotNull(functionSymbol.markdownDocumentation);
+        Assert.assertEquals(functionSymbol.markdownDocumentation.description.replaceAll(CARRIAGE_RETURN_CHAR,
+                EMPTY_STRING), "Gets a access parameter value (`true` or `false`) for a given key. Please note that " +
+                "#foo will always be bigger than #bar.\nExample:\n``SymbolEnv pkgEnv = symbolEnter.packageEnvs.get" +
+                "(pkgNode.symbol);``");
+        Assert.assertEquals(functionSymbol.markdownDocumentation.parameters.size(), 1);
+        Assert.assertEquals(functionSymbol.markdownDocumentation.parameters.get(0).description
+                .replaceAll(CARRIAGE_RETURN_CHAR, EMPTY_STRING), "read or write mode");
+
+        Assert.assertNotNull(functionSymbol.markdownDocumentation.returnValueDescription);
+        Assert.assertEquals(functionSymbol.markdownDocumentation.returnValueDescription.replaceAll
+                (CARRIAGE_RETURN_CHAR, EMPTY_STRING), "success or not");
 
         BSymbol personSymbol = testOrgPackage.scope.lookup(new Name("Person")).symbol;
-
-        Assert.assertNotNull(personSymbol.documentation);
-        Assert.assertEquals(personSymbol.documentation.description.replaceAll(CARRIAGE_RETURN_CHAR, EMPTY_STRING),
-                "\n" + "    Represents a Person type in ballerina.\n");
-        Assert.assertEquals(personSymbol.documentation.attributes.size(), 0);
-
+        Assert.assertNotNull(personSymbol.markdownDocumentation);
+        Assert.assertEquals(personSymbol.markdownDocumentation.description.replaceAll(CARRIAGE_RETURN_CHAR,
+                EMPTY_STRING),
+                "Represents a Person type in ballerina.");
+        Assert.assertEquals(personSymbol.markdownDocumentation.parameters.size(), 1);
+        Assert.assertEquals(personSymbol.markdownDocumentation.parameters.get(0).description
+                .replaceAll(CARRIAGE_RETURN_CHAR, EMPTY_STRING), "name of the person.");
 
         BSymbol personNameSymbol = personSymbol.scope.lookup(new Name("name")).symbol;
-
-        Assert.assertNotNull(personNameSymbol.documentation);
-        Assert.assertEquals(personNameSymbol.documentation.description.replaceAll(CARRIAGE_RETURN_CHAR, EMPTY_STRING),
-                "\n" + "        This is the name of the person.\n    ");
-        Assert.assertEquals(personNameSymbol.documentation.attributes.size(), 0);
-
+        Assert.assertNotNull(personNameSymbol.markdownDocumentation);
+        Assert.assertNull(personNameSymbol.markdownDocumentation.description);
+        Assert.assertEquals(personNameSymbol.markdownDocumentation.parameters.size(), 0);
+        Assert.assertNull(personNameSymbol.markdownDocumentation.returnValueDescription);
 
         BSymbol getNameFuncSymbol = personSymbol.scope.lookup(new Name("Person.getName")).symbol;
-
-        Assert.assertNotNull(getNameFuncSymbol.documentation);
-        Assert.assertEquals(getNameFuncSymbol.documentation.description.replaceAll(CARRIAGE_RETURN_CHAR, EMPTY_STRING),
-                "\n" + "        get the users name.\n        ");
-        Assert.assertEquals(getNameFuncSymbol.documentation.attributes.size(), 1);
-        Assert.assertEquals(getNameFuncSymbol.documentation.attributes.get(0).description
-                .replaceAll(CARRIAGE_RETURN_CHAR, EMPTY_STRING), " integer value\n    ");
-
+        Assert.assertNotNull(getNameFuncSymbol.markdownDocumentation);
+        Assert.assertEquals(getNameFuncSymbol.markdownDocumentation.description.replaceAll
+                (CARRIAGE_RETURN_CHAR, EMPTY_STRING), "get the users name.");
+        Assert.assertEquals(getNameFuncSymbol.markdownDocumentation.parameters.size(), 1);
+        Assert.assertEquals(getNameFuncSymbol.markdownDocumentation.parameters.get(0).description
+                .replaceAll(CARRIAGE_RETURN_CHAR, EMPTY_STRING), "integer value");
 
         BSymbol isMaleFuncSymbol = personSymbol.scope.lookup(new Name("Person.isMale")).symbol;
-
-        Assert.assertNotNull(isMaleFuncSymbol.documentation);
-        Assert.assertEquals(isMaleFuncSymbol.documentation.description.replaceAll(CARRIAGE_RETURN_CHAR, EMPTY_STRING),
-                "\n" + "        Indecate whether this is a male or female.\n        ");
-        Assert.assertEquals(isMaleFuncSymbol.documentation.attributes.size(), 1);
-        Assert.assertEquals(isMaleFuncSymbol.documentation.attributes.get(0).description
-                .replaceAll(CARRIAGE_RETURN_CHAR, EMPTY_STRING), " True if male\n    ");
+        Assert.assertNotNull(isMaleFuncSymbol.markdownDocumentation);
+        Assert.assertEquals(isMaleFuncSymbol.markdownDocumentation.description.replaceAll(CARRIAGE_RETURN_CHAR,
+                EMPTY_STRING), "Indicate whether this is a male or female.");
+        Assert.assertEquals(isMaleFuncSymbol.markdownDocumentation.parameters.size(), 0);
+        Assert.assertNotNull(isMaleFuncSymbol.markdownDocumentation.returnValueDescription);
+        Assert.assertEquals(isMaleFuncSymbol.markdownDocumentation.returnValueDescription
+                .replaceAll(CARRIAGE_RETURN_CHAR, EMPTY_STRING), "True if male");
     }
 }

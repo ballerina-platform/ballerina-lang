@@ -3553,7 +3553,7 @@ public class CodeGenerator extends BLangNodeVisitor {
 
         if (docAttachment.returnValueDescription != null) {
             docAttributeInfo.returnParameterDescriptionCPIndex = addUTF8CPEntry(currentPkgInfo,
-                    AttributeInfo.Kind.DOCUMENT_ATTACHMENT_ATTRIBUTE.value());
+                    docAttachment.returnValueDescription);
         }
 
         attrInfoPool.addAttributeInfo(AttributeInfo.Kind.DOCUMENT_ATTACHMENT_ATTRIBUTE, docAttributeInfo);

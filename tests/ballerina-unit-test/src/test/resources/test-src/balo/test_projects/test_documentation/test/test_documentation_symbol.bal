@@ -8,9 +8,9 @@ public function open (string accessMode) returns (boolean) {
 }
 
 # Represents a Person type in ballerina.
+# + name - name of the person.
 public type Person object {
 
-    # This is the name of the person.
     private string name;
 
     # get the users name.
@@ -19,7 +19,7 @@ public type Person object {
 
     }
 
-    # Indecate whether this is a male or female.
+    # Indicate whether this is a male or female.
     # + return - True if male
     public function isMale() returns boolean;
 };
