@@ -40,6 +40,7 @@ import java.util.List;
 
 import static org.wso2.transport.http.netty.common.Constants.CLIENT_TO_REMOTE_HOST_CONNECTION_CLOSED;
 import static org.wso2.transport.http.netty.common.Constants.IDLE_TIMEOUT_TRIGGERED_WHILE_WRITING_OUTBOUND_REQUEST_BODY;
+import static org.wso2.transport.http.netty.common.Constants.INBOUND_RESPONSE_ALREADY_RECEIVED;
 import static org.wso2.transport.http.netty.common.Constants.REMOTE_SERVER_CLOSED_WHILE_WRITING_OUTBOUND_REQUEST_BODY;
 import static org.wso2.transport.http.netty.common.Util.isLastHttpContent;
 import static org.wso2.transport.http.netty.listener.states.StateUtil.ILLEGAL_STATE_ERROR;
@@ -104,7 +105,11 @@ public class SendingEntityBody implements SenderState {
 
     @Override
     public void readInboundResponseHeaders(TargetHandler targetHandler, HttpResponse httpInboundResponse) {
-        log.warn("readInboundResponseHeaders {}", ILLEGAL_STATE_ERROR);
+        // If this method is called, it is an application error. Inbound response is receiving before the completion
+        // of request body write.
+        targetHandler.getOutboundRequestMsg().setIoException(new IOException(INBOUND_RESPONSE_ALREADY_RECEIVED));
+        messageStateContext.setSenderState(new ReceivingHeaders(messageStateContext));
+        messageStateContext.getSenderState().readInboundResponseHeaders(targetHandler, httpInboundResponse);
     }
 
     @Override

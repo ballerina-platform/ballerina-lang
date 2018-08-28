@@ -41,8 +41,6 @@ import org.wso2.transport.http.netty.sender.http2.Http2ClientChannel;
 import org.wso2.transport.http.netty.sender.http2.Http2TargetHandler;
 import org.wso2.transport.http.netty.sender.http2.TimeoutHandler;
 
-import java.io.IOException;
-
 import static org.wso2.transport.http.netty.common.Util.createInboundRespCarbonMsg;
 import static org.wso2.transport.http.netty.common.Util.safelyRemoveHandlers;
 
@@ -66,7 +64,6 @@ public class TargetHandler extends ChannelInboundHandlerAdapter {
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
         MessageStateContext messageStateContext = outboundRequestMsg.getMessageStateContext();
-        outboundRequestMsg.setIoException(new IOException(Constants.INBOUND_RESPONSE_ALREADY_RECEIVED));
 
         if (handlerExecutor != null) {
             handlerExecutor.executeAtTargetResponseReceiving(inboundResponseMsg);
@@ -158,7 +155,7 @@ public class TargetHandler extends ChannelInboundHandlerAdapter {
 
         // Remove Http specific handlers
         safelyRemoveHandlers(targetChannel.getChannel().pipeline(), Constants.IDLE_STATE_HANDLER,
-                Constants.HTTP_TRACE_LOG_HANDLER);
+                             Constants.HTTP_TRACE_LOG_HANDLER);
         http2ClientChannel.addDataEventListener(
                 Constants.IDLE_STATE_HANDLER,
                 new TimeoutHandler(http2ClientChannel.getSocketIdleTimeout(), http2ClientChannel));

@@ -26,6 +26,7 @@ import io.netty.handler.codec.http.HttpRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.transport.http.netty.common.Constants;
+import org.wso2.transport.http.netty.config.KeepAliveConfig;
 import org.wso2.transport.http.netty.contract.ServerConnectorException;
 import org.wso2.transport.http.netty.contract.ServerConnectorFuture;
 import org.wso2.transport.http.netty.contractimpl.HttpOutboundRespListener;
@@ -116,7 +117,10 @@ public class ReceivingHeaders implements ListenerState {
     @Override
     public void writeOutboundResponseBody(HttpOutboundRespListener outboundResponseListener,
                                           HttpCarbonMessage outboundResponseMsg, HttpContent httpContent) {
-        log.warn("writeOutboundResponseBody {}", ILLEGAL_STATE_ERROR);
+        // If this method is called, it is an application error. we need to close connection once response is sent.
+        outboundResponseListener.setKeepAliveConfig(KeepAliveConfig.NEVER);
+        messageStateContext.setListenerState(new SendingHeaders(outboundResponseListener, messageStateContext));
+        messageStateContext.getListenerState().writeOutboundResponseHeaders(outboundResponseMsg, httpContent);
     }
 
     @Override
