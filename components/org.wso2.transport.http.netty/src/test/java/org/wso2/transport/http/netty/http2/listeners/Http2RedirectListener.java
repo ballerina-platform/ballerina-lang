@@ -71,7 +71,7 @@ public class Http2RedirectListener implements HttpConnectorListener {
                     HttpCarbonMessage response =
                             MessageGenerator.generateResponse(null, HttpResponseStatus.MOVED_PERMANENTLY);
                     response.setHeader(HttpHeaderNames.LOCATION.toString(),
-                                       baseLocation.concat(String.valueOf(redirectCount)));
+                            baseLocation.concat(String.valueOf(redirectCount)));
                     HttpResponseFuture responseFuture = httpRequest.respond(response);
                     responseFuture.sync();
                 } else {

@@ -76,8 +76,7 @@ public class Http2ClientTimeoutTestCase {
         future.sync();
 
         TransportsConfiguration transportsConfiguration = new TransportsConfiguration();
-        senderConfiguration =
-                HttpConnectorUtil.getSenderConfiguration(transportsConfiguration, Constants.HTTP_SCHEME);
+        senderConfiguration = HttpConnectorUtil.getSenderConfiguration(transportsConfiguration, Constants.HTTP_SCHEME);
         senderConfiguration.setSocketIdleTimeout(3000);
         senderConfiguration.setHttpVersion(String.valueOf(Constants.HTTP_2_0));
 
@@ -97,10 +96,10 @@ public class Http2ClientTimeoutTestCase {
             Throwable error = listener.getHttpErrorMessage();
             AssertJUnit.assertNotNull(error);
             assertTrue(error instanceof EndpointTimeOutException,
-                       "Exception is not an instance of EndpointTimeOutException");
+                    "Exception is not an instance of EndpointTimeOutException");
             String result = error.getMessage();
             assertEquals(result, Constants.IDLE_TIMEOUT_TRIGGERED_BEFORE_INITIATING_INBOUND_RESPONSE,
-                         "Expected error message not received");
+                    "Expected error message not received");
         } catch (Exception e) {
             TestUtil.handleException("Exception occurred while running testHttp2ClientTimeout test case", e);
         }

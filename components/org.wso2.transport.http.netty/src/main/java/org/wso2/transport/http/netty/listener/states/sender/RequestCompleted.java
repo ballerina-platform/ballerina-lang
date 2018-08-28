@@ -27,12 +27,13 @@ import org.slf4j.LoggerFactory;
 import org.wso2.transport.http.netty.contract.HttpResponseFuture;
 import org.wso2.transport.http.netty.contract.ServerConnectorException;
 import org.wso2.transport.http.netty.exception.EndpointTimeOutException;
-import org.wso2.transport.http.netty.listener.states.StateContext;
+import org.wso2.transport.http.netty.listener.states.MessageStateContext;
 import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 import org.wso2.transport.http.netty.sender.TargetHandler;
 
 import static org.wso2.transport.http.netty.common.Constants.IDLE_TIMEOUT_TRIGGERED_BEFORE_INITIATING_INBOUND_RESPONSE;
 import static org.wso2.transport.http.netty.common.Constants.REMOTE_SERVER_CLOSED_BEFORE_INITIATING_INBOUND_RESPONSE;
+import static org.wso2.transport.http.netty.listener.states.StateUtil.ILLEGAL_STATE_ERROR;
 
 /**
  * State between end of payload write and start of response headers read
@@ -40,32 +41,32 @@ import static org.wso2.transport.http.netty.common.Constants.REMOTE_SERVER_CLOSE
 public class RequestCompleted implements SenderState {
 
     private static Logger log = LoggerFactory.getLogger(RequestCompleted.class);
-    private final StateContext stateContext;
+    private final MessageStateContext messageStateContext;
 
-    public RequestCompleted(StateContext stateContext) {
-        this.stateContext = stateContext;
+    public RequestCompleted(MessageStateContext messageStateContext) {
+        this.messageStateContext = messageStateContext;
     }
 
     @Override
     public void writeOutboundRequestHeaders(HttpCarbonMessage httpOutboundRequest, HttpContent httpContent) {
-        // Not a dependant action of this state.
+        log.warn("writeOutboundRequestHeaders {}", ILLEGAL_STATE_ERROR);
     }
 
     @Override
-    public void writeOutboundRequestEntityBody(HttpCarbonMessage httpOutboundRequest, HttpContent httpContent) {
-        // Not a dependant action of this state.
+    public void writeOutboundRequestEntity(HttpCarbonMessage httpOutboundRequest, HttpContent httpContent) {
+        log.warn("writeOutboundRequestEntity {}", ILLEGAL_STATE_ERROR);
     }
 
     @Override
     public void readInboundResponseHeaders(TargetHandler targetHandler, HttpResponse httpInboundResponse) {
-        stateContext.setSenderState(new ReceivingHeaders(stateContext));
-        stateContext.getSenderState().readInboundResponseHeaders(targetHandler, httpInboundResponse);
+        messageStateContext.setSenderState(new ReceivingHeaders(messageStateContext));
+        messageStateContext.getSenderState().readInboundResponseHeaders(targetHandler, httpInboundResponse);
     }
 
     @Override
     public void readInboundResponseEntityBody(ChannelHandlerContext ctx, HttpContent httpContent,
                                               HttpCarbonMessage inboundResponseMsg) {
-        // Not a dependant action of this state.
+        log.warn("readInboundResponseEntityBody {}", ILLEGAL_STATE_ERROR);
     }
 
     @Override

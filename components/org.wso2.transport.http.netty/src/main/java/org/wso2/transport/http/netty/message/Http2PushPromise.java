@@ -29,7 +29,7 @@ import java.util.List;
 
 /**
  * {@code Http2PushPromise} represents a HTTP/2 PUSH_PROMISE frame.
- *
+ * <p>
  * This represents both HTTP/2 push promises received from a server as well as the push promises
  * suppose to be delivered to a client.
  * A PUSH_PROMISE should not be sent by a client.
@@ -44,7 +44,7 @@ public class Http2PushPromise extends Http2Frame {
     /**
      * Constructor to create {@code Http2PushPromise} with initial {@code HttpRequest}.
      *
-     * @param httpRequest   the HttpRequest
+     * @param httpRequest the HttpRequest
      */
     public Http2PushPromise(HttpRequest httpRequest) {
         this.httpRequest = httpRequest;
@@ -58,7 +58,7 @@ public class Http2PushPromise extends Http2Frame {
      */
     public Http2PushPromise(String method, String uri) {
         httpRequest = new DefaultHttpRequest(new HttpVersion(Constants.HTTP_VERSION_2_0, true),
-                                             HttpMethod.valueOf(method), uri);
+                HttpMethod.valueOf(method), uri);
     }
 
     /**
@@ -169,7 +169,7 @@ public class Http2PushPromise extends Http2Frame {
     /**
      * Checks whether push promise is rejected.
      *
-     * @return  whether push promise is rejected
+     * @return whether push promise is rejected
      */
     public boolean isRejected() {
         return rejected;

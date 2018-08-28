@@ -30,7 +30,7 @@ import org.wso2.transport.http.netty.internal.HandlerExecutor;
 import org.wso2.transport.http.netty.internal.HttpTransportContextHolder;
 import org.wso2.transport.http.netty.listener.RequestDataHolder;
 import org.wso2.transport.http.netty.listener.SourceHandler;
-import org.wso2.transport.http.netty.listener.states.StateContext;
+import org.wso2.transport.http.netty.listener.states.MessageStateContext;
 import org.wso2.transport.http.netty.message.Http2PushPromise;
 import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 
@@ -45,7 +45,7 @@ public class HttpOutboundRespListener implements HttpConnectorListener {
 
     private static final Logger log = LoggerFactory.getLogger(HttpOutboundRespListener.class);
     private final SourceHandler sourceHandler;
-    private final StateContext stateContext;
+    private final MessageStateContext messageStateContext;
 
     private ChannelHandlerContext sourceContext;
     private RequestDataHolder requestDataHolder;
@@ -64,7 +64,7 @@ public class HttpOutboundRespListener implements HttpConnectorListener {
         this.keepAliveConfig = sourceHandler.getKeepAliveConfig();
         this.handlerExecutor = HttpTransportContextHolder.getInstance().getHandlerExecutor();
         this.serverName = sourceHandler.getServerName();
-        this.stateContext = requestMsg.getStateContext();
+        this.messageStateContext = requestMsg.getMessageStateContext();
     }
 
     @Override
@@ -102,7 +102,7 @@ public class HttpOutboundRespListener implements HttpConnectorListener {
     }
 
     private void writeOutboundResponse(HttpCarbonMessage outboundResponseMsg, HttpContent httpContent) {
-        stateContext.getListenerState().writeOutboundResponseEntityBody(this, outboundResponseMsg, httpContent);
+        messageStateContext.getListenerState().writeOutboundResponseBody(this, outboundResponseMsg, httpContent);
     }
 
     // Decides whether to close the connection after sending the response

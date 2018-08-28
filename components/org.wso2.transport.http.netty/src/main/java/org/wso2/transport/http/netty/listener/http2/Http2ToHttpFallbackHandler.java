@@ -33,13 +33,12 @@ public class Http2ToHttpFallbackHandler extends ChannelInboundHandlerAdapter {
 
     private HttpServerChannelInitializer serverChannelInitializer;
 
-    public Http2ToHttpFallbackHandler(
-            HttpServerChannelInitializer serverChannelInitializer) {
+    public Http2ToHttpFallbackHandler(HttpServerChannelInitializer serverChannelInitializer) {
         this.serverChannelInitializer = serverChannelInitializer;
     }
 
     @Override
-    public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
+    public void channelRead(ChannelHandlerContext ctx, Object msg) {
         ChannelPipeline pipeline = ctx.pipeline();
         safelyRemoveHandlers(pipeline, Constants.HTTP2_UPGRADE_HANDLER);
         serverChannelInitializer.configureHttpPipeline(pipeline, Constants.HTTP2_CLEARTEXT_PROTOCOL);

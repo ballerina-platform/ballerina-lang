@@ -37,7 +37,7 @@ import org.wso2.transport.http.netty.contract.ServerConnectorFuture;
 import org.wso2.transport.http.netty.contractimpl.DefaultHttpResponseFuture;
 import org.wso2.transport.http.netty.contractimpl.HttpPipelineListener;
 import org.wso2.transport.http.netty.contractimpl.HttpWsServerConnectorFuture;
-import org.wso2.transport.http.netty.listener.states.StateContext;
+import org.wso2.transport.http.netty.listener.states.MessageStateContext;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
@@ -59,7 +59,7 @@ public class HttpCarbonMessage {
     private final DefaultHttpResponseFuture httpOutboundRespStatusFuture = new DefaultHttpResponseFuture();
     private final Observable contentObservable = new DefaultObservable();
     private IOException ioException;
-    private StateContext stateContext;
+    private MessageStateContext messageStateContext;
 
 
     private int sequenceId; //Keep track of request/response order
@@ -399,12 +399,12 @@ public class HttpCarbonMessage {
         this.ioException = ioException;
     }
 
-    public StateContext getStateContext() {
-        return stateContext;
+    public MessageStateContext getMessageStateContext() {
+        return messageStateContext;
     }
 
-    public void setStateContext(StateContext stateContext) {
-        this.stateContext = stateContext;
+    public void setMessageStateContext(MessageStateContext messageStateContext) {
+        this.messageStateContext = messageStateContext;
     }
 
     public int getSequenceId() {

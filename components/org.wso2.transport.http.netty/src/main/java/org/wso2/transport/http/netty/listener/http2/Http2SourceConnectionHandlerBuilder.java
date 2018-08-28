@@ -1,20 +1,20 @@
 /*
-*  Copyright (c) 2018, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
-*
-*  WSO2 Inc. licenses this file to you under the Apache License,
-*  Version 2.0 (the "License"); you may not use this file except
-*  in compliance with the License.
-*  You may obtain a copy of the License at
-*
-*    http://www.apache.org/licenses/LICENSE-2.0
-*
-* Unless required by applicable law or agreed to in writing,
-* software distributed under the License is distributed on an
-* "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-* KIND, either express or implied.  See the License for the
-* specific language governing permissions and limitations
-* under the License.
-*/
+ *  Copyright (c) 2018, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ *  WSO2 Inc. licenses this file to you under the Apache License,
+ *  Version 2.0 (the "License"); you may not use this file except
+ *  in compliance with the License.
+ *  You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
 package org.wso2.transport.http.netty.listener.http2;
 
 
@@ -23,7 +23,6 @@ import io.netty.handler.codec.http2.DefaultHttp2Connection;
 import io.netty.handler.codec.http2.Http2Connection;
 import io.netty.handler.codec.http2.Http2ConnectionDecoder;
 import io.netty.handler.codec.http2.Http2ConnectionEncoder;
-import io.netty.handler.codec.http2.Http2ConnectionHandler;
 import io.netty.handler.codec.http2.Http2Settings;
 import org.wso2.transport.http.netty.common.Constants;
 import org.wso2.transport.http.netty.common.FrameLogger;
@@ -37,7 +36,7 @@ import static io.netty.handler.logging.LogLevel.TRACE;
  */
 public final class Http2SourceConnectionHandlerBuilder
         extends AbstractHttp2ConnectionHandlerBuilder
-                        <Http2SourceConnectionHandler, Http2SourceConnectionHandlerBuilder> {
+        <Http2SourceConnectionHandler, Http2SourceConnectionHandlerBuilder> {
 
     private String interfaceId;
     private ServerConnectorFuture serverConnectorFuture;
@@ -60,18 +59,16 @@ public final class Http2SourceConnectionHandlerBuilder
             frameLogger(new FrameLogger(TRACE, Constants.TRACE_LOG_DOWNSTREAM));
         }
         connection(conn);
-        Http2ConnectionHandler connectionHandler = super.build();
-        // connectionHandler is always become a Http2SourceConnectionHandler,
-        // however instanceof check is added to make findbugs happy
-        if (connectionHandler instanceof Http2SourceConnectionHandler) {
-            return (Http2SourceConnectionHandler) connectionHandler;
+        Http2SourceConnectionHandler connectionHandler = super.build();
+        if (connectionHandler != null) {
+            return connectionHandler;
         }
         return null;
     }
 
     @Override
     public Http2SourceConnectionHandler build(Http2ConnectionDecoder decoder, Http2ConnectionEncoder encoder,
-                                       Http2Settings initialSettings) {
+                                              Http2Settings initialSettings) {
         Http2SourceConnectionHandler sourceConnectionHandler = new Http2SourceConnectionHandler(
                 serverChannelInitializer, decoder, encoder, initialSettings, interfaceId,
                 serverConnectorFuture, serverName);
