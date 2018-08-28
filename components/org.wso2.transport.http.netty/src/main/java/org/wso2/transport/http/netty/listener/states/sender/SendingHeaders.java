@@ -64,8 +64,7 @@ public class SendingHeaders implements SenderState {
     }
 
     @Override
-    public void writeOutboundRequestHeaders(HttpCarbonMessage httpOutboundRequest, HttpContent httpContent)
-            throws Exception {
+    public void writeOutboundRequestHeaders(HttpCarbonMessage httpOutboundRequest, HttpContent httpContent) {
         if (isLastHttpContent(httpContent)) {
             if (isEntityBodyAllowed(getHttpMethod(httpOutboundRequest))) {
                 if (chunkConfig == ChunkConfig.ALWAYS && checkChunkingCompatibility(httpVersion, chunkConfig)) {
@@ -90,8 +89,7 @@ public class SendingHeaders implements SenderState {
     }
 
     @Override
-    public void writeOutboundRequestEntityBody(HttpCarbonMessage httpOutboundRequest, HttpContent httpContent)
-            throws Exception {
+    public void writeOutboundRequestEntityBody(HttpCarbonMessage httpOutboundRequest, HttpContent httpContent) {
         writeOutboundRequestHeaders(httpOutboundRequest, httpContent);
     }
 
@@ -118,16 +116,15 @@ public class SendingHeaders implements SenderState {
         log.error("Error in HTTP client: {}", IDLE_TIMEOUT_TRIGGERED_WHILE_WRITING_OUTBOUND_REQUEST_HEADERS);
     }
 
-    private String getHttpMethod(HttpCarbonMessage httpOutboundRequest) throws Exception {
+    private String getHttpMethod(HttpCarbonMessage httpOutboundRequest) {
         String httpMethod = (String) httpOutboundRequest.getProperty(Constants.HTTP_METHOD);
         if (httpMethod == null) {
-            throw new Exception("Couldn't get the HTTP method from the outbound request");
+            throw new IllegalArgumentException("Couldn't get the HTTP method from the outbound request");
         }
         return httpMethod;
     }
 
-    private void writeResponse(HttpCarbonMessage outboundResponseMsg, HttpContent httpContent, boolean headersWritten)
-            throws Exception {
+    private void writeResponse(HttpCarbonMessage outboundResponseMsg, HttpContent httpContent, boolean headersWritten) {
         stateContext.setSenderState(new SendingEntityBody(stateContext, targetChannel, headersWritten,
                                                           httpInboundResponseFuture));
         stateContext.getSenderState().writeOutboundRequestEntityBody(outboundResponseMsg, httpContent);

@@ -18,21 +18,15 @@
 
 package org.wso2.transport.http.netty.listener.states.listener;
 
-import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandlerContext;
-import io.netty.handler.codec.http.DefaultFullHttpResponse;
 import io.netty.handler.codec.http.HttpContent;
-import io.netty.handler.codec.http.HttpHeaderNames;
 import io.netty.handler.codec.http.HttpRequest;
-import io.netty.handler.codec.http.HttpResponse;
 import io.netty.handler.codec.http.HttpResponseStatus;
-import io.netty.handler.codec.http.HttpVersion;
 import io.netty.util.CharsetUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.wso2.transport.http.netty.common.Constants;
 import org.wso2.transport.http.netty.contract.ServerConnectorException;
 import org.wso2.transport.http.netty.contract.ServerConnectorFuture;
 import org.wso2.transport.http.netty.contractimpl.HttpOutboundRespListener;
@@ -43,6 +37,7 @@ import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 import static io.netty.buffer.Unpooled.copiedBuffer;
 import static org.wso2.transport.http.netty.common.Constants.IDLE_TIMEOUT_TRIGGERED_BEFORE_INITIATING_OUTBOUND_RESPONSE;
 import static org.wso2.transport.http.netty.common.Constants.REMOTE_CLIENT_CLOSED_BEFORE_INITIATING_OUTBOUND_RESPONSE;
+import static org.wso2.transport.http.netty.listener.states.StateUtil.sendRequestTimeoutResponse;
 
 /**
  * State between end of payload read and start of response headers write
@@ -52,10 +47,12 @@ public class EntityBodyReceived implements ListenerState {
     private static Logger log = LoggerFactory.getLogger(EntityBodyReceived.class);
     private final StateContext stateContext;
     private final SourceHandler sourceHandler;
+    private final float httpVersion;
 
-    public EntityBodyReceived(StateContext stateContext, SourceHandler sourceHandler) {
+    public EntityBodyReceived(StateContext stateContext, SourceHandler sourceHandler, float httpVersion) {
         this.stateContext = stateContext;
         this.sourceHandler = sourceHandler;
+        this.httpVersion = httpVersion;
     }
 
     @Override
@@ -102,7 +99,8 @@ public class EntityBodyReceived implements ListenerState {
         String responseValue = "Server time out";
         ChannelFuture outboundRespFuture =
                 sendRequestTimeoutResponse(ctx, HttpResponseStatus.INTERNAL_SERVER_ERROR,
-                                           copiedBuffer(responseValue, CharsetUtil.UTF_8), responseValue.length());
+                                           copiedBuffer(responseValue, CharsetUtil.UTF_8), responseValue.length(),
+                                           httpVersion, sourceHandler.getServerName());
         outboundRespFuture.addListener((ChannelFutureListener) channelFuture -> {
             Throwable cause = channelFuture.cause();
             if (cause != null) {
@@ -111,15 +109,5 @@ public class EntityBodyReceived implements ListenerState {
             sourceHandler.channelInactive(ctx);
         });
         return outboundRespFuture;
-    }
-
-    private ChannelFuture sendRequestTimeoutResponse(ChannelHandlerContext ctx, HttpResponseStatus status,
-                                                     ByteBuf content, int length) {
-        HttpResponse outboundResponse = new DefaultFullHttpResponse(HttpVersion.HTTP_1_1, status, content);
-        outboundResponse.headers().set(HttpHeaderNames.CONTENT_LENGTH, length);
-        outboundResponse.headers().set(HttpHeaderNames.CONTENT_TYPE, Constants.TEXT_PLAIN);
-        outboundResponse.headers().set(HttpHeaderNames.CONNECTION.toString(), Constants.CONNECTION_CLOSE);
-        outboundResponse.headers().set(HttpHeaderNames.SERVER.toString(), sourceHandler.getServerName());
-        return ctx.channel().writeAndFlush(outboundResponse);
     }
 }
