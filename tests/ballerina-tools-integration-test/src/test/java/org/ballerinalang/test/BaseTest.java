@@ -16,37 +16,29 @@
  *  under the License.
  */
 
-package org.ballerinalang.test.service.websub;
+package org.ballerinalang.test;
 
-import org.ballerinalang.test.BaseTest;
 import org.ballerinalang.test.context.BallerinaTestException;
 import org.ballerinalang.test.context.ServerInstance;
 import org.testng.annotations.AfterSuite;
 import org.testng.annotations.BeforeSuite;
 
 /**
- * Base test class for WebSub integration test cases which initializes required ballerina server instances before
- * and after tests are run.
+ * Parent test class for all tool integration test cases under tools-test-integration module. This will provide basic
+ * functionality for integration test. This will initialize a single ballerina instance which will be used
+ * by all the test cases throughout.
  */
-public class WebSubBaseTest extends BaseTest {
-    static ServerInstance webSubSubscriber;
-    static ServerInstance webSubPublisher;
-    static ServerInstance webSubPublisherService;
+public class BaseTest {
+    public static ServerInstance serverInstance;
 
     @BeforeSuite(alwaysRun = true)
-    public void init() throws BallerinaTestException {
-        webSubSubscriber = ServerInstance.initBallerinaServer();
-        webSubPublisher = ServerInstance.initBallerinaServer();
-        webSubPublisherService = ServerInstance.initBallerinaServer();
+    public void initialize() throws BallerinaTestException {
+        serverInstance = ServerInstance.initBallerinaServer();
     }
 
     @AfterSuite(alwaysRun = true)
-    public void clean() throws BallerinaTestException {
-        webSubSubscriber.stopServer();
-        webSubSubscriber.cleanup();
-        webSubPublisher.stopServer();
-        webSubPublisher.cleanup();
-        webSubPublisherService.stopServer();
-        webSubPublisherService.cleanup();
+    public void destroy() throws BallerinaTestException {
+        serverInstance.stopServer();
+        serverInstance.cleanup();
     }
 }

@@ -17,11 +17,11 @@
  */
 package org.ballerinalang.test.jms;
 
+import org.ballerinalang.test.BaseTest;
 import org.ballerinalang.test.context.BallerinaTestException;
 import org.ballerinalang.test.context.LogLeecher;
 import org.ballerinalang.test.jms.util.EmbeddedBroker;
 import org.ballerinalang.test.jms.util.JMSClientHandler;
-import org.ballerinalang.test.util.BaseTest;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.AfterGroups;
 import org.testng.annotations.BeforeClass;

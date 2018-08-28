@@ -18,10 +18,10 @@
 
 package org.ballerinalang.test.service.http.sample;
 
+import org.ballerinalang.test.BaseTest;
 import org.ballerinalang.test.context.Constant;
 import org.ballerinalang.test.context.LogLeecher;
 import org.ballerinalang.test.context.ServerInstance;
-import org.ballerinalang.test.util.BaseTest;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.Test;
 

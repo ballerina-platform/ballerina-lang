@@ -17,9 +17,9 @@
  */
 package org.ballerinalang.test.grpc;
 
+import org.ballerinalang.test.BaseTest;
 import org.ballerinalang.test.context.LogLeecher;
 import org.ballerinalang.test.context.Utils;
-import org.ballerinalang.test.util.BaseTest;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;

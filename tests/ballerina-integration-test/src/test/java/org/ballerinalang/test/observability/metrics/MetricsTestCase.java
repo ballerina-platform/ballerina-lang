@@ -17,7 +17,7 @@
  */
 package org.ballerinalang.test.observability.metrics;
 
-import org.ballerinalang.test.util.BaseTest;
+import org.ballerinalang.test.BaseTest;
 import org.ballerinalang.test.util.HttpClientRequest;
 import org.ballerinalang.test.util.SQLDBUtils;
 import org.testng.Assert;
