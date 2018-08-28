@@ -165,13 +165,23 @@ public class DefaultWebSocketConnection implements WebSocketConnection {
 
     @Override
     public ChannelFuture initiateConnectionClosure(int statusCode, String reason) {
+        return initiateConnectionClosure(new CloseWebSocketFrame(statusCode, reason));
+    }
+
+    @Override
+    public ChannelFuture initiateConnectionClosure() {
+        return initiateConnectionClosure(new CloseWebSocketFrame());
+    }
+
+    private ChannelFuture initiateConnectionClosure(CloseWebSocketFrame closeWebSocketFrame) {
         if (closeFrameSent) {
             throw new IllegalStateException("Close frame already sent. Cannot send close frame again.");
         }
         closeFrameSent = true;
-        closeInitiatedStatusCode = statusCode;
+        closeInitiatedStatusCode = closeWebSocketFrame.statusCode();
+        closeInitiatedStatusCode = closeInitiatedStatusCode == -1 ? 1005 : closeInitiatedStatusCode;
         ChannelPromise closePromise = ctx.newPromise();
-        ctx.writeAndFlush(new CloseWebSocketFrame(statusCode, reason)).addListener(future -> {
+        ctx.writeAndFlush(closeWebSocketFrame).addListener(future -> {
             frameHandler.setClosePromise(closePromise);
             Throwable cause = future.cause();
             if (!future.isSuccess() && cause != null) {
@@ -183,11 +193,20 @@ public class DefaultWebSocketConnection implements WebSocketConnection {
 
     @Override
     public ChannelFuture finishConnectionClosure(int statusCode, String reason) {
+        return finishConnectionClosure(new CloseWebSocketFrame(statusCode, reason));
+    }
+
+    @Override
+    public ChannelFuture finishConnectionClosure() {
+        return finishConnectionClosure(new CloseWebSocketFrame());
+    }
+
+    private ChannelFuture finishConnectionClosure(CloseWebSocketFrame closeWebSocketFrame) {
         if (!frameHandler.isCloseFrameReceived()) {
             throw new IllegalStateException("Cannot finish a connection closure without receiving a close frame");
         }
         ChannelPromise channelPromise = ctx.newPromise();
-        ctx.writeAndFlush(new CloseWebSocketFrame(statusCode, reason)).addListener(future -> {
+        ctx.writeAndFlush(closeWebSocketFrame).addListener(future -> {
             Throwable cause = future.cause();
             if (!future.isSuccess() && cause != null) {
                 ctx.close().addListener(closeFuture -> channelPromise.setFailure(cause));

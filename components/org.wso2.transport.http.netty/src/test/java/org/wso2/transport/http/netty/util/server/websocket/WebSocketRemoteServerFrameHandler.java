@@ -40,6 +40,7 @@ public class WebSocketRemoteServerFrameHandler extends SimpleChannelInboundHandl
     private static final Logger log = LoggerFactory.getLogger(WebSocketRemoteServerFrameHandler.class);
     private static final String PING = "ping";
     private static final String CLOSE = "close";
+    private static final String CLOSE_WITHOUT_STATUS_CODE = "close-without-status-code";
     private static final String CLOSE_WITHOUT_FRAME = "close-without-frame";
     private static final String SEND_CORRUPTED_FRAME = "send-corrupted-frame";
 
@@ -64,6 +65,9 @@ public class WebSocketRemoteServerFrameHandler extends SimpleChannelInboundHandl
                 case CLOSE:
                     ctx.writeAndFlush(new CloseWebSocketFrame(Constants.WEBSOCKET_STATUS_CODE_NORMAL_CLOSURE,
                                                               "Close on request"));
+                    break;
+                case CLOSE_WITHOUT_STATUS_CODE:
+                    ctx.writeAndFlush(new CloseWebSocketFrame());
                     break;
                 case CLOSE_WITHOUT_FRAME:
                     ctx.close();
