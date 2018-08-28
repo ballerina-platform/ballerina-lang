@@ -83,6 +83,14 @@ public class ArgumentParser {
     private static final String TRUE = "TRUE";
     private static final String FALSE = "FALSE";
 
+    /**
+     * Method to retrieve the {@link BValue} array containing the arguments to invoke the function specified as the
+     * entry function.
+     *
+     * @param entryFuncInfo {@link FunctionInfo} for the entry function
+     * @param args          the string array of arguments specified
+     * @return  the {@link BValue} array containing the arguments to invoke the function
+     */
     public static BValue[] extractEntryFuncArgs(FunctionInfo entryFuncInfo, String[] args) {
         BType[] paramTypes = entryFuncInfo.getParamTypes();
         BValue[] bValueArgs = new BValue[paramTypes.length];
@@ -95,7 +103,8 @@ public class ArgumentParser {
 
         TaintTableAttributeInfo taintTableAttributeInfo =
                 (TaintTableAttributeInfo) entryFuncInfo.getAttributeInfo(TAINT_TABLE);
-        if (taintTableAttributeInfo.rowCount - 1 != requiredParamsCount + defaultableParamsCount + restParamCount) {
+        int totalParamCount = requiredParamsCount + defaultableParamsCount + restParamCount;
+        if (totalParamCount != 0 && taintTableAttributeInfo.rowCount - 1 != totalParamCount) {
             throw new BLangUsageException("function with sensitive parameters cannot be invoked as the entry function");
         }
 
@@ -105,10 +114,15 @@ public class ArgumentParser {
                 (ParamDefaultValueAttributeInfo) entryFuncInfo.getAttributeInfo(PARAMETER_DEFAULTS_ATTRIBUTE);
 
         String[] requiredAndRestArgs = args;
+
+        // if defaultable params exist, populate values specified as named args first, and retrieve the remaining args
+        // (if any) specified for required params and the rest param
         if (defaultableParamsCount > 0) {
-            requiredAndRestArgs = populateNamedArgs(args, bValueArgs, localVariableAttributeInfo,
-                                                    paramDefaultValueAttributeInfo, requiredParamsCount,
-                                                    defaultableParamsCount);
+            requiredAndRestArgs = populateNamedArgsAndRetrieveRequiredAndRestArgs(args, bValueArgs,
+                                                                                  localVariableAttributeInfo,
+                                                                                  paramDefaultValueAttributeInfo,
+                                                                                  requiredParamsCount,
+                                                                                  defaultableParamsCount);
         }
 
         if (requiredAndRestArgs.length < requiredParamsCount) {
@@ -121,10 +135,12 @@ public class ArgumentParser {
                                                   + "'");
         }
 
-        for (int index = 0; index < paramTypes.length - defaultableParamsCount - restParamCount; index++) {
+        // populate values specified for required params
+        for (int index = 0; index < requiredParamsCount; index++) {
             bValueArgs[index] = getBValue(paramTypes[index], requiredAndRestArgs[index]);
         }
 
+        // populate values specified for the rest param
         if (restParamCount == 1) {
             bValueArgs[paramTypes.length - 1] = getRestArgArray(paramTypes[paramTypes.length - 1],
                                                                 paramTypes.length - 1 - defaultableParamsCount,
@@ -133,15 +149,49 @@ public class ArgumentParser {
         return bValueArgs;
     }
 
-    private static String[] populateNamedArgs(String[] args, BValue[] bValueArgs,
-                                              LocalVariableAttributeInfo localVariableAttributeInfo,
-                                              ParamDefaultValueAttributeInfo paramDefaultValueAttributeInfo,
-                                              int requiredParamsCount, int defaultableParamsCount) {
+    /**
+     * Populate the value array with values for defaultable parameters and retrieve the modified argument list with
+     * the values specified for defaultable parameters.
+     *
+     * This method would return the array of values specified for required params and a rest param.
+     *
+     * @param args                              the unmodified arg array
+     * @param bValueArgs                        the {@link BValue} array containing the arguments to invoke the function
+     * @param localVariableAttributeInfo        attribute info for the function parameters
+     * @param paramDefaultValueAttributeInfo    default value information for defaultable params
+     * @param requiredParamsCount               the number of required parameters of the function
+     * @param defaultableParamsCount            the number of defaultable parameters of the function
+     * @return  the argument array after values specified for defaultable parameters are removed
+     */
+    private static String[] populateNamedArgsAndRetrieveRequiredAndRestArgs(String[] args, BValue[] bValueArgs,
+                                                        LocalVariableAttributeInfo localVariableAttributeInfo,
+                                                        ParamDefaultValueAttributeInfo paramDefaultValueAttributeInfo,
+                                                        int requiredParamsCount, int defaultableParamsCount) {
         Map<String, Integer> defaultableParamIndices = new HashMap<>();
-
         List<LocalVariableInfo> localVariableInfoList = localVariableAttributeInfo.getLocalVariables();
-        DefaultValue[] defaultValues = paramDefaultValueAttributeInfo.getDefaultValueInfo();
 
+        populateDefaultValues(bValueArgs, localVariableInfoList, paramDefaultValueAttributeInfo, requiredParamsCount,
+                              defaultableParamsCount, defaultableParamIndices);
+
+        List<String> requiredAndRestArgs = new ArrayList<>();
+        for (String arg : args) {
+            if (isDefaultParamCandidate(arg) && defaultableParamIndices.containsKey(getParamName(arg))) {
+                int index = defaultableParamIndices.get(getParamName(arg));
+                bValueArgs[index] = getBValue(localVariableInfoList.get(index).getVariableType(), getValueString(arg));
+            } else {
+                requiredAndRestArgs.add(arg);
+            }
+        }
+        return requiredAndRestArgs.toArray(new String[0]);
+    }
+
+    private static void populateDefaultValues(BValue[] bValueArgs,
+                                              List<LocalVariableInfo> localVariableInfoList,
+                                              ParamDefaultValueAttributeInfo paramDefaultValueAttributeInfo,
+                                              int requiredParamsCount,
+                                              int defaultableParamsCount,
+                                              Map<String, Integer> defaultableParamIndices) {
+        DefaultValue[] defaultValues = paramDefaultValueAttributeInfo.getDefaultValueInfo();
         int defaultValueIndex = 0;
 
         for (int defaultableParamIndex = requiredParamsCount;
@@ -151,17 +201,6 @@ public class ArgumentParser {
                                                                 defaultValues[defaultValueIndex++]);
             defaultableParamIndices.put(localVariableInfo.getVariableName(), defaultableParamIndex);
         }
-
-        ArrayList<String> modifiedArgs = new ArrayList<>();
-        for (String arg : args) {
-            if (isDefaultParamCandidate(arg) && defaultableParamIndices.containsKey(getParamName(arg))) {
-                int index = defaultableParamIndices.get(getParamName(arg));
-                bValueArgs[index] = getBValue(localVariableInfoList.get(index).getVariableType(), getValueString(arg));
-            } else {
-                modifiedArgs.add(arg);
-            }
-        }
-        return modifiedArgs.toArray(new String[0]);
     }
 
     private static boolean isDefaultParamCandidate(String arg) {
@@ -210,13 +249,13 @@ public class ArgumentParser {
                 try {
                     return XMLUtils.parse(value);
                 } catch (BallerinaException e) {
-                    throw new BLangUsageException("invalid XML value: " + value);
+                    throw new BLangUsageException("invalid argument '" + value + "', expected XML value");
                 }
             case TypeTags.JSON_TAG:
                 try {
                     return JsonParser.parse(value);
                 } catch (BallerinaException e) {
-                    throw new BLangUsageException("invalid JSON value: " + value);
+                    throw new BLangUsageException("invalid argument '" + value + "', expected JSON value");
                 }
             case TypeTags.RECORD_TYPE_TAG:
                 try {
@@ -251,8 +290,8 @@ public class ArgumentParser {
                 try {
                     return new BTypeDescValue(getTypeFromName(value));
                 } catch (IllegalStateException e) {
-                    throw new BLangUsageException("unsupported/unknown typedesc expected with entry function '" + value
-                                                    + "'");
+                    throw new BLangUsageException("invalid argument '" + value + "', unsupported/unknown typedesc "
+                                                          + "expected with entry function");
                 }
             default:
                 throw new BLangUsageException("unsupported type expected with entry function '" + type + "'");
@@ -261,7 +300,7 @@ public class ArgumentParser {
 
     private static long getIntegerValue(String argument) {
         try {
-            return Long.parseLong(argument);
+            return Long.parseLong(argument); // TODO: 8/28/18 support hex, binary
         } catch (NumberFormatException e) {
             throw new BLangUsageException("invalid argument '" + argument + "', expected integer value");
         }
@@ -277,7 +316,8 @@ public class ArgumentParser {
 
     private static boolean getBooleanValue(String argument) {
         if (!TRUE.equalsIgnoreCase(argument) && !FALSE.equalsIgnoreCase(argument)) {
-            throw new BLangUsageException("invalid argument '" + argument + "', expected boolean value");
+            throw new BLangUsageException("invalid argument '" + argument + "', expected boolean value 'true' or "
+                                                  + "'false'");
         }
         return Boolean.parseBoolean(argument);
     }
@@ -286,84 +326,62 @@ public class ArgumentParser {
         long longValue; // TODO: 7/4/18 Allow byte literals?
         try {
             longValue = Long.parseLong(argument);
-            if (!CPU.isByteLiteral(longValue)) {
-                throw new Exception();
-            }
-        } catch (Exception e) {
+        } catch (NumberFormatException e) {
             throw new BLangUsageException("invalid argument '" + argument + "', expected byte value");
+        }
+        if (!CPU.isByteLiteral(longValue)) {
+            throw new BLangUsageException("invalid argument '" + argument + "', expected byte value, found int");
         }
         return (byte) longValue;
     }
 
     private static BNewArray getRestArgArray(BType type, int index, String[] args) {
         BType elementType = ((BArrayType) type).getElementType();
-        switch (elementType.getTag()) {
-            case TypeTags.ANY_TAG:
-            case TypeTags.STRING_TAG:
-                BStringArray stringArrayArgs = new BStringArray();
-                for (int i = index; i < args.length; i++) {
-                    stringArrayArgs.add(i - index, args[i]);
-                }
-                return stringArrayArgs;
-            case TypeTags.INT_TAG:
-                BIntArray intArrayArgs = new BIntArray();
-                for (int i = index; i < args.length; i++) {
-                    try {
+        try {
+            switch (elementType.getTag()) {
+                case TypeTags.ANY_TAG:
+                case TypeTags.STRING_TAG:
+                    BStringArray stringArrayArgs = new BStringArray();
+                    for (int i = index; i < args.length; i++) {
+                        stringArrayArgs.add(i - index, args[i]);
+                    }
+                    return stringArrayArgs;
+                case TypeTags.INT_TAG:
+                    BIntArray intArrayArgs = new BIntArray();
+                    for (int i = index; i < args.length; i++) {
                         intArrayArgs.add(i - index, getIntegerValue(args[i]));
-                    } catch (BLangUsageException e) {
-                        throw new BLangUsageException(e.getLocalizedMessage().replace(INVALID_ARG,
-                                                                                      INVALID_ARG_AS_REST_ARG));
                     }
-                }
-                return intArrayArgs;
-            case TypeTags.FLOAT_TAG:
-                BFloatArray floatArrayArgs = new BFloatArray();
-                for (int i = index; i < args.length; i++) {
-                    try {
+                    return intArrayArgs;
+                case TypeTags.FLOAT_TAG:
+                    BFloatArray floatArrayArgs = new BFloatArray();
+                    for (int i = index; i < args.length; i++) {
                         floatArrayArgs.add(i - index, getFloatValue(args[i]));
-                    } catch (BLangUsageException e) {
-                        throw new BLangUsageException(e.getLocalizedMessage().replace(INVALID_ARG,
-                                                                                      INVALID_ARG_AS_REST_ARG));
                     }
-                }
-                return floatArrayArgs;
-            case TypeTags.BOOLEAN_TAG:
-                BBooleanArray booleanArrayArgs = new BBooleanArray();
-                for (int i = index; i < args.length; i++) {
-                    try {
+                    return floatArrayArgs;
+                case TypeTags.BOOLEAN_TAG:
+                    BBooleanArray booleanArrayArgs = new BBooleanArray();
+                    for (int i = index; i < args.length; i++) {
                         booleanArrayArgs.add(i - index, getBooleanValue(args[i]) ? 1 : 0);
-                    } catch (BLangUsageException e) {
-                        throw new BLangUsageException(e.getLocalizedMessage().replace(INVALID_ARG,
-                                                                                      INVALID_ARG_AS_REST_ARG));
                     }
-                }
-                return booleanArrayArgs;
-            case TypeTags.BYTE_TAG:
-                BByteArray byteArrayArgs = new BByteArray();
-                for (int i = index; i < args.length; i++) {
-                    try {
+                    return booleanArrayArgs;
+                case TypeTags.BYTE_TAG:
+                    BByteArray byteArrayArgs = new BByteArray();
+                    for (int i = index; i < args.length; i++) {
                         byteArrayArgs.add(i - index, getByteValue(args[i]));
-                    } catch (BLangUsageException e) {
-                        throw new BLangUsageException(e.getLocalizedMessage().replace(INVALID_ARG,
-                                                                                      INVALID_ARG_AS_REST_ARG));
                     }
-                }
-                return byteArrayArgs;
-            default:
-                try {
+                    return byteArrayArgs;
+                default:
                     BRefValueArray refValueArray = new BRefValueArray();
                     for (int i = index; i < args.length; i++) {
                         refValueArray.add(i - index, (BRefType<?>) getBValue(elementType, args[i]));
                     }
                     return refValueArray;
-                } catch (BLangUsageException e) {
-                    throw new BLangUsageException(e.getLocalizedMessage().replace(INVALID_ARG,
-                                                                                  INVALID_ARG_AS_REST_ARG));
-                } catch (Exception e) {
-                    //Ideally shouldn't reach here
-                    throw new BLangUsageException("error parsing rest arg: " + e.getLocalizedMessage());
-                }
-
+            }
+        } catch (BLangUsageException e) {
+            throw new BLangUsageException(e.getLocalizedMessage().replace(INVALID_ARG, INVALID_ARG_AS_REST_ARG));
+        } catch (Exception e) {
+            //Ideally shouldn't reach here
+            throw new BLangUsageException("error parsing rest arg: " + e.getLocalizedMessage());
         }
     }
 
@@ -390,7 +408,6 @@ public class ArgumentParser {
     private static BValue parseUnionArg(BUnionType type, String unionArg) {
         List<BType> unionMemberTypes = type.getMemberTypes();
 
-        // TODO: 8/1/18 confirm which of the two needs to be prioritized
         if (unionMemberTypes.contains(BTypes.typeNull) && NIL.equals(unionArg)) {
             return null;
         }
@@ -414,5 +431,4 @@ public class ArgumentParser {
         throw new BLangUsageException("incompatible argument '" + unionArg + "' specified for union type: "
                                           + (type.isNullable() ? type.toString().replace("|null", "|()") : type));
     }
-
 }

@@ -133,7 +133,8 @@ public class RunFunctionNegativeTestCase {
         String functionName = "jsonEntry";
         String argument = "{name: \"maryam\"}";
         sourceArg = filePath + ":" + functionName;
-        LogLeecher errLogLeecher = new LogLeecher("usage error: invalid JSON value: " + argument);
+        LogLeecher errLogLeecher = new LogLeecher("usage error: invalid argument '" + argument
+                                                          + "', expected JSON value");
         serverInstance.addErrorLogLeecher(errLogLeecher);
         serverInstance.runMain(new String[]{sourceArg, argument});
         errLogLeecher.waitForText(2000);
@@ -144,13 +145,14 @@ public class RunFunctionNegativeTestCase {
         String functionName = "combinedTypeEntry";
         String argument = "<book>Harry Potter";
         sourceArg = filePath + ":" + functionName;
-        LogLeecher errLogLeecher = new LogLeecher("usage error: invalid XML value: " + argument);
+        LogLeecher errLogLeecher = new LogLeecher("usage error: invalid argument '" + argument
+                                                          + "', expected XML value");
         serverInstance.addErrorLogLeecher(errLogLeecher);
         serverInstance.runMain(new String[]{sourceArg, "10", "1.0", "string!", "255", "true", "1", argument, "g"});
         errLogLeecher.waitForText(2000);
     }
 
-    @Test (dataProvider = "byteValues")
+    @Test (dataProvider = "invalidByteValues")
     public void testInvalidByteArg(String arg) throws BallerinaTestException {
         String functionName = "combinedTypeEntry";
         sourceArg = filePath + ":" + functionName;
@@ -161,6 +163,16 @@ public class RunFunctionNegativeTestCase {
         errLogLeecher.waitForText(2000);
     }
 
+    @Test (dataProvider = "invalidIntByteValues")
+    public void testInvalidIntByteArg(String arg) throws BallerinaTestException {
+        String functionName = "combinedTypeEntry";
+        sourceArg = filePath + ":" + functionName;
+        LogLeecher errLogLeecher = new LogLeecher("usage error: invalid argument '" + arg
+                                                          + "', expected byte value, found int");
+        serverInstance.addErrorLogLeecher(errLogLeecher);
+        serverInstance.runMain(new String[]{sourceArg, "10", "1.0", "string!", arg, "a", "b", "c", "d"});
+        errLogLeecher.waitForText(2000);
+    }
 
     @Test
     public void testInvalidBooleanArg() throws BallerinaTestException {
@@ -168,7 +180,7 @@ public class RunFunctionNegativeTestCase {
         String argument = "truer";
         sourceArg = filePath + ":" + functionName;
         LogLeecher errLogLeecher = new LogLeecher("usage error: invalid argument '" + argument
-                                                          + "', expected boolean value");
+                                                          + "', expected boolean value 'true' or 'false'");
         serverInstance.addErrorLogLeecher(errLogLeecher);
         serverInstance.runMain(new String[]{sourceArg, "10", "1.0", "string!", "255", argument, "a", "b", "c"});
         errLogLeecher.waitForText(2000);
@@ -315,8 +327,8 @@ public class RunFunctionNegativeTestCase {
     public void testInvalidTypedescArg(String arg) throws BallerinaTestException {
         String functionName = "typedescEntry";
         sourceArg = filePath + ":" + functionName;
-        LogLeecher errLogLeecher = new LogLeecher("usage error: unsupported/unknown typedesc expected with entry "
-                                                          + "function '" + arg + "'");
+        LogLeecher errLogLeecher = new LogLeecher("usage error: invalid argument '" + arg
+                                                      + "', unsupported/unknown typedesc expected with entry function");
         serverInstance.addErrorLogLeecher(errLogLeecher);
         serverInstance.runMain(new String[]{sourceArg, arg});
         errLogLeecher.waitForText(2000);
@@ -342,8 +354,16 @@ public class RunFunctionNegativeTestCase {
         serverInstance.cleanup();
     }
 
-    @DataProvider(name = "byteValues")
-    public Object[][] byteValues() {
+    @DataProvider(name = "invalidByteValues")
+    public Object[][] invalidByteValues() {
+        return new Object[][] {
+                { "s1w" },
+                { "true" }
+        };
+    }
+
+    @DataProvider(name = "invalidIntByteValues")
+    public Object[][] invalidIntByteValues() {
         return new Object[][] {
                 { "-1" },
                 { "256" }
