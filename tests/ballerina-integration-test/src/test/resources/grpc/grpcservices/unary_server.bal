@@ -17,7 +17,6 @@ import ballerina/io;
 import ballerina/grpc;
 
 endpoint grpc:Listener ep100 {
-    host:"localhost",
     port:9100
 };
 

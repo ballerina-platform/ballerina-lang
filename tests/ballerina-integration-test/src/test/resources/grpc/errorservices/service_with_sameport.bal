@@ -13,24 +13,19 @@
 // KIND, either express or implied.  See the License for the
 // specific language governing permissions and limitations
 // under the License.
-// This is server implementation for unary blocking/unblocking scenario
 import ballerina/io;
 import ballerina/grpc;
 
-// Server endpoint configuration
-endpoint grpc:Listener ep101 {
+endpoint grpc:Listener ep85 {
     host:"localhost",
-    port:9101
+    port:8085
 };
 
-service HelloWorld101 bind ep101 {
-    hello(endpoint caller, string name, grpc:Headers headers) {
+service HelloWorld85 bind ep85 {
+    hello(endpoint caller, string name) {
         io:println("name: " + name);
         string message = "Hello " + name;
-        io:println(headers.get("x-id"));
-        headers.setEntry("x-id", "1234567890");
-        error? err = caller->send(message, headers = headers);
-        string msg = "Server send response : " + message;
+        error? err = caller->send(message);
         io:println(err.message but { () => ("Server send response : " + message) });
         _ = caller->complete();
     }

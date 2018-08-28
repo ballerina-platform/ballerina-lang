@@ -96,6 +96,9 @@ public class Field {
         }
 
         public Builder setType(BType type) throws GrpcServerException {
+            if (type == null || type.tsymbol == null) {
+                throw new GrpcServerException("Unsupported field type, field type without symbol is not supported.");
+            }
             fieldType = BALLERINA_TO_PROTO_MAP.get(type.tsymbol.name.value) != null ? BALLERINA_TO_PROTO_MAP.get(type
                     .tsymbol.name.value) : type.tsymbol.name.value;
             DescriptorProtos.FieldDescriptorProto.Type primType = STRING_TYPE_MAP.get(fieldType);

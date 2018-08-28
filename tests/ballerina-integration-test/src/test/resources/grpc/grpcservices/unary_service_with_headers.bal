@@ -13,41 +13,32 @@
 // KIND, either express or implied.  See the License for the
 // specific language governing permissions and limitations
 // under the License.
+// This is server implementation for unary blocking/unblocking scenario
 import ballerina/io;
 import ballerina/grpc;
 
-endpoint grpc:Listener ep85 {
+// Server endpoint configuration
+endpoint grpc:Listener ep101 {
     host:"localhost",
-    port:8085,
-    secureSocket:{
-        keyStore:{
-            path:"${ballerina.home}/bre/security/ballerinaKeystore.p12",
-            password:"ballerina"
-        },
-        trustStore:{
-            path:"${ballerina.home}/bre/security/ballerinaTruststore.p12",
-            password:"ballerina"
-        },
-        protocol: {
-            name: "TLSv1.2",
-            versions: ["TLSv1.2","TLSv1.1"]
-        },
-        ciphers:["TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA"],
-        sslVerifyClient:"require",
-        certValidation : {
-            enable: false
-        },
-        ocspStapling : {
-            enable: false
-        }
-    }
+    port:9101
 };
 
-service HelloWorld85 bind ep85 {
-    hello(endpoint caller, string name) {
+service HelloWorld101 bind ep101 {
+    hello(endpoint caller, string name, grpc:Headers headers) {
         io:println("name: " + name);
         string message = "Hello " + name;
-        error? err = caller->send(message);
+        if (!headers.exists("x-id")) {
+            error? err = caller->sendError(grpc:ABORTED, "x-id header is missing");
+        } else {
+            io:println("Request Header: " + (headers.get("x-id") ?: ""));
+            headers.removeAll();
+            headers.addEntry("x-id", "1234567890");
+            headers.addEntry("x-id", "2233445677");
+            io:print("Response Headers: ");
+            io:println(headers.getAll("x-id"));
+        }
+        error? err = caller->send(message, headers = headers);
+        string msg = "Server send response : " + message;
         io:println(err.message but { () => ("Server send response : " + message) });
         _ = caller->complete();
     }
