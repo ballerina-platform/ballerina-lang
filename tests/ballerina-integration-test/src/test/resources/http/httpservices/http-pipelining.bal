@@ -17,6 +17,7 @@
 import ballerina/http;
 import ballerina/log;
 import ballerina/runtime;
+import ballerina/io;
 
 endpoint http:Listener listener {
     port: 9220
@@ -29,18 +30,18 @@ service<http:Service> pipeliningTest bind listener {
         string replyMsg;
 
         if (req.hasHeader("message-id")) {
-            //Request one will take 8 seconds to prepare its response
+            //Request one roughly takes 8 seconds to prepare its response
             if (req.getHeader("message-id") == "request-one") {
                 runtime:sleep(8000);
                 reply.setHeader("message-id", "response-one");
                 reply.setPayload("Hello1");
             }
-            //Request two's response will be ready immediately
+            //Request two's response will get ready immediately without any sleep time
             if (req.getHeader("message-id") == "request-two") {
                 reply.setHeader("message-id", "response-two");
                 reply.setPayload("Hello2");
             }
-            //Request three will take 2 seconds to prepare its response
+            //Request three roughly takes 2 seconds to prepare its response
             if (req.getHeader("message-id") == "request-three") {
                 runtime:sleep(2000);
                 reply.setHeader("message-id", "response-three");

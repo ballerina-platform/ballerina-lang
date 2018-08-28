@@ -25,6 +25,7 @@ import io.netty.channel.EventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
+import io.netty.handler.codec.http.DefaultFullHttpRequest;
 import io.netty.handler.codec.http.DefaultHttpRequest;
 import io.netty.handler.codec.http.DefaultLastHttpContent;
 import io.netty.handler.codec.http.FullHttpRequest;
@@ -32,8 +33,10 @@ import io.netty.handler.codec.http.FullHttpResponse;
 import io.netty.handler.codec.http.HttpClientCodec;
 import io.netty.handler.codec.http.HttpHeaderNames;
 import io.netty.handler.codec.http.HttpHeaderValues;
+import io.netty.handler.codec.http.HttpMethod;
 import io.netty.handler.codec.http.HttpObjectAggregator;
 import io.netty.handler.codec.http.HttpResponseStatus;
+import io.netty.handler.codec.http.HttpVersion;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.transport.http.netty.common.Constants;
@@ -156,6 +159,50 @@ public class HttpClient {
             log.warn("Interrupted before receiving the response");
         }
         return this.responseHandler.getHttpFullResponses();
+    }
+
+    /**
+     * Send pipelined requests to the server.
+     *
+     * @param path Represents request path
+     * @return A list of responses
+     */
+    public LinkedList<FullHttpResponse> sendPipeLinedRequests(String path) {
+        CountDownLatch latch = new CountDownLatch(3);
+        this.waitForConnectionClosureLatch = new CountDownLatch(3);
+        this.responseHandler.setLatch(latch);
+        this.responseHandler.setWaitForConnectionClosureLatch(this.waitForConnectionClosureLatch);
+
+        FullHttpRequest firstRequest = getFullHttpRequest(path, "request-one");
+        this.connectedChannel.writeAndFlush(firstRequest);
+
+        FullHttpRequest secondRequest = getFullHttpRequest(path, "request-two");
+        this.connectedChannel.writeAndFlush(secondRequest);
+
+        FullHttpRequest thirdRequest = getFullHttpRequest(path, "request-three");
+        this.connectedChannel.writeAndFlush(thirdRequest);
+
+        try {
+            latch.await();
+        } catch (InterruptedException e) {
+            log.warn("Interrupted before receiving the response");
+        }
+        return this.responseHandler.getHttpFullResponses();
+    }
+
+    /**
+     * Get a full http request.
+     *
+     * @param path      Represents request path
+     * @param requestId A header value to identify the request
+     * @return A full http request
+     */
+    private FullHttpRequest getFullHttpRequest(String path, String requestId) {
+        FullHttpRequest firstRequest = new DefaultFullHttpRequest(HttpVersion.HTTP_1_1, HttpMethod.GET, path);
+        firstRequest.headers().set(HttpHeaderNames.HOST, host + ":" + port);
+        firstRequest.headers().set(HttpHeaderNames.CONNECTION, HttpHeaderValues.KEEP_ALIVE);
+        firstRequest.headers().set("message-id", requestId);
+        return firstRequest;
     }
 
     public boolean waitForChannelClose() {

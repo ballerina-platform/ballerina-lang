@@ -18,16 +18,18 @@
 
 package org.ballerinalang.test.service.http.sample;
 
+import io.netty.handler.codec.http.FullHttpResponse;
+import io.netty.handler.codec.http.HttpResponseStatus;
 import org.ballerinalang.test.BaseTest;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.ballerinalang.test.util.client.HttpClient;
 import org.testng.annotations.Test;
 
 import java.io.IOException;
-import java.nio.ByteBuffer;
-import java.nio.channels.SocketChannel;
+import java.util.LinkedList;
 
-import static org.ballerinalang.test.util.TestUtils.connectToRemoteEndpoint;
+import static org.ballerinalang.test.util.TestUtils.getEntityBodyFrom;
+import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertFalse;
 
 /**
  * Test case for HTTP pipelining.
@@ -36,83 +38,25 @@ import static org.ballerinalang.test.util.TestUtils.connectToRemoteEndpoint;
  */
 @Test(groups = "http-test")
 public class HttpPipeliningTestCase extends BaseTest {
-    private static final Logger log = LoggerFactory.getLogger(HttpPipeliningTestCase.class);
-
-    private static final int BUFFER_SIZE = 221;
-    private final int servicePort = 9220;
 
     @Test(description = "Test whether the response order matches the request order when HTTP pipelining is used")
     public void testResponseOrder() throws IOException, InterruptedException {
-        SocketChannel clientSocket = connectToRemoteEndpoint("127.0.0.1", servicePort, BUFFER_SIZE);
-        sendPipelinedRequests(clientSocket);
-        String expected = "HTTP/1.1 200 OK\n" +
-                "message-id: response-one\n" +
-                "content-type: text/plain\n" +
-                "content-length: 6\n" +
-                "server: ballerina/0.981.2-SNAPSHOT\n" +
-                "date: Mon, 27 Aug 2018 12:16:59 +0530\n" +
-                "\n" +
-                "Hello1HTTP/1.1 200 OK\n" +
-                "message-id: response-two\n" +
-                "content-type: text/plain\n" +
-                "content-length: 6\n" +
-                "server: ballerina/0.981.2-SNAPSHOT\n" +
-                "date: Mon, 27 Aug 2018 12:16:59 +0530\n" +
-                "\n" +
-                "Hello2HTTP/1.1 200 OK\n" +
-                "message-id: response-three\n" +
-                "content-type: text/plain\n" +
-                "content-length: 6\n" +
-                "server: ballerina/0.981.2-SNAPSHOT\n" +
-                "date: Mon, 27 Aug 2018 12:16:59 +0530";
-        readAndAssertResponse(clientSocket, expected);
+
+        HttpClient httpClient = new HttpClient("localhost", 9220);
+        LinkedList<FullHttpResponse> fullHttpResponses = httpClient.sendPipeLinedRequests(
+                "/pipeliningTest/responseOrder");
+
+        //Verify response order and their body content
+        verifyResponse(fullHttpResponses.pop(), "response-one", "Hello1");
+        verifyResponse(fullHttpResponses.pop(), "response-two", "Hello2");
+        verifyResponse(fullHttpResponses.pop(), "response-three", "Hello3");
+
+        assertFalse(httpClient.waitForChannelClose());
     }
 
-    private void sendPipelinedRequests(SocketChannel socketChannel) throws IOException, InterruptedException {
-
-        String request1 = "GET /pipeliningTest/responseOrder HTTP/1.1\r\n" +
-                "message-id: request-one\r\n" +
-                "Connection: Keep-Alive\r\n\r\n";
-
-        String request2 = "GET /pipeliningTest/responseOrder HTTP/1.1\r\n" +
-                "message-id: request-two\r\n" +
-                "Connection: Keep-Alive\r\n\r\n";
-
-        String request3 = "GET /pipeliningTest/responseOrder HTTP/1.1\r\n" +
-                "message-id: request-three\r\n" +
-                "Connection: Keep-Alive\r\n\r\n";
-
-        String[] requests = new String[]{request1, request2, request3};
-        for (String request : requests) {
-            ByteBuffer buffer = ByteBuffer.allocate(BUFFER_SIZE);
-            buffer.put(request.getBytes());
-            buffer.flip();
-            socketChannel.write(buffer);
-            buffer.clear();
-        }
-        log.info("Finished writing requests");
-    }
-
-    /**
-     * Reads the returned response and asserts it with the expected value.
-     *
-     * @param socketChannel the channel to read from.
-     * @param expected      the expected response without the server header
-     * @throws IOException if there's an error when reading the response or when closing the channel.
-     */
-    private void readAndAssertResponse(SocketChannel socketChannel, String expected) throws IOException {
-        ByteBuffer buffer = ByteBuffer.allocate(BUFFER_SIZE);
-        StringBuilder inboundContent = new StringBuilder();
-        while (socketChannel.read(buffer) > 0) {
-            log.info("Reading response...");
-            buffer.flip();
-            while (buffer.hasRemaining()) {
-                inboundContent.append((char) buffer.get());
-            }
-            buffer.clear();
-        }
-        socketChannel.close();
-        String response = inboundContent.toString().trim();
-        log.info(response);
+    private void verifyResponse(FullHttpResponse response, String expectedId, String expectedBody) {
+        assertEquals(response.status(), HttpResponseStatus.OK);
+        assertEquals(response.headers().get("message-id"), expectedId);
+        assertEquals(getEntityBodyFrom(response), expectedBody);
     }
 }

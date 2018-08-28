@@ -22,11 +22,8 @@ import io.netty.handler.codec.http.FullHttpResponse;
 import org.ballerinalang.util.BLangConstants;
 
 import java.io.File;
-import java.io.IOException;
-import java.net.InetSocketAddress;
 import java.net.URISyntaxException;
 import java.nio.ByteBuffer;
-import java.nio.channels.SocketChannel;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
@@ -166,27 +163,5 @@ public class TestUtils {
                 .getAbsolutePath();
         Path target = Paths.get(path).getParent();
         System.setProperty(BLangConstants.BALLERINA_HOME, target.toString());
-    }
-
-    /**
-     * Connects to the remote endpoint.
-     *
-     * @return the channel created from the connection.
-     * @throws IOException if there's an error when connecting to remote endpoint.
-     */
-    public static SocketChannel connectToRemoteEndpoint(String host, int servicePort, int bufferSize)
-            throws IOException {
-        InetSocketAddress remoteAddress = new InetSocketAddress(host, servicePort);
-
-        SocketChannel clientSocket = SocketChannel.open();
-        clientSocket.configureBlocking(true);
-        clientSocket.socket().setReceiveBufferSize(bufferSize);
-        clientSocket.socket().setSendBufferSize(bufferSize);
-        clientSocket.connect(remoteAddress);
-
-        if (!clientSocket.finishConnect()) {
-            throw new Error("Cannot connect to server");
-        }
-        return clientSocket;
     }
 }
