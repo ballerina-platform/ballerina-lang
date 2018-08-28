@@ -1,10 +1,8 @@
-exports.parseContent = (langClient, content) => {
-    const parseOpts = {
-        content,
-        filename: 'file.bal',
-        includePackageInfo: true,
-        includeProgramDir: true,
-        includeTree: true,
+exports.getAST = (langClient, uri) => {
+    const args = {
+        documentIdentifier: {
+            uri,
+        }
     }
-    return langClient.sendRequest("ballerinaParser/parseContent", parseOpts);
+    return langClient.sendRequest("ballerinaDocument/ast", args);
 }

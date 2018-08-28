@@ -21,15 +21,12 @@ import org.ballerinalang.langserver.LSGlobalContext;
 import org.ballerinalang.langserver.LSGlobalContextKeys;
 import org.ballerinalang.langserver.SourceGen;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
-import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
 import org.ballerinalang.langserver.compiler.LSCompilerException;
-import org.ballerinalang.langserver.compiler.LSServiceOperationContext;
 import org.ballerinalang.langserver.compiler.TreeUtil;
 import org.ballerinalang.langserver.compiler.common.LSDocument;
 import org.ballerinalang.langserver.compiler.format.JSONGenerationException;
-import org.ballerinalang.langserver.compiler.format.TextDocumentFormatUtil;
+import org.ballerinalang.langserver.compiler.workspace.WorkspaceDocumentException;
 import org.ballerinalang.langserver.compiler.workspace.WorkspaceDocumentManager;
-import org.ballerinalang.langserver.formatting.FormattingUtil;
 import org.eclipse.lsp4j.ApplyWorkspaceEditParams;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
@@ -47,34 +44,41 @@ import java.util.concurrent.locks.Lock;
 
 import static org.ballerinalang.langserver.compiler.LSCompilerUtil.getUntitledFilePath;
 
-public class BallerinaParserServiceImpl implements BallerinaParserService {
+public class BallerinaDocumentServiceImpl implements BallerinaDocumentService {
 
-    private static final Logger logger = LoggerFactory.getLogger(BallerinaParserService.class);
+    private static final Logger logger = LoggerFactory.getLogger(BallerinaDocumentService.class);
 
     private final BallerinaLanguageServer ballerinaLanguageServer;
     private final WorkspaceDocumentManager documentManager;
 
-    public BallerinaParserServiceImpl(LSGlobalContext globalContext) {
+    public BallerinaDocumentServiceImpl(LSGlobalContext globalContext) {
         this.ballerinaLanguageServer = globalContext.get(LSGlobalContextKeys.LANGUAGE_SERVER_KEY);
         this.documentManager = globalContext.get(LSGlobalContextKeys.DOCUMENT_MANAGER_KEY);
     }
 
     @Override
-    public CompletableFuture<ParseContentReply> parseContent(ParseContentRequest request) {
-        ParseContentReply reply = new ParseContentReply();
+    public CompletableFuture<BallerinaASTResponse> ast(BallerinaASTRequest request) {
+        BallerinaASTResponse reply = new BallerinaASTResponse();
+        String fileUri = request.getDocumentIdentifier().getUri();
+        Path formattingFilePath = new LSDocument(fileUri).getPath();
+        Path compilationPath = getUntitledFilePath(formattingFilePath.toString()).orElse(formattingFilePath);
+        Optional<Lock> lock = documentManager.lockFile(compilationPath);
         try {
-            reply.setModel(TreeUtil.getTreeForContent(request.getContent()));
+            String fileContent = documentManager.getFileContent(compilationPath);
+            reply.setAst(TreeUtil.getTreeForContent(fileContent));
             reply.setParseSuccess(true);
-        } catch (LSCompilerException | JSONGenerationException e) {
+        } catch (LSCompilerException | JSONGenerationException | WorkspaceDocumentException  e) {
             reply.setParseSuccess(false);
+        } finally {
+            lock.ifPresent(Lock::unlock);
         }
         return CompletableFuture.supplyAsync(() -> reply);
     }
 
     @Override
-    public CompletableFuture<ASTModifiedReply> astModified(ASTModifiedRequest request) {
-        ASTModifiedReply reply = new ASTModifiedReply();
-        String fileUri = request.getTextDocumentIdentifier().getUri();
+    public CompletableFuture<BallerinaASTDidChangeResponse> astDidChange(BallerinaASTDidChange notification) {
+        BallerinaASTDidChangeResponse reply = new BallerinaASTDidChangeResponse();
+        String fileUri = notification.getTextDocumentIdentifier().getUri();
         Path formattingFilePath = new LSDocument(fileUri).getPath();
         Path compilationPath = getUntitledFilePath(formattingFilePath.toString()).orElse(formattingFilePath);
         Optional<Lock> lock = documentManager.lockFile(compilationPath);
@@ -88,7 +92,7 @@ public class BallerinaParserServiceImpl implements BallerinaParserService {
             Range range = new Range(new Position(0, 0), new Position(totalLines, lastCharCol));
 
             // generate source for the new ast.
-            JsonObject ast = request.getAst();
+            JsonObject ast = notification.getAst();
             SourceGen sourceGen = new SourceGen(0);
             sourceGen.build(ast, null, "CompilationUnit");
             String textEditContent = sourceGen.getSourceOf(ast, false, false);
@@ -97,7 +101,7 @@ public class BallerinaParserServiceImpl implements BallerinaParserService {
             TextEdit textEdit = new TextEdit(range, textEditContent);
             WorkspaceEdit workspaceEdit = new WorkspaceEdit();
             ApplyWorkspaceEditParams applyWorkspaceEditParams = new ApplyWorkspaceEditParams();
-            TextDocumentEdit textDocumentEdit = new TextDocumentEdit(request.getTextDocumentIdentifier(),
+            TextDocumentEdit textDocumentEdit = new TextDocumentEdit(notification.getTextDocumentIdentifier(),
                     Collections.singletonList(textEdit));
             workspaceEdit.setDocumentChanges(Collections.singletonList(textDocumentEdit));
             applyWorkspaceEditParams.setEdit(workspaceEdit);

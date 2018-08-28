@@ -24,7 +24,7 @@ const _ = require('lodash');
 const { StaticProvider } = require('./content-provider');
 const { render } = require('./renderer');
 const DEBOUNCE_WAIT = 500;
-const { parseContent } = require('./utils');
+const { getAST } = require('./utils');
 
 let previewPanel;
 let activeEditor;
@@ -37,22 +37,22 @@ exports.activate = function(context, langClient) {
 	workspace.onDidChangeTextDocument(_.debounce((e) => {
         if ((previewPanel && activeEditor) && (e.document === activeEditor.document) &&
             e.document.fileName.endsWith('.bal')) {
-			const content = activeEditor.document.getText();
 			if (preventDiagramUpdate) {
 				return;
 			}
-			parseContent(langClient, content)
-				.then((body) => {
+			const docUri = e.document.uri.toString();
+			getAST(langClient, docUri)
+				.then((resp) => {
 					let stale = true;
 					let json;
-					if (body.model) {
+					if (resp.ast) {
 						stale = false;
-						json = body.model;
+						json = resp.ast;
 					}
 					previewPanel.webview.postMessage({ 
 						command: 'update',
 						json,
-						content,
+						docUri,
 						stale
 					});
 				});
@@ -63,19 +63,19 @@ exports.activate = function(context, langClient) {
         if ((previewPanel && window.activeTextEditor) && (e.document === window.activeTextEditor.document) &&
             e.document.fileName.endsWith('.bal')) {
 			activeEditor = window.activeTextEditor;
-			const content = activeEditor.document.getText();
-			parseContent(langClient, content)
-				.then((body) => {
+			const docUri = e.document.uri.toString();
+			getAST(langClient, docUri)
+				.then((resp) => {
 					let stale = true;
 					let json;
-					if (body.model) {
+					if (resp.ast) {
 						stale = false;
-						json = body.model;
+						json = resp.ast;
 					}
 					previewPanel.webview.postMessage({ 
 						command: 'update',
 						json,
-						content,
+						docUri,
 						stale
 					});
 				});
@@ -100,7 +100,7 @@ exports.activate = function(context, langClient) {
             return "";
 		}
 		activeEditor = editor;
-		render(editor.document.getText(), langClient, resourceRoot)
+		render(editor.document.uri.toString(), langClient, resourceRoot)
 			.then((html) => {
 				previewPanel.webview.html = html;
 			})
@@ -114,7 +114,7 @@ exports.activate = function(context, langClient) {
 					if (activeEditor && activeEditor.document.fileName.endsWith('.bal')) {
 						preventDiagramUpdate = true;
 						const ast = JSON.parse(message.ast);
-						langClient.sendRequest("ballerinaParser/astModified", {
+						langClient.sendRequest("ballerinaDocument/astDidChange", {
 							ast,
 							textDocumentIdentifier: {
 								uri: activeEditor.document.uri.toString()

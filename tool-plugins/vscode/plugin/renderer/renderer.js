@@ -1,21 +1,21 @@
 const request = require('request-promise');
 const log = require('../logger');
-const { parseContent } = require('./utils');
+const { getAST } = require('./utils');
 
 const RETRY_COUNT = 5;
 const RETRY_WAIT = 1000;
 
 let jsonModel;
 
-function render (content, langClient, resourceRoot, retries=1) {
-    return parseContent(langClient, content)
-        .then((body) => {
+function render (docUri, langClient, resourceRoot, retries=1) {
+    return getAST(langClient, docUri)
+        .then((resp) => {
             let stale = true;
-            if (body.model) {
+            if (resp.ast) {
                 stale = false;
-                jsonModel = body.model;
+                jsonModel = resp.ast;
             }
-            return renderDiagram(content, jsonModel, resourceRoot, stale);
+            return renderDiagram(docUri, jsonModel, resourceRoot, stale);
         })
         .catch((e) => {
             log(`Error in parser service`);
@@ -28,13 +28,13 @@ function render (content, langClient, resourceRoot, retries=1) {
 
                 setTimeout(() => {
                     log(`Retrying rendering ${retries}/${RETRY_COUNT}\n`);
-                    res(render(content, retries + 1));
+                    res(render(docUri, retries + 1));
                 }, RETRY_WAIT);
             });
         });
 };
 
-function renderDiagram(content, jsonModelObj, resourceRoot, stale) {
+function renderDiagram(docUri, jsonModelObj, resourceRoot, stale) {
     const jsonModel = JSON.stringify(jsonModelObj);
 
     const page = `
@@ -94,7 +94,7 @@ function renderDiagram(content, jsonModelObj, resourceRoot, stale) {
     <script charset="UTF-8" src="${resourceRoot}/ballerina-diagram-library.js"></script>
     <script>
         (function() {
-            let content = ${JSON.stringify(content)};
+            let docUri = ${JSON.stringify(docUri)};
             let json = ${jsonModel};
             let stale = ${JSON.stringify(stale)};
 
@@ -108,7 +108,7 @@ function renderDiagram(content, jsonModelObj, resourceRoot, stale) {
                 switch (message.command) {
                     case 'update':
                         json = message.json;
-                        content = message.content;
+                        docUri = message.docUri;
                         stale = message.stale;
                         drawDiagram();
                         break;
@@ -123,7 +123,7 @@ function renderDiagram(content, jsonModelObj, resourceRoot, stale) {
                 return;
             }
 
-            function parseContent(contenst) {
+            function getAST(docUri) {
                 return Promise.resolve({ model: json });
             }
 
@@ -145,12 +145,9 @@ function renderDiagram(content, jsonModelObj, resourceRoot, stale) {
                     let width = window.innerWidth - 6;
                     let height = window.innerHeight;
                     console.log('rendering ' + width);
-                    ballerinaDiagram.renderEditableDiagram(document.getElementById("diagram"), content,
-                        width, height , parseContent, onChange
+                    ballerinaDiagram.renderEditableDiagram(document.getElementById("diagram"), docUri,
+                        width, height, getAST, onChange
                     );
-                    // ballerinaDiagram.renderStaticDiagram(document.getElementById("diagram"), json,
-                    //     { width, height } 
-                    // );
                     console.log('Successfully rendered');
                 } catch(e) {
                     console.log(e.stack);

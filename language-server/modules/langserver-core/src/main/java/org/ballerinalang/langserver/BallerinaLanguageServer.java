@@ -20,8 +20,8 @@ import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.compiler.workspace.WorkspaceDocumentManager;
 import org.ballerinalang.langserver.compiler.workspace.WorkspaceDocumentManagerImpl;
 import org.ballerinalang.langserver.extensions.ExtendedLanguageServer;
-import org.ballerinalang.langserver.extensions.parser.BallerinaParserService;
-import org.ballerinalang.langserver.extensions.parser.BallerinaParserServiceImpl;
+import org.ballerinalang.langserver.extensions.parser.BallerinaDocumentService;
+import org.ballerinalang.langserver.extensions.parser.BallerinaDocumentServiceImpl;
 import org.ballerinalang.langserver.index.LSIndexImpl;
 import org.eclipse.lsp4j.CompletionOptions;
 import org.eclipse.lsp4j.ExecuteCommandOptions;
@@ -48,7 +48,7 @@ public class BallerinaLanguageServer implements ExtendedLanguageServer, Language
     private LanguageClient client = null;
     private TextDocumentService textService;
     private WorkspaceService workspaceService;
-    private BallerinaParserService parserService;
+    private BallerinaDocumentService ballerinaDocumentService;
     private int shutdown = 1;
 
     public BallerinaLanguageServer() {
@@ -65,7 +65,7 @@ public class BallerinaLanguageServer implements ExtendedLanguageServer, Language
 
         textService = new BallerinaTextDocumentService(lsGlobalContext);
         workspaceService = new BallerinaWorkspaceService(lsGlobalContext);
-        parserService = new BallerinaParserServiceImpl(lsGlobalContext);
+        ballerinaDocumentService = new BallerinaDocumentServiceImpl(lsGlobalContext);
     }
 
     public LanguageClient getClient() {
@@ -117,8 +117,8 @@ public class BallerinaLanguageServer implements ExtendedLanguageServer, Language
         return this.workspaceService;
     }
 
-    public BallerinaParserService getParserService() {
-        return this.parserService;
+    public BallerinaDocumentService getBallerinaDocumentService() {
+        return this.ballerinaDocumentService;
     }
 
     @Override

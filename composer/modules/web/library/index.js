@@ -52,7 +52,6 @@ class BallerinaDiagram extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
-            content: this.props.content,
             currentAST: undefined,
             editMode: true,
             diagramMode: 'action',
@@ -60,11 +59,11 @@ class BallerinaDiagram extends React.Component {
     }
 
     componentDidMount() {
-        this.updateDiagram(this.state.content);
+        this.updateDiagram(this.props.docUri);
     }
 
     componentWillReceiveProps(nextProps) {
-        this.updateDiagram(nextProps.content);
+        this.updateDiagram(nextProps.docUri);
     }
 
     onModelUpdate(evt) {
@@ -75,8 +74,8 @@ class BallerinaDiagram extends React.Component {
         }
     }
 
-    updateDiagram(content) {
-        this.props.parseContent(content)
+    updateDiagram(docUri) {
+        this.props.getAST(docUri)
                 .then((parserReply) => {
                     const { currentAST } = this.state;
                     if (parserReply.model) {
@@ -89,7 +88,6 @@ class BallerinaDiagram extends React.Component {
                         }
                         this.setState({
                             currentAST: newAST,
-                            content,
                         });
                     }
                 });
@@ -132,20 +130,20 @@ class BallerinaDiagram extends React.Component {
 }
 
 BallerinaDiagram.propTypes = {
-    parseContent: PropTypes.func.isRequired,
+    getAST: PropTypes.func.isRequired,
     onChange: PropTypes.func.isRequired,
-    content: PropTypes.string.isRequired,
+    docUri: PropTypes.string.isRequired,
     width: PropTypes.number.isRequired,
     height: PropTypes.number.isRequired,
 };
 
-function renderEditableDiagram(target, content, width, height,
-    parseContent = () => Promise.resolve({}),
+function renderEditableDiagram(target, docUri, width, height,
+    getAST = () => Promise.resolve({}),
     onChange = () => {}) {
     const props = {
-        parseContent,
+        getAST,
         onChange,
-        content,
+        docUri,
         width,
         height,
     };

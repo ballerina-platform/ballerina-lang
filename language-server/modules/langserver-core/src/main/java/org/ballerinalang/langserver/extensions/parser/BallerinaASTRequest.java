@@ -15,28 +15,17 @@
  */
 package org.ballerinalang.langserver.extensions.parser;
 
-import com.google.gson.JsonObject;
-import org.eclipse.lsp4j.VersionedTextDocumentIdentifier;
+import org.eclipse.lsp4j.TextDocumentIdentifier;
 
-public class ASTModifiedRequest {
+public class BallerinaASTRequest {
 
-    JsonObject ast;
+    private TextDocumentIdentifier documentIdentifier;
 
-    VersionedTextDocumentIdentifier textDocumentIdentifier;
-
-    public JsonObject getAst() {
-        return ast;
+    public TextDocumentIdentifier getDocumentIdentifier() {
+        return documentIdentifier;
     }
 
-    public void setAst(JsonObject ast) {
-        this.ast = ast;
-    }
-
-    public VersionedTextDocumentIdentifier getTextDocumentIdentifier() {
-        return textDocumentIdentifier;
-    }
-
-    public void setTextDocumentIdentifier(VersionedTextDocumentIdentifier textDocumentIdentifier) {
-        this.textDocumentIdentifier = textDocumentIdentifier;
+    public void setDocumentIdentifier(TextDocumentIdentifier documentIdentifier) {
+        this.documentIdentifier = documentIdentifier;
     }
 }

@@ -17,17 +17,17 @@ package org.ballerinalang.langserver.extensions.parser;
 
 import com.google.gson.JsonElement;
 
-public class ParseContentReply {
-    private JsonElement model;
+public class BallerinaASTResponse {
+    private JsonElement ast;
 
     private boolean parseSuccess;
 
-    public JsonElement getModel() {
-        return model;
+    public JsonElement getAst() {
+        return ast;
     }
 
-    public void setModel(JsonElement model) {
-        this.model = model;
+    public void setAst(JsonElement ast) {
+        this.ast = ast;
     }
 
     public boolean isParseSuccess() {
