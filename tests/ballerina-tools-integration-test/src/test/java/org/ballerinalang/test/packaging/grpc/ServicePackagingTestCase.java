@@ -18,10 +18,10 @@
 package org.ballerinalang.test.packaging.grpc;
 
 import org.ballerinalang.test.BaseTest;
+import org.ballerinalang.test.context.BMainInstance;
 import org.ballerinalang.test.context.BServerInstance;
 import org.ballerinalang.test.context.Constant;
 import org.ballerinalang.test.context.LogLeecher;
-import org.ballerinalang.test.context.ServerInstanceOld;
 import org.ballerinalang.test.context.Utils;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -31,8 +31,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -55,18 +54,18 @@ public class ServicePackagingTestCase extends BaseTest {
         Files.createDirectories(projectPath);
 
         // perform ballerina init and copy grpc service to the project.
-        ServerInstanceOld ballerinaBuildServer = new ServerInstanceOld(serverZipPath);
+        BMainInstance ballerinaBuildServer = new BMainInstance(balServer);
         String[] args = {"-i"};
         String[] options = {"\n", "\n", "\n", "s\n", "foo\n", "f\n"};
-        ballerinaBuildServer.runMainWithClientOptions(args, options, getEnvVariables(), "init",
+        ballerinaBuildServer.runMain("init", args, getEnvVariables(), options, new LogLeecher[]{},
                 projectPath.toString());
         Files.copy(Paths.get("src", "test", "resources", "grpc", "nested_type_service.bal"), Paths.get
                 (projectPath.resolve("foo").toString(), "nested_type_service.bal"));
         Files.deleteIfExists(projectPath.resolve("foo").resolve("hello_service.bal"));
 
         // perform ballerina build and generate balx file.
-        ballerinaBuildServer = new ServerInstanceOld(serverZipPath);
-        ballerinaBuildServer.runMain(new String[0], getEnvVariables(), "build", projectPath.toString());
+        ballerinaBuildServer.runMain("build", new String[0], getEnvVariables(), new String[]{},
+                new LogLeecher[]{}, projectPath.toString());
         Path generatedBalx = projectPath.resolve("target").resolve("foo.balx");
         // Run gRPC service from the balx file.
         BServerInstance ballerinaServerForService = new BServerInstance(balServer);
@@ -75,13 +74,12 @@ public class ServicePackagingTestCase extends BaseTest {
         try {
             // run gRPC client to connect with the service.
             Path balFilePath = Paths.get("src", "test", "resources", "grpc", "nested_type_client.bal");
-            ServerInstanceOld ballerinaClientServer = new ServerInstanceOld(serverZipPath);
-            String[] clientArgsForRun = {balFilePath.toAbsolutePath().toString()};
+            BMainInstance ballerinaClientServer = new BMainInstance(balServer);
+            String balFile = balFilePath.toAbsolutePath().toString();
             LogLeecher logLeecher1 = new LogLeecher("testInputNestedStruct output: Submitted name: Danesh");
             LogLeecher logLeecher2 = new LogLeecher("testOutputNestedStruct output: Sam");
-            ballerinaClientServer.addLogLeecher(logLeecher1);
-            ballerinaClientServer.addLogLeecher(logLeecher2);
-            ballerinaClientServer.runMain(clientArgsForRun, getEnvVariables(), "run");
+            ballerinaClientServer.runMain(balFile, new String[]{}, new String[]{}, getEnvVariables(),
+                    new String[]{}, new LogLeecher[]{logLeecher1, logLeecher2});
             logLeecher1.waitForText(10000);
             logLeecher2.waitForText(10000);
         } finally {
@@ -100,11 +98,11 @@ public class ServicePackagingTestCase extends BaseTest {
      *
      * @return env directory variable array
      */
-    private String[] getEnvVariables() {
-        List<String> variables = new ArrayList<>();
+    private Map<String, String> getEnvVariables() {
         Map<String, String> envVarMap = System.getenv();
-        envVarMap.forEach((key, value) -> variables.add(key + "=" + value));
-        return variables.toArray(new String[variables.size()]);
+        Map<String, String> retMap = new HashMap<>();
+        envVarMap.forEach(retMap::put);
+        return retMap;
     }
 
 }
