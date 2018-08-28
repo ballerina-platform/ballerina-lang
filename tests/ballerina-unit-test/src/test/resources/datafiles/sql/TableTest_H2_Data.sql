@@ -9,10 +9,10 @@ CREATE TABLE IF NOT EXISTS DataTable(
   PRIMARY KEY (row_id)
 );
 /
-insert into DataTable (row_id, int_type, long_type, float_type, double_type, boolean_type, string_type) values
+INSERT INTO DataTable (row_id, int_type, long_type, float_type, double_type, boolean_type, string_type) VALUES
   (1, 1, 9223372036854774807, 123.34, 2139095039, TRUE, 'Hello');
 /
-insert into DataTable (row_id) values (2);
+INSERT INTO DataTable (row_id) VALUES (2);
 /
 CREATE TABLE IF NOT EXISTS DataTableRep(
   row_id       INTEGER,
@@ -20,11 +20,9 @@ CREATE TABLE IF NOT EXISTS DataTableRep(
   PRIMARY KEY (row_id)
 );
 /
-insert into DataTableRep (row_id, int_type) values
-  (1, 100);
+INSERT INTO DataTableRep (row_id, int_type) VALUES (1, 100);
 /
-insert into DataTableRep (row_id, int_type) values
-  (2, 200);
+INSERT INTO DataTableRep (row_id, int_type) VALUES (2, 200);
 /
 CREATE TABLE IF NOT EXISTS FloatTable(
   row_id       INTEGER,
@@ -35,7 +33,7 @@ CREATE TABLE IF NOT EXISTS FloatTable(
   PRIMARY KEY (row_id)
 );
 /
-insert into FloatTable (row_id, float_type, double_type, numeric_type, decimal_type) values
+INSERT INTO FloatTable (row_id, float_type, double_type, numeric_type, decimal_type) VALUES
   (1, 238999.34, 238999.34, 238999.34, 238999.34);
 /
 CREATE TABLE IF NOT EXISTS ComplexTypes(
@@ -46,7 +44,7 @@ CREATE TABLE IF NOT EXISTS ComplexTypes(
   PRIMARY KEY (row_id)
 );
 /
-insert into ComplexTypes (row_id, blob_type, clob_type, binary_type) values
+INSERT INTO ComplexTypes (row_id, blob_type, clob_type, binary_type) VALUES
   (1, X'77736F322062616C6C6572696E6120626C6F6220746573742E', CONVERT('very long text', CLOB),
   X'77736F322062616C6C6572696E612062696E61727920746573742E');
 /
@@ -90,7 +88,7 @@ CREATE TABLE IF NOT EXISTS MixTypes (
   double_array ARRAY,
   boolean_array ARRAY,
   string_array ARRAY,
-PRIMARY KEY (row_id)
+  PRIMARY KEY (row_id)
 );
 /
 INSERT INTO MixTypes (row_id, int_type, long_type, float_type, double_type, boolean_type, string_type, int_array, long_array,
@@ -105,7 +103,7 @@ CREATE TABLE IF NOT EXISTS DateTimeTypes(
   time_type      TIME,
   timestamp_type timestamp,
   datetime_type  datetime,
-PRIMARY KEY (row_id)
+  PRIMARY KEY (row_id)
 );
 /
 CREATE TABLE IF NOT EXISTS IntegerTypes (
@@ -139,16 +137,16 @@ CREATE TABLE IF NOT EXISTS DataTypeTableNillable(
   PRIMARY KEY (row_id)
 );
 /
-insert into DataTypeTableNillable (row_id, int_type, long_type, float_type, double_type, boolean_type, string_type,
+INSERT INTO DataTypeTableNillable (row_id, int_type, long_type, float_type, double_type, boolean_type, string_type,
   numeric_type, decimal_type, real_type, tinyint_type, smallint_type, clob_type, blob_type, binary_type, date_type,
-  time_type, datetime_type, timestamp_type) values
+  time_type, datetime_type, timestamp_type) VALUES
   (1, 10, 9223372036854774807, 123.34, 2139095039, TRUE, 'Hello',1234.567, 1234.567, 1234.567, 1, 5555,
   CONVERT('very long text', CLOB), X'77736F322062616C6C6572696E6120626C6F6220746573742E',
   X'77736F322062616C6C6572696E612062696E61727920746573742E', '2017-02-03', '11:35:45', '2017-02-03 11:53:00',
   '2017-02-03 11:53:00');
 /
-insert into DataTypeTableNillable (row_id, int_type, long_type, float_type, double_type, boolean_type, string_type,
+INSERT INTO DataTypeTableNillable (row_id, int_type, long_type, float_type, double_type, boolean_type, string_type,
   numeric_type, decimal_type, real_type, tinyint_type, smallint_type, clob_type, blob_type, binary_type, date_type,
-  time_type, datetime_type, timestamp_type) values
+  time_type, datetime_type, timestamp_type) VALUES
   (2, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null);
 /

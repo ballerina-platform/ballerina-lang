@@ -8,6 +8,12 @@ CREATE TABLE IF NOT EXISTS Customers(
   PRIMARY KEY (CUSTOMERID)
 );
 /
+INSERT INTO Customers (firstName,lastName,registrationID,creditLimit,country)
+  VALUES ('Peter', 'Stuart', 1, 5000.75, 'USA');
+/
+INSERT INTO Customers (firstName,lastName,registrationID,creditLimit,country)
+  VALUES ('John', 'Watson', 2, 2348.93, 'UK');
+/
 CREATE TABLE IF NOT EXISTS DataTypeTable(
   ROW_ID       INTEGER,
   INT_TYPE     INTEGER,
@@ -26,6 +32,13 @@ CREATE TABLE IF NOT EXISTS DataTypeTable(
   PRIMARY KEY (row_id)
 );
 /
+INSERT INTO DataTypeTable (row_id, int_type, long_type, float_type, double_type, boolean_type, string_type,
+  numeric_type, decimal_type, real_type, tinyint_type, smallint_type, clob_type, binary_type) VALUES
+  (1, 10, 9223372036854774807, 123.34, 2139095039, TRUE, 'Hello',1234.567, 1234.567, 1234.567, 1, 5555,
+  'very long text', E'\\x77736F322062616C6C6572696E612062696E61727920746573742E');
+/
+INSERT INTO DataTypeTable (row_id) VALUES (2);
+/
 CREATE TABLE IF NOT EXISTS DateTimeTypes(
   ROW_ID         INTEGER,
   DATE_TYPE      TIMESTAMP,
@@ -34,6 +47,9 @@ CREATE TABLE IF NOT EXISTS DateTimeTypes(
   TIMESTAMP_TYPE TIMESTAMPTZ
 );
 /
+INSERT INTO DateTimeTypes (row_id, date_type, time_type, datetime_type, timestamp_type) VALUES
+  (1, '2017-02-03', '11:35:45', '2017-02-03 11:53:00', '2017-02-03 11:53:00');
+/
 CREATE TABLE IF NOT EXISTS CustomersNoKey(
   FIRSTNAME  VARCHAR(300),
   LASTNAME  VARCHAR(300),
@@ -41,22 +57,6 @@ CREATE TABLE IF NOT EXISTS CustomersNoKey(
   CREDITLIMIT  double precision,
   COUNTRY  VARCHAR(300)
 );
-/
-insert into DateTimeTypes (row_id, date_type, time_type, datetime_type, timestamp_type) values
-  (1, '2017-02-03', '11:35:45', '2017-02-03 11:53:00', '2017-02-03 11:53:00');
-/
-insert into DataTypeTable (row_id, int_type, long_type, float_type, double_type, boolean_type, string_type,
-  numeric_type, decimal_type, real_type, tinyint_type, smallint_type, clob_type, binary_type) values
-  (1, 10, 9223372036854774807, 123.34, 2139095039, TRUE, 'Hello',1234.567, 1234.567, 1234.567, 1, 5555,
-  'very long text', E'\\x77736F322062616C6C6572696E612062696E61727920746573742E');
-/
-insert into DataTypeTable (row_id) values (2);
-/
-insert into Customers (firstName,lastName,registrationID,creditLimit,country)
-  values ('Peter', 'Stuart', 1, 5000.75, 'USA');
-/
-insert into Customers (firstName,lastName,registrationID,creditLimit,country)
-  values ('John', 'Watson', 2, 2348.93, 'UK');
 /
 CREATE FUNCTION InsertPersonData(IN p_RegID INT, IN p_PersonName VARCHAR(50)) RETURNS VOID AS '
     BEGIN
@@ -151,7 +151,7 @@ CREATE FUNCTION TestDateTimeOutParams (IN id BIGINT, IN dateVal DATE, IN timeVal
   IN timestampVal TIMESTAMPTZ, OUT dateValOUT DATE, OUT timeValOUT TIME, OUT datetmOut TIMESTAMP, OUT timestOut
   TIMESTAMPTZ) AS '
   BEGIN
-  insert into DateTimeTypes (row_id, date_type, time_type, datetime_type, timestamp_type) values
+  INSERT INTO DateTimeTypes (row_id, date_type, time_type, datetime_type, timestamp_type) VALUES
   (id, dateVal, timeVal, datetimeVal, timestampVal);
   SELECT date_type INTO dateValOUT FROM DateTimeTypes where row_id = id;
   SELECT time_type INTO timeValOUT FROM DateTimeTypes where row_id = id;
@@ -163,7 +163,7 @@ CREATE FUNCTION TestDateTimeOutParams (IN id BIGINT, IN dateVal DATE, IN timeVal
 CREATE FUNCTION TestDateINOUTParams (IN id BIGINT, INOUT dateVal DATE, INOUT timeVal TIME, INOUT datetimeVal
 TIMESTAMP, INOUT timestampVal TIMESTAMPTZ) AS '
   BEGIN
-  insert into DateTimeTypes (row_id, date_type, time_type, datetime_type, timestamp_type) values
+  INSERT INTO DateTimeTypes (row_id, date_type, time_type, datetime_type, timestamp_type) VALUES
   (id, dateVal, timeVal, datetimeVal, timestampVal);
 
   SELECT date_type INTO dateVal FROM DateTimeTypes where row_id = id;
@@ -226,6 +226,12 @@ CREATE TABLE employeeDel (id INTEGER NOT NULL, name VARCHAR(20), address VARCHAR
 INSERT INTO employeeDel VALUES (1, 'Manuri', 'Sri Lanka');
 /
 INSERT INTO employeeDel VALUES (2, 'Devni', 'Sri Lanka');
+/
+CREATE TABLE employeeDeleteInTrans (id INTEGER NOT NULL, name VARCHAR(20), address VARCHAR(20));
+/
+INSERT INTO employeeDeleteInTrans VALUES (1, 'Manuri', 'Sri Lanka');
+/
+INSERT INTO employeeDeleteInTrans VALUES (2, 'Devni', 'Sri Lanka');
 /
 CREATE TABLE employeeAddNegative (id INTEGER NOT NULL, name VARCHAR(20), address VARCHAR(20), PRIMARY KEY (id));
 /
