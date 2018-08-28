@@ -21,6 +21,7 @@ import org.ballerinalang.model.util.serializer.BValueSerializer;
 import org.ballerinalang.model.util.serializer.BValueTree;
 import org.ballerinalang.model.util.serializer.JsonSerializer;
 import org.ballerinalang.model.util.serializer.providers.bvalue.NumericBValueProviders;
+import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BValue;
 import org.joda.time.DateTime;
@@ -107,5 +108,14 @@ public class SerializationBValueProviderTest {
         String serialize = serializer.serialize(now);
         Instant deserialize = serializer.deserialize(serialize, Instant.now().getClass());
         Assert.assertEquals(now, deserialize);
+    }
+
+    @Test(description = "test BBoolean serialization")
+    public void testBBooleanBValueProvider() {
+        BBoolean[] bBooleans = new BBoolean[] {new BBoolean(false), new BBoolean(true)};
+        JsonSerializer serializer = new JsonSerializer();
+        String json = serializer.serialize(bBooleans);
+        BBoolean[] deserialize = serializer.deserialize(json, BBoolean[].class);
+        Assert.assertEquals(bBooleans, deserialize);
     }
 }

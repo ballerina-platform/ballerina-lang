@@ -20,8 +20,11 @@ package org.ballerinalang.model.util.serializer;
 import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.model.values.BRefValueArray;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.util.exceptions.BallerinaException;
 
 import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.HashMap;
 
@@ -45,7 +48,7 @@ class ObjectHelper {
      * @param depth       depth in the hierarchy; starting class should be 0
      * @return map of Field objects, field names encoded with class hierarchy depth.
      */
-    public static HashMap<String, Field> getAllFields(Class<?> targetClass, int depth) {
+    static HashMap<String, Field> getAllFields(Class<?> targetClass, int depth) {
         HashMap<String, Field> fieldMap = new HashMap<>();
         for (Field declaredField : targetClass.getDeclaredFields()) {
             if (skip(declaredField)) {
@@ -92,6 +95,59 @@ class ObjectHelper {
                         || type == float.class
                         || type == double.class
                         || type == String.class);
+    }
+
+    /**
+     * Set {@code obj} into {@code field} of {@code target} object.
+     * <p>
+     * This is similar to {@code target.field = obj}.
+     *
+     * @param target Set the field on this object.
+     * @param field  Field instance to be set.
+     * @param obj    Set this object to the field.
+     */
+    static void setField(Object target, Field field, Object obj) {
+        primeFinalFieldForAssignment(field);
+        try {
+            Object newValue = cast(obj, field.getType());
+            field.set(target, newValue);
+        } catch (IllegalAccessException e) {
+            // Ignore it, this is fine.
+            // Reason: Either security manager stopping us from setting this field
+            // or this is a static final field initialized using compile time constant,
+            // we can't assign to them at runtime, nor can we identify them at runtime.
+        } catch (IllegalArgumentException e) {
+            throw new BallerinaException(e);
+        }
+    }
+
+    private static void primeFinalFieldForAssignment(Field field) {
+        try {
+            field.setAccessible(true);
+            Field modifiers = Field.class.getDeclaredField("modifiers");
+            modifiers.setAccessible(true);
+            modifiers.setInt(field, field.getModifiers() & ~Modifier.FINAL);
+        } catch (NoSuchFieldException | IllegalAccessException e) {
+            throw new BallerinaException(e);
+        }
+    }
+
+    /**
+     * If special method {@code readResolve} is available in this {@code clz} class, invoke it.
+     * <p>
+     * See java.io.Serializable documentation for more information about 'readResolve'.
+     */
+    static Object invokeReadResolveOn(Object object, Class<?> clz) {
+        try {
+            Method readResolved = clz.getDeclaredMethod("readResolve");
+            if (readResolved != null) {
+                readResolved.setAccessible(true);
+                return readResolved.invoke(object);
+            }
+        } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
+            // no op, will return null from end of this method.
+        }
+        return null;
     }
 
     /**

@@ -32,9 +32,6 @@ import org.ballerinalang.util.exceptions.BallerinaException;
 import java.io.Serializable;
 import java.lang.reflect.Array;
 import java.lang.reflect.Field;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -210,15 +207,7 @@ class JsonDeserializer implements BValueDeserializer {
         }
 
         if (clz != null && Serializable.class.isAssignableFrom(clz)) {
-            try {
-                Method readResolved = clz.getDeclaredMethod("readResolve");
-                if (readResolved != null) {
-                    readResolved.setAccessible(true);
-                    return readResolved.invoke(object);
-                }
-            } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
-                // no op, will return null from end of this method.
-            }
+            return ObjectHelper.invokeReadResolveOn(object, clz);
         }
         return null;
     }
@@ -361,37 +350,8 @@ class JsonDeserializer implements BValueDeserializer {
                         fieldName, targetClass.getName()));
             }
             BValue value = jMap.get(fieldName);
-            setField(target, field, value);
-        }
-    }
-
-    private void setField(Object target, Field field, BValue value) {
-        if (Modifier.isTransient(field.getModifiers())) {
-            return;
-        }
-        Object obj = deserialize(value, field.getType());
-        primeFinalFieldForAssignment(field);
-        try {
-            Object newValue = cast(obj, field.getType());
-            field.set(target, newValue);
-        } catch (IllegalAccessException e) {
-            // Ignore it, this is fine.
-            // Reason: Either security manager stopping us from setting this field
-            // or this is a static final field initialized using compile time constant,
-            // we can't assign to them at runtime, nor can we identify them at runtime.
-        } catch (IllegalArgumentException e) {
-            throw new BallerinaException(e);
-        }
-    }
-
-    private void primeFinalFieldForAssignment(Field field) {
-        try {
-            field.setAccessible(true);
-            Field modifiers = Field.class.getDeclaredField("modifiers");
-            modifiers.setAccessible(true);
-            modifiers.setInt(field, field.getModifiers() & ~Modifier.FINAL);
-        } catch (NoSuchFieldException | IllegalAccessException e) {
-            throw new BallerinaException(e);
+            Object object = deserialize(value, field.getType());
+            ObjectHelper.setField(target, field, object);
         }
     }
 
