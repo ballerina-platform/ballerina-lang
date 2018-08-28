@@ -3,7 +3,7 @@ type User record {
     int age;
 };
 
-function main (string... args) {
+public function main (string... args) {
     User user = {};
     var temp = user;
     temp.<caret>
