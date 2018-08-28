@@ -21,6 +21,7 @@ import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BBooleanArray;
+import org.ballerinalang.model.values.BByteArray;
 import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BFloatArray;
 import org.ballerinalang.model.values.BIntArray;
@@ -296,7 +297,10 @@ public class SQLActionsTest {
         Assert.assertEquals(retValue.intValue(), 10);
     }
 
-    @Test(groups = CONNECTOR_TEST)
+    // This is rather doesn't make sense to test for postgresql than not being supported. Because, in official
+    // postgresql driver when setting a blob value while preparing a statement, an OID is created so as it will
+    // always be a new one, IN clause would never be evaluated to true
+    @Test(groups = {CONNECTOR_TEST, POSTGRES_NOT_SUPPORTED})
     public void testBlobArrayOfQueryParameters() {
         BValue[] returns = BRunUtil.invoke(result, "testBlobArrayQueryParameter", connectionArgs);
         BInteger retValue = (BInteger) returns[0];
@@ -322,7 +326,7 @@ public class SQLActionsTest {
         Assert.assertEquals(returns[12].stringValue(), "wso2 ballerina binary test.");
     }
 
-    @Test(groups = {CONNECTOR_TEST, H2_NOT_SUPPORTED})
+    @Test(groups = {CONNECTOR_TEST, H2_NOT_SUPPORTED, POSTGRES_NOT_SUPPORTED})
     public void testBlobOutInOutParameters() {
         BValue[] returns = BRunUtil.invoke(result, "testBlobOutInOutParameters", connectionArgs);
         Assert.assertEquals(returns.length, 2);
@@ -359,8 +363,10 @@ public class SQLActionsTest {
     @Test(groups = {CONNECTOR_TEST, H2_NOT_SUPPORTED})
     public void testBlobInParameter() {
         BValue[] returns = BRunUtil.invoke(result, "testBlobInParameter", connectionArgs);
-        BInteger retValue = (BInteger) returns[0];
-        Assert.assertEquals(retValue.intValue(), 1);
+        BInteger retInt = (BInteger) returns[0];
+        BByteArray retBytes = (BByteArray) returns[1];
+        Assert.assertEquals(retInt.intValue(), 1);
+        Assert.assertEquals(new String(retBytes.getBytes()), "blob data");
     }
 
     @Test(groups = {CONNECTOR_TEST, H2_NOT_SUPPORTED})
@@ -441,7 +447,7 @@ public class SQLActionsTest {
         Assert.assertEquals(returns[12].stringValue(), null);
     }
 
-    @Test(groups = {CONNECTOR_TEST, H2_NOT_SUPPORTED})
+    @Test(groups = {CONNECTOR_TEST, H2_NOT_SUPPORTED, POSTGRES_NOT_SUPPORTED})
     public void testNullOutInOutBlobParameters() {
         BValue[] returns = BRunUtil.invoke(result, "testNullOutInOutBlobParameters", connectionArgs);
         Assert.assertEquals(returns[0].stringValue(), null);
@@ -691,6 +697,19 @@ public class SQLActionsTest {
             expected2 = "[{\"ROW_ID\":1, \"BLOB_TYPE\":\"d3NvMiBiYWxsZXJpbmEgYmxvYiB0ZXN0Lg==\"}]";
             expected3 = "[{\"ROW_ID\":1, \"DATE_TYPE\":\"2017-02-03\",\"TIME_TYPE\":\"11:35:45\", "
                     + "\"DATETIME_TYPE\":\"2017-02-03 11:53:00\", \"TIMESTAMP_TYPE\":\"2017-02-03 11:53:00\"}]";
+        } else if (dbType == POSTGRES) {
+            // When retrieving value from OID column postgres driver supports both getLong and getBlob.
+            // In table -> JSON/XML conversion of Ballerina data client implementation, the OID is returned ATM.
+            // However, when mapping a result set to a record, depending on whether the field type is int or byte[]
+            // getBlob/getLong are called appropriately.
+            expected0 = "<results><result><row_id>1</row_id><blob_type>16458</blob_type></result></results>";
+            expected1 = "<results><result><row_id>1</row_id><date_type>2017-02-03 "
+                    + "00:00:00</date_type><time_type>11:35:45</time_type><datetime_type>2017-02-03 "
+                    + "11:53:00</datetime_type><timestamp_type>2017-02-03 "
+                    + "11:53:00+05:30</timestamp_type></result></results>";
+            expected2 = "[{\"row_id\":1, \"blob_type\":16458}]";
+            expected3 = "[{\"row_id\":1, \"date_type\":\"2017-02-03 00:00:00\", \"time_type\":\"11:35:45\", "
+                    + "\"datetime_type\":\"2017-02-03 11:53:00\", \"timestamp_type\":\"2017-02-03 11:53:00+05:30\"}]";
         } else {
             expected0 = "<results><result><ROW_ID>1</ROW_ID><BLOB_TYPE>d3NvMiBiYWxsZXJpbmEgYmxvYiB0ZXN0Lg==</BLOB_TYPE>"
                     + "</result></results>";

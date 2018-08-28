@@ -22,9 +22,7 @@ import org.ballerinalang.database.sql.Constants;
 import org.ballerinalang.database.sql.SQLDatasource;
 import org.ballerinalang.database.sql.SQLDatasourceUtils;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BRefValueArray;
-import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
@@ -56,10 +54,9 @@ public class Update extends AbstractSQLAction {
     @Override
     public void execute(Context context) {
         try {
-            BMap<String, BValue> bConnector = (BMap<String, BValue>) context.getRefArgument(0);
             String query = context.getStringArgument(0);
             BRefValueArray parameters = (BRefValueArray) context.getNullableRefArgument(1);
-            SQLDatasource datasource = (SQLDatasource) bConnector.getNativeData(Constants.CALLER_ACTIONS);
+            SQLDatasource datasource = retrieveDatasource(context);
 
             checkAndObserveSQLAction(context, datasource, query);
             executeUpdate(context, datasource, query, parameters);

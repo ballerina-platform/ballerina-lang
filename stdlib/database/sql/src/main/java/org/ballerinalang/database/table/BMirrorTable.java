@@ -154,7 +154,7 @@ public class BMirrorTable extends BTable {
             TableResourceManager rm = new TableResourceManager(conn, preparedStmt);
             List<ColumnDefinition> columnDefs = SQLDatasourceUtils.getColumnDefinitions(rs);
             this.iterator = new SQLDataIterator(utcCalendar, constraintType, timeStructInfo, timeZoneStructInfo, rm, rs,
-                    columnDefs);
+                    columnDefs, datasource.getDatabaseProductName());
         } catch (SQLException e) {
             SQLDatasourceUtils.cleanupResources(rs, preparedStmt, conn, false);
             throw new BallerinaException("error in populating iterator for table : " + e.getMessage());

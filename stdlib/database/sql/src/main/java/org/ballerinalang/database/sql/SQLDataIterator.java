@@ -55,6 +55,9 @@ import java.util.Calendar;
 import java.util.List;
 import javax.sql.rowset.CachedRowSet;
 
+import static org.ballerinalang.database.sql.SQLDatasourceUtils.POSTGRES_DATABASE_NAME;
+import static org.ballerinalang.database.sql.SQLDatasourceUtils.POSTGRES_OID_COLUMN_TYPE_NAME;
+
 /**
  * This iterator mainly wrap java.sql.ResultSet. This will provide table operations
  * related to ballerina.data.actions.sql connector.
@@ -69,23 +72,26 @@ public class SQLDataIterator extends TableIterator {
     private static final String UNASSIGNABLE_UNIONTYPE_EXCEPTION =
             "Corresponding Union type in the record is not an assignable nillable type";
     private static final String MISMATCHING_FIELD_ASSIGNMENT = "Trying to assign to a mismatching type";
+    private String sourceDatabase;
 
     public SQLDataIterator(Calendar utcCalendar, BStructureType structType, StructureTypeInfo timeStructInfo,
                            StructureTypeInfo zoneStructInfo, TableResourceManager rm,
-                           ResultSet rs, List<ColumnDefinition> columnDefs) {
+                           ResultSet rs, List<ColumnDefinition> columnDefs, String databaseProductName) {
         super(rm, rs, structType, columnDefs);
         this.utcCalendar = utcCalendar;
         this.timeStructInfo = timeStructInfo;
         this.zoneStructInfo = zoneStructInfo;
+        this.sourceDatabase = databaseProductName;
     }
 
     public SQLDataIterator(TableResourceManager rm, ResultSet rs, Calendar utcCalendar,
             List<ColumnDefinition> columnDefs, BStructureType structType, StructureTypeInfo timeStructInfo,
-                           StructureTypeInfo zoneStructInfo) {
+                           StructureTypeInfo zoneStructInfo, String databaseProductName) {
         super(rm, rs, structType, columnDefs);
         this.utcCalendar = utcCalendar;
         this.timeStructInfo = timeStructInfo;
         this.zoneStructInfo = zoneStructInfo;
+        this.sourceDatabase = databaseProductName;
     }
 
     @Override
@@ -201,8 +207,23 @@ public class SQLDataIterator extends TableIterator {
                             break;
                         case Types.INTEGER:
                         case Types.BIGINT:
-                            long lValue = rs.getLong(index);
-                            handleLongValue(lValue, bStruct, fieldName, fieldType);
+                            if (sourceDatabase.equalsIgnoreCase(POSTGRES_DATABASE_NAME)) {
+                                boolean isOID = rs.getMetaData().getColumnTypeName(index)
+                                        .equalsIgnoreCase(POSTGRES_OID_COLUMN_TYPE_NAME);
+                                if (isOID && (fieldType.getTag() == TypeTags.ARRAY_TAG
+                                        && ((BArrayType) fieldType).getElementType().getTag() == TypeTags.BYTE_TAG)) {
+                                    blobValue = rs.getBlob(index);
+                                    handleBinaryValue(bStruct, fieldName,
+                                            blobValue == null ? null : blobValue.getBytes(1L, (int) blobValue.length()),
+                                            fieldType);
+                                } else {
+                                    long lValue = rs.getLong(index);
+                                    handleLongValue(lValue, bStruct, fieldName, fieldType);
+                                }
+                            } else {
+                                long lValue = rs.getLong(index);
+                                handleLongValue(lValue, bStruct, fieldName, fieldType);
+                            }
                             break;
                         case Types.REAL:
                         case Types.FLOAT:

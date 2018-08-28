@@ -231,3 +231,10 @@ CREATE TABLE employeeAddNegative (id INTEGER NOT NULL, name VARCHAR(20), address
 /
 INSERT INTO employeeAddNegative VALUES (1, 'Manuri', 'Sri Lanka');
 /
+CREATE TABLE IF NOT EXISTS BlobTable(
+  row_id       INTEGER,
+  blob_type    OID
+);
+/
+INSERT INTO BlobTable VALUES (1, lo_from_bytea(0, E'\\x77736F322062616C6C6572696E6120626C6F6220746573742E'));
+/
