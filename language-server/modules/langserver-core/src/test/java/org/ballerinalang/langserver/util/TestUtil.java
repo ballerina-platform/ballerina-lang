@@ -18,11 +18,14 @@
 package org.ballerinalang.langserver.util;
 
 import com.google.gson.Gson;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
 import org.ballerinalang.langserver.BallerinaLanguageServer;
 import org.eclipse.lsp4j.CodeActionContext;
 import org.eclipse.lsp4j.CodeActionParams;
 import org.eclipse.lsp4j.DidCloseTextDocumentParams;
 import org.eclipse.lsp4j.DidOpenTextDocumentParams;
+import org.eclipse.lsp4j.DocumentSymbolParams;
 import org.eclipse.lsp4j.ExecuteCommandParams;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
@@ -32,6 +35,7 @@ import org.eclipse.lsp4j.RenameParams;
 import org.eclipse.lsp4j.TextDocumentIdentifier;
 import org.eclipse.lsp4j.TextDocumentItem;
 import org.eclipse.lsp4j.TextDocumentPositionParams;
+import org.eclipse.lsp4j.WorkspaceSymbolParams;
 import org.eclipse.lsp4j.jsonrpc.Endpoint;
 import org.eclipse.lsp4j.jsonrpc.messages.ResponseError;
 import org.eclipse.lsp4j.jsonrpc.messages.ResponseMessage;
@@ -62,6 +66,10 @@ public class TestUtil {
     private static final String EXECUTE_COMMAND = "workspace/executeCommand";
 
     private static final String CODE_ACTION = "textDocument/codeAction";
+
+    private static final String DOCUMENT_SYMBOL = "textDocument/documentSymbol";
+    
+    private static final String WORKSPACE_SYMBOL_COMMAND = "workspace/symbol";
 
     private static final Gson GSON = new Gson();
 
@@ -182,6 +190,19 @@ public class TestUtil {
     }
 
     /**
+     * Get the document symbol Response as String.
+     *
+     * @param serviceEndpoint       Language Server Service Endpoint
+     * @param filePath              File Path
+     * @return {@link String}       Response string
+     */
+    public static String getDocumentSymbolResponse(Endpoint serviceEndpoint, String filePath) {
+        DocumentSymbolParams params = new DocumentSymbolParams(getTextDocumentIdentifier(filePath));
+        CompletableFuture result = serviceEndpoint.request(DOCUMENT_SYMBOL, params);
+        return getResponseString(result);
+    }
+
+    /**
      * Open a document.
      * 
      * @param serviceEndpoint   Language Server Service Endpoint
@@ -230,6 +251,35 @@ public class TestUtil {
      */
     public static void shutdownLanguageServer(Endpoint serviceEndpoint) {
         serviceEndpoint.notify("shutdown", null);
+    }
+
+    /**
+     * Check whether the evalArray is a sublist of checkAgainst Array.
+     *
+     * @param checkAgainst          JsonArray to check against
+     * @param evalArray             JsonArray to evaluate
+     * @return {@link Boolean}      is Sub array status
+     */
+    public static boolean isArgumentsSubArray(JsonArray checkAgainst, JsonArray evalArray) {
+        for (JsonElement jsonElement : evalArray) {
+            if (!checkAgainst.contains(jsonElement)) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    /**
+     * Get the workspace symbol response as String.
+     *
+     * @param serviceEndpoint       Language Server Service Endpoint
+     * @param query                 Symbol query
+     * @return {@link String}       Response string
+     */
+    public static String getWorkspaceSymbolResponse(Endpoint serviceEndpoint, String query) {
+        WorkspaceSymbolParams parms = new WorkspaceSymbolParams(query);
+        CompletableFuture result = serviceEndpoint.request(WORKSPACE_SYMBOL_COMMAND, parms);
+        return getResponseString(result);
     }
 
     private static TextDocumentIdentifier getTextDocumentIdentifier(String filePath) {
