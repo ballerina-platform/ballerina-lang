@@ -22,6 +22,7 @@ import io.netty.handler.codec.http.HttpHeaderNames;
 import org.ballerinalang.test.BaseTest;
 import org.ballerinalang.test.context.BServerInstance;
 import org.ballerinalang.test.context.Constant;
+import org.ballerinalang.test.context.Utils;
 import org.ballerinalang.test.util.HttpClientRequest;
 import org.ballerinalang.test.util.HttpResponse;
 import org.ballerinalang.test.util.TestConstant;
@@ -43,12 +44,14 @@ public class StreamsWithinServicesTestCase extends BaseTest {
 
     @BeforeClass(alwaysRun = true)
     public void setup() throws Exception {
-        //TODO check port 9090 as required ports - rajith
+        int[] requiredPorts = new int[]{9090};
+        Utils.checkPortsAvailability(requiredPorts);
+
         String relativePath = new File("src" + File.separator + "test" + File.separator + "resources"
                 + File.separator + "streaming" + File.separator +
                 "streams-within-services.bal").getAbsolutePath();
         serverInstance = new BServerInstance(balServer);
-        serverInstance.startServer(relativePath);
+        serverInstance.startServer(relativePath, new int[]{servicePort});
     }
 
     @AfterClass(alwaysRun = true)

@@ -21,6 +21,7 @@ package org.ballerinalang.test.filter;
 import org.ballerinalang.test.BaseTest;
 import org.ballerinalang.test.context.BServerInstance;
 import org.ballerinalang.test.context.BallerinaTestException;
+import org.ballerinalang.test.context.Utils;
 import org.testng.annotations.AfterGroups;
 import org.testng.annotations.BeforeGroups;
 
@@ -35,6 +36,9 @@ public class FilterBaseTest extends BaseTest {
 
     @BeforeGroups(value = "filter-test", alwaysRun = true)
     public void start() throws BallerinaTestException {
+        int[] requiredPorts = new int[]{9090, 9091, 9092, 9093, 9094, 9095, 9096, 9097, 9098};
+        Utils.checkPortsAvailability(requiredPorts);
+
         String basePath = new File("src" + File.separator + "test" + File.separator + "resources" + File.separator +
                 "filter").getAbsolutePath();
 

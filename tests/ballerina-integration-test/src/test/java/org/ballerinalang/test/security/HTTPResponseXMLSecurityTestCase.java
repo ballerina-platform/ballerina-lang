@@ -41,12 +41,13 @@ public class HTTPResponseXMLSecurityTestCase extends BaseTest {
 
     @BeforeClass(alwaysRun = true)
     public void setup() throws Exception {
-        //TODO validate port 9090 as required ports - rajith
+        int[] requiredPorts = new int[]{9090};
+
         String balFilePath = new File("src" + File.separator + "test" + File.separator + "resources"
                 + File.separator + "xmlSecurity" + File.separator +
                 "xml-parsing-service.bal").getAbsolutePath();
         serverInstance = new BServerInstance(balServer);
-        serverInstance.startServer(balFilePath);
+        serverInstance.startServer(balFilePath, requiredPorts);
     }
 
     @AfterClass(alwaysRun = true)

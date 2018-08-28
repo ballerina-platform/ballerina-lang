@@ -108,13 +108,13 @@ public class BallerinaServerAgent {
                     byte[] byteCode = cc.toBytecode();
                     cc.detach();
                     return byteCode;
-                } catch (Exception ex) {
+                } catch (Throwable ex) {
                     outStream.println("Error injecting the start agent code to the server, error - "
                             + ex.getMessage());
                     ex.printStackTrace();
                 }
             }
-            return null;
+            return new byte[]{};
         });
     }
 

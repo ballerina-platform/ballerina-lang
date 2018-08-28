@@ -24,8 +24,8 @@ import org.ballerinalang.test.context.BallerinaTestException;
 import org.ballerinalang.test.util.HttpClientRequest;
 import org.ballerinalang.test.util.HttpResponse;
 import org.ballerinalang.test.util.SQLDBUtils;
-import org.testng.annotations.AfterGroups;
-import org.testng.annotations.BeforeGroups;
+import org.testng.annotations.AfterClass;
+import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 import java.io.File;
@@ -53,7 +53,6 @@ public class MicroTransactionTestCase extends BaseTest {
 
     @BeforeClass(groups = "transactions-test", alwaysRun = true)
     public void start() throws BallerinaTestException, IOException {
-        //TODO verify below required ports - rajith
         int[] requiredPorts = new int[]{initiatorServicePort, participant1ServicePort, participant2ServicePort};
         SQLDBUtils.deleteFiles(new File(SQLDBUtils.DB_DIRECTORY), DB_NAME);
         sqlServer = SQLDBUtils.initDatabase(SQLDBUtils.DB_DIRECTORY, DB_NAME, "transaction/data.sql");
@@ -67,7 +66,7 @@ public class MicroTransactionTestCase extends BaseTest {
                 new File(serverInstance.getServerHome() + File.separator + "bre" + File.separator + "lib" +
                         File.separator + "hsqldb.jar"));
 
-        serverInstance.startServer(basePath, "transactionservices", args);
+        serverInstance.startServer(basePath, "transactionservices", args, requiredPorts);
     }
 
     @AfterClass(groups = "transactions-test", alwaysRun = true)

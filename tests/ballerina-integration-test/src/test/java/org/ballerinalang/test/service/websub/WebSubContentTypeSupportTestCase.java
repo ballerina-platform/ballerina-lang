@@ -104,7 +104,7 @@ public class WebSubContentTypeSupportTestCase extends WebSubBaseTest {
 
         Executors.newSingleThreadExecutor().execute(() -> {
             try {
-                webSubPublisher.runMain(balFile, publisherArgs);
+                webSubPublisher.runMain(balFile, publisherArgs, new String[]{});
             } catch (BallerinaTestException e) {
                 //ignored since any errors here would be reflected as test failures
             }
@@ -119,7 +119,7 @@ public class WebSubContentTypeSupportTestCase extends WebSubBaseTest {
         });
 
         String[] subscriberArgs = {};
-        webSubSubscriber.startServer(subscriberBal, subscriberArgs);
+        webSubSubscriber.startServer(subscriberBal, subscriberArgs, new int[]{servicePort});
 
         //Allow to start up the subscriber service
         given().ignoreException(ConnectException.class).with().pollInterval(Duration.FIVE_SECONDS).and()

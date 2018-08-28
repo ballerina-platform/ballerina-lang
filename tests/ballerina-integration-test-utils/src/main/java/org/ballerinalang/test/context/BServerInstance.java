@@ -46,6 +46,7 @@ public class BServerInstance implements BServer {
     private ServerLogReader serverInfoLogReader;
     private ServerLogReader serverErrorLogReader;
     private ConcurrentHashSet<LogLeecher> tmpLeechers = new ConcurrentHashSet<>();
+    private int[] requiredPorts;
 
     public BServerInstance(BalServer balServer) throws BallerinaTestException {
         this.balServer = balServer;
@@ -83,17 +84,22 @@ public class BServerInstance implements BServer {
 
     @Override
     public void startServer(String balFile) throws BallerinaTestException {
-        startServer(balFile, new String[]{});
+        startServer(balFile, new int[]{});
     }
 
     @Override
-    public void startServer(String balFile, String[] args) throws BallerinaTestException {
-        startServer(balFile, args, null);
+    public void startServer(String balFile, int[] requiredPorts) throws BallerinaTestException {
+        startServer(balFile, new String[]{}, requiredPorts);
     }
 
     @Override
-    public void startServer(String balFile, String[] args,
-                            Map<String, String> envProperties) throws BallerinaTestException {
+    public void startServer(String balFile, String[] args, int[] requiredPorts) throws BallerinaTestException {
+        startServer(balFile, args, null, requiredPorts);
+    }
+
+    @Override
+    public void startServer(String balFile, String[] args, Map<String, String> envProperties,
+                            int[] requiredPorts) throws BallerinaTestException {
         if (balFile == null || balFile.isEmpty()) {
             throw new IllegalArgumentException("Invalid ballerina program file name provided, name - " + balFile);
         }
@@ -107,26 +113,32 @@ public class BServerInstance implements BServer {
         }
 
         String[] newArgs = {balFile};
-        newArgs = ArrayUtils.addAll(newArgs, args);
+        newArgs = ArrayUtils.addAll(args, newArgs);
 
         addJavaAgents(envProperties);
 
-        startServer(newArgs, envProperties);
+        startServer(newArgs, envProperties, requiredPorts);
     }
 
     @Override
     public void startServer(String sourceRoot, String packagePath) throws BallerinaTestException {
-        startServer(sourceRoot, packagePath, new String[]{});
+        startServer(sourceRoot, packagePath, new int[]{});
     }
 
     @Override
-    public void startServer(String sourceRoot, String packagePath, String[] args) throws BallerinaTestException {
-        startServer(sourceRoot, packagePath, args, null);
+    public void startServer(String sourceRoot, String packagePath, int[] requiredPorts) throws BallerinaTestException {
+        startServer(sourceRoot, packagePath, new String[]{}, requiredPorts);
     }
 
     @Override
     public void startServer(String sourceRoot, String packagePath, String[] args,
-                            Map<String, String> envProperties) throws BallerinaTestException {
+                            int[] requiredPorts) throws BallerinaTestException {
+        startServer(sourceRoot, packagePath, args, null, requiredPorts);
+    }
+
+    @Override
+    public void startServer(String sourceRoot, String packagePath, String[] args,
+                            Map<String, String> envProperties, int[] requiredPorts) throws BallerinaTestException {
         if (sourceRoot == null || sourceRoot.isEmpty() || packagePath == null || packagePath.isEmpty()) {
             throw new IllegalArgumentException("Invalid ballerina program file provided, sourceRoot - "
                     + sourceRoot + " packagePath - " + packagePath);
@@ -140,12 +152,12 @@ public class BServerInstance implements BServer {
             envProperties = new HashMap<>();
         }
 
-        String[] newArgs = new String[]{packagePath, "--sourceroot", sourceRoot};
-        newArgs = ArrayUtils.addAll(newArgs, args);
+        String[] newArgs = new String[]{"--sourceroot", sourceRoot, packagePath};
+        newArgs = ArrayUtils.addAll(args, newArgs);
 
         addJavaAgents(envProperties);
 
-        startServer(newArgs, envProperties);
+        startServer(newArgs, envProperties, requiredPorts);
     }
 
     /**
@@ -200,7 +212,7 @@ public class BServerInstance implements BServer {
         serverErrorLogReader.stop();
         process = null;
         //wait until port to close
-        Utils.waitForPortToClosed(agentPort, 30000);
+        Utils.waitForPortsToClose(requiredPorts, 30000);
         log.info("Server Stopped Successfully");
 
         if (serverInfoLogReader != null) {
@@ -273,11 +285,18 @@ public class BServerInstance implements BServer {
      *
      * @param args          - command line arguments to pass when executing the sh or bat file
      * @param envProperties - environmental properties to be appended to the environment
+     * @param requiredPorts - ports required for the server instance
      * @throws BallerinaTestException if starting services failed
      */
-    private void startServer(String[] args, Map<String, String> envProperties) throws BallerinaTestException {
+    private void startServer(String[] args, Map<String, String> envProperties,
+                             int[] requiredPorts) throws BallerinaTestException {
+        if (requiredPorts == null) {
+            requiredPorts = new int[]{};
+        }
+        this.requiredPorts = ArrayUtils.addAll(requiredPorts, agentPort);
+
         //Check whether agent port is available.
-        Utils.checkPortAvailability(agentPort);
+        Utils.checkPortsAvailability(requiredPorts);
 
         log.info("Starting Ballerina server..");
 
@@ -308,7 +327,7 @@ public class BServerInstance implements BServer {
             serverErrorLogReader = new ServerLogReader("errorStream", process.getErrorStream());
             serverErrorLogReader.start();
             log.info("Waiting for port " + agentPort + " to open");
-            Utils.waitForPort(agentPort, 1000 * 60 * 2, false, agentHost);
+            Utils.waitForPortsToOpen(new int[]{agentPort}, 1000 * 60 * 2, false, agentHost);
             log.info("Server Started Successfully.");
         } catch (IOException e) {
             throw new BallerinaTestException("Error starting services", e);

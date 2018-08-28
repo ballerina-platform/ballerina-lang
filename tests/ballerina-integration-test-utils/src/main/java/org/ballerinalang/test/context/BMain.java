@@ -47,44 +47,48 @@ public interface BMain {
      * Run ballerina main function provided .bal file.
      *
      * @param balFile   bal file path
+     * @param flags     flags to pass
      * @param args      arguments to pass
      * @throws BallerinaTestException if any exception is thrown when running the main function
      */
-    void runMain(String balFile, String[] args) throws BallerinaTestException;
+    void runMain(String balFile, String[] flags, String[] args) throws BallerinaTestException;
 
     /**
      * Run ballerina main function provided .bal file.
      *
      * @param balFile   bal file path
+     * @param flags     flags to pass
      * @param args      arguments to pass
      * @param leechers  log leechers to check the log if any
      * @throws BallerinaTestException if any exception is thrown when running the main function
      */
-    void runMain(String balFile, String[] args, LogLeecher[] leechers) throws BallerinaTestException;
+    void runMain(String balFile, String[] flags, String[] args, LogLeecher[] leechers) throws BallerinaTestException;
 
     /**
      * Run ballerina main function provided .bal file.
      *
      * @param balFile       bal file path
+     * @param flags         flags to pass
      * @param args          arguments to pass
      * @param envProperties environment properties
      * @param clientArgs    arguments which program expects
      * @throws BallerinaTestException if any exception is thrown when running the main function
      */
-    void runMain(String balFile, String[] args, Map<String, String> envProperties,
+    void runMain(String balFile, String[] flags, String[] args, Map<String, String> envProperties,
                  String[] clientArgs) throws BallerinaTestException;
 
     /**
      * Run ballerina main function provided .bal file.
      *
      * @param balFile       bal file path
+     * @param flags         flags to pass
      * @param args          arguments to pass
      * @param envProperties environment properties
      * @param clientArgs    arguments which program expects
      * @param leechers      log leechers to check the log if any
      * @throws BallerinaTestException if any exception is thrown when running the main function
      */
-    void runMain(String balFile, String[] args, Map<String, String> envProperties,
+    void runMain(String balFile, String[] flags, String[] args, Map<String, String> envProperties,
                  String[] clientArgs, LogLeecher[] leechers) throws BallerinaTestException;
     // ********************* End bal file run methods. *******************
 
@@ -114,21 +118,23 @@ public interface BMain {
      *
      * @param sourceRoot    source root directory
      * @param packagePath   package path
+     * @param flags         flags to pass
      * @param args          arguments to parse
      * @throws BallerinaTestException if any exception is thrown when running the main function
      */
-    void runMain(String sourceRoot, String packagePath, String[] args) throws BallerinaTestException;
+    void runMain(String sourceRoot, String packagePath, String[] flags, String[] args) throws BallerinaTestException;
 
     /**
      * Run ballerina main function provided bal package.
      *
      * @param sourceRoot    source root directory
      * @param packagePath   package path
+     * @param flags         flags to pass
      * @param args          arguments to parse
      * @param leechers      log leechers to check the log if any
      * @throws BallerinaTestException if any exception is thrown when running the main function
      */
-    void runMain(String sourceRoot, String packagePath, String[] args,
+    void runMain(String sourceRoot, String packagePath, String[] flags, String[] args,
                  LogLeecher[] leechers) throws BallerinaTestException;
 
     /**
@@ -136,26 +142,29 @@ public interface BMain {
      *
      * @param sourceRoot    source root directory
      * @param packagePath   package path
+     * @param flags         flags to pass
      * @param args          arguments to parse
      * @param envProperties environment properties
      * @param clientArgs    arguments which program expects
      * @throws BallerinaTestException if any exception is thrown when running the main function
      */
-    void runMain(String sourceRoot, String packagePath, String[] args, Map<String, String> envProperties,
-                 String[] clientArgs) throws BallerinaTestException;
+    void runMain(String sourceRoot, String packagePath, String[] flags, String[] args,
+                 Map<String, String> envProperties, String[] clientArgs) throws BallerinaTestException;
 
     /**
      * Run ballerina main function provided bal package.
      *
      * @param sourceRoot    source root directory
      * @param packagePath   package path
+     * @param flags         flags to pass
      * @param args          arguments to parse
      * @param envProperties environment properties
      * @param clientArgs    arguments which program expects
      * @param leechers      log leechers to check the log if any
      * @throws BallerinaTestException if any exception is thrown when running the main function
      */
-    void runMain(String sourceRoot, String packagePath, String[] args, Map<String, String> envProperties,
+    void runMain(String sourceRoot, String packagePath,
+                 String[] flags, String[] args, Map<String, String> envProperties,
                  String[] clientArgs, LogLeecher[] leechers) throws BallerinaTestException;
     // ********************* End bal package run methods. *******************
 }

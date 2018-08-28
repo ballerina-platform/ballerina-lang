@@ -33,9 +33,6 @@ import java.util.Map;
 @Test(groups = "secure-listener-test")
 public class NoTokenPropagationTest extends SecureListenerBaseTest {
 
-    //TODO validate below required ports - rajith
-    int[] requiredPorts = new int[]{9090, 9091, 9092, 9093, 9094, 9095, 9096};
-
     @Test(description = "No JWT Token propagation, authn failure test")
     public void testTokenPropagationSuccess() throws Exception {
         Map<String, String> headers = new HashMap<>();

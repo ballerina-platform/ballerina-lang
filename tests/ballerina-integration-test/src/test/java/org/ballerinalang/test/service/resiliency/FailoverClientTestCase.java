@@ -48,7 +48,7 @@ public class FailoverClientTestCase extends BaseTest {
         String sourcePath = new File("src" + File.separator + "test" + File.separator + "resources"
                 + File.separator + "resiliency").getAbsolutePath();
         serverInstance = new BServerInstance(balServer);
-        serverInstance.startServer(sourcePath, "resiliencyservices");
+        serverInstance.startServer(sourcePath, "resiliencyservices", requiredPorts);
     }
 
     @AfterTest(alwaysRun = true)

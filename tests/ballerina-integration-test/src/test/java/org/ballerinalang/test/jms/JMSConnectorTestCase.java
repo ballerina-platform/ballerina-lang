@@ -21,6 +21,7 @@ import org.ballerinalang.test.BaseTest;
 import org.ballerinalang.test.context.BServerInstance;
 import org.ballerinalang.test.context.BallerinaTestException;
 import org.ballerinalang.test.context.LogLeecher;
+import org.ballerinalang.test.context.Utils;
 import org.ballerinalang.test.jms.util.EmbeddedBroker;
 import org.ballerinalang.test.jms.util.JMSClientHandler;
 import org.testng.annotations.AfterClass;
@@ -45,8 +46,9 @@ public class JMSConnectorTestCase extends BaseTest {
     @BeforeGroups(value = "jms-test", alwaysRun = true)
     public void start() throws BallerinaTestException {
 
-        //TODO verify required ports - rajith
         int[] requiredPorts = new int[]{9090, 9091, 9092, 9093, 9094, 9095, 9096, 9097, 9098};
+        Utils.checkPortsAvailability(requiredPorts);
+
         String basePath = new File("src" + File.separator + "test" + File.separator + "resources" + File.separator +
                 "jms").getAbsolutePath();
         serverInstance = new BServerInstance(balServer);

@@ -71,9 +71,8 @@ public class InterruptibleServiceTestCase extends BaseTest {
     public void testCheckpointSuccess() throws IOException, BallerinaTestException {
         BServerInstance ballerinaServer = new BServerInstance(balServer);
         try {
-
-            //TODO verify port 9090 as required ports
-            ballerinaServer.startServer(balFilePath, args);
+            int[] requiredPorts = new int[]{9090};
+            ballerinaServer.startServer(balFilePath, args, requiredPorts);
             HttpResponse response = HttpClientRequest.doGet(ballerinaServer
                     .getServiceURLHttp(servicePort, "s1/r1"));
             Assert.assertNotNull(response);
@@ -92,8 +91,8 @@ public class InterruptibleServiceTestCase extends BaseTest {
     public void testCheckpointResumeSuccess() throws BallerinaTestException {
         BServerInstance ballerinaServer = new BServerInstance(balServer);
         try {
-            //TODO verify port 9090 as required ports
-            ballerinaServer.startServer(balFilePath, args);
+            int[] requiredPorts = new int[]{9090};
+            ballerinaServer.startServer(balFilePath, args, requiredPorts);
             Awaitility.await().atMost(20, TimeUnit.SECONDS)
                       .until(() -> fileStorageProvider.getAllSerializedStates().size() == 0);
         } finally {

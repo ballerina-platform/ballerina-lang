@@ -56,8 +56,8 @@ public class TracingTestCase extends BaseTest {
 
     @BeforeGroups(value = "tracing-test", alwaysRun = true)
     private void setup() throws Exception {
-        //TODO check below as required ports - rajith
         int[] requiredPorts = new int[]{9090, 9091, 9092};
+
         serverInstance = new BServerInstance(balServer);
 
         copyFile(new File(System.getProperty(TEST_NATIVES_JAR)), new File(serverInstance.getServerHome()
@@ -74,7 +74,7 @@ public class TracingTestCase extends BaseTest {
 
         String configFile = new File(RESOURCE_LOCATION + "ballerina.conf").getAbsolutePath();
         String[] args = new String[]{"--config", configFile};
-        serverInstance.startServer(basePath, "tracingservices", args);
+        serverInstance.startServer(basePath, "tracingservices", args, requiredPorts);
     }
 
     @AfterGroups(value = "tracing-test", alwaysRun = true)

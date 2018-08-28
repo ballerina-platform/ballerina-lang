@@ -17,9 +17,11 @@
  */
 package org.ballerinalang.test.packaging;
 
+import org.ballerinalang.test.BaseTest;
+import org.ballerinalang.test.context.BMainInstance;
 import org.ballerinalang.test.context.BallerinaTestException;
 import org.ballerinalang.test.context.Constant;
-import org.ballerinalang.test.context.ServerInstanceOld;
+import org.ballerinalang.test.context.LogLeecher;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -30,15 +32,14 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
-import java.util.ArrayList;
 import java.util.Comparator;
-import java.util.List;
+import java.util.HashMap;
 import java.util.Map;
 
 /**
  * Testing building of a single bal file.
  */
-public class PackagingSingleBalBuildTestCase {
+public class PackagingSingleBalBuildTestCase extends BaseTest {
     private String serverZipPath;
     private Path tempProjectDirectory;
     private Path balFilePath;
@@ -71,9 +72,10 @@ public class PackagingSingleBalBuildTestCase {
         Files.createDirectories(currentDirPath);
 
         // Test ballerina build
-        ServerInstanceOld ballerinaServer = createNewBallerinaServer();
+        BMainInstance ballerinaServer = new BMainInstance(balServer);
         String[] clientArgs = {balFilePath.toString()};
-        ballerinaServer.runMain(clientArgs, getEnvVariables(), "build", currentDirPath.toString());
+        ballerinaServer.runMain("build", clientArgs, System.getenv(),
+                new String[]{}, new LogLeecher[]{}, currentDirPath.toString());
         Path generatedBalx = currentDirPath.resolve("main.balx");
         Assert.assertTrue(Files.exists(generatedBalx));
     }
@@ -81,9 +83,10 @@ public class PackagingSingleBalBuildTestCase {
     @Test(description = "Test building a bal file by giving the path from the current directory")
     public void testBuildingSourceWithCurrentDir() throws Exception {
         // Test ballerina build
-        ServerInstanceOld ballerinaServer = createNewBallerinaServer();
+        BMainInstance ballerinaServer = new BMainInstance(balServer);
         String[] clientArgs = {Paths.get("sourcePkg", "main.bal").toString()};
-        ballerinaServer.runMain(clientArgs, getEnvVariables(), "build", tempProjectDirectory.toString());
+        ballerinaServer.runMain("build", clientArgs, System.getenv(), new String[]{},
+                new LogLeecher[]{}, tempProjectDirectory.toString());
         Path generatedBalx = tempProjectDirectory.resolve("main.balx");
         Assert.assertTrue(Files.exists(generatedBalx));
     }
@@ -94,34 +97,20 @@ public class PackagingSingleBalBuildTestCase {
         Files.createDirectories(targetDirPath);
 
         // Test ballerina build
-        ServerInstanceOld ballerinaServer = createNewBallerinaServer();
-        String[] clientArgs = {balFilePath.toString(), "-o", targetDirPath.resolve("main.bal").toString(), balFilePath.toString()};
-        ballerinaServer.runMain(clientArgs, getEnvVariables(), "build", tempProjectDirectory.toString());
+        BMainInstance ballerinaServer = new BMainInstance(balServer);
+        String[] clientArgs = {"-o", targetDirPath.resolve("main.bal").toString(),
+                balFilePath.toString()};
+        ballerinaServer.runMain("build", clientArgs, getEnv(), new String[]{},
+                new LogLeecher[]{}, tempProjectDirectory.toString());
         Path generatedBalx = targetDirPath.resolve("main.balx");
         Assert.assertTrue(Files.exists(generatedBalx));
     }
 
-    /**
-     * Get new instance of the ballerina server.
-     *
-     * @return new ballerina server instance
-     * @throws BallerinaTestException
-     */
-    private ServerInstanceOld createNewBallerinaServer() throws BallerinaTestException {
-        return new ServerInstanceOld(serverZipPath);
-    }
-
-    /**
-     * Get environment variables and add ballerina_home as a env variable the tmp directory.
-     *
-     * @return env directory variable array
-     */
-    private String[] getEnvVariables() {
-        List<String> variables = new ArrayList<>();
-
+    private Map<String, String> getEnv() {
         Map<String, String> envVarMap = System.getenv();
-        envVarMap.forEach((key, value) -> variables.add(key + "=" + value));
-        return variables.toArray(new String[variables.size()]);
+        Map<String, String> retMap = new HashMap<>();
+        envVarMap.forEach(retMap::put);
+        return retMap;
     }
 
     @AfterClass

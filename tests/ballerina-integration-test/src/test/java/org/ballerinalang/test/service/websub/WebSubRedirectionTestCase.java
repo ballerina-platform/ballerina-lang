@@ -72,7 +72,7 @@ public class WebSubRedirectionTestCase extends WebSubBaseTest {
         String publishersBal = new File("src" + File.separator + "test" + File.separator + "resources"
                 + File.separator + "websub" + File.separator + "redirection" + File.separator
                 + "publishers.bal").getAbsolutePath();
-        webSubPublisherService.startServer(publishersBal);
+        webSubPublisherService.startServer(publishersBal, new int[]{publisherServicePort});
 
         String subscribersBal = new File("src" + File.separator + "test" + File.separator + "resources"
                 + File.separator + "websub" + File.separator + "redirection" + File.separator
@@ -96,7 +96,7 @@ public class WebSubRedirectionTestCase extends WebSubBaseTest {
         });
 
         String[] subscriberArgs = {};
-        webSubSubscriber.startServer(subscribersBal, subscriberArgs);
+        webSubSubscriber.startServer(subscribersBal, subscriberArgs, new int[]{subscriberServicePort});
 
         //Allow to start up the subscriber service
         given().ignoreException(ConnectException.class).with().pollInterval(Duration.FIVE_SECONDS).and()

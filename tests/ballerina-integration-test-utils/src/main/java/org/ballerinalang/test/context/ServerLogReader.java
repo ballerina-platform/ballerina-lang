@@ -94,9 +94,7 @@ public class ServerLogReader implements Runnable {
      */
     private void feedLeechers(String logLine) {
         // Not doing if (leechers.size() > 0) since it is a costly call in concurrent data structures
-        System.out.println(System.currentTimeMillis() + " leecher count -  " + leechers.size() + ", current line - " + logLine);
         for (LogLeecher leecher : leechers) {
-            System.out.println(System.currentTimeMillis() + " log line - " + logLine + " === expected - " + leecher.text);
             leecher.feedLine(logLine);
         }
     }

@@ -88,7 +88,7 @@ public class WebSubDiscoveryWithMultipleSubscribersTestCase extends WebSubBaseTe
 
         Executors.newSingleThreadExecutor().execute(() -> {
             try {
-                webSubPublisher.runMain(publisherBal, publisherArgs);
+                webSubPublisher.runMain(publisherBal, publisherArgs, new String[]{});
             } catch (BallerinaTestException e) {
                 //ignored since any errors here would be reflected as test failures
             }
@@ -103,7 +103,7 @@ public class WebSubDiscoveryWithMultipleSubscribersTestCase extends WebSubBaseTe
         });
 
         String[] subscriberArgs = {"-e test.hub.url=" + hubUrl};
-        webSubSubscriber.startServer(subscriberBal, subscriberArgs);
+        webSubSubscriber.startServer(subscriberBal, subscriberArgs, new int[]{subscriberServicePort});
 
         //Allow to start up the subscriber service
         given().ignoreException(ConnectException.class).with().pollInterval(Duration.FIVE_SECONDS).and()

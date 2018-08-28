@@ -79,9 +79,9 @@ public class ServerInstanceOld implements Server {
      * @return ballerinaServer      Started server instance.
      * @throws BallerinaTestException If any exception is thrown when starting the ballerina server
      */
-    public static ServerInstance initBallerinaServer() throws BallerinaTestException {
+    public static ServerInstanceOld initBallerinaServer() throws BallerinaTestException {
         String serverZipPath = System.getProperty(Constant.SYSTEM_PROP_SERVER_ZIP);
-        return new ServerInstance(serverZipPath);
+        return new ServerInstanceOld(serverZipPath);
     }
 
     public void startBallerinaServer(String balFile) throws BallerinaTestException {
@@ -271,7 +271,7 @@ public class ServerInstanceOld implements Server {
         try {
             //TODO remove below thread sleep if it's safe
             Thread.sleep(1000);
-            Utils.waitForPortToClosed(httpServerPort, 30000);
+//            Utils.waitForPortToClosed(httpServerPort, 30000);
         } catch (Throwable e) {
             log.warn("Graceful shutdown failed, so integration test coverage won't be available, error - "
                     + e.getMessage(), e);

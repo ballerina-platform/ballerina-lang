@@ -18,10 +18,11 @@
 package org.ballerinalang.test.packaging;
 
 import org.awaitility.Duration;
+import org.ballerinalang.test.BaseTest;
+import org.ballerinalang.test.context.BMainInstance;
 import org.ballerinalang.test.context.BallerinaTestException;
 import org.ballerinalang.test.context.Constant;
 import org.ballerinalang.test.context.LogLeecher;
-import org.ballerinalang.test.context.ServerInstanceOld;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -52,8 +53,8 @@ import static java.util.concurrent.TimeUnit.SECONDS;
 /**
  * Testing pushing, pulling, searching a package from central and installing package to home repository.
  */
-public class PackagingTestCase {
-    private ServerInstanceOld ballerinaClient;
+public class PackagingTestCase extends BaseTest {
+    private BMainInstance ballerinaClient;
     private String serverZipPath;
     private Path tempHomeDirectory;
     private Path tempProjectDirectory;
@@ -175,7 +176,7 @@ public class PackagingTestCase {
 
     @Test(description = "Test pushing a package to central")
     public void testPush() throws Exception {
-        ballerinaClient = new ServerInstanceOld(serverZipPath);
+        ballerinaClient = new BMainInstance(balServer);
         String sourceRootPath = projectPath.toString();
         String[] clientArgs = {"--sourceroot", sourceRootPath, packageName};
 
@@ -184,18 +185,19 @@ public class PackagingTestCase {
 
         String msg = "integrationtests/" + packageName + ":1.0.0 [project repo -> central]";
         LogLeecher clientLeecher = new LogLeecher(msg);
-        ballerinaClient.addLogLeecher(clientLeecher);
-        ballerinaClient.runMain(clientArgs, getEnvVariables(), "push");
+        ballerinaClient.runMain("push", clientArgs, getEnv(), new String[]{},
+                new LogLeecher[]{clientLeecher}, sourceRootPath);
         clientLeecher.waitForText(5000);
     }
 
     @Test(description = "Test pushing a package to the home repository (installing a package)")
     public void testInstall() throws Exception {
-        ballerinaClient = new ServerInstanceOld(serverZipPath);
+        ballerinaClient = new BMainInstance(balServer);
         String sourceRootPath = projectPath.toString();
 
         String[] clientArgs = {"--sourceroot", sourceRootPath, packageName};
-        ballerinaClient.runMain(clientArgs, getEnvVariables(), "install");
+        ballerinaClient.runMain("install", clientArgs, getEnv(), new String[]{},
+                new LogLeecher[]{}, balServer.getServerHome());
 
         Path dirPath = Paths.get(ProjectDirConstants.DOT_BALLERINA_REPO_DIR_NAME, "integrationtests",
                                  packageName, "1.0.0");
@@ -212,9 +214,10 @@ public class PackagingTestCase {
         given().with().pollInterval(Duration.TEN_SECONDS).and()
                .with().pollDelay(Duration.FIVE_SECONDS)
                .await().atMost(60, SECONDS).until(() -> {
-            ballerinaClient = new ServerInstanceOld(serverZipPath);
+            ballerinaClient = new BMainInstance(balServer);
             String[] clientArgs = {"integrationtests/" + packageName + ":1.0.0"};
-            ballerinaClient.runMain(clientArgs, getEnvVariables(), "pull");
+            ballerinaClient.runMain("pull", clientArgs, getEnv(), new String[]{},
+                    new LogLeecher[]{}, balServer.getServerHome());
             return Files.exists(tempHomeDirectory.resolve(dirPath).resolve(packageName + ".zip"));
         });
 
@@ -223,7 +226,7 @@ public class PackagingTestCase {
 
     @Test(description = "Test searching a package from central", dependsOnMethods = "testPush")
     public void testSearch() throws BallerinaTestException, IOException {
-        ballerinaClient = new ServerInstanceOld(serverZipPath);
+        ballerinaClient = new BMainInstance(balServer);
         String[] clientArgs = {packageName};
         String loggedMsg = "Ballerina Central\n" +
                 "=================\n" +
@@ -236,8 +239,8 @@ public class PackagingTestCase {
                 "                                       |                | " + datePushed + " | 1.0.0   |\n";
 
         LogLeecher clientLeecher = new LogLeecher(loggedMsg);
-        ballerinaClient.addLogLeecher(clientLeecher);
-        ballerinaClient.runMain(clientArgs, getEnvVariables(), "search");
+        ballerinaClient.runMain("search", clientArgs, getEnv(), new String[]{},
+                new LogLeecher[]{clientLeecher}, balServer.getServerHome());
         clientLeecher.waitForText(3000);
     }
 
@@ -255,6 +258,15 @@ public class PackagingTestCase {
         variables.add("BALLERINA_DEV_STAGE_CENTRAL" + "=" + "true");
 
         return variables.toArray(new String[variables.size()]);
+    }
+
+    private Map<String, String> getEnv() {
+        Map<String, String> envVarMap = System.getenv();
+        Map<String, String> retMap = new HashMap<>();
+        envVarMap.forEach(retMap::put);
+        retMap.put(ProjectDirConstants.HOME_REPO_ENV_KEY, tempHomeDirectory.toString());
+        retMap.put("BALLERINA_DEV_STAGE_CENTRAL", "true");
+        return retMap;
     }
 
     /**

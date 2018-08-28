@@ -18,7 +18,6 @@
 package org.ballerinalang.test.context;
 
 import org.apache.commons.lang3.ArrayUtils;
-import org.apache.mina.util.ConcurrentHashSet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -68,32 +67,34 @@ public class BMainInstance implements BMain {
 
     @Override
     public void runMain(String balFile) throws BallerinaTestException {
-        runMain(balFile, new String[]{});
+        runMain(balFile, new String[]{}, new String[]{});
     }
 
     @Override
     public void runMain(String balFile, LogLeecher[] leechers) throws BallerinaTestException {
-        runMain(balFile, new String[]{}, leechers);
+        runMain(balFile, new String[]{}, new String[]{}, leechers);
     }
 
     @Override
-    public void runMain(String balFile, String[] args) throws BallerinaTestException {
-        runMain(balFile, args, null, null);
+    public void runMain(String balFile, String[] flags, String[] args) throws BallerinaTestException {
+        runMain(balFile, flags, args, null, null);
     }
 
     @Override
-    public void runMain(String balFile, String[] args, LogLeecher[] leechers) throws BallerinaTestException {
-        runMain(balFile, args, null, new String[]{}, leechers);
+    public void runMain(String balFile, String[] flags,
+                        String[] args, LogLeecher[] leechers) throws BallerinaTestException {
+        runMain(balFile, flags, args, null, new String[]{}, leechers);
     }
 
     @Override
-    public void runMain(String balFile, String[] args, Map<String, String> envProperties,
+    public void runMain(String balFile, String[] flags, String[] args, Map<String, String> envProperties,
                         String[] clientArgs) throws BallerinaTestException {
-        runMain(balFile, args, envProperties, clientArgs, null);
+        runMain(balFile, flags, args, envProperties, clientArgs, null);
     }
 
     @Override
-    public void runMain(String balFile, String[] args, Map<String, String> envProperties, String[] clientArgs, LogLeecher[] leechers) throws BallerinaTestException {
+    public void runMain(String balFile, String[] flags, String[] args, Map<String, String> envProperties,
+                        String[] clientArgs, LogLeecher[] leechers) throws BallerinaTestException {
         if (balFile == null || balFile.isEmpty()) {
             throw new IllegalArgumentException("Invalid ballerina program file name provided, name - " + balFile);
         }
@@ -106,42 +107,45 @@ public class BMainInstance implements BMain {
             envProperties = new HashMap<>();
         }
 
-        String[] newArgs = {balFile};
+        String[] newArgs = ArrayUtils.addAll(flags, balFile);
         newArgs = ArrayUtils.addAll(newArgs, args);
 
         addJavaAgents(envProperties);
 
-        runMain(newArgs, envProperties, clientArgs, leechers);
+        runMain("run", newArgs, envProperties, clientArgs, leechers, balServer.getServerHome());
     }
 
     @Override
     public void runMain(String sourceRoot, String packagePath) throws BallerinaTestException {
-        runMain(sourceRoot, packagePath, new String[]{});
+        runMain(sourceRoot, packagePath, new String[]{}, new String[]{});
     }
 
     @Override
     public void runMain(String sourceRoot, String packagePath, LogLeecher[] leechers) throws BallerinaTestException {
-        runMain(sourceRoot, packagePath, new String[]{}, leechers);
+        runMain(sourceRoot, packagePath, new String[]{}, new String[]{}, leechers);
     }
 
     @Override
-    public void runMain(String sourceRoot, String packagePath, String[] args) throws BallerinaTestException {
-        runMain(sourceRoot, packagePath, args, null, null);
+    public void runMain(String sourceRoot, String packagePath,
+                        String[] flags, String[] args) throws BallerinaTestException {
+        runMain(sourceRoot, packagePath, flags, args, null, null);
     }
 
     @Override
-    public void runMain(String sourceRoot, String packagePath, String[] args,
+    public void runMain(String sourceRoot, String packagePath, String[] flags, String[] args,
                         LogLeecher[] leechers) throws BallerinaTestException {
-        runMain(sourceRoot, packagePath, args, null, new String[]{}, leechers);
+        runMain(sourceRoot, packagePath, flags, args, null, new String[]{}, leechers);
     }
 
     @Override
-    public void runMain(String sourceRoot, String packagePath, String[] args, Map<String, String> envProperties, String[] clientArgs) throws BallerinaTestException {
-        runMain(sourceRoot, packagePath, args, envProperties, clientArgs, null);
+    public void runMain(String sourceRoot, String packagePath, String[] flags, String[] args,
+                        Map<String, String> envProperties, String[] clientArgs) throws BallerinaTestException {
+        runMain(sourceRoot, packagePath, flags, args, envProperties, clientArgs, null);
     }
 
     @Override
-    public void runMain(String sourceRoot, String packagePath, String[] args, Map<String, String> envProperties,
+    public void runMain(String sourceRoot, String packagePath,
+                        String[] flags, String[] args, Map<String, String> envProperties,
                         String[] clientArgs, LogLeecher[] leechers) throws BallerinaTestException {
         if (sourceRoot == null || sourceRoot.isEmpty() || packagePath == null || packagePath.isEmpty()) {
             throw new IllegalArgumentException("Invalid ballerina program file provided, sourceRoot - "
@@ -161,7 +165,7 @@ public class BMainInstance implements BMain {
 
         addJavaAgents(envProperties);
 
-        runMain(newArgs, envProperties, clientArgs, leechers);
+        runMain("run", newArgs, envProperties, clientArgs, leechers, balServer.getServerHome());
     }
 
     private void addJavaAgents(Map<String, String> envProperties) throws BallerinaTestException {
@@ -176,27 +180,37 @@ public class BMainInstance implements BMain {
     /**
      * Executing the sh or bat file to start the server.
      *
+     * @param command       command to run
      * @param args          command line arguments to pass when executing the sh or bat file
      * @param envProperties environmental properties to be appended to the environment
      * @param clientArgs    arguments which program expects
      * @param leechers      log leechers to check the log if any
+     * @param commandDir    where to execute the command
      * @throws BallerinaTestException if starting services failed
      */
-    private void runMain(String[] args, Map<String, String> envProperties, String[] clientArgs,
-                         LogLeecher... leechers) throws BallerinaTestException {
+    public void runMain(String command, String[] args, Map<String, String> envProperties, String[] clientArgs,
+                         LogLeecher[] leechers, String commandDir) throws BallerinaTestException {
         String scriptName = Constant.BALLERINA_SERVER_SCRIPT_NAME;
         String[] cmdArray;
-        File commandDir = new File(balServer.getServerHome());
         try {
-            if (Utils.getOSName().toLowerCase(Locale.ENGLISH).contains("windows")) {
-                commandDir = new File(balServer.getServerHome() + File.separator + "bin");
-                cmdArray = new String[]{"cmd.exe", "/c", scriptName + ".bat", "run"};
 
+            if (Utils.getOSName().toLowerCase(Locale.ENGLISH).contains("windows")) {
+                cmdArray = new String[]{"cmd.exe", "/c", balServer.getServerHome() +
+                        File.separator + "bin" + File.separator + scriptName + ".bat", command};
             } else {
-                cmdArray = new String[]{"bash", "bin/" + scriptName, "run"};
+                cmdArray = new String[]{"bash", balServer.getServerHome() +
+                        File.separator + "bin/" + scriptName, command};
             }
+
+//            if (Utils.getOSName().toLowerCase(Locale.ENGLISH).contains("windows")) {
+//                commandDir = new File(balServer.getServerHome() + File.separator + "bin");
+//                cmdArray = new String[]{"cmd.exe", "/c", scriptName + ".bat", command};
+//
+//            } else {
+//                cmdArray = new String[]{"bash", "bin/" + scriptName, command};
+//            }
             String[] cmdArgs = Stream.concat(Arrays.stream(cmdArray), Arrays.stream(args)).toArray(String[]::new);
-            ProcessBuilder processBuilder = new ProcessBuilder(cmdArgs).directory(commandDir);
+            ProcessBuilder processBuilder = new ProcessBuilder(cmdArgs).directory(new File(commandDir));
             if (envProperties != null) {
                 Map<String, String> env = processBuilder.environment();
                 for (Map.Entry<String, String> entry : envProperties.entrySet()) {

@@ -93,7 +93,7 @@ public class WebSubServiceExtensionTestCase extends WebSubBaseTest {
         webSubSubscriber.addLogLeecher(byHeaderAndPayloadFeaturePullLogLeecher);
         webSubSubscriber.addLogLeecher(byHeaderAndPayloadKeyOnlyLogLeecher);
 
-        webSubSubscriber.startServer(subscriberBal);
+        webSubSubscriber.startServer(subscriberBal, new int[]{servicePort});
 
         // Wait for the services to start up
         Map<String, String> headers = new HashMap<>(2);

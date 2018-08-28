@@ -57,8 +57,9 @@ public class TableToXMLStreamingTestCase extends BaseTest {
                 .toAbsolutePath().toString();
         Map<String, String> envProperties = new HashMap<>(1);
         envProperties.put("JAVA_OPTS", "-Xms100m -Xmx100m");
+        int[] requiredPorts = {9090};
         serverInstance = new BServerInstance(balServer);
-        serverInstance.startServer(balFile, null, envProperties);
+        serverInstance.startServer(balFile, null, envProperties, requiredPorts);
     }
 
     private void setUpDatabase() throws SQLException {

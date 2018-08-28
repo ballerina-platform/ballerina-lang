@@ -17,6 +17,8 @@
  */
 package org.ballerinalang.test.packaging.grpc;
 
+import org.ballerinalang.test.BaseTest;
+import org.ballerinalang.test.context.BServerInstance;
 import org.ballerinalang.test.context.Constant;
 import org.ballerinalang.test.context.LogLeecher;
 import org.ballerinalang.test.context.ServerInstanceOld;
@@ -36,7 +38,7 @@ import java.util.Map;
 /**
  * Test packaged gRPC service with nested ballerina record type for input and output.
  */
-public class ServicePackagingTestCase {
+public class ServicePackagingTestCase extends BaseTest {
 
     private Path tempProjectDirectory;
     private String serverZipPath = System.getProperty(Constant.SYSTEM_PROP_SERVER_ZIP);
@@ -67,8 +69,8 @@ public class ServicePackagingTestCase {
         ballerinaBuildServer.runMain(new String[0], getEnvVariables(), "build", projectPath.toString());
         Path generatedBalx = projectPath.resolve("target").resolve("foo.balx");
         // Run gRPC service from the balx file.
-        ServerInstance ballerinaServerForService = ServerInstance.initBallerinaServer();
-        ballerinaServerForService.startBallerinaServer(generatedBalx.toString());
+        BServerInstance ballerinaServerForService = new BServerInstance(balServer);
+        ballerinaServerForService.startServer(generatedBalx.toString());
 
         try {
             // run gRPC client to connect with the service.
@@ -83,7 +85,7 @@ public class ServicePackagingTestCase {
             logLeecher1.waitForText(10000);
             logLeecher2.waitForText(10000);
         } finally {
-            ballerinaServerForService.stopServer();
+            ballerinaServerForService.shutdownServer();
         }
 
     }

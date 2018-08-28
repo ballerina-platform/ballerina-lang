@@ -103,8 +103,10 @@ public class WebServer {
             b.option(ChannelOption.SO_BACKLOG, 1024);
             b.option(ChannelOption.SO_REUSEADDR, true);
             b.group(loopGroup).channel(serverChannelClass).childHandler(new WebServerInitializer());
+            b.option(ChannelOption.MAX_MESSAGES_PER_READ, Integer.MAX_VALUE);
             b.childOption(ChannelOption.ALLOCATOR, new PooledByteBufAllocator(true));
             b.childOption(ChannelOption.SO_REUSEADDR, true);
+            b.childOption(ChannelOption.MAX_MESSAGES_PER_READ, Integer.MAX_VALUE);
 
             final Channel ch = b.bind(inet).sync().channel();
             ch.closeFuture().sync();

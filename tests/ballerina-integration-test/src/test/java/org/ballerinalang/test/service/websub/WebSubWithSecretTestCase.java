@@ -81,7 +81,7 @@ public class WebSubWithSecretTestCase extends WebSubBaseTest {
 
         Executors.newSingleThreadExecutor().execute(() -> {
             try {
-                webSubPublisher.runMain(publisherBal, clientArgs);
+                webSubPublisher.runMain(publisherBal, clientArgs, new String[]{});
             } catch (BallerinaTestException e) {
                 //ignored since any errors here would be reflected as test failures
             }
@@ -95,7 +95,7 @@ public class WebSubWithSecretTestCase extends WebSubBaseTest {
             return response.getResponseCode() == 202;
         });
 
-        webSubSubscriber.startServer(subscriberBal);
+        webSubSubscriber.startServer(subscriberBal, new int[]{subscriberServicePort});
 
         //Allow to start up the subscriber service
         given().ignoreException(ConnectException.class).with().pollInterval(Duration.FIVE_SECONDS).and()

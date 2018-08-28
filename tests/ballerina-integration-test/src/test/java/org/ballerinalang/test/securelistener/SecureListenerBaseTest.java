@@ -35,12 +35,14 @@ public class SecureListenerBaseTest extends BaseTest {
 
     @BeforeGroups(value = "secure-listener-test", alwaysRun = true)
     public void start() throws BallerinaTestException {
+        int[] requiredPorts = new int[]{9090, 9091, 9092, 9093, 9094, 9095, 9096};
+
         String basePath = new File("src" + File.separator + "test" + File.separator + "resources" + File.separator +
                 "secureListener").getAbsolutePath();
         String ballerinaConfPath = basePath + File.separator + "ballerina.conf";
         String[] args = new String[]{"--config", ballerinaConfPath};
         serverInstance = new BServerInstance(balServer);
-        serverInstance.startServer(basePath, "secureservices", args);
+        serverInstance.startServer(basePath, "secureservices", args, requiredPorts);
     }
 
     @AfterGroups(value = "secure-listener-test", alwaysRun = true)
