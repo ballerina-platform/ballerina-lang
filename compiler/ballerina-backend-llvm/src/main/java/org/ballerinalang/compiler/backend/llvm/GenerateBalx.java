@@ -21,6 +21,8 @@ package org.ballerinalang.compiler.backend.llvm;
 import org.ballerinalang.compiler.BLangCompilerException;
 import org.ballerinalang.compiler.CompilerPhase;
 import org.wso2.ballerinalang.compiler.Compiler;
+import org.wso2.ballerinalang.compiler.FileSystemProjectDirectory;
+import org.wso2.ballerinalang.compiler.SourceDirectory;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.CompilerOptions;
 import org.wso2.ballerinalang.compiler.util.diagnotic.BLangDiagnosticLog;
@@ -48,6 +50,7 @@ public class GenerateBalx {
         options.put(COMPILER_PHASE, CompilerPhase.CODE_GEN.toString());
         options.put(OFFLINE, Boolean.toString(true));
         options.put(SKIP_TESTS, Boolean.toString(true));
+        context.put(SourceDirectory.class, new FileSystemProjectDirectory(prjctDir));
 
         Compiler compiler = Compiler.getInstance(context);
         compiler.write(compiler.build(args[1]), args[2]);
