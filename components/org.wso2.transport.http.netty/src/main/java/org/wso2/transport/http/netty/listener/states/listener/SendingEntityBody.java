@@ -228,8 +228,15 @@ public class SendingEntityBody implements ListenerState {
                 //next sequence number should be updated.
                 nextSequenceNumber++;
                 sourceContext.channel().attr(Constants.NEXT_SEQUENCE_NUMBER).set(nextSequenceNumber);
+                if (log.isDebugEnabled()) {
+                    log.debug("Current sequence id of the response : " + outboundResponseMsg.getSequenceId());
+                    log.debug("Updated next sequence id to : " + nextSequenceNumber);
+                }
             }
             if (!responseQueue.isEmpty()) {
+                if (log.isDebugEnabled()) {
+                    log.debug("Pipelining logic is triggered from transport");
+                }
                 //Notify ballerina to send the response which is next in queue. This is needed because,
                 // if the other responses got ready before the nextSequenceNumber gets updated then the
                 // ballerina respond() won't start serializing the responses in queue. This is to trigger

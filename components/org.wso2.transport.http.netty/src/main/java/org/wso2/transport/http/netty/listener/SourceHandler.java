@@ -254,6 +254,9 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
      * Sequence number should be incremented per request.
      */
     private void setSequenceNumber() {
+        if (log.isDebugEnabled()) {
+            log.debug("Sequence id of the request is set to : " + sequenceId);
+        }
         inboundRequestMsg.setSequenceId(sequenceId);
         sequenceId++;
     }
