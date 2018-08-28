@@ -3,7 +3,7 @@ int add;
 function testInt1 () returns (int, int, int, int, int, float) {
     add = 0;
     int[] fa = [-5, 2, 4, 5, 7, -8, -3, 2];
-    fa.foreach(function (int i) returns { add = add + i;});
+    fa.foreach(function (int i) { add = add + i;});
     int fadd1 = add;
     int count = fa.count();
     int max = fa.max();
@@ -31,7 +31,7 @@ float fadd;
 function testFloat1() returns (float, int, float, float, float, float){
     fadd = 0;
     float[] fa = [1.1, 2.2, -3.3, 4.4, 5.5];
-    fa.foreach(function (float i) returns { fadd = fadd + i;});
+    fa.foreach(function (float i) { fadd = fadd + i;});
     float fsum = fadd;
     int count = fa.count();
     float max = fa.max();
@@ -80,7 +80,7 @@ function testBasicArray2 (string[] values) returns (string) {
                    var (a, b) = tuple;
                    return a + b;
                })
-    .foreach(function (string s) returns {
+    .foreach(function (string s) {
                  output = output + s + " ";
              });
     return output.trim();
@@ -127,7 +127,7 @@ json j1 = {name:"bob", age:10, pass:true, subjects:[{subject:"maths", marks:75},
 
 function jsonTest () returns (string, string[], int, int, string[]) {
     output = "";
-    j1.foreach(function (json j) returns {
+    j1.foreach(function (json j) {
                    output = output + j.toString();
                });
 

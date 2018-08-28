@@ -1058,15 +1058,14 @@ public class SourceGen {
                  + a("", sourceGenParams.isShouldIndent())
                  + getSourceOf(node.getAsJsonObject("restParameters"), pretty, replaceLambda)
                  + w("", sourceGenParams) + ")" + a(" ", sourceGenParams.isShouldIndent())
-                 + w("", sourceGenParams) + "returns"
-                 + a(" ", sourceGenParams.isShouldIndent()) + w("", sourceGenParams) + "{"
-                 + a("", sourceGenParams.isShouldIndent()) + indent()
+                 + w("", sourceGenParams) + "{" + a("", sourceGenParams.isShouldIndent())
+                 + indent()
                  + join(node.getAsJsonArray("endpointNodes"), pretty, replaceLambda, "", null, false, sourceGenParams)
                  + a("", sourceGenParams.isShouldIndent())
                  + getSourceOf(node.getAsJsonObject("body"), pretty, replaceLambda)
-                 + join(node.getAsJsonArray("workers"), pretty, replaceLambda, "", null, false, sourceGenParams) + outdent(node, sourceGenParams.isShouldIndent())
-                 + w("", sourceGenParams) + "}"
-                 + a("", sourceGenParams.isShouldIndent());
+                 + join(node.getAsJsonArray("workers"), pretty, replaceLambda, "", null, false, sourceGenParams)
+                 + outdent(node, sourceGenParams.isShouldIndent())
+                 + w("", sourceGenParams) + "}" + a("", sourceGenParams.isShouldIndent());
             } else if (node.get("lambda") != null && node.get("lambda") .getAsBoolean()
                          && node.get("documentationAttachments") != null
                          && node.get("annotationAttachments") != null
@@ -1082,15 +1081,13 @@ public class SourceGen {
                  + a("", sourceGenParams.isShouldIndent())
                  + join(node.getAsJsonArray("allParams"), pretty, replaceLambda, "", ",", false, sourceGenParams) + w("", sourceGenParams)
                  + ")" + a(" ", sourceGenParams.isShouldIndent())
-                 + w("", sourceGenParams) + "returns" + a(" ", sourceGenParams.isShouldIndent())
-                 + w("", sourceGenParams) + "{"
-                 + a("", sourceGenParams.isShouldIndent()) + indent()
+                 + w("", sourceGenParams) + "{" + a("", sourceGenParams.isShouldIndent()) + indent()
                  + join(node.getAsJsonArray("endpointNodes"), pretty, replaceLambda, "", null, false, sourceGenParams)
                  + a("", sourceGenParams.isShouldIndent())
                  + getSourceOf(node.getAsJsonObject("body"), pretty, replaceLambda)
                  + join(node.getAsJsonArray("workers"), pretty, replaceLambda, "", null, false, sourceGenParams)
-                 + outdent(node, sourceGenParams.isShouldIndent())
-                 + w("", sourceGenParams) + "}" + a("", sourceGenParams.isShouldIndent());
+                 + outdent(node, sourceGenParams.isShouldIndent()) + w("", sourceGenParams) + "}"
+                 + a("", sourceGenParams.isShouldIndent());
             } else if (node.get("noVisibleReceiver") != null
                          && node.get("noVisibleReceiver") .getAsBoolean()
                          && node.get("documentationAttachments") != null && node.get("annotationAttachments") != null

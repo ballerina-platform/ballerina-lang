@@ -59,6 +59,7 @@ import org.ballerinalang.model.tree.clauses.WithinClause;
 import org.ballerinalang.model.tree.expressions.AnnotationAttachmentAttributeNode;
 import org.ballerinalang.model.tree.expressions.AnnotationAttachmentAttributeValueNode;
 import org.ballerinalang.model.tree.expressions.ArrayLiteralNode;
+import org.ballerinalang.model.tree.expressions.ArrowFunctionNode;
 import org.ballerinalang.model.tree.expressions.BinaryExpressionNode;
 import org.ballerinalang.model.tree.expressions.BracedOrTupleExpression;
 import org.ballerinalang.model.tree.expressions.CheckedExpressionNode;
@@ -183,6 +184,7 @@ import org.wso2.ballerinalang.compiler.tree.clauses.BLangWithinClause;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangAnnotAttachmentAttribute;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangAnnotAttachmentAttributeValue;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrayLiteral;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrowFunction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangAwaitExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBracedOrTupleExpr;
@@ -455,6 +457,10 @@ public class TreeBuilder {
 
     public static LambdaFunctionNode createLambdaFunctionNode() {
         return new BLangLambdaFunction();
+    }
+
+    public static ArrowFunctionNode createArrowFunctionNode() {
+        return new BLangArrowFunction();
     }
 
     public static TypeInitNode createObjectInitNode() {

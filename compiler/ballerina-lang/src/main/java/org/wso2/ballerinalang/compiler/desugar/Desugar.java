@@ -68,6 +68,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangXMLNS.BLangPackageXMLNS;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangAccessExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrayLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrayLiteral.BLangJSONArrayLiteral;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrowFunction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangAwaitExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBracedOrTupleExpr;
@@ -1454,6 +1455,17 @@ public class Desugar extends BLangNodeVisitor {
     @Override
     public void visit(BLangLambdaFunction bLangLambdaFunction) {
         result = bLangLambdaFunction;
+    }
+
+    @Override
+    public void visit(BLangArrowFunction bLangArrowFunction) {
+        BLangLambdaFunction lambdaFunction = bLangArrowFunction.lambdaFunction;
+        lambdaFunction.pos = bLangArrowFunction.pos;
+        lambdaFunction.type = bLangArrowFunction.type;
+        lambdaFunction.parent = bLangArrowFunction.parent;
+        rewrite(lambdaFunction.function, env);
+        env.enclPkg.addFunction(lambdaFunction.function);
+        result = lambdaFunction;
     }
 
     @Override

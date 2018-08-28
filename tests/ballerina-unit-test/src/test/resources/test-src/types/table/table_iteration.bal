@@ -71,7 +71,7 @@ function testForEachInTable() returns (int, int, float, string) {
 
     table<Person> dt = check testDB->select("SELECT * from Person where id = 1", Person);
 
-    dt.foreach(function (Person p) returns {
+    dt.foreach(function (Person p) {
             idValue = untaint p.id;
             ageValue = untaint p.age;
             salValue = untaint p.salary;

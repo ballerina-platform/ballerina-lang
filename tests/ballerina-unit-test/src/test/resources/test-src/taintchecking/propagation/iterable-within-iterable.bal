@@ -7,7 +7,7 @@ function main (string... args) {
                         secureFunction("untainted", "untainted");
                         return compType.toString() == "street_number";
                     }).count() > 0; })
-    .foreach(function (json k) returns { globalVar = k;});
+    .foreach(function (json k) { globalVar = k;});
 }
 
 function secureFunction (@sensitive string secureIn, string insecureIn) {

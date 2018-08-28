@@ -184,6 +184,18 @@ public class BallerinaParserBaseListener implements BallerinaParserListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
+	@Override public void enterArrowFunction(BallerinaParser.ArrowFunctionContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitArrowFunction(BallerinaParser.ArrowFunctionContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
 	@Override public void enterCallableUnitSignature(BallerinaParser.CallableUnitSignatureContext ctx) { }
 	/**
 	 * {@inheritDoc}
@@ -1655,6 +1667,18 @@ public class BallerinaParserBaseListener implements BallerinaParserListener {
 	 * <p>The default implementation does nothing.</p>
 	 */
 	@Override public void exitNamespaceDeclaration(BallerinaParser.NamespaceDeclarationContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterArrowFunctionExpression(BallerinaParser.ArrowFunctionExpressionContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitArrowFunctionExpression(BallerinaParser.ArrowFunctionExpressionContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
