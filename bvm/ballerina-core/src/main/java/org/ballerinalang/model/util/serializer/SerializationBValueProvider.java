@@ -26,7 +26,6 @@ import org.ballerinalang.model.values.BValue;
  * you  don't have to execute it in {@code toBValue} method as it will be executed by {@link JsonDeserializer} class.
  *
  * @param <T> Type to be serialized
- *
  * @since 0.98.1
  */
 public interface SerializationBValueProvider<T> {
@@ -39,9 +38,34 @@ public interface SerializationBValueProvider<T> {
         return getType().getName();
     }
 
+    /**
+     * Return the class of type that this {@link SerializationBValueProvider} providing for.
+     */
     Class<?> getType();
 
+    /**
+     * Convert Java object into BValue tree.
+     * <p>
+     * BValueSerializer instance is injected to support serialize inner objects with in the type.
+     * <p>
+     * For example: When implementing {@link SerializationBValueProvider} for a array
+     * we could use provided BValueSerializer instance to serialize elements of the array.
+     *
+     * @param object     Java object to be serialized.
+     * @param serializer Instance of BValueSerializer to support inner object serialization.
+     * @return BValue tree representing target object.
+     */
     BValue toBValue(T object, BValueSerializer serializer);
 
+    /**
+     * Convert {@link BValue} tree or sub-tree into Java object of type T.
+     * <p>
+     * Similar to {@code toBValue} method an instance of BValueDeserializer is injected
+     * to help deserialize child elements.
+     *
+     * @param bValue             {@link BValue} to be converted.
+     * @param bValueDeserializer Instance of {@link BValueDeserializer}.
+     * @return Java object representing given BValue tree.
+     */
     T toObject(BValue bValue, BValueDeserializer bValueDeserializer);
 }

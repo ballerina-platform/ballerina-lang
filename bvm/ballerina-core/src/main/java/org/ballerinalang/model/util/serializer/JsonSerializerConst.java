@@ -38,5 +38,6 @@ public class JsonSerializerConst {
     public static final String COMPONENT_TYPE = "componentType#";
     public static final String MAP_TYPE_TAG = "map_type#";
 
-    private JsonSerializerConst() {}
+    private JsonSerializerConst() {
+    }
 }

@@ -23,7 +23,21 @@ package org.ballerinalang.model.util.serializer;
  * @since 0.98.1
  */
 public interface ObjectToJsonSerializer {
-    String serialize(Object obj);
+    /**
+     * Generate JSON serialized output from the given Java object instance.
+     *
+     * @param object instance to be serialized.
+     * @return Json String.
+     */
+    String serialize(Object object);
 
-    <T> T deserialize(String serialized, Class<T> targetClass);
+    /**
+     * Deserialize Json string into Java object starting from {@code targetClass}.
+     *
+     * @param jsonString  Json string to be deserialized.
+     * @param targetClass Target type to start deserialization.
+     * @param <T>         Generic type of target type.
+     * @return Deserialized object from {@code jsonString}.
+     */
+    <T> T deserialize(String jsonString, Class<T> targetClass);
 }

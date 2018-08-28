@@ -25,5 +25,12 @@ import org.ballerinalang.model.values.BValue;
  * @since 0.98.1
  */
 public interface BValueSerializer {
+    /**
+     * Convert {@code src} Java object into {@link BValue} representation.
+     *
+     * @param src          Java object to be converted.
+     * @param leftSideType Type of the field {@code src} is assigned to, or null if doesn't apply.
+     * @return {@link BValue} representation of Java object.
+     */
     BValue toBValue(Object src, Class<?> leftSideType);
 }

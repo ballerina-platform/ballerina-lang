@@ -75,7 +75,8 @@ public class BTypes {
                 return org.ballerinalang.model.types.BTypes.typeXMLAttributes;
             default:
                 if (typeName.endsWith("[]")) {
-                    BType elemType = fromString(typeName.substring(0, typeName.length() - 2));
+                    String elementTypeName = typeName.substring(0, typeName.length() - 2);
+                    BType elemType = fromString(elementTypeName);
                     return new BArrayType(elemType);
                 }
                 throw new BallerinaException("Unknown type name: " + typeName);

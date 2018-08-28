@@ -86,7 +86,7 @@ class BValueHelper {
     /**
      * Walk the object graph and remove the HASH code from nodes that does not repeat.
      *
-     * @param jsonObj BValue tree to be trimmed.
+     * @param jsonObj              BValue tree to be trimmed.
      * @param repeatedReferenceSet Set of hashCodes of repeated references.
      */
     @SuppressWarnings("unchecked")

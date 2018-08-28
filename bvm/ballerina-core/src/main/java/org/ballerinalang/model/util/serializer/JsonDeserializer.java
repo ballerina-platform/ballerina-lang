@@ -49,14 +49,15 @@ import static org.ballerinalang.model.util.serializer.ObjectHelper.findPrimitive
  */
 class JsonDeserializer implements BValueDeserializer {
     private static final InstanceProviderRegistry instanceProvider = InstanceProviderRegistry.getInstance();
-    private final BValueProvider bValueProvider;
-    private final HashMap<String, Object> identityMap;
-    private final BRefType<?> treeHead;
 
     static {
         instanceProvider.add(new MapInstanceProvider());
         instanceProvider.add(new ListInstanceProvider());
     }
+
+    private final BValueProvider bValueProvider;
+    private final HashMap<String, Object> identityMap;
+    private final BRefType<?> treeHead;
 
     JsonDeserializer(BRefType<?> objTree) {
         treeHead = objTree;
@@ -64,6 +65,12 @@ class JsonDeserializer implements BValueDeserializer {
         identityMap = new HashMap<>();
     }
 
+    /**
+     * Deserialize {@link BValue} tree into Java object graph.
+     *
+     * @param destinationType Starting node type for object graph.
+     * @return reconstructed object graph.
+     */
     Object deserialize(Class<?> destinationType) {
         if (ObjectHelper.isInstantiable(destinationType)) {
             return deserialize(treeHead, destinationType);
@@ -72,6 +79,7 @@ class JsonDeserializer implements BValueDeserializer {
         }
     }
 
+    @Override
     @SuppressWarnings("unchecked")
     public Object deserialize(BValue jValue, Class<?> targetType) {
         if (jValue instanceof BMap) {
@@ -162,6 +170,7 @@ class JsonDeserializer implements BValueDeserializer {
             }
         }
 
+        // try reflective reconstruction
         if (object == null) {
             Object emptyInstance = createInstance(jBMap, targetType);
             addObjReference(jBMap, emptyInstance);
@@ -244,6 +253,7 @@ class JsonDeserializer implements BValueDeserializer {
         return null;
     }
 
+    @Override
     public Object getExistingObjRef(String key) {
         return identityMap.get(key);
     }
@@ -253,7 +263,7 @@ class JsonDeserializer implements BValueDeserializer {
      * Create a empty java object instance for target type.
      *
      * @param jsonNode Data to be populated.
-     * @param target type of which the object to be created.
+     * @param target   type of which the object to be created.
      * @return instance of given type.
      */
     private Object createInstance(BMap<String, BValue> jsonNode, Class<?> target) {

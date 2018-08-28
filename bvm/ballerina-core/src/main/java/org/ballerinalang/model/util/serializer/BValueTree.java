@@ -52,9 +52,9 @@ import static org.ballerinalang.model.util.serializer.ObjectHelper.getTrimmedCla
  * @since 0.98.1
  */
 public class BValueTree implements BValueSerializer, Closeable {
+    private static final BValueProvider bValueProvider = BValueProvider.getInstance();
     private final IdentityHashMap<Object, Object> identityMap = new IdentityHashMap<>();
     private final HashSet<String> repeatedReferenceSet = new HashSet<>();
-    private static final BValueProvider bValueProvider = BValueProvider.getInstance();
     private BRefValueArrays bRefValueArrays;
     private boolean isClosed;
 
@@ -63,6 +63,12 @@ public class BValueTree implements BValueSerializer, Closeable {
         bRefValueArrays = new BRefValueArrays(this);
     }
 
+    /**
+     * Convert given Java object and it's references to {@link BValue} tree representation.
+     *
+     * @param src Java object to be converted
+     * @return Converted {@link BValue} tree
+     */
     BRefType toBValueTree(Object src) {
         try {
             BRefType tree = toBValue(src, src.getClass());

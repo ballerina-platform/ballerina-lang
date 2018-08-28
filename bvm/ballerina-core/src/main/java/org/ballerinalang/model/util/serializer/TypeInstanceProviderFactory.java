@@ -101,7 +101,7 @@ public class TypeInstanceProviderFactory {
                         | NoSuchMethodException
                         | IllegalAccessException
                         | InvocationTargetException e) {
-                    // Control reaching this point means all the attempt at creating an instance of this class failed.
+                    // Control reaching this point means all attempts at creating an instance of this class has failed.
                     // Only option is to provide a SerializationBValueProvider or TypeInstanceProvider for this type.
                     throw new BallerinaException(String.format("%s cannot instantiate object of %s, maybe add a %s",
                             JsonSerializer.class.getSimpleName(),

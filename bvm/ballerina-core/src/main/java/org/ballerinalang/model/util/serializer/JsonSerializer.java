@@ -89,12 +89,6 @@ public class JsonSerializer implements ObjectToJsonSerializer {
         return InstanceProviderRegistry.getInstance();
     }
 
-    /**
-     * Generate JSON serialized output from the given Java object instance.
-     *
-     * @param object instance to be serialized.
-     * @return Json String.
-     */
     @Override
     public String serialize(Object object) {
         if (object == null) {

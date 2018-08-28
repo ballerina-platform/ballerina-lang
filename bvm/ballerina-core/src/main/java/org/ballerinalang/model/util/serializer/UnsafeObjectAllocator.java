@@ -30,7 +30,8 @@ import java.lang.reflect.Method;
  * @since 0.98.1
  */
 class UnsafeObjectAllocator {
-    private UnsafeObjectAllocator() {}
+    private UnsafeObjectAllocator() {
+    }
 
     static Object allocateFor(Class<?> clazz) throws
             ClassNotFoundException,

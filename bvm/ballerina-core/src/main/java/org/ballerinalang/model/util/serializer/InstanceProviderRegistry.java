@@ -19,7 +19,6 @@ package org.ballerinalang.model.util.serializer;
 
 import org.ballerinalang.util.exceptions.BallerinaException;
 
-import java.lang.reflect.Array;
 import java.util.HashMap;
 
 /**
@@ -41,16 +40,16 @@ public class InstanceProviderRegistry {
         return INSTANCE;
     }
 
+    /**
+     * Find {@link TypeInstanceProvider} implementation for given type.
+     *
+     * @param type To find TypeInstanceProvider for.
+     * @return TypeInstanceProvider for specified type.
+     */
     TypeInstanceProvider findInstanceProvider(String type) {
         TypeInstanceProvider provider = find(type);
         if (provider != null) {
             return provider;
-        }
-
-        if (type.endsWith("[]")) {
-            ArrayInstanceProvider arrayInstanceProvider = tryCreateArrayInstanceProvider(type);
-            add(arrayInstanceProvider);
-            return arrayInstanceProvider;
         }
 
         TypeInstanceProvider instanceProvider = generateProvider(type);
@@ -63,10 +62,6 @@ public class InstanceProviderRegistry {
 
     private TypeInstanceProvider find(String type) {
         return providerMap.get(type);
-    }
-
-    private ArrayInstanceProvider tryCreateArrayInstanceProvider(String type) {
-        return new ArrayInstanceProvider(type.substring(0, type.length() - 2));
     }
 
     private TypeInstanceProvider generateProvider(String type) {
@@ -88,34 +83,5 @@ public class InstanceProviderRegistry {
 
     public void add(TypeInstanceProvider provider) {
         providerMap.put(provider.getTypeName(), provider);
-    }
-
-    /**
-     * Provide instance of arrays of given type.
-     */
-    static class ArrayInstanceProvider implements TypeInstanceProvider {
-        final String type;
-        final TypeInstanceProvider typeProvider;
-
-        ArrayInstanceProvider(String type) {
-            this.type = type;
-            typeProvider = INSTANCE.findInstanceProvider(type);
-        }
-
-        @Override
-        public String getTypeName() {
-            return type + "[]";
-        }
-
-        @Override
-        public Object newInstance() {
-            Class typeClass = typeProvider.getTypeClass();
-            return Array.newInstance(typeClass, 0);
-        }
-
-        @Override
-        public Class getTypeClass() {
-            return newInstance().getClass();
-        }
     }
 }

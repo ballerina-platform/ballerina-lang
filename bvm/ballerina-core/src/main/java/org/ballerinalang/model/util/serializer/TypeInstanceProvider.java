@@ -24,9 +24,20 @@ package org.ballerinalang.model.util.serializer;
  * @since 0.98.1
  */
 public interface TypeInstanceProvider {
+    /**
+     * Get type name supported by this {@link TypeInstanceProvider}.
+     *
+     * @return type name as a string
+     */
     String getTypeName();
 
+    /**
+     * New empty object instance.
+     */
     Object newInstance();
 
+    /**
+     * Instance of type class, supported by this implementation.
+     */
     Class getTypeClass();
 }
