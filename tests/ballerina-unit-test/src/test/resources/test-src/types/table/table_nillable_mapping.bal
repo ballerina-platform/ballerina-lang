@@ -367,8 +367,8 @@ function testMappingNullToNillableTypesBlob(string jdbcUrl, string userName, str
         password: password,
         poolOptions: { maximumPoolSize: 1 }
     };
-    table<NillableBlob> dt = check testDB->select("SELECT blob_type from DataTypeTableNillableBlob where
-    row_id=4", NillableBlob);
+    table<NillableBlob> dt = check testDB->select("SELECT blob_type from DataTypeTableNillableBlob where row_id=4",
+        NillableBlob);
 
     byte[]? blob_type;
 

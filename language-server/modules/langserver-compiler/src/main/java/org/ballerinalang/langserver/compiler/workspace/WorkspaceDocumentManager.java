@@ -110,4 +110,10 @@ public interface WorkspaceDocumentManager {
      * @return set of {@link Path}
      */
     Set<Path> getAllFilePaths();
+
+    /**
+     * Clear all file paths.
+     *
+     */
+    void clearAllFilePaths();
 }
