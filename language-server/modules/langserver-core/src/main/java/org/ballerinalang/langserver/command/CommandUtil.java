@@ -161,6 +161,16 @@ public class CommandUtil {
             args.add(new CommandArgument(CommandConstants.ARG_KEY_DOC_URI, params.getTextDocument().getUri()));
             String commandTitle = CommandConstants.CREATE_FUNCTION_TITLE + " " + functionName + "(...)";
             commands.add(new Command(commandTitle, CommandConstants.CMD_CREATE_FUNCTION, args));
+        } else if (isVariableAssignmentRequired(diagnosticMessage)) {
+            BLangInvocation functionNode = getFunctionNode(params, documentManager, lsCompiler);
+            List<Object> args = new ArrayList<>();
+            String returnSignature = FunctionGenerator.getFuncReturnSignature(functionNode.type);
+            args.add(new CommandArgument(CommandConstants.ARG_KEY_RETURN_TYPE, returnSignature));
+            String funcLocation = functionNode.pos.sLine + "," + functionNode.pos.sCol;
+            args.add(new CommandArgument(CommandConstants.ARG_KEY_FUNC_LOCATION, funcLocation));
+            args.add(new CommandArgument(CommandConstants.ARG_KEY_DOC_URI, params.getTextDocument().getUri()));
+            String commandTitle = CommandConstants.CREATE_VARIABLE_TITLE;
+            commands.add(new Command(commandTitle, CommandConstants.CMD_CREATE_VARIABLE, args));
         }
         return commands;
     }
@@ -351,6 +361,10 @@ public class CommandUtil {
 
     private static boolean isUndefinedFunction(String diagnosticMessage) {
         return diagnosticMessage.toLowerCase(Locale.ROOT).contains(CommandConstants.UNDEFINED_FUNCTION);
+    }
+
+    private static boolean isVariableAssignmentRequired(String diagnosticMessage) {
+        return diagnosticMessage.toLowerCase(Locale.ROOT).contains(CommandConstants.VAR_ASSIGNMENT_REQUIRED);
     }
 
     private static BLangInvocation getFunctionNode(CodeActionParams params,

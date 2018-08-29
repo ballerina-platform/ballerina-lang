@@ -59,6 +59,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BMapType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BObjectType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStructureType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTableType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BXMLType;
@@ -770,6 +771,36 @@ public class CommonUtil {
     }
 
     /**
+     * Generate variable code.
+     *
+     * @param variableType          variable type
+     * @return {@link String}       generated function signature
+     */
+    public static String createVariable(String variableType) {
+        return variableType  + " " + generateName(1, new HashSet<>()) + " = ";
+    }
+
+    /**
+     * Generates a random name.
+     *
+     * @param value index of the argument
+     * @param argNames argument set
+     * @return random argument name
+     */
+    public static String generateName(int value, Set<String> argNames) {
+        StringBuilder result = new StringBuilder();
+        int index = value;
+        while (--index >= 0) {
+            result.insert(0, (char) ('a' + index % 26));
+            index /= 26;
+        }
+        while (argNames.contains(result.toString())) {
+            result = new StringBuilder(generateName(++value, argNames));
+        }
+        return result.toString();
+    }
+
+    /**
      * Inner class for generating function code.
      */
     public static class FunctionGenerator {
@@ -898,6 +929,12 @@ public class CommonUtil {
             return returnStatement.replace("{%1}", result);
         }
 
+        /**
+         * Returns signature of the return type.
+         *
+         * @param bLangNode {@link BLangNode}
+         * @return return type signature
+         */
         public static String getFuncReturnSignature(BLangNode bLangNode) {
             if (bLangNode.type == null && bLangNode instanceof BLangTupleDestructure) {
                 // Check for tuple assignment eg. (int, int)
@@ -916,7 +953,13 @@ public class CommonUtil {
             return (bLangNode.type != null) ? getFuncReturnSignature(bLangNode.type) : null;
         }
 
-        private static String getFuncReturnSignature(BType bType) {
+        /**
+         * Returns signature of the return type.
+         *
+         * @param bType {@link BType}
+         * @return return type signature
+         */
+        public static String getFuncReturnSignature(BType bType) {
             if (bType.tsymbol == null && bType instanceof BArrayType) {
                 // Check for array assignment eg.  int[]
                 return getFuncReturnSignature(((BArrayType) bType).eType.tsymbol) + "[]";
@@ -933,6 +976,13 @@ public class CommonUtil {
                     list.add(getFuncReturnSignature(memberType));
                 }
                 return "(" + String.join("|", list) + ")";
+            } else if (bType instanceof BTupleType) {
+                // Check for tuple type assignment eg. int, string
+                List<String> list = new ArrayList<>();
+                for (BType memberType : ((BTupleType) bType).tupleTypes) {
+                    list.add(getFuncReturnSignature(memberType));
+                }
+                return "(" + String.join(",", list) + ")";
             }
             return (bType.tsymbol != null) ? getFuncReturnSignature(bType.tsymbol) : "any";
         }
@@ -964,11 +1014,11 @@ public class CommonUtil {
                         BLangInvocation invocation = (BLangInvocation) bLangExpression;
                         String functionName = invocation.name.value;
                         String argType = lookupFunctionReturnType(functionName, parent);
-                        String argName = generateArgName(argCounter++, argNames);
+                        String argName = generateName(argCounter++, argNames);
                         list.add(argType + " " + argName);
                         argNames.add(argName);
                     } else {
-                        String argName = generateArgName(argCounter++, argNames);
+                        String argName = generateName(argCounter++, argNames);
                         list.add("any " + argName);
                         argNames.add(argName);
                     }
@@ -987,7 +1037,7 @@ public class CommonUtil {
                 int argCounter = 1;
                 Set<String> argNames = new HashSet<>();
                 for (BType bType : bInvokableType.getParameterTypes()) {
-                    String argName = generateArgName(argCounter++, argNames);
+                    String argName = generateName(argCounter++, argNames);
                     String argType = getFuncReturnSignature(bType);
                     list.add(argType + " " + argName);
                     argNames.add(argName);
@@ -1027,19 +1077,6 @@ public class CommonUtil {
             }
             return (parent != null && parent.parent != null)
                     ? lookupFunctionReturnType(functionName, parent.parent) : "any";
-        }
-
-        private static String generateArgName(int value, Set<String> argNames) {
-            StringBuilder result = new StringBuilder();
-            int index = value;
-            while (--index >= 0) {
-                result.insert(0, (char) ('a' + index % 26));
-                index /= 26;
-            }
-            while (argNames.contains(result.toString())) {
-                result = new StringBuilder(generateArgName(++value, argNames));
-            }
-            return result.toString();
         }
     }
 }

@@ -127,6 +127,24 @@ public class CommandExecutionTest {
         Assert.assertTrue(responseJson.equals(expected));
     }
 
+    @Test(dataProvider = "create-variable-data-provider")
+    public void testCreateVariable(String config, String source) {
+        String configJsonPath = "command" + File.separator + config;
+        Path sourcePath = sourcesPath.resolve("source").resolve(source);
+        JsonObject configJsonObject = FileUtils.fileContentAsObject(configJsonPath);
+        JsonObject expected = configJsonObject.get("expected").getAsJsonObject();
+        List<Object> args = new ArrayList<>();
+        args.add(new CommandUtil.CommandArgument(CommandConstants.ARG_KEY_DOC_URI, sourcePath.toUri().toString()));
+        args.add(new CommandUtil.CommandArgument(CommandConstants.ARG_KEY_FUNC_LOCATION,
+                                                 configJsonObject.get("functionLocation").getAsString()));
+        args.add(new CommandUtil.CommandArgument(CommandConstants.ARG_KEY_RETURN_TYPE,
+                                                 configJsonObject.get("functionReturnType").getAsString()));
+        JsonObject responseJson = getCommandResponse(args, CommandConstants.CMD_CREATE_VARIABLE);
+        responseJson.get("result").getAsJsonObject().get("edit").getAsJsonObject().getAsJsonArray("documentChanges")
+                .forEach(element -> element.getAsJsonObject().remove("textDocument"));
+        Assert.assertTrue(responseJson.equals(expected));
+    }
+
     @DataProvider(name = "package-import-data-provider")
     public Object[][] addImportDataProvider() {
         return new Object[][] {
@@ -161,6 +179,15 @@ public class CommandExecutionTest {
         return new Object[][] {
                 {"createUndefinedFunction1.json", "createUndefinedFunction.bal"},
                 {"createUndefinedFunction2.json", "createUndefinedFunction.bal"},
+        };
+    }
+
+    @DataProvider(name = "create-variable-data-provider")
+    public Object[][] createVariableDataProvider() {
+        return new Object[][] {
+                {"createVariable1.json", "createVariable.bal"},
+                {"createVariable2.json", "createVariable.bal"},
+                {"createVariable3.json", "createVariable.bal"},
         };
     }
 

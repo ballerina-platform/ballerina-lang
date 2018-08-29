@@ -1,0 +1,32 @@
+{
+    "functionReturnType": "int[]",
+    "functionLocation": "5,4",
+    "expected": {
+        "result": {
+            "edit": {
+                "changes": {
+                },
+                "documentChanges": [
+                    {
+                        "edits": [
+                            {
+                                "range": {
+                                    "start": {
+                                        "line": 4,
+                                        "character": 3
+                                    },
+                                    "end": {
+                                        "line": 4,
+                                        "character": 3
+                                    }
+                                },
+                                "newText": "int[] a = "
+                            }
+                        ]
+                    }
+                ]
+            }
+        },
+        "jsonrpc": "2.0"
+    }
+}
