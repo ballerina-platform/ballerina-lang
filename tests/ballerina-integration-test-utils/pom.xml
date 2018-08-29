@@ -96,18 +96,6 @@
                         <configuration>
                             <artifactSet>
                                 <excludes>
-                                    <!--<exclude>org.apache.mina:mina-core</exclude>-->
-                                    <!--<exclude>org.slf4j:slf4j-api</exclude>-->
-                                    <!--<exclude>org.apache.commons:commons-lang3</exclude>-->
-                                    <!--<exclude>org.wso2.eclipse.osgi:*</exclude>-->
-                                    <!--<exclude>io.netty:*</exclude>-->
-                                    <!--<exclude>*:commons-pool</exclude>-->
-                                    <!--<exclude>org.wso2.orbit.org.yaml:snakeyaml</exclude>-->
-                                    <!--<exclude>org.bouncycastle:*</exclude>-->
-                                    <!--<exclude>com.beust:jcommander</exclude>-->
-                                    <!--<exclude>org.wso2.transport.http:*</exclude>-->
-                                    <!--<exclude>org.testng:testng</exclude>-->
-
                                     <exclude>org.apache.mina:mina-core</exclude>
                                     <exclude>org.slf4j:slf4j-api</exclude>
                                     <exclude>org.apache.commons:commons-lang3</exclude>
@@ -131,7 +119,6 @@
                                     <exclude>io.netty:netty-tcnative-boringssl-static</exclude>
                                     <exclude>org.testng:testng</exclude>
                                     <exclude>com.beust:jcommander</exclude>
-                                    <!--<exclude>javassist:javassist</exclude>-->
                                     <exclude>io.netty:netty-codec-http</exclude>
                                     <exclude>io.netty:netty-transport-native-unix-common</exclude>
 
@@ -140,10 +127,6 @@
                                     <exclude>META-INF/*.DSA</exclude>
                                     <exclude>META-INF/*.RSA</exclude>
                                 </excludes>
-                                <!--<includes>-->
-                                    <!--<include>io.netty:netty-transport-native-epoll</include>-->
-                                    <!--<include>javassist:javassist</include>-->
-                                <!--</includes>-->
                             </artifactSet>
                         </configuration>
                     </execution>
