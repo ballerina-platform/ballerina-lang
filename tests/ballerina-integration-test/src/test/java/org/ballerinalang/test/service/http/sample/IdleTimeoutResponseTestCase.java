@@ -30,6 +30,8 @@ import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
 import java.nio.channels.SocketChannel;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Test idle timeout response for request timeout and server timeout.
@@ -182,7 +184,7 @@ public class IdleTimeoutResponseTestCase extends BaseTest {
                 socketChannel.write(buf);
             }
             if (numWritten == 2) {
-                Thread.sleep(2000);
+                new CountDownLatch(1).await(2, TimeUnit.SECONDS);
             }
         }
     }

@@ -42,6 +42,7 @@ import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.model.values.BXML;
+import org.ballerinalang.net.uri.URITemplateException;
 import org.ballerinalang.services.ErrorHandlerUtils;
 import org.ballerinalang.util.BLangConstants;
 import org.ballerinalang.util.codegen.PackageInfo;
@@ -100,9 +101,7 @@ public class WebSocketDispatcher {
             msg.setProperty(HttpConstants.QUERY_STR, requestUri.getRawQuery());
             msg.setProperty(HttpConstants.RESOURCE_ARGS, pathParams);
             return service;
-        } catch (IllegalArgumentException e) {
-            throw new BallerinaConnectorException(e.getMessage());
-        } catch (Exception e) {
+        } catch (BallerinaConnectorException | URITemplateException e) {
             String message = "No Service found to handle the service request";
             webSocketHandshaker.cancelHandshake(404, message);
             throw new BallerinaConnectorException(message, e);
@@ -135,24 +134,20 @@ public class WebSocketDispatcher {
                 dataTypeTag == TypeTags.XML_TAG || dataTypeTag == TypeTags.ARRAY_TAG) {
             if (finalFragment) {
                 connectionInfo.appendAggregateString(textMessage.getText());
-                dispatchReourceWithAggregatedData(webSocketConnection, onTextMessageResource, bValues, dataType,
-                                                  connectionInfo.getAggregateString());
+                dispatchResourceWithAggregatedData(webSocketConnection, onTextMessageResource, bValues, dataType,
+                                                   connectionInfo.getAggregateString());
                 connectionInfo.resetAggregateString();
             } else {
                 connectionInfo.appendAggregateString(textMessage.getText());
                 webSocketConnection.readNextFrame();
             }
 
-        } else {
-            //Throw an exception because a different type is invalid.
-            //Cannot reach here because of compiler plugin validation.
-            throw new BallerinaConnectorException("Invalid resource signature.");
         }
     }
 
-    private static void dispatchReourceWithAggregatedData(WebSocketConnection webSocketConnection,
-                                                          Resource onTextMessageResource, BValue[] bValues,
-                                                          BType dataType, String aggregateString) {
+    private static void dispatchResourceWithAggregatedData(WebSocketConnection webSocketConnection,
+                                                           Resource onTextMessageResource, BValue[] bValues,
+                                                           BType dataType, String aggregateString) {
         try {
             switch (dataType.getTag()) {
                 case TypeTags.JSON_TAG:
@@ -173,11 +168,6 @@ public class WebSocketDispatcher {
                     if (((BArrayType) dataType).getElementType().getTag() == TypeTags.BYTE_TAG) {
                         bValues[1] = new BByteArray(
                                 aggregateString.getBytes(Charset.forName(MimeConstants.UTF_8)));
-                    } else {
-                        //Cannot reach here because of compiler validation
-                        throw new BallerinaException("Incompatible Element type found inside an array " +
-                                                             ((BArrayType) dataType).getElementType()
-                                                                     .getName());
                     }
                     break;
                 default:
@@ -222,8 +212,6 @@ public class WebSocketDispatcher {
             WebSocketDispatcher.dispatchPingMessage(connectionInfo, controlMessage);
         } else if (controlMessage.getControlSignal() == WebSocketControlSignal.PONG) {
             WebSocketDispatcher.dispatchPongMessage(connectionInfo, controlMessage);
-        } else {
-            throw new BallerinaConnectorException("Received unknown control signal");
         }
     }
 
