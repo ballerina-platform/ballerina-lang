@@ -32,7 +32,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
-import static org.ballerinalang.test.ToolsTestUtils.deleteFiles;
+import static org.ballerinalang.test.utils.PackagingTestUtils.deleteFiles;
 
 /**
  * This class tests CLI parsing.
