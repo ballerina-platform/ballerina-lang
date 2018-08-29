@@ -96,4 +96,9 @@ public class ReadIntegerEvent implements Event {
     public Channel getChannel() {
         return channel.getChannel();
     }
+
+    @Override
+    public boolean remaining() {
+        return channel.remaining();
+    }
 }
