@@ -29,7 +29,7 @@ import java.util.concurrent.ConcurrentHashMap;
 /**
  * Provide mapping between {@link ConcurrentHashMap} and {@link BValue} representation of it.
  *
- * @since 0.98.1
+ * @since 0.982.0
  */
 public class ConcurrentHashMapBValueProvider implements SerializationBValueProvider<ConcurrentHashMap> {
     @Override
@@ -42,6 +42,7 @@ public class ConcurrentHashMapBValueProvider implements SerializationBValueProvi
         return ConcurrentHashMap.class;
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     public BValue toBValue(ConcurrentHashMap map, BValueSerializer serializer) {
         HashMap<Object, Object> hashMap = new HashMap<>(map);

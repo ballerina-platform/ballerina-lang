@@ -30,7 +30,7 @@ import java.util.Date;
 /**
  * Default SerializationBValueProviders for Date and Time classes.
  *
- * @since 0.98.1
+ * @since 0.982.0
  */
 public class DateTimeBValueProviders {
     /**
@@ -73,6 +73,7 @@ public class DateTimeBValueProviders {
             return BValueProviderHelper.wrap(typeName(), new BInteger(l));
         }
 
+        @SuppressWarnings("unchecked")
         @Override
         public Instant toObject(BValue bValue, BValueDeserializer bValueDeserializer) {
             BInteger epochMilli = (BInteger) BValueProviderHelper.getPayload((BMap<String, BValue>) bValue);

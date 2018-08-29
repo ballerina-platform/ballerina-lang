@@ -34,7 +34,7 @@ import java.util.ArrayList;
 /**
  * Provide mapping between {@link Class} and {@link BValue} representation of it.
  *
- * @since 0.98.1
+ * @since 0.982.0
  */
 public class ArrayListBValueProvider implements SerializationBValueProvider<ArrayList> {
 
@@ -59,6 +59,7 @@ public class ArrayListBValueProvider implements SerializationBValueProvider<Arra
         return bMap;
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     public ArrayList toObject(BValue bValue, BValueDeserializer bValueDeserializer) {
         if (bValue instanceof BMap) {

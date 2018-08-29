@@ -31,7 +31,7 @@ import java.util.HashMap;
 /**
  * Helper methods to operate on Objects.
  *
- * @since 0.98.1
+ * @since 0.982.0
  */
 class ObjectHelper {
     private static final String BVALUE_PACKAGE_PATH = getBValuePackagePath();
@@ -109,8 +109,7 @@ class ObjectHelper {
     static void setField(Object target, Field field, Object obj) {
         primeFinalFieldForAssignment(field);
         try {
-            Object newValue = cast(obj, field.getType());
-            field.set(target, newValue);
+            field.set(target, obj);
         } catch (IllegalAccessException e) {
             // Ignore it, this is fine.
             // Reason: Either security manager stopping us from setting this field
@@ -148,74 +147,6 @@ class ObjectHelper {
             // no op, will return null from end of this method.
         }
         return null;
-    }
-
-    /**
-     * Convert to desired type if special conditions are matched.
-     * <p>
-     * For instance, BValue only support double values, and if the desired type is a single precision float this method
-     * will convert BValue double to float.
-     *
-     * @param obj        object to be converted.
-     * @param targetType type that is object will be assigned to.
-     * @return converted object.
-     */
-    static Object cast(Object obj, Class targetType) {
-        if (obj == null) {
-            return getDefaultValue(targetType);
-        }
-
-        Class<?> objClass = obj.getClass();
-
-        // JsonParser always treat float numbers as doubles, if target field is float then cast to float.
-        if ((targetType == Float.class || targetType == float.class) && objClass == Double.class) {
-            return ((Double) obj).floatValue();
-        }
-
-        if (obj instanceof Long) {
-            // JsonParser always treat integer numbers as longs, if target field is int then cast to int.
-            if ((targetType == Integer.class || targetType == int.class)) {
-                return ((Long) obj).intValue();
-            }
-            if (targetType == byte.class || targetType == Byte.class) {
-                return getByte((Long) obj);
-            }
-            if (targetType == char.class || targetType == Character.class) {
-                return getChar((Long) obj);
-            }
-        }
-
-        return obj;
-    }
-
-    /**
-     * Get default value for primitive types.
-     *
-     * @param targetType to be assigned to.
-     * @return default value of primitive types and {@code null} for reference types.
-     */
-    private static Object getDefaultValue(Class targetType) {
-        // get default value for primitive type
-        if (targetType == int.class
-                || targetType == long.class
-                || targetType == char.class
-                || targetType == short.class
-                || targetType == byte.class) {
-            return 0;
-        } else if (targetType == float.class) {
-            return 0.0f;
-        } else if (targetType == double.class) {
-            return 0.0;
-        }
-        return null;
-    }
-
-    private static byte getByte(Long obj) {
-        return obj.byteValue();
-    }
-
-    private static char getChar(Long obj) {
-        return (char) obj.byteValue();
     }
 
     static String getTrimmedClassName(Object obj) {

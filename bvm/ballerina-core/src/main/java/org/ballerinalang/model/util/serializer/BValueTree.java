@@ -49,13 +49,13 @@ import static org.ballerinalang.model.util.serializer.ObjectHelper.getTrimmedCla
  * Object reference sharing is tracked using an {@link IdentityHashMap},
  * repeated occurrences are marked by a link to previous occurrence.
  *
- * @since 0.98.1
+ * @since 0.982.0
  */
 public class BValueTree implements BValueSerializer, Closeable {
     private static final BValueProvider bValueProvider = BValueProvider.getInstance();
     private final IdentityHashMap<Object, Object> identityMap = new IdentityHashMap<>();
     private final HashSet<String> repeatedReferenceSet = new HashSet<>();
-    private BRefValueArrays bRefValueArrays;
+    private final BRefValueArrays bRefValueArrays;
     private boolean isClosed;
 
     BValueTree() {
@@ -79,7 +79,38 @@ public class BValueTree implements BValueSerializer, Closeable {
         }
     }
 
-    private BMap toBValue(Map<Object, Object> source) {
+    public BRefType toBValue(Object src, Class<?> leftSideType) {
+        if (src == null) {
+            return null;
+        }
+        if (src instanceof String) {
+            return createBString((String) src);
+        }
+        if (src.getClass().isArray()) {
+            BRefType array = arrayFrom(src);
+            if (array != null) {
+                return array;
+            }
+        }
+        if (src instanceof Character) {
+            return new BInteger((long) (Character) src);
+        }
+        if (src instanceof Number) {
+            BRefType num = numberToBValue(src);
+            if (num != null) {
+                return num;
+            }
+        }
+        if (src instanceof Boolean) {
+            return new BBoolean((Boolean) src);
+        }
+        if (src instanceof Enum) {
+            return enumToBValue((Enum) src);
+        }
+        return convertReferenceSemanticObject(src, leftSideType);
+    }
+
+    private BMap mapToBValue(Map<Object, Object> source) {
         /*
          * Json dictionaries only allow strings to be keys, hence we have to transform original Map
          * so that we have some sort of Map<String, Value> representation.
@@ -106,35 +137,7 @@ public class BValueTree implements BValueSerializer, Closeable {
         return wrapObject(JsonSerializerConst.MAP_TAG, target);
     }
 
-    private BRefValueArray toBValue(int[] array) {
-        return bRefValueArrays.from(array);
-    }
-
-    private BRefValueArray toBValue(long[] array) {
-        return bRefValueArrays.from(array);
-    }
-
-    private BRefValueArray toBValue(double[] array) {
-        return bRefValueArrays.from(array);
-    }
-
-    private BRefValueArray toBValue(String[] array) {
-        return bRefValueArrays.from(array);
-    }
-
-    private BRefValueArray toBValue(Byte[][] array) {
-        BRefValueArray[] byteArrays = new BRefValueArray[array.length];
-        for (int i = 0; i < array.length; i++) {
-            byteArrays[i] = toBValue(array[i]);
-        }
-        return new BRefValueArray(byteArrays, new BArrayType(BTypes.typeByte));
-    }
-
-    private BRefValueArray toBValue(Byte[] array) {
-        return bRefValueArrays.from(array);
-    }
-
-    private BMap<String, BValue> toBValue(List list) {
+    private BMap<String, BValue> listToBValue(List list) {
         BRefValueArray array = new BRefValueArray(new BArrayType(BTypes.typeAny));
         for (Object item : list) {
             array.append(toBValue(item, null));
@@ -144,69 +147,70 @@ public class BValueTree implements BValueSerializer, Closeable {
         return bMap;
     }
 
-    private BMap toBValue(Enum obj) {
+    private BMap enumToBValue(Enum obj) {
         String fullEnumName = getTrimmedClassName(obj) + "." + obj.toString();
         BString name = createBString(fullEnumName);
         return wrapObject(JsonSerializerConst.ENUM_TAG, name);
     }
 
-    public BRefType toBValue(Object src, Class<?> leftSideType) {
-        if (src == null) {
-            return null;
+
+    private BRefType arrayFrom(Object src) {
+        Class<?> srcClass = src.getClass();
+        if (srcClass == int[].class) {
+            return bRefValueArrays.from((int[]) src);
         }
-        if (src instanceof String) {
-            return createBString((String) src);
+        if (srcClass == long[].class) {
+            return bRefValueArrays.from((long[]) src);
         }
-        if (src.getClass().isArray()) {
-            if (src instanceof int[]) {
-                return toBValue((int[]) src);
-            }
-            if (src instanceof long[]) {
-                return toBValue((long[]) src);
-            }
-            if (src instanceof double[]) {
-                return toBValue((double[]) src);
-            }
-            if (src instanceof String[]) {
-                return toBValue((String[]) src);
-            }
-            if (src instanceof Byte[][]) {
-                return toBValue((Byte[][]) src);
-            }
-            if (src instanceof Byte[]) {
-                return toBValue((Byte[]) src);
-            }
+        if (srcClass == double[].class) {
+            return bRefValueArrays.from((double[]) src);
         }
-        if (src instanceof Character) {
-            return new BInteger((long) (Character) src);
+        if (srcClass == float[].class) {
+            return bRefValueArrays.from((float[]) src);
         }
-        if (src instanceof Number) {
-            if (src instanceof Integer) {
-                return new BInteger(((Integer) src).longValue());
-            }
-            if (src instanceof Long) {
-                return new BInteger((Long) src);
-            }
-            if (src instanceof Float) {
-                return new BFloat(((Float) src).doubleValue());
-            }
-            if (src instanceof Double) {
-                return new BFloat((Double) src);
-            }
-            if (src instanceof Byte) {
-                return new BInteger(((Byte) src).longValue());
-            }
-            if (src instanceof Short) {
-                return new BInteger(((Short) src).intValue());
-            }
+        if (srcClass == char[].class) {
+            return bRefValueArrays.from((char[]) src);
         }
-        if (src instanceof Boolean) {
-            return new BBoolean((Boolean) src);
+        if (srcClass == byte[].class) {
+            return bRefValueArrays.from((byte[]) src);
         }
-        if (src instanceof Enum) {
-            return toBValue((Enum) src);
+        if (srcClass == short[].class) {
+            return bRefValueArrays.from((short[]) src);
         }
-        return convertReferenceSemanticObject(src, leftSideType);
+        if (srcClass == String[].class
+                || srcClass == Integer[].class
+                || srcClass == Long[].class
+                || srcClass == Double[].class
+                || srcClass == Float[].class
+                || srcClass == Character[].class
+                || srcClass == Byte[].class
+                || srcClass == Short[].class) {
+            return bRefValueArrays.from((Object[]) src);
+        }
+        return null;
+    }
+
+    private BRefType numberToBValue(Object src) {
+        Class<?> srcClass = src.getClass();
+        if (srcClass == Integer.class) {
+            return new BInteger(((Integer) src).longValue());
+        }
+        if (srcClass == Long.class) {
+            return new BInteger((Long) src);
+        }
+        if (srcClass == Float.class) {
+            return new BFloat(((Float) src).doubleValue());
+        }
+        if (srcClass == Double.class) {
+            return new BFloat((Double) src);
+        }
+        if (srcClass == Byte.class) {
+            return new BInteger(((Byte) src).longValue());
+        }
+        if (srcClass == Short.class) {
+            return new BInteger(((Short) src).intValue());
+        }
+        return null;
     }
 
     @SuppressWarnings("unchecked")
@@ -224,12 +228,12 @@ public class BValueTree implements BValueSerializer, Closeable {
             return converted;
         }
         if (obj instanceof Map) {
-            BMap map = toBValue((Map) obj);
+            BMap map = mapToBValue((Map) obj);
             addHashValue(obj, map);
             return map;
         }
         if (obj instanceof List) {
-            BMap<String, BValue> map = toBValue((List) obj);
+            BMap<String, BValue> map = listToBValue((List) obj);
             addHashValue(obj, map);
             return map;
         }

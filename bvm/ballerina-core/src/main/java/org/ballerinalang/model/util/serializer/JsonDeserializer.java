@@ -35,14 +35,14 @@ import java.lang.reflect.Field;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
-import static org.ballerinalang.model.util.serializer.ObjectHelper.cast;
 import static org.ballerinalang.model.util.serializer.ObjectHelper.findPrimitiveClass;
 
 /**
  * Reconstruct Java object tree from JSON input.
  *
- * @since 0.98.1
+ * @since 0.982.0
  */
 class JsonDeserializer implements BValueDeserializer {
     private static final InstanceProviderRegistry instanceProvider = InstanceProviderRegistry.getInstance();
@@ -79,9 +79,12 @@ class JsonDeserializer implements BValueDeserializer {
     @Override
     @SuppressWarnings("unchecked")
     public Object deserialize(BValue jValue, Class<?> targetType) {
+        if (jValue == null) {
+            return null;
+        }
         if (jValue instanceof BMap) {
             BMap<String, BValue> jBMap = (BMap<String, BValue>) jValue;
-            Object obj = deserialize(jBMap, targetType);
+            Object obj = deserializeComplexType(jBMap, targetType);
             addObjReference(jBMap, obj);
             return obj;
         }
@@ -92,31 +95,39 @@ class JsonDeserializer implements BValueDeserializer {
             return jValue.stringValue();
         }
         if (jValue instanceof BInteger) {
-            if (targetType == Short.class || targetType == short.class) {
-                return (short) ((BInteger) jValue).intValue();
-            }
-            if (targetType == Integer.class || targetType == int.class) {
-                return (int) ((BInteger) jValue).intValue();
-            }
-            if (targetType == Byte.class || targetType == byte.class) {
-                return (byte) ((BInteger) jValue).intValue();
-            }
-            if (targetType == Character.class || targetType == char.class) {
-                return (char) ((BInteger) jValue).intValue();
-            }
-            return ((BInteger) jValue).intValue();
+            return castLong(((BInteger) jValue).intValue(), targetType);
         }
         if (jValue instanceof BFloat) {
-            return ((BFloat) jValue).floatValue();
+            return castFloat((BFloat) jValue, targetType);
         }
         if (jValue instanceof BBoolean) {
             return ((BBoolean) jValue).booleanValue();
         }
-        if (jValue == null) {
-            return null;
-        }
         throw new BallerinaException(
                 String.format("Unknown BValue type to deserialize: %s", jValue.getClass().getSimpleName()));
+    }
+
+    private Object castFloat(BFloat jValue, Class<?> targetType) {
+        if ((targetType == Float.class || targetType == float.class)) {
+            return (float) jValue.floatValue();
+        }
+        return jValue.floatValue();
+    }
+
+    private Object castLong(long jValue, Class<?> targetType) {
+        if (targetType == Short.class || targetType == short.class) {
+            return (short) jValue;
+        }
+        if (targetType == Integer.class || targetType == int.class) {
+            return (int) jValue;
+        }
+        if (targetType == Byte.class || targetType == byte.class) {
+            return (byte) jValue;
+        }
+        if (targetType == Character.class || targetType == char.class) {
+            return (char) jValue;
+        }
+        return jValue;
     }
 
     /**
@@ -144,23 +155,22 @@ class JsonDeserializer implements BValueDeserializer {
         Class<?> componentType = destinationArray.getClass().getComponentType();
         for (int i = 0; i < valueArray.size(); i++) {
             Object obj = deserialize(valueArray.get(i), componentType);
-            Array.set(destinationArray, i, cast(obj, componentType));
+            Array.set(destinationArray, i, obj);
         }
         return destinationArray;
     }
 
-    private Object deserialize(BMap<String, BValue> jBMap, Class<?> targetType) {
-        Object existingReference = findExistingReference(jBMap);
-        if (existingReference != null) {
-            return existingReference;
+    private Object deserializeComplexType(BMap<String, BValue> jBMap, Class<?> targetType) {
+        Object existing = findExistingReference(jBMap);
+        if (existing != null) {
+            return existing;
         }
 
-        String typeName = resolveTargetTypeName(targetType, jBMap);
         Object object = null;
-
+        String typeName = resolveTargetTypeName(targetType, jBMap);
         // try BValueProvider
         if (typeName != null) {
-            SerializationBValueProvider provider = this.bValueProvider.find(typeName);
+            SerializationBValueProvider provider = bValueProvider.find(typeName);
             if (provider != null) {
                 object = provider.toObject(jBMap, this);
                 addObjReference(jBMap, object);
@@ -170,14 +180,15 @@ class JsonDeserializer implements BValueDeserializer {
         // try reflective reconstruction
         if (object == null) {
             Object emptyInstance = createInstance(jBMap, targetType);
+            // add the obj reference here so that inner deserialization may refer this object
             addObjReference(jBMap, emptyInstance);
-            object = deserializeReflectively(jBMap, emptyInstance, targetType);
+            object = deserializeInto(emptyInstance, jBMap, targetType);
 
-            // check to make sure deserializeReflectively returns the populated 'emptyInstance'.
+            // check to make sure deserializeInto returns the populated 'emptyInstance'.
             // It's important  that it does not create own objects as it may interfere with
             // handling of existing references.
             if (object != emptyInstance) {
-                throw new BallerinaException("Internal error: deserializeReflectively should not create own objects.");
+                throw new BallerinaException("Internal error: deserializeInto should not create own objects.");
             }
         }
 
@@ -189,27 +200,30 @@ class JsonDeserializer implements BValueDeserializer {
         return object;
     }
 
-    /**
-     * Comply with {@link java.io.Serializable} interface's {@code readResolve} method, if it's available.
-     *
-     * @param jBMap      Json Object structure to create the instance from.
-     * @param targetType Type of object to be created.
-     * @param object     Object instance on which the readResolve method to be executed.
-     * @return if readResolve is available then the return value of it.
-     */
-    private Object readResolve(BMap<String, BValue> jBMap, Class<?> targetType, Object object) {
-        Class<?> clz;
-        if (targetType != null) {
-            clz = targetType;
-        } else {
-            String targetTypeName = resolveTargetTypeName(null, jBMap);
-            clz = findClass(targetTypeName);
+    @SuppressWarnings("unchecked")
+    private Object deserializeInto(Object instance, BMap<String, BValue> jsonNode, Class<?> targetType) {
+        BValue payload = jsonNode.get(JsonSerializerConst.PAYLOAD_TAG);
+        BValue type = jsonNode.get(JsonSerializerConst.TYPE_TAG);
+        if (type != null) {
+            String objType = type.stringValue();
+            switch (objType) {
+                case JsonSerializerConst.MAP_TAG:
+                    return deserializeMap((BMap<String, BValue>) payload, (Map) instance);
+                case JsonSerializerConst.LIST_TAG:
+                    return deserializeList((BRefValueArray) payload, targetType, (List) instance);
+                case JsonSerializerConst.ENUM_TAG:
+                    return instance;
+                case JsonSerializerConst.ARRAY_TAG:
+                    return deserializeBRefValueArray((BRefValueArray) payload, instance);
+                default:
+                    // no op
+            }
         }
 
-        if (clz != null && Serializable.class.isAssignableFrom(clz)) {
-            return ObjectHelper.invokeReadResolveOn(object, clz);
+        if (payload == null) {
+            payload = jsonNode;
         }
-        return null;
+        return deserializeReflectively(instance, (BMap<String, BValue>) payload);
     }
 
     private String resolveTargetTypeName(Class<?> targetType, BMap<String, BValue> jBMap) {
@@ -256,7 +270,7 @@ class JsonDeserializer implements BValueDeserializer {
      * @return instance of given type.
      */
     private Object createInstance(BMap<String, BValue> jsonNode, Class<?> target) {
-        if (target != null && Enum.class.isAssignableFrom(target)) {
+        if (Enum.class.isAssignableFrom(target)) {
             return createEnumInstance(jsonNode);
         }
         BValue typeNode = jsonNode.get(JsonSerializerConst.TYPE_TAG);
@@ -267,10 +281,7 @@ class JsonDeserializer implements BValueDeserializer {
             }
             return getObjectOf(type);
         }
-        if (target != null) {
-            return getObjectOf(target);
-        }
-        return null;
+        return getObjectOf(target);
     }
 
     private Object createArrayInstance(BMap<String, BValue> jsonNode) {
@@ -309,45 +320,17 @@ class JsonDeserializer implements BValueDeserializer {
     }
 
     @SuppressWarnings("unchecked")
-    private Object deserializeReflectively(BMap<String, BValue> jsonNode, Object instance, Class<?> targetType) {
-        BValue payload = jsonNode.get(JsonSerializerConst.PAYLOAD_TAG);
-        BValue type = jsonNode.get(JsonSerializerConst.TYPE_TAG);
-        if (type != null) {
-            String objType = type.stringValue();
-            switch (objType) {
-                case JsonSerializerConst.MAP_TAG:
-                    return deserializeMap((BMap<String, BValue>) payload, (Map) instance);
-                case JsonSerializerConst.LIST_TAG:
-                    return deserializeList((BRefValueArray) payload, targetType, (List) instance);
-                case JsonSerializerConst.ENUM_TAG:
-                    return instance;
-                case JsonSerializerConst.ARRAY_TAG:
-                    return deserializeBRefValueArray((BRefValueArray) payload, instance);
-                default:
-                    // no op
-            }
-        }
-        return deserializeObject(jsonNode, instance, payload);
-    }
-
-    @SuppressWarnings("unchecked")
-    private Object deserializeObject(BMap<String, BValue> jsonNode, Object instance, BValue payload) {
-        // if this is not a wrapped object
-        if (payload == null) {
-            payload = jsonNode;
-        }
-        if (payload instanceof BMap) {
-            BMap<String, BValue> jMap = (BMap<String, BValue>) payload;
-            setFields(instance, jMap, instance.getClass());
-        }
+    private Object deserializeReflectively(Object instance, BMap<String, BValue> payload) {
+        setFields(instance, payload);
         return instance;
     }
 
-    private void setFields(Object target, BMap<String, BValue> jMap,
-                           Class<?> targetClass) {
-        HashMap<String, Field> allFields = ObjectHelper.getAllFields(target.getClass(), 0);
+    private void setFields(Object target, BMap<String, BValue> fieldMap) {
+        Objects.requireNonNull(target);
+        Class<?> targetClass = target.getClass();
+        HashMap<String, Field> allFields = ObjectHelper.getAllFields(targetClass, 0);
 
-        for (String fieldName : jMap.keys()) {
+        for (String fieldName : fieldMap.keys()) {
             if (fieldName.equals(JsonSerializerConst.HASH_TAG)) {
                 // it's a metadata entry.
                 continue;
@@ -357,7 +340,7 @@ class JsonDeserializer implements BValueDeserializer {
                 throw new BallerinaException(String.format("Can not find field %s from JSON in %s class",
                         fieldName, targetClass.getName()));
             }
-            BValue value = jMap.get(fieldName);
+            BValue value = fieldMap.get(fieldName);
             Object object = deserialize(value, field.getType());
             ObjectHelper.setField(target, field, object);
         }
@@ -441,5 +424,28 @@ class JsonDeserializer implements BValueDeserializer {
 
         TypeInstanceProvider typeProvider = instanceProvider.findInstanceProvider(typeName);
         return typeProvider.getTypeClass();
+    }
+
+    /**
+     * Comply with {@link java.io.Serializable} interface's {@code readResolve} method, if it's available.
+     *
+     * @param jBMap      Json Object structure to create the instance from.
+     * @param targetType Type of object to be created.
+     * @param object     Object instance on which the readResolve method to be executed.
+     * @return if readResolve is available then the return value of it.
+     */
+    private Object readResolve(BMap<String, BValue> jBMap, Class<?> targetType, Object object) {
+        Class<?> clz;
+        if (targetType != null) {
+            clz = targetType;
+        } else {
+            String targetTypeName = resolveTargetTypeName(null, jBMap);
+            clz = findClass(targetTypeName);
+        }
+
+        if (clz != null && Serializable.class.isAssignableFrom(clz)) {
+            return ObjectHelper.invokeReadResolveOn(object, clz);
+        }
+        return null;
     }
 }

@@ -22,16 +22,13 @@ import java.util.concurrent.ConcurrentHashMap;
 /**
  * Keep track of {@link SerializationBValueProvider}s.
  *
- * @since 0.98.1
+ * @since 0.982.0
  */
 public class BValueProvider {
     private static final BValueProvider INSTANCE = new BValueProvider();
     private final ConcurrentHashMap<String, SerializationBValueProvider> providerMap = new ConcurrentHashMap<>();
 
     private BValueProvider() {
-        if (INSTANCE != null) {
-            throw new IllegalStateException("Singleton instance exists");
-        }
     }
 
     static BValueProvider getInstance() {

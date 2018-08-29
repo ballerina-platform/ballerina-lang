@@ -20,7 +20,7 @@ package org.ballerinalang.model.util.serializer;
 /**
  * Hold constant values used in JSON serialization.
  *
- * @since 0.98.1
+ * @since 0.982.0
  */
 public class JsonSerializerConst {
     public static final String EXISTING_TAG = "#existing#";
@@ -32,7 +32,6 @@ public class JsonSerializerConst {
     public static final String MAP_TAG = "map#";
     public static final String ARRAY_TAG = "array#";
     public static final String LENGTH_TAG = "len#";
-    public static final String BYTE_TAG = "byte#";
     public static final String COMPLEX_KEY_TAG = "complex_key#";
     public static final String COMPLEX_KEY_MAP_TAG = "#complex_key_map#";
     public static final String COMPONENT_TYPE = "componentType#";

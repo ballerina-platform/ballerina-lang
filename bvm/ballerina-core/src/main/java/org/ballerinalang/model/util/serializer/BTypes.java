@@ -39,9 +39,12 @@ import static org.ballerinalang.model.types.TypeConstants.XML_TNAME;
 /**
  * Mapping from {@link BType} string representations to {@link BType} instances.
  *
- * @since 0.98.1
+ * @since 0.982.0
  */
 public class BTypes {
+
+    private BTypes() {
+    }
 
     public static BType fromString(String typeName) {
         switch (typeName) {

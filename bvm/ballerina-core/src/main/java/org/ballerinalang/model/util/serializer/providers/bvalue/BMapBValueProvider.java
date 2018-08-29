@@ -31,7 +31,7 @@ import java.util.LinkedHashMap;
 /**
  * Provide mapping between {@link BMap} and {@link BValue} representation of it.
  *
- * @since 0.98.1
+ * @since 0.982.0
  */
 public class BMapBValueProvider implements SerializationBValueProvider<BMap> {
     @Override

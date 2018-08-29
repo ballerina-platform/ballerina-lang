@@ -30,7 +30,7 @@ import java.math.BigInteger;
 /**
  * Host class for various Numeric BValue providers.
  *
- * @since 0.98.1
+ * @since 0.982.0
  */
 public class NumericBValueProviders {
     private NumericBValueProviders() {
@@ -93,6 +93,7 @@ public class NumericBValueProviders {
             return BValueProviderHelper.wrap(BIG_DEC, new BString(bigDecimal.toString()));
         }
 
+        @SuppressWarnings("unchecked")
         @Override
         public BigDecimal toObject(BValue bValue, BValueDeserializer bValueDeserializer) {
             if (bValue instanceof BMap) {

@@ -230,10 +230,17 @@ public class JsonSerializerTest {
 
     @Test(description = "Test serializing Char/char")
     public void testCharSerialization() {
+        JsonSerializer jsonSerializer = new JsonSerializer();
+
         char ch = '2';
-        String serial = new JsonSerializer().serialize(ch);
-        Character deserialize = new JsonSerializer().deserialize(serial, char.class);
+        String serial = jsonSerializer.serialize(ch);
+        Character deserialize = jsonSerializer.deserialize(serial, char.class);
         Assert.assertEquals(Character.valueOf(ch), deserialize);
+
+        Character ch2 = ch; // box
+        String ch2Json = jsonSerializer.serialize(ch2);
+        Character ch2FromJ = jsonSerializer.deserialize(ch2Json, Character.class);
+        Assert.assertEquals(ch2, ch2FromJ);
     }
 
     @Test(description = "Test serializing short")
@@ -246,7 +253,7 @@ public class JsonSerializerTest {
 
     @Test(description = "Test serializing byte")
     public void testByteSerialization() {
-        Byte b = 2;
+        byte b = 2;
         String serial = new JsonSerializer().serialize(b);
         Byte deserialize = new JsonSerializer().deserialize(serial, byte.class);
         Assert.assertEquals(Byte.valueOf(b), deserialize);
@@ -308,11 +315,18 @@ public class JsonSerializerTest {
 
     @Test(description = "Test serializing byte array")
     public void testByteArraySerialization() {
+        JsonSerializer serializer = new JsonSerializer();
         byte[] bytes = new byte[]{1, 2, 4, 4, 4};
-        String serial = new JsonSerializer().serialize(bytes);
-        byte[] deserialize = new JsonSerializer().deserialize(serial, byte[].class);
+        String serial = serializer.serialize(bytes);
+        byte[] deserialize = serializer.deserialize(serial, byte[].class);
 
         Assert.assertEquals(deserialize, bytes);
+
+        Byte[] bytes2 = new Byte[]{1, 2, 3, 4, 5};
+        serial = serializer.serialize(bytes2);
+        Byte[] deserialized2 = serializer.deserialize(serial, Byte[].class);
+
+        Assert.assertEquals(bytes2, deserialized2);
     }
 
     @Test(description = "Test serializing string array")
@@ -331,6 +345,15 @@ public class JsonSerializerTest {
         BArrayType deserialize = new JsonSerializer().deserialize(serial, BArrayType.class);
 
         Assert.assertEquals(deserialize, bArrayType);
+    }
+
+    @Test(description = "Test serializing class with primitive typed members")
+    public void testPrimitiveMemberSerialization() {
+        PrimitiveMembers intMemberClass = new PrimitiveMembers(5);
+        String serial = new JsonSerializer().serialize(intMemberClass);
+        PrimitiveMembers deserialize = new JsonSerializer().deserialize(serial, PrimitiveMembers.class);
+
+        Assert.assertEquals(deserialize.i, intMemberClass.i);
     }
 
     static class TestClass {
@@ -375,5 +398,18 @@ public class JsonSerializerTest {
 
     enum TestEnum {
         Item_1, Item_2, Item_N
+    }
+
+    static class PrimitiveMembers {
+        public int i;
+        public byte b;
+        public  char c;
+        public short s;
+        public float f;
+        public double d;
+
+        public PrimitiveMembers(int i) {
+            this.i = i;
+        }
     }
 }

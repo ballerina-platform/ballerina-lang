@@ -24,16 +24,13 @@ import java.util.HashMap;
 /**
  * Keep track of {@link TypeInstanceProvider} implementations.
  *
- * @since 0.98.1
+ * @since 0.982.0
  */
 public class InstanceProviderRegistry {
     private static final InstanceProviderRegistry INSTANCE = new InstanceProviderRegistry();
     private final HashMap<String, TypeInstanceProvider> providerMap = new HashMap<>();
 
     private InstanceProviderRegistry() {
-        if (INSTANCE != null) {
-            throw new IllegalStateException("Singleton instance exists");
-        }
     }
 
     static InstanceProviderRegistry getInstance() {

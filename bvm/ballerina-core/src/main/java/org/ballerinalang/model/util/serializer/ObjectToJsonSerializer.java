@@ -20,7 +20,7 @@ package org.ballerinalang.model.util.serializer;
 /**
  * Serialize any object into JSON structure.
  *
- * @since 0.98.1
+ * @since 0.982.0
  */
 public interface ObjectToJsonSerializer {
     /**

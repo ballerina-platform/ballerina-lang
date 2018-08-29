@@ -32,7 +32,7 @@ import org.ballerinalang.model.values.BValue;
 /**
  * Provide mapping between {@link BRefValueArray} and {@link BValue} representation of it.
  *
- * @since 0.98.1
+ * @since 0.982.0
  */
 public class BRefValueArrayBValueProvider implements SerializationBValueProvider<BRefValueArray> {
 
@@ -51,7 +51,7 @@ public class BRefValueArrayBValueProvider implements SerializationBValueProvider
     @SuppressWarnings("unchecked")
     @Override
     public BValue toBValue(BRefValueArray array, BValueSerializer serializer) {
-        BRefType[] newArray = new BRefType[Long.valueOf(array.size()).intValue()];
+        BRefType[] newArray = new BRefType[(int) array.size()];
         for (int i = 0; i < array.size(); i++) {
             newArray[i] = (BRefType) serializer.toBValue(array.get(i), Object.class);
         }
@@ -67,7 +67,7 @@ public class BRefValueArrayBValueProvider implements SerializationBValueProvider
             BMap<String, BValue> wrapper = (BMap<String, BValue>) bValue;
             if (BValueProviderHelper.isWrapperOfType(wrapper, typeName())) {
                 BRefValueArray refValueArray = (BRefValueArray) wrapper.get(JsonSerializerConst.PAYLOAD_TAG);
-                BRefType[] newArray = new BRefType[Long.valueOf(refValueArray.size()).intValue()];
+                BRefType[] newArray = new BRefType[(int) refValueArray.size()];
                 for (int i = 0; i < newArray.length; i++) {
                     newArray[i] = (BRefType) bValueDeserializer.deserialize(refValueArray.get(i), BRefType.class);
                 }

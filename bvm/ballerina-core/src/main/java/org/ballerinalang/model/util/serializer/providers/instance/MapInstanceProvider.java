@@ -25,7 +25,7 @@ import java.util.HashMap;
 /**
  * Provide object instance to serialize map.
  *
- * @since 0.98.1
+ * @since 0.982.0
  */
 public class MapInstanceProvider implements TypeInstanceProvider {
     @Override

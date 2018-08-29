@@ -43,7 +43,7 @@ import java.io.StringWriter;
  * <p>
  * Note that {@link JsonSerializer} is not thread safe and each thread needs to have it's own instance.
  *
- * @since 0.98.1
+ * @since 0.982.0
  */
 public class JsonSerializer implements ObjectToJsonSerializer {
     private static final BValueProvider bValueProvider = BValueProvider.getInstance();

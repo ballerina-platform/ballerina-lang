@@ -22,7 +22,7 @@ import org.ballerinalang.model.values.BValue;
 /**
  * Convert Java object into {@link BValue} representation.
  *
- * @since 0.98.1
+ * @since 0.982.0
  */
 public interface BValueSerializer {
     /**

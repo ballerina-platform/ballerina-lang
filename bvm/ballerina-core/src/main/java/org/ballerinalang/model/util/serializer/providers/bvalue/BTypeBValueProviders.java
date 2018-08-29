@@ -38,10 +38,10 @@ import java.lang.reflect.InvocationTargetException;
 /**
  * Contain SerializationBValueProviders for BType derived classes.
  *
- * @since 0.98.1
+ * @since 0.982.0
  */
 public class BTypeBValueProviders {
-    public static final String ELEM_TYPE = "elemType";
+    private static final String ELEM_TYPE = "elemType";
     private static final String PACKAGE_PATH = "packagePath";
     private static final String TYPE_NAME = "typeName";
     private static final String VALUE_CLASS = "valueClass";
@@ -80,6 +80,7 @@ public class BTypeBValueProviders {
             return BValueProviderHelper.wrap(typeName(), map);
         }
 
+        @SuppressWarnings("unchecked")
         @Override
         public BAnyType toObject(BValue bValue, BValueDeserializer bValueDeserializer) {
             BMap<String, BValue> map =
@@ -107,8 +108,8 @@ public class BTypeBValueProviders {
      */
     public static class BArrayTypeBValueProvider implements SerializationBValueProvider<BArrayType> {
 
-        public static final String DIMENSIONS = "dimensions";
-        public static final String SIZE = "size";
+        static final String DIMENSIONS = "dimensions";
+        static final String SIZE = "size";
 
         @Override
         public Class<?> getType() {
@@ -179,6 +180,7 @@ public class BTypeBValueProviders {
             return BValueProviderHelper.wrap(typeName(), map);
         }
 
+        @SuppressWarnings("unchecked")
         @Override
         public BObjectType toObject(BValue bValue, BValueDeserializer bValueDeserializer) {
             BMap<String, BValue> map =
@@ -199,8 +201,8 @@ public class BTypeBValueProviders {
      */
     public static class BRecordTypeBValueProvider implements SerializationBValueProvider<BRecordType> {
 
-        public static final String REST_FIELD_SIGNATURE_CP_INDEX = "restFieldSignatureCPIndex";
-        public static final String REST_FIELD_TYPE_SIGNATURE = "restFieldTypeSignature";
+        static final String REST_FIELD_SIGNATURE_CP_INDEX = "restFieldSignatureCPIndex";
+        static final String REST_FIELD_TYPE_SIGNATURE = "restFieldTypeSignature";
         private static final String PACKAGE_PATH = "packagePath";
         private static final String TYPE_NAME = "typeName";
         private static final String FLAGS = "flags";
@@ -233,6 +235,7 @@ public class BTypeBValueProviders {
             return BValueProviderHelper.wrap(typeName(), map);
         }
 
+        @SuppressWarnings("unchecked")
         @Override
         public BRecordType toObject(BValue bValue, BValueDeserializer bValueDeserializer) {
             BMap<String, BValue> map =

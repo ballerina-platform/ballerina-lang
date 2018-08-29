@@ -25,7 +25,7 @@ import java.lang.reflect.InvocationTargetException;
 /**
  * Dynamically generate {@link TypeInstanceProvider} for given class.
  *
- * @since 0.98.1
+ * @since 0.982.0
  */
 public class TypeInstanceProviderFactory {
     /**

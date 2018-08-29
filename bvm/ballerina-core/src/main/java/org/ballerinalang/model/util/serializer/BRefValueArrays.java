@@ -25,13 +25,11 @@ import org.ballerinalang.model.values.BRefValueArray;
 /**
  * Factory methods to create BRefValueArray from Java arrays.
  *
- * @since 0.98.1
+ * @since 0.982.0
  */
 class BRefValueArrays {
     private static final BArrayType B_INT_ARRAY_TYPE = new BArrayType(BTypes.typeInt);
     private static final BArrayType B_FLOAT_ARRAY_TYPE = new BArrayType(BTypes.typeFloat);
-    private static final BArrayType B_STRING_ARRAY_TYPE = new BArrayType(BTypes.typeString);
-    private static final BArrayType B_BYTE_ARRAY_TYPE = new BArrayType(BTypes.typeByte);
     private final BValueSerializer serializer;
 
     BRefValueArrays(BValueSerializer serializer) {
@@ -75,14 +73,6 @@ class BRefValueArrays {
         return new BRefValueArray(backing, B_FLOAT_ARRAY_TYPE);
     }
 
-    BRefValueArray from(String[] array) {
-        if (array == null) {
-            return null;
-        }
-        BRefType[] backing = getBRefArray(array);
-        return new BRefValueArray(backing, B_STRING_ARRAY_TYPE);
-    }
-
     private <T> BRefType[] getBRefArray(T[] array) {
         BRefType[] backing = new BRefType[array.length];
 
@@ -92,7 +82,15 @@ class BRefValueArrays {
         return backing;
     }
 
-    BRefValueArray from(Byte[] array) {
+    BRefValueArray from(Object[] array) {
+        if (array == null) {
+            return null;
+        }
+        BRefType[] backing = getBRefArray(array);
+        return new BRefValueArray(backing, new BArrayType(BTypes.typeAny));
+    }
+
+    public BRefType from(char[] array) {
         if (array == null) {
             return null;
         }
@@ -101,6 +99,42 @@ class BRefValueArrays {
         for (int i = 0; i < array.length; i++) {
             backing[i] = (BRefType) serializer.toBValue(array[i], null);
         }
-        return new BRefValueArray(backing, B_BYTE_ARRAY_TYPE);
+        return new BRefValueArray(backing, B_INT_ARRAY_TYPE);
+    }
+
+    public BRefType from(byte[] array) {
+        if (array == null) {
+            return null;
+        }
+        BRefType[] backing = new BRefType[array.length];
+
+        for (int i = 0; i < array.length; i++) {
+            backing[i] = (BRefType) serializer.toBValue(array[i], null);
+        }
+        return new BRefValueArray(backing, B_INT_ARRAY_TYPE);
+    }
+
+    public BRefType from(short[] array) {
+        if (array == null) {
+            return null;
+        }
+        BRefType[] backing = new BRefType[array.length];
+
+        for (int i = 0; i < array.length; i++) {
+            backing[i] = (BRefType) serializer.toBValue(array[i], null);
+        }
+        return new BRefValueArray(backing, B_INT_ARRAY_TYPE);
+    }
+
+    public BRefType from(float[] array) {
+        if (array == null) {
+            return null;
+        }
+        BRefType[] backing = new BRefType[array.length];
+
+        for (int i = 0; i < array.length; i++) {
+            backing[i] = (BRefType) serializer.toBValue(array[i], null);
+        }
+        return new BRefValueArray(backing, B_FLOAT_ARRAY_TYPE);
     }
 }

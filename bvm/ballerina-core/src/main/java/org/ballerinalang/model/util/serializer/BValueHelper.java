@@ -22,14 +22,18 @@ import org.ballerinalang.model.values.BRefValueArray;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
 
-import java.util.HashSet;
+import java.util.Set;
 
 /**
  * Helper methods to convert Java objects to BValue objects.
  *
- * @since 0.98.1
+ * @since 0.982.0
  */
 class BValueHelper {
+
+    private BValueHelper() {
+    }
+
     static BMap<String, BValue> wrapObject(String type, BValue payload) {
         BMap<String, BValue> map = new BMap<>();
         map.put(JsonSerializerConst.TYPE_TAG, createBString(type));
@@ -90,7 +94,7 @@ class BValueHelper {
      * @param repeatedReferenceSet Set of hashCodes of repeated references.
      */
     @SuppressWarnings("unchecked")
-    public static void trimTree(BValue jsonObj, HashSet<String> repeatedReferenceSet) {
+    public static void trimTree(BValue jsonObj, Set<String> repeatedReferenceSet) {
         if (jsonObj == null) {
             return;
         }
