@@ -241,7 +241,7 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
      * Set pipeline related properties. These should be set only once per connection.
      */
     private void setPipeliningProperties() {
-        if (ctx.channel().attr(Constants.NEXT_SEQUENCE_NUMBER).get() == null) {
+        if (ctx.channel().attr(Constants.MAX_RESPONSES_ALLOWED_TO_BE_QUEUED).get() == null) {
             ctx.channel().attr(Constants.MAX_RESPONSES_ALLOWED_TO_BE_QUEUED).set(maximumEvents);
         }
         if (ctx.channel().attr(Constants.RESPONSE_QUEUE).get() == null) {
