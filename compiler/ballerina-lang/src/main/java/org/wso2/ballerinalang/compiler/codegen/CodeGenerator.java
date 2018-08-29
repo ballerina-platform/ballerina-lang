@@ -1334,7 +1334,8 @@ public class CodeGenerator extends BLangNodeVisitor {
     }
 
     public void visit(BLangArrowFunction bLangArrowFunction) {
-        visitFunctionPointerLoad(bLangArrowFunction.lambdaFunction, bLangArrowFunction.lambdaFunction.function.symbol);
+        visitFunctionPointerLoad(bLangArrowFunction.lambdaFunction,
+                bLangArrowFunction.lambdaFunction.function.symbol);
     }
 
     public void visit(BLangStatementExpression bLangStatementExpression) {

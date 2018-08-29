@@ -23,15 +23,14 @@ import org.ballerinalang.model.tree.VariableNode;
 import java.util.List;
 
 /**
+ * This represents the Arrow Function Expression Node.
+ *
  * @since 0.982.0
  */
 public interface ArrowFunctionNode extends ExpressionNode {
 
     List<? extends VariableNode> getParameters();
 
-    void addParameter(VariableNode param);
-
     ExpressionNode getExpression();
 
-    void setExpression(ExpressionNode expression);
 }

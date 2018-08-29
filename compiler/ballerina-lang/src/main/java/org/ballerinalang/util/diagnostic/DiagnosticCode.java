@@ -285,7 +285,8 @@ public enum DiagnosticCode {
     UNABLE_TO_PERFORM_TAINT_CHECKING_WITH_RECURSION("unable.to.perform.taint.checking.with.recursion"),
 
     // Anonymous functions related codes
-    ARROW_EXPRESSION_MISMATCHED_PARAMETER_LENGTH("arrow.expression.mismatched.parameter.length")
+    ARROW_EXPRESSION_MISMATCHED_PARAMETER_LENGTH("arrow.expression.mismatched.parameter.length"),
+    ARROW_EXPRESSION_EXPECTS_INVOKABLE_TYPE("arrow.expression.expects.invokable.type")
     ;
 
     private String value;

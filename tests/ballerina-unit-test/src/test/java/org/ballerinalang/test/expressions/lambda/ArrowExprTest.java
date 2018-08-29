@@ -108,10 +108,20 @@ public class ArrowExprTest {
     @Test
     public void testNegativeArrowExpr() {
         int i = 0;
-        Assert.assertEquals(resultNegative.getErrorCount(), 2);
-        BAssertUtil.validateError(
-                resultNegative, i++, "operator '/' not defined for 'string' and 'int'", 19, 54);
-        BAssertUtil.validateError(
-                resultNegative, i++, "incompatible types: expected 'boolean', found 'string'", 26, 19);
+        Assert.assertEquals(resultNegative.getErrorCount(), 7);
+        BAssertUtil.validateError(resultNegative, i++,
+                "operator '/' not defined for 'string' and 'int'", 18, 54);
+        BAssertUtil.validateError(resultNegative, i++,
+                "incompatible types: expected 'boolean', found 'string'", 24, 19);
+        BAssertUtil.validateError(resultNegative, i++,
+                "invalid number of parameters used in arrow expression. expected: '2' but found '1'", 28, 58);
+        BAssertUtil.validateError(resultNegative, i++,
+                "invalid number of parameters used in arrow expression. expected: '1' but found '2'", 29, 50);
+        BAssertUtil.validateError(resultNegative, i++,
+                "incompatible types: expected 'int', found 'boolean'", 33, 56);
+        BAssertUtil.validateError(resultNegative, i++,
+                "arrow expression can only be defined with known invokable types", 37, 19);
+        BAssertUtil.validateError(resultNegative, i++,
+                "arrow expression can only be defined with known invokable types", 38, 19);
     }
 }

@@ -44,7 +44,6 @@ import org.wso2.ballerinalang.compiler.tree.BLangService;
 import org.wso2.ballerinalang.compiler.tree.BLangTypeDefinition;
 import org.wso2.ballerinalang.compiler.tree.BLangVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangWorker;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrowFunction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBracedOrTupleExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangCheckedExpr;
@@ -388,13 +387,6 @@ public class ReferencesTreeVisitor extends LSNodeVisitor {
         if (bLangLambdaFunction.function != null) {
             this.acceptNode(bLangLambdaFunction.function);
         }
-    }
-
-    @Override
-    public void visit(BLangArrowFunction bLangArrowFunction) {
-//        if (bLangArrowFunction.function != null) {
-//            this.acceptNode(bLangArrowFunction.function);
-//        }
     }
 
     @Override

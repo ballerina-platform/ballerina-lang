@@ -1358,8 +1358,6 @@ public class Desugar extends BLangNodeVisitor {
     @Override
     public void visit(BLangArrowFunction bLangArrowFunction) {
         BLangLambdaFunction lambdaFunction = bLangArrowFunction.lambdaFunction;
-        lambdaFunction.pos = bLangArrowFunction.pos;
-        lambdaFunction.type = bLangArrowFunction.type;
         lambdaFunction.parent = bLangArrowFunction.parent;
         rewrite(lambdaFunction.function, env);
         env.enclPkg.addFunction(lambdaFunction.function);

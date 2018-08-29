@@ -19,12 +19,11 @@
 package org.wso2.ballerinalang.compiler.tree.expressions;
 
 import org.ballerinalang.model.tree.NodeKind;
-import org.ballerinalang.model.tree.VariableNode;
 import org.ballerinalang.model.tree.expressions.ArrowFunctionNode;
-import org.ballerinalang.model.tree.expressions.ExpressionNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 import org.wso2.ballerinalang.compiler.tree.BLangVariable;
 
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -44,18 +43,8 @@ public class BLangArrowFunction extends BLangExpression implements ArrowFunction
     }
 
     @Override
-    public void addParameter(VariableNode param) {
-        this.getParameters().add((BLangVariable) param);
-    }
-
-    @Override
     public BLangExpression getExpression() {
         return expression;
-    }
-
-    @Override
-    public void setExpression(ExpressionNode expression) {
-
     }
 
     @Override
@@ -70,6 +59,7 @@ public class BLangArrowFunction extends BLangExpression implements ArrowFunction
 
     @Override
     public String toString() {
-        return "ArrowExprRef:" + "(" + params + ") => " + expression;
+        return String.format("ArrowExprRef:(%s) => %s",
+                Arrays.toString(params.stream().map(x -> x.name).toArray()), expression);
     }
 }
