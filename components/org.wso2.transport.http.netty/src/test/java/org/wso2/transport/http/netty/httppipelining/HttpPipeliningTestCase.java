@@ -44,12 +44,11 @@ import static org.testng.AssertJUnit.assertEquals;
 /**
  * Test HTTP pipelining properties.
  *
- * @since 6.0.225
+ * @since 6.0.227
  */
 public class HttpPipeliningTestCase {
 
     private static final Logger log = LoggerFactory.getLogger(HttpPipeliningTestCase.class);
-    private ServerConnector serverConnector;
     private final DefaultHttpWsConnectorFactory httpConnectorFactory = new DefaultHttpWsConnectorFactory();
 
     @BeforeClass
@@ -57,7 +56,7 @@ public class HttpPipeliningTestCase {
         ListenerConfiguration listenerConfiguration = new ListenerConfiguration();
         listenerConfiguration.setPort(TestUtil.SERVER_CONNECTOR_PORT);
         listenerConfiguration.setPipeliningNeeded(true);
-        serverConnector = httpConnectorFactory.createServerConnector(
+        ServerConnector serverConnector = httpConnectorFactory.createServerConnector(
                 new ServerBootstrapConfiguration(new HashMap<>()), listenerConfiguration);
         ServerConnectorFuture serverConnectorFuture = serverConnector.start();
         serverConnectorFuture.setHttpConnectorListener(new HttpPipeliningListener());
@@ -79,7 +78,7 @@ public class HttpPipeliningTestCase {
             assertEquals("Sequence number of the response should be 1", "1",
                     response.getHeaders().get("x-sequence-number").get(0));
         } catch (UnirestException e) {
-            TestUtil.handleException("IOException occurred while running messageEchoingFromProcessorTestCase", e);
+            TestUtil.handleException("IOException occurred while running HttpPipeliningTestCase", e);
         }
     }
 

@@ -41,7 +41,7 @@ import java.util.concurrent.Executors;
 /**
  * Mock pipelining listener.
  *
- * @since 6.0.225
+ * @since 6.0.227
  */
 public class HttpPipeliningListener implements HttpConnectorListener {
     private static final Logger log = LoggerFactory.getLogger(EchoMessageListener.class);

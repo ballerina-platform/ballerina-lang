@@ -23,7 +23,7 @@ import io.netty.channel.ChannelHandlerContext;
 /**
  * Listener to trigger pipelining logic once the last http content is written to the socket.
  *
- * @since 6.0.225
+ * @since 6.0.227
  */
 public interface HttpPipelineListener {
 
