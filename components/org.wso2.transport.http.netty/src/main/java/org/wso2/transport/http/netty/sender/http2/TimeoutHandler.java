@@ -182,9 +182,9 @@ public class TimeoutHandler implements Http2DataEventListener {
         private void handleIncompleteInboundResponse() {
             LastHttpContent lastHttpContent = new DefaultLastHttpContent();
             lastHttpContent.setDecoderResult(DecoderResult.failure(new DecoderException(
-                    Constants.IDLE_TIMEOUT_TRIGGERED_WHILE_READING_INBOUND_RESPONSE)));
+                    Constants.IDLE_TIMEOUT_TRIGGERED_WHILE_READING_INBOUND_RESPONSE_BODY)));
             msgHolder.getResponse().addHttpContent(lastHttpContent);
-            log.warn(Constants.IDLE_TIMEOUT_TRIGGERED_WHILE_READING_INBOUND_RESPONSE);
+            log.warn(Constants.IDLE_TIMEOUT_TRIGGERED_WHILE_READING_INBOUND_RESPONSE_BODY);
         }
 
         private void closeStream(int streamId, ChannelHandlerContext ctx) {

@@ -144,7 +144,6 @@ public class DefaultHttpClientConnector implements HttpClientConnector {
         if (srcHandler == null && log.isDebugEnabled()) {
             log.debug(Constants.SRC_HANDLER + " property not found in the message."
                               + " Message is not originated from the HTTP Server connector");
-
         }
 
         try {

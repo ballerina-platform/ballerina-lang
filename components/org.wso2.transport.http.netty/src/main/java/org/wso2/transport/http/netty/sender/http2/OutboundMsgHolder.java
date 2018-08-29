@@ -47,8 +47,8 @@ public class OutboundMsgHolder {
     private long lastReadWriteTime;
     private boolean requestWritten;
 
-    public OutboundMsgHolder(HttpCarbonMessage httpCarbonMessage) {
-        this.requestCarbonMessage = httpCarbonMessage;
+    public OutboundMsgHolder(HttpCarbonMessage httpOutboundRequest) {
+        this.requestCarbonMessage = httpOutboundRequest;
         promises = new LinkedBlockingQueue<>();
         pushResponsesMap = new ConcurrentHashMap<>();
         responseFuture = new DefaultHttpResponseFuture(this);
