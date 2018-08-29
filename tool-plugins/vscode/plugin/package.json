@@ -186,6 +186,7 @@
         "openport": "0.0.4",
         "ps-node": "^0.1.6",
         "request-promise": "^4.2.2",
+        "toml": "^2.3.3",
         "vscode": "^1.1.21",
         "vscode-debugadapter": "^1.31.0",
         "vscode-languageclient": "^3.4.2",
