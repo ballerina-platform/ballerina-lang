@@ -98,13 +98,12 @@ public class GrpcCmd implements BLauncherCmd {
     
     @Override
     public void execute() {
-
+        // check input protobuf file path
         if (protoPath == null || !protoPath.toLowerCase(Locale.ENGLISH).endsWith(PROTO_SUFFIX)) {
             String errorMessage = "Invalid proto file path. Please input valid proto file location.";
             outStream.println(errorMessage);
             return;
         }
-
         if (!Files.isReadable(Paths.get(protoPath))) {
             String errorMessage = "Provided service proto file is not readable. Please input valid proto file " +
                     "location.";
@@ -117,7 +116,7 @@ public class GrpcCmd implements BLauncherCmd {
             outStream.println(commandUsageInfo);
             return;
         }
-
+        // download protoc executor.
         try {
             downloadProtocexe();
         } catch (IOException | BalGenToolException e) {
@@ -126,14 +125,12 @@ public class GrpcCmd implements BLauncherCmd {
             outStream.println(errorMessage);
             return;
         }
-
+        // read root/dependent file descriptors.
         File descFile = createTempDirectory();
         StringBuilder msg = new StringBuilder();
         LOG.debug("Initializing the ballerina code generation.");
-
         byte[] root;
         List<byte[]> dependant;
-
         try {
             ClassLoader classLoader = this.getClass().getClassLoader();
             List<String> protoFiles = readProperties(classLoader);
@@ -151,7 +148,6 @@ public class GrpcCmd implements BLauncherCmd {
                 outStream.println(msg.toString());
                 return;
             }
-
             try {
                 root = DescriptorsGenerator.generateRootDescriptor(this.protocExePath, new File(protoPath)
                         .getAbsolutePath(), descFile.getAbsolutePath());
@@ -185,7 +181,7 @@ public class GrpcCmd implements BLauncherCmd {
             delete(new File(tempDir, TEMP_GOOGLE_DIRECTORY));
             LOG.debug("Successfully deleted temporary files.");
         }
-
+        // generate ballerina stub based on descriptor values.
         BallerinaFileBuilder ballerinaFileBuilder;
         // If user provides output directory, generate service stub inside output directory.
         if (balOutPath == null) {
@@ -216,16 +212,12 @@ public class GrpcCmd implements BLauncherCmd {
         if (!metadataHome.exists() && !metadataHome.mkdir()) {
             throw new IllegalStateException("Couldn't create dir: " + metadataHome);
         }
-
         File googleHome = new File(parent, TEMP_GOOGLE_DIRECTORY);
         createTempDirectory(googleHome);
-
         File protobufHome = new File(googleHome, TEMP_PROTOBUF_DIRECTORY);
         createTempDirectory(protobufHome);
-
         File compilerHome = new File(protobufHome, TEMP_COMPILER_DIRECTORY);
         createTempDirectory(compilerHome);
-
         return new File(metadataHome, getProtoFileName() + "-descriptor.desc");
     }
 

@@ -60,7 +60,6 @@ public class Message {
                Field field = Field.newBuilder(fieldDescriptorProto).build();
                fieldList.add(field);
             }
-
             return new Message(messageDescriptor.getName(), fieldList);
         }
 

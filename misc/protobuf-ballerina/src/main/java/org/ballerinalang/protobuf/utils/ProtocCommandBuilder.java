@@ -25,7 +25,6 @@ public class ProtocCommandBuilder {
     private static final String PROTO_PATH_PLACEHOLDER = "{{proto_file_path}}";
     private static final String PROTO_FOLDER_PLACEHOLDER = "{{proto_folder_path}}";
     private static final String DESC_PATH_PLACEHOLDER = "{{desc_file_path}}";
-
     private static final String COMMAND_PLACEHOLDER = "{{exe_file_path}} --proto_path={{proto_folder_path}} " +
             "{{proto_file_path}} --descriptor_set_out={{desc_file_path}}";
     private String exePath;

@@ -12,7 +12,6 @@ import java.util.List;
  * @since 0.982.0
  */
 public class ServiceStub {
-
     private String stubType;
     private String serviceName;
     private List<Method> blockingFunctions = new ArrayList<>();

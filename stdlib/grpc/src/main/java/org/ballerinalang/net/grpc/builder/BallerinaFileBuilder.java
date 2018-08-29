@@ -47,6 +47,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintWriter;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.Arrays;
@@ -106,13 +107,11 @@ public class BallerinaFileBuilder {
                 Descriptor descriptor = Descriptor.newBuilder(descriptorData).build();
                 stubFileObject.addDescriptor(descriptor);
             }
-
             if (fileDescriptorSet.getServiceCount() > 1) {
                 throw new BalGenerationException("Protobuf tool doesn't support more than one service " +
                         "definition. but provided proto file contains " + fileDescriptorSet.getServiceCount() +
                         "service definitions");
             }
-
             if (fileDescriptorSet.getServiceCount() == 1) {
                 DescriptorProtos.ServiceDescriptorProto serviceDescriptor = fileDescriptorSet.getService(SERVICE_INDEX);
                 ServiceStub.Builder serviceBuilder = ServiceStub.newBuilder(serviceDescriptor.getName());
@@ -133,7 +132,6 @@ public class BallerinaFileBuilder {
                     if (MethodDescriptor.MethodType.UNARY.equals(method.getMethodType())) {
                         isUnaryContains = true;
                     }
-
                     if (method.containsEmptyType() && !(stubFileObject.messageExists(EMPTY_DATA_TYPE))) {
                         Message message = Message.newBuilder(EmptyMessage.newBuilder().getDescriptor().toProto())
                                 .build();
@@ -146,20 +144,19 @@ public class BallerinaFileBuilder {
                 }
                 serviceBuilder.setType(ServiceStub.StubType.NONBLOCKING);
                 stubFileObject.addServiceStub(serviceBuilder.build());
-
                 clientFileObject = new ClientFile(serviceDescriptor.getName(), isUnaryContains);
             }
-
+            // read message types.
             for (DescriptorProtos.DescriptorProto descriptorProto : messageTypeList) {
                 Message message = Message.newBuilder(descriptorProto).build();
                 stubFileObject.addMessage(message);
             }
-
+            // read enum types.
             for (DescriptorProtos.EnumDescriptorProto descriptorProto : enumDescriptorProtos) {
                 EnumMessage enumMessage = EnumMessage.newBuilder(descriptorProto).build();
                 stubFileObject.addEnumMessage(enumMessage);
             }
-
+            // write definition objects to ballerina files.
             if (this.balOutPath == null) {
                 this.balOutPath = BalGenConstants.DEFAULT_PACKAGE;
             }
@@ -178,7 +175,6 @@ public class BallerinaFileBuilder {
         if (outputDir != null) {
             Files.createDirectories(Paths.get(outputDir));
         }
-
         File file = new File(outputDir + FILE_SEPARATOR + fileName);
         if (!file.isFile()) {
             Files.createFile(Paths.get(file.getAbsolutePath()));
@@ -204,7 +200,7 @@ public class BallerinaFileBuilder {
                     MapValueResolver.INSTANCE,
                     JavaBeanValueResolver.INSTANCE,
                     FieldValueResolver.INSTANCE).build();
-            writer = new PrintWriter(outPath, "UTF-8");
+            writer = new PrintWriter(outPath, StandardCharsets.UTF_8.name());
             writer.println(template.apply(context));
         } finally {
             if (writer != null) {
@@ -219,7 +215,7 @@ public class BallerinaFileBuilder {
         FileTemplateLoader fileTemplateLoader = new FileTemplateLoader(templatesDirPath);
         cpTemplateLoader.setSuffix(TEMPLATES_SUFFIX);
         fileTemplateLoader.setSuffix(TEMPLATES_SUFFIX);
-
+        // add handlebars with helpers.
         Handlebars handlebars = new Handlebars().with(cpTemplateLoader, fileTemplateLoader);
         handlebars.registerHelpers(StringHelpers.class);
         handlebars.registerHelper("equals", (object, options) -> {
@@ -237,7 +233,6 @@ public class BallerinaFileBuilder {
 
             return result;
         });
-
         handlebars.registerHelper("not_equal", (object, options) -> {
             CharSequence result;
             Object param0 = options.param(0);
@@ -253,7 +248,6 @@ public class BallerinaFileBuilder {
 
             return result;
         });
-
         return handlebars.compile(templateName);
     }
     

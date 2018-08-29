@@ -111,7 +111,6 @@ public class DescriptorsGenerator {
      * @return byte array of generated proto file.
      */
     public static byte[] generateRootDescriptor(String exePath, String protoPath, String descriptorPath) {
-
         String command = new ProtocCommandBuilder
                 (exePath, protoPath, resolveProtoFolderPath(protoPath), descriptorPath).build();
         generateDescriptor(command);

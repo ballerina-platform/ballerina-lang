@@ -49,7 +49,6 @@ public class Descriptor {
         return descriptorData;
     }
 
-
     public static Descriptor.Builder newBuilder(byte[] descriptorData) {
         return new Descriptor.Builder(descriptorData);
     }
@@ -58,7 +57,6 @@ public class Descriptor {
      * Service Descriptor.Builder.
      */
     public static class Builder {
-
         byte[] descriptorData;
 
         private Builder(byte[] descriptorData) {

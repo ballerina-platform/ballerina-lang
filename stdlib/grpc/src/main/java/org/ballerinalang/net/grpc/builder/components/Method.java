@@ -30,7 +30,6 @@ import static org.ballerinalang.net.grpc.builder.utils.BalGenerationUtils.getMap
  * @since 0.982.0
  */
 public class Method {
-
     private String methodName;
     private String methodId;
     private String inputType;
@@ -78,7 +77,6 @@ public class Method {
      * Method Definition.Builder.
      */
     public static class Builder {
-
         String methodId;
         DescriptorProtos.MethodDescriptorProto methodDescriptor;
 

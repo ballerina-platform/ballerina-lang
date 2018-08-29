@@ -26,13 +26,11 @@ import java.util.List;
  * @since 0.982.0
  */
 public class StubFile {
-    
     private String rootDescriptorKey;
     private List<Descriptor> descriptors = new ArrayList<>();
     private List<Message> messageList = new ArrayList<>();
     private List<EnumMessage> enumList = new ArrayList<>();
     private List<ServiceStub> stubList = new ArrayList<>();
-    
     private String fileName;
     
     public StubFile(String fileName) {
