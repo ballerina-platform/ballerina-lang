@@ -67,7 +67,7 @@ public class PackagingNegativeTestCase extends BaseTest {
         String msg = "ballerina: an org-name is required when pushing. This is not specified in Ballerina.toml " +
                 "inside the project";
 
-        String[] clientArgs = {packageName};
+        String[] clientArgs = {"--y", packageName};
 
         addLogLeecher(msg);
         serverInstance.runMain(clientArgs, envVariables, "push", projectPath.toString());
@@ -87,7 +87,7 @@ public class PackagingNegativeTestCase extends BaseTest {
         String msg = "ballerina: a package version is required when pushing. This is not specified in Ballerina.toml " +
                 "inside the project";
 
-        String[] clientArgs = {packageName};
+        String[] clientArgs = {"--y", packageName};
         addLogLeecher(msg);
         serverInstance.runMain(clientArgs, envVariables, "push", projectPath.toString());
     }
@@ -103,7 +103,7 @@ public class PackagingNegativeTestCase extends BaseTest {
         }
         String msg = "ballerina: an org-name is required when pushing. This is not specified in Ballerina.toml " +
                 "inside the project";
-        String[] clientArgs = {packageName};
+        String[] clientArgs = {"--y", packageName};
         addLogLeecher(msg);
         serverInstance.runMain(clientArgs, envVariables, "push", projectPath.toString());
     }
@@ -117,7 +117,7 @@ public class PackagingNegativeTestCase extends BaseTest {
         Path packageMDFilePath = projectPath.resolve(packageName).resolve("Package.md");
         Files.deleteIfExists(packageMDFilePath);
 
-        String[] clientArgs = {packageName};
+        String[] clientArgs = {"--y", packageName};
         String msg = "ballerina: cannot find Package.md file in the artifact";
         addLogLeecher(msg);
         serverInstance.runMain(clientArgs, envVariables, "push", projectPath.toString());
@@ -132,7 +132,7 @@ public class PackagingNegativeTestCase extends BaseTest {
         Path packageMDFilePath = projectPath.resolve(packageName).resolve("Package.md");
         writeToFile(packageMDFilePath, "");
 
-        String[] clientArgs = {packageName};
+        String[] clientArgs = {"--y", packageName};
         String msg = "ballerina: package.md in the artifact is empty";
         addLogLeecher(msg);
         serverInstance.runMain(clientArgs, envVariables, "push", projectPath.toString());
@@ -147,7 +147,7 @@ public class PackagingNegativeTestCase extends BaseTest {
         Path packageMDFilePath = projectPath.resolve(packageName).resolve("Package.md");
         writeToFile(packageMDFilePath, "## Hello World");
 
-        String[] clientArgs = {packageName};
+        String[] clientArgs = {"--y", packageName};
         String msg = "ballerina: cannot find package summary";
         addLogLeecher(msg);
         serverInstance.runMain(clientArgs, envVariables, "push", projectPath.toString());
@@ -164,7 +164,7 @@ public class PackagingNegativeTestCase extends BaseTest {
         writeToFile(packageMDFilePath, "Hello I am the test package which was created during an integration" +
                 "test\n");
 
-        String[] clientArgs = {packageName};
+        String[] clientArgs = {"--y", packageName};
         String msg = "ballerina: summary of the package exceeds 50 characters";
         addLogLeecher(msg);
         serverInstance.runMain(clientArgs, envVariables, "push", projectPath.toString());
@@ -175,7 +175,7 @@ public class PackagingNegativeTestCase extends BaseTest {
         Path projectPath = tempProjectDirectory.resolve("projectToInvalidRepo");
         initProject(projectPath);
 
-        String[] clientArgs = {packageName, "--repository", "test"};
+        String[] clientArgs = {"--y", packageName, "--repository", "test"};
         String msg = "ballerina: unknown repository provided to push the package";
         addLogLeecher(msg);
         serverInstance.runMain(clientArgs, envVariables, "push", projectPath.toString());
@@ -199,7 +199,7 @@ public class PackagingNegativeTestCase extends BaseTest {
         initProject(projectPath);
 
         // First install the package
-        String[] clientArgs = {packageName};
+        String[] clientArgs = {"--y", packageName};
         serverInstance.runMain(clientArgs, envVariables, "install", projectPath.toString());
 
         // Try to install it again
