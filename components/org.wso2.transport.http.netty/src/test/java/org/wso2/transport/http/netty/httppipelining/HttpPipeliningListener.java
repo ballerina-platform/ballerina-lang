@@ -29,7 +29,6 @@ import io.netty.handler.codec.http.LastHttpContent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.transport.http.netty.common.Constants;
-import org.wso2.transport.http.netty.contentaware.listeners.EchoMessageListener;
 import org.wso2.transport.http.netty.contract.HttpConnectorListener;
 import org.wso2.transport.http.netty.contract.ServerConnectorException;
 import org.wso2.transport.http.netty.message.HttpCarbonMessage;
@@ -44,7 +43,7 @@ import java.util.concurrent.Executors;
  * @since 6.0.227
  */
 public class HttpPipeliningListener implements HttpConnectorListener {
-    private static final Logger log = LoggerFactory.getLogger(EchoMessageListener.class);
+    private static final Logger log = LoggerFactory.getLogger(HttpPipeliningListener.class);
 
     private ExecutorService executor = Executors.newSingleThreadExecutor();
 
