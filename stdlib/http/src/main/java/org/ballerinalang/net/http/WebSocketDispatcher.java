@@ -17,6 +17,7 @@
  */
 package org.ballerinalang.net.http;
 
+import io.netty.channel.ChannelFuture;
 import io.netty.handler.codec.CorruptedFrameException;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BLangVMErrors;
@@ -65,6 +66,9 @@ import java.nio.charset.Charset;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import static org.ballerinalang.net.http.WebSocketConstants.STATUS_CODE_ABNORMAL_CLOSURE;
+import static org.ballerinalang.net.http.WebSocketConstants.STATUS_CODE_FOR_NO_STATUS_CODE_PRESENT;
 
 /**
  * {@code WebSocketDispatcher} This is the web socket request dispatcher implementation which finds best matching
@@ -258,7 +262,11 @@ public class WebSocketDispatcher {
         String closeReason = closeMessage.getCloseReason();
         if (onCloseResource == null) {
             if (webSocketConnection.isOpen()) {
-                webSocketConnection.finishConnectionClosure(closeCode, null);
+                if (closeCode == STATUS_CODE_FOR_NO_STATUS_CODE_PRESENT) {
+                    webSocketConnection.finishConnectionClosure();
+                } else {
+                    webSocketConnection.finishConnectionClosure(closeCode, null);
+                }
             }
             return;
         }
@@ -270,11 +278,16 @@ public class WebSocketDispatcher {
         CallableUnitCallback onCloseCallback = new CallableUnitCallback() {
             @Override
             public void notifySuccess() {
-                if (closeMessage.getCloseCode() != WebSocketConstants.STATUS_CODE_ABNORMAL_CLOSURE
+                if (closeMessage.getCloseCode() != STATUS_CODE_ABNORMAL_CLOSURE
                         && webSocketConnection.isOpen()) {
-                    webSocketConnection.finishConnectionClosure(closeCode, null).addListener(
-                            closeFuture -> connectionInfo.getWebSocketEndpoint()
-                                    .put(WebSocketConstants.LISTENER_IS_SECURE_FIELD, new BBoolean(false)));
+                    ChannelFuture finishFuture;
+                    if (closeCode == STATUS_CODE_FOR_NO_STATUS_CODE_PRESENT) {
+                        finishFuture = webSocketConnection.finishConnectionClosure();
+                    } else {
+                        finishFuture = webSocketConnection.finishConnectionClosure(closeCode, null);
+                    }
+                    finishFuture.addListener(closeFuture -> connectionInfo.getWebSocketEndpoint()
+                            .put(WebSocketConstants.LISTENER_IS_SECURE_FIELD, new BBoolean(false)));
                 }
             }
 

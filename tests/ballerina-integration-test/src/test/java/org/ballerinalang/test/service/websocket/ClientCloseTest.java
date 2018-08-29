@@ -19,10 +19,10 @@
 package org.ballerinalang.test.service.websocket;
 
 import io.netty.handler.codec.http.websocketx.CloseWebSocketFrame;
+import org.ballerinalang.test.context.BallerinaTestException;
+import org.ballerinalang.test.context.LogLeecher;
 import org.ballerinalang.test.util.websocket.client.WebSocketTestClient;
 import org.testng.Assert;
-import org.testng.annotations.AfterClass;
-import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 import java.net.URISyntaxException;
@@ -30,36 +30,44 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
 /**
- * Test whether resource failure during client initialization causes a close frame to be sent.
+ * Test client close without a close frame and using a close frame without a status code.
  */
 @Test(groups = "websocket-test")
-public class ClientInitializationFailureTest extends WebSocketTestCommons {
+public class ClientCloseTest extends WebSocketTestCommons {
 
     private WebSocketTestClient client;
-    private static final String URL = "ws://localhost:9091/client/failure";
+    private static final String URL = "ws://localhost:9085";
+    private LogLeecher logLeecher;
 
-    @BeforeClass(description = "Initializes the Ballerina server with the client_failure.bal file")
-    public void setup() throws URISyntaxException {
+    @Test(description = "Test client closing the connection without a close frame")
+    public void testCloseWithoutCloseFrame() throws InterruptedException, BallerinaTestException, URISyntaxException {
+        String expectingErrorLog = "Status code: 1006";
+        logLeecher = new LogLeecher(expectingErrorLog);
+        serverInstance.addLogLeecher(logLeecher);
         client = new WebSocketTestClient(URL);
+        client.handshake();
+        client.shutDownWithoutCloseFrame();
+        logLeecher.waitForText(TIMEOUT_IN_SECS * 1000);
     }
 
-    @Test(description = "Tests the client initialization failing in a resource")
-    public void testClientEndpointFailureInResource() throws InterruptedException {
+    @Test(description = "Test client sending a close frame without a close code")
+    public void testCloseWithoutCloseCode() throws InterruptedException, BallerinaTestException, URISyntaxException {
+        String expectingErrorLog = "Status code: 1005";
+        logLeecher = new LogLeecher(expectingErrorLog);
+        serverInstance.addLogLeecher(logLeecher);
+        client = new WebSocketTestClient(URL);
+        client.handshake();
         CountDownLatch countDownLatch = new CountDownLatch(1);
         client.setCountDownLatch(countDownLatch);
-        client.handshake();
+        client.sendCloseFrameWithoutCloseCode();
         countDownLatch.await(TIMEOUT_IN_SECS, TimeUnit.SECONDS);
+        logLeecher.waitForText(TIMEOUT_IN_SECS * 1000);
         CloseWebSocketFrame closeWebSocketFrame = client.getReceivedCloseFrame();
 
         Assert.assertNotNull(closeWebSocketFrame);
-        Assert.assertEquals(closeWebSocketFrame.statusCode(), 1011);
-        Assert.assertEquals(closeWebSocketFrame.reasonText(), "Unexpected condition");
+        Assert.assertEquals(closeWebSocketFrame.statusCode(), -1);
 
         closeWebSocketFrame.release();
-    }
-
-    @AfterClass(description = "Stops the Ballerina server")
-    public void cleanup() throws InterruptedException {
         client.shutDown();
     }
 }

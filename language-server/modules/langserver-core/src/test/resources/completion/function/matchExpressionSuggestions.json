@@ -1,0 +1,73 @@
+{
+  "position": {
+    "line": 11,
+    "character": 8
+  },
+  "source": "function/source/matchExpressionSuggestions.bal",
+  "items": [
+    {
+      "label":"Match string",
+      "kind":"Unit",
+      "detail":"Snippet",
+      "sortText":"130",
+      "insertText":"string \u003d\u003e ${1:false}",
+      "insertTextFormat":"Snippet"
+    },
+    {
+      "label":"Match boolean",
+      "kind":"Unit",
+      "detail":"Snippet",
+      "sortText":"130",
+      "insertText":"boolean \u003d\u003e ${2:false}",
+      "insertTextFormat":"Snippet"
+    },
+    {
+      "label":"Match float",
+      "kind":"Unit",
+      "detail":"Snippet",
+      "sortText":"130",
+      "insertText":"float \u003d\u003e ${3:false}",
+      "insertTextFormat":"Snippet"
+    },
+    {
+      "label":"Match int",
+      "kind":"Unit",
+      "detail":"Snippet",
+      "sortText":"130",
+      "insertText":"int \u003d\u003e ${4:false}",
+      "insertTextFormat":"Snippet"
+    },
+    {
+      "label":"Match testRecord",
+      "kind":"Unit",
+      "detail":"Snippet",
+      "sortText":"130",
+      "insertText":"testRecord \u003d\u003e ${5:false}",
+      "insertTextFormat":"Snippet"
+    },
+    {
+      "label":"Match ()",
+      "kind":"Unit",
+      "detail":"Snippet",
+      "sortText":"130",
+      "insertText":"() \u003d\u003e ${6:false}",
+      "insertTextFormat":"Snippet"
+    },
+    {
+      "label":"Match string|boolean|float|int|testRecord?",
+      "kind":"Unit",
+      "detail":"Snippet",
+      "sortText":"110",
+      "insertText":"string \u003d\u003e ${1:false},\nboolean \u003d\u003e ${2:false},\nfloat \u003d\u003e ${3:false},\nint \u003d\u003e ${4:false},\ntestRecord \u003d\u003e ${5:false},\n() \u003d\u003e ${6:false}",
+      "insertTextFormat":"Snippet"
+    },
+    {
+      "label":"Match any",
+      "kind":"Unit",
+      "detail":"Snippet",
+      "sortText":"120",
+      "insertText":"any \u003d\u003e ${1:false}",
+      "insertTextFormat":"Snippet"
+    }
+  ]
+}
