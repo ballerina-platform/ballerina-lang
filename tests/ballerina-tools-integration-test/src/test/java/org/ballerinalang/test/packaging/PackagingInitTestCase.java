@@ -21,10 +21,10 @@ import org.ballerinalang.test.BaseTest;
 import org.ballerinalang.test.context.BMainInstance;
 import org.ballerinalang.test.context.BServerInstance;
 import org.ballerinalang.test.context.BallerinaTestException;
-import org.ballerinalang.test.context.Constant;
 import org.ballerinalang.test.context.LogLeecher;
 import org.ballerinalang.test.util.HttpClientRequest;
 import org.ballerinalang.test.util.HttpResponse;
+import org.ballerinalang.test.utils.PackagingTestUtils;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -33,49 +33,52 @@ import org.testng.annotations.Test;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Locale;
+import java.nio.file.StandardOpenOption;
 import java.util.Map;
 
 /**
- * Testing init, build with tests and run on a ballerina project.
+ * Testing initializing a project using the init command.
+ *
+ * @since 0.982.0
  */
 public class PackagingInitTestCase extends BaseTest {
-    private String serverZipPath;
+    private Path tempHomeDirectory;
     private Path tempProjectDirectory;
+    private String packageName = "test";
+    private String orgName = "integrationtests";
+    private Map<String, String> envVariables;
 
     @BeforeClass()
     public void setUp() throws BallerinaTestException, IOException {
+        tempHomeDirectory = Files.createTempDirectory("bal-test-integration-packaging-home-");
         tempProjectDirectory = Files.createTempDirectory("bal-test-integration-packaging-project-");
-        serverZipPath = System.getProperty(Constant.SYSTEM_PROP_SERVER_ZIP);
+        createSettingToml();
+        packageName = packageName + PackagingTestUtils.randomPackageName(10);
+        envVariables = PackagingTestUtils.getEnvVariables();
     }
 
     @Test(description = "Test creating a project with a main in a package")
     public void testInitWithMainInPackage() throws Exception {
         // Test ballerina init
-        BMainInstance ballerinaServer = new BMainInstance(balServer);
         Path projectPath = tempProjectDirectory.resolve("firstTestWithPackagesMain");
         Files.createDirectories(projectPath);
 
         String[] clientArgsForInit = {"-i"};
-        String[] options = {"\n", "\n", "\n", "m\n", "foo\n", "f\n"};
-        ballerinaServer.runMain("init", clientArgsForInit, System.getenv(), options, new LogLeecher[]{},
-                                                 projectPath.toString());
+        String[] options = {"\n", orgName + "\n", "\n", "m\n", "foo\n", "f\n"};
+        balClient.runMain("init", clientArgsForInit, envVariables, options, new LogLeecher[]{},
+                projectPath.toString());
 
         Assert.assertTrue(Files.exists(projectPath.resolve("foo").resolve("main.bal")));
         Assert.assertTrue(Files.exists(projectPath.resolve("Ballerina.toml")));
         Assert.assertTrue(Files.exists(projectPath.resolve("foo").resolve("tests").resolve("main_test.bal")));
 
         // Test ballerina build
-        ballerinaServer.runMain("build", new String[0], System.getenv(), new String[]{},
+        balClient.runMain("build", new String[0], envVariables, new String[]{},
                 new LogLeecher[]{}, projectPath.toString());
         Path generatedBalx = projectPath.resolve("target").resolve("foo.balx");
         Assert.assertTrue(Files.exists(generatedBalx));
-        Assert.assertTrue(Files.exists(projectPath.resolve(".ballerina").resolve("repo").resolve(getOrgName())
-                                                  .resolve("foo").resolve("0.0.1").resolve("foo.zip")));
+        Assert.assertTrue(Files.exists(projectPath.resolve(".ballerina").resolve("repo").resolve(orgName)
+                .resolve("foo").resolve("0.0.1").resolve("foo.zip")));
 
         // Test ballerina run
         runMainFunction(projectPath, "foo");
@@ -87,14 +90,13 @@ public class PackagingInitTestCase extends BaseTest {
     @Test(description = "Test creating a project with a service in a package")
     public void testInitWithServiceInPackage() throws Exception {
         // Test ballerina init
-        BMainInstance ballerinaServer = new BMainInstance(balServer);
         Path projectPath = tempProjectDirectory.resolve("firstTestWithPackagesService");
         Files.createDirectories(projectPath);
 
         String[] clientArgsForInit = {"-i"};
-        String[] options = {"\n", "\n", "\n", "s\n", "foo\n", "f\n"};
-        ballerinaServer.runMain("init", clientArgsForInit, System.getenv(), options, new LogLeecher[]{},
-                                                 projectPath.toString());
+        String[] options = {"\n", orgName + "\n", "\n", "s\n", "foo\n", "f\n"};
+        balClient.runMain("init", clientArgsForInit, envVariables, options, new LogLeecher[]{},
+                projectPath.toString());
 
         Path serviceBalPath = projectPath.resolve("foo").resolve("hello_service.bal");
         Assert.assertTrue(Files.exists(projectPath.resolve("Ballerina.toml")));
@@ -102,12 +104,12 @@ public class PackagingInitTestCase extends BaseTest {
         Assert.assertTrue(Files.exists(projectPath.resolve("foo").resolve("tests").resolve("hello_service_test.bal")));
 
         // Test ballerina build
-        ballerinaServer.runMain("build", new String[0], System.getenv(), new String[]{},
+        balClient.runMain("build", new String[0], envVariables, new String[]{},
                 new LogLeecher[]{}, projectPath.toString());
         Path generatedBalx = projectPath.resolve("target").resolve("foo.balx");
         Assert.assertTrue(Files.exists(generatedBalx));
-        Assert.assertTrue(Files.exists(projectPath.resolve(".ballerina").resolve("repo").resolve(getOrgName())
-                                                  .resolve("foo").resolve("0.0.1").resolve("foo.zip")));
+        Assert.assertTrue(Files.exists(projectPath.resolve(".ballerina").resolve("repo").resolve(orgName)
+                .resolve("foo").resolve("0.0.1").resolve("foo.zip")));
 
         // Test ballerina run
         runService(projectPath.resolve("foo").resolve("hello_service.bal"));
@@ -119,14 +121,13 @@ public class PackagingInitTestCase extends BaseTest {
     @Test(description = "Test creating a project with a service and main in different packages")
     public void testInitWithMainServiceInDiffPackage() throws Exception {
         // Test ballerina init
-        BMainInstance ballerinaServer = new BMainInstance(balServer);
         Path projectPath = tempProjectDirectory.resolve("secondTestWithPackages");
         Files.createDirectories(projectPath);
 
         String[] clientArgsForInit = {"-i"};
-        String[] options = {"\n", "\n", "\n", "m\n", "foo\n", "s\n", "bar\n", "f\n"};
-        ballerinaServer.runMain("init", clientArgsForInit, System.getenv(), options, new LogLeecher[]{},
-                                                 projectPath.toString());
+        String[] options = {"\n", orgName + "\n", "\n", "m\n", "foo\n", "s\n", "bar\n", "f\n"};
+        balClient.runMain("init", clientArgsForInit, envVariables, options, new LogLeecher[]{},
+                projectPath.toString());
 
         Assert.assertTrue(Files.exists(projectPath.resolve("foo").resolve("main.bal")));
         Path serviceBalPath = projectPath.resolve("bar").resolve("hello_service.bal");
@@ -136,14 +137,14 @@ public class PackagingInitTestCase extends BaseTest {
         Assert.assertTrue(Files.exists(projectPath.resolve("bar").resolve("tests").resolve("hello_service_test.bal")));
 
         // Test ballerina build
-        ballerinaServer.runMain("build", new String[0], System.getenv(), new String[]{},
+        balClient.runMain("build", new String[0], envVariables, new String[]{},
                 new LogLeecher[]{}, projectPath.toString());
         Assert.assertTrue(Files.exists(projectPath.resolve("target").resolve("foo.balx")));
         Assert.assertTrue(Files.exists(projectPath.resolve("target").resolve("bar.balx")));
-        Assert.assertTrue(Files.exists(projectPath.resolve(".ballerina").resolve("repo").resolve(getOrgName())
-                                                  .resolve("foo").resolve("0.0.1").resolve("foo.zip")));
-        Assert.assertTrue(Files.exists(projectPath.resolve(".ballerina").resolve("repo").resolve(getOrgName())
-                                                  .resolve("bar").resolve("0.0.1").resolve("bar.zip")));
+        Assert.assertTrue(Files.exists(projectPath.resolve(".ballerina").resolve("repo").resolve(orgName)
+                .resolve("foo").resolve("0.0.1").resolve("foo.zip")));
+        Assert.assertTrue(Files.exists(projectPath.resolve(".ballerina").resolve("repo").resolve(orgName)
+                .resolve("bar").resolve("0.0.1").resolve("bar.zip")));
         // Test ballerina run
         runMainFunction(projectPath, "foo");
         runService(serviceBalPath);
@@ -156,20 +157,18 @@ public class PackagingInitTestCase extends BaseTest {
     @Test(description = "Test creating a project without going to interactive mode")
     public void testInitWithoutGoingToInteractiveMode() throws Exception {
         // Test ballerina init
-        BMainInstance ballerinaServer = new BMainInstance(balServer);
         Path projectPath = tempProjectDirectory.resolve("testWithoutPackage");
         Files.createDirectories(projectPath);
 
-        ballerinaServer.runMain("init", new String[0], System.getenv(), new String[0], new LogLeecher[]{},
-                                                 projectPath.toString());
+        balClient.runMain("init", new String[0], envVariables, new String[0], new LogLeecher[]{},
+                projectPath.toString());
 
         Path serviceBalPath = projectPath.resolve("hello_service.bal");
         Assert.assertTrue(Files.exists(serviceBalPath));
         Assert.assertTrue(Files.exists(projectPath.resolve("Ballerina.toml")));
         Assert.assertTrue(Files.exists(projectPath.resolve(".ballerina")));
 
-        // Test ballerina build
-        ballerinaServer.runMain("build", new String[0], System.getenv(), new String[]{},
+        balClient.runMain("build", new String[0], envVariables, new String[]{},
                 new LogLeecher[]{}, projectPath.toString());
         Path generatedBalx = projectPath.resolve("target").resolve("hello_service.balx");
         Assert.assertTrue(Files.exists(generatedBalx));
@@ -184,20 +183,19 @@ public class PackagingInitTestCase extends BaseTest {
     @Test(description = "Test creating a project with a main without a package")
     public void testInitWithoutPackage() throws Exception {
         // Test ballerina init
-        BMainInstance ballerinaServer = new BMainInstance(balServer);
         Path projectPath = tempProjectDirectory.resolve("testWithoutPackageForMain");
         Files.createDirectories(projectPath);
 
         String[] clientArgsForInit = {"-i"};
-        String[] options = {"\n", "\n", "\n", "m\n", "\n", "f\n"};
-        ballerinaServer.runMain("init", clientArgsForInit, System.getenv(), options, new LogLeecher[]{},
-                                                 projectPath.toString());
+        String[] options = {"\n", orgName + "\n", "\n", "m\n", "\n", "f\n"};
+        balClient.runMain("init", clientArgsForInit, envVariables, options, new LogLeecher[]{},
+                projectPath.toString());
 
         Assert.assertTrue(Files.exists(projectPath.resolve("main.bal")));
         Assert.assertTrue(Files.exists(projectPath.resolve("Ballerina.toml")));
 
         // Test ballerina build
-        ballerinaServer.runMain("build", new String[0], System.getenv(), new String[]{},
+        balClient.runMain("build", new String[0], envVariables, new String[]{},
                 new LogLeecher[]{}, projectPath.toString());
         Path generatedBalx = projectPath.resolve("target").resolve("main.balx");
         Assert.assertTrue(Files.exists(generatedBalx));
@@ -213,10 +211,9 @@ public class PackagingInitTestCase extends BaseTest {
             dependsOnMethods = "testInitWithMainInPackage")
     public void testInitOnExistingProject() throws Exception {
         // Test ballerina init
-        BMainInstance ballerinaServer = new BMainInstance(balServer);
         Path projectPath = tempProjectDirectory.resolve("firstTestWithPackagesMain");
-        ballerinaServer.runMain("init", new String[0], System.getenv(), new String[0], new LogLeecher[]{},
-                                                 projectPath.toString());
+        balClient.runMain("init", new String[0], envVariables, new String[0], new LogLeecher[]{},
+                projectPath.toString());
 
         Path packagePath = projectPath.resolve("foo");
         Assert.assertTrue(Files.exists(packagePath.resolve("main.bal")));
@@ -224,11 +221,11 @@ public class PackagingInitTestCase extends BaseTest {
         Assert.assertTrue(Files.exists(packagePath.resolve("tests").resolve("main_test.bal")));
 
         // Test ballerina build
-        ballerinaServer.runMain("build", new String[0], System.getenv(), new String[]{},
+        balClient.runMain("build", new String[0], envVariables, new String[]{},
                 new LogLeecher[]{}, projectPath.toString());
         Assert.assertTrue(Files.exists(projectPath.resolve("target").resolve("foo.balx")));
-        Assert.assertTrue(Files.exists(projectPath.resolve(".ballerina").resolve("repo").resolve(getOrgName())
-                                                  .resolve("foo").resolve("0.0.1").resolve("foo.zip")));
+        Assert.assertTrue(Files.exists(projectPath.resolve(".ballerina").resolve("repo").resolve(orgName)
+                .resolve("foo").resolve("0.0.1").resolve("foo.zip")));
         // Test ballerina run
         runMainFunction(projectPath, "foo");
 
@@ -240,13 +237,12 @@ public class PackagingInitTestCase extends BaseTest {
             dependsOnMethods = "testInitWithMainInPackage")
     public void testInitOnExistingProjectWithNewPackage() throws Exception {
         // Test ballerina init
-        BMainInstance ballerinaServer = new BMainInstance(balServer);
         Path projectPath = tempProjectDirectory.resolve("firstTestWithPackagesMain");
 
         String[] clientArgsForInit = {"-i"};
-        String[] options = {"\n", "\n", "\n", "m\n", "newpkg\n", "f\n"};
-        ballerinaServer.runMain("init", clientArgsForInit, System.getenv(), options, new LogLeecher[]{},
-                                                 projectPath.toString());
+        String[] options = {"\n", orgName + "\n", "\n", "m\n", "newpkg\n", "f\n"};
+        balClient.runMain("init", clientArgsForInit, envVariables, options, new LogLeecher[]{},
+                projectPath.toString());
 
         Assert.assertTrue(Files.exists(projectPath.resolve("newpkg").resolve("main.bal")));
         Assert.assertTrue(Files.exists(projectPath.resolve("newpkg").resolve("tests").resolve("main_test.bal")));
@@ -254,14 +250,14 @@ public class PackagingInitTestCase extends BaseTest {
         Assert.assertTrue(Files.exists(projectPath.resolve("foo").resolve("tests").resolve("main_test.bal")));
 
         // Test ballerina build
-        ballerinaServer.runMain("build", new String[0], System.getenv(), new String[]{},
+        balClient.runMain("build", new String[0], envVariables, new String[]{},
                 new LogLeecher[]{}, projectPath.toString());
         Assert.assertTrue(Files.exists(projectPath.resolve("target").resolve("newpkg.balx")));
         Assert.assertTrue(Files.exists(projectPath.resolve("target").resolve("foo.balx")));
-        Assert.assertTrue(Files.exists(projectPath.resolve(".ballerina").resolve("repo").resolve(getOrgName())
-                                                  .resolve("foo").resolve("0.0.1").resolve("foo.zip")));
-        Assert.assertTrue(Files.exists(projectPath.resolve(".ballerina").resolve("repo").resolve(getOrgName())
-                                                  .resolve("newpkg").resolve("0.0.1").resolve("newpkg.zip")));
+        Assert.assertTrue(Files.exists(projectPath.resolve(".ballerina").resolve("repo").resolve(orgName)
+                .resolve("foo").resolve("0.0.1").resolve("foo.zip")));
+        Assert.assertTrue(Files.exists(projectPath.resolve(".ballerina").resolve("repo").resolve(orgName)
+                .resolve("newpkg").resolve("0.0.1").resolve("newpkg.zip")));
 
 
         // Test ballerina run on the new package
@@ -274,14 +270,13 @@ public class PackagingInitTestCase extends BaseTest {
     @Test(description = "Test creating a project with invalid options")
     public void testInitWithInvalidOptions() throws Exception {
         // Test ballerina init
-        BMainInstance ballerinaServer = new BMainInstance(balServer);
         Path projectPath = tempProjectDirectory.resolve("testsWithoutPackage");
         Files.createDirectories(projectPath);
 
         String[] clientArgsForInit = {"-i"};
-        String[] options = {"\n", "\n", "\n", "123\n", "jkl\n", "f\n"};
-        ballerinaServer.runMain("init", clientArgsForInit, System.getenv(), options, new LogLeecher[]{},
-                                                 projectPath.toString());
+        String[] options = {"\n", orgName + "\n", "\n", "123\n", "jkl\n", "f\n"};
+        balClient.runMain("init", clientArgsForInit, envVariables, options, new LogLeecher[]{},
+                projectPath.toString());
 
         Assert.assertTrue(Files.exists(projectPath.resolve(".ballerina")));
         Assert.assertTrue(Files.exists(projectPath.resolve("Ballerina.toml")));
@@ -290,26 +285,26 @@ public class PackagingInitTestCase extends BaseTest {
     @Test(description = "Test creating a project with invalid package")
     public void testInitWithInvalidPackage() throws Exception {
         // Test ballerina init
-        BMainInstance ballerinaServer = new BMainInstance(balServer);
         Path projectPath = tempProjectDirectory.resolve("invalidTestWithPackage");
         Files.createDirectories(projectPath);
 
         String[] clientArgsForInit = {"-i"};
-        String[] options = {"\n", "\n", "\n", "m\n", "foo-bar\n", "foo bar package\n", "foo$bar\n", "foobar\n", "f\n"};
-        ballerinaServer.runMain("init", clientArgsForInit, System.getenv(), options, new LogLeecher[]{},
-                                                 projectPath.toString());
+        String[] options = {"\n", orgName + "\n", "\n", "m\n", "foo-bar\n", "foo bar package\n", "foo$bar\n",
+                "foobar\n", "f\n"};
+        balClient.runMain("init", clientArgsForInit, envVariables, options, new LogLeecher[]{},
+                projectPath.toString());
 
         Assert.assertTrue(Files.exists(projectPath.resolve("foobar").resolve("main.bal")));
         Assert.assertTrue(Files.exists(projectPath.resolve("Ballerina.toml")));
         Assert.assertTrue(Files.exists(projectPath.resolve("foobar").resolve("tests").resolve("main_test.bal")));
 
         // Test ballerina build
-        ballerinaServer.runMain("build", new String[0], System.getenv(), new String[]{},
+        balClient.runMain("build", new String[0], envVariables, new String[]{},
                 new LogLeecher[]{}, projectPath.toString());
         Path generatedBalx = projectPath.resolve("target").resolve("foobar.balx");
         Assert.assertTrue(Files.exists(generatedBalx));
-        Assert.assertTrue(Files.exists(projectPath.resolve(".ballerina").resolve("repo").resolve(getOrgName())
-                                                  .resolve("foobar").resolve("0.0.1").resolve("foobar.zip")));
+        Assert.assertTrue(Files.exists(projectPath.resolve(".ballerina").resolve("repo").resolve(orgName)
+                .resolve("foobar").resolve("0.0.1").resolve("foobar.zip")));
 
         // Test ballerina run
         runMainFunction(projectPath, "foobar");
@@ -321,51 +316,21 @@ public class PackagingInitTestCase extends BaseTest {
     @Test(description = "Test building a package in a project")
     public void testBuildPackage() throws Exception {
         // Test ballerina init
-        BMainInstance ballerinaServer = new BMainInstance(balServer);
         Path projectPath = tempProjectDirectory.resolve("testBuildPackage");
         Files.createDirectories(projectPath);
 
         String[] clientArgsForInit = {"-i"};
-        String[] options = {"\n", "integrationtests\n", "\n", "m\n", "foo\n", "f\n"};
-        ballerinaServer.runMain("init", clientArgsForInit, System.getenv(), options, new LogLeecher[]{},
-                                                 projectPath.toString());
+        String[] options = {"\n", orgName + "\n", "\n", "m\n", "foo\n", "f\n"};
+        balClient.runMain("init", clientArgsForInit, envVariables, options, new LogLeecher[]{},
+                projectPath.toString());
 
         // Test ballerina build
-        ballerinaServer.runMain("build", new String[] {"foo"}, System.getenv(), new String[]{},
+        balClient.runMain("build", new String[]{"foo"}, envVariables, new String[]{},
                 new LogLeecher[]{}, projectPath.toString());
 
         Assert.assertTrue(Files.exists(projectPath.resolve("target").resolve("foo.balx")));
         Assert.assertTrue(Files.exists(projectPath.resolve(".ballerina").resolve("repo").resolve("integrationtests")
-                                                  .resolve("foo").resolve("0.0.1").resolve("foo.zip")));
-    }
-    @Test(description = "Test building a project with a single bal file using the target path")
-    public void testBuildWithTarget() throws Exception {
-        // Test ballerina init
-        BMainInstance ballerinaServer = new BMainInstance(balServer);
-        Path projectPath = tempProjectDirectory.resolve("testPackageWithTarget");
-        Path genExecPath = tempProjectDirectory.resolve("generatedExec");
-        Files.createDirectories(projectPath);
-        Files.createDirectories(genExecPath);
-
-        String[] clientArgsForInit = {"-i"};
-        String[] options = {"\n", "\n", "\n", "m\n", "\n", "f"};
-        ballerinaServer.runMain("init", clientArgsForInit, System.getenv(), options, new LogLeecher[]{},
-                                                 projectPath.toString());
-
-        Path sourceFilePath = projectPath.resolve("main.bal");
-        Assert.assertTrue(Files.exists(sourceFilePath));
-        Assert.assertTrue(Files.exists(projectPath.resolve("Ballerina.toml")));
-
-        // Remove the .ballerina inside the project because we only want the bal file
-        Files.deleteIfExists(projectPath.resolve(".ballerina").resolve(".gitignore"));
-        Files.deleteIfExists(projectPath.resolve(".ballerina"));
-
-        // Test ballerina build
-        String[] clientArgsForBuild = {"-o", genExecPath.resolve("foo.bal").toString(), "main.bal"};
-        ballerinaServer.runMain("build", clientArgsForBuild, System.getenv(), new String[]{},
-                new LogLeecher[]{}, projectPath.toString());
-
-        Assert.assertTrue(Files.exists(genExecPath.resolve("foo.balx")));
+                .resolve("foo").resolve("0.0.1").resolve("foo.zip")));
     }
 
     /**
@@ -377,17 +342,9 @@ public class PackagingInitTestCase extends BaseTest {
      */
     private void runMainFunction(Path projectPath, String pkg)
             throws BallerinaTestException {
-        BMainInstance ballerinaServer = new BMainInstance(balServer);
         LogLeecher logLeecher = new LogLeecher("Hello World!");
-        ballerinaServer.runMain(projectPath.toString(), pkg, new String[]{}, new String[]{},
-                getEnv(), new String[]{}, new LogLeecher[]{logLeecher});
-    }
-
-    private Map<String, String> getEnv() {
-        Map<String, String> envVarMap = System.getenv();
-        Map<String, String> retMap = new HashMap<>();
-        envVarMap.forEach(retMap::put);
-        return retMap;
+        balClient.runMain(projectPath.toString(), pkg, new String[]{}, new String[]{},
+                envVariables, new String[]{}, new LogLeecher[]{logLeecher});
     }
 
     /**
@@ -407,53 +364,19 @@ public class PackagingInitTestCase extends BaseTest {
     }
 
     /**
-     * Get environment variables and add ballerina_home as a env variable the tmp directory.
+     * Create Settings.toml inside the home repository.
      *
-     * @return env directory variable array
+     * @throws IOException i/o exception when writing to file
      */
-    private String[] getEnvVariables() {
-        List<String> variables = new ArrayList<>();
-
-        Map<String, String> envVarMap = System.getenv();
-        envVarMap.forEach((key, value) -> variables.add(key + "=" + value));
-        return variables.toArray(new String[variables.size()]);
+    private void createSettingToml() throws IOException {
+        Path tomlFilePath = tempHomeDirectory.resolve("Settings.toml");
+        String content = "[central]\n accesstoken = \"0f647e67-857d-32e8-a679-bd3c1c3a7eb2\"";
+        Files.write(tomlFilePath, content.getBytes(), StandardOpenOption.CREATE);
     }
 
     @AfterClass
     private void cleanup() throws Exception {
-        deleteFiles(tempProjectDirectory);
-    }
-
-    /**
-     * Delete files inside directories.
-     *
-     * @param dirPath direectory path
-     * @throws IOException throw an exception if an issue occurs
-     */
-    private void deleteFiles(Path dirPath) throws IOException {
-        Files.walk(dirPath)
-             .sorted(Comparator.reverseOrder())
-             .forEach(path -> {
-                 try {
-                     Files.delete(path);
-                 } catch (IOException e) {
-                     Assert.fail(e.getMessage(), e);
-                 }
-             });
-    }
-
-    /**
-     * Get org-name of user.
-     *
-     * @return org name
-     */
-    private String getOrgName() {
-        String orgName = System.getProperty("user.name");
-        if (orgName == null) {
-            orgName = "my_org";
-        } else {
-            orgName = orgName.toLowerCase(Locale.getDefault());
-        }
-        return orgName;
+        PackagingTestUtils.deleteFiles(tempHomeDirectory);
+        PackagingTestUtils.deleteFiles(tempProjectDirectory);
     }
 }

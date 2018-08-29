@@ -65,7 +65,7 @@ Alternatively, you can install Ballerina from the source using the following ins
     git submodule update --init 
     ```
 2. Run the Maven command ``mvn clean install`` from the repository root directory.
-3. Extract the Ballerina distribution created at `distribution/zip/ballerina/target/ballerina-<version>-SNAPSHOT.zip`.
+3. Extract the Ballerina distribution created at `distribution/zip/ballerina-tools/target/ballerina-tools-<version>-SNAPSHOT.zip`.
 
 ## Contributing to Ballerina
 

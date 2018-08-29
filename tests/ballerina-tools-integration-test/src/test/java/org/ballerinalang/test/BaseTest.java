@@ -18,6 +18,7 @@
 
 package org.ballerinalang.test;
 
+import org.ballerinalang.test.context.BMainInstance;
 import org.ballerinalang.test.context.BalServer;
 import org.ballerinalang.test.context.BallerinaTestException;
 import org.testng.annotations.AfterSuite;
@@ -31,10 +32,12 @@ import org.testng.annotations.BeforeSuite;
 public class BaseTest {
 
     protected static BalServer balServer;
+    protected static BMainInstance balClient;
 
     @BeforeSuite(alwaysRun = true)
     public void initialize() throws BallerinaTestException {
         balServer = new BalServer();
+        balClient = new BMainInstance(balServer);
     }
 
     @AfterSuite(alwaysRun = true)

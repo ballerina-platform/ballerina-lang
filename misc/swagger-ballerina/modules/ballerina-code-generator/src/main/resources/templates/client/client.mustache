@@ -12,25 +12,23 @@ public type {{name}}ClientConfig record {
 //============Client Endpoint============
 //=======================================
 public type {{name}}ClientEp object {
-    public {
-        http:Client client;
-        {{name}}ClientConfig config;
-    }
+    public http:Client client;
+    public {{name}}ClientConfig config;
 
-    public function init({{name}}ClientConfig config);
+    public function init({{name}}ClientConfig clientConfig);
     public function getCallerActions() returns ({{name}}Client);
 };
 
-public function {{name}}ClientEp::init({{name}}ClientConfig config) {
+function {{name}}ClientEp::init({{name}}ClientConfig clientConfig) {
     endpoint http:Client httpEp {
-        url: config.serviceUrl
+        url: clientConfig.serviceUrl
     };
 
     self.client = httpEp;
-    self.config = config;
+    self.config = clientConfig;
 }
 
-public function {{name}}ClientEp::getCallerActions() returns ({{name}}Client) {
+function {{name}}ClientEp::getCallerActions() returns ({{name}}Client) {
     return new {{name}}Client(self);
 }
 
@@ -38,9 +36,7 @@ public function {{name}}ClientEp::getCallerActions() returns ({{name}}Client) {
 //============Client============
 //==============================
 public type {{name}}Client object {
-    public {
-        {{name}}ClientEp clientEp;
-    }
+    public {{name}}ClientEp clientEp;
 
     new (clientEp) {}
     {{#resources}}{{#isMultiMethod}}{{#supportedMethods}}
@@ -48,24 +44,24 @@ public type {{name}}Client object {
     public function {{name}}({{#parameters}}{{type}} {{name}}{{#unless @last}}, {{/unless}}{{/parameters}}) returns http:Response | error;{{/isMultiMethod}}{{/resources}}
 };
 {{#resources}}{{#isMultiMethod}}{{#supportedMethods}}
-public function {{../../name}}Client::{{lower .}}{{../name}}({{#parameters}}{{type}} {{../name}}{{#unless @last}}, {{/unless}}{{/parameters}}) returns http:Response | error {
+function {{../../name}}Client::{{lower .}}{{../name}}({{#parameters}}{{type}} {{../name}}{{#unless @last}}, {{/unless}}{{/parameters}}) returns http:Response | error {
     endpoint http:Client ep = self.clientEp.client;
     http:Request request = new;
 
     //Create the required request as needed{{#contentType}}
     request.setHeader("Content-Type", "{{contentType}}");{{/contentType}}
     string path = string `{{path}}`;
-    return check ep->{{lower .}}(path, request = request);
+    return check ep->{{lower .}}(path, message = request);
 }
 {{/supportedMethods}}{{/isMultiMethod}}{{^isMultiMethod}}
-public function {{../name}}Client::{{name}}({{#parameters}}{{type}} {{name}}{{#unless @last}}, {{/unless}}{{/parameters}}) returns http:Response | error {
+function {{../name}}Client::{{name}}({{#parameters}}{{type}} {{name}}{{#unless @last}}, {{/unless}}{{/parameters}}) returns http:Response | error {
     endpoint http:Client ep = self.clientEp.client;
     http:Request request = new;
 
     //Create the required request as needed{{#contentType}}
     request.setHeader("Content-Type", "{{contentType}}");{{/contentType}}
     string path = string `{{path}}`;
-    return check ep->{{lower method}}(path, request = request);
+    return check ep->{{lower method}}(path, message = request);
 }{{/isMultiMethod}}
 {{/resources}}
 {{#if endpoints}}//======================================================

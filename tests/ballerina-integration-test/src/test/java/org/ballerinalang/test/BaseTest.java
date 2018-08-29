@@ -15,7 +15,6 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-
 package org.ballerinalang.test;
 
 import org.ballerinalang.test.context.BalServer;
@@ -30,7 +29,7 @@ import org.testng.annotations.BeforeSuite;
  */
 public class BaseTest {
 
-    protected static BalServer balServer;
+    public static BalServer balServer;
 
     @BeforeSuite(alwaysRun = true)
     public void initialize() throws BallerinaTestException {

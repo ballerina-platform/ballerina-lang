@@ -175,7 +175,6 @@ public class DelimitedRecordChannel implements IOChannel {
      */
     private String readRecord() throws BallerinaIOException, IOException {
         String record = null;
-        String readCharacters = "";
         final int minimumRecordCount = 1;
         final int numberOfSplits = 2;
         do {
@@ -192,9 +191,9 @@ public class DelimitedRecordChannel implements IOChannel {
                     recordCharacterCount = record.length();
                 }
             } else {
-                readCharacters = readRecordFromChannel();
+                readRecordFromChannel();
             }
-        } while (record == null && !readCharacters.isEmpty());
+        } while (record == null && !channel.hasReachedEnd());
 
         if (null == record) {
             record = readFinalRecord();
@@ -458,6 +457,11 @@ public class DelimitedRecordChannel implements IOChannel {
     @Override
     public void close() throws IOException {
         channel.close();
+    }
+
+    @Override
+    public boolean remaining() {
+        return persistentCharSequence.length() > 0;
     }
 
     /**
