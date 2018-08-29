@@ -35,6 +35,7 @@ import io.netty.handler.codec.http.websocketx.BinaryWebSocketFrame;
 import io.netty.handler.codec.http.websocketx.CloseWebSocketFrame;
 import io.netty.handler.codec.http.websocketx.ContinuationWebSocketFrame;
 import io.netty.handler.codec.http.websocketx.PingWebSocketFrame;
+import io.netty.handler.codec.http.websocketx.PongWebSocketFrame;
 import io.netty.handler.codec.http.websocketx.TextWebSocketFrame;
 import io.netty.handler.codec.http.websocketx.WebSocketClientHandshakerFactory;
 import io.netty.handler.codec.http.websocketx.WebSocketVersion;
@@ -115,7 +116,7 @@ public class WebSocketTestClient {
     /**
      * Send text to the server.
      *
-     * @param text    text need to be sent.
+     * @param text    text to be sent.
      * @param isFinal whether the text is final
      * @throws InterruptedException if connection is interrupted while sending the message.
      */
@@ -133,6 +134,31 @@ public class WebSocketTestClient {
             }
         } else {
             channel.writeAndFlush(new ContinuationWebSocketFrame(true, 0, text));
+            first = true;
+        }
+    }
+
+    /**
+     * Send binary to the server.
+     *
+     * @param buffer  buffer containing the data to be sent.
+     * @param isFinal whether the text is final
+     * @throws InterruptedException if connection is interrupted while sending the message.
+     */
+    public void sendBinary(ByteBuffer buffer, boolean isFinal) throws InterruptedException {
+        if (channel == null) {
+            logger.error("Channel is null. Cannot send text.");
+            throw new IllegalArgumentException("Cannot find the channel to write");
+        }
+        if (!isFinal) {
+            if (first) {
+                channel.writeAndFlush(new BinaryWebSocketFrame(false, 0, Unpooled.wrappedBuffer(buffer))).sync();
+                first = false;
+            } else {
+                channel.writeAndFlush(new ContinuationWebSocketFrame(false, 0, Unpooled.wrappedBuffer(buffer)));
+            }
+        } else {
+            channel.writeAndFlush(new ContinuationWebSocketFrame(true, 0, Unpooled.wrappedBuffer(buffer)));
             first = true;
         }
     }
@@ -163,6 +189,20 @@ public class WebSocketTestClient {
             throw new IllegalArgumentException("Cannot find the channel to write");
         }
         channel.writeAndFlush(new PingWebSocketFrame(Unpooled.wrappedBuffer(buf))).sync();
+    }
+
+    /**
+     * Send a pong message to the server.
+     *
+     * @param buf content of the pong message to be sent.
+     * @throws InterruptedException if connection is interrupted while sending the message.
+     */
+    public void sendPong(ByteBuffer buf) throws InterruptedException {
+        if (channel == null) {
+            logger.error("Channel is null. Cannot send text.");
+            throw new IllegalArgumentException("Cannot find the channel to write");
+        }
+        channel.writeAndFlush(new PongWebSocketFrame(Unpooled.wrappedBuffer(buf))).sync();
     }
 
     /**

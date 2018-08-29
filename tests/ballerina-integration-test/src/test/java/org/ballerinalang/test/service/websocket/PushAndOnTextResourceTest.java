@@ -31,7 +31,7 @@ import java.util.concurrent.TimeUnit;
  * Test WebSocket endpoint method pushText and the onText resource.
  */
 @Test(groups = "websocket-test")
-public class WebSocketPushAndOnTextResourceTest extends WebSocketTestCommons {
+public class PushAndOnTextResourceTest extends WebSocketTestCommons {
 
     private WebSocketTestClient client;
 
@@ -63,6 +63,9 @@ public class WebSocketPushAndOnTextResourceTest extends WebSocketTestCommons {
                       "ParseError at [row,col]:[1,28]\nMessage: The element type \"note\"" +
                               " must be terminated by the matching end-tag \"</note>\".");
         client.shutDown();
+        client = new WebSocketTestClient(url);
+        client.handshake();
+        assertFailure("hey", "Invalid XML data");
     }
 
     @Test(description = "Tests Record support for pushText and onText")
