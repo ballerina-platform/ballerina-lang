@@ -20,13 +20,10 @@ package org.ballerinalang.test.service.resiliency;
 import io.netty.handler.codec.http.HttpHeaderNames;
 import io.netty.util.internal.PlatformDependent;
 import io.netty.util.internal.StringUtil;
-import org.ballerinalang.test.BaseTest;
 import org.ballerinalang.test.util.HttpClientRequest;
 import org.ballerinalang.test.util.HttpResponse;
 import org.ballerinalang.test.util.TestConstant;
 import org.testng.Assert;
-import org.testng.annotations.AfterTest;
-import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Test;
 
 import java.io.File;
@@ -37,17 +34,9 @@ import java.util.Map;
 /**
  * Test cases for the failover scenarios.
  */
-public class FailoverClientTestCase extends BaseTest {
+@Test(groups = "resiliency-test")
+public class FailoverClientTestCase extends ResiliencyBaseTest {
     private static final String TYPICAL_SERVICE_PATH = "fo" + File.separator + "typical";
-
-    @BeforeTest(alwaysRun = true)
-    private void setup() throws Exception {
-        int[] requiredPorts = new int[]{9090, 9091, 9092, 9093, 9094, 9095, 8080, 8081, 8082, 8083, 8084, 8085};
-        String sourcePath = new File("src" + File.separator + "test" + File.separator + "resources"
-                + File.separator + "resiliency").getAbsolutePath();
-        String[] args = new String[]{"--sourceroot", sourcePath};
-        serverInstance.startBallerinaServer("resiliencyservices", args, requiredPorts);
-    }
 
     @Test(description = "Test basic failover functionality")
     public void testSimpleFailover() throws IOException {
@@ -189,10 +178,5 @@ public class FailoverClientTestCase extends BaseTest {
         Assert.assertEquals(secondResponse.getHeaders().get(HttpHeaderNames.CONTENT_TYPE.toString())
                 , TestConstant.CONTENT_TYPE_TEXT_PLAIN, "Content-Type mismatched");
         Assert.assertEquals(secondResponse.getData(), "Failover start index is : 2", "Message content mismatched");
-    }
-
-    @AfterTest(alwaysRun = true)
-    private void cleanup() throws Exception {
-        serverInstance.stopServer();
     }
 }
