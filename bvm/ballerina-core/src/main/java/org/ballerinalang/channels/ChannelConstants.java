@@ -26,6 +26,8 @@ public class ChannelConstants {
             "key ( msgId ))";
     public static final String SELECT = "SELECT msgId,value FROM " + TABLE_NAME + " WHERE channelName = ? AND msgKey " +
             "= ?";
+    public static final String SELECT_NULL = "SELECT msgId,value FROM " + TABLE_NAME + " WHERE channelName = ? AND " +
+            "msgKey IS NULL";
     public static final String INSERT = "INSERT into " + TABLE_NAME + " (channelName, msgKey, value) values (?, ?, ?)";
     public static final String DROP = "DELETE FROM " + TABLE_NAME + " where msgId = ?";
     /**

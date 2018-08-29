@@ -66,14 +66,15 @@ public class ChannelRegistry {
         //add channel if absent
         addChannel(channel);
         Map<String, LinkedList<PendingContext>> channelEntries = channelList.get(channel);
-        LinkedList<PendingContext> ctxList = channelEntries.computeIfAbsent(key.stringValue(),
+        String keyVal = key != null ? key.stringValue() : null;
+        LinkedList<PendingContext> ctxList = channelEntries.computeIfAbsent(keyVal,
                 bValue -> new LinkedList<>());
 
         PendingContext pContext = new PendingContext();
         pContext.regIndex = regIndex;
         pContext.context = ctx;
         ctxList.add(pContext);
-        channelEntries.put(key.stringValue(), ctxList);
+        channelEntries.put(keyVal, ctxList);
     }
 
     /**
@@ -85,7 +86,8 @@ public class ChannelRegistry {
     public PendingContext pollOnChannel(String channel, BValue key) {
         //add channel if absent
         addChannel(channel);
-        LinkedList<PendingContext> pendingCtxs = channelList.get(channel).get(key.stringValue());
+        String keyVal = key != null ? key.stringValue() : null;
+        LinkedList<PendingContext> pendingCtxs = channelList.get(channel).get(keyVal);
         if (pendingCtxs != null) {
             return pendingCtxs.poll();
         }
