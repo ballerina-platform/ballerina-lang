@@ -27,7 +27,7 @@ import static org.ballerinalang.net.http.nativeimpl.pipelining.PipeliningHandler
  * Listener to trigger pipelining logic. This is to be used only on the pipelined responses that are already
  * in the queue.
  *
- * @since 0.981.2
+ * @since 0.982.0
  */
 public class PipelineResponseListener implements HttpPipelineListener {
 

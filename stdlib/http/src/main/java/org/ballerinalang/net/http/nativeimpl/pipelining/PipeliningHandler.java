@@ -20,6 +20,8 @@ package org.ballerinalang.net.http.nativeimpl.pipelining;
 
 import io.netty.channel.ChannelHandlerContext;
 import org.ballerinalang.connector.api.BallerinaConnectorException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.wso2.transport.http.netty.common.Constants;
 import org.wso2.transport.http.netty.contract.HttpResponseFuture;
 import org.wso2.transport.http.netty.message.HttpCarbonMessage;
@@ -32,9 +34,11 @@ import static org.ballerinalang.net.http.nativeimpl.connection.ResponseWriter.se
 /**
  * Manages pipelined responses.
  *
- * @since 0.981.2
+ * @since 0.982.0
  */
 public class PipeliningHandler {
+
+    private static final Logger log = LoggerFactory.getLogger(PipeliningHandler.class);
 
     /**
      * This method should be used whenever a response should be sent out via other places (eg:- error responses,
@@ -91,15 +95,15 @@ public class PipeliningHandler {
                 }
                 responseQueue.remove();
                 //IMPORTANT: Do not increment the nextSequenceNumber after 'sendOutboundResponseRobust()' or
-                // 'sendOutboundResponse()' under any circumstance.  nextSequenceNumber should be updated only
-                // when the last http content of this message has been written to the socket because in case if
-                // one response has delayed http contents, there's a good chance that the contents of another
-                // response will be sent out before its turn.
+                //'sendOutboundResponse()' under any circumstance.  nextSequenceNumber should be updated only
+                //when the last http content of this message has been written to the socket because in case if
+                //one response has delayed http contents, there's a good chance that the contents of another
+                //response will be sent out before its turn.
                 if (queuedPipelinedResponse.getDataContext() != null &&
-                        queuedPipelinedResponse.getOutboundResponseStruct() != null) {
+                        queuedPipelinedResponse.getOutboundResponse() != null) {
                     sendResponseRobust(queuedPipelinedResponse.getDataContext(),
                             queuedPipelinedResponse.getInboundRequestMsg(),
-                            queuedPipelinedResponse.getOutboundResponseStruct(),
+                            queuedPipelinedResponse.getOutboundResponse(),
                             queuedPipelinedResponse.getOutboundResponseMsg());
                 } else {
                     responseFuture = sendOutboundResponse(queuedPipelinedResponse.getInboundRequestMsg(),
@@ -136,6 +140,7 @@ public class PipeliningHandler {
                 .attr(Constants.MAX_RESPONSES_ALLOWED_TO_BE_QUEUED).get();
         if (responseQueue.size() > maxQueuedResponses) {
             sourceContext.close();
+            log.info("Threshold for pipelined response queue reached hence closing the connection.");
             return true;
         }
         return false;

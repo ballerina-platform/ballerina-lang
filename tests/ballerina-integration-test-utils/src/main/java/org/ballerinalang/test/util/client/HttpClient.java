@@ -198,11 +198,11 @@ public class HttpClient {
      * @return A full http request
      */
     private FullHttpRequest getFullHttpRequest(String path, String requestId) {
-        FullHttpRequest firstRequest = new DefaultFullHttpRequest(HttpVersion.HTTP_1_1, HttpMethod.GET, path);
-        firstRequest.headers().set(HttpHeaderNames.HOST, host + ":" + port);
-        firstRequest.headers().set(HttpHeaderNames.CONNECTION, HttpHeaderValues.KEEP_ALIVE);
-        firstRequest.headers().set("message-id", requestId);
-        return firstRequest;
+        FullHttpRequest request = new DefaultFullHttpRequest(HttpVersion.HTTP_1_1, HttpMethod.GET, path);
+        request.headers().set(HttpHeaderNames.HOST, host + ":" + port);
+        request.headers().set(HttpHeaderNames.CONNECTION, HttpHeaderValues.KEEP_ALIVE);
+        request.headers().set("message-id", requestId);
+        return request;
     }
 
     public boolean waitForChannelClose() {

@@ -42,7 +42,7 @@ import static org.ballerinalang.net.http.HttpUtil.extractEntity;
 /**
  * Response writer contains utility methods to serialize response data.
  *
- * @since 0.981.2
+ * @since 0.982.0
  */
 public class ResponseWriter {
 

@@ -34,7 +34,7 @@ import static org.testng.Assert.assertFalse;
 /**
  * Test case for HTTP pipelining.
  *
- * @since 0.981.2
+ * @since 0.982.0
  */
 @Test(groups = "http-test")
 public class HttpPipeliningTestCase extends BaseTest {

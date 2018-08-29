@@ -30,22 +30,22 @@ import static org.wso2.transport.http.netty.common.Constants.MEANINGFULLY_EQUAL;
 /**
  * Represents a pipelined response. Response order can be determined based on the sequence number.
  *
- * @since 0.981.2
+ * @since 0.982.0
  */
 public class PipelinedResponse implements Comparable<PipelinedResponse> {
 
     private final HttpCarbonMessage inboundRequestMsg;
     private final HttpCarbonMessage outboundResponseMsg;
     private DataContext dataContext;
-    private BMap<String, BValue> outboundResponseStruct;
+    private BMap<String, BValue> outboundResponse; //Ballerina outbound response object
     private final int sequenceId; //Identifies the response order
 
     public PipelinedResponse(int sequenceId, HttpCarbonMessage inboundRequestMsg, HttpCarbonMessage outboundResponseMsg,
-                             DataContext dataContext, BMap<String, BValue> outboundResponseStruct) {
+                             DataContext dataContext, BMap<String, BValue> outboundResponse) {
         this.inboundRequestMsg = inboundRequestMsg;
         this.outboundResponseMsg = outboundResponseMsg;
         this.dataContext = dataContext;
-        this.outboundResponseStruct = outboundResponseStruct;
+        this.outboundResponse = outboundResponse;
         this.sequenceId = sequenceId;
     }
 
@@ -72,8 +72,8 @@ public class PipelinedResponse implements Comparable<PipelinedResponse> {
         return dataContext;
     }
 
-    BMap<String, BValue> getOutboundResponseStruct() {
-        return outboundResponseStruct;
+    BMap<String, BValue> getOutboundResponse() {
+        return outboundResponse;
     }
 
     @Override
