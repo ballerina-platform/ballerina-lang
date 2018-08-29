@@ -279,6 +279,8 @@ public class CommandExecutor {
                     sLine = Integer.parseInt(split[0]);
                     sCol = Integer.parseInt(split[1]);
                     break;
+                default:
+                    //do nothing
             }
         }
 
