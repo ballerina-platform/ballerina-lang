@@ -33,7 +33,13 @@ endpoint grpc:Listener ep85 {
             versions: ["TLSv1.2","TLSv1.1"]
         },
         ciphers:["TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA"],
-        sslVerifyClient:"require"
+        sslVerifyClient:"require",
+        certValidation : {
+            enable: false
+        },
+        ocspStapling : {
+            enable: false
+        }
     }
 };
 
