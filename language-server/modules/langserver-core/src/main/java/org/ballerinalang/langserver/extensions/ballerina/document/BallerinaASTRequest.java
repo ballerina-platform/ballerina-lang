@@ -13,16 +13,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.ballerinalang.langserver.extensions.parser;
+package org.ballerinalang.langserver.extensions.ballerina.document;
 
-public class BallerinaASTDidChangeResponse {
-    String content;
+import org.eclipse.lsp4j.TextDocumentIdentifier;
 
-    public String getContent() {
-        return content;
+/**
+ * Represents a request for a Ballerina AST.
+ */
+public class BallerinaASTRequest {
+
+    private TextDocumentIdentifier documentIdentifier;
+
+    public TextDocumentIdentifier getDocumentIdentifier() {
+        return documentIdentifier;
     }
 
-    public void setContent(String content) {
-        this.content = content;
+    public void setDocumentIdentifier(TextDocumentIdentifier documentIdentifier) {
+        this.documentIdentifier = documentIdentifier;
     }
 }

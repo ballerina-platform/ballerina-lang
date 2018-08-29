@@ -13,28 +13,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.ballerinalang.langserver.extensions.parser;
+package org.ballerinalang.langserver.extensions.ballerina.document;
 
-import com.google.gson.JsonElement;
+import org.eclipse.lsp4j.jsonrpc.services.JsonRequest;
+import org.eclipse.lsp4j.jsonrpc.services.JsonSegment;
 
-public class BallerinaASTResponse {
-    private JsonElement ast;
+import java.util.concurrent.CompletableFuture;
 
-    private boolean parseSuccess;
+/**
+ * An extension interface for Language server to add features related to ballerina files.
+ */
+@JsonSegment("ballerinaDocument")
+public interface BallerinaDocumentService {
+    @JsonRequest
+    CompletableFuture<BallerinaASTResponse> ast(BallerinaASTRequest request);
 
-    public JsonElement getAst() {
-        return ast;
-    }
-
-    public void setAst(JsonElement ast) {
-        this.ast = ast;
-    }
-
-    public boolean isParseSuccess() {
-        return parseSuccess;
-    }
-
-    public void setParseSuccess(boolean parseSuccess) {
-        this.parseSuccess = parseSuccess;
-    }
+    @JsonRequest
+    CompletableFuture<BallerinaASTDidChangeResponse> astDidChange(BallerinaASTDidChange notification);
 }

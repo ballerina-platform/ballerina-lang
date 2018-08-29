@@ -13,30 +13,31 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.ballerinalang.langserver.extensions.parser;
+package org.ballerinalang.langserver.extensions.ballerina.document;
 
-import com.google.gson.JsonObject;
-import org.eclipse.lsp4j.VersionedTextDocumentIdentifier;
+import com.google.gson.JsonElement;
 
-public class BallerinaASTDidChange {
+/**
+ * Represents a Ballerina AST response.
+ */
+public class BallerinaASTResponse {
+    private JsonElement ast;
 
-    JsonObject ast;
+    private boolean parseSuccess;
 
-    VersionedTextDocumentIdentifier textDocumentIdentifier;
-
-    public JsonObject getAst() {
+    public JsonElement getAst() {
         return ast;
     }
 
-    public void setAst(JsonObject ast) {
+    public void setAst(JsonElement ast) {
         this.ast = ast;
     }
 
-    public VersionedTextDocumentIdentifier getTextDocumentIdentifier() {
-        return textDocumentIdentifier;
+    public boolean isParseSuccess() {
+        return parseSuccess;
     }
 
-    public void setTextDocumentIdentifier(VersionedTextDocumentIdentifier textDocumentIdentifier) {
-        this.textDocumentIdentifier = textDocumentIdentifier;
+    public void setParseSuccess(boolean parseSuccess) {
+        this.parseSuccess = parseSuccess;
     }
 }

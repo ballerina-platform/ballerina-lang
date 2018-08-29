@@ -13,18 +13,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.ballerinalang.langserver.extensions.parser;
+package org.ballerinalang.langserver.extensions.ballerina.document;
 
-import org.eclipse.lsp4j.jsonrpc.services.JsonRequest;
-import org.eclipse.lsp4j.jsonrpc.services.JsonSegment;
+/**
+ * Represents the response sent from server to client upon AST changes.
+ */
+public class BallerinaASTDidChangeResponse {
+    String content;
 
-import java.util.concurrent.CompletableFuture;
+    public String getContent() {
+        return content;
+    }
 
-@JsonSegment("ballerinaDocument")
-public interface BallerinaDocumentService {
-    @JsonRequest
-    CompletableFuture<BallerinaASTResponse> ast(BallerinaASTRequest request);
-
-    @JsonRequest
-    CompletableFuture<BallerinaASTDidChangeResponse> astDidChange(BallerinaASTDidChange notification);
+    public void setContent(String content) {
+        this.content = content;
+    }
 }

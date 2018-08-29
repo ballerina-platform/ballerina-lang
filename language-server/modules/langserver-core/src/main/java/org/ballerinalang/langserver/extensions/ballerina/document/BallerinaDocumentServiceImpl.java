@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.ballerinalang.langserver.extensions.parser;
+package org.ballerinalang.langserver.extensions.ballerina.document;
 
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -51,6 +51,9 @@ import java.util.concurrent.locks.Lock;
 
 import static org.ballerinalang.langserver.compiler.LSCompilerUtil.getUntitledFilePath;
 
+/**
+ * Implementation of Ballerina Document extension for Language Server.
+ */
 public class BallerinaDocumentServiceImpl implements BallerinaDocumentService {
 
     private static final Logger logger = LoggerFactory.getLogger(BallerinaDocumentService.class);

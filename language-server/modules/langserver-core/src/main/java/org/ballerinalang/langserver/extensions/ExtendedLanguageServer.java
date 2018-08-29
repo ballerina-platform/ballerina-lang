@@ -15,10 +15,13 @@
  */
 package org.ballerinalang.langserver.extensions;
 
-import org.ballerinalang.langserver.extensions.parser.BallerinaDocumentService;
+import org.ballerinalang.langserver.extensions.ballerina.document.BallerinaDocumentService;
 import org.eclipse.lsp4j.jsonrpc.services.JsonDelegate;
 import org.eclipse.lsp4j.services.LanguageServer;
 
+/**
+ * Extended Language Server interface which includes ballerina document services.
+ */
 public interface ExtendedLanguageServer extends LanguageServer {
     @JsonDelegate
     BallerinaDocumentService getBallerinaDocumentService();
