@@ -29,11 +29,9 @@ import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.net.grpc.GrpcConstants;
-import org.ballerinalang.net.grpc.MessageUtils;
 import org.ballerinalang.net.grpc.ServicesRegistry;
 import org.ballerinalang.net.grpc.nativeimpl.AbstractGrpcNativeFunction;
 import org.ballerinalang.net.http.HttpConnectionManager;
-import org.ballerinalang.util.exceptions.BallerinaException;
 import org.wso2.transport.http.netty.common.Constants;
 import org.wso2.transport.http.netty.config.ListenerConfiguration;
 import org.wso2.transport.http.netty.config.Parameter;
@@ -87,22 +85,17 @@ public class Init extends AbstractGrpcNativeFunction {
     
     @Override
     public void execute(Context context) {
-        try {
-            Struct serviceEndpoint = BLangConnectorSPIUtil.getConnectorEndpointStruct(context);
-            BMap<String, BValue> endpointConfigStruct = (BMap<String, BValue>) context.getRefArgument(1);
-            Struct serviceEndpointConfig = BLangConnectorSPIUtil.toStruct(endpointConfigStruct);
-            ListenerConfiguration configuration = getListenerConfig(serviceEndpointConfig);
-            ServerConnector httpServerConnector =
-                    HttpConnectionManager.getInstance().createHttpServerConnector(configuration);
+        Struct serviceEndpoint = BLangConnectorSPIUtil.getConnectorEndpointStruct(context);
+        BMap<String, BValue> endpointConfigStruct = (BMap<String, BValue>) context.getRefArgument(1);
+        Struct serviceEndpointConfig = BLangConnectorSPIUtil.toStruct(endpointConfigStruct);
+        ListenerConfiguration configuration = getListenerConfig(serviceEndpointConfig);
+        ServerConnector httpServerConnector =
+                HttpConnectionManager.getInstance().createHttpServerConnector(configuration);
 
-            ServicesRegistry.Builder grpcServicesRegistryBuilder = new ServicesRegistry.Builder();
-            serviceEndpoint.addNativeData(SERVER_CONNECTOR, httpServerConnector);
-            serviceEndpoint.addNativeData(SERVICE_REGISTRY_BUILDER, grpcServicesRegistryBuilder);
-            context.setReturnValues();
-        } catch (Exception ex) {
-            BMap<String, BValue> errorStruct = MessageUtils.getConnectorError(context, ex);
-            context.setReturnValues(errorStruct);
-        }
+        ServicesRegistry.Builder grpcServicesRegistryBuilder = new ServicesRegistry.Builder();
+        serviceEndpoint.addNativeData(SERVER_CONNECTOR, httpServerConnector);
+        serviceEndpoint.addNativeData(SERVICE_REGISTRY_BUILDER, grpcServicesRegistryBuilder);
+        context.setReturnValues();
     }
     
     private ListenerConfiguration getListenerConfig(Struct endpointConfig) {
@@ -159,14 +152,12 @@ public class Init extends AbstractGrpcNativeFunction {
         if (trustStore != null) {
             String trustStoreFile = trustStore.getStringField(FILE_PATH);
             String trustStorePassword = trustStore.getStringField(PASSWORD);
-            if (StringUtils.isBlank(trustStoreFile) && StringUtils.isNotBlank(sslVerifyClient)) {
-                throw new BallerinaException("Truststore location must be provided to enable Mutual SSL");
+            if (StringUtils.isNotBlank(trustStoreFile)) {
+                listenerConfiguration.setTrustStoreFile(trustStoreFile);
             }
-            if (StringUtils.isBlank(trustStorePassword) && StringUtils.isNotBlank(sslVerifyClient)) {
-                throw new BallerinaException("Truststore password value must be provided to enable Mutual SSL");
+            if (StringUtils.isNotBlank(trustStorePassword)) {
+                listenerConfiguration.setTrustStorePass(trustStorePassword);
             }
-            listenerConfiguration.setTrustStoreFile(trustStoreFile);
-            listenerConfiguration.setTrustStorePass(trustStorePassword);
         }
         List<Parameter> serverParamList = new ArrayList<>();
         Parameter serverParameters;

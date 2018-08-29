@@ -31,21 +31,43 @@
             </run>
         </groups>
 
-        <packages>
-            <package name="org.ballerinalang.test.service.http.*"/>
-        </packages>
+        <classes>
+            <class name="org.ballerinalang.test.service.http.HttpBaseTest"/>
+            <class name="org.ballerinalang.test.service.http.configuration.AcceptEncodingHeaderTestCase"/>
+            <class name="org.ballerinalang.test.service.http.sample.HttpHeaderTestCases"/>
+            <class name="org.ballerinalang.test.service.http.sample.RedirectTestCase"/>
+            <class name="org.ballerinalang.test.service.http.sample.RoutingServiceSampleTestCase"/>
+            <class name="org.ballerinalang.test.service.http.sample.MutualSSLTestCase"/>
+            <class name="org.ballerinalang.test.service.http.sample.HTTPVerbsPassthruTestCases"/>
+            <class name="org.ballerinalang.test.service.http.sample.HTTPClientActionsTestCase"/>
+            <class name="org.ballerinalang.test.service.http.sample.EchoServiceSampleTestCase"/>
+            <class name="org.ballerinalang.test.service.http.sample.ExpectContinueTestCase"/>
+            <class name="org.ballerinalang.test.service.http.sample.HttpPayloadTestCase"/>
+            <class name="org.ballerinalang.test.service.http.sample.ProxyServerTest"/>
+            <class name="org.ballerinalang.test.service.http.sample.EcommerceSampleTestCase"/>
+            <class name="org.ballerinalang.test.service.http.sample.PassthroughServiceSampleTestCase"/>
+            <class name="org.ballerinalang.test.service.http.sample.HttpOptionsTestCase"/>
+            <class name="org.ballerinalang.test.service.http.sample.RetrySampleTestCase"/>
+            <class name="org.ballerinalang.test.service.http.sample.HelloWorldSampleTestCase"/>
+            <class name="org.ballerinalang.test.service.http.sample.ServiceChainingSampleTestCase"/>
+            <class name="org.ballerinalang.test.service.http.sample.TestReusabilityOfRequest"/>
+            <class name="org.ballerinalang.test.service.http.sample.CompressionTestCase"/>
+            <class name="org.ballerinalang.test.service.http.sample.IdleTimeoutResponseTestCase"/>
+        </classes>
     </test>
 
     <test name="ballerina-resiliency-tests" parallel="methods" thread-count="6">
-        <packages>
-            <package name="org.ballerinalang.test.service.resiliency"/>
-        </packages>
+        <classes>
+            <class name="org.ballerinalang.test.service.resiliency.FailoverClientTestCase"/>
+        </classes>
     </test>
 
     <test name="ballerina-http2-tests" parallel="false">
-        <packages>
-            <package name="org.ballerinalang.test.service.http2"/>
-        </packages>
+        <classes>
+            <class name="org.ballerinalang.test.service.http2.Http2ServerPushTestCase"/>
+            <class name="org.ballerinalang.test.service.http2.Http2ToHttp1FallbackTestCase"/>
+            <class name="org.ballerinalang.test.service.http2.RedirectTestCase"/>
+        </classes>
     </test>
 
     <test name="ballerina-auth-tests" parallel="false">
@@ -54,21 +76,27 @@
                 <exclude name="broken"/>
             </run>
         </groups>
-        <packages>
-            <package name="org.ballerinalang.test.auth"/>
-        </packages>
+        <classes>
+            <class name="org.ballerinalang.test.auth.AuthnConfigInheritanceAuthDisableTest"/>
+            <class name="org.ballerinalang.test.auth.AuthnConfigInheritanceTest"/>
+            <class name="org.ballerinalang.test.auth.AuthzConfigInheritanceTest"/>
+            <class name="org.ballerinalang.test.auth.ResourceLevelAuthTest"/>
+            <class name="org.ballerinalang.test.auth.ServiceLevelAuthnTest"/>
+        </classes>
     </test>
 
     <test name="ballerina-filter-tests" parallel="false">
-        <packages>
-            <package name="org.ballerinalang.test.filter"/>
-        </packages>
+        <classes>
+            <class name="org.ballerinalang.test.filter.MultpleFiltersTestCase"/>
+            <class name="org.ballerinalang.test.filter.InvocationContextTestCase"/>
+            <class name="org.ballerinalang.test.filter.SingleFilterTestCase"/>
+        </classes>
     </test>
 
     <test name="ballerina-transaction-tests" parallel="false">
-        <packages>
-            <package name="org.ballerinalang.test.transaction"/>
-        </packages>
+        <classes>
+            <class name="org.ballerinalang.test.transaction.MicroTransactionTestCase"/>
+        </classes>
     </test>
 
     <test name="ballerina-secure-listener-tests" parallel="false">
@@ -77,21 +105,58 @@
                 <exclude name="broken"/>
             </run>
         </groups>
-        <packages>
-            <package name="org.ballerinalang.test.securelistener"/>
-        </packages>
+        <classes>
+            <class name="org.ballerinalang.test.securelistener.NoTokenPropagationTest"/>
+            <class name="org.ballerinalang.test.securelistener.SecureClientWrongAuthProviderTest"/>
+            <class name="org.ballerinalang.test.securelistener.SecureListenerNonSpecificHandlerTest"/>
+            <class name="org.ballerinalang.test.securelistener.SecureListenerSpecificHandlerTest"/>
+            <class name="org.ballerinalang.test.securelistener.TokenPropagationTest"/>
+        </classes>
     </test>
 
     <test name="ballerina-websocket-tests" parallel="false">
-        <packages>
-            <package name="org.ballerinalang.test.service.websocket"/>
-        </packages>
+        <classes>
+            <class name="org.ballerinalang.test.service.websocket.WebSocketTestCommons"/>
+            <class name="org.ballerinalang.test.service.websocket.CancelWebSocketUpgradeTest"/>
+            <class name="org.ballerinalang.test.service.websocket.ClientInitializationFailureTest"/>
+            <class name="org.ballerinalang.test.service.websocket.ClientServiceTest"/>
+            <class name="org.ballerinalang.test.service.websocket.CustomHeaderClientSupportTest"/>
+            <class name="org.ballerinalang.test.service.websocket.CustomHeaderServerSupportTest"/>
+            <class name="org.ballerinalang.test.service.websocket.OnErrorWebSocketTest"/>
+            <class name="org.ballerinalang.test.service.websocket.PingPongSupportTestCase"/>
+            <class name="org.ballerinalang.test.service.websocket.ResourceFailureTest"/>
+            <class name="org.ballerinalang.test.service.websocket.UpgradeResourceFailureTest"/>
+            <class name="org.ballerinalang.test.service.websocket.WebSocketAutoPingPongTest"/>
+            <class name="org.ballerinalang.test.service.websocket.WebSocketContinuationAndAggregationTest"/>
+            <class name="org.ballerinalang.test.service.websocket.PushAndOnTextResourceTest"/>
+            <class name="org.ballerinalang.test.service.websocket.WebSocketQueryAndPathParamSupportTestCase"/>
+            <class name="org.ballerinalang.test.service.websocket.WebSocketServiceNotFoundTest"/>
+            <class name="org.ballerinalang.test.service.websocket.WebSocketSimpleProxyTestCase"/>
+            <class name="org.ballerinalang.test.service.websocket.OnBinaryContinuationTest"/>
+            <class name="org.ballerinalang.test.service.websocket.MissingResourcesTest"/>
+        </classes>
     </test>
 
     <test name="ballerina-grpc-tests" parallel="false">
-        <packages>
-            <package name="org.ballerinalang.test.service.grpc.*"/>
-        </packages>
+        <classes>
+            <class name="org.ballerinalang.test.service.grpc.sample.GrpcBaseTest"/>
+            <class name="org.ballerinalang.test.service.grpc.sample.ClientStreamingTestCase"/>
+            <class name="org.ballerinalang.test.service.grpc.sample.UnaryBlockingBasicTestCase"/>
+            <class name="org.ballerinalang.test.service.grpc.sample.UnaryBlockingArrayValueTestCase"/>
+            <class name="org.ballerinalang.test.service.grpc.sample.UnaryBlockingHeaderTestCase"/>
+            <class name="org.ballerinalang.test.service.grpc.sample.UnarySecuredBlockingBasicTestCase"/>
+            <class name="org.ballerinalang.test.service.grpc.sample.UnaryBlockingNestedStructTestCase"/>
+            <class name="org.ballerinalang.test.service.grpc.sample.InvalidServiceMethodTestCase"/>
+            <class name="org.ballerinalang.test.service.grpc.sample.UnaryBlockingEmptyValueTestCase"/>
+            <class name="org.ballerinalang.test.service.grpc.sample.InvalidMessageTypeTestCase"/>
+            <class name="org.ballerinalang.test.service.grpc.sample.ServiceUnavailableTestCase"/>
+            <class name="org.ballerinalang.test.service.grpc.sample.ProtoBuilderTestCase"/>
+            <class name="org.ballerinalang.test.service.grpc.sample.ServerStreamingTestCase"/>
+            <class name="org.ballerinalang.test.service.grpc.sample.ErrorServiceTestCase"/>
+            <class name="org.ballerinalang.test.service.grpc.tool.InvalidServiceContractTestCase"/>
+            <class name="org.ballerinalang.test.service.grpc.tool.ClientStubGeneratorTestCase"/>
+            <class name="org.ballerinalang.test.service.grpc.tool.ProtoMessageTestCase"/>
+        </classes>
     </test>
 
     <test name="ballerina-observability-tests" parallel="false">
@@ -112,10 +177,11 @@
             <class name="org.ballerinalang.test.security.HTTPResponseXMLSecurityTestCase"/>
         </classes>
     </test>
+
     <test name="ballerina-jms-tests" parallel="false">
-        <packages>
-            <package name="org.ballerinalang.test.jms"/>
-        </packages>
+        <classes>
+            <class name="org.ballerinalang.test.jms.JMSConnectorTestCase"/>
+        </classes>
     </test>
 
     <test name="ballerina-websub-tests" parallel="false">
@@ -131,10 +197,11 @@
     </test>
 
     <test name="ballerina-data-streaming-tests" parallel="false">
-        <packages>
-            <package name="org.ballerinalang.test.data.streaming"/>
-        </packages>
+        <classes>
+            <class name="org.ballerinalang.test.data.streaming.TableToXMLStreamingTestCase"/>
+        </classes>
     </test>
+
     <test name="ballerina-checkpointing-tests" parallel="false">
         <classes>
             <class name="org.ballerinalang.test.checkpointing.InterruptibleServiceTestCase"/>

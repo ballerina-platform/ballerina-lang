@@ -188,7 +188,7 @@ public class ServerInstance implements Server {
         serverErrorLogReader = new ServerLogReader("errorStream", process.getErrorStream());
         serverErrorLogReader.start();
         log.info("Waiting for ports to open");
-        Utils.waitForPorts(httpServicePorts, 1000 * 60 * 2, false, "localhost");
+        Utils.waitForPortsToOpen(httpServicePorts, 1000 * 60 * 2, false, "localhost");
         log.info("Server Started Successfully.");
         isServerRunning = true;
     }
@@ -240,7 +240,7 @@ public class ServerInstance implements Server {
             serverErrorLogReader.stop();
             process = null;
             //wait until port to close
-            Utils.waitForPortsToClosed(httpServicePorts, 30000);
+            Utils.waitForPortsToClose(httpServicePorts, 30000);
             httpServicePorts = new int[] {Constant.DEFAULT_HTTP_PORT};
             log.info("Server Stopped Successfully");
         }
@@ -342,9 +342,10 @@ public class ServerInstance implements Server {
         try {
             process = executeProcess(args, envVariables, command, commandDir);
             // Wait until the options are prompted
-            Thread.sleep(3000);
+            Thread.sleep(1000);
             writeClientOptionsToProcess(options, process);
-            deleteWorkDir();
+            // Wait until the command executes
+            Thread.sleep(1000);
         } catch (IOException e) {
             throw new BallerinaTestException("Error executing ballerina", e);
         } catch (InterruptedException ignore) {
@@ -681,5 +682,12 @@ public class ServerInstance implements Server {
             }
         }
         return pid;
+    }
+
+    /**
+     * Reset server log reader.
+     */
+    public void resetServerLogReader() {
+        this.serverInfoLogReader = null;
     }
 }

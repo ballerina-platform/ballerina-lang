@@ -38,8 +38,8 @@ public class Http2ServerPushTestCase extends BaseTest {
     @BeforeGroups(value = "http2-test", alwaysRun = true)
     public void start() throws BallerinaTestException {
         int[] requiredPorts = new int[]{9090, 9092, 9093, 9094, 9095, 7090};
-        String balFile = new File("src" + File.separator + "test" + File.separator + "resources" + File.separator +
-                "http2").getAbsolutePath();
+        String balFile = new File("src" + File.separator + "test" + File.separator + "resources" +
+                File.separator + "http2").getAbsolutePath();
         String[] args = new String[]{"--sourceroot", balFile};
         serverInstance.startBallerinaServer("http2services", args, requiredPorts);
     }

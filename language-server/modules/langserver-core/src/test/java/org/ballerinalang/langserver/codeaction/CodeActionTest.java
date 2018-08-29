@@ -50,7 +50,7 @@ import java.util.List;
 /**
  * Test Cases for CodeActions.
  * 
- * @since v0.982.0
+ * @since 0.982.0
  */
 public class CodeActionTest {
     private Endpoint serviceEndpoint;
@@ -94,7 +94,8 @@ public class CodeActionTest {
                     command = element.getAsJsonObject().get("command").getAsString();
                     Assert.assertTrue(command.equals(CommandConstants.CMD_ADD_DOCUMENTATION));
                     JsonArray args = element.getAsJsonObject().get("arguments").getAsJsonArray();
-                    Assert.assertTrue(isArgumentsSubArray(args, documentThis.getAsJsonArray("arguments")));
+                    JsonArray documentThisArr = documentThis.getAsJsonArray("arguments");
+                    Assert.assertTrue(TestUtil.isArgumentsSubArray(args, documentThisArr));
                     break;
                 case DOCUMENT_ALL:
                     command = element.getAsJsonObject().get("command").getAsString();
@@ -133,7 +134,8 @@ public class CodeActionTest {
         for (JsonElement jsonElement : responseJson.getAsJsonArray("result")) {
             if (jsonElement.getAsJsonObject().get("title").toString().equals(title)
                     && jsonElement.getAsJsonObject().get("command").toString().equals(command)
-                    && isArgumentsSubArray(jsonElement.getAsJsonObject().get("arguments").getAsJsonArray(), args)) {
+                    && TestUtil.isArgumentsSubArray(jsonElement.getAsJsonObject().get("arguments").getAsJsonArray(),
+                    args)) {
                 codeActionFound = true;
                 break;
             }
@@ -158,22 +160,13 @@ public class CodeActionTest {
         return new Object[][] {
                 {"undefinedPackageWithinFunction.json", "codeActionCommon.bal"},
                 {"undefinedFunctionCodeAction.json", "createUndefinedFunction.bal"},
+                {"undefinedFunctionCodeAction2.json", "createUndefinedFunction2.bal"},
         };
     }
 
     @AfterClass
     public void cleanupLanguageServer() {
         TestUtil.shutdownLanguageServer(this.serviceEndpoint);
-    }
-    
-    private boolean isArgumentsSubArray(JsonArray checkAgainst, JsonArray evalArray) {
-        for (JsonElement jsonElement : evalArray) {
-            if (!checkAgainst.contains(jsonElement)) {
-                return false;
-            }
-        }
-        
-        return true;
     }
 
     private JsonObject getResponseJson(String response) {
