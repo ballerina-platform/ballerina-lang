@@ -33,8 +33,6 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Map;
 
 /**
@@ -82,43 +80,42 @@ public class ConfigProcessor {
     }
 
     private static void lookUpVariables(Map<String, Object> configFileEntries) {
-        List<String> errMsgs = new ArrayList<>();
+        StringBuilder errMsgBuilder = new StringBuilder();
 
-        configFileEntries.entrySet().forEach(entry -> {
-            Object val = entry.getValue();
-
+        configFileEntries.forEach((key, val) -> {
             if (val instanceof Map) {
                 lookUpVariables((Map<String, Object>) val);
             } else {
-                String envVarVal = getEnvVarValue(entry.getKey());
+                String envVarVal = getEnvVarValue(key);
 
                 if (envVarVal != null) {
                     if (val instanceof String) {
-                        configFileEntries.put(entry.getKey(), envVarVal);
+                        configFileEntries.put(key, envVarVal);
                     } else if (val instanceof Long) {
                         try {
-                            configFileEntries.put(entry.getKey(), Long.parseLong(envVarVal));
+                            configFileEntries.put(key, Long.parseLong(envVarVal));
                         } catch (NumberFormatException e) {
-                            errMsgs.add("invalid int value received from environment to '" +
-                                                entry.getKey() + "': " + envVarVal);
+                            addErrorMsg(errMsgBuilder, "received invalid int value from environment for", key,
+                                        envVarVal);
                         }
                     } else if (val instanceof Double) {
                         try {
-                            configFileEntries.put(entry.getKey(), Double.parseDouble(envVarVal));
+                            configFileEntries.put(key, Double.parseDouble(envVarVal));
                         } catch (NumberFormatException e) {
-                            errMsgs.add("invalid float value received from environment to '" +
-                                                entry.getKey() + "': " + envVarVal);
+                            addErrorMsg(errMsgBuilder, "received invalid float value from environment for", key,
+                                        envVarVal);
                         }
                     } else if (val instanceof Boolean) {
-                        configFileEntries.put(entry.getKey(), Boolean.parseBoolean(envVarVal));
+                        configFileEntries.put(key, Boolean.parseBoolean(envVarVal));
                     }
                 }
             }
 
         });
 
-        if (!errMsgs.isEmpty()) {
-            throw createInvalidArgException(errMsgs);
+        if (errMsgBuilder.length() > 0) {
+            errMsgBuilder.deleteCharAt(errMsgBuilder.length() - 1);
+            throw new IllegalArgumentException(errMsgBuilder.toString());
         }
     }
 
@@ -187,18 +184,13 @@ public class ConfigProcessor {
         return parser.toml();
     }
 
-    private static IllegalArgumentException createInvalidArgException(List<String> errMsgs) {
-        StringBuilder errMsgBuilder = new StringBuilder();
-
-        for (int i = 0; i < errMsgs.size() - 1; i++) {
-            errMsgBuilder.append("ballerina: ");
-            errMsgBuilder.append(errMsgs.get(i));
-            errMsgBuilder.append('\n');
-        }
-
+    private static void addErrorMsg(StringBuilder errMsgBuilder, String msg, String key, String val) {
         errMsgBuilder.append("ballerina: ");
-        errMsgBuilder.append(errMsgs.get(errMsgs.size() - 1));
-
-        return new IllegalArgumentException(errMsgBuilder.toString());
+        errMsgBuilder.append(msg);
+        errMsgBuilder.append(" '");
+        errMsgBuilder.append(key);
+        errMsgBuilder.append("': ");
+        errMsgBuilder.append(val);
+        errMsgBuilder.append('\n');
     }
 }

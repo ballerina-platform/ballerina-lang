@@ -79,7 +79,7 @@ public class ConfigProcessorTest {
     }
 
     @Test(expectedExceptions = IllegalArgumentException.class,
-          expectedExceptionsMessageRegExp = ".*invalid int value received from environment to 'helloneg.http.port': " +
+          expectedExceptionsMessageRegExp = ".*received invalid int value from environment for 'helloneg.http.port': " +
                   "invalid port")
     public void testEnvLookupNegative() throws IOException {
         String negativeConf = Paths.get(resourceRoot, "datafiles", "config", "lookupenv_negative.conf").toString();
@@ -87,7 +87,7 @@ public class ConfigProcessorTest {
     }
 
     @Test(expectedExceptions = IllegalArgumentException.class,
-          expectedExceptionsMessageRegExp = ".*invalid float value received from environment to 'helloneg.eviction" +
+          expectedExceptionsMessageRegExp = ".*received invalid float value from environment for 'helloneg.eviction" +
                   ".fac': invalid eviction factor")
     public void testEnvLookupNegative2() throws IOException {
         String negativeConf = Paths.get(resourceRoot, "datafiles", "config", "lookupenv_negative2.conf").toString();
