@@ -76,6 +76,7 @@ public class ArgumentParser {
     private static final String DEFAULT_PARAM_DELIMITER = "=";
     private static final String INVALID_ARG = "invalid argument: ";
     private static final String INVALID_ARG_AS_REST_ARG = "invalid argument as rest argument: ";
+    private static final String UNSUPPORTED_TYPE_PREFIX = "unsupported type expected with entry function";
     private static final String JSON_PARSER_ERROR = "at line: ";
     private static final String COMMA = ",";
 
@@ -296,7 +297,7 @@ public class ArgumentParser {
                                                           + "expected with entry function");
                 }
             default:
-                throw new BLangUsageException("unsupported type expected with entry function '" + type + "'");
+                throw new BLangUsageException(UNSUPPORTED_TYPE_PREFIX + " '" + type + "'");
         }
     }
 
@@ -401,13 +402,27 @@ public class ArgumentParser {
 
         BRefValueArray tupleValues = new BRefValueArray(type);
         int index = 0;
-        try {
-            for (BType elementType : type.getTupleTypes()) {
-                tupleValues.add(index, (BRefType) getBValue(elementType, tupleElements[index]));
+        for (BType elementType : type.getTupleTypes()) {
+            String tupleElement = tupleElements[index].trim();
+            try {
+                if (elementType.getTag() == TypeTags.STRING_TAG) {
+                    if (!tupleElement.startsWith("\"") || !tupleElement.endsWith("\"")) {
+                        throw new BLangUsageException("invalid argument '" + tupleElement + "', expected argument in "
+                                                              + "the format \\\"str\\\" for tuple element of type "
+                                                              + "'string'");
+                    }
+                    tupleElement = tupleElement.substring(1, tupleElement.length() - 1);
+                }
+                tupleValues.add(index, (BRefType) getBValue(elementType, tupleElement));
                 index++;
+            } catch (BallerinaException | BLangUsageException e) {
+                if (e.getLocalizedMessage().startsWith(UNSUPPORTED_TYPE_PREFIX)) {
+                    throw new BLangUsageException("unsupported element type for tuple as entry function argument: "
+                                                          + elementType);
+                }
+                throw new BLangUsageException("invalid argument '" + tupleElement + "', expected tuple member"
+                                                      + " type: " + elementType);
             }
-        } catch (BallerinaException e) {
-            throw new BLangUsageException("unsupported element type for tuple as main function argument: " + type);
         }
         return tupleValues;
     }
