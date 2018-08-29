@@ -35,9 +35,9 @@ import org.ballerinalang.composer.service.ballerina.parser.service.util.ParserUt
 import org.ballerinalang.langserver.compiler.LSCompiler;
 import org.ballerinalang.langserver.compiler.LSCompilerException;
 import org.ballerinalang.langserver.compiler.LSCompilerUtil;
-import org.ballerinalang.langserver.compiler.TreeUtil;
 import org.ballerinalang.langserver.compiler.common.modal.BallerinaFile;
 import org.ballerinalang.langserver.compiler.format.JSONGenerationException;
+import org.ballerinalang.langserver.compiler.format.TextDocumentFormatUtil;
 import org.ballerinalang.langserver.compiler.workspace.ExtendedWorkspaceDocumentManagerImpl;
 import org.ballerinalang.langserver.compiler.workspace.WorkspaceDocumentManager;
 import org.ballerinalang.util.diagnostic.Diagnostic;
@@ -337,7 +337,7 @@ public class BallerinaParserService implements ComposerService {
             BLangCompilationUnit compilationUnit = model.get().getCompilationUnits().stream()
                     .filter(compUnit -> fileName.equals(compUnit.getName()))
                     .findFirst().orElse(null);
-            JsonElement modelElement = TreeUtil.generateJSON(compilationUnit);
+            JsonElement modelElement = TextDocumentFormatUtil.generateJSON(compilationUnit, new HashMap<>());
             result.add(JSONModelConstants.MODEL, modelElement);
         }
 

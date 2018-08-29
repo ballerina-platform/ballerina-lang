@@ -15,16 +15,20 @@
  */
 package org.ballerinalang.langserver.extensions.parser;
 
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.langserver.BallerinaLanguageServer;
 import org.ballerinalang.langserver.LSGlobalContext;
 import org.ballerinalang.langserver.LSGlobalContextKeys;
 import org.ballerinalang.langserver.SourceGen;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
+import org.ballerinalang.langserver.compiler.LSCompiler;
 import org.ballerinalang.langserver.compiler.LSCompilerException;
-import org.ballerinalang.langserver.compiler.TreeUtil;
 import org.ballerinalang.langserver.compiler.common.LSDocument;
+import org.ballerinalang.langserver.compiler.common.modal.BallerinaFile;
 import org.ballerinalang.langserver.compiler.format.JSONGenerationException;
+import org.ballerinalang.langserver.compiler.format.TextDocumentFormatUtil;
 import org.ballerinalang.langserver.compiler.workspace.WorkspaceDocumentException;
 import org.ballerinalang.langserver.compiler.workspace.WorkspaceDocumentManager;
 import org.eclipse.lsp4j.ApplyWorkspaceEditParams;
@@ -35,9 +39,12 @@ import org.eclipse.lsp4j.TextEdit;
 import org.eclipse.lsp4j.WorkspaceEdit;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.wso2.ballerinalang.compiler.tree.BLangCompilationUnit;
+import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 
 import java.nio.file.Path;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.locks.Lock;
@@ -65,7 +72,7 @@ public class BallerinaDocumentServiceImpl implements BallerinaDocumentService {
         Optional<Lock> lock = documentManager.lockFile(compilationPath);
         try {
             String fileContent = documentManager.getFileContent(compilationPath);
-            reply.setAst(TreeUtil.getTreeForContent(fileContent));
+            reply.setAst(getTreeForContent(fileContent));
             reply.setParseSuccess(true);
         } catch (LSCompilerException | JSONGenerationException | WorkspaceDocumentException  e) {
             reply.setParseSuccess(false);
@@ -118,5 +125,17 @@ public class BallerinaDocumentServiceImpl implements BallerinaDocumentService {
             lock.ifPresent(Lock::unlock);
         }
         return CompletableFuture.supplyAsync(() -> reply);
+    }
+
+    private JsonElement getTreeForContent(String content) throws LSCompilerException, JSONGenerationException {
+        BallerinaFile ballerinaFile = LSCompiler.compileContent(content, CompilerPhase.CODE_ANALYZE);
+        Optional<BLangPackage> bLangPackage = ballerinaFile.getBLangPackage();
+        if (bLangPackage.isPresent() && bLangPackage.get().symbol != null) {
+            BLangCompilationUnit compilationUnit = bLangPackage.get().getCompilationUnits().stream()
+                    .findFirst()
+                    .orElse(null);
+            return TextDocumentFormatUtil.generateJSON(compilationUnit, new HashMap<>());
+        }
+        return null;
     }
 }
