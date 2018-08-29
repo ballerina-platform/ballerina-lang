@@ -20,6 +20,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Types;
 import java.util.Locale;
 
 /**
@@ -55,7 +56,12 @@ public class DatabaseUtils {
             con = hikariDataSource.getConnection();
             PreparedStatement stmt = con.prepareStatement(ChannelConstants.INSERT);
             stmt.setString(1, channelName);
-            setParam(stmt, key, keyType, 2);
+            if (keyType != null) {
+                setParam(stmt, key, keyType, 2);
+            } else {
+                stmt.setNull(2, Types.VARCHAR);
+            }
+
             setParam(stmt, value, valType, 3);
             stmt.execute();
         } catch (SQLException e) {
@@ -63,7 +69,9 @@ public class DatabaseUtils {
                     e);
         } finally {
             try {
-                con.close();
+                if (con != null) {
+                    con.close();
+                }
             } catch (SQLException e) {
                 //ignore
             }
@@ -75,9 +83,16 @@ public class DatabaseUtils {
         try {
             createDBConnection();
             con = hikariDataSource.getConnection();
-            PreparedStatement prpStmt = con.prepareStatement(ChannelConstants.SELECT);
+            PreparedStatement prpStmt;
+
+            if (keyType != null) {
+                prpStmt = con.prepareStatement(ChannelConstants.SELECT);
+                setParam(prpStmt, key, keyType, 2);
+            } else {
+                prpStmt = con.prepareStatement(ChannelConstants.SELECT_NULL);
+            }
+
             prpStmt.setString(1, channelName);
-            setParam(prpStmt, key, keyType, 2);
             result = prpStmt.executeQuery();
             if (result.next()) {
                 int msgId = result.getInt(1);
@@ -92,7 +107,9 @@ public class DatabaseUtils {
                     e);
         } finally {
             try {
-                con.close();
+                if (con != null) {
+                    con.close();
+                }
             } catch (SQLException e) {
                 //ignore
             }
