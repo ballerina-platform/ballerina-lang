@@ -410,6 +410,7 @@ public class HttpCarbonMessage {
     public int getSequenceId() {
         return sequenceId;
     }
+
     public void setSequenceId(int sequenceId) {
         this.sequenceId = sequenceId;
     }

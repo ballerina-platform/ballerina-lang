@@ -27,6 +27,11 @@ import io.netty.channel.ChannelHandlerContext;
  */
 public interface HttpPipelineListener {
 
+    /**
+     * Logic to be implemented when the last http content has been written to the socket
+     *
+     * @param channelHandlerContext Represent channel handler context
+     */
     void onLastHttpContentSent(ChannelHandlerContext channelHandlerContext);
 
 }
