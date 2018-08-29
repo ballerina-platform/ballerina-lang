@@ -91,7 +91,7 @@ public class PingPongSupportTestCase extends WebSocketTestCommons {
     }
 
     @AfterClass(description = "Stops the Ballerina server")
-    public void cleanup() throws BallerinaTestException, InterruptedException {
+    public void cleanup() throws InterruptedException {
         client.shutDown();
         remoteServer.stop();
     }

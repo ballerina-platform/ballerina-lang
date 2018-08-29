@@ -219,6 +219,18 @@ public class WebSocketTestClient {
     }
 
     /**
+     * Sends a close frame without a close code.
+     *
+     * @throws InterruptedException if connection is interrupted while sending the message.
+     */
+    public void sendCloseFrameWithoutCloseCode() throws InterruptedException {
+        if (channel == null) {
+            logger.error("Channel is null. Cannot send close frame.");
+            throw new IllegalArgumentException("Cannot find the channel to write");
+        }
+        channel.writeAndFlush(new CloseWebSocketFrame()).sync();
+    }
+    /**
      * @return the text received from the server.
      */
     public String getTextReceived() {
@@ -288,4 +300,11 @@ public class WebSocketTestClient {
         group.shutdownGracefully();
     }
 
+    /**
+     * Shutdown the WebSocket Client.
+     */
+    public void shutDownWithoutCloseFrame() {
+        channel.close();
+        group.shutdownGracefully();
+    }
 }
