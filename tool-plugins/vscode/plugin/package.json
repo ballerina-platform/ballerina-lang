@@ -180,6 +180,7 @@
         "glob": "^7.1.2",
         "lodash": "^4.17.5",
         "openport": "0.0.4",
+        "ps-node": "^0.1.6",
         "request-promise": "^4.2.2",
         "vscode": "^1.1.10",
         "vscode-debugadapter": "^1.25.0",
