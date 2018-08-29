@@ -91,18 +91,19 @@ public class ResponseWriter {
     private static void serializeMultiparts(String boundaryString, BMap<String, BValue> entity,
                                             OutputStream messageOutputStream) {
         BRefValueArray bodyParts = EntityBodyHandler.getBodyPartArray(entity);
-        if (bodyParts != null && bodyParts.size() > 0) {
-            MultipartDataSource multipartDataSource = new MultipartDataSource(entity, boundaryString);
-            serializeDataSource(multipartDataSource, entity, messageOutputStream);
-            HttpUtil.closeMessageOutputStream(messageOutputStream);
-        } else {
-            try {
+        try {
+            if (bodyParts != null && bodyParts.size() > 0) {
+                MultipartDataSource multipartDataSource = new MultipartDataSource(entity, boundaryString);
+                serializeDataSource(multipartDataSource, entity, messageOutputStream);
+                HttpUtil.closeMessageOutputStream(messageOutputStream);
+            } else {
+
                 EntityBodyHandler.writeByteChannelToOutputStream(entity, messageOutputStream);
                 HttpUtil.closeMessageOutputStream(messageOutputStream);
-            } catch (IOException e) {
-                throw new BallerinaException("Error occurred while serializing byte channel content : " +
-                        e.getMessage());
             }
+        } catch (IOException e) {
+            throw new BallerinaException("Error occurred while serializing byte channel content : " +
+                    e.getMessage());
         }
     }
 
