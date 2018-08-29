@@ -1,4 +1,5 @@
 {
+    "variableName": "a",
     "functionReturnType": "int",
     "functionLocation": "3,4",
     "expected": {

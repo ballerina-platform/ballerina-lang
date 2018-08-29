@@ -773,11 +773,12 @@ public class CommonUtil {
     /**
      * Generate variable code.
      *
+     * @param variableName          variable name
      * @param variableType          variable type
      * @return {@link String}       generated function signature
      */
-    public static String createVariable(String variableType) {
-        return variableType  + " " + generateName(1, new HashSet<>()) + " = ";
+    public static String createVariableDeclaration(String variableName, String variableType) {
+        return variableType  + " " + variableName + " = ";
     }
 
     /**

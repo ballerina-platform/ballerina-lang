@@ -139,6 +139,8 @@ public class CommandExecutionTest {
                                                  configJsonObject.get("functionLocation").getAsString()));
         args.add(new CommandUtil.CommandArgument(CommandConstants.ARG_KEY_RETURN_TYPE,
                                                  configJsonObject.get("functionReturnType").getAsString()));
+        args.add(new CommandUtil.CommandArgument(CommandConstants.ARG_KEY_VAR_NAME,
+                                                 configJsonObject.get("variableName").getAsString()));
         JsonObject responseJson = getCommandResponse(args, CommandConstants.CMD_CREATE_VARIABLE);
         responseJson.get("result").getAsJsonObject().get("edit").getAsJsonObject().getAsJsonArray("documentChanges")
                 .forEach(element -> element.getAsJsonObject().remove("textDocument"));

@@ -60,7 +60,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static org.ballerinalang.langserver.common.utils.CommonUtil.createVariable;
+import static org.ballerinalang.langserver.common.utils.CommonUtil.createVariableDeclaration;
 import static org.ballerinalang.langserver.compiler.LSCompilerUtil.getUntitledFilePath;
 
 /**
@@ -258,6 +258,7 @@ public class CommandExecutor {
     private static Object executeCreateVariable(LSServiceOperationContext context) throws WorkspaceDocumentException {
         String documentUri = null;
         String variableType = null;
+        String variableName = null;
         int sLine = -1;
         int sCol = -1;
         VersionedTextDocumentIdentifier textDocumentIdentifier = new VersionedTextDocumentIdentifier();
@@ -279,6 +280,9 @@ public class CommandExecutor {
                     sLine = Integer.parseInt(split[0]);
                     sCol = Integer.parseInt(split[1]);
                     break;
+                case CommandConstants.ARG_KEY_VAR_NAME:
+                    variableName = argVal;
+                    break;
                 default:
                     //do nothing
             }
@@ -297,12 +301,11 @@ public class CommandExecutor {
             return new Object();
         }
 
-        String editText = createVariable(variableType);
+        String editText = createVariableDeclaration(variableName, variableType);
         Position position = new Position(sLine - 1, sCol - 1);
-        Range range = new Range(position, position);
 
         LanguageClient client = context.get(ExecuteCommandKeys.LANGUAGE_SERVER_KEY).getClient();
-        return applySingleTextEdit(editText, range, textDocumentIdentifier, client);
+        return applySingleTextEdit(editText, new Range(position, position), textDocumentIdentifier, client);
     }
 
     /**
