@@ -24,6 +24,8 @@ import java.nio.charset.StandardCharsets;
 /**
  * The Request class provides convenience helpers to the underyling
  * HTTP Request.
+ *
+ * @since 0.982.0
  */
 public class Request {
     private final FullHttpRequest request;

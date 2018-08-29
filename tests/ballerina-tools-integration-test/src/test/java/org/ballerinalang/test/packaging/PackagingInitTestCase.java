@@ -18,7 +18,6 @@
 package org.ballerinalang.test.packaging;
 
 import org.ballerinalang.test.BaseTest;
-import org.ballerinalang.test.context.BMainInstance;
 import org.ballerinalang.test.context.BServerInstance;
 import org.ballerinalang.test.context.BallerinaTestException;
 import org.ballerinalang.test.context.LogLeecher;
@@ -351,8 +350,8 @@ public class PackagingInitTestCase extends BaseTest {
      * Run and test service in project.
      *
      * @param serviceBalPath path of the service bal file
-     * @throws BallerinaTestException
-     * @throws IOException
+     * @throws BallerinaTestException on test error
+     * @throws IOException on io error
      */
     private void runService(Path serviceBalPath) throws BallerinaTestException, IOException {
         BServerInstance ballerinaServerForService = new BServerInstance(balServer);

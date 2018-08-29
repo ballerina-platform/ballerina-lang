@@ -31,7 +31,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
 import java.util.Map;
-import java.util.stream.Stream;
 
 /**
  * Testing negative scenarios for pushing, pulling, searching a package from central and installing package to
@@ -288,8 +287,6 @@ public class PackagingNegativeTestCase extends BaseTest {
      * @return env directory variable array
      */
     private Map<String, String> addEnvVariables(Map<String, String> envVariables) {
-        String[] newEnvVariables = new String[]{ProjectDirConstants.HOME_REPO_ENV_KEY + "=" +
-                tempHomeDirectory.toString()};
         envVariables.put(ProjectDirConstants.HOME_REPO_ENV_KEY, tempHomeDirectory.toString());
         return envVariables;
     }

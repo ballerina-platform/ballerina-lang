@@ -19,6 +19,8 @@ package org.ballerinalang.test.agent.server;
 
 /**
  * Handler interface to implement.
+ *
+ * @since 0.982.0
  */
 public interface BHandler {
     /**

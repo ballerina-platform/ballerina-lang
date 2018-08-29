@@ -24,7 +24,9 @@ import java.io.File;
 import java.io.IOException;
 
 /**
- * This class hold the server information and manage the a server instance.
+ * This class hold the server location and manage the a server location.
+ *
+ * @since 0.982.0
  */
 public class BalServer {
     private static final Logger log = LoggerFactory.getLogger(BalServer.class);
@@ -42,7 +44,6 @@ public class BalServer {
      */
     public BalServer() throws BallerinaTestException {
         setUpServerHome();
-        configServer();
         log.info("Server Home " + serverHome);
     }
 
@@ -87,15 +88,6 @@ public class BalServer {
      */
     public void cleanup() {
         deleteWorkDir();
-    }
-
-    /**
-     * to change the server configuration if required. This method can be overriding when initialising
-     * the object of this class.
-     *
-     * @throws BallerinaTestException if configuring server failed
-     */
-    protected void configServer() throws BallerinaTestException {
     }
 
     /**

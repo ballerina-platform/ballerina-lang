@@ -28,8 +28,8 @@ import org.testng.annotations.BeforeGroups;
 import java.io.File;
 
 /**
- * Base test class for GRPC integration test cases which starts/stops the grpc services as ballerina package before
- * and after tests are run.
+ * Base test class for Filter integration test cases which starts/stops the filter services as ballerina packages
+ * before and after tests are run.
  */
 public class FilterBaseTest extends BaseTest {
     protected static BServerInstance serverInstance;

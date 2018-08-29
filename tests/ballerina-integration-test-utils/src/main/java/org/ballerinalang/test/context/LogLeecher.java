@@ -108,7 +108,7 @@ public class LogLeecher {
     /**
      * Leecher type enum.
      */
-    public static enum LeecherType {
+    public enum LeecherType {
         INFO,
         ERROR
     }

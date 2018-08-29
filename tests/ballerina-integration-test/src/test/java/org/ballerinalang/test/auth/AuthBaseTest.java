@@ -27,7 +27,7 @@ import org.testng.annotations.BeforeGroups;
 import java.io.File;
 
 /**
- * Base test class for GRPC integration test cases which starts/stops the grpc services as ballerina package before
+ * Base test class for Auth integration test cases which starts/stops the Auth services as ballerina packages before
  * and after tests are run.
  */
 public class AuthBaseTest extends BaseTest {

@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *  Copyright (c) 2018, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  *  WSO2 Inc. licenses this file to you under the Apache License,
  *  Version 2.0 (the "License"); you may not use this file except
@@ -34,6 +34,8 @@ import java.util.stream.Stream;
 
 /**
  * This class hold the server information and manage the a server instance.
+ *
+ * @since 0.982.0
  */
 public class BServerInstance implements BServer {
     private static final Logger log = LoggerFactory.getLogger(BServerInstance.class);

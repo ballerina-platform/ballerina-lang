@@ -1,3 +1,20 @@
+/*
+ *  Copyright (c) 2018, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ *  WSO2 Inc. licenses this file to you under the Apache License,
+ *  Version 2.0 (the "License"); you may not use this file except
+ *  in compliance with the License.
+ *  You may obtain a copy of the License at
+ *
+ *  http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing,
+ *  software distributed under the License is distributed on an
+ *  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ *  KIND, either express or implied.  See the License for the
+ *  specific language governing permissions and limitations
+ *  under the License.
+ */
 package org.ballerinalang.test.agent.server;
 
 import io.netty.bootstrap.ServerBootstrap;
@@ -35,6 +52,8 @@ import java.time.format.DateTimeFormatter;
 
 /**
  * The WebServer class is a convenience wrapper around the Netty HTTP server.
+ *
+ * @since 0.982.0
  */
 public class WebServer {
     private static final String TYPE_PLAIN = "text/plain; charset=UTF-8";
@@ -99,16 +118,16 @@ public class WebServer {
         try {
             final InetSocketAddress inet = new InetSocketAddress(host, port);
 
-            final ServerBootstrap b = new ServerBootstrap();
-            b.option(ChannelOption.SO_BACKLOG, 1024);
-            b.option(ChannelOption.SO_REUSEADDR, true);
-            b.group(loopGroup).channel(serverChannelClass).childHandler(new WebServerInitializer());
-            b.option(ChannelOption.MAX_MESSAGES_PER_READ, Integer.MAX_VALUE);
-            b.childOption(ChannelOption.ALLOCATOR, new PooledByteBufAllocator(true));
-            b.childOption(ChannelOption.SO_REUSEADDR, true);
-            b.childOption(ChannelOption.MAX_MESSAGES_PER_READ, Integer.MAX_VALUE);
+            final ServerBootstrap serverBootstrap = new ServerBootstrap();
+            serverBootstrap.option(ChannelOption.SO_BACKLOG, 1024);
+            serverBootstrap.option(ChannelOption.SO_REUSEADDR, true);
+            serverBootstrap.group(loopGroup).channel(serverChannelClass).childHandler(new WebServerInitializer());
+            serverBootstrap.option(ChannelOption.MAX_MESSAGES_PER_READ, Integer.MAX_VALUE);
+            serverBootstrap.childOption(ChannelOption.ALLOCATOR, new PooledByteBufAllocator(true));
+            serverBootstrap.childOption(ChannelOption.SO_REUSEADDR, true);
+            serverBootstrap.childOption(ChannelOption.MAX_MESSAGES_PER_READ, Integer.MAX_VALUE);
 
-            final Channel ch = b.bind(inet).sync().channel();
+            final Channel ch = serverBootstrap.bind(inet).sync().channel();
             ch.closeFuture().sync();
         } finally {
             loopGroup.shutdownGracefully().sync();

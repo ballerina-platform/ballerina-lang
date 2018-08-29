@@ -30,6 +30,8 @@ import java.util.Map;
 
 /**
  * This class hold the server information and manage the a server instance.
+ *
+ * @since 0.982.0
  */
 public class BallerinaServerAgent {
     private static PrintStream outStream = System.err;
@@ -72,6 +74,12 @@ public class BallerinaServerAgent {
     private static String agentHost = DEFAULT_AGENT_HOST;
     private static int agentPort = DEFAULT_AGENT_PORT;
 
+    /**
+     * This method will be called before invoking ballerina Main method.
+     *
+     * @param args              to be passed with required details
+     * @param instrumentation   instance for any instrumentation purposes
+     */
     public static void premain(String args, Instrumentation instrumentation) {
         outStream.println("*******************************************************");
         outStream.println("Initializing Ballerina server agent with arguments - " + args);
@@ -111,7 +119,6 @@ public class BallerinaServerAgent {
                 } catch (Throwable ex) {
                     outStream.println("Error injecting the start agent code to the server, error - "
                             + ex.getMessage());
-                    ex.printStackTrace();
                 }
             }
             return new byte[]{};

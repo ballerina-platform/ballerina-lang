@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *  Copyright (c) 2018, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  *  WSO2 Inc. licenses this file to you under the Apache License,
  *  Version 2.0 (the "License"); you may not use this file except
@@ -34,11 +34,12 @@ import java.util.stream.Stream;
 
 /**
  * This class hold the server information and manage the a server instance.
+ *
+ * @since 0.982.0
  */
 public class BMainInstance implements BMain {
     private static final Logger log = LoggerFactory.getLogger(BMainInstance.class);
     private static final String JAVA_OPTS = "JAVA_OPTS";
-    private String agentHost = "localhost";
     private BalServer balServer;
     private String agentArgs;
 
@@ -202,13 +203,6 @@ public class BMainInstance implements BMain {
                         File.separator + "bin/" + scriptName, command};
             }
 
-//            if (Utils.getOSName().toLowerCase(Locale.ENGLISH).contains("windows")) {
-//                commandDir = new File(balServer.getServerHome() + File.separator + "bin");
-//                cmdArray = new String[]{"cmd.exe", "/c", scriptName + ".bat", command};
-//
-//            } else {
-//                cmdArray = new String[]{"bash", "bin/" + scriptName, command};
-//            }
             String[] cmdArgs = Stream.concat(Arrays.stream(cmdArray), Arrays.stream(args)).toArray(String[]::new);
             ProcessBuilder processBuilder = new ProcessBuilder(cmdArgs).directory(new File(commandDir));
             if (envProperties != null) {

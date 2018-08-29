@@ -23,6 +23,8 @@ import java.util.ArrayList;
 
 /**
  * The RouteTable class contains all URL routes in the WebServer.
+ *
+ * @since 0.982.0
  */
 class RouteTable {
     private final ArrayList<Route> routes;

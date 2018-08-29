@@ -1,5 +1,5 @@
 /*
-*  Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+*  Copyright (c) 2018, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
 *
 *  WSO2 Inc. licenses this file to you under the Apache License,
 *  Version 2.0 (the "License"); you may not use this file except
@@ -22,6 +22,8 @@ import java.util.Map;
 
 /**
  * Interface for test Server implementation.
+ *
+ * @since 0.982.0
  */
 public interface BServer {
 
@@ -69,7 +71,7 @@ public interface BServer {
      *
      * @param sourceRoot    source root directory
      * @param packagePath   package path
-     * @throws BallerinaTestException
+     * @throws BallerinaTestException if starting fails
      */
     void startServer(String sourceRoot, String packagePath) throws BallerinaTestException;
 
@@ -79,7 +81,7 @@ public interface BServer {
      * @param sourceRoot    source root directory
      * @param packagePath   package path
      * @param requiredPorts ports required for the server instance
-     * @throws BallerinaTestException
+     * @throws BallerinaTestException if starting fails
      */
     void startServer(String sourceRoot, String packagePath, int[] requiredPorts) throws BallerinaTestException;
 
@@ -90,7 +92,7 @@ public interface BServer {
      * @param packagePath   package path
      * @param args          arguments to parse
      * @param requiredPorts ports required for the server instance
-     * @throws BallerinaTestException
+     * @throws BallerinaTestException if starting fails
      */
     void startServer(String sourceRoot, String packagePath, String[] args,
                      int[] requiredPorts) throws BallerinaTestException;
@@ -103,7 +105,7 @@ public interface BServer {
      * @param args          arguments to parse
      * @param envProperties environment properties
      * @param requiredPorts ports required for the server instance
-     * @throws BallerinaTestException
+     * @throws BallerinaTestException if starting fails
      */
     void startServer(String sourceRoot, String packagePath, String[] args,
                      Map<String, String> envProperties, int[] requiredPorts) throws BallerinaTestException;

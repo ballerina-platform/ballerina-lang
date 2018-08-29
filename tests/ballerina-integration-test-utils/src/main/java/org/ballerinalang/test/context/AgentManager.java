@@ -19,7 +19,9 @@
 package org.ballerinalang.test.context;
 
 /**
- * Interface for test Server implementation.
+ * Class which manage server agent related details, such as agent port etc.
+ *
+ * @since 0.982.0
  */
 public class AgentManager {
 

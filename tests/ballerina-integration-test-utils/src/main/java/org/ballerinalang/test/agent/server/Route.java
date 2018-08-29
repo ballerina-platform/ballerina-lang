@@ -21,6 +21,8 @@ import io.netty.handler.codec.http.HttpMethod;
 
 /**
  * The Route class represents a single entry in the RouteTable.
+ *
+ * @since 0.982.0
  */
 public class Route {
     private final HttpMethod method;
