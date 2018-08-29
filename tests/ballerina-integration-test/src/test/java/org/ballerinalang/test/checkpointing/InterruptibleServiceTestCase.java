@@ -23,7 +23,7 @@ import org.ballerinalang.config.ConfigRegistry;
 import org.ballerinalang.persistence.store.impl.FileStorageProvider;
 import org.ballerinalang.test.BaseTest;
 import org.ballerinalang.test.context.BallerinaTestException;
-import org.ballerinalang.test.context.ServerInstance;
+import org.ballerinalang.test.context.Utils;
 import org.ballerinalang.test.util.HttpClientRequest;
 import org.ballerinalang.test.util.HttpResponse;
 import org.testng.Assert;
@@ -33,6 +33,7 @@ import org.testng.annotations.Test;
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
+import java.util.Locale;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -41,8 +42,6 @@ import java.util.concurrent.TimeUnit;
  * @since 0.981.1
  */
 public class InterruptibleServiceTestCase extends BaseTest {
-
-    private ServerInstance ballerinaServer;
 
     private FileStorageProvider fileStorageProvider;
 
@@ -60,6 +59,10 @@ public class InterruptibleServiceTestCase extends BaseTest {
             statesStorageDir.delete();
         }
         String statesStoragePath = statesStorageDir.getAbsolutePath();
+        String osName = Utils.getOSName();
+        if (osName != null && osName.toLowerCase(Locale.ENGLISH).contains("windows")) {
+            statesStoragePath = statesStoragePath.replace("\\", "\\\\");
+        }
         args = new String[] { "-e", FileStorageProvider.INTERRUPTIBLE_STATES_FILE_PATH + "=" + statesStoragePath };
         ConfigRegistry.getInstance().addConfiguration(FileStorageProvider.INTERRUPTIBLE_STATES_FILE_PATH,
                                                       statesStoragePath);
@@ -70,12 +73,12 @@ public class InterruptibleServiceTestCase extends BaseTest {
     public void testCheckpointSuccess() throws IOException, BallerinaTestException {
         try {
             startServer();
-            HttpResponse response = HttpClientRequest.doGet(ballerinaServer.getServiceURLHttp("s1/r1"));
+            HttpResponse response = HttpClientRequest.doGet(serverInstance.getServiceURLHttp("s1/r1"));
             Assert.assertNotNull(response);
             Awaitility.await().atMost(5, TimeUnit.SECONDS)
                       .until(() -> fileStorageProvider.getAllSerializedStates().size() > 0);
         } finally {
-            ballerinaServer.stopServer();
+            serverInstance.stopServer();
         }
         List<String> allSerializedStates = fileStorageProvider.getAllSerializedStates();
         Assert.assertEquals(allSerializedStates.size(), 1,
@@ -90,7 +93,7 @@ public class InterruptibleServiceTestCase extends BaseTest {
             Awaitility.await().atMost(20, TimeUnit.SECONDS)
                       .until(() -> fileStorageProvider.getAllSerializedStates().size() == 0);
         } finally {
-            ballerinaServer.stopServer();
+            serverInstance.stopServer();
         }
         List<String> allSerializedStates = fileStorageProvider.getAllSerializedStates();
         Assert.assertEquals(allSerializedStates.size(), 0,
@@ -98,7 +101,6 @@ public class InterruptibleServiceTestCase extends BaseTest {
     }
 
     private void startServer() throws BallerinaTestException {
-        ballerinaServer = ServerInstance.initBallerinaServer();
-        ballerinaServer.startBallerinaServer(balFilePath, args);
+        serverInstance.startBallerinaServer(balFilePath, args, 9090);
     }
 }

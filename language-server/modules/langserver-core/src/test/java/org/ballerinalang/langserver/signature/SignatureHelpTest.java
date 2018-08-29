@@ -34,6 +34,8 @@ import java.nio.file.Path;
 
 /**
  * Test class for Signature help.
+ *
+ * @since 0.982.0
  */
 public class SignatureHelpTest {
     

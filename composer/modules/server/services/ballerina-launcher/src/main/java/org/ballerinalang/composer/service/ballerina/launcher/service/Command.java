@@ -127,16 +127,6 @@ public class Command {
             commandList.add("test");
         }
 
-        if (filePath != null && !filePath.equals(sourceRoot + File.separator)) {
-            packageName =
-                    LSCompilerUtil.getPackageNameForGivenFile(sourceRoot, filePath + fileName);
-            commandList.add(packageName);
-            commandList.add("--sourceroot");
-            commandList.add(sourceRoot);
-        } else {
-            commandList.add(getScriptName());
-        }
-
         if (debug) {
             commandList.add("--debug");
             commandList.add(String.valueOf(this.port));
@@ -148,6 +138,17 @@ public class Command {
 
             commandList.add("-e");
             commandList.add("b7a.http.tracelog.port=5010");
+        }
+
+
+        if (filePath != null && !filePath.equals(sourceRoot + File.separator)) {
+            commandList.add("--sourceroot");
+            commandList.add(sourceRoot);
+            packageName =
+                    LSCompilerUtil.getPackageNameForGivenFile(sourceRoot, filePath + fileName);
+            commandList.add(packageName);
+        } else {
+            commandList.add(getScriptName());
         }
 
         if (this.commandArgs != null) {

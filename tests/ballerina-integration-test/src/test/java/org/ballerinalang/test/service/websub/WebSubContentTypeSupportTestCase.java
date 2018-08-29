@@ -81,9 +81,10 @@ public class WebSubContentTypeSupportTestCase extends WebSubBaseTest {
 
     @BeforeClass
     public void setup() throws BallerinaTestException {
-        String[] publisherArgs = {new File("src" + File.separator + "test" + File.separator + "resources"
-                + File.separator + "websub" + File.separator + "content_types" + File.separator
-                + "publisher.bal").getAbsolutePath(), "-e b7a.websub.hub.remotepublish=true"};
+        String[] publisherArgs = {"-e b7a.websub.hub.remotepublish=true",
+                                  new File("src" + File.separator + "test" + File.separator + "resources"
+                                                   + File.separator + "websub" + File.separator + "content_types"
+                                                   + File.separator + "publisher.bal").getAbsolutePath()};
 
         String subscriberBal = new File("src" + File.separator + "test" + File.separator + "resources"
                 + File.separator + "websub" + File.separator + "content_types" + File.separator

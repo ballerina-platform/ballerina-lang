@@ -50,7 +50,7 @@ function initialize() {
             // following is done because "instanceof Array" would always give false for arrays
             // created outside of jsdom environment
             const _jsonModel = JSON.parse(JSON.stringify(jsonModel));
-            window.ballerinaDiagram.renderDiagram(el, _jsonModel, opt);
+            window.ballerinaDiagram.renderStaticDiagram(el, _jsonModel, opt);
         }
 
         window.generateSource = (jsonModel) => {

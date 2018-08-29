@@ -171,10 +171,11 @@ public class JMSConnectorTestCase extends BaseTest {
 
     @BeforeGroups(value = "jms-test", alwaysRun = true)
     public void start() throws BallerinaTestException {
+        int[] requiredPorts = new int[]{9090, 9091, 9092, 9093, 9094, 9095, 9096, 9097, 9098};
         String basePath = new File("src" + File.separator + "test" + File.separator + "resources" + File.separator +
                 "jms").getAbsolutePath();
         String[] args = new String[]{"--sourceroot", basePath};
-        serverInstance.startBallerinaServer("jmsservices", args);
+        serverInstance.startBallerinaServer("jmsservices", args, requiredPorts);
     }
 
     @AfterGroups(value = "jms-test", alwaysRun = true)

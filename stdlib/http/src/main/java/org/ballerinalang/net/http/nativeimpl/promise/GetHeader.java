@@ -46,6 +46,7 @@ import org.wso2.transport.http.netty.message.Http2PushPromise;
         isPublic = true
 )
 public class GetHeader extends BlockingNativeCallableUnit {
+
     @Override
     public void execute(Context context) {
         BMap<String, BValue> pushPromiseStruct = (BMap<String, BValue>) context.getRefArgument(0);

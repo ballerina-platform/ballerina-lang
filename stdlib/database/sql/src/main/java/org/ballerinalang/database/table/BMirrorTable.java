@@ -86,8 +86,8 @@ public class BMirrorTable extends BTable {
             PreparedStatement stmt = conn.prepareStatement(sqlStmt);
             TableUtils.prepareAndExecuteStatement(stmt, data);
             reset(isInTransaction);
-        } catch (SQLException e) {
-            throw new BallerinaException("execute add failed: " + e.getMessage(), e);
+        } catch (Throwable e) {
+            throw new BallerinaException("execute proxy table add failed: " + e.getMessage(), e);
         } finally {
             SQLDatasourceUtils.cleanupResources(conn, isInTransaction);
         }

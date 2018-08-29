@@ -66,9 +66,11 @@ public class WebSubWithSecretTestCase extends WebSubBaseTest {
 
     @BeforeClass
     public void setup() throws BallerinaTestException {
-        String[] clientArgs = {new File("src" + File.separator + "test" + File.separator + "resources"
-                + File.separator + "websub" + File.separator + "websub_test_publisher.bal").getAbsolutePath(),
-                "-e b7a.websub.hub.remotepublish=true", "-e test.hub.url=" + hubUrl};
+        String[] clientArgs = {"-e b7a.websub.hub.remotepublish=true",
+                               "-e test.hub.url=" + hubUrl,
+                               new File("src" + File.separator + "test" + File.separator + "resources"
+                                                + File.separator + "websub" + File.separator
+                                                + "websub_test_publisher.bal").getAbsolutePath()};
 
         String subscriberBal = new File("src" + File.separator + "test" + File.separator + "resources"
                 + File.separator + "websub" + File.separator +

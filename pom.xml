@@ -1057,9 +1057,9 @@
                 <version>${jackson.version}</version>
             </dependency>
             <dependency>
-                <groupId>com.beust</groupId>
-                <artifactId>jcommander</artifactId>
-                <version>${jcommander.version}</version>
+                <groupId>info.picocli</groupId>
+                <artifactId>picocli</artifactId>
+                <version>${picocli.version}</version>
             </dependency>
             <dependency>
                 <groupId>io.netty</groupId>
@@ -2134,7 +2134,7 @@
         <equinox.osgi.version>3.10.2.v20150203-1939</equinox.osgi.version>
         <equinox.osgi.services.version>3.4.0.v20140312-2051</equinox.osgi.services.version>
         <carbon.kernel.version>5.1.0</carbon.kernel.version>
-        <transport.http.version>6.0.219</transport.http.version>
+        <transport.http.version>6.0.227</transport.http.version>
         <carbon.messaging.version>2.3.7</carbon.messaging.version>
         <carbon.deployment.version>5.0.0</carbon.deployment.version>
         <carbon.config.version>2.1.2</carbon.config.version>
@@ -2158,7 +2158,7 @@
         <netty.version>4.1.19.Final</netty.version>
         <commons.pool.version>1.5.6.wso2v1</commons.pool.version>
         <org.snakeyaml.version>1.16.0.wso2v1</org.snakeyaml.version>
-        <jcommander.version>1.60</jcommander.version>
+        <picocli.version>3.3.0</picocli.version>
         <com.zaxxer.hikaricp.version>3.1.0</com.zaxxer.hikaricp.version>
         <hyperSQL.version>2.4.0</hyperSQL.version>
         <h2.version>1.4.197</h2.version>

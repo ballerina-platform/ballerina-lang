@@ -42,7 +42,7 @@ public class StreamsWithinServicesTestCase extends BaseTest {
         String relativePath = new File("src" + File.separator + "test" + File.separator + "resources"
                 + File.separator + "streaming" + File.separator +
                 "streams-within-services.bal").getAbsolutePath();
-        serverInstance.startBallerinaServer(relativePath);
+        serverInstance.startBallerinaServer(relativePath, 9090);
     }
 
     @Test(description = "Test the service with sample streaming rules")

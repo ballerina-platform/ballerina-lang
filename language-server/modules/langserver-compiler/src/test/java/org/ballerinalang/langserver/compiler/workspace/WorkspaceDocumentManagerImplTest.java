@@ -33,6 +33,8 @@ import java.util.stream.Stream;
 
 /**
  * Workspace document manager test class.
+ *
+ * @since 0.982.0
  */
 public class WorkspaceDocumentManagerImplTest {
 
@@ -41,7 +43,8 @@ public class WorkspaceDocumentManagerImplTest {
 
     @BeforeClass
     public void setUp() {
-        documentManager = new WorkspaceDocumentManagerImpl();
+        documentManager = WorkspaceDocumentManagerImpl.getInstance();
+        documentManager.clearAllFilePaths();
         filePath = new File(getClass().getClassLoader().getResource("source").getFile()).toPath()
                 .resolve("singlepackage").resolve("io-sample.bal");
     }
