@@ -122,7 +122,7 @@ public class GrpcCmd implements BLauncherCmd {
             downloadProtocexe();
         } catch (IOException | BalGenToolException e) {
             String errorMessage = "Error while generating protoc executable. " + e.getMessage();
-            LOG.error(errorMessage, e);
+            LOG.error("Error while generating protoc executable.", e);
             outStream.println(errorMessage);
             return;
         }
@@ -142,12 +142,12 @@ public class GrpcCmd implements BLauncherCmd {
                     exportResource(file, classLoader);
                 } catch (Exception e) {
                     msg.append("Error extracting resource file ").append(file).append(NEW_LINE_CHARACTER);
+                    LOG.error("Error extracting resource file ", e);
                 }
             }
             if (msg.toString().isEmpty()) {
                 outStream.println("Successfully extracted library files.");
             } else {
-                LOG.error(msg.toString());
                 outStream.println(msg.toString());
                 return;
             }
@@ -157,7 +157,7 @@ public class GrpcCmd implements BLauncherCmd {
                         .getAbsolutePath(), descFile.getAbsolutePath());
             } catch (BalGenToolException e) {
                 String errorMessage = "Error occurred when generating proto descriptor. " + e.getMessage();
-                LOG.error(errorMessage, e);
+                LOG.error("Error occurred when generating proto descriptor.", e);
                 outStream.println(errorMessage);
                 return;
             }
@@ -197,7 +197,7 @@ public class GrpcCmd implements BLauncherCmd {
             ballerinaFileBuilder.build();
         } catch (BalGenerationException e) {
             LOG.error("Error generating ballerina file.", e);
-            msg.append("Error generating ballerina file.").append(NEW_LINE_CHARACTER);
+            msg.append("Error generating ballerina file.").append(e.getMessage()).append(NEW_LINE_CHARACTER);
             outStream.println(msg.toString());
             return;
         }
@@ -242,8 +242,8 @@ public class GrpcCmd implements BLauncherCmd {
      */
     private static void exportResource(String resourceName, ClassLoader classLoader) {
         try (InputStream initialStream = classLoader.getResourceAsStream(resourceName);
-             OutputStream resStreamOut = new FileOutputStream(TMP_DIRECTORY_PATH + resourceName
-                     .replace("stdlib", "protobuf"))) {
+             OutputStream resStreamOut = new FileOutputStream(new File(TMP_DIRECTORY_PATH, resourceName.replace
+                     ("stdlib", "protobuf")))) {
             if (initialStream == null) {
                 throw new BalGenToolException("Cannot get resource \"" + resourceName + "\" from Jar file.");
             }
