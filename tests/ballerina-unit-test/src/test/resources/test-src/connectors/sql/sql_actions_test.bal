@@ -8,7 +8,7 @@ type ResultCustomers record {
     string FIRSTNAME,
 };
 
-type ResultCustomers2 record {
+type CustomerFullName record {
     string FIRSTNAME,
     string LASTNAME,
 };
@@ -80,7 +80,7 @@ function testInsertTableData(string jdbcUrl, string userName, string password) r
     };
 
     int insertCount = check testDB->update("Insert into Customers (firstName,lastName,registrationID,creditLimit,country)
-                                         values ('James', 'Clerk', 2, 5000.75, 'USA')");
+                                         values ('James', 'Clerk', 3, 5000.75, 'USA')");
     testDB.stop();
     return insertCount;
 }
@@ -338,7 +338,7 @@ function testCallProcedureWithMultipleResultSets(string jdbcUrl, string userName
     string firstName2;
     string lastName;
 
-    var ret = check testDB->call("{call SelectPersonDataMultiple()}", [ResultCustomers, ResultCustomers2]);
+    var ret = check testDB->call("{call SelectPersonDataMultiple()}", [ResultCustomers, CustomerFullName]);
     table[] dts;
     match ret {
         table[] dtsRet => dts = dtsRet;
@@ -351,7 +351,7 @@ function testCallProcedureWithMultipleResultSets(string jdbcUrl, string userName
     }
 
     while (dts[1].hasNext()) {
-        ResultCustomers2 rs = check <ResultCustomers2>dts[1].getNext();
+        CustomerFullName rs = check <CustomerFullName>dts[1].getNext();
         firstName2 = rs.FIRSTNAME;
         lastName = rs.LASTNAME;
     }
@@ -1476,8 +1476,8 @@ function testComplexTypeRetrieval(string jdbcUrl, string userName, string passwo
     return (s1, s2, s3, s4);
 }
 
-function testSelectLoadToMemory(string jdbcUrl, string userName, string password) returns (Employee[], Employee[],
-            Employee[]) {
+function testSelectLoadToMemory(string jdbcUrl, string userName, string password) returns (CustomerFullName[],
+            CustomerFullName[], CustomerFullName[]) {
     endpoint jdbc:Client testDB {
         url: jdbcUrl,
         username: userName,
@@ -1485,41 +1485,36 @@ function testSelectLoadToMemory(string jdbcUrl, string userName, string password
         poolOptions: { maximumPoolSize: 1 }
     };
 
-    table dt = check testDB->select("SELECT * from employeeItr", Employee, loadToMemory = true);
+    table<CustomerFullName> dt = check testDB->select(
+        "SELECT firstName, lastName from Customers where registrationID < 3", CustomerFullName , loadToMemory = true);
 
-    Employee[] employeeArray1;
-    Employee[] employeeArray2;
-    Employee[] employeeArray3;
+    CustomerFullName[] fullNameArray1;
+    CustomerFullName[] fullNameArray2;
+    CustomerFullName[] fullNameArray3;
     int i = 0;
-    while (dt.hasNext()) {
-        Employee rs = check <Employee>dt.getNext();
-        Employee e = { id: rs.id, name: rs.name, address: rs.address };
-        employeeArray1[i] = e;
+    foreach x in dt {
+        fullNameArray1[i] = x;
         i++;
     }
 
     i = 0;
-    while (dt.hasNext()) {
-        Employee rs = check <Employee>dt.getNext();
-        Employee e = { id: rs.id, name: rs.name, address: rs.address };
-        employeeArray2[i] = e;
+    foreach x in dt {
+        fullNameArray2[i] = x;
         i++;
     }
 
     i = 0;
-    while (dt.hasNext()) {
-        Employee rs = check <Employee>dt.getNext();
-        Employee e = { id: rs.id, name: rs.name, address: rs.address };
-        employeeArray3[i] = e;
+    foreach x in dt {
+        fullNameArray3[i] = x;
         i++;
     }
 
     testDB.stop();
-    return (employeeArray1, employeeArray2, employeeArray3);
+    return (fullNameArray1, fullNameArray2, fullNameArray3);
 }
 
-function testLoadToMemorySelectAfterTableClose(string jdbcUrl, string userName, string password) returns (Employee[],
-            Employee[], error) {
+function testLoadToMemorySelectAfterTableClose(string jdbcUrl, string userName, string password) returns (
+            CustomerFullName[], CustomerFullName[], error) {
     endpoint jdbc:Client testDB {
         url: jdbcUrl,
         username: userName,
@@ -1527,40 +1522,36 @@ function testLoadToMemorySelectAfterTableClose(string jdbcUrl, string userName, 
         poolOptions: { maximumPoolSize: 1 }
     };
 
-    table dt = check testDB->select("SELECT * from employeeItr", Employee, loadToMemory = true);
+    table<CustomerFullName> dt = check testDB->select(
+        "SELECT firstName, lastName from Customers where registrationID < 3", CustomerFullName, loadToMemory = true);
 
-    Employee[] employeeArray1;
-    Employee[] employeeArray2;
-    Employee[] employeeArray3;
+    CustomerFullName[] fullNameArray1;
+    CustomerFullName[] fullNameArray2;
+    CustomerFullName[] fullNameArray3;
     int i = 0;
-    while (dt.hasNext()) {
-        Employee rs = check <Employee>dt.getNext();
-        Employee e = { id: rs.id, name: rs.name, address: rs.address };
-        employeeArray1[i] = e;
+    foreach x in dt {
+        fullNameArray1[i] = x;
         i++;
     }
+
     i = 0;
-    while (dt.hasNext()) {
-        Employee rs = check <Employee>dt.getNext();
-        Employee e = { id: rs.id, name: rs.name, address: rs.address };
-        employeeArray2[i] = e;
+    foreach x in dt {
+        fullNameArray2[i] = x;
         i++;
     }
     dt.close();
     i = 0;
     error e;
     try {
-        while (dt.hasNext()) {
-            Employee rs = check <Employee>dt.getNext();
-            Employee emp = { id: rs.id, name: rs.name, address: rs.address };
-            employeeArray3[i] = emp;
+        foreach x in dt {
+            fullNameArray3[i] = x;
             i++;
         }
     } catch (error err) {
         e = err;
     }
     testDB.stop();
-    return (employeeArray1, employeeArray2, e);
+    return (fullNameArray1, fullNameArray2, e);
 }
 
 function testCloseConnectionPool(string jdbcUrl, string userName, string password, string connectionCountQuery)

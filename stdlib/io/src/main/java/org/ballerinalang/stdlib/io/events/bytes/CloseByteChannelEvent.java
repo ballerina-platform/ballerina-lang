@@ -87,4 +87,9 @@ public class CloseByteChannelEvent implements Event {
     public Channel getChannel() {
         return channel;
     }
+
+    @Override
+    public boolean remaining() {
+        return channel.remaining();
+    }
 }
