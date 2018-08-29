@@ -98,8 +98,7 @@ public class ServerSocketTest {
             final String clientMsg = "This is the first type of message.";
             boolean connected = false;
             for (int retryCount = 0; retryCount < numberOfRetryAttempts; retryCount++) {
-                try {
-                    SocketChannel socketChannel = SocketChannel.open();
+                try (SocketChannel socketChannel = SocketChannel.open()) {
                     socketChannel.connect(new InetSocketAddress("localhost", port));
                     ByteBuffer buf = ByteBuffer.allocate(512);
                     int bytesRead = socketChannel.read(buf);
@@ -115,7 +114,6 @@ public class ServerSocketTest {
                         socketChannel.write(buf);
                     }
                     connected = true;
-                    socketChannel.close();
                     break;
                 } catch (IOException e) {
                     sleep(retryInterval);
