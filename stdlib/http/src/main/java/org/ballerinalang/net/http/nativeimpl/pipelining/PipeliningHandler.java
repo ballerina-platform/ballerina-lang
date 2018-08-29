@@ -140,7 +140,7 @@ public class PipeliningHandler {
                 .attr(Constants.MAX_RESPONSES_ALLOWED_TO_BE_QUEUED).get();
         if (responseQueue.size() > maxQueuedResponses) {
             sourceContext.close();
-            log.info("Threshold for pipelined response queue reached hence closing the connection.");
+            log.warn("Threshold for pipelined response queue reached hence closing the connection.");
             return true;
         }
         return false;

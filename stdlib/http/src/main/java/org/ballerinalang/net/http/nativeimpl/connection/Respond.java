@@ -109,7 +109,6 @@ public class Respond extends ConnectionAction {
             } else {
                 sendOutboundResponseRobust(dataContext, inboundRequestMsg, outboundResponseStruct, outboundResponseMsg);
             }
-
         } catch (EncoderException e) {
             //Exception is already notified by http transport.
             log.debug("Couldn't complete outbound response", e);

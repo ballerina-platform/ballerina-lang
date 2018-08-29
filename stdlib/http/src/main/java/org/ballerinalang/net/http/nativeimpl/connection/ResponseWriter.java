@@ -97,13 +97,11 @@ public class ResponseWriter {
                 serializeDataSource(multipartDataSource, entity, messageOutputStream);
                 HttpUtil.closeMessageOutputStream(messageOutputStream);
             } else {
-
                 EntityBodyHandler.writeByteChannelToOutputStream(entity, messageOutputStream);
                 HttpUtil.closeMessageOutputStream(messageOutputStream);
             }
-        } catch (IOException e) {
-            throw new BallerinaException("Error occurred while serializing byte channel content : " +
-                    e.getMessage());
+        } catch (IOException ex) {
+            throw new BallerinaException("Error occurred while serializing byte channel content : ", ex);
         }
     }
 
@@ -124,8 +122,8 @@ public class ResponseWriter {
                 EntityBodyHandler.writeByteChannelToOutputStream(entity, messageOutputStream);
                 HttpUtil.closeMessageOutputStream(messageOutputStream);
             }
-        } catch (IOException e) {
-            throw new BallerinaException("Error occurred while serializing message data source : " + e.getMessage());
+        } catch (IOException ex) {
+            throw new BallerinaException("Error occurred while serializing message data source : ", ex);
         }
     }
 
