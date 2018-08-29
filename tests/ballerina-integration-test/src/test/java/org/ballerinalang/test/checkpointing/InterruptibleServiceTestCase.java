@@ -25,6 +25,7 @@ import org.ballerinalang.test.BaseTest;
 import org.ballerinalang.test.context.BServerInstance;
 import org.ballerinalang.test.context.BallerinaTestException;
 import org.ballerinalang.test.context.Constant;
+import org.ballerinalang.test.context.Utils;
 import org.ballerinalang.test.util.HttpClientRequest;
 import org.ballerinalang.test.util.HttpResponse;
 import org.testng.Assert;
@@ -34,6 +35,7 @@ import org.testng.annotations.Test;
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
+import java.util.Locale;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -61,6 +63,10 @@ public class InterruptibleServiceTestCase extends BaseTest {
             statesStorageDir.delete();
         }
         String statesStoragePath = statesStorageDir.getAbsolutePath();
+        String osName = Utils.getOSName();
+        if (osName != null && osName.toLowerCase(Locale.ENGLISH).contains("windows")) {
+            statesStoragePath = statesStoragePath.replace("\\", "\\\\");
+        }
         args = new String[] { "-e", FileStorageProvider.INTERRUPTIBLE_STATES_FILE_PATH + "=" + statesStoragePath };
         ConfigRegistry.getInstance().addConfiguration(FileStorageProvider.INTERRUPTIBLE_STATES_FILE_PATH,
                                                       statesStoragePath);
