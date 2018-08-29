@@ -1,6 +1,6 @@
 {
   "nodeType": "function",
-  "nodeLine": "2",
+  "nodeLine": "3",
   "expected": {
     "result":{
       "edit":{
@@ -17,11 +17,11 @@
                     "character":0
                   },
                   "end":{
-                    "line":2,
+                    "line":3,
                     "character":30
                   }
                 },
-                "newText":"import ballerina/io;\n\ndocumentation {\n\t\n}\nfunction testDocumentation() {"
+                "newText":"import ballerina/io;\nimport ballerina/http;\n\ndocumentation {\n\t\n}\nfunction testDocumentation() {"
               }
             ]
           }

@@ -41,14 +41,16 @@ public class ProtoBuilderTestCase extends BaseTest {
 
     @Test(description = "Test compiler plugin for unary service with primitive params.")
     public void testUnaryServiceWithPrimitiveParams() {
-        Path balFilePath = Paths.get("src", "test", "resources", "grpc", "grpcservices", "unary_server1.bal");
+        Path balFilePath = Paths.get("src", "test", "resources", "grpc", "grpcservices",
+                "unary_server.bal");
         CompileResult result = BCompileUtil.compile(balFilePath.toAbsolutePath().toString());
         assertUnaryCompileResult(result);
     }
 
     @Test(description = "Test compiler plugin for unary service with header params.")
     public void testUnaryServiceWithHeaderParams() {
-        Path balFilePath = Paths.get("src", "test", "resources", "grpc", "grpcservices", "unary_service3.bal");
+        Path balFilePath = Paths.get("src", "test", "resources", "grpc", "grpcservices",
+                "unary_service_with_headers.bal");
         CompileResult result = BCompileUtil.compile(balFilePath.toAbsolutePath().toString());
         assertUnaryCompileResult(result);
     }

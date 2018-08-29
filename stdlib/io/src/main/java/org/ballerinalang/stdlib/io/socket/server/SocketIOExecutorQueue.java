@@ -43,6 +43,15 @@ public class SocketIOExecutorQueue {
 
     private Map<Integer, Queue<EventExecutor>> readRegistry = new HashMap<>();
 
+    private boolean executeIfContentIsAvailableInBuffer(EventExecutor eExecutor) {
+        if (eExecutor.remaining()) {
+            eExecutor.execute();
+            return true;
+        } else {
+            return false;
+        }
+    }
+
     /**
      * Register EventExecutor for a read operation against a channel.
      *
@@ -50,14 +59,16 @@ public class SocketIOExecutorQueue {
      * @param e           EventExecutor instance.
      */
     public void registerRead(int channelHash, EventExecutor e) {
-        synchronized (readLock) {
-            Queue<EventExecutor> eventExecutorQueue = readRegistry.get(channelHash);
-            if (eventExecutorQueue == null) {
-                Queue<EventExecutor> queue = new LinkedList<>();
-                readRegistry.put(channelHash, queue);
-                eventExecutorQueue = queue;
+        if (!executeIfContentIsAvailableInBuffer(e)) {
+            synchronized (readLock) {
+                Queue<EventExecutor> eventExecutorQueue = readRegistry.get(channelHash);
+                if (eventExecutorQueue == null) {
+                    Queue<EventExecutor> queue = new LinkedList<>();
+                    readRegistry.put(channelHash, queue);
+                    eventExecutorQueue = queue;
+                }
+                eventExecutorQueue.add(e);
             }
-            eventExecutorQueue.add(e);
         }
     }
 

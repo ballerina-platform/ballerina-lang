@@ -1,0 +1,41 @@
+{
+  "position": {
+    "line": 2,
+    "character": 12
+  },
+  "source": "function/source/iterableOperation5.bal",
+  "items": [
+    {
+      "label":"foreach(\u003c@lambda:function\u003e)",
+      "kind":"Function",
+      "detail":"Function",
+      "sortText":"121",
+      "insertText":"foreach((json v) \u003d\u003e {\n\t${1}\n});",
+      "insertTextFormat":"Snippet"
+    },
+    {
+      "label":"map(\u003c@lambda:function\u003e)",
+      "kind":"Function",
+      "detail":"Function",
+      "sortText":"121",
+      "insertText":"map((json v) \u003d\u003e (any) {\n\t${1}\n});",
+      "insertTextFormat":"Snippet"
+    },
+    {
+      "label":"filter(\u003c@lambda:function\u003e)",
+      "kind":"Function",
+      "detail":"Function",
+      "sortText":"121",
+      "insertText":"filter((json v) \u003d\u003e (boolean) {\n\t${1}\n});",
+      "insertTextFormat":"Snippet"
+    },
+    {
+      "label":"count()",
+      "kind":"Function",
+      "detail":"Function",
+      "sortText":"121",
+      "insertText":"count();",
+      "insertTextFormat":"Snippet"
+    }
+  ]
+}

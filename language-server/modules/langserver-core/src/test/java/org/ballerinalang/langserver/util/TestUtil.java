@@ -18,16 +18,24 @@
 package org.ballerinalang.langserver.util;
 
 import com.google.gson.Gson;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
 import org.ballerinalang.langserver.BallerinaLanguageServer;
+import org.eclipse.lsp4j.CodeActionContext;
+import org.eclipse.lsp4j.CodeActionParams;
 import org.eclipse.lsp4j.DidCloseTextDocumentParams;
 import org.eclipse.lsp4j.DidOpenTextDocumentParams;
+import org.eclipse.lsp4j.DocumentSymbolParams;
 import org.eclipse.lsp4j.ExecuteCommandParams;
 import org.eclipse.lsp4j.Position;
+import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4j.ReferenceContext;
 import org.eclipse.lsp4j.ReferenceParams;
+import org.eclipse.lsp4j.RenameParams;
 import org.eclipse.lsp4j.TextDocumentIdentifier;
 import org.eclipse.lsp4j.TextDocumentItem;
 import org.eclipse.lsp4j.TextDocumentPositionParams;
+import org.eclipse.lsp4j.WorkspaceSymbolParams;
 import org.eclipse.lsp4j.jsonrpc.Endpoint;
 import org.eclipse.lsp4j.jsonrpc.messages.ResponseError;
 import org.eclipse.lsp4j.jsonrpc.messages.ResponseMessage;
@@ -44,16 +52,24 @@ import java.util.concurrent.ExecutionException;
  * Common utils that are reused within test suits.
  */
 public class TestUtil {
-    
+
     private static final String HOVER = "textDocument/hover";
-    
+
     private static final String SIGNATURE_HELP = "textDocument/signatureHelp";
-    
+
     private static final String DEFINITION = "textDocument/definition";
-    
+
     private static final String REFERENCES = "textDocument/references";
-    
+
+    private static final String RENAME = "textDocument/rename";
+
     private static final String EXECUTE_COMMAND = "workspace/executeCommand";
+
+    private static final String CODE_ACTION = "textDocument/codeAction";
+
+    private static final String DOCUMENT_SYMBOL = "textDocument/documentSymbol";
+    
+    private static final String WORKSPACE_SYMBOL_COMMAND = "workspace/symbol";
 
     private static final Gson GSON = new Gson();
 
@@ -124,6 +140,44 @@ public class TestUtil {
     }
 
     /**
+     * Get the textDocument/rename response.
+     *
+     * @param filePath        Path of the Bal file
+     * @param position        Cursor Position
+     * @param serviceEndpoint Service Endpoint to Language Server
+     * @param newName         newName
+     * @return {@link String}   Response as String
+     */
+    public static String getRenameResponse(String filePath, Position position, String newName,
+                                           Endpoint serviceEndpoint) {
+        RenameParams renameParams = new RenameParams();
+
+        renameParams.setTextDocument(getTextDocumentIdentifier(filePath));
+        renameParams.setNewName(newName);
+        renameParams.setPosition(new Position(position.getLine(), position.getCharacter()));
+
+        CompletableFuture result = serviceEndpoint.request(RENAME, renameParams);
+        return getResponseString(result);
+    }
+
+    /**
+     * Get Code Action Response as String.
+     *
+     * @param serviceEndpoint       Language Server Service endpoint
+     * @param filePath              File path for the current file
+     * @param range                 Cursor range
+     * @param context               Code Action Context
+     * @return {@link String}       code action response as a string
+     */
+    public static String getCodeActionResponse(Endpoint serviceEndpoint, String filePath, Range range,
+                                               CodeActionContext context) {
+        TextDocumentIdentifier identifier = getTextDocumentIdentifier(filePath);
+        CodeActionParams codeActionParams = new CodeActionParams(identifier, range, context);
+        CompletableFuture result = serviceEndpoint.request(CODE_ACTION, codeActionParams);
+        return getResponseString(result);
+    }
+
+    /**
      * Get the workspace/executeCommand response.
      *
      * @param params            Execute command parameters
@@ -132,6 +186,19 @@ public class TestUtil {
      */
     public static String getExecuteCommandResponse(ExecuteCommandParams params, Endpoint serviceEndpoint) {
         CompletableFuture result = serviceEndpoint.request(EXECUTE_COMMAND, params);
+        return getResponseString(result);
+    }
+
+    /**
+     * Get the document symbol Response as String.
+     *
+     * @param serviceEndpoint       Language Server Service Endpoint
+     * @param filePath              File Path
+     * @return {@link String}       Response string
+     */
+    public static String getDocumentSymbolResponse(Endpoint serviceEndpoint, String filePath) {
+        DocumentSymbolParams params = new DocumentSymbolParams(getTextDocumentIdentifier(filePath));
+        CompletableFuture result = serviceEndpoint.request(DOCUMENT_SYMBOL, params);
         return getResponseString(result);
     }
 
@@ -186,21 +253,50 @@ public class TestUtil {
         serviceEndpoint.notify("shutdown", null);
     }
 
+    /**
+     * Check whether the evalArray is a sublist of checkAgainst Array.
+     *
+     * @param checkAgainst          JsonArray to check against
+     * @param evalArray             JsonArray to evaluate
+     * @return {@link Boolean}      is Sub array status
+     */
+    public static boolean isArgumentsSubArray(JsonArray checkAgainst, JsonArray evalArray) {
+        for (JsonElement jsonElement : evalArray) {
+            if (!checkAgainst.contains(jsonElement)) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    /**
+     * Get the workspace symbol response as String.
+     *
+     * @param serviceEndpoint       Language Server Service Endpoint
+     * @param query                 Symbol query
+     * @return {@link String}       Response string
+     */
+    public static String getWorkspaceSymbolResponse(Endpoint serviceEndpoint, String query) {
+        WorkspaceSymbolParams parms = new WorkspaceSymbolParams(query);
+        CompletableFuture result = serviceEndpoint.request(WORKSPACE_SYMBOL_COMMAND, parms);
+        return getResponseString(result);
+    }
+
     private static TextDocumentIdentifier getTextDocumentIdentifier(String filePath) {
         TextDocumentIdentifier identifier = new TextDocumentIdentifier();
         identifier.setUri(Paths.get(filePath).toUri().toString());
 
         return identifier;
     }
-    
+
     private static TextDocumentPositionParams getTextDocumentPositionParams(String filePath, Position position) {
         TextDocumentPositionParams positionParams = new TextDocumentPositionParams();
         positionParams.setTextDocument(getTextDocumentIdentifier(filePath));
         positionParams.setPosition(new Position(position.getLine(), position.getCharacter()));
-        
+
         return positionParams;
     }
-    
+
     private static String getResponseString(CompletableFuture completableFuture) {
         ResponseMessage jsonrpcResponse = new ResponseMessage();
         try {
