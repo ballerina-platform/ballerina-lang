@@ -80,12 +80,14 @@ public class BValueTree implements BValueSerializer, Closeable {
     }
 
     private BMap toBValue(Map<Object, Object> source) {
-        // Json dictionaries only allow strings to be keys, hence we have to transform original Map
-        // so that we have some sort of Map<String, Value>.
-        // Transformation:
-        // extract non-string typed key[1] to a auxiliary dictionary
-        // as 'value' and have an auto-generated key[2] to represent the original complex key[1].
-        // Finally add the auxiliary dictionary to target dictionary, using a special key.
+        /*
+         * Json dictionaries only allow strings to be keys, hence we have to transform original Map
+         * so that we have some sort of Map<String, Value> representation.
+         * Transformation:
+         * Extract non-string typed key to a auxiliary dictionary as 'value'
+         * and have an auto-generated *key* to represent the original complex key.
+         * Finally add the auxiliary dictionary to target dictionary, using a special key.
+         */
         BMap<String, BValue> target = new BMap<>();
         BMap<String, BValue> complexKeyMap = new BMap<>();
         for (Map.Entry<Object, Object> entry : source.entrySet()) {

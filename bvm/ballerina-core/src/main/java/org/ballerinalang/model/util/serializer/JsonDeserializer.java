@@ -171,13 +171,13 @@ class JsonDeserializer implements BValueDeserializer {
         if (object == null) {
             Object emptyInstance = createInstance(jBMap, targetType);
             addObjReference(jBMap, emptyInstance);
-            object = deserializeObject(jBMap, emptyInstance, targetType);
+            object = deserializeReflectively(jBMap, emptyInstance, targetType);
 
-            // check to make sure deserializeObject returns the populated 'emptyInstance'.
+            // check to make sure deserializeReflectively returns the populated 'emptyInstance'.
             // It's important  that it does not create own objects as it may interfere with
             // handling of existing references.
             if (object != emptyInstance) {
-                throw new BallerinaException("Internal error: deserializeObject should not create it's own objects.");
+                throw new BallerinaException("Internal error: deserializeReflectively should not create own objects.");
             }
         }
 
@@ -309,21 +309,29 @@ class JsonDeserializer implements BValueDeserializer {
     }
 
     @SuppressWarnings("unchecked")
-    private Object deserializeObject(BMap<String, BValue> jsonNode, Object instance, Class<?> targetType) {
+    private Object deserializeReflectively(BMap<String, BValue> jsonNode, Object instance, Class<?> targetType) {
         BValue payload = jsonNode.get(JsonSerializerConst.PAYLOAD_TAG);
-        if (jsonNode.get(JsonSerializerConst.TYPE_TAG) != null) {
-            String objType = jsonNode.get(JsonSerializerConst.TYPE_TAG).stringValue();
-            if (JsonSerializerConst.MAP_TAG.equals(objType)) {
-                return deserializeMap((BMap<String, BValue>) payload, (Map) instance);
-            } else if (JsonSerializerConst.LIST_TAG.equals(objType)) {
-                BInteger size = (BInteger) jsonNode.get(JsonSerializerConst.LENGTH_TAG);
-                return deserializeList(payload, (List) instance, targetType, size);
-            } else if (JsonSerializerConst.ENUM_TAG.equals(objType)) {
-                return instance;
-            } else if (JsonSerializerConst.ARRAY_TAG.equals(objType)) {
-                return deserializeBRefValueArray((BRefValueArray) payload, instance);
+        BValue type = jsonNode.get(JsonSerializerConst.TYPE_TAG);
+        if (type != null) {
+            String objType = type.stringValue();
+            switch (objType) {
+                case JsonSerializerConst.MAP_TAG:
+                    return deserializeMap((BMap<String, BValue>) payload, (Map) instance);
+                case JsonSerializerConst.LIST_TAG:
+                    return deserializeList((BRefValueArray) payload, targetType, (List) instance);
+                case JsonSerializerConst.ENUM_TAG:
+                    return instance;
+                case JsonSerializerConst.ARRAY_TAG:
+                    return deserializeBRefValueArray((BRefValueArray) payload, instance);
+                default:
+                    // no op
             }
         }
+        return deserializeObject(jsonNode, instance, payload);
+    }
+
+    @SuppressWarnings("unchecked")
+    private Object deserializeObject(BMap<String, BValue> jsonNode, Object instance, BValue payload) {
         // if this is not a wrapped object
         if (payload == null) {
             payload = jsonNode;
@@ -356,8 +364,7 @@ class JsonDeserializer implements BValueDeserializer {
     }
 
     @SuppressWarnings("unchecked")
-    private Object deserializeList(BValue payload, List targetList, Class<?> targetType, BInteger size) {
-        BRefValueArray jArray = (BRefValueArray) payload;
+    private Object deserializeList(BRefValueArray jArray, Class<?> targetType, List targetList) {
         Class<?> componentType = targetType.getComponentType();
         for (int i = 0; i < jArray.size(); i++) {
             Object item = deserialize(jArray.get(i), componentType);
