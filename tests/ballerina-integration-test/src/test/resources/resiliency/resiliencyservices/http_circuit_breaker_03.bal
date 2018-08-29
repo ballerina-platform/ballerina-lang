@@ -19,6 +19,10 @@ import ballerina/http;
 import ballerina/log;
 import ballerina/runtime;
 
+endpoint http:Listener circuitBreakerEP03 {
+    port:9099
+};
+
 endpoint http:Client simpleClientEP {
     url: "http://localhost:8089",
     circuitBreaker: {
@@ -38,7 +42,7 @@ endpoint http:Client simpleClientEP {
 @http:ServiceConfig {
     basePath: "/cb"
 }
-service<http:Service> circuitbreaker03 bind { port: 9099 } {
+service<http:Service> circuitbreaker03 bind circuitBreakerEP03 {
 
     @http:ResourceConfig {
         path: "/getstate"

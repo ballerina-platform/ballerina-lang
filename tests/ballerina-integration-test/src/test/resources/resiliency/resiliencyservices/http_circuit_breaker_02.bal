@@ -21,6 +21,10 @@ import ballerina/runtime;
 
 public int forceCloseStateCount = 0;
 
+endpoint http:Listener circuitBreakerEP02 {
+    port:9098
+};
+
 endpoint http:Client unhealthyClientEP {
     url: "http://localhost:8088",
     circuitBreaker: {
@@ -40,7 +44,7 @@ endpoint http:Client unhealthyClientEP {
 @http:ServiceConfig {
     basePath: "/cb"
 }
-service<http:Service> circuitbreaker02 bind { port: 9098 } {
+service<http:Service> circuitbreaker02 bind circuitBreakerEP02 {
 
     @http:ResourceConfig {
         methods: ["GET", "POST"],
@@ -49,6 +53,7 @@ service<http:Service> circuitbreaker02 bind { port: 9098 } {
     invokeForceClose(endpoint caller, http:Request request) {
         http:CircuitBreakerClient cbClient = check <http:CircuitBreakerClient>unhealthyClientEP.getCallerActions();
         forceCloseStateCount++;
+        runtime:sleep(1000);
         if (forceCloseStateCount == 3) {
             runtime:sleep(5000);
             cbClient.forceClose();

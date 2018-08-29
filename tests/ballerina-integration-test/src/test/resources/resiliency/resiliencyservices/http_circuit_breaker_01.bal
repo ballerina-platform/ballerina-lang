@@ -21,6 +21,10 @@ import ballerina/runtime;
 
 public int forceOpenStateCount = 0;
 
+endpoint http:Listener circuitBreakerEP01 {
+    port:9097
+};
+
 endpoint http:Client healthyClientEP {
     url: "http://localhost:8087",
     circuitBreaker: {
@@ -40,7 +44,7 @@ endpoint http:Client healthyClientEP {
 @http:ServiceConfig {
     basePath: "/cb"
 }
-service<http:Service> circuitbreaker01 bind { port: 9097 } {
+service<http:Service> circuitbreaker01 bind circuitBreakerEP01 {
 
     @http:ResourceConfig {
         methods: ["GET", "POST"],

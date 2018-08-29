@@ -22,6 +22,10 @@ import ballerina/runtime;
 int requestCount = 0;
 int actualCount = 0;
 
+endpoint http:Listener circuitBreakerEP06 {
+    port:9102
+};
+
 endpoint http:Client backendClientEP06 {
     url: "http://localhost:8092",
     circuitBreaker: {
@@ -40,7 +44,7 @@ endpoint http:Client backendClientEP06 {
 @http:ServiceConfig {
     basePath: "/cb"
 }
-service<http:Service> circuitbreaker06 bind { port: 9102 } {
+service<http:Service> circuitbreaker06 bind circuitBreakerEP06 {
 
     @http:ResourceConfig {
         path: "/trialrun"

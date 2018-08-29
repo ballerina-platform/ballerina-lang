@@ -21,6 +21,10 @@ import ballerina/runtime;
 
 public int counter = 1;
 
+endpoint http:Listener circuitBreakerEP00 {
+    port:9096
+};
+
 endpoint http:Client backendClientEP00 {
     url: "http://localhost:8086",
     circuitBreaker: {
@@ -40,7 +44,7 @@ endpoint http:Client backendClientEP00 {
 @http:ServiceConfig {
     basePath: "/cb"
 }
-service<http:Service> circuitbreaker00 bind { port: 9096 } {
+service<http:Service> circuitbreaker00 bind circuitBreakerEP00 {
     @http:ResourceConfig {
         methods: ["GET", "POST"],
         path: "/typical"

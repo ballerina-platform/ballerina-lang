@@ -21,6 +21,10 @@ import ballerina/io;
 import ballerina/mime;
 import ballerina/runtime;
 
+endpoint http:Listener failoverEP04 {
+    port:9094
+};
+
 // Create an endpoint with port 8084 for the mock backend services.
 endpoint http:Listener backendEP04 {
     port: 8084
@@ -70,7 +74,7 @@ endpoint http:FailoverClient foStatusCodesEP04 {
 @http:ServiceConfig {
     basePath: "/fo"
 }
-service<http:Service> failoverDemoService04 bind { port: 9094 } {
+service<http:Service> failoverDemoService04 bind failoverEP04 {
     @http:ResourceConfig {
         methods: ["GET", "POST"],
         path: "/typical"

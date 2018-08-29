@@ -19,6 +19,10 @@ import ballerina/http;
 import ballerina/log;
 import ballerina/runtime;
 
+endpoint http:Listener circuitBreakerEP04 {
+    port:9100
+};
+
 endpoint http:Client errornousClientEP {
     url: "http://localhost:8090",
     circuitBreaker: {
@@ -37,7 +41,7 @@ endpoint http:Client errornousClientEP {
 @http:ServiceConfig {
     basePath: "/cb"
 }
-service<http:Service> circuitbreaker04 bind { port: 9100 } {
+service<http:Service> circuitbreaker04 bind circuitBreakerEP04 {
 
     @http:ResourceConfig {
         path: "/requestvolume"
