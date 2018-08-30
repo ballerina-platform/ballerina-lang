@@ -44,6 +44,7 @@ public class BServerInstance implements BServer {
     private BalServer balServer;
     private int agentPort;
     private String agentArgs;
+    private boolean agentsAadded = false;
     private Process process;
     private ServerLogReader serverInfoLogReader;
     private ServerLogReader serverErrorLogReader;
@@ -230,13 +231,17 @@ public class BServerInstance implements BServer {
         }
     }
 
-    private void addJavaAgents(Map<String, String> envProperties) throws BallerinaTestException {
+    private synchronized void addJavaAgents(Map<String, String> envProperties) throws BallerinaTestException {
+        if (agentsAadded) {
+            return;
+        }
         String javaOpts = "";
         if (envProperties.containsKey(JAVA_OPTS)) {
             javaOpts = envProperties.get(JAVA_OPTS);
         }
         javaOpts = agentArgs + javaOpts;
         envProperties.put(JAVA_OPTS, javaOpts);
+        this.agentsAadded = true;
     }
 
     /**

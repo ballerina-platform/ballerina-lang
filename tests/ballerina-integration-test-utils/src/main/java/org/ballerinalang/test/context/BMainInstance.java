@@ -42,6 +42,7 @@ public class BMainInstance implements BMain {
     private static final String JAVA_OPTS = "JAVA_OPTS";
     private BalServer balServer;
     private String agentArgs;
+    private boolean agentsAadded = false;
 
     public BMainInstance(BalServer balServer) throws BallerinaTestException {
         this.balServer = balServer;
@@ -169,13 +170,17 @@ public class BMainInstance implements BMain {
         runMain("run", newArgs, envProperties, clientArgs, leechers, balServer.getServerHome());
     }
 
-    private void addJavaAgents(Map<String, String> envProperties) throws BallerinaTestException {
+    private synchronized void addJavaAgents(Map<String, String> envProperties) throws BallerinaTestException {
+        if (agentsAadded) {
+            return;
+        }
         String javaOpts = "";
         if (envProperties.containsKey(JAVA_OPTS)) {
             javaOpts = envProperties.get(JAVA_OPTS);
         }
         javaOpts = agentArgs + javaOpts;
         envProperties.put(JAVA_OPTS, javaOpts);
+        this.agentsAadded = true;
     }
 
     /**
