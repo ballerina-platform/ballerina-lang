@@ -20,7 +20,7 @@
 import { window, commands, ExtensionContext, extensions, workspace, Extension, debug,
 	DebugConfigurationProvider, WorkspaceFolder, DebugConfiguration, ProviderResult } from 'vscode';
 import { } from 'vscode-debugadapter';
-import { LanguageClient, LanguageClientOptions } from 'vscode-languageclient';
+import { LanguageClientOptions } from 'vscode-languageclient';
 import { exec } from 'child_process';
 import * as path from 'path';
 import * as fs from 'fs';
@@ -29,6 +29,7 @@ import { getServerOptions } from './server';
 import { Messages } from './messages';
 import { BallerinaPluginConfig, getPluginConfig } from './config';
 import { activate as activateRenderer, errored as rendererErrored } from './renderer';
+import { ExtendedLangClient } from './lang-client';
 
 const { showWarningMessage } = window;
 const { executeCommand } = commands;
@@ -154,7 +155,7 @@ export function activate(context: ExtensionContext) : void {
 		clientOptions.outputChannel = dropOutputChannel;
 	}
 
-	const langClient = new LanguageClient('ballerina-vscode', 'Ballerina vscode lanugage client',
+	const langClient = new ExtendedLangClient('ballerina-vscode', 'Ballerina vscode lanugage client',
 		getServerOptions(), clientOptions);
 	const langClientDisposable = langClient.start();	
 	activateRenderer(context, langClient);
