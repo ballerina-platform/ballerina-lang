@@ -44,6 +44,7 @@ public class ServiceProtoConstants {
     public static final String UTF_8_CHARSET = "UTF-8";
     // New line character constant.
     public static final String NEW_LINE_CHARACTER = System.getProperty("line.separator");
+    public static final String TMP_DIRECTORY_PATH = System.getProperty("java.io.tmpdir");
 
     public static final String ANN_SERVICE_CONFIG = "ServiceConfig";
 
