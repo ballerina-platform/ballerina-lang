@@ -19,12 +19,12 @@ package org.ballerinalang.model.util.serializer.providers.bvalue;
 
 import org.ballerinalang.model.types.BArrayType;
 import org.ballerinalang.model.types.BTypes;
+import org.ballerinalang.model.util.serializer.BPacket;
 import org.ballerinalang.model.util.serializer.BValueDeserializer;
 import org.ballerinalang.model.util.serializer.BValueSerializer;
 import org.ballerinalang.model.util.serializer.JsonSerializerConst;
 import org.ballerinalang.model.util.serializer.SerializationBValueProvider;
 import org.ballerinalang.model.values.BInteger;
-import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BRefType;
 import org.ballerinalang.model.values.BRefValueArray;
 import org.ballerinalang.model.values.BValue;
@@ -49,35 +49,30 @@ public class ArrayListBValueProvider implements SerializationBValueProvider<Arra
     }
 
     @Override
-    public BValue toBValue(ArrayList list, BValueSerializer serializer) {
+    public BPacket toBValue(ArrayList list, BValueSerializer serializer) {
         BRefValueArray array = new BRefValueArray(new BArrayType(BTypes.typeAny));
         for (Object item : list) {
             array.append((BRefType) serializer.toBValue(item, null));
         }
-        BMap<String, BValue> bMap = BValueProviderHelper.wrap(typeName(), array);
-        bMap.put(JsonSerializerConst.LENGTH_TAG, new BInteger(list.size()));
-        return bMap;
+        return BPacket
+                .from(typeName(), array)
+                .put(JsonSerializerConst.LENGTH_TAG, new BInteger(list.size()));
     }
 
     @SuppressWarnings("unchecked")
     @Override
-    public ArrayList toObject(BValue bValue, BValueDeserializer bValueDeserializer) {
-        if (bValue instanceof BMap) {
-            @SuppressWarnings("unchecked")
-            BMap<String, BValue> wrapper = (BMap<String, BValue>) bValue;
-            BRefValueArray array = (BRefValueArray) BValueProviderHelper.getPayload(wrapper);
-            BInteger length = (BInteger) wrapper.get(JsonSerializerConst.LENGTH_TAG);
-            ArrayList arrayList = new ArrayList((int) length.intValue());
+    public ArrayList toObject(BPacket packet, BValueDeserializer bValueDeserializer) {
+        BInteger length = (BInteger) packet.get(JsonSerializerConst.LENGTH_TAG);
+        BRefValueArray array = (BRefValueArray) packet.getValue();
+        ArrayList arrayList = new ArrayList((int) length.intValue());
 
-            int i = 0;
-            for (; i < array.size(); i++) {
-                arrayList.add(bValueDeserializer.deserialize(array.get(i), null));
-            }
-            for (; i < length.intValue(); i++) {
-                arrayList.add(i, null);
-            }
-            return arrayList;
+        int i = 0;
+        for (; i < array.size(); i++) {
+            arrayList.add(bValueDeserializer.deserialize(array.get(i), null));
         }
-        throw BValueProviderHelper.deserializationIncorrectType(bValue, typeName());
+        for (; i < length.intValue(); i++) {
+            arrayList.add(i, null);
+        }
+        return arrayList;
     }
 }

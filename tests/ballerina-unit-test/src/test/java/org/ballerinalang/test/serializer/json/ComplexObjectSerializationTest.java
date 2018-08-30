@@ -68,9 +68,11 @@ public class ComplexObjectSerializationTest {
     }
 
     private Map mockComplexKeyMap() {
-        Map<JsonSerializerTest.StringFieldA, String> map = new HashMap<>();
-        map.put(new JsonSerializerTest.StringFieldA("Key1"), "Key1_Value");
-        map.put(new JsonSerializerTest.StringFieldA("Key2"), "Key2_Value");
+        Map<JsonSerializerTest.StringFieldA, Map<String, Boolean>> map = new HashMap<>();
+        Map innerMap = new HashMap();
+        innerMap.put("InnerK", true);
+        map.put(new JsonSerializerTest.StringFieldA("Key1"), innerMap);
+        map.put(new JsonSerializerTest.StringFieldA("Key2"), innerMap);
         return map;
     }
 

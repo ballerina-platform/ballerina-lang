@@ -17,11 +17,11 @@
  */
 package org.ballerinalang.model.util.serializer.providers.bvalue;
 
+import org.ballerinalang.model.util.serializer.BPacket;
 import org.ballerinalang.model.util.serializer.BValueDeserializer;
 import org.ballerinalang.model.util.serializer.BValueSerializer;
 import org.ballerinalang.model.util.serializer.SerializationBValueProvider;
 import org.ballerinalang.model.values.BBoolean;
-import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BValue;
 
 /**
@@ -41,17 +41,12 @@ public class BBooleanBValueProvider implements SerializationBValueProvider<BBool
     }
 
     @Override
-    public BValue toBValue(BBoolean bBoolean, BValueSerializer serializer) {
-        return BValueProviderHelper.wrap(typeName(), bBoolean);
+    public BPacket toBValue(BBoolean bBoolean, BValueSerializer serializer) {
+        return BPacket.from(typeName(), bBoolean);
     }
 
     @Override
-    public BBoolean toObject(BValue bValue, BValueDeserializer bValueDeserializer) {
-        if (bValue instanceof BMap) {
-            @SuppressWarnings("unchecked")
-            BMap<String, BValue> wrapper = (BMap<String, BValue>) bValue;
-            return (BBoolean) BValueProviderHelper.getPayload(wrapper);
-        }
-        throw BValueProviderHelper.deserializationIncorrectType(bValue, typeName());
+    public BBoolean toObject(BPacket packet, BValueDeserializer bValueDeserializer) {
+        return (BBoolean) packet.getValue();
     }
 }

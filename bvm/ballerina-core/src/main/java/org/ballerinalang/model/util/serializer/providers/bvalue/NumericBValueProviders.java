@@ -17,10 +17,10 @@
  */
 package org.ballerinalang.model.util.serializer.providers.bvalue;
 
+import org.ballerinalang.model.util.serializer.BPacket;
 import org.ballerinalang.model.util.serializer.BValueDeserializer;
 import org.ballerinalang.model.util.serializer.BValueSerializer;
 import org.ballerinalang.model.util.serializer.SerializationBValueProvider;
-import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
 
@@ -54,21 +54,14 @@ public class NumericBValueProviders {
         }
 
         @Override
-        public BValue toBValue(BigInteger bigInteger, BValueSerializer serializer) {
-            return BValueProviderHelper.wrap(BIG_INT, new BString(bigInteger.toString(10)));
+        public BPacket toBValue(BigInteger bigInteger, BValueSerializer serializer) {
+            return BPacket.from(BIG_INT, new BString(bigInteger.toString(10)));
         }
 
         @Override
-        public BigInteger toObject(BValue bValue, BValueDeserializer bValueDeserializer) {
-            if (bValue instanceof BMap) {
-                @SuppressWarnings("unchecked")
-                BMap<String, BValue> wrapper = (BMap<String, BValue>) bValue;
-                if (BValueProviderHelper.isWrapperOfType(wrapper, BIG_INT)) {
-                    String payload = BValueProviderHelper.getPayload(wrapper).stringValue();
-                    return new BigInteger(payload, 10);
-                }
-            }
-            throw BValueProviderHelper.deserializationIncorrectType(bValue, BIG_INT);
+        public BigInteger toObject(BPacket packet, BValueDeserializer bValueDeserializer) {
+            String payload = packet.getValue().stringValue();
+            return new BigInteger(payload, 10);
         }
     }
 
@@ -89,21 +82,15 @@ public class NumericBValueProviders {
         }
 
         @Override
-        public BValue toBValue(BigDecimal bigDecimal, BValueSerializer serializer) {
-            return BValueProviderHelper.wrap(BIG_DEC, new BString(bigDecimal.toString()));
+        public BPacket toBValue(BigDecimal bigDecimal, BValueSerializer serializer) {
+            return BPacket.from(BIG_DEC, new BString(bigDecimal.toString()));
         }
 
         @SuppressWarnings("unchecked")
         @Override
-        public BigDecimal toObject(BValue bValue, BValueDeserializer bValueDeserializer) {
-            if (bValue instanceof BMap) {
-                BMap<String, BValue> wrapper = (BMap<String, BValue>) bValue;
-                if (BValueProviderHelper.isWrapperOfType(wrapper, BIG_DEC)) {
-                    String payload = BValueProviderHelper.getPayload(wrapper).stringValue();
-                    return new BigDecimal(payload);
-                }
-            }
-            throw BValueProviderHelper.deserializationIncorrectType(bValue, BIG_DEC);
+        public BigDecimal toObject(BPacket packet, BValueDeserializer bValueDeserializer) {
+            String payload = packet.getValue().stringValue();
+            return new BigDecimal(payload);
         }
     }
 }

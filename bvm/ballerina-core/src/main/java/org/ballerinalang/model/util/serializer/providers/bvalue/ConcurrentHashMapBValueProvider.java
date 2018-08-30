@@ -17,6 +17,7 @@
  */
 package org.ballerinalang.model.util.serializer.providers.bvalue;
 
+import org.ballerinalang.model.util.serializer.BPacket;
 import org.ballerinalang.model.util.serializer.BValueDeserializer;
 import org.ballerinalang.model.util.serializer.BValueSerializer;
 import org.ballerinalang.model.util.serializer.SerializationBValueProvider;
@@ -44,21 +45,18 @@ public class ConcurrentHashMapBValueProvider implements SerializationBValueProvi
 
     @SuppressWarnings("unchecked")
     @Override
-    public BValue toBValue(ConcurrentHashMap map, BValueSerializer serializer) {
+    public BPacket toBValue(ConcurrentHashMap map, BValueSerializer serializer) {
         HashMap<Object, Object> hashMap = new HashMap<>(map);
-        return BValueProviderHelper.wrap(typeName(), serializer.toBValue(hashMap, null));
+        BValue payload = serializer.toBValue(hashMap, null);
+        return BPacket.from(typeName(), payload);
     }
 
     @Override
     @SuppressWarnings("unchecked")
-    public ConcurrentHashMap toObject(BValue bValue, BValueDeserializer bValueDeserializer) {
-        if (bValue instanceof BMap) {
-            BMap<String, BValue> wrapper = (BMap<String, BValue>) bValue;
-            BMap<String, BValue> payload = (BMap<String, BValue>) BValueProviderHelper.getPayload(wrapper);
-            HashMap<Object, Object> hashMap =
-                    (HashMap<Object, Object>) bValueDeserializer.deserialize(payload, HashMap.class);
-            return new ConcurrentHashMap<>(hashMap);
-        }
-        throw BValueProviderHelper.deserializationIncorrectType(bValue, typeName());
+    public ConcurrentHashMap toObject(BPacket packet, BValueDeserializer bValueDeserializer) {
+        BMap<String, BValue> payload = (BMap<String, BValue>) packet.getValue();
+        HashMap<Object, Object> hashMap =
+                (HashMap<Object, Object>) bValueDeserializer.deserialize(payload, HashMap.class);
+        return new ConcurrentHashMap<>(hashMap);
     }
 }

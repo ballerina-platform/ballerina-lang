@@ -17,11 +17,11 @@
  */
 package org.ballerinalang.model.util.serializer.providers.bvalue;
 
+import org.ballerinalang.model.util.serializer.BPacket;
 import org.ballerinalang.model.util.serializer.BValueDeserializer;
 import org.ballerinalang.model.util.serializer.BValueSerializer;
 import org.ballerinalang.model.util.serializer.SerializationBValueProvider;
 import org.ballerinalang.model.values.BInteger;
-import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BValue;
 
 import java.time.Instant;
@@ -33,6 +33,10 @@ import java.util.Date;
  * @since 0.982.0
  */
 public class DateTimeBValueProviders {
+
+    private DateTimeBValueProviders() {
+    }
+
     /**
      * Convert {@link Date} into {@link BValue} object and back to facilitate serialization.
      */
@@ -44,15 +48,14 @@ public class DateTimeBValueProviders {
         }
 
         @Override
-        public BValue toBValue(Date date, BValueSerializer serializer) {
+        public BPacket toBValue(Date date, BValueSerializer serializer) {
             long time = date.getTime();
-            return BValueProviderHelper.wrap(typeName(), new BInteger(time));
+            return BPacket.from(typeName(), new BInteger(time));
         }
 
         @Override
-        @SuppressWarnings("unchecked")
-        public Date toObject(BValue bValue, BValueDeserializer bValueDeserializer) {
-            BInteger time = (BInteger) BValueProviderHelper.getPayload((BMap<String, BValue>) bValue);
+        public Date toObject(BPacket packet, BValueDeserializer bValueDeserializer) {
+            BInteger time = (BInteger) packet.getValue();
             return new Date(time.intValue());
         }
     }
@@ -68,15 +71,15 @@ public class DateTimeBValueProviders {
         }
 
         @Override
-        public BValue toBValue(Instant object, BValueSerializer serializer) {
+        public BPacket toBValue(Instant object, BValueSerializer serializer) {
             long l = object.toEpochMilli();
-            return BValueProviderHelper.wrap(typeName(), new BInteger(l));
+            return BPacket.from(typeName(), new BInteger(l));
         }
 
         @SuppressWarnings("unchecked")
         @Override
-        public Instant toObject(BValue bValue, BValueDeserializer bValueDeserializer) {
-            BInteger epochMilli = (BInteger) BValueProviderHelper.getPayload((BMap<String, BValue>) bValue);
+        public Instant toObject(BPacket packet, BValueDeserializer bValueDeserializer) {
+            BInteger epochMilli = (BInteger) packet.getValue();
             return Instant.ofEpochMilli(epochMilli.intValue());
         }
     }

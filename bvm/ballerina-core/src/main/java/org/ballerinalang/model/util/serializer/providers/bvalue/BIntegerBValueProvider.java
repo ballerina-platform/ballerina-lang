@@ -17,11 +17,11 @@
  */
 package org.ballerinalang.model.util.serializer.providers.bvalue;
 
+import org.ballerinalang.model.util.serializer.BPacket;
 import org.ballerinalang.model.util.serializer.BValueDeserializer;
 import org.ballerinalang.model.util.serializer.BValueSerializer;
 import org.ballerinalang.model.util.serializer.SerializationBValueProvider;
 import org.ballerinalang.model.values.BInteger;
-import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BValue;
 
 /**
@@ -41,17 +41,12 @@ public class BIntegerBValueProvider implements SerializationBValueProvider<BInte
     }
 
     @Override
-    public BValue toBValue(BInteger bInteger, BValueSerializer serializer) {
-        return BValueProviderHelper.wrap(typeName(), bInteger);
+    public BPacket toBValue(BInteger bInteger, BValueSerializer serializer) {
+        return BPacket.from(typeName(), bInteger);
     }
 
     @Override
-    public BInteger toObject(BValue bValue, BValueDeserializer bValueDeserializer) {
-        if (bValue instanceof BMap) {
-            @SuppressWarnings("unchecked")
-            BMap<String, BValue> wrapper = (BMap<String, BValue>) bValue;
-            return (BInteger) BValueProviderHelper.getPayload(wrapper);
-        }
-        throw BValueProviderHelper.deserializationIncorrectType(bValue, typeName());
+    public BInteger toObject(BPacket packet, BValueDeserializer bValueDeserializer) {
+        return (BInteger) packet.getValue();
     }
 }

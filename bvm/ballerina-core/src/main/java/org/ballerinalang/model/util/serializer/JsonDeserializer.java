@@ -172,7 +172,7 @@ class JsonDeserializer implements BValueDeserializer {
         if (typeName != null) {
             SerializationBValueProvider provider = bValueProvider.find(typeName);
             if (provider != null) {
-                object = provider.toObject(jBMap, this);
+                object = provider.toObject(BPacket.toPacket(jBMap), this);
                 addObjReference(jBMap, object);
             }
         }
@@ -398,15 +398,7 @@ class JsonDeserializer implements BValueDeserializer {
             BValue complexKey = complexKeyMap.get(key);
             Object ckObj = deserialize(complexKey, Object.class);
 
-            Class<?> fieldType = Object.class;
-            if (value instanceof BMap) {
-                BMap<String, BValue> item = (BMap<String, BValue>) value;
-                String typeName = item.get(JsonSerializerConst.TYPE_TAG).stringValue();
-                fieldType = findClass(typeName);
-            } else if (value instanceof BBoolean) {
-                fieldType = BBoolean.class;
-            }
-            targetMap.put(ckObj, deserialize(value, fieldType));
+            targetMap.put(ckObj, deserialize(value, Object.class));
         }
         return targetMap;
     }

@@ -17,11 +17,10 @@
  */
 package org.ballerinalang.persistence.serializable.serializer.providers.bvalue;
 
+import org.ballerinalang.model.util.serializer.BPacket;
 import org.ballerinalang.model.util.serializer.BValueDeserializer;
 import org.ballerinalang.model.util.serializer.BValueSerializer;
 import org.ballerinalang.model.util.serializer.SerializationBValueProvider;
-import org.ballerinalang.model.util.serializer.providers.bvalue.BValueProviderHelper;
-import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.persistence.serializable.SerializedKey;
@@ -38,14 +37,14 @@ public class SerializedKeyBValueProvider implements SerializationBValueProvider<
     }
 
     @Override
-    public BValue toBValue(SerializedKey object, BValueSerializer serializer) {
-        return BValueProviderHelper.wrap(typeName(), new BString(object.key));
+    public BPacket toBValue(SerializedKey object, BValueSerializer serializer) {
+        return BPacket.from(typeName(), new BString(object.key));
     }
 
     @Override
     @SuppressWarnings("unchecked")
-    public SerializedKey toObject(BValue bValue, BValueDeserializer bValueDeserializer) {
-        String s = BValueProviderHelper.getPayload((BMap<String, BValue>) bValue).stringValue();
+    public SerializedKey toObject(BPacket packet, BValueDeserializer bValueDeserializer) {
+        String s = packet.getValue().stringValue();
         return new SerializedKey(s);
     }
 }

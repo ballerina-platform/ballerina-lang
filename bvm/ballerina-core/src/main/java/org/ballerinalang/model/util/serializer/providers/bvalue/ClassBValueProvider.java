@@ -17,10 +17,10 @@
  */
 package org.ballerinalang.model.util.serializer.providers.bvalue;
 
+import org.ballerinalang.model.util.serializer.BPacket;
 import org.ballerinalang.model.util.serializer.BValueDeserializer;
 import org.ballerinalang.model.util.serializer.BValueSerializer;
 import org.ballerinalang.model.util.serializer.SerializationBValueProvider;
-import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.util.exceptions.BallerinaException;
@@ -42,39 +42,33 @@ public class ClassBValueProvider implements SerializationBValueProvider<Class> {
     }
 
     @Override
-    public BValue toBValue(Class clazz, BValueSerializer serializer) {
-        return BValueProviderHelper.wrap(typeName(), new BString(clazz.getName()));
+    public BPacket toBValue(Class clazz, BValueSerializer serializer) {
+        return BPacket.from(typeName(), new BString(clazz.getName()));
     }
 
     @Override
-    public Class toObject(BValue bValue, BValueDeserializer bValueDeserializer) {
-        if (bValue instanceof BMap) {
-            @SuppressWarnings("unchecked")
-            BMap<String, BValue> wrapper = (BMap<String, BValue>) bValue;
-            BValue payload = BValueProviderHelper.getPayload(wrapper);
-            String className = payload.stringValue();
+    public Class toObject(BPacket packet, BValueDeserializer bValueDeserializer) {
+        String className = packet.getValue().stringValue();
 
-            switch (className) {
-                case "int":
-                    return int.class;
-                case "float":
-                    return float.class;
-                case "double":
-                    return double.class;
-                case "long":
-                    return long.class;
-                case "byte":
-                    return byte.class;
-                case "char":
-                    return char.class;
-                default:
-                    try {
-                        return Class.forName(className);
-                    } catch (ClassNotFoundException e) {
-                        throw new BallerinaException("Cannot find serialized class: " + className);
-                    }
-            }
+        switch (className) {
+            case "int":
+                return int.class;
+            case "float":
+                return float.class;
+            case "double":
+                return double.class;
+            case "long":
+                return long.class;
+            case "byte":
+                return byte.class;
+            case "char":
+                return char.class;
+            default:
+                try {
+                    return Class.forName(className);
+                } catch (ClassNotFoundException e) {
+                    throw new BallerinaException("Cannot find serialized class: " + className);
+                }
         }
-        throw BValueProviderHelper.deserializationIncorrectType(bValue, typeName());
     }
 }

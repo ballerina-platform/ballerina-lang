@@ -223,7 +223,7 @@ public class BValueTree implements BValueSerializer, Closeable {
         String className = getTrimmedClassName(obj);
         SerializationBValueProvider provider = bValueProvider.find(className);
         if (provider != null) {
-            BMap<String, BValue> converted = (BMap<String, BValue>) provider.toBValue(obj, this);
+            BMap<String, BValue> converted = provider.toBValue(obj, this).toBMap();
             addHashValue(obj, converted);
             return converted;
         }

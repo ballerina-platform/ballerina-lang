@@ -17,10 +17,10 @@
  */
 package org.ballerinalang.model.util.serializer.providers.bvalue;
 
+import org.ballerinalang.model.util.serializer.BPacket;
 import org.ballerinalang.model.util.serializer.BValueDeserializer;
 import org.ballerinalang.model.util.serializer.BValueSerializer;
 import org.ballerinalang.model.util.serializer.SerializationBValueProvider;
-import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
 
@@ -34,7 +34,7 @@ public class BStringBValueProvider implements SerializationBValueProvider<BStrin
 
     @Override
     public String typeName() {
-        return BString.class.getSimpleName();
+        return B_STRING;
     }
 
     @Override
@@ -43,22 +43,18 @@ public class BStringBValueProvider implements SerializationBValueProvider<BStrin
     }
 
     @Override
-    public BValue toBValue(BString bString, BValueSerializer serializer) {
+    public BPacket toBValue(BString bString, BValueSerializer serializer) {
         if (bString.stringValue() == null) {
-            return null;
+            return BPacket.from(B_STRING, null);
         }
-        return BValueProviderHelper.wrap(B_STRING, bString);
+        return BPacket.from(B_STRING, bString);
     }
 
     @Override
-    public BString toObject(BValue bValue, BValueDeserializer bValueDeserializer) {
-        if (bValue instanceof BMap) {
-            @SuppressWarnings("unchecked")
-            BMap<String, BValue> wrapper = (BMap<String, BValue>) bValue;
-            if (BValueProviderHelper.isWrapperOfType(wrapper, B_STRING)) {
-                return (BString) BValueProviderHelper.getPayload(wrapper);
-            }
+    public BString toObject(BPacket packet, BValueDeserializer bValueDeserializer) {
+        if (packet.getValue() == null) {
+            return new BString(null);
         }
-        throw BValueProviderHelper.deserializationIncorrectType(bValue, B_STRING);
+        return (BString) packet.getValue();
     }
 }

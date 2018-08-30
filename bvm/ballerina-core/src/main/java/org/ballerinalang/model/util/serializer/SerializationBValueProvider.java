@@ -22,7 +22,7 @@ import org.ballerinalang.model.values.BValue;
 /**
  * Provide Mapping relationship between Java objects and BValue Objects.
  * <p>
- * When deserializing if the type to be serialized implement Serializable interface and contains a readResolve method,
+ * While deserializing if the type to be serialized implement Serializable interface and contains a readResolve method,
  * you  don't have to execute it in {@code toBValue} method as it will be executed by {@link JsonDeserializer} class.
  *
  * @param <T> Type to be serialized
@@ -53,9 +53,9 @@ public interface SerializationBValueProvider<T> {
      *
      * @param object     Java object to be serialized.
      * @param serializer Instance of BValueSerializer to support inner object serialization.
-     * @return BValue tree representing target object.
+     * @return Metadata tree representing target object.
      */
-    BValue toBValue(T object, BValueSerializer serializer);
+    BPacket toBValue(T object, BValueSerializer serializer);
 
     /**
      * Convert {@link BValue} tree or sub-tree into Java object of type T.
@@ -63,9 +63,9 @@ public interface SerializationBValueProvider<T> {
      * Similar to {@code toBValue} method an instance of BValueDeserializer is injected
      * to help deserialize child elements.
      *
-     * @param bValue             {@link BValue} to be converted.
+     * @param packet             Json data to be converted.
      * @param bValueDeserializer Instance of {@link BValueDeserializer}.
      * @return Java object representing given BValue tree.
      */
-    T toObject(BValue bValue, BValueDeserializer bValueDeserializer);
+    T toObject(BPacket packet, BValueDeserializer bValueDeserializer);
 }

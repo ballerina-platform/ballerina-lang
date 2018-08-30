@@ -17,10 +17,9 @@
  */
 package org.ballerinalang.model.util.serializer.providers.bvalue;
 
-import org.ballerinalang.model.types.BType;
+import org.ballerinalang.model.util.serializer.BPacket;
 import org.ballerinalang.model.util.serializer.BValueDeserializer;
 import org.ballerinalang.model.util.serializer.BValueSerializer;
-import org.ballerinalang.model.util.serializer.JsonSerializerConst;
 import org.ballerinalang.model.util.serializer.SerializationBValueProvider;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BValue;
@@ -45,32 +44,19 @@ public class BMapBValueProvider implements SerializationBValueProvider<BMap> {
     }
 
     @Override
-    public BValue toBValue(BMap bMap, BValueSerializer serializer) {
+    public BPacket toBValue(BMap bMap, BValueSerializer serializer) {
         LinkedHashMap implMap = bMap.getMap();
-        BType type = bMap.getType();
         BValue serialized = serializer.toBValue(implMap, implMap.getClass());
-        BMap<String, BValue> wrap = BValueProviderHelper.wrap(typeName(), serialized);
-
-        BValue serializedType = serializer.toBValue(type, null);
-        wrap.put(JsonSerializerConst.MAP_TYPE_TAG, serializedType);
-        return wrap;
+        return BPacket.from(typeName(), serialized);
     }
 
     @Override
     @SuppressWarnings("unchecked")
-    public BMap toObject(BValue bValue, BValueDeserializer bValueDeserializer) {
-        if (bValue instanceof BMap) {
-            BMap<String, BValue> wrapper = (BMap<String, BValue>) bValue;
-            if (BValueProviderHelper.isWrapperOfType(wrapper, typeName())) {
-                BMap payload = (BMap) BValueProviderHelper.getPayload(wrapper);
-                HashMap deserializedMap = (HashMap) bValueDeserializer.deserialize(payload, HashMap.class);
-                BValue mapTypeTag = wrapper.get(JsonSerializerConst.MAP_TYPE_TAG);
-                bValueDeserializer.deserialize(mapTypeTag, BType.class);
-                BMap bMap = new BMap();
-                bMap.getMap().putAll(deserializedMap);
-                return bMap;
-            }
-        }
-        throw BValueProviderHelper.deserializationIncorrectType(bValue, typeName());
+    public BMap toObject(BPacket packet, BValueDeserializer bValueDeserializer) {
+        BMap payload = (BMap<String, BValue>) packet.getValue();
+        HashMap deserializedMap = (HashMap) bValueDeserializer.deserialize(payload, HashMap.class);
+        BMap bMap = new BMap();
+        bMap.getMap().putAll(deserializedMap);
+        return bMap;
     }
 }

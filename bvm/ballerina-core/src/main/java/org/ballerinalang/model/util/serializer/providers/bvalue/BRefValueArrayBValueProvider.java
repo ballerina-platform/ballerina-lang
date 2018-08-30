@@ -18,12 +18,11 @@
 package org.ballerinalang.model.util.serializer.providers.bvalue;
 
 import org.ballerinalang.model.types.BType;
+import org.ballerinalang.model.util.serializer.BPacket;
 import org.ballerinalang.model.util.serializer.BTypes;
 import org.ballerinalang.model.util.serializer.BValueDeserializer;
 import org.ballerinalang.model.util.serializer.BValueSerializer;
-import org.ballerinalang.model.util.serializer.JsonSerializerConst;
 import org.ballerinalang.model.util.serializer.SerializationBValueProvider;
-import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BRefType;
 import org.ballerinalang.model.values.BRefValueArray;
 import org.ballerinalang.model.values.BString;
@@ -50,33 +49,26 @@ public class BRefValueArrayBValueProvider implements SerializationBValueProvider
 
     @SuppressWarnings("unchecked")
     @Override
-    public BValue toBValue(BRefValueArray array, BValueSerializer serializer) {
+    public BPacket toBValue(BRefValueArray array, BValueSerializer serializer) {
         BRefType[] newArray = new BRefType[(int) array.size()];
         for (int i = 0; i < array.size(); i++) {
             newArray[i] = (BRefType) serializer.toBValue(array.get(i), Object.class);
         }
-        BValue wrapped = BValueProviderHelper.wrap(typeName(), new BRefValueArray(newArray, array.getType()));
-        ((BMap) wrapped).put(ARRAY_TYPE, new BString(array.getType().toString()));
-        return wrapped;
+        return BPacket
+                .from(typeName(), new BRefValueArray(newArray, array.getType()))
+                .put(ARRAY_TYPE, new BString(array.getType().toString()));
     }
 
     @Override
-    public BRefValueArray toObject(BValue bValue, BValueDeserializer bValueDeserializer) {
-        if (bValue instanceof BMap) {
-            @SuppressWarnings("unchecked")
-            BMap<String, BValue> wrapper = (BMap<String, BValue>) bValue;
-            if (BValueProviderHelper.isWrapperOfType(wrapper, typeName())) {
-                BRefValueArray refValueArray = (BRefValueArray) wrapper.get(JsonSerializerConst.PAYLOAD_TAG);
-                BRefType[] newArray = new BRefType[(int) refValueArray.size()];
-                for (int i = 0; i < newArray.length; i++) {
-                    newArray[i] = (BRefType) bValueDeserializer.deserialize(refValueArray.get(i), BRefType.class);
-                }
-                BString arrayType = (BString) wrapper.get(ARRAY_TYPE);
-                BType bType = BTypes.fromString(arrayType.stringValue());
-
-                return new BRefValueArray(newArray, bType);
-            }
+    public BRefValueArray toObject(BPacket packet, BValueDeserializer bValueDeserializer) {
+        BRefValueArray refValueArray = (BRefValueArray) packet.getValue();
+        BRefType[] newArray = new BRefType[(int) refValueArray.size()];
+        for (int i = 0; i < newArray.length; i++) {
+            newArray[i] = (BRefType) bValueDeserializer.deserialize(refValueArray.get(i), BRefType.class);
         }
-        throw BValueProviderHelper.deserializationIncorrectType(bValue, typeName());
+        BString arrayType = (BString) packet.get(ARRAY_TYPE);
+        BType bType = BTypes.fromString(arrayType.stringValue());
+
+        return new BRefValueArray(newArray, bType);
     }
 }
