@@ -519,6 +519,10 @@ public class TaintAnalyzer extends BLangNodeVisitor {
                 // Propagate tainted status to fields, when field symbols are present (Example: struct).
                 bracedOrTupleExpr.expressions.forEach(expr -> visitAssignment(expr, varTaintedStatus,
                         bracedOrTupleExpr.pos));
+            } else if (varRefExpr.getKind() == NodeKind.XML_ATTRIBUTE_ACCESS_EXPR) {
+                overridingAnalysis = false;
+                updatedVarRefTaintedState(((BLangXMLAttributeAccess) varRefExpr).expr, varTaintedStatus);
+                overridingAnalysis = true;
             } else {
                 setTaintedStatus((BLangVariableReference) varRefExpr, varTaintedStatus);
             }
@@ -588,8 +592,8 @@ public class TaintAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangIf ifNode) {
-        ifNode.body.accept(this);
         overridingAnalysis = false;
+        ifNode.body.accept(this);
         if (ifNode.elseStmt != null) {
             ifNode.elseStmt.accept(this);
         }
@@ -673,7 +677,7 @@ public class TaintAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangForkJoin forkJoin) {
-        analyzeWorkers(forkJoin.workers);
+        analyzeWorkers(forkJoin.workers, true);
         if (currForkIdentifier != null) {
             TaintedStatus taintedStatus = workerInteractionTaintedStatusMap.get(currForkIdentifier);
             if (taintedStatus != null) {
@@ -783,9 +787,13 @@ public class TaintAnalyzer extends BLangNodeVisitor {
         }
         workerSendNode.expr.accept(this);
         TaintedStatus taintedStatus = workerInteractionTaintedStatusMap.get(workerSendNode.workerIdentifier);
-        if (taintedStatus == TaintedStatus.IGNORED) {
+        if (taintedStatus == null) {
             workerInteractionTaintedStatusMap.put(workerSendNode.workerIdentifier, this.taintedStatus);
         } else if (this.taintedStatus == TaintedStatus.TAINTED) {
+            // Worker interactions should be non-overriding. Hence changing the status only if the expression used in
+            // sending is evaluated to be a tainted value. By doing so, analyzer will not change an interaction that
+            // was identified to return a `Tainted` value to be `Untainted` later on. (Example: Conditional worker
+            // interactions)
             workerInteractionTaintedStatusMap.put(workerSendNode.workerIdentifier, TaintedStatus.TAINTED);
         }
     }
@@ -793,7 +801,7 @@ public class TaintAnalyzer extends BLangNodeVisitor {
     @Override
     public void visit(BLangWorkerReceive workerReceiveNode) {
         TaintedStatus taintedStatus = workerInteractionTaintedStatusMap.get(currWorkerIdentifier);
-        if (taintedStatus == TaintedStatus.IGNORED) {
+        if (taintedStatus == null) {
             blockedOnWorkerInteraction = true;
             stopAnalysis = true;
         } else {
@@ -943,9 +951,9 @@ public class TaintAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangTernaryExpr ternaryExpr) {
+        overridingAnalysis = false;
         ternaryExpr.thenExpr.accept(this);
         TaintedStatus thenTaintedCheckResult = this.taintedStatus;
-        overridingAnalysis = false;
         ternaryExpr.elseExpr.accept(this);
         overridingAnalysis = true;
         TaintedStatus elseTaintedCheckResult = this.taintedStatus;
@@ -1604,31 +1612,35 @@ public class TaintAnalyzer extends BLangNodeVisitor {
         if (invokableNode.workers.isEmpty()) {
             analyzeNode(invokableNode.body, symbolEnv);
         } else {
-            analyzeWorkers(invokableNode.workers);
+            analyzeWorkers(invokableNode.workers, true);
         }
         if (stopAnalysis) {
             stopAnalysis = false;
         }
     }
 
-    private void analyzeWorkers (List<BLangWorker> workers) {
-        workerInteractionTaintedStatusMap = new HashMap<>();
-        boolean doScan = true;
-        while (doScan) {
-            doScan = false;
-            for (BLangWorker worker : workers) {
-                blockedOnWorkerInteraction = false;
-                worker.endpoints.forEach(endpoint -> endpoint.accept(this));
-                worker.accept(this);
-                if (this.blockedNode != null || taintErrorSet.size() > 0) {
-                    return;
-                } else if (blockedOnWorkerInteraction) {
-                    doScan = true;
-                    stopAnalysis = false;
-                } else if (stopAnalysis) {
-                    return;
-                }
+    private void analyzeWorkers(List<BLangWorker> workers, boolean resetStatusMap) {
+        if (resetStatusMap) {
+            workerInteractionTaintedStatusMap = new HashMap<>();
+        }
+        boolean recurse = false;
+        for (BLangWorker worker : workers) {
+            blockedOnWorkerInteraction = false;
+            worker.endpoints.forEach(endpoint -> endpoint.accept(this));
+            worker.accept(this);
+            if (this.blockedNode != null || taintErrorSet.size() > 0) {
+                return;
+            } else if (blockedOnWorkerInteraction) {
+                recurse = true;
+                stopAnalysis = false;
+            } else if (stopAnalysis) {
+                return;
             }
+        }
+        // If any of the workers were blocked on a worker interaction, re-analyze the workers after completing the
+        // analysis of all workers, to resolve blocked interactions.
+        if (recurse) {
+            analyzeWorkers(workers, false);
         }
     }
 

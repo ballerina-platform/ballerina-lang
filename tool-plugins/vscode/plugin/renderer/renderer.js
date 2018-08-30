@@ -1,55 +1,40 @@
 const request = require('request-promise');
-const { getParserService } = require('../serverStarter');
 const log = require('../logger');
+const { getAST } = require('./utils');
 
 const RETRY_COUNT = 5;
 const RETRY_WAIT = 1000;
 
 let jsonModel;
 
-
-function render (content, retries=1) {
-    const parseOpts = {
-        content,
-        filename: 'file.bal',
-        includePackageInfo: true,
-        includeProgramDir: true,
-        includeTree: true,
-    }
-
-    return getParserService()
-    .then(({port}) => {
-        return request.post({
-            url: `http://127.0.0.1:${port||9091}/composer/ballerina/parser/file/validate-and-parse`,
-            json: parseOpts,
-        })
-    })
-    .then((body) => {
-        let stale = true;
-        if (body.model) {
-            stale = false;
-            jsonModel = body.model;
-        }
-        return renderDiagram(jsonModel, stale);
-    })
-    .catch((e) => {
-        log(`Error in parser service`);
-        return new Promise((res, rej) => {
-            if (retries > RETRY_COUNT) {
-                log.append('Could not render');
-                res(renderError());
-                return;
+function render (docUri, langClient, resourceRoot, retries=1) {
+    return getAST(langClient, docUri)
+        .then((resp) => {
+            let stale = true;
+            if (resp.ast) {
+                stale = false;
+                jsonModel = resp.ast;
             }
+            return renderDiagram(docUri, jsonModel, resourceRoot, stale);
+        })
+        .catch((e) => {
+            log(`Error in parser service`);
+            return new Promise((res, rej) => {
+                if (retries > RETRY_COUNT) {
+                    log.append('Could not render');
+                    res(renderError());
+                    return;
+                }
 
-            setTimeout(() => {
-                log(`Retrying rendering ${retries}/${RETRY_COUNT}\n`);
-                res(render(content, retries + 1));
-            }, RETRY_WAIT);
+                setTimeout(() => {
+                    log(`Retrying rendering ${retries}/${RETRY_COUNT}\n`);
+                    res(render(docUri, retries + 1));
+                }, RETRY_WAIT);
+            });
         });
-    });
 };
 
-function renderDiagram(jsonModelObj, stale) {
+function renderDiagram(docUri, jsonModelObj, resourceRoot, stale) {
     const jsonModel = JSON.stringify(jsonModelObj);
 
     const page = `
@@ -59,9 +44,9 @@ function renderDiagram(jsonModelObj, stale) {
         <meta charset="utf-8">
         <meta http-equiv="X-UA-Compatible" content="IE=edge">
         <meta name="viewport" content="width=device-width, initial-scale=1">
-        <link rel="stylesheet" href="file://${__dirname}/resources/bundle.css" />
-        <link rel="stylesheet" href="file://${__dirname}/resources/theme.css" />
-        <link rel="stylesheet" href="file://${__dirname}/resources/less.css" />
+        <link rel="stylesheet" href="${resourceRoot}/bundle.css" />
+        <link rel="stylesheet" href="${resourceRoot}/theme.css" />
+        <link rel="stylesheet" href="${resourceRoot}/less.css" />
         <style>
             .overlay {
                 display: none;
@@ -106,11 +91,29 @@ function renderDiagram(jsonModelObj, stale) {
     <div class="ballerina-editor design-view-container" id="diagram">
     </div>
     </body>
-    <script charset="UTF-8" src="file://${__dirname}/resources/ballerina-diagram-library.js"></script>
+    <script charset="UTF-8" src="${resourceRoot}/ballerina-diagram-library.js"></script>
     <script>
         (function() {
-            const json = ${jsonModel};
-            const stale = ${JSON.stringify(stale)};
+            let docUri = ${JSON.stringify(docUri)};
+            let json = ${jsonModel};
+            let stale = ${JSON.stringify(stale)};
+
+            const vscode = acquireVsCodeApi();
+
+            // Handle the message inside the webview
+            window.addEventListener('message', event => {
+
+                const message = event.data; // The JSON data our extension sent
+
+                switch (message.command) {
+                    case 'update':
+                        json = message.json;
+                        docUri = message.docUri;
+                        stale = message.stale;
+                        drawDiagram();
+                        break;
+                }
+            });
 
             if (stale) {
                 showWarning('Cannot update design view due to syntax errors.')
@@ -120,12 +123,32 @@ function renderDiagram(jsonModelObj, stale) {
                 return;
             }
 
+            function getAST(docUri) {
+                return Promise.resolve({ model: json });
+            }
+
+            function onChange(evt) {
+                vscode.postMessage({
+                    command: 'astModified',
+                    ast: JSON.stringify(evt.newAST, (key, value) => {
+                        currentKey = key;
+                        if (key === 'parent' || key === 'viewState' || key === '_events'|| key === 'id') {
+                            return undefined;
+                        }
+                        return value;
+                    })
+                })
+            }
+
             function drawDiagram() {
                 try {
-                    ballerinaDiagram.renderDiagram(document.getElementById("diagram"), json, {
-                        width: window.innerWidth - 6, height: window.innerHeight
-                    });
-                    console.log('Successfully rendered')
+                    let width = window.innerWidth - 6;
+                    let height = window.innerHeight;
+                    console.log('rendering ' + width);
+                    ballerinaDiagram.renderEditableDiagram(document.getElementById("diagram"), docUri,
+                        width, height, getAST, onChange
+                    );
+                    console.log('Successfully rendered');
                 } catch(e) {
                     console.log(e.stack);
                     drawError('Oops. Something went wrong.');
@@ -177,6 +200,3 @@ function renderError() {
 }
 
 module.exports.render = render;
-module.exports.activate = () => {
-    return getParserService();
-}
