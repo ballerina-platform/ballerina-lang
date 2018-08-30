@@ -16,26 +16,27 @@
  * under the License.
  *
  */
+import { workspace, commands, window, Uri, ViewColumn, ExtensionContext, TextEditor, WebviewPanel } from 'vscode';
+import * as path from 'path';
+import * as _ from 'lodash';
+import { StaticProvider } from './content-provider';
+import { render } from './renderer';
+import { getAST } from './utils';
+import { LanguageClient } from 'vscode-languageclient';
 
-const { workspace, commands, window, Uri, ViewColumn, Range } = require('vscode');
-const path = require('path');
-const _ = require('lodash');
-
-const { StaticProvider } = require('./content-provider');
-const { render } = require('./renderer');
 const DEBOUNCE_WAIT = 500;
-const { getAST } = require('./utils');
 
-let previewPanel;
-let activeEditor;
+let previewPanel: WebviewPanel | undefined;
+let activeEditor: TextEditor | undefined;
 let preventDiagramUpdate = false;
 
-exports.activate = function(context, langClient) {
-	const resourcePath = Uri.file(path.join(context.extensionPath, 'renderer', 'resources'));
+export function activate(context: ExtensionContext, langClient: LanguageClient) {
+
+	const resourcePath = Uri.file(path.join(context.extensionPath, 'resources', 'diagram'));
 	const resourceRoot = resourcePath.with({ scheme: 'vscode-resource' }).toString();
 
 	workspace.onDidChangeTextDocument(_.debounce((e) => {
-        if ((previewPanel && activeEditor) && (e.document === activeEditor.document) &&
+        if (activeEditor && (e.document === activeEditor.document) &&
             e.document.fileName.endsWith('.bal')) {
 			if (preventDiagramUpdate) {
 				return;
@@ -49,21 +50,24 @@ exports.activate = function(context, langClient) {
 						stale = false;
 						json = resp.ast;
 					}
-					previewPanel.webview.postMessage({ 
-						command: 'update',
-						json,
-						docUri,
-						stale
-					});
+					if (previewPanel) {
+						previewPanel.webview.postMessage({ 
+							command: 'update',
+							json,
+							docUri,
+							stale
+						});
+					}
 				});
 		}
 	}, DEBOUNCE_WAIT));
 
-	window.onDidChangeActiveTextEditor((e) => {
-        if ((previewPanel && window.activeTextEditor) && (e.document === window.activeTextEditor.document) &&
-            e.document.fileName.endsWith('.bal')) {
+	window.onDidChangeActiveTextEditor((activatedEditor: TextEditor | undefined) => {
+		if (window.activeTextEditor && activatedEditor 
+					&& (activatedEditor.document === window.activeTextEditor.document) 
+					&& activatedEditor.document.fileName.endsWith('.bal')) {
 			activeEditor = window.activeTextEditor;
-			const docUri = e.document.uri.toString();
+			const docUri = activatedEditor.document.uri.toString();
 			getAST(langClient, docUri)
 				.then((resp) => {
 					let stale = true;
@@ -72,19 +76,21 @@ exports.activate = function(context, langClient) {
 						stale = false;
 						json = resp.ast;
 					}
-					previewPanel.webview.postMessage({ 
-						command: 'update',
-						json,
-						docUri,
-						stale
-					});
+					if (previewPanel) {
+						previewPanel.webview.postMessage({ 
+							command: 'update',
+							json,
+							docUri,
+							stale
+						});
+					}
 				});
 		}
-	})
+	});
 
 	const diagramRenderDisposable = commands.registerCommand('ballerina.showDiagram', () => {
 		
-        // Create and show a new webview
+		// Create and show a new webview
         previewPanel = window.createWebviewPanel(
             'ballerinaDiagram',
             "Ballerina Diagram",
@@ -102,10 +108,9 @@ exports.activate = function(context, langClient) {
 		activeEditor = editor;
 		render(editor.document.uri.toString(), langClient, resourceRoot)
 			.then((html) => {
-				previewPanel.webview.html = html;
-			})
-			.catch((html) => {
-				previewPanel.webview.html = html;
+				if (previewPanel && html) {
+					previewPanel.webview.html = html;
+				}
 			});
 		// Handle messages from the webview
         previewPanel.webview.onDidReceiveMessage(message => {
@@ -130,12 +135,12 @@ exports.activate = function(context, langClient) {
 	context.subscriptions.push(diagramRenderDisposable);
 }
 
-exports.errored = function(context) {
+export function errored(context: ExtensionContext) {
 	const provider = new StaticProvider();
 	let registration = workspace.registerTextDocumentContentProvider('ballerina-static', provider);
 
 	const diagramRenderDisposable = commands.registerCommand('ballerina.showDiagram', () => {
-		let uri = Uri.parse('ballerina-static:///pages/error.html');
+		let uri = Uri.parse('ballerina-static:///resources/pages/error.html');
 		commands.executeCommand('vscode.previewHtml', uri, ViewColumn.Two, 'Ballerina Diagram');
 	});
 
