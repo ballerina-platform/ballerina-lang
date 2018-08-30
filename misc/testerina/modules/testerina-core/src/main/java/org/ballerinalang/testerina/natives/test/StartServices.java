@@ -27,7 +27,7 @@ import org.ballerinalang.natives.annotations.BallerinaAnnotation;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
 import org.ballerinalang.testerina.core.TesterinaRegistry;
-import org.ballerinalang.testerina.util.Utils;
+import org.ballerinalang.testerina.util.TesterinaUtils;
 import org.ballerinalang.util.LaunchListener;
 import org.ballerinalang.util.codegen.PackageInfo;
 import org.ballerinalang.util.codegen.ProgramFile;
@@ -56,7 +56,7 @@ public class StartServices extends BlockingNativeCallableUnit {
     public void execute(Context ctx) {
         String packageName = ctx.getStringArgument(0);
 
-        packageName = Utils.getFullPackageName(packageName);
+        packageName = TesterinaUtils.getFullPackageName(packageName);
         for (ProgramFile programFile : TesterinaRegistry.getInstance().getProgramFiles()) {
             // Get the service package
             PackageInfo servicesPackage = programFile.getEntryPackage();
@@ -67,7 +67,7 @@ public class StartServices extends BlockingNativeCallableUnit {
             ServiceLoader<LaunchListener> listeners = ServiceLoader.load(LaunchListener.class);
             listeners.forEach(listener -> listener.beforeRunProgram(true));
 
-            Utils.startService(programFile);
+            TesterinaUtils.startService(programFile);
             ctx.setReturnValues(new BBoolean(true));
             return;
         }

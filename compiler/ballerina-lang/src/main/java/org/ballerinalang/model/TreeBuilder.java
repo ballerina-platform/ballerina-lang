@@ -267,7 +267,7 @@ public class TreeBuilder {
         return new BLangPackage();
     }
 
-    public static PackageNode createTestablePackageNode() {
+    public static TestableBLangPackage createTestablePackageNode() {
         return new TestableBLangPackage();
     }
 

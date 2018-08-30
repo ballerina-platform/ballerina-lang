@@ -45,6 +45,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangService;
 import org.wso2.ballerinalang.compiler.tree.BLangTypeDefinition;
 import org.wso2.ballerinalang.compiler.tree.BLangVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangXMLNS;
+import org.wso2.ballerinalang.compiler.tree.TestableBLangPackage;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangForever;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.Name;
@@ -130,10 +131,24 @@ public class CompilerPluginRunner extends BLangNodeVisitor {
 
         pkgNode.completedPhases.add(CompilerPhase.COMPILER_PLUGIN);
 
+        // Visit testable node if not null
         if (pkgNode.testableBLangPackage != null) {
             this.defaultPos = pkgNode.testableBLangPackage.pos;
-            visit((BLangPackage) pkgNode.testableBLangPackage);
+            visit(pkgNode.testableBLangPackage);
         }
+    }
+
+    public void visit(TestableBLangPackage testablePkgNode) {
+        if (testablePkgNode.completedPhases.contains(CompilerPhase.COMPILER_PLUGIN)) {
+            return;
+        }
+
+        pluginList.forEach(plugin -> plugin.process(testablePkgNode));
+
+        // Then visit each top-level element sorted using the compilation unit
+        testablePkgNode.topLevelNodes.forEach(topLevelNode -> ((BLangNode) topLevelNode).accept(this));
+
+        testablePkgNode.completedPhases.add(CompilerPhase.COMPILER_PLUGIN);
     }
 
     public void visit(BLangAnnotation annotationNode) {

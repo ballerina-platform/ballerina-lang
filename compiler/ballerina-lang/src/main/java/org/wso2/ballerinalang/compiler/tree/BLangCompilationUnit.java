@@ -76,8 +76,6 @@ public class BLangCompilationUnit extends BLangNode implements CompilationUnitNo
     }
 
     public void removeTopLevelNode(TopLevelNode node) {
-        if (this.topLevelNodes.size() > 0) {
-            this.topLevelNodes.remove(node);
-        }
+        this.topLevelNodes.remove(node);
     }
 }

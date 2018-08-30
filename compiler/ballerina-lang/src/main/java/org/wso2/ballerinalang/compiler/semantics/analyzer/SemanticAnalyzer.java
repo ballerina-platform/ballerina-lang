@@ -228,7 +228,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         }
         SymbolEnv pkgEnv = this.symTable.pkgEnvMap.get(pkgNode.symbol);
 
-        analyzePackage(pkgNode, pkgEnv);
+        analyzeConstructs(pkgNode, pkgEnv);
 
         analyzeDef(pkgNode.initFunction, pkgEnv);
         analyzeDef(pkgNode.startFunction, pkgEnv);
@@ -236,13 +236,14 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
 
         pkgNode.completedPhases.add(CompilerPhase.TYPE_CHECK);
 
+        // Visit testable node if not null
         if (pkgNode.testableBLangPackage != null) {
             visit(pkgNode.testableBLangPackage);
         }
 
     }
 
-    private void analyzePackage(BLangPackage pkgNode, SymbolEnv pkgEnv) {
+    private void analyzeConstructs(BLangPackage pkgNode, SymbolEnv pkgEnv) {
         pkgNode.topLevelNodes.stream().filter(pkgLevelNode -> pkgLevelNode.getKind() != NodeKind.FUNCTION)
                 .forEach(topLevelNode -> analyzeDef((BLangNode) topLevelNode, pkgEnv));
 
@@ -258,7 +259,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         SymbolEnv enclosingPkgEnv = this.symTable.pkgEnvMap.get(pkgNode.symbol);
         SymbolEnv pkgEnv = SymbolEnv.createPkgEnv(pkgNode, pkgNode.symbol.scope, enclosingPkgEnv);
 
-        analyzePackage(pkgNode, pkgEnv);
+        analyzeConstructs(pkgNode, pkgEnv);
         pkgNode.completedPhases.add(CompilerPhase.TYPE_CHECK);
     }
 

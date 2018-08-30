@@ -100,8 +100,11 @@ public class TestAnnotationProcessor extends AbstractCompilerPlugin {
         }
         String packageName = getPackageName((BLangPackage) ((BLangFunction) functionNode).parent);
         suite = registry.getTestSuites().get(packageName);
+        // Check if the registry contains a test suite for the package
         if (suite == null) {
+            // Add a test suite to the registry if it does not contain one pertaining to the package name
             registry.getTestSuites().computeIfAbsent(packageName, func -> new TestSuite(packageName));
+            // Get the test suite related to the package from registry
             suite = registry.getTestSuites().get(packageName);
         }
         // traverse through the annotations of this function

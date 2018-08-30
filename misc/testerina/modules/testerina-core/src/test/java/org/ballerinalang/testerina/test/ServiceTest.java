@@ -19,7 +19,7 @@ package org.ballerinalang.testerina.test;
 
 import org.ballerinalang.testerina.core.BTestRunner;
 import org.ballerinalang.testerina.core.TesterinaRegistry;
-import org.ballerinalang.testerina.util.Utils;
+import org.ballerinalang.testerina.util.TesterinaUtils;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.AfterMethod;
@@ -72,7 +72,7 @@ public class ServiceTest {
 
     @AfterClass
     public void cleanDirectory() throws IOException {
-        Utils.cleanUpDir(Paths.get(sourceRoot + "/.ballerina"));
+        TesterinaUtils.cleanUpDir(Paths.get(sourceRoot + "/.ballerina"));
     }
 
 }

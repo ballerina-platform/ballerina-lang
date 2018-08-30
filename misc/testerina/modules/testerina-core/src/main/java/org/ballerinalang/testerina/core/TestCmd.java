@@ -22,10 +22,12 @@ import org.ballerinalang.launcher.BLauncherCmd;
 import org.ballerinalang.launcher.LauncherUtils;
 import org.ballerinalang.logging.BLogManager;
 import org.ballerinalang.stdlib.io.utils.BallerinaIOException;
-import org.ballerinalang.testerina.util.Utils;
+import org.ballerinalang.testerina.util.TesterinaUtils;
 import org.ballerinalang.util.BLangConstants;
 import org.ballerinalang.util.VMOptions;
+import org.wso2.ballerinalang.compiler.ConsoleListener;
 import org.wso2.ballerinalang.compiler.FileSystemProjectDirectory;
+import org.wso2.ballerinalang.compiler.ListenerRegistry;
 import org.wso2.ballerinalang.compiler.SourceDirectory;
 import picocli.CommandLine;
 
@@ -95,6 +97,9 @@ public class TestCmd implements BLauncherCmd {
                                                                      + " package or a single file to test command");
         }
 
+        // Register console listener
+        ListenerRegistry.registerListener("ConsoleListener", new ConsoleListener());
+
         Path sourceRootPath = LauncherUtils.getSourceRootPath(sourceRoot);
         SourceDirectory srcDirectory = null;
         if (sourceFileList == null || sourceFileList.isEmpty()) {
@@ -145,7 +150,7 @@ public class TestCmd implements BLauncherCmd {
                 .toArray(Path[]::new);
 
         if (srcDirectory != null) {
-            Utils.setManifestConfigs();
+            TesterinaUtils.setManifestConfigs();
         }
         BTestRunner testRunner = new BTestRunner();
         if (listGroups) {
@@ -158,10 +163,10 @@ public class TestCmd implements BLauncherCmd {
             testRunner.runTest(sourceRootPath.toString(), paths, groupList);
         }
         if (testRunner.getTesterinaReport().isFailure()) {
-            Utils.cleanUpDir(sourceRootPath.resolve(TesterinaConstants.TESTERINA_TEMP_DIR));
+            TesterinaUtils.cleanUpDir(sourceRootPath.resolve(TesterinaConstants.TESTERINA_TEMP_DIR));
             Runtime.getRuntime().exit(1);
         }
-        Utils.cleanUpDir(sourceRootPath.resolve(TesterinaConstants.TESTERINA_TEMP_DIR));
+        TesterinaUtils.cleanUpDir(sourceRootPath.resolve(TesterinaConstants.TESTERINA_TEMP_DIR));
         Runtime.getRuntime().exit(0);
     }
 

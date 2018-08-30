@@ -20,7 +20,7 @@ package org.ballerinalang.testerina.test;
 import org.ballerinalang.testerina.core.BTestRunner;
 import org.ballerinalang.testerina.core.TesterinaConstants;
 import org.ballerinalang.testerina.core.TesterinaRegistry;
-import org.ballerinalang.testerina.util.Utils;
+import org.ballerinalang.testerina.util.TesterinaUtils;
 import org.testng.Assert;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.AfterTest;
@@ -67,7 +67,7 @@ public class ServiceSkeletonTest {
 
     @AfterTest
     public void cleanUpTestEnv() {
-        Utils.cleanUpDir(Paths.get(System.getProperty(TesterinaConstants.BALLERINA_SOURCE_ROOT), TesterinaConstants
-            .TESTERINA_TEMP_DIR));
+        TesterinaUtils.cleanUpDir(Paths.get(System.getProperty(TesterinaConstants.BALLERINA_SOURCE_ROOT),
+                                            TesterinaConstants.TESTERINA_TEMP_DIR));
     }
 }

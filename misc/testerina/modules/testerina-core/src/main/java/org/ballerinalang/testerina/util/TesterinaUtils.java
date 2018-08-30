@@ -48,7 +48,7 @@ import java.util.Map;
 /**
  * Utility methods.
  */
-public class Utils {
+public class TesterinaUtils {
 
     private static PrintStream errStream = System.err;
     private static TesterinaRegistry registry = TesterinaRegistry.getInstance();
@@ -157,20 +157,29 @@ public class Utils {
         }
     }
 
-    public static void testWithBuild(Path sourceRootPath, Map<BLangPackage,
-            CompiledBinaryFile.ProgramFile> programFileMap) {
+    /**
+     * Execute tests in build.
+     *
+     * @param sourceRootPath source root path
+     * @param programFileMap map containing bLangPackage nodes along with their compiled program files
+     */
+    public static void executeTests(Path sourceRootPath, Map<BLangPackage, CompiledBinaryFile.ProgramFile>
+            programFileMap) {
+        // Load configuration file. The default config file is taken "ballerina.conf" in the source root path
         LauncherUtils.loadConfigurations(sourceRootPath, new HashMap<>(), null, false);
 
-        Utils.setManifestConfigs();
+        // Set org-name and version to the TesterinaRegistry
+        setManifestConfigs();
 
         BTestRunner testRunner = new BTestRunner();
+        // Run the tests
         testRunner.runTest(programFileMap);
 
         if (testRunner.getTesterinaReport().isFailure()) {
-            Utils.cleanUpDir(sourceRootPath.resolve(TesterinaConstants.TESTERINA_TEMP_DIR));
+            cleanUpDir(sourceRootPath.resolve(TesterinaConstants.TESTERINA_TEMP_DIR));
             Runtime.getRuntime().exit(1);
         }
-        Utils.cleanUpDir(sourceRootPath.resolve(TesterinaConstants.TESTERINA_TEMP_DIR));
+        cleanUpDir(sourceRootPath.resolve(TesterinaConstants.TESTERINA_TEMP_DIR));
     }
 
     /**

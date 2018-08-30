@@ -20,7 +20,7 @@ package org.ballerinalang.testerina.test;
 
 import org.ballerinalang.testerina.core.BTestRunner;
 import org.ballerinalang.testerina.core.TesterinaRegistry;
-import org.ballerinalang.testerina.util.Utils;
+import org.ballerinalang.testerina.util.TesterinaUtils;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.AfterMethod;
@@ -45,7 +45,7 @@ public class TesterinaSamplesTest {
     public void setUserDir() throws IOException {
         testerinaRoot = System.getProperty("user.dir") + "/../../samples";
         Path filePath = Paths.get(testerinaRoot + "/.ballerina");
-        Utils.cleanUpDir(filePath);
+        TesterinaUtils.cleanUpDir(filePath);
         Files.createDirectory(filePath);
     }
 
@@ -87,7 +87,7 @@ public class TesterinaSamplesTest {
 
     @AfterClass
     public void cleanDirectory() throws IOException {
-        Utils.cleanUpDir(Paths.get(testerinaRoot,  ".ballerina"));
+        TesterinaUtils.cleanUpDir(Paths.get(testerinaRoot, ".ballerina"));
     }
 
 }

@@ -60,7 +60,6 @@ public class Compiler {
         this.dlog = BLangDiagnosticLog.getInstance(context);
         this.pkgLoader = PackageLoader.getInstance(context);
         this.manifest = ManifestProcessor.getInstance(context).getManifest();
-        ListenerRegistry.registerListener("ConsoleListener", new ConsoleListener());
     }
 
     public static Compiler getInstance(CompilerContext context) {

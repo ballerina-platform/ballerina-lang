@@ -35,7 +35,7 @@ import org.ballerinalang.swagger.exception.BallerinaOpenApiException;
 import org.ballerinalang.swagger.utils.GeneratorConstants;
 import org.ballerinalang.testerina.core.TesterinaConstants;
 import org.ballerinalang.testerina.core.TesterinaRegistry;
-import org.ballerinalang.testerina.util.Utils;
+import org.ballerinalang.testerina.util.TesterinaUtils;
 import org.ballerinalang.util.codegen.ProgramFile;
 import org.ballerinalang.util.diagnostic.Diagnostic;
 import org.ballerinalang.util.exceptions.BallerinaException;
@@ -98,7 +98,7 @@ public class StartServiceSkeleton extends BlockingNativeCallableUnit {
         ProgramFile programFile = compileResult.getProgFile();
         programFile.setProgramFilePath(Paths.get(rootDir.toString()));
         // start the service
-        Utils.startService(programFile);
+        TesterinaUtils.startService(programFile);
         // keep a reference to be used in stop service skeleton
         TesterinaRegistry.getInstance().addSkeletonProgramFile(programFile);
         ctx.setReturnValues(new BBoolean(true));

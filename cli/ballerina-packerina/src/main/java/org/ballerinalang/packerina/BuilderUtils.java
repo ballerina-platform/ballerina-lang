@@ -18,15 +18,15 @@
 package org.ballerinalang.packerina;
 
 import org.ballerinalang.compiler.CompilerPhase;
-import org.ballerinalang.testerina.util.Utils;
+import org.ballerinalang.testerina.util.TesterinaUtils;
 import org.wso2.ballerinalang.compiler.Compiler;
+import org.wso2.ballerinalang.compiler.ListenerRegistry;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.CompilerOptions;
 import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.programfile.CompiledBinaryFile;
 
-import java.io.PrintStream;
 import java.nio.file.Path;
 import java.util.Collections;
 import java.util.HashMap;
@@ -46,8 +46,6 @@ import static org.ballerinalang.compiler.CompilerOptionName.TEST_ENABLED;
  * @since 0.95.2
  */
 public class BuilderUtils {
-    private static PrintStream outStream = System.out;
-
     public static void compileWithTestsAndWrite(Path sourceRootPath,
                                                 String packagePath,
                                                 String targetPath,
@@ -69,7 +67,7 @@ public class BuilderUtils {
         BLangPackage bLangPackage = compiler.build(packagePath);
 
         if (skiptests) {
-            outStream.println();
+            ListenerRegistry.triggerLineBreak();
             compiler.write(bLangPackage, targetPath);
         } else {
             runTests(compiler, sourceRootPath, Collections.singletonList(bLangPackage));
@@ -92,7 +90,7 @@ public class BuilderUtils {
         List<BLangPackage> packages = compiler.build();
 
         if (skiptests) {
-            outStream.println();
+            ListenerRegistry.triggerLineBreak();
             compiler.write(packages);
         } else {
             runTests(compiler, sourceRootPath, packages);
@@ -103,18 +101,21 @@ public class BuilderUtils {
     private static void runTests(Compiler compiler, Path sourceRootPath, List<BLangPackage> packageList) {
         Map<BLangPackage, CompiledBinaryFile.ProgramFile> packageProgramFileMap = new HashMap<>();
         packageList.forEach(bLangPackage -> {
+            // We only execute the tests in packages so single bal files are ignored
             if (!bLangPackage.packageID.getName().equals(Names.DOT)) {
                 CompiledBinaryFile.ProgramFile programFile;
                 if (bLangPackage.testableBLangPackage != null) {
                     programFile = compiler.getExecutableProgram(bLangPackage.testableBLangPackage);
                 } else {
+                    // In this package there are no tests to be executed. So we need to say to the users that there are
+                    // no tests found in the package to be executed
                     programFile = compiler.getExecutableProgram(bLangPackage);
                 }
                 packageProgramFileMap.put(bLangPackage, programFile);
             }
         });
         if (packageProgramFileMap.size() > 0) {
-            Utils.testWithBuild(sourceRootPath, packageProgramFileMap);
+            TesterinaUtils.executeTests(sourceRootPath, packageProgramFileMap);
         }
     }
 }

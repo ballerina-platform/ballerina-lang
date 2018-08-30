@@ -264,6 +264,7 @@ public class TaintAnalyzer extends BLangNodeVisitor {
         SymbolEnv pkgEnv = symTable.pkgEnvMap.get(pkgNode.symbol);
         analyze(pkgNode, pkgEnv);
 
+        // Visit testable node if not null
         if (pkgNode.testableBLangPackage != null) {
             visit(pkgNode.testableBLangPackage);
         }
@@ -287,13 +288,17 @@ public class TaintAnalyzer extends BLangNodeVisitor {
         pkgNode.completedPhases.add(CompilerPhase.TAINT_ANALYZE);
     }
 
+    @Override
     public void visit(TestableBLangPackage pkgNode) {
         init(pkgNode);
+
         analyzerPhase = AnalyzerPhase.INITIAL_ANALYSIS;
         if (pkgNode.completedPhases.contains(CompilerPhase.TAINT_ANALYZE)) {
             return;
         }
+
         SymbolEnv enclosingPkgEnv = this.symTable.pkgEnvMap.get(pkgNode.symbol);
+        // Set symbol environment of enclosing package
         SymbolEnv pkgEnv = SymbolEnv.createPkgEnv(pkgNode, pkgNode.symbol.scope, enclosingPkgEnv);
         analyze(pkgNode, pkgEnv);
     }

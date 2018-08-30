@@ -82,6 +82,7 @@ public class DocumentationAnalyzer extends BLangNodeVisitor {
         pkgNode.topLevelNodes.forEach(topLevelNode -> analyzeNode((BLangNode) topLevelNode));
         pkgNode.completedPhases.add(CompilerPhase.CODE_ANALYZE);
 
+        // Analyze testable node if not null
         if (pkgNode.testableBLangPackage != null) {
             analyze(pkgNode.testableBLangPackage);
         }

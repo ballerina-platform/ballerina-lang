@@ -223,13 +223,15 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         }
         parent = pkgNode;
         SymbolEnv pkgEnv = symTable.pkgEnvMap.get(pkgNode.symbol);
-        analyze(pkgNode, pkgEnv);
+        analyzeTopLevelNodes(pkgNode, pkgEnv);
 
+        // Visit testable node if not null
         if (pkgNode.testableBLangPackage != null) {
             visit(pkgNode.testableBLangPackage);
         }
     }
 
+    @Override
     public void visit(TestableBLangPackage pkgNode) {
         if (pkgNode.completedPhases.contains(CompilerPhase.CODE_ANALYZE)) {
             return;
@@ -237,10 +239,10 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         parent = pkgNode;
         SymbolEnv enclosingPkgEnv = this.symTable.pkgEnvMap.get(pkgNode.symbol);
         SymbolEnv pkgEnv = SymbolEnv.createPkgEnv(pkgNode, pkgNode.symbol.scope, enclosingPkgEnv);
-        analyze(pkgNode, pkgEnv);
+        analyzeTopLevelNodes(pkgNode, pkgEnv);
     }
 
-    private void analyze(BLangPackage pkgNode, SymbolEnv pkgEnv) {
+    private void analyzeTopLevelNodes(BLangPackage pkgNode, SymbolEnv pkgEnv) {
         pkgNode.topLevelNodes.forEach(topLevelNode -> analyzeNode((BLangNode) topLevelNode, pkgEnv));
         pkgNode.completedPhases.add(CompilerPhase.CODE_ANALYZE);
         parent = null;

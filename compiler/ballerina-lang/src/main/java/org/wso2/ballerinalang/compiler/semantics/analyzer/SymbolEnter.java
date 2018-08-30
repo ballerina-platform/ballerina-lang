@@ -187,16 +187,17 @@ public class SymbolEnter extends BLangNodeVisitor {
         this.symTable.pkgEnvMap.put(pkgSymbol, pkgEnv);
 
         createPackageInitFunctions(pkgNode);
-        defineNodes(pkgNode, pkgEnv);
+        defineConstructs(pkgNode, pkgEnv);
         definePackageInitFunctions(pkgNode, pkgEnv);
         pkgNode.completedPhases.add(CompilerPhase.DEFINE);
 
+        // Visit testable node if not null
         if (pkgNode.testableBLangPackage != null) {
             visit(pkgNode.testableBLangPackage);
         }
     }
 
-    private void defineNodes(BLangPackage pkgNode, SymbolEnv pkgEnv) {
+    private void defineConstructs(BLangPackage pkgNode, SymbolEnv pkgEnv) {
         // visit the package node recursively and define all package level symbols.
         // And maintain a list of created package symbols.
         pkgNode.imports.forEach(importNode -> defineNode(importNode, pkgEnv));
@@ -240,9 +241,10 @@ public class SymbolEnter extends BLangNodeVisitor {
         pkgNode.symbol = pkgSymbol;
         SymbolEnv enclosingPkgEnv = this.symTable.pkgEnvMap.get(Symbols.createPackageSymbol(pkgNode.packageID,
                                                                                             this.symTable));
+        // Set symbol environment of the enclosing bLangpackage
         SymbolEnv pkgEnv = SymbolEnv.createPkgEnv(pkgNode, pkgSymbol.scope, enclosingPkgEnv);
 
-        defineNodes(pkgNode, pkgEnv);
+        defineConstructs(pkgNode, pkgEnv);
 
         pkgNode.completedPhases.add(CompilerPhase.DEFINE);
     }
@@ -781,25 +783,38 @@ public class SymbolEnter extends BLangNodeVisitor {
     private void populatePackageNode(BLangPackage pkgNode) {
         List<BLangCompilationUnit> compUnits = pkgNode.getCompilationUnits();
         compUnits.forEach(compUnit -> populateCompilationUnit(pkgNode, compUnit));
+
+        // Populate testable node if not null
         if (pkgNode.testableBLangPackage != null) {
-            compUnits = pkgNode.testableBLangPackage.getCompilationUnits();
-            compUnits.forEach(compUnit -> {
-                // Remove imports if it already exists in the enclosed pkg node
-                List<TopLevelNode> importList = compUnit.getTopLevelNodes()
-                                                        .stream()
-                                                        .filter(topLevelNode -> topLevelNode instanceof
-                                                                BLangImportPackage)
-                                                        .collect(Collectors.toList());
-
-                importList.forEach(importPkg -> {
-                    if (pkgNode.getImports().contains(importPkg)) {
-                        compUnit.removeTopLevelNode(importPkg);
-                    }
-                });
-
-            });
-            compUnits.forEach(compUnit -> populateCompilationUnit(pkgNode.testableBLangPackage, compUnit));
+            populateTestablePackageNode(pkgNode);
         }
+    }
+
+    /**
+     * Visit each compilation unit (.bal file) and add each top-level node in the compilation unit to the
+     * testable package node.
+     *
+     * @param pkgNode current package node
+     */
+    private void populateTestablePackageNode(BLangPackage pkgNode) {
+        List<BLangCompilationUnit> compUnits = pkgNode.testableBLangPackage.getCompilationUnits();
+        compUnits.forEach(compUnit -> {
+            // Get all imports from the compilation unit node
+            List<TopLevelNode> importList = compUnit.getTopLevelNodes()
+                                                    .stream()
+                                                    .filter(topLevelNode -> topLevelNode instanceof
+                                                            BLangImportPackage)
+                                                    .collect(Collectors.toList());
+
+            // Remove imports if it already exists in the enclosed pkg node
+            importList.forEach(importPkg -> {
+                if (pkgNode.getImports().contains(importPkg)) {
+                    compUnit.removeTopLevelNode(importPkg);
+                }
+            });
+
+        });
+        compUnits.forEach(compUnit -> populateCompilationUnit(pkgNode.testableBLangPackage, compUnit));
     }
 
     /**

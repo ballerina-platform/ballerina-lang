@@ -86,14 +86,6 @@ public class BLangPackage extends BLangNode implements PackageNode {
         this.testableBLangPackage = null;
     }
 
-    public TestableBLangPackage getTestableBLangPackage() {
-        return testableBLangPackage;
-    }
-
-    public void setTestableBLangPackage(TestableBLangPackage testableBLangPackage) {
-        this.testableBLangPackage = testableBLangPackage;
-    }
-
     @Override
     public List<BLangCompilationUnit> getCompilationUnits() {
         return compUnits;

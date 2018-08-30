@@ -18,7 +18,7 @@
 
 package org.ballerinalang.testerina.core.entity;
 
-import org.ballerinalang.testerina.util.Utils;
+import org.ballerinalang.testerina.util.TesterinaUtils;
 import org.wso2.ballerinalang.compiler.ListenerRegistry;
 
 import java.io.PrintStream;
@@ -45,7 +45,7 @@ public class TesterinaReport {
         if (!testSummary.failedTests.isEmpty()) {
             for (TesterinaResult failedResult : testSummary.failedTests) {
                 ListenerRegistry.triggerTestsFailed(failedResult.getTestFunctionName(),
-                                                    Utils.formatError(failedResult.getAssertFailureMessage()));
+                                                    TesterinaUtils.formatError(failedResult.getAssertFailureMessage()));
             }
         }
 

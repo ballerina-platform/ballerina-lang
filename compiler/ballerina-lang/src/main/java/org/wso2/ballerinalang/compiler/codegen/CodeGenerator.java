@@ -353,7 +353,7 @@ public class CodeGenerator extends BLangNodeVisitor {
         this.currentPkgInfo = new PackageInfo();
         genNode(pkgNode);
 
-        // Generate for Testable package
+        // Generate program file for the Testable package
         if (pkgNode.testableBLangPackage != null) {
             generateBALO(pkgNode.testableBLangPackage);
         }
@@ -361,14 +361,15 @@ public class CodeGenerator extends BLangNodeVisitor {
         return pkgNode;
     }
 
-    public BLangPackage generateBALO(TestableBLangPackage pkgNode) {
+    private void generateBALO(TestableBLangPackage pkgNode) {
         // Generate code for the given package.
         PackageInfo enclPkgInfo = this.currentPkgInfo;
+        // Since the packageInfo of the testablePackage should contain the entries of the packageInfo of the
+        // bLangpackage get a deep copy of it and resue the copy to generate the balo of the testablePackage
         enclPkgInfo.copyTo(this.currentPkgInfo);
         genNode(pkgNode);
 
         this.currentPkgInfo = null;
-        return pkgNode;
     }
 
     private void genNode(BLangPackage pkgNode) {
@@ -447,6 +448,8 @@ public class CodeGenerator extends BLangNodeVisitor {
         pkgNode.services.forEach(this::createServiceInfoEntry);
         pkgNode.functions.forEach(this::createFunctionInfoEntry);
 
+        // Visit the builtin functions only in the bLangPackage. Since the testablePackage is a child of the
+        // bLangPackage, the testablePackage doesnot have init, start and stop functions
         if (!(pkgNode instanceof TestableBLangPackage)) {
             // Visit package builtin function
             visitBuiltinFunctions(pkgNode.initFunction);
