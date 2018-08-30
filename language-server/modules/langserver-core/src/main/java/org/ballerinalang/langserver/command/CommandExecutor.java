@@ -292,15 +292,6 @@ public class CommandExecutor {
             return new Object();
         }
 
-        WorkspaceDocumentManager documentManager = context.get(ExecuteCommandKeys.DOCUMENT_MANAGER_KEY);
-
-        LSCompiler lsCompiler = context.get(ExecuteCommandKeys.LS_COMPILER_KEY);
-        BLangPackage bLangPackage = lsCompiler.getBLangPackage(context, documentManager, false,
-                                                               LSCustomErrorStrategy.class, false).getRight();
-        if (bLangPackage == null) {
-            return new Object();
-        }
-
         String editText = createVariableDeclaration(variableName, variableType);
         Position position = new Position(sLine - 1, sCol - 1);
 
