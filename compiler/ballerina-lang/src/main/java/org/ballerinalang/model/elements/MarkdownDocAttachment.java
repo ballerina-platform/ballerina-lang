@@ -22,6 +22,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
+ * Represent a markdown doc attachment.
+ *
  * @since 0.982.0
  */
 public class MarkdownDocAttachment {
