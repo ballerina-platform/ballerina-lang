@@ -18,11 +18,10 @@
 package org.ballerinalang.persistence;
 
 import org.ballerinalang.bre.bvm.BLangScheduler;
-import org.ballerinalang.bre.bvm.WorkerExecutionContext;
-import org.ballerinalang.persistence.states.RuntimeStates;
-import org.ballerinalang.persistence.states.State;
 import org.ballerinalang.persistence.store.PersistenceStore;
 import org.ballerinalang.util.codegen.ProgramFile;
+import org.ballerinalang.util.codegen.ResourceInfo;
+import org.ballerinalang.util.program.BLangVMUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -45,19 +44,27 @@ public class RecoveryTask implements Runnable {
 
     @Override
     public void run() {
-        List<State> states = PersistenceStore.getStates(programFile);
+        Deserializer deserializer = new Deserializer();
+        List<State> states = PersistenceStore.getStates(programFile, deserializer);
         if (states.isEmpty()) {
             return;
         }
-        logger.debug("RecoveryTask: Starting saved states.");
         states.forEach(state -> {
-            WorkerExecutionContext context = state.getContext();
-            // As we don't have any running context at this point, none of the contexts can run in caller.
-            // Even though sync functions run in caller under normal conditions, we have to override
-            // that to start a new thread for the function.
-            context.runInCaller = false;
-            BLangScheduler.schedule(context);
-            RuntimeStates.add(state);
+            RuntimeStates.add(state.sState);
+            state.executableCtxList.forEach(ctx -> {
+                if (ctx.callableUnitInfo instanceof ResourceInfo) {
+                    ResourceInfo resourceInfo = (ResourceInfo) ctx.callableUnitInfo;
+                    BLangVMUtils.setServiceInfo(ctx, resourceInfo.getServiceInfo());
+                }
+                // have to decrement ip as CPU class increments it as soon as instruction is fetched
+                ctx.ip--;
+                // As we don't have any running context at this point, none of the contexts can run in caller.
+                // Even though sync functions run in caller under normal conditions, we have to override
+                // that to start a new thread for the function.
+                ctx.runInCaller = false;
+                BLangScheduler.schedule(ctx);
+            });
         });
+        deserializer.cleanUpDeserializer();
     }
 }

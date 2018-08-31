@@ -29,26 +29,33 @@ import org.ballerinalang.util.codegen.ProgramFile;
  */
 public class SerializableRespContext {
 
-    public String key;
+    String respCtxKey;
 
-    public String targetContextKey;
+    String targetContextKey;
 
     public int[] retRegIndexes;
 
     public int workerCount;
 
-    public SerializableRespContext(String key, CallableWorkerResponseContext respCtx, SerializableState state) {
-        this.key = key;
-        targetContextKey = state.addContext(respCtx.getTargetContext(), respCtx.getTargetContext().ip);
+    SerializableRespContext(String respCtxKey, CallableWorkerResponseContext respCtx, SerializableState state,
+                            boolean updateTargetCtxIfExist) {
+        this.respCtxKey = respCtxKey;
+        SerializableContext sTargetCtx = state.getContext(String.valueOf(respCtx.getTargetContext().hashCode()));
+        if (sTargetCtx == null) {
+            sTargetCtx = state.populateContext(respCtx.getTargetContext(), respCtx.getTargetContext().ip, true,
+                                               updateTargetCtxIfExist, null);
+        }
+        targetContextKey = sTargetCtx.ctxKey;
         retRegIndexes = respCtx.getRetRegIndexes();
         workerCount = respCtx.getWorkerCount();
     }
 
-    public CallableWorkerResponseContext getResponseContext(ProgramFile programFile, CallableUnitInfo callableUnitInfo,
-                                                            SerializableState state, Deserializer deserializer) {
+    CallableWorkerResponseContext getResponseContext(ProgramFile programFile, CallableUnitInfo callableUnitInfo,
+                                                     SerializableState state, Deserializer deserializer) {
         CallableWorkerResponseContext respCtx = new CallableWorkerResponseContext(callableUnitInfo.getRetParamTypes(),
                                                                                   workerCount);
-        respCtx.joinTargetContextInfo(state.getContext(targetContextKey, programFile, deserializer), retRegIndexes);
+        respCtx.joinTargetContextInfo(state.getExecutionContext(targetContextKey, programFile, deserializer),
+                                      retRegIndexes);
         return respCtx;
     }
 }

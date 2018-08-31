@@ -17,12 +17,12 @@
  */
 package org.ballerinalang.persistence.store;
 
-import org.ballerinalang.persistence.states.State;
+import org.ballerinalang.persistence.serializable.SerializableState;
 
 import java.util.List;
 
 /**
- * Representation of storage provider which will be used to persist @{@link State}s.
+ * Representation of storage provider which will be used to persist @{@link SerializableState}s.
  *
  * @since 0.981.1
  */

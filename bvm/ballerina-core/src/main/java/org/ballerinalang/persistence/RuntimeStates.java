@@ -15,28 +15,39 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.ballerinalang.persistence.states;
+package org.ballerinalang.persistence;
 
-import java.util.ArrayList;
-import java.util.List;
+import org.ballerinalang.bre.bvm.WorkerExecutionContext;
+import org.ballerinalang.persistence.serializable.SerializableState;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
- * This is used to manage the active @{@link State}s of the system.
+ * This is used to manage the active @{@link SerializableState}s of the system.
  *
  * @since 0.981.1
  */
 public class RuntimeStates {
 
-    private static Map<String, List<State>> states = new ConcurrentHashMap<>();
+    private static final Logger log = LoggerFactory.getLogger(RuntimeStates.class);
 
-    public static void add(State state) {
-        List<State> stateList = states.computeIfAbsent(state.getId(), k -> new ArrayList<>());
-        stateList.add(state);
+    private static Map<String, SerializableState> states = new ConcurrentHashMap<>();
+
+    public static void add(SerializableState state) {
+        if (states.containsKey(state.getId())) {
+            log.error("Duplicate state is found for id : " + state.getId());
+        }
+        states.put(state.getId(), state);
     }
 
-    public static List<State> get(String stateId) {
+    public static void add(WorkerExecutionContext context, String stateId) {
+        add(new SerializableState(context, stateId));
+    }
+
+    public static SerializableState get(String stateId) {
         return states.get(stateId);
     }
 

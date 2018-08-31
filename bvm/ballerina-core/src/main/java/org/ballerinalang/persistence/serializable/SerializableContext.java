@@ -32,6 +32,7 @@ import org.ballerinalang.util.codegen.ServiceInfo;
 import org.ballerinalang.util.codegen.WorkerInfo;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 
 import static org.ballerinalang.util.program.BLangVMUtils.SERVICE_INFO_KEY;
@@ -43,7 +44,7 @@ import static org.ballerinalang.util.program.BLangVMUtils.SERVICE_INFO_KEY;
  */
 public class SerializableContext {
 
-    public String contextKey;
+    String ctxKey;
 
     public String parent;
 
@@ -51,13 +52,7 @@ public class SerializableContext {
 
     public WorkerState state = WorkerState.CREATED;
 
-    public HashMap<String, Object> localProps = new HashMap<>();
-
     public int ip;
-
-    public SerializableWorkerData workerLocal;
-
-    public SerializableWorkerData workerResult;
 
     public int[] retRegIndexes;
 
@@ -73,19 +68,69 @@ public class SerializableContext {
 
     public String workerName;
 
+    public Type type = Type.WORKER;
+
+    public HashMap<String, Object> globalProps = new HashMap<>();
+
+    private HashMap<String, Object> localProps = new HashMap<>();
+
+    public SerializableWorkerData workerLocal;
+
+    public SerializableWorkerData workerResult;
+
+    public HashSet<String> children = new HashSet<>();
+
+
     public static SerializableContext deserialize(String jsonString) {
         JsonSerializer serializer = Serializer.getJsonSerializer();
         return serializer.deserialize(jsonString, SerializableContext.class);
     }
 
-    public SerializableContext(String contextKey, WorkerExecutionContext ctx, SerializableState state, int ip) {
-        this.contextKey = contextKey;
+    private SerializableContext(String ctxKey, WorkerExecutionContext ctx, int ip, SerializableState state,
+                                boolean updateIfExist) {
+        this.ctxKey = ctxKey;
+        this.interruptible = ctx.interruptible;
+        if (ctx.workerInfo != null) {
+            workerName = ctx.workerInfo.getWorkerName();
+            if (workerName.equals(Constants.DEFAULT)) {
+                type = Type.DEFAULT;
+            }
+        } else {
+            type = Type.PARENT;
+        }
+        populateData(ctx, ip, state, updateIfExist);
+    }
+
+    SerializableContext(String ctxKey, WorkerExecutionContext ctx, int ip, SerializableState state,
+                        SerializableContext sParentCtx, boolean updateIfExist) {
+        this(ctxKey, ctx, ip, state, updateIfExist);
+        this.parent = sParentCtx.ctxKey;
+        sParentCtx.children.add(this.ctxKey);
+    }
+
+    SerializableContext(String ctxKey, WorkerExecutionContext ctx, SerializableState state, int ip,
+                        boolean isCompletedCtxRemoved, boolean updateIfExist) {
+        this(ctxKey, ctx, ip, state, updateIfExist);
+        populateData(ctx, ip, state, updateIfExist);
+        SerializableContext sParentCtx = populateParentContexts(ctx, state, isCompletedCtxRemoved, updateIfExist);
+        if (sParentCtx != null) {
+            this.parent = sParentCtx.ctxKey;
+            sParentCtx.children.add(this.ctxKey);
+        }
+    }
+
+    void populateData(WorkerExecutionContext ctx, SerializableState state, int ip,
+                      boolean isCompletedCtxRemoved) {
+        populateData(ctx, ip, state, true);
+        populateParentContexts(ctx, state, isCompletedCtxRemoved, true);
+    }
+
+    private void populateData(WorkerExecutionContext ctx, int ip, SerializableState state, boolean updateIfExist) {
         this.ip = ip;
         populateProps(state.globalProps, ctx.globalProps, state);
         populateProps(localProps, ctx.localProps, state);
         retRegIndexes = ctx.retRegIndexes;
         runInCaller = ctx.runInCaller;
-        interruptible = ctx.interruptible;
         if (ctx.callableUnitInfo != null) {
             if (ctx.callableUnitInfo instanceof ResourceInfo) {
                 enclosingServiceName = ((ResourceInfo) ctx.callableUnitInfo).getServiceInfo().getName();
@@ -93,13 +138,10 @@ public class SerializableContext {
             callableUnitName = ctx.callableUnitInfo.getName();
             callableUnitPkgPath = ctx.callableUnitInfo.getPkgPath();
         }
-        if (ctx.workerInfo != null) {
-            workerName = ctx.workerInfo.getWorkerName();
-        }
         if (ctx.respCtx != null) {
             if (ctx.respCtx instanceof CallableWorkerResponseContext) {
                 CallableWorkerResponseContext callableRespCtx = (CallableWorkerResponseContext) ctx.respCtx;
-                respContextKey = state.addRespContext(callableRespCtx);
+                respContextKey = state.addRespContext(callableRespCtx, updateIfExist).respCtxKey;
             }
         }
         if (ctx.workerLocal != null) {
@@ -108,14 +150,19 @@ public class SerializableContext {
         if (ctx.workerResult != null) {
             workerResult = new SerializableWorkerData(ctx.workerResult, state);
         }
-        if (ctx.parent != null) {
-            parent = state.addContext(ctx.parent, ctx.parent.ip);
-        }
     }
 
-    public WorkerExecutionContext getWorkerExecutionContext(ProgramFile programFile, SerializableState state,
-                                                            Deserializer deserializer) {
-        WorkerExecutionContext workerExecutionContext = deserializer.getContexts().get(contextKey);
+    private SerializableContext populateParentContexts(WorkerExecutionContext ctx, SerializableState state,
+                                                       boolean isCompletedCtxRemoved, boolean updateIfExist) {
+        if (ctx.parent != null) {
+            return state.populateContext(ctx.parent, ctx.parent.ip, isCompletedCtxRemoved, updateIfExist, ctxKey);
+        }
+        return null;
+    }
+
+    WorkerExecutionContext getWorkerExecutionContext(ProgramFile programFile, SerializableState state,
+                                                     Deserializer deserializer) {
+        WorkerExecutionContext workerExecutionContext = deserializer.getContexts().get(ctxKey);
         if (workerExecutionContext != null) {
             return workerExecutionContext;
         }
@@ -155,13 +202,13 @@ public class SerializableContext {
                 }
             }
         }
-        if (parent == null) {
+        if (parent == null || callableUnitInfo == null) {
             // this is the root context
             workerExecutionContext = new WorkerExecutionContext(programFile);
             workerExecutionContext.workerLocal = workerLocalData;
             workerExecutionContext.workerResult = workerResultData;
         } else {
-            WorkerExecutionContext parentCtx = state.getContext(parent, programFile, deserializer);
+            WorkerExecutionContext parentCtx = state.getExecutionContext(parent, programFile, deserializer);
             CallableWorkerResponseContext respCtx = state.getResponseContext(respContextKey, programFile,
                                                                              callableUnitInfo, deserializer);
             workerExecutionContext = new WorkerExecutionContext(parentCtx, respCtx, callableUnitInfo,
@@ -172,7 +219,7 @@ public class SerializableContext {
         workerExecutionContext.localProps = prepareProps(localProps, state, programFile, deserializer);
         workerExecutionContext.ip = ip;
         workerExecutionContext.interruptible = interruptible;
-        deserializer.getContexts().put(contextKey, workerExecutionContext);
+        deserializer.getContexts().put(ctxKey, workerExecutionContext);
         return workerExecutionContext;
     }
 
@@ -193,5 +240,15 @@ public class SerializableContext {
         if (props != null) {
             props.forEach((s, o) -> properties.put(s, state.serialize(o)));
         }
+    }
+
+    /**
+     * Execution Type of the @{@link SerializableContext}.
+     */
+    public enum Type {
+        DEFAULT,
+        ASYNC,
+        WORKER,
+        PARENT
     }
 }

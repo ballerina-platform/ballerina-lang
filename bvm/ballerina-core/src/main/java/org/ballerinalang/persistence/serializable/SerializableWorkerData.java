@@ -27,7 +27,7 @@ import java.util.ArrayList;
  *
  * @since 0.981.1
  */
-public class SerializableWorkerData {
+class SerializableWorkerData {
 
     public long[] longRegs;
 
@@ -37,11 +37,9 @@ public class SerializableWorkerData {
 
     public int[] intRegs;
 
-    public byte[][] byteRegs;
-
     public ArrayList<Object> refFields;
 
-    public SerializableWorkerData(WorkerData workerData, SerializableState state) {
+    SerializableWorkerData(WorkerData workerData, SerializableState state) {
         doubleRegs = workerData.doubleRegs;
         intRegs = workerData.intRegs;
         longRegs = workerData.longRegs;
@@ -49,7 +47,7 @@ public class SerializableWorkerData {
         refFields = state.serializeRefFields(workerData.refRegs);
     }
 
-    public WorkerData getWorkerData(ProgramFile programFile, SerializableState state, Deserializer deserializer) {
+    WorkerData getWorkerData(ProgramFile programFile, SerializableState state, Deserializer deserializer) {
         WorkerData workerData = new WorkerData();
         workerData.longRegs = longRegs;
         workerData.doubleRegs = doubleRegs;

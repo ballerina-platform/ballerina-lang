@@ -26,7 +26,7 @@ public class SerializedKey {
 
     public String key;
 
-    public SerializedKey(String key) {
+    SerializedKey(String key) {
         this.key = key;
     }
 }

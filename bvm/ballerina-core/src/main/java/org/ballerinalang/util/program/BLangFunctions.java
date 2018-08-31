@@ -33,15 +33,13 @@ import org.ballerinalang.bre.bvm.SyncCallableWorkerResponseContext;
 import org.ballerinalang.bre.bvm.WorkerData;
 import org.ballerinalang.bre.bvm.WorkerExecutionContext;
 import org.ballerinalang.bre.bvm.WorkerResponseContext;
-import org.ballerinalang.model.InterruptibleNativeCallableUnit;
 import org.ballerinalang.model.NativeCallableUnit;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.model.values.BCallableFuture;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.persistence.states.State;
-import org.ballerinalang.persistence.store.PersistenceStore;
+import org.ballerinalang.persistence.RuntimeStates;
 import org.ballerinalang.runtime.Constants;
 import org.ballerinalang.util.FunctionFlags;
 import org.ballerinalang.util.codegen.CallableUnitInfo;
@@ -68,6 +66,8 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.Semaphore;
+
+import static org.ballerinalang.runtime.Constants.STATE_ID;
 
 /**
  * This class contains helper methods to invoke Ballerina functions.
@@ -239,9 +239,18 @@ public class BLangFunctions {
             initWorkerCAI = workerSet.initWorker.getCodeAttributeInfo();
         }
 
-        for (int i = 0; i < workerSet.generalWorkers.length; i++) {
-            executeWorker(respCtx, parentCtx, argRegs, callableUnitInfo, workerSet.generalWorkers[i],
-                    wdi, initWorkerLocalData, initWorkerCAI, false, observerContext);
+        if (parentCtx.interruptible && generalWorkersCount > 1) {
+            List<WorkerExecutionContext> ctxList = new ArrayList<>(generalWorkersCount);
+            for (int i = 0; i < workerSet.generalWorkers.length; i++) {
+                ctxList.add(createWorker(respCtx, parentCtx, argRegs, callableUnitInfo, workerSet.generalWorkers[i],
+                                         wdi, initWorkerLocalData, initWorkerCAI, false, observerContext));
+            }
+            registerAndScheduleInterruptibleWorkers(parentCtx, ctxList);
+        } else {
+            for (int i = 0; i < workerSet.generalWorkers.length; i++) {
+                executeWorker(respCtx, parentCtx, argRegs, callableUnitInfo, workerSet.generalWorkers[i],
+                              wdi, initWorkerLocalData, initWorkerCAI, false, observerContext);
+            }
         }
     }
     
@@ -260,7 +269,6 @@ public class BLangFunctions {
                 invokeNativeCallableAsync(callableUnitInfo, parentCtx, argRegs, retRegs, flags);
                 resultCtx = parentCtx;
             } else {
-                checkAndHandleInterruptibleCallable(callableUnitInfo, parentCtx);
                 resultCtx = invokeNativeCallable(callableUnitInfo, parentCtx, argRegs, retRegs, flags);
             }
         } else {
@@ -313,13 +321,25 @@ public class BLangFunctions {
             }
             initWorkerCAI = workerSet.initWorker.getCodeAttributeInfo();
         }
-
-        for (int i = 1; i < generalWorkersCount; i++) {
-            executeWorker(respCtx, parentCtx, argRegs, callableUnitInfo, workerSet.generalWorkers[i],
-                    wdi, initWorkerLocalData, initWorkerCAI, false, observerContext);
+        WorkerExecutionContext runInCallerCtx;
+        if (parentCtx.interruptible && generalWorkersCount > 1) {
+            List<WorkerExecutionContext> ctxList = new ArrayList<>(generalWorkersCount);
+            for (int i = 1; i < generalWorkersCount; i++) {
+                ctxList.add(createWorker(respCtx, parentCtx, argRegs, callableUnitInfo, workerSet.generalWorkers[i],
+                                         wdi, initWorkerLocalData, initWorkerCAI, false, observerContext));
+            }
+            runInCallerCtx = createWorker(respCtx, parentCtx, argRegs, callableUnitInfo, workerSet.generalWorkers[0],
+                                          wdi, initWorkerLocalData, initWorkerCAI, true, observerContext);
+            ctxList.add(runInCallerCtx);
+            registerAndScheduleInterruptibleWorkers(parentCtx, ctxList);
+        } else {
+            for (int i = 1; i < generalWorkersCount; i++) {
+                executeWorker(respCtx, parentCtx, argRegs, callableUnitInfo, workerSet.generalWorkers[i],
+                              wdi, initWorkerLocalData, initWorkerCAI, false, observerContext);
+            }
+            runInCallerCtx = executeWorker(respCtx, parentCtx, argRegs, callableUnitInfo, workerSet.generalWorkers[0],
+                                           wdi, initWorkerLocalData, initWorkerCAI, true, observerContext);
         }
-        WorkerExecutionContext runInCallerCtx = executeWorker(respCtx, parentCtx, argRegs, callableUnitInfo, 
-                workerSet.generalWorkers[0], wdi, initWorkerLocalData, initWorkerCAI, true, observerContext);
         if (waitForResponse) {
             BLangScheduler.executeNow(runInCallerCtx);
             respCallback.waitForResponse();
@@ -389,11 +409,12 @@ public class BLangFunctions {
         }
         try {
             ObserverContext observerContext = checkAndStartNativeCallableObservation(ctx, callableUnitInfo, flags);
+            BLangScheduler.handleInterruptibleBeforeNativeCallable(callableUnitInfo, parentCtx);
             if (nativeCallable.isBlocking()) {
                 nativeCallable.execute(ctx, null);
                 BLangVMUtils.populateWorkerDataWithValues(parentLocalData, retRegs, ctx.getReturnValues(), retTypes);
                 checkAndStopCallableObservation(observerContext, flags);
-                BLangScheduler.handleInterruptibleAfterCallback(parentCtx);
+                BLangScheduler.handleInterruptibleAfterNativeCallable(parentCtx);
                 /* we want the parent to continue, since we got the response of the native call already */
                 return parentCtx;
             } else {
@@ -440,8 +461,19 @@ public class BLangFunctions {
             int[] argRegs, CallableUnitInfo callableUnitInfo, WorkerInfo workerInfo, WorkerDataIndex wdi,
             WorkerData initWorkerLocalData, CodeAttributeInfo initWorkerCAI, boolean runInCaller,
             ObserverContext observerContext) {
-        WorkerData workerLocal = BLangVMUtils
-                .createWorkerDataForLocal(workerInfo, parentCtx, argRegs, callableUnitInfo.getParamTypes());
+        WorkerExecutionContext ctx = createWorker(respCtx, parentCtx, argRegs, callableUnitInfo, workerInfo, wdi,
+                                                  initWorkerLocalData, initWorkerCAI, runInCaller, observerContext);
+        BLangScheduler.schedule(ctx);
+        return ctx;
+    }
+
+    private static WorkerExecutionContext createWorker(WorkerResponseContext respCtx, WorkerExecutionContext parentCtx,
+                                                       int[] argRegs, CallableUnitInfo callableUnitInfo,
+                                                       WorkerInfo workerInfo, WorkerDataIndex wdi,
+                                                       WorkerData initWorkerLocalData, CodeAttributeInfo initWorkerCAI,
+                                                       boolean runInCaller, ObserverContext observerContext) {
+        WorkerData workerLocal = BLangVMUtils.createWorkerDataForLocal(workerInfo, parentCtx, argRegs,
+                                                                       callableUnitInfo.getParamTypes());
         if (initWorkerLocalData != null) {
             BLangVMUtils.mergeInitWorkertData(initWorkerLocalData, workerLocal, initWorkerCAI);
         }
@@ -449,8 +481,14 @@ public class BLangFunctions {
         WorkerExecutionContext ctx = new WorkerExecutionContext(parentCtx, respCtx, callableUnitInfo, workerInfo,
                 workerLocal, workerResult, wdi.retRegs, runInCaller);
         ObservabilityUtils.setObserverContextToWorkerExecutionContext(ctx, observerContext);
-        BLangScheduler.schedule(ctx);
         return ctx;
+    }
+
+    private static void registerAndScheduleInterruptibleWorkers(WorkerExecutionContext parentCtx,
+                                                                List<WorkerExecutionContext> ctxList) {
+        String stateId = parentCtx.globalProps.get(STATE_ID).toString();
+        RuntimeStates.get(stateId).registerContexts(parentCtx, ctxList);
+        ctxList.forEach(BLangScheduler::schedule);
     }
     
     private static WorkerData executeInitWorker(WorkerExecutionContext parentCtx, int[] argRegs,
@@ -610,22 +648,6 @@ public class BLangFunctions {
         Optional<ObserverContext> observerContext = ObservabilityUtils.startClientObservation(
                 callableUnitInfo.attachedToType.toString(), callableUnitInfo.getName(), parentCtx);
         return observerContext.orElse(null);
-    }
-
-    private static void checkAndHandleInterruptibleCallable(CallableUnitInfo callableUnitInfo,
-                                                            WorkerExecutionContext parentCtx) {
-        NativeCallableUnit nativeCallable = callableUnitInfo.getNativeCallableUnit();
-        if (parentCtx.interruptible && nativeCallable instanceof InterruptibleNativeCallableUnit) {
-            InterruptibleNativeCallableUnit interruptibleNativeCallableUnit
-                    = (InterruptibleNativeCallableUnit) nativeCallable;
-            String stateId = (String) parentCtx.globalProps.get(Constants.STATE_ID);
-            if (interruptibleNativeCallableUnit.persistBeforeOperation()) {
-                PersistenceStore.persistState(new State(parentCtx, stateId));
-            }
-            if (interruptibleNativeCallableUnit.persistAfterOperation()) {
-                parentCtx.markAsCheckPointed = true;
-            }
-        }
     }
 
     /**

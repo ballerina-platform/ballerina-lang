@@ -18,7 +18,7 @@
 package org.ballerinalang.persistence.store.impl;
 
 import org.ballerinalang.config.ConfigRegistry;
-import org.ballerinalang.persistence.states.State;
+import org.ballerinalang.persistence.serializable.SerializableState;
 import org.ballerinalang.persistence.store.StorageProvider;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.slf4j.Logger;
@@ -34,7 +34,7 @@ import java.util.List;
 import java.util.stream.Stream;
 
 /**
- * This class implements @{@link StorageProvider} for persist @{@link State}s as files.
+ * This class implements @{@link StorageProvider} for persist @{@link SerializableState}s as files.
  *
  * @since 0.981.1
  */
