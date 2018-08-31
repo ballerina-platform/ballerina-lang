@@ -22,6 +22,7 @@ const {
 } = require('vscode-debugadapter');
 const DebugManager = require('./DebugManager');
 const fs = require('fs');
+const os = require('os');
 const path = require('path');
 const { spawn } = require('child_process');
 const openport = require('openport');
@@ -135,9 +136,11 @@ class BallerinaDebugSession extends LoggingDebugSession {
 
     getRunningInfo(currentPath, root, ballerinaPackage) {
         if (fs.existsSync(path.join(currentPath, '.ballerina'))) {
-            return {
-                sourceRoot: currentPath,
-                ballerinaPackage,
+            if (currentPath != os.homedir()) {
+                return {
+                    sourceRoot: currentPath,
+                    ballerinaPackage,
+                }
             }
         }
 
