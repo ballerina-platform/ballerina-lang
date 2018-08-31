@@ -17,8 +17,6 @@
 package org.ballerinalang.composer.service.ballerina.parser.service.model.lang;
 
 
-import org.wso2.ballerinalang.compiler.tree.BLangAnnotAttribute;
-
 /**
  * Annotation attribute value.
  */
@@ -63,22 +61,6 @@ public class AnnotationAttributeDef {
     
     public void setIdentifier(String identifier) {
         this.identifier = identifier;
-    }
-    
-    /**
-     * Converts a {@link BLangAnnotAttribute} to {@link AnnotationAttributeDef}.
-     *
-     * @param annotationAttributeDef The langconstruct to be converted.
-     * @return Converted langconstruct.
-     */
-    public static AnnotationAttributeDef convertToPackageModel(BLangAnnotAttribute annotationAttributeDef) {
-        AnnotationAttributeDef tempAnnotationAttributeDef = new AnnotationAttributeDef();
-        tempAnnotationAttributeDef.setBType(annotationAttributeDef.getTypeNode().type.toString());
-        //tempAnnotationAttributeDef.setArrayType(annotationAttributeDef.getTypeName().isArrayType());
-        //tempAnnotationAttributeDef.setPackagePath(annotationAttributeDef.getPackagePath());
-        tempAnnotationAttributeDef.setIdentifier(annotationAttributeDef.getName().getValue());
-
-        return tempAnnotationAttributeDef;
     }
 
     /**
