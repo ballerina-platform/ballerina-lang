@@ -1,14 +1,15 @@
 import ballerina/io;
 
-io:ByteChannel channel;
+io:ReadableByteChannel rch;
+io:WritableByteChannel wch;
 
 function initFileChannel (string filePath, io:Mode permission) {
-    channel = untaint io:openFile(filePath, permission);
+    rch = untaint io:openFile(filePath, permission);
 }
 
 function readBytes (int numberOfBytes) returns byte[]|error {
     byte[] empty;
-    var result = channel.read(numberOfBytes);
+    var result = rch.read(numberOfBytes);
     match result {
         (byte[],int) content =>{
             var (bytes, _) = content;
@@ -22,7 +23,7 @@ function readBytes (int numberOfBytes) returns byte[]|error {
 
 function writeBytes (byte[] content, int startOffset) returns int|error {
     int empty = -1;
-    var result = channel.write(content, startOffset);
+    var result = wch.write(content, startOffset);
     match result {
         int numberOfBytesWritten =>{
             return numberOfBytesWritten;
@@ -33,14 +34,22 @@ function writeBytes (byte[] content, int startOffset) returns int|error {
     }
 }
 
-function close () {
-    var result = channel.close();
+//function close () {
+//    var result = rch.close();
+//}
+
+function closeReadableChannel() {
+    var result = rch.close();
 }
 
-function testBase64EncodeByteChannel(io:ByteChannel contentToBeEncoded) returns io:ByteChannel|error {
+function closeWritableChannel() {
+    var result = wch.close();
+}
+
+function testBase64EncodeByteChannel(io:WritableByteChannel contentToBeEncoded) returns io:WritableByteChannel|error {
     return contentToBeEncoded.base64Encode();
 }
 
-function testBase64DecodeByteChannel(io:ByteChannel contentToBeDecoded) returns io:ByteChannel|error {
+function testBase64DecodeByteChannel(io:ReadableByteChannel contentToBeDecoded) returns io:ReadableByteChannel|error {
     return contentToBeDecoded.base64Decode();
 }

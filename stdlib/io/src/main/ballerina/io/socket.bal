@@ -24,7 +24,8 @@
 # + localAddress - Local interface the connection should bound
 public type Socket object {
 
-    @readonly public ByteChannel channel;
+    @readonly public ReadableByteChannel readableChannel;
+    @readonly public WritableByteChannel writableChannel;
     @readonly public int remotePort;
     @readonly public int localPort;
     @readonly public string remoteAddress;

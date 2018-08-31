@@ -14,12 +14,12 @@
 // specific language governing permissions and limitations
 // under the License.
 
-# Represents the set of permissions supported to open file.
-#
-# READ - open the file in read mode
-# WRITE - open the file in write mode
-# READ/WRITE - open the file either to read or write
-# APPEND - append to existing file instead of replacing
+//# Represents the set of permissions supported to open file.
+//#
+//# READ - open the file in read mode
+//# WRITE - open the file in write mode
+//# READ/WRITE - open the file either to read or write
+//# APPEND - append to existing file instead of replacing
 public type Mode "r"|"w"|"rw"|"a";
 @final public Mode READ = "r";
 @final public Mode WRITE = "w";
@@ -31,7 +31,8 @@ public type Mode "r"|"w"|"rw"|"a";
 # + path - Relative/absolute path string to locate the file
 # + accessMode - Permission to open the file
 # + return - ByteChannel representation of the file resource
-public extern function openFile(@sensitive string path, @sensitive Mode accessMode) returns @tainted ByteChannel;
+public extern function openFile(@sensitive string path,
+                                @sensitive Mode accessMode) returns @tainted ReadableByteChannel|ReadableByteChannel;
 
 # Opens a secure socket connection with a remote server.
 #
@@ -47,22 +48,22 @@ public extern function openSecureSocket(@sensitive string host,
 #
 # + content - Content which should be exposed as channel
 # + return - ByteChannel represenation to read the memory content
-public extern function createMemoryChannel(byte[] content) returns ByteChannel;
+public extern function createReadableChannel(byte[] content) returns ReadableByteChannel;
 
-# Retrieves a CSV channel from a give file path.
-#
-# + path - File path which describes the location of the CSV
-# + mode - Permission which should be used to open CSV file
-# + fieldSeparator - CSV record seperator (i.e comma or tab)
-# + charset - Encoding characters in the file represents
-# + skipHeaders - Number of headers which should be skipped
-# + return - CSVChannel which could be used to iterate through the CSV records
-public function openCsvFile(@sensitive string path,
-                            @sensitive Mode mode = "r",
-                            @sensitive Separator fieldSeparator = ",",
-                            @sensitive string charset = "UTF-8",
-                            @sensitive int skipHeaders = 0) returns @tainted CSVChannel {
-    ByteChannel channel = openFile(path, mode);
-    CharacterChannel charChannel = new(channel, charset);
-    return new CSVChannel(charChannel, fs = fieldSeparator, nHeaders = skipHeaders);
-}
+//# Retrieves a CSV channel from a give file path.
+//#
+//# + path - File path which describes the location of the CSV
+//# + mode - Permission which should be used to open CSV file
+//# + fieldSeparator - CSV record seperator (i.e comma or tab)
+//# + charset - Encoding characters in the file represents
+//# + skipHeaders - Number of headers which should be skipped
+//# + return - CSVChannel which could be used to iterate through the CSV records
+//public function openCsvFile(@sensitive string path,
+//                            @sensitive Mode mode = "r",
+//                            @sensitive Separator fieldSeparator = ",",
+//                            @sensitive string charset = "UTF-8",
+//                            @sensitive int skipHeaders = 0) returns @tainted CSVChannel {
+//    ByteChannel channel = openFile(path, mode);
+//    CharacterChannel charChannel = new(channel, charset);
+//    return new CSVChannel(charChannel, fs = fieldSeparator, nHeaders = skipHeaders);
+//}

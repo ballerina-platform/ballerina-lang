@@ -41,11 +41,14 @@ public abstract class AbstractNativeChannel extends BlockingNativeCallableUnit {
      * The package path of the byte channel.
      */
     private static final String BYTE_CHANNEL_PACKAGE = "ballerina/io";
-
     /**
      * The struct type of the byte channel.
      */
-    private static final String STRUCT_TYPE = "ByteChannel";
+    private static final String READ_BYTE_CHANNEL_STRUCT = "ReadableByteChannel";
+    /**
+     * Writable byte channel struct.
+     */
+    private static final String WRITE_BYTE_CHANNEL_STRUCT = "WritableByteChannel";
 
     /**
      * <p>
@@ -64,8 +67,14 @@ public abstract class AbstractNativeChannel extends BlockingNativeCallableUnit {
     @Override
     public void execute(Context context) {
         Channel channel = inFlow(context);
-        BMap<String, BValue> channelStruct =
-                BLangConnectorSPIUtil.createBStruct(context, BYTE_CHANNEL_PACKAGE, STRUCT_TYPE);
+        BMap<String, BValue> channelStruct;
+        if (channel.isReadable()) {
+            channelStruct = BLangConnectorSPIUtil.createBStruct(context, BYTE_CHANNEL_PACKAGE,
+                    READ_BYTE_CHANNEL_STRUCT);
+        } else {
+            channelStruct = BLangConnectorSPIUtil.createBStruct(context, BYTE_CHANNEL_PACKAGE,
+                    WRITE_BYTE_CHANNEL_STRUCT);
+        }
         channelStruct.addNativeData(IOConstants.BYTE_CHANNEL_NAME, channel);
         context.setReturnValues(channelStruct);
     }

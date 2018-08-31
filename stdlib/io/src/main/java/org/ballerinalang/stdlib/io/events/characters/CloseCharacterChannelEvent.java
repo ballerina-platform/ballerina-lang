@@ -25,7 +25,7 @@ import org.ballerinalang.stdlib.io.events.EventContext;
 import org.ballerinalang.stdlib.io.events.EventResult;
 import org.ballerinalang.stdlib.io.events.EventType;
 import org.ballerinalang.stdlib.io.events.result.BooleanResult;
-import org.ballerinalang.stdlib.io.nativeimpl.CloseCharacterChannel;
+import org.ballerinalang.stdlib.io.nativeimpl.CloseReadableCharacterChannel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -44,7 +44,7 @@ public class CloseCharacterChannelEvent implements Event {
      */
     private EventContext context;
 
-    private static final Logger log = LoggerFactory.getLogger(CloseCharacterChannel.class);
+    private static final Logger log = LoggerFactory.getLogger(CloseReadableCharacterChannel.class);
 
     public CloseCharacterChannelEvent(CharacterChannel channel, EventContext context) {
         this.channel = channel;

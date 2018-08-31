@@ -46,7 +46,8 @@ import org.ballerinalang.stdlib.io.utils.IOUtils;
 @BallerinaFunction(
         orgName = "ballerina", packageName = "io",
         functionName = "readString",
-        receiver = @Receiver(type = TypeKind.OBJECT, structType = "DataChannel", structPackage = "ballerina.io"),
+        receiver = @Receiver(type = TypeKind.OBJECT, structType = "ReadableDataChannel",
+                structPackage = "ballerina.io"),
         args = {@Argument(name = "nBytes", type = TypeKind.INT),
                 @Argument(name = "encoding", type = TypeKind.STRING)},
         isPublic = true

@@ -34,8 +34,10 @@ import org.ballerinalang.stdlib.io.utils.Utils;
 @BallerinaFunction(
         orgName = "ballerina", packageName = "io",
         functionName = "base64Decode",
-        receiver = @Receiver(type = TypeKind.OBJECT, structType = "ByteChannel", structPackage = "ballerina/io"),
-        returnType = {@ReturnType(type = TypeKind.RECORD, structType = "ByteChannel", structPackage = "ballerina/io")},
+        receiver = @Receiver(type = TypeKind.OBJECT, structType = "ReadableByteChannel", structPackage =
+                "ballerina/io"),
+        returnType = {@ReturnType(type = TypeKind.RECORD, structType = "ReadableByteChannel", structPackage =
+                "ballerina/io")},
         isPublic = true
 )
 public class Base64Decode extends BlockingNativeCallableUnit {

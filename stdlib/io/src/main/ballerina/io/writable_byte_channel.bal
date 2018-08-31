@@ -15,7 +15,7 @@
 // under the License.
 
 # ByteChannel represents an input/output resource (i.e file, socket). which could be used to source/sink bytes.
-public type ByteChannel object {
+public type WritableByteChannel object {
 
     # Source bytes from a given input/output resource.
     #
@@ -26,29 +26,15 @@ public type ByteChannel object {
     #
     # + nBytes - Positive integer. Represents the number of bytes which should be read
     # + return - Content, the number of bytes read or an error
-    public extern function read(@sensitive int nBytes) returns @tainted (byte[], int)|error;
-
-    # Sink bytes from a given input/output resource.
-    #
-    # This operation will be asynchronous, write might return without writing all the content.
-    #
-    # + content - Block of bytes which should be written
-    # + return - Offset which should be kept when writing bytes.
-    #            Number of bytes written or an error.
     public extern function write(byte[] content, int offset) returns int|error;
+
+    # Encodes a given ByteChannel with Base64 encoding scheme.
+    #
+    # + return - Return an encoded ByteChannel or an error
+    public extern function base64Encode() returns WritableByteChannel|error;
 
     # Closes a given byte channel.
     #
     # + return - Will return () if there's no error
     public extern function close() returns error?;
-
-    # Encodes a given ByteChannel with Base64 encoding scheme.
-    #
-    # + return - Return an encoded ByteChannel or an error
-    public extern function base64Encode() returns ByteChannel|error;
-
-    # Decodes a given ByteChannel with Base64 encoding scheme.
-    #
-    # + return - Return a decoded ByteChannel or an error
-    public extern function base64Decode() returns ByteChannel|error;
 };

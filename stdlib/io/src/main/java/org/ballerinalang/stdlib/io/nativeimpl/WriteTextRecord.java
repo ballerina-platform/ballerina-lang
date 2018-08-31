@@ -46,7 +46,7 @@ import org.ballerinalang.stdlib.io.utils.IOUtils;
         orgName = "ballerina", packageName = "io",
         functionName = "write",
         receiver = @Receiver(type = TypeKind.OBJECT,
-                structType = "DelimitedTextRecordChannel",
+                structType = "WritableTextRecordChannel",
                 structPackage = "ballerina/io"),
         args = {@Argument(name = "content", type = TypeKind.ARRAY, elementType = TypeKind.STRING)},
         returnType = {@ReturnType(type = TypeKind.RECORD, structType = "IOError", structPackage = "ballerina/io")},
