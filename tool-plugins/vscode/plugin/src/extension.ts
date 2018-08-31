@@ -20,7 +20,7 @@
 import { window, commands, ExtensionContext, extensions, workspace, Extension, debug,
 	DebugConfigurationProvider, WorkspaceFolder, DebugConfiguration, ProviderResult } from 'vscode';
 import { } from 'vscode-debugadapter';
-import { LanguageClientOptions } from 'vscode-languageclient';
+import { LanguageClientOptions, StateChangeEvent, State } from 'vscode-languageclient';
 import { exec } from 'child_process';
 import * as path from 'path';
 import * as fs from 'fs';
@@ -157,8 +157,12 @@ export function activate(context: ExtensionContext) : void {
 
 	const langClient = new ExtendedLangClient('ballerina-vscode', 'Ballerina vscode lanugage client',
 		getServerOptions(), clientOptions);
-	const langClientDisposable = langClient.start();	
-	activateRenderer(context, langClient);
+	langClient.onDidChangeState((e: StateChangeEvent) => {
+		if (e.newState === State.Running) {		
+			activateRenderer(context, langClient);
+		}
+	});
+	const langClientDisposable = langClient.start();
 
 	// Push the disposable to the context's subscriptions so that the 
 	// client can be deactivated on extension deactivation

@@ -81,16 +81,19 @@ export function activate(context: ExtensionContext, langClient: ExtendedLangClie
 	});
 
 	const diagramRenderDisposable = commands.registerCommand('ballerina.showDiagram', () => {
-		
+		if (previewPanel) {
+			previewPanel.reveal(ViewColumn.Two, true);
+			return;
+		}
 		// Create and show a new webview
         previewPanel = window.createWebviewPanel(
             'ballerinaDiagram',
             "Ballerina Diagram",
-            ViewColumn.Two,
+            { viewColumn: ViewColumn.Two, preserveFocus: true } ,
             {
 				enableScripts: true,
 				localResourceRoots: [resourcePath],
-				retainContextWhenHidden: true
+				retainContextWhenHidden: true,
 			}
 		);
 		const editor = window.activeTextEditor;
@@ -118,7 +121,10 @@ export function activate(context: ExtensionContext, langClient: ExtendedLangClie
 					}
                     return;
             }
-        }, undefined, context.subscriptions);
+		}, undefined, context.subscriptions);
+		previewPanel.onDidDispose(() => {
+			previewPanel = undefined;
+		});
     });
 	context.subscriptions.push(diagramRenderDisposable);
 }
