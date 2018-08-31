@@ -44,7 +44,10 @@ import java.nio.file.Paths;
         functionName = "openFile",
         args = {@Argument(name = "path", type = TypeKind.STRING),
                 @Argument(name = "accessMode", type = TypeKind.STRING)},
-        returnType = {@ReturnType(type = TypeKind.OBJECT, structType = "ByteChannel", structPackage = "ballerina/io")},
+        returnType = {
+                @ReturnType(type = TypeKind.OBJECT, structType = "ReadableByteChannel", structPackage = "ballerina/io"),
+                @ReturnType(type = TypeKind.OBJECT, structType = "WritableByteChannel", structPackage = "ballerina/io")
+        },
         isPublic = true
 )
 public class OpenFile extends AbstractNativeChannel {
@@ -56,6 +59,10 @@ public class OpenFile extends AbstractNativeChannel {
      * Index which will specify the file access mode.
      */
     private static final int FILE_ACCESS_MODE_INDEX = 0;
+    /**
+     * Read only access mode.
+     */
+    private static final String READ_ACCESS_MODE = "r";
 
     /**
      * {@inheritDoc}
@@ -69,6 +76,9 @@ public class OpenFile extends AbstractNativeChannel {
             Path path = Paths.get(pathUrl);
             FileChannel fileChannel = IOUtils.openFileChannel(path, accessMode.stringValue());
             channel = new FileIOChannel(fileChannel);
+            if (accessMode.stringValue().contains(READ_ACCESS_MODE)) {
+                channel.setReadable(true);
+            }
         } catch (AccessDeniedException e) {
             throw new BallerinaException("Do not have access to write file: ", e);
         } catch (Throwable e) {

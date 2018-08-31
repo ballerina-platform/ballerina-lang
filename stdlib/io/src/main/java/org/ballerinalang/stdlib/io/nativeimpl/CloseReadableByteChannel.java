@@ -43,11 +43,12 @@ import org.ballerinalang.stdlib.io.utils.IOUtils;
 @BallerinaFunction(
         orgName = "ballerina", packageName = "io",
         functionName = "close",
-        receiver = @Receiver(type = TypeKind.OBJECT, structType = "ByteChannel", structPackage = "ballerina/io"),
+        receiver = @Receiver(type = TypeKind.OBJECT, structType = "ReadableByteChannel", structPackage =
+                "ballerina/io"),
         returnType = {@ReturnType(type = TypeKind.OBJECT, structType = "IOError", structPackage = "ballerina/io")},
         isPublic = true
 )
-public class CloseByteChannel implements NativeCallableUnit {
+public class CloseReadableByteChannel implements NativeCallableUnit {
 
     /**
      * The index of the ByteChannel in ballerina/io#close().
@@ -77,7 +78,7 @@ public class CloseByteChannel implements NativeCallableUnit {
         Channel byteChannel = (Channel) channel.getNativeData(IOConstants.BYTE_CHANNEL_NAME);
         EventContext eventContext = new EventContext(context, callback);
         CloseByteChannelEvent closeEvent = new CloseByteChannelEvent(byteChannel, eventContext);
-        Register register = EventRegister.getFactory().register(closeEvent, CloseByteChannel::closeResponse);
+        Register register = EventRegister.getFactory().register(closeEvent, CloseReadableByteChannel::closeResponse);
         eventContext.setRegister(register);
         register.submit();
     }

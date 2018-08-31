@@ -18,7 +18,6 @@ documentation {
     ByteChannel represents an input/output resource (i.e file, socket). which could be used to source/sink bytes.
 }
 public type ReadableByteChannel object {
-
     documentation {
         Source bytes from a given input/output resource.
 
@@ -33,23 +32,16 @@ public type ReadableByteChannel object {
     public extern function read(@sensitive int nBytes) returns @tainted (byte[], int)|error;
 
     documentation {
-        Closes a given byte channel.
-
-        R{{}} Will return () if there's no error
-    }
-    public extern function close() returns error?;
-
-    documentation {
-        Encodes a given ByteChannel with Base64 encoding scheme.
-
-        R{{}} Return an encoded ByteChannel or an error
-    }
-    public extern function base64Encode() returns ReadableByteChannel|error;
-
-    documentation {
         Decodes a given ByteChannel with Base64 encoding scheme.
 
         R{{}} Return a decoded ByteChannel or an error
     }
     public extern function base64Decode() returns ReadableByteChannel|error;
+
+    documentation {
+            Closes a given byte channel.
+
+            R{{}} Will return () if there's no error
+    }
+    public extern function close() returns error?;
 };

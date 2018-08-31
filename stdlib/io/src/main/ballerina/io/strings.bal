@@ -16,7 +16,7 @@
 
 # Represents a reader which will wrap string content as a channel.
 public type StringReader object {
-    private CharacterChannel? channel;
+    private ReadableCharacterChannel? channel;
 
     # Constructs a channel to read string.
     #
@@ -24,8 +24,8 @@ public type StringReader object {
     # + encoding - encoding of the characters of the content
     public new(string content, string encoding = "UTF-8") {
         byte[] contentBytes = content.toByteArray(encoding);
-        ByteChannel byteChannel = createMemoryChannel(contentBytes);
-        channel = new CharacterChannel(byteChannel, encoding);
+        ReadableByteChannel byteChannel = createReadableChannel(contentBytes);
+        channel = new ReadableCharacterChannel(byteChannel, encoding);
     }
 
     # Reads string as json from reader.

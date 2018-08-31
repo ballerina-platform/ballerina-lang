@@ -15,8 +15,9 @@
 // under the License.
 
 # Represents a channel which could be used to read/write characters through a given ByteChannel.
-public type CharacterChannel object {
-    private ByteChannel channel;
+public type WritableCharacterChannel object {
+
+    private WritableByteChannel channel;
     private string charset;
 
     # Constructs a CharacterChannel from a given ByteChannel and Charset.
@@ -31,29 +32,13 @@ public type CharacterChannel object {
     #
     # + byteChannel - ByteChannel which should be used to initalize the character channel
     # + cs - Character-set (i.e UTF-8) which should be used to encode/decode
-    extern function init(ByteChannel byteChannel, string cs);
-
-    # Reads a given number of characters.
-    #
-    # + numberOfChars - Number of characters which should be read
-    # + return - Content which is read or an error
-    public extern function read(@sensitive int numberOfChars) returns @tainted string|error;
+    extern function init(WritableByteChannel byteChannel, string cs);
 
     # Writes a given sequence of characters (string).
     #
     # + content - Content which should be written
     # + startOffset - Number of characters which should be offset when writing content
     public extern function write(string content, int startOffset) returns int|error;
-
-    # Reads a json from the given channel.
-    #
-    # + return - Read json string or an error
-    public extern function readJson() returns @tainted json|error;
-
-    # Reads a XML from the given channel.
-    #
-    # + return - Read xml or an error
-    public extern function readXml() returns @tainted xml|error;
 
     # Writes a given json to the given channel.
     #

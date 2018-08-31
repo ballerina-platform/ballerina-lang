@@ -14,9 +14,10 @@
 // specific language governing permissions and limitations
 // under the License.
 
-# Represents a channel which will allow to read/write records through a given CharacterChannel.
-public type DelimitedTextRecordChannel object {
-    private CharacterChannel channel;
+# Represents a channel which will allow to read/write
+public type ReadableTextRecordChannel object {
+
+    private ReadableCharacterChannel channel;
     private string rs;
     private string fs;
 
@@ -35,7 +36,8 @@ public type DelimitedTextRecordChannel object {
     # + fieldSeparator - Field separator which will separate between fields
     # + recordSeparator - Record separator which will separate between records
     # + fmt - Format which will be used to represent the type of record i.e csv
-    extern function init(CharacterChannel characterChannel, string fieldSeparator, string recordSeparator, string fmt);
+    extern function init(ReadableCharacterChannel characterChannel,
+                         string fieldSeparator, string recordSeparator, string fmt);
 
     # Checks whether there's a record left to be read.
     #
@@ -46,12 +48,6 @@ public type DelimitedTextRecordChannel object {
     #
     # + return - Set of fields included in the record or an error
     public extern function getNext() returns @tainted string[]|error;
-
-    # Writes records to a given input/output resource.
-    #
-    # + textRecord - List of fields to be written
-    # + return - An error if the records could not be written properly
-    public extern function write(string[] textRecord) returns error?;
 
     # Closes a given record channel.
     #

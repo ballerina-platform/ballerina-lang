@@ -43,20 +43,20 @@ import org.slf4j.LoggerFactory;
         orgName = "ballerina", packageName = "io",
         functionName = "init",
         receiver = @Receiver(type = TypeKind.OBJECT,
-                structType = "DelimitedTextRecordChannel",
+                structType = "ReadableRecordChannel",
                 structPackage = "ballerina/io"),
-        args = {@Argument(name = "channel", type = TypeKind.OBJECT, structType = "CharacterChannel",
+        args = {@Argument(name = "channel", type = TypeKind.OBJECT, structType = "ReadableCharacterChannel",
                 structPackage = "ballerina/io"),
                 @Argument(name = "recordSeparator", type = TypeKind.STRING),
                 @Argument(name = "fieldSeparator", type = TypeKind.STRING)},
-        returnType = {@ReturnType(type = TypeKind.OBJECT, structType = "DelimitedRecordChannel",
+        returnType = {@ReturnType(type = TypeKind.OBJECT, structType = "ReadableRecordChannel",
                 structPackage = "ballerina/io"),
                 @ReturnType(type = TypeKind.RECORD, structType = "IOError", structPackage = "ballerina/io")},
         isPublic = true
 )
-public class CreateDelimitedRecordChannel extends BlockingNativeCallableUnit {
+public class CreateReadableDelimitedRecordChannel extends BlockingNativeCallableUnit {
 
-    private static final Logger log = LoggerFactory.getLogger(CreateDelimitedRecordChannel.class);
+    private static final Logger log = LoggerFactory.getLogger(CreateReadableDelimitedRecordChannel.class);
 
     /**
      * The index od the text record channel in ballerina/io#createDelimitedRecordChannel().
