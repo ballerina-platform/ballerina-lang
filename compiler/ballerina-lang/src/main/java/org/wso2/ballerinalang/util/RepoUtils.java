@@ -95,16 +95,13 @@ public class RepoUtils {
      * @return settings object
      */
     public static Settings readSettings() {
-        if (settings == null) {
-            String tomlFilePath = RepoUtils.createAndGetHomeReposPath().resolve(ProjectDirConstants.SETTINGS_FILE_NAME)
-                                           .toString();
-            try {
-                settings = SettingsProcessor.parseTomlContentFromFile(tomlFilePath);
-            } catch (IOException e) {
-                settings = new Settings();
-            }
+        String tomlFilePath = RepoUtils.createAndGetHomeReposPath().resolve(ProjectDirConstants.SETTINGS_FILE_NAME)
+                                       .toString();
+        try {
+            return SettingsProcessor.parseTomlContentFromFile(tomlFilePath);
+        } catch (IOException e) {
+            return new Settings();
         }
-        return settings;
     }
 
     /**
