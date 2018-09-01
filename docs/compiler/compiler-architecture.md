@@ -1,10 +1,10 @@
 #Ballerina Compiler Architecture
 
-- Issue [ballerina-lang/issues/10256](https://github.com/ballerina-platform/ballerina-lang/issues/10256)
-- PR [ballerina-lang/pulls]
+- Issue: [ballerina-lang/issues/10256](https://github.com/ballerina-platform/ballerina-lang/issues/10256)
+- PR: [ballerina-lang/pulls/10258](https://github.com/ballerina-platform/ballerina-lang/pull/10258)
 
 ##Summary
-This document describes the proposed Ballerina compiler architecture. The new architecture comes with significant changes to support compiling Ballerina programs to native executables.
+This document describes the proposed Ballerina compiler architecture. It comes with significant changes to the existing architecture to support compiling Ballerina programs to native executables.
 
 ##Requirements/Objectives 
 - Faster startup time and less memory usage compared to the Java-based BVM.
@@ -64,14 +64,14 @@ The output of this phase is the unoptimized (BIR). Tools such as Language server
 ####BIRGen 
 - Lower the AST to BIR.
 
-_**Implementation**_: This phase is completely implemented in Java at the moment. Once we have a stable ANTLR target for Ballerina, we can invest in rewriting this phase using Ballerina itself. 
+_Implementation: This phase is completely implemented in Java at the moment. Once we have a stable ANTLR target for Ballerina, we can invest in rewriting this phase using Ballerina itself._ 
 
 ##Optimizer Phase
 This phase optimizes the source program by performing an analysis followed by a transformation. E.g. data-flow analysis and rewrite the IR. This phase takes the unoptimized BIR as the input and output the analyzed, transformed and optimized BIR. The optimizer phase performs target-independent code optimization whereas individual compiler backends may perform target-specific code optimization. 
 
 Similar to the front end phase, this phase also understands the Ballerina language semantics. Therefore we can perform various Ballerina-specific optimizations. 
 
-**_Implementation_**: This phase will be fully implemented in Ballerina. 
+_Implementation: This phase will be fully implemented in Ballerina._ 
 
 ##Back-end Phase
 This phase combines one or more compiled packages(BIRs in BALOs) to create a target-specific executable program. It traverses the BIR and emits instructions/bytecode for the target machine. There are more than one compiler backends in Ballerina as illustrated in the following diagram. 
@@ -85,7 +85,18 @@ Here is a list of possible Ballerina compiler backends.
 - Ballerina WebAssembly backend - generates WebAssembly instructions. (Not yet implemented)
 
 ###Ballerina BVM compiler backend
-WIP
+
+Ballerina runtime is a runtime environment that is required to execute Ballerina programs compiled down to Ballerina bytecode. BVM is the virtual machine in Ballerina runtime that interprets Ballerina bytecode. I.e. runs a Ballerina program. Following diagram shows the components in Ballerina runtime. 
+
+![alt text](../images/compiler/006-ballerina-runtime.png)
+
+Ballerina bytecode is the instruction set that the BVM understands. If you are familiar with Java bytecode, you may find Ballerina bytecode similar to Java counterparts. But there is a big difference in the way we interpret these instructions. We designed BVM architecture, and the instruction set by following the register-based virtual machine architecture. There are two main VM architectures: Register-based and Stack-based. JVM is based on the stack-based architecture, while the LUA VM and Dalvik VM are based on the register-based architecture. You can find a plenty of articles which explains these two architectures. These VM architectures differ from each other in how they store and load operands of the instructions.
+
+This compiler backend produces a balx file (an executable file that runs on BVM) by linking the entry package and other imported packages (except the ballerina/* packages). During this process, this backend converts BIR into Ballerina bytecode for each package. 
+
+_Note_: This backed will probably have a short lifetime. Once the Ballerina LLVM compiler backend is stable enough, we will deprecate the BVM backend.
+
+_Implementation: This backend will be implemented in Ballerina._
 
 ###Ballerina LLVM compiler backend
 Ballerina LLVM backend is responsible for generating native executables. It uses LLVM for the most part. LLVM is a compiler development framework which is defined as a “collection of modular and reusable compiler and toolchain technologies” in LLVM website[4]. It has been used to develop both compiler frontends and backends, but in here we have used it to implement the backend which generates machine code. In LLVM terminology, the term “LLVM backend” refers to the module in LLVM  that converts LLVM IR into object code(or assembly). We have used the term “Ballerina LLVM compiler backend” to avoid the confusion. 
