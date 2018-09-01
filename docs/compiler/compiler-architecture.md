@@ -33,7 +33,7 @@ AST is usually closer to the source code because it retains the essential struct
 ### Ballerina Intermediate Representation (BIR)
 The optimizer phase performs data-flow and control-flow analysis by making multiple passes over the BIR. The algorithms used to perform data-flow and control-flow analysis expects a control-flow graph (CFG). CFGs correctly represents the execution flow of a program. It also allows us to analyze all the execution paths of a program or a function. The following image shows the CFGs of a Ballerina program with nested if-else and while statements.
 
-![alt text](../images/compiler/002-ifWithWhileComplex.png)
+<img src="../images/compiler/002-ifWithWhileComplex.png" width="461" height="480"/>
 
 BIR is a CFG. BIR is also a hybrid IR because it combines the properties of both graphical and linear IRs as illustrated in about image. The simplest unit of a control-flow graph is called a basic block. A basic block contains a set of instructions that always execute together. The last instruction in a basic block usually connects with one or more basic blocks. Therefore the last instruction is called the terminator. You can find read more about BIR in the [specification](bir-spec.md). 
 
@@ -47,7 +47,7 @@ The back-end phase of the Ballerina compiler traverses the BIR stored in a compi
 ## Front-end Phase
 This phase validates that the source program is syntactically and semantically correct. Here are some of the key components in the front-end phase. 
 
-![alt text](../images/compiler/003-compiler-front-passes.png)
+<img src="../images/compiler/003-compiler-front-passes.png" width="648" height="238"/>
 
 The output of this phase is the unoptimized (BIR). Tools such as Language server, composer use only the front-end phase. 
 
@@ -88,7 +88,7 @@ Here is a list of possible Ballerina compiler backends.
 
 Ballerina runtime is a runtime environment that is required to execute Ballerina programs compiled down to Ballerina bytecode. BVM is the virtual machine in Ballerina runtime that interprets Ballerina bytecode. I.e. runs a Ballerina program. Following diagram shows the components in Ballerina runtime. 
 
-![alt text](../images/compiler/006-ballerina-runtime.png)
+<img src="../images/compiler/006-ballerina-runtime.png" width="361" height="319"/>
 
 Ballerina bytecode is the instruction set that the BVM understands. If you are familiar with Java bytecode, you may find Ballerina bytecode similar to Java counterparts. But there is a big difference in the way we interpret these instructions. We designed BVM architecture, and the instruction set by following the register-based virtual machine architecture. There are two main VM architectures: Register-based and Stack-based. JVM is based on the stack-based architecture, while the LUA VM and Dalvik VM are based on the register-based architecture. You can find a plenty of articles which explains these two architectures. These VM architectures differ from each other in how they store and load operands of the instructions.
 
