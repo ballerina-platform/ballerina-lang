@@ -93,7 +93,7 @@ Ballerina bytecode is the instruction set that the BVM understands. If you are f
 
 This compiler backend produces a balx file (an executable file that runs on BVM) by linking the entry package and other imported packages (except the ballerina/* packages). During this process, this backend converts BIR into Ballerina bytecode for each package. 
 
-_Note_: This backed will probably have a short lifetime. Once the Ballerina LLVM compiler backend is stable enough, we will deprecate the BVM backend.
+_Note_: This backend will probably have a short lifetime. Once the Ballerina LLVM compiler backend is stable enough, we will deprecate the BVM backend.
 
 _Implementation: This backend will be implemented in Ballerina._
 
