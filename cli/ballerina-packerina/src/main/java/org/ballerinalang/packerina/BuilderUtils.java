@@ -104,8 +104,8 @@ public class BuilderUtils {
             // We only execute the tests in packages so single bal files are ignored
             if (!bLangPackage.packageID.getName().equals(Names.DOT)) {
                 CompiledBinaryFile.ProgramFile programFile;
-                if (bLangPackage.testableBLangPackage != null) {
-                    programFile = compiler.getExecutableProgram(bLangPackage.testableBLangPackage);
+                if (bLangPackage.testablePackage != null) {
+                    programFile = compiler.getExecutableProgram(bLangPackage.testablePackage);
                 } else {
                     // In this package there are no tests to be executed. So we need to say to the users that there are
                     // no tests found in the package to be executed

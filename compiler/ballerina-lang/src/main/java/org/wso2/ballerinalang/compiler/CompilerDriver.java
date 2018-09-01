@@ -232,9 +232,9 @@ public class CompilerDriver {
         if (compilerPhase.compareTo(nextPhase) < 0) {
             return true;
         }
-        if (pkgNode.getCompilationUnits().isEmpty() && pkgNode.testableBLangPackage != null) {
+        if (pkgNode.getCompilationUnits().isEmpty() && pkgNode.testablePackage != null) {
             return checkNextPhase(nextPhase) && (dlog.errorCount > 0 ||
-                    pkgNode.testableBLangPackage.getCompilationUnits().isEmpty());
+                    pkgNode.testablePackage.getCompilationUnits().isEmpty());
         }
         return (checkNextPhase(nextPhase)) && (dlog.errorCount > 0 || pkgNode.getCompilationUnits().isEmpty());
     }

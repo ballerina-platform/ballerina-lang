@@ -150,7 +150,7 @@ public abstract class BLangNodeVisitor {
         throw new AssertionError();
     }
 
-    public void visit(TestableBLangPackage testablePkgNode) {
+    public void visit(BLangTestablePackage testablePkgNode) {
         throw new AssertionError();
     }
 

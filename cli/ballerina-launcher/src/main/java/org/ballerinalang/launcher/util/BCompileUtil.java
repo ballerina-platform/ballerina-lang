@@ -284,8 +284,8 @@ public class BCompileUtil {
         if (!withTests) {
             programFile = compiler.getExecutableProgram(packageNode);
         } else {
-            if (packageNode.testableBLangPackage != null) {
-                programFile = compiler.getExecutableProgram(packageNode.testableBLangPackage);
+            if (packageNode.testablePackage != null) {
+                programFile = compiler.getExecutableProgram(packageNode.testablePackage);
             } else {
                 programFile = compiler.getExecutableProgram(packageNode);
             }

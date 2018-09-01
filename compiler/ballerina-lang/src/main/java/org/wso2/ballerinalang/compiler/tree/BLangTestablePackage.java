@@ -20,5 +20,5 @@ package org.wso2.ballerinalang.compiler.tree;
 /**
  * @since 0.982.0
  */
-public class TestableBLangPackage extends BLangPackage {
+public class BLangTestablePackage extends BLangPackage {
 }

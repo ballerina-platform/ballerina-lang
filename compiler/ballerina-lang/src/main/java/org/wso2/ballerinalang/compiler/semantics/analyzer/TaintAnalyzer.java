@@ -48,11 +48,11 @@ import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangResource;
 import org.wso2.ballerinalang.compiler.tree.BLangService;
+import org.wso2.ballerinalang.compiler.tree.BLangTestablePackage;
 import org.wso2.ballerinalang.compiler.tree.BLangTypeDefinition;
 import org.wso2.ballerinalang.compiler.tree.BLangVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangWorker;
 import org.wso2.ballerinalang.compiler.tree.BLangXMLNS;
-import org.wso2.ballerinalang.compiler.tree.TestableBLangPackage;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangFunctionClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangGroupBy;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangHaving;
@@ -265,8 +265,8 @@ public class TaintAnalyzer extends BLangNodeVisitor {
         analyze(pkgNode, pkgEnv);
 
         // Visit testable node if not null
-        if (pkgNode.testableBLangPackage != null) {
-            visit(pkgNode.testableBLangPackage);
+        if (pkgNode.testablePackage != null) {
+            visit(pkgNode.testablePackage);
         }
     }
 
@@ -289,7 +289,7 @@ public class TaintAnalyzer extends BLangNodeVisitor {
     }
 
     @Override
-    public void visit(TestableBLangPackage pkgNode) {
+    public void visit(BLangTestablePackage pkgNode) {
         init(pkgNode);
 
         analyzerPhase = AnalyzerPhase.INITIAL_ANALYSIS;

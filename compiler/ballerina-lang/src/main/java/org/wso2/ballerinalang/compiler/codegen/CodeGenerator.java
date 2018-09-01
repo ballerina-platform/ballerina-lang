@@ -63,13 +63,13 @@ import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangResource;
 import org.wso2.ballerinalang.compiler.tree.BLangService;
+import org.wso2.ballerinalang.compiler.tree.BLangTestablePackage;
 import org.wso2.ballerinalang.compiler.tree.BLangTypeDefinition;
 import org.wso2.ballerinalang.compiler.tree.BLangVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangWorker;
 import org.wso2.ballerinalang.compiler.tree.BLangXMLNS;
 import org.wso2.ballerinalang.compiler.tree.BLangXMLNS.BLangLocalXMLNS;
 import org.wso2.ballerinalang.compiler.tree.BLangXMLNS.BLangPackageXMLNS;
-import org.wso2.ballerinalang.compiler.tree.TestableBLangPackage;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrayLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrayLiteral.BLangJSONArrayLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangAwaitExpr;
@@ -354,14 +354,14 @@ public class CodeGenerator extends BLangNodeVisitor {
         genNode(pkgNode);
 
         // Generate program file for the Testable package
-        if (pkgNode.testableBLangPackage != null) {
-            generateBALO(pkgNode.testableBLangPackage);
+        if (pkgNode.testablePackage != null) {
+            generateBALO(pkgNode.testablePackage);
         }
         this.currentPkgInfo = null;
         return pkgNode;
     }
 
-    private void generateBALO(TestableBLangPackage pkgNode) {
+    private void generateBALO(BLangTestablePackage pkgNode) {
         // Generate code for the given package.
         PackageInfo enclPkgInfo = this.currentPkgInfo;
         // Since the packageInfo of the testablePackage should contain the entries of the packageInfo of the
@@ -450,7 +450,7 @@ public class CodeGenerator extends BLangNodeVisitor {
 
         // Visit the builtin functions only in the bLangPackage. Since the testablePackage is a child of the
         // bLangPackage, the testablePackage doesnot have init, start and stop functions
-        if (!(pkgNode instanceof TestableBLangPackage)) {
+        if (!(pkgNode instanceof BLangTestablePackage)) {
             // Visit package builtin function
             visitBuiltinFunctions(pkgNode.initFunction);
             visitBuiltinFunctions(pkgNode.startFunction);

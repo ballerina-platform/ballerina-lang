@@ -33,7 +33,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 import org.wso2.ballerinalang.compiler.tree.BLangAction;
-import org.wso2.ballerinalang.compiler.tree.BLangAnnotAttribute;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotation;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
 import org.wso2.ballerinalang.compiler.tree.BLangCompilationUnit;
@@ -47,11 +46,11 @@ import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangResource;
 import org.wso2.ballerinalang.compiler.tree.BLangService;
+import org.wso2.ballerinalang.compiler.tree.BLangTestablePackage;
 import org.wso2.ballerinalang.compiler.tree.BLangTypeDefinition;
 import org.wso2.ballerinalang.compiler.tree.BLangVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangWorker;
 import org.wso2.ballerinalang.compiler.tree.BLangXMLNS;
-import org.wso2.ballerinalang.compiler.tree.TestableBLangPackage;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrayLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrowFunction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangAwaitExpr;
@@ -226,13 +225,13 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         analyzeTopLevelNodes(pkgNode, pkgEnv);
 
         // Visit testable node if not null
-        if (pkgNode.testableBLangPackage != null) {
-            visit(pkgNode.testableBLangPackage);
+        if (pkgNode.testablePackage != null) {
+            visit(pkgNode.testablePackage);
         }
     }
 
     @Override
-    public void visit(TestableBLangPackage pkgNode) {
+    public void visit(BLangTestablePackage pkgNode) {
         if (pkgNode.completedPhases.contains(CompilerPhase.CODE_ANALYZE)) {
             return;
         }
@@ -709,19 +708,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         /* ignore */
     }
 
-    public void visit(BLangAnnotAttribute annotationAttribute) {
-        /* ignore */
-    }
-
     public void visit(BLangAnnotationAttachment annAttachmentNode) {
-        /* ignore */
-    }
-
-    public void visit(BLangAnnotAttachmentAttributeValue annotAttributeValue) {
-        /* ignore */
-    }
-
-    public void visit(BLangAnnotAttachmentAttribute annotAttachmentAttribute) {
         /* ignore */
     }
 

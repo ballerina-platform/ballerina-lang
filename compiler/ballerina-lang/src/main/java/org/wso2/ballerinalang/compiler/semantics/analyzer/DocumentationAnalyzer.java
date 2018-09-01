@@ -83,8 +83,8 @@ public class DocumentationAnalyzer extends BLangNodeVisitor {
         pkgNode.completedPhases.add(CompilerPhase.CODE_ANALYZE);
 
         // Analyze testable node if not null
-        if (pkgNode.testableBLangPackage != null) {
-            analyze(pkgNode.testableBLangPackage);
+        if (pkgNode.testablePackage != null) {
+            analyze(pkgNode.testablePackage);
         }
         return pkgNode;
     }

@@ -42,10 +42,10 @@ import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangResource;
 import org.wso2.ballerinalang.compiler.tree.BLangService;
+import org.wso2.ballerinalang.compiler.tree.BLangTestablePackage;
 import org.wso2.ballerinalang.compiler.tree.BLangTypeDefinition;
 import org.wso2.ballerinalang.compiler.tree.BLangVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangXMLNS;
-import org.wso2.ballerinalang.compiler.tree.TestableBLangPackage;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangForever;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.Name;
@@ -132,13 +132,13 @@ public class CompilerPluginRunner extends BLangNodeVisitor {
         pkgNode.completedPhases.add(CompilerPhase.COMPILER_PLUGIN);
 
         // Visit testable node if not null
-        if (pkgNode.testableBLangPackage != null) {
-            this.defaultPos = pkgNode.testableBLangPackage.pos;
-            visit(pkgNode.testableBLangPackage);
+        if (pkgNode.testablePackage != null) {
+            this.defaultPos = pkgNode.testablePackage.pos;
+            visit(pkgNode.testablePackage);
         }
     }
 
-    public void visit(TestableBLangPackage testablePkgNode) {
+    public void visit(BLangTestablePackage testablePkgNode) {
         if (testablePkgNode.completedPhases.contains(CompilerPhase.COMPILER_PLUGIN)) {
             return;
         }

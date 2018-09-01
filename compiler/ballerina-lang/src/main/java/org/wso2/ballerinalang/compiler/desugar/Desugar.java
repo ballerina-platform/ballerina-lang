@@ -62,13 +62,13 @@ import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangResource;
 import org.wso2.ballerinalang.compiler.tree.BLangService;
+import org.wso2.ballerinalang.compiler.tree.BLangTestablePackage;
 import org.wso2.ballerinalang.compiler.tree.BLangTypeDefinition;
 import org.wso2.ballerinalang.compiler.tree.BLangVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangWorker;
 import org.wso2.ballerinalang.compiler.tree.BLangXMLNS;
 import org.wso2.ballerinalang.compiler.tree.BLangXMLNS.BLangLocalXMLNS;
 import org.wso2.ballerinalang.compiler.tree.BLangXMLNS.BLangPackageXMLNS;
-import org.wso2.ballerinalang.compiler.tree.TestableBLangPackage;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangAccessExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrayLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrayLiteral.BLangJSONArrayLiteral;
@@ -336,13 +336,13 @@ public class Desugar extends BLangNodeVisitor {
         result = pkgNode;
 
         // Visit testable node if not null
-        if (pkgNode.testableBLangPackage != null) {
-            visit(pkgNode.testableBLangPackage);
+        if (pkgNode.testablePackage != null) {
+            visit(pkgNode.testablePackage);
         }
     }
 
     @Override
-    public void visit(TestableBLangPackage pkgNode) {
+    public void visit(BLangTestablePackage pkgNode) {
         if (pkgNode.completedPhases.contains(CompilerPhase.DESUGAR)) {
             result = pkgNode;
             return;

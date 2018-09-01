@@ -83,12 +83,12 @@ public class Parser {
 
         pkgSource.getPackageSourceEntries().forEach(e -> {
             if (((FileSystemSourceInput) e).isTestSource()) {
-                if (pkgNode.testableBLangPackage == null) {
-                    pkgNode.testableBLangPackage = TreeBuilder.createTestablePackageNode();
-                    pkgNode.testableBLangPackage.pos = new DiagnosticPos
+                if (pkgNode.testablePackage == null) {
+                    pkgNode.testablePackage = TreeBuilder.createTestablePackageNode();
+                    pkgNode.testablePackage.pos = new DiagnosticPos
                             (new BDiagnosticSource(pkgId, pkgSource.getName()), 1, 1, 1, 1);
                 }
-                pkgNode.testableBLangPackage.addCompilationUnit(generateCompilationUnit(e, pkgId));
+                pkgNode.testablePackage.addCompilationUnit(generateCompilationUnit(e, pkgId));
             } else {
                 pkgNode.addCompilationUnit(generateCompilationUnit(e, pkgId));
             }
