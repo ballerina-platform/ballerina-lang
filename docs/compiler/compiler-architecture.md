@@ -3,7 +3,6 @@
 - Issue: [ballerina-lang/issues/10256](https://github.com/ballerina-platform/ballerina-lang/issues/10256)
 - PR: [ballerina-lang/pulls/10258](https://github.com/ballerina-platform/ballerina-lang/pull/10258)
 
-## Summary
 This document describes the proposed Ballerina compiler architecture. It comes with significant changes to the existing architecture to support compiling Ballerina programs to native executables.
 
 ## Requirements/Objectives 
