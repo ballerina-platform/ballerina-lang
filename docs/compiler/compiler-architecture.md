@@ -98,7 +98,7 @@ _Note_: This backend will probably have a short lifetime. Once the Ballerina LLV
 _Implementation: This backend will be implemented in Ballerina._
 
 ### Ballerina LLVM compiler backend
-Ballerina LLVM backend is responsible for generating native executables. It uses LLVM for the most part. LLVM is a compiler development framework which is defined as a “collection of modular and reusable compiler and toolchain technologies” in LLVM website[4]. It has been used to develop both compiler frontends and backends, but in here we have used it to implement the backend which generates machine code. In LLVM terminology, the term “LLVM backend” refers to the module in LLVM  that converts LLVM IR into object code(or assembly). We have used the term “Ballerina LLVM compiler backend” to avoid the confusion. 
+Ballerina LLVM backend is responsible for generating native executables. It uses LLVM for the most part. LLVM is a compiler development framework which is defined as a “collection of modular and reusable compiler and toolchain technologies” in [LLVM website](http://www.llvm.org/). It has been used to develop both compiler frontends and backends, but in here we have used it to implement the backend which generates machine code. In LLVM terminology, the term “LLVM backend” refers to the module in LLVM  that converts LLVM IR into object code(or assembly). We have used the term “Ballerina LLVM compiler backend” to avoid the confusion. 
 
 LLVM IR is the common information model that connects compiler frontends and backends. If you compare LLVM IR with BIR, you would realize that there are many similarities:
 Instructions in functions are organized as basic blocks that form a CFG, 
@@ -120,3 +120,7 @@ The First step is to generate LLVM IR from BIR. Thereafter we handover the LLVM 
 [2] https://github.com/apple/swift/blob/master/docs/SIL.rst
 
 [3] http://www.llvm.org/
+
+[4] https://medium.com/@sameerajayasoma/ballerina-runtime-evolution-f82305e4ab8e
+
+[5] https://medium.com/@sameerajayasoma/ballerina-compiler-design-3406acc2476c
