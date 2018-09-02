@@ -42,7 +42,6 @@ public class BMainInstance implements BMain {
     private static final String JAVA_OPTS = "JAVA_OPTS";
     private BalServer balServer;
     private String agentArgs;
-    private boolean agentsAadded = false;
 
     public BMainInstance(BalServer balServer) throws BallerinaTestException {
         this.balServer = balServer;
@@ -171,16 +170,15 @@ public class BMainInstance implements BMain {
     }
 
     private synchronized void addJavaAgents(Map<String, String> envProperties) throws BallerinaTestException {
-        if (agentsAadded) {
-            return;
-        }
         String javaOpts = "";
         if (envProperties.containsKey(JAVA_OPTS)) {
             javaOpts = envProperties.get(JAVA_OPTS);
         }
+        if (javaOpts.contains("jacoco.agent")) {
+            return;
+        }
         javaOpts = agentArgs + javaOpts;
         envProperties.put(JAVA_OPTS, javaOpts);
-        this.agentsAadded = true;
     }
 
     /**
