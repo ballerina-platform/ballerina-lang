@@ -31,7 +31,7 @@ import org.ballerinalang.natives.annotations.ReturnType;
 import static org.ballerinalang.util.BLangConstants.BALLERINA_BUILTIN_PKG;
 
 /**
- * {@code GetProxyTable} mirrors a SQL database table to a ballerina table.
+ * {@code GetProxyTable} creates a proxy for a SQL database table.
  *
  * @since 0.970.0
  */
@@ -58,7 +58,7 @@ public class GetProxyTable extends AbstractSQLAction {
         SQLDatasource datasource = retrieveDatasource(context);
         try {
             checkAndObserveSQLAction(context, datasource, tableName);
-            createMirroredTable(context, datasource, tableName, structType);
+            createProxyTable(context, datasource, tableName, structType);
         } catch (Throwable e) {
             checkAndObserveSQLError(context, e.getMessage());
         }

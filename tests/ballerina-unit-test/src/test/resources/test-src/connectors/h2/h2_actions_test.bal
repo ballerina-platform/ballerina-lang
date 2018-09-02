@@ -153,7 +153,7 @@ function testBatchUpdate() returns (int[]) {
     }
 }
 
-function testAddToMirrorTable() returns (Customer[]) {
+function testAddToProxyTable() returns (Customer[]) {
     endpoint h2:Client testDB {
         path: "./target/H2Client/",
         name: "TestDBH2",

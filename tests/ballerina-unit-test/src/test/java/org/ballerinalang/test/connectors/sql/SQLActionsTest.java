@@ -62,7 +62,7 @@ public class SQLActionsTest {
     private static final double DELTA = 0.01;
     private CompileResult result;
     private CompileResult resultNegative;
-    private CompileResult resultMirror;
+    private CompileResult resultProxy;
     private static final String DB_NAME = "TEST_SQL_CONNECTOR";
     private static final String DB_NAME_H2 = "TEST_SQL_CONNECTOR_H2";
     private static final String DB_DIRECTORY_H2 = "./target/H2Client/";
@@ -107,7 +107,7 @@ public class SQLActionsTest {
 
         result = BCompileUtil.compile("test-src/connectors/sql/sql_actions_test.bal");
         resultNegative = BCompileUtil.compile("test-src/connectors/sql/sql_actions_negative_test.bal");
-        resultMirror = BCompileUtil.compile("test-src/connectors/sql/sql_actions_proxytable_test.bal");
+        resultProxy = BCompileUtil.compile("test-src/connectors/sql/sql_actions_proxytable_test.bal");
     }
 
     @Test(groups = CONNECTOR_TEST)
@@ -788,9 +788,9 @@ public class SQLActionsTest {
                 + "{message:\"Trying to perform hasNext operation over a closed table\", cause:null})");
     }
 
-    @Test(groups = CONNECTOR_TEST, description = "Test failure scenario in adding data to mirrored table")
-    public void testAddToMirrorTableConstraintViolation() throws Exception {
-        BValue[] returns = BRunUtil.invoke(resultMirror, "testAddToMirrorTableConstraintViolation", connectionArgs);
+    @Test(groups = CONNECTOR_TEST, description = "Test failure scenario in adding data to proxy table")
+    public void testAddToProxyTableConstraintViolation() throws Exception {
+        BValue[] returns = BRunUtil.invoke(resultProxy, "testAddToProxyTableConstraintViolation", connectionArgs);
         String errorMessage;
         if (dbType == MYSQL) {
             errorMessage = "execute proxy table add failed: execute update failed: Duplicate entry '1' for key "
@@ -809,9 +809,9 @@ public class SQLActionsTest {
         Assert.assertTrue(returns[0].stringValue().contains(errorMessage));
     }
 
-    @Test(groups = CONNECTOR_TEST, description = "Test failure scenario in adding data to mirrored table")
-    public void testAddToMirrorTableInvalidRecord() throws Exception {
-        BValue[] returns = BRunUtil.invoke(resultMirror, "testAddToMirrorTableInvalidRecord", connectionArgs);
+    @Test(groups = CONNECTOR_TEST, description = "Test failure scenario in adding data to proxy table")
+    public void testAddToProxyTableInvalidRecord() throws Exception {
+        BValue[] returns = BRunUtil.invoke(resultProxy, "testAddToProxyTableInvalidRecord", connectionArgs);
         String errorMessage;
         if (dbType == MYSQL) {
             errorMessage = "execute update failed: Unknown column 'age' in 'field list'";
@@ -828,42 +828,42 @@ public class SQLActionsTest {
         Assert.assertTrue(returns[0].stringValue().contains(errorMessage));
     }
 
-    @Test(groups = CONNECTOR_TEST, description = "Test adding data to mirrored table")
-    public void testAddToMirrorTable() throws Exception {
-        BValue[] returns = BRunUtil.invoke(resultMirror, "testAddToMirrorTable", connectionArgs);
+    @Test(groups = CONNECTOR_TEST, description = "Test adding data to proxy table")
+    public void testAddToProxyTable() throws Exception {
+        BValue[] returns = BRunUtil.invoke(resultProxy, "testAddToProxyTable", connectionArgs);
         Assert.assertNotNull(returns);
         Assert.assertEquals(returns[0].stringValue(), "{id:1, name:\"Manuri\", address:\"Sri Lanka\"}");
         Assert.assertEquals(returns[1].stringValue(), "{id:2, name:\"Devni\", address:\"Sri Lanka\"}");
     }
 
-    @Test(groups = CONNECTOR_TEST, description = "Test deleting data from mirrored table")
-    public void testDeleteFromMirrorTable() throws Exception {
-        BValue[] returns = BRunUtil.invoke(resultMirror, "testDeleteFromMirrorTable", connectionArgs);
+    @Test(groups = CONNECTOR_TEST, description = "Test deleting data from proxy table")
+    public void testDeleteFromProxyTable() throws Exception {
+        BValue[] returns = BRunUtil.invoke(resultProxy, "testDeleteFromProxyTable", connectionArgs);
         Assert.assertNotNull(returns);
         Assert.assertEquals(((BBoolean) returns[0]).booleanValue(), false);
         Assert.assertEquals(((BInteger) returns[1]).intValue(), 2);
     }
 
     @Test(groups = CONNECTOR_TEST, description = "Test deleting data from proxy table within a transaction")
-    public void testDeleteFromMirrorTableinTransaction() throws Exception {
-        BValue[] returns = BRunUtil.invoke(resultMirror, "testDeleteFromMirrorTableinTransaction", connectionArgs);
+    public void testDeleteFromProxyTableInTransaction() throws Exception {
+        BValue[] returns = BRunUtil.invoke(resultProxy, "testDeleteFromProxyTableInTransaction", connectionArgs);
         Assert.assertNotNull(returns);
         Assert.assertEquals(((BBoolean) returns[0]).booleanValue(), true);
         Assert.assertEquals(((BInteger) returns[1]).intValue(), 2);
     }
 
-    @Test(groups = CONNECTOR_TEST, description = "Test iterating data of a mirrored table multiple times")
-    public void testIterateMirrorTable() throws Exception {
-        BValue[] returns = BRunUtil.invokeFunction(resultMirror, "testIterateMirrorTable", connectionArgs);
+    @Test(groups = CONNECTOR_TEST, description = "Test iterating data of a proxy table multiple times")
+    public void testIterateProxyTable() throws Exception {
+        BValue[] returns = BRunUtil.invokeFunction(resultProxy, "testIterateProxyTable", connectionArgs);
         Assert.assertNotNull(returns);
         Assert.assertEquals(returns[0].stringValue(), "("
                 + "[{id:1, name:\"Manuri\", address:\"Sri Lanka\"}, {id:2, name:\"Devni\", address:\"Sri Lanka\"}], "
                 + "[{id:1, name:\"Manuri\", address:\"Sri Lanka\"}, {id:2, name:\"Devni\", address:\"Sri Lanka\"}])");
     }
 
-    @Test(groups = CONNECTOR_TEST, description = "Test iterating data of a mirrored table after closing")
-    public void testIterateMirrorTableAfterClose() throws Exception {
-        BValue[] returns = BRunUtil.invokeFunction(resultMirror, "testIterateMirrorTableAfterClose", connectionArgs);
+    @Test(groups = CONNECTOR_TEST, description = "Test iterating data of a proxy table after closing")
+    public void testIterateProxyTableAfterClose() throws Exception {
+        BValue[] returns = BRunUtil.invokeFunction(resultProxy, "testIterateProxyTableAfterClose", connectionArgs);
         Assert.assertNotNull(returns);
         Assert.assertEquals(returns[0].stringValue(), "("
                 + "[{id:1, name:\"Manuri\", address:\"Sri Lanka\"}, {id:2, name:\"Devni\", address:\"Sri Lanka\"}], "
@@ -878,7 +878,7 @@ public class SQLActionsTest {
         try {
             System.setOut(new PrintStream(outContent));
             final String expected = "\n";
-            BRunUtil.invoke(resultMirror, "testProxyTablePrintln", connectionArgs);
+            BRunUtil.invoke(resultProxy, "testProxyTablePrintln", connectionArgs);
             Assert.assertEquals(outContent.toString().replace("\r", ""), expected);
         } finally {
             outContent.close();

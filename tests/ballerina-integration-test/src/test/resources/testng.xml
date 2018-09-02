@@ -128,10 +128,12 @@
             <class name="org.ballerinalang.test.service.websocket.UpgradeResourceFailureTest"/>
             <class name="org.ballerinalang.test.service.websocket.WebSocketAutoPingPongTest"/>
             <class name="org.ballerinalang.test.service.websocket.WebSocketContinuationAndAggregationTest"/>
-            <class name="org.ballerinalang.test.service.websocket.WebSocketPushAndOnTextResourceTest"/>
+            <class name="org.ballerinalang.test.service.websocket.PushAndOnTextResourceTest"/>
             <class name="org.ballerinalang.test.service.websocket.WebSocketQueryAndPathParamSupportTestCase"/>
             <class name="org.ballerinalang.test.service.websocket.WebSocketServiceNotFoundTest"/>
             <class name="org.ballerinalang.test.service.websocket.WebSocketSimpleProxyTestCase"/>
+            <class name="org.ballerinalang.test.service.websocket.OnBinaryContinuationTest"/>
+            <class name="org.ballerinalang.test.service.websocket.MissingResourcesTest"/>
         </classes>
     </test>
 

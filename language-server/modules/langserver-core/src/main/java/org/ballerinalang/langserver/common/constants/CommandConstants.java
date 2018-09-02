@@ -22,6 +22,7 @@ package org.ballerinalang.langserver.common.constants;
 public class CommandConstants {
     public static final String UNDEFINED_PACKAGE = "undefined package";
     public static final String UNDEFINED_FUNCTION = "undefined function";
+    public static final String VAR_ASSIGNMENT_REQUIRED = "variable assignment is required";
 
 
     // Command Arguments
@@ -31,7 +32,11 @@ public class CommandConstants {
 
     public static final String ARG_KEY_FUNC_NAME = "function.name";
 
+    public static final String ARG_KEY_FUNC_LOCATION = "function.location";
+
     public static final String ARG_KEY_RETURN_TYPE = "function.returns";
+
+    public static final String ARG_KEY_VAR_NAME = "var.name";
 
     public static final String ARG_KEY_RETURN_DEFAULT_VAL = "function.returns.default";
 
@@ -45,6 +50,8 @@ public class CommandConstants {
     // Command Titles
     public static final String IMPORT_PKG_TITLE = "Import Package ";
 
+    public static final String CREATE_VARIABLE_TITLE = "Create Variable";
+
     public static final String CREATE_FUNCTION_TITLE = "Create Function ";
 
     public static final String ADD_DOCUMENTATION_TITLE = "Document This";
@@ -56,6 +63,8 @@ public class CommandConstants {
     public static final String CMD_IMPORT_PACKAGE = "IMPORT_PKG";
 
     public static final String CMD_CREATE_FUNCTION = "CREATE_FUNC";
+
+    public static final String CMD_CREATE_VARIABLE = "CREATE_VAR";
 
     public static final String CMD_ADD_DOCUMENTATION = "ADD_DOC";
 
