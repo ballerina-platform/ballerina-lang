@@ -18,15 +18,17 @@
 package org.ballerinalang.test.command;
 
 import org.ballerinalang.test.BaseTest;
-import org.ballerinalang.test.context.BMainInstance;
 import org.ballerinalang.test.context.BallerinaTestException;
 import org.ballerinalang.test.context.LogLeecher;
+import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 
 /**
  * This class tests CLI parsing.
@@ -36,17 +38,17 @@ import java.io.IOException;
 public class CommandParserTestCase extends BaseTest {
 
     private String sourceArg = (new File("src/test/resources/command/test_cmd_parser.bal")).getAbsolutePath();
-    private BMainInstance mainInstance;
+    private Path tempProjectDirectory;
 
     @BeforeClass()
     public void setUp() throws BallerinaTestException, IOException {
-        mainInstance = new BMainInstance(balServer);
+        tempProjectDirectory = Files.createTempDirectory("bal-test-option-ordering");
     }
 
     @Test (description = "Tests correct identification of empty strings as args")
     public void testEmptyStringArg() throws BallerinaTestException {
         LogLeecher outLogLeecher = new LogLeecher("empty_string");
-        mainInstance.runMain(sourceArg, null, new String[]{""}, new LogLeecher[]{outLogLeecher});
+        balClient.runMain(sourceArg, null, new String[]{""}, new LogLeecher[]{outLogLeecher});
         outLogLeecher.waitForText(2000);
     }
 
@@ -56,15 +58,40 @@ public class CommandParserTestCase extends BaseTest {
            dataProvider = "runCmdOptions")
     public void testCliParamOrderEnforcement(String cmdOption) throws BallerinaTestException {
         LogLeecher outLogLeecher = new LogLeecher(cmdOption);
-        mainInstance.runMain(sourceArg, null, new String[]{cmdOption}, new LogLeecher[]{outLogLeecher});
+        balClient.runMain(sourceArg, null, new String[]{cmdOption}, new LogLeecher[]{outLogLeecher});
         outLogLeecher.waitForText(2000);
     }
 
     @Test (description = "Test arguments starting with a dash", dataProvider = "valuesWithDashPrefix")
     public void testDashPrefixedArg(String argWithDashPrefix) throws BallerinaTestException {
         LogLeecher outLogLeecher = new LogLeecher(argWithDashPrefix);
-        mainInstance.runMain(sourceArg, null, new String[]{argWithDashPrefix}, new LogLeecher[]{outLogLeecher});
+        balClient.runMain(sourceArg, null, new String[]{argWithDashPrefix}, new LogLeecher[]{outLogLeecher});
         outLogLeecher.waitForText(2000);
+    }
+
+    @Test(description = "Test option param ordering not being enforced for non run command")
+    public void testBuildWithOutputOptionAfterSource() throws Exception {
+        Path targetDirPath = tempProjectDirectory.resolve("target");
+        Files.createDirectories(targetDirPath);
+        String[] clientArgs = {(new File("src/test/resources/command/test_option_ordering.bal")).getAbsolutePath(),
+                                "-o", targetDirPath.toString().concat(File.separator).concat("order_test_one")};
+        balClient.runMain("build", clientArgs, null, new String[]{},
+                new LogLeecher[]{}, tempProjectDirectory.toString());
+
+        Path generatedBalx = targetDirPath.resolve("order_test_one.balx");
+        Assert.assertTrue(Files.exists(generatedBalx));
+    }
+
+    @Test(description = "Test option param ordering not being enforced for non run command")
+    public void testBuildWithOutputOptionBeforeSource() throws Exception {
+        Path targetDirPath = tempProjectDirectory.resolve("target");
+        Files.createDirectories(targetDirPath);
+        String[] clientArgs = {"-o", targetDirPath.toString().concat(File.separator).concat("order_test_two"),
+                        (new File("src/test/resources/command/test_option_ordering.bal")).getAbsolutePath()};
+        balClient.runMain("build", clientArgs, null, new String[]{},
+                new LogLeecher[]{}, tempProjectDirectory.toString());
+        Path generatedBalx = targetDirPath.resolve("order_test_two.balx");
+        Assert.assertTrue(Files.exists(generatedBalx));
     }
 
     @DataProvider(name = "runCmdOptions")

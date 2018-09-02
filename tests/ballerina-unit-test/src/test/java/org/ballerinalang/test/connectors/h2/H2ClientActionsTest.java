@@ -105,8 +105,8 @@ public class H2ClientActionsTest {
     }
 
     @Test
-    public void testAddToMirrorTable() throws Exception {
-        BValue[] returns = BRunUtil.invoke(result, "testAddToMirrorTable");
+    public void testAddToProxyTable() throws Exception {
+        BValue[] returns = BRunUtil.invoke(result, "testAddToProxyTable");
         Assert.assertEquals(returns.length, 2);
         Assert.assertTrue(returns[0] instanceof BMap);
         Assert.assertEquals(returns[0].stringValue(),

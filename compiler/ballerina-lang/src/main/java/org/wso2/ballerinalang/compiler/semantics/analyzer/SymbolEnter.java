@@ -36,7 +36,6 @@ import org.wso2.ballerinalang.compiler.desugar.ASTBuilderUtil;
 import org.wso2.ballerinalang.compiler.semantics.model.Scope;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAnnotationAttributeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAnnotationSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAttachedFunction;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BEndpointVarSymbol;
@@ -60,7 +59,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BServiceType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStructureType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.tree.BLangAction;
-import org.wso2.ballerinalang.compiler.tree.BLangAnnotAttribute;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotation;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
 import org.wso2.ballerinalang.compiler.tree.BLangCompilationUnit;
@@ -220,23 +218,10 @@ public class SymbolEnter extends BLangNodeVisitor {
         // Define annotation nodes.
         pkgNode.annotations.forEach(annot -> defineNode(annot, pkgEnv));
 
-        resolveAnnotationAttributeTypes(pkgNode.annotations, pkgEnv);
-
         pkgNode.globalEndpoints.forEach(ep -> defineNode(ep, pkgEnv));
 
         definePackageInitFunctions(pkgNode, pkgEnv);
         pkgNode.completedPhases.add(CompilerPhase.DEFINE);
-    }
-
-    @Deprecated
-    private void resolveAnnotationAttributeTypes(List<BLangAnnotation> annotations, SymbolEnv pkgEnv) {
-        annotations.forEach(annotation -> {
-            annotation.attributes.forEach(attribute -> {
-                SymbolEnv annotationEnv = SymbolEnv.createAnnotationEnv(annotation, annotation.symbol.scope, pkgEnv);
-                BType actualType = this.symResolver.resolveTypeNode(attribute.typeNode, annotationEnv);
-                attribute.symbol.type = actualType;
-            });
-        });
     }
 
     public void visit(BLangAnnotation annotationNode) {
@@ -248,22 +233,10 @@ public class SymbolEnter extends BLangNodeVisitor {
         annotationNode.symbol = annotationSymbol;
         defineSymbol(annotationNode.name.pos, annotationSymbol);
         SymbolEnv annotationEnv = SymbolEnv.createAnnotationEnv(annotationNode, annotationSymbol.scope, env);
-        annotationNode.attributes.forEach(att -> this.defineNode(att, annotationEnv));
         if (annotationNode.typeNode != null) {
             BType structType = this.symResolver.resolveTypeNode(annotationNode.typeNode, annotationEnv);
             ((BAnnotationSymbol) annotationSymbol).attachedType = structType.tsymbol;
         }
-    }
-
-    public void visit(BLangAnnotAttribute annotationAttribute) {
-        BAnnotationAttributeSymbol annotationAttributeSymbol = Symbols.createAnnotationAttributeSymbol(names.
-                        fromIdNode(annotationAttribute.name), env.enclPkg.symbol.pkgID,
-                null, env.scope.owner);
-        annotationAttributeSymbol.docTag = DocTag.FIELD;
-        annotationAttributeSymbol.expr = annotationAttribute.expr;
-        annotationAttribute.symbol = annotationAttributeSymbol;
-        ((BAnnotationSymbol) env.scope.owner).attributes.add(annotationAttributeSymbol);
-        defineSymbol(annotationAttribute.pos, annotationAttributeSymbol);
     }
 
     @Override

@@ -1,8 +1,7 @@
-import ballerina/grpc;
+{{#if stubList}}import ballerina/grpc;
 import ballerina/io;
-{{#stubObject}}
-public type {{connectorId}}{{stubTypeName}}{{stubType}}Stub object {
-    {{#stubs}}
+{{/if}}{{#stubList}}
+public type {{serviceName}}{{#equals stubType "blocking"}}Blocking{{/equals}}Stub object {
     public grpc:Client clientEndpoint;
     public grpc:Stub stub;
 
@@ -11,28 +10,30 @@ public type {{connectorId}}{{stubTypeName}}{{stubType}}Stub object {
         navStub.initStub(ep, "{{stubType}}", DESCRIPTOR_KEY, descriptorMap);
         self.stub = navStub;
     }
-    {{/stubs}}{{#blockingFunctions}}
-    function {{operationId}} ({{inputDataType}}{{&space}}{{inputAttributeName}}{{inputComma}}{{&space}}grpc:Headers? headers = ()) returns (({{outputDataType}}{{outputComma}} grpc:Headers)|error) {
-        {{&initEmptyStub}}
+    {{#blockingFunctions}}
+    function {{methodName}} ({{#if inputType}}{{inputType}} req, {{/if}}grpc:Headers? headers = ()) returns ({{#if outputType}}({{outputType}}, grpc:Headers){{else}}grpc:Headers{{/if}}|error) {
+        {{#unless inputType}}Empty req = {};{{/unless}}
         var unionResp = self.stub.blockingExecute("{{methodId}}", req, headers = headers);
         match unionResp {
             error payloadError => {
                 return payloadError;
             }
             (any, grpc:Headers) payload => {
-                any result;
                 grpc:Headers resHeaders;
-                ({{resultCast}}, resHeaders) = payload;
-                return {{&openBracket}}{{&checkOp}}{{&castSymbolOpen}}{{outputDataType}}{{&castSymbolClose}}{{resultOut}}{{outputComma}}{{&space}}resHeaders{{&closeBracket}};
+                {{#if outputType}}any result;
+                (result, resHeaders) = payload;
+                return ({{#not_equal outputType "string"}}check {{/not_equal}}<{{outputType}}>result, resHeaders);{{else}}(_, resHeaders) = payload;
+                return resHeaders;{{/if}}
             }
         }
     }
     {{/blockingFunctions}}{{#nonBlockingFunctions}}
-    function {{operationId}} ({{inputDataType}}{{&space}}{{inputAttributeName}}{{inputComma}}{{&space}}typedesc listener, grpc:Headers? headers = ()) returns (error?) {
+    function {{methodName}} ({{#if inputType}}{{inputType}} req, {{/if}}typedesc listener, grpc:Headers? headers = ()) returns (error?) {
+        {{#unless inputType}}Empty req = {};{{/unless}}
         return self.stub.nonBlockingExecute("{{methodId}}", req, listener, headers = headers);
     }
     {{/nonBlockingFunctions}}{{#streamingFunctions}}
-    function {{operationId}} (typedesc listener, grpc:Headers? headers = ()) returns (grpc:Client| error)  {
+    function {{methodName}} (typedesc listener, grpc:Headers? headers = ()) returns (grpc:Client| error)  {
         var res = self.stub.streamingExecute("{{methodId}}", listener, headers = headers);
         match res {
             error err => {
@@ -42,15 +43,13 @@ public type {{connectorId}}{{stubTypeName}}{{stubType}}Stub object {
                 return con;
             }
         }
-    }
-    {{/streamingFunctions}}
+    }{{/streamingFunctions}}
 };
-{{/stubObject}}
-{{#client}}
-public type {{connectorId}}{{stubTypeName}}{{stubType}}Client object {
-    {{#stubObjects}}
+{{/stubList}}
+{{#stubList}}
+public type {{serviceName}}{{#equals stubType "blocking"}}Blocking{{/equals}}Client object {
     public grpc:Client client;
-    public {{connectorId}}{{stubTypeName}}Stub stub;
+    public {{serviceName}}{{#equals stubType "blocking"}}Blocking{{/equals}}Stub stub;
 
     public function init (grpc:ClientEndpointConfig config) {
         // initialize client endpoint.
@@ -58,31 +57,28 @@ public type {{connectorId}}{{stubTypeName}}{{stubType}}Client object {
         c.init(config);
         self.client = c;
         // initialize service stub.
-        {{connectorId}}{{stubTypeName}}Stub s = new;
+        {{serviceName}}{{#equals stubType "blocking"}}Blocking{{/equals}}Stub s = new;
         s.initStub(c);
         self.stub = s;
     }
 
-    public function getCallerActions () returns ({{connectorId}}{{stubTypeName}}Stub) {
+    public function getCallerActions () returns {{serviceName}}{{#equals stubType "blocking"}}Blocking{{/equals}}Stub {
         return self.stub;
-    }{{/stubObjects}}
+    }
 };
-{{/client}}
-{{#structs}}
-type {{structId}} record {
-    {{#attribute}}{{type}}{{label}} {{name}};
-    {{/attribute}}
+{{/stubList}}
+{{#messageList}}
+type {{messageName}} record {
+    {{#fieldList}}{{fieldType}}{{fieldLabel}} {{fieldName}}{{#if defaultValue}} = {{defaultValue}}{{/if}};
+    {{/fieldList}}
 };
-{{/structs}}
-{{#enums}}
-enum {{enumId}} {
-{{#enumAttribute}}{{name}}{{eoe}}
-{{/enumAttribute}}
-}
-{{/enums}}
+{{/messageList}}
+{{#enumList}}public type {{messageName}} {{#fieldList}}{{number}}{{#unless @last}}|{{/unless}}{{/fieldList}};
+{{#fieldList}}
+@final public {{../messageName}} {{name}} = {{number}};
+{{/fieldList}}{{/enumList}}
 @final string DESCRIPTOR_KEY = "{{rootDescriptorKey}}";
-map descriptorMap =
-{ {{#descriptors}}
-    "{{descriptorKey}}":"{{descriptorData}}"{{eoe}}
-  {{/descriptors}}
+map descriptorMap = {
+{{#each descriptors}}"{{descriptorKey}}":"{{descriptorData}}"{{#unless @last}},{{/unless}}
+{{/each}}
 };

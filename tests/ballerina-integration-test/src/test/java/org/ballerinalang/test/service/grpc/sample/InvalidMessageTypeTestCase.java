@@ -42,7 +42,8 @@ public class InvalidMessageTypeTestCase extends GrpcBaseTest {
     @Test(description = "Test gRPC service build when invalid message type is passed as request. Should get a " +
             "compilation error.")
     public void testInvalidRequestMessageType() {
-        Path balFilePath = Paths.get("src", "test", "resources", "grpc", "invalid_request_message.bal");
+        Path balFilePath = Paths.get("src", "test", "resources", "grpc",
+                "errorservices", "invalid_request_message.bal");
         CompileResult result = BCompileUtil.compile(balFilePath.toAbsolutePath().toString());
         Assert.assertEquals(result.getErrorCount(), 1);
         Assert.assertEquals(((BDiagnostic) result.getDiagnostics()[0]).msg, "Invalid message type. Message type " +
@@ -53,7 +54,8 @@ public class InvalidMessageTypeTestCase extends GrpcBaseTest {
     @Test(description = "Test gRPC service build when invalid message type is passed as response. Should get a " +
             "compilation error.")
     public void testInvalidResponseMessageType() {
-        Path balFilePath = Paths.get("src", "test", "resources", "grpc", "invalid_response_message.bal");
+        Path balFilePath = Paths.get("src", "test", "resources", "grpc",
+                "errorservices", "invalid_response_message.bal");
         CompileResult result = BCompileUtil.compile(balFilePath.toAbsolutePath().toString());
         Assert.assertEquals(result.getErrorCount(), 1);
         Assert.assertEquals(((BDiagnostic) result.getDiagnostics()[0]).msg, "Invalid message type. Message type " +
