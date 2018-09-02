@@ -17,39 +17,31 @@
  */
 package org.ballerinalang.test.run;
 
+import org.ballerinalang.test.BaseTest;
 import org.ballerinalang.test.context.BallerinaTestException;
 import org.ballerinalang.test.context.LogLeecher;
-import org.ballerinalang.test.context.ServerInstance;
-import org.testng.annotations.AfterClass;
-import org.testng.annotations.AfterMethod;
-import org.testng.annotations.BeforeClass;
+import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import java.io.File;
-import java.io.IOException;
 
 /**
- * This class tests invoking an entry function via the Ballerina Run Command and the data binding functionality.
+ * This class tests invoking an entry function in a bal file via the Ballerina Run Command and the data binding
+ * functionality.
  *
- * e.g., ballerina run abc:nomoremain 1 "Hello World" data binding main
+ * e.g., ballerina run abc.bal:nomoremain 1 "Hello World" data binding main
  *  where nomoremain is the following function
  *      public function nomoremain(int i, string s, string... args) {
  *          ...
  *      }
  */
-public class RunFunctionPositiveTestCase {
+public class BalRunFunctionPositiveTestCase extends BaseTest {
 
     private static final String PRINT_RETURN = "--printreturn";
-    private ServerInstance serverInstance;
 
     private String filePath = (new File("src/test/resources/run/file/test_entry_function.bal")).getAbsolutePath();
 
     private String sourceArg;
-
-    @BeforeClass()
-    public void setUp() throws BallerinaTestException, IOException {
-        serverInstance = ServerInstance.initBallerinaServer();
-    }
 
     @Test
     public void testNoArg() throws BallerinaTestException {
@@ -76,13 +68,8 @@ public class RunFunctionPositiveTestCase {
         outLogLeecher.waitForText(2000);
     }
 
-    @AfterMethod
+    @BeforeMethod
     public void stopServer() throws BallerinaTestException {
         serverInstance.stopServer();
-    }
-
-    @AfterClass
-    public void tearDown() throws BallerinaTestException {
-        serverInstance.cleanup();
     }
 }

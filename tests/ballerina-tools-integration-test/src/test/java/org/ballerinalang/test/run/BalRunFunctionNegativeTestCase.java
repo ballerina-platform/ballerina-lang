@@ -17,56 +17,40 @@
  */
 package org.ballerinalang.test.run;
 
+import org.ballerinalang.test.BaseTest;
 import org.ballerinalang.test.context.BallerinaTestException;
 import org.ballerinalang.test.context.LogLeecher;
-import org.ballerinalang.test.context.ServerInstance;
-import org.testng.annotations.AfterClass;
-import org.testng.annotations.AfterMethod;
-import org.testng.annotations.BeforeClass;
+import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import java.io.File;
-import java.io.IOException;
 
 /**
- * This class tests invoking an entry function via the Ballerina Run Command and the data binding functionality.
+ * This class tests invoking an entry function in a bal file via the Ballerina Run Command and the data binding
+ * functionality.
  *
- * e.g., ballerina run abc:nomoremain 1 "Hello World" data binding main
+ * e.g., ballerina run abc.bal:nomoremain 1 "Hello World" data binding main
  *  where nomoremain is the following function
  *      public function nomoremain(int i, string s, string... args) {
  *          ...
  *      }
  */
-public class RunFunctionNegativeTestCase {
-
-    private ServerInstance serverInstance;
+public class BalRunFunctionNegativeTestCase extends BaseTest {
 
     private String fileName = "test_entry_function.bal";
     private String filePath = (new File("src/test/resources/run/file/" + fileName)).getAbsolutePath();
 
-    private String sourceArg;
-
-    @BeforeClass()
-    public void setUp() throws BallerinaTestException, IOException {
-        serverInstance = ServerInstance.initBallerinaServer();
-    }
-
     @Test
     public void testEmptyEntryFunctionName() throws BallerinaTestException {
-        sourceArg = filePath + ":";
+        String sourceArg = filePath + ":";
         LogLeecher errLogLeecher = new LogLeecher("usage error: expected function name after final ':'");
         serverInstance.addErrorLogLeecher(errLogLeecher);
         serverInstance.runMain(new String[]{sourceArg});
         errLogLeecher.waitForText(2000);
     }
 
-    @AfterMethod
+    @BeforeMethod
     public void stopServer() throws BallerinaTestException {
         serverInstance.stopServer();
-    }
-
-    @AfterClass
-    public void tearDown() throws BallerinaTestException {
-        serverInstance.cleanup();
     }
 }
