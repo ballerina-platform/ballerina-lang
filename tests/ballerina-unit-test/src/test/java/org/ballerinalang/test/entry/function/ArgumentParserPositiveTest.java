@@ -72,6 +72,15 @@ public class ArgumentParserPositiveTest {
         Assert.assertEquals(entryFuncResult[0].stringValue(), arg, "invalid JSON return value");
     }
 
+    @Test
+    public void testXmlArg() {
+        BValue[] entryFuncResult = BLangProgramRunner.runEntryFunc(
+                programFile, "xmlEntry", new String[]{"<book status=\"available\" count=\"5\"/>"});
+        Assert.assertTrue(entryFuncResult != null && entryFuncResult.length == 1, "return value not available");
+        Assert.assertEquals(entryFuncResult[0].stringValue(), "<book status=\"available\" count=\"5\"></book>",
+                            "invalid XML return value");
+    }
+
     @Test (dataProvider = "typedescValues")
     public void testTypedescArg(String arg) {
         BValue[] entryFuncResult = BLangProgramRunner.runEntryFunc(programFile, "typedescEntry", new String[]{arg});

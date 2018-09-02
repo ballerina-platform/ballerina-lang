@@ -35,6 +35,10 @@ public function jsonEntry(json j) returns json {
     return j;
 }
 
+public function xmlEntry(xml x) returns xml {
+    return x;
+}
+
 public function arrayUnionEntry(int[]|float[]|boolean[]|json[] arr) returns any {
     return arr;
 }
