@@ -43,6 +43,15 @@ public function typedescEntry(typedesc t) returns typedesc {
     return t;
 }
 
+public function tupleEntry((int, Employee, string) t) returns string {
+    int id;
+    Employee e;
+    string dept;
+    (id, e, dept) = t;
+
+    return "Id: " + <string> id + ", Name: " + e.name + ", Dept: " + dept;
+}
+
 public function defaultableParamEntry(int i = 1, boolean b, string s = "default hello", string s2) returns string {
     return <string> i + " " + s + " world: " + s2 + " " + <string> b;
 }

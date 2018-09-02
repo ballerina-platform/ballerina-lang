@@ -234,12 +234,80 @@ public class ArgumentParserNegativeTest {
                                      functionName, runtimeParams, configFilePath, new String[]{argument}, offline,
                                      observe, printReturn);
         } catch (BLauncherException e) {
-            Assert.assertTrue(e.getMessages().contains("usage error: incompatible argument '" + argument + "' specified"
+            Assert.assertTrue(e.getMessages().contains("usage error: invalid argument '" + argument + "' specified"
                                                                + " for union type: int[]|float[]|boolean[]|json[]"),
                               "invalid error message, error message for invalid value for array union not found");
             return;
         }
         Assert.fail("invalid value for array union not identified");
+    }
+
+    @Test
+    public void testInvalidStringElementTupleArg() {
+        String functionName = "tupleEntry";
+        String argument = "(101, {\"name\":\"Maryam\"}, finance)";
+        try {
+            LauncherUtils.runProgram(Paths.get("src/test/resources/test-src/entry.function"), Paths.get(FILE_NAME),
+                                     functionName, runtimeParams, configFilePath, new String[]{argument}, offline,
+                                     observe, printReturn);
+        } catch (BLauncherException e) {
+            Assert.assertTrue(e.getMessages().contains("usage error: invalid tuple element argument 'finance', expected"
+                                                               + " argument in the format \\\"str\\\" for tuple element"
+                                                               + " of type 'string'"),
+                              "invalid error message, error message for invalid tuple string element not found");
+            return;
+        }
+        Assert.fail("invalid tuple string element not identified");
+    }
+
+    @Test (dataProvider = "tupleArgsWithoutBrackets")
+    public void testInvalidTupleArgWithoutBrackets(String arg) {
+        String functionName = "tupleEntry";
+        try {
+            LauncherUtils.runProgram(Paths.get("src/test/resources/test-src/entry.function"), Paths.get(FILE_NAME),
+                                     functionName, runtimeParams, configFilePath, new String[]{arg}, offline,
+                                     observe, printReturn);
+        } catch (BLauncherException e) {
+            Assert.assertTrue(e.getMessages().contains("usage error: invalid argument '" + arg + "', expected tuple "
+                                                               + "notation (\"()\") with tuple arg"),
+                              "invalid error message, error message for invalid tuple arg not found");
+            return;
+        }
+        Assert.fail("invalid tuple arg, with no brackets, not identified");
+    }
+
+    @Test (dataProvider = "tupleArgsWithIncorrectElementCount")
+    public void testInvalidTupleArgWithIncorrectElementCount(String arg) {
+        String functionName = "tupleEntry";
+        try {
+            LauncherUtils.runProgram(Paths.get("src/test/resources/test-src/entry.function"), Paths.get(FILE_NAME),
+                                     functionName, runtimeParams, configFilePath, new String[]{arg}, offline,
+                                     observe, printReturn);
+        } catch (BLauncherException e) {
+            Assert.assertTrue(e.getMessages().contains("usage error: invalid argument '" + arg + "', element count "
+                                                               + "mismatch for tuple type: '(int,Employee,string)'"),
+                              "invalid error message, error message for tuple element count mismatch not found");
+            return;
+        }
+        Assert.fail("invalid tuple arg, with incorrect element count, not identified");
+    }
+
+    @Test
+    public void testInvalidTupleArgWithIncorrectElementArg() {
+        String functionName = "tupleEntry";
+        String arg = "(\"101\", {\"name\":\"Maryam\"}, \"finance\")";
+        try {
+            LauncherUtils.runProgram(Paths.get("src/test/resources/test-src/entry.function"), Paths.get(FILE_NAME),
+                                     functionName, runtimeParams, configFilePath, new String[]{arg}, offline,
+                                     observe, printReturn);
+        } catch (BLauncherException e) {
+            Assert.assertTrue(e.getMessages().contains("usage error: invalid tuple member argument '\"101\"', "
+                                                               + "expected value of type 'int'"),
+                              "invalid error message, error message for invalid value for tuple element not "
+                                      + "found");
+            return;
+        }
+        Assert.fail("invalid tuple arg, with invalid element value, not identified");
     }
 
     @Test
@@ -502,6 +570,23 @@ public class ArgumentParserNegativeTest {
         return new Object[][] {
                 { "oneSensitiveParamEntry" },
                 { "allSensitiveParamsEntry" }
+        };
+    }
+
+    @DataProvider(name = "tupleArgsWithoutBrackets")
+    public Object[][] tupleArgsWithoutBrackets() {
+        return new Object[][] {
+                { "(1, {\"name\":\"Maryam\"}, \"ABC\"" },
+                { "1, {\"name\":\"Maryam\"}, \"ABC\")" },
+                { "1, {\"name\":\"Maryam\"}, \"ABC\""  }
+        };
+    }
+
+    @DataProvider(name = "tupleArgsWithIncorrectElementCount")
+    public Object[][] tupleArgsWithIncorrectElementCount() {
+        return new Object[][] {
+                { "(1, {\"name\":\"Maryam\"})" },
+                { "(1, {\"name\":\"Maryam\"}, \"ABC\", 1500)" }
         };
     }
 }

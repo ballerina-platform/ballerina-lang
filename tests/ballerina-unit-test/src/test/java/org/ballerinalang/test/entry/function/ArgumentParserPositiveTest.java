@@ -66,7 +66,7 @@ public class ArgumentParserPositiveTest {
     }
 
     @Test (dataProvider = "jsonValues")
-    public void testValidJsonArg(String arg) {
+    public void testJsonArg(String arg) {
         BValue[] entryFuncResult = BLangProgramRunner.runEntryFunc(programFile, "jsonEntry", new String[]{arg});
         Assert.assertTrue(entryFuncResult != null && entryFuncResult.length == 1, "return value not available");
         Assert.assertEquals(entryFuncResult[0].stringValue(), arg, "invalid JSON return value");
@@ -85,6 +85,17 @@ public class ArgumentParserPositiveTest {
         Assert.assertTrue(entryFuncResult != null && entryFuncResult.length == 1, "return value not available");
         Assert.assertEquals(entryFuncResult[0].stringValue(), arg, "invalid array return value");
     }
+
+    @Test
+    public void testTupleArg() {
+        BValue[] entryFuncResult = BLangProgramRunner.runEntryFunc(programFile, "tupleEntry",
+                                                                   new String[]{"(101, {\"name\":\"Maryam\"}, "
+                                                                           + "\"finance\")"});
+        Assert.assertTrue(entryFuncResult != null && entryFuncResult.length == 1, "return value not available");
+        Assert.assertEquals(entryFuncResult[0].stringValue(), "Id: 101, Name: Maryam, Dept: finance",
+                            "invalid return value with tuple args");
+    }
+
 
     @Test
     public void testAllNamedArgs() {

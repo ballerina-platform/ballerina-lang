@@ -394,10 +394,13 @@ public class ArgumentParser {
     }
 
     private static BRefValueArray parseTupleArg(BTupleType type, String tupleArg) {
+        String stringSpecificationErrorSuffix = "', expected argument in the format \\\"str\\\" for tuple element of "
+                + "type 'string'";
         String[] tupleElements = tupleArg.split(COMMA);
 
         if (tupleElements.length != type.getTupleTypes().size()) {
-            throw new BLangUsageException("element count mismatch for tuple type: " + type);
+            throw new BLangUsageException("invalid argument '(" + tupleArg + ")', element count mismatch for tuple "
+                                                  + "type: '" + type + "'");
         }
 
         BRefValueArray tupleValues = new BRefValueArray(type);
@@ -407,21 +410,23 @@ public class ArgumentParser {
             try {
                 if (elementType.getTag() == TypeTags.STRING_TAG) {
                     if (!tupleElement.startsWith("\"") || !tupleElement.endsWith("\"")) {
-                        throw new BLangUsageException("invalid argument '" + tupleElement + "', expected argument in "
-                                                              + "the format \\\"str\\\" for tuple element of type "
-                                                              + "'string'");
+                        throw new BLangUsageException("invalid tuple element argument '" + tupleElement
+                                                              + stringSpecificationErrorSuffix);
                     }
                     tupleElement = tupleElement.substring(1, tupleElement.length() - 1);
                 }
                 tupleValues.add(index, (BRefType) getBValue(elementType, tupleElement));
                 index++;
             } catch (BallerinaException | BLangUsageException e) {
-                if (e.getLocalizedMessage().startsWith(UNSUPPORTED_TYPE_PREFIX)) {
+                String localizedMessage = e.getLocalizedMessage();
+                if (localizedMessage.startsWith(UNSUPPORTED_TYPE_PREFIX)) {
                     throw new BLangUsageException("unsupported element type for tuple as entry function argument: "
                                                           + elementType);
+                } else if (!localizedMessage.endsWith(stringSpecificationErrorSuffix)) {
+                    throw new BLangUsageException("invalid tuple member argument '" + tupleElement
+                                                          + "', expected value of type '" + elementType + "'");
                 }
-                throw new BLangUsageException("invalid argument '" + tupleElement + "', expected tuple member"
-                                                      + " type: " + elementType);
+                throw e;
             }
         }
         return tupleValues;
@@ -450,7 +455,7 @@ public class ArgumentParser {
                 memberTypeIndex++;
             }
         }
-        throw new BLangUsageException("incompatible argument '" + unionArg + "' specified for union type: "
+        throw new BLangUsageException("invalid argument '" + unionArg + "' specified for union type: "
                                           + (type.isNullable() ? type.toString().replace("|null", "|()") : type));
     }
 }
