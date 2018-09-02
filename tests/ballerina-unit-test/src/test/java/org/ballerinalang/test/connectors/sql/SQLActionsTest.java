@@ -793,12 +793,14 @@ public class SQLActionsTest {
         BValue[] returns = BRunUtil.invoke(resultMirror, "testAddToMirrorTableConstraintViolation", connectionArgs);
         String errorMessage;
         if (dbType == MYSQL) {
-            errorMessage = "execute proxy table add failed: Duplicate entry '1' for key 'PRIMARY'";
+            errorMessage = "execute proxy table add failed: execute update failed: Duplicate entry '1' for key "
+                    + "'PRIMARY'";
         } else if (dbType == POSTGRES) {
-            errorMessage = "execute proxy table add failed: ERROR: duplicate key value violates unique constraint";
+            errorMessage = "execute proxy table add failed: execute update failed: ERROR: duplicate key value "
+                    + "violates unique constraint";
         } else if (dbType == H2) {
-            errorMessage = "execute proxy table add failed: Unique index or primary key violation: \"PRIMARY KEY ON"
-                    + " PUBLIC.EMPLOYEEADDNEGATIVE(ID)";
+            errorMessage = "execute proxy table add failed: execute update failed: Unique index or primary key "
+                    + "violation: \"PRIMARY KEY ON PUBLIC.EMPLOYEEADDNEGATIVE(ID)";
         } else {
             errorMessage = "execute proxy table add failed: execute update failed: integrity constraint violation: "
                     + "unique constraint or index violation";

@@ -217,8 +217,6 @@ INSERT INTO employeeItr VALUES (1, 'Manuri', 'Sri Lanka');
 /
 INSERT INTO employeeItr VALUES (2, 'Devni', 'Sri Lanka');
 /
-INSERT INTO employeeItr VALUES (3, 'Thurani', 'Sri Lanka');
-/
 CREATE TABLE employeeAdd (id INTEGER NOT NULL, name VARCHAR(20), address VARCHAR(20));
 /
 CREATE TABLE employeeDel (id INTEGER NOT NULL, name VARCHAR(20), address VARCHAR(20));
@@ -242,5 +240,5 @@ CREATE TABLE IF NOT EXISTS BlobTable(
   blob_type    OID
 );
 /
-INSERT INTO BlobTable VALUES (1, lo_from_bytea(0, E'\\x77736F322062616C6C6572696E6120626C6F6220746573742E'));
+INSERT INTO BlobTable VALUES (1, lo_from_bytea(16458, E'\\x77736F322062616C6C6572696E6120626C6F6220746573742E'));
 /
