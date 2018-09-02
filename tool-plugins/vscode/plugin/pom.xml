@@ -97,6 +97,7 @@
                             <executable>${npm.executable}</executable>
                             <arguments>
                                 <argument>install</argument>
+                                <argument>--unsafe-perm</argument>
                             </arguments>
                         </configuration>
                     </execution>
@@ -186,8 +187,8 @@
                         </goals>
                         <configuration>
                             <target name="copy resources">
-                                <mkdir dir="${project.basedir}/renderer/resources" />
-                                <copy todir="${project.basedir}/renderer/resources" overwrite="true" flatten="true">
+                                <mkdir dir="${project.basedir}/resources/diagram" />
+                                <copy todir="${project.basedir}/resources/diagram" overwrite="true" flatten="true">
                                     <fileset dir="${project.build.directory}/temp">
                                         <include name="**/*.js" />
                                         <include name="**/*.css" />

@@ -56,14 +56,6 @@
         </classes>
     </test>
 
-    <test name="ballerina-resiliency-tests" parallel="methods" thread-count="12">
-        <classes>
-            <class name="org.ballerinalang.test.service.resiliency.ResiliencyBaseTest"/>
-            <class name="org.ballerinalang.test.service.resiliency.FailoverClientTestCase"/>
-            <class name="org.ballerinalang.test.service.resiliency.HTTPCircuitBreakerTestCase"/>
-        </classes>
-    </test>
-
     <test name="ballerina-http2-tests" parallel="false">
         <classes>
             <class name="org.ballerinalang.test.service.http2.Http2ServerPushTestCase"/>
@@ -98,6 +90,14 @@
     <test name="ballerina-transaction-tests" parallel="false">
         <classes>
             <class name="org.ballerinalang.test.transaction.MicroTransactionTestCase"/>
+        </classes>
+    </test>
+
+    <test name="ballerina-resiliency-tests" parallel="methods" thread-count="12">
+        <classes>
+            <class name="org.ballerinalang.test.service.resiliency.ResiliencyBaseTest"/>
+            <class name="org.ballerinalang.test.service.resiliency.FailoverClientTestCase"/>
+            <class name="org.ballerinalang.test.service.resiliency.HTTPCircuitBreakerTestCase"/>
         </classes>
     </test>
 
@@ -183,18 +183,6 @@
     <test name="ballerina-jms-tests" parallel="false">
         <classes>
             <class name="org.ballerinalang.test.jms.JMSConnectorTestCase"/>
-        </classes>
-    </test>
-
-    <test name="ballerina-websub-tests" parallel="false">
-        <classes>
-            <class name="org.ballerinalang.test.service.websub.WebSubAutoIntentVerificationTestCase"/>
-            <class name="org.ballerinalang.test.service.websub.WebSubContentTypeSupportTestCase"/>
-            <class name="org.ballerinalang.test.service.websub.WebSubDiscoveryWithMultipleSubscribersTestCase"/>
-            <class name="org.ballerinalang.test.service.websub.WebSubRedirectionTestCase"/>
-            <class name="org.ballerinalang.test.service.websub.WebSubSubscriptionChangeTestCase"/>
-            <class name="org.ballerinalang.test.service.websub.WebSubWithSecretTestCase"/>
-            <class name="org.ballerinalang.test.service.websub.WebSubServiceExtensionTestCase"/>
         </classes>
     </test>
 

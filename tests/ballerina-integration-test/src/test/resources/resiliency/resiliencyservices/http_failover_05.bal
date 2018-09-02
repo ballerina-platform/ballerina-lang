@@ -22,7 +22,7 @@ import ballerina/mime;
 import ballerina/runtime;
 
 endpoint http:Listener failoverEP05 {
-    port:9095
+    port:9305
 };
 
 // Create an endpoint with port 8085 for the mock backend services.

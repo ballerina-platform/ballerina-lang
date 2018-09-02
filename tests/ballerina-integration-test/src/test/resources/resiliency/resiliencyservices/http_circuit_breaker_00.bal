@@ -22,15 +22,15 @@ import ballerina/runtime;
 public int counter = 1;
 
 endpoint http:Listener circuitBreakerEP00 {
-    port:9096
+    port:9306
 };
 
 endpoint http:Client backendClientEP00 {
     url: "http://localhost:8086",
     circuitBreaker: {
         rollingWindow: {
-            timeWindowMillis: 20000,
-            bucketSizeMillis: 10000,
+            timeWindowMillis: 60000,
+            bucketSizeMillis: 20000,
             requestVolumeThreshold: 0
         },
         failureThreshold: 0.3,

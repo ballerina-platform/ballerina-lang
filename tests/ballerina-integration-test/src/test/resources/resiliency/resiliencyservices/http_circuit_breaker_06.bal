@@ -23,15 +23,15 @@ int requestCount = 0;
 int actualCount = 0;
 
 endpoint http:Listener circuitBreakerEP06 {
-    port:9102
+    port:9312
 };
 
 endpoint http:Client backendClientEP06 {
     url: "http://localhost:8092",
     circuitBreaker: {
         rollingWindow: {
-            timeWindowMillis: 20000,
-            bucketSizeMillis: 5000,
+            timeWindowMillis: 60000,
+            bucketSizeMillis: 20000,
             requestVolumeThreshold: 0
         },
         failureThreshold: 0.3,

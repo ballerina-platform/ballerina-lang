@@ -22,18 +22,18 @@ import ballerina/runtime;
 public int forceCloseStateCount = 0;
 
 endpoint http:Listener circuitBreakerEP02 {
-    port:9098
+    port:9308
 };
 
 endpoint http:Client unhealthyClientEP {
     url: "http://localhost:8088",
     circuitBreaker: {
         rollingWindow: {
-            timeWindowMillis: 20000,
-            bucketSizeMillis: 4000,
+            timeWindowMillis: 60000,
+            bucketSizeMillis: 20000,
             requestVolumeThreshold: 2
         },
-        failureThreshold: 0.4,
+        failureThreshold: 0.6,
         resetTimeMillis: 1000,
         statusCodes: [501, 502, 503]
     },

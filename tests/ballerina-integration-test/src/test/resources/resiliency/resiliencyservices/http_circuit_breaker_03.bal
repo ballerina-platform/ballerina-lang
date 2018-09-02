@@ -20,15 +20,15 @@ import ballerina/log;
 import ballerina/runtime;
 
 endpoint http:Listener circuitBreakerEP03 {
-    port:9099
+    port:9309
 };
 
 endpoint http:Client simpleClientEP {
     url: "http://localhost:8089",
     circuitBreaker: {
         rollingWindow: {
-            timeWindowMillis: 20000,
-            bucketSizeMillis: 2000,
+            timeWindowMillis: 60000,
+            bucketSizeMillis: 20000,
             requestVolumeThreshold: 0
         },
         failureThreshold: 0.2,

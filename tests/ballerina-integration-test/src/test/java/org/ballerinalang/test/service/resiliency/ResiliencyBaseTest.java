@@ -34,7 +34,7 @@ public class ResiliencyBaseTest extends BaseTest {
     @BeforeGroups(value = "resiliency-test", alwaysRun = true)
     public void start() throws BallerinaTestException {
 
-        int[] requiredPorts = new int[]{9090, 9091, 9092, 9093, 9094, 9095, 9096, 9097, 9098, 9099, 9100, 9101, 9102};
+        int[] requiredPorts = new int[]{9300, 9301, 9302, 9303, 9304, 9305, 9306, 9307, 9308, 9309, 9310, 9311, 9312};
         String sourcePath = new File("src" + File.separator + "test" + File.separator + "resources"
                 + File.separator + "resiliency").getAbsolutePath();
         String[] args = new String[]{"--sourceroot", sourcePath};

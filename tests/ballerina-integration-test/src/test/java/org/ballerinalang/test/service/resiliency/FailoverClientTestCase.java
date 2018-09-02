@@ -42,7 +42,7 @@ public class FailoverClientTestCase extends ResiliencyBaseTest {
     public void testSimpleFailover() throws IOException {
         Map<String, String> headers = new HashMap<>();
         headers.put(HttpHeaderNames.CONTENT_TYPE.toString(), TestConstant.CONTENT_TYPE_JSON);
-        HttpResponse response = HttpClientRequest.doPost(serverInstance.getServiceURLHttp(9090, TYPICAL_SERVICE_PATH)
+        HttpResponse response = HttpClientRequest.doPost(serverInstance.getServiceURLHttp(9300, TYPICAL_SERVICE_PATH)
                 , "{\"Name\":\"Ballerina\"}", headers);
         Assert.assertEquals(response.getResponseCode(), 200, "Response code mismatched");
         Assert.assertEquals(response.getHeaders().get(HttpHeaderNames.CONTENT_TYPE.toString())
@@ -70,7 +70,7 @@ public class FailoverClientTestCase extends ResiliencyBaseTest {
         Map<String, String> headers = new HashMap<>();
         headers.put(HttpHeaderNames.CONTENT_TYPE.toString(), "multipart/form-data; boundary=" +
                 multipartDataBoundary);
-        HttpResponse response = HttpClientRequest.doPost(serverInstance.getServiceURLHttp(9091, TYPICAL_SERVICE_PATH)
+        HttpResponse response = HttpClientRequest.doPost(serverInstance.getServiceURLHttp(9301, TYPICAL_SERVICE_PATH)
                 , multipartBody, headers);
         Assert.assertEquals(response.getResponseCode(), 200, "Response code mismatched");
         Assert.assertTrue(response.getHeaders().get(HttpHeaderNames.CONTENT_TYPE.toString())
@@ -124,7 +124,7 @@ public class FailoverClientTestCase extends ResiliencyBaseTest {
         Map<String, String> headers = new HashMap<>();
         headers.put(HttpHeaderNames.CONTENT_TYPE.toString(), "multipart/form-data; boundary=" +
                 multipartDataBoundary);
-        HttpResponse response = HttpClientRequest.doPost(serverInstance.getServiceURLHttp(9092, TYPICAL_SERVICE_PATH)
+        HttpResponse response = HttpClientRequest.doPost(serverInstance.getServiceURLHttp(9302, TYPICAL_SERVICE_PATH)
                 , nestedMultipartBody, headers);
         Assert.assertEquals(response.getResponseCode(), 200, "Response code mismatched");
         Assert.assertTrue(response.getHeaders().get(HttpHeaderNames.CONTENT_TYPE.toString())
@@ -140,7 +140,7 @@ public class FailoverClientTestCase extends ResiliencyBaseTest {
                 " triggered before initiating inbound response";
         Map<String, String> headers = new HashMap<>();
         headers.put(HttpHeaderNames.CONTENT_TYPE.toString(), TestConstant.CONTENT_TYPE_JSON);
-        HttpResponse response = HttpClientRequest.doPost(serverInstance.getServiceURLHttp(9093, "fo/failures")
+        HttpResponse response = HttpClientRequest.doPost(serverInstance.getServiceURLHttp(9303, "fo/failures")
                 , "{\"Name\":\"Ballerina\"}", headers);
         Assert.assertEquals(response.getResponseCode(), 500, "Response code mismatched");
         Assert.assertEquals(response.getHeaders().get(HttpHeaderNames.CONTENT_TYPE.toString())
@@ -154,7 +154,7 @@ public class FailoverClientTestCase extends ResiliencyBaseTest {
                 "Last endpoint returned response is: 503 Service Unavailable";
         Map<String, String> headers = new HashMap<>();
         headers.put(HttpHeaderNames.CONTENT_TYPE.toString(), TestConstant.CONTENT_TYPE_JSON);
-        HttpResponse response = HttpClientRequest.doPost(serverInstance.getServiceURLHttp(9094, "fo/failurecodes")
+        HttpResponse response = HttpClientRequest.doPost(serverInstance.getServiceURLHttp(9304, "fo/failurecodes")
                 , "{\"Name\":\"Ballerina\"}", headers);
         Assert.assertEquals(response.getResponseCode(), 500, "Response code mismatched");
         Assert.assertEquals(response.getHeaders().get(HttpHeaderNames.CONTENT_TYPE.toString())
@@ -166,13 +166,13 @@ public class FailoverClientTestCase extends ResiliencyBaseTest {
     public void testFailoverStartingPosition() throws IOException {
         Map<String, String> headers = new HashMap<>();
         headers.put(HttpHeaderNames.CONTENT_TYPE.toString(), TestConstant.CONTENT_TYPE_JSON);
-        HttpResponse response = HttpClientRequest.doPost(serverInstance.getServiceURLHttp(9095, "fo/index")
+        HttpResponse response = HttpClientRequest.doPost(serverInstance.getServiceURLHttp(9305, "fo/index")
                 , "{\"Name\":\"Ballerina\"}", headers);
         Assert.assertEquals(response.getResponseCode(), 200, "Response code mismatched");
         Assert.assertEquals(response.getHeaders().get(HttpHeaderNames.CONTENT_TYPE.toString())
                 , TestConstant.CONTENT_TYPE_TEXT_PLAIN, "Content-Type mismatched");
         Assert.assertEquals(response.getData(), "Failover start index is : 0", "Message content mismatched");
-        HttpResponse secondResponse = HttpClientRequest.doPost(serverInstance.getServiceURLHttp(9095, "fo/index")
+        HttpResponse secondResponse = HttpClientRequest.doPost(serverInstance.getServiceURLHttp(9305, "fo/index")
                 , "{\"Name\":\"Ballerina\"}", headers);
         Assert.assertEquals(secondResponse.getResponseCode(), 200, "Response code mismatched");
         Assert.assertEquals(secondResponse.getHeaders().get(HttpHeaderNames.CONTENT_TYPE.toString())

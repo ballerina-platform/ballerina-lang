@@ -25,6 +25,7 @@ const fs = require('fs');
 const path = require('path');
 const { spawn } = require('child_process');
 const openport = require('openport');
+const ps = require('ps-node');
 
 class BallerinaDebugSession extends LoggingDebugSession {
     initializeRequest(response, args) {
@@ -272,6 +273,13 @@ class BallerinaDebugSession extends LoggingDebugSession {
         if (this.debugServer) {
             this.debugManager.kill();
             this.debugServer.kill();
+            ps.lookup({
+                arguments: ['org.ballerinalang.launcher.Main', 'run', this.debugServer.spawnargs[2]],
+                }, (err, resultList = [] ) => {
+                resultList.forEach(( process ) => {
+                    ps.kill(process.pid);
+                });
+            });
         }
         this.sendResponse(response);
     }

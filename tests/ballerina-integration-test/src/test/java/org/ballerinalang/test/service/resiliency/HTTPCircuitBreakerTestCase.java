@@ -55,44 +55,44 @@ public class HTTPCircuitBreakerTestCase extends ResiliencyBaseTest {
 
     @Test(description = "Test basic circuit breaker functionality", dataProvider = "responseDataProvider")
     public void testTypicalBackendTimeout(int responseCode, String messasge) throws Exception {
-        verifyResponses(9096, TYPICAL_SERVICE_PATH, responseCode, messasge);
+        verifyResponses(9306, TYPICAL_SERVICE_PATH, responseCode, messasge);
     }
 
     @Test(description = "Test for circuit breaker forceOpen functionality",
             dataProvider = "forceOpenResponseDataProvider")
     public void testForceOPen(int responseCode, String messasge) throws Exception {
-        verifyResponses(9097, FORCE_OPEN_SERVICE_PATH, responseCode, messasge);
+        verifyResponses(9307, FORCE_OPEN_SERVICE_PATH, responseCode, messasge);
     }
 
     @Test(description = "Test for circuit breaker forceClese functionality",
             dataProvider = "forceCloseResponseDataProvider")
     public void testForceClose(int responseCode, String messasge) throws Exception {
-        verifyResponses(9098, FORCE_CLOSE_SERVICE_PATH, responseCode, messasge);
+        verifyResponses(9308, FORCE_CLOSE_SERVICE_PATH, responseCode, messasge);
     }
 
     @Test(description = "Test for circuit breaker getState functionality",
             dataProvider = "getStateResponseDataProvider")
     public void testgetState(int responseCode, String messasge) throws Exception {
-        verifyResponses(9099, GET_STATE_SERVICE_PATH, responseCode, messasge);
+        verifyResponses(9309, GET_STATE_SERVICE_PATH, responseCode, messasge);
     }
 
     @Test(description = "Test for circuit breaker requestVolumeThreshold functionality",
             dataProvider = "requestVolumeResponseDataProvider")
     public void requestVolumeTest(int responseCode, String messasge) throws Exception {
-        verifyResponses(9100, REQUEST_VOLUME_SERVICE_PATH, responseCode, messasge);
+        verifyResponses(9310, REQUEST_VOLUME_SERVICE_PATH, responseCode, messasge);
 
     }
 
     @Test(description = "Test for circuit breaker failure status codes functionality",
             dataProvider = "statusCodeResponseDataProvider")
     public void httpStatusCodesTest(int responseCode, String messasge) throws Exception {
-        verifyResponses(9101, STATUS_CODE_SERVICE_PATH, responseCode, messasge);
+        verifyResponses(9311, STATUS_CODE_SERVICE_PATH, responseCode, messasge);
     }
 
     @Test(description = "Test for circuit breaker trail failure functionality",
             dataProvider = "trialRunFailureResponseDataProvider")
     public void trialRunFailureTest(int responseCode, String messasge) throws Exception {
-        verifyResponses(9102, TRIAL_FAILLURE_SERVICE_PATH, responseCode, messasge);
+        verifyResponses(9312, TRIAL_FAILLURE_SERVICE_PATH, responseCode, messasge);
     }
 
     @DataProvider(name = "responseDataProvider")

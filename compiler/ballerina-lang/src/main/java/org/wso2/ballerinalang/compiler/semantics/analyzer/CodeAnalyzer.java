@@ -33,7 +33,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 import org.wso2.ballerinalang.compiler.tree.BLangAction;
-import org.wso2.ballerinalang.compiler.tree.BLangAnnotAttribute;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotation;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
 import org.wso2.ballerinalang.compiler.tree.BLangCompilationUnit;
@@ -51,8 +50,6 @@ import org.wso2.ballerinalang.compiler.tree.BLangTypeDefinition;
 import org.wso2.ballerinalang.compiler.tree.BLangVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangWorker;
 import org.wso2.ballerinalang.compiler.tree.BLangXMLNS;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangAnnotAttachmentAttribute;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangAnnotAttachmentAttributeValue;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrayLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangAwaitExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
@@ -695,19 +692,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         /* ignore */
     }
 
-    public void visit(BLangAnnotAttribute annotationAttribute) {
-        /* ignore */
-    }
-
     public void visit(BLangAnnotationAttachment annAttachmentNode) {
-        /* ignore */
-    }
-
-    public void visit(BLangAnnotAttachmentAttributeValue annotAttributeValue) {
-        /* ignore */
-    }
-
-    public void visit(BLangAnnotAttachmentAttribute annotAttachmentAttribute) {
         /* ignore */
     }
 
