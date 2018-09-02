@@ -39,6 +39,7 @@ import org.eclipse.lsp4j.Command;
 import org.eclipse.lsp4j.Diagnostic;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.TextDocumentPositionParams;
+import org.wso2.ballerinalang.compiler.semantics.model.Scope;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BEndpointVarSymbol;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
 import org.wso2.ballerinalang.compiler.tree.BLangEndpoint;
@@ -52,16 +53,22 @@ import org.wso2.ballerinalang.compiler.tree.BLangVariable;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
 import org.wso2.ballerinalang.compiler.tree.types.BLangObjectTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangRecordTypeNode;
+import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+
+import static org.ballerinalang.langserver.common.utils.CommonUtil.generateName;
 
 /**
  * Utilities for the command related operations.
@@ -161,8 +168,42 @@ public class CommandUtil {
             args.add(new CommandArgument(CommandConstants.ARG_KEY_DOC_URI, params.getTextDocument().getUri()));
             String commandTitle = CommandConstants.CREATE_FUNCTION_TITLE + " " + functionName + "(...)";
             commands.add(new Command(commandTitle, CommandConstants.CMD_CREATE_FUNCTION, args));
+        } else if (isVariableAssignmentRequired(diagnosticMessage)) {
+            BLangInvocation functionNode = getFunctionNode(params, documentManager, lsCompiler);
+            List<Object> args = new ArrayList<>();
+            String varName = generateName(1, getAllEntries(functionNode));
+            args.add(new CommandArgument(CommandConstants.ARG_KEY_VAR_NAME, varName));
+            String returnSignature = FunctionGenerator.getFuncReturnSignature(functionNode.type);
+            args.add(new CommandArgument(CommandConstants.ARG_KEY_RETURN_TYPE, returnSignature));
+            String funcLocation = functionNode.pos.sLine + "," + functionNode.pos.sCol;
+            args.add(new CommandArgument(CommandConstants.ARG_KEY_FUNC_LOCATION, funcLocation));
+            args.add(new CommandArgument(CommandConstants.ARG_KEY_DOC_URI, params.getTextDocument().getUri()));
+            String commandTitle = CommandConstants.CREATE_VARIABLE_TITLE;
+            commands.add(new Command(commandTitle, CommandConstants.CMD_CREATE_VARIABLE, args));
         }
         return commands;
+    }
+
+    private static Set<String> getAllEntries(BLangInvocation functionNode) {
+        Set<String> strings = new HashSet<>();
+        BLangPackage packageNode = getPackageNode(functionNode);
+        if (packageNode != null) {
+            packageNode.getGlobalVariables().forEach(globalVar -> strings.add(globalVar.name.value));
+            packageNode.getGlobalEndpoints().forEach(endpoint -> strings.add(endpoint.getName().getValue()));
+            packageNode.getServices().forEach(service -> strings.add(service.name.value));
+            packageNode.getFunctions().forEach(func -> strings.add(func.name.value));
+        }
+        Map<Name, Scope.ScopeEntry> entries = functionNode.symbol.scope.entries;
+        entries.forEach((name, scopeEntry) -> strings.add(name.value));
+        return strings;
+    }
+
+    private static BLangPackage getPackageNode(BLangNode bLangNode) {
+        BLangNode parent = bLangNode.parent;
+        if (parent != null) {
+            return (parent instanceof BLangPackage) ? (BLangPackage) parent : getPackageNode(parent);
+        }
+        return null;
     }
 
     /**
@@ -351,6 +392,10 @@ public class CommandUtil {
 
     private static boolean isUndefinedFunction(String diagnosticMessage) {
         return diagnosticMessage.toLowerCase(Locale.ROOT).contains(CommandConstants.UNDEFINED_FUNCTION);
+    }
+
+    private static boolean isVariableAssignmentRequired(String diagnosticMessage) {
+        return diagnosticMessage.toLowerCase(Locale.ROOT).contains(CommandConstants.VAR_ASSIGNMENT_REQUIRED);
     }
 
     private static BLangInvocation getFunctionNode(CodeActionParams params,

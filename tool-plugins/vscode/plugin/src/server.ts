@@ -1,3 +1,4 @@
+'use strict';
 /**
  * Copyright (c) 2018, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
@@ -16,21 +17,22 @@
  * under the License.
  *
  */
-const path = require('path');
-const { workspace } = require('vscode');
-const glob = require('glob');
+import * as path from 'path';
+import { sync } from 'glob';
+import { log } from './logger';
+import { ServerOptions } from 'vscode-languageclient';
+import { getPluginConfig } from './config';
 
-const libPath = '/bre/lib/*';
-const jrePath = '/bre/lib/jre*';
-const composerlibPath = '/lib/resources/composer/services/*';
-const main = 'org.ballerinalang.langserver.launchers.stdio.Main';
-const log = require('./logger');
+const libPath: string = '/bre/lib/*';
+const jrePath: string = '/bre/lib/jre*';
+const composerlibPath: string = '/lib/resources/composer/services/*';
+const main: string = 'org.ballerinalang.langserver.launchers.stdio.Main';
 
-
-function getClassPath() {
-    const customClassPath = workspace.getConfiguration('ballerina').get('classpath');
-    const sdkPath = workspace.getConfiguration('ballerina').get('home');
-    const jarPath = path.join(__dirname, 'server-build', 'language-server-stdio-launcher.jar');
+function getClassPath(): string {
+    const config = getPluginConfig();
+    const customClassPath: string | undefined = config.classpath;
+    const sdkPath = <string> config.home; // since we verify sdk path upon plugin activation, we know home is there for sure
+    const jarPath: string = path.join(__dirname, '..', 'server-build', 'language-server-stdio-launcher.jar');
 	// in windows class path seperated by ';'
 	const sep = process.platform === 'win32' ? ';' : ':';
     let classpath = path.join(sdkPath, composerlibPath) + sep + path.join(sdkPath, libPath) + sep + jarPath;
@@ -41,11 +43,12 @@ function getClassPath() {
     return classpath;
 }
 
-function getExcecutable() {
-    let excecutable = 'java';
+function getExcecutable() : string {
+    const config = getPluginConfig();
+    let excecutable : string = 'java';
     const { JAVA_HOME } = process.env;
-    const sdkPath = workspace.getConfiguration('ballerina').get('home');
-    const files = glob.sync(path.join(sdkPath, jrePath));
+    const sdkPath = <string> config.home; // since we verify sdk path upon plugin activation, we know home is there for sure
+    const files = sync(path.join(sdkPath, jrePath));
 
     if (files[0]) {
         log(`Using java from ballerina.home: ${files[0]}`);
@@ -57,26 +60,21 @@ function getExcecutable() {
     return excecutable;
 }
 
-function getServerOptions() {
-    const args = ['-cp', getClassPath()];
+export function getServerOptions() : ServerOptions {
+    const config = getPluginConfig();
+    const args: string[] = ['-cp', getClassPath()];
     if (process.env.LSDEBUG === "true") {
         log('LSDEBUG is set to "true". Services will run on debug mode');
         args.push('-agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=5005,quiet=y');
     }
-    const balHomePath = workspace.getConfiguration('ballerina').get('home');
+    const balHomePath = <string> config.home;
     const balHomeSysProp = `-Dballerina.home=${balHomePath}`;
-
-    const balDebugLog = workspace.getConfiguration('ballerina').get('debugLog');
-    const balDebugLogSysProp = `-Dballerina.debugLog=${balDebugLog}`;
+    const balDebugLogSysProp = `-Dballerina.debugLog=${config.debugLog}`;
 
     return {
         command: getExcecutable(),
         args: [balHomeSysProp, balDebugLogSysProp, ...args, main],
         options: {
         }
-    }
-}
-
-module.exports = {
-    getServerOptions,
+    };
 }

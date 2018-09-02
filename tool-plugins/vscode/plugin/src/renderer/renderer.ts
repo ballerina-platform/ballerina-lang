@@ -1,40 +1,35 @@
-const request = require('request-promise');
-const log = require('../logger');
-const { getAST } = require('./utils');
+import { LanguageClient } from 'vscode-languageclient';
+import { log } from '../logger';
+import { getAST } from './utils';
+import { BallerinaAST } from './diagram';
+import { PathLike } from 'fs';
 
 const RETRY_COUNT = 5;
 const RETRY_WAIT = 1000;
 
-let jsonModel;
-
-function render (docUri, langClient, resourceRoot, retries=1) {
+export function render (docUri: PathLike, langClient: LanguageClient, resourceRoot: PathLike, retries: number = 1)
+        : Thenable<string | undefined> {
     return getAST(langClient, docUri)
         .then((resp) => {
             let stale = true;
             if (resp.ast) {
                 stale = false;
-                jsonModel = resp.ast;
-            }
-            return renderDiagram(docUri, jsonModel, resourceRoot, stale);
-        })
-        .catch((e) => {
-            log(`Error in parser service`);
-            return new Promise((res, rej) => {
+                return renderDiagram(docUri, resp.ast, resourceRoot, stale);
+            } else {
                 if (retries > RETRY_COUNT) {
-                    log.append('Could not render');
-                    res(renderError());
-                    return;
+                    log('Could not render');
+                    return renderError();
                 }
-
                 setTimeout(() => {
                     log(`Retrying rendering ${retries}/${RETRY_COUNT}\n`);
-                    res(render(docUri, retries + 1));
+                    return render(docUri, langClient, resourceRoot, retries + 1);
                 }, RETRY_WAIT);
-            });
+            }
         });
-};
+}
 
-function renderDiagram(docUri, jsonModelObj, resourceRoot, stale) {
+function renderDiagram(docUri: PathLike, jsonModelObj: BallerinaAST,
+                resourceRoot: PathLike, stale: boolean): string {
     const jsonModel = JSON.stringify(jsonModelObj);
 
     const page = `
@@ -198,5 +193,3 @@ function renderError() {
     </html>
     `;
 }
-
-module.exports.render = render;

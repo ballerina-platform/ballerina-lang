@@ -94,6 +94,10 @@ public class Main {
             runCmd.setParentCmdParser(cmdParser);
             runCmd.setSelfCmdParser(pcRunCmd);
 
+            // Set stop at positional before the other commands are added as sub commands, to enforce ordering only
+            // for the run command
+            cmdParser.setStopAtPositional(true);
+
             HelpCmd helpCmd = new HelpCmd();
             cmdParser.addSubcommand(BallerinaCliCommands.HELP, helpCmd);
             helpCmd.setParentCmdParser(cmdParser);
@@ -116,7 +120,6 @@ public class Main {
 
             cmdParser.setCommandName("ballerina");
 
-            cmdParser.setStopAtPositional(true);
 
             List<CommandLine> parsedCommands = cmdParser.parse(args);
 
