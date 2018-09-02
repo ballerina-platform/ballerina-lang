@@ -137,6 +137,10 @@
                     "dark": "./resources/images/icons/design-view-white.svg",
                     "light": "./resources/images/icons/design-view.svg"
                 }
+            },
+            {
+                "command": "ballerina.showExamples",
+                "title": "Ballerina: Show Examples"
             }
         ],
         "menus": {
