@@ -8,7 +8,7 @@ function main(string... args) {
     var versionValue = readInt(channel);
     readCp(channel);
 
-    genPackage(readPackage(channel),destFilePath, false);
+    genPackage(readPackage(channel),destFilePath, true);
 }
 
 function genObjectFile(byte[] birBinary, string destFilePath, boolean dumpLLVMIR) {

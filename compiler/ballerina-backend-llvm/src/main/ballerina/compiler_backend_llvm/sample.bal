@@ -136,7 +136,7 @@ function writeSample(string path) {
                                 10
                             ),
                             new BinaryOp (
-                                LESS_THAN,
+                                "LESS_THAN",
                                 new BIRVarRef (
                                     "VAR_REF",
                                     "boolean",
@@ -254,7 +254,7 @@ function writeSample(string path) {
                                 )
                             ),
                             new BinaryOp (
-                                ADD,
+                                "ADD",
                                 new BIRVarRef (
                                     "VAR_REF",
                                     "int",

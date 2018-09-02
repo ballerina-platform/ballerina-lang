@@ -229,7 +229,7 @@ function readBBRef(io:ByteChannel channel) returns BIRBasicBlock {
 function readInstruction(io:ByteChannel channel, map<BIRVariableDcl> localVarMap) returns BIRInstruction {
     var kindTag = readByte(channel);
     InstructionKind kind = "CONST_LOAD";
-    // this is hacky, but hard to solve without null-to-error mapping
+    // this is hacky to init to a fake val, but ballerina dosn't support un intialized vers
     if (kindTag == 6){
         //TODO: remove redundent
         var bType = readBType(channel);
@@ -244,7 +244,15 @@ function readInstruction(io:ByteChannel channel, map<BIRVariableDcl> localVarMap
         var rhsOp = readVarRef(channel, localVarMap);
         var lhsOp = readVarRef(channel, localVarMap);
         return new Move(kind, lhsOp, rhsOp);
-    } else if (kindTag == 7){
+    } else {
+        return readBinaryOpInstruction(kindTag, channel, localVarMap);
+    }
+}
+
+function readBinaryOpInstruction(int kindTag, io:ByteChannel channel, map<BIRVariableDcl> localVarMap)
+             returns BinaryOp {
+    BinaryOpInstructionKind kind = "ADD";
+    if (kindTag == 7){
         kind = "ADD";
     } else if (kindTag == 8){
         kind = "SUB";

@@ -30,8 +30,22 @@ type BIRInstruction Move|BinaryOp|ConstantLoad;
 
 type BIRTerminator Call|Branch|GOTO|Return;
 
-type InstructionKind "GOTO"|"CALL"|"BRANCH"|"RETURN"|"MOVE"|"CONST_LOAD"|"ADD"|"SUB"|"MUL"|"DIV"|"MOD"|"EQUAL"|
-"NOT_EQUAL"|"GREATER_THAN"|"GREATER_EQUAL"|"LESS_THAN"|"LESS_EQUAL";
+type ADD "ADD";
+type SUB "SUB";
+type MUL "MUL";
+type DIV "DIV";
+type EQUAL "EQUAL";
+type NOT_EQUAL "NOT_EQUAL";
+type GREATER_THAN "GREATER_THAN";
+type GREATER_EQUAL "GREATER_EQUAL";
+type LESS_THAN "LESS_THAN";
+type LESS_EQUAL "LESS_EQUAL";
+
+
+type InstructionKind "GOTO"|"CALL"|"BRANCH"|"RETURN"|"MOVE"|"CONST_LOAD"|BinaryOpInstructionKind;
+
+type BinaryOpInstructionKind ADD|SUB|MUL|DIV|EQUAL|NOT_EQUAL|GREATER_THAN|GREATER_EQUAL|LESS_THAN|LESS_EQUAL;
+
 
 type ArgVarKind "ARG";
 
@@ -150,7 +164,7 @@ type Move object {
 type BIROperand BIRVarRef;
 
 type BinaryOp object {
-    InstructionKind kind;
+    BinaryOpInstructionKind kind;
     BIRVarRef lhsOp;
     BIROperand rhsOp1;
     BIROperand rhsOp2;
@@ -185,6 +199,3 @@ type Return object {
     InstructionKind kind;
     new(kind) {}
 };
-
-InstructionKind ADD = "ADD";
-InstructionKind LESS_THAN = "LESS_THAN";
