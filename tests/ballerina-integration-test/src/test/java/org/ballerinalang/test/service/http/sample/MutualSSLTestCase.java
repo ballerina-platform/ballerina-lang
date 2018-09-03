@@ -45,7 +45,7 @@ public class MutualSSLTestCase extends BaseTest {
         serverInstance.addLogLeecher(serverLeecher);
 
         String[] clientArgs = {new File("src" + File.separator + "test" + File.separator + "resources"
-                + File.separator + "mutualSSL" + File.separator + "mutualSSLClient.bal").getAbsolutePath()};
+                + File.separator + "mutualSSL" + File.separator + "mutual_ssl_client.bal").getAbsolutePath()};
 
         ballerinaClient = new ServerInstance(serverZipPath);
         LogLeecher clientLeecher = new LogLeecher(serverResponse);
