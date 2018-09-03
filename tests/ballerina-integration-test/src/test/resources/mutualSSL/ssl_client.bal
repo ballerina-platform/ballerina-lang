@@ -22,7 +22,6 @@ endpoint http:Client clientEP {
     url:"https://localhost:9217",
     secureSocket:{
         certificateKey: config:getAsString("certificate.key"),
-        //certificateKey: "/home/bhashinee/TiggerStack/ballerina-lang/ballerina/tests/ballerina-integration-test/src/test/resources/certsAndKeys/private.key",
         certificate: config:getAsString("public.cert"),
         trustCertificates: config:getAsString("public.cert")
     }

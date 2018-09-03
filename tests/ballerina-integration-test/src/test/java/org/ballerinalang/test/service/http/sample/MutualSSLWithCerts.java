@@ -34,7 +34,6 @@ import java.io.File;
 public class MutualSSLWithCerts extends BaseTest {
     private ServerInstance ballerinaClient;
 
-
     @Test(description = "Test mutual ssl")
     public void testMutualSSLWithCerts() throws Exception {
         String serverZipPath = System.getProperty(Constant.SYSTEM_PROP_SERVER_ZIP);

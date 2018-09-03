@@ -45,7 +45,7 @@ public class GrpcMutualSslWithCertsTest extends BaseTest {
         System.setProperty("ballerina.home", serverInstance.getServerHome());
     }
 
-    @Test(enabled = false)
+    @Test
     public void testUnarySecuredBlocking() {
         Path balFilePath = Paths.get("src", "test", "resources", "grpc", "clients", "grpc_ssl_client.bal");
         CompileResult result = BCompileUtil.compile(balFilePath.toAbsolutePath().toString());
@@ -67,5 +67,4 @@ public class GrpcMutualSslWithCertsTest extends BaseTest {
         Assert.assertEquals(responseValues.stringValue(), serverMsg);
     }
 }
-
 

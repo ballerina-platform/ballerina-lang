@@ -221,8 +221,7 @@ public class InitEndpoint extends AbstractHttpNativeFunction {
             String trustStoreFile = trustStore.getStringField(HttpConstants.FILE_PATH);
             String trustStorePassword = trustStore.getStringField(HttpConstants.PASSWORD);
             if (StringUtils.isBlank(trustStoreFile) && StringUtils.isNotBlank(sslVerifyClient)) {
-                throw new BallerinaException(
-                        "Truststore location must be provided to enable Mutual SSL");
+                throw new BallerinaException("Truststore location must be provided to enable Mutual SSL");
             }
             if (StringUtils.isBlank(trustStorePassword) && StringUtils.isNotBlank(sslVerifyClient)) {
                 throw new BallerinaException("Truststore password value must be provided to enable Mutual SSL");

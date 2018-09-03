@@ -138,7 +138,6 @@ public class Init extends AbstractGrpcNativeFunction {
         String trustCerts = sslConfig.getStringField(HttpConstants.ENDPOINT_CONFIG_TRUST_CERTIFICATES);
         String keyPassword = sslConfig.getStringField(HttpConstants.ENDPOINT_CONFIG_KEY_PASSWORD);
 
-
         if (keyStore != null && StringUtils.isNotBlank(keyFile)) {
             throw new BallerinaException("Cannot configure both keyStore and keyFile at the same time.");
         } else if (keyStore == null && (StringUtils.isBlank(keyFile) || StringUtils.isBlank(certFile))) {
