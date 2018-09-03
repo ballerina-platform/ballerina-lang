@@ -465,6 +465,17 @@ public class Types {
                     errorTypes = Lists.of(tableType.constraint);
                 }
                 break;
+            case TypeTags.RECORD:
+                if (variableSize == 1) {
+                    dlog.error(collection.pos, DiagnosticCode.ITERABLE_REQUIRES_N_VARIABLES, collectionType, 2);
+                    return Lists.of(symTable.errType);
+                } else if (variableSize == 2) {
+                    return Lists.of(symTable.stringType, symTable.anyType);
+                } else {
+                    maxSupportedTypes = 2;
+                    errorTypes = Lists.of(symTable.stringType, symTable.anyType);
+                }
+                break;
             case TypeTags.ERROR:
                 return Collections.nCopies(variableSize, symTable.errType);
             default:

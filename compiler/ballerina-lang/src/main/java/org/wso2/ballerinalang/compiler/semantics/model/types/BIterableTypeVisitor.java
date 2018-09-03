@@ -109,7 +109,7 @@ public abstract class BIterableTypeVisitor implements BTypeVisitor<Operation, Li
 
     /* Util functions */
 
-    protected void logTooMayVariablesError(Operation op) {
+    protected void logTooManyVariablesError(Operation op) {
         dlog.error(op.pos, DiagnosticCode.ITERABLE_TOO_MANY_VARIABLES, op.collectionType);
     }
 
@@ -131,6 +131,11 @@ public abstract class BIterableTypeVisitor implements BTypeVisitor<Operation, Li
         @Override
         public List<BType> visit(BMapType t, Operation operation) {
             return Lists.of(calculateType(operation, t.constraint));
+        }
+
+        @Override
+        public List<BType> visit(BRecordType t, Operation operation) {
+            return Lists.of(calculateType(operation, t));
         }
 
         @Override

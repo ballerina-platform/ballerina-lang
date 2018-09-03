@@ -1418,6 +1418,7 @@ public class TypeChecker extends BLangNodeVisitor {
         switch (iExpr.expr.type.tag) {
             case TypeTags.ARRAY:
             case TypeTags.MAP:
+            case TypeTags.RECORD:
             case TypeTags.JSON:
             case TypeTags.STREAM:
             case TypeTags.TABLE:
