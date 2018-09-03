@@ -1,3 +1,9 @@
+type PackageId record {
+    string name;
+    string versionValue;
+    string org;
+};
+
 type BIRPackage record {
     BIRFunction[] functions;
     Name name;

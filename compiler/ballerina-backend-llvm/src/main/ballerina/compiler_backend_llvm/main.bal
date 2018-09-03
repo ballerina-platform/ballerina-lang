@@ -2,21 +2,19 @@ import ballerina/io;
 
 function main(string... args) {
     var (srcFilePath, destFilePath) = parseArgs(args);
-    ChannelReader reader = new(openFileForReading(srcFilePath));
-    checkValidBirChannel(reader);
-
-    BirBinParser p = new(reader);
-    p.parseCp();
-    genPackage(p.parsePackage(), destFilePath, true);
+    genObjectFileFromChannel(openFileForReading(srcFilePath), destFilePath, true);
 }
 
 function genObjectFile(byte[] birBinary, string destFilePath, boolean dumpLLVMIR) {
     io:ByteChannel channel = io:createMemoryChannel(birBinary);
+    genObjectFileFromChannel(channel, destFilePath, dumpLLVMIR);
+}
+
+function genObjectFileFromChannel(io:ByteChannel channel, string destFilePath, boolean dumpLLVMIR) {
     ChannelReader reader = new(channel);
     checkValidBirChannel(reader);
-
-    BirBinParser p = new(reader);
-    p.parseCp();
+    BirChannelReader birReader = new(reader, parseCp(reader));
+    PackageParser p = new(birReader);
     genPackage(p.parsePackage(), destFilePath, dumpLLVMIR);
 }
 
