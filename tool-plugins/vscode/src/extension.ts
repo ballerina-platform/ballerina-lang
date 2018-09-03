@@ -67,16 +67,16 @@ function getExtension(): Extension<any> | undefined {
 const debugConfigResolver: DebugConfigurationProvider = {
 	resolveDebugConfiguration(folder: WorkspaceFolder, config: DebugConfiguration)
 								: ProviderResult<DebugConfiguration> {
-		if (!config.has('ballerina.home')) {
+		if (!config['ballerina.home']) {
 			// If ballerina.home is not defined in in debug config get it from workspace configs
 			const workspaceConfig: BallerinaPluginConfig = getPluginConfig();
 			if (workspaceConfig.home) {
-				config.update('ballerina.home', workspaceConfig.home);
+				config['ballerina.home'] = workspaceConfig.home;
 			}
 		}
 
-		if (config.has('ballerina.home')) {
-			if (fs.readdirSync(<string> config.get('ballerina.home')).indexOf('bin') < 0) {
+		if (config['ballerina.home']) {
+			if (fs.readdirSync(<string> config['ballerina.home']).indexOf('bin') < 0) {
 				showMsgAndOpenSettings(Messages.NO_BIN_IN_HOME);
 			}
 		} else {
