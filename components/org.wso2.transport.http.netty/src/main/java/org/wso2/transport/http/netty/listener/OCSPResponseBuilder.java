@@ -52,10 +52,7 @@ import java.util.List;
  * A class for generating OCSP response.
  */
 public class OCSPResponseBuilder {
-    private OCSPResponseBuilder() {
-    }
 
-    private static OCSPResp response = null;
     private static final Logger log = LoggerFactory.getLogger(OCSPResponseBuilder.class);
 
 
@@ -198,6 +195,7 @@ public class OCSPResponseBuilder {
         BasicOCSPResp basicResponse;
         CertificateStatus certificateStatus;
         for (String serviceUrl : locations) {
+            OCSPResp response = null;
             try {
                 response = OCSPVerifier.getOCSPResponce(serviceUrl, request);
                 if (OCSPResponseStatus.SUCCESSFUL != response.getStatus()) {

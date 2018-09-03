@@ -352,9 +352,10 @@ public class Util {
      * @param host host of the connection
      * @param port port of the connection
      * @param hostNameVerificationEnabled true if host name verification is enabled
+     * @param sslHandlerFactory an instance of sslHandlerFactory
      * @return ssl engine
      */
-    public static SSLEngine instantiateAndConfigSSL(SSLConfig sslConfig, String host, int port,
+    private static SSLEngine instantiateAndConfigSSL(SSLConfig sslConfig, String host, int port,
             boolean hostNameVerificationEnabled, SSLHandlerFactory sslHandlerFactory) {
         // set the pipeline factory, which creates the pipeline for each newly created channels
         SSLEngine sslEngine = null;
