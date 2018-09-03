@@ -13,26 +13,26 @@ type ConstPool record {
     int[] ints;
 };
 
-type BirParser object {
-    io:ByteChannel channel,
+type BirBinParser object {
+    ChannelReader reader,
     ConstPool cp;
 
-    new(channel) {
+    new(reader) {
     }
 
-    function readCp() {
-        var cpCount = readInt(channel);
+    function parseCp() {
+        var cpCount = reader.readInt32();
         int i = 0;
         while (i < cpCount) {
-            var cpType = readByte(channel);
+            var cpType = reader.readInt8();
             if (cpType == 1){
-                cp.ints[i] = readLong(channel);
+                cp.ints[i] = reader.readInt64();
             } else if (cpType == 4){
-                cp.strings[i] = readString(channel);
+                cp.strings[i] = reader.readString();
             } else if (cpType == 5){
-                PackageId id = { org: cp.strings[readInt(channel)],
-                    name: <string>cp.strings[readInt(channel)],
-                    varstionVallue: <string>cp.strings[readInt(channel)] };
+                PackageId id = { org: cp.strings[reader.readInt32()],
+                    name: <string>cp.strings[reader.readInt32()],
+                    varstionVallue: <string>cp.strings[reader.readInt32()] };
                 cp.packages[i] = id;
             } else {
                 error err = { message: "cp type " + cpType + " not supported.:" };
@@ -42,43 +42,39 @@ type BirParser object {
         }
     }
 
-    function readStringViaCp() returns string {
-        return cp.strings[readInt(channel)];
-    }
-
-    function readVariableDcl() returns BIRVariableDcl {
-        var kind = readVarKind(channel);
+    function parseVariableDcl() returns BIRVariableDcl {
+        var kind = parseVarKind();
         BIRVariableDcl dcl = {
-            typeValue: readBType(),
-            name: { value: readStringViaCp() },
+            typeValue: parseBType(),
+            name: { value: parseStringCpRef() },
             kind:kind
         };
         return dcl;
     }
 
-    function readFunction() returns BIRFunction {
-        var name = readStringViaCp();
-        var isDeclaration = readBoolean(channel);
-        var visibility = readVisibility(channel);
-        var sig = readStringViaCp();
-        var argsCount = readInt(channel);
-        var numLocalVars = readInt(channel);
+    function parseFunction() returns BIRFunction {
+        var name = parseStringCpRef();
+        var isDeclaration = reader.readBoolean();
+        var visibility = parseVisibility();
+        var sig = parseStringCpRef();
+        var argsCount = reader.readInt32();
+        var numLocalVars = reader.readInt32();
 
         BIRVariableDcl[] dcls;
         map<BIRVariableDcl> localVarMap;
         int i;
         while (i < numLocalVars) {
-            var dcl = readVariableDcl();
+            var dcl = parseVariableDcl();
             dcls[i] = dcl;
             localVarMap[dcl.name.value] = dcl;
             i++;
         }
 
         BIRBasicBlock[] basicBlocks;
-        var numBB = readInt(channel);
+        var numBB = reader.readInt32();
         i = 0;
         while (i < numBB) {
-            basicBlocks[i] = readBB(localVarMap);
+            basicBlocks[i] = parseBB(localVarMap);
             i++;
         }
 
@@ -93,63 +89,63 @@ type BirParser object {
         };
     }
 
-    function readPackage() returns BIRPackage {
-        var pkgIdCp = readInt(channel);
-        var numFuncs = readInt(channel);
+    function parsePackage() returns BIRPackage {
+        var pkgIdCp = reader.readInt32();
+        var numFuncs = reader.readInt32();
         BIRFunction[] funcs;
         int i;
         while (i < numFuncs) {
-            funcs[i] = readFunction();
+            funcs[i] = parseFunction();
             i++;
         }
         return { functions:funcs };
     }
 
-    function readBB(map<BIRVariableDcl> localVarMap) returns BIRBasicBlock {
-        var id = readStringViaCp();
-        var numInstruction = readInt(channel) - 1;
+    function parseBB(map<BIRVariableDcl> localVarMap) returns BIRBasicBlock {
+        var id = parseStringCpRef();
+        var numInstruction = reader.readInt32() - 1;
         BIRInstruction[] instructions;
         int i;
         while (i < numInstruction) {
-            instructions[i] = readInstruction(localVarMap);
+            instructions[i] = parseInstruction(localVarMap);
             i++;
         }
         return { id: { value: id },
             instructions: instructions,
-            terminator: readTerminator(localVarMap) };
+            terminator: parseTerminator(localVarMap) };
     }
 
-    function readTerminator(map<BIRVariableDcl> localVarMap) returns BIRTerminator {
-        var kindTag = readByte(channel);
+    function parseTerminator(map<BIRVariableDcl> localVarMap) returns BIRTerminator {
+        var kindTag = reader.readInt8();
         if (kindTag == 3){
             InstructionKind kind = "BRANCH";
-            var op = readVarRef(localVarMap);
-            BIRBasicBlock trueBB = readBBRef();
-            BIRBasicBlock falseBB = readBBRef();
+            var op = parseVarRef(localVarMap);
+            BIRBasicBlock trueBB = parseBBRef();
+            BIRBasicBlock falseBB = parseBBRef();
             return new Branch(falseBB, kind, op, trueBB);
         } else if (kindTag == 1){
             InstructionKind kind = "GOTO";
-            return new GOTO(kind, readBBRef());
+            return new GOTO(kind, parseBBRef());
         } else if (kindTag == 4){
             InstructionKind kind = "RETURN";
             return new Return(kind);
         } else if (kindTag == 2){
             InstructionKind kind = "CALL";
-            var pkgIdCp = readInt(channel);
-            var name = readStringViaCp();
-            var argsCount = readInt(channel);
+            var pkgIdCp = reader.readInt32();
+            var name = parseStringCpRef();
+            var argsCount = reader.readInt32();
             BIROperand[] args = [];
             int i = 0;
             while (i < argsCount) {
-                args[i] = readVarRef(localVarMap);
+                args[i] = parseVarRef(localVarMap);
                 i++;
             }
-            var hasLhs = readBoolean(channel);
+            var hasLhs = reader.readBoolean();
             BIRVarRef? lhsOp = ();
             if (hasLhs){
-                lhsOp = readVarRef(localVarMap);
+                lhsOp = parseVarRef(localVarMap);
             }
-            BIRBasicBlock thenBB = readBBRef();
+            BIRBasicBlock thenBB = parseBBRef();
             return new Call(args, kind, lhsOp, { value: name }, thenBB);
 
         }
@@ -157,8 +153,8 @@ type BirParser object {
         throw err;
     }
 
-    function readBType() returns BType {
-        string sginatureAlias = readStringViaCp();
+    function parseBType() returns BType {
+        string sginatureAlias = parseStringCpRef();
         if (sginatureAlias == "I"){
             return "int";
         } else if (sginatureAlias == "B"){
@@ -168,41 +164,40 @@ type BirParser object {
         throw err;
     }
 
-    function readVarRef(map<BIRVariableDcl> localVarMap) returns BIRVarRef {
-        var varName = readStringViaCp();
+    function parseVarRef(map<BIRVariableDcl> localVarMap) returns BIRVarRef {
+        var varName = parseStringCpRef();
         var decl = getDecl(localVarMap, varName);
         return new BIRVarRef("VAR_REF", decl.typeValue, decl);
     }
 
-    function readInstruction(map<BIRVariableDcl> localVarMap) returns BIRInstruction {
-        var kindTag = readByte(channel);
+    function parseInstruction(map<BIRVariableDcl> localVarMap) returns BIRInstruction {
+        var kindTag = reader.readInt8();
         InstructionKind kind = "CONST_LOAD";
         // this is hacky to init to a fake val, but ballerina dosn't support un intialized vers
         if (kindTag == 6){
             //TODO: remove redundent
-            var bType = readBType();
+            var bType = parseBType();
             kind = "CONST_LOAD";
             var constLoad = new ConstantLoad(kind,
-                readVarRef(localVarMap),
+                parseVarRef(localVarMap),
                 bType,
-                readIntViaCp());
+                parseIntCpRef());
             return constLoad;
         } else if (kindTag == 5){
             kind = "MOVE";
-            var rhsOp = readVarRef(localVarMap);
-            var lhsOp = readVarRef(localVarMap);
+            var rhsOp = parseVarRef(localVarMap);
+            var lhsOp = parseVarRef(localVarMap);
             return new Move(kind, lhsOp, rhsOp);
         } else {
-            return readBinaryOpInstruction(kindTag, localVarMap);
+            return parseBinaryOpInstruction(kindTag, localVarMap);
         }
     }
 
-    function readBBRef() returns BIRBasicBlock {
-        return { id: { value: readStringViaCp() } };
+    function parseBBRef() returns BIRBasicBlock {
+        return { id: { value: parseStringCpRef() } };
     }
 
-    function readBinaryOpInstruction(int kindTag, map<BIRVariableDcl> localVarMap)
-                 returns BinaryOp {
+    function parseBinaryOpInstruction(int kindTag, map<BIRVariableDcl> localVarMap) returns BinaryOp {
         BinaryOpInstructionKind kind = "ADD";
         if (kindTag == 7){
             kind = "ADD";
@@ -229,154 +224,73 @@ type BirParser object {
             throw err;
         }
 
-        var rhsOp1 = readVarRef(localVarMap);
-        var rhsOp2 = readVarRef(localVarMap);
-        var lhsOp = readVarRef(localVarMap);
+        var rhsOp1 = parseVarRef(localVarMap);
+        var rhsOp2 = parseVarRef(localVarMap);
+        var lhsOp = parseVarRef(localVarMap);
         return new BinaryOp (kind, lhsOp, rhsOp1, rhsOp2,
             //TODO: remove type, not used
             "int");
     }
 
-    function readIntViaCp() returns int {
-        return cp.ints[readInt(channel)];
+
+    function parseVisibility() returns Visibility {
+        int b = reader.readInt8();
+        if (b == 0){
+            return "PACKAGE_PRIVATE";
+        } else if (b == 1){
+            return "PRIVATE";
+        } else if (b == 2){
+            return "PUBLIC";
+        }
+        error err = { message: "unknown variable visiblity tag " + b };
+        throw err;
+    }
+
+    function parseVarKind() returns VarKind {
+        int b = reader.readInt8();
+        if (b == 1){
+            return "LOCAL";
+        } else if (b == 2){
+            return "ARG";
+        } else if (b == 3){
+            return "TEMP";
+        } else if (b == 4){
+            return "RETURN";
+        }
+        error err = { message: "unknown var kind tag " + b };
+        throw err;
+    }
+
+    function parseSig(string sig) returns BInvokableType {
+        BType returnType = "int";
+        //TODO: add boolean
+        if (sig.lastIndexOf("(N)") == (lengthof sig - 3)){
+            returnType = "()";
+        }
+        return {
+            retType:returnType
+        };
+    }
+
+    function parseStringCpRef() returns string {
+        return cp.strings[reader.readInt32()];
+    }
+
+    function parseIntCpRef() returns int {
+        return cp.ints[reader.readInt32()];
     }
 
 };
 
-function readBytes(io:ByteChannel channel, int numberOfBytes) returns (byte[], int) {
-    var result = channel.read(numberOfBytes);
-    match result {
-        (byte[], int) content => {
-            return content;
-        }
-        error readError => {
-            throw readError;
-        }
-    }
-}
-function writeBytes(io:ByteChannel channel, byte[] content, int startOffset = 0) returns int {
-    var result = channel.write(content, startOffset);
-    match result {
-        int numberOfBytesWritten => {
-            return numberOfBytesWritten;
-        }
-        error err => {
-            throw err;
-        }
-    }
-}
-function copy(io:ByteChannel src, io:ByteChannel dst) {
-    int bytesChunk = 10000;
-    int numberOfBytesWritten = 0;
-    int readCount = 0;
-    int offset = 0;
-    byte[] readContent;
-    boolean doneCopying = false;
-    try {
-        while (!doneCopying) {
-            (readContent, readCount) = readBytes(src, 1000);
-            if (readCount <= 0) {
-                doneCopying = true;
-            }
-            numberOfBytesWritten = writeBytes(dst, readContent);
-        }
-    } catch (error err) {
-        throw err;
-    }
-}
-
-function readVarKind(io:ByteChannel channel) returns VarKind {
-    var (enumByte, _mustBe1) = check channel.read(1);
-    int b = <int>enumByte[0];
-    if (b == 1){
-        return "LOCAL";
-    } else if (b == 2){
-        return "ARG";
-    } else if (b == 3){
-        return "TEMP";
-    } else if (b == 4){
-        return "RETURN";
-    }
-    error err = { message: "unknown var kind " + b };
-    throw err;
-}
-
-
-function parseSig(string sig) returns BInvokableType {
-    BType returnType = "int";
-    //TODO: add boolean
-    if (sig.lastIndexOf("(N)") == (lengthof sig - 3)){
-        returnType = "()";
-    }
-    return {
-        retType:returnType
-    };
-}
 
 function getDecl(map<BIRVariableDcl> localVarMap, string varName) returns BIRVariableDcl {
     var posibalDcl = localVarMap[varName];
     match posibalDcl {
         BIRVariableDcl dcl => return dcl;
         () => {
-            error err = { message: "local var missing " + varName};
+            error err = { message: "local var missing " + varName };
             throw err;
         }
     }
 }
 
-function readLong(io:ByteChannel channel) returns int {
-    return readInt(channel) << 32|readInt(channel);
-}
-
-function readInt(io:ByteChannel channel) returns int {
-    var (intBytes, _mustBe4) = check channel.read(4);
-    return bytesToInt(intBytes);
-}
-
-function readBoolean(io:ByteChannel channel) returns boolean {
-    var (boolByte, _mustBe1) = check channel.read(1);
-    byte one = 1;
-    return boolByte[0] == one;
-}
-
-function readByte(io:ByteChannel channel) returns int {
-    var (byteValue, _mustBe1) = check channel.read(1);
-    return <int>byteValue[0];
-}
-
-function readVisibility(io:ByteChannel channel) returns Visibility {
-    var (enumByte, _mustBe1) = check channel.read(1);
-    int b = <int>enumByte[0];
-    if (b == 0){
-        return "PACKAGE_PRIVATE";
-    } else if (b == 1){
-        return "PRIVATE";
-    } else if (b == 2){
-        return "PUBLIC";
-    }
-    error unknownVisibility;
-    throw unknownVisibility;
-}
-
-function bytesToInt(byte[] b) returns int {
-    int ff = 255;
-    int octave1 = 8;
-    int octave2 = 16;
-    int octave3 = 24;
-    int b0 = <int>b[0];
-    int b1 = <int>b[1];
-    int b2 = <int>b[2];
-    int b3 = <int>b[3];
-    return b0 <<octave3|(b1 & ff) <<octave2|(b2 & ff) <<octave1|(b3 & ff);
-}
-
-
-function readString(io:ByteChannel channel) returns string {
-    var stringLen = untaint readInt(channel);
-    if (stringLen > 0){
-        var (strBytes, strLen) = check channel.read(untaint stringLen);
-        return internal:byteArrayToString(strBytes, "UTF-8");
-    } else {
-        return "";
-    }
-}

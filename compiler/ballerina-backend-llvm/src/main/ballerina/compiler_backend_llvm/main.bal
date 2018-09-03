@@ -2,21 +2,22 @@ import ballerina/io;
 
 function main(string... args) {
     var (srcFilePath, destFilePath) = parseArgs(args);
-    io:ByteChannel channel = openFileForReading(srcFilePath);
-    checkBirValidity(channel);
+    ChannelReader reader = new(openFileForReading(srcFilePath));
+    checkValidBirChannel(reader);
 
-    BirParser p = new(channel);
-    p.readCp();
-    genPackage(p.readPackage(), destFilePath, true);
+    BirBinParser p = new(reader);
+    p.parseCp();
+    genPackage(p.parsePackage(), destFilePath, true);
 }
 
 function genObjectFile(byte[] birBinary, string destFilePath, boolean dumpLLVMIR) {
     io:ByteChannel channel = io:createMemoryChannel(birBinary);
-    checkBirValidity(channel);
+    ChannelReader reader = new(channel);
+    checkValidBirChannel(reader);
 
-    BirParser p = new(channel);
-    p.readCp();
-    genPackage(p.readPackage(), destFilePath, dumpLLVMIR);
+    BirBinParser p = new(reader);
+    p.parseCp();
+    genPackage(p.parsePackage(), destFilePath, dumpLLVMIR);
 }
 
 function parseArgs(string[] args) returns (string, string) {
@@ -28,23 +29,23 @@ function parseArgs(string[] args) returns (string, string) {
     return (untaint args[0], untaint args[1]);
 }
 
-function checkBirValidity(io:ByteChannel channel) {
-    checkMagic(channel);
-    checkVersion(channel);
+function checkValidBirChannel(ChannelReader reader) {
+    checkMagic(reader);
+    checkVersion(reader);
 }
 
-function checkMagic(io:ByteChannel channel) {
+function checkMagic(ChannelReader reader) {
     byte[] baloCodeHexSpeak = [0xba, 0x10, 0xc0, 0xde];
+    var magic = reader.readByteArray(4);
 
-    var (magic, _mustBe4) = check channel.read(4);
     if (!arrayEq(baloCodeHexSpeak, magic)){
         error err = { message: "Invalid BIR binary content, unexptected header" };
         throw err;
     }
 }
 
-function checkVersion(io:ByteChannel channel) {
-    var birVersion = readInt(channel);
+function checkVersion(ChannelReader reader) {
+    var birVersion = reader.readInt32();
     var supportedBirVersion = 1;
     if (birVersion != 1){
         error err = { message: "Unsupported BIR version " + birVersion + ", supports version " + supportedBirVersion };
