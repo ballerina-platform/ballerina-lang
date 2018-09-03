@@ -98,24 +98,33 @@ public class BuilderUtils {
         }
     }
 
+    /**
+     * Run tests in the build.
+     *
+     * @param compiler       compiler instance
+     * @param sourceRootPath source root path
+     * @param packageList    list of compiled packages
+     */
     private static void runTests(Compiler compiler, Path sourceRootPath, List<BLangPackage> packageList) {
-        Map<BLangPackage, CompiledBinaryFile.ProgramFile> packageProgramFileMap = new HashMap<>();
+        Map<BLangPackage, CompiledBinaryFile.ProgramFile> programFileMap = new HashMap<>();
         packageList.forEach(bLangPackage -> {
-            // We only execute the tests in packages so single bal files are ignored
-            if (!bLangPackage.packageID.getName().equals(Names.DOT)) {
-                CompiledBinaryFile.ProgramFile programFile;
-                if (bLangPackage.testablePackage != null) {
-                    programFile = compiler.getExecutableProgram(bLangPackage.testablePackage);
-                } else {
-                    // In this package there are no tests to be executed. So we need to say to the users that there are
-                    // no tests found in the package to be executed
-                    programFile = compiler.getExecutableProgram(bLangPackage);
-                }
-                packageProgramFileMap.put(bLangPackage, programFile);
+            // Only tests in packages are executed so default packages i.e. single bal files are ignored
+            if (bLangPackage.packageID.getName().equals(Names.DEFAULT_PACKAGE)) {
+                return;
             }
+            CompiledBinaryFile.ProgramFile programFile;
+            if (bLangPackage.testablePackage != null) {
+                programFile = compiler.getExecutableProgram(bLangPackage.testablePackage);
+            } else {
+                // In this package there are no tests to be executed. But we need to say to the users that there are
+                // no tests found in the package to be executed
+                programFile = compiler.getExecutableProgram(bLangPackage);
+            }
+            programFileMap.put(bLangPackage, programFile);
+
         });
-        if (packageProgramFileMap.size() > 0) {
-            TesterinaUtils.executeTests(sourceRootPath, packageProgramFileMap);
+        if (programFileMap.size() > 0) {
+            TesterinaUtils.executeTests(sourceRootPath, programFileMap);
         }
     }
 }

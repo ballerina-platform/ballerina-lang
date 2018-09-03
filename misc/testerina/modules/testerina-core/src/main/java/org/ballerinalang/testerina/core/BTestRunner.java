@@ -154,7 +154,6 @@ public class BTestRunner {
             return;
         }
         Arrays.stream(sourceFilePaths).forEach(sourcePackage -> {
-            getTestSuiteForPkg(sourcePackage.toString());
             // compile
             CompileResult compileResult = BCompileUtil.compileWithTests(sourceRoot, sourcePackage.toString(),
                 CompilerPhase.CODE_GEN);
@@ -166,26 +165,22 @@ public class BTestRunner {
             if (compileResult.getErrorCount() > 0) {
                 throw new BLangCompilerException("compilation contains errors");
             }
+
+            String packageName = TesterinaUtils.getFullPackageName(sourcePackage.toString());
+
+            // Add test suite to registry if not added.
+            addTestSuite(packageName);
+
+            // Set the source file name if the package is the default package
+            if (packageName.equals(Names.DEFAULT_PACKAGE.value)) {
+                registry.getTestSuites().get(packageName).setSourceFileName(sourcePackage.toString());
+            }
+
             // set the debugger
             ProgramFile programFile = compileResult.getProgFile();
             processProgramFile(programFile);
         });
         registry.setTestSuitesCompiled(true);
-    }
-
-    /**
-     * Get test suite for the package.
-     *
-     * @param sourcePackage source package name
-     */
-    private void getTestSuiteForPkg(String sourcePackage) {
-        String packageName = TesterinaUtils.getFullPackageName(sourcePackage);
-
-        registry.getTestSuites().computeIfAbsent(packageName, func -> new TestSuite(packageName));
-
-        if (packageName.equals(Names.DEFAULT_PACKAGE.value)) {
-            registry.getTestSuites().get(packageName).setSourceFileName(sourcePackage);
-        }
     }
 
     /**
@@ -198,19 +193,28 @@ public class BTestRunner {
             ListenerRegistry.triggerTestsNotFound();
             return;
         }
+
+        // Remove test suite associated with the default package since we are only executing tests of packages
+        registry.getTestSuites().remove(Names.DEFAULT_PACKAGE.value);
+
         packageList.forEach((sourcePackage, compiledBinaryFile) -> {
-            String packageName = TesterinaUtils.getFullPackageName(sourcePackage.packageID.getName().getValue());
+            // Add test suite to registry if not added. In this package there are no tests to be executed. But we need
+            // to say to the users that there are no tests found in the package to be executed
+            addTestSuite(TesterinaUtils.getFullPackageName(sourcePackage.packageID.getName().getValue()));
 
-            registry.getTestSuites().computeIfAbsent(packageName, func -> new TestSuite(packageName));
-
-            if (packageName.equals(Names.DEFAULT_PACKAGE.value)) {
-                registry.getTestSuites().get(packageName)
-                        .setSourceFileName(sourcePackage.packageID.sourceFileName.toString());
-            }
             ProgramFile pFile = LauncherUtils.getExecutableProgram(compiledBinaryFile);
             processProgramFile(pFile);
         });
+
         registry.setTestSuitesCompiled(true);
+    }
+
+    /**
+     * Add test suite to registry if not added.
+     * @param packageName package name
+     */
+    private void addTestSuite(String packageName) {
+        registry.getTestSuites().computeIfAbsent(packageName, func -> new TestSuite(packageName));
     }
 
     /**
@@ -265,10 +269,6 @@ public class BTestRunner {
             TestSuite suite = testSuites.get(packageName);
             // For single bal files
             if (packageName.equals(Names.DOT.value)) {
-                // Check if the source file name is null, if so return
-                if (suite.getSourceFileName() == null) {
-                    return;
-                }
                 // If there is a source file name print it and then execute the tests
                 ListenerRegistry.triggerPackageCompiled(suite.getSourceFileName());
             } else {
