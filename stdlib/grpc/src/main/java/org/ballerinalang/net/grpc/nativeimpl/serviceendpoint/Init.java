@@ -146,7 +146,13 @@ public class Init extends AbstractGrpcNativeFunction {
         }
         if (keyStore != null) {
             String keyStoreFile = keyStore.getStringField(HttpConstants.FILE_PATH);
+            if (StringUtils.isBlank(keyStoreFile)) {
+                throw new BallerinaException("keystore file location must be provided for secure connection");
+            }
             String keyStorePassword = keyStore.getStringField(HttpConstants.PASSWORD);
+            if (StringUtils.isBlank(keyStorePassword)) {
+                throw new BallerinaException("keystore password must be provided for secure connection");
+            }
             listenerConfiguration.setKeyStoreFile(keyStoreFile);
             listenerConfiguration.setKeyStorePass(keyStorePassword);
         } else {
