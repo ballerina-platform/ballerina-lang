@@ -33,10 +33,17 @@ public class GrpcBaseTest extends BaseTest {
 
     @BeforeGroups(value = "grpc-test", alwaysRun = true)
     public void start() throws BallerinaTestException {
+        String privateKey = new File(
+                "src" + File.separator + "test" + File.separator + "resources" + File.separator + "certsAndKeys"
+                        + File.separator + "private.key").getAbsolutePath();
+        String publicCert = new File(
+                "src" + File.separator + "test" + File.separator + "resources" + File.separator + "certsAndKeys"
+                        + File.separator + "public.crt").getAbsolutePath();
         int[] requiredPorts = new int[]{9090, 9092, 9095, 9096, 9098, 9099, 9100, 9101, 8085};
         String balFile = new File("src" + File.separator + "test" + File.separator + "resources" + File.separator +
                 "grpc").getAbsolutePath();
-        String[] args = new String[] {"--sourceroot", balFile};
+        String[] args = new String[] { "--sourceroot", balFile, "-e certificate.key=" + privateKey,
+                "-e public.cert=" + publicCert };
         serverInstance.startBallerinaServer("grpcservices", args, requiredPorts);
     }
 
