@@ -1,35 +1,33 @@
-import { LanguageClient } from 'vscode-languageclient';
 import { log } from '../logger';
-import { getAST } from './utils';
-import { BallerinaAST } from './diagram';
-import { PathLike } from 'fs';
+import { BallerinaAST, ExtendedLangClient } from '../lang-client';
+import { Uri } from 'vscode';
 
 const RETRY_COUNT = 5;
 const RETRY_WAIT = 1000;
 
-export function render (docUri: PathLike, langClient: LanguageClient, resourceRoot: PathLike, retries: number = 1)
-        : Thenable<string | undefined> {
-    return getAST(langClient, docUri)
-        .then((resp) => {
-            let stale = true;
-            if (resp.ast) {
-                stale = false;
-                return renderDiagram(docUri, resp.ast, resourceRoot, stale);
-            } else {
-                if (retries > RETRY_COUNT) {
-                    log('Could not render');
-                    return renderError();
-                }
-                setTimeout(() => {
-                    log(`Retrying rendering ${retries}/${RETRY_COUNT}\n`);
-                    return render(docUri, langClient, resourceRoot, retries + 1);
-                }, RETRY_WAIT);
-            }
-        });
+export function render (docUri: Uri, langClient: ExtendedLangClient, resourceRoot: Uri, retries: number = 1)
+        : Thenable<string | undefined> {       
+    return langClient.getAST(docUri)
+                .then((resp) => {
+                    let stale = true;
+                    if (resp.ast) {
+                        stale = false;
+                        return renderDiagram(docUri, resp.ast, resourceRoot, stale);
+                    } else {
+                        if (retries > RETRY_COUNT) {
+                            log('Could not render');
+                            return renderError();
+                        }
+                        setTimeout(() => {
+                            log(`Retrying rendering ${retries}/${RETRY_COUNT}\n`);
+                            return render(docUri, langClient, resourceRoot, retries + 1);
+                        }, RETRY_WAIT);
+                    }
+                });
 }
 
-function renderDiagram(docUri: PathLike, jsonModelObj: BallerinaAST,
-                resourceRoot: PathLike, stale: boolean): string {
+function renderDiagram(docUri: Uri, jsonModelObj: BallerinaAST,
+                resourceRoot: Uri, stale: boolean): string {
     const jsonModel = JSON.stringify(jsonModelObj);
 
     const page = `
@@ -39,9 +37,9 @@ function renderDiagram(docUri: PathLike, jsonModelObj: BallerinaAST,
         <meta charset="utf-8">
         <meta http-equiv="X-UA-Compatible" content="IE=edge">
         <meta name="viewport" content="width=device-width, initial-scale=1">
-        <link rel="stylesheet" href="${resourceRoot}/bundle.css" />
-        <link rel="stylesheet" href="${resourceRoot}/theme.css" />
-        <link rel="stylesheet" href="${resourceRoot}/less.css" />
+        <link rel="stylesheet" href="${resourceRoot.toString()}/bundle.css" />
+        <link rel="stylesheet" href="${resourceRoot.toString()}/theme.css" />
+        <link rel="stylesheet" href="${resourceRoot.toString()}/less.css" />
         <style>
             .overlay {
                 display: none;
@@ -86,10 +84,10 @@ function renderDiagram(docUri: PathLike, jsonModelObj: BallerinaAST,
     <div class="ballerina-editor design-view-container" id="diagram">
     </div>
     </body>
-    <script charset="UTF-8" src="${resourceRoot}/ballerina-diagram-library.js"></script>
+    <script charset="UTF-8" src="${resourceRoot.toString()}/ballerina-diagram-library.js"></script>
     <script>
         (function() {
-            let docUri = ${JSON.stringify(docUri)};
+            let docUri = ${JSON.stringify(docUri.toString())};
             let json = ${jsonModel};
             let stale = ${JSON.stringify(stale)};
 

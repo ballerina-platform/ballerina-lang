@@ -16,13 +16,12 @@
  * under the License.
  *
  */
-import { workspace, commands, window, Uri, ViewColumn, ExtensionContext, TextEditor, WebviewPanel } from 'vscode';
+import { workspace, commands, window, Uri, ViewColumn, ExtensionContext, TextEditor, WebviewPanel, TextDocumentChangeEvent } from 'vscode';
 import * as path from 'path';
 import * as _ from 'lodash';
 import { StaticProvider } from './content-provider';
 import { render } from './renderer';
-import { getAST } from './utils';
-import { LanguageClient } from 'vscode-languageclient';
+import { BallerinaAST, ExtendedLangClient } from '../lang-client';
 
 const DEBOUNCE_WAIT = 500;
 
@@ -30,33 +29,35 @@ let previewPanel: WebviewPanel | undefined;
 let activeEditor: TextEditor | undefined;
 let preventDiagramUpdate = false;
 
-export function activate(context: ExtensionContext, langClient: LanguageClient) {
+function updateWebView(ast: BallerinaAST, docUri: Uri, stale: boolean): void {
+	if (previewPanel) {
+		previewPanel.webview.postMessage({ 
+			command: 'update',
+			json: ast,
+			docUri: docUri.toString(),
+			stale
+		});
+	}
+}
+
+export function activate(context: ExtensionContext, langClient: ExtendedLangClient) {
 
 	const resourcePath = Uri.file(path.join(context.extensionPath, 'resources', 'diagram'));
-	const resourceRoot = resourcePath.with({ scheme: 'vscode-resource' }).toString();
+	const resourceRoot = resourcePath.with({ scheme: 'vscode-resource' });
 
-	workspace.onDidChangeTextDocument(_.debounce((e) => {
+	workspace.onDidChangeTextDocument(_.debounce((e: TextDocumentChangeEvent) => {
         if (activeEditor && (e.document === activeEditor.document) &&
             e.document.fileName.endsWith('.bal')) {
 			if (preventDiagramUpdate) {
 				return;
 			}
-			const docUri = e.document.uri.toString();
-			getAST(langClient, docUri)
+			const docUri = e.document.uri;
+			langClient.getAST(docUri)
 				.then((resp) => {
 					let stale = true;
-					let json;
 					if (resp.ast) {
 						stale = false;
-						json = resp.ast;
-					}
-					if (previewPanel) {
-						previewPanel.webview.postMessage({ 
-							command: 'update',
-							json,
-							docUri,
-							stale
-						});
+						updateWebView(resp.ast, docUri, stale);
 					}
 				});
 		}
@@ -67,38 +68,32 @@ export function activate(context: ExtensionContext, langClient: LanguageClient) 
 					&& (activatedEditor.document === window.activeTextEditor.document) 
 					&& activatedEditor.document.fileName.endsWith('.bal')) {
 			activeEditor = window.activeTextEditor;
-			const docUri = activatedEditor.document.uri.toString();
-			getAST(langClient, docUri)
+			const docUri = activatedEditor.document.uri;
+			langClient.getAST(docUri)
 				.then((resp) => {
 					let stale = true;
-					let json;
 					if (resp.ast) {
 						stale = false;
-						json = resp.ast;
-					}
-					if (previewPanel) {
-						previewPanel.webview.postMessage({ 
-							command: 'update',
-							json,
-							docUri,
-							stale
-						});
+						updateWebView(resp.ast, docUri, stale);
 					}
 				});
 		}
 	});
 
 	const diagramRenderDisposable = commands.registerCommand('ballerina.showDiagram', () => {
-		
+		if (previewPanel) {
+			previewPanel.reveal(ViewColumn.Two, true);
+			return;
+		}
 		// Create and show a new webview
         previewPanel = window.createWebviewPanel(
             'ballerinaDiagram',
             "Ballerina Diagram",
-            ViewColumn.Two,
+            { viewColumn: ViewColumn.Two, preserveFocus: true } ,
             {
 				enableScripts: true,
 				localResourceRoots: [resourcePath],
-				retainContextWhenHidden: true
+				retainContextWhenHidden: true,
 			}
 		);
 		const editor = window.activeTextEditor;
@@ -106,7 +101,7 @@ export function activate(context: ExtensionContext, langClient: LanguageClient) 
             return "";
 		}
 		activeEditor = editor;
-		render(editor.document.uri.toString(), langClient, resourceRoot)
+		render(editor.document.uri, langClient, resourceRoot)
 			.then((html) => {
 				if (previewPanel && html) {
 					previewPanel.webview.html = html;
@@ -119,18 +114,17 @@ export function activate(context: ExtensionContext, langClient: LanguageClient) 
 					if (activeEditor && activeEditor.document.fileName.endsWith('.bal')) {
 						preventDiagramUpdate = true;
 						const ast = JSON.parse(message.ast);
-						langClient.sendRequest("ballerinaDocument/astDidChange", {
-							ast,
-							textDocumentIdentifier: {
-								uri: activeEditor.document.uri.toString()
-							}
-						}).then(() => {
-							preventDiagramUpdate = false;
-						});	
+						langClient.triggerASTDidChange(ast, activeEditor.document.uri)
+							.then(() => {
+								preventDiagramUpdate = false;
+							});	
 					}
                     return;
             }
-        }, undefined, context.subscriptions);
+		}, undefined, context.subscriptions);
+		previewPanel.onDidDispose(() => {
+			previewPanel = undefined;
+		});
     });
 	context.subscriptions.push(diagramRenderDisposable);
 }
