@@ -26,7 +26,9 @@ public enum CompilerPhase {
 
     TYPE_CHECK("typeCheck"),
 
-    CODE_ANALYZE("codeAnalyze"),
+    CODE_ANALYZE("codeAnalyze"), 
+
+    DATAFLOW_ANALYZE("dataflowAnalyze"),
 
     DOCUMENTATION_ANALYZE("documentationAnalyze"),
 

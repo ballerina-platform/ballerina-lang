@@ -23,6 +23,7 @@ import org.wso2.ballerinalang.compiler.codegen.CodeGenerator;
 import org.wso2.ballerinalang.compiler.desugar.Desugar;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.CodeAnalyzer;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.CompilerPluginRunner;
+import org.wso2.ballerinalang.compiler.semantics.analyzer.DataflowAnalyzer;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.DocumentationAnalyzer;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.SemanticAnalyzer;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.SymbolEnter;
@@ -76,6 +77,7 @@ public class CompilerDriver {
     private final CodeGenerator codeGenerator;
     private final CompilerPhase compilerPhase;
     private final SymbolResolver symResolver;
+    private final DataflowAnalyzer dataflowAnalyzer;
 
     public static CompilerDriver getInstance(CompilerContext context) {
         CompilerDriver compilerDriver = context.get(COMPILER_DRIVER_KEY);
@@ -103,6 +105,7 @@ public class CompilerDriver {
         this.codeGenerator = CodeGenerator.getInstance(context);
         this.compilerPhase = getCompilerPhase();
         this.symResolver = SymbolResolver.getInstance(context);
+        this.dataflowAnalyzer = DataflowAnalyzer.getInstance(context);
     }
 
     public BLangPackage compilePackage(BLangPackage packageNode) {
@@ -153,6 +156,11 @@ public class CompilerDriver {
         }
 
         codeAnalyze(pkgNode);
+        if (this.stopCompilation(pkgNode, CompilerPhase.DATAFLOW_ANALYZE)) {
+            return;
+        }
+
+        dataflowAnalyze(pkgNode);
         if (this.stopCompilation(pkgNode, CompilerPhase.DOCUMENTATION_ANALYZE)) {
             return;
         }
@@ -194,6 +202,10 @@ public class CompilerDriver {
 
     private BLangPackage codeAnalyze(BLangPackage pkgNode) {
         return this.codeAnalyzer.analyze(pkgNode);
+    }
+
+    private BLangPackage dataflowAnalyze(BLangPackage pkgNode) {
+        return this.dataflowAnalyzer.analyze(pkgNode);
     }
 
     private BLangPackage taintAnalyze(BLangPackage pkgNode) {
