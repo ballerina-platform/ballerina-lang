@@ -1092,7 +1092,14 @@ public class HttpUtil {
         Struct keyStore = secureSocket.getStructField(HttpConstants.ENDPOINT_CONFIG_KEY_STORE);
         Struct protocols = secureSocket.getStructField(HttpConstants.ENDPOINT_CONFIG_PROTOCOLS);
         Struct validateCert = secureSocket.getStructField(HttpConstants.ENDPOINT_CONFIG_VALIDATE_CERT);
+        String keyFile = secureSocket.getStringField(HttpConstants.ENDPOINT_CONFIG_KEY);
+        String certFile = secureSocket.getStringField(HttpConstants.ENDPOINT_CONFIG_CERTIFICATE);
+        String trustCerts = secureSocket.getStringField(HttpConstants.ENDPOINT_CONFIG_TRUST_CERTIFICATES);
+        String keyPassword = secureSocket.getStringField(HttpConstants.ENDPOINT_CONFIG_KEY_PASSWORD);
         List<Parameter> clientParams = new ArrayList<>();
+        if (trustStore != null && StringUtils.isNotBlank(trustCerts)) {
+            throw new BallerinaConnectorException("Cannot configure both trustStore and trustCerts at the same time.");
+        }
         if (trustStore != null) {
             String trustStoreFile = trustStore.getStringField(HttpConstants.FILE_PATH);
             if (StringUtils.isNotBlank(trustStoreFile)) {
@@ -1102,6 +1109,13 @@ public class HttpUtil {
             if (StringUtils.isNotBlank(trustStorePassword)) {
                 sslConfiguration.setTrustStorePass(trustStorePassword);
             }
+        } else if (StringUtils.isNotBlank(trustCerts)) {
+            sslConfiguration.setClientTrustCertificates(trustCerts);
+        }
+        if (keyStore != null && StringUtils.isNotBlank(keyFile)) {
+            throw new BallerinaException("Cannot configure both keyStore and keyFile.");
+        } else if (StringUtils.isNotBlank(keyFile) && StringUtils.isBlank(certFile)) {
+            throw new BallerinaException("Need to configure certFile containing client ssl certificates.");
         }
         if (keyStore != null) {
             String keyStoreFile = keyStore.getStringField(HttpConstants.FILE_PATH);
@@ -1111,6 +1125,12 @@ public class HttpUtil {
             String keyStorePassword = keyStore.getStringField(HttpConstants.PASSWORD);
             if (StringUtils.isNotBlank(keyStorePassword)) {
                 sslConfiguration.setKeyStorePass(keyStorePassword);
+            }
+        } else if (StringUtils.isNotBlank(keyFile)) {
+            sslConfiguration.setClientKeyFile(keyFile);
+            sslConfiguration.setClientCertificates(certFile);
+            if (StringUtils.isNotBlank(keyPassword)) {
+                sslConfiguration.setClientKeyPassword(keyPassword);
             }
         }
         if (protocols != null) {

@@ -188,36 +188,49 @@ public class InitEndpoint extends AbstractHttpNativeFunction {
         Struct protocols = sslConfig.getStructField(HttpConstants.ENDPOINT_CONFIG_PROTOCOLS);
         Struct validateCert = sslConfig.getStructField(HttpConstants.ENDPOINT_CONFIG_VALIDATE_CERT);
         Struct ocspStapling = sslConfig.getStructField(HttpConstants.ENDPOINT_CONFIG_OCSP_STAPLING);
+        String keyFile = sslConfig.getStringField(HttpConstants.ENDPOINT_CONFIG_KEY);
+        String certFile = sslConfig.getStringField(HttpConstants.ENDPOINT_CONFIG_CERTIFICATE);
+        String trustCerts = sslConfig.getStringField(HttpConstants.ENDPOINT_CONFIG_TRUST_CERTIFICATES);
+        String keyPassword = sslConfig.getStringField(HttpConstants.ENDPOINT_CONFIG_KEY_PASSWORD);
 
+        if (keyStore != null && StringUtils.isNotBlank(keyFile)) {
+            throw new BallerinaException("Cannot configure both keyStore and keyFile at the same time.");
+        } else if (keyStore == null && (StringUtils.isBlank(keyFile) || StringUtils.isBlank(certFile))) {
+            throw new BallerinaException("Either keystore or certificateKey and server certificates must be provided "
+                    + "for secure connection");
+        }
         if (keyStore != null) {
             String keyStoreFile = keyStore.getStringField(HttpConstants.FILE_PATH);
             String keyStorePassword = keyStore.getStringField(HttpConstants.PASSWORD);
-            if (StringUtils.isBlank(keyStoreFile)) {
-                //TODO get from language pack, and add location
-                throw new BallerinaConnectorException("Keystore location must be provided for secure connection");
-            }
-            if (StringUtils.isBlank(keyStorePassword)) {
-                //TODO get from language pack, and add location
-                throw new BallerinaConnectorException("Keystore password value must be provided for secure connection");
-            }
             listenerConfiguration.setKeyStoreFile(keyStoreFile);
             listenerConfiguration.setKeyStorePass(keyStorePassword);
+        } else {
+            listenerConfiguration.setServerKeyFile(keyFile);
+            listenerConfiguration.setServerCertificates(certFile);
+            if (keyPassword != null) {
+                listenerConfiguration.setServerKeyPassword(keyPassword);
+            }
         }
         String sslVerifyClient = sslConfig.getStringField(HttpConstants.SSL_CONFIG_SSL_VERIFY_CLIENT);
         listenerConfiguration.setVerifyClient(sslVerifyClient);
+        if (trustStore == null && StringUtils.isNotBlank(sslVerifyClient) && StringUtils.isBlank(trustCerts)) {
+            throw new BallerinaException(
+                    "Truststore location or trustCertificates must be provided to enable Mutual SSL");
+        }
         if (trustStore != null) {
             String trustStoreFile = trustStore.getStringField(HttpConstants.FILE_PATH);
             String trustStorePassword = trustStore.getStringField(HttpConstants.PASSWORD);
             if (StringUtils.isBlank(trustStoreFile) && StringUtils.isNotBlank(sslVerifyClient)) {
-                //TODO get from language pack, and add location
-                throw new BallerinaException("Truststore location must be provided to enable Mutual SSL");
+                throw new BallerinaException(
+                        "Truststore location must be provided to enable Mutual SSL");
             }
             if (StringUtils.isBlank(trustStorePassword) && StringUtils.isNotBlank(sslVerifyClient)) {
-                //TODO get from language pack, and add location
                 throw new BallerinaException("Truststore password value must be provided to enable Mutual SSL");
             }
             listenerConfiguration.setTrustStoreFile(trustStoreFile);
             listenerConfiguration.setTrustStorePass(trustStorePassword);
+        } else if (StringUtils.isNotBlank(trustCerts)) {
+            listenerConfiguration.setServerTrustCertificates(trustCerts);
         }
         List<Parameter> serverParamList = new ArrayList<>();
         Parameter serverParameters;
