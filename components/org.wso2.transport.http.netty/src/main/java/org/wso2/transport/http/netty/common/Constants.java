@@ -40,7 +40,7 @@ public final class Constants {
     public static final String SSL_HANDLER = "ssl";
     public static final String CLIENT_SUPPORT_CIPHERS = "ciphers";
     public static final String CLIENT_SUPPORT_SSL_PROTOCOLS = "sslEnabledProtocols";
-    public static final String CLIENT_ENABLE_SESSION_CREATION = "sessionCreation";
+    public static final String CLIENT_ENABLE_SESSION_CREATION = "shareSession";
 
     // Server Bootstrap related
     public static final String SERVER_BOOTSTRAP_TCP_NO_DELY = "server.bootstrap.nodelay";
@@ -64,7 +64,7 @@ public final class Constants {
     //Server side SSL Parameters
     public static final String SERVER_SUPPORT_CIPHERS = "ciphers";
     public static final String SERVER_SUPPORT_SSL_PROTOCOLS = "sslEnabledProtocols";
-    public static final String SERVER_ENABLE_SESSION_CREATION = "sessionCreation";
+    public static final String SERVER_ENABLE_SESSION_CREATION = "shareSession";
     public static final String SERVER_SUPPORTED_SERVER_NAMES = "server.suported.server.names";
     public static final String SERVER_SUPPORTED_SNIMATCHERS = "server.supported.snimatchers";
     public static final String SSL_VERIFY_CLIENT = "sslVerifyClient";

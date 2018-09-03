@@ -105,6 +105,7 @@ public class CipherSuitesTest {
         httpClientConnector = factory.createHttpClientConnector(new HashMap<>(), getSenderConfigs());
 
         testCiphersuites(hasException, serverPort);
+        serverConnector.stop();
     }
 
     private void testCiphersuites(boolean hasException, int serverPort) {
