@@ -24,7 +24,7 @@ import org.ballerinalang.database.sql.SQLDataIterator;
 import org.ballerinalang.database.sql.SQLDatasource;
 import org.ballerinalang.database.sql.SQLDatasourceUtils;
 import org.ballerinalang.database.table.BCursorTable;
-import org.ballerinalang.database.table.BMirrorTable;
+import org.ballerinalang.database.table.BProxyTable;
 import org.ballerinalang.model.ColumnDefinition;
 import org.ballerinalang.model.types.BArrayType;
 import org.ballerinalang.model.types.BStructureType;
@@ -312,7 +312,7 @@ public abstract class AbstractSQLAction extends BlockingNativeCallableUnit {
         context.setReturnValues(countArray);
     }
 
-    protected void createMirroredTable(Context context, SQLDatasource datasource, String tableName,
+    protected void createProxyTable(Context context, SQLDatasource datasource, String tableName,
             BStructureType structType) {
         try {
             context.setReturnValues(constructTable(context, structType, datasource, tableName));
@@ -947,9 +947,9 @@ public abstract class AbstractSQLAction extends BlockingNativeCallableUnit {
         return constructTable(rm, context, rs, structType, false, columnDefinitions);
     }
 
-    private BMirrorTable constructTable(Context context, BStructureType structType, SQLDatasource dataSource,
+    private BProxyTable constructTable(Context context, BStructureType structType, SQLDatasource dataSource,
             String tableName) throws SQLException {
-        return new BMirrorTable(dataSource, tableName, structType, TimeUtils.getTimeStructInfo(context),
+        return new BProxyTable(dataSource, tableName, structType, TimeUtils.getTimeStructInfo(context),
                                 TimeUtils.getTimeZoneStructInfo(context), utcCalendar);
     }
 

@@ -197,7 +197,7 @@ public class ClientStubGeneratorTestCase {
         grpcCmd1.setBalOutPath(sourceRoot.toAbsolutePath().toString());
         grpcCmd1.setProtoPath(protoRoot.toAbsolutePath().toString());
         grpcCmd1.execute();
-        Path sourceFileRoot = resourceDir.resolve(Paths.get("grpc", "tool", "helloWorld_pb.bal"));
+        Path sourceFileRoot = resourceDir.resolve(Paths.get("grpc", "tool", "helloWorldString_pb.bal"));
         CompileResult compileResult = BCompileUtil.compile(sourceFileRoot.toString());
         Assert.assertNotNull(compileResult.getProgFile().getPackageInfo(PACKAGE_NAME)
                 .getStructInfo("helloWorldClient"), "Connector not found.");

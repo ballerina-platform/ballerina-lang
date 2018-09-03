@@ -342,9 +342,10 @@ public class ServerInstance implements Server {
         try {
             process = executeProcess(args, envVariables, command, commandDir);
             // Wait until the options are prompted
-            Thread.sleep(3000);
+            Thread.sleep(1000);
             writeClientOptionsToProcess(options, process);
-            deleteWorkDir();
+            // Wait until the command executes
+            Thread.sleep(1000);
         } catch (IOException e) {
             throw new BallerinaTestException("Error executing ballerina", e);
         } catch (InterruptedException ignore) {
@@ -681,5 +682,12 @@ public class ServerInstance implements Server {
             }
         }
         return pid;
+    }
+
+    /**
+     * Reset server log reader.
+     */
+    public void resetServerLogReader() {
+        this.serverInfoLogReader = null;
     }
 }

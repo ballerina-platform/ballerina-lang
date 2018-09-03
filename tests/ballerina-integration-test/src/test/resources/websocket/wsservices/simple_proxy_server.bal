@@ -18,7 +18,7 @@ import ballerina/http;
 import ballerina/log;
 
 @final string REMOTE_BACKEND_URL = "ws://localhost:15300/websocket";
-@final string ASSOCIATED_CONNECTION5 = "ASSOCIATED_CONNECTION";
+@final public string ASSOCIATED_CONNECTION5 = "ASSOCIATED_CONNECTION";
 
 @http:WebSocketServiceConfig {
     path: "/"
@@ -54,7 +54,7 @@ service<http:WebSocketService> simpleProxy9 bind { port: 9099 } {
 
     onClose(endpoint wsEp, int statusCode, string reason) {
         endpoint http:WebSocketClient clientEp = getAssociatedClientEndpoint3(wsEp);
-        clientEp->close(statusCode, reason) but {
+        clientEp->close(statusCode = statusCode, reason = reason) but {
             error e => log:printError("server closing error", err = e)
         };
     }
@@ -78,7 +78,7 @@ service<http:WebSocketClientService> clientCallbackService9 {
 
     onClose(endpoint wsEp, int statusCode, string reason) {
         endpoint http:WebSocketListener serviceEp = getAssociatedListener3(wsEp);
-        serviceEp->close(statusCode, reason) but {
+        serviceEp->close(statusCode = statusCode, reason = reason) but {
             error e => log:printError("client closing error", err = e)
         };
     }

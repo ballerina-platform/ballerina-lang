@@ -22,35 +22,96 @@ const {
 } = require('vscode-debugadapter');
 const DebugManager = require('./DebugManager');
 const fs = require('fs');
+const os = require('os');
 const path = require('path');
 const { spawn } = require('child_process');
 const openport = require('openport');
+const ps = require('ps-node');
+const toml = require('toml');
 
 class BallerinaDebugSession extends LoggingDebugSession {
     initializeRequest(response, args) {
         response.body = response.body || {};
         response.body.supportsConfigurationDoneRequest = true;
-        this.packagePaths = {};
+
         this.dirPaths = {};
         this.threadIndexes = {};
-        this.threads = [];
-        this.debugArgs = {};
+
+        this.nextThreadId = 1;
+        this.nextFrameId = 1;
+        this.nextVariableRefId = 1;
+        this.threads = {};
+        this.frames = {};
+        this.variableRefs = {};
+        
         this.debugManager = new DebugManager();
 
         this.debugManager.on('debug-hit', debugArgs => {
-            const threadId = debugArgs.threadId || debugArgs.workerId;
-            this.debugArgs[threadId] = debugArgs;
-            this.currentThreadId = threadId;
-            if (!this.threadIndexes[threadId]) {
-                const index = this.threads.length + 1;
-                this.threads.push({
-                    threadId,
-                    index, 
-                    name: threadId.split('-')[0],
-                });
-                this.threadIndexes[threadId] = index;
+            const serverThreadId = debugArgs.threadId || debugArgs.workerId;
+
+            if (!this.threadIndexes[serverThreadId]) {
+                const thread = {
+                    id: this.nextThreadId++,
+                    name: serverThreadId.split('-')[0],
+                    serverThreadId,
+                    frameIds: [],
+                };
+
+                this.threads[thread.id] = thread;
+                this.threadIndexes[serverThreadId] = thread.id;
             }
-            this.sendEvent(new StoppedEvent('breakpoint', this.threadIndexes[threadId]));
+
+            const threadId = this.threadIndexes[serverThreadId];
+            const threadObj = this.threads[this.threadIndexes[serverThreadId]];
+
+            // Clear other frames for this thread
+            threadObj.frameIds.forEach(frameId => {
+                const frame = this.frames[frameId];
+                frame.scopes.forEach(scope => {
+                    delete this.variableRefs[scope.variablesReference];
+                });
+
+                delete this.frames[frameId];
+            })
+
+            threadObj.frameIds = [];
+
+            debugArgs.frames.forEach(frame => {
+                const {fileName, frameName, lineID, packageName: packageInfo } = frame;
+                let packageNameParts = packageInfo.split(':')[0].split('/');
+                const packageDirname = packageNameParts[1] || packageNameParts[0];
+
+                const frameObj = {
+                    threadId,
+                    id: this.nextFrameId++,
+                    scopes: [],
+                    fileName: path.join(packageDirname, fileName),
+                    frameName,
+                    line: lineID
+                };
+
+                ['Local', 'Global'].forEach(scopeName => {
+                    const scope = {
+                        name: scopeName,
+                        variablesReference: this.nextVariableRefId++,
+                        expensive: false,
+                    };
+
+                    const variables = frame.variables.filter(
+                        variable => variable.scope === scopeName);
+
+                    frameObj.scopes.push(scope);
+                    this.variableRefs[scope.variablesReference] = {
+                        threadId,
+                        variables,
+                    };
+                });
+
+                threadObj.frameIds.push(frameObj.id);
+                this.frames[frameObj.id] = frameObj;
+            });
+
+            this.sendEvent(new StoppedEvent('breakpoint', this.threadIndexes[serverThreadId]));
         });
 
         this.debugManager.on('execution-ended', () => {
@@ -73,6 +134,24 @@ class BallerinaDebugSession extends LoggingDebugSession {
         });
     }
 
+    getRunningInfo(currentPath, root, ballerinaPackage) {
+        if (fs.existsSync(path.join(currentPath, '.ballerina'))) {
+            if (currentPath != os.homedir()) {
+                return {
+                    sourceRoot: currentPath,
+                    ballerinaPackage,
+                }
+            }
+        }
+
+        if (currentPath === root) {
+            return {};
+        }
+
+        return this.getRunningInfo(
+            path.dirname(currentPath), root, path.basename(currentPath));
+    }
+
     launchRequest(response, args) {
         if (!args['ballerina.home']) {
             this.terminate("Couldn't start the debug server. Please set ballerina.home.");
@@ -82,16 +161,27 @@ class BallerinaDebugSession extends LoggingDebugSession {
         const openFile = args.script;
         let cwd = path.dirname(openFile);
         let fileName = path.basename(openFile);
-        
-        const content = fs.readFileSync(openFile);
-        const pkgMatch = content.toString().match('package\\s+([a-zA_Z_][\\.\\w]*);');
-        if (pkgMatch && pkgMatch[1]) {
-            const pkg = pkgMatch[1];
-            const pkgParts = pkg.split('.');
-            for(let i=0; i<pkgParts.length; i++) {
-                cwd = path.dirname(cwd);
+        this.sourceRoot = cwd;
+        this.ballerinaPackage = '.';
+
+        const { sourceRoot, ballerinaPackage } =
+            this.getRunningInfo(cwd, path.parse(openFile).root);
+
+        if (sourceRoot) {
+            this.sourceRoot = sourceRoot;
+        }
+
+        if (ballerinaPackage) {
+            this.ballerinaPackage = ballerinaPackage;
+            fileName = ballerinaPackage;
+            cwd = sourceRoot;
+
+            try {
+                const balConfigString = fs.readFileSync(path.join(sourceRoot, 'Ballerina.toml'));
+                this.projectConfig = toml.parse(balConfigString).project;
+            } catch(e) {
+                // no log file
             }
-            fileName = path.join(...pkgParts);
         }
 
         let executable = path.join(args['ballerina.home'], 'bin', 'ballerina');
@@ -99,9 +189,9 @@ class BallerinaDebugSession extends LoggingDebugSession {
             executable += '.bat';
         }
 
-        // find an open port 
+        // find an open port
         openport.find((err, port) => {
-            if(err) { 
+            if(err) {
                 this.terminate("Couldn't find an open port to start the debug server.");
                 return;
             }
@@ -109,10 +199,10 @@ class BallerinaDebugSession extends LoggingDebugSession {
             let debugServer;
             debugServer = this.debugServer = spawn(
                 executable,
-                ['run', fileName, '--debug', port],
+                ['run', '--debug', port, fileName],
                 { cwd }
             );
-    
+
             debugServer.on('error', (err) => {
                 this.terminate("Could not start the debug server.");
             });
@@ -142,13 +232,14 @@ class BallerinaDebugSession extends LoggingDebugSession {
         let fileName = args.source.path;
         let pkg = '.';
 
-        const content = fs.readFileSync(args.source.path);
-        const pkgMatch = content.toString().match('package\\s+([a-zA_Z_][\\.\\w]*);');
-        if (pkgMatch && pkgMatch[1]) {
-            pkg = pkgMatch[1];
-            fileName = args.source.name;
-            this.packagePaths[pkg] = path.dirname(args.source.path);
+        const { projectConfig, ballerinaPackage } = this;
+        if (ballerinaPackage) {
+            pkg = ballerinaPackage;
         }
+        if (projectConfig) {
+            pkg = `${projectConfig['org-name']}/${ballerinaPackage}:${projectConfig.version}`;
+        }
+        
         this.dirPaths[args.source.name] = path.dirname(args.source.path);
         
         this.debugManager.removeAllBreakpoints(fileName);
@@ -170,31 +261,27 @@ class BallerinaDebugSession extends LoggingDebugSession {
     }
 
     threadsRequest(response, args) {
-        const a = args;
-        const threads = this.threads.map(thread => (
-            {id: thread.index, name: thread.name}
+        const threads = Object.keys(this.threads).map(key => (
+            {id: this.threads[key].id, name: this.threads[key].name}
         ));
         response.body = { threads };
         this.sendResponse(response);
     }
 
-    stackTraceRequest(response, args) { 
-        const threadId = this.getThreadId(args);
-        const { packagePath } = this.debugArgs[threadId].location;
+    stackTraceRequest(response, args) {
+        const thread = this.threads[args.threadId];
 
-        const stk = this.debugArgs[threadId].frames.map((frame, i) => {
-            let root = this.dirPaths[frame.fileName];
-            if (packagePath !== '.') {
-                root = this.packagePaths[packagePath];
-            }
+        const stk = thread.frameIds.map((frameId) => {
+            const frame = this.frames[frameId];
+            const filePath = path.join(this.sourceRoot, frame.fileName);
 
             return {
-                id: i,
+                id: frameId,
                 name: frame.frameName,
-                line: frame.lineID,
+                line: frame.line,
                 source: {
                     name: frame.fileName,
-                    path: path.join(root, frame.fileName),
+                    path: filePath,
                 }
             };
         });
@@ -207,34 +294,17 @@ class BallerinaDebugSession extends LoggingDebugSession {
     }
 
     scopesRequest(response, args) {
+        const frame = this.frames[args.frameId];
         response.body = {
-            scopes:[
-                {
-                    name: 'Local',
-                    variablesReference: args.frameId + 1, // This can't be 0. As 0 indicates "don't fetch".
-                    expensive: false,
-                },
-                {
-                    name: 'Global',
-                    variablesReference: args.frameId + 1001, // variableRefs larger than 1000 refer to globals
-                    expensive: false,
-                },
-            ]
+            scopes: frame.scopes,
         };
         this.sendResponse(response);
     }
 
     variablesRequest(response, args) {
-        let scope = "Local";
-        let frameId = args.variablesReference - 1;
-        if (frameId > 999) {
-            scope = "Global";
-            frameId = frameId - 1000;
-        }
-        const frame = this.debugArgs[this.currentThreadId].frames[frameId];
-        const varsInScope = frame.variables.filter(v => v.scope === scope);
+        const variables = this.variableRefs[args.variablesReference].variables;
         response.body = {
-            variables: varsInScope.map(variable => ({
+            variables: variables.map(variable => ({
                 name: variable.name,
                 type: "integer",
                 value: variable.value,
@@ -245,25 +315,25 @@ class BallerinaDebugSession extends LoggingDebugSession {
     }
 
     continueRequest(response, args) { 
-        const threadId = this.getThreadId(args);
+        const threadId = this.threads[args.threadId].serverThreadId;
         this.sendEvent(new ContinuedEvent(threadId, false));
         this.debugManager.resume(threadId);
     }
 
     nextRequest(response, args) { 
-        const threadId = this.getThreadId(args);
+        const threadId = this.threads[args.threadId].serverThreadId;
         this.debugManager.stepOver(threadId);
         this.sendResponse(response);
     }
 
-    stepInRequest(response, args) { 
-        const threadId = this.getThreadId(args);
+    stepInRequest(response, args) {
+        const threadId = this.threads[args.threadId].serverThreadId;
         this.debugManager.stepIn(threadId);
         this.sendResponse(response);
     }
 
     stepOutRequest(response, args) {
-        const threadId = this.getThreadId(args);
+        const threadId = this.threads[args.threadId].serverThreadId;
         this.debugManager.stepOut(threadId);
         this.sendResponse(response);
     }
@@ -272,6 +342,13 @@ class BallerinaDebugSession extends LoggingDebugSession {
         if (this.debugServer) {
             this.debugManager.kill();
             this.debugServer.kill();
+            ps.lookup({
+                arguments: ['org.ballerinalang.launcher.Main', 'run', this.debugServer.spawnargs[2]],
+                }, (err, resultList = [] ) => {
+                resultList.forEach(( process ) => {
+                    ps.kill(process.pid);
+                });
+            });
         }
         this.sendResponse(response);
     }
@@ -279,11 +356,6 @@ class BallerinaDebugSession extends LoggingDebugSession {
     terminate(msg) {
         this.sendEvent(new OutputEvent(msg));
         this.sendEvent(new TerminatedEvent());
-    }
-
-    getThreadId(args) {
-        const threadIndex = args.threadId;
-        return this.threads[threadIndex - 1].threadId;
     }
 }
 

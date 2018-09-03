@@ -61,9 +61,6 @@ public class BFunctionPointer implements BRefType<FunctionInfo> {
     }
 
     public void addClosureVar(BClosure closure, int tag) {
-        if (closureVars.contains(closure)) {
-            return;
-        }
         closureVars.add(closure);
         additionalIndexes.merge(tag, 1, Integer::sum);
     }
