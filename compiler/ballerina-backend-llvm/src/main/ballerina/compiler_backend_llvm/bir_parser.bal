@@ -1,18 +1,249 @@
 import ballerina/io;
 import ballerina/internal;
 
-string[] cpStrings;
-PackageId[] cpPackages;
-int[] cpInts;
+type PackageId record {
+    string name;
+    string versionValue;
+    string org;
+};
 
-function getFileChannel(string filePath,
-                        io:Mode permission) returns io:ByteChannel {
-    io:ByteChannel channel = io:openFile(filePath, permission);
+type ConstPool record {
+    PackageId[] packages;
+    string[] strings;
+    int[] ints;
+};
 
-    return channel;
-}
-function readBytes(io:ByteChannel channel,
-                   int numberOfBytes) returns (byte[], int) {
+type BirParser object {
+    io:ByteChannel channel,
+    ConstPool cp;
+
+    new(channel) {
+    }
+
+    function readCp() {
+        var cpCount = readInt(channel);
+        int i = 0;
+        while (i < cpCount) {
+            var cpType = readByte(channel);
+            if (cpType == 1){
+                cp.ints[i] = readLong(channel);
+            } else if (cpType == 4){
+                cp.strings[i] = readString(channel);
+            } else if (cpType == 5){
+                PackageId id = { org: cp.strings[readInt(channel)],
+                    name: <string>cp.strings[readInt(channel)],
+                    varstionVallue: <string>cp.strings[readInt(channel)] };
+                cp.packages[i] = id;
+            } else {
+                error err = { message: "cp type " + cpType + " not supported.:" };
+                throw err;
+            }
+            i++;
+        }
+    }
+
+    function readStringViaCp() returns string {
+        return cp.strings[readInt(channel)];
+    }
+
+    function readVariableDcl() returns BIRVariableDcl {
+        var kind = readVarKind(channel);
+        BIRVariableDcl dcl = {
+            typeValue: readBType(),
+            name: { value: readStringViaCp() },
+            kind:kind
+        };
+        return dcl;
+    }
+
+    function readFunction() returns BIRFunction {
+        var name = readStringViaCp();
+        var isDeclaration = readBoolean(channel);
+        var visibility = readVisibility(channel);
+        var sig = readStringViaCp();
+        var argsCount = readInt(channel);
+        var numLocalVars = readInt(channel);
+
+        BIRVariableDcl[] dcls;
+        map<BIRVariableDcl> localVarMap;
+        int i;
+        while (i < numLocalVars) {
+            var dcl = readVariableDcl();
+            dcls[i] = dcl;
+            localVarMap[dcl.name.value] = dcl;
+            i++;
+        }
+
+        BIRBasicBlock[] basicBlocks;
+        var numBB = readInt(channel);
+        i = 0;
+        while (i < numBB) {
+            basicBlocks[i] = readBB(localVarMap);
+            i++;
+        }
+
+        return {
+            name: { value: name },
+            isDeclaration: isDeclaration,
+            visibility: visibility,
+            localVars: dcls,
+            basicBlocks: basicBlocks,
+            argsCount: argsCount,
+            typeValue: parseSig(sig)
+        };
+    }
+
+    function readPackage() returns BIRPackage {
+        var pkgIdCp = readInt(channel);
+        var numFuncs = readInt(channel);
+        BIRFunction[] funcs;
+        int i;
+        while (i < numFuncs) {
+            funcs[i] = readFunction();
+            i++;
+        }
+        return { functions:funcs };
+    }
+
+    function readBB(map<BIRVariableDcl> localVarMap) returns BIRBasicBlock {
+        var id = readStringViaCp();
+        var numInstruction = readInt(channel) - 1;
+        BIRInstruction[] instructions;
+        int i;
+        while (i < numInstruction) {
+            instructions[i] = readInstruction(localVarMap);
+            i++;
+        }
+        return { id: { value: id },
+            instructions: instructions,
+            terminator: readTerminator(localVarMap) };
+    }
+
+    function readTerminator(map<BIRVariableDcl> localVarMap) returns BIRTerminator {
+        var kindTag = readByte(channel);
+        if (kindTag == 3){
+            InstructionKind kind = "BRANCH";
+            var op = readVarRef(localVarMap);
+            BIRBasicBlock trueBB = readBBRef();
+            BIRBasicBlock falseBB = readBBRef();
+            return new Branch(falseBB, kind, op, trueBB);
+        } else if (kindTag == 1){
+            InstructionKind kind = "GOTO";
+            return new GOTO(kind, readBBRef());
+        } else if (kindTag == 4){
+            InstructionKind kind = "RETURN";
+            return new Return(kind);
+        } else if (kindTag == 2){
+            InstructionKind kind = "CALL";
+            var pkgIdCp = readInt(channel);
+            var name = readStringViaCp();
+            var argsCount = readInt(channel);
+            BIROperand[] args = [];
+            int i = 0;
+            while (i < argsCount) {
+                args[i] = readVarRef(localVarMap);
+                i++;
+            }
+            var hasLhs = readBoolean(channel);
+            BIRVarRef? lhsOp = ();
+            if (hasLhs){
+                lhsOp = readVarRef(localVarMap);
+            }
+            BIRBasicBlock thenBB = readBBRef();
+            return new Call(args, kind, lhsOp, { value: name }, thenBB);
+
+        }
+        error err = { message: "term instrucion kind " + kindTag + " not impl." };
+        throw err;
+    }
+
+    function readBType() returns BType {
+        string sginatureAlias = readStringViaCp();
+        if (sginatureAlias == "I"){
+            return "int";
+        } else if (sginatureAlias == "B"){
+            return "boolean";
+        }
+        error err = { message: "type signature " + sginatureAlias + " not supported." };
+        throw err;
+    }
+
+    function readVarRef(map<BIRVariableDcl> localVarMap) returns BIRVarRef {
+        var varName = readStringViaCp();
+        var decl = getDecl(localVarMap, varName);
+        return new BIRVarRef("VAR_REF", decl.typeValue, decl);
+    }
+
+    function readInstruction(map<BIRVariableDcl> localVarMap) returns BIRInstruction {
+        var kindTag = readByte(channel);
+        InstructionKind kind = "CONST_LOAD";
+        // this is hacky to init to a fake val, but ballerina dosn't support un intialized vers
+        if (kindTag == 6){
+            //TODO: remove redundent
+            var bType = readBType();
+            kind = "CONST_LOAD";
+            var constLoad = new ConstantLoad(kind,
+                readVarRef(localVarMap),
+                bType,
+                readIntViaCp());
+            return constLoad;
+        } else if (kindTag == 5){
+            kind = "MOVE";
+            var rhsOp = readVarRef(localVarMap);
+            var lhsOp = readVarRef(localVarMap);
+            return new Move(kind, lhsOp, rhsOp);
+        } else {
+            return readBinaryOpInstruction(kindTag, localVarMap);
+        }
+    }
+
+    function readBBRef() returns BIRBasicBlock {
+        return { id: { value: readStringViaCp() } };
+    }
+
+    function readBinaryOpInstruction(int kindTag, map<BIRVariableDcl> localVarMap)
+                 returns BinaryOp {
+        BinaryOpInstructionKind kind = "ADD";
+        if (kindTag == 7){
+            kind = "ADD";
+        } else if (kindTag == 8){
+            kind = "SUB";
+        } else if (kindTag == 9){
+            kind = "MUL";
+        } else if (kindTag == 10){
+            kind = "DIV";
+        } else if (kindTag == 12){
+            kind = "EQUAL";
+        } else if (kindTag == 13){
+            kind = "NOT_EQUAL";
+        } else if (kindTag == 14){
+            kind = "GREATER_THAN";
+        } else if (kindTag == 15){
+            kind = "GREATER_EQUAL";
+        } else if (kindTag == 16){
+            kind = "LESS_THAN";
+        } else if (kindTag == 17){
+            kind = "LESS_EQUAL";
+        } else {
+            error err = { message: "instrucion kind " + kindTag + " not impl." };
+            throw err;
+        }
+
+        var rhsOp1 = readVarRef(localVarMap);
+        var rhsOp2 = readVarRef(localVarMap);
+        var lhsOp = readVarRef(localVarMap);
+        return new BinaryOp (kind, lhsOp, rhsOp1, rhsOp2,
+            //TODO: remove type, not used
+            "int");
+    }
+
+    function readIntViaCp() returns int {
+        return cp.ints[readInt(channel)];
+    }
+
+};
+
+function readBytes(io:ByteChannel channel, int numberOfBytes) returns (byte[], int) {
     var result = channel.read(numberOfBytes);
     match result {
         (byte[], int) content => {
@@ -23,9 +254,7 @@ function readBytes(io:ByteChannel channel,
         }
     }
 }
-function writeBytes(io:ByteChannel channel,
-                    byte[] content,
-                    int startOffset = 0) returns int {
+function writeBytes(io:ByteChannel channel, byte[] content, int startOffset = 0) returns int {
     var result = channel.write(content, startOffset);
     match result {
         int numberOfBytesWritten => {
@@ -56,46 +285,6 @@ function copy(io:ByteChannel src, io:ByteChannel dst) {
     }
 }
 
-type PackageId record {
-    string name;
-    string versionValue;
-    string org;
-};
-
-function readCp(io:ByteChannel channel) {
-    var cpCount = readInt(channel);
-    int i = 0;
-    while (i < cpCount) {
-        var cpType = readByte(channel);
-        if (cpType == 1){
-            cpInts[i] = readLong(channel);
-        } else if (cpType == 4){
-            cpStrings[i] = readString(channel);
-        } else if (cpType == 5){
-            PackageId id = { org: cpStrings[readInt(channel)],
-                name: <string>cpStrings[readInt(channel)],
-                varstionVallue: <string>cpStrings[readInt(channel)] };
-            cpPackages[i] = id;
-        } else {
-            error err = { message: "cp type " + cpType + " not supported.:" };
-            throw err;
-        }
-        i++;
-    }
-}
-
-function readPackage(io:ByteChannel channel) returns BIRPackage {
-    var pkgIdCp = readInt(channel);
-    var numFuncs = readInt(channel);
-    BIRFunction[] funcs;
-    int i;
-    while (i < numFuncs) {
-        funcs[i] = readFunction(channel);
-        i++;
-    }
-    return { functions:funcs };
-}
-
 function readVarKind(io:ByteChannel channel) returns VarKind {
     var (enumByte, _mustBe1) = check channel.read(1);
     int b = <int>enumByte[0];
@@ -108,56 +297,10 @@ function readVarKind(io:ByteChannel channel) returns VarKind {
     } else if (b == 4){
         return "RETURN";
     }
-    error unknownVisibility;
-    throw unknownVisibility;
+    error err = { message: "unknown var kind " + b };
+    throw err;
 }
 
-function readVariableDcl(io:ByteChannel channel) returns BIRVariableDcl {
-    var kind = readVarKind(channel);
-    BIRVariableDcl dcl = {
-        typeValue: readBType(channel),
-        name: { value: readStringViaCp(channel) },
-        kind:kind
-    };
-    return dcl;
-}
-
-function readFunction(io:ByteChannel channel) returns BIRFunction {
-    var name = readStringViaCp(channel);
-    var isDeclaration = readBoolean(channel);
-    var visibility = readVisibility(channel);
-    var sig = readStringViaCp(channel);
-    var argsCount = readInt(channel);
-    var numLocalVars = readInt(channel);
-
-    BIRVariableDcl[] dcls;
-    map<BIRVariableDcl> localVarMap;
-    int i;
-    while (i < numLocalVars) {
-        var dcl = readVariableDcl(channel);
-        dcls[i] = dcl;
-        localVarMap[dcl.name.value] = dcl;
-        i++;
-    }
-
-    BIRBasicBlock[] basicBlocks;
-    var numBB = readInt(channel);
-    i = 0;
-    while (i < numBB) {
-        basicBlocks[i] = readBB(channel, localVarMap);
-        i++;
-    }
-
-    return {
-        name: { value: name },
-        isDeclaration: isDeclaration,
-        visibility: visibility,
-        localVars: dcls,
-        basicBlocks: basicBlocks,
-        argsCount: argsCount,
-        typeValue: parseSig(sig)
-    };
-}
 
 function parseSig(string sig) returns BInvokableType {
     BType returnType = "int";
@@ -166,129 +309,8 @@ function parseSig(string sig) returns BInvokableType {
         returnType = "()";
     }
     return {
-        retType: returnType
+        retType:returnType
     };
-}
-
-function readBB(io:ByteChannel channel, map<BIRVariableDcl> localVarMap) returns BIRBasicBlock {
-    var id = readStringViaCp(channel);
-    var numInstruction = readInt(channel) - 1;
-    BIRInstruction[] instructions;
-    int i;
-    while (i < numInstruction) {
-        instructions[i] = readInstruction(channel, localVarMap);
-        i++;
-    }
-    return { id: { value: id },
-        instructions: instructions,
-        terminator: readTerminator(channel, localVarMap) };
-}
-
-function readTerminator(io:ByteChannel channel, map<BIRVariableDcl> localVarMap) returns BIRTerminator {
-    var kindTag = readByte(channel);
-    if (kindTag == 3){
-        InstructionKind kind = "BRANCH";
-        var op = readVarRef(channel, localVarMap);
-        BIRBasicBlock trueBB = readBBRef(channel);
-        BIRBasicBlock falseBB = readBBRef(channel);
-        return new Branch(falseBB, kind, op, trueBB);
-    } else if (kindTag == 1){
-        InstructionKind kind = "GOTO";
-        return new GOTO(kind, readBBRef(channel));
-    } else if (kindTag == 4){
-        InstructionKind kind = "RETURN";
-        return new Return(kind);
-    } else if (kindTag == 2){
-        InstructionKind kind = "CALL";
-        var pkgIdCp = readInt(channel);
-        var name = readStringViaCp(channel);
-        var argsCount = readInt(channel);
-        BIROperand[] args = [];
-        int i = 0;
-        while (i < argsCount) {
-            args[i] = readVarRef(channel, localVarMap);
-            i++;
-        }
-        var hasLhs = readBoolean(channel);
-        BIRVarRef? lhsOp = ();
-        if (hasLhs){
-            lhsOp = readVarRef(channel, localVarMap);
-        }
-        BIRBasicBlock thenBB = readBBRef(channel);
-        return new Call(args, kind, lhsOp, {value: name}, thenBB);
-
-    }
-    error err = { message: "term instrucion kind " + kindTag + " not impl." };
-    throw err;
-}
-
-function readBBRef(io:ByteChannel channel) returns BIRBasicBlock {
-    return { id: { value: readStringViaCp(channel) } };
-}
-
-function readInstruction(io:ByteChannel channel, map<BIRVariableDcl> localVarMap) returns BIRInstruction {
-    var kindTag = readByte(channel);
-    InstructionKind kind = "CONST_LOAD";
-    // this is hacky to init to a fake val, but ballerina dosn't support un intialized vers
-    if (kindTag == 6){
-        //TODO: remove redundent
-        var bType = readBType(channel);
-        kind = "CONST_LOAD";
-        var constLoad = new ConstantLoad(kind,
-            readVarRef(channel, localVarMap),
-            bType,
-            readIntViaCp(channel));
-        return constLoad;
-    } else if (kindTag == 5){
-        kind = "MOVE";
-        var rhsOp = readVarRef(channel, localVarMap);
-        var lhsOp = readVarRef(channel, localVarMap);
-        return new Move(kind, lhsOp, rhsOp);
-    } else {
-        return readBinaryOpInstruction(kindTag, channel, localVarMap);
-    }
-}
-
-function readBinaryOpInstruction(int kindTag, io:ByteChannel channel, map<BIRVariableDcl> localVarMap)
-             returns BinaryOp {
-    BinaryOpInstructionKind kind = "ADD";
-    if (kindTag == 7){
-        kind = "ADD";
-    } else if (kindTag == 8){
-        kind = "SUB";
-    } else if (kindTag == 9){
-        kind = "MUL";
-    } else if (kindTag == 10){
-        kind = "DIV";
-    } else if (kindTag == 12){
-        kind = "EQUAL";
-    } else if (kindTag == 13){
-        kind = "NOT_EQUAL";
-    } else if (kindTag == 14){
-        kind = "GREATER_THAN";
-    } else if (kindTag == 15){
-        kind = "GREATER_EQUAL";
-    } else if (kindTag == 16){
-        kind = "LESS_THAN";
-    } else if (kindTag == 17){
-        kind = "LESS_EQUAL";
-    } else {
-        error err = { message: "instrucion kind " + kindTag + " not impl." };
-        throw err;
-    }
-
-    var rhsOp1 = readVarRef(channel, localVarMap);
-    var rhsOp2 = readVarRef(channel, localVarMap);
-    var lhsOp = readVarRef(channel, localVarMap);
-    return new BinaryOp (kind, lhsOp, rhsOp1, rhsOp2,
-        //TODO: remove type, not used
-        "int");
-}
-
-function readVarRef(io:ByteChannel channel, map<BIRVariableDcl> localVarMap) returns BIRVarRef {
-    var varName = readStringViaCp(channel);
-    var decl = getDecl(localVarMap, varName);
-    return new BIRVarRef("VAR_REF", decl.typeValue, decl);
 }
 
 function getDecl(map<BIRVariableDcl> localVarMap, string varName) returns BIRVariableDcl {
@@ -321,17 +343,6 @@ function readByte(io:ByteChannel channel) returns int {
     var (byteValue, _mustBe1) = check channel.read(1);
     return <int>byteValue[0];
 }
-function readBType(io:ByteChannel channel) returns BType {
-    string sginatureAlias = readStringViaCp(channel);
-    if (sginatureAlias == "I"){
-        return "int";
-    } else if (sginatureAlias == "B"){
-        return "boolean";
-    }
-    error err = { message: "type signature " + sginatureAlias + " not supported." };
-    throw err;
-}
-
 
 function readVisibility(io:ByteChannel channel) returns Visibility {
     var (enumByte, _mustBe1) = check channel.read(1);
@@ -359,13 +370,6 @@ function bytesToInt(byte[] b) returns int {
     return b0 <<octave3|(b1 & ff) <<octave2|(b2 & ff) <<octave1|(b3 & ff);
 }
 
-function readStringViaCp(io:ByteChannel channel) returns string {
-    return cpStrings[readInt(channel)];
-}
-
-function readIntViaCp(io:ByteChannel channel) returns int {
-    return cpInts[readInt(channel)];
-}
 
 function readString(io:ByteChannel channel) returns string {
     var stringLen = untaint readInt(channel);
@@ -376,5 +380,3 @@ function readString(io:ByteChannel channel) returns string {
         return "";
     }
 }
-
-

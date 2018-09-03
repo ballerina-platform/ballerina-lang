@@ -7,18 +7,18 @@ map functionRefs;
 llvm:LLVMValueRef printfRef;
 
 function genPackage(BIRPackage pkg, string targetObjectFilePath, boolean dumpLLVMIR) {
-    var moduleName = pkg.org.value + pkg.name.value + pkg.versionValue.value;
-    var mod = llvm:LLVMModuleCreateWithName(moduleName);
-
+    var mod = createModule(pkg.org, pkg.name, pkg.versionValue);
     genFunctions(mod, pkg.functions);
-
     optimize(mod);
-
     createObjectFile(targetObjectFilePath, mod);
-
     if(dumpLLVMIR) {
         llvm:LLVMDumpModule(mod);
     }
+}
+
+function createModule(Name orgName, Name pkgName, Name ver) returns llvm:LLVMModuleRef {
+    var moduleName = orgName.value + pkgName.value + ver.value;
+    return llvm:LLVMModuleCreateWithName(moduleName);
 }
 
 function genFunctions(llvm:LLVMModuleRef mod, BIRFunction[] funcs) {
