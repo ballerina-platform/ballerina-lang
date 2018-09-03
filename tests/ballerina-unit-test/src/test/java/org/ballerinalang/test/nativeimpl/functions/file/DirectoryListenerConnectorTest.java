@@ -135,10 +135,9 @@ public class DirectoryListenerConnectorTest {
             BServiceUtil.runService(compileResult);
         } catch (Throwable e) {
             String actualMsg = e.getMessage();
-            String expectedErrorMsg =
-                    "Compilation Failed:\nERROR: ./file-system-negative-invalid-param-count.bal:25:5:: "
-                            + "Invalid resource signature for onCreate in service fileSystem. "
-                            + "The parameter should be a file:FileEvent\n";
+            String expectedErrorMsg = "Compilation Failed:\nERROR: ." + File.separator
+                    + "file-system-negative-invalid-param-count.bal:25:5:: Invalid resource signature for onCreate in "
+                    + "service fileSystem. The parameter should be a file:FileEvent\n";
             Assert.assertEquals(actualMsg, expectedErrorMsg, "Didn't get expected error for invalid resource param.");
         }
     }
@@ -151,10 +150,9 @@ public class DirectoryListenerConnectorTest {
             BServiceUtil.runService(compileResult);
         } catch (Throwable e) {
             String actualMsg = e.getMessage();
-            String expectedErrorMsg =
-                    "Compilation Failed:\nERROR: ./file-system-negative-invalid-param-type.bal:26:5:: "
-                            + "Invalid resource signature for onCreate in service fileSystem. "
-                            + "The parameter should be a file:FileEvent\n";
+            String expectedErrorMsg = "Compilation Failed:\nERROR: ." + File.separator
+                    + "file-system-negative-invalid-param-type.bal:26:5:: Invalid resource signature for onCreate in "
+                    + "service fileSystem. The parameter should be a file:FileEvent\n";
             Assert.assertEquals(actualMsg, expectedErrorMsg, "Didn't get expected error for invalid resource type.");
         }
     }
@@ -167,9 +165,9 @@ public class DirectoryListenerConnectorTest {
             BServiceUtil.runService(compileResult);
         } catch (Throwable e) {
             String actualMsg = e.getMessage();
-            String expectedErrorMsg =
-                    "Compilation Failed:\nERROR: ./file-system-negative-invalid-resource-name.bal:25:5:: "
-                            + "Invalid resource name onCreate1 in service fileSystem\n";
+            String expectedErrorMsg = "Compilation Failed:\nERROR: ." + File.separator
+                    + "file-system-negative-invalid-resource-name.bal:25:5:: Invalid resource name onCreate1 in "
+                    + "service fileSystem\n";
             Assert.assertEquals(actualMsg, expectedErrorMsg, "Didn't get expected error for invalid resource name.");
         }
     }
@@ -209,8 +207,8 @@ public class DirectoryListenerConnectorTest {
             BServiceUtil.runService(compileResult);
         } catch (Throwable e) {
             String actualMsg = e.getMessage();
-            String expectedErrorMsg = "Compilation Failed:\n"
-                    + "ERROR: ./file-system-negative-missing-variable.bal:19:1:: 'path' field empty.\n";
+            String expectedErrorMsg = "Compilation Failed:\n" + "ERROR: ." + File.separator
+                    + "file-system-negative-missing-variable.bal:19:1:: 'path' field empty.\n";
             Assert.assertEquals(actualMsg, expectedErrorMsg, "Didn't get expected error for empty path.");
         }
     }
