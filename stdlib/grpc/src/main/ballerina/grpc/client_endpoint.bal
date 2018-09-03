@@ -81,6 +81,10 @@ documentation {
 public type SecureSocket record {
     TrustStore? trustStore,
     KeyStore? keyStore,
+    string certificate,
+    string certificateKey,
+    string keyPassword,
+    string trustCertificates,
     Protocols? protocol,
     ValidateCert? certValidation,
     string[] ciphers,

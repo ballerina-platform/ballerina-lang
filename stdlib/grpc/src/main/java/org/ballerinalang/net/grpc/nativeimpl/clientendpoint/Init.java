@@ -34,6 +34,7 @@ import org.ballerinalang.net.grpc.GrpcConstants;
 import org.ballerinalang.net.grpc.MessageUtils;
 import org.ballerinalang.net.http.HttpConnectionManager;
 import org.ballerinalang.net.http.HttpConstants;
+import org.ballerinalang.util.exceptions.BallerinaException;
 import org.wso2.transport.http.netty.common.Constants;
 import org.wso2.transport.http.netty.config.Parameter;
 import org.wso2.transport.http.netty.config.SenderConfiguration;
@@ -135,7 +136,15 @@ public class Init extends BlockingNativeCallableUnit {
             Struct keyStore = secureSocket.getStructField(ENDPOINT_CONFIG_KEY_STORE);
             Struct protocols = secureSocket.getStructField(ENDPOINT_CONFIG_PROTOCOLS);
             Struct validateCert = secureSocket.getStructField(ENDPOINT_CONFIG_VALIDATE_CERT);
+            String keyFile = secureSocket.getStringField(HttpConstants.ENDPOINT_CONFIG_KEY);
+            String certFile = secureSocket.getStringField(HttpConstants.ENDPOINT_CONFIG_CERTIFICATE);
+            String trustCerts = secureSocket.getStringField(HttpConstants.ENDPOINT_CONFIG_TRUST_CERTIFICATES);
+            String keyPassword = secureSocket.getStringField(HttpConstants.ENDPOINT_CONFIG_KEY_PASSWORD);
             List<Parameter> clientParams = new ArrayList<>();
+            if (trustStore != null && StringUtils.isNotBlank(trustCerts)) {
+                throw new BallerinaConnectorException(
+                        "Cannot configure both trustStore and trustCerts at the same time.");
+            }
             if (trustStore != null) {
                 String trustStoreFile = trustStore.getStringField(FILE_PATH);
                 if (StringUtils.isNotBlank(trustStoreFile)) {
@@ -145,6 +154,13 @@ public class Init extends BlockingNativeCallableUnit {
                 if (StringUtils.isNotBlank(trustStorePassword)) {
                     senderConfiguration.setTrustStorePass(trustStorePassword);
                 }
+            } else if (StringUtils.isNotBlank(trustCerts)) {
+                senderConfiguration.setClientTrustCertificates(trustCerts);
+            }
+            if (keyStore != null && StringUtils.isNotBlank(keyFile)) {
+                throw new BallerinaException("Cannot configure both keyStore and keyFile.");
+            } else if (StringUtils.isNotBlank(keyFile) && StringUtils.isBlank(certFile)) {
+                throw new BallerinaException("Need to configure certFile containing client ssl certificates.");
             }
             if (keyStore != null) {
                 String keyStoreFile = keyStore.getStringField(FILE_PATH);
@@ -154,6 +170,12 @@ public class Init extends BlockingNativeCallableUnit {
                 String keyStorePassword = keyStore.getStringField(PASSWORD);
                 if (StringUtils.isNotBlank(keyStorePassword)) {
                     senderConfiguration.setKeyStorePass(keyStorePassword);
+                }
+            } else if (StringUtils.isNotBlank(keyFile)) {
+                senderConfiguration.setClientKeyFile(keyFile);
+                senderConfiguration.setClientCertificates(certFile);
+                if (StringUtils.isNotBlank(keyPassword)) {
+                    senderConfiguration.setClientKeyPassword(keyPassword);
                 }
             }
             senderConfiguration.setTLSStoreType(GrpcConstants.PKCS_STORE_TYPE);
