@@ -80,7 +80,7 @@ public class ProtoBuilderDefinitionTest {
                 "enum Gender {" + ServiceProtoConstants.NEW_LINE_CHARACTER
                         + "\tMale = 1;" + ServiceProtoConstants.NEW_LINE_CHARACTER
                         + "\tFemale = 2;" + ServiceProtoConstants.NEW_LINE_CHARACTER
-                        + "}\n");
+                        + "}" + ServiceProtoConstants.NEW_LINE_CHARACTER);
         Assert.assertEquals(message.getDescriptorProto().getName(), "Gender");
 
         // when we pass null value for the message.
@@ -105,11 +105,7 @@ public class ProtoBuilderDefinitionTest {
                 ("30").build();
         Assert.assertNotNull(fieldDef.getFieldDescriptorProto());
         Assert.assertEquals(fieldDef.getFieldDescriptorProto().toString(),
-                "name: \"age\"" + ServiceProtoConstants.NEW_LINE_CHARACTER
-                        + "number: 1" + ServiceProtoConstants.NEW_LINE_CHARACTER
-                        + "label: LABEL_REQUIRED" + ServiceProtoConstants.NEW_LINE_CHARACTER
-                        + "type: TYPE_INT64" + ServiceProtoConstants.NEW_LINE_CHARACTER
-                        + "default_value: \"30\"" + ServiceProtoConstants.NEW_LINE_CHARACTER);
+                "name: \"age\"\nnumber: 1\nlabel: LABEL_REQUIRED\ntype: TYPE_INT64\ndefault_value: \"30\"\n");
         Assert.assertEquals(fieldDef.getFieldDefinition(), "required int64 age = 1;" + ServiceProtoConstants
                 .NEW_LINE_CHARACTER);
 
@@ -118,10 +114,7 @@ public class ProtoBuilderDefinitionTest {
                 ("30").build();
         Assert.assertNotNull(fieldDef.getFieldDescriptorProto());
         Assert.assertEquals(fieldDef.getFieldDescriptorProto().toString(),
-                "name: \"age\"" + ServiceProtoConstants.NEW_LINE_CHARACTER
-                        + "number: 1" + ServiceProtoConstants.NEW_LINE_CHARACTER
-                        + "type: TYPE_INT64" + ServiceProtoConstants.NEW_LINE_CHARACTER
-                        + "default_value: \"30\"" + ServiceProtoConstants.NEW_LINE_CHARACTER);
+                "name: \"age\"\nnumber: 1\ntype: TYPE_INT64\ndefault_value: \"30\"\n");
         Assert.assertEquals(fieldDef.getFieldDefinition(), "int64 age = 1;" + ServiceProtoConstants
                 .NEW_LINE_CHARACTER);
 
@@ -141,9 +134,7 @@ public class ProtoBuilderDefinitionTest {
         fieldDef = Field.newBuilder("age").setIndex(1).setType(recordType).setLabel(null).build();
         Assert.assertNotNull(fieldDef.getFieldDescriptorProto());
         Assert.assertEquals(fieldDef.getFieldDescriptorProto().toString(),
-                "name: \"age\"" + ServiceProtoConstants.NEW_LINE_CHARACTER
-                        + "number: 1" + ServiceProtoConstants.NEW_LINE_CHARACTER
-                        + "type_name: \"A\"" + ServiceProtoConstants.NEW_LINE_CHARACTER);
+                "name: \"age\"\nnumber: 1\ntype_name: \"A\"\n");
         Assert.assertEquals(fieldDef.getFieldDefinition(), "A age = 1;" + ServiceProtoConstants.NEW_LINE_CHARACTER);
 
         //pass different type.
@@ -165,9 +156,8 @@ public class ProtoBuilderDefinitionTest {
                 "(google.protobuf.StringValue);" + ServiceProtoConstants.NEW_LINE_CHARACTER);
         Assert.assertNotNull(unaryMethod.getMethodDescriptor());
         Assert.assertEquals(unaryMethod.getMethodDescriptor().toString(),
-                "name: \"hello\"" + ServiceProtoConstants.NEW_LINE_CHARACTER
-                        + "input_type: \"google.protobuf.StringValue\"" + ServiceProtoConstants.NEW_LINE_CHARACTER
-                        + "output_type: \"google.protobuf.StringValue\"" + ServiceProtoConstants.NEW_LINE_CHARACTER);
+                "name: \"hello\"\ninput_type: \"google.protobuf.StringValue\"\noutput_type: " +
+                        "\"google.protobuf.StringValue\"\n");
 
         //server streaming definition.
         Method serverStreamingMethod = Method.newBuilder("hello").setInputType("google.protobuf.StringValue")
@@ -177,10 +167,8 @@ public class ProtoBuilderDefinitionTest {
                         + ServiceProtoConstants.NEW_LINE_CHARACTER);
         Assert.assertNotNull(serverStreamingMethod.getMethodDescriptor());
         Assert.assertEquals(serverStreamingMethod.getMethodDescriptor().toString(),
-                "name: \"hello\"" + ServiceProtoConstants.NEW_LINE_CHARACTER
-                        + "input_type: \"google.protobuf.StringValue\"" + ServiceProtoConstants.NEW_LINE_CHARACTER
-                        + "output_type: \"google.protobuf.StringValue\"" + ServiceProtoConstants.NEW_LINE_CHARACTER
-                        + "server_streaming: true" + ServiceProtoConstants.NEW_LINE_CHARACTER);
+                "name: \"hello\"\ninput_type: \"google.protobuf.StringValue\"\noutput_type: " +
+                        "\"google.protobuf.StringValue\"\nserver_streaming: true\n");
 
         //client streaming definition.
         Method clientStreamingMethod = Method.newBuilder("hello").setInputType("google.protobuf.StringValue")
@@ -190,10 +178,8 @@ public class ProtoBuilderDefinitionTest {
                         + ServiceProtoConstants.NEW_LINE_CHARACTER);
         Assert.assertNotNull(clientStreamingMethod.getMethodDescriptor());
         Assert.assertEquals(clientStreamingMethod.getMethodDescriptor().toString(),
-                "name: \"hello\"" + ServiceProtoConstants.NEW_LINE_CHARACTER
-                        + "input_type: \"google.protobuf.StringValue\"" + ServiceProtoConstants.NEW_LINE_CHARACTER
-                        + "output_type: \"google.protobuf.StringValue\"" + ServiceProtoConstants.NEW_LINE_CHARACTER
-                        + "client_streaming: true" + ServiceProtoConstants.NEW_LINE_CHARACTER);
+                "name: \"hello\"\ninput_type: \"google.protobuf.StringValue\"\noutput_type: " +
+                        "\"google.protobuf.StringValue\"\nclient_streaming: true\n");
 
         //bidirectional streaming definition.
         Method bidiStreamingMethod = Method.newBuilder("hello").setInputType("google.protobuf.StringValue")
@@ -203,10 +189,8 @@ public class ProtoBuilderDefinitionTest {
                 .NEW_LINE_CHARACTER);
         Assert.assertNotNull(bidiStreamingMethod.getMethodDescriptor());
         Assert.assertEquals(bidiStreamingMethod.getMethodDescriptor().toString(),
-                "name: \"hello\"" + ServiceProtoConstants.NEW_LINE_CHARACTER
-                        + "input_type: \"google.protobuf.StringValue\"" + ServiceProtoConstants.NEW_LINE_CHARACTER
-                        + "output_type: \"google.protobuf.StringValue\"" + ServiceProtoConstants.NEW_LINE_CHARACTER
-                        + "client_streaming: true\nserver_streaming: true" + ServiceProtoConstants.NEW_LINE_CHARACTER);
+                "name: \"hello\"\ninput_type: \"google.protobuf.StringValue\"\noutput_type: " +
+                        "\"google.protobuf.StringValue\"\nclient_streaming: true\nserver_streaming: true\n");
     }
 
     @Test(description = "Test case for service definition")
@@ -217,7 +201,7 @@ public class ProtoBuilderDefinitionTest {
                 .setClientStreaming(true).setOutputType("google.protobuf.StringValue").build();
         Service service = Service.newBuilder("HelloService").addMethod(method1).addMethod(method2).build();
         Assert.assertEquals(service.getServiceDefinition(),
-                "service HelloService {"  + ServiceProtoConstants.NEW_LINE_CHARACTER
+                "service HelloService {" + ServiceProtoConstants.NEW_LINE_CHARACTER
                         + "\t\trpc method1(google.protobuf.StringValue) returns (google.protobuf.StringValue);"
                         + ServiceProtoConstants.NEW_LINE_CHARACTER
                         + "\t\trpc method2(stream google.protobuf.StringValue) returns (google.protobuf.StringValue);"
@@ -327,9 +311,9 @@ public class ProtoBuilderDefinitionTest {
         Assert.assertEquals(message.getMessageKind(), MessageKind.USER_DEFINED);
         Assert.assertEquals(message.getMessageDefinition(),
                 "message Person {" + ServiceProtoConstants.NEW_LINE_CHARACTER +
-                "\trequired int64 age = 1;"  + ServiceProtoConstants.NEW_LINE_CHARACTER +
-                "\trequired string name = 2;"  + ServiceProtoConstants.NEW_LINE_CHARACTER +
-                "}"  + ServiceProtoConstants.NEW_LINE_CHARACTER);
+                        "\trequired int64 age = 1;" + ServiceProtoConstants.NEW_LINE_CHARACTER +
+                        "\trequired string name = 2;" + ServiceProtoConstants.NEW_LINE_CHARACTER +
+                        "}" + ServiceProtoConstants.NEW_LINE_CHARACTER);
         Assert.assertNotNull(message.getDescriptorProto());
         Assert.assertEquals(message.getNestedMessageList().size(), 1);
         Assert.assertEquals(message.getNestedEnumList().size(), 1);
@@ -358,15 +342,15 @@ public class ProtoBuilderDefinitionTest {
         File file = fileBuilder.build();
         Assert.assertEquals(file.getFileDefinition(),
                 "syntax = \"proto3\";" + ServiceProtoConstants.NEW_LINE_CHARACTER +
-                "package service;" + ServiceProtoConstants.NEW_LINE_CHARACTER +
-                "import \"google/protobuf/wrappers.proto\";" + ServiceProtoConstants.NEW_LINE_CHARACTER +
-                "service HelloService {" + ServiceProtoConstants.NEW_LINE_CHARACTER +
-                "}" + ServiceProtoConstants.NEW_LINE_CHARACTER +
-                "message Person {" + ServiceProtoConstants.NEW_LINE_CHARACTER +
-                "}" + ServiceProtoConstants.NEW_LINE_CHARACTER +
-                "enum Gender {" + ServiceProtoConstants.NEW_LINE_CHARACTER +
-                "\tMale = 1;" + ServiceProtoConstants.NEW_LINE_CHARACTER +
-                "}" + ServiceProtoConstants.NEW_LINE_CHARACTER);
+                        "package service;" + ServiceProtoConstants.NEW_LINE_CHARACTER +
+                        "import \"google/protobuf/wrappers.proto\";" + ServiceProtoConstants.NEW_LINE_CHARACTER +
+                        "service HelloService {" + ServiceProtoConstants.NEW_LINE_CHARACTER +
+                        "}" + ServiceProtoConstants.NEW_LINE_CHARACTER +
+                        "message Person {" + ServiceProtoConstants.NEW_LINE_CHARACTER +
+                        "}" + ServiceProtoConstants.NEW_LINE_CHARACTER +
+                        "enum Gender {" + ServiceProtoConstants.NEW_LINE_CHARACTER +
+                        "\tMale = 1;" + ServiceProtoConstants.NEW_LINE_CHARACTER +
+                        "}" + ServiceProtoConstants.NEW_LINE_CHARACTER);
         Assert.assertNotNull(file.getFileDescriptorProto());
         Assert.assertNotNull(file.getFileDescriptor());
     }
