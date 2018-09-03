@@ -83,6 +83,7 @@ function multipleChannels() returns json {
     worker w1 {
         json result;
         json key = {"id":50, name:"john"};
+        result <- chn,key;
         result <- chn2, key;
         return result;
     }

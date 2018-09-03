@@ -37,10 +37,9 @@ public class DatabaseUtils {
     private static void createDBConnection() throws SQLException {
         if (hikariDataSource == null) {
             config = new HikariConfig();
-            setCredentials();
-
             String jdbcUrl = getJDBCURL();
             config.setJdbcUrl(jdbcUrl);
+            setCredentials();
             hikariDataSource = new HikariDataSource(config);
             if (jdbcUrl.contains(H2_MEM_URL)) {
                 con = hikariDataSource.getConnection();
@@ -144,15 +143,11 @@ public class DatabaseUtils {
         if (registry.contains(ChannelConstants.CONF_NAMESPACE + ChannelConstants.CONF_PASSWORD)) {
             config.setPassword(registry.getAsString(ChannelConstants.CONF_NAMESPACE +
                     ChannelConstants.CONF_PASSWORD));
-        } else {
-            config.setPassword(ChannelConstants.DB_PASSWORD);
         }
 
         if (registry.contains(ChannelConstants.CONF_NAMESPACE + ChannelConstants.CONF_USERNAME)) {
             config.setUsername(registry.getAsString(ChannelConstants.CONF_NAMESPACE +
                     ChannelConstants.CONF_USERNAME));
-        } else {
-            config.setUsername(ChannelConstants.DB_USERNAME);
         }
 
     }
@@ -198,6 +193,8 @@ public class DatabaseUtils {
 
         StringBuilder jdbcUrl = new StringBuilder();
         if (dbType == null) {
+            config.setPassword(ChannelConstants.DB_PASSWORD);
+            config.setUsername(ChannelConstants.DB_USERNAME);
             return H2_MEM_URL;
         }
         dbType = dbType.toUpperCase(Locale.ENGLISH);
