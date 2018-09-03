@@ -98,4 +98,3 @@ public class Http2ALPNwithCertsTest {
     }
 }
 
-

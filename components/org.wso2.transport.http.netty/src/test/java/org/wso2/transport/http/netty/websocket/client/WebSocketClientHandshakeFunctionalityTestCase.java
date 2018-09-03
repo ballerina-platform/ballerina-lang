@@ -230,7 +230,7 @@ public class WebSocketClientHandshakeFunctionalityTestCase {
         Assert.assertNotNull(throwable);
         Assert.assertTrue(throwable instanceof IllegalArgumentException);
         Assert.assertEquals(throwable.getMessage(),
-                "TrustStoreFile or TrustStorePassword not defined for HTTPS scheme");
+                "TrustStoreFile or TrustStorePassword not defined for HTTPS/WS scheme");
     }
 
     private String readNextTextMsg(WebSocketTestClientConnectorListener connectorListener,

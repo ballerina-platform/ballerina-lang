@@ -769,7 +769,6 @@ public class Util {
                 inboundRequestMsg.getHeader(HttpHeaderNames.EXPECT.toString()));
     }
 
-
     public static void setHostNameVerfication(SSLEngine sslEngine) {
         SSLParameters sslParams = sslEngine.getSSLParameters();
         sslParams.setEndpointIdentificationAlgorithm(Constants.HTTPS_SCHEME);

@@ -16,7 +16,6 @@
  * under the License.
  */
 
-
 package org.wso2.transport.http.netty.https;
 
 import org.slf4j.Logger;
@@ -67,7 +66,6 @@ public class SSLProtocolsWithCertsTest {
     @DataProvider(name = "protocols")
 
     public static Object[][] cipherSuites() {
-
         // true = expecting a SSL hand shake failure.
         // false = expecting no errors.
         return new Object[][] { { "TLSv1.1", "TLSv1.1", false, TestUtil.SERVER_PORT1 },

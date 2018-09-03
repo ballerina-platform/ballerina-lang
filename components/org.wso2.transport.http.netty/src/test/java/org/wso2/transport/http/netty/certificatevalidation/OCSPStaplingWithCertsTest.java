@@ -58,16 +58,13 @@ public class OCSPStaplingWithCertsTest {
     private static HttpClientConnector httpClientConnector;
     private HttpWsConnectorFactory factory;
     private ServerConnector connector;
-    private String keyFile = "/simple-test-config/certsAndKeys/comodoPrivate.key";
     private String certChain = "/simple-test-config/certsAndKeys/pfxCertChain.cer";
 
     @BeforeClass
     public void setup() throws InterruptedException {
 
         factory = new DefaultHttpWsConnectorFactory();
-
         ListenerConfiguration listenerConfiguration = getListenerConfiguration();
-
         connector = factory.createServerConnector(TestUtil.getDefaultServerBootstrapConfig(), listenerConfiguration);
         ServerConnectorFuture future = connector.start();
         future.setHttpConnectorListener(new EchoMessageListener());
@@ -79,10 +76,13 @@ public class OCSPStaplingWithCertsTest {
     private ListenerConfiguration getListenerConfiguration() {
         ListenerConfiguration listenerConfiguration = ListenerConfiguration.getDefault();
         listenerConfiguration.setPort(TestUtil.SERVER_PORT3);
+        String keyFile = "/simple-test-config/certsAndKeys/comodoPrivate.key";
         listenerConfiguration.setServerKeyFile(TestUtil.getAbsolutePath(keyFile));
         listenerConfiguration.setServerCertificates(TestUtil.getAbsolutePath(certChain));
         listenerConfiguration.setScheme(HTTPS_SCHEME);
         listenerConfiguration.setOcspStaplingEnabled(true);
+        listenerConfiguration.setCacheValidityPeriod(5);
+        listenerConfiguration.setCacheSize(10);
         return listenerConfiguration;
     }
 
@@ -115,7 +115,7 @@ public class OCSPStaplingWithCertsTest {
                     .collect(Collectors.joining("\n"));
             assertEquals(testValue, result);
         } catch (Exception e) {
-            TestUtil.handleException("Exception occurred while running httpsGetTest", e);
+            TestUtil.handleException("Exception occurred while running ocspStaplingWithCertsTest", e);
         }
     }
 
@@ -126,7 +126,7 @@ public class OCSPStaplingWithCertsTest {
         try {
             factory.shutdown();
         } catch (Exception e) {
-            logger.warn("Interrupted while waiting for response two", e);
+            logger.warn("Interrupted when shutting down the HttpWsConnectorFactory", e);
         }
     }
 }

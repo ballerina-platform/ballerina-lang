@@ -65,7 +65,6 @@ public class CipherSuiteswithCertsTest {
     @DataProvider(name = "ciphers")
 
     public static Object[][] cipherSuites() {
-
         return new Object[][] {
                 // true = expecting a SSL hand shake failure.
                 // false = expecting no errors.
@@ -89,10 +88,12 @@ public class CipherSuiteswithCertsTest {
         Parameter paramClientCiphers = new Parameter("ciphers", clientCiphers);
         clientParams = new ArrayList<>();
         clientParams.add(paramClientCiphers);
+        clientParams.add(new Parameter("shareSession", "true"));
 
         Parameter paramServerCiphers = new Parameter("ciphers", serverCiphers);
         List<Parameter> serverParams = new ArrayList<>();
         serverParams.add(paramServerCiphers);
+        serverParams.add(new Parameter("shareSession", "true"));
 
         factory = new DefaultHttpWsConnectorFactory();
         serverConnector = factory.createServerConnector(TestUtil.getDefaultServerBootstrapConfig(),

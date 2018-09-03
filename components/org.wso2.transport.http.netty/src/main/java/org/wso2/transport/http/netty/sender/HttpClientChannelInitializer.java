@@ -79,8 +79,6 @@ public class HttpClientChannelInitializer extends ChannelInitializer<SocketChann
     private HttpRoute httpRoute;
     private SenderConfiguration senderConfiguration;
     private ConnectionAvailabilityFuture connectionAvailabilityFuture;
-//    private SSLContext keystoreSslContext;
-//    private SslContext certAndKeySslContext;
     private SSLHandlerFactory sslHandlerFactory;
 
     public HttpClientChannelInitializer(SenderConfiguration senderConfiguration, HttpRoute httpRoute,

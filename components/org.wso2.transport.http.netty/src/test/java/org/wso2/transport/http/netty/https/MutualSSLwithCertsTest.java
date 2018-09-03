@@ -96,7 +96,7 @@ public class MutualSSLwithCertsTest {
         try {
             factory.shutdown();
         } catch (Exception e) {
-            logger.warn("Interrupted while waiting for response two", e);
+            logger.warn("Interrupted while waiting for HttpWsConnectorFactory to shut down", e);
         }
     }
 }

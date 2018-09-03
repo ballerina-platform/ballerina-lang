@@ -221,7 +221,7 @@ public class SslConfiguration {
     private SSLConfig getSSLConfigForSender() {
         if ((sslConfig.getTrustStore() == null || sslConfig.getTrustStorePass() == null) && (
                 sslConfig.getClientTrustCertificates() == null)) {
-            throw new IllegalArgumentException("TrustStoreFile or TrustStorePassword not defined for HTTPS scheme");
+            throw new IllegalArgumentException("TrustStoreFile or TrustStorePassword not defined for HTTPS/WS scheme");
         }
         if (sslConfig.getTrustStore() != null) {
             if (!sslConfig.getTrustStore().exists()) {
