@@ -1,0 +1,603 @@
+{
+  "instanceId": "test123",
+  "currentContextKey": "235956691",
+  "sContexts": {
+    "235956691": {
+      "contextKey": "235956691",
+      "parent": "82313891",
+      "respContextKey": "14124641",
+      "state": "CREATED",
+      "localProps": {},
+      "ip": 121,
+      "workerLocal": {
+        "longRegs": [
+          20,
+          0
+        ],
+        "stringRegs": [
+          "age",
+          "name"
+        ],
+        "refFields": [
+          {
+            "type": "org.ballerinalang.persistence.serializable.SerializedKey",
+            "data": {
+              "key": "676387751"
+            }
+          },
+          {
+            "type": "org.ballerinalang.model.values.BInteger",
+            "data": {
+              "value": 20
+            }
+          },
+          {
+            "type": "null"
+          },
+          {
+            "type": "null"
+          }
+        ]
+      },
+      "workerResult": {},
+      "retRegIndexes": [],
+      "runInCaller": true,
+      "interruptible": true,
+      "callableUnitName": "f1",
+      "callableUnitPkgPath": ".",
+      "workerName": "default"
+    },
+    "1287203653": {
+      "contextKey": "1287203653",
+      "state": "CREATED",
+      "localProps": {},
+      "ip": 0,
+      "workerLocal": {
+        "refFields": [
+          {
+            "type": "org.ballerinalang.persistence.serializable.SerializedKey",
+            "data": {
+              "key": "1893812285"
+            }
+          },
+          {
+            "type": "org.ballerinalang.persistence.serializable.SerializedKey",
+            "data": {
+              "key": "629911153"
+            }
+          }
+        ]
+      },
+      "runInCaller": true,
+      "interruptible": true
+    },
+    "82313891": {
+      "contextKey": "82313891",
+      "parent": "1287203653",
+      "respContextKey": "1105890394",
+      "state": "CREATED",
+      "localProps": {},
+      "ip": 93,
+      "workerLocal": {
+        "longRegs": [
+          -1,
+          0
+        ],
+        "stringRegs": [
+          "Starting flow..",
+          "filters"
+        ],
+        "intRegs": [
+          0,
+          0,
+          0
+        ],
+        "refFields": [
+          {
+            "type": "org.ballerinalang.persistence.serializable.SerializedKey",
+            "data": {
+              "key": "1893812285"
+            }
+          },
+          {
+            "type": "org.ballerinalang.persistence.serializable.SerializedKey",
+            "data": {
+              "key": "629911153"
+            }
+          },
+          {
+            "type": "org.ballerinalang.persistence.serializable.SerializedKey",
+            "data": {
+              "key": "1593410402"
+            }
+          },
+          {
+            "type": "null"
+          },
+          {
+            "type": "null"
+          },
+          {
+            "type": "null"
+          },
+          {
+            "type": "null"
+          },
+          {
+            "type": "org.ballerinalang.persistence.serializable.SerializedKey",
+            "data": {
+              "key": "2074175852"
+            }
+          },
+          {
+            "type": "org.ballerinalang.model.values.BString",
+            "data": {
+              "value": "Starting flow.."
+            }
+          },
+          {
+            "type": "null"
+          }
+        ]
+      },
+      "workerResult": {},
+      "retRegIndexes": [],
+      "runInCaller": false,
+      "interruptible": true,
+      "enclosingServiceName": "s1",
+      "callableUnitName": "r1",
+      "callableUnitPkgPath": ".",
+      "workerName": "default"
+    }
+  },
+  "sRespContexts": {
+    "1105890394": {
+      "key": "1105890394",
+      "targetContextKey": "1287203653",
+      "retRegIndexes": [],
+      "workerCount": 1
+    },
+    "14124641": {
+      "key": "14124641",
+      "targetContextKey": "82313891",
+      "retRegIndexes": [
+        7
+      ],
+      "workerCount": 1
+    }
+  },
+  "sRefTypes": {
+    "676387751": {
+      "type": "org.ballerinalang.persistence.serializable.reftypes.impl.SerializableBMap",
+      "data": {
+        "pkgPath": ".",
+        "structName": "Person",
+        "map": {
+          "name": {
+            "type": "org.ballerinalang.model.values.BString",
+            "data": {
+              "value": "smith"
+            }
+          },
+          "age": {
+            "type": "org.ballerinalang.model.values.BInteger",
+            "data": {
+              "value": 20
+            }
+          }
+        },
+        "nativeData": {}
+      }
+    },
+    "794574164": {
+      "type": "org.ballerinalang.persistence.serializable.reftypes.impl.SerializableBMap",
+      "data": {
+        "structName": "map",
+        "map": {},
+        "nativeData": {}
+      }
+    },
+    "629911153": {
+      "type": "org.ballerinalang.persistence.serializable.reftypes.impl.SerializableBMap",
+      "data": {
+        "pkgPath": "ballerina/http",
+        "structName": "Request",
+        "map": {
+          "extraPathInfo": {
+            "type": "org.ballerinalang.model.values.BString",
+            "data": {}
+          },
+          "rawPath": {
+            "type": "org.ballerinalang.model.values.BString",
+            "data": {
+              "value": "/s1/r1"
+            }
+          },
+          "httpVersion": {
+            "type": "org.ballerinalang.model.values.BString",
+            "data": {
+              "value": "1.1"
+            }
+          },
+          "dirtyRequest": {
+            "type": "org.ballerinalang.model.values.BBoolean",
+            "data": {
+              "value": false
+            }
+          },
+          "method": {
+            "type": "org.ballerinalang.model.values.BString",
+            "data": {
+              "value": "POST"
+            }
+          },
+          "userAgent": {
+            "type": "org.ballerinalang.model.values.BString",
+            "data": {
+              "value": "curl/7.47.0"
+            }
+          },
+          "cacheControl": {
+            "type": "null"
+          },
+          "entity": {
+            "type": "org.ballerinalang.persistence.serializable.SerializedKey",
+            "data": {
+              "key": "489418100"
+            }
+          }
+        },
+        "nativeData": {
+          "Request": {
+            "type": "java.lang.Boolean",
+            "data": true
+          },
+          "transport_message": {
+            "type": "null"
+          },
+          "is_byte_channel_set": {
+            "type": "java.lang.Boolean",
+            "data": false
+          }
+        }
+      }
+    },
+    "266051360": {
+      "type": "org.ballerinalang.persistence.serializable.reftypes.impl.SerializableBMap",
+      "data": {
+        "pkgPath": "ballerina/mime",
+        "structName": "MediaType",
+        "map": {
+          "primaryType": {
+            "type": "org.ballerinalang.model.values.BString",
+            "data": {
+              "value": "application"
+            }
+          },
+          "subType": {
+            "type": "org.ballerinalang.model.values.BString",
+            "data": {
+              "value": "json"
+            }
+          },
+          "suffix": {
+            "type": "org.ballerinalang.model.values.BString",
+            "data": {
+              "value": ""
+            }
+          },
+          "parameters": {
+            "type": "org.ballerinalang.persistence.serializable.SerializedKey",
+            "data": {
+              "key": "1092859154"
+            }
+          }
+        },
+        "nativeData": {}
+      }
+    },
+    "967009121": {
+      "type": "org.ballerinalang.persistence.serializable.reftypes.impl.SerializableBMap",
+      "data": {
+        "pkgPath": "ballerina/mime",
+        "structName": "ContentDisposition",
+        "map": {},
+        "nativeData": {}
+      }
+    },
+    "2074175852": {
+      "type": "org.ballerinalang.persistence.serializable.reftypes.impl.SerializableBRefArray",
+      "data": {
+        "structName": "any",
+        "values": [
+          {
+            "type": "org.ballerinalang.model.values.BString",
+            "data": {
+              "value": "Starting flow.."
+            }
+          }
+        ]
+      }
+    },
+    "566588181": {
+      "type": "org.ballerinalang.persistence.serializable.reftypes.impl.SerializableBMap",
+      "data": {
+        "pkgPath": "ballerina/http",
+        "structName": "Local",
+        "map": {
+          "port": {
+            "type": "org.ballerinalang.model.values.BInteger",
+            "data": {
+              "value": 9090
+            }
+          },
+          "host": {
+            "type": "org.ballerinalang.model.values.BString",
+            "data": {
+              "value": "localhost"
+            }
+          }
+        },
+        "nativeData": {}
+      }
+    },
+    "614696811": {
+      "type": "org.ballerinalang.persistence.serializable.reftypes.impl.SerializableBMap",
+      "data": {
+        "pkgPath": "ballerina/http",
+        "structName": "Connection",
+        "map": {
+          "config": {
+            "type": "org.ballerinalang.persistence.serializable.SerializedKey",
+            "data": {
+              "key": "2023821788"
+            }
+          },
+          "filterContext": {
+            "type": "org.ballerinalang.persistence.serializable.SerializedKey",
+            "data": {
+              "key": "1593410402"
+            }
+          }
+        },
+        "nativeData": {
+          "transport_message": {
+            "type": "null"
+          }
+        }
+      }
+    },
+    "2023821788": {
+      "type": "org.ballerinalang.persistence.serializable.reftypes.impl.SerializableBMap",
+      "data": {
+        "pkgPath": "ballerina/http",
+        "structName": "ServiceEndpointConfiguration",
+        "map": {
+          "requestLimits": {
+            "type": "null"
+          },
+          "keepAlive": {
+            "type": "org.ballerinalang.model.values.BString",
+            "data": {
+              "value": "AUTO"
+            }
+          },
+          "httpVersion": {
+            "type": "org.ballerinalang.model.values.BString",
+            "data": {
+              "value": "1.1"
+            }
+          },
+          "port": {
+            "type": "org.ballerinalang.model.values.BInteger",
+            "data": {
+              "value": 9090
+            }
+          },
+          "secureSocket": {
+            "type": "null"
+          },
+          "host": {
+            "type": "org.ballerinalang.model.values.BString",
+            "data": {
+              "value": ""
+            }
+          },
+          "timeoutMillis": {
+            "type": "org.ballerinalang.model.values.BInteger",
+            "data": {
+              "value": 120000
+            }
+          },
+          "filters": {
+            "type": "org.ballerinalang.persistence.serializable.SerializedKey",
+            "data": {
+              "key": "151174079"
+            }
+          }
+        },
+        "nativeData": {}
+      }
+    },
+    "151174079": {
+      "type": "org.ballerinalang.persistence.serializable.reftypes.impl.SerializableBRefArray",
+      "data": {
+        "structName": "Filter",
+        "pkgPath": "ballerina/http",
+        "values": []
+      }
+    },
+    "1893812285": {
+      "type": "org.ballerinalang.persistence.serializable.reftypes.impl.SerializableBMap",
+      "data": {
+        "pkgPath": "ballerina/http",
+        "structName": "Listener",
+        "map": {
+          "protocol": {
+            "type": "org.ballerinalang.model.values.BString",
+            "data": {
+              "value": "http"
+            }
+          },
+          "conn": {
+            "type": "org.ballerinalang.persistence.serializable.SerializedKey",
+            "data": {
+              "key": "614696811"
+            }
+          },
+          "remote": {
+            "type": "org.ballerinalang.persistence.serializable.SerializedKey",
+            "data": {
+              "key": "878227864"
+            }
+          },
+          "config": {
+            "type": "org.ballerinalang.persistence.serializable.SerializedKey",
+            "data": {
+              "key": "2023821788"
+            }
+          },
+          "local": {
+            "type": "org.ballerinalang.persistence.serializable.SerializedKey",
+            "data": {
+              "key": "566588181"
+            }
+          }
+        },
+        "nativeData": {}
+      }
+    },
+    "878227864": {
+      "type": "org.ballerinalang.persistence.serializable.reftypes.impl.SerializableBMap",
+      "data": {
+        "pkgPath": "ballerina/http",
+        "structName": "Remote",
+        "map": {
+          "port": {
+            "type": "org.ballerinalang.model.values.BInteger",
+            "data": {
+              "value": 47632
+            }
+          },
+          "host": {
+            "type": "org.ballerinalang.model.values.BString",
+            "data": {
+              "value": "localhost"
+            }
+          }
+        },
+        "nativeData": {}
+      }
+    },
+    "1593410402": {
+      "type": "org.ballerinalang.persistence.serializable.reftypes.impl.SerializableBMap",
+      "data": {
+        "pkgPath": "ballerina/http",
+        "structName": "FilterContext",
+        "map": {
+          "serviceType": {
+            "type": "null"
+          },
+          "resourceName": {
+            "type": "org.ballerinalang.model.values.BString",
+            "data": {
+              "value": "r1"
+            }
+          },
+          "attributes": {
+            "type": "org.ballerinalang.persistence.serializable.SerializedKey",
+            "data": {
+              "key": "794574164"
+            }
+          },
+          "serviceName": {
+            "type": "org.ballerinalang.model.values.BString",
+            "data": {
+              "value": "s1"
+            }
+          }
+        },
+        "nativeData": {}
+      }
+    },
+    "1092859154": {
+      "type": "org.ballerinalang.persistence.serializable.reftypes.impl.SerializableBMap",
+      "data": {
+        "structName": "map",
+        "map": {},
+        "nativeData": {}
+      }
+    },
+    "489418100": {
+      "type": "org.ballerinalang.persistence.serializable.reftypes.impl.SerializableBMap",
+      "data": {
+        "pkgPath": "ballerina/mime",
+        "structName": "Entity",
+        "map": {
+          "cLength": {
+            "type": "org.ballerinalang.model.values.BInteger",
+            "data": {
+              "value": 19
+            }
+          },
+          "cType": {
+            "type": "org.ballerinalang.persistence.serializable.SerializedKey",
+            "data": {
+              "key": "266051360"
+            }
+          },
+          "cDisposition": {
+            "type": "org.ballerinalang.persistence.serializable.SerializedKey",
+            "data": {
+              "key": "967009121"
+            }
+          },
+          "cId": {
+            "type": "org.ballerinalang.model.values.BString",
+            "data": {
+              "value": ""
+            }
+          }
+        },
+        "nativeData": {
+          "entity_headers": {
+            "type": "null"
+          }
+        }
+      }
+    }
+  },
+  "globalProps": {
+    "REMOTE_ADDRESS": {
+      "type": "java.net.InetSocketAddress",
+      "data": {}
+    },
+    "GLOBAL_TRANSACTION_ENABLED": {
+      "type": "java.lang.Boolean",
+      "data": true
+    },
+    "SRC_HANDLER": {
+      "type": "null"
+    },
+    "POOLED_BYTE_BUFFER_FACTORY": {
+      "type": "null"
+    },
+    "b7a.state.interruptible": {
+      "type": "java.lang.Boolean",
+      "data": true
+    },
+    "COMPENSATION_TABLE": {
+      "type": "null"
+    },
+    "SERVICE_INFO": {
+      "type": "null"
+    },
+    "b7a.state.id": {
+      "type": "java.lang.String",
+      "data": "test123"
+    },
+    "ORIGIN_HOST": {
+      "type": "null"
+    }
+  }
+}

@@ -40,7 +40,7 @@ public class JMSConnectorTestCase extends BaseTest {
     private EmbeddedBroker embeddedBroker;
     private JMSClientHandler clientHandler;
 
-    @BeforeClass()
+    @BeforeClass(alwaysRun = true)
     public void setUp() throws Exception {
         embeddedBroker = new EmbeddedBroker();
         embeddedBroker.startBroker();
@@ -153,7 +153,7 @@ public class JMSConnectorTestCase extends BaseTest {
         clientHandler.stop();
     }
 
-    @AfterClass()
+    @AfterClass(alwaysRun = true)
     private void cleanup() throws Exception {
         embeddedBroker.stop();
         clientHandler.clean();
@@ -169,15 +169,16 @@ public class JMSConnectorTestCase extends BaseTest {
         return logLeecher;
     }
 
-    @BeforeGroups(groups = "jms-test")
+    @BeforeGroups(value = "jms-test", alwaysRun = true)
     public void start() throws BallerinaTestException {
+        int[] requiredPorts = new int[]{9090, 9091, 9092, 9093, 9094, 9095, 9096, 9097, 9098};
         String basePath = new File("src" + File.separator + "test" + File.separator + "resources" + File.separator +
                 "jms").getAbsolutePath();
         String[] args = new String[]{"--sourceroot", basePath};
-        serverInstance.startBallerinaServer("jmsservices", args);
+        serverInstance.startBallerinaServer("jmsservices", args, requiredPorts);
     }
 
-    @AfterGroups(groups = "jms-test")
+    @AfterGroups(value = "jms-test", alwaysRun = true)
     public void stop() throws BallerinaTestException {
         serverInstance.stopServer();
     }

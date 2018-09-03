@@ -25,12 +25,18 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
+import java.util.logging.LogManager;
+import java.util.logging.Logger;
 
 /**
  * Entry point of the stdio launcher.
  */
 public class Main {
     public static void main(String[] args) throws InterruptedException, ExecutionException {
+        LogManager.getLogManager().reset();
+        Logger globalLogger = Logger.getLogger(java.util.logging.Logger.GLOBAL_LOGGER_NAME);
+        globalLogger.setLevel(java.util.logging.Level.OFF);
+        org.apache.log4j.LogManager.getRootLogger().setLevel(org.apache.log4j.Level.OFF);
         startServer(System.in, System.out);
     }
 

@@ -1,0 +1,22 @@
+{
+    "position": {
+        "line": 3,
+        "character": 16
+    },
+    "newName": "newAge",
+    "expected": [
+        {
+            "range": {
+                "start": {
+                    "line": 0,
+                    "character": 0
+                },
+                "end": {
+                    "line": 14,
+                    "character": 0
+                }
+            },
+            "newText": "import ballerina/io;\r\n\r\ntype TestObject object {\r\n    public int newAge;\r\n    public string name;\r\n    new(age, name) {}\r\n};\r\n\r\nfunction main(string... args) {\r\n    TestObject obj = new(30, \"John\");\r\n    int age = obj.newAge;\r\n    io:println(obj.newAge);\r\n    io:println(age);\r\n}"
+        }
+    ]
+}

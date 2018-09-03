@@ -22,6 +22,7 @@ import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.util.exceptions.BLangRuntimeException;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -112,5 +113,29 @@ public class ModOperationTest {
 
         double actual = ((BFloat) returns[0]).floatValue();
         Assert.assertEquals(actual, expected);
+    }
+
+    @Test(expectedExceptions = BLangRuntimeException.class,
+            expectedExceptionsMessageRegExp = "error: error, message:  / by zero.*")
+    public void testIntModZero() {
+        BRunUtil.invoke(result, "intMod", new BValue[]{new BInteger(2000), new BInteger(0)});
+    }
+
+    @Test(expectedExceptions = BLangRuntimeException.class,
+            expectedExceptionsMessageRegExp = "error: error, message:  / by zero.*")
+    public void testFloatModZero() {
+        BRunUtil.invoke(result, "floatMod", new BValue[]{new BFloat(200.1), new BFloat(0.0)});
+    }
+
+    @Test(expectedExceptions = BLangRuntimeException.class,
+            expectedExceptionsMessageRegExp = "error: error, message:  / by zero.*")
+    public void testFloatModIntZero() {
+        BRunUtil.invoke(result, "floatIntMod", new BValue[]{new BFloat(200.1), new BInteger(0)});
+    }
+
+    @Test(expectedExceptions = BLangRuntimeException.class,
+            expectedExceptionsMessageRegExp = "error: error, message:  / by zero.*")
+    public void testIntModFloatZero() {
+        BRunUtil.invoke(result, "intFloatMod", new BValue[]{new BInteger(2100), new BFloat(0.0)});
     }
 }

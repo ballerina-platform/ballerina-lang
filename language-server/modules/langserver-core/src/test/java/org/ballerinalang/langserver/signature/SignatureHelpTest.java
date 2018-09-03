@@ -34,10 +34,10 @@ import java.nio.file.Path;
 
 /**
  * Test class for Signature help.
+ *
+ * @since 0.982.0
  */
 public class SignatureHelpTest {
-    
-    private static final String METHOD = "textDocument/signatureHelp";
     
     private Endpoint serviceEndpoint;
 
@@ -58,7 +58,7 @@ public class SignatureHelpTest {
         JsonObject configJsonObject = FileUtils.fileContentAsObject(configJsonPath);
         JsonObject expected = configJsonObject.get("expected").getAsJsonObject();
         expected.remove("id");
-        String response = this.getSignatureResponse(configJsonObject, sourcePath);
+        String response = this.getSignatureResponse(configJsonObject, sourcePath).replace("\\r\\n", "\\n");
         JsonObject responseJson = parser.parse(response).getAsJsonObject();
         responseJson.remove("id");
         Assert.assertTrue(expected.equals(responseJson));
@@ -92,10 +92,8 @@ public class SignatureHelpTest {
         Position position = new Position();
         position.setLine(positionObj.get("line").getAsInt());
         position.setCharacter(positionObj.get("character").getAsInt());
-        String fileContent = FileUtils.fileContent(sourcePath.toString());
         TestUtil.openDocument(this.serviceEndpoint, sourcePath);
-        String resp = TestUtil.getLanguageServerResponseMessageAsString(position, sourcePath.toString(), fileContent, 
-                METHOD, this.serviceEndpoint);
+        String resp = TestUtil.getSignatureHelpResponse(sourcePath.toString(), position, this.serviceEndpoint);
         TestUtil.closeDocument(this.serviceEndpoint, sourcePath);
         return resp;
     }

@@ -31,11 +31,11 @@ import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.OutputStreamWriter;
-import java.net.Socket;
+import java.net.InetSocketAddress;
+import java.nio.ByteBuffer;
+import java.nio.channels.SocketChannel;
+import java.nio.charset.StandardCharsets;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadLocalRandom;
@@ -46,45 +46,75 @@ import java.util.concurrent.ThreadLocalRandom;
 public class ServerSocketTest {
 
     private static final Logger log = LoggerFactory.getLogger(ServerSocketTest.class);
-    private CompileResult serverBal;
+    private CompileResult normalServer;
+    private final String welcomeMsg = "Hello Ballerina\n";
 
     @BeforeClass
     public void setup() {
-        serverBal = BCompileUtil.compileAndSetup("test-src/io/server_socket_io.bal");
+        normalServer = BCompileUtil.compileAndSetup("test-src/io/server_socket_io.bal");
     }
 
     @Test(description = "Check server socket accept functionality.")
-    public void testSeverSocketAccept() {
-        int port = ThreadLocalRandom.current().nextInt(47000, 51000);
-        String welcomeMsg = "Hello Ballerina\n";
+    public void testSeverSocketAccept() throws InterruptedException {
+        final int port = ThreadLocalRandom.current().nextInt(47000, 51000);
         ExecutorService executor = Executors.newSingleThreadExecutor();
         executor.execute(() -> {
             try {
                 BValue[] args = { new BInteger(port), new BString(welcomeMsg) };
-                BRunUtil.invokeStateful(serverBal, "startServerSocket", args);
+                BRunUtil.invokeStateful(normalServer, "startServerSocket", args);
             } catch (Throwable e) {
                 log.error(e.getMessage(), e);
             }
         });
+        Thread.sleep(2500);
+        connectClient(port, 1000, normalServer);
+        executor.shutdownNow();
+    }
+
+    @Test(description = "Check server socket delayed accept functionality.",
+          dependsOnMethods = "testSeverSocketAccept")
+    public void testSeverSocketDelayedAccept() {
+        CompileResult delayedStartServer = BCompileUtil
+                .compileAndSetup("test-src/io/server_socket_io_delayed_accept.bal");
+        SelectorManager.start();
+        final int port = ThreadLocalRandom.current().nextInt(47000, 51000);
+        ExecutorService executor = Executors.newSingleThreadExecutor();
+        executor.execute(() -> {
+            try {
+                BRunUtil.invokeStateful(delayedStartServer, "initServer", new BValue[] { new BInteger(port) });
+                BRunUtil.invokeStateful(delayedStartServer, "startServerSocket",
+                        new BValue[] { new BString(welcomeMsg) });
+            } catch (Throwable e) {
+                log.error(e.getMessage(), e);
+            }
+        });
+        connectClient(port, 1000, delayedStartServer);
+        executor.shutdownNow();
+    }
+
+    private void connectClient(int port, int retryInterval, CompileResult compileResult) {
         try {
-            Thread.sleep(2500);
             final int numberOfRetryAttempts = 20;
-            final int retryInterval = 1000;
             final String clientMsg = "This is the first type of message.";
             boolean connected = false;
             for (int retryCount = 0; retryCount < numberOfRetryAttempts; retryCount++) {
-                try (Socket s = new Socket("localhost", port)) {
-                    BufferedReader input = new BufferedReader(new InputStreamReader(s.getInputStream()));
-                    String answer = input.readLine();
-                    Assert.assertEquals(welcomeMsg.trim(), answer, "Didn't get the expected response from server.");
-                    try (OutputStreamWriter out = new OutputStreamWriter(s.getOutputStream(), "UTF-8")) {
-                        out.write(clientMsg, 0, clientMsg.length());
-                        out.flush();
-                        out.close();
-                        s.close();
-                        connected = true;
-                        break;
+                try (SocketChannel socketChannel = SocketChannel.open()) {
+                    socketChannel.connect(new InetSocketAddress("localhost", port));
+                    ByteBuffer buf = ByteBuffer.allocate(512);
+                    int bytesRead = socketChannel.read(buf);
+                    if (bytesRead == -1) {
+                        socketChannel.close();
                     }
+                    String answer = new String(buf.array(), StandardCharsets.UTF_8).trim();
+                    Assert.assertEquals(answer, welcomeMsg.trim(), "Didn't get the expected response from server.");
+                    buf.clear();
+                    buf.put(clientMsg.getBytes());
+                    buf.flip();
+                    while (buf.hasRemaining()) {
+                        socketChannel.write(buf);
+                    }
+                    connected = true;
+                    break;
                 } catch (IOException e) {
                     sleep(retryInterval);
                 }
@@ -92,7 +122,7 @@ public class ServerSocketTest {
             Assert.assertTrue(connected, "Unable to connect to remote server.");
             int i = 0;
             do {
-                final BValue[] resultValues = BRunUtil.invokeStateful(serverBal, "getResultValue");
+                final BValue[] resultValues = BRunUtil.invokeStateful(compileResult, "getResultValue");
                 BString result = (BString) resultValues[0];
                 final String str = result.stringValue();
                 if (str == null || str.isEmpty()) {
@@ -104,9 +134,6 @@ public class ServerSocketTest {
             } while (i++ < 10);
         } catch (Exception e) {
             log.error(e.getMessage(), e);
-        } finally {
-            SelectorManager.stop();
-            executor.shutdownNow();
         }
     }
 

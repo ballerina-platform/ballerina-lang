@@ -1,0 +1,22 @@
+{
+    "position": {
+        "line": 20,
+        "character": 5
+    },
+    "newName": "newLocal",
+    "expected": [
+        {
+            "range": {
+                "start": {
+                    "line": 0,
+                    "character": 0
+                },
+                "end": {
+                    "line": 28,
+                    "character": 0
+                }
+            },
+            "newText": "import ballerina/http;\r\n\r\nendpoint http:NonListener mockEP {\r\n    port:9090\r\n};\r\n\r\nservice<http:Service> hello bind mockEP {\r\n\r\n    @http:ResourceConfig {\r\n        path:\"/protocol\",\r\n        methods:[\"GET\"]\r\n    }\r\n    protocol (endpoint caller, http:Request req) {\r\n        http:Response res = new;\r\n        json connectionJson = {protocol:caller.protocol};\r\n        res.statusCode = 200;\r\n        res.setJsonPayload(untaint connectionJson);\r\n        _ = caller -> respond(res);\r\n    }\r\n\r\n    newLocal (endpoint caller, http:Request req) {\r\n        http:Response res = new;\r\n        json connectionJson = {local:{host:caller.local.host, port:caller.local.port}};\r\n        res.statusCode = 200;\r\n        res.setJsonPayload(untaint connectionJson);\r\n        _ = caller -> respond(res);\r\n    }\r\n}"
+        }
+    ]
+}

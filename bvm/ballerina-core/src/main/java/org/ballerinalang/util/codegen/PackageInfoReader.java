@@ -996,7 +996,7 @@ public class PackageInfoReader {
                 return localVarAttrInfo;
             case LINE_NUMBER_TABLE_ATTRIBUTE:
                 LineNumberTableAttributeInfo lnNoTblAttrInfo = new LineNumberTableAttributeInfo(attribNameCPIndex);
-                int lineNoInfoCount = dataInStream.readShort();
+                int lineNoInfoCount = dataInStream.readInt();
                 for (int i = 0; i < lineNoInfoCount; i++) {
                     LineNumberInfo lineNumberInfo = getLineNumberInfo(constantPool);
                     lnNoTblAttrInfo.addLineNumberInfo(lineNumberInfo);
@@ -1154,10 +1154,10 @@ public class PackageInfoReader {
                     packageInfo.addInstruction(InstructionFactory.get(opcode, i));
                     break;
 
-                case InstructionCodes.FPLOAD: {
+                case InstructionCodes.VFPLOAD:
+                case InstructionCodes.FPLOAD:
                     readFunctionPointerLoadInstruction(packageInfo, codeStream, opcode);
                     break;
-                }
                 case InstructionCodes.ICONST:
                 case InstructionCodes.FCONST:
                 case InstructionCodes.SCONST:
@@ -1697,13 +1697,18 @@ public class PackageInfoReader {
         PackageInfo pkgInfo = programFile.getPackageInfo(pkgPath);
 
         // if the package info is not available in the balx file, then it should be read from the balo
-        if (pkgInfo == null) {
-            PackageFileReader pkgFileReader = new PackageFileReader(this.programFile);
-            pkgFileReader.readPackage(pkgPath);
-            pkgInfo = programFile.getPackageInfo(pkgPath);
+        if (pkgInfo != null) {
+            return pkgInfo;
         }
 
-        return pkgInfo;
+        try {
+            PackageFileReader pkgFileReader = new PackageFileReader(this.programFile);
+            pkgFileReader.readPackage(pkgPath);
+        } catch (IOException e) {
+            throw new BLangRuntimeException("error reading package: " + pkgPath, e);
+        }
+
+        return programFile.getPackageInfo(pkgPath);
     }
 
     private BType getBTypeFromDescriptor(PackageInfo packageInfo, String desc) {

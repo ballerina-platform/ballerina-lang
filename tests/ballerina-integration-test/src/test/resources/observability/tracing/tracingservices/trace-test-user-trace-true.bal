@@ -19,44 +19,44 @@ import ballerina/testobserve;
 import ballerina/observe;
 
 endpoint http:Listener listener2 {
-    port : 9092
+    port: 9092
 };
 
 @http:ServiceConfig {
-    basePath:"/echoService"
+    basePath: "/echoService"
 }
 service echoService2 bind listener2 {
-    resourceOne (endpoint caller, http:Request clientRequest) {
+    resourceOne(endpoint caller, http:Request clientRequest) {
         int spanId = observe:startRootSpan("uSpanThree");
         http:Response outResponse = new;
         var response = check callNextResource2(spanId);
         outResponse.setTextPayload("Hello, World!");
-        _ = caller -> respond(outResponse);
+        _ = caller->respond(outResponse);
         _ = observe:finishSpan(spanId);
     }
 
-    resourceTwo (endpoint caller, http:Request clientRequest) {
+    resourceTwo(endpoint caller, http:Request clientRequest) {
         http:Response res = new;
         res.setTextPayload("Hello, World 2!");
-        _ = caller -> respond(res);
+        _ = caller->respond(res);
     }
 
     getMockTracers(endpoint caller, http:Request clientRequest) {
         http:Response res = new;
         json returnString = testobserve:getMockTracers();
         res.setJsonPayload(returnString);
-        _ = caller -> respond(res);
+        _ = caller->respond(res);
     }
 }
 
-function callNextResource2(int parentSpanId) returns (http:Response | error) {
+function callNextResource2(int parentSpanId) returns (http:Response|error) {
     endpoint http:Client httpEndpoint {
         url: "http://localhost:9092/echoService"
     };
     int spanId = check observe:startSpan("uSpanFour", parentSpanId = parentSpanId);
-    http:Response resp = check httpEndpoint -> get("/resourceTwo");
-    _ = observe:addTagToSpan(spanId, "Allowed", "Successful");
+    http:Response resp = check httpEndpoint->get("/resourceTwo");
+    _ = observe:addTagToSpan(spanId = spanId, "Allowed", "Successful");
     _ = observe:finishSpan(spanId);
-    _ = observe:addTagToSpan(spanId, "Disallowed", "Unsuccessful");
+    _ = observe:addTagToSpan(spanId = spanId, "Disallowed", "Unsuccessful");
     return resp;
 }

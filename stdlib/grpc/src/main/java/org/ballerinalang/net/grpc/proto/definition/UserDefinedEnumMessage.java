@@ -91,9 +91,10 @@ public class UserDefinedEnumMessage extends Message {
             messageDescriptorBuilder.setName(messageName);
         }
 
-        public void addFieldDefinition(EnumField fieldDefinition) {
+        public Builder addFieldDefinition(EnumField fieldDefinition) {
             fieldList.add(fieldDefinition);
             messageDescriptorBuilder.addValue(fieldDefinition.getFieldDescriptorProto());
+            return this;
         }
     }
 }
