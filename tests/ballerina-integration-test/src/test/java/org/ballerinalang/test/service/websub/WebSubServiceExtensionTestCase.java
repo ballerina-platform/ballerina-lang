@@ -20,6 +20,8 @@ package org.ballerinalang.test.service.websub;
 import io.netty.handler.codec.http.HttpHeaderNames;
 import io.netty.handler.codec.http.HttpResponseStatus;
 import org.awaitility.Duration;
+import org.ballerinalang.test.BaseTest;
+import org.ballerinalang.test.context.BServerInstance;
 import org.ballerinalang.test.context.BallerinaTestException;
 import org.ballerinalang.test.context.LogLeecher;
 import org.ballerinalang.test.util.HttpClientRequest;
@@ -42,7 +44,8 @@ import static java.util.concurrent.TimeUnit.SECONDS;
 /**
  * This class tests introducing custom/specific webhooks, extending the WebSub Subscriber Service.
  */
-public class WebSubServiceExtensionTestCase extends WebSubBaseTest {
+public class WebSubServiceExtensionTestCase extends BaseTest {
+    private BServerInstance webSubSubscriber;
 
     private final int servicePort = 8181;
 
@@ -80,6 +83,8 @@ public class WebSubServiceExtensionTestCase extends WebSubBaseTest {
 
     @BeforeClass
     public void setup() throws BallerinaTestException {
+        webSubSubscriber = new BServerInstance(balServer);
+
         String subscriberBal = new File("src" + File.separator + "test" + File.separator + "resources"
                                                 + File.separator + "websub" + File.separator
                                                 + "websub_custom_subscriber_service.bal").getAbsolutePath();

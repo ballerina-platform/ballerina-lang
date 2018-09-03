@@ -19,6 +19,9 @@ package org.ballerinalang.test.service.websub;
 
 import io.netty.handler.codec.http.HttpHeaderNames;
 import org.awaitility.Duration;
+import org.ballerinalang.test.BaseTest;
+import org.ballerinalang.test.context.BMainInstance;
+import org.ballerinalang.test.context.BServerInstance;
 import org.ballerinalang.test.context.BallerinaTestException;
 import org.ballerinalang.test.context.LogLeecher;
 import org.ballerinalang.test.util.HttpClientRequest;
@@ -50,7 +53,9 @@ import static java.util.concurrent.TimeUnit.SECONDS;
  * 4. Content Delivery process - by verifying content is delivered when update notification is done for a subscribed
  * topic - both directly to the hub and specifying hub URL
  */
-public class WebSubSubscriptionChangeTestCase extends WebSubBaseTest {
+public class WebSubSubscriptionChangeTestCase extends BaseTest {
+    private BServerInstance webSubSubscriber;
+    private BMainInstance webSubPublisher;
 
     private final int subscriberServicePort = 8181;
 
@@ -71,6 +76,9 @@ public class WebSubSubscriptionChangeTestCase extends WebSubBaseTest {
 
     @BeforeClass
     public void setup() throws BallerinaTestException {
+        webSubSubscriber = new BServerInstance(balServer);
+        webSubPublisher = new BMainInstance(balServer);
+
         String publisherBal = new File("src" + File.separator + "test" + File.separator + "resources"
                 + File.separator + "websub" + File.separator + "websub_test_periodic_publisher.bal").getAbsolutePath();
         String[] publisherArgs = {"-e b7a.websub.hub.remotepublish=true"};

@@ -19,6 +19,9 @@ package org.ballerinalang.test.service.websub;
 
 import io.netty.handler.codec.http.HttpHeaderNames;
 import org.awaitility.Duration;
+import org.ballerinalang.test.BaseTest;
+import org.ballerinalang.test.context.BMainInstance;
+import org.ballerinalang.test.context.BServerInstance;
 import org.ballerinalang.test.context.BallerinaTestException;
 import org.ballerinalang.test.context.LogLeecher;
 import org.ballerinalang.test.util.HttpClientRequest;
@@ -46,7 +49,11 @@ import static java.util.concurrent.TimeUnit.SECONDS;
  * 3. Intent verification for subscription request sent following WebSub discovery
  * 4. Prioritizing hub and topic specified as annotations over the resource URL if specified
  */
-public class WebSubDiscoveryWithMultipleSubscribersTestCase extends WebSubBaseTest {
+public class WebSubDiscoveryWithMultipleSubscribersTestCase extends BaseTest {
+
+    private BServerInstance webSubSubscriber;
+    private BMainInstance webSubPublisher;
+    private BServerInstance webSubPublisherService;
 
     private final int subscriberServicePort = 8484;
 
@@ -69,6 +76,10 @@ public class WebSubDiscoveryWithMultipleSubscribersTestCase extends WebSubBaseTe
 
     @BeforeClass
     public void setup() throws BallerinaTestException {
+        webSubSubscriber = new BServerInstance(balServer);
+        webSubPublisher = new BMainInstance(balServer);
+        webSubPublisherService = new BServerInstance(balServer);
+
         String publisherBal = new File("src" + File.separator + "test" + File.separator + "resources"
                 + File.separator + "websub" + File.separator + "websub_test_publisher.bal").getAbsolutePath();
         String[] publisherArgs = {"-e b7a.websub.hub.port=9494", "-e b7a.websub.hub.remotepublish=true",

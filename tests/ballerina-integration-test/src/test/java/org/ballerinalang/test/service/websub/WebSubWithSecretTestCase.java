@@ -19,6 +19,9 @@ package org.ballerinalang.test.service.websub;
 
 import io.netty.handler.codec.http.HttpHeaderNames;
 import org.awaitility.Duration;
+import org.ballerinalang.test.BaseTest;
+import org.ballerinalang.test.context.BMainInstance;
+import org.ballerinalang.test.context.BServerInstance;
 import org.ballerinalang.test.context.BallerinaTestException;
 import org.ballerinalang.test.context.LogLeecher;
 import org.ballerinalang.test.util.HttpClientRequest;
@@ -51,7 +54,9 @@ import static java.util.concurrent.TimeUnit.SECONDS;
  * topic - both directly to the hub and specifying hub URL
  * 5. Signature Validation for authenticated content distribution - both success and failure
  */
-public class WebSubWithSecretTestCase extends WebSubBaseTest {
+public class WebSubWithSecretTestCase extends BaseTest {
+    private BServerInstance webSubSubscriber;
+    private BMainInstance webSubPublisher;
 
     private final int subscriberServicePort = 8181;
 
@@ -68,6 +73,9 @@ public class WebSubWithSecretTestCase extends WebSubBaseTest {
 
     @BeforeClass
     public void setup() throws BallerinaTestException {
+        webSubSubscriber = new BServerInstance(balServer);
+        webSubPublisher = new BMainInstance(balServer);
+
         String publisherBal = new File("src" + File.separator + "test" + File.separator + "resources"
                 + File.separator + "websub" + File.separator + "websub_test_publisher.bal").getAbsolutePath();
         String[] clientArgs = {"-e b7a.websub.hub.remotepublish=true", "-e test.hub.url=" + hubUrl};
