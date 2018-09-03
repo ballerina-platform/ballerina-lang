@@ -31,7 +31,9 @@ import org.wso2.transport.http.netty.listener.SourceHandler;
 import org.wso2.transport.http.netty.listener.states.MessageStateContext;
 import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 
+import static org.wso2.transport.http.netty.common.Constants.REMOTE_CLIENT_CLOSED_WHILE_READING_INBOUND_REQUEST_BODY;
 import static org.wso2.transport.http.netty.listener.states.StateUtil.ILLEGAL_STATE_ERROR;
+import static org.wso2.transport.http.netty.listener.states.StateUtil.handleIncompleteInboundMessage;
 
 /**
  * State of successfully written response
@@ -41,16 +43,13 @@ public class ResponseCompleted implements ListenerState {
     private static Logger log = LoggerFactory.getLogger(ResponseCompleted.class);
     private final SourceHandler sourceHandler;
     private final MessageStateContext messageStateContext;
+    private final HttpCarbonMessage inboundRequestMsg;
 
     ResponseCompleted(SourceHandler sourceHandler, MessageStateContext messageStateContext,
                       HttpCarbonMessage inboundRequestMsg) {
         this.sourceHandler = sourceHandler;
         this.messageStateContext = messageStateContext;
-        cleanup(inboundRequestMsg);
-    }
-
-    private void cleanup(HttpCarbonMessage inboundRequestMsg) {
-        sourceHandler.removeRequestEntry(inboundRequestMsg);
+        this.inboundRequestMsg = inboundRequestMsg;
     }
 
     @Override
@@ -77,13 +76,21 @@ public class ResponseCompleted implements ListenerState {
 
     @Override
     public void handleAbruptChannelClosure(ServerConnectorFuture serverConnectorFuture) {
-        log.warn("handleAbruptChannelClosure {}", ILLEGAL_STATE_ERROR);
+        // Response is received, yet inbound request is not completed.
+        handleIncompleteInboundMessage(inboundRequestMsg, REMOTE_CLIENT_CLOSED_WHILE_READING_INBOUND_REQUEST_BODY);
+        cleanup(inboundRequestMsg);
     }
 
     @Override
     public ChannelFuture handleIdleTimeoutConnectionClosure(ServerConnectorFuture serverConnectorFuture,
                                                             ChannelHandlerContext ctx) {
-        log.warn("handleIdleTimeoutConnectionClosure {}", ILLEGAL_STATE_ERROR);
+        // Response is received, yet inbound request is not completed.
+        handleIncompleteInboundMessage(inboundRequestMsg, REMOTE_CLIENT_CLOSED_WHILE_READING_INBOUND_REQUEST_BODY);
+        cleanup(inboundRequestMsg);
         return null;
+    }
+
+    private void cleanup(HttpCarbonMessage inboundRequestMsg) {
+        sourceHandler.resetInboundRequestMsg(inboundRequestMsg);
     }
 }

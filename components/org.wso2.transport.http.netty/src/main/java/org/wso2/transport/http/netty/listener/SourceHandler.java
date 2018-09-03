@@ -74,6 +74,7 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
     private ChannelGroup allChannels;
     protected ChannelHandlerContext ctx;
     private SocketAddress remoteAddress;
+    private boolean continueState;
 
     public SourceHandler(ServerConnectorFuture serverConnectorFuture, String interfaceId, ChunkConfig chunkConfig,
                          KeepAliveConfig keepAliveConfig, String serverName, ChannelGroup allChannels) {
@@ -93,6 +94,7 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
         if (msg instanceof HttpRequest) {
             inboundRequestMsg = createInboundReqCarbonMsg((HttpRequest) msg, ctx, this);
             requestList.add(inboundRequestMsg);
+            continueState = false;
 
             MessageStateContext messageStateContext = new MessageStateContext();
             inboundRequestMsg.setMessageStateContext(messageStateContext);
@@ -114,6 +116,7 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
 
     @Override
     public void channelActive(final ChannelHandlerContext ctx) {
+        this.continueState = true;
         this.ctx = ctx;
         this.allChannels.add(ctx.channel());
         handlerExecutor = HttpTransportContextHolder.getInstance().getHandlerExecutor();
@@ -130,7 +133,7 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
             if (!requestList.isEmpty()) {
                 requestList.forEach(inboundMsg -> inboundMsg.getMessageStateContext().getListenerState()
                         .handleAbruptChannelClosure(serverConnectorFuture));
-            } else {
+            } else if (continueState) {
                 notifyErrorListenerAtConnectedState(REMOTE_CLIENT_CLOSED_BEFORE_INITIATING_INBOUND_REQUEST);
             }
         }
@@ -174,7 +177,9 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
                 });
             } else {
                 this.channelInactive(ctx);
-                notifyErrorListenerAtConnectedState(IDLE_TIMEOUT_TRIGGERED_BEFORE_INITIATING_INBOUND_REQUEST);
+                if (continueState) {
+                    notifyErrorListenerAtConnectedState(IDLE_TIMEOUT_TRIGGERED_BEFORE_INITIATING_INBOUND_REQUEST);
+                }
             }
             String channelId = ctx.channel().id().asShortText();
             log.debug("Idle timeout has reached hence closing the connection {}", channelId);
@@ -240,11 +245,8 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
         return serverName;
     }
 
-    public void removeRequestEntry(HttpCarbonMessage inboundRequestMsg) {
+    public void resetInboundRequestMsg(HttpCarbonMessage inboundRequestMsg) {
         this.requestList.remove(inboundRequestMsg);
-    }
-
-    public void resetInboundRequestMsg() {
-        inboundRequestMsg = null;
+        this.inboundRequestMsg = null;
     }
 }
