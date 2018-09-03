@@ -134,13 +134,12 @@ public class SSLHandlerFactory {
             return (ReferenceCountedOpenSslContext) SslContextBuilder.forServer(kmf).sslProvider(SslProvider.OPENSSL)
                     .enableOcsp(true).keyManager(kmf).trustManager(tmf).protocols(sslConfig.getEnableProtocols())
                     .enableOcsp(enableOcsp).clientAuth(needClientAuth ? ClientAuth.REQUIRE : ClientAuth.NONE).build();
-        } else {
-            return (ReferenceCountedOpenSslContext) SslContextBuilder
-                    .forServer(sslConfig.getServerCertificates(), sslConfig.getServerKeyFile())
-                    .sslProvider(SslProvider.OPENSSL).enableOcsp(true)
-                    .trustManager(sslConfig.getServerTrustCertificates()).protocols(sslConfig.getEnableProtocols())
-                    .enableOcsp(enableOcsp).clientAuth(needClientAuth ? ClientAuth.REQUIRE : ClientAuth.NONE).build();
         }
+        return (ReferenceCountedOpenSslContext) SslContextBuilder
+                .forServer(sslConfig.getServerCertificates(), sslConfig.getServerKeyFile())
+                .sslProvider(SslProvider.OPENSSL).enableOcsp(true).trustManager(sslConfig.getServerTrustCertificates())
+                .protocols(sslConfig.getEnableProtocols()).enableOcsp(enableOcsp)
+                .clientAuth(needClientAuth ? ClientAuth.REQUIRE : ClientAuth.NONE).build();
     }
 
     /**
@@ -178,12 +177,10 @@ public class SSLHandlerFactory {
             return (ReferenceCountedOpenSslContext) SslContextBuilder.forClient().sslProvider(SslProvider.OPENSSL)
                     .enableOcsp(true).keyManager(kmf).trustManager(tmf).protocols(sslConfig.getEnableProtocols())
                     .build();
-        } else {
-            return (ReferenceCountedOpenSslContext) SslContextBuilder.forClient().sslProvider(SslProvider.OPENSSL)
-                    .enableOcsp(true).keyManager(sslConfig.getClientCertificates(), sslConfig.getClientKeyFile())
-                    .trustManager(sslConfig.getClientTrustCertificates()).protocols(sslConfig.getEnableProtocols())
-                    .build();
         }
+        return (ReferenceCountedOpenSslContext) SslContextBuilder.forClient().sslProvider(SslProvider.OPENSSL)
+                .enableOcsp(true).keyManager(sslConfig.getClientCertificates(), sslConfig.getClientKeyFile())
+                .trustManager(sslConfig.getClientTrustCertificates()).protocols(sslConfig.getEnableProtocols()).build();
     }
 
     /**

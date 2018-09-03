@@ -144,6 +144,14 @@ public class SslConfiguration {
         sslConfig.setClientTrustCertificates(new File(Util.substituteVariables(clientTrustCertificates)));
     }
 
+    public void setClientKeyPassword(String clientKeyPassword) {
+        sslConfig.setClientKeyPassword(clientKeyPassword);
+    }
+
+    public void setServerKeyPassword(String serverKeyPassword) {
+        sslConfig.setClientKeyPassword(serverKeyPassword);
+    }
+
     public SSLConfig getClientSSLConfig() {
         if (scheme == null || !scheme.equalsIgnoreCase(HTTPS_SCHEME)) {
             return null;
@@ -171,10 +179,6 @@ public class SslConfiguration {
         } else if ((!sslConfig.getServerKeyFile().exists() || !sslConfig.getServerCertificates().exists())) {
             throw new IllegalArgumentException("Key file or server certificates file not found");
         }
-//        if ((!sslConfig.getKeyStore().exists()) || (!sslConfig.getServerKeyFile().exists() || !sslConfig
-//                .getServerCertificates().exists())) {
-//            throw new IllegalArgumentException("KeyStore File " + sslConfig.getKeyStore() + " not found");
-//        }
         for (Parameter parameter : parameters) {
             switch (parameter.getName()) {
                 case SERVER_SUPPORT_CIPHERS:
@@ -227,17 +231,6 @@ public class SslConfiguration {
         } else if (!sslConfig.getClientTrustCertificates().exists()) {
             throw new IllegalArgumentException("Key file or server certificates file not found");
         }
-//        if (sslConfig.getTrustStore() == null || sslConfig.getTrustStorePass() == null) {
-//         throw new IllegalArgumentException("TrustStoreFile or trustStorePassword not defined for HTTPS/WSS scheme");
-//        }
-//        if (sslConfig.getKeyStore() != null) {
-//            if (!sslConfig.getKeyStore().exists()) {
-//                throw new IllegalArgumentException("KeyStore File " + sslConfig.getKeyStore() + " not found");
-//            }
-//            sslConfig.setCertPass(sslConfig.getKeyStorePass());
-//        }
-
-
         sslConfig.setTrustStore(sslConfig.getTrustStore()).setTrustStorePass(sslConfig.getTrustStorePass());
         String sslProtocol = sslConfig.getSSLProtocol() != null ? sslConfig.getSSLProtocol() : TLS_PROTOCOL;
         sslConfig.setSSLProtocol(sslProtocol);
