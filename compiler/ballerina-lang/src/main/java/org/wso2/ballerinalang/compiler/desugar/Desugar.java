@@ -112,7 +112,6 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangStringTemplateLiter
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTableLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTableQueryExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTernaryExpr;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeCastExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeConversionExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeInit;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypedescExpr;
@@ -129,7 +128,6 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLSequenceLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLTextLiteral;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangAbort;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangAssignment;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangBind;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBreak;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangCatch;
@@ -626,13 +624,6 @@ public class Desugar extends BLangNodeVisitor {
             assignmentStmt.expr = assignmentExpr;
         }
         result = rewrite(blockStmt, env);
-    }
-
-    @Override
-    public void visit(BLangBind bindNode) {
-        bindNode.varRef = rewriteExpr(bindNode.varRef);
-        bindNode.expr = rewriteExpr(bindNode.expr);
-        result = new BLangAssignment(bindNode.pos, bindNode.varRef, bindNode.expr, false);
     }
 
     @Override
@@ -1194,7 +1185,6 @@ public class Desugar extends BLangNodeVisitor {
     }
 
     public void visit(BLangTypeInit connectorInitExpr) {
-        connectorInitExpr.argsExpr = rewriteExprs(connectorInitExpr.argsExpr);
         connectorInitExpr.objectInitInvocation = rewriteExpr(connectorInitExpr.objectInitInvocation);
         result = connectorInitExpr;
     }
@@ -1350,12 +1340,6 @@ public class Desugar extends BLangNodeVisitor {
                     symTable.intType, symTable.intType);
         }
         result = rewriteExpr(binaryExpr);
-    }
-
-    @Override
-    public void visit(BLangTypeCastExpr castExpr) {
-        castExpr.expr = rewriteExpr(castExpr.expr);
-        result = castExpr;
     }
 
     @Override

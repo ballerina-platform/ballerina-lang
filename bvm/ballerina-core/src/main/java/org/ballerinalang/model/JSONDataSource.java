@@ -55,7 +55,7 @@ public interface JSONDataSource {
     BRefType<?> next();
 
     /**
-     * Build the entire data0source in to memory, and returns the JSON
+     * Build the entire data0source in to memory, and returns the JSON.
      * 
      * @return JSON represented by the data-source
      */

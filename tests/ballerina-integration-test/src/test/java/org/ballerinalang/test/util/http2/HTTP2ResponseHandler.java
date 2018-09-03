@@ -1,20 +1,20 @@
 /*
-*  Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
-*
-*  WSO2 Inc. licenses this file to you under the Apache License,
-*  Version 2.0 (the "License"); you may not use this file except
-*  in compliance with the License.
-*  You may obtain a copy of the License at
-*
-*    http://www.apache.org/licenses/LICENSE-2.0
-*
-* Unless required by applicable law or agreed to in writing,
-* software distributed under the License is distributed on an
-* "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-* KIND, either express or implied.  See the License for the
-* specific language governing permissions and limitations
-* under the License.
-*/
+ *  Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ *  WSO2 Inc. licenses this file to you under the Apache License,
+ *  Version 2.0 (the "License"); you may not use this file except
+ *  in compliance with the License.
+ *  You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
 package org.ballerinalang.test.util.http2;
 
 import io.netty.channel.ChannelFuture;
@@ -38,10 +38,11 @@ import java.util.Map.Entry;
 public class HTTP2ResponseHandler extends SimpleChannelInboundHandler<FullHttpResponse> {
 
     private static final Logger log = LoggerFactory.getLogger(HTTP2ResponseHandler.class);
+
     private Map<Integer, Entry<ChannelFuture, ChannelPromise>> streamIdPromiseMap;
     private Map<Integer, FullHttpResponse> streamIdResponseMap;
 
-    public HTTP2ResponseHandler() {
+    HTTP2ResponseHandler() {
         // Use a concurrent map because we add and iterate from the main thread
         streamIdPromiseMap = PlatformDependent.newConcurrentHashMap();
         streamIdResponseMap = PlatformDependent.newConcurrentHashMap();
@@ -56,12 +57,11 @@ public class HTTP2ResponseHandler extends SimpleChannelInboundHandler<FullHttpRe
      * @return The previous object associated with {@code streamId}
      */
     public Entry<ChannelFuture, ChannelPromise> put(int streamId, ChannelFuture writeFuture, ChannelPromise promise) {
-        return streamIdPromiseMap.put(streamId, new SimpleEntry<ChannelFuture, ChannelPromise>(writeFuture, promise));
+        return streamIdPromiseMap.put(streamId, new SimpleEntry<>(writeFuture, promise));
     }
 
-
     @Override
-    protected void channelRead0(ChannelHandlerContext ctx, FullHttpResponse msg) throws Exception {
+    protected void channelRead0(ChannelHandlerContext ctx, FullHttpResponse msg) {
         Integer streamId = msg.headers().getInt(HttpConversionUtil.ExtensionHeaderNames.STREAM_ID.text());
         if (streamId == null) {
             log.error("HTTP2ResponseHandler unexpected message received: " + msg);
@@ -84,7 +84,7 @@ public class HTTP2ResponseHandler extends SimpleChannelInboundHandler<FullHttpRe
      * @param streamId StreamID
      * @return Response string
      */
-    public FullHttpResponse getResponse(int streamId) {
+    FullHttpResponse getResponse(int streamId) {
 
         FullHttpResponse message = streamIdResponseMap.get(streamId);
         if (message != null) {
@@ -93,8 +93,8 @@ public class HTTP2ResponseHandler extends SimpleChannelInboundHandler<FullHttpRe
             Entry<ChannelFuture, ChannelPromise> channelFutureChannelPromiseEntry = streamIdPromiseMap.get(streamId);
             if (channelFutureChannelPromiseEntry != null) {
                 ChannelFuture writeFuture = channelFutureChannelPromiseEntry.getKey();
-                if (!writeFuture.awaitUninterruptibly(TestConstant.HTTP2_RESPONSE_TIME_OUT, TestConstant
-                        .HTTP2_RESPONSE_TIME_UNIT)) {
+                if (!writeFuture.awaitUninterruptibly(TestConstant.HTTP2_RESPONSE_TIME_OUT,
+                        TestConstant.HTTP2_RESPONSE_TIME_UNIT)) {
                     streamIdPromiseMap.remove(streamId);
                     throw new IllegalStateException("Timed out waiting to write for stream id " + streamId);
                 }
@@ -103,8 +103,8 @@ public class HTTP2ResponseHandler extends SimpleChannelInboundHandler<FullHttpRe
                     throw new RuntimeException(writeFuture.cause());
                 }
                 ChannelPromise promise = channelFutureChannelPromiseEntry.getValue();
-                if (!promise.awaitUninterruptibly(TestConstant.HTTP2_RESPONSE_TIME_OUT, TestConstant
-                        .HTTP2_RESPONSE_TIME_UNIT)) {
+                if (!promise.awaitUninterruptibly(TestConstant.HTTP2_RESPONSE_TIME_OUT,
+                        TestConstant.HTTP2_RESPONSE_TIME_UNIT)) {
                     streamIdPromiseMap.remove(streamId);
                     throw new IllegalStateException("Timed out waiting for response on stream id " + streamId);
                 }

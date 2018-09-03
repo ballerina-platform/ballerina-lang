@@ -54,4 +54,10 @@ public class FunctionSignatureNegativeTest {
         CompileResult result = BCompileUtil.compile("test-src/functions/function-with-two-rest-params.bal");
         BAssertUtil.validateError(result, 0, "mismatched input ','. expecting ')'", 1, 52);
     }
+
+    @Test
+    public void testExternFunctionWithBody() {
+        CompileResult result = BCompileUtil.compile("test-src/functions/extern-function-with-body.bal");
+        BAssertUtil.validateError(result, 0, "extern function 'foo' cannot have a body", 1, 1);
+    }
 }

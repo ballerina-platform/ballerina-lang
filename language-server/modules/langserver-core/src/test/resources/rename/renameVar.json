@@ -1,0 +1,22 @@
+{
+    "position": {
+        "line": 2,
+        "character": 9
+    },
+    "newName": "b",
+    "expected": [
+        {
+            "range": {
+                "start": {
+                    "line": 0,
+                    "character": 0
+                },
+                "end": {
+                    "line": 5,
+                    "character": 0
+                }
+            },
+            "newText": "import ballerina/io;\r\npublic function main(string... args) {\r\n    var b = 10;\r\n    io:println(b);\r\n}"
+        }
+    ]
+}

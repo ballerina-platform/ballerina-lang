@@ -101,9 +101,9 @@ public class ElvisExpressionTest {
         Assert.assertEquals(results[0].stringValue(), "kevin");
     }
 
-    @Test(description = "Test Elvis operator on expression evaluated to struct type positive.")
-    public void testElvisStructTypePositive() {
-        BValue[] results = BRunUtil.invoke(compileResult, "testElvisStructTypePositive");
+    @Test(description = "Test Elvis operator on expression evaluated to record type positive.")
+    public void testElvisRecordTypePositive() {
+        BValue[] results = BRunUtil.invoke(compileResult, "testElvisRecordTypePositive");
         Assert.assertEquals(results.length, 2);
         Assert.assertTrue(results[0] instanceof BString);
         Assert.assertEquals(results[0].stringValue(), "Jim");
@@ -111,14 +111,38 @@ public class ElvisExpressionTest {
         Assert.assertEquals(((BInteger) results[1]).intValue(), 100);
     }
 
-    @Test(description = "Test Elvis operator on expression evaluated to struct type negative.")
-    public void testElvisStructTypeNegative() {
-        BValue[] results = BRunUtil.invoke(compileResult, "testElvisStructTypeNegative");
+    @Test(description = "Test Elvis operator on expression evaluated to record type negative.")
+    public void testElvisRecordTypeNegative() {
+        BValue[] results = BRunUtil.invoke(compileResult, "testElvisRecordTypeNegative");
         Assert.assertEquals(results.length, 2);
         Assert.assertTrue(results[0] instanceof BString);
         Assert.assertEquals(results[0].stringValue(), "default");
         Assert.assertTrue(results[1] instanceof BInteger);
         Assert.assertEquals(((BInteger) results[1]).intValue(), 0);
+    }
+
+    @Test(description = "Test Elvis operator on expression evaluated to object type positive.")
+    public void testElvisObjectTypePositive() {
+        BValue[] results = BRunUtil.invoke(compileResult, "testElvisObjectTypePositive");
+        Assert.assertEquals(results.length, 3);
+        Assert.assertTrue(results[0] instanceof BString);
+        Assert.assertEquals(results[0].stringValue(), "Alice");
+        Assert.assertTrue(results[1] instanceof BInteger);
+        Assert.assertEquals(((BInteger) results[1]).intValue(), 15);
+        Assert.assertTrue(results[2] instanceof BString);
+        Assert.assertEquals(results[2].stringValue(), "Maths");
+    }
+
+    @Test(description = "Test Elvis operator on expression evaluated to object type negative.")
+    public void testElvisObjectTypeNegative() {
+        BValue[] results = BRunUtil.invoke(compileResult, "testElvisObjectTypeNegative");
+        Assert.assertEquals(results.length, 3);
+        Assert.assertTrue(results[0] instanceof BString);
+        Assert.assertEquals(results[0].stringValue(), "Bob");
+        Assert.assertTrue(results[1] instanceof BInteger);
+        Assert.assertEquals(((BInteger) results[1]).intValue(), 18);
+        Assert.assertTrue(results[2] instanceof BString);
+        Assert.assertEquals(results[2].stringValue(), "Science");
     }
 
     @Test(description = "Test Elvis operator on expression evaluated to tuple type positive.")
@@ -178,5 +202,4 @@ public class ElvisExpressionTest {
         BAssertUtil.validateError(negativeResult, 1, "incompatible types: expected 'int', found 'string'", 12, 14);
         BAssertUtil.validateError(negativeResult, 2, "incompatible types: expected 'int', found 'string'", 19, 9);
     }
-
 }

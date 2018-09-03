@@ -102,17 +102,17 @@ public class TableTest {
     public void setup() {
         switch (dbType) {
         case MYSQL:
-            testDatabase = new ContainerizedTestDatabase(dbType, "datafiles/sql/DataTableMySQLDataFile.sql");
+            testDatabase = new ContainerizedTestDatabase(dbType, "datafiles/sql/TableTest_Postgres_Data.sql");
             break;
         case POSTGRES:
-            testDatabase = new ContainerizedTestDatabase(dbType, "datafiles/sql/DataTablePostgresDataFile.sql");
+            testDatabase = new ContainerizedTestDatabase(dbType, "datafiles/sql/TableTest_Postgres_Data.sql");
             break;
         case HSQLDB:
-            testDatabase = new FileBasedTestDatabase(dbType, "datafiles/sql/DataTableDataFile.sql",
+            testDatabase = new FileBasedTestDatabase(dbType, "datafiles/sql/TableTest_HSQL_Data.sql",
                     DB_DIRECTORY, DB_NAME);
             break;
         case H2:
-            testDatabase = new FileBasedTestDatabase(dbType, "datafiles/sql/DataTableH2DataFile.sql",
+            testDatabase = new FileBasedTestDatabase(dbType, "datafiles/sql/TableTest_H2_Data.sql",
                     DB_DIRECTORY_H2, DB_NAME_H2);
             break;
         default:

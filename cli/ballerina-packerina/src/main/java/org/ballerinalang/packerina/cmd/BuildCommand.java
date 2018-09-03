@@ -17,14 +17,12 @@
  */
 package org.ballerinalang.packerina.cmd;
 
-import com.beust.jcommander.JCommander;
-import com.beust.jcommander.Parameter;
-import com.beust.jcommander.Parameters;
 import org.ballerinalang.launcher.BLauncherCmd;
 import org.ballerinalang.launcher.LauncherUtils;
 import org.ballerinalang.packerina.BuilderUtils;
 import org.ballerinalang.util.BLangConstants;
 import org.wso2.ballerinalang.util.RepoUtils;
+import picocli.CommandLine;
 
 import java.io.PrintStream;
 import java.nio.file.Files;
@@ -32,45 +30,45 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
 
+import static org.ballerinalang.packerina.cmd.Constants.BUILD_COMMAND;
+
 /**
  * This class represents the "ballerina build" command.
  *
  * @since 0.90
  */
-@Parameters(commandNames = "build", commandDescription = "compile Ballerina program")
+@CommandLine.Command(name = BUILD_COMMAND, description = "build the Ballerina source")
 public class BuildCommand implements BLauncherCmd {
     private static final String USER_DIR = "user.dir";
     private static PrintStream outStream = System.err;
 
-    private JCommander parentCmdParser;
-
-    @Parameter(names = {"-c"}, description = "build a compiled package")
+    @CommandLine.Option(names = {"-c"}, description = "build a compiled package")
     private boolean buildCompiledPkg;
 
-    @Parameter(names = {"-o"}, description = "write output to the given file")
+    @CommandLine.Option(names = {"-o"}, description = "write output to the given file")
     private String outputFileName;
 
-    @Parameter(names = {"--offline"})
+    @CommandLine.Option(names = {"--offline"})
     private boolean offline;
 
-    @Parameter(names = {"--lockEnabled"})
+    @CommandLine.Option(names = {"--lockEnabled"})
     private boolean lockEnabled;
 
-    @Parameter(names = {"--skiptests"})
+    @CommandLine.Option(names = {"--skiptests"})
     private boolean skiptests;
 
-    @Parameter(arity = 1)
+    @CommandLine.Parameters
     private List<String> argList;
 
-    @Parameter(names = {"--help", "-h"}, hidden = true)
+    @CommandLine.Option(names = {"--help", "-h"}, hidden = true)
     private boolean helpFlag;
 
-    @Parameter(names = "--java.debug", hidden = true)
+    @CommandLine.Option(names = "--java.debug", hidden = true)
     private String debugPort;
 
     public void execute() {
         if (helpFlag) {
-            String commandUsageInfo = BLauncherCmd.getCommandUsageInfo(parentCmdParser, "build");
+            String commandUsageInfo = BLauncherCmd.getCommandUsageInfo(BUILD_COMMAND);
             outStream.println(commandUsageInfo);
             return;
         }
@@ -155,7 +153,7 @@ public class BuildCommand implements BLauncherCmd {
 
     @Override
     public String getName() {
-        return "build";
+        return BUILD_COMMAND;
     }
 
     @Override
@@ -175,11 +173,10 @@ public class BuildCommand implements BLauncherCmd {
     }
 
     @Override
-    public void setParentCmdParser(JCommander parentCmdParser) {
-        this.parentCmdParser = parentCmdParser;
+    public void setParentCmdParser(CommandLine parentCmdParser) {
     }
 
     @Override
-    public void setSelfCmdParser(JCommander selfCmdParser) {
+    public void setSelfCmdParser(CommandLine selfCmdParser) {
     }
 }

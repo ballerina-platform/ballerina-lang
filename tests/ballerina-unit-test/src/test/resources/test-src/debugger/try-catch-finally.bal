@@ -15,7 +15,7 @@ public type testInputError record {
     string input;
 };
 
-function main(string... args) {
+public function main(string... args) {
     _ = testTryCatch(11);
     _ = testTryCatch(-1);
     _ = testTryCatch(5);

@@ -19,7 +19,6 @@
 package org.ballerinalang.test.service.websocket;
 
 import io.netty.handler.codec.http.websocketx.CloseWebSocketFrame;
-import org.ballerinalang.test.context.BallerinaTestException;
 import org.ballerinalang.test.util.websocket.client.WebSocketTestClient;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
@@ -60,7 +59,7 @@ public class ClientInitializationFailureTest extends WebSocketTestCommons {
     }
 
     @AfterClass(description = "Stops the Ballerina server")
-    public void cleanup() throws BallerinaTestException, InterruptedException {
+    public void cleanup() throws InterruptedException {
         client.shutDown();
     }
 }

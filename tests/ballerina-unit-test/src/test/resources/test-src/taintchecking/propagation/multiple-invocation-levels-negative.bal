@@ -1,4 +1,4 @@
-function main (string... args) {
+public function main (string... args) {
     normalFunction(args[0]);
 }
 

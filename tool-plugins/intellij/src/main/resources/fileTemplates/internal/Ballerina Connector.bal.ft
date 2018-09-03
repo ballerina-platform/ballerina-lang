@@ -14,7 +14,7 @@ connector MyClient (string url) {
     }
 }
 
-function main (string[] args) {
+public function main (string[] args) {
     endpoint<MyClient> myClientEP {
         create MyClient("http://example.com");
     }

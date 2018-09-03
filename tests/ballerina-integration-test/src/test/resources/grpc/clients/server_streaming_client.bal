@@ -18,9 +18,8 @@ import ballerina/grpc;
 import ballerina/io;
 import ballerina/runtime;
 
-string[] responses;
 int total = 0;
-function testServerStreaming(string name) returns (string[]) {
+function testServerStreaming(string name) returns int {
     // Client endpoint configuration
     endpoint HelloWorldClient helloWorldEp {
         url:"http://localhost:9099"
@@ -30,8 +29,7 @@ function testServerStreaming(string name) returns (string[]) {
     match result {
         error payloadError => {
             io:println("Error occured while sending event " + payloadError.message);
-            responses[total] = "Error occured while sending event " + payloadError.message;
-            return responses;
+            return total;
         }
         () => {
             io:println("Connected successfully");
@@ -48,7 +46,8 @@ function testServerStreaming(string name) returns (string[]) {
         wait++;
     }
     io:println("Client got response successfully.");
-    return responses;
+    io:println("responses count: " + total);
+    return total;
 }
 
 // Server Message Listener.
@@ -57,7 +56,6 @@ service<grpc:Service> HelloWorldMessageListener {
     // Resource registered to receive server messages
     onMessage(string message) {
         io:println("Response received from server: " + message);
-        responses[total] = message;
         total = total + 1;
     }
 
@@ -71,7 +69,6 @@ service<grpc:Service> HelloWorldMessageListener {
     // Resource registered to receive server completed message.
     onComplete() {
         io:println("Server Complete Sending Response.");
-        responses[total] = "Server Complete Sending Response.";
         total = total + 1;
     }
 }
