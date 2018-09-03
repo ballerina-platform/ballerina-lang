@@ -40,6 +40,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintStream;
 import java.net.URI;
+import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.LinkOption;
 import java.nio.file.Path;
@@ -66,7 +67,7 @@ public class PushUtils {
     private static final Path BALLERINA_HOME_PATH = RepoUtils.createAndGetHomeReposPath();
     private static final Path SETTINGS_TOML_FILE_PATH = BALLERINA_HOME_PATH.resolve(
             ProjectDirConstants.SETTINGS_FILE_NAME);
-    private static PrintStream outStream = System.err;
+    private static PrintStream outStream = System.out;
     private static EmbeddedExecutor executor = EmbeddedExecutorProvider.getInstance().getExecutor();
 
     /**
@@ -75,8 +76,10 @@ public class PushUtils {
      * @param packageName   path of the package folder to be pushed
      * @param sourceRoot    path to the directory containing source files and packages
      * @param installToRepo if it should be pushed to central or home
+     * @param pushToRepo true if confirmation is not required before push, else false
      */
-    public static void pushPackages(String packageName, String sourceRoot, String installToRepo) {
+    public static void pushPackages(String packageName, String sourceRoot, String installToRepo,
+                                    boolean pushToRepo) {
         Path prjDirPath = LauncherUtils.getSourceRootPath(sourceRoot);
         Manifest manifest = readManifestConfigurations(prjDirPath);
         if (manifest.getName().isEmpty()) {
@@ -91,51 +94,91 @@ public class PushUtils {
 
         String orgName = manifest.getName();
         String version = manifest.getVersion();
-        String ballerinaVersion = RepoUtils.getBallerinaVersion();
         PackageID packageID = new PackageID(new Name(orgName), new Name(packageName), new Name(version));
 
         // Get package path from project directory path
         Path pkgPathFromPrjtDir = Paths.get(prjDirPath.toString(), ProjectDirConstants.DOT_BALLERINA_DIR_NAME,
                                             ProjectDirConstants.DOT_BALLERINA_REPO_DIR_NAME, orgName,
                                             packageName, version, packageName + ".zip");
-        if (Files.notExists(pkgPathFromPrjtDir)) {
-            BuilderUtils.compileWithTestsAndWrite(prjDirPath, packageName, packageName, false, false, false, true);
-        }
+        // Build the package
+        BuilderUtils.compileWithTestsAndWrite(prjDirPath, packageName, packageName, false, false, false, false);
 
         if (installToRepo == null) {
-            // Get access token
-            String accessToken = checkAccessToken();
-
-            // Read the Package.md file content from the artifact
-            String mdFileContent = getPackageMDFileContent(pkgPathFromPrjtDir.toString(), packageName);
-            if (mdFileContent == null) {
-                throw new BLangCompilerException("Cannot find Package.md file in the artifact");
+            if (!pushToRepo) {
+                outStream.print("Push the artifact " + orgName + "/" + packageName + ":" + version  + " to central " +
+                                        "[yes/y, no/n]: (y) ");
+                Scanner scanner = new Scanner(System.in, Charset.defaultCharset().name());
+                String buildOnPush = scanner.nextLine().trim();
+                if (buildOnPush.equalsIgnoreCase("yes") || buildOnPush.equalsIgnoreCase("y") || buildOnPush.isEmpty()) {
+                    pushToCentral(packageName, manifest, packageID, pkgPathFromPrjtDir);
+                    return;
+                } else {
+                    return;
+                }
             }
-
-            String description = readSummary(mdFileContent);
-            String homepageURL = manifest.getHomepageURL();
-            String repositoryURL = manifest.getRepositoryURL();
-            String apiDocURL = manifest.getDocumentationURL();
-            String authors = String.join(",", manifest.getAuthors());
-            String keywords = String.join(",", manifest.getKeywords());
-            String license = manifest.getLicense();
-
-            // Push package to central
-            String resourcePath = resolvePkgPathInRemoteRepo(packageID);
-            String msg = orgName + "/" + packageName + ":" + version + " [project repo -> central]";
-            Proxy proxy = RepoUtils.readSettings().getProxy();
-            String baloVersionOfPkg = String.valueOf(ProgramFileConstants.VERSION_NUMBER);
-            executor.execute("packaging_push/packaging_push.balx", true, accessToken, mdFileContent,
-                             description, homepageURL, repositoryURL, apiDocURL, authors, keywords, license,
-                             resourcePath, pkgPathFromPrjtDir.toString(), msg, ballerinaVersion, proxy.getHost(),
-                             proxy.getPort(), proxy.getUserName(), proxy.getPassword(), baloVersionOfPkg);
-
+            pushToCentral(packageName, manifest, packageID, pkgPathFromPrjtDir);
         } else {
             if (!installToRepo.equals("home")) {
                 throw new BLangCompilerException("Unknown repository provided to push the package");
             }
+            if (!pushToRepo) {
+                outStream.print("Install the artifact " + orgName + "/" + packageName + ":" + version + " to the " +
+                                        "home repository [yes/y, no/n]: (y) ");
+                Scanner scanner = new Scanner(System.in, Charset.defaultCharset().name());
+                String buildOnPush = scanner.nextLine().trim();
+                if (buildOnPush.equalsIgnoreCase("yes") || buildOnPush.equalsIgnoreCase("y") || buildOnPush.isEmpty()) {
+                    installToHomeRepo(packageID, pkgPathFromPrjtDir);
+                    return;
+                } else {
+                    return;
+                }
+            }
             installToHomeRepo(packageID, pkgPathFromPrjtDir);
         }
+    }
+
+    /**
+     * Push package to central.
+     *
+     * @param packageName        package name
+     * @param manifest           manifest object
+     * @param packageID          package id of the package pushed
+     * @param packagePath        package path from the project directory
+     */
+    private static void pushToCentral(String packageName, Manifest manifest, PackageID packageID, Path packagePath) {
+        // Get org-name and version
+        String orgName = manifest.getName();
+        String version = manifest.getVersion();
+
+        // Get access token
+        String accessToken = checkAccessToken();
+
+        // Get ballerina version
+        String ballerinaVersion = RepoUtils.getBallerinaVersion();
+
+        // Read the Package.md file content from the artifact
+        String mdFileContent = getPackageMDFileContent(packagePath.toString(), packageName);
+        if (mdFileContent == null) {
+            throw new BLangCompilerException("Cannot find Package.md file in the artifact");
+        }
+
+        String description = readSummary(mdFileContent);
+        String homepageURL = manifest.getHomepageURL();
+        String repositoryURL = manifest.getRepositoryURL();
+        String apiDocURL = manifest.getDocumentationURL();
+        String authors = String.join(",", manifest.getAuthors());
+        String keywords = String.join(",", manifest.getKeywords());
+        String license = manifest.getLicense();
+
+        // Push package to central
+        String resourcePath = resolvePkgPathInRemoteRepo(packageID);
+        String msg = orgName + "/" + packageName + ":" + version + " [project repo -> central]";
+        Proxy proxy = RepoUtils.readSettings().getProxy();
+        String baloVersionOfPkg = String.valueOf(ProgramFileConstants.VERSION_NUMBER);
+        executor.execute("packaging_push/packaging_push.balx", true, accessToken, mdFileContent,
+                         description, homepageURL, repositoryURL, apiDocURL, authors, keywords, license,
+                         resourcePath, packagePath.toString(), msg, ballerinaVersion, proxy.getHost(),
+                         proxy.getPort(), proxy.getUserName(), proxy.getPassword(), baloVersionOfPkg);
     }
 
     /**
@@ -346,8 +389,9 @@ public class PushUtils {
      *
      * @param sourceRoot source root or project root
      * @param home       if it should be pushed to central or home
+     * @param pushToRepo true if confirmation is not required before push, else false
      */
-    public static void pushAllPackages(String sourceRoot, String home) {
+    public static void pushAllPackages(String sourceRoot, String home, boolean pushToRepo) {
         Path sourceRootPath = LauncherUtils.getSourceRootPath(sourceRoot);
         try {
             List<String> fileList = Files.list(sourceRootPath)
@@ -358,7 +402,7 @@ public class PushUtils {
             if (fileList.size() == 0) {
                 throw new BLangCompilerException("no packages found to push in " + sourceRootPath.toString());
             }
-            fileList.forEach(path -> pushPackages(path, sourceRoot, home));
+            fileList.forEach(path -> pushPackages(path, sourceRoot, home, pushToRepo));
         } catch (IOException ex) {
             throw new BLangCompilerException("error occurred when pushing packages from " + sourceRootPath.toString(),
                                              ex);

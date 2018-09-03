@@ -321,6 +321,33 @@ public class PackagingInitTestCase extends BaseTest {
                                                   .resolve("foo").resolve("0.0.1").resolve("foo.zip")));
     }
 
+    @Test(description = "Test building a project with a single bal file using the target path")
+    public void testBuildWithTarget() throws Exception {
+        // Test ballerina init
+        Path projectPath = tempProjectDirectory.resolve("testPackageWithTarget");
+        Path genExecPath = tempProjectDirectory.resolve("generatedExec");
+        Files.createDirectories(projectPath);
+        Files.createDirectories(genExecPath);
+
+        String[] clientArgsForInit = {"-i"};
+        String[] options = {"\n", "\n", "\n", "m\n", "\n", "f"};
+        serverInstance.runMainWithClientOptions(clientArgsForInit, options, envVariables, "init",
+                                                 projectPath.toString());
+
+        Path sourceFilePath = projectPath.resolve("main.bal");
+        Assert.assertTrue(Files.exists(sourceFilePath));
+        Assert.assertTrue(Files.exists(projectPath.resolve("Ballerina.toml")));
+
+        // Remove the .ballerina inside the project because we only want the bal file
+        Files.deleteIfExists(projectPath.resolve(".ballerina").resolve(".gitignore"));
+        Files.deleteIfExists(projectPath.resolve(".ballerina"));
+
+        // Test ballerina build
+        String[] clientArgsForBuild = {"-o", genExecPath.resolve("foo.bal").toString(), "main.bal"};
+        serverInstance.runMain(clientArgsForBuild, envVariables, "build", projectPath.toString());
+
+        Assert.assertTrue(Files.exists(genExecPath.resolve("foo.balx")));
+    }
     /**
      * Run and test main function in project.
      *
