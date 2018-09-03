@@ -34,8 +34,6 @@ public type Listener object {
     public extern function register(typedesc serviceType);
 
     public extern function start();
-
-    public extern function stop();
 };
 
 # Represents configurations that required for directory listener.
