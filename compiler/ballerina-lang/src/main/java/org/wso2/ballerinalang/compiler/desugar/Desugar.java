@@ -1185,7 +1185,6 @@ public class Desugar extends BLangNodeVisitor {
     }
 
     public void visit(BLangTypeInit connectorInitExpr) {
-        connectorInitExpr.argsExpr = rewriteExprs(connectorInitExpr.argsExpr);
         connectorInitExpr.objectInitInvocation = rewriteExpr(connectorInitExpr.objectInitInvocation);
         result = connectorInitExpr;
     }
