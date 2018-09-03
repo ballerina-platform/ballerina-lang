@@ -8,7 +8,7 @@ type Person record {
     !...
 };
 
-function main(string... args) {
+public function main() {
     // Create a new JSON that is constrained by the Person record. Only the
     // fields defined in the Person record can be accessed. If we try to
     // access a non existing field, it will produce a compilation error.

@@ -18,7 +18,7 @@ endpoint jms:QueueSender queueSender {
     queueName:"MyQueue"
 };
 
-function main(string... args) {
+public function main() {
     // Message is published within the transaction block.
     transaction {
     // Create a Text message.

@@ -1,7 +1,7 @@
 import ballerina/io;
 
 // The in scope variables can be accessed by the workers in the fork-join statement.
-function main(string... args) {
+public function main() {
     // These variables can be accessed by the forked workers.
     int i = 100;
     string s = "WSO2";

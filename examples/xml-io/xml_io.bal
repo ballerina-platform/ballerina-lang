@@ -46,7 +46,7 @@ function read(string path) returns xml {
     }
 }
 
-function main(string... args) {
+public function main() {
     string filePath = "./files/sample.xml";
     // Create XML content from the string
     xml x1 = xml `<book>The Lost World</book>`;

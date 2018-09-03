@@ -14,7 +14,7 @@ type Movie record {
     Person writer,
 };
 
-function main(string... args) {
+public function main() {
     Movie theRevenant = {
         title: "The Revenant",
         year: "2015",

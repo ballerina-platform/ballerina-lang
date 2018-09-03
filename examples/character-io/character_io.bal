@@ -65,7 +65,7 @@ function process(io:CharacterChannel sourceChannel,
     }
 }
 
-function main(string... args) {
+public function main() {
     var sourceChannel = getFileCharacterChannel("./files/sample.txt",
                                                 io:READ, "UTF-8");
     var destinationChannel = getFileCharacterChannel("./files/sampleResponse.txt",

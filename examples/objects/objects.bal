@@ -12,7 +12,7 @@ type Person object {
     string address = "No 20, Palm grove",
 };
 
-function main(string... args) {
+public function main() {
     // There are three ways to initialize this object.
     Person p1 = new;
     io:println(p1);

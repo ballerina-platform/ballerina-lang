@@ -1,7 +1,7 @@
 import ballerina/io;
 import ballerina/time;
 
-function main(string... args) {
+public function main() {
     // To create the time object you can use either the 'currentTime', 'createTime', or the 'parse' function.
     // This fetches the current time.
     time:Time time = time:currentTime();

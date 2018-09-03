@@ -12,7 +12,7 @@ endpoint mysql:Client testDB {
     dbOptions: { useSSL: false }
 };
 
-function main(string... args) {
+public function main() {
 
     // Creates a table using the update operation.
     io:println("The update operation - Creating a table:");

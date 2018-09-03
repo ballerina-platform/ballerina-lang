@@ -18,7 +18,7 @@ endpoint jms:QueueSender queueSender {
     queueName:"MyQueue"
 };
 
-function main(string... args) {
+public function main() {
     // This creates a Text message.
     match (jmsSession.createTextMessage("Hello from Ballerina")) {
         error e => {

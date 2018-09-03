@@ -1,6 +1,6 @@
 import ballerina/io;
 
-function main(string... args) {
+public function main() {
     int result;
     // Define the `try` block to surround the code segment that is likely to throw errors.
     try {

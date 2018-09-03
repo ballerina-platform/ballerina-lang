@@ -18,7 +18,7 @@ type Department record {
     !...
 };
 
-function main(string... args) {
+public function main() {
     // This creates an instance of the `Person` record with an empty record literal. The implicit initial value of each
     // field type is assigned to the corresponding field.
     Person p1 = {};

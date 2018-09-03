@@ -1,6 +1,6 @@
 import ballerina/io;
 
-function main(string... args) {
+public function main() {
     // The implicit initial value of a map is the empty map.
     map m;
 

@@ -9,7 +9,7 @@ endpoint jdbc:Client testDB {
     poolOptions: { maximumPoolSize: 5 }
 };
 
-function main(string... args) {
+public function main() {
     // Create the tables required for the transaction.
     var ret = testDB->update("CREATE TABLE CUSTOMER (ID INTEGER, NAME
                               VARCHAR(30))");

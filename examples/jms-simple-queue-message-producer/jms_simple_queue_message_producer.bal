@@ -10,7 +10,7 @@ endpoint jms:SimpleQueueSender queueSender {
     queueName:"MyQueue"
 };
 
-function main(string... args) {
+public function main() {
     // This creates a text message.
     match (queueSender.createTextMessage("Hello from Ballerina")) {
         error e => {

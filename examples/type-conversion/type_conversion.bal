@@ -1,6 +1,6 @@
 import ballerina/io;
 
-function main(string... args) {
+public function main() {
     // A `float` to `int` conversion can result in some of the information getting lost.
     // However, this type of conversion is always considered safe because the conversion can never fail at runtime.
     float f = 10.0;

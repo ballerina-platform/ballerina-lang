@@ -9,7 +9,7 @@ endpoint http:Client clientEP {
 
 };
 
-function main(string... args) {
+public function main() {
 
     http:Request serviceReq = new;
     http:HttpFuture httpFuture = new;

@@ -39,7 +39,7 @@ type PersonPublicProfile record {
 };
 
 // This is the main function.
-function main(string... args) {
+public function main() {
     string queryStmt;
 
     // These are a few sample values that represent different `Person` records.

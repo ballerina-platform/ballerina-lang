@@ -26,7 +26,7 @@ type person record {
     person? guardian;
 };
 
-function main(string... args) {
+public function main() {
     person p = {};
     io:println(p);
 

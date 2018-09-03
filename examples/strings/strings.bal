@@ -1,7 +1,7 @@
 import ballerina/internal;
 import ballerina/io;
 
-function main(string... args) {
+public function main() {
 
     string statement = "Lion in Town. Catch the Lion ";
 

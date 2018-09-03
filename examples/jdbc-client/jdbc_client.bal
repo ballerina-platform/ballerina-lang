@@ -18,7 +18,7 @@ type Student record {
     string name,
 };
 
-function main(string... args) {
+public function main() {
     // Creates a table using the update operation. If the DDL
     // statement execution is successful, the `update` operation returns 0.
     io:println("The update operation - Creating a table:");

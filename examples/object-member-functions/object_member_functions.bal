@@ -25,7 +25,7 @@ function Person::checkAndModifyAge(int condition, int a) {
     }
 }
 
-function main(string... args) {
+public function main() {
     // Initializing variable of object type Person
     Person p1 = new(5, "John", "Doe");
     io:println(p1);

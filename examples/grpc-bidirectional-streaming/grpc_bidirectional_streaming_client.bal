@@ -4,7 +4,7 @@ import ballerina/io;
 import ballerina/runtime;
 
 int total = 0;
-function main(string... args) {
+public function main() {
 
     //Client endpoint configuration.
     endpoint ChatClient chatEp {

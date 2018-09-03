@@ -31,7 +31,7 @@ function print(string?|KeyNotFoundError result) {
     }
 }
 
-function main(string... args) {
+public function main() {
     print(getValue("key1"));
     print(getValue("key2"));
     print(getValue("key3"));

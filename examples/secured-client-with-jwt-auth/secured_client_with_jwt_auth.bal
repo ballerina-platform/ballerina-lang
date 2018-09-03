@@ -11,7 +11,7 @@ endpoint http:Client httpEndpoint {
     }
 };
 
-function main(string... args) {
+public function main() {
     // Set the JWT token into runtime invocation context mentioning scheme as `jwt`
     string token = "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJiYWxsZXJ" +
         "pbmEiLCJpc3MiOiJiYWxsZXJpbmEiLCJleHAiOjI4MTg0MTUwMTksImlhdCI6MTUyND" +

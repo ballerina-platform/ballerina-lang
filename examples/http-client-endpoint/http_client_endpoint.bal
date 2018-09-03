@@ -6,7 +6,7 @@ endpoint http:Client clientEndpoint {
     url: "https://postman-echo.com"
 };
 
-function main(string... args) {
+public function main() {
 
     http:Request req = new;
     // Send a GET request to the specified endpoint.

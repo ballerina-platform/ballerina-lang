@@ -19,7 +19,7 @@ function printFruits(string separator,
     io:println(title + finalStr);
 }
 
-function main(string... args) {
+public function main() {
     // Call the function by passing only the required parameter.
     printFruits(",");
 

@@ -6,7 +6,7 @@ import ballerina/math;
 // Declare an explicit alias
 import ballerina/io as console;
 
-function main(string... args) {
+public function main() {
 
     // Refer to the symbols of another package.
     // Here `math:PI` is a qualified identifier. Note the usage of the package alias.

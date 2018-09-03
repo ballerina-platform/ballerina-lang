@@ -67,7 +67,7 @@ function copy(io:ByteChannel src, io:ByteChannel dst) {
     }
 }
 
-function main(string... args) {
+public function main() {
     string srcFilePath = "./files/ballerina.jpg";
     string dstFilePath = "./files/ballerinaCopy.jpg";
     io:ByteChannel sourceChannel = getFileChannel(srcFilePath, io:READ);

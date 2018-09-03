@@ -1,6 +1,6 @@
 import ballerina/io;
 
-function main(string... args) {
+public function main() {
     // A closed integer range `x ... y` generates an array of integers containing values `x` to `y`, `x` and `y`
     // inclusive
     int[] closedRangeArray = 25 ... 28;

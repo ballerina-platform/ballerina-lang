@@ -11,7 +11,7 @@ type Student record {
 };
 
 
-function main(string... args) {
+public function main(string... args) {
     endpoint mysql:Client customerDBEP {
         host: "localhost",
         port: 3306,

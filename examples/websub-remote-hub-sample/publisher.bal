@@ -8,7 +8,7 @@ endpoint websub:Client websubHubClientEP {
     url: "https://localhost:9191/websub/hub"
 };
 
-function main(string... args) {
+public function main() {
 
     // Register a topic at the hub.
     var registrationResponse =

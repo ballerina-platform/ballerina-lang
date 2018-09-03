@@ -44,7 +44,7 @@ endpoint http:Client clientEP {
     }
 };
 // You have to run the service before running this main function.
-function main(string... args) {
+public function main() {
     // Sends an outbound request.
     var resp = clientEP->get("/hello/");
 

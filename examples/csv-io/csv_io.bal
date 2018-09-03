@@ -39,7 +39,7 @@ function process(io:CSVChannel channel) {
     }
 }
 //Specify the location of the `.CSV` file.
-function main(string... args) {
+public function main() {
     string srcFileName = "./files/sample.csv";
 
     // Open a CSV channel in `write` mode and write some data to

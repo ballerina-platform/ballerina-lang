@@ -1,6 +1,6 @@
 import ballerina/io;
 
-function main(string... args) {
+public function main() {
     // Define the lambda function.
     function (string, string) returns (string) lambda =
             (string x, string y) => (string) {

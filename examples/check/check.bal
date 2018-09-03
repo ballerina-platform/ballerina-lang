@@ -43,7 +43,7 @@ function validateAddressAgain(Person person) returns boolean {
     return true;
 }
 
-function main(string... args) {
+public function main() {
     Person bob = { name: "bob" };
     Address address = { street: "1st Avenue", city: "Manhattan" };
     bob.address = address;
