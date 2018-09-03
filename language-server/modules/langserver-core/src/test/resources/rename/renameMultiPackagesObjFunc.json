@@ -16,7 +16,7 @@
                     "character": 0
                 }
             },
-            "newText": "import ballerina/io;\r\nimport pkg1;\r\n\r\nfunction main(string... args) {\r\n    pkg1:TestObject obj = new();\r\n    obj.newPrint();\r\n}"
+            "newText": "import ballerina/io;\r\nimport pkg1;\r\n\r\npublic function main(string... args) {\r\n    pkg1:TestObject obj = new();\r\n    obj.newPrint();\r\n}"
         },
         {
             "range": {

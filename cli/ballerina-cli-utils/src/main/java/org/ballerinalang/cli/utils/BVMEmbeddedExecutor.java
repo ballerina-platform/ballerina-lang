@@ -25,6 +25,9 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 
+import static org.ballerinalang.util.BLangConstants.COLON;
+import static org.ballerinalang.util.BLangConstants.MAIN_FUNCTION_NAME;
+
 /**
  * This represents the Ballerina package provider.
  *
@@ -33,7 +36,19 @@ import java.net.URL;
 @JavaSPIService("org.ballerinalang.spi.EmbeddedExecutor")
 public class BVMEmbeddedExecutor implements EmbeddedExecutor {
     @Override
-    public void execute(String balxPath, boolean isFunction, String... args) {
+    public void execute(String programArg, boolean isFunction, String... args) {
+        String balxPath = programArg;
+        String functionName = MAIN_FUNCTION_NAME;
+
+        if (isFunction && programArg.contains(COLON)) {
+            String[] programArgConstituents = programArg.split(COLON);
+            functionName = programArgConstituents[programArgConstituents.length - 1];
+            if (functionName.isEmpty() || programArg.endsWith(COLON)) {
+                throw new BLangCompilerException("usage error: expected function name after final ':'");
+            }
+            balxPath = programArg.replace(COLON.concat(functionName), "");
+        }
+
         URL resource = BVMEmbeddedExecutor.class.getClassLoader()
                                                 .getResource("META-INF/ballerina/" + balxPath);
         if (resource == null) {
@@ -41,7 +56,8 @@ public class BVMEmbeddedExecutor implements EmbeddedExecutor {
         }
         try {
             URI balxResource = resource.toURI();
-            ExecutorUtils.execute(balxResource, isFunction, args);
+            // TODO: 8/5/18 return BValue[] ignored 
+            ExecutorUtils.execute(balxResource, isFunction, isFunction ? functionName : null, args);
         } catch (URISyntaxException e) {
             throw new BLangCompilerException("Error loading internal modules when retrieving remote package");
         }

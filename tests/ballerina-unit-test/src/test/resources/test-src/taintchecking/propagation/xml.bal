@@ -1,4 +1,4 @@
-function main (string... args) {
+public function main (string... args) {
     string data = "static";
 
     xmlns "http://ballerina.com/updated" as ns0;

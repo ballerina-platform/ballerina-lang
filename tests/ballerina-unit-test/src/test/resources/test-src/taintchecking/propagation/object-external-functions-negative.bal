@@ -10,7 +10,7 @@ function secureFunction(@sensitive string secureIn, string insecureIn) {
 
 }
 
-function main (string... args) {
+public function main (string... args) {
     TestObject obj = new;
     string returnValue = obj.testFunction(args[0]);
     secureFunction(returnValue, returnValue);

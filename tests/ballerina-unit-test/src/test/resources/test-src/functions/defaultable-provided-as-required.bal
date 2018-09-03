@@ -2,7 +2,7 @@ function test(string name = "wso2") {
 
 }
 
-function main(string... args) {
+public function main(string... args) {
     test("Ballerina");
     test2("Test", "Ballerina");
 }

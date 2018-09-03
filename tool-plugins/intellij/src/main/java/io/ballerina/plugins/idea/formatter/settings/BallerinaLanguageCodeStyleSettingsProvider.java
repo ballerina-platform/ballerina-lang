@@ -32,7 +32,7 @@ public class BallerinaLanguageCodeStyleSettingsProvider extends LanguageCodeStyl
     private static final String DEFAULT_CODE_SAMPLE =
             "import ballerina/io;\n" +
                     "\n" +
-                    "function main(string... args) {\n" +
+                    "public function main(string... args) {\n" +
                     "\tio:println(\"Hello\");\n" +
                     "}";
 

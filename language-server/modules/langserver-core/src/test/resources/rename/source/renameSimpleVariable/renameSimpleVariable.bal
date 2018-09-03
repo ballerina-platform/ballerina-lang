@@ -1,5 +1,5 @@
 import ballerina/io;
-function main(string... args) {
+public function main(string... args) {
     //simple assignment
     int a = 10;
     int b = a + 20;

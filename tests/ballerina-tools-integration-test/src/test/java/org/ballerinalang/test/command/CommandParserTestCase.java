@@ -20,6 +20,7 @@ package org.ballerinalang.test.command;
 import org.ballerinalang.test.BaseTest;
 import org.ballerinalang.test.context.BallerinaTestException;
 import org.ballerinalang.test.context.LogLeecher;
+import org.ballerinalang.test.context.LogLeecher.LeecherType;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
@@ -94,6 +95,15 @@ public class CommandParserTestCase extends BaseTest {
         Assert.assertTrue(Files.exists(generatedBalx));
     }
 
+    @Test (description = "Test unknown commands", dataProvider = "invalidCommands")
+    public void testUnknownCommand(String unknownCmd) throws BallerinaTestException {
+        LogLeecher errLogLeecher = new LogLeecher("ballerina: unknown command '"
+                + unknownCmd + "'", LeecherType.ERROR);
+        balClient.runMain(unknownCmd, new String[0], null, new String[0],
+                new LogLeecher[]{errLogLeecher}, balServer.getServerHome());
+        errLogLeecher.waitForText(2000);
+    }
+
     @DataProvider(name = "runCmdOptions")
     public Object[][] runCmdOptions() {
         return new Object[][] {
@@ -110,6 +120,15 @@ public class CommandParserTestCase extends BaseTest {
                 { "-5" },
                 { "-1.0" },
                 { "-config" }
+        };
+    }
+
+    @DataProvider(name = "invalidCommands")
+    public Object[][] invalidCommands() {
+        return new Object[][] {
+                { "runs" },
+                { "buil" },
+                { "text" }
         };
     }
 }

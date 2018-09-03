@@ -75,8 +75,8 @@ public class ListDependencyTestCase extends BaseTest {
     public void testListDependenciesOfBalFile() throws Exception {
         Path projectPath = tempProjectDirectory.resolve("initProject");
 
-        String content = "import ballerina/io;\n import ballerina/http; \n \n function main(string... args) {\n    " +
-                "io:println(\"Hello World!\"); \n }\n";
+        String content = "import ballerina/io;\n import ballerina/http; \n \n public function main(string... args) {\n"
+                + "    io:println(\"Hello World!\"); \n }\n";
         Files.write(projectPath.resolve("main.bal"), content.getBytes(), StandardOpenOption.CREATE_NEW);
         String[] clientArgs = {"main.bal"};
 
