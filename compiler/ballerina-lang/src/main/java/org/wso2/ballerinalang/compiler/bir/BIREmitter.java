@@ -31,13 +31,13 @@ import java.util.StringJoiner;
 /**
  * This class emits the text version of the BIR.
  *
+ * TODO improve implementation of this class. This is a WIP implementation.
+ * TODO this implementation is just a quick hack to see the generated BIR.
+ * TODO Explore the possibility of using a templating engine here.
+ *
  * @since 0.980.0
  */
 public class BIREmitter extends BIRVisitor {
-
-    // TODO improve implementation of this class. This is a WIP implementation.
-    // TODO this implementation is just a quick hack to see the generated BIR.
-    // TODO Explore the possibility of using a templating engine here.
 
     private StringBuilder sb = new StringBuilder();
 
@@ -49,7 +49,6 @@ public class BIREmitter extends BIRVisitor {
     }
 
     public void visit(BIRNode.BIRPackage birPackage) {
-        // TODO emit package version
         sb.append("package ").append(birPackage.name).append(";").append("\n\n");
         birPackage.functions.forEach(birFunction -> birFunction.accept(this));
     }

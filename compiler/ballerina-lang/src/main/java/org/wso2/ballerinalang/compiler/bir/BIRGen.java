@@ -352,7 +352,7 @@ public class BIRGen extends BLangNodeVisitor {
         if (this.env.enclBB.terminator == null) {
             this.env.enclBB.terminator = new BIRTerminator.GOTO(whileExprBB);
         } else {
-            throw new RuntimeException("there cannot be a terminator while body basic block");
+            throw new RuntimeException("there cannot be a terminator in while body basic block");
         }
 
         this.env.enclFunc.basicBlocks.add(whileEndBB);
@@ -410,8 +410,6 @@ public class BIRGen extends BLangNodeVisitor {
         } else {
             return Visibility.PRIVATE;
         }
-
-        //TODO handle package-private case.
     }
 
     private void emit(BIRInstruction instruction) {
@@ -443,7 +441,7 @@ public class BIRGen extends BLangNodeVisitor {
             case LESS_EQUAL:
                 return InstructionKind.LESS_EQUAL;
             default:
-                throw new IllegalStateException("Unsupported binary operation: " + opKind.value());
+                throw new IllegalStateException("unsupported binary operation: " + opKind.value());
         }
     }
 }

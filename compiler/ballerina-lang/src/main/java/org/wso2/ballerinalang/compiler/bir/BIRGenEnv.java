@@ -34,38 +34,38 @@ import java.util.Map;
  *
  * @since 0.980.0
  */
-public class BIRGenEnv {
+class BIRGenEnv {
 
-    public BIRPackage enclPkg;
+    BIRPackage enclPkg;
 
-    public BIRFunction enclFunc;
+    BIRFunction enclFunc;
     // This is a cache which can be stored inside the BIRFunction
-    public Map<BSymbol, BIRVariableDcl> symbolVarMap = new HashMap<>();
+    Map<BSymbol, BIRVariableDcl> symbolVarMap = new HashMap<>();
     private int currentBBId = -1;
     private int currentLocalVarId = -1;
 
-    public BIRBasicBlock enclBB;
-    public BIROperand targetOperand;
+    BIRBasicBlock enclBB;
+    BIROperand targetOperand;
 
     // This is the basic block that contains the return instruction for the current function.
     // A function can have only one basic block that has a return instruction.
-    public BIRBasicBlock returnBB;
+    BIRBasicBlock returnBB;
 
-    public BIRGenEnv(BIRPackage birPkg) {
+    BIRGenEnv(BIRPackage birPkg) {
         this.enclPkg = birPkg;
     }
 
-    public Name nextBBId(Names names) {
+    Name nextBBId(Names names) {
         currentBBId++;
         return names.merge(Names.BIR_BASIC_BLOCK_PREFIX, names.fromString(Integer.toString(currentBBId)));
     }
 
-    public Name nextLocalVarId(Names names) {
+    Name nextLocalVarId(Names names) {
         currentLocalVarId++;
         return names.merge(Names.BIR_LOCAL_VAR_PREFIX, names.fromString(Integer.toString(currentLocalVarId)));
     }
 
-    public void clear() {
+    void clear() {
         this.symbolVarMap.clear();
         this.currentLocalVarId = -1;
         this.currentBBId = -1;
@@ -73,6 +73,5 @@ public class BIRGenEnv {
         this.enclBB = null;
         this.returnBB = null;
         this.enclFunc = null;
-
     }
 }

@@ -43,7 +43,6 @@ public abstract class BIRNode {
         public Name name;
         public Name version;
         public List<BIRFunction> functions;
-        //TODO: uncomment: public List<BType> types;
 
         public BIRPackage(Name org, Name name, Name version) {
             this.org = org;
@@ -56,15 +55,6 @@ public abstract class BIRNode {
         public void accept(BIRVisitor visitor) {
             visitor.visit(this);
         }
-
-        // SymbolTable - declaration
-        //      function signatures
-        //      type signatures
-
-        // TODO Consider objects (functions..)
-
-        // definition
-        //      function body...
     }
 
     /**
@@ -74,7 +64,7 @@ public abstract class BIRNode {
      */
     public static class BIRVariableDcl extends BIRNode {
         public BType type;
-        public Name name; // _1
+        public Name name;
         public VarKind kind;
 
         public BIRVariableDcl(BType type, Name name, VarKind kind) {
@@ -138,8 +128,6 @@ public abstract class BIRNode {
          */
         public List<BIRBasicBlock> basicBlocks;
 
-        // TODO taint table storage
-
         public BIRFunction(Name name, Visibility visibility, BInvokableType type) {
             this.name = name;
             this.visibility = visibility;
@@ -147,7 +135,6 @@ public abstract class BIRNode {
             this.localVars = new ArrayList<>();
             this.basicBlocks = new ArrayList<>();
         }
-
 
         @Override
         public void accept(BIRVisitor visitor) {
@@ -176,5 +163,3 @@ public abstract class BIRNode {
         }
     }
 }
-
-// TODO string table..

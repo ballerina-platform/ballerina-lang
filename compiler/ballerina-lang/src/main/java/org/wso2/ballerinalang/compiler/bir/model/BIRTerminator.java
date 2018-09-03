@@ -73,8 +73,11 @@ public abstract class BIRTerminator extends BIRNode implements BIRInstruction {
         public Name name;
         public PackageID calleePkg;
 
-        public Call(PackageID calleePkg, Name name, List<BIROperand> args, BIROperand.BIRVarRef lhsOp, BIRBasicBlock
-                thenBB) {
+        public Call(PackageID calleePkg,
+                    Name name,
+                    List<BIROperand> args,
+                    BIROperand.BIRVarRef lhsOp,
+                    BIRBasicBlock thenBB) {
             super(InstructionKind.CALL);
             this.lhsOp = lhsOp;
             this.args = args;

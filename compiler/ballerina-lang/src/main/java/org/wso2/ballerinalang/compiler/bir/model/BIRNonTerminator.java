@@ -31,7 +31,7 @@ public abstract class BIRNonTerminator extends BIRNode implements BIRInstruction
 
     public InstructionKind kind;
 
-    public BIRNonTerminator(InstructionKind kind) {
+    BIRNonTerminator(InstructionKind kind) {
         this.kind = kind;
     }
 

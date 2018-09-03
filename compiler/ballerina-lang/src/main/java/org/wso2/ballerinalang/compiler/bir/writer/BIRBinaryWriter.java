@@ -140,7 +140,7 @@ public class BIRBinaryWriter {
                     buf.writeInt(pkgCPEntry.versionCPIndex);
                     break;
                 default:
-                    throw new IllegalStateException("Unsupported constant pool entry type: " +
+                    throw new IllegalStateException("unsupported constant pool entry type: " +
                                                     cpEntry.entryType.name());
             }
         }

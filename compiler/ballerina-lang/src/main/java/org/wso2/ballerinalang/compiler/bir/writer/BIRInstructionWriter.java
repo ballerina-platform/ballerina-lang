@@ -143,7 +143,7 @@ public class BIRInstructionWriter extends BIRVisitor {
             case TypeTags.NIL:
                 break;
             default:
-                throw new IllegalStateException("Unsupported constant type: " + type.getDesc());
+                throw new IllegalStateException("unsupported constant type: " + type.getDesc());
         }
     }
 
@@ -156,7 +156,6 @@ public class BIRInstructionWriter extends BIRVisitor {
 
     // private methods
 
-    // TODO Duplicate.
     private void addCpAndWriteString(String string) {
         buf.writeInt(addStringCPEntry(string));
     }
@@ -164,6 +163,4 @@ public class BIRInstructionWriter extends BIRVisitor {
     private int addStringCPEntry(String value) {
         return cp.addCPEntry(new CPEntry.StringCPEntry(value));
     }
-
-
 }
