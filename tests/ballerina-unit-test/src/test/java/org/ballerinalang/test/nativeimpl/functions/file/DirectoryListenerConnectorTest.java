@@ -36,8 +36,23 @@ import java.nio.file.FileVisitOption;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.attribute.FileAttribute;
 import java.nio.file.attribute.FileTime;
+import java.nio.file.attribute.PosixFilePermission;
+import java.nio.file.attribute.PosixFilePermissions;
 import java.util.Comparator;
+import java.util.HashSet;
+import java.util.Set;
+
+import static java.nio.file.attribute.PosixFilePermission.GROUP_EXECUTE;
+import static java.nio.file.attribute.PosixFilePermission.GROUP_READ;
+import static java.nio.file.attribute.PosixFilePermission.GROUP_WRITE;
+import static java.nio.file.attribute.PosixFilePermission.OTHERS_EXECUTE;
+import static java.nio.file.attribute.PosixFilePermission.OTHERS_READ;
+import static java.nio.file.attribute.PosixFilePermission.OTHERS_WRITE;
+import static java.nio.file.attribute.PosixFilePermission.OWNER_EXECUTE;
+import static java.nio.file.attribute.PosixFilePermission.OWNER_READ;
+import static java.nio.file.attribute.PosixFilePermission.OWNER_WRITE;
 
 /**
  * Test class for Directory Listener connector.
@@ -50,12 +65,27 @@ public class DirectoryListenerConnectorTest {
     @BeforeClass
     public void init() {
         try {
-            Path rootListenFolderPath = Files.createDirectory(Paths.get("target", "fs"));
+            FileAttribute<Set<PosixFilePermission>> attr = getFileAttribute();
+            Path rootListenFolderPath = Files.createDirectory(Paths.get("target", "fs"), attr);
             rootDirectory = rootListenFolderPath.toFile();
             rootDirectory.deleteOnExit();
         } catch (IOException e) {
             Assert.fail("Unable to create root folder to setup watch.", e);
         }
+    }
+
+    private FileAttribute<Set<PosixFilePermission>> getFileAttribute() {
+        Set<PosixFilePermission> perms = new HashSet<>();
+        perms.add(OWNER_READ);
+        perms.add(OWNER_WRITE);
+        perms.add(OWNER_EXECUTE);
+        perms.add(GROUP_READ);
+        perms.add(GROUP_WRITE);
+        perms.add(GROUP_EXECUTE);
+        perms.add(OTHERS_READ);
+        perms.add(OTHERS_WRITE);
+        perms.add(OTHERS_EXECUTE);
+        return PosixFilePermissions.asFileAttribute(perms);
     }
 
     @AfterClass
@@ -77,7 +107,7 @@ public class DirectoryListenerConnectorTest {
         CompileResult compileResult = BCompileUtil.compileAndSetup("test-src/file/file-system.bal");
         BServiceUtil.runService(compileResult);
         try {
-            final Path file = Files.createFile(Paths.get("target", "fs", "temp.txt"));
+            final Path file = Files.createFile(Paths.get("target", "fs", "temp.txt"), getFileAttribute());
             Files.setLastModifiedTime(file, FileTime.fromMillis(System.currentTimeMillis()));
             Files.deleteIfExists(file);
         } catch (IOException e) {
