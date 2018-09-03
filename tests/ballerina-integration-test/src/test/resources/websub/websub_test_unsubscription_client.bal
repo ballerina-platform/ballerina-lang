@@ -7,7 +7,7 @@ endpoint websub:Client websubHubClientEP {
     url: "https://localhost:9393/websub/hub"
 };
 
-function main(string... args) {
+public function main(string... args) {
 
     // Send unsubscription request for the subscriber service.
     websub:SubscriptionChangeRequest unsubscriptionRequest = {

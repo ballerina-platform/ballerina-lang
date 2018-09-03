@@ -92,7 +92,7 @@ onClose (endpoint conn, int statusCode, string reason) {}}`);
     },
     createMainFunction: () => {
         return FragmentUtils.createTopLevelNodeFragment(
-            'function main(string... args) {' +
+            'public function main(string... args) {' +
             '}'
         );
     },

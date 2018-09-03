@@ -63,6 +63,7 @@ import org.ballerinalang.util.codegen.attributes.ErrorTableAttributeInfo;
 import org.ballerinalang.util.codegen.attributes.LineNumberTableAttributeInfo;
 import org.ballerinalang.util.codegen.attributes.LocalVariableAttributeInfo;
 import org.ballerinalang.util.codegen.attributes.ParamDefaultValueAttributeInfo;
+import org.ballerinalang.util.codegen.attributes.ParameterAttributeInfo;
 import org.ballerinalang.util.codegen.attributes.TaintTableAttributeInfo;
 import org.ballerinalang.util.codegen.attributes.VarTypeCountAttributeInfo;
 import org.ballerinalang.util.codegen.cpentries.ActionRefCPEntry;
@@ -726,6 +727,8 @@ public class PackageInfoReader {
         boolean nativeFunc = Flags.isFlagOn(flags, Flags.NATIVE);
         functionInfo.setNative(nativeFunc);
 
+        functionInfo.setPublic(Flags.isFlagOn(flags, Flags.PUBLIC));
+
         String uniqueFuncName;
         boolean attached = Flags.isFlagOn(flags, Flags.ATTACHED);
         if (attached) {
@@ -1019,11 +1022,11 @@ public class PackageInfoReader {
                 }
                 return paramDefaultValAttrInfo;
             case PARAMETERS_ATTRIBUTE:
-                // Read and discard required param count, defaultable param and rest param count 
-                dataInStream.readInt();
-                dataInStream.readInt();
-                dataInStream.readInt();
-                return null;
+                ParameterAttributeInfo parameterAttributeInfo = new ParameterAttributeInfo(attribNameCPIndex);
+                parameterAttributeInfo.requiredParamsCount = dataInStream.readInt();
+                parameterAttributeInfo.defaultableParamsCount = dataInStream.readInt();
+                parameterAttributeInfo.restParamCount = dataInStream.readInt();
+                return parameterAttributeInfo;
             case TAINT_TABLE:
                 TaintTableAttributeInfo taintTableAttributeInfo = new TaintTableAttributeInfo(attribNameCPIndex);
                 taintTableAttributeInfo.rowCount = dataInStream.readShort();

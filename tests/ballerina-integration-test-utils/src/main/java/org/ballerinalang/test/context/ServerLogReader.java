@@ -119,6 +119,7 @@ public class ServerLogReader implements Runnable {
                         feedLeechers(s);
                         log.info(s);
                     } else if (STREAM_TYPE_ERROR.equals(streamType)) {
+                        feedLeechers(s);
                         log.error(s);
                     }
                 } else {

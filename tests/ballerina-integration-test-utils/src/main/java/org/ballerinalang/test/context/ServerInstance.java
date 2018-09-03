@@ -52,6 +52,7 @@ public class ServerInstance implements Server {
     private boolean isServerRunning;
     private int[] httpServicePorts = new int[]{Constant.DEFAULT_HTTP_PORT};
     private ConcurrentHashSet<LogLeecher> tmpLeechers = new ConcurrentHashSet<>();
+    private ConcurrentHashSet<LogLeecher> tmpErrLeechers = new ConcurrentHashSet<>();
 
     /**
      * The pidPort value is used with identifying the process id when shutting down the ballerina server.
@@ -183,9 +184,10 @@ public class ServerInstance implements Server {
         startServer(args, envProperties);
 
         serverInfoLogReader = new ServerLogReader("inputStream", process.getInputStream());
-        tmpLeechers.forEach(leacher -> serverInfoLogReader.addLeecher(leacher));
+        tmpLeechers.forEach(leecher -> serverInfoLogReader.addLeecher(leecher));
         serverInfoLogReader.start();
         serverErrorLogReader = new ServerLogReader("errorStream", process.getErrorStream());
+        tmpErrLeechers.forEach(leecher -> serverErrorLogReader.addLeecher(leecher));
         serverErrorLogReader.start();
         log.info("Waiting for ports to open");
         Utils.waitForPortsToOpen(httpServicePorts, 1000 * 60 * 2, false, "localhost");
@@ -311,9 +313,10 @@ public class ServerInstance implements Server {
         try {
             process = executeProcess(args, envVariables, command, commandDir);
             serverInfoLogReader = new ServerLogReader("inputStream", process.getInputStream());
-            tmpLeechers.forEach(leacher -> serverInfoLogReader.addLeecher(leacher));
+            tmpLeechers.forEach(leecher -> serverInfoLogReader.addLeecher(leecher));
             serverInfoLogReader.start();
             serverErrorLogReader = new ServerLogReader("errorStream", process.getErrorStream());
+            tmpErrLeechers.forEach(leecher -> serverErrorLogReader.addLeecher(leecher));
             serverErrorLogReader.start();
 
             process.waitFor();
@@ -466,6 +469,19 @@ public class ServerInstance implements Server {
             return;
         }
         serverInfoLogReader.addLeecher(leecher);
+    }
+
+    /**
+     * Add a Leecher which is going to listen to an expected text on the error stream.
+     *
+     * @param leecher The Leecher instance
+     */
+    public void addErrorLogLeecher(LogLeecher leecher) {
+        if (serverErrorLogReader == null) {
+            tmpErrLeechers.add(leecher);
+            return;
+        }
+        serverErrorLogReader.addLeecher(leecher);
     }
 
     /**
