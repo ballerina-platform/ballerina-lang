@@ -134,22 +134,19 @@ public class Http2TargetHandler extends ChannelDuplexHandler {
             // Write Content
             httpOutboundRequest.getHttpContentAsync().
                     setMessageListener((httpContent ->
-                                                http2ClientChannel.getChannel().eventLoop().execute(() -> {
-                                                    try {
-                                                        writeOutboundRequest(
-                                                                ctx, httpContent);
-                                                    } catch (Exception ex) {
-                                                        String errorMsg = "Failed to send the request : " +
-                                                                          ex.getMessage().
-                                                                                  toLowerCase(Locale.ENGLISH);
-                                                        log.error(errorMsg, ex);
-                                                        outboundMsgHolder.getResponseFuture().notifyHttpListener(ex);
-                                                    }
-                                                })));
+                            http2ClientChannel.getChannel().eventLoop().execute(() -> {
+                                try {
+                                    writeOutboundRequest(ctx, httpContent);
+                                } catch (Exception ex) {
+                                    String errorMsg = "Failed to send the request : " +
+                                            ex.getMessage().toLowerCase(Locale.ENGLISH);
+                                    log.error(errorMsg, ex);
+                                    outboundMsgHolder.getResponseFuture().notifyHttpListener(ex);
+                                }
+                            })));
         }
 
-        private void writeOutboundRequest(ChannelHandlerContext ctx, HttpContent msg)
-                throws Http2Exception {
+        private void writeOutboundRequest(ChannelHandlerContext ctx, HttpContent msg) throws Http2Exception {
 
             boolean endStream = false;
             if (!isHeadersWritten) {
@@ -164,7 +161,6 @@ public class Http2TargetHandler extends ChannelDuplexHandler {
                 writeOutboundRequestHeaders(ctx, httpRequest, streamId, endStream);
                 isHeadersWritten = true;
                 if (endStream) {
-                    markWriteCompletion();
                     return;
                 }
             }
@@ -188,7 +184,6 @@ public class Http2TargetHandler extends ChannelDuplexHandler {
                 release = false;
                 for (Http2DataEventListener dataEventListener : http2ClientChannel.getDataEventListeners()) {
                     if (!dataEventListener.onDataWrite(ctx, streamId, content, endStream)) {
-                        markWriteCompletion();
                         return;
                     }
                 }
@@ -200,7 +195,6 @@ public class Http2TargetHandler extends ChannelDuplexHandler {
                     writeHttp2Headers(ctx, streamId, trailers, http2Trailers, true);
                 }
                 if (endStream) {
-                    markWriteCompletion();
                     outboundMsgHolder.setRequestWritten(true);
                 }
             } catch (Exception ex) {
@@ -245,7 +239,7 @@ public class Http2TargetHandler extends ChannelDuplexHandler {
             int dependencyId = headers.getInt(
                     HttpConversionUtil.ExtensionHeaderNames.STREAM_DEPENDENCY_ID.text(), 0);
             short weight = headers.getShort(HttpConversionUtil.ExtensionHeaderNames.STREAM_WEIGHT.text(),
-                                            Http2CodecUtil.DEFAULT_PRIORITY_WEIGHT);
+                    Http2CodecUtil.DEFAULT_PRIORITY_WEIGHT);
             for (Http2DataEventListener dataEventListener : http2ClientChannel.getDataEventListeners()) {
                 if (!dataEventListener.onHeadersWrite(ctx, streamId, http2Headers, endStream)) {
                     return;
@@ -257,16 +251,8 @@ public class Http2TargetHandler extends ChannelDuplexHandler {
 
             ctx.flush();
             if (endStream) {
-                markWriteCompletion();
                 outboundMsgHolder.setRequestWritten(true);
             }
-        }
-
-        /**
-         * Marks the end of the request writing process.
-         * This should be called after writing the {@code LastHttpContent}.
-         */
-        private void markWriteCompletion() {
         }
     }
 
@@ -308,50 +294,50 @@ public class Http2TargetHandler extends ChannelDuplexHandler {
                 isServerPush = true;
             } else {
                 log.warn("Header Frame received on channel: {} with invalid stream id: {} ", http2ClientChannel,
-                         streamId);
+                        streamId);
                 return;
             }
         }
 
         if (isServerPush) {
             if (endOfStream) {
-                 // Retrieve response message.
-                HttpCarbonMessage responseMessage = outboundMsgHolder.getPushResponse(streamId);
+                // Retrieve response message.
+                HttpCarbonResponse responseMessage = outboundMsgHolder.getPushResponse(streamId);
                 if (responseMessage != null) {
                     onTrailersRead(streamId, http2HeadersFrame.getHeaders(), outboundMsgHolder, responseMessage);
                 } else if (http2HeadersFrame.getHeaders().contains(Constants.HTTP2_METHOD)) {
                     // if the header frame is an initial header frame and also it has endOfStream
-                    responseMessage = setupResponseCarbonMessage(ctx, streamId, http2HeadersFrame
-                            .getHeaders(), outboundMsgHolder);
+                    responseMessage = setupResponseCarbonMessage(ctx, streamId, http2HeadersFrame.getHeaders(),
+                            outboundMsgHolder);
                     responseMessage.addHttpContent(new DefaultLastHttpContent());
-                    outboundMsgHolder.addPushResponse(streamId, (HttpCarbonResponse) responseMessage);
+                    outboundMsgHolder.addPushResponse(streamId, responseMessage);
                 }
                 http2ClientChannel.removePromisedMessage(streamId);
             } else {
                 // Create response carbon message.
-                HttpCarbonMessage responseMessage = setupResponseCarbonMessage(ctx, streamId, http2HeadersFrame
-                        .getHeaders(), outboundMsgHolder);
-                outboundMsgHolder.addPushResponse(streamId, (HttpCarbonResponse) responseMessage);
+                HttpCarbonResponse responseMessage = setupResponseCarbonMessage(ctx, streamId,
+                        http2HeadersFrame.getHeaders(), outboundMsgHolder);
+                outboundMsgHolder.addPushResponse(streamId, responseMessage);
             }
         } else {
             if (endOfStream) {
                 // Retrieve response message.
-                HttpCarbonMessage responseMessage = outboundMsgHolder.getResponse();
+                HttpCarbonResponse responseMessage = outboundMsgHolder.getResponse();
                 if (responseMessage != null) {
                     onTrailersRead(streamId, http2HeadersFrame.getHeaders(), outboundMsgHolder, responseMessage);
                 } else if (http2HeadersFrame.getHeaders().contains(Constants.HTTP2_METHOD)) {
                     // if the header frame is an initial header frame and also it has endOfStream
-                    responseMessage = setupResponseCarbonMessage(ctx, streamId, http2HeadersFrame
-                            .getHeaders(), outboundMsgHolder);
+                    responseMessage = setupResponseCarbonMessage(ctx, streamId, http2HeadersFrame.getHeaders(),
+                            outboundMsgHolder);
                     responseMessage.addHttpContent(new DefaultLastHttpContent());
-                    outboundMsgHolder.setResponse((HttpCarbonResponse) responseMessage);
+                    outboundMsgHolder.setResponse(responseMessage);
                 }
                 http2ClientChannel.removeInFlightMessage(streamId);
             } else {
                 // Create response carbon message.
-                HttpCarbonMessage responseMessage = setupResponseCarbonMessage(ctx, streamId, http2HeadersFrame
-                        .getHeaders(), outboundMsgHolder);
-                outboundMsgHolder.setResponse((HttpCarbonResponse) responseMessage);
+                HttpCarbonResponse responseMessage = setupResponseCarbonMessage(ctx, streamId,
+                        http2HeadersFrame.getHeaders(), outboundMsgHolder);
+                outboundMsgHolder.setResponse(responseMessage);
             }
         }
     }
@@ -364,8 +350,7 @@ public class Http2TargetHandler extends ChannelDuplexHandler {
         HttpHeaders trailers = lastHttpContent.trailingHeaders();
 
         try {
-            HttpConversionUtil.addHttp2ToHttpHeaders(
-                    streamId, headers, trailers, version, true, false);
+            HttpConversionUtil.addHttp2ToHttpHeaders(streamId, headers, trailers, version, true, false);
         } catch (Http2Exception e) {
             outboundMsgHolder.getResponseFuture().
                     notifyHttpListener(new Exception("Error while setting http headers", e));
@@ -414,7 +399,7 @@ public class Http2TargetHandler extends ChannelDuplexHandler {
 
         if (log.isDebugEnabled()) {
             log.debug("Received a push promise on channel: {} over stream id: {}, promisedStreamId: {}",
-                      http2ClientChannel, streamId, promisedStreamId);
+                    http2ClientChannel, streamId, promisedStreamId);
         }
 
         OutboundMsgHolder outboundMsgHolder = http2ClientChannel.getInFlightMessage(streamId);
@@ -462,15 +447,14 @@ public class Http2TargetHandler extends ChannelDuplexHandler {
         HttpCarbonResponse responseCarbonMsg = new HttpCarbonResponse(httpResponse, new DefaultListener(ctx));
 
         // Setting properties of the HTTP Carbon Response
-        responseCarbonMsg.setProperty(Constants.POOLED_BYTE_BUFFER_FACTORY,
-                                      new PooledDataStreamerFactory(ctx.alloc()));
+        responseCarbonMsg.setProperty(Constants.POOLED_BYTE_BUFFER_FACTORY, new PooledDataStreamerFactory(ctx.alloc()));
         responseCarbonMsg.setProperty(Constants.DIRECTION, Constants.DIRECTION_RESPONSE);
         responseCarbonMsg.setProperty(Constants.HTTP_STATUS_CODE, httpResponse.status().code());
 
         /* copy required properties for service chaining from incoming carbon message to the response carbon message
         copy shared worker pool */
         responseCarbonMsg.setProperty(Constants.EXECUTOR_WORKER_POOL,
-                                      outboundMsgHolder.getRequest().getProperty(Constants.EXECUTOR_WORKER_POOL));
+                outboundMsgHolder.getRequest().getProperty(Constants.EXECUTOR_WORKER_POOL));
         return responseCarbonMsg;
     }
 }

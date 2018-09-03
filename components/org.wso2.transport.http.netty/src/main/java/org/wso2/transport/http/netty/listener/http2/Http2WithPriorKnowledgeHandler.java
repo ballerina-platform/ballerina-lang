@@ -34,7 +34,7 @@ import static java.lang.Math.min;
 /**
  * {@code Http2WithPriorKnowledgeHandler} handles the requests received directly in HTTP/2 without
  * attempting an upgrade from HTTP/1.x.
- *
+ * <p>
  * As per https://tools.ietf.org/html/rfc7540#section-3.4 a client can directly send HTTP/2 frames if
  * it is has a prior knowledge of server's capability of handling HTTP/2.
  */
@@ -62,7 +62,7 @@ public class Http2WithPriorKnowledgeHandler extends ChannelInboundHandlerAdapter
             int bytesRead = min(inputData.readableBytes(), clientPrefaceString.readableBytes());
             ChannelPipeline pipeline = ctx.pipeline();
             if (ByteBufUtil.equals(inputData, inputData.readerIndex(), clientPrefaceString,
-                                   clientPrefaceString.readerIndex(), bytesRead)) {
+                    clientPrefaceString.readerIndex(), bytesRead)) {
                 // HTTP/2 request received without an upgrade
                 safelyRemoveHandlers(pipeline, Constants.HTTP_SERVER_CODEC);
                 pipeline.addBefore(
@@ -72,7 +72,7 @@ public class Http2WithPriorKnowledgeHandler extends ChannelInboundHandlerAdapter
                                 interfaceId, serverConnectorFuture, serverName, serverChannelInitializer).build());
 
                 safelyRemoveHandlers(pipeline, Constants.HTTP2_UPGRADE_HANDLER,
-                                          Constants.HTTP_COMPRESSOR, Constants.HTTP_TRACE_LOG_HANDLER);
+                        Constants.HTTP_COMPRESSOR, Constants.HTTP_TRACE_LOG_HANDLER);
             }
             pipeline.remove(this);
             ctx.fireChannelRead(msg);

@@ -43,7 +43,6 @@ import static org.wso2.transport.http.netty.common.Util.safelyRemoveHandlers;
 
 /**
  * {@code Http2SourceConnectionHandler} takes care of handling HTTP/2 source connections.
- *
  */
 public class Http2SourceConnectionHandler extends Http2ConnectionHandler {
 
@@ -57,11 +56,11 @@ public class Http2SourceConnectionHandler extends Http2ConnectionHandler {
     private HttpServerChannelInitializer serverChannelInitializer;
 
     Http2SourceConnectionHandler(HttpServerChannelInitializer serverChannelInitializer,
-                                           Http2ConnectionDecoder decoder, Http2ConnectionEncoder encoder,
-                                           Http2Settings initialSettings,
-                                           String interfaceId,
-                                           ServerConnectorFuture serverConnectorFuture,
-                                           String serverName) {
+                                 Http2ConnectionDecoder decoder, Http2ConnectionEncoder encoder,
+                                 Http2Settings initialSettings,
+                                 String interfaceId,
+                                 ServerConnectorFuture serverConnectorFuture,
+                                 String serverName) {
         super(decoder, encoder, initialSettings);
         this.serverChannelInitializer = serverChannelInitializer;
         this.encoder = encoder;
@@ -76,11 +75,10 @@ public class Http2SourceConnectionHandler extends Http2ConnectionHandler {
         super.handlerAdded(ctx);
         // Remove unwanted handlers after upgrade
         safelyRemoveHandlers(ctx.pipeline(), Constants.HTTP2_TO_HTTP_FALLBACK_HANDLER, Constants.HTTP_COMPRESSOR,
-                             Constants.HTTP_TRACE_LOG_HANDLER, Constants.HTTP_ACCESS_LOG_HANDLER);
+                Constants.HTTP_TRACE_LOG_HANDLER, Constants.HTTP_ACCESS_LOG_HANDLER);
         // Add HTTP2 Source handler
-        Http2SourceHandler http2SourceHandler = new Http2SourceHandler(
-                serverChannelInitializer, encoder, interfaceId, connection(),
-                serverConnectorFuture, serverName);
+        Http2SourceHandler http2SourceHandler = new Http2SourceHandler(serverChannelInitializer, encoder, interfaceId,
+                connection(), serverConnectorFuture, serverName);
         ctx.pipeline().addLast(Constants.HTTP2_SOURCE_HANDLER, http2SourceHandler);
     }
 
@@ -96,8 +94,7 @@ public class Http2SourceConnectionHandler extends Http2ConnectionHandler {
         Http2Exception embedded = getEmbeddedHttp2Exception(cause);
         if (embedded instanceof Http2Exception.ClosedStreamCreationException) {
             // We will end up here if we try to write to a already rejected stream
-            log.warn("Stream creation failed, {}, {}",
-                     Constants.PROMISED_STREAM_REJECTED_ERROR, embedded.getMessage());
+            log.warn("Stream creation failed, {}, {}", Constants.PROMISED_STREAM_REJECTED_ERROR, embedded.getMessage());
         } else {
             super.onError(ctx, cause);
         }

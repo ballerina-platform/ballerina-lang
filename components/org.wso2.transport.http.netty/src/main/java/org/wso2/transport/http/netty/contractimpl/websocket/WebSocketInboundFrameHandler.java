@@ -211,16 +211,19 @@ public class WebSocketInboundFrameHandler extends ChannelInboundHandlerAdapter {
     private void notifyCloseMessage(CloseWebSocketFrame closeWebSocketFrame) throws WebSocketConnectorException {
         String reasonText = closeWebSocketFrame.reasonText();
         int statusCode = closeWebSocketFrame.statusCode();
+        if (statusCode == -1) {
+            statusCode = 1005;
+        }
         // closePromise == null means that WebSocketConnection has not yet initiated a connection closure.
         if (closePromise == null) {
             DefaultWebSocketMessage webSocketCloseMessage = new DefaultWebSocketCloseMessage(statusCode, reasonText);
             setupCommonProperties(webSocketCloseMessage);
             connectorFuture.notifyWebSocketListener((WebSocketCloseMessage) webSocketCloseMessage);
         } else {
-            if (webSocketConnection.getCloseInitiatedStatusCode() != closeWebSocketFrame.statusCode()) {
+            if (webSocketConnection.getCloseInitiatedStatusCode() != statusCode) {
                 String errMsg = String.format(
                         "Expected status code %d but found %d in echoed close frame from remote endpoint",
-                        webSocketConnection.getCloseInitiatedStatusCode(), closeWebSocketFrame.statusCode());
+                        webSocketConnection.getCloseInitiatedStatusCode(), statusCode);
                 closePromise.setFailure(new IllegalStateException(errMsg));
                 return;
             }

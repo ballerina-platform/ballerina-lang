@@ -33,21 +33,15 @@ import org.wso2.transport.http.netty.config.KeepAliveConfig;
 import org.wso2.transport.http.netty.contract.HttpResponseFuture;
 import org.wso2.transport.http.netty.internal.HandlerExecutor;
 import org.wso2.transport.http.netty.internal.HttpTransportContextHolder;
+import org.wso2.transport.http.netty.listener.states.MessageStateContext;
 import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 import org.wso2.transport.http.netty.sender.channel.TargetChannel;
 import org.wso2.transport.http.netty.sender.channel.pool.ConnectionManager;
 import org.wso2.transport.http.netty.sender.http2.Http2ClientChannel;
 import org.wso2.transport.http.netty.sender.http2.Http2TargetHandler;
-import org.wso2.transport.http.netty.sender.http2.OutboundMsgHolder;
 import org.wso2.transport.http.netty.sender.http2.TimeoutHandler;
 
-import java.io.IOException;
-
-import static org.wso2.transport.http.netty.common.SourceInteractiveState.ENTITY_BODY_RECEIVED;
-import static org.wso2.transport.http.netty.common.SourceInteractiveState.RECEIVING_ENTITY_BODY;
 import static org.wso2.transport.http.netty.common.Util.createInboundRespCarbonMsg;
-import static org.wso2.transport.http.netty.common.Util.isKeepAlive;
-import static org.wso2.transport.http.netty.common.Util.isLastHttpContent;
 import static org.wso2.transport.http.netty.common.Util.safelyRemoveHandlers;
 
 /**
@@ -65,69 +59,30 @@ public class TargetHandler extends ChannelInboundHandlerAdapter {
     private HandlerExecutor handlerExecutor;
     private KeepAliveConfig keepAliveConfig;
     private boolean idleTimeoutTriggered;
-    private TargetErrorHandler targetErrorHandler;
-
-    public TargetHandler() {
-        targetErrorHandler = new TargetErrorHandler();
-    }
 
     @SuppressWarnings("unchecked")
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
-        if (outboundRequestMsg != null) {
-            outboundRequestMsg.setIoException(new IOException(Constants.INBOUND_RESPONSE_ALREADY_RECEIVED));
-        }
+        MessageStateContext messageStateContext = outboundRequestMsg.getMessageStateContext();
+
         if (handlerExecutor != null) {
             handlerExecutor.executeAtTargetResponseReceiving(inboundResponseMsg);
         }
         if (targetChannel.isRequestHeaderWritten()) {
             if (msg instanceof HttpResponse) {
-                readInboundResponseHeaders(ctx, (HttpResponse) msg);
+                inboundResponseMsg = createInboundRespCarbonMsg(ctx, (HttpResponse) msg, outboundRequestMsg);
+                messageStateContext.getSenderState().readInboundResponseHeaders(this, (HttpResponse) msg);
             } else {
-                readInboundRespEntityBody(ctx, (HttpContent) msg);
+                if (inboundResponseMsg != null) {
+                    messageStateContext.getSenderState().readInboundResponseEntityBody(ctx, (HttpContent) msg,
+                                                                                       getInboundResponseMsg());
+                }
             }
         } else {
             if (msg instanceof HttpResponse) {
                 log.warn("Received a response for an obsolete request {}", msg);
             }
             ReferenceCountUtil.release(msg);
-        }
-    }
-
-    private void readInboundResponseHeaders(ChannelHandlerContext ctx, HttpResponse httpInboundResponse) {
-        targetErrorHandler.setState(RECEIVING_ENTITY_BODY);
-        inboundResponseMsg = createInboundRespCarbonMsg(ctx, httpInboundResponse, outboundRequestMsg);
-
-        OutboundMsgHolder msgHolder = http2TargetHandler.
-                getHttp2ClientChannel().getInFlightMessage(Http2CodecUtil.HTTP_UPGRADE_STREAM_ID);
-        if (msgHolder != null) {
-            // Response received over HTTP/1.x connection, so mark no push promises available in the channel
-            msgHolder.markNoPromisesReceived();
-        }
-        if (this.httpResponseFuture != null) {
-            httpResponseFuture.notifyHttpListener(inboundResponseMsg);
-        } else {
-            log.error("Cannot notify the response to client as there is no associated responseFuture");
-        }
-
-        if (httpInboundResponse.decoderResult().isFailure()) {
-            log.warn(httpInboundResponse.decoderResult().cause().getMessage());
-        }
-    }
-
-    private void readInboundRespEntityBody(ChannelHandlerContext ctx, HttpContent httpContent) throws Exception {
-        if (inboundResponseMsg != null) {
-            inboundResponseMsg.addHttpContent(httpContent);
-
-            if (isLastHttpContent(httpContent)) {
-                this.inboundResponseMsg = null;
-                targetChannel.getChannel().pipeline().remove(Constants.IDLE_STATE_HANDLER);
-                targetErrorHandler.setState(ENTITY_BODY_RECEIVED);
-                if (!isKeepAlive(keepAliveConfig, outboundRequestMsg)) {
-                    closeChannel(ctx);
-                }
-                connectionManager.returnChannel(targetChannel);
-            }
         }
     }
 
@@ -144,9 +99,8 @@ public class TargetHandler extends ChannelInboundHandlerAdapter {
     public void channelInactive(ChannelHandlerContext ctx) throws Exception {
         closeChannel(ctx);
         if (!idleTimeoutTriggered) {
-            targetErrorHandler.handleErrorCloseScenario(inboundResponseMsg);
+            outboundRequestMsg.getMessageStateContext().getSenderState().handleAbruptChannelClosure(httpResponseFuture);
         }
-
         connectionManager.invalidateTargetChannel(targetChannel);
 
         if (handlerExecutor != null) {
@@ -158,7 +112,7 @@ public class TargetHandler extends ChannelInboundHandlerAdapter {
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
         closeChannel(ctx);
-        targetErrorHandler.exceptionCaught(cause);
+        log.warn("Exception occurred in TargetHandler : {}", cause.getMessage());
     }
 
     @Override
@@ -169,7 +123,8 @@ public class TargetHandler extends ChannelInboundHandlerAdapter {
                 targetChannel.getChannel().pipeline().remove(Constants.IDLE_STATE_HANDLER);
                 this.idleTimeoutTriggered = true;
                 this.channelInactive(ctx);
-                this.targetErrorHandler.handleErrorIdleScenarios(inboundResponseMsg, ctx.channel().id().asLongText());
+                outboundRequestMsg.getMessageStateContext().getSenderState().handleIdleTimeoutConnectionClosure(
+                        httpResponseFuture, ctx.channel().id().asLongText());
             }
         } else if (evt instanceof HttpClientUpgradeHandler.UpgradeEvent) {
             HttpClientUpgradeHandler.UpgradeEvent upgradeEvent = (HttpClientUpgradeHandler.UpgradeEvent) evt;
@@ -200,7 +155,7 @@ public class TargetHandler extends ChannelInboundHandlerAdapter {
 
         // Remove Http specific handlers
         safelyRemoveHandlers(targetChannel.getChannel().pipeline(), Constants.IDLE_STATE_HANDLER,
-                Constants.HTTP_TRACE_LOG_HANDLER);
+                             Constants.HTTP_TRACE_LOG_HANDLER);
         http2ClientChannel.addDataEventListener(
                 Constants.IDLE_STATE_HANDLER,
                 new TimeoutHandler(http2ClientChannel.getSocketIdleTimeout(), http2ClientChannel));
@@ -217,7 +172,7 @@ public class TargetHandler extends ChannelInboundHandlerAdapter {
                 addHttp2ClientChannel(targetChannel.getHttpRoute(), targetChannel.getHttp2ClientChannel());
     }
 
-    private void closeChannel(ChannelHandlerContext ctx) {
+    public void closeChannel(ChannelHandlerContext ctx) {
         // The if condition here checks if the connection has already been closed by either the client or the backend.
         // If it was the backend which closed the connection, the channel inactive event will be triggered and
         // subsequently, this method will be called.
@@ -254,7 +209,31 @@ public class TargetHandler extends ChannelInboundHandlerAdapter {
         this.http2TargetHandler = http2TargetHandler;
     }
 
-    public TargetErrorHandler getTargetErrorHandler() {
-        return targetErrorHandler;
+    public HttpCarbonMessage getInboundResponseMsg() {
+        return inboundResponseMsg;
+    }
+
+    public Http2TargetHandler getHttp2TargetHandler() {
+        return http2TargetHandler;
+    }
+
+    public void resetInboundMsg() {
+        this.inboundResponseMsg = null;
+    }
+
+    public TargetChannel getTargetChannel() {
+        return targetChannel;
+    }
+
+    public KeepAliveConfig getKeepAliveConfig() {
+        return keepAliveConfig;
+    }
+
+    public HttpCarbonMessage getOutboundRequestMsg() {
+        return outboundRequestMsg;
+    }
+
+    public ConnectionManager getConnectionManager() {
+        return connectionManager;
     }
 }

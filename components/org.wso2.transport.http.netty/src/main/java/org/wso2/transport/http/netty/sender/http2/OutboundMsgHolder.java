@@ -47,8 +47,8 @@ public class OutboundMsgHolder {
     private long lastReadWriteTime;
     private boolean requestWritten;
 
-    public OutboundMsgHolder(HttpCarbonMessage httpCarbonMessage) {
-        this.requestCarbonMessage = httpCarbonMessage;
+    public OutboundMsgHolder(HttpCarbonMessage httpOutboundRequest) {
+        this.requestCarbonMessage = httpOutboundRequest;
         promises = new LinkedBlockingQueue<>();
         pushResponsesMap = new ConcurrentHashMap<>();
         responseFuture = new DefaultHttpResponseFuture(this);
@@ -99,8 +99,8 @@ public class OutboundMsgHolder {
     /**
      * Adds a push response message.
      *
-     * @param streamId  id of the stream in which the push response received
-     * @param pushResponse  push response message
+     * @param streamId     id of the stream in which the push response received
+     * @param pushResponse push response message
      */
     void addPushResponse(int streamId, HttpCarbonResponse pushResponse) {
         pushResponsesMap.put(streamId, pushResponse);
@@ -110,7 +110,7 @@ public class OutboundMsgHolder {
     /**
      * Checks whether all push promises received.
      *
-     * @return  whether all push promises received
+     * @return whether all push promises received
      */
     public boolean isAllPromisesReceived() {
         return allPromisesReceived;
@@ -207,10 +207,6 @@ public class OutboundMsgHolder {
      */
     public void setRequestWritten(boolean requestWritten) {
         this.requestWritten = requestWritten;
-    }
-
-    void updateRequest(HttpCarbonMessage requestCarbonMessage) {
-        this.requestCarbonMessage = requestCarbonMessage;
     }
 }
 
