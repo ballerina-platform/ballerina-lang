@@ -91,49 +91,49 @@ public type TimeWindow object {
     }
 
     public function process(StreamEvent[] streamEvents) {
-
         LinkedList streamEventChunk = new;
+        lock {
+            foreach event in streamEvents {
+                streamEventChunk.addLast(event);
+            }
 
-        foreach event in streamEvents {
-            streamEventChunk.addLast(event);
-        }
+            streamEventChunk.resetToFront();
 
-        streamEventChunk.resetToFront();
+            while (streamEventChunk.hasNext()) {
+                StreamEvent streamEvent = check <StreamEvent>streamEventChunk.next();
+                int currentTime = time:currentTime().time;
+                expiredEventQueue.resetToFront();
 
-        while (streamEventChunk.hasNext()) {
-            StreamEvent streamEvent = check <StreamEvent> streamEventChunk.next();
-            int currentTime = time:currentTime().time;
-            expiredEventQueue.resetToFront();
+                while (expiredEventQueue.hasNext()) {
+                    StreamEvent expiredEvent = check <StreamEvent>expiredEventQueue.next();
+                    int timeDiff = (expiredEvent.timestamp - currentTime) + timeInMillis;
+                    if (timeDiff <= 0) {
+                        expiredEventQueue.removeCurrent();
+                        expiredEvent.timestamp = currentTime;
+                        streamEventChunk.insertBeforeCurrent(expiredEvent);
+                    } else {
+                        break;
+                    }
+                }
 
-            while (expiredEventQueue.hasNext()) {
-                StreamEvent expiredEvent = check <StreamEvent>expiredEventQueue.next();
-                int timeDiff = (expiredEvent.timestamp - currentTime) + timeInMillis;
-                if (timeDiff <= 0) {
-                    expiredEventQueue.removeCurrent();
-                    expiredEvent.timestamp = currentTime;
-                    streamEventChunk.insertBeforeCurrent(expiredEvent);
+                if (streamEvent.eventType == "CURRENT") {
+                    StreamEvent clonedEvent = cloneStreamEvent(streamEvent);
+                    clonedEvent.eventType = "EXPIRED";
+                    expiredEventQueue.addLast(clonedEvent);
+
+                    if (lastTimestamp < clonedEvent.timestamp) {
+                        task:Timer timer = new task:Timer(self.invokeProcess, self.handleError, timeInMillis,
+                            delay = timeInMillis - (time:currentTime().time - clonedEvent.timestamp));
+                        _ = timer.start();
+                        timerQueue.addLast(timer);
+                        lastTimestamp = clonedEvent.timestamp;
+                    }
                 } else {
-                    break;
+                    streamEventChunk.removeCurrent();
                 }
             }
-
-            if (streamEvent.eventType == "CURRENT") {
-                StreamEvent clonedEvent = cloneStreamEvent(streamEvent);
-                clonedEvent.eventType = "EXPIRED";
-                expiredEventQueue.addLast(clonedEvent);
-
-                if (lastTimestamp < clonedEvent.timestamp) {
-                    task:Timer timer = new task:Timer(self.invokeProcess, self.handleError, timeInMillis , delay =
-                            timeInMillis - (time:currentTime().time - clonedEvent.timestamp));
-                    _ = timer.start();
-                    timerQueue.addLast(timer);
-                    lastTimestamp = clonedEvent.timestamp;
-                }
-            } else {
-                streamEventChunk.removeCurrent();
-            }
+            expiredEventQueue.resetToFront();
         }
-        expiredEventQueue.resetToFront();
         if (streamEventChunk.getSize() != 0) {
             StreamEvent[] events = [];
             streamEventChunk.resetToFront();
@@ -149,9 +149,11 @@ public type TimeWindow object {
         StreamEvent timerEvent = {eventType : "TIMER", eventObject: (), timestamp: time:currentTime().time};
         StreamEvent[] timerEventWrapper = [];
         timerEventWrapper[0] = timerEvent;
-        task:Timer timer = check <task:Timer> timerQueue.removeFirst();
-        _ = timer.stop();
         process(timerEventWrapper);
+        if (!timerQueue.isEmpty()) {
+            task:Timer timer = check <task:Timer>timerQueue.removeFirst();
+            _ = timer.stop();
+        }
         return ();
     }
 
