@@ -99,11 +99,11 @@ public class Respond extends ConnectionAction {
         try {
             if (pipeliningRequired(inboundRequestMsg)) {
                 if (log.isDebugEnabled()) {
-                    log.debug("Pipelining is required. Sequence id of the request:" +
+                    log.debug("Pipelining is required. Sequence id of the request: {}",
                             inboundRequestMsg.getSequenceId());
                 }
-                PipelinedResponse pipelinedResponse = new PipelinedResponse(inboundRequestMsg.getSequenceId(),
-                        inboundRequestMsg, outboundResponseMsg, dataContext, outboundResponseStruct);
+                PipelinedResponse pipelinedResponse = new PipelinedResponse(inboundRequestMsg, outboundResponseMsg,
+                        dataContext, outboundResponseStruct);
                 setPipeliningListener(outboundResponseMsg);
                 executePipeliningLogic(inboundRequestMsg.getSourceContext(), pipelinedResponse);
             } else {

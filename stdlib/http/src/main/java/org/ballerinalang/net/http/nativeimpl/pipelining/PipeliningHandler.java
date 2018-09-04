@@ -55,15 +55,14 @@ public class PipeliningHandler {
         try {
             responseMsg.setPipeliningNeeded(requestMsg.isPipeliningNeeded());
             if (pipeliningRequired(requestMsg)) {
-                PipelinedResponse pipelinedResponse = new PipelinedResponse(requestMsg.getSequenceId(),
-                        requestMsg, responseMsg);
+                PipelinedResponse pipelinedResponse = new PipelinedResponse(requestMsg, responseMsg);
                 setPipeliningListener(responseMsg);
                 responseFuture = executePipeliningLogic(requestMsg.getSourceContext(), pipelinedResponse);
             } else {
                 responseFuture = requestMsg.respond(responseMsg);
             }
         } catch (org.wso2.transport.http.netty.contract.ServerConnectorException e) {
-            throw new BallerinaConnectorException("Error occurred during response", e);
+            throw new BallerinaConnectorException("Error occurred while sending outbound response", e);
         }
         return responseFuture;
     }
@@ -88,7 +87,7 @@ public class PipeliningHandler {
                 responseQueue.add(pipelinedResponse);
             }
             while (!responseQueue.isEmpty()) {
-                Integer nextSequenceNumber = sourceContext.channel().attr(Constants.NEXT_SEQUENCE_NUMBER).get();
+                long nextSequenceNumber = sourceContext.channel().attr(Constants.NEXT_SEQUENCE_NUMBER).get();
                 final PipelinedResponse queuedPipelinedResponse = responseQueue.peek();
                 long currentSequenceNumber = queuedPipelinedResponse.getSequenceId();
                 if (currentSequenceNumber != nextSequenceNumber) {
@@ -145,7 +144,8 @@ public class PipeliningHandler {
 
         if (responseQueue.size() > maxQueuedResponses) {
             sourceContext.close();
-            log.warn("Threshold for pipelined response queue reached hence closing the connection.");
+            log.warn("Threshold {} for pipelined response queue reached hence closing the connection.",
+                    maxQueuedResponses);
             return true;
         }
         return false;

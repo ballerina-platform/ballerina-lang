@@ -40,20 +40,19 @@ public class PipelinedResponse implements Comparable<PipelinedResponse> {
     private BMap<String, BValue> outboundResponse; //Ballerina outbound response object
     private final long sequenceId; //Identifies the response order
 
-    public PipelinedResponse(long sequenceId, HttpCarbonMessage inboundRequestMsg, HttpCarbonMessage
+    public PipelinedResponse(HttpCarbonMessage inboundRequestMsg, HttpCarbonMessage
             outboundResponseMsg, DataContext dataContext, BMap<String, BValue> outboundResponse) {
         this.inboundRequestMsg = inboundRequestMsg;
         this.outboundResponseMsg = outboundResponseMsg;
         this.dataContext = dataContext;
         this.outboundResponse = outboundResponse;
-        this.sequenceId = sequenceId;
+        this.sequenceId = inboundRequestMsg.getSequenceId();
     }
 
-    PipelinedResponse(long sequenceId, HttpCarbonMessage inboundRequestMsg,
-                      HttpCarbonMessage outboundResponseMsg) {
+    PipelinedResponse(HttpCarbonMessage inboundRequestMsg, HttpCarbonMessage outboundResponseMsg) {
         this.inboundRequestMsg = inboundRequestMsg;
         this.outboundResponseMsg = outboundResponseMsg;
-        this.sequenceId = sequenceId;
+        this.sequenceId = inboundRequestMsg.getSequenceId();
     }
 
     long getSequenceId() {
