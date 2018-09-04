@@ -243,8 +243,8 @@ public class SendingEntityBody implements ListenerState {
                 //if the other responses got ready before the nextSequenceNumber gets updated then the
                 //ballerina respond() won't start serializing the responses in queue. This is to trigger
                 //that process again.
-                if (outboundResponseMsg.getPipelineListener() != null) {
-                    outboundResponseMsg.getPipelineListener().onLastHttpContentSent(sourceContext);
+                if (outboundResponseMsg.getPipeliningFuture() != null) {
+                    outboundResponseMsg.getPipeliningFuture().notifyPipeliningListener(sourceContext);
                 }
             }
         }

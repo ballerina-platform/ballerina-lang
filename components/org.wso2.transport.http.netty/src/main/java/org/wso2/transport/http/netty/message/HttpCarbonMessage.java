@@ -62,9 +62,9 @@ public class HttpCarbonMessage {
     private MessageStateContext messageStateContext;
 
 
-    private int sequenceId; //Keep track of request/response order
+    private long sequenceId; //Keep track of request/response order
     private ChannelHandlerContext sourceContext;
-    private HttpPipelineListener pipelineListener;
+    private HttpPipeliningFuture pipeliningFuture;
     private boolean keepAlive;
     private boolean pipeliningNeeded;
 
@@ -407,11 +407,11 @@ public class HttpCarbonMessage {
         this.messageStateContext = messageStateContext;
     }
 
-    public int getSequenceId() {
+    public long getSequenceId() {
         return sequenceId;
     }
 
-    public void setSequenceId(int sequenceId) {
+    public void setSequenceId(long sequenceId) {
         this.sequenceId = sequenceId;
     }
 
@@ -421,14 +421,6 @@ public class HttpCarbonMessage {
 
     public void setSourceContext(ChannelHandlerContext sourceContext) {
         this.sourceContext = sourceContext;
-    }
-
-    public HttpPipelineListener getPipelineListener() {
-        return pipelineListener;
-    }
-
-    public void setPipelineListener(HttpPipelineListener pipelineListener) {
-        this.pipelineListener = pipelineListener;
     }
 
     public boolean isKeepAlive() {
@@ -445,5 +437,13 @@ public class HttpCarbonMessage {
 
     public void setPipeliningNeeded(boolean pipeliningNeeded) {
         this.pipeliningNeeded = pipeliningNeeded;
+    }
+
+    public HttpPipeliningFuture getPipeliningFuture() {
+        return pipeliningFuture;
+    }
+
+    public void setPipeliningFuture(HttpPipeliningFuture pipeliningFuture) {
+        this.pipeliningFuture = pipeliningFuture;
     }
 }

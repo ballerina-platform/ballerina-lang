@@ -53,6 +53,7 @@ public class ListenerConfiguration extends SslConfiguration {
     private List<Parameter> parameters = getDefaultParameters();
     private RequestSizeValidationConfig requestSizeValidationConfig = new RequestSizeValidationConfig();
     private boolean pipeliningNeeded;
+    private long maxQueuedResponseCount;
 
     public ListenerConfiguration() {
     }
@@ -182,5 +183,13 @@ public class ListenerConfiguration extends SslConfiguration {
 
     public void setPipeliningNeeded(boolean pipeliningNeeded) {
         this.pipeliningNeeded = pipeliningNeeded;
+    }
+
+    public long getMaxQueuedResponseCount() {
+        return maxQueuedResponseCount;
+    }
+
+    public void setMaxQueuedResponseCount(long maxQueuedResponseCount) {
+        this.maxQueuedResponseCount = maxQueuedResponseCount;
     }
 }

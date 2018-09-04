@@ -89,6 +89,7 @@ public class HttpServerChannelInitializer extends ChannelInitializer<SocketChann
     private ChannelGroup allChannels;
     private boolean ocspStaplingEnabled = false;
     private boolean pipeliningNeeded;
+    private long maxQueuedResponseCount;
 
     @Override
     public void initChannel(SocketChannel ch) throws Exception {
@@ -199,7 +200,7 @@ public class HttpServerChannelInitializer extends ChannelInitializer<SocketChann
         serverPipeline.addLast(Constants.HTTP_SOURCE_HANDLER,
                                new SourceHandler(this.serverConnectorFuture, this.interfaceId, this.chunkConfig,
                                                  keepAliveConfig, this.serverName, this.allChannels,
-                                       this.pipeliningNeeded));
+                                       this.pipeliningNeeded, this.maxQueuedResponseCount));
         if (socketIdleTimeout >= 0) {
             serverPipeline.addBefore(Constants.HTTP_SOURCE_HANDLER, Constants.IDLE_STATE_HANDLER,
                     new IdleStateHandler(socketIdleTimeout, socketIdleTimeout, socketIdleTimeout,
@@ -327,6 +328,10 @@ public class HttpServerChannelInitializer extends ChannelInitializer<SocketChann
 
     void setPipeliningNeeded(boolean pipeliningNeeded) {
         this.pipeliningNeeded = pipeliningNeeded;
+    }
+
+    public void setMaxQueuedResponseCount(long maxQueuedResponseCount) {
+        this.maxQueuedResponseCount = maxQueuedResponseCount;
     }
 
     /**

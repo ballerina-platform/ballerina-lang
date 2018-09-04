@@ -44,7 +44,7 @@ import static org.testng.AssertJUnit.assertEquals;
 /**
  * Test HTTP pipelining properties.
  *
- * @since 6.0.227
+ * @since 6.0.228
  */
 public class HttpPipeliningTestCase {
 

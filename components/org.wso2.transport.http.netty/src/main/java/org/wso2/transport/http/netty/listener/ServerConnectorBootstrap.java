@@ -55,7 +55,6 @@ public class ServerConnectorBootstrap {
     private boolean initialized;
     private boolean isHttps = false;
     private ChannelGroup allChannels;
-    private boolean pipeliningNeeded = false;
 
     public ServerConnectorBootstrap(ChannelGroup allChannels) {
         serverBootstrap = new ServerBootstrap();
@@ -159,6 +158,10 @@ public class ServerConnectorBootstrap {
 
     public void setPipeliningNeeded(boolean pipeliningNeeded) {
         httpServerChannelInitializer.setPipeliningNeeded(pipeliningNeeded);
+    }
+
+    public void setMaxQueuedResponseCount(long maxQueuedResponseCount) {
+        httpServerChannelInitializer.setMaxQueuedResponseCount(maxQueuedResponseCount);
     }
 
     class HttpServerConnector implements ServerConnector {

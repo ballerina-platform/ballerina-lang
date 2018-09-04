@@ -62,7 +62,7 @@ import static org.wso2.transport.http.netty.common.Util.createInboundReqCarbonMs
 import static org.wso2.transport.http.netty.common.Util.isKeepAliveConnection;
 
 /**
- * A Class responsible for handle  incoming message through netty inbound pipeline.
+ * A Class responsible for handling incoming message through netty inbound pipeline.
  */
 public class SourceHandler extends ChannelInboundHandlerAdapter {
     private static Logger log = LoggerFactory.getLogger(SourceHandler.class);
@@ -83,13 +83,13 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
     private SocketAddress remoteAddress;
 
     private boolean pipeliningNeeded; //Based on the pipelining config
-    private final int maximumEvents = 3; //TODO: Let the user configure this
-    private int sequenceId = 1; //Keep track of the request order for http 1.1 pipelining
+    private long maxQueuedResponseCount; //Max number of responses allowed to be queued when pipelining is enabled
+    private long sequenceId = 1; //Keep track of the request order for http 1.1 pipelining
     private final Queue holdingQueue = new PriorityQueue<>(NUMBER_OF_INITIAL_EVENTS_HELD);
 
     public SourceHandler(ServerConnectorFuture serverConnectorFuture, String interfaceId, ChunkConfig chunkConfig,
                          KeepAliveConfig keepAliveConfig, String serverName, ChannelGroup allChannels, boolean
-                                 pipeliningNeeded) {
+                                 pipeliningNeeded, long maxQueuedResponseCount) {
         this.serverConnectorFuture = serverConnectorFuture;
         this.interfaceId = interfaceId;
         this.chunkConfig = chunkConfig;
@@ -99,6 +99,7 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
         this.serverName = serverName;
         this.allChannels = allChannels;
         this.pipeliningNeeded = pipeliningNeeded;
+        this.maxQueuedResponseCount = maxQueuedResponseCount;
     }
 
     @SuppressWarnings("unchecked")
@@ -242,7 +243,7 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
      */
     private void setPipeliningProperties() {
         if (ctx.channel().attr(Constants.MAX_RESPONSES_ALLOWED_TO_BE_QUEUED).get() == null) {
-            ctx.channel().attr(Constants.MAX_RESPONSES_ALLOWED_TO_BE_QUEUED).set(maximumEvents);
+            ctx.channel().attr(Constants.MAX_RESPONSES_ALLOWED_TO_BE_QUEUED).set(maxQueuedResponseCount);
         }
         if (ctx.channel().attr(Constants.RESPONSE_QUEUE).get() == null) {
             ctx.channel().attr(Constants.RESPONSE_QUEUE).set(holdingQueue);

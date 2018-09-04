@@ -40,7 +40,7 @@ import java.util.concurrent.Executors;
 /**
  * Mock pipelining listener.
  *
- * @since 6.0.227
+ * @since 6.0.228
  */
 public class HttpPipeliningListener implements HttpConnectorListener {
     private static final Logger log = LoggerFactory.getLogger(HttpPipeliningListener.class);
