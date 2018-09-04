@@ -2150,7 +2150,7 @@ public class CPU {
         }
     }
 
-    private static boolean isByteLiteral(long longValue) {
+    public static boolean isByteLiteral(long longValue) {
         return (longValue >= BBYTE_MIN_VALUE && longValue <= BBYTE_MAX_VALUE);
     }
 
@@ -3450,16 +3450,15 @@ public class CPU {
         if (typeTag == TypeTags.XML_TAG) {
             sf.longRegs[j] = ((BXML) entity).length();
             return;
-        } else if (typeTag == TypeTags.MAP_TAG) {
+        } else if (entity instanceof BMap) {
             sf.longRegs[j] = ((BMap) entity).size();
             return;
-        } else if (!(entity instanceof BNewArray)) {
-            sf.longRegs[j] = -1;
+        } else if (entity instanceof BNewArray) {
+            sf.longRegs[j] = ((BNewArray) entity).size();
             return;
         }
 
-        BNewArray newArray = (BNewArray) entity;
-        sf.longRegs[j] = newArray.size();
+        sf.longRegs[j] = -1;
         return;
     }
 

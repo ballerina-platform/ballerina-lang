@@ -80,38 +80,43 @@ public class ConfigProcessor {
     }
 
     private static void lookUpVariables(Map<String, Object> configFileEntries) {
-        configFileEntries.entrySet().forEach(entry -> {
-            Object val = entry.getValue();
+        StringBuilder errMsgBuilder = new StringBuilder();
 
+        configFileEntries.forEach((key, val) -> {
             if (val instanceof Map) {
                 lookUpVariables((Map<String, Object>) val);
             } else {
-                String envVarVal = getEnvVarValue(entry.getKey());
+                String envVarVal = getEnvVarValue(key);
 
                 if (envVarVal != null) {
                     if (val instanceof String) {
-                        configFileEntries.put(entry.getKey(), envVarVal);
+                        configFileEntries.put(key, envVarVal);
                     } else if (val instanceof Long) {
                         try {
-                            configFileEntries.put(entry.getKey(), Long.parseLong(envVarVal));
+                            configFileEntries.put(key, Long.parseLong(envVarVal));
                         } catch (NumberFormatException e) {
-                            throw new IllegalArgumentException(
-                                    "invalid int value received from environment: " + envVarVal);
+                            addErrorMsg(errMsgBuilder, "received invalid int value from environment for", key,
+                                        envVarVal);
                         }
                     } else if (val instanceof Double) {
                         try {
-                            configFileEntries.put(entry.getKey(), Double.parseDouble(envVarVal));
+                            configFileEntries.put(key, Double.parseDouble(envVarVal));
                         } catch (NumberFormatException e) {
-                            throw new IllegalArgumentException(
-                                    "invalid float value received from environment: " + envVarVal);
+                            addErrorMsg(errMsgBuilder, "received invalid float value from environment for", key,
+                                        envVarVal);
                         }
                     } else if (val instanceof Boolean) {
-                        configFileEntries.put(entry.getKey(), Boolean.parseBoolean(envVarVal));
+                        configFileEntries.put(key, Boolean.parseBoolean(envVarVal));
                     }
                 }
             }
 
         });
+
+        if (errMsgBuilder.length() > 0) {
+            errMsgBuilder.deleteCharAt(errMsgBuilder.length() - 1);
+            throw new IllegalArgumentException(errMsgBuilder.toString());
+        }
     }
 
     private static String getEnvVarValue(String key) {
@@ -177,5 +182,15 @@ public class ConfigProcessor {
         CommonTokenStream tokenStream = new CommonTokenStream(lexer);
         TomlParser parser = new TomlParser(tokenStream);
         return parser.toml();
+    }
+
+    private static void addErrorMsg(StringBuilder errMsgBuilder, String msg, String key, String val) {
+        errMsgBuilder.append("ballerina: ");
+        errMsgBuilder.append(msg);
+        errMsgBuilder.append(" '");
+        errMsgBuilder.append(key);
+        errMsgBuilder.append("': ");
+        errMsgBuilder.append(val);
+        errMsgBuilder.append('\n');
     }
 }

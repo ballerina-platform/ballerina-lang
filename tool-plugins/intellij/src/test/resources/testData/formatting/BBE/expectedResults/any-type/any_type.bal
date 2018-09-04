@@ -6,7 +6,7 @@ function getValue() returns (any) {
     return name;
 }
 
-function main(string... args) {
+public function main(string... args) {
     // In this example, the variable named `a` of the `any` type holds an `int` value.
     any a = 5;
     io:println(a);

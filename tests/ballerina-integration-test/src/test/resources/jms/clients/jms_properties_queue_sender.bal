@@ -8,7 +8,7 @@ endpoint jms:SimpleQueueSender queueSender {
     queueName: "MyQueue"
 };
 
-function main (string... args) {
+public function main (string... args) {
     // Create a Text message.
     jms:Message m = check queueSender.createTextMessage("Test Text");
     check m.setBooleanProperty("booleanProp", false);

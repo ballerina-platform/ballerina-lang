@@ -61,7 +61,15 @@ public class LaunchTest {
     @Test(expectedExceptions = { BLangRuntimeException.class },
             expectedExceptionsMessageRegExp = "ballerina: cannot find program file 'non_existing.balx'")
     public void testNonExistingBalx() {
-        LauncherUtils.runProgram(Paths.get("test-src", "launch"), Paths.get("non_existing.balx"), false,
-                new HashMap<>(), null, new String[] {}, true, false);
+        LauncherUtils.runProgram(Paths.get("test-src", "launch"), Paths.get("non_existing.balx"), new HashMap<>(),
+                                 null, new String[]{}, true, false);
+    }
+
+    @Test(expectedExceptions = { BLangRuntimeException.class },
+            expectedExceptionsMessageRegExp = ".*error: error, message: 'string' cannot be converted to 'int'.*")
+    public void testMainFailureWithService() {
+        LauncherUtils.runProgram(Paths.get("src/test/resources/test-src/launch/main-and-service"),
+                                 Paths.get("main_and_service.bal"),
+                                 new HashMap<>(), null, new String[]{"10s"}, true, false);
     }
 }

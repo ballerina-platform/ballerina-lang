@@ -15,7 +15,7 @@ type Employee2 record {
     int age,
 };
 
-function testIterateMirrorTable(string jdbcUrl, string userName, string password) returns (Employee[], Employee[]) {
+function testIterateProxyTable(string jdbcUrl, string userName, string password) returns (Employee[], Employee[]) {
     endpoint jdbc:Client testDB {
         url: jdbcUrl,
         username: userName,
@@ -43,7 +43,7 @@ function testIterateMirrorTable(string jdbcUrl, string userName, string password
     return (employeeArray1, employeeArray2);
 }
 
-function testIterateMirrorTableAfterClose(string jdbcUrl, string userName, string password) returns (Employee[],
+function testIterateProxyTableAfterClose(string jdbcUrl, string userName, string password) returns (Employee[],
             Employee[], error) {
     endpoint jdbc:Client testDB {
         url: jdbcUrl,
@@ -85,7 +85,7 @@ function testIterateMirrorTableAfterClose(string jdbcUrl, string userName, strin
     return (employeeArray1, employeeArray2, e);
 }
 
-function testAddToMirrorTable(string jdbcUrl, string userName, string password) returns (Employee[]) {
+function testAddToProxyTable(string jdbcUrl, string userName, string password) returns (Employee[]) {
     endpoint jdbc:Client testDB {
         url: jdbcUrl,
         username: userName,
@@ -114,7 +114,7 @@ function testAddToMirrorTable(string jdbcUrl, string userName, string password) 
     return employeeArray;
 }
 
-function testAddToMirrorTableInvalidRecord(string jdbcUrl, string userName, string password) returns any {
+function testAddToProxyTableInvalidRecord(string jdbcUrl, string userName, string password) returns any {
     endpoint jdbc:Client testDB {
         url: jdbcUrl,
         username: userName,
@@ -131,7 +131,7 @@ function testAddToMirrorTableInvalidRecord(string jdbcUrl, string userName, stri
     return result;
 }
 
-function testAddToMirrorTableConstraintViolation(string jdbcUrl, string userName, string password) returns (any) {
+function testAddToProxyTableConstraintViolation(string jdbcUrl, string userName, string password) returns (any) {
     endpoint jdbc:Client testDB {
         url: jdbcUrl,
         username: userName,
@@ -146,7 +146,7 @@ function testAddToMirrorTableConstraintViolation(string jdbcUrl, string userName
     return result;
 }
 
-function testDeleteFromMirrorTable(string jdbcUrl, string userName, string password) returns (boolean, int) {
+function testDeleteFromProxyTable(string jdbcUrl, string userName, string password) returns (boolean, int) {
     endpoint jdbc:Client testDB {
         url: jdbcUrl,
         username: userName,
@@ -169,7 +169,7 @@ function testDeleteFromMirrorTable(string jdbcUrl, string userName, string passw
     return (hasNext, removedCount);
 }
 
-function testDeleteFromMirrorTableinTransaction(string jdbcUrl, string userName, string password)
+function testDeleteFromProxyTableInTransaction(string jdbcUrl, string userName, string password)
              returns (boolean, int) {
     endpoint jdbc:Client testDB {
         url: jdbcUrl,

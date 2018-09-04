@@ -57,6 +57,7 @@ import static org.ballerinalang.compiler.CompilerOptionName.COMPILER_PHASE;
 import static org.ballerinalang.compiler.CompilerOptionName.PRESERVE_WHITESPACE;
 import static org.ballerinalang.compiler.CompilerOptionName.PROJECT_DIR;
 import static org.ballerinalang.compiler.CompilerOptionName.TEST_ENABLED;
+import static org.ballerinalang.util.BLangConstants.MAIN_FUNCTION_NAME;
 
 /**
  * Utility methods for compile Ballerina files.
@@ -308,19 +309,21 @@ public class BCompileUtil {
      * Compile and run a ballerina file.
      *
      * @param sourceFilePath Path to the ballerina file.
+     * @param functionName   The name of the function to run
      */
-    public static void run(String sourceFilePath) {
+    public static void run(String sourceFilePath, String functionName) {
         // TODO: improve. How to get the output
         CompileResult result = compile(sourceFilePath);
         ProgramFile programFile = result.getProgFile();
 
         // If there is no main or service entry point, throw an error
-        if (!programFile.isMainEPAvailable() && !programFile.isServiceEPAvailable()) {
+        if (MAIN_FUNCTION_NAME.equals(functionName) && !programFile.isMainEPAvailable()
+                && !programFile.isServiceEPAvailable()) {
             throw new RuntimeException("main function not found in '" + programFile.getProgramFilePath() + "'");
         }
 
-        if (programFile.isMainEPAvailable()) {
-            LauncherUtils.runMain(programFile, new String[0]);
+        if (programFile.isMainEPAvailable() || !MAIN_FUNCTION_NAME.equals(functionName)) {
+            LauncherUtils.runMain(programFile, functionName, new String[0], false);
         } else {
             LauncherUtils.runServices(programFile);
         }

@@ -31,11 +31,10 @@ import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.OutputStreamWriter;
-import java.net.Socket;
+import java.net.InetSocketAddress;
+import java.nio.ByteBuffer;
+import java.nio.channels.SocketChannel;
 import java.nio.charset.StandardCharsets;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -49,16 +48,15 @@ public class ServerSocketTest {
     private static final Logger log = LoggerFactory.getLogger(ServerSocketTest.class);
     private CompileResult normalServer;
     private final String welcomeMsg = "Hello Ballerina\n";
-    private boolean isConnected = false;
 
     @BeforeClass
     public void setup() {
         normalServer = BCompileUtil.compileAndSetup("test-src/io/server_socket_io.bal");
     }
 
-    @Test(description = "Check server socket accept functionality.", enabled = false)
+    @Test(description = "Check server socket accept functionality.")
     public void testSeverSocketAccept() throws InterruptedException {
-        int port = ThreadLocalRandom.current().nextInt(47000, 51000);
+        final int port = ThreadLocalRandom.current().nextInt(47000, 51000);
         ExecutorService executor = Executors.newSingleThreadExecutor();
         executor.execute(() -> {
             try {
@@ -73,32 +71,24 @@ public class ServerSocketTest {
         executor.shutdownNow();
     }
 
-    @Test(description = "Check server socket accept functionality.",
-          dependsOnMethods = "testSeverSocketAccept", enabled = false)
-    public void testSeverSocketDelayiedAccept() {
+    @Test(description = "Check server socket delayed accept functionality.",
+          dependsOnMethods = "testSeverSocketAccept")
+    public void testSeverSocketDelayedAccept() {
         CompileResult delayedStartServer = BCompileUtil
                 .compileAndSetup("test-src/io/server_socket_io_delayed_accept.bal");
         SelectorManager.start();
-        int port = ThreadLocalRandom.current().nextInt(47000, 51000);
+        final int port = ThreadLocalRandom.current().nextInt(47000, 51000);
         ExecutorService executor = Executors.newSingleThreadExecutor();
-        isConnected = false;
         executor.execute(() -> {
             try {
                 BRunUtil.invokeStateful(delayedStartServer, "initServer", new BValue[] { new BInteger(port) });
-                for (int i = 0; i < 10; i++) {
-                    if (isConnected) {
-                        break;
-                    } else {
-                        Thread.sleep(1000);
-                    }
-                }
                 BRunUtil.invokeStateful(delayedStartServer, "startServerSocket",
                         new BValue[] { new BString(welcomeMsg) });
             } catch (Throwable e) {
                 log.error(e.getMessage(), e);
             }
         });
-        connectClient(port, 200, delayedStartServer);
+        connectClient(port, 1000, delayedStartServer);
         executor.shutdownNow();
     }
 
@@ -108,23 +98,27 @@ public class ServerSocketTest {
             final String clientMsg = "This is the first type of message.";
             boolean connected = false;
             for (int retryCount = 0; retryCount < numberOfRetryAttempts; retryCount++) {
-                try (Socket s = new Socket("localhost", port)) {
-                    BufferedReader input = new BufferedReader(new InputStreamReader(s.getInputStream()));
-                    String answer = input.readLine();
-                    Assert.assertEquals(welcomeMsg.trim(), answer, "Didn't get the expected response from server.");
-                    try (OutputStreamWriter out = new OutputStreamWriter(s.getOutputStream(), StandardCharsets.UTF_8)) {
-                        out.write(clientMsg, 0, clientMsg.length());
-                        out.flush();
-                        out.close();
-                        s.close();
-                        connected = true;
-                        break;
+                try (SocketChannel socketChannel = SocketChannel.open()) {
+                    socketChannel.connect(new InetSocketAddress("localhost", port));
+                    ByteBuffer buf = ByteBuffer.allocate(512);
+                    int bytesRead = socketChannel.read(buf);
+                    if (bytesRead == -1) {
+                        socketChannel.close();
                     }
+                    String answer = new String(buf.array(), StandardCharsets.UTF_8).trim();
+                    Assert.assertEquals(answer, welcomeMsg.trim(), "Didn't get the expected response from server.");
+                    buf.clear();
+                    buf.put(clientMsg.getBytes());
+                    buf.flip();
+                    while (buf.hasRemaining()) {
+                        socketChannel.write(buf);
+                    }
+                    connected = true;
+                    break;
                 } catch (IOException e) {
                     sleep(retryInterval);
                 }
             }
-            isConnected = true;
             Assert.assertTrue(connected, "Unable to connect to remote server.");
             int i = 0;
             do {

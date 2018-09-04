@@ -1,4 +1,4 @@
-function main (string... args) {
+public function main (string... args) {
     string example = args[0].trim();
     secureFunction(example, example);
 }
