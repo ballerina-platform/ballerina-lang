@@ -23,7 +23,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.iterable.IterableContext;
 import org.wso2.ballerinalang.compiler.semantics.model.iterable.IterableKind;
 import org.wso2.ballerinalang.compiler.semantics.model.iterable.Operation;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BField;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BIntermediateCollectionType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BIterableTypeVisitor;
@@ -374,12 +373,11 @@ public class IterableAnalyzer {
 
         @Override
         public List<BType> visit(BRecordType type, Operation op) {
-            if (op.arity < 2) {
-                if (op.arity == 1 && op.kind.isTerminal() && !op.kind.isLambdaRequired()) {
-                    return Lists.of(type);
-                }
-                logNotEnoughVariablesError(op, 2);
+            if (op.arity == 0) {
+                logNotEnoughVariablesError(op, 1);
                 return Lists.of(symTable.errType);
+            } else if (op.arity == 1) {
+                return Lists.of(inferRecordFieldType(type));
             } else if (op.arity == 2) {
                 return Lists.of(symTable.stringType, inferRecordFieldType(type));
             }
@@ -398,26 +396,6 @@ public class IterableAnalyzer {
             }
             logNotEnoughVariablesError(op, type.tupleTypes.size());
             return Lists.of(symTable.errType);
-        }
-
-        private BType inferRecordFieldType(BRecordType recordType) {
-            boolean isSameType = true;
-            List<BField> fields = recordType.fields;
-            BType inferredType = fields.get(0).type; // If all the fields are the same, doesn't matter which one we pick
-
-            for (int i = 1; i < fields.size(); i++) {
-                isSameType = isSameType && fields.get(i - 1).type.tag == fields.get(i).type.tag;
-                if (!isSameType) {
-                    return symTable.anyType;
-                }
-            }
-
-            // If it's an open record, the rest field type should also be of the same type as the mandatory fields.
-            if (!recordType.sealed && recordType.restFieldType.tag != inferredType.tag) {
-                return symTable.anyType;
-            }
-
-            return inferredType;
         }
     }
 
@@ -510,6 +488,14 @@ public class IterableAnalyzer {
                     }
                     break;
                 case COUNT:
+                    if (elementType.tag == TypeTags.INTERMEDIATE_COLLECTION) {
+                        BIntermediateCollectionType collectionType = (BIntermediateCollectionType) elementType;
+                        elementType = collectionType.tupleType.tupleTypes.get(0);
+                    } else if (elementType.tag == TypeTags.RECORD) {
+                        // The type of the foreach var in the desugard code is taken from this type.
+                        BRecordType recordType = (BRecordType) elementType;
+                        elementType = inferRecordFieldType(recordType);
+                    }
                     return elementType;
                 default:
                     break;
