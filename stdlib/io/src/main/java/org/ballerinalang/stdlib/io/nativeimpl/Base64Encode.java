@@ -34,9 +34,9 @@ import org.ballerinalang.stdlib.io.utils.Utils;
 @BallerinaFunction(
         orgName = "ballerina", packageName = "io",
         functionName = "base64Encode",
-        receiver = @Receiver(type = TypeKind.OBJECT, structType = "WritableByteChannel", structPackage =
+        receiver = @Receiver(type = TypeKind.OBJECT, structType = "ReadableByteChannel", structPackage =
                 "ballerina/io"),
-        returnType = {@ReturnType(type = TypeKind.OBJECT, structType = "WritableByteChannel", structPackage =
+        returnType = {@ReturnType(type = TypeKind.OBJECT, structType = "ReadableByteChannel", structPackage =
                 "ballerina/io")},
         isPublic = true
 )

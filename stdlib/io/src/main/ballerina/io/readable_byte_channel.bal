@@ -32,6 +32,13 @@ public type ReadableByteChannel object {
     public extern function read(@sensitive int nBytes) returns @tainted (byte[], int)|error;
 
     documentation {
+            Encodes a given ByteChannel with Base64 encoding scheme.
+
+            R{{}} Return an encoded ByteChannel or an error
+    }
+    public extern function base64Encode() returns WritableByteChannel|error;
+
+    documentation {
         Decodes a given ByteChannel with Base64 encoding scheme.
 
         R{{}} Return a decoded ByteChannel or an error

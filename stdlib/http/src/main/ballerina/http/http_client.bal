@@ -33,7 +33,7 @@ public type CallerActions object {
     # + message - An HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`,
     #             `io:ByteChannel` or `mime:Entity[]`
     # + return - The response for the request or an `error` if failed to establish communication with the upstream server
-    public function post(@sensitive string path, Request|string|xml|json|byte[]|io:ByteChannel|mime:Entity[]|()
+    public function post(@sensitive string path, Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|()
                                                     message) returns Response|error {
         Request req = buildRequest(message);
         return nativePost(self, path, req);
@@ -45,7 +45,7 @@ public type CallerActions object {
     # + message - An HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`,
     #             `io:ByteChannel` or `mime:Entity[]`
     # + return - The response for the request or an `error` if failed to establish communication with the upstream server
-    public function head(@sensitive string path, Request|string|xml|json|byte[]|io:ByteChannel|mime:Entity[]|()
+    public function head(@sensitive string path, Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|()
                                                     message = ()) returns Response|error {
         Request req = buildRequest(message);
         return nativeHead(self, path, req);
@@ -57,7 +57,7 @@ public type CallerActions object {
     # + message - An HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`,
     #             `io:ByteChannel` or `mime:Entity[]`
     # + return - The response for the request or an `error` if failed to establish communication with the upstream server
-    public function put(@sensitive string path, Request|string|xml|json|byte[]|io:ByteChannel|mime:Entity[]|()
+    public function put(@sensitive string path, Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|()
                                                         message) returns Response|error {
         Request req = buildRequest(message);
         return nativePut(self, path, req);
@@ -71,7 +71,7 @@ public type CallerActions object {
     #             `io:ByteChannel` or `mime:Entity[]`
     # + return - The response for the request or an `error` if failed to establish communication with the upstream server
     public function execute(@sensitive string httpVerb, @sensitive string path, Request|string|xml|json|byte[]
-                                                        |io:ByteChannel|mime:Entity[]|() message) returns Response|error {
+                                                        |io:ReadableByteChannel|mime:Entity[]|() message) returns Response|error {
         Request req = buildRequest(message);
         return nativeExecute(self, httpVerb, path, req);
     }
@@ -82,7 +82,7 @@ public type CallerActions object {
     # + message - An HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`,
     #             `io:ByteChannel` or `mime:Entity[]`
     # + return - The response for the request or an `error` if failed to establish communication with the upstream server
-    public function patch(@sensitive string path, Request|string|xml|json|byte[]|io:ByteChannel|mime:Entity[]|()
+    public function patch(@sensitive string path, Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|()
                                                             message) returns Response|error {
         Request req = buildRequest(message);
         return nativePatch(self, path, req);
@@ -94,7 +94,7 @@ public type CallerActions object {
     # + message - An HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`,
     #             `io:ByteChannel` or `mime:Entity[]`
     # + return - The response for the request or an `error` if failed to establish communication with the upstream server
-    public function delete(@sensitive string path, Request|string|xml|json|byte[]|io:ByteChannel|mime:Entity[]|()
+    public function delete(@sensitive string path, Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|()
                                                             message) returns Response|error {
         Request req = buildRequest(message);
         return nativeDelete(self, path, req);
@@ -106,7 +106,7 @@ public type CallerActions object {
     # + message - An optional HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`,
     #             `io:ByteChannel` or `mime:Entity[]`
     # + return - The response for the request or an `error` if failed to establish communication with the upstream server
-    public function get(@sensitive string path, Request|string|xml|json|byte[]|io:ByteChannel|mime:Entity[]|()
+    public function get(@sensitive string path, Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|()
                                                         message = ()) returns Response|error {
         Request req = buildRequest(message);
         return nativeGet(self, path, req);
@@ -118,7 +118,7 @@ public type CallerActions object {
     # + message - An optional HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`,
     #             `io:ByteChannel` or `mime:Entity[]`
     # + return - The response for the request or an `error` if failed to establish communication with the upstream server
-    public function options(@sensitive string path, Request|string|xml|json|byte[]|io:ByteChannel|mime:Entity[]|()
+    public function options(@sensitive string path, Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|()
                                                             message = ()) returns Response|error {
         Request req = buildRequest(message);
         return nativeOptions(self, path, req);
@@ -141,7 +141,8 @@ public type CallerActions object {
     #             `io:ByteChannel` or `mime:Entity[]`
     # + return - An `HttpFuture` that represents an asynchronous service invocation, or an `error` if the submission fails
     public function submit(@sensitive string httpVerb, string path, Request|string|xml|json|byte[]|
-                                                    io:ByteChannel|mime:Entity[]|() message) returns HttpFuture|error {
+                                                    io:ReadableByteChannel|mime:Entity[]|() message)
+                           returns HttpFuture|error {
         Request req = buildRequest(message);
         return nativeSubmit(self, httpVerb, path, req);
     }
