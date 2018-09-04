@@ -2,29 +2,23 @@ import ballerina/http;
 import ballerina/io;
 import ballerina/system;
 
-documentation {
-    Defines the endpoint to update the access token.
-}
+# Defines the endpoint to update the access token.
 endpoint http:Listener listener {
     port:9295
 };
 
-documentation {
-    This function opens the file for writing content.
-
-    P{{filePath}} File path
-    P{{encoding}} Encoding
-    R{{}} CharacterChannel of the file after writing to the file
-}
+# This function opens the file for writing content.
+#
+# + filePath - File path
+# + encoding - Encoding
+# + return - CharacterChannel of the file after writing to the file
 function openForWriting (string filePath, string encoding) returns io:CharacterChannel {
     io:ByteChannel channel = io:openFile(filePath, "w");
     io:CharacterChannel result = new io:CharacterChannel(channel, encoding);
     return result;
 }
 
-documentation{
-    This service updates the access token.
-}
+# This service updates the access token.
 @http:ServiceConfig {
     endpoints:[listener],
     basePath:"/update-settings"
@@ -35,13 +29,11 @@ service<http:Service> update_token bind listener {
         methods:["GET"],
         path:"/{token}"
     }
-    documentation{
-        Updates the access token.
-
-        P{{caller}} Endpoint
-        P{{request}} Request object
-        P{{token}} Access token
-    }
+    # Updates the access token.
+    #
+    # + caller - Endpoint
+    # + request - Request object
+    # + token - Access token
     one_px_image (endpoint caller, http:Request request, string token) {
         http:Response response = new;
         response.setPayload("<svg xmlns=\"http://www.w3.org/2000/svg\"/>");
