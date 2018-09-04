@@ -18,7 +18,7 @@
  *
  */
 import { window, commands, ExtensionContext, extensions, workspace, Extension, debug,
-	DebugConfigurationProvider, WorkspaceFolder, DebugConfiguration, ProviderResult } from 'vscode';
+	DebugConfigurationProvider, WorkspaceFolder, DebugConfiguration, ProviderResult, ConfigurationChangeEvent } from 'vscode';
 import { } from 'vscode-debugadapter';
 import { LanguageClientOptions, StateChangeEvent, State } from 'vscode-languageclient';
 import { exec } from 'child_process';
@@ -63,8 +63,6 @@ function showMsgAndOpenSettings(msg: string): void {
 function getExtension(): Extension<any> | undefined {
     return extensions.getExtension('ballerina.ballerina');
 }
-
-let oldConfig: BallerinaPluginConfig;
 
 const debugConfigResolver: DebugConfigurationProvider = {
 	resolveDebugConfiguration(folder: WorkspaceFolder, config: DebugConfiguration)
@@ -133,7 +131,6 @@ export function activate(context: ExtensionContext) : void {
 	};
 
 	const config = getPluginConfig();
-	oldConfig = config;
 	// in windows class path seperated by ';'
 	//const sep = process.platform === 'win32' ? ';' : ':';
 
@@ -170,20 +167,14 @@ export function activate(context: ExtensionContext) : void {
 	context.subscriptions.push(debug.registerDebugConfigurationProvider('ballerina', debugConfigResolver));
 }
 
-workspace.onDidChangeConfiguration(params => {
-	const newConfig = getPluginConfig();
-	if (newConfig.home !== oldConfig.home) {
+workspace.onDidChangeConfiguration((params: ConfigurationChangeEvent) => {
+	if (params.affectsConfiguration('ballerina.home')) {
 		showMsgAndRestart(Messages.HOME_CHANGED);
-	}
-
-	if (newConfig.showLSErrors !== oldConfig.showLSErrors) {
+	} else if (params.affectsConfiguration('ballerina.debugLog')) {
+		showMsgAndRestart(Messages.DEBUG_LOG_CHANGED);
+	} else if (params.affectsConfiguration('ballerina.showLSErrors')) {
 		showMsgAndRestart(Messages.SHOW_LSERRORS_CHANGED);
 	}
-
-	if (newConfig.debugLog !== oldConfig.debugLog) {
-		showMsgAndRestart(Messages.DEBUG_LOG_CHANGED);
-	}
-	oldConfig = newConfig;
 });
 
 // This channel ignores(drops) all requests it receives.
