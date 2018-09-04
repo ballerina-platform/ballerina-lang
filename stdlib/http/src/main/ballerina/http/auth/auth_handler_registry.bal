@@ -15,49 +15,36 @@
 // specific language governing permissions and limitations
 // under the License.
 
-documentation {
-    Representation of the Http Auth Handler Registry.
-
-    F{{httpAuthHandlers}} map for auth handlers. key = auth provider id
-}
+# Representation of the Http Auth Handler Registry.
+#
+# + httpAuthHandlers - map for auth handlers. key = auth provider id
 public type AuthHandlerRegistry object {
     private map<HttpAuthnHandler> httpAuthHandlers;
 
     public new () {
     }
 
-    documentation {
-        Add an HttpAuthnHandler to HttpAuthHandlerRegistry
-
-        P{{id}} Auth provider id
-        P{{authnHandler}} HttpAuthnHandler instance
-    }
+    # Add an HttpAuthnHandler to HttpAuthHandlerRegistry
+    #
+    # + id - Auth provider id
+    # + authnHandler - HttpAuthnHandler instance
     public function add (string id, HttpAuthnHandler authnHandler);
 
-    documentation {
-        Retrieves an HttpAuthnHandler from HttpAuthHandlerRegistry which corresponds to the given id
-
-        P{{id}} Auth provider id
-        R{{HttpAuthnHandler}} HttpAuthnHandler instance or nil if not found
-    }
+    # Retrieves an HttpAuthnHandler from HttpAuthHandlerRegistry which corresponds to the given id
+    #
+    # + id - Auth provider id
+    # + return - HttpAuthnHandler instance or nil if not found
     public function get (string id) returns HttpAuthnHandler?;
 
-
-    documentation {
-        Retrieve the HttpAuthnHandler map
-
-        R{{}} map of HttpAuthnHandler
-    }
+    # Retrieve the HttpAuthnHandler map
+    #
+    # + return - map of HttpAuthnHandler
     public function getAll () returns map<HttpAuthnHandler>;
 
-    documentation {
-        Removes a specific authn handler from the HttpAuthnHandler map
-    }
+    # Removes a specific authn handler from the HttpAuthnHandler map
     public function remove (string id);
 
-    documentation {
-        Removes all authn handler from the HttpAuthnHandler map
-    }
+    # Removes all authn handler from the HttpAuthnHandler map
     public function clear ();
 };
 

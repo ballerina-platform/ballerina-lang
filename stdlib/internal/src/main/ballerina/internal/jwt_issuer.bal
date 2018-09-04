@@ -16,9 +16,7 @@
 
 import ballerina/io;
 
-documentation {
-    Represents JWT issuer configurations.
-}
+# Represents JWT issuer configurations.
 public type JWTIssuerConfig record {
     string keyAlias,
     string keyPassword,
@@ -26,15 +24,12 @@ public type JWTIssuerConfig record {
     string keyStorePassword,
 };
 
-documentation {
-    Issue a JWT token.
-
-    P{{header}} JwtHeader object
-    P{{payload}} JwtPayload object
-    P{{config}} JWTIssuerConfig object
-    R{{}} JWT token string
-    R{{}} If token validation fails
-}
+# Issue a JWT token.
+#
+# + header - JwtHeader object
+# + payload - JwtPayload object
+# + config - JWTIssuerConfig object
+# + return - JWT token string or an error if token validation fails
 public function issue(JwtHeader header, JwtPayload payload, JWTIssuerConfig config) returns (string|error) {
     string jwtHeader = createHeader(header);
     string jwtPayload = "";
