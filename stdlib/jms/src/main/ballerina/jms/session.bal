@@ -47,28 +47,20 @@ public type Session object {
     # + subscriptionId - the name used to identify this subscription
     public extern function unsubscribe(string subscriptionId) returns error?;
 
-    documentation {
-        Creates a JMS Queue which can be used as temporary response destination.
-    }
+    # Creates a JMS Queue which can be used as temporary response destination.
     public extern function createTemporaryQueue() returns Destination|error;
 
-    documentation {
-        Creates a JMS Topic which can be used as temporary response destination.
-    }
+    # Creates a JMS Topic which can be used as temporary response destination.
     public extern function createTemporaryTopic() returns Destination|error;
 
-    documentation {
-        Creates a JMS Queue which can be used with a message producer.
-
-        P{{queueName}} name of the Queue
-    }
+    # Creates a JMS Queue which can be used with a message producer.
+    #
+    # + queueName - name of the Queue
     public extern function createQueue(string queueName) returns Destination|error;
 
-    documentation {
-        Creates a JMS Topic which can be used with a message producer.
-
-        P{{topicName}} name of the Topic
-    }
+    # Creates a JMS Topic which can be used with a message producer.
+    #
+    # + topicName - name of the Topic
     public extern function createTopic(string topicName) returns Destination|error;
 };
 

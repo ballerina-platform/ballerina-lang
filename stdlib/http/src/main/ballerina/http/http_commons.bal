@@ -195,16 +195,14 @@ function buildResponse(Response|string|xml|json|byte[]|io:ByteChannel|mime:Entit
     return response;
 }
 
-documentation {
-    The HEAD action implementation of the Circuit Breaker. This wraps the `head()` function of the underlying
-    HTTP actions provider.
+# The HEAD action implementation of the Circuit Breaker. This wraps the `head()` function of the underlying
+# HTTP actions provider.
 
-    P{{path}} Resource path
-    P{{outRequest}} A Request struct
-    P{{requestAction}} `HttpOperation` related to the request
-    P{{httpClient}} HTTP client which uses to call the relavant functions
-    R{{}} The response for the request or an `error` if failed to establish communication with the upstream server
-}
+# + path - Resource path
+# + outRequest - A Request struct
+# + requestAction - `HttpOperation` related to the request
+# + httpClient - HTTP client which uses to call the relavant functions
+# + return - The response for the request or an `error` if failed to establish communication with the upstream server
 public function invokeEndpoint (string path, Request outRequest,
                                 HttpOperation requestAction, CallerActions httpClient) returns Response|error {
     if (HTTP_GET == requestAction) {
