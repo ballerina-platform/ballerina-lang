@@ -620,8 +620,7 @@ public class IterableCodeDesugar {
         indexAccessNode.type = ctx.iteratorResultVariables.get(1).symbol.type;
         final BLangAssignment valueAssign = ASTBuilderUtil.createAssignmentStmt(pos, blockStmt);
         valueAssign.varRef = indexAccessNode;
-        valueAssign.expr = ASTBuilderUtil.generateConversionExpr(ASTBuilderUtil.createVariableRef(pos,
-                ctx.iteratorResultVariables.get(1).symbol), symTable.anyType, symResolver);
+        valueAssign.expr = ASTBuilderUtil.createVariableRef(pos, ctx.iteratorResultVariables.get(1).symbol);
     }
 
     /**

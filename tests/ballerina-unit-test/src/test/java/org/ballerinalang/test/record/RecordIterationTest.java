@@ -230,11 +230,11 @@ public class RecordIterationTest {
         BValue[] returns = BRunUtil.invoke(result, "testFilterOpWithOpenRecords");
         BMap foo = (BMap) returns[0];
 
-        Assert.assertEquals(foo.get("a").stringValue(), "");
+        Assert.assertNull(foo.get("a"));
         Assert.assertEquals(foo.get("b").stringValue(), "B");
         Assert.assertEquals(foo.get("c").stringValue(), "C");
         Assert.assertEquals(foo.get("d").stringValue(), "D");
-        Assert.assertEquals(foo.get("e").stringValue(), "");
+        Assert.assertNull(foo.get("e"));
         Assert.assertEquals(foo.get("f").stringValue(), "F");
     }
 
@@ -249,11 +249,11 @@ public class RecordIterationTest {
         BValue[] returns = BRunUtil.invoke(result, "testChainedOpsWithOpenRecords");
         BMap foo = (BMap) returns[0];
 
-        Assert.assertEquals(foo.get("a").stringValue(), "");
+        Assert.assertNull(foo.get("a"));
         Assert.assertEquals(foo.get("b").stringValue(), "bb");
         Assert.assertEquals(foo.get("c").stringValue(), "cc");
         Assert.assertEquals(foo.get("d").stringValue(), "dd");
-        Assert.assertEquals(foo.get("e").stringValue(), "");
+        Assert.assertNull(foo.get("e"));
         Assert.assertEquals(foo.get("f").stringValue(), "ff");
     }
 
@@ -317,9 +317,9 @@ public class RecordIterationTest {
 
         BMap person = (BMap) returns[0];
         Assert.assertEquals(person.get(expectedFields[0]).stringValue(), "A");
-        Assert.assertEquals(person.get(expectedFields[1]).stringValue(), "");
-        Assert.assertEquals(person.get(expectedFields[2]).stringValue(), "");
-        Assert.assertEquals(person.get(expectedFields[3]).stringValue(), "");
+        Assert.assertNull(person.get(expectedFields[1]));
+        Assert.assertNull(person.get(expectedFields[2]));
+        Assert.assertNull(person.get(expectedFields[3]));
         Assert.assertEquals(person.get(expectedFields[4]).stringValue(), "E");
     }
 
@@ -334,10 +334,10 @@ public class RecordIterationTest {
         BValue[] returns = BRunUtil.invoke(result, "testChainedOpsWithClosedRecords");
         BMap foo = (BMap) returns[0];
 
-        Assert.assertEquals(foo.get("a").stringValue(), "");
+        Assert.assertNull(foo.get("a"));
         Assert.assertEquals(foo.get("b").stringValue(), "bb");
         Assert.assertEquals(foo.get("c").stringValue(), "cc");
         Assert.assertEquals(foo.get("d").stringValue(), "dd");
-        Assert.assertEquals(foo.get("e").stringValue(), "");
+        Assert.assertNull(foo.get("e"));
     }
 }

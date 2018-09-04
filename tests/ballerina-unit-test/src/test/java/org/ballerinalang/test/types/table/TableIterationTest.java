@@ -55,14 +55,14 @@ public class TableIterationTest {
         BAssertUtil.validateError(resultNegative, 1,
                 "incompatible types: expected 'float', found 'int'", 29, 42);
         BAssertUtil.validateError(resultNegative, 2,
-                "incompatible lambda function types: expected 'Employee', found " + "'EmployeeIncompatible'", 55,
-                41);
+                                  "incompatible lambda function types: expected 'EmployeeIncompatible', found 'Employee'",
+                                  55, 41);
         BAssertUtil.validateError(resultNegative, 3,
                 "incompatible types: expected 'EmployeeSalary', found '" + "(EmployeeSalaryIncompatible) collection'",
                 62, 41);
         BAssertUtil.validateError(resultNegative, 4,
-                "incompatible lambda function types: expected 'Employee', found " + "'EmployeeIncompatible'", 69,
-                41);
+                                  "incompatible lambda function types: expected 'EmployeeIncompatible', found 'Employee'",
+                                  69, 41);
     }
 
     @Test(groups = "TableIterationTest", description = "Check accessing data using foreach iteration")

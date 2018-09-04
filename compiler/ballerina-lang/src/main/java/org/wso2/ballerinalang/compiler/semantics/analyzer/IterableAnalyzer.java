@@ -23,6 +23,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.iterable.IterableContext;
 import org.wso2.ballerinalang.compiler.semantics.model.iterable.IterableKind;
 import org.wso2.ballerinalang.compiler.semantics.model.iterable.Operation;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BField;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BIntermediateCollectionType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BIterableTypeVisitor;
@@ -156,20 +157,20 @@ public class IterableAnalyzer {
         final List<BType> givenArgTypes = calculatedGivenInputArgs(operation);
         final List<BType> givenRetTypes = calculatedGivenOutputArgs(operation);
 
-        final List<BType> expectedArgTypes = calculateExpectedInputArgs(operation);
-        final List<BType> expectedRetTypes = calculateExpectedOutputArgs(operation, givenRetTypes);
+        final List<BType> actualArgTypes = calculateExpectedInputArgs(operation);
+        final List<BType> actualRetTypes = calculateExpectedOutputArgs(operation, givenRetTypes);
 
         operation.inputType = operation.lambdaType.getParameterTypes().get(0);
 
         // Cross Validate given and expected types and calculate output type;
-        validateLambdaInputArgs(operation, expectedArgTypes, givenArgTypes);
-        validateLambdaReturnArgs(operation, expectedRetTypes, givenRetTypes);
+        validateLambdaInputArgs(operation, actualArgTypes, givenArgTypes);
+        validateLambdaReturnArgs(operation, actualRetTypes, givenRetTypes);
         if (operation.outputType == symTable.errType) {
             operation.resultType = symTable.errType;
             return;
         }
         // Assign actual output value.
-        assignOutputAndResultType(operation, expectedArgTypes, expectedRetTypes);
+        assignOutputAndResultType(operation, actualArgTypes, actualRetTypes);
     }
 
     private List<BType> calculatedGivenInputArgs(Operation operation) {
@@ -226,17 +227,18 @@ public class IterableAnalyzer {
         return supportedRetTypes;
     }
 
-    private void validateLambdaInputArgs(Operation operation, List<BType> supportedTypes, List<BType> givenTypes) {
-        if (supportedTypes.get(0).tag == TypeTags.ERROR) {
+    private void validateLambdaInputArgs(Operation operation, List<BType> actualRequiredTypes,
+                                         List<BType> userExpectedTypes) {
+        if (actualRequiredTypes.get(0).tag == TypeTags.ERROR) {
             operation.outputType = operation.resultType = symTable.errType;
             return;
         }
-        for (int i = 0; i < givenTypes.size(); i++) {
-            if (givenTypes.get(i).tag == TypeTags.ERROR) {
+        for (int i = 0; i < userExpectedTypes.size(); i++) {
+            if (userExpectedTypes.get(i).tag == TypeTags.ERROR) {
                 return;
             }
-            BType result = types.checkType(operation.pos, givenTypes.get(i), supportedTypes.get(i),
-                    DiagnosticCode.ITERABLE_LAMBDA_INCOMPATIBLE_TYPES);
+            BType result = types.checkType(operation.pos, actualRequiredTypes.get(i), userExpectedTypes.get(i),
+                                           DiagnosticCode.ITERABLE_LAMBDA_INCOMPATIBLE_TYPES);
             if (result.tag == TypeTags.ERROR) {
                 operation.outputType = operation.resultType = symTable.errType;
             }
@@ -379,7 +381,7 @@ public class IterableAnalyzer {
                 logNotEnoughVariablesError(op, 2);
                 return Lists.of(symTable.errType);
             } else if (op.arity == 2) {
-                return Lists.of(symTable.stringType, symTable.anyType);
+                return Lists.of(symTable.stringType, inferRecordFieldType(type));
             }
             logTooManyVariablesError(op);
             return Lists.of(symTable.errType);
@@ -396,6 +398,26 @@ public class IterableAnalyzer {
             }
             logNotEnoughVariablesError(op, type.tupleTypes.size());
             return Lists.of(symTable.errType);
+        }
+
+        private BType inferRecordFieldType(BRecordType recordType) {
+            boolean isSameType = true;
+            List<BField> fields = recordType.fields;
+            BType inferredType = fields.get(0).type; // If all the fields are the same, doesn't matter which one we pick
+
+            for (int i = 1; i < fields.size(); i++) {
+                isSameType = isSameType && fields.get(i - 1).type.tag == fields.get(i).type.tag;
+                if (!isSameType) {
+                    return symTable.anyType;
+                }
+            }
+
+            // If it's an open record, the rest field type should also be of the same type as the mandatory fields.
+            if (!recordType.sealed && recordType.restFieldType.tag != inferredType.tag) {
+                return symTable.anyType;
+            }
+
+            return inferredType;
         }
     }
 
@@ -488,10 +510,6 @@ public class IterableAnalyzer {
                     }
                     break;
                 case COUNT:
-                    if (elementType.tag == TypeTags.INTERMEDIATE_COLLECTION) {
-                        BIntermediateCollectionType collectionType = (BIntermediateCollectionType) elementType;
-                        elementType = collectionType.tupleType.tupleTypes.get(0);
-                    }
                     return elementType;
                 default:
                     break;
@@ -533,11 +551,6 @@ public class IterableAnalyzer {
                     && tupleType.tupleTypes.get(0).tag == TypeTags.STRING) {
                 // Convert result into a map.
                 context.resultType = new BMapType(TypeTags.MAP, tupleType.tupleTypes.get(1), null);
-                return;
-            } else if (expectedType.tag == TypeTags.RECORD && tupleType.tupleTypes.size() == 2
-                    && tupleType.tupleTypes.get(0).tag == TypeTags.STRING) {
-                // Convert result into a record
-                context.resultType = context.collectionExpr.type;
                 return;
             } else if (expectedType.tag == TypeTags.TABLE) {
                 // expectedTypes hold the types of expected return values (types of references) of the iterable

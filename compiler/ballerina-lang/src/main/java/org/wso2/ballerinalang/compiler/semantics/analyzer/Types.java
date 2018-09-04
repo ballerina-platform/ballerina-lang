@@ -466,11 +466,12 @@ public class Types {
                 }
                 break;
             case TypeTags.RECORD:
+                BRecordType recordType = (BRecordType) collectionType;
                 if (variableSize == 1) {
                     dlog.error(collection.pos, DiagnosticCode.ITERABLE_REQUIRES_N_VARIABLES, collectionType, 2);
                     return Lists.of(symTable.errType);
                 } else if (variableSize == 2) {
-                    return Lists.of(symTable.stringType, symTable.anyType);
+                    return Lists.of(symTable.stringType, inferRecordFieldType(recordType));
                 } else {
                     maxSupportedTypes = 2;
                     errorTypes = Lists.of(symTable.stringType, symTable.anyType);
@@ -485,6 +486,26 @@ public class Types {
         dlog.error(collection.pos, DiagnosticCode.ITERABLE_TOO_MANY_VARIABLES, collectionType);
         errorTypes.addAll(Collections.nCopies(variableSize - maxSupportedTypes, symTable.errType));
         return errorTypes;
+    }
+
+    private BType inferRecordFieldType(BRecordType recordType) {
+        boolean isSameType = true;
+        List<BField> fields = recordType.fields;
+        BType inferredType = fields.get(0).type; // If all the fields are the same, doesn't matter which one we pick
+
+        for (int i = 1; i < fields.size(); i++) {
+            isSameType = isSameType && fields.get(i - 1).type.tag == fields.get(i).type.tag;
+            if (!isSameType) {
+                return symTable.anyType;
+            }
+        }
+
+        // If it's an open record, the rest field type should also be of the same type as the mandatory fields.
+        if (!recordType.sealed && recordType.restFieldType.tag != inferredType.tag) {
+            return symTable.anyType;
+        }
+
+        return inferredType;
     }
 
     private boolean checkActionTypeEquality(BInvokableSymbol source, BInvokableSymbol target) {

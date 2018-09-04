@@ -61,10 +61,10 @@ function testForeachOpWithOpenRecords() returns map {
     return rec;
 }
 
-function testMapOpWithOpenRecords() returns Person {
+function testMapOpWithOpenRecords() returns map {
     Person p = { name: "John Doe", age: 25, address: { street: "Palm Grove", city: "Colombo 3" }, profession: "Software Engineer" };
 
-    Person newp =  p.map(((string, any) entry) => (string, any) {
+    map newp =  p.map(((string, any) entry) => (string, any) {
            var (field, value) = entry;
             match value {
                 string str => value = str.toLower();
@@ -76,10 +76,10 @@ function testMapOpWithOpenRecords() returns Person {
     return newp;
 }
 
-function testFilterOpWithOpenRecords() returns Foo {
+function testFilterOpWithOpenRecords() returns map<string> {
     Foo f = {a: "A", b: "B", c: "C", d: "D", e: "E", f: "F"};
 
-    Foo newf = f.filter(((string, any) entry) => boolean {
+    map<string> newf = f.filter(((string, any) entry) => boolean {
         var (field, value) = entry;
         if (value != "A" && value != "E") {
             return true;
@@ -95,10 +95,10 @@ function testCountOpWithOpenRecords() returns int {
     return f.count();
 }
 
-function testChainedOpsWithOpenRecords() returns Foo {
+function testChainedOpsWithOpenRecords() returns map<string> {
     Foo f = {a: "AA", b: "BB", c: "CC", d: "DD", e: "EE", f: "FF"};
 
-    Foo newf = f.map(((string, any) entry) => (string, any) {
+    map<string> newf = f.map(((string, any) entry) => (string, any) {
                     var (field, value) = entry;
                     match value {
                         string str => value = str.toLower();
@@ -169,10 +169,10 @@ function testForeachOpWithClosedRecords() returns map {
     return rec;
 }
 
-function testMapOpWithClosedRecords() returns ClosedPerson {
+function testMapOpWithClosedRecords() returns map {
     ClosedPerson p = { name: "John Doe", age: 25, address: { street: "Palm Grove", city: "Colombo 3" }};
 
-    ClosedPerson newp =  p.map(((string, any) entry) => (string, any) {
+    map newp =  p.map(((string, any) entry) => (string, any) {
            var (field, value) = entry;
             match value {
                 string str => value = str.toLower();
@@ -184,10 +184,10 @@ function testMapOpWithClosedRecords() returns ClosedPerson {
     return newp;
 }
 
-function testFilterOpWithClosedRecords() returns Foo {
+function testFilterOpWithClosedRecords() returns map<string> {
     ClosedFoo f = {a: "A", b: "B", c: "C", d: "D", e: "E"};
 
-    ClosedFoo newf = f.filter(((string, any) entry) => boolean {
+    map<string> newf = f.filter(((string, string) entry) => boolean {
         var (field, value) = entry;
         if (value == "A" || value == "E") {
             return true;
@@ -203,10 +203,10 @@ function testCountOpWithClosedRecords() returns int {
     return f.count();
 }
 
-function testChainedOpsWithClosedRecords() returns Foo {
+function testChainedOpsWithClosedRecords() returns map<string> {
     Foo f = {a: "AA", b: "BB", c: "CC", d: "DD", e: "EE"};
 
-    Foo newf = f.map(((string, any) entry) => (string, any) {
+    map<string> newf = f.map(((string, any) entry) => (string, any) {
                     var (field, value) = entry;
                     match value {
                         string str => value = str.toLower();

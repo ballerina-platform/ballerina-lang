@@ -67,3 +67,15 @@ function test7(){
     s.filter((person p)=>{});
     _ = s.filter((string s) => (person) {return null;});
 }
+
+function test8() {
+    map z = {a:"1", b:"2"};
+
+    map m = z.filter((any s) => boolean {
+          return s == null;
+    });
+
+    any x = z.filter((any s) => boolean {
+         return s == null;
+    });
+}
