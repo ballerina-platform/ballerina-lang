@@ -10,7 +10,7 @@ options {
 // starting point for parsing a bal file
 compilationUnit
     :   (importDeclaration | namespaceDeclaration)*
-        ((documentationAttachment|documentationString)? deprecatedAttachment? annotationAttachment* definition)*
+        (documentationString? deprecatedAttachment? annotationAttachment* definition)*
         EOF
     ;
 
@@ -53,7 +53,7 @@ serviceBody
     ;
 
 resourceDefinition
-    :   annotationAttachment* (documentationAttachment|documentationString)? deprecatedAttachment? Identifier LEFT_PARENTHESIS resourceParameterList? RIGHT_PARENTHESIS callableUnitBody
+    :   annotationAttachment* documentationString? deprecatedAttachment? Identifier LEFT_PARENTHESIS resourceParameterList? RIGHT_PARENTHESIS callableUnitBody
     ;
 
 resourceParameterList
@@ -87,7 +87,7 @@ objectBody
     ;
 
 objectInitializer
-    :   annotationAttachment* (documentationAttachment|documentationString)? (PUBLIC)? NEW objectInitializerParameterList callableUnitBody
+    :   annotationAttachment* documentationString? (PUBLIC)? NEW objectInitializerParameterList callableUnitBody
     ;
 
 objectInitializerParameterList
@@ -99,7 +99,7 @@ objectFunctions
     ;
 
 objectFieldDefinition
-    :   annotationAttachment* documentationAttachment? deprecatedAttachment? (PUBLIC | PRIVATE)? typeName Identifier (ASSIGN expression)? (COMMA | SEMICOLON)
+    :   annotationAttachment* deprecatedAttachment? (PUBLIC | PRIVATE)? typeName Identifier (ASSIGN expression)? (COMMA | SEMICOLON)
     ;
 
 fieldDefinition
@@ -131,7 +131,7 @@ objectDefaultableParameter
     ;
 
 objectFunctionDefinition
-    :   annotationAttachment* (documentationAttachment|documentationString)? deprecatedAttachment? (PUBLIC | PRIVATE)? (EXTERN)? FUNCTION callableUnitSignature (callableUnitBody | SEMICOLON)
+    :   annotationAttachment* documentationString? deprecatedAttachment? (PUBLIC | PRIVATE)? (EXTERN)? FUNCTION callableUnitSignature (callableUnitBody | SEMICOLON)
     ;
 
 annotationDefinition
@@ -988,42 +988,6 @@ doubleBackTickDeprecatedInlineCode
 
 tripleBackTickDeprecatedInlineCode
     :   TBDeprecatedInlineCodeStart TripleBackTickInlineCode? TripleBackTickInlineCodeEnd
-    ;
-
-documentationAttachment
-    :   DocumentationTemplateStart documentationTemplateContent? DocumentationTemplateEnd
-    ;
-
-documentationTemplateContent
-    :   docText? documentationTemplateAttributeDescription+
-    |   docText
-    ;
-
-documentationTemplateAttributeDescription
-    :   DocumentationTemplateAttributeStart Identifier? DocumentationTemplateAttributeEnd docText?
-    ;
-
-docText
-    :   documentationTemplateInlineCode (DocumentationTemplateText | documentationTemplateInlineCode)*
-    |   DocumentationTemplateText  (DocumentationTemplateText | documentationTemplateInlineCode)*
-    ;
-
-documentationTemplateInlineCode
-    :   singleBackTickDocInlineCode
-    |   doubleBackTickDocInlineCode
-    |   tripleBackTickDocInlineCode
-    ;
-
-singleBackTickDocInlineCode
-    :   SBDocInlineCodeStart SingleBackTickInlineCode? SingleBackTickInlineCodeEnd
-    ;
-
-doubleBackTickDocInlineCode
-    :   DBDocInlineCodeStart DoubleBackTickInlineCode? DoubleBackTickInlineCodeEnd
-    ;
-
-tripleBackTickDocInlineCode
-    :   TBDocInlineCodeStart TripleBackTickInlineCode? TripleBackTickInlineCodeEnd
     ;
 
 // Markdown documentation

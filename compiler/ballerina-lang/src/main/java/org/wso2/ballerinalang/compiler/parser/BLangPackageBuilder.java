@@ -467,16 +467,12 @@ public class BLangPackageBuilder {
         }
     }
 
-    void addFieldVariable(DiagnosticPos pos, Set<Whitespace> ws, String identifier,
-                          boolean exprAvailable, boolean docExist, boolean deprectedDocExit,
-                          int annotCount, boolean isPrivate, boolean isPublic) {
+    void addFieldVariable(DiagnosticPos pos, Set<Whitespace> ws, String identifier, boolean exprAvailable,
+                          boolean deprecatedDocExit, int annotCount, boolean isPrivate, boolean isPublic) {
         BLangVariable field = addVar(pos, ws, identifier, exprAvailable, annotCount);
 
         attachAnnotations(field, annotCount);
-        if (docExist) {
-            attachDocumentations(field);
-        }
-        if (deprectedDocExit) {
+        if (deprecatedDocExit) {
             attachDeprecatedNode(field);
         }
 
@@ -1576,9 +1572,9 @@ public class BLangPackageBuilder {
         }
     }
 
-    void endObjectInitFunctionDef(DiagnosticPos pos, Set<Whitespace> ws, String identifier,
-                                  boolean publicFunc, boolean bodyExists, boolean docPresent,
-                                  boolean markdownDocPresent, boolean deprecatedDocPresent, int annCount) {
+    void endObjectInitFunctionDef(DiagnosticPos pos, Set<Whitespace> ws, String identifier, boolean publicFunc,
+                                  boolean bodyExists, boolean markdownDocPresent, boolean deprecatedDocPresent,
+                                  int annCount) {
         BLangFunction function = (BLangFunction) this.invokableNodeStack.pop();
         endEndpointDeclarationScope();
         function.setName(this.createIdentifier(identifier));
@@ -1594,9 +1590,6 @@ public class BLangPackageBuilder {
         }
 
         attachAnnotations(function, annCount);
-        if (docPresent) {
-            attachDocumentations(function);
-        }
         if (markdownDocPresent) {
             attachMarkdownDocumentations(function);
         }
@@ -1619,8 +1612,8 @@ public class BLangPackageBuilder {
     }
 
     void endObjectAttachedFunctionDef(DiagnosticPos pos, Set<Whitespace> ws, boolean publicFunc, boolean privateFunc,
-                                      boolean nativeFunc, boolean bodyExists, boolean docPresent,
-                                      boolean markdownDocPresent, boolean deprecatedDocPresent, int annCount) {
+                                      boolean nativeFunc, boolean bodyExists, boolean markdownDocPresent,
+                                      boolean deprecatedDocPresent, int annCount) {
         BLangFunction function = (BLangFunction) this.invokableNodeStack.pop();
         endEndpointDeclarationScope();
         function.pos = pos;
@@ -1650,9 +1643,6 @@ public class BLangPackageBuilder {
         function.attachedFunction = true;
 
         attachAnnotations(function, annCount);
-        if (docPresent) {
-            attachDocumentations(function);
-        }
         if (markdownDocPresent) {
             attachMarkdownDocumentations(function);
         }
@@ -2344,8 +2334,8 @@ public class BLangPackageBuilder {
         startEndpointDeclarationScope(((BLangResource) resourceNode).endpoints);
     }
 
-    void endResourceDef(DiagnosticPos pos, Set<Whitespace> ws, String resourceName,
-                        boolean docExists, boolean markdownDocPresent, boolean isDeprecated, boolean hasParameters) {
+    void endResourceDef(DiagnosticPos pos, Set<Whitespace> ws, String resourceName, boolean markdownDocPresent,
+                        boolean isDeprecated, boolean hasParameters) {
         BLangResource resourceNode = (BLangResource) invokableNodeStack.pop();
         endEndpointDeclarationScope();
         resourceNode.pos = pos;
@@ -2353,9 +2343,6 @@ public class BLangPackageBuilder {
         BLangIdentifier name = (BLangIdentifier) createIdentifier(resourceName);
         name.pos = pos;
         resourceNode.setName(name);
-        if (docExists) {
-            attachDocumentations(resourceNode);
-        }
         if (markdownDocPresent) {
             attachMarkdownDocumentations(resourceNode);
         }
