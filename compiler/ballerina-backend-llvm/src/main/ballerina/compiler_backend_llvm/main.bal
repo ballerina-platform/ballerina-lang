@@ -1,6 +1,6 @@
 import ballerina/io;
 
-function main(string... args) {
+public function main(string... args) {
     var (srcFilePath, destFilePath) = parseArgs(args);
     genObjectFileFromChannel(openFileForReading(srcFilePath), destFilePath, true);
 }
