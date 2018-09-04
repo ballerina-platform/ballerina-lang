@@ -397,7 +397,8 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         if (ctx.exception != null) {
             return;
         }
-        this.pkgBuilder.addArrowFunctionDef(getCurrentPos(ctx), getWS(ctx), ctx.arrowFunction().Identifier());
+        this.pkgBuilder.addArrowFunctionDef(getCurrentPos(ctx), getWS(ctx),
+                ctx.arrowFunction().Identifier(), diagnosticSrc.pkgID);
     }
 
     /**

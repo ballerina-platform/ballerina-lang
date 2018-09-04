@@ -37,3 +37,8 @@ function testWithUnknownExpectedType() {
     var lambda1 = param1 => !param1;
     any lambda2 = param1 => !param1;
 }
+
+function testArrowExprVariableScope() {
+    function (boolean) returns boolean lambda1 = param1 => !param1;
+    param1 = 12;
+}

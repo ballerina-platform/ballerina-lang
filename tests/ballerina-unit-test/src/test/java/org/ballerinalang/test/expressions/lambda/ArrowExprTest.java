@@ -108,7 +108,7 @@ public class ArrowExprTest {
     @Test
     public void testNegativeArrowExpr() {
         int i = 0;
-        Assert.assertEquals(resultNegative.getErrorCount(), 7);
+        Assert.assertEquals(resultNegative.getErrorCount(), 8);
         BAssertUtil.validateError(resultNegative, i++,
                 "operator '/' not defined for 'string' and 'int'", 18, 54);
         BAssertUtil.validateError(resultNegative, i++,
@@ -123,5 +123,7 @@ public class ArrowExprTest {
                 "arrow expression can only be defined with known invokable types", 37, 19);
         BAssertUtil.validateError(resultNegative, i++,
                 "arrow expression can only be defined with known invokable types", 38, 19);
+        BAssertUtil.validateError(resultNegative, i++,
+                "undefined symbol 'param1'", 43, 5);
     }
 }

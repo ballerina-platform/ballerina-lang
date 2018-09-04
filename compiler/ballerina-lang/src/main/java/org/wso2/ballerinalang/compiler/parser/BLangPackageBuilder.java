@@ -762,7 +762,8 @@ public class BLangPackageBuilder {
         endFunctionDef(pos, null, false, false, true, false, true);
     }
 
-    void addArrowFunctionDef(DiagnosticPos pos, Set<Whitespace> ws, List<TerminalNode> paramIdentifiers) {
+    void addArrowFunctionDef(DiagnosticPos pos, Set<Whitespace> ws, List<TerminalNode> paramIdentifiers,
+                             PackageID pkgID) {
         BLangArrowFunction arrowFunctionNode = (BLangArrowFunction) TreeBuilder.createArrowFunctionNode();
         arrowFunctionNode.pos = pos;
         arrowFunctionNode.addWS(ws);
@@ -770,10 +771,18 @@ public class BLangPackageBuilder {
         paramIdentifiers.forEach(param -> {
             BLangVariable variableNode = (BLangVariable) TreeBuilder.createVariableNode();
             variableNode.setName(createIdentifier(param.getText()));
+            variableNode.pos = pos;
             params.add(variableNode);
         });
+        BLangFunction bLangFunction = (BLangFunction) TreeBuilder.createFunctionNode();
+        bLangFunction.setName(createIdentifier(anonymousModelHelper.getNextAnonymousFunctionKey(pkgID)));
         arrowFunctionNode.params = params;
         arrowFunctionNode.expression = (BLangExpression) this.exprNodeStack.pop();
+        BLangLambdaFunction lambdaFunction = (BLangLambdaFunction) TreeBuilder.createLambdaFunctionNode();
+        lambdaFunction.pos = pos;
+        bLangFunction.addFlag(Flag.LAMBDA);
+        lambdaFunction.function = bLangFunction;
+        arrowFunctionNode.lambdaFunction = lambdaFunction;
         addExpressionNode(arrowFunctionNode);
     }
 
