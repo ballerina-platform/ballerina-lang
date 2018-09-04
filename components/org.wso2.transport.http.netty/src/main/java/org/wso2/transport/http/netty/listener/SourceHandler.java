@@ -84,7 +84,7 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
 
     private boolean pipeliningNeeded; //Based on the pipelining config
     private long maxQueuedResponseCount; //Max number of responses allowed to be queued when pipelining is enabled
-    private long sequenceId = 1; //Keep track of the request order for http 1.1 pipelining
+    private long sequenceId = 1L; //Keep track of the request order for http 1.1 pipelining
     private final Queue holdingQueue = new PriorityQueue<>(NUMBER_OF_INITIAL_EVENTS_HELD);
 
     public SourceHandler(ServerConnectorFuture serverConnectorFuture, String interfaceId, ChunkConfig chunkConfig,
@@ -258,7 +258,7 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
      */
     private void setSequenceNumber() {
         if (log.isDebugEnabled()) {
-            log.debug("Sequence id of the request is set to : " + sequenceId);
+            log.debug("Sequence id of the request is set to : {}", sequenceId);
         }
         inboundRequestMsg.setSequenceId(sequenceId);
         sequenceId++;

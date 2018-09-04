@@ -259,8 +259,8 @@ public final class Constants {
     public static final AttributeKey<Long> MAX_RESPONSES_ALLOWED_TO_BE_QUEUED =
             AttributeKey.valueOf("MAX_RESPONSES_ALLOWED_TO_BE_QUEUED");
     public static final AttributeKey<Queue> RESPONSE_QUEUE = AttributeKey.valueOf("RESPONSE_QUEUE");
-    public static final AttributeKey<Integer> NEXT_SEQUENCE_NUMBER = AttributeKey.valueOf("NEXT_SEQUENCE_NUMBER");
-    public static final int EXPECTED_SEQUENCE_NUMBER = 1;
+    public static final AttributeKey<Long> NEXT_SEQUENCE_NUMBER = AttributeKey.valueOf("NEXT_SEQUENCE_NUMBER");
+    public static final long EXPECTED_SEQUENCE_NUMBER = 1L;
     public static final int NUMBER_OF_INITIAL_EVENTS_HELD = 3;
     public static final int MEANINGFULLY_EQUAL = 0;
     public static final int UNBOUNDED_RESPONSE_QUEUE = -1;

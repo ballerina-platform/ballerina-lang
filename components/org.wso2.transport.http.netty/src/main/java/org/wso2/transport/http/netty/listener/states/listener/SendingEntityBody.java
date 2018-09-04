@@ -224,15 +224,15 @@ public class SendingEntityBody implements ListenerState {
             Queue responseQueue;
             synchronized (sourceContext.channel().attr(Constants.RESPONSE_QUEUE).get()) {
                 responseQueue = sourceContext.channel().attr(Constants.RESPONSE_QUEUE).get();
-                Integer nextSequenceNumber = sourceContext.channel().attr(Constants.NEXT_SEQUENCE_NUMBER).get();
+                Long nextSequenceNumber = sourceContext.channel().attr(Constants.NEXT_SEQUENCE_NUMBER).get();
                 //IMPORTANT:Next sequence number should never be incremented for interim 100 continue response
                 //because the body of the request is yet to come. Only when the actual response is sent out, this
                 //next sequence number should be updated.
                 nextSequenceNumber++;
                 sourceContext.channel().attr(Constants.NEXT_SEQUENCE_NUMBER).set(nextSequenceNumber);
                 if (log.isDebugEnabled()) {
-                    log.debug("Current sequence id of the response : " + outboundResponseMsg.getSequenceId());
-                    log.debug("Updated next sequence id to : " + nextSequenceNumber);
+                    log.debug("Current sequence id of the response : {}", outboundResponseMsg.getSequenceId());
+                    log.debug("Updated next sequence id to : {}", nextSequenceNumber);
                 }
             }
             if (!responseQueue.isEmpty()) {
