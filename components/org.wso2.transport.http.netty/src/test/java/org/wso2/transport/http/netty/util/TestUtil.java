@@ -290,7 +290,7 @@ public class TestUtil {
             HttpResponseFuture responseFuture = httpClientConnector.send(msg);
             responseFuture.setHttpConnectorListener(listener);
 
-            latch.await(5, TimeUnit.SECONDS);
+            latch.await(30, TimeUnit.SECONDS);
 
             HttpCarbonMessage response = listener.getHttpResponseMessage();
             assertNotNull(response);

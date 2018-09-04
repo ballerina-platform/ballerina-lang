@@ -102,7 +102,7 @@ public class SSLHandlerFactory {
         }
     }
 
-    public KeyStore getKeyStore(File keyStore, String keyStorePassword) throws IOException {
+    private KeyStore getKeyStore(File keyStore, String keyStorePassword) throws IOException {
         KeyStore ks = null;
         String  tlsStoreType = sslConfig.getTLSStoreType();
         if (keyStore != null && keyStorePassword != null) {
@@ -130,15 +130,11 @@ public class SSLHandlerFactory {
     public ReferenceCountedOpenSslContext getServerReferenceCountedOpenSslContext(boolean enableOcsp)
             throws SSLException {
         if (sslConfig.getKeyStore() != null) {
-            return (ReferenceCountedOpenSslContext) SslContextBuilder.forServer(kmf).sslProvider(SslProvider.OPENSSL)
-                    .enableOcsp(true).keyManager(kmf).trustManager(tmf).protocols(sslConfig.getEnableProtocols())
-                    .enableOcsp(enableOcsp).clientAuth(needClientAuth ? ClientAuth.REQUIRE : ClientAuth.NONE).build();
+            return (ReferenceCountedOpenSslContext) serverContextBuilderWithKs(SslProvider.OPENSSL)
+                    .enableOcsp(enableOcsp).build();
         }
-        return (ReferenceCountedOpenSslContext) SslContextBuilder
-                .forServer(sslConfig.getServerCertificates(), sslConfig.getServerKeyFile())
-                .sslProvider(SslProvider.OPENSSL).enableOcsp(true).trustManager(sslConfig.getServerTrustCertificates())
-                .protocols(sslConfig.getEnableProtocols()).enableOcsp(enableOcsp)
-                .clientAuth(needClientAuth ? ClientAuth.REQUIRE : ClientAuth.NONE).build();
+        return (ReferenceCountedOpenSslContext) serverContextBuilderWithCerts(SslProvider.OPENSSL)
+                .enableOcsp(enableOcsp).build();
     }
 
     /**
@@ -173,13 +169,11 @@ public class SSLHandlerFactory {
 
     public ReferenceCountedOpenSslContext buildClientReferenceCountedOpenSslContext() throws SSLException {
         if (sslConfig.getTrustStore() != null) {
-            return (ReferenceCountedOpenSslContext) SslContextBuilder.forClient().sslProvider(SslProvider.OPENSSL)
-                    .enableOcsp(true).keyManager(kmf).trustManager(tmf).protocols(sslConfig.getEnableProtocols())
+            return (ReferenceCountedOpenSslContext) clientContextBuilderWithKs(SslProvider.OPENSSL).enableOcsp(true)
                     .build();
         }
-        return (ReferenceCountedOpenSslContext) SslContextBuilder.forClient().sslProvider(SslProvider.OPENSSL)
-                .enableOcsp(true).keyManager(sslConfig.getClientCertificates(), sslConfig.getClientKeyFile())
-                .trustManager(sslConfig.getClientTrustCertificates()).protocols(sslConfig.getEnableProtocols()).build();
+        return (ReferenceCountedOpenSslContext) clientContextBuilderWithCerts(SslProvider.OPENSSL).enableOcsp(true)
+                .build();
     }
 
     /**
@@ -198,25 +192,19 @@ public class SSLHandlerFactory {
                 Arrays.asList(sslConfig.getCipherSuites()) :
                 Http2SecurityUtil.CIPHERS;
         SslProvider provider = SslProvider.OPENSSL;
+        SslContextBuilder sslContextBuilder = null;
         if (sslConfig.getKeyStore() != null) {
-            return SslContextBuilder.forServer(this.getKeyManagerFactory()).trustManager(this.getTrustStoreFactory())
-                    .sslProvider(provider).ciphers(ciphers, SupportedCipherSuiteFilter.INSTANCE)
-                    .clientAuth(needClientAuth ? ClientAuth.REQUIRE : ClientAuth.NONE).applicationProtocolConfig(
-                            new ApplicationProtocolConfig(ApplicationProtocolConfig.Protocol.ALPN,
-                                    ApplicationProtocolConfig.SelectorFailureBehavior.NO_ADVERTISE,
-                                    ApplicationProtocolConfig.SelectedListenerFailureBehavior.ACCEPT,
-                                    ApplicationProtocolNames.HTTP_2, ApplicationProtocolNames.HTTP_1_1))
-                    .enableOcsp(enableOcsp).build();
+            sslContextBuilder = serverContextBuilderWithKs(provider);
+        } else {
+            sslContextBuilder = serverContextBuilderWithCerts(provider);
         }
-        return SslContextBuilder.forServer(sslConfig.getServerCertificates(), sslConfig.getServerKeyFile())
-                .trustManager(sslConfig.getServerTrustCertificates()).sslProvider(provider).sslProvider(provider)
-                .ciphers(ciphers, SupportedCipherSuiteFilter.INSTANCE)
-                .clientAuth(needClientAuth ? ClientAuth.REQUIRE : ClientAuth.NONE).applicationProtocolConfig(
-                        new ApplicationProtocolConfig(ApplicationProtocolConfig.Protocol.ALPN,
-                                ApplicationProtocolConfig.SelectorFailureBehavior.NO_ADVERTISE,
-                                ApplicationProtocolConfig.SelectedListenerFailureBehavior.ACCEPT,
-                                ApplicationProtocolNames.HTTP_2, ApplicationProtocolNames.HTTP_1_1))
-                .enableOcsp(enableOcsp).build();
+
+        setCiphers(sslContextBuilder, ciphers);
+        setSslProtocol(sslContextBuilder);
+        setAlpnConfigs(sslContextBuilder);
+        setOcspStapling(sslContextBuilder, enableOcsp);
+
+        return sslContextBuilder.build();
     }
 
     /**
@@ -227,12 +215,7 @@ public class SSLHandlerFactory {
      */
     public SslContext createHttpTLSContextForServer() throws SSLException {
         SslProvider provider = SslProvider.JDK;
-        String keyPassword = sslConfig.getServerKeyPassword();
-        return SslContextBuilder
-                .forServer(sslConfig.getServerCertificates(), sslConfig.getServerKeyFile())
-                .keyManager(sslConfig.getServerCertificates(), sslConfig.getServerKeyFile(), keyPassword)
-                .trustManager(sslConfig.getServerTrustCertificates()).sslProvider(provider)
-                .clientAuth(needClientAuth ? ClientAuth.REQUIRE : ClientAuth.NONE).build();
+        return serverContextBuilderWithCerts(provider).build();
     }
 
     /**
@@ -242,11 +225,33 @@ public class SSLHandlerFactory {
      * @throws SSLException if any error occurred during building SSL context.
      */
     public SslContext createHttpTLSContextForClient() throws SSLException {
-        String keyPassword = sslConfig.getClientKeyPassword();
         SslProvider provider = SslProvider.JDK;
-        return SslContextBuilder.forClient().sslProvider(provider)
+        return clientContextBuilderWithCerts(provider).build();
+    }
+
+    private SslContextBuilder serverContextBuilderWithKs(SslProvider sslProvider) {
+        return SslContextBuilder.forServer(this.getKeyManagerFactory()).trustManager(this.getTrustStoreFactory())
+                .clientAuth(needClientAuth ? ClientAuth.REQUIRE : ClientAuth.NONE).sslProvider(sslProvider);
+    }
+
+    private SslContextBuilder clientContextBuilderWithKs(SslProvider sslProvider) {
+        return SslContextBuilder.forClient().sslProvider(sslProvider).keyManager(kmf).trustManager(tmf);
+    }
+
+    private SslContextBuilder serverContextBuilderWithCerts(SslProvider sslProvider) {
+        String keyPassword = sslConfig.getServerKeyPassword();
+        return SslContextBuilder
+                .forServer(sslConfig.getServerCertificates(), sslConfig.getServerKeyFile())
+                .keyManager(sslConfig.getServerCertificates(), sslConfig.getServerKeyFile(), keyPassword)
+                .trustManager(sslConfig.getServerTrustCertificates()).sslProvider(sslProvider)
+                .clientAuth(needClientAuth ? ClientAuth.REQUIRE : ClientAuth.NONE);
+    }
+
+    private SslContextBuilder clientContextBuilderWithCerts(SslProvider sslProvider) {
+        String keyPassword = sslConfig.getClientKeyPassword();
+        return SslContextBuilder.forClient().sslProvider(sslProvider)
                 .keyManager(sslConfig.getClientCertificates(), sslConfig.getClientKeyFile(), keyPassword)
-                .trustManager(sslConfig.getClientTrustCertificates()).build();
+                .trustManager(sslConfig.getClientTrustCertificates());
     }
 
     public SslContext createHttp2TLSContextForClient(boolean enableOcsp) throws SSLException {
@@ -257,25 +262,37 @@ public class SSLHandlerFactory {
         List<String> ciphers = sslConfig.getCipherSuites() != null && sslConfig.getCipherSuites().length > 0 ?
                 Arrays.asList(sslConfig.getCipherSuites()) :
                 Http2SecurityUtil.CIPHERS;
+        SslContextBuilder sslContextBuilder = null;
         if (sslConfig.getTrustStore() != null) {
-            return SslContextBuilder.forClient().sslProvider(provider).keyManager(kmf).trustManager(tmf)
-                    .protocols(sslConfig.getEnableProtocols()).ciphers(ciphers, SupportedCipherSuiteFilter.INSTANCE)
-                    .applicationProtocolConfig(new ApplicationProtocolConfig(ApplicationProtocolConfig.Protocol.ALPN,
-                            // NO_ADVERTISE is currently the only mode supported by both OpenSsl and JDK providers.
-                            ApplicationProtocolConfig.SelectorFailureBehavior.NO_ADVERTISE,
-                            // ACCEPT is currently the only mode supported by both OpenSsl and JDK providers.
-                            ApplicationProtocolConfig.SelectedListenerFailureBehavior.ACCEPT,
-                            ApplicationProtocolNames.HTTP_2, ApplicationProtocolNames.HTTP_1_1)).enableOcsp(enableOcsp).
-                            build();
+            sslContextBuilder = clientContextBuilderWithKs(provider);
+        } else {
+            sslContextBuilder = clientContextBuilderWithCerts(provider);
         }
-        return SslContextBuilder.forClient().trustManager(sslConfig.getClientTrustCertificates())
-                .keyManager(sslConfig.getClientCertificates(), sslConfig.getClientKeyFile())
-                .protocols(sslConfig.getEnableProtocols()).ciphers(ciphers, SupportedCipherSuiteFilter.INSTANCE)
-                .applicationProtocolConfig(new ApplicationProtocolConfig(ApplicationProtocolConfig.Protocol.ALPN,
+        setCiphers(sslContextBuilder, ciphers);
+        setSslProtocol(sslContextBuilder);
+        setAlpnConfigs(sslContextBuilder);
+        setOcspStapling(sslContextBuilder, enableOcsp);
+        return sslContextBuilder.build();
+    }
+
+    private void setCiphers(SslContextBuilder sslContextBuilder, List<String> ciphers) {
+        sslContextBuilder.ciphers(ciphers, SupportedCipherSuiteFilter.INSTANCE);
+    }
+
+    private void setSslProtocol(SslContextBuilder sslContextBuilder) {
+        sslContextBuilder.protocols(sslConfig.getEnableProtocols());
+    }
+
+    private void setAlpnConfigs(SslContextBuilder sslContextBuilder) {
+        sslContextBuilder.applicationProtocolConfig(
+                new ApplicationProtocolConfig(ApplicationProtocolConfig.Protocol.ALPN,
                         ApplicationProtocolConfig.SelectorFailureBehavior.NO_ADVERTISE,
                         ApplicationProtocolConfig.SelectedListenerFailureBehavior.ACCEPT,
-                        ApplicationProtocolNames.HTTP_2, ApplicationProtocolNames.HTTP_1_1)).enableOcsp(enableOcsp).
-                        build();
+                        ApplicationProtocolNames.HTTP_2, ApplicationProtocolNames.HTTP_1_1));
+    }
+
+    private void setOcspStapling(SslContextBuilder sslContextBuilder, boolean enableOcsp) {
+        sslContextBuilder.enableOcsp(enableOcsp);
     }
 
     private KeyManagerFactory getKeyManagerFactory() {
