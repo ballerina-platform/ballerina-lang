@@ -2,6 +2,7 @@ import ballerina/sql;
 import ballerina/jdbc;
 import ballerina/time;
 import ballerina/io;
+import ballerina/internal;
 
 type ResultCustomers record {
     string FIRSTNAME,
@@ -765,7 +766,7 @@ function testINParameters(string jdbcUrl, string userName, string password) retu
     return insertCount;
 }
 
-function testBlobInParameter(string jdbcUrl, string userName, string password) returns int {
+function testBlobInParameter(string jdbcUrl, string userName, string password) returns (int, byte[]) {
     endpoint jdbc:Client testDB {
         url: jdbcUrl,
         username: userName,
@@ -775,11 +776,35 @@ function testBlobInParameter(string jdbcUrl, string userName, string password) r
 
     sql:Parameter paraID = { sqlType: sql:TYPE_INTEGER, value: 3 };
     sql:Parameter paraBlob = { sqlType: sql:TYPE_BLOB, value: "YmxvYiBkYXRh" };
-    int insertCount = check testDB->update("INSERT INTO BlobTable (row_id,blob_type) VALUES (?,?)",
-        paraID, paraBlob);
 
+    int insertCount;
+    byte[] blobVal;
+
+    if (jdbcUrl.contains("postgres")) {
+        // In postgresql large object operations should be done in transaction mode. This is enforced by the official
+        // driver. The reason is large objects could span cross multiple records.
+        transaction {
+            insertCount = check testDB->update("INSERT INTO BlobTable (row_id,blob_type) VALUES (?,?)",
+                paraID, paraBlob);
+            table dt = check testDB->select("SELECT blob_type from BlobTable where row_id=3", ResultBlob);
+
+            while (dt.hasNext()) {
+                ResultBlob rs = check <ResultBlob>dt.getNext();
+                blobVal = rs.BLOB_TYPE;
+            }
+        }
+    } else {
+        insertCount = check testDB->update("INSERT INTO BlobTable (row_id,blob_type) VALUES (?,?)",
+            paraID, paraBlob);
+        table dt = check testDB->select("SELECT blob_type from BlobTable where row_id=3", ResultBlob);
+
+        while (dt.hasNext()) {
+            ResultBlob rs = check <ResultBlob>dt.getNext();
+            blobVal = rs.BLOB_TYPE;
+        }
+    }
     testDB.stop();
-    return insertCount;
+    return (insertCount, blobVal);
 }
 
 function testINParametersWithDirectValues(string jdbcUrl, string userName, string password) returns (int, int, float,
