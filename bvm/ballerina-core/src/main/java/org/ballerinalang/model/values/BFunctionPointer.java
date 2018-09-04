@@ -18,6 +18,10 @@
 package org.ballerinalang.model.values;
 
 import org.ballerinalang.model.types.BType;
+import org.ballerinalang.persistence.serializable.SerializableState;
+import org.ballerinalang.persistence.serializable.reftypes.Serializable;
+import org.ballerinalang.persistence.serializable.reftypes.SerializableRefType;
+import org.ballerinalang.persistence.serializable.reftypes.impl.SerializableBFuncPointer;
 import org.ballerinalang.util.BLangConstants;
 import org.ballerinalang.util.codegen.FunctionInfo;
 
@@ -31,7 +35,7 @@ import java.util.Map;
  *
  * @since 0.90
  */
-public class BFunctionPointer implements BRefType<FunctionInfo> {
+public class BFunctionPointer implements BRefType<FunctionInfo>, Serializable {
 
     FunctionInfo functionInfo;
     BType type;
@@ -82,5 +86,10 @@ public class BFunctionPointer implements BRefType<FunctionInfo> {
     @Override
     public BValue copy() {
         return new BFunctionPointer(functionInfo);
+    }
+
+    @Override
+    public SerializableRefType serialize(SerializableState state) {
+        return new SerializableBFuncPointer(this);
     }
 }
