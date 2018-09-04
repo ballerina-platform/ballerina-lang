@@ -16,31 +16,25 @@
 
 import ballerina/log;
 
-documentation {
-    This represents the protocol associated with the coordination type.
-
-    F{{name}} - protocol name
-}
+# This represents the protocol associated with the coordination type.
+#
+# + name - protocol name
 type Protocol record {
     @readonly string name;
 };
 
-documentation {
-    This represents the protocol associated with the coordination type.
-
-    F{{name}} - protocol name
-}
+# This represents the protocol associated with the coordination type.
+#
+# + name - protocol name
 type LocalProtocol record {
     @readonly string name;
 };
 
-documentation {
-    This represents the protocol associated with the coordination type.
+# This represents the protocol associated with the coordination type.
 
-    F{{name}} - protocol name
-    F{{url}}  - protocol URL. This URL will have a value only if the participant is remote. If the participant is local,
-                the `protocolFn` will be called
-}
+# + name - protocol name
+# + url - protocol URL. This URL will have a value only if the participant is remote. If the participant is local,
+#         the `protocolFn` will be called
 public type RemoteProtocol record {
     @readonly string name;
     @readonly string url;

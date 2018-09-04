@@ -21,14 +21,32 @@ endpoint file:Listener localFolder {
     recursive:false
 };
 
-boolean invoked = false;
+boolean createInvoke = false;
+boolean modifyInvoke = false;
+boolean deleteInvoke = false;
 
 service fileSystem bind localFolder {
     onCreate (file:FileEvent m) {
-        invoked = true;
+        createInvoke = true;
+    }
+
+    onModify(file:FileEvent m) {
+        modifyInvoke = true;
+    }
+
+    onDelete(file:FileEvent m) {
+        deleteInvoke = true;
     }
 }
 
-function isInvoked() returns boolean {
-    return invoked;
+function isCreateInvoked() returns boolean {
+    return createInvoke;
+}
+
+function isModifyInvoked() returns boolean {
+    return createInvoke;
+}
+
+function isDeleteInvoked() returns boolean {
+    return createInvoke;
 }

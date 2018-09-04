@@ -3,7 +3,7 @@ string gStr = "str";
 boolean gBool = true;
 byte gByte = 255;
 
-function main(string... args) {
+public function main(string... args) {
     int x = 10;
     int z = gInt + x;
     int y = x + z;

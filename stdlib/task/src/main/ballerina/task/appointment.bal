@@ -14,9 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-documentation {
-    Schedules an appointment.
-}
+# Schedules an appointment.
 public type Appointment object {
     // The function which gets called when the appointment is up
     private (function () returns error?) onTrigger,

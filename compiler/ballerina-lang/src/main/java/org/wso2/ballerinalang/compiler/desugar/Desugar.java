@@ -1179,7 +1179,6 @@ public class Desugar extends BLangNodeVisitor {
     }
 
     public void visit(BLangTypeInit connectorInitExpr) {
-        connectorInitExpr.argsExpr = rewriteExprs(connectorInitExpr.argsExpr);
         connectorInitExpr.objectInitInvocation = rewriteExpr(connectorInitExpr.objectInitInvocation);
         result = connectorInitExpr;
     }
@@ -2640,6 +2639,7 @@ public class Desugar extends BLangNodeVisitor {
         dupFuncSymbol.tainted = invokableSymbol.tainted;
         dupFuncSymbol.closure = invokableSymbol.closure;
         dupFuncSymbol.documentation = invokableSymbol.documentation;
+        dupFuncSymbol.markdownDocumentation = invokableSymbol.markdownDocumentation;
         dupFuncSymbol.scope = invokableSymbol.scope;
 
         BInvokableType prevFuncType = (BInvokableType) invokableSymbol.type;

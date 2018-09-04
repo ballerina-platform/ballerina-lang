@@ -17,9 +17,7 @@
 */
 package org.wso2.ballerinalang.compiler.util;
 
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 
 /**
@@ -43,24 +41,8 @@ public class CompilerUtils {
     }
     
     public static boolean isMainFunction(BLangFunction funcNode) {
-        if (!MAIN_FUNCTION_NAME.equals(funcNode.name.value)) {
-            return false;
-        }
-        BInvokableSymbol symbol = funcNode.symbol;
-        if (!(symbol.params.size() == 0 && symbol.defaultableParams.size() == 0
-                && symbol.restParam != null && symbol.retType.tag == TypeTags.NIL)) {
-            return false;
-        }
-        if (Symbols.isPublic(funcNode.symbol)) {
-            return false;
-        }
-        if (symbol.restParam.type.tag == TypeTags.ARRAY) {
-            BArrayType argsType = (BArrayType) symbol.restParam.type;
-            if (argsType.eType.tag == TypeTags.STRING) {
-                return true;
-            }
-        }
-        return false;
+        return MAIN_FUNCTION_NAME.equals(funcNode.name.value) && Symbols.isPublic(funcNode.symbol)
+                && (funcNode.symbol.retType.tag == TypeTags.NIL || funcNode.symbol.retType.tag == TypeTags.INT);
     }
     
 }

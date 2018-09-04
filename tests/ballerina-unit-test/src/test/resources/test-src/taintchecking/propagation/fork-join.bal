@@ -1,4 +1,4 @@
-function main (string... args) {
+public function main (string... args) {
     fork {
         worker w1 {
             "staticData" -> fork;

@@ -80,16 +80,6 @@ public class Symbols {
         return typeSymbol;
     }
 
-    @Deprecated
-    public static BAnnotationAttributeSymbol createAnnotationAttributeSymbol(Name name,
-                                                                             PackageID pkgID,
-                                                                             BType type,
-                                                                             BSymbol owner) {
-        BAnnotationAttributeSymbol annotationAttributeSymbol = new BAnnotationAttributeSymbol(name, pkgID, type, owner);
-        annotationAttributeSymbol.kind = SymbolKind.ANNOTATION_ATTRIBUTE;
-        return annotationAttributeSymbol;
-    }
-
     public static BAnnotationSymbol createAnnotationSymbol(int flags, int attachPoints, Name name, PackageID pkgID,
                                                            BType type, BSymbol owner) {
         BAnnotationSymbol annotationSymbol = new BAnnotationSymbol(name, flags, attachPoints, pkgID, type, owner);

@@ -41,6 +41,7 @@ import java.util.List;
 /**
  * Test cases for user defined documentation attachment in ballerina.
  */
+@Test(enabled = false)
 public class DocumentationTest {
 
     private static final String CARRIAGE_RETURN_CHAR = "\r";

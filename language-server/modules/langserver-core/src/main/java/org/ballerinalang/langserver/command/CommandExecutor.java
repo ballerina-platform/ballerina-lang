@@ -22,6 +22,7 @@ import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.common.utils.CommonUtil.FunctionGenerator;
 import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
 import org.ballerinalang.langserver.compiler.LSCompiler;
+import org.ballerinalang.langserver.compiler.LSContext;
 import org.ballerinalang.langserver.compiler.LSServiceOperationContext;
 import org.ballerinalang.langserver.compiler.common.LSCustomErrorStrategy;
 import org.ballerinalang.langserver.compiler.workspace.WorkspaceDocumentException;
@@ -60,10 +61,12 @@ import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static org.ballerinalang.langserver.common.utils.CommonUtil.createVariableDeclaration;
 import static org.ballerinalang.langserver.compiler.LSCompilerUtil.getUntitledFilePath;
 
 /**
  * Command Executor for Ballerina Workspace service execute command operation.
+ *
  * @since v0.964.0
  */
 public class CommandExecutor {
@@ -78,8 +81,9 @@ public class CommandExecutor {
 
     /**
      * Command Execution router.
-     * @param params            Parameters for the command
-     * @param context           Workspace service context
+     *
+     * @param params  Parameters for the command
+     * @param context Workspace service context
      */
     public static Object executeCommand(ExecuteCommandParams params, LSServiceOperationContext context) {
         Object result;
@@ -90,6 +94,9 @@ public class CommandExecutor {
                     break;
                 case CommandConstants.CMD_CREATE_FUNCTION:
                     result = executeCreateFunction(context);
+                    break;
+                case CommandConstants.CMD_CREATE_VARIABLE:
+                    result = executeCreateVariable(context);
                     break;
                 case CommandConstants.CMD_ADD_DOCUMENTATION:
                     result = executeAddDocumentation(context);
@@ -106,18 +113,19 @@ public class CommandExecutor {
             logger.error("Error occurred while executing command", e);
             result = new Object();
         }
-        
+
         return result;
     }
 
     /**
      * Execute the command, import package.
-     * @param context   Workspace service context
+     *
+     * @param context Workspace service context
      */
     private static Object executeImportPackage(LSServiceOperationContext context) throws WorkspaceDocumentException {
         String documentUri = null;
         VersionedTextDocumentIdentifier textDocumentIdentifier = new VersionedTextDocumentIdentifier();
-        
+
         for (Object arg : context.get(ExecuteCommandKeys.COMMAND_ARGUMENTS_KEY)) {
             if (((LinkedTreeMap) arg).get(ARG_KEY).equals(CommandConstants.ARG_KEY_DOC_URI)) {
                 documentUri = (String) ((LinkedTreeMap) arg).get(ARG_VALUE);
@@ -180,7 +188,7 @@ public class CommandExecutor {
             return applySingleTextEdit(editText, range, textDocumentIdentifier,
                     context.get(ExecuteCommandKeys.LANGUAGE_SERVER_KEY).getClient());
         }
-        
+
         return new Object();
     }
 
@@ -244,8 +252,58 @@ public class CommandExecutor {
     }
 
     /**
+     * Execute the command, create variable.
+     *
+     * @param context Workspace service context
+     */
+    private static Object executeCreateVariable(LSServiceOperationContext context) throws WorkspaceDocumentException {
+        String documentUri = null;
+        String variableType = null;
+        String variableName = null;
+        int sLine = -1;
+        int sCol = -1;
+        VersionedTextDocumentIdentifier textDocumentIdentifier = new VersionedTextDocumentIdentifier();
+
+        for (Object arg : context.get(ExecuteCommandKeys.COMMAND_ARGUMENTS_KEY)) {
+            String argKey = ((LinkedTreeMap) arg).get(ARG_KEY).toString();
+            String argVal = ((LinkedTreeMap) arg).get(ARG_VALUE).toString();
+            switch (argKey) {
+                case CommandConstants.ARG_KEY_DOC_URI:
+                    documentUri = argVal;
+                    textDocumentIdentifier.setUri(documentUri);
+                    context.put(DocumentServiceKeys.FILE_URI_KEY, documentUri);
+                    break;
+                case CommandConstants.ARG_KEY_RETURN_TYPE:
+                    variableType = argVal;
+                    break;
+                case CommandConstants.ARG_KEY_FUNC_LOCATION:
+                    String[] split = argVal.split(",");
+                    sLine = Integer.parseInt(split[0]);
+                    sCol = Integer.parseInt(split[1]);
+                    break;
+                case CommandConstants.ARG_KEY_VAR_NAME:
+                    variableName = argVal;
+                    break;
+                default:
+                    //do nothing
+            }
+        }
+
+        if (documentUri == null) {
+            return new Object();
+        }
+
+        String editText = createVariableDeclaration(variableName, variableType);
+        Position position = new Position(sLine - 1, sCol - 1);
+
+        LanguageClient client = context.get(ExecuteCommandKeys.LANGUAGE_SERVER_KEY).getClient();
+        return applySingleTextEdit(editText, new Range(position, position), textDocumentIdentifier, client);
+    }
+
+    /**
      * Execute the add documentation command.
-     * @param context   Workspace service context
+     *
+     * @param context Workspace service context
      */
     private static Object executeAddDocumentation(LSServiceOperationContext context) throws WorkspaceDocumentException {
         String topLevelNodeType = "";
@@ -264,12 +322,12 @@ public class CommandExecutor {
             }
         }
         LSCompiler lsCompiler = context.get(ExecuteCommandKeys.LS_COMPILER_KEY);
-        BLangPackage bLangPackage = lsCompiler.getBLangPackage(context,
-                context.get(ExecuteCommandKeys.DOCUMENT_MANAGER_KEY), false, LSCustomErrorStrategy.class,
-                false).getRight();
-
-        CommandUtil.DocAttachmentInfo docAttachmentInfo = getDocumentEditForNodeByPosition(topLevelNodeType,
-                bLangPackage, line);
+        WorkspaceDocumentManager documentManager = context.get(ExecuteCommandKeys.DOCUMENT_MANAGER_KEY);
+        BLangPackage bLangPackage = lsCompiler.getBLangPackage(context, documentManager,
+                false, LSCustomErrorStrategy.class, false).getRight();
+        context.put(DocumentServiceKeys.CURRENT_BLANG_PACKAGE_CONTEXT_KEY, bLangPackage);
+        CommandUtil.DocAttachmentInfo docAttachmentInfo =
+                getDocumentEditForNodeByPosition(topLevelNodeType, bLangPackage, line, context);
 
         if (docAttachmentInfo != null) {
             Path filePath = Paths.get(URI.create(documentUri));
@@ -292,7 +350,8 @@ public class CommandExecutor {
 
     /**
      * Generate workspace edit for generating doc comments for all top level nodes and resources.
-     * @param context   Workspace Service Context
+     *
+     * @param context Workspace Service Context
      */
     private static Object executeAddAllDocumentation(LSServiceOperationContext context)
             throws WorkspaceDocumentException {
@@ -340,8 +399,9 @@ public class CommandExecutor {
 
     /**
      * Get TextEdit from doc attachment info.
-     * @param attachmentInfo        Doc attachment info
-     * @param contentComponents     file content component
+     *
+     * @param attachmentInfo    Doc attachment info
+     * @param contentComponents file content component
      * @return {@link TextEdit}     Text edit for attachment info
      */
     private static TextEdit getTextEdit(CommandUtil.DocAttachmentInfo attachmentInfo, String[] contentComponents) {
@@ -355,13 +415,16 @@ public class CommandExecutor {
 
     /**
      * Get Document edit for node at a given position.
-     * @param topLevelNodeType      top level node type
-     * @param bLangPackage          BLang package
-     * @param line                  position to be compared with
-     * @return                      Document attachment info
+     *
+     * @param topLevelNodeType top level node type
+     * @param bLangPackage     BLang package
+     * @param line             position to be compared with
+     * @param context               Execute Command Context
+     * @return Document attachment info
      */
     private static CommandUtil.DocAttachmentInfo getDocumentEditForNodeByPosition(String topLevelNodeType,
-                                                                           BLangPackage bLangPackage, int line) {
+                                                                                  BLangPackage bLangPackage, int line,
+                                                                                  LSContext context) {
         CommandUtil.DocAttachmentInfo docAttachmentInfo = null;
         switch (topLevelNodeType) {
             case UtilSymbolKeys.FUNCTION_KEYWORD_KEY:
@@ -385,8 +448,9 @@ public class CommandExecutor {
 
     /**
      * Get the document edit attachment info for a given particular node.
-     * @param node      Node given
-     * @return          Doc Attachment Info
+     *
+     * @param node Node given
+     * @return Doc Attachment Info
      */
     private static CommandUtil.DocAttachmentInfo getDocumentEditForNode(Node node) {
         CommandUtil.DocAttachmentInfo docAttachmentInfo = null;

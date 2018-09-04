@@ -21,7 +21,7 @@
                     "character":30
                   }
                 },
-                "newText":"\ndocumentation {\n\t\n}\nfunction testDocumentation() {"
+                "newText":"\n# Description\nfunction testDocumentation() {"
               }
             ]
           }

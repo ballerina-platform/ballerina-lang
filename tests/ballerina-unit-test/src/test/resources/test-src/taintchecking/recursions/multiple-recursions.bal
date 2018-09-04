@@ -1,4 +1,4 @@
-function main (string... args) {
+public function main (string... args) {
     int[] intArr = [1,2,3];
     f1(intArr, 1, 2);
 }

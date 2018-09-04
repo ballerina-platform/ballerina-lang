@@ -20,18 +20,14 @@ import ballerina/runtime;
 
 @final string CONFIG_USER_SECTION = "b7a.users";
 
-documentation {
-    Represents Ballerina configuration file based auth store provider
-}
+# Represents Ballerina configuration file based auth store provider
 public type ConfigAuthStoreProvider object {
 
-    documentation {
-        Attempts to authenticate with username and password
-
-        P{{user}} user name
-        P{{password}} password
-        R{{}} true if authentication is a success, else false
-    }
+    # Attempts to authenticate with username and password
+    #
+    # + user - user name
+    # + password - password
+    # + return - true if authentication is a success, else false
     public function authenticate(string user, string password) returns boolean {
         boolean isAuthenticated = password == readPassword(user);
             if(isAuthenticated){
@@ -43,24 +39,20 @@ public type ConfigAuthStoreProvider object {
             return isAuthenticated;
         }
 
-    documentation {
-        Reads the scope(s) for the user with the given username
-
-        P{{username}} username
-        R{{}} array of groups for the user denoted by the username
-    }
+    # Reads the scope(s) for the user with the given username
+    #
+    # + username - username
+    # + return - array of groups for the user denoted by the username
     public function getScopes(string username) returns string[] {
         // first read the user id from user->id mapping
         // reads the groups for the userid
         return getArray(getConfigAuthValue(CONFIG_USER_SECTION + "." + username, "scopes"));
     }
 
-    documentation {
-        Reads the password hash for a user
-
-        P{{username}} username
-        R{{}} password hash read from userstore, or nil if not found
-    }
+    # Reads the password hash for a user
+    #
+    # + username - username
+    # + return - password hash read from userstore, or nil if not found
     public function readPassword(string username) returns string {
         // first read the user id from user->id mapping
         // read the hashed password from the userstore file, using the user id
@@ -71,12 +63,10 @@ public type ConfigAuthStoreProvider object {
         return config:getAsString(instanceId + "." + property, default = "");
     }
 
-    documentation {
-        Construct an array of groups from the comma separed group string passed
-
-        P{{groupString}} comma separated string of groups
-        R{{}} array of groups, nil if the groups string is empty/nil
-    }
+    # Construct an array of groups from the comma separed group string passed
+    #
+    # + groupString - comma separated string of groups
+    # + return - array of groups, nil if the groups string is empty/nil
     public function getArray(string groupString) returns (string[]) {
         string[] groupsArr = [];
         if (lengthof groupString == 0) {

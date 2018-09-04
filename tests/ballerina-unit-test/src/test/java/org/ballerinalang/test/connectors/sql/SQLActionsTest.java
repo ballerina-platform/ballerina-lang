@@ -21,6 +21,7 @@ import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BBooleanArray;
+import org.ballerinalang.model.values.BByteArray;
 import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BFloatArray;
 import org.ballerinalang.model.values.BIntArray;
@@ -61,7 +62,7 @@ public class SQLActionsTest {
     private static final double DELTA = 0.01;
     private CompileResult result;
     private CompileResult resultNegative;
-    private CompileResult resultMirror;
+    private CompileResult resultProxy;
     private static final String DB_NAME = "TEST_SQL_CONNECTOR";
     private static final String DB_NAME_H2 = "TEST_SQL_CONNECTOR_H2";
     private static final String DB_DIRECTORY_H2 = "./target/H2Client/";
@@ -106,7 +107,7 @@ public class SQLActionsTest {
 
         result = BCompileUtil.compile("test-src/connectors/sql/sql_actions_test.bal");
         resultNegative = BCompileUtil.compile("test-src/connectors/sql/sql_actions_negative_test.bal");
-        resultMirror = BCompileUtil.compile("test-src/connectors/sql/sql_actions_proxytable_test.bal");
+        resultProxy = BCompileUtil.compile("test-src/connectors/sql/sql_actions_proxytable_test.bal");
     }
 
     @Test(groups = CONNECTOR_TEST)
@@ -300,7 +301,10 @@ public class SQLActionsTest {
         Assert.assertEquals(retValue.intValue(), 10);
     }
 
-    @Test(groups = CONNECTOR_TEST)
+    // This is rather doesn't make sense to test for postgresql than not being supported. Because, in official
+    // postgresql driver when setting a blob value while preparing a statement, an OID is created so as it will
+    // always be a new one, IN clause would never be evaluated to true
+    @Test(groups = {CONNECTOR_TEST, POSTGRES_NOT_SUPPORTED})
     public void testBlobArrayOfQueryParameters() {
         BValue[] returns = BRunUtil.invoke(result, "testBlobArrayQueryParameter", connectionArgs);
         BInteger retValue = (BInteger) returns[0];
@@ -326,7 +330,7 @@ public class SQLActionsTest {
         Assert.assertEquals(returns[12].stringValue(), "wso2 ballerina binary test.");
     }
 
-    @Test(groups = {CONNECTOR_TEST, H2_NOT_SUPPORTED})
+    @Test(groups = {CONNECTOR_TEST, H2_NOT_SUPPORTED, POSTGRES_NOT_SUPPORTED})
     public void testBlobOutInOutParameters() {
         BValue[] returns = BRunUtil.invoke(result, "testBlobOutInOutParameters", connectionArgs);
         Assert.assertEquals(returns.length, 2);
@@ -363,8 +367,10 @@ public class SQLActionsTest {
     @Test(groups = {CONNECTOR_TEST, H2_NOT_SUPPORTED})
     public void testBlobInParameter() {
         BValue[] returns = BRunUtil.invoke(result, "testBlobInParameter", connectionArgs);
-        BInteger retValue = (BInteger) returns[0];
-        Assert.assertEquals(retValue.intValue(), 1);
+        BInteger retInt = (BInteger) returns[0];
+        BByteArray retBytes = (BByteArray) returns[1];
+        Assert.assertEquals(retInt.intValue(), 1);
+        Assert.assertEquals(new String(retBytes.getBytes()), "blob data");
     }
 
     @Test(groups = {CONNECTOR_TEST, H2_NOT_SUPPORTED})
@@ -445,7 +451,7 @@ public class SQLActionsTest {
         Assert.assertEquals(returns[12].stringValue(), null);
     }
 
-    @Test(groups = {CONNECTOR_TEST, H2_NOT_SUPPORTED})
+    @Test(groups = {CONNECTOR_TEST, H2_NOT_SUPPORTED, POSTGRES_NOT_SUPPORTED})
     public void testNullOutInOutBlobParameters() {
         BValue[] returns = BRunUtil.invoke(result, "testNullOutInOutBlobParameters", connectionArgs);
         Assert.assertEquals(returns[0].stringValue(), null);
@@ -695,6 +701,19 @@ public class SQLActionsTest {
             expected2 = "[{\"ROW_ID\":1, \"BLOB_TYPE\":\"d3NvMiBiYWxsZXJpbmEgYmxvYiB0ZXN0Lg==\"}]";
             expected3 = "[{\"ROW_ID\":1, \"DATE_TYPE\":\"2017-02-03\",\"TIME_TYPE\":\"11:35:45\", "
                     + "\"DATETIME_TYPE\":\"2017-02-03 11:53:00\", \"TIMESTAMP_TYPE\":\"2017-02-03 11:53:00\"}]";
+        } else if (dbType == POSTGRES) {
+            // When retrieving value from OID column postgres driver supports both getLong and getBlob.
+            // In table -> JSON/XML conversion of Ballerina data client implementation, the OID is returned ATM.
+            // However, when mapping a result set to a record, depending on whether the field type is int or byte[]
+            // getBlob/getLong are called appropriately.
+            expected0 = "<results><result><row_id>1</row_id><blob_type>16458</blob_type></result></results>";
+            expected1 = "<results><result><row_id>1</row_id><date_type>2017-02-03 "
+                    + "00:00:00</date_type><time_type>11:35:45</time_type><datetime_type>2017-02-03 "
+                    + "11:53:00</datetime_type><timestamp_type>2017-02-03 "
+                    + "11:53:00+05:30</timestamp_type></result></results>";
+            expected2 = "[{\"row_id\":1, \"blob_type\":16458}]";
+            expected3 = "[{\"row_id\":1, \"date_type\":\"2017-02-03 00:00:00\", \"time_type\":\"11:35:45\", "
+                    + "\"datetime_type\":\"2017-02-03 11:53:00\", \"timestamp_type\":\"2017-02-03 11:53:00+05:30\"}]";
         } else {
             expected0 = "<results><result><ROW_ID>1</ROW_ID><BLOB_TYPE>d3NvMiBiYWxsZXJpbmEgYmxvYiB0ZXN0Lg==</BLOB_TYPE>"
                     + "</result></results>";
@@ -769,17 +788,19 @@ public class SQLActionsTest {
                 + "{message:\"Trying to perform hasNext operation over a closed table\", cause:null})");
     }
 
-    @Test(groups = CONNECTOR_TEST, description = "Test failure scenario in adding data to mirrored table")
-    public void testAddToMirrorTableConstraintViolation() throws Exception {
-        BValue[] returns = BRunUtil.invoke(resultMirror, "testAddToMirrorTableConstraintViolation", connectionArgs);
+    @Test(groups = CONNECTOR_TEST, description = "Test failure scenario in adding data to proxy table")
+    public void testAddToProxyTableConstraintViolation() throws Exception {
+        BValue[] returns = BRunUtil.invoke(resultProxy, "testAddToProxyTableConstraintViolation", connectionArgs);
         String errorMessage;
         if (dbType == MYSQL) {
-            errorMessage = "execute proxy table add failed: Duplicate entry '1' for key 'PRIMARY'";
+            errorMessage = "execute proxy table add failed: execute update failed: Duplicate entry '1' for key "
+                    + "'PRIMARY'";
         } else if (dbType == POSTGRES) {
-            errorMessage = "execute proxy table add failed: ERROR: duplicate key value violates unique constraint";
+            errorMessage = "execute proxy table add failed: execute update failed: ERROR: duplicate key value "
+                    + "violates unique constraint";
         } else if (dbType == H2) {
-            errorMessage = "execute proxy table add failed: Unique index or primary key violation: \"PRIMARY KEY ON"
-                    + " PUBLIC.EMPLOYEEADDNEGATIVE(ID)";
+            errorMessage = "execute proxy table add failed: execute update failed: Unique index or primary key "
+                    + "violation: \"PRIMARY KEY ON PUBLIC.EMPLOYEEADDNEGATIVE(ID)";
         } else {
             errorMessage = "execute proxy table add failed: execute update failed: integrity constraint violation: "
                     + "unique constraint or index violation";
@@ -788,9 +809,9 @@ public class SQLActionsTest {
         Assert.assertTrue(returns[0].stringValue().contains(errorMessage));
     }
 
-    @Test(groups = CONNECTOR_TEST, description = "Test failure scenario in adding data to mirrored table")
-    public void testAddToMirrorTableInvalidRecord() throws Exception {
-        BValue[] returns = BRunUtil.invoke(resultMirror, "testAddToMirrorTableInvalidRecord", connectionArgs);
+    @Test(groups = CONNECTOR_TEST, description = "Test failure scenario in adding data to proxy table")
+    public void testAddToProxyTableInvalidRecord() throws Exception {
+        BValue[] returns = BRunUtil.invoke(resultProxy, "testAddToProxyTableInvalidRecord", connectionArgs);
         String errorMessage;
         if (dbType == MYSQL) {
             errorMessage = "execute update failed: Unknown column 'age' in 'field list'";
@@ -807,42 +828,42 @@ public class SQLActionsTest {
         Assert.assertTrue(returns[0].stringValue().contains(errorMessage));
     }
 
-    @Test(groups = CONNECTOR_TEST, description = "Test adding data to mirrored table")
-    public void testAddToMirrorTable() throws Exception {
-        BValue[] returns = BRunUtil.invoke(resultMirror, "testAddToMirrorTable", connectionArgs);
+    @Test(groups = CONNECTOR_TEST, description = "Test adding data to proxy table")
+    public void testAddToProxyTable() throws Exception {
+        BValue[] returns = BRunUtil.invoke(resultProxy, "testAddToProxyTable", connectionArgs);
         Assert.assertNotNull(returns);
         Assert.assertEquals(returns[0].stringValue(), "{id:1, name:\"Manuri\", address:\"Sri Lanka\"}");
         Assert.assertEquals(returns[1].stringValue(), "{id:2, name:\"Devni\", address:\"Sri Lanka\"}");
     }
 
-    @Test(groups = CONNECTOR_TEST, description = "Test deleting data from mirrored table")
-    public void testDeleteFromMirrorTable() throws Exception {
-        BValue[] returns = BRunUtil.invoke(resultMirror, "testDeleteFromMirrorTable", connectionArgs);
+    @Test(groups = CONNECTOR_TEST, description = "Test deleting data from proxy table")
+    public void testDeleteFromProxyTable() throws Exception {
+        BValue[] returns = BRunUtil.invoke(resultProxy, "testDeleteFromProxyTable", connectionArgs);
         Assert.assertNotNull(returns);
         Assert.assertEquals(((BBoolean) returns[0]).booleanValue(), false);
         Assert.assertEquals(((BInteger) returns[1]).intValue(), 2);
     }
 
     @Test(groups = CONNECTOR_TEST, description = "Test deleting data from proxy table within a transaction")
-    public void testDeleteFromMirrorTableinTransaction() throws Exception {
-        BValue[] returns = BRunUtil.invoke(resultMirror, "testDeleteFromMirrorTableinTransaction", connectionArgs);
+    public void testDeleteFromProxyTableInTransaction() throws Exception {
+        BValue[] returns = BRunUtil.invoke(resultProxy, "testDeleteFromProxyTableInTransaction", connectionArgs);
         Assert.assertNotNull(returns);
         Assert.assertEquals(((BBoolean) returns[0]).booleanValue(), true);
         Assert.assertEquals(((BInteger) returns[1]).intValue(), 2);
     }
 
-    @Test(groups = CONNECTOR_TEST, description = "Test iterating data of a mirrored table multiple times")
-    public void testIterateMirrorTable() throws Exception {
-        BValue[] returns = BRunUtil.invokeFunction(resultMirror, "testIterateMirrorTable", connectionArgs);
+    @Test(groups = CONNECTOR_TEST, description = "Test iterating data of a proxy table multiple times")
+    public void testIterateProxyTable() throws Exception {
+        BValue[] returns = BRunUtil.invokeFunction(resultProxy, "testIterateProxyTable", connectionArgs);
         Assert.assertNotNull(returns);
         Assert.assertEquals(returns[0].stringValue(), "("
                 + "[{id:1, name:\"Manuri\", address:\"Sri Lanka\"}, {id:2, name:\"Devni\", address:\"Sri Lanka\"}], "
                 + "[{id:1, name:\"Manuri\", address:\"Sri Lanka\"}, {id:2, name:\"Devni\", address:\"Sri Lanka\"}])");
     }
 
-    @Test(groups = CONNECTOR_TEST, description = "Test iterating data of a mirrored table after closing")
-    public void testIterateMirrorTableAfterClose() throws Exception {
-        BValue[] returns = BRunUtil.invokeFunction(resultMirror, "testIterateMirrorTableAfterClose", connectionArgs);
+    @Test(groups = CONNECTOR_TEST, description = "Test iterating data of a proxy table after closing")
+    public void testIterateProxyTableAfterClose() throws Exception {
+        BValue[] returns = BRunUtil.invokeFunction(resultProxy, "testIterateProxyTableAfterClose", connectionArgs);
         Assert.assertNotNull(returns);
         Assert.assertEquals(returns[0].stringValue(), "("
                 + "[{id:1, name:\"Manuri\", address:\"Sri Lanka\"}, {id:2, name:\"Devni\", address:\"Sri Lanka\"}], "
@@ -857,7 +878,7 @@ public class SQLActionsTest {
         try {
             System.setOut(new PrintStream(outContent));
             final String expected = "\n";
-            BRunUtil.invoke(resultMirror, "testProxyTablePrintln", connectionArgs);
+            BRunUtil.invoke(resultProxy, "testProxyTablePrintln", connectionArgs);
             Assert.assertEquals(outContent.toString().replace("\r", ""), expected);
         } finally {
             outContent.close();

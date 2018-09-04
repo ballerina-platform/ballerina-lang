@@ -39,8 +39,6 @@ import org.wso2.ballerinalang.compiler.tree.clauses.BLangTableQuery;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangWhere;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangWindow;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangWithinClause;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangAnnotAttachmentAttribute;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangAnnotAttachmentAttributeValue;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrayLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrayLiteral.BLangJSONArrayLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangAwaitExpr;
@@ -204,20 +202,7 @@ public abstract class BLangNodeVisitor {
         throw new AssertionError();
     }
 
-    @Deprecated
-    public void visit(BLangAnnotAttribute annotationAttribute) {
-        throw new AssertionError();
-    }
-
     public void visit(BLangAnnotationAttachment annAttachmentNode) {
-        throw new AssertionError();
-    }
-
-    public void visit(BLangAnnotAttachmentAttributeValue annotAttributeValue) {
-        throw new AssertionError();
-    }
-
-    public void visit(BLangAnnotAttachmentAttribute annotAttachmentAttribute) {
         throw new AssertionError();
     }
 
