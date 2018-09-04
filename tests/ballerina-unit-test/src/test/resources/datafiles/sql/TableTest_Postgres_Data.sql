@@ -126,6 +126,24 @@ CREATE TABLE IF NOT EXISTS DataTypeTableNillable(
   PRIMARY KEY (row_id)
 );
 /
+CREATE TABLE IF NOT EXISTS DataTypeTableNillableBlob(
+  row_id       INTEGER,
+  blob_type    OID,
+  PRIMARY KEY (row_id)
+);
+/
+CREATE TABLE IF NOT EXISTS ComplexTypes(
+  row_id         INTEGER NOT NULL,
+  blob_type      OID,
+  clob_type      TEXT,
+  binary_type  BYTEA,
+  PRIMARY KEY (row_id)
+);
+/
+INSERT INTO ComplexTypes (row_id, blob_type, clob_type, binary_type) VALUES
+  (1, lo_from_bytea(0, E'\\x77736F322062616C6C6572696E6120626C6F6220746573742E'),'very long text',
+  E'\\x77736F322062616C6C6572696E612062696E61727920746573742E');
+/
 INSERT INTO DataTypeTableNillable (row_id, int_type, long_type, float_type, double_type, boolean_type, string_type,
   numeric_type, decimal_type, real_type, tinyint_type, smallint_type, clob_type, binary_type, date_type,
   time_type, datetime_type, timestamp_type) VALUES
@@ -137,4 +155,9 @@ INSERT INTO DataTypeTableNillable (row_id, int_type, long_type, float_type, doub
   numeric_type, decimal_type, real_type, tinyint_type, smallint_type, clob_type, binary_type, date_type,
   time_type, datetime_type, timestamp_type) VALUES
   (2, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null);
+/
+INSERT INTO DataTypeTableNillableBlob (row_id, blob_type) VALUES
+  (3, lo_from_bytea(0, E'\\x77736F322062616C6C6572696E6120626C6F6220746573742E'));
+/
+INSERT INTO DataTypeTableNillableBlob (row_id, blob_type) VALUES (4, null);
 /

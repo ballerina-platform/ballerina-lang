@@ -102,7 +102,7 @@ public class TableTest {
     public void setup() {
         switch (dbType) {
         case MYSQL:
-            testDatabase = new ContainerizedTestDatabase(dbType, "datafiles/sql/TableTest_Postgres_Data.sql");
+            testDatabase = new ContainerizedTestDatabase(dbType, "datafiles/sql/TableTest_Mysql_Data.sql");
             break;
         case POSTGRES:
             testDatabase = new ContainerizedTestDatabase(dbType, "datafiles/sql/TableTest_Postgres_Data.sql");
@@ -667,6 +667,8 @@ public class TableTest {
             connectionCountQuery = new BString("SELECT COUNT(*) FROM information_schema.PROCESSLIST");
         } else if (dbType == H2) {
             connectionCountQuery = new BString("SELECT COUNT(*) FROM INFORMATION_SCHEMA.SESSIONS");
+        } else if (dbType == POSTGRES) {
+            connectionCountQuery = new BString("SELECT COUNT(*) FROM pg_stat_activity");
         } else {
             connectionCountQuery = new BString("SELECT COUNT(*) as countVal FROM INFORMATION_SCHEMA"
                     + ".SYSTEM_SESSIONS");
