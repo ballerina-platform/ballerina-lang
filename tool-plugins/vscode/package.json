@@ -100,14 +100,6 @@
                             "required": [
                                 "script"
                             ],
-                            "ballerina.sdk": {
-                                "type": [
-                                    "string",
-                                    "null"
-                                ],
-                                "default": null,
-                                "description": "Specifies the path to the ballerina sdk"
-                            },
                             "script": {
                                 "type": "string",
                                 "default": "${file}"
