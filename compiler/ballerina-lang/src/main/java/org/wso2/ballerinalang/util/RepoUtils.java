@@ -33,8 +33,6 @@ public class RepoUtils {
     private static final boolean BALLERINA_DEV_STAGE_CENTRAL = Boolean.parseBoolean(
             System.getenv("BALLERINA_DEV_STAGE_CENTRAL"));
 
-    private static Settings settings = null;
-
     /**
      * Create and get the home repository path.
      *

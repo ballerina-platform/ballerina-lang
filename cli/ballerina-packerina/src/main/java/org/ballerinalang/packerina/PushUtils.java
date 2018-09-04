@@ -68,7 +68,7 @@ public class PushUtils {
             ProjectDirConstants.SETTINGS_FILE_NAME);
     private static PrintStream outStream = System.err;
     private static EmbeddedExecutor executor = EmbeddedExecutorProvider.getInstance().getExecutor();
-    private static Settings settings = new Settings();
+    private static Settings settings;
 
     /**
      * Push/Uploads packages to the central repository.
