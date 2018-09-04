@@ -183,6 +183,37 @@ public class PackagingTestCase extends BaseTest {
                 new LogLeecher[]{clientLeecher}, tempProjectDirectory.toString());
     }
 
+    @Test(description = "Test uninstalling a package from the home repository which was installed locally",
+            dependsOnMethods = "testInstall")
+    public void testUninstallFromHomeRepo() throws Exception {
+        String fullPkgPath = orgName + "/" + packageName + ":0.0.1";
+        String[] clientArgs = {fullPkgPath};
+
+        LogLeecher clientLeecher = new LogLeecher(fullPkgPath + " successfully uninstalled");
+        balClient.runMain("uninstall", clientArgs, envVariables, new String[]{}, new LogLeecher[]{clientLeecher},
+                          tempProjectDirectory.toString());
+
+        Path dirPath = Paths.get(ProjectDirConstants.DOT_BALLERINA_REPO_DIR_NAME, orgName, packageName, "0.0.1");
+        Assert.assertTrue(Files.notExists(tempHomeDirectory.resolve(dirPath)));
+        Assert.assertTrue(Files.notExists(tempHomeDirectory.resolve(dirPath).resolve(packageName + ".zip")));
+    }
+
+    @Test(description = "Test uninstalling a package from the caches which was pulled from central",
+            dependsOnMethods = "testPull")
+    public void testUninstallFromCaches() throws Exception {
+        String fullPkgPath = orgName + "/" + packageName + ":0.0.1";
+        String[] clientArgs = {fullPkgPath};
+
+        LogLeecher clientLeecher = new LogLeecher(fullPkgPath + " successfully uninstalled");
+
+        balClient.runMain("uninstall", clientArgs, envVariables, new String[]{}, new LogLeecher[]{clientLeecher},
+                          tempProjectDirectory.toString());
+
+        Path dirPath = Paths.get(ProjectDirConstants.CACHES_DIR_NAME,
+                                 ProjectDirConstants.BALLERINA_CENTRAL_DIR_NAME, orgName, packageName, "0.0.1");
+        Assert.assertTrue(Files.notExists(tempHomeDirectory.resolve(dirPath)));
+        Assert.assertTrue(Files.notExists(tempHomeDirectory.resolve(dirPath).resolve(packageName + ".zip")));
+    }
     /**
      * Get environment variables and add ballerina_home as a env variable the tmp directory.
      *
