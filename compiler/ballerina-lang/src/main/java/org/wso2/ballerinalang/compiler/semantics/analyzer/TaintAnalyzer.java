@@ -858,9 +858,6 @@ public class TaintAnalyzer extends BLangNodeVisitor {
             case TypeTags.JSON:
                 fieldAccessExpr.expr.accept(this);
                 break;
-            case TypeTags.ENUM:
-                this.taintedStatus = TaintedStatus.UNTAINTED;
-                break;
         }
     }
 
