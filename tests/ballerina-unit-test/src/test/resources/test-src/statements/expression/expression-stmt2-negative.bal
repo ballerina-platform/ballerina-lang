@@ -1,4 +1,4 @@
-function main(string... args){
+public function main(string... args){
     int i = 10;
     xml `abc`;
     string x = "1";

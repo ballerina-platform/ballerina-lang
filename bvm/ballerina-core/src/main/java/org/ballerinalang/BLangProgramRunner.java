@@ -17,10 +17,6 @@
 */
 package org.ballerinalang;
 
-import org.ballerinalang.model.types.BArrayType;
-import org.ballerinalang.model.types.BType;
-import org.ballerinalang.model.types.BTypes;
-import org.ballerinalang.model.values.BStringArray;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.persistence.RecoveryTask;
 import org.ballerinalang.util.codegen.FunctionInfo;
@@ -30,6 +26,8 @@ import org.ballerinalang.util.debugger.Debugger;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.ballerinalang.util.program.BLangFunctions;
 
+import static org.ballerinalang.util.BLangConstants.MAIN_FUNCTION_NAME;
+import static org.ballerinalang.util.cli.ArgumentParser.extractEntryFuncArgs;
 /**
  * This class contains utilities to execute Ballerina main and service programs.
  *
@@ -59,37 +57,31 @@ public class BLangProgramRunner {
         new Thread(new RecoveryTask(programFile)).start();
     }
 
-    public static void runMain(ProgramFile programFile, String[] args) {
-        if (!programFile.isMainEPAvailable()) {
+    public static BValue[] runEntryFunc(ProgramFile programFile, String functionName, String[] args) {
+        BValue[] entryFuncResult;
+        if (MAIN_FUNCTION_NAME.equals(functionName) && !programFile.isMainEPAvailable()) {
             throw new BallerinaException("main function not found in  '" + programFile.getProgramFilePath() + "'");
         }
-        PackageInfo mainPkgInfo = programFile.getEntryPackage();
-        if (mainPkgInfo == null) {
-            throw new BallerinaException("main function not found in  '" + programFile.getProgramFilePath() + "'");
+        PackageInfo entryPkgInfo = programFile.getEntryPackage();
+        if (entryPkgInfo == null) {
+            throw new BallerinaException("entry package not found in  '" + programFile.getProgramFilePath() + "'");
         }
         Debugger debugger = new Debugger(programFile);
         initDebugger(programFile, debugger);
 
-        FunctionInfo mainFuncInfo = getMainFunction(mainPkgInfo);
+        FunctionInfo functionInfo = getEntryFunctionInfo(entryPkgInfo, functionName);
         try {
-            BLangFunctions.invokeEntrypointCallable(programFile, mainFuncInfo, extractMainArgs(args));
+            entryFuncResult = BLangFunctions.invokeEntrypointCallable(programFile, functionInfo,
+                                                                      extractEntryFuncArgs(functionInfo, args));
         } finally {
-            if (programFile.isServiceEPAvailable()) {
-                return;
+            if (!programFile.isServiceEPAvailable()) {
+                if (debugger.isDebugEnabled()) {
+                    debugger.notifyExit();
+                }
+                BLangFunctions.invokePackageStopFunctions(programFile);
             }
-            if (debugger.isDebugEnabled()) {
-                debugger.notifyExit();
-            }
-            BLangFunctions.invokePackageStopFunctions(programFile);
         }
-    }
-
-    private static BValue[] extractMainArgs(String[] args) {
-        BStringArray arrayArgs = new BStringArray();
-        for (int i = 0; i < args.length; i++) {
-            arrayArgs.add(i, args[i]);
-        }
-        return new BValue[] {arrayArgs};
+        return entryFuncResult;
     }
 
     private static void initDebugger(ProgramFile programFile, Debugger debugger) {
@@ -100,22 +92,19 @@ public class BLangProgramRunner {
         }
     }
 
-    public static FunctionInfo getMainFunction(PackageInfo mainPkgInfo) {
-        String errorMsg = "main function not found in  '" +
-                mainPkgInfo.getProgramFile().getProgramFilePath() + "'";
+    public static FunctionInfo getEntryFunctionInfo(PackageInfo entryPkgInfo, String functionName) {
+        String errorMsg = functionName + " function not found in  '"
+                            + entryPkgInfo.getProgramFile().getProgramFilePath() + "'";
 
-        FunctionInfo mainFuncInfo = mainPkgInfo.getFunctionInfo("main");
-        if (mainFuncInfo == null) {
+        FunctionInfo functionInfo = entryPkgInfo.getFunctionInfo(functionName);
+        if (functionInfo == null) {
             throw new BallerinaException(errorMsg);
         }
 
-        BType[] paramTypes = mainFuncInfo.getParamTypes();
-        BType[] retParamTypes = mainFuncInfo.getRetParamTypes();
-        BArrayType argsType = new BArrayType(BTypes.typeString);
-        if (paramTypes.length != 1 || !paramTypes[0].equals(argsType) || retParamTypes.length != 0) {
-            throw new BallerinaException(errorMsg);
+        if (!functionInfo.isPublic()) {
+            throw new BallerinaException("non public function '" + functionName + "' not allowed as entry function");
         }
 
-        return mainFuncInfo;
+        return functionInfo;
     }
 }

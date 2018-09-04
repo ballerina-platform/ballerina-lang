@@ -29,6 +29,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
+import java.util.Map;
 
 /**
  * Testing pushing, pulling, searching a package from central and installing package to home repository.
@@ -38,7 +39,7 @@ import java.nio.file.StandardOpenOption;
 public class ListDependencyTestCase extends BaseTest {
     private Path tempProjectDirectory;
     private String orgName = "integrationtests";
-    private String[] envVariables;
+    private Map<String, String> envVariables;
 
     @BeforeClass()
     public void setUp() throws BallerinaTestException, IOException {
@@ -53,7 +54,7 @@ public class ListDependencyTestCase extends BaseTest {
 
         String[] clientArgsForInit = {"-i"};
         String[] options = {"\n", orgName + "\n", "\n", "m\n", "foo\n", "f\n"};
-        serverInstance.runMainWithClientOptions(clientArgsForInit, options, envVariables, "init",
+        balClient.runMain("init", clientArgsForInit, envVariables, options, new LogLeecher[0],
                                                 projectPath.toString());
     }
 
@@ -62,29 +63,22 @@ public class ListDependencyTestCase extends BaseTest {
         String[] clientArgs = {"foo"};
         Path projectPath = tempProjectDirectory.resolve("initProject");
 
-        // Reset the server log reader
-        serverInstance.resetServerLogReader();
-
         String msg = orgName + "/foo:0.0.1\n" +
                 "└── ballerina/io";
         LogLeecher clientLeecher = new LogLeecher(msg);
-        serverInstance.addLogLeecher(clientLeecher);
-        serverInstance.runMain(clientArgs, envVariables, "list", projectPath.toString());
+        balClient.runMain("list", clientArgs, envVariables, new String[0], new LogLeecher[]{clientLeecher},
+                projectPath.toString());
         clientLeecher.waitForText(3000);
-
     }
 
     @Test(description = "Test listing dependencies of a single bal file", dependsOnMethods = "testInitProject")
     public void testListDependenciesOfBalFile() throws Exception {
         Path projectPath = tempProjectDirectory.resolve("initProject");
 
-        String content = "import ballerina/io;\n import ballerina/http; \n \n function main(string... args) {\n    " +
-                "io:println(\"Hello World!\"); \n }\n";
+        String content = "import ballerina/io;\n import ballerina/http; \n \n public function main(string... args) {\n"
+                + "    io:println(\"Hello World!\"); \n }\n";
         Files.write(projectPath.resolve("main.bal"), content.getBytes(), StandardOpenOption.CREATE_NEW);
         String[] clientArgs = {"main.bal"};
-
-        // Reset the server log reader
-        serverInstance.resetServerLogReader();
 
         String msg = "main.bal\n" +
                 "├── ballerina/io\n" +
@@ -129,16 +123,14 @@ public class ListDependencyTestCase extends BaseTest {
                 "    │   └── ballerina/time\n" +
                 "    └── ballerina/log\n";
         LogLeecher clientLeecher = new LogLeecher(msg);
-        serverInstance.addLogLeecher(clientLeecher);
-        serverInstance.runMain(clientArgs, envVariables, "list", projectPath.toString());
+        balClient.runMain("list", clientArgs, envVariables, new String[0], new LogLeecher[]{clientLeecher},
+                projectPath.toString());
         clientLeecher.waitForText(3000);
     }
 
     @Test(description = "Test listing dependencies of a project", dependsOnMethods = "testListDependenciesOfBalFile")
     public void testListDependenciesOfProject() throws Exception {
         Path projectPath = tempProjectDirectory.resolve("initProject");
-        // Reset the server log reader
-        serverInstance.resetServerLogReader();
 
         String msg = "main.bal\n" +
                 "├── ballerina/io\n" +
@@ -186,8 +178,8 @@ public class ListDependencyTestCase extends BaseTest {
                 "└── ballerina/io\n";
 
         LogLeecher clientLeecher = new LogLeecher(msg);
-        serverInstance.addLogLeecher(clientLeecher);
-        serverInstance.runMain(new String[0], envVariables, "list", projectPath.toString());
+        balClient.runMain("list", new String[0], envVariables, new String[0], new LogLeecher[]{clientLeecher},
+                projectPath.toString());
         clientLeecher.waitForText(3000);
     }
 

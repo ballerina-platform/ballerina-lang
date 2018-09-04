@@ -20,9 +20,7 @@ import ballerina/log;
 import ballerina/runtime;
 import ballerina/time;
 
-documentation {
-    Represents a JWT Authenticator
-}
+# Represents a JWT Authenticator
 public type JWTAuthProvider object {
 
     public JWTAuthProviderConfig jwtAuthProviderConfig;
@@ -31,13 +29,11 @@ public type JWTAuthProvider object {
     public new(jwtAuthProviderConfig) {
     }
 
-    documentation {
-        Authenticate with a jwt token
-
-        P{{jwtToken}} Jwt token extracted from the authentication header
-        R{{}} true if authentication is a success, else false
-        R{{}} If error occured in authentication
-    }
+    # Authenticate with a jwt token
+    #
+    # + jwtToken - Jwt token extracted from the authentication header
+    # + return - true if authentication is successful, false otherwise.
+    #            If an error occur during authentication, the error will be returned.
     public function authenticate(string jwtToken) returns boolean|error {
         if (self.authCache.hasKey(jwtToken)) {
             match self.authenticateFromCache(jwtToken) {
@@ -118,9 +114,7 @@ public type JWTAuthProvider object {
 @final string USERNAME = "name";
 @final string AUTH_TYPE_JWT = "jwt";
 
-documentation {
-    Represents JWT validator configurations
-}
+# Represents JWT validator configurations
 public type JWTAuthProviderConfig record {
     string issuer,
     string audience,

@@ -19,6 +19,9 @@ package org.ballerinalang.test.service.websub;
 
 import io.netty.handler.codec.http.HttpHeaderNames;
 import org.awaitility.Duration;
+import org.ballerinalang.test.BaseTest;
+import org.ballerinalang.test.context.BMainInstance;
+import org.ballerinalang.test.context.BServerInstance;
 import org.ballerinalang.test.context.BallerinaTestException;
 import org.ballerinalang.test.context.LogLeecher;
 import org.ballerinalang.test.util.HttpClientRequest;
@@ -50,7 +53,11 @@ import static java.util.concurrent.TimeUnit.SECONDS;
  * 4. Content Delivery process - by verifying content is delivered when update notification is done for a subscribed
  * topic - both directly to the hub and specifying hub URL
  */
-public class WebSubSubscriptionChangeTestCase extends WebSubBaseTest {
+public class WebSubSubscriptionChangeTestCase extends BaseTest {
+    private BServerInstance webSubSubscriber;
+    private BMainInstance webSubPublisher;
+
+    private final int subscriberServicePort = 8181;
 
     private static String hubUrl = "https://localhost:9393/websub/hub";
     private static final String SUBSCRIPTION_INTENT_VERIFICATION_LOG = "ballerina: Intent Verification agreed - Mode "
@@ -69,10 +76,12 @@ public class WebSubSubscriptionChangeTestCase extends WebSubBaseTest {
 
     @BeforeClass
     public void setup() throws BallerinaTestException {
-        String[] publisherArgs = {"-e b7a.websub.hub.remotepublish=true",
-                                  new File("src" + File.separator + "test" + File.separator + "resources"
-                                                   + File.separator + "websub" + File.separator
-                                                   + "websub_test_periodic_publisher.bal").getAbsolutePath()};
+        webSubSubscriber = new BServerInstance(balServer);
+        webSubPublisher = new BMainInstance(balServer);
+
+        String publisherBal = new File("src" + File.separator + "test" + File.separator + "resources"
+                + File.separator + "websub" + File.separator + "websub_test_periodic_publisher.bal").getAbsolutePath();
+        String[] publisherArgs = {"-e b7a.websub.hub.remotepublish=true"};
 
         String subscriberBal = new File("src" + File.separator + "test" + File.separator + "resources"
                 + File.separator + "websub" + File.separator + "websub_test_subscriber.bal").getAbsolutePath();
@@ -83,7 +92,7 @@ public class WebSubSubscriptionChangeTestCase extends WebSubBaseTest {
 
         Executors.newSingleThreadExecutor().execute(() -> {
             try {
-                webSubPublisher.runMain(publisherArgs);
+                webSubPublisher.runMain(publisherBal, publisherArgs, new String[]{});
             } catch (BallerinaTestException e) {
                 //ignored since any errors here would be reflected as test failures
             }
@@ -92,12 +101,13 @@ public class WebSubSubscriptionChangeTestCase extends WebSubBaseTest {
         //Allow to bring up the hub
         given().ignoreException(ConnectException.class).with().pollInterval(Duration.FIVE_SECONDS).and()
                 .with().pollDelay(Duration.TEN_SECONDS).await().atMost(60, SECONDS).until(() -> {
-            HttpResponse response = HttpsClientRequest.doGet(hubUrl, webSubPublisher.getServerHome());
+            //using same pack location, hence server home is same
+            HttpResponse response = HttpsClientRequest.doGet(hubUrl, webSubSubscriber.getServerHome());
             return response.getResponseCode() == 202;
         });
 
         String[] subscriberArgs = {"-e test.hub.url=" + hubUrl};
-        webSubSubscriber.startBallerinaServer(subscriberBal, subscriberArgs, 8181);
+        webSubSubscriber.startServer(subscriberBal, subscriberArgs, new int[]{subscriberServicePort});
 
         //Allow to start up the subscriber service
         given().ignoreException(ConnectException.class).with().pollInterval(Duration.FIVE_SECONDS).and()
@@ -105,7 +115,7 @@ public class WebSubSubscriptionChangeTestCase extends WebSubBaseTest {
             Map<String, String> headers = new HashMap<>();
             headers.put(HttpHeaderNames.CONTENT_TYPE.toString(), TestConstant.CONTENT_TYPE_JSON);
             HttpResponse response = HttpClientRequest.doPost(
-                    webSubSubscriber.getServiceURLHttp("websub"), "{\"dummy\":\"body\"}",
+                    webSubSubscriber.getServiceURLHttp(subscriberServicePort, "websub"), "{\"dummy\":\"body\"}",
                     headers);
             return response.getResponseCode() == 202;
         });
@@ -123,10 +133,10 @@ public class WebSubSubscriptionChangeTestCase extends WebSubBaseTest {
 
     @Test(dependsOnMethods = "testContentReceipt")
     public void testUnsubscriptionIntentVerification() throws BallerinaTestException {
-        String[] clientArgs = {new File("src" + File.separator + "test" + File.separator + "resources"
+        String balFile = new File("src" + File.separator + "test" + File.separator + "resources"
                 + File.separator + "websub" + File.separator +
-                "websub_test_unsubscription_client.bal").getAbsolutePath()};
-        webSubPublisherService.runMain(clientArgs);
+                "websub_test_unsubscription_client.bal").getAbsolutePath();
+        webSubPublisher.runMain(balFile);
         webSubSubscriber.addLogLeecher(logAbsenceTestLogLeecher);
         unsubscriptionIntentVerificationLogLeecher.waitForText(30000);
     }
@@ -142,9 +152,7 @@ public class WebSubSubscriptionChangeTestCase extends WebSubBaseTest {
 
     @AfterClass
     private void cleanup() throws Exception {
-        webSubPublisher.stopServer();
-        webSubSubscriber.stopServer();
-        webSubPublisherService.stopServer();
+        webSubSubscriber.shutdownServer();
     }
 
 }
