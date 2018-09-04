@@ -14,15 +14,13 @@
 // specific language governing permissions and limitations
 // under the License.
 
-documentation {
-    VerifySignature the signature of a given jwt.
-
-    P{{data}} Original data which has signed.
-    P{{signature}} Signature string.
-    P{{algorithm}} Signature algorithm.
-    P{{trustStore}} Truststore.
-    R{{}} Verified status. true or false.
-}
+# VerifySignature the signature of a given jwt.
+#
+# + data - Original data which has signed.
+# + signature - Signature string.
+# + algorithm - Signature algorithm.
+# + trustStore - Truststore.
+# + return - Verified status. true or false.
 extern function verifySignature(string data, string signature, string algorithm, TrustStore trustStore)
     returns (boolean);
 type TrustStore record {
@@ -31,14 +29,12 @@ type TrustStore record {
     string trustStorePassword,
 };
 
-documentation {
-    Sign the given input jwt data.
-
-    P{{data}} Original that need to sign.
-    P{{algorithm}} Signature string.
-    P{{keyStore}} Keystore.
-    R{{}} Signature. Signed string.
-}
+# Sign the given input jwt data.
+#
+# + data - Original that need to sign.
+# + algorithm - Signature string.
+# + keyStore - Keystore.
+# + return - Signature. Signed string.
 extern function sign(string data, string algorithm, KeyStore keyStore) returns (string);
 
 type KeyStore record {
@@ -48,10 +44,8 @@ type KeyStore record {
     string keyStorePassword,
 };
 
-documentation {
-    Parse JSON string to generate JSON object.
-
-    P{{s}} JSON string
-    R{{}} JSON object.
-}
+# Parse JSON string to generate JSON object.
+#
+# + s - JSON string
+# + return - JSON object.
 public extern function parseJson(string s) returns (json|error);
