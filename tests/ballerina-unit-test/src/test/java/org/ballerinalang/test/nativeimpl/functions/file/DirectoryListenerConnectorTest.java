@@ -44,6 +44,8 @@ import java.util.Comparator;
 import java.util.HashSet;
 import java.util.Set;
 
+import static org.awaitility.Awaitility.await;
+
 import static java.nio.file.attribute.PosixFilePermission.GROUP_EXECUTE;
 import static java.nio.file.attribute.PosixFilePermission.GROUP_READ;
 import static java.nio.file.attribute.PosixFilePermission.GROUP_WRITE;
@@ -53,6 +55,7 @@ import static java.nio.file.attribute.PosixFilePermission.OTHERS_WRITE;
 import static java.nio.file.attribute.PosixFilePermission.OWNER_EXECUTE;
 import static java.nio.file.attribute.PosixFilePermission.OWNER_READ;
 import static java.nio.file.attribute.PosixFilePermission.OWNER_WRITE;
+import static java.util.concurrent.TimeUnit.MINUTES;
 
 /**
  * Test class for Directory Listener connector.
@@ -108,39 +111,23 @@ public class DirectoryListenerConnectorTest {
         BServiceUtil.runService(compileResult);
         try {
             final Path file = Files.createFile(Paths.get("target", "fs", "temp.txt"), getFileAttribute());
+            await().atMost(1, MINUTES).until(() -> {
+                BValue[] result = BRunUtil.invokeStateful(compileResult, "isCreateInvoked");
+                return ((BBoolean) result[0]).booleanValue();
+            });
             Files.setLastModifiedTime(file, FileTime.fromMillis(System.currentTimeMillis()));
+            await().atMost(1, MINUTES).until(() -> {
+                BValue[] result = BRunUtil.invokeStateful(compileResult, "isModifyInvoked");
+                return ((BBoolean) result[0]).booleanValue();
+            });
             Files.deleteIfExists(file);
-        } catch (IOException e) {
+            await().atMost(1, MINUTES).until(() -> {
+                BValue[] result = BRunUtil.invokeStateful(compileResult, "isDeleteInvoked");
+                return ((BBoolean) result[0]).booleanValue();
+            });
+        } catch (Throwable e) {
             Assert.fail(e.getMessage());
         }
-        boolean isCreateInvoked = false;
-        boolean isModifyInvoked = false;
-        boolean isDeleteInvoked = false;
-        for (int i = 0; i < 20; i++) {
-            BValue[] result = BRunUtil.invokeStateful(compileResult, "isCreateInvoked");
-            if (((BBoolean) result[0]).booleanValue()) {
-                isCreateInvoked = true;
-            }
-            result = BRunUtil.invokeStateful(compileResult, "isModifyInvoked");
-            if (((BBoolean) result[0]).booleanValue()) {
-                isModifyInvoked = true;
-            }
-            result = BRunUtil.invokeStateful(compileResult, "isDeleteInvoked");
-            if (((BBoolean) result[0]).booleanValue()) {
-                isDeleteInvoked = true;
-            }
-            if (isCreateInvoked && isModifyInvoked && isDeleteInvoked) {
-                break;
-            }
-            try {
-                Thread.sleep(1000 * i);
-            } catch (InterruptedException e) {
-                // Ignore.
-            }
-        }
-        Assert.assertTrue(isCreateInvoked, "Resource didn't invoke for the file create.");
-        Assert.assertTrue(isModifyInvoked, "Resource didn't invoke for the file modify.");
-        Assert.assertTrue(isDeleteInvoked, "Resource didn't invoke for the file delete.");
     }
 
     @Test(description = "Check the negative test for non valid resources.")
