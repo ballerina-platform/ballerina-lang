@@ -52,18 +52,19 @@ import java.util.List;
  * A class for generating OCSP response.
  */
 public class OCSPResponseBuilder {
+    private OCSPResponseBuilder() {
+    }
 
     private static final Logger log = LoggerFactory.getLogger(OCSPResponseBuilder.class);
-
+    private static List<X509Certificate> certList = new ArrayList<>();
+    private static X509Certificate userCertificate = null;
+    private static X509Certificate issuer = null;
 
     static OCSPResp generatetOcspResponse(SSLConfig sslConfig, int cacheAllcatedSize, int cacheDelay)
             throws IOException, KeyStoreException, CertificateVerificationException, CertificateException {
 
         Certificate[] certificateChain;
-        List<X509Certificate> certList = new ArrayList<>();
 
-        X509Certificate userCertificate = null;
-        X509Certificate issuer = null;
         int cacheSize = Constants.CACHE_DEFAULT_ALLOCATED_SIZE;
         int cacheDelayMins = Constants.CACHE_DEFAULT_DELAY_MINS;
 
@@ -105,17 +106,9 @@ public class OCSPResponseBuilder {
                 }
             }
         } else {
-            CertificateFactory certificateFactory = CertificateFactory.getInstance("X509");
-            try (FileInputStream certInpuStream = new FileInputStream(sslConfig.getServerCertificates())) {
-                int i = 0;
-                while (certInpuStream.available() > 1) {
-                    Certificate cert = certificateFactory.generateCertificate(certInpuStream);
-                    certList.add((X509Certificate) cert);
-                    i++;
-                }
-                userCertificate = certList.get(0);
-                issuer = certList.get(1);
-            }
+            certList = getCertInfo(sslConfig);
+            userCertificate = certList.get(0);
+            issuer = certList.get(1);
         }
         List<String> locations;
         if (userCertificate != null) {
@@ -225,6 +218,17 @@ public class OCSPResponseBuilder {
             }
         }
         throw new CertificateVerificationException("Could not get revocation status from OCSP.");
+    }
+
+    public static List<X509Certificate> getCertInfo(SSLConfig sslConfig) throws CertificateException, IOException {
+        CertificateFactory certificateFactory = CertificateFactory.getInstance("X509");
+        try (FileInputStream certInpuStream = new FileInputStream(sslConfig.getServerCertificates())) {
+            while (certInpuStream.available() > 1) {
+                Certificate cert = certificateFactory.generateCertificate(certInpuStream);
+                certList.add((X509Certificate) cert);
+            }
+            return certList;
+        }
     }
 }
 
