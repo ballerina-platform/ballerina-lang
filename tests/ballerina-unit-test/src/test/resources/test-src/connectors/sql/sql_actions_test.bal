@@ -786,7 +786,6 @@ function testBlobInParameter(string jdbcUrl, string userName, string password) r
         transaction {
             insertCount = check testDB->update("INSERT INTO BlobTable (row_id,blob_type) VALUES (?,?)",
                 paraID, paraBlob);
-
             table dt = check testDB->select("SELECT blob_type from BlobTable where row_id=3", ResultBlob);
 
             while (dt.hasNext()) {
@@ -797,7 +796,6 @@ function testBlobInParameter(string jdbcUrl, string userName, string password) r
     } else {
         insertCount = check testDB->update("INSERT INTO BlobTable (row_id,blob_type) VALUES (?,?)",
             paraID, paraBlob);
-
         table dt = check testDB->select("SELECT blob_type from BlobTable where row_id=3", ResultBlob);
 
         while (dt.hasNext()) {
