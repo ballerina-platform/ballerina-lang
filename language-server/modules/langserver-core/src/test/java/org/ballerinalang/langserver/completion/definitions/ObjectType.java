@@ -21,7 +21,7 @@ import org.ballerinalang.langserver.completion.CompletionTest;
 import org.testng.annotations.DataProvider;
 
 /**
- * Test cases for Object Type
+ * Test cases for Object Type.
  *
  * @since 0.982.0
  */
