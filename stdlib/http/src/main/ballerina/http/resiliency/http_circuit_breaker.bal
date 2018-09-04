@@ -149,7 +149,7 @@ public type CircuitBreakerClient object {
     # + path - Resource path
     # + message - A Request or any payload of type `string`, `xml`, `json`, `byte[]`, `io:ByteChannel` or `mime:Entity[]`
     # + return - The response for the request or an `error` if failed to establish communication with the upstream server
-    public function post(string path, Request|string|xml|json|byte[]|io:ByteChannel|mime:Entity[]|()
+    public function post(string path, Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|()
         message) returns Response|error;
 
     # The HEAD action implementation of the Circuit Breaker. This wraps the `head()` function of the underlying
@@ -158,7 +158,7 @@ public type CircuitBreakerClient object {
     # + path - Resource path
     # + message - A Request or any payload of type `string`, `xml`, `json`, `byte[]`, `io:ByteChannel` or `mime:Entity[]`
     # + return - The response for the request or an `error` if failed to establish communication with the upstream server
-    public function head(string path, Request|string|xml|json|byte[]|io:ByteChannel|mime:Entity[]|()
+    public function head(string path, Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|()
         message = ()) returns Response|error;
 
     # The PUT action implementation of the Circuit Breaker. This wraps the `put()` function of the underlying
@@ -167,7 +167,7 @@ public type CircuitBreakerClient object {
     # + path - Resource path
     # + message - A Request or any payload of type `string`, `xml`, `json`, `byte[]`, `io:ByteChannel` or `mime:Entity[]`
     # + return - The response for the request or an `error` if failed to establish communication with the upstream server
-    public function put(string path, Request|string|xml|json|byte[]|io:ByteChannel|mime:Entity[]|()
+    public function put(string path, Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|()
         message) returns Response|error;
 
     # This wraps the `post()` function of the underlying HTTP actions provider. The `execute()` function can be used
@@ -177,7 +177,7 @@ public type CircuitBreakerClient object {
     # + path - Resource path
     # + message - A Request or any payload of type `string`, `xml`, `json`, `byte[]`, `io:ByteChannel` or `mime:Entity[]`
     # + return - The response for the request or an `error` if failed to establish communication with the upstream server
-    public function execute(string httpVerb, string path, Request|string|xml|json|byte[]|io:ByteChannel|mime:Entity[]|()
+    public function execute(string httpVerb, string path, Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|()
         message) returns Response|error;
 
     # The PATCH action implementation of the Circuit Breaker. This wraps the `patch()` function of the underlying
@@ -186,7 +186,7 @@ public type CircuitBreakerClient object {
     # + path - Resource path
     # + message - A Request or any payload of type `string`, `xml`, `json`, `byte[]`, `io:ByteChannel` or `mime:Entity[]`
     # + return - The response for the request or an `error` if failed to establish communication with the upstream server
-    public function patch(string path, Request|string|xml|json|byte[]|io:ByteChannel|mime:Entity[]|()
+    public function patch(string path, Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|()
         message) returns Response|error;
 
     # The DELETE action implementation of the Circuit Breaker. This wraps the `delete()` function of the underlying
@@ -195,7 +195,7 @@ public type CircuitBreakerClient object {
     # + path - Resource path
     # + message - A Request or any payload of type `string`, `xml`, `json`, `byte[]`, `io:ByteChannel` or `mime:Entity[]`
     # + return - The response for the request or an `error` if failed to establish communication with the upstream server
-    public function delete(string path, Request|string|xml|json|byte[]|io:ByteChannel|mime:Entity[]|()
+    public function delete(string path, Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|()
         message) returns Response|error;
 
     # The GET action implementation of the Circuit Breaker. This wraps the `get()` function of the underlying
@@ -205,7 +205,7 @@ public type CircuitBreakerClient object {
     # + message - An optional HTTP request or any payload of type `string`, `xml`, `json`, `byte[]`, `io:ByteChannel`
     #             or `mime:Entity[]`
     # + return - The response for the request or an `error` if failed to establish communication with the upstream server
-    public function get(string path, Request|string|xml|json|byte[]|io:ByteChannel|mime:Entity[]|()
+    public function get(string path, Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|()
         message = ()) returns Response|error;
 
     # The OPTIONS action implementation of the Circuit Breaker. This wraps the `options()` function of the underlying
@@ -215,7 +215,7 @@ public type CircuitBreakerClient object {
     # + message - An optional HTTP Request or any payload of type `string`, `xml`, `json`, `byte[]`, `io:ByteChannel`
     #             or `mime:Entity[]`
     # + return - The response for the request or an `error` if failed to establish communication with the upstream server
-    public function options(string path, Request|string|xml|json|byte[]|io:ByteChannel|mime:Entity[]|()
+    public function options(string path, Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|()
         message = ()) returns Response|error;
 
     # This wraps the `forward()` function of the underlying HTTP actions provider. The Forward action can be used to
@@ -233,7 +233,7 @@ public type CircuitBreakerClient object {
     # + message - An HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`,
     #             `io:ByteChannel` or `mime:Entity[]`
     # + return - An `HttpFuture` that represents an asynchronous service invocation, or an `error` if the submission fails
-    public function submit(string httpVerb, string path, Request|string|xml|json|byte[]|io:ByteChannel|mime:Entity[]|()
+    public function submit(string httpVerb, string path, Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|()
         message) returns HttpFuture|error;
 
     # Circuit breaking not supported. Defaults to the `getResponse()` function of the underlying HTTP
@@ -283,7 +283,7 @@ public type CircuitBreakerClient object {
     public function getCurrentState() returns CircuitState;
 };
 
-function CircuitBreakerClient::post(string path, Request|string|xml|json|byte[]|io:ByteChannel|mime:Entity[]|()
+function CircuitBreakerClient::post(string path, Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|()
     message) returns Response|error {
     Request req = buildRequest(message);
     CallerActions httpClient = self.httpClient;
@@ -307,7 +307,7 @@ function CircuitBreakerClient::post(string path, Request|string|xml|json|byte[]|
     }
 }
 
-function CircuitBreakerClient::head(string path, Request|string|xml|json|byte[]|io:ByteChannel|mime:Entity[]|()
+function CircuitBreakerClient::head(string path, Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|()
     message = ()) returns Response|error {
     Request request = buildRequest(message);
     CallerActions httpClient = self.httpClient;
@@ -331,7 +331,7 @@ function CircuitBreakerClient::head(string path, Request|string|xml|json|byte[]|
     }
 }
 
-function CircuitBreakerClient::put(string path, Request|string|xml|json|byte[]|io:ByteChannel|mime:Entity[]|()
+function CircuitBreakerClient::put(string path, Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|()
     message) returns Response|error {
     Request request = buildRequest(message);
     CallerActions httpClient = self.httpClient;
@@ -356,7 +356,7 @@ function CircuitBreakerClient::put(string path, Request|string|xml|json|byte[]|i
 }
 
 function CircuitBreakerClient::execute(string httpVerb, string path, Request|string|xml|json|byte[]|
-    io:ByteChannel|mime:Entity[]|() message) returns Response|error {
+    io:ReadableByteChannel|mime:Entity[]|() message) returns Response|error {
     Request request = buildRequest(message);
     CallerActions httpClient = self.httpClient;
     CircuitBreakerInferredConfig cbic = self.circuitBreakerInferredConfig;
@@ -379,7 +379,7 @@ function CircuitBreakerClient::execute(string httpVerb, string path, Request|str
     }
 }
 
-function CircuitBreakerClient::patch(string path, Request|string|xml|json|byte[]|io:ByteChannel|mime:Entity[]|()
+function CircuitBreakerClient::patch(string path, Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|()
     message) returns Response|error {
     Request request = buildRequest(message);
     CallerActions httpClient = self.httpClient;
@@ -403,7 +403,7 @@ function CircuitBreakerClient::patch(string path, Request|string|xml|json|byte[]
     }
 }
 
-function CircuitBreakerClient::delete(string path, Request|string|xml|json|byte[]|io:ByteChannel|mime:Entity[]|()
+function CircuitBreakerClient::delete(string path, Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|()
     message) returns Response|error {
     Request request = buildRequest(message);
     CallerActions httpClient = self.httpClient;
@@ -427,7 +427,7 @@ function CircuitBreakerClient::delete(string path, Request|string|xml|json|byte[
     }
 }
 
-function CircuitBreakerClient::get(string path, Request|string|xml|json|byte[]|io:ByteChannel|mime:Entity[]|()
+function CircuitBreakerClient::get(string path, Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|()
     message = ()) returns Response|error {
     Request request = buildRequest(message);
     CallerActions httpClient = self.httpClient;
@@ -451,7 +451,7 @@ function CircuitBreakerClient::get(string path, Request|string|xml|json|byte[]|i
     }
 }
 
-function CircuitBreakerClient::options(string path, Request|string|xml|json|byte[]|io:ByteChannel|mime:Entity[]|()
+function CircuitBreakerClient::options(string path, Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|()
     message = ()) returns Response|error {
     Request request = buildRequest(message);
     CallerActions httpClient = self.httpClient;
@@ -498,7 +498,7 @@ function CircuitBreakerClient::forward(string path, Request request) returns Res
 }
 
 function CircuitBreakerClient::submit(string httpVerb, string path, Request|string|xml|json|byte[]|
-    io:ByteChannel|mime:Entity[]|() message) returns HttpFuture|error {
+    io:ReadableByteChannel|mime:Entity[]|() message) returns HttpFuture|error {
     Request request = buildRequest(message);
     return self.httpClient.submit(httpVerb, path, request);
 }

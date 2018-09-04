@@ -86,7 +86,7 @@ public type APIListenerActions object {
     # + message - The outbound response or any payload of type `string`, `xml`, `json`, `byte[]`, `io:ByteChannel`
     #             or `mime:Entity[]`
     # + return - Returns an `error` if failed to respond
-    public function respond(Response|string|xml|json|byte[]|io:ByteChannel|mime:Entity[]|() message) returns error? {
+    public function respond(Response|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|() message) returns error? {
         return httpCallerActions.respond(message);
     }
 

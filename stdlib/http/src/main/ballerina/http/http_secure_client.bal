@@ -52,7 +52,7 @@ public type HttpSecureClient object {
     # + message - An HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`,
     #             `io:ByteChannel` or `mime:Entity[]`
     # + return - The inbound response message or an error occurred while attempting to fulfill the HTTP request
-    public function post(string path, Request|string|xml|json|byte[]|io:ByteChannel|mime:Entity[]|()
+    public function post(string path, Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|()
                                         message) returns (Response|error) {
         Request req = buildRequest(message);
         check generateSecureRequest(req, config);
@@ -72,7 +72,7 @@ public type HttpSecureClient object {
     # + message - An optional HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`,
     #             `io:ByteChannel` or `mime:Entity[]`
     # + return - The inbound response message or an error occurred while attempting to fulfill the HTTP request
-    public function head(string path, Request|string|xml|json|byte[]|io:ByteChannel|mime:Entity[]|()
+    public function head(string path, Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|()
                                         message = ()) returns (Response|error) {
         Request req = buildRequest(message);
         check generateSecureRequest(req, config);
@@ -92,7 +92,7 @@ public type HttpSecureClient object {
     # + message - An HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`,
     #             `io:ByteChannel` or `mime:Entity[]`
     # + return - The inbound response message or an error occurred while attempting to fulfill the HTTP request
-    public function put(string path,  Request|string|xml|json|byte[]|io:ByteChannel|mime:Entity[]|()
+    public function put(string path,  Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|()
                                         message) returns (Response|error) {
         Request req = buildRequest(message);
         check generateSecureRequest(req, config);
@@ -113,7 +113,7 @@ public type HttpSecureClient object {
     # + message - An HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`,
     #             `io:ByteChannel` or `mime:Entity[]`
     # + return - The inbound response message or an error occurred while attempting to fulfill the HTTP request
-    public function execute(string httpVerb, string path, Request|string|xml|json|byte[]|io:ByteChannel|mime:Entity[]|()
+    public function execute(string httpVerb, string path, Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|()
                                              message) returns (Response|error) {
         Request req = buildRequest(message);
         check generateSecureRequest(req, config);
@@ -133,7 +133,7 @@ public type HttpSecureClient object {
     # + message - An HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`,
     #             `io:ByteChannel` or `mime:Entity[]`
     # + return - The inbound response message or an error occurred while attempting to fulfill the HTTP request
-    public function patch(string path,  Request|string|xml|json|byte[]|io:ByteChannel|mime:Entity[]|()
+    public function patch(string path,  Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|()
                                             message) returns (Response|error) {
         Request req = buildRequest(message);
         check generateSecureRequest(req, config);
@@ -153,7 +153,7 @@ public type HttpSecureClient object {
     # + message - An HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`,
     #             `io:ByteChannel` or `mime:Entity[]`
     # + return - The inbound response message or an error occurred while attempting to fulfill the HTTP request
-    public function delete(string path, Request|string|xml|json|byte[]|io:ByteChannel|mime:Entity[]|()
+    public function delete(string path, Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|()
                                             message) returns (Response|error) {
         Request req = buildRequest(message);
         check generateSecureRequest(req, config);
@@ -173,7 +173,7 @@ public type HttpSecureClient object {
     # + message - An HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`,
     #             `io:ByteChannel` or `mime:Entity[]`
     # + return - The inbound response message or an error occurred while attempting to fulfill the HTTP request
-    public function get(string path, Request|string|xml|json|byte[]|io:ByteChannel|mime:Entity[]|()
+    public function get(string path, Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|()
                                         message = ()) returns (Response|error) {
         Request req = buildRequest(message);
         check generateSecureRequest(req, config);
@@ -193,7 +193,7 @@ public type HttpSecureClient object {
     # + message - An optional HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`,
     #             `io:ByteChannel` or `mime:Entity[]`
     # + return - The inbound response message or an error occurred while attempting to fulfill the HTTP request
-    public function options(string path, Request|string|xml|json|byte[]|io:ByteChannel|mime:Entity[]|()
+    public function options(string path, Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|()
                                             message = ()) returns (Response|error) {
         Request req = buildRequest(message);
         check generateSecureRequest(req, config);
@@ -231,7 +231,7 @@ public type HttpSecureClient object {
     # + message - An HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`,
     #             `io:ByteChannel` or `mime:Entity[]`
     # + return - An `HttpFuture` that represents an asynchronous service invocation, or an error if the submission fails
-    public function submit(string httpVerb, string path, Request|string|xml|json|byte[]|io:ByteChannel|mime:Entity[]|()
+    public function submit(string httpVerb, string path, Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|()
                                                             message) returns (HttpFuture|error) {
         Request req = buildRequest(message);
         check generateSecureRequest(req, config);

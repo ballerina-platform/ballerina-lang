@@ -28,11 +28,6 @@ public type WritableByteChannel object {
     # + return - Content, the number of bytes read or an error
     public extern function write(byte[] content, int offset) returns int|error;
 
-    # Encodes a given ByteChannel with Base64 encoding scheme.
-    #
-    # + return - Return an encoded ByteChannel or an error
-    public extern function base64Encode() returns WritableByteChannel|error;
-
     # Closes a given byte channel.
     #
     # + return - Will return () if there's no error

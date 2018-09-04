@@ -93,4 +93,4 @@ extern function retrievePublisherSecret(string topic) returns string;
 # + return - `error` if an error occurred during publishing
 extern function validateAndPublishToInternalHub(string hubUrl, string topic, WebSubContent content) returns error?;
 
-extern function constructByteArray(io:ByteChannel byteChannel) returns byte[];
+extern function constructByteArray(io:ReadableByteChannel byteChannel) returns byte[];
