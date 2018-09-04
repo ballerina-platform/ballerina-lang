@@ -24,6 +24,7 @@ import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import org.wso2.transport.http.netty.config.ListenerConfiguration;
+import org.wso2.transport.http.netty.config.Parameter;
 import org.wso2.transport.http.netty.config.SenderConfiguration;
 import org.wso2.transport.http.netty.contentaware.listeners.EchoMessageListener;
 import org.wso2.transport.http.netty.contract.HttpClientConnector;
@@ -34,7 +35,9 @@ import org.wso2.transport.http.netty.contract.ServerConnectorFuture;
 import org.wso2.transport.http.netty.contractimpl.DefaultHttpWsConnectorFactory;
 import org.wso2.transport.http.netty.util.TestUtil;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 import static org.wso2.transport.http.netty.common.Constants.HTTPS_SCHEME;
 import static org.wso2.transport.http.netty.common.Constants.HTTP_2_0;
@@ -69,7 +72,12 @@ public class TestHttp2WithALPN {
     }
 
     private ListenerConfiguration getListenerConfigs() {
+        List<Parameter> serverParams;
+        Parameter paramServerCiphers = new Parameter("ciphers", "TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256");
+        serverParams = new ArrayList<>();
+        serverParams.add(paramServerCiphers);
         ListenerConfiguration listenerConfiguration = new ListenerConfiguration();
+        listenerConfiguration.setParameters(serverParams);
         listenerConfiguration.setPort(TestUtil.SERVER_PORT1);
         listenerConfiguration.setScheme(HTTPS_SCHEME);
         listenerConfiguration.setVersion(String.valueOf(HTTP_2_0));
@@ -79,7 +87,12 @@ public class TestHttp2WithALPN {
     }
 
     private SenderConfiguration getSenderConfigs() {
+        List<Parameter> clientParams;
+        Parameter paramClientCiphers = new Parameter("ciphers", "TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256");
+        clientParams = new ArrayList<>();
+        clientParams.add(paramClientCiphers);
         SenderConfiguration senderConfiguration = new SenderConfiguration();
+        senderConfiguration.setParameters(clientParams);
         senderConfiguration.setTrustStoreFile(TestUtil.getAbsolutePath(TestUtil.KEY_STORE_FILE_PATH));
         senderConfiguration.setTrustStorePass(TestUtil.KEY_STORE_PASSWORD);
         senderConfiguration.setHttpVersion(String.valueOf(HTTP_2_0));

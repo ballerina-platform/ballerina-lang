@@ -129,12 +129,35 @@ public class SSLHandlerFactory {
 
     public ReferenceCountedOpenSslContext getServerReferenceCountedOpenSslContext(boolean enableOcsp)
             throws SSLException {
+        SslContextBuilder sslContextBuilder = null;
         if (sslConfig.getKeyStore() != null) {
-            return (ReferenceCountedOpenSslContext) serverContextBuilderWithKs(SslProvider.OPENSSL)
-                    .enableOcsp(enableOcsp).build();
+            sslContextBuilder = serverContextBuilderWithKs(SslProvider.OPENSSL);
+        } else {
+            sslContextBuilder = serverContextBuilderWithCerts(SslProvider.OPENSSL);
         }
-        return (ReferenceCountedOpenSslContext) serverContextBuilderWithCerts(SslProvider.OPENSSL)
-                .enableOcsp(enableOcsp).build();
+        setOcspStapling(sslContextBuilder, enableOcsp);
+        if (sslConfig.getCipherSuites() != null) {
+            List<String> ciphers = Arrays.asList(sslConfig.getCipherSuites());
+            setCiphers(sslContextBuilder, ciphers);
+        }
+        setSslProtocol(sslContextBuilder);
+        return (ReferenceCountedOpenSslContext) sslContextBuilder.build();
+    }
+
+    public ReferenceCountedOpenSslContext buildClientReferenceCountedOpenSslContext() throws SSLException {
+        SslContextBuilder sslContextBuilder = null;
+        if (sslConfig.getTrustStore() != null) {
+            sslContextBuilder = clientContextBuilderWithKs(SslProvider.OPENSSL);
+        } else {
+            sslContextBuilder = clientContextBuilderWithCerts(SslProvider.OPENSSL);
+        }
+        setOcspStapling(sslContextBuilder, true);
+        if (sslConfig.getCipherSuites() != null) {
+            List<String> ciphers = Arrays.asList(sslConfig.getCipherSuites());
+            setCiphers(sslContextBuilder, ciphers);
+        }
+        setSslProtocol(sslContextBuilder);
+        return (ReferenceCountedOpenSslContext) sslContextBuilder.build();
     }
 
     /**
@@ -167,15 +190,6 @@ public class SSLHandlerFactory {
         return engine;
     }
 
-    public ReferenceCountedOpenSslContext buildClientReferenceCountedOpenSslContext() throws SSLException {
-        if (sslConfig.getTrustStore() != null) {
-            return (ReferenceCountedOpenSslContext) clientContextBuilderWithKs(SslProvider.OPENSSL).enableOcsp(true)
-                    .build();
-        }
-        return (ReferenceCountedOpenSslContext) clientContextBuilderWithCerts(SslProvider.OPENSSL).enableOcsp(true)
-                .build();
-    }
-
     /**
      * This method will provide netty ssl context which supports HTTP2 over TLS using.
      * Application Layer Protocol Negotiation (ALPN)
@@ -198,7 +212,6 @@ public class SSLHandlerFactory {
         } else {
             sslContextBuilder = serverContextBuilderWithCerts(provider);
         }
-
         setCiphers(sslContextBuilder, ciphers);
         setSslProtocol(sslContextBuilder);
         setAlpnConfigs(sslContextBuilder);
@@ -219,7 +232,7 @@ public class SSLHandlerFactory {
     }
 
     /**
-     * This method will provide netty ssl context which supports HTTP over TLS using.
+     * This method will provide netty ssl context which supports HTTP over TLS using certificates and keys.
      *
      * @return instance of {@link SslContext}
      * @throws SSLException if any error occurred during building SSL context.

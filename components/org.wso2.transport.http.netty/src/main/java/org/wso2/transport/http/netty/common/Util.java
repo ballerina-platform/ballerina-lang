@@ -328,14 +328,7 @@ public class Util {
                 sslEngine = instantiateAndConfigSSL(sslConfig, host, port, sslConfig.isHostNameVerificationEnabled(),
                         sslHandlerFactory);
             } else {
-                SslContext sslContext = sslHandlerFactory.createHttpTLSContextForClient();
-                SslHandler sslHandler = sslContext.newHandler(socketChannel.alloc(), host, port);
-                sslEngine = sslHandler.engine();
-                sslHandlerFactory.addCommonConfigs(sslEngine);
-                sslHandlerFactory.setSNIServerNames(sslEngine, host);
-                if (sslConfig.isHostNameVerificationEnabled()) {
-                    setHostNameVerfication(sslEngine);
-                }
+                sslEngine = getSslEngineForCerts(socketChannel, host, port, sslConfig, sslHandlerFactory);
             }
             pipeline.addLast(Constants.SSL_HANDLER, new SslHandler(sslEngine));
             if (sslConfig.isValidateCertEnabled()) {
@@ -343,6 +336,20 @@ public class Util {
                         sslEngine, sslConfig.getCacheValidityPeriod(), sslConfig.getCacheSize()));
             }
         }
+    }
+
+    private static SSLEngine getSslEngineForCerts(SocketChannel socketChannel, String host, int port,
+            SSLConfig sslConfig, SSLHandlerFactory sslHandlerFactory) throws SSLException {
+        SSLEngine sslEngine;
+        SslContext sslContext = sslHandlerFactory.createHttpTLSContextForClient();
+        SslHandler sslHandler = sslContext.newHandler(socketChannel.alloc(), host, port);
+        sslEngine = sslHandler.engine();
+        sslHandlerFactory.addCommonConfigs(sslEngine);
+        sslHandlerFactory.setSNIServerNames(sslEngine, host);
+        if (sslConfig.isHostNameVerificationEnabled()) {
+            setHostNameVerfication(sslEngine);
+        }
+        return sslEngine;
     }
 
     /**
