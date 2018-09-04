@@ -234,7 +234,7 @@ public type HttpCachingClient object {
 public function createHttpCachingClient(string url, ClientEndpointConfig config, CacheConfig cacheConfig)
                                                                                                 returns CallerActions {
     HttpCachingClient httpCachingClient = new(url, config, cacheConfig);
-    log:printDebug("Created HTTP caching client: " + io:sprintf("%r", httpCachingClient));
+    log:printDebug("Created HTTP caching client: " + io:sprintf("%s", httpCachingClient));
     return httpCachingClient;
 }
 
