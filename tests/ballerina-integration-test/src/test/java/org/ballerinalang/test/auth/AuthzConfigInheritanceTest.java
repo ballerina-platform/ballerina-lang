@@ -18,15 +18,11 @@
 
 package org.ballerinalang.test.auth;
 
-import org.ballerinalang.test.context.ServerInstance;
 import org.ballerinalang.test.util.HttpClientRequest;
 import org.ballerinalang.test.util.HttpResponse;
 import org.testng.Assert;
-import org.testng.annotations.AfterClass;
-import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
-import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -34,30 +30,16 @@ import java.util.Map;
  * Test cases for authorization config inheritance scenarios.
  */
 @Test(groups = "broken")
-public class AuthzConfigInheritanceTest {
-    private ServerInstance ballerinaServer;
-
-    @BeforeClass
-    public void setup() throws Exception {
-        String basePath = new File(
-                "src" + File.separator + "test" + File.separator + "resources" + File.separator + "auth")
-                .getAbsolutePath();
-        String balFilePath = basePath + File.separator + "authz-config-inheritance-test.bal";
-        String ballerinaConfPath = basePath + File.separator + "ballerina.conf";
-        startServer(balFilePath, ballerinaConfPath);
-    }
-
-    private void startServer(String balFile, String configPath) throws Exception {
-        ballerinaServer = ServerInstance.initBallerinaServer();
-        ballerinaServer.startBallerinaServerWithConfigPath(balFile, configPath);
-    }
+public class AuthzConfigInheritanceTest extends AuthBaseTest {
+    private final int servicePort = 9092;
 
     @Test(description = "Authn and authz success test case")
     public void testAuthSuccessWithInheritedAuthzConfigs()
             throws Exception {
         Map<String, String> headers = new HashMap<>();
         headers.put("Authorization", "Basic aXN1cnU6eHh4");
-        HttpResponse response = HttpClientRequest.doGet(ballerinaServer.getServiceURLHttp("echo/test"), headers);
+        HttpResponse response = HttpClientRequest.doGet(serverInstance
+                .getServiceURLHttp(servicePort, "echo/test"), headers);
         Assert.assertNotNull(response);
         Assert.assertEquals(response.getResponseCode(), 200, "Response code mismatched");
     }
@@ -67,7 +49,8 @@ public class AuthzConfigInheritanceTest {
             throws Exception {
         Map<String, String> headers = new HashMap<>();
         headers.put("Authorization", "Basic aXNoYXJhOmFiYw==");
-        HttpResponse response = HttpClientRequest.doGet(ballerinaServer.getServiceURLHttp("echo/test"), headers);
+        HttpResponse response = HttpClientRequest.doGet(serverInstance
+                .getServiceURLHttp(servicePort, "echo/test"), headers);
         Assert.assertNotNull(response);
         Assert.assertEquals(response.getResponseCode(), 403, "Response code mismatched");
     }
@@ -77,13 +60,9 @@ public class AuthzConfigInheritanceTest {
             throws Exception {
         Map<String, String> headers = new HashMap<>();
         headers.put("Authorization", "Basic dGVzdDp0ZXN0MTIz");
-        HttpResponse response = HttpClientRequest.doGet(ballerinaServer.getServiceURLHttp("echo/test"), headers);
+        HttpResponse response = HttpClientRequest.doGet(serverInstance
+                .getServiceURLHttp(servicePort, "echo/test"), headers);
         Assert.assertNotNull(response);
         Assert.assertEquals(response.getResponseCode(), 401, "Response code mismatched");
-    }
-
-    @AfterClass
-    public void tearDown() throws Exception {
-        ballerinaServer.stopServer();
     }
 }
