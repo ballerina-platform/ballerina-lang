@@ -95,8 +95,8 @@ public class RepoUtils {
      * @return settings object
      */
     public static Settings readSettings() {
-        String tomlFilePath = RepoUtils.createAndGetHomeReposPath().resolve(ProjectDirConstants.SETTINGS_FILE_NAME)
-                                       .toString();
+        String tomlFilePath = RepoUtils.createAndGetHomeReposPath().resolve(ProjectDirConstants.SETTINGS_FILE_NAME).
+                                    toString();
         try {
             return SettingsProcessor.parseTomlContentFromFile(tomlFilePath);
         } catch (IOException e) {
