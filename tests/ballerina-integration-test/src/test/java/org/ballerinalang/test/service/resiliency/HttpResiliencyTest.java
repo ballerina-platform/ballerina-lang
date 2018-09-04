@@ -22,12 +22,14 @@ import io.netty.util.internal.PlatformDependent;
 import io.netty.util.internal.StringUtil;
 import org.ballerinalang.test.BaseTest;
 import org.ballerinalang.test.context.BServerInstance;
+import org.ballerinalang.test.context.BallerinaTestException;
 import org.ballerinalang.test.util.HttpClientRequest;
 import org.ballerinalang.test.util.HttpResponse;
 import org.ballerinalang.test.util.TestConstant;
 import org.testng.Assert;
 import org.testng.annotations.AfterTest;
 import org.testng.annotations.BeforeTest;
+import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 import java.io.File;
@@ -35,33 +37,45 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
+import static org.apache.http.HttpStatus.SC_INTERNAL_SERVER_ERROR;
+import static org.apache.http.HttpStatus.SC_OK;
+import static org.apache.http.HttpStatus.SC_SERVICE_UNAVAILABLE;
+
 /**
- * Test cases for the failover scenarios.
+ * Test cases for the resiliency scenarios.
  */
-public class FailoverClientTestCase extends BaseTest {
-    private static BServerInstance serverInstance;
+public class HttpResiliencyTest extends BaseTest {
+
+    protected static BServerInstance serverInstance;
     private static final String TYPICAL_SERVICE_PATH = "fo" + File.separator + "typical";
+    private static final String SUCCESS_HELLO_MESSAGE = "Hello World!!!";
+    private static final String INTERNAL_ERROR_MESSAGE = "Internal error occurred while processing the request.";
+    private static final String UPSTREAM_UNAVAILABLE_MESSAGE = "Upstream service unavailable.";
+    private static final String SERVICE_UNAVAILABLE_MESSAGE = "Service unavailable.";
+    private static final String IDLE_TIMEOUT_MESSAGE = "Idle timeout triggered before initiating inbound response";
+    private static final String REQUEST_PAYLOAD_STRING = "{\"Name\":\"Ballerina\"}";
+    private static final String TYPICAL_CB_SERVICE_PATH = "cb" + File.separator + "typical";
+    private static final String FORCE_OPEN_SERVICE_PATH = "cb" + File.separator + "forceopen";
+    private static final String FORCE_CLOSE_SERVICE_PATH = "cb" + File.separator + "forceclose";
+    private static final String GET_STATE_SERVICE_PATH = "cb" + File.separator + "getstate";
+    private static final String REQUEST_VOLUME_SERVICE_PATH = "cb" + File.separator + "requestvolume";
+    private static final String STATUS_CODE_SERVICE_PATH = "cb" + File.separator + "statuscode";
+    private static final String TRIAL_FAILLURE_SERVICE_PATH = "cb" + File.separator + "trialrun";
 
     @BeforeTest(alwaysRun = true)
-    private void setup() throws Exception {
-        int[] requiredPorts = new int[]{9090, 9091, 9092, 9093, 9094, 9095, 8080, 8081, 8082, 8083, 8084, 8085};
+    public void start() throws BallerinaTestException {
+        int[] requiredPorts = new int[]{9300, 9301, 9302, 9303, 9304, 9305, 9306, 9307, 9308, 9309, 9310, 9311, 9312};
         String sourcePath = new File("src" + File.separator + "test" + File.separator + "resources"
                 + File.separator + "resiliency").getAbsolutePath();
         serverInstance = new BServerInstance(balServer);
         serverInstance.startServer(sourcePath, "resiliencyservices", requiredPorts);
     }
 
-    @AfterTest(alwaysRun = true)
-    private void cleanup() throws Exception {
-        serverInstance.removeAllLeechers();
-        serverInstance.shutdownServer();
-    }
-
     @Test(description = "Test basic failover functionality")
     public void testSimpleFailover() throws IOException {
         Map<String, String> headers = new HashMap<>();
         headers.put(HttpHeaderNames.CONTENT_TYPE.toString(), TestConstant.CONTENT_TYPE_JSON);
-        HttpResponse response = HttpClientRequest.doPost(serverInstance.getServiceURLHttp(9090, TYPICAL_SERVICE_PATH)
+        HttpResponse response = HttpClientRequest.doPost(serverInstance.getServiceURLHttp(9300, TYPICAL_SERVICE_PATH)
                 , "{\"Name\":\"Ballerina\"}", headers);
         Assert.assertEquals(response.getResponseCode(), 200, "Response code mismatched");
         Assert.assertEquals(response.getHeaders().get(HttpHeaderNames.CONTENT_TYPE.toString())
@@ -89,7 +103,7 @@ public class FailoverClientTestCase extends BaseTest {
         Map<String, String> headers = new HashMap<>();
         headers.put(HttpHeaderNames.CONTENT_TYPE.toString(), "multipart/form-data; boundary=" +
                 multipartDataBoundary);
-        HttpResponse response = HttpClientRequest.doPost(serverInstance.getServiceURLHttp(9091, TYPICAL_SERVICE_PATH)
+        HttpResponse response = HttpClientRequest.doPost(serverInstance.getServiceURLHttp(9301, TYPICAL_SERVICE_PATH)
                 , multipartBody, headers);
         Assert.assertEquals(response.getResponseCode(), 200, "Response code mismatched");
         Assert.assertTrue(response.getHeaders().get(HttpHeaderNames.CONTENT_TYPE.toString())
@@ -143,7 +157,7 @@ public class FailoverClientTestCase extends BaseTest {
         Map<String, String> headers = new HashMap<>();
         headers.put(HttpHeaderNames.CONTENT_TYPE.toString(), "multipart/form-data; boundary=" +
                 multipartDataBoundary);
-        HttpResponse response = HttpClientRequest.doPost(serverInstance.getServiceURLHttp(9092, TYPICAL_SERVICE_PATH)
+        HttpResponse response = HttpClientRequest.doPost(serverInstance.getServiceURLHttp(9302, TYPICAL_SERVICE_PATH)
                 , nestedMultipartBody, headers);
         Assert.assertEquals(response.getResponseCode(), 200, "Response code mismatched");
         Assert.assertTrue(response.getHeaders().get(HttpHeaderNames.CONTENT_TYPE.toString())
@@ -159,7 +173,7 @@ public class FailoverClientTestCase extends BaseTest {
                 " triggered before initiating inbound response";
         Map<String, String> headers = new HashMap<>();
         headers.put(HttpHeaderNames.CONTENT_TYPE.toString(), TestConstant.CONTENT_TYPE_JSON);
-        HttpResponse response = HttpClientRequest.doPost(serverInstance.getServiceURLHttp(9093, "fo/failures")
+        HttpResponse response = HttpClientRequest.doPost(serverInstance.getServiceURLHttp(9303, "fo/failures")
                 , "{\"Name\":\"Ballerina\"}", headers);
         Assert.assertEquals(response.getResponseCode(), 500, "Response code mismatched");
         Assert.assertEquals(response.getHeaders().get(HttpHeaderNames.CONTENT_TYPE.toString())
@@ -173,7 +187,7 @@ public class FailoverClientTestCase extends BaseTest {
                 "Last endpoint returned response is: 503 Service Unavailable";
         Map<String, String> headers = new HashMap<>();
         headers.put(HttpHeaderNames.CONTENT_TYPE.toString(), TestConstant.CONTENT_TYPE_JSON);
-        HttpResponse response = HttpClientRequest.doPost(serverInstance.getServiceURLHttp(9094, "fo/failurecodes")
+        HttpResponse response = HttpClientRequest.doPost(serverInstance.getServiceURLHttp(9304, "fo/failurecodes")
                 , "{\"Name\":\"Ballerina\"}", headers);
         Assert.assertEquals(response.getResponseCode(), 500, "Response code mismatched");
         Assert.assertEquals(response.getHeaders().get(HttpHeaderNames.CONTENT_TYPE.toString())
@@ -185,17 +199,150 @@ public class FailoverClientTestCase extends BaseTest {
     public void testFailoverStartingPosition() throws IOException {
         Map<String, String> headers = new HashMap<>();
         headers.put(HttpHeaderNames.CONTENT_TYPE.toString(), TestConstant.CONTENT_TYPE_JSON);
-        HttpResponse response = HttpClientRequest.doPost(serverInstance.getServiceURLHttp(9095, "fo/index")
+        HttpResponse response = HttpClientRequest.doPost(serverInstance.getServiceURLHttp(9305, "fo/index")
                 , "{\"Name\":\"Ballerina\"}", headers);
         Assert.assertEquals(response.getResponseCode(), 200, "Response code mismatched");
         Assert.assertEquals(response.getHeaders().get(HttpHeaderNames.CONTENT_TYPE.toString())
                 , TestConstant.CONTENT_TYPE_TEXT_PLAIN, "Content-Type mismatched");
         Assert.assertEquals(response.getData(), "Failover start index is : 0", "Message content mismatched");
-        HttpResponse secondResponse = HttpClientRequest.doPost(serverInstance.getServiceURLHttp(9095, "fo/index")
+        HttpResponse secondResponse = HttpClientRequest.doPost(serverInstance.getServiceURLHttp(9305, "fo/index")
                 , "{\"Name\":\"Ballerina\"}", headers);
         Assert.assertEquals(secondResponse.getResponseCode(), 200, "Response code mismatched");
         Assert.assertEquals(secondResponse.getHeaders().get(HttpHeaderNames.CONTENT_TYPE.toString())
                 , TestConstant.CONTENT_TYPE_TEXT_PLAIN, "Content-Type mismatched");
         Assert.assertEquals(secondResponse.getData(), "Failover start index is : 2", "Message content mismatched");
+    }
+
+    @Test(description = "Test basic circuit breaker functionality", dataProvider = "responseDataProvider")
+    public void testTypicalBackendTimeout(int responseCode, String messasge) throws Exception {
+        verifyResponses(9306, TYPICAL_CB_SERVICE_PATH, responseCode, messasge);
+    }
+
+    @Test(description = "Test for circuit breaker forceOpen functionality",
+            dataProvider = "forceOpenResponseDataProvider")
+    public void testForceOPen(int responseCode, String messasge) throws Exception {
+        verifyResponses(9307, FORCE_OPEN_SERVICE_PATH, responseCode, messasge);
+    }
+
+    @Test(description = "Test for circuit breaker forceClese functionality",
+            dataProvider = "forceCloseResponseDataProvider")
+    public void testForceClose(int responseCode, String messasge) throws Exception {
+        verifyResponses(9308, FORCE_CLOSE_SERVICE_PATH, responseCode, messasge);
+    }
+
+    @Test(description = "Test for circuit breaker getState functionality",
+            dataProvider = "getStateResponseDataProvider")
+    public void testgetState(int responseCode, String messasge) throws Exception {
+        verifyResponses(9309, GET_STATE_SERVICE_PATH, responseCode, messasge);
+    }
+
+    @Test(description = "Test for circuit breaker requestVolumeThreshold functionality",
+            dataProvider = "requestVolumeResponseDataProvider")
+    public void requestVolumeTest(int responseCode, String messasge) throws Exception {
+        verifyResponses(9310, REQUEST_VOLUME_SERVICE_PATH, responseCode, messasge);
+
+    }
+
+    @Test(description = "Test for circuit breaker failure status codes functionality",
+            dataProvider = "statusCodeResponseDataProvider")
+    public void httpStatusCodesTest(int responseCode, String messasge) throws Exception {
+        verifyResponses(9311, STATUS_CODE_SERVICE_PATH, responseCode, messasge);
+    }
+
+    @Test(description = "Test for circuit breaker trail failure functionality",
+            dataProvider = "trialRunFailureResponseDataProvider")
+    public void trialRunFailureTest(int responseCode, String messasge) throws Exception {
+        verifyResponses(9312, TRIAL_FAILLURE_SERVICE_PATH, responseCode, messasge);
+    }
+
+    @DataProvider(name = "responseDataProvider")
+    public Object[][] responseDataProvider() {
+        return new Object[][]{
+                new Object[]{SC_OK, SUCCESS_HELLO_MESSAGE},
+                new Object[]{SC_OK, SUCCESS_HELLO_MESSAGE},
+                new Object[]{SC_INTERNAL_SERVER_ERROR, IDLE_TIMEOUT_MESSAGE},
+                new Object[]{SC_INTERNAL_SERVER_ERROR, UPSTREAM_UNAVAILABLE_MESSAGE},
+                new Object[]{SC_INTERNAL_SERVER_ERROR, UPSTREAM_UNAVAILABLE_MESSAGE},
+                new Object[]{SC_OK, SUCCESS_HELLO_MESSAGE},
+                new Object[]{SC_OK, SUCCESS_HELLO_MESSAGE},
+        };
+    }
+
+    @DataProvider(name = "forceOpenResponseDataProvider")
+    public Object[][] forceOpenResponseDataProvider() {
+        return new Object[][]{
+                new Object[]{SC_OK, SUCCESS_HELLO_MESSAGE},
+                new Object[]{SC_INTERNAL_SERVER_ERROR, UPSTREAM_UNAVAILABLE_MESSAGE},
+                new Object[]{SC_INTERNAL_SERVER_ERROR, UPSTREAM_UNAVAILABLE_MESSAGE},
+        };
+    }
+
+    @DataProvider(name = "forceCloseResponseDataProvider")
+    public Object[][] forceCloseResponseDataProvider() {
+        return new Object[][]{
+                new Object[]{SC_INTERNAL_SERVER_ERROR, IDLE_TIMEOUT_MESSAGE},
+                new Object[]{SC_INTERNAL_SERVER_ERROR, IDLE_TIMEOUT_MESSAGE},
+                new Object[]{SC_INTERNAL_SERVER_ERROR, UPSTREAM_UNAVAILABLE_MESSAGE},
+                new Object[]{SC_OK, SUCCESS_HELLO_MESSAGE},
+                new Object[]{SC_OK, SUCCESS_HELLO_MESSAGE},
+        };
+    }
+
+    @DataProvider(name = "getStateResponseDataProvider")
+    public Object[][] getStateResponseDataProvider() {
+        return new Object[][]{
+                new Object[]{SC_OK, SUCCESS_HELLO_MESSAGE},
+                new Object[]{SC_OK, SUCCESS_HELLO_MESSAGE},
+                new Object[]{SC_OK, SUCCESS_HELLO_MESSAGE},
+        };
+    }
+
+    @DataProvider(name = "requestVolumeResponseDataProvider")
+    public Object[][] requestVolumeResponseDataProvider() {
+        return new Object[][]{
+                new Object[]{SC_INTERNAL_SERVER_ERROR, INTERNAL_ERROR_MESSAGE},
+                new Object[]{SC_INTERNAL_SERVER_ERROR, INTERNAL_ERROR_MESSAGE},
+                new Object[]{SC_INTERNAL_SERVER_ERROR, INTERNAL_ERROR_MESSAGE},
+                new Object[]{SC_INTERNAL_SERVER_ERROR, INTERNAL_ERROR_MESSAGE},
+                new Object[]{SC_INTERNAL_SERVER_ERROR, INTERNAL_ERROR_MESSAGE},
+                new Object[]{SC_INTERNAL_SERVER_ERROR, INTERNAL_ERROR_MESSAGE},
+                new Object[]{SC_INTERNAL_SERVER_ERROR, UPSTREAM_UNAVAILABLE_MESSAGE},
+        };
+    }
+
+    @DataProvider(name = "statusCodeResponseDataProvider")
+    public Object[][] statusCodeResponseDataProvider() {
+        return new Object[][]{
+                new Object[]{SC_SERVICE_UNAVAILABLE, SERVICE_UNAVAILABLE_MESSAGE},
+                new Object[]{SC_SERVICE_UNAVAILABLE, SERVICE_UNAVAILABLE_MESSAGE},
+                new Object[]{SC_SERVICE_UNAVAILABLE, SERVICE_UNAVAILABLE_MESSAGE},
+                new Object[]{SC_INTERNAL_SERVER_ERROR, UPSTREAM_UNAVAILABLE_MESSAGE},
+                new Object[]{SC_INTERNAL_SERVER_ERROR, UPSTREAM_UNAVAILABLE_MESSAGE},
+        };
+    }
+
+    @DataProvider(name = "trialRunFailureResponseDataProvider")
+    public Object[][] trialRunFailureResponseDataProvider() {
+        return new Object[][]{
+                new Object[]{SC_SERVICE_UNAVAILABLE, SERVICE_UNAVAILABLE_MESSAGE},
+                new Object[]{SC_INTERNAL_SERVER_ERROR, UPSTREAM_UNAVAILABLE_MESSAGE},
+                new Object[]{SC_SERVICE_UNAVAILABLE, SERVICE_UNAVAILABLE_MESSAGE},
+                new Object[]{SC_INTERNAL_SERVER_ERROR, UPSTREAM_UNAVAILABLE_MESSAGE},
+        };
+    }
+
+    private void verifyResponses(int port, String path, int responseCode, String expectedMessage) throws Exception {
+        Map<String, String> headers = new HashMap<>();
+        headers.put(HttpHeaderNames.CONTENT_TYPE.toString(), TestConstant.CONTENT_TYPE_JSON);
+        HttpResponse response = HttpClientRequest.doPost(serverInstance.getServiceURLHttp(port, path)
+                , REQUEST_PAYLOAD_STRING, headers);
+        Assert.assertEquals(response.getResponseCode(), responseCode, "Response code mismatched");
+        Assert.assertTrue(response.getData().contains(expectedMessage), "Message content mismatched");
+    }
+
+    @AfterTest(alwaysRun = true)
+    public void cleanup() throws Exception {
+        serverInstance.removeAllLeechers();
+        serverInstance.shutdownServer();
     }
 }

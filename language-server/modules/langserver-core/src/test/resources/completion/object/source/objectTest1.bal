@@ -10,3 +10,7 @@ type testObject object {
     
     function testFunction ();
 };
+
+type testEmptyObject object {
+    
+};

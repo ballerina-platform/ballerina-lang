@@ -68,6 +68,7 @@ public class PushUtils {
             ProjectDirConstants.SETTINGS_FILE_NAME);
     private static PrintStream outStream = System.err;
     private static EmbeddedExecutor executor = EmbeddedExecutorProvider.getInstance().getExecutor();
+    private static Settings settings;
 
     /**
      * Push/Uploads packages to the central repository.
@@ -123,7 +124,7 @@ public class PushUtils {
             // Push package to central
             String resourcePath = resolvePkgPathInRemoteRepo(packageID);
             String msg = orgName + "/" + packageName + ":" + version + " [project repo -> central]";
-            Proxy proxy = RepoUtils.readSettings().getProxy();
+            Proxy proxy = settings.getProxy();
             String baloVersionOfPkg = String.valueOf(ProgramFileConstants.VERSION_NUMBER);
             executor.execute("packaging_push/packaging_push.balx", true, accessToken, mdFileContent,
                              description, homepageURL, repositoryURL, apiDocURL, authors, keywords, license,
@@ -276,7 +277,7 @@ public class PushUtils {
      * @return access token for generated for the CLI
      */
     private static String getAccessTokenOfCLI() {
-        Settings settings = RepoUtils.readSettings();
+        settings = RepoUtils.readSettings();
         if (settings.getCentral() != null) {
             return settings.getCentral().getAccessToken();
         }

@@ -28,6 +28,7 @@ public class TopLevel extends CompletionTest {
     @Override
     public Object[][] dataProvider() {
         return new Object[][] {
+                {"allTopLevelItemSkip.json", "toplevel"},
                 {"topLevelNonEmptyFirstLine.json", "toplevel"},
                 {"topLevelEmptyFirstLine.json", "toplevel"},
                 {"endpointTypeCompletion1.json", "toplevel"},
@@ -40,8 +41,6 @@ public class TopLevel extends CompletionTest {
                 {"endpointAttributeSuggestion4.json", "toplevel"},
                 {"recordTest1.json", "toplevel"},
                 {"recordTest2.json", "toplevel"},
-                {"objectTest1.json", "toplevel"},
-                {"objectTest2.json", "toplevel"},
         };
     }
 }
