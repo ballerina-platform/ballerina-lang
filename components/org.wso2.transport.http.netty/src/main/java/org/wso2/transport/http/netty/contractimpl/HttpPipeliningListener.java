@@ -25,7 +25,7 @@ import io.netty.channel.ChannelHandlerContext;
  *
  * @since 6.0.228
  */
-public interface HttpPipelineListener {
+public interface HttpPipeliningListener {
 
     /**
      * Logic to be implemented when the last http content has been written to the socket
