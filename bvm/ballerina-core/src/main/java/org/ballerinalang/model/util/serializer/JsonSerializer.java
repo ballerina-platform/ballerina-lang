@@ -30,6 +30,7 @@ import org.ballerinalang.model.util.serializer.providers.bvalue.BallerinaBrokerB
 import org.ballerinalang.model.util.serializer.providers.bvalue.ClassBValueProvider;
 import org.ballerinalang.model.util.serializer.providers.bvalue.ConcurrentHashMapBValueProvider;
 import org.ballerinalang.model.util.serializer.providers.bvalue.DateTimeBValueProviders;
+import org.ballerinalang.model.util.serializer.providers.bvalue.InetSocketAddressBValueProvider;
 import org.ballerinalang.model.util.serializer.providers.bvalue.NumericBValueProviders;
 import org.ballerinalang.model.values.BRefType;
 import org.ballerinalang.persistence.serializable.SerializableState;
@@ -70,6 +71,7 @@ public class JsonSerializer implements ObjectToJsonSerializer {
         bValueProvider.register(new BXMLBValueProviders.BXMLItemBValueProvider());
         bValueProvider.register(new BXMLBValueProviders.BXMLSequenceBValueProvider());
         bValueProvider.register(new BXMLBValueProviders.BXMLQNameBValueProvider());
+        bValueProvider.register(new InetSocketAddressBValueProvider());
     }
 
     /**

@@ -37,9 +37,6 @@ class BRefValueArrays {
     }
 
     BRefValueArray from(int[] array) {
-        if (array == null) {
-            return null;
-        }
         BRefType[] backing = new BRefType[array.length];
 
         for (int i = 0; i < array.length; i++) {
@@ -50,9 +47,6 @@ class BRefValueArrays {
     }
 
     BRefValueArray from(long[] array) {
-        if (array == null) {
-            return null;
-        }
         BRefType[] backing = new BRefType[array.length];
 
         for (int i = 0; i < array.length; i++) {
@@ -62,9 +56,6 @@ class BRefValueArrays {
     }
 
     BRefValueArray from(double[] array) {
-        if (array == null) {
-            return null;
-        }
         BRefType[] backing = new BRefType[array.length];
 
         for (int i = 0; i < array.length; i++) {
@@ -83,17 +74,11 @@ class BRefValueArrays {
     }
 
     BRefValueArray from(Object[] array) {
-        if (array == null) {
-            return null;
-        }
         BRefType[] backing = getBRefArray(array);
         return new BRefValueArray(backing, new BArrayType(BTypes.typeAny));
     }
 
     public BRefType from(char[] array) {
-        if (array == null) {
-            return null;
-        }
         BRefType[] backing = new BRefType[array.length];
 
         for (int i = 0; i < array.length; i++) {
@@ -103,9 +88,6 @@ class BRefValueArrays {
     }
 
     public BRefType from(byte[] array) {
-        if (array == null) {
-            return null;
-        }
         BRefType[] backing = new BRefType[array.length];
 
         for (int i = 0; i < array.length; i++) {
@@ -115,9 +97,6 @@ class BRefValueArrays {
     }
 
     public BRefType from(short[] array) {
-        if (array == null) {
-            return null;
-        }
         BRefType[] backing = new BRefType[array.length];
 
         for (int i = 0; i < array.length; i++) {
@@ -127,9 +106,6 @@ class BRefValueArrays {
     }
 
     public BRefType from(float[] array) {
-        if (array == null) {
-            return null;
-        }
         BRefType[] backing = new BRefType[array.length];
 
         for (int i = 0; i < array.length; i++) {

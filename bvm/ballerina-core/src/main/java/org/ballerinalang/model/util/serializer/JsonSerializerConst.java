@@ -35,6 +35,7 @@ public class JsonSerializerConst {
     public static final String COMPLEX_KEY_MAP_TAG = "#complex_key_map#";
     public static final String COMPONENT_TYPE = "componentType#";
     public static final String ENUM_SEPERATOR = ".";
+    public static final String NULL_OBJ = "#null#";
 
     private JsonSerializerConst() {
     }

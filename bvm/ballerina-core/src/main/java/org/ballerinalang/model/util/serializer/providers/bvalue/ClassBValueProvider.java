@@ -31,6 +31,13 @@ import org.ballerinalang.util.exceptions.BallerinaException;
  * @since 0.982.0
  */
 public class ClassBValueProvider implements SerializationBValueProvider<Class> {
+    private static final String INT = "int";
+    private static final String FLOAT = "float";
+    private static final String DOUBLE = "double";
+    private static final String LONG = "long";
+    private static final String BYTE = "byte";
+    private static final String CHAR = "char";
+
     @Override
     public String typeName() {
         return getType().getName();
@@ -51,17 +58,17 @@ public class ClassBValueProvider implements SerializationBValueProvider<Class> {
         String className = packet.getValue().stringValue();
 
         switch (className) {
-            case "int":
+            case INT:
                 return int.class;
-            case "float":
+            case FLOAT:
                 return float.class;
-            case "double":
+            case DOUBLE:
                 return double.class;
-            case "long":
+            case LONG:
                 return long.class;
-            case "byte":
+            case BYTE:
                 return byte.class;
-            case "char":
+            case CHAR:
                 return char.class;
             default:
                 try {

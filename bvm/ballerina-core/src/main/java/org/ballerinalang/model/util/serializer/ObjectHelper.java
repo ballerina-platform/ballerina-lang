@@ -113,6 +113,12 @@ class ObjectHelper {
             // Reason: Either security manager stopping us from setting this field
             // or this is a static final field initialized using compile time constant,
             // we can't assign to them at runtime, nor can we identify them at runtime.
+            String targetClassName = target.getClass().getName();
+            String fieldName = field.getName();
+            throw new BallerinaException(String.format(
+                    "Can not set field '%s' of '%s' via reflective deserialization, please provide a %s for %s",
+                    fieldName, targetClassName, SerializationBValueProvider.class.getSimpleName(), targetClassName),
+                    e);
         } catch (IllegalArgumentException e) {
             throw new BallerinaException(e);
         }

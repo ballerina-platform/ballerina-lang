@@ -30,7 +30,7 @@ import org.testng.annotations.Test;
 public class TypeInstanceProviderFactoryTest {
     @Test
     public void testNoParamConstructorObject() {
-        TypeInstanceProvider provider = new TypeInstanceProviderFactory().createProvider(Foo.class.getName());
+        TypeInstanceProvider provider = new TypeInstanceProviderFactory().from(Foo.class.getName());
         Object o = provider.newInstance();
         Assert.assertTrue(o instanceof Foo);
         Assert.assertEquals(42, ((Foo) o).secretNum);

@@ -34,7 +34,7 @@ public class TypeInstanceProviderFactory {
      * @param fullClassName class name of requested {@link TypeInstanceProvider}
      * @return dynamically implemented {@link TypeInstanceProvider}
      */
-    public TypeInstanceProvider createProvider(String fullClassName) {
+    public TypeInstanceProvider from(String fullClassName) {
         Class<?> clazz = null;
         try {
             clazz = Class.forName(fullClassName);
@@ -43,10 +43,10 @@ public class TypeInstanceProviderFactory {
             if (declaredConstructor == null) {
                 return null;
             }
-            return implementUsingNoParamConstructor(clazz, declaredConstructor);
+            return createInstanceProvider(declaredConstructor, clazz);
         } catch (NoSuchMethodException e) {
-            // When no-param constructor is not found, try unsafe allocator.
-            return implementUnsafe(clazz);
+            // If no-param constructor is not found, try unsafe allocator.
+            return createInstanceProvider(clazz);
         } catch (ClassNotFoundException e) {
             // return null to indicate TypeInstanceProviderFactory cannot create a TypeInstanceProvider for this type.
             return null;
@@ -60,7 +60,7 @@ public class TypeInstanceProviderFactory {
         }
     }
 
-    private TypeInstanceProvider implementUsingNoParamConstructor(Class<?> clazz, Constructor<?> constructor) {
+    private TypeInstanceProvider createInstanceProvider(Constructor<?> constructor, Class<?> clazz) {
         return new TypeInstanceProvider() {
             @Override
             public String getTypeName() {
@@ -84,7 +84,7 @@ public class TypeInstanceProviderFactory {
         };
     }
 
-    private TypeInstanceProvider implementUnsafe(Class<?> clazz) {
+    private TypeInstanceProvider createInstanceProvider(Class<?> clazz) {
         return new TypeInstanceProvider() {
             @Override
             public String getTypeName() {

@@ -17,6 +17,7 @@
  */
 package org.ballerinalang.model.util.serializer;
 
+import org.ballerinalang.model.types.TypeTags;
 import org.ballerinalang.model.util.serializer.providers.instance.ListInstanceProvider;
 import org.ballerinalang.model.util.serializer.providers.instance.MapInstanceProvider;
 import org.ballerinalang.model.values.BBoolean;
@@ -45,16 +46,16 @@ import static org.ballerinalang.model.util.serializer.ObjectHelper.findPrimitive
  * @since 0.982.0
  */
 class JsonDeserializer implements BValueDeserializer {
-    private static final InstanceProviderRegistry instanceProvider = InstanceProviderRegistry.getInstance();
-
-    static {
-        instanceProvider.add(new MapInstanceProvider());
-        instanceProvider.add(new ListInstanceProvider());
-    }
-
     private final BValueProvider bValueProvider;
     private final HashMap<Long, Object> identityMap;
     private final BRefType<?> treeHead;
+    private static final InstanceProviderRegistry instanceProvider;
+
+    static {
+        instanceProvider = InstanceProviderRegistry.getInstance();
+        instanceProvider.add(new MapInstanceProvider());
+        instanceProvider.add(new ListInstanceProvider());
+    }
 
     JsonDeserializer(BRefType<?> objTree) {
         treeHead = objTree;
@@ -82,29 +83,27 @@ class JsonDeserializer implements BValueDeserializer {
         if (jValue == null) {
             return null;
         }
-        if (jValue instanceof BMap) {
-            BMap<String, BValue> jBMap = (BMap<String, BValue>) jValue;
-            Object obj = deserializeComplexType(jBMap, targetType);
-            addObjReference(jBMap, obj);
-            return obj;
+        switch (jValue.getType().getTag()) {
+            case TypeTags.MAP_TAG:
+            case TypeTags.JSON_TAG:
+                BMap<String, BValue> jBMap = (BMap<String, BValue>) jValue;
+                Object obj = deserializeComplexType(jBMap, targetType);
+                addObjReference(jBMap, obj);
+                return obj;
+            case TypeTags.ARRAY_TAG:
+                return deserializeBRefValueArray((BRefValueArray) jValue, targetType);
+            case TypeTags.STRING_TAG:
+                return jValue.stringValue();
+            case TypeTags.INT_TAG:
+                return castLong(((BInteger) jValue).intValue(), targetType);
+            case TypeTags.FLOAT_TAG:
+                return castFloat((BFloat) jValue, targetType);
+            case TypeTags.BOOLEAN_TAG:
+                return ((BBoolean) jValue).booleanValue();
+            default:
+                throw new BallerinaException(
+                        String.format("Unknown BValue type to deserialize: %s", jValue.getClass().getSimpleName()));
         }
-        if (jValue instanceof BRefValueArray) {
-            return deserializeBRefValueArray((BRefValueArray) jValue, targetType);
-        }
-        if (jValue instanceof BString) {
-            return jValue.stringValue();
-        }
-        if (jValue instanceof BInteger) {
-            return castLong(((BInteger) jValue).intValue(), targetType);
-        }
-        if (jValue instanceof BFloat) {
-            return castFloat((BFloat) jValue, targetType);
-        }
-        if (jValue instanceof BBoolean) {
-            return ((BBoolean) jValue).booleanValue();
-        }
-        throw new BallerinaException(
-                String.format("Unknown BValue type to deserialize: %s", jValue.getClass().getSimpleName()));
     }
 
     private Object castFloat(BFloat jValue, Class<?> targetType) {
@@ -166,6 +165,10 @@ class JsonDeserializer implements BValueDeserializer {
             return existing;
         }
 
+        if (isNullObj(jBMap)) {
+            return null;
+        }
+
         Object object = null;
         String typeName = resolveTargetTypeName(targetType, jBMap);
         // try BValueProvider
@@ -198,6 +201,10 @@ class JsonDeserializer implements BValueDeserializer {
             return resolved;
         }
         return object;
+    }
+
+    private boolean isNullObj(BMap<String, BValue> jBMap) {
+        return jBMap.hasKey(JsonSerializerConst.NULL_OBJ);
     }
 
     @SuppressWarnings("unchecked")
@@ -336,7 +343,7 @@ class JsonDeserializer implements BValueDeserializer {
             }
             Field field = allFields.get(fieldName);
             if (field == null) {
-                throw new BallerinaException(String.format("Can not find field %s from JSON in %s class",
+                throw new BallerinaException(String.format("Can not find field '%s' from JSON in %s class",
                         fieldName, targetClass.getName()));
             }
             BValue value = fieldMap.get(fieldName);

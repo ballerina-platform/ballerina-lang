@@ -55,6 +55,18 @@ public class BPacket {
         return bPacket;
     }
 
+    /**
+     * Create a {@link BPacket} instance to represent a null object (null value) of a particular type.
+     * <p>
+     * This is particularly useful when an SerializationBValueSerializer doesn't actually want to serialize it's type.
+     *
+     * @param typeName Type name of null value object.
+     * @return BPacket representing null.
+     */
+    public static BPacket nullObject(String typeName) {
+        return from(typeName, null).put(JsonSerializerConst.NULL_OBJ, null);
+    }
+
     BMap<String, BValue> toBMap() {
         return map;
     }

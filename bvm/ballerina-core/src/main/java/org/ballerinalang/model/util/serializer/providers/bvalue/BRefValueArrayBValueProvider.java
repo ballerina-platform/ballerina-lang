@@ -18,8 +18,8 @@
 package org.ballerinalang.model.util.serializer.providers.bvalue;
 
 import org.ballerinalang.model.types.BType;
+import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.model.util.serializer.BPacket;
-import org.ballerinalang.model.util.serializer.BTypes;
 import org.ballerinalang.model.util.serializer.BValueDeserializer;
 import org.ballerinalang.model.util.serializer.BValueSerializer;
 import org.ballerinalang.model.util.serializer.SerializationBValueProvider;

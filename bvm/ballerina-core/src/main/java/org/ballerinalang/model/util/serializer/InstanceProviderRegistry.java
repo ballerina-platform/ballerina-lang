@@ -63,7 +63,7 @@ public class InstanceProviderRegistry {
 
     private TypeInstanceProvider generateProvider(String type) {
         if (isClassLoadable(type)) {
-            return new TypeInstanceProviderFactory().createProvider(type);
+            return new TypeInstanceProviderFactory().from(type);
         }
         return null;
     }
