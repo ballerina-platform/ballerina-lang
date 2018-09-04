@@ -2,7 +2,7 @@
     "name": "ballerina",
     "displayName": "Ballerina",
     "description": "Intellisense, Diagram View, Debugging, code formatting and refactoring for Ballerina",
-    "version": "0.981.1-SNAPSHOT",
+    "version": "0.981.2-SNAPSHOT",
     "publisher": "ballerina",
     "repository": {
         "type": "git",
@@ -34,14 +34,14 @@
                 "extensions": [
                     ".bal"
                 ],
-                "configuration": "./ballerina.configuration.json"
+                "configuration": "./grammar/ballerina.configuration.json"
             }
         ],
         "grammars": [
             {
                 "language": "ballerina",
                 "scopeName": "source.ballerina",
-                "path": "./ballerina-grammar/syntaxes/ballerina.tmLanguage"
+                "path": "./grammar/ballerina-grammar/syntaxes/ballerina.tmLanguage"
             }
         ],
         "configuration": {
@@ -175,7 +175,6 @@
         "compile": "tsc -p ./",
         "watch": "tsc -watch -p ./",
         "postinstall": "node ./node_modules/vscode/bin/install",
-        "build:grammar": "tsc -p syntaxes/build && node syntaxes/build/build.js",
         "test": "npm run compile && node ./node_modules/vscode/bin/test",
         "clean": "rimraf server-build target",
         "package": "npm run compile && vsce package"
