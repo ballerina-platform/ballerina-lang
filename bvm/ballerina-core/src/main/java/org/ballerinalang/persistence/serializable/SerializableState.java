@@ -17,14 +17,15 @@
  */
 package org.ballerinalang.persistence.serializable;
 
-import org.ballerinalang.bre.bvm.CallableWorkerResponseContext;
 import org.ballerinalang.bre.bvm.WorkerExecutionContext;
+import org.ballerinalang.bre.bvm.WorkerResponseContext;
 import org.ballerinalang.model.util.serializer.JsonSerializer;
 import org.ballerinalang.model.values.BRefType;
 import org.ballerinalang.persistence.Deserializer;
 import org.ballerinalang.persistence.Serializer;
 import org.ballerinalang.persistence.serializable.reftypes.Serializable;
 import org.ballerinalang.persistence.serializable.reftypes.SerializableRefType;
+import org.ballerinalang.persistence.serializable.responses.SerializableResponseContext;
 import org.ballerinalang.util.codegen.CallableUnitInfo;
 import org.ballerinalang.util.codegen.ProgramFile;
 
@@ -50,7 +51,7 @@ public class SerializableState {
 
     private Map<String, SerializableContext> sContexts = new HashMap<>();
 
-    private Map<String, SerializableRespContext> sRespContexts = new HashMap<>();
+    private Map<String, SerializableResponseContext> sRespContexts = new HashMap<>();
 
     private Map<String, SerializableRefType> sRefTypes = new HashMap<>();
 
@@ -111,8 +112,8 @@ public class SerializableState {
                 .collect(Collectors.toList());
     }
 
-    SerializableContext populateContext(WorkerExecutionContext ctx, int ip, boolean isCompletedCtxRemoved,
-                                        boolean updateIfExist, String childCtxKey) {
+    public SerializableContext populateContext(WorkerExecutionContext ctx, int ip, boolean isCompletedCtxRemoved,
+                                               boolean updateIfExist, String childCtxKey) {
         String ctxKey = String.valueOf(ctx.hashCode());
         SerializableContext sCtx = sContexts.get(ctxKey);
         if (sCtx == null) {
@@ -139,33 +140,34 @@ public class SerializableState {
         return sCtx;
     }
 
-    SerializableRespContext addRespContext(CallableWorkerResponseContext responseContext,
-                                           boolean updateTargetCtxIfExist) {
+    SerializableResponseContext addRespContext(WorkerResponseContext responseContext,
+                                               boolean updateTargetCtxIfExist) {
         String respCtxKey = String.valueOf(responseContext.hashCode());
-        SerializableRespContext sRespCtx = sRespContexts.get(respCtxKey);
+        SerializableResponseContext sRespCtx = sRespContexts.get(respCtxKey);
         if (sRespCtx == null) {
-            sRespCtx = new SerializableRespContext(respCtxKey, responseContext, this, updateTargetCtxIfExist);
+            sRespCtx = Serializer.sRspCtxFactory.getResponseContext(respCtxKey, responseContext, this,
+                                                                    updateTargetCtxIfExist);
 
-            sRespContexts.put(sRespCtx.respCtxKey, sRespCtx);
+            sRespContexts.put(sRespCtx.getRespCtxKey(), sRespCtx);
         }
         return sRespCtx;
     }
 
-    WorkerExecutionContext getExecutionContext(String contextKey, ProgramFile programFile,
-                                               Deserializer deserializer) {
+    public WorkerExecutionContext getExecutionContext(String contextKey, ProgramFile programFile,
+                                                      Deserializer deserializer) {
 
         SerializableContext serializableContext = sContexts.get(contextKey);
         return serializableContext.getWorkerExecutionContext(programFile, this, deserializer);
     }
 
-    CallableWorkerResponseContext getResponseContext(String respCtxKey, ProgramFile programFile,
-                                                     CallableUnitInfo callableUnitInfo,
-                                                     Deserializer deserializer) {
-        CallableWorkerResponseContext responseContext = deserializer.getRespContexts().get(respCtxKey);
+    WorkerResponseContext getResponseContext(String respCtxKey, ProgramFile programFile,
+                                             CallableUnitInfo callableUnitInfo,
+                                             Deserializer deserializer) {
+        WorkerResponseContext responseContext = deserializer.getRespContexts().get(respCtxKey);
         if (responseContext != null) {
             return responseContext;
         }
-        SerializableRespContext sRespContext = sRespContexts.get(respCtxKey);
+        SerializableResponseContext sRespContext = sRespContexts.get(respCtxKey);
         responseContext = sRespContext.getResponseContext(programFile, callableUnitInfo,
                                                           this, deserializer);
         deserializer.getRespContexts().put(respCtxKey, responseContext);
@@ -243,7 +245,7 @@ public class SerializableState {
     }
 
     private void cleanResponseContexts() {
-        sRespContexts.entrySet().removeIf(e -> !sContexts.containsKey(e.getValue().targetContextKey));
+        sRespContexts.entrySet().removeIf(e -> !sContexts.containsKey(e.getValue().getTargetCtxKey()));
     }
 
     private void removeChildContext(SerializableContext parentCtx, SerializableContext childCtx) {

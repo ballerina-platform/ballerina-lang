@@ -18,9 +18,11 @@
  */
 package org.ballerinalang.persistence.store;
 
+import com.google.gson.Gson;
 import org.ballerinalang.bre.bvm.WorkerExecutionContext;
 import org.ballerinalang.persistence.Deserializer;
 import org.ballerinalang.persistence.RuntimeStates;
+import org.ballerinalang.persistence.Serializer;
 import org.ballerinalang.persistence.State;
 import org.ballerinalang.persistence.serializable.SerializableState;
 import org.ballerinalang.persistence.store.impl.FileStorageProvider;
@@ -65,7 +67,7 @@ public class PersistenceStore {
         }
         return serializedStates
                 .stream()
-                .map(s -> createState(SerializableState.deserialize(s), programFile, deserializer))
+                .map(s -> createState(deserialize(s), programFile, deserializer))
                 .collect(Collectors.toList());
     }
 
@@ -81,5 +83,10 @@ public class PersistenceStore {
                                                                                                 deserializer);
         SerializableState sState = new SerializableState(deSerializedState.getId(), executableCtxList);
         return new State(sState, executableCtxList);
+    }
+
+    private static SerializableState deserialize(String json) {
+        Gson gson = Serializer.getGson();
+        return gson.fromJson(json, SerializableState.class);
     }
 }

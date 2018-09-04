@@ -28,6 +28,7 @@ import org.ballerinalang.model.values.BXMLAttributes;
 import org.ballerinalang.model.values.BXMLItem;
 import org.ballerinalang.model.values.BXMLQName;
 import org.ballerinalang.model.values.BXMLSequence;
+import org.ballerinalang.persistence.serializable.responses.SerializableResponseContextFactory;
 import org.ballerinalang.persistence.serializable.serializer.providers.bvalue.SerializedKeyBValueProvider;
 import org.ballerinalang.persistence.serializable.serializer.providers.instance.SerializableBRefArrayInstanceProvider;
 import org.ballerinalang.persistence.serializable.serializer.providers.instance.SerializableContextInstanceProvider;
@@ -51,6 +52,8 @@ public class Serializer {
     private static final InstanceProviderRegistry INSTANCE_PROVIDER_REGISTRY =
             JSON_SERIALIZER.getInstanceProviderRegistry();
 
+    public static SerializableResponseContextFactory sRspCtxFactory = new SerializableResponseContextFactory();
+
     static {
         serializableClasses.add(String.class.getName());
         serializableClasses.add(Integer.class.getName());
@@ -69,9 +72,7 @@ public class Serializer {
         serializableClasses.add(BXMLAttributes.class.getName());
         serializableClasses.add(BXMLQName.class.getName());
         serializableClasses.add(BXMLSequence.class.getName());
-
         BVALUE_PROVIDER_REGISTRY.register(new SerializedKeyBValueProvider());
-
         INSTANCE_PROVIDER_REGISTRY.add(new SerializableWorkerDataInstanceProvider());
         INSTANCE_PROVIDER_REGISTRY.add(new SerializableContextInstanceProvider());
         INSTANCE_PROVIDER_REGISTRY.add(new WorkerStateInstanceProvider());

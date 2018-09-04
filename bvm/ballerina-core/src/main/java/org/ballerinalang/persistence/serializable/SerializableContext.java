@@ -16,9 +16,9 @@
  */
 package org.ballerinalang.persistence.serializable;
 
-import org.ballerinalang.bre.bvm.CallableWorkerResponseContext;
 import org.ballerinalang.bre.bvm.WorkerData;
 import org.ballerinalang.bre.bvm.WorkerExecutionContext;
+import org.ballerinalang.bre.bvm.WorkerResponseContext;
 import org.ballerinalang.bre.bvm.WorkerState;
 import org.ballerinalang.model.util.serializer.JsonSerializer;
 import org.ballerinalang.persistence.Deserializer;
@@ -44,7 +44,7 @@ import static org.ballerinalang.util.program.BLangVMUtils.SERVICE_INFO_KEY;
  */
 public class SerializableContext {
 
-    String ctxKey;
+    public String ctxKey;
 
     public String parent;
 
@@ -139,10 +139,7 @@ public class SerializableContext {
             callableUnitPkgPath = ctx.callableUnitInfo.getPkgPath();
         }
         if (ctx.respCtx != null) {
-            if (ctx.respCtx instanceof CallableWorkerResponseContext) {
-                CallableWorkerResponseContext callableRespCtx = (CallableWorkerResponseContext) ctx.respCtx;
-                respContextKey = state.addRespContext(callableRespCtx, updateIfExist).respCtxKey;
-            }
+            respContextKey = state.addRespContext(ctx.respCtx, updateIfExist).getRespCtxKey();
         }
         if (ctx.workerLocal != null) {
             workerLocal = new SerializableWorkerData(ctx.workerLocal, state);
@@ -209,8 +206,8 @@ public class SerializableContext {
             workerExecutionContext.workerResult = workerResultData;
         } else {
             WorkerExecutionContext parentCtx = state.getExecutionContext(parent, programFile, deserializer);
-            CallableWorkerResponseContext respCtx = state.getResponseContext(respContextKey, programFile,
-                                                                             callableUnitInfo, deserializer);
+            WorkerResponseContext respCtx = state.getResponseContext(respContextKey, programFile,
+                                                                     callableUnitInfo, deserializer);
             workerExecutionContext = new WorkerExecutionContext(parentCtx, respCtx, callableUnitInfo,
                                                                 workerInfo, workerLocalData, workerResultData,
                                                                 retRegIndexes, runInCaller);

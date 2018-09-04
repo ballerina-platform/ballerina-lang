@@ -18,8 +18,8 @@
  */
 package org.ballerinalang.persistence;
 
-import org.ballerinalang.bre.bvm.CallableWorkerResponseContext;
 import org.ballerinalang.bre.bvm.WorkerExecutionContext;
+import org.ballerinalang.bre.bvm.WorkerResponseContext;
 import org.ballerinalang.model.values.BRefType;
 
 import java.util.HashMap;
@@ -37,7 +37,7 @@ public class Deserializer {
 
     private Map<String, WorkerExecutionContext> contexts = new HashMap<>();
 
-    private Map<String, CallableWorkerResponseContext> respContexts = new HashMap<>();
+    private Map<String, WorkerResponseContext> respContexts = new HashMap<>();
 
     public void cleanUpDeserializer() {
         refTypes.clear();
@@ -53,7 +53,7 @@ public class Deserializer {
         return contexts;
     }
 
-    public Map<String, CallableWorkerResponseContext> getRespContexts() {
+    public Map<String, WorkerResponseContext> getRespContexts() {
         return respContexts;
     }
 

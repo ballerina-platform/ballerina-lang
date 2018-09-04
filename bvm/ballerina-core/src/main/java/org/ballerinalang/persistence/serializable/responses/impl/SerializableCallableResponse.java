@@ -15,46 +15,47 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.ballerinalang.persistence.serializable;
+package org.ballerinalang.persistence.serializable.responses.impl;
 
 import org.ballerinalang.bre.bvm.CallableWorkerResponseContext;
+import org.ballerinalang.bre.bvm.WorkerResponseContext;
 import org.ballerinalang.persistence.Deserializer;
+import org.ballerinalang.persistence.serializable.SerializableContext;
+import org.ballerinalang.persistence.serializable.SerializableState;
+import org.ballerinalang.persistence.serializable.responses.SerializableResponseContext;
 import org.ballerinalang.util.codegen.CallableUnitInfo;
 import org.ballerinalang.util.codegen.ProgramFile;
 
 /**
- * This class represents a serializable Ballerina response context.
+ * This class implements @{@link SerializableResponseContext} to serialize @{@link CallableWorkerResponseContext}.
  *
- * @since 0.981.1
+ * @since 0.982.0
  */
-public class SerializableRespContext {
-
-    String respCtxKey;
-
-    String targetContextKey;
+public class SerializableCallableResponse extends SerializableResponseContext {
 
     public int[] retRegIndexes;
 
     public int workerCount;
 
-    SerializableRespContext(String respCtxKey, CallableWorkerResponseContext respCtx, SerializableState state,
-                            boolean updateTargetCtxIfExist) {
-        this.respCtxKey = respCtxKey;
+    public SerializableCallableResponse(String respCtxKey, CallableWorkerResponseContext respCtx, SerializableState
+            state, boolean updateTargetCtxIfExist) {
+        super(respCtxKey);
         SerializableContext sTargetCtx = state.getContext(String.valueOf(respCtx.getTargetContext().hashCode()));
         if (sTargetCtx == null) {
             sTargetCtx = state.populateContext(respCtx.getTargetContext(), respCtx.getTargetContext().ip, true,
                                                updateTargetCtxIfExist, null);
         }
-        targetContextKey = sTargetCtx.ctxKey;
+        targetCtxKey = sTargetCtx.ctxKey;
         retRegIndexes = respCtx.getRetRegIndexes();
         workerCount = respCtx.getWorkerCount();
     }
 
-    CallableWorkerResponseContext getResponseContext(ProgramFile programFile, CallableUnitInfo callableUnitInfo,
-                                                     SerializableState state, Deserializer deserializer) {
+    @Override
+    public WorkerResponseContext getResponseContext(ProgramFile programFile, CallableUnitInfo callableUnitInfo,
+                                                    SerializableState state, Deserializer deserializer) {
         CallableWorkerResponseContext respCtx = new CallableWorkerResponseContext(callableUnitInfo.getRetParamTypes(),
                                                                                   workerCount);
-        respCtx.joinTargetContextInfo(state.getExecutionContext(targetContextKey, programFile, deserializer),
+        respCtx.joinTargetContextInfo(state.getExecutionContext(targetCtxKey, programFile, deserializer),
                                       retRegIndexes);
         return respCtx;
     }
