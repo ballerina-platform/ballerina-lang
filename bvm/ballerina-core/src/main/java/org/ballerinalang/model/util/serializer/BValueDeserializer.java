@@ -51,5 +51,5 @@ public interface BValueDeserializer {
      * @param key Reference pointer.
      * @return Object referenced by {@code key} pointer.
      */
-    Object getExistingObjRef(String key);
+    Object getExistingObjRef(long key);
 }

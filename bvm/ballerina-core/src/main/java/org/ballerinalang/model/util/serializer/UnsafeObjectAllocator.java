@@ -27,8 +27,12 @@ import java.lang.reflect.Method;
  * {@link sun.misc.UnSafe} module not being available in JAVA9 plus, or due to many
  * other reasons, failing to create the instance will return {@code null}.
  *
+ * Available on OpenJDK-8
+ * http://hg.openjdk.java.net/jdk8/jdk8/jdk/file/687fd7c7986d/src/share/classes/sun/misc/Unsafe.java
+ *
  * @since 0.982.0
  */
+
 class UnsafeObjectAllocator {
     private UnsafeObjectAllocator() {
     }

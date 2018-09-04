@@ -17,8 +17,6 @@
  */
 package org.ballerinalang.model.util.serializer;
 
-import org.ballerinalang.model.types.BTypes;
-import org.ballerinalang.model.values.BRefValueArray;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.util.exceptions.BallerinaException;
 
@@ -110,13 +108,10 @@ class ObjectHelper {
         primeFinalFieldForAssignment(field);
         try {
             field.set(target, obj);
-        } catch (IllegalAccessException e) {
-            // Ignore it, this is fine.
-            // Reason: Either security manager stopping us from setting this field
-            // or this is a static final field initialized using compile time constant,
-            // we can't assign to them at runtime, nor can we identify them at runtime.
-        } catch (IllegalArgumentException e) {
-            throw new BallerinaException(e);
+        } catch (IllegalAccessException | IllegalArgumentException e) {
+            throw new BallerinaException(String.format("Error while reflective deserialization of %s",
+                    target.getClass().getName()),
+                    e);
         }
     }
 
@@ -166,21 +161,6 @@ class ObjectHelper {
 
     private static String getBValuePackagePath() {
         return BValue.class.getPackage().getName();
-    }
-
-    static Class<?> findComponentType(BRefValueArray valueArray, Class<?> targetType) {
-        // if target type is a array then find its component type.
-        // else (i.e. target type is Object) infer component type from JSON representation.
-        if (valueArray.size() > 0 && !targetType.isArray()) {
-            if (valueArray.get(0).getType().equals(org.ballerinalang.model.types.BTypes.typeString)) {
-                return String.class;
-            } else if (valueArray.get(0).getType().equals(org.ballerinalang.model.types.BTypes.typeInt)) {
-                return Long.class;
-            } else if (valueArray.get(0).getType().equals(BTypes.typeFloat)) {
-                return Double.class;
-            }
-        }
-        return targetType.getComponentType();
     }
 
     static boolean isInstantiable(Class<?> clazz) {

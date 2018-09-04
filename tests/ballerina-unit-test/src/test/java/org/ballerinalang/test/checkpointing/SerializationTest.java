@@ -23,8 +23,6 @@ import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.types.BArrayType;
 import org.ballerinalang.model.types.BTypes;
-import org.ballerinalang.model.util.serializer.JsonSerializer;
-import org.ballerinalang.model.util.serializer.ObjectToJsonSerializer;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BRefType;
 import org.ballerinalang.model.values.BRefValueArray;
@@ -70,8 +68,8 @@ import java.util.Map;
  */
 public class SerializationTest {
 
-    public static final String KEY_STR = "bmapKey1";
-    public static final BigDecimal BIG_DECIMAL = new BigDecimal("123456789999");
+    private static final String KEY_STR = "bmapKey1";
+    private static final BigDecimal BIG_DECIMAL = new BigDecimal("123456789999");
     private static final String STATE_ID = "test123";
     private static final String INSTANCE_ID = "2334";
     private static final String BMAP_KEY = "key";
@@ -138,7 +136,6 @@ public class SerializationTest {
         // execute
         PersistenceStore.persistState(state);
         Assert.assertTrue(storageProvider.state.contains(INSTANCE_ID));
-        ObjectToJsonSerializer serializer = new JsonSerializer();
         List<State> states = PersistenceStore.getStates(compileResult.getProgFile());
 
         // test
@@ -155,7 +152,7 @@ public class SerializationTest {
         mock(serializableState);
         String json = serializableState.serialize();
 
-        SerializableState state = serializableState.deserialize(json);
+        SerializableState state = SerializableState.deserialize(json);
         Assert.assertEquals(state.getId(), INSTANCE_ID);
 
         List list = (List) state.globalProps.get(PROP_KEY_2);
@@ -164,6 +161,7 @@ public class SerializationTest {
         Assert.assertEquals(VALUE_ITEM_3, list.get(2));
     }
 
+    @SuppressWarnings("unchecked")
     @Test(description = "Test deserialization of Deeply nested BMap in SerializableState")
     public void testJsonDeserializeSerializableStateDeepBMapReconstruction() throws
             NoSuchFieldException, IllegalAccessException {
@@ -173,10 +171,10 @@ public class SerializationTest {
         mock(serializableState);
         String json = serializableState.serialize();
 
-        SerializableState state = serializableState.deserialize(json);
+        SerializableState state = SerializableState.deserialize(json);
 
 
-        SerializableRefType bmapKey1 = getSRefTypesMap(state).get(BMAP_KEY);;
+        SerializableRefType bmapKey1 = getSRefTypesMap(state).get(BMAP_KEY);
 
         BMap<String, BValue> bmap =
                 (BMap) bmapKey1.getBRefType(compileResult.getProgFile(), state, new Deserializer());
@@ -189,20 +187,20 @@ public class SerializationTest {
         Assert.assertEquals(multiLevel.a, "A");
 
         BigDecimal dec = (BigDecimal) state.globalProps.get(DEC_KEY);
-        Assert.assertTrue(dec.equals(BIG_DECIMAL));
+        Assert.assertEquals(dec, BIG_DECIMAL);
 
         // reference sharing test for BString object
         Object gProp1 = state.globalProps.get(PROP_KEY_1);
         BValue bstring = bmap.get(BSTRING);
-        Assert.assertTrue(gProp1 == bstring);
+        Assert.assertSame(gProp1, bstring);
     }
 
+    @SuppressWarnings("unchecked")
     private Map<String, SerializableRefType> getSRefTypesMap(SerializableState state) throws
             NoSuchFieldException, IllegalAccessException {
         Field sRefTypes = state.getClass().getDeclaredField("sRefTypes");
         sRefTypes.setAccessible(true);
-        Map<String, SerializableRefType> map = (Map<String, SerializableRefType>) sRefTypes.get(state);
-        return map;
+        return (Map<String, SerializableRefType>) sRefTypes.get(state);
     }
 
     private BRefType getInnerBMap() {
@@ -216,6 +214,7 @@ public class SerializationTest {
         return map;
     }
 
+    @SuppressWarnings("unchecked")
     private void mock(SerializableState serializableState) throws NoSuchFieldException, IllegalAccessException {
         BString sharedString = new BString(BSTRING_VALUE); // use in multiple places to test reference sharing.
 

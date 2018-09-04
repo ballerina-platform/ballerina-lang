@@ -33,13 +33,13 @@ public class TypeInstanceProviderFactoryTest {
         TypeInstanceProvider provider = new TypeInstanceProviderFactory().createProvider(Foo.class.getName());
         Object o = provider.newInstance();
         Assert.assertTrue(o instanceof Foo);
-        Assert.assertTrue(((Foo) o).secretNum == 42);
+        Assert.assertEquals(42, ((Foo) o).secretNum);
     }
 
     /**
      * Simple class with a single int field used to testing.
      */
-    public static class Foo {
-        public int secretNum = 42;
+    static class Foo {
+        final int secretNum = 42;
     }
 }

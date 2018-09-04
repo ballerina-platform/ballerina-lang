@@ -42,16 +42,14 @@ import java.util.Arrays;
  * Note: make sure to test reference sharing.
  */
 public class JsonSerializerTest {
-    public static final String STRING_1 = "String1";
-    public static final String STRING_2 = "String2";
-    private CompileResult compileResult;
-    private TestStorageProvider storageProvider;
+    private static final String STRING_1 = "String1";
+    private static final String STRING_2 = "String2";
 
     @BeforeClass
     public void setup() {
-        storageProvider = new TestStorageProvider();
+        TestStorageProvider storageProvider = new TestStorageProvider();
         PersistenceStore.setStorageProvider(storageProvider);
-        compileResult = BCompileUtil.compile("test-src/checkpointing/checkpoint.bal");
+        CompileResult compileResult = BCompileUtil.compile("test-src/checkpointing/checkpoint.bal");
         TestDebugger debugger = new TestDebugger(compileResult.getProgFile());
         compileResult.getProgFile().setDebugger(debugger);
 
@@ -85,11 +83,12 @@ public class JsonSerializerTest {
         BString string1 = (BString) deArray.get(0);
         Assert.assertEquals(string1.value(), STRING_1);
         // reference sharing test
-        Assert.assertTrue(deArray.get(0) == deArray.get(2));
+        Assert.assertSame(deArray.get(0), deArray.get(2));
 
-        Assert.assertTrue(((BInteger) deArray.get(3)).intValue() == 4343);
+        Assert.assertEquals(4343, ((BInteger) deArray.get(3)).intValue());
     }
 
+    @SuppressWarnings("unchecked")
     @Test(description = "Test deserialization of BRefValueArray when elements are maps")
     public void testJsonDeserializeBRefValueArrayReconstructionWithMapElements() {
         BRefValueArray array = new BRefValueArray(new BArrayType(BTypes.typeMap));
@@ -113,6 +112,7 @@ public class JsonSerializerTest {
         BMap map = (BMap) deArray.get(0);
         Assert.assertEquals(((BString) map.get("A")).value(), STRING_1);
         // reference sharing test
+        //noinspection SimplifiedTestNGAssertion
         Assert.assertTrue(deArray.get(2) == deArray.get(3));
     }
 
@@ -132,6 +132,7 @@ public class JsonSerializerTest {
         Assert.assertEquals(array1[2].a, array[2].a);
 
         // test reference sharing
+        //noinspection SimplifiedTestNGAssertion
         Assert.assertTrue(array1[1] == array1[2]);
     }
 
@@ -148,6 +149,7 @@ public class JsonSerializerTest {
         Assert.assertEquals(array1.length, array.length);
         Assert.assertEquals(array1[0].a, array[0].a);
         Assert.assertEquals(array1[1].a, array[1].a);
+        //noinspection SimplifiedTestNGAssertion
         Assert.assertTrue(array[2] == null);
     }
 
@@ -204,13 +206,12 @@ public class JsonSerializerTest {
         ArrayField af = new ArrayField(array);
 
         String serialize = new JsonSerializer().serialize(af);
-        Object deserialize = new JsonSerializer().deserialize(serialize, ArrayField.class);
+        ArrayField deserialize = new JsonSerializer().deserialize(serialize, ArrayField.class);
 
-        ArrayField temp = (ArrayField) deserialize;
-        Assert.assertEquals(temp.array[0], array[0]);
-        Assert.assertEquals(temp.array[1], array[1]);
-        Assert.assertEquals(temp.array[2], array[2]);
-        Assert.assertEquals(temp.array[3], array[3]);
+        Assert.assertEquals(deserialize.array[0], array[0]);
+        Assert.assertEquals(deserialize.array[1], array[1]);
+        Assert.assertEquals(deserialize.array[2], array[2]);
+        Assert.assertEquals(deserialize.array[3], array[3]);
     }
 
 
@@ -224,7 +225,8 @@ public class JsonSerializerTest {
         TestClass targetClass = new JsonSerializer().deserialize(serialize, TestClass.class);
         TestClass[] arr = (TestClass[]) targetClass.obj;
 
-        Assert.assertTrue(arr[0].obj.equals("Item1"));
+        Assert.assertEquals("Item1", arr[0].obj);
+        //noinspection SimplifiedTestNGAssertion
         Assert.assertTrue(arr[1].obj.equals("Item2"));
     }
 
@@ -357,9 +359,9 @@ public class JsonSerializerTest {
     }
 
     static class TestClass {
-        Object obj;
+        final Object obj;
 
-        public TestClass(Object obj) {
+        TestClass(Object obj) {
             this.obj = obj;
         }
     }
@@ -388,27 +390,29 @@ public class JsonSerializerTest {
     }
 
     static class ArrayField {
-        public int[] array;
+        final int[] array;
 
-        public ArrayField(int[] array) {
+        ArrayField(int[] array) {
             this.array = array;
         }
     }
 
 
+    @SuppressWarnings("unused")
     enum TestEnum {
         Item_1, Item_2, Item_N
     }
 
+    @SuppressWarnings({"SameParameterValue", "unused"})
     static class PrimitiveMembers {
-        public int i;
+        final int i;
         public byte b;
         public  char c;
         public short s;
         public float f;
         public double d;
 
-        public PrimitiveMembers(int i) {
+        PrimitiveMembers(int i) {
             this.i = i;
         }
     }

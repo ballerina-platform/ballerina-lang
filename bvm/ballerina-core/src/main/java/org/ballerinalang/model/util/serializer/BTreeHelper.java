@@ -17,6 +17,7 @@
  */
 package org.ballerinalang.model.util.serializer;
 
+import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BRefValueArray;
 import org.ballerinalang.model.values.BString;
@@ -25,16 +26,16 @@ import org.ballerinalang.model.values.BValue;
 import java.util.Set;
 
 /**
- * Helper methods to convert Java objects to BValue objects.
+ * Helper methods to convert Java objects to BValue tree.
  *
  * @since 0.982.0
  */
-class BValueHelper {
+class BTreeHelper {
 
-    private BValueHelper() {
+    private BTreeHelper() {
     }
 
-    static BMap<String, BValue> wrapObject(String type, BValue payload) {
+    static BMap<String, BValue> wrapWithTypeMetadata(String type, BValue payload) {
         BMap<String, BValue> map = new BMap<>();
         map.put(JsonSerializerConst.TYPE_TAG, createBString(type));
         map.put(JsonSerializerConst.PAYLOAD_TAG, payload);
@@ -48,45 +49,6 @@ class BValueHelper {
         return new BString(s);
     }
 
-    static BString getHashCode(Object obj) {
-        return createBString(getHashCode(obj, null, null));
-    }
-
-    static String getHashCode(Object obj, String prefix, String suffix) {
-        StringBuilder sb = new StringBuilder();
-        if (prefix != null) {
-            sb.append(prefix);
-            sb.append("#");
-        }
-        sb.append(obj.getClass().getSimpleName());
-        sb.append("#");
-
-        // hashCode function may throw an exception probably due to programming error,
-        // and it should not interrupt the serialization process.
-
-        int hash;
-        try {
-            hash = obj.hashCode();
-        } catch (RuntimeException e) {
-            // -2 is just a magic number, indicating exception
-            hash = -2;
-        }
-        sb.append(hash);
-        if (suffix != null) {
-            sb.append("#");
-            sb.append(suffix);
-        }
-        return sb.toString();
-    }
-
-    static void addHashValue(Object obj, BMap<String, BValue> map) {
-        if (map == null) {
-            return;
-        }
-        map.put(JsonSerializerConst.HASH_TAG, getHashCode(obj));
-    }
-
-
     /**
      * Walk the object graph and remove the HASH code from nodes that does not repeat.
      *
@@ -94,18 +56,15 @@ class BValueHelper {
      * @param repeatedReferenceSet Set of hashCodes of repeated references.
      */
     @SuppressWarnings("unchecked")
-    public static void trimTree(BValue jsonObj, Set<String> repeatedReferenceSet) {
+    public static void trimTree(BValue jsonObj, Set<Long> repeatedReferenceSet) {
         if (jsonObj == null) {
             return;
         }
         if (jsonObj instanceof BMap) {
             BMap map = (BMap) jsonObj;
-            BString bHashCode = (BString) map.get(JsonSerializerConst.HASH_TAG);
-            if (bHashCode != null) {
-                String hashCode = bHashCode.stringValue();
-                if (!repeatedReferenceSet.contains(hashCode)) {
-                    map.remove(JsonSerializerConst.HASH_TAG);
-                }
+            BInteger objId = (BInteger) map.get(JsonSerializerConst.ID_TAG);
+            if (objId != null && !repeatedReferenceSet.contains(objId.intValue())) {
+                map.remove(JsonSerializerConst.ID_TAG);
             }
             trimTree(map.get(JsonSerializerConst.PAYLOAD_TAG), repeatedReferenceSet);
         }

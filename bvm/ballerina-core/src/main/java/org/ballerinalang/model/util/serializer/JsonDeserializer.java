@@ -53,7 +53,7 @@ class JsonDeserializer implements BValueDeserializer {
     }
 
     private final BValueProvider bValueProvider;
-    private final HashMap<String, Object> identityMap;
+    private final HashMap<Long, Object> identityMap;
     private final BRefType<?> treeHead;
 
     JsonDeserializer(BRefType<?> objTree) {
@@ -139,7 +139,7 @@ class JsonDeserializer implements BValueDeserializer {
      */
     private Object deserializeBRefValueArray(BRefValueArray valueArray, Class<?> targetType) {
         int size = (int) valueArray.size();
-        Class<?> componentType = ObjectHelper.findComponentType(valueArray, targetType);
+        Class<?> componentType = targetType.getComponentType();
         Object target = Array.newInstance(componentType, size);
         return deserializeBRefValueArray(valueArray, target);
     }
@@ -237,19 +237,18 @@ class JsonDeserializer implements BValueDeserializer {
     }
 
     public void addObjReference(BMap<String, BValue> jBMap, Object object) {
-        BValue hash = jBMap.get(JsonSerializerConst.HASH_TAG);
-        if (hash != null) {
-            identityMap.put(hash.stringValue(), object);
+        BInteger objId = (BInteger) jBMap.get(JsonSerializerConst.ID_TAG);
+        if (objId != null) {
+            identityMap.put(objId.intValue(), object);
         }
     }
 
     private Object findExistingReference(BMap<String, BValue> jBMap) {
-        BValue existingKey = jBMap.get(JsonSerializerConst.EXISTING_TAG);
-        if (existingKey != null) {
-            String key = existingKey.stringValue();
-            Object existingObjRef = getExistingObjRef(key);
+        if (jBMap.hasKey(JsonSerializerConst.EXISTING_TAG)) {
+            BInteger existingObjId = (BInteger) jBMap.get(JsonSerializerConst.EXISTING_TAG);
+            Object existingObjRef = getExistingObjRef(existingObjId.intValue());
             if (existingObjRef == null) {
-                throw new BallerinaException("Can not find existing reference: " + existingKey);
+                throw new BallerinaException("Can not find existing reference: " + existingObjId);
             }
             return existingObjRef;
         }
@@ -257,7 +256,7 @@ class JsonDeserializer implements BValueDeserializer {
     }
 
     @Override
-    public Object getExistingObjRef(String key) {
+    public Object getExistingObjRef(long key) {
         return identityMap.get(key);
     }
 
@@ -273,8 +272,8 @@ class JsonDeserializer implements BValueDeserializer {
         if (Enum.class.isAssignableFrom(target)) {
             return createEnumInstance(jsonNode);
         }
-        BValue typeNode = jsonNode.get(JsonSerializerConst.TYPE_TAG);
-        if (typeNode != null) {
+        if (jsonNode.hasKey(JsonSerializerConst.TYPE_TAG)) {
+            BValue typeNode = jsonNode.get(JsonSerializerConst.TYPE_TAG);
             String type = typeNode.stringValue();
             if (type.equals(JsonSerializerConst.ARRAY_TAG)) {
                 return createArrayInstance(jsonNode);
@@ -301,7 +300,7 @@ class JsonDeserializer implements BValueDeserializer {
     @SuppressWarnings("unchecked")
     private Object createEnumInstance(BMap jsonNode) {
         String enumName = jsonNode.get(JsonSerializerConst.PAYLOAD_TAG).stringValue();
-        int separatorPos = enumName.lastIndexOf('.');
+        int separatorPos = enumName.lastIndexOf(JsonSerializerConst.ENUM_SEPERATOR);
         String type = enumName.substring(0, separatorPos);
         String enumConst = enumName.substring(separatorPos + 1);
 
@@ -331,7 +330,7 @@ class JsonDeserializer implements BValueDeserializer {
         HashMap<String, Field> allFields = ObjectHelper.getAllFields(targetClass, 0);
 
         for (String fieldName : fieldMap.keys()) {
-            if (fieldName.equals(JsonSerializerConst.HASH_TAG)) {
+            if (fieldName.equals(JsonSerializerConst.ID_TAG)) {
                 // it's a metadata entry.
                 continue;
             }

@@ -38,6 +38,7 @@ import java.util.Map;
  * Test serialization and deserialization of complex object structures.
  */
 public class ComplexObjectSerializationTest {
+    @SuppressWarnings("unchecked")
     @Test(description = "Test serialize/deserialize HttpResponse Object")
     public void testJsonDeserializeHttpResponse() {
         BValue bTree = new BMap<String, BValue>();
@@ -51,9 +52,10 @@ public class ComplexObjectSerializationTest {
         HttpResponse deserializedResponse = new JsonSerializer()
                 .deserialize(serialize, DefaultFullHttpResponse.class);
 
-        Assert.assertTrue(deserializedResponse.status().equals(HttpResponseStatus.OK));
+        Assert.assertEquals(deserializedResponse.status(), HttpResponseStatus.OK);
     }
 
+    @SuppressWarnings("unchecked")
     @Test(description = "Test serializing complex keys in a Map")
     public void testComplexKeysInAMap() {
         JsonSerializer jsonSerializer = new JsonSerializer();
@@ -69,7 +71,7 @@ public class ComplexObjectSerializationTest {
 
     private Map mockComplexKeyMap() {
         Map<JsonSerializerTest.StringFieldA, Map<String, Boolean>> map = new HashMap<>();
-        Map innerMap = new HashMap();
+        Map<String, Boolean> innerMap = new HashMap<>();
         innerMap.put("InnerK", true);
         map.put(new JsonSerializerTest.StringFieldA("Key1"), innerMap);
         map.put(new JsonSerializerTest.StringFieldA("Key2"), innerMap);
@@ -85,6 +87,7 @@ public class ComplexObjectSerializationTest {
         Assert.assertEquals(((Shadowee) newSh).i, ((Shadowee) sh).i);
     }
 
+    @SuppressWarnings("unchecked")
     @Test(description = "Test BMap containing BMaps")
     public void testNestedBMaps() {
         BMap<String, BMap<String, BString>> nested = new BMap<>();
@@ -124,15 +127,16 @@ public class ComplexObjectSerializationTest {
     }
 
     static class Shadowee {
-        private int i;
+        private final int i;
 
         Shadowee(int i) {
             this.i = i;
         }
     }
 
+    @SuppressWarnings("SameParameterValue")
     static class Shadower extends Shadowee {
-        private double i;
+        private final double i;
 
         Shadower(double i, int j) {
             super(j);
@@ -140,9 +144,10 @@ public class ComplexObjectSerializationTest {
         }
     }
 
+    @SuppressWarnings("SameParameterValue")
     static class ReadResolverClass implements Serializable {
         boolean resolved = false;
-        int i;
+        final int i;
 
         ReadResolverClass(int i) {
             this.i = i;

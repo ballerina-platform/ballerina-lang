@@ -94,7 +94,8 @@ public class JsonSerializer implements ObjectToJsonSerializer {
         if (object == null) {
             return null;
         }
-        try (BValueTree treeMaker = new BValueTree()) {
+        try {
+            BValueTree treeMaker = new BValueTree();
             BRefType bValueTree = treeMaker.toBValueTree(object);
             return generateJson(bValueTree);
         } catch (Exception e) {

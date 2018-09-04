@@ -27,20 +27,18 @@ import org.ballerinalang.model.values.BRefType;
 import org.ballerinalang.model.values.BRefValueArray;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.util.exceptions.BallerinaException;
 
-import java.io.Closeable;
 import java.lang.reflect.Array;
 import java.lang.reflect.Field;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.IdentityHashMap;
 import java.util.List;
 import java.util.Map;
 
-import static org.ballerinalang.model.util.serializer.BValueHelper.addHashValue;
-import static org.ballerinalang.model.util.serializer.BValueHelper.createBString;
-import static org.ballerinalang.model.util.serializer.BValueHelper.getHashCode;
-import static org.ballerinalang.model.util.serializer.BValueHelper.wrapObject;
+import static org.ballerinalang.model.util.serializer.BTreeHelper.createBString;
+import static org.ballerinalang.model.util.serializer.BTreeHelper.wrapWithTypeMetadata;
+import static org.ballerinalang.model.util.serializer.JsonSerializerConst.ENUM_SEPERATOR;
 import static org.ballerinalang.model.util.serializer.ObjectHelper.getTrimmedClassName;
 
 /**
@@ -51,15 +49,12 @@ import static org.ballerinalang.model.util.serializer.ObjectHelper.getTrimmedCla
  *
  * @since 0.982.0
  */
-public class BValueTree implements BValueSerializer, Closeable {
+public class BValueTree implements BValueSerializer {
     private static final BValueProvider bValueProvider = BValueProvider.getInstance();
-    private final IdentityHashMap<Object, Object> identityMap = new IdentityHashMap<>();
-    private final HashSet<String> repeatedReferenceSet = new HashSet<>();
     private final BRefValueArrays bRefValueArrays;
-    private boolean isClosed;
+    private final ObjectUID objectUID = new ObjectUID();
 
     BValueTree() {
-        isClosed = false;
         bRefValueArrays = new BRefValueArrays(this);
     }
 
@@ -70,13 +65,9 @@ public class BValueTree implements BValueSerializer, Closeable {
      * @return Converted {@link BValue} tree
      */
     BRefType toBValueTree(Object src) {
-        try {
-            BRefType tree = toBValue(src, src.getClass());
-            BValueHelper.trimTree(tree, repeatedReferenceSet);
-            return tree;
-        } finally {
-            closePrivate();
-        }
+        BRefType tree = toBValue(src, src.getClass());
+        BTreeHelper.trimTree(tree, objectUID.getRepeatedReferences());
+        return tree;
     }
 
     public BRefType toBValue(Object src, Class<?> leftSideType) {
@@ -123,18 +114,20 @@ public class BValueTree implements BValueSerializer, Closeable {
         BMap<String, BValue> complexKeyMap = new BMap<>();
         for (Map.Entry<Object, Object> entry : source.entrySet()) {
             Object key = entry.getKey();
+            BRefType serializedValue = toBValue(entry.getValue(), null);
             if (key instanceof String) {
-                target.put((String) key, toBValue(entry.getValue(), null));
+                target.put((String) key, serializedValue);
             } else {
-                String complexKeyHash = getHashCode(key, JsonSerializerConst.COMPLEX_KEY_TAG, null);
-                target.put(complexKeyHash, toBValue(entry.getValue(), null));
-                complexKeyMap.put(complexKeyHash, toBValue(key, null));
+                BRefType serializedKey = toBValue(key, null);
+                String complexKeyId = Long.toString(objectUID.findUID(key));
+                target.put(complexKeyId, serializedValue);
+                complexKeyMap.put(complexKeyId, serializedKey);
             }
         }
         if (!complexKeyMap.isEmpty()) {
             target.put(JsonSerializerConst.COMPLEX_KEY_MAP_TAG, complexKeyMap);
         }
-        return wrapObject(JsonSerializerConst.MAP_TAG, target);
+        return wrapWithTypeMetadata(JsonSerializerConst.MAP_TAG, target);
     }
 
     private BMap<String, BValue> listToBValue(List list) {
@@ -142,15 +135,15 @@ public class BValueTree implements BValueSerializer, Closeable {
         for (Object item : list) {
             array.append(toBValue(item, null));
         }
-        BMap<String, BValue> bMap = wrapObject(JsonSerializerConst.LIST_TAG, array);
+        BMap<String, BValue> bMap = wrapWithTypeMetadata(JsonSerializerConst.LIST_TAG, array);
         bMap.put(JsonSerializerConst.LENGTH_TAG, new BInteger(list.size()));
         return bMap;
     }
 
     private BMap enumToBValue(Enum obj) {
-        String fullEnumName = getTrimmedClassName(obj) + "." + obj.toString();
+        String fullEnumName = getTrimmedClassName(obj) + ENUM_SEPERATOR + obj.toString();
         BString name = createBString(fullEnumName);
-        return wrapObject(JsonSerializerConst.ENUM_TAG, name);
+        return wrapWithTypeMetadata(JsonSerializerConst.ENUM_TAG, name);
     }
 
 
@@ -214,38 +207,28 @@ public class BValueTree implements BValueSerializer, Closeable {
     }
 
     @SuppressWarnings("unchecked")
-    private BMap convertReferenceSemanticObject(Object obj, Class<?> leftSideType) {
-        if (isPreviouslySeen(obj)) {
+    private BMap<String, BValue> convertReferenceSemanticObject(Object obj, Class<?> leftSideType) {
+        if (objectUID.isTracked(obj)) {
             return createExistingReferenceNode(obj);
         }
-        registerAsSeen(obj);
+        objectUID.track(obj);
 
+        BMap<String, BValue> converted;
         String className = getTrimmedClassName(obj);
         SerializationBValueProvider provider = bValueProvider.find(className);
         if (provider != null) {
-            BMap<String, BValue> converted = provider.toBValue(obj, this).toBMap();
-            addHashValue(obj, converted);
-            return converted;
+            converted = provider.toBValue(obj, this).toBMap();
+        } else if (obj instanceof Map) {
+            converted = mapToBValue((Map) obj);
+        } else if (obj instanceof List) {
+            converted = listToBValue((List) obj);
+        } else if (obj.getClass().isArray()) {
+            converted = arrayToBValue(obj);
+        } else {
+            converted = convertToBValueViaReflection(obj, leftSideType);
         }
-        if (obj instanceof Map) {
-            BMap map = mapToBValue((Map) obj);
-            addHashValue(obj, map);
-            return map;
-        }
-        if (obj instanceof List) {
-            BMap<String, BValue> map = listToBValue((List) obj);
-            addHashValue(obj, map);
-            return map;
-        }
-        if (obj.getClass().isArray()) {
-            BMap<String, BValue> map = arrayToBValue(obj);
-            addHashValue(obj, map);
-            return map;
-        }
-
-        BMap map = convertToBValueViaReflection(obj, leftSideType);
-        addHashValue(obj, map);
-        return map;
+        objectUID.addUID(obj, converted);
+        return converted;
     }
 
     private BMap<String, BValue> arrayToBValue(Object array) {
@@ -255,7 +238,7 @@ public class BValueTree implements BValueSerializer, Closeable {
             bArray.append(toBValue(Array.get(array, i), null));
         }
 
-        BMap<String, BValue> bMap = wrapObject(JsonSerializerConst.ARRAY_TAG, bArray);
+        BMap<String, BValue> bMap = wrapWithTypeMetadata(JsonSerializerConst.ARRAY_TAG, bArray);
         bMap.put(JsonSerializerConst.LENGTH_TAG, new BInteger(arrayLength));
         Class<?> componentType = array.getClass().getComponentType();
         String trimmedName = getTrimmedClassName(componentType);
@@ -263,26 +246,18 @@ public class BValueTree implements BValueSerializer, Closeable {
         return bMap;
     }
 
-    private void registerAsSeen(Object obj) {
-        identityMap.put(obj, obj);
-    }
-
-    private boolean isPreviouslySeen(Object obj) {
-        return identityMap.containsKey(obj);
-    }
-
     private BMap<String, BValue> createExistingReferenceNode(Object obj) {
         BMap<String, BValue> map = new BMap<>();
-        BString hashCode = getHashCode(obj);
-        map.put(JsonSerializerConst.EXISTING_TAG, hashCode);
-        repeatedReferenceSet.add(hashCode.stringValue());
+        long objId = objectUID.findUID(obj);
+        map.put(JsonSerializerConst.EXISTING_TAG, new BInteger(objId));
+        objectUID.addRepeatedRef(objId);
         return map;
     }
 
-    private BMap convertToBValueViaReflection(Object obj, Class<?> leftSideType) {
-        Class<?> objClass = obj.getClass();
+    private BMap convertToBValueViaReflection(Object obj, Class<?> targetFieldType) {
+        Class<?> objectType = obj.getClass();
         BMap<String, BValue> map = new BMap<>();
-        HashMap<String, Field> allFields = ObjectHelper.getAllFields(objClass, 0);
+        HashMap<String, Field> allFields = ObjectHelper.getAllFields(objectType, 0);
         for (Map.Entry<String, Field> fieldEntry : allFields.entrySet()) {
             String fieldName = fieldEntry.getKey();
             Field field = fieldEntry.getValue();
@@ -290,28 +265,17 @@ public class BValueTree implements BValueSerializer, Closeable {
             try {
                 map.put(fieldName, toBValue(field.get(obj), field.getType()));
             } catch (IllegalAccessException e) {
-                // field is set to be accessible
+                throw new BallerinaException(String.format("Error while reflective field access: %s.%s",
+                        objectType.getName(), fieldName),
+                        e);
             }
         }
 
-        if (leftSideType != objClass) {
+        if (targetFieldType != objectType) {
             String className = getTrimmedClassName(obj);
-            return wrapObject(className, map);
+            return wrapWithTypeMetadata(className, map);
         } else {
             return map;
         }
-    }
-
-    private void closePrivate() {
-        if (!isClosed) {
-            identityMap.clear();
-            repeatedReferenceSet.clear();
-            isClosed = true;
-        }
-    }
-
-    @Override
-    public void close() {
-        closePrivate();
     }
 }

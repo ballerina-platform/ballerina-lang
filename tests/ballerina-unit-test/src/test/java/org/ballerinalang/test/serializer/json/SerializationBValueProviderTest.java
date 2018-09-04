@@ -46,7 +46,7 @@ import static org.ballerinalang.model.util.serializer.JsonSerializerConst.PAYLOA
 public class SerializationBValueProviderTest {
 
     private static final String NUMBER = "2345232323";
-    BValueSerializer serializer;
+    private BValueSerializer serializer;
 
     @BeforeMethod
     public void setup() throws NoSuchMethodException,
@@ -68,7 +68,7 @@ public class SerializationBValueProviderTest {
         BPacket value = provider.toBValue(new BigInteger(NUMBER), serializer);
 
         BValue payload = value.get(PAYLOAD_TAG);
-        Assert.assertTrue(payload.stringValue().equals(NUMBER));
+        Assert.assertEquals(payload.stringValue(), NUMBER);
     }
 
     @Test(description = "test BValue to BigInt conversion")
@@ -77,9 +77,9 @@ public class SerializationBValueProviderTest {
                 new NumericBValueProviders.BigIntegerBValueProvider();
         BPacket value = provider.toBValue(new BigInteger(NUMBER), serializer);
 
-        Object object = provider.toObject(value, null);
-        Assert.assertTrue(object instanceof BigInteger);
-        Assert.assertTrue(((BigInteger) object).toString(10).equals(NUMBER));
+        BigInteger object = provider.toObject(value, null);
+        Assert.assertNotNull(object);
+        Assert.assertEquals(object.toString(10), NUMBER);
     }
 
     @Test(description = "test BValue to/from BigDecimal conversion")
@@ -89,8 +89,8 @@ public class SerializationBValueProviderTest {
         BPacket value = provider.toBValue(new BigDecimal(NUMBER), serializer);
 
         BigDecimal object = provider.toObject(value, null);
-        Assert.assertTrue(object != null);
-        Assert.assertTrue(object.toString().equals(NUMBER));
+        Assert.assertNotNull(object);
+        Assert.assertEquals(object.toString(), NUMBER);
     }
 
     @Test(description = "test Date SerializationBValue")
@@ -138,6 +138,6 @@ public class SerializationBValueProviderTest {
         JsonSerializer serializer = new JsonSerializer();
         String serialize = serializer.serialize(new BString(null));
         BString deserialize = serializer.deserialize(serialize, BString.class);
-        Assert.assertTrue(deserialize.stringValue() == null);
+        Assert.assertNull(deserialize.stringValue());
     }
 }
