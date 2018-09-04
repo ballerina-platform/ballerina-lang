@@ -58,6 +58,7 @@
 
     <test name="ballerina-http2-tests" parallel="false">
         <classes>
+            <class name="org.ballerinalang.test.service.http2.Http2BaseTest"/>
             <class name="org.ballerinalang.test.service.http2.Http2ServerPushTestCase"/>
             <class name="org.ballerinalang.test.service.http2.Http2ToHttp1FallbackTestCase"/>
             <class name="org.ballerinalang.test.service.http2.RedirectTestCase"/>
@@ -71,6 +72,7 @@
             </run>
         </groups>
         <classes>
+            <class name="org.ballerinalang.test.auth.AuthBaseTest"/>
             <class name="org.ballerinalang.test.auth.AuthnConfigInheritanceAuthDisableTest"/>
             <class name="org.ballerinalang.test.auth.AuthnConfigInheritanceTest"/>
             <class name="org.ballerinalang.test.auth.AuthzConfigInheritanceTest"/>
@@ -81,6 +83,7 @@
 
     <test name="ballerina-filter-tests" parallel="false">
         <classes>
+            <class name="org.ballerinalang.test.filter.FilterBaseTest"/>
             <class name="org.ballerinalang.test.filter.MultpleFiltersTestCase"/>
             <class name="org.ballerinalang.test.filter.InvocationContextTestCase"/>
             <class name="org.ballerinalang.test.filter.SingleFilterTestCase"/>
@@ -108,6 +111,7 @@
             </run>
         </groups>
         <classes>
+            <class name="org.ballerinalang.test.securelistener.SecureListenerBaseTest"/>
             <class name="org.ballerinalang.test.securelistener.NoTokenPropagationTest"/>
             <class name="org.ballerinalang.test.securelistener.SecureClientWrongAuthProviderTest"/>
             <class name="org.ballerinalang.test.securelistener.SecureListenerNonSpecificHandlerTest"/>

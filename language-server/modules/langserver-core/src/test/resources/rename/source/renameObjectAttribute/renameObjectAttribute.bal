@@ -6,7 +6,7 @@ type TestObject object {
     new(age, name) {}
 };
 
-function main(string... args) {
+public function main(string... args) {
     TestObject obj = new(30, "John");
     int age = obj.age;
     io:println(obj.age);

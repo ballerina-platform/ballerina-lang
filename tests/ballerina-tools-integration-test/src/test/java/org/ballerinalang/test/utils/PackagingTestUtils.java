@@ -23,6 +23,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -55,9 +56,11 @@ public class PackagingTestUtils {
      *
      * @return env directory variable array
      */
-    public static String[] getEnvVariables() {
+    public static Map<String, String> getEnvVariables() {
         Map<String, String> envVarMap = System.getenv();
-        return envVarMap.keySet().stream().map(k -> k + "=" + envVarMap.get(k)).toArray(String[]::new);
+        Map<String, String> retMap = new HashMap<>();
+        envVarMap.forEach(retMap::put);
+        return retMap;
     }
 
     /**

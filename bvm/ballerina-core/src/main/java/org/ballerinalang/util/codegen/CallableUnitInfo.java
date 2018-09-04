@@ -39,6 +39,7 @@ public class CallableUnitInfo implements AttributeInfoPool, WorkerInfoPool {
     protected String pkgPath;
     protected String name;
     protected boolean isNative;
+    private boolean isPublic;
 
     // Index to the PackageCPEntry
     protected int pkgCPIndex;
@@ -138,6 +139,14 @@ public class CallableUnitInfo implements AttributeInfoPool, WorkerInfoPool {
 
     public void setNative(boolean aNative) {
         isNative = aNative;
+    }
+
+    public boolean isPublic() {
+        return isPublic;
+    }
+
+    public void setPublic(boolean isPublic) {
+        this.isPublic = isPublic;
     }
 
     public BType[] getParamTypes() {

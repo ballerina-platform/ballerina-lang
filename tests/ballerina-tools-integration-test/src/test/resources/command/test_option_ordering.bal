@@ -15,6 +15,6 @@
 // under the License.
 import ballerina/io;
 
-function main(string... args) {
+public function main(string... args) {
     io:println("Hello World");
 }
