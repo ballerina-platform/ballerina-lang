@@ -41,20 +41,11 @@ import java.nio.file.attribute.FileTime;
 import java.nio.file.attribute.PosixFilePermission;
 import java.nio.file.attribute.PosixFilePermissions;
 import java.util.Comparator;
+import java.util.EnumSet;
 import java.util.HashSet;
 import java.util.Set;
 
 import static org.awaitility.Awaitility.await;
-
-import static java.nio.file.attribute.PosixFilePermission.GROUP_EXECUTE;
-import static java.nio.file.attribute.PosixFilePermission.GROUP_READ;
-import static java.nio.file.attribute.PosixFilePermission.GROUP_WRITE;
-import static java.nio.file.attribute.PosixFilePermission.OTHERS_EXECUTE;
-import static java.nio.file.attribute.PosixFilePermission.OTHERS_READ;
-import static java.nio.file.attribute.PosixFilePermission.OTHERS_WRITE;
-import static java.nio.file.attribute.PosixFilePermission.OWNER_EXECUTE;
-import static java.nio.file.attribute.PosixFilePermission.OWNER_READ;
-import static java.nio.file.attribute.PosixFilePermission.OWNER_WRITE;
 import static java.util.concurrent.TimeUnit.MINUTES;
 
 /**
@@ -78,16 +69,7 @@ public class DirectoryListenerConnectorTest {
     }
 
     private FileAttribute<Set<PosixFilePermission>> getFileAttribute() {
-        Set<PosixFilePermission> perms = new HashSet<>();
-        perms.add(OWNER_READ);
-        perms.add(OWNER_WRITE);
-        perms.add(OWNER_EXECUTE);
-        perms.add(GROUP_READ);
-        perms.add(GROUP_WRITE);
-        perms.add(GROUP_EXECUTE);
-        perms.add(OTHERS_READ);
-        perms.add(OTHERS_WRITE);
-        perms.add(OTHERS_EXECUTE);
+        Set<PosixFilePermission> perms = new HashSet<>(EnumSet.allOf(PosixFilePermission.class));
         return PosixFilePermissions.asFileAttribute(perms);
     }
 
