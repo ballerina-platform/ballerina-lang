@@ -14,9 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-documentation {
-    Represents the InvocationContext.
-}
+# Represents the InvocationContext.
 public type InvocationContext record {
     string id;
     UserPrincipal userPrincipal;
@@ -24,17 +22,13 @@ public type InvocationContext record {
     map attributes;
 };
 
-documentation {
-    Represents the AuthenticationContext, populated with authenticated information.
-}
+# Represents the AuthenticationContext, populated with authenticated information.
 public type AuthContext record {
     string scheme;
     string authToken;
 };
 
-documentation {
-    Represents the UserPrincipal, populated with authenticated user information.
-}
+# Represents the UserPrincipal, populated with authenticated user information.
 public type UserPrincipal record {
     string userId;
     string username;
@@ -42,9 +36,7 @@ public type UserPrincipal record {
     string[] scopes;
 };
 
-documentation {
-    Creates a InvocationContext instance.
-
-    R{{}} InvocationContext instance
-}
-public extern function getInvocationContext() returns (InvocationContext);
+# Creates a InvocationContext instance.
+#
+# + return - InvocationContext instance
+public extern function getInvocationContext() returns InvocationContext;

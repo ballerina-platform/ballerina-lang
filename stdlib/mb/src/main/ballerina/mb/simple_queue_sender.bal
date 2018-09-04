@@ -16,12 +16,10 @@
 
 import ballerina/log;
 
-documentation { Simplified queue sender endpoint.
-    A new connection and a session will be create when this endpoint is initialize.
-
-    E{{}}
-    F{{config}} configurations related to the SimpleQueueSender endpoint
-}
+# Simplified queue sender endpoint.
+# A new connection and a session will be create when this endpoint is initialize.
+#
+# + config - configurations related to the SimpleQueueSender endpoint
 public type SimpleQueueSender object {
 
     public SimpleQueueSenderEndpointConfiguration config;
@@ -29,9 +27,9 @@ public type SimpleQueueSender object {
     private jms:SimpleQueueSender? sender;
     private QueueSenderActions? producerActions;
 
-    documentation { Initialize the SimpleQueueSender endpoint
-        P{{c}} Configurations related to the SimpleQueueSender endpoint
-    }
+    # Initialize the SimpleQueueSender endpoint
+    #
+    # + c - Configurations related to the SimpleQueueSender endpoint
     public function init(SimpleQueueSenderEndpointConfiguration c) {
         endpoint jms:SimpleQueueSender queueSender {
             initialContextFactory:"bmbInitialContextFactory",
@@ -46,20 +44,20 @@ public type SimpleQueueSender object {
         self.config = c;
     }
 
-    documentation { Registers the endpoint in the service.
-        This method is not used since SimpleQueueSender is a non-service endpoint.
-        P{{serviceType}} type descriptor of the service
-    }
+    # Registers the endpoint in the service.
+    # This method is not used since SimpleQueueSender is a non-service endpoint.
+    #
+    # + serviceType - type descriptor of the service
     public function register(typedesc serviceType) {
 
     }
 
-    documentation { Starts the SimpleQueueSender endpoint }
+    # Starts the SimpleQueueSender endpoint
     public function start() {
 
     }
 
-    documentation { Returns the caller action object of the SimpleQueueSender }
+    # Returns the caller action object of the SimpleQueueSender
     public function getCallerActions() returns QueueSenderActions {
         match (self.producerActions) {
             QueueSenderActions s => return s;
@@ -70,14 +68,14 @@ public type SimpleQueueSender object {
         }
     }
 
-    documentation { Stops the  SimpleQueueSender endpoint }
+    # Stops the  SimpleQueueSender endpoint
     public function stop() {
 
     }
 
-    documentation { Creates a message which holds text content
-        P{{content}} the text content used to initialize this message
-    }
+    # Creates a message which holds text content
+    #
+    # + content - the text content used to initialize this message
     public function createTextMessage(string content) returns Message|error {
         match (self.sender) {
             jms:SimpleQueueSender s => {
@@ -95,16 +93,16 @@ public type SimpleQueueSender object {
     }
 };
 
-documentation { Caller action handler related to SimpleQueueSender endpoint }
+# Caller action handler related to SimpleQueueSender endpoint
 public type QueueSenderActions object {
 
     private jms:SimpleQueueSender sender;
 
     new(sender) {}
 
-    documentation { Sends a message to Ballerina message broker
-        P{{message}} message to be sent to Ballerina message broker
-    }
+    # Sends a message to Ballerina message broker
+    #
+    # + message - message to be sent to Ballerina message broker
     public function send(Message message) returns error? {
         endpoint jms:SimpleQueueSender senderEP = self.sender;
         var result = senderEP->send(message.getJMSMessage());
@@ -112,18 +110,18 @@ public type QueueSenderActions object {
     }
 };
 
-documentation { Configurations related to SimpleQueueSender endpoint
-    F{{username}} The caller's user name
-    F{{password}} The caller's password
-    F{{host}} Hostname of the broker node
-    F{{port}} AMQP port of the broker node
-    F{{clientID}} Identifier used to uniquely identify the client connection
-    F{{virtualHost}} target virtualhost
-    F{{acknowledgementMode}} specifies the session mode that will be used. Legal values are "AUTO_ACKNOWLEDGE",
-    "CLIENT_ACKNOWLEDGE", "SESSION_TRANSACTED" and "DUPS_OK_ACKNOWLEDGE"
-    F{{properties}} Additional properties use in initializing the initial context
-    F{{queueName}} Name of the target queue
-}
+# Configurations related to SimpleQueueSender endpoint
+#
+# + username - The caller's user name
+# + password - The caller's password
+# + host - Hostname of the broker node
+# + port - AMQP port of the broker node
+# + clientID - Identifier used to uniquely identify the client connection
+# + virtualHost - target virtualhost
+# + acknowledgementMode - specifies the session mode that will be used. Legal values are "AUTO_ACKNOWLEDGE",
+#                         "CLIENT_ACKNOWLEDGE", "SESSION_TRANSACTED" and "DUPS_OK_ACKNOWLEDGE"
+# + properties - Additional properties use in initializing the initial context
+# + queueName - Name of the target queue
 public type SimpleQueueSenderEndpointConfiguration record {
     string username = "admin",
     string password = "admin",

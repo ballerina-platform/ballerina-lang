@@ -20,7 +20,6 @@ package org.ballerinalang.test.service.grpc.sample;
 
 import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.CompileResult;
-import org.ballerinalang.test.BaseTest;
 import org.ballerinalang.test.util.TestUtils;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
@@ -33,7 +32,7 @@ import java.nio.file.Paths;
 /**
  * Test gRPC service build when invalid message type is passed. Should get a compilation error.
  */
-public class InvalidMessageTypeTestCase extends BaseTest {
+public class InvalidMessageTypeTestCase extends GrpcBaseTest {
     
     @BeforeClass
     private void setup() throws Exception {
@@ -43,7 +42,8 @@ public class InvalidMessageTypeTestCase extends BaseTest {
     @Test(description = "Test gRPC service build when invalid message type is passed as request. Should get a " +
             "compilation error.")
     public void testInvalidRequestMessageType() {
-        Path balFilePath = Paths.get("src", "test", "resources", "grpc", "invalid_request_message.bal");
+        Path balFilePath = Paths.get("src", "test", "resources", "grpc",
+                "errorservices", "invalid_request_message.bal");
         CompileResult result = BCompileUtil.compile(balFilePath.toAbsolutePath().toString());
         Assert.assertEquals(result.getErrorCount(), 1);
         Assert.assertEquals(((BDiagnostic) result.getDiagnostics()[0]).msg, "Invalid message type. Message type " +
@@ -54,7 +54,8 @@ public class InvalidMessageTypeTestCase extends BaseTest {
     @Test(description = "Test gRPC service build when invalid message type is passed as response. Should get a " +
             "compilation error.")
     public void testInvalidResponseMessageType() {
-        Path balFilePath = Paths.get("src", "test", "resources", "grpc", "invalid_response_message.bal");
+        Path balFilePath = Paths.get("src", "test", "resources", "grpc",
+                "errorservices", "invalid_response_message.bal");
         CompileResult result = BCompileUtil.compile(balFilePath.toAbsolutePath().toString());
         Assert.assertEquals(result.getErrorCount(), 1);
         Assert.assertEquals(((BDiagnostic) result.getDiagnostics()[0]).msg, "Invalid message type. Message type " +

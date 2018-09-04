@@ -48,6 +48,7 @@ import org.ballerinalang.langserver.signature.SignatureHelpUtil;
 import org.ballerinalang.langserver.signature.SignatureTreeVisitor;
 import org.ballerinalang.langserver.symbols.SymbolFindingVisitor;
 import org.ballerinalang.langserver.util.Debouncer;
+import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.tree.ImportPackageNode;
 import org.ballerinalang.model.tree.TopLevelNode;
 import org.eclipse.lsp4j.CodeActionParams;
@@ -217,6 +218,7 @@ class BallerinaTextDocumentService implements TextDocumentService {
                 SignatureHelp signatureHelp;
                 BLangPackage bLangPackage = lsCompiler.getBLangPackage(signatureContext, documentManager, false,
                         LSCustomErrorStrategy.class, false).getRight();
+                signatureContext.put(DocumentServiceKeys.CURRENT_BLANG_PACKAGE_CONTEXT_KEY, bLangPackage);
                 signatureContext.put(DocumentServiceKeys.CURRENT_PACKAGE_NAME_KEY,
                                      bLangPackage.symbol.getName().getValue());
                 SignatureTreeVisitor signatureTreeVisitor = new SignatureTreeVisitor(signatureContext);
@@ -292,12 +294,19 @@ class BallerinaTextDocumentService implements TextDocumentService {
                 PositionTreeVisitor positionTreeVisitor = new PositionTreeVisitor(referenceContext);
                 currentBLangPackage.accept(positionTreeVisitor);
 
+                // Add all compiled package IDs
+                List<PackageID> packageIds = new ArrayList<>();
+                for (BLangPackage bLangPackage : bLangPackages) {
+                    packageIds.add(bLangPackage.packageID);
+                }
+                referenceContext.put(NodeContextKeys.REFERENCE_PKG_IDS_KEY, packageIds);
+                referenceContext.put(NodeContextKeys.REFERENCE_RESULTS_KEY, contents);
+
                 // Run reference visitor for all the packages in project folder.
                 for (BLangPackage bLangPackage : bLangPackages) {
                     referenceContext.put(DocumentServiceKeys.CURRENT_PACKAGE_NAME_KEY,
                                          bLangPackage.symbol.getName().getValue());
-                    referenceContext.put(NodeContextKeys.REFERENCE_NODES_KEY, contents);
-                    contents = ReferenceUtil.getReferences(referenceContext, bLangPackage);
+                    ReferenceUtil.findReferences(referenceContext, bLangPackage);
                 }
 
                 return contents;
@@ -474,12 +483,19 @@ class BallerinaTextDocumentService implements TextDocumentService {
 
                 renameContext.put(DocumentServiceKeys.CURRENT_PACKAGE_NAME_KEY,
                                   currentBLangPackage.symbol.getName().getValue());
-                renameContext.put(NodeContextKeys.REFERENCE_NODES_KEY, contents);
+                renameContext.put(NodeContextKeys.REFERENCE_RESULTS_KEY, contents);
 
                 // Run the position calculator for the current package.
                 PositionTreeVisitor positionTreeVisitor = new PositionTreeVisitor(renameContext);
                 currentBLangPackage.accept(positionTreeVisitor);
                 String replaceableSymbolName = renameContext.get(NodeContextKeys.NAME_OF_NODE_KEY);
+
+                // Add all compiled package IDs
+                List<PackageID> packageIds = new ArrayList<>();
+                for (BLangPackage bLangPackage : bLangPackages) {
+                    packageIds.add(bLangPackage.packageID);
+                }
+                renameContext.put(NodeContextKeys.REFERENCE_PKG_IDS_KEY, packageIds);
 
                 // Run reference visitor and rename util for project folder.
                 for (BLangPackage bLangPackage : bLangPackages) {
@@ -492,11 +508,10 @@ class BallerinaTextDocumentService implements TextDocumentService {
                                                                                   documentManager);
                     LSPackageCache.getInstance(context).put(bLangPackage.packageID, bLangPackage);
 
-                    contents = ReferenceUtil.getReferences(renameContext, bLangPackage);
+                    ReferenceUtil.findReferences(renameContext, bLangPackage);
                 }
 
-                workspaceEdit.setDocumentChanges(RenameUtil
-                                                         .getRenameTextEdits(contents, documentManager,
+                workspaceEdit.setDocumentChanges(RenameUtil.getRenameTextEdits(contents, documentManager,
                                                                              params.getNewName(),
                                                                              replaceableSymbolName));
                 return workspaceEdit;

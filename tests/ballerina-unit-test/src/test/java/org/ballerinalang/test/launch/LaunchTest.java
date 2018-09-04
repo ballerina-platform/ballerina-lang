@@ -18,12 +18,17 @@
 package org.ballerinalang.test.launch;
 
 import org.ballerinalang.compiler.BLangCompilerException;
+import org.ballerinalang.launcher.LauncherUtils;
 import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.util.exceptions.BLangRuntimeException;
 import org.testng.Assert;
 import org.testng.annotations.Test;
+
+import java.nio.file.Paths;
+import java.util.HashMap;
 
 /**
  * Tests running packages.
@@ -51,5 +56,20 @@ public class LaunchTest {
         Assert.assertEquals(compileResult.getErrorCount(), 0);
         BValue[] result = BRunUtil.invoke(compileResult, "foo");
         Assert.assertEquals(result[0].stringValue(), "hello!");
+    }
+
+    @Test(expectedExceptions = { BLangRuntimeException.class },
+            expectedExceptionsMessageRegExp = "ballerina: cannot find program file 'non_existing.balx'")
+    public void testNonExistingBalx() {
+        LauncherUtils.runProgram(Paths.get("test-src", "launch"), Paths.get("non_existing.balx"), new HashMap<>(),
+                                 null, new String[]{}, true, false);
+    }
+
+    @Test(expectedExceptions = { BLangRuntimeException.class },
+            expectedExceptionsMessageRegExp = ".*error: error, message: 'string' cannot be converted to 'int'.*")
+    public void testMainFailureWithService() {
+        LauncherUtils.runProgram(Paths.get("src/test/resources/test-src/launch/main-and-service"),
+                                 Paths.get("main_and_service.bal"),
+                                 new HashMap<>(), null, new String[]{"10s"}, true, false);
     }
 }

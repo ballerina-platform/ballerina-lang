@@ -22,6 +22,7 @@ import com.google.common.reflect.TypeToken;
 import com.google.gson.Gson;
 import org.apache.commons.io.FileUtils;
 import org.ballerinalang.test.BaseTest;
+import org.ballerinalang.test.context.BServerInstance;
 import org.ballerinalang.test.util.HttpClientRequest;
 import org.testng.Assert;
 import org.testng.annotations.AfterGroups;
@@ -43,6 +44,7 @@ import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
  */
 @Test(groups = "tracing-test")
 public class TracingTestCase extends BaseTest {
+    private static BServerInstance serverInstance;
 
     private static final String BASEDIR = System.getProperty("basedir");
     private static final String RESOURCE_LOCATION = "src" + File.separator + "test" + File.separator +
@@ -54,6 +56,10 @@ public class TracingTestCase extends BaseTest {
 
     @BeforeGroups(value = "tracing-test", alwaysRun = true)
     private void setup() throws Exception {
+        int[] requiredPorts = new int[]{9090, 9091, 9092};
+
+        serverInstance = new BServerInstance(balServer);
+
         copyFile(new File(System.getProperty(TEST_NATIVES_JAR)), new File(serverInstance.getServerHome()
                 + DEST_FUNCTIONS_JAR));
 
@@ -67,8 +73,14 @@ public class TracingTestCase extends BaseTest {
                 "observability" + File.separator + "tracing").getAbsolutePath();
 
         String configFile = new File(RESOURCE_LOCATION + "ballerina.conf").getAbsolutePath();
-        String[] args = new String[]{"--sourceroot", basePath, "--config", configFile};
-        serverInstance.startBallerinaServer("tracingservices", args);
+        String[] args = new String[]{"--config", configFile};
+        serverInstance.startServer(basePath, "tracingservices", args, requiredPorts);
+    }
+
+    @AfterGroups(value = "tracing-test", alwaysRun = true)
+    private void cleanup() throws Exception {
+        serverInstance.removeAllLeechers();
+        serverInstance.shutdownServer();
     }
 
     @Test
@@ -136,11 +148,5 @@ public class TracingTestCase extends BaseTest {
 
     private static void copyFile(File source, File dest) throws IOException {
         Files.copy(source.toPath(), dest.toPath(), REPLACE_EXISTING);
-    }
-
-    @AfterGroups(value = "tracing-test", alwaysRun = true)
-    private void cleanup() throws Exception {
-        serverInstance.removeAllLeechers();
-        serverInstance.stopServer();
     }
 }

@@ -63,6 +63,7 @@ import org.ballerinalang.util.codegen.attributes.ErrorTableAttributeInfo;
 import org.ballerinalang.util.codegen.attributes.LineNumberTableAttributeInfo;
 import org.ballerinalang.util.codegen.attributes.LocalVariableAttributeInfo;
 import org.ballerinalang.util.codegen.attributes.ParamDefaultValueAttributeInfo;
+import org.ballerinalang.util.codegen.attributes.ParameterAttributeInfo;
 import org.ballerinalang.util.codegen.attributes.TaintTableAttributeInfo;
 import org.ballerinalang.util.codegen.attributes.VarTypeCountAttributeInfo;
 import org.ballerinalang.util.codegen.cpentries.ActionRefCPEntry;
@@ -726,6 +727,8 @@ public class PackageInfoReader {
         boolean nativeFunc = Flags.isFlagOn(flags, Flags.NATIVE);
         functionInfo.setNative(nativeFunc);
 
+        functionInfo.setPublic(Flags.isFlagOn(flags, Flags.PUBLIC));
+
         String uniqueFuncName;
         boolean attached = Flags.isFlagOn(flags, Flags.ATTACHED);
         if (attached) {
@@ -915,7 +918,7 @@ public class PackageInfoReader {
 
 
     public void readAttributeInfoEntries(PackageInfo packageInfo, ConstantPool constantPool,
-                                          AttributeInfoPool attributeInfoPool) throws IOException {
+                                         AttributeInfoPool attributeInfoPool) throws IOException {
         int attributesCount = dataInStream.readShort();
         for (int k = 0; k < attributesCount; k++) {
             AttributeInfo attributeInfo = getAttributeInfo(packageInfo, constantPool);
@@ -1019,11 +1022,11 @@ public class PackageInfoReader {
                 }
                 return paramDefaultValAttrInfo;
             case PARAMETERS_ATTRIBUTE:
-                // Read and discard required param count, defaultable param and rest param count 
-                dataInStream.readInt();
-                dataInStream.readInt();
-                dataInStream.readInt();
-                return null;
+                ParameterAttributeInfo parameterAttributeInfo = new ParameterAttributeInfo(attribNameCPIndex);
+                parameterAttributeInfo.requiredParamsCount = dataInStream.readInt();
+                parameterAttributeInfo.defaultableParamsCount = dataInStream.readInt();
+                parameterAttributeInfo.restParamCount = dataInStream.readInt();
+                return parameterAttributeInfo;
             case TAINT_TABLE:
                 TaintTableAttributeInfo taintTableAttributeInfo = new TaintTableAttributeInfo(attribNameCPIndex);
                 taintTableAttributeInfo.rowCount = dataInStream.readShort();
@@ -1054,15 +1057,17 @@ public class PackageInfoReader {
         for (int i = 0; i < noOfParamInfoEntries; i++) {
             int nameCPIndex = dataInStream.readInt();
             String name = getUTF8EntryValue(nameCPIndex, constantPool);
-            //TODO remove below line ASAP, adding dummy value as we can't change binary file right now
-            dataInStream.readInt();
-            int paramKindCPIndex = dataInStream.readInt();
-            String paramKindValue = getUTF8EntryValue(paramKindCPIndex, constantPool);
             int paramDescCPIndex = dataInStream.readInt();
             String paramDesc = getUTF8EntryValue(paramDescCPIndex, constantPool);
-            ParameterDocumentInfo paramDocInfo = new ParameterDocumentInfo(nameCPIndex, name,
-                    paramKindCPIndex, paramKindValue, paramDescCPIndex, paramDesc);
+            ParameterDocumentInfo paramDocInfo = new ParameterDocumentInfo(nameCPIndex, name, paramDescCPIndex,
+                    paramDesc);
             docAttrInfo.paramDocInfoList.add(paramDocInfo);
+        }
+
+        boolean isReturnDocDescriptionAvailable = dataInStream.readBoolean();
+        if (isReturnDocDescriptionAvailable) {
+            int returnParamDescCPIndex = dataInStream.readInt();
+            docAttrInfo.returnParameterDescription = getUTF8EntryValue(returnParamDescCPIndex, constantPool);
         }
 
         return docAttrInfo;
@@ -1697,13 +1702,18 @@ public class PackageInfoReader {
         PackageInfo pkgInfo = programFile.getPackageInfo(pkgPath);
 
         // if the package info is not available in the balx file, then it should be read from the balo
-        if (pkgInfo == null) {
-            PackageFileReader pkgFileReader = new PackageFileReader(this.programFile);
-            pkgFileReader.readPackage(pkgPath);
-            pkgInfo = programFile.getPackageInfo(pkgPath);
+        if (pkgInfo != null) {
+            return pkgInfo;
         }
 
-        return pkgInfo;
+        try {
+            PackageFileReader pkgFileReader = new PackageFileReader(this.programFile);
+            pkgFileReader.readPackage(pkgPath);
+        } catch (IOException e) {
+            throw new BLangRuntimeException("error reading package: " + pkgPath, e);
+        }
+
+        return programFile.getPackageInfo(pkgPath);
     }
 
     private BType getBTypeFromDescriptor(PackageInfo packageInfo, String desc) {
@@ -1729,7 +1739,7 @@ public class PackageInfoReader {
 
     /**
      * Create types for compiler phases.
-     * 
+     *
      * @since 0.975.0
      */
     private class RuntimeTypeCreater implements TypeCreater<BType> {
@@ -1739,7 +1749,7 @@ public class PackageInfoReader {
         public RuntimeTypeCreater(PackageInfo packageInfo) {
             this.packageInfo = packageInfo;
         }
-        
+
         @Override
         public BType getBasicType(char typeChar) {
             switch (typeChar) {
@@ -1839,7 +1849,7 @@ public class PackageInfoReader {
             if (retType == null) {
                 returnTypes = new BType[0];
             } else {
-                returnTypes = new BType[] { retType };
+                returnTypes = new BType[]{retType};
             }
             return new BFunctionType(funcParams.toArray(new BType[funcParams.size()]), returnTypes);
         }

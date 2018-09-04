@@ -436,20 +436,34 @@ function testGetComplexTypes(string jdbcUrl, string userName, string password) r
         poolOptions: { maximumPoolSize: 1 }
     };
 
-    table dt = check testDB->select("SELECT blob_type,clob_type,binary_type from ComplexTypes where row_id = 1",
-        ResultObject);
-
     byte[] blobData;
     string clob;
     byte[] binaryData;
-    while (dt.hasNext()) {
-        ResultObject rs = check <ResultObject>dt.getNext();
-        blobData = rs.BLOB_TYPE;
-        clob = rs.CLOB_TYPE;
-        binaryData = rs.BINARY_TYPE;
+    if (jdbcUrl.contains("postgres")) {
+        transaction {
+            (blobData, clob, binaryData) = retrieveComplexTypeValues(testDB);
+        }
+    } else {
+        (blobData, clob, binaryData) = retrieveComplexTypeValues(testDB);
     }
     testDB.stop();
     return (blobData, clob, binaryData);
+}
+
+function retrieveComplexTypeValues(jdbc:Client db) returns (byte[], string, byte[]) {
+    endpoint jdbc:Client dbEp =  db;
+    byte[] blobData;
+    string clobData;
+    byte[] binaryData;
+    table dt = check dbEp->select("SELECT blob_type,clob_type,binary_type from ComplexTypes where row_id = 1",
+        ResultObject);
+    while (dt.hasNext()) {
+        ResultObject rs = check <ResultObject>dt.getNext();
+        blobData = rs.BLOB_TYPE;
+        clobData = rs.CLOB_TYPE;
+        binaryData = rs.BINARY_TYPE;
+    }
+    return (blobData, clobData, binaryData);
 }
 
 function testArrayData(string jdbcUrl, string userName, string password) returns (int[], int[], float[], string[],
@@ -672,16 +686,26 @@ function testBlobData(string jdbcUrl, string userName, string password) returns 
         poolOptions: { maximumPoolSize: 1 }
     };
 
-    string blobStringData;
-    table dt = check testDB->select("SELECT blob_type from ComplexTypes where row_id = 1", ResultBlob);
-
     byte[] blobData;
+    if (jdbcUrl.contains("postgres")) {
+        transaction {
+            blobData = retrieveBlobValues(testDB);
+        }
+    } else {
+        blobData = retrieveBlobValues(testDB);
+    }
+    testDB.stop();
+    return blobData;
+}
+
+function retrieveBlobValues(jdbc:Client db) returns byte[] {
+    endpoint jdbc:Client dbEp = db;
+    byte[] blobData;
+    table dt = check dbEp->select("SELECT blob_type from ComplexTypes where row_id = 1", ResultBlob);
     while (dt.hasNext()) {
         ResultBlob rs = check <ResultBlob>dt.getNext();
         blobData = rs.BLOB_TYPE;
     }
-
-    testDB.stop();
     return blobData;
 }
 
@@ -728,18 +752,34 @@ function testBlobInsert(string jdbcUrl, string userName, string password) return
         poolOptions: { maximumPoolSize: 1 }
     };
 
-    table dt = check testDB->select("SELECT blob_type from ComplexTypes where row_id = 1", ResultBlob);
+    int insertCount;
+    if (jdbcUrl.contains("postgres")) {
+        transaction {
+            insertCount = retrieveAndInsertBlobdata(testDB);
+        }
+    } else {
+       insertCount = retrieveAndInsertBlobdata(testDB);
+    }
+
+    testDB.stop();
+    return insertCount;
+}
+
+function retrieveAndInsertBlobdata(jdbc:Client db) returns int {
+    endpoint jdbc:Client dbEp = db;
+    table dt = check dbEp->select("SELECT blob_type from ComplexTypes where row_id = 1", ResultBlob);
 
     byte[] blobData;
+    int insertCount;
+
     while (dt.hasNext()) {
         ResultBlob rs = check <ResultBlob>dt.getNext();
         blobData = rs.BLOB_TYPE;
     }
     sql:Parameter para0 = { sqlType: sql:TYPE_INTEGER, value: 10 };
     sql:Parameter para1 = { sqlType: sql:TYPE_BLOB, value: blobData };
-    int insertCount = check testDB->update("Insert into ComplexTypes (row_id, blob_type) values (?,?)", para0, para1);
-
-    testDB.stop();
+    insertCount = check dbEp->update("Insert into ComplexTypes (row_id, blob_type) values (?,?)", para0, para1
+    );
     return insertCount;
 }
 
@@ -1343,4 +1383,49 @@ function tableGetNextInvalid(string jdbcUrl, string userName, string password) {
 
 function isDelete(ResultPrimitiveInt p) returns (boolean) {
     return p.INT_TYPE < 2000;
+}
+
+function testToJsonAndAccessFromMiddle(string jdbcUrl, string userName, string password) returns (json, int) {
+    endpoint jdbc:Client testDB {
+        url: jdbcUrl,
+        username: userName,
+        password: password,
+        poolOptions: { maximumPoolSize: 1 }
+    };
+
+    try {
+        table dt = check testDB->select("SELECT int_type, long_type, float_type, double_type,
+                  boolean_type, string_type from DataTable", ());
+        json result = check <json>dt;
+
+        json j = result[1];
+        return (result, lengthof result);
+    } finally {
+        testDB.stop();
+    }
+}
+
+function testToJsonAndIterate(string jdbcUrl, string userName, string password) returns (json, int) {
+    endpoint jdbc:Client testDB {
+        url: jdbcUrl,
+        username: userName,
+        password: password,
+        poolOptions: { maximumPoolSize: 1 }
+    };
+
+    try {
+        table dt = check testDB->select("SELECT int_type, long_type, float_type, double_type,
+                  boolean_type, string_type from DataTable", ());
+        json result = check <json>dt;
+        json j = [];
+        int i = 0;
+        foreach row in result {
+            j[i] = row;
+            i++;
+        }
+
+        return (j, lengthof j);
+    } finally {
+        testDB.stop();
+    }
 }

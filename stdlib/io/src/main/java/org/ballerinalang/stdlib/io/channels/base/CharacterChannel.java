@@ -206,7 +206,12 @@ public class CharacterChannel implements IOChannel {
     }
 
     /**
+     * <p>
      * Reads bytes asynchronously from the channel.
+     * </p>
+     * <p>
+     * This operation would not guarantee that all the content is read.
+     * </p>
      *
      * @param numberOfBytesRequired number of bytes required from the channel.
      * @param numberOfCharsRequired number of characters required.
@@ -219,12 +224,10 @@ public class CharacterChannel implements IOChannel {
         CharBuffer intermediateCharacterBuffer;
         //Provided at this point any remaining character left in the buffer is copied
         charBuffer = CharBuffer.allocate(numberOfBytesRequired);
-        do {
-            buffer = contentBuffer.get(numberOfBytesRequired, channel);
-            intermediateCharacterBuffer = bytesDecoder.decode(buffer);
-            numberOfCharsProcessed = numberOfCharsProcessed + intermediateCharacterBuffer.limit();
-            charBuffer.put(intermediateCharacterBuffer);
-        } while (!channel.hasReachedEnd() && numberOfCharsProcessed < numberOfCharsRequired);
+        buffer = contentBuffer.get(numberOfBytesRequired, channel);
+        intermediateCharacterBuffer = bytesDecoder.decode(buffer);
+        numberOfCharsProcessed = numberOfCharsProcessed + intermediateCharacterBuffer.limit();
+        charBuffer.put(intermediateCharacterBuffer);
         //We make the char buffer ready to read
         charBuffer.flip();
         processChars(numberOfCharsRequired, buffer, numberOfCharsProcessed);
@@ -419,5 +422,10 @@ public class CharacterChannel implements IOChannel {
     @Override
     public void close() throws IOException {
         channel.close();
+    }
+
+    @Override
+    public boolean remaining() {
+        return null != charBuffer && charBuffer.hasRemaining();
     }
 }

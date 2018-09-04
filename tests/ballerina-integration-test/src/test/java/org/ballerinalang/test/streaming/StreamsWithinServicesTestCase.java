@@ -20,6 +20,9 @@ package org.ballerinalang.test.streaming;
 
 import io.netty.handler.codec.http.HttpHeaderNames;
 import org.ballerinalang.test.BaseTest;
+import org.ballerinalang.test.context.BServerInstance;
+import org.ballerinalang.test.context.Constant;
+import org.ballerinalang.test.context.Utils;
 import org.ballerinalang.test.util.HttpClientRequest;
 import org.ballerinalang.test.util.HttpResponse;
 import org.ballerinalang.test.util.TestConstant;
@@ -36,13 +39,25 @@ import java.util.Map;
  * This class tests the streaming functionality in a service.
  */
 public class StreamsWithinServicesTestCase extends BaseTest {
+    private static BServerInstance serverInstance;
+    private final int servicePort = Constant.DEFAULT_HTTP_PORT;
 
     @BeforeClass(alwaysRun = true)
     public void setup() throws Exception {
+        int[] requiredPorts = new int[]{9090};
+        Utils.checkPortsAvailability(requiredPorts);
+
         String relativePath = new File("src" + File.separator + "test" + File.separator + "resources"
                 + File.separator + "streaming" + File.separator +
                 "streams-within-services.bal").getAbsolutePath();
-        serverInstance.startBallerinaServer(relativePath);
+        serverInstance = new BServerInstance(balServer);
+        serverInstance.startServer(relativePath, new int[]{servicePort});
+    }
+
+    @AfterClass(alwaysRun = true)
+    private void cleanup() throws Exception {
+        serverInstance.removeAllLeechers();
+        serverInstance.shutdownServer();
     }
 
     @Test(description = "Test the service with sample streaming rules")
@@ -55,8 +70,8 @@ public class StreamsWithinServicesTestCase extends BaseTest {
         headers.put(HttpHeaderNames.CONTENT_TYPE.toString(), TestConstant.CONTENT_TYPE_JSON);
 
         for (int i = 0; i < 10; i++) {
-            HttpResponse response = HttpClientRequest.doPost(serverInstance.getServiceURLHttp("requests"),
-                    requestMessage, headers);
+            HttpResponse response = HttpClientRequest.doPost(serverInstance
+                            .getServiceURLHttp(servicePort, "requests"), requestMessage, headers);
             Assert.assertNotNull(response);
             Assert.assertEquals(response.getResponseCode(), 200, "Response code mismatched");
             Assert.assertEquals(response.getHeaders().get(HttpHeaderNames.CONTENT_TYPE.toString())
@@ -68,7 +83,8 @@ public class StreamsWithinServicesTestCase extends BaseTest {
 
         do {
             count++;
-            HttpResponse response = HttpClientRequest.doGet(serverInstance.getServiceURLHttp("hosts"), headers);
+            HttpResponse response = HttpClientRequest.doGet(serverInstance
+                    .getServiceURLHttp(servicePort, "hosts"), headers);
             Assert.assertNotNull(response);
             Assert.assertEquals(response.getResponseCode(), 200, "Response code mismatched");
             Assert.assertEquals(response.getHeaders().get(HttpHeaderNames.CONTENT_TYPE.toString())
@@ -77,10 +93,5 @@ public class StreamsWithinServicesTestCase extends BaseTest {
             Thread.sleep(1000);
         } while (count != 10 || responseMsg.equals("\"{'message' : 'NotAssigned'}\""));
         Assert.assertNotEquals(responseMsg, "\"{'message' : 'NotAssigned'}\"");
-    }
-
-    @AfterClass(alwaysRun = true)
-    private void cleanup() throws Exception {
-        serverInstance.stopServer();
     }
 }

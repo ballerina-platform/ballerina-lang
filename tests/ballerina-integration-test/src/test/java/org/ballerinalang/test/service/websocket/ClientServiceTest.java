@@ -19,6 +19,7 @@
 package org.ballerinalang.test.service.websocket;
 
 import io.netty.handler.codec.http.websocketx.CloseWebSocketFrame;
+import org.ballerinalang.test.context.BallerinaTestException;
 import org.ballerinalang.test.util.websocket.client.WebSocketTestClient;
 import org.ballerinalang.test.util.websocket.server.WebSocketRemoteServer;
 import org.testng.Assert;
@@ -42,8 +43,8 @@ public class ClientServiceTest extends WebSocketTestCommons {
     private WebSocketRemoteServer remoteServer;
 
     @BeforeClass(description = "Initializes the Ballerina server with the client_service.bal file")
-    public void setup() throws URISyntaxException, InterruptedException {
-        remoteServer = new WebSocketRemoteServer(REMOTE_SERVER_PORT);
+    public void setup() throws URISyntaxException, InterruptedException, BallerinaTestException {
+        remoteServer = new WebSocketRemoteServer(15000);
         remoteServer.run();
         client = new WebSocketTestClient(URL);
     }
@@ -64,6 +65,7 @@ public class ClientServiceTest extends WebSocketTestCommons {
             dependsOnMethods = "testClientSuccessWithoutService")
     public void testClientSuccessWithWebSocketClientService() throws InterruptedException {
         CountDownLatch countDownLatch = new CountDownLatch(1);
+        client.setCountDownLatch(countDownLatch);
         client.sendText("hey");
         countDownLatch.await(TIMEOUT_IN_SECS, TimeUnit.SECONDS);
 
