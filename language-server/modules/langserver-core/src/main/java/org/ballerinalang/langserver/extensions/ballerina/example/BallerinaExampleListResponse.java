@@ -13,20 +13,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.ballerinalang.langserver.extensions;
+package org.ballerinalang.langserver.extensions.ballerina.example;
 
-import org.ballerinalang.langserver.extensions.ballerina.document.BallerinaDocumentService;
-import org.ballerinalang.langserver.extensions.ballerina.example.BallerinaExampleService;
-import org.eclipse.lsp4j.jsonrpc.services.JsonDelegate;
-import org.eclipse.lsp4j.services.LanguageServer;
+import java.util.List;
 
 /**
- * Extended Language Server interface which includes ballerina document services.
+ * Represents a Ballerina example list response.
  */
-public interface ExtendedLanguageServer extends LanguageServer {
-    @JsonDelegate
-    BallerinaDocumentService getBallerinaDocumentService();
+public class BallerinaExampleListResponse {
 
-    @JsonDelegate
-    BallerinaExampleService getBallerinaExampleService();
+    private List<BallerinaExampleCategory> samples;
+
+    public List<BallerinaExampleCategory> getSamples() {
+        return samples;
+    }
+
+    public void setSamples(List<BallerinaExampleCategory> samples) {
+        this.samples = samples;
+    }
 }
