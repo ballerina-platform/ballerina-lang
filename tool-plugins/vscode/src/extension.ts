@@ -148,7 +148,7 @@ export function activate(context: ExtensionContext) : void {
 		return;
 	}
 
-	if (!config.showLSErrors) {
+	if (!config.debugLog) {
 		clientOptions.outputChannel = dropOutputChannel;
 	}
 
@@ -172,8 +172,6 @@ workspace.onDidChangeConfiguration((params: ConfigurationChangeEvent) => {
 		showMsgAndRestart(Messages.HOME_CHANGED);
 	} else if (params.affectsConfiguration('ballerina.debugLog')) {
 		showMsgAndRestart(Messages.DEBUG_LOG_CHANGED);
-	} else if (params.affectsConfiguration('ballerina.showLSErrors')) {
-		showMsgAndRestart(Messages.SHOW_LSERRORS_CHANGED);
 	}
 });
 
