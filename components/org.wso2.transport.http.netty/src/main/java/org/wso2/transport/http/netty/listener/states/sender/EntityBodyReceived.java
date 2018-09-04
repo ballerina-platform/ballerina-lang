@@ -33,7 +33,7 @@ import static org.wso2.transport.http.netty.listener.states.StateUtil.ILLEGAL_ST
  */
 public class EntityBodyReceived implements SenderState {
 
-    private static Logger log = LoggerFactory.getLogger(SendingHeaders.class);
+    private static Logger log = LoggerFactory.getLogger(EntityBodyReceived.class);
 
     @Override
     public void writeOutboundRequestHeaders(HttpCarbonMessage httpOutboundRequest, HttpContent httpContent) {

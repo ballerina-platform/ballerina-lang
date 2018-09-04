@@ -78,7 +78,7 @@ public class ResponseCompleted implements ListenerState {
     public void handleAbruptChannelClosure(ServerConnectorFuture serverConnectorFuture) {
         // Response is received, yet inbound request is not completed.
         handleIncompleteInboundMessage(inboundRequestMsg, REMOTE_CLIENT_CLOSED_WHILE_READING_INBOUND_REQUEST_BODY);
-        cleanup(inboundRequestMsg);
+        cleanupSourceHandler(inboundRequestMsg);
     }
 
     @Override
@@ -86,11 +86,11 @@ public class ResponseCompleted implements ListenerState {
                                                             ChannelHandlerContext ctx) {
         // Response is received, yet inbound request is not completed.
         handleIncompleteInboundMessage(inboundRequestMsg, REMOTE_CLIENT_CLOSED_WHILE_READING_INBOUND_REQUEST_BODY);
-        cleanup(inboundRequestMsg);
+        cleanupSourceHandler(inboundRequestMsg);
         return null;
     }
 
-    private void cleanup(HttpCarbonMessage inboundRequestMsg) {
+    private void cleanupSourceHandler(HttpCarbonMessage inboundRequestMsg) {
         sourceHandler.resetInboundRequestMsg(inboundRequestMsg);
     }
 }
