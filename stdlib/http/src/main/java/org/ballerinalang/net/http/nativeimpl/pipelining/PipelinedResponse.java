@@ -38,10 +38,10 @@ public class PipelinedResponse implements Comparable<PipelinedResponse> {
     private final HttpCarbonMessage outboundResponseMsg;
     private DataContext dataContext;
     private BMap<String, BValue> outboundResponse; //Ballerina outbound response object
-    private final int sequenceId; //Identifies the response order
+    private final long sequenceId; //Identifies the response order
 
-    public PipelinedResponse(int sequenceId, HttpCarbonMessage inboundRequestMsg, HttpCarbonMessage outboundResponseMsg,
-                             DataContext dataContext, BMap<String, BValue> outboundResponse) {
+    public PipelinedResponse(long sequenceId, HttpCarbonMessage inboundRequestMsg, HttpCarbonMessage
+            outboundResponseMsg, DataContext dataContext, BMap<String, BValue> outboundResponse) {
         this.inboundRequestMsg = inboundRequestMsg;
         this.outboundResponseMsg = outboundResponseMsg;
         this.dataContext = dataContext;
@@ -49,14 +49,14 @@ public class PipelinedResponse implements Comparable<PipelinedResponse> {
         this.sequenceId = sequenceId;
     }
 
-    PipelinedResponse(int sequenceId, HttpCarbonMessage inboundRequestMsg,
+    PipelinedResponse(long sequenceId, HttpCarbonMessage inboundRequestMsg,
                       HttpCarbonMessage outboundResponseMsg) {
         this.inboundRequestMsg = inboundRequestMsg;
         this.outboundResponseMsg = outboundResponseMsg;
         this.sequenceId = sequenceId;
     }
 
-    int getSequenceId() {
+    long getSequenceId() {
         return sequenceId;
     }
 
@@ -78,7 +78,7 @@ public class PipelinedResponse implements Comparable<PipelinedResponse> {
 
     @Override
     public int compareTo(PipelinedResponse other) {
-        return this.sequenceId - other.getSequenceId();
+        return Long.compare(this.sequenceId, other.getSequenceId());
     }
 
     @Override

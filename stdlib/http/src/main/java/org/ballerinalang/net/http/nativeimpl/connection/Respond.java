@@ -32,7 +32,6 @@ import org.ballerinalang.natives.annotations.ReturnType;
 import org.ballerinalang.net.http.DataContext;
 import org.ballerinalang.net.http.HttpUtil;
 import org.ballerinalang.net.http.caching.ResponseCacheControlStruct;
-import org.ballerinalang.net.http.nativeimpl.pipelining.PipelineResponseListener;
 import org.ballerinalang.net.http.nativeimpl.pipelining.PipelinedResponse;
 import org.ballerinalang.net.http.util.CacheUtils;
 import org.ballerinalang.util.observability.ObservabilityUtils;
@@ -48,6 +47,7 @@ import static org.ballerinalang.net.http.HttpConstants.RESPONSE_CACHE_CONTROL_FI
 import static org.ballerinalang.net.http.HttpConstants.RESPONSE_STATUS_CODE_FIELD;
 import static org.ballerinalang.net.http.nativeimpl.pipelining.PipeliningHandler.executePipeliningLogic;
 import static org.ballerinalang.net.http.nativeimpl.pipelining.PipeliningHandler.pipeliningRequired;
+import static org.ballerinalang.net.http.nativeimpl.pipelining.PipeliningHandler.setPipeliningListener;
 import static org.ballerinalang.util.observability.ObservabilityConstants.TAG_KEY_HTTP_STATUS_CODE;
 
 /**
@@ -104,7 +104,7 @@ public class Respond extends ConnectionAction {
                 }
                 PipelinedResponse pipelinedResponse = new PipelinedResponse(inboundRequestMsg.getSequenceId(),
                         inboundRequestMsg, outboundResponseMsg, dataContext, outboundResponseStruct);
-                outboundResponseMsg.setPipelineListener(new PipelineResponseListener());
+                setPipeliningListener(outboundResponseMsg);
                 executePipeliningLogic(inboundRequestMsg.getSourceContext(), pipelinedResponse);
             } else {
                 sendOutboundResponseRobust(dataContext, inboundRequestMsg, outboundResponseStruct, outboundResponseMsg);

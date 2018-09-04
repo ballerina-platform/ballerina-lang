@@ -19,7 +19,7 @@
 package org.ballerinalang.net.http.nativeimpl.pipelining;
 
 import io.netty.channel.ChannelHandlerContext;
-import org.wso2.transport.http.netty.contractimpl.HttpPipelineListener;
+import org.wso2.transport.http.netty.contractimpl.HttpPipeliningListener;
 
 import static org.ballerinalang.net.http.nativeimpl.pipelining.PipeliningHandler.executePipeliningLogic;
 
@@ -29,8 +29,7 @@ import static org.ballerinalang.net.http.nativeimpl.pipelining.PipeliningHandler
  *
  * @since 0.982.0
  */
-public class PipelineResponseListener implements HttpPipelineListener {
-
+public class PipelineResponseListener implements HttpPipeliningListener {
 
     @Override
     public void onLastHttpContentSent(ChannelHandlerContext sourceContext) {

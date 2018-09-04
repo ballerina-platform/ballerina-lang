@@ -25,6 +25,7 @@ import org.slf4j.LoggerFactory;
 import org.wso2.transport.http.netty.common.Constants;
 import org.wso2.transport.http.netty.contract.HttpResponseFuture;
 import org.wso2.transport.http.netty.message.HttpCarbonMessage;
+import org.wso2.transport.http.netty.message.HttpPipeliningFuture;
 
 import java.util.Queue;
 
@@ -56,7 +57,7 @@ public class PipeliningHandler {
             if (pipeliningRequired(requestMsg)) {
                 PipelinedResponse pipelinedResponse = new PipelinedResponse(requestMsg.getSequenceId(),
                         requestMsg, responseMsg);
-                responseMsg.setPipelineListener(new PipelineResponseListener());
+                setPipeliningListener(responseMsg);
                 responseFuture = executePipeliningLogic(requestMsg.getSourceContext(), pipelinedResponse);
             } else {
                 responseFuture = requestMsg.respond(responseMsg);
@@ -89,7 +90,7 @@ public class PipeliningHandler {
             while (!responseQueue.isEmpty()) {
                 Integer nextSequenceNumber = sourceContext.channel().attr(Constants.NEXT_SEQUENCE_NUMBER).get();
                 final PipelinedResponse queuedPipelinedResponse = responseQueue.peek();
-                int currentSequenceNumber = queuedPipelinedResponse.getSequenceId();
+                long currentSequenceNumber = queuedPipelinedResponse.getSequenceId();
                 if (currentSequenceNumber != nextSequenceNumber) {
                     break;
                 }
@@ -136,13 +137,29 @@ public class PipeliningHandler {
      */
     private static boolean thresholdReached(ChannelHandlerContext sourceContext,
                                             Queue<PipelinedResponse> responseQueue) {
-        Integer maxQueuedResponses = sourceContext.channel()
+        long maxQueuedResponses = sourceContext.channel()
                 .attr(Constants.MAX_RESPONSES_ALLOWED_TO_BE_QUEUED).get();
+        if (Constants.UNBOUNDED_RESPONSE_QUEUE == maxQueuedResponses) {
+            return false;
+        }
+
         if (responseQueue.size() > maxQueuedResponses) {
             sourceContext.close();
             log.warn("Threshold for pipelined response queue reached hence closing the connection.");
             return true;
         }
         return false;
+    }
+
+    /**
+     * Set pipelining listener to outbound response.
+     *
+     * @param httpResponse Represent HTTP outbound response
+     */
+    public static void setPipeliningListener(HttpCarbonMessage httpResponse) {
+        PipelineResponseListener pipeliningListener = new PipelineResponseListener();
+        HttpPipeliningFuture pipeliningFuture = new HttpPipeliningFuture();
+        pipeliningFuture.setPipeliningListener(pipeliningListener);
+        httpResponse.setPipeliningFuture(pipeliningFuture);
     }
 }

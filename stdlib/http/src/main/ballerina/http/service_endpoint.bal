@@ -123,8 +123,7 @@ documentation {
                  resource, filters can applied
     F{{timeoutMillis}} Period of time in milliseconds that a connection waits for a read/write operation. Use value 0 to
                        disable timeout
-    F{{pipelining}} Define whether HTTP pipelining should be enabled or not. Although HTTP pipelining is enabled
-                    by default, this will have an effect only for persistent connections in HTTP 1.1 version
+    F{{pipelining}} Defines HTTP pipelining properties. Pipelining is enabled by default
 }
 public type ServiceEndpointConfiguration record {
     string host,
@@ -135,7 +134,7 @@ public type ServiceEndpointConfiguration record {
     RequestLimits? requestLimits,
     Filter[] filters,
     int timeoutMillis = DEFAULT_LISTENER_TIMEOUT,
-    boolean pipelining = true,
+    Pipelining pipelining,
 };
 
 documentation {

@@ -170,6 +170,22 @@ public type ServiceOcspStapling record {
     int cacheValidityPeriod,
 };
 
+documentation {
+    Defines HTTP 1.1 pipelining properties.
+
+    F{{enable}} Defines whether the pipelining should be enabled or not. Although HTTP pipelining is enabled
+                by default, this will have an effect only for persistent connections in HTTP 1.1 version. If the client
+                can guarantee that the request won't be pipelined, this could be safely turned off.
+    F{{maxQueuedResponseCount}} Defines maximum number of responses to be queued when pipelining is enabled.
+                                By default there is no limit to the queue. If queuing up responses indefinitely would
+                                result in out of memory issues, then user should set a maximum queing response count
+                                appropriately.
+}
+public type Pipelining record {
+    boolean enable = true,
+    int maxQueuedResponseCount = -1,
+};
+
 //////////////////////////////
 /// Native implementations ///
 //////////////////////////////
