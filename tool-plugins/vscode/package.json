@@ -164,7 +164,6 @@
         "watch": "tsc -watch -p ./",
         "postinstall": "node ./node_modules/vscode/bin/install",
         "test": "npm run compile && node ./node_modules/vscode/bin/test",
-        "clean": "rimraf server-build target",
         "package": "npm run compile && vsce package"
     },
     "dependencies": {
