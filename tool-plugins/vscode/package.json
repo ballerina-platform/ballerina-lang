@@ -8,7 +8,7 @@
         "type": "git",
         "url": "https://github.com/ballerina-lang/ballerina"
     },
-    "icon": "images/ballerina.png",
+    "icon": "resources/images/ballerina.png",
     "galleryBanner": {
         "color": "#e7eaeb",
         "theme": "light"
@@ -154,8 +154,8 @@
                 "command": "ballerina.showDiagram",
                 "title": "Ballerina: Show Diagram",
                 "icon": {
-                    "dark": "./icons/design-view-white.svg",
-                    "light": "./icons/design-view.svg"
+                    "dark": "./resources/images/icons/design-view-white.svg",
+                    "light": "./resources/images/icons/design-view.svg"
                 }
             }
         ],
