@@ -23,7 +23,7 @@ import org.ballerinalang.model.NativeCallableUnit;
 import org.ballerinalang.stdlib.task.SchedulingException;
 import org.ballerinalang.stdlib.task.TaskIdGenerator;
 import org.ballerinalang.stdlib.task.TaskRegistry;
-import org.ballerinalang.util.codegen.cpentries.FunctionRefCPEntry;
+import org.ballerinalang.util.codegen.FunctionInfo;
 import org.quartz.SchedulerException;
 
 /**
@@ -33,8 +33,8 @@ public class Appointment {
     private String id = TaskIdGenerator.generate();
 
     Appointment(NativeCallableUnit fn, Context balParentContext,
-                String cronExpression, FunctionRefCPEntry onTriggerFunction,
-                FunctionRefCPEntry onErrorFunction) throws SchedulingException {
+                String cronExpression, FunctionInfo onTriggerFunction,
+                FunctionInfo onErrorFunction) throws SchedulingException {
         TaskRegistry.getInstance().addAppointment(this);
 
         try {

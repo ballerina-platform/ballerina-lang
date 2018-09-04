@@ -704,7 +704,7 @@ formalParameterList
 
 simpleLiteral
     :   (SUB)? integerLiteral
-    |   (SUB)? FloatingPointLiteral
+    |   (SUB)? floatingPointLiteral
     |   QuotedStringLiteral
     |   BooleanLiteral
     |   emptyTupleLiteral
@@ -712,11 +712,15 @@ simpleLiteral
     |   NullLiteral
     ;
 
+floatingPointLiteral
+    :   DecimalFloatingPointNumber
+    |   HexadecimalFloatingPointLiteral
+    ;
+
 // §3.10.1 Integer Literals
 integerLiteral
     :   DecimalIntegerLiteral
     |   HexIntegerLiteral
-    |   OctalIntegerLiteral
     |   BinaryIntegerLiteral
     ;
 

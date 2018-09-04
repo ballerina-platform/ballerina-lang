@@ -58,15 +58,12 @@
                     padding-left: 8px;
                 }
                 &.welcome-page-tab-title {
-                    border-left-color: #808080;
                     font-style: italic;
                     .close-tab {
                         font-style: normal;
                     }
                     .tab-icon {
-                        background: #808080;
-                        color: #fff;
-                        margin-right: 8px;
+                        color: #2fb8b0;
                     }
                 }
             }
@@ -97,7 +94,7 @@
                             }
                         }
                         .tab-icon {
-                            background: #2fb8b0;
+                            color: #2fb8b0;
                         }
                     }
                 }

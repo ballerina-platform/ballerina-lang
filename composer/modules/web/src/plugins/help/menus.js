@@ -26,8 +26,7 @@ import { MENU_DEF_TYPES } from './../../core/menu/constants';
  *
  */
 export function getMenuDefinitions(plugin) {
-    return [
-        {
+    return [{
             id: MENUS.HELP_MENU,
             label: LABELS.HELP,
             isActive: (appContext) => {
@@ -43,7 +42,7 @@ export function getMenuDefinitions(plugin) {
             isActive: (appContext) => {
                 return true;
             },
-            order: 0,
+            order: 1,
             command: COMMANDS.OPEN_EXAMPLE,
             type: MENU_DEF_TYPES.ITEM,
         },
@@ -54,7 +53,7 @@ export function getMenuDefinitions(plugin) {
             isActive: (appContext) => {
                 return true;
             },
-            order: 0,
+            order: 2,
             command: COMMANDS.OPEN_API_REFERENCE,
             type: MENU_DEF_TYPES.ITEM,
         },

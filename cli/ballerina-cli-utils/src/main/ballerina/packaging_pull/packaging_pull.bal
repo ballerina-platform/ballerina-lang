@@ -130,7 +130,7 @@ function pullPackage (http:Client definedEndpoint, string url, string dirPath, s
 documentation {
     This function will invoke the method to pull the package.
 }
-function main(string... args){
+public function main(string... args){
     http:Client httpEndpoint;
     string host = args[4];
     string port = args[5];

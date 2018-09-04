@@ -32,7 +32,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BAnyType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BBuiltInRefType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BEnumType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BErrorType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BField;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BFiniteType;
@@ -323,9 +322,8 @@ public class Types {
             return false;
         }
 
-        // Now both types are not array types and they have to be equal
-        if (target == source) {
-            // TODO Figure out this.
+        // Now both types are not array types and they have to be assignable
+        if (isAssignable(source, target)) {
             return true;
         }
 
@@ -460,6 +458,8 @@ public class Types {
                 BTableType tableType = (BTableType) collectionType;
                 if (variableSize == 1) {
                     return Lists.of(tableType.constraint);
+                } else if (variableSize == 2) {
+                    return Lists.of(symTable.intType, tableType.constraint);
                 } else {
                     maxSupportedTypes = 1;
                     errorTypes = Lists.of(tableType.constraint);
@@ -891,15 +891,6 @@ public class Types {
         }
 
         @Override
-        public BSymbol visit(BEnumType t, BType s) {
-            if (s == symTable.anyType) {
-                return createConversionOperatorSymbol(s, t, false, InstructionCodes.ANY2E);
-            }
-
-            return symTable.notFoundSymbol;
-        }
-
-        @Override
         public BSymbol visit(BInvokableType t, BType s) {
             if (s == symTable.anyType) {
                 return createConversionOperatorSymbol(s, t, false, InstructionCodes.CHECKCAST);
@@ -1028,11 +1019,6 @@ public class Types {
 
         @Override
         public Boolean visit(BStreamType t, BType s) {
-            return t == s;
-        }
-
-        @Override
-        public Boolean visit(BEnumType t, BType s) {
             return t == s;
         }
 

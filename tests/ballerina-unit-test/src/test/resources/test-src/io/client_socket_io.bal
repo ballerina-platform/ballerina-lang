@@ -2,26 +2,26 @@ import ballerina/io;
 
 io:Socket socket;
 
-function openSocketConnection (string host, int port) {
+function openSocketConnection(string host, int port) {
     io:Socket s = new;
     check s.connect(host, port);
     socket = s;
 }
 
-function openSocketConnectionWithProps (string host, int port, int localPort) returns io:Socket {
+function openSocketConnectionWithProps(string host, int port, int localPort) returns io:Socket {
     io:Socket s = new;
     check s.bindAddress(localPort);
     check s.connect(host, port);
     return s;
 }
 
-function closeSocket () {
+function closeSocket() {
     error? err = socket.close();
 }
 
-function write (byte[] content) returns int|error {
-    io:ByteChannel byteChannel = socket.byteChannel;
-    var result = byteChannel.write(content, 0);
+function write(byte[] content) returns int|error {
+    io:ByteChannel channel = socket.channel;
+    var result = channel.write(content, 0);
     match result {
         int numberOfBytesWritten => {
             io:println("Number of byte written to server: ", numberOfBytesWritten);
@@ -33,11 +33,11 @@ function write (byte[] content) returns int|error {
     }
 }
 
-function read (int size) returns (byte[], int)|error {
-    io:ByteChannel byteChannel = socket.byteChannel;
-    var result = byteChannel.read(size);
-    match result{
-        (byte[] , int)  content => {
+function read(int size) returns (byte[], int)|error {
+    io:ByteChannel channel = socket.channel;
+    var result = channel.read(size);
+    match result {
+        (byte[], int) content => {
             var (bytes, numberOfBytes) = content;
             io:println("Number of byte read from server: ", numberOfBytes);
             return (bytes, numberOfBytes);
@@ -48,6 +48,27 @@ function read (int size) returns (byte[], int)|error {
     }
 }
 
-function close (io:Socket localSocket) {
+function readRecord() returns string[]|error {
+    io:ByteChannel byteChannel = socket.channel;
+    io:CharacterChannel characterChannel = new(byteChannel, "UTF-8");
+    io:DelimitedTextRecordChannel rChannel = new io:DelimitedTextRecordChannel(characterChannel,
+                                                                               rs = "\r\n",
+                                                                               fs = ",");
+    if (rChannel.hasNext()){
+        var records = rChannel.getNext();
+        match records {
+            error e => {
+                return e;
+            }
+            string[] fields => {
+                return fields;
+            }
+        }
+    } else{
+        return {message:"No records found"};
+    }
+}
+
+function close(io:Socket localSocket) {
     error? err = localSocket.close();
 }

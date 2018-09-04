@@ -17,7 +17,6 @@
 package org.ballerinalang.composer.service.ballerina.parser.service.model.lang;
 
 import org.ballerinalang.model.elements.AttachPoint;
-import org.wso2.ballerinalang.compiler.tree.BLangAnnotAttribute;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotation;
 
 import java.util.ArrayList;
@@ -53,14 +52,6 @@ public class AnnotationDef {
         List<AttachPoint> attachmentPointsList = annotationDef.getAttachPoints();
         attachmentPointsList.forEach((attachPoint) -> attachmentPoints.add(attachPoint.getValue()));
         tempAnnotation.setAttachmentPoints(attachmentPoints);
-
-        //Annotation Definitions
-        List<BLangAnnotAttribute> annotationAttributes = annotationDef.getAttributes();
-        annotationAttributes.forEach((annotationAttribute) -> {
-            AnnotationAttributeDef tempAnnotationAttributeDef = AnnotationAttributeDef
-                    .convertToPackageModel(annotationAttribute);
-            tempAnnotation.getAnnotationAttributeDefs().add(tempAnnotationAttributeDef);
-        });
 
         //Annotation Attachments
         List<AttachPoint> annotationAttachmentpoints = annotationDef.getAttachPoints();

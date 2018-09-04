@@ -843,7 +843,7 @@ function testTablePrintAndPrintln(string jdbcUrl, string userName, string passwo
     testDB.stop();
 }
 
-function testMutltipleRows(string jdbcUrl, string userName, string password) returns (int, int) {
+function testMultipleRows(string jdbcUrl, string userName, string password) returns (int, int) {
     endpoint jdbc:Client testDB {
         url: jdbcUrl,
         username: userName,
@@ -868,7 +868,7 @@ function testMutltipleRows(string jdbcUrl, string userName, string password) ret
     return (rs1.INT_TYPE, rs2.INT_TYPE);
 }
 
-function testMutltipleRowsWithoutLoop(string jdbcUrl, string userName, string password) returns (int, int, int, int,
+function testMultipleRowsWithoutLoop(string jdbcUrl, string userName, string password) returns (int, int, int, int,
             string, string) {
     endpoint jdbc:Client testDB {
         url: jdbcUrl,
@@ -1252,7 +1252,7 @@ function testGetPrimitiveTypesWithForEach(string jdbcUrl, string userName, strin
     return (i, l, f, d, b, s);
 }
 
-function testMutltipleRowsWithForEach(string jdbcUrl, string userName, string password) returns (int, int) {
+function testMultipleRowsWithForEach(string jdbcUrl, string userName, string password) returns (int, int) {
     endpoint jdbc:Client testDB {
         url: jdbcUrl,
         username: userName,
@@ -1324,6 +1324,68 @@ function testTableRemoveInvalid(string jdbcUrl, string userName, string password
     return s;
 }
 
+function tableGetNextInvalid(string jdbcUrl, string userName, string password) {
+    endpoint jdbc:Client testDB {
+        url: jdbcUrl,
+        username: userName,
+        password: password,
+        poolOptions: { maximumPoolSize: 1 }
+    };
+
+    try {
+        table dt = check testDB->select("SELECT * from DataTable WHERE row_id = 1", ());
+        dt.close();
+        any data = dt.getNext();
+    } finally {
+        testDB.stop();
+    }
+}
+
 function isDelete(ResultPrimitiveInt p) returns (boolean) {
     return p.INT_TYPE < 2000;
+}
+
+function testToJsonAndAccessFromMiddle(string jdbcUrl, string userName, string password) returns (json, int) {
+    endpoint jdbc:Client testDB {
+        url: jdbcUrl,
+        username: userName,
+        password: password,
+        poolOptions: { maximumPoolSize: 1 }
+    };
+
+    try {
+        table dt = check testDB->select("SELECT int_type, long_type, float_type, double_type,
+                  boolean_type, string_type from DataTable", ());
+        json result = check <json>dt;
+
+        json j = result[1];
+        return (result, lengthof result);
+    } finally {
+        testDB.stop();
+    }
+}
+
+function testToJsonAndIterate(string jdbcUrl, string userName, string password) returns (json, int) {
+    endpoint jdbc:Client testDB {
+        url: jdbcUrl,
+        username: userName,
+        password: password,
+        poolOptions: { maximumPoolSize: 1 }
+    };
+
+    try {
+        table dt = check testDB->select("SELECT int_type, long_type, float_type, double_type,
+                  boolean_type, string_type from DataTable", ());
+        json result = check <json>dt;
+        json j = [];
+        int i = 0;
+        foreach row in result {
+            j[i] = row;
+            i++;
+        }
+
+        return (j, lengthof j);
+    } finally {
+        testDB.stop();
+    }
 }

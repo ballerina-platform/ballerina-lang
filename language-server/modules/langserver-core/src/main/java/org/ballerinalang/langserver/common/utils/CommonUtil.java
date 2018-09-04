@@ -23,6 +23,7 @@ import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
 import org.ballerinalang.langserver.compiler.LSContext;
 import org.ballerinalang.langserver.compiler.common.LSDocument;
 import org.ballerinalang.langserver.compiler.common.modal.BallerinaPackage;
+import org.ballerinalang.langserver.compiler.workspace.WorkspaceDocumentException;
 import org.ballerinalang.langserver.compiler.workspace.WorkspaceDocumentManager;
 import org.ballerinalang.langserver.completions.CompletionKeys;
 import org.ballerinalang.langserver.completions.SymbolInfo;
@@ -36,6 +37,8 @@ import org.eclipse.lsp4j.CompletionItem;
 import org.eclipse.lsp4j.InsertTextFormat;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.TextDocumentIdentifier;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.wso2.ballerinalang.compiler.semantics.model.Scope;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAnnotationSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAttachedFunction;
@@ -56,6 +59,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BMapType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BObjectType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStructureType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTableType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BXMLType;
@@ -74,8 +78,6 @@ import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 
-import java.net.MalformedURLException;
-import java.net.URISyntaxException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -89,10 +91,13 @@ import java.util.Set;
 import java.util.Stack;
 import java.util.function.Predicate;
 
+import static org.ballerinalang.langserver.compiler.LSCompilerUtil.getUntitledFilePath;
+
 /**
  * Common utils to be reuse in language server implementation.
  */
 public class CommonUtil {
+    private static final Logger logger = LoggerFactory.getLogger(CommonUtil.class);
 
     public static final String LINE_SEPARATOR = System.lineSeparator();
 
@@ -106,6 +111,9 @@ public class CommonUtil {
         String debugLogStr = System.getProperty("ballerina.debugLog");
         LS_DEBUG_ENABLED =  debugLogStr != null && Boolean.parseBoolean(debugLogStr);
         BALLERINA_HOME = System.getProperty("ballerina.home");
+    }
+
+    private CommonUtil() {
     }
 
     /**
@@ -140,23 +148,6 @@ public class CommonUtil {
     }
 
     /**
-     * Common utility to get a Path from the given uri string.
-     *
-     * @param document LSDocument object of the file
-     * @return {@link Path}     Path of the uri
-     */
-    public static Path getPath(LSDocument document) {
-        Path path = null;
-        try {
-            path = document.getPath();
-        } catch (URISyntaxException | MalformedURLException e) {
-            // Do Nothing
-        }
-
-        return path;
-    }
-
-    /**
      * Calculate the user defined type position.
      *
      * @param position position of the node
@@ -179,6 +170,19 @@ public class CommonUtil {
         int startColumn = diagnosticPos.getStartColumn() - 1;
         int endColumn = diagnosticPos.getEndColumn() - 1;
         return new DiagnosticPos(diagnosticPos.getSource(), startLine, endLine, startColumn, endColumn);
+    }
+
+    /**
+     * Replace and returns a diagnostic position with a new position.
+     *
+     * @param oldPos old position
+     * @param newPos new position
+     */
+    public static void replacePosition(DiagnosticPos oldPos, DiagnosticPos newPos) {
+        oldPos.sLine = newPos.sLine;
+        oldPos.eLine = newPos.eLine;
+        oldPos.sCol = newPos.sCol;
+        oldPos.eCol = newPos.eCol;
     }
 
     /**
@@ -227,26 +231,6 @@ public class CommonUtil {
     }
 
     /**
-     * Get n number of default tokens from a given start index.
-     * @param tokenStream       Token Stream
-     * @param n                 number of tokens to extract
-     * @param startIndex        Start token index
-     * @return {@link List}     List of tokens extracted
-     */
-    public static List<Token> getNDefaultTokensToRight(TokenStream tokenStream, int n, int startIndex) {
-        List<Token> tokens = new ArrayList<>();
-        Token t;
-        while (n > 0) {
-            t = getDefaultTokenToLeftOrRight(tokenStream, startIndex, 1);
-            tokens.add(t);
-            n--;
-            startIndex = t.getTokenIndex();
-        }
-        
-        return Lists.reverse(tokens);
-    }
-
-    /**
      * Get the Nth Default token to the left of current token index.
      *
      * @param tokenStream Token Stream to traverse
@@ -259,25 +243,6 @@ public class CommonUtil {
         int indexCounter = startIndex;
         for (int i = 0; i < offset; i++) {
             token = getPreviousDefaultToken(tokenStream, indexCounter);
-            indexCounter = token.getTokenIndex();
-        }
-
-        return token;
-    }
-
-    /**
-     * Get the Nth Default token to the right of current token index.
-     *
-     * @param tokenStream Token Stream to traverse
-     * @param startIndex  Start position of the token stream
-     * @param offset      Number of tokens to traverse right
-     * @return {@link Token}    Nth Token
-     */
-    public static Token getNthDefaultTokensToRight(TokenStream tokenStream, int startIndex, int offset) {
-        Token token = null;
-        int indexCounter = startIndex;
-        for (int i = 0; i < offset; i++) {
-            token = getNextDefaultToken(tokenStream, indexCounter);
             indexCounter = token.getTokenIndex();
         }
 
@@ -362,23 +327,29 @@ public class CommonUtil {
      */
     public static String topLevelNodeTypeInLine(TextDocumentIdentifier identifier, Position startPosition,
                                                 WorkspaceDocumentManager docManager) {
-        // TODO: Need to support service and resources as well.
         List<String> topLevelKeywords = Arrays.asList("function", "service", "resource", "endpoint", "type");
         LSDocument document = new LSDocument(identifier.getUri());
-        String fileContent = docManager.getFileContent(getPath(document));
-        String[] splitedFileContent = fileContent.split(LINE_SEPARATOR_SPLIT);
-        if ((splitedFileContent.length - 1) >= startPosition.getLine()) {
-            String lineContent = splitedFileContent[startPosition.getLine()];
-            List<String> alphaNumericTokens = new ArrayList<>(Arrays.asList(lineContent.split("[^\\w']+")));
 
-            for (String topLevelKeyword : topLevelKeywords) {
-                if (alphaNumericTokens.contains(topLevelKeyword)) {
-                    return topLevelKeyword;
+        try {
+            Path filePath = document.getPath();
+            Path compilationPath = getUntitledFilePath(filePath.toString()).orElse(filePath);
+            String fileContent = docManager.getFileContent(compilationPath);
+            String[] splitedFileContent = fileContent.split(LINE_SEPARATOR_SPLIT);
+            if ((splitedFileContent.length - 1) >= startPosition.getLine()) {
+                String lineContent = splitedFileContent[startPosition.getLine()];
+                List<String> alphaNumericTokens = new ArrayList<>(Arrays.asList(lineContent.split("[^\\w']+")));
+
+                for (String topLevelKeyword : topLevelKeywords) {
+                    if (alphaNumericTokens.contains(topLevelKeyword)) {
+                        return topLevelKeyword;
+                    }
                 }
             }
+            return null;
+        } catch (WorkspaceDocumentException e) {
+            logger.error("Error occurred while reading content of file: " + document.toString());
+            return null;
         }
-
-        return null;
     }
 
     /**
@@ -389,8 +360,7 @@ public class CommonUtil {
      * @return {@link BLangPackage} current package
      */
     public static BLangPackage getCurrentPackageByFileName(List<BLangPackage> packages, String fileUri) {
-        LSDocument document = new LSDocument(fileUri);
-        Path filePath = getPath(document);
+        Path filePath = new LSDocument(fileUri).getPath();
         Path fileNamePath = filePath.getFileName();
         BLangPackage currentPackage = null;
         try {
@@ -661,7 +631,7 @@ public class CommonUtil {
                 || SymbolKind.FUNCTION.equals(bInvokableSymbol.owner.kind)))
                 || SymbolKind.FUNCTION.equals(bInvokableSymbol.kind));
     }
-    
+
     public static boolean isInvalidSymbol(BSymbol symbol) {
         return ("_".equals(symbol.name.getValue())
                 || "runtime".equals(symbol.getName().getValue())
@@ -801,6 +771,37 @@ public class CommonUtil {
     }
 
     /**
+     * Generate variable code.
+     *
+     * @param variableName          variable name
+     * @param variableType          variable type
+     * @return {@link String}       generated function signature
+     */
+    public static String createVariableDeclaration(String variableName, String variableType) {
+        return variableType  + " " + variableName + " = ";
+    }
+
+    /**
+     * Generates a random name.
+     *
+     * @param value index of the argument
+     * @param argNames argument set
+     * @return random argument name
+     */
+    public static String generateName(int value, Set<String> argNames) {
+        StringBuilder result = new StringBuilder();
+        int index = value;
+        while (--index >= 0) {
+            result.insert(0, (char) ('a' + index % 26));
+            index /= 26;
+        }
+        while (argNames.contains(result.toString())) {
+            result = new StringBuilder(generateName(++value, argNames));
+        }
+        return result.toString();
+    }
+
+    /**
      * Inner class for generating function code.
      */
     public static class FunctionGenerator {
@@ -826,6 +827,13 @@ public class CommonUtil {
                     + CommonUtil.LINE_SEPARATOR;
         }
 
+        /**
+         * Get the default function return statement.
+         *
+         * @param bLangNode         BLangNode to evaluate
+         * @param returnStatement   return statement to modify
+         * @return {@link String}   Default return statement
+         */
         public static String getFuncReturnDefaultStatement(BLangNode bLangNode, String returnStatement) {
             if (bLangNode.type == null && bLangNode instanceof BLangTupleDestructure) {
                 // Check for tuple assignment eg. (int, int)
@@ -922,6 +930,12 @@ public class CommonUtil {
             return returnStatement.replace("{%1}", result);
         }
 
+        /**
+         * Returns signature of the return type.
+         *
+         * @param bLangNode {@link BLangNode}
+         * @return return type signature
+         */
         public static String getFuncReturnSignature(BLangNode bLangNode) {
             if (bLangNode.type == null && bLangNode instanceof BLangTupleDestructure) {
                 // Check for tuple assignment eg. (int, int)
@@ -940,7 +954,13 @@ public class CommonUtil {
             return (bLangNode.type != null) ? getFuncReturnSignature(bLangNode.type) : null;
         }
 
-        private static String getFuncReturnSignature(BType bType) {
+        /**
+         * Returns signature of the return type.
+         *
+         * @param bType {@link BType}
+         * @return return type signature
+         */
+        public static String getFuncReturnSignature(BType bType) {
             if (bType.tsymbol == null && bType instanceof BArrayType) {
                 // Check for array assignment eg.  int[]
                 return getFuncReturnSignature(((BArrayType) bType).eType.tsymbol) + "[]";
@@ -957,6 +977,13 @@ public class CommonUtil {
                     list.add(getFuncReturnSignature(memberType));
                 }
                 return "(" + String.join("|", list) + ")";
+            } else if (bType instanceof BTupleType) {
+                // Check for tuple type assignment eg. int, string
+                List<String> list = new ArrayList<>();
+                for (BType memberType : ((BTupleType) bType).tupleTypes) {
+                    list.add(getFuncReturnSignature(memberType));
+                }
+                return "(" + String.join(",", list) + ")";
             }
             return (bType.tsymbol != null) ? getFuncReturnSignature(bType.tsymbol) : "any";
         }
@@ -988,11 +1015,11 @@ public class CommonUtil {
                         BLangInvocation invocation = (BLangInvocation) bLangExpression;
                         String functionName = invocation.name.value;
                         String argType = lookupFunctionReturnType(functionName, parent);
-                        String argName = generateArgName(argCounter++, argNames);
+                        String argName = generateName(argCounter++, argNames);
                         list.add(argType + " " + argName);
                         argNames.add(argName);
                     } else {
-                        String argName = generateArgName(argCounter++, argNames);
+                        String argName = generateName(argCounter++, argNames);
                         list.add("any " + argName);
                         argNames.add(argName);
                     }
@@ -1011,7 +1038,7 @@ public class CommonUtil {
                 int argCounter = 1;
                 Set<String> argNames = new HashSet<>();
                 for (BType bType : bInvokableType.getParameterTypes()) {
-                    String argName = generateArgName(argCounter++, argNames);
+                    String argName = generateName(argCounter++, argNames);
                     String argType = getFuncReturnSignature(bType);
                     list.add(argType + " " + argName);
                     argNames.add(argName);
@@ -1051,19 +1078,6 @@ public class CommonUtil {
             }
             return (parent != null && parent.parent != null)
                     ? lookupFunctionReturnType(functionName, parent.parent) : "any";
-        }
-
-        private static String generateArgName(int value, Set<String> argNames) {
-            StringBuilder result = new StringBuilder();
-            int index = value;
-            while (--index >= 0) {
-                result.insert(0, (char) ('a' + index % 26));
-                index /= 26;
-            }
-            while (argNames.contains(result.toString())) {
-                result = new StringBuilder(generateArgName(++value, argNames));
-            }
-            return result.toString();
         }
     }
 }

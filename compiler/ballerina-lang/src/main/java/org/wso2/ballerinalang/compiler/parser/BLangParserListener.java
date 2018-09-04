@@ -2171,8 +2171,13 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         BallerinaParser.IntegerLiteralContext integerLiteralContext = ctx.integerLiteral();
         if (integerLiteralContext != null && (value = getIntegerLiteral(ctx, ctx.integerLiteral())) != null) {
             this.pkgBuilder.addLiteralValue(pos, ws, TypeTags.INT, value);
-        } else if ((node = ctx.FloatingPointLiteral()) != null) {
-            this.pkgBuilder.addLiteralValue(pos, ws, TypeTags.FLOAT, Double.parseDouble(getNodeValue(ctx, node)));
+        } else if (ctx.floatingPointLiteral() != null) {
+            if ((node = ctx.floatingPointLiteral().DecimalFloatingPointNumber()) != null) {
+                this.pkgBuilder.addLiteralValue(pos, ws, TypeTags.FLOAT, Double.parseDouble(getNodeValue(ctx, node)));
+            } else if ((node = ctx.floatingPointLiteral().HexadecimalFloatingPointLiteral()) != null) {
+                this.pkgBuilder.addLiteralValue(pos, ws, TypeTags.FLOAT,
+                        Double.parseDouble(getHexNodeValue(ctx, node)));
+            }
         } else if ((node = ctx.BooleanLiteral()) != null) {
             this.pkgBuilder.addLiteralValue(pos, ws, TypeTags.BOOLEAN, Boolean.parseBoolean(node.getText()));
         } else if ((node = ctx.QuotedStringLiteral()) != null) {
@@ -3280,6 +3285,14 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         return value;
     }
 
+    private String getHexNodeValue(ParserRuleContext ctx, TerminalNode node) {
+        String value = getNodeValue(ctx, node);
+        if (!(value.contains("p") || value.contains("P"))) {
+            value = value + "p0";
+        }
+        return value;
+    }
+
     private Object getIntegerLiteral(ParserRuleContext simpleLiteralContext,
                                      BallerinaParser.IntegerLiteralContext integerLiteralContext) {
         if (integerLiteralContext.DecimalIntegerLiteral() != null) {
@@ -3291,11 +3304,6 @@ public class BLangParserListener extends BallerinaParserBaseListener {
             String processedNodeValue = nodeValue.toLowerCase().replace("0x", "");
             return parseLong(simpleLiteralContext, nodeValue, processedNodeValue, 16,
                     DiagnosticCode.HEXADECIMAL_TOO_SMALL, DiagnosticCode.HEXADECIMAL_TOO_LARGE);
-        } else if (integerLiteralContext.OctalIntegerLiteral() != null) {
-            String nodeValue = getNodeValue(simpleLiteralContext, integerLiteralContext.OctalIntegerLiteral());
-            String processedNodeValue = nodeValue.replace("0_", "");
-            return parseLong(simpleLiteralContext, nodeValue, processedNodeValue, 8,
-                    DiagnosticCode.OCTAL_TOO_SMALL, DiagnosticCode.OCTAL_TOO_LARGE);
         } else if (integerLiteralContext.BinaryIntegerLiteral() != null) {
             String nodeValue = getNodeValue(simpleLiteralContext, integerLiteralContext.BinaryIntegerLiteral());
             String processedNodeValue = nodeValue.toLowerCase().replace("0b", "");

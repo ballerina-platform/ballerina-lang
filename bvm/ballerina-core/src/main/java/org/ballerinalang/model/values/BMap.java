@@ -24,10 +24,15 @@ import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.model.types.TypeTags;
 import org.ballerinalang.model.util.Flags;
 import org.ballerinalang.model.util.JsonGenerator;
+import org.ballerinalang.persistence.serializable.SerializableState;
+import org.ballerinalang.persistence.serializable.reftypes.Serializable;
+import org.ballerinalang.persistence.serializable.reftypes.SerializableRefType;
+import org.ballerinalang.persistence.serializable.reftypes.impl.SerializableBMap;
 import org.ballerinalang.util.exceptions.BallerinaException;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -46,7 +51,7 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
  * @since 0.8.0
  */
 @SuppressWarnings("rawtypes")
-public class BMap<K, V extends BValue> implements BRefType, BCollection {
+public class BMap<K, V extends BValue> implements BRefType, BCollection, Serializable {
 
     private LinkedHashMap<K, V> map;
     private final ReadWriteLock lock = new ReentrantReadWriteLock();
@@ -67,7 +72,7 @@ public class BMap<K, V extends BValue> implements BRefType, BCollection {
     /**
      * Retrieve the value for the given key from map.
      * A null will be returned if the key does not exists.
-     * 
+     *
      * @param key key used to get the value
      * @return value
      */
@@ -83,7 +88,7 @@ public class BMap<K, V extends BValue> implements BRefType, BCollection {
     /**
      * Retrieve the value for the given key from map.
      * A {@code BallerinaException} will be thrown if the key does not exists.
-     * 
+     *
      * @param key key used to get the value
      * @return value
      */
@@ -101,7 +106,7 @@ public class BMap<K, V extends BValue> implements BRefType, BCollection {
 
     /**
      * Retrieve the value for the given key from map.
-     * 
+     *
      * @param key key used to get the value
      * @param except flag indicating whether to throw an exception if the key does not exists
      * @return value
@@ -201,7 +206,7 @@ public class BMap<K, V extends BValue> implements BRefType, BCollection {
 
     /**
      * Retrieve the keys related to this map as an array.
-     * 
+     *
      * @return keys as an array
      */
     public K[] keys() {
@@ -216,7 +221,7 @@ public class BMap<K, V extends BValue> implements BRefType, BCollection {
 
     /**
      * Retrieve the value in the map as an array.
-     * 
+     *
      * @return values as an array
      */
     public V[] values() {
@@ -229,7 +234,8 @@ public class BMap<K, V extends BValue> implements BRefType, BCollection {
         }
     }
 
-    /**Return true if this map is empty.
+    /**
+     * Return true if this map is empty.
      *
      * @return Flag indicating whether the map is empty or not
      */
@@ -282,6 +288,40 @@ public class BMap<K, V extends BValue> implements BRefType, BCollection {
         }
     }
 
+    /**
+     * String value with all the fields irrespective of the access modifiers.
+     * Non-public fields of an object will also be stringified.
+     *
+     * @return string value
+     */
+    public String absoluteStringValue() {
+        readLock.lock();
+        StringJoiner sj = new StringJoiner(", ", "{", "}");
+        try {
+            switch (type.getTag()) {
+                case TypeTags.OBJECT_TYPE_TAG:
+                    Arrays.stream(((BStructureType) this.type).getFields()).map(BField::getFieldName).
+                            forEach(fieldName -> {
+                                V fieldVal = get((K) fieldName);
+                                sj.add(fieldName + ":" + getStringValue(fieldVal));
+                            });
+                    break;
+                case TypeTags.JSON_TAG:
+                    return getJSONString();
+                default:
+                    String keySeparator = type.getTag() == TypeTags.MAP_TAG ? "\"" : "";
+                    map.forEach((mapKey, value) -> {
+                        String key = keySeparator + mapKey + keySeparator;
+                        sj.add(key + ":" + getStringValue(value));
+                    });
+                    break;
+            }
+            return sj.toString();
+        } finally {
+            readLock.unlock();
+        }
+    }
+
     @Override
     public BType getType() {
         return this.type;
@@ -305,6 +345,11 @@ public class BMap<K, V extends BValue> implements BRefType, BCollection {
     @Override
     public BIterator newIterator() {
         return new BMapIterator<>(this);
+    }
+
+    @Override
+    public SerializableRefType serialize(SerializableState state) {
+        return new SerializableBMap<>(this, state);
     }
 
     /**
@@ -360,6 +405,15 @@ public class BMap<K, V extends BValue> implements BRefType, BCollection {
     @Override
     public String toString() {
         return stringValue();
+    }
+
+    /**
+     * Get natively accessible data.
+     *
+     * @return map of the native data
+     */
+    public HashMap<String, Object> getNativeData() {
+        return nativeData;
     }
 
     private String getStringValue(V value) {

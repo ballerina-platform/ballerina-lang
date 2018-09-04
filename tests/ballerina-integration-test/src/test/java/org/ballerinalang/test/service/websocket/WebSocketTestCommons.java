@@ -18,67 +18,38 @@
 
 package org.ballerinalang.test.service.websocket;
 
+import org.ballerinalang.test.BaseTest;
 import org.ballerinalang.test.context.BallerinaTestException;
-import org.ballerinalang.test.context.LogLeecher;
-import org.ballerinalang.test.context.ServerInstance;
-import org.ballerinalang.test.util.websocket.client.WebSocketTestClient;
+import org.testng.annotations.AfterGroups;
+import org.testng.annotations.BeforeGroups;
 
 import java.io.File;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.TimeUnit;
 
 /**
  * Facilitate the common functionality of WebSocket integration tests.
  */
-public class WebSocketTestCommons {
-    private ServerInstance ballerinaServerInstance;
+public class WebSocketTestCommons extends BaseTest {
     protected static final int TIMEOUT_IN_SECS = 10;
-    protected static final int REMOTE_SERVER_PORT = 15500;
-
 
     /**
-     * Initializes Ballerina with the given bal file.
+     * Initializes ans start Ballerina with the websocket services package.
      *
-     * @param fileName the filename to initialize the Ballerina server with.
-     * @param logLeecher Log leecher match the logs in the bal file.
      * @throws BallerinaTestException on Ballerina related issues.
      */
-    public void initBallerinaServer(String fileName, LogLeecher logLeecher) throws BallerinaTestException {
-        String balPath = new File("src/test/resources/websocket/" + fileName).getAbsolutePath();
-        ballerinaServerInstance = ServerInstance.initBallerinaServer();
-        ballerinaServerInstance.addLogLeecher(logLeecher);
-        ballerinaServerInstance.startBallerinaServer(balPath);
+    @BeforeGroups(value = "websocket-test", alwaysRun = true)
+    public void start() throws BallerinaTestException {
+        int[] requiredPorts = new int[]{
+                9081, 9082, 9083, 9084, 9085, 9086, 9087, 9088, 9090, 9091, 9092, 9093, 9094, 9095, 9096, 9097, 9098,
+                9099, 9100};
+        String balFile = new File("src" + File.separator + "test" + File.separator + "resources" + File.separator +
+                                          "websocket").getAbsolutePath();
+        String[] args = new String[]{"--sourceroot", balFile};
+        serverInstance.startBallerinaServer("wsservices", args, requiredPorts);
     }
 
-    /**
-     * Initializes Ballerina with the given bal file.
-     *
-     * @param fileName the filename to initialize the Ballerina server with.
-     * @throws BallerinaTestException on Ballerina related issues.
-     */
-    public void initBallerinaServer(String fileName) throws BallerinaTestException {
-        String balPath = new File("src/test/resources/websocket/" + fileName).getAbsolutePath();
-        ballerinaServerInstance = ServerInstance.initBallerinaServer();
-        ballerinaServerInstance.startBallerinaServer(balPath);
-    }
-
-    public void stopBallerinaServerInstance() throws BallerinaTestException {
-        ballerinaServerInstance.stopServer();
-    }
-    /**
-     * This method is only used when ack is needed from Ballerina WebSocket Proxy in order to sync ballerina
-     * WebSocket Server and Client after the handshake in initiated from the {@link WebSocketTestClient}.
-     *
-     * @param client {@link WebSocketTestClient}.
-     * @throws InterruptedException If connection is interrupted during handshake.
-     */
-    protected void handshakeAndAck(WebSocketTestClient client) throws InterruptedException {
-        CountDownLatch ackCountDownLatch = new CountDownLatch(1);
-        client.setCountDownLatch(ackCountDownLatch);
-        client.handshake();
-        ackCountDownLatch.await(TIMEOUT_IN_SECS, TimeUnit.SECONDS);
-        if (!"send".equals(client.getTextReceived())) {
-            throw new IllegalArgumentException("Could not receive acknowledgment");
-        }
+    @AfterGroups(value = "websocket-test", alwaysRun = true)
+    public void stop() throws Exception {
+        serverInstance.removeAllLeechers();
+        serverInstance.stopServer();
     }
 }

@@ -18,27 +18,30 @@
 
 package org.ballerinalang.test.service.http.sample;
 
-import org.ballerinalang.test.context.ServerInstance;
+import org.ballerinalang.test.BaseTest;
 import org.ballerinalang.test.util.HttpClientRequest;
 import org.ballerinalang.test.util.HttpResponse;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.testng.Assert;
-import org.testng.annotations.AfterClass;
-import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
-import java.io.File;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
 import java.nio.channels.SocketChannel;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Test idle timeout response for request timeout and server timeout.
  *
  * @since 0.975.1
  */
-public class IdleTimeoutResponseTestCase {
+@Test(groups = "http-test")
+public class IdleTimeoutResponseTestCase extends BaseTest {
 
+    private static final Logger log = LoggerFactory.getLogger(IdleTimeoutResponseTestCase.class);
     /**
      * A larger client payload to be sent in chunks.
      */
@@ -117,26 +120,17 @@ public class IdleTimeoutResponseTestCase {
             + "</soapenv:Envelope>\r\n"
             + "0\r\n"
             + "\r\n";
-    private ServerInstance ballerinaServer;
     private static final int BUFFER_SIZE = 1024;
 
-    @BeforeClass(description = "Sets up the ballerina server with the file")
-    private void setup() throws Exception {
-        ballerinaServer = ServerInstance.initBallerinaServer();
-        String balFile = new File(
-                "src" + File.separator + "test" + File.separator + "resources" + File.separator + "httpService" +
-                        File.separator + "idle_timeout.bal").getAbsolutePath();
-        ballerinaServer.startBallerinaServer(balFile);
-    }
+    private final int servicePort = 9112;
 
     @Test(description = "Tests if 408 response is returned when the request times out. In this case a delay is " +
-            "introduced between the first and second chunk.", enabled = false)
+            "introduced between the first and second chunk.")
     public void test408Response() throws IOException, InterruptedException {
         SocketChannel clientSocket = connectToRemoteEndpoint();
         writeDelayedRequest(clientSocket);
         String expected = "HTTP/1.1 408 Request Timeout\r\n" +
                 "content-length: 0\r\n" +
-                "content-type: text/plain\r\n" +
                 "connection: close";
         readAndAssertResponse(clientSocket, expected);
     }
@@ -148,7 +142,7 @@ public class IdleTimeoutResponseTestCase {
      * @throws IOException if there's an error when connecting to remote endpoint.
      */
     private SocketChannel connectToRemoteEndpoint() throws IOException {
-        InetSocketAddress remoteAddress = new InetSocketAddress("127.0.0.1", 9090);
+        InetSocketAddress remoteAddress = new InetSocketAddress("127.0.0.1", servicePort);
 
         SocketChannel clientSocket = SocketChannel.open();
         clientSocket.configureBlocking(true);
@@ -190,7 +184,7 @@ public class IdleTimeoutResponseTestCase {
                 socketChannel.write(buf);
             }
             if (numWritten == 2) {
-                Thread.sleep(2000);
+                new CountDownLatch(1).await(2, TimeUnit.SECONDS);
             }
         }
     }
@@ -210,7 +204,7 @@ public class IdleTimeoutResponseTestCase {
         count = socketChannel.read(buffer);
         Assert.assertTrue(count > 0);
         // Loop while data is available; channel is non-blocking
-        do {
+        while (count > 0) {
             // Make buffer readable
             buffer.flip();
 
@@ -218,31 +212,33 @@ public class IdleTimeoutResponseTestCase {
             while (buffer.hasRemaining()) {
                 inboundContent.append((char) buffer.get());
             }
-            String response = inboundContent.toString().trim();
-            //Ignore the server header
-            int newLineIndex = response.lastIndexOf("\r\n");
-            Assert.assertEquals(response.substring(0, newLineIndex), expected.trim());
             // Empty buffer
             buffer.clear();
+            try {
+                count = socketChannel.read(buffer);
+            } catch (IOException e) {
+                //Ignores this exception because the read cannot succeed if the connection is closed in the middle.
+                log.warn("Cannot read more data when connection is closed", e);
+            }
         }
-        while ((count = socketChannel.read(buffer)) > 0);
 
         if (count < 0) {
             // Close channel on EOF, invalidates the key
             socketChannel.close();
         }
+
+        String response = inboundContent.toString().trim();
+        //Ignore the server header
+        int newLineIndex = response.lastIndexOf("\r\n");
+        Assert.assertEquals(response.substring(0, newLineIndex), expected.trim());
     }
 
     @Test(description = "Tests if 500 response is returned when the server times out. In this case a sleep is " +
             "introduced in the server.")
     public void test500Response() throws Exception {
-        HttpResponse response = HttpClientRequest.doGet(ballerinaServer.getServiceURLHttp("idle/timeout500"));
+        HttpResponse response = HttpClientRequest.doGet(serverInstance.getServiceURLHttp(servicePort,
+                                                                                         "idle/timeout500"));
         Assert.assertNotNull(response);
         Assert.assertEquals(response.getResponseCode(), 500, "Response code mismatched");
-    }
-
-    @AfterClass
-    private void cleanup() throws Exception {
-        ballerinaServer.stopServer();
     }
 }

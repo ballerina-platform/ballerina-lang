@@ -33,8 +33,6 @@ public class FunctionSignatureNegativeTest {
         CompileResult result = BCompileUtil.compile("test-src/functions/different-function-signatures-negative.bal");
         BAssertUtil.validateError(result, i++, "redeclared symbol 'c'", 1, 66);
 
-        BAssertUtil.validateError(result, i++, "incompatible types: expected 'any[]', found 'int[]'", 10, 36);
-
         BAssertUtil.validateError(result, i++, "redeclared argument 'a'", 17, 19);
 
         BAssertUtil.validateError(result, i++, "undefined defaultable parameter 'c'", 21, 19);
@@ -55,5 +53,11 @@ public class FunctionSignatureNegativeTest {
     public void testFuncWithTwoRestParams() {
         CompileResult result = BCompileUtil.compile("test-src/functions/function-with-two-rest-params.bal");
         BAssertUtil.validateError(result, 0, "mismatched input ','. expecting ')'", 1, 52);
+    }
+
+    @Test
+    public void testExternFunctionWithBody() {
+        CompileResult result = BCompileUtil.compile("test-src/functions/extern-function-with-body.bal");
+        BAssertUtil.validateError(result, 0, "extern function 'foo' cannot have a body", 1, 1);
     }
 }

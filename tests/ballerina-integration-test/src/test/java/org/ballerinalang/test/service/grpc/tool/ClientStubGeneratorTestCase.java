@@ -49,8 +49,7 @@ public class ClientStubGeneratorTestCase {
     }
 
     @Test
-    public void testUnaryHelloWorld() throws IllegalAccessException,
-            ClassNotFoundException, InstantiationException {
+    public void testUnaryHelloWorld() throws IllegalAccessException, ClassNotFoundException, InstantiationException {
         Class<?> grpcCmd = Class.forName("org.ballerinalang.protobuf.cmd.GrpcCmd");
         GrpcCmd grpcCmd1 = (GrpcCmd) grpcCmd.newInstance();
         Path sourcePath = Paths.get("grpc", "tool");
@@ -78,9 +77,72 @@ public class ClientStubGeneratorTestCase {
                 .getFunctionInfo("helloWorldStub.bye"), "Connector not found.");
     }
 
-    @Test
-    public void testClientStreamingHelloWorld() throws IllegalAccessException,
+    @Test(description = "Test service stub generation tool for package service")
+    public void testUnaryHelloWorldWithPackage() throws IllegalAccessException,
             ClassNotFoundException, InstantiationException {
+        Class<?> grpcCmd = Class.forName("org.ballerinalang.protobuf.cmd.GrpcCmd");
+        GrpcCmd grpcCmd1 = (GrpcCmd) grpcCmd.newInstance();
+        Path sourcePath = Paths.get("grpc", "tool");
+        Path sourceRoot = resourceDir.resolve(sourcePath);
+        Path protoPath = Paths.get("grpc", "tool", "helloWorldWithPackage.proto");
+        Path protoRoot = resourceDir.resolve(protoPath);
+        grpcCmd1.setBalOutPath(sourceRoot.toAbsolutePath().toString());
+        grpcCmd1.setProtoPath(protoRoot.toAbsolutePath().toString());
+        grpcCmd1.execute();
+        Path sourceFileRoot = resourceDir.resolve(Paths.get("grpc", "tool", "helloWorld_pb.bal"));
+        CompileResult compileResult = BCompileUtil.compile(sourceFileRoot.toString());
+        Assert.assertNotNull(compileResult.getProgFile().getPackageInfo(PACKAGE_NAME)
+                .getStructInfo("helloWorldClient"), "Connector not found.");
+        Assert.assertNotNull(compileResult.getProgFile().getPackageInfo(PACKAGE_NAME)
+                .getStructInfo("helloWorldBlockingClient"), "Connector not found.");
+        Assert.assertNotNull(compileResult.getProgFile().getPackageInfo(PACKAGE_NAME)
+                .getStructInfo("helloWorldBlockingStub"), "Connector not found.");
+        Assert.assertNotNull(compileResult.getProgFile().getPackageInfo(PACKAGE_NAME)
+                .getFunctionInfo("helloWorldBlockingStub.hello"), "Connector not found.");
+        Assert.assertNotNull(compileResult.getProgFile().getPackageInfo(PACKAGE_NAME)
+                .getFunctionInfo("helloWorldStub.hello"), "Connector not found.");
+        Assert.assertNotNull(compileResult.getProgFile().getPackageInfo(PACKAGE_NAME)
+                .getFunctionInfo("helloWorldBlockingStub.bye"), "Connector not found.");
+        Assert.assertNotNull(compileResult.getProgFile().getPackageInfo(PACKAGE_NAME)
+                .getFunctionInfo("helloWorldStub.bye"), "Connector not found.");
+    }
+
+    @Test(description = "Test service stub generation tool command without specifying output directory path")
+    public void testUnaryHelloWorldWithoutOutputPath() throws IllegalAccessException, ClassNotFoundException,
+            InstantiationException {
+        Class<?> grpcCmd = Class.forName("org.ballerinalang.protobuf.cmd.GrpcCmd");
+        GrpcCmd grpcCmd1 = (GrpcCmd) grpcCmd.newInstance();
+        Path protoPath = Paths.get("grpc", "tool", "helloWorld.proto");
+        Path protoRoot = resourceDir.resolve(protoPath);
+        grpcCmd1.setProtoPath(protoRoot.toAbsolutePath().toString());
+        try {
+            grpcCmd1.execute();
+            Path sourceFileRoot = resourceDir.resolve(Paths.get("grpc", "client", "helloWorld_pb.bal"));
+            CompileResult compileResult = BCompileUtil.compile(sourceFileRoot.toString());
+            Assert.assertNotNull(compileResult.getProgFile().getPackageInfo(PACKAGE_NAME)
+                    .getStructInfo("helloWorldClient"), "Connector not found.");
+            Assert.assertNotNull(compileResult.getProgFile().getPackageInfo(PACKAGE_NAME)
+                    .getStructInfo("helloWorldBlockingClient"), "Connector not found.");
+            Assert.assertNotNull(compileResult.getProgFile().getPackageInfo(PACKAGE_NAME)
+                    .getStructInfo("helloWorldBlockingStub"), "Connector not found.");
+            Assert.assertNotNull(compileResult.getProgFile().getPackageInfo(PACKAGE_NAME)
+                    .getFunctionInfo("helloWorldBlockingStub.hello"), "Connector not found.");
+            Assert.assertNotNull(compileResult.getProgFile().getPackageInfo(PACKAGE_NAME)
+                    .getFunctionInfo("helloWorldStub.hello"), "Connector not found.");
+            Assert.assertNotNull(compileResult.getProgFile().getPackageInfo(PACKAGE_NAME)
+                    .getFunctionInfo("helloWorldBlockingStub.bye"), "Connector not found.");
+            Assert.assertNotNull(compileResult.getProgFile().getPackageInfo(PACKAGE_NAME)
+                    .getFunctionInfo("helloWorldStub.bye"), "Connector not found.");
+        } finally {
+            if (Paths.get("client", "helloWorld_pb.bal").toFile().exists()) {
+                BalFileGenerationUtils.delete(Paths.get("client").toFile());
+            }
+        }
+    }
+
+    @Test
+    public void testClientStreamingHelloWorld() throws IllegalAccessException, ClassNotFoundException,
+            InstantiationException {
         Class<?> grpcCmd = Class.forName("org.ballerinalang.protobuf.cmd.GrpcCmd");
         GrpcCmd grpcCmd1 = (GrpcCmd) grpcCmd.newInstance();
         Path sourcePath = Paths.get("grpc", "tool");
@@ -125,8 +187,7 @@ public class ClientStubGeneratorTestCase {
     }
 
     @Test
-    public void testStandardDataTypes() throws IllegalAccessException,
-            ClassNotFoundException, InstantiationException {
+    public void testStandardDataTypes() throws IllegalAccessException, ClassNotFoundException, InstantiationException {
         Class<?> grpcCmd = Class.forName("org.ballerinalang.protobuf.cmd.GrpcCmd");
         GrpcCmd grpcCmd1 = (GrpcCmd) grpcCmd.newInstance();
         Path sourcePath = Paths.get("grpc", "tool");
@@ -136,7 +197,7 @@ public class ClientStubGeneratorTestCase {
         grpcCmd1.setBalOutPath(sourceRoot.toAbsolutePath().toString());
         grpcCmd1.setProtoPath(protoRoot.toAbsolutePath().toString());
         grpcCmd1.execute();
-        Path sourceFileRoot = resourceDir.resolve(Paths.get("grpc", "tool", "helloWorld_pb.bal"));
+        Path sourceFileRoot = resourceDir.resolve(Paths.get("grpc", "tool", "helloWorldString_pb.bal"));
         CompileResult compileResult = BCompileUtil.compile(sourceFileRoot.toString());
         Assert.assertNotNull(compileResult.getProgFile().getPackageInfo(PACKAGE_NAME)
                 .getStructInfo("helloWorldClient"), "Connector not found.");
@@ -157,8 +218,8 @@ public class ClientStubGeneratorTestCase {
     }
 
     @Test
-    public void testDifferentOutputPath() throws IllegalAccessException,
-            ClassNotFoundException, InstantiationException {
+    public void testDifferentOutputPath() throws IllegalAccessException, ClassNotFoundException,
+            InstantiationException {
         Class<?> grpcCmd = Class.forName("org.ballerinalang.protobuf.cmd.GrpcCmd");
         GrpcCmd grpcCmd1 = (GrpcCmd) grpcCmd.newInstance();
         Path sourcePath = Paths.get("grpc", "client");

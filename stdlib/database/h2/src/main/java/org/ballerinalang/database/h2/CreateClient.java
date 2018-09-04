@@ -52,7 +52,7 @@ public class CreateClient extends BlockingNativeCallableUnit {
         Struct clientEndpointConfig = BLangConnectorSPIUtil.toStruct(configBStruct);
         Map<String, Value> dbOptions = clientEndpointConfig.getMapField(Constants.EndpointConfig.DB_OPTIONS);
         String urlOptions = "";
-        if (dbOptions != null) {
+        if (!dbOptions.isEmpty()) {
             urlOptions = SQLDatasourceUtils.createJDBCDbOptions(Constants.JDBCUrlSeparators.H2_PROPERTY_BEGIN_SYMBOL,
                     Constants.JDBCUrlSeparators.H2_SEPARATOR, dbOptions);
         }

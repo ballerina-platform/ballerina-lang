@@ -24,6 +24,10 @@ import org.ballerinalang.langserver.compiler.workspace.WorkspaceDocumentManager;
  * @since 0.970.0
  */
 public class LSGlobalContextKeys {
+    
+    private LSGlobalContextKeys() {
+    }
+
     public static final LSContext.Key<WorkspaceDocumentManager> DOCUMENT_MANAGER_KEY
             = new LSContext.Key<>();
     public static final LSContext.Key<BallerinaLanguageServer> LANGUAGE_SERVER_KEY

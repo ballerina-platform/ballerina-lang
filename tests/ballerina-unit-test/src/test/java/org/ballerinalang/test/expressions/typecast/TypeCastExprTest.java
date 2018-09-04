@@ -24,7 +24,6 @@ import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BFloat;
-import org.ballerinalang.model.values.BFloatArray;
 import org.ballerinalang.model.values.BIntArray;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BMap;
@@ -204,17 +203,6 @@ public class TypeCastExprTest {
         Assert.assertEquals(((BBoolean) returns[0]).booleanValue(), true);
     }
 
-    @Test
-    public void testIntArrayToLongArray() {
-        BValue[] returns = BRunUtil.invoke(result, "intarrtofloatarr");
-        Assert.assertTrue(returns[0] instanceof BFloatArray);
-        BFloatArray result = (BFloatArray) returns[0];
-        Assert.assertEquals(result.get(0), 999.0, DELTA);
-        Assert.assertEquals(result.get(1), 95.0, DELTA);
-        Assert.assertEquals(result.get(2), 889.0, DELTA);
-    }
-
-
     /*@Test
     public void testSimpleJsonToMap() {
         BValue[] returns = BTestUtils.invoke(result, "testSimpleJsonToMap");
@@ -313,10 +301,14 @@ public class TypeCastExprTest {
     }
 
     @Test
-    public void testIncompatibleStructToStructCast() {
-        CompileResult res = BCompileUtil.compile("test-src/expressions/typecast/incompatible-struct-cast-negative.bal");
-        Assert.assertEquals(res.getErrorCount(), 1);
+    public void testIncompatibleCast() {
+        CompileResult res = BCompileUtil.compile("test-src/expressions/typecast/incompatible-cast-negative.bal");
+        Assert.assertEquals(res.getErrorCount(), 5);
         BAssertUtil.validateError(res, 0, "incompatible types: expected 'Person', found 'Student'", 24, 16);
+        BAssertUtil.validateError(res, 1, "incompatible types: expected 'float', found 'int'", 30, 16);
+        BAssertUtil.validateError(res, 2, "incompatible types: expected 'float', found 'int'", 30, 20);
+        BAssertUtil.validateError(res, 3, "incompatible types: expected 'float', found 'int'", 30, 23);
+        BAssertUtil.validateError(res, 4, "incompatible types: expected 'float', found 'int'", 33, 18);
     }
 
     @Test(description = "Test casting a JSON integer to a string")
@@ -449,12 +441,10 @@ public class TypeCastExprTest {
                 + "name:\"Jane\"}, {id:2, name:\"Anne\"}]}");
     }
 
-    @Test(description = "Test casting a null as any type to json",
-            expectedExceptions = { BLangRuntimeException.class },
-            expectedExceptionsMessageRegExp = "error: ballerina/runtime:NullReferenceException.*")
+    @Test(description = "Test casting a null as any type to json")
     public void testAnyNullToJson() {
         BValue[] returns = BRunUtil.invoke(result, "testAnyNullToJson");
-        Assert.assertEquals(returns[0], null);
+        Assert.assertNull(returns[0]);
     }
 
     @Test(description = "Test casting an array as any type to json",

@@ -36,7 +36,6 @@ import org.wso2.ballerinalang.compiler.desugar.ASTBuilderUtil;
 import org.wso2.ballerinalang.compiler.semantics.model.Scope;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAnnotationAttributeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAnnotationSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAttachedFunction;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BEndpointVarSymbol;
@@ -53,7 +52,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BXMLNSSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BAnnotationType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BEnumType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BField;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
@@ -61,14 +59,11 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BServiceType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStructureType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.tree.BLangAction;
-import org.wso2.ballerinalang.compiler.tree.BLangAnnotAttribute;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotation;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
 import org.wso2.ballerinalang.compiler.tree.BLangCompilationUnit;
 import org.wso2.ballerinalang.compiler.tree.BLangDocumentation;
 import org.wso2.ballerinalang.compiler.tree.BLangEndpoint;
-import org.wso2.ballerinalang.compiler.tree.BLangEnum;
-import org.wso2.ballerinalang.compiler.tree.BLangEnum.BLangEnumerator;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
 import org.wso2.ballerinalang.compiler.tree.BLangImportPackage;
@@ -223,23 +218,10 @@ public class SymbolEnter extends BLangNodeVisitor {
         // Define annotation nodes.
         pkgNode.annotations.forEach(annot -> defineNode(annot, pkgEnv));
 
-        resolveAnnotationAttributeTypes(pkgNode.annotations, pkgEnv);
-
         pkgNode.globalEndpoints.forEach(ep -> defineNode(ep, pkgEnv));
 
         definePackageInitFunctions(pkgNode, pkgEnv);
         pkgNode.completedPhases.add(CompilerPhase.DEFINE);
-    }
-
-    @Deprecated
-    private void resolveAnnotationAttributeTypes(List<BLangAnnotation> annotations, SymbolEnv pkgEnv) {
-        annotations.forEach(annotation -> {
-            annotation.attributes.forEach(attribute -> {
-                SymbolEnv annotationEnv = SymbolEnv.createAnnotationEnv(annotation, annotation.symbol.scope, pkgEnv);
-                BType actualType = this.symResolver.resolveTypeNode(attribute.typeNode, annotationEnv);
-                attribute.symbol.type = actualType;
-            });
-        });
     }
 
     public void visit(BLangAnnotation annotationNode) {
@@ -251,22 +233,10 @@ public class SymbolEnter extends BLangNodeVisitor {
         annotationNode.symbol = annotationSymbol;
         defineSymbol(annotationNode.name.pos, annotationSymbol);
         SymbolEnv annotationEnv = SymbolEnv.createAnnotationEnv(annotationNode, annotationSymbol.scope, env);
-        annotationNode.attributes.forEach(att -> this.defineNode(att, annotationEnv));
         if (annotationNode.typeNode != null) {
             BType structType = this.symResolver.resolveTypeNode(annotationNode.typeNode, annotationEnv);
             ((BAnnotationSymbol) annotationSymbol).attachedType = structType.tsymbol;
         }
-    }
-
-    public void visit(BLangAnnotAttribute annotationAttribute) {
-        BAnnotationAttributeSymbol annotationAttributeSymbol = Symbols.createAnnotationAttributeSymbol(names.
-                        fromIdNode(annotationAttribute.name), env.enclPkg.symbol.pkgID,
-                null, env.scope.owner);
-        annotationAttributeSymbol.docTag = DocTag.FIELD;
-        annotationAttributeSymbol.expr = annotationAttribute.expr;
-        annotationAttribute.symbol = annotationAttributeSymbol;
-        ((BAnnotationSymbol) env.scope.owner).attributes.add(annotationAttributeSymbol);
-        defineSymbol(annotationAttribute.pos, annotationAttributeSymbol);
     }
 
     @Override
@@ -385,31 +355,6 @@ public class SymbolEnter extends BLangNodeVisitor {
         typeDefinition.symbol = typeDefSymbol;
 
         defineSymbol(typeDefinition.name.pos, typeDefSymbol);
-    }
-
-    @Override
-    public void visit(BLangEnum enumNode) {
-        BTypeSymbol enumSymbol = Symbols.createEnumSymbol(Flags.asMask(enumNode.flagSet),
-                names.fromIdNode(enumNode.name), env.enclPkg.symbol.pkgID, null, env.scope.owner);
-        enumSymbol.documentation = getDocAttachment(enumNode.docAttachments);
-        enumNode.symbol = enumSymbol;
-        defineSymbol(enumNode.name.pos, enumSymbol);
-
-        BEnumType enumType = new BEnumType(enumSymbol, null);
-        enumSymbol.type = enumType;
-
-        SymbolEnv enumEnv = SymbolEnv.createPkgLevelSymbolEnv(enumNode, enumSymbol.scope, this.env);
-        for (int i = 0; i < enumNode.enumerators.size(); i++) {
-            BLangEnumerator enumerator = enumNode.enumerators.get(i);
-            BVarSymbol enumeratorSymbol = new BVarSymbol(Flags.PUBLIC,
-                    names.fromIdNode(enumerator.name), enumSymbol.pkgID, enumType, enumSymbol);
-            enumeratorSymbol.docTag = DocTag.FIELD;
-            enumerator.symbol = enumeratorSymbol;
-
-            if (symResolver.checkForUniqueSymbol(enumerator.pos, enumEnv, enumeratorSymbol, enumeratorSymbol.tag)) {
-                enumEnv.scope.define(enumeratorSymbol.name, enumeratorSymbol);
-            }
-        }
     }
 
     @Override
@@ -845,9 +790,6 @@ public class SymbolEnter extends BLangNodeVisitor {
                 break;
             case FUNCTION:
                 pkgNode.functions.add((BLangFunction) node);
-                break;
-            case ENUM:
-                pkgNode.enums.add((BLangEnum) node);
                 break;
             case TYPE_DEFINITION:
                 pkgNode.typeDefinitions.add((BLangTypeDefinition) node);

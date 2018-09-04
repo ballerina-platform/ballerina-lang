@@ -145,7 +145,7 @@
                 <include>org.apache.geronimo.specs:geronimo-activation_1.1_spec</include>
                 <include>org.apache.geronimo.specs:geronimo-stax-api_1.0_spec</include>
                 <include>org.apache.james:apache-mime4j-core</include>
-                <include>com.beust:jcommander</include>
+                <include>info.picocli:picocli</include>
                 <include>org.slf4j:slf4j-api</include>
                 <include>org.slf4j:slf4j-jdk14</include>
                 <include>io.netty:netty-common</include>
@@ -208,6 +208,9 @@
                 <include>javax.jms:javax.jms-api:jar</include>
                 <include>org.wso2.andes.wso2:andes-client:jar</include>
                 <include>org.wso2.securevault:org.wso2.securevault:jar</include>
+
+                <!-- Check-pointing dependencies -->
+                <include>com.google.code.gson:gson</include>
 
             </includes>
         </dependencySet>

@@ -1,0 +1,30 @@
+{
+  "position": {
+    "line": 1,
+    "character": 16
+  },
+  "expected": {
+    "id":"324",
+    "result":{
+      "signatures":[
+        {
+          "label":"getGreeting(int year, string message)",
+          "documentation":"Returns a sample greeting with the given content",
+          "parameters":[
+            {
+              "label":"year",
+              "documentation":"       Year to print\n\t"
+            },
+            {
+              "label":"message",
+              "documentation":"    Greeting message to print\n    "
+            }
+          ]
+        }
+      ],
+      "activeSignature":0,
+      "activeParameter":0
+    },
+    "jsonrpc":"2.0"
+  }
+}

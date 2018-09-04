@@ -18,6 +18,7 @@
 package org.ballerinalang.model;
 
 import org.ballerinalang.model.util.JsonGenerator;
+import org.ballerinalang.model.values.BRefType;
 
 import java.io.IOException;
 
@@ -37,4 +38,26 @@ public interface JSONDataSource {
      */
     void serialize(JsonGenerator gen) throws IOException;
 
+    /**
+     * Returns {@code true} if the data-source has more JSON elements.
+     * i.e: returns {@code true} if {@link #next} would
+     * return an element rather than throwing an error.
+     *
+     * @return {@code true} if the data-source has more elements
+     */
+    boolean hasNext();
+
+    /**
+     * Returns the next JSON element in the data-source.
+     * 
+     * @return The next JSON element in the data-source.
+     */
+    BRefType<?> next();
+
+    /**
+     * Build the entire data-source in to memory, and returns the JSON.
+     * 
+     * @return JSON represented by the data-source
+     */
+    BRefType<?> build();
 }

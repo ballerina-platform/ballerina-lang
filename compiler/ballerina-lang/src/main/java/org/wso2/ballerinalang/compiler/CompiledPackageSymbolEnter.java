@@ -896,7 +896,9 @@ public class CompiledPackageSymbolEnter {
         String varName = getUTF8CPEntryValue(dataInStream);
         // read variable index
         dataInStream.readInt();
-        getUTF8CPEntryValue(dataInStream);
+        dataInStream.readInt();
+        dataInStream.readInt();
+        dataInStream.readInt();
 
         int attchmntIndexesLength = dataInStream.readShort();
         for (int i = 0; i < attchmntIndexesLength; i++) {

@@ -80,16 +80,6 @@ public class Symbols {
         return typeSymbol;
     }
 
-    @Deprecated
-    public static BAnnotationAttributeSymbol createAnnotationAttributeSymbol(Name name,
-                                                                             PackageID pkgID,
-                                                                             BType type,
-                                                                             BSymbol owner) {
-        BAnnotationAttributeSymbol annotationAttributeSymbol = new BAnnotationAttributeSymbol(name, pkgID, type, owner);
-        annotationAttributeSymbol.kind = SymbolKind.ANNOTATION_ATTRIBUTE;
-        return annotationAttributeSymbol;
-    }
-
     public static BAnnotationSymbol createAnnotationSymbol(int flags, int attachPoints, Name name, PackageID pkgID,
                                                            BType type, BSymbol owner) {
         BAnnotationSymbol annotationSymbol = new BAnnotationSymbol(name, flags, attachPoints, pkgID, type, owner);
@@ -215,39 +205,22 @@ public class Symbols {
 
     public static BConversionOperatorSymbol createUnboxValueTypeOpSymbol(BType sourceType, BType targetType) {
         int opcode;
-        if (sourceType.tag == TypeTags.JSON) {
-            switch (targetType.tag) {
+        switch (targetType.tag) {
             case TypeTags.INT:
-                opcode = InstructionCodes.JSON2I;
+                opcode = InstructionCodes.ANY2I;
+                break;
+            case TypeTags.BYTE:
+                opcode = InstructionCodes.ANY2BI;
                 break;
             case TypeTags.FLOAT:
-                opcode = InstructionCodes.JSON2F;
+                opcode = InstructionCodes.ANY2F;
                 break;
             case TypeTags.STRING:
-                opcode = InstructionCodes.JSON2S;
+                opcode = InstructionCodes.ANY2S;
                 break;
             default:
-                opcode = InstructionCodes.JSON2B;
+                opcode = InstructionCodes.ANY2B;
                 break;
-            }
-        } else {
-            switch (targetType.tag) {
-                case TypeTags.INT:
-                    opcode = InstructionCodes.ANY2I;
-                    break;
-                case TypeTags.BYTE:
-                    opcode = InstructionCodes.ANY2BI;
-                    break;
-                case TypeTags.FLOAT:
-                    opcode = InstructionCodes.ANY2F;
-                    break;
-                case TypeTags.STRING:
-                    opcode = InstructionCodes.ANY2S;
-                    break;
-                default:
-                    opcode = InstructionCodes.ANY2B;
-                    break;
-            }
         }
 
         List<BType> paramTypes = Lists.of(sourceType, targetType);

@@ -17,7 +17,9 @@
  */
 package org.ballerinalang.net.http;
 
+import io.netty.channel.ChannelFuture;
 import io.netty.handler.codec.CorruptedFrameException;
+import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BLangVMErrors;
 import org.ballerinalang.bre.bvm.BLangVMStructs;
 import org.ballerinalang.bre.bvm.CallableUnitCallback;
@@ -41,6 +43,7 @@ import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.model.values.BXML;
+import org.ballerinalang.net.uri.URITemplateException;
 import org.ballerinalang.services.ErrorHandlerUtils;
 import org.ballerinalang.util.BLangConstants;
 import org.ballerinalang.util.codegen.PackageInfo;
@@ -63,6 +66,9 @@ import java.nio.charset.Charset;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import static org.ballerinalang.net.http.WebSocketConstants.STATUS_CODE_ABNORMAL_CLOSURE;
+import static org.ballerinalang.net.http.WebSocketConstants.STATUS_CODE_FOR_NO_STATUS_CODE_PRESENT;
 
 /**
  * {@code WebSocketDispatcher} This is the web socket request dispatcher implementation which finds best matching
@@ -99,9 +105,7 @@ public class WebSocketDispatcher {
             msg.setProperty(HttpConstants.QUERY_STR, requestUri.getRawQuery());
             msg.setProperty(HttpConstants.RESOURCE_ARGS, pathParams);
             return service;
-        } catch (IllegalArgumentException e) {
-            throw new BallerinaConnectorException(e.getMessage());
-        } catch (Exception e) {
+        } catch (BallerinaConnectorException | URITemplateException e) {
             String message = "No Service found to handle the service request";
             webSocketHandshaker.cancelHandshake(404, message);
             throw new BallerinaConnectorException(message, e);
@@ -134,24 +138,20 @@ public class WebSocketDispatcher {
                 dataTypeTag == TypeTags.XML_TAG || dataTypeTag == TypeTags.ARRAY_TAG) {
             if (finalFragment) {
                 connectionInfo.appendAggregateString(textMessage.getText());
-                dispatchReourceWithAggregatedData(webSocketConnection, onTextMessageResource, bValues, dataType,
-                                                  connectionInfo.getAggregateString());
+                dispatchResourceWithAggregatedData(webSocketConnection, onTextMessageResource, bValues, dataType,
+                                                   connectionInfo.getAggregateString());
                 connectionInfo.resetAggregateString();
             } else {
                 connectionInfo.appendAggregateString(textMessage.getText());
                 webSocketConnection.readNextFrame();
             }
 
-        } else {
-            //Throw an exception because a different type is invalid.
-            //Cannot reach here because of compiler plugin validation.
-            throw new BallerinaConnectorException("Invalid resource signature.");
         }
     }
 
-    private static void dispatchReourceWithAggregatedData(WebSocketConnection webSocketConnection,
-                                                          Resource onTextMessageResource, BValue[] bValues,
-                                                          BType dataType, String aggregateString) {
+    private static void dispatchResourceWithAggregatedData(WebSocketConnection webSocketConnection,
+                                                           Resource onTextMessageResource, BValue[] bValues,
+                                                           BType dataType, String aggregateString) {
         try {
             switch (dataType.getTag()) {
                 case TypeTags.JSON_TAG:
@@ -172,11 +172,6 @@ public class WebSocketDispatcher {
                     if (((BArrayType) dataType).getElementType().getTag() == TypeTags.BYTE_TAG) {
                         bValues[1] = new BByteArray(
                                 aggregateString.getBytes(Charset.forName(MimeConstants.UTF_8)));
-                    } else {
-                        //Cannot reach here because of compiler validation
-                        throw new BallerinaException("Incompatible Element type found inside an array " +
-                                                             ((BArrayType) dataType).getElementType()
-                                                                     .getName());
                     }
                     break;
                 default:
@@ -221,8 +216,6 @@ public class WebSocketDispatcher {
             WebSocketDispatcher.dispatchPingMessage(connectionInfo, controlMessage);
         } else if (controlMessage.getControlSignal() == WebSocketControlSignal.PONG) {
             WebSocketDispatcher.dispatchPongMessage(connectionInfo, controlMessage);
-        } else {
-            throw new BallerinaConnectorException("Received unknown control signal");
         }
     }
 
@@ -269,7 +262,11 @@ public class WebSocketDispatcher {
         String closeReason = closeMessage.getCloseReason();
         if (onCloseResource == null) {
             if (webSocketConnection.isOpen()) {
-                webSocketConnection.finishConnectionClosure(closeCode, null);
+                if (closeCode == STATUS_CODE_FOR_NO_STATUS_CODE_PRESENT) {
+                    webSocketConnection.finishConnectionClosure();
+                } else {
+                    webSocketConnection.finishConnectionClosure(closeCode, null);
+                }
             }
             return;
         }
@@ -281,11 +278,16 @@ public class WebSocketDispatcher {
         CallableUnitCallback onCloseCallback = new CallableUnitCallback() {
             @Override
             public void notifySuccess() {
-                if (closeMessage.getCloseCode() != WebSocketConstants.STATUS_CODE_ABNORMAL_CLOSURE
+                if (closeMessage.getCloseCode() != STATUS_CODE_ABNORMAL_CLOSURE
                         && webSocketConnection.isOpen()) {
-                    webSocketConnection.finishConnectionClosure(closeCode, null).addListener(
-                            closeFuture -> connectionInfo.getWebSocketEndpoint()
-                                    .put(WebSocketConstants.LISTENER_IS_SECURE_FIELD, new BBoolean(false)));
+                    ChannelFuture finishFuture;
+                    if (closeCode == STATUS_CODE_FOR_NO_STATUS_CODE_PRESENT) {
+                        finishFuture = webSocketConnection.finishConnectionClosure();
+                    } else {
+                        finishFuture = webSocketConnection.finishConnectionClosure(closeCode, null);
+                    }
+                    finishFuture.addListener(closeFuture -> connectionInfo.getWebSocketEndpoint()
+                            .put(WebSocketConstants.LISTENER_IS_SECURE_FIELD, new BBoolean(false)));
                 }
             }
 
@@ -310,7 +312,9 @@ public class WebSocketDispatcher {
         }
         BValue[] bValues = new BValue[onErrorResource.getParamDetails().size()];
         bValues[0] = connectionInfo.getWebSocketEndpoint();
-        bValues[1] = getError(webSocketService, throwable);
+        Context context = connectionInfo.getContext();
+        bValues[1] = context != null ? getError(context.getProgramFile(), throwable) : getError(
+                webSocketService.getServiceInfo().getPackageInfo().getProgramFile(), throwable);
         CallableUnitCallback onErrorCallback = new CallableUnitCallback() {
             @Override
             public void notifySuccess() {
@@ -325,8 +329,7 @@ public class WebSocketDispatcher {
         Executor.submit(onErrorResource, onErrorCallback, null, null, bValues);
     }
 
-    private static BMap<String, BValue> getError(WebSocketService webSocketService, Throwable throwable) {
-        ProgramFile programFile = webSocketService.getServiceInfo().getPackageInfo().getProgramFile();
+    private static BMap<String, BValue> getError(ProgramFile programFile, Throwable throwable) {
         PackageInfo errorPackageInfo = programFile.getPackageInfo(BLangConstants.BALLERINA_BUILTIN_PKG);
         StructureTypeInfo errorStructInfo = errorPackageInfo.getStructInfo(BLangVMErrors.STRUCT_GENERIC_ERROR);
         String errMsg;

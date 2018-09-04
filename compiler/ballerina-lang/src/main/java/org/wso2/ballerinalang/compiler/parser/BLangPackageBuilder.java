@@ -2363,7 +2363,9 @@ public class BLangPackageBuilder {
         endEndpointDeclarationScope();
         resourceNode.pos = pos;
         resourceNode.addWS(ws);
-        resourceNode.setName(createIdentifier(resourceName));
+        BLangIdentifier name = (BLangIdentifier) createIdentifier(resourceName);
+        name.pos = pos;
+        resourceNode.setName(name);
         if (docExists) {
             attachDocumentations(resourceNode);
         }
@@ -3197,6 +3199,10 @@ public class BLangPackageBuilder {
 
         if (!selectClausesStack.empty()) {
             streamingQueryStatementNode.setSelectClause(selectClausesStack.pop());
+        } else {
+            SelectClauseNode selectClauseNode = new BLangSelectClause();
+            selectClauseNode.setSelectAll(true);
+            streamingQueryStatementNode.setSelectClause(selectClauseNode);
         }
 
         if (!orderByClauseStack.empty()) {

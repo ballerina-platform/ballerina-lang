@@ -54,7 +54,19 @@ public class FunctionDefinition extends CompletionTest {
                 {"matchStatementSuggestions2.json", "function"},
                 {"matchStatementSuggestions3.json", "function"},
                 {"matchStatementSuggestions4.json", "function"},
+                {"matchExpressionSuggestions.json", "function"},
+                {"matchExpressionSuggestions2.json", "function"},
+                {"matchExpressionSuggestions3.json", "function"},
+                {"matchExpressionSuggestions4.json", "function"},
+                {"matchExpressionSuggestions5.json", "function"},
                 {"errorLiftingSuggestions1.json", "function"},
+                {"errorLiftingSuggestions2.json", "function"},
+                {"iterableOperation1.json", "function"},
+                {"iterableOperation2.json", "function"},
+                {"iterableOperation3.json", "function"},
+                {"iterableOperation4.json", "function"},
+                {"iterableOperation5.json", "function"},
+                {"iterableOperation6.json", "function"},
         };
     }
 }

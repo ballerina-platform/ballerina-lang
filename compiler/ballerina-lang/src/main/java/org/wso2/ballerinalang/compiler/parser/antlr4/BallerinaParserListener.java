@@ -1958,6 +1958,16 @@ public interface BallerinaParserListener extends ParseTreeListener {
 	 */
 	void exitSimpleLiteral(BallerinaParser.SimpleLiteralContext ctx);
 	/**
+	 * Enter a parse tree produced by {@link BallerinaParser#floatingPointLiteral}.
+	 * @param ctx the parse tree
+	 */
+	void enterFloatingPointLiteral(BallerinaParser.FloatingPointLiteralContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link BallerinaParser#floatingPointLiteral}.
+	 * @param ctx the parse tree
+	 */
+	void exitFloatingPointLiteral(BallerinaParser.FloatingPointLiteralContext ctx);
+	/**
 	 * Enter a parse tree produced by {@link BallerinaParser#integerLiteral}.
 	 * @param ctx the parse tree
 	 */

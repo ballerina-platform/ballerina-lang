@@ -510,7 +510,7 @@ function test26() returns string {
 }
 
 function testLocalVarModifyWithinClosureScope() returns (float){
-    float fadd = 0;
+    float fadd = 0.0;
     float[] fa = [1.1, 2.2, -3.3, 4.4, 5.5];
     fa.foreach((float i) => { fadd = fadd + i;});
     float fsum = fadd;
@@ -597,4 +597,50 @@ function test28() returns (int, int) {
     return (baz(4), bar(i,j,k));
 }
 
+
+function function1(any firstParameter) returns (function (any) returns boolean) {
+    return (any secondParameter) => boolean {
+        return firstParameter == secondParameter;
+    };
+}
+
+function function2(string firstParameter) returns (function (string) returns boolean) {
+    return (string secondParameter) => boolean {
+        return firstParameter == secondParameter;
+    };
+}
+
+function function3(any firstParameter) returns (function (any) returns boolean) {
+    var otherInternal = firstParameter;
+    return (any secondParameter) => boolean {
+        return otherInternal == secondParameter;
+    };
+}
+
+function function4(string firstParameter) returns (function (string) returns boolean) {
+    var otherInternal = firstParameter;
+    return (string secondParameter) => boolean {
+        return otherInternal == secondParameter;
+    };
+}
+
+function test29() returns (boolean, boolean, boolean, boolean, boolean, boolean, boolean, boolean) {
+    var a1 = function1("ABC");
+    boolean b10 = a1("ABC");
+    boolean b11 = a1("GHJ");
+
+    var a2 = function2("ABC");
+    boolean b20 = a2("ABC");
+    boolean b21 = a2("WER");
+
+    var a3 = function3("ABC");
+    boolean b30 = a3("ABC");
+    boolean b31 = a3("MKJ");
+
+    var a4 = function4("ABC");
+    boolean b40 = a4("ABC");
+    boolean b41 = a4("ERWWS");
+
+    return (b10, b11, b20, b21, b30, b31, b40, b41);
+}
 

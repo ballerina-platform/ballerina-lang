@@ -44,6 +44,6 @@ function testArrayOfMapsInit() returns (map[]) {
 }
 
 function floatArrayInitWithInt() returns (float[]) {
-    float[] abc = [2,4,5];
+    float[] abc = [2.0, 4.0, 5.0];
     return abc;
 }
