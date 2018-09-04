@@ -3,7 +3,7 @@
     "line": 9,
     "character": 4
   },
-  "source": "toplevel/source/objectTest1.bal",
+  "source": "object/source/objectTest1.bal",
   "items": [
     {
       "label":"function signature",
