@@ -18,11 +18,9 @@
 ///////////////////////////////////
 /// Direcotry Listener Endpoint ///
 ///////////////////////////////////
-documentation {
-    Represents directory listener endpoint where used to listen to a directory in the local file system.
-
-    F{{config}} Represents necessary configurations that need to configure
-}
+# Represents directory listener endpoint where used to listen to a directory in the local file system.
+#
+# + config - Represents necessary configurations that need to configure
 public type Listener object {
     private ListenerEndpointConfiguration config;
 
@@ -38,12 +36,10 @@ public type Listener object {
     public extern function start();
 };
 
-documentation {
-    Represents configurations that required for directory listener.
-
-    F{{path}}  Directory path which need to listen
-    F{{recursive}} Recursively monitor all sub folders or not in the given direcotry path
-}
+# Represents configurations that required for directory listener.
+#
+# + path - Directory path which need to listen
+# + recursive - Recursively monitor all sub folders or not in the given direcotry path
 public type ListenerEndpointConfiguration record {
     string path,
     boolean recursive = false,
