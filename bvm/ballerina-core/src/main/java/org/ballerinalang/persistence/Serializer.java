@@ -24,6 +24,10 @@ import org.ballerinalang.model.values.BByte;
 import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BString;
+import org.ballerinalang.model.values.BXMLAttributes;
+import org.ballerinalang.model.values.BXMLItem;
+import org.ballerinalang.model.values.BXMLQName;
+import org.ballerinalang.model.values.BXMLSequence;
 import org.ballerinalang.persistence.serializable.serializer.providers.bvalue.SerializedKeyBValueProvider;
 import org.ballerinalang.persistence.serializable.serializer.providers.instance.SerializableBMapInstanceProvider;
 import org.ballerinalang.persistence.serializable.serializer.providers.instance.SerializableBRefArrayInstanceProvider;
@@ -64,6 +68,10 @@ public class Serializer {
         serializableClasses.add(BBoolean.class.getName());
         serializableClasses.add(BFloat.class.getName());
         serializableClasses.add(BByte.class.getName());
+        serializableClasses.add(BXMLItem.class.getName());
+        serializableClasses.add(BXMLAttributes.class.getName());
+        serializableClasses.add(BXMLQName.class.getName());
+        serializableClasses.add(BXMLSequence.class.getName());
 
         BVALUE_PROVIDER_REGISTRY.register(new SerializedKeyBValueProvider());
 

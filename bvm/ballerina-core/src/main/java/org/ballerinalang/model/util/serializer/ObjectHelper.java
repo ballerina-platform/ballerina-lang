@@ -108,10 +108,13 @@ class ObjectHelper {
         primeFinalFieldForAssignment(field);
         try {
             field.set(target, obj);
-        } catch (IllegalAccessException | IllegalArgumentException e) {
-            throw new BallerinaException(String.format("Error while reflective deserialization of %s",
-                    target.getClass().getName()),
-                    e);
+        } catch (IllegalAccessException e) {
+            // Ignore it, this is fine.
+            // Reason: Either security manager stopping us from setting this field
+            // or this is a static final field initialized using compile time constant,
+            // we can't assign to them at runtime, nor can we identify them at runtime.
+        } catch (IllegalArgumentException e) {
+            throw new BallerinaException(e);
         }
     }
 

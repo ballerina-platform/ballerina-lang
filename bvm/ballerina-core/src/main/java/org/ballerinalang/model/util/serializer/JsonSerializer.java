@@ -25,6 +25,7 @@ import org.ballerinalang.model.util.serializer.providers.bvalue.BMapBValueProvid
 import org.ballerinalang.model.util.serializer.providers.bvalue.BRefValueArrayBValueProvider;
 import org.ballerinalang.model.util.serializer.providers.bvalue.BStringBValueProvider;
 import org.ballerinalang.model.util.serializer.providers.bvalue.BTypeBValueProviders;
+import org.ballerinalang.model.util.serializer.providers.bvalue.BXMLBValueProviders;
 import org.ballerinalang.model.util.serializer.providers.bvalue.BallerinaBrokerByteBufBValueProvider;
 import org.ballerinalang.model.util.serializer.providers.bvalue.ClassBValueProvider;
 import org.ballerinalang.model.util.serializer.providers.bvalue.ConcurrentHashMapBValueProvider;
@@ -66,6 +67,9 @@ public class JsonSerializer implements ObjectToJsonSerializer {
         bValueProvider.register(new BTypeBValueProviders.BArrayTypeBValueProvider());
         bValueProvider.register(new DateTimeBValueProviders.DateBValueProvider());
         bValueProvider.register(new DateTimeBValueProviders.InstantBValueProvider());
+        bValueProvider.register(new BXMLBValueProviders.BXMLItemBValueProvider());
+        bValueProvider.register(new BXMLBValueProviders.BXMLSequenceBValueProvider());
+        bValueProvider.register(new BXMLBValueProviders.BXMLQNameBValueProvider());
     }
 
     /**
