@@ -87,6 +87,7 @@ public class Generator {
 
     private static final Predicate<BLangFunction> IS_CALLER_ACTIONS =
             s -> s.name.value.equals(Names.EP_SPI_GET_CALLER_ACTIONS.value);
+    private static final String EMPTY_STRING = "";
 
     /**
      * Generate the page when the bal package is passed.
@@ -281,7 +282,7 @@ public class Generator {
      */
     public static AnnotationDoc createDocForNode(BLangAnnotation annotationNode) {
         String annotationName = annotationNode.getName().getValue();
-        String dataType = "-", href = "";
+        String dataType = "-", href = EMPTY_STRING;
         if (annotationNode.typeNode != null) {
             dataType = getTypeName(annotationNode.typeNode);
             href = extractLink(annotationNode.typeNode);
@@ -327,7 +328,7 @@ public class Generator {
         }
 
         if (bType.tsymbol == null || bType.tsymbol.pkgID == null) {
-            return "";
+            return EMPTY_STRING;
         }
 
         String pkg = bType.tsymbol.pkgID.getName().getValue();
@@ -352,9 +353,9 @@ public class Generator {
     private static Field getVariableForType(String name, BType param) {
         BTypeSymbol type = param.tsymbol;
         if (type != null) {
-            return new Field(name, type.type.toString(), "", "", extractLink(type.type));
+            return new Field(name, type.type.toString(), EMPTY_STRING, EMPTY_STRING, extractLink(type.type));
         } else {
-            return new Field(name, param.toString(), "", "", extractLink(param));
+            return new Field(name, param.toString(), EMPTY_STRING, EMPTY_STRING, extractLink(param));
         }
     }
 
@@ -373,7 +374,7 @@ public class Generator {
             Field variable = getVariableForType(param.name.toString(), param.type);
             parameters.add(variable);
         }
-        returnParams.add(getVariableForType("", invokable.retType));
+        returnParams.add(getVariableForType(EMPTY_STRING, invokable.retType));
 
         return new FunctionDoc(name, invokable.documentation.description, new ArrayList<>(), parameters, returnParams);
     }
@@ -420,7 +421,7 @@ public class Generator {
             if (!dataType.equals("null")) {
                 String desc = returnParamAnnotation(functionNode);
                 String href = extractLink(returnType);
-                Variable variable = new Variable("", dataType, desc, href);
+                Variable variable = new Variable(EMPTY_STRING, dataType, desc, href);
                 returnParams.add(variable);
             }
 
@@ -434,7 +435,7 @@ public class Generator {
         String dataType = type(param);
         String desc = paramAnnotation(functionNode, param);
         String href = param.typeNode != null ? extractLink(param.typeNode) : extractLink(param.type);
-        String defaultValue = "";
+        String defaultValue = EMPTY_STRING;
         if (null != param.getInitialExpression()) {
             defaultValue = param.getInitialExpression().toString();
         }
@@ -469,7 +470,7 @@ public class Generator {
                 String desc = fieldAnnotation(node, param);
                 desc = desc.isEmpty() ? findDescFromList(name, documentation) : desc;
 
-                String defaultValue = "";
+                String defaultValue = EMPTY_STRING;
                 if (null != param.getInitialExpression()) {
                     defaultValue = param.getInitialExpression().toString();
                 }
@@ -483,13 +484,13 @@ public class Generator {
 
     private static String findDescFromList(String name, BLangMarkdownDocumentation documentation) {
         if (documentation == null) {
-            return "";
+            return EMPTY_STRING;
         }
         Map<String, BLangMarkdownParameterDocumentation> parameterDocumentations =
                 documentation.getParameterDocumentations();
         BLangMarkdownParameterDocumentation parameter = parameterDocumentations.get(name);
         if (parameter == null) {
-            return "";
+            return EMPTY_STRING;
         }
         return BallerinaDocUtils.mdToHtml(parameter.getParameterDocumentation());
     }
@@ -614,12 +615,12 @@ public class Generator {
      * @return description of the return parameter.
      */
     private static String returnParamAnnotation(BLangNode node) {
-        if (isDocumentAttached(node)) {
-            BLangMarkdownDocumentation documentationAttachment =
-                    ((DocumentableNode) node).getMarkdownDocumentationAttachment();
-            return BallerinaDocUtils.mdToHtml(documentationAttachment.getReturnParameterDocumentation());
+        if (!isDocumentAttached(node)) {
+            return EMPTY_STRING;
         }
-        return "";
+        BLangMarkdownDocumentation documentationAttachment =
+                ((DocumentableNode) node).getMarkdownDocumentationAttachment();
+        return BallerinaDocUtils.mdToHtml(documentationAttachment.getReturnParameterDocumentation());
     }
 
     /**
@@ -630,12 +631,13 @@ public class Generator {
      * @return description of the field.
      */
     private static String fieldAnnotation(BLangNode node, BLangNode param) {
-        String subName = "";
-        if (param instanceof BLangVariable) {
-            BLangVariable paramVariable = (BLangVariable) param;
-            subName = (paramVariable.getName() == null) ?
-                    paramVariable.type.tsymbol.name.value : paramVariable.getName().getValue();
+        String subName = EMPTY_STRING;
+        if (!(param instanceof BLangVariable)) {
+            return getParameterDocumentation(node, subName);
         }
+        BLangVariable paramVariable = (BLangVariable) param;
+        subName = (paramVariable.getName() == null) ?
+                paramVariable.type.tsymbol.name.value : paramVariable.getName().getValue();
         return getParameterDocumentation(node, subName);
     }
 
@@ -651,23 +653,25 @@ public class Generator {
                     ((DocumentableNode) node).getMarkdownDocumentationAttachment();
             return BallerinaDocUtils.mdToHtml(documentationAttachment.getDocumentation());
         }
-        return "";
+        return EMPTY_STRING;
     }
 
     private static String getParameterDocumentation(BLangNode node, String subName) {
-        if (isDocumentAttached(node)) {
-            BLangMarkdownDocumentation documentationAttachment =
-                    ((DocumentableNode) node).getMarkdownDocumentationAttachment();
-            Map<String, BLangMarkdownParameterDocumentation> parameterDocumentations =
-                    documentationAttachment.getParameterDocumentations();
-            if (parameterDocumentations != null && !parameterDocumentations.isEmpty()) {
-                BLangMarkdownParameterDocumentation documentation = parameterDocumentations.get(subName);
-                if (documentation != null) {
-                    return BallerinaDocUtils.mdToHtml(documentation.getParameterDocumentation());
-                }
-            }
+        if (!isDocumentAttached(node)) {
+            return EMPTY_STRING;
         }
-        return "";
+        BLangMarkdownDocumentation documentationAttachment =
+                ((DocumentableNode) node).getMarkdownDocumentationAttachment();
+        Map<String, BLangMarkdownParameterDocumentation> parameterDocumentations =
+                documentationAttachment.getParameterDocumentations();
+        if (parameterDocumentations == null || parameterDocumentations.isEmpty()) {
+            return EMPTY_STRING;
+        }
+        BLangMarkdownParameterDocumentation documentation = parameterDocumentations.get(subName);
+        if (documentation != null) {
+            return BallerinaDocUtils.mdToHtml(documentation.getParameterDocumentation());
+        }
+        return EMPTY_STRING;
     }
 
     private static boolean isDocumentAttached(BLangNode node) {
