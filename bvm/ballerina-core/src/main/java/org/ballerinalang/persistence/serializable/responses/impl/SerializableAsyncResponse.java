@@ -21,15 +21,10 @@ import org.ballerinalang.bre.bvm.AsyncInvocableWorkerResponseContext;
 import org.ballerinalang.bre.bvm.ForkJoinWorkerResponseContext;
 import org.ballerinalang.bre.bvm.WorkerResponseContext;
 import org.ballerinalang.persistence.Deserializer;
-import org.ballerinalang.persistence.serializable.SerializableContext;
 import org.ballerinalang.persistence.serializable.SerializableState;
 import org.ballerinalang.persistence.serializable.responses.SerializableResponseContext;
 import org.ballerinalang.util.codegen.CallableUnitInfo;
 import org.ballerinalang.util.codegen.ProgramFile;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * This class implements @{@link SerializableResponseContext} to serialize @{@link ForkJoinWorkerResponseContext}.
@@ -42,22 +37,13 @@ public class SerializableAsyncResponse extends SerializableResponseContext {
 
     public int workerCount;
 
-    private List<String> workerExecutionContexts;
+    private boolean cancelled;
 
-    public SerializableAsyncResponse(String respCtxKey, AsyncInvocableWorkerResponseContext respCtx, SerializableState
-            state, boolean updateTargetCtxIfExist) {
-        super(respCtxKey);
-        SerializableContext sTargetCtx = state.getContext(String.valueOf(respCtx.getTargetContext().hashCode()));
-        if (sTargetCtx == null) {
-            sTargetCtx = state.populateContext(respCtx.getTargetContext(), respCtx.getTargetContext().ip, true,
-                                               updateTargetCtxIfExist, null);
-        }
-        targetCtxKey = sTargetCtx.ctxKey;
+    public SerializableAsyncResponse(String respCtxKey, AsyncInvocableWorkerResponseContext respCtx) {
+        this.respCtxKey = respCtxKey;
         retRegIndexes = respCtx.getRetRegIndexes();
         workerCount = respCtx.getWorkerCount();
-        workerExecutionContexts = new ArrayList<>(respCtx.getWorkerExecutionContexts().size());
-        respCtx.getWorkerExecutionContexts()
-               .forEach(ctx -> workerExecutionContexts.add(String.valueOf(ctx.hashCode())));
+        cancelled = respCtx.isCancelled();
     }
 
     @Override
@@ -65,12 +51,18 @@ public class SerializableAsyncResponse extends SerializableResponseContext {
                                                     SerializableState state, Deserializer deserializer) {
         AsyncInvocableWorkerResponseContext respCtx = new AsyncInvocableWorkerResponseContext(callableUnitInfo,
                                                                                               workerCount);
-        respCtx.setWorkerExecutionContexts(workerExecutionContexts.stream()
-                                                                  .map(s -> state.getExecutionContext(s, programFile,
-                                                                                                      deserializer))
-                                                                  .collect(Collectors.toList()));
-        respCtx.joinTargetContextInfo(state.getExecutionContext(targetCtxKey, programFile, deserializer),
-                                      retRegIndexes);
+        if (cancelled) {
+            respCtx.cancel();
+        }
         return respCtx;
+    }
+
+    @Override
+    public void addTargetContexts(WorkerResponseContext respCtx, SerializableState state) {
+    }
+
+    @Override
+    public void joinTargetContextInfo(WorkerResponseContext respCtx, ProgramFile programFile, SerializableState state,
+                                      Deserializer deserializer) {
     }
 }

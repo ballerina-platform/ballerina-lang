@@ -18,6 +18,7 @@
 package org.ballerinalang.persistence.serializable.responses.impl;
 
 import org.ballerinalang.bre.bvm.ForkJoinWorkerResponseContext;
+import org.ballerinalang.bre.bvm.WorkerExecutionContext;
 import org.ballerinalang.bre.bvm.WorkerResponseContext;
 import org.ballerinalang.persistence.Deserializer;
 import org.ballerinalang.persistence.serializable.SerializableContext;
@@ -54,15 +55,8 @@ public class SerializableForkJoinResponse extends SerializableResponseContext {
 
     private Map<String, String> channelNames;
 
-    public SerializableForkJoinResponse(String respCtxKey, ForkJoinWorkerResponseContext respCtx, SerializableState
-            state, boolean updateTargetCtxIfExist) {
-        super(respCtxKey);
-        SerializableContext sTargetCtx = state.getContext(String.valueOf(respCtx.getTargetContext().hashCode()));
-        if (sTargetCtx == null) {
-            sTargetCtx = state.populateContext(respCtx.getTargetContext(), respCtx.getTargetContext().ip, true,
-                                               updateTargetCtxIfExist, null);
-        }
-        targetCtxKey = sTargetCtx.ctxKey;
+    public SerializableForkJoinResponse(String respCtxKey, ForkJoinWorkerResponseContext respCtx) {
+        this.respCtxKey = respCtxKey;
         retRegIndexes = respCtx.getRetRegIndexes();
         workerCount = respCtx.getWorkerCount();
         reqJoinCount = respCtx.getReqJoinCount();
@@ -77,11 +71,23 @@ public class SerializableForkJoinResponse extends SerializableResponseContext {
     @Override
     public WorkerResponseContext getResponseContext(ProgramFile programFile, CallableUnitInfo callableUnitInfo,
                                                     SerializableState state, Deserializer deserializer) {
-        ForkJoinWorkerResponseContext respCtx = new ForkJoinWorkerResponseContext(
-                state.getExecutionContext(targetCtxKey, programFile, deserializer), joinTargetIp,
-                joinVarReg, timeoutTargetIp, timeoutVarReg, workerCount, reqJoinCount, joinWorkerNames, channelNames);
-        respCtx.joinTargetContextInfo(state.getExecutionContext(targetCtxKey, programFile, deserializer),
-                                      retRegIndexes);
-        return respCtx;
+        return new ForkJoinWorkerResponseContext(null, joinTargetIp, joinVarReg, timeoutTargetIp, timeoutVarReg,
+                                                 workerCount, reqJoinCount, joinWorkerNames, channelNames);
+    }
+
+
+    @Override
+    public void addTargetContexts(WorkerResponseContext respCtx, SerializableState state) {
+        ForkJoinWorkerResponseContext forkJoinCtx = (ForkJoinWorkerResponseContext) respCtx;
+        SerializableContext sTargetCtx = state
+                .getSerializableContext(String.valueOf(forkJoinCtx.getTargetContext().hashCode()));
+        targetCtxKey = sTargetCtx.ctxKey;
+    }
+
+    @Override
+    public void joinTargetContextInfo(WorkerResponseContext respCtx, ProgramFile programFile,
+                                      SerializableState state, Deserializer deserializer) {
+        WorkerExecutionContext ctx = state.getExecutionContext(targetCtxKey, programFile, deserializer);
+        respCtx.joinTargetContextInfo(ctx, retRegIndexes);
     }
 }

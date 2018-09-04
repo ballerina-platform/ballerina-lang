@@ -54,7 +54,8 @@ public class SerializableBMap<K, V extends BValue> implements SerializableRefTyp
 
     @Override
     @SuppressWarnings("unchecked")
-    public BRefType getBRefType(ProgramFile programFile, SerializableState state, Deserializer deserializer) {
+    public BRefType getBRefType(String key, ProgramFile programFile, SerializableState state, Deserializer
+            deserializer) {
         PackageInfo packageInfo = programFile.getPackageInfo(pkgPath);
         BMap<K, V> bMap;
         if (packageInfo != null) {
@@ -69,5 +70,10 @@ public class SerializableBMap<K, V extends BValue> implements SerializableRefTyp
         nativeData.forEach((s, o) -> bMap.addNativeData(s, state.deserialize(o, programFile, deserializer)));
         map.forEach((k, v) -> bMap.put(k, (V) state.deserialize(v, programFile, deserializer)));
         return bMap;
+    }
+
+    @Override
+    public void setContexts(BRefType refType, ProgramFile programFile, SerializableState state,
+                            Deserializer deserializer) {
     }
 }

@@ -40,6 +40,8 @@ public class Constants {
     // Serialization related Constants
     public static final String TYPE = "type";
     public static final String DATA = "data";
+    public static final String NAME = "name";
+    public static final String PACKAGE_PATH = "packagePath";
     public static final String NULL = "null";
 
     // Default worker name

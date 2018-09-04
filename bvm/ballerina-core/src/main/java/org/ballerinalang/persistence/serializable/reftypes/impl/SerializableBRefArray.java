@@ -54,7 +54,8 @@ public class SerializableBRefArray implements SerializableRefType {
     }
 
     @Override
-    public BRefType getBRefType(ProgramFile programFile, SerializableState state, Deserializer deserializer) {
+    public BRefType getBRefType(String key, ProgramFile programFile, SerializableState state,
+                                Deserializer deserializer) {
         PackageInfo packageInfo = programFile.getPackageInfo(pkgPath);
         BRefType[] bRefTypes = new BRefType[values.size()];
         for (int i = 0; i < values.size(); i++) {
@@ -74,5 +75,10 @@ public class SerializableBRefArray implements SerializableRefType {
             type = new BArrayType(structInfo.getType());
         }
         return new BRefValueArray(bRefTypes, type);
+    }
+
+    @Override
+    public void setContexts(BRefType refType, ProgramFile programFile, SerializableState state,
+                            Deserializer deserializer) {
     }
 }

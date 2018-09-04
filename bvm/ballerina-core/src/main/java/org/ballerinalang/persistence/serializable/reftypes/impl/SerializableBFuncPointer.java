@@ -48,7 +48,8 @@ public class SerializableBFuncPointer implements SerializableRefType {
     }
 
     @Override
-    public BRefType getBRefType(ProgramFile programFile, SerializableState state, Deserializer deserializer) {
+    public BRefType getBRefType(String key, ProgramFile programFile, SerializableState state, Deserializer
+            deserializer) {
         PackageInfo packageInfo = programFile.getPackageInfo(funcPkgPath);
         if (packageInfo == null) {
             throw new BallerinaException("Package cannot be found  for path: " + funcPkgPath);
@@ -63,5 +64,11 @@ public class SerializableBFuncPointer implements SerializableRefType {
             });
             return bfp;
         }
+    }
+
+    @Override
+    public void setContexts(BRefType refType, ProgramFile programFile, SerializableState state,
+                            Deserializer deserializer) {
+
     }
 }

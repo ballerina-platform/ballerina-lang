@@ -37,15 +37,8 @@ public class SerializableCallableResponse extends SerializableResponseContext {
 
     public int workerCount;
 
-    public SerializableCallableResponse(String respCtxKey, CallableWorkerResponseContext respCtx, SerializableState
-            state, boolean updateTargetCtxIfExist) {
-        super(respCtxKey);
-        SerializableContext sTargetCtx = state.getContext(String.valueOf(respCtx.getTargetContext().hashCode()));
-        if (sTargetCtx == null) {
-            sTargetCtx = state.populateContext(respCtx.getTargetContext(), respCtx.getTargetContext().ip, true,
-                                               updateTargetCtxIfExist, null);
-        }
-        targetCtxKey = sTargetCtx.ctxKey;
+    public SerializableCallableResponse(String respCtxKey, CallableWorkerResponseContext respCtx) {
+        this.respCtxKey = respCtxKey;
         retRegIndexes = respCtx.getRetRegIndexes();
         workerCount = respCtx.getWorkerCount();
     }
@@ -53,10 +46,21 @@ public class SerializableCallableResponse extends SerializableResponseContext {
     @Override
     public WorkerResponseContext getResponseContext(ProgramFile programFile, CallableUnitInfo callableUnitInfo,
                                                     SerializableState state, Deserializer deserializer) {
-        CallableWorkerResponseContext respCtx = new CallableWorkerResponseContext(callableUnitInfo.getRetParamTypes(),
-                                                                                  workerCount);
+        return new CallableWorkerResponseContext(callableUnitInfo.getRetParamTypes(), workerCount);
+    }
+
+    @Override
+    public void addTargetContexts(WorkerResponseContext respCtx, SerializableState state) {
+        CallableWorkerResponseContext callableCtx = (CallableWorkerResponseContext) respCtx;
+        SerializableContext sTargetCtx = state
+                .getSerializableContext(String.valueOf(callableCtx.getTargetContext().hashCode()));
+        targetCtxKey = sTargetCtx.ctxKey;
+    }
+
+    @Override
+    public void joinTargetContextInfo(WorkerResponseContext respCtx, ProgramFile programFile,
+                                      SerializableState state, Deserializer deserializer) {
         respCtx.joinTargetContextInfo(state.getExecutionContext(targetCtxKey, programFile, deserializer),
                                       retRegIndexes);
-        return respCtx;
     }
 }

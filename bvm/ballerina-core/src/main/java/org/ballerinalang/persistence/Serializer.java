@@ -28,6 +28,7 @@ import org.ballerinalang.model.values.BXMLAttributes;
 import org.ballerinalang.model.values.BXMLItem;
 import org.ballerinalang.model.values.BXMLQName;
 import org.ballerinalang.model.values.BXMLSequence;
+import org.ballerinalang.persistence.serializable.SerializableContext;
 import org.ballerinalang.persistence.serializable.responses.SerializableResponseContextFactory;
 import org.ballerinalang.persistence.serializable.serializer.providers.bvalue.SerializedKeyBValueProvider;
 import org.ballerinalang.persistence.serializable.serializer.providers.instance.SerializableBRefArrayInstanceProvider;
@@ -37,6 +38,8 @@ import org.ballerinalang.persistence.serializable.serializer.providers.instance.
 
 import java.net.InetSocketAddress;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
 
 /**
@@ -53,6 +56,9 @@ public class Serializer {
             JSON_SERIALIZER.getInstanceProviderRegistry();
 
     public static SerializableResponseContextFactory sRspCtxFactory = new SerializableResponseContextFactory();
+
+    public static final HashSet<SerializableContext.Type> REMOVABLE_TYPES_INITIATION = new HashSet<>(Arrays.asList
+            (SerializableContext.Type.DEFAULT, SerializableContext.Type.WORKER));
 
     static {
         serializableClasses.add(String.class.getName());

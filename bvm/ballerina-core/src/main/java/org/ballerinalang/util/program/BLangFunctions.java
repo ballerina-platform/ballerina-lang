@@ -380,10 +380,19 @@ public class BLangFunctions {
 
         List<WorkerExecutionContext> workerExecutionContexts = new ArrayList<>();
         /* execute all the workers in their own threads */
-        for (int i = 0; i < generalWorkersCount; i++) {
-            workerExecutionContexts.add(executeWorker(respCtx, parentCtx, argRegs, callableUnitInfo,
-                    workerSet.generalWorkers[i], wdi, initWorkerLocalData, initWorkerCAI, false,
-                    observerContext));
+        if (parentCtx.interruptible) {
+            for (int i = 0; i < workerSet.generalWorkers.length; i++) {
+                workerExecutionContexts.add(createWorker(respCtx, parentCtx, argRegs, callableUnitInfo,
+                                                         workerSet.generalWorkers[i], wdi, initWorkerLocalData,
+                                                         initWorkerCAI, false, observerContext));
+            }
+            registerAndScheduleInterruptibleWorkers(parentCtx, workerExecutionContexts);
+        } else {
+            for (int i = 0; i < generalWorkersCount; i++) {
+                workerExecutionContexts.add(executeWorker(respCtx, parentCtx, argRegs, callableUnitInfo,
+                                                          workerSet.generalWorkers[i], wdi, initWorkerLocalData,
+                                                          initWorkerCAI, false, observerContext));
+            }
         }
         /* set the worker execution contexts in the response context, so it can use them to do later
          * operations such as cancel */
@@ -393,7 +402,6 @@ public class BLangFunctions {
         BLangVMUtils.populateWorkerDataWithValues(parentCtx.workerLocal, retRegs,
                 new BValue[] { new BCallableFuture(callableUnitInfo.getName(), respCtx) },
                 new BType[] { BTypes.typeFuture });
-        return;
     }
 
     private static WorkerExecutionContext invokeNativeCallable(CallableUnitInfo callableUnitInfo,
@@ -569,22 +577,38 @@ public class BLangFunctions {
             //fork join timeout is in seconds, hence converting to milliseconds
             AsyncTimer.schedule(new ForkJoinTimeoutCallback(respCtx), timeout);
         }
-        Map<String, Object> globalProps = parentCtx.globalProps;
         BLangScheduler.workerWaitForResponse(parentCtx);
-        for (int i = 1; i < workerInfos.length; i++) {
-            executeWorker(respCtx, parentCtx, forkjoinInfo.getArgRegs(), workerInfos[i], globalProps, false);
+        WorkerExecutionContext ctx;
+        if (parentCtx.interruptible) {
+            List<WorkerExecutionContext> ctxList = new ArrayList<>(workerInfos.length);
+            for (int i = 1; i < workerInfos.length; i++) {
+                ctxList.add(createWorker(respCtx, parentCtx, forkjoinInfo.getArgRegs(), workerInfos[i], false));
+            }
+            ctx = createWorker(respCtx, parentCtx, forkjoinInfo.getArgRegs(), workerInfos[0], true);
+            ctxList.add(ctx);
+            registerAndScheduleInterruptibleWorkers(parentCtx, ctxList);
+        } else {
+            for (int i = 1; i < workerInfos.length; i++) {
+                executeWorker(respCtx, parentCtx, forkjoinInfo.getArgRegs(), workerInfos[i], false);
+            }
+            ctx = executeWorker(respCtx, parentCtx, forkjoinInfo.getArgRegs(), workerInfos[0], true);
         }
+        return ctx;
+    }
 
-        return executeWorker(respCtx, parentCtx, forkjoinInfo.getArgRegs(),
-                workerInfos[0], globalProps, true);
+    private static WorkerExecutionContext createWorker(WorkerResponseContext respCtx,
+                                                       WorkerExecutionContext parentCtx, int[] argRegs,
+                                                       WorkerInfo workerInfo,
+                                                        boolean runInCaller) {
+        WorkerData workerLocal = BLangVMUtils.createWorkerDataForLocal(workerInfo, parentCtx, argRegs);
+        return new WorkerExecutionContext(parentCtx, respCtx, parentCtx.callableUnitInfo,
+                                          workerInfo, workerLocal, runInCaller);
     }
 
     private static WorkerExecutionContext executeWorker(WorkerResponseContext respCtx,
-            WorkerExecutionContext parentCtx, int[] argRegs, WorkerInfo workerInfo,
-            Map<String, Object> globalProps, boolean runInCaller) {
-        WorkerData workerLocal = BLangVMUtils.createWorkerDataForLocal(workerInfo, parentCtx, argRegs);
-        WorkerExecutionContext ctx = new WorkerExecutionContext(parentCtx, respCtx, parentCtx.callableUnitInfo,
-                workerInfo, workerLocal, runInCaller);
+                                                        WorkerExecutionContext parentCtx, int[] argRegs,
+                                                        WorkerInfo workerInfo, boolean runInCaller) {
+        WorkerExecutionContext ctx = createWorker(respCtx, parentCtx, argRegs, workerInfo, runInCaller);
         return BLangScheduler.schedule(ctx);
     }
 

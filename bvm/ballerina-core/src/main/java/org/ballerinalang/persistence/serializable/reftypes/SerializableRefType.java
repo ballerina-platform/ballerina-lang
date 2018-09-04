@@ -28,5 +28,8 @@ import org.ballerinalang.util.codegen.ProgramFile;
  * @since 0.981.1
  */
 public interface SerializableRefType {
-    BRefType getBRefType(ProgramFile programFile, SerializableState state, Deserializer deserializer);
+    BRefType getBRefType(String key, ProgramFile programFile, SerializableState state, Deserializer deserializer);
+
+    void setContexts(BRefType refType, ProgramFile programFile, SerializableState state,
+                     Deserializer deserializer);
 }

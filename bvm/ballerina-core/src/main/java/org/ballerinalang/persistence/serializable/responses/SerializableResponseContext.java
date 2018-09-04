@@ -25,27 +25,25 @@ import org.ballerinalang.util.codegen.CallableUnitInfo;
 import org.ballerinalang.util.codegen.ProgramFile;
 
 /**
- * This class represents a serializable Ballerina response context.
+ * This is the representation of serializable Ballerina response context.
  *
  * @since 0.982.0
  */
 public abstract class SerializableResponseContext {
 
-    private String respCtxKey;
+    protected String respCtxKey;
 
     protected String targetCtxKey;
 
-    public SerializableResponseContext() {
-    }
+    public abstract WorkerResponseContext getResponseContext(ProgramFile programFile, CallableUnitInfo
+            callableUnitInfo, SerializableState state, Deserializer deserializer);
 
-    public SerializableResponseContext(String respCtxKey) {
-        this.respCtxKey = respCtxKey;
-    }
+    public abstract void addTargetContexts(WorkerResponseContext respCtx, SerializableState state);
 
-    public abstract WorkerResponseContext getResponseContext(ProgramFile programFile, CallableUnitInfo callableUnitInfo,
-                                                             SerializableState state, Deserializer deserializer);
-
-
+    public abstract void joinTargetContextInfo(WorkerResponseContext respCtx,
+                                               ProgramFile programFile,
+                                               SerializableState state,
+                                               Deserializer deserializer);
 
     public String getRespCtxKey() {
         return respCtxKey;

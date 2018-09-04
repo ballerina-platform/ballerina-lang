@@ -22,7 +22,6 @@ import org.ballerinalang.bre.bvm.AsyncInvocableWorkerResponseContext;
 import org.ballerinalang.bre.bvm.CallableWorkerResponseContext;
 import org.ballerinalang.bre.bvm.ForkJoinWorkerResponseContext;
 import org.ballerinalang.bre.bvm.WorkerResponseContext;
-import org.ballerinalang.persistence.serializable.SerializableState;
 import org.ballerinalang.persistence.serializable.responses.impl.SerializableAsyncResponse;
 import org.ballerinalang.persistence.serializable.responses.impl.SerializableCallableResponse;
 import org.ballerinalang.persistence.serializable.responses.impl.SerializableForkJoinResponse;
@@ -35,17 +34,15 @@ import org.ballerinalang.persistence.serializable.responses.impl.SerializableFor
  */
 public class SerializableResponseContextFactory {
 
-    public SerializableResponseContext getResponseContext(String respCtxKey, WorkerResponseContext respCtx,
-                                                          SerializableState state, boolean updateTargetCtxIfExist) {
+    public SerializableResponseContext getResponseContext(String respCtxKey, WorkerResponseContext respCtx) {
         if (respCtx instanceof AsyncInvocableWorkerResponseContext) {
-            return new SerializableAsyncResponse(respCtxKey, (AsyncInvocableWorkerResponseContext) respCtx, state,
-                                                 updateTargetCtxIfExist);
+            return new SerializableAsyncResponse(respCtxKey,
+                                                 (AsyncInvocableWorkerResponseContext) respCtx);
         } else if (respCtx instanceof ForkJoinWorkerResponseContext) {
-            return new SerializableForkJoinResponse(respCtxKey, (ForkJoinWorkerResponseContext) respCtx, state,
-                                                    updateTargetCtxIfExist);
+            return new SerializableForkJoinResponse(respCtxKey, (ForkJoinWorkerResponseContext) respCtx
+            );
         } else {
-            return new SerializableCallableResponse(respCtxKey, (CallableWorkerResponseContext) respCtx, state,
-                                                    updateTargetCtxIfExist);
+            return new SerializableCallableResponse(respCtxKey, (CallableWorkerResponseContext) respCtx);
         }
     }
 }
