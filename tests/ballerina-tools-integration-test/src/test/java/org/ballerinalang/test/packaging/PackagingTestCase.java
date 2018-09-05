@@ -194,11 +194,11 @@ public class PackagingTestCase extends BaseTest {
                           tempProjectDirectory.toString());
 
         Path dirPath = Paths.get(ProjectDirConstants.DOT_BALLERINA_REPO_DIR_NAME, orgName, packageName, "0.0.1");
-        Assert.assertTrue(Files.notExists(tempHomeDirectory.resolve(dirPath)));
         Assert.assertTrue(Files.notExists(tempHomeDirectory.resolve(dirPath).resolve(packageName + ".zip")));
+        Assert.assertTrue(Files.notExists(tempHomeDirectory.resolve(dirPath)));
     }
 
-    @Test(description = "Test uninstalling a package from the caches which was pulled from central",
+    @Test(description = "Test uninstalling a package from the home repository which was pulled from central",
             dependsOnMethods = "testPull")
     public void testUninstallFromCaches() throws Exception {
         String fullPkgPath = orgName + "/" + packageName + ":0.0.1";
@@ -211,8 +211,8 @@ public class PackagingTestCase extends BaseTest {
 
         Path dirPath = Paths.get(ProjectDirConstants.CACHES_DIR_NAME,
                                  ProjectDirConstants.BALLERINA_CENTRAL_DIR_NAME, orgName, packageName, "0.0.1");
-        Assert.assertTrue(Files.notExists(tempHomeDirectory.resolve(dirPath)));
         Assert.assertTrue(Files.notExists(tempHomeDirectory.resolve(dirPath).resolve(packageName + ".zip")));
+        Assert.assertTrue(Files.notExists(tempHomeDirectory.resolve(dirPath)));
     }
     /**
      * Get environment variables and add ballerina_home as a env variable the tmp directory.

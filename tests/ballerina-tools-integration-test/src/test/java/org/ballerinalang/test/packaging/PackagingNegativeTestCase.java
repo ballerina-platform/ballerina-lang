@@ -257,6 +257,13 @@ public class PackagingNegativeTestCase extends BaseTest {
                 new LogLeecher[]{new LogLeecher(msg)}, balServer.getServerHome());
     }
 
+    @Test(description = "Test uninstall without any arguments")
+    public void testUninstallWithoutArgs() throws Exception {
+        String msg = "ballerina: no package given";
+        balClient.runMain("uninstall", new String[0], envVariables, new String[0],
+                          new LogLeecher[]{new LogLeecher(msg)}, balServer.getServerHome());
+    }
+
     @Test(description = "Test uninstall with too many arguments")
     public void testUninstallWithTooManyArgs() throws Exception {
         String msg = "ballerina: too many arguments\n Run 'ballerina help' for usage.";

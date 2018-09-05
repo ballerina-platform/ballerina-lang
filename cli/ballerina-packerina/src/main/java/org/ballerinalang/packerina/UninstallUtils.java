@@ -69,29 +69,33 @@ public class UninstallUtils {
 
         // Check if package is installed locally
         if (Files.exists(homeRepoPath.resolve(pkgPath), LinkOption.NOFOLLOW_LINKS)) {
-            deletePackage(homeRepoPath, pkgPath, fullPkgPath);
+            deletePackage(homeRepoPath, pkgPath, fullPkgPath, packageName);
         } else if (Files.exists(cacheRepoPath.resolve(pkgPath), LinkOption.NOFOLLOW_LINKS)) {
-            deletePackage(cacheRepoPath, pkgPath, fullPkgPath);
+            deletePackage(cacheRepoPath, pkgPath, fullPkgPath, packageName);
         } else {
             // package to be uninstalled doesn't exists
             throw new BLangCompilerException("package does not exist " + fullPkgPath);
         }
     }
 
-    private static void deletePackage(Path repoPath, Path pkgPath, String fullPkgPath) {
+    /**
+     * Remove package from home repository.
+     *
+     * @param repoPath    path of the home repository
+     * @param pkgPath     package path
+     * @param fullPkgPath full package path as given by user
+     * @param pkgName     package name
+     */
+    private static void deletePackage(Path repoPath, Path pkgPath, String fullPkgPath, String pkgName) {
         try {
             Path path = repoPath.resolve(pkgPath);
-            Files.list(path)
-                 .filter(filePath -> !Files.isDirectory(filePath, LinkOption.NOFOLLOW_LINKS))
-                 .forEach(filePath -> {
-                     try {
-                         Files.delete(filePath);
-                     } catch (IOException e) {
-                         throw new BLangCompilerException("error uninstalling package " + fullPkgPath);
-                     }
-                 });
+            // Delete the package zip
+            Files.deleteIfExists(path.resolve(pkgName + ProjectDirConstants.BLANG_COMPILED_PKG_EXT));
+
             // Delete the empty directories
             deleteEmptyDirsUpTo(path, repoPath);
+
+            // Print that the package was successfully uninstalled
             outStream.println(fullPkgPath + " successfully uninstalled");
         } catch (IOException e) {
             throw new BLangCompilerException("error uninstalling package " + fullPkgPath);
@@ -99,7 +103,7 @@ public class UninstallUtils {
     }
 
     /**
-     * Delete directories.
+     * Delete empty directories.
      *
      * @param from package directory path
      * @param to   home repository path
@@ -109,9 +113,7 @@ public class UninstallUtils {
         Path pathsInBetween = to.relativize(from);
         for (int i = pathsInBetween.getNameCount(); i > 0; i--) {
             Path toRemove = to.resolve(pathsInBetween.subpath(0, i));
-            if (Files.list(toRemove).findAny().isPresent()) {
-                return;
-            } else {
+            if (!Files.list(toRemove).findAny().isPresent()) {
                 Files.delete(toRemove);
             }
         }
