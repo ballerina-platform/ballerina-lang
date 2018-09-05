@@ -38,7 +38,7 @@ class BTreeHelper {
     static BMap<String, BValue> wrapWithTypeMetadata(String type, BValue payload) {
         BMap<String, BValue> map = new BMap<>();
         map.put(JsonSerializerConst.TYPE_TAG, createBString(type));
-        map.put(JsonSerializerConst.PAYLOAD_TAG, payload);
+        map.put(JsonSerializerConst.VALUE_TAG, payload);
         return map;
     }
 
@@ -66,7 +66,7 @@ class BTreeHelper {
             if (objId != null && !repeatedReferenceSet.contains(objId.intValue())) {
                 map.remove(JsonSerializerConst.ID_TAG);
             }
-            trimTree(map.get(JsonSerializerConst.PAYLOAD_TAG), repeatedReferenceSet);
+            trimTree(map.get(JsonSerializerConst.VALUE_TAG), repeatedReferenceSet);
         }
         if (jsonObj instanceof BRefValueArray) {
             BRefValueArray array = (BRefValueArray) jsonObj;

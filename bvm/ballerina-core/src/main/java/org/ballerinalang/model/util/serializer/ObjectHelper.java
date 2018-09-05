@@ -33,6 +33,7 @@ import java.util.HashMap;
  */
 class ObjectHelper {
     private static final String BVALUE_PACKAGE_PATH = getBValuePackagePath();
+    public static final String DEPTH_SEP = "#";
 
     private ObjectHelper() {
     }
@@ -56,7 +57,7 @@ class ObjectHelper {
             if (depth == 0) {
                 name = declaredField.getName();
             } else {
-                name = declaredField.getName() + "#" + depth;
+                name = declaredField.getName() + DEPTH_SEP + depth;
             }
             fieldMap.put(name, declaredField);
         }

@@ -358,6 +358,11 @@ public class JsonSerializerTest {
         Assert.assertEquals(deserialize.i, intMemberClass.i);
     }
 
+    @SuppressWarnings("unused")
+    enum TestEnum {
+        Item_1, Item_2, Item_N
+    }
+
     static class TestClass {
         final Object obj;
 
@@ -397,17 +402,11 @@ public class JsonSerializerTest {
         }
     }
 
-
-    @SuppressWarnings("unused")
-    enum TestEnum {
-        Item_1, Item_2, Item_N
-    }
-
     @SuppressWarnings({"SameParameterValue", "unused"})
     static class PrimitiveMembers {
         final int i;
         public byte b;
-        public  char c;
+        public char c;
         public short s;
         public float f;
         public double d;

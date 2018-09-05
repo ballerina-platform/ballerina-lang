@@ -35,7 +35,6 @@ class ObjectUID {
     private final IdentityHashMap<Object, Long> identityMap = new IdentityHashMap<>();
     private final HashSet<Long> repeatedReferenceSet = new HashSet<>();
 
-
     ObjectUID() {
     }
 
@@ -44,9 +43,6 @@ class ObjectUID {
     }
 
     void addUID(Object obj, BMap<String, BValue> map) {
-        if (map == null) {
-            return;
-        }
         map.put(JsonSerializerConst.ID_TAG, new BInteger(track(obj)));
     }
 

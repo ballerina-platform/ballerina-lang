@@ -17,16 +17,9 @@
  */
 package org.ballerinalang.test.serializer.json;
 
-import io.netty.buffer.ByteBuf;
-import io.netty.handler.codec.http.DefaultFullHttpResponse;
-import io.netty.handler.codec.http.HttpResponse;
-import io.netty.handler.codec.http.HttpResponseStatus;
-import io.netty.handler.codec.http.HttpVersion;
-import org.ballerinalang.broker.BallerinaBrokerByteBuf;
 import org.ballerinalang.model.util.serializer.JsonSerializer;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BString;
-import org.ballerinalang.model.values.BValue;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
@@ -38,22 +31,6 @@ import java.util.Map;
  * Test serialization and deserialization of complex object structures.
  */
 public class ComplexObjectSerializationTest {
-    @SuppressWarnings("unchecked")
-    @Test(description = "Test serialize/deserialize HttpResponse Object")
-    public void testJsonDeserializeHttpResponse() {
-        BValue bTree = new BMap<String, BValue>();
-        ((BMap) bTree).put("Item1", new BString("Value1"));
-        ByteBuf byteBuf = new BallerinaBrokerByteBuf(bTree);
-        HttpResponse response = new DefaultFullHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.OK, byteBuf);
-
-        // NOTE: Serializing large object structures will produce humongous JSON payload.
-        // Consider using SerializableBValueProviders to minimize output size.
-        String serialize = new JsonSerializer().serialize(response);
-        HttpResponse deserializedResponse = new JsonSerializer()
-                .deserialize(serialize, DefaultFullHttpResponse.class);
-
-        Assert.assertEquals(deserializedResponse.status(), HttpResponseStatus.OK);
-    }
 
     @SuppressWarnings("unchecked")
     @Test(description = "Test serializing complex keys in a Map")
@@ -146,8 +123,8 @@ public class ComplexObjectSerializationTest {
 
     @SuppressWarnings("SameParameterValue")
     static class ReadResolverClass implements Serializable {
-        boolean resolved = false;
         final int i;
+        boolean resolved = false;
 
         ReadResolverClass(int i) {
             this.i = i;

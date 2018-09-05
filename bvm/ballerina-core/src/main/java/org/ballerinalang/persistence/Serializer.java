@@ -29,12 +29,9 @@ import org.ballerinalang.model.values.BXMLItem;
 import org.ballerinalang.model.values.BXMLQName;
 import org.ballerinalang.model.values.BXMLSequence;
 import org.ballerinalang.persistence.serializable.serializer.providers.bvalue.SerializedKeyBValueProvider;
-import org.ballerinalang.persistence.serializable.serializer.providers.instance.SerializableBMapInstanceProvider;
 import org.ballerinalang.persistence.serializable.serializer.providers.instance.SerializableBRefArrayInstanceProvider;
 import org.ballerinalang.persistence.serializable.serializer.providers.instance.SerializableContextInstanceProvider;
-import org.ballerinalang.persistence.serializable.serializer.providers.instance.SerializableStateInstanceProvider;
 import org.ballerinalang.persistence.serializable.serializer.providers.instance.SerializableWorkerDataInstanceProvider;
-import org.ballerinalang.persistence.serializable.serializer.providers.instance.SerializedKeyInstanceProvider;
 import org.ballerinalang.persistence.serializable.serializer.providers.instance.WorkerStateInstanceProvider;
 
 import java.net.InetSocketAddress;
@@ -75,12 +72,9 @@ public class Serializer {
 
         BVALUE_PROVIDER_REGISTRY.register(new SerializedKeyBValueProvider());
 
-        INSTANCE_PROVIDER_REGISTRY.add(new SerializableStateInstanceProvider());
         INSTANCE_PROVIDER_REGISTRY.add(new SerializableWorkerDataInstanceProvider());
         INSTANCE_PROVIDER_REGISTRY.add(new SerializableContextInstanceProvider());
         INSTANCE_PROVIDER_REGISTRY.add(new WorkerStateInstanceProvider());
-        INSTANCE_PROVIDER_REGISTRY.add(new SerializableBMapInstanceProvider());
-        INSTANCE_PROVIDER_REGISTRY.add(new SerializedKeyInstanceProvider());
         INSTANCE_PROVIDER_REGISTRY.add(new SerializableBRefArrayInstanceProvider());
     }
 

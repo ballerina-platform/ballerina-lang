@@ -44,7 +44,7 @@ public class InstanceProviderRegistry {
      * @return TypeInstanceProvider for specified type.
      */
     TypeInstanceProvider findInstanceProvider(String type) {
-        TypeInstanceProvider provider = find(type);
+        TypeInstanceProvider provider = providerMap.get(type);
         if (provider != null) {
             return provider;
         }
@@ -55,10 +55,6 @@ public class InstanceProviderRegistry {
             return instanceProvider;
         }
         throw new BallerinaException(String.format("Can not find or create type instance provider for: %s", type));
-    }
-
-    private TypeInstanceProvider find(String type) {
-        return providerMap.get(type);
     }
 
     private TypeInstanceProvider generateProvider(String type) {

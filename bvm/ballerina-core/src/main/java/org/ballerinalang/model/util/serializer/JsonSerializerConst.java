@@ -25,7 +25,7 @@ package org.ballerinalang.model.util.serializer;
 public class JsonSerializerConst {
     public static final String EXISTING_TAG = "#existing#";
     public static final String ID_TAG = "#id#";
-    public static final String PAYLOAD_TAG = "value#";
+    public static final String VALUE_TAG = "value#";
     public static final String TYPE_TAG = "type#";
     public static final String ENUM_TAG = "enum#";
     public static final String LIST_TAG = "list#";

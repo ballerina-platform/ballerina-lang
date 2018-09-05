@@ -50,7 +50,7 @@ public class BPacket {
      */
     public static BPacket from(String type, BValue payload) {
         BPacket bPacket = new BPacket();
-        bPacket.put(JsonSerializerConst.PAYLOAD_TAG, payload);
+        bPacket.put(JsonSerializerConst.VALUE_TAG, payload);
         bPacket.put(JsonSerializerConst.TYPE_TAG, BTreeHelper.createBString(type));
         return bPacket;
     }
@@ -77,7 +77,7 @@ public class BPacket {
     }
 
     public BValue getValue() {
-        return map.get(JsonSerializerConst.PAYLOAD_TAG);
+        return map.get(JsonSerializerConst.VALUE_TAG);
     }
 
     public BValue get(String key) {

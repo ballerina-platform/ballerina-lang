@@ -38,7 +38,7 @@ import java.math.BigInteger;
 import java.time.Instant;
 import java.util.Date;
 
-import static org.ballerinalang.model.util.serializer.JsonSerializerConst.PAYLOAD_TAG;
+import static org.ballerinalang.model.util.serializer.JsonSerializerConst.VALUE_TAG;
 
 /**
  * Test SerializationBValueProvider implementations.
@@ -67,7 +67,7 @@ public class SerializationBValueProviderTest {
                 new NumericBValueProviders.BigIntegerBValueProvider();
         BPacket value = provider.toBValue(new BigInteger(NUMBER), serializer);
 
-        BValue payload = value.get(PAYLOAD_TAG);
+        BValue payload = value.get(VALUE_TAG);
         Assert.assertEquals(payload.stringValue(), NUMBER);
     }
 

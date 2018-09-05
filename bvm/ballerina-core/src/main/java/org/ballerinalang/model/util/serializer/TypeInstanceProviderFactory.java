@@ -40,9 +40,6 @@ public class TypeInstanceProviderFactory {
             clazz = Class.forName(fullClassName);
             assertInstantiable(clazz);
             Constructor<?> declaredConstructor = clazz.getDeclaredConstructor();
-            if (declaredConstructor == null) {
-                return null;
-            }
             return createInstanceProvider(declaredConstructor, clazz);
         } catch (NoSuchMethodException e) {
             // If no-param constructor is not found, try unsafe allocator.
