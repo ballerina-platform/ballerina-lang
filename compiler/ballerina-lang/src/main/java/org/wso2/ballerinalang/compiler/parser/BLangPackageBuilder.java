@@ -17,6 +17,7 @@
  */
 package org.wso2.ballerinalang.compiler.parser;
 
+import org.antlr.v4.runtime.tree.TerminalNode;
 import org.apache.commons.lang3.StringEscapeUtils;
 import org.ballerinalang.compiler.CompilerOptionName;
 import org.ballerinalang.model.TreeBuilder;
@@ -117,6 +118,7 @@ import org.wso2.ballerinalang.compiler.tree.clauses.BLangWhere;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangWindow;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangWithinClause;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrayLiteral;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrowFunction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangAwaitExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBracedOrTupleExpr;
@@ -758,6 +760,21 @@ public class BLangPackageBuilder {
         addExpressionNode(lambdaExpr);
         // TODO: is null correct here
         endFunctionDef(pos, null, false, false, true, false, true);
+    }
+
+    void addArrowFunctionDef(DiagnosticPos pos, Set<Whitespace> ws, List<TerminalNode> paramIdentifiers) {
+        BLangArrowFunction arrowFunctionNode = (BLangArrowFunction) TreeBuilder.createArrowFunctionNode();
+        arrowFunctionNode.pos = pos;
+        arrowFunctionNode.addWS(ws);
+        List<BLangVariable> params = new ArrayList<>();
+        paramIdentifiers.forEach(param -> {
+            BLangVariable variableNode = (BLangVariable) TreeBuilder.createVariableNode();
+            variableNode.setName(createIdentifier(param.getText()));
+            params.add(variableNode);
+        });
+        arrowFunctionNode.params = params;
+        arrowFunctionNode.expression = (BLangExpression) this.exprNodeStack.pop();
+        addExpressionNode(arrowFunctionNode);
     }
 
     private void startEndpointDeclarationScope(List<BLangEndpoint> endpointList) {

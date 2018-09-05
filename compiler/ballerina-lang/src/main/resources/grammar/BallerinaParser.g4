@@ -71,7 +71,12 @@ functionDefinition
     ;
 
 lambdaFunction
-    :  LEFT_PARENTHESIS formalParameterList? RIGHT_PARENTHESIS EQUAL_GT lambdaReturnParameter? callableUnitBody
+    :  FUNCTION LEFT_PARENTHESIS formalParameterList? RIGHT_PARENTHESIS (RETURNS lambdaReturnParameter)? callableUnitBody
+    ;
+
+arrowFunction
+    :   Identifier EQUAL_GT expression
+    |   LEFT_PARENTHESIS Identifier (COMMA Identifier)* RIGHT_PARENTHESIS EQUAL_GT expression
     ;
 
 callableUnitSignature
@@ -607,6 +612,7 @@ expression
     |   START? variableReference                                            # variableReferenceExpression
     |   actionInvocation                                                    # actionInvocationExpression
     |   lambdaFunction                                                      # lambdaFunctionExpression
+    |   arrowFunction                                                       # arrowFunctionExpression
     |   typeInitExpr                                                        # typeInitExpression
     |   tableQuery                                                          # tableQueryExpression
     |   LT typeName (COMMA functionInvocation)? GT expression               # typeConversionExpression

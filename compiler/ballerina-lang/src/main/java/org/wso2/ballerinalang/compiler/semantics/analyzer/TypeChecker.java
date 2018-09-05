@@ -19,11 +19,13 @@ package org.wso2.ballerinalang.compiler.semantics.analyzer;
 
 import org.ballerinalang.model.TreeBuilder;
 import org.ballerinalang.model.elements.Flag;
+import org.ballerinalang.model.tree.IdentifierNode;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.OperatorKind;
 import org.ballerinalang.model.tree.clauses.OrderByVariableNode;
 import org.ballerinalang.model.tree.clauses.SelectExpressionNode;
 import org.ballerinalang.model.tree.expressions.NamedArgNode;
+import org.ballerinalang.model.tree.statements.BlockNode;
 import org.ballerinalang.util.diagnostic.DiagnosticCode;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.Types.RecordKind;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
@@ -73,6 +75,7 @@ import org.wso2.ballerinalang.compiler.tree.clauses.BLangStreamingInput;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangTableQuery;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangAccessExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrayLiteral;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrowFunction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangAwaitExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBracedOrTupleExpr;
@@ -111,6 +114,8 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLQName;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLQuotedString;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLTextLiteral;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangReturn;
+import org.wso2.ballerinalang.compiler.tree.types.BLangValueType;
 import org.wso2.ballerinalang.compiler.util.BArrayState;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.FieldKind;
@@ -130,6 +135,7 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 import javax.xml.XMLConstants;
 
@@ -144,7 +150,8 @@ public class TypeChecker extends BLangNodeVisitor {
     private static final CompilerContext.Key<TypeChecker> TYPE_CHECKER_KEY =
             new CompilerContext.Key<>();
 
-    private static final String TABLE_CONFIG = "TableConfig";
+    private static final String LAMBDA_NAME = "$arrow$";
+    private int lambdaFunctionCount = 0;
 
     private Names names;
     private SymbolTable symTable;
@@ -618,6 +625,7 @@ public class TypeChecker extends BLangNodeVisitor {
     public void visit(BLangInvocation iExpr) {
         // Variable ref expression null means this is the leaf node of the variable ref expression tree
         // e.g. foo();, foo(), foo().k;
+
         if (iExpr.expr == null) {
             // This is a function invocation expression. e.g. foo()
             checkFunctionInvocationExpr(iExpr);
@@ -994,6 +1002,83 @@ public class TypeChecker extends BLangNodeVisitor {
         semanticAnalyzer.analyzeDef(lambdaFunction, env);
         lambdaFunction.isTypeChecked = true;
         resultType = types.checkType(bLangLambdaFunction, bLangLambdaFunction.type, expType);
+    }
+
+    @Override
+    public void visit(BLangArrowFunction bLangArrowFunction) {
+        if (expType.tag != TypeTags.INVOKABLE) {
+            dlog.error(bLangArrowFunction.pos, DiagnosticCode.ARROW_EXPRESSION_EXPECTS_INVOKABLE_TYPE);
+            resultType = symTable.errType;
+            return;
+        }
+
+        BInvokableType expectedInvocation = (BInvokableType) this.expType;
+
+        if (expectedInvocation.paramTypes.size() != bLangArrowFunction.params.size()) {
+            dlog.error(bLangArrowFunction.pos, DiagnosticCode.ARROW_EXPRESSION_MISMATCHED_PARAMETER_LENGTH,
+                    expectedInvocation.paramTypes.size(), bLangArrowFunction.params.size());
+            resultType = symTable.errType;
+            return;
+        }
+
+        BLangFunction bLangFunction = (BLangFunction) TreeBuilder.createFunctionNode();
+        bLangFunction.setName(getFunctionName());
+
+        populateArrowExprParameterTypes(bLangArrowFunction, expectedInvocation, bLangFunction);
+        populateArrowExprReturnType(bLangArrowFunction, expectedInvocation, bLangFunction);
+        populateArrowExprBodyBlock(bLangArrowFunction, bLangFunction);
+
+        BLangLambdaFunction lambdaFunction = (BLangLambdaFunction) TreeBuilder.createLambdaFunctionNode();
+        lambdaFunction.pos = bLangArrowFunction.pos;
+        bLangFunction.addFlag(Flag.LAMBDA);
+        lambdaFunction.function = bLangFunction;
+
+        symbolEnter.defineNode(bLangFunction, env);
+        lambdaFunction.type = bLangFunction.symbol.type;
+        semanticAnalyzer.analyzeDef(bLangFunction, env);
+        bLangFunction.isTypeChecked = true;
+        bLangArrowFunction.lambdaFunction = lambdaFunction;
+        resultType = types.checkType(lambdaFunction, lambdaFunction.type, expType);
+    }
+
+    private void populateArrowExprBodyBlock(BLangArrowFunction bLangArrowFunction, BLangFunction bLangFunction) {
+        bLangFunction.desugaredReturnType = true;
+        BlockNode blockNode = TreeBuilder.createBlockNode();
+        BLangReturn returnNode = (BLangReturn) TreeBuilder.createReturnNode();
+        returnNode.pos = bLangArrowFunction.pos;
+        returnNode.setExpression(bLangArrowFunction.expression);
+        blockNode.addStatement(returnNode);
+        bLangFunction.setBody(blockNode);
+    }
+
+    private void populateArrowExprReturnType(BLangArrowFunction bLangArrowFunction,
+                                             BInvokableType expectedInvocation, BLangFunction bLangFunction) {
+        BLangValueType returnType = (BLangValueType) TreeBuilder.createValueTypeNode();
+        returnType.typeKind = expectedInvocation.retType.getKind();
+        returnType.pos = bLangArrowFunction.pos;
+        returnType.type = expectedInvocation.retType;
+        bLangFunction.setReturnTypeNode(returnType);
+    }
+
+    private void populateArrowExprParameterTypes(BLangArrowFunction bLangArrowFunction,
+                                                 BInvokableType expectedInvocation, BLangFunction bLangFunction) {
+        AtomicInteger i = new AtomicInteger();
+        bLangArrowFunction.params.forEach(paramIdentifier -> {
+            BType bType = expectedInvocation.paramTypes.get(i.getAndIncrement());
+            BLangValueType valueTypeNode = (BLangValueType) TreeBuilder.createValueTypeNode();
+            valueTypeNode.pos = bLangArrowFunction.pos;
+            valueTypeNode.setTypeKind(bType.getKind());
+            paramIdentifier.setTypeNode(valueTypeNode);
+            paramIdentifier.type = bType;
+            bLangFunction.addParameter(paramIdentifier);
+        });
+    }
+
+    private IdentifierNode getFunctionName() {
+        IdentifierNode node = TreeBuilder.createIdentifierNode();
+        node.setValue(LAMBDA_NAME + lambdaFunctionCount++);
+        node.setLiteral(false);
+        return node;
     }
 
     public void visit(BLangXMLQName bLangXMLQName) {

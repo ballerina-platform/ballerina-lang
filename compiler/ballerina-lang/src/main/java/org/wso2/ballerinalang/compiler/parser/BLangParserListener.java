@@ -392,6 +392,14 @@ public class BLangParserListener extends BallerinaParserBaseListener {
                 ctx.formalParameterList() != null && ctx.formalParameterList().restParameter() != null);
     }
 
+    @Override
+    public void exitArrowFunctionExpression(BallerinaParser.ArrowFunctionExpressionContext ctx) {
+        if (ctx.exception != null) {
+            return;
+        }
+        this.pkgBuilder.addArrowFunctionDef(getCurrentPos(ctx), getWS(ctx), ctx.arrowFunction().Identifier());
+    }
+
     /**
      * {@inheritDoc}
      */

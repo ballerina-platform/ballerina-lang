@@ -10,7 +10,7 @@ function getFullName (string f, string l) returns (string){
 }
 
 function test1() returns (string, string){
-    Person bob = {fname:"bob", lname:"white", getName: (string fname, string lname) => (string){
+    Person bob = {fname:"bob", lname:"white", getName: function (string fname, string lname) returns (string){
                                                               return fname + " " + lname;
                                                           }};
     Person tom = {fname:"tom", lname:"smith", getName: getFullName};

@@ -76,10 +76,10 @@ public class IterableOperationsTests {
         BAssertUtil.validateError(negative, 15, "too many return arguments are defined for operation 'filter'", 65, 14);
         BAssertUtil.validateError(negative, 16, "not enough return arguments are defined for operation 'filter'", 66,
                 14);
-        BAssertUtil.validateError(negative, 17, "unknown type 'person'", 67, 15);
+        BAssertUtil.validateError(negative, 17, "unknown type 'person'", 67, 24);
         BAssertUtil.validateError(negative, 18, "not enough return arguments are defined for operation 'filter'", 67,
                 14);
-        BAssertUtil.validateError(negative, 19, "unknown type 'person'", 68, 33);
+        BAssertUtil.validateError(negative, 19, "unknown type 'person'", 68, 47);
     }
 
     @Test

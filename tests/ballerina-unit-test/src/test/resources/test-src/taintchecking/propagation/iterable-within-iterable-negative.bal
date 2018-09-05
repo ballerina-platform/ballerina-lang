@@ -2,12 +2,12 @@ json globalVar;
 
 public function main (string... args) {
     taintedJsonReturn().address_components
-    .filter((json comp) => boolean {
-            return comp.types.filter((json compType) => boolean {
+    .filter(function (json comp) returns boolean {
+            return comp.types.filter(function (json compType) returns boolean {
                         secureFunction(taintedReturn(), taintedReturn());
                         return compType.toString() == "street_number";
                     }).count() > 0; })
-    .foreach((json k) => { globalVar = k;});
+    .foreach(function (json k) { globalVar = k;});
 }
 
 function secureFunction (@sensitive string secureIn, string insecureIn) {
