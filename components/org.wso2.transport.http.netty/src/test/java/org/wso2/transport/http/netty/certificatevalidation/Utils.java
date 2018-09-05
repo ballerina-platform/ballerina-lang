@@ -313,9 +313,8 @@ class Utils {
     private static SenderConfiguration getSenderConfigs(String type) {
         SenderConfiguration senderConfiguration = new SenderConfiguration();
         String trustStoreFilePath = "/simple-test-config/cacerts.p12";
-        List<Parameter> clientParams;
+        List<Parameter> clientParams = new ArrayList<>();;
         Parameter paramClientCiphers = new Parameter("ciphers", "TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256");
-        clientParams = new ArrayList<>();
         clientParams.add(paramClientCiphers);
         senderConfiguration.setTrustStoreFile(TestUtil.getAbsolutePath(trustStoreFilePath));
         String trustStorePassword = "cacertspassword";
@@ -333,9 +332,8 @@ class Utils {
 
     private static ListenerConfiguration setListenerConfiguration(String keyStore, String keyStorePassword,
             String type) {
-        List<Parameter> serverParams;
+        List<Parameter> serverParams = new ArrayList<>();
         Parameter paramServerCiphers = new Parameter("ciphers", "TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256");
-        serverParams = new ArrayList<>();
         serverParams.add(paramServerCiphers);
         ListenerConfiguration listenerConfiguration = ListenerConfiguration.getDefault();
         listenerConfiguration.setParameters(serverParams);

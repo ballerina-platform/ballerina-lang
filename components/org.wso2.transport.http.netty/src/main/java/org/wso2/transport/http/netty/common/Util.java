@@ -340,10 +340,9 @@ public class Util {
 
     private static SSLEngine getSslEngineForCerts(SocketChannel socketChannel, String host, int port,
             SSLConfig sslConfig, SSLHandlerFactory sslHandlerFactory) throws SSLException {
-        SSLEngine sslEngine;
         SslContext sslContext = sslHandlerFactory.createHttpTLSContextForClient();
         SslHandler sslHandler = sslContext.newHandler(socketChannel.alloc(), host, port);
-        sslEngine = sslHandler.engine();
+        SSLEngine sslEngine = sslHandler.engine();
         sslHandlerFactory.addCommonConfigs(sslEngine);
         sslHandlerFactory.setSNIServerNames(sslEngine, host);
         if (sslConfig.isHostNameVerificationEnabled()) {
@@ -776,6 +775,10 @@ public class Util {
                 inboundRequestMsg.getHeader(HttpHeaderNames.EXPECT.toString()));
     }
 
+    /**
+     * Disable host name verification if it is set to false by the user.
+     * @param sslEngine
+     */
     public static void setHostNameVerfication(SSLEngine sslEngine) {
         SSLParameters sslParams = sslEngine.getSSLParameters();
         sslParams.setEndpointIdentificationAlgorithm(Constants.HTTPS_SCHEME);

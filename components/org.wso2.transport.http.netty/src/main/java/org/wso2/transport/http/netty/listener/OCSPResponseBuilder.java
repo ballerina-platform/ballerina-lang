@@ -83,27 +83,8 @@ public class OCSPResponseBuilder {
         if (sslConfig.getKeyStore() != null) {
             KeyStore keyStore = getKeyStore(sslConfig.getKeyStore(), sslConfig.getKeyStorePass(),
                     sslConfig.getTLSStoreType());
-
             if (keyStore != null) {
-                //Get the own certificate and the issuer certificate.
-                Enumeration<String> aliases = keyStore.aliases();
-                String alias = "";
-                boolean isAliasWithPrivateKey = false;
-                while (aliases.hasMoreElements()) {
-                    alias = aliases.nextElement();
-                    isAliasWithPrivateKey = keyStore.isKeyEntry(alias);
-                    if (isAliasWithPrivateKey) {
-                        break;
-                    }
-                }
-                if (isAliasWithPrivateKey) {
-                    // Load certificate chain
-                    certificateChain = keyStore.getCertificateChain(alias);
-                    //user certificate is there in the 0 th position of a certificate chain.
-                    userCertificate = (X509Certificate) certificateChain[0];
-                    //issuer certificate is in the last position of a certificate chain.
-                    issuer = (X509Certificate) certificateChain[certificateChain.length - 1];
-                }
+                getUserCerAndIssuer(keyStore);
             }
         } else {
             certList = getCertInfo(sslConfig);
@@ -128,6 +109,28 @@ public class OCSPResponseBuilder {
             }
         }
         throw new CertificateVerificationException("Could not get revocation status from OCSP.");
+    }
+
+    private static void getUserCerAndIssuer(KeyStore keyStore) throws KeyStoreException {
+        Certificate[] certificateChain;//Get the own certificate and the issuer certificate.
+        Enumeration<String> aliases = keyStore.aliases();
+        String alias = "";
+        boolean isAliasWithPrivateKey = false;
+        while (aliases.hasMoreElements()) {
+            alias = aliases.nextElement();
+            isAliasWithPrivateKey = keyStore.isKeyEntry(alias);
+            if (isAliasWithPrivateKey) {
+                break;
+            }
+        }
+        if (isAliasWithPrivateKey) {
+            // Load certificate chain
+            certificateChain = keyStore.getCertificateChain(alias);
+            //user certificate is there in the 0 th position of a certificate chain.
+            userCertificate = (X509Certificate) certificateChain[0];
+            //issuer certificate is in the last position of a certificate chain.
+            issuer = (X509Certificate) certificateChain[certificateChain.length - 1];
+        }
     }
 
     /**

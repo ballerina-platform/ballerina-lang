@@ -70,6 +70,11 @@ public class SSLHandlerFactory {
         needClientAuth = sslConfig.isNeedClientAuth();
     }
 
+    /**
+     * This is uset to create the sslContext from keystores.
+     * @return sslContext
+     */
+
     public SSLContext createSSLContextFromKeystores() {
         String protocol = sslConfig.getSSLProtocol();
         try {
@@ -117,8 +122,9 @@ public class SSLHandlerFactory {
     }
 
     /**
-     * @param sslContext sslContext
-     * @return instance of {@code SslHandler}
+     * Build the server ssl engine using the ssl context.
+     * @param sslContext sslContext.     *
+     * @return SSLEngine.
      */
     public SSLEngine buildServerSSLEngine(SSLContext sslContext) {
         SSLEngine engine = sslContext.createSSLEngine();
@@ -127,6 +133,12 @@ public class SSLHandlerFactory {
         return addCommonConfigs(engine);
     }
 
+    /**
+     * This used to create the open ssl context when ocsp stapling is enabled for server.
+     * @param enableOcsp true/false for enabling ocsp stapling.
+     * @return ReferenceCountedOpenSslContext.
+     * @throws SSLException if any error occurs while creating the ReferenceCountedOpenSslContext.
+     */
     public ReferenceCountedOpenSslContext getServerReferenceCountedOpenSslContext(boolean enableOcsp)
             throws SSLException {
         SslContextBuilder sslContextBuilder = null;
@@ -144,6 +156,11 @@ public class SSLHandlerFactory {
         return (ReferenceCountedOpenSslContext) sslContextBuilder.build();
     }
 
+    /**
+     * This used to create the open ssl context when ocsp stapling is enabled for client.
+     * @return ReferenceCountedOpenSslContext.
+     * @throws SSLException if any error occurs while creating the ReferenceCountedOpenSslContext.
+     */
     public ReferenceCountedOpenSslContext buildClientReferenceCountedOpenSslContext() throws SSLException {
         SslContextBuilder sslContextBuilder = null;
         if (sslConfig.getTrustStore() != null) {
