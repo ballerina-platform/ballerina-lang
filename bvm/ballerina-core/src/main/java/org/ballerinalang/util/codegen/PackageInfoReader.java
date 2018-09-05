@@ -918,7 +918,7 @@ public class PackageInfoReader {
 
 
     public void readAttributeInfoEntries(PackageInfo packageInfo, ConstantPool constantPool,
-                                          AttributeInfoPool attributeInfoPool) throws IOException {
+                                         AttributeInfoPool attributeInfoPool) throws IOException {
         int attributesCount = dataInStream.readShort();
         for (int k = 0; k < attributesCount; k++) {
             AttributeInfo attributeInfo = getAttributeInfo(packageInfo, constantPool);
@@ -1057,15 +1057,17 @@ public class PackageInfoReader {
         for (int i = 0; i < noOfParamInfoEntries; i++) {
             int nameCPIndex = dataInStream.readInt();
             String name = getUTF8EntryValue(nameCPIndex, constantPool);
-            //TODO remove below line ASAP, adding dummy value as we can't change binary file right now
-            dataInStream.readInt();
-            int paramKindCPIndex = dataInStream.readInt();
-            String paramKindValue = getUTF8EntryValue(paramKindCPIndex, constantPool);
             int paramDescCPIndex = dataInStream.readInt();
             String paramDesc = getUTF8EntryValue(paramDescCPIndex, constantPool);
-            ParameterDocumentInfo paramDocInfo = new ParameterDocumentInfo(nameCPIndex, name,
-                    paramKindCPIndex, paramKindValue, paramDescCPIndex, paramDesc);
+            ParameterDocumentInfo paramDocInfo = new ParameterDocumentInfo(nameCPIndex, name, paramDescCPIndex,
+                    paramDesc);
             docAttrInfo.paramDocInfoList.add(paramDocInfo);
+        }
+
+        boolean isReturnDocDescriptionAvailable = dataInStream.readBoolean();
+        if (isReturnDocDescriptionAvailable) {
+            int returnParamDescCPIndex = dataInStream.readInt();
+            docAttrInfo.returnParameterDescription = getUTF8EntryValue(returnParamDescCPIndex, constantPool);
         }
 
         return docAttrInfo;
@@ -1770,7 +1772,7 @@ public class PackageInfoReader {
 
     /**
      * Create types for compiler phases.
-     * 
+     *
      * @since 0.975.0
      */
     private class RuntimeTypeCreater implements TypeCreater<BType> {
@@ -1780,7 +1782,7 @@ public class PackageInfoReader {
         public RuntimeTypeCreater(PackageInfo packageInfo) {
             this.packageInfo = packageInfo;
         }
-        
+
         @Override
         public BType getBasicType(char typeChar) {
             switch (typeChar) {
@@ -1880,7 +1882,7 @@ public class PackageInfoReader {
             if (retType == null) {
                 returnTypes = new BType[0];
             } else {
-                returnTypes = new BType[] { retType };
+                returnTypes = new BType[]{retType};
             }
             return new BFunctionType(funcParams.toArray(new BType[funcParams.size()]), returnTypes);
         }

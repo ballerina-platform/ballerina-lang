@@ -22,6 +22,7 @@ import org.ballerinalang.model.TreeBuilder;
 import org.ballerinalang.model.elements.DocAttachment;
 import org.ballerinalang.model.elements.DocTag;
 import org.ballerinalang.model.elements.Flag;
+import org.ballerinalang.model.elements.MarkdownDocAttachment;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.symbols.SymbolKind;
 import org.ballerinalang.model.tree.IdentifierNode;
@@ -68,6 +69,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
 import org.wso2.ballerinalang.compiler.tree.BLangImportPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangInvokableNode;
+import org.wso2.ballerinalang.compiler.tree.BLangMarkdownDocumentation;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
@@ -229,6 +231,8 @@ public class SymbolEnter extends BLangNodeVisitor {
                 AttachPoints.asMask(annotationNode.attachPoints), names.fromIdNode(annotationNode.name),
                 env.enclPkg.symbol.pkgID, null, env.scope.owner);
         annotationSymbol.documentation = getDocAttachment(annotationNode.docAttachments);
+        annotationSymbol.markdownDocumentation =
+                getMarkdownDocAttachment(annotationNode.markdownDocumentationAttachment);
         annotationSymbol.type = new BAnnotationType((BAnnotationSymbol) annotationSymbol);
         annotationNode.symbol = annotationSymbol;
         defineSymbol(annotationNode.name.pos, annotationSymbol);
@@ -348,6 +352,7 @@ public class SymbolEnter extends BLangNodeVisitor {
             typeDefSymbol = definedType.tsymbol;
         }
         typeDefSymbol.documentation = getDocAttachment(typeDefinition.docAttachments);
+        typeDefSymbol.markdownDocumentation = getMarkdownDocAttachment(typeDefinition.markdownDocumentationAttachment);
         typeDefSymbol.name = names.fromIdNode(typeDefinition.getName());
         typeDefSymbol.pkgID = env.enclPkg.packageID;
         typeDefSymbol.flags = Flags.asMask(typeDefinition.flagSet);
@@ -362,6 +367,7 @@ public class SymbolEnter extends BLangNodeVisitor {
         BInvokableSymbol workerSymbol = Symbols.createWorkerSymbol(Flags.asMask(workerNode.flagSet),
                 names.fromIdNode(workerNode.name), env.enclPkg.symbol.pkgID, null, env.scope.owner);
         workerSymbol.documentation = getDocAttachment(workerNode.docAttachments);
+        workerSymbol.markdownDocumentation = getMarkdownDocAttachment(workerNode.markdownDocumentationAttachment);
         workerNode.symbol = workerSymbol;
         defineSymbolWithCurrentEnvOwner(workerNode.pos, workerSymbol);
     }
@@ -371,6 +377,7 @@ public class SymbolEnter extends BLangNodeVisitor {
         BServiceSymbol serviceSymbol = Symbols.createServiceSymbol(Flags.asMask(serviceNode.flagSet),
                 names.fromIdNode(serviceNode.name), env.enclPkg.symbol.pkgID, serviceNode.type, env.scope.owner);
         serviceSymbol.documentation = getDocAttachment(serviceNode.docAttachments);
+        serviceSymbol.markdownDocumentation = getMarkdownDocAttachment(serviceNode.markdownDocumentationAttachment);
         serviceNode.symbol = serviceSymbol;
         serviceNode.symbol.type = new BServiceType(serviceSymbol);
         defineSymbol(serviceNode.name.pos, serviceSymbol);
@@ -411,6 +418,7 @@ public class SymbolEnter extends BLangNodeVisitor {
         BInvokableSymbol funcSymbol = Symbols.createFunctionSymbol(Flags.asMask(funcNode.flagSet),
                 getFuncSymbolName(funcNode), env.enclPkg.symbol.pkgID, null, env.scope.owner, funcNode.body != null);
         funcSymbol.documentation = getDocAttachment(funcNode.docAttachments);
+        funcSymbol.markdownDocumentation = getMarkdownDocAttachment(funcNode.markdownDocumentationAttachment);
         SymbolEnv invokableEnv = SymbolEnv.createFunctionEnv(funcNode, funcSymbol.scope, env);
         defineInvokableSymbol(funcNode, funcSymbol, invokableEnv);
         // Define function receiver if any.
@@ -590,6 +598,7 @@ public class SymbolEnter extends BLangNodeVisitor {
                 .createActionSymbol(Flags.asMask(actionNode.flagSet), names.fromIdNode(actionNode.name),
                         env.enclPkg.symbol.pkgID, null, env.scope.owner);
         actionSymbol.documentation = getDocAttachment(actionNode.docAttachments);
+        actionSymbol.markdownDocumentation = getMarkdownDocAttachment(actionNode.markdownDocumentationAttachment);
         SymbolEnv invokableEnv = SymbolEnv.createResourceActionSymbolEnv(actionNode, actionSymbol.scope, env);
         defineInvokableSymbol(actionNode, actionSymbol, invokableEnv);
         actionNode.endpoints.forEach(ep -> defineNode(ep, invokableEnv));
@@ -601,6 +610,7 @@ public class SymbolEnter extends BLangNodeVisitor {
                 .createResourceSymbol(Flags.asMask(resourceNode.flagSet), names.fromIdNode(resourceNode.name),
                         env.enclPkg.symbol.pkgID, null, env.scope.owner);
         resourceSymbol.documentation = getDocAttachment(resourceNode.docAttachments);
+        resourceSymbol.markdownDocumentation = getMarkdownDocAttachment(resourceNode.markdownDocumentationAttachment);
         SymbolEnv invokableEnv = SymbolEnv.createResourceActionSymbolEnv(resourceNode, resourceSymbol.scope, env);
         if (!resourceNode.getParameters().isEmpty()
                 && resourceNode.getParameters().get(0) != null
@@ -631,7 +641,7 @@ public class SymbolEnter extends BLangNodeVisitor {
             varNode.type = symbol.type;
             Name updatedVarName = varName;
             if (((BLangFunction) env.enclInvokable).receiver != null) {
-               updatedVarName = getFieldSymbolName(((BLangFunction) env.enclInvokable).receiver, varNode);
+                updatedVarName = getFieldSymbolName(((BLangFunction) env.enclInvokable).receiver, varNode);
             }
             BVarSymbol varSymbol = defineVarSymbol(varNode.pos, varNode.flagSet, varNode.type, updatedVarName, env);
 
@@ -674,6 +684,7 @@ public class SymbolEnter extends BLangNodeVisitor {
         BVarSymbol varSymbol = defineVarSymbol(varNode.pos, varNode.flagSet,
                 varNode.type, varName, env);
         varSymbol.documentation = getDocAttachment(varNode.docAttachments);
+        varSymbol.markdownDocumentation = getMarkdownDocAttachment(varNode.markdownDocumentationAttachment);
         varSymbol.docTag = varNode.docTag;
         varNode.symbol = varSymbol;
     }
@@ -1283,6 +1294,21 @@ public class SymbolEnter extends BLangNodeVisitor {
             docAttachment.attributes.add(attribute);
 
         });
+        return docAttachment;
+    }
+
+    private MarkdownDocAttachment getMarkdownDocAttachment(BLangMarkdownDocumentation docNode) {
+        if (docNode == null) {
+            return new MarkdownDocAttachment();
+        }
+        MarkdownDocAttachment docAttachment = new MarkdownDocAttachment();
+        docAttachment.description = docNode.getDocumentation();
+
+        docNode.getParameters().forEach(p ->
+                docAttachment.parameters.add(new MarkdownDocAttachment.Parameter(p.parameterName.value,
+                        p.getParameterDocumentation())));
+
+        docAttachment.returnValueDescription = docNode.getReturnParameterDocumentation();
         return docAttachment;
     }
 }

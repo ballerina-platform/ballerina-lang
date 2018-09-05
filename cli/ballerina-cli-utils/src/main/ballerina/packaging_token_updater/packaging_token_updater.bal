@@ -3,13 +3,6 @@ import ballerina/io;
 import ballerina/system;
 
 documentation {
-    Defines the endpoint to update the access token.
-}
-endpoint http:Listener listener {
-    port:9295
-};
-
-documentation {
     This function opens the file for writing content.
 
     P{{filePath}} File path
@@ -26,10 +19,9 @@ documentation{
     This service updates the access token.
 }
 @http:ServiceConfig {
-    endpoints:[listener],
     basePath:"/update-settings"
 }
-service<http:Service> update_token bind listener {
+service<http:Service> update_token bind { port: 9295 } {
 
     @http:ResourceConfig {
         methods:["GET"],

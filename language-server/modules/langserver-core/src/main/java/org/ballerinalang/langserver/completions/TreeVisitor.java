@@ -72,7 +72,6 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangAssignment;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBreak;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangCatch;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangCompensate;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangContinue;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangExpressionStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangForeach;
@@ -81,7 +80,6 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangIf;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangLock;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangReturn;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangScope;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangThrow;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangTransaction;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangTryCatchFinally;
@@ -96,14 +94,15 @@ import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 
+import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Deque;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.Stack;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
@@ -126,11 +125,11 @@ public class TreeVisitor extends LSNodeVisitor {
 
     private SymbolTable symTable;
 
-    private Stack<Node> blockOwnerStack;
+    private Deque<Node> blockOwnerStack;
 
-    private Stack<BLangBlockStmt> blockStmtStack;
+    private Deque<BLangBlockStmt> blockStmtStack;
 
-    private Stack<Boolean> isCurrentNodeTransactionStack;
+    private Deque<Boolean> isCurrentNodeTransactionStack;
 
     private Class cursorPositionResolver;
 
@@ -144,9 +143,9 @@ public class TreeVisitor extends LSNodeVisitor {
     }
 
     private void init(CompilerContext compilerContext) {
-        blockOwnerStack = new Stack<>();
-        blockStmtStack = new Stack<>();
-        isCurrentNodeTransactionStack = new Stack<>();
+        blockOwnerStack = new ArrayDeque<>();
+        blockStmtStack = new ArrayDeque<>();
+        isCurrentNodeTransactionStack = new ArrayDeque<>();
         symTable = SymbolTable.getInstance(compilerContext);
         symbolResolver = SymbolResolver.getInstance(compilerContext);
         lsContext.put(DocumentServiceKeys.SYMBOL_TABLE_KEY, symTable);
@@ -170,9 +169,12 @@ public class TreeVisitor extends LSNodeVisitor {
                 .collect(Collectors.toList());
         
         imports.forEach(bLangImportPackage -> {
-            cursorPositionResolver = TopLevelNodeScopeResolver.class;
-            this.blockOwnerStack.push(pkgNode);
-            acceptNode(bLangImportPackage, pkgEnv);
+            if (!bLangImportPackage.getOrgName().getValue().equals("ballerina")
+                    && !bLangImportPackage.symbol.getName().getValue().equals("transaction")) {
+                cursorPositionResolver = TopLevelNodeScopeResolver.class;
+                this.blockOwnerStack.push(pkgNode);
+                acceptNode(bLangImportPackage, pkgEnv);
+            }
         });
 
         topLevelNodes.forEach(topLevelNode -> {
@@ -401,7 +403,9 @@ public class TreeVisitor extends LSNodeVisitor {
         this.blockOwnerStack.pop();
 
         if (ifNode.elseStmt != null) {
+            this.blockOwnerStack.push(ifNode.elseStmt);
             acceptNode(ifNode.elseStmt, symbolEnv);
+            this.blockOwnerStack.pop();
         }
     }
 
@@ -749,25 +753,6 @@ public class TreeVisitor extends LSNodeVisitor {
         this.isCursorWithinBlock(recordLiteral.getPosition(), annotationAttachmentEnv);
     }
 
-    @Override
-    public void visit(BLangScope scopeNode) {
-        CursorPositionResolver cpr = CursorPositionResolvers.getResolverByClass(cursorPositionResolver);
-        if (cpr.isCursorBeforeNode(scopeNode.getPosition(), scopeNode, this, this.lsContext)) {
-            return;
-        }
-
-        this.blockOwnerStack.push(scopeNode);
-        this.acceptNode(scopeNode.scopeBody, symbolEnv);
-        this.blockOwnerStack.pop();
-        this.acceptNode(scopeNode.compensationFunction, symbolEnv);
-    }
-
-    @Override
-    public void visit(BLangCompensate node) {
-        CursorPositionResolvers.getResolverByClass(cursorPositionResolver)
-                .isCursorBeforeNode(node.getPosition(), node, this, this.lsContext);
-    }
-
     ///////////////////////////////////
     /////   Other Public Methods  /////
     ///////////////////////////////////
@@ -795,11 +780,11 @@ public class TreeVisitor extends LSNodeVisitor {
         lsContext.put(CompletionKeys.VISIBLE_SYMBOLS_KEY, visibleSymbols);
     }
 
-    public Stack<Node> getBlockOwnerStack() {
+    public Deque<Node> getBlockOwnerStack() {
         return blockOwnerStack;
     }
 
-    public Stack<BLangBlockStmt> getBlockStmtStack() {
+    public Deque<BLangBlockStmt> getBlockStmtStack() {
         return blockStmtStack;
     }
 

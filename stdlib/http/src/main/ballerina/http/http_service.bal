@@ -14,16 +14,12 @@
 // specific language governing permissions and limitations
 // under the License.
 
-documentation {
-    A representation of an HTTP service instance.
-}
+# A representation of an HTTP service instance.
 public type Service object {
 
-    documentation {
-        Returns a `Listener` for the service.
-
-        R{{}} A `Listener` instance for the service
-    }
+    # Returns a `Listener` for the service.
+    #
+    # + return - A `Listener` instance for the service
     public function getEndpoint() returns Listener {
         Listener ep = new;
         return ep;

@@ -17,9 +17,7 @@
 import ballerina/log;
 import ballerina/time;
 
-documentation {
-    Represents JWT validator configurations.
-}
+# Represents JWT validator configurations.
 public type JWTValidatorConfig record {
     string issuer,
     string audience,
@@ -29,15 +27,12 @@ public type JWTValidatorConfig record {
     string trustStorePassword,
 };
 
-documentation {
-    Validity given JWT token.
-
-    P{{jwtToken}} JWT token that need to validate
-    P{{config}} JWTValidatorConfig object
-    R{{}} If JWT token is valied true , else false
-    R{{}} If JWT token is valied return the JWT payload
-    R{{}} If token validation fails
-}
+# Validity given JWT token.
+#
+# + jwtToken - JWT token that need to validate
+# + config - JWTValidatorConfig object
+# + return - If JWT token is valied return the JWT payload.
+#            An error if token validation fails.
 public function validate(string jwtToken, JWTValidatorConfig config) returns JwtPayload|error {
     string[] encodedJWTComponents;
     match getJWTComponents(jwtToken) {

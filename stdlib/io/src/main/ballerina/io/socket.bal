@@ -15,15 +15,13 @@
 // under the License.
 
 
-documentation {
-    Represents a TCP socket.
 
-    F{{byteChannel}} ByteChannel which will represent the socket connection
-    F{{remotePort}} Remote server connection port
-    F{{localPort}} Local port the socket connection should bound
-    F{{remoteAddress}} IP/Host of the remote server
-    F{{localAddress}} Local interface the connection should bound
-}
+#
+# + byteChannel - ByteChannel which will represent the socket connection
+# + remotePort - Remote server connection port
+# + localPort - Local port the socket connection should bound
+# + remoteAddress - IP/Host of the remote server
+# + localAddress - Local interface the connection should bound
 public type Socket object {
 
     @readonly public ByteChannel byteChannel;
@@ -36,96 +34,72 @@ public type Socket object {
         init();
     }
 
-    documentation {
-        Initializes a socket.
-    }
+    # Initializes a socket.
     extern function init();
 
-    documentation {
-        Binds socket to a local port.
-
-        R{{}} An error if could not bind to the port
-    }
+    # Binds socket to a local port.
+    #
+    # + return - An error if could not bind to the port
     public extern function bindAddress(@sensitive int port, @sensitive string? interface = ()) returns error?;
 
-    documentation {
-        Open a connection with remote server.
-
-        R{{}} An error if could not connect with the remote server.
-    }
+    # Open a connection with remote server.
+    #
+    # + return - An error if could not connect with the remote server.
     public extern function connect(@sensitive string host, @sensitive int port) returns error?;
 
-    documentation {
-        Closes a socket connection.
-
-        R{{}} An error if the connection could not be closed properly
-    }
+    # Closes a socket connection.
+    #
+    # + return - An error if the connection could not be closed properly
     public extern function close() returns error?;
 
-    documentation {
-        Shutdown the connection from reading. In this case content cannot be read from the server.
-
-        R{{}} An error if the connection could not be shutdown properly
-    }
+    # Shutdown the connection from reading. In this case content cannot be read from the server.
+    #
+    # + return - An error if the connection could not be shutdown properly
     public extern function shutdownInput() returns error?;
 
-    documentation {
-        Shutdown the connection from writing. In this case content cannot be written to the server.
-
-        R{{}} An error if the connection could not be shutdown properly
-    }
+    # Shutdown the connection from writing. In this case content cannot be written to the server.
+    #
+    # + return - An error if the connection could not be shutdown properly
     public extern function shutdownOutput() returns error?;
 };
 
-documentation {
-    Represents a TCP server socket.
-}
+# Represents a TCP server socket.
 public type ServerSocket object {
 
     public new() {
         init();
     }
 
-    documentation {
-        Initializes a server socket.
-    }
+    # Initializes a server socket.
     extern function init();
 
-    documentation {
-        Binds socket to a local port.
-
-        R{{}} An error if could not bind to the port
-    }
+    # Binds socket to a local port.
+    #
+    # + return - An error if could not bind to the port
     public extern function bindAddress(@sensitive int port, @sensitive string? interface = ()) returns error?;
 
-    documentation {
-        This blocking function will wait until new client socket connect.
-
-        R{{}} An error if could not create new socket.
-    }
+    # This blocking function will wait until new client socket connect.
+    #
+    # + return - An error if could not create new socket.
     public extern function accept() returns Socket|error;
 
-    documentation {
-        Closes a socket connection.
-
-        R{{}} An error if the connection could not be closed properly
-    }
+    # Closes a socket connection.
+    #
+    # + return - An error if the connection could not be closed properly
     public extern function close() returns error?;
 };
 
-documentation {
-    SocketProperties represents the properties which are used to configure TCP connection.
-
-    F{{localPort}} Local port the socket client should bind
-    F{{keyStoreFile}} Relative/absolute path to locate keystore file
-    F{{keyStorePassword}} Keystore password
-    F{{trustStoreFile}} Relative/absolute path to locate truststore file
-    F{{trustStorePassword}} Truststore password
-    F{{certPassword}} Password of the certificate
-    F{{sslEnabledProtocols}} Protocols supported for SSL (i.e TLSv1.2,TLSv1.1,TLSv1)
-    F{{ciphers}} Encrypt/decrypt algorithms (i.e RSA, SHA-256)
-    F{{sslProtocol}} Supported SSL protocols (i.e SSL, TLS)
-}
+# SocketProperties represents the properties which are used to configure TCP connection.
+#
+# + localPort - Local port the socket client should bind
+# + keyStoreFile - Relative/absolute path to locate keystore file
+# + keyStorePassword - Keystore password
+# + trustStoreFile - Relative/absolute path to locate truststore file
+# + trustStorePassword - Truststore password
+# + certPassword - Password of the certificate
+# + sslEnabledProtocols - Protocols supported for SSL (i.e TLSv1.2,TLSv1.1,TLSv1)
+# + ciphers - Encrypt/decrypt algorithms (i.e RSA, SHA-256)
+# + sslProtocol - Supported SSL protocols (i.e SSL, TLS)
 public type SocketProperties record {
     int localPort;
     string keyStoreFile;
