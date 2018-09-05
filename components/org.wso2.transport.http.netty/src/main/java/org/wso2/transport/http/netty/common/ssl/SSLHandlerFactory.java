@@ -72,9 +72,9 @@ public class SSLHandlerFactory {
 
     /**
      * This is uset to create the sslContext from keystores.
+     *
      * @return sslContext
      */
-
     public SSLContext createSSLContextFromKeystores() {
         String protocol = sslConfig.getSSLProtocol();
         try {
@@ -123,7 +123,8 @@ public class SSLHandlerFactory {
 
     /**
      * Build the server ssl engine using the ssl context.
-     * @param sslContext sslContext.     *
+     *
+     * @param sslContext sslContext.
      * @return SSLEngine.
      */
     public SSLEngine buildServerSSLEngine(SSLContext sslContext) {
@@ -135,6 +136,7 @@ public class SSLHandlerFactory {
 
     /**
      * This used to create the open ssl context when ocsp stapling is enabled for server.
+     *
      * @param enableOcsp true/false for enabling ocsp stapling.
      * @return ReferenceCountedOpenSslContext.
      * @throws SSLException if any error occurs while creating the ReferenceCountedOpenSslContext.
@@ -158,6 +160,7 @@ public class SSLHandlerFactory {
 
     /**
      * This used to create the open ssl context when ocsp stapling is enabled for client.
+     *
      * @return ReferenceCountedOpenSslContext.
      * @throws SSLException if any error occurs while creating the ReferenceCountedOpenSslContext.
      */

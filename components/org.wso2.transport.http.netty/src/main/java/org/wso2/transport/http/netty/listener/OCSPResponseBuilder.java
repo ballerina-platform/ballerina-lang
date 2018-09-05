@@ -112,7 +112,8 @@ public class OCSPResponseBuilder {
     }
 
     private static void getUserCerAndIssuer(KeyStore keyStore) throws KeyStoreException {
-        Certificate[] certificateChain;//Get the own certificate and the issuer certificate.
+        Certificate[] certificateChain;
+        //Get own certificate and the issuer certificate.
         Enumeration<String> aliases = keyStore.aliases();
         String alias = "";
         boolean isAliasWithPrivateKey = false;
