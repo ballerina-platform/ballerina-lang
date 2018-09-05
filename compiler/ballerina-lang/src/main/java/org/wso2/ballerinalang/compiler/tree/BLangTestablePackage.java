@@ -17,8 +17,15 @@
  */
 package org.wso2.ballerinalang.compiler.tree;
 
+import org.ballerinalang.model.tree.NodeKind;
+
 /**
  * @since 0.982.0
  */
 public class BLangTestablePackage extends BLangPackage {
+
+    @Override
+    public NodeKind getKind() {
+        return NodeKind.TESTABLE_PACKAGE;
+    }
 }

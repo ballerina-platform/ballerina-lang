@@ -47,6 +47,7 @@ public enum NodeKind {
     WORKER,
     XMLNS,
     CHANNEL,
+    TESTABLE_PACKAGE,
 
     /* Expressions */
     DOCUMENTATION_ATTRIBUTE,

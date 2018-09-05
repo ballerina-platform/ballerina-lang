@@ -450,7 +450,7 @@ public class CodeGenerator extends BLangNodeVisitor {
 
         // Visit the builtin functions only in the bLangPackage. Since the testablePackage is a child of the
         // bLangPackage, the testablePackage doesnot have init, start and stop functions
-        if (!(pkgNode instanceof BLangTestablePackage)) {
+        if (pkgNode.getKind() == NodeKind.PACKAGE) {
             // Visit package builtin function
             visitBuiltinFunctions(pkgNode.initFunction);
             visitBuiltinFunctions(pkgNode.startFunction);
