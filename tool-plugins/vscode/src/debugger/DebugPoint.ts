@@ -15,7 +15,31 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+export interface DebugPointDefinition {
+    fileName: string;
+    lineNumber: number;
+    packagePath?: string;
+}
 
-const DebugManager =  require('./DebugManager');
+/**
+ * @description DebugPoint class
+ * @class DebugPoint
+ */
+export class DebugPoint {
 
-module.exports = DebugManager;
+    public fileName: string;
+    public lineNumber: number;
+    public packagePath?: string;
+
+    /**
+     * @description Creates an instance of DebugPoint.
+     * @param {DebugPointDefinition} args - DebugPoint properties
+     *
+     * @memberof DebugPoint
+     */
+    constructor(args: DebugPointDefinition) {
+        this.fileName = args.fileName || '';
+        this.lineNumber = args.lineNumber || 0;
+        this.packagePath = args.packagePath || '.';
+    }
+}

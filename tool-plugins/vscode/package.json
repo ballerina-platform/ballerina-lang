@@ -74,7 +74,7 @@
             {
                 "type": "ballerina",
                 "label": "Ballerina Debug",
-                "program": "./debugger/index.js",
+                "program": "./out/debugger/index.js",
                 "runtime": "node",
                 "configurationAttributes": {
                     "attach": {
@@ -162,11 +162,11 @@
         "glob": "^7.1.2",
         "lodash": "^4.17.5",
         "openport": "0.0.4",
-        "ps-node": "^0.1.6",
         "request-promise": "^4.2.2",
         "toml": "^2.3.3",
         "vscode": "^1.1.21",
         "vscode-debugadapter": "^1.31.0",
+        "vscode-debugprotocol": "^1.31.0",
         "vscode-languageclient": "^3.4.2",
         "ws": "^4.0.0"
     },
@@ -175,6 +175,8 @@
         "@types/lodash": "^4.14.116",
         "@types/mocha": "^2.2.42",
         "@types/node": "^8.10.25",
+        "@types/ws": "^6.0.0",
+        "ps-node": "^0.1.6",
         "tslint": "^5.8.0",
         "typescript": "^2.6.1",
         "vsce": "^1.36.2"

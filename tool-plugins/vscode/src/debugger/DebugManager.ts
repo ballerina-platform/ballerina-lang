@@ -15,17 +15,23 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-
-const EventEmitter = require('events');
-const DebugChannel = require('./DebugChannel');
-const DebugPoint = require('./DebugPoint');
+import { EventEmitter } from 'events';
+import { DebugChannel } from './DebugChannel';
+import { DebugPoint } from './DebugPoint';
 
 /**
  * DebugManager
  * @class DebugManager
  * @extends {EventEmitter}
  */
-class DebugManager extends EventEmitter {
+export class DebugManager extends EventEmitter {
+
+    private _debugPoints : Array<DebugPoint> = [];
+    private _channel: DebugChannel | undefined;
+    private _active: boolean = false;
+    private _endpoint: string | undefined;
+    private _currentThreadId: string | undefined;
+
     /**
      * Creates an instance of DebugManager.
      *
@@ -33,10 +39,6 @@ class DebugManager extends EventEmitter {
      */
     constructor() {
         super();
-        this.debugPoints = [];
-        this.channel = undefined;
-        this.active = false;
-
         this.on('breakpoint-added', () => { this.publishBreakpoints(); });
         this.on('breakpoint-removed', () => { this.publishBreakpoints(); });
 
@@ -56,23 +58,29 @@ class DebugManager extends EventEmitter {
         this._active = active;
     }
 
+    sendMessage(message: Object) {
+        if (this._channel) {
+            this._channel.sendMessage(message);
+        }
+    }
+
     /**
      * Send call to backend to step in
      *
      * @memberof DebugManager
      */
-    stepIn(threadId) {
+    stepIn(threadId: number) {
         const message = { command: 'STEP_IN', threadId };
-        this.channel.sendMessage(message);
+        this.sendMessage(message);
     }
     /**
      * Send call to backend to step out
      *
      * @memberof DebugManager
      */
-    stepOut(threadId) {
+    stepOut(threadId: number) {
         const message = { command: 'STEP_OUT', threadId };
-        this.channel.sendMessage(message);
+        this.sendMessage(message);
     }
     /**
      * Send call to backend to stop debugging
@@ -81,25 +89,27 @@ class DebugManager extends EventEmitter {
      */
     stop() {
         this.emit('session-ended');
-        this.channel.close();
+        if (this._channel) {    
+            this._channel.close();
+        }
     }
     /**
      * Send call to backend to step over
      *
      * @memberof DebugManager
      */
-    stepOver(threadId) {
+    stepOver(threadId: number) {
         const message = { command: 'STEP_OVER', threadId };
-        this.channel.sendMessage(message);
+        this.sendMessage(message);
     }
     /**
      * Send call to backend to resume execution
      *
      * @memberof DebugManager
      */
-    resume(threadId) {
+    resume(threadId: number) {
         const message = { command: 'RESUME', threadId };
-        this.channel.sendMessage(message);
+        this.sendMessage(message);
     }
     /**
      * Send call to backend to start debugging
@@ -108,7 +118,7 @@ class DebugManager extends EventEmitter {
      */
     startDebug() {
         const message = { command: 'START' };
-        this.channel.sendMessage(message);
+        this.sendMessage(message);
         this.emit('debugging-started');
     }
 
@@ -119,18 +129,19 @@ class DebugManager extends EventEmitter {
      */
     kill() {
         const message = { command: 'KILL' };
-        this.channel.sendMessage(message);
+        this.sendMessage(message);
     }
 
     /**
-     * @param {Object} message - Process message from backend
+     * @param {any} message - Process message from backend
+     * 
      *
      * @memberof DebugManager
      */
-    processMesssage(message) {
+    processMesssage(message: any) { //TODO change type to a concrete type
         if (message.code === 'DEBUG_HIT') {
             this.emit('debug-hit', message);
-            this.currentThreadId = message.threadId;
+            this._currentThreadId = message.threadId;
         }
         if (message.code === 'COMPLETE' || message.code === 'EXIT') {
             this.emit('execution-ended');
@@ -142,47 +153,48 @@ class DebugManager extends EventEmitter {
      *
      * @memberof DebugManager
      */
-    connect(url, callback) {
+    connect(url: string | undefined, callback = () => {}) {
         this.emit('connecting');
-        if (url !== undefined || url !== '') {
-            this.channel = new DebugChannel(url);
-            this.channel.connect();
+        if (url) {
+            this._endpoint = url;
+            this._channel = new DebugChannel(url);
+            this._channel.connect();
+            this._channel.on('onmessage', (message) => {
+                this.processMesssage(message);
+            });
+            this._channel.on('connected', () => {
+                this.active = true;
+                callback();
+            });
+            this._channel.on('session-ended', e => {
+                this.emit('execution-ended', e);
+            });
+            this._channel.on('session-terminated', () => {
+                this.emit('execution-ended');
+            });
+            this._channel.on('connection-closed', () => {
+                this.emit('execution-ended');
+            });
+            this._channel.on('session-error', e => {
+                this.emit('session-error', e);
+            });
         }
-        this.channel.on('onmessage', (message) => {
-            this.processMesssage(message);
-        });
-        this.channel.on('connected', () => {
-            this.active = true;
-            callback();
-        });
-        this.channel.on('session-ended', e => {
-            this.emit('execution-ended', e);
-        });
-        this.channel.on('session-terminated', () => {
-            this.emit('execution-ended');
-        });
-        this.channel.on('connection-closed', () => {
-            this.emit('execution-ended');
-        });
-        this.channel.on('session-error', e => {
-            this.emit('session-error', e);
-        });
     }
     /**
      * Reconnect to backend
      * @memberof DebugManager
      */
     reConnect() {
-        this.connect(this.endpoint);
+        this.connect(this._endpoint);
     }
 
     /**
-     * @param {Object} options - Debug manager configs
+     * @param {string | undefined} options - url
      *
      * @memberof DebugManager
      */
-    init(endpoint) {
-        this.endpoint = endpoint;
+    init(url: string) {
+        this._endpoint = url;
     }
     /**
      * Add new breakpoint
@@ -191,10 +203,10 @@ class DebugManager extends EventEmitter {
      *
      * @memberof DebugManager
      */
-    addBreakPoint(lineNumber, fileName, packagePath) {
+    addBreakPoint(lineNumber: number, fileName: string, packagePath: string) {
         // log.debug('debug point added', lineNumber, fileName, packagePath);
         const point = new DebugPoint({ fileName, lineNumber, packagePath });
-        this.debugPoints.push(point);
+        this._debugPoints.push(point);
         this.emit('breakpoint-added', point);
     }
     /**
@@ -204,7 +216,7 @@ class DebugManager extends EventEmitter {
      *
      * @memberof DebugManager
      */
-    removeBreakPoint(lineNumber, fileName, packagePath) {
+    removeBreakPoint(lineNumber: number, fileName: string, packagePath: string) {
         // log.debug('debug point removed', lineNumber, fileName);
         const point = new DebugPoint({ fileName, lineNumber, packagePath });
         // _.remove(this.debugPoints, item => item.fileName === point.fileName && item.lineNumber === point.lineNumber);
@@ -220,9 +232,9 @@ class DebugManager extends EventEmitter {
         try {
             const message = { 
                 command: 'SET_POINTS',
-                points: this.debugPoints 
+                points: this._debugPoints 
             };
-            this.channel.sendMessage(message);
+            this.sendMessage(message);
         } catch (e) {
             // @todo log
         }
@@ -235,8 +247,8 @@ class DebugManager extends EventEmitter {
      *
      * @memberof DebugManager
      */
-    hasBreakPoint(lineNumber, fileName) {
-        return !!this.debugPoints.find(point => point.lineNumber === lineNumber && point.fileName === fileName);
+    hasBreakPoint(lineNumber: number, fileName: string) {
+        return !!this._debugPoints.find(point => point.lineNumber === lineNumber && point.fileName === fileName);
     }
 
     /**
@@ -246,8 +258,8 @@ class DebugManager extends EventEmitter {
      *
      * @memberof DebugManager
      */
-    getDebugPoints(fileName) {
-        const breakpoints = this.debugPoints.filter(breakpoint => breakpoint.fileName === fileName);
+    getDebugPoints(fileName: string) {
+        const breakpoints = this._debugPoints.filter(breakpoint => breakpoint.fileName === fileName);
 
         const breakpointsLineNumbers = breakpoints.map(breakpoint => breakpoint.lineNumber);
         return breakpointsLineNumbers;
@@ -258,8 +270,8 @@ class DebugManager extends EventEmitter {
      *
      * @memberof DebugManager
      */
-    removeAllBreakpoints(fileName) {
-        this.debugPoints = this.debugPoints.filter(item => item.fileName !== fileName);
+    removeAllBreakpoints(fileName: string) {
+        this._debugPoints = this._debugPoints.filter(item => item.fileName !== fileName);
         this.publishBreakpoints();
     }
 
@@ -271,9 +283,8 @@ class DebugManager extends EventEmitter {
      *
      * @memberof DebugManager
      */
-    createDebugPoint(lineNumber, fileName) {
+    createDebugPoint(lineNumber: number, fileName: string) {
         return new DebugPoint({ fileName, lineNumber });
     }
 }
 
-module.exports = DebugManager;
