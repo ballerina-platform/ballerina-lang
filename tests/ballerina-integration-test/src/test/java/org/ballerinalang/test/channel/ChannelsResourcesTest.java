@@ -1,4 +1,4 @@
-package org.ballerinalang.test.service.channel;
+package org.ballerinalang.test.channel;
 
 import org.ballerinalang.test.context.ServerInstance;
 import org.ballerinalang.test.util.HttpClientRequest;
@@ -103,6 +103,7 @@ public class ChannelsResourcesTest {
 
     @AfterClass
     private void cleanup() throws Exception {
+
         ballerinaServer.stopServer();
     }
 

@@ -62,6 +62,12 @@
         </classes>
     </test>
 
+    <test name="ballerina-channel-tests" parallel="false">
+        <classes>
+            <class name="org.ballerinalang.test.channel.ChannelsResourcesTest"/>
+        </classes>
+    </test>
+
     <test name="ballerina-http2-tests" parallel="false">
         <classes>
             <class name="org.ballerinalang.test.service.http2.Http2ServerPushTestCase"/>

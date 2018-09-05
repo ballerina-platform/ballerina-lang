@@ -13,11 +13,11 @@ service<http:Service> hello bind listener {
 
         json result;
         map key = { line1: "No. 20", line2: "Palm Grove", city: "Colombo 03", country: "Sri Lanka" };
+        result,key -> chn;
         result <- chn, key;
         // Objects and structs can have function calls
         response.setJsonPayload(result, contentType = "application/json");
 
-        result,key -> chn;
         _ = caller->respond(response);
     }
 
