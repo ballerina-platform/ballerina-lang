@@ -18,12 +18,12 @@ public class ChannelsNegativeTest {
     public void setup() {
 
         result = BCompileUtil.compile("test-src/channels/channel-negative-test.bal");
-        Assert.assertEquals(result.getErrorCount(), 3, "Channels negative test error count");
+        Assert.assertEquals(result.getErrorCount(), 4, "Channels negative test error count");
 
     }
 
     @Test(description = "Test channel result's incompatible types", groups = CHANNEL_TEST)
-    public void checkIncomptableResult() {
+    public void checkIncompatibleResultType() {
 
         Assert.assertEquals(result.getDiagnostics()[0].getPosition().getStartLine(), 7, "Wrong channel position line " +
                 "number");
