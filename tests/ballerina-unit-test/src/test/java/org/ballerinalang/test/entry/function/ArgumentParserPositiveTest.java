@@ -52,6 +52,13 @@ public class ArgumentParserPositiveTest {
     }
 
     @Test
+    public void testMainWithIntReturn() {
+        BValue[] entryFuncResult = BLangProgramRunner.runEntryFunc(programFile, "main", new String[]{});
+        Assert.assertTrue(entryFuncResult != null && entryFuncResult.length == 1, "return value not available");
+        Assert.assertEquals(entryFuncResult[0].stringValue(), "0", "invalid return value");
+    }
+
+    @Test
     public void testNoArg() {
         BValue[] entryFuncResult = BLangProgramRunner.runEntryFunc(programFile, "noParamEntry", new String[]{});
         Assert.assertTrue(entryFuncResult != null && entryFuncResult.length == 1, "return value not available");

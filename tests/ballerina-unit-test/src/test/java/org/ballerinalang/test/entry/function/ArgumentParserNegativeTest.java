@@ -43,20 +43,6 @@ public class ArgumentParserNegativeTest {
     private final boolean printReturn = true;
 
     @Test
-    public void testNonPublicMainFunction() {
-        try {
-            LauncherUtils.runProgram(Paths.get("src/test/resources/test-src/entry.function"), Paths.get(FILE_NAME),
-                                     runtimeParams, configFilePath, new String[]{}, offline, observe);
-        } catch (BLauncherException e) {
-            Assert.assertTrue(e.getMessages().contains("error: '" + FILE_NAME
-                                                               + "' does not contain a main function or a service"),
-                              "invalid error message, error message for public main function unavailability not found");
-            return;
-        }
-        Assert.fail("non-existence of public main function not identified");
-    }
-
-    @Test
     public void testTooManyArgs() {
         String functionName = "intEntry";
         try {
