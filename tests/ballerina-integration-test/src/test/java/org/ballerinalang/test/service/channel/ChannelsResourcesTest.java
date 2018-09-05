@@ -10,6 +10,8 @@ import org.testng.annotations.Test;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
 
 /**
  * Integration test for Channels.
@@ -42,32 +44,65 @@ public class ChannelsResourcesTest {
     }
 
     @Test(description = "Test channel message receive before send")
-    public void testReceivebeforeSend() throws IOException {
+    public void testReceiveBeforeSend() throws IOException, ExecutionException, InterruptedException {
 
-        HttpResponse receiveResponse = HttpClientRequest.doGet(ballerinaServer.getServiceURLHttp(
-                "channelService/receiveChannelMessage"));
-        Assert.assertEquals(receiveResponse.getResponseCode(), 200, "Response code mismatched in channel send request");
+        CompletableFuture<HttpResponse> future = CompletableFuture.supplyAsync(() -> {
+            try {
+                return HttpClientRequest.doGet(ballerinaServer.getServiceURLHttp(
+                        "channelService/receiveChannelMessage"));
+            } catch (IOException e) {
+                Assert.fail("Channel send failed", e);
+            }
+            return null;
+        });
+
         HttpResponse sendResponse = HttpClientRequest.doGet(ballerinaServer.getServiceURLHttp(
                 "channelService/sendChannelMessage"));
-        Assert.assertEquals(receiveResponse.getData(), "{\"message\":\"channel_message\"}");
+        Assert.assertEquals(sendResponse.getResponseCode(), 200, "Response code mismatched in channel send " +
+                "request");
+        HttpResponse receiveResponse = future.get();
+        if (receiveResponse != null) {
+            Assert.assertEquals(receiveResponse.getResponseCode(), 200, "Response code mismatched in channel receive " +
+                    "request");
+            Assert.assertEquals(receiveResponse.getData(), "{\"message\":\"channel_message\"}");
+        }
 
     }
 
-    public void testMultipleChannels() {
+    @Test(description = "Test channel message multiple interactions")
+    public void testMultipleInteractions() throws IOException {
 
-    }
+        //send 5 send requests
+        for (int i = 0; i < 5; i++) {
+            HttpClientRequest.doGet(ballerinaServer.getServiceURLHttp(
+                    "channelService/sendChannelMessage"));
+        }
 
-    public void testMultipleInteractions() {
+        //receive 3 of them
+        for (int i = 0; i < 3; i++) {
+            HttpResponse response = HttpClientRequest.doGet(ballerinaServer.getServiceURLHttp(
+                    "channelService/receiveChannelMessage"));
+            Assert.assertEquals(response.getData(), "{\"message\":\"channel_message\"}");
 
-    }
+        }
 
-    public void testNullKeys() {
+        //send 3 more
+        for (int i = 0; i < 3; i++) {
+            HttpClientRequest.doGet(ballerinaServer.getServiceURLHttp(
+                    "channelService/sendChannelMessage"));
+        }
 
+        //receive rest of the 5
+        for (int i = 0; i < 5; i++) {
+            HttpResponse response = HttpClientRequest.doGet(ballerinaServer.getServiceURLHttp(
+                    "channelService/receiveChannelMessage"));
+            Assert.assertEquals(response.getData(), "{\"message\":\"channel_message\"}");
+
+        }
     }
 
     @AfterClass
     private void cleanup() throws Exception {
-
         ballerinaServer.stopServer();
     }
 
