@@ -67,8 +67,8 @@ public type Cache object {
         // We remove empty caches to prevent OOM issues. So in such scenarios, the cache will not be in the `cacheMap`
         // when we are trying to add a new cache entry to that cache. So we need to create a new cache. For that, keep
         // track of the UUID.
-        string temp = system:uuid();
-        cacheMap[temp] = self;
+        uuid = system:uuid();
+        cacheMap[uuid] = self;
     }
 
     # Checks whether the given key has an accociated cache value.
