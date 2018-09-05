@@ -15,6 +15,6 @@
 // under the License.
 import ballerina/io;
 
-public function main(int i, float f) returns @tainted int {
+public function main(int i, float f) returns int {
     return f > 5.0 ? i + 5 : 5 - i;
 }

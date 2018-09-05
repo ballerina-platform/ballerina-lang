@@ -51,11 +51,10 @@ public class ArgumentParserPositiveTest {
         programFile = LauncherUtils.compile(Paths.get("src/test/resources/test-src/entry.function"),
                                                         Paths.get(FILE_NAME), false);
         mainWithParamsProgramFile = LauncherUtils.compile(Paths.get("src/test/resources/test-src/entry.function"),
-                                                          Paths.get("test_main_with_params.bal"),
-                                                          false);
+                                                          Paths.get("test_main_with_params.bal"), false);
     }
 
-    @Test (dataProvider = "mainFunctionParams")
+    @Test(dataProvider = "mainFunctionParamsAndReturn")
     public void testMainWithParams(String intString, String floatString, String expectedString) {
         BValue[] entryFuncResult = BLangProgramRunner.runEntryFunc(mainWithParamsProgramFile, "main",
                                                                    new String[]{intString, floatString});
@@ -212,8 +211,8 @@ public class ArgumentParserPositiveTest {
         System.setOut(defaultOut);
     }
 
-    @DataProvider(name = "mainFunctionParams")
-    public Object[][] mainFunctionParams() {
+    @DataProvider(name = "mainFunctionParamsAndReturn")
+    public Object[][] mainFunctionParamsAndReturn() {
         return new Object[][] {
                 { "1", "1.0", "4" },
                 { "100", "50.1", "105" }
