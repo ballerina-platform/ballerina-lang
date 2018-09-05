@@ -87,8 +87,8 @@ interface Variable {
     variablesReference: number;
 }
 
-class BallerinaDebugSession extends LoggingDebugSession {
-
+export class BallerinaDebugSession extends LoggingDebugSession {
+    
     private _dirPaths: Map<string, string> = new Map();
     private _threadIndexes: Map<any, number> = new Map()
     private _nextThreadId = 1;
@@ -102,6 +102,11 @@ class BallerinaDebugSession extends LoggingDebugSession {
     private _ballerinaPackage: string | undefined;
     private _projectConfig: ProjectConfig | undefined;
     private _debugServer: ChildProcess | undefined;
+    private _debugPort: number | undefined;
+
+    constructor(){
+        super('ballerina-debug.txt');
+    }
 
     initializeRequest(response: DebugProtocol.InitializeResponse, args: DebugProtocol.InitializeRequestArguments) {
         response.body = response.body || {};
@@ -197,7 +202,7 @@ class BallerinaDebugSession extends LoggingDebugSession {
         });
     }
 
-    getRunningInfo(currentPath: string, root: string, ballerinaPackage: string | undefined = undefined) : RunningInfo {
+    private _getRunningInfo(currentPath: string, root: string, ballerinaPackage: string | undefined = undefined) : RunningInfo {
         if (fs.existsSync(path.join(currentPath, '.ballerina'))) {
             if (currentPath != os.homedir()) {
                 return {
@@ -211,7 +216,7 @@ class BallerinaDebugSession extends LoggingDebugSession {
             return {};
         }
 
-        return this.getRunningInfo(
+        return this._getRunningInfo(
             path.dirname(currentPath), root, path.basename(currentPath));
     }
 
@@ -228,7 +233,7 @@ class BallerinaDebugSession extends LoggingDebugSession {
         this._ballerinaPackage = '.';
 
         const { sourceRoot, ballerinaPackage } =
-            this.getRunningInfo(cwd, path.parse(openFile).root);
+            this._getRunningInfo(cwd, path.parse(openFile).root);
 
         if (sourceRoot) {
             this._sourceRoot = sourceRoot;
@@ -258,6 +263,7 @@ class BallerinaDebugSession extends LoggingDebugSession {
                 this.terminate("Couldn't find an open port to start the debug server.");
                 return;
             }
+            this._debugPort = port;
 
             let debugServer;
             debugServer = this._debugServer = spawn(
@@ -429,7 +435,7 @@ class BallerinaDebugSession extends LoggingDebugSession {
             this._debugManager.kill();
             this._debugServer.kill();
             ps.lookup({
-                arguments: ['org.ballerinalang.launcher.Main', 'run', this._debugServer.spawnargs[2]],
+                arguments: ['org.ballerinalang.launcher.Main', 'run', this._debugPort],
                 }, (err: Error, resultList = [] ) => {
                 resultList.forEach(( process: ChildProcess ) => {
                     ps.kill(process.pid);
@@ -444,4 +450,5 @@ class BallerinaDebugSession extends LoggingDebugSession {
         this.sendEvent(new TerminatedEvent());
     }
 }
+
 DebugSession.run(BallerinaDebugSession);
