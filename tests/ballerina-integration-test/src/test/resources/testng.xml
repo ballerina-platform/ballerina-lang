@@ -24,7 +24,7 @@
     </listeners>
 
     <!-- Below tests should run sequentially since it will use same port in each test -->
-   <!-- <test name="ballerina-http-tests" parallel="false">
+    <test name="ballerina-http-tests" parallel="false">
         <groups>
             <run>
                 <exclude name="broken"/>
@@ -116,7 +116,7 @@
             <class name="org.ballerinalang.test.securelistener.SecureListenerSpecificHandlerTest"/>
             <class name="org.ballerinalang.test.securelistener.TokenPropagationTest"/>
         </classes>
-    </test>-->
+    </test>
 
     <test name="ballerina-websocket-tests" parallel="false">
         <classes>
@@ -144,7 +144,7 @@
         </classes>
     </test>
 
-   <!-- <test name="ballerina-grpc-tests" parallel="false">
+    <test name="ballerina-grpc-tests" parallel="false">
         <classes>
             <class name="org.ballerinalang.test.service.grpc.sample.GrpcBaseTest"/>
             <class name="org.ballerinalang.test.service.grpc.sample.ClientStreamingTestCase"/>
@@ -213,5 +213,5 @@
         <classes>
             <class name="org.ballerinalang.test.checkpointing.InterruptibleServiceTestCase"/>
         </classes>
-    </test>-->
+    </test>
 </suite>
