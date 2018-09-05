@@ -27,17 +27,22 @@ public interface TypeInstanceProvider {
     /**
      * Get type name supported by this {@link TypeInstanceProvider}.
      *
-     * @return type name as a string
+     * @return Type name as a string
      */
     String getTypeName();
 
     /**
-     * New empty object instance.
+     * New empty object instance, this instance's fields will be overwritten later in the deserialization process.
+     * Therefore the instance doesn't have to be in valid state at this point of time.
+     *
+     * @return Empty instance
      */
     Object newInstance();
 
     /**
      * Instance of type class, supported by this implementation.
+     *
+     * @return Class object instance
      */
     Class getTypeClass();
 }

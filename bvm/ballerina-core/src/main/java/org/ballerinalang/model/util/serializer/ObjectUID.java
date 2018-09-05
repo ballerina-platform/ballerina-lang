@@ -27,6 +27,8 @@ import java.util.Set;
 
 /**
  * Keep track of object identities to find reference sharing and self references.
+ *
+ * @since 0.982.0
  */
 class ObjectUID {
     private long counter = 1;

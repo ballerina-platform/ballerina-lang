@@ -27,6 +27,8 @@ import java.net.InetSocketAddress;
 
 /**
  * Convert {@link InetSocketAddress} into {@link BValue} object and back to facilitate serialization.
+ *
+ * @since 0.982.0
  */
 public class InetSocketAddressBValueProvider implements SerializationBValueProvider<InetSocketAddress> {
     @Override

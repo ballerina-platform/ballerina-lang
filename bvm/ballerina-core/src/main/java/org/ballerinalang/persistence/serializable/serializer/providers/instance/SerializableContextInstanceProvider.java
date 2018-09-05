@@ -24,7 +24,7 @@ import org.ballerinalang.persistence.serializable.SerializableState;
 import org.ballerinalang.util.codegen.ProgramFile;
 
 /**
- * Provide object instance for serializing {@lin SerializableContext}.
+ * Provide object instance for serializing {@link SerializableContext}.
  *
  * @since 0.98.1
  */

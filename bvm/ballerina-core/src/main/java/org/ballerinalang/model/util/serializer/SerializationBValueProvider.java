@@ -40,6 +40,8 @@ public interface SerializationBValueProvider<T> {
 
     /**
      * Return the class of type that this {@link SerializationBValueProvider} providing for.
+     *
+     * @return Class instance of the type provided by this {@link SerializationBValueProvider} implementation
      */
     Class<?> getType();
 
