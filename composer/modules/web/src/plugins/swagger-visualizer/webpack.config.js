@@ -14,7 +14,15 @@ module.exports = {
     module: {
         rules: [{
             test: /\.(js|jsx)$/,
-            use: ['babel-loader', { loader: 'eslint-loader', options: { emitWarning: true, emitError: false, failonError: false } }],
+            use: ['babel-loader', {
+                loader: 'eslint-loader',
+                options: {
+                    configFile: path.resolve(__dirname, '../../../.eslintrc.js'),
+                    emitWarning: true,
+                    emitError: false,
+                    failonError: false,
+                },
+            }],
             exclude: /node_modules/,
         }, {
             test: /\.(css)$/,
