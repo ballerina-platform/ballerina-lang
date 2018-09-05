@@ -1,5 +1,4 @@
 module.exports = {
-    "parser": "babel-eslint",
     "parserOptions": {
         "ecmaVersion": 6,
         "sourceType": "module",
@@ -8,14 +7,13 @@ module.exports = {
         }
     },
     "env": {
-        "browser": false,
+        "browser": true,
         "commonjs": true,
         "es6": true
     },
     "extends": "airbnb",
     "rules": {
         "max-len": ["error", 120],
-        "prop-types": 0,
         "require-jsdoc": ["warn", {
             "require": {
                 "FunctionDeclaration": true,
