@@ -46,6 +46,7 @@ public type Cache object {
     map<CacheEntry> entries;
     int expiryTimeMillis;
     private float evictionFactor;
+    private string uuid;
 
     public new(expiryTimeMillis = 900000, capacity = 100, evictionFactor = 0.25) {
         // Cache expiry time must be a positive value.
@@ -63,7 +64,11 @@ public type Cache object {
             error e = { message: "Cache eviction factor must be between 0.0 (exclusive) and 1.0 (inclusive)." };
             throw e;
         }
-        cacheMap[system:uuid()] = self;
+        // We remove empty caches to prevent OOM issues. So in such scenarios, the cache will not be in the `cacheMap`
+        // when we are trying to add a new cache entry to that cache. So we need to create a new cache. For that, keep
+        // track of the UUID.
+        string temp = system:uuid();
+        cacheMap[temp] = self;
     }
 
     # Checks whether the given key has an accociated cache value.
@@ -98,6 +103,12 @@ public type Cache object {
             int time = time:currentTime().time;
             CacheEntry entry = { value: value, lastAccessedTime: time };
             entries[key] = entry;
+
+            // If the UUID is not found, that means that cache was removed after being empty. So we need to create a
+            // new cache with the current cache object.
+            if (!cacheMap.hasKey(uuid)) {
+                cacheMap[uuid] = self;
+            }
         }
     }
 
@@ -122,7 +133,7 @@ public type Cache object {
     # + return - The cached value associated with the given key
     public function get(string key) returns any? {
         // Check whether the requested cache is available.
-        if (!hasKey(key)){
+        if (!hasKey(key)) {
             return ();
         }
         // Get the requested cache entry from the map.
@@ -196,6 +207,11 @@ public type Cache object {
 #
 # + return - Any error which occured during cache expiration
 function runCacheExpiry() returns error? {
+
+    // We need to keep track of empty caches. We remove these to prevent OOM issues.
+    int emptyCacheCount = 0;
+    string[] emptyCacheKeys = [];
+
     // Iterate through all caches.
     foreach currentCacheKey, currentCache in cacheMap {
 
@@ -225,6 +241,18 @@ function runCacheExpiry() returns error? {
             // Remove the cache entry.
             _ = currentCache.entries.remove(key);
         }
+
+        // If there are no entries, we add that cache key to the `emptyCacheKeys`.
+        int size = lengthof currentCache.entries;
+        if (size == 0) {
+            emptyCacheKeys[emptyCacheCount] = currentCacheKey;
+            emptyCacheCount++;
+        }
+    }
+
+    // We iterate though all empty cache keys and remove them from the `cacheMap`.
+    foreach emptyCacheKey in emptyCacheKeys {
+        _ = cacheMap.remove(emptyCacheKey);
     }
     return ();
 }
