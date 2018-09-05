@@ -43,12 +43,24 @@ public class ArgumentParserPositiveTest {
     private ByteArrayOutputStream tempOutStream = new ByteArrayOutputStream();
     private PrintStream defaultOut;
     private ProgramFile programFile;
+    private ProgramFile mainWithParamsProgramFile;
 
     @BeforeClass
     public void setUp() {
         defaultOut = System.out;
         programFile = LauncherUtils.compile(Paths.get("src/test/resources/test-src/entry.function"),
                                                         Paths.get(FILE_NAME), false);
+        mainWithParamsProgramFile = LauncherUtils.compile(Paths.get("src/test/resources/test-src/entry.function"),
+                                                          Paths.get("test_main_with_params.bal"),
+                                                          false);
+    }
+
+    @Test (dataProvider = "mainFunctionParams")
+    public void testMainWithParams(String intString, String floatString, String expectedString) {
+        BValue[] entryFuncResult = BLangProgramRunner.runEntryFunc(mainWithParamsProgramFile, "main",
+                                                                   new String[]{intString, floatString});
+        Assert.assertTrue(entryFuncResult != null && entryFuncResult.length == 1, "return value not available");
+        Assert.assertEquals(entryFuncResult[0].stringValue(), expectedString, "invalid return value");
     }
 
     @Test
@@ -198,6 +210,14 @@ public class ArgumentParserPositiveTest {
     public void tearDown() throws IOException {
         tempOutStream.close();
         System.setOut(defaultOut);
+    }
+
+    @DataProvider(name = "mainFunctionParams")
+    public Object[][] mainFunctionParams() {
+        return new Object[][] {
+                { "1", "1.0", "4" },
+                { "100", "50.1", "105" }
+        };
     }
 
     @DataProvider(name = "intValues")
