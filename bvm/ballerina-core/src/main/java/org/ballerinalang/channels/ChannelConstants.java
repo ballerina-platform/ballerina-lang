@@ -22,7 +22,7 @@ public class ChannelConstants {
      * DB queries.
      */
     public static final String CREATE = "create table IF NOT EXISTS " + TABLE_NAME + " (msgId int NOT NULL " +
-            "AUTO_INCREMENT,channelName varchar(200),msgKey varchar(200),value varchar(200), constraint pk primary " +
+            "AUTO_INCREMENT,channelName varchar(200),msgKey varchar(4000),value CLOB, constraint pk primary " +
             "key ( msgId ))";
     public static final String SELECT = "SELECT msgId,value FROM " + TABLE_NAME + " WHERE channelName = ? AND msgKey " +
             "= ?";

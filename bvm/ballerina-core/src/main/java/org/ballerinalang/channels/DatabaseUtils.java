@@ -29,31 +29,38 @@ import java.util.Locale;
 public class DatabaseUtils {
 
     private static HikariDataSource hikariDataSource;
-    private static Connection con;
     private static HikariConfig config;
     private static ConfigRegistry registry = ConfigRegistry.getInstance();
     private static final String H2_MEM_URL = "jdbc:h2:mem:" + ChannelConstants.DB_NAME;
 
-    private static void createDBConnection() throws SQLException {
+    private static Connection getDBConnection() throws SQLException {
+
         if (hikariDataSource == null) {
             config = new HikariConfig();
             String jdbcUrl = getJDBCURL();
             config.setJdbcUrl(jdbcUrl);
             setCredentials();
             hikariDataSource = new HikariDataSource(config);
+            Connection con = hikariDataSource.getConnection();
             if (jdbcUrl.contains(H2_MEM_URL)) {
-                con = hikariDataSource.getConnection();
-                con.prepareStatement(ChannelConstants.CREATE).execute();
+                PreparedStatement stmt = con.prepareStatement(ChannelConstants.CREATE);
+                stmt.execute();
+                stmt.close();
+                //TODO: find the type of the value column from activiti
             }
+            return con;
+        } else {
+            return hikariDataSource.getConnection();
         }
     }
 
     public static void addEntry(String channelName, BValue key, BValue value, BType keyType, BType valType) {
 
+        Connection con = null;
+        PreparedStatement stmt = null;
         try {
-            createDBConnection();
-            con = hikariDataSource.getConnection();
-            PreparedStatement stmt = con.prepareStatement(ChannelConstants.INSERT);
+            con = getDBConnection();
+            stmt = con.prepareStatement(ChannelConstants.INSERT);
             stmt.setString(1, channelName);
             if (keyType != null) {
                 setParam(stmt, key, keyType, 2);
@@ -64,10 +71,14 @@ public class DatabaseUtils {
             setParam(stmt, value, valType, 3);
             stmt.execute();
         } catch (SQLException e) {
-            throw new BallerinaException("error in get connection to persist channel message " + e.getMessage(),
+            throw new BallerinaException("error in saving received channel message " + e.getMessage(),
                     e);
         } finally {
             try {
+                if (stmt != null) {
+                    stmt.close();
+                }
+
                 if (con != null) {
                     con.close();
                 }
@@ -78,11 +89,12 @@ public class DatabaseUtils {
     }
 
     public static BValue getMessage(String channelName, BValue key, BType keyType, BType receiverType) {
-        ResultSet result;
+
+        ResultSet result = null;
+        Connection con = null;
+        PreparedStatement prpStmt = null;
         try {
-            createDBConnection();
-            con = hikariDataSource.getConnection();
-            PreparedStatement prpStmt;
+            con = getDBConnection();
 
             if (keyType != null) {
                 prpStmt = con.prepareStatement(ChannelConstants.SELECT);
@@ -106,6 +118,12 @@ public class DatabaseUtils {
                     e);
         } finally {
             try {
+                if (prpStmt != null) {
+                    prpStmt.close();
+                }
+                if (result != null) {
+                    result.close();
+                }
                 if (con != null) {
                     con.close();
                 }
@@ -117,6 +135,7 @@ public class DatabaseUtils {
     }
 
     private static BValue getValue(ResultSet resultSet, BType bType) throws SQLException {
+
         int type = bType.getTag();
 
         switch (type) {
@@ -140,6 +159,7 @@ public class DatabaseUtils {
     }
 
     private static void setCredentials() {
+
         if (registry.contains(ChannelConstants.CONF_NAMESPACE + ChannelConstants.CONF_PASSWORD)) {
             config.setPassword(registry.getAsString(ChannelConstants.CONF_NAMESPACE +
                     ChannelConstants.CONF_PASSWORD));

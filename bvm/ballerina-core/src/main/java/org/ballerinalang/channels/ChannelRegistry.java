@@ -24,7 +24,7 @@ import java.util.LinkedList;
 import java.util.Map;
 
 /**
- * {@code ChannelRegistryManager} is the registry for channel entries.
+ * {@code ChannelRegistry} is the registry for channel entries.
  *
  * @since 0.981
  */

@@ -23,6 +23,7 @@ import org.ballerinalang.model.values.BValue;
 
 /**
  * Manages the access to channels.
+ * @since 0.982.0
  */
 public class ChannelManager {
 
