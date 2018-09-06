@@ -46,6 +46,7 @@ public class ExecutorUtils {
      * @param isFunction   if a function or service is to be invoked
      * @param functionName the function name, if a function is to be invoked
      * @param args         arguments passed to the function
+     * @return execution results
      */
     public static BValue[] execute(URI balxResource, boolean isFunction, String functionName, String... args) {
         // TODO: 8/3/18 check if we can unify isFunction and functionName
