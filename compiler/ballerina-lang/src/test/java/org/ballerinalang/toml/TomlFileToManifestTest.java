@@ -20,7 +20,6 @@ package org.ballerinalang.toml;
 import org.ballerinalang.toml.model.Manifest;
 import org.testng.Assert;
 import org.testng.annotations.Test;
-import org.wso2.ballerinalang.util.RepoUtils;
 import org.wso2.ballerinalang.util.TomlParserUtils;
 
 import java.io.IOException;
