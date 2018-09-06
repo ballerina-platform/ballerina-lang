@@ -1,12 +1,13 @@
 import ballerina/io;
-type BirChannelReader object {
+
+public type BirChannelReader object {
     ChannelReader reader;
     ConstPool cp;
 
-    new(reader, cp){
+    public new(reader, cp){
     }
 
-    function readBType() returns BType {
+    public function readBType() returns BType {
         string sginatureAlias = readStringCpRef();
         if (sginatureAlias == "I"){
             return "int";
@@ -17,11 +18,11 @@ type BirChannelReader object {
         throw err;
     }
 
-    function readStringCpRef() returns string {
+    public function readStringCpRef() returns string {
         return cp.strings[reader.readInt32()];
     }
 
-    function readIntCpRef() returns int {
+    public function readIntCpRef() returns int {
         return cp.ints[reader.readInt32()];
     }
 
@@ -30,28 +31,28 @@ type BirChannelReader object {
 
     // following methods "proxied" since ballerina doesn't support obj inheritance yet
 
-    function readBoolean() returns boolean {
+    public function readBoolean() returns boolean {
         return reader.readBoolean();
     }
 
-    function readInt8() returns int {
+    public function readInt8() returns int {
         return reader.readInt8();
     }
 
-    function readInt32() returns int {
+    public function readInt32() returns int {
         return reader.readInt32();
     }
 
-    function readInt64() returns int {
+    public function readInt64() returns int {
         return reader.readInt64();
     }
 
 
-    function readString() returns string {
+    public function readString() returns string {
         return reader.readString();
     }
 
-    function readByteArray(int len) returns byte[] {
+    public function readByteArray(int len) returns byte[] {
         return reader.readByteArray(len);
     }
 };

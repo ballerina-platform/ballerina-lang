@@ -1,13 +1,13 @@
 import ballerina/io;
 import ballerina/internal;
 
-type BirFuncBodyParser object {
+public type BirFuncBodyParser object {
     BirChannelReader reader,
     map<BIRVariableDcl> localVarMap,
-    new(reader, localVarMap) {
+    public new(reader, localVarMap) {
     }
 
-    function parseBB() returns BIRBasicBlock {
+    public function parseBB() returns BIRBasicBlock {
         var id = reader.readStringCpRef();
         var numInstruction = reader.readInt32() - 1;
         BIRInstruction[] instructions;
@@ -21,7 +21,7 @@ type BirFuncBodyParser object {
             terminator: parseTerminator() };
     }
 
-    function parseInstruction() returns BIRInstruction {
+    public function parseInstruction() returns BIRInstruction {
         var kindTag = reader.readInt8();
         InstructionKind kind = "CONST_LOAD";
         // this is hacky to init to a fake val, but ballerina dosn't support un intialized vers
@@ -46,7 +46,7 @@ type BirFuncBodyParser object {
 
 
 
-    function parseTerminator() returns BIRTerminator {
+    public function parseTerminator() returns BIRTerminator {
         var kindTag = reader.readInt8();
         if (kindTag == 3){
             InstructionKind kind = "BRANCH";
@@ -85,17 +85,17 @@ type BirFuncBodyParser object {
     }
 
 
-    function parseVarRef() returns BIRVarRef {
+    public function parseVarRef() returns BIRVarRef {
         var varName = reader.readStringCpRef();
         var decl = getDecl(localVarMap, varName);
         return new BIRVarRef("VAR_REF", decl.typeValue, decl);
     }
 
-    function parseBBRef() returns BIRBasicBlock {
+    public function parseBBRef() returns BIRBasicBlock {
         return { id: { value: reader.readStringCpRef() } };
     }
 
-    function parseBinaryOpInstruction(int kindTag) returns BinaryOp {
+    public function parseBinaryOpInstruction(int kindTag) returns BinaryOp {
         BinaryOpInstructionKind kind = "ADD";
         if (kindTag == 7){
             kind = "ADD";

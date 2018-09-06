@@ -1,8 +1,9 @@
 import ballerina/llvm;
 import ballerina/io;
+import ballerina/bir;
 
 type FuncGenrator object {
-    BIRFunction func,
+    bir:BIRFunction func,
     llvm:LLVMValueRef funcRef,
     llvm:LLVMModuleRef mod,
     llvm:LLVMBuilderRef builder;
@@ -44,7 +45,7 @@ type FuncGenrator object {
             llvmValueRef = llvm:LLVMBuildAlloca(builder, varType, varName);
             localVarRefs[func.name.value + "." + localVar.name.value] = llvmValueRef;
             match localVar.kind {
-                ArgVarKind => {
+                bir:ArgVarKind => {
                     var parmRef = llvm:LLVMGetParam(funcRef, argI);
                     var loaded = llvm:LLVMBuildStore(builder, parmRef, llvmValueRef);
                     argI++;

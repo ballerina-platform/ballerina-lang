@@ -1,12 +1,12 @@
 import ballerina/io;
 
-type PackageParser object {
+public type PackageParser object {
     BirChannelReader reader,
 
-    new(reader) {
+    public new(reader) {
     }
 
-    function parseVariableDcl() returns BIRVariableDcl {
+    public function parseVariableDcl() returns BIRVariableDcl {
         var kind = parseVarKind();
         BIRVariableDcl dcl = {
             typeValue: reader.readBType(),
@@ -16,7 +16,7 @@ type PackageParser object {
         return dcl;
     }
 
-    function parseFunction() returns BIRFunction {
+    public function parseFunction() returns BIRFunction {
         var name = reader.readStringCpRef();
         var isDeclaration = reader.readBoolean();
         var visibility = parseVisibility();
@@ -54,7 +54,7 @@ type PackageParser object {
         };
     }
 
-    function parsePackage() returns BIRPackage {
+    public function parsePackage() returns BIRPackage {
         var pkgIdCp = reader.readInt32();
         var numFuncs = reader.readInt32();
         BIRFunction[] funcs;
@@ -67,7 +67,7 @@ type PackageParser object {
     }
 
 
-    function parseVisibility() returns Visibility {
+    public function parseVisibility() returns Visibility {
         int b = reader.readInt8();
         if (b == 0){
             return "PACKAGE_PRIVATE";
@@ -80,7 +80,7 @@ type PackageParser object {
         throw err;
     }
 
-    function parseVarKind() returns VarKind {
+    public function parseVarKind() returns VarKind {
         int b = reader.readInt8();
         if (b == 1){
             return "LOCAL";
@@ -95,7 +95,7 @@ type PackageParser object {
         throw err;
     }
 
-    function parseSig(string sig) returns BInvokableType {
+    public function parseSig(string sig) returns BInvokableType {
         BType returnType = "int";
         //TODO: add boolean
         if (sig.lastIndexOf("(N)") == (lengthof sig - 3)){
