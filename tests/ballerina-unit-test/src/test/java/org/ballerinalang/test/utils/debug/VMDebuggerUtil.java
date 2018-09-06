@@ -46,8 +46,8 @@ public class VMDebuggerUtil {
 
         TestDebugger debugger = setupProgram(programArgs, bPoints);
 
-        if (!debugger.tryAcquireLock(1000)) {
-            Assert.fail("VM doesn't start within 1000ms");
+        if (!debugger.tryAcquireLock(2000)) {
+            Assert.fail("VM doesn't start within 2000ms");
         }
 
         debugger.startDebug();

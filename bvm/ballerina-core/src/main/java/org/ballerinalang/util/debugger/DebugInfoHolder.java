@@ -85,7 +85,7 @@ class DebugInfoHolder {
 
     private void addDebugPoint(BreakPointDTO breakPointDTO) {
         if (packageInfoMap.get(breakPointDTO.getPackagePath()) == null) {
-            return;
+            throw new DebugException(DebugConstants.MSG_INVALID_BREAKPOINT + breakPointDTO.toString());
         }
         packageInfoMap.get(breakPointDTO.getPackagePath()).markDebugPoint(breakPointDTO);
     }
