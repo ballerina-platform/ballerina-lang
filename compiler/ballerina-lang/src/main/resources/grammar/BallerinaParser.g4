@@ -1020,7 +1020,7 @@ returnParameterDescription
     ;
 
 documentationText
-    :   (DocumentationText | ReferenceType | VARIABLE | MODULE | DocumentationEscapedCharacters | documentationReference | singleBacktickedBlock | doubleBacktickedBlock | tripleBacktickedBlock | DefinitionReference)+
+    :   (DocumentationText | ReferenceType | VARIABLE | MODULE | documentationReference | singleBacktickedBlock | doubleBacktickedBlock | tripleBacktickedBlock | DefinitionReference)+
     ;
 
 documentationReference

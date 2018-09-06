@@ -510,7 +510,7 @@ ReferenceType
     ;
 
 DocumentationText
-    :   DocumentationTextCharacter+
+    :   (DocumentationTextCharacter | DocumentationEscapedCharacters)+
     ;
 
 SingleBacktickStart
