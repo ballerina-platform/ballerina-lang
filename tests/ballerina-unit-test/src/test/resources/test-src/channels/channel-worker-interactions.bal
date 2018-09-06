@@ -119,31 +119,46 @@ channel<boolean> boolChan;
 channel<byte> byteChan;
 channel<float> floatChan;
 
-function primitiveTypeChannels() returns float {
-    worker w1 {
-        xml key = xml `<key><id>50</id><name>john</name></key>`;
-        10,key -> intChan;
-        string strResult;
-        strResult <- strChan, 10;
-        true, strResult -> boolChan;
-        byte byteResult;
-        byteResult <- byteChan, true;
-        10.5, byteResult -> floatChan;
+function primitiveTypeChannels() returns boolean {
+
+    xml key = xml `<key><id>50</id><name>john</name></key>`;
+    byte b = 23;
+    10, key -> intChan;
+    true, key -> boolChan;
+    10.5, key -> floatChan;
+    "message", key -> strChan;
+    b, key -> byteChan;
+
+    int intResult;
+    float floatResult;
+    byte byteResult;
+    string strResult;
+    boolean boolResult;
+    intResult <- intChan, key;
+
+    if (intResult == 10) {
+        floatResult <- floatChan, key;
+    } else {
+        return false;
     }
 
-    worker w2 {
-        xml key = xml `<key><id>50</id><name>john</name></key>`;
-        int intResult;
-        intResult <- intChan,key;
-        "message",intResult -> strChan;
-        boolean boolResult;
-        boolResult <- boolChan, "message";
-        byte b = 23;
-        float floatResult;
-        if(boolResult) {
-            b,true -> byteChan;
-            floatResult <- floatChan, b;
-        }
-        return floatResult;
+    if (floatResult == 10.5) {
+        byteResult <- byteChan, key;
+    } else {
+        return false;
     }
+
+    if (byteResult == b) {
+        strResult <- strChan, key;
+    } else {
+        return false;
+    }
+
+    if (strResult == "message") {
+        boolResult <- boolChan, key;
+        return boolResult;
+    }
+
+    return false;
+
 }

@@ -34,7 +34,6 @@ import java.util.concurrent.ExecutionException;
 
 /**
  * Integration test for Channels.
- *
  * @since 0.982.0
  */
 public class ChannelsResourcesTest extends BaseTest {

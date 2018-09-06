@@ -68,6 +68,6 @@ public class BasicChannelsTest {
     public void testSimpleTypeChannels() {
         BValue[] returns = BRunUtil.invoke(result, "primitiveTypeChannels");
         Assert.assertEquals(returns.length, 1, "Basic channel test, simple types channels test failed");
-        Assert.assertEquals(returns[0].stringValue(), "10.5", "Incorrect msg returned from channel");
+        Assert.assertEquals(returns[0].stringValue(), "true", "Incorrect msg returned from channel");
     }
 }

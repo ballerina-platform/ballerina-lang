@@ -65,7 +65,6 @@ public class DatabaseUtils {
                 PreparedStatement stmt = con.prepareStatement(ChannelConstants.CREATE);
                 stmt.execute();
                 stmt.close();
-                //TODO: find the type of the value column from activiti
             }
             return con;
         } else {
