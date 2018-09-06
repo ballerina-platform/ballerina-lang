@@ -1,9 +1,6 @@
 declare module 'ps-node' {
-    namespace ps {
-        export function lookup(args: any, callback: any) : void;
-        export function kill(args: any) : void;
-    }
-    export default ps;
+    export function lookup(args: any, callback: any) : void;
+    export function kill(args: any) : void;
 }
 
 declare module 'openport' {

@@ -25,7 +25,7 @@ import * as os from 'os';
 import * as path from 'path';
 import { spawn, ChildProcess } from 'child_process';
 import { find as findPort } from 'openport';
-import ps from 'ps-node';
+import { lookup, kill } from 'ps-node';
 import * as toml from 'toml';
 import { DebugProtocol } from 'vscode-debugprotocol';
 
@@ -99,6 +99,7 @@ export class BallerinaDebugSession extends LoggingDebugSession {
     private _ballerinaPackage: string | undefined;
     private _projectConfig: ProjectConfig | undefined;
     private _debugServer: ChildProcess | undefined;
+    private _debugPort: string | undefined;
 
     constructor(){
         super('ballerina-debug.txt');
@@ -261,11 +262,11 @@ export class BallerinaDebugSession extends LoggingDebugSession {
                 this.terminate("Couldn't find an open port to start the debug server.");
                 return;
             }
-
+            this._debugPort = port.toString();
             let debugServer;
             debugServer = this._debugServer = spawn(
                 executable,
-                ['run', '--debug', port.toString(), debugTarget],
+                ['run', '--debug', <string> this._debugPort, <string> this._debugTarget],
                 { cwd }
             );
 
@@ -430,13 +431,17 @@ export class BallerinaDebugSession extends LoggingDebugSession {
         if (this._debugServer) {
             this._debugManager.kill();
             this._debugServer.kill();
-            ps.lookup({
-                arguments: ['org.ballerinalang.launcher.Main', 'run', this._debugTarget],
-                }, (err: Error, resultList = [] ) => {
+            function callBack(err: Error, resultList = [] ) {
                 resultList.forEach(( process: ChildProcess ) => {
-                    ps.kill(process.pid);
+                    kill(process.pid);
                 });
-            });
+            };
+            lookup(
+                {
+                    arguments: ['org.ballerinalang.launcher.Main', 'run', '--debug', this._debugPort, this._debugTarget],
+                }, 
+                callBack
+            );
         }
         this.sendResponse(response);
     }
