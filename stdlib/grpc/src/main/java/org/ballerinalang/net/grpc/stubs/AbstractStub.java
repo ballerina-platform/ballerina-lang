@@ -74,6 +74,9 @@ public abstract class AbstractStub {
 
     /**
      * The underlying connector of the stub.
+     *
+     * @return client connector
+     *
      */
     public final HttpClientConnector getConnector() {
         return connector;
@@ -186,7 +189,7 @@ public abstract class AbstractStub {
      * Callbacks for receiving headers, response messages and completion status from the server.
      * <p>
      * Referenced from grpc-java implementation.
-     * <p>
+     *
      */
     public interface Listener {
 
@@ -206,7 +209,7 @@ public abstract class AbstractStub {
 
         /**
          *  Calls when call is closed.
-         * <p>
+         *
          * <p>If {@code status} returns false for {@link Status#isOk()}, then the call failed.
          *
          * @param status   the result of the remote call.

@@ -87,6 +87,8 @@ public class LSCompilerUtil {
      * @param packageID         Package Name
      * @param packageRepository Package Repository
      * @param sourceRoot        LSDocument for Source Root
+     * @param preserveWhitespace Preserve Whitespace
+     * @param documentManager {@link WorkspaceDocumentManager} Document Manager
      * @return {@link CompilerContext}     Compiler context
      */
     public static CompilerContext prepareCompilerContext(PackageID packageID, PackageRepository packageRepository,
@@ -102,6 +104,9 @@ public class LSCompilerUtil {
      * @param packageID         Package ID
      * @param packageRepository Package Repository
      * @param document        LSDocument for Source Root
+     * @param preserveWhitespace Preserve Whitespace
+     * @param documentManager {@link WorkspaceDocumentManager} Document Manager
+     * @param compilerPhase {@link CompilerPhase} Compiler Phase
      * @return {@link CompilerContext}     Compiler context
      */
     public static CompilerContext prepareCompilerContext(PackageID packageID, PackageRepository packageRepository,
@@ -198,6 +203,7 @@ public class LSCompilerUtil {
      *
      * @param context             Language server context
      * @param fileName            File name which is currently open
+     * @param compilerContext {@link CompilerContext} Compiler context
      * @param customErrorStrategy custom error strategy class
      * @return {@link Compiler} ballerina compiler
      */
@@ -238,6 +244,7 @@ public class LSCompilerUtil {
      * Check whether given directory is a project dir.
      *
      * @param root root path
+     * @param fileUri file Uri
      * @return {@link Boolean} true if project dir, else false
      */
     public static boolean isBallerinaProject(String root, String fileUri) {

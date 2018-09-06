@@ -44,6 +44,7 @@ public interface DataElement<DataType, InboundMsgType> {
      * Get the stored data.
      *
      * @param inboundMessage Checker for extra checks of the item.
+     * @param dataReturnAgent DataReturnAgent.
      * @return true correct data in the node is found.
      */
     boolean getData(InboundMsgType inboundMessage, DataReturnAgent<DataType> dataReturnAgent);
