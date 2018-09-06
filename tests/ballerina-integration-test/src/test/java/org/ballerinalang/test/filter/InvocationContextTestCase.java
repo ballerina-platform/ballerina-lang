@@ -19,7 +19,6 @@
 package org.ballerinalang.test.filter;
 
 import io.netty.handler.codec.http.HttpHeaderNames;
-import org.ballerinalang.test.BaseTest;
 import org.ballerinalang.test.util.HttpClientRequest;
 import org.ballerinalang.test.util.HttpResponse;
 import org.ballerinalang.test.util.TestConstant;
@@ -33,7 +32,7 @@ import java.util.Map;
  * Test cases for writing/reading to/from the InvocationContext.
  */
 @Test(groups = "filter-test")
-public class InvocationContextTestCase extends BaseTest {
+public class InvocationContextTestCase extends FilterBaseTest {
 
     @Test(description = "Single filter execution success case")
     public void testCustomAttributes() throws Exception {

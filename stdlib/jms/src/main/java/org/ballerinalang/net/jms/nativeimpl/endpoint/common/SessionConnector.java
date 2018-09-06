@@ -53,6 +53,8 @@ public class SessionConnector implements BallerinaTransactionContext {
 
     /**
      * Getter for session.
+     *
+     * @return connector session
      */
     public Session getSession() {
         return session;

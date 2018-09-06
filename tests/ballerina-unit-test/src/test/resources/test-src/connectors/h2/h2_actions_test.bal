@@ -153,7 +153,7 @@ function testBatchUpdate() returns (int[]) {
     }
 }
 
-function testAddToMirrorTable() returns (Customer[]) {
+function testAddToProxyTable() returns (Customer[]) {
     endpoint h2:Client testDB {
         path: "./target/H2Client/",
         name: "TestDBH2",
@@ -327,7 +327,7 @@ function testH2MemDBUpdate() returns (int, string) {
     insertCountRet = testDB->update("insert into student (id, name) values (15, 'Anne')");
     table dt = check testDB->select("Select * From student", ());
     json j = check <json>dt;
-    string data = io:sprintf("%j", j);
+    string data = io:sprintf("%s", j);
 
     int insertCount = check insertCountRet;
     testDB.stop();

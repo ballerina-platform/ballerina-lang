@@ -41,7 +41,7 @@ public class UnaryBlockingHeaderTestCase {
     @BeforeClass
     private void setup() throws Exception {
         TestUtils.prepareBalo(this);
-        Path balFilePath = Paths.get("src", "test", "resources", "grpc", "clients", "unary_client.bal");
+        Path balFilePath = Paths.get("src", "test", "resources", "grpc", "clients", "unary_client_with_headers.bal");
         result = BCompileUtil.compile(balFilePath.toAbsolutePath().toString());
     }
 
@@ -59,7 +59,7 @@ public class UnaryBlockingHeaderTestCase {
     @Test
     public void testBlockingHeaderClient() {
         BString request = new BString("WSO2");
-        final String serverMsg = "Header: 1234567890";
+        final String serverMsg = "Header: 2233445677";
 
         BValue[] responses = BRunUtil.invoke(result, "testBlockingHeader", new BValue[]{request});
         Assert.assertEquals(responses.length, 1);

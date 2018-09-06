@@ -489,7 +489,7 @@ public class BallerinaFormattingModelBuilder implements FormattingModelBuilder {
                 .between(FORK, SEMICOLON).spaceIf(false)
                 .around(FORK).spaceIf(true)
 
-                .between(TYPE,IDENTIFIER).spaceIf(true)
+                .between(TYPE, IDENTIFIER).spaceIf(true)
 
                 .between(IDENTIFIER, FINITE_TYPE).spaceIf(true)
                 .between(IDENTIFIER, ENDPOINT_INITIALIZATION).spaceIf(true)
@@ -552,7 +552,7 @@ public class BallerinaFormattingModelBuilder implements FormattingModelBuilder {
 
                 .betweenInside(EXPRESSION, LEFT_BRACE, IF_CLAUSE).spaceIf(true)
                 .betweenInside(SIMPLE_LITERAL_EXPRESSION, LEFT_BRACE, IF_CLAUSE).spaceIf(true)
-                .betweenInside(BRACED_OR_TUPLE_EXPRESSION,LEFT_BRACE,IF_CLAUSE).spaceIf(true)
+                .betweenInside(BRACED_OR_TUPLE_EXPRESSION, LEFT_BRACE, IF_CLAUSE).spaceIf(true)
                 .betweenInside(EXPRESSION, LEFT_BRACE, ELSE_IF_CLAUSE).spaceIf(true)
                 .betweenInside(SIMPLE_LITERAL_EXPRESSION, LEFT_BRACE, ELSE_IF_CLAUSE).spaceIf(true)
 

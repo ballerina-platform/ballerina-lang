@@ -1,4 +1,4 @@
 import ballerina/http;
-function main (string... args) {
+public function main (string... args) {
     http:
 }

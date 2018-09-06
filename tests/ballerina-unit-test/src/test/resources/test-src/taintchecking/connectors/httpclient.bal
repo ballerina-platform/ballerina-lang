@@ -4,7 +4,7 @@ endpoint http:Client clientEndpoint {
     url: "https://postman-echo.com"
 };
 
-function main (string... args) {
+public function main (string... args) {
     string param = "staticValue";
     string headerName = "staticValue";
     string headerValue = "staticValue";

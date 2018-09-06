@@ -1,4 +1,4 @@
-function main (string... args) {
+public function main (string... args) {
     secureFunction(typeReturn(args[0]), typeReturn(args[0]));
 }
 

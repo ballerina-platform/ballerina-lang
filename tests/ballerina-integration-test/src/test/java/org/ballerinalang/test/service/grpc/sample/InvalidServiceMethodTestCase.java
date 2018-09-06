@@ -26,7 +26,6 @@ import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.test.BaseTest;
 import org.ballerinalang.test.util.TestUtils;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
@@ -39,7 +38,7 @@ import java.nio.file.Paths;
  * Test class for invalid service methods.
  */
 @Test(groups = "grpc-test")
-public class InvalidServiceMethodTestCase extends BaseTest {
+public class InvalidServiceMethodTestCase extends GrpcBaseTest {
     private CompileResult result;
 
     @BeforeClass

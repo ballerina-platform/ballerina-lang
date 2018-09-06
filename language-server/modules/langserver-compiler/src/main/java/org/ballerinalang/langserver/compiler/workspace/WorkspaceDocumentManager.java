@@ -50,6 +50,7 @@ public interface WorkspaceDocumentManager {
      * @param filePath Path of the file
      * @param content  Content of the file
      * @return {@link Lock} retrieving a lock for the file. You must call Lock.unlock() once you are done with the work.
+     * @throws WorkspaceDocumentException when file cannot be opened.
      */
     Optional<Lock> openFile(Path filePath, String content) throws WorkspaceDocumentException;
 
@@ -69,6 +70,7 @@ public interface WorkspaceDocumentManager {
      * @param filePath       Path of the file
      * @param updatedContent New content of the file
      * @return {@link Lock} retrieving a lock for the file. You must call Lock.unlock() once you are done with the work.
+     * @throws WorkspaceDocumentException when file cannot be updated.
      */
     Optional<Lock> updateFile(Path filePath, String updatedContent) throws WorkspaceDocumentException;
 
@@ -76,6 +78,7 @@ public interface WorkspaceDocumentManager {
      * Close the given file in document manager.
      *
      * @param filePath Path of the file
+     * @throws WorkspaceDocumentException when file cannot be closed.
      */
     void closeFile(Path filePath) throws WorkspaceDocumentException;
 
@@ -84,6 +87,7 @@ public interface WorkspaceDocumentManager {
      *
      * @param filePath Path of the file
      * @return Content of the file
+     * @throws WorkspaceDocumentException when file cannot be read.
      */
     String getFileContent(Path filePath) throws WorkspaceDocumentException;
 
@@ -110,4 +114,10 @@ public interface WorkspaceDocumentManager {
      * @return set of {@link Path}
      */
     Set<Path> getAllFilePaths();
+
+    /**
+     * Clear all file paths.
+     *
+     */
+    void clearAllFilePaths();
 }

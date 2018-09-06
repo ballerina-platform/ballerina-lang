@@ -2,12 +2,13 @@ import ballerina/sql;
 import ballerina/jdbc;
 import ballerina/time;
 import ballerina/io;
+import ballerina/internal;
 
 type ResultCustomers record {
     string FIRSTNAME,
 };
 
-type ResultCustomers2 record {
+type CustomerFullName record {
     string FIRSTNAME,
     string LASTNAME,
 };
@@ -79,7 +80,7 @@ function testInsertTableData(string jdbcUrl, string userName, string password) r
     };
 
     int insertCount = check testDB->update("Insert into Customers (firstName,lastName,registrationID,creditLimit,country)
-                                         values ('James', 'Clerk', 2, 5000.75, 'USA')");
+                                         values ('James', 'Clerk', 3, 5000.75, 'USA')");
     testDB.stop();
     return insertCount;
 }
@@ -337,7 +338,7 @@ function testCallProcedureWithMultipleResultSets(string jdbcUrl, string userName
     string firstName2;
     string lastName;
 
-    var ret = check testDB->call("{call SelectPersonDataMultiple()}", [ResultCustomers, ResultCustomers2]);
+    var ret = check testDB->call("{call SelectPersonDataMultiple()}", [ResultCustomers, CustomerFullName]);
     table[] dts;
     match ret {
         table[] dtsRet => dts = dtsRet;
@@ -350,7 +351,7 @@ function testCallProcedureWithMultipleResultSets(string jdbcUrl, string userName
     }
 
     while (dts[1].hasNext()) {
-        ResultCustomers2 rs = check <ResultCustomers2>dts[1].getNext();
+        CustomerFullName rs = check <CustomerFullName>dts[1].getNext();
         firstName2 = rs.FIRSTNAME;
         lastName = rs.LASTNAME;
     }
@@ -765,7 +766,7 @@ function testINParameters(string jdbcUrl, string userName, string password) retu
     return insertCount;
 }
 
-function testBlobInParameter(string jdbcUrl, string userName, string password) returns int {
+function testBlobInParameter(string jdbcUrl, string userName, string password) returns (int, byte[]) {
     endpoint jdbc:Client testDB {
         url: jdbcUrl,
         username: userName,
@@ -775,11 +776,35 @@ function testBlobInParameter(string jdbcUrl, string userName, string password) r
 
     sql:Parameter paraID = { sqlType: sql:TYPE_INTEGER, value: 3 };
     sql:Parameter paraBlob = { sqlType: sql:TYPE_BLOB, value: "YmxvYiBkYXRh" };
-    int insertCount = check testDB->update("INSERT INTO BlobTable (row_id,blob_type) VALUES (?,?)",
-        paraID, paraBlob);
 
+    int insertCount;
+    byte[] blobVal;
+
+    if (jdbcUrl.contains("postgres")) {
+        // In postgresql large object operations should be done in transaction mode. This is enforced by the official
+        // driver. The reason is large objects could span cross multiple records.
+        transaction {
+            insertCount = check testDB->update("INSERT INTO BlobTable (row_id,blob_type) VALUES (?,?)",
+                paraID, paraBlob);
+            table dt = check testDB->select("SELECT blob_type from BlobTable where row_id=3", ResultBlob);
+
+            while (dt.hasNext()) {
+                ResultBlob rs = check <ResultBlob>dt.getNext();
+                blobVal = rs.BLOB_TYPE;
+            }
+        }
+    } else {
+        insertCount = check testDB->update("INSERT INTO BlobTable (row_id,blob_type) VALUES (?,?)",
+            paraID, paraBlob);
+        table dt = check testDB->select("SELECT blob_type from BlobTable where row_id=3", ResultBlob);
+
+        while (dt.hasNext()) {
+            ResultBlob rs = check <ResultBlob>dt.getNext();
+            blobVal = rs.BLOB_TYPE;
+        }
+    }
     testDB.stop();
-    return insertCount;
+    return (insertCount, blobVal);
 }
 
 function testINParametersWithDirectValues(string jdbcUrl, string userName, string password) returns (int, int, float,
@@ -1307,7 +1332,7 @@ function testDateTimeNullInValues(string jdbcUrl, string userName, string passwo
     string data;
 
     json j = check <json>dt;
-    data = io:sprintf("%j", j);
+    data = io:sprintf("%s", j);
 
     testDB.stop();
     return data;
@@ -1431,26 +1456,26 @@ function testComplexTypeRetrieval(string jdbcUrl, string userName, string passwo
 
     table dt = check testDB->select("SELECT * from BlobTable where row_id = 1", ());
     xml x1 = check <xml>dt;
-    s1 = io:sprintf("%l", x1);
+    s1 = io:sprintf("%s", x1);
 
     dt = check testDB->select("SELECT * from DateTimeTypes where row_id = 1", ());
     xml x2 = check <xml>dt;
-    s2 = io:sprintf("%l", x2);
+    s2 = io:sprintf("%s", x2);
 
     dt = check testDB->select("SELECT * from BlobTable where row_id = 1", ());
     json j = check <json>dt;
-    s3 = io:sprintf("%j", j);
+    s3 = io:sprintf("%s", j);
 
     dt = check testDB->select("SELECT * from DateTimeTypes where row_id = 1", ());
     j = check <json>dt;
-    s4 = io:sprintf("%j", j);
+    s4 = io:sprintf("%s", j);
 
     testDB.stop();
     return (s1, s2, s3, s4);
 }
 
-function testSelectLoadToMemory(string jdbcUrl, string userName, string password) returns (Employee[], Employee[],
-            Employee[]) {
+function testSelectLoadToMemory(string jdbcUrl, string userName, string password) returns (CustomerFullName[],
+            CustomerFullName[], CustomerFullName[]) {
     endpoint jdbc:Client testDB {
         url: jdbcUrl,
         username: userName,
@@ -1458,41 +1483,36 @@ function testSelectLoadToMemory(string jdbcUrl, string userName, string password
         poolOptions: { maximumPoolSize: 1 }
     };
 
-    table dt = check testDB->select("SELECT * from employeeItr", Employee, loadToMemory = true);
+    table<CustomerFullName> dt = check testDB->select(
+        "SELECT firstName, lastName from Customers where registrationID < 3", CustomerFullName , loadToMemory = true);
 
-    Employee[] employeeArray1;
-    Employee[] employeeArray2;
-    Employee[] employeeArray3;
+    CustomerFullName[] fullNameArray1;
+    CustomerFullName[] fullNameArray2;
+    CustomerFullName[] fullNameArray3;
     int i = 0;
-    while (dt.hasNext()) {
-        Employee rs = check <Employee>dt.getNext();
-        Employee e = { id: rs.id, name: rs.name, address: rs.address };
-        employeeArray1[i] = e;
+    foreach x in dt {
+        fullNameArray1[i] = x;
         i++;
     }
 
     i = 0;
-    while (dt.hasNext()) {
-        Employee rs = check <Employee>dt.getNext();
-        Employee e = { id: rs.id, name: rs.name, address: rs.address };
-        employeeArray2[i] = e;
+    foreach x in dt {
+        fullNameArray2[i] = x;
         i++;
     }
 
     i = 0;
-    while (dt.hasNext()) {
-        Employee rs = check <Employee>dt.getNext();
-        Employee e = { id: rs.id, name: rs.name, address: rs.address };
-        employeeArray3[i] = e;
+    foreach x in dt {
+        fullNameArray3[i] = x;
         i++;
     }
 
     testDB.stop();
-    return (employeeArray1, employeeArray2, employeeArray3);
+    return (fullNameArray1, fullNameArray2, fullNameArray3);
 }
 
-function testLoadToMemorySelectAfterTableClose(string jdbcUrl, string userName, string password) returns (Employee[],
-            Employee[], error) {
+function testLoadToMemorySelectAfterTableClose(string jdbcUrl, string userName, string password) returns (
+            CustomerFullName[], CustomerFullName[], error) {
     endpoint jdbc:Client testDB {
         url: jdbcUrl,
         username: userName,
@@ -1500,40 +1520,36 @@ function testLoadToMemorySelectAfterTableClose(string jdbcUrl, string userName, 
         poolOptions: { maximumPoolSize: 1 }
     };
 
-    table dt = check testDB->select("SELECT * from employeeItr", Employee, loadToMemory = true);
+    table<CustomerFullName> dt = check testDB->select(
+        "SELECT firstName, lastName from Customers where registrationID < 3", CustomerFullName, loadToMemory = true);
 
-    Employee[] employeeArray1;
-    Employee[] employeeArray2;
-    Employee[] employeeArray3;
+    CustomerFullName[] fullNameArray1;
+    CustomerFullName[] fullNameArray2;
+    CustomerFullName[] fullNameArray3;
     int i = 0;
-    while (dt.hasNext()) {
-        Employee rs = check <Employee>dt.getNext();
-        Employee e = { id: rs.id, name: rs.name, address: rs.address };
-        employeeArray1[i] = e;
+    foreach x in dt {
+        fullNameArray1[i] = x;
         i++;
     }
+
     i = 0;
-    while (dt.hasNext()) {
-        Employee rs = check <Employee>dt.getNext();
-        Employee e = { id: rs.id, name: rs.name, address: rs.address };
-        employeeArray2[i] = e;
+    foreach x in dt {
+        fullNameArray2[i] = x;
         i++;
     }
     dt.close();
     i = 0;
     error e;
     try {
-        while (dt.hasNext()) {
-            Employee rs = check <Employee>dt.getNext();
-            Employee emp = { id: rs.id, name: rs.name, address: rs.address };
-            employeeArray3[i] = emp;
+        foreach x in dt {
+            fullNameArray3[i] = x;
             i++;
         }
     } catch (error err) {
         e = err;
     }
     testDB.stop();
-    return (employeeArray1, employeeArray2, e);
+    return (fullNameArray1, fullNameArray2, e);
 }
 
 function testCloseConnectionPool(string jdbcUrl, string userName, string password, string connectionCountQuery)

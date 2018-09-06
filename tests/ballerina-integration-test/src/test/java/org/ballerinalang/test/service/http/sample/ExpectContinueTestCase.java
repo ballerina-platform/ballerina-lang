@@ -27,7 +27,7 @@ import io.netty.handler.codec.http.HttpHeaderValues;
 import io.netty.handler.codec.http.HttpMethod;
 import io.netty.handler.codec.http.HttpResponseStatus;
 import io.netty.handler.codec.http.HttpVersion;
-import org.ballerinalang.test.BaseTest;
+import org.ballerinalang.test.service.http.HttpBaseTest;
 import org.ballerinalang.test.util.TestUtils;
 import org.ballerinalang.test.util.client.HttpClient;
 import org.testng.Assert;
@@ -39,7 +39,7 @@ import java.util.List;
  * Test case for verifying the server-side 100-continue behaviour.
  */
 @Test(groups = "http-test")
-public class ExpectContinueTestCase extends BaseTest {
+public class ExpectContinueTestCase extends HttpBaseTest {
 
     @Test
     public void test100Continue() {

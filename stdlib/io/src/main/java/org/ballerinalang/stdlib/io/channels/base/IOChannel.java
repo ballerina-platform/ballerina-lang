@@ -69,4 +69,11 @@ public interface IOChannel {
      * @throws IOException during i/o error.
      */
     void close() throws IOException;
+
+    /**
+     * Specifies whether there're remaining content on user-space.
+     *
+     * @return true if there're remaining content false if not.
+     */
+    boolean remaining();
 }

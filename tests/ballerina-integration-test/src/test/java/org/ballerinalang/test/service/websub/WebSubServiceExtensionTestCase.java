@@ -20,6 +20,8 @@ package org.ballerinalang.test.service.websub;
 import io.netty.handler.codec.http.HttpHeaderNames;
 import io.netty.handler.codec.http.HttpResponseStatus;
 import org.awaitility.Duration;
+import org.ballerinalang.test.BaseTest;
+import org.ballerinalang.test.context.BServerInstance;
 import org.ballerinalang.test.context.BallerinaTestException;
 import org.ballerinalang.test.context.LogLeecher;
 import org.ballerinalang.test.util.HttpClientRequest;
@@ -42,7 +44,10 @@ import static java.util.concurrent.TimeUnit.SECONDS;
 /**
  * This class tests introducing custom/specific webhooks, extending the WebSub Subscriber Service.
  */
-public class WebSubServiceExtensionTestCase extends WebSubBaseTest {
+public class WebSubServiceExtensionTestCase extends BaseTest {
+    private BServerInstance webSubSubscriber;
+
+    private final int servicePort = 8181;
 
     private static final String MOCK_HEADER = "MockHeader";
     private static final int LOG_LEECHER_TIMEOUT = 3000;
@@ -78,6 +83,8 @@ public class WebSubServiceExtensionTestCase extends WebSubBaseTest {
 
     @BeforeClass
     public void setup() throws BallerinaTestException {
+        webSubSubscriber = new BServerInstance(balServer);
+
         String subscriberBal = new File("src" + File.separator + "test" + File.separator + "resources"
                                                 + File.separator + "websub" + File.separator
                                                 + "websub_custom_subscriber_service.bal").getAbsolutePath();
@@ -91,7 +98,7 @@ public class WebSubServiceExtensionTestCase extends WebSubBaseTest {
         webSubSubscriber.addLogLeecher(byHeaderAndPayloadFeaturePullLogLeecher);
         webSubSubscriber.addLogLeecher(byHeaderAndPayloadKeyOnlyLogLeecher);
 
-        webSubSubscriber.startBallerinaServer(subscriberBal, new String[]{}, 8181);
+        webSubSubscriber.startServer(subscriberBal, new int[]{servicePort});
 
         // Wait for the services to start up
         Map<String, String> headers = new HashMap<>(2);
@@ -197,6 +204,6 @@ public class WebSubServiceExtensionTestCase extends WebSubBaseTest {
 
     @AfterClass
     private void cleanup() throws Exception {
-        webSubSubscriber.stopServer();
+        webSubSubscriber.shutdownServer();
     }
 }

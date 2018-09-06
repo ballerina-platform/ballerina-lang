@@ -1,6 +1,6 @@
 import ballerina/mysql;
 
-function main(string... args) {
+public function main(string... args) {
     testSelectWithTaintedQueryNegative(...args);
 }
 

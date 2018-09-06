@@ -74,7 +74,7 @@ public class LSCompiler {
      * @param content content to be compiled
      * @param phase   {@link CompilerPhase} for the compiler
      * @return {@link BallerinaFile} containing the compiled package
-     * @throws LSCompilerException
+     * @throws LSCompilerException when compiler error occurred
      */
     public static BallerinaFile compileContent(String content, CompilerPhase phase) throws LSCompilerException {
         java.nio.file.Path filePath = LSCompilerUtil.createTempFile(LSCompilerUtil.UNTITLED_BAL);
@@ -154,7 +154,7 @@ public class LSCompiler {
      * @param phase           {@link CompilerPhase} for the compiler
      * @param documentManager document manager
      * @return {@link BallerinaFile} containing compiled package
-     * @throws LSCompilerException
+     * @throws LSCompilerException when compiler error occurred
      */
     public BallerinaFile updateAndCompileFile(Path filePath, String content, CompilerPhase phase,
                                               WorkspaceDocumentManager documentManager)
