@@ -48,19 +48,19 @@ public class UninstallUtils {
         String version;
         // Get org-name
         int orgNameIndex = fullPkgPath.indexOf("/");
-        if (orgNameIndex != -1) {
-            orgName = fullPkgPath.substring(0, orgNameIndex);
-        } else {
+        if (orgNameIndex == -1) {
             throw new BLangCompilerException("no org-name is provided");
         }
+        orgName = fullPkgPath.substring(0, orgNameIndex);
+
         // Get package name
         int packageNameIndex = fullPkgPath.indexOf(":");
-        if (packageNameIndex != -1) { // version is provided
-            packageName = fullPkgPath.substring(orgNameIndex + 1, packageNameIndex);
-            version = fullPkgPath.substring(packageNameIndex + 1, fullPkgPath.length());
-        } else {
+        if (packageNameIndex == -1) { // version is provided
             throw new BLangCompilerException("no package version is provided");
         }
+        packageName = fullPkgPath.substring(orgNameIndex + 1, packageNameIndex);
+        version = fullPkgPath.substring(packageNameIndex + 1, fullPkgPath.length());
+
         Path homeRepoPath = BALLERINA_HOME_PATH.resolve(ProjectDirConstants.DOT_BALLERINA_REPO_DIR_NAME);
         Path cacheRepoPath = BALLERINA_HOME_PATH.resolve(ProjectDirConstants.CACHES_DIR_NAME)
                                                 .resolve(ProjectDirConstants.BALLERINA_CENTRAL_DIR_NAME);
