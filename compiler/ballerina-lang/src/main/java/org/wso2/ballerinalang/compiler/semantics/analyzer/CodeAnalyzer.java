@@ -1285,7 +1285,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
             return;
         }
         if (!Symbols.isPublic(funcNode.symbol)) {
-            this.dlog.error(funcNode.pos, DiagnosticCode.MAIN_CANNOT_BE_NON_PUBLIC);
+            this.dlog.error(funcNode.pos, DiagnosticCode.MAIN_SHOULD_BE_PUBLIC);
         }
         if (!(funcNode.symbol.retType.tag == TypeTags.NIL || funcNode.symbol.retType.tag == TypeTags.INT)) {
             this.dlog.error(funcNode.returnTypeNode.pos, DiagnosticCode.INVALID_RETURN_WITH_MAIN,
