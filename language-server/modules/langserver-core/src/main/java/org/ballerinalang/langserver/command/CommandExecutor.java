@@ -84,6 +84,7 @@ public class CommandExecutor {
      *
      * @param params  Parameters for the command
      * @param context Workspace service context
+     * @return Result object
      */
     public static Object executeCommand(ExecuteCommandParams params, LSServiceOperationContext context) {
         Object result;
