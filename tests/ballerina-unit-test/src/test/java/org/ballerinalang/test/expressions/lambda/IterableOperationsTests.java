@@ -50,7 +50,7 @@ public class IterableOperationsTests {
 
     @Test
     public void testNegative() {
-        Assert.assertEquals(negative.getErrorCount(), 20);
+        Assert.assertEquals(negative.getErrorCount(), 23);
         BAssertUtil.validateError(negative, 0, "undefined function 'int.foreach'", 6, 5);
         BAssertUtil.validateError(negative, 1, "undefined function 'string.map'", 8, 5);
         BAssertUtil.validateError(negative, 2, "variable assignment is required", 14, 5);
@@ -80,6 +80,9 @@ public class IterableOperationsTests {
         BAssertUtil.validateError(negative, 18, "not enough return arguments are defined for operation 'filter'", 67,
                 14);
         BAssertUtil.validateError(negative, 19, "unknown type 'person'", 68, 33);
+        BAssertUtil.validateError(negative, 20, "incompatible types: expected 'int[]', found 'any[]'", 73, 23);
+        BAssertUtil.validateError(negative, 21, "incompatible types: expected 'int[]', found 'string[]'", 82, 27);
+        BAssertUtil.validateError(negative, 22, "incompatible types: expected 'int[]', found 'string[]'", 93, 30);
     }
 
     @Test
