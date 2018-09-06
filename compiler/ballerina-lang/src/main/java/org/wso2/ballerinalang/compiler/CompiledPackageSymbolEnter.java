@@ -850,7 +850,6 @@ public class CompiledPackageSymbolEnter {
         invokableSymbol.taintTable = new HashMap<>();
         for (int rowIndex = 0; rowIndex < rowCount; rowIndex++) {
             int paramIndex = taintTableDataInStream.readShort();
-
             Boolean returnTaintedStatus = Boolean.FALSE;
             TaintRecord taintRecord;
             if (columnCount > 0) {

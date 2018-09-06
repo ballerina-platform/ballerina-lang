@@ -564,39 +564,6 @@ public class TaintAnalyzer extends BLangNodeVisitor {
         updateParameterTaintedStatuses();
     }
 
-    private void updateParameterTaintedStatuses() {
-        updateParameterTaintedStatuses(requiredParams, 0);
-        updateParameterTaintedStatuses(defaultableParams, requiredParams.size());
-        if (restParam != null) {
-            updateParameterTaintedStatuses(Collections.singletonList(restParam),
-                    requiredParams.size() + defaultableParams.size());
-        }
-    }
-
-    private void updateParameterTaintedStatuses(List<BLangVariable> paramList, int startIndex) {
-        if (parameterTaintedStatus.size() <= startIndex) {
-            paramList.forEach(param -> {
-                if (hasAnnotation(param.annAttachments, ANNOTATION_TAINTED)) {
-                    parameterTaintedStatus.add(TaintedStatus.TAINTED);
-                } else {
-                    parameterTaintedStatus.add(param.symbol.tainted ?
-                            TaintedStatus.TAINTED : TaintedStatus.UNTAINTED);
-                }
-            });
-        } else {
-            for (int paramIndex = 0; paramIndex < paramList.size(); paramIndex++) {
-                BLangVariable param = paramList.get(paramIndex);
-                if (param.symbol.tainted) {
-                    parameterTaintedStatus.set(startIndex + paramIndex, param.symbol.tainted ?
-                            TaintedStatus.TAINTED : TaintedStatus.UNTAINTED);
-                }
-                // Ignore if param is untainted. Where there are multiple return statements in a function, it is
-                // required to get the combined tainted status of parameters. This condition is skipped to make sure we
-                // do not change tainted status back to untainted.
-            }
-        }
-    }
-
     @Override
     public void visit(BLangThrow throwNode) {
         /* ignore */
@@ -1543,8 +1510,8 @@ public class TaintAnalyzer extends BLangNodeVisitor {
             int totalParamCount = requiredParamCount + defaultableParamCount + (invNode.restParam == null ? 0 : 1);
             if (taintErrorSet.size() > 0) {
                 // If taint error occurred when no parameter is tainted, there is no point of checking tainted status of
-                // returns when each parameter is tainted. An compiler will get generated for the usage anyway, hence
-                // adding dummy table to the function to make sure remaining analysis stays intact.
+                // returns when each parameter is tainted. An compiler error will get generated for the usage anyway,
+                // hence adding dummy table to the function to make sure remaining analysis stays intact.
                 taintTable.put(ALL_UNTAINTED_TABLE_ENTRY_INDEX, new TaintRecord(Boolean.FALSE, null, null));
                 for (int paramIndex = 0; paramIndex < totalParamCount; paramIndex++) {
                     taintTable.put(paramIndex, new TaintRecord(Boolean.FALSE, null, null));
@@ -1811,6 +1778,39 @@ public class TaintAnalyzer extends BLangNodeVisitor {
                         combinedArgTaintedStatus.set(paramIndex, TaintedStatus.TAINTED);
                     }
                 }
+            }
+        }
+    }
+
+    private void updateParameterTaintedStatuses() {
+        updateParameterTaintedStatuses(requiredParams, 0);
+        updateParameterTaintedStatuses(defaultableParams, requiredParams.size());
+        if (restParam != null) {
+            updateParameterTaintedStatuses(Collections.singletonList(restParam),
+                    requiredParams.size() + defaultableParams.size());
+        }
+    }
+
+    private void updateParameterTaintedStatuses(List<BLangVariable> paramList, int startIndex) {
+        if (parameterTaintedStatus.size() <= startIndex) {
+            paramList.forEach(param -> {
+                if (hasAnnotation(param.annAttachments, ANNOTATION_TAINTED)) {
+                    parameterTaintedStatus.add(TaintedStatus.TAINTED);
+                } else {
+                    parameterTaintedStatus.add(param.symbol.tainted ?
+                            TaintedStatus.TAINTED : TaintedStatus.UNTAINTED);
+                }
+            });
+        } else {
+            for (int paramIndex = 0; paramIndex < paramList.size(); paramIndex++) {
+                BLangVariable param = paramList.get(paramIndex);
+                if (param.symbol.tainted) {
+                    parameterTaintedStatus.set(startIndex + paramIndex, param.symbol.tainted ?
+                            TaintedStatus.TAINTED : TaintedStatus.UNTAINTED);
+                }
+                // Ignore if param is untainted. Where there are multiple return statements in a function, it is
+                // required to get the combined tainted status of parameters. This condition is skipped to make sure we
+                // do not change tainted status back to untainted.
             }
         }
     }
