@@ -70,16 +70,6 @@ public class Symbols {
         return typeSymbol;
     }
 
-    public static BTypeSymbol createEnumSymbol(int flags,
-                                               Name name,
-                                               PackageID pkgID,
-                                               BType type,
-                                               BSymbol owner) {
-        BTypeSymbol typeSymbol = createTypeSymbol(SymTag.ENUM, flags, name, pkgID, type, owner);
-        typeSymbol.kind = SymbolKind.ENUM;
-        return typeSymbol;
-    }
-
     public static BAnnotationSymbol createAnnotationSymbol(int flags, int attachPoints, Name name, PackageID pkgID,
                                                            BType type, BSymbol owner) {
         BAnnotationSymbol annotationSymbol = new BAnnotationSymbol(name, flags, attachPoints, pkgID, type, owner);

@@ -64,6 +64,7 @@ public class LaunchManager {
     /**
      * Launch manager singleton.
      *
+     * @param serverConfig Server configuration
      * @return LaunchManager instance
      */
     public static LaunchManager getInstance(ServerConfig serverConfig) {

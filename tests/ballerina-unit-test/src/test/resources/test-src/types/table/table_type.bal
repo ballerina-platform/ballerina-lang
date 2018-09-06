@@ -147,7 +147,7 @@ function testToXml(string jdbcUrl, string userName, string password) returns (xm
 
         xml convertedVal = check <xml>dt;
         // Converting to string to make sure the xml is built before returning.
-        _ = io:sprintf("%l", convertedVal);
+        _ = io:sprintf("%s", convertedVal);
         return convertedVal;
     } finally {
         testDB.stop();
@@ -234,7 +234,7 @@ function toXmlComplex(string jdbcUrl, string userName, string password) returns 
 
         xml convertedVal = check <xml>dt;
         // Converting to string to make sure the xml is built before returning.
-        _ = io:sprintf("%l", convertedVal);
+        _ = io:sprintf("%s", convertedVal);
         return convertedVal;
     } finally {
         testDB.stop();
@@ -256,7 +256,7 @@ function testToXmlComplexWithStructDef(string jdbcUrl, string userName, string p
 
         xml convertedVal = check <xml>dt;
         // Converting to string to make sure the xml is built before returning.
-        _ = io:sprintf("%l", convertedVal);
+        _ = io:sprintf("%s", convertedVal);
         return convertedVal;
     } finally {
         testDB.stop();
@@ -344,7 +344,7 @@ function testXmlWithNull(string jdbcUrl, string userName, string password) retur
 
         xml convertedVal = check <xml>dt;
         // Converting to string to make sure the xml is built before returning.
-        _ = io:sprintf("%l", convertedVal);
+        _ = io:sprintf("%s", convertedVal);
         return convertedVal;
     } finally {
         testDB.stop();
@@ -366,7 +366,7 @@ function testToXmlWithinTransaction(string jdbcUrl, string userName, string pass
             table dt = check testDB->select("SELECT int_type, long_type from DataTable WHERE row_id = 1", ());
 
             var result = check <xml>dt;
-            resultXml = io:sprintf("%l", result);
+            resultXml = io:sprintf("%s", result);
         }
         return (resultXml, returnValue);
     } finally {
@@ -389,7 +389,7 @@ function testToJsonWithinTransaction(string jdbcUrl, string userName, string pas
             table dt = check testDB->select("SELECT int_type, long_type from DataTable WHERE row_id = 1", ());
 
             var j = check <json>dt;
-            result = io:sprintf("%j", j);
+            result = io:sprintf("%s", j);
         }
         return (result, returnValue);
     } finally {
@@ -1109,13 +1109,13 @@ function testSignedIntMaxMinValues(string jdbcUrl, string userName, string passw
     table dt = check dtRet;
 
     var j = check <json>dt;
-    jsonStr = io:sprintf("%j", j);
+    jsonStr = io:sprintf("%s", j);
 
     dtRet = testDB->select(selectSQL, ());
     dt = check dtRet;
 
     var x = check <xml>dt;
-    xmlStr = io:sprintf("%l", x);
+    xmlStr = io:sprintf("%s", x);
 
     dtRet = testDB->select(selectSQL, ResultSignedInt);
     dt = check dtRet;
@@ -1169,13 +1169,13 @@ function testComplexTypeInsertAndRetrieval(string jdbcUrl, string userName, stri
     table dt = check dtRet;
 
     var j = check <json>dt;
-    jsonStr = io:sprintf("%j", j);
+    jsonStr = io:sprintf("%s", j);
 
     dtRet = testDB->select(selectSQL, ());
     dt = check dtRet;
 
     var x = check <xml>dt;
-    xmlStr = io:sprintf("%l", x);
+    xmlStr = io:sprintf("%s", x);
 
     dt = check testDB->select(selectSQL, ResultComplexTypes);
 
@@ -1220,7 +1220,7 @@ function testJsonXMLConversionwithDuplicateColumnNames(string jdbcUrl, string us
         xml x = check <xml>dt2;
 
         // Converting to string to make sure the xml is built before returning.
-        _ = io:sprintf("%l", x);
+        _ = io:sprintf("%s", x);
         return (j, x);
     } finally {
         testDB.stop();

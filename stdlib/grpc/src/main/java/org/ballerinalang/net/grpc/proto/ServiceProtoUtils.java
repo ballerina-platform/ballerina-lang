@@ -521,6 +521,7 @@ public class ServiceProtoUtils {
      *
      * @param service gRPC service.
      * @return File Descriptor of the service.
+     * @throws GrpcServerException cannot read service descriptor
      */
     public static com.google.protobuf.Descriptors.FileDescriptor getDescriptor(
             org.ballerinalang.connector.api.Service service) throws GrpcServerException {

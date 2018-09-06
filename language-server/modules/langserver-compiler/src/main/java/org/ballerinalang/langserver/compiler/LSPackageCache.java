@@ -83,6 +83,7 @@ public class LSPackageCache {
     /**
      * add package to the package map.
      *
+     * @param packageID ballerina id to be added.
      * @param bLangPackage ballerina package to be added.
      */
     public void put(PackageID packageID, BLangPackage bLangPackage) {
