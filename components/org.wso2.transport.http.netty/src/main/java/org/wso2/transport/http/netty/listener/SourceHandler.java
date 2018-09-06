@@ -45,8 +45,6 @@ import org.wso2.transport.http.netty.listener.states.listener.ReceivingHeaders;
 import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 
 import java.net.SocketAddress;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -61,7 +59,7 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
     private static Logger log = LoggerFactory.getLogger(SourceHandler.class);
 
     private HttpCarbonMessage inboundRequestMsg;
-    private List<HttpCarbonMessage> requestList = new ArrayList<>();
+    private final Map<Integer, HttpCarbonMessage> requestSet = new ConcurrentHashMap<>();
     private HandlerExecutor handlerExecutor;
     private Map<String, GenericObjectPool> targetChannelPool;
     private ChunkConfig chunkConfig;
@@ -93,7 +91,7 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
         if (msg instanceof HttpRequest) {
             inboundRequestMsg = createInboundReqCarbonMsg((HttpRequest) msg, ctx, this);
-            requestList.add(inboundRequestMsg);
+            requestSet.put(inboundRequestMsg.hashCode(), inboundRequestMsg);
             connectedState = false;
 
             MessageStateContext messageStateContext = new MessageStateContext();
@@ -130,8 +128,8 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
     public void channelInactive(ChannelHandlerContext ctx) {
         ctx.close();
         if (!idleTimeout) {
-            if (!requestList.isEmpty()) {
-                requestList.forEach(inboundMsg -> inboundMsg.getMessageStateContext().getListenerState()
+            if (!requestSet.isEmpty()) {
+                requestSet.forEach((key, inboundMsg) -> inboundMsg.getMessageStateContext().getListenerState()
                         .handleAbruptChannelClosure(serverConnectorFuture));
             } else if (connectedState) {
                 notifyErrorListenerAtConnectedState(REMOTE_CLIENT_CLOSED_BEFORE_INITIATING_INBOUND_REQUEST);
@@ -167,8 +165,8 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
         if (evt instanceof IdleStateEvent) {
             this.idleTimeout = true;
 
-            if (!requestList.isEmpty()) {
-                requestList.forEach(inboundMsg -> {
+            if (!requestSet.isEmpty()) {
+                requestSet.forEach((key, inboundMsg) -> {
                     ChannelFuture outboundRespFuture = inboundMsg.getMessageStateContext().getListenerState()
                             .handleIdleTimeoutConnectionClosure(serverConnectorFuture, ctx);
                     if (outboundRespFuture == null) {
@@ -246,7 +244,7 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
     }
 
     public void resetInboundRequestMsg(HttpCarbonMessage inboundRequestMsg) {
-        this.requestList.remove(inboundRequestMsg);
+        requestSet.remove(inboundRequestMsg.hashCode());
         this.inboundRequestMsg = null;
     }
 }
