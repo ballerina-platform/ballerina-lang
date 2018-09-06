@@ -37,7 +37,6 @@ public class UninstallUtils {
     private static final Path BALLERINA_HOME_PATH = RepoUtils.createAndGetHomeReposPath();
     private static PrintStream outStream = System.out;
 
-
     /**
      * Uninstalls the package from the home repository.
      *
