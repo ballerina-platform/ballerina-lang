@@ -116,6 +116,10 @@ public class TestDebugClientHandler implements DebugClientHandler {
     }
 
     @Override
+    public void sendExpressionResults(MessageDTO message) {
+    }
+
+    @Override
     public void sendCustomMsg(MessageDTO message) {
     }
 }

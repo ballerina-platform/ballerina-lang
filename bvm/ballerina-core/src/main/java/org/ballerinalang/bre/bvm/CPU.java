@@ -2363,7 +2363,7 @@ public class CPU {
                 .getLineNumber(ctx.callableUnitInfo.getPackageInfo().getPkgPath(), ctx.ip);
         /*
          Below if check stops hitting the same debug line again and again in case that single line has
-         multctx.iple instructions.
+         multiple instructions.
          */
         if (currentExecLine.equals(debugContext.getLastLine())) {
             return false;
