@@ -56,9 +56,9 @@
         </classes>
     </test>
 
-    <test name="ballerina-resiliency-tests" parallel="methods" thread-count="6">
+    <test name="ballerina-resiliency-tests" parallel="methods" thread-count="13">
         <classes>
-            <class name="org.ballerinalang.test.service.resiliency.FailoverClientTestCase"/>
+            <class name="org.ballerinalang.test.service.resiliency.HttpResiliencyTest"/>
         </classes>
     </test>
 
@@ -138,6 +138,9 @@
             <class name="org.ballerinalang.test.service.websocket.WebSocketSimpleProxyTestCase"/>
             <class name="org.ballerinalang.test.service.websocket.OnBinaryContinuationTest"/>
             <class name="org.ballerinalang.test.service.websocket.MissingResourcesTest"/>
+            <class name="org.ballerinalang.test.service.websocket.ClientInitializationFailureTest"/>
+            <class name="org.ballerinalang.test.service.websocket.ClientCloseTest"/>
+            <class name="org.ballerinalang.test.service.websocket.PushTextFailureTest"/>
         </classes>
     </test>
 

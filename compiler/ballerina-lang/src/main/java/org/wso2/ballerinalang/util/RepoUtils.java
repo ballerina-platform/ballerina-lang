@@ -33,8 +33,6 @@ public class RepoUtils {
     private static final boolean BALLERINA_DEV_STAGE_CENTRAL = Boolean.parseBoolean(
             System.getenv("BALLERINA_DEV_STAGE_CENTRAL"));
 
-    private static Settings settings = null;
-
     /**
      * Create and get the home repository path.
      *
@@ -95,16 +93,13 @@ public class RepoUtils {
      * @return settings object
      */
     public static Settings readSettings() {
-        if (settings == null) {
-            String tomlFilePath = RepoUtils.createAndGetHomeReposPath().resolve(ProjectDirConstants.SETTINGS_FILE_NAME)
-                                           .toString();
-            try {
-                settings = SettingsProcessor.parseTomlContentFromFile(tomlFilePath);
-            } catch (IOException e) {
-                settings = new Settings();
-            }
+        String tomlFilePath = RepoUtils.createAndGetHomeReposPath().resolve(ProjectDirConstants.SETTINGS_FILE_NAME).
+                                    toString();
+        try {
+            return SettingsProcessor.parseTomlContentFromFile(tomlFilePath);
+        } catch (IOException e) {
+            return new Settings();
         }
-        return settings;
     }
 
     /**
