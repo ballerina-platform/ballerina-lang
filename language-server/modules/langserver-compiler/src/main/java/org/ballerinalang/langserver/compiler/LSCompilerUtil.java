@@ -24,6 +24,8 @@ import org.ballerinalang.langserver.compiler.workspace.repository.LangServerFSPr
 import org.ballerinalang.langserver.compiler.workspace.repository.LangServerFSProjectDirectory;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.repository.PackageRepository;
+import org.ballerinalang.toml.model.Manifest;
+import org.ballerinalang.toml.parser.ManifestProcessor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.ballerinalang.compiler.Compiler;
@@ -310,6 +312,21 @@ public class LSCompilerUtil {
      */
     public static Optional<Path> getUntitledFilePath(String filePath) {
         return getUntitledFileId(filePath).map(LSCompilerUtil::createTempFile);
+    }
+
+    /**
+     * Get the toml content from the config.
+     *
+     * @param projectDirPath    Project Directory Path
+     * @return {@link Manifest} Toml Model
+     */
+    static Manifest getManifest(Path projectDirPath) {
+        Path tomlFilePath = projectDirPath.resolve((ProjectDirConstants.MANIFEST_FILE_NAME));
+        try {
+            return ManifestProcessor.parseTomlContentFromFile(tomlFilePath.toString());
+        } catch (IOException e) {
+            return new Manifest();
+        }
     }
 }
 

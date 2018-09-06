@@ -18,8 +18,6 @@ package org.ballerinalang.langserver.compiler;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import org.ballerinalang.model.elements.PackageID;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.wso2.ballerinalang.compiler.PackageCache;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
@@ -38,7 +36,6 @@ public class LSPackageCache {
     private static final Object LOCK = new Object();
 
     private final ExtendedPackageCache packageCache;
-    private static final Logger logger = LoggerFactory.getLogger(LSPackageCache.class);
 
     public static LSPackageCache getInstance(CompilerContext context) {
         LSPackageCache lsPackageCache = context.get(LS_PACKAGE_CACHE_KEY);
@@ -116,7 +113,6 @@ public class LSPackageCache {
         }
 
         public void remove(PackageID packageID) {
-            // TODO: Revisit cache update/ compiler context reuse process
             if (packageID != null) {
                 this.packageMap.forEach((key, value) -> {
                     String alias = packageID.getName().toString();
