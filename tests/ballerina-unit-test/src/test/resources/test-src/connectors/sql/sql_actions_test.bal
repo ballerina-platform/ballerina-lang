@@ -1332,7 +1332,7 @@ function testDateTimeNullInValues(string jdbcUrl, string userName, string passwo
     string data;
 
     json j = check <json>dt;
-    data = io:sprintf("%j", j);
+    data = io:sprintf("%s", j);
 
     testDB.stop();
     return data;
@@ -1456,19 +1456,19 @@ function testComplexTypeRetrieval(string jdbcUrl, string userName, string passwo
 
     table dt = check testDB->select("SELECT * from BlobTable where row_id = 1", ());
     xml x1 = check <xml>dt;
-    s1 = io:sprintf("%l", x1);
+    s1 = io:sprintf("%s", x1);
 
     dt = check testDB->select("SELECT * from DateTimeTypes where row_id = 1", ());
     xml x2 = check <xml>dt;
-    s2 = io:sprintf("%l", x2);
+    s2 = io:sprintf("%s", x2);
 
     dt = check testDB->select("SELECT * from BlobTable where row_id = 1", ());
     json j = check <json>dt;
-    s3 = io:sprintf("%j", j);
+    s3 = io:sprintf("%s", j);
 
     dt = check testDB->select("SELECT * from DateTimeTypes where row_id = 1", ());
     j = check <json>dt;
-    s4 = io:sprintf("%j", j);
+    s4 = io:sprintf("%s", j);
 
     testDB.stop();
     return (s1, s2, s3, s4);
