@@ -42,23 +42,7 @@ type FuncGenrator object {
     }
 
     function genFunctionBody(map<FuncGenrator> funcGenrators) {
-        var varAllocBB = genBbDecl("var_allloc");
-        int i = 0;
-        foreach localVar in func.localVars{
-            var varName = localVarName(localVar);
-            var varType = genBType(localVar.typeValue);
-            llvm:LLVMValueRef llvmValueRef;
-            llvmValueRef = llvm:LLVMBuildAlloca(builder, varType, varName);
-            localVarRefs[func.name.value + "." + localVar.name.value] = llvmValueRef;
-            match localVar.kind {
-                ArgVarKind => {
-                    var parmRef = llvm:LLVMGetParam(funcRef, i);
-                    var loaded = llvm:LLVMBuildStore(builder, parmRef, llvmValueRef);
-                    i++;
-                }
-                any => {}
-            }
-        }
+        var varAllocBB = genLocalVarAllocationBB();
 
         map<BbTermGenrator> bbTermGenrators;
         foreach bb in func.basicBlocks {
@@ -75,6 +59,31 @@ type FuncGenrator object {
 
     }
 
+    function genLocalVarAllocationBB() returns llvm:LLVMBasicBlockRef {
+        var bbRef = genBbDecl("var_allloc");
+        int i = 0;
+        foreach localVar in func.localVars{
+            var varName = localVarName(localVar);
+            var varType = genBType(localVar.typeValue);
+            llvm:LLVMValueRef llvmValueRef;
+            llvmValueRef = llvm:LLVMBuildAlloca(builder, varType, varName);
+            localVarRefs[localVar.name.value] = llvmValueRef;
+            if (isParamter(localVar)){
+                var parmRef = llvm:LLVMGetParam(funcRef, i);
+                var loaded = llvm:LLVMBuildStore(builder, parmRef, llvmValueRef);
+                i++;
+            }
+        }
+        return bbRef;
+    }
+
+    function isParamter(BIRVariableDcl localVar) returns boolean {
+        match localVar.kind {
+            ArgVarKind => return true;
+            any => return false;
+        }
+    }
+
     function genVarLoad(BIROperand oprand) returns llvm:LLVMValueRef {
         match oprand {
             BIRVarRef refOprand => {
@@ -87,7 +96,7 @@ type FuncGenrator object {
     }
 
     function getLocalVarRefById(BIRFunction fun, string id) returns llvm:LLVMValueRef {
-        match localVarRefs[fun.name.value + "." + id] {
+        match localVarRefs[id] {
             llvm:LLVMValueRef varRef => return varRef;
             any => {
                 error err = { message: "Local var by name '" + id + "' dosn't exist in " + fun.name.value };

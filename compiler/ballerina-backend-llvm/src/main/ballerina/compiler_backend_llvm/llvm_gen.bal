@@ -137,10 +137,10 @@ function genCallToPrintf(llvm:LLVMBuilderRef builder, llvm:LLVMValueRef[] args, 
     llvm:LLVMValueRef callReturn = llvm:LLVMBuildCall(builder, printfRef, printArgs, argsCount + 1, "");
 }
 
-function appendAllTo(any[] a, any[] b) {
-    int i = lengthof a;
-    foreach bI in b{
-        a[i] = bI;
+function appendAllTo(any[] toArr, any[] fromArr) {
+    int i = lengthof toArr;
+    foreach bI in fromArr{
+        toArr[i] = bI;
         i++;
     }
 }
