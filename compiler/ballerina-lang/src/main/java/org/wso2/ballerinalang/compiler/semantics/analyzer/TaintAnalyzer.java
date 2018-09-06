@@ -561,10 +561,10 @@ public class TaintAnalyzer extends BLangNodeVisitor {
             this.returnTaintedStatus = TaintedStatus.TAINTED;
         }
         taintedStatus = this.returnTaintedStatus;
-        updateAllParameterTaintedStatuses();
+        updateParameterTaintedStatuses();
     }
 
-    private void updateAllParameterTaintedStatuses() {
+    private void updateParameterTaintedStatuses() {
         updateParameterTaintedStatuses(requiredParams, 0);
         updateParameterTaintedStatuses(defaultableParams, requiredParams.size());
         if (restParam != null) {
@@ -575,8 +575,14 @@ public class TaintAnalyzer extends BLangNodeVisitor {
 
     private void updateParameterTaintedStatuses(List<BLangVariable> paramList, int startIndex) {
         if (parameterTaintedStatus.size() <= startIndex) {
-            paramList.forEach(param -> parameterTaintedStatus.add(param.symbol.tainted ?
-                    TaintedStatus.TAINTED : TaintedStatus.UNTAINTED));
+            paramList.forEach(param -> {
+                if (hasAnnotation(param.annAttachments, ANNOTATION_TAINTED)) {
+                    parameterTaintedStatus.add(TaintedStatus.TAINTED);
+                } else {
+                    parameterTaintedStatus.add(param.symbol.tainted ?
+                            TaintedStatus.TAINTED : TaintedStatus.UNTAINTED);
+                }
+            });
         } else {
             for (int paramIndex = 0; paramIndex < paramList.size(); paramIndex++) {
                 BLangVariable param = paramList.get(paramIndex);
@@ -1615,7 +1621,7 @@ public class TaintAnalyzer extends BLangNodeVisitor {
 
             Boolean storedReturnTaintedStatus = this.returnTaintedStatus == TaintedStatus.TAINTED;
 
-            updateAllParameterTaintedStatuses();
+            updateParameterTaintedStatuses();
             List<Boolean> paramTaintedStatusList = parameterTaintedStatus.stream()
                     .map(taintedStatus -> taintedStatus == TaintedStatus.TAINTED ? Boolean.TRUE : Boolean.FALSE)
                     .collect(Collectors.toList());

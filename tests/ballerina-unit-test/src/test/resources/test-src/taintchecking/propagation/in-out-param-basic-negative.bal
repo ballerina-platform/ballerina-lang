@@ -18,6 +18,10 @@ public function taintExampleRecord (ExampleRecord ex, string data) {
     ex.taintedData = data;
 }
 
+public function inOutParamWithAnnotation (@tainted ExampleObject ex) {
+
+}
+
 function main (string... args) {
     ExampleObject ex1 = new;
     ex1.taintedData = args[0];
@@ -34,4 +38,8 @@ function main (string... args) {
     ExampleRecord ex4 = {};
     taintExampleRecord(ex4, args[0]);
     secureFunction(ex4, ex4);
+
+    ExampleObject ex5 = new;
+    inOutParamWithAnnotation(ex5);
+    secureFunction(ex5, ex5);
 }
