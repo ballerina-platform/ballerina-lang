@@ -32,6 +32,7 @@ import org.wso2.ballerinalang.compiler.FileSystemProjectDirectory;
 import org.wso2.ballerinalang.compiler.SourceDirectory;
 import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.util.RepoUtils;
+import org.wso2.ballerinalang.util.TomlParserUtils;
 
 import java.io.File;
 import java.io.IOException;
@@ -135,7 +136,7 @@ public class Utils {
      * Set manifest configurations.
      */
     public static void setManifestConfigs() {
-        Manifest manifest = RepoUtils.getManifest(Paths.get(System.getProperty("user.dir")));
+        Manifest manifest = TomlParserUtils.getManifest(Paths.get(System.getProperty("user.dir")));
         String orgName = manifest.getName();
         String version = manifest.getVersion();
         TesterinaRegistry.getInstance().setOrgName(orgName);

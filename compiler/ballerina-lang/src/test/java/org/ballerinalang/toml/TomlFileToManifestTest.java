@@ -21,6 +21,7 @@ import org.ballerinalang.toml.model.Manifest;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 import org.wso2.ballerinalang.util.RepoUtils;
+import org.wso2.ballerinalang.util.TomlParserUtils;
 
 import java.io.IOException;
 import java.nio.file.Paths;
@@ -32,8 +33,8 @@ public class TomlFileToManifestTest {
 
     @Test(description = "Test which covers all the attributes tested above")
     public void testTomlFile() throws IOException {
-        Manifest manifest = RepoUtils.getManifest(Paths.get(System.getProperty("user.dir"), "src", "test",
-                                                            "resources"));
+        Manifest manifest = TomlParserUtils.getManifest(Paths.get(System.getProperty("user.dir"), "src", "test",
+                                                                  "resources"));
         Assert.assertEquals(manifest.getName(), "foo");
         Assert.assertEquals(manifest.getVersion(), "1.0.0");
         Assert.assertEquals(manifest.getDescription(), "This is a sample description which contains " +

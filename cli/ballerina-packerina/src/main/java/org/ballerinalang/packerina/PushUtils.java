@@ -34,6 +34,7 @@ import org.wso2.ballerinalang.compiler.util.ProjectDirConstants;
 import org.wso2.ballerinalang.compiler.util.ProjectDirs;
 import org.wso2.ballerinalang.programfile.ProgramFileConstants;
 import org.wso2.ballerinalang.util.RepoUtils;
+import org.wso2.ballerinalang.util.TomlParserUtils;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -78,7 +79,7 @@ public class PushUtils {
      */
     public static void pushPackages(String packageName, String sourceRoot, String installToRepo) {
         Path prjDirPath = LauncherUtils.getSourceRootPath(sourceRoot);
-        Manifest manifest = RepoUtils.getManifest(prjDirPath);
+        Manifest manifest = TomlParserUtils.getManifest(prjDirPath);
         if (manifest.getName().isEmpty()) {
             throw new BLangCompilerException("An org-name is required when pushing. This is not specified in " +
                                                      "Ballerina.toml inside the project");
@@ -261,7 +262,7 @@ public class PushUtils {
      * @return access token for generated for the CLI
      */
     private static String getAccessTokenOfCLI() {
-        settings = RepoUtils.readSettings();
+        settings = TomlParserUtils.readSettings();
         if (settings.getCentral() != null) {
             return settings.getCentral().getAccessToken();
         }

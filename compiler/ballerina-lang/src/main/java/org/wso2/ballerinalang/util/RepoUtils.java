@@ -1,13 +1,8 @@
 package org.wso2.ballerinalang.util;
 
 import org.ballerinalang.compiler.BLangCompilerException;
-import org.ballerinalang.toml.model.Manifest;
-import org.ballerinalang.toml.model.Settings;
-import org.ballerinalang.toml.parser.ManifestProcessor;
-import org.ballerinalang.toml.parser.SettingsProcessor;
 import org.wso2.ballerinalang.compiler.util.ProjectDirConstants;
 
-import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.LinkOption;
@@ -90,21 +85,6 @@ public class RepoUtils {
     }
 
     /**
-     * Read Settings.toml to populate the configurations.
-     *
-     * @return settings object
-     */
-    public static Settings readSettings() {
-        String tomlFilePath = RepoUtils.createAndGetHomeReposPath().resolve(ProjectDirConstants.SETTINGS_FILE_NAME).
-                                    toString();
-        try {
-            return SettingsProcessor.parseTomlContentFromFile(tomlFilePath);
-        } catch (IOException e) {
-            return new Settings();
-        }
-    }
-
-    /**
      * Get the terminal width.
      *
      * @return terminal width as a string
@@ -144,20 +124,5 @@ public class RepoUtils {
         } catch (Throwable ignore) {
         }
         return "unknown";
-    }
-
-    /**
-     * Get the toml content from the config.
-     *
-     * @param projectDirPath    Project Directory Path
-     * @return {@link Manifest} Manifest configuration object
-     */
-    public static Manifest getManifest(Path projectDirPath) {
-        Path tomlFilePath = projectDirPath.resolve((ProjectDirConstants.MANIFEST_FILE_NAME));
-        try {
-            return ManifestProcessor.parseTomlContentFromFile(tomlFilePath.toString());
-        } catch (IOException e) {
-            return new Manifest();
-        }
     }
 }
