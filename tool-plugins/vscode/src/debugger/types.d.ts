@@ -7,8 +7,5 @@ declare module 'ps-node' {
 }
 
 declare module 'openport' {
-    namespace openport {
-        export function find(args: any) : void;
-    }
-    export default openport;
+    export function find(args: any) : void;
 }

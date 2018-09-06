@@ -24,7 +24,7 @@ import * as fs from 'fs';
 import * as os from 'os';
 import * as path from 'path';
 import { spawn, ChildProcess } from 'child_process';
-import openport from 'openport';
+import { find as findPort } from 'openport';
 import ps from 'ps-node';
 import * as toml from 'toml';
 import { DebugProtocol } from 'vscode-debugprotocol';
@@ -34,13 +34,9 @@ interface AttachRequestArguments extends DebugProtocol.AttachRequestArguments {
     port: number;
 }
 
-interface BallerinaHomeConfig {
-    home: string;
-}
-
 interface LaunchRequestArguments extends DebugProtocol.LaunchRequestArguments {
     script: string;
-    ballerina: BallerinaHomeConfig; 
+    'ballerina.home': string; 
 }
 
 interface RunningInfo {
@@ -221,7 +217,7 @@ export class BallerinaDebugSession extends LoggingDebugSession {
     }
 
     launchRequest(response: DebugProtocol.LaunchResponse, args: LaunchRequestArguments) {
-        if (args.ballerina && args.ballerina.home) {
+        if (!args['ballerina.home']) {
             this.terminate("Couldn't start the debug server. Please set ballerina.home.");
             return;
         }
@@ -252,13 +248,13 @@ export class BallerinaDebugSession extends LoggingDebugSession {
             }
         }
 
-        let executable = path.join(args.ballerina.home, 'bin', 'ballerina');
+        let executable = path.join(args['ballerina.home'], 'bin', 'ballerina');
         if (process.platform === 'win32') {
             executable += '.bat';
         }
 
         // find an open port
-        openport.find((err: Error, port: number) => {
+        findPort((err: Error, port: number) => {
             if(err) {
                 this.terminate("Couldn't find an open port to start the debug server.");
                 return;
