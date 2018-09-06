@@ -70,8 +70,8 @@ public class ReceivingHeaders implements ListenerState {
         this.httpVersion = Float.parseFloat((String) inboundRequestMsg.getProperty(Constants.HTTP_VERSION));
         boolean continueRequest = is100ContinueRequest(inboundRequestMsg);
         if (continueRequest) {
-            messageStateContext.setListenerState(
-                    new Expect100ContinueHeaderReceived(messageStateContext, sourceHandler));
+            messageStateContext.setListenerState(new Expect100ContinueHeaderReceived(messageStateContext, sourceHandler,
+                                                                                     inboundRequestMsg, httpVersion));
         }
         notifyRequestListener(inboundRequestMsg);
 

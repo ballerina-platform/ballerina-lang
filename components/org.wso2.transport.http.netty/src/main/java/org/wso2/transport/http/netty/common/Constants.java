@@ -300,9 +300,9 @@ public final class Constants {
     public static final String IDLE_TIMEOUT_TRIGGERED_BEFORE_INITIATING_OUTBOUND_RESPONSE
             = "Idle timeout triggered before initiating outbound response";
     public static final String IDLE_TIMEOUT_TRIGGERED_WHILE_WRITING_OUTBOUND_RESPONSE_HEADERS
-                = "Idle timeout triggered while writing outbound response headers";
+            = "Idle timeout triggered while writing outbound response headers";
     public static final String IDLE_TIMEOUT_TRIGGERED_WHILE_WRITING_OUTBOUND_RESPONSE_BODY
-                = "Idle timeout triggered while writing outbound response entity body";
+            = "Idle timeout triggered while writing outbound response entity body";
     public static final String IDLE_TIMEOUT_TRIGGERED_BEFORE_INITIATING_100_CONTINUE_RESPONSE
             = "Idle timeout triggered before initiating 100 continue response";
     public static final String IDLE_TIMEOUT_TRIGGERED_WHILE_WRITING_100_CONTINUE_RESPONSE
