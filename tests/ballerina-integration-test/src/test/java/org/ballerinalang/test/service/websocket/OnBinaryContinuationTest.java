@@ -29,6 +29,8 @@ import java.util.concurrent.TimeUnit;
 
 /**
  * Test continuation for the onBinaryResource.
+ *
+ * @since 0.982.0
  */
 @Test(groups = "websocket-test")
 public class OnBinaryContinuationTest extends WebSocketTestCommons {

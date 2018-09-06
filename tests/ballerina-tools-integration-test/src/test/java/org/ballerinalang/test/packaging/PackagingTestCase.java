@@ -36,7 +36,7 @@ import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.stream.Stream;
+import java.util.Map;
 
 import static org.awaitility.Awaitility.given;
 import static java.util.concurrent.TimeUnit.SECONDS;
@@ -52,7 +52,7 @@ public class PackagingTestCase extends BaseTest {
     private String packageName = "test";
     private String datePushed;
     private String orgName = "integrationtests";
-    private String[] envVariables;
+    private Map<String, String> envVariables;
 
     @BeforeClass()
     public void setUp() throws BallerinaTestException, IOException {
@@ -70,8 +70,8 @@ public class PackagingTestCase extends BaseTest {
 
         String[] clientArgsForInit = {"-i"};
         String[] options = {"\n", orgName + "\n", "\n", "m\n", packageName + "\n", "f\n"};
-        serverInstance.runMainWithClientOptions(clientArgsForInit, options, envVariables, "init",
-                                                projectPath.toString());
+        balClient.runMain("init", clientArgsForInit, envVariables, options,
+                new LogLeecher[]{}, projectPath.toString());
     }
 
     @Test(description = "Test pushing a package to central", dependsOnMethods = "testInitProject")
@@ -83,12 +83,9 @@ public class PackagingTestCase extends BaseTest {
 
         String msg = orgName + "/" + packageName + ":0.0.1 [project repo -> central]";
 
-        // Reset the server log reader
-        serverInstance.resetServerLogReader();
-
         LogLeecher clientLeecher = new LogLeecher(msg);
-        serverInstance.addLogLeecher(clientLeecher);
-        serverInstance.runMain(clientArgs, envVariables, "push", projectPath.toString());
+        balClient.runMain("push", clientArgs, envVariables, new String[]{},
+                new LogLeecher[]{clientLeecher}, projectPath.toString());
         clientLeecher.waitForText(5000);
     }
 
@@ -97,7 +94,9 @@ public class PackagingTestCase extends BaseTest {
     public void testInstall() throws Exception {
         Path projectPath = tempProjectDirectory.resolve("initProject");
         String[] clientArgs = {packageName};
-        serverInstance.runMain(clientArgs, envVariables, "install", projectPath.toString());
+
+        balClient.runMain("install", clientArgs, envVariables, new String[]{},
+                new LogLeecher[]{}, projectPath.toString());
 
         Path dirPath = Paths.get(ProjectDirConstants.DOT_BALLERINA_REPO_DIR_NAME, orgName, packageName, "0.0.1");
         Assert.assertTrue(Files.exists(tempHomeDirectory.resolve(dirPath)));
@@ -114,7 +113,10 @@ public class PackagingTestCase extends BaseTest {
                .with().pollDelay(Duration.FIVE_SECONDS)
                .await().atMost(60, SECONDS).until(() -> {
             String[] clientArgs = {orgName + "/" + packageName + ":0.0.1"};
-            serverInstance.runMain(clientArgs, envVariables, "pull");
+            balClient.runMain("pull", clientArgs, envVariables, new String[]{},
+                    new LogLeecher[]{}, balServer.getServerHome());
+            //end my
+
             return Files.exists(tempHomeDirectory.resolve(dirPath).resolve(packageName + ".zip"));
         });
 
@@ -135,12 +137,10 @@ public class PackagingTestCase extends BaseTest {
                 "command line output" +
                 "                                       |                | " + datePushed + " | 0.0.1   |\n";
 
-        // Reset the server log reader
-        serverInstance.resetServerLogReader();
-
         LogLeecher clientLeecher = new LogLeecher(msg);
-        serverInstance.addLogLeecher(clientLeecher);
-        serverInstance.runMain(clientArgs, envVariables, "search");
+        balClient.runMain("search", clientArgs, envVariables, new String[]{},
+                new LogLeecher[]{clientLeecher}, balServer.getServerHome());
+
         clientLeecher.waitForText(3000);
     }
 
@@ -155,29 +155,24 @@ public class PackagingTestCase extends BaseTest {
 
         String[] clientArgsForInit = {"-i"};
         String[] options = {"\n", orgName + "\n", "\n", "m\n", firstPackage + "\n", "m\n", secondPackage + "\n", "f\n"};
-        serverInstance.runMainWithClientOptions(clientArgsForInit, options, envVariables, "init",
-                                                projectPath.toString());
 
-        // Reset the server log reader
-        serverInstance.resetServerLogReader();
+        balClient.runMain("init", clientArgsForInit, envVariables, options,
+                new LogLeecher[]{}, projectPath.toString());
 
         String msg = orgName + "/" + firstPackage + ":0.0.1 [project repo -> central]\n" +
                 orgName + "/" + secondPackage + ":0.0.1 [project repo -> central]";
 
         LogLeecher clientLeecher = new LogLeecher(msg);
-        serverInstance.addLogLeecher(clientLeecher);
-        serverInstance.runMain(new String[0], envVariables, "push", projectPath.toString());
+        balClient.runMain("push", new String[0], envVariables, new String[]{},
+                new LogLeecher[]{clientLeecher}, projectPath.toString());
         clientLeecher.waitForText(5000);
     }
 
     @Test(description = "Test ballerina version")
     public void testBallerinaVersion() throws Exception {
-        // Reset the server log reader
-        serverInstance.resetServerLogReader();
-
         LogLeecher clientLeecher = new LogLeecher(RepoUtils.getBallerinaVersion());
-        serverInstance.addLogLeecher(clientLeecher);
-        serverInstance.runMain(new String[0], envVariables, "version", tempProjectDirectory.toString());
+        balClient.runMain("version", new String[0], envVariables, new String[]{},
+                new LogLeecher[]{clientLeecher}, tempProjectDirectory.toString());
     }
 
     /**
@@ -185,12 +180,10 @@ public class PackagingTestCase extends BaseTest {
      *
      * @return env directory variable array
      */
-    private String[] addEnvVariables(String[] envVariables) {
-        String[] newEnvVariables = new String[]{
-                ProjectDirConstants.HOME_REPO_ENV_KEY + "=" + tempHomeDirectory.toString(),
-                "BALLERINA_DEV_STAGE_CENTRAL" + "=" + "true"
-        };
-        return Stream.of(envVariables, newEnvVariables).flatMap(Stream::of).toArray(String[]::new);
+    private Map<String, String> addEnvVariables(Map<String, String> envVariables) {
+        envVariables.put(ProjectDirConstants.HOME_REPO_ENV_KEY, tempHomeDirectory.toString());
+        envVariables.put("BALLERINA_DEV_STAGE_CENTRAL", "true");
+        return envVariables;
     }
 
     /**

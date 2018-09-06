@@ -37,36 +37,28 @@ import ballerina/io;
 @final string PATCH = "PATCH";
 @final string HEAD = "HEAD";
 
-documentation {
-    Used for configuring the caching behaviour. Setting the `policy` field in the `CacheConfig` record allows
-    the user to control the caching behaviour.
-}
+# Used for configuring the caching behaviour. Setting the `policy` field in the `CacheConfig` record allows
+# the user to control the caching behaviour.
 public type CachingPolicy "CACHE_CONTROL_AND_VALIDATORS"|"RFC_7234";
 
-documentation {
-    This is a more restricted mode of RFC 7234. Setting this as the caching policy restricts caching to instances
-    where the `cache-control` header and either the `etag` or `last-modified` header are present.
-}
+# This is a more restricted mode of RFC 7234. Setting this as the caching policy restricts caching to instances
+# where the `cache-control` header and either the `etag` or `last-modified` header are present.
 @final public CachingPolicy CACHE_CONTROL_AND_VALIDATORS = "CACHE_CONTROL_AND_VALIDATORS";
 
-documentation {
-    Caching behaviour is as specified by the RFC 7234 specification.
-}
+# Caching behaviour is as specified by the RFC 7234 specification.
 @final public CachingPolicy RFC_7234 = "RFC_7234";
 
-documentation {
-    Provides a set of configurations for controlling the caching behaviour of the endpoint.
-
-    F{{enabled}} Specifies whether HTTP caching is enabled. Caching is enabled by default.
-    F{{isShared}} Specifies whether the HTTP caching layer should behave as a public cache or a private cache
-    F{{expiryTimeMillis}} The number of milliseconds to keep an entry in the cache
-    F{{capacity}} The capacity of the cache
-    F{{evictionFactor}} The fraction of entries to be removed when the cache is full. The value should be
-                        between 0 (exclusive) and 1 (inclusive).
-    F{{policy}} Gives the user some control over the caching behaviour. By default, this is set to
-                `CACHE_CONTROL_AND_VALIDATORS`. The default behaviour is to allow caching only when the `cache-control`
-                header and either the `etag` or `last-modified` header are present.
-}
+# Provides a set of configurations for controlling the caching behaviour of the endpoint.
+#
+# + enabled - Specifies whether HTTP caching is enabled. Caching is enabled by default.
+# + isShared - Specifies whether the HTTP caching layer should behave as a public cache or a private cache
+# + expiryTimeMillis - The number of milliseconds to keep an entry in the cache
+# + capacity - The capacity of the cache
+# + evictionFactor - The fraction of entries to be removed when the cache is full. The value should be
+#                    between 0 (exclusive) and 1 (inclusive).
+# + policy - Gives the user some control over the caching behaviour. By default, this is set to
+#            `CACHE_CONTROL_AND_VALIDATORS`. The default behaviour is to allow caching only when the `cache-control`
+#            header and either the `etag` or `last-modified` header are present.
 public type CacheConfig record {
     boolean enabled = true,
     boolean isShared = false,
@@ -76,15 +68,13 @@ public type CacheConfig record {
     CachingPolicy policy = CACHE_CONTROL_AND_VALIDATORS,
 };
 
-documentation {
-    An HTTP caching client implementation which takes an `HttpActions` instance and wraps it with an HTTP caching layer.
-
-    F{{serviceUri}} The URL of the remote HTTP endpoint
-    F{{config}} The configurations of the client endpoint associated with this `CachingActions` instance
-    F{{httpClient}} The underlying `HttpActions` instance which will be making the actual network calls
-    F{{cache}} The cache storage for the HTTP responses
-    F{{cacheConfig}} Configurations for the underlying cache storage and for controlling the HTTP caching behaviour
-}
+# An HTTP caching client implementation which takes an `HttpActions` instance and wraps it with an HTTP caching layer.
+#
+# + serviceUri - The URL of the remote HTTP endpoint
+# + config - The configurations of the client endpoint associated with this `CachingActions` instance
+# + httpClient - The underlying `HttpActions` instance which will be making the actual network calls
+# + cache - The cache storage for the HTTP responses
+# + cacheConfig - Configurations for the underlying cache storage and for controlling the HTTP caching behaviour
 public type HttpCachingClient object {
 
     public string serviceUri;
@@ -93,192 +83,158 @@ public type HttpCachingClient object {
     public HttpCache cache;
     public CacheConfig cacheConfig;
 
-    documentation {
-        Takes a service URL, a `CliendEndpointConfig` and a `CacheConfig` and builds an HTTP client capable of
-        caching responses. The `CacheConfig` instance is used for initializing a new HTTP cache for the client and
-        the `ClientEndpointConfig` is used for creating the underlying HTTP client.
-
-        P{{serviceUri}} The URL of the HTTP endpoint to connect to
-        P{{config}} The configurations for the client endpoint associated with the caching client
-        P{{cacheConfig}} The configurations for the HTTP cache to be used with the caching client
-    }
+    # Takes a service URL, a `CliendEndpointConfig` and a `CacheConfig` and builds an HTTP client capable of
+    # caching responses. The `CacheConfig` instance is used for initializing a new HTTP cache for the client and
+    # the `ClientEndpointConfig` is used for creating the underlying HTTP client.
+    #
+    # + serviceUri - The URL of the HTTP endpoint to connect to
+    # + config - The configurations for the client endpoint associated with the caching client
+    # + cacheConfig - The configurations for the HTTP cache to be used with the caching client
     public new(serviceUri, config, cacheConfig) {
         self.httpClient = createHttpSecureClient(serviceUri, config);
         self.cache = createHttpCache("http-cache", cacheConfig);
     }
 
-    documentation {
-        Responses returned for POST requests are not cacheable. Therefore, the requests are simply directed to the
-        origin server. Responses received for POST requests invalidate the cached responses for the same resource.
-
-        P{{path}} Resource path
-        P{{message}} HTTP request or any payload of type `string`, `xml`, `json`, `byte[]`, `io:ByteChannel`
-                     or `mime:Entity[]`
-        R{{}} The response for the request or an `error` if failed to establish communication with the upstream server
-    }
+    # Responses returned for POST requests are not cacheable. Therefore, the requests are simply directed to the
+    # origin server. Responses received for POST requests invalidate the cached responses for the same resource.
+    #
+    # + path - Resource path
+    # + message - HTTP request or any payload of type `string`, `xml`, `json`, `byte[]`, `io:ByteChannel`
+    #             or `mime:Entity[]`
+    # + return - The response for the request or an `error` if failed to establish communication with the upstream server
     public function post(string path, Request|string|xml|json|byte[]|io:ByteChannel|mime:Entity[]|()
                                         message) returns Response|error;
 
-    documentation {
-        Responses for HEAD requests are cacheable and as such, will be routed through the HTTP cache. Only if a
-        suitable response cannot be found will the request be directed to the origin server.
-
-        P{{path}} Resource path
-        P{{message}} An optional HTTP request or any payload of type `string`, `xml`, `json`, `byte[]`, `io:ByteChannel`
-                     or `mime:Entity[]`
-        R{{}} The response for the request or an `error` if failed to establish communication with the upstream server
-    }
+    # Responses for HEAD requests are cacheable and as such, will be routed through the HTTP cache. Only if a
+    # suitable response cannot be found will the request be directed to the origin server.
+    #
+    # + path - Resource path
+    # + message - An optional HTTP request or any payload of type `string`, `xml`, `json`, `byte[]`, `io:ByteChannel`
+    #             or `mime:Entity[]`
+    # + return - The response for the request or an `error` if failed to establish communication with the upstream server
     public function head(string path, Request|string|xml|json|byte[]|io:ByteChannel|mime:Entity[]|()
                                         message = ()) returns Response|error;
 
-    documentation {
-        Responses returned for PUT requests are not cacheable. Therefore, the requests are simply directed to the
-        origin server. In addition, PUT requests invalidate the currently stored responses for the given path.
-
-        P{{path}} Resource path
-        P{{message}} An optional HTTP request or any payload of type `string`, `xml`, `json`, `byte[]`, `io:ByteChannel`
-                     or `mime:Entity[]`
-        R{{}} The response for the request or an `error` if failed to establish communication with the upstream server
-    }
+    # Responses returned for PUT requests are not cacheable. Therefore, the requests are simply directed to the
+    # origin server. In addition, PUT requests invalidate the currently stored responses for the given path.
+    #
+    # + path - Resource path
+    # + message - An optional HTTP request or any payload of type `string`, `xml`, `json`, `byte[]`, `io:ByteChannel`
+    #             or `mime:Entity[]`
+    # + return - The response for the request or an `error` if failed to establish communication with the upstream server
     public function put(string path, Request|string|xml|json|byte[]|io:ByteChannel|mime:Entity[]|()
                                         message) returns Response|error;
 
-    documentation {
-        Invokes an HTTP call with the specified HTTP method. This is not a cacheable operation, unless the HTTP method
-        used is GET or HEAD.
-
-        P{{httpMethod}} HTTP method to be used for the request
-        P{{path}} Resource path
-        P{{message}} An HTTP request or any payload of type `string`, `xml`, `json`, `byte[]`, `io:ByteChannel`
-                     or `mime:Entity[]`
-        R{{}} The response for the request or an `error` if failed to establish communication with the upstream server
-    }
+    # Invokes an HTTP call with the specified HTTP method. This is not a cacheable operation, unless the HTTP method
+    # used is GET or HEAD.
+    #
+    # + httpMethod - HTTP method to be used for the request
+    # + path - Resource path
+    # + message - An HTTP request or any payload of type `string`, `xml`, `json`, `byte[]`, `io:ByteChannel`
+    #             or `mime:Entity[]`
+    # + return - The response for the request or an `error` if failed to establish communication with the upstream server
     public function execute(string httpMethod, string path, Request|string|xml|json|byte[]|io:ByteChannel|mime:Entity[]|()
                                                                 message) returns Response|error;
 
-    documentation {
-        Responses returned for PATCH requests are not cacheable. Therefore, the requests are simply directed to
-        the origin server. Responses received for PATCH requests invalidate the cached responses for the same resource.
-
-        P{{path}} Resource path
-        P{{message}} An HTTP request or any payload of type `string`, `xml`, `json`, `byte[]`, `io:ByteChannel`
-                     or `mime:Entity[]`
-        R{{}} The response for the request or an `error` if failed to establish communication with the upstream server
-    }
+    # Responses returned for PATCH requests are not cacheable. Therefore, the requests are simply directed to
+    # the origin server. Responses received for PATCH requests invalidate the cached responses for the same resource.
+    #
+    # + path - Resource path
+    # + message - An HTTP request or any payload of type `string`, `xml`, `json`, `byte[]`, `io:ByteChannel`
+    #             or `mime:Entity[]`
+    # + return - The response for the request or an `error` if failed to establish communication with the upstream server
     public function patch(string path, Request|string|xml|json|byte[]|io:ByteChannel|mime:Entity[]|()
                                         message) returns Response|error;
 
-    documentation {
-        Responses returned for DELETE requests are not cacheable. Therefore, the requests are simply directed to the
-        origin server. Responses received for DELETE requests invalidate the cached responses for the same resource.
-
-        P{{path}} Resource path
-        P{{message}} An HTTP request or any payload of type `string`, `xml`, `json`, `byte[]`, `io:ByteChannel`
-                     or `mime:Entity[]`
-        R{{}} The response for the request or an `error` if failed to establish communication with the upstream server
-    }
+    # Responses returned for DELETE requests are not cacheable. Therefore, the requests are simply directed to the
+    # origin server. Responses received for DELETE requests invalidate the cached responses for the same resource.
+    #
+    # + path - Resource path
+    # + message - An HTTP request or any payload of type `string`, `xml`, `json`, `byte[]`, `io:ByteChannel`
+    #             or `mime:Entity[]`
+    # + return - The response for the request or an `error` if failed to establish communication with the upstream server
     public function delete(string path, Request|string|xml|json|byte[]|io:ByteChannel|mime:Entity[]|()
                                             message) returns Response|error;
 
-    documentation {
-        Responses for GET requests are cacheable and as such, will be routed through the HTTP cache. Only if a suitable
-        response cannot be found will the request be directed to the origin server.
-
-        P{{path}} Request path
-        P{{message}} An optional HTTP request or any payload of type `string`, `xml`, `json`, `byte[]`, `io:ByteChannel`
-                     or `mime:Entity[]`
-        R{{}} The response for the request or an `error` if failed to establish communication with the upstream server
-    }
+    # Responses for GET requests are cacheable and as such, will be routed through the HTTP cache. Only if a suitable
+    # response cannot be found will the request be directed to the origin server.
+    #
+    # + path - Request path
+    # + message - An optional HTTP request or any payload of type `string`, `xml`, `json`, `byte[]`, `io:ByteChannel`
+    #             or `mime:Entity[]`
+    # + return - The response for the request or an `error` if failed to establish communication with the upstream server
     public function get(string path, Request|string|xml|json|byte[]|io:ByteChannel|mime:Entity[]|()
                                         message = ()) returns Response|error;
 
-    documentation {
-        Responses returned for OPTIONS requests are not cacheable. Therefore, the requests are simply directed to the
-        origin server. Responses received for OPTIONS requests invalidate the cached responses for the same resource.
-
-        P{{path}} Request path
-        P{{message}} An optional HTTP request or any payload of type `string`, `xml`, `json`, `byte[]`, `io:ByteChannel`
-                     or `mime:Entity[]`
-        R{{}} The response for the request or an `error` if failed to establish communication with the upstream server
-    }
+    # Responses returned for OPTIONS requests are not cacheable. Therefore, the requests are simply directed to the
+    # origin server. Responses received for OPTIONS requests invalidate the cached responses for the same resource.
+    #
+    # + path - Request path
+    # + message - An optional HTTP request or any payload of type `string`, `xml`, `json`, `byte[]`, `io:ByteChannel`
+    #             or `mime:Entity[]`
+    # + return - The response for the request or an `error` if failed to establish communication with the upstream server
     public function options(string path, Request|string|xml|json|byte[]|io:ByteChannel|mime:Entity[]|()
                                             message = ()) returns Response|error;
 
-    documentation {
-        Forward action can be used to invoke an HTTP call with inbound request's HTTP method. Only inbound requests of
-        GET and HEAD HTTP method types are cacheable.
-
-        P{{path}} Request path
-        P{{request}} The HTTP request to be forwarded
-        R{{}} The response for the request or an `error` if failed to establish communication with the upstream server
-    }
+    # Forward action can be used to invoke an HTTP call with inbound request's HTTP method. Only inbound requests of
+    # GET and HEAD HTTP method types are cacheable.
+    #
+    # + path - Request path
+    # + request - The HTTP request to be forwarded
+    # + return - The response for the request or an `error` if failed to establish communication with the upstream server
     public function forward(string path, Request request) returns Response|error;
 
-    documentation {
-        Submits an HTTP request to a service with the specified HTTP verb.
-
-        P{{httpVerb}} The HTTP verb value
-        P{{path}} The resource path
-        P{{message}} An HTTP request or any payload of type `string`, `xml`, `json`, `byte[]`, `io:ByteChannel`
-                     or `mime:Entity[]`
-        R{{}} An `HttpFuture` that represents an asynchronous service invocation, or an error if the submission fails
-    }
+    # Submits an HTTP request to a service with the specified HTTP verb.
+    #
+    # + httpVerb - The HTTP verb value
+    # + path - The resource path
+    # + message - An HTTP request or any payload of type `string`, `xml`, `json`, `byte[]`, `io:ByteChannel`
+    #             or `mime:Entity[]`
+    # + return - An `HttpFuture` that represents an asynchronous service invocation, or an error if the submission fails
     public function submit(string httpVerb, string path, Request|string|xml|json|byte[]|io:ByteChannel|mime:Entity[]|()
                                                             message) returns HttpFuture|error;
 
-    documentation {
-        Retrieves the `Response` for a previously submitted request.
-
-        P{{httpFuture}} The `HttpFuture` related to a previous asynchronous invocation
-        R{{}} An HTTP response message, or an `error` if the invocation fails
-    }
+    # Retrieves the `Response` for a previously submitted request.
+    #
+    # + httpFuture - The `HttpFuture` related to a previous asynchronous invocation
+    # + return - An HTTP response message, or an `error` if the invocation fails
     public function getResponse(HttpFuture httpFuture) returns Response|error;
 
-    documentation {
-        Checks whether a `PushPromise` exists for a previously submitted request.
-
-        P{{httpFuture}} The `HttpFuture` relates to a previous asynchronous invocation
-        R{{}} A `boolean` that represents whether a `PushPromise` exists
-    }
+    # Checks whether a `PushPromise` exists for a previously submitted request.
+    #
+    # + httpFuture - The `HttpFuture` relates to a previous asynchronous invocation
+    # + return - A `boolean` that represents whether a `PushPromise` exists
     public function hasPromise(HttpFuture httpFuture) returns boolean;
 
-    documentation {
-        Retrieves the next available `PushPromise` for a previously submitted request.
-
-        P{{httpFuture}} The `HttpFuture` relates to a previous asynchronous invocation
-        R{{}} An HTTP Push Promise message, or an `error` if the invocation fails
-    }
+    # Retrieves the next available `PushPromise` for a previously submitted request.
+    #
+    # + httpFuture - The `HttpFuture` relates to a previous asynchronous invocation
+    # + return - An HTTP Push Promise message, or an `error` if the invocation fails
     public function getNextPromise(HttpFuture httpFuture) returns PushPromise|error;
 
-    documentation {
-        Retrieves the promised server push `Response` message.
-
-        P{{promise}} The related `PushPromise`
-        R{{}} A promised HTTP `Response` message, or an `error` if the invocation fails
-    }
+    # Retrieves the promised server push `Response` message.
+    #
+    # + promise - The related `PushPromise`
+    # + return - A promised HTTP `Response` message, or an `error` if the invocation fails
     public function getPromisedResponse(PushPromise promise) returns Response|error;
 
-    documentation {
-        Rejects a `PushPromise`. When a `PushPromise` is rejected, there is no chance of fetching a promised
-        response using the rejected promise.
-
-        P{{promise}} The Push Promise to be rejected
-    }
+    # Rejects a `PushPromise`. When a `PushPromise` is rejected, there is no chance of fetching a promised
+    # response using the rejected promise.
+    #
+    # + promise - The Push Promise to be rejected
     public function rejectPromise(PushPromise promise);
 };
 
-documentation {
-    Creates an HTTP client capable of caching HTTP responses.
-
-    P{{url}} The URL of the HTTP endpoint to connect to
-    P{{config}} The configurations for the client endpoint associated with the caching client
-    P{{cacheConfig}} The configurations for the HTTP cache to be used with the caching client
-    R{{}} An `HttpCachingClient` instance which wraps the base `CallerActions` with a caching layer
-}
+# Creates an HTTP client capable of caching HTTP responses.
+#
+# + url - The URL of the HTTP endpoint to connect to
+# + config - The configurations for the client endpoint associated with the caching client
+# + cacheConfig - The configurations for the HTTP cache to be used with the caching client
+# + return - An `HttpCachingClient` instance which wraps the base `CallerActions` with a caching layer
 public function createHttpCachingClient(string url, ClientEndpointConfig config, CacheConfig cacheConfig)
                                                                                                 returns CallerActions {
     HttpCachingClient httpCachingClient = new(url, config, cacheConfig);
-    log:printDebug("Created HTTP caching client: " + io:sprintf("%r", httpCachingClient));
+    log:printDebug("Created HTTP caching client: " + io:sprintf("%s", httpCachingClient));
     return httpCachingClient;
 }
 

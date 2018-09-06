@@ -29,9 +29,7 @@
 @final string NBF = "nbf";
 @final string IAT = "iat";
 
-documentation {
-    Represents a JWT header.
-}
+# Represents a JWT header.
 public type JwtHeader record {
     string alg;
     string typ;
@@ -40,9 +38,7 @@ public type JwtHeader record {
     map customClaims;
 };
 
-documentation {
-    Represents a JWT payload.
-}
+# Represents a JWT payload.
 public type JwtPayload record {
     string iss;
     string sub;

@@ -16,23 +16,22 @@
 
 import ballerina/log;
 
-documentation { JMS topic publisher
-    E{{}}
-    F{{producerActions}} Topic publisher endpoint actions
-    F{{config}} Topic publisher endpoint configuration
-}
+# JMS topic publisher
+#
+# + producerActions - Topic publisher endpoint actions
+# + config - Topic publisher endpoint configuration
 public type TopicPublisher object {
     public TopicPublisherActions producerActions;
     public TopicPublisherEndpointConfiguration config;
 
-    documentation { Topic publisher contructor }
+    # Topic publisher contructor
     new() {
         self.producerActions = new;
     }
 
-    documentation { Initialize topic publisher endpoint
-        P{{c}} Topic publisher endpoint configuration
-    }
+    # Initialize topic publisher endpoint
+    #
+    # + c - Topic publisher endpoint configuration
     public function init(TopicPublisherEndpointConfiguration c) {
         self.config = c;
         self.producerActions.topicPublisher = self;
@@ -51,46 +50,46 @@ public type TopicPublisher object {
 
     public extern function initTopicPublisher(Session session, Destination? destination = ());
 
-    documentation { Register topic publisher endpoint
-        P{{serviceType}} Type descriptor of the service
-    }
+    # Register topic publisher endpoint
+    #
+    # + serviceType - Type descriptor of the service
     public function register(typedesc serviceType) {
 
     }
 
-    documentation { Start topic publisher endpoint }
+    # Start topic publisher endpoint
     public function start() {
 
     }
 
-    documentation { Get topic publisher actions }
+    # Get topic publisher actions
     public function getCallerActions() returns TopicPublisherActions {
         return self.producerActions;
     }
 
-    documentation { Stop topic publisher endpoint }
+    # Stop topic publisher endpoint
     public function stop() {
 
     }
 };
 
-documentation { Configuration related to the topic publisher endpoint
-    F{{session}} Session object used to create topic publisher
-    F{{topicPattern}} Topic name pattern
-}
+# Configuration related to the topic publisher endpoint
+#
+# + session - Session object used to create topic publisher
+# + topicPattern - Topic name pattern
 public type TopicPublisherEndpointConfiguration record {
     Session? session;
     string? topicPattern;
 };
 
-documentation { Actions that topic publisher endpoint could perform }
+# Actions that topic publisher endpoint could perform
 public type TopicPublisherActions object {
 
     public TopicPublisher? topicPublisher;
 
-    documentation { Sends a message to the JMS provider
-        P{{message}} Message to be sent to the JMS provider
-    }
+    # Sends a message to the JMS provider
+    #
+    # + message - Message to be sent to the JMS provider
     public extern function send(Message message) returns error?;
 
     documentation {

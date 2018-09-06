@@ -21,7 +21,7 @@
                     "character":58
                   }
                 },
-                "newText":"import ballerina/io;\nimport ballerina/http;\n\nfunction testDocumentation() {\n    \n}\n\nendpoint http:Listener listener {\n    \n};\n\ndocumentation {\n\t\n}\nservice<http:Service> testDocService bind { port: 9090 } {"
+                "newText":"import ballerina/io;\nimport ballerina/http;\n\nfunction testDocumentation() {\n    \n}\n\nendpoint http:Listener listener {\n    \n};\n\n# Description\nservice<http:Service> testDocService bind { port: 9090 } {"
               }
             ]
           }

@@ -30,7 +30,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
-import java.util.stream.Stream;
+import java.util.Map;
 
 /**
  * Testing negative scenarios for pushing, pulling, searching a package from central and installing package to
@@ -42,7 +42,7 @@ public class PackagingNegativeTestCase extends BaseTest {
     private Path tempHomeDirectory;
     private Path tempProjectDirectory;
     private String packageName = "test";
-    private String[] envVariables;
+    private Map<String, String> envVariables;
 
     @BeforeClass()
     public void setUp() throws BallerinaTestException, IOException {
@@ -69,8 +69,8 @@ public class PackagingNegativeTestCase extends BaseTest {
 
         String[] clientArgs = {packageName};
 
-        addLogLeecher(msg);
-        serverInstance.runMain(clientArgs, envVariables, "push", projectPath.toString());
+        balClient.runMain("push", clientArgs, envVariables, new String[0],
+                new LogLeecher[]{new LogLeecher(msg)}, projectPath.toString());
     }
 
     @Test(description = "Test pushing a package to central without a version")
@@ -88,8 +88,8 @@ public class PackagingNegativeTestCase extends BaseTest {
                 "inside the project";
 
         String[] clientArgs = {packageName};
-        addLogLeecher(msg);
-        serverInstance.runMain(clientArgs, envVariables, "push", projectPath.toString());
+        balClient.runMain("push", clientArgs, envVariables, new String[0],
+                new LogLeecher[]{new LogLeecher(msg)}, projectPath.toString());
     }
 
     @Test(description = "Test pushing a package to central without any content in the manifest")
@@ -104,8 +104,8 @@ public class PackagingNegativeTestCase extends BaseTest {
         String msg = "ballerina: an org-name is required when pushing. This is not specified in Ballerina.toml " +
                 "inside the project";
         String[] clientArgs = {packageName};
-        addLogLeecher(msg);
-        serverInstance.runMain(clientArgs, envVariables, "push", projectPath.toString());
+        balClient.runMain("push", clientArgs, envVariables, new String[0],
+                new LogLeecher[]{new LogLeecher(msg)}, projectPath.toString());
     }
 
     @Test(description = "Test pushing a package to central without Package.md")
@@ -119,8 +119,8 @@ public class PackagingNegativeTestCase extends BaseTest {
 
         String[] clientArgs = {packageName};
         String msg = "ballerina: cannot find Package.md file in the artifact";
-        addLogLeecher(msg);
-        serverInstance.runMain(clientArgs, envVariables, "push", projectPath.toString());
+        balClient.runMain("push", clientArgs, envVariables, new String[0],
+                new LogLeecher[]{new LogLeecher(msg)}, projectPath.toString());
     }
 
     @Test(description = "Test pushing a package to central without any content in Package.md")
@@ -134,8 +134,8 @@ public class PackagingNegativeTestCase extends BaseTest {
 
         String[] clientArgs = {packageName};
         String msg = "ballerina: package.md in the artifact is empty";
-        addLogLeecher(msg);
-        serverInstance.runMain(clientArgs, envVariables, "push", projectPath.toString());
+        balClient.runMain("push", clientArgs, envVariables, new String[0],
+                new LogLeecher[]{new LogLeecher(msg)}, projectPath.toString());
     }
 
     @Test(description = "Test pushing a package to central without package summary in Package.md")
@@ -149,8 +149,8 @@ public class PackagingNegativeTestCase extends BaseTest {
 
         String[] clientArgs = {packageName};
         String msg = "ballerina: cannot find package summary";
-        addLogLeecher(msg);
-        serverInstance.runMain(clientArgs, envVariables, "push", projectPath.toString());
+        balClient.runMain("push", clientArgs, envVariables, new String[0],
+                new LogLeecher[]{new LogLeecher(msg)}, projectPath.toString());
     }
 
     @Test(description = "Test pushing a package to central with a package summary greater than 50 characters in " +
@@ -166,8 +166,8 @@ public class PackagingNegativeTestCase extends BaseTest {
 
         String[] clientArgs = {packageName};
         String msg = "ballerina: summary of the package exceeds 50 characters";
-        addLogLeecher(msg);
-        serverInstance.runMain(clientArgs, envVariables, "push", projectPath.toString());
+        balClient.runMain("push", clientArgs, envVariables, new String[0],
+                new LogLeecher[]{new LogLeecher(msg)}, projectPath.toString());
     }
 
     @Test(description = "Test pushing a package to invalid repository")
@@ -177,20 +177,22 @@ public class PackagingNegativeTestCase extends BaseTest {
 
         String[] clientArgs = {packageName, "--repository", "test"};
         String msg = "ballerina: unknown repository provided to push the package";
-        addLogLeecher(msg);
-        serverInstance.runMain(clientArgs, envVariables, "push", projectPath.toString());
+        balClient.runMain("push", clientArgs, envVariables, new String[0],
+                new LogLeecher[]{new LogLeecher(msg)}, projectPath.toString());
     }
 
     @Test(description = "Test search without keywords")
     public void testSearchWithoutKeyWords() throws Exception {
-        addLogLeecher("ballerina: no keyword given");
-        serverInstance.runMain(new String[0], envVariables, "search");
+        String msg = "ballerina: no keyword given";
+        balClient.runMain("search", new String[0], envVariables, new String[0],
+                new LogLeecher[]{new LogLeecher(msg)}, balServer.getServerHome());
     }
 
     @Test(description = "Test search for non-existing package")
     public void testSearchForNonExistingPackage() throws Exception {
-        addLogLeecher("no packages found");
-        serverInstance.runMain(new String[0], envVariables, "search");
+        String msg = "no packages found";
+        balClient.runMain("search", new String[0], envVariables, new String[0],
+                new LogLeecher[]{new LogLeecher(msg)}, balServer.getServerHome());
     }
 
     @Test(description = "Test install already installed package")
@@ -200,41 +202,43 @@ public class PackagingNegativeTestCase extends BaseTest {
 
         // First install the package
         String[] clientArgs = {packageName};
-        serverInstance.runMain(clientArgs, envVariables, "install", projectPath.toString());
+        balClient.runMain("install", clientArgs, envVariables, new String[0], new LogLeecher[0],
+                projectPath.toString());
 
         // Try to install it again
-        serverInstance.runMain(clientArgs, envVariables, "install", projectPath.toString());
+        balClient.runMain("install", clientArgs, envVariables, new String[0], new LogLeecher[0],
+                projectPath.toString());
         String msg = "ballerina: ballerina package exists in the home repository";
-        addLogLeecher(msg);
-        serverInstance.runMain(new String[0], envVariables, "install");
+        balClient.runMain("install", new String[0], envVariables, new String[0],
+                new LogLeecher[]{new LogLeecher(msg)}, balServer.getServerHome());
     }
 
     @Test(description = "Test build with too many arguments")
     public void testBuildWithTooManyArgs() throws Exception {
         String msg = "ballerina: too many arguments\n Run 'ballerina help' for usage.";
-        addLogLeecher(msg);
-        serverInstance.runMain(new String[] {"hello", "world"}, envVariables, "build");
+        balClient.runMain("build", new String[] {"hello", "world"}, envVariables, new String[0],
+                new LogLeecher[]{new LogLeecher(msg)}, balServer.getServerHome());
     }
 
     @Test(description = "Test install with too many arguments")
     public void testInstallWithTooManyArgs() throws Exception {
         String msg = "ballerina: too many arguments\n Run 'ballerina help' for usage.";
-        addLogLeecher(msg);
-        serverInstance.runMain(new String[] {"foo", "bar"}, envVariables, "install");
+        balClient.runMain("install", new String[] {"foo", "bar"}, envVariables, new String[0],
+                new LogLeecher[]{new LogLeecher(msg)}, balServer.getServerHome());
     }
 
     @Test(description = "Test push with too many arguments")
     public void testPushWithTooManyArgs() throws Exception {
         String msg = "ballerina: too many arguments\n Run 'ballerina help' for usage.";
-        addLogLeecher(msg);
-        serverInstance.runMain(new String[] {"integrationtests", "foo"}, envVariables, "push");
+        balClient.runMain("push", new String[] {"integrationtests", "foo"}, envVariables, new String[0],
+                new LogLeecher[]{new LogLeecher(msg)}, balServer.getServerHome());
     }
 
     @Test(description = "Test list with too many arguments")
     public void testSearchWithTooManyArgs() throws Exception {
         String msg = "ballerina: too many arguments\n Run 'ballerina help' for usage.";
-        addLogLeecher(msg);
-        serverInstance.runMain(new String[] {"wso2", "twitter"}, envVariables, "list");
+        balClient.runMain("list", new String[] {"wso2", "twitter"}, envVariables, new String[0],
+                new LogLeecher[]{new LogLeecher(msg)}, balServer.getServerHome());
     }
 
     @Test(description = "Test push without any packages in the project")
@@ -248,8 +252,8 @@ public class PackagingNegativeTestCase extends BaseTest {
         writeToFile(projectPath.resolve("main.bal"), content);
 
         String msg = "ballerina: no packages found to push in " + projectPath.toString();
-        addLogLeecher(msg);
-        serverInstance.runMain(new String[0], envVariables, "push", projectPath.toString());
+        balClient.runMain("push", new String[0], envVariables, new String[0],
+                new LogLeecher[]{new LogLeecher(msg)}, projectPath.toString());
     }
 
     /**
@@ -263,7 +267,7 @@ public class PackagingNegativeTestCase extends BaseTest {
         Files.createDirectories(projectPath);
         String[] clientArgsForInit = {"-i"};
         String[] options = {"\n", "integrationtests\n", "\n", "m\n", packageName + "\n", "f\n"};
-        serverInstance.runMainWithClientOptions(clientArgsForInit, options, envVariables, "init",
+        balClient.runMain("init", clientArgsForInit, envVariables, options, new LogLeecher[0],
                                                 projectPath.toString());
     }
 
@@ -282,10 +286,9 @@ public class PackagingNegativeTestCase extends BaseTest {
      *
      * @return env directory variable array
      */
-    private String[] addEnvVariables(String[] envVariables) {
-        String[] newEnvVariables = new String[]{ProjectDirConstants.HOME_REPO_ENV_KEY + "=" +
-                tempHomeDirectory.toString()};
-        return Stream.of(envVariables, newEnvVariables).flatMap(Stream::of).toArray(String[]::new);
+    private Map<String, String> addEnvVariables(Map<String, String> envVariables) {
+        envVariables.put(ProjectDirConstants.HOME_REPO_ENV_KEY, tempHomeDirectory.toString());
+        return envVariables;
     }
 
     /**
@@ -297,17 +300,6 @@ public class PackagingNegativeTestCase extends BaseTest {
      */
     private void writeToFile(Path filePath, String content) throws IOException {
         Files.write(filePath, content.getBytes(), StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING);
-    }
-
-    /**
-     * Set log leecher with the log message excepted.
-     *
-     * @param msg log message expected
-     */
-    private void addLogLeecher(String msg) {
-        serverInstance.resetServerLogReader();
-        LogLeecher clientLeecher = new LogLeecher(msg);
-        serverInstance.addLogLeecher(clientLeecher);
     }
 
     @AfterClass

@@ -53,8 +53,7 @@ public class WebSocketService {
             resourceMap.put(resource.getName(), resource);
         }
 
-        Annotation configAnnotation =
-                WebSocketUtil.getServiceConfigAnnotation(service, HttpConstants.PROTOCOL_PACKAGE_HTTP);
+        Annotation configAnnotation = WebSocketUtil.getServiceConfigAnnotation(service);
 
         Struct configAnnotationStruct = null;
         if (configAnnotation != null && (configAnnotationStruct = configAnnotation.getValue()) != null) {
@@ -111,9 +110,6 @@ public class WebSocketService {
     }
 
     private String[] findNegotiableSubProtocols(Struct annAttrSubProtocols) {
-        if (annAttrSubProtocols == null) {
-            return new String[0];
-        }
         Value[] subProtocolsInAnnotation = annAttrSubProtocols.getArrayField(
                 WebSocketConstants.ANNOTATION_ATTR_SUB_PROTOCOLS);
 
@@ -153,7 +149,7 @@ public class WebSocketService {
         String path = null;
         if (annStruct != null) {
             String basePathVal = annStruct.getStringField(WebSocketConstants.ANNOTATION_ATTR_PATH);
-            if (basePathVal != null && !basePathVal.trim().isEmpty()) {
+            if (!basePathVal.trim().isEmpty()) {
                 path = HttpUtil.sanitizeBasePath(basePathVal);
             }
         }

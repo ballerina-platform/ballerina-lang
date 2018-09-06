@@ -20,13 +20,10 @@ import ballerina/log;
 //////////////////////////////////////////
 /// WebSub Subscriber Service Endpoint ///
 //////////////////////////////////////////
-documentation {
-    Object representing the WebSubSubscriber Service Endpoint.
-
-    E{{}}
-    F{{config}} The configuration for the endpoint
-    F{{serviceEndpoint}} The underlying HTTP service endpoint
-}
+# Object representing the WebSubSubscriber Service Endpoint.
+#
+# + config - The configuration for the endpoint
+# + serviceEndpoint - The underlying HTTP service endpoint
 public type Listener object {
 
     public SubscriberServiceEndpointConfiguration config;
@@ -38,65 +35,47 @@ public type Listener object {
         self.serviceEndpoint = httpEndpoint;
     }
 
-    documentation {
-         Gets called when the endpoint is being initialized during package initialization.
-         
-         P{{c}} The Subscriber Service Endpoint Configuration of the endpoint
-    }
+    # Gets called when the endpoint is being initialized during package initialization.
+    #
+    # + c - The Subscriber Service Endpoint Configuration of the endpoint
     public function init(SubscriberServiceEndpointConfiguration c);
 
-    documentation {
-        Gets called whenever a service attaches itself to this endpoint and during package initialization.
-
-        P{{serviceType}} The service attached
-    }
+    # Gets called whenever a service attaches itself to this endpoint and during package initialization.
+    #
+    # + serviceType - The service attached
     public function register(typedesc serviceType);
 
-    documentation {
-        Starts the registered service.
-    }
+    # Starts the registered service.
     public function start();
 
-    documentation {
-        Returns the caller actions the client code uses.
-
-        R{{}} `http:Connection` The connector that client code uses
-    }
+    # Returns the caller actions the client code uses.
+    #
+    # + return - `http:Connection` The connector that client code uses
     public function getCallerActions() returns http:Connection;
 
-    documentation {
-        Stops the registered service.
-    }
+    # Stops the registered service.
     public function stop();
 
     extern function initWebSubSubscriberServiceEndpoint();
 
     extern function registerWebSubSubscriberServiceEndpoint(typedesc serviceType);
 
-    documentation {
-        Sends subscription requests to the specified/discovered hubs if specified to subscribe on startup.
-    }
+    # Sends subscription requests to the specified/discovered hubs if specified to subscribe on startup.
     function sendSubscriptionRequests();
 
-    documentation {
-        Start the registered WebSub Subscriber service.
-    }
+    # Start the registered WebSub Subscriber service.
     extern function startWebSubSubscriberServiceEndpoint();
 
-    documentation {
-        Sets the topic to which this service is subscribing, for auto intent verification.
-
-        P{{webSubServiceName}} The name of the service for which subscription happened for a topic
-        P{{topic}} The topic the subscription happened for
-    }
+    # Sets the topic to which this service is subscribing, for auto intent verification.
+    #
+    # + webSubServiceName - The name of the service for which subscription happened for a topic
+    # + topic - The topic the subscription happened for
     extern function setTopic(string webSubServiceName, string topic);
 
-    documentation {
-        Retrieves the parameters specified for subscription as annotations and the callback URL to which notification
-        should happen for the services bound to the endpoint.
-
-        R{{}} `map[]` array of maps containing subscription details for each service
-    }
+    # Retrieves the parameters specified for subscription as annotations and the callback URL to which notification
+    # should happen for the services bound to the endpoint.
+    #
+    # + return - `map[]` array of maps containing subscription details for each service
     extern function retrieveSubscriptionParameters() returns map[];
 
 };
@@ -190,14 +169,12 @@ function Listener::sendSubscriptionRequests() {
     }
 }
 
-documentation {
-    Object representing the configuration for the WebSub Subscriber Service Endpoint.
-
-    F{{host}} The host name/IP of the endpoint
-    F{{port}} The port to which the endpoint should bind to
-    F{{httpServiceSecureSocket}} The SSL configurations for the service endpoint
-    F{{extensionConfig}}    The extension configuration to introduce custom subscriber services (webhooks)
-}
+# Object representing the configuration for the WebSub Subscriber Service Endpoint.
+#
+# + host - The host name/IP of the endpoint
+# + port - The port to which the endpoint should bind to
+# + httpServiceSecureSocket - The SSL configurations for the service endpoint
+# + extensionConfig - The extension configuration to introduce custom subscriber services (webhooks)
 public type SubscriberServiceEndpointConfiguration record {
     string host;
     int port;
@@ -205,16 +182,13 @@ public type SubscriberServiceEndpointConfiguration record {
     ExtensionConfig? extensionConfig;
 };
 
-documentation {
-    The extension configuration to introduce custom subscriber services.
-
-    F{{topicIdentifier}}                The identifier based on which dispatching should happen for custom subscriber
-                                            services
-    F{{topicHeader}}                    The header to consider if required with dispatching for custom services
-    F{{headerResourceMap}}              The mapping between header value and resource details
-    F{{payloadKeyResourceMap}}          The mapping between value for a particular JSON payload key and resource details
-    F{{headerAndPayloadKeyResourceMap}} The mapping between values for the header and a particular JSON payload key and resource details
-}
+# The extension configuration to introduce custom subscriber services.
+#
+# topicIdentifier - The identifier based on which dispatching should happen for custom subscriber
+# topicHeader - The header to consider if required with dispatching for custom services
+# headerResourceMap - The mapping between header value and resource details
+# payloadKeyResourceMap - The mapping between value for a particular JSON payload key and resource details
+# headerAndPayloadKeyResourceMap - The mapping between values for the header and a particular JSON payload key and resource details
 public type ExtensionConfig record {
     TopicIdentifier topicIdentifier = TOPIC_ID_HEADER;
 
@@ -251,12 +225,10 @@ public type ExtensionConfig record {
     map<map<map<(string, typedesc)>>>? headerAndPayloadKeyResourceMap;
 };
 
-documentation {
-    The function called to discover hub and topic URLs defined by a resource URL.
-
-    P{{resourceUrl}} The resource URL advertising hub and topic URLs
-    R{{}} `(string, string)` (hub, topic) URLs if successful, `error` if not
-}
+# The function called to discover hub and topic URLs defined by a resource URL.
+#
+# + resourceUrl - The resource URL advertising hub and topic URLs
+# + return - `(string, string)` (hub, topic) URLs if successful, `error` if not
 function retrieveHubAndTopicUrl(string resourceUrl, http:AuthConfig? auth, http:SecureSocket? localSecureSocket,
                                 http:FollowRedirects? followRedirects) returns @tainted (string, string)|error {
 
@@ -323,12 +295,10 @@ function retrieveHubAndTopicUrl(string resourceUrl, http:AuthConfig? auth, http:
     return websubError;
 }
 
-documentation {
-    Function to invoke the WebSubSubscriberConnector's actions for subscription.
-
-    P{{hub}} The hub to which the subscription request is to be sent
-    P{{subscriptionDetails}} Map containing subscription details
-}
+# Function to invoke the WebSubSubscriberConnector's actions for subscription.
+#
+# + hub - The hub to which the subscription request is to be sent
+# + subscriptionDetails - Map containing subscription details
 function invokeClientConnectorForSubscription(string hub, http:AuthConfig? auth, http:SecureSocket? localSecureSocket,
                                               http:FollowRedirects? followRedirects, map subscriptionDetails) {
     endpoint Client websubHubClientEP {

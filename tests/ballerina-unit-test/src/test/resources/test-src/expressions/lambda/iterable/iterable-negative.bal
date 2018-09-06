@@ -67,3 +67,28 @@ function test7(){
     s.filter((person p)=>{});
     _ = s.filter((string s) => (person) {return null;});
 }
+
+function test8() {
+    int[] arr = [-5, 2, 4, 5, 7, -8, -3, 2];
+    int[] a = arr.map((int v) => (any) {
+                        return v + 1;
+                   });
+}
+
+function test9() {
+    int[] arr = [-5, 2, 4, 5, 7, -8, -3, 2];
+    int[] a = arr.map((int v) => (int) {
+                        return v + 1;
+                   }).map((int v) => (string) {
+                        return "Test" + v;
+                   });
+}
+
+function test10() {
+    int[] arr = [-5, 2, 4, 5, 7, -8, -3, 2];
+    int[] a = arr.map((int v) => (int) {
+                        return v + 1;
+                   }).map((int v) => (string) {
+                        return "Test" + v;
+                   }).filter((string s) => boolean { return true;});
+}

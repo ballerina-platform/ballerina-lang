@@ -20,9 +20,9 @@ package org.ballerinalang.test.run;
 import org.ballerinalang.test.BaseTest;
 import org.ballerinalang.test.context.BallerinaTestException;
 import org.ballerinalang.test.context.LogLeecher;
+import org.ballerinalang.test.context.LogLeecher.LeecherType;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
-import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import java.io.File;
@@ -55,7 +55,8 @@ public class BalxRunFunctionNegativeTestCase extends BaseTest {
         String fileName = "test_entry_function.bal";
         String[] clientArgs = {"-o", tempProjectDir.toString().concat(File.separator).concat("entry"),
                 sourceRoot.concat(File.separator).concat(fileName)};
-        serverInstance.runMain(clientArgs, null, "build", tempProjectDir.toString());
+        balClient.runMain("build", clientArgs, null, new String[0],
+                new LogLeecher[0], tempProjectDir.toString());
         Path generatedBalx = tempProjectDir.resolve("entry.balx");
         balxPath = generatedBalx.toString();
     }
@@ -63,15 +64,10 @@ public class BalxRunFunctionNegativeTestCase extends BaseTest {
     @Test
     public void testEmptyEntryFunctionName() throws BallerinaTestException {
         String sourceArg = balxPath + ":";
-        LogLeecher errLogLeecher = new LogLeecher("usage error: expected function name after final ':'");
-        serverInstance.addErrorLogLeecher(errLogLeecher);
-        serverInstance.runMain(new String[]{sourceArg});
+        LogLeecher errLogLeecher = new LogLeecher("usage error: expected function name after final ':'",
+                LeecherType.ERROR);
+        balClient.runMain(sourceArg, new LogLeecher[]{errLogLeecher});
         errLogLeecher.waitForText(2000);
-    }
-
-    @BeforeMethod
-    public void stopServer() throws BallerinaTestException {
-        serverInstance.stopServer();
     }
 
     @AfterClass
