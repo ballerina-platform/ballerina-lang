@@ -1,4 +1,4 @@
-function main (string... args) {
+public function main (string... args) {
     var returnData = unionReturn(args[0]);
     match returnData {
         string stringData => {

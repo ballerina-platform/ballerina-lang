@@ -28,7 +28,6 @@ import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.test.BaseTest;
 import org.ballerinalang.test.util.TestUtils;
 import org.ballerinalang.util.codegen.PackageInfo;
 import org.ballerinalang.util.codegen.StructureTypeInfo;
@@ -43,7 +42,7 @@ import java.nio.file.Paths;
  * Test class for gRPC unary service with blocking and non-blocking client.
  */
 @Test(groups = "grpc-test")
-public class UnaryBlockingBasicTestCase extends BaseTest {
+public class UnaryBlockingBasicTestCase extends GrpcBaseTest {
 
     private CompileResult result;
 

@@ -867,9 +867,6 @@ public class TaintAnalyzer extends BLangNodeVisitor {
             case TypeTags.JSON:
                 fieldAccessExpr.expr.accept(this);
                 break;
-            case TypeTags.ENUM:
-                this.taintedStatus = TaintedStatus.UNTAINTED;
-                break;
         }
     }
 
@@ -1320,11 +1317,6 @@ public class TaintAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangXMLNS.BLangPackageXMLNS xmlnsNode) {
-        /* ignore */
-    }
-
-    @Override
-    public void visit(BLangFieldBasedAccess.BLangEnumeratorAccessExpr enumeratorAccessExpr) {
         /* ignore */
     }
 

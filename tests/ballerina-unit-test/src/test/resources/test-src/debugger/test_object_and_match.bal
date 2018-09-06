@@ -1,5 +1,5 @@
 
-function main(string... args) {
+public function main(string... args) {
     var a = testObjectWithInterface();
 }
 

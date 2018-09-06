@@ -42,14 +42,13 @@ public class TypeTags {
     public static final int XML_ATTRIBUTES_TAG = 19;
     public static final int TYPE_TAG = 20;
     public static final int TYPEDESC_TAG = 21;
-    public static final int ENUM_TAG = 22;
-    public static final int ITERATOR_TAG = 23;
-    public static final int SERVICE_TAG = 24;
-    public static final int STREAM_TAG = 25;
-    public static final int FUTURE_TAG = 26;
-    public static final int UNION_TAG = 27;
-    public static final int TUPLE_TAG = 28;
-    public static final int FINITE_TYPE_TAG = 31;
-    public static final int OBJECT_TYPE_TAG = 32;
-    public static final int RECORD_TYPE_TAG = 33;
+    public static final int ITERATOR_TAG = 22;
+    public static final int SERVICE_TAG = 23;
+    public static final int STREAM_TAG = 24;
+    public static final int FUTURE_TAG = 25;
+    public static final int UNION_TAG = 26;
+    public static final int TUPLE_TAG = 27;
+    public static final int FINITE_TYPE_TAG = 30;
+    public static final int OBJECT_TYPE_TAG = 31;
+    public static final int RECORD_TYPE_TAG = 32;
 }

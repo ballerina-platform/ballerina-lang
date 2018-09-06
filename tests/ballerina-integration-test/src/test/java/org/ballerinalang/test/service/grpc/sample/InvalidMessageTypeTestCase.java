@@ -20,7 +20,6 @@ package org.ballerinalang.test.service.grpc.sample;
 
 import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.CompileResult;
-import org.ballerinalang.test.BaseTest;
 import org.ballerinalang.test.util.TestUtils;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
@@ -33,7 +32,7 @@ import java.nio.file.Paths;
 /**
  * Test gRPC service build when invalid message type is passed. Should get a compilation error.
  */
-public class InvalidMessageTypeTestCase extends BaseTest {
+public class InvalidMessageTypeTestCase extends GrpcBaseTest {
     
     @BeforeClass
     private void setup() throws Exception {

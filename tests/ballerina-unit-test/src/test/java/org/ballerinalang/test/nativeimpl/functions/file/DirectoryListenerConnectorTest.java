@@ -39,6 +39,9 @@ import java.nio.file.Paths;
 import java.nio.file.attribute.FileTime;
 import java.util.Comparator;
 
+import static org.awaitility.Awaitility.await;
+import static java.util.concurrent.TimeUnit.MINUTES;
+
 /**
  * Test class for Directory Listener connector.
  */
@@ -78,39 +81,23 @@ public class DirectoryListenerConnectorTest {
         BServiceUtil.runService(compileResult);
         try {
             final Path file = Files.createFile(Paths.get("target", "fs", "temp.txt"));
+            await().atMost(1, MINUTES).until(() -> {
+                BValue[] result = BRunUtil.invokeStateful(compileResult, "isCreateInvoked");
+                return ((BBoolean) result[0]).booleanValue();
+            });
             Files.setLastModifiedTime(file, FileTime.fromMillis(System.currentTimeMillis()));
+            await().atMost(1, MINUTES).until(() -> {
+                BValue[] result = BRunUtil.invokeStateful(compileResult, "isModifyInvoked");
+                return ((BBoolean) result[0]).booleanValue();
+            });
             Files.deleteIfExists(file);
-        } catch (IOException e) {
+            await().atMost(1, MINUTES).until(() -> {
+                BValue[] result = BRunUtil.invokeStateful(compileResult, "isDeleteInvoked");
+                return ((BBoolean) result[0]).booleanValue();
+            });
+        } catch (Throwable e) {
             Assert.fail(e.getMessage());
         }
-        boolean isCreateInvoked = false;
-        boolean isModifyInvoked = false;
-        boolean isDeleteInvoked = false;
-        for (int i = 0; i < 20; i++) {
-            BValue[] result = BRunUtil.invokeStateful(compileResult, "isCreateInvoked");
-            if (((BBoolean) result[0]).booleanValue()) {
-                isCreateInvoked = true;
-            }
-            result = BRunUtil.invokeStateful(compileResult, "isModifyInvoked");
-            if (((BBoolean) result[0]).booleanValue()) {
-                isModifyInvoked = true;
-            }
-            result = BRunUtil.invokeStateful(compileResult, "isDeleteInvoked");
-            if (((BBoolean) result[0]).booleanValue()) {
-                isDeleteInvoked = true;
-            }
-            if (isCreateInvoked && isModifyInvoked && isDeleteInvoked) {
-                break;
-            }
-            try {
-                Thread.sleep(1000 * i);
-            } catch (InterruptedException e) {
-                // Ignore.
-            }
-        }
-        Assert.assertTrue(isCreateInvoked, "Resource didn't invoke for the file create.");
-        Assert.assertTrue(isModifyInvoked, "Resource didn't invoke for the file modify.");
-        Assert.assertTrue(isDeleteInvoked, "Resource didn't invoke for the file delete.");
     }
 
     @Test(description = "Check the negative test for non valid resources.")
@@ -135,10 +122,9 @@ public class DirectoryListenerConnectorTest {
             BServiceUtil.runService(compileResult);
         } catch (Throwable e) {
             String actualMsg = e.getMessage();
-            String expectedErrorMsg =
-                    "Compilation Failed:\nERROR: ./file-system-negative-invalid-param-count.bal:25:5:: "
-                            + "Invalid resource signature for onCreate in service fileSystem. "
-                            + "The parameter should be a file:FileEvent\n";
+            String expectedErrorMsg = "Compilation Failed:\nERROR: ." + File.separator
+                    + "file-system-negative-invalid-param-count.bal:25:5:: Invalid resource signature for onCreate in "
+                    + "service fileSystem. The parameter should be a file:FileEvent\n";
             Assert.assertEquals(actualMsg, expectedErrorMsg, "Didn't get expected error for invalid resource param.");
         }
     }
@@ -151,10 +137,9 @@ public class DirectoryListenerConnectorTest {
             BServiceUtil.runService(compileResult);
         } catch (Throwable e) {
             String actualMsg = e.getMessage();
-            String expectedErrorMsg =
-                    "Compilation Failed:\nERROR: ./file-system-negative-invalid-param-type.bal:26:5:: "
-                            + "Invalid resource signature for onCreate in service fileSystem. "
-                            + "The parameter should be a file:FileEvent\n";
+            String expectedErrorMsg = "Compilation Failed:\nERROR: ." + File.separator
+                    + "file-system-negative-invalid-param-type.bal:26:5:: Invalid resource signature for onCreate in "
+                    + "service fileSystem. The parameter should be a file:FileEvent\n";
             Assert.assertEquals(actualMsg, expectedErrorMsg, "Didn't get expected error for invalid resource type.");
         }
     }
@@ -167,9 +152,9 @@ public class DirectoryListenerConnectorTest {
             BServiceUtil.runService(compileResult);
         } catch (Throwable e) {
             String actualMsg = e.getMessage();
-            String expectedErrorMsg =
-                    "Compilation Failed:\nERROR: ./file-system-negative-invalid-resource-name.bal:25:5:: "
-                            + "Invalid resource name onCreate1 in service fileSystem\n";
+            String expectedErrorMsg = "Compilation Failed:\nERROR: ." + File.separator
+                    + "file-system-negative-invalid-resource-name.bal:25:5:: Invalid resource name onCreate1 in "
+                    + "service fileSystem\n";
             Assert.assertEquals(actualMsg, expectedErrorMsg, "Didn't get expected error for invalid resource name.");
         }
     }
@@ -209,8 +194,8 @@ public class DirectoryListenerConnectorTest {
             BServiceUtil.runService(compileResult);
         } catch (Throwable e) {
             String actualMsg = e.getMessage();
-            String expectedErrorMsg = "Compilation Failed:\n"
-                    + "ERROR: ./file-system-negative-missing-variable.bal:19:1:: 'path' field empty.\n";
+            String expectedErrorMsg = "Compilation Failed:\n" + "ERROR: ." + File.separator
+                    + "file-system-negative-missing-variable.bal:19:1:: 'path' field empty.\n";
             Assert.assertEquals(actualMsg, expectedErrorMsg, "Didn't get expected error for empty path.");
         }
     }

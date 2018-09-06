@@ -41,6 +41,8 @@ import java.util.Properties;
 import java.util.ServiceLoader;
 
 import static org.ballerinalang.runtime.Constants.SYSTEM_PROP_BAL_DEBUG;
+import static org.ballerinalang.util.BLangConstants.COLON;
+import static org.ballerinalang.util.BLangConstants.MAIN_FUNCTION_NAME;
 
 /**
  * This class executes a Ballerina program.
@@ -218,6 +220,9 @@ public class Main {
         @CommandLine.Option(names = "--observe", description = "enable observability with default configs")
         private boolean observeFlag;
 
+        @CommandLine.Option(names = "--printreturn", description = "print return value to the out stream")
+        private boolean printReturn;
+
         @CommandLine.Option(names = "-e", description = "Ballerina environment parameters")
         private Map<String, String> runtimeParams = new HashMap<>();
 
@@ -243,7 +248,20 @@ public class Main {
             System.setProperty("ballerina.source.root", sourceRootPath.toString());
             VMOptions.getInstance().addOptions(vmOptions);
 
-            Path sourcePath = Paths.get(argList.get(0));
+            String programArg = argList.get(0);
+            String functionName = MAIN_FUNCTION_NAME;
+            Path sourcePath;
+            if (programArg.contains(COLON)) {
+                String[] programArgConstituents = programArg.split(COLON);
+                functionName = programArgConstituents[programArgConstituents.length - 1];
+                if (functionName.isEmpty() || programArg.endsWith(COLON)) {
+                    throw LauncherUtils.createLauncherException("usage error: expected function name after final ':'");
+                }
+                sourcePath = Paths.get(programArg.replace(COLON.concat(functionName), ""));
+            } else {
+                sourcePath = Paths.get(argList.get(0));
+            }
+
             // Filter out the list of arguments given to the ballerina program.
             // TODO: 7/26/18 improve logic with positioned param
             String[] programArgs;
@@ -254,8 +272,8 @@ public class Main {
                 programArgs = new String[0];
             }
 
-            LauncherUtils.runProgram(sourceRootPath, sourcePath, false, runtimeParams, configFilePath,
-                    programArgs, offline, observeFlag);
+            LauncherUtils.runProgram(sourceRootPath, sourcePath, functionName, runtimeParams,
+                                     configFilePath, programArgs, offline, observeFlag, printReturn);
         }
 
         @Override

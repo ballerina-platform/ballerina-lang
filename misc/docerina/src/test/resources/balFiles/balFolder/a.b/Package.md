@@ -8,7 +8,7 @@ import ballerina/io;
 
 any x = "s";
 
-function main(string[] args) {
+public function main(string... args) {
   io:println(x);
 }
 ```

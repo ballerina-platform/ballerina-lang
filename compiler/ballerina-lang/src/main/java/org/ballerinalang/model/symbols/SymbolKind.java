@@ -25,7 +25,6 @@ public enum SymbolKind {
     STRUCT,
     OBJECT,
     RECORD,
-    ENUM,
     CONNECTOR,
     ACTION,
     SERVICE,

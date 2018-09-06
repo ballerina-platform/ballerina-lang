@@ -55,6 +55,9 @@ import java.util.Calendar;
 import java.util.List;
 import javax.sql.rowset.CachedRowSet;
 
+import static org.ballerinalang.database.sql.SQLDatasourceUtils.POSTGRES_DATABASE_NAME;
+import static org.ballerinalang.database.sql.SQLDatasourceUtils.POSTGRES_OID_COLUMN_TYPE_NAME;
+
 /**
  * This iterator mainly wrap java.sql.ResultSet. This will provide table operations
  * related to ballerina.data.actions.sql connector.
@@ -69,23 +72,26 @@ public class SQLDataIterator extends TableIterator {
     private static final String UNASSIGNABLE_UNIONTYPE_EXCEPTION =
             "Corresponding Union type in the record is not an assignable nillable type";
     private static final String MISMATCHING_FIELD_ASSIGNMENT = "Trying to assign to a mismatching type";
+    private String sourceDatabase;
 
     public SQLDataIterator(Calendar utcCalendar, BStructureType structType, StructureTypeInfo timeStructInfo,
                            StructureTypeInfo zoneStructInfo, TableResourceManager rm,
-                           ResultSet rs, List<ColumnDefinition> columnDefs) {
+                           ResultSet rs, List<ColumnDefinition> columnDefs, String databaseProductName) {
         super(rm, rs, structType, columnDefs);
         this.utcCalendar = utcCalendar;
         this.timeStructInfo = timeStructInfo;
         this.zoneStructInfo = zoneStructInfo;
+        this.sourceDatabase = databaseProductName;
     }
 
     public SQLDataIterator(TableResourceManager rm, ResultSet rs, Calendar utcCalendar,
             List<ColumnDefinition> columnDefs, BStructureType structType, StructureTypeInfo timeStructInfo,
-                           StructureTypeInfo zoneStructInfo) {
+                           StructureTypeInfo zoneStructInfo, String databaseProductName) {
         super(rm, rs, structType, columnDefs);
         this.utcCalendar = utcCalendar;
         this.timeStructInfo = timeStructInfo;
         this.zoneStructInfo = zoneStructInfo;
+        this.sourceDatabase = databaseProductName;
     }
 
     @Override
@@ -201,8 +207,19 @@ public class SQLDataIterator extends TableIterator {
                             break;
                         case Types.INTEGER:
                         case Types.BIGINT:
-                            long lValue = rs.getLong(index);
-                            handleLongValue(lValue, bStruct, fieldName, fieldType);
+                            if (sourceDatabase.equalsIgnoreCase(POSTGRES_DATABASE_NAME)) {
+                                boolean isOID = rs.getMetaData().getColumnTypeName(index)
+                                        .equalsIgnoreCase(POSTGRES_OID_COLUMN_TYPE_NAME);
+                                if (isOID) {
+                                    handleOIDValue(index, bStruct, fieldName, fieldType);
+                                } else {
+                                    long lValue = rs.getLong(index);
+                                    handleLongValue(lValue, bStruct, fieldName, fieldType);
+                                }
+                            } else {
+                                long lValue = rs.getLong(index);
+                                handleLongValue(lValue, bStruct, fieldName, fieldType);
+                            }
                             break;
                         case Types.REAL:
                         case Types.FLOAT:
@@ -260,6 +277,10 @@ public class SQLDataIterator extends TableIterator {
 
     private void handleMismatchingFieldAssignment() {
         throw new BallerinaException("Trying to assign to a mismatching type");
+    }
+
+    private void handleUnAssignableUnionTypeAssignment() {
+        throw new BallerinaException(UNASSIGNABLE_UNIONTYPE_EXCEPTION);
     }
 
     private int retrieveNonNilTypeTag(BType fieldType) {
@@ -418,7 +439,7 @@ public class SQLDataIterator extends TableIterator {
                 BMap<String, BValue> userDefinedType = createUserDefinedType(structData, (BRecordType) structFieldType);
                 bStruct.put(fieldName, userDefinedType);
             } else {
-                throw new BallerinaException(UNASSIGNABLE_UNIONTYPE_EXCEPTION);
+                handleUnAssignableUnionTypeAssignment();
             }
         } else if (fieldTypeTag == TypeTags.RECORD_TYPE_TAG) {
             bStruct.put(fieldName,
@@ -465,10 +486,10 @@ public class SQLDataIterator extends TableIterator {
                     BRefType refValue = bytes == null ? null : new BByteArray(bytes);
                     bStruct.put(fieldName, refValue);
                 } else {
-                    throw new BallerinaException(UNASSIGNABLE_UNIONTYPE_EXCEPTION);
+                    handleUnAssignableUnionTypeAssignment();
                 }
             } else {
-                throw new BallerinaException(UNASSIGNABLE_UNIONTYPE_EXCEPTION);
+                handleUnAssignableUnionTypeAssignment();
             }
         } else {
             if (bytes != null) {
@@ -492,6 +513,51 @@ public class SQLDataIterator extends TableIterator {
             } else {
                 handleNilToNonNillableFieldAssignment();
             }
+        }
+    }
+
+    @FunctionalInterface
+    private interface ErrorHandlerFunction {
+        void apply();
+    }
+
+    private ErrorHandlerFunction mismatchingFieldAssignmentHandler = this::handleMismatchingFieldAssignment;
+    private ErrorHandlerFunction unassignableUnionTypeAssignmentHandler = this::handleUnAssignableUnionTypeAssignment;
+
+    private void handleOIDValue(int index, BMap<String, BValue> bStruct, String fieldName, BType fieldType)
+            throws SQLException {
+        int fieldTypeTag = fieldType.getTag();
+        if (fieldTypeTag == TypeTags.UNION_TAG) {
+            BType nonNilType = retrieveNonNilType(((BUnionType) fieldType).getMemberTypes());
+            assignOIDValue(nonNilType.getTag(), nonNilType, fieldName, index, bStruct,
+                    unassignableUnionTypeAssignmentHandler);
+        } else {
+            // Need to call a getter method before calling ResultSet#wasNull.
+            long longValue = rs.getLong(index);
+            boolean isOriginalValueNull = rs.wasNull();
+            if (longValue == 0 && isOriginalValueNull) {
+                handleNilToNonNillableFieldAssignment();
+            } else {
+                assignOIDValue(fieldTypeTag, fieldType, fieldName, index, bStruct, mismatchingFieldAssignmentHandler);
+            }
+        }
+    }
+
+    private void assignOIDValue(int fieldTypeTag, BType fieldType, String fieldName, int index,
+            BMap<String, BValue> bStruct, ErrorHandlerFunction errorHandlerFunction) throws SQLException {
+        if (fieldTypeTag == TypeTags.ARRAY_TAG) {
+            int elementTypeTag = ((BArrayType) fieldType).getElementType().getTag();
+            if (elementTypeTag == TypeTags.BYTE_TAG) {
+                Blob blobValue = rs.getBlob(index);
+                byte[] bytes = blobValue.getBytes(1L, (int) blobValue.length());
+                bStruct.put(fieldName, bytes == null ? null : new BByteArray(bytes));
+            } else {
+                errorHandlerFunction.apply();
+            }
+        } else if (fieldTypeTag == TypeTags.INT_TAG) {
+            bStruct.put(fieldName, new BInteger(rs.getLong(index)));
+        } else {
+            errorHandlerFunction.apply();
         }
     }
 

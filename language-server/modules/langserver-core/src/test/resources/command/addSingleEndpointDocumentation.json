@@ -21,7 +21,7 @@
                     "character":33
                   }
                 },
-                "newText":"import ballerina/io;\nimport ballerina/http;\n\nfunction testDocumentation() {\n    \n}\n\ndocumentation {\n\t\n}\nendpoint http:Listener listener {"
+                "newText":"import ballerina/io;\nimport ballerina/http;\n\nfunction testDocumentation() {\n    \n}\n\n# Description\nendpoint http:Listener listener {"
               }
             ]
           }
