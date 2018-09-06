@@ -75,13 +75,13 @@ public class TestCmd implements BLauncherCmd {
     @CommandLine.Option(names = {"--list-groups", "-lg"}, description = "list the groups available in the tests")
     private boolean listGroups;
 
-    @CommandLine.Option(names = "--groups", description = "test groups to be executed")
+    @CommandLine.Option(names = "--groups", split = ",", description = "test groups to be executed")
     private List<String> groupList;
 
-    @CommandLine.Option(names = "--disable-groups", description = "test groups to be disabled")
+    @CommandLine.Option(names = "--disable-groups", split = ",", description = "test groups to be disabled")
     private List<String> disableGroupList;
 
-    @CommandLine.Option(names = "--exclude-packages", description = "packages to be excluded")
+    @CommandLine.Option(names = "--exclude-packages", split = ",", description = "packages to be excluded")
     private List<String> excludedPackageList;
 
     public void execute() {
