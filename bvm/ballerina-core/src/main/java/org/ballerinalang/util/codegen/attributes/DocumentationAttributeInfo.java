@@ -32,6 +32,7 @@ public class DocumentationAttributeInfo implements AttributeInfo {
 
     public final int descriptionCPIndex;
     public final String description;
+    public String returnParameterDescription;
 
     public final List<DocumentationAttributeInfo.ParameterDocumentInfo> paramDocInfoList;
 
@@ -62,21 +63,15 @@ public class DocumentationAttributeInfo implements AttributeInfo {
     public static class ParameterDocumentInfo {
         public final int nameCPIndex;
         public final String name;
-        public final int paramKindCPIndex;
-        public final String paramKindValue;
         public final int descriptionCPIndex;
         public final String description;
 
         public ParameterDocumentInfo(int nameCPIndex,
                                      String name,
-                                     int paramKindCPIndex,
-                                     String paramKindValue,
                                      int descriptionCPIndex,
                                      String description) {
             this.nameCPIndex = nameCPIndex;
             this.name = name;
-            this.paramKindCPIndex = paramKindCPIndex;
-            this.paramKindValue = paramKindValue;
             this.descriptionCPIndex = descriptionCPIndex;
             this.description = description;
         }

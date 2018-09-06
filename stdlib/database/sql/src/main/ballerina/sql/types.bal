@@ -14,23 +14,21 @@
 // specific language governing permissions and limitations
 // under the License.
 
-documentation {
-    Represents the properties which are used to configure DB connection pool.
-
-    F{{connectionInitSql}} SQL statement that will be executed after every new connection creation before adding it
-                             to the pool
-    F{{dataSourceClassName}} Name of the DataSource class provided by the JDBC driver. This is used on following scenarios.
-       1. In JDBC client when DB specific properties are required (which are given with dbOptions)
-       2. In any data client in which XA transactions enabled by isXA property and need to provide a custom XA implementation.
-    F{{autoCommit}} Auto-commit behavior of connections returned from the pool
-    F{{isXA}} Whether Connections are used for a distributed transaction
-    F{{maximumPoolSize}} Maximum size that the pool is allowed to reach, including both idle and in-use connections
-    F{{connectionTimeout}} Maximum number of milliseconds that a client will wait for a connection from the pool. Default is 30 seconds
-    F{{idleTimeout}} Maximum amount of time that a connection is allowed to sit idle in the pool. Default is 10 minutes
-    F{{minimumIdle}} Minimum number of idle connections that pool tries to maintain in the pool. Default is same as maximumPoolSize
-    F{{maxLifetime}} Maximum lifetime of a connection in the pool. Default is 30 minutes
-    F{{validationTimeout}} Maximum amount of time that a connection will be tested for aliveness. Default 5 seconds
-}
+# Represents the properties which are used to configure DB connection pool.
+#
+# + connectionInitSql - SQL statement that will be executed after every new connection creation before adding it
+#                       to the pool
+# + dataSourceClassName - Name of the DataSource class provided by the JDBC driver. This is used on following scenarios.
+#                         1. In JDBC client when DB specific properties are required (which are given with dbOptions)
+#                         2. In any data client in which XA transactions enabled by isXA property and need to provide a custom XA implementation.
+# + autoCommit - Auto-commit behavior of connections returned from the pool
+# + isXA - Whether Connections are used for a distributed transaction
+# + maximumPoolSize - Maximum size that the pool is allowed to reach, including both idle and in-use connections
+# + connectionTimeout - Maximum number of milliseconds that a client will wait for a connection from the pool. Default is 30 seconds
+# + idleTimeout - Maximum amount of time that a connection is allowed to sit idle in the pool. Default is 10 minutes
+# + minimumIdle - Minimum number of idle connections that pool tries to maintain in the pool. Default is same as maximumPoolSize
+# + maxLifetime - Maximum lifetime of a connection in the pool. Default is 30 minutes
+# + validationTimeout - Maximum amount of time that a connection will be tested for aliveness. Default 5 seconds
 public type PoolOptions record {
     string connectionInitSql,
     string dataSourceClassName,
@@ -44,45 +42,43 @@ public type PoolOptions record {
     int validationTimeout = 5000,
 };
 
-documentation {
-    The SQL Datatype of the parameter.
-
-    VARCHAR - Small, variable-length character string
-    CHAR - Small, fixed-length character string
-    LONGVARCHAR - Large, variable-length character string
-    NCHAR - Small, fixed-length character string with unicode support
-    LONGNVARCHAR - Large, variable-length character string with unicode support
-
-    BIT - Single bit value that can be zero or one, or nil
-    BOOLEAN - Boolean value either True or false
-    TINYINT - 8-bit integer value which may be unsigned or signed
-    SMALLINT - 16-bit signed integer value which may be unsigned or signed
-    INTEGER - 32-bit signed integer value which may be unsigned or signed
-    BIGINT - 64-bit signed integer value which may be unsigned or signed
-
-    NUMERIC - Fixed-precision and scaled decimal values
-    DECIMAL - Fixed-precision and scaled decimal values
-    REAL - Single precision floating point number
-    FLOAT - Double precision floating point number
-    DOUBLE - Double precision floating point number
-
-    BINARY - Small, fixed-length binary value
-    BLOB - Binary Large Object
-    LONGVARBINARY - Large, variable-length binary value
-    VARBINARY - Small, variable-length binary value
-
-    CLOB - Character Large Object.
-    NCLOB - Character large objects in multibyte national character set
-
-    DATE - Date consisting of day, month, and year
-    TIME - Time consisting of hours, minutes, and seconds
-    DATETIME - Both DATE and TIME with additional a nanosecond field
-    TIMESTAMP - Both DATE and TIME with additional a nanosecond field
-
-    ARRAY - Composite data value that consists of zero or more elements of a specified data type
-    STRUCT - User defined structured type, consists of one or more attributes
-    REFCURSOR - Cursor value
-}
+# The SQL Datatype of the parameter.
+#
+# VARCHAR - Small, variable length character string
+# CHAR - Small, fixed length character string
+# LONGVARCHAR - Large, variable length character string
+# NCHAR - Small, fixed length character string with unicode support
+# LONGNVARCHAR - Large, variable length character string with unicode support
+#
+# BIT - Single bit value that can be zero or one, or nil
+# BOOLEAN - Boolean value either True or false
+# TINYINT - 8-bit integer value which may be unsigned or signed
+# SMALLINT - 16-bit signed integer value which may be unsigned or signed
+# INTEGER - 32-bit signed integer value which may be unsigned or signed
+# BIGINT - 64-bit signed integer value which may be unsigned or signed
+#
+# NUMERIC - Fixed-precision and scaled decimal values
+# DECIMAL - Fixed-precision and scaled decimal values
+# REAL - Single precision floating point number
+# FLOAT - Double precision floating point number
+# DOUBLE - Double precision floating point number
+#
+# BINARY - Small, fixed-length binary value
+# BLOB - Binary Large Object
+# LONGVARBINARY - Large, variable length binary value
+# VARBINARY - Small, variable length binary value
+#
+# CLOB - Character Large Object.
+# NCLOB - Character large objects in multibyte national character set
+#
+# DATE - Date consisting of day, month, and year
+# TIME - Time consisting of hours, minutes, and seconds
+# DATETIME - Both DATE and TIME with additional a nanosecond field
+# TIMESTAMP - Both DATE and TIME with additional a nanosecond field
+#
+# ARRAY - Composite data value that consists of zero or more elements of a specified data type
+# STRUCT - User defined structured type, consists of one or more attributes
+# REFCURSOR - Cursor value
 public type SQLType "VARCHAR"|"CHAR"|"LONGVARCHAR"|"NCHAR"|"LONGNVARCHAR"|"NVARCHAR"|"BIT"|"BOOLEAN"|
 "TINYINT"|"SMALLINT"|"INTEGER"|"BIGINT"|"NUMERIC"|"DECIMAL"|"REAL"|"FLOAT"|"DOUBLE"|
 "BINARY"|"BLOB"|"LONGVARBINARY"|"VARBINARY"|"CLOB"|"NCLOB"|"DATE"|"TIME"|"DATETIME"|
@@ -119,29 +115,24 @@ public type SQLType "VARCHAR"|"CHAR"|"LONGVARCHAR"|"NCHAR"|"LONGNVARCHAR"|"NVARC
 @final public SQLType TYPE_STRUCT = "STRUCT";
 @final public SQLType TYPE_REFCURSOR = "REFCURSOR";
 
-documentation {
-    The direction of the parameter.
-
-    IN - IN parameters are used to send values to stored procedures
-    OUT - OUT parameters are used to get values from stored procedures
-    INOUT - INOUT parameters are used to send values and get values from stored procedures
-}
-
+# The direction of the parameter.
+#
+# IN - IN parameters are used to send values to stored procedures
+# OUT - OUT parameters are used to get values from stored procedures
+# INOUT - INOUT parameters are used to send values and get values from stored procedures
 public type Direction "IN"|"OUT"|"INOUT";
 
 @final public Direction DIRECTION_IN = "IN";
 @final public Direction DIRECTION_OUT = "OUT";
 @final public Direction DIRECTION_INOUT = "INOUT";
 
-documentation {
-    Parameter represents a parameter for the SQL actions when a variable parameter needs to be passed to the action.
-
-    F{{sqlType}} The data type of the corresponding SQL parameter
-    F{{value}} Value of paramter pass into the SQL statement
-    F{{direction}} Direction of the SQL Parameter IN, OUT, or INOUT - Default value is IN
-    F{{recordType}} In case of OUT direction, if the sqlType is REFCURSOR, this represents the record type to map a
-                      result row
-}
+# Parameter represents a parameter for the SQL actions when a variable parameter needs to be passed to the action.
+#
+# + sqlType - The data type of the corresponding SQL parameter
+# + value - Value of paramter pass into the SQL statement
+# + direction - Direction of the SQL Parameter IN, OUT, or INOUT - Default value is IN
+# + recordType - In case of OUT direction, if the sqlType is REFCURSOR, this represents the record type to map a
+#                result row
 public type Parameter record {
     SQLType sqlType,
     any value,
@@ -149,7 +140,5 @@ public type Parameter record {
     typedesc recordType,
 };
 
-documentation {
-    The parameter passed into the operations.
-}
+# The parameter passed into the operations.
 type Param string|int|boolean|float|byte[]|Parameter;

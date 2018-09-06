@@ -44,9 +44,9 @@ function isCreateInvoked() returns boolean {
 }
 
 function isModifyInvoked() returns boolean {
-    return createInvoke;
+    return modifyInvoke;
 }
 
 function isDeleteInvoked() returns boolean {
-    return createInvoke;
+    return deleteInvoke;
 }

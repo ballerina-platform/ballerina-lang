@@ -2,24 +2,22 @@
 
 import ballerina/io;
 
-documentation {
-    Struct for represent person's details
-    F{{name}} string value name of the person
-    F{{id}} int value id of the person
-    F{{age}} int value age of the person
-}
+# Struct for represent person's details
+#
+# + name - string value name of the person
+# + id - int value id of the person 
+# + age - int value age of the person
 type Person record {
     string name;
     int id;
     int age;
 };
 
-documentation {
-    Test function to show current package works
-    P{{s}} string parameter
-    P{{sd}} int parameter
-    R{{}} return an int
-}
+# Test function to show current package works
+#
+# + s - string parameter 
+# + sd - int parameter 
+# + return - return an int
 function test1 (string s, int sd) returns int{
     int a = 0;
     return a;

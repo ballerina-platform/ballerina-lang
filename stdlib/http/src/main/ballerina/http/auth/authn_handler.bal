@@ -15,26 +15,21 @@
 // under the License.
 
 
-documentation {
-    Representation of Authentication handler for HTTP traffic.
-
-    F{{name}} Name of the http authn handler
-}
+# Representation of Authentication handler for HTTP traffic.
+#
+# + name - Name of the http authn handler
 public type HttpAuthnHandler object {
     public string name;
 
-    documentation {
-        Checks if the request can be authenticated with the relevant `HttpAuthnHandler` implementation
-
-        P{{req}} `Request` instance
-        R{{}} true if can be authenticated, else false
-    }
+    # Checks if the request can be authenticated with the relevant `HttpAuthnHandler` implementation
+    #
+    # + req - `Request` instance
+    # + return - true if can be authenticated, else false
     public function canHandle (Request req) returns (boolean);
-    documentation {
-        Tries to authenticate the request with the relevant `HttpAuthnHandler` implementation
 
-        P{{req}} `Request` instance
-        R{{}} true if authenticated successfully, else false
-    }
+    # Tries to authenticate the request with the relevant `HttpAuthnHandler` implementation
+    #
+    # + req - `Request` instance
+    # + return - true if authenticated successfully, else false
     public function handle (Request req) returns (boolean);
 };

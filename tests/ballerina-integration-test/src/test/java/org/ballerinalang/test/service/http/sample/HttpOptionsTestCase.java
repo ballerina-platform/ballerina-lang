@@ -18,7 +18,7 @@
 package org.ballerinalang.test.service.http.sample;
 
 import io.netty.handler.codec.http.HttpHeaderNames;
-import org.ballerinalang.test.BaseTest;
+import org.ballerinalang.test.service.http.HttpBaseTest;
 import org.ballerinalang.test.util.HttpClientRequest;
 import org.ballerinalang.test.util.HttpResponse;
 import org.ballerinalang.test.util.TestConstant;
@@ -32,7 +32,7 @@ import java.util.Map;
  * Test class for HTTP options request's content length and payload handling behavior.
  */
 @Test(groups = "http-test")
-public class HttpOptionsTestCase extends BaseTest {
+public class HttpOptionsTestCase extends HttpBaseTest {
 
     @Test(description = "Test OPTIONS content length header sample test case")
     public void testOptionsContentLengthHeader() throws Exception {

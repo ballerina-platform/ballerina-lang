@@ -1875,17 +1875,6 @@ public class TypeChecker extends BLangNodeVisitor {
     }
 
     private BType getTypeOfExprInFieldAccess(BLangExpression expr) {
-        // First check whether variable expression is of type enum.
-        if (expr.getKind() == NodeKind.SIMPLE_VARIABLE_REF) {
-            BLangSimpleVarRef varRef = (BLangSimpleVarRef) expr;
-            BSymbol symbol = symResolver.lookupSymbolInPackage(varRef.pos, env,
-                    names.fromIdNode(varRef.pkgAlias), names.fromIdNode(varRef.variableName), SymTag.ENUM);
-            if (symbol != symTable.notFoundSymbol) {
-                expr.type = symbol.type;
-                return symbol.type;
-            }
-        }
-
         checkExpr(expr, this.env, symTable.noType);
         return expr.type;
     }
