@@ -250,27 +250,29 @@ public class SymbolEnter extends BLangNodeVisitor {
         // TODO Clean this code up. Can we move the this to BLangPackageBuilder class
         // Create import package symbol
         Name orgName;
+        Name version;
+        PackageID enclPackageID = env.enclPkg.packageID;
         if (importPkgNode.orgName.value == null || importPkgNode.orgName.value.isEmpty()) {
             // means it's in 'import <pkg-name>' style
-            orgName = env.enclPkg.packageID.orgName;
+            orgName = enclPackageID.orgName;
+            version = (Names.DEFAULT_VERSION.equals(enclPackageID.version)) ? new Name("") : enclPackageID.version;
         } else {
             // means it's in 'import <org-name>/<pkg-name>' style
             orgName = names.fromIdNode(importPkgNode.orgName);
+            version = names.fromIdNode(importPkgNode.version);
         }
         List<Name> nameComps = importPkgNode.pkgNameComps.stream()
                 .map(identifier -> names.fromIdNode(identifier))
                 .collect(Collectors.toList());
 
-        String version = names.fromIdNode(importPkgNode.version).getValue();
-        PackageID pkgId = new PackageID(orgName, nameComps, new Name(version));
+        PackageID pkgId = new PackageID(orgName, nameComps, version);
         if (pkgId.name.getValue().startsWith(Names.BUILTIN_PACKAGE.value)) {
             dlog.error(importPkgNode.pos, DiagnosticCode.PACKAGE_NOT_FOUND,
                     importPkgNode.getQualifiedPackageName());
             return;
         }
 
-        BPackageSymbol pkgSymbol = pkgLoader.loadPackageSymbol(pkgId, env.enclPkg.packageID,
-                env.enclPkg.packageRepository);
+        BPackageSymbol pkgSymbol = pkgLoader.loadPackageSymbol(pkgId, enclPackageID, env.enclPkg.packageRepository);
         if (pkgSymbol == null) {
             dlog.error(importPkgNode.pos, DiagnosticCode.PACKAGE_NOT_FOUND,
                     importPkgNode.getQualifiedPackageName());
