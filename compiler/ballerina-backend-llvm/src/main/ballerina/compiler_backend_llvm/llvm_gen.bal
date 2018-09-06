@@ -1,9 +1,7 @@
 import ballerina/llvm;
 import ballerina/io;
 
-// TODO: make these non-globle variables
-map localVarRefs;
-map functionRefs;
+// TODO: make non-globle
 llvm:LLVMValueRef printfRef;
 
 function genPackage(BIRPackage pkg, string targetObjectFilePath, boolean dumpLLVMIR) {
@@ -144,25 +142,6 @@ function appendAllTo(any[] a, any[] b) {
     foreach bI in b{
         a[i] = bI;
         i++;
-    }
-}
-
-function loadOprand(BIRFunction func, BIROperand oprand, llvm:LLVMBuilderRef builder) returns llvm:LLVMValueRef {
-    match oprand {
-        BIRVarRef refOprand => {
-            string tempName = localVarName(refOprand.variableDcl) + "_temp";
-            return llvm:LLVMBuildLoad(builder, getLocalVarById(func, refOprand.variableDcl.name.value), tempName);
-        }
-    }
-}
-
-function getLocalVarById(BIRFunction fun, string id) returns llvm:LLVMValueRef {
-    match localVarRefs[fun.name.value + "." + id] {
-        llvm:LLVMValueRef varRef => return varRef;
-        any => {
-            error err = { message: "Local var by name '" + id + "' dosn't exist in " + fun.name.value };
-            throw err;
-        }
     }
 }
 
