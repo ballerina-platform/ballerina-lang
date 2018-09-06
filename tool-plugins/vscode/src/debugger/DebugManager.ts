@@ -30,7 +30,6 @@ export class DebugManager extends EventEmitter {
     private _channel: DebugChannel | undefined;
     private _active: boolean = false;
     private _endpoint: string | undefined;
-    private _currentThreadId: string | undefined;
 
     /**
      * Creates an instance of DebugManager.
@@ -69,7 +68,7 @@ export class DebugManager extends EventEmitter {
      *
      * @memberof DebugManager
      */
-    stepIn(threadId: number) {
+    stepIn(threadId: string) {
         const message = { command: 'STEP_IN', threadId };
         this.sendMessage(message);
     }
@@ -78,7 +77,7 @@ export class DebugManager extends EventEmitter {
      *
      * @memberof DebugManager
      */
-    stepOut(threadId: number) {
+    stepOut(threadId: string) {
         const message = { command: 'STEP_OUT', threadId };
         this.sendMessage(message);
     }
@@ -98,7 +97,7 @@ export class DebugManager extends EventEmitter {
      *
      * @memberof DebugManager
      */
-    stepOver(threadId: number) {
+    stepOver(threadId: string) {
         const message = { command: 'STEP_OVER', threadId };
         this.sendMessage(message);
     }
@@ -107,7 +106,7 @@ export class DebugManager extends EventEmitter {
      *
      * @memberof DebugManager
      */
-    resume(threadId: number) {
+    resume(threadId: string) {
         const message = { command: 'RESUME', threadId };
         this.sendMessage(message);
     }
@@ -141,7 +140,6 @@ export class DebugManager extends EventEmitter {
     processMesssage(message: any) { //TODO change type to a concrete type
         if (message.code === 'DEBUG_HIT') {
             this.emit('debug-hit', message);
-            this._currentThreadId = message.threadId;
         }
         if (message.code === 'COMPLETE' || message.code === 'EXIT') {
             this.emit('execution-ended');

@@ -52,7 +52,7 @@ interface ProjectConfig {
 interface Thread {
     id: number;
     name: string;
-    serverThreadId: number;
+    serverThreadId: string;
     frameIds: number[];
 }
 
@@ -95,10 +95,10 @@ export class BallerinaDebugSession extends LoggingDebugSession {
     private _variableRefs: Map<number, VariableRef> = new Map()
     private _debugManager : DebugManager  = new DebugManager();
     private _sourceRoot: string | undefined;
+    private _debugTarget: string | undefined;
     private _ballerinaPackage: string | undefined;
     private _projectConfig: ProjectConfig | undefined;
     private _debugServer: ChildProcess | undefined;
-    private _debugPort: number | undefined;
 
     constructor(){
         super('ballerina-debug.txt');
@@ -224,7 +224,7 @@ export class BallerinaDebugSession extends LoggingDebugSession {
 
         const openFile = args.script;
         let cwd : string | undefined = path.dirname(openFile);
-        let fileName = path.basename(openFile);
+        let debugTarget = path.basename(openFile);
         this._sourceRoot = cwd;
         this._ballerinaPackage = '.';
 
@@ -237,7 +237,7 @@ export class BallerinaDebugSession extends LoggingDebugSession {
 
         if (ballerinaPackage) {
             this._ballerinaPackage = ballerinaPackage;
-            fileName = ballerinaPackage;
+            debugTarget = ballerinaPackage;
             cwd = sourceRoot ;
 
             try {
@@ -253,18 +253,19 @@ export class BallerinaDebugSession extends LoggingDebugSession {
             executable += '.bat';
         }
 
+        this._debugTarget = debugTarget;
+
         // find an open port
         findPort((err: Error, port: number) => {
             if(err) {
                 this.terminate("Couldn't find an open port to start the debug server.");
                 return;
             }
-            this._debugPort = port;
 
             let debugServer;
             debugServer = this._debugServer = spawn(
                 executable,
-                ['run', '--debug', port + '', fileName],
+                ['run', '--debug', port.toString(), debugTarget],
                 { cwd }
             );
 
@@ -393,9 +394,8 @@ export class BallerinaDebugSession extends LoggingDebugSession {
     continueRequest(response: DebugProtocol.ContinueResponse, args: DebugProtocol.ContinueArguments) { 
         const thread= this._threads.get(args.threadId);
         if (thread) {
-            const threadId = thread.serverThreadId;
-            this.sendEvent(new ContinuedEvent(threadId, false));
-            this._debugManager.resume(threadId);
+            this.sendEvent(new ContinuedEvent(args.threadId, false));
+            this._debugManager.resume(thread.serverThreadId);
         }
     }
 
@@ -431,7 +431,7 @@ export class BallerinaDebugSession extends LoggingDebugSession {
             this._debugManager.kill();
             this._debugServer.kill();
             ps.lookup({
-                arguments: ['org.ballerinalang.launcher.Main', 'run', this._debugPort],
+                arguments: ['org.ballerinalang.launcher.Main', 'run', this._debugTarget],
                 }, (err: Error, resultList = [] ) => {
                 resultList.forEach(( process: ChildProcess ) => {
                     ps.kill(process.pid);
