@@ -16,32 +16,59 @@
  * under the License.
  */
 
-const EventEmitter = require('events');
-const WebSocket = require('ws');
-
+import { EventEmitter } from 'events';
+import * as WebSocket from 'ws';
 // See http://tools.ietf.org/html/rfc6455#section-7.4.1
 const WS_NORMAL_CODE = 1000;
 const WS_SSL_CODE = 1015;
 const WS_PING_INTERVAL = 15000;
+
+interface WebSocketOnMessageEvt {
+    data: WebSocket.Data; 
+    type: string; 
+    target: WebSocket
+}
+
+interface WebSocketOnCloseEvt {
+    wasClean: boolean;
+    code: number;
+    reason: string;
+    target: WebSocket
+}
+
+interface WebSocketOnOpenEvt {
+    target: WebSocket
+}
+
+interface WebSocketOnErrorEvt {
+    error: any;
+    message: string;
+    type: string;
+    target: WebSocket;
+}
 
 /**
  * Handles websocket communitation with debugger backend
  * @class DebugChannel
  * @extends {EventEmitter}
  */
-class DebugChannel extends EventEmitter {
+export class DebugChannel extends EventEmitter {
+    private _ping: NodeJS.Timer | undefined;
+    private _endpoint: string;
+    private _websocket: WebSocket | undefined;
+
     /**
      * Creates an instance of DebugChannel.
-     * @param {Object} args - connection configurations
+     * @param {string} endpoint - endpoint
      *
      * @memberof DebugChannel
      */
-    constructor(endpoint) {
+    constructor(endpoint: string) {
         super();
         if (!endpoint) {
             throw new Error('Invalid Endpoint');
         }
-        this.endpoint = endpoint;
+        this._endpoint = endpoint;
     }
 
     /**
@@ -50,21 +77,21 @@ class DebugChannel extends EventEmitter {
      * @memberof DebugChannel
      */
     connect() {
-        const websocket = new WebSocket(this.endpoint);
-        websocket.onmessage = (strMessage) => { this.parseMessage(strMessage); };
-        websocket.onopen = () => { this.onOpen(); };
-        websocket.onclose = (event) => { this.onClose(event); };
-        websocket.onerror = (e) => { this.onError(e); };
-        this.websocket = websocket;
+        const websocket = new WebSocket(this._endpoint);
+        websocket.onmessage = (message: WebSocketOnMessageEvt) => { this.parseMessage(message.data); };
+        websocket.onopen = (event: WebSocketOnOpenEvt) => { this.onOpen(event); };
+        websocket.onclose = (event: WebSocketOnCloseEvt) => { this.onClose(event); }
+        websocket.onerror = (event: WebSocketOnErrorEvt) => { this.onError(event); };
+        this._websocket = websocket;
     }
     /**
      * Parses string to JSON
-     * @param {String} strMessage - message
+     * @param {WebSocket.Data} msgData - message
      *
      * @memberof DebugChannel
      */
-    parseMessage(strMessage) {
-        const message = JSON.parse(strMessage.data);
+    parseMessage(msgData: WebSocket.Data) {
+        const message = JSON.parse(<string> msgData);
         this.emit('onmessage', message);
     }
     /**
@@ -73,17 +100,19 @@ class DebugChannel extends EventEmitter {
      *
      * @memberof DebugChannel
      */
-    sendMessage(message) {
-        this.websocket.send(JSON.stringify(message));
+    sendMessage(message: Object) {
+        if(this._websocket) {
+            this._websocket.send(JSON.stringify(message));
+        }
     }
     /**
      * Handles websocket onClose event
-     * @param {Object} event - websocket onClose event
+     * @param {WebSocketOnCloseEvt} event - websocket onClose event
      *
      * @memberof DebugChannel
      */
-    onClose(event) {
-        clearInterval(this.ping);
+    onClose(event: WebSocketOnCloseEvt) {
+        this.stopPing();
         this.emit('session-terminated');
         let reason;
         if (event.code === WS_NORMAL_CODE) {
@@ -101,16 +130,17 @@ class DebugChannel extends EventEmitter {
      *
      * @memberof DebugChannel
      */
-    onError(e) {
-        clearInterval(this.ping);
-        this.emit('session-error', e, this.endpoint);
+    onError(event: WebSocketOnErrorEvt) {
+        this.stopPing();
+        this.emit('session-error',event, this._endpoint);
     }
     /**
      * Handles websocket onOpen event
+     *  @param {WebSocketOnOpenEvt} event - websocket onOpen event
      *
      * @memberof DebugChannel
      */
-    onOpen() {
+    onOpen(event: WebSocketOnOpenEvt) {
         this.emit('connected');
         //this.startPing();
     }
@@ -121,9 +151,15 @@ class DebugChannel extends EventEmitter {
      * @memberof LaunchDebugChannel
      */
     startPing() {
-        this.ping = setInterval(() => {
+        this._ping = setInterval(() => {
             this.sendMessage({ command: 'PING' });
         }, WS_PING_INTERVAL);
+    }
+
+    stopPing() {
+        if (this._ping) {    
+            clearInterval(this._ping);
+        }
     }
 
     /**
@@ -132,10 +168,11 @@ class DebugChannel extends EventEmitter {
      * @memberof LaunchDebugChannel
      */
     close() {
-        clearInterval(this.ping);
-        this.websocket.close();
+        this.stopPing();
+        if (this._websocket) { 
+            this._websocket.close();
+        }
         this.emit('connection-closed');
     }
 }
 
-module.exports = DebugChannel;

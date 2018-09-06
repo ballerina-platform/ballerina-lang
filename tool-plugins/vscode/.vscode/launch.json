@@ -20,5 +20,14 @@
         ],
         "preLaunchTask": "npm: watch"
     },
+    {
+        "type": "node",
+        "request": "launch",
+        "name": "Server",
+        "cwd": "${workspaceFolder}",
+        "program": "${workspaceFolder}/src/debugger/index.ts",
+        "args": [ "--server=4711" ],
+        "outFiles": [ "${workspaceFolder}/out/debugger/**/*.js" ]
+    },
     ]
 }
