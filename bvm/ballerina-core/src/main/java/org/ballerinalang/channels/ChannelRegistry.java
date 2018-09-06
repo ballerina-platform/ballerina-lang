@@ -26,7 +26,7 @@ import java.util.Map;
 /**
  * {@code ChannelRegistry} is the registry for channel entries.
  *
- * @since 0.981
+ * @since 0.982.0
  */
 public class ChannelRegistry {
     private static ChannelRegistry channelRegistry = null;

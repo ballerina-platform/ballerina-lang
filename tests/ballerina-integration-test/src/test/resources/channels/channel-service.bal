@@ -1,7 +1,7 @@
 import ballerina/http;
 
 endpoint http:Listener listener {
-    port:9090
+    port:9600
 };
 
 channel<json> chn;
