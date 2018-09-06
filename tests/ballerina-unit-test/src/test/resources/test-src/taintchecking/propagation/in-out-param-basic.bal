@@ -18,7 +18,7 @@ public function taintExampleRecord (ExampleRecord ex, string data) {
     ex.taintedData = data;
 }
 
-function main (string... args) {
+public function main (string... args) {
     ExampleObject ex1 = new;
     ex1.taintedData = "static";
     secureFunction(ex1, ex1);

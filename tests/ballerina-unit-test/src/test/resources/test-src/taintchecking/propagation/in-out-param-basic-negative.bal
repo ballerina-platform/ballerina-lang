@@ -22,7 +22,7 @@ public function inOutParamWithAnnotation (@tainted ExampleObject ex) {
 
 }
 
-function main (string... args) {
+public function main (string... args) {
     ExampleObject ex1 = new;
     ex1.taintedData = args[0];
     secureFunction(ex1, ex1);
