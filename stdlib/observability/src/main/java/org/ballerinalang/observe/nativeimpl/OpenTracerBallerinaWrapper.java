@@ -109,8 +109,6 @@ public class OpenTracerBallerinaWrapper {
 
         return attachSpan(observerContext, false, spanName);
     }
-
-
     public int attachSpan(ObserverContext observerContext, boolean isClient, String spanName) {
         observerContext.setActionName(spanName);
         TracingUtils.startObservation(observerContext, isClient);
