@@ -160,8 +160,8 @@ public class ServerConnectorBootstrap {
         httpServerChannelInitializer.setPipeliningNeeded(pipeliningNeeded);
     }
 
-    public void setMaxQueuedResponseCount(long maxQueuedResponseCount) {
-        httpServerChannelInitializer.setMaxQueuedResponseCount(maxQueuedResponseCount);
+    public void setPipeliningLimit(long pipeliningLimit) {
+        httpServerChannelInitializer.setPipeliningLimit(pipeliningLimit);
     }
 
     class HttpServerConnector implements ServerConnector {

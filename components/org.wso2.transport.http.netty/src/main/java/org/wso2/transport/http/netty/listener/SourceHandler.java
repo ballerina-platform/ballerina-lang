@@ -83,13 +83,13 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
     private SocketAddress remoteAddress;
 
     private boolean pipeliningNeeded; //Based on the pipelining config
-    private long maxQueuedResponseCount; //Max number of responses allowed to be queued when pipelining is enabled
+    private long pipeliningLimit; //Max number of responses allowed to be queued when pipelining is enabled
     private long sequenceId = 1L; //Keep track of the request order for http 1.1 pipelining
     private final Queue holdingQueue = new PriorityQueue<>(NUMBER_OF_INITIAL_EVENTS_HELD);
 
     public SourceHandler(ServerConnectorFuture serverConnectorFuture, String interfaceId, ChunkConfig chunkConfig,
                          KeepAliveConfig keepAliveConfig, String serverName, ChannelGroup allChannels, boolean
-                                 pipeliningNeeded, long maxQueuedResponseCount) {
+                                 pipeliningNeeded, long pipeliningLimit) {
         this.serverConnectorFuture = serverConnectorFuture;
         this.interfaceId = interfaceId;
         this.chunkConfig = chunkConfig;
@@ -99,7 +99,7 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
         this.serverName = serverName;
         this.allChannels = allChannels;
         this.pipeliningNeeded = pipeliningNeeded;
-        this.maxQueuedResponseCount = maxQueuedResponseCount;
+        this.pipeliningLimit = pipeliningLimit;
     }
 
     @SuppressWarnings("unchecked")
@@ -107,6 +107,11 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
         if (msg instanceof HttpRequest) {
             inboundRequestMsg = createInboundReqCarbonMsg((HttpRequest) msg, ctx, this);
+            if (requestList.size() > this.pipeliningLimit) {
+                log.warn("Pipelining request limit exceeded hence closing the channel {}", ctx.channel().id());
+                this.channelInactive(ctx);
+                return;
+            }
             requestList.add(inboundRequestMsg);
 
             MessageStateContext messageStateContext = new MessageStateContext();
@@ -243,7 +248,7 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
      */
     private void setPipeliningProperties() {
         if (ctx.channel().attr(Constants.MAX_RESPONSES_ALLOWED_TO_BE_QUEUED).get() == null) {
-            ctx.channel().attr(Constants.MAX_RESPONSES_ALLOWED_TO_BE_QUEUED).set(maxQueuedResponseCount);
+            ctx.channel().attr(Constants.MAX_RESPONSES_ALLOWED_TO_BE_QUEUED).set(pipeliningLimit);
         }
         if (ctx.channel().attr(Constants.RESPONSE_QUEUE).get() == null) {
             ctx.channel().attr(Constants.RESPONSE_QUEUE).set(holdingQueue);

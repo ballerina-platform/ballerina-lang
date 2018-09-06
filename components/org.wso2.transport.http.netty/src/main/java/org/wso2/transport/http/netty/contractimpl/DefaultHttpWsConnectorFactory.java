@@ -92,7 +92,7 @@ public class DefaultHttpWsConnectorFactory implements HttpWsConnectorFactory {
         serverConnectorBootstrap.addServerHeader(listenerConfig.getServerHeader());
 
         serverConnectorBootstrap.setPipeliningNeeded(listenerConfig.isPipeliningNeeded());
-        serverConnectorBootstrap.setMaxQueuedResponseCount(listenerConfig.getMaxQueuedResponseCount());
+        serverConnectorBootstrap.setPipeliningLimit(listenerConfig.getPipeliningLimit());
 
         return serverConnectorBootstrap.getServerConnector(listenerConfig.getHost(), listenerConfig.getPort());
     }
