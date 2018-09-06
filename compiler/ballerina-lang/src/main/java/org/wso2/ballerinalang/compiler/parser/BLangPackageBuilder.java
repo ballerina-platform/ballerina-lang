@@ -84,7 +84,6 @@ import org.ballerinalang.util.diagnostic.DiagnosticCode;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotation;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
 import org.wso2.ballerinalang.compiler.tree.BLangDeprecatedNode;
-import org.wso2.ballerinalang.compiler.tree.BLangDocumentation;
 import org.wso2.ballerinalang.compiler.tree.BLangEndpoint;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
@@ -121,7 +120,6 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangAwaitExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBracedOrTupleExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangCheckedExpr;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangDocumentationAttribute;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangElvisExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess;
@@ -620,7 +618,6 @@ public class BLangPackageBuilder {
     void startFunctionDef() {
         FunctionNode functionNode = TreeBuilder.createFunctionNode();
         attachAnnotations(functionNode);
-        attachDocumentations(functionNode);
         attachMarkdownDocumentations(functionNode);
         attachDeprecatedNode(functionNode);
         this.invokableNodeStack.push(functionNode);
@@ -1421,7 +1418,6 @@ public class BLangPackageBuilder {
             var.flagSet.add(Flag.PUBLIC);
         }
         var.docTag = DocTag.VARIABLE;
-        attachDocumentations(var);
         attachMarkdownDocumentations(var);
         attachDeprecatedNode(var);
         this.compUnit.addTopLevelNode(var);
@@ -1541,7 +1537,6 @@ public class BLangPackageBuilder {
 
         typeDefinition.pos = pos;
         typeDefinition.addWS(ws);
-        attachDocumentations(typeDefinition);
         Collections.reverse(markdownDocumentationStack);
         attachMarkdownDocumentations(typeDefinition);
         attachDeprecatedNode(typeDefinition);
@@ -1735,7 +1730,6 @@ public class BLangPackageBuilder {
         BLangAnnotation annotNode = (BLangAnnotation) TreeBuilder.createAnnotationNode();
         annotNode.pos = pos;
         attachAnnotations(annotNode);
-        attachDocumentations(annotNode);
         attachMarkdownDocumentations(annotNode);
         attachDeprecatedNode(annotNode);
         this.annotationStack.add(annotNode);
@@ -1760,18 +1754,6 @@ public class BLangPackageBuilder {
         }
 
         this.compUnit.addTopLevelNode(annotationNode);
-    }
-
-    void startDocumentationAttachment(DiagnosticPos currentPos) {
-        BLangDocumentation docAttachmentNode =
-                (BLangDocumentation) TreeBuilder.createDocumentationNode();
-        docAttachmentNode.pos = currentPos;
-        docAttachmentStack.push(docAttachmentNode);
-    }
-
-    void endDocumentationAttachment(Set<Whitespace> ws) {
-        DocumentationNode docAttachmentNode = docAttachmentStack.peek();
-        docAttachmentNode.addWS(ws);
     }
 
     void startMarkdownDocumentationString(DiagnosticPos currentPos) {
@@ -1828,31 +1810,6 @@ public class BLangPackageBuilder {
         returnParameter.addReturnParameterDocumentationLine(description);
     }
 
-    void setDocumentationAttachmentContent(DiagnosticPos pos,
-                                           Set<Whitespace> ws,
-                                           String contentText) {
-        DocumentationNode docAttachmentNode = docAttachmentStack.peek();
-        docAttachmentNode.addWS(ws);
-
-        docAttachmentNode.setDocumentationText(contentText);
-    }
-
-    void createDocumentationAttribute(DiagnosticPos pos,
-                                      Set<Whitespace> ws,
-                                      String attributeName,
-                                      String endText, String docPrefix) {
-        BLangDocumentationAttribute attrib =
-                (BLangDocumentationAttribute) TreeBuilder.createDocumentationAttributeNode();
-        attrib.documentationField = (BLangIdentifier) createIdentifier(attributeName);
-
-        attrib.documentationText = endText;
-        attrib.docTag = DocTag.fromString(docPrefix);
-
-        attrib.pos = pos;
-        attrib.addWS(ws);
-        docAttachmentStack.peek().addAttribute(attrib);
-    }
-
     void createDeprecatedNode(DiagnosticPos pos,
                               Set<Whitespace> ws,
                               String content) {
@@ -1892,12 +1849,6 @@ public class BLangPackageBuilder {
     private void attachAnnotations(AnnotatableNode annotatableNode) {
         annotAttachmentStack.forEach(annotatableNode::addAnnotationAttachment);
         annotAttachmentStack.clear();
-    }
-
-    private void attachDocumentations(DocumentableNode documentableNode) {
-        if (!docAttachmentStack.empty()) {
-            documentableNode.addDocumentationAttachment(docAttachmentStack.pop());
-        }
     }
 
     private void attachMarkdownDocumentations(DocumentableNode documentableNode) {
@@ -2272,7 +2223,6 @@ public class BLangPackageBuilder {
         BLangService serviceNode = (BLangService) TreeBuilder.createServiceNode();
         serviceNode.pos = pos;
         attachAnnotations(serviceNode);
-        attachDocumentations(serviceNode);
         attachMarkdownDocumentations(serviceNode);
         attachDeprecatedNode(serviceNode);
         serviceNodeStack.push(serviceNode);

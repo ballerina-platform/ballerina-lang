@@ -454,48 +454,49 @@ public class CommandExecutor {
      */
     private static CommandUtil.DocAttachmentInfo getDocumentEditForNode(Node node) {
         CommandUtil.DocAttachmentInfo docAttachmentInfo = null;
-        int replaceFrom;
-        switch (node.getKind()) {
-            case FUNCTION:
-                if (((BLangFunction) node).docAttachments.isEmpty()) {
-                    replaceFrom = CommonUtil.toZeroBasedPosition(((BLangFunction) node).getPosition()).getStartLine();
-                    docAttachmentInfo = CommandUtil.getFunctionNodeDocumentation((BLangFunction) node, replaceFrom);
-                }
-                break;
-            case TYPE_DEFINITION:
-                if (((BLangTypeDefinition) node).docAttachments.isEmpty()
-                        && (((BLangTypeDefinition) node).typeNode instanceof BLangRecordTypeNode
-                        || ((BLangTypeDefinition) node).typeNode instanceof BLangObjectTypeNode)) {
-                    replaceFrom = CommonUtil
-                            .toZeroBasedPosition(((BLangTypeDefinition) node).getPosition()).getStartLine();
-                    docAttachmentInfo = CommandUtil
-                            .getRecordOrObjectDocumentation((BLangTypeDefinition) node, replaceFrom);
-                }
-                break;
-            case ENDPOINT:
-                // TODO: Here we need to check for the doc attachments of the endpoint.
-                replaceFrom = CommonUtil.toZeroBasedPosition(((BLangEndpoint) node).getPosition()).getStartLine();
-                docAttachmentInfo = CommandUtil.getEndpointNodeDocumentation((BLangEndpoint) node, replaceFrom);
-                break;
-            case RESOURCE:
-                if (((BLangResource) node).docAttachments.isEmpty()) {
-                    BLangResource bLangResource = (BLangResource) node;
-                    replaceFrom =
-                            getReplaceFromForServiceOrResource(bLangResource, bLangResource.getAnnotationAttachments());
-                    docAttachmentInfo = CommandUtil.getResourceNodeDocumentation(bLangResource, replaceFrom);
-                }
-                break;
-            case SERVICE:
-                if (((BLangService) node).docAttachments.isEmpty()) {
-                    BLangService bLangService = (BLangService) node;
-                    replaceFrom = getReplaceFromForServiceOrResource(bLangService,
-                            bLangService.getAnnotationAttachments());
-                    docAttachmentInfo = CommandUtil.getServiceNodeDocumentation(bLangService, replaceFrom);
-                }
-                break;
-            default:
-                break;
-        }
+        // TODO: 9/6/18 Nadeeshan 
+//        int replaceFrom;
+//        switch (node.getKind()) {
+//            case FUNCTION:
+//                if (((BLangFunction) node).docAttachments.isEmpty()) {
+//                    replaceFrom = CommonUtil.toZeroBasedPosition(((BLangFunction) node).getPosition()).getStartLine();
+//                    docAttachmentInfo = CommandUtil.getFunctionNodeDocumentation((BLangFunction) node, replaceFrom);
+//                }
+//                break;
+//            case TYPE_DEFINITION:
+//                if (((BLangTypeDefinition) node).docAttachments.isEmpty()
+//                        && (((BLangTypeDefinition) node).typeNode instanceof BLangRecordTypeNode
+//                        || ((BLangTypeDefinition) node).typeNode instanceof BLangObjectTypeNode)) {
+//                    replaceFrom = CommonUtil
+//                            .toZeroBasedPosition(((BLangTypeDefinition) node).getPosition()).getStartLine();
+//                    docAttachmentInfo = CommandUtil
+//                            .getRecordOrObjectDocumentation((BLangTypeDefinition) node, replaceFrom);
+//                }
+//                break;
+//            case ENDPOINT:
+//                // TODO: Here we need to check for the doc attachments of the endpoint.
+//                replaceFrom = CommonUtil.toZeroBasedPosition(((BLangEndpoint) node).getPosition()).getStartLine();
+//                docAttachmentInfo = CommandUtil.getEndpointNodeDocumentation((BLangEndpoint) node, replaceFrom);
+//                break;
+//            case RESOURCE:
+//                if (((BLangResource) node).docAttachments.isEmpty()) {
+//                    BLangResource bLangResource = (BLangResource) node;
+//                    replaceFrom =
+//                            getReplaceFromForServiceOrResource(bLangResource, bLangResource.getAnnotationAttachments());
+//                    docAttachmentInfo = CommandUtil.getResourceNodeDocumentation(bLangResource, replaceFrom);
+//                }
+//                break;
+//            case SERVICE:
+//                if (((BLangService) node).docAttachments.isEmpty()) {
+//                    BLangService bLangService = (BLangService) node;
+//                    replaceFrom = getReplaceFromForServiceOrResource(bLangService,
+//                            bLangService.getAnnotationAttachments());
+//                    docAttachmentInfo = CommandUtil.getServiceNodeDocumentation(bLangService, replaceFrom);
+//                }
+//                break;
+//            default:
+//                break;
+//        }
 
         return docAttachmentInfo;
     }
