@@ -192,6 +192,7 @@ public class TaintAnalyzer extends BLangNodeVisitor {
     private BLangDiagnosticLog dlog;
 
     private boolean overridingAnalysis = true;
+    private boolean mainFunctionAnalysis;
     private boolean entryPointAnalysis;
     private boolean stopAnalysis;
     private boolean blockedOnWorkerInteraction;
@@ -319,13 +320,12 @@ public class TaintAnalyzer extends BLangNodeVisitor {
 
         SymbolEnv funcEnv = SymbolEnv.createFunctionEnv(funcNode, funcNode.symbol.scope, env);
         if (CompilerUtils.isMainFunction(funcNode)) {
-            visitEntryPoint(funcNode, funcEnv);
-            // Following statements are used only when main method is called from a different function (test execution).
-            if (funcNode.symbol.taintTable != null) {
-                // Since main method has no return values, set the all untainted entry to empty, denoting that all
-                // untainted case is not invalid for the an invocation.
-                funcNode.symbol.taintTable.put(ALL_UNTAINTED_TABLE_ENTRY_INDEX,
-                        new TaintRecord(false, new ArrayList<>(), null));
+            mainFunctionAnalysis = true;
+            boolean isBlocked = visitInvokable(funcNode, funcEnv);
+            mainFunctionAnalysis = false;
+
+            if (!isBlocked) {
+                visitEntryPoint(funcNode, funcEnv);
             }
         } else {
             visitInvokable(funcNode, funcEnv);
@@ -346,6 +346,7 @@ public class TaintAnalyzer extends BLangNodeVisitor {
         BSymbol resourceSymbol = resourceNode.symbol;
         SymbolEnv resourceEnv = SymbolEnv.createResourceActionSymbolEnv(resourceNode, resourceSymbol.scope, env);
         visitEntryPoint(resourceNode, resourceEnv);
+        resourceNode.symbol.taintTable = new HashMap<>();
     }
 
     @Override
@@ -1453,7 +1454,8 @@ public class TaintAnalyzer extends BLangNodeVisitor {
         entryPointAnalysis = true;
         analyzeReturnTaintedStatus(invNode, funcEnv);
         entryPointAnalysis = false;
-        boolean isBlocked = processBlockedNode(invNode, true);
+
+        boolean isBlocked = processBlockedNode(invNode);
         if (isBlocked) {
             return;
         } else {
@@ -1461,7 +1463,6 @@ public class TaintAnalyzer extends BLangNodeVisitor {
             taintErrorSet.forEach(error -> this.dlog.error(error.pos, error.diagnosticCode, error.paramName));
             taintErrorSet.clear();
         }
-        invNode.symbol.taintTable = new HashMap<>();
     }
 
     private boolean isEntryPointParamsInvalid(List<BLangVariable> params) {
@@ -1478,13 +1479,22 @@ public class TaintAnalyzer extends BLangNodeVisitor {
         return false;
     }
 
-    private void visitInvokable(BLangInvokableNode invNode, SymbolEnv symbolEnv) {
+    /**
+     * Analyze the invokable body and identify the tainted status of the return value and the tainted status of
+     * parameters after the completion of the invokable. Based on that, attach the created taint table explaining
+     * possible taint outcomes of the function.
+     *
+     * @param invNode invokable node to be analyzed
+     * @param symbolEnv symbol environment for the invokable
+     * @return if the invocation is blocked due to an unanalyzed invocation
+     */
+    private boolean visitInvokable(BLangInvokableNode invNode, SymbolEnv symbolEnv) {
         if (analyzerPhase == AnalyzerPhase.LOOPS_RESOLVED_ANALYSIS || invNode.symbol.taintTable == null
                 || (invNode.getKind() == NodeKind.FUNCTION && ((BLangFunction) invNode).attachedOuterFunction)) {
             if (Symbols.isNative(invNode.symbol)
                     || (invNode.getKind() == NodeKind.FUNCTION && ((BLangFunction) invNode).interfaceFunction)) {
                 attachTaintTableBasedOnAnnotations(invNode);
-                return;
+                return false;
             }
             Map<Integer, TaintRecord> taintTable = new HashMap<>();
 
@@ -1493,9 +1503,15 @@ public class TaintAnalyzer extends BLangNodeVisitor {
             if (analyzerPhase == AnalyzerPhase.LOOP_ANALYSIS_COMPLETE) {
                 analyzerPhase = AnalyzerPhase.LOOP_ANALYSIS;
             }
-            boolean isBlocked = processBlockedNode(invNode, false);
+            boolean isBlocked;
+            if (mainFunctionAnalysis) {
+                isBlocked = processBlockedNode(invNode);
+            } else {
+                isBlocked = processBlockedNode(invNode);
+            }
+
             if (isBlocked) {
-                return;
+                return true;
             }
             int requiredParamCount = invNode.requiredParams.size();
             int defaultableParamCount = invNode.defaultableParams.size();
@@ -1522,13 +1538,12 @@ public class TaintAnalyzer extends BLangNodeVisitor {
                     if (analyzerPhase == AnalyzerPhase.LOOP_ANALYSIS_COMPLETE) {
                         analyzerPhase = AnalyzerPhase.LOOP_ANALYSIS;
                     }
-                    if (taintErrorSet.size() > 0) {
-                        taintErrorSet.clear();
-                    }
+                    taintErrorSet.clear();
                 }
             }
             invNode.symbol.taintTable = taintTable;
         }
+        return false;
     }
 
     private void analyzeAllParamsUntaintedReturnTaintedStatus(Map<Integer, TaintRecord> taintTable,
@@ -1564,7 +1579,8 @@ public class TaintAnalyzer extends BLangNodeVisitor {
             // are untainted, the code of the function is wrong (and passes a tainted value generated within the
             // function body to a sensitive parameter). Hence, instead of adding error to table, directly generate the
             // error and fail the compilation.
-            if (paramIndex == ALL_UNTAINTED_TABLE_ENTRY_INDEX && (analyzerPhase == AnalyzerPhase.INITIAL_ANALYSIS
+            if (!mainFunctionAnalysis && paramIndex == ALL_UNTAINTED_TABLE_ENTRY_INDEX &&
+                    (analyzerPhase == AnalyzerPhase.INITIAL_ANALYSIS
                     || analyzerPhase == AnalyzerPhase.BLOCKED_NODE_ANALYSIS
                     || analyzerPhase == AnalyzerPhase.LOOPS_RESOLVED_ANALYSIS)) {
                 taintErrorSet.forEach(error -> this.dlog.error(error.pos, error.diagnosticCode, error.paramName));
@@ -1685,13 +1701,13 @@ public class TaintAnalyzer extends BLangNodeVisitor {
         }
     }
 
-    private boolean processBlockedNode(BLangInvokableNode invokableNode, boolean isEntryPoint) {
+    private boolean processBlockedNode(BLangInvokableNode invokableNode) {
         boolean isBlocked = false;
         if (this.blockedNode != null) {
             // Add the function being blocked into the blocked node list for later processing.
             this.blockedNode.invokableNode = invokableNode;
             if (analyzerPhase == AnalyzerPhase.INITIAL_ANALYSIS) {
-                if (isEntryPoint) {
+                if (mainFunctionAnalysis || entryPointAnalysis) {
                     blockedEntryPointNodeList.add(blockedNode);
                 } else {
                     blockedNodeList.add(blockedNode);
