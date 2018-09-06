@@ -23,6 +23,7 @@ import org.eclipse.lsp4j.CodeActionContext;
 import org.eclipse.lsp4j.CodeActionParams;
 import org.eclipse.lsp4j.DidCloseTextDocumentParams;
 import org.eclipse.lsp4j.DidOpenTextDocumentParams;
+import org.eclipse.lsp4j.DocumentFormattingParams;
 import org.eclipse.lsp4j.ExecuteCommandParams;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
@@ -63,6 +64,8 @@ public class TestUtil {
 
     private static final String CODE_ACTION = "textDocument/codeAction";
 
+    private static final String FORMATTING = "textDocument/formatting";
+
     private static final Gson GSON = new Gson();
 
     private TestUtil() {
@@ -71,9 +74,9 @@ public class TestUtil {
     /**
      * Get the textDocument/hover response.
      *
-     * @param filePath          Path of the Bal file
-     * @param position          Cursor Position
-     * @param serviceEndpoint   Service Endpoint to Language Server
+     * @param filePath        Path of the Bal file
+     * @param position        Cursor Position
+     * @param serviceEndpoint Service Endpoint to Language Server
      * @return {@link String}   Response as String
      */
     public static String getHoverResponse(String filePath, Position position, Endpoint serviceEndpoint) {
@@ -84,9 +87,9 @@ public class TestUtil {
     /**
      * Get the textDocument/signatureHelp response.
      *
-     * @param filePath          Path of the Bal file
-     * @param position          Cursor Position
-     * @param serviceEndpoint   Service Endpoint to Language Server
+     * @param filePath        Path of the Bal file
+     * @param position        Cursor Position
+     * @param serviceEndpoint Service Endpoint to Language Server
      * @return {@link String}   Response as String
      */
     public static String getSignatureHelpResponse(String filePath, Position position, Endpoint serviceEndpoint) {
@@ -98,9 +101,9 @@ public class TestUtil {
     /**
      * Get the textDocument/definition response.
      *
-     * @param filePath          Path of the Bal file
-     * @param position          Cursor Position
-     * @param serviceEndpoint   Service Endpoint to Language Server
+     * @param filePath        Path of the Bal file
+     * @param position        Cursor Position
+     * @param serviceEndpoint Service Endpoint to Language Server
      * @return {@link String}   Response as String
      */
     public static String getDefinitionResponse(String filePath, Position position, Endpoint serviceEndpoint) {
@@ -112,9 +115,9 @@ public class TestUtil {
     /**
      * Get the textDocument/reference response.
      *
-     * @param filePath          Path of the Bal file
-     * @param position          Cursor Position
-     * @param serviceEndpoint   Service Endpoint to Language Server
+     * @param filePath        Path of the Bal file
+     * @param position        Cursor Position
+     * @param serviceEndpoint Service Endpoint to Language Server
      * @return {@link String}   Response as String
      */
     public static String getReferencesResponse(String filePath, Position position, Endpoint serviceEndpoint) {
@@ -155,10 +158,10 @@ public class TestUtil {
     /**
      * Get Code Action Response as String.
      *
-     * @param serviceEndpoint       Language Server Service endpoint
-     * @param filePath              File path for the current file
-     * @param range                 Cursor range
-     * @param context               Code Action Context
+     * @param serviceEndpoint Language Server Service endpoint
+     * @param filePath        File path for the current file
+     * @param range           Cursor range
+     * @param context         Code Action Context
      * @return {@link String}       code action response as a string
      */
     public static String getCodeActionResponse(Endpoint serviceEndpoint, String filePath, Range range,
@@ -172,8 +175,8 @@ public class TestUtil {
     /**
      * Get the workspace/executeCommand response.
      *
-     * @param params            Execute command parameters
-     * @param serviceEndpoint   Service endpoint to language server
+     * @param params          Execute command parameters
+     * @param serviceEndpoint Service endpoint to language server
      * @return {@link String}   Lang server Response as String
      */
     public static String getExecuteCommandResponse(ExecuteCommandParams params, Endpoint serviceEndpoint) {
@@ -182,11 +185,23 @@ public class TestUtil {
     }
 
     /**
+     * Get formatting response.
+     *
+     * @param params Document formatting parameters
+     * @param serviceEndpoint Service endpoint to language server
+     * @return {@link String} Language server response as String
+     */
+    public static String getFormattingResponse(DocumentFormattingParams params, Endpoint serviceEndpoint) {
+        CompletableFuture result = serviceEndpoint.request(FORMATTING, params);
+        return getResponseString(result);
+    }
+
+    /**
      * Open a document.
-     * 
-     * @param serviceEndpoint   Language Server Service Endpoint
-     * @param filePath          Path of the document to open
-     * @throws IOException      Exception while reading the file content
+     *
+     * @param serviceEndpoint Language Server Service Endpoint
+     * @param filePath        Path of the document to open
+     * @throws IOException Exception while reading the file content
      */
     public static void openDocument(Endpoint serviceEndpoint, Path filePath) throws IOException {
         DidOpenTextDocumentParams documentParams = new DidOpenTextDocumentParams();
@@ -198,15 +213,15 @@ public class TestUtil {
         textDocumentItem.setUri(identifier.getUri());
         textDocumentItem.setText(new String(encodedContent));
         documentParams.setTextDocument(textDocumentItem);
-        
+
         serviceEndpoint.notify("textDocument/didOpen", documentParams);
     }
 
     /**
      * Close an already opened document.
      *
-     * @param serviceEndpoint   Service Endpoint to Language Server
-     * @param filePath          File path of the file to be closed
+     * @param serviceEndpoint Service Endpoint to Language Server
+     * @param filePath        File path of the file to be closed
      */
     public static void closeDocument(Endpoint serviceEndpoint, Path filePath) {
         TextDocumentIdentifier documentIdentifier = new TextDocumentIdentifier();
@@ -216,7 +231,7 @@ public class TestUtil {
 
     /**
      * Initialize the language server instance to use.
-     * 
+     *
      * @return {@link Endpoint}     Service Endpoint
      */
     public static Endpoint initializeLanguageSever() {
@@ -226,7 +241,7 @@ public class TestUtil {
     /**
      * Shutdown an already running language server.
      *
-     * @param serviceEndpoint   Language server Service Endpoint
+     * @param serviceEndpoint Language server Service Endpoint
      */
     public static void shutdownLanguageServer(Endpoint serviceEndpoint) {
         serviceEndpoint.notify("shutdown", null);

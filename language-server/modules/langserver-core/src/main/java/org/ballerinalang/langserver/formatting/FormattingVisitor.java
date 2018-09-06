@@ -36,6 +36,7 @@ public class FormattingVisitor {
      * @param node ballerina node as a json object
      */
     public void beginVisit(JsonObject node) {
+
         FormattingTreeUtil formattingTreeUtil = new FormattingTreeUtil();
         Class cls = formattingTreeUtil.getClass();
         Method[] methods = cls.getMethods();
