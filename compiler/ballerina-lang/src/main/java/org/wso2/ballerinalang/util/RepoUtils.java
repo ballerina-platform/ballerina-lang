@@ -1,7 +1,9 @@
 package org.wso2.ballerinalang.util;
 
 import org.ballerinalang.compiler.BLangCompilerException;
+import org.ballerinalang.toml.model.Manifest;
 import org.ballerinalang.toml.model.Settings;
+import org.ballerinalang.toml.parser.ManifestProcessor;
 import org.ballerinalang.toml.parser.SettingsProcessor;
 import org.wso2.ballerinalang.compiler.util.ProjectDirConstants;
 
@@ -142,5 +144,20 @@ public class RepoUtils {
         } catch (Throwable ignore) {
         }
         return "unknown";
+    }
+
+    /**
+     * Get the toml content from the config.
+     *
+     * @param projectDirPath    Project Directory Path
+     * @return {@link Manifest} Manifest configuration object
+     */
+    public static Manifest getManifest(Path projectDirPath) {
+        Path tomlFilePath = projectDirPath.resolve((ProjectDirConstants.MANIFEST_FILE_NAME));
+        try {
+            return ManifestProcessor.parseTomlContentFromFile(tomlFilePath.toString());
+        } catch (IOException e) {
+            return new Manifest();
+        }
     }
 }

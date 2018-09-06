@@ -24,7 +24,6 @@ import org.ballerinalang.spi.EmbeddedExecutor;
 import org.ballerinalang.toml.model.Manifest;
 import org.ballerinalang.toml.model.Proxy;
 import org.ballerinalang.toml.model.Settings;
-import org.ballerinalang.toml.parser.ManifestProcessor;
 import org.ballerinalang.util.EmbeddedExecutorProvider;
 import org.wso2.ballerinalang.compiler.packaging.Patten;
 import org.wso2.ballerinalang.compiler.packaging.converters.Converter;
@@ -79,7 +78,7 @@ public class PushUtils {
      */
     public static void pushPackages(String packageName, String sourceRoot, String installToRepo) {
         Path prjDirPath = LauncherUtils.getSourceRootPath(sourceRoot);
-        Manifest manifest = readManifestConfigurations(prjDirPath);
+        Manifest manifest = RepoUtils.getManifest(prjDirPath);
         if (manifest.getName().isEmpty()) {
             throw new BLangCompilerException("An org-name is required when pushing. This is not specified in " +
                                                      "Ballerina.toml inside the project");
@@ -254,21 +253,6 @@ public class PushUtils {
             throw new BLangCompilerException("Couldn't find package " + packageID.toString());
         }
         return uris.get(0).toString();
-    }
-
-    /**
-     * Read the manifest.
-     *
-     * @param prjDirPath project directory path
-     * @return manifest configuration object
-     */
-    private static Manifest readManifestConfigurations(Path prjDirPath) {
-        String tomlFilePath = prjDirPath.resolve(ProjectDirConstants.MANIFEST_FILE_NAME).toString();
-        try {
-            return ManifestProcessor.parseTomlContentFromFile(tomlFilePath);
-        } catch (IOException e) {
-            return new Manifest();
-        }
     }
 
     /**
