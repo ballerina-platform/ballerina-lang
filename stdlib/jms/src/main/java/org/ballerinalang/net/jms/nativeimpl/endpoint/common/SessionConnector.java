@@ -86,11 +86,6 @@ public class SessionConnector implements BallerinaTransactionContext {
     }
 
     @Override
-    public void done() {
-        // do nothing
-    }
-
-    @Override
     public XAResource getXAResource() {
         if (session instanceof XASession) {
             return ((XASession) session).getXAResource();
