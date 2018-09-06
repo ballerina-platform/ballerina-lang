@@ -15,27 +15,29 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.ballerinalang.model;
+package org.ballerinalang.model.util.serializer;
 
 /**
- * Interface represents interruptible @{@link NativeCallableUnit}. This is used to determine the persistence of
- * {@link NativeCallableUnit}.
+ * Serialize any object into JSON structure.
  *
- * @since 0.981.1
+ * @since 0.982.0
  */
-public interface InterruptibleNativeCallableUnit extends NativeCallableUnit {
+public interface ObjectToJsonSerializer {
+    /**
+     * Generate JSON serialized output from the given Java object instance.
+     *
+     * @param object instance to be serialized.
+     * @return Json String.
+     */
+    String serialize(Object object);
 
     /**
-     * Provide whether to persist the state of the execution before the interruptible native call.
+     * Deserialize Json string into Java object starting from {@code targetClass}.
      *
-     * @return true if persist the state else false
+     * @param jsonString  Json string to be deserialized.
+     * @param targetClass Target type to start deserialization.
+     * @param <T>         Generic type of target type.
+     * @return Deserialized object from {@code jsonString}.
      */
-    boolean persistBeforeOperation();
-
-    /**
-     * Provide whether to persist the state of the execution after the interruptible native call.
-     *
-     * @return true if persist the state else false
-     */
-    boolean persistAfterOperation();
+    <T> T deserialize(String jsonString, Class<T> targetClass);
 }

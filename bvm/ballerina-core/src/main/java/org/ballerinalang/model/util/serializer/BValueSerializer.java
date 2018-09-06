@@ -15,27 +15,22 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.ballerinalang.model;
+package org.ballerinalang.model.util.serializer;
+
+import org.ballerinalang.model.values.BValue;
 
 /**
- * Interface represents interruptible @{@link NativeCallableUnit}. This is used to determine the persistence of
- * {@link NativeCallableUnit}.
+ * Convert Java object into {@link BValue} representation.
  *
- * @since 0.981.1
+ * @since 0.982.0
  */
-public interface InterruptibleNativeCallableUnit extends NativeCallableUnit {
-
+public interface BValueSerializer {
     /**
-     * Provide whether to persist the state of the execution before the interruptible native call.
+     * Convert {@code src} Java object into {@link BValue} representation.
      *
-     * @return true if persist the state else false
+     * @param src          Java object to be converted.
+     * @param leftSideType Type of the field {@code src} is assigned to, or null if doesn't apply.
+     * @return {@link BValue} representation of Java object.
      */
-    boolean persistBeforeOperation();
-
-    /**
-     * Provide whether to persist the state of the execution after the interruptible native call.
-     *
-     * @return true if persist the state else false
-     */
-    boolean persistAfterOperation();
+    BValue toBValue(Object src, Class<?> leftSideType);
 }
