@@ -140,7 +140,6 @@
     "semantic-ui-less": "^2.3.2",
     "semantic-ui-react": "^0.81.3",
     "swagger-editor-dist": "^3.1.18",
-    "swagger-visualizer": "file:src/plugins/swagger-visualizer",
     "uuid": "^3.1.0",
     "vscode-ws-jsonrpc": "0.0.1-alpha.5",
     "webpack": "^2.2.1"
