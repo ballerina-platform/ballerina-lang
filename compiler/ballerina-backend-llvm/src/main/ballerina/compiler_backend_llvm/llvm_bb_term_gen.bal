@@ -1,13 +1,14 @@
 import ballerina/llvm;
 import ballerina/io;
+import ballerina/bir;
 
 type BbTermGenrator object {
 
     llvm:LLVMBuilderRef builder,
     llvm:LLVMValueRef funcRef,
-    BIRFunction func,
+    bir:BIRFunction func,
     FuncGenrator parent,
-    BIRBasicBlock bb,
+    bir:BIRBasicBlock bb,
     llvm:LLVMBasicBlockRef bbRef;
 
     new(builder, funcRef, func, bb, bbRef, parent) {
@@ -17,24 +18,24 @@ type BbTermGenrator object {
         llvm:LLVMPositionBuilderAtEnd(builder, bbRef);
 
         match bb.terminator {
-            GOTO gotoIns => genGoToTerm(gotoIns, bbGenrators);
-            Branch brIns => genBranchTerm(brIns, bbGenrators);
-            Call callIns => genCallTerm(callIns, funcGenrators, bbGenrators);
-            Return => genReturnTerm();
+            bir:GOTO gotoIns => genGoToTerm(gotoIns, bbGenrators);
+            bir:Branch brIns => genBranchTerm(brIns, bbGenrators);
+            bir:Call callIns => genCallTerm(callIns, funcGenrators, bbGenrators);
+            bir:Return => genReturnTerm();
         }
     }
 
-    function genGoToTerm(GOTO gotoIns, map<BbTermGenrator> bbGenrators) {
+    function genGoToTerm(bir:GOTO gotoIns, map<BbTermGenrator> bbGenrators) {
         var brInsRef = llvm:LLVMBuildBr(builder, findBbRefById(bbGenrators, gotoIns.targetBB.id.value));
     }
 
-    function genBranchTerm(Branch brIns, map<BbTermGenrator> bbGenrators) {
+    function genBranchTerm(bir:Branch brIns, map<BbTermGenrator> bbGenrators) {
         var ifTrue = findBbRefById(bbGenrators, brIns.trueBB.id.value);
         var ifFalse = findBbRefById(bbGenrators, brIns.falseBB.id.value);
         var vrInsRef = llvm:LLVMBuildCondBr(builder, genVarLoad(brIns.op), ifTrue, ifFalse);
     }
 
-    function genCallTerm(Call callIns, map<FuncGenrator> funcGenrators, map<BbTermGenrator> bbGenrators) {
+    function genCallTerm(bir:Call callIns, map<FuncGenrator> funcGenrators, map<BbTermGenrator> bbGenrators) {
         llvm:LLVMValueRef[] args = mapOverGenVarLoad(callIns.args);
 
         if (callIns.name.value == "print"){
@@ -49,7 +50,7 @@ type BbTermGenrator object {
         var brInsRef = llvm:LLVMBuildBr(builder, thenBB);
     }
 
-    function mapOverGenVarLoad(BIROperand[] ops) returns llvm:LLVMValueRef[] {
+    function mapOverGenVarLoad(bir:BIROperand[] ops) returns llvm:LLVMValueRef[] {
         llvm:LLVMValueRef[] loaddedVars = [];
         var argsCount = lengthof ops;
         int i = 0;
@@ -69,11 +70,11 @@ type BbTermGenrator object {
         llvm:LLVMValueRef callReturn = llvm:LLVMBuildCall(builder, printfRef, printArgs, lengthof printArgs, "");
     }
 
-    function genCallToSamePkgFunc(map<FuncGenrator> funcGenrators, Call callIns, llvm:LLVMValueRef[] args) {
+    function genCallToSamePkgFunc(map<FuncGenrator> funcGenrators, bir:Call callIns, llvm:LLVMValueRef[] args) {
         llvm:LLVMValueRef calleFuncRef = findFuncRefByName(funcGenrators, callIns.name);
         llvm:LLVMValueRef callReturn = llvm:LLVMBuildCall(builder, calleFuncRef, args, lengthof args, "");
         match callIns.lhsOp {
-            BIRVarRef lhsOp => {
+            bir:BIRVarRef lhsOp => {
                 llvm:LLVMValueRef lhsRef = parent.getLocalVarRefById(func, lhsOp.variableDcl.name.value);
                 var loaded = llvm:LLVMBuildStore(builder, callReturn, lhsRef);
             }
@@ -98,9 +99,9 @@ type BbTermGenrator object {
     }
 
     // TODO remove duplicate func
-    function genVarLoad(BIROperand oprand) returns llvm:LLVMValueRef {
+    function genVarLoad(bir:BIROperand oprand) returns llvm:LLVMValueRef {
         match oprand {
-            BIRVarRef refOprand => {
+            bir:BIRVarRef refOprand => {
                 string tempName = localVarName(refOprand.variableDcl) + "_temp";
                 return llvm:LLVMBuildLoad(builder, parent.getLocalVarRefById(func, refOprand.variableDcl.name.value),
                     tempName);

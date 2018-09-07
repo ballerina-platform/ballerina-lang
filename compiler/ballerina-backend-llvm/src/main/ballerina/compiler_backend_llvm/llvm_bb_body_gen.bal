@@ -6,8 +6,8 @@ type BbBodyGenrator object {
     llvm:LLVMBuilderRef builder,
     llvm:LLVMValueRef funcRef,
     FuncGenrator parent,
-    BIRFunction func,
-    BIRBasicBlock bb;
+    bir:BIRFunction func,
+    bir:BIRBasicBlock bb;
 
     new(builder, funcRef, func, parent, bb) {
     }
@@ -21,22 +21,22 @@ type BbBodyGenrator object {
         return new(builder, funcRef, func, bb, bbRef, parent);
     }
 
-    function genInstruction(BIRInstruction instruction) {
+    function genInstruction(bir:BIRInstruction instruction) {
         match instruction {
-            Move moveIns => genMoveIns(moveIns);
-            BinaryOp binaryIns => genBinaryOpIns(binaryIns);
-            ConstantLoad constIns => genConstantLoadIns(constIns);
+            bir:Move moveIns => genMoveIns(moveIns);
+            bir:BinaryOp binaryIns => genBinaryOpIns(binaryIns);
+            bir:ConstantLoad constIns => genConstantLoadIns(constIns);
         }
     }
 
-    function genMoveIns(Move moveIns) {
+    function genMoveIns(bir:Move moveIns) {
         llvm:LLVMValueRef lhsRef = parent.getLocalVarRefById(func, moveIns.lhsOp.variableDcl.name.value);
         var rhsVarOp = moveIns.rhsOp;
         llvm:LLVMValueRef rhsVarOpRef = parent.genVarLoad(rhsVarOp);
         var loaded = llvm:LLVMBuildStore(builder, rhsVarOpRef, lhsRef);
     }
 
-    function genBinaryOpIns(BinaryOp binaryIns) {
+    function genBinaryOpIns(bir:BinaryOp binaryIns) {
         var lhsTmpName = localVarName(binaryIns.lhsOp.variableDcl) + "_temp";
         var lhsRef = parent.getLocalVarRefById(func, binaryIns.lhsOp.variableDcl.name.value);
         var rhsOp1 = parent.genVarLoad(binaryIns.rhsOp1);
@@ -45,21 +45,21 @@ type BbBodyGenrator object {
 
         BinaryInsGenrator binaryGen = new(builder, lhsTmpName, lhsRef, rhsOp1, rhsOp2);
         match kind {
-            ADD => binaryGen.genAdd();
-            DIV => binaryGen.genDiv();
-            EQUAL => binaryGen.genEqual();
-            GREATER_EQUAL => binaryGen.genGreaterEqual();
-            GREATER_THAN => binaryGen.genGreaterThan();
-            LESS_EQUAL => binaryGen.genLessEqual();
-            LESS_THAN => binaryGen.genLessThan();
-            MUL => binaryGen.genMul();
-            NOT_EQUAL => binaryGen.genNotEqual();
-            SUB => binaryGen.genSub();
+            bir:ADD => binaryGen.genAdd();
+            bir:DIV => binaryGen.genDiv();
+            bir:EQUAL => binaryGen.genEqual();
+            bir:GREATER_EQUAL => binaryGen.genGreaterEqual();
+            bir:GREATER_THAN => binaryGen.genGreaterThan();
+            bir:LESS_EQUAL => binaryGen.genLessEqual();
+            bir:LESS_THAN => binaryGen.genLessThan();
+            bir:MUL => binaryGen.genMul();
+            bir:NOT_EQUAL => binaryGen.genNotEqual();
+            bir:SUB => binaryGen.genSub();
         }
 
     }
 
-    function genConstantLoadIns(ConstantLoad constLoad) {
+    function genConstantLoadIns(bir:ConstantLoad constLoad) {
         llvm:LLVMValueRef lhsRef = parent.getLocalVarRefById(func, constLoad.lhsOp.variableDcl.name.value);
         var constRef = llvm:LLVMConstInt(llvm:LLVMInt64Type(), constLoad.value, 0);
         var loaded = llvm:LLVMBuildStore(builder, constRef, lhsRef);
@@ -79,7 +79,7 @@ function findBbRefById(map<BbTermGenrator> bbGenrators, string id) returns llvm:
     }
 }
 
-function findFuncRefByName(map<FuncGenrator> funcGenrators, Name name) returns llvm:LLVMValueRef {
+function findFuncRefByName(map<FuncGenrator> funcGenrators, bir:Name name) returns llvm:LLVMValueRef {
     match funcGenrators[name.value] {
         FuncGenrator foundFunc => return foundFunc.funcRef;
         any => {

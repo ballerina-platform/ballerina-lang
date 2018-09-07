@@ -146,7 +146,7 @@ function appendAllTo(any[] toArr, any[] fromArr) {
     }
 }
 
-function localVarName(BIRVariableDcl localVar) returns string {
+function localVarName(bir:BIRVariableDcl localVar) returns string {
     return localVarNameFromId(localVar.name.value);
 }
 
