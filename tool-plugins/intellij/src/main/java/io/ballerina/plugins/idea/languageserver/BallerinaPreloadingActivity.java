@@ -13,96 +13,20 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-
 package io.ballerina.plugins.idea.languageserver;
 
 import com.github.gtache.lsp.client.languageserver.serverdefinition.LanguageServerDefinition$;
 import com.github.gtache.lsp.client.languageserver.serverdefinition.RawCommandServerDefinition;
 import com.intellij.openapi.application.PreloadingActivity;
 import com.intellij.openapi.progress.ProgressIndicator;
-import com.intellij.openapi.projectRoots.Sdk;
-import com.intellij.openapi.projectRoots.SdkAdditionalData;
-import com.intellij.openapi.projectRoots.SdkModificator;
-import com.intellij.openapi.projectRoots.SdkTypeId;
-import com.intellij.openapi.roots.RootProvider;
-import com.intellij.openapi.util.Key;
-import com.intellij.openapi.vfs.VirtualFile;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 public class BallerinaPreloadingActivity extends PreloadingActivity {
-
     @Override
     public void preload(@NotNull ProgressIndicator indicator) {
-        Sdk mockSdk = new Sdk() {
-            @NotNull
-            @Override
-            public SdkTypeId getSdkType() {
-                return null;
-            }
-
-            @NotNull
-            @Override
-            public String getName() {
-                return null;
-            }
-
-            @Nullable
-            @Override
-            public String getVersionString() {
-                return null;
-            }
-
-            @Nullable
-            @Override
-            public String getHomePath() {
-                return "/usr/lib/ballerina/ballerina-0.981.0";
-            }
-
-            @Nullable
-            @Override
-            public VirtualFile getHomeDirectory() {
-                return null;
-            }
-
-            @NotNull
-            @Override
-            public RootProvider getRootProvider() {
-                return null;
-            }
-
-            @NotNull
-            @Override
-            public SdkModificator getSdkModificator() {
-                return null;
-            }
-
-            @Nullable
-            @Override
-            public SdkAdditionalData getSdkAdditionalData() {
-                return null;
-            }
-
-            @Nullable
-            @Override
-            public <T> T getUserData(@NotNull Key<T> key) {
-                return null;
-            }
-
-            @Override
-            public <T> void putUserData(@NotNull Key<T> key, @Nullable T value) {
-
-            }
-
-            @NotNull
-            @Override
-            public Object clone() {
-                return null;
-            }
-        };
-
-        BallerinaLanguageServerDefinition langServerDefinition = new BallerinaLanguageServerDefinition(mockSdk);
-        String[] command = { langServerDefinition.getInitCommand(false, false) };
+        // BallerinaLanguageServerDefinition langServerDefinition = new BallerinaLanguageServerDefinition(sdkPath);
+        // String[] command = { langServerDefinition.getInitCommand(false, false) };
+        String[] command = {"/home/nino/Desktop/ls-launcher/launcher.sh"};
         LanguageServerDefinition$.MODULE$.register(new RawCommandServerDefinition("bal", command));
     }
 }
