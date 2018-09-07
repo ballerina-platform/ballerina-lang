@@ -16,13 +16,13 @@
 package org.ballerinalang.langserver.extensions.ballerina.example;
 
 /**
- * ${CLASS_NAME}
+ * Represents an example
  */
 public class BallerinaExample {
 
     private String name;
 
-    private String title;
+    private String url;
 
     public String getName() {
         return name;
@@ -32,11 +32,11 @@ public class BallerinaExample {
         this.name = name;
     }
 
-    public String getTitle() {
-        return title;
+    public String getUrl() {
+        return url;
     }
 
-    public void setTitle(String title) {
-        this.title = title;
+    public void setUrl(String url) {
+        this.url = url;
     }
 }

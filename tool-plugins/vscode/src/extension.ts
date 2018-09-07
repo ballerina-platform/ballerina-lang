@@ -29,7 +29,7 @@ import { getServerOptions } from './server';
 import { Messages } from './messages';
 import { BallerinaPluginConfig, getPluginConfig } from './config';
 import { activate as activateRenderer, errored as rendererErrored } from './renderer';
-import { activate as activateSamples } from './samples';
+import { activate as activateSamples } from './examples';
 import { ExtendedLangClient } from './lang-client';
 
 const { showWarningMessage } = window;

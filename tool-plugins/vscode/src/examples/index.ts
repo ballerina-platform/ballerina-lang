@@ -18,25 +18,24 @@
  */
 import { commands, window, Uri, ViewColumn, ExtensionContext, WebviewPanel, workspace } from 'vscode';
 import * as path from 'path';
-import * as _ from 'lodash';
 import { render } from './renderer';
 import { ExtendedLangClient } from '../lang-client';
 import { getPluginConfig } from '../config';
 
-let samplesPanel: WebviewPanel | undefined;
+let examplesPanel: WebviewPanel | undefined;
 
 export function activate(context: ExtensionContext, langClient: ExtendedLangClient) {
 
 	const resourcePath = Uri.file(path.join(context.extensionPath, 'resources', 'diagram'));
 	const resourceRoot = resourcePath.with({ scheme: 'vscode-resource' });
 
-	const samplesListRenderer = commands.registerCommand('ballerina.showExamples', () => {
-		if (samplesPanel) {
-			samplesPanel.reveal(ViewColumn.One, true);
+	const examplesListRenderer = commands.registerCommand('ballerina.showExamples', () => {
+		if (examplesPanel) {
+			examplesPanel.reveal(ViewColumn.One, true);
 			return;
 		}
 		// Create and show a new webview
-        samplesPanel = window.createWebviewPanel(
+        examplesPanel = window.createWebviewPanel(
             'ballerinaExamples',
             "Ballerina Examples",
             { viewColumn: ViewColumn.One, preserveFocus: true } ,
@@ -48,14 +47,14 @@ export function activate(context: ExtensionContext, langClient: ExtendedLangClie
 		);
 		render(langClient, resourceRoot)
 			.then((html) => {
-				if (samplesPanel && html) {
-					samplesPanel.webview.html = html;
+				if (examplesPanel && html) {
+					examplesPanel.webview.html = html;
 				}
 			});
 		// Handle messages from the webview
-        samplesPanel.webview.onDidReceiveMessage(message => {
+        examplesPanel.webview.onDidReceiveMessage(message => {
             switch (message.command) {
-                case 'openSample':
+                case 'openExample':
                     const url = JSON.parse(message.url);
                     const ballerinaHome = getPluginConfig().home;
                     if (ballerinaHome) {
@@ -73,11 +72,11 @@ export function activate(context: ExtensionContext, langClient: ExtendedLangClie
                     return;
             }
 		}, undefined, context.subscriptions);
-		samplesPanel.onDidDispose(() => {
-			samplesPanel = undefined;
+		examplesPanel.onDidDispose(() => {
+			examplesPanel = undefined;
 		});
     });
-	context.subscriptions.push(samplesListRenderer);
+	context.subscriptions.push(examplesListRenderer);
 }
 
 

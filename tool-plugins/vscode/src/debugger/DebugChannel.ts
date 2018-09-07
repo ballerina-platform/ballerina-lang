@@ -113,7 +113,6 @@ export class DebugChannel extends EventEmitter {
      */
     onClose(event: WebSocketOnCloseEvt) {
         this.stopPing();
-        this.emit('session-terminated');
         let reason;
         if (event.code === WS_NORMAL_CODE) {
             reason = 'Normal closure';
@@ -124,6 +123,7 @@ export class DebugChannel extends EventEmitter {
         } else {
             reason = `Debug socket close with reason :${event.code}`;
         }
+        this.emit('session-terminated', { reason });
     }
     /**
      * Handles websocket onError event

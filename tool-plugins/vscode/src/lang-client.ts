@@ -38,6 +38,10 @@ export interface BallerinaExampleCategory {
     samples: Array<BallerinaExample>;
 }   
 
+export interface BallerinaExampleListRequest {
+    filter?: string;
+}
+
 export interface BallerinaExampleListResponse {
     samples: Array<BallerinaExampleCategory>;
 }
@@ -63,7 +67,7 @@ export class ExtendedLangClient extends LanguageClient {
         return this.sendRequest("ballerinaDocument/astDidChange", evt);
     }
 
-    fetchExamples(): Thenable<BallerinaExampleListResponse> {
-        return this.sendRequest("ballerinaExample/list", {});
+    fetchExamples(args: BallerinaExampleListRequest = {}): Thenable<BallerinaExampleListResponse> {
+        return this.sendRequest("ballerinaExample/list", args);
     }
 }

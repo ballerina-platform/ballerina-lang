@@ -5,11 +5,11 @@ export function render (langClient: ExtendedLangClient, resourceRoot: Uri)
         : Thenable<string | undefined> {
     return langClient.fetchExamples()
             .then((resp) => {
-              return Promise.resolve(renderSamples(resp.samples, resourceRoot));
+              return Promise.resolve(renderExamples(resp.samples, resourceRoot));
             });
 }
 
-function renderSamples(samples: Array<BallerinaExampleCategory>, resourceRoot: Uri): string {
+function renderExamples(examples: Array<BallerinaExampleCategory>, resourceRoot: Uri): string {
     const page = `
     <!DOCTYPE html>
     <html>
@@ -22,20 +22,20 @@ function renderSamples(samples: Array<BallerinaExampleCategory>, resourceRoot: U
         <link rel="stylesheet" href="${resourceRoot.toString()}/less.css" />
     </head>
     <body>
-        <div id="samples" />
+        <div id="examples" />
     </body>
     <script charset="UTF-8" src="${resourceRoot.toString()}/ballerina-diagram-library.js"></script>
     <script>
         (function() {
             const vscode = acquireVsCodeApi();
-            const samples = ${JSON.stringify(samples)};
-            function openSample(url) {
+            const examples = ${JSON.stringify(examples)};
+            function openExample(url) {
                 vscode.postMessage({
-                    command: 'openSample',
+                    command: 'openExample',
                     url: JSON.stringify(url)
                 });
             }
-            ballerinaDiagram.renderSamplesList(document.getElementById("samples"), samples, openSample, () => {});
+            ballerinaDiagram.renderSamplesList(document.getElementById("examples"), examples, openExample, () => {});
         }());
     </script>
     </html>
