@@ -454,7 +454,6 @@ public class CommandExecutor {
      */
     private static CommandUtil.DocAttachmentInfo getDocumentEditForNode(Node node) {
         CommandUtil.DocAttachmentInfo docAttachmentInfo = null;
-        // TODO: 9/6/18 Nadeeshan 
         int replaceFrom;
         switch (node.getKind()) {
             case FUNCTION:
