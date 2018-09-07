@@ -491,10 +491,6 @@ public class IterableAnalyzer {
                     if (elementType.tag == TypeTags.INTERMEDIATE_COLLECTION) {
                         BIntermediateCollectionType collectionType = (BIntermediateCollectionType) elementType;
                         elementType = collectionType.tupleType.tupleTypes.get(0);
-                    } else if (elementType.tag == TypeTags.RECORD) {
-                        // The type of the foreach var in the desugard code is taken from this type.
-                        BRecordType recordType = (BRecordType) elementType;
-                        elementType = inferRecordFieldType(recordType);
                     }
                     return elementType;
                 default:

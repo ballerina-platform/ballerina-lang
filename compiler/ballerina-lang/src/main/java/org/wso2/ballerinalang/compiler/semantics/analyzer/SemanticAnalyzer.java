@@ -45,6 +45,7 @@ import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.util.diagnostic.DiagnosticCode;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
+import org.wso2.ballerinalang.compiler.semantics.model.iterable.IterableContext;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAnnotationAttributeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAnnotationSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAttachedFunction;
@@ -497,6 +498,12 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         SymbolEnv varInitEnv = SymbolEnv.createVarInitEnv(varNode, env, varNode.symbol);
 
         typeChecker.checkExpr(rhsExpr, varInitEnv, lhsType);
+
+        if (rhsExpr.getKind() == NodeKind.INVOCATION && ((BLangInvocation) rhsExpr).iterableOperationInvocation) {
+            BLangInvocation iterableInv = (BLangInvocation) rhsExpr;
+            // Added this type check to check the final resultant type of an iterable op chain and the LHS type.
+            types.checkType(rhsExpr.pos, iterableInv.iContext.resultType, lhsType, DiagnosticCode.INCOMPATIBLE_TYPES);
+        }
     }
 
     // Statements

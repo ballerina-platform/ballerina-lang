@@ -155,7 +155,9 @@ public abstract class BIterableTypeVisitor implements BTypeVisitor<Operation, Li
 
         @Override
         public List<BType> visit(BRecordType t, Operation operation) {
-            return Lists.of(calculateType(operation, t));
+            // Need to pass the inferred field type of the record here since this type is used in the foreach vars
+            // in the desugared code.
+            return Lists.of(calculateType(operation, inferRecordFieldType(t)));
         }
 
         @Override
