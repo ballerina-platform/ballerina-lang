@@ -28,9 +28,13 @@ import org.ballerinalang.langserver.completions.util.ItemResolverConstants;
 import org.eclipse.lsp4j.CompletionItem;
 import org.eclipse.lsp4j.CompletionItemKind;
 import org.eclipse.lsp4j.InsertTextFormat;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BNilType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -74,7 +78,7 @@ public class ParserRuleFunctionDefinitionContextResolver extends AbstractItemRes
                 .forEach(attachedFunc -> {
                     CompletionItem completionItem = new CompletionItem();
                     String functionName = attachedFunc.funcName.getValue();
-                    List<String> funcArguments = CommonUtil.FunctionGenerator.getFuncArguments(attachedFunc.symbol);
+                    List<String> funcArguments = getFuncArguments(attachedFunc.symbol);
                     String label = functionName + "(" + String.join(", ", funcArguments) + ")";
                     if (!(attachedFunc.symbol.retType instanceof BNilType)) {
                         label += " returns " + CommonUtil.FunctionGenerator
@@ -91,5 +95,23 @@ public class ParserRuleFunctionDefinitionContextResolver extends AbstractItemRes
         });
         
         return completionItems;
+    }
+
+    private static List<String> getFuncArguments(BInvokableSymbol bInvokableSymbol) {
+        List<String> list = new ArrayList<>();
+        if (bInvokableSymbol.type instanceof BInvokableType) {
+            BInvokableType bInvokableType = (BInvokableType) bInvokableSymbol.type;
+            List<BType> paramTypes = bInvokableType.getParameterTypes();
+            List<BVarSymbol> params = bInvokableSymbol.getParameters();
+            if (bInvokableType.paramTypes.isEmpty()) {
+                return list;
+            }
+            for (int i = 0; i < params.size(); i++) {
+                String argName = params.get(i).name.getValue();
+                String argType = CommonUtil.FunctionGenerator.getFuncReturnSignature(paramTypes.get(i));
+                list.add(argType + " " + argName);
+            }
+        }
+        return (!list.isEmpty()) ? list : new ArrayList<>();
     }
 }
