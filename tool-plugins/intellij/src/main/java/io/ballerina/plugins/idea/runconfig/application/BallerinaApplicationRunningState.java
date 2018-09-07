@@ -97,29 +97,28 @@ public class BallerinaApplicationRunningState extends BallerinaRunningState<Ball
 
         BallerinaExecutor ballerinaExecutor;
         if (baseDir != null) {
-            ballerinaExecutor = executor
-                    .withParameters("run")
-                    .withParameters("--sourceroot")
-                    .withParameters(baseDir.getPath())
-                    .withBallerinaPath(BallerinaSdkService.getInstance(getConfiguration().getProject())
-                            .getSdkHomePath(module))
+            ballerinaExecutor = executor.withParameters("run");
+
+            // If debugging mode is running, we need to add the debugging flag.
+            if (isDebug()) {
+                ballerinaExecutor.withParameters("--debug", String.valueOf(myDebugPort));
+            }
+            ballerinaExecutor = executor.withParameters("--sourceroot").withParameters(baseDir.getPath())
+                    .withBallerinaPath(
+                            BallerinaSdkService.getInstance(getConfiguration().getProject()).getSdkHomePath(module))
                     .withParameterString(myConfiguration.getBallerinaToolParams()).withParameters(filePath);
         } else {
-            ballerinaExecutor = executor
-                    .withParameters("run")
-                    .withBallerinaPath(BallerinaSdkService.getInstance(getConfiguration().getProject())
-                            .getSdkHomePath(module))
+            ballerinaExecutor = executor.withParameters("run");
+
+            // If debugging mode is running, we need to add the debugging flag.
+            if (isDebug()) {
+                ballerinaExecutor.withParameters("--debug", String.valueOf(myDebugPort));
+            }
+            ballerinaExecutor = executor.withBallerinaPath(
+                    BallerinaSdkService.getInstance(getConfiguration().getProject()).getSdkHomePath(module))
                     .withParameterString(myConfiguration.getBallerinaToolParams()).withParameters(filePath);
         }
 
-        //        if (kind == RunConfigurationKind.SERVICE) {
-        //            ballerinaExecutor.withParameters("-s");
-        //        }
-
-        // If debugging mode is running, we need to add the debugging flag.
-        if (isDebug()) {
-            ballerinaExecutor.withParameters("--debug", String.valueOf(myDebugPort));
-        }
         return ballerinaExecutor;
     }
 
