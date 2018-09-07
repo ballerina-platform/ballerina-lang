@@ -1,0 +1,25 @@
+{
+  "position": {
+    "line": 12,
+    "character": 17
+  },
+  "source": "function/source/objectAttachFunctionImpl3.bal",
+  "items": [
+    {
+      "label":"getFullName() returns string",
+      "kind":"Function",
+      "detail":"Function",
+      "sortText":"120",
+      "insertText":"getFullName() returns string {\n\t${1}\n}",
+      "insertTextFormat":"Snippet"
+    },
+    {
+      "label":"checkAndModifyAge(int a, int b)",
+      "kind":"Function",
+      "detail":"Function",
+      "sortText":"120",
+      "insertText":"checkAndModifyAge(int a, int b) {\n\t${1}\n}",
+      "insertTextFormat":"Snippet"
+    }
+  ]
+}
