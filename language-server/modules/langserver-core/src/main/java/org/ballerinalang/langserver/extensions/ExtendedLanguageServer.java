@@ -22,6 +22,8 @@ import org.eclipse.lsp4j.services.LanguageServer;
 
 /**
  * Extended Language Server interface which includes ballerina document services.
+ *
+ * @since 0.981.2
  */
 public interface ExtendedLanguageServer extends LanguageServer {
     @JsonDelegate

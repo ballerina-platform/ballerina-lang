@@ -18,7 +18,9 @@ package org.ballerinalang.langserver.extensions.ballerina.example;
 import java.util.List;
 
 /**
- * Represents an example category
+ * Represents an example category.
+ *
+ * @since 0.981.2
  */
 public class BallerinaExampleCategory {
 

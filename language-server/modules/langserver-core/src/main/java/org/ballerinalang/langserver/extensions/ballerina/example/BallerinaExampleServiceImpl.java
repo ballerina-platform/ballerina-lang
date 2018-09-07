@@ -22,17 +22,16 @@ import org.ballerinalang.langserver.LSGlobalContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.InputStreamReader;
 import java.lang.reflect.Type;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
 /**
  * Ballerina example service.
+ *
+ * @since 0.981.2
  */
 public class BallerinaExampleServiceImpl implements BallerinaExampleService {
 

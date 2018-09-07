@@ -22,6 +22,8 @@ import java.util.concurrent.CompletableFuture;
 
 /**
  * An extension interface for Language server to add features related to ballerina examples.
+ *
+ * @since 0.981.2
  */
 @JsonSegment("ballerinaExample")
 public interface BallerinaExampleService {

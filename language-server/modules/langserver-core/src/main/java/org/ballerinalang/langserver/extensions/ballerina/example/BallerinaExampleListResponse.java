@@ -19,6 +19,8 @@ import java.util.List;
 
 /**
  * Represents a Ballerina example list response.
+ *
+ * @since 0.981.2
  */
 public class BallerinaExampleListResponse {
 
