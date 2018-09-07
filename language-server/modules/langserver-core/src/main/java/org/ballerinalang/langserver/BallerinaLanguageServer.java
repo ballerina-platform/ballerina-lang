@@ -22,6 +22,8 @@ import org.ballerinalang.langserver.compiler.workspace.WorkspaceDocumentManagerI
 import org.ballerinalang.langserver.extensions.ExtendedLanguageServer;
 import org.ballerinalang.langserver.extensions.ballerina.document.BallerinaDocumentService;
 import org.ballerinalang.langserver.extensions.ballerina.document.BallerinaDocumentServiceImpl;
+import org.ballerinalang.langserver.extensions.ballerina.example.BallerinaExampleService;
+import org.ballerinalang.langserver.extensions.ballerina.example.BallerinaExampleServiceImpl;
 import org.ballerinalang.langserver.index.LSIndexImpl;
 import org.eclipse.lsp4j.CompletionOptions;
 import org.eclipse.lsp4j.ExecuteCommandOptions;
@@ -49,6 +51,7 @@ public class BallerinaLanguageServer implements ExtendedLanguageServer, Language
     private TextDocumentService textService;
     private WorkspaceService workspaceService;
     private BallerinaDocumentService ballerinaDocumentService;
+    private BallerinaExampleService ballerinaExampleService;
     private int shutdown = 1;
 
     public BallerinaLanguageServer() {
@@ -66,6 +69,7 @@ public class BallerinaLanguageServer implements ExtendedLanguageServer, Language
         textService = new BallerinaTextDocumentService(lsGlobalContext);
         workspaceService = new BallerinaWorkspaceService(lsGlobalContext);
         ballerinaDocumentService = new BallerinaDocumentServiceImpl(lsGlobalContext);
+        ballerinaExampleService = new BallerinaExampleServiceImpl(lsGlobalContext);
     }
 
     public LanguageClient getClient() {
@@ -120,6 +124,11 @@ public class BallerinaLanguageServer implements ExtendedLanguageServer, Language
 
     public BallerinaDocumentService getBallerinaDocumentService() {
         return this.ballerinaDocumentService;
+    }
+
+    @Override
+    public BallerinaExampleService getBallerinaExampleService() {
+        return this.ballerinaExampleService;
     }
 
     @Override

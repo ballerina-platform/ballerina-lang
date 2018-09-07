@@ -24,6 +24,7 @@ import { DragDropContext } from 'react-dnd';
 import HTML5Backend from 'react-dnd-html5-backend';
 import PropTypes from 'prop-types';
 import ReactDOM from 'react-dom';
+import SamplesList from './samples/List';
 
 import Diagram from 'plugins/ballerina/diagram/diagram.jsx';
 import DesignView from 'plugins/ballerina/views/design-view.jsx';
@@ -151,9 +152,21 @@ function renderEditableDiagram(target, docUri, width, height,
     ReactDOM.render(BalDiagramElement, target);
 }
 
+function renderSamplesList(target, samples, openSample, openLink) {
+    console.log('Rendering samples');
+    const props = {
+        samples,
+        openSample,
+        openLink,
+    };
+    const SamplesListElement = createElement(SamplesList, props);
+    ReactDOM.render(SamplesListElement, target);
+}
+
 export {
     renderStaticDiagram,
     renderEditableDiagram,
+    renderSamplesList,
     TreeBuilder,
     BallerinaDesignView,
     BallerinaDiagram,

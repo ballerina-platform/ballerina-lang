@@ -14,7 +14,7 @@
         "theme": "light"
     },
     "engines": {
-        "vscode": "^1.26.0"
+        "vscode": "^1.26.1"
     },
     "categories": [
         "Programming Languages",
@@ -137,6 +137,10 @@
                     "dark": "./resources/images/icons/design-view-white.svg",
                     "light": "./resources/images/icons/design-view.svg"
                 }
+            },
+            {
+                "command": "ballerina.showExamples",
+                "title": "Ballerina: Show Examples"
             }
         ],
         "menus": {

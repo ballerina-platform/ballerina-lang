@@ -27,6 +27,25 @@ export interface ASTDidChangeEvent {
     ast: BallerinaAST;
 }
 
+export interface BallerinaExample {
+    title: string;
+    url: string;
+}
+
+export interface BallerinaExampleCategory {
+    title: string;
+    column: number;
+    samples: Array<BallerinaExample>;
+}   
+
+export interface BallerinaExampleListRequest {
+    filter?: string;
+}
+
+export interface BallerinaExampleListResponse {
+    samples: Array<BallerinaExampleCategory>;
+}
+
 export class ExtendedLangClient extends LanguageClient {
 
     getAST(uri: Uri): Thenable<BallerinaASTResponse> {
@@ -46,5 +65,9 @@ export class ExtendedLangClient extends LanguageClient {
             ast
         };
         return this.sendRequest("ballerinaDocument/astDidChange", evt);
+    }
+
+    fetchExamples(args: BallerinaExampleListRequest = {}): Thenable<BallerinaExampleListResponse> {
+        return this.sendRequest("ballerinaExample/list", args);
     }
 }

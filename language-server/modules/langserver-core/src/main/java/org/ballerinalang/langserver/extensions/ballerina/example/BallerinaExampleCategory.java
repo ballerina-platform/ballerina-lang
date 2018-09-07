@@ -13,33 +13,44 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.ballerinalang.langserver.extensions.ballerina.document;
+package org.ballerinalang.langserver.extensions.ballerina.example;
 
-import com.google.gson.JsonElement;
+import java.util.List;
 
 /**
- * Represents a Ballerina AST response.
+ * Represents an example category.
  *
  * @since 0.981.2
  */
-public class BallerinaASTResponse {
-    private JsonElement ast;
+public class BallerinaExampleCategory {
 
-    private boolean parseSuccess;
+    private String title;
 
-    public JsonElement getAst() {
-        return ast;
+    private int column;
+
+    private List<BallerinaExample> samples;
+
+    public String getTitle() {
+        return title;
     }
 
-    public void setAst(JsonElement ast) {
-        this.ast = ast;
+    public void setTitle(String title) {
+        this.title = title;
     }
 
-    public boolean isParseSuccess() {
-        return parseSuccess;
+    public int getColumn() {
+        return column;
     }
 
-    public void setParseSuccess(boolean parseSuccess) {
-        this.parseSuccess = parseSuccess;
+    public void setColumn(int column) {
+        this.column = column;
+    }
+
+    public List<BallerinaExample> getSamples() {
+        return samples;
+    }
+
+    public void setSamples(List<BallerinaExample> samples) {
+        this.samples = samples;
     }
 }
