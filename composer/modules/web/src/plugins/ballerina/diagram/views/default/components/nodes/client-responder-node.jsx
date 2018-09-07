@@ -51,7 +51,12 @@ class ClientResponderNode extends React.Component {
         let expression = model.viewState.expression;
 
         if (model.viewState.isClientResponder) {
-            expression = TreeUtil.getInvocationSignature(this.props.model);
+            if (TreeUtil.isExpressionStatement(model)) {
+                expression = TreeUtil.getInvocationSignature(model);
+            } else if (!TreeUtil.isExpressionStatement(model) &&
+                (model.viewState.displayText)) {
+                expression = model.viewState.displayText;
+            }
         }
 
         return (
