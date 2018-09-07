@@ -3,14 +3,14 @@ import ballerina/internal;
 
 public type BirFuncBodyParser object {
     BirChannelReader reader,
-    map<BIRVariableDcl> localVarMap,
+    map<VariableDcl> localVarMap,
     public new(reader, localVarMap) {
     }
 
-    public function parseBB() returns BIRBasicBlock {
+    public function parseBB() returns BasicBlock {
         var id = reader.readStringCpRef();
         var numInstruction = reader.readInt32() - 1;
-        BIRInstruction[] instructions;
+        Instruction[] instructions;
         int i;
         while (i < numInstruction) {
             instructions[i] = parseInstruction();
@@ -21,7 +21,7 @@ public type BirFuncBodyParser object {
             terminator: parseTerminator() };
     }
 
-    public function parseInstruction() returns BIRInstruction {
+    public function parseInstruction() returns Instruction {
         var kindTag = reader.readInt8();
         InstructionKind kind = "CONST_LOAD";
         // this is hacky to init to a fake val, but ballerina dosn't support un intialized vers
@@ -46,13 +46,13 @@ public type BirFuncBodyParser object {
 
 
 
-    public function parseTerminator() returns BIRTerminator {
+    public function parseTerminator() returns Terminator {
         var kindTag = reader.readInt8();
         if (kindTag == 3){
             InstructionKind kind = "BRANCH";
             var op = parseVarRef();
-            BIRBasicBlock trueBB = parseBBRef();
-            BIRBasicBlock falseBB = parseBBRef();
+            BasicBlock trueBB = parseBBRef();
+            BasicBlock falseBB = parseBBRef();
             return new Branch(falseBB, kind, op, trueBB);
         } else if (kindTag == 1){
             InstructionKind kind = "GOTO";
@@ -65,18 +65,18 @@ public type BirFuncBodyParser object {
             var pkgIdCp = reader.readInt32();
             var name = reader.readStringCpRef();
             var argsCount = reader.readInt32();
-            BIROperand[] args = [];
+            Operand[] args = [];
             int i = 0;
             while (i < argsCount) {
                 args[i] = parseVarRef();
                 i++;
             }
             var hasLhs = reader.readBoolean();
-            BIRVarRef? lhsOp = ();
+            VarRef? lhsOp = ();
             if (hasLhs){
                 lhsOp = parseVarRef();
             }
-            BIRBasicBlock thenBB = parseBBRef();
+            BasicBlock thenBB = parseBBRef();
             return new Call(args, kind, lhsOp, { value: name }, thenBB);
 
         }
@@ -85,13 +85,13 @@ public type BirFuncBodyParser object {
     }
 
 
-    public function parseVarRef() returns BIRVarRef {
+    public function parseVarRef() returns VarRef {
         var varName = reader.readStringCpRef();
         var decl = getDecl(localVarMap, varName);
-        return new BIRVarRef("VAR_REF", decl.typeValue, decl);
+        return new VarRef("VAR_REF", decl.typeValue, decl);
     }
 
-    public function parseBBRef() returns BIRBasicBlock {
+    public function parseBBRef() returns BasicBlock {
         return { id: { value: reader.readStringCpRef() } };
     }
 
@@ -132,10 +132,10 @@ public type BirFuncBodyParser object {
 
 };
 
-function getDecl(map<BIRVariableDcl> localVarMap, string varName) returns BIRVariableDcl {
+function getDecl(map<VariableDcl> localVarMap, string varName) returns VariableDcl {
     var posibalDcl = localVarMap[varName];
     match posibalDcl {
-        BIRVariableDcl dcl => return dcl;
+        VariableDcl dcl => return dcl;
         () => {
             error err = { message: "local var missing " + varName };
             throw err;

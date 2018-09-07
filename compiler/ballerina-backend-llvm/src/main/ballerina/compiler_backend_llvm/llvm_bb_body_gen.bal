@@ -6,8 +6,8 @@ type BbBodyGenrator object {
     llvm:LLVMBuilderRef builder,
     llvm:LLVMValueRef funcRef,
     FuncGenrator parent,
-    bir:BIRFunction func,
-    bir:BIRBasicBlock bb;
+    bir:Function func,
+    bir:BasicBlock bb;
 
     new(builder, funcRef, func, parent, bb) {
     }
@@ -21,7 +21,7 @@ type BbBodyGenrator object {
         return new(builder, funcRef, func, bb, bbRef, parent);
     }
 
-    function genInstruction(bir:BIRInstruction instruction) {
+    function genInstruction(bir:Instruction instruction) {
         match instruction {
             bir:Move moveIns => genMoveIns(moveIns);
             bir:BinaryOp binaryIns => genBinaryOpIns(binaryIns);

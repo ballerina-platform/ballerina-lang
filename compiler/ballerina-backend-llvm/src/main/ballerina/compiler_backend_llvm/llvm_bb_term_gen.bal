@@ -6,9 +6,9 @@ type BbTermGenrator object {
 
     llvm:LLVMBuilderRef builder,
     llvm:LLVMValueRef funcRef,
-    bir:BIRFunction func,
+    bir:Function func,
     FuncGenrator parent,
-    bir:BIRBasicBlock bb,
+    bir:BasicBlock bb,
     llvm:LLVMBasicBlockRef bbRef;
 
     new(builder, funcRef, func, bb, bbRef, parent) {
@@ -50,7 +50,7 @@ type BbTermGenrator object {
         var brInsRef = llvm:LLVMBuildBr(builder, thenBB);
     }
 
-    function mapOverGenVarLoad(bir:BIROperand[] ops) returns llvm:LLVMValueRef[] {
+    function mapOverGenVarLoad(bir:Operand[] ops) returns llvm:LLVMValueRef[] {
         llvm:LLVMValueRef[] loaddedVars = [];
         var argsCount = lengthof ops;
         int i = 0;
@@ -74,7 +74,7 @@ type BbTermGenrator object {
         llvm:LLVMValueRef calleFuncRef = findFuncRefByName(funcGenrators, callIns.name);
         llvm:LLVMValueRef callReturn = llvm:LLVMBuildCall(builder, calleFuncRef, args, lengthof args, "");
         match callIns.lhsOp {
-            bir:BIRVarRef lhsOp => {
+            bir:VarRef lhsOp => {
                 llvm:LLVMValueRef lhsRef = parent.getLocalVarRefById(func, lhsOp.variableDcl.name.value);
                 var loaded = llvm:LLVMBuildStore(builder, callReturn, lhsRef);
             }
@@ -99,9 +99,9 @@ type BbTermGenrator object {
     }
 
     // TODO remove duplicate func
-    function genVarLoad(bir:BIROperand oprand) returns llvm:LLVMValueRef {
+    function genVarLoad(bir:Operand oprand) returns llvm:LLVMValueRef {
         match oprand {
-            bir:BIRVarRef refOprand => {
+            bir:VarRef refOprand => {
                 string tempName = localVarName(refOprand.variableDcl) + "_temp";
                 return llvm:LLVMBuildLoad(builder, parent.getLocalVarRefById(func, refOprand.variableDcl.name.value),
                     tempName);

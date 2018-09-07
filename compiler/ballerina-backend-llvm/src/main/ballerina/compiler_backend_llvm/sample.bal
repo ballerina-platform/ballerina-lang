@@ -3,7 +3,7 @@ import ballerina/bir;
 
 function writeSample(string path) {
 
-    bir:BIRPackage ifSample = {
+    bir:Package ifSample = {
         functions: [
             {
                 argsCount: 0,
@@ -15,7 +15,7 @@ function writeSample(string path) {
                         instructions: [
                             new bir:ConstantLoad (
                                 "CONST_LOAD",
-                                new bir:BIRVarRef (
+                                new bir:VarRef (
                                     "VAR_REF",
                                     "int",
                                     {
@@ -31,7 +31,7 @@ function writeSample(string path) {
                             ),
                             new bir:Move (
                                 "MOVE",
-                                new bir:BIRVarRef (
+                                new bir:VarRef (
                                     "VAR_REF",
                                     "int",
                                     {
@@ -42,7 +42,7 @@ function writeSample(string path) {
                                         typeValue: "int"
                                     }
                                 ),
-                                new bir:BIRVarRef (
+                                new bir:VarRef (
                                     "VAR_REF",
                                     "int",
                                     {
@@ -56,7 +56,7 @@ function writeSample(string path) {
                             ),
                             new bir:ConstantLoad (
                                 "CONST_LOAD",
-                                new bir:BIRVarRef (
+                                new bir:VarRef (
                                     "VAR_REF",
                                     "int",
                                     {
@@ -72,7 +72,7 @@ function writeSample(string path) {
                             ),
                             new bir:Move (
                                 "MOVE",
-                                new bir:BIRVarRef (
+                                new bir:VarRef (
                                     "VAR_REF",
                                     "int",
                                     {
@@ -83,7 +83,7 @@ function writeSample(string path) {
                                         typeValue: "int"
                                     }
                                 ),
-                                new bir:BIRVarRef (
+                                new bir:VarRef (
                                     "VAR_REF",
                                     "int",
                                     {
@@ -97,7 +97,7 @@ function writeSample(string path) {
                             ),
                             new bir:Move (
                                 "MOVE",
-                                new bir:BIRVarRef (
+                                new bir:VarRef (
                                     "VAR_REF",
                                     "int",
                                     {
@@ -108,7 +108,7 @@ function writeSample(string path) {
                                         typeValue: "int"
                                     }
                                 ),
-                                new bir:BIRVarRef (
+                                new bir:VarRef (
                                     "VAR_REF",
                                     "int",
                                     {
@@ -122,7 +122,7 @@ function writeSample(string path) {
                             ),
                             new bir:ConstantLoad (
                                 "CONST_LOAD",
-                                new bir:BIRVarRef (
+                                new bir:VarRef (
                                     "VAR_REF",
                                     "int",
                                     {
@@ -138,7 +138,7 @@ function writeSample(string path) {
                             ),
                             new bir:BinaryOp (
                                 "LESS_THAN",
-                                new bir:BIRVarRef (
+                                new bir:VarRef (
                                     "VAR_REF",
                                     "boolean",
                                     {
@@ -149,7 +149,7 @@ function writeSample(string path) {
                                         typeValue: "boolean"
                                     }
                                 ),
-                                new bir:BIRVarRef (
+                                new bir:VarRef (
                                     "VAR_REF",
                                     "int",
                                     {
@@ -160,7 +160,7 @@ function writeSample(string path) {
                                         typeValue: "int"
                                     }
                                 ),
-                                new bir:BIRVarRef (
+                                new bir:VarRef (
                                     "VAR_REF",
                                     "int",
                                     {
@@ -181,7 +181,7 @@ function writeSample(string path) {
                                             }
                                         },
                                         "BRANCH",
-                                        new bir:BIRVarRef (
+                                        new bir:VarRef (
                                             "VAR_REF",
                                             "boolean",
                                             {
@@ -206,7 +206,7 @@ function writeSample(string path) {
                         instructions: [
                             new bir:Move (
                                 "MOVE",
-                                new bir:BIRVarRef (
+                                new bir:VarRef (
                                     "VAR_REF",
                                     "int",
                                     {
@@ -217,7 +217,7 @@ function writeSample(string path) {
                                         typeValue: "int"
                                     }
                                 ),
-                                new bir:BIRVarRef (
+                                new bir:VarRef (
                                     "VAR_REF",
                                     "int",
                                     {
@@ -231,7 +231,7 @@ function writeSample(string path) {
                             ),
                             new bir:Move (
                                 "MOVE",
-                                new bir:BIRVarRef (
+                                new bir:VarRef (
                                     "VAR_REF",
                                     "int",
                                     {
@@ -242,7 +242,7 @@ function writeSample(string path) {
                                         typeValue: "int"
                                     }
                                 ),
-                                new bir:BIRVarRef (
+                                new bir:VarRef (
                                     "VAR_REF",
                                     "int",
                                     {
@@ -256,7 +256,7 @@ function writeSample(string path) {
                             ),
                             new bir:BinaryOp (
                                 "ADD",
-                                new bir:BIRVarRef (
+                                new bir:VarRef (
                                     "VAR_REF",
                                     "int",
                                     {
@@ -267,7 +267,7 @@ function writeSample(string path) {
                                         typeValue: "int"
                                     }
                                 ),
-                                new bir:BIRVarRef (
+                                new bir:VarRef (
                                     "VAR_REF",
                                     "int",
                                     {
@@ -278,7 +278,7 @@ function writeSample(string path) {
                                         typeValue: "int"
                                     }
                                 ),
-                                new bir:BIRVarRef (
+                                new bir:VarRef (
                                     "VAR_REF",
                                     "int",
                                     {
@@ -293,7 +293,7 @@ function writeSample(string path) {
                             ),
                             new bir:Move (
                                 "MOVE",
-                                new bir:BIRVarRef (
+                                new bir:VarRef (
                                     "VAR_REF",
                                     "int",
                                     {
@@ -304,7 +304,7 @@ function writeSample(string path) {
                                         typeValue: "int"
                                     }
                                 ),
-                                new bir:BIRVarRef (
+                                new bir:VarRef (
                                     "VAR_REF",
                                     "int",
                                     {
@@ -333,7 +333,7 @@ function writeSample(string path) {
                         instructions: [
                             new bir:Move (
                                 "MOVE",
-                                new bir:BIRVarRef (
+                                new bir:VarRef (
                                     "VAR_REF",
                                     "int",
                                     {
@@ -344,7 +344,7 @@ function writeSample(string path) {
                                         typeValue: "int"
                                     }
                                 ),
-                                new bir:BIRVarRef (
+                                new bir:VarRef (
                                     "VAR_REF",
                                     "int",
                                     {
@@ -358,7 +358,7 @@ function writeSample(string path) {
                             ),
                             new bir:Move (
                                 "MOVE",
-                                new bir:BIRVarRef (
+                                new bir:VarRef (
                                     "VAR_REF",
                                     "int",
                                     {
@@ -369,7 +369,7 @@ function writeSample(string path) {
                                         typeValue: "int"
                                     }
                                 ),
-                                new bir:BIRVarRef (
+                                new bir:VarRef (
                                     "VAR_REF",
                                     "int",
                                     {

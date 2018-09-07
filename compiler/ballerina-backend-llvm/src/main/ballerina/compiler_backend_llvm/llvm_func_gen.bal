@@ -3,7 +3,7 @@ import ballerina/io;
 import ballerina/bir;
 
 type FuncGenrator object {
-    bir:BIRFunction func,
+    bir:Function func,
     llvm:LLVMValueRef funcRef,
     llvm:LLVMModuleRef mod,
     map<llvm:LLVMValueRef> localVarRefs,
@@ -78,23 +78,23 @@ type FuncGenrator object {
         return bbRef;
     }
 
-    function isParamter(bir:BIRVariableDcl localVar) returns boolean {
+    function isParamter(bir:VariableDcl localVar) returns boolean {
         match localVar.kind {
             bir:ArgVarKind => return true;
             any => return false;
         }
     }
 
-    function genVarLoad(bir:BIROperand oprand) returns llvm:LLVMValueRef {
+    function genVarLoad(bir:Operand oprand) returns llvm:LLVMValueRef {
         match oprand {
-            bir:BIRVarRef refOprand => {
+            bir:VarRef refOprand => {
                 string tempName = localVarName(refOprand.variableDcl) + "_temp";
                 return llvm:LLVMBuildLoad(builder, getLocalVarRefById(func, refOprand.variableDcl.name.value), tempName);
             }
         }
     }
 
-    function getLocalVarRefById(bir:BIRFunction fun, string id) returns llvm:LLVMValueRef {
+    function getLocalVarRefById(bir:Function fun, string id) returns llvm:LLVMValueRef {
         match localVarRefs[id] {
             llvm:LLVMValueRef varRef => return varRef;
             any => {

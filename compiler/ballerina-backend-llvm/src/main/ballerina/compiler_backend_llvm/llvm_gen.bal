@@ -5,7 +5,7 @@ import ballerina/bir;
 // TODO: make non-globle
 llvm:LLVMValueRef printfRef;
 
-function genPackage(bir:BIRPackage pkg, string targetObjectFilePath, boolean dumpLLVMIR) {
+function genPackage(bir:Package pkg, string targetObjectFilePath, boolean dumpLLVMIR) {
     var mod = createModule(pkg.org, pkg.name, pkg.versionValue);
     genFunctions(mod, pkg.functions);
     optimize(mod);
@@ -20,7 +20,7 @@ function createModule(bir:Name orgName, bir:Name pkgName, bir:Name ver) returns 
     return llvm:LLVMModuleCreateWithName(moduleName);
 }
 
-function genFunctions(llvm:LLVMModuleRef mod, bir:BIRFunction[] funcs) {
+function genFunctions(llvm:LLVMModuleRef mod, bir:Function[] funcs) {
     var builder = llvm:LLVMCreateBuilder();
 
     genPrintfDeclration(mod);
@@ -74,7 +74,7 @@ function initAllTargets() {
     llvm:LLVMInitializeAllAsmPrinters();
 }
 
-function mapFuncsToNameAndGenrator(llvm:LLVMModuleRef mod, llvm:LLVMBuilderRef builder, bir:BIRFunction[] funcs)
+function mapFuncsToNameAndGenrator(llvm:LLVMModuleRef mod, llvm:LLVMBuilderRef builder, bir:Function[] funcs)
              returns map<FuncGenrator> {
     map<FuncGenrator> genrators;
     foreach func in funcs {
@@ -146,7 +146,7 @@ function appendAllTo(any[] toArr, any[] fromArr) {
     }
 }
 
-function localVarName(bir:BIRVariableDcl localVar) returns string {
+function localVarName(bir:VariableDcl localVar) returns string {
     return localVarNameFromId(localVar.name.value);
 }
 

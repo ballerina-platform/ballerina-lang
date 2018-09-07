@@ -6,9 +6,9 @@ public type PackageParser object {
     public new(reader) {
     }
 
-    public function parseVariableDcl() returns BIRVariableDcl {
+    public function parseVariableDcl() returns VariableDcl {
         var kind = parseVarKind();
-        BIRVariableDcl dcl = {
+        VariableDcl dcl = {
             typeValue: reader.readBType(),
             name: { value: reader.readStringCpRef() },
             kind:kind
@@ -16,7 +16,7 @@ public type PackageParser object {
         return dcl;
     }
 
-    public function parseFunction() returns BIRFunction {
+    public function parseFunction() returns Function {
         var name = reader.readStringCpRef();
         var isDeclaration = reader.readBoolean();
         var visibility = parseVisibility();
@@ -24,8 +24,8 @@ public type PackageParser object {
         var argsCount = reader.readInt32();
         var numLocalVars = reader.readInt32();
 
-        BIRVariableDcl[] dcls;
-        map<BIRVariableDcl> localVarMap;
+        VariableDcl[] dcls;
+        map<VariableDcl> localVarMap;
         int i;
         while (i < numLocalVars) {
             var dcl = parseVariableDcl();
@@ -35,7 +35,7 @@ public type PackageParser object {
         }
         BirFuncBodyParser bodyParser = new(reader, localVarMap);
 
-        BIRBasicBlock[] basicBlocks;
+        BasicBlock[] basicBlocks;
         var numBB = reader.readInt32();
         i = 0;
         while (i < numBB) {
@@ -54,10 +54,10 @@ public type PackageParser object {
         };
     }
 
-    public function parsePackage() returns BIRPackage {
+    public function parsePackage() returns Package {
         var pkgIdCp = reader.readInt32();
         var numFuncs = reader.readInt32();
-        BIRFunction[] funcs;
+        Function[] funcs;
         int i;
         while (i < numFuncs) {
             funcs[i] = parseFunction();
