@@ -16,7 +16,7 @@
                     "character": 0
                 }
             },
-            "newText": "import ballerina/io;\r\nfunction main(string... args) {\r\n    int a2 = 10;\r\n\r\n    transaction with retries = 1, oncommit = onCommitFunction, onabort = onAbortFunction {\r\n        string testString = \"Hello World!!\";\r\n        a2 = 1000;\r\n    } onretry {\r\n        io:println(\"Within On-Retry\");\r\n    }\r\n}\r\n\r\nfunction onCommitFunction(string transactionId) {\r\n    io:println(\"Transaction: \" + transactionId + \" committed\");\r\n}\r\n\r\nfunction onAbortFunction(string transactionId) {\r\n    io:println(\"Transaction: \" + transactionId + \" aborted\");\r\n}"
+            "newText": "import ballerina/io;\r\npublic function main(string... args) {\r\n    int a2 = 10;\r\n\r\n    transaction with retries = 1, oncommit = onCommitFunction, onabort = onAbortFunction {\r\n        string testString = \"Hello World!!\";\r\n        a2 = 1000;\r\n    } onretry {\r\n        io:println(\"Within On-Retry\");\r\n    }\r\n}\r\n\r\nfunction onCommitFunction(string transactionId) {\r\n    io:println(\"Transaction: \" + transactionId + \" committed\");\r\n}\r\n\r\nfunction onAbortFunction(string transactionId) {\r\n    io:println(\"Transaction: \" + transactionId + \" aborted\");\r\n}"
         }
     ]
 }

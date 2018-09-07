@@ -527,12 +527,14 @@ public class IterableAnalyzer {
             final BTupleType tupleType = collectionType.tupleType;
             if (expectedType.tag == TypeTags.ARRAY && tupleType.tupleTypes.size() == 1) {
                 // Convert result into an array.
-                context.resultType = new BArrayType(tupleType.tupleTypes.get(0));
+                context.resultType = types.checkType(lastOperation.pos, new BArrayType(tupleType.tupleTypes.get(0)),
+                        expectedType, DiagnosticCode.INCOMPATIBLE_TYPES);
                 return;
             } else if (expectedType.tag == TypeTags.MAP && tupleType.tupleTypes.size() == 2
                     && tupleType.tupleTypes.get(0).tag == TypeTags.STRING) {
                 // Convert result into a map.
-                context.resultType = new BMapType(TypeTags.MAP, tupleType.tupleTypes.get(1), null);
+                context.resultType = types.checkType(lastOperation.pos, new BMapType(TypeTags.MAP,
+                        tupleType.tupleTypes.get(1), null), expectedType, DiagnosticCode.INCOMPATIBLE_TYPES);
                 return;
             } else if (expectedType.tag == TypeTags.TABLE) {
                 // expectedTypes hold the types of expected return values (types of references) of the iterable

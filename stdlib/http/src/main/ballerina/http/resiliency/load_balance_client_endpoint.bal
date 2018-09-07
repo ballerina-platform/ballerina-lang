@@ -15,13 +15,10 @@
 // under the License.
 
 
-documentation {
-    LoadBalanceClient endpoint provides load balancing functionality over multiple HTTP clients.
-
-    E{{}}
-    F{{epName}} Name of the endpoint
-    F{{loadBalanceClientConfig}} The configurations for the load balance client endpoint
-}
+# LoadBalanceClient endpoint provides load balancing functionality over multiple HTTP clients.
+#
+# + epName - Name of the endpoint
+# + loadBalanceClientConfig - The configurations for the load balance client endpoint
 public type LoadBalanceClient object {
 
     public string epName;
@@ -29,43 +26,37 @@ public type LoadBalanceClient object {
 
     private Client httpEP;
 
-    documentation {
-        The initialization function for the load balance client endpoint.
-
-        P{{lbClientConfig}} The user provided configurations for the load balance client endpoint
-    }
+    # The initialization function for the load balance client endpoint.
+    #
+    # + lbClientConfig - The user provided configurations for the load balance client endpoint
     public function init(LoadBalanceClientEndpointConfiguration lbClientConfig);
 
-    documentation {
-        Returns the HTTP LoadBalancer actions associated with the endpoint.
-
-        R{{}} The HTTP LoadBalancer actions associated with the endpoint
-    }
+    # Returns the HTTP LoadBalancer actions associated with the endpoint.
+    #
+    # + return - The HTTP LoadBalancer actions associated with the endpoint
     public function getCallerActions() returns LoadBalancerActions {
         return check <LoadBalancerActions> httpEP.httpClient;
     }
 };
 
-documentation {
-    The configurations related to the load balance client endpoint.
-
-    F{{circuitBreaker}} Circuit Breaker configuration
-    F{{timeoutMillis}} The maximum time to wait (in milli seconds) for a response before closing the connection
-    F{{httpVersion}} The HTTP version to be used to communicate with the endpoint
-    F{{forwarded}} The choice of setting forwarded/x-forwarded header
-    F{{keepAlive}} Specifies whether to keep the connection alive (or not) for multiple request/response pairs
-    F{{chunking}} The chunking behaviour of the request
-    F{{followRedirects}} Redirect related options
-    F{{retryConfig}} Retry related options
-    F{{proxy}} Proxy related options
-    F{{connectionThrottling}} The configurations for controlling the number of connections allowed concurrently
-    F{{targets}} The upstream HTTP endpoints among which the incoming HTTP traffic load should be distributed
-    F{{cache}} The configurations for controlling the caching behaviour
-    F{{compression}} Specifies the way of handling compression (`accept-encoding`) header
-    F{{auth}} HTTP authentication releated configurations
-    F{{algorithm}} The algorithm to be used for load balancing. The HTTP package provides 'roundRobin()' by default
-    F{{failover}} Configuration for load balancer whether to fail over in case of a failure
-}
+# The configurations related to the load balance client endpoint.
+#
+# + circuitBreaker - Circuit Breaker configuration
+# + timeoutMillis - The maximum time to wait (in milli seconds) for a response before closing the connection
+# + httpVersion - The HTTP version to be used to communicate with the endpoint
+# + forwarded - The choice of setting forwarded/x-forwarded header
+# + keepAlive - Specifies whether to keep the connection alive (or not) for multiple request/response pairs
+# + chunking - The chunking behaviour of the request
+# + followRedirects - Redirect related options
+# + retryConfig - Retry related options
+# + proxy - Proxy related options
+# + connectionThrottling - The configurations for controlling the number of connections allowed concurrently
+# + targets - The upstream HTTP endpoints among which the incoming HTTP traffic load should be distributed
+# + cache - The configurations for controlling the caching behaviour
+# + compression - Specifies the way of handling compression (`accept-encoding`) header
+# + auth - HTTP authentication releated configurations
+# + algorithm - The algorithm to be used for load balancing. The HTTP package provides 'roundRobin()' by default
+# + failover - Configuration for load balancer whether to fail over in case of a failure
 public type LoadBalanceClientEndpointConfiguration record {
     CircuitBreakerConfig? circuitBreaker,
     int timeoutMillis = 60000,

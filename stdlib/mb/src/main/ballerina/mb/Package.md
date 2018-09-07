@@ -56,7 +56,7 @@ endpoint mb:SimpleQueueSender queueSender {
    queueName: "MyQueue"
 };
 
-function main (string... args) {
+public function main (string... args) {
    // Create a text message.
    match (queueSender.createTextMessage("Hello from Ballerina")) {
        error e => {

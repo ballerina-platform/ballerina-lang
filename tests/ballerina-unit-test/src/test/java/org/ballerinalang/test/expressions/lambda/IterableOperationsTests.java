@@ -50,7 +50,7 @@ public class IterableOperationsTests {
 
     @Test
     public void testNegative() {
-        Assert.assertEquals(negative.getErrorCount(), 22);
+        Assert.assertEquals(negative.getErrorCount(), 25);
 
         int index = 0;
         BAssertUtil.validateError(negative, index++, "undefined function 'int.foreach'", 6, 5);
@@ -89,10 +89,13 @@ public class IterableOperationsTests {
                                   67,
                 14);
         BAssertUtil.validateError(negative, index++, "unknown type 'person'", 68, 33);
-        BAssertUtil.validateError(negative, index++, "incompatible types: expected 'map', found '(any) collection'", 74,
+        BAssertUtil.validateError(negative, index++, "incompatible types: expected 'int[]', found 'any[]'", 73, 23);
+        BAssertUtil.validateError(negative, index++, "incompatible types: expected 'int[]', found 'string[]'", 82, 27);
+        BAssertUtil.validateError(negative, index++, "incompatible types: expected 'int[]', found 'string[]'", 93, 30);
+        BAssertUtil.validateError(negative, index++, "incompatible types: expected 'map', found '(any) collection'", 99,
                                   22);
         BAssertUtil.validateError(negative, index++,
-                                  "cannot assign return value of 'filter' operation here, use a reduce operation", 78,
+                                  "cannot assign return value of 'filter' operation here, use a reduce operation", 103,
                                   22);
     }
 

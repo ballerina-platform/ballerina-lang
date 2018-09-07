@@ -19,6 +19,9 @@ import org.ballerinalang.langserver.common.constants.CommandConstants;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.compiler.workspace.WorkspaceDocumentManager;
 import org.ballerinalang.langserver.compiler.workspace.WorkspaceDocumentManagerImpl;
+import org.ballerinalang.langserver.extensions.ExtendedLanguageServer;
+import org.ballerinalang.langserver.extensions.ballerina.document.BallerinaDocumentService;
+import org.ballerinalang.langserver.extensions.ballerina.document.BallerinaDocumentServiceImpl;
 import org.ballerinalang.langserver.index.LSIndexImpl;
 import org.eclipse.lsp4j.CompletionOptions;
 import org.eclipse.lsp4j.ExecuteCommandOptions;
@@ -29,7 +32,6 @@ import org.eclipse.lsp4j.SignatureHelpOptions;
 import org.eclipse.lsp4j.TextDocumentSyncKind;
 import org.eclipse.lsp4j.services.LanguageClient;
 import org.eclipse.lsp4j.services.LanguageClientAware;
-import org.eclipse.lsp4j.services.LanguageServer;
 import org.eclipse.lsp4j.services.TextDocumentService;
 import org.eclipse.lsp4j.services.WorkspaceService;
 
@@ -42,10 +44,11 @@ import java.util.concurrent.CompletableFuture;
 /**
  * Language server implementation for Ballerina.
  */
-public class BallerinaLanguageServer implements LanguageServer, LanguageClientAware {
+public class BallerinaLanguageServer implements ExtendedLanguageServer, LanguageClientAware {
     private LanguageClient client = null;
     private TextDocumentService textService;
     private WorkspaceService workspaceService;
+    private BallerinaDocumentService ballerinaDocumentService;
     private int shutdown = 1;
 
     public BallerinaLanguageServer() {
@@ -62,6 +65,7 @@ public class BallerinaLanguageServer implements LanguageServer, LanguageClientAw
 
         textService = new BallerinaTextDocumentService(lsGlobalContext);
         workspaceService = new BallerinaWorkspaceService(lsGlobalContext);
+        ballerinaDocumentService = new BallerinaDocumentServiceImpl(lsGlobalContext);
     }
 
     public LanguageClient getClient() {
@@ -74,7 +78,8 @@ public class BallerinaLanguageServer implements LanguageServer, LanguageClientAw
         final List<String> commandList = new ArrayList<>(Arrays.asList(CommandConstants.CMD_IMPORT_PACKAGE,
                                                                        CommandConstants.CMD_ADD_DOCUMENTATION,
                                                                        CommandConstants.CMD_ADD_ALL_DOC,
-                                                                       CommandConstants.CMD_CREATE_FUNCTION));
+                                                                       CommandConstants.CMD_CREATE_FUNCTION,
+                                                                       CommandConstants.CMD_CREATE_VARIABLE));
         final ExecuteCommandOptions executeCommandOptions = new ExecuteCommandOptions(commandList);
         final CompletionOptions completionOptions = new CompletionOptions();
         completionOptions.setTriggerCharacters(Arrays.asList(":", ".", ">", "@"));
@@ -113,6 +118,10 @@ public class BallerinaLanguageServer implements LanguageServer, LanguageClientAw
         return this.workspaceService;
     }
 
+    public BallerinaDocumentService getBallerinaDocumentService() {
+        return this.ballerinaDocumentService;
+    }
+
     @Override
     public void connect(LanguageClient languageClient) {
         this.client = languageClient;
@@ -125,5 +134,6 @@ public class BallerinaLanguageServer implements LanguageServer, LanguageClientAw
                 .toString();
         LSIndexImpl.getInstance().initFromIndexDump(indexDumpPath);
     }
+
 }
 

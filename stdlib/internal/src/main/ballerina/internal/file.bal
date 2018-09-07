@@ -16,9 +16,7 @@
 
 import ballerina/time;
 
-documentation {
-    Reference to the file location.
-}
+# Reference to the file location.
 public type Path object {
     private string root;
 
@@ -26,115 +24,83 @@ public type Path object {
         init(root);
     }
 
-    documentation {
-        Constructs the path.
-    }
+    # Constructs the path.
     extern function init(string r);
 
-    documentation {
-        Retrieves the absolute path from the provided location.
-
-        R{{}} Returns the absolute path reference or an error if the path cannot be derived
-    }
+    # Retrieves the absolute path from the provided location.
+    #
+    # + return - Returns the absolute path reference or an error if the path cannot be derived
     extern function toAbsolutePath() returns Path;
 
-    documentation {
-        Retreives the absolute path from the provided location.
-
-        R{{}} Returns the absolute path as a string
-    }
+    # Retreives the absolute path from the provided location.
+    #
+    # + return - Returns the absolute path as a string
     public extern function getPathValue() returns string;
 
-    documentation {
-        Retreives the name of the file from the provided location.
-
-        R{{}} Returns the name of the file
-    }
+    # Retreives the name of the file from the provided location.
+    #
+    # + return - Returns the name of the file
     public extern function getName() returns string;
 
-    documentation {
-        Retreives the extension of the file from the provided location.
-
-        R{{}} Returns the extension of the file. Empty string if no extension.
-    }
+    # Retreives the extension of the file from the provided location.
+    #
+    # + return - Returns the extension of the file. Empty string if no extension.
     public extern function getExtension() returns string;
 
-    documentation {
-        Check for existance of the file.
-
-        R{{}} True if the file exists, else false
-    }
+    # Check for existance of the file.
+    #
+    # + return - True if the file exists, else false
     public extern function exists() returns boolean;
 
-    documentation {
-        Returns the files of folders in the directory.
-
-        R{{}} True if the given file path is a directory. It is false otherwise
-    }
+    # Returns the files of folders in the directory.
+    #
+    # + return - True if the given file path is a directory. It is false otherwise
     public extern function list() returns Path[]|error;
 
-    documentation {
-        Check if given file is a directory
-
-        R{{}} True if directory, else false
-    }
+    # Check if given file is a directory
+    #
+    # + return - True if directory, else false
     public extern function isDirectory() returns boolean;
 
-    documentation {
-        Deletes a file/directory.
-
-        R{{}} Error if the directory/file could not be deleted
-    }
+    # Deletes a file/directory.
+    #
+    # + return - Error if the directory/file could not be deleted
     public extern function delete() returns error?;
 
-    documentation {
-        Creates a directory.
-
-        R{{}} Error if the directory could not be created
-    }
+    # Creates a directory.
+    #
+    # + return - Error if the directory could not be created
     public extern function createDirectory() returns error?;
 
-    documentation {
-        Creates a file.
-
-        R{{}} Error if the file could not be created
-    }
+    # Creates a file.
+    #
+    # + return - Error if the file could not be created
     public extern function createFile() returns error?;
 
-    documentation {
-        Retrieves the last modified time of the file of directory.
-
-        R{{}} Last modified time or an error if the path cannot be resolved
-    }
+    # Retrieves the last modified time of the file of directory.
+    #
+    # + return - Last modified time or an error if the path cannot be resolved
     public extern function getModifiedTime() returns time:Time|error;
 
-    documentation {
-        Copy file or directory to another path.
-
-        P{{target}} The location to copy file or directory
-        R{{}} Error if the file could not be copied
-    }
+    # Copy file or directory to another path.
+    #
+    # + target - The location to copy file or directory
+    # + return - Error if the file could not be copied
     public extern function copyTo(@sensitive Path target) returns error?;
 
-    documentation {
-        Move file or directory to another path.
-
-        P{{target}} The location to move file or directory
-        R{{}} Error if the file could not be moved
-    }
+    # Move file or directory to another path.
+    #
+    # + target - The location to move file or directory
+    # + return - Error if the file could not be moved
     public extern function moveTo(@sensitive Path target) returns error?;
 
-    documentation {
-        Get the enclosing parent directory.
-
-        R{{}} Path of parent folder or error occurred while getting parent directory
-    }
+    # Get the enclosing parent directory.
+    #
+    # + return - Path of parent folder or error occurred while getting parent directory
     public extern function getParentDirectory() returns Path|error;
 
-    documentation {
-        Resolve given path.
-
-        R{{}} Resolved path
-    }
+    # Resolve given path.
+    #
+    # + return - Resolved path
     public extern function resolve(string... paths) returns Path;
 };

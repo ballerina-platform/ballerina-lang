@@ -17,7 +17,7 @@
  */
 package org.ballerinalang.test.service.http.sample;
 
-import org.ballerinalang.test.BaseTest;
+import org.ballerinalang.test.service.http.HttpBaseTest;
 import org.ballerinalang.test.util.HttpClientRequest;
 import org.ballerinalang.test.util.HttpResponse;
 import org.testng.Assert;
@@ -29,7 +29,7 @@ import java.io.IOException;
  * Testing the Http headers availability in pass-through scenarios.
  */
 @Test(groups = "http-test")
-public class HttpHeaderTestCases extends BaseTest {
+public class HttpHeaderTestCases extends HttpBaseTest {
 
     private final int servicePort = 9106;
 

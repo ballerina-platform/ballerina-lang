@@ -74,7 +74,7 @@ function pushPackage (http:Client definedEndpoint, string accessToken, string md
 documentation {
     This function will invoke the method to push the package.
 }
-function main (string... args) {
+public function main (string... args) {
     http:Client httpEndpoint;
     string host = args[13];
     string port = args[14];

@@ -19,6 +19,7 @@ package org.ballerinalang.net.grpc.proto.definition;
 
 import com.google.protobuf.DescriptorProtos;
 import org.ballerinalang.net.grpc.exception.GrpcServerException;
+import org.ballerinalang.net.grpc.proto.ServiceProtoConstants;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -68,12 +69,13 @@ public class UserDefinedMessage extends Message {
     @Override
     public String getMessageDefinition() {
         StringBuilder msgDefinition = new StringBuilder();
-        msgDefinition.append("message ").append(messageName).append(" {\n");
+        msgDefinition.append("message ").append(messageName).append(" {").append(ServiceProtoConstants
+                .NEW_LINE_CHARACTER);
 
         for (Field field : fieldList) {
             msgDefinition.append("\t").append(field.getFieldDefinition());
         }
-        msgDefinition.append("}\n");
+        msgDefinition.append("}").append(ServiceProtoConstants.NEW_LINE_CHARACTER);
         return msgDefinition.toString();
     }
 
@@ -109,7 +111,7 @@ public class UserDefinedMessage extends Message {
             messageDescriptorBuilder.setName(messageName);
         }
 
-        public void addMessageDefinition(Message messageDefinition) {
+        public Builder addMessageDefinition(Message messageDefinition) {
             if (messageDefinition instanceof UserDefinedEnumMessage) {
                 UserDefinedEnumMessage enumMessage = (UserDefinedEnumMessage) messageDefinition;
                 messageDescriptorBuilder.addEnumType(enumMessage.getDescriptorProto());
@@ -118,11 +120,13 @@ public class UserDefinedMessage extends Message {
                 UserDefinedMessage message = (UserDefinedMessage) messageDefinition;
                 nestedMsgList.add(message);
             }
+            return this;
         }
 
-        public void addFieldDefinition(Field fieldDefinition) {
+        public Builder addFieldDefinition(Field fieldDefinition) {
             fieldList.add(fieldDefinition);
             messageDescriptorBuilder.addField(fieldDefinition.getFieldDescriptorProto());
+            return this;
         }
     }
 }

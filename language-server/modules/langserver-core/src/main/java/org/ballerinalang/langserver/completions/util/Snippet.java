@@ -57,7 +57,7 @@ public enum Snippet {
 
     LOCK("lock {" + CommonUtil.LINE_SEPARATOR + "\t${1}" + CommonUtil.LINE_SEPARATOR + "}"),
 
-    MAIN_FUNCTION("function main (string... args) {" + CommonUtil.LINE_SEPARATOR + "\t${1}"
+    MAIN_FUNCTION("public function main (string... args) {" + CommonUtil.LINE_SEPARATOR + "\t${1}"
             + CommonUtil.LINE_SEPARATOR + "}"),
 
     MATCH("match "),

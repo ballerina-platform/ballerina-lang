@@ -1,4 +1,4 @@
-function main (string... args) {
+public function main (string... args) {
    int a = 12;
    int b = 13;
    addTwoIntegers(a, b);

@@ -17,38 +17,39 @@
  */
 package org.ballerinalang.test.command;
 
+import org.ballerinalang.test.BaseTest;
 import org.ballerinalang.test.context.BallerinaTestException;
 import org.ballerinalang.test.context.LogLeecher;
-import org.ballerinalang.test.context.ServerInstance;
-import org.testng.annotations.AfterClass;
-import org.testng.annotations.AfterMethod;
+import org.ballerinalang.test.context.LogLeecher.LeecherType;
+import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 
 /**
  * This class tests CLI parsing.
  *
  * @since 0.981.2
  */
-public class CommandParserTestCase {
+public class CommandParserTestCase extends BaseTest {
 
     private String sourceArg = (new File("src/test/resources/command/test_cmd_parser.bal")).getAbsolutePath();
-    private ServerInstance serverInstance;
+    private Path tempProjectDirectory;
 
     @BeforeClass()
     public void setUp() throws BallerinaTestException, IOException {
-        serverInstance = ServerInstance.initBallerinaServer();
+        tempProjectDirectory = Files.createTempDirectory("bal-test-option-ordering");
     }
 
     @Test (description = "Tests correct identification of empty strings as args")
     public void testEmptyStringArg() throws BallerinaTestException {
         LogLeecher outLogLeecher = new LogLeecher("empty_string");
-        serverInstance.addLogLeecher(outLogLeecher);
-        serverInstance.runMain(new String[]{sourceArg, ""});
+        balClient.runMain(sourceArg, null, new String[]{""}, new LogLeecher[]{outLogLeecher});
         outLogLeecher.waitForText(2000);
     }
 
@@ -58,27 +59,49 @@ public class CommandParserTestCase {
            dataProvider = "runCmdOptions")
     public void testCliParamOrderEnforcement(String cmdOption) throws BallerinaTestException {
         LogLeecher outLogLeecher = new LogLeecher(cmdOption);
-        serverInstance.addLogLeecher(outLogLeecher);
-        serverInstance.runMain(new String[]{sourceArg, cmdOption});
+        balClient.runMain(sourceArg, null, new String[]{cmdOption}, new LogLeecher[]{outLogLeecher});
         outLogLeecher.waitForText(2000);
     }
 
     @Test (description = "Test arguments starting with a dash", dataProvider = "valuesWithDashPrefix")
     public void testDashPrefixedArg(String argWithDashPrefix) throws BallerinaTestException {
         LogLeecher outLogLeecher = new LogLeecher(argWithDashPrefix);
-        serverInstance.addLogLeecher(outLogLeecher);
-        serverInstance.runMain(new String[]{sourceArg, argWithDashPrefix});
+        balClient.runMain(sourceArg, null, new String[]{argWithDashPrefix}, new LogLeecher[]{outLogLeecher});
         outLogLeecher.waitForText(2000);
     }
 
-    @AfterMethod
-    public void stopServer() throws BallerinaTestException {
-        serverInstance.stopServer();
+    @Test(description = "Test option param ordering not being enforced for non run command")
+    public void testBuildWithOutputOptionAfterSource() throws Exception {
+        Path targetDirPath = tempProjectDirectory.resolve("target");
+        Files.createDirectories(targetDirPath);
+        String[] clientArgs = {(new File("src/test/resources/command/test_option_ordering.bal")).getAbsolutePath(),
+                                "-o", targetDirPath.toString().concat(File.separator).concat("order_test_one")};
+        balClient.runMain("build", clientArgs, null, new String[]{},
+                new LogLeecher[]{}, tempProjectDirectory.toString());
+
+        Path generatedBalx = targetDirPath.resolve("order_test_one.balx");
+        Assert.assertTrue(Files.exists(generatedBalx));
     }
 
-    @AfterClass
-    public void tearDown() throws BallerinaTestException {
-        serverInstance.cleanup();
+    @Test(description = "Test option param ordering not being enforced for non run command")
+    public void testBuildWithOutputOptionBeforeSource() throws Exception {
+        Path targetDirPath = tempProjectDirectory.resolve("target");
+        Files.createDirectories(targetDirPath);
+        String[] clientArgs = {"-o", targetDirPath.toString().concat(File.separator).concat("order_test_two"),
+                        (new File("src/test/resources/command/test_option_ordering.bal")).getAbsolutePath()};
+        balClient.runMain("build", clientArgs, null, new String[]{},
+                new LogLeecher[]{}, tempProjectDirectory.toString());
+        Path generatedBalx = targetDirPath.resolve("order_test_two.balx");
+        Assert.assertTrue(Files.exists(generatedBalx));
+    }
+
+    @Test (description = "Test unknown commands", dataProvider = "invalidCommands")
+    public void testUnknownCommand(String unknownCmd) throws BallerinaTestException {
+        LogLeecher errLogLeecher = new LogLeecher("ballerina: unknown command '"
+                + unknownCmd + "'", LeecherType.ERROR);
+        balClient.runMain(unknownCmd, new String[0], null, new String[0],
+                new LogLeecher[]{errLogLeecher}, balServer.getServerHome());
+        errLogLeecher.waitForText(2000);
     }
 
     @DataProvider(name = "runCmdOptions")
@@ -97,6 +120,15 @@ public class CommandParserTestCase {
                 { "-5" },
                 { "-1.0" },
                 { "-config" }
+        };
+    }
+
+    @DataProvider(name = "invalidCommands")
+    public Object[][] invalidCommands() {
+        return new Object[][] {
+                { "runs" },
+                { "buil" },
+                { "text" }
         };
     }
 }

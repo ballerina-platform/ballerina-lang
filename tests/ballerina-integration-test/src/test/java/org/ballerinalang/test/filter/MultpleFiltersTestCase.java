@@ -18,17 +18,12 @@
 package org.ballerinalang.test.filter;
 
 import io.netty.handler.codec.http.HttpHeaderNames;
-import org.ballerinalang.test.BaseTest;
-import org.ballerinalang.test.context.BallerinaTestException;
 import org.ballerinalang.test.util.HttpClientRequest;
 import org.ballerinalang.test.util.HttpResponse;
 import org.ballerinalang.test.util.TestConstant;
 import org.testng.Assert;
-import org.testng.annotations.AfterGroups;
-import org.testng.annotations.BeforeGroups;
 import org.testng.annotations.Test;
 
-import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -36,7 +31,7 @@ import java.util.Map;
  * Test cases for verifying multiple http filters for a service.
  */
 @Test(groups = "filter-test")
-public class MultpleFiltersTestCase extends BaseTest {
+public class MultpleFiltersTestCase extends FilterBaseTest {
 
     @Test(description = "Single filter execution success case")
     public void testMultipleFiltersSuccess() throws Exception {
@@ -83,20 +78,5 @@ public class MultpleFiltersTestCase extends BaseTest {
                 headers);
         Assert.assertNotNull(response);
         Assert.assertEquals(response.getResponseCode(), 500, "Response code mismatched");
-    }
-
-    @BeforeGroups(value = "filter-test", alwaysRun = true)
-    public void start() throws BallerinaTestException {
-        int[] requiredPorts = new int[]{9090, 9091, 9092, 9093, 9094, 9095, 9096, 9097, 9098};
-        String basePath = new File("src" + File.separator + "test" + File.separator + "resources" + File.separator +
-                "filter").getAbsolutePath();
-        String[] args = new String[]{"--sourceroot", basePath};
-        serverInstance.startBallerinaServer("filterservices", args, requiredPorts);
-    }
-
-    @AfterGroups(value = "filter-test", alwaysRun = true)
-    public void cleanup() throws Exception {
-        serverInstance.removeAllLeechers();
-        serverInstance.stopServer();
     }
 }

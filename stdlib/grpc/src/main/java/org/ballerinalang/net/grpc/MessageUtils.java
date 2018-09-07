@@ -579,7 +579,9 @@ public class MessageUtils {
      *
      * <p>
      * Referenced from grpc-java implementation.
-     * <p>
+     *
+     * @param contentType gRPC content type
+     * @return is valid content type
      */
     public static boolean isGrpcContentType(String contentType) {
         if (contentType == null) {
