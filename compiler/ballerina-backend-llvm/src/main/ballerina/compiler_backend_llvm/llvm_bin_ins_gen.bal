@@ -1,4 +1,5 @@
 import ballerina/io;
+import ballerina/llvm;
 
 type BinaryInsGenrator object {
 
@@ -21,30 +22,27 @@ type BinaryInsGenrator object {
     }
 
     function genEqual() {
-        var ifReturn = llvm:LLVMBuildICmp(builder, 32, rhsOp1, rhsOp2, lhsTmpName);
+        var ifReturn = llvm:LLVMBuildICmp(builder, llvm:LLVMIntEQ, rhsOp1, rhsOp2, lhsTmpName);
         var loaded = llvm:LLVMBuildStore(builder, ifReturn, lhsRef);
     }
 
     function genGreaterEqual() {
-        var ifReturn = llvm:LLVMBuildICmp(builder, 39, rhsOp1, rhsOp2, lhsTmpName);
+        var ifReturn = llvm:LLVMBuildICmp(builder, llvm:LLVMIntSGE, rhsOp1, rhsOp2, lhsTmpName);
         var loaded = llvm:LLVMBuildStore(builder, ifReturn, lhsRef);
     }
 
     function genGreaterThan() {
-        var ifReturn = llvm:LLVMBuildICmp(builder, 38, rhsOp1, rhsOp2, lhsTmpName);
+        var ifReturn = llvm:LLVMBuildICmp(builder, llvm:LLVMIntSGT, rhsOp1, rhsOp2, lhsTmpName);
         var loaded = llvm:LLVMBuildStore(builder, ifReturn, lhsRef);
     }
 
     function genLessEqual() {
-        // LLVMIntSLE = 41
-        var ifReturn = llvm:LLVMBuildICmp(builder, 41, rhsOp1, rhsOp2, lhsTmpName);
+        var ifReturn = llvm:LLVMBuildICmp(builder, llvm:LLVMIntSLE, rhsOp1, rhsOp2, lhsTmpName);
         var loaded = llvm:LLVMBuildStore(builder, ifReturn, lhsRef);
     }
 
     function genLessThan() {
-        // TODO: import these consts from llvm pkg
-        // LLVMIntSLT = 40
-        var ifReturn = llvm:LLVMBuildICmp(builder, 40, rhsOp1, rhsOp2, lhsTmpName);
+        var ifReturn = llvm:LLVMBuildICmp(builder, llvm:LLVMIntSLT, rhsOp1, rhsOp2, lhsTmpName);
         var loaded = llvm:LLVMBuildStore(builder, ifReturn, lhsRef);
     }
 
@@ -54,8 +52,7 @@ type BinaryInsGenrator object {
     }
 
     function genNotEqual() {
-        // LLVMIntNE = 33
-        var ifReturn = llvm:LLVMBuildICmp(builder, 33, rhsOp1, rhsOp2, lhsTmpName);
+        var ifReturn = llvm:LLVMBuildICmp(builder, llvm:LLVMIntNE, rhsOp1, rhsOp2, lhsTmpName);
         var loaded = llvm:LLVMBuildStore(builder, ifReturn, lhsRef);
     }
 

@@ -1,7 +1,7 @@
 import ballerina/io;
 import ballerina/internal;
 
-public type BirFuncBodyParser object {
+public type FuncBodyParser object {
     BirChannelReader reader,
     map<VariableDcl> localVarMap,
     public new(reader, localVarMap) {
