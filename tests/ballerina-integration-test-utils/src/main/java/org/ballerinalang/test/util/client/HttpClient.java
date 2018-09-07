@@ -191,6 +191,43 @@ public class HttpClient {
     }
 
     /**
+     * Send pipelined requests to the server and do not expect a response hence a latch shouldn't be set in response
+     * handler for channel read.
+     *
+     * @param path Represents request path
+     * @return A list of responses
+     */
+    public String sendMultiplePipelinedRequests(String path) {
+        this.waitForConnectionClosureLatch = new CountDownLatch(1);
+        this.responseHandler.setWaitForConnectionClosureLatch(this.waitForConnectionClosureLatch);
+
+        FullHttpRequest firstRequest = getFullHttpRequest(path, "request-one");
+        this.connectedChannel.writeAndFlush(firstRequest);
+
+        FullHttpRequest secondRequest = getFullHttpRequest(path, "request-two");
+        this.connectedChannel.writeAndFlush(secondRequest);
+
+        FullHttpRequest thirdRequest = getFullHttpRequest(path, "request-three");
+        this.connectedChannel.writeAndFlush(thirdRequest);
+
+        FullHttpRequest fourthRequest = getFullHttpRequest(path, "request-four");
+        this.connectedChannel.writeAndFlush(fourthRequest);
+
+        FullHttpRequest fifthRequest = getFullHttpRequest(path, "request-five");
+        this.connectedChannel.writeAndFlush(fifthRequest);
+
+        FullHttpRequest sixthRequest = getFullHttpRequest(path, "request-six");
+        this.connectedChannel.writeAndFlush(sixthRequest);
+
+        try {
+            this.waitForConnectionClosureLatch.await();
+        } catch (InterruptedException e) {
+            log.warn("Interrupted before receiving the response");
+        }
+        return this.responseHandler.getChannelEventMsg();
+    }
+
+    /**
      * Get a full http request.
      *
      * @param path      Represents request path

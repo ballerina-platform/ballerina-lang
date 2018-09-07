@@ -19,38 +19,77 @@ import ballerina/log;
 import ballerina/runtime;
 import ballerina/io;
 
-endpoint http:Listener listener {
-    port: 9220
-};
-
-service<http:Service> pipeliningTest bind listener {
+service<http:Service> pipeliningTest bind { port: 9220 } {
 
     responseOrder(endpoint caller, http:Request req) {
-        http:Response reply = new;
-        string replyMsg;
+        http:Response response = new;
+
+        if (req.hasHeader("message-id")) {
+            //Request one roughly takes 2 seconds to prepare its response
+            if (req.getHeader("message-id") == "request-one") {
+                runtime:sleep(2000);
+                response.setHeader("message-id", "response-one");
+                response.setPayload("Hello1");
+            }
+            //Request two's response will get ready immediately without any sleep time
+            if (req.getHeader("message-id") == "request-two") {
+                response.setHeader("message-id", "response-two");
+                response.setPayload("Hello2");
+            }
+            //Request three roughly takes 2 seconds to prepare its response
+            if (req.getHeader("message-id") == "request-three") {
+                runtime:sleep(2000);
+                response.setHeader("message-id", "response-three");
+                response.setPayload("Hello3");
+            }
+        }
+
+        caller->respond(untaint response) but {
+            error err => log:printError(err.message, err = err)
+        };
+    }
+}
+
+service<http:Service> pipelining bind { port: 9221, timeoutMillis: 1000 } {
+
+    testTimeout(endpoint caller, http:Request req) {
+        http:Response response = new;
 
         if (req.hasHeader("message-id")) {
             //Request one roughly takes 8 seconds to prepare its response
             if (req.getHeader("message-id") == "request-one") {
                 runtime:sleep(8000);
-                reply.setHeader("message-id", "response-one");
-                reply.setPayload("Hello1");
+                response.setHeader("message-id", "response-one");
+                response.setPayload("Hello1");
             }
-            //Request two's response will get ready immediately without any sleep time
+            //Request two and three will be ready immediately, but they should't have sent out to the client
             if (req.getHeader("message-id") == "request-two") {
-                reply.setHeader("message-id", "response-two");
-                reply.setPayload("Hello2");
+                response.setHeader("message-id", "response-two");
+                response.setPayload("Hello2");
             }
-            //Request three roughly takes 2 seconds to prepare its response
+
             if (req.getHeader("message-id") == "request-three") {
-                runtime:sleep(2000);
-                reply.setHeader("message-id", "response-three");
-                reply.setPayload("Hello3");
+                response.setHeader("message-id", "response-three");
+                response.setPayload("Hello3");
             }
         }
 
-        caller->respond(untaint reply) but {
-            error err => log:printError(err.message, err = err)
+        caller->respond(untaint response) but {
+            error err => log:printError("Pipeline timeout:" + err.message, err = err)
+        };
+    }
+}
+
+service<http:Service> pipeliningLimit bind { port: 9222, maxPipelinedRequests: 2 } {
+
+    testMaxRequestLimit(endpoint caller, http:Request req) {
+        http:Response response = new;
+        //Let the thread sleep for sometime so the requests have enough time to queue up
+        runtime:sleep(8000);
+        response.setPayload("Pipelined Response");
+
+        caller->respond(untaint response) but {
+            error err => log:printError("Pipeline limit exceeded:" + err.message, err = err)
         };
     }
 }

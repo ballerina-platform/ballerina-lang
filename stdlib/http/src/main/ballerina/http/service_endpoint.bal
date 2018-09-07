@@ -103,7 +103,9 @@ public type RequestLimits record {
 #             resource, filters can applied
 # + timeoutMillis - Period of time in milliseconds that a connection waits for a read/write operation. Use value 0 to
 #                   disable timeout
-# + pipelining - Defines HTTP pipelining properties. Pipelining is enabled by default
+# + maxPipelinedRequests - Defines the maximum number of requests that can be processed at a given time on a single
+#                          connection. By default 10 requests can be pipelined on a single cinnection and user can
+#                          change this limit appropriately. This will be applicable only for HTTP 1.1
 public type ServiceEndpointConfiguration record {
     string host,
     int port,
@@ -113,7 +115,7 @@ public type ServiceEndpointConfiguration record {
     RequestLimits? requestLimits,
     Filter[] filters,
     int timeoutMillis = DEFAULT_LISTENER_TIMEOUT,
-    Pipelining pipelining,
+    int maxPipelinedRequests = MAX_PIPELINED_REQUESTS,
 };
 
 # Configures the SSL/TLS options to be used for HTTP service.

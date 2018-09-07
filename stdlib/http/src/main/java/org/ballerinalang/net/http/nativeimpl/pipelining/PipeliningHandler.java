@@ -143,7 +143,7 @@ public class PipeliningHandler {
         }
 
         if (responseQueue.size() > maxQueuedResponses) {
-            sourceContext.close();
+            sourceContext.channel().close();
             log.warn("Threshold {} for pipelined response queue reached hence closing the connection.",
                     maxQueuedResponses);
             return true;

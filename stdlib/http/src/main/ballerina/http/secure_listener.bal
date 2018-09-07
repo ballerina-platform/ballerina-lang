@@ -66,7 +66,9 @@ public type SecureListener object {
 # + filters - Filters to be applied to the request before being dispatched to the actual `resource`
 # + timeoutMillis - Period of time in milliseconds that a connection waits for a read/write operation. Use value 0
 #                   to disable timeout
-# + pipelining - Defines HTTP pipelining properties. Pipelining is enabled by default
+# + maxPipelinedRequests - Defines the maximum number of requests that can be processed at a given time on a single
+#                          connection. By default 10 requests can be pipelined on a single cinnection and user can
+#                          change this limit appropriately. This will be applicable only for HTTP 1.1
 # + authProviders - The array of authentication providers which are used to authenticate the users
 public type SecureEndpointConfiguration record {
     string host,
@@ -77,7 +79,7 @@ public type SecureEndpointConfiguration record {
     RequestLimits? requestLimits,
     Filter[] filters,
     int timeoutMillis = DEFAULT_LISTENER_TIMEOUT,
-    Pipelining pipelining,
+    int maxPipelinedRequests = MAX_PIPELINED_REQUESTS,
     AuthProvider[]? authProviders,
 };
 

@@ -26,6 +26,9 @@
 # Constant for the default failover starting index for failover endpoints
 @final int DEFAULT_FAILOVER_EP_STARTING_INDEX = 0;
 
+# Maximum number of requests that can be processed at a given time on a single connection.
+@final int MAX_PIPELINED_REQUESTS = 10;
+
 # Represents multipart primary type
 @final public string MULTIPART_AS_PRIMARY_TYPE = "multipart/";
 
@@ -152,20 +155,6 @@ public type ServiceOcspStapling record {
     boolean enable,
     int cacheSize,
     int cacheValidityPeriod,
-};
-
-# Defines HTTP 1.1 pipelining properties.
-#
-# + enable - Decides whether the pipelining should be enabled or not. Although HTTP pipelining is enabled
-#            by default, this will have an effect only for persistent connections in HTTP 1.1 version. If the client
-#            can guarantee that the request won't be pipelined, this could be safely turned off.
-# + maxQueuedResponseCount - Defines maximum number of responses to be queued when pipelining is enabled.
-#                            By default there is no limit to the queue. If queuing up responses indefinitely would
-#                            result in out of memory issues, then user should set a maximum queing response count
-#                            appropriately.
-public type Pipelining record {
-    boolean enable = true,
-    int maxQueuedResponseCount = -1,
 };
 
 //////////////////////////////

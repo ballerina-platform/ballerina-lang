@@ -22,9 +22,15 @@ import io.netty.handler.codec.http.FullHttpResponse;
 import io.netty.handler.codec.http.HttpResponseStatus;
 import org.ballerinalang.test.BaseTest;
 import org.ballerinalang.test.util.client.HttpClient;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.testng.Assert;
 import org.testng.annotations.Test;
 
 import java.io.IOException;
+import java.net.InetSocketAddress;
+import java.nio.ByteBuffer;
+import java.nio.channels.SocketChannel;
 import java.util.LinkedList;
 
 import static org.ballerinalang.test.util.TestUtils.getEntityBodyFrom;
@@ -32,17 +38,22 @@ import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertFalse;
 
 /**
- * Test case for HTTP pipelining.
+ * Test case for HTTP 1.1 pipelining.
  *
  * @since 0.982.0
  */
 @Test(groups = "http-test")
 public class HttpPipeliningTestCase extends BaseTest {
 
-    @Test(description = "Test whether the response order matches the request order when HTTP pipelining is used")
-    public void testResponseOrder() throws IOException, InterruptedException {
+    private static final Logger log = LoggerFactory.getLogger(HttpPipeliningTestCase.class);
 
-        HttpClient httpClient = new HttpClient("localhost", 9220);
+    private static final int BUFFER_SIZE = 1024;
+    private static final String HOST = "localhost";
+
+    @Test(description = "Test whether the response order matches the request order when HTTP pipelining is used")
+    public void testPipelinedResponseOrder() throws IOException, InterruptedException {
+
+        HttpClient httpClient = new HttpClient(HOST, 9220);
         LinkedList<FullHttpResponse> fullHttpResponses = httpClient.sendPipeLinedRequests(
                 "/pipeliningTest/responseOrder");
 
@@ -54,9 +65,130 @@ public class HttpPipeliningTestCase extends BaseTest {
         assertFalse(httpClient.waitForChannelClose());
     }
 
+    @Test(description = "Test pipelining with timeout. If the first request's response didn't arrive before the" +
+            "server timeout, client shouldn't receive the responses for the subsequent requests")
+    public void testPipeliningWithTimeout() throws IOException, InterruptedException {
+        SocketChannel clientSocket = connectToRemoteEndpoint(HOST, 9221);
+        String pipelinedRequests = "GET /pipelining/testTimeout HTTP/1.1\r\n" +
+                "host: localhost\r\n" +
+                "connection: keep-alive\r\n" +
+                "accept-encoding: gzip\r\n" +
+                "message-id: request-one\r\n\r\n" +
+                "GET /pipelining/testTimeout HTTP/1.1\r\n" +
+                "host: localhost\r\n" +
+                "connection: keep-alive\r\n" +
+                "accept-encoding: gzip\r\n" +
+                "message-id: request-two\r\n\r\n" +
+                "GET /pipelining/testTimeout HTTP/1.1\r\n" +
+                "host: localhost\r\n" +
+                "connection: keep-alive\r\n" +
+                "accept-encoding: gzip\r\n" +
+                "message-id: request-three\r\n\r\n";
+
+        writePipelinedRequests(clientSocket, pipelinedRequests);
+        String expected = "HTTP/1.1 500 Internal Server Error";
+        readAndAssertResponse(clientSocket, expected);
+    }
+
+    @Test(description = "Once the pipelining limit is reached, connection should be closed from the server side")
+    public void testPipeliningLimit() throws IOException, InterruptedException {
+        HttpClient httpClient = new HttpClient(HOST, 9222);
+        String connectionCloseMsg = httpClient.sendMultiplePipelinedRequests("/pipeliningLimit/testMaxRequestLimit");
+        assertEquals(connectionCloseMsg, "Channel is inactive");
+
+    }
+
     private void verifyResponse(FullHttpResponse response, String expectedId, String expectedBody) {
         assertEquals(response.status(), HttpResponseStatus.OK);
         assertEquals(response.headers().get("message-id"), expectedId);
         assertEquals(getEntityBodyFrom(response), expectedBody);
+    }
+
+    /**
+     * Connects to the remote endpoint.
+     *
+     * @return the channel created from the connection.
+     * @throws IOException if there's an error when connecting to remote endpoint.
+     */
+    private SocketChannel connectToRemoteEndpoint(String host, int port) throws IOException {
+        InetSocketAddress remoteAddress = new InetSocketAddress(host, port);
+
+        SocketChannel clientSocket = SocketChannel.open();
+        clientSocket.configureBlocking(true);
+        clientSocket.socket().setReceiveBufferSize(BUFFER_SIZE);
+        clientSocket.socket().setSendBufferSize(BUFFER_SIZE);
+        clientSocket.connect(remoteAddress);
+
+        if (!clientSocket.finishConnect()) {
+            throw new Error("Cannot connect to server");
+        }
+        return clientSocket;
+    }
+
+    /**
+     * Writes data as a chunk while keeping a delay between first and second chunks.
+     *
+     * @param socketChannel the channel to write to.
+     * @throws IOException          if there's an error when writing.
+     * @throws InterruptedException if the thread sleep is interrrupted.
+     */
+    private void writePipelinedRequests(SocketChannel socketChannel, String pipelinedRequests) throws IOException,
+            InterruptedException {
+        int i = 0;
+        ByteBuffer buf = ByteBuffer.allocate(BUFFER_SIZE);
+        byte[] data = pipelinedRequests.getBytes();
+        while (i != data.length) {
+            buf.clear();
+            for (; data.length > i; i++) {
+                if (buf.hasRemaining()) {
+                    buf.put(data[i]);
+                } else {
+                    break;
+                }
+            }
+            buf.flip();
+            while (buf.hasRemaining()) {
+                socketChannel.write(buf);
+            }
+        }
+    }
+
+    /**
+     * Read and assert response.
+     *
+     * @param socketChannel Represent the client socket channel
+     * @param expected      Expected value from the response
+     * @throws IOException when an IO error occurs
+     */
+    private void readAndAssertResponse(SocketChannel socketChannel, String expected)
+            throws IOException {
+        int count;
+        ByteBuffer buffer = ByteBuffer.allocateDirect(1024);
+        StringBuilder inboundContent = new StringBuilder();
+
+        count = socketChannel.read(buffer);
+        Assert.assertTrue(count > 0);
+        // Loop while data is available; channel is non-blocking
+        while (count > 0) {
+            buffer.flip();
+            while (buffer.hasRemaining()) {
+                inboundContent.append((char) buffer.get());
+            }
+            buffer.clear();
+            try {
+                count = socketChannel.read(buffer);
+            } catch (IOException e) {
+                //Ignores this exception because the read cannot succeed if the connection is closed in the middle.
+                log.warn("Cannot read more data when connection is closed", e);
+            }
+        }
+
+        if (count < 0) {
+            socketChannel.close();
+        }
+
+        String response = inboundContent.toString().trim();
+        String[] responseLines = response.split("\r\n");
+        Assert.assertEquals(responseLines[0], expected.trim(), "Server should timeout without sending any responses");
     }
 }

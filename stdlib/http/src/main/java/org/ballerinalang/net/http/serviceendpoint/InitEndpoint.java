@@ -94,7 +94,6 @@ public class InitEndpoint extends AbstractHttpNativeFunction {
         String httpVersion = endpointConfig.getStringField(HttpConstants.ENDPOINT_CONFIG_VERSION);
         Struct requestLimits = endpointConfig.getStructField(HttpConstants.ENDPOINT_REQUEST_LIMITS);
         long idleTimeout = endpointConfig.getIntField(HttpConstants.ENDPOINT_CONFIG_TIMEOUT);
-        Struct pipelining = endpointConfig.getStructField(HttpConstants.ENDPOINT_CONFIG_PIPELINING);
 
         ListenerConfiguration listenerConfiguration = new ListenerConfiguration();
 
@@ -134,9 +133,9 @@ public class InitEndpoint extends AbstractHttpNativeFunction {
             return setSslConfig(sslConfig, listenerConfiguration);
         }
 
-        listenerConfiguration.setPipeliningNeeded(pipelining.getBooleanField(HttpConstants.ENABLE_PIPELINING));
-        listenerConfiguration.setMaxQueuedResponseCount(pipelining.getIntField(
-                HttpConstants.MAX_QUEUED_RESPONSE_COUNT));
+        listenerConfiguration.setPipeliningNeeded(true); //Pipelining is enabled all the time
+        listenerConfiguration.setPipeliningLimit(endpointConfig.getIntField(
+                HttpConstants.PIPELINING_REQUEST_LIMIT));
 
         return listenerConfiguration;
     }
