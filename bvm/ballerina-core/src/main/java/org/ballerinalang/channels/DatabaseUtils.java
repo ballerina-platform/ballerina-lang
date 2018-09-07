@@ -43,34 +43,15 @@ import java.util.Locale;
 
 /**
  * Utility methods for storing/fetching channel messages.
+ *
  * @since 0.982.0
  */
 public class DatabaseUtils {
 
     private static HikariDataSource hikariDataSource;
-    private static HikariConfig config;
+    public static HikariConfig config;
     private static ConfigRegistry registry = ConfigRegistry.getInstance();
     private static final String H2_MEM_URL = "jdbc:h2:mem:" + ChannelConstants.DB_NAME;
-
-    private static Connection getDBConnection() throws SQLException {
-
-        if (hikariDataSource == null) {
-            config = new HikariConfig();
-            String jdbcUrl = getJDBCURL();
-            config.setJdbcUrl(jdbcUrl);
-            setCredentials();
-            hikariDataSource = new HikariDataSource(config);
-            Connection con = hikariDataSource.getConnection();
-            if (jdbcUrl.contains(H2_MEM_URL)) {
-                PreparedStatement stmt = con.prepareStatement(ChannelConstants.CREATE);
-                stmt.execute();
-                stmt.close();
-            }
-            return con;
-        } else {
-            return hikariDataSource.getConnection();
-        }
-    }
 
     public static void addEntry(String channelName, BValue key, BValue value, BType keyType, BType valType) {
 
@@ -132,7 +113,7 @@ public class DatabaseUtils {
                 return value;
             }
         } catch (SQLException e) {
-            throw new BallerinaException("error retrieving channel message" + e.getMessage(),
+            throw new BallerinaException("error retrieving channel message " + e.getMessage(),
                     e);
         } finally {
             try {
@@ -152,72 +133,15 @@ public class DatabaseUtils {
         return null;
     }
 
-    private static BValue getValue(ResultSet resultSet, BType bType) throws SQLException {
-
-        int type = bType.getTag();
-
-        switch (type) {
-            case TypeTags.INT_TAG:
-                return new BInteger(resultSet.getLong(2));
-            case TypeTags.STRING_TAG:
-                return new BString(resultSet.getString(2));
-            case TypeTags.BYTE_TAG:
-                return new BByte(resultSet.getByte(2));
-            case TypeTags.FLOAT_TAG:
-                return new BFloat(resultSet.getDouble(2));
-            case TypeTags.BOOLEAN_TAG:
-                return new BBoolean(resultSet.getBoolean(2));
-            case TypeTags.XML_TAG:
-                return XMLUtils.parse(resultSet.getString(2));
-            case TypeTags.JSON_TAG:
-                return JsonParser.parse(resultSet.getString(2));
-            default:
-                throw new BallerinaException("unsupported data type " + type + ", for channel data");
-        }
-    }
-
-    private static void setCredentials() {
-
-        if (registry.contains(ChannelConstants.CONF_NAMESPACE + ChannelConstants.CONF_PASSWORD)) {
-            config.setPassword(registry.getAsString(ChannelConstants.CONF_NAMESPACE +
-                    ChannelConstants.CONF_PASSWORD));
-        }
-
-        if (registry.contains(ChannelConstants.CONF_NAMESPACE + ChannelConstants.CONF_USERNAME)) {
-            config.setUsername(registry.getAsString(ChannelConstants.CONF_NAMESPACE +
-                    ChannelConstants.CONF_USERNAME));
-        }
-
-    }
-
-    private static void setParam(PreparedStatement stmt, BValue value, BType bType, int index) throws SQLException {
-
-        int type = bType.getTag();
-
-        switch (type) {
-            case TypeTags.INT_TAG:
-                stmt.setLong(index, ((BInteger) value).intValue());
-                break;
-            case TypeTags.STRING_TAG:
-                stmt.setString(index, value.stringValue());
-                break;
-            case TypeTags.FLOAT_TAG:
-                stmt.setDouble(index, ((BFloat) value).floatValue());
-                break;
-            case TypeTags.BOOLEAN_TAG:
-                stmt.setBoolean(index, ((BBoolean) value).booleanValue());
-                break;
-            case TypeTags.BYTE_TAG:
-                stmt.setByte(index, ((BByte) value).byteValue());
-                break;
-            default:
-                stmt.setString(index, value.toString());
-        }
-    }
-
-    private static String getJDBCURL() {
+    public static String getJDBCURL() {
 
         String dbType = registry.getAsString(ChannelConstants.CONF_NAMESPACE + ChannelConstants.CONF_DB_TYPE);
+        if (dbType == null) {
+            config.setPassword(ChannelConstants.DB_PASSWORD);
+            config.setUsername(ChannelConstants.DB_USERNAME);
+            return H2_MEM_URL;
+        }
+
         String hostOrPath = registry.getAsString(ChannelConstants.CONF_NAMESPACE +
                 ChannelConstants.CONF_HOST_OR_PATH);
         long port = -1;
@@ -229,16 +153,12 @@ public class DatabaseUtils {
         String password = registry.getAsString(ChannelConstants.CONF_NAMESPACE + ChannelConstants.CONF_PASSWORD);
         String dbOptions = registry.getAsString(ChannelConstants.CONF_NAMESPACE + ChannelConstants.CONF_DB_OPTIONS);
 
-        StringBuilder jdbcUrl = new StringBuilder();
-        if (dbType == null) {
-            config.setPassword(ChannelConstants.DB_PASSWORD);
-            config.setUsername(ChannelConstants.DB_USERNAME);
-            return H2_MEM_URL;
-        }
         dbType = dbType.toUpperCase(Locale.ENGLISH);
         if (hostOrPath != null) {
             hostOrPath = hostOrPath.replaceAll("/$", "");
         }
+
+        StringBuilder jdbcUrl = new StringBuilder();
 
         switch (dbType) {
             case ChannelConstants.DBTypes.MYSQL:
@@ -317,5 +237,88 @@ public class DatabaseUtils {
         }
 
         return dbOptions == null ? jdbcUrl.toString() : jdbcUrl.append(dbOptions).toString();
+    }
+
+    private static Connection getDBConnection() throws SQLException {
+
+        if (hikariDataSource == null) {
+            config = new HikariConfig();
+            String jdbcUrl = getJDBCURL();
+            config.setJdbcUrl(jdbcUrl);
+            setCredentials();
+            hikariDataSource = new HikariDataSource(config);
+            Connection con = hikariDataSource.getConnection();
+            if (jdbcUrl.contains(H2_MEM_URL)) {
+                PreparedStatement stmt = con.prepareStatement(ChannelConstants.CREATE);
+                stmt.execute();
+                stmt.close();
+            }
+            return con;
+        } else {
+            return hikariDataSource.getConnection();
+        }
+    }
+
+    private static BValue getValue(ResultSet resultSet, BType bType) throws SQLException {
+
+        int type = bType.getTag();
+
+        switch (type) {
+            case TypeTags.INT_TAG:
+                return new BInteger(resultSet.getLong(2));
+            case TypeTags.STRING_TAG:
+                return new BString(resultSet.getString(2));
+            case TypeTags.BYTE_TAG:
+                return new BByte(resultSet.getByte(2));
+            case TypeTags.FLOAT_TAG:
+                return new BFloat(resultSet.getDouble(2));
+            case TypeTags.BOOLEAN_TAG:
+                return new BBoolean(resultSet.getBoolean(2));
+            case TypeTags.XML_TAG:
+                return XMLUtils.parse(resultSet.getString(2));
+            case TypeTags.JSON_TAG:
+                return JsonParser.parse(resultSet.getString(2));
+            default:
+                throw new BallerinaException("unsupported data type " + type + ", for channel data");
+        }
+    }
+
+    private static void setCredentials() {
+
+        if (registry.contains(ChannelConstants.CONF_NAMESPACE + ChannelConstants.CONF_PASSWORD)) {
+            config.setPassword(registry.getAsString(ChannelConstants.CONF_NAMESPACE +
+                    ChannelConstants.CONF_PASSWORD));
+        }
+
+        if (registry.contains(ChannelConstants.CONF_NAMESPACE + ChannelConstants.CONF_USERNAME)) {
+            config.setUsername(registry.getAsString(ChannelConstants.CONF_NAMESPACE +
+                    ChannelConstants.CONF_USERNAME));
+        }
+
+    }
+
+    private static void setParam(PreparedStatement stmt, BValue value, BType bType, int index) throws SQLException {
+
+        int type = bType.getTag();
+
+        switch (type) {
+            case TypeTags.INT_TAG:
+                stmt.setLong(index, ((BInteger) value).intValue());
+                break;
+            case TypeTags.STRING_TAG:
+                stmt.setString(index, value.stringValue());
+                break;
+            case TypeTags.FLOAT_TAG:
+                stmt.setDouble(index, ((BFloat) value).floatValue());
+                break;
+            case TypeTags.BOOLEAN_TAG:
+                stmt.setBoolean(index, ((BBoolean) value).booleanValue());
+                break;
+            case TypeTags.BYTE_TAG:
+                stmt.setByte(index, ((BByte) value).byteValue());
+                break;
+            default:
+                stmt.setString(index, value.toString());
+        }
     }
 }

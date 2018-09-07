@@ -62,7 +62,6 @@ public class ChannelConstants {
         public static final String DERBY_SERVER = "DERBY_SERVER";
         public static final String DERBY_FILE = "DERBY_FILE";
 
-        public static final String HSQLDB = "HSQLDB";
         public static final String HSQLDB_SERVER = "HSQLDB_SERVER";
         public static final String HSQLDB_FILE = "HSQLDB_FILE";
 
