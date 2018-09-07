@@ -1,12 +1,12 @@
 import ballerina/io;
 
-type ConstPool record {
+public type ConstPool record {
     PackageId[] packages;
     string[] strings;
     int[] ints;
 };
 
-function parseCp(ChannelReader reader) returns ConstPool {
+public function parseCp(ChannelReader reader) returns ConstPool {
     var cpCount = reader.readInt32();
     ConstPool cp;
     int i = 0;

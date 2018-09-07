@@ -1,3 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
 <!--
   ~ Copyright (c) 2018, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
   ~
@@ -18,18 +19,16 @@
 
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
-
     <parent>
         <groupId>org.ballerinalang</groupId>
         <artifactId>ballerina-parent</artifactId>
         <version>0.981.2-SNAPSHOT</version>
         <relativePath>../../pom.xml</relativePath>
     </parent>
-
     <modelVersion>4.0.0</modelVersion>
-    <artifactId>ballerina-backend-llvm</artifactId>
-
-    <name>Ballerina - LLVM Compiler Backend</name>
+    <artifactId>ballerina-bir</artifactId>
+    <packaging>jar</packaging>
+    <name>Ballerina - BIR Model</name>
     <url>https://ballerina.io</url>
 
     <dependencies>
@@ -61,16 +60,42 @@
             <type>zip</type>
             <classifier>ballerina-binary-repo</classifier>
         </dependency>
-        <dependency>
-            <groupId>org.ballerinalang</groupId>
-            <artifactId>ballerina-bir</artifactId>
-            <type>zip</type>
-            <classifier>ballerina-binary-repo</classifier>
-        </dependency>
     </dependencies>
 
     <build>
         <plugins>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>exec-maven-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>gen-balo</id>
+                        <goals>
+                            <goal>java</goal>
+                        </goals>
+                        <phase>compile</phase>
+                        <configuration>
+                            <systemProperties>
+                                <systemProperty>
+                                    <key>BALLERINA_DEV_MODE_COMPILE</key>
+                                    <value>true</value>
+                                </systemProperty>
+                            </systemProperties>
+                            <arguments>
+                                <argument>false</argument>
+                                <argument>${basedir}/src/main/ballerina/</argument>
+                                <argument>${project.build.directory}/generated-balo/repo/ballerina</argument>
+                                <argument>${project.build.directory}</argument>
+                                <argument>${project.version}</argument>
+                            </arguments>
+                        </configuration>
+                    </execution>
+                </executions>
+                <configuration>
+                    <mainClass>org.ballerinalang.stdlib.utils.GenerateBalo</mainClass>
+                </configuration>
+            </plugin>
+
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-dependency-plugin</artifactId>
@@ -89,69 +114,49 @@
                 </executions>
             </plugin>
 
-            <!-- Generate balx -->
+            <!-- For ballerina annotation processing -->
             <plugin>
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>exec-maven-plugin</artifactId>
-                <version>1.6.0</version>
+                <groupId>org.bsc.maven</groupId>
+                <artifactId>maven-processor-plugin</artifactId>
+                <version>${mvn.processor.plugin.version}</version>
+                <configuration>
+                    <processors>
+                        <processor>org.ballerinalang.codegen.BallerinaAnnotationProcessor</processor>
+                    </processors>
+                    <options>
+                        <nativeEntityProviderPackage>org.ballerinalang.stdlib.llvm.generated.providers
+                        </nativeEntityProviderPackage>
+                        <nativeEntityProviderClass>StandardNativeElementProvider</nativeEntityProviderClass>
+                    </options>
+                </configuration>
                 <executions>
                     <execution>
-                        <id>ballerina.compiler.backend.llvm</id>
+                        <id>process</id>
                         <goals>
-                            <goal>java</goal>
+                            <goal>process</goal>
                         </goals>
-                        <phase>compile</phase>
-                        <configuration>
-                            <systemProperties>
-                                <systemProperty>
-                                    <key>ballerina.home</key>
-                                    <value>${project.build.directory}</value>
-                                </systemProperty>
-                            </systemProperties>
-                            <arguments>
-                                <argument>${ballerina.source.directory}/ballerina</argument>
-                                <argument>compiler_backend_llvm</argument>
-                                <argument>${basedir}/target/compiler_backend_llvm.balx</argument>
-                            </arguments>
-                        </configuration>
+                        <phase>generate-sources</phase>
                     </execution>
                 </executions>
-                <configuration>
-                    <mainClass>org.ballerinalang.compiler.backend.llvm.GenerateBalx</mainClass>
-                </configuration>
             </plugin>
 
-            <!-- Copy resources -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-resources-plugin</artifactId>
-                <version>${maven.resources.plugin.version}</version>
+                <artifactId>maven-assembly-plugin</artifactId>
                 <executions>
                     <execution>
-                        <id>copy-resources</id>
-                        <phase>prepare-package</phase>
+                        <id>distribution</id>
+                        <phase>package</phase>
                         <goals>
-                            <goal>copy-resources</goal>
+                            <goal>attached</goal>
                         </goals>
                         <configuration>
-                            <outputDirectory>${basedir}/target/classes/META-INF/ballerina</outputDirectory>
-                            <resources>
-                                <resource>
-                                    <directory>${basedir}/target/</directory>
-                                    <includes>
-                                        <include>**/*.balx</include>
-                                    </includes>
-                                </resource>
-                            </resources>
+                            <descriptorSourceDirectory>assembly</descriptorSourceDirectory>
                         </configuration>
                     </execution>
                 </executions>
             </plugin>
         </plugins>
     </build>
-
-    <properties>
-        <ballerina.source.directory>${basedir}/src/main/</ballerina.source.directory>
-    </properties>
 
 </project>

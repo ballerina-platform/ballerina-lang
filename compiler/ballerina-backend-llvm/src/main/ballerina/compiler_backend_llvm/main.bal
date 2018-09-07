@@ -1,4 +1,5 @@
 import ballerina/io;
+import ballerina/bir;
 
 public function main(string... args) {
     var (srcFilePath, destFilePath) = parseArgs(args);
@@ -11,10 +12,10 @@ function genObjectFile(byte[] birBinary, string destFilePath, boolean dumpLLVMIR
 }
 
 function genObjectFileFromChannel(io:ByteChannel channel, string destFilePath, boolean dumpLLVMIR) {
-    ChannelReader reader = new(channel);
+    bir:ChannelReader reader = new(channel);
     checkValidBirChannel(reader);
-    BirChannelReader birReader = new(reader, parseCp(reader));
-    PackageParser p = new(birReader);
+    bir:BirChannelReader birReader = new(reader, bir:parseCp(reader));
+    bir:PackageParser p = new(birReader);
     genPackage(p.parsePackage(), destFilePath, dumpLLVMIR);
 }
 
@@ -27,12 +28,12 @@ function parseArgs(string[] args) returns (string, string) {
     return (untaint args[0], untaint args[1]);
 }
 
-function checkValidBirChannel(ChannelReader reader) {
+function checkValidBirChannel(bir:ChannelReader reader) {
     checkMagic(reader);
     checkVersion(reader);
 }
 
-function checkMagic(ChannelReader reader) {
+function checkMagic(bir:ChannelReader reader) {
     byte[] baloCodeHexSpeak = [0xba, 0x10, 0xc0, 0xde];
     var magic = reader.readByteArray(4);
 
@@ -42,7 +43,7 @@ function checkMagic(ChannelReader reader) {
     }
 }
 
-function checkVersion(ChannelReader reader) {
+function checkVersion(bir:ChannelReader reader) {
     var birVersion = reader.readInt32();
     var supportedBirVersion = 1;
     if (birVersion != 1){

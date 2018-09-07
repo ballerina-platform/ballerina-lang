@@ -1,10 +1,11 @@
 import ballerina/llvm;
 import ballerina/io;
+import ballerina/bir;
 
 // TODO: make non-globle
 llvm:LLVMValueRef printfRef;
 
-function genPackage(BIRPackage pkg, string targetObjectFilePath, boolean dumpLLVMIR) {
+function genPackage(bir:BIRPackage pkg, string targetObjectFilePath, boolean dumpLLVMIR) {
     var mod = createModule(pkg.org, pkg.name, pkg.versionValue);
     genFunctions(mod, pkg.functions);
     optimize(mod);
@@ -14,12 +15,12 @@ function genPackage(BIRPackage pkg, string targetObjectFilePath, boolean dumpLLV
     }
 }
 
-function createModule(Name orgName, Name pkgName, Name ver) returns llvm:LLVMModuleRef {
+function createModule(bir:Name orgName, bir:Name pkgName, bir:Name ver) returns llvm:LLVMModuleRef {
     var moduleName = orgName.value + pkgName.value + ver.value;
     return llvm:LLVMModuleCreateWithName(moduleName);
 }
 
-function genFunctions(llvm:LLVMModuleRef mod, BIRFunction[] funcs) {
+function genFunctions(llvm:LLVMModuleRef mod, bir:BIRFunction[] funcs) {
     var builder = llvm:LLVMCreateBuilder();
 
     genPrintfDeclration(mod);
@@ -73,7 +74,7 @@ function initAllTargets() {
     llvm:LLVMInitializeAllAsmPrinters();
 }
 
-function mapFuncsToNameAndGenrator(llvm:LLVMModuleRef mod, llvm:LLVMBuilderRef builder, BIRFunction[] funcs)
+function mapFuncsToNameAndGenrator(llvm:LLVMModuleRef mod, llvm:LLVMBuilderRef builder, bir:BIRFunction[] funcs)
              returns map<FuncGenrator> {
     map<FuncGenrator> genrators;
     foreach func in funcs {
@@ -109,11 +110,11 @@ function optimize(llvm:LLVMModuleRef mod) {
 }
 
 
-function genBType(BType bType) returns llvm:LLVMTypeRef {
+function genBType(bir:BType bType) returns llvm:LLVMTypeRef {
     match bType {
-        BTypeInt => return llvm:LLVMInt64Type();
-        BTypeBoolean => return llvm:LLVMInt1Type();
-        BTypeNil => return llvm:LLVMVoidType();
+        bir:BTypeInt => return llvm:LLVMInt64Type();
+        bir:BTypeBoolean => return llvm:LLVMInt1Type();
+        bir:BTypeNil => return llvm:LLVMVoidType();
     }
 }
 

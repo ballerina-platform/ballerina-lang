@@ -1,34 +1,34 @@
 import ballerina/io;
 
 // TODO: move to DataChannel native impl
-type ChannelReader object {
+public type ChannelReader object {
     io:ByteChannel channel;
 
-    new(channel){
+    public new(channel){
     }
 
-    function readBoolean() returns boolean {
+    public function readBoolean() returns boolean {
         var (boolByte, _mustBe1) = check channel.read(1);
         byte one = 1;
         return boolByte[0] == one;
     }
 
-    function readInt8() returns int {
+    public function readInt8() returns int {
         var (byteValue, _mustBe1) = check channel.read(1);
         return <int>byteValue[0];
     }
 
-    function readInt32() returns int {
+    public function readInt32() returns int {
         var (intBytes, _mustBe4) = check channel.read(4);
         return bytesToInt(intBytes);
     }
 
-    function readInt64() returns int {
+    public function readInt64() returns int {
         return readInt32() << 32 | readInt32();
     }
 
 
-    function readString() returns string {
+    public function readString() returns string {
         var stringLen = untaint readInt32();
         if (stringLen > 0){
             var (strBytes, strLen) = check channel.read(untaint stringLen);
@@ -38,7 +38,7 @@ type ChannelReader object {
         }
     }
 
-    function readByteArray(int len) returns byte[] {
+    public function readByteArray(int len) returns byte[] {
         var (arr, arrLen) = check channel.read(len);
         if(arrLen != len){
             error err = { message: "Unable to read "+len+" bytes" };
