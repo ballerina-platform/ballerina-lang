@@ -484,12 +484,6 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         SymbolEnv varInitEnv = SymbolEnv.createVarInitEnv(varNode, env, varNode.symbol);
 
         typeChecker.checkExpr(rhsExpr, varInitEnv, lhsType);
-
-        if (rhsExpr.getKind() == NodeKind.INVOCATION && ((BLangInvocation) rhsExpr).iterableOperationInvocation) {
-            BLangInvocation iterableInv = (BLangInvocation) rhsExpr;
-            // Added this type check to check the final resultant type of an iterable op chain and the LHS type.
-            types.checkType(varNode.pos, iterableInv.iContext.resultType, lhsType, DiagnosticCode.INCOMPATIBLE_TYPES);
-        }
     }
 
     // Statements

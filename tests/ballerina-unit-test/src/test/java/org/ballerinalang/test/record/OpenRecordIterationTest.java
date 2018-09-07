@@ -102,10 +102,10 @@ public class OpenRecordIterationTest {
         // Test mismatching chained iterable op return values
         BAssertUtil.validateError(openRecNegatives, index++,
                                   "incompatible types: expected 'map<int>', found 'map<float>'",
-                                  104, 18);
+                                  122, 10);
         BAssertUtil.validateError(openRecNegatives, index++,
                                   "incompatible types: expected 'int[]', found 'float[]'",
-                                  134, 16);
+                                  149, 10);
     }
 
     @Test
