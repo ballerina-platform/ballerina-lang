@@ -15,5 +15,3 @@ function testAsyncNegative3() returns int {
     int result = await f2;
     return result;
 }
-
-
