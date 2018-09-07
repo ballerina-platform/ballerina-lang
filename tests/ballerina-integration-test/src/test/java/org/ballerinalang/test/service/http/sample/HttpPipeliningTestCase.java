@@ -126,14 +126,13 @@ public class HttpPipeliningTestCase extends BaseTest {
     }
 
     /**
-     * Writes data as a chunk while keeping a delay between first and second chunks.
+     * Send piplined requests to the server.
      *
-     * @param socketChannel the channel to write to.
-     * @throws IOException          if there's an error when writing.
-     * @throws InterruptedException if the thread sleep is interrrupted.
+     * @param socketChannel     Represents socket channel
+     * @param pipelinedRequests Represent pipelined requests
+     * @throws IOException when IO error occurs
      */
-    private void writePipelinedRequests(SocketChannel socketChannel, String pipelinedRequests) throws IOException,
-            InterruptedException {
+    private void writePipelinedRequests(SocketChannel socketChannel, String pipelinedRequests) throws IOException {
         int i = 0;
         ByteBuffer buf = ByteBuffer.allocate(BUFFER_SIZE);
         byte[] data = pipelinedRequests.getBytes();
@@ -163,7 +162,7 @@ public class HttpPipeliningTestCase extends BaseTest {
     private void readAndAssertResponse(SocketChannel socketChannel, String expected)
             throws IOException {
         int count;
-        ByteBuffer buffer = ByteBuffer.allocateDirect(1024);
+        ByteBuffer buffer = ByteBuffer.allocateDirect(BUFFER_SIZE);
         StringBuilder inboundContent = new StringBuilder();
 
         count = socketChannel.read(buffer);
