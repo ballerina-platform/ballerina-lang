@@ -1784,13 +1784,6 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         varRefExpr.lhsVar = true;
         typeChecker.checkExpr(varRefExpr, env);
 
-        // Check whether we've got an enumerator access expression here.
-        if (varRefExpr.getKind() == NodeKind.FIELD_BASED_ACCESS_EXPR &&
-                ((BLangFieldBasedAccess) varRefExpr).expr.type.tag == TypeTags.ENUM) {
-            dlog.error(varRefExpr.pos, DiagnosticCode.INVALID_VARIABLE_ASSIGNMENT, varRefExpr);
-            return symTable.errType;
-        }
-
         //Check whether this is an readonly field.
         checkReadonlyAssignment(varRefExpr);
 

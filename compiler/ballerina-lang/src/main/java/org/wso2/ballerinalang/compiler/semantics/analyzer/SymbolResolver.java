@@ -301,7 +301,6 @@ public class SymbolResolver extends BLangNodeVisitor {
                 (rhsType.tag == TypeTags.OBJECT ||
                         rhsType.tag == TypeTags.RECORD ||
                         rhsType.tag == TypeTags.ENDPOINT ||
-                        rhsType.tag == TypeTags.ENUM ||
                         rhsType.tag == TypeTags.INVOKABLE)) {
             BInvokableType opType = new BInvokableType(Lists.of(lhsType, rhsType), symTable.booleanType, null);
             return new BOperatorSymbol(names.fromString(opKind.value()), null, opType, null, opcode);
@@ -310,16 +309,8 @@ public class SymbolResolver extends BLangNodeVisitor {
         if ((lhsType.tag == TypeTags.OBJECT ||
                 lhsType.tag == TypeTags.RECORD ||
                 lhsType.tag == TypeTags.ENDPOINT ||
-                lhsType.tag == TypeTags.ENUM ||
                 lhsType.tag == TypeTags.INVOKABLE)
                 && rhsType.tag == TypeTags.NIL) {
-            BInvokableType opType = new BInvokableType(Lists.of(lhsType, rhsType), symTable.booleanType, null);
-            return new BOperatorSymbol(names.fromString(opKind.value()), null, opType, null, opcode);
-
-        }
-
-        if (lhsType.tag == TypeTags.ENUM && rhsType.tag == TypeTags.ENUM && lhsType == rhsType) {
-            opcode = (opKind == OperatorKind.EQUAL) ? InstructionCodes.REQ : InstructionCodes.RNE;
             BInvokableType opType = new BInvokableType(Lists.of(lhsType, rhsType), symTable.booleanType, null);
             return new BOperatorSymbol(names.fromString(opKind.value()), null, opType, null, opcode);
         }

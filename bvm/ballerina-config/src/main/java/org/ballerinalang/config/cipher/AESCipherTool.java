@@ -93,6 +93,7 @@ public class AESCipherTool {
      *
      * @param value Value to be encrypted.
      * @return Encrypted value.
+     * @throws AESCipherToolException Thrown if any error occurs while initializing the cipher tool.
      */
     public String encrypt(String value) throws AESCipherToolException {
         try {
@@ -114,6 +115,7 @@ public class AESCipherTool {
      *
      * @param value Encrypted value to be decrypted.
      * @return Decrypted value.
+     * @throws AESCipherToolException Thrown if any error occurs while initializing the cipher tool.
      */
     public String decrypt(String value) throws AESCipherToolException {
         try {

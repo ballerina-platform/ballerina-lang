@@ -446,6 +446,7 @@ public class Generator {
      * Create documentation for records.
      *
      * @param recordType ballerina record node.
+     * @param structName  struct name.
      * @return documentation of the record.
      */
     private static RecordDoc createDocForType(BLangTypeDefinition typeDefinition, BLangRecordTypeNode recordType,

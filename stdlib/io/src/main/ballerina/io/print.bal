@@ -20,8 +20,17 @@ public extern function print(any... a);
 # Prints an any value to the STDOUT in a new line.
 public extern function println(any... a);
 
-# Returns a formatted string using the specified format string and arguments.
+# Returns a formatted string using the specified format string and arguments. Following format specifiers are allowed.
+#    b              boolean
+#    B              boolean (ALL_CAPS)
+#    d              int
+#    f              float
+#    x              hex
+#    X              HEX (ALL_CAPS)
+#    s              string (This specifier is applicable for any of the supported types in Ballerina.
+#                   These values will be converted to their string representation.)
 #
-# + format - Represent the format of the string which should be returned
+# + format - A format string
+# + args   - Arguments referenced by the format specifiers in the format string.
 # + return - Formatted string
 public extern function sprintf(string format, any... args) returns (string);

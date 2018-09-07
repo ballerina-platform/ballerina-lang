@@ -75,7 +75,6 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangCheckedExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangElvisExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess.BLangEnumeratorAccessExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess.BLangStructFunctionVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess.BLangArrayAccessExpr;
@@ -1052,30 +1051,25 @@ public class Desugar extends BLangNodeVisitor {
         }
 
         BLangVariableReference targetVarRef = fieldAccessExpr;
-        if (fieldAccessExpr.expr.type.tag == TypeTags.ENUM) {
-            targetVarRef = new BLangEnumeratorAccessExpr(fieldAccessExpr.pos,
-                    fieldAccessExpr.field, (BVarSymbol) fieldAccessExpr.symbol);
-        } else {
-            fieldAccessExpr.expr = rewriteExpr(fieldAccessExpr.expr);
-            BLangLiteral stringLit = createStringLiteral(fieldAccessExpr.pos, fieldAccessExpr.field.value);
-            BType varRefType = fieldAccessExpr.expr.type;
-            if (varRefType.tag == TypeTags.OBJECT || varRefType.tag == TypeTags.RECORD) {
-                if (fieldAccessExpr.symbol instanceof BInvokableSymbol &&
-                        ((fieldAccessExpr.symbol.flags & Flags.ATTACHED) == Flags.ATTACHED)) {
-                    targetVarRef = new BLangStructFunctionVarRef(fieldAccessExpr.expr,
-                                                                 (BVarSymbol) fieldAccessExpr.symbol);
-                } else {
-                    targetVarRef = new BLangStructFieldAccessExpr(fieldAccessExpr.pos, fieldAccessExpr.expr, stringLit,
-                                                                  (BVarSymbol) fieldAccessExpr.symbol);
-                }
-            } else if (varRefType.tag == TypeTags.MAP) {
-                targetVarRef = new BLangMapAccessExpr(fieldAccessExpr.pos, fieldAccessExpr.expr, stringLit);
-            } else if (varRefType.tag == TypeTags.JSON) {
-                targetVarRef = new BLangJSONAccessExpr(fieldAccessExpr.pos, fieldAccessExpr.expr, stringLit);
-            } else if (varRefType.tag == TypeTags.XML) {
-                targetVarRef = new BLangXMLAccessExpr(fieldAccessExpr.pos, fieldAccessExpr.expr, stringLit,
-                                                      fieldAccessExpr.fieldKind);
+        fieldAccessExpr.expr = rewriteExpr(fieldAccessExpr.expr);
+        BLangLiteral stringLit = createStringLiteral(fieldAccessExpr.pos, fieldAccessExpr.field.value);
+        BType varRefType = fieldAccessExpr.expr.type;
+        if (varRefType.tag == TypeTags.OBJECT || varRefType.tag == TypeTags.RECORD) {
+            if (fieldAccessExpr.symbol != null && fieldAccessExpr.symbol.type.tag == TypeTags.INVOKABLE
+                    && ((fieldAccessExpr.symbol.flags & Flags.ATTACHED) == Flags.ATTACHED)) {
+                targetVarRef = new BLangStructFunctionVarRef(fieldAccessExpr.expr,
+                                                             (BVarSymbol) fieldAccessExpr.symbol);
+            } else {
+                targetVarRef = new BLangStructFieldAccessExpr(fieldAccessExpr.pos, fieldAccessExpr.expr, stringLit,
+                                                              (BVarSymbol) fieldAccessExpr.symbol);
             }
+        } else if (varRefType.tag == TypeTags.MAP) {
+            targetVarRef = new BLangMapAccessExpr(fieldAccessExpr.pos, fieldAccessExpr.expr, stringLit);
+        } else if (varRefType.tag == TypeTags.JSON) {
+            targetVarRef = new BLangJSONAccessExpr(fieldAccessExpr.pos, fieldAccessExpr.expr, stringLit);
+        } else if (varRefType.tag == TypeTags.XML) {
+            targetVarRef = new BLangXMLAccessExpr(fieldAccessExpr.pos, fieldAccessExpr.expr, stringLit,
+                                                  fieldAccessExpr.fieldKind);
         }
 
         targetVarRef.lhsVar = fieldAccessExpr.lhsVar;

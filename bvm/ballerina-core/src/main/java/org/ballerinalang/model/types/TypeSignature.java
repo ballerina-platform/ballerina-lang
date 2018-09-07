@@ -36,7 +36,6 @@ public class TypeSignature {
     public static final String SIG_MAP = "M";
     public static final String SIG_CONNECTOR = "C";
     public static final String SIG_STRUCT = "T";
-    public static final String SIG_ENUM = "E";
     public static final String SIG_FUNCTION = "U";
     public static final String SIG_ARRAY = "[";
     public static final String SIG_ANY = "A";

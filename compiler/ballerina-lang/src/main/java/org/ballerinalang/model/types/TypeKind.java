@@ -62,7 +62,6 @@ public enum TypeKind {
     MAP("map"),
     FUTURE("future"),
     PACKAGE("package"),
-    ENUM("enum"),
     SERVICE("service"),
     CONNECTOR("connector"),
     ENDPOINT("endpoint"),
