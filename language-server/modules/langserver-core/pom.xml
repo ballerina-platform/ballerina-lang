@@ -241,7 +241,7 @@
                         <configuration>
                             <target>
                                 <get src="${bbes.json.path}"
-                                     dest="${project.basedir}/src/main/resources/examples/all-bbes.json"
+                                     dest="${project.basedir}/src/main/resources/all-bbes.json"
                                      verbose="false"
                                      usetimestamp="true"/>
                             </target>

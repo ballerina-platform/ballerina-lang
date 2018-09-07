@@ -37,7 +37,7 @@ public class BallerinaExampleServiceImpl implements BallerinaExampleService {
 
     private static final Logger logger = LoggerFactory.getLogger(BallerinaExampleServiceImpl.class);
 
-    private static final String BBE_DEF_JSON = "examples/all-bbes.json";
+    private static final String BBE_DEF_JSON = "all-bbes.json";
 
     private static final Type EXAMPLE_CATEGORY_TYPE = new TypeToken<List<BallerinaExampleCategory>>() { }.getType();
 
