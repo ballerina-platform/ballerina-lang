@@ -1,42 +1,33 @@
-type ClosedPerson record {
+type Person record {
     string name;
     int age;
-    ClosedAddress address;
-    !...
+    Address address;
 };
 
-type ClosedAddress record {
+type Address record {
     string street;
     string city;
-    !...
 };
 
-type ClosedGrades record {
-    int maths;
-    int physics;
-    int chemistry;
-    !...
-};
+Person p = { name: "John Doe", age: 25, address: { street: "Palm Grove", city: "Colombo 3" }, profession: "Software Engineer" };
 
-ClosedPerson p = { name: "John Doe", age: 25, address: { street: "Palm Grove", city: "Colombo 3" }};
-
-function testSumOpWithClosedRecords() {
+function testSumOpWithOpenRecords() {
     var sum = p.sum();
 }
 
-function testAverageOpWithClosedRecords() {
+function testAverageOpWithOpenRecords() {
     var avg = p.average();
 }
 
-function testMaxOpWithClosedRecords() {
+function testMaxOpWithOpenRecords() {
     var max = p.max();
 }
 
-function testMinOpWithClosedRecords() {
+function testMinOpWithOpenRecords() {
     var min = p.min();
 }
 
-function testInvalidArgForForeachWithClosedRecords() {
+function testInvalidArgForForeachWithOpenRecords() {
     any[] vals = [];
     int i = 0;
 
@@ -46,7 +37,7 @@ function testInvalidArgForForeachWithClosedRecords() {
     }
 }
 
-function testInvalidForeachOpWithClosedRecords() {
+function testInvalidForeachOpWithOpenRecords() {
     p.foreach((any entry) => {
     });
 
@@ -54,7 +45,7 @@ function testInvalidForeachOpWithClosedRecords() {
     });
 }
 
-function testInvalidMapOpWithClosedRecords() {
+function testInvalidMapOpWithOpenRecords() {
     map newp = p.map((any entry) => (string, any) {
         return ("", "");
     });
@@ -71,12 +62,12 @@ function testInvalidMapOpWithClosedRecords() {
         return ("", "", "");
     });
 
-    ClosedPerson invMap = p.map(((string, any) entry) => (string, any) {
+    Person invMap = p.map(((string, any) entry) => (string, any) {
         return ("", "");
     });
 }
 
-function testInvalidFilterOpWithClosedRecords() {
+function testInvalidFilterOpWithOpenRecords() {
     map newp = p.filter(((string,any) entry) => boolean {
         return true;
     });
@@ -93,13 +84,22 @@ function testInvalidFilterOpWithClosedRecords() {
         return ("", "", "");
     });
 
-    ClosedPerson invFil = p.filter(((string, any) entry) => boolean {
+    Person invFil = p.filter(((string, any) entry) => boolean {
         return false;
     });
 }
 
+
+type RestrictedGrades record {
+    int maths;
+    int physics;
+    int chemistry;
+    int...
+};
+
+
 function testInvalidChainedItrOpReturns() {
-    ClosedGrades f = {maths: 80, physics: 75, chemistry: 65};
+    RestrictedGrades f = {maths: 80, physics: 75, chemistry: 65, english: 78};
 
     map<int> m = f.map(((string, int) entry) => (string, int) {
         var (subj, grade) = entry;
@@ -129,7 +129,7 @@ function testInvalidChainedItrOpReturns() {
 }
 
 function testInvalidChainedItrOpReturns2() {
-    ClosedGrades f = {maths: 80, physics: 75, chemistry: 65};
+    RestrictedGrades f = {maths: 80, physics: 75, chemistry: 65, english: 78};
 
     int[] ar = f.map((int grade) => int {
         return grade + 10;
