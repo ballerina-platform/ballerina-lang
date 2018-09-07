@@ -39,7 +39,7 @@ public class BallerinaExampleServiceImpl implements BallerinaExampleService {
 
     private static final String BBE_DEF_JSON = "examples/all-bbes.json";
 
-    private static final Type EXAMPLE_CATEGORY_TYPE = new TypeToken<List<BallerinaExampleCategory>>(){}.getType();
+    private static final Type EXAMPLE_CATEGORY_TYPE = new TypeToken<List<BallerinaExampleCategory>>() { }.getType();
 
     private LSGlobalContext lsGlobalContext;
 
