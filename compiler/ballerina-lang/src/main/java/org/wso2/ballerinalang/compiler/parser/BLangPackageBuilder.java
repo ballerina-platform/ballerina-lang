@@ -1786,21 +1786,33 @@ public class BLangPackageBuilder {
         markdownDocumentationNode.addWS(ws);
     }
 
-    void endMarkdownDocumentationText(DiagnosticPos pos, String text) {
+    void endMarkDownDocumentLine(Set<Whitespace> ws) {
+        MarkdownDocumentationNode markdownDocumentationNode = markdownDocumentationStack.peek();
+        markdownDocumentationNode.addWS(ws);
+    }
+
+    void endMarkdownDocumentationText(DiagnosticPos pos, Set<Whitespace> ws, String text) {
         MarkdownDocumentationNode markdownDocumentationNode = markdownDocumentationStack.peek();
         BLangMarkdownDocumentationLine documentationDescription =
                 (BLangMarkdownDocumentationLine) TreeBuilder.createMarkdownDocumentationTextNode();
         documentationDescription.text = text;
         documentationDescription.pos = pos;
+        documentationDescription.addWS(ws);
         markdownDocumentationNode.addDocumentationLine(documentationDescription);
     }
 
-    void endParameterDocumentation(DiagnosticPos pos, String parameterName, String description) {
+    void endParameterDocumentationLine(Set<Whitespace> ws) {
+        MarkdownDocumentationNode markdownDocumentationNode = markdownDocumentationStack.peek();
+        markdownDocumentationNode.addWS(ws);
+    }
+
+    void endParameterDocumentation(DiagnosticPos pos, Set<Whitespace> ws, String parameterName, String description) {
         MarkdownDocumentationNode markdownDocumentationNode = markdownDocumentationStack.peek();
         BLangMarkdownParameterDocumentation parameterDocumentationNode =
                 (BLangMarkdownParameterDocumentation) TreeBuilder.createMarkdownParameterDocumentationNode();
         parameterDocumentationNode.parameterName = (BLangIdentifier) createIdentifier(parameterName);
         parameterDocumentationNode.pos = pos;
+        parameterDocumentationNode.addWS(ws);
         parameterDocumentationNode.addParameterDocumentationLine(description);
         markdownDocumentationNode.addParameter(parameterDocumentationNode);
     }
@@ -1812,12 +1824,13 @@ public class BLangPackageBuilder {
         parameterDocumentation.addParameterDocumentationLine(description);
     }
 
-    void endReturnParameterDocumentation(DiagnosticPos pos, String description) {
+    void endReturnParameterDocumentation(DiagnosticPos pos, Set<Whitespace> ws, String description) {
         MarkdownDocumentationNode markdownDocumentationNode = markdownDocumentationStack.peek();
         BLangMarkdownReturnParameterDocumentation returnParameterDocumentation =
                 (BLangMarkdownReturnParameterDocumentation) TreeBuilder
                         .createMarkdownReturnParameterDocumentationNode();
         returnParameterDocumentation.pos = pos;
+        returnParameterDocumentation.addWS(ws);
         returnParameterDocumentation.addReturnParameterDocumentationLine(description);
         markdownDocumentationNode.setReturnParameter(returnParameterDocumentation);
     }
