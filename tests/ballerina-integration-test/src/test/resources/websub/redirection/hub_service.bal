@@ -1,7 +1,11 @@
 import ballerina/config;
+import ballerina/http;
 import ballerina/io;
 import ballerina/runtime;
+import ballerina/time;
 import ballerina/websub;
+
+boolean testSubscriberRegistered;
 
 public function main(string... args) {
     io:println("Starting up the Ballerina Hub Service");
@@ -12,6 +16,17 @@ public function main(string... args) {
     //Register a topic at the hub
     _ = webSubHub.registerTopic("http://redirectiontopictwo.com");
 
-    //Allow for subscriber service start up and subscription
-    runtime:sleep(45000);
+    int startTime = time:currentTime().time;
+
+    while (!testSubscriberRegistered && time:currentTime().time - startTime < 15000) {
+        runtime:sleep(1000);
+    }
+    testSubscriberRegistered = false;
+}
+
+service<http:Service> helper bind { port: config:getAsInt("test.helper.service.port") } {
+    subscribed(endpoint caller, http:Request req) {
+        testSubscriberRegistered = true;
+        _ = caller->respond("Subscription notified!");
+    }
 }

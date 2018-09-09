@@ -33,12 +33,15 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 import java.io.File;
+import java.io.IOException;
 import java.net.ConnectException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.Executors;
 
 import static org.awaitility.Awaitility.given;
+import static org.ballerinalang.test.service.websub.WebSubTestUtils.updateNotified;
+import static org.ballerinalang.test.service.websub.WebSubTestUtils.updateSubscribed;
 import static java.util.concurrent.TimeUnit.SECONDS;
 
 /**
@@ -56,6 +59,7 @@ public class WebSubDiscoveryWithMultipleSubscribersTestCase extends BaseTest {
     private BServerInstance webSubPublisherService;
 
     private final int subscriberServicePort = 8484;
+    private final String helperServicePortAsString = "8093";
 
     private static String hubUrl = "https://localhost:9494/websub/hub";
     private static final String INTENT_VERIFICATION_SUBSCRIBER_ONE_LOG = "ballerina: Intent Verification agreed - Mode "
@@ -83,7 +87,7 @@ public class WebSubDiscoveryWithMultipleSubscribersTestCase extends BaseTest {
         String publisherBal = new File("src" + File.separator + "test" + File.separator + "resources"
                 + File.separator + "websub" + File.separator + "websub_test_publisher.bal").getAbsolutePath();
         String[] publisherArgs = {"-e b7a.websub.hub.port=9494", "-e b7a.websub.hub.remotepublish=true",
-                "-e test.hub.url=" + hubUrl};
+                "-e test.hub.url=" + hubUrl, "-e test.helper.service.port=" + helperServicePortAsString};
 
         String publisherServiceBal = new File("src" + File.separator + "test" + File.separator + "resources"
                 + File.separator + "websub" + File.separator + "websub_test_publisher_service.bal").getAbsolutePath();
@@ -129,16 +133,11 @@ public class WebSubDiscoveryWithMultipleSubscribersTestCase extends BaseTest {
         });
     }
 
-    @AfterClass
-    private void cleanup() throws Exception {
-        webSubSubscriber.shutdownServer();
-        webSubPublisherService.shutdownServer();
-    }
-
     @Test
-    public void testDiscoveryAndIntentVerification() throws BallerinaTestException {
+    public void testDiscoveryAndIntentVerification() throws BallerinaTestException, IOException {
         intentVerificationLogLeecherOne.waitForText(30000);
         intentVerificationLogLeecherTwo.waitForText(30000);
+        updateSubscribed(helperServicePortAsString);
     }
 
     @Test(dependsOnMethods = "testDiscoveryAndIntentVerification")
@@ -147,4 +146,10 @@ public class WebSubDiscoveryWithMultipleSubscribersTestCase extends BaseTest {
         internalHubNotificationLogLeecherTwo.waitForText(45000);
     }
 
+    @AfterClass
+    private void cleanup() throws Exception {
+        updateNotified(helperServicePortAsString);
+        webSubSubscriber.shutdownServer();
+        webSubPublisherService.shutdownServer();
+    }
 }

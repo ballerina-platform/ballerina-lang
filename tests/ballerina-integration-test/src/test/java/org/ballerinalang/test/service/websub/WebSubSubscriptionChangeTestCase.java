@@ -33,12 +33,15 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 import java.io.File;
+import java.io.IOException;
 import java.net.ConnectException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.Executors;
 
 import static org.awaitility.Awaitility.given;
+import static org.ballerinalang.test.service.websub.WebSubTestUtils.updateNotified;
+import static org.ballerinalang.test.service.websub.WebSubTestUtils.updateSubscribed;
 import static java.util.concurrent.TimeUnit.SECONDS;
 
 /**
@@ -58,6 +61,7 @@ public class WebSubSubscriptionChangeTestCase extends BaseTest {
     private BMainInstance webSubPublisher;
 
     private final int subscriberServicePort = 8181;
+    private final String helperServicePortAsString = "8096";
 
     private static String hubUrl = "https://localhost:9393/websub/hub";
     private static final String SUBSCRIPTION_INTENT_VERIFICATION_LOG = "ballerina: Intent Verification agreed - Mode "
@@ -81,7 +85,8 @@ public class WebSubSubscriptionChangeTestCase extends BaseTest {
 
         String publisherBal = new File("src" + File.separator + "test" + File.separator + "resources"
                 + File.separator + "websub" + File.separator + "websub_test_periodic_publisher.bal").getAbsolutePath();
-        String[] publisherArgs = {"-e b7a.websub.hub.remotepublish=true"};
+        String[] publisherArgs = {"-e b7a.websub.hub.remotepublish=true",
+                "-e test.helper.service.port=" + helperServicePortAsString};
 
         String subscriberBal = new File("src" + File.separator + "test" + File.separator + "resources"
                 + File.separator + "websub" + File.separator + "websub_test_subscriber.bal").getAbsolutePath();
@@ -122,8 +127,9 @@ public class WebSubSubscriptionChangeTestCase extends BaseTest {
     }
 
     @Test
-    public void testSubscriptionAndIntentVerification() throws BallerinaTestException {
+    public void testSubscriptionAndIntentVerification() throws BallerinaTestException, IOException {
         subscriptionIntentVerificationLogLeecher.waitForText(30000);
+        updateSubscribed(helperServicePortAsString);
     }
 
     @Test(dependsOnMethods = "testSubscriptionAndIntentVerification")
@@ -152,6 +158,7 @@ public class WebSubSubscriptionChangeTestCase extends BaseTest {
 
     @AfterClass
     private void cleanup() throws Exception {
+        updateNotified(helperServicePortAsString);
         webSubSubscriber.shutdownServer();
     }
 

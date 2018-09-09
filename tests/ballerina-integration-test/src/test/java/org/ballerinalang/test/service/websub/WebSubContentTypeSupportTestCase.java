@@ -16,12 +16,15 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 import java.io.File;
+import java.io.IOException;
 import java.net.ConnectException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.Executors;
 
 import static org.awaitility.Awaitility.given;
+import static org.ballerinalang.test.service.websub.WebSubTestUtils.updateNotified;
+import static org.ballerinalang.test.service.websub.WebSubTestUtils.updateSubscribed;
 import static java.util.concurrent.TimeUnit.SECONDS;
 
 /**
@@ -36,6 +39,7 @@ public class WebSubContentTypeSupportTestCase extends BaseTest {
     private BMainInstance webSubPublisher;
 
     private final int servicePort = 8686;
+    private final String helperServicePortAsString = "8094";
 
     private static String hubUrl = "https://localhost:9696/websub/hub";
     private static final String INTENT_VERIFICATION_SUBSCRIBER_ONE_LOG = "ballerina: Intent Verification agreed - Mode"
@@ -94,7 +98,8 @@ public class WebSubContentTypeSupportTestCase extends BaseTest {
         String balFile = new File("src" + File.separator + "test" + File.separator + "resources"
                 + File.separator + "websub" + File.separator + "content_types" + File.separator
                 + "publisher.bal").getAbsolutePath();
-        String[] publisherArgs = {"-e b7a.websub.hub.remotepublish=true"};
+        String[] publisherArgs = {"-e b7a.websub.hub.remotepublish=true",
+                "-e test.helper.service.port=" + helperServicePortAsString};
 
         String subscriberBal = new File("src" + File.separator + "test" + File.separator + "resources"
                 + File.separator + "websub" + File.separator + "content_types" + File.separator
@@ -142,15 +147,11 @@ public class WebSubContentTypeSupportTestCase extends BaseTest {
         });
     }
 
-    @AfterClass
-    private void cleanup() throws Exception {
-        webSubSubscriber.shutdownServer();
-    }
-
     @Test
-    public void testSubscriptionAndIntentVerification() throws BallerinaTestException {
+    public void testSubscriptionAndIntentVerification() throws BallerinaTestException, IOException {
         intentVerificationLogLeecherOne.waitForText(30000);
         intentVerificationLogLeecherTwo.waitForText(30000);
+        updateSubscribed(helperServicePortAsString);
     }
 
     @Test(dependsOnMethods = "testSubscriptionAndIntentVerification")
@@ -191,5 +192,11 @@ public class WebSubContentTypeSupportTestCase extends BaseTest {
     @Test(dependsOnMethods = "testSubscriptionAndIntentVerification")
     public void testUnauthenticatedXmlContentReceiptForRemoteHub() throws BallerinaTestException {
         remoteHubXmlNotificationLogLeecherTwo.waitForText(45000);
+    }
+
+    @AfterClass
+    private void cleanup() throws Exception {
+        updateNotified(helperServicePortAsString);
+        webSubSubscriber.shutdownServer();
     }
 }

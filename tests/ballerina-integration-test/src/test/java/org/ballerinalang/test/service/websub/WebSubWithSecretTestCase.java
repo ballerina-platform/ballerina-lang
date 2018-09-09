@@ -41,6 +41,8 @@ import java.util.Map;
 import java.util.concurrent.Executors;
 
 import static org.awaitility.Awaitility.given;
+import static org.ballerinalang.test.service.websub.WebSubTestUtils.updateNotified;
+import static org.ballerinalang.test.service.websub.WebSubTestUtils.updateSubscribed;
 import static java.util.concurrent.TimeUnit.SECONDS;
 
 /**
@@ -59,6 +61,7 @@ public class WebSubWithSecretTestCase extends BaseTest {
     private BMainInstance webSubPublisher;
 
     private final int subscriberServicePort = 8181;
+    private final String helperServicePortAsString = "8092";
 
     private static String hubUrl = "https://localhost:9292/websub/hub";
     private static final String INTENT_VERIFICATION_SUBSCRIBER_LOG = "\"Intent verified for subscription request\"";
@@ -78,7 +81,8 @@ public class WebSubWithSecretTestCase extends BaseTest {
 
         String publisherBal = new File("src" + File.separator + "test" + File.separator + "resources"
                 + File.separator + "websub" + File.separator + "websub_test_publisher.bal").getAbsolutePath();
-        String[] clientArgs = {"-e b7a.websub.hub.remotepublish=true", "-e test.hub.url=" + hubUrl};
+        String[] clientArgs = {"-e b7a.websub.hub.remotepublish=true", "-e test.hub.url=" + hubUrl,
+                                "-e test.helper.service.port=" + helperServicePortAsString};
 
         String subscriberBal = new File("src" + File.separator + "test" + File.separator + "resources"
                 + File.separator + "websub" + File.separator +
@@ -119,8 +123,9 @@ public class WebSubWithSecretTestCase extends BaseTest {
     }
 
     @Test
-    public void testSubscriptionAndIntentVerification() throws BallerinaTestException {
+    public void testSubscriptionAndIntentVerification() throws BallerinaTestException, IOException {
         intentVerificationLogLeecher.waitForText(30000);
+        updateSubscribed(helperServicePortAsString);
     }
 
     @Test(dependsOnMethods = "testSubscriptionAndIntentVerification")
@@ -158,7 +163,7 @@ public class WebSubWithSecretTestCase extends BaseTest {
 
     @AfterClass
     private void cleanup() throws Exception {
+        updateNotified(helperServicePortAsString);
         webSubSubscriber.shutdownServer();
     }
-
 }

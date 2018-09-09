@@ -39,6 +39,7 @@ import java.util.Map;
 import java.util.concurrent.Executors;
 
 import static org.awaitility.Awaitility.given;
+import static org.ballerinalang.test.service.websub.WebSubTestUtils.updateSubscribed;
 import static java.util.concurrent.TimeUnit.SECONDS;
 
 /**
@@ -55,6 +56,7 @@ public class WebSubRedirectionTestCase extends BaseTest {
 
     private final int publisherServicePort = 9291;
     private final int subscriberServicePort = 8585;
+    private final String helperServicePortAsString = "8095";
 
     private static String hubUrl = "https://localhost:9595/websub/hub";
     private static final String INTENT_VERIFICATION_SUBSCRIBER_ONE_LOG = "ballerina: Intent Verification agreed - Mode "
@@ -92,7 +94,9 @@ public class WebSubRedirectionTestCase extends BaseTest {
 
         Executors.newSingleThreadExecutor().execute(() -> {
             try {
-                webSubPublisher.runMain(publisherBal);
+                webSubPublisher.runMain(publisherBal,
+                                        new String[]{"-e test.helper.service.port=" + helperServicePortAsString},
+                                        new String[0]);
             } catch (BallerinaTestException e) {
                 //ignored since any errors here would be reflected as test failures
             }
@@ -133,6 +137,7 @@ public class WebSubRedirectionTestCase extends BaseTest {
 
     @AfterClass
     private void cleanup() throws Exception {
+        updateSubscribed(helperServicePortAsString);
         webSubPublisherService.shutdownServer();
         webSubSubscriber.shutdownServer();
     }
