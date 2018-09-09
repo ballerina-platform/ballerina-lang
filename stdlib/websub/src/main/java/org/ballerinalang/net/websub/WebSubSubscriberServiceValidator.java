@@ -116,7 +116,6 @@ public class WebSubSubscriberServiceValidator {
                 String[] resourceParamDetails = resourceDetails.get(resourceName);
                 validateCustomNotificationResource(resource.getBalResource(), resourceParamDetails[0],
                                                    resourceParamDetails[1]);
-                resourceNames.remove(resourceName);
             }
         }
         return invalidResourceNames;
