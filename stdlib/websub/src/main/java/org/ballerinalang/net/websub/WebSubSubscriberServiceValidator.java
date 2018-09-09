@@ -41,7 +41,6 @@ import static org.ballerinalang.net.websub.WebSubSubscriberConstants.SERVICE_END
 import static org.ballerinalang.net.websub.WebSubSubscriberConstants.STRUCT_WEBSUB_INTENT_VERIFICATION_REQUEST;
 import static org.ballerinalang.net.websub.WebSubSubscriberConstants.STRUCT_WEBSUB_NOTIFICATION_REQUEST;
 import static org.ballerinalang.net.websub.WebSubSubscriberConstants.WEBSUB_PACKAGE;
-import static org.ballerinalang.net.websub.WebSubUtils.retrieveResourceDetails;
 
 /**
  * Resource validator for WebSub Subscriber Services.
@@ -95,8 +94,8 @@ public class WebSubSubscriberServiceValidator {
     }
 
     static void validateCustomResources(List<HttpResource> resources, WebSubServicesRegistry serviceRegistry) {
-        HashMap<String, String[]> resourceDetails = retrieveResourceDetails(serviceRegistry);
-        List<String> invalidResourceNames = retrieveInvalidResourceNames(resources, resourceDetails);
+        List<String> invalidResourceNames = retrieveInvalidResourceNames(resources,
+                                                                         serviceRegistry.getResourceDetails());
 
         if (!invalidResourceNames.isEmpty()) {
             throw new BallerinaException("Resource name(s) not included in the topic-resource mapping found: "

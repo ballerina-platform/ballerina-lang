@@ -58,6 +58,7 @@ import static org.ballerinalang.net.websub.WebSubSubscriberConstants.WEBSUB_SERV
 )
 public class InitWebSubSubscriberServiceEndpoint extends BlockingNativeCallableUnit {
 
+    @SuppressWarnings("unchecked")
     @Override
     public void execute(Context context) {
 
@@ -87,8 +88,7 @@ public class InitWebSubSubscriberServiceEndpoint extends BlockingNativeCallableU
             }
 
             if (TOPIC_ID_HEADER.equals(topicIdentifier)) {
-                headerResourceMap =
-                        (BMap<String, BValue>) extensionConfig.get(EXTENSION_CONFIG_HEADER_RESOURCE_MAP);
+                headerResourceMap = (BMap<String, BValue>) extensionConfig.get(EXTENSION_CONFIG_HEADER_RESOURCE_MAP);
                 if (headerResourceMap == null) {
                     throw new BallerinaConnectorException("Resource map not specified to dispatch by header");
                 }
