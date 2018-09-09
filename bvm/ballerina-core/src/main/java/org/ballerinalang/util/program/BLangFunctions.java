@@ -381,19 +381,31 @@ public class BLangFunctions {
         List<WorkerExecutionContext> workerExecutionContexts = new ArrayList<>();
         /* execute all the workers in their own threads */
         if (parentCtx.interruptible) {
-            for (int i = 0; i < workerSet.generalWorkers.length; i++) {
+            for (int i = 0; i < generalWorkersCount; i++) {
                 workerExecutionContexts.add(createWorker(respCtx, parentCtx, argRegs, callableUnitInfo,
                                                          workerSet.generalWorkers[i], wdi, initWorkerLocalData,
                                                          initWorkerCAI, false, observerContext));
+                populateDataForNonNativeCallableAsync(callableUnitInfo, parentCtx, workerExecutionContexts, respCtx,
+                                                      retRegs);
+                registerAndScheduleInterruptibleWorkers(parentCtx, workerExecutionContexts);
             }
-            registerAndScheduleInterruptibleWorkers(parentCtx, workerExecutionContexts);
         } else {
             for (int i = 0; i < generalWorkersCount; i++) {
                 workerExecutionContexts.add(executeWorker(respCtx, parentCtx, argRegs, callableUnitInfo,
                                                           workerSet.generalWorkers[i], wdi, initWorkerLocalData,
                                                           initWorkerCAI, false, observerContext));
+                populateDataForNonNativeCallableAsync(callableUnitInfo, parentCtx, workerExecutionContexts, respCtx,
+                                                      retRegs);
             }
         }
+    }
+
+    private static void populateDataForNonNativeCallableAsync(CallableUnitInfo callableUnitInfo,
+                                                              WorkerExecutionContext parentCtx,
+                                                              List<WorkerExecutionContext> workerExecutionContexts,
+                                                              AsyncInvocableWorkerResponseContext respCtx,
+                                                              int[] retRegs) {
+
         /* set the worker execution contexts in the response context, so it can use them to do later
          * operations such as cancel */
         respCtx.setWorkerExecutionContexts(workerExecutionContexts);
