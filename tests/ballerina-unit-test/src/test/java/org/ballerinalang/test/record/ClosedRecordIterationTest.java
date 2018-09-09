@@ -66,8 +66,9 @@ public class ClosedRecordIterationTest {
                                   36, 15);
 
         // Test invalid no. of args with foreach loop
-        BAssertUtil.validateError(closedRecNegatives, index++, "iterable type 'ClosedPerson' requires '2' variables",
-                                  43, 20);
+        BAssertUtil.validateError(closedRecNegatives, index++,
+                                  "too many variables are defined for iterable type 'ClosedPerson'",
+                                  43, 26);
 
         // Test invalid foreach iterable operation
         BAssertUtil.validateError(closedRecNegatives, index++,
@@ -99,10 +100,10 @@ public class ClosedRecordIterationTest {
         // Test mismatching chained iterable op return values
         BAssertUtil.validateError(closedRecNegatives, index++,
                                   "incompatible types: expected 'map<int>', found 'map<float>'",
-                                  122, 18);
+                                  122, 10);
         BAssertUtil.validateError(closedRecNegatives, index++,
                                   "incompatible types: expected 'int[]', found 'float[]'",
-                                  134, 16);
+                                  149, 10);
     }
 
     @Test

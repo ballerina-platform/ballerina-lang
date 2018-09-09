@@ -468,8 +468,7 @@ public class Types {
             case TypeTags.RECORD:
                 BRecordType recordType = (BRecordType) collectionType;
                 if (variableSize == 1) {
-                    dlog.error(collection.pos, DiagnosticCode.ITERABLE_REQUIRES_N_VARIABLES, collectionType, 2);
-                    return Lists.of(symTable.errType);
+                    return Lists.of(inferRecordFieldType(recordType));
                 } else if (variableSize == 2) {
                     return Lists.of(symTable.stringType, inferRecordFieldType(recordType));
                 } else {

@@ -66,7 +66,8 @@ public class OpenRecordIterationTest {
                                   27, 15);
 
         // Test invalid no. of args with foreach loop
-        BAssertUtil.validateError(openRecNegatives, index++, "iterable type 'Person' requires '2' variables", 34, 20);
+        BAssertUtil.validateError(openRecNegatives, index++,
+                                  "too many variables are defined for iterable type 'Person'", 34, 26);
 
         // Test invalid foreach iterable operation
         BAssertUtil.validateError(openRecNegatives, index++,

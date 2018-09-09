@@ -40,7 +40,7 @@ function testInvalidArgForForeachWithClosedRecords() {
     any[] vals = [];
     int i = 0;
 
-    foreach val in p {
+    foreach k, val, e in p {
         vals[i] = val;
         i++;
     }
