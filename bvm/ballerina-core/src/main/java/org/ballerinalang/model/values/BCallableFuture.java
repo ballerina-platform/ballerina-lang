@@ -21,11 +21,15 @@ import org.ballerinalang.bre.bvm.AsyncInvocableWorkerResponseContext;
 import org.ballerinalang.bre.bvm.WorkerResponseContext;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.BTypes;
+import org.ballerinalang.persistence.serializable.SerializableState;
+import org.ballerinalang.persistence.serializable.reftypes.Serializable;
+import org.ballerinalang.persistence.serializable.reftypes.SerializableRefType;
+import org.ballerinalang.persistence.serializable.reftypes.impl.SerializableBFuture;
 
 /**
  * Ballerina value for the callable "future" type.
  */
-public class BCallableFuture implements BFuture {
+public class BCallableFuture implements BFuture, Serializable {
 
     private String callableName;
     
@@ -71,4 +75,15 @@ public class BCallableFuture implements BFuture {
         return this.respCtx.isCancelled();
     }
 
+    public String getCallableName() {
+        return callableName;
+    }
+
+    @Override
+    public SerializableRefType serialize(SerializableState state) {
+        return new SerializableBFuture(this, state);
+    }
+    public void setRespCtx(AsyncInvocableWorkerResponseContext respCtx) {
+        this.respCtx = respCtx;
+    }
 }
