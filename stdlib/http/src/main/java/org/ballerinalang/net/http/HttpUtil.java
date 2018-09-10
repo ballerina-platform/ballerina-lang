@@ -44,6 +44,7 @@ import org.ballerinalang.mime.util.EntityWrapper;
 import org.ballerinalang.mime.util.HeaderUtil;
 import org.ballerinalang.mime.util.MimeUtil;
 import org.ballerinalang.mime.util.MultipartDecoder;
+import org.ballerinalang.model.util.JsonGenerator;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BString;
@@ -115,6 +116,7 @@ import static org.ballerinalang.net.http.HttpConstants.RESPONSE_CACHE_CONTROL_FI
 import static org.ballerinalang.net.http.HttpConstants.RESPONSE_REASON_PHRASE_FIELD;
 import static org.ballerinalang.net.http.HttpConstants.RESPONSE_STATUS_CODE_FIELD;
 import static org.ballerinalang.net.http.HttpConstants.TRANSPORT_MESSAGE;
+import static org.ballerinalang.net.http.nativeimpl.pipelining.PipeliningHandler.sendPipelinedResponse;
 import static org.ballerinalang.util.observability.ObservabilityConstants.PROPERTY_HTTP_HOST;
 import static org.ballerinalang.util.observability.ObservabilityConstants.PROPERTY_HTTP_PORT;
 import static org.ballerinalang.util.observability.ObservabilityConstants.TAG_KEY_HTTP_METHOD;
@@ -354,6 +356,14 @@ public class HttpUtil {
         }
     }
 
+    /**
+     * This method should never be called directly to send out responses for ballerina HTTP 1.1. Use
+     * PipeliningHandler's sendPipelinedResponse() method instead.
+     *
+     * @param requestMsg  Represent the request message
+     * @param responseMsg Represent the corresponding response
+     * @return HttpResponseFuture that represent the future results
+     */
     public static HttpResponseFuture sendOutboundResponse(HttpCarbonMessage requestMsg,
                                                           HttpCarbonMessage responseMsg) {
         HttpResponseFuture responseFuture;
@@ -404,14 +414,14 @@ public class HttpUtil {
     public static void handleFailure(HttpCarbonMessage requestMessage, BallerinaConnectorException ex) {
         String errorMsg = ex.getMessage();
         int statusCode = getStatusCode(requestMessage, errorMsg);
-        sendOutboundResponse(requestMessage, createErrorMessage(errorMsg, statusCode));
+        sendPipelinedResponse(requestMessage, createErrorMessage(errorMsg, statusCode));
     }
 
     public static void handleFailure(HttpCarbonMessage requestMessage, BMap<String, BValue> error) {
         String errorMsg = error.get(BLangVMErrors.ERROR_MESSAGE_FIELD).stringValue();
         int statusCode = getStatusCode(requestMessage, errorMsg);
         ErrorHandlerUtils.printError("error: " + BLangVMErrors.getPrintableStackTrace(error));
-        sendOutboundResponse(requestMessage, createErrorMessage(errorMsg, statusCode));
+        sendPipelinedResponse(requestMessage, createErrorMessage(errorMsg, statusCode));
     }
 
     private static int getStatusCode(HttpCarbonMessage requestMessage, String errorMsg) {
@@ -1191,6 +1201,25 @@ public class HttpUtil {
         }
 
         return basePath;
+    }
+
+    /**
+     * Serialize outbound message.
+     *
+     * @param outboundMessageSource Represent the outbound message datasource
+     * @param entity                Represent the entity of the outbound message
+     * @param messageOutputStream   Represent the output stream
+     * @throws IOException In case an error occurs while writing to output stream
+     */
+    public static void serializeDataSource(BValue outboundMessageSource, BMap<String, BValue> entity,
+                                           OutputStream messageOutputStream) throws IOException {
+        if (MimeUtil.generateAsJSON(outboundMessageSource, entity)) {
+            JsonGenerator gen = new JsonGenerator(messageOutputStream);
+            gen.serialize(outboundMessageSource);
+            gen.flush();
+        } else {
+            outboundMessageSource.serialize(messageOutputStream);
+        }
     }
 
     private HttpUtil() {
