@@ -126,6 +126,19 @@ public class ClosedRecordIterationTest {
         Assert.assertEquals(addressRecord.get("city").stringValue(), "Colombo 3");
     }
 
+    @Test
+    public void testForeachWithOpenRecords2() {
+        BValue[] returns = BRunUtil.invoke(result, "testForeachWithOpenRecords2");
+
+        Assert.assertEquals(returns[0].stringValue(), "John Doe");
+        Assert.assertEquals(((BInteger) returns[1]).intValue(), 25);
+        Assert.assertTrue(returns[2] instanceof BMap);
+
+        BMap addressRecord = (BMap) returns[2];
+        Assert.assertEquals(addressRecord.get("street").stringValue(), "Palm Grove");
+        Assert.assertEquals(addressRecord.get("city").stringValue(), "Colombo 3");
+    }
+
     // disabled due to https://github.com/ballerina-platform/ballerina-lang/issues/10074
     @Test(description = "Tests foreach iterable operation on closed records", enabled = false)
     public void testForeachOpWithClosedRecords() {

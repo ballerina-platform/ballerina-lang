@@ -54,6 +54,19 @@ function testForeachWithClosedRecords() returns (string[], any[]) {
     return (fields, values);
 }
 
+function testForeachWithOpenRecords2() returns any[] {
+    ClosedPerson p = { name: "John Doe", age: 25, address: { street: "Palm Grove", city: "Colombo 3" } };
+    any[] values = [];
+
+    int i = 0;
+    foreach v in p {
+        values[i] = v;
+        i++;
+    }
+
+    return values;
+}
+
 function testForeachOpWithClosedRecords() returns map {
     ClosedPerson p = { name: "John Doe", age: 25, address: { street: "Palm Grove", city: "Colombo 3" }};
     map rec;

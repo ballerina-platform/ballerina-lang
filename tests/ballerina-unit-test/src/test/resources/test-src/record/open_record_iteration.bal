@@ -78,6 +78,19 @@ function testForeachWithOpenRecords2() returns (string[], any[]) {
     return (fields, values);
 }
 
+function testForeachWithOpenRecords3() returns any[] {
+    Person p = { name: "John Doe", age: 25, address: { street: "Palm Grove", city: "Colombo 3" } };
+    any[] values = [];
+
+    int i = 0;
+    foreach v in p {
+        values[i] = v;
+        i++;
+    }
+
+    return values;
+}
+
 function testForeachOpWithOpenRecords() returns map {
     Person p = { name: "John Doe", age: 25, address: { street: "Palm Grove", city: "Colombo 3" }, height: 5.9 };
     map rec;
