@@ -1,4 +1,4 @@
-function main (string... args) {
+public function main (string... args) {
     secureFunctionFirstParamSensitive("static", args[0]);
     secureFunctionSecondParamSensitive(args[0], "static");
 }

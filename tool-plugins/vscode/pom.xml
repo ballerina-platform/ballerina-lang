@@ -15,7 +15,6 @@
     <url>http://ballerinalang.org</url>
 
     <modules>
-        <module>server</module>
         <module>plugin</module>
     </modules>
 </project>

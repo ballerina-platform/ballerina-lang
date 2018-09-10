@@ -18,32 +18,26 @@
 import ballerina/log;
 import ballerina/auth;
 
-documentation {
-    Representation of Authentication handler chain
-
-    F{{authHandlerRegistry}} `AuthHandlerRegistry` instance
-}
+# Representation of Authentication handler chain
+#
+# + authHandlerRegistry - `AuthHandlerRegistry` instance
 public type AuthnHandlerChain object {
     private AuthHandlerRegistry authHandlerRegistry;
 
     public new (authHandlerRegistry) {
     }
 
-    documentation {
-        Tries to authenticate against any one of the available authentication handlers
-
-        P{{req}} `Request` instance
-        R{{}} true if authenticated successfully, else false
-    }
+    # Tries to authenticate against any one of the available authentication handlers
+    #
+    # + req - `Request` instance
+    # + return - true if authenticated successfully, else false
     public function handle (Request req) returns (boolean);
 
-    documentation {
-        Tries to authenticate against a specifc sub set of the authentication handlers, using the given array of auth provider ids
-
-        P{{authProviderIds}} array of auth provider ids
-        P{{req}} `Request` instance
-        R{{}} true if authenticated successfully, else false
-    }
+    # Tries to authenticate against a specifc sub set of the authentication handlers, using the given array of auth provider ids
+    #
+    # + authProviderIds - array of auth provider ids
+    # + req - `Request` instance
+    # + return - true if authenticated successfully, else false
     public function handleWithSpecificAuthnHandlers (string[] authProviderIds, Request req) returns (boolean);
 };
 

@@ -53,6 +53,8 @@ public class SessionConnector implements BallerinaTransactionContext {
 
     /**
      * Getter for session.
+     *
+     * @return connector session
      */
     public Session getSession() {
         return session;
@@ -82,11 +84,6 @@ public class SessionConnector implements BallerinaTransactionContext {
 
     @Override
     public void close() {
-        // do nothing
-    }
-
-    @Override
-    public void done() {
         // do nothing
     }
 

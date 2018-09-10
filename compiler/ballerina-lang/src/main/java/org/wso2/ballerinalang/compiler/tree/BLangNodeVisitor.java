@@ -39,8 +39,6 @@ import org.wso2.ballerinalang.compiler.tree.clauses.BLangTableQuery;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangWhere;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangWindow;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangWithinClause;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangAnnotAttachmentAttribute;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangAnnotAttachmentAttributeValue;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrayLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrayLiteral.BLangJSONArrayLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrowFunction;
@@ -51,7 +49,6 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangCheckedExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangDocumentationAttribute;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangElvisExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess.BLangEnumeratorAccessExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess.BLangStructFunctionVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess.BLangArrayAccessExpr;
@@ -206,20 +203,7 @@ public abstract class BLangNodeVisitor {
         throw new AssertionError();
     }
 
-    @Deprecated
-    public void visit(BLangAnnotAttribute annotationAttribute) {
-        throw new AssertionError();
-    }
-
     public void visit(BLangAnnotationAttachment annAttachmentNode) {
-        throw new AssertionError();
-    }
-
-    public void visit(BLangAnnotAttachmentAttributeValue annotAttributeValue) {
-        throw new AssertionError();
-    }
-
-    public void visit(BLangAnnotAttachmentAttribute annotAttachmentAttribute) {
         throw new AssertionError();
     }
 
@@ -713,10 +697,6 @@ public abstract class BLangNodeVisitor {
     }
 
     public void visit(BLangPackageXMLNS xmlnsNode) {
-        throw new AssertionError();
-    }
-
-    public void visit(BLangEnumeratorAccessExpr enumeratorAccessExpr) {
         throw new AssertionError();
     }
 

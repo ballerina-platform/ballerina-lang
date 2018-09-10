@@ -33,7 +33,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 import org.wso2.ballerinalang.compiler.tree.BLangAction;
-import org.wso2.ballerinalang.compiler.tree.BLangAnnotAttribute;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotation;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
 import org.wso2.ballerinalang.compiler.tree.BLangCompilationUnit;
@@ -51,8 +50,6 @@ import org.wso2.ballerinalang.compiler.tree.BLangTypeDefinition;
 import org.wso2.ballerinalang.compiler.tree.BLangVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangWorker;
 import org.wso2.ballerinalang.compiler.tree.BLangXMLNS;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangAnnotAttachmentAttribute;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangAnnotAttachmentAttributeValue;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrayLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrowFunction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangAwaitExpr;
@@ -257,12 +254,6 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         analyseType(typeDefinition.symbol.type, typeDefinition.pos);
     }
 
-    private void validateMainFunction(BLangFunction funcNode) {
-        if (MAIN_FUNC_NAME.equals(funcNode.name.value) && Symbols.isPublic(funcNode.symbol)) {
-            this.dlog.error(funcNode.pos, DiagnosticCode.MAIN_CANNOT_BE_PUBLIC);
-        }
-    }
-    
     @Override
     public void visit(BLangFunction funcNode) {
         if (funcNode.symbol.isTransactionHandler) {
@@ -270,7 +261,6 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         }
         this.returnWithintransactionCheckStack.push(true);
         this.doneWithintransactionCheckStack.push(true);
-        this.validateMainFunction(funcNode);
         SymbolEnv funcEnv = SymbolEnv.createFunctionEnv(funcNode, funcNode.symbol.scope, env);
         this.visitInvocable(funcNode, funcEnv);
         this.returnWithintransactionCheckStack.pop();
@@ -696,19 +686,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         /* ignore */
     }
 
-    public void visit(BLangAnnotAttribute annotationAttribute) {
-        /* ignore */
-    }
-
     public void visit(BLangAnnotationAttachment annAttachmentNode) {
-        /* ignore */
-    }
-
-    public void visit(BLangAnnotAttachmentAttributeValue annotAttributeValue) {
-        /* ignore */
-    }
-
-    public void visit(BLangAnnotAttachmentAttribute annotAttachmentAttribute) {
         /* ignore */
     }
 

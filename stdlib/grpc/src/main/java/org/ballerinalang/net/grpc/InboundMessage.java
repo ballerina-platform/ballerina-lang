@@ -151,7 +151,7 @@ public class InboundMessage {
      *
      * <p>
      * Referenced from grpc-java implementation.
-     * <p>
+     *
      */
     public abstract static class InboundStateListener implements MessageDeframer.Listener {
 
@@ -166,6 +166,8 @@ public class InboundMessage {
 
         /**
          * Override this method to provide a stream listener.
+         *
+         * @return stream listener
          */
         protected abstract StreamListener listener();
 

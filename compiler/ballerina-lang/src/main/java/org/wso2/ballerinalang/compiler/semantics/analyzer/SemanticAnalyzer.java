@@ -45,14 +45,12 @@ import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.util.diagnostic.DiagnosticCode;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAnnotationAttributeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAnnotationSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAttachedFunction;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BEndpointVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BOperatorSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BServiceSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
@@ -75,7 +73,6 @@ import org.wso2.ballerinalang.compiler.tree.BLangDocumentation;
 import org.wso2.ballerinalang.compiler.tree.BLangEndpoint;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
-import org.wso2.ballerinalang.compiler.tree.BLangImportPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangInvokableNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
@@ -255,16 +252,6 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                 .filter(func -> !func.isTypeChecked)
                 .forEach(func -> analyzeDef(func, pkgEnv));
         Collections.reverse(functions);
-    }
-
-    public void visit(BLangImportPackage importPkgNode) {
-        BPackageSymbol pkgSymbol = importPkgNode.symbol;
-        SymbolEnv pkgEnv = this.symTable.pkgEnvMap.get(pkgSymbol);
-        if (pkgEnv == null) {
-            return;
-        }
-
-        analyzeDef(pkgEnv.node, pkgEnv);
     }
 
     public void visit(BLangXMLNS xmlnsNode) {
@@ -1726,13 +1713,6 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         varRefExpr.lhsVar = true;
         typeChecker.checkExpr(varRefExpr, env);
 
-        // Check whether we've got an enumerator access expression here.
-        if (varRefExpr.getKind() == NodeKind.FIELD_BASED_ACCESS_EXPR &&
-                ((BLangFieldBasedAccess) varRefExpr).expr.type.tag == TypeTags.ENUM) {
-            dlog.error(varRefExpr.pos, DiagnosticCode.INVALID_VARIABLE_ASSIGNMENT, varRefExpr);
-            return symTable.errType;
-        }
-
         //Check whether this is an readonly field.
         checkReadonlyAssignment(varRefExpr);
 
@@ -2004,8 +1984,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         }
         int ownerSymTag = env.scope.owner.tag;
         if ((ownerSymTag & SymTag.ANNOTATION) == SymTag.ANNOTATION) {
-            if (attributeSymbol.tag != SymTag.ANNOTATION_ATTRIBUTE
-                    || ((BAnnotationAttributeSymbol) attributeSymbol).docTag != attribute.docTag) {
+            if (attributeSymbol.tag != SymTag.ANNOTATION_ATTRIBUTE) {
                 this.dlog.warning(attribute.pos, DiagnosticCode.NO_SUCH_DOCUMENTABLE_ATTRIBUTE,
                         attribute.documentationField, attribute.docTag.getValue());
                 return;

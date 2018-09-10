@@ -24,7 +24,7 @@ import org.ballerinalang.database.sql.SQLDataIterator;
 import org.ballerinalang.database.sql.SQLDatasource;
 import org.ballerinalang.database.sql.SQLDatasourceUtils;
 import org.ballerinalang.database.table.BCursorTable;
-import org.ballerinalang.database.table.BMirrorTable;
+import org.ballerinalang.database.table.BProxyTable;
 import org.ballerinalang.model.ColumnDefinition;
 import org.ballerinalang.model.types.BArrayType;
 import org.ballerinalang.model.types.BStructureType;
@@ -132,8 +132,8 @@ public abstract class AbstractSQLAction extends BlockingNativeCallableUnit {
             } else {
                 rm.addResultSet(rs);
             }
-            context.setReturnValues(
-                    constructTable(rm, context, rs, structType, loadSQLTableToMemory, columnDefinitions));
+            context.setReturnValues(constructTable(rm, context, rs, structType, loadSQLTableToMemory, columnDefinitions,
+                    datasource.getDatabaseProductName()));
         } catch (Throwable e) {
             SQLDatasourceUtils.cleanupResources(rs, stmt, conn, isInTransaction);
             throw new BallerinaException("execute query failed: " + e.getMessage(), e);
@@ -229,7 +229,8 @@ public abstract class AbstractSQLAction extends BlockingNativeCallableUnit {
                 rm.addAllResultSets(resultSets);
                 // If a result set has been returned from the stored procedure it needs to be pushed in to return
                 // values
-                context.setReturnValues(constructTablesForResultSets(resultSets, rm, context, structTypes));
+                context.setReturnValues(constructTablesForResultSets(resultSets, rm, context, structTypes,
+                        datasource.getDatabaseProductName()));
             } else if (!refCursorOutParamsPresent) {
                 // Even if there aren't any result sets returned from the procedure there could be ref cursors
                 // returned as OUT params. If there are present we cannot clean up the connection. If there is no
@@ -244,7 +245,7 @@ public abstract class AbstractSQLAction extends BlockingNativeCallableUnit {
     }
 
     private BRefValueArray constructTablesForResultSets(List<ResultSet> resultSets, TableResourceManager rm,
-            Context context, BRefValueArray structTypes) throws SQLException {
+            Context context, BRefValueArray structTypes, String databaseProductName) throws SQLException {
         BRefValueArray bTables = new BRefValueArray(new BArrayType(BTypes.typeTable));
         if (structTypes == null || resultSets.size() != structTypes.size()) {
             throw new BallerinaException(
@@ -252,7 +253,8 @@ public abstract class AbstractSQLAction extends BlockingNativeCallableUnit {
                             + "returned result set count: " + resultSets.size() + " from the stored procedure");
         }
         for (int i = 0; i < resultSets.size(); i++) {
-            bTables.add(i, constructTable(rm, context, resultSets.get(i), (BStructureType) structTypes.get(i).value()));
+            bTables.add(i, constructTable(rm, context, resultSets.get(i), (BStructureType) structTypes.get(i).value(),
+                    databaseProductName));
         }
         return bTables;
     }
@@ -312,7 +314,7 @@ public abstract class AbstractSQLAction extends BlockingNativeCallableUnit {
         context.setReturnValues(countArray);
     }
 
-    protected void createMirroredTable(Context context, SQLDatasource datasource, String tableName,
+    protected void createProxyTable(Context context, SQLDatasource datasource, String tableName,
             BStructureType structType) {
         try {
             context.setReturnValues(constructTable(context, structType, datasource, tableName));
@@ -346,6 +348,11 @@ public abstract class AbstractSQLAction extends BlockingNativeCallableUnit {
             ctx.addProperty(ObservabilityConstants.PROPERTY_ERROR, Boolean.TRUE);
             ctx.addProperty(ObservabilityConstants.PROPERTY_ERROR_MESSAGE, message);
         });
+    }
+
+    protected SQLDatasource retrieveDatasource(Context context) {
+        BMap<String, BValue> bConnector = (BMap<String, BValue>) context.getRefArgument(0);
+        return (SQLDatasource) bConnector.getNativeData(Constants.CALLER_ACTIONS);
     }
 
     private BRefValueArray constructParameters(Context context, BRefValueArray parameters) {
@@ -596,7 +603,8 @@ public abstract class AbstractSQLAction extends BlockingNativeCallableUnit {
                         default:
                             throw new BallerinaException("unsupported array type for parameter index " + index);
                         }
-                        if (Constants.SQLDataTypes.REFCURSOR.equals(sqlType)) {
+                        if (Constants.SQLDataTypes.REFCURSOR.equals(sqlType) || Constants.SQLDataTypes.BLOB
+                                .equals(sqlType)) {
                             setParameter(conn, stmt, sqlType, paramValue, direction, currentOrdinal,
                                     databaseProductName);
                         } else {
@@ -606,7 +614,7 @@ public abstract class AbstractSQLAction extends BlockingNativeCallableUnit {
                     }
                 } else {
                     if (Constants.SQLDataTypes.REFCURSOR.equals(sqlType) || Constants.SQLDataTypes.ARRAY
-                            .equals(sqlType)) {
+                            .equals(sqlType) || Constants.SQLDataTypes.BLOB.equals(sqlType)) {
                         setParameter(conn, stmt, sqlType, value, direction, currentOrdinal, databaseProductName);
                     } else {
                         setParameter(conn, stmt, sqlType, value, direction, currentOrdinal);
@@ -878,8 +886,10 @@ public abstract class AbstractSQLAction extends BlockingNativeCallableUnit {
                 BStructureType structType = getStructType(paramValue);
                 if (structType != null) {
                     resourceManager.addResultSet(rs);
+                    SQLDatasource datasource = retrieveDatasource(context);
                     paramValue.put(PARAMETER_VALUE_FIELD,
-                                constructTable(resourceManager, context, rs, getStructType(paramValue)));
+                            constructTable(resourceManager, context, rs, getStructType(paramValue),
+                                    datasource.getDatabaseProductName()));
                 } else {
                     throw new BallerinaException(
                             "The Struct Type for the result set pointed by the Ref Cursor cannot be null");
@@ -936,20 +946,22 @@ public abstract class AbstractSQLAction extends BlockingNativeCallableUnit {
     }
 
     private BTable constructTable(TableResourceManager rm, Context context, ResultSet rs, BStructureType structType,
-            boolean loadSQLTableToMemory, List<ColumnDefinition> columnDefinitions) throws SQLException {
-        return new BCursorTable(new SQLDataIterator(rm, rs, utcCalendar, columnDefinitions, structType,
-                TimeUtils.getTimeStructInfo(context), TimeUtils.getTimeZoneStructInfo(context)), loadSQLTableToMemory);
-    }
-
-    private BTable constructTable(TableResourceManager rm, Context context, ResultSet rs, BStructureType structType)
+            boolean loadSQLTableToMemory, List<ColumnDefinition> columnDefinitions, String databaseProductName)
             throws SQLException {
-        List<ColumnDefinition> columnDefinitions = SQLDatasourceUtils.getColumnDefinitions(rs);
-        return constructTable(rm, context, rs, structType, false, columnDefinitions);
+        return new BCursorTable(new SQLDataIterator(rm, rs, utcCalendar, columnDefinitions, structType,
+                TimeUtils.getTimeStructInfo(context), TimeUtils.getTimeZoneStructInfo(context), databaseProductName),
+                loadSQLTableToMemory);
     }
 
-    private BMirrorTable constructTable(Context context, BStructureType structType, SQLDatasource dataSource,
+    private BTable constructTable(TableResourceManager rm, Context context, ResultSet rs, BStructureType structType,
+            String databaseProductName) throws SQLException {
+        List<ColumnDefinition> columnDefinitions = SQLDatasourceUtils.getColumnDefinitions(rs);
+        return constructTable(rm, context, rs, structType, false, columnDefinitions, databaseProductName);
+    }
+
+    private BProxyTable constructTable(Context context, BStructureType structType, SQLDatasource dataSource,
             String tableName) throws SQLException {
-        return new BMirrorTable(dataSource, tableName, structType, TimeUtils.getTimeStructInfo(context),
+        return new BProxyTable(dataSource, tableName, structType, TimeUtils.getTimeStructInfo(context),
                                 TimeUtils.getTimeZoneStructInfo(context), utcCalendar);
     }
 

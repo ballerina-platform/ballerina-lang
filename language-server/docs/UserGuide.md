@@ -20,6 +20,7 @@ Currently the Ballerina Language Server has been integrated to Ballerina [VSCode
 - <a href="#CodeAction">Code Action</a>
     - <a href="#AddImports">Add Imports</a>
     - <a href="#CreateFunctions">Create Functions</a>
+    - <a href="#CreateVariables">Create Variables</a>
     - <a href="#AddDocumentationAndDocumentAll">Add Documentation and Document All</a>
 - <a href="#KnownIssues">Known Issues</a>
     
@@ -189,6 +190,13 @@ When you need to add the import statement for a package which is not imported an
 When you need to generate a function which is not still implemented, you can use the code action to generate new function matching the function signature.
 
 ![](../docs/images/generateFunction.gif)
+
+<a name="CreateVariables" />
+
+#### Create Variables
+Whenever your function has a return value, you can use the code action to assign it into a new variable matching the return type of the function.
+
+![](../docs/images/generateVariable.gif)
 
 <a name="AddDocumentationAndDocumentAll" />
 

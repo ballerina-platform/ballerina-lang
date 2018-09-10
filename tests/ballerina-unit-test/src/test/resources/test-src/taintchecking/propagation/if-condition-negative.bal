@@ -1,4 +1,4 @@
-function main (string... args) {
+public function main (string... args) {
     string path = "";
     if (lengthof args > 0) {
         path = args[0];
@@ -14,6 +14,22 @@ function main (string... args) {
         path1 = args[0];
     }
     secureFunction(path1, path1);
+
+    string path2 = args[0];
+    if (lengthof args > 0) {
+        path2 = "/home";
+    } else {
+        // Empty
+    }
+    secureFunction(path2, path2);
+
+    string path3 = args[0];
+    if (lengthof args > 0) {
+        // Empty
+    } else {
+        path3 = "/home";
+    }
+    secureFunction(path3, path3);
 }
 
 public function secureFunction (@sensitive string secureIn, string insecureIn) {

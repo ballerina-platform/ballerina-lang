@@ -17,7 +17,6 @@
 */
 package org.ballerinalang.langserver.common;
 
-import org.wso2.ballerinalang.compiler.tree.BLangAnnotAttribute;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotation;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
 import org.wso2.ballerinalang.compiler.tree.BLangCompilationUnit;
@@ -55,8 +54,6 @@ import org.wso2.ballerinalang.compiler.tree.clauses.BLangTableQuery;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangWhere;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangWindow;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangWithinClause;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangAnnotAttachmentAttribute;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangAnnotAttachmentAttributeValue;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrayLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrowFunction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangAwaitExpr;
@@ -206,24 +203,8 @@ public class LSNodeVisitor extends BLangNodeVisitor {
         // No implementation
     }
 
-    @Deprecated
-    @Override
-    public void visit(BLangAnnotAttribute annotationAttribute) {
-        // No implementation
-    }
-
     @Override
     public void visit(BLangAnnotationAttachment annAttachmentNode) {
-        // No implementation
-    }
-
-    @Override
-    public void visit(BLangAnnotAttachmentAttributeValue annotAttributeValue) {
-        // No implementation
-    }
-
-    @Override
-    public void visit(BLangAnnotAttachmentAttribute annotAttachmentAttribute) {
         // No implementation
     }
 
@@ -831,11 +812,6 @@ public class LSNodeVisitor extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangXMLNS.BLangPackageXMLNS xmlnsNode) {
-        // No implementation
-    }
-
-    @Override
-    public void visit(BLangFieldBasedAccess.BLangEnumeratorAccessExpr enumeratorAccessExpr) {
         // No implementation
     }
 

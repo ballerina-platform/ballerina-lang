@@ -50,7 +50,7 @@ public interface QueryableProcessor extends FindableProcessor {
      * @param compiledSelection the execution element responsible for transforming the corresponding events to the
      *                          given selection
      * @return the matched events
-     * @throws ConnectionUnavailableException
+     * @throws ConnectionUnavailableException when connection is unavailable
      */
     StreamEvent query(StateEvent matchingEvent, CompiledCondition compiledCondition,
                       CompiledSelection compiledSelection) throws ConnectionUnavailableException;
@@ -59,7 +59,7 @@ public interface QueryableProcessor extends FindableProcessor {
      * To construct a selection having the capability of transforming events based on given selection logic.
      *
      * @param selector                    the query selector
-     * @param expectedOutputAttributes
+     * @param expectedOutputAttributes    expected output attributes
      * @param matchingMetaInfoHolder      the meta structure of the incoming matchingEvent
      * @param siddhiAppContext            current siddhi app context
      * @param variableExpressionExecutors the list of variable ExpressionExecutors already created

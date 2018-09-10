@@ -147,7 +147,7 @@ function testToXml(string jdbcUrl, string userName, string password) returns (xm
 
         xml convertedVal = check <xml>dt;
         // Converting to string to make sure the xml is built before returning.
-        _ = io:sprintf("%l", convertedVal);
+        _ = io:sprintf("%s", convertedVal);
         return convertedVal;
     } finally {
         testDB.stop();
@@ -234,7 +234,7 @@ function toXmlComplex(string jdbcUrl, string userName, string password) returns 
 
         xml convertedVal = check <xml>dt;
         // Converting to string to make sure the xml is built before returning.
-        _ = io:sprintf("%l", convertedVal);
+        _ = io:sprintf("%s", convertedVal);
         return convertedVal;
     } finally {
         testDB.stop();
@@ -256,7 +256,7 @@ function testToXmlComplexWithStructDef(string jdbcUrl, string userName, string p
 
         xml convertedVal = check <xml>dt;
         // Converting to string to make sure the xml is built before returning.
-        _ = io:sprintf("%l", convertedVal);
+        _ = io:sprintf("%s", convertedVal);
         return convertedVal;
     } finally {
         testDB.stop();
@@ -344,7 +344,7 @@ function testXmlWithNull(string jdbcUrl, string userName, string password) retur
 
         xml convertedVal = check <xml>dt;
         // Converting to string to make sure the xml is built before returning.
-        _ = io:sprintf("%l", convertedVal);
+        _ = io:sprintf("%s", convertedVal);
         return convertedVal;
     } finally {
         testDB.stop();
@@ -366,7 +366,7 @@ function testToXmlWithinTransaction(string jdbcUrl, string userName, string pass
             table dt = check testDB->select("SELECT int_type, long_type from DataTable WHERE row_id = 1", ());
 
             var result = check <xml>dt;
-            resultXml = io:sprintf("%l", result);
+            resultXml = io:sprintf("%s", result);
         }
         return (resultXml, returnValue);
     } finally {
@@ -389,7 +389,7 @@ function testToJsonWithinTransaction(string jdbcUrl, string userName, string pas
             table dt = check testDB->select("SELECT int_type, long_type from DataTable WHERE row_id = 1", ());
 
             var j = check <json>dt;
-            result = io:sprintf("%j", j);
+            result = io:sprintf("%s", j);
         }
         return (result, returnValue);
     } finally {
@@ -436,20 +436,34 @@ function testGetComplexTypes(string jdbcUrl, string userName, string password) r
         poolOptions: { maximumPoolSize: 1 }
     };
 
-    table dt = check testDB->select("SELECT blob_type,clob_type,binary_type from ComplexTypes where row_id = 1",
-        ResultObject);
-
     byte[] blobData;
     string clob;
     byte[] binaryData;
-    while (dt.hasNext()) {
-        ResultObject rs = check <ResultObject>dt.getNext();
-        blobData = rs.BLOB_TYPE;
-        clob = rs.CLOB_TYPE;
-        binaryData = rs.BINARY_TYPE;
+    if (jdbcUrl.contains("postgres")) {
+        transaction {
+            (blobData, clob, binaryData) = retrieveComplexTypeValues(testDB);
+        }
+    } else {
+        (blobData, clob, binaryData) = retrieveComplexTypeValues(testDB);
     }
     testDB.stop();
     return (blobData, clob, binaryData);
+}
+
+function retrieveComplexTypeValues(jdbc:Client db) returns (byte[], string, byte[]) {
+    endpoint jdbc:Client dbEp =  db;
+    byte[] blobData;
+    string clobData;
+    byte[] binaryData;
+    table dt = check dbEp->select("SELECT blob_type,clob_type,binary_type from ComplexTypes where row_id = 1",
+        ResultObject);
+    while (dt.hasNext()) {
+        ResultObject rs = check <ResultObject>dt.getNext();
+        blobData = rs.BLOB_TYPE;
+        clobData = rs.CLOB_TYPE;
+        binaryData = rs.BINARY_TYPE;
+    }
+    return (blobData, clobData, binaryData);
 }
 
 function testArrayData(string jdbcUrl, string userName, string password) returns (int[], int[], float[], string[],
@@ -672,16 +686,26 @@ function testBlobData(string jdbcUrl, string userName, string password) returns 
         poolOptions: { maximumPoolSize: 1 }
     };
 
-    string blobStringData;
-    table dt = check testDB->select("SELECT blob_type from ComplexTypes where row_id = 1", ResultBlob);
-
     byte[] blobData;
+    if (jdbcUrl.contains("postgres")) {
+        transaction {
+            blobData = retrieveBlobValues(testDB);
+        }
+    } else {
+        blobData = retrieveBlobValues(testDB);
+    }
+    testDB.stop();
+    return blobData;
+}
+
+function retrieveBlobValues(jdbc:Client db) returns byte[] {
+    endpoint jdbc:Client dbEp = db;
+    byte[] blobData;
+    table dt = check dbEp->select("SELECT blob_type from ComplexTypes where row_id = 1", ResultBlob);
     while (dt.hasNext()) {
         ResultBlob rs = check <ResultBlob>dt.getNext();
         blobData = rs.BLOB_TYPE;
     }
-
-    testDB.stop();
     return blobData;
 }
 
@@ -728,18 +752,34 @@ function testBlobInsert(string jdbcUrl, string userName, string password) return
         poolOptions: { maximumPoolSize: 1 }
     };
 
-    table dt = check testDB->select("SELECT blob_type from ComplexTypes where row_id = 1", ResultBlob);
+    int insertCount;
+    if (jdbcUrl.contains("postgres")) {
+        transaction {
+            insertCount = retrieveAndInsertBlobdata(testDB);
+        }
+    } else {
+       insertCount = retrieveAndInsertBlobdata(testDB);
+    }
+
+    testDB.stop();
+    return insertCount;
+}
+
+function retrieveAndInsertBlobdata(jdbc:Client db) returns int {
+    endpoint jdbc:Client dbEp = db;
+    table dt = check dbEp->select("SELECT blob_type from ComplexTypes where row_id = 1", ResultBlob);
 
     byte[] blobData;
+    int insertCount;
+
     while (dt.hasNext()) {
         ResultBlob rs = check <ResultBlob>dt.getNext();
         blobData = rs.BLOB_TYPE;
     }
     sql:Parameter para0 = { sqlType: sql:TYPE_INTEGER, value: 10 };
     sql:Parameter para1 = { sqlType: sql:TYPE_BLOB, value: blobData };
-    int insertCount = check testDB->update("Insert into ComplexTypes (row_id, blob_type) values (?,?)", para0, para1);
-
-    testDB.stop();
+    insertCount = check dbEp->update("Insert into ComplexTypes (row_id, blob_type) values (?,?)", para0, para1
+    );
     return insertCount;
 }
 
@@ -1069,13 +1109,13 @@ function testSignedIntMaxMinValues(string jdbcUrl, string userName, string passw
     table dt = check dtRet;
 
     var j = check <json>dt;
-    jsonStr = io:sprintf("%j", j);
+    jsonStr = io:sprintf("%s", j);
 
     dtRet = testDB->select(selectSQL, ());
     dt = check dtRet;
 
     var x = check <xml>dt;
-    xmlStr = io:sprintf("%l", x);
+    xmlStr = io:sprintf("%s", x);
 
     dtRet = testDB->select(selectSQL, ResultSignedInt);
     dt = check dtRet;
@@ -1129,13 +1169,13 @@ function testComplexTypeInsertAndRetrieval(string jdbcUrl, string userName, stri
     table dt = check dtRet;
 
     var j = check <json>dt;
-    jsonStr = io:sprintf("%j", j);
+    jsonStr = io:sprintf("%s", j);
 
     dtRet = testDB->select(selectSQL, ());
     dt = check dtRet;
 
     var x = check <xml>dt;
-    xmlStr = io:sprintf("%l", x);
+    xmlStr = io:sprintf("%s", x);
 
     dt = check testDB->select(selectSQL, ResultComplexTypes);
 
@@ -1180,7 +1220,7 @@ function testJsonXMLConversionwithDuplicateColumnNames(string jdbcUrl, string us
         xml x = check <xml>dt2;
 
         // Converting to string to make sure the xml is built before returning.
-        _ = io:sprintf("%l", x);
+        _ = io:sprintf("%s", x);
         return (j, x);
     } finally {
         testDB.stop();
@@ -1343,4 +1383,49 @@ function tableGetNextInvalid(string jdbcUrl, string userName, string password) {
 
 function isDelete(ResultPrimitiveInt p) returns (boolean) {
     return p.INT_TYPE < 2000;
+}
+
+function testToJsonAndAccessFromMiddle(string jdbcUrl, string userName, string password) returns (json, int) {
+    endpoint jdbc:Client testDB {
+        url: jdbcUrl,
+        username: userName,
+        password: password,
+        poolOptions: { maximumPoolSize: 1 }
+    };
+
+    try {
+        table dt = check testDB->select("SELECT int_type, long_type, float_type, double_type,
+                  boolean_type, string_type from DataTable", ());
+        json result = check <json>dt;
+
+        json j = result[1];
+        return (result, lengthof result);
+    } finally {
+        testDB.stop();
+    }
+}
+
+function testToJsonAndIterate(string jdbcUrl, string userName, string password) returns (json, int) {
+    endpoint jdbc:Client testDB {
+        url: jdbcUrl,
+        username: userName,
+        password: password,
+        poolOptions: { maximumPoolSize: 1 }
+    };
+
+    try {
+        table dt = check testDB->select("SELECT int_type, long_type, float_type, double_type,
+                  boolean_type, string_type from DataTable", ());
+        json result = check <json>dt;
+        json j = [];
+        int i = 0;
+        foreach row in result {
+            j[i] = row;
+            i++;
+        }
+
+        return (j, lengthof j);
+    } finally {
+        testDB.stop();
+    }
 }

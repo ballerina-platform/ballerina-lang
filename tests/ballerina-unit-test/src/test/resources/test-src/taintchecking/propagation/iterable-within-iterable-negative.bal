@@ -1,6 +1,6 @@
 json globalVar;
 
-function main (string... args) {
+public function main (string... args) {
     taintedJsonReturn().address_components
     .filter(function (json comp) returns boolean {
             return comp.types.filter(function (json compType) returns boolean {

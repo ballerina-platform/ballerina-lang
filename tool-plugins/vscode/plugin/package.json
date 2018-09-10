@@ -14,10 +14,11 @@
         "theme": "light"
     },
     "engines": {
-        "vscode": "^1.0.0"
+        "vscode": "^1.26.0"
     },
     "categories": [
-        "Languages"
+        "Programming Languages",
+        "Debuggers"
     ],
     "activationEvents": [
         "onLanguage:ballerina"
@@ -168,25 +169,36 @@
             ]
         }
     },
-    "main": "./extension.js",
+    "main": "./out/extension",
     "scripts": {
+        "vscode:prepublish": "npm run compile",
+        "compile": "tsc -p ./",
+        "watch": "tsc -watch -p ./",
         "postinstall": "node ./node_modules/vscode/bin/install",
         "build:grammar": "tsc -p syntaxes/build && node syntaxes/build/build.js",
-        "test": "node ./node_modules/vscode/bin/test",
+        "test": "npm run compile && node ./node_modules/vscode/bin/test",
         "clean": "rimraf server-build target",
-        "package": "vsce package"
+        "package": "npm run compile && vsce package"
     },
     "dependencies": {
         "glob": "^7.1.2",
         "lodash": "^4.17.5",
         "openport": "0.0.4",
+        "ps-node": "^0.1.6",
         "request-promise": "^4.2.2",
-        "vscode": "^1.1.10",
-        "vscode-debugadapter": "^1.25.0",
+        "toml": "^2.3.3",
+        "vscode": "^1.1.21",
+        "vscode-debugadapter": "^1.31.0",
         "vscode-languageclient": "^3.4.2",
         "ws": "^4.0.0"
     },
     "devDependencies": {
+        "@types/glob": "^5.0.35",
+        "@types/lodash": "^4.14.116",
+        "@types/mocha": "^2.2.42",
+        "@types/node": "^8.10.25",
+        "tslint": "^5.8.0",
+        "typescript": "^2.6.1",
         "vsce": "^1.36.2"
     }
 }
