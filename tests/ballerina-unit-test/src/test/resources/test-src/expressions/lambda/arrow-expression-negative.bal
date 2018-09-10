@@ -15,30 +15,37 @@
 // under the License.
 
 function testInvalidUsageOfParamType() returns int {
-    function (string) returns int lambda = param1 => param1/2;
+    function (string) returns int lambda = param1 => param1/2; // operator '/' not defined for 'string' and 'int'
     return lambda("12");
 }
 
 function testInvalidParamType() returns boolean {
     function (boolean) returns boolean lambda = param1 => !param1;
-    return lambda("false");
+    return lambda("false"); // incompatible types: expected 'boolean', found 'string'
 }
 
 function testInvalidNumberOfParams() {
+    // invalid number of parameters used in arrow expression. expected: '2' but found '1'
     function (boolean, string) returns boolean lambda1 = param1 => !param1;
+    // invalid number of parameters used in arrow expression. expected: '1' but found '2'
     function (boolean) returns boolean lambda2 = (param1, param2) => !param1;
 }
 
 function testInvalidReturnType() {
-    function (boolean) returns int lambda1 = param1 => !param1;
+    function (boolean) returns int lambda1 = param1 => !param1; // incompatible types: expected 'int', found 'boolean'
 }
 
 function testWithUnknownExpectedType() {
-    var lambda1 = param1 => !param1;
-    any lambda2 = param1 => !param1;
+    var lambda1 = param1 => !param1; // arrow expression can only be defined with known invokable types
+    any lambda2 = param1 => !param1; // arrow expression can only be defined with known invokable types
 }
 
 function testArrowExprVariableScope() {
     function (boolean) returns boolean lambda1 = param1 => !param1;
-    param1 = 12;
+    param1 = 12; // undefined symbol 'param1'
+}
+
+function testArrowExprVariableScope2() {
+    int param1 = 12;
+    function (boolean) returns boolean lambda1 = param1 => !param1; // redeclared symbol 'param1'
 }

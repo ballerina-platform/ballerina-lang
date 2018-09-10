@@ -79,3 +79,14 @@ function testRecordTypeWithArrowExpr() returns Person {
     function (Person) returns Person lambda = (param1) => param1;
     return lambda({name:"John", age:12});
 }
+
+function testNillableParameter() returns string {
+    function (string?) returns string lambda = (x) => x but {() => "John"};
+    return lambda(());
+}
+
+function testTupleInput() returns (string, string) {
+    function ((string, boolean, Person), string) returns (string, string) lambda = (tupleEntry, str) => (tupleEntry[2].name, str);
+    (string, boolean, Person) tupleEntry = ("John", true, {name: "Doe", age: 12});
+    return lambda(tupleEntry, "Peter");
+}

@@ -106,24 +106,41 @@ public class ArrowExprTest {
     }
 
     @Test
+    public void testNillableParameter() {
+        BValue[] returns = BRunUtil.invoke(basic, "testNillableParameter");
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertEquals(returns[0].toString(), "John");
+    }
+
+    @Test
+    public void testTupleInput() {
+        BValue[] returns = BRunUtil.invoke(basic, "testTupleInput");
+        Assert.assertEquals(returns.length, 2);
+        Assert.assertEquals(returns[0].toString(), "Doe");
+        Assert.assertEquals(returns[1].toString(), "Peter");
+    }
+
+    @Test
     public void testNegativeArrowExpr() {
         int i = 0;
-        Assert.assertEquals(resultNegative.getErrorCount(), 8);
+        Assert.assertEquals(resultNegative.getErrorCount(), 9);
         BAssertUtil.validateError(resultNegative, i++,
                 "operator '/' not defined for 'string' and 'int'", 18, 54);
         BAssertUtil.validateError(resultNegative, i++,
                 "incompatible types: expected 'boolean', found 'string'", 24, 19);
         BAssertUtil.validateError(resultNegative, i++,
-                "invalid number of parameters used in arrow expression. expected: '2' but found '1'", 28, 58);
+                "invalid number of parameters used in arrow expression. expected: '2' but found '1'", 29, 58);
         BAssertUtil.validateError(resultNegative, i++,
-                "invalid number of parameters used in arrow expression. expected: '1' but found '2'", 29, 50);
+                "invalid number of parameters used in arrow expression. expected: '1' but found '2'", 31, 50);
         BAssertUtil.validateError(resultNegative, i++,
-                "incompatible types: expected 'int', found 'boolean'", 33, 56);
+                "incompatible types: expected 'int', found 'boolean'", 35, 56);
         BAssertUtil.validateError(resultNegative, i++,
-                "arrow expression can only be defined with known invokable types", 37, 19);
+                "arrow expression can only be defined with known invokable types", 39, 19);
         BAssertUtil.validateError(resultNegative, i++,
-                "arrow expression can only be defined with known invokable types", 38, 19);
+                "arrow expression can only be defined with known invokable types", 40, 19);
         BAssertUtil.validateError(resultNegative, i++,
-                "undefined symbol 'param1'", 43, 5);
+                "undefined symbol 'param1'", 45, 5);
+        BAssertUtil.validateError(resultNegative, i++,
+                "redeclared symbol 'param1'", 50, 50);
     }
 }

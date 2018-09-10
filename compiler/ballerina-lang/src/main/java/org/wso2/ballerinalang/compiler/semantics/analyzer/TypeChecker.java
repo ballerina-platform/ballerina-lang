@@ -24,7 +24,6 @@ import org.ballerinalang.model.tree.OperatorKind;
 import org.ballerinalang.model.tree.clauses.OrderByVariableNode;
 import org.ballerinalang.model.tree.clauses.SelectExpressionNode;
 import org.ballerinalang.model.tree.expressions.NamedArgNode;
-import org.ballerinalang.model.tree.statements.BlockNode;
 import org.ballerinalang.util.diagnostic.DiagnosticCode;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.Types.RecordKind;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
@@ -113,7 +112,6 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLQName;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLQuotedString;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLTextLiteral;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangReturn;
 import org.wso2.ballerinalang.compiler.tree.types.BLangValueType;
 import org.wso2.ballerinalang.compiler.util.BArrayState;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
@@ -1011,58 +1009,36 @@ public class TypeChecker extends BLangNodeVisitor {
         }
 
         BInvokableType expectedInvocation = (BInvokableType) this.expType;
+        populateArrowExprParamTypes(bLangArrowFunction, expectedInvocation.paramTypes);
+        bLangArrowFunction.expression.type = populateArrowExprReturn(bLangArrowFunction, expectedInvocation.retType);
 
-        if (expectedInvocation.paramTypes.size() != bLangArrowFunction.params.size()) {
+        resultType = bLangArrowFunction.funcType = expType;
+    }
+
+    public BType populateArrowExprReturn(BLangArrowFunction bLangArrowFunction, BType expectedRetType) {
+        SymbolEnv arrowFunctionEnv = SymbolEnv.createArrowFunctionSymbolEnv(bLangArrowFunction, env);
+        bLangArrowFunction.params.forEach(param -> symbolEnter.defineNode(param, arrowFunctionEnv));
+        return checkExpr(bLangArrowFunction.expression, arrowFunctionEnv, expectedRetType);
+    }
+
+    public void populateArrowExprParamTypes(BLangArrowFunction bLangArrowFunction, List<BType> paramTypes) {
+
+        if (paramTypes.size() != bLangArrowFunction.params.size()) {
             dlog.error(bLangArrowFunction.pos, DiagnosticCode.ARROW_EXPRESSION_MISMATCHED_PARAMETER_LENGTH,
-                    expectedInvocation.paramTypes.size(), bLangArrowFunction.params.size());
+                    paramTypes.size(), bLangArrowFunction.params.size());
             resultType = symTable.errType;
+            bLangArrowFunction.params.forEach(param -> param.type = symTable.errType);
             return;
         }
 
-        BLangLambdaFunction lambdaFunction = bLangArrowFunction.lambdaFunction;
-        BLangFunction bLangFunction = bLangArrowFunction.lambdaFunction.function;
-
-        populateArrowExprParameterTypes(bLangArrowFunction, expectedInvocation);
-        populateArrowExprReturnType(bLangArrowFunction, expectedInvocation);
-        populateArrowExprBodyBlock(bLangArrowFunction);
-
-        symbolEnter.defineNode(bLangFunction, env);
-        lambdaFunction.type = bLangFunction.symbol.type;
-        semanticAnalyzer.analyzeDef(bLangFunction, env);
-        bLangFunction.isTypeChecked = true;
-        resultType = types.checkType(lambdaFunction, lambdaFunction.type, expType);
-    }
-
-    private void populateArrowExprBodyBlock(BLangArrowFunction bLangArrowFunction) {
-        bLangArrowFunction.lambdaFunction.function.desugaredReturnType = true;
-        BlockNode blockNode = TreeBuilder.createBlockNode();
-        BLangReturn returnNode = (BLangReturn) TreeBuilder.createReturnNode();
-        returnNode.pos = bLangArrowFunction.expression.pos;
-        returnNode.setExpression(bLangArrowFunction.expression);
-        blockNode.addStatement(returnNode);
-        bLangArrowFunction.lambdaFunction.function.setBody(blockNode);
-    }
-
-    private void populateArrowExprReturnType(BLangArrowFunction bLangArrowFunction,
-                                             BInvokableType expectedInvocation) {
-        BLangValueType returnType = (BLangValueType) TreeBuilder.createValueTypeNode();
-        returnType.typeKind = expectedInvocation.retType.getKind();
-        returnType.pos = bLangArrowFunction.pos;
-        returnType.type = expectedInvocation.retType;
-        bLangArrowFunction.lambdaFunction.function.setReturnTypeNode(returnType);
-    }
-
-    private void populateArrowExprParameterTypes(BLangArrowFunction bLangArrowFunction,
-                                                 BInvokableType expectedInvocation) {
         for (int i = 0; i < bLangArrowFunction.params.size(); i++) {
             BLangVariable paramIdentifier = bLangArrowFunction.params.get(i);
-            BType bType = expectedInvocation.paramTypes.get(i);
+            BType bType = paramTypes.get(i);
             BLangValueType valueTypeNode = (BLangValueType) TreeBuilder.createValueTypeNode();
             valueTypeNode.pos = bLangArrowFunction.pos;
             valueTypeNode.setTypeKind(bType.getKind());
             paramIdentifier.setTypeNode(valueTypeNode);
             paramIdentifier.type = bType;
-            bLangArrowFunction.lambdaFunction.function.addParameter(paramIdentifier);
         }
     }
 
@@ -1815,7 +1791,7 @@ public class TypeChecker extends BLangNodeVisitor {
     }
 
     private BType checkTupleFieldType(BLangIndexBasedAccess indexBasedAccessExpr, BType varRefType, int indexValue) {
-        List<BType> tupleTypes = ((BTupleType) varRefType.tsymbol.type).tupleTypes;
+        List<BType> tupleTypes = ((BTupleType) varRefType).tupleTypes;
         if (indexValue < 0 || tupleTypes.size() <= indexValue) {
             dlog.error(indexBasedAccessExpr.pos,
                     DiagnosticCode.TUPLE_INDEX_OUT_OF_RANGE, indexValue, tupleTypes.size());

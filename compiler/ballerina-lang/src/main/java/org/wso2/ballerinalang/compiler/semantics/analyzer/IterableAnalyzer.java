@@ -16,6 +16,8 @@
  */
 package org.wso2.ballerinalang.compiler.semantics.analyzer;
 
+import org.ballerinalang.model.tree.NodeKind;
+import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.util.diagnostic.DiagnosticCode;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
@@ -32,6 +34,8 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BTableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BXMLType;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrowFunction;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
@@ -124,41 +128,67 @@ public class IterableAnalyzer {
             return;
         }
 
-        // Given param should be an invokable type (lambda type).
-        final BType operationParams = typeChecker.checkExpr(operation.iExpr.argExprs.get(0), context.env);
-        if (operationParams == null || operationParams.tag != TypeTags.INVOKABLE) {
-            dlog.error(operation.pos, DiagnosticCode.ITERABLE_LAMBDA_REQUIRED);
-            operation.outputType = operation.resultType = symTable.errType;
-            return;
-        }
-
         if (operation.kind == IterableKind.SELECT && operation.collectionType.tag != TypeTags.TABLE) {
             dlog.error(operation.pos, DiagnosticCode.ITERABLE_NOT_SUPPORTED_OPERATION, IterableKind.SELECT.getKind());
             operation.outputType = operation.resultType = symTable.errType;
             return;
         }
 
+        BLangExpression bLangExpression = operation.iExpr.argExprs.get(0);
+
         // Operation's inputType and OutputType is defined by this lambda function.
         operation.iExpr.requiredArgs = operation.iExpr.argExprs;
-        operation.lambdaType = (BInvokableType) operationParams;
 
-        // Process given/expected input and output types.
-        if (operation.lambdaType.getParameterTypes().isEmpty() ||
-                operation.lambdaType.getParameterTypes().size() > 1) {
-            // Lambda should have a single arg.
-            dlog.error(operation.pos, DiagnosticCode.ITERABLE_LAMBDA_TUPLE_REQUIRED);
-            operation.outputType = operation.resultType = symTable.errType;
-            return;
+        final List<BType> givenArgTypes;
+        final List<BType> expectedArgTypes;
+        final List<BType> expectedRetTypes;
+        final List<BType> givenRetTypes;
+
+        if (bLangExpression.getKind() == NodeKind.ARROW_EXPR) {
+            BLangArrowFunction bLangArrowFunction = (BLangArrowFunction) bLangExpression;
+            operation.arity = inferExpectedArity(operation);
+            givenArgTypes = expectedArgTypes = calculateExpectedInputArgs(operation);
+            operation.inputType = givenArgTypes.size() > 1 ? new BTupleType(givenArgTypes) : givenArgTypes.get(0);
+            typeChecker.populateArrowExprParamTypes(bLangArrowFunction, Collections.singletonList(operation.inputType));
+            BType returnType = typeChecker.populateArrowExprReturn(bLangArrowFunction, symTable.noType);
+            if (returnType.tag == TypeTags.ERROR) { // inferring of the return type should not be of type error
+                operation.outputType = operation.resultType = symTable.errType;
+                return;
+            }
+            givenRetTypes = (returnType.tag == TypeTags.TUPLE) ?
+                    ((BTupleType) returnType).tupleTypes : Collections.singletonList(returnType);
+
+            expectedRetTypes = calculateExpectedOutputArgs(operation, givenRetTypes);
+            operation.lambdaType = new BInvokableType(Collections.singletonList(operation.inputType), returnType, null);
+            bLangArrowFunction.funcType = operation.lambdaType;
+
+        } else {
+            // Given param should be an invokable type (lambda type).
+            final BType operationParams = typeChecker.checkExpr(bLangExpression, context.env);
+            if (operationParams == null || operationParams.tag != TypeTags.INVOKABLE) {
+                dlog.error(operation.pos, DiagnosticCode.ITERABLE_LAMBDA_REQUIRED);
+                operation.outputType = operation.resultType = symTable.errType;
+                return;
+            }
+
+            operation.lambdaType = (BInvokableType) operationParams;
+
+            // Process given/expected input and output types.
+            if (operation.lambdaType.getParameterTypes().isEmpty() ||
+                    operation.lambdaType.getParameterTypes().size() > 1) {
+                // Lambda should have a single arg.
+                dlog.error(operation.pos, DiagnosticCode.ITERABLE_LAMBDA_TUPLE_REQUIRED);
+                operation.outputType = operation.resultType = symTable.errType;
+                return;
+            }
+
+            givenArgTypes = calculatedGivenInputArgs(operation);
+            givenRetTypes = calculatedGivenOutputArgs(operation);
+
+            expectedArgTypes = calculateExpectedInputArgs(operation);
+            expectedRetTypes = calculateExpectedOutputArgs(operation, givenRetTypes);
+            operation.inputType = operation.lambdaType.getParameterTypes().get(0);
         }
-
-
-        final List<BType> givenArgTypes = calculatedGivenInputArgs(operation);
-        final List<BType> givenRetTypes = calculatedGivenOutputArgs(operation);
-
-        final List<BType> expectedArgTypes = calculateExpectedInputArgs(operation);
-        final List<BType> expectedRetTypes = calculateExpectedOutputArgs(operation, givenRetTypes);
-
-        operation.inputType = operation.lambdaType.getParameterTypes().get(0);
 
         // Cross Validate given and expected types and calculate output type;
         validateLambdaInputArgs(operation, expectedArgTypes, givenArgTypes);
@@ -204,6 +234,15 @@ public class IterableAnalyzer {
     private List<BType> calculateExpectedInputArgs(Operation operation) {
         // calculated lambda's args types. (By looking collection type)
         return operation.collectionType.accept(lambdaTypeChecker, operation);
+    }
+
+    private int inferExpectedArity(Operation operation) {
+
+        if (operation.collectionType.getKind() == TypeKind.INTERMEDIATE_COLLECTION) {
+            return ((BIntermediateCollectionType) operation.collectionType).tupleType.tupleTypes.size();
+        }
+        // If not an intermediate collection, infer input parameter as a tuple
+        return 2;
     }
 
     private List<BType> calculateExpectedOutputArgs(Operation operation, List<BType> givenRetTypes) {
@@ -510,11 +549,21 @@ public class IterableAnalyzer {
             BIntermediateCollectionType collectionType = (BIntermediateCollectionType) outputType;
             final BTupleType tupleType = collectionType.tupleType;
             if (expectedType.tag == TypeTags.ARRAY && tupleType.tupleTypes.size() == 1) {
+                if (!types.isAssignable(tupleType.tupleTypes.get(0), ((BArrayType) expectedType).eType)) {
+                    context.resultType = symTable.errType;
+                    dlog.error(lastOperation.pos, DiagnosticCode.INCOMPATIBLE_TYPES, expectedType, collectionType);
+                    return;
+                }
                 // Convert result into an array.
                 context.resultType = new BArrayType(tupleType.tupleTypes.get(0));
                 return;
             } else if (expectedType.tag == TypeTags.MAP && tupleType.tupleTypes.size() == 2
                     && tupleType.tupleTypes.get(0).tag == TypeTags.STRING) {
+                if (!types.isAssignable(tupleType.tupleTypes.get(1), ((BMapType) expectedType).constraint)) {
+                    context.resultType = symTable.errType;
+                    dlog.error(lastOperation.pos, DiagnosticCode.INCOMPATIBLE_TYPES, expectedType, collectionType);
+                    return;
+                }
                 // Convert result into a map.
                 context.resultType = new BMapType(TypeTags.MAP, tupleType.tupleTypes.get(1), null);
                 return;
