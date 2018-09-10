@@ -56,7 +56,7 @@ public class SerializableBFuture implements SerializableRefType {
     }
 
     @Override
-    public BRefType getBRefType(String key, ProgramFile programFile, SerializableState state,
+    public BRefType getBRefType(ProgramFile programFile, SerializableState state,
                                 Deserializer deserializer) {
         return new BCallableFuture(callableName, null);
     }

@@ -83,7 +83,7 @@ public class SerializableContext {
 
     public HashSet<String> children = new HashSet<>();
 
-    SerializableContext(String ctxKey, WorkerExecutionContext ctx, SerializableState state, int ip,
+    public SerializableContext(String ctxKey, WorkerExecutionContext ctx, SerializableState state, int ip,
                         boolean isCompletedCtxRemoved, boolean updateParent, boolean updateIfExist) {
         this.ctxKey = ctxKey;
         this.interruptible = ctx.interruptible;

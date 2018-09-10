@@ -48,7 +48,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
-
 /**
  * Serialization and Deserialization test case.
  *
@@ -88,9 +87,9 @@ public class SerializationTest {
 
     @Test(description = "Test case for JsonSerializer using mocked WorkerExecutionContext object.")
     public void testJsonSerializerWithMockedWorkerExecutionContex() {
-        WorkerExecutionContext weContext = new WorkerExecutionContext(compileResult.getProgFile());
-        weContext.globalProps.put(Constants.STATE_ID, STATE_ID);
-        PersistenceStore.persistState( weContext, weContext.ip);
+        WorkerExecutionContext ctx = new WorkerExecutionContext(compileResult.getProgFile());
+        ctx.globalProps.put(Constants.STATE_ID, STATE_ID);
+        PersistenceStore.persistState(ctx, ctx.ip);
         Assert.assertTrue(storageProvider.state.contains(STATE_ID));
     }
 
@@ -102,10 +101,10 @@ public class SerializationTest {
         String value = "B-Prop1";
         String key = "Prop1";
         ctx.globalProps.put(key, new BString(value));
-        
+
         // execute
         ctx.globalProps.put(Constants.STATE_ID, STATE_ID);
-        PersistenceStore.persistState( ctx, ctx.ip);
+        PersistenceStore.persistState(ctx, ctx.ip);
         Assert.assertTrue(storageProvider.state.contains(STATE_ID));
         List<State> states = PersistenceStore.getStates(compileResult.getProgFile(), deserializer);
 
@@ -117,13 +116,13 @@ public class SerializationTest {
 
     @Test(description = "Test deserialization of JSON into SerializableState object")
     public void testJsonDeserializeSerializableState() throws NoSuchFieldException, IllegalAccessException {
-        WorkerExecutionContext weContext = new WorkerExecutionContext(compileResult.getProgFile());
-        SerializableState serializableState = new SerializableState(STATE_ID, weContext);
+        WorkerExecutionContext ctx = new WorkerExecutionContext(compileResult.getProgFile());
+        SerializableState serializableState = new SerializableState(STATE_ID, ctx);
         serializableState.setId(STATE_ID);
         mock(serializableState);
         String json = serializableState.serialize();
 
-        SerializableState state = SerializableState.deserialize(json);
+        SerializableState state = PersistenceStore.deserialize(json);
         Assert.assertEquals(state.getId(), STATE_ID);
 
         List list = (List) state.globalProps.get(PROP_KEY_2);
@@ -141,10 +140,7 @@ public class SerializationTest {
         serializableState.setId(STATE_ID);
         mock(serializableState);
         String json = serializableState.serialize();
-
-        SerializableState state = SerializableState.deserialize(json);
-
-
+        SerializableState state = PersistenceStore.deserialize(json);
         SerializableRefType bmapKey1 = getSRefTypesMap(state).get(BMAP_KEY);
 
         BMap<String, BValue> bmap =

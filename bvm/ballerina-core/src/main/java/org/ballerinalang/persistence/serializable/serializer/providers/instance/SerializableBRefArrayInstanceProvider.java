@@ -17,10 +17,12 @@
  */
 package org.ballerinalang.persistence.serializable.serializer.providers.instance;
 
+import org.ballerinalang.bre.bvm.WorkerExecutionContext;
 import org.ballerinalang.model.util.serializer.TypeInstanceProvider;
 import org.ballerinalang.model.values.BRefValueArray;
 import org.ballerinalang.persistence.serializable.SerializableState;
 import org.ballerinalang.persistence.serializable.reftypes.impl.SerializableBRefArray;
+import org.ballerinalang.util.codegen.ProgramFile;
 
 /**
  * Provide object instance to represent {@link SerializableBRefArray}.
@@ -35,7 +37,8 @@ public class SerializableBRefArrayInstanceProvider implements TypeInstanceProvid
 
     @Override
     public Object newInstance() {
-        return new SerializableBRefArray(new BRefValueArray(), new SerializableState(null, 0));
+        WorkerExecutionContext ctx = new WorkerExecutionContext(new ProgramFile());
+        return new SerializableBRefArray(new BRefValueArray(), new SerializableState(null, ctx));
     }
 
     @Override

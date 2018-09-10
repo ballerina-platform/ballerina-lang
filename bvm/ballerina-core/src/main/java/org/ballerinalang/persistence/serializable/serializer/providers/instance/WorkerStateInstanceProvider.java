@@ -33,7 +33,7 @@ public class WorkerStateInstanceProvider implements TypeInstanceProvider {
 
     @Override
     public Object newInstance() {
-        throw new UnsupportedOperationException();
+        throw new UnsupportedOperationException("Creating new instance of Worker State is not supported.");
     }
 
     @Override

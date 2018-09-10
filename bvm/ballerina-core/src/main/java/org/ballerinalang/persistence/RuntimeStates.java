@@ -44,7 +44,7 @@ public class RuntimeStates {
     }
 
     public static void add(WorkerExecutionContext context, String stateId) {
-        add(new SerializableState(context, stateId));
+        add(new SerializableState(stateId, context));
     }
 
     public static SerializableState get(String stateId) {

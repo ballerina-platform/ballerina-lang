@@ -54,7 +54,7 @@ public class SerializableBMap<K, V extends BValue> implements SerializableRefTyp
 
     @Override
     @SuppressWarnings("unchecked")
-    public BRefType getBRefType(String key, ProgramFile programFile, SerializableState state, Deserializer
+    public BRefType getBRefType(ProgramFile programFile, SerializableState state, Deserializer
             deserializer) {
         PackageInfo packageInfo = programFile.getPackageInfo(pkgPath);
         BMap<K, V> bMap;

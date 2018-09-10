@@ -78,7 +78,9 @@ public class Serializer {
         serializableClasses.add(BXMLAttributes.class.getName());
         serializableClasses.add(BXMLQName.class.getName());
         serializableClasses.add(BXMLSequence.class.getName());
+
         BVALUE_PROVIDER_REGISTRY.register(new SerializedKeyBValueProvider());
+
         INSTANCE_PROVIDER_REGISTRY.add(new SerializableWorkerDataInstanceProvider());
         INSTANCE_PROVIDER_REGISTRY.add(new SerializableContextInstanceProvider());
         INSTANCE_PROVIDER_REGISTRY.add(new WorkerStateInstanceProvider());

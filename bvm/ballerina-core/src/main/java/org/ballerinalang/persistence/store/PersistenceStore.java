@@ -18,8 +18,8 @@
  */
 package org.ballerinalang.persistence.store;
 
-import com.google.gson.Gson;
 import org.ballerinalang.bre.bvm.WorkerExecutionContext;
+import org.ballerinalang.model.util.serializer.JsonSerializer;
 import org.ballerinalang.persistence.Deserializer;
 import org.ballerinalang.persistence.RuntimeStates;
 import org.ballerinalang.persistence.Serializer;
@@ -85,8 +85,8 @@ public class PersistenceStore {
         return new State(sState, executableCtxList);
     }
 
-    private static SerializableState deserialize(String json) {
-        Gson gson = Serializer.getGson();
-        return gson.fromJson(json, SerializableState.class);
+    public static SerializableState deserialize(String json) {
+        JsonSerializer jsonSerializer = Serializer.getJsonSerializer();
+        return jsonSerializer.deserialize(json, SerializableState.class);
     }
 }
