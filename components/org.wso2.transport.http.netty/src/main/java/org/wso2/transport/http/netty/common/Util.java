@@ -777,6 +777,7 @@ public class Util {
 
     /**
      * Disable host name verification if it is set to false by the user.
+     *
      * @param sslEngine ssl engine
      */
     public static void setHostNameVerfication(SSLEngine sslEngine) {

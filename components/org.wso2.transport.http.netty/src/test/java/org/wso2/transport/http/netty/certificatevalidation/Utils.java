@@ -313,7 +313,7 @@ class Utils {
     private static SenderConfiguration getSenderConfigs(String type) {
         SenderConfiguration senderConfiguration = new SenderConfiguration();
         String trustStoreFilePath = "/simple-test-config/cacerts.p12";
-        List<Parameter> clientParams = new ArrayList<>();;
+        List<Parameter> clientParams = new ArrayList<>();
         Parameter paramClientCiphers = new Parameter("ciphers", "TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256");
         clientParams.add(paramClientCiphers);
         senderConfiguration.setTrustStoreFile(TestUtil.getAbsolutePath(trustStoreFilePath));

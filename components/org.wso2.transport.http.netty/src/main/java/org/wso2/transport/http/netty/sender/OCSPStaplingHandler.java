@@ -58,9 +58,8 @@ public class OCSPStaplingHandler extends OcspClientHandler {
             // If the response came from the server does not contain the OCSP staple, client attempts to validate
             // the certificate by directly calling OCSP access location and if that also fails, finally
             // do the CRL validation.
-            int cacheSize = CACHE_DEFAULT_ALLOCATED_SIZE;
-            int cacheDelay = CACHE_DEFAULT_DELAY_MINS;
-            RevocationVerificationManager revocationVerifier = new RevocationVerificationManager(cacheSize, cacheDelay);
+            RevocationVerificationManager revocationVerifier = new RevocationVerificationManager(
+                    CACHE_DEFAULT_ALLOCATED_SIZE, CACHE_DEFAULT_DELAY_MINS);
             return revocationVerifier.verifyRevocationStatus(engine.getSession().getPeerCertificateChain());
         }
 
