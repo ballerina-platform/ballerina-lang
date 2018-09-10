@@ -24,85 +24,63 @@
 //public type ByteOrder "BE";
 //@final public ByteOrder BIG_ENDIAN = "BE";
 
-documentation {
-    Represents a data channel for reading/writing data.
-}
+# Represents a data channel for reading/writing data.
 public type ReadableDataChannel object {
 
     public new(ReadableByteChannel byteChannel, ByteOrder bOrder = "BE") {
         init(byteChannel, bOrder);
     }
 
-    documentation {
-        Initializes data channel.
+    #Initializes data channel.
 
-        P{{byteChannel}} channel which would represent the source to read/write data
-        P{{bOrder}} network byte order
-    }
+    # +byteChannel - channel which would represent the source to read/write data
+    # +bOrder - network byte order
     extern function init(ReadableByteChannel byteChannel, ByteOrder bOrder);
 
-    documentation {
-        Reads a 16 bit integer.
+    #Reads a 16 bit integer.
 
-        R{{}} value of the integer which is read or an error
-    }
+    # + return - value of the integer which is read or an error
     public extern function readInt16() returns int|error;
 
-    documentation {
-        Reads a 32 bit integer.
+    # Reads a 32 bit integer.
 
-        R{{}} value of the integer which is read or an error
-    }
+    # + return - value of the integer which is read or an error
     public extern function readInt32() returns int|error;
 
-    documentation {
-        Reads a 64 bit integer.
+    # Reads a 64 bit integer.
 
-        R{{}} value of the integer which is read or an error
-    }
+    # + return - value of the integer which is read or an error
     public extern function readInt64() returns int|error;
 
-    documentation {
-        Reads 32 bit float.
+    # Reads 32 bit float.
 
-        R{{}} value of the float which is read or an error
-    }
+    # + return - value of the float which is read or an error
     public extern function readFloat32() returns float|error;
 
-    documentation {
-        Reads 64 bit float.
+    # Reads 64 bit float.
 
-        R{{}} value of the float which is read or an error
-    }
+    # + return - value of the float which is read or an error
     public extern function readFloat64() returns float|error;
 
-    documentation {
-        Reads 1 byte and convert it's value to boolean.
+    # Reads 1 byte and convert it's value to boolean.
 
-        R{{}} boolean value which is read or an error
-    }
+    # + return - boolean value which is read or an error
     public extern function readBool() returns boolean|error;
 
-    documentation {
-        Reads string value represented through the provided number of bytes.
+    # Reads string value represented through the provided number of bytes.
 
-        P{{nBytes}} specifies the number of bytes which represents the string
-        P{{encoding}} specifies the char-set encoding of the string
-        R{{}} value of the string or an error
-    }
+    # + nBytes - specifies the number of bytes which represents the string
+    # + encoding - specifies the char-set encoding of the string
+    # + return - value of the string or an error
     public extern function readString(int nBytes, string encoding) returns string|error;
 
-    documentation {
-        Reads a variable length integer.
+    # Reads a variable length integer.
 
-        R{{}} value of the integer which is read or an error
-    }
+    # + return - value of the integer which is read or an error
     public extern function readVarInt() returns int|error;
 
-    documentation {
-        Closes the data channel.
+    # Closes the data channel.
 
-        R{{}} nill if the channel is closed successfully or an i/o error
-    }
+    # + return - nill if the channel is closed successfully or an i/o error
     public extern function close() returns error?;
 };

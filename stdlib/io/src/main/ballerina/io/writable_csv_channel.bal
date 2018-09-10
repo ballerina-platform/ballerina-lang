@@ -14,33 +14,27 @@
 // specific language governing permissions and limitations
 // under the License.
 
-documentation {
-    Represents record separator of the CSV file.
-}
+
+# Represents record separator of the CSV file.
 @final string CSV_RECORD_SEPERATOR = "\n";
 
-documentation {
-    Represents colon separator which should be used to identify colon separated files.
-}
+
+# Represents colon separator which should be used to identify colon separated files.
 @final string FS_COLON = ":";
 
-documentation {
-    Represents minimum number of headers which will be included in CSV.
-}
+
+# Represents minimum number of headers which will be included in CSV.
 @final int MINIMUM_HEADER_COUNT = 0;
 
-documentation {
-    Represents a CSVChannel which could be used to read/write records from CSV file.
-}
+
+# Represents a CSVChannel which could be used to read/write records from CSV file.
 public type WritableCSVChannel object {
     private WritableTextRecordChannel? dc;
 
-    documentation {
-        Constructs a CSV channel from a CharacterChannel to read/write CSV records.
+    # Constructs a CSV channel from a CharacterChannel to read/write CSV records.
 
-        P{{channel}} ChracterChannel which will represent the content in the CSV
-        P{{fs}} Field separator which will separate between the records in the CSV
-    }
+    # + channel - ChracterChannel which will represent the content in the CSV
+    # + fs - Field separator which will separate between the records in the CSV
     public new(WritableCharacterChannel channel, Separator fs = ",") {
         if (fs == TAB){
             dc = new WritableTextRecordChannel(channel, fmt = "TDF");
@@ -51,21 +45,17 @@ public type WritableCSVChannel object {
         }
     }
 
-    documentation {
-        Writes record to a given CSV file.
+    # Writes record to a given CSV file.
 
-        P{{csvRecord}} A record to be written to the channel
-        R{{}} Returns an error if the record could not be written properly
-    }
+    # + csvRecord - A record to be written to the channel
+    # + return - Returns an error if the record could not be written properly
     public function write(string[] csvRecord) returns error? {
         return dc.write(csvRecord);
     }
 
-    documentation {
-        Closes a given CSVChannel.
+    # Closes a given CSVChannel.
 
-        R{{}} Returns if an error is encountered
-    }
+    # + return - if an error is encountered
     public function close() returns error? {
         return dc.close();
     }
