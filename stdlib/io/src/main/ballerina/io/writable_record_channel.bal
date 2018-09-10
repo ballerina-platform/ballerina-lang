@@ -14,48 +14,38 @@
 // specific language governing permissions and limitations
 // under the License.
 
-documentation {
-    Represents a channel which will allow to read/write records through a given CharacterChannel.
-}
+# Represents a channel which will allow to read/write records through a given CharacterChannel.
 public type WritableTextRecordChannel object {
     private WritableCharacterChannel channel;
     private string rs;
     private string fs;
 
-    documentation {
-        Constructs a DelimitedTextRecordChannel from a given CharacterChannel.
+    # Constructs a DelimitedTextRecordChannel from a given CharacterChannel.
 
-        P{{channel}} CharacterChannel which will point to the input/output resource
-        P{{rs}} Record separator (this could be a regex)
-        P{{fs}} Field separator (this could be a regex)
-    }
+    # + channel - CharacterChannel which will point to the input/output resource
+    # + rs - Record separator (this could be a regex)
+    # + fs - Field separator (this could be a regex)
     public new(channel, fs = "", rs = "", string fmt = "default") {
         init(channel, fs, rs, fmt);
     }
 
-    documentation {
-        Initializes delimited record channel.
+    # Initializes delimited record channel.
 
-        P{{characterChannel}} Character channel which will be used for reading/writing records
-        P{{fieldSeparator}} Field separator which will separate between fields
-        P{{recordSeparator}} Record separator which will separate between records
-        P{{fmt}} Format which will be used to represent the type of record i.e csv
-    }
+    # + characterChannel - Character channel which will be used for reading/writing records
+    # + fieldSeparator - Field separator which will separate between fields
+    # + recordSeparator - Record separator which will separate between records
+    # + fmt - Format which will be used to represent the type of record i.e csv
     extern function init(WritableCharacterChannel characterChannel, string fieldSeparator,
                          string recordSeparator, string fmt);
 
-    documentation {
-        Writes records to a given input/output resource.
+    # Writes records to a given input/output resource.
 
-        P{{textRecord}} List of fields to be written
-        R{{}} An error if the records could not be written properly
-    }
+    # + textRecord - List of fields to be written
+    # + return - An error if the records could not be written properly
     public extern function write(string[] textRecord) returns error?;
 
-    documentation {
-        Closes a given record channel.
+    # Closes a given record channel.
 
-        R{{}} An error if the record channel could not be closed properly
-    }
+    # + return - An error if the record channel could not be closed properly
     public extern function close() returns error?;
 };
