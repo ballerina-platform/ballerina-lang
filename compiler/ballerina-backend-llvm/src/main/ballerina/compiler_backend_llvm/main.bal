@@ -14,7 +14,8 @@ function genObjectFile(byte[] birBinary, string destFilePath, boolean dumpLLVMIR
 function genObjectFileFromChannel(io:ByteChannel channel, string destFilePath, boolean dumpLLVMIR) {
     bir:ChannelReader reader = new(channel);
     checkValidBirChannel(reader);
-    bir:BirChannelReader birReader = new(reader, bir:parseCp(reader));
+    bir:ConstPoolParser cpParser = new(reader);
+    bir:BirChannelReader birReader = new(reader, cpParser.parse());
     bir:PackageParser p = new(birReader);
     genPackage(p.parsePackage(), destFilePath, dumpLLVMIR);
 }

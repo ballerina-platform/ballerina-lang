@@ -6,28 +6,53 @@ public type ConstPool record {
     int[] ints;
 };
 
-public function parseCp(ChannelReader reader) returns ConstPool {
-    var cpCount = reader.readInt32();
+public type ConstPoolParser object {
+    ChannelReader reader;
     ConstPool cp;
-    int i = 0;
-    while (i < cpCount) {
+    int i;
+
+    public new(reader) {
+        i = 0;
+    }
+
+    public function parse() returns ConstPool {
+        var cpCount = reader.readInt32();
+        while (i < cpCount) {
+            parseConstPoolEntry();
+            i++;
+        }
+        return cp;
+    }
+
+    public function parseConstPoolEntry() {
         var cpType = reader.readInt8();
+
         if (cpType == 1){
-            cp.ints[i] = reader.readInt64();
+            parseInt();
         } else if (cpType == 4){
-            cp.strings[i] = reader.readString();
+            parseString();
         } else if (cpType == 5){
-            PackageId id = { org: cp.strings[reader.readInt32()],
-                name: <string>cp.strings[reader.readInt32()],
-                varstionVallue: <string>cp.strings[reader.readInt32()] };
-            cp.packages[i] = id;
+            parsePackageId();
         } else {
             error err = { message: "cp type " + cpType + " not supported.:" };
             throw err;
         }
-        i++;
     }
-    return cp;
-}
 
+    function parseInt() {
+        cp.ints[i] = reader.readInt64();
+    }
+
+    function parseString() {
+        cp.strings[i] = reader.readString();
+    }
+
+    function parsePackageId() {
+        PackageId id = { org: cp.strings[reader.readInt32()],
+            name: <string>cp.strings[reader.readInt32()],
+            varstionVallue: <string>cp.strings[reader.readInt32()] };
+        cp.packages[i] = id;
+    }
+
+};
 
