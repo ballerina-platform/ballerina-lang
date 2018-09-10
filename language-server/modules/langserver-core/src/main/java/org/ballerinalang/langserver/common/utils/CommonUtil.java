@@ -1044,7 +1044,7 @@ public class CommonUtil {
                     argNames.add(argName);
                 }
             }
-            return (!list.isEmpty()) ? list : null;
+            return (!list.isEmpty()) ? list : new ArrayList<>();
         }
 
         private static String lookupVariableReturnType(String variableName, BLangNode parent) {

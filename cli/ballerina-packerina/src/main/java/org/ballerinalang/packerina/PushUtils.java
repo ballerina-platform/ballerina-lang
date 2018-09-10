@@ -24,7 +24,6 @@ import org.ballerinalang.spi.EmbeddedExecutor;
 import org.ballerinalang.toml.model.Manifest;
 import org.ballerinalang.toml.model.Proxy;
 import org.ballerinalang.toml.model.Settings;
-import org.ballerinalang.toml.parser.ManifestProcessor;
 import org.ballerinalang.util.EmbeddedExecutorProvider;
 import org.wso2.ballerinalang.compiler.packaging.Patten;
 import org.wso2.ballerinalang.compiler.packaging.converters.Converter;
@@ -35,6 +34,7 @@ import org.wso2.ballerinalang.compiler.util.ProjectDirConstants;
 import org.wso2.ballerinalang.compiler.util.ProjectDirs;
 import org.wso2.ballerinalang.programfile.ProgramFileConstants;
 import org.wso2.ballerinalang.util.RepoUtils;
+import org.wso2.ballerinalang.util.TomlParserUtils;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -79,7 +79,7 @@ public class PushUtils {
      */
     public static void pushPackages(String packageName, String sourceRoot, String installToRepo) {
         Path prjDirPath = LauncherUtils.getSourceRootPath(sourceRoot);
-        Manifest manifest = readManifestConfigurations(prjDirPath);
+        Manifest manifest = TomlParserUtils.getManifest(prjDirPath);
         if (manifest.getName().isEmpty()) {
             throw new BLangCompilerException("An org-name is required when pushing. This is not specified in " +
                                                      "Ballerina.toml inside the project");
@@ -257,27 +257,12 @@ public class PushUtils {
     }
 
     /**
-     * Read the manifest.
-     *
-     * @param prjDirPath project directory path
-     * @return manifest configuration object
-     */
-    private static Manifest readManifestConfigurations(Path prjDirPath) {
-        String tomlFilePath = prjDirPath.resolve(ProjectDirConstants.MANIFEST_FILE_NAME).toString();
-        try {
-            return ManifestProcessor.parseTomlContentFromFile(tomlFilePath);
-        } catch (IOException e) {
-            return new Manifest();
-        }
-    }
-
-    /**
      * Read the access token generated for the CLI.
      *
      * @return access token for generated for the CLI
      */
     private static String getAccessTokenOfCLI() {
-        settings = RepoUtils.readSettings();
+        settings = TomlParserUtils.readSettings();
         if (settings.getCentral() != null) {
             return settings.getCentral().getAccessToken();
         }
