@@ -27,6 +27,7 @@ import org.ballerinalang.persistence.serializable.responses.SerializableResponse
 import org.ballerinalang.util.codegen.CallableUnitInfo;
 import org.ballerinalang.util.codegen.ProgramFile;
 
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
@@ -64,7 +65,7 @@ public class SerializableForkJoinResponse extends SerializableResponseContext {
         joinVarReg = respCtx.getJoinVarReg();
         timeoutTargetIp = respCtx.getTimeoutTargetIp();
         timeoutVarReg = respCtx.getTimeoutVarReg();
-        joinWorkerNames = respCtx.getJoinWorkerNames();
+        joinWorkerNames = new HashSet<>(respCtx.getJoinWorkerNames());
         channelNames = respCtx.getChannelNames();
     }
 
@@ -74,7 +75,6 @@ public class SerializableForkJoinResponse extends SerializableResponseContext {
         return new ForkJoinWorkerResponseContext(null, joinTargetIp, joinVarReg, timeoutTargetIp, timeoutVarReg,
                                                  workerCount, reqJoinCount, joinWorkerNames, channelNames);
     }
-
 
     @Override
     public void addTargetContexts(WorkerResponseContext respCtx, SerializableState state) {

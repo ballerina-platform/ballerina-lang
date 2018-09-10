@@ -65,12 +65,8 @@ public class HashSetBValueProvider implements SerializationBValueProvider<HashSe
         BInteger length = (BInteger) packet.get(JsonSerializerConst.LENGTH_TAG);
         BRefValueArray array = (BRefValueArray) packet.getValue();
         HashSet set = new HashSet((int) length.intValue());
-        int i = 0;
-        for (; i < array.size(); i++) {
+        for (int i = 0; i < array.size(); i++) {
             set.add(bValueDeserializer.deserialize(array.get(i), null));
-        }
-        for (; i < length.intValue(); i++) {
-            set.add(null);
         }
         return set;
     }
