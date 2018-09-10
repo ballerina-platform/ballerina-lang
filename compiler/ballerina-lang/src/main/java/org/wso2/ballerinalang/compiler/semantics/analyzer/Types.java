@@ -487,7 +487,7 @@ public class Types {
         return errorTypes;
     }
 
-    private BType inferRecordFieldType(BRecordType recordType) {
+    public BType inferRecordFieldType(BRecordType recordType) {
         boolean isSameType = true;
         List<BField> fields = recordType.fields;
         BType inferredType = fields.get(0).type; // If all the fields are the same, doesn't matter which one we pick

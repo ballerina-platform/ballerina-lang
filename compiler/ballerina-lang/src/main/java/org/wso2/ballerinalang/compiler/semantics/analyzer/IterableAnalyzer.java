@@ -66,9 +66,9 @@ public class IterableAnalyzer {
         this.dlog = BLangDiagnosticLog.getInstance(context);
         this.typeChecker = TypeChecker.getInstance(context);
 
-        this.lambdaTypeChecker = new LambdaBasedTypeChecker(dlog, symTable);
-        this.terminalInputTypeChecker = new TerminalInputTypeChecker(dlog, symTable);
-        this.terminalOutputTypeChecker = new TerminalOutputTypeChecker(dlog, symTable);
+        this.lambdaTypeChecker = new LambdaBasedTypeChecker(dlog, symTable, types);
+        this.terminalInputTypeChecker = new TerminalInputTypeChecker(dlog, symTable, types);
+        this.terminalOutputTypeChecker = new TerminalOutputTypeChecker(dlog, symTable, types);
     }
 
     public static IterableAnalyzer getInstance(CompilerContext context) {
@@ -152,27 +152,31 @@ public class IterableAnalyzer {
             return;
         }
 
-
-        final List<BType> givenArgTypes = calculatedGivenInputArgs(operation);
+        // Param types of the user-specified lambda function.
+        final List<BType> paramTypes = calculateParamTypesOfLambda(operation);
         final List<BType> givenRetTypes = calculatedGivenOutputArgs(operation);
 
-        final List<BType> actualArgTypes = calculateExpectedInputArgs(operation);
+        // Type of the elements in the collection.
+        final List<BType> elementTypes = calculateProvidedElementTypes(operation);
         final List<BType> actualRetTypes = calculateExpectedOutputArgs(operation, givenRetTypes);
 
         operation.inputType = operation.lambdaType.getParameterTypes().get(0);
 
         // Cross Validate given and expected types and calculate output type;
-        validateLambdaInputArgs(operation, actualArgTypes, givenArgTypes);
+        validateLambdaInputArgs(operation, elementTypes, paramTypes);
         validateLambdaReturnArgs(operation, actualRetTypes, givenRetTypes);
         if (operation.outputType == symTable.errType) {
             operation.resultType = symTable.errType;
             return;
         }
         // Assign actual output value.
-        assignOutputAndResultType(operation, actualArgTypes, actualRetTypes);
+        assignOutputAndResultType(operation, elementTypes, actualRetTypes);
     }
 
-    private List<BType> calculatedGivenInputArgs(Operation operation) {
+    /*
+     * Calculates the parameter types expected by the user specified lambda function for the operation.
+     */
+    private List<BType> calculateParamTypesOfLambda(Operation operation) {
         final BType inputParam = operation.lambdaType.getParameterTypes().get(0);
         final List<BType> givenArgTypes;
         if (inputParam.tag == TypeTags.TUPLE) {
@@ -202,7 +206,7 @@ public class IterableAnalyzer {
         return givenRetTypes;
     }
 
-    private List<BType> calculateExpectedInputArgs(Operation operation) {
+    private List<BType> calculateProvidedElementTypes(Operation operation) {
         // calculated lambda's args types. (By looking collection type)
         return operation.collectionType.accept(lambdaTypeChecker, operation);
     }
@@ -226,17 +230,16 @@ public class IterableAnalyzer {
         return supportedRetTypes;
     }
 
-    private void validateLambdaInputArgs(Operation operation, List<BType> actualRequiredTypes,
-                                         List<BType> userExpectedTypes) {
-        if (actualRequiredTypes.get(0).tag == TypeTags.ERROR) {
+    private void validateLambdaInputArgs(Operation operation, List<BType> elementTypes, List<BType> paramTypes) {
+        if (elementTypes.get(0).tag == TypeTags.ERROR) {
             operation.outputType = operation.resultType = symTable.errType;
             return;
         }
-        for (int i = 0; i < userExpectedTypes.size(); i++) {
-            if (userExpectedTypes.get(i).tag == TypeTags.ERROR) {
+        for (int i = 0; i < paramTypes.size(); i++) {
+            if (paramTypes.get(i).tag == TypeTags.ERROR) {
                 return;
             }
-            BType result = types.checkType(operation.pos, actualRequiredTypes.get(i), userExpectedTypes.get(i),
+            BType result = types.checkType(operation.pos, elementTypes.get(i), paramTypes.get(i),
                                            DiagnosticCode.ITERABLE_LAMBDA_INCOMPATIBLE_TYPES);
             if (result.tag == TypeTags.ERROR) {
                 operation.outputType = operation.resultType = symTable.errType;
@@ -301,8 +304,8 @@ public class IterableAnalyzer {
      */
     private static class LambdaBasedTypeChecker extends BIterableTypeVisitor {
 
-        LambdaBasedTypeChecker(BLangDiagnosticLog dlog, SymbolTable symTable) {
-            super(dlog, symTable);
+        LambdaBasedTypeChecker(BLangDiagnosticLog dlog, SymbolTable symTable, Types types) {
+            super(dlog, symTable, types);
         }
 
         @Override
@@ -377,9 +380,9 @@ public class IterableAnalyzer {
                 logNotEnoughVariablesError(op, 1);
                 return Lists.of(symTable.errType);
             } else if (op.arity == 1) {
-                return Lists.of(inferRecordFieldType(type));
+                return Lists.of(types.inferRecordFieldType(type));
             } else if (op.arity == 2) {
-                return Lists.of(symTable.stringType, inferRecordFieldType(type));
+                return Lists.of(symTable.stringType, types.inferRecordFieldType(type));
             }
             logTooManyVariablesError(op);
             return Lists.of(symTable.errType);
@@ -406,8 +409,8 @@ public class IterableAnalyzer {
      */
     private static class TerminalOutputTypeChecker extends BIterableTypeVisitor.TerminalOperationTypeChecker {
 
-        TerminalOutputTypeChecker(BLangDiagnosticLog dlog, SymbolTable symTable) {
-            super(dlog, symTable);
+        TerminalOutputTypeChecker(BLangDiagnosticLog dlog, SymbolTable symTable, Types types) {
+            super(dlog, symTable, types);
         }
 
         @Override
@@ -455,8 +458,8 @@ public class IterableAnalyzer {
      */
     private static class TerminalInputTypeChecker extends BIterableTypeVisitor.TerminalOperationTypeChecker {
 
-        TerminalInputTypeChecker(BLangDiagnosticLog dlog, SymbolTable symTable) {
-            super(dlog, symTable);
+        TerminalInputTypeChecker(BLangDiagnosticLog dlog, SymbolTable symTable, Types types) {
+            super(dlog, symTable, types);
         }
 
         @Override

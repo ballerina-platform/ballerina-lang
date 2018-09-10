@@ -17,6 +17,7 @@
 package org.wso2.ballerinalang.compiler.semantics.model.types;
 
 import org.ballerinalang.util.diagnostic.DiagnosticCode;
+import org.wso2.ballerinalang.compiler.semantics.analyzer.Types;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.iterable.Operation;
 import org.wso2.ballerinalang.compiler.util.diagnotic.BLangDiagnosticLog;
@@ -33,10 +34,12 @@ public abstract class BIterableTypeVisitor implements BTypeVisitor<Operation, Li
 
     protected final BLangDiagnosticLog dlog;
     protected SymbolTable symTable;
+    protected Types types;
 
-    public BIterableTypeVisitor(BLangDiagnosticLog dlog, SymbolTable symTable) {
+    public BIterableTypeVisitor(BLangDiagnosticLog dlog, SymbolTable symTable, Types types) {
         this.dlog = dlog;
         this.symTable = symTable;
+        this.types = types;
     }
 
     @Override
@@ -117,26 +120,6 @@ public abstract class BIterableTypeVisitor implements BTypeVisitor<Operation, Li
         dlog.error(op.pos, DiagnosticCode.ITERABLE_NOT_ENOUGH_VARIABLES, op.collectionType, count);
     }
 
-    protected BType inferRecordFieldType(BRecordType recordType) {
-        boolean isSameType = true;
-        List<BField> fields = recordType.fields;
-        BType inferredType = fields.get(0).type; // If all the fields are the same, doesn't matter which one we pick
-
-        for (int i = 1; i < fields.size(); i++) {
-            isSameType = isSameType && fields.get(i - 1).type.tag == fields.get(i).type.tag;
-            if (!isSameType) {
-                return symTable.anyType;
-            }
-        }
-
-        // If it's an open record, the rest field type should also be of the same type as the mandatory fields.
-        if (!recordType.sealed && recordType.restFieldType.tag != inferredType.tag) {
-            return symTable.anyType;
-        }
-
-        return inferredType;
-    }
-
     /**
      * Type checker for Simple terminal operations.
      *
@@ -144,8 +127,8 @@ public abstract class BIterableTypeVisitor implements BTypeVisitor<Operation, Li
      */
     public abstract static class TerminalOperationTypeChecker extends BIterableTypeVisitor {
 
-        public TerminalOperationTypeChecker(BLangDiagnosticLog dlog, SymbolTable symTable) {
-            super(dlog, symTable);
+        public TerminalOperationTypeChecker(BLangDiagnosticLog dlog, SymbolTable symTable, Types types) {
+            super(dlog, symTable, types);
         }
 
         @Override
@@ -157,7 +140,7 @@ public abstract class BIterableTypeVisitor implements BTypeVisitor<Operation, Li
         public List<BType> visit(BRecordType t, Operation operation) {
             // Need to pass the inferred field type of the record here since this type is used in the foreach vars
             // in the desugared code.
-            return Lists.of(calculateType(operation, inferRecordFieldType(t)));
+            return Lists.of(calculateType(operation, types.inferRecordFieldType(t)));
         }
 
         @Override
