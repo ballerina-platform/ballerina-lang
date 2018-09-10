@@ -174,6 +174,7 @@ public class HttpUtil {
      *
      * @param context           ballerina context.
      * @param httpMessageStruct request/response struct.
+     * @return created entity.
      */
     public static BMap<String, BValue> createNewEntity(Context context, BMap<String, BValue> httpMessageStruct) {
         BMap<String, BValue> entity = ConnectorUtils.createAndGetStruct(context, PROTOCOL_PACKAGE_MIME, ENTITY);
@@ -595,6 +596,7 @@ public class HttpUtil {
      *
      * @param connection Represent the connection struct
      * @param inboundMsg Represent carbon message.
+     * @param config Service endpoint configuration.
      */
     public static void enrichConnectionInfo(BMap<String, BValue> connection, HttpCarbonMessage inboundMsg,
                                             Struct config) {
@@ -608,6 +610,7 @@ public class HttpUtil {
      * @param serviceEndpoint Represent the serviceEndpoint struct
      * @param inboundMsg Represent carbon message.
      * @param httpResource Represent Http Resource.
+     * @param config Service endpoint configuration.
      */
     public static void enrichServiceEndpointInfo(BMap<String, BValue> serviceEndpoint, HttpCarbonMessage inboundMsg,
                                                  HttpResource httpResource, Struct config) {

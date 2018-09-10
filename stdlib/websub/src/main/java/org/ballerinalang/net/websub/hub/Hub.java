@@ -149,6 +149,7 @@ public class Hub {
      *
      * @param topic     the topic to which the subscription should be added
      * @param callback  the callback registered for the particular subscription
+     * @param subscriptionDetails the subscription details
      */
     public void registerSubscription(String topic, String callback, BMap<String, BValue> subscriptionDetails) {
         if (!started) {
@@ -245,6 +246,10 @@ public class Hub {
 
     /**
      * Method to start up the default Ballerina WebSub Hub.
+     *
+     * @param context context
+     * @param topicRegistrationRequired required topic for registration
+     * @param publicUrl hub service public URL
      */
     public void startUpHubService(Context context, BBoolean topicRegistrationRequired, BString publicUrl) {
         synchronized (this) {
@@ -285,6 +290,7 @@ public class Hub {
 
     /**
      * Method to clean up after stopping the default Ballerina WebSub Hub.
+     * @param context context
      */
     public void stopHubService(Context context) {
         synchronized (this) {

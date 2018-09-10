@@ -18,7 +18,7 @@
 package org.ballerinalang.test.service.http.sample;
 
 import io.netty.handler.codec.http.HttpHeaderNames;
-import org.ballerinalang.test.BaseTest;
+import org.ballerinalang.test.service.http.HttpBaseTest;
 import org.ballerinalang.test.util.HttpClientRequest;
 import org.ballerinalang.test.util.HttpResponse;
 import org.ballerinalang.test.util.TestConstant;
@@ -32,7 +32,7 @@ import java.io.IOException;
  * ballerina_home/samples/helloWorldService/helloWorldService.bal.
  */
 @Test(groups = "http-test")
-public class HelloWorldSampleTestCase extends BaseTest {
+public class HelloWorldSampleTestCase extends HttpBaseTest {
 
     @Test(description = "Test hello world sample test case invoking base path")
     public void testHelloWorldServiceByBasePath() throws IOException {

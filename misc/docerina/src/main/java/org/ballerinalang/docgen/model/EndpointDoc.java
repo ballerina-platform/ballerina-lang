@@ -36,6 +36,7 @@ public class EndpointDoc extends Documentable {
      * @param description    description.
      * @param children       endpoint's actions/ object's functions.
      * @param fields         fields of the object.
+     * @param utilityFunctions utility functions.
      * @param isEndpoint     whether an endpoint or an object.
      * @param hasConstructor indicates whether this object has a constructor or not.
      */

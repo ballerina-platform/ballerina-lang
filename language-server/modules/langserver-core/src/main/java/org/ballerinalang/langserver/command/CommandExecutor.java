@@ -22,6 +22,7 @@ import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.common.utils.CommonUtil.FunctionGenerator;
 import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
 import org.ballerinalang.langserver.compiler.LSCompiler;
+import org.ballerinalang.langserver.compiler.LSContext;
 import org.ballerinalang.langserver.compiler.LSServiceOperationContext;
 import org.ballerinalang.langserver.compiler.common.LSCustomErrorStrategy;
 import org.ballerinalang.langserver.compiler.workspace.WorkspaceDocumentException;
@@ -83,6 +84,7 @@ public class CommandExecutor {
      *
      * @param params  Parameters for the command
      * @param context Workspace service context
+     * @return Result object
      */
     public static Object executeCommand(ExecuteCommandParams params, LSServiceOperationContext context) {
         Object result;
@@ -321,12 +323,12 @@ public class CommandExecutor {
             }
         }
         LSCompiler lsCompiler = context.get(ExecuteCommandKeys.LS_COMPILER_KEY);
-        BLangPackage bLangPackage = lsCompiler.getBLangPackage(context,
-                context.get(ExecuteCommandKeys.DOCUMENT_MANAGER_KEY), false, LSCustomErrorStrategy.class,
-                false).getRight();
-
-        CommandUtil.DocAttachmentInfo docAttachmentInfo = getDocumentEditForNodeByPosition(topLevelNodeType,
-                bLangPackage, line);
+        WorkspaceDocumentManager documentManager = context.get(ExecuteCommandKeys.DOCUMENT_MANAGER_KEY);
+        BLangPackage bLangPackage = lsCompiler.getBLangPackage(context, documentManager,
+                false, LSCustomErrorStrategy.class, false).getRight();
+        context.put(DocumentServiceKeys.CURRENT_BLANG_PACKAGE_CONTEXT_KEY, bLangPackage);
+        CommandUtil.DocAttachmentInfo docAttachmentInfo =
+                getDocumentEditForNodeByPosition(topLevelNodeType, bLangPackage, line, context);
 
         if (docAttachmentInfo != null) {
             Path filePath = Paths.get(URI.create(documentUri));
@@ -418,10 +420,12 @@ public class CommandExecutor {
      * @param topLevelNodeType top level node type
      * @param bLangPackage     BLang package
      * @param line             position to be compared with
+     * @param context               Execute Command Context
      * @return Document attachment info
      */
     private static CommandUtil.DocAttachmentInfo getDocumentEditForNodeByPosition(String topLevelNodeType,
-                                                                           BLangPackage bLangPackage, int line) {
+                                                                                  BLangPackage bLangPackage, int line,
+                                                                                  LSContext context) {
         CommandUtil.DocAttachmentInfo docAttachmentInfo = null;
         switch (topLevelNodeType) {
             case UtilSymbolKeys.FUNCTION_KEYWORD_KEY:

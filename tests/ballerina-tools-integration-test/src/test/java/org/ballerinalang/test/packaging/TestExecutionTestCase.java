@@ -30,6 +30,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 import java.nio.file.StandardOpenOption;
+import java.util.Map;
 
 /**
  * Testing executing tests in a project using the test command.
@@ -38,7 +39,7 @@ import java.nio.file.StandardOpenOption;
  */
 public class TestExecutionTestCase extends BaseTest {
     private Path tempProjectDirectory;
-    private String[] envVariables;
+    private Map<String, String> envVariables;
 
     @BeforeClass()
     public void setUp() throws BallerinaTestException, IOException {
@@ -50,7 +51,7 @@ public class TestExecutionTestCase extends BaseTest {
     public void testInitProject() throws Exception {
         String[] clientArgsForInit = {"-i"};
         String[] options = {"\n", "integrationtests\n", "\n", "m\n", "foo\n", "s\n", "bar\n", "f\n"};
-        serverInstance.runMainWithClientOptions(clientArgsForInit, options, envVariables, "init",
+        balClient.runMain("init", clientArgsForInit, envVariables, options, new LogLeecher[0],
                                                 tempProjectDirectory.toString());
     }
 
@@ -73,12 +74,9 @@ public class TestExecutionTestCase extends BaseTest {
                 "\t0 failing\n" +
                 "\t0 skipped\n";
 
-        // Reset the server log reader
-        serverInstance.resetServerLogReader();
-
         LogLeecher clientLeecher = new LogLeecher(msg);
-        serverInstance.addLogLeecher(clientLeecher);
-        serverInstance.runMain(clientArgs, envVariables, "test", tempProjectDirectory.toString());
+        balClient.runMain("test", clientArgs, envVariables, new String[0],
+                new LogLeecher[]{clientLeecher}, tempProjectDirectory.toString());
         clientLeecher.waitForText(3000);
     }
 
@@ -100,12 +98,9 @@ public class TestExecutionTestCase extends BaseTest {
                 "\t0 failing\n" +
                 "\t0 skipped\n";
 
-        // Reset the server log reader
-        serverInstance.resetServerLogReader();
-
         LogLeecher clientLeecher = new LogLeecher(msg);
-        serverInstance.addLogLeecher(clientLeecher);
-        serverInstance.runMain(clientArgs, envVariables, "test", tempProjectDirectory.toString());
+        balClient.runMain("test", clientArgs, envVariables, new String[0],
+                new LogLeecher[]{clientLeecher}, tempProjectDirectory.toString());
         clientLeecher.waitForText(3000);
     }
 
@@ -139,12 +134,10 @@ public class TestExecutionTestCase extends BaseTest {
                 "\t0 failing\n" +
                 "\t0 skipped\n";
 
-        // Reset the server log reader
-        serverInstance.resetServerLogReader();
 
         LogLeecher clientLeecher = new LogLeecher(msg);
-        serverInstance.addLogLeecher(clientLeecher);
-        serverInstance.runMain(new String[0], envVariables, "test", tempProjectDirectory.toString());
+        balClient.runMain("test", new String[0], envVariables, new String[0],
+                new LogLeecher[]{clientLeecher}, tempProjectDirectory.toString());
         clientLeecher.waitForText(3000);
     }
 
@@ -170,12 +163,9 @@ public class TestExecutionTestCase extends BaseTest {
                 "\t0 failing\n" +
                 "\t0 skipped\n";
 
-        // Reset the server log reader
-        serverInstance.resetServerLogReader();
-
         LogLeecher clientLeecher = new LogLeecher(msg);
-        serverInstance.addLogLeecher(clientLeecher);
-        serverInstance.runMain(clientArgs, envVariables, "test", pkgPath.toString());
+        balClient.runMain("test", clientArgs, envVariables, new String[0],
+                new LogLeecher[]{clientLeecher}, pkgPath.toString());
         clientLeecher.waitForText(3000);
     }
 
@@ -199,12 +189,9 @@ public class TestExecutionTestCase extends BaseTest {
                 "\t0 failing\n" +
                 "\t0 skipped\n";
 
-        // Reset the server log reader
-        serverInstance.resetServerLogReader();
-
         LogLeecher clientLeecher = new LogLeecher(msg);
-        serverInstance.addLogLeecher(clientLeecher);
-        serverInstance.runMain(clientArgs, envVariables, "test", pkgPath.toString());
+        balClient.runMain("test", clientArgs, envVariables, new String[0],
+                new LogLeecher[]{clientLeecher}, pkgPath.toString());
         clientLeecher.waitForText(3000);
     }
 
@@ -222,12 +209,9 @@ public class TestExecutionTestCase extends BaseTest {
                 "\tNo tests found\n" +
                 "\n";
 
-        // Reset the server log reader
-        serverInstance.resetServerLogReader();
-
         LogLeecher clientLeecher = new LogLeecher(msg);
-        serverInstance.addLogLeecher(clientLeecher);
-        serverInstance.runMain(clientArgs, envVariables, "test", pkgPath.toString());
+        balClient.runMain("test", clientArgs, envVariables, new String[0],
+                new LogLeecher[]{clientLeecher}, pkgPath.toString());
         clientLeecher.waitForText(3000);
     }
 
@@ -249,12 +233,9 @@ public class TestExecutionTestCase extends BaseTest {
                 "    integrationtests/noTests:0.0.1\n" +
                 "\tNo tests found\n";
 
-        // Reset the server log reader
-        serverInstance.resetServerLogReader();
-
         LogLeecher clientLeecher = new LogLeecher(msg);
-        serverInstance.addLogLeecher(clientLeecher);
-        serverInstance.runMain(clientArgs, envVariables, "test", tempProjectDirectory.toString());
+        balClient.runMain("test", clientArgs, envVariables, new String[0],
+                new LogLeecher[]{clientLeecher}, tempProjectDirectory.toString());
         clientLeecher.waitForText(3000);
 
         PackagingTestUtils.deleteFiles(pkgPath);
@@ -304,12 +285,10 @@ public class TestExecutionTestCase extends BaseTest {
                     "\t0 passing\n" +
                     "\t1 failing\n" +
                     "\t0 skipped\n";
-        // Reset the server log reader
-        serverInstance.resetServerLogReader();
 
         LogLeecher clientLeecher = new LogLeecher(msg);
-        serverInstance.addLogLeecher(clientLeecher);
-        serverInstance.runMain(clientArgs, envVariables, "test", tempProjectDirectory.toString());
+        balClient.runMain("test", clientArgs, envVariables, new String[0],
+                new LogLeecher[]{clientLeecher}, tempProjectDirectory.toString());
         clientLeecher.waitForText(3000);
 
         PackagingTestUtils.deleteFiles(pkgPath);
@@ -359,13 +338,9 @@ public class TestExecutionTestCase extends BaseTest {
                     "\t  0 failing\n" +
                     "\t  0 skipped";
 
-        // Reset the server log reader
-        serverInstance.resetServerLogReader();
-
         LogLeecher clientLeecher = new LogLeecher(msg);
-        serverInstance.addLogLeecher(clientLeecher);
-        serverInstance.runMain(new String[]  {"--groups" , "g1", "main_test.bal"}, envVariables, "test",
-                               testPath.toString());
+        balClient.runMain("test", new String[]  {"--groups" , "g1", "main_test.bal"}, envVariables,
+                new String[0], new LogLeecher[]{clientLeecher}, testPath.toString());
         clientLeecher.waitForText(3000);
 
         // --disable-groups g1
@@ -379,13 +354,95 @@ public class TestExecutionTestCase extends BaseTest {
                 "\t  0 failing\n" +
                 "\t  0 skipped";
 
-        // Reset the server log reader
-        serverInstance.resetServerLogReader();
+        clientLeecher = new LogLeecher(msg);
+        balClient.runMain("test", new String[]  {"--disable-groups" , "g1" , "main_test.bal"}, envVariables,
+                new String[0], new LogLeecher[]{clientLeecher}, testPath.toString());
+        clientLeecher.waitForText(3000);
+
+        // --disable-groups g2
+        msg = "Compiling tests\n" +
+                "    main_test.bal\n" +
+                "Running tests\n" +
+                "    main_test.bal\n" +
+                "I'm the ungrouped test\n" +
+                "I'm in test belonging to g1!\n" +
+                "\t  [pass] testFunction3\n" +
+                "\t  [pass] testFunction1\n" +
+                "\t  2 passing\n" +
+                "\t  0 failing\n" +
+                "\t  0 skipped";
 
         clientLeecher = new LogLeecher(msg);
-        serverInstance.addLogLeecher(clientLeecher);
-        serverInstance.runMain(new String[]  {"--disable-groups" , "g1" , "main_test.bal"}, envVariables, "test",
-                               testPath.toString());
+        balClient.runMain("test", new String[] {"--disable-groups" , "g2", "main_test.bal"}, envVariables,
+                          new String[0], new LogLeecher[]{clientLeecher}, testPath.toString());
+        clientLeecher.waitForText(3000);
+
+        PackagingTestUtils.deleteFiles(pkgPath);
+    }
+
+    @Test(description = "Test executing multiple grouped tests", dependsOnMethods = "testInitProject")
+    public void testMultipleGroupTestsExecution() throws Exception {
+        Path pkgPath = tempProjectDirectory.resolve("grouptests");
+        Files.createDirectories(pkgPath);
+
+        Path testPath = pkgPath.resolve("tests");
+        Files.createDirectories(testPath);
+
+        String testContent = "import ballerina/test;\n" +
+                "import ballerina/io;\n" +
+                "@test:Config {\n" +
+                "    groups: [\"g1\"]\n" +
+                "}\n" +
+                "function testFunction1() {\n" +
+                "    io:println(\"I'm in test belonging to g1!\");\n" +
+                "    test:assertTrue(true, msg = \"Failed!\");\n" +
+                "}\n" +
+                "@test:Config {\n" +
+                "    groups: [\"g1\", \"g2\"]\n" +
+                "}\n" +
+                "function testFunction2() {\n" +
+                "    io:println(\"I'm in test belonging to g1 and g2!\");\n" +
+                "    test:assertTrue(true, msg = \"Failed!\");\n" +
+                "}\n" +
+                "@test:Config\n" +
+                "function testFunction3() {\n" +
+                "    io:println(\"I'm the ungrouped test\");\n" +
+                "    test:assertTrue(true, msg = \"Failed!\");\n" +
+                "}\n";
+        Files.write(testPath.resolve("main_test.bal"), testContent.getBytes(), StandardOpenOption.CREATE_NEW);
+
+        // --groups g1,g2
+        String msg = "Compiling tests\n" +
+                "    main_test.bal\n" +
+                "Running tests\n" +
+                "    main_test.bal\n" +
+                "I'm in test belonging to g1 and g2!\n" +
+                "I'm in test belonging to g1!\n" +
+                "\t  [pass] testFunction2\n" +
+                "\t  [pass] testFunction1\n" +
+                "\t  2 passing\n" +
+                "\t  0 failing\n" +
+                "\t  0 skipped";
+
+        LogLeecher clientLeecher = new LogLeecher(msg);
+        balClient.runMain("test", new String[]  {"--groups" , "g1,g2", "main_test.bal"}, envVariables,
+                          new String[0], new LogLeecher[]{clientLeecher}, testPath.toString());
+        clientLeecher.waitForText(3000);
+
+        // --disable-groups g1,g2
+        msg = "Compiling tests\n" +
+                "    main_test.bal\n" +
+                "Running tests\n" +
+                "    main_test.bal\n" +
+                "I'm the ungrouped test\n" +
+                "\t  [pass] testFunction3\n" +
+                "\t  1 passing\n" +
+                "\t  0 failing\n" +
+                "\t  0 skipped";
+
+        clientLeecher = new LogLeecher(msg);
+        balClient.runMain("test", new String[] {"--disable-groups" , "g1,g2" , "main_test.bal"}, envVariables,
+                          new String[0], new LogLeecher[]{clientLeecher}, testPath.toString());
         clientLeecher.waitForText(3000);
 
         PackagingTestUtils.deleteFiles(pkgPath);
@@ -446,12 +503,9 @@ public class TestExecutionTestCase extends BaseTest {
                 "\t  0 failing\n" +
                 "\t  0 skipped";
 
-        // Reset the server log reader
-        serverInstance.resetServerLogReader();
-
         LogLeecher clientLeecher = new LogLeecher(msg);
-        serverInstance.addLogLeecher(clientLeecher);
-        serverInstance.runMain(new String[]{"main_test.bal"}, envVariables, "test", testPath.toString());
+        balClient.runMain("test", new String[]{"main_test.bal"}, envVariables, new String[0],
+                new LogLeecher[]{clientLeecher}, testPath.toString());
         clientLeecher.waitForText(3000);
         PackagingTestUtils.deleteFiles(pkgPath);
     }
@@ -502,12 +556,9 @@ public class TestExecutionTestCase extends BaseTest {
                     "\t  0 failing\n" +
                     "\t  0 skipped";
 
-        // Reset the server log reader
-        serverInstance.resetServerLogReader();
-
         LogLeecher clientLeecher = new LogLeecher(msg);
-        serverInstance.addLogLeecher(clientLeecher);
-        serverInstance.runMain(new String[]{"main_test.bal"}, envVariables, "test", testPath.toString());
+        balClient.runMain("test", new String[]{"main_test.bal"}, envVariables, new String[0],
+                new LogLeecher[]{clientLeecher}, testPath.toString());
         clientLeecher.waitForText(3000);
         PackagingTestUtils.deleteFiles(pkgPath);
     }
@@ -554,12 +605,9 @@ public class TestExecutionTestCase extends BaseTest {
                     "\t  0 failing\n" +
                     "\t  0 skipped";
 
-        // Reset the server log reader
-        serverInstance.resetServerLogReader();
-
         LogLeecher clientLeecher = new LogLeecher(msg);
-        serverInstance.addLogLeecher(clientLeecher);
-        serverInstance.runMain(new String[]{"main_test.bal"}, envVariables, "test", testPath.toString());
+        balClient.runMain("test", new String[]{"main_test.bal"}, envVariables, new String[0],
+                new LogLeecher[]{clientLeecher}, testPath.toString());
         clientLeecher.waitForText(3000);
         PackagingTestUtils.deleteFiles(pkgPath);
     }

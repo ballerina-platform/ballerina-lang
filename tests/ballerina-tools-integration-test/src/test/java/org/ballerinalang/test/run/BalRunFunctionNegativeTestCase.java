@@ -20,7 +20,7 @@ package org.ballerinalang.test.run;
 import org.ballerinalang.test.BaseTest;
 import org.ballerinalang.test.context.BallerinaTestException;
 import org.ballerinalang.test.context.LogLeecher;
-import org.testng.annotations.BeforeMethod;
+import org.ballerinalang.test.context.LogLeecher.LeecherType;
 import org.testng.annotations.Test;
 
 import java.io.File;
@@ -43,14 +43,9 @@ public class BalRunFunctionNegativeTestCase extends BaseTest {
     @Test
     public void testEmptyEntryFunctionName() throws BallerinaTestException {
         String sourceArg = filePath + ":";
-        LogLeecher errLogLeecher = new LogLeecher("usage error: expected function name after final ':'");
-        serverInstance.addErrorLogLeecher(errLogLeecher);
-        serverInstance.runMain(new String[]{sourceArg});
+        LogLeecher errLogLeecher = new LogLeecher("usage error: expected function name after final ':'",
+                LeecherType.ERROR);
+        balClient.runMain(sourceArg, new LogLeecher[]{errLogLeecher});
         errLogLeecher.waitForText(2000);
-    }
-
-    @BeforeMethod
-    public void stopServer() throws BallerinaTestException {
-        serverInstance.stopServer();
     }
 }

@@ -61,7 +61,6 @@ import static org.wso2.ballerinalang.compiler.util.Names.GEN_VAR_PREFIX;
 /**
  * This class injects the code that invokes the http filters to the first lines of an http resource.
  * The code injected is as follows:
- * <p>
  * <blockquote><pre>
  *          http:FilterContext _$$_filterContext = new (serviceTypeDef, "serviceName", "resourceName");
  *          caller.conn.filterContext = _$$_filterContext;
@@ -71,7 +70,6 @@ import static org.wso2.ballerinalang.compiler.util.Names.GEN_VAR_PREFIX;
  *              }
  *          }
  * </pre></blockquote>
- * <p>
  * The second line in this code stores the _$$_filterContext reference to the http connector to be used when calling
  * the filterResponse method of the filters
  *

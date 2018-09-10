@@ -29,15 +29,17 @@ import java.util.ArrayList;
  */
 public class SerializableWorkerData {
 
-    private long[] longRegs;
+    public long[] longRegs;
 
-    private double[] doubleRegs;
+    public double[] doubleRegs;
 
-    private String[] stringRegs;
+    public String[] stringRegs;
 
-    private int[] intRegs;
+    public int[] intRegs;
 
-    private ArrayList<Object> refFields;
+    public byte[][] byteRegs;
+
+    public ArrayList<Object> refFields;
 
     public SerializableWorkerData(WorkerData workerData, SerializableState state) {
         doubleRegs = workerData.doubleRegs;

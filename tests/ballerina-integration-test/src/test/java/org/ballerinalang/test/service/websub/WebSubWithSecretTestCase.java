@@ -19,6 +19,9 @@ package org.ballerinalang.test.service.websub;
 
 import io.netty.handler.codec.http.HttpHeaderNames;
 import org.awaitility.Duration;
+import org.ballerinalang.test.BaseTest;
+import org.ballerinalang.test.context.BMainInstance;
+import org.ballerinalang.test.context.BServerInstance;
 import org.ballerinalang.test.context.BallerinaTestException;
 import org.ballerinalang.test.context.LogLeecher;
 import org.ballerinalang.test.util.HttpClientRequest;
@@ -51,7 +54,11 @@ import static java.util.concurrent.TimeUnit.SECONDS;
  * topic - both directly to the hub and specifying hub URL
  * 5. Signature Validation for authenticated content distribution - both success and failure
  */
-public class WebSubWithSecretTestCase extends WebSubBaseTest {
+public class WebSubWithSecretTestCase extends BaseTest {
+    private BServerInstance webSubSubscriber;
+    private BMainInstance webSubPublisher;
+
+    private final int subscriberServicePort = 8181;
 
     private static String hubUrl = "https://localhost:9292/websub/hub";
     private static final String INTENT_VERIFICATION_SUBSCRIBER_LOG = "\"Intent verified for subscription request\"";
@@ -66,11 +73,12 @@ public class WebSubWithSecretTestCase extends WebSubBaseTest {
 
     @BeforeClass
     public void setup() throws BallerinaTestException {
-        String[] clientArgs = {"-e b7a.websub.hub.remotepublish=true",
-                               "-e test.hub.url=" + hubUrl,
-                               new File("src" + File.separator + "test" + File.separator + "resources"
-                                                + File.separator + "websub" + File.separator
-                                                + "websub_test_publisher.bal").getAbsolutePath()};
+        webSubSubscriber = new BServerInstance(balServer);
+        webSubPublisher = new BMainInstance(balServer);
+
+        String publisherBal = new File("src" + File.separator + "test" + File.separator + "resources"
+                + File.separator + "websub" + File.separator + "websub_test_publisher.bal").getAbsolutePath();
+        String[] clientArgs = {"-e b7a.websub.hub.remotepublish=true", "-e test.hub.url=" + hubUrl};
 
         String subscriberBal = new File("src" + File.separator + "test" + File.separator + "resources"
                 + File.separator + "websub" + File.separator +
@@ -81,7 +89,7 @@ public class WebSubWithSecretTestCase extends WebSubBaseTest {
 
         Executors.newSingleThreadExecutor().execute(() -> {
             try {
-                webSubPublisher.runMain(clientArgs);
+                webSubPublisher.runMain(publisherBal, clientArgs, new String[]{});
             } catch (BallerinaTestException e) {
                 //ignored since any errors here would be reflected as test failures
             }
@@ -90,11 +98,12 @@ public class WebSubWithSecretTestCase extends WebSubBaseTest {
         //Allow to bring up the hub
         given().ignoreException(ConnectException.class).with().pollInterval(Duration.FIVE_SECONDS).and()
                 .with().pollDelay(Duration.TEN_SECONDS).await().atMost(60, SECONDS).until(() -> {
-            HttpResponse response = HttpsClientRequest.doGet(hubUrl, webSubPublisher.getServerHome());
+            //using same pack location, hence server home is same
+            HttpResponse response = HttpsClientRequest.doGet(hubUrl, webSubSubscriber.getServerHome());
             return response.getResponseCode() == 202;
         });
 
-        webSubSubscriber.startBallerinaServer(subscriberBal, 8181);
+        webSubSubscriber.startServer(subscriberBal, new int[]{subscriberServicePort});
 
         //Allow to start up the subscriber service
         given().ignoreException(ConnectException.class).with().pollInterval(Duration.FIVE_SECONDS).and()
@@ -103,7 +112,7 @@ public class WebSubWithSecretTestCase extends WebSubBaseTest {
             headers.put("X-Hub-Signature", "SHA256=5262411828583e9dc7eaf63aede0abac8e15212e06320bb021c433a20f27d553");
             headers.put(HttpHeaderNames.CONTENT_TYPE.toString(), TestConstant.CONTENT_TYPE_JSON);
             HttpResponse response = HttpClientRequest.doPost(
-                    webSubSubscriber.getServiceURLHttp("websub"), "{\"dummy\":\"body\"}",
+                    webSubSubscriber.getServiceURLHttp(subscriberServicePort, "websub"), "{\"dummy\":\"body\"}",
                     headers);
             return response.getResponseCode() == 202;
         });
@@ -130,7 +139,7 @@ public class WebSubWithSecretTestCase extends WebSubBaseTest {
         headers.put("X-Hub-Signature", "SHA256=incorrect583e9dc7eaf63aede0abac8e15212e06320bb021c433a20f27d553");
         headers.put(HttpHeaderNames.CONTENT_TYPE.toString(), TestConstant.CONTENT_TYPE_JSON);
         HttpResponse response = HttpClientRequest.doPost(
-                webSubSubscriber.getServiceURLHttp("websub"), "{\"dummy\":\"body\"}",
+                webSubSubscriber.getServiceURLHttp(subscriberServicePort, "websub"), "{\"dummy\":\"body\"}",
                 headers);
         Assert.assertEquals(response.getResponseCode(), 404);
         Assert.assertEquals(response.getData(), "validation failed for notification");
@@ -141,7 +150,7 @@ public class WebSubWithSecretTestCase extends WebSubBaseTest {
         Map<String, String> headers = new HashMap<>();
         headers.put(HttpHeaderNames.CONTENT_TYPE.toString(), TestConstant.CONTENT_TYPE_JSON);
         HttpResponse response = HttpClientRequest.doPost(
-                webSubSubscriber.getServiceURLHttp("websub"), "{\"dummy\":\"body\"}",
+                webSubSubscriber.getServiceURLHttp(subscriberServicePort, "websub"), "{\"dummy\":\"body\"}",
                 headers);
         Assert.assertEquals(response.getResponseCode(), 404);
         Assert.assertEquals(response.getData(), "validation failed for notification");
@@ -149,8 +158,7 @@ public class WebSubWithSecretTestCase extends WebSubBaseTest {
 
     @AfterClass
     private void cleanup() throws Exception {
-        webSubPublisher.stopServer();
-        webSubSubscriber.stopServer();
+        webSubSubscriber.shutdownServer();
     }
 
 }

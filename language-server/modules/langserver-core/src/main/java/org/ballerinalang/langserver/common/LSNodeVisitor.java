@@ -810,11 +810,6 @@ public class LSNodeVisitor extends BLangNodeVisitor {
     }
 
     @Override
-    public void visit(BLangFieldBasedAccess.BLangEnumeratorAccessExpr enumeratorAccessExpr) {
-        // No implementation
-    }
-
-    @Override
     public void visit(BLangXMLSequenceLiteral bLangXMLSequenceLiteral) {
         // No implementation
     }

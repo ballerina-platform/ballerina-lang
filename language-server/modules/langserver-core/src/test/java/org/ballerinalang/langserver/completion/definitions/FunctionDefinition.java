@@ -67,6 +67,20 @@ public class FunctionDefinition extends CompletionTest {
                 {"iterableOperation4.json", "function"},
                 {"iterableOperation5.json", "function"},
                 {"iterableOperation6.json", "function"},
+                {"suggestionsInWorkersWithinFunction.json", "function"},
+                {"completionBeforeIfElse.json", "function"},
+                {"completionWithinIf.json", "function"},
+                {"completionWithinElse.json", "function"},
+                {"completionWithinElseIf.json", "function"},
+                {"completionBeforeWhile.json", "function"},
+                {"completionWithinWhile.json", "function"},
+                {"completionWithinWorkersInResource.json", "function"},
+                {"completionWithinCatch.json", "function"},
+                {"completionWithinTransaction.json", "function"},
+                {"completionWithinTransactionOnRetry.json", "function"},
+                {"objectAttachFunctionImpl1.json", "function"},
+                {"objectAttachFunctionImpl2.json", "function"},
+                {"objectAttachFunctionImpl3.json", "function"},
         };
     }
 }

@@ -94,8 +94,9 @@ import static org.ballerinalang.bre.bvm.BLangVMErrors.ERROR_MESSAGE_FIELD;
 public class SQLDatasourceUtils {
 
     private static final String ORACLE_DATABASE_NAME = "oracle";
-    private static final String POSTGRES_DATABASE_NAME = "postgresql";
-    public static final String POSTGRES_DOUBLE = "float8";
+    public static final String POSTGRES_DATABASE_NAME = "postgresql";
+    private static final String POSTGRES_DOUBLE = "float8";
+    public static final String POSTGRES_OID_COLUMN_TYPE_NAME = "oid";
     private static final int ORACLE_CURSOR_TYPE = -10;
     private static final String TIME_FIELD = "time";
 
@@ -997,6 +998,7 @@ public class SQLDatasourceUtils {
      * This will retrieve the string value for the given clob.
      *
      * @param data clob data
+     * @return string value
      */
     public static String getString(Clob data) {
         if (data == null) {
@@ -1018,6 +1020,7 @@ public class SQLDatasourceUtils {
      * This will retrieve the string value for the given blob.
      *
      * @param data blob data
+     * @return string value
      */
     public static String getString(Blob data) {
         // Directly allocating full length arrays for decode byte arrays since anyway we are building
@@ -1042,6 +1045,7 @@ public class SQLDatasourceUtils {
      * This will retrieve the string value for the given binary data.
      *
      * @param data binary data
+     * @return string value
      */
     public static String getString(byte[] data) {
         if (data == null) {
@@ -1076,6 +1080,10 @@ public class SQLDatasourceUtils {
 
     /**
      * This will retrieve the string value for the given array data.
+     *
+     * @param dataArray data
+     * @return string value
+     * @throws SQLException sql exception when reading result set
      */
     public static String getString(Array dataArray) throws SQLException {
         if (dataArray == null) {
@@ -1093,6 +1101,10 @@ public class SQLDatasourceUtils {
 
     /**
      * This will retrieve the string value for the given struct data.
+     *
+     * @param udt struct
+     * @return string value
+     * @throws SQLException sql exception when reading result set
      */
     public static String getString(Struct udt) throws SQLException {
         if (udt.getAttributes() != null) {

@@ -20,7 +20,6 @@ package org.ballerinalang.test.run;
 import org.ballerinalang.test.BaseTest;
 import org.ballerinalang.test.context.BallerinaTestException;
 import org.ballerinalang.test.context.LogLeecher;
-import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import java.io.File;
@@ -48,8 +47,7 @@ public class BalRunFunctionPositiveTestCase extends BaseTest {
         String functionName = "noParamEntry";
         sourceArg = filePath + ":" + functionName;
         LogLeecher outLogLeecher = new LogLeecher("1");
-        serverInstance.addLogLeecher(outLogLeecher);
-        serverInstance.runMain(new String[]{PRINT_RETURN, sourceArg});
+        balClient.runMain(sourceArg, new String[]{PRINT_RETURN}, new String[0], new LogLeecher[]{outLogLeecher});
         outLogLeecher.waitForText(2000);
     }
 
@@ -61,15 +59,9 @@ public class BalRunFunctionPositiveTestCase extends BaseTest {
                                                           + "boolean: true, JSON Name Field: Maryam, XML Element Name: "
                                                           + "book, Employee Name Field: Em, string rest args: just the"
                                                           + " rest ");
-        serverInstance.addLogLeecher(outLogLeecher);
-        serverInstance.runMain(new String[]{PRINT_RETURN, sourceArg, "1000", "1.0", "Hello Ballerina", "255", "true",
-                                        "{ \"name\": \"Maryam\" }", "<book>Harry Potter</book>", "{ \"name\": \"Em\" }",
-                                        "just", "the", "rest"});
+        balClient.runMain(sourceArg, new String[]{PRINT_RETURN}, new String[]{"1000", "1.0", "Hello Ballerina",
+                "255", "true", "{ \"name\": \"Maryam\" }", "<book>Harry Potter</book>", "{ \"name\": \"Em\" }",
+                "just", "the", "rest"}, new LogLeecher[]{outLogLeecher});
         outLogLeecher.waitForText(2000);
-    }
-
-    @BeforeMethod
-    public void stopServer() throws BallerinaTestException {
-        serverInstance.stopServer();
     }
 }
