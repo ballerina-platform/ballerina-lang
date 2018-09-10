@@ -79,6 +79,12 @@ public class PushUtils {
      */
     public static void pushPackages(String packageName, String sourceRoot, String installToRepo) {
         Path prjDirPath = LauncherUtils.getSourceRootPath(sourceRoot);
+        // Check if the Ballerina.toml exists
+        if (Files.notExists(prjDirPath.resolve(ProjectDirConstants.MANIFEST_FILE_NAME))) {
+            throw new BLangCompilerException("Couldn't locate Ballerina.toml in the project directory. Run " +
+                                                     "'ballerina init' to create the Ballerina.toml file " +
+                                                     "automatically and re-run the 'ballerina push' command");
+        }
         Manifest manifest = TomlParserUtils.getManifest(prjDirPath);
         if (manifest.getName().isEmpty()) {
             throw new BLangCompilerException("An org-name is required when pushing. This is not specified in " +
