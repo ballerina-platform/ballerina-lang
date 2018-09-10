@@ -81,7 +81,7 @@ public class PushUtils {
         Path prjDirPath = LauncherUtils.getSourceRootPath(sourceRoot);
         // Check if the Ballerina.toml exists
         if (Files.notExists(prjDirPath.resolve(ProjectDirConstants.MANIFEST_FILE_NAME))) {
-            throw new BLangCompilerException("Could't locate Ballerina.toml in the project directory. Run " +
+            throw new BLangCompilerException("Couldn't locate Ballerina.toml in the project directory. Run " +
                                                      "'ballerina init' to create the Ballerina.toml file " +
                                                      "automatically and re-run the 'ballerina push' command");
         }

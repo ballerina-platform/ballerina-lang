@@ -189,7 +189,7 @@ public class PackagingNegativeTestCase extends BaseTest {
         // Remove Ballerina.toml
         Files.deleteIfExists(projectPath.resolve("Ballerina.toml"));
 
-        String msg = "ballerina: could't locate Ballerina.toml in the project directory. Run 'ballerina init' to " +
+        String msg = "ballerina: couldn't locate Ballerina.toml in the project directory. Run 'ballerina init' to " +
                 "create the Ballerina.toml file automatically and re-run the 'ballerina push' command";
 
         String[] clientArgs = {packageName};
