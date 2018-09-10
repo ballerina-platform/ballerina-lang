@@ -89,7 +89,9 @@ public class LauncherUtils {
         ProgramFile programFile;
         String srcPathStr = sourcePath.toString();
         Path fullPath = sourceRootPath.resolve(sourcePath);
-        loadConfigurations(sourceRootPath, runtimeParams, configFilePath, observeFlag);
+        // Set the source root path relative to the source path i.e. set the parent directory of the source path
+        System.setProperty("ballerina.source.root", fullPath.getParent().toString());
+        loadConfigurations(fullPath.getParent(), runtimeParams, configFilePath, observeFlag);
 
         if (srcPathStr.endsWith(BLANG_EXEC_FILE_SUFFIX)) {
             programFile = BLangProgramLoader.read(sourcePath);
