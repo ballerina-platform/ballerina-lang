@@ -776,6 +776,29 @@ public class Util {
     }
 
     /**
+     * Decide whether the connection should be kept open.
+     *
+     * @param keepAliveConfig         Represents keepalive configuration
+     * @param requestConnectionHeader Connection header of the request
+     * @param httpVersion             Represents HTTP version
+     * @return A boolean indicating whether to keep the connection open or not
+     */
+    public static boolean isKeepAliveConnection(KeepAliveConfig keepAliveConfig, String requestConnectionHeader,
+                                                String httpVersion) {
+        if (keepAliveConfig == null || keepAliveConfig == KeepAliveConfig.AUTO) {
+            if (Float.valueOf(httpVersion) <= Constants.HTTP_1_0) {
+                return requestConnectionHeader != null && requestConnectionHeader
+                        .equalsIgnoreCase(Constants.CONNECTION_KEEP_ALIVE);
+            } else {
+                return requestConnectionHeader == null || !requestConnectionHeader
+                        .equalsIgnoreCase(Constants.CONNECTION_CLOSE);
+            }
+        } else {
+            return keepAliveConfig == KeepAliveConfig.ALWAYS;
+        }
+    }
+
+    /**
      * Disable host name verification if it is set to false by the user.
      *
      * @param sslEngine ssl engine

@@ -63,7 +63,6 @@ public class CipherSuiteswithCertsTest {
     private static Logger logger = LoggerFactory.getLogger(CipherSuitesTest.class);
 
     @DataProvider(name = "ciphers")
-
     public static Object[][] cipherSuites() {
         return new Object[][] {
                 // true = expecting a SSL hand shake failure.

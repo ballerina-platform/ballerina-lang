@@ -44,7 +44,7 @@ import static org.wso2.transport.http.netty.common.Constants.HTTP_2_0;
  */
 public class Http2ALPNwithCertsTest {
 
-    private static final Logger log = LoggerFactory.getLogger(TestHttp2WithALPN.class);
+    private static final Logger log = LoggerFactory.getLogger(Http2ALPNwithCertsTest.class);
     private ServerConnector serverConnector;
     private HttpClientConnector httpClientConnector;
     private HttpWsConnectorFactory connectorFactory;

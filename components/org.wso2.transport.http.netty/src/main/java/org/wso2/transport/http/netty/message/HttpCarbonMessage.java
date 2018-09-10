@@ -19,6 +19,7 @@
 package org.wso2.transport.http.netty.message;
 
 import io.netty.buffer.ByteBuf;
+import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.http.DefaultFullHttpResponse;
 import io.netty.handler.codec.http.DefaultHttpHeaders;
 import io.netty.handler.codec.http.DefaultHttpRequest;
@@ -59,6 +60,12 @@ public class HttpCarbonMessage {
     private IOException ioException;
     private MessageStateContext messageStateContext;
 
+
+    private long sequenceId; //Keep track of request/response order
+    private ChannelHandlerContext sourceContext;
+    private HttpPipeliningFuture pipeliningFuture;
+    private boolean keepAlive;
+    private boolean pipeliningNeeded;
 
     public HttpCarbonMessage(HttpMessage httpMessage, Listener contentListener) {
         this.httpMessage = httpMessage;
@@ -397,5 +404,45 @@ public class HttpCarbonMessage {
 
     public void setMessageStateContext(MessageStateContext messageStateContext) {
         this.messageStateContext = messageStateContext;
+    }
+
+    public long getSequenceId() {
+        return sequenceId;
+    }
+
+    public void setSequenceId(long sequenceId) {
+        this.sequenceId = sequenceId;
+    }
+
+    public ChannelHandlerContext getSourceContext() {
+        return sourceContext;
+    }
+
+    public void setSourceContext(ChannelHandlerContext sourceContext) {
+        this.sourceContext = sourceContext;
+    }
+
+    public boolean isKeepAlive() {
+        return keepAlive;
+    }
+
+    public void setKeepAlive(boolean keepAlive) {
+        this.keepAlive = keepAlive;
+    }
+
+    public boolean isPipeliningNeeded() {
+        return pipeliningNeeded;
+    }
+
+    public void setPipeliningNeeded(boolean pipeliningNeeded) {
+        this.pipeliningNeeded = pipeliningNeeded;
+    }
+
+    public HttpPipeliningFuture getPipeliningFuture() {
+        return pipeliningFuture;
+    }
+
+    public void setPipeliningFuture(HttpPipeliningFuture pipeliningFuture) {
+        this.pipeliningFuture = pipeliningFuture;
     }
 }

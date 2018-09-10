@@ -70,8 +70,8 @@ public class ReceivingHeaders implements ListenerState {
         this.httpVersion = Float.parseFloat((String) inboundRequestMsg.getProperty(Constants.HTTP_VERSION));
         boolean continueRequest = is100ContinueRequest(inboundRequestMsg);
         if (continueRequest) {
-            messageStateContext.setListenerState(
-                    new Expect100ContinueHeaderReceived(messageStateContext, sourceHandler));
+            messageStateContext.setListenerState(new Expect100ContinueHeaderReceived(messageStateContext, sourceHandler,
+                                                                                     inboundRequestMsg, httpVersion));
         }
         notifyRequestListener(inboundRequestMsg);
 
@@ -93,6 +93,7 @@ public class ReceivingHeaders implements ListenerState {
                 ServerConnectorFuture outboundRespFuture = httpRequestMsg.getHttpResponseFuture();
                 outboundRespFuture.setHttpConnectorListener(
                         new HttpOutboundRespListener(httpRequestMsg, sourceHandler));
+                httpRequestMsg.setSourceContext(sourceHandler.getInboundChannelContext());
                 sourceHandler.getServerConnectorFuture().notifyHttpListener(httpRequestMsg);
             } catch (Exception e) {
                 log.error("Error while notifying listeners", e);

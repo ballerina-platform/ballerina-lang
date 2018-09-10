@@ -56,10 +56,15 @@ public class Expect100ContinueHeaderReceived implements ListenerState {
     private static Logger log = LoggerFactory.getLogger(Expect100ContinueHeaderReceived.class);
     private final MessageStateContext messageStateContext;
     private final SourceHandler sourceHandler;
+    private final HttpCarbonMessage inboundRequestMsg;
+    private final float httpVersion;
 
-    Expect100ContinueHeaderReceived(MessageStateContext messageStateContext, SourceHandler sourceHandler) {
+    Expect100ContinueHeaderReceived(MessageStateContext messageStateContext, SourceHandler sourceHandler,
+                                    HttpCarbonMessage inboundRequestMsg, float httpVersion) {
         this.messageStateContext = messageStateContext;
         this.sourceHandler = sourceHandler;
+        this.inboundRequestMsg = inboundRequestMsg;
+        this.httpVersion = httpVersion;
     }
 
     @Override
@@ -69,7 +74,10 @@ public class Expect100ContinueHeaderReceived implements ListenerState {
 
     @Override
     public void readInboundRequestBody(Object inboundRequestEntityBody) throws ServerConnectorException {
-        log.warn("readInboundRequestBody {}", ILLEGAL_STATE_ERROR);
+        // Client may send request body without/after waiting for the 100-continue response.
+        messageStateContext.setListenerState(
+                new ReceivingEntityBody(messageStateContext, inboundRequestMsg, sourceHandler, httpVersion));
+        messageStateContext.getListenerState().readInboundRequestBody(inboundRequestEntityBody);
     }
 
     @Override

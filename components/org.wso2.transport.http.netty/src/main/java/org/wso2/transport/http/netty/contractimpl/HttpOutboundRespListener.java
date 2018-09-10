@@ -23,7 +23,6 @@ import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.http.HttpContent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.wso2.transport.http.netty.common.Constants;
 import org.wso2.transport.http.netty.config.ChunkConfig;
 import org.wso2.transport.http.netty.config.KeepAliveConfig;
 import org.wso2.transport.http.netty.contract.HttpConnectorListener;
@@ -36,6 +35,8 @@ import org.wso2.transport.http.netty.message.Http2PushPromise;
 import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 
 import java.util.Locale;
+
+import static org.wso2.transport.http.netty.common.Util.isKeepAliveConnection;
 
 /**
  * Get executed when the response is available.
@@ -106,18 +107,8 @@ public class HttpOutboundRespListener implements HttpConnectorListener {
 
     // Decides whether to close the connection after sending the response
     public boolean isKeepAlive() {
-        if (keepAliveConfig == null || keepAliveConfig == KeepAliveConfig.AUTO) {
-            String requestConnectionHeader = requestDataHolder.getConnectionHeaderValue();
-            if (Float.valueOf(requestDataHolder.getHttpVersion()) <= Constants.HTTP_1_0) {
-                return requestConnectionHeader != null && requestConnectionHeader
-                        .equalsIgnoreCase(Constants.CONNECTION_KEEP_ALIVE);
-            } else {
-                return requestConnectionHeader == null || !requestConnectionHeader
-                        .equalsIgnoreCase(Constants.CONNECTION_CLOSE);
-            }
-        } else {
-            return keepAliveConfig == KeepAliveConfig.ALWAYS;
-        }
+        return isKeepAliveConnection(keepAliveConfig, requestDataHolder.getConnectionHeaderValue(),
+                requestDataHolder.getHttpVersion());
     }
 
     @Override
