@@ -12,8 +12,11 @@ DESCRIPTION
      sample Ballerina source file. You can use Ballerina.toml to manage
      the organization setting and version for the project.
      
-     The generated set of artifacts also includes a service skeleton 
-     and a test skeleton that you can use to kick start the project. 
+     If you run the init command in the interactive mode (--i) and
+     create a package with a service or a main function, then the
+     generated set of artifacts includes a service skeleton or a main
+     function skeleton depending on if its a service or a main function
+     and a test skeleton that you can use to kick start the project.
 
      To initiate a project with a clean start, you can create a new 
      folder, cd to that folder, and then run the init command to generate 
