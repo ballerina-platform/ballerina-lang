@@ -488,20 +488,18 @@ public class Types {
     }
 
     public BType inferRecordFieldType(BRecordType recordType) {
-        boolean isSameType = true;
         List<BField> fields = recordType.fields;
         BType inferredType = fields.get(0).type; // If all the fields are the same, doesn't matter which one we pick
-
-        for (int i = 1; i < fields.size(); i++) {
-            isSameType = isSameType && fields.get(i - 1).type.tag == fields.get(i).type.tag;
-            if (!isSameType) {
-                return symTable.anyType;
-            }
-        }
 
         // If it's an open record, the rest field type should also be of the same type as the mandatory fields.
         if (!recordType.sealed && recordType.restFieldType.tag != inferredType.tag) {
             return symTable.anyType;
+        }
+
+        for (int i = 1; i < fields.size(); i++) {
+            if (inferredType.tag != fields.get(i).type.tag) {
+                return symTable.anyType;
+            }
         }
 
         return inferredType;
