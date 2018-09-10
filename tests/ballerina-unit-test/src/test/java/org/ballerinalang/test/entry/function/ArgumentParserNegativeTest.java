@@ -59,6 +59,22 @@ public class ArgumentParserNegativeTest {
     }
 
     @Test
+    public void testNonExistingEntryFunction() {
+        String functionName = "iDontExist";
+        try {
+            LauncherUtils.runProgram(Paths.get("src/test/resources/test-src/entry.function"), Paths.get(FILE_NAME),
+                                     functionName, runtimeParams, configFilePath, new String[]{"1", "Hello World"},
+                                     offline, observe, printReturn);
+        } catch (BLauncherException e) {
+            Assert.assertTrue(e.getMessages().contains("'" + functionName + "' function not found in '"
+                                                               + FILE_NAME + "'"),
+                              "invalid error message, usage error for too many arguments not found");
+            return;
+        }
+        Assert.fail("too many arguments not identified");
+    }
+
+    @Test
     public void testInsufficientArgs() {
         String functionName = "combinedTypeEntry";
         try {
