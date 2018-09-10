@@ -14,17 +14,17 @@
 // specific language governing permissions and limitations
 // under the License.
 
+import ballerina/config;
 import ballerina/io;
 import ballerina/grpc;
-import ballerina/config;
 
 function testUnarySecuredBlockingWithCerts(string key, string certificates) returns (string) {
     endpoint HelloWorldBlockingClient helloWorldBlockingEp {
         url:"https://localhost:9317",
         secureSocket:{
-            certificateKey: key,
-            certificate: certificates,
-            trustCertificates: certificates
+            keyFile: key,
+            certFile: certificates,
+            trustedCertFile: certificates
         }
     };
 
@@ -88,7 +88,6 @@ public type HelloWorldStub object {
     }
 };
 
-
 public type HelloWorldBlockingClient object {
 
     public grpc:Client client;
@@ -130,7 +129,6 @@ public type HelloWorldClient object {
         return self.stub;
     }
 };
-
 
 @final string DESCRIPTOR_KEY = "grpcservices.HelloWorld85.proto";
 map descriptorMap =

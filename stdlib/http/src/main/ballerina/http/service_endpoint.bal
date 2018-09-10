@@ -140,6 +140,10 @@ documentation {
 
     F{{trustStore}} Configures the trust store to be used
     F{{keyStore}} Configures the key store to be used
+    F{{certFile}} A file containing the certificate of the server
+    F{{keyFile}} A file containing the private key of the server
+    F{{keyPassword}} Password of the private key if it is encrypted
+    F{{trustedCertFile}} A file containing a list of certificates or a single certificate that the server trusts
     F{{protocol}} SSL/TLS protocol related options
     F{{certValidation}} Certificate validation against CRL or OCSP related options
     F{{ciphers}} List of ciphers to be used (e.g.: TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256,
@@ -151,10 +155,10 @@ documentation {
 public type ServiceSecureSocket record {
     TrustStore? trustStore,
     KeyStore? keyStore,
-    string certificate,
-    string certificateKey,
+    string certFile,
+    string keyFile,
     string keyPassword,
-    string trustCertificates,
+    string trustedCertFile,
     Protocols? protocol,
     ValidateCert? certValidation,
     string[] ciphers,

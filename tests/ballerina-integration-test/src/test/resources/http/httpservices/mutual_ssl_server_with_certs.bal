@@ -14,15 +14,15 @@
 // specific language governing permissions and limitations
 // under the License.
 import ballerina/config;
-import ballerina/io;
 import ballerina/http;
+import ballerina/io;
 
 endpoint http:Listener mutualSSLListener {
     port:9217,
     secureSocket: {
-        certificateKey: config:getAsString("certificate.key"),
-        certificate: config:getAsString("public.cert"),
-        trustCertificates: config:getAsString("public.cert"),
+        keyFile: config:getAsString("certificate.key"),
+        certFile: config:getAsString("public.cert"),
+        trustedCertFile: config:getAsString("public.cert"),
         sslVerifyClient: "require"
     }
 };
@@ -40,7 +40,7 @@ service<http:Service> mutualSSLService bind mutualSSLListener {
     sayHello (endpoint conn, http:Request req) {
         http:Response res = new;
         res.setTextPayload("Response received");
-        _ = conn -> respond( res);
+        _ = conn->respond( res);
     }
 }
 

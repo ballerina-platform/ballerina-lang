@@ -127,6 +127,10 @@ documentation {
 
     F{{trustStore}} Configurations associated with TrustStore
     F{{keyStore}} Configurations associated with KeyStore
+    F{{certFile}} A file containing the certificate of the client
+    F{{keyFile}} A file containing the private key of the client
+    F{{keyPassword}} Password of the private key if it is encrypted
+    F{{trustedCertFile}} A file containing a list of certificates or a single certificate that the client trusts
     F{{protocol}} SSL/TLS protocol related options
     F{{certValidation}} Certificate validation against CRL or OCSP related options
     F{{ciphers}} List of ciphers to be used
@@ -138,10 +142,10 @@ documentation {
 public type SecureSocket record {
     TrustStore? trustStore,
     KeyStore? keyStore,
-    string certificate,
-    string certificateKey,
+    string certFile,
+    string keyFile,
     string keyPassword,
-    string trustCertificates,
+    string trustedCertFile,
     Protocols? protocol,
     ValidateCert? certValidation,
     string[] ciphers,

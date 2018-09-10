@@ -304,10 +304,10 @@ public class HttpConstants {
     public static final String ENDPOINT_CONFIG_KEY_STORE = "keyStore";
     public static final String ENDPOINT_CONFIG_PROTOCOLS = "protocol";
     public static final String ENDPOINT_CONFIG_VALIDATE_CERT = "certValidation";
-    public static final String ENDPOINT_CONFIG_CERTIFICATE = "certificate";
-    public static final String ENDPOINT_CONFIG_KEY = "certificateKey";
+    public static final String ENDPOINT_CONFIG_CERTIFICATE = "certFile";
+    public static final String ENDPOINT_CONFIG_KEY = "keyFile";
     public static final String ENDPOINT_CONFIG_KEY_PASSWORD = "keyPassword";
-    public static final String ENDPOINT_CONFIG_TRUST_CERTIFICATES = "trustCertificates";
+    public static final String ENDPOINT_CONFIG_TRUST_CERTIFICATES = "trustedCertFile";
 
     //SslConfiguration indexes
     public static final String SSL_CONFIG_SSL_VERIFY_CLIENT = "sslVerifyClient";

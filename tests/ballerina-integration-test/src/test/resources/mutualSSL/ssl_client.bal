@@ -14,22 +14,22 @@
 // specific language governing permissions and limitations
 // under the License.
 
+import ballerina/config;
 import ballerina/http;
 import ballerina/io;
-import ballerina/config;
 
 endpoint http:Client clientEP {
     url:"https://localhost:9217",
     secureSocket:{
-        certificateKey: config:getAsString("certificate.key"),
-        certificate: config:getAsString("public.cert"),
-        trustCertificates: config:getAsString("public.cert")
+        keyFile: config:getAsString("certificate.key"),
+        certFile: config:getAsString("public.cert"),
+        trustedCertFile: config:getAsString("public.cert")
     }
 };
 
 function main (string... args) {
     http:Request req = new;
-    var resp = clientEP -> get("/echo/");
+    var resp = clientEP->get("/echo/");
     match resp {
         error err => io:println(err.message);
         http:Response response => {

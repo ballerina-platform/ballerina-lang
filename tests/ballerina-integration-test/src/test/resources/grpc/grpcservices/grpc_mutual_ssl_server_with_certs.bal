@@ -22,9 +22,9 @@ endpoint grpc:Listener grpcListenerEp {
     host:"localhost",
     port:9317,
     secureSocket:{
-        certificateKey: config:getAsString("certificate.key"),
-        certificate: config:getAsString("public.cert"),
-        trustCertificates: config:getAsString("public.cert"),
+        keyFile: config:getAsString("certificate.key"),
+        certFile: config:getAsString("public.cert"),
+        trustedCertFile: config:getAsString("public.cert"),
         sslVerifyClient: "require"
     }
 };
