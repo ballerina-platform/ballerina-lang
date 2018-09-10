@@ -33,7 +33,7 @@ public type PackageParser object {
             localVarMap[dcl.name.value] = dcl;
             i++;
         }
-        BirFuncBodyParser bodyParser = new(reader, localVarMap);
+        FuncBodyParser bodyParser = new(reader, localVarMap);
 
         BasicBlock[] basicBlocks;
         var numBB = reader.readInt32();
