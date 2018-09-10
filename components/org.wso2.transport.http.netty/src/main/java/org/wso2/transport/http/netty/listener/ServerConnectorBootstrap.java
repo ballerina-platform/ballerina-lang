@@ -156,6 +156,14 @@ public class ServerConnectorBootstrap {
         httpServerChannelInitializer.setServerName(serverName);
     }
 
+    public void setPipeliningNeeded(boolean pipeliningNeeded) {
+        httpServerChannelInitializer.setPipeliningNeeded(pipeliningNeeded);
+    }
+
+    public void setPipeliningLimit(long pipeliningLimit) {
+        httpServerChannelInitializer.setPipeliningLimit(pipeliningLimit);
+    }
+
     class HttpServerConnector implements ServerConnector {
 
        private final Logger log = LoggerFactory.getLogger(HttpServerConnector.class);

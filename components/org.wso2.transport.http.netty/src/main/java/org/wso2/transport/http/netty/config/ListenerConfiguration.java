@@ -52,6 +52,8 @@ public class ListenerConfiguration extends SslConfiguration {
     private String serverHeader = "wso2-http-transport";
     private List<Parameter> parameters = getDefaultParameters();
     private RequestSizeValidationConfig requestSizeValidationConfig = new RequestSizeValidationConfig();
+    private boolean pipeliningNeeded;
+    private long pipeliningLimit;
 
     public ListenerConfiguration() {
     }
@@ -173,5 +175,21 @@ public class ListenerConfiguration extends SslConfiguration {
 
     public void setServerHeader(String serverHeader) {
         this.serverHeader = serverHeader;
+    }
+
+    public boolean isPipeliningNeeded() {
+        return pipeliningNeeded;
+    }
+
+    public void setPipeliningNeeded(boolean pipeliningNeeded) {
+        this.pipeliningNeeded = pipeliningNeeded;
+    }
+
+    public long getPipeliningLimit() {
+        return pipeliningLimit;
+    }
+
+    public void setPipeliningLimit(long pipeliningLimit) {
+        this.pipeliningLimit = pipeliningLimit;
     }
 }
