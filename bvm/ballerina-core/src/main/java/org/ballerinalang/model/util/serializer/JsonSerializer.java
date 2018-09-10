@@ -20,6 +20,7 @@ import org.ballerinalang.model.util.JsonGenerator;
 import org.ballerinalang.model.util.JsonParser;
 import org.ballerinalang.model.util.serializer.providers.bvalue.ArrayListBValueProvider;
 import org.ballerinalang.model.util.serializer.providers.bvalue.BBooleanBValueProvider;
+import org.ballerinalang.model.util.serializer.providers.bvalue.BFloatBValueProvider;
 import org.ballerinalang.model.util.serializer.providers.bvalue.BIntegerBValueProvider;
 import org.ballerinalang.model.util.serializer.providers.bvalue.BMapBValueProvider;
 import org.ballerinalang.model.util.serializer.providers.bvalue.BRefValueArrayBValueProvider;
@@ -61,6 +62,7 @@ public class JsonSerializer implements ObjectToJsonSerializer {
         bValueProvider.register(new BallerinaBrokerByteBufBValueProvider());
         bValueProvider.register(new ConcurrentHashMapBValueProvider());
         bValueProvider.register(new BIntegerBValueProvider());
+        bValueProvider.register(new BFloatBValueProvider());
         bValueProvider.register(new BBooleanBValueProvider());
         bValueProvider.register(new ArrayListBValueProvider());
         bValueProvider.register(new HashSetBValueProvider());
