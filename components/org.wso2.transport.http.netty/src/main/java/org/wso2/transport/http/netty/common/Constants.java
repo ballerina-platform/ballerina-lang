@@ -21,6 +21,8 @@ import org.wso2.transport.http.netty.contractimpl.DefaultHttpClientConnector;
 import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 import org.wso2.transport.http.netty.sender.channel.TargetChannel;
 
+import java.util.Queue;
+
 /**
  * Common Constants used by gate way.
  */
@@ -159,6 +161,7 @@ public final class Constants {
     public static final float HTTP_1_0 = 1.0f;
     public static final float HTTP_2_0 = 2.0f;
     public static final String HTTP_VERSION_PREFIX = "HTTP/";
+    public static final String HTTP_1_1_VERSION = "1.1";
 
     //Server Connection Related Parameters
     public static final String LOCAL_ADDRESS = "LOCAL_ADDRESS";
@@ -252,6 +255,15 @@ public final class Constants {
     public static final AttributeKey<DefaultHttpClientConnector> CLIENT_CONNECTOR = AttributeKey
             .valueOf("CLIENT_CONNECTOR");
     public static final int REDIRECT_SEE_OTHER_303 = 303;
+
+    public static final AttributeKey<Long> MAX_RESPONSES_ALLOWED_TO_BE_QUEUED =
+            AttributeKey.valueOf("MAX_RESPONSES_ALLOWED_TO_BE_QUEUED");
+    public static final AttributeKey<Queue> RESPONSE_QUEUE = AttributeKey.valueOf("RESPONSE_QUEUE");
+    public static final AttributeKey<Long> NEXT_SEQUENCE_NUMBER = AttributeKey.valueOf("NEXT_SEQUENCE_NUMBER");
+    public static final long EXPECTED_SEQUENCE_NUMBER = 1L;
+    public static final int NUMBER_OF_INITIAL_EVENTS_HELD = 3;
+    public static final int MEANINGFULLY_EQUAL = 0;
+    public static final int UNBOUNDED_RESPONSE_QUEUE = -1;
 
     public static final String UTF8 = "UTF-8";
     public static final String URL_AUTHORITY = "://";

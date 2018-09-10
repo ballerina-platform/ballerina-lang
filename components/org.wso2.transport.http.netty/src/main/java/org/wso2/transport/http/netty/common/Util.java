@@ -65,7 +65,6 @@ import java.time.format.DateTimeFormatter;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
 import javax.net.ssl.SSLEngine;
 import javax.net.ssl.SSLException;
 
@@ -751,5 +750,28 @@ public class Util {
     public static boolean is100ContinueRequest(HttpCarbonMessage inboundRequestMsg) {
         return HEADER_VAL_100_CONTINUE.equalsIgnoreCase(
                 inboundRequestMsg.getHeader(HttpHeaderNames.EXPECT.toString()));
+    }
+
+    /**
+     * Decide whether the connection should be kept open.
+     *
+     * @param keepAliveConfig         Represents keepalive configuration
+     * @param requestConnectionHeader Connection header of the request
+     * @param httpVersion             Represents HTTP version
+     * @return A boolean indicating whether to keep the connection open or not
+     */
+    public static boolean isKeepAliveConnection(KeepAliveConfig keepAliveConfig, String requestConnectionHeader,
+                                                String httpVersion) {
+        if (keepAliveConfig == null || keepAliveConfig == KeepAliveConfig.AUTO) {
+            if (Float.valueOf(httpVersion) <= Constants.HTTP_1_0) {
+                return requestConnectionHeader != null && requestConnectionHeader
+                        .equalsIgnoreCase(Constants.CONNECTION_KEEP_ALIVE);
+            } else {
+                return requestConnectionHeader == null || !requestConnectionHeader
+                        .equalsIgnoreCase(Constants.CONNECTION_CLOSE);
+            }
+        } else {
+            return keepAliveConfig == KeepAliveConfig.ALWAYS;
+        }
     }
 }

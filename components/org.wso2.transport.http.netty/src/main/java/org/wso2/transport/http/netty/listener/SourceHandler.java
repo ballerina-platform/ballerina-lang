@@ -27,6 +27,7 @@ import io.netty.channel.ChannelInboundHandlerAdapter;
 import io.netty.channel.EventLoop;
 import io.netty.channel.group.ChannelGroup;
 import io.netty.channel.socket.ChannelInputShutdownReadComplete;
+import io.netty.handler.codec.http.HttpHeaderNames;
 import io.netty.handler.codec.http.HttpRequest;
 import io.netty.handler.codec.http.HttpServerUpgradeHandler;
 import io.netty.handler.ssl.SslCloseCompletionEvent;
@@ -34,6 +35,7 @@ import io.netty.handler.timeout.IdleStateEvent;
 import org.apache.commons.pool.impl.GenericObjectPool;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.wso2.transport.http.netty.common.Constants;
 import org.wso2.transport.http.netty.config.ChunkConfig;
 import org.wso2.transport.http.netty.config.KeepAliveConfig;
 import org.wso2.transport.http.netty.contract.ServerConnectorException;
@@ -48,14 +50,19 @@ import java.net.SocketAddress;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.PriorityQueue;
+import java.util.Queue;
 import java.util.concurrent.ConcurrentHashMap;
 
+import static org.wso2.transport.http.netty.common.Constants.EXPECTED_SEQUENCE_NUMBER;
 import static org.wso2.transport.http.netty.common.Constants.IDLE_TIMEOUT_TRIGGERED_BEFORE_INITIATING_INBOUND_REQUEST;
+import static org.wso2.transport.http.netty.common.Constants.NUMBER_OF_INITIAL_EVENTS_HELD;
 import static org.wso2.transport.http.netty.common.Constants.REMOTE_CLIENT_CLOSED_BEFORE_INITIATING_INBOUND_REQUEST;
 import static org.wso2.transport.http.netty.common.Util.createInboundReqCarbonMsg;
+import static org.wso2.transport.http.netty.common.Util.isKeepAliveConnection;
 
 /**
- * A Class responsible for handle  incoming message through netty inbound pipeline.
+ * A Class responsible for handling incoming message through netty inbound pipeline.
  */
 public class SourceHandler extends ChannelInboundHandlerAdapter {
     private static Logger log = LoggerFactory.getLogger(SourceHandler.class);
@@ -75,8 +82,14 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
     protected ChannelHandlerContext ctx;
     private SocketAddress remoteAddress;
 
+    private boolean pipeliningNeeded; //Based on the pipelining config
+    private long pipeliningLimit; //Max number of responses allowed to be queued when pipelining is enabled
+    private long sequenceId = 1L; //Keep track of the request order for http 1.1 pipelining
+    private final Queue holdingQueue = new PriorityQueue<>(NUMBER_OF_INITIAL_EVENTS_HELD);
+
     public SourceHandler(ServerConnectorFuture serverConnectorFuture, String interfaceId, ChunkConfig chunkConfig,
-                         KeepAliveConfig keepAliveConfig, String serverName, ChannelGroup allChannels) {
+                         KeepAliveConfig keepAliveConfig, String serverName, ChannelGroup allChannels, boolean
+                                 pipeliningNeeded, long pipeliningLimit) {
         this.serverConnectorFuture = serverConnectorFuture;
         this.interfaceId = interfaceId;
         this.chunkConfig = chunkConfig;
@@ -85,6 +98,8 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
         this.idleTimeout = false;
         this.serverName = serverName;
         this.allChannels = allChannels;
+        this.pipeliningNeeded = pipeliningNeeded;
+        this.pipeliningLimit = pipeliningLimit;
     }
 
     @SuppressWarnings("unchecked")
@@ -92,10 +107,22 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
         if (msg instanceof HttpRequest) {
             inboundRequestMsg = createInboundReqCarbonMsg((HttpRequest) msg, ctx, this);
+            if (requestList.size() > this.pipeliningLimit) {
+                log.warn("Pipelining request limit exceeded hence closing the channel {}", ctx.channel().id());
+                this.channelInactive(ctx);
+                return;
+            }
             requestList.add(inboundRequestMsg);
 
             MessageStateContext messageStateContext = new MessageStateContext();
             inboundRequestMsg.setMessageStateContext(messageStateContext);
+
+            setRequestProperties();
+            //Set the sequence number just before notifying the listener about the request because in case the
+            //response got ready before receiving the last HTTP content there's a possibility of seeing an
+            //incorrect sequence number
+            setSequenceNumber();
+
             messageStateContext.setListenerState(new ReceivingHeaders(this, messageStateContext));
             messageStateContext.getListenerState().readInboundRequestHeaders(inboundRequestMsg, (HttpRequest) msg);
         } else {
@@ -116,6 +143,7 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
     public void channelActive(final ChannelHandlerContext ctx) {
         this.ctx = ctx;
         this.allChannels.add(ctx.channel());
+        setPipeliningProperties();
         handlerExecutor = HttpTransportContextHolder.getInstance().getHandlerExecutor();
         if (handlerExecutor != null) {
             handlerExecutor.executeAtSourceConnectionInitiation(Integer.toString(ctx.hashCode()));
@@ -202,6 +230,43 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
         } catch (ServerConnectorException e) {
             log.error("Error while notifying error state to server-connector listener");
         }
+    }
+
+    /**
+     * These properties are needed in ballerina side for pipelining checks.
+     */
+    private void setRequestProperties() {
+        inboundRequestMsg.setPipeliningNeeded(pipeliningNeeded); //Value of listener config
+        String connectionHeaderValue = inboundRequestMsg.getHeader(HttpHeaderNames.CONNECTION.toString());
+        String httpVersion = (String) inboundRequestMsg.getProperty(Constants.HTTP_VERSION);
+        inboundRequestMsg.setKeepAlive(isKeepAliveConnection(keepAliveConfig, connectionHeaderValue,
+                httpVersion));
+    }
+
+    /**
+     * Set pipeline related properties. These should be set only once per connection.
+     */
+    private void setPipeliningProperties() {
+        if (ctx.channel().attr(Constants.MAX_RESPONSES_ALLOWED_TO_BE_QUEUED).get() == null) {
+            ctx.channel().attr(Constants.MAX_RESPONSES_ALLOWED_TO_BE_QUEUED).set(pipeliningLimit);
+        }
+        if (ctx.channel().attr(Constants.RESPONSE_QUEUE).get() == null) {
+            ctx.channel().attr(Constants.RESPONSE_QUEUE).set(holdingQueue);
+        }
+        if (ctx.channel().attr(Constants.NEXT_SEQUENCE_NUMBER).get() == null) {
+            ctx.channel().attr(Constants.NEXT_SEQUENCE_NUMBER).set(EXPECTED_SEQUENCE_NUMBER);
+        }
+    }
+
+    /**
+     * Sequence number should be incremented per request.
+     */
+    private void setSequenceNumber() {
+        if (log.isDebugEnabled()) {
+            log.debug("Sequence id of the request is set to : {}", sequenceId);
+        }
+        inboundRequestMsg.setSequenceId(sequenceId);
+        sequenceId++;
     }
 
     public EventLoop getEventLoop() {
