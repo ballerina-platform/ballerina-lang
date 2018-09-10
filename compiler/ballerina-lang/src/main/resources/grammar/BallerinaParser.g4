@@ -1000,11 +1000,11 @@ documentationLine
     ;
 
 parameterDocumentationLine
-    :   (ParameterDocumentationStart parameterDocumentation) (DocumentationLineStart parameterDescription)*
+    :   parameterDocumentation parameterDescription*
     ;
 
 returnParameterDocumentationLine
-    :   (ReturnParameterDocumentationStart returnParameterDocumentation) (DocumentationLineStart returnParameterDescription)*
+    :   returnParameterDocumentation returnParameterDescription*
     ;
 
 documentationContent
@@ -1012,11 +1012,11 @@ documentationContent
     ;
 
 parameterDescription
-    :   documentationText?
+    :   DocumentationLineStart documentationText?
     ;
 
 returnParameterDescription
-    :   documentationText?
+    :   DocumentationLineStart documentationText?
     ;
 
 documentationText
@@ -1036,11 +1036,11 @@ definitionReferenceType
     ;
 
 parameterDocumentation
-    :   docParameterName DescriptionSeparator docParameterDescription
+    :   ParameterDocumentationStart docParameterName DescriptionSeparator docParameterDescription
     ;
 
 returnParameterDocumentation
-    :   docParameterDescription
+    :   ReturnParameterDocumentationStart docParameterDescription
     ;
 
 docParameterName
