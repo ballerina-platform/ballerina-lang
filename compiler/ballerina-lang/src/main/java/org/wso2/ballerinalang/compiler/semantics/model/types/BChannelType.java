@@ -23,7 +23,7 @@ import org.wso2.ballerinalang.compiler.util.TypeDescriptor;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 
 /**
- * @since 0.981
+ * @since 0.982.0
  */
 public class BChannelType extends BBuiltInRefType implements ConstrainedType {
 

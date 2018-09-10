@@ -22,7 +22,7 @@ import org.ballerinalang.model.types.BTypes;
 /**
  * The {@code BChannel} represents a channel in Ballerina.
  *
- * @since 0.980
+ * @since 0.982.0
  */
 public class BChannel implements BRefType<Object> {
 

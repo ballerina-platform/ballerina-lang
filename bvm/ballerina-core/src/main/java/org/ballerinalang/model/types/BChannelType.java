@@ -23,7 +23,7 @@ import org.ballerinalang.model.values.BValue;
  * /**
  * {@code BChannelType} represents BChannelType data in Ballerina.
  *
- * @since 0.981.0
+ * @since 0.982.0
  */
 public class BChannelType extends BType {
     private BType constraint;

@@ -184,7 +184,7 @@ public class Instruction {
     /**
      * {@code InstructionCHNReceive} represents the channel receive operation in Ballerina.
      *
-     * @since 0.981.0
+     * @since 0.982.0
      */
     public static class InstructionCHNReceive extends Instruction {
 
@@ -208,7 +208,7 @@ public class Instruction {
     /**
      * {@code InstructionCHNSend} represents the channel send operation in Ballerina.
      *
-     * @since 0.981.0
+     * @since 0.982.0
      */
     public static class InstructionCHNSend extends Instruction {
 

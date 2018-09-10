@@ -213,7 +213,7 @@ public class BLangRecordLiteral extends BLangExpression implements RecordLiteral
     /**
      * This class represents a channel type literal expression.
      *
-     * @since 0.981.0
+     * @since 0.982.0
      */
     public static class BLangChannelLiteral extends BLangRecordLiteral {
 

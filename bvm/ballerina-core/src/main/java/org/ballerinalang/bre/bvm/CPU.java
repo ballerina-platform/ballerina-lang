@@ -835,8 +835,7 @@ public class CPU {
         List<BClosure> closureVars = fp.getClosureVars();
         int[] argRegs = funcCallCPEntry.getArgRegs();
         if (closureVars.isEmpty()) {
-            return BLangFunctions.invokeCallable(functionInfo, ctx, argRegs, funcCallCPEntry.getRetRegs(),
-                    false);
+            return BLangFunctions.invokeCallable(functionInfo, ctx, argRegs, funcCallCPEntry.getRetRegs(), false);
         }
 
         int[] newArgRegs = new int[argRegs.length + closureVars.size()];

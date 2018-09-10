@@ -739,5 +739,4 @@ public class TreeBuilder {
     public static ScopeNode createScopeNode() {
         return new BLangScope();
     }
-
 }
