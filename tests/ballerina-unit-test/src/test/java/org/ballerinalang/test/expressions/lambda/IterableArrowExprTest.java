@@ -23,6 +23,7 @@ import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.values.BFloat;
+import org.ballerinalang.model.values.BFunctionPointer;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BStringArray;
 import org.ballerinalang.model.values.BValue;
@@ -82,6 +83,26 @@ public class IterableArrowExprTest {
         Assert.assertEquals(returns.length, 2);
         Assert.assertEquals(((BStringArray) returns[0]).get(0), "ANT MAN");
         Assert.assertEquals(((BInteger) returns[1]).intValue(), 1);
+    }
+
+    @Test
+    public void testFilterWithArityOne() {
+        BValue[] returns = BRunUtil.invoke(basic, "testFilterWithArityOne");
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertEquals(((BStringArray) returns[0]).get(0), "ANT");
+        Assert.assertEquals(((BStringArray) returns[0]).get(1), "TIGER");
+    }
+
+    @Test
+    public void testIterableReturnLambda() {
+        BValue[] returns = BRunUtil.invoke(basic, "testIterableReturnLambda");
+        Assert.assertNotNull(returns);
+        Assert.assertTrue(returns[0] instanceof BFunctionPointer);
+        Assert.assertTrue(returns[1] instanceof BFunctionPointer);
+        Assert.assertTrue(returns[2] instanceof BFunctionPointer);
+        Assert.assertEquals(returns[0].getType().toString(), "function (int) returns (boolean)");
+        Assert.assertEquals(returns[1].getType().toString(), "function (int) returns (boolean)");
+        Assert.assertEquals(returns[2].getType().toString(), "function (int) returns (boolean)");
     }
 
     @Test

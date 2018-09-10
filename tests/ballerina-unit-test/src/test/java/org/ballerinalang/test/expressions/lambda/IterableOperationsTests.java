@@ -21,6 +21,7 @@ import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.values.BFloat;
+import org.ballerinalang.model.values.BFunctionPointer;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BStringArray;
 import org.ballerinalang.model.values.BValue;
@@ -80,9 +81,12 @@ public class IterableOperationsTests {
         BAssertUtil.validateError(negative, 18, "not enough return arguments are defined for operation 'filter'", 67,
                 14);
         BAssertUtil.validateError(negative, 19, "unknown type 'person'", 68, 47);
-        BAssertUtil.validateError(negative, 20, "incompatible types: expected 'int[]', found 'any[]'", 73, 23);
-        BAssertUtil.validateError(negative, 21, "incompatible types: expected 'int[]', found 'string[]'", 82, 27);
-        BAssertUtil.validateError(negative, 22, "incompatible types: expected 'int[]', found 'string[]'", 93, 30);
+        BAssertUtil.validateError(negative, 20, "incompatible types: expected 'int[]', found '(any) collection'",
+                73, 23);
+        BAssertUtil.validateError(negative, 21, "incompatible types: expected 'int[]', found '(string) collection'",
+                82, 27);
+        BAssertUtil.validateError(negative, 22, "incompatible types: expected 'int[]', found '(string) collection'",
+                93, 30);
     }
 
     @Test
@@ -288,5 +292,17 @@ public class IterableOperationsTests {
         Assert.assertEquals(a3.intValue(), -8);
         Assert.assertEquals(a4.intValue(), 7);
         Assert.assertEquals(a5.intValue(), 4);
+    }
+
+    @Test
+    public void testIterableReturnLambda() {
+        BValue[] returns = BRunUtil.invoke(basic, "testIterableReturnLambda");
+        Assert.assertNotNull(returns);
+        Assert.assertTrue(returns[0] instanceof BFunctionPointer);
+        Assert.assertTrue(returns[1] instanceof BFunctionPointer);
+        Assert.assertTrue(returns[2] instanceof BFunctionPointer);
+        Assert.assertEquals(returns[0].getType().toString(), "function (int) returns (boolean)");
+        Assert.assertEquals(returns[1].getType().toString(), "function (int) returns (boolean)");
+        Assert.assertEquals(returns[2].getType().toString(), "function (int) returns (boolean)");
     }
 }

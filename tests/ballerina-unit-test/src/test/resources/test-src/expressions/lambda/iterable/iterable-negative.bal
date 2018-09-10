@@ -70,25 +70,25 @@ function test7(){
 
 function test8() {
     int[] arr = [-5, 2, 4, 5, 7, -8, -3, 2];
-    int[] a = arr.map((int v) => (any) {
+    int[] a = arr.map(function (int v) returns (any) {
                         return v + 1;
                    });
 }
 
 function test9() {
     int[] arr = [-5, 2, 4, 5, 7, -8, -3, 2];
-    int[] a = arr.map((int v) => (int) {
+    int[] a = arr.map(function (int v) returns (int) {
                         return v + 1;
-                   }).map((int v) => (string) {
+                   }).map(function (int v) returns (string) {
                         return "Test" + v;
                    });
 }
 
 function test10() {
     int[] arr = [-5, 2, 4, 5, 7, -8, -3, 2];
-    int[] a = arr.map((int v) => (int) {
+    int[] a = arr.map(function (int v) returns (int) {
                         return v + 1;
-                   }).map((int v) => (string) {
+                   }).map(function (int v) returns (string) {
                         return "Test" + v;
-                   }).filter((string s) => boolean { return true;});
+                   }).filter(function (string s) returns boolean { return true;});
 }

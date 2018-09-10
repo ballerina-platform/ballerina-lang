@@ -599,27 +599,27 @@ function test28() returns (int, int) {
 
 
 function function1(any firstParameter) returns (function (any) returns boolean) {
-    return (any secondParameter) => boolean {
+    return function (any secondParameter) returns boolean {
         return firstParameter == secondParameter;
     };
 }
 
 function function2(string firstParameter) returns (function (string) returns boolean) {
-    return (string secondParameter) => boolean {
+    return function (string secondParameter) returns boolean {
         return firstParameter == secondParameter;
     };
 }
 
 function function3(any firstParameter) returns (function (any) returns boolean) {
     var otherInternal = firstParameter;
-    return (any secondParameter) => boolean {
+    return function  (any secondParameter) returns boolean {
         return otherInternal == secondParameter;
     };
 }
 
 function function4(string firstParameter) returns (function (string) returns boolean) {
     var otherInternal = firstParameter;
-    return (string secondParameter) => boolean {
+    return function (string secondParameter) returns boolean {
         return otherInternal == secondParameter;
     };
 }

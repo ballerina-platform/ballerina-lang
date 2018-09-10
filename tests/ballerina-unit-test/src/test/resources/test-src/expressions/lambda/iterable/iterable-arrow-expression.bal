@@ -80,3 +80,26 @@ function testFilterThenMap () returns (string[], int) {
     int count = words.filter(word => word[1] == "ant").map(word => word[1].toUpper() + " MAN").count();
     return (str, count);
 }
+
+function testFilterWithArityOne () returns string[] {
+
+    map<string> words = { a: "ant", b: "bear", c: "tiger"};
+
+    string[] animals = words
+        .map(entry => entry[1])
+        .filter(entry => entry != "bear")
+        .map(entry => entry.toUpper());
+
+    return animals;
+}
+
+function testIterableReturnLambda () returns (function (int) returns boolean)[] {
+
+    map<string> words = { a: "ant", b: "bear", c: "tiger"};
+
+    (function (int) returns boolean)[] lambdas = words.map(function (string input) returns (function (int) returns boolean) {
+            return param => true;
+    });
+
+    return lambdas;
+}

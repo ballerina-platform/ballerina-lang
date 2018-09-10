@@ -268,3 +268,16 @@ function testIterableOutputPrint() returns (any, any, any, any, any) {
 function foo(any a) {
     //do nothing
 }
+
+function testIterableReturnLambda () returns (function (int) returns boolean)[] {
+
+    map<string> words = { a: "ant", b: "bear", c: "tiger"};
+
+    (function (int) returns boolean)[] lambdas = words.map(function (string input) returns (function (int) returns boolean) {
+        return function (int param) returns boolean {
+            return true;
+        };
+    });
+
+    return lambdas;
+}
