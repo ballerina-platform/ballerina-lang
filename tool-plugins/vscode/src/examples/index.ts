@@ -21,14 +21,13 @@ import * as path from 'path';
 import { render } from './renderer';
 import { ExtendedLangClient } from '../lang-client';
 import { getPluginConfig } from '../config';
+import { getWebViewResourceRoot } from '../utils';
 
 let examplesPanel: WebviewPanel | undefined;
 
 export function activate(context: ExtensionContext, langClient: ExtendedLangClient) {
 
-	const resourcePath = Uri.file(path.join(context.extensionPath, 'resources', 'diagram'));
-	const resourceRoot = resourcePath.with({ scheme: 'vscode-resource' });
-
+	const resourceRoot = getWebViewResourceRoot(context);
 	const examplesListRenderer = commands.registerCommand('ballerina.showExamples', () => {
 		if (examplesPanel) {
 			examplesPanel.reveal(ViewColumn.One, true);
@@ -41,7 +40,6 @@ export function activate(context: ExtensionContext, langClient: ExtendedLangClie
             { viewColumn: ViewColumn.One, preserveFocus: true } ,
             {
 				enableScripts: true,
-				localResourceRoots: [resourcePath],
 				retainContextWhenHidden: true,
 			}
 		);
@@ -69,9 +67,10 @@ export function activate(context: ExtensionContext, langClient: ExtendedLangClie
                             window.showTextDocument(doc);
                          });            
                     }
-                    return;
+                    break;
+                default: 
             }
-		}, undefined, context.subscriptions);
+		});
 		examplesPanel.onDidDispose(() => {
 			examplesPanel = undefined;
 		});

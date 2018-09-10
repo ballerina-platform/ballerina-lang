@@ -22,6 +22,7 @@ import * as _ from 'lodash';
 import { StaticProvider } from './content-provider';
 import { render } from './renderer';
 import { BallerinaAST, ExtendedLangClient } from '../lang-client';
+import { getWebViewResourceRoot } from '../utils';
 
 const DEBOUNCE_WAIT = 500;
 
@@ -41,10 +42,8 @@ function updateWebView(ast: BallerinaAST, docUri: Uri, stale: boolean): void {
 }
 
 export function activate(context: ExtensionContext, langClient: ExtendedLangClient) {
-
-	const resourcePath = Uri.file(path.join(context.extensionPath, 'resources', 'diagram'));
-	const resourceRoot = resourcePath.with({ scheme: 'vscode-resource' });
-
+	
+	const resourceRoot = getWebViewResourceRoot(context);
 	workspace.onDidChangeTextDocument(_.debounce((e: TextDocumentChangeEvent) => {
         if (activeEditor && (e.document === activeEditor.document) &&
             e.document.fileName.endsWith('.bal')) {
@@ -92,7 +91,6 @@ export function activate(context: ExtensionContext, langClient: ExtendedLangClie
             { viewColumn: ViewColumn.Two, preserveFocus: true } ,
             {
 				enableScripts: true,
-				localResourceRoots: [resourcePath],
 				retainContextWhenHidden: true,
 			}
 		);
