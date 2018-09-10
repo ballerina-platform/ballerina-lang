@@ -145,6 +145,12 @@ public class IterableAnalyzer {
         final List<BType> givenRetTypes;
 
         if (bLangExpression.getKind() == NodeKind.ARROW_EXPR) {
+            if (operation.kind == IterableKind.FOREACH) {
+                dlog.error(operation.pos, DiagnosticCode.ARROW_EXPRESSION_NOT_SUPPORTED_ITERABLE_OPERATION,
+                        IterableKind.FOREACH.getKind());
+                operation.outputType = operation.resultType = symTable.errType;
+                return;
+            }
             BLangArrowFunction bLangArrowFunction = (BLangArrowFunction) bLangExpression;
             operation.arity = inferExpectedArity(operation);
             givenArgTypes = expectedArgTypes = calculateExpectedInputArgs(operation);

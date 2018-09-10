@@ -108,7 +108,7 @@ public class IterableArrowExprTest {
     @Test
     public void testNegativeArrowExpr() {
         int i = 0;
-        Assert.assertEquals(resultNegative.getErrorCount(), 9);
+        Assert.assertEquals(resultNegative.getErrorCount(), 10);
         BAssertUtil.validateError(resultNegative, i++,
                 "function invocation on type '(string,string)' is not supported", 22, 42);
         BAssertUtil.validateError(resultNegative, i++,
@@ -127,5 +127,7 @@ public class IterableArrowExprTest {
                 "function invocation on type '(string,string)' is not supported", 37, 75);
         BAssertUtil.validateError(resultNegative, i++,
                 "incompatible types: expected 'string[]', found 'int'", 39, 20);
+        BAssertUtil.validateError(resultNegative, i++,
+                "arrow expression can not be used with 'foreach' iterable", 47, 16);
     }
 }
