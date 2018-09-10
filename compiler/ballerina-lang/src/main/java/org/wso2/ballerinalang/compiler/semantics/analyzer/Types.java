@@ -1249,7 +1249,13 @@ public class Types {
             }
 
             BObjectTypeSymbol structSymbol = (BObjectTypeSymbol) structType.tsymbol;
-            if (structSymbol.initializerFunc.symbol.params.size() > 0) {
+            if ((structSymbol.flags & Flags.ABSTRACT) == Flags.ABSTRACT) {
+                return false;
+            } else if (structSymbol.initializerFunc == null) {
+                // If the initializerFunc null means, it has a default constructor.
+                // Then it is defaultable.
+                return true;
+            } else if (structSymbol.initializerFunc.symbol.params.size() > 0) {
                 return false;
             }
 

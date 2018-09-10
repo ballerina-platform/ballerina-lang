@@ -732,10 +732,26 @@ public class TypeChecker extends BLangNodeVisitor {
             }
         });
 
-        cIExpr.objectInitInvocation.symbol = ((BObjectTypeSymbol) actualType.tsymbol).initializerFunc.symbol;
-        cIExpr.objectInitInvocation.type = symTable.nilType;
-        checkInvocationParam(cIExpr.objectInitInvocation);
+        if ((actualType.tsymbol.flags & Flags.ABSTRACT) == Flags.ABSTRACT) {
+            dlog.error(cIExpr.pos, DiagnosticCode.CANNOT_INITIALIZE_ABSTRACT_OBJECT, actualType.tsymbol);
+            cIExpr.objectInitInvocation.argExprs.forEach(expr -> checkExpr(expr, env, symTable.noType));
+            resultType = symTable.errType;
+            return;
+        }
 
+        if (((BObjectTypeSymbol) actualType.tsymbol).initializerFunc != null) {
+            cIExpr.objectInitInvocation.symbol = ((BObjectTypeSymbol) actualType.tsymbol).initializerFunc.symbol;
+            checkInvocationParam(cIExpr.objectInitInvocation);
+        } else if (cIExpr.objectInitInvocation.argExprs.size() > 0) {
+            // If the initializerFunc then this is a default constructor invocation. Hence should not 
+            // pass any arguments.
+            dlog.error(cIExpr.pos, DiagnosticCode.TOO_MANY_ARGS_FUNC_CALL, cIExpr.objectInitInvocation.exprSymbol);
+            cIExpr.objectInitInvocation.argExprs.forEach(expr -> checkExpr(expr, env, symTable.noType));
+            resultType = symTable.errType;
+            return;
+        }
+
+        cIExpr.objectInitInvocation.type = symTable.nilType;
         resultType = types.checkType(cIExpr, actualType, expType);
     }
 

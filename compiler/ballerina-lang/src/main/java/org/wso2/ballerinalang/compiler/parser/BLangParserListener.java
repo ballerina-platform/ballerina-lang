@@ -785,6 +785,17 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         this.pkgBuilder.markTypeNodeAsGrouped(getWS(ctx));
     }
 
+    @Override
+    public void exitObjectTypeNameLabel(BallerinaParser.ObjectTypeNameLabelContext ctx) {
+        if (ctx.exception != null) {
+            return;
+        }
+
+        if (ctx.ABSTRACT() != null) {
+            this.pkgBuilder.markObjectAsAbstract();
+        }
+    }
+
     /**
      * {@inheritDoc}
      *

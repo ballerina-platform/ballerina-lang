@@ -55,6 +55,8 @@ public enum DiagnosticCode {
     CANNOT_INITIALIZE_OBJECT("cannot.initialize.object"),
     CANNOT_FIND_MATCHING_INTERFACE("cannot.find.matching.interface.function"),
     FUNCTION_CANNOT_HAVE_BODY("function.cannot.have.body"),
+    ABSTRACT_OBJECT_CONSTRUCTOR("abstract.object.constructor"),
+    CANNOT_INITIALIZE_ABSTRACT_OBJECT("cannot.initialize.abstract.object"),
 
     INCOMPATIBLE_TYPES("incompatible.types"),
     INCOMPATIBLE_TYPES_EXP_TUPLE("incompatible.types.exp.tuple"),
@@ -206,15 +208,12 @@ public enum DiagnosticCode {
     UNDOCUMENTED_PARAMETER("undocumented.parameter"),
     NO_SUCH_DOCUMENTABLE_PARAMETER("no.such.documentable.parameter"),
     PARAMETER_ALREADY_DOCUMENTED("parameter.already.documented"),
-
     UNDOCUMENTED_FIELD("undocumented.field"),
     NO_SUCH_DOCUMENTABLE_FIELD("no.such.documentable.field"),
     FIELD_ALREADY_DOCUMENTED("field.already.documented"),
-
     UNDOCUMENTED_VARIABLE("undocumented.variable"),
     NO_SUCH_DOCUMENTABLE_VARIABLE("no.such.documentable.variable"),
     VARIABLE_ALREADY_DOCUMENTED("variable.already.documented"),
-
     UNDOCUMENTED_RETURN_PARAMETER("undocumented.return.parameter"),
     NO_DOCUMENTABLE_RETURN_PARAMETER("no.documentable.return.parameter"),
 

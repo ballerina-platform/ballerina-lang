@@ -634,11 +634,13 @@ public class SymbolResolver extends BLangNodeVisitor {
     }
 
     public void visit(BLangObjectTypeNode objectTypeNode) {
-        BTypeSymbol objectSymbol = Symbols.createObjectSymbol(Flags.asMask(EnumSet.of(Flag.PUBLIC)),
-                Names.EMPTY, env.enclPkg.symbol.pkgID, null, env.scope.owner);
+        EnumSet<Flag> flags = EnumSet.of(Flag.PUBLIC);
+        flags.addAll(objectTypeNode.flagSet);
+
+        BTypeSymbol objectSymbol = Symbols.createObjectSymbol(Flags.asMask(flags), Names.EMPTY,
+                env.enclPkg.symbol.pkgID, null, env.scope.owner);
         BObjectType objectType = new BObjectType(objectSymbol);
         objectSymbol.type = objectType;
-
         objectTypeNode.symbol = objectSymbol;
 
         resultType = objectType;

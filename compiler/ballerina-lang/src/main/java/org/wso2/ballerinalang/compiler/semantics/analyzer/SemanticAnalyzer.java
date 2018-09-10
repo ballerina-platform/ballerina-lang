@@ -338,9 +338,19 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
     @Override
     public void visit(BLangObjectTypeNode objectTypeNode) {
         objectTypeNode.fields.forEach(field -> analyzeDef(field, env));
+        objectTypeNode.functions.forEach(f -> analyzeDef(f, env));
+
+        if (objectTypeNode.initFunction == null) {
+            return;
+        }
+
+        if (objectTypeNode.flagSet.contains(Flag.ABSTRACT)) {
+            this.dlog.error(objectTypeNode.initFunction.pos, DiagnosticCode.ABSTRACT_OBJECT_CONSTRUCTOR,
+                    objectTypeNode.symbol.name);
+            return;
+        }
 
         analyzeDef(objectTypeNode.initFunction, env);
-        objectTypeNode.functions.forEach(f -> analyzeDef(f, env));
     }
 
     @Override
@@ -815,8 +825,29 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             return;
         }
 
+        boolean defaultableStatus = false;
         BLangObjectTypeNode objectTypeNode = (BLangObjectTypeNode) typeDef.typeNode;
-        boolean defaultableStatus = true;
+
+        // If the object is an abstract object then it is not defaultable.
+        if (objectTypeNode.flagSet.contains(Flag.ABSTRACT)) {
+            markDefaultableStatus(typeDef.symbol, defaultableStatus);
+            return;
+        }
+
+        // No initFunction implies having a default constructor. If the object has the default constructor
+        // then all fields should be defaultable
+        defaultableStatus = true;
+        if (objectTypeNode.initFunction == null) {
+            for (BLangVariable field : objectTypeNode.fields) {
+                if (field.expr == null && !types.defaultValueExists(field.pos, field.symbol.type)) {
+                    defaultableStatus = false;
+                    break;
+                }
+            }
+            markDefaultableStatus(typeDef.symbol, defaultableStatus);
+            return;
+        }
+
         for (BLangVariable field : objectTypeNode.fields) {
             if (field.expr != null || types.defaultValueExists(field.pos, field.symbol.type)) {
                 continue;
@@ -839,9 +870,13 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             }
         }
 
-        typeDef.symbol.flags |= Flags.asMask(EnumSet.of(Flag.DEFAULTABLE_CHECKED));
+        markDefaultableStatus(typeDef.symbol, defaultableStatus);
+    }
+
+    private void markDefaultableStatus(BSymbol symbol, boolean defaultableStatus) {
+        symbol.flags |= Flags.asMask(EnumSet.of(Flag.DEFAULTABLE_CHECKED));
         if (defaultableStatus) {
-            typeDef.symbol.flags |= Flags.asMask(EnumSet.of(Flag.DEFAULTABLE));
+            symbol.flags |= Flags.asMask(EnumSet.of(Flag.DEFAULTABLE));
         }
     }
 

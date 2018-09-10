@@ -107,6 +107,7 @@ import org.wso2.ballerinalang.util.Flags;
 
 import java.util.ArrayList;
 import java.util.EnumSet;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -355,7 +356,7 @@ public class SymbolEnter extends BLangNodeVisitor {
         typeDefSymbol.markdownDocumentation = getMarkdownDocAttachment(typeDefinition.markdownDocumentationAttachment);
         typeDefSymbol.name = names.fromIdNode(typeDefinition.getName());
         typeDefSymbol.pkgID = env.enclPkg.packageID;
-        typeDefSymbol.flags = Flags.asMask(typeDefinition.flagSet);
+        typeDefSymbol.flags |= Flags.asMask(typeDefinition.flagSet);
 
         typeDefinition.symbol = typeDefSymbol;
 
@@ -878,7 +879,7 @@ public class SymbolEnter extends BLangNodeVisitor {
                 SymbolEnv objEnv = SymbolEnv.createTypeDefEnv(typeDef, typeDef.symbol.scope, pkgEnv);
                 defineObjectInitFunction(objTypeNode, objEnv);
                 objTypeNode.functions.forEach(f -> {
-                    f.setReceiver(createReceiver(typeDef.pos, typeDef.symbol.type));
+                    f.setReceiver(ASTBuilderUtil.createReceiver(typeDef.pos, typeDef.symbol.type));
                     defineNode(f, objEnv);
                 });
             } else if (typeDef.symbol.kind == SymbolKind.RECORD) {
@@ -1018,24 +1019,20 @@ public class SymbolEnter extends BLangNodeVisitor {
     private void defineObjectInitFunction(BLangObjectTypeNode object, SymbolEnv conEnv) {
         BLangFunction initFunction = object.initFunction;
         if (initFunction == null) {
-            initFunction = createInitFunction(object.pos, "", Names.OBJECT_INIT_SUFFIX);
+            return;
         }
 
-        initFunction.attachedFunction = true;
-
         //Set cached receiver to the init function
-        initFunction.receiver = createReceiver(object.pos, object.type);
+        initFunction.receiver = ASTBuilderUtil.createReceiver(object.pos, object.type);
 
+        initFunction.attachedFunction = true;
         initFunction.flagSet.add(Flag.ATTACHED);
-
-        object.initFunction = initFunction;
-
         defineNode(object.initFunction, conEnv);
     }
 
     private void defineRecordInitFunction(BLangTypeDefinition typeDef, SymbolEnv conEnv) {
         BLangRecordTypeNode recordTypeNode = (BLangRecordTypeNode) typeDef.typeNode;
-        recordTypeNode.initFunction = createInitFunction(typeDef.pos, "", Names.INIT_FUNCTION_SUFFIX);
+        recordTypeNode.initFunction = ASTBuilderUtil.createInitFunction(typeDef.pos, "", Names.INIT_FUNCTION_SUFFIX);
 
         recordTypeNode.initFunction.receiver = createReceiver(typeDef.pos, typeDef.name);
         recordTypeNode.initFunction.attachedFunction = true;
@@ -1046,19 +1043,8 @@ public class SymbolEnter extends BLangNodeVisitor {
         defineNode(recordTypeNode.initFunction, conEnv);
     }
 
-    private BLangVariable createReceiver(DiagnosticPos pos, BType type) {
-        BLangVariable receiver = (BLangVariable) TreeBuilder.createVariableNode();
-        receiver.pos = pos;
-        IdentifierNode identifier = createIdentifier(Names.SELF.getValue());
-        receiver.setName(identifier);
-        receiver.docTag = DocTag.RECEIVER;
-
-        receiver.type = type;
-        return receiver;
-    }
-
     private void defineServiceInitFunction(BLangService service, SymbolEnv conEnv) {
-        BLangFunction initFunction = createInitFunction(service.pos, service.getName().getValue(),
+        BLangFunction initFunction = ASTBuilderUtil.createInitFunction(service.pos, service.getName().getValue(),
                 Names.INIT_FUNCTION_SUFFIX);
         service.initFunction = initFunction;
         defineNode(service.initFunction, conEnv);
@@ -1180,30 +1166,12 @@ public class SymbolEnter extends BLangNodeVisitor {
 
     private void createPackageInitFunctions(BLangPackage pkgNode) {
         String alias = pkgNode.symbol.pkgID.toString();
-        pkgNode.initFunction = createInitFunction(pkgNode.pos, alias,
+        pkgNode.initFunction = ASTBuilderUtil.createInitFunction(pkgNode.pos, alias,
                 Names.INIT_FUNCTION_SUFFIX);
-        pkgNode.startFunction = createInitFunction(pkgNode.pos, alias,
+        pkgNode.startFunction = ASTBuilderUtil.createInitFunction(pkgNode.pos, alias,
                 Names.START_FUNCTION_SUFFIX);
-        pkgNode.stopFunction = createInitFunction(pkgNode.pos, alias,
+        pkgNode.stopFunction = ASTBuilderUtil.createInitFunction(pkgNode.pos, alias,
                 Names.STOP_FUNCTION_SUFFIX);
-    }
-
-    private BLangFunction createInitFunction(DiagnosticPos pos, String name, Name sufix) {
-        BLangFunction initFunction = (BLangFunction) TreeBuilder.createFunctionNode();
-        initFunction.setName(createIdentifier(name + sufix.getValue()));
-        initFunction.flagSet = EnumSet.of(Flag.PUBLIC);
-        initFunction.pos = pos;
-
-        BLangValueType typeNode = (BLangValueType) TreeBuilder.createValueTypeNode();
-        typeNode.pos = pos;
-        typeNode.typeKind = TypeKind.NIL;
-        initFunction.returnTypeNode = typeNode;
-
-        //Create body of the init function
-        BLangBlockStmt body = (BLangBlockStmt) TreeBuilder.createBlockNode();
-        body.pos = pos;
-        initFunction.setBody(body);
-        return initFunction;
     }
 
     private IdentifierNode createIdentifier(String value) {

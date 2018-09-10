@@ -3383,4 +3383,10 @@ public class BLangPackageBuilder {
     void startOnCompensationBlock() {
         startFunctionDef();
     }
+
+    public void markObjectAsAbstract() {
+        // TODO: this can be other types than object types. eg: anonymous objects
+        BLangObjectTypeNode objectType = (BLangObjectTypeNode) this.typeNodeStack.peek();
+        objectType.flagSet.add(Flag.ABSTRACT);
+    }
 }
