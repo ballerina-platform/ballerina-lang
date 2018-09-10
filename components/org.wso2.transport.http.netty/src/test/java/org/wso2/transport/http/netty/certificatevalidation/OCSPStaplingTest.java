@@ -85,7 +85,7 @@ public class OCSPStaplingTest {
         assertEquals(ocspUrlList.get(0), ocspUrl, "Failed to list the correct AIA locations");
     }
 
-    @Test (description = "Tests the ocsp response retrieved from the actual CA.")
+    @Test (description = "Tests the ocsp response retrieved from the actual CA.", enabled = false)
     public void testretrievingResponseFromWeb() throws Exception {
         Utils utils = new Utils();
         OCSPCache cache = OCSPCache.getCache();

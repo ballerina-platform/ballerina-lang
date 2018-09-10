@@ -63,8 +63,6 @@ public class OCSPResponseBuilder {
     static OCSPResp generatetOcspResponse(SSLConfig sslConfig, int cacheAllcatedSize, int cacheDelay)
             throws IOException, KeyStoreException, CertificateVerificationException, CertificateException {
 
-        Certificate[] certificateChain;
-
         int cacheSize = Constants.CACHE_DEFAULT_ALLOCATED_SIZE;
         int cacheDelayMins = Constants.CACHE_DEFAULT_DELAY_MINS;
 
@@ -92,23 +90,20 @@ public class OCSPResponseBuilder {
             issuer = certList.get(1);
         }
         List<String> locations;
-        if (userCertificate != null) {
+        if (userCertificate == null) {
+            throw new CertificateVerificationException("Could not get revocation status from OCSP.");
+        } else {
             //Check whether the ocsp response is still there in the cache.
             // If it is there, we don't need to get it from CA.
             if (ocspCache.getOCSPCacheValue(userCertificate.getSerialNumber()) != null) {
                 return ocspCache.getOCSPCacheValue(userCertificate.getSerialNumber());
             } else {
                 OCSPReq request;
-                try {
-                    request = OCSPVerifier.generateOCSPRequest(issuer, userCertificate.getSerialNumber());
-                } catch (CertificateVerificationException e) {
-                    throw new CertificateVerificationException("Failed to generate OCSP request", e);
-                }
+                request = OCSPVerifier.generateOCSPRequest(issuer, userCertificate.getSerialNumber());
                 locations = getAIALocations(userCertificate);
                 return getOCSPResponse(locations, request, userCertificate, ocspCache);
             }
         }
-        throw new CertificateVerificationException("Could not get revocation status from OCSP.");
     }
 
     private static void getUserCerAndIssuer(KeyStore keyStore) throws KeyStoreException {
