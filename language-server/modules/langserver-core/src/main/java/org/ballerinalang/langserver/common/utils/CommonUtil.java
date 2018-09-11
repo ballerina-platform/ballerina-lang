@@ -753,7 +753,8 @@ public class CommonUtil {
         return bSymbol.getName().getValue().contains(UtilSymbolKeys.LT_SYMBOL_KEY)
                 || bSymbol.getName().getValue().contains(UtilSymbolKeys.GT_SYMBOL_KEY)
                 || bSymbol.getName().getValue().contains(UtilSymbolKeys.DOLLAR_SYMBOL_KEY)
-                || bSymbol.getName().getValue().equals("main");
+                || bSymbol.getName().getValue().equals("main")
+                || bSymbol.getName().getValue().endsWith(".new");
     }
 
     ///////////////////////////////
