@@ -26,8 +26,9 @@ public class TypeTags {
     public static final int INT_TAG = 1;
     public static final int BYTE_TAG = 2;
     public static final int FLOAT_TAG = 3;
-    public static final int STRING_TAG = 4;
-    public static final int BOOLEAN_TAG = 5;
+    public static final int DECIMAL_TAG = 4;
+    public static final int STRING_TAG = 5;
+    public static final int BOOLEAN_TAG = 6;
     public static final int ANY_TAG = 7;
     public static final int MAP_TAG = 8;
     public static final int XML_TAG = 9;

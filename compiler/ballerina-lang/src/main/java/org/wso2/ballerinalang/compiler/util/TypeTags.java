@@ -25,7 +25,8 @@ public class TypeTags {
     public static final int INT = 1;
     public static final int BYTE = INT + 1;
     public static final int FLOAT = BYTE + 1;
-    public static final int STRING = FLOAT + 1;
+    public static final int DECIMAL = FLOAT + 1;
+    public static final int STRING = DECIMAL + 1;
     public static final int BOOLEAN = STRING + 1;
     // All the above types are values type
     public static final int TYPEDESC = BOOLEAN + 1;

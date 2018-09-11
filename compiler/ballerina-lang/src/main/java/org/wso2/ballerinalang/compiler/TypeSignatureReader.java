@@ -40,6 +40,7 @@ public class TypeSignatureReader<T> {
             case 'I':
             case 'W':
             case 'F':
+            case 'L':
             case 'S':
             case 'B':
             case 'Y':
@@ -124,6 +125,7 @@ public class TypeSignatureReader<T> {
             case 'I':
             case 'W':
             case 'F':
+            case 'L':
             case 'S':
             case 'B':
             case 'Y':
