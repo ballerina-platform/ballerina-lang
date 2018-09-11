@@ -26,6 +26,7 @@ import org.wso2.ballerinalang.compiler.util.ProjectDirs;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.PrintStream;
 import java.nio.file.AccessDeniedException;
 import java.nio.file.DirectoryNotEmptyException;
 import java.nio.file.Files;
@@ -44,6 +45,7 @@ import java.util.stream.Collectors;
  */
 public class FileSystemProgramDirectory implements SourceDirectory {
     private final Path programDirPath;
+    private static PrintStream outStream = System.out;
 
     public FileSystemProgramDirectory(Path programDirPath) {
         this.programDirPath = programDirPath;
@@ -98,7 +100,7 @@ public class FileSystemProgramDirectory implements SourceDirectory {
         // the user
         Path targetFilePath = Paths.get(fileName);
         try {
-            ListenerRegistry.triggerExecutableGenerated(fileName);
+            outStream.println("    " + fileName);
             Files.copy(source, targetFilePath, StandardCopyOption.REPLACE_EXISTING);
             return targetFilePath;
         } catch (DirectoryNotEmptyException e) {

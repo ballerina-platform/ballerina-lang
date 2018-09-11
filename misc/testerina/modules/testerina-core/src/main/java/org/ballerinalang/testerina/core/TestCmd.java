@@ -25,9 +25,7 @@ import org.ballerinalang.stdlib.io.utils.BallerinaIOException;
 import org.ballerinalang.testerina.util.TesterinaUtils;
 import org.ballerinalang.util.BLangConstants;
 import org.ballerinalang.util.VMOptions;
-import org.wso2.ballerinalang.compiler.ConsoleListener;
 import org.wso2.ballerinalang.compiler.FileSystemProjectDirectory;
-import org.wso2.ballerinalang.compiler.ListenerRegistry;
 import org.wso2.ballerinalang.compiler.SourceDirectory;
 import picocli.CommandLine;
 
@@ -96,9 +94,6 @@ public class TestCmd implements BLauncherCmd {
             throw LauncherUtils.createUsageExceptionWithHelp("Too many arguments. You can only provide a single"
                                                                      + " package or a single file to test command");
         }
-
-        // Register console listener
-        ListenerRegistry.registerListener("ConsoleListener", new ConsoleListener());
 
         Path sourceRootPath = LauncherUtils.getSourceRootPath(sourceRoot);
         SourceDirectory srcDirectory = null;

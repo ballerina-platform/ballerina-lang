@@ -62,6 +62,7 @@ import org.wso2.ballerinalang.compiler.util.ProjectDirs;
 import org.wso2.ballerinalang.compiler.util.diagnotic.BLangDiagnosticLog;
 import org.wso2.ballerinalang.util.RepoUtils;
 
+import java.io.PrintStream;
 import java.net.URI;
 import java.nio.file.Files;
 import java.nio.file.LinkOption;
@@ -111,6 +112,7 @@ public class PackageLoader {
     private final Names names;
     private final BLangDiagnosticLog dlog;
     private static final boolean shouldReadBalo = true;
+    private static PrintStream outStream = System.out;
 
     public static PackageLoader getInstance(CompilerContext context) {
         PackageLoader loader = context.get(PACKAGE_LOADER_KEY);
@@ -271,7 +273,7 @@ public class PackageLoader {
 
     public BLangPackage loadEntryPackage(PackageID pkgId, PackageID enclPackageId, boolean isBuild) {
         if (isBuild) {
-            ListenerRegistry.triggerPackageCompiled(pkgId.isUnnamed ? pkgId.sourceFileName.value : pkgId.toString());
+            outStream.println("    " + (pkgId.isUnnamed ? pkgId.sourceFileName.value : pkgId.toString()));
         }
         //even entry package may be already loaded through an import statement.
         BLangPackage bLangPackage = packageCache.get(pkgId);

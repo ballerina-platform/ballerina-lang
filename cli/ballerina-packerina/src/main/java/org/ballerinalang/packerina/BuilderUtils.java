@@ -20,13 +20,13 @@ package org.ballerinalang.packerina;
 import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.testerina.util.TesterinaUtils;
 import org.wso2.ballerinalang.compiler.Compiler;
-import org.wso2.ballerinalang.compiler.ListenerRegistry;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.CompilerOptions;
 import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.programfile.CompiledBinaryFile;
 
+import java.io.PrintStream;
 import java.nio.file.Path;
 import java.util.Collections;
 import java.util.HashMap;
@@ -46,6 +46,8 @@ import static org.ballerinalang.compiler.CompilerOptionName.TEST_ENABLED;
  * @since 0.95.2
  */
 public class BuilderUtils {
+    private static PrintStream outStream = System.out;
+
     public static void compileWithTestsAndWrite(Path sourceRootPath,
                                                 String packagePath,
                                                 String targetPath,
@@ -67,7 +69,7 @@ public class BuilderUtils {
         BLangPackage bLangPackage = compiler.build(packagePath);
 
         if (skiptests) {
-            ListenerRegistry.triggerLineBreak();
+            outStream.println();
             compiler.write(bLangPackage, targetPath);
         } else {
             runTests(compiler, sourceRootPath, Collections.singletonList(bLangPackage));
@@ -90,7 +92,7 @@ public class BuilderUtils {
         List<BLangPackage> packages = compiler.build();
 
         if (skiptests) {
-            ListenerRegistry.triggerLineBreak();
+            outStream.println();
             compiler.write(packages);
         } else {
             runTests(compiler, sourceRootPath, packages);

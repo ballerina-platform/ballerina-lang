@@ -36,6 +36,7 @@ import org.wso2.ballerinalang.programfile.ProgramFileWriter;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.PrintStream;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ServiceLoader;
@@ -54,6 +55,7 @@ import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.DOT_BALLE
 public class BinaryFileWriter {
     private static final CompilerContext.Key<BinaryFileWriter> BINARY_FILE_WRITER_KEY =
             new CompilerContext.Key<>();
+    private static PrintStream outStream = System.out;
 
     private final CodeGenerator codeGenerator;
     private final SourceDirectory sourceDirectory;
@@ -89,7 +91,7 @@ public class BinaryFileWriter {
     public void write(BLangPackage packageNode, String fileName) {
         // TODO Reuse binary content in PackageFile when writing the program file..
         if (packageNode.symbol.entryPointExists) {
-            ListenerRegistry.triggerExecutableGenerated();
+            outStream.println("Generating executable");
             writeExecutableBinary(packageNode, fileName);
         }
         writeLibraryPackage(packageNode);

@@ -19,7 +19,6 @@
 package org.ballerinalang.testerina.core.entity;
 
 import org.ballerinalang.testerina.util.TesterinaUtils;
-import org.wso2.ballerinalang.compiler.ListenerRegistry;
 
 import java.io.PrintStream;
 import java.util.ArrayList;
@@ -35,6 +34,7 @@ public class TesterinaReport {
     private static PrintStream outStream = System.out;
     private Map<String, TestSummary> testReportOfPackage = new HashMap<>();
     private boolean failure;
+    private PrintStream outStream = System.out;
 
     public void printTestSuiteSummary(String packageName) {
         TestSummary testSummary = testReportOfPackage.get(packageName);
@@ -44,24 +44,26 @@ public class TesterinaReport {
         }
         if (!testSummary.failedTests.isEmpty()) {
             for (TesterinaResult failedResult : testSummary.failedTests) {
-                ListenerRegistry.triggerTestsFailed(failedResult.getTestFunctionName(),
-                                                    TesterinaUtils.formatError(failedResult.getAssertFailureMessage()));
+                outStream.println("\t[fail] " + failedResult.getTestFunctionName() + ":");
+                outStream.println("\t    " + TesterinaUtils.formatError(failedResult.getAssertFailureMessage()));
             }
         }
 
         if (!testSummary.passedTests.isEmpty()) {
             for (TesterinaResult passedResult : testSummary.passedTests) {
-                ListenerRegistry.triggerTestsPassed(passedResult.getTestFunctionName());
+                outStream.println("\t[pass] " + passedResult.getTestFunctionName());
             }
-            ListenerRegistry.triggerLineBreak();
+            outStream.println();
         }
         printTestSuiteResult(testSummary.passedTests.size(), testSummary.failedTests.size(), testSummary.skippedTests
                 .size());
-        ListenerRegistry.triggerLineBreak();
+        outStream.println();
     }
 
     private void printTestSuiteResult(int passed, int failed, int skipped) {
-        ListenerRegistry.triggerTestSuiteResultGenerated(passed, failed, skipped);
+        outStream.println("\t" + passed + " passing");
+        outStream.println("\t" + failed + " failing");
+        outStream.println("\t" + skipped + " skipped");
     }
 
     public void addPackageReport(String packageName) {

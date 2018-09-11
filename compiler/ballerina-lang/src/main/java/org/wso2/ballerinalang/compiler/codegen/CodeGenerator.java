@@ -374,11 +374,25 @@ public class CodeGenerator extends BLangNodeVisitor {
 
     private void genNode(BLangPackage pkgNode) {
         genNode(pkgNode, this.symTable.pkgEnvMap.get(pkgNode.symbol));
+        addGlobalVarIndex();
+
+        pkgNode.symbol.packageFile = new PackageFile(getPackageBinaryContent(pkgNode));
+        setEntryPoints(pkgNode.symbol.packageFile, pkgNode);
+    }
+
+    private void addGlobalVarIndex() {
+        // Add global variable indexes to the ProgramFile
+        prepareIndexes(this.pvIndexes);
+        // Create Global variable attribute info
+        addVarCountAttrInfo(this.currentPkgInfo, this.currentPkgInfo, pvIndexes);
+    }
+
+    private void genNode(BLangTestablePackage pkgNode) {
+        genNode(pkgNode, this.symTable.pkgEnvMap.get(pkgNode.symbol));
 
         // Add global variable indexes to the ProgramFile
         // Create Global variable attribute info
-        prepareIndexes(this.pvIndexes);
-        addVarCountAttrInfo(this.currentPkgInfo, this.currentPkgInfo, pvIndexes);
+        addGlobalVarIndex();
 
         pkgNode.symbol.packageFile = new PackageFile(getPackageBinaryContent(pkgNode));
         setEntryPoints(pkgNode.symbol.packageFile, pkgNode);
@@ -448,14 +462,18 @@ public class CodeGenerator extends BLangNodeVisitor {
         pkgNode.services.forEach(this::createServiceInfoEntry);
         pkgNode.functions.forEach(this::createFunctionInfoEntry);
 
-        // Visit the builtin functions only in the bLangPackage. Since the testablePackage is a child of the
-        // bLangPackage, the testablePackage doesnot have init, start and stop functions
         if (pkgNode.getKind() == NodeKind.PACKAGE) {
-            // Visit package builtin function
+            // Visit the builtin functions
             visitBuiltinFunctions(pkgNode.initFunction);
             visitBuiltinFunctions(pkgNode.startFunction);
             visitBuiltinFunctions(pkgNode.stopFunction);
+        } else if (pkgNode.getKind() == NodeKind.TESTABLE_PACKAGE) {
+            // Visit package test init function
+            visitBuiltinFunctions(((BLangTestablePackage) pkgNode).testInitFunction);
+            visitBuiltinFunctions(((BLangTestablePackage) pkgNode).testStartFunction);
+            visitBuiltinFunctions(((BLangTestablePackage) pkgNode).testStopFunction);
         }
+
 
         pkgNode.topLevelNodes.stream()
                 .filter(pkgLevelNode -> pkgLevelNode.getKind() != NodeKind.VARIABLE &&
