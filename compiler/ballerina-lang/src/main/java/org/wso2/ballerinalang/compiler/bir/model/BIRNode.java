@@ -105,7 +105,7 @@ public abstract class BIRNode {
         public Visibility visibility;
 
         /**
-         * Type of this function. e.g., (int, int) -> (int).
+         * Type of this function. e.g., (int, int) returns (int).
          */
         public BInvokableType type;
 
