@@ -3014,7 +3014,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
             return;
         }
         String description = ctx.documentationText() != null ? ctx.documentationText().getText() : "";
-        this.pkgBuilder.endParameterDocumentationDescription(description);
+        this.pkgBuilder.endParameterDocumentationDescription(getWS(ctx), description);
     }
 
     /**
@@ -3038,7 +3038,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
             return;
         }
         String description = ctx.documentationText() != null ? ctx.documentationText().getText() : "";
-        this.pkgBuilder.endReturnParameterDocumentationDescription(description);
+        this.pkgBuilder.endReturnParameterDocumentationDescription(getWS(ctx), description);
     }
 
     /**

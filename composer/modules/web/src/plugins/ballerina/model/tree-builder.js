@@ -667,53 +667,6 @@ class TreeBuilder {
                 literalWSAssignForTemplates(1, 2, node.textFragments, node.ws, 2);
             }
         }
-
-        if (kind === 'MarkdownDocumentation' && node.ws) {
-            let documentLineWS = [];
-            let parameterLineWS = [];
-            let returnParamWS;
-            for (let i = 0; i < node.ws.length;) {
-                let text = node.ws[i].text.replace(/(\r\n|\n|\r| )/g, '');
-
-                if (text.length === 9 && text.startsWith('#') && text.includes("+") && text.includes("return") &&
-                    text.includes("-")) {
-                    returnParamWS = node.ws[i];
-                } else if (text.length === 2 && text.startsWith('#') && text.includes("+")) {
-                    parameterLineWS.push(node.ws[i]);
-                } else {
-                    documentLineWS.push(node.ws[i]);
-                }
-
-                // Remove ws.
-                node.ws.splice(i, 1);
-            }
-
-            if (node.documentationLines && documentLineWS.length > 0) {
-                for (let i = 0; i < node.documentationLines.length; i++) {
-                    if (node.documentationLines[i].ws) {
-                        node.documentationLines[i].ws.splice(0, 0, documentLineWS[i]);
-                    } else {
-                        node.documentationLines[i].ws = [documentLineWS[i]];
-                    }
-
-                    node.documentationLines[i].start = documentLineWS[i].text;
-                }
-            }
-
-            if (node.parameters && parameterLineWS.length > 0) {
-                for (let i = 0; i < node.parameters.length; i++) {
-                    node.parameters[i].ws.splice(0, 0, parameterLineWS[i]);
-                    node.parameters[i].start = parameterLineWS[i].text;
-                    node.parameters[i].paramDash = node.parameters[i].ws[2].text;
-                }
-            }
-
-            if (node.returnParameter && returnParamWS) {
-                node.returnParameter.isReturn = true;
-                node.returnParameter.ws.splice(0, 0, returnParamWS);
-                node.returnParameter.start = returnParamWS.text;
-            }
-        }
     }
 
     static modify(tree, parentKind = null) {

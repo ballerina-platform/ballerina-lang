@@ -1799,10 +1799,11 @@ public class BLangPackageBuilder {
         markdownDocumentationNode.addParameter(parameterDocumentationNode);
     }
 
-    void endParameterDocumentationDescription(String description) {
+    void endParameterDocumentationDescription(Set<Whitespace> ws, String description) {
         MarkdownDocumentationNode markdownDocumentationNode = markdownDocumentationStack.peek();
         BLangMarkdownParameterDocumentation parameterDocumentation =
                 markdownDocumentationNode.getParameters().getLast();
+        parameterDocumentation.addWS(ws);
         parameterDocumentation.addParameterDocumentationLine(description);
     }
 
@@ -1817,9 +1818,10 @@ public class BLangPackageBuilder {
         markdownDocumentationNode.setReturnParameter(returnParameterDocumentation);
     }
 
-    void endReturnParameterDocumentationDescription(String description) {
+    void endReturnParameterDocumentationDescription(Set<Whitespace> ws, String description) {
         MarkdownDocumentationNode markdownDocumentationNode = markdownDocumentationStack.peek();
         BLangMarkdownReturnParameterDocumentation returnParameter = markdownDocumentationNode.getReturnParameter();
+        returnParameter.addWS(ws);
         returnParameter.addReturnParameterDocumentationLine(description);
     }
 

@@ -109,10 +109,6 @@ ConstrainedType
    : <type.source> < <constraint.source> >
    ;
 
-Documentation
-   : <startDoc> <documentationText> <attributes>* }
-   ;
-
 DocumentationAttribute
    :  <paramType> {{ <documentationField.value> }} <documentationText>
    ;
@@ -123,15 +119,6 @@ Deprecated
 
 Done
    : done ;
-   ;
-
-DocumentationDescription
-   : <start> <text>
-   ;
-
-DocumentationParameter
-   : <isReturn?> <start> <returnParameterDocumentation> <returnParameterDocumentationLines>*
-   |             <start> <parameterName.valueWithBar> <paramDash> <parameterDocumentation> <parameterDocumentationLines>*
    ;
 
 ElvisExpr
@@ -303,10 +290,6 @@ Literal
 
 Lock
    : lock { <body.source> }
-   ;
-
-MarkdownDocumentation
-   : <documentationLines>* <parameters>* <returnParameter.source>
    ;
 
 Match
