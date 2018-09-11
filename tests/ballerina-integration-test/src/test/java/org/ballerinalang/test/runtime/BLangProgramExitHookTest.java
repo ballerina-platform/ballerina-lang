@@ -33,18 +33,20 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Test cases for runtimeHook registration and invocation
+ * Test cases for runtimeHook registration and invocation.
  *
  * @since 0.982.0
  */
 public class BLangProgramExitHookTest extends BaseTest {
 
-    private LogLeecher serverLogLeecher1 = new LogLeecher("hook one invoked");
-    private LogLeecher serverLogLeecher2 = new LogLeecher("hook two invoked with var : 4");
+    private LogLeecher serverLogLeecher1 = new LogLeecher("Exit hook one invoked");
+    private LogLeecher serverLogLeecher2 = new LogLeecher("Exit hook two invoked with var : 4");
+
+    private BServerInstance serverInstance;
 
     @BeforeTest
     public void setup() throws BallerinaTestException, IOException {
-        BServerInstance serverInstance = new BServerInstance(balServer);
+        serverInstance = new BServerInstance(balServer);
         String exitHookTestFile = new File("src" + File.separator + "test" + File.separator + "resources" +
                 File.separator + "runtime" + File.separator + "exit_hook.bal").getAbsolutePath();
         serverInstance.startServer(exitHookTestFile, new int[]{9090});
@@ -56,11 +58,11 @@ public class BLangProgramExitHookTest extends BaseTest {
         headers.put(HttpHeaderNames.CONTENT_TYPE.toString(), TestConstant.CONTENT_TYPE_TEXT_PLAIN);
         String requestMessage = "{\"exchange\":\"nyse\",\"name\":\"WSO2\",\"value\":\"127.50\"}";
         HttpClientRequest.doPost(serverInstance.getServiceURLHttp(9090, "echo"), requestMessage, headers);
-        serverInstance.shutdownServer();
     }
 
     @Test
     public void testAddExitHook() throws BallerinaTestException {
+        serverInstance.gracefulShutdownServer();
         serverLogLeecher1.waitForText(30000);
         serverLogLeecher2.waitForText(30000);
     }

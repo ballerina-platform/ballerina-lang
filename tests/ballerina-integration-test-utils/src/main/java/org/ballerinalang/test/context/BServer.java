@@ -117,6 +117,9 @@ public interface BServer {
      */
     void shutdownServer() throws BallerinaTestException;
 
+
+    void gracefulShutdownServer() throws BallerinaTestException;
+
     /**
      * Forcefully kills the server.
      *

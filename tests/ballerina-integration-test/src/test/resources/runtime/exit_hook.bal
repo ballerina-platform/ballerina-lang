@@ -37,7 +37,6 @@ public function addExitHooks() {
     int a = 4;
 
     (function() returns ()) fn1 = () => {
-        runtime:sleep(10000);
         io:println("Exit hook one invoked");
     };
     runtime:addExitHook(fn1);

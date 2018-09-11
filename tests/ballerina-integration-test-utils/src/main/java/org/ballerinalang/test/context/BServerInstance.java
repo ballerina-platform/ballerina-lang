@@ -187,6 +187,29 @@ public class BServerInstance implements BServer {
     }
 
     /**
+     * Stops server gracefully by waiting on agent to stop the process.
+     *
+     * @throws BallerinaTestException if service stop fails
+     */
+    @Override
+    public void gracefulShutdownServer() throws BallerinaTestException {
+        log.info("Stopping server..");
+        Map<String, String> headers = new HashMap<>();
+        headers.put("Content-Type", "text/plain");
+        try {
+            HttpResponse response = HttpClientRequest.doPost(getServiceURLHttp(agentPort, "shutdown"),
+                    "shutdown", headers);
+            if (response.getResponseCode() != 200) {
+                throw new BallerinaTestException("Error shutting down the server, invalid response - "
+                        + response.getData());
+            }
+            gracefulCleanupServer();
+        } catch (IOException | InterruptedException e) {
+            throw new BallerinaTestException("Error shutting down the server, error - " + e.getMessage(), e);
+        }
+    }
+
+    /**
      * Kill the server instance which is started by start method.
      *
      * @throws BallerinaTestException if service stop fails
@@ -230,6 +253,14 @@ public class BServerInstance implements BServer {
             serverErrorLogReader = null;
         }
     }
+
+    private void gracefulCleanupServer() throws InterruptedException {
+        process.waitFor();
+        //wait until port to close
+        Utils.waitForPortsToClose(requiredPorts, 30000);
+        log.info("Server Stopped Successfully");
+    }
+
 
     private synchronized void addJavaAgents(Map<String, String> envProperties) throws BallerinaTestException {
         if (agentsAadded) {
