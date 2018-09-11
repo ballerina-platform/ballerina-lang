@@ -112,3 +112,23 @@ type BbTermGenrator object {
 
 };
 
+function genCallToPrintf(llvm:LLVMBuilderRef builder, llvm:LLVMValueRef[] args, boolean hasNewLine) {
+    var argsCount = lengthof args;
+    var newLine = hasNewLine ? "\n" : "";
+    var printLnIntPatten = llvm:LLVMBuildGlobalStringPtr(builder, stringMul("%ld", argsCount) + newLine, "");
+    llvm:LLVMValueRef[] printArgs = [printLnIntPatten];
+    appendAllTo(printArgs, args);
+    llvm:LLVMValueRef callReturn = llvm:LLVMBuildCall(builder, printfRef, printArgs, argsCount + 1, "");
+}
+
+function stringMul(string str, int factor) returns string {
+    int i;
+    string result;
+    while i < factor {
+        result = result + str;
+        i++;
+    }
+    return result;
+}
+
+

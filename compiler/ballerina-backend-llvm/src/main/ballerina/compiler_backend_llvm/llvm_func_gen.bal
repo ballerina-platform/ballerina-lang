@@ -7,6 +7,7 @@ type FuncGenrator object {
     llvm:LLVMValueRef funcRef,
     llvm:LLVMModuleRef mod,
     map<llvm:LLVMValueRef> localVarRefs,
+    llvm:LLVMValueRef varAllocBB,
     llvm:LLVMBuilderRef builder;
 
     new(mod, builder, func) {
@@ -43,39 +44,27 @@ type FuncGenrator object {
     }
 
     function genFunctionBody(map<FuncGenrator> funcGenrators) {
-        var varAllocBB = genLocalVarAllocationBB();
-
-        map<BbTermGenrator> bbTermGenrators;
-        foreach bb in func.basicBlocks {
-            BbBodyGenrator g = new(builder, funcRef, func, self, bb);
-            bbTermGenrators[bb.id.value] = g.genBasicBlockBody();
-        }
-
-        llvm:LLVMPositionBuilderAtEnd(builder, varAllocBB);
-        var brInsRef = llvm:LLVMBuildBr(builder, findBbRefById(bbTermGenrators, "bb0"));
-
-        foreach g in bbTermGenrators {
-            g.genBasicBlockTerminator(funcGenrators, bbTermGenrators);
-        }
-
+        genLocalVarAllocationBbBody();
+        var bbTermGenrators = genBbBodies();
+        genLocalVarAllocationBBTerminator(bbTermGenrators);
+        genBbTerminators(funcGenrators, bbTermGenrators);
     }
 
-    function genLocalVarAllocationBB() returns llvm:LLVMBasicBlockRef {
-        var bbRef = genBbDecl("var_allloc");
-        int i = 0;
+    function genLocalVarAllocationBbBody() {
+        varAllocBB = genBbDecl("var_allloc");
+        int paramIndex = 0;
         foreach localVar in func.localVars{
             var varName = localVarName(localVar);
             var varType = genBType(localVar.typeValue);
-            llvm:LLVMValueRef llvmValueRef;
-            llvmValueRef = llvm:LLVMBuildAlloca(builder, varType, varName);
-            localVarRefs[localVar.name.value] = llvmValueRef;
+            llvm:LLVMValueRef localVarRef = llvm:LLVMBuildAlloca(builder, varType, varName);
+            localVarRefs[localVar.name.value] = localVarRef;
+
             if (isParamter(localVar)){
-                var parmRef = llvm:LLVMGetParam(funcRef, i);
-                var loaded = llvm:LLVMBuildStore(builder, parmRef, llvmValueRef);
-                i++;
+                var parmRef = llvm:LLVMGetParam(funcRef, paramIndex);
+                var loaded = llvm:LLVMBuildStore(builder, parmRef, localVarRef);
+                paramIndex++;
             }
         }
-        return bbRef;
     }
 
     function isParamter(bir:VariableDcl localVar) returns boolean {
@@ -85,11 +74,32 @@ type FuncGenrator object {
         }
     }
 
+    function genBbBodies() returns map<BbTermGenrator> {
+        map<BbTermGenrator> bbTermGenrators;
+        foreach bb in func.basicBlocks {
+            BbBodyGenrator g = new(builder, funcRef, func, self, bb);
+            bbTermGenrators[bb.id.value] = g.genBasicBlockBody();
+        }
+        return bbTermGenrators;
+    }
+
+    function genLocalVarAllocationBBTerminator(map<BbTermGenrator> bbTermGenrators) {
+        llvm:LLVMPositionBuilderAtEnd(builder, varAllocBB);
+        var brInsRef = llvm:LLVMBuildBr(builder, findBbRefById(bbTermGenrators, "bb0"));
+    }
+
+    function genBbTerminators(map<FuncGenrator> funcGenrators, map<BbTermGenrator> bbTermGenrators) {
+        foreach g in bbTermGenrators {
+            g.genBasicBlockTerminator(funcGenrators, bbTermGenrators);
+        }
+    }
+
     function genVarLoad(bir:Operand oprand) returns llvm:LLVMValueRef {
         match oprand {
             bir:VarRef refOprand => {
                 string tempName = localVarName(refOprand.variableDcl) + "_temp";
-                return llvm:LLVMBuildLoad(builder, getLocalVarRefById(func, refOprand.variableDcl.name.value), tempName);
+                var localVarRef = getLocalVarRefById(func, refOprand.variableDcl.name.value);
+                return llvm:LLVMBuildLoad(builder, localVarRef, tempName);
             }
         }
     }
