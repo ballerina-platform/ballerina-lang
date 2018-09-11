@@ -18,14 +18,6 @@ import ballerina/io;
 import ballerina/time;
 import ballerina/task;
 
-public type EventType "CURRENT"|"EXPIRED"|"ALL"|"RESET"|"TIMER";
-
-public type StreamEvent record {
-    EventType eventType;
-    any eventObject;
-    int timestamp;
-};
-
 public type Window object {
 
     public function process(StreamEvent[] streamEvents) {
@@ -63,16 +55,56 @@ public type LengthWindow object {
             }
 
             outputEvents[lengthof outputEvents] = event;
-            StreamEvent expiredVeresionOfEvent = {eventType : "EXPIRED", eventObject: event.eventObject,
-                timestamp: event.timestamp};
+            StreamEvent expiredVeresionOfEvent = event.clone();
+            expiredVeresionOfEvent.eventType = "EXPIRED";
             linkedList.addLast(expiredVeresionOfEvent);
         }
         nextProcessorPointer(outputEvents);
     }
+
+    public function getCurrentEvents() returns StreamEvent[]{
+        StreamEvent[] events = [];
+        int i = 0;
+        foreach e in linkedList.asArray() {
+            match e {
+                StreamEvent s => {
+                    events[i] = s;
+                    i++;
+                }
+                any a => {
+                }
+            }
+        }
+        return events;
+    }
+
+    public function getCandidateEvents(
+                        StreamEvent originEvent,
+                        function (StreamEvent e1, StreamEvent e2) returns boolean conditionFunc,
+                        boolean isLHSTrigger = true)
+                        returns (StreamEvent, StreamEvent)[] {
+        (StreamEvent, StreamEvent)[] events;
+        int i = 0;
+        foreach e in linkedList.asArray() {
+            match e {
+                StreamEvent s => {
+                    StreamEvent lshEvent = (isLHSTrigger) ? originEvent : s;
+                    StreamEvent rhsEvent = (isLHSTrigger) ? s : originEvent;
+                    if (conditionFunc(lshEvent, rhsEvent)) {
+                        events[i] = (lshEvent, rhsEvent);
+                        i++;
+                    }
+                }
+                any a => {
+                }
+            }
+        }
+        return events;
+    }
 };
 
 public function lengthWindow(function (StreamEvent[]) nextProcessorPointer, int length)
-                    returns LengthWindow {
+        returns LengthWindow {
     LengthWindow lengthWindow1 = new(nextProcessorPointer, length);
     return lengthWindow1;
 }
@@ -117,7 +149,7 @@ public type TimeWindow object {
                 }
 
                 if (streamEvent.eventType == "CURRENT") {
-                    StreamEvent clonedEvent = cloneStreamEvent(streamEvent);
+                    StreamEvent clonedEvent = streamEvent.clone();
                     clonedEvent.eventType = "EXPIRED";
                     expiredEventQueue.addLast(clonedEvent);
 
@@ -146,7 +178,7 @@ public type TimeWindow object {
     }
 
     public function invokeProcess() returns error? {
-        StreamEvent timerEvent = {eventType : "TIMER", eventObject: (), timestamp: time:currentTime().time};
+        StreamEvent timerEvent = new (("timer", {}), "TIMER", time:currentTime().time);
         StreamEvent[] timerEventWrapper = [];
         timerEventWrapper[0] = timerEvent;
         process(timerEventWrapper);
@@ -159,6 +191,47 @@ public type TimeWindow object {
 
     public function handleError(error e) {
         io:println("Error occured", e);
+    }
+
+    public function getCurrentEvents() returns StreamEvent[]{
+        StreamEvent[] events = [];
+        int i = 0;
+        foreach e in expiredEventQueue.asArray() {
+            match e {
+                StreamEvent s => {
+                    events[i] = s;
+                    i++;
+                }
+                any a => {
+
+                }
+            }
+        }
+        return events;
+    }
+
+    public function getCandidateEvents(
+                        StreamEvent originEvent,
+                        function (StreamEvent e1, StreamEvent e2) returns boolean conditionFunc,
+                        boolean isLHSTrigger = true)
+                        returns (StreamEvent, StreamEvent)[] {
+        (StreamEvent, StreamEvent)[] events = [];
+        int i = 0;
+        foreach e in expiredEventQueue.asArray() {
+            match e {
+                StreamEvent s => {
+                    StreamEvent lshEvent = (isLHSTrigger) ? originEvent : s;
+                    StreamEvent rhsEvent = (isLHSTrigger) ? s : originEvent;
+                    if (conditionFunc(lshEvent, rhsEvent)) {
+                        events[i] = (lshEvent, rhsEvent);
+                        i++;
+                    }
+                }
+                any a => {
+                }
+            }
+        }
+        return events;
     }
 };
 
@@ -187,7 +260,7 @@ public type LengthBatchWindow object {
         int currentTime = time:currentTime().time;
 
         foreach event in streamEvents {
-            StreamEvent clonedStreamEvent = cloneStreamEvent(event);
+            StreamEvent clonedStreamEvent = event.clone();
             currentEventQueue.addLast(clonedStreamEvent);
             count++;
             if (count == length) {
@@ -203,7 +276,7 @@ public type LengthBatchWindow object {
                     //    currentEventQueue.resetToFront();
                     //    while (currentEventQueue.hasNext()) {
                     //        StreamEvent currentEvent = check <StreamEvent> currentEventQueue.next();
-                    //        StreamEvent toBeExpired = {eventType: "EXPIRED", eventObject: currentEvent.eventObject,
+                    //        StreamEvent toBeExpired = {eventType: "EXPIRED", eventMap: currentEvent.eventMap,
                     //            timestamp: currentEvent.timestamp};
                     //        expiredEventQueue.addLast(toBeExpired);
                     //    }
@@ -234,6 +307,47 @@ public type LengthBatchWindow object {
             nextProcessorPointer(events);
         }
     }
+
+    public function getCurrentEvents() returns StreamEvent[]{
+        StreamEvent[] events = [];
+        int i = 0;
+        foreach e in currentEventQueue.asArray() {
+            match e {
+                StreamEvent s => {
+                    events[i] = s;
+                    i++;
+                }
+                any a => {
+
+                }
+            }
+        }
+        return events;
+    }
+
+    public function getCandidateEvents(
+                        StreamEvent originEvent,
+                        function (StreamEvent e1, StreamEvent e2) returns boolean conditionFunc,
+                        boolean isLHSTrigger = true)
+                        returns (StreamEvent, StreamEvent)[] {
+        (StreamEvent, StreamEvent)[] events = [];
+        int i = 0;
+        foreach e in currentEventQueue.asArray() {
+            match e {
+                StreamEvent s => {
+                    StreamEvent lshEvent = (isLHSTrigger) ? originEvent : s;
+                    StreamEvent rhsEvent = (isLHSTrigger) ? s : originEvent;
+                    if (conditionFunc(lshEvent, rhsEvent)) {
+                        events[i] = (lshEvent, rhsEvent);
+                        i++;
+                    }
+                }
+                any a => {
+                }
+            }
+        }
+        return events;
+    }
 };
 
 public function lengthBatchWindow(function(StreamEvent[]) nextProcessPointer, int length)
@@ -258,12 +372,13 @@ public type TimeBatchWindow object {
     }
 
     public function invokeProcess() returns error? {
-        StreamEvent timerEvent = {eventType : "TIMER", eventObject: (), timestamp: time:currentTime().time};
+        StreamEvent timerEvent = new (("timer", {}), "TIMER", time:currentTime().time);
         StreamEvent[] timerEventWrapper = [];
         timerEventWrapper[0] = timerEvent;
         process(timerEventWrapper);
         return ();
     }
+
     public function process(StreamEvent[] streamEvents) {
         LinkedList outputStreamEvents = new();
         if (nextEmitTime == -1) {
@@ -291,7 +406,7 @@ public type TimeBatchWindow object {
             if (event.eventType != "CURRENT") {
                 continue;
             }
-            StreamEvent clonedEvent = cloneStreamEvent(event);
+            StreamEvent clonedEvent = event.clone();
             currentEventQueue.addLast(clonedEvent);
         }
         if (sendEvents) {
@@ -318,6 +433,47 @@ public type TimeBatchWindow object {
             }
             nextProcessorPointer(events);
         }
+    }
+
+    public function getCurrentEvents() returns StreamEvent[]{
+        StreamEvent[] events = [];
+        int i = 0;
+        foreach e in currentEventQueue.asArray() {
+            match e {
+                StreamEvent s => {
+                    events[i] = s;
+                    i++;
+                }
+                any a => {
+
+                }
+            }
+        }
+        return events;
+    }
+
+    public function getCandidateEvents(
+                        StreamEvent originEvent,
+                        function (StreamEvent e1, StreamEvent e2) returns boolean conditionFunc,
+                        boolean isLHSTrigger = true)
+                        returns (StreamEvent, StreamEvent)[] {
+        (StreamEvent, StreamEvent)[] events = [];
+        int i = 0;
+        foreach e in currentEventQueue.asArray() {
+            match e {
+                StreamEvent s => {
+                    StreamEvent lshEvent = (isLHSTrigger) ? originEvent : s;
+                    StreamEvent rhsEvent = (isLHSTrigger) ? s : originEvent;
+                    if (conditionFunc(lshEvent, rhsEvent)) {
+                        events[i] = (lshEvent, rhsEvent);
+                        i++;
+                    }
+                }
+                any a => {
+                }
+            }
+        }
+        return events;
     }
 
     public function handleError(error e) {

@@ -512,6 +512,14 @@ public class ASTBuilderUtil {
         return recordLiteralNode;
     }
 
+    static BLangRecordLiteral.BLangMapLiteral createEmptyMapLiteral(DiagnosticPos pos, BType type) {
+        final BLangRecordLiteral.BLangMapLiteral mapLiteralNode = (BLangRecordLiteral.BLangMapLiteral) TreeBuilder
+                .createTableLiteralNode();
+        mapLiteralNode.pos = pos;
+        mapLiteralNode.type = type;
+        return mapLiteralNode;
+    }
+
     static BLangTypeInit createEmptyTypeInit(DiagnosticPos pos, BType type) {
         BLangTypeInit objectInitNode = (BLangTypeInit) TreeBuilder.createObjectInitNode();
         objectInitNode.pos = pos;
