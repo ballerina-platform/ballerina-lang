@@ -179,11 +179,11 @@ function testUnconstraintTable() returns (int, json, xml, int, int, any, error?,
     Person p1 = { id: 1, age: 30, salary: 300.50, name: "jane", married: true };
     error? e1 = t1.add(p1);
     //Remove data
-    int|error e2 = t1.remove(isBellow35);
+    int|error e2 = t1.remove(isBelow35);
 
     return (count1, j, x, iter1, iter2, row, e1, e2);
 }
 
-function isBellow35(Person p) returns (boolean) {
+function isBelow35(Person p) returns (boolean) {
     return p.age < 35;
 }

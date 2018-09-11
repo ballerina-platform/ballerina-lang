@@ -190,9 +190,8 @@ public class BTable implements BRefType<Object>, BCollection {
         // Create BStruct from current row
         if (iterator != null) {
             return (BMap<String, BValue>) iterator.generateNext();
-        } else {
-            return new BMap<>(BTypes.typeAny);
         }
+        return new BMap<>(BTypes.typeAny);
     }
 
     /**
@@ -238,7 +237,7 @@ public class BTable implements BRefType<Object>, BCollection {
             BType functionInputType = lambdaFunction.value().getParamTypes()[0];
             if (this.constraintType == null) {
                 throw new BallerinaException("incompatible types: function with record type:"
-                        + functionInputType.getName() + " cannot be used to remove records from a table no type");
+                        + functionInputType.getName() + " cannot be used to remove records from a table with no type");
             }
             if (functionInputType != this.constraintType) {
                 throw new BallerinaException("incompatible types: function with record type:"
