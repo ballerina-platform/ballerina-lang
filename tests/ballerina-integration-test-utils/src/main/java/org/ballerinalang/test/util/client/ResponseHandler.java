@@ -66,12 +66,17 @@ public class ResponseHandler extends ChannelInboundHandlerAdapter {
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
         this.channelEventMsg = cause.getMessage();
         super.exceptionCaught(ctx, cause);
+        if (this.waitForConnectionClosureLatch != null) {
+            this.waitForConnectionClosureLatch.countDown();
+        }
     }
 
     @Override
     public void channelInactive(ChannelHandlerContext ctx) {
-        this.waitForConnectionClosureLatch.countDown();
         this.channelEventMsg = "Channel is inactive";
+        if (this.waitForConnectionClosureLatch != null) {
+            this.waitForConnectionClosureLatch.countDown();
+        }
     }
 
     public void setLatch(CountDownLatch latch) {

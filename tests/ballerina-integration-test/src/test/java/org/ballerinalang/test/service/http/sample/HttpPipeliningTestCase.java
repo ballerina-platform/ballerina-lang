@@ -93,8 +93,7 @@ public class HttpPipeliningTestCase extends BaseTest {
         readAndAssertResponse(clientSocket, expected);
     }
 
-    @Test(description = "Once the pipelining limit is reached, connection should be closed from the server side",
-            enabled = false)
+    @Test(description = "Once the pipelining limit is reached, connection should be closed from the server side")
     public void testPipeliningLimit() throws IOException, InterruptedException {
         HttpClient httpClient = new HttpClient(HOST, 9222);
         String connectionCloseMsg = httpClient.sendMultiplePipelinedRequests("/pipeliningLimit/testMaxRequestLimit");
