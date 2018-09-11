@@ -32,6 +32,11 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * Test cases for runtimeHook registration and invocation
+ *
+ * @since 0.982.0
+ */
 public class BLangProgramExitHookTest extends BaseTest {
 
     private LogLeecher serverLogLeecher1 = new LogLeecher("hook one invoked");

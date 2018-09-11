@@ -18,7 +18,6 @@
 
 package org.ballerinalang.runtime;
 
-import org.ballerinalang.model.values.BClosure;
 import org.ballerinalang.model.values.BFunctionPointer;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.util.program.BLangFunctions;
