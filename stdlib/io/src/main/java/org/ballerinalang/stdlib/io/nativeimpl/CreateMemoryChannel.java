@@ -41,7 +41,7 @@ import java.nio.channels.ReadableByteChannel;
  */
 @BallerinaFunction(
         orgName = "ballerina", packageName = "io",
-        functionName = "createMemoryChannel",
+        functionName = "createReadableChannel",
         args = {@Argument(name = "content", type = TypeKind.ARRAY, elementType = TypeKind.BYTE)},
         isPublic = true
 )

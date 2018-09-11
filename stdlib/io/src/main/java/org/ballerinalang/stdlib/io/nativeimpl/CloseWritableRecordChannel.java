@@ -28,39 +28,36 @@ import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.natives.annotations.ReturnType;
-import org.ballerinalang.stdlib.io.channels.base.DataChannel;
+import org.ballerinalang.stdlib.io.channels.base.DelimitedRecordChannel;
 import org.ballerinalang.stdlib.io.events.EventContext;
 import org.ballerinalang.stdlib.io.events.EventRegister;
 import org.ballerinalang.stdlib.io.events.EventResult;
 import org.ballerinalang.stdlib.io.events.Register;
-import org.ballerinalang.stdlib.io.events.data.CloseDataChannelEvent;
+import org.ballerinalang.stdlib.io.events.records.CloseDelimitedRecordEvent;
 import org.ballerinalang.stdlib.io.utils.IOConstants;
 import org.ballerinalang.stdlib.io.utils.IOUtils;
 
 /**
- * Extern function ballerina.io#DataChannel.close().
+ * Extern function ballerina/io#closeTextRecordChannel.
  *
- * @since 0.974.1
+ * @since 0.95
  */
 @BallerinaFunction(
         orgName = "ballerina", packageName = "io",
         functionName = "close",
-        receiver = @Receiver(type = TypeKind.OBJECT, structType = "DataChannel", structPackage = "ballerina.io"),
-        returnType = {@ReturnType(type = TypeKind.RECORD, structType = "IOError", structPackage = "ballerina.io")},
+        receiver = @Receiver(type = TypeKind.OBJECT,
+                structType = "WritableTextRecordChannel",
+                structPackage = "ballerina/io"),
+        returnType = {@ReturnType(type = TypeKind.RECORD, structType = "IOError", structPackage = "ballerina/io")},
         isPublic = true
 )
-public class CloseDataChannel implements NativeCallableUnit {
-    /**
-     * The index of the DataChannel.
-     */
-    private static final int DATA_CHANNEL_INDEX = 0;
+public class CloseWritableRecordChannel implements NativeCallableUnit {
 
     /**
-     * Close data channel.
-     *
-     * @param result the response received after the channel is closed.
-     * @return the result of the close response.
+     * The index of the DelimitedRecordChannel in ballerina/io#closeDelimitedRecordChannel().
      */
+    private static final int RECORD_CHANNEL_INDEX = 0;
+
     private static EventResult closeResponse(EventResult<Boolean, EventContext> result) {
         EventContext eventContext = result.getContext();
         Context context = eventContext.getContext();
@@ -76,18 +73,19 @@ public class CloseDataChannel implements NativeCallableUnit {
 
     /**
      * <p>
-     * Close data channel.
+     * Closes a text record channel.
      * </p>
      * <p>
      * {@inheritDoc}
      */
     @Override
     public void execute(Context context, CallableUnitCallback callback) {
-        BMap<String, BValue> dataChannelStruct = (BMap<String, BValue>) context.getRefArgument(DATA_CHANNEL_INDEX);
-        DataChannel channel = (DataChannel) dataChannelStruct.getNativeData(IOConstants.DATA_CHANNEL_NAME);
+        BMap<String, BValue> channel = (BMap<String, BValue>) context.getRefArgument(RECORD_CHANNEL_INDEX);
+        DelimitedRecordChannel recordChannel = (DelimitedRecordChannel)
+                channel.getNativeData(IOConstants.TXT_RECORD_CHANNEL_NAME);
         EventContext eventContext = new EventContext(context, callback);
-        CloseDataChannelEvent dataChannelCloseEvt = new CloseDataChannelEvent(channel, eventContext);
-        Register register = EventRegister.getFactory().register(dataChannelCloseEvt, CloseDataChannel::closeResponse);
+        CloseDelimitedRecordEvent closeEvent = new CloseDelimitedRecordEvent(recordChannel, eventContext);
+        Register register = EventRegister.getFactory().register(closeEvent, CloseWritableRecordChannel::closeResponse);
         eventContext.setRegister(register);
         register.submit();
     }
