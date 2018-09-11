@@ -116,8 +116,7 @@ public class PushUtils {
             throw new BLangCompilerException("Couldn't locate the package artifact to be pushed. Run 'ballerina " +
                                                      "push' without the --no-build flag");
         }
-
-
+        
         if (installToRepo == null) {
             // Get access token
             String accessToken = checkAccessToken();
