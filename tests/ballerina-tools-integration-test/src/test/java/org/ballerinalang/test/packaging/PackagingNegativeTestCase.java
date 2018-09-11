@@ -181,6 +181,22 @@ public class PackagingNegativeTestCase extends BaseTest {
                 new LogLeecher[]{new LogLeecher(msg)}, projectPath.toString());
     }
 
+    @Test(description = "Test pushing a package without Ballerina.toml in the project directory")
+    public void testPushWithoutBallerinaToml() throws Exception {
+        Path projectPath = tempProjectDirectory.resolve("projectWithoutToml");
+        initProject(projectPath);
+
+        // Remove Ballerina.toml
+        Files.deleteIfExists(projectPath.resolve("Ballerina.toml"));
+
+        String msg = "ballerina: couldn't locate Ballerina.toml in the project directory. Run 'ballerina init' to " +
+                "create the Ballerina.toml file automatically and re-run the 'ballerina push' command";
+
+        String[] clientArgs = {packageName};
+        balClient.runMain("push", clientArgs, envVariables, new String[0],
+                          new LogLeecher[]{new LogLeecher(msg)}, projectPath.toString());
+    }
+
     @Test(description = "Test search without keywords")
     public void testSearchWithoutKeyWords() throws Exception {
         String msg = "ballerina: no keyword given";
