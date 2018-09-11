@@ -28,6 +28,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangResource;
 import org.wso2.ballerinalang.compiler.tree.BLangService;
+import org.wso2.ballerinalang.compiler.tree.BLangTestablePackage;
 import org.wso2.ballerinalang.compiler.tree.BLangTypeDefinition;
 import org.wso2.ballerinalang.compiler.tree.BLangVariable;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess;
@@ -78,15 +79,28 @@ public class AnnotationDesugar {
         // This is the variable which store all package level annotations.
         BLangVariable annotationMap = createGlobalAnnotationMapVar(pkgNode);
 
-        // handle Service Annotations.
-        for (BLangService service : pkgNode.services) {
-            generateAnnotations(service, service.name.value, initFunction, annotationMap);
-            for (BLangResource resource : service.resources) {
-                String key = service.name.value + DOT + resource.name.value;
-                generateAnnotations(resource, key, initFunction, annotationMap);
-            }
-        }
+        // Handle service annotations
+        handleServiceAnnotations(pkgNode, initFunction, annotationMap);
+
         // Handle Function Annotations.
+        handleFunctionAnnotations(pkgNode, initFunction, annotationMap);
+
+        // Handle Global Endpoint Annotations.
+        handleGlobalEndpointAnnotations(pkgNode, initFunction, annotationMap);
+
+        BLangReturn returnStmt = ASTBuilderUtil.createNilReturnStmt(pkgNode.pos, symTable.nilType);
+        pkgNode.initFunction.body.stmts.add(returnStmt);
+    }
+
+    private void handleGlobalEndpointAnnotations(BLangPackage pkgNode, BLangFunction initFunction,
+                                                 BLangVariable annotationMap) {
+        for (BLangEndpoint globalEndpoint : pkgNode.globalEndpoints) {
+            generateAnnotations(globalEndpoint, globalEndpoint.name.value, initFunction, annotationMap);
+        }
+    }
+
+    private void handleFunctionAnnotations(BLangPackage pkgNode, BLangFunction initFunction,
+                                           BLangVariable annotationMap) {
         for (BLangFunction function : pkgNode.functions) {
             generateAnnotations(function, function.symbol.name.value, initFunction, annotationMap);
         }
@@ -110,13 +124,38 @@ public class AnnotationDesugar {
                 }
             }
         }
+    }
 
-        for (BLangEndpoint globalEndpoint : pkgNode.globalEndpoints) {
-            generateAnnotations(globalEndpoint, globalEndpoint.name.value, initFunction, annotationMap);
-        }
+    protected void rewritePackageAnnotations(BLangTestablePackage pkgNode) {
+        BLangFunction initFunction = pkgNode.testInitFunction;
+
+        // This is the variable which store all package level annotations.
+        BLangVariable annotationMap = createGlobalAnnotationMapVar(pkgNode);
+
+        // Handle service annotations
+        handleServiceAnnotations(pkgNode, initFunction, annotationMap);
+
+
+        // Handle Function Annotations.
+        handleFunctionAnnotations(pkgNode, initFunction, annotationMap);
+
+        // Handle Global Endpoint Annotations.
+        handleGlobalEndpointAnnotations(pkgNode, initFunction, annotationMap);
 
         BLangReturn returnStmt = ASTBuilderUtil.createNilReturnStmt(pkgNode.pos, symTable.nilType);
-        pkgNode.initFunction.body.stmts.add(returnStmt);
+        pkgNode.testInitFunction.body.stmts.add(returnStmt);
+    }
+
+    private void handleServiceAnnotations(BLangPackage pkgNode, BLangFunction initFunction,
+                                          BLangVariable annotationMap) {
+        // handle Service Annotations.
+        for (BLangService service : pkgNode.services) {
+            generateAnnotations(service, service.name.value, initFunction, annotationMap);
+            for (BLangResource resource : service.resources) {
+                String key = service.name.value + DOT + resource.name.value;
+                generateAnnotations(resource, key, initFunction, annotationMap);
+            }
+        }
     }
 
     private void generateAnnotations(AnnotatableNode node, String key, BLangFunction target, BLangVariable annMapVar) {
@@ -138,6 +177,20 @@ public class AnnotationDesugar {
 
         final BLangRecordLiteral recordLiteralNode = ASTBuilderUtil.createEmptyRecordLiteral(pos, symTable.mapType);
         final BLangAssignment annMapAssignment = ASTBuilderUtil.createAssignmentStmt(pos, pkgNode.initFunction.body);
+        annMapAssignment.expr = recordLiteralNode;
+        annMapAssignment.setVariable(ASTBuilderUtil.createVariableRef(pos, annotationMap.symbol));
+        return annotationMap;
+    }
+
+    private BLangVariable createGlobalAnnotationMapVar(BLangTestablePackage pkgNode) {
+        DiagnosticPos pos = pkgNode.pos;
+        BLangVariable annotationMap = ASTBuilderUtil.createVariable(pkgNode.pos, ANNOTATION_DATA, symTable.mapType);
+        ASTBuilderUtil.defineVariable(annotationMap, pkgNode.symbol, names);
+        pkgNode.addGlobalVariable(annotationMap);
+
+        final BLangRecordLiteral recordLiteralNode = ASTBuilderUtil.createEmptyRecordLiteral(pos, symTable.mapType);
+        final BLangAssignment annMapAssignment = ASTBuilderUtil.createAssignmentStmt(pos,
+                                                                                     pkgNode.testInitFunction.body);
         annMapAssignment.expr = recordLiteralNode;
         annMapAssignment.setVariable(ASTBuilderUtil.createVariableRef(pos, annotationMap.symbol));
         return annotationMap;

@@ -134,6 +134,27 @@ public class BLangFunctions {
      * This will order the package imports and inovke each package init function.
      *
      * @param programFile to be invoked.
+     */
+    public static void invokePackageTestInitFunctions(ProgramFile programFile) {
+        for (PackageInfo info : programFile.getPackageInfoEntries()) {
+            if (info.getTestInitFunctionInfo() != null) {
+                invokePackageInitFunction(info.getTestInitFunctionInfo());
+            }
+        }
+    }
+
+    public static void invokePackageTestStartFunctions(ProgramFile programFile) {
+        for (PackageInfo info : programFile.getPackageInfoEntries()) {
+            if (info.getTestStartFunctionInfo() != null) {
+                BLangFunctions.invokeVMUtilFunction(info.getTestStartFunctionInfo());
+            }
+        }
+    }
+
+    /**
+     * This will order the package imports and inovke each package init function.
+     *
+     * @param programFile to be invoked.
      * @param context to be used.
      */
     public static void invokePackageInitFunctions(ProgramFile programFile, WorkerExecutionContext context) {

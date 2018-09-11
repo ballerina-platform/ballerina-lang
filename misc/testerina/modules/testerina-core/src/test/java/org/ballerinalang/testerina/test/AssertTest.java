@@ -38,7 +38,7 @@ public class AssertTest {
 
     @BeforeClass
     public void setup() {
-        compileResult = BTestUtils.compile("src/test/resources/assert-test", "assert-test.bal");
+        compileResult = BTestUtils.compile("src/test/resources/assert-test/tests", "assert-test.bal");
     }
 
     @Test

@@ -244,7 +244,9 @@ public class SymbolEnter extends BLangNodeVisitor {
         // Set symbol environment of the enclosing bLangpackage
         SymbolEnv pkgEnv = SymbolEnv.createPkgEnv(pkgNode, pkgSymbol.scope, enclosingPkgEnv);
 
+        createPackageTestInitFunctions(pkgNode);
         defineConstructs(pkgNode, pkgEnv);
+        definePackageTestInitFunctions(pkgNode, pkgEnv);
 
         pkgNode.completedPhases.add(CompilerPhase.DEFINE);
     }
@@ -1235,6 +1237,35 @@ public class SymbolEnter extends BLangNodeVisitor {
                 Names.START_FUNCTION_SUFFIX);
         pkgNode.stopFunction = createInitFunction(pkgNode.pos, alias,
                 Names.STOP_FUNCTION_SUFFIX);
+    }
+
+    private void createPackageTestInitFunctions(BLangTestablePackage pkgNode) {
+        String alias = pkgNode.symbol.pkgID.toString();
+        pkgNode.testInitFunction = createInitFunction(pkgNode.pos, alias,
+                                                  Names.TEST_INIT_FUNCTION_SUFFIX);
+        pkgNode.testStartFunction = createInitFunction(pkgNode.pos, alias,
+                                                   Names.TEST_START_FUNCTION_SUFFIX);
+        pkgNode.testStopFunction = createInitFunction(pkgNode.pos, alias,
+                                                  Names.TEST_STOP_FUNCTION_SUFFIX);
+    }
+
+    private void definePackageTestInitFunctions(BLangTestablePackage pkgNode, SymbolEnv env) {
+        BLangFunction initFunction = pkgNode.testInitFunction;
+        // Add package level namespace declarations to the test init function
+        pkgNode.xmlnsList.forEach(xmlns -> {
+            initFunction.body.addStatement(createNamespaceDeclrStatement(xmlns));
+        });
+
+        defineNode(pkgNode.testInitFunction, env);
+        pkgNode.symbol.testInitFunctionSymbol = pkgNode.testInitFunction.symbol;
+
+        addInitReturnStatement(pkgNode.testStartFunction.body);
+        defineNode(pkgNode.testStartFunction, env);
+        pkgNode.symbol.testStartFunctionSymbol = pkgNode.testStartFunction.symbol;
+
+        addInitReturnStatement(pkgNode.testStopFunction.body);
+        defineNode(pkgNode.testStopFunction, env);
+        pkgNode.symbol.testStopFunctionSymbol = pkgNode.testStopFunction.symbol;
     }
 
     private BLangFunction createInitFunction(DiagnosticPos pos, String name, Name sufix) {

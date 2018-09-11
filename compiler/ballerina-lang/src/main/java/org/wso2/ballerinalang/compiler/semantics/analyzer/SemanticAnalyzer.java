@@ -260,6 +260,11 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         SymbolEnv pkgEnv = SymbolEnv.createPkgEnv(pkgNode, pkgNode.symbol.scope, enclosingPkgEnv);
 
         analyzeConstructs(pkgNode, pkgEnv);
+
+        analyzeDef(pkgNode.testInitFunction, pkgEnv);
+        analyzeDef(pkgNode.testStartFunction, pkgEnv);
+        analyzeDef(pkgNode.testStopFunction, pkgEnv);
+
         pkgNode.completedPhases.add(CompilerPhase.TYPE_CHECK);
     }
 
@@ -596,13 +601,25 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         }
 
         Name varName = names.fromIdNode(simpleVarRef.variableName);
-        if (!Names.IGNORE.equals(varName) && env.enclInvokable != env.enclPkg.initFunction) {
-            if ((simpleVarRef.symbol.flags & Flags.FINAL) == Flags.FINAL) {
-                dlog.error(varRef.pos, DiagnosticCode.CANNOT_ASSIGN_VALUE_FINAL, varRef);
-            } else if ((simpleVarRef.symbol.flags & Flags.FUNCTION_FINAL) == Flags.FUNCTION_FINAL) {
-                dlog.error(varRef.pos, DiagnosticCode.CANNOT_ASSIGN_VALUE_FUNCTION_ARGUMENT, varRef);
+        if (env.enclPkg.getKind() == NodeKind.PACKAGE) {
+            if (!Names.IGNORE.equals(varName) && env.enclInvokable != env.enclPkg.initFunction) {
+                if ((simpleVarRef.symbol.flags & Flags.FINAL) == Flags.FINAL) {
+                    dlog.error(varRef.pos, DiagnosticCode.CANNOT_ASSIGN_VALUE_FINAL, varRef);
+                } else if ((simpleVarRef.symbol.flags & Flags.FUNCTION_FINAL) == Flags.FUNCTION_FINAL) {
+                    dlog.error(varRef.pos, DiagnosticCode.CANNOT_ASSIGN_VALUE_FUNCTION_ARGUMENT, varRef);
+                }
+            }
+        } else if (env.enclPkg.getKind() == NodeKind.TESTABLE_PACKAGE) {
+            BLangTestablePackage enclPkg = (BLangTestablePackage) env.enclPkg;
+            if (!Names.IGNORE.equals(varName) && env.enclInvokable != enclPkg.testInitFunction) {
+                if ((simpleVarRef.symbol.flags & Flags.FINAL) == Flags.FINAL) {
+                    dlog.error(varRef.pos, DiagnosticCode.CANNOT_ASSIGN_VALUE_FINAL, varRef);
+                } else if ((simpleVarRef.symbol.flags & Flags.FUNCTION_FINAL) == Flags.FUNCTION_FINAL) {
+                    dlog.error(varRef.pos, DiagnosticCode.CANNOT_ASSIGN_VALUE_FUNCTION_ARGUMENT, varRef);
+                }
             }
         }
+
     }
 
     private void checkReadonlyAssignment(BLangExpression varRef) {

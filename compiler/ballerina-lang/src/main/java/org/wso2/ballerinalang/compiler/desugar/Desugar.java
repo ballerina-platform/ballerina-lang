@@ -274,22 +274,15 @@ public class Desugar extends BLangNodeVisitor {
         endpointDesugar.rewriteAnonymousEndpointsInPkg(pkgNode, env);
         pkgNode.globalEndpoints = rewrite(pkgNode.globalEndpoints, env);
         pkgNode.globalEndpoints.forEach(endpoint -> endpointDesugar.defineGlobalEndpoint(endpoint, env));
-        endpointDesugar.rewriteAllEndpointsInPkg(pkgNode, env);
+        if (pkgNode.getKind() == NodeKind.PACKAGE) {
+            endpointDesugar.rewriteAllEndpointsInPkg(pkgNode, env);
+        }
+        if (pkgNode.getKind() == NodeKind.TESTABLE_PACKAGE) {
+            endpointDesugar.rewriteAllEndpointsInTestPkg((BLangTestablePackage) pkgNode, env);
+        }
         endpointDesugar.rewriteServiceBoundToEndpointInPkg(pkgNode, env);
         pkgNode.services = rewrite(pkgNode.services, env);
         pkgNode.functions = rewrite(pkgNode.functions, env);
-    }
-
-    private void addGlobalVarsToPackageLevel(BLangPackage pkgNode) {
-        pkgNode.globalVars.forEach(v -> {
-            BLangAssignment assignment = (BLangAssignment) createAssignmentStmt(v);
-            if (assignment.expr == null) {
-                assignment.expr = getInitExpr(v);
-            }
-            if (assignment.expr != null) {
-                pkgNode.initFunction.body.stmts.add(assignment);
-            }
-        });
     }
 
     private void addAttachedFunctionsToPackageLevel(BLangPackage pkgNode) {
@@ -325,7 +318,15 @@ public class Desugar extends BLangNodeVisitor {
         }
         SymbolEnv env = this.symTable.pkgEnvMap.get(pkgNode.symbol);
 
-        addGlobalVarsToPackageLevel(pkgNode);
+        pkgNode.globalVars.forEach(v -> {
+            BLangAssignment assignment = (BLangAssignment) createAssignmentStmt(v);
+            if (assignment.expr == null) {
+                assignment.expr = getInitExpr(v);
+            }
+            if (assignment.expr != null) {
+                pkgNode.initFunction.body.stmts.add(assignment);
+            }
+        });
         annotationDesugar.rewritePackageAnnotations(pkgNode);
         addConstructsToPackageLevel(pkgNode, env);
 
@@ -350,8 +351,22 @@ public class Desugar extends BLangNodeVisitor {
         SymbolEnv enclosingPkgEnv = this.symTable.pkgEnvMap.get(pkgNode.symbol);
         SymbolEnv env = SymbolEnv.createPkgEnv(pkgNode, pkgNode.symbol.scope, enclosingPkgEnv);
 
-        addGlobalVarsToPackageLevel(pkgNode);
+        pkgNode.globalVars.forEach(v -> {
+            BLangAssignment assignment = (BLangAssignment) createAssignmentStmt(v);
+            if (assignment.expr == null) {
+                assignment.expr = getInitExpr(v);
+            }
+            if (assignment.expr != null) {
+                pkgNode.testInitFunction.body.stmts.add(assignment);
+            }
+        });
+        annotationDesugar.rewritePackageAnnotations(pkgNode);
         addConstructsToPackageLevel(pkgNode, env);
+
+        pkgNode.testInitFunction = rewrite(pkgNode.testInitFunction, env);
+        pkgNode.testStartFunction = rewrite(pkgNode.testStartFunction, env);
+        pkgNode.testStopFunction = rewrite(pkgNode.testStopFunction, env);
+
         pkgNode.completedPhases.add(CompilerPhase.DESUGAR);
         result = pkgNode;
     }

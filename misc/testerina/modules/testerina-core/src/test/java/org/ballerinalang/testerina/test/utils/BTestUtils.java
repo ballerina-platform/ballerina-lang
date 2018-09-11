@@ -49,7 +49,7 @@ public class BTestUtils {
      * @return Semantic errors
      */
     public static org.ballerinalang.launcher.util.CompileResult compile(String sourceRoot, String sourceFilePath) {
-        return BCompileUtil.compile(sourceRoot, sourceFilePath, CompilerPhase.CODE_GEN);
+        return BCompileUtil.compileWithTests(sourceRoot, sourceFilePath, CompilerPhase.CODE_GEN);
     }
 
     /**

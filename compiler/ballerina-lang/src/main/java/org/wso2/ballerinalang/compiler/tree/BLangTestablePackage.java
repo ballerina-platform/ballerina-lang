@@ -24,6 +24,8 @@ import org.ballerinalang.model.tree.NodeKind;
  */
 public class BLangTestablePackage extends BLangPackage {
 
+    public BLangFunction testInitFunction, testStartFunction, testStopFunction;
+
     @Override
     public NodeKind getKind() {
         return NodeKind.TESTABLE_PACKAGE;

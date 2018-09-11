@@ -241,8 +241,11 @@ public class TestAnnotationProcessor extends AbstractCompilerPlugin {
         if (suite == null) {
             throw new BallerinaException("No test suite found for [package]: " + programFile.getEntryPkgName());
         }
-        suite.setInitFunction(new TesterinaFunction(programFile, programFile.getEntryPackage().getInitFunctionInfo(),
-                TesterinaFunction.Type.INIT));
+        if (programFile.getEntryPackage().getTestInitFunctionInfo() == null) {
+            return;
+        }
+        suite.setInitFunction(new TesterinaFunction(programFile, programFile.getEntryPackage().
+                getTestInitFunctionInfo(), TesterinaFunction.Type.TEST_INIT));
         // add all functions of the package as utility functions
         Arrays.stream(programFile.getEntryPackage().getFunctionInfoEntries()).forEach(functionInfo -> {
             suite.addTestUtilityFunction(new TesterinaFunction(programFile, functionInfo, TesterinaFunction.Type.UTIL));

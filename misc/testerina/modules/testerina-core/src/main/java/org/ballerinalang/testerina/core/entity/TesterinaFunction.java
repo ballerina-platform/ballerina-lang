@@ -54,13 +54,14 @@ public class TesterinaFunction {
     static final String PREFIX_AFTERTEST = "AFTERTEST";
     static final String PREFIX_MOCK = "MOCK";
     static final String INIT_SUFFIX = ".<INIT>";
+    static final String TEST_INIT_SUFFIX = ".<TESTINIT>";
 
     /**
      * Prefixes for the test function names.
      */
     public enum Type {
         TEST(PREFIX_TEST), BEFORE_TEST(PREFIX_BEFORETEST), AFTER_TEST(PREFIX_AFTERTEST), MOCK(PREFIX_MOCK), INIT
-                (INIT_SUFFIX), UTIL(PREFIX_UTIL);
+                (INIT_SUFFIX), UTIL(PREFIX_UTIL), TEST_INIT(TEST_INIT_SUFFIX);
 
         String prefix;
 
@@ -81,9 +82,13 @@ public class TesterinaFunction {
     }
 
     public BValue[] invoke() throws BallerinaException {
-        if (this.type == Type.INIT) {
-            BLangFunctions.invokePackageInitFunctions(programFile);
-            BLangFunctions.invokePackageStartFunctions(programFile);
+        if (this.type == Type.TEST_INIT) {
+             BLangFunctions.invokePackageInitFunctions(programFile);
+             // BLangFunctions.invokePackageStartFunctions(programFile);
+
+             BLangFunctions.invokePackageTestInitFunctions(programFile);
+             BLangFunctions.invokePackageTestStartFunctions(programFile);
+
             TesterinaRegistry.getInstance().addInitializedPackage(programFile.getEntryPkgName());
             return new BValue[] {};
         } else {

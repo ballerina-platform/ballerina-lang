@@ -469,9 +469,9 @@ public class CodeGenerator extends BLangNodeVisitor {
             visitBuiltinFunctions(pkgNode.stopFunction);
         } else if (pkgNode.getKind() == NodeKind.TESTABLE_PACKAGE) {
             // Visit package test init function
-            visitBuiltinFunctions(((BLangTestablePackage) pkgNode).testInitFunction);
-            visitBuiltinFunctions(((BLangTestablePackage) pkgNode).testStartFunction);
-            visitBuiltinFunctions(((BLangTestablePackage) pkgNode).testStopFunction);
+            visitBuiltinFunctions(((BLangTestablePackage)pkgNode).testInitFunction);
+            visitBuiltinFunctions(((BLangTestablePackage)pkgNode).testStartFunction);
+            visitBuiltinFunctions(((BLangTestablePackage)pkgNode).testStopFunction);
         }
 
 
