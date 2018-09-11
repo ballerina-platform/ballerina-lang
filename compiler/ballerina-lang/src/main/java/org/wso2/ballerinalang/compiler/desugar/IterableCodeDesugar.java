@@ -412,6 +412,7 @@ public class IterableCodeDesugar {
                 defStmt.var.expr = arrayInit;
                 break;
             case TypeTags.MAP:
+            case TypeTags.RECORD:
                 defStmt.var.expr = ASTBuilderUtil.createEmptyRecordLiteral(pos, ctx.resultType);
                 break;
             case TypeTags.TABLE:
@@ -452,6 +453,7 @@ public class IterableCodeDesugar {
                 generateArrayAggregator(blockStmt, ctx);
                 return;
             case TypeTags.MAP:
+            case TypeTags.RECORD:
                 generateMapAggregator(blockStmt, ctx);
                 return;
             case TypeTags.TABLE:
@@ -618,8 +620,7 @@ public class IterableCodeDesugar {
         indexAccessNode.type = ctx.iteratorResultVariables.get(1).symbol.type;
         final BLangAssignment valueAssign = ASTBuilderUtil.createAssignmentStmt(pos, blockStmt);
         valueAssign.varRef = indexAccessNode;
-        valueAssign.expr = ASTBuilderUtil.generateConversionExpr(ASTBuilderUtil.createVariableRef(pos,
-                ctx.iteratorResultVariables.get(1).symbol), symTable.anyType, symResolver);
+        valueAssign.expr = ASTBuilderUtil.createVariableRef(pos, ctx.iteratorResultVariables.get(1).symbol);
     }
 
     /**

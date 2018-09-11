@@ -92,3 +92,15 @@ function test10() {
                         return "Test" + v;
                    }).filter((string s) => boolean { return true;});
 }
+
+function test11() {
+    map z = {a:"1", b:"2"};
+
+    map m = z.filter((any s) => boolean {
+          return s == null;
+    });
+
+    any x = z.filter((any s) => boolean {
+         return s == null;
+    });
+}
