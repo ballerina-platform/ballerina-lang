@@ -120,7 +120,7 @@ public class TableLiteralSyntaxTest {
         Assert.assertEquals(returns[6].stringValue(),
                 "{message:\"incompatible types: record of type:Person cannot be added to a table with no type\"}");
         Assert.assertEquals(returns[7].stringValue(), "{message:\"incompatible types: function with record type:Person"
-                + " cannot be used to remove records from a table no type\"}");
+                + " cannot be used to remove records from a table with no type\"}");
     }
 
     @Test(description = "Test table remove with function pointer of invalid return type")
