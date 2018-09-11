@@ -37,6 +37,7 @@ task:Timer cacheCleanupTimer = createCacheCleanupTask();
 type CacheEntry record {
     any value;
     int lastAccessedTime;
+    !...
 };
 
 # Represents a cache.

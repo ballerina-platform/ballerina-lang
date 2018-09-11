@@ -36,6 +36,7 @@ public type JwtHeader record {
     string cty;
     string kid;
     map customClaims;
+    !...
 };
 
 # Represents a JWT payload.
@@ -48,4 +49,5 @@ public type JwtPayload record {
     int nbf;
     int iat;
     map customClaims;
+    !...
 };

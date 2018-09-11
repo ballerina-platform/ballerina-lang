@@ -110,4 +110,5 @@ public type SocketProperties record {
     string sslEnabledProtocols;
     string ciphers;
     string sslProtocol;
+    !...
 };
