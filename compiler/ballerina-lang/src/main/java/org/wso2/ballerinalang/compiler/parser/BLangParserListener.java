@@ -408,8 +408,6 @@ public class BLangParserListener extends BallerinaParserBaseListener {
 
     /**
      * {@inheritDoc}
-     * <p>
-     * <p>The default implementation does nothing.</p>
      */
     @Override
     public void exitTypeDefinition(BallerinaParser.TypeDefinitionContext ctx) {
@@ -424,8 +422,6 @@ public class BLangParserListener extends BallerinaParserBaseListener {
 
     /**
      * {@inheritDoc}
-     * <p>
-     * <p>The default implementation does nothing.</p>
      */
     @Override
     public void enterObjectBody(BallerinaParser.ObjectBodyContext ctx) {
@@ -440,8 +436,6 @@ public class BLangParserListener extends BallerinaParserBaseListener {
 
     /**
      * {@inheritDoc}
-     * <p>
-     * <p>The default implementation does nothing.</p>
      */
     @Override
     public void exitObjectBody(BallerinaParser.ObjectBodyContext ctx) {
@@ -460,8 +454,6 @@ public class BLangParserListener extends BallerinaParserBaseListener {
 
     /**
      * {@inheritDoc}
-     * <p>
-     * <p>The default implementation does nothing.</p>
      */
     @Override
     public void enterObjectInitializer(BallerinaParser.ObjectInitializerContext ctx) {
@@ -474,8 +466,6 @@ public class BLangParserListener extends BallerinaParserBaseListener {
 
     /**
      * {@inheritDoc}
-     * <p>
-     * <p>The default implementation does nothing.</p>
      */
     @Override
     public void exitObjectInitializer(BallerinaParser.ObjectInitializerContext ctx) {
@@ -492,8 +482,6 @@ public class BLangParserListener extends BallerinaParserBaseListener {
 
     /**
      * {@inheritDoc}
-     * <p>
-     * <p>The default implementation does nothing.</p>
      */
     @Override
     public void exitObjectInitializerParameterList(BallerinaParser.ObjectInitializerParameterListContext ctx) {
@@ -507,8 +495,6 @@ public class BLangParserListener extends BallerinaParserBaseListener {
 
     /**
      * {@inheritDoc}
-     * <p>
-     * <p>The default implementation does nothing.</p>
      */
     @Override
     public void exitFieldDefinition(BallerinaParser.FieldDefinitionContext ctx) {
@@ -526,8 +512,6 @@ public class BLangParserListener extends BallerinaParserBaseListener {
 
     /**
      * {@inheritDoc}
-     * <p>
-     * <p>The default implementation does nothing.</p>
      */
     @Override
     public void exitObjectFieldDefinition(BallerinaParser.ObjectFieldDefinitionContext ctx) {
@@ -552,8 +536,6 @@ public class BLangParserListener extends BallerinaParserBaseListener {
 
     /**
      * {@inheritDoc}
-     * <p>
-     * <p>The default implementation does nothing.</p>
      */
     @Override
     public void enterObjectParameterList(BallerinaParser.ObjectParameterListContext ctx) {
@@ -566,8 +548,6 @@ public class BLangParserListener extends BallerinaParserBaseListener {
 
     /**
      * {@inheritDoc}
-     * <p>
-     * <p>The default implementation does nothing.</p>
      */
     @Override
     public void exitObjectParameter(BallerinaParser.ObjectParameterContext ctx) {
@@ -582,8 +562,6 @@ public class BLangParserListener extends BallerinaParserBaseListener {
 
     /**
      * {@inheritDoc}
-     * <p>
-     * <p>The default implementation does nothing.</p>
      */
     @Override
     public void exitObjectDefaultableParameter(BallerinaParser.ObjectDefaultableParameterContext ctx) {
@@ -596,8 +574,6 @@ public class BLangParserListener extends BallerinaParserBaseListener {
 
     /**
      * {@inheritDoc}
-     * <p>
-     * <p>The default implementation does nothing.</p>
      */
     @Override
     public void enterObjectFunctionDefinition(BallerinaParser.ObjectFunctionDefinitionContext ctx) {
@@ -610,8 +586,6 @@ public class BLangParserListener extends BallerinaParserBaseListener {
 
     /**
      * {@inheritDoc}
-     * <p>
-     * <p>The default implementation does nothing.</p>
      */
     @Override
     public void exitObjectFunctionDefinition(BallerinaParser.ObjectFunctionDefinitionContext ctx) {
@@ -781,8 +755,6 @@ public class BLangParserListener extends BallerinaParserBaseListener {
 
     /**
      * {@inheritDoc}
-     * <p>
-     * <p>The default implementation does nothing.</p>
      */
     @Override
     public void enterRecordFieldDefinitionList(BallerinaParser.RecordFieldDefinitionListContext ctx) {
@@ -1111,8 +1083,6 @@ public class BLangParserListener extends BallerinaParserBaseListener {
 
     /**
      * {@inheritDoc}
-     * <p>
-     * <p>The default implementation does nothing.</p>
      */
     @Override
     public void exitCompoundOperator(BallerinaParser.CompoundOperatorContext ctx) {
@@ -2065,8 +2035,6 @@ public class BLangParserListener extends BallerinaParserBaseListener {
 
     /**
      * {@inheritDoc}
-     * <p>
-     * <p>The default implementation does nothing.</p>
      */
     @Override
     public void exitReturnParameter(BallerinaParser.ReturnParameterContext ctx) {
