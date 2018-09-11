@@ -292,14 +292,17 @@ public class TypeChecker extends BLangNodeVisitor {
     }
 
     private void validateTableColumns(BType tableConstraint, BLangTableLiteral tableLiteral) {
-        List<String> columnNames = new ArrayList<>();
-        for (BField field : ((BRecordType) tableConstraint).fields) {
-            columnNames.add(field.getName().getValue());
-        }
-        for (BLangTableLiteral.BLangTableColumn column : tableLiteral.columns) {
-            boolean contains = columnNames.contains(column.columnName);
-            if (!contains) {
-                dlog.error(tableLiteral.pos, DiagnosticCode.UNDEFINED_TABLE_COLUMN, column.columnName, tableConstraint);
+        if (tableConstraint.tag != TypeTags.ERROR) {
+            List<String> columnNames = new ArrayList<>();
+            for (BField field : ((BRecordType) tableConstraint).fields) {
+                columnNames.add(field.getName().getValue());
+            }
+            for (BLangTableLiteral.BLangTableColumn column : tableLiteral.columns) {
+                boolean contains = columnNames.contains(column.columnName);
+                if (!contains) {
+                    dlog.error(tableLiteral.pos, DiagnosticCode.UNDEFINED_TABLE_COLUMN, column.columnName,
+                            tableConstraint);
+                }
             }
         }
     }
