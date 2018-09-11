@@ -29,3 +29,5 @@ public extern function getProperty(@sensitive string name) returns string;
 
 # Check point the current state of the execution.
 public extern function checkpoint ();
+
+public extern function addExitHook((function() returns ()) exitHookFunction);
