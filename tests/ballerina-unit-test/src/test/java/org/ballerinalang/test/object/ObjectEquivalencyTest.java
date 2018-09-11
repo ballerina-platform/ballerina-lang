@@ -131,4 +131,11 @@ public class ObjectEquivalencyTest {
     public void testObjectEqViewFromThirdPackageNegative() {
         BRunUtil.invoke(compileResult, "testObjectEqViewFromThirdPackage");
     }
+
+    @Test
+    public void testObjectEqualityWithDefaultConstructor() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testObjectEqualityWithDefaultConstructor");
+        Assert.assertEquals(returns[0].stringValue(), "{name:\"\", id:\"\"}");
+        Assert.assertEquals(returns[1].stringValue(), "{name:\"\", id:\"\"}");
+    }
 }

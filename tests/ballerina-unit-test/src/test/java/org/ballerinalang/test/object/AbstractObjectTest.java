@@ -29,7 +29,7 @@ public class AbstractObjectTest {
 
     @Test
     public void testAbstractObject() {
-        CompileResult compileResult = BCompileUtil.compile("test-src/object/abstract-object.bal");
+        CompileResult compileResult = BCompileUtil.compile("test-src/object/abstract-object-negative.bal");
         int index = 0;
         BAssertUtil.validateError(compileResult, index++, "cannot initialize abstract object 'Person1'", 3, 18);
         BAssertUtil.validateError(compileResult, index++, "cannot initialize abstract object 'Person2'", 4, 18);
@@ -37,5 +37,8 @@ public class AbstractObjectTest {
         BAssertUtil.validateError(compileResult, index++, "cannot initialize abstract object 'Person2'", 9, 18);
         BAssertUtil.validateError(compileResult, index++, "abstract object 'Person2' cannot have a constructor method",
                 28, 5);
+        BAssertUtil.validateError(compileResult, index++,
+                "no implementation found for the method 'getName' of non-abstract object 'Person3'", 40, 5);
+        System.out.println(compileResult);
     }
 }

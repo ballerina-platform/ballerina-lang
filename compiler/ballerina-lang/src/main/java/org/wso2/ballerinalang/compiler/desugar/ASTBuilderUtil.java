@@ -522,7 +522,6 @@ public class ASTBuilderUtil {
         objectInitNode.type = type;
 
         BLangInvocation invocationNode = (BLangInvocation) TreeBuilder.createInvocationNode();
-        System.out.println(pos + " --> " + type.tsymbol.name);
         invocationNode.symbol = ((BObjectTypeSymbol) type.tsymbol).initializerFunc.symbol;
         invocationNode.type = type;
 

@@ -39,7 +39,7 @@ public class AnonymousObjectTest {
 
     @BeforeClass
     public void setup() {
-        compileResult = BCompileUtil.compile("test-src/object/anon_object.bal");
+//        compileResult = BCompileUtil.compile("test-src/object/anon_object.bal");
     }
 
     @Test(description = "Test Anonymous object in a function parameter declaration")

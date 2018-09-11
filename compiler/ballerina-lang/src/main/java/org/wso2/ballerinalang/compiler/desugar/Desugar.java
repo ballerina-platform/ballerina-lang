@@ -28,6 +28,7 @@ import org.ballerinalang.model.tree.expressions.NamedArgNode;
 import org.ballerinalang.model.tree.statements.StatementNode;
 import org.ballerinalang.model.tree.statements.StreamingQueryStatementNode;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.SymbolResolver;
+import org.wso2.ballerinalang.compiler.semantics.analyzer.TaintAnalyzer;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.Types;
 import org.wso2.ballerinalang.compiler.semantics.model.Scope;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
@@ -44,6 +45,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BXMLNSSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.TaintRecord;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BJSONType;
@@ -267,6 +269,8 @@ public class Desugar extends BLangNodeVisitor {
         }
         SymbolEnv env = this.symTable.pkgEnvMap.get(pkgNode.symbol);
 
+        // Adding object functions to package level.
+        addAttachedFunctionsToPackageLevel(pkgNode, env);
 
         pkgNode.globalVars.forEach(v -> {
             BLangAssignment assignment = (BLangAssignment) createAssignmentStmt(v);
@@ -282,11 +286,7 @@ public class Desugar extends BLangNodeVisitor {
         //Sort type definitions with precedence
         pkgNode.typeDefinitions.sort(Comparator.comparing(t -> t.precedence));
 
-        //Adding object functions to package level.
-        addAttachedFunctionsToPackageLevel(pkgNode, env);
-
         pkgNode.typeDefinitions = rewrite(pkgNode.typeDefinitions, env);
-
         pkgNode.xmlnsList = rewrite(pkgNode.xmlnsList, env);
         pkgNode.globalVars = rewrite(pkgNode.globalVars, env);
         endpointDesugar.rewriteAnonymousEndpointsInPkg(pkgNode, env);
@@ -318,12 +318,12 @@ public class Desugar extends BLangNodeVisitor {
                     }
                 });
 
-                if (!objectTypeNode.flagSet.contains(Flag.ABSTRACT)) {
+                if (objectTypeNode.flagSet.contains(Flag.ABSTRACT)) {
                     continue;
                 }
 
                 if (objectTypeNode.initFunction == null) {
-                    objectTypeNode.initFunction = createDefaultInitFunction(objectTypeNode, env);
+                    objectTypeNode.initFunction = createDefaultObjectConstructor(objectTypeNode, env);
                 }
                 pkgNode.functions.add(objectTypeNode.initFunction);
                 pkgNode.topLevelNodes.add(objectTypeNode.initFunction);
@@ -354,6 +354,11 @@ public class Desugar extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangObjectTypeNode objectTypeNode) {
+        if (objectTypeNode.flagSet.contains(Flag.ABSTRACT)) {
+            result = objectTypeNode;
+            return;
+        }
+
         // Add struct level variables to the init function.
         objectTypeNode.fields.stream()
                 .map(field -> {
@@ -1194,7 +1199,6 @@ public class Desugar extends BLangNodeVisitor {
     public void visit(BLangTypeInit typeInitExpr) {
         if (typeInitExpr.type.tag == TypeTags.OBJECT &&
                 typeInitExpr.objectInitInvocation.symbol == null) {
-            System.out.println();
             typeInitExpr.objectInitInvocation.symbol =
                     ((BObjectTypeSymbol) typeInitExpr.type.tsymbol).initializerFunc.symbol;
         }
@@ -2886,7 +2890,7 @@ public class Desugar extends BLangNodeVisitor {
         }
     }
 
-    private BLangFunction createDefaultInitFunction(BLangObjectTypeNode objectTypeNode, SymbolEnv env) {
+    private BLangFunction createDefaultObjectConstructor(BLangObjectTypeNode objectTypeNode, SymbolEnv env) {
         BLangFunction initFunction =
                 ASTBuilderUtil.createInitFunction(objectTypeNode.pos, Names.EMPTY.value, Names.OBJECT_INIT_SUFFIX);
 
@@ -2908,6 +2912,11 @@ public class Desugar extends BLangNodeVisitor {
         initFunction.symbol = Symbols.createFunctionSymbol(Flags.asMask(initFunction.flagSet), funcSymbolName,
                 env.enclPkg.symbol.pkgID, initFunction.type, env.scope.owner, initFunction.body != null);
         initFunction.symbol.scope = new Scope(initFunction.symbol);
+
+        // Set the taint information to the constructed init function
+        initFunction.symbol.taintTable = new HashMap<>();
+        TaintRecord taintRecord = new TaintRecord(Collections.singletonList(Boolean.FALSE), null);
+        initFunction.symbol.taintTable.put(TaintAnalyzer.ALL_UNTAINTED_TABLE_ENTRY_INDEX, taintRecord);
 
         // Update Object type with attached function details
         BObjectTypeSymbol objectSymbol = ((BObjectTypeSymbol) objectTypeNode.type.tsymbol);

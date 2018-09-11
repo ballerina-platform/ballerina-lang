@@ -292,6 +292,11 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             return;
         }
 
+        if (isUnimplementedObjectAttachedFunction(funcNode)) {
+            dlog.error(funcNode.pos, DiagnosticCode.INVALID_INTERFACE_ON_NON_ABSTRACT_OBJECT, funcNode.name,
+                    funcNode.receiver.type);
+        }
+
         // Check for native functions
         if (Symbols.isNative(funcNode.symbol) || funcNode.interfaceFunction) {
             if (funcNode.body != null) {
@@ -834,32 +839,22 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             return;
         }
 
-        // No initFunction implies having a default constructor. If the object has the default constructor
-        // then all fields should be defaultable
+        // No initFunction implies having a default constructor with no params
+        List<BVarSymbol> initFuncParams =
+                objectTypeNode.initFunction == null ? new ArrayList<>(0) : objectTypeNode.initFunction.symbol.params;
         defaultableStatus = true;
-        if (objectTypeNode.initFunction == null) {
-            for (BLangVariable field : objectTypeNode.fields) {
-                if (field.expr == null && !types.defaultValueExists(field.pos, field.symbol.type)) {
-                    defaultableStatus = false;
-                    break;
-                }
-            }
-            markDefaultableStatus(typeDef.symbol, defaultableStatus);
-            return;
-        }
-
         for (BLangVariable field : objectTypeNode.fields) {
             if (field.expr != null || types.defaultValueExists(field.pos, field.symbol.type)) {
                 continue;
             }
             defaultableStatus = false;
-            if (objectTypeNode.initFunction.symbol.params.stream().filter(p -> p.name.equals(field.symbol.name))
+            if (initFuncParams.stream().filter(p -> p.name.equals(field.symbol.name))
                     .collect(Collectors.toList()).size() == 0) {
                 dlog.error(typeDef.pos, DiagnosticCode.OBJECT_UN_INITIALIZABLE_FIELD, field);
             }
         }
 
-        if (objectTypeNode.initFunction.symbol.params.size() > 0) {
+        if (initFuncParams.size() > 0) {
             defaultableStatus = false;
         }
 
@@ -2033,5 +2028,30 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             }
         }
         attribute.type = attributeSymbol.type;
+    }
+
+    /**
+     * Checks whether a function node is an unimplemented method inside a
+     * non-abstract object.
+     * 
+     * @param funcNode Function node
+     * @return True if the function is an unimplemented method inside a non-abstract object.
+     */
+    private boolean isUnimplementedObjectAttachedFunction(BLangFunction funcNode) {
+        if (!funcNode.attachedFunction || !funcNode.interfaceFunction) {
+            return false;
+        }
+
+        // If the function is attached to an abstract object, it don't need to have an implementation
+        if (Symbols.isFlagOn(funcNode.receiver.type.tsymbol.flags, Flags.ABSTRACT)) {
+            return false;
+        }
+
+        // Otherwise there must be an implementation at the outer level.
+        if (env.enclPkg.objAttachedFunctions.contains(funcNode.symbol)) {
+            return false;
+        }
+
+        return true;
     }
 }

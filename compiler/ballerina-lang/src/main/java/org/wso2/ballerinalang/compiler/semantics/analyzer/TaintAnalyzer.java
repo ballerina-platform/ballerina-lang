@@ -215,7 +215,7 @@ public class TaintAnalyzer extends BLangNodeVisitor {
     private static final String ANNOTATION_UNTAINTED = "untainted";
     private static final String ANNOTATION_SENSITIVE = "sensitive";
 
-    private static final int ALL_UNTAINTED_TABLE_ENTRY_INDEX = -1;
+    public static final int ALL_UNTAINTED_TABLE_ENTRY_INDEX = -1;
     private static final int RETURN_TAINTED_STATUS_COLUMN_INDEX = 0;
 
     private enum AnalyzerPhase {

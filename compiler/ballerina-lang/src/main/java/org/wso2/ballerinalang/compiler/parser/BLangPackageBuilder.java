@@ -3385,8 +3385,17 @@ public class BLangPackageBuilder {
     }
 
     public void markObjectAsAbstract() {
-        // TODO: this can be other types than object types. eg: anonymous objects
-        BLangObjectTypeNode objectType = (BLangObjectTypeNode) this.typeNodeStack.peek();
-        objectType.flagSet.add(Flag.ABSTRACT);
+        TypeNode type = this.typeNodeStack.peek();
+        switch (type.getKind()) {
+            case OBJECT_TYPE:
+                ((BLangObjectTypeNode) type).flagSet.add(Flag.ABSTRACT);
+                break;
+            case USER_DEFINED_TYPE:
+                ((BLangUserDefinedType) type).flagSet.add(Flag.ABSTRACT);
+                break;
+            default:
+                // do nothing
+                break;
+        }
     }
 }

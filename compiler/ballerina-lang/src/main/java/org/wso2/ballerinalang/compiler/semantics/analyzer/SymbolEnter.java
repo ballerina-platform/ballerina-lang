@@ -1027,7 +1027,7 @@ public class SymbolEnter extends BLangNodeVisitor {
 
         initFunction.attachedFunction = true;
         initFunction.flagSet.add(Flag.ATTACHED);
-        defineNode(object.initFunction, conEnv);
+        defineNode(initFunction, conEnv);
     }
 
     private void defineRecordInitFunction(BLangTypeDefinition typeDef, SymbolEnv conEnv) {

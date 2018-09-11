@@ -595,3 +595,34 @@ function testObjectEqViewFromThirdPackage() returns (string) {
     eq2:FooObj fooObj = check <eq2:FooObj> barObj;
     return fooObj.name;
 }
+
+public type ObjectWithoutNew object {
+    public string name;
+    public string id;
+
+//    public function getPerson() returns ObjectWithoutNew {
+//        return self;
+//    }
+};
+
+public type ObjectWithNew object {
+    public string name;
+    public string id;
+
+    public new () {
+    }
+
+//    public function getPerson() returns ObjectWithNew {
+//        return self;
+//    }
+};
+
+function testObjectEqualityWithDefaultConstructor() returns (ObjectWithNew, ObjectWithoutNew) {
+    ObjectWithoutNew obj1 = new();
+    ObjectWithNew obj2 = new();
+
+    ObjectWithNew obj3 = obj1;
+    ObjectWithoutNew obj4 = obj2;
+    
+    return (obj3, obj4);
+}

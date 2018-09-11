@@ -15,9 +15,9 @@ type Person1 abstract object {
 
     int year;
     string month;
-
 };
 
+// Abstract object with constructor method
 type Person2 abstract object {
     public int age;
     public string name;
@@ -27,4 +27,15 @@ type Person2 abstract object {
     
     new () {
     }
+};
+
+// Non-abstract object with a function that has no implementation
+type Person3 object {
+    public int age;
+    public string name;
+
+    int year;
+    string month;
+
+    public function getName() returns string;
 };
