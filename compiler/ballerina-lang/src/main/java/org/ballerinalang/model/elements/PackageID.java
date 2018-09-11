@@ -126,8 +126,7 @@ public class PackageID {
         PackageID other = (PackageID) o;
         boolean samePkg = false;
 
-        boolean isBothUnnamed = (this.isUnnamed == other.isUnnamed);
-        if (isBothUnnamed) {
+        if (this.isUnnamed == other.isUnnamed) {
             samePkg = (!this.isUnnamed) || (this.sourceFileName.equals(other.sourceFileName));
         }
 

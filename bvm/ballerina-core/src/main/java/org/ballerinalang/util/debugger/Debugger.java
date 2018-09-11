@@ -171,6 +171,7 @@ public class Debugger {
             case DebugConstants.CMD_SET_POINTS:
                 // we expect { "command": "SET_POINTS", points: [{ "fileName": "sample.bal", "lineNumber" : 5 },{...}]}
                 addDebugPoints(command.getPoints());
+                //TODO: Revisit sending acknowledgement message when there's invalid breakpoints
                 sendAcknowledge("Debug points updated");
                 break;
             case DebugConstants.CMD_START:
