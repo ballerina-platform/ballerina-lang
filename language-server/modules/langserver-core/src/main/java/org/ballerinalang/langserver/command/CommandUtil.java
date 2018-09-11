@@ -286,10 +286,6 @@ public class CommandUtil {
         DiagnosticPos functionPos =  CommonUtil.toZeroBasedPosition((DiagnosticPos) bLangFunction.getPosition());
         int offset = functionPos.getStartColumn();
         List<String> attributes = new ArrayList<>();
-        if (bLangFunction.getReceiver() != null && bLangFunction.getReceiver() instanceof BLangVariable) {
-            BLangVariable receiverNode = (BLangVariable) bLangFunction.getReceiver();
-            attributes.add(getDocumentationAttribute(receiverNode.getName().getValue(), offset));
-        }
         bLangFunction.getParameters().forEach(bLangVariable ->
                         attributes.add(getDocAttributeFromBLangVariable((BLangVariable) bLangVariable, offset)));
         if (((BLangFunction) bLangFunction).symbol.retType.getKind() != TypeKind.NIL) {
