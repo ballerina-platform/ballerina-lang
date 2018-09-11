@@ -103,3 +103,10 @@ function testIterableReturnLambda () returns (function (int) returns boolean)[] 
 
     return lambdas;
 }
+
+function testCountFunction() returns any {
+
+    map numbers = {a: "1", b: "2", c: "3"};
+    int v = numbers.map(entry => entry).count();
+    return v;
+}

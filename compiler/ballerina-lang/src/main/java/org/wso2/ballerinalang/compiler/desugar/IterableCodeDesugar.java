@@ -319,7 +319,7 @@ public class IterableCodeDesugar {
 
         // Generate aggregator and result
         if (isReturningIteratorFunction(ctx)) {
-            if (ctx.iteratorResultVariables.size() > 1) {
+            if (ctx.iteratorResultVariables.size() > 1 && ctx.getLastOperation().kind != IterableKind.COUNT) {
                 // Destructure return Values.
                 final BLangTupleDestructure tupleAssign = (BLangTupleDestructure) TreeBuilder
                         .createTupleDestructureStatementNode();

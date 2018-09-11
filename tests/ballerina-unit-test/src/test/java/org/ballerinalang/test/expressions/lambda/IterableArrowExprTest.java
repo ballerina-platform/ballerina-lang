@@ -106,6 +106,12 @@ public class IterableArrowExprTest {
     }
 
     @Test
+    public void testCountFunction() {
+        BValue[] returns = BRunUtil.invoke(basic, "testCountFunction");
+        Assert.assertEquals(((BInteger) returns[0]).intValue(), 3);
+    }
+
+    @Test
     public void testNegativeArrowExpr() {
         int i = 0;
         Assert.assertEquals(resultNegative.getErrorCount(), 10);
