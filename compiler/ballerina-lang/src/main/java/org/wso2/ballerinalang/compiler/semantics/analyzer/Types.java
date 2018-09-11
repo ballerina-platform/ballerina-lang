@@ -457,7 +457,11 @@ public class Types {
             case TypeTags.TABLE:
                 BTableType tableType = (BTableType) collectionType;
                 if (variableSize == 1) {
-                    return Lists.of(tableType.constraint);
+                    if (tableType.constraint.tag == TypeTags.NONE) {
+                        return Lists.of(symTable.anyType);
+                    } else {
+                        return Lists.of(tableType.constraint);
+                    }
                 } else if (variableSize == 2) {
                     return Lists.of(symTable.intType, tableType.constraint);
                 } else {
