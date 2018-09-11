@@ -32,7 +32,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BAnyType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BBuiltInRefType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BEnumType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BErrorType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BField;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BFiniteType;
@@ -466,6 +465,17 @@ public class Types {
                     errorTypes = Lists.of(tableType.constraint);
                 }
                 break;
+            case TypeTags.RECORD:
+                BRecordType recordType = (BRecordType) collectionType;
+                if (variableSize == 1) {
+                    return Lists.of(inferRecordFieldType(recordType));
+                } else if (variableSize == 2) {
+                    return Lists.of(symTable.stringType, inferRecordFieldType(recordType));
+                } else {
+                    maxSupportedTypes = 2;
+                    errorTypes = Lists.of(symTable.stringType, symTable.anyType);
+                }
+                break;
             case TypeTags.ERROR:
                 return Collections.nCopies(variableSize, symTable.errType);
             default:
@@ -475,6 +485,24 @@ public class Types {
         dlog.error(collection.pos, DiagnosticCode.ITERABLE_TOO_MANY_VARIABLES, collectionType);
         errorTypes.addAll(Collections.nCopies(variableSize - maxSupportedTypes, symTable.errType));
         return errorTypes;
+    }
+
+    public BType inferRecordFieldType(BRecordType recordType) {
+        List<BField> fields = recordType.fields;
+        BType inferredType = fields.get(0).type; // If all the fields are the same, doesn't matter which one we pick
+
+        // If it's an open record, the rest field type should also be of the same type as the mandatory fields.
+        if (!recordType.sealed && recordType.restFieldType.tag != inferredType.tag) {
+            return symTable.anyType;
+        }
+
+        for (int i = 1; i < fields.size(); i++) {
+            if (inferredType.tag != fields.get(i).type.tag) {
+                return symTable.anyType;
+            }
+        }
+
+        return inferredType;
     }
 
     private boolean checkActionTypeEquality(BInvokableSymbol source, BInvokableSymbol target) {
@@ -892,15 +920,6 @@ public class Types {
         }
 
         @Override
-        public BSymbol visit(BEnumType t, BType s) {
-            if (s == symTable.anyType) {
-                return createConversionOperatorSymbol(s, t, false, InstructionCodes.ANY2E);
-            }
-
-            return symTable.notFoundSymbol;
-        }
-
-        @Override
         public BSymbol visit(BInvokableType t, BType s) {
             if (s == symTable.anyType) {
                 return createConversionOperatorSymbol(s, t, false, InstructionCodes.CHECKCAST);
@@ -1029,11 +1048,6 @@ public class Types {
 
         @Override
         public Boolean visit(BStreamType t, BType s) {
-            return t == s;
-        }
-
-        @Override
-        public Boolean visit(BEnumType t, BType s) {
             return t == s;
         }
 

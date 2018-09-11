@@ -19,7 +19,7 @@
 package org.ballerinalang.test.service.http.sample;
 
 import io.netty.handler.codec.http.HttpHeaderNames;
-import org.ballerinalang.test.BaseTest;
+import org.ballerinalang.test.service.http.HttpBaseTest;
 import org.ballerinalang.test.util.HttpClientRequest;
 import org.ballerinalang.test.util.HttpResponse;
 import org.ballerinalang.test.util.TestConstant;
@@ -31,7 +31,8 @@ import java.io.IOException;
 /**
  * Test whether the xml payload gets parsed properly, after the said payload has been retrieved as a byte array.
  */
-public class HttpPayloadTestCase extends BaseTest {
+@Test(groups = "http-test")
+public class HttpPayloadTestCase extends HttpBaseTest {
     @Test
     public void testXmlPayload() throws IOException {
         HttpResponse response = HttpClientRequest.doGet(serverInstance.getServiceURLHttp(9118, "test/"));

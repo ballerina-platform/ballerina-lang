@@ -157,15 +157,14 @@ function testMappingToNillableTypeFieldsBlob(string jdbcUrl, string userName, st
         password: password,
         poolOptions: { maximumPoolSize: 1 }
     };
-
-    table<NillableDataTypes> dt = check testDB->select("SELECT blob_type from DataTypeTableNillableBlob where
-    row_id=3", NillableBlob);
-
     byte[]? blob_type;
-
-    while (dt.hasNext()) {
-        NillableBlob rs = check <NillableBlob>dt.getNext();
-        blob_type = rs.blob_type;
+    transaction {
+        table<NillableDataTypes> dt = check testDB->select("SELECT blob_type from DataTypeTableNillableBlob where
+    row_id=3", NillableBlob);
+        while (dt.hasNext()) {
+            NillableBlob rs = check <NillableBlob>dt.getNext();
+            blob_type = rs.blob_type;
+        }
     }
     testDB.stop();
     return blob_type;
@@ -367,8 +366,8 @@ function testMappingNullToNillableTypesBlob(string jdbcUrl, string userName, str
         password: password,
         poolOptions: { maximumPoolSize: 1 }
     };
-    table<NillableBlob> dt = check testDB->select("SELECT blob_type from DataTypeTableNillableBlob where
-    row_id=4", NillableBlob);
+    table<NillableBlob> dt = check testDB->select("SELECT blob_type from DataTypeTableNillableBlob where row_id=4",
+        NillableBlob);
 
     byte[]? blob_type;
 

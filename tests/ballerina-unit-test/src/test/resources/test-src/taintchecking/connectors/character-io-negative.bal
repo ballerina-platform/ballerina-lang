@@ -1,6 +1,6 @@
 import ballerina/io;
 
-function main (string... args) {
+public function main (string... args) {
     string filePath = args[0];
     io:Mode permission = "r";
     string chars = args[0];

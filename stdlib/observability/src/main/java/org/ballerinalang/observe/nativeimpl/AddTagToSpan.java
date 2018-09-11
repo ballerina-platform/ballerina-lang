@@ -48,7 +48,7 @@ public class AddTagToSpan extends BlockingNativeCallableUnit {
         String tagKey = context.getStringArgument(0);
         String tagValue = context.getStringArgument(1);
 
-        boolean tagAdded = OpenTracerBallerinaWrapper.getInstance().addTag(tagKey, tagValue, spanId);
+        boolean tagAdded = OpenTracerBallerinaWrapper.getInstance().addTag(tagKey, tagValue, spanId, context);
 
         if (!tagAdded) {
             context.setReturnValues(Utils.createErrorStruct(context,

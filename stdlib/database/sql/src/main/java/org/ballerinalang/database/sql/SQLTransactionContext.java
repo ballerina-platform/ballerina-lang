@@ -78,11 +78,6 @@ public class SQLTransactionContext implements BallerinaTransactionContext {
     }
 
     @Override
-    public void done() {
-        /* ignore */
-    }
-
-    @Override
     public XAResource getXAResource() {
         return this.xaResource;
     }

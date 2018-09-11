@@ -54,6 +54,10 @@ public class EventExecutor {
         return evt.getChannel();
     }
 
+    public boolean remaining() {
+        return evt.remaining();
+    }
+
     /**
      * Executes the task once ready.
      */

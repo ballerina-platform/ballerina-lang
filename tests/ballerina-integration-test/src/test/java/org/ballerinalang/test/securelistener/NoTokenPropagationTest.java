@@ -19,16 +19,11 @@
 
 package org.ballerinalang.test.securelistener;
 
-import org.ballerinalang.test.BaseTest;
-import org.ballerinalang.test.context.BallerinaTestException;
 import org.ballerinalang.test.util.HttpClientRequest;
 import org.ballerinalang.test.util.HttpResponse;
 import org.testng.Assert;
-import org.testng.annotations.AfterTest;
-import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Test;
 
-import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -36,16 +31,7 @@ import java.util.Map;
  * Test cases for verifying no token propagation scenario.
  */
 @Test(groups = "secure-listener-test")
-public class NoTokenPropagationTest extends BaseTest {
-
-    @BeforeTest(groups = "secure-listener-test")
-    public void start() throws BallerinaTestException {
-        String basePath = new File("src" + File.separator + "test" + File.separator + "resources" + File.separator +
-                "secureListener").getAbsolutePath();
-        String ballerinaConfPath = basePath + File.separator + "ballerina.conf";
-        String[] args = new String[]{"--sourceroot", basePath, "--config", ballerinaConfPath};
-        serverInstance.startBallerinaServer("secureservices", args);
-    }
+public class NoTokenPropagationTest extends SecureListenerBaseTest {
 
     @Test(description = "No JWT Token propagation, authn failure test")
     public void testTokenPropagationSuccess() throws Exception {
@@ -54,10 +40,5 @@ public class NoTokenPropagationTest extends BaseTest {
         HttpResponse response = HttpClientRequest.doGet(serverInstance.getServiceURLHttp(9090, "passthrough"), headers);
         Assert.assertNotNull(response);
         Assert.assertEquals(response.getResponseCode(), 401, "Response code mismatched");
-    }
-
-    @AfterTest(groups = "secure-listener-test")
-    public void cleanup() throws Exception {
-        serverInstance.stopServer();
     }
 }

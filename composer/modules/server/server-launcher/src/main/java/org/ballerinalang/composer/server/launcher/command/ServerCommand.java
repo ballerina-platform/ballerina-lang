@@ -15,24 +15,26 @@
  */
 package org.ballerinalang.composer.server.launcher.command;
 
-import com.beust.jcommander.Parameter;
+import picocli.CommandLine;
 
 /**
  * Represents command line Args supported in composer server launcher.
  */
+@CommandLine.Command(name = "composer")
 public class ServerCommand {
-    @Parameter(names = {"--help", "-h", "help"}, hidden = true, help = true)
+    @CommandLine.Option(names = {"--help", "-h", "help"}, hidden = true, help = true)
     public boolean helpFlag = false;
 
-    @Parameter(names = {"--port" , "-p"}, description = "Specify a custom port for the server to start.")
+    @CommandLine.Option(names = {"--port" , "-p"}, description = "Specify a custom port for the server to start.")
     public Integer port;
 
-    @Parameter(names = "--host", description = "Specify a custom interface to bind the server.")
+    @CommandLine.Option(names = "--host", description = "Specify a custom interface to bind the server.")
     public String host;
 
-    @Parameter(names = "--publicPath", description = "Specify a custom path to server the public content from.")
+    @CommandLine.Option(names = "--publicPath",
+            description = "Specify a custom path to serve the public content from.")
     public String publicPath;
 
-    @Parameter(names = "--debug", hidden = true)
+    @CommandLine.Option(names = "--debug", hidden = true)
     private String debugPort;
 }

@@ -14,15 +14,13 @@
 // specific language governing permissions and limitations
 // under the License.
 
-documentation {
-    Represents a WebSocket client endpoint.
-
-    F{{id}} The connection id
-    F{{negotiatedSubProtocol}} The subprotocols negoriated with the server
-    F{{isSecure}} `true` if the connection is secure
-    F{{isOpen}} `true` if the connection is open
-    F{{attributes}} A map to store connection related attributes
-}
+# Represents a WebSocket client endpoint.
+#
+# + id - The connection id
+# + negotiatedSubProtocol - The subprotocols negoriated with the server
+# + isSecure - `true` if the connection is secure
+# + isOpen - `true` if the connection is open
+# + attributes - A map to store connection related attributes
 public type WebSocketClient object {
 
     @readonly public string id;
@@ -35,52 +33,41 @@ public type WebSocketClient object {
     private WebSocketConnector conn;
     private WebSocketClientEndpointConfig config;
 
-    documentation {
-        Gets called when the endpoint is being initialize during package init time.
-
-        P{{c}} The `WebSocketClientEndpointConfig` of the endpoint
-    }
+    # Gets called when the endpoint is being initialize during package init time.
+    #
+    # + c - The `WebSocketClientEndpointConfig` of the endpoint
     public function init(WebSocketClientEndpointConfig c) {
         self.config = c;
         initEndpoint();
     }
 
-    documentation {
-        Initializes the endpoint.
-    }
+    # Initializes the endpoint.
     public extern function initEndpoint();
 
-    documentation {
-        Allows access to connector that the client endpoint uses.
-
-        R{{}} The connector that client endpoint uses
-    }
+    # Allows access to connector that the client endpoint uses.
+    #
+    # + return - The connector that client endpoint uses
     public function getCallerActions() returns (WebSocketConnector) {
         return conn;
     }
 
-    documentation {
-        Stops the registered service.
-    }
+    # Stops the registered service.
     public function stop() {
         WebSocketConnector webSocketConnector = getCallerActions();
-        check webSocketConnector.close(1001, "going away", timeoutInSecs = 0);
+        check webSocketConnector.close(statusCode = 1001, reason = "going away", timeoutInSecs = 0);
     }
 };
 
-documentation {
-        Configuration struct for WebSocket client endpoint.
-
-        F{{url}} The url of the server to connect to
-        F{{callbackService}} The callback service for the client. Resources in this service gets called on receipt of messages from the server.
-        F{{subProtocols}} Negotiable sub protocols for the client
-        F{{customHeaders}} Custom headers which should be sent to the server
-        F{{idleTimeoutInSeconds}} Idle timeout of the client. Upon timeout, onIdleTimeout resource in the client service will be triggered (if there is one defined)
-        F{{readyOnConnect}}
- true if the client is ready to recieve messages as soon as the connection is established. This is true by default. If changed to false the function ready() of the
-`WebSocketClient`needs to be called once to start receiving messages.
-        F{{secureSocket}} SSL/TLS related options
-}
+    # Configuration struct for WebSocket client endpoint.
+    #
+    # + url - The url of the server to connect to
+    # + callbackService - The callback service for the client. Resources in this service gets called on receipt of messages from the server.
+    # + subProtocols - Negotiable sub protocols for the client
+    # + customHeaders - Custom headers which should be sent to the server
+    # + idleTimeoutInSeconds - Idle timeout of the client. Upon timeout, onIdleTimeout resource in the client service will be triggered (if there is one defined)
+    # + readyOnConnect - true if the client is ready to recieve messages as soon as the connection is established. This is true by default. If changed to false the function ready() of the
+    #                    `WebSocketClient`needs to be called once to start receiving messages.
+    # + secureSocket - SSL/TLS related options
 public type WebSocketClientEndpointConfig record {
     string url,
     typedesc? callbackService,

@@ -19,15 +19,23 @@
 
 import 'font-ballerina/css/font-ballerina.css';
 import { renderToStaticMarkup } from 'react-dom/server';
-import { createElement } from 'react';
+import React, { createElement } from 'react';
 import { DragDropContext } from 'react-dnd';
 import HTML5Backend from 'react-dnd-html5-backend';
+import PropTypes from 'prop-types';
+import ReactDOM from 'react-dom';
 
 import Diagram from 'plugins/ballerina/diagram/diagram.jsx';
+import DesignView from 'plugins/ballerina/views/design-view.jsx';
 import TreeBuilder from 'plugins/ballerina/model/tree-builder.js';
 import '../src/ballerina-theme/semantic.less';
 
-function renderDiagram(target, modelJson, props = {}) {
+const BalDiagram = DragDropContext(HTML5Backend)(Diagram);
+const BallerinaDesignView = DragDropContext(HTML5Backend)(DesignView);
+
+const TREE_MODIFIED = 'tree-modified';
+
+function renderStaticDiagram(target, modelJson, props = {}) {
     const defaultProps = {
         model: TreeBuilder.build(modelJson),
         mode: 'action',
@@ -36,15 +44,117 @@ function renderDiagram(target, modelJson, props = {}) {
         width: 300,
     };
     Object.assign(defaultProps, props);
-    const el = createElement(DragDropContext(HTML5Backend)(Diagram), defaultProps);
+    const el = createElement(BalDiagram, defaultProps);
     target.innerHTML = renderToStaticMarkup(el);
 }
+class BallerinaDiagram extends React.Component {
 
-const BalDiagram = DragDropContext(HTML5Backend)(Diagram);
+    constructor(props) {
+        super(props);
+        this.state = {
+            currentAST: undefined,
+            editMode: true,
+            diagramMode: 'action',
+        };
+    }
+
+    componentDidMount() {
+        this.updateDiagram(this.props.docUri);
+    }
+
+    componentWillReceiveProps(nextProps) {
+        this.updateDiagram(nextProps.docUri);
+    }
+
+    onModelUpdate(evt) {
+        this.forceUpdate();
+        const { currentAST } = this.state;
+        if (currentAST) {
+            this.props.onChange({ newAST: currentAST });
+        }
+    }
+
+    updateDiagram(docUri) {
+        this.props.getAST(docUri)
+                .then((parserReply) => {
+                    const { currentAST } = this.state;
+                    if (parserReply.model) {
+                        if (currentAST) {
+                            currentAST.off(TREE_MODIFIED, this.onModelUpdate);
+                        }
+                        const newAST = TreeBuilder.build(parserReply.model);
+                        if (newAST) {
+                            newAST.on(TREE_MODIFIED, this.onModelUpdate.bind(this));
+                        }
+                        this.setState({
+                            currentAST: newAST,
+                        });
+                    }
+                });
+        this.forceUpdate();
+    }
+
+    render() {
+        const { currentAST, diagramMode, editMode } = this.state;
+        const { width, height } = this.props;
+        if (!currentAST) {
+            return (
+                <div className='spinnerContainer'>
+                    <div className='fa fa-spinner fa-pulse fa-3x fa-fw' style={{ color: 'grey' }} />
+                </div>
+            );
+        }
+        return (
+            <React.Fragment>
+                <div className='ballerina-editor design-view-container'>
+                    <BallerinaDesignView
+                        model={currentAST}
+                        mode={diagramMode}
+                        editMode={editMode}
+                        height={height}
+                        width={width}
+                        onModeChange={(evt) => {
+                            this.setState({
+                                editMode: evt.editMode,
+                            });
+                        }}
+                        onCodeExpandToggle={(evt) => {
+                            this.setState({
+                                diagramMode: evt.mode,
+                            });
+                        }}
+                    />
+                </div>
+            </React.Fragment>);
+    }
+}
+
+BallerinaDiagram.propTypes = {
+    getAST: PropTypes.func.isRequired,
+    onChange: PropTypes.func.isRequired,
+    docUri: PropTypes.string.isRequired,
+    width: PropTypes.number.isRequired,
+    height: PropTypes.number.isRequired,
+};
+
+function renderEditableDiagram(target, docUri, width, height,
+    getAST = () => Promise.resolve({}),
+    onChange = () => {}) {
+    const props = {
+        getAST,
+        onChange,
+        docUri,
+        width,
+        height,
+    };
+    const BalDiagramElement = createElement(BallerinaDiagram, props);
+    ReactDOM.render(BalDiagramElement, target);
+}
 
 export {
+    renderStaticDiagram,
+    renderEditableDiagram,
     TreeBuilder,
-    Diagram,
-    BalDiagram,
-    renderDiagram
-}
+    BallerinaDesignView,
+    BallerinaDiagram,
+};

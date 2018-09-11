@@ -23,8 +23,6 @@ import org.ballerinalang.database.sql.Constants;
 import org.ballerinalang.database.sql.SQLDatasource;
 import org.ballerinalang.model.types.BStructureType;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BMap;
-import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
@@ -33,7 +31,7 @@ import org.ballerinalang.natives.annotations.ReturnType;
 import static org.ballerinalang.util.BLangConstants.BALLERINA_BUILTIN_PKG;
 
 /**
- * {@code GetProxyTable} mirrors a SQL database table to a ballerina table.
+ * {@code GetProxyTable} creates a proxy for a SQL database table.
  *
  * @since 0.970.0
  */
@@ -55,13 +53,12 @@ public class GetProxyTable extends AbstractSQLAction {
     @Override
     public void execute(Context context) {
 
-        BMap<String, BValue> bConnector = (BMap<String, BValue>) context.getRefArgument(0);
         String tableName = context.getStringArgument(0);
         BStructureType structType = getStructType(context, 1);
-        SQLDatasource datasource = (SQLDatasource) bConnector.getNativeData(Constants.CALLER_ACTIONS);
+        SQLDatasource datasource = retrieveDatasource(context);
         try {
             checkAndObserveSQLAction(context, datasource, tableName);
-            createMirroredTable(context, datasource, tableName, structType);
+            createProxyTable(context, datasource, tableName, structType);
         } catch (Throwable e) {
             checkAndObserveSQLError(context, e.getMessage());
         }

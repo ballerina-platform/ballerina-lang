@@ -14,16 +14,12 @@
 // specific language governing permissions and limitations
 // under the License.
 
-documentation {
-    The object representing the WebSub Subscriber Service.
-}
+# The object representing the WebSub Subscriber Service.
 public type Service object {
 
-    documentation {
-        Returns the WebSub Listener endpoint to which this service binds.
-
-        R{{}} WebSub `Listener` endpoint
-    }
+    # Returns the WebSub Listener endpoint to which this service binds.
+    #
+    # + return - WebSub `Listener` endpoint
     public function getEndpoint() returns Listener {
         Listener ep = new;
         return ep;

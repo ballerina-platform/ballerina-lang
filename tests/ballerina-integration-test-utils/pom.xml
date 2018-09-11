@@ -22,7 +22,7 @@
     <parent>
         <groupId>org.ballerinalang</groupId>
         <artifactId>ballerina-parent</artifactId>
-        <version>0.981.1-SNAPSHOT</version>
+        <version>0.981.2-SNAPSHOT</version>
         <relativePath>../../pom.xml</relativePath>
     </parent>
 
@@ -51,6 +51,15 @@
             <artifactId>testng</artifactId>
             <scope>compile</scope>
         </dependency>
+
+        <dependency>
+            <groupId>org.javassist</groupId>
+            <artifactId>javassist</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>io.netty</groupId>
+            <artifactId>netty-codec-http</artifactId>
+        </dependency>
     </dependencies>
 
     <build>
@@ -61,6 +70,69 @@
                 <version>${os.maven.plugin.version}</version>
             </extension>
         </extensions>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jar-plugin</artifactId>
+                <configuration>
+                    <archive>
+                        <manifestEntries>
+                            <!--<Agent-Class>org.ballerinalang.test.agent.BallerinaServerAgent</Agent-Class>-->
+                            <Premain-Class>org.ballerinalang.test.agent.BallerinaServerAgent</Premain-Class>
+                        </manifestEntries>
+                    </archive>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-shade-plugin</artifactId>
+                <version>3.1.1</version>
+                <executions>
+                    <execution>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>shade</goal>
+                        </goals>
+                        <configuration>
+                            <artifactSet>
+                                <excludes>
+                                    <exclude>org.apache.mina:mina-core</exclude>
+                                    <exclude>org.slf4j:slf4j-api</exclude>
+                                    <exclude>org.apache.commons:commons-lang3</exclude>
+                                    <exclude>org.wso2.transport.http:org.wso2.transport.http.netty</exclude>
+                                    <exclude>org.wso2.eclipse.osgi:org.eclipse.osgi</exclude>
+                                    <exclude>org.wso2.eclipse.osgi:org.eclipse.osgi.services</exclude>
+                                    <exclude>io.netty:netty-common</exclude>
+                                    <exclude>io.netty:netty-buffer</exclude>
+                                    <exclude>io.netty:netty-transport</exclude>
+                                    <exclude>io.netty:netty-handler</exclude>
+                                    <exclude>io.netty:netty-codec</exclude>
+                                    <exclude>io.netty:netty-handler-proxy</exclude>
+                                    <exclude>io.netty:netty-codec-socks</exclude>
+                                    <exclude>io.netty:netty-codec-http2</exclude>
+                                    <exclude>io.netty:netty-resolver</exclude>
+                                    <exclude>commons-pool.wso2:commons-pool</exclude>
+                                    <exclude>commons-pool:commons-pool</exclude>
+                                    <exclude>org.wso2.orbit.org.yaml:snakeyaml</exclude>
+                                    <exclude>org.bouncycastle:bcprov-jdk15on</exclude>
+                                    <exclude>org.bouncycastle:bcpkix-jdk15on</exclude>
+                                    <exclude>io.netty:netty-tcnative-boringssl-static</exclude>
+                                    <exclude>org.testng:testng</exclude>
+                                    <exclude>com.beust:jcommander</exclude>
+                                    <exclude>io.netty:netty-codec-http</exclude>
+                                    <exclude>io.netty:netty-transport-native-unix-common</exclude>
+
+
+                                    <exclude>META-INF/*.SF</exclude>
+                                    <exclude>META-INF/*.DSA</exclude>
+                                    <exclude>META-INF/*.RSA</exclude>
+                                </excludes>
+                            </artifactSet>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
     </build>
 
     <properties>

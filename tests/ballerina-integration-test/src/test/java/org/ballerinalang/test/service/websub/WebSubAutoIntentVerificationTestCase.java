@@ -19,6 +19,9 @@ package org.ballerinalang.test.service.websub;
 
 import io.netty.handler.codec.http.HttpHeaderNames;
 import org.awaitility.Duration;
+import org.ballerinalang.test.BaseTest;
+import org.ballerinalang.test.context.BMainInstance;
+import org.ballerinalang.test.context.BServerInstance;
 import org.ballerinalang.test.context.BallerinaTestException;
 import org.ballerinalang.test.context.LogLeecher;
 import org.ballerinalang.test.util.HttpClientRequest;
@@ -52,7 +55,11 @@ import static java.util.concurrent.TimeUnit.SECONDS;
  * topic - both directly to the hub and specifying hub URL
  * 5. Subscription and content distribution when a secret is not specified
  */
-public class WebSubAutoIntentVerificationTestCase extends WebSubBaseTest {
+public class WebSubAutoIntentVerificationTestCase extends BaseTest {
+    private BServerInstance webSubSubscriber;
+    private BMainInstance webSubPublisher;
+
+    private final int servicePort = 8181;
 
     private static String hubUrl = "https://localhost:9191/websub/hub";
     private static final String INTENT_VERIFICATION_LOG = "ballerina: Intent Verification agreed - Mode [subscribe], "
@@ -72,9 +79,13 @@ public class WebSubAutoIntentVerificationTestCase extends WebSubBaseTest {
 
     @BeforeClass
     public void setup() throws BallerinaTestException {
-        String[] publisherArgs = {new File("src" + File.separator + "test" + File.separator + "resources"
-                + File.separator + "websub" + File.separator + "websub_test_publisher.bal").getAbsolutePath(),
-                "-e b7a.websub.hub.port=9191", "-e b7a.websub.hub.remotepublish=true", "-e test.hub.url=" + hubUrl};
+        webSubSubscriber = new BServerInstance(balServer);
+        webSubPublisher = new BMainInstance(balServer);
+
+        String balFile = new File("src" + File.separator + "test" + File.separator + "resources"
+                + File.separator + "websub" + File.separator + "websub_test_publisher.bal").getAbsolutePath();
+        String[] publisherArgs = {"-e b7a.websub.hub.port=9191", "-e b7a.websub.hub.remotepublish=true",
+                "-e test.hub.url=" + hubUrl};
 
         String subscriberBal = new File("src" + File.separator + "test" + File.separator + "resources"
                 + File.separator + "websub" + File.separator + "websub_test_subscriber.bal").getAbsolutePath();
@@ -85,7 +96,7 @@ public class WebSubAutoIntentVerificationTestCase extends WebSubBaseTest {
 
         Executors.newSingleThreadExecutor().execute(() -> {
             try {
-                webSubPublisher.runMain(publisherArgs);
+                webSubPublisher.runMain(balFile, publisherArgs, new String[]{});
             } catch (BallerinaTestException e) {
                 //ignored since any errors here would be reflected as test failures
             }
@@ -94,12 +105,13 @@ public class WebSubAutoIntentVerificationTestCase extends WebSubBaseTest {
         //Allow to bring up the hub
         given().ignoreException(ConnectException.class).with().pollInterval(Duration.FIVE_SECONDS).and()
                 .with().pollDelay(Duration.TEN_SECONDS).await().atMost(60, SECONDS).until(() -> {
-            HttpResponse response = HttpsClientRequest.doGet(hubUrl, webSubPublisher.getServerHome());
+            //using same pack location, hence server home is same
+            HttpResponse response = HttpsClientRequest.doGet(hubUrl, webSubSubscriber.getServerHome());
             return response.getResponseCode() == 202;
         });
 
         String[] subscriberArgs = {"-e test.hub.url=" + hubUrl};
-        webSubSubscriber.startBallerinaServer(subscriberBal, subscriberArgs, 8181);
+        webSubSubscriber.startServer(subscriberBal, subscriberArgs, new int[]{servicePort});
 
         //Allow to start up the subscriber service
         given().ignoreException(ConnectException.class).with().pollInterval(Duration.FIVE_SECONDS).and()
@@ -107,10 +119,15 @@ public class WebSubAutoIntentVerificationTestCase extends WebSubBaseTest {
             Map<String, String> headers = new HashMap<>();
             headers.put(HttpHeaderNames.CONTENT_TYPE.toString(), TestConstant.CONTENT_TYPE_JSON);
             HttpResponse response = HttpClientRequest.doPost(
-                    webSubSubscriber.getServiceURLHttp("websub"), "{\"dummy\":\"body\"}",
+                    webSubSubscriber.getServiceURLHttp(servicePort, "websub"), "{\"dummy\":\"body\"}",
                     headers);
             return response.getResponseCode() == 202;
         });
+    }
+
+    @AfterClass
+    private void cleanup() throws Exception {
+        webSubSubscriber.shutdownServer();
     }
 
     @Test
@@ -144,9 +161,4 @@ public class WebSubAutoIntentVerificationTestCase extends WebSubBaseTest {
         intentVerificationDenialLogLeecher.waitForText(45000);
     }
 
-    @AfterClass
-    private void cleanup() throws Exception {
-        webSubPublisher.stopServer();
-        webSubSubscriber.stopServer();
-    }
 }

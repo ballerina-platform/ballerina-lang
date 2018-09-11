@@ -1,4 +1,4 @@
-function main (string... args) {
+public function main (string... args) {
     function (string, string) returns (string) testLambda =
     (string x, string y) => (string) {
         string r = x + y;

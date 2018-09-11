@@ -155,6 +155,19 @@ public class ClientSocketTest {
         BRunUtil.invokeStateful(socketClient, "closeSocket", args);
     }
 
+    @Test(dependsOnMethods = "testOpenClientSocket", description = "Test content read/write records")
+    public void testReadRecords() {
+        String content = "Ballerina,122\r\nC++,12";
+        byte[] contentBytes = content.getBytes();
+        BValue[] args = {new BByteArray(contentBytes)};
+        final BValue[] writeReturns = BRunUtil.invokeStateful(socketClient, "write", args);
+        BInteger returnedSize = (BInteger) writeReturns[0];
+        Assert.assertEquals(returnedSize.intValue(), content.length(), "Write content size is not match.");
+        final BValue[] readReturns = BRunUtil.invokeStateful(socketClient, "readRecord");
+        BStringArray fields = (BStringArray) readReturns[0];
+        Assert.assertEquals(fields.get(0), "Ballerina");
+    }
+
     @Test(dependsOnMethods = "testWriteReadContent",
           description = "Test connection open with properties")
     public void testOpenWithProperties() {

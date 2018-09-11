@@ -1,0 +1,34 @@
+{
+  "range": {
+    "start": {
+      "line": 3,
+      "character": 11
+    },
+    "end": {
+      "line": 3,
+      "character": 11
+    }
+  },
+  "expected": {
+    "title":"Create Function  addTwoIntegers2(...)",
+    "command":"CREATE_FUNC",
+    "arguments":[
+      {
+        "argumentK":"function.returns",
+        "argumentV":"int"
+      },
+      {
+        "argumentK":"function.returns.default",
+        "argumentV":"    return 0;"
+      },
+      {
+        "argumentK":"function.arguments",
+        "argumentV":"int a, int b"
+      },
+      {
+        "argumentK":"function.name",
+        "argumentV":"addTwoIntegers2"
+      }
+    ]
+  }
+}

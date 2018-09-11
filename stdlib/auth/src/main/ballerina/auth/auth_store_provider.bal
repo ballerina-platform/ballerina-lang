@@ -14,25 +14,20 @@
 // specific language governing permissions and limitations
 // under the License.
 
-documentation {
-    Represents the auth store provider. Any type of implementation, such as
-    LDAP, JDBC, file based, etc. should be object-wise similar
-}
+# Represents the auth store provider. Any type of implementation, such as
+# LDAP, JDBC, file based, etc. should be object-wise similar
 public type AuthStoreProvider object {
 
-    documentation {
-        P{{username}} user name
-        P{{password}} password
-        R{{}} true if authentication is a success, else false
-    }
+    #
+    # + username - user name
+    # + password - password
+    # + retrun - true if authentication is a success, else false
     public function authenticate(string username, string password) returns boolean;
 
-    documentation {
-        Reads the scope(s) for the user with the given username
-
-        P{{username}} user name
-        R{{}} array of groups for the user denoted by the username
-    }
+    # Reads the scope(s) for the user with the given username
+    #
+    # + username - user name
+    # + retrun - array of groups for the user denoted by the username
     public function getScopes(string username) returns string[];
 };
 

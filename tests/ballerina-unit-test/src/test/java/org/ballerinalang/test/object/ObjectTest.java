@@ -374,6 +374,28 @@ public class ObjectTest {
         Assert.assertEquals(((BInteger) returns[0]).intValue(), 89);
     }
 
+    @Test(description = "Test function references from an object")
+    public void testFunctionReferencesFromObjects() {
+        CompileResult compileResult = BCompileUtil.compile("test-src/object/object_function_pointer.bal");
+        BValue[] returns = BRunUtil.invoke(compileResult, "testObjectFunctionPointer");
+
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertSame(returns[0].getClass(), BInteger.class);
+
+        Assert.assertEquals(((BInteger) returns[0]).intValue(), 12);
+    }
+
+    @Test(description = "Test object any type field as a constructor parameter")
+    public void testObjectAnyTypeFieldAsConstructorParam() {
+        CompileResult compileResult = BCompileUtil.compile("test-src/object/object_field_any_type.bal");
+        BValue[] returns = BRunUtil.invoke(compileResult, "testObjectWithAnyTypeField");
+
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertSame(returns[0].getClass(), BString.class);
+
+        Assert.assertEquals(returns[0].stringValue(), "grainier");
+    }
+
     @Test(description = "Test object recursive reference with nillable")
     public void testRecursiveObjectRefWithNillable() {
         CompileResult compileResult = BCompileUtil.compile("test-src/object/object_recurs_with_nill.bal");

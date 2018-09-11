@@ -45,9 +45,7 @@ public class BCursorTable extends BTable {
         if (loadSQLTableToMemory) {
             iterator.reset(false);
         } else {
-            if (iterator != null) {
-                iterator.reset(isInTransaction);
-            }
+           iterator.reset(isInTransaction);
         }
         resetIterationHelperAttributes();
     }

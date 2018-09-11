@@ -20,8 +20,7 @@ import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.common.utils.FilterUtils;
 import org.ballerinalang.langserver.compiler.LSServiceOperationContext;
 import org.ballerinalang.langserver.completions.SymbolInfo;
-import org.ballerinalang.model.elements.DocAttachment;
-import org.ballerinalang.model.elements.DocTag;
+import org.ballerinalang.model.elements.MarkdownDocAttachment;
 import org.eclipse.lsp4j.ParameterInformation;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.SignatureHelp;
@@ -180,14 +179,11 @@ public class SignatureHelpUtil {
         Map<String, String> paramDescMap = new HashMap<>();
         SignatureInfoModel signatureInfoModel = new SignatureInfoModel();
         List<ParameterInfoModel> paramModels = new ArrayList<>();
-        DocAttachment docAttachment = bInvokableSymbol.getDocAttachment();
+        MarkdownDocAttachment docAttachment = bInvokableSymbol.getMarkdownDocAttachment();
         
-        signatureInfoModel.setSignatureDescription(docAttachment.getDescription().trim());
-        docAttachment.attributes.forEach(attribute -> {
-            if (attribute.docTag.equals(DocTag.PARAM)) {
-                paramDescMap.put(attribute.getName(), attribute.getDescription());
-            }
-        });
+        signatureInfoModel.setSignatureDescription(docAttachment.description.trim());
+        docAttachment.parameters.forEach(attribute ->
+                paramDescMap.put(attribute.getName(), attribute.getDescription()));
 
         bInvokableSymbol.getParameters().forEach(bVarSymbol -> {
             ParameterInfoModel parameterInfoModel = new ParameterInfoModel();

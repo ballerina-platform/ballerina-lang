@@ -1,6 +1,6 @@
 {
   "name": "ballerina-composer",
-  "version": "0.981.1",
+  "version": "0.981.2",
   "description": "A web based tool for creating integrations in ballerina language.",
   "scripts": {
     "clean": "npm install rimraf & rimraf dist",
@@ -116,6 +116,7 @@
     "monaco-editor": "^0.13.1",
     "monaco-languageclient": "^0.6.3",
     "mousetrap": "^1.6.0",
+    "nan": "^2.11.0",
     "prop-types": "^15.5.8",
     "rc-menu": "^5.0.10",
     "rc-tabs": "^9.2.5",
@@ -136,10 +137,10 @@
     "react-transition-group": "^1.1.2",
     "react-treeview": "^0.4.7",
     "reconnecting-websocket": "^3.2.2",
-    "rimraf": "^2.6.2",
     "semantic-ui-less": "^2.3.2",
     "semantic-ui-react": "^0.81.3",
     "swagger-editor-dist": "^3.1.18",
+    "swagger-visualizer": "file:src/plugins/swagger-visualizer",
     "uuid": "^3.1.0",
     "vscode-ws-jsonrpc": "0.0.1-alpha.5",
     "webpack": "^2.2.1"

@@ -15,13 +15,10 @@
 // under the License.
 
 
-documentation {
-    Representation of an API Listener.
-
-    E{{}}
-    F{{config}} SecureEndpointConfiguration instance
-    F{{secureListener}} Secure HTTP Listener instance
-}
+# Representation of an API Listener.
+#
+# + config - SecureEndpointConfiguration instance
+# + secureListener - Secure HTTP Listener instance
 public type APIListener object {
 
     public SecureEndpointConfiguration config;
@@ -31,35 +28,25 @@ public type APIListener object {
         secureListener = new;
     }
 
-    documentation {
-        Gets called when the endpoint is being initialize during package init time.
-
-        P{{c}} The `SecureEndpointConfiguration` of the endpoint
-    }
+    # Gets called when the endpoint is being initialize during package init time.
+    #
+    # + c - The `SecureEndpointConfiguration` of the endpoint
     public function init(SecureEndpointConfiguration c);
 
-    documentation {
-        Gets called every time a service attaches itself to this endpoint. Also happens at package initialization.
-
-        P{{serviceType}} The type of the service to be registered
-    }
+    # Gets called every time a service attaches itself to this endpoint. Also happens at package initialization.
+    #
+    # + serviceType - The type of the service to be registered
     public function register(typedesc serviceType);
 
-    documentation {
-        Starts the registered service.
-    }
+    # Starts the registered service.
     public function start();
 
-    documentation {
-        Returns the connector that client code uses.
-
-        R{{}} The connector that client code uses
-    }
+    # Returns the connector that client code uses.
+    #
+    # + return - The connector that client code uses
     public function getCallerActions() returns (Connection);
 
-    documentation {
-        Stops the registered service.
-    }
+    # Stops the registered service.
     public function stop();
 };
 
@@ -84,90 +71,72 @@ function APIListener::stop() {
     self.secureListener.stop();
 }
 
-documentation {
-    The caller actions for responding to client requests to api listener.
-}
+# The caller actions for responding to client requests to api listener.
 public type APIListenerActions object {
 
     public Connection httpCallerActions;
 
-    documentation {
-        The api listener caller actions initializer.
-
-        P{{httpCallerActions}} HTTP caller actions reference
-    }
+    # The api listener caller actions initializer.
+    #
+    # + httpCallerActions - HTTP caller actions reference
     new (httpCallerActions) {}
 
-    documentation {
-        Sends the outbound response to the caller.
-
-        P{{message}} The outbound response or any payload of type `string`, `xml`, `json`, `byte[]`, `io:ByteChannel`
-                     or `mime:Entity[]`
-        R{{}} Returns an `error` if failed to respond
-    }
+    # Sends the outbound response to the caller.
+    #
+    # + message - The outbound response or any payload of type `string`, `xml`, `json`, `byte[]`, `io:ByteChannel`
+    #             or `mime:Entity[]`
+    # + return - Returns an `error` if failed to respond
     public function respond(Response|string|xml|json|byte[]|io:ByteChannel|mime:Entity[]|() message) returns error? {
         return httpCallerActions.respond(message);
     }
 
-    documentation {
-        Pushes a promise to the caller.
-
-        P{{promise}} Push promise message
-        R{{}} An `error` in case of failures
-    }
+    # Pushes a promise to the caller.
+    #
+    # + promise - Push promise message
+    # + return - An `error` in case of failures
     public function promise(PushPromise promise) returns error? {
         return httpCallerActions.promise(promise);
     }
 
-    documentation {
-        Sends a promised push response to the caller.
-
-        P{{promise}} Push promise message
-        P{{response}} The outbound response
-        R{{}} An `error` in case of failures while responding with the promised response
-    }
+    # Sends a promised push response to the caller.
+    #
+    # + promise - Push promise message
+    # + response - The outbound response
+    # + return - An `error` in case of failures while responding with the promised response
     public function pushPromisedResponse(PushPromise promise, Response response) returns error? {
         return httpCallerActions.pushPromisedResponse(promise, response);
     }
 
-    documentation {
-        Sends an upgrade request with custom headers.
-
-        P{{headers}} A `map` of custom headers for handshake
-    }
+    # Sends an upgrade request with custom headers.
+    #
+    # + headers - A `map` of custom headers for handshake
     public function acceptWebSocketUpgrade(map<string> headers) returns WebSocketListener {
         return httpCallerActions.acceptWebSocketUpgrade(headers);
     }
 
-    documentation {
-        Cancels the handshake.
-
-        P{{status}} Error Status code for cancelling the upgrade and closing the connection.
-        This error status code need to be 4xx or 5xx else the default status code would be 400.
-        P{{reason}} Reason for cancelling the upgrade
-        R{{}} An `error` if an error occurs during cancelling the upgrade or nil
-    }
+    # Cancels the handshake.
+    #
+    # + status - Error Status code for cancelling the upgrade and closing the connection.
+    #            This error status code need to be 4xx or 5xx else the default status code would be 400.
+    # + reason - Reason for cancelling the upgrade
+    # + return - An `error` if an error occurs during cancelling the upgrade or nil
     public function cancelWebSocketUpgrade(int status, string reason) returns error|() {
         return httpCallerActions.cancelWebSocketUpgrade(status, reason);
     }
 
-    documentation {
-        Sends a `100-continue` response to the caller.
-
-        R{{}} Returns an `error` if failed to send the `100-continue` response
-    }
+    # Sends a `100-continue` response to the caller.
+    #
+    # + return - Returns an `error` if failed to send the `100-continue` response
     public function continue() returns error? {
         return httpCallerActions.continue();
     }
 
-    documentation {
-        Sends a redirect response to the user with the specified redirection status code.
-
-        P{{response}} Response to be sent to the caller
-        P{{code}} The redirect status code to be sent
-        P{{locations}} An array of URLs to which the caller can redirect to
-        R{{}} Returns an `error` if failed to send the redirect response
-    }
+    # Sends a redirect response to the user with the specified redirection status code.
+    #
+    # + response - Response to be sent to the caller
+    # + code - The redirect status code to be sent
+    # + locations - An array of URLs to which the caller can redirect to
+    # + return - Returns an `error` if failed to send the redirect response
     public function redirect(Response response, RedirectCode code, string[] locations) returns error? {
         return httpCallerActions.redirect(response, code, locations);
     }

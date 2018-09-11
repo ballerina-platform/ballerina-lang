@@ -19,9 +19,10 @@
 package org.ballerinalang.test.service.grpc.sample;
 
 import org.ballerinalang.test.BaseTest;
+import org.ballerinalang.test.context.BServerInstance;
 import org.ballerinalang.test.context.BallerinaTestException;
-import org.testng.annotations.AfterTest;
-import org.testng.annotations.BeforeTest;
+import org.testng.annotations.AfterGroups;
+import org.testng.annotations.BeforeGroups;
 
 import java.io.File;
 
@@ -30,18 +31,21 @@ import java.io.File;
  * and after tests are run.
  */
 public class GrpcBaseTest extends BaseTest {
+    protected static BServerInstance serverInstance;
 
-    @BeforeTest(groups = "grpc-test")
+    @BeforeGroups(value = "grpc-test", alwaysRun = true)
     public void start() throws BallerinaTestException {
+        int[] requiredPorts = new int[]{9090, 9092, 9095, 9096, 9098, 9099, 9100, 9101, 8085};
+
         String balFile = new File("src" + File.separator + "test" + File.separator + "resources" + File.separator +
                 "grpc").getAbsolutePath();
-        String[] args = new String[] {"--sourceroot", balFile};
-        serverInstance.startBallerinaServer("grpcservices", args);
+        serverInstance = new BServerInstance(balServer);
+        serverInstance.startServer(balFile, "grpcservices", requiredPorts);
     }
 
-    @AfterTest(groups = "grpc-test")
+    @AfterGroups(value = "grpc-test", alwaysRun = true)
     public void cleanup() throws Exception {
         serverInstance.removeAllLeechers();
-        serverInstance.stopServer();
+        serverInstance.shutdownServer();
     }
 }

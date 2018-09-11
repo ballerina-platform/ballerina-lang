@@ -82,6 +82,7 @@ import org.ballerinalang.util.codegen.Instruction.InstructionVCALL;
 import org.ballerinalang.util.codegen.Instruction.InstructionWRKSendReceive;
 import org.ballerinalang.util.codegen.InstructionCodes;
 import org.ballerinalang.util.codegen.LineNumberInfo;
+import org.ballerinalang.util.codegen.ObjectTypeInfo;
 import org.ballerinalang.util.codegen.StructFieldInfo;
 import org.ballerinalang.util.codegen.StructureTypeInfo;
 import org.ballerinalang.util.codegen.TypeDefInfo;
@@ -468,8 +469,7 @@ public class CPU {
                         }
                         cpIndex = operands[1];
                         funcCallCPEntry = (FunctionCallCPEntry) ctx.constPool[cpIndex];
-                        funcRefCPEntry = ((BFunctionPointer) sf.refRegs[i]).value();
-                        functionInfo = funcRefCPEntry.getFunctionInfo();
+                        functionInfo = ((BFunctionPointer) sf.refRegs[i]).value();
                         ctx = invokeCallable(ctx, (BFunctionPointer) sf.refRegs[i], funcCallCPEntry, functionInfo, sf);
                         if (ctx == null) {
                             return;
@@ -481,9 +481,34 @@ public class CPU {
                         k = operands[2];
                         funcRefCPEntry = (FunctionRefCPEntry) ctx.constPool[i];
                         typeEntry = (TypeRefCPEntry) ctx.constPool[k];
-                        BFunctionPointer functionPointer = new BFunctionPointer(funcRefCPEntry, typeEntry.getType());
+                        BFunctionPointer functionPointer = new BFunctionPointer(funcRefCPEntry.getFunctionInfo(),
+                                typeEntry.getType());
                         sf.refRegs[j] = functionPointer;
                         findAndAddAdditionalVarRegIndexes(ctx, operands, functionPointer);
+                        break;
+                    case InstructionCodes.VFPLOAD:
+                        i = operands[0];
+                        j = operands[1];
+                        k = operands[2];
+                        int m = operands[5];
+                        funcRefCPEntry = (FunctionRefCPEntry) ctx.constPool[i];
+                        typeEntry = (TypeRefCPEntry) ctx.constPool[k];
+
+                        BMap<String, BValue> structVal = (BMap<String, BValue>) ctx.workerLocal.refRegs[m];
+                        if (structVal == null) {
+                            handleNullRefError(ctx);
+                            break;
+                        }
+
+                        StructureTypeInfo structInfo = (ObjectTypeInfo) ((BStructureType)
+                                structVal.getType()).getTypeInfo();
+                        AttachedFunctionInfo attachedFuncInfo = structInfo.funcInfoEntries
+                                .get(funcRefCPEntry.getFunctionInfo().getName());
+                        FunctionInfo concreteFuncInfo = attachedFuncInfo.functionInfo;
+
+                        BFunctionPointer fPointer = new BFunctionPointer(concreteFuncInfo, typeEntry.getType());
+                        sf.refRegs[j] = fPointer;
+                        findAndAddAdditionalVarRegIndexes(ctx, operands, fPointer);
                         break;
     
                     case InstructionCodes.I2ANY:
@@ -694,7 +719,8 @@ public class CPU {
                         k = operands[2];
                         funcRefCPEntry = (FunctionRefCPEntry) ctx.constPool[i];
                         typeEntry = (TypeRefCPEntry) ctx.constPool[k];
-                        BFunctionPointer fp = new BFunctionPointer(funcRefCPEntry, typeEntry.getType());
+                        BFunctionPointer fp = new BFunctionPointer(funcRefCPEntry.getFunctionInfo(),
+                                typeEntry.getType());
                         findAndAddAdditionalVarRegIndexes(ctx, operands, fp);
                         addToCompensationTable(scopeEnd, ctx, fp);
                         break;
@@ -933,28 +959,32 @@ public class CPU {
             int index = operands[++operandIndex];
             switch (type) {
                 case TypeTags.INT_TAG: {
-                    fp.addClosureVar(new BClosure(new BInteger(ctx.workerLocal.longRegs[index])), TypeTags.INT_TAG);
+                    fp.addClosureVar(new BClosure(new BInteger(ctx.workerLocal.longRegs[index]), BTypes.typeInt),
+                            TypeTags.INT_TAG);
                     break;
                 }
                 case TypeTags.BYTE_TAG: {
-                    fp.addClosureVar(new BClosure(new BByte((byte) ctx.workerLocal.intRegs[index])), TypeTags.BYTE_TAG);
+                    fp.addClosureVar(new BClosure(new BByte((byte) ctx.workerLocal.intRegs[index]), BTypes.typeByte),
+                            TypeTags.BYTE_TAG);
                     break;
                 }
                 case TypeTags.FLOAT_TAG: {
-                    fp.addClosureVar(new BClosure(new BFloat(ctx.workerLocal.doubleRegs[index])), TypeTags.FLOAT_TAG);
+                    fp.addClosureVar(new BClosure(new BFloat(ctx.workerLocal.doubleRegs[index]), BTypes.typeFloat),
+                            TypeTags.FLOAT_TAG);
                     break;
                 }
                 case TypeTags.BOOLEAN_TAG: {
-                    fp.addClosureVar(new BClosure(new BBoolean(ctx.workerLocal.intRegs[index] == 1)),
-                            TypeTags.BOOLEAN_TAG);
+                    fp.addClosureVar(new BClosure(new BBoolean(ctx.workerLocal.intRegs[index] == 1),
+                                    BTypes.typeBoolean), TypeTags.BOOLEAN_TAG);
                     break;
                 }
                 case TypeTags.STRING_TAG: {
-                    fp.addClosureVar(new BClosure(new BString(ctx.workerLocal.stringRegs[index])), TypeTags.STRING_TAG);
+                    fp.addClosureVar(new BClosure(new BString(ctx.workerLocal.stringRegs[index]), BTypes.typeString),
+                            TypeTags.STRING_TAG);
                     break;
                 }
                 default:
-                    fp.addClosureVar(new BClosure(ctx.workerLocal.refRegs[index]), TypeTags.ANY_TAG);
+                    fp.addClosureVar(new BClosure(ctx.workerLocal.refRegs[index], BTypes.typeAny), TypeTags.ANY_TAG);
             }
             i++;
         }
@@ -2120,7 +2150,7 @@ public class CPU {
         }
     }
 
-    private static boolean isByteLiteral(long longValue) {
+    public static boolean isByteLiteral(long longValue) {
         return (longValue >= BBYTE_MIN_VALUE && longValue <= BBYTE_MAX_VALUE);
     }
 
@@ -2473,14 +2503,14 @@ public class CPU {
         //Register committed function handler if exists.
         if (committedFuncIndex != -1) {
             FunctionRefCPEntry funcRefCPEntry = (FunctionRefCPEntry) ctx.constPool[committedFuncIndex];
-            BFunctionPointer fpCommitted = new BFunctionPointer(funcRefCPEntry);
+            BFunctionPointer fpCommitted = new BFunctionPointer(funcRefCPEntry.getFunctionInfo());
             TransactionResourceManager.getInstance().registerCommittedFunction(transactionBlockId, fpCommitted);
         }
 
         //Register aborted function handler if exists.
         if (abortedFuncIndex != -1) {
             FunctionRefCPEntry funcRefCPEntry = (FunctionRefCPEntry) ctx.constPool[abortedFuncIndex];
-            BFunctionPointer fpAborted = new BFunctionPointer(funcRefCPEntry);
+            BFunctionPointer fpAborted = new BFunctionPointer(funcRefCPEntry.getFunctionInfo());
             TransactionResourceManager.getInstance().registerAbortedFunction(transactionBlockId, fpAborted);
         }
 
@@ -3420,16 +3450,15 @@ public class CPU {
         if (typeTag == TypeTags.XML_TAG) {
             sf.longRegs[j] = ((BXML) entity).length();
             return;
-        } else if (typeTag == TypeTags.MAP_TAG) {
+        } else if (entity instanceof BMap) {
             sf.longRegs[j] = ((BMap) entity).size();
             return;
-        } else if (!(entity instanceof BNewArray)) {
-            sf.longRegs[j] = -1;
+        } else if (entity instanceof BNewArray) {
+            sf.longRegs[j] = ((BNewArray) entity).size();
             return;
         }
 
-        BNewArray newArray = (BNewArray) entity;
-        sf.longRegs[j] = newArray.size();
+        sf.longRegs[j] = -1;
         return;
     }
 
