@@ -52,6 +52,7 @@ import static org.ballerinalang.util.BLangConstants.MAIN_FUNCTION_NAME;
 public class Main {
     private static final String UNMATCHED_ARGUMENT_PREFIX = "Unmatched argument";
     private static final String MISSING_REQUIRED_PARAMETER_PREFIX = "Missing required parameter";
+    private static final String COMPILATION_ERROR_MESSAGE = "compilation contains errors";
 
     private static PrintStream outStream = System.err;
 
@@ -68,7 +69,9 @@ public class Main {
             outStream.println(prepareCompilerErrorMessage(e.getMessage()));
             Runtime.getRuntime().exit(1);
         } catch (BLauncherException e) {
-            LauncherUtils.printLauncherException(e, outStream);
+            if (!(e.getMessages().size() > 0 && e.getMessages().get(0).contains(COMPILATION_ERROR_MESSAGE))) {
+                LauncherUtils.printLauncherException(e, outStream);
+            }
             Runtime.getRuntime().exit(1);
         } catch (Throwable e) {
             outStream.println(getMessageForInternalErrors());
