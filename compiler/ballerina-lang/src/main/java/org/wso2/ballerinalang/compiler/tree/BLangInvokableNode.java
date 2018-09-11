@@ -20,7 +20,6 @@ package org.wso2.ballerinalang.compiler.tree;
 import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.tree.AnnotationAttachmentNode;
 import org.ballerinalang.model.tree.DeprecatedNode;
-import org.ballerinalang.model.tree.DocumentationNode;
 import org.ballerinalang.model.tree.EndpointNode;
 import org.ballerinalang.model.tree.IdentifierNode;
 import org.ballerinalang.model.tree.InvokableNode;
@@ -53,7 +52,6 @@ public abstract class BLangInvokableNode extends BLangNode implements InvokableN
     public BLangBlockStmt body;
     public Set<Flag> flagSet;
     public List<BLangAnnotationAttachment> annAttachments;
-    public List<BLangDocumentation> docAttachments;
     public BLangMarkdownDocumentation markdownDocumentationAttachment;
     public List<BLangDeprecatedNode> deprecatedAttachments;
     public List<BLangEndpoint> endpoints;
@@ -72,7 +70,6 @@ public abstract class BLangInvokableNode extends BLangNode implements InvokableN
         this.endpoints = new ArrayList<>();
         this.flagSet = EnumSet.noneOf(Flag.class);
         this.workers = new ArrayList<>();
-        this.docAttachments = new ArrayList<>();
         this.deprecatedAttachments = new ArrayList<>();
         this.defaultableParams = new ArrayList<>();
     }
@@ -145,16 +142,6 @@ public abstract class BLangInvokableNode extends BLangNode implements InvokableN
     @Override
     public void addAnnotationAttachment(AnnotationAttachmentNode annAttachment) {
         this.getAnnotationAttachments().add((BLangAnnotationAttachment) annAttachment);
-    }
-
-    @Override
-    public List<BLangDocumentation> getDocumentationAttachments() {
-        return docAttachments;
-    }
-
-    @Override
-    public void addDocumentationAttachment(DocumentationNode docAttachment) {
-        this.docAttachments.add((BLangDocumentation) docAttachment);
     }
 
     @Override

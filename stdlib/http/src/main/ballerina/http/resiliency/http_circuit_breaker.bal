@@ -778,14 +778,12 @@ function updateLastUsedBucketId(int bucketId, CircuitHealth circuitHealth) {
     }
 }
 
-documentation {
-    Switches circuit state from open to half open state when reset time exceeded.
-
-    P{{circuitBreakerInferredConfig}}  Configurations derived from `CircuitBreakerConfig`
-    P{{circuitHealth}}  Circuit Breaker health status
-    P{{currentState}}  current state of the circuit
-    R{{}} Calculated state value of the circuit
-}
+# Switches circuit state from open to half open state when reset time exceeded.
+#
+# + circuitBreakerInferredConfig -  Configurations derived from `CircuitBreakerConfig`
+# + circuitHealth - Circuit Breaker health status
+# + currentState - current state of the circuit
+# + return - Calculated state value of the circuit
 function switchCircuitStateOpenToHalfOpenOnResetTime(CircuitBreakerInferredConfig circuitBreakerInferredConfig,
                                         CircuitHealth circuitHealth, CircuitState currentState) returns CircuitState {
     CircuitState currentCircuitState = currentState;

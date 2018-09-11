@@ -7,11 +7,11 @@
         "location":{
           "range":{
             "start":{
-              "line":5,
+              "line":3,
               "character":0
             },
             "end":{
-              "line":9,
+              "line":7,
               "character":1
             }
           }
@@ -23,11 +23,11 @@
         "location":{
           "range":{
             "start":{
-              "line":6,
+              "line":4,
               "character":4
             },
             "end":{
-              "line":6,
+              "line":4,
               "character":22
             }
           }
@@ -39,11 +39,11 @@
         "location":{
           "range":{
             "start":{
-              "line":7,
+              "line":5,
               "character":4
             },
             "end":{
-              "line":7,
+              "line":5,
               "character":30
             }
           }

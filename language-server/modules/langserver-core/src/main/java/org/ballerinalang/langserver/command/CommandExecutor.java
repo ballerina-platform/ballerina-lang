@@ -458,13 +458,13 @@ public class CommandExecutor {
         int replaceFrom;
         switch (node.getKind()) {
             case FUNCTION:
-                if (((BLangFunction) node).docAttachments.isEmpty()) {
+                if (((BLangFunction) node).markdownDocumentationAttachment == null) {
                     replaceFrom = CommonUtil.toZeroBasedPosition(((BLangFunction) node).getPosition()).getStartLine();
                     docAttachmentInfo = CommandUtil.getFunctionNodeDocumentation((BLangFunction) node, replaceFrom);
                 }
                 break;
             case TYPE_DEFINITION:
-                if (((BLangTypeDefinition) node).docAttachments.isEmpty()
+                if (((BLangTypeDefinition) node).markdownDocumentationAttachment == null
                         && (((BLangTypeDefinition) node).typeNode instanceof BLangRecordTypeNode
                         || ((BLangTypeDefinition) node).typeNode instanceof BLangObjectTypeNode)) {
                     replaceFrom = CommonUtil
@@ -479,7 +479,7 @@ public class CommandExecutor {
                 docAttachmentInfo = CommandUtil.getEndpointNodeDocumentation((BLangEndpoint) node, replaceFrom);
                 break;
             case RESOURCE:
-                if (((BLangResource) node).docAttachments.isEmpty()) {
+                if (((BLangResource) node).markdownDocumentationAttachment == null) {
                     BLangResource bLangResource = (BLangResource) node;
                     replaceFrom =
                             getReplaceFromForServiceOrResource(bLangResource, bLangResource.getAnnotationAttachments());
@@ -487,7 +487,7 @@ public class CommandExecutor {
                 }
                 break;
             case SERVICE:
-                if (((BLangService) node).docAttachments.isEmpty()) {
+                if (((BLangService) node).markdownDocumentationAttachment == null) {
                     BLangService bLangService = (BLangService) node;
                     replaceFrom = getReplaceFromForServiceOrResource(bLangService,
                             bLangService.getAnnotationAttachments());

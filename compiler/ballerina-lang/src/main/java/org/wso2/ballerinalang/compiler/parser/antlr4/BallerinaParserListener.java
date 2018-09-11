@@ -1,4 +1,4 @@
-// Generated from BallerinaParser.g4 by ANTLR 4.5.3
+// Generated from BallerinaLexer.g4 by ANTLR 4.5.3
 package org.wso2.ballerinalang.compiler.parser.antlr4;
 import org.antlr.v4.runtime.tree.ParseTreeListener;
 
@@ -2527,86 +2527,6 @@ public interface BallerinaParserListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitTripleBackTickDeprecatedInlineCode(BallerinaParser.TripleBackTickDeprecatedInlineCodeContext ctx);
-	/**
-	 * Enter a parse tree produced by {@link BallerinaParser#documentationAttachment}.
-	 * @param ctx the parse tree
-	 */
-	void enterDocumentationAttachment(BallerinaParser.DocumentationAttachmentContext ctx);
-	/**
-	 * Exit a parse tree produced by {@link BallerinaParser#documentationAttachment}.
-	 * @param ctx the parse tree
-	 */
-	void exitDocumentationAttachment(BallerinaParser.DocumentationAttachmentContext ctx);
-	/**
-	 * Enter a parse tree produced by {@link BallerinaParser#documentationTemplateContent}.
-	 * @param ctx the parse tree
-	 */
-	void enterDocumentationTemplateContent(BallerinaParser.DocumentationTemplateContentContext ctx);
-	/**
-	 * Exit a parse tree produced by {@link BallerinaParser#documentationTemplateContent}.
-	 * @param ctx the parse tree
-	 */
-	void exitDocumentationTemplateContent(BallerinaParser.DocumentationTemplateContentContext ctx);
-	/**
-	 * Enter a parse tree produced by {@link BallerinaParser#documentationTemplateAttributeDescription}.
-	 * @param ctx the parse tree
-	 */
-	void enterDocumentationTemplateAttributeDescription(BallerinaParser.DocumentationTemplateAttributeDescriptionContext ctx);
-	/**
-	 * Exit a parse tree produced by {@link BallerinaParser#documentationTemplateAttributeDescription}.
-	 * @param ctx the parse tree
-	 */
-	void exitDocumentationTemplateAttributeDescription(BallerinaParser.DocumentationTemplateAttributeDescriptionContext ctx);
-	/**
-	 * Enter a parse tree produced by {@link BallerinaParser#docText}.
-	 * @param ctx the parse tree
-	 */
-	void enterDocText(BallerinaParser.DocTextContext ctx);
-	/**
-	 * Exit a parse tree produced by {@link BallerinaParser#docText}.
-	 * @param ctx the parse tree
-	 */
-	void exitDocText(BallerinaParser.DocTextContext ctx);
-	/**
-	 * Enter a parse tree produced by {@link BallerinaParser#documentationTemplateInlineCode}.
-	 * @param ctx the parse tree
-	 */
-	void enterDocumentationTemplateInlineCode(BallerinaParser.DocumentationTemplateInlineCodeContext ctx);
-	/**
-	 * Exit a parse tree produced by {@link BallerinaParser#documentationTemplateInlineCode}.
-	 * @param ctx the parse tree
-	 */
-	void exitDocumentationTemplateInlineCode(BallerinaParser.DocumentationTemplateInlineCodeContext ctx);
-	/**
-	 * Enter a parse tree produced by {@link BallerinaParser#singleBackTickDocInlineCode}.
-	 * @param ctx the parse tree
-	 */
-	void enterSingleBackTickDocInlineCode(BallerinaParser.SingleBackTickDocInlineCodeContext ctx);
-	/**
-	 * Exit a parse tree produced by {@link BallerinaParser#singleBackTickDocInlineCode}.
-	 * @param ctx the parse tree
-	 */
-	void exitSingleBackTickDocInlineCode(BallerinaParser.SingleBackTickDocInlineCodeContext ctx);
-	/**
-	 * Enter a parse tree produced by {@link BallerinaParser#doubleBackTickDocInlineCode}.
-	 * @param ctx the parse tree
-	 */
-	void enterDoubleBackTickDocInlineCode(BallerinaParser.DoubleBackTickDocInlineCodeContext ctx);
-	/**
-	 * Exit a parse tree produced by {@link BallerinaParser#doubleBackTickDocInlineCode}.
-	 * @param ctx the parse tree
-	 */
-	void exitDoubleBackTickDocInlineCode(BallerinaParser.DoubleBackTickDocInlineCodeContext ctx);
-	/**
-	 * Enter a parse tree produced by {@link BallerinaParser#tripleBackTickDocInlineCode}.
-	 * @param ctx the parse tree
-	 */
-	void enterTripleBackTickDocInlineCode(BallerinaParser.TripleBackTickDocInlineCodeContext ctx);
-	/**
-	 * Exit a parse tree produced by {@link BallerinaParser#tripleBackTickDocInlineCode}.
-	 * @param ctx the parse tree
-	 */
-	void exitTripleBackTickDocInlineCode(BallerinaParser.TripleBackTickDocInlineCodeContext ctx);
 	/**
 	 * Enter a parse tree produced by {@link BallerinaParser#documentationString}.
 	 * @param ctx the parse tree

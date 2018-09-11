@@ -7,11 +7,9 @@ import ballerina/http;
 @final string VERSION_REGEX = "(\\d+\\.)(\\d+\\.)(\\d+)";
 DefaultLogger logger;
 
-documentation {
-    This object denotes the default logger object used when pulling a package directly.
-
-    F{{offset}} - Offset from the terminal width.
-}
+# This object denotes the default logger object used when pulling a package directly.
+#
+# + offset - Offset from the terminal width.
 type DefaultLogger object {
     int offset = 0;
     function formatLog(string msg) returns string {
@@ -19,11 +17,9 @@ type DefaultLogger object {
     }
 };
 
-documentation {
-    This object denotes the build logger object used when pulling a package while building.
-
-    F{{offset}} - Offset from the terminal width.
-}
+# This object denotes the build logger object used when pulling a package while building.
+#
+# + offset - Offset from the terminal width.
 type BuildLogger object {
     int offset = 10;
     function formatLog(string msg) returns string {
@@ -31,17 +27,15 @@ type BuildLogger object {
     }
 };
 
-documentation {
-    This function pulls a package from ballerina central.
-
-    P{{definedEndpoint}} Endpoint defined with the proxy configurations
-    P{{url}} Url to be invoked
-    P{{dirPath}} Path of the directory to save the pulled package
-    P{{pkgPath}} Package path
-    P{{fileSeparator}} File separator based on the operating system
-    P{{terminalWidth}} Width of the terminal
-    P{{versionRange}} Supported version range
-}
+# This function pulls a package from ballerina central.
+#
+# + definedEndpoint - Endpoint defined with the proxy configurations
+# + url - Url to be invoked
+# + dirPath - Path of the directory to save the pulled package
+# + pkgPath - Package path
+# + fileSeparator - File separator based on the operating system
+# + terminalWidth - Width of the terminal
+# + versionRange - Supported version range
 function pullPackage (http:Client definedEndpoint, string url, string dirPath, string pkgPath, string fileSeparator,
                       string terminalWidth, string versionRange) {
     endpoint http:Client httpEndpoint = definedEndpoint;
@@ -127,9 +121,7 @@ function pullPackage (http:Client definedEndpoint, string url, string dirPath, s
     }
 }
 
-documentation {
-    This function will invoke the method to pull the package.
-}
+# This function will invoke the method to pull the package.
 public function main(string... args){
     http:Client httpEndpoint;
     string host = args[4];
@@ -157,16 +149,14 @@ public function main(string... args){
     pullPackage(httpEndpoint, args[0], args[1], args[2], args[3], args[8], args[9]);
 }
 
-documentation {
-    This function defines an endpoint with proxy configurations.
-
-    P{{url}} URL to be invoked
-    P{{hostname}} Host name of the proxy
-    P{{port}} Port of the proxy
-    P{{username}} Username of the proxy
-    P{{password}} Password of the proxy
-    R{{}} Endpoint defined
-}
+# This function defines an endpoint with proxy configurations.
+#
+# + url - URL to be invoked
+# + hostname - Host name of the proxy
+# + port - Port of the proxy
+# + username - Username of the proxy
+# + password - Password of the proxy
+# + return - Endpoint defined
 function defineEndpointWithProxy (string url, string hostname, string port, string username, string password) returns http:Client{
     endpoint http:Client httpEndpoint {
         url: url,
@@ -184,12 +174,10 @@ function defineEndpointWithProxy (string url, string hostname, string port, stri
     return httpEndpoint;
 }
 
-documentation {
-    This function defines an endpoint without proxy configurations.
-
-    P{{url}} URL to be invoked
-    R{{}} Endpoint defined
-}
+# This function defines an endpoint without proxy configurations.
+#
+# + url - URL to be invoked
+# + return - Endpoint defined
 function defineEndpointWithoutProxy (string url) returns http:Client{
     endpoint http:Client httpEndpoint {
         url: url,
@@ -206,25 +194,21 @@ function defineEndpointWithoutProxy (string url) returns http:Client{
     return httpEndpoint;
 }
 
-documentation {
-    This function will get the file channel.
-
-    P{{filePath}} File path
-    P{{permission}} Permissions provided
-    R{{}} `ByteChannel` of the file content
-}
+# This function will get the file channel.
+#
+# + filePath - File path
+# + permission - Permissions provided
+# + return - `ByteChannel` of the file content
 function getFileChannel (string filePath, io:Mode permission) returns (io:ByteChannel) {
     io:ByteChannel channel = io:openFile(untaint filePath, permission);
     return channel;
 }
 
-documentation {
-    This function will read the bytes from the byte channel.
-
-    P{{channel}} Byte channel
-    P{{numberOfBytes}} Number of bytes to be read
-    R{{}} Read content as byte[] along with the number of bytes read.
-}
+# This function will read the bytes from the byte channel.
+#
+# + channel - Byte channel
+# + numberOfBytes - Number of bytes to be read
+# + return - Read content as byte[] along with the number of bytes read.
 function readBytes (io:ByteChannel channel, int numberOfBytes) returns (byte[], int) {
     byte[] bytes;
     int numberOfBytesRead;
@@ -232,29 +216,25 @@ function readBytes (io:ByteChannel channel, int numberOfBytes) returns (byte[], 
     return (bytes, numberOfBytesRead);
 }
 
-documentation {
-    This function will write the bytes from the byte channel.
-
-    P{{channel}} Byte channel
-    P{{content}} Content to be written as a byte[]
-    P{{startOffset}} Offset
-    R{{}} number of bytes written.
-}
+# This function will write the bytes from the byte channel.
+#
+# + channel - Byte channel
+# + content - Content to be written as a byte[]
+# + startOffset - Offset
+# + return - number of bytes written.
 function writeBytes (io:ByteChannel channel, byte[] content, int startOffset) returns int {
     int numberOfBytesWritten = check (channel.write(content, startOffset));
     return numberOfBytesWritten;
 }
 
-documentation {
-    This function will copy files from source to the destination path.
-
-    P{{pkgSize}} Size of the package pulled
-    P{{src}} Byte channel of the source file
-    P{{dest}} Byte channel of the destination folder
-    P{{fullPkgPath}} Full package path
-    P{{toAndFrom}} Pulled package details
-    P{{width}} Width of the terminal
-}
+# This function will copy files from source to the destination path.
+#
+# + pkgSize - Size of the package pulled
+# + src - Byte channel of the source file
+# + dest - Byte channel of the destination folder
+# + fullPkgPath - Full package path
+# + toAndFrom - Pulled package details
+# + width - Width of the terminal
 function copy (int pkgSize, io:ByteChannel src, io:ByteChannel dest, string fullPkgPath, string toAndFrom, int width) {
     int terminalWidth = width - logger.offset;
     int bytesChunk = 8;
@@ -294,13 +274,11 @@ function copy (int pkgSize, io:ByteChannel src, io:ByteChannel dest, string full
     io:println("\r" + logger.formatLog(rightPad(fullPkgPath + toAndFrom, terminalWidth)));
 }
 
-documentation {
-    This function adds the right pad.
-
-    P{{logMsg}} Log message to be printed
-    P{{logMsgLength}} Length of the log message
-    R{{}} The log message to be printed after adding the right pad
-}
+# This function adds the right pad.
+#
+# + logMsg - Log message to be printed
+# + logMsgLength - Length of the log message
+# + return - The log message to be printed after adding the right pad
 function rightPad (string logMsg, int logMsgLength) returns (string) {
     string msg = logMsg;
     int length = logMsgLength;
@@ -314,13 +292,11 @@ function rightPad (string logMsg, int logMsgLength) returns (string) {
     return msg;
 }
 
-documentation {
-    This function truncates the string.
-
-    P{{text}} String to be truncated
-    P{{maxSize}} Maximum size of the log message printed
-    R{{}} Truncated string.
-}
+# This function truncates the string.
+#
+# + text - String to be truncated
+# + maxSize - Maximum size of the log message printed
+# + return - Truncated string.
 function truncateString (string text, int maxSize) returns (string) {
     int lengthOfText = text.length();
     if (lengthOfText > maxSize) {
@@ -334,12 +310,10 @@ function truncateString (string text, int maxSize) returns (string) {
     return text;
 }
 
-documentation {
-    This function creates directories.
-
-    P{{directoryPath}} Directory path to be created
-    R{{}} If the directories were created or not
-}
+# This function creates directories.
+#
+# + directoryPath - Directory path to be created
+# + return - If the directories were created or not
 function createDirectories(string directoryPath) returns (boolean) {
     internal:Path dirPath = new(directoryPath);
     if (!dirPath.exists()){
@@ -356,11 +330,9 @@ function createDirectories(string directoryPath) returns (boolean) {
     }
 }
 
-documentation {
-    This function will close the byte channel.
-
-    P{{channel}} Byte channel to be closed
-}
+# This function will close the byte channel.
+#
+# + channel - Byte channel to be closed
 function closeChannel(io:ByteChannel channel) {
     match channel.close() {
         error channelCloseError => {
@@ -370,15 +342,13 @@ function closeChannel(io:ByteChannel channel) {
     }
 }
 
-documentation {
-    This function sets the proxy configurations for the endpoint.
-
-    P{{hostName}} Host name of the proxy
-    P{{port}} Port of the proxy
-    P{{username}} Username of the proxy
-    P{{password}} Password of the proxy
-    R{{}} Proxy configurations for the endpoint
-}
+# This function sets the proxy configurations for the endpoint.
+#
+# + hostName - Host name of the proxy
+# + port - Port of the proxy
+# + username - Username of the proxy
+# + password - Password of the proxy
+# + return - Proxy configurations for the endpoint
 function getProxyConfigurations(string hostName, string port, string username, string password) returns http:ProxyConfig {
     int portInt = check <int> port;
     http:ProxyConfig proxy = { host : hostName, port : portInt , userName: username, password : password };
