@@ -146,9 +146,6 @@ public class TypeChecker extends BLangNodeVisitor {
     private static final CompilerContext.Key<TypeChecker> TYPE_CHECKER_KEY =
             new CompilerContext.Key<>();
 
-    private static final String LAMBDA_NAME = "$arrow$";
-    private int lambdaFunctionCount = 0;
-
     private Names names;
     private SymbolTable symTable;
     private SymbolEnter symbolEnter;
@@ -621,7 +618,6 @@ public class TypeChecker extends BLangNodeVisitor {
     public void visit(BLangInvocation iExpr) {
         // Variable ref expression null means this is the leaf node of the variable ref expression tree
         // e.g. foo();, foo(), foo().k;
-
         if (iExpr.expr == null) {
             // This is a function invocation expression. e.g. foo()
             checkFunctionInvocationExpr(iExpr);

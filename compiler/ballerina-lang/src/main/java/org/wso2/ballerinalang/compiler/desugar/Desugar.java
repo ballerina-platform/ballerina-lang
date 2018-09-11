@@ -28,7 +28,6 @@ import org.ballerinalang.model.tree.expressions.NamedArgNode;
 import org.ballerinalang.model.tree.statements.BlockNode;
 import org.ballerinalang.model.tree.statements.StatementNode;
 import org.ballerinalang.model.tree.statements.StreamingQueryStatementNode;
-import org.wso2.ballerinalang.compiler.semantics.analyzer.SymbolEnter;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.SymbolResolver;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.Types;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
@@ -229,7 +228,6 @@ public class Desugar extends BLangNodeVisitor {
     Stack<BLangAccessExpression> accessExprStack = new Stack<>();
     private BLangMatchStmtPatternClause successPattern;
     private BLangAssignment safeNavigationAssignment;
-    private SymbolEnter symbolEnter;
 
     public static Desugar getInstance(CompilerContext context) {
         Desugar desugar = context.get(DESUGAR_KEY);
@@ -253,7 +251,6 @@ public class Desugar extends BLangNodeVisitor {
         this.names = Names.getInstance(context);
         this.siddhiQueryBuilder = SiddhiQueryBuilder.getInstance(context);
         this.names = Names.getInstance(context);
-        this.symbolEnter = SymbolEnter.getInstance(context);
         httpFiltersDesugar = HttpFiltersDesugar.getInstance(context);
     }
 
