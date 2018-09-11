@@ -45,17 +45,17 @@ import java.nio.ByteOrder;
         orgName = "ballerina", packageName = "io",
         functionName = "init",
         receiver = @Receiver(type = TypeKind.OBJECT,
-                structType = "DataChannel",
+                structType = "WritableDataChannel",
                 structPackage = "ballerina/io"),
-        args = {@Argument(name = "channel", type = TypeKind.OBJECT, structType = "ByteChannel",
+        args = {@Argument(name = "channel", type = TypeKind.OBJECT, structType = "WritableByteChannel",
                 structPackage = "ballerina/io"),
                 @Argument(name = "order", type = TypeKind.STRING)
         },
         isPublic = true
 )
-public class CreateDataChannel extends BlockingNativeCallableUnit {
+public class CreateWritableDataChannel extends BlockingNativeCallableUnit {
 
-    private static final Logger log = LoggerFactory.getLogger(CreateDataChannel.class);
+    private static final Logger log = LoggerFactory.getLogger(CreateWritableDataChannel.class);
     /**
      * Represents the index of the data channel.
      */

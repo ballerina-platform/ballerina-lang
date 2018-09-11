@@ -43,7 +43,7 @@ import org.slf4j.LoggerFactory;
         orgName = "ballerina", packageName = "io",
         functionName = "init",
         receiver = @Receiver(type = TypeKind.OBJECT,
-                structType = "ReadableRecordChannel",
+                structType = "ReadableTextRecordChannel",
                 structPackage = "ballerina/io"),
         args = {@Argument(name = "channel", type = TypeKind.OBJECT, structType = "ReadableCharacterChannel",
                 structPackage = "ballerina/io"),

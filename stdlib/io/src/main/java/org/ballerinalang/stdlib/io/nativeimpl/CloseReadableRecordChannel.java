@@ -44,12 +44,12 @@ import org.ballerinalang.stdlib.io.utils.IOUtils;
         orgName = "ballerina", packageName = "io",
         functionName = "close",
         receiver = @Receiver(type = TypeKind.OBJECT,
-                structType = "DelimitedTextRecordChannel",
+                structType = "ReadableTextRecordChannel",
                 structPackage = "ballerina/io"),
         returnType = {@ReturnType(type = TypeKind.RECORD, structType = "IOError", structPackage = "ballerina/io")},
         isPublic = true
 )
-public class CloseDelimitedRecordChannel implements NativeCallableUnit {
+public class CloseReadableRecordChannel implements NativeCallableUnit {
 
     /**
      * The index of the DelimitedRecordChannel in ballerina/io#closeDelimitedRecordChannel().
@@ -83,7 +83,7 @@ public class CloseDelimitedRecordChannel implements NativeCallableUnit {
                 channel.getNativeData(IOConstants.TXT_RECORD_CHANNEL_NAME);
         EventContext eventContext = new EventContext(context, callback);
         CloseDelimitedRecordEvent closeEvent = new CloseDelimitedRecordEvent(recordChannel, eventContext);
-        Register register = EventRegister.getFactory().register(closeEvent, CloseDelimitedRecordChannel::closeResponse);
+        Register register = EventRegister.getFactory().register(closeEvent, CloseReadableRecordChannel::closeResponse);
         eventContext.setRegister(register);
         register.submit();
     }

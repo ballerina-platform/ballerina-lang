@@ -9,7 +9,7 @@ function initReadableChannel(string filePath, string encoding) {
 }
 
 function initWritableChannel(string filePath, string encoding) {
-    io:WritableByteChannel channel = io:openFileForWriting(filePath, permission);
+    io:WritableByteChannel channel = io:openFileForWriting(filePath);
     wch = untaint new io:WritableCharacterChannel(channel, encoding);
 }
 
