@@ -14,7 +14,6 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerina/runtime;
 import ballerina/system;
 import ballerina/task;
 import ballerina/time;
@@ -269,10 +268,5 @@ function createCacheCleanupTask() returns task:Timer {
     (function () returns error?) onTriggerFunction = runCacheExpiry;
     task:Timer timer = new(onTriggerFunction, (), CACHE_CLEANUP_INTERVAL, delay = CACHE_CLEANUP_START_DELAY);
     timer.start();
-
-    var exitFunction = () => {
-        timer.stop();
-    };
-    runtime:addExitHook(exitFunction);
     return timer;
 }
