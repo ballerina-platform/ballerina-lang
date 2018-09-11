@@ -83,6 +83,34 @@ public type Connection object {
     # + locations - An array of URLs to which the caller can redirect to
     # + return - Returns an `error` if failed to send the redirect response
     public function redirect(Response response, RedirectCode code, string[] locations) returns error?;
+
+    # Sends the outbound response to the caller with the status 200 OK.
+    #
+    # + message - The outbound response or any payload of type `string`, `xml`, `json`, `byte[]`, `io:ByteChannel`
+    #             or `mime:Entity[]`
+    # + return - Returns an `error` if failed to respond
+    public function ok(Response|string|xml|json|blob|io:ByteChannel|mime:Entity[]|() message) returns error?;
+
+    # Sends the outbound response to the caller with the status 201 Created.
+    #
+    # + message - The outbound response or any payload of type `string`, `xml`, `json`, `byte[]`, `io:ByteChannel`
+    #             or `mime:Entity[]`. This message is optional.
+    # + return - Returns an `error` if failed to respond
+    public function created(Response|string|xml|json|blob|io:ByteChannel|mime:Entity[]|() message = ()) returns error?
+
+    # Sends the outbound response to the caller with the status 202 Accepted.
+    #
+    # + message - The outbound response or any payload of type `string`, `xml`, `json`, `byte[]`, `io:ByteChannel`
+    #             or `mime:Entity[]`. This message is optional.
+    # + return - Returns an `error` if failed to respond
+    public function accepted(Response|string|xml|json|blob|io:ByteChannel|mime:Entity[]|() message = ()) returns error?
+
+    # Sends the outbound response to the caller with the status 204 No Content. If the given response contains a body
+    # that will be removed.
+    #
+    # + res - Outbound response is optional.
+    # + return - Returns an `error` if failed to respond
+    public function noContent(Response|() res = ()) returns error?
 };
 
 extern function nativeRespond(Connection connection, Response response) returns error?;
@@ -142,4 +170,28 @@ function Connection::redirect(Response response, RedirectCode code, string[] loc
 
     response.setHeader(LOCATION, locationsStr);
     return self.respond(response);
+}
+
+function Connection::ok(Response|string|xml|json|blob|io:ByteChannel|mime:Entity[]|() message) returns error? {
+    Response response = buildResponse(message);
+    response.statusCode = OK_200;
+    return self.respond(response);
+}
+
+function Connection::created(Response|string|xml|json|blob|io:ByteChannel|mime:Entity[]|() message = ())
+                                                                                            returns error? {
+    Response response = buildResponse(message);
+    response.statusCode = CREATED_201;
+    return self.respond(response);
+}
+
+function Connection::accepted(Response|string|xml|json|blob|io:ByteChannel|mime:Entity[]|() message = ())
+                                                                                            returns error? {
+    Response response = buildResponse(message);
+    response.statusCode = ACCEPTED_202;
+    return self.respond(response);
+}
+
+public function noContent(Response|() res = ()) returns error? {
+    
 }
