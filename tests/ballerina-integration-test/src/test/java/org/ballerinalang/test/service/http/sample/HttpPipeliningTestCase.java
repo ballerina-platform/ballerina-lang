@@ -100,7 +100,8 @@ public class HttpPipeliningTestCase extends BaseTest {
         assertTrue(CHANNEL_INACTIVE.equals(connectionCloseMsg) ||
                 CONNECTION_RESET.equals(connectionCloseMsg), "When the channel is closed from the server " +
                 "side, client should either receive a channel inactive message or if another pipeline request is " +
-                "being written to the closed connection, a connection reset message.");
+                "being written to the closed connection, a connection reset message. Actual value received is : " +
+                connectionCloseMsg);
     }
 
     private void verifyResponse(FullHttpResponse response, String expectedId, String expectedBody) {
