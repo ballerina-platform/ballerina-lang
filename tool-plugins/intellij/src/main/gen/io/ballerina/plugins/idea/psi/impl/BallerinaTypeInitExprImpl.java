@@ -28,7 +28,7 @@ import io.ballerina.plugins.idea.psi.*;
 
 public class BallerinaTypeInitExprImpl extends BallerinaCompositeElementImpl implements BallerinaTypeInitExpr {
 
-  public BallerinaTypeInitExprImpl(ASTNode node) {
+  public BallerinaTypeInitExprImpl(@NotNull ASTNode node) {
     super(node);
   }
 

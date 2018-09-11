@@ -28,7 +28,7 @@ import io.ballerina.plugins.idea.psi.*;
 
 public class BallerinaBlobLiteralImpl extends BallerinaCompositeElementImpl implements BallerinaBlobLiteral {
 
-  public BallerinaBlobLiteralImpl(ASTNode node) {
+  public BallerinaBlobLiteralImpl(@NotNull ASTNode node) {
     super(node);
   }
 
