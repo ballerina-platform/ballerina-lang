@@ -452,10 +452,17 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             }
         }
 
-        varNode.annAttachments.forEach(annotationAttachment -> {
-            annotationAttachment.attachPoint = AttachPoint.TYPE;
-            annotationAttachment.accept(this);
-        });
+        if (varNode.symbol.type.tag == TypeTags.CHANNEL) {
+            varNode.annAttachments.forEach(annotationAttachment -> {
+                annotationAttachment.attachPoint = AttachPoint.CHANNEL;
+                annotationAttachment.accept(this);
+            });
+        } else {
+            varNode.annAttachments.forEach(annotationAttachment -> {
+                annotationAttachment.attachPoint = AttachPoint.TYPE;
+                annotationAttachment.accept(this);
+            });
+        }
 
         BType lhsType = varNode.symbol.type;
         varNode.type = lhsType;
