@@ -98,9 +98,9 @@ public class HttpPipeliningTestCase extends BaseTest {
         HttpClient httpClient = new HttpClient(HOST, 9222);
         String connectionCloseMsg = httpClient.sendMultiplePipelinedRequests("/pipeliningLimit/testMaxRequestLimit");
         assertTrue(CHANNEL_INACTIVE.equals(connectionCloseMsg) ||
-                CONNECTION_RESET.equals(connectionCloseMsg), "When the channel is closed from the server" +
-                "side, client will either receive a channel inactive message or if another pipeline request is" +
-                "being written to the closed connection, a connection reset message");
+                CONNECTION_RESET.equals(connectionCloseMsg), "When the channel is closed from the server " +
+                "side, client should either receive a channel inactive message or if another pipeline request is " +
+                "being written to the closed connection, a connection reset message.");
     }
 
     private void verifyResponse(FullHttpResponse response, String expectedId, String expectedBody) {
