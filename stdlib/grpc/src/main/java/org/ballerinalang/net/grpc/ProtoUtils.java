@@ -43,6 +43,9 @@ public class ProtoUtils {
 
     /**
      * Create a {@code Marshaller} for protos of the same type as {@code defaultInstance}.
+     *
+     * @param defaultInstance message instance
+     * @return proto marshall
      */
     public static MethodDescriptor.Marshaller marshaller(Message defaultInstance) {
         final MessageParser parser = defaultInstance.getParserForType();

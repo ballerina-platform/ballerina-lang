@@ -778,8 +778,11 @@ public class TypeChecker extends BLangNodeVisitor {
         BType expType = checkExpr(awaitExpr.expr, env, this.symTable.noType);
         if (expType == symTable.errType) {
             actualType = symTable.errType;
-        } else {
+        } else if (expType.tag == TypeTags.FUTURE) {
             actualType = ((BFutureType) expType).constraint;
+        } else {
+            dlog.error(awaitExpr.pos, DiagnosticCode.INCOMPATIBLE_TYPES, symTable.futureType, expType);
+            return;
         }
         resultType = types.checkType(awaitExpr, actualType, this.expType);
     }
@@ -1434,6 +1437,7 @@ public class TypeChecker extends BLangNodeVisitor {
         switch (iExpr.expr.type.tag) {
             case TypeTags.ARRAY:
             case TypeTags.MAP:
+            case TypeTags.RECORD:
             case TypeTags.JSON:
             case TypeTags.STREAM:
             case TypeTags.TABLE:
@@ -1891,17 +1895,6 @@ public class TypeChecker extends BLangNodeVisitor {
     }
 
     private BType getTypeOfExprInFieldAccess(BLangExpression expr) {
-        // First check whether variable expression is of type enum.
-        if (expr.getKind() == NodeKind.SIMPLE_VARIABLE_REF) {
-            BLangSimpleVarRef varRef = (BLangSimpleVarRef) expr;
-            BSymbol symbol = symResolver.lookupSymbolInPackage(varRef.pos, env,
-                    names.fromIdNode(varRef.pkgAlias), names.fromIdNode(varRef.variableName), SymTag.ENUM);
-            if (symbol != symTable.notFoundSymbol) {
-                expr.type = symbol.type;
-                return symbol.type;
-            }
-        }
-
         checkExpr(expr, this.env, symTable.noType);
         return expr.type;
     }

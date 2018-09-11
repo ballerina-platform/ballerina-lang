@@ -354,7 +354,8 @@ public class Debugger {
         PackageVarInfo[] packageVarInfoEntries = ctx.programFile.getPackageInfo(ctx.programFile.getEntryPkgName()).
                 getPackageInfoEntries();
         for (PackageVarInfo packVarInfo : packageVarInfoEntries) {
-            if (!packVarInfo.getName().startsWith(META_DATA_VAR_PATTERN)) {
+            // TODO: Need to change the 'contains' logic, if we allow user-defined variable names to have '$'
+            if (!packVarInfo.getName().contains(META_DATA_VAR_PATTERN)) {
                 VariableDTO variableDTO = new VariableDTO(packVarInfo.getName(), GLOBAL);
                 switch (packVarInfo.getType().getTag()) {
                     case TypeTags.INT_TAG:
@@ -390,32 +391,35 @@ public class Debugger {
                 getAttributeInfo(AttributeInfo.Kind.LOCAL_VARIABLES_ATTRIBUTE);
 
         localVarAttrInfo.getLocalVariables().forEach(l -> {
-            VariableDTO variableDTO = new VariableDTO(l.getVariableName(), LOCAL);
-            switch (l.getVariableType().getTag()) {
-                case TypeTags.INT_TAG:
-                    variableDTO.setBValue(new BInteger(ctx.workerLocal.longRegs[l.getVariableIndex()]));
-                    break;
-                case TypeTags.BYTE_TAG:
-                    variableDTO.setBValue(new BByte((byte) ctx.workerLocal.intRegs[l.getVariableIndex()]));
-                    break;
-                case TypeTags.FLOAT_TAG:
-                    variableDTO.setBValue(new BFloat(ctx.workerLocal.doubleRegs[l.getVariableIndex()]));
-                    break;
-                case TypeTags.STRING_TAG:
-                    variableDTO.setBValue(new BString(ctx.workerLocal.stringRegs[l.getVariableIndex()]));
-                    break;
-                case TypeTags.BOOLEAN_TAG:
-                    variableDTO.setBValue(new BBoolean(ctx.workerLocal.intRegs[l.getVariableIndex()] == 1));
-                    break;
-                default:
-                    variableDTO.setBValue(ctx.workerLocal.refRegs[l.getVariableIndex()]);
-                    break;
-            }
+            // TODO: Need to change the 'contains' logic, if we allow user-defined variable names to have '$'
+            if (!l.getVariableName().contains(META_DATA_VAR_PATTERN)) {
+                VariableDTO variableDTO = new VariableDTO(l.getVariableName(), LOCAL);
+                switch (l.getVariableType().getTag()) {
+                    case TypeTags.INT_TAG:
+                        variableDTO.setBValue(new BInteger(ctx.workerLocal.longRegs[l.getVariableIndex()]));
+                        break;
+                    case TypeTags.BYTE_TAG:
+                        variableDTO.setBValue(new BByte((byte) ctx.workerLocal.intRegs[l.getVariableIndex()]));
+                        break;
+                    case TypeTags.FLOAT_TAG:
+                        variableDTO.setBValue(new BFloat(ctx.workerLocal.doubleRegs[l.getVariableIndex()]));
+                        break;
+                    case TypeTags.STRING_TAG:
+                        variableDTO.setBValue(new BString(ctx.workerLocal.stringRegs[l.getVariableIndex()]));
+                        break;
+                    case TypeTags.BOOLEAN_TAG:
+                        variableDTO.setBValue(new BBoolean(ctx.workerLocal.intRegs[l.getVariableIndex()] == 1));
+                        break;
+                    default:
+                        variableDTO.setBValue(ctx.workerLocal.refRegs[l.getVariableIndex()]);
+                        break;
+                }
 
-            // Show only the variables within the current scope
-            if ((l.getScopeStartLineNumber() < callingLine.getLineNumber()) &&
-                    (callingLine.getLineNumber() <= l.getScopeEndLineNumber())) {
-                frameDTO.addVariable(variableDTO);
+                // Show only the variables within the current scope
+                if ((l.getScopeStartLineNumber() < callingLine.getLineNumber()) &&
+                        (callingLine.getLineNumber() <= l.getScopeEndLineNumber())) {
+                    frameDTO.addVariable(variableDTO);
+                }
             }
         });
         return message;
