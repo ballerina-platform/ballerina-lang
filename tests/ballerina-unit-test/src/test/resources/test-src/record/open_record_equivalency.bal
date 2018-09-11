@@ -192,3 +192,25 @@ function testRuntimeEqPublicStructs1 () returns (string) {
         userPB user=> return user.name;
     }
 }
+
+type Foo record {
+    string a;
+    string b;
+    string c;
+};
+
+type AnotherFoo record {
+    string c;
+    string b;
+    string a;
+    int d;
+    float e;
+    person1? p;
+};
+
+function testRecordEquivalence() returns Foo {
+    AnotherFoo af = {a: "A", b: "B", c: "C", d: 10};
+    af.f = "rest field";
+    Foo f = af;
+    return f;
+}

@@ -20,6 +20,9 @@ package org.ballerinalang.test.record;
 import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.CompileResult;
+import org.ballerinalang.model.values.BFloat;
+import org.ballerinalang.model.values.BInteger;
+import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BValue;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
@@ -100,5 +103,19 @@ public class SealedRecordEquivalencyTest {
         BValue[] returns = BRunUtil.invoke(compileResult, "testRuntimeEqPublicStructs1");
 
         Assert.assertEquals(returns[0].stringValue(), "Brandon");
+    }
+
+    @Test(description = "Test case for record equivalence")
+    public void testRecordEquivalence() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testRecordEquivalence");
+        BMap foo = (BMap) returns[0];
+
+        Assert.assertEquals(foo.size(), 6);
+        Assert.assertEquals(foo.get("a").stringValue(), "A");
+        Assert.assertEquals(foo.get("b").stringValue(), "B");
+        Assert.assertEquals(foo.get("c").stringValue(), "C");
+        Assert.assertEquals(((BInteger)foo.get("d")).intValue(), 10);
+        Assert.assertEquals(((BFloat)foo.get("e")).floatValue(), 0.0D);
+        Assert.assertNull(foo.get("p"));
     }
 }
