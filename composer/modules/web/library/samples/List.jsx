@@ -70,48 +70,46 @@ class SamplesList extends React.Component {
         const samples = this.getColumnContents();
         return (
             <Grid className='welcome-page'>
-                <Grid.Column>
-                    <Grid.Row className='welcome-navbar' columns={2}>
-                        <Grid.Column className='nav-tagline'>
-                            Ballerina Language Examples
-                        </Grid.Column>
-                        <Grid.Column>
-                            <Menu className='top-nav-links' position='right'>
-                                <a
-                                    rel='noopener noreferrer'
-                                    target='_blank'
-                                    href='https://ballerina.io/learn/api-docs/ballerina/http.html'
-                                    onClick={(event) => {
-                                        event.preventDefault();
-                                        this.props.openLink(event.currentTarget.href);
-                                    }}
-                                >
-                                    <Menu.Item name='API Reference' />
-                                </a>
-                            </Menu>
-                        </Grid.Column>
-                    </Grid.Row>
-                    <Grid.Row className='welcome-content-wrapper'>
-                        <Grid.Column mobile={16} tablet={16} computer={16} className='rightContainer'>
-                            <Grid>
-                                <Grid.Row columns={4} className='sample-wrapper'>
-                                    <Grid.Column mobile={16} tablet={16} computer={4} className=''>
-                                        {samples[0].map(column => this.renderColumnItem(column))}
-                                    </Grid.Column>
-                                    <Grid.Column mobile={16} tablet={16} computer={4} className=''>
-                                        {samples[1].map(column => this.renderColumnItem(column))}
-                                    </Grid.Column>
-                                    <Grid.Column mobile={16} tablet={16} computer={4} className=''>
-                                        {samples[2].map(column => this.renderColumnItem(column))}
-                                    </Grid.Column>
-                                    <Grid.Column mobile={16} tablet={16} computer={4} className=''>
-                                        {samples[3].map(column => this.renderColumnItem(column))}
-                                    </Grid.Column>
-                                </Grid.Row>
-                            </Grid>
-                        </Grid.Column>
-                    </Grid.Row>
-                </Grid.Column>
+                <Grid.Row className='welcome-navbar' columns={2}>
+                    <Grid.Column className='nav-tagline'>
+                        Ballerina Language Examples
+                    </Grid.Column>
+                    <Grid.Column>
+                        <div className='top-nav-links' position='right'>
+                            <a
+                                rel='noopener noreferrer'
+                                target='_blank'
+                                href='https://ballerina.io/learn/api-docs/ballerina/http.html'
+                                onClick={(event) => {
+                                    event.preventDefault();
+                                    this.props.openLink(event.currentTarget.href);
+                                }}
+                            >
+                                {'API Reference'}
+                            </a>
+                        </div>
+                    </Grid.Column>
+                </Grid.Row>
+                <Grid.Row className='welcome-content-wrapper'>
+                    <Grid.Column mobile={16} tablet={16} computer={16} className='rightContainer'>
+                        <Grid>
+                            <Grid.Row columns={4} className='sample-wrapper'>
+                                <Grid.Column mobile={16} tablet={16} computer={4} className=''>
+                                    {samples[0].map(column => this.renderColumnItem(column))}
+                                </Grid.Column>
+                                <Grid.Column mobile={16} tablet={16} computer={4} className=''>
+                                    {samples[1].map(column => this.renderColumnItem(column))}
+                                </Grid.Column>
+                                <Grid.Column mobile={16} tablet={16} computer={4} className=''>
+                                    {samples[2].map(column => this.renderColumnItem(column))}
+                                </Grid.Column>
+                                <Grid.Column mobile={16} tablet={16} computer={4} className=''>
+                                    {samples[3].map(column => this.renderColumnItem(column))}
+                                </Grid.Column>
+                            </Grid.Row>
+                        </Grid>
+                    </Grid.Column>
+                </Grid.Row>
             </Grid>);
     }
 }

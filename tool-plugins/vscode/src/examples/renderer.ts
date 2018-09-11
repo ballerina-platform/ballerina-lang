@@ -20,8 +20,17 @@ function renderExamples(examples: Array<BallerinaExampleCategory>, resourceRoot:
         <link rel="stylesheet" href="${resourceRoot.toString()}/bundle.css" />
         <link rel="stylesheet" href="${resourceRoot.toString()}/theme.css" />
         <link rel="stylesheet" href="${resourceRoot.toString()}/less.css" />
+        <style>
+            body.vscode-dark {
+                background-color: #1e1e1e;
+            }
+            body.vscode-light {
+                background-color: white;
+            }
+        </style>
     </head>
-    <body>
+    
+    <body style="overflow-y: scroll;">
         <div id="examples" />
     </body>
     <script charset="UTF-8" src="${resourceRoot.toString()}/ballerina-diagram-library.js"></script>
