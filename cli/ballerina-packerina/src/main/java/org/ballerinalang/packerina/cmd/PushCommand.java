@@ -57,7 +57,7 @@ public class PushCommand implements BLauncherCmd {
             description = "path to the directory containing source files and packages")
     private String sourceRoot;
 
-    @CommandLine.Option(names = {"--no-build"}, description = "sources are not built before pushing")
+    @CommandLine.Option(names = {"--no-build"}, description = "skip building before pushing")
     private boolean noBuild;
 
     @Override
