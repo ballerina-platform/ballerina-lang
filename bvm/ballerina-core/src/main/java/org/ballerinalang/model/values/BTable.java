@@ -20,7 +20,6 @@ package org.ballerinalang.model.values;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.model.ColumnDefinition;
 import org.ballerinalang.model.DataIterator;
-import org.ballerinalang.model.types.BAnyType;
 import org.ballerinalang.model.types.BStructureType;
 import org.ballerinalang.model.types.BTableType;
 import org.ballerinalang.model.types.BType;
@@ -29,7 +28,6 @@ import org.ballerinalang.util.TableProvider;
 import org.ballerinalang.util.TableUtils;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.ballerinalang.util.program.BLangFunctions;
-import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 
 import java.util.List;
 import java.util.StringJoiner;
