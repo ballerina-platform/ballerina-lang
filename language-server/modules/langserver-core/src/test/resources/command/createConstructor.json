@@ -1,0 +1,33 @@
+{
+  "nodeType": "object",
+  "nodeLine": "23",
+  "expected": {
+    "result":{
+      "edit":{
+        "changes":{
+
+        },
+        "documentChanges":[
+          {
+            "edits":[
+              {
+                "range":{
+                  "start":{
+                    "line":27,
+                    "character":4
+                  },
+                  "end":{
+                    "line":27,
+                    "character":4
+                  }
+                },
+                "newText":"new(testString) {\n\n    }\n    "
+              }
+            ]
+          }
+        ]
+      }
+    },
+    "jsonrpc":"2.0"
+  }
+}

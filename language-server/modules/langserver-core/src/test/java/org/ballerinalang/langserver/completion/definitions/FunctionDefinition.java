@@ -81,6 +81,7 @@ public class FunctionDefinition extends CompletionTest {
                 {"objectAttachFunctionImpl1.json", "function"},
                 {"objectAttachFunctionImpl2.json", "function"},
                 {"objectAttachFunctionImpl3.json", "function"},
+                {"completionAfterReturn.json", "function"},
         };
     }
 }

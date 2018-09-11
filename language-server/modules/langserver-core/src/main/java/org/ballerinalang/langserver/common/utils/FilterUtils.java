@@ -105,7 +105,9 @@ public class FilterUtils {
                     // Get the struct fields
                     Map<Name, Scope.ScopeEntry> fields = scopeEntry.symbol.scope.entries;
                     fields.forEach((fieldName, fieldScopeEntry) -> {
-                        resultList.add(new SymbolInfo(fieldName.getValue(), fieldScopeEntry));
+                        if (!fieldScopeEntry.symbol.getName().getValue().endsWith(".new")) {
+                            resultList.add(new SymbolInfo(fieldName.getValue(), fieldScopeEntry));
+                        }
                     });
                 }
             });
@@ -164,10 +166,12 @@ public class FilterUtils {
             return returnMap;
         }
         symbolInfos.forEach(symbolInfo -> {
-            if ((symbolInfo.getScopeEntry().symbol instanceof BTypeSymbol 
+            if (!CommonUtil.isInvalidSymbol(symbolInfo.getScopeEntry().symbol) 
+                    && (symbolInfo.getScopeEntry().symbol instanceof BTypeSymbol 
                     && symbolInfo.getScopeEntry().symbol.getType() != null 
                     && symbolInfo.getScopeEntry().symbol.getType().toString().equals(modifiedBType.toString())) 
-                    || symbolInfo.getScopeEntry().symbol instanceof BInvokableSymbol) {
+                    || (symbolInfo.getScopeEntry().symbol instanceof BInvokableSymbol
+                    && CommonUtil.isValidInvokableSymbol(symbolInfo.getScopeEntry().symbol))) {
                 returnMap.put(symbolInfo.getScopeEntry().symbol.getName(), symbolInfo.getScopeEntry());
             }
         });
