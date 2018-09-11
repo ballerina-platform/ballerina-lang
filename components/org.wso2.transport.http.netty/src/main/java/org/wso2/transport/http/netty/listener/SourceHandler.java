@@ -47,8 +47,6 @@ import org.wso2.transport.http.netty.listener.states.listener.ReceivingHeaders;
 import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 
 import java.net.SocketAddress;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Map;
 import java.util.PriorityQueue;
 import java.util.Queue;
@@ -68,7 +66,7 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
     private static Logger log = LoggerFactory.getLogger(SourceHandler.class);
 
     private HttpCarbonMessage inboundRequestMsg;
-    private List<HttpCarbonMessage> requestList = new ArrayList<>();
+    private final Map<Integer, HttpCarbonMessage> requestSet = new ConcurrentHashMap<>();
     private HandlerExecutor handlerExecutor;
     private Map<String, GenericObjectPool> targetChannelPool;
     private ChunkConfig chunkConfig;
@@ -81,6 +79,7 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
     private ChannelGroup allChannels;
     protected ChannelHandlerContext ctx;
     private SocketAddress remoteAddress;
+    private boolean connectedState;
 
     private boolean pipeliningNeeded; //Based on the pipelining config
     private long pipeliningLimit; //Max number of responses allowed to be queued when pipelining is enabled
@@ -106,13 +105,14 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
         if (msg instanceof HttpRequest) {
+            connectedState = false;
             inboundRequestMsg = createInboundReqCarbonMsg((HttpRequest) msg, ctx, this);
-            if (requestList.size() > this.pipeliningLimit) {
+            if (requestSet.size() > this.pipeliningLimit) {
                 log.warn("Pipelining request limit exceeded hence closing the channel {}", ctx.channel().id());
                 this.channelInactive(ctx);
                 return;
             }
-            requestList.add(inboundRequestMsg);
+            requestSet.put(inboundRequestMsg.hashCode(), inboundRequestMsg);
 
             MessageStateContext messageStateContext = new MessageStateContext();
             inboundRequestMsg.setMessageStateContext(messageStateContext);
@@ -141,6 +141,7 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
 
     @Override
     public void channelActive(final ChannelHandlerContext ctx) {
+        this.connectedState = true;
         this.ctx = ctx;
         this.allChannels.add(ctx.channel());
         setPipeliningProperties();
@@ -155,10 +156,10 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
     public void channelInactive(ChannelHandlerContext ctx) {
         ctx.close();
         if (!idleTimeout) {
-            if (!requestList.isEmpty()) {
-                requestList.forEach(inboundMsg -> inboundMsg.getMessageStateContext().getListenerState()
+            if (!requestSet.isEmpty()) {
+                requestSet.forEach((key, inboundMsg) -> inboundMsg.getMessageStateContext().getListenerState()
                         .handleAbruptChannelClosure(serverConnectorFuture));
-            } else {
+            } else if (connectedState) {
                 notifyErrorListenerAtConnectedState(REMOTE_CLIENT_CLOSED_BEFORE_INITIATING_INBOUND_REQUEST);
             }
         }
@@ -192,8 +193,8 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
         if (evt instanceof IdleStateEvent) {
             this.idleTimeout = true;
 
-            if (!requestList.isEmpty()) {
-                requestList.forEach(inboundMsg -> {
+            if (!requestSet.isEmpty()) {
+                requestSet.forEach((key, inboundMsg) -> {
                     ChannelFuture outboundRespFuture = inboundMsg.getMessageStateContext().getListenerState()
                             .handleIdleTimeoutConnectionClosure(serverConnectorFuture, ctx);
                     if (outboundRespFuture == null) {
@@ -202,7 +203,9 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
                 });
             } else {
                 this.channelInactive(ctx);
-                notifyErrorListenerAtConnectedState(IDLE_TIMEOUT_TRIGGERED_BEFORE_INITIATING_INBOUND_REQUEST);
+                if (connectedState) {
+                    notifyErrorListenerAtConnectedState(IDLE_TIMEOUT_TRIGGERED_BEFORE_INITIATING_INBOUND_REQUEST);
+                }
             }
             String channelId = ctx.channel().id().asShortText();
             log.debug("Idle timeout has reached hence closing the connection {}", channelId);
@@ -305,11 +308,8 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
         return serverName;
     }
 
-    public void removeRequestEntry(HttpCarbonMessage inboundRequestMsg) {
-        this.requestList.remove(inboundRequestMsg);
-    }
-
-    public void resetInboundRequestMsg() {
-        inboundRequestMsg = null;
+    public void resetInboundRequestMsg(HttpCarbonMessage inboundRequestMsg) {
+        requestSet.remove(inboundRequestMsg.hashCode());
+        this.inboundRequestMsg = null;
     }
 }

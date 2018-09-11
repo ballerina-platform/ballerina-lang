@@ -33,7 +33,7 @@ import static org.wso2.transport.http.netty.listener.states.StateUtil.ILLEGAL_ST
  */
 public class EntityBodyReceived implements SenderState {
 
-    private static Logger log = LoggerFactory.getLogger(SendingHeaders.class);
+    private static Logger log = LoggerFactory.getLogger(EntityBodyReceived.class);
 
     @Override
     public void writeOutboundRequestHeaders(HttpCarbonMessage httpOutboundRequest, HttpContent httpContent) {
@@ -58,11 +58,12 @@ public class EntityBodyReceived implements SenderState {
 
     @Override
     public void handleAbruptChannelClosure(HttpResponseFuture httpResponseFuture) {
-        log.warn("handleAbruptChannelClosure  {}", ILLEGAL_STATE_ERROR);
+        log.debug("Closing the channel once response is received");
     }
 
     @Override
     public void handleIdleTimeoutConnectionClosure(HttpResponseFuture httpResponseFuture, String channelID) {
-        log.warn("handleIdleTimeoutConnectionClosure {}", ILLEGAL_STATE_ERROR);
+        log.debug("Closing the channel once response is received");
+
     }
 }
