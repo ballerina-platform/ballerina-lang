@@ -25,6 +25,7 @@ import org.ballerinalang.model.types.BFiniteType;
 import org.ballerinalang.model.types.BFunctionType;
 import org.ballerinalang.model.types.BJSONType;
 import org.ballerinalang.model.types.BMapType;
+import org.ballerinalang.model.types.BRecordType;
 import org.ballerinalang.model.types.BStreamType;
 import org.ballerinalang.model.types.BStructureType;
 import org.ballerinalang.model.types.BTupleType;
@@ -117,8 +118,10 @@ import java.io.PrintStream;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.stream.Collectors;
 import java.util.stream.LongStream;
 
 import static org.ballerinalang.util.BLangConstants.BBYTE_MAX_VALUE;
@@ -2809,9 +2812,12 @@ public class CPU {
             return true;
         }
 
-        if ((rhsType.getTag() == TypeTags.OBJECT_TYPE_TAG || rhsType.getTag() == TypeTags.RECORD_TYPE_TAG)
-                && (lhsType.getTag() == TypeTags.OBJECT_TYPE_TAG || lhsType.getTag() == TypeTags.RECORD_TYPE_TAG)) {
+        if (rhsType.getTag() == TypeTags.OBJECT_TYPE_TAG && lhsType.getTag() == TypeTags.OBJECT_TYPE_TAG) {
             return checkStructEquivalency((BStructureType) rhsType, (BStructureType) lhsType);
+        }
+
+        if (rhsType.getTag() == TypeTags.RECORD_TYPE_TAG && lhsType.getTag() == TypeTags.RECORD_TYPE_TAG) {
+            return checkRecordEquivalency((BRecordType) lhsType, (BRecordType) rhsType);
         }
 
         if (rhsType.getTag() == TypeTags.MAP_TAG && lhsType.getTag() == TypeTags.MAP_TAG) {
@@ -2847,12 +2853,16 @@ public class CPU {
             return true;
         }
 
-        if ((sourceMapType.getConstrainedType().getTag() == TypeTags.OBJECT_TYPE_TAG
-                || sourceMapType.getConstrainedType().getTag() == TypeTags.RECORD_TYPE_TAG)
-                && (targetMapType.getConstrainedType().getTag() == TypeTags.OBJECT_TYPE_TAG
-                || targetMapType.getConstrainedType().getTag() == TypeTags.RECORD_TYPE_TAG)) {
+        if (sourceMapType.getConstrainedType().getTag() == TypeTags.OBJECT_TYPE_TAG &&
+                targetMapType.getConstrainedType().getTag() == TypeTags.OBJECT_TYPE_TAG) {
             return checkStructEquivalency((BStructureType) sourceMapType.getConstrainedType(),
-                    (BStructureType) targetMapType.getConstrainedType());
+                                          (BStructureType) targetMapType.getConstrainedType());
+        }
+
+        if (sourceMapType.getConstrainedType().getTag() == TypeTags.RECORD_TYPE_TAG &&
+                targetMapType.getConstrainedType().getTag() == TypeTags.RECORD_TYPE_TAG) {
+            return checkRecordEquivalency((BRecordType) targetMapType.getConstrainedType(),
+                                          (BRecordType) sourceMapType.getConstrainedType());
         }
 
         return false;
@@ -2934,6 +2944,29 @@ public class CPU {
                 checkEquivalencyOfPublicStructs(lhsType, rhsType);
     }
 
+    public static boolean checkRecordEquivalency(BRecordType lhsType, BRecordType rhsType) {
+        // Both records should be public or private.
+        // Get the XOR of both flags(masks)
+        // If both are public, then public bit should be 0;
+        // If both are private, then public bit should be 0;
+        // The public bit is on means, one is public, and the other one is private.
+        if (Flags.isFlagOn(lhsType.flags ^ rhsType.flags, Flags.PUBLIC)) {
+            return false;
+        }
+
+        // If both records are private, they should be in the same package.
+        if (!Flags.isFlagOn(lhsType.flags, Flags.PUBLIC) &&
+                !rhsType.getPackagePath().equals(lhsType.getPackagePath())) {
+            return false;
+        }
+
+        if (lhsType.getFields().length > rhsType.getFields().length) {
+            return false;
+        }
+
+        return checkEquivalencyOfTwoRecords(lhsType, rhsType);
+    }
+
     private static boolean checkEquivalencyOfTwoPrivateStructs(BStructureType lhsType, BStructureType rhsType) {
         for (int fieldCounter = 0; fieldCounter < lhsType.getFields().length; fieldCounter++) {
             BField lhsField = lhsType.getFields()[fieldCounter];
@@ -3005,6 +3038,27 @@ public class CPU {
         // Check for private attached function in RHS type
         for (BAttachedFunction rhsFunc : rhsFuncs) {
             if (!Flags.isFlagOn(rhsFunc.flags, Flags.PUBLIC)) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    private static boolean checkEquivalencyOfTwoRecords(BRecordType lhsType, BRecordType rhsType) {
+        Map<String, BField> rhsFields = Arrays.stream(rhsType.getFields()).collect(
+                Collectors.toMap(BField::getFieldName, field -> field));
+
+        BField[] fields = lhsType.getFields();
+        for (int fieldCounter = 0; fieldCounter < fields.length; fieldCounter++) {
+            BField lhsField = fields[fieldCounter];
+            BField rhsField = rhsFields.get(lhsField.fieldName);
+
+            if (rhsField == null) {
+                return false;
+            }
+
+            if (!isSameType(rhsField.fieldType, lhsField.fieldType)) {
                 return false;
             }
         }
@@ -3103,8 +3157,8 @@ public class CPU {
     }
 
     private static boolean checkJSONEquivalency(BValue json, BJSONType sourceType, BJSONType targetType) {
-        BStructureType sourceConstrainedType = (BStructureType) sourceType.getConstrainedType();
-        BStructureType targetConstrainedType = (BStructureType) targetType.getConstrainedType();
+        BRecordType sourceConstrainedType = (BRecordType) sourceType.getConstrainedType();
+        BRecordType targetConstrainedType = (BRecordType) targetType.getConstrainedType();
 
         // Casting to an unconstrained JSON
         if (targetConstrainedType == null) {
@@ -3117,7 +3171,7 @@ public class CPU {
                 return true;
             }
 
-            return checkStructEquivalency(sourceConstrainedType, targetConstrainedType);
+            return checkRecordEquivalency(targetConstrainedType, sourceConstrainedType);
         }
 
         // Casting from unconstrained JSON to constrained JSON

@@ -114,8 +114,8 @@ public class SealedRecordEquivalencyTest {
         Assert.assertEquals(foo.get("a").stringValue(), "A");
         Assert.assertEquals(foo.get("b").stringValue(), "B");
         Assert.assertEquals(foo.get("c").stringValue(), "C");
-        Assert.assertEquals(((BInteger)foo.get("d")).intValue(), 10);
-        Assert.assertEquals(((BFloat)foo.get("e")).floatValue(), 0.0D);
+        Assert.assertEquals(((BInteger) foo.get("d")).intValue(), 10);
+        Assert.assertEquals(((BFloat) foo.get("e")).floatValue(), 0.0D);
         Assert.assertNull(foo.get("p"));
     }
 }

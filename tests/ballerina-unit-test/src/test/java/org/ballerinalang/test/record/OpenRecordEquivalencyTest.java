@@ -58,7 +58,7 @@ public class OpenRecordEquivalencyTest {
             "Equivalency test is performed in another package.")
     public void testEqOfPublicStructs() {
         BValue[] returns = BRunUtil.invoke(compileResult,
-                "testEqOfPublicStructs");
+                                           "testEqOfPublicStructs");
 
         Assert.assertEquals(returns[0].stringValue(), "234-56-7890:employee");
     }
@@ -114,8 +114,8 @@ public class OpenRecordEquivalencyTest {
         Assert.assertEquals(foo.get("a").stringValue(), "A");
         Assert.assertEquals(foo.get("b").stringValue(), "B");
         Assert.assertEquals(foo.get("c").stringValue(), "C");
-        Assert.assertEquals(((BInteger)foo.get("d")).intValue(), 10);
-        Assert.assertEquals(((BFloat)foo.get("e")).floatValue(), 0.0D);
+        Assert.assertEquals(((BInteger) foo.get("d")).intValue(), 10);
+        Assert.assertEquals(((BFloat) foo.get("e")).floatValue(), 0.0D);
         Assert.assertEquals(foo.get("f").stringValue(), "rest field");
         Assert.assertNull(foo.get("p"));
     }
