@@ -327,7 +327,8 @@ public class CommonUtil {
      */
     public static String topLevelNodeTypeInLine(TextDocumentIdentifier identifier, Position startPosition,
                                                 WorkspaceDocumentManager docManager) {
-        List<String> topLevelKeywords = Arrays.asList("function", "service", "resource", "endpoint", "type");
+        List<String> topLevelKeywords = Arrays.asList("function", "service", "resource", "endpoint", "object",
+                "record");
         LSDocument document = new LSDocument(identifier.getUri());
 
         try {
