@@ -26,7 +26,7 @@ service<http:Service> channelService bind listener {
 
         json result = {message:"channel_message"};
         map key = { line1: "No. 20", line2: "Palm Grove", city: "Colombo 03", country: "Sri Lanka" };
-        result,key -> chn;
+        result -> chn,key;
 
         response.setJsonPayload(result, contentType = "application/json");
         _ = caller -> respond(response);

@@ -489,7 +489,7 @@ workerInteractionStatement
 
 // below left Identifier is of type TYPE_MESSAGE and the right Identifier is of type WORKER or CHANNEL
 triggerWorker
-    :   expression (COMMA expression)? RARROW Identifier SEMICOLON        #invokeWorker
+    :   expression RARROW Identifier (COMMA expression)? SEMICOLON        #invokeWorker
     |   expression RARROW FORK SEMICOLON              #invokeFork
     ;
 

@@ -12,7 +12,7 @@ function workerWithChannels() returns json {
     worker w2 {
         json key = {"id":50, name:"john"};
         json msg = {"payment":10000};
-        msg, key -> chn;
+        msg -> chn, key;
     }
 }
 
@@ -20,7 +20,7 @@ function sendBeforeReceive() returns json {
     worker w2 {
         json key = {"id":50, name:"john"};
         json msg = {"payment":10000};
-        msg, key -> chn;
+        msg -> chn, key;
     }
 
     worker w1 {
@@ -52,8 +52,8 @@ function multipleInteractions() returns json {
         json key = {"id":50, name:"john"};
         json key2 = {"id":60, name:"john"};
         msg -> chn;
-        msg2,key -> chn;
-        msg3,key2 -> chn;
+        msg2 -> chn, key;
+        msg3 -> chn, key2;
     }
 
     worker w1 {
@@ -76,8 +76,8 @@ function multipleChannels() returns json {
         json msg3 = {"payment":60000};
         json key = {"id":50, name:"john"};
         msg -> chn2;
-        msg3,key -> chn2;
-        msg2,key -> chn;
+        msg3 -> chn2,key;
+        msg2 -> chn,key;
     }
 
     worker w1 {
@@ -98,8 +98,8 @@ function xmlChannels() returns xml {
             xml key = xml `<key><id>50</id><name>john</name></key>`;
             xml key2 = xml `<key><id>60</id><name>john</name></key>`;
             msg -> xmlChn;
-            msg2,key -> xmlChn;
-            msg3,key2 -> xmlChn;
+            msg2 -> xmlChn,key;
+            msg3 -> xmlChn,key2;
         }
 
         worker w1 {
@@ -123,11 +123,11 @@ function primitiveTypeChannels() returns boolean {
 
     xml key = xml `<key><id>50</id><name>john</name></key>`;
     byte b = 23;
-    10, key -> intChan;
-    true, key -> boolChan;
-    10.5, key -> floatChan;
-    "message", key -> strChan;
-    b, key -> byteChan;
+    10 -> intChan, key;
+    true -> boolChan, key;
+    10.5 -> floatChan, key;
+    "message" -> strChan, key;
+    b -> byteChan, key;
 
     int intResult;
     float floatResult;

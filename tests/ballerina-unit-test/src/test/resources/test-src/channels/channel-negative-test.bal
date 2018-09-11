@@ -11,7 +11,7 @@ function workerWithChannels() returns xml {
     worker w2 {
         json key = {"id":50, name:"john"};
         string msg = "payment:1000";
-        msg, key -> chn;
+        msg -> chn, key;
     }
 }
 
@@ -21,7 +21,7 @@ channel<(json,json)> tupleChan;
 function myFunc() {
     json key = {"id":50, name:"john"};
     string msg = "payment:1000";
-    msg, key -> lastChan;
+    msg -> lastChan, key;
 }
 
 channel<string> lastChan;

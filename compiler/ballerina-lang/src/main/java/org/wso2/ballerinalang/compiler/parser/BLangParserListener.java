@@ -1543,7 +1543,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         }
 
         this.pkgBuilder.addWorkerSendStmt(getCurrentPos(ctx), getWS(ctx), ctx.Identifier().getText(), false, ctx
-                .expression(1) != null);
+                .expression().size() > 1);
     }
 
     @Override
@@ -1562,7 +1562,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         }
 
         this.pkgBuilder.addWorkerReceiveStmt(getCurrentPos(ctx), getWS(ctx), ctx.Identifier().getText(), ctx
-                .expression(1) != null);
+                .expression().size() > 1);
     }
 
     /**
