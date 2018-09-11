@@ -99,23 +99,22 @@ public class LauncherUtils {
             programFile = compile(fullPath.getParent(), fullPath.getFileName(), offline);
         } else if (Files.isDirectory(sourceRootPath)) {
             if (Files.isDirectory(fullPath) && !RepoUtils.hasProjectRepo(sourceRootPath)) {
-                throw LauncherUtils.createLauncherException(
-                        "error: did you mean to run the Ballerina package as a project? If so run 'ballerina init' to" +
-                                " make it a project with a .ballerina directory");
+                throw createLauncherException("did you mean to run the Ballerina package as a project? If so run "
+                                                      + "'ballerina init' to make it a project with a .ballerina "
+                                                      + "directory");
             }
             programFile = compile(sourceRootPath, sourcePath, offline);
         } else {
-            throw LauncherUtils.createLauncherException(
-                    "error: only packages, " + BLANG_SRC_FILE_SUFFIX + " and " + BLANG_EXEC_FILE_SUFFIX +
-                            " files can be used with the 'ballerina run' command.");
+            throw createLauncherException("only packages, " + BLANG_SRC_FILE_SUFFIX + " and " + BLANG_EXEC_FILE_SUFFIX
+                                                  + " files can be used with the 'ballerina run' command.");
         }
 
         // If a function named main is expected to be the entry point but such a function does not exist and there is
         // no service entry point either, throw an error
         if ((MAIN_FUNCTION_NAME.equals(functionName) && !programFile.isMainEPAvailable())
                 && !programFile.isServiceEPAvailable()) {
-            throw LauncherUtils.createLauncherException(
-                    "error: '" + programFile.getProgramFilePath() + "' does not contain a main function or a service");
+            throw createLauncherException("'" + programFile.getProgramFilePath()
+                                                  + "' does not contain a main function or a service");
         }
 
         boolean runServicesOnly = MAIN_FUNCTION_NAME.equals(functionName) && !programFile.isMainEPAvailable();
@@ -126,7 +125,7 @@ public class LauncherUtils {
 
         if (runServicesOnly) {
             if (args.length > 0) {
-                throw LauncherUtils.createUsageException("too many arguments");
+                throw LauncherUtils.createUsageExceptionWithHelp("too many arguments");
             }
             runServices(programFile);
         } else {
@@ -142,10 +141,8 @@ public class LauncherUtils {
             if (printReturn && entryFuncResult != null && entryFuncResult.length >= 1) {
                 outStream.println(entryFuncResult[0] == null ? "()" : entryFuncResult[0].stringValue());
             }
-        } catch (BLangUsageException e) {
-            throw createLauncherException("usage error: " + makeFirstLetterLowerCase(e.getLocalizedMessage()));
-        } catch (BallerinaException e) {
-            throw createLauncherException(makeFirstLetterLowerCase(e.getLocalizedMessage()));
+        } catch (BLangUsageException | BallerinaException e) {
+            throw createUsageException(makeFirstLetterLowerCase(e.getLocalizedMessage()));
         }
 
         if (programFile.isServiceEPAvailable()) {
@@ -196,13 +193,19 @@ public class LauncherUtils {
     public static BLauncherException createUsageException(String errorMsg) {
         BLauncherException launcherException = new BLauncherException();
         launcherException.addMessage("ballerina: " + errorMsg);
+        return launcherException;
+    }
+
+    public static BLauncherException createUsageExceptionWithHelp(String errorMsg) {
+        BLauncherException launcherException = new BLauncherException();
+        launcherException.addMessage("ballerina: " + errorMsg);
         launcherException.addMessage("Run 'ballerina help' for usage.");
         return launcherException;
     }
 
-    static BLauncherException createLauncherException(String errorMsg) {
+    public static BLauncherException createLauncherException(String errorMsg) {
         BLauncherException launcherException = new BLauncherException();
-        launcherException.addMessage(errorMsg);
+        launcherException.addMessage("error: " + errorMsg);
         return launcherException;
     }
 
@@ -247,8 +250,8 @@ public class LauncherUtils {
             }
             pid = builder.toString();
         } catch (Throwable e) {
-            throw createLauncherException("error: fail to write ballerina.pid file: " +
-                    makeFirstLetterLowerCase(e.getMessage()));
+            throw createLauncherException("failed to write ballerina.pid file: "
+                                                  + makeFirstLetterLowerCase(e.getMessage()));
         }
 
         if (pid.length() != 0) {
@@ -257,8 +260,8 @@ public class LauncherUtils {
                     StandardCharsets.UTF_8))) {
                 writer.write(pid);
             } catch (IOException e) {
-                throw createLauncherException("error: fail to write ballerina.pid file: " +
-                        makeFirstLetterLowerCase(e.getMessage()));
+                throw createLauncherException("failed to write ballerina.pid file: "
+                                                      + makeFirstLetterLowerCase(e.getMessage()));
             }
         }
     }
@@ -309,7 +312,7 @@ public class LauncherUtils {
             byteIS = new ByteArrayInputStream(byteOutStream.toByteArray());
             return reader.readProgram(byteIS);
         } catch (Throwable e) {
-            throw createLauncherException("error: fail to compile file: " + makeFirstLetterLowerCase(e.getMessage()));
+            throw createLauncherException("failed to compile file: " + makeFirstLetterLowerCase(e.getMessage()));
         } finally {
             if (byteIS != null) {
                 try {

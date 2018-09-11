@@ -59,7 +59,7 @@ public class ListCommand implements BLauncherCmd {
         }
 
         if (argList != null && argList.size() > 1) {
-            throw LauncherUtils.createUsageException("too many arguments");
+            throw LauncherUtils.createUsageExceptionWithHelp("too many arguments");
         }
 
         // Get source root path.
