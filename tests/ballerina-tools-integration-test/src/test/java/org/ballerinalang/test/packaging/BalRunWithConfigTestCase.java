@@ -21,15 +21,11 @@ import org.ballerinalang.test.BaseTest;
 import org.ballerinalang.test.context.BallerinaTestException;
 import org.ballerinalang.test.context.LogLeecher;
 import org.ballerinalang.test.utils.PackagingTestUtils;
-import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
+import java.io.File;
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.StandardCopyOption;
-import java.nio.file.StandardOpenOption;
 import java.util.Map;
 
 /**
@@ -38,69 +34,38 @@ import java.util.Map;
  * @since 0.982.0
  */
 public class BalRunWithConfigTestCase extends BaseTest {
-    private Path tempProjectDirectory;
-    private Path ballerinaConfPath;
-    private Path balSourcePath;
     private Map<String, String> envVariables;
+    private String balSourcePkgPath = (new File("src/test/resources/config")).getAbsolutePath();
 
     @BeforeClass()
     public void setUp() throws BallerinaTestException, IOException {
-        tempProjectDirectory = Files.createTempDirectory("bal-test-project-");
         envVariables = PackagingTestUtils.getEnvVariables();
-        // Create the ballerina.conf
-        ballerinaConfPath = tempProjectDirectory.resolve("ballerina.conf");
-        Files.createFile(ballerinaConfPath);
-        Files.write(ballerinaConfPath, "host=\"localhost\"".getBytes(), StandardOpenOption.TRUNCATE_EXISTING);
-
-        // Write the source
-        balSourcePath = tempProjectDirectory.resolve("hello.bal");
-        Files.createFile(balSourcePath);
-        String content = "import ballerina/config;\n" +
-                "import ballerina/io;\n" +
-                "public function main (string... args) {\n" +
-                " string host = config:getAsString(\"host\"); \n" +
-                " io:println(host);\n" +
-                "}";
-        Files.write(balSourcePath, content.getBytes(), StandardOpenOption.TRUNCATE_EXISTING);
     }
 
     @Test(description = "Test running a ballerina file with the default config from the same directory")
     public void testRunWithDefaultConfig() throws Exception {
-        String[] clientArgs = {"hello.bal"};
+        String[] clientArgs = {"read_from_config.bal"};
         LogLeecher clientLeecher = new LogLeecher("localhost");
         balClient.runMain("run", clientArgs, envVariables, new String[0], new LogLeecher[]{clientLeecher},
-                          tempProjectDirectory.toString());
+                          balSourcePkgPath);
     }
 
     @Test(description = "Test running a ballerina file with the default config from another directory")
     public void testRunWithDefaultConfigFromDiff() throws Exception {
-        Path tempDir = tempProjectDirectory.resolve("tempDir");
-        Files.createDirectories(tempDir);
-
-        String[] clientArgs = {balSourcePath.toString()};
+        String balSourcePath = (new File("src/test/resources/config/read_from_config.bal")).getAbsolutePath();
+        String pkgDirPath = (new File("src/test/resources/config/pkg")).getAbsolutePath();
+        String[] clientArgs = {balSourcePath};
         LogLeecher clientLeecher = new LogLeecher("localhost");
         balClient.runMain("run", clientArgs, envVariables, new String[0], new LogLeecher[]{clientLeecher},
-                          tempDir.toString());
+                          pkgDirPath);
     }
 
     @Test(description = "Test running a ballerina file by specifying the config file path")
     public void testRunWithConfig() throws Exception {
-        Path tempDir = tempProjectDirectory.resolve("tempDirWithConfig");
-        Files.createDirectories(tempDir);
-
-        // Copy the config
-        Path exampleConfig = tempDir.resolve("ballerina.config");
-        Files.createFile(exampleConfig);
-        Files.copy(ballerinaConfPath, exampleConfig, StandardCopyOption.REPLACE_EXISTING);
-
-        String[] clientArgs = {"--config", exampleConfig.toString(), balSourcePath.toString()};
+        String confPath = (new File("src/test/resources/config/pkg/example.conf")).getAbsolutePath();
+        String[] clientArgs = {"--config", confPath, "read_from_config.bal"};
         LogLeecher clientLeecher = new LogLeecher("localhost");
         balClient.runMain("run", clientArgs, envVariables, new String[0], new LogLeecher[]{clientLeecher},
-                          tempDir.toString());
-    }
-
-    @AfterClass
-    private void cleanup() throws Exception {
-        PackagingTestUtils.deleteFiles(tempProjectDirectory);
+                          balSourcePkgPath);
     }
 }
