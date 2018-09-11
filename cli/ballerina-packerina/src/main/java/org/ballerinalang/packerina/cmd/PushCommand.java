@@ -17,8 +17,8 @@
 */
 package org.ballerinalang.packerina.cmd;
 
-import org.ballerinalang.compiler.BLangCompilerException;
 import org.ballerinalang.launcher.BLauncherCmd;
+import org.ballerinalang.launcher.LauncherUtils;
 import org.ballerinalang.packerina.PushUtils;
 import picocli.CommandLine;
 
@@ -76,7 +76,7 @@ public class PushCommand implements BLauncherCmd {
             String packageName = argList.get(0);
             PushUtils.pushPackages(packageName, sourceRoot, repositoryHome);
         } else {
-            throw new BLangCompilerException("too many arguments");
+            throw LauncherUtils.createUsageExceptionWithHelp("too many arguments");
         }
         Runtime.getRuntime().exit(0);
     }

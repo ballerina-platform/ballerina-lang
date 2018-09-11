@@ -164,7 +164,7 @@ public class LauncherUtils {
         programFile.setServerConnectorRegistry(serverConnectorRegistry);
         serverConnectorRegistry.initServerConnectors();
 
-        outStream.println("ballerina: initiating service(s) in '" + programFile.getProgramFilePath() + "'");
+        outStream.println("initiating service(s) in '" + programFile.getProgramFilePath() + "'");
         BLangProgramRunner.runService(programFile);
 
         serverConnectorRegistry.deploymentComplete();
@@ -190,7 +190,7 @@ public class LauncherUtils {
         return sourceRootPath;
     }
 
-    public static BLauncherException createUsageException(String errorMsg) {
+    private static BLauncherException createUsageException(String errorMsg) {
         BLauncherException launcherException = new BLauncherException();
         launcherException.addMessage("ballerina: " + errorMsg);
         return launcherException;

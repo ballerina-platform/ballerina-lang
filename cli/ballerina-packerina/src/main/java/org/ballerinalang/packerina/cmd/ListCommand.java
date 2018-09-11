@@ -17,7 +17,6 @@
  */
 package org.ballerinalang.packerina.cmd;
 
-import org.ballerinalang.compiler.BLangCompilerException;
 import org.ballerinalang.launcher.BLauncherCmd;
 import org.ballerinalang.launcher.LauncherUtils;
 import org.ballerinalang.packerina.ListUtils;
@@ -30,6 +29,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
 
+import static org.ballerinalang.launcher.LauncherUtils.createLauncherException;
 import static org.ballerinalang.packerina.cmd.Constants.LIST_COMMAND;
 
 /**
@@ -73,7 +73,7 @@ public class ListCommand implements BLauncherCmd {
                 String pkgName = argList.get(0);
                 ListUtils.list(sourceRootPath, pkgName);
             } else {
-                throw new BLangCompilerException("Current directory is not a project");
+                throw createLauncherException("Current directory is not a project");
             }
         }
         Runtime.getRuntime().exit(0);

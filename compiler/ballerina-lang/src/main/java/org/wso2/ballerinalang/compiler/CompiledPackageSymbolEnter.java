@@ -168,11 +168,11 @@ public class CompiledPackageSymbolEnter {
             return pkgSymbol;
         } catch (IOException e) {
             // TODO dlog.error();
-            throw new BLangCompilerException("io error: " + e.getMessage(), e);
+            throw new BLangCompilerException(e.getMessage(), e);
             //            return null;
         } catch (Throwable e) {
             // TODO format error
-            throw new BLangCompilerException("format error: " + e.getMessage(), e);
+            throw new BLangCompilerException(e.getMessage(), e);
             //            return null;
         }
     }
@@ -181,13 +181,13 @@ public class CompiledPackageSymbolEnter {
         int magicNumber = dataInStream.readInt();
         if (magicNumber != CompiledBinaryFile.PackageFile.MAGIC_VALUE) {
             // TODO dlog.error() with package name
-            throw new BLangCompilerException("ballerina: invalid magic number " + magicNumber);
+            throw new BLangCompilerException("invalid magic number " + magicNumber);
         }
 
         short version = dataInStream.readShort();
         if (version != CompiledBinaryFile.PackageFile.LANG_VERSION) {
             // TODO dlog.error() with package name
-            throw new BLangCompilerException("ballerina: unsupported program file version " + version);
+            throw new BLangCompilerException("unsupported program file version " + version);
         }
 
         // Read constant pool entries of the package info.
@@ -933,7 +933,7 @@ public class CompiledPackageSymbolEnter {
 
     private PackageID createPackageID(String orgName, String pkgName, String pkgVersion) {
         if (orgName == null || orgName.isEmpty()) {
-            throw new BLangCompilerException("Invalid package name '" + pkgName + "' in compiled package file");
+            throw new BLangCompilerException("invalid package name '" + pkgName + "' in compiled package file");
         }
 
         return new PackageID(names.fromString(orgName),
@@ -959,7 +959,7 @@ public class CompiledPackageSymbolEnter {
         if (symbol == this.symTable.notFoundSymbol && pkgID.orgName.equals(Names.BUILTIN_ORG)) {
             symbol = this.packageLoader.loadPackageSymbol(pkgID, this.env.pkgSymbol.pkgID, env.loadedRepository);
             if (symbol == null) {
-                throw new BLangCompilerException("Unknown imported package: " + pkgID.name);
+                throw new BLangCompilerException("unknown imported package: " + pkgID.name);
             }
         }
 
@@ -989,7 +989,7 @@ public class CompiledPackageSymbolEnter {
     private BType lookupUserDefinedType(BPackageSymbol packageSymbol, String typeName) {
         BSymbol typeSymbol = lookupMemberSymbol(packageSymbol.scope, names.fromString(typeName), SymTag.TYPE);
         if (typeSymbol == this.symTable.notFoundSymbol) {
-            throw new BLangCompilerException("Unknown type name: " + typeName);
+            throw new BLangCompilerException("unknown type name: " + typeName);
         }
 
         return typeSymbol.type;
@@ -998,7 +998,7 @@ public class CompiledPackageSymbolEnter {
     private BType getBuiltinRefTypeFromName(String typeName) {
         BSymbol typeSymbol = lookupMemberSymbol(this.symTable.rootScope, names.fromString(typeName), SymTag.TYPE);
         if (typeSymbol == this.symTable.notFoundSymbol) {
-            throw new BLangCompilerException("Unknown type name: " + typeName);
+            throw new BLangCompilerException("unknown type name: " + typeName);
         }
 
         return typeSymbol.type;

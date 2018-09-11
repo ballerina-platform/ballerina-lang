@@ -66,7 +66,9 @@ public class Main {
             outStream.println(e.getMessage());
             Runtime.getRuntime().exit(1);
         } catch (BLangCompilerException e) {
-            outStream.println(prepareCompilerErrorMessage(e.getMessage()));
+            if (!(e.getMessage().contains(COMPILATION_ERROR_MESSAGE))) {
+                outStream.println(prepareCompilerErrorMessage(e.getMessage()));
+            }
             Runtime.getRuntime().exit(1);
         } catch (BLauncherException e) {
             if (!(e.getMessages().size() > 0 && e.getMessages().get(0).contains(COMPILATION_ERROR_MESSAGE))) {
@@ -182,7 +184,7 @@ public class Main {
     }
 
     private static String prepareCompilerErrorMessage(String message) {
-        return "ballerina: " + LauncherUtils.makeFirstLetterLowerCase(message);
+        return "error: " + LauncherUtils.makeFirstLetterLowerCase(message);
     }
 
     private static String getFirstUnknownArg(String errorMessage) {
