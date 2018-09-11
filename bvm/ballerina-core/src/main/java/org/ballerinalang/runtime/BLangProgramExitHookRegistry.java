@@ -59,4 +59,13 @@ public class BLangProgramExitHookRegistry {
             }
         });
     }
+
+    /**
+     * Checks and return whether any hooks are added to the registry.
+     *
+     * @return true if the registry is empty, false otherwise
+     */
+    public static boolean isEmpty() {
+        return exitHooks.isEmpty();
+    }
 }
