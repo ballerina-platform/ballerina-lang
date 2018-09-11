@@ -57,6 +57,9 @@ public class PushCommand implements BLauncherCmd {
             description = "path to the directory containing source files and packages")
     private String sourceRoot;
 
+    @CommandLine.Option(names = {"--no-build"}, description = "sources are not built before pushing")
+    private boolean noBuild;
+
     @Override
     public void execute() {
         if (helpFlag) {
@@ -71,10 +74,10 @@ public class PushCommand implements BLauncherCmd {
         }
 
         if (argList == null || argList.size() == 0) {
-            PushUtils.pushAllPackages(sourceRoot, repositoryHome);
+            PushUtils.pushAllPackages(sourceRoot, repositoryHome, noBuild);
         } else if (argList.size() == 1) {
             String packageName = argList.get(0);
-            PushUtils.pushPackages(packageName, sourceRoot, repositoryHome);
+            PushUtils.pushPackages(packageName, sourceRoot, repositoryHome, noBuild);
         } else {
             throw new BLangCompilerException("too many arguments");
         }

@@ -50,6 +50,9 @@ public class InstallCommand implements BLauncherCmd {
             description = "path to the directory containing source files and packages")
     private String sourceRoot;
 
+    @CommandLine.Option(names = {"--no-build"}, description = "sources are not built before pushing")
+    private boolean noBuild;
+
     @Override
     public void execute() {
         if (helpFlag) {
@@ -59,10 +62,10 @@ public class InstallCommand implements BLauncherCmd {
         }
 
         if (argList == null || argList.size() == 0) {
-            PushUtils.pushAllPackages(sourceRoot, "home");
+            PushUtils.pushAllPackages(sourceRoot, "home", noBuild);
         } else if (argList.size() == 1) {
             String packageStr = argList.get(0);
-            PushUtils.pushPackages(packageStr, sourceRoot, "home");
+            PushUtils.pushPackages(packageStr, sourceRoot, "home", noBuild);
         } else {
             throw LauncherUtils.createUsageException("too many arguments");
         }

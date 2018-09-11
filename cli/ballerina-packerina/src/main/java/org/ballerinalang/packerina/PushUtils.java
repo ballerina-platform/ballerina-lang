@@ -76,8 +76,9 @@ public class PushUtils {
      * @param packageName   path of the package folder to be pushed
      * @param sourceRoot    path to the directory containing source files and packages
      * @param installToRepo if it should be pushed to central or home
+     * @param noBuild       do not build sources before pushing
      */
-    public static void pushPackages(String packageName, String sourceRoot, String installToRepo) {
+    public static void pushPackages(String packageName, String sourceRoot, String installToRepo, boolean noBuild) {
         Path prjDirPath = LauncherUtils.getSourceRootPath(sourceRoot);
         // Check if the Ballerina.toml exists
         if (Files.notExists(prjDirPath.resolve(ProjectDirConstants.MANIFEST_FILE_NAME))) {
@@ -105,8 +106,17 @@ public class PushUtils {
         Path pkgPathFromPrjtDir = Paths.get(prjDirPath.toString(), ProjectDirConstants.DOT_BALLERINA_DIR_NAME,
                                             ProjectDirConstants.DOT_BALLERINA_REPO_DIR_NAME, orgName,
                                             packageName, version, packageName + ".zip");
-        if (Files.notExists(pkgPathFromPrjtDir)) {
-            BuilderUtils.compileWithTestsAndWrite(prjDirPath, packageName, packageName, false, false, false, true);
+
+        // Always build if the flag is not given
+        if (!noBuild) {
+            BuilderUtils.compileWithTestsAndWrite(prjDirPath, packageName, packageName, false, false, false, false);
+        } else {
+            // If --no-build is given, first check if the package artifact exists. If it does not exist prompt the user
+            // to run "ballerina push" without the --no-build flag
+            if (Files.notExists(pkgPathFromPrjtDir)) {
+                throw new BLangCompilerException("Couldn't locate the package artifact to be pushed. Run 'ballerina " +
+                                                         "push' without the --no-build flag");
+            }
         }
 
         if (installToRepo == null) {
@@ -338,8 +348,9 @@ public class PushUtils {
      *
      * @param sourceRoot source root or project root
      * @param home       if it should be pushed to central or home
+     * @param noBuild    do not build sources before pushing
      */
-    public static void pushAllPackages(String sourceRoot, String home) {
+    public static void pushAllPackages(String sourceRoot, String home, boolean noBuild) {
         Path sourceRootPath = LauncherUtils.getSourceRootPath(sourceRoot);
         try {
             List<String> fileList = Files.list(sourceRootPath)
@@ -350,7 +361,7 @@ public class PushUtils {
             if (fileList.size() == 0) {
                 throw new BLangCompilerException("no packages found to push in " + sourceRootPath.toString());
             }
-            fileList.forEach(path -> pushPackages(path, sourceRoot, home));
+            fileList.forEach(path -> pushPackages(path, sourceRoot, home, noBuild));
         } catch (IOException ex) {
             throw new BLangCompilerException("error occurred when pushing packages from " + sourceRootPath.toString(),
                                              ex);
