@@ -19,6 +19,7 @@
 package org.ballerinalang.stdlib.task.appointment;
 
 import org.ballerinalang.bre.Context;
+import org.ballerinalang.bre.bvm.BLangScheduler;
 import org.ballerinalang.model.NativeCallableUnit;
 import org.ballerinalang.stdlib.task.SchedulingException;
 import org.ballerinalang.stdlib.task.TaskIdGenerator;
@@ -41,7 +42,7 @@ public class Appointment {
             AppointmentManager.getInstance().
                     schedule(id, fn, AppointmentJob.class,
                             balParentContext, onTriggerFunction, onErrorFunction, cronExpression);
-            //BLangScheduler.workerCountUp();
+            BLangScheduler.workerCountUp();
         } catch (SchedulerException e) {
             throw new SchedulingException(e);
         }
@@ -52,7 +53,7 @@ public class Appointment {
     }
 
     public void stop() {
-        //BLangScheduler.workerCountDown();
+        BLangScheduler.workerCountDown();
         AppointmentManager.getInstance().stop(id);
         TaskRegistry.getInstance().remove(id);
     }
