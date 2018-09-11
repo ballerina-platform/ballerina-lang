@@ -67,7 +67,7 @@ public class MockSocketServer {
                     iter.remove();
                 }
             } catch (Throwable e) {
-                log.error("Error in MockSocketServer loop:" + e.getMessage());
+                log.error("Error in MockSocketServer loop: " + e.getMessage());
             }
         }
     }

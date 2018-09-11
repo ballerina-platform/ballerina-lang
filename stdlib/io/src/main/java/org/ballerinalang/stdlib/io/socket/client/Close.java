@@ -75,8 +75,7 @@ public class Close extends BlockingNativeCallableUnit {
                 channel.close();
             }
         } catch (Throwable e) {
-            String message = "Failed to close the socket: " + e.getMessage();
-            log.error(message, e);
+            String message = "Failed to close the socket connection.";
             context.setReturnValues(IOUtils.createError(context, message));
         }
         context.setReturnValues();

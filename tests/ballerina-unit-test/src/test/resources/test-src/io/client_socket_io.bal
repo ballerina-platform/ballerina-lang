@@ -6,7 +6,7 @@ function openSocketConnection (string host, int port) returns io:Socket{
     return s;
 }
 
-function openSocketConnectionWithProps(string host, int port, int localPort) returns io:Socket {
+function openSocketConnectionWithProps (string host, int port, int localPort) returns io:Socket {
     io:Socket s = new;
     check s.bindAddress(localPort);
     check s.connect(host, port);
@@ -31,7 +31,6 @@ function write (io:Socket socket, byte[] content) returns int|error {
     }
 }
 
-function read(int size) returns (byte[], int)|error {
 function read (io:Socket socket, int size) returns (byte[], int)|error {
     io:ByteChannel channel = socket.channel;
     var result = channel.read(size);
@@ -68,12 +67,11 @@ function bindSocketForSamePort(int localPort) returns error? {
             return ();
         }
     }
-function readRecord() returns string[]|error {
+}
+function readRecord(io:Socket socket) returns string[]|error {
     io:ByteChannel channel = socket.channel;
     io:CharacterChannel characterChannel = new(channel, "UTF-8");
-    io:DelimitedTextRecordChannel rChannel = new io:DelimitedTextRecordChannel(characterChannel,
-                                                                               rs = "\r\n",
-                                                                               fs = ",");
+    io:DelimitedTextRecordChannel rChannel = new io:DelimitedTextRecordChannel(characterChannel, rs = "\r\n", fs = ",");
     if (rChannel.hasNext()){
         var records = rChannel.getNext();
         match records {
@@ -84,7 +82,7 @@ function readRecord() returns string[]|error {
                 return fields;
             }
         }
-    } else{
-        return {message:"No records found"};
+    } else {
+        return { message: "No records found" };
     }
 }

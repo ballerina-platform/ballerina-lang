@@ -94,7 +94,7 @@ public class ServerSocketTest {
     }
 
     @Test(description = "This will check the error situation when the server trying to bind to already occupied port.",
-          dependsOnMethods = "testSeverSocketDelayiedAccept")
+          dependsOnMethods = "testSeverSocketDelayedAccept")
     public void testServerStartOnDuplicatePort() {
         int port = ThreadLocalRandom.current().nextInt(47000, 51000);
         BValue[] args = { new BInteger(port) };
@@ -102,7 +102,7 @@ public class ServerSocketTest {
         final BMap<String, BValue> result = (BMap) results[0];
         final BString message = (BString) result.get("message");
         Assert.assertEquals(message.stringValue(),
-                "Error occurred while bind the socket address: Address already in use",
+                "Error occurred while bind to the socket address: Address already in use",
                 "Didn't get the expected error message for duplicate port open.");
     }
 

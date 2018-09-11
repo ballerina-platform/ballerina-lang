@@ -32,9 +32,16 @@ import org.ballerinalang.stdlib.io.utils.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.IOException;
 import java.net.InetSocketAddress;
+import java.nio.channels.AlreadyConnectedException;
+import java.nio.channels.ClosedByInterruptException;
+import java.nio.channels.ClosedChannelException;
+import java.nio.channels.ConnectionPendingException;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.SocketChannel;
+import java.nio.channels.UnresolvedAddressException;
+import java.nio.channels.UnsupportedAddressTypeException;
 
 /**
  * Extern function to open a Client socket connection.
@@ -74,12 +81,38 @@ public class Connect implements NativeCallableUnit {
                     new SocketConnectCallback(context, callback));
             SelectorManager.start();
             socketChannel.connect(new InetSocketAddress(host, port));
-        } catch (Throwable e) {
-            String msg = "Failed to open a connection to [" + host + ":" + port + "] : " + e.getMessage();
+        } catch (AlreadyConnectedException e) {
+            String msg = "Socket is already connected.";
+            context.setReturnValues(IOUtils.createError(context, msg));
+        } catch (ConnectionPendingException e) {
+            String msg = "Socket connect attempt already in progress.";
+            context.setReturnValues(IOUtils.createError(context, msg));
+        } catch (ClosedByInterruptException e) {
+            String msg = "Socket connect attempt interrupted.";
+            context.setReturnValues(IOUtils.createError(context, msg));
+        } catch (ClosedChannelException e) {
+            String msg = "Socket connection already closed.";
+            context.setReturnValues(IOUtils.createError(context, msg));
+        } catch (UnresolvedAddressException e) {
+            String msg = "unresolved socket address: " + host;
+            context.setReturnValues(IOUtils.createError(context, msg));
+        } catch (UnsupportedAddressTypeException e) {
+            String msg = "Socket address doesn't support for a TCP connection.";
+            context.setReturnValues(IOUtils.createError(context, msg));
+        } catch (SecurityException e) {
+            String msg = "Unknown error occurred.";
             log.error(msg, e);
             context.setReturnValues(IOUtils.createError(context, msg));
-            callback.notifySuccess();
+        } catch (IOException e) {
+            String msg = "Failed to open a connection to [" + host + ":" + port + "]";
+            log.error(msg, e);
+            context.setReturnValues(IOUtils.createError(context, msg));
+        } catch (Throwable e) {
+            String msg = "An error occurred";
+            log.error(msg, e);
+            context.setReturnValues(IOUtils.createError(context, msg));
         }
+        callback.notifySuccess();
     }
 
     @Override

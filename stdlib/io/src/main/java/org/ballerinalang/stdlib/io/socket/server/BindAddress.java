@@ -32,10 +32,15 @@ import org.ballerinalang.stdlib.io.utils.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.IOException;
 import java.net.InetSocketAddress;
+import java.nio.channels.AlreadyBoundException;
+import java.nio.channels.ClosedChannelException;
+import java.nio.channels.ConnectionPendingException;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
 import java.nio.channels.ServerSocketChannel;
+import java.nio.channels.UnsupportedAddressTypeException;
 
 /**
  * Extern function for ServerSocket bind address.
@@ -58,10 +63,10 @@ public class BindAddress extends BlockingNativeCallableUnit {
     @Override
     public void execute(Context context) {
         BMap<String, BValue> serverSocketStruct;
+        int port = (int) context.getIntArgument(0);
         try {
             serverSocketStruct = (BMap<String, BValue>) context.getRefArgument(0);
             BValue networkInterface = context.getNullableRefArgument(1);
-            int port = (int) context.getIntArgument(0);
             ServerSocketChannel serverSocket = (ServerSocketChannel) serverSocketStruct
                     .getNativeData(SocketConstants.SERVER_SOCKET_KEY);
             if (networkInterface == null) {
@@ -72,8 +77,28 @@ public class BindAddress extends BlockingNativeCallableUnit {
             final Selector selector = SelectorManager.getInstance();
             serverSocket.register(selector, SelectionKey.OP_ACCEPT, serverSocket);
             SelectorManager.start();
+        } catch (ConnectionPendingException e) {
+            String message = "Socket initialization already in process. Unable to bind to the port.";
+            context.setReturnValues(IOUtils.createError(context, message));
+        } catch (AlreadyBoundException e) {
+            String message = "Unable to bind to the port: " + port + ". Socket is already bound.";
+            context.setReturnValues(IOUtils.createError(context, message));
+        } catch (UnsupportedAddressTypeException e) {
+            String message = "This socket address doesn't support for a TCP connection.";
+            context.setReturnValues(IOUtils.createError(context, message));
+        } catch (ClosedChannelException e) {
+            String message = "Socket connection is already closed.";
+            context.setReturnValues(IOUtils.createError(context, message));
+        } catch (IOException e) {
+            String message = "Error occurred while bind to the socket address: " + e.getMessage();
+            log.error(message, e);
+            context.setReturnValues(IOUtils.createError(context, message));
+        } catch (SecurityException e) {
+            String message = "Unknown error occurred.";
+            log.error(message, e);
+            context.setReturnValues(IOUtils.createError(context, message));
         } catch (Throwable e) {
-            String message = "Error occurred while bind the socket address: " + e.getMessage();
+            String message = "An error occurred.";
             log.error(message, e);
             context.setReturnValues(IOUtils.createError(context, message));
         }

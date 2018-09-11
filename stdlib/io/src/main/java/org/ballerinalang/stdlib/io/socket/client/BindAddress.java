@@ -33,7 +33,11 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
+import java.nio.channels.AlreadyBoundException;
+import java.nio.channels.ClosedChannelException;
+import java.nio.channels.ConnectionPendingException;
 import java.nio.channels.SocketChannel;
+import java.nio.channels.UnsupportedAddressTypeException;
 
 /**
  * Extern function for Socket bind address.
@@ -56,9 +60,9 @@ public class BindAddress extends BlockingNativeCallableUnit {
     @Override
     public void execute(Context context) {
         BMap<String, BValue> socketStruct;
+        int port = (int) context.getIntArgument(0);
         try {
             socketStruct = (BMap<String, BValue>) context.getRefArgument(0);
-            int port = (int) context.getIntArgument(0);
             BValue networkInterface = context.getNullableRefArgument(1);
             SocketChannel socket = (SocketChannel) socketStruct.getNativeData(SocketConstants.SOCKET_KEY);
             if (networkInterface == null) {
@@ -66,8 +70,28 @@ public class BindAddress extends BlockingNativeCallableUnit {
             } else {
                 socket.bind(new InetSocketAddress(networkInterface.stringValue(), port));
             }
+        } catch (ConnectionPendingException e) {
+            String message = "Socket initialization already in process. Unable to bind to the port.";
+            context.setReturnValues(IOUtils.createError(context, message));
+        } catch (AlreadyBoundException e) {
+            String message = "Unable to bind to the port: " + port + ". Socket is already bound.";
+            context.setReturnValues(IOUtils.createError(context, message));
+        } catch (UnsupportedAddressTypeException e) {
+            String message = "Socket address doesn't support for a TCP connection.";
+            context.setReturnValues(IOUtils.createError(context, message));
+        } catch (ClosedChannelException e) {
+            String message = "Socket connection is already closed.";
+            context.setReturnValues(IOUtils.createError(context, message));
         } catch (IOException e) {
-            String message = "Error occurred while bind the socket address: " + e.getMessage();
+            String message = "Error occurred while bind to the socket address: " + e.getMessage();
+            log.error(message, e);
+            context.setReturnValues(IOUtils.createError(context, message));
+        } catch (SecurityException e) {
+            String message = "Unknown error occurred.";
+            log.error(message, e);
+            context.setReturnValues(IOUtils.createError(context, message));
+        } catch (Throwable e) {
+            String message = "An error occurred.";
             log.error(message, e);
             context.setReturnValues(IOUtils.createError(context, message));
         }

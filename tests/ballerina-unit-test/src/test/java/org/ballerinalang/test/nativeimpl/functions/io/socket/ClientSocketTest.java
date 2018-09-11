@@ -25,6 +25,7 @@ import org.ballerinalang.model.values.BByteArray;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BString;
+import org.ballerinalang.model.values.BStringArray;
 import org.ballerinalang.model.values.BValue;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -135,6 +136,21 @@ public class ClientSocketTest {
     }
 
     @Test(dependsOnMethods = "testOpenClientSocket",
+          description = "Test content read/write records")
+    public void testReadRecords() {
+        String content = "Ballerina,122\r\nC++,12";
+        byte[] contentBytes = content.getBytes();
+        BValue[] args = { socket, new BByteArray(contentBytes) };
+        final BValue[] writeReturns = BRunUtil.invokeStateful(socketClient, "write", args);
+        BInteger returnedSize = (BInteger) writeReturns[0];
+        Assert.assertEquals(returnedSize.intValue(), content.length(), "Write content size is not match.");
+        args = new BValue[] { socket };
+        final BValue[] readReturns = BRunUtil.invokeStateful(socketClient, "readRecord", args);
+        BStringArray fields = (BStringArray) readReturns[0];
+        Assert.assertEquals(fields.get(0), "Ballerina");
+    }
+
+    @Test(dependsOnMethods = "testReadRecords",
           description = "Test content read/write")
     public void testWriteReadContent() {
         String content = "Hello World\n";
@@ -153,19 +169,6 @@ public class ClientSocketTest {
         BRunUtil.invokeStateful(socketClient, "write", new BValue[] { socket, new BByteArray(contentBytes) });
         args = new BValue[] { socket };
         BRunUtil.invokeStateful(socketClient, "closeSocket", args);
-    }
-
-    @Test(dependsOnMethods = "testOpenClientSocket", description = "Test content read/write records")
-    public void testReadRecords() {
-        String content = "Ballerina,122\r\nC++,12";
-        byte[] contentBytes = content.getBytes();
-        BValue[] args = {new BByteArray(contentBytes)};
-        final BValue[] writeReturns = BRunUtil.invokeStateful(socketClient, "write", args);
-        BInteger returnedSize = (BInteger) writeReturns[0];
-        Assert.assertEquals(returnedSize.intValue(), content.length(), "Write content size is not match.");
-        final BValue[] readReturns = BRunUtil.invokeStateful(socketClient, "readRecord");
-        BStringArray fields = (BStringArray) readReturns[0];
-        Assert.assertEquals(fields.get(0), "Ballerina");
     }
 
     @Test(dependsOnMethods = "testWriteReadContent",
@@ -190,7 +193,7 @@ public class ClientSocketTest {
         final BMap<String, BValue> result = (BMap<String, BValue>) returns[0];
         final BString message = (BString) result.get("message");
         Assert.assertEquals(message.stringValue(),
-                "Error occurred while bind the socket address: Address already in use",
+                "Error occurred while bind to the socket address: Address already in use",
                 "Didn't get the expected error message for duplicate port open.");
     }
 
