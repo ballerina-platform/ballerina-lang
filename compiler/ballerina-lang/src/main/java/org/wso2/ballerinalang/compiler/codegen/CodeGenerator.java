@@ -2174,16 +2174,10 @@ public class CodeGenerator extends BLangNodeVisitor {
     }
 
     private void populateInvokableSignature(BInvokableType bInvokableType, CallableUnitInfo callableUnitInfo) {
-        if (bInvokableType.retType == symTable.nilType) {
-            callableUnitInfo.retParamTypes = new BType[0];
-            callableUnitInfo.signatureCPIndex = addUTF8CPEntry(this.currentPkgInfo,
-                    generateFunctionSig(callableUnitInfo.paramTypes));
-        } else {
-            callableUnitInfo.retParamTypes = new BType[1];
-            callableUnitInfo.retParamTypes[0] = bInvokableType.retType;
-            callableUnitInfo.signatureCPIndex = addUTF8CPEntry(this.currentPkgInfo,
-                    generateFunctionSig(callableUnitInfo.paramTypes, bInvokableType.retType));
-        }
+        callableUnitInfo.retParamTypes = new BType[1];
+        callableUnitInfo.retParamTypes[0] = bInvokableType.retType;
+        callableUnitInfo.signatureCPIndex = addUTF8CPEntry(this.currentPkgInfo,
+                generateFunctionSig(callableUnitInfo.paramTypes, bInvokableType.retType));
     }
 
     private void addWorkerInfoEntries(CallableUnitInfo callableUnitInfo, List<BLangWorker> workers) {

@@ -469,7 +469,7 @@ public class BLangFunctions {
     }
     
     private static void invokePackageInitFunction(FunctionInfo initFuncInfo, WorkerExecutionContext context) {
-        invokeCallable(initFuncInfo, context, new int[0], new int[0], true);
+        invokeCallable(initFuncInfo, context, new BValue[0]);
         if (context.getError() != null) {
             String stackTraceStr = BLangVMErrors.getPrintableStackTrace(context.getError());
             throw new BLangRuntimeException("error: " + stackTraceStr);
@@ -482,7 +482,7 @@ public class BLangFunctions {
     }
 
     private static void invokeVMUtilFunction(FunctionInfo utilFuncInfo, WorkerExecutionContext context) {
-        invokeCallable(utilFuncInfo, context, new int[0], new int[0], true);
+        invokeCallable(utilFuncInfo, context, new BValue[0]);
         if (context.getError() != null) {
             String stackTraceStr = BLangVMErrors.getPrintableStackTrace(context.getError());
             throw new BLangRuntimeException("error: " + stackTraceStr);
