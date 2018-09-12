@@ -91,7 +91,7 @@ public class MutualSSLTestCase {
 
     @Test
     public void testHttpsPost() {
-        TestUtil.testHttp2Post(httpClientConnector, TestUtil.SERVER_PORT3);
+        TestUtil.testHttpsPost(httpClientConnector, TestUtil.SERVER_PORT3);
     }
 
     @AfterClass

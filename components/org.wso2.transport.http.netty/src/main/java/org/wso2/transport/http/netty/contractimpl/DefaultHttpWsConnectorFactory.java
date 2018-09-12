@@ -73,7 +73,9 @@ public class DefaultHttpWsConnectorFactory implements HttpWsConnectorFactory {
         serverConnectorBootstrap.addSocketConfiguration(serverBootstrapConfiguration);
         SSLConfig sslConfig = listenerConfig.getListenerSSLConfig();
         serverConnectorBootstrap.addSecurity(sslConfig);
-        setSslContext(serverConnectorBootstrap, sslConfig);
+        if (sslConfig != null) {
+            setSslContext(serverConnectorBootstrap, sslConfig);
+        }
         serverConnectorBootstrap.addIdleTimeout(listenerConfig.getSocketIdleTimeout());
         if (Constants.HTTP_2_0 == Float.valueOf(listenerConfig.getVersion())) {
             serverConnectorBootstrap.setHttp2Enabled(true);
@@ -93,22 +95,20 @@ public class DefaultHttpWsConnectorFactory implements HttpWsConnectorFactory {
     }
 
     private void setSslContext(ServerConnectorBootstrap serverConnectorBootstrap, SSLConfig sslConfig) {
-        if (sslConfig != null) {
-            try {
-                SSLHandlerFactory sslHandlerFactory = new SSLHandlerFactory(sslConfig);
-                serverConnectorBootstrap.addcertificateRevocationVerifier(sslConfig.isValidateCertEnabled());
-                serverConnectorBootstrap.addCacheDelay(sslConfig.getCacheValidityPeriod());
-                serverConnectorBootstrap.addCacheSize(sslConfig.getCacheSize());
-                serverConnectorBootstrap.addOcspStapling(sslConfig.isOcspStaplingEnabled());
-                serverConnectorBootstrap.addSslHandlerFactory(sslHandlerFactory);
-                if (sslConfig.getKeyStore() != null) {
-                    serverConnectorBootstrap.addKeystoreSslContext(sslHandlerFactory.createSSLContextFromKeystores());
-                } else {
-                    serverConnectorBootstrap.addCertAndKeySslContext(sslHandlerFactory.createHttpTLSContextForServer());
-                }
-            } catch (SSLException e) {
-                throw new RuntimeException("Failed to create ssl context from given certs and key", e);
+        try {
+            SSLHandlerFactory sslHandlerFactory = new SSLHandlerFactory(sslConfig);
+            serverConnectorBootstrap.addcertificateRevocationVerifier(sslConfig.isValidateCertEnabled());
+            serverConnectorBootstrap.addCacheDelay(sslConfig.getCacheValidityPeriod());
+            serverConnectorBootstrap.addCacheSize(sslConfig.getCacheSize());
+            serverConnectorBootstrap.addOcspStapling(sslConfig.isOcspStaplingEnabled());
+            serverConnectorBootstrap.addSslHandlerFactory(sslHandlerFactory);
+            if (sslConfig.getKeyStore() != null) {
+                serverConnectorBootstrap.addKeystoreSslContext(sslHandlerFactory.createSSLContextFromKeystores());
+            } else {
+                serverConnectorBootstrap.addCertAndKeySslContext(sslHandlerFactory.createHttpTLSContextForServer());
             }
+        } catch (SSLException e) {
+            throw new RuntimeException("Failed to create ssl context from given certs and key", e);
         }
     }
 

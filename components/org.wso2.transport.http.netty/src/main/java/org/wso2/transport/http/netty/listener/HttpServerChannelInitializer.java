@@ -133,7 +133,7 @@ public class HttpServerChannelInitializer extends ChannelInitializer<SocketChann
 
     private OCSPResp getOcspResponse()
             throws IOException, KeyStoreException, CertificateVerificationException, CertificateException {
-        OCSPResp response = OCSPResponseBuilder.generatetOcspResponse(sslConfig, cacheSize, cacheDelay);
+        OCSPResp response = OCSPResponseBuilder.generateOcspResponse(sslConfig, cacheSize, cacheDelay);
         if (!OpenSsl.isAvailable()) {
             throw new IllegalStateException("OpenSSL is not available!");
         }
@@ -157,7 +157,7 @@ public class HttpServerChannelInitializer extends ChannelInitializer<SocketChann
             engine.setOcspResponse(response.getEncoded());
             ch.pipeline().addLast(sslHandler);
         } else {
-            SSLEngine sslEngine = null;
+            SSLEngine sslEngine;
             if (sslConfig.getServerKeyFile() != null) {
                 SslHandler sslHandler = certAndKeySslContext.newHandler(ch.alloc());
                 sslEngine = sslHandler.engine();

@@ -68,13 +68,12 @@ public class TestHttp2WithALPN {
 
     @Test
     public void testHttp2Post() {
-        TestUtil.testHttp2Post(httpClientConnector, TestUtil.SERVER_PORT1);
+        TestUtil.testHttpsPost(httpClientConnector, TestUtil.SERVER_PORT1);
     }
 
     private ListenerConfiguration getListenerConfigs() {
-        List<Parameter> serverParams;
         Parameter paramServerCiphers = new Parameter("ciphers", "TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256");
-        serverParams = new ArrayList<>();
+        List<Parameter> serverParams = new ArrayList<>(1);
         serverParams.add(paramServerCiphers);
         ListenerConfiguration listenerConfiguration = new ListenerConfiguration();
         listenerConfiguration.setParameters(serverParams);
@@ -87,9 +86,8 @@ public class TestHttp2WithALPN {
     }
 
     private SenderConfiguration getSenderConfigs() {
-        List<Parameter> clientParams;
         Parameter paramClientCiphers = new Parameter("ciphers", "TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256");
-        clientParams = new ArrayList<>();
+        List<Parameter> clientParams = new ArrayList<>(1);
         clientParams.add(paramClientCiphers);
         SenderConfiguration senderConfiguration = new SenderConfiguration();
         senderConfiguration.setParameters(clientParams);

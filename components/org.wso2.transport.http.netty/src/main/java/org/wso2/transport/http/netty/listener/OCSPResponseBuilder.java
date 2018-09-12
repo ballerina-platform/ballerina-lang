@@ -55,20 +55,20 @@ public class OCSPResponseBuilder {
     private OCSPResponseBuilder() {
     }
 
-    private static final Logger log = LoggerFactory.getLogger(OCSPResponseBuilder.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(OCSPResponseBuilder.class);
     private static List<X509Certificate> certList = new ArrayList<>();
     private static X509Certificate userCertificate = null;
     private static X509Certificate issuer = null;
 
-    static OCSPResp generatetOcspResponse(SSLConfig sslConfig, int cacheAllcatedSize, int cacheDelay)
+    static OCSPResp generateOcspResponse(SSLConfig sslConfig, int cacheAllocatedSize, int cacheDelay)
             throws IOException, KeyStoreException, CertificateVerificationException, CertificateException {
 
         int cacheSize = Constants.CACHE_DEFAULT_ALLOCATED_SIZE;
         int cacheDelayMins = Constants.CACHE_DEFAULT_DELAY_MINS;
 
-        if (cacheAllcatedSize != 0 && cacheAllcatedSize > Constants.CACHE_MIN_ALLOCATED_SIZE
-                && cacheAllcatedSize < Constants.CACHE_MAX_ALLOCATED_SIZE) {
-            cacheSize = cacheAllcatedSize;
+        if (cacheAllocatedSize != 0 && cacheAllocatedSize > Constants.CACHE_MIN_ALLOCATED_SIZE
+                && cacheAllocatedSize < Constants.CACHE_MAX_ALLOCATED_SIZE) {
+            cacheSize = cacheAllocatedSize;
         }
         if (cacheDelay != 0 && cacheDelay > Constants.CACHE_MIN_DELAY_MINS
                 && cacheDelay < Constants.CACHE_MAX_DELAY_MINS) {
@@ -187,7 +187,7 @@ public class OCSPResponseBuilder {
         BasicOCSPResp basicResponse;
         CertificateStatus certificateStatus;
         for (String serviceUrl : locations) {
-            OCSPResp response = null;
+            OCSPResp response;
             try {
                 response = OCSPVerifier.getOCSPResponce(serviceUrl, request);
                 if (OCSPResponseStatus.SUCCESSFUL != response.getStatus()) {
@@ -196,7 +196,7 @@ public class OCSPResponseBuilder {
                 basicResponse = (BasicOCSPResp) response.getResponseObject();
                 responses = (basicResponse == null) ? null : basicResponse.getResponses();
             } catch (OCSPException | CertificateVerificationException e) {
-                log.debug("OCSP response failed for url{}. Hence trying the next url", serviceUrl);
+                LOGGER.debug("OCSP response failed for url{}. Hence trying the next url", serviceUrl);
                 continue;
             }
             if (responses != null && responses.length == 1) {
@@ -221,9 +221,9 @@ public class OCSPResponseBuilder {
 
     public static List<X509Certificate> getCertInfo(SSLConfig sslConfig) throws CertificateException, IOException {
         CertificateFactory certificateFactory = CertificateFactory.getInstance("X509");
-        try (FileInputStream certInpuStream = new FileInputStream(sslConfig.getServerCertificates())) {
-            while (certInpuStream.available() > 1) {
-                Certificate cert = certificateFactory.generateCertificate(certInpuStream);
+        try (FileInputStream certInputStream = new FileInputStream(sslConfig.getServerCertificates())) {
+            while (certInputStream.available() > 1) {
+                Certificate cert = certificateFactory.generateCertificate(certInputStream);
                 certList.add((X509Certificate) cert);
             }
             return certList;

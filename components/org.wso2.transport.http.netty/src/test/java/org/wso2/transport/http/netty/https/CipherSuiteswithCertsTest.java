@@ -57,10 +57,10 @@ import static org.wso2.transport.http.netty.common.Constants.HTTPS_SCHEME;
  */
 public class CipherSuiteswithCertsTest {
     private static HttpClientConnector httpClientConnector;
-    private List<Parameter> clientParams;
+    private List<Parameter> clientParams = new ArrayList<>(1);
     private ServerConnector serverConnector;
     private HttpWsConnectorFactory factory;
-    private static Logger logger = LoggerFactory.getLogger(CipherSuitesTest.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(CipherSuitesTest.class);
 
     @DataProvider(name = "ciphers")
     public static Object[][] cipherSuites() {
@@ -85,12 +85,11 @@ public class CipherSuiteswithCertsTest {
             throws InterruptedException {
 
         Parameter paramClientCiphers = new Parameter("ciphers", clientCiphers);
-        clientParams = new ArrayList<>();
         clientParams.add(paramClientCiphers);
         clientParams.add(new Parameter("shareSession", "true"));
 
         Parameter paramServerCiphers = new Parameter("ciphers", serverCiphers);
-        List<Parameter> serverParams = new ArrayList<>();
+        List<Parameter> serverParams = new ArrayList<>(1);
         serverParams.add(paramServerCiphers);
         serverParams.add(new Parameter("shareSession", "true"));
 
@@ -172,7 +171,7 @@ public class CipherSuiteswithCertsTest {
             httpClientConnector.close();
             factory.shutdown();
         } catch (Exception e) {
-            logger.warn("Interrupted while waiting for response", e);
+            LOGGER.warn("Interrupted while waiting for response", e);
         }
     }
 }

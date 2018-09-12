@@ -64,7 +64,7 @@ public class HttpSClientTestCase {
 
     @Test
     public void testHttpsGet() {
-        TestUtil.testHttp2Post(httpClientConnector, TestUtil.HTTPS_SERVER_PORT);
+        TestUtil.testHttpsPost(httpClientConnector, TestUtil.HTTPS_SERVER_PORT);
     }
 
     @AfterClass

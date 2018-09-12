@@ -280,7 +280,7 @@ public class TestUtil {
         }
     }
 
-    public static void testHttp2Post(HttpClientConnector httpClientConnector, int port) {
+    public static void testHttpsPost(HttpClientConnector httpClientConnector, int port) {
         try {
             String testValue = "Test Message";
             HttpCarbonMessage msg = TestUtil.createHttpsPostReq(port, testValue, "");

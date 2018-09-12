@@ -64,6 +64,7 @@ public class SSLHandlerFactory {
     private boolean needClientAuth;
     private KeyManagerFactory kmf;
     private TrustManagerFactory tmf;
+    private SslContextBuilder sslContextBuilder;
 
     public SSLHandlerFactory(SSLConfig sslConfig) {
         this.sslConfig = sslConfig;
@@ -143,7 +144,6 @@ public class SSLHandlerFactory {
      */
     public ReferenceCountedOpenSslContext getServerReferenceCountedOpenSslContext(boolean enableOcsp)
             throws SSLException {
-        SslContextBuilder sslContextBuilder = null;
         if (sslConfig.getKeyStore() != null) {
             sslContextBuilder = serverContextBuilderWithKs(SslProvider.OPENSSL);
         } else {
@@ -165,7 +165,6 @@ public class SSLHandlerFactory {
      * @throws SSLException if any error occurs while creating the ReferenceCountedOpenSslContext.
      */
     public ReferenceCountedOpenSslContext buildClientReferenceCountedOpenSslContext() throws SSLException {
-        SslContextBuilder sslContextBuilder = null;
         if (sslConfig.getTrustStore() != null) {
             sslContextBuilder = clientContextBuilderWithKs(SslProvider.OPENSSL);
         } else {
@@ -226,7 +225,6 @@ public class SSLHandlerFactory {
                 Arrays.asList(sslConfig.getCipherSuites()) :
                 Http2SecurityUtil.CIPHERS;
         SslProvider provider = SslProvider.OPENSSL;
-        SslContextBuilder sslContextBuilder = null;
         if (sslConfig.getKeyStore() != null) {
             sslContextBuilder = serverContextBuilderWithKs(provider);
         } else {
@@ -295,7 +293,6 @@ public class SSLHandlerFactory {
         List<String> ciphers = sslConfig.getCipherSuites() != null && sslConfig.getCipherSuites().length > 0 ?
                 Arrays.asList(sslConfig.getCipherSuites()) :
                 Http2SecurityUtil.CIPHERS;
-        SslContextBuilder sslContextBuilder = null;
         if (sslConfig.getTrustStore() != null) {
             sslContextBuilder = clientContextBuilderWithKs(provider);
         } else {

@@ -86,7 +86,7 @@ public class PKCSTest {
 
     @Test
     public void testPKCS12() {
-        TestUtil.testHttp2Post(httpClientConnector, TestUtil.SERVER_PORT3);
+        TestUtil.testHttpsPost(httpClientConnector, TestUtil.SERVER_PORT3);
     }
     @AfterClass
     public void cleanUp() throws ServerConnectorException {

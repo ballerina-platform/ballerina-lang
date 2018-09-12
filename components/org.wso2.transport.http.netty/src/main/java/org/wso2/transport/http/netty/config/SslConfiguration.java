@@ -149,7 +149,7 @@ public class SslConfiguration {
     }
 
     public void setServerKeyPassword(String serverKeyPassword) {
-        sslConfig.setClientKeyPassword(serverKeyPassword);
+        sslConfig.setServerKeyPassword(serverKeyPassword);
     }
 
     public SSLConfig getClientSSLConfig() {
