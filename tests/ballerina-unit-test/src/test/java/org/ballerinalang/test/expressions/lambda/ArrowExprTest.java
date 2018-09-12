@@ -128,9 +128,15 @@ public class ArrowExprTest {
     }
 
     @Test
+    public void testTwoLevelClosure() {
+        BValue[] returns = BRunUtil.invoke(basic, "test2");
+        Assert.assertEquals(((BInteger) returns[0]).intValue(), 36);
+    }
+
+    @Test
     public void testNegativeArrowExpr() {
         int i = 0;
-        Assert.assertEquals(resultNegative.getErrorCount(), 9);
+        Assert.assertEquals(resultNegative.getErrorCount(), 10);
         BAssertUtil.validateError(resultNegative, i++,
                 "operator '/' not defined for 'string' and 'int'", 18, 54);
         BAssertUtil.validateError(resultNegative, i++,
@@ -149,5 +155,7 @@ public class ArrowExprTest {
                 "undefined symbol 'param1'", 45, 5);
         BAssertUtil.validateError(resultNegative, i++,
                 "redeclared symbol 'param1'", 50, 50);
+        BAssertUtil.validateError(resultNegative, i++,
+                "undefined symbol 'closureVar'", 54, 61);
     }
 }

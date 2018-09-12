@@ -15,15 +15,12 @@
 // under the License.
 
 function testArrowExprWithOneParam() returns int {
-
     function (int) returns int lambda = param1 => param1*2;
     return lambda(12);
 }
 
 function testArrowExprWithTwoParams() returns string {
-
     function (int, string) returns string lambda = (x, y) => x + y;
-
     return lambda(12, "John");
 }
 
@@ -31,39 +28,30 @@ function testReturnArrowExpr() returns string {
     var lambda = returnsArrowExpr();
     int intVar = 10;
     string stringVar = "Adam";
-
     return lambda(intVar, stringVar);
 }
 
 function returnsArrowExpr() returns function (int x, string y) returns string {
-
     return (x, y) => x + y;
 }
 
 function testArrowExprReturnTuple() returns (string, int) {
-
     function (int, string) returns (string, int) lambda = (x, y) => (x + y, x);
-
     return lambda(12, "John");
 }
 
 function testArrowExprReturnUnion() returns (string|int) {
-
     function (int, string) returns (string|int) lambda = (x, y) => x + y;
-
     return lambda(12, "John");
 }
 
 function testBooleanParamType() returns boolean {
-
     function (boolean) returns boolean invertBoolean = param1 => !param1;
     return invertBoolean(false);
 }
 
 function testClosureAccess() returns float {
-
     int closureVar = 25;
-
     function (int, string) returns float lambda = (param1, param2) => <float>closureVar + <float>param1;
     return lambda(25, "ignore");
 }
@@ -75,7 +63,6 @@ type Person record {
 };
 
 function testRecordTypeWithArrowExpr() returns Person {
-
     function (Person) returns Person lambda = (param1) => param1;
     return lambda({name:"John", age:12});
 }
@@ -92,8 +79,25 @@ function testTupleInput() returns (string, string) {
 }
 
 function testClosure() returns int {
-
     int closureVar = 10;
     function (int, string) returns int lambda = (param1, param2) => closureVar + param1;
     return lambda(25, "ignore");
+}
+
+function twoLevelTest() returns (function (int) returns (int)) {
+    int methodInt1 = 2;
+    var addFunc1 = function (int funcInt1) returns (int) {
+        int methodInt2 = 23;
+        function (int) returns (int) addFunc2 = funcInt2 => methodInt1 + funcInt2 + methodInt2;
+        //var addFunc2 = function (int funcInt2) returns (int) {
+        //return methodInt1 + funcInt2 + methodInt2;
+    //};
+        return addFunc2(5) + funcInt1;
+    };
+    return addFunc1;
+}
+
+function test2() returns int {
+    var foo = twoLevelTest();
+    return foo(6);
 }

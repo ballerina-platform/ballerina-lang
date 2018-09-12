@@ -49,3 +49,8 @@ function testArrowExprVariableScope2() {
     int param1 = 12;
     function (boolean) returns boolean lambda1 = param1 => !param1; // redeclared symbol 'param1'
 }
+
+function testAccessInvalidClosure() {
+    function (boolean) returns boolean lambda1 = param1 => !closureVar; // undefined symbol 'closureVar'
+    boolean closureVar = true;
+}

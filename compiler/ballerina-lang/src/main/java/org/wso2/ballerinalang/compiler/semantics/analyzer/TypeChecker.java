@@ -505,6 +505,15 @@ public class TypeChecker extends BLangNodeVisitor {
                         ((BLangFunction) env.enclInvokable).closureVarSymbols.add((BVarSymbol) closureVarSymbol);
                     }
                 }
+                if (env.node.getKind() == NodeKind.ARROW_EXPR) {
+                    SymbolEnv encInvokableEnv = findEnclosingInvokableEnv(env, encInvokable);
+                    BSymbol closureVarSymbol = symResolver.lookupClosureVarSymbol(encInvokableEnv, symbol.name,
+                            SymTag.VARIABLE_NAME);
+                    if (closureVarSymbol != symTable.notFoundSymbol &&
+                            !isFunctionArgument(closureVarSymbol, ((BLangArrowFunction) env.node).params)) {
+                        ((BLangArrowFunction) env.node).closureVarSymbols.add((BVarSymbol) closureVarSymbol);
+                    }
+                }
             } else if ((symbol.tag & SymTag.TYPE) == SymTag.TYPE) {
                 actualType = symTable.typeDesc;
                 varRefExpr.symbol = symbol;
@@ -552,7 +561,7 @@ public class TypeChecker extends BLangNodeVisitor {
 
     private boolean isFunctionArgument(BSymbol symbol, List<BLangVariable> params) {
         return params.stream().anyMatch(param -> (param.symbol.name.equals(symbol.name) &&
-                param.type.equals(symbol.type)));
+                param.type.tag == symbol.type.tag));
     }
 
     public void visit(BLangFieldBasedAccess fieldAccessExpr) {

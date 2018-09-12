@@ -417,7 +417,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         }
 
         this.pkgBuilder.addVarWithoutType(getCurrentPos(ctx), getWS(ctx), ctx.Identifier().getText(), false, 0);
-        }
+    }
 
     /**
      * {@inheritDoc}

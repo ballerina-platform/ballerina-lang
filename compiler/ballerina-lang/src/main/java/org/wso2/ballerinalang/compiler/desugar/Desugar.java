@@ -1025,14 +1025,6 @@ public class Desugar extends BLangNodeVisitor {
             genVarRefExpr = new BLangTypeLoad(varRefExpr.symbol);
         } else if ((ownerSymbol.tag & SymTag.INVOKABLE) == SymTag.INVOKABLE) {
             // Local variable in a function/resource/action/worker
-            if ((env.enclInvokable != null && env.enclInvokable.flagSet.contains(Flag.LAMBDA)) &&
-                    varRefExpr.variableName != null) {
-                BSymbol closureVarSymbol = symResolver
-                        .lookupClosureVarSymbol(env, new Name(varRefExpr.variableName.value), SymTag.VARIABLE_NAME);
-                if (closureVarSymbol != symTable.notFoundSymbol) {
-                    ((BLangFunction) env.enclInvokable).closureVarSymbols.add((BVarSymbol) closureVarSymbol);
-                }
-            }
             genVarRefExpr = new BLangLocalVarRef((BVarSymbol) varRefExpr.symbol);
         } else if ((ownerSymbol.tag & SymTag.CONNECTOR) == SymTag.CONNECTOR) {
             // Field variable in a receiver
@@ -1387,13 +1379,13 @@ public class Desugar extends BLangNodeVisitor {
                 new Name(function.name.value), env.enclPkg.packageID, function.type, env.enclEnv.enclVarSym, true);
         functionSymbol.retType = function.returnTypeNode.type;
         functionSymbol.params = function.requiredParams.stream()
-                .map(param -> param.symbol).collect(Collectors.toList());
+                .map(param -> param.symbol)
+                .collect(Collectors.toList());
         functionSymbol.scope = env.scope;
         functionSymbol.type = bLangArrowFunction.funcType;
         function.symbol = functionSymbol;
 
-        SymbolEnv fucEnv = SymbolEnv.createFunctionEnv(function, function.symbol.scope, env);
-        rewrite(lambdaFunction.function.body, fucEnv);
+        lambdaFunction.function.closureVarSymbols = bLangArrowFunction.closureVarSymbols;
         rewrite(lambdaFunction.function, env);
         env.enclPkg.addFunction(lambdaFunction.function);
         bLangArrowFunction.function = lambdaFunction.function;
