@@ -96,11 +96,11 @@ function test10() {
 function test11() {
     map z = {a:"1", b:"2"};
 
-    map m = z.filter((any s) => boolean {
+    map m = z.filter(function (any s) returns boolean {
           return s == null;
     });
 
-    any x = z.filter((any s) => boolean {
+    any x = z.filter(function (any s) returns boolean {
          return s == null;
     });
 }

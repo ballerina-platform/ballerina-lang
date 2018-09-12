@@ -135,9 +135,9 @@ public class ArrowExprTest {
         BAssertUtil.validateError(resultNegative, i++,
                 "incompatible types: expected 'int', found 'boolean'", 35, 56);
         BAssertUtil.validateError(resultNegative, i++,
-                "arrow expression can only be defined with known invokable types", 39, 19);
+                "cannot infer types of the arrow expression with unknown invokable type", 39, 19);
         BAssertUtil.validateError(resultNegative, i++,
-                "arrow expression can only be defined with known invokable types", 40, 19);
+                "cannot infer types of the arrow expression with unknown invokable type", 40, 19);
         BAssertUtil.validateError(resultNegative, i++,
                 "undefined symbol 'param1'", 45, 5);
         BAssertUtil.validateError(resultNegative, i++,

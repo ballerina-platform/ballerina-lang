@@ -92,15 +92,14 @@ public class IterableOperationsTests {
         BAssertUtil.validateError(negative, index++, "unknown type 'person'", 68, 47);
         BAssertUtil.validateError(negative, index++, "incompatible types: expected 'int[]', found '(any) collection'",
                 73, 23);
-        BAssertUtil.validateError(negative, index++, "incompatible types: expected 'int[]', found '(string) collection'",
-                82, 27);
-        BAssertUtil.validateError(negative, index++, "incompatible types: expected 'int[]', found '(string) collection'",
-                93, 30);
-        BAssertUtil.validateError(negative, index++, "incompatible types: expected 'map', found '(any) collection'", 99,
-                                  22);
         BAssertUtil.validateError(negative, index++,
-                                  "cannot assign return value of 'filter' operation here, use a reduce operation", 103,
-                                  22);
+                "incompatible types: expected 'int[]', found '(string) collection'", 82, 27);
+        BAssertUtil.validateError(negative, index++,
+                "incompatible types: expected 'int[]', found '(string) collection'", 93, 30);
+        BAssertUtil.validateError(negative, index++,
+                "incompatible types: expected 'map', found '(any) collection'", 99, 22);
+        BAssertUtil.validateError(negative, index++,
+                "cannot assign return value of 'filter' operation here, use a reduce operation", 103, 22);
     }
 
     @Test

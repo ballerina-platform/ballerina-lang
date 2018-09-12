@@ -393,13 +393,31 @@ public class BLangParserListener extends BallerinaParserBaseListener {
     }
 
     @Override
+    public void enterArrowFunction(BallerinaParser.ArrowFunctionContext ctx) {
+        if (ctx.exception != null) {
+            return;
+        }
+
+        this.pkgBuilder.startVarList();
+    }
+
+    @Override
     public void exitArrowFunctionExpression(BallerinaParser.ArrowFunctionExpressionContext ctx) {
         if (ctx.exception != null) {
             return;
         }
-        this.pkgBuilder.addArrowFunctionDef(
-                getCurrentPos(ctx), getWS(ctx), ctx.arrowFunction().Identifier(), diagnosticSrc.pkgID);
+
+        this.pkgBuilder.addArrowFunctionDef(getCurrentPos(ctx), getWS(ctx), diagnosticSrc.pkgID);
     }
+
+    @Override
+    public void exitArrowParam(BallerinaParser.ArrowParamContext ctx) {
+        if (ctx.exception != null) {
+            return;
+        }
+
+        this.pkgBuilder.addVarWithoutType(getCurrentPos(ctx), getWS(ctx), ctx.Identifier().getText(), false, 0);
+        }
 
     /**
      * {@inheritDoc}

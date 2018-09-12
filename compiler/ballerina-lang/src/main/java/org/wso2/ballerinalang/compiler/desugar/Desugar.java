@@ -1363,22 +1363,27 @@ public class Desugar extends BLangNodeVisitor {
         bLangFunction.addFlag(Flag.LAMBDA);
         lambdaFunction.function = bLangFunction;
 
-        bLangArrowFunction.params.forEach(bLangFunction::addParameter);
-        bLangFunction.setReturnTypeNode(populateArrowExprReturnType(bLangArrowFunction));
+        // Create function body with return node
+        BLangValueType returnType = (BLangValueType) TreeBuilder.createValueTypeNode();
+        returnType.type = bLangArrowFunction.expression.type;
+        bLangFunction.setReturnTypeNode(returnType);
         bLangFunction.setBody(populateArrowExprBodyBlock(bLangArrowFunction));
+
+        bLangArrowFunction.params.forEach(bLangFunction::addParameter);
         lambdaFunction.parent = bLangArrowFunction.parent;
         lambdaFunction.type = bLangArrowFunction.funcType;
 
+        // Create function symbol
         BLangFunction function = lambdaFunction.function;
-        BInvokableSymbol bLangFuncSymbol = Symbols.createFunctionSymbol(Flags.asMask(lambdaFunction.function.flagSet),
+        BInvokableSymbol functionSymbol = Symbols.createFunctionSymbol(Flags.asMask(lambdaFunction.function.flagSet),
                 new Name(function.name.value), env.enclPkg.packageID, function.type, env.enclEnv.enclVarSym, true);
-        bLangFuncSymbol.retType = function.returnTypeNode.type;
-        bLangFuncSymbol.params = function.requiredParams.stream()
+        functionSymbol.retType = function.returnTypeNode.type;
+        functionSymbol.params = function.requiredParams.stream()
                 .map(param -> param.symbol).collect(Collectors.toList());
-        bLangFuncSymbol.scope = env.scope;
-        bLangFuncSymbol.type = bLangArrowFunction.funcType;
+        functionSymbol.scope = env.scope;
+        functionSymbol.type = bLangArrowFunction.funcType;
+        function.symbol = functionSymbol;
 
-        function.symbol = bLangFuncSymbol;
         rewrite(lambdaFunction.function, env);
         env.enclPkg.addFunction(lambdaFunction.function);
         bLangArrowFunction.function = lambdaFunction.function;
@@ -1392,12 +1397,6 @@ public class Desugar extends BLangNodeVisitor {
         returnNode.setExpression(bLangArrowFunction.expression);
         blockNode.addStatement(returnNode);
         return blockNode;
-    }
-
-    private BLangValueType populateArrowExprReturnType(BLangArrowFunction bLangArrowFunction) {
-        BLangValueType returnType = (BLangValueType) TreeBuilder.createValueTypeNode();
-        returnType.type = bLangArrowFunction.expression.type;
-        return returnType;
     }
 
     @Override

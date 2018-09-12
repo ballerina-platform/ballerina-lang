@@ -158,6 +158,16 @@ public interface BallerinaParserListener extends ParseTreeListener {
 	 */
 	void exitArrowFunction(BallerinaParser.ArrowFunctionContext ctx);
 	/**
+	 * Enter a parse tree produced by {@link BallerinaParser#arrowParam}.
+	 * @param ctx the parse tree
+	 */
+	void enterArrowParam(BallerinaParser.ArrowParamContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link BallerinaParser#arrowParam}.
+	 * @param ctx the parse tree
+	 */
+	void exitArrowParam(BallerinaParser.ArrowParamContext ctx);
+	/**
 	 * Enter a parse tree produced by {@link BallerinaParser#callableUnitSignature}.
 	 * @param ctx the parse tree
 	 */

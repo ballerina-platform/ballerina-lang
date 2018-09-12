@@ -1002,7 +1002,7 @@ public class TypeChecker extends BLangNodeVisitor {
     @Override
     public void visit(BLangArrowFunction bLangArrowFunction) {
         if (expType.tag != TypeTags.INVOKABLE) {
-            dlog.error(bLangArrowFunction.pos, DiagnosticCode.ARROW_EXPRESSION_EXPECTS_INVOKABLE_TYPE);
+            dlog.error(bLangArrowFunction.pos, DiagnosticCode.ARROW_EXPRESSION_CANNOT_INFER_TYPE_FROM_LHS);
             resultType = symTable.errType;
             return;
         }
@@ -1010,35 +1010,11 @@ public class TypeChecker extends BLangNodeVisitor {
         BInvokableType expectedInvocation = (BInvokableType) this.expType;
         populateArrowExprParamTypes(bLangArrowFunction, expectedInvocation.paramTypes);
         bLangArrowFunction.expression.type = populateArrowExprReturn(bLangArrowFunction, expectedInvocation.retType);
-
-        resultType = bLangArrowFunction.funcType = expType;
-    }
-
-    public BType populateArrowExprReturn(BLangArrowFunction bLangArrowFunction, BType expectedRetType) {
-        SymbolEnv arrowFunctionEnv = SymbolEnv.createArrowFunctionSymbolEnv(bLangArrowFunction, env);
-        bLangArrowFunction.params.forEach(param -> symbolEnter.defineNode(param, arrowFunctionEnv));
-        return checkExpr(bLangArrowFunction.expression, arrowFunctionEnv, expectedRetType);
-    }
-
-    public void populateArrowExprParamTypes(BLangArrowFunction bLangArrowFunction, List<BType> paramTypes) {
-
-        if (paramTypes.size() != bLangArrowFunction.params.size()) {
-            dlog.error(bLangArrowFunction.pos, DiagnosticCode.ARROW_EXPRESSION_MISMATCHED_PARAMETER_LENGTH,
-                    paramTypes.size(), bLangArrowFunction.params.size());
-            resultType = symTable.errType;
-            bLangArrowFunction.params.forEach(param -> param.type = symTable.errType);
-            return;
+        // if function return type is none, assign the inferred return type
+        if (expectedInvocation.retType.tag == TypeTags.NONE) {
+            expectedInvocation.retType = bLangArrowFunction.expression.type;
         }
-
-        for (int i = 0; i < bLangArrowFunction.params.size(); i++) {
-            BLangVariable paramIdentifier = bLangArrowFunction.params.get(i);
-            BType bType = paramTypes.get(i);
-            BLangValueType valueTypeNode = (BLangValueType) TreeBuilder.createValueTypeNode();
-            valueTypeNode.pos = bLangArrowFunction.pos;
-            valueTypeNode.setTypeKind(bType.getKind());
-            paramIdentifier.setTypeNode(valueTypeNode);
-            paramIdentifier.type = bType;
-        }
+        resultType = bLangArrowFunction.funcType = expectedInvocation;
     }
 
     public void visit(BLangXMLQName bLangXMLQName) {
@@ -1359,6 +1335,32 @@ public class TypeChecker extends BLangNodeVisitor {
     }
 
     // Private methods
+
+    private BType populateArrowExprReturn(BLangArrowFunction bLangArrowFunction, BType expectedRetType) {
+        SymbolEnv arrowFunctionEnv = SymbolEnv.createArrowFunctionSymbolEnv(bLangArrowFunction, env);
+        bLangArrowFunction.params.forEach(param -> symbolEnter.defineNode(param, arrowFunctionEnv));
+        return checkExpr(bLangArrowFunction.expression, arrowFunctionEnv, expectedRetType);
+    }
+
+    private void populateArrowExprParamTypes(BLangArrowFunction bLangArrowFunction, List<BType> paramTypes) {
+
+        if (paramTypes.size() != bLangArrowFunction.params.size()) {
+            dlog.error(bLangArrowFunction.pos, DiagnosticCode.ARROW_EXPRESSION_MISMATCHED_PARAMETER_LENGTH,
+                    paramTypes.size(), bLangArrowFunction.params.size());
+            resultType = symTable.errType;
+            bLangArrowFunction.params.forEach(param -> param.type = symTable.errType);
+            return;
+        }
+
+        for (int i = 0; i < bLangArrowFunction.params.size(); i++) {
+            BLangVariable paramIdentifier = bLangArrowFunction.params.get(i);
+            BType bType = paramTypes.get(i);
+            BLangValueType valueTypeNode = (BLangValueType) TreeBuilder.createValueTypeNode();
+            valueTypeNode.setTypeKind(bType.getKind());
+            paramIdentifier.setTypeNode(valueTypeNode);
+            paramIdentifier.type = bType;
+        }
+    }
 
     private void checkSefReferences(DiagnosticPos pos, SymbolEnv env, BVarSymbol varSymbol) {
         if (env.enclVarSym == varSymbol) {

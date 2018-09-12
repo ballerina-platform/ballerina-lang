@@ -35,7 +35,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BTableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BXMLType;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrowFunction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
@@ -129,22 +128,8 @@ public class IterableAnalyzer {
             return;
         }
 
-        if (operation.kind == IterableKind.SELECT && operation.collectionType.tag != TypeTags.TABLE) {
-            dlog.error(operation.pos, DiagnosticCode.ITERABLE_NOT_SUPPORTED_OPERATION, IterableKind.SELECT.getKind());
-            operation.outputType = operation.resultType = symTable.errType;
-            return;
-        }
-
         BLangExpression bLangExpression = operation.iExpr.argExprs.get(0);
-
-        // Operation's inputType and OutputType is defined by this lambda function.
-        operation.iExpr.requiredArgs = operation.iExpr.argExprs;
-
-        final List<BType> elementTypes;
-        final List<BType> paramTypes;
-        final List<BType> actualRetTypes;
-        final List<BType> givenRetTypes;
-
+        BType expType = symTable.noType;
         if (bLangExpression.getKind() == NodeKind.ARROW_EXPR) {
             if (operation.kind == IterableKind.FOREACH) {
                 dlog.error(operation.pos, DiagnosticCode.ARROW_EXPRESSION_NOT_SUPPORTED_ITERABLE_OPERATION,
@@ -152,63 +137,59 @@ public class IterableAnalyzer {
                 operation.outputType = operation.resultType = symTable.errType;
                 return;
             }
-            BLangArrowFunction bLangArrowFunction = (BLangArrowFunction) bLangExpression;
+
             operation.arity = inferExpectedArity(operation);
-            elementTypes = paramTypes = calculateParamTypesOfLambda(operation);
-            operation.inputType = elementTypes.size() > 1 ? new BTupleType(elementTypes) : elementTypes.get(0);
-            typeChecker.populateArrowExprParamTypes(bLangArrowFunction, Collections.singletonList(operation.inputType));
-            BType returnType = typeChecker.populateArrowExprReturn(bLangArrowFunction, symTable.noType);
-            if (returnType.tag == TypeTags.ERROR) { // inferring of the return type should not be of type error
-                operation.outputType = operation.resultType = symTable.errType;
-                return;
-            }
-            givenRetTypes = (returnType.tag == TypeTags.TUPLE) ?
-                    ((BTupleType) returnType).tupleTypes : Collections.singletonList(returnType);
-
-            actualRetTypes = calculateExpectedOutputArgs(operation, givenRetTypes);
-            operation.lambdaType = new BInvokableType(Collections.singletonList(operation.inputType), returnType, null);
-            bLangArrowFunction.funcType = operation.lambdaType;
-
-        } else {
-            // Given param should be an invokable type (lambda type).
-            final BType operationParams = typeChecker.checkExpr(bLangExpression, context.env);
-            if (operationParams == null || operationParams.tag != TypeTags.INVOKABLE) {
-                dlog.error(operation.pos, DiagnosticCode.ITERABLE_LAMBDA_REQUIRED);
-                operation.outputType = operation.resultType = symTable.errType;
-                return;
-            }
-
-            operation.lambdaType = (BInvokableType) operationParams;
-
-            // Process given/expected input and output types.
-            if (operation.lambdaType.getParameterTypes().isEmpty() ||
-                    operation.lambdaType.getParameterTypes().size() > 1) {
-                // Lambda should have a single arg.
-                dlog.error(operation.pos, DiagnosticCode.ITERABLE_LAMBDA_TUPLE_REQUIRED);
-                operation.outputType = operation.resultType = symTable.errType;
-                return;
-            }
-
-            // Param types of the user-specified lambda function.
-            paramTypes = calculateParamTypesOfLambda(operation);
-            givenRetTypes = calculatedGivenOutputArgs(operation);
-
-            // Type of the elements in the collection.
-            elementTypes = calculateProvidedElementTypes(operation);
-            actualRetTypes = calculateExpectedOutputArgs(operation, givenRetTypes);
-
-            operation.inputType = operation.lambdaType.getParameterTypes().get(0);
-
-            // Cross Validate given and expected types and calculate output type;
-            validateLambdaInputArgs(operation, elementTypes, paramTypes);
-            validateLambdaReturnArgs(operation, actualRetTypes, givenRetTypes);
-            if (operation.outputType == symTable.errType) {
-                operation.resultType = symTable.errType;
-                return;
-            }
-            // Assign actual output value.
-            assignOutputAndResultType(operation, elementTypes, actualRetTypes);
+            List<BType> paramTypes = calculateProvidedElementTypes(operation);
+            BType inputParam = paramTypes.size() > 1 ? new BTupleType(paramTypes) : paramTypes.get(0);
+            expType = new BInvokableType(Collections.singletonList(inputParam), symTable.noType, null);
         }
+
+        // Given param should be an invokable type (lambda type).
+        final BType operationParams = typeChecker.checkExpr(bLangExpression, context.env, expType);
+        if (operationParams == null || operationParams.tag != TypeTags.INVOKABLE) {
+            dlog.error(operation.pos, DiagnosticCode.ITERABLE_LAMBDA_REQUIRED);
+            operation.outputType = operation.resultType = symTable.errType;
+            return;
+        }
+
+        if (operation.kind == IterableKind.SELECT && operation.collectionType.tag != TypeTags.TABLE) {
+            dlog.error(operation.pos, DiagnosticCode.ITERABLE_NOT_SUPPORTED_OPERATION, IterableKind.SELECT.getKind());
+            operation.outputType = operation.resultType = symTable.errType;
+            return;
+        }
+
+        // Operation's inputType and OutputType is defined by this lambda function.
+        operation.iExpr.requiredArgs = operation.iExpr.argExprs;
+        operation.lambdaType = (BInvokableType) operationParams;
+
+        // Process given/expected input and output types.
+        if (operation.lambdaType.getParameterTypes().isEmpty() ||
+                operation.lambdaType.getParameterTypes().size() > 1) {
+            // Lambda should have a single arg.
+            dlog.error(operation.pos, DiagnosticCode.ITERABLE_LAMBDA_TUPLE_REQUIRED);
+            operation.outputType = operation.resultType = symTable.errType;
+            return;
+        }
+
+        // Param types of the user-specified lambda function.
+        final List<BType> paramTypes = calculateParamTypesOfLambda(operation);
+        final List<BType> givenRetTypes = calculatedGivenOutputArgs(operation);
+
+        // Type of the elements in the collection.
+        final List<BType> elementTypes = calculateProvidedElementTypes(operation);
+        final List<BType> actualRetTypes = calculateExpectedOutputArgs(operation, givenRetTypes);
+
+        operation.inputType = operation.lambdaType.getParameterTypes().get(0);
+
+        // Cross Validate given and expected types and calculate output type;
+        validateLambdaInputArgs(operation, elementTypes, paramTypes);
+        validateLambdaReturnArgs(operation, actualRetTypes, givenRetTypes);
+        if (operation.outputType == symTable.errType) {
+            operation.resultType = symTable.errType;
+            return;
+        }
+        // Assign actual output value.
+        assignOutputAndResultType(operation, elementTypes, actualRetTypes);
     }
 
     /*

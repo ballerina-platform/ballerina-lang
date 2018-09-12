@@ -75,8 +75,12 @@ lambdaFunction
     ;
 
 arrowFunction
-    :   Identifier EQUAL_GT expression
-    |   LEFT_PARENTHESIS Identifier (COMMA Identifier)* RIGHT_PARENTHESIS EQUAL_GT expression
+    :   arrowParam EQUAL_GT expression
+    |   LEFT_PARENTHESIS arrowParam (COMMA arrowParam)* RIGHT_PARENTHESIS EQUAL_GT expression
+    ;
+
+arrowParam
+    :   Identifier
     ;
 
 callableUnitSignature

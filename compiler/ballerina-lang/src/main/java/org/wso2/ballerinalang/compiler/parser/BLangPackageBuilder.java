@@ -17,7 +17,6 @@
  */
 package org.wso2.ballerinalang.compiler.parser;
 
-import org.antlr.v4.runtime.tree.TerminalNode;
 import org.apache.commons.lang3.StringEscapeUtils;
 import org.ballerinalang.compiler.CompilerOptionName;
 import org.ballerinalang.model.TreeBuilder;
@@ -677,6 +676,23 @@ public class BLangPackageBuilder {
         return var;
     }
 
+    public BLangVariable addVarWithoutType(DiagnosticPos pos,
+                                           Set<Whitespace> ws,
+                                           String identifier,
+                                           boolean exprAvailable,
+                                           int annotCount) {
+        BLangVariable var = (BLangVariable) this.generateBasicVarNodeWithoutType(pos, ws, identifier, exprAvailable);
+        attachAnnotations(var, annotCount);
+        var.pos = pos;
+        if (this.varListStack.empty()) {
+            this.varStack.push(var);
+        } else {
+            this.varListStack.peek().add(var);
+        }
+
+        return var;
+    }
+
     public void endFormalParameterList(Set<Whitespace> ws) {
         this.commaWsStack.push(ws);
     }
@@ -762,20 +778,12 @@ public class BLangPackageBuilder {
         endFunctionDef(pos, null, false, false, true, false, true);
     }
 
-    void addArrowFunctionDef(DiagnosticPos pos, Set<Whitespace> ws, List<TerminalNode> paramIdentifiers,
-                             PackageID pkgID) {
+    void addArrowFunctionDef(DiagnosticPos pos, Set<Whitespace> ws, PackageID pkgID) {
         BLangArrowFunction arrowFunctionNode = (BLangArrowFunction) TreeBuilder.createArrowFunctionNode();
         arrowFunctionNode.pos = pos;
         arrowFunctionNode.addWS(ws);
         arrowFunctionNode.functionName = createIdentifier(anonymousModelHelper.getNextAnonymousFunctionKey(pkgID));
-        List<BLangVariable> params = new ArrayList<>();
-        paramIdentifiers.forEach(param -> {
-            BLangVariable variableNode = (BLangVariable) TreeBuilder.createVariableNode();
-            variableNode.setName(createIdentifier(param.getText()));
-            variableNode.pos = pos;
-            params.add(variableNode);
-        });
-        arrowFunctionNode.params = params;
+        arrowFunctionNode.params = this.varListStack.pop();
         arrowFunctionNode.expression = (BLangExpression) this.exprNodeStack.pop();
         addExpressionNode(arrowFunctionNode);
     }
@@ -1428,6 +1436,21 @@ public class BLangPackageBuilder {
         var.setName(name);
         var.addWS(ws);
         var.setTypeNode(this.typeNodeStack.pop());
+        if (exprAvailable) {
+            var.setInitialExpression(this.exprNodeStack.pop());
+        }
+        return var;
+    }
+
+    private VariableNode generateBasicVarNodeWithoutType(DiagnosticPos pos,
+                                              Set<Whitespace> ws,
+                                              String identifier,
+                                              boolean exprAvailable) {
+        BLangVariable var = (BLangVariable) TreeBuilder.createVariableNode();
+        var.pos = pos;
+        IdentifierNode name = this.createIdentifier(identifier);
+        var.setName(name);
+        var.addWS(ws);
         if (exprAvailable) {
             var.setInitialExpression(this.exprNodeStack.pop());
         }
