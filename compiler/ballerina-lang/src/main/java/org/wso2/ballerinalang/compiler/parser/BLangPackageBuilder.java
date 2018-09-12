@@ -240,9 +240,9 @@ public class BLangPackageBuilder {
 
     private Stack<BlockNode> blockNodeStack = new Stack<>();
 
-    private Stack<VariableNode> varStack = new Stack<>();
+    private Stack<BLangVariable> varStack = new Stack<>();
 
-    private Stack<List<VariableNode>> varListStack = new Stack<>();
+    private Stack<List<BLangVariable>> varListStack = new Stack<>();
 
     private Stack<InvokableNode> invokableNodeStack = new Stack<>();
 
@@ -454,7 +454,7 @@ public class BLangPackageBuilder {
         recordTypeNode.addWS(ws);
         recordTypeNode.isAnonymous = isAnonymous;
         this.varListStack.pop().forEach(variableNode -> {
-            ((BLangVariable) variableNode).docTag = DocTag.FIELD;
+            variableNode.docTag = DocTag.FIELD;
             recordTypeNode.addField(variableNode);
         });
         return recordTypeNode;
@@ -598,7 +598,7 @@ public class BLangPackageBuilder {
 
         if (paramsAvail) {
             functionTypeNode.addWS(commaWsStack.pop());
-            this.varListStack.pop().forEach(v -> functionTypeNode.paramTypeNodes.add((BLangType) v.getTypeNode()));
+            this.varListStack.pop().forEach(v -> functionTypeNode.paramTypeNodes.add(v.getTypeNode()));
         }
 
         functionTypeNode.addWS(ws);
@@ -719,7 +719,7 @@ public class BLangPackageBuilder {
 
         if (paramsAvail) {
             this.varListStack.pop().forEach(variableNode -> {
-                ((BLangVariable) variableNode).docTag = DocTag.PARAM;
+                variableNode.docTag = DocTag.PARAM;
                 invNode.addParameter(variableNode);
             });
 
@@ -1488,7 +1488,7 @@ public class BLangPackageBuilder {
         objectTypeNode.addWS(ws);
         objectTypeNode.isAnonymous = isAnonymous;
         this.varListStack.pop().forEach(variableNode -> {
-            ((BLangVariable) variableNode).docTag = DocTag.FIELD;
+            variableNode.docTag = DocTag.FIELD;
             objectTypeNode.addField(variableNode);
         });
         return objectTypeNode;
@@ -1579,7 +1579,7 @@ public class BLangPackageBuilder {
 
         if (paramsAvail) {
             this.varListStack.pop().forEach(variableNode -> {
-                ((BLangVariable) variableNode).docTag = DocTag.PARAM;
+                variableNode.docTag = DocTag.PARAM;
                 invNode.addParameter(variableNode);
             });
 
@@ -2383,14 +2383,14 @@ public class BLangPackageBuilder {
             attachDeprecatedNode(resourceNode);
         }
         if (hasParameters) {
-            BLangVariable firstParam = (BLangVariable) varListStack.peek().get(0);
+            BLangVariable firstParam = varListStack.peek().get(0);
             if (firstParam.name.value.startsWith("$") && varListStack.peek().size() > 1) {
                 // This is an endpoint variable
                 Set<Whitespace> wsBeforeComma = removeNthFromLast(firstParam.getWS(), 0);
                 resourceNode.addWS(wsBeforeComma);
             }
             varListStack.pop().forEach(variableNode -> {
-                ((BLangVariable) variableNode).docTag = DocTag.PARAM;
+                variableNode.docTag = DocTag.PARAM;
                 resourceNode.addParameter(variableNode);
             });
         }
@@ -2625,8 +2625,8 @@ public class BLangPackageBuilder {
         BLangVariableDef defaultableParam = (BLangVariableDef) TreeBuilder.createVariableDefinitionNode();
         defaultableParam.pos = pos;
         defaultableParam.addWS(ws);
-        List<VariableNode> params = this.varListStack.peek();
-        BLangVariable var = (BLangVariable) params.remove(params.size() - 1);
+        List<BLangVariable> params = this.varListStack.peek();
+        BLangVariable var = params.remove(params.size() - 1);
         var.expr = (BLangExpression) this.exprNodeStack.pop();
         defaultableParam.var = var;
         this.defaultableParamsList.add(defaultableParam);
