@@ -2970,7 +2970,8 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         }
         String parameterName = ctx.docParameterName() != null ? ctx.docParameterName().getText() : "";
         String description = ctx.documentationText() != null ? ctx.documentationText().getText() : "";
-        this.pkgBuilder.endParameterDocumentation(getCurrentPos(ctx), getWS(ctx), parameterName, description);
+        this.pkgBuilder.endParameterDocumentation(getCurrentPos(ctx.docParameterName()), getWS(ctx), parameterName,
+                description);
     }
 
     /**
