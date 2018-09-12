@@ -287,7 +287,7 @@ public class PackagingNegativeTestCase extends BaseTest {
 
     @Test(description = "Test uninstall with a non-existing package")
     public void testUninstallWithNonExistingPackage() throws Exception {
-        String msg = "ballerina: package does not exist integrationtests/testxyz:1.1.0";
+        String msg = "ballerina: incorrect package signature provided integrationtests/testxyz:1.1.0";
         balClient.runMain("uninstall", new String[] {"integrationtests/testxyz:1.1.0"}, envVariables, new String[0],
                           new LogLeecher[]{new LogLeecher(msg)}, balServer.getServerHome());
     }

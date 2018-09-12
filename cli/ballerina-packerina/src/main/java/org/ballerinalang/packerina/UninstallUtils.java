@@ -17,7 +17,7 @@
  */
 package org.ballerinalang.packerina;
 
-import org.ballerinalang.compiler.BLangCompilerException;
+import org.ballerinalang.launcher.LauncherUtils;
 import org.wso2.ballerinalang.compiler.util.ProjectDirConstants;
 import org.wso2.ballerinalang.util.RepoUtils;
 
@@ -49,14 +49,14 @@ public class UninstallUtils {
         // Get org-name
         int orgNameIndex = fullPkgPath.indexOf("/");
         if (orgNameIndex == -1) {
-            throw new BLangCompilerException("no org-name is provided");
+            throw LauncherUtils.createCommandException("no org-name is provided");
         }
         orgName = fullPkgPath.substring(0, orgNameIndex);
 
         // Get package name
         int packageNameIndex = fullPkgPath.indexOf(":");
-        if (packageNameIndex == -1) { // version is provided
-            throw new BLangCompilerException("no package version is provided");
+        if (packageNameIndex == -1) { // version is not provided
+            throw LauncherUtils.createCommandException("no package version is provided");
         }
         packageName = fullPkgPath.substring(orgNameIndex + 1, packageNameIndex);
         version = fullPkgPath.substring(packageNameIndex + 1, fullPkgPath.length());
@@ -64,30 +64,30 @@ public class UninstallUtils {
         Path homeRepoPath = BALLERINA_HOME_PATH.resolve(ProjectDirConstants.DOT_BALLERINA_REPO_DIR_NAME);
         Path cacheRepoPath = BALLERINA_HOME_PATH.resolve(ProjectDirConstants.CACHES_DIR_NAME)
                                                 .resolve(ProjectDirConstants.BALLERINA_CENTRAL_DIR_NAME);
-        Path pkgPath = Paths.get(orgName, packageName, version);
+        Path pkgDirPath = Paths.get(orgName, packageName, version);
 
         // Check if package is installed locally
-        if (Files.exists(homeRepoPath.resolve(pkgPath), LinkOption.NOFOLLOW_LINKS)) {
-            deletePackage(homeRepoPath, pkgPath, fullPkgPath, packageName);
-        } else if (Files.exists(cacheRepoPath.resolve(pkgPath), LinkOption.NOFOLLOW_LINKS)) {
-            deletePackage(cacheRepoPath, pkgPath, fullPkgPath, packageName);
+        if (Files.exists(homeRepoPath.resolve(pkgDirPath), LinkOption.NOFOLLOW_LINKS)) {
+            deletePackage(homeRepoPath, pkgDirPath, fullPkgPath, packageName);
+        } else if (Files.exists(cacheRepoPath.resolve(pkgDirPath), LinkOption.NOFOLLOW_LINKS)) {
+            deletePackage(cacheRepoPath, pkgDirPath, fullPkgPath, packageName);
         } else {
             // package to be uninstalled doesn't exists
-            throw new BLangCompilerException("package does not exist " + fullPkgPath);
+            throw LauncherUtils.createCommandException("incorrect package signature provided " + fullPkgPath);
         }
     }
 
     /**
      * Remove package from home repository.
      *
-     * @param repoPath    path of the home repository
-     * @param pkgPath     package path
-     * @param fullPkgPath full package path as given by user
+     * @param repoPath    path to the repository which contains the installed and pulled packages
+     * @param pkgDirPath  package directory path
+     * @param fullPkgPath full package path as given by user which is used for logging purposes
      * @param pkgName     package name
      */
-    private static void deletePackage(Path repoPath, Path pkgPath, String fullPkgPath, String pkgName) {
+    private static void deletePackage(Path repoPath, Path pkgDirPath, String fullPkgPath, String pkgName) {
         try {
-            Path path = repoPath.resolve(pkgPath);
+            Path path = repoPath.resolve(pkgDirPath);
             // Delete the package zip
             Files.deleteIfExists(path.resolve(pkgName + ProjectDirConstants.BLANG_COMPILED_PKG_EXT));
 
@@ -97,7 +97,7 @@ public class UninstallUtils {
             // Print that the package was successfully uninstalled
             outStream.println(fullPkgPath + " successfully uninstalled");
         } catch (IOException e) {
-            throw new BLangCompilerException("error uninstalling package " + fullPkgPath);
+            throw LauncherUtils.createCommandException("error uninstalling package " + fullPkgPath);
         }
     }
 
