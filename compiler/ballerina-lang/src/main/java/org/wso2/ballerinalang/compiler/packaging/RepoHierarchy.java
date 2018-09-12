@@ -40,7 +40,7 @@ public class RepoHierarchy {
                                                   .collect(Collectors.toList());
                 log2(repo, patten, paths);
                 if (!paths.isEmpty()) {
-                    return new Resolution(getChildHierarchyForRepo(i), paths);
+                    return new Resolution(getChildHierarchyForRepo(i), paths, repo);
                 }
             } else {
                 log3(repo);

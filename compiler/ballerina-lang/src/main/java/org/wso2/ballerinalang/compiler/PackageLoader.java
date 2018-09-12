@@ -26,7 +26,6 @@ import org.ballerinalang.repository.CompilerInput;
 import org.ballerinalang.repository.CompilerOutputEntry;
 import org.ballerinalang.repository.PackageBinary;
 import org.ballerinalang.repository.PackageEntity;
-import org.ballerinalang.repository.PackageRepository;
 import org.ballerinalang.repository.PackageSource;
 import org.ballerinalang.spi.SystemPackageRepositoryProvider;
 import org.ballerinalang.toml.model.Dependency;
@@ -196,12 +195,25 @@ public class PackageLoader {
         return systemList.toArray(new RepoNode[systemList.size()]);
     }
 
-    private PackageEntity loadPackageEntity(PackageID pkgId, PackageID enclPackageId) {
+    private PackageEntity loadPackageEntity(PackageID pkgId, PackageID enclPackageId,
+                                            RepoHierarchy encPkgRepoHierarchy) {
         updateVersionFromToml(pkgId, enclPackageId);
-        Resolution resolution = repos.resolve(pkgId);
+        Resolution resolution;
+        if (null != encPkgRepoHierarchy) {
+            resolution = encPkgRepoHierarchy.resolve(pkgId);
+        } else {
+            resolution = repos.resolve(pkgId);
+        }
+        
         if (resolution == Resolution.NOT_FOUND) {
             return null;
         }
+        
+        // If the packages is resolved within the same project, then manifest version is used for package ID.
+        if (pkgId.version.value.isEmpty() && resolution.resolvedRepository instanceof ProjectSourceRepo) {
+            pkgId.version = new Name(manifest.getVersion());
+        }
+        
         CompilerInput firstEntry = resolution.inputs.get(0);
         if (firstEntry.getEntryName().endsWith(PackageEntity.Kind.COMPILED.getExtension())) {
             // Binary package has only one file, so using first entry
@@ -269,7 +281,7 @@ public class PackageLoader {
         if (bLangPackage != null) {
             return bLangPackage;
         }
-        PackageEntity pkgEntity = loadPackageEntity(pkgId, enclPackageId);
+        PackageEntity pkgEntity = loadPackageEntity(pkgId, enclPackageId, null);
         if (pkgEntity == null) {
             throw ProjectDirs.getPackageNotFoundError(pkgId);
         }
@@ -283,14 +295,15 @@ public class PackageLoader {
         return packageNode;
     }
 
-    public BLangPackage loadPackage(PackageID pkgId, PackageID enclPackageId, PackageRepository packageRepo) {
+    public BLangPackage loadPackage(PackageID pkgId, PackageID enclPackageId, RepoHierarchy encPkgRepoHierarchy) {
         // TODO Remove this method()
         BLangPackage bLangPackage = packageCache.get(pkgId);
         if (bLangPackage != null) {
             return bLangPackage;
         }
 
-        BLangPackage packageNode = loadPackageFromEntity(pkgId, loadPackageEntity(pkgId, enclPackageId));
+        BLangPackage packageNode = loadPackageFromEntity(pkgId, loadPackageEntity(pkgId, enclPackageId,
+                                                                                                encPkgRepoHierarchy));
         if (packageNode == null) {
             throw ProjectDirs.getPackageNotFoundError(pkgId);
         }
@@ -316,13 +329,13 @@ public class PackageLoader {
     }
 
     public BPackageSymbol loadPackageSymbol(PackageID packageId, PackageID enclPackageId,
-                                            PackageRepository packageRepo) {
+                                            RepoHierarchy encPkgRepoHierarchy) {
         BPackageSymbol packageSymbol = this.packageCache.getSymbol(packageId);
         if (packageSymbol != null) {
             return packageSymbol;
         }
 
-        PackageEntity pkgEntity = loadPackageEntity(packageId, enclPackageId);
+        PackageEntity pkgEntity = loadPackageEntity(packageId, enclPackageId, encPkgRepoHierarchy);
         if (pkgEntity == null) {
             return null;
         }
@@ -413,7 +426,7 @@ public class PackageLoader {
     private BPackageSymbol loadCompiledPackageAndDefine(PackageID pkgId, PackageBinary pkgBinary) {
         byte[] pkgBinaryContent = pkgBinary.getCompilerInput().getCode();
         BPackageSymbol pkgSymbol = this.compiledPkgSymbolEnter.definePackage(
-                pkgId, null, pkgBinaryContent);
+                pkgId, pkgBinary.getRepoHierarchy(), pkgBinaryContent);
         this.packageCache.putSymbol(pkgId, pkgSymbol);
 
         // TODO create CompiledPackage
