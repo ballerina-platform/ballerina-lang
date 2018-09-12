@@ -38,7 +38,6 @@ public class BPackageSymbol extends BTypeSymbol {
     public List<BPackageSymbol> imports = new ArrayList<>();
     public PackageFile packageFile;
     public CompiledPackage compiledPackage;
-    public RepoHierarchy repoHierarchy;
 
     // TODO Refactor following two flags
     public boolean entryPointExists = false;
@@ -82,7 +81,6 @@ public class BPackageSymbol extends BTypeSymbol {
         copy.compiledPackage = compiledPackage;
         copy.entryPointExists = entryPointExists;
         copy.isLabel = true;
-        copy.repoHierarchy = repoHierarchy;
         return copy;
     }
 
