@@ -19,6 +19,7 @@ package org.ballerinalang.launcher;
 
 import org.ballerinalang.BLangProgramLoader;
 import org.ballerinalang.BLangProgramRunner;
+import org.ballerinalang.compiler.BLangCompilerException;
 import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.config.ConfigRegistry;
 import org.ballerinalang.connector.impl.ServerConnectorRegistry;
@@ -287,7 +288,7 @@ public class LauncherUtils {
         BLangPackage entryPkgNode = compiler.compile(sourcePath.toString());
         CompiledBinaryFile.ProgramFile programFile = compiler.getExecutableProgram(entryPkgNode);
         if (programFile == null) {
-            throw createLauncherException("compilation contains errors");
+            throw new BLangCompilerException("compilation contains errors");
         }
 
         ProgramFile progFile = getExecutableProgram(programFile);

@@ -67,13 +67,12 @@ public class Main {
             Runtime.getRuntime().exit(1);
         } catch (BLangCompilerException e) {
             if (!(e.getMessage().contains(COMPILATION_ERROR_MESSAGE))) {
+                // print the error message only if the exception was not thrown due to compilation errors
                 outStream.println(prepareCompilerErrorMessage(e.getMessage()));
             }
             Runtime.getRuntime().exit(1);
         } catch (BLauncherException e) {
-            if (!(e.getMessages().size() > 0 && e.getMessages().get(0).contains(COMPILATION_ERROR_MESSAGE))) {
-                LauncherUtils.printLauncherException(e, outStream);
-            }
+            LauncherUtils.printLauncherException(e, outStream);
             Runtime.getRuntime().exit(1);
         } catch (Throwable e) {
             outStream.println(getMessageForInternalErrors());
