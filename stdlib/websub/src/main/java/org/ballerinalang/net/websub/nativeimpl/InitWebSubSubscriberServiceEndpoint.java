@@ -195,9 +195,7 @@ public class InitWebSubSubscriberServiceEndpoint extends BlockingNativeCallableU
     private static void populateResourceDetails(HashMap<String, String[]> resourceDetails,
                                                 BRefValueArray resourceDetailTuple) {
         String resourceName = resourceDetailTuple.getBValue(0).stringValue();
-        BStructureType paramDetails =
-                (BStructureType) ((BTypeDescValue) (resourceDetailTuple).getBValue(1)).value();
-        resourceDetails.put(resourceName,
-                            new String[]{paramDetails.getPackagePath(), paramDetails.getName()});
+        BStructureType paramDetails = (BStructureType) ((BTypeDescValue) (resourceDetailTuple).getBValue(1)).value();
+        resourceDetails.put(resourceName, new String[]{paramDetails.getPackagePath(), paramDetails.getName()});
     }
 }
