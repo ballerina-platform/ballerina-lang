@@ -46,7 +46,7 @@ import static io.netty.handler.codec.http.HttpVersion.HTTP_1_1;
  */
 public class SendChannelIDServerInitializer extends HttpServerInitializer {
 
-    private static final Logger logger = LoggerFactory.getLogger(SendChannelIDServerInitializer.class);
+    private static final Logger LOG = LoggerFactory.getLogger(SendChannelIDServerInitializer.class);
 
     private int delay;
     private HttpRequest req;
@@ -74,8 +74,8 @@ public class SendChannelIDServerInitializer extends HttpServerInitializer {
 
                 if (!keepAlive) {
                     ctx.writeAndFlush(response).addListener(ChannelFutureListener.CLOSE);
-                    logger.debug("Writing response with data to client-connector");
-                    logger.debug("Closing the client-connector connection");
+                    LOG.debug("Writing response with data to client-connector");
+                    LOG.debug("Closing the client-connector connection");
                 } else {
                     response.headers().set(CONNECTION, HttpHeaders.Values.KEEP_ALIVE);
                     if (requestCount.get() < 1) {
@@ -84,14 +84,14 @@ public class SendChannelIDServerInitializer extends HttpServerInitializer {
                     }
                     ctx.writeAndFlush(response);
                     requestCount.incrementAndGet();
-                    logger.debug("Writing response with data to client-connector");
+                    LOG.debug("Writing response with data to client-connector");
                 }
             }
         }
 
         public void channelInactive(ChannelHandlerContext ctx) {
             ctx.close();
-            logger.debug("Channel has become inactive hence closing the connection");
+            LOG.debug("Channel has become inactive hence closing the connection");
         }
 
 

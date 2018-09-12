@@ -44,7 +44,7 @@ import org.wso2.transport.http.netty.util.TestUtil;
  */
 public class WebSocketPassThroughServerConnectorListener implements WebSocketConnectorListener {
 
-    private static final Logger log = LoggerFactory.getLogger(WebSocketPassThroughServerConnectorListener.class);
+    private static final Logger LOG = LoggerFactory.getLogger(WebSocketPassThroughServerConnectorListener.class);
 
     private final HttpWsConnectorFactory connectorFactory = new DefaultHttpWsConnectorFactory();
 
@@ -73,7 +73,7 @@ public class WebSocketPassThroughServerConnectorListener implements WebSocketCon
 
                     @Override
                     public void onError(Throwable t) {
-                        log.error(t.getMessage());
+                        LOG.error(t.getMessage());
                         Assert.fail("Error: " + t.getMessage());
                     }
                 });

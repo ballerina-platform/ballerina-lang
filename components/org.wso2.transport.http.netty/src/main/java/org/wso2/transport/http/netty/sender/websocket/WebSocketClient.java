@@ -57,7 +57,7 @@ import javax.net.ssl.SSLException;
  */
 public class WebSocketClient {
 
-    private static final Logger log = LoggerFactory.getLogger(WebSocketClient.class);
+    private static final Logger LOG = LoggerFactory.getLogger(WebSocketClient.class);
 
     private WebSocketClientHandshakeHandler clientHandshakeHandler;
 
@@ -95,7 +95,7 @@ public class WebSocketClient {
 
             String scheme = uri.getScheme();
             if (!Constants.WS_SCHEME.equalsIgnoreCase(scheme) && !Constants.WSS_SCHEME.equalsIgnoreCase(scheme)) {
-                log.error("Only WS(S) is supported.");
+                LOG.error("Only WS(S) is supported.");
                 throw new URISyntaxException(url, "WebSocket client supports only WS(S) scheme");
             }
 

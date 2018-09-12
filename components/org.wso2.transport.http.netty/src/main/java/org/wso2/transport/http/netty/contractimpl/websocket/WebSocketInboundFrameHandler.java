@@ -52,7 +52,7 @@ import org.wso2.transport.http.netty.listener.MessageQueueHandler;
  */
 public class WebSocketInboundFrameHandler extends ChannelInboundHandlerAdapter {
 
-    private Logger log = LoggerFactory.getLogger(WebSocketInboundFrameHandler.class);
+    private static final Logger LOG = LoggerFactory.getLogger(WebSocketInboundFrameHandler.class);
 
     private final boolean isServer;
     private final boolean secureConnection;

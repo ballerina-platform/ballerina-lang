@@ -44,7 +44,7 @@ import java.util.zip.InflaterInputStream;
  */
 public class HttpMessageDataStreamer {
 
-    private static final Logger log = LoggerFactory.getLogger(HttpMessageDataStreamer.class);
+    private static final Logger LOG = LoggerFactory.getLogger(HttpMessageDataStreamer.class);
 
     private HttpCarbonMessage httpCarbonMessage;
 
@@ -155,7 +155,7 @@ public class HttpMessageDataStreamer {
             } catch (RuntimeException ex) {
                 throw new EncoderException(httpCarbonMessage.getIoException());
             } catch (Exception e) {
-                log.error("Error while closing output stream but underlying resources are reset", e);
+                LOG.error("Error while closing output stream but underlying resources are reset", e);
             } finally {
                 byteBufferOutputStream = null;
             }
@@ -197,10 +197,10 @@ public class HttpMessageDataStreamer {
                 } else if (contentEncodingHeader.equalsIgnoreCase(Constants.ENCODING_DEFLATE)) {
                     return new InflaterInputStream(createInputStreamIfNull());
                 } else if (!contentEncodingHeader.equalsIgnoreCase(Constants.HTTP_TRANSFER_ENCODING_IDENTITY)) {
-                    log.warn("Unknown Content-Encoding: {}", contentEncodingHeader);
+                    LOG.warn("Unknown Content-Encoding: {}", contentEncodingHeader);
                 }
             } catch (IOException e) {
-                log.error("Error while creating inputStream for content-encoding: " + contentEncodingHeader, e);
+                LOG.error("Error while creating inputStream for content-encoding: " + contentEncodingHeader, e);
             }
         }
         return createInputStreamIfNull();

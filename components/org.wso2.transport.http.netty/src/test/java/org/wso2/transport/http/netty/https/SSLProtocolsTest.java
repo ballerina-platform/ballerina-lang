@@ -57,7 +57,7 @@ import static org.wso2.transport.http.netty.common.Constants.HTTPS_SCHEME;
  */
 public class SSLProtocolsTest {
 
-    private static Logger logger = LoggerFactory.getLogger(SSLProtocolsTest.class);
+    private static final Logger LOG = LoggerFactory.getLogger(SSLProtocolsTest.class);
 
     private static HttpClientConnector httpClientConnector;
     private static HttpWsConnectorFactory httpWsConnectorFactory;
@@ -176,7 +176,7 @@ public class SSLProtocolsTest {
             httpClientConnector.close();
             httpWsConnectorFactory.shutdown();
         } catch (Exception e) {
-            logger.warn("Interrupted while waiting for response two", e);
+            LOG.warn("Interrupted while waiting for response two", e);
         }
     }
 }

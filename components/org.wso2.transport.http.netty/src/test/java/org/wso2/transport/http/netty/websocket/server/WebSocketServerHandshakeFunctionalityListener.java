@@ -35,7 +35,7 @@ import java.util.concurrent.CountDownLatch;
 
 public class WebSocketServerHandshakeFunctionalityListener implements WebSocketConnectorListener {
 
-    private static final Logger log = LoggerFactory.getLogger(WebSocketServerHandshakeFunctionalityListener.class);
+    private static final Logger LOG = LoggerFactory.getLogger(WebSocketServerHandshakeFunctionalityListener.class);
 
     private WebSocketConnection currentWebSocketConnection;
     private Throwable handshakeError;
@@ -73,14 +73,14 @@ public class WebSocketServerHandshakeFunctionalityListener implements WebSocketC
         } else if (getBooleanValueOfHeader(webSocketHandshaker, "x-cancel-and-handshake")) {
             webSocketHandshaker.cancelHandshake(404, "Not Found").addListener(future -> {
                 if (!future.isSuccess() && future.cause() != null) {
-                    log.error("Error canceling handshake", future.cause());
+                    LOG.error("Error canceling handshake", future.cause());
                 }
             }).channel().close();
             handshakeFuture = webSocketHandshaker.handshake();
         } else {
             webSocketHandshaker.cancelHandshake(404, "Not Found").addListener(future -> {
                 if (!future.isSuccess() && future.cause() != null) {
-                    log.error("Error canceling handshake", future.cause());
+                    LOG.error("Error canceling handshake", future.cause());
                 }
             }).channel().close();
         }
@@ -96,7 +96,7 @@ public class WebSocketServerHandshakeFunctionalityListener implements WebSocketC
                 @Override
                 public void onError(Throwable t) {
                     handshakeError = t;
-                    log.error("Error in handshake: ", t);
+                    LOG.error("Error in handshake: ", t);
                     completeHandshakeCountDown();
                 }
             });

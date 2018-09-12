@@ -40,7 +40,7 @@ import static org.wso2.transport.http.netty.listener.states.StateUtil.ILLEGAL_ST
  */
 public class RequestCompleted implements SenderState {
 
-    private static Logger log = LoggerFactory.getLogger(RequestCompleted.class);
+    private static final Logger LOG = LoggerFactory.getLogger(RequestCompleted.class);
     private final MessageStateContext messageStateContext;
 
     public RequestCompleted(MessageStateContext messageStateContext) {
@@ -49,12 +49,12 @@ public class RequestCompleted implements SenderState {
 
     @Override
     public void writeOutboundRequestHeaders(HttpCarbonMessage httpOutboundRequest, HttpContent httpContent) {
-        log.warn("writeOutboundRequestHeaders {}", ILLEGAL_STATE_ERROR);
+        LOG.warn("writeOutboundRequestHeaders {}", ILLEGAL_STATE_ERROR);
     }
 
     @Override
     public void writeOutboundRequestEntity(HttpCarbonMessage httpOutboundRequest, HttpContent httpContent) {
-        log.warn("writeOutboundRequestEntity {}", ILLEGAL_STATE_ERROR);
+        LOG.warn("writeOutboundRequestEntity {}", ILLEGAL_STATE_ERROR);
     }
 
     @Override
@@ -66,14 +66,14 @@ public class RequestCompleted implements SenderState {
     @Override
     public void readInboundResponseEntityBody(ChannelHandlerContext ctx, HttpContent httpContent,
                                               HttpCarbonMessage inboundResponseMsg) {
-        log.warn("readInboundResponseEntityBody {}", ILLEGAL_STATE_ERROR);
+        LOG.warn("readInboundResponseEntityBody {}", ILLEGAL_STATE_ERROR);
     }
 
     @Override
     public void handleAbruptChannelClosure(HttpResponseFuture httpResponseFuture) {
         httpResponseFuture.notifyHttpListener(
                 new ServerConnectorException(REMOTE_SERVER_CLOSED_BEFORE_INITIATING_INBOUND_RESPONSE));
-        log.error(REMOTE_SERVER_CLOSED_BEFORE_INITIATING_INBOUND_RESPONSE);
+        LOG.error(REMOTE_SERVER_CLOSED_BEFORE_INITIATING_INBOUND_RESPONSE);
     }
 
     @Override
@@ -81,6 +81,6 @@ public class RequestCompleted implements SenderState {
         httpResponseFuture.notifyHttpListener(
                 new EndpointTimeOutException(channelID, IDLE_TIMEOUT_TRIGGERED_BEFORE_INITIATING_INBOUND_RESPONSE,
                                              HttpResponseStatus.GATEWAY_TIMEOUT.code()));
-        log.error("Error in HTTP client: {}", IDLE_TIMEOUT_TRIGGERED_BEFORE_INITIATING_INBOUND_RESPONSE);
+        LOG.error("Error in HTTP client: {}", IDLE_TIMEOUT_TRIGGERED_BEFORE_INITIATING_INBOUND_RESPONSE);
     }
 }

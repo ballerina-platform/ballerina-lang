@@ -40,7 +40,7 @@ import static org.wso2.transport.http.netty.listener.states.StateUtil.handleInco
  */
 public class ResponseCompleted implements ListenerState {
 
-    private static Logger log = LoggerFactory.getLogger(ResponseCompleted.class);
+    private static final Logger LOG = LoggerFactory.getLogger(ResponseCompleted.class);
     private final SourceHandler sourceHandler;
     private final MessageStateContext messageStateContext;
     private final HttpCarbonMessage inboundRequestMsg;
@@ -60,18 +60,18 @@ public class ResponseCompleted implements ListenerState {
 
     @Override
     public void readInboundRequestBody(Object inboundRequestEntityBody) throws ServerConnectorException {
-        log.warn("readInboundRequestBody {}", ILLEGAL_STATE_ERROR);
+        LOG.warn("readInboundRequestBody {}", ILLEGAL_STATE_ERROR);
     }
 
     @Override
     public void writeOutboundResponseHeaders(HttpCarbonMessage outboundResponseMsg, HttpContent httpContent) {
-        log.warn("writeOutboundResponseHeaders {}", ILLEGAL_STATE_ERROR);
+        LOG.warn("writeOutboundResponseHeaders {}", ILLEGAL_STATE_ERROR);
     }
 
     @Override
     public void writeOutboundResponseBody(HttpOutboundRespListener outboundRespListener,
                                           HttpCarbonMessage outboundResponseMsg, HttpContent httpContent) {
-        log.warn("writeOutboundResponseBody {}", ILLEGAL_STATE_ERROR);
+        LOG.warn("writeOutboundResponseBody {}", ILLEGAL_STATE_ERROR);
     }
 
     @Override

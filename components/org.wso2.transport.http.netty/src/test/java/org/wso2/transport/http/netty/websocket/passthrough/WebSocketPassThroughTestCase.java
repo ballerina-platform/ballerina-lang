@@ -44,7 +44,7 @@ import static java.util.concurrent.TimeUnit.SECONDS;
  */
 public class WebSocketPassThroughTestCase {
 
-    private static final Logger log = LoggerFactory.getLogger(WebSocketPassThroughTestCase.class);
+    private static final Logger LOG = LoggerFactory.getLogger(WebSocketPassThroughTestCase.class);
 
     private DefaultHttpWsConnectorFactory httpConnectorFactory;
     private WebSocketRemoteServer remoteServer;

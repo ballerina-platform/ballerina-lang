@@ -29,7 +29,7 @@ import org.wso2.transport.http.netty.contractimpl.HttpPipeliningListener;
  * @since 6.0.228
  */
 public class HttpPipeliningFuture {
-    private static final Logger log = LoggerFactory.getLogger(HttpPipeliningFuture.class);
+    private static final Logger LOG = LoggerFactory.getLogger(HttpPipeliningFuture.class);
     private HttpPipeliningListener pipeliningListener;
 
     public void setPipeliningListener(HttpPipeliningListener pipeliningListener) {
@@ -40,7 +40,7 @@ public class HttpPipeliningFuture {
         if (this.pipeliningListener != null) {
             this.pipeliningListener.onLastHttpContentSent(sourceContext);
         } else {
-            log.error("Http pipelining listener is not set");
+            LOG.error("Http pipelining listener is not set");
         }
     }
 }

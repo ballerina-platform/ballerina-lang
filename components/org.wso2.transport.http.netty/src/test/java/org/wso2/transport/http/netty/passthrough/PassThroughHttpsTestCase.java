@@ -47,7 +47,7 @@ import static org.testng.AssertJUnit.assertEquals;
  * A test case for https pass-through transport.
  */
 public class PassThroughHttpsTestCase {
-    private static final Logger log = LoggerFactory.getLogger(PassThroughHttpsTestCase.class);
+    private static final Logger LOG = LoggerFactory.getLogger(PassThroughHttpsTestCase.class);
 
     private static final String testValue = "Test Message";
     private HttpsServer httpsServer;
@@ -78,7 +78,7 @@ public class PassThroughHttpsTestCase {
         try {
             serverConnectorFuture.sync();
         } catch (InterruptedException e) {
-            log.warn("Interrupted while waiting for server connector to start");
+            LOG.warn("Interrupted while waiting for server connector to start");
         }
 
         httpsServer = TestUtil.startHttpsServer(TestUtil.HTTP_SERVER_PORT,
@@ -112,7 +112,7 @@ public class PassThroughHttpsTestCase {
             httpsServer.shutdown();
             httpWsConnectorFactory.shutdown();
         } catch (InterruptedException e) {
-            log.warn("Interrupted while waiting for clean up");
+            LOG.warn("Interrupted while waiting for clean up");
         }
     }
 }

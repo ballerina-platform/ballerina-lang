@@ -56,7 +56,7 @@ import static org.testng.Assert.assertNotNull;
  */
 public class ConnectionPoolTimeoutProxyTestCase {
 
-    private static Logger logger = LoggerFactory.getLogger(ConnectionPoolTimeoutProxyTestCase.class);
+    private static final Logger LOG = LoggerFactory.getLogger(ConnectionPoolTimeoutProxyTestCase.class);
 
     private ExecutorService executor = Executors.newFixedThreadPool(2);
     private HttpWsConnectorFactory httpWsConnectorFactory;
@@ -83,7 +83,7 @@ public class ConnectionPoolTimeoutProxyTestCase {
         try {
             serverConnectorFuture.sync();
         } catch (InterruptedException e) {
-            logger.warn("Interrupted while waiting for server connector to start");
+            LOG.warn("Interrupted while waiting for server connector to start");
         }
     }
 
@@ -118,7 +118,7 @@ public class ConnectionPoolTimeoutProxyTestCase {
                     .body(TestUtil.smallEntity).asString();
                 response = httpResponse.getBody();
             } catch (UnirestException e) {
-                logger.error("Couldn't get the response", e);
+                LOG.error("Couldn't get the response", e);
             }
             return response;
         }
@@ -133,9 +133,9 @@ public class ConnectionPoolTimeoutProxyTestCase {
             httpServer.shutdown();
             httpWsConnectorFactory.shutdown();
         } catch (InterruptedException e) {
-            logger.warn("Interrupted while waiting for response two", e);
+            LOG.warn("Interrupted while waiting for response two", e);
         } catch (IOException e) {
-            logger.warn("IOException occurred while waiting for Unirest connection to shutdown", e);
+            LOG.warn("IOException occurred while waiting for Unirest connection to shutdown", e);
         }
     }
 }

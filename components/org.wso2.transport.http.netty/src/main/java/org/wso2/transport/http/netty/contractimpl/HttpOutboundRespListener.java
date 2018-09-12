@@ -43,7 +43,7 @@ import static org.wso2.transport.http.netty.common.Util.isKeepAliveConnection;
  */
 public class HttpOutboundRespListener implements HttpConnectorListener {
 
-    private static final Logger log = LoggerFactory.getLogger(HttpOutboundRespListener.class);
+    private static final Logger LOG = LoggerFactory.getLogger(HttpOutboundRespListener.class);
     private final SourceHandler sourceHandler;
     private final MessageStateContext messageStateContext;
 
@@ -82,7 +82,7 @@ public class HttpOutboundRespListener implements HttpConnectorListener {
                         } catch (Exception exception) {
                             String errorMsg = "Failed to send the outbound response : "
                                     + exception.getMessage().toLowerCase(Locale.ENGLISH);
-                            log.error(errorMsg, exception);
+                            LOG.error(errorMsg, exception);
                             inboundRequestMsg.getHttpOutboundRespStatusFuture().notifyHttpListener(exception);
                         }
                     }));
@@ -113,7 +113,7 @@ public class HttpOutboundRespListener implements HttpConnectorListener {
 
     @Override
     public void onError(Throwable throwable) {
-        log.error("Couldn't send the outbound response", throwable);
+        LOG.error("Couldn't send the outbound response", throwable);
     }
 
     public ChunkConfig getChunkConfig() {

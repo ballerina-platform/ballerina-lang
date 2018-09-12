@@ -43,7 +43,7 @@ import static org.wso2.transport.http.netty.common.certificatevalidation.Constan
  */
 public class OCSPStaplingHandler extends OcspClientHandler {
 
-    private static final Logger log = LoggerFactory.getLogger(OCSPStaplingHandler.class);
+    private static final Logger LOG = LoggerFactory.getLogger(OCSPStaplingHandler.class);
 
     public OCSPStaplingHandler(ReferenceCountedOpenSslEngine engine) {
         super(engine);
@@ -78,13 +78,13 @@ public class OCSPStaplingHandler extends OcspClientHandler {
 
         CertificateStatus status = singleResp.getCertStatus();
         BigInteger ocspSerial = singleResp.getCertID().getSerialNumber();
-        if (log.isDebugEnabled()) {
+        if (LOG.isDebugEnabled()) {
             String message = new StringBuilder().append("OCSP status of ").append(ctx.channel().remoteAddress())
                     .append("\n  Status: ").append(status == CertificateStatus.GOOD ? "Good" : status)
                     .append("\n  This Update: ").append(singleResp.getThisUpdate()).append("\n  Next Update: ")
                     .append(singleResp.getNextUpdate()).append("\n  Cert Serial: ").append(certSerial)
                     .append("\n  OCSP Serial: ").append(ocspSerial).toString();
-            log.debug(message);
+            LOG.debug(message);
         }
         //For an OCSP response to be valid, certificate serial number should be equal to the ocsp serial number.
         return status == CertificateStatus.GOOD && certSerial.equals(ocspSerial);

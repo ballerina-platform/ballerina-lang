@@ -51,7 +51,7 @@ import static org.wso2.transport.http.netty.listener.states.StateUtil.writeReque
  */
 public class SendingHeaders implements SenderState {
 
-    private static Logger log = LoggerFactory.getLogger(SendingHeaders.class);
+    private static final Logger LOG = LoggerFactory.getLogger(SendingHeaders.class);
     private final String httpVersion;
     private final ChunkConfig chunkConfig;
     private final TargetChannel targetChannel;
@@ -109,19 +109,19 @@ public class SendingHeaders implements SenderState {
     @Override
     public void readInboundResponseEntityBody(ChannelHandlerContext ctx, HttpContent httpContent,
                                               HttpCarbonMessage inboundResponseMsg) {
-        log.warn("readInboundResponseEntityBody {}", ILLEGAL_STATE_ERROR);
+        LOG.warn("readInboundResponseEntityBody {}", ILLEGAL_STATE_ERROR);
     }
 
     @Override
     public void handleAbruptChannelClosure(HttpResponseFuture httpResponseFuture) {
         // HttpResponseFuture will be notified asynchronously via writeOutboundRequestHeaders method.
-        log.error(REMOTE_SERVER_CLOSED_WHILE_WRITING_OUTBOUND_REQUEST_HEADERS);
+        LOG.error(REMOTE_SERVER_CLOSED_WHILE_WRITING_OUTBOUND_REQUEST_HEADERS);
     }
 
     @Override
     public void handleIdleTimeoutConnectionClosure(HttpResponseFuture httpResponseFuture, String channelID) {
         // HttpResponseFuture will be notified asynchronously via writeOutboundRequestHeaders method.
-        log.error("Error in HTTP client: {}", IDLE_TIMEOUT_TRIGGERED_WHILE_WRITING_OUTBOUND_REQUEST_HEADERS);
+        LOG.error("Error in HTTP client: {}", IDLE_TIMEOUT_TRIGGERED_WHILE_WRITING_OUTBOUND_REQUEST_HEADERS);
     }
 
     private String getHttpMethod(HttpCarbonMessage httpOutboundRequest) {

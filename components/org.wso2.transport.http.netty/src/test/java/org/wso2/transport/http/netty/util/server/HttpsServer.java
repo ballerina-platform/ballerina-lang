@@ -44,7 +44,7 @@ import static org.wso2.transport.http.netty.common.Constants.TLS_PROTOCOL;
  */
 public class HttpsServer implements TestServer {
 
-    private static final Logger logger = LoggerFactory.getLogger(HttpsServer.class);
+    private static final Logger LOG = LoggerFactory.getLogger(HttpsServer.class);
 
     private int port;
     private int bossGroupSize = Runtime.getRuntime().availableProcessors();
@@ -86,9 +86,9 @@ public class HttpsServer implements TestServer {
             b.group(bossGroup, workerGroup).channel(NioServerSocketChannel.class).childHandler(channelInitializer);
             ChannelFuture ch = b.bind(new InetSocketAddress(TestUtil.TEST_HOST, port));
             ch.sync();
-            logger.info("HttpServer started on port " + port);
+            LOG.info("HttpServer started on port " + port);
         } catch (Exception e) {
-            logger.error("HTTP Server cannot start on port " + port);
+            LOG.error("HTTP Server cannot start on port " + port);
         }
     }
 
@@ -98,7 +98,7 @@ public class HttpsServer implements TestServer {
     public void shutdown() throws InterruptedException {
         bossGroup.shutdownGracefully().sync();
         workerGroup.shutdownGracefully().sync();
-        logger.info("HttpsServer shutdown ");
+        LOG.info("HttpsServer shutdown ");
     }
 
     public void setMessage(String message, String contentType) {

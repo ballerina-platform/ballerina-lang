@@ -88,7 +88,7 @@ public class Util {
         //Hides implicit public constructor.
     }
 
-    private static Logger log = LoggerFactory.getLogger(Util.class);
+    private static final Logger LOG = LoggerFactory.getLogger(Util.class);
 
     private static String getStringValue(HttpCarbonMessage msg, String key, String defaultValue) {
         String value = (String) msg.getProperty(key);
@@ -304,7 +304,7 @@ public class Util {
      */
     public static void configureHttpPipelineForSSL(SocketChannel socketChannel, String host, int port,
             SSLConfig sslConfig) throws SSLException {
-        log.debug("adding ssl handler");
+        LOG.debug("adding ssl handler");
         ChannelPipeline pipeline = socketChannel.pipeline();
         if (sslConfig.isOcspStaplingEnabled()) {
             SSLHandlerFactory sslHandlerFactory = new SSLHandlerFactory(sslConfig);
@@ -576,7 +576,7 @@ public class Util {
         outboundResponse.headers().set(HttpHeaderNames.SERVER.toString(), serverName);
         ChannelFuture outboundRespFuture = ctx.channel().writeAndFlush(outboundResponse);
         outboundRespFuture.addListener(
-                (ChannelFutureListener) channelFuture -> log.warn("Failed to send {}", status.reasonPhrase()));
+                (ChannelFutureListener) channelFuture -> LOG.warn("Failed to send {}", status.reasonPhrase()));
         ctx.channel().close();
     }
 
@@ -644,7 +644,7 @@ public class Util {
             if (pipeline.get(name) != null) {
                 pipeline.remove(name);
             } else {
-                log.debug("Trying to remove not engaged {} handler from the pipeline", name);
+                LOG.debug("Trying to remove not engaged {} handler from the pipeline", name);
             }
         }
     }

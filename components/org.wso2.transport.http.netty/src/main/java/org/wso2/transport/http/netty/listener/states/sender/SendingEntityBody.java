@@ -51,7 +51,7 @@ import static org.wso2.transport.http.netty.listener.states.StateUtil.writeReque
  */
 public class SendingEntityBody implements SenderState {
 
-    private static Logger log = LoggerFactory.getLogger(SendingEntityBody.class);
+    private static final Logger LOG = LoggerFactory.getLogger(SendingEntityBody.class);
     private final MessageStateContext messageStateContext;
     private final boolean headersWritten;
     private final HandlerExecutor handlerExecutor;
@@ -73,7 +73,7 @@ public class SendingEntityBody implements SenderState {
 
     @Override
     public void writeOutboundRequestHeaders(HttpCarbonMessage httpOutboundRequest, HttpContent httpContent) {
-        log.warn("writeOutboundRequestHeaders {}", ILLEGAL_STATE_ERROR);
+        LOG.warn("writeOutboundRequestHeaders {}", ILLEGAL_STATE_ERROR);
     }
 
     @Override
@@ -115,19 +115,19 @@ public class SendingEntityBody implements SenderState {
     @Override
     public void readInboundResponseEntityBody(ChannelHandlerContext ctx, HttpContent httpContent,
                                               HttpCarbonMessage inboundResponseMsg) {
-        log.warn("readInboundResponseEntityBody {}", ILLEGAL_STATE_ERROR);
+        LOG.warn("readInboundResponseEntityBody {}", ILLEGAL_STATE_ERROR);
     }
 
     @Override
     public void handleAbruptChannelClosure(HttpResponseFuture httpResponseFuture) {
         // HttpResponseFuture will be notified asynchronously via writeOutboundRequestEntity method.
-        log.error(REMOTE_SERVER_CLOSED_WHILE_WRITING_OUTBOUND_REQUEST_BODY);
+        LOG.error(REMOTE_SERVER_CLOSED_WHILE_WRITING_OUTBOUND_REQUEST_BODY);
     }
 
     @Override
     public void handleIdleTimeoutConnectionClosure(HttpResponseFuture httpResponseFuture, String channelID) {
         // HttpResponseFuture will be notified asynchronously via writeOutboundRequestEntity method.
-        log.error("Error in HTTP client: {}", IDLE_TIMEOUT_TRIGGERED_WHILE_WRITING_OUTBOUND_REQUEST_BODY);
+        LOG.error("Error in HTTP client: {}", IDLE_TIMEOUT_TRIGGERED_WHILE_WRITING_OUTBOUND_REQUEST_BODY);
     }
 
     private void writeOutboundRequestBody(HttpContent lastHttpContent) {

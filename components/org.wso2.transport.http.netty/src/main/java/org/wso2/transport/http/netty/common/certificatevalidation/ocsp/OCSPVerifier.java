@@ -71,7 +71,7 @@ import java.util.List;
 public class OCSPVerifier implements RevocationVerifier {
 
     private OCSPCache cache;
-    private static final Logger log = LoggerFactory.getLogger(OCSPVerifier.class);
+    private static final Logger LOG = LoggerFactory.getLogger(OCSPVerifier.class);
 
     public OCSPVerifier(OCSPCache cache) {
         this.cache = cache;
@@ -94,8 +94,8 @@ public class OCSPVerifier implements RevocationVerifier {
             if (resp != null) {
                 //If cant be casted, we have used the wrong cache.
                 RevocationStatus status = getRevocationStatus(resp);
-                if (log.isInfoEnabled()) {
-                    log.info("OCSP response taken from cache.");
+                if (LOG.isInfoEnabled()) {
+                    LOG.info("OCSP response taken from cache.");
                 }
                 return status;
             }
@@ -266,7 +266,7 @@ public class OCSPVerifier implements RevocationVerifier {
                     asn1InputStream.close();
                 }
             } catch (IOException e) {
-                log.error("Cannot close ASN1InputStream", e);
+                LOG.error("Cannot close ASN1InputStream", e);
             }
         }
 

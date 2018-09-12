@@ -55,7 +55,7 @@ import static org.wso2.transport.http.netty.listener.states.StateUtil.notifyIfHe
  */
 public class Response100ContinueSent extends SendingHeaders {
 
-    private static Logger log = LoggerFactory.getLogger(Response100ContinueSent.class);
+    private static final Logger LOG = LoggerFactory.getLogger(Response100ContinueSent.class);
     private final MessageStateContext messageStateContext;
     private final HttpOutboundRespListener outboundResponseListener;
     private final SourceHandler sourceHandler;
@@ -74,7 +74,7 @@ public class Response100ContinueSent extends SendingHeaders {
 
     @Override
     public void readInboundRequestHeaders(HttpCarbonMessage inboundRequestMsg, HttpRequest inboundRequestHeaders) {
-        log.warn("readInboundRequestHeaders {}", ILLEGAL_STATE_ERROR);
+        LOG.warn("readInboundRequestHeaders {}", ILLEGAL_STATE_ERROR);
     }
 
     @Override
@@ -87,7 +87,7 @@ public class Response100ContinueSent extends SendingHeaders {
 
     @Override
     public void writeOutboundResponseHeaders(HttpCarbonMessage outboundResponseMsg, HttpContent httpContent) {
-        log.warn("writeOutboundResponseHeaders {}", ILLEGAL_STATE_ERROR);
+        LOG.warn("writeOutboundResponseHeaders {}", ILLEGAL_STATE_ERROR);
     }
 
     @Override
@@ -124,14 +124,14 @@ public class Response100ContinueSent extends SendingHeaders {
     @Override
     public void handleAbruptChannelClosure(ServerConnectorFuture serverConnectorFuture) {
         // OutboundResponseStatusFuture will be notified asynchronously via OutboundResponseListener.
-        log.error(REMOTE_CLIENT_CLOSED_WHILE_WRITING_100_CONTINUE_RESPONSE);
+        LOG.error(REMOTE_CLIENT_CLOSED_WHILE_WRITING_100_CONTINUE_RESPONSE);
     }
 
     @Override
     public ChannelFuture handleIdleTimeoutConnectionClosure(ServerConnectorFuture serverConnectorFuture,
                                                             ChannelHandlerContext ctx) {
         // OutboundResponseStatusFuture will be notified asynchronously via OutboundResponseListener.
-        log.error(IDLE_TIMEOUT_TRIGGERED_WHILE_WRITING_100_CONTINUE_RESPONSE);
+        LOG.error(IDLE_TIMEOUT_TRIGGERED_WHILE_WRITING_100_CONTINUE_RESPONSE);
         return null;
     }
 

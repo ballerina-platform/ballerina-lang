@@ -40,7 +40,7 @@ import org.wso2.transport.http.netty.message.HttpCarbonResponse;
  */
 public class WebSocketClientHandshakeHandler extends ChannelInboundHandlerAdapter {
 
-    private static final Logger log = LoggerFactory.getLogger(WebSocketClientHandshakeHandler.class);
+    private static final Logger LOG = LoggerFactory.getLogger(WebSocketClientHandshakeHandler.class);
 
     private final WebSocketClientHandshaker handshaker;
     private final MessageQueueHandler messageQueueHandler;
@@ -96,7 +96,7 @@ public class WebSocketClientHandshakeHandler extends ChannelInboundHandlerAdapte
             }
             handshakeFuture.notifySuccess(webSocketConnection, httpCarbonResponse);
             ctx.fireChannelActive();
-            log.debug("WebSocket Client connected");
+            LOG.debug("WebSocket Client connected");
         } finally {
             handshakeResponse.release();
         }
@@ -104,7 +104,7 @@ public class WebSocketClientHandshakeHandler extends ChannelInboundHandlerAdapte
 
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
-        log.error("Caught exception", cause);
+        LOG.error("Caught exception", cause);
         handshakeFuture.notifyError(cause, httpCarbonResponse);
     }
 

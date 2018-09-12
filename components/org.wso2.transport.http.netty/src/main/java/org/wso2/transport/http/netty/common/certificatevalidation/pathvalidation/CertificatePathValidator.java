@@ -54,7 +54,7 @@ public class CertificatePathValidator {
     private List<X509Certificate> fullCertChain;
     // Certificate Chain without Root CA certificate. (eg: peer cert, issuer cert)
     private List<X509Certificate> certChain;
-    private static final Logger log = LoggerFactory.getLogger(CertificatePathValidator.class);
+    private static final Logger LOG = LoggerFactory.getLogger(CertificatePathValidator.class);
 
     public CertificatePathValidator(X509Certificate[] certChainArray, RevocationVerifier verifier) {
         this.pathChecker = new PathChecker(certChainArray, verifier);
@@ -104,8 +104,8 @@ public class CertificatePathValidator {
             param.setDate(new Date());
 
             validator.validate(certPath, param);
-            if (log.isInfoEnabled()) {
-                log.info("Certificate path validated");
+            if (LOG.isInfoEnabled()) {
+                LOG.info("Certificate path validated");
             }
         } catch (CertPathValidatorException e) {
             throw new CertificateVerificationException(

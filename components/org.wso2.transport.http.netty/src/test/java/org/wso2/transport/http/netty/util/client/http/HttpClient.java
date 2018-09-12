@@ -49,7 +49,7 @@ import java.util.concurrent.TimeUnit;
  */
 public class HttpClient {
 
-    private static final Logger log = LoggerFactory.getLogger(HttpClient.class);
+    private static final Logger LOG = LoggerFactory.getLogger(HttpClient.class);
 
     private Channel connectedChannel;
     private final String host;
@@ -77,7 +77,7 @@ public class HttpClient {
                     });
             connectedChannel = clientBootStrap.connect().sync().channel();
         } catch (Exception e) {
-            log.error("Error while initializing the client", e);
+            LOG.error("Error while initializing the client", e);
         }
     }
 
@@ -102,7 +102,7 @@ public class HttpClient {
         try {
             latch.await();
         } catch (InterruptedException e) {
-            log.warn("Operation go interrupted before receiving the response");
+            LOG.warn("Operation go interrupted before receiving the response");
         }
         return this.responseHandler.getHttpFullResponse();
     }
@@ -121,7 +121,7 @@ public class HttpClient {
         try {
             latch.await(30, TimeUnit.SECONDS);
         } catch (InterruptedException e) {
-            log.warn("Interrupted before receiving the response.");
+            LOG.warn("Interrupted before receiving the response.");
         }
 
         FullHttpResponse response100Continue = this.responseHandler.getHttpFullResponse();
@@ -133,7 +133,7 @@ public class HttpClient {
             try {
                 latch.await(30, TimeUnit.SECONDS);
             } catch (InterruptedException e) {
-                log.warn("Interrupted before receiving the response.");
+                LOG.warn("Interrupted before receiving the response.");
             }
         }
 
@@ -153,7 +153,7 @@ public class HttpClient {
         try {
             latch.await();
         } catch (InterruptedException e) {
-            log.warn("Operation go interrupted before receiving the response");
+            LOG.warn("Operation go interrupted before receiving the response");
         }
         return this.responseHandler.getHttpFullResponses();
     }
@@ -164,7 +164,7 @@ public class HttpClient {
                 return false;
             }
         } catch (InterruptedException e) {
-            log.warn("Operation go interrupted before receiving the response");
+            LOG.warn("Operation go interrupted before receiving the response");
             return false;
         }
         return true;

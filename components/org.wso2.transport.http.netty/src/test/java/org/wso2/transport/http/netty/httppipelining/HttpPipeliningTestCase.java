@@ -48,7 +48,7 @@ import static org.testng.AssertJUnit.assertEquals;
  */
 public class HttpPipeliningTestCase {
 
-    private static final Logger log = LoggerFactory.getLogger(HttpPipeliningTestCase.class);
+    private static final Logger LOG = LoggerFactory.getLogger(HttpPipeliningTestCase.class);
     private final DefaultHttpWsConnectorFactory httpConnectorFactory = new DefaultHttpWsConnectorFactory();
 
     @BeforeClass
@@ -63,7 +63,7 @@ public class HttpPipeliningTestCase {
         try {
             serverConnectorFuture.sync();
         } catch (InterruptedException e) {
-            log.error("Thread Interrupted while sleeping ", e);
+            LOG.error("Thread Interrupted while sleeping ", e);
         }
     }
 
@@ -89,9 +89,9 @@ public class HttpPipeliningTestCase {
             Options.refresh();
             httpConnectorFactory.shutdown();
         } catch (IOException e) {
-            log.warn("IOException occurred while waiting for Unirest connection to shutdown", e);
+            LOG.warn("IOException occurred while waiting for Unirest connection to shutdown", e);
         } catch (InterruptedException e) {
-            log.warn("Interrupted while waiting for HttpWsFactory to shutdown", e);
+            LOG.warn("Interrupted while waiting for HttpWsFactory to shutdown", e);
         }
     }
 }

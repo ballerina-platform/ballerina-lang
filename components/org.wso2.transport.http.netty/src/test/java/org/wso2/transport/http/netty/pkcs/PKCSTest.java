@@ -51,7 +51,7 @@ import static org.wso2.transport.http.netty.common.Constants.HTTPS_SCHEME;
  */
 public class PKCSTest {
 
-    private static Logger log = LoggerFactory.getLogger(PKCSTest.class);
+    private static final Logger LOG = LoggerFactory.getLogger(PKCSTest.class);
 
     private static HttpClientConnector httpClientConnector;
     private String password = "ballerina";
@@ -125,7 +125,7 @@ public class PKCSTest {
         try {
             httpConnectorFactory.shutdown();
         } catch (InterruptedException e) {
-            log.warn("Interrupted while waiting for HttpWsFactory to close");
+            LOG.warn("Interrupted while waiting for HttpWsFactory to close");
         }
     }
 }

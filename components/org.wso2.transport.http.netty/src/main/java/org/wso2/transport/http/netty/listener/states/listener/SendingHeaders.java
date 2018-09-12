@@ -51,7 +51,7 @@ import static org.wso2.transport.http.netty.listener.states.StateUtil.notifyIfHe
  */
 public class SendingHeaders implements ListenerState {
 
-    private static Logger log = LoggerFactory.getLogger(SendingHeaders.class);
+    private static final Logger LOG = LoggerFactory.getLogger(SendingHeaders.class);
     private final HttpOutboundRespListener outboundResponseListener;
     boolean keepAlive;
     private final MessageStateContext messageStateContext;
@@ -67,31 +67,31 @@ public class SendingHeaders implements ListenerState {
 
     @Override
     public void readInboundRequestHeaders(HttpCarbonMessage inboundRequestMsg, HttpRequest inboundRequestHeaders) {
-        log.warn("readInboundRequestHeaders {}", ILLEGAL_STATE_ERROR);
+        LOG.warn("readInboundRequestHeaders {}", ILLEGAL_STATE_ERROR);
     }
 
     @Override
     public void readInboundRequestBody(Object inboundRequestEntityBody) throws ServerConnectorException {
-        log.warn("readInboundRequestBody {}", ILLEGAL_STATE_ERROR);
+        LOG.warn("readInboundRequestBody {}", ILLEGAL_STATE_ERROR);
     }
 
     @Override
     public void writeOutboundResponseBody(HttpOutboundRespListener outboundResponseListener,
                                           HttpCarbonMessage outboundResponseMsg, HttpContent httpContent) {
-        log.warn("writeOutboundResponseBody {}", ILLEGAL_STATE_ERROR);
+        LOG.warn("writeOutboundResponseBody {}", ILLEGAL_STATE_ERROR);
     }
 
     @Override
     public void handleAbruptChannelClosure(ServerConnectorFuture serverConnectorFuture) {
         // OutboundResponseStatusFuture will be notified asynchronously via OutboundResponseListener.
-        log.error(REMOTE_CLIENT_CLOSED_WHILE_WRITING_OUTBOUND_RESPONSE_HEADERS);
+        LOG.error(REMOTE_CLIENT_CLOSED_WHILE_WRITING_OUTBOUND_RESPONSE_HEADERS);
     }
 
     @Override
     public ChannelFuture handleIdleTimeoutConnectionClosure(ServerConnectorFuture serverConnectorFuture,
                                                             ChannelHandlerContext ctx) {
         // OutboundResponseStatusFuture will be notified asynchronously via OutboundResponseListener.
-        log.error(IDLE_TIMEOUT_TRIGGERED_WHILE_WRITING_OUTBOUND_RESPONSE_HEADERS);
+        LOG.error(IDLE_TIMEOUT_TRIGGERED_WHILE_WRITING_OUTBOUND_RESPONSE_HEADERS);
         return null;
     }
 
