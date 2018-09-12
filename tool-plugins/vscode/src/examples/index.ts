@@ -21,16 +21,12 @@ import * as path from 'path';
 import { render } from './renderer';
 import { ExtendedLangClient } from '../lang-client';
 import { getPluginConfig } from '../config';
-import { getWebViewResourceRoot } from '../utils';
 
 let examplesPanel: WebviewPanel | undefined;
 
 export function activate(context: ExtensionContext, langClient: ExtendedLangClient) {
-
-	const resourceRoot = getWebViewResourceRoot(context);
 	const examplesListRenderer = commands.registerCommand('ballerina.showExamples', () => {
 		if (examplesPanel) {
-			examplesPanel.reveal(ViewColumn.One, true);
 			return;
 		}
 		// Create and show a new webview
@@ -43,12 +39,13 @@ export function activate(context: ExtensionContext, langClient: ExtendedLangClie
 				retainContextWhenHidden: true,
 			}
 		);
-		render(langClient, resourceRoot)
+		render(context, langClient)
 			.then((html) => {
 				if (examplesPanel && html) {
 					examplesPanel.webview.html = html;
 				}
-			});
+            });
+        
 		// Handle messages from the webview
         examplesPanel.webview.onDidReceiveMessage(message => {
             switch (message.command) {
@@ -58,13 +55,13 @@ export function activate(context: ExtensionContext, langClient: ExtendedLangClie
                     if (ballerinaHome) {
                         const folderPath = path.join(ballerinaHome, 'docs', 'examples', url);
                         const filePath = path.join(folderPath, `${url.replace(/-/g, '_')}.bal`);
-                        workspace.updateWorkspaceFolders(
-                            workspace.workspaceFolders ? workspace.workspaceFolders.length : 0,
-                            null,
-                            { uri: Uri.file(folderPath) }
-                        );
                         workspace.openTextDocument(Uri.file(filePath)).then(doc => {
                             window.showTextDocument(doc);
+                            // workspace.updateWorkspaceFolders(
+                            //     workspace.workspaceFolders ? workspace.workspaceFolders.length : 0,
+                            //     null,
+                            //     { uri: Uri.file(folderPath) }
+                            // );
                          });            
                     }
                     break;

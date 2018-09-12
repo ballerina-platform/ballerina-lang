@@ -1,54 +1,32 @@
-import { ExtendedLangClient, BallerinaExampleCategory } from '../lang-client';
-import { Uri } from 'vscode';
+import { ExtendedLangClient } from '../lang-client';
+import { ExtensionContext } from 'vscode';
+import { getLibraryWebViewContent } from '../utils';
 
-export function render (langClient: ExtendedLangClient, resourceRoot: Uri)
-        : Thenable<string | undefined> {
+export function render(context: ExtensionContext, langClient: ExtendedLangClient)
+    : Thenable<string | undefined> {
     return langClient.fetchExamples()
-            .then((resp) => {
-              return Promise.resolve(renderExamples(resp.samples, resourceRoot));
-            });
-}
+        .then((resp) => {
+            const body = `<div style="overflow-y: scroll;" id="examples" />`;
+            const script = `
+                const vscode = acquireVsCodeApi();
+                const examples = ${JSON.stringify(resp.samples)};
+                function openExample(url) {
+                    vscode.postMessage({
+                        command: 'openExample',
+                        url: JSON.stringify(url)
+                    });
+                }
+                ballerinaDiagram.renderSamplesList(document.getElementById("examples"), examples, openExample, () => {});
+                `;
+            const styles = `
+                body.vscode-dark {
+                    background-color: #1e1e1e;
+                }
+                body.vscode-light {
+                    background-color: white;
+                }
+            `;
 
-function renderExamples(examples: Array<BallerinaExampleCategory>, resourceRoot: Uri): string {
-    const page = `
-    <!DOCTYPE html>
-    <html>
-    <head>
-        <meta charset="utf-8">
-        <meta http-equiv="X-UA-Compatible" content="IE=edge">
-        <meta name="viewport" content="width=device-width, initial-scale=1">
-        <link rel="stylesheet" href="${resourceRoot.toString()}/bundle.css" />
-        <link rel="stylesheet" href="${resourceRoot.toString()}/theme.css" />
-        <link rel="stylesheet" href="${resourceRoot.toString()}/less.css" />
-        <style>
-            body.vscode-dark {
-                background-color: #1e1e1e;
-            }
-            body.vscode-light {
-                background-color: white;
-            }
-        </style>
-    </head>
-    
-    <body style="overflow-y: scroll;">
-        <div id="examples" />
-    </body>
-    <script charset="UTF-8" src="${resourceRoot.toString()}/ballerina-diagram-library.js"></script>
-    <script>
-        (function() {
-            const vscode = acquireVsCodeApi();
-            const examples = ${JSON.stringify(examples)};
-            function openExample(url) {
-                vscode.postMessage({
-                    command: 'openExample',
-                    url: JSON.stringify(url)
-                });
-            }
-            ballerinaDiagram.renderSamplesList(document.getElementById("examples"), examples, openExample, () => {});
-        }());
-    </script>
-    </html>
-    `;
-
-    return page;
+            return Promise.resolve(getLibraryWebViewContent(context, body, script, styles));
+        });
 }
