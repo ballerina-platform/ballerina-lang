@@ -17,8 +17,9 @@ public type File object {
 
 #
 # + anUnion - value of param1
-# + anInt - value of param1
-function insert (string | int | float anUnion, int anInt = 1) {
+# + anInt - value of param2
+# + rest - value of rest param
+function insert (string | int | float anUnion, int anInt = 1, string... rest) {
 
 }
 

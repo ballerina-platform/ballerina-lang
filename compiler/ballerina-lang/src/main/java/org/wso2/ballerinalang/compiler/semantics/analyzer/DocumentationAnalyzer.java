@@ -110,7 +110,8 @@ public class DocumentationAnalyzer extends BLangNodeVisitor {
     @Override
     public void visit(BLangFunction funcNode) {
         validateParameters(funcNode, funcNode.getParameters(), funcNode.getDefaultableParameters(),
-                DiagnosticCode.UNDOCUMENTED_PARAMETER, DiagnosticCode.NO_SUCH_DOCUMENTABLE_PARAMETER,
+                funcNode.restParam, DiagnosticCode.UNDOCUMENTED_PARAMETER,
+                DiagnosticCode.NO_SUCH_DOCUMENTABLE_PARAMETER,
                 DiagnosticCode.PARAMETER_ALREADY_DOCUMENTED);
 
         boolean hasReturn = true;
@@ -137,14 +138,14 @@ public class DocumentationAnalyzer extends BLangNodeVisitor {
         BLangType typeNode = typeDefinition.getTypeNode();
         if (typeDefinition.typeNode.getKind() == NodeKind.OBJECT_TYPE) {
             List<? extends VariableNode> fields = ((BLangObjectTypeNode) typeNode).getFields();
-            validateParameters(typeDefinition, fields, new LinkedList<>(), DiagnosticCode.UNDOCUMENTED_FIELD,
+            validateParameters(typeDefinition, fields, new LinkedList<>(), null, DiagnosticCode.UNDOCUMENTED_FIELD,
                     DiagnosticCode.NO_SUCH_DOCUMENTABLE_FIELD, DiagnosticCode.FIELD_ALREADY_DOCUMENTED);
             validateReturnParameter(typeDefinition, null, false);
 
             ((BLangObjectTypeNode) typeDefinition.getTypeNode()).getFunctions().forEach(this::analyzeNode);
         } else if (typeDefinition.typeNode.getKind() == NodeKind.RECORD_TYPE) {
             List<? extends VariableNode> fields = ((BLangRecordTypeNode) typeNode).getFields();
-            validateParameters(typeDefinition, fields, new LinkedList<>(), DiagnosticCode.UNDOCUMENTED_FIELD,
+            validateParameters(typeDefinition, fields, new LinkedList<>(), null, DiagnosticCode.UNDOCUMENTED_FIELD,
                     DiagnosticCode.NO_SUCH_DOCUMENTABLE_FIELD, DiagnosticCode.FIELD_ALREADY_DOCUMENTED);
             validateReturnParameter(typeDefinition, null, false);
         }
@@ -153,14 +154,15 @@ public class DocumentationAnalyzer extends BLangNodeVisitor {
     @Override
     public void visit(BLangResource resourceNode) {
         validateParameters(resourceNode, resourceNode.getParameters(), resourceNode.getDefaultableParameters(),
-                DiagnosticCode.UNDOCUMENTED_PARAMETER, DiagnosticCode.NO_SUCH_DOCUMENTABLE_PARAMETER,
+                resourceNode.restParam, DiagnosticCode.UNDOCUMENTED_PARAMETER,
+                DiagnosticCode.NO_SUCH_DOCUMENTABLE_PARAMETER,
                 DiagnosticCode.PARAMETER_ALREADY_DOCUMENTED);
 
         validateReturnParameter(resourceNode, null, false);
     }
 
     private void validateParameters(DocumentableNode documentableNode, List<? extends VariableNode> actualParameters,
-                                    List<? extends BLangVariableDef> defaultableParameters,
+                                    List<? extends BLangVariableDef> defaultableParameters, BLangVariable restParam,
                                     DiagnosticCode undocumentedParameter, DiagnosticCode noSuchParameter,
                                     DiagnosticCode parameterAlreadyDefined) {
         BLangMarkdownDocumentation documentation = documentableNode.getMarkdownDocumentationAttachment();
@@ -209,6 +211,20 @@ public class DocumentationAnalyzer extends BLangNodeVisitor {
                 dlog.warning(parameter.pos, undocumentedParameter, name);
             }
         });
+
+        // Check rest parameter.
+        if (restParam != null) {
+            String name = restParam.getName().value;
+            BLangMarkdownParameterDocumentation param = documentedParameterMap.get(name);
+            if (param != null) {
+                // Set the symbol in the documentation node.
+                param.setSymbol(restParam.symbol);
+                documentedParameterMap.remove(name);
+            } else {
+                // Add warnings for undocumented parameters.
+                dlog.warning(restParam.pos, undocumentedParameter, name);
+            }
+        }
 
         // Add warnings for the entries left in the map.
         documentedParameterMap.forEach((name, node) -> dlog.warning(node.pos, noSuchParameter, name));

@@ -180,11 +180,19 @@ public class MarkdownDocumentationTest {
         Assert.assertNotNull(documentationAttachment);
 
         parameters = documentationAttachment.getParameters();
-        Assert.assertEquals(parameters.size(), 2);
+        Assert.assertEquals(parameters.size(), 3);
 
         Assert.assertEquals(parameters.get(0).getSymbol().getType().tag, TypeTags.UNION);
         Assert.assertEquals(parameters.get(0).getSymbol().getType().toString(), "string|int|float");
         Assert.assertEquals(parameters.get(0).getParameterDocumentation(), "value of param1");
+
+        Assert.assertEquals(parameters.get(1).getSymbol().getType().tag, TypeTags.INT);
+        Assert.assertEquals(parameters.get(1).getSymbol().getType().toString(), "int");
+        Assert.assertEquals(parameters.get(1).getParameterDocumentation(), "value of param2");
+
+        Assert.assertEquals(parameters.get(2).getSymbol().getType().tag, TypeTags.ARRAY);
+        Assert.assertEquals(parameters.get(2).getSymbol().getType().toString(), "string[]");
+        Assert.assertEquals(parameters.get(2).getParameterDocumentation(), "value of rest param");
 
         // Test union return.
         documentationAttachment = packageNode.getFunctions().get(2).getMarkdownDocumentationAttachment();
