@@ -31,7 +31,7 @@ import java.util.concurrent.CountDownLatch;
  */
 public class DefaultHttpConnectorListener implements HttpConnectorListener {
 
-    private static final Logger log = LoggerFactory.getLogger(ServerRespCompressionTestCase.class);
+    private static final Logger LOG = LoggerFactory.getLogger(ServerRespCompressionTestCase.class);
 
     private HttpCarbonMessage httpMessage;
     private Throwable throwable;

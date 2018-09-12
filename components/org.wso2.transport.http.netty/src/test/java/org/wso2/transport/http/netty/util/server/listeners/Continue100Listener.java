@@ -39,7 +39,7 @@ import java.util.concurrent.Executors;
 
 public class Continue100Listener implements HttpConnectorListener {
 
-    private static final Logger logger = LoggerFactory.getLogger(Continue100Listener.class);
+    private static final Logger LOG = LoggerFactory.getLogger(Continue100Listener.class);
     private ExecutorService executor = Executors.newSingleThreadExecutor();
 
     @Override
@@ -76,7 +76,7 @@ public class Continue100Listener implements HttpConnectorListener {
                 httpResponse.addHttpContent(new DefaultLastHttpContent());
                 httpRequest.respond(httpResponse);
             } catch (ServerConnectorException e) {
-                logger.error("Error occurred during message notification: " + e.getMessage());
+                LOG.error("Error occurred during message notification: " + e.getMessage());
             }
         });
     }

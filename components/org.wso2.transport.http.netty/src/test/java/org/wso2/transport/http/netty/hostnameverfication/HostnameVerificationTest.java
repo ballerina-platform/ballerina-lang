@@ -55,7 +55,7 @@ import static org.wso2.transport.http.netty.common.Constants.HTTPS_SCHEME;
  */
 public class HostnameVerificationTest {
 
-    private static final Logger log = LoggerFactory.getLogger(HostnameVerificationTest.class);
+    private static final Logger LOG = LoggerFactory.getLogger(HostnameVerificationTest.class);
 
     private HttpClientConnector httpClientConnector;
     private ServerConnector serverConnector;
@@ -166,7 +166,7 @@ public class HostnameVerificationTest {
         try {
             factory.shutdown();
         } catch (InterruptedException e) {
-            log.error("Interrupted while waiting for HttpWsFactory to shutdown", e);
+            LOG.error("Interrupted while waiting for HttpWsFactory to shutdown", e);
         }
     }
 }

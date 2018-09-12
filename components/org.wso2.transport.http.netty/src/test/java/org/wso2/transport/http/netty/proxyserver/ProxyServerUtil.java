@@ -57,7 +57,7 @@ public class ProxyServerUtil {
     private static HttpClientConnector httpClientConnector;
     private static ServerConnector serverConnector;
     private static HttpWsConnectorFactory httpWsConnectorFactory;
-    private static Logger log = LoggerFactory.getLogger(ProxyServerUtil.class);
+    private static final Logger LOG = LoggerFactory.getLogger(ProxyServerUtil.class);
     private static SenderConfiguration senderConfiguration;
 
     protected static void sendRequest(HttpCarbonMessage msg, String testValue) {
@@ -113,12 +113,12 @@ public class ProxyServerUtil {
         try {
             httpWsConnectorFactory.shutdown();
         } catch (InterruptedException e) {
-            log.warn("Interrupted while waiting for HttpWsFactory to close");
+            LOG.warn("Interrupted while waiting for HttpWsFactory to close");
         }
     }
 
     private static void setSenderConfigs(Set<SenderConfiguration> senderConfig,
-            ProxyServerConfiguration finalProxyServerConfiguration, String scheme) {
+                                         ProxyServerConfiguration finalProxyServerConfiguration, String scheme) {
         senderConfig.forEach(config -> {
             if (scheme.equals(HTTPS_SCHEME)) {
                 config.setTrustStoreFile(TestUtil.getAbsolutePath(TestUtil.KEY_STORE_FILE_PATH));

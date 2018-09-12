@@ -53,7 +53,7 @@ import static org.testng.Assert.assertEquals;
  */
 public class PipelineProxyTestCase {
 
-    private static Logger log = LoggerFactory.getLogger(PipelineProxyTestCase.class);
+    private static final Logger LOG = LoggerFactory.getLogger(PipelineProxyTestCase.class);
 
     private HttpServer httpServer;
     private ServerConnector serverConnector;
@@ -75,7 +75,7 @@ public class PipelineProxyTestCase {
         try {
             serverConnectorFuture.sync();
         } catch (InterruptedException e) {
-            log.warn("Interrupted while waiting for server connector to start");
+            LOG.warn("Interrupted while waiting for server connector to start");
         }
     }
 
@@ -100,7 +100,7 @@ public class PipelineProxyTestCase {
         try {
             httpConnectorFactory.shutdown();
         } catch (InterruptedException e) {
-            log.warn("Interrupted while waiting for HttpWsFactory to close");
+            LOG.warn("Interrupted while waiting for HttpWsFactory to close");
         }
         TestUtil.cleanUp(new LinkedList<>(), httpServer);
     }

@@ -75,7 +75,7 @@ import static org.testng.AssertJUnit.fail;
  */
 public class TestUtil {
 
-    private static final Logger log = LoggerFactory.getLogger(TestUtil.class);
+    private static final Logger LOG = LoggerFactory.getLogger(TestUtil.class);
 
     public static final int HTTP_SERVER_PORT = 9000;
     public static final int HTTPS_SERVER_PORT = 9004;
@@ -107,7 +107,7 @@ public class TestUtil {
             serverThread.start();
             latch.await();
         } catch (InterruptedException e) {
-            log.error("Thread Interrupted while sleeping ", e);
+            LOG.error("Thread Interrupted while sleeping ", e);
         }
         return httpServer;
     }
@@ -120,7 +120,7 @@ public class TestUtil {
             serverThread.start();
             latch.await();
         } catch (Exception e) {
-            log.error("Thread Interrupted while sleeping ", e);
+            LOG.error("Thread Interrupted while sleeping ", e);
         }
         return httpServer;
     }
@@ -173,7 +173,7 @@ public class TestUtil {
     }
 
     public static void handleException(String msg, Exception ex) {
-        log.error(msg, ex);
+        LOG.error(msg, ex);
         fail(msg);
     }
 
@@ -193,7 +193,7 @@ public class TestUtil {
                         "Error while loading " + configFileLocation + " configuration file", e);
             }
         } else { // return a default config
-            log.warn("Netty transport configuration file not found in: " + configFileLocation +
+            LOG.warn("Netty transport configuration file not found in: " + configFileLocation +
                              " ,hence using default configuration");
             transportsConfiguration = TransportsConfiguration.getDefault();
         }
@@ -247,7 +247,7 @@ public class TestUtil {
     public static void cleanUp(List<ServerConnector> serverConnectors, HttpServer httpServer) {
         for (ServerConnector httpServerConnector : serverConnectors) {
             if (!httpServerConnector.stop()) {
-                log.warn("Couldn't stop server connectors successfully");
+                LOG.warn("Couldn't stop server connectors successfully");
             }
         }
 
@@ -255,7 +255,7 @@ public class TestUtil {
             httpConnectorFactory.shutdown();
             httpServer.shutdown();
         } catch (InterruptedException e) {
-            log.error("Thread Interrupted while sleeping ", e);
+            LOG.error("Thread Interrupted while sleeping ", e);
         }
     }
 
@@ -263,7 +263,7 @@ public class TestUtil {
             HttpWsConnectorFactory factory) {
         for (ServerConnector httpServerConnector : serverConnectors) {
             if (!httpServerConnector.stop()) {
-                log.warn("Couldn't stop server connectors successfully");
+                LOG.warn("Couldn't stop server connectors successfully");
             }
         }
 
@@ -271,7 +271,7 @@ public class TestUtil {
             factory.shutdown();
             httpServer.shutdown();
         } catch (InterruptedException e) {
-            log.error("Thread Interrupted while sleeping ", e);
+            LOG.error("Thread Interrupted while sleeping ", e);
         }
     }
 
@@ -291,7 +291,7 @@ public class TestUtil {
             }
             result = bos.toString();
         } catch (IOException ioe) {
-            log.error("Couldn't read the complete input stream");
+            LOG.error("Couldn't read the complete input stream");
             return "";
         }
         return result;

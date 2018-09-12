@@ -51,7 +51,7 @@ import static org.testng.AssertJUnit.assertEquals;
  */
 public class RequestResponseCreationTestCase {
 
-    private static final Logger log = LoggerFactory.getLogger(RequestResponseCreationTestCase.class);
+    private static final Logger LOG = LoggerFactory.getLogger(RequestResponseCreationTestCase.class);
 
     private ServerConnector serverConnector;
     private HttpServer httpServer;
@@ -71,7 +71,7 @@ public class RequestResponseCreationTestCase {
         try {
             serverConnectorFuture.sync();
         } catch (InterruptedException e) {
-            log.error("Thread Interrupted while sleeping ", e);
+            LOG.error("Thread Interrupted while sleeping ", e);
         }
         httpServer = TestUtil.startHTTPServer(TestUtil.HTTP_SERVER_PORT, new EchoServerInitializer());
     }
@@ -101,9 +101,9 @@ public class RequestResponseCreationTestCase {
 
             httpConnectorFactory.shutdown();
         }  catch (IOException e) {
-            log.warn("IOException occurred while waiting for Unirest connection to shutdown", e);
+            LOG.warn("IOException occurred while waiting for Unirest connection to shutdown", e);
         } catch (InterruptedException e) {
-            log.warn("Interrupted while waiting for HttpWsFactory to shutdown", e);
+            LOG.warn("Interrupted while waiting for HttpWsFactory to shutdown", e);
         }
     }
 }

@@ -69,7 +69,7 @@ import static org.wso2.transport.http.netty.common.Constants.TRACE_LOG_DOWNSTREA
  */
 public class HttpServerChannelInitializer extends ChannelInitializer<SocketChannel> {
 
-    private static final Logger log = LoggerFactory.getLogger(HttpServerChannelInitializer.class);
+    private static final Logger LOG = LoggerFactory.getLogger(HttpServerChannelInitializer.class);
 
     private long socketIdleTimeout;
     private boolean httpTraceLogEnabled;
@@ -93,8 +93,8 @@ public class HttpServerChannelInitializer extends ChannelInitializer<SocketChann
 
     @Override
     public void initChannel(SocketChannel ch) throws Exception {
-        if (log.isDebugEnabled()) {
-            log.debug("Initializing source channel pipeline");
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("Initializing source channel pipeline");
         }
         ChannelPipeline serverPipeline = ch.pipeline();
 

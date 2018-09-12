@@ -27,7 +27,7 @@ import org.wso2.transport.http.netty.sender.channel.TargetChannel;
  */
 public class PoolableTargetChannelFactoryPerSrcHndlr implements PoolableObjectFactory {
 
-    private static final Logger log = LoggerFactory.getLogger(PoolableTargetChannelFactoryPerSrcHndlr.class);
+    private static final Logger LOG = LoggerFactory.getLogger(PoolableTargetChannelFactoryPerSrcHndlr.class);
 
     private final GenericObjectPool genericObjectPool;
 
@@ -38,20 +38,20 @@ public class PoolableTargetChannelFactoryPerSrcHndlr implements PoolableObjectFa
     @Override
     public Object makeObject() throws Exception {
         TargetChannel targetChannel = (TargetChannel) this.genericObjectPool.borrowObject();
-        log.debug("Created channel: {}", targetChannel);
+        LOG.debug("Created channel: {}", targetChannel);
         return targetChannel;
     }
 
     @Override
     public void destroyObject(Object o) throws Exception {
         if (((TargetChannel) o).getChannel().isActive()) {
-            if (log.isDebugEnabled()) {
-                log.debug("Original Channel {} is returned to the pool. ", ((TargetChannel) o).getChannel().id());
+            if (LOG.isDebugEnabled()) {
+                LOG.debug("Original Channel {} is returned to the pool. ", ((TargetChannel) o).getChannel().id());
             }
             this.genericObjectPool.returnObject(o);
         } else {
-            if (log.isDebugEnabled()) {
-                log.debug("Original Channel is destroyed. ");
+            if (LOG.isDebugEnabled()) {
+                LOG.debug("Original Channel is destroyed. ");
             }
             this.genericObjectPool.invalidateObject(o);
         }
@@ -61,7 +61,7 @@ public class PoolableTargetChannelFactoryPerSrcHndlr implements PoolableObjectFa
     public boolean validateObject(Object o) {
         if (((TargetChannel) o).getChannel() != null) {
             boolean answer = ((TargetChannel) o).getChannel().isActive();
-            log.debug("Validating channel: {} -> {}", o, answer);
+            LOG.debug("Validating channel: {} -> {}", o, answer);
             return answer;
         }
         return true;

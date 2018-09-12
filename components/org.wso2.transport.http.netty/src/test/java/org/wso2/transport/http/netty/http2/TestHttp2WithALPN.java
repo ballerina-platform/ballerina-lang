@@ -55,7 +55,7 @@ import static org.wso2.transport.http.netty.common.Constants.HTTP_2_0;
  */
 public class TestHttp2WithALPN {
 
-    private static final Logger log = LoggerFactory.getLogger(TestHttp2WithALPN.class);
+    private static final Logger LOG = LoggerFactory.getLogger(TestHttp2WithALPN.class);
     private ServerConnector serverConnector;
     private HttpClientConnector httpClientConnector;
     private HttpWsConnectorFactory connectorFactory;
@@ -124,7 +124,7 @@ public class TestHttp2WithALPN {
         try {
             connectorFactory.shutdown();
         } catch (InterruptedException e) {
-            log.error("Interrupted while waiting for HttpWsFactory to shutdown", e);
+            LOG.error("Interrupted while waiting for HttpWsFactory to shutdown", e);
         }
     }
 }

@@ -39,7 +39,7 @@ import java.util.concurrent.Executors;
  * A Message processor which echos the incoming message
  */
 public class EchoStreamingMessageListener implements HttpConnectorListener {
-    private static final Logger logger = LoggerFactory.getLogger(EchoStreamingMessageListener.class);
+    private static final Logger LOG = LoggerFactory.getLogger(EchoStreamingMessageListener.class);
 
     private ExecutorService executor = Executors.newSingleThreadExecutor();
 
@@ -59,7 +59,7 @@ public class EchoStreamingMessageListener implements HttpConnectorListener {
                 httpMessageDataStreamer.getOutputStream().write(inboundPayload.getBytes());
                 httpMessageDataStreamer.getOutputStream().close();
             } catch (Exception e) {
-                logger.error("Error occurred during message notification: " + e.getMessage());
+                LOG.error("Error occurred during message notification: " + e.getMessage());
             }
         });
     }

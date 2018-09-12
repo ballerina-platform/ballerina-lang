@@ -58,7 +58,7 @@ import static org.wso2.transport.http.netty.common.Constants.PROMISED_STREAM_REJ
  */
 public class Http2OutboundRespListener implements HttpConnectorListener {
 
-    private static final Logger log = LoggerFactory.getLogger(Http2OutboundRespListener.class);
+    private static final Logger LOG = LoggerFactory.getLogger(Http2OutboundRespListener.class);
     private static final InternalLogger accessLogger = InternalLoggerFactory.getInstance(Constants.ACCESS_LOG);
 
     private HttpCarbonMessage inboundRequestMsg;
@@ -97,7 +97,7 @@ public class Http2OutboundRespListener implements HttpConnectorListener {
 
     @Override
     public void onError(Throwable throwable) {
-        log.error("Couldn't send the outbound response", throwable);
+        LOG.error("Couldn't send the outbound response", throwable);
     }
 
     @Override
@@ -122,7 +122,7 @@ public class Http2OutboundRespListener implements HttpConnectorListener {
                 Util.checkForResponseWriteStatus(inboundRequestMsg, outboundRespStatusFuture, channelFuture);
             } catch (Exception ex) {
                 String errorMsg = "Failed to send push promise : " + ex.getMessage().toLowerCase(Locale.ENGLISH);
-                log.error(errorMsg, ex);
+                LOG.error(errorMsg, ex);
                 inboundRequestMsg.getHttpOutboundRespStatusFuture().notifyHttpListener(ex);
             }
         });
@@ -147,7 +147,7 @@ public class Http2OutboundRespListener implements HttpConnectorListener {
                     } catch (Http2Exception ex) {
                         String errorMsg = "Failed to send the outbound response : " +
                                           ex.getMessage().toLowerCase(Locale.ENGLISH);
-                        log.error(errorMsg, ex);
+                        LOG.error(errorMsg, ex);
                         inboundRequestMsg.getHttpOutboundRespStatusFuture().notifyHttpListener(ex);
                     }
                 })));
@@ -229,7 +229,7 @@ public class Http2OutboundRespListener implements HttpConnectorListener {
             }
 
             if (originalStreamId != streamId) { // Skip access logs for server push messages
-                log.debug("Access logging skipped for server push response");
+                LOG.debug("Access logging skipped for server push response");
                 return;
             }
 

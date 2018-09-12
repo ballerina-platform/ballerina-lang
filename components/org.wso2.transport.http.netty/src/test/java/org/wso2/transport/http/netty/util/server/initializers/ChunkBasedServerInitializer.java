@@ -46,7 +46,7 @@ import static io.netty.handler.codec.http.HttpVersion.HTTP_1_1;
  */
 public class ChunkBasedServerInitializer extends HttpServerInitializer {
 
-    private static final Logger logger = LoggerFactory.getLogger(ChunkBasedServerInitializer.class);
+    private static final Logger LOG = LoggerFactory.getLogger(ChunkBasedServerInitializer.class);
 
     private String stringContent;
     private String contentType;
@@ -91,12 +91,12 @@ public class ChunkBasedServerInitializer extends HttpServerInitializer {
                     }
                     if (!keepAlive) {
                         ctx.writeAndFlush(response).addListener(ChannelFutureListener.CLOSE);
-                        logger.debug("Writing response with data to client-connector");
-                        logger.debug("Closing the client-connector connection");
+                        LOG.debug("Writing response with data to client-connector");
+                        LOG.debug("Closing the client-connector connection");
                     } else {
                         response.headers().set(CONNECTION, HttpHeaderValues.KEEP_ALIVE);
                         ctx.writeAndFlush(response);
-                        logger.debug("Writing response with data to client-connector");
+                        LOG.debug("Writing response with data to client-connector");
                     }
                 }
             }

@@ -38,7 +38,7 @@ import static org.wso2.transport.http.netty.common.Constants.HTTP_SCHEME;
  */
 public class PoolableTargetChannelFactory implements PoolableObjectFactory {
 
-    private static final Logger log = LoggerFactory.getLogger(PoolableTargetChannelFactory.class);
+    private static final Logger LOG = LoggerFactory.getLogger(PoolableTargetChannelFactory.class);
 
     private EventLoopGroup eventLoopGroup;
     private Class eventLoopClass;
@@ -88,7 +88,7 @@ public class PoolableTargetChannelFactory implements PoolableObjectFactory {
                 new TargetChannel(httpClientChannelInitializer, channelFuture, httpRoute, connectionAvailabilityFuture);
         httpClientChannelInitializer.setHttp2ClientChannel(targetChannel.getHttp2ClientChannel());
 
-        log.debug("Created channel: {}", httpRoute);
+        LOG.debug("Created channel: {}", httpRoute);
 
         return targetChannel;
     }
@@ -96,8 +96,8 @@ public class PoolableTargetChannelFactory implements PoolableObjectFactory {
     @Override
     public void destroyObject(Object o) throws Exception {
         TargetChannel targetChannel = (TargetChannel) o;
-        if (log.isDebugEnabled()) {
-            log.debug("Destroying channel: {}", targetChannel.getChannel().id());
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("Destroying channel: {}", targetChannel.getChannel().id());
         }
         if (targetChannel.getChannel().isOpen()) {
             targetChannel.getChannel().close();
@@ -109,7 +109,7 @@ public class PoolableTargetChannelFactory implements PoolableObjectFactory {
         TargetChannel targetChannel = (TargetChannel) o;
         if (targetChannel.getChannel() != null) {
             boolean answer = targetChannel.getChannel().isActive();
-            log.debug("Validating channel: {} -> {}", targetChannel.getChannel().id(), answer);
+            LOG.debug("Validating channel: {} -> {}", targetChannel.getChannel().id(), answer);
             return answer;
         }
         return true;
@@ -143,9 +143,9 @@ public class PoolableTargetChannelFactory implements PoolableObjectFactory {
             ConnectionAvailabilityFuture connectionAvailabilityFuture) {
         HttpClientChannelInitializer httpClientChannelInitializer = new HttpClientChannelInitializer(
                 senderConfiguration, httpRoute, connectionManager, connectionAvailabilityFuture);
-        if (log.isDebugEnabled()) {
-            log.debug("Created new TCP client bootstrap connecting to {}:{} with options: {}", httpRoute.getHost(),
-                    httpRoute.getPort(), clientBootstrap);
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("Created new TCP client bootstrap connecting to {}:{} with options: {}", httpRoute.getHost(),
+                      httpRoute.getPort(), clientBootstrap);
         }
         return httpClientChannelInitializer;
     }

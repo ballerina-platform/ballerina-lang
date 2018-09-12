@@ -63,7 +63,7 @@ import static org.wso2.transport.http.netty.common.Constants.HTTP_SCHEME;
  */
 public class DefaultHttpClientConnector implements HttpClientConnector {
 
-    private static final Logger log = LoggerFactory.getLogger(HttpClientConnector.class);
+    private static final Logger LOG = LoggerFactory.getLogger(HttpClientConnector.class);
 
     private ConnectionManager connectionManager;
     private Http2ConnectionManager http2ConnectionManager;
@@ -141,8 +141,8 @@ public class DefaultHttpClientConnector implements HttpClientConnector {
         final HttpResponseFuture httpResponseFuture;
 
         SourceHandler srcHandler = (SourceHandler) httpOutboundRequest.getProperty(Constants.SRC_HANDLER);
-        if (srcHandler == null && log.isDebugEnabled()) {
-            log.debug(Constants.SRC_HANDLER + " property not found in the message."
+        if (srcHandler == null && LOG.isDebugEnabled()) {
+            LOG.debug(Constants.SRC_HANDLER + " property not found in the message."
                               + " Message is not originated from the HTTP Server connector");
         }
 
@@ -177,9 +177,9 @@ public class DefaultHttpClientConnector implements HttpClientConnector {
             targetChannel.getConnenctionReadyFuture().setListener(new ConnectionAvailabilityListener() {
                 @Override
                 public void onSuccess(String protocol, ChannelFuture channelFuture) {
-                    if (log.isDebugEnabled()) {
-                        log.debug("Created the connection to address: {}",
-                                route.toString() + " " + "Original Channel ID is : " + channelFuture.channel().id());
+                    if (LOG.isDebugEnabled()) {
+                        LOG.debug("Created the connection to address: {}",
+                                  route.toString() + " " + "Original Channel ID is : " + channelFuture.channel().id());
                     }
                     if (srcHandler != null) {
                         channelFuture.channel().deregister().addListener(future ->
@@ -272,7 +272,7 @@ public class DefaultHttpClientConnector implements HttpClientConnector {
         } else {
             port = sslConfig != null ? Constants.DEFAULT_HTTPS_PORT : Constants.DEFAULT_HTTP_PORT;
             httpCarbonMessage.setProperty(Constants.HTTP_PORT, port);
-            log.debug("Cannot find property PORT of type integer, hence using {}", port);
+            LOG.debug("Cannot find property PORT of type integer, hence using {}", port);
         }
         return port;
     }
@@ -285,7 +285,7 @@ public class DefaultHttpClientConnector implements HttpClientConnector {
         } else {
             host = Constants.LOCALHOST;
             httpCarbonMessage.setProperty(Constants.HTTP_HOST, Constants.LOCALHOST);
-            log.debug("Cannot find property HOST of type string, hence using localhost as the host");
+            LOG.debug("Cannot find property HOST of type string, hence using localhost as the host");
         }
         return host;
     }

@@ -36,7 +36,7 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public class ConnectionManager {
 
-    private static final Logger log = LoggerFactory.getLogger(ConnectionManager.class);
+    private static final Logger LOG = LoggerFactory.getLogger(ConnectionManager.class);
 
     private EventLoopGroup clientEventGroup;
     private PoolConfiguration poolConfiguration;
@@ -147,12 +147,12 @@ public class ConnectionManager {
         try {
             String channelID = targetChannel.getChannel().id().asShortText();
             if (targetChannel.getChannel().isActive() && pool != null) {
-                if (log.isDebugEnabled()) {
-                    log.debug("Returning connection {} to the pool", channelID);
+                if (LOG.isDebugEnabled()) {
+                    LOG.debug("Returning connection {} to the pool", channelID);
                 }
                 pool.returnObject(targetChannel);
             } else {
-                log.debug("Channel {} is inactive hence not returning to connection pool", channelID);
+                LOG.debug("Channel {} is inactive hence not returning to connection pool", channelID);
             }
         } catch (Exception e) {
             throw new Exception("Couldn't return channel to pool", e);
@@ -166,9 +166,9 @@ public class ConnectionManager {
                 // Need a null check because SourceHandler side could timeout before TargetHandler side.
                 String httpRoute = targetChannel.getHttpRoute().toString();
                 if (objectPoolMap.get(httpRoute) != null) {
-                    if (log.isDebugEnabled()) {
-                        log.debug("Invalidating connection {} to the pool",
-                                targetChannel.getChannel().id().asShortText());
+                    if (LOG.isDebugEnabled()) {
+                        LOG.debug("Invalidating connection {} to the pool",
+                                  targetChannel.getChannel().id().asShortText());
                     }
                     objectPoolMap.get(httpRoute).invalidateObject(targetChannel);
                 }
@@ -197,8 +197,8 @@ public class ConnectionManager {
         config.whenExhaustedAction = poolConfiguration.getExhaustedAction();
         config.maxWait = poolConfiguration.getMaxWaitTime();
 
-        if (log.isDebugEnabled()) {
-            log.debug("Creating a pool with {}", config);
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("Creating a pool with {}", config);
         }
         return config;
     }

@@ -56,7 +56,7 @@ import static java.util.concurrent.TimeUnit.SECONDS;
  */
 public class WebSocketClientFunctionalityTestCase {
 
-    private static final Logger log = LoggerFactory.getLogger(WebSocketClientFunctionalityTestCase.class);
+    private static final Logger LOG = LoggerFactory.getLogger(WebSocketClientFunctionalityTestCase.class);
 
     private DefaultHttpWsConnectorFactory httpConnectorFactory = new DefaultHttpWsConnectorFactory();
     private WebSocketClientConnector clientConnector;
@@ -311,7 +311,7 @@ public class WebSocketClientFunctionalityTestCase {
 
             @Override
             public void onError(Throwable t, HttpCarbonResponse response) {
-                log.error(t.getMessage());
+                LOG.error(t.getMessage());
                 Assert.fail(t.getMessage());
             }
         });

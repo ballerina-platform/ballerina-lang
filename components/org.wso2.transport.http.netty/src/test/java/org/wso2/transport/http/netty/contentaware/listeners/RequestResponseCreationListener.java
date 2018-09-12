@@ -46,7 +46,7 @@ import java.util.concurrent.Executors;
  * A Message Processor which creates Request and Response
  */
 public class RequestResponseCreationListener implements HttpConnectorListener {
-    private Logger logger = LoggerFactory.getLogger(RequestResponseCreationListener.class);
+    private static final Logger LOG = LoggerFactory.getLogger(RequestResponseCreationListener.class);
 
     private String responseValue;
     private ExecutorService executor = Executors.newSingleThreadExecutor();
@@ -91,7 +91,7 @@ public class RequestResponseCreationListener implements HttpConnectorListener {
                             try {
                                 responseByteValues = responseStringValue.getBytes("UTF-8");
                             } catch (UnsupportedEncodingException e) {
-                                logger.error("Failed to get the byte array from responseValue", e);
+                                LOG.error("Failed to get the byte array from responseValue", e);
                             }
 
                             ByteBuffer responseValueByteBuffer = ByteBuffer.wrap(responseByteValues);
@@ -108,7 +108,7 @@ public class RequestResponseCreationListener implements HttpConnectorListener {
                             try {
                                 httpRequest.respond(httpCarbonMessage);
                             } catch (ServerConnectorException e) {
-                                logger.error("Error occurred during message notification: " + e.getMessage());
+                                LOG.error("Error occurred during message notification: " + e.getMessage());
                             }
                         });
                     }
@@ -119,9 +119,9 @@ public class RequestResponseCreationListener implements HttpConnectorListener {
                     }
                 });
             } catch (UnsupportedEncodingException e) {
-                logger.error("Encoding is not supported", e);
+                LOG.error("Encoding is not supported", e);
             } catch (Exception e) {
-                logger.error("Failed to send the message to the back-end", e);
+                LOG.error("Failed to send the message to the back-end", e);
             }
         });
 

@@ -41,7 +41,7 @@ import java.util.concurrent.CountDownLatch;
  */
 public class WebSocketTestServerConnectorListener implements WebSocketConnectorListener {
 
-    private static final Logger log = LoggerFactory.getLogger(WebSocketTestServerConnectorListener.class);
+    private static final Logger LOG = LoggerFactory.getLogger(WebSocketTestServerConnectorListener.class);
 
     private static final String PING = "ping";
     private static final String CLOSE_FORCEFULLY = "close-forcefully";
@@ -85,7 +85,7 @@ public class WebSocketTestServerConnectorListener implements WebSocketConnectorL
 
             @Override
             public void onError(Throwable throwable) {
-                log.error(throwable.getMessage());
+                LOG.error(throwable.getMessage());
                 Assert.fail("Error: " + throwable.getMessage());
             }
         });
@@ -95,7 +95,7 @@ public class WebSocketTestServerConnectorListener implements WebSocketConnectorL
     public void onMessage(WebSocketTextMessage textMessage) {
         WebSocketConnection webSocketConnection = textMessage.getWebSocketConnection();
         String receivedTextToClient = textMessage.getText();
-        log.debug("text: " + receivedTextToClient);
+        LOG.debug("text: " + receivedTextToClient);
         switch (receivedTextToClient) {
             case PING:
                 webSocketConnection.ping(ByteBuffer.wrap(new byte[]{1, 2, 3, 4, 5}));
@@ -117,7 +117,7 @@ public class WebSocketTestServerConnectorListener implements WebSocketConnectorL
     public void onMessage(WebSocketBinaryMessage binaryMessage) {
         WebSocketConnection webSocketConnection = binaryMessage.getWebSocketConnection();
         ByteBuffer receivedByteBufferToClient = binaryMessage.getByteBuffer();
-        log.debug("ByteBuffer: " + receivedByteBufferToClient);
+        LOG.debug("ByteBuffer: " + receivedByteBufferToClient);
         webSocketConnection.pushBinary(receivedByteBufferToClient);
     }
 
@@ -136,7 +136,7 @@ public class WebSocketTestServerConnectorListener implements WebSocketConnectorL
 
     @Override
     public void onMessage(WebSocketCloseMessage closeMessage) {
-        log.info("Close frame received: " + closeMessage.getCloseCode() + " , " + closeMessage.getCloseReason());
+        LOG.info("Close frame received: " + closeMessage.getCloseCode() + " , " + closeMessage.getCloseReason());
         closeMessage.getWebSocketConnection().finishConnectionClosure(closeMessage.getCloseCode(),
                 closeMessage.getCloseReason());
     }
@@ -152,7 +152,7 @@ public class WebSocketTestServerConnectorListener implements WebSocketConnectorL
         ChannelFuture channelFuture = webSocketConnection.initiateConnectionClosure(1001, "Connection timeout");
         channelFuture.addListener(future -> {
             if (!future.isSuccess()) {
-                log.error("Error occurred while closing the connection: " + future.cause().getMessage());
+                LOG.error("Error occurred while closing the connection: " + future.cause().getMessage());
             }
             if (channelFuture.channel().isOpen()) {
                 channelFuture.channel().close();
@@ -161,7 +161,7 @@ public class WebSocketTestServerConnectorListener implements WebSocketConnectorL
     }
 
     private void handleError(Throwable throwable) {
-        log.error(throwable.getMessage());
+        LOG.error(throwable.getMessage());
         currentError = throwable;
         countDownMethodDoneLatch();
     }
@@ -174,9 +174,9 @@ public class WebSocketTestServerConnectorListener implements WebSocketConnectorL
         closeFuture.addListener(future -> {
             Throwable cause = future.cause();
             if (!future.isSuccess() && cause != null) {
-                log.error("Error occurred when closing the connection" + cause.getMessage());
+                LOG.error("Error occurred when closing the connection" + cause.getMessage());
             } else {
-                log.info("Closing handshake successful");
+                LOG.info("Closing handshake successful");
             }
             if (closeFuture.channel().isOpen()) {
                 closeFuture.channel().close().sync();

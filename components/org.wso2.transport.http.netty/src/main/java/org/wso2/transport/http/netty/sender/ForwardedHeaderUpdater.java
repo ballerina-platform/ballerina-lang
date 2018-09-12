@@ -31,7 +31,7 @@ import java.util.Locale;
  */
 public class ForwardedHeaderUpdater {
 
-    private static Logger log = LoggerFactory.getLogger(ForwardedHeaderUpdater.class);
+    private static final Logger LOG = LoggerFactory.getLogger(ForwardedHeaderUpdater.class);
     private static final String FOR = "for=";
     private static final String BY = "by=";
     private static final String HOST = "host=";
@@ -147,7 +147,7 @@ public class ForwardedHeaderUpdater {
     public void transformAndSetForwardedHeader() {
         if (xForwardedForHeader != null && xForwardedByHeader != null) {
             //Transition is not done, as it's not possible to know in which order the existing fields were added.
-            log.info("Header transition is not done as both X-Forwarded-For and X-Forwarded-By headers are present.");
+            LOG.info("Header transition is not done as both X-Forwarded-For and X-Forwarded-By headers are present.");
             return;
         }
         StringBuilder headerValue = new StringBuilder();

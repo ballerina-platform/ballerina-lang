@@ -43,7 +43,7 @@ import java.util.concurrent.Executors;
  * @since 6.0.228
  */
 public class HttpPipeliningListener implements HttpConnectorListener {
-    private static final Logger log = LoggerFactory.getLogger(HttpPipeliningListener.class);
+    private static final Logger LOG = LoggerFactory.getLogger(HttpPipeliningListener.class);
 
     private ExecutorService executor = Executors.newSingleThreadExecutor();
 
@@ -71,13 +71,13 @@ public class HttpPipeliningListener implements HttpConnectorListener {
 
                 httpRequest.respond(httpResponse);
             } catch (ServerConnectorException e) {
-                log.error("Error occurred during message notification: " + e.getMessage());
+                LOG.error("Error occurred during message notification: " + e.getMessage());
             }
         });
     }
 
     @Override
     public void onError(Throwable throwable) {
-        log.error("Error occurred in HttpPipeliningListener ", throwable);
+        LOG.error("Error occurred in HttpPipeliningListener ", throwable);
     }
 }

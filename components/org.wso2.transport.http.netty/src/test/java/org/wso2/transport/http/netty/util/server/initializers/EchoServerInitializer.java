@@ -48,7 +48,7 @@ import static io.netty.handler.codec.http.HttpVersion.HTTP_1_1;
  */
 public class EchoServerInitializer extends HttpServerInitializer {
 
-    private static final Logger logger = LoggerFactory.getLogger(EchoServerInitializer.class);
+    private static final Logger LOG = LoggerFactory.getLogger(EchoServerInitializer.class);
 
     protected void addBusinessLogicHandler(Channel channel) {
         channel.pipeline().addLast("handler", new EchoServerHandler());
@@ -94,16 +94,16 @@ public class EchoServerInitializer extends HttpServerInitializer {
 
                     if (!keepAlive) {
                         ctx.close();
-                        logger.debug("Closing the client connection");
+                        LOG.debug("Closing the client connection");
                     }
                     resetState();
                 } else {
                     if (chunked) {
                         ctx.writeAndFlush(msg);
-                        logger.debug("Writing content to client connection");
+                        LOG.debug("Writing content to client connection");
                     } else {
                         collectContent((HttpContent) msg);
-                        logger.debug("Collecting content from client connection");
+                        LOG.debug("Collecting content from client connection");
                     }
                 }
             }
@@ -157,7 +157,7 @@ public class EchoServerInitializer extends HttpServerInitializer {
             boolean keepAlive = HttpUtil.isKeepAlive(req);
             if (keepAlive) {
                 httpResponse.headers().set(CONNECTION, HttpHeaderValues.KEEP_ALIVE);
-                logger.debug("Setting connection keep-alive header");
+                LOG.debug("Setting connection keep-alive header");
             }
         }
 

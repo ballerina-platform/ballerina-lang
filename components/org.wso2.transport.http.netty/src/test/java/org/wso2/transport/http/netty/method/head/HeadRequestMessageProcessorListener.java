@@ -39,7 +39,7 @@ import java.util.concurrent.Executors;
  */
 public class HeadRequestMessageProcessorListener implements HttpConnectorListener {
 
-    private static final Logger log = LoggerFactory.getLogger(HeadRequestMessageProcessorListener.class);
+    private static final Logger LOG = LoggerFactory.getLogger(HeadRequestMessageProcessorListener.class);
 
     private ExecutorService executor = Executors.newSingleThreadExecutor();
 
@@ -52,19 +52,19 @@ public class HeadRequestMessageProcessorListener implements HttpConnectorListene
                 HttpMessageDataStreamer httpMessageDataStreamer = new HttpMessageDataStreamer(httpResponse);
                 httpRequest.respond(httpResponse);
                 if (Boolean.valueOf(httpRequest.getHeader("x-large-payload"))) {
-                    log.info("Request for large payload");
+                    LOG.info("Request for large payload");
                     httpMessageDataStreamer.getOutputStream().write(TestUtil.largeEntity.getBytes());
                 } else {
                     httpMessageDataStreamer.getOutputStream().write(TestUtil.smallEntity.getBytes());
                 }
                 httpMessageDataStreamer.getOutputStream().close();
             } catch (Exception e) {
-                log.error("Error occurred during message notification: " + e.getMessage());
+                LOG.error("Error occurred during message notification: " + e.getMessage());
             }
         });
     }
 
     @Override public void onError(Throwable throwable) {
-        log.error("Error while receiving the request", throwable);
+        LOG.error("Error while receiving the request", throwable);
     }
 }

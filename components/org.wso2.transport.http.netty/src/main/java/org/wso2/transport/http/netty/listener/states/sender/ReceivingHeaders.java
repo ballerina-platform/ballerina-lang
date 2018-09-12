@@ -42,7 +42,7 @@ import static org.wso2.transport.http.netty.listener.states.StateUtil.handleInco
  */
 public class ReceivingHeaders implements SenderState {
 
-    private static Logger log = LoggerFactory.getLogger(ReceivingHeaders.class);
+    private static final Logger LOG = LoggerFactory.getLogger(ReceivingHeaders.class);
     private final MessageStateContext messageStateContext;
     private TargetHandler targetHandler;
 
@@ -52,12 +52,12 @@ public class ReceivingHeaders implements SenderState {
 
     @Override
     public void writeOutboundRequestHeaders(HttpCarbonMessage httpOutboundRequest, HttpContent httpContent) {
-        log.warn("writeOutboundRequestHeaders {}", ILLEGAL_STATE_ERROR);
+        LOG.warn("writeOutboundRequestHeaders {}", ILLEGAL_STATE_ERROR);
     }
 
     @Override
     public void writeOutboundRequestEntity(HttpCarbonMessage httpOutboundRequest, HttpContent httpContent) {
-        log.warn("writeOutboundRequestEntity {}", ILLEGAL_STATE_ERROR);
+        LOG.warn("writeOutboundRequestEntity {}", ILLEGAL_STATE_ERROR);
     }
 
     @Override
@@ -72,11 +72,11 @@ public class ReceivingHeaders implements SenderState {
         if (targetHandler.getHttpResponseFuture() != null) {
             targetHandler.getHttpResponseFuture().notifyHttpListener(targetHandler.getInboundResponseMsg());
         } else {
-            log.error("Cannot notify the response to client as there is no associated responseFuture");
+            LOG.error("Cannot notify the response to client as there is no associated responseFuture");
         }
 
         if (httpInboundResponse.decoderResult().isFailure()) {
-            log.warn(httpInboundResponse.decoderResult().cause().getMessage());
+            LOG.warn(httpInboundResponse.decoderResult().cause().getMessage());
         }
     }
 

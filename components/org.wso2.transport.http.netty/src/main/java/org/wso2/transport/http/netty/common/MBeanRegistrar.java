@@ -38,7 +38,7 @@ import javax.management.ObjectName;
 public class MBeanRegistrar {
 
     private static final MBeanRegistrar ourInstance = new MBeanRegistrar();
-    private static final Logger log = LoggerFactory.getLogger(MBeanRegistrar.class);
+    private static final Logger LOG = LoggerFactory.getLogger(MBeanRegistrar.class);
 
     public static MBeanRegistrar getInstance() {
         return ourInstance;
@@ -64,7 +64,7 @@ public class MBeanRegistrar {
             return true;
         } catch (MalformedObjectNameException | NotCompliantMBeanException | MBeanRegistrationException
                 | InstanceNotFoundException | InstanceAlreadyExistsException e) {
-            log.warn("Error registering a MBean with name ' " + id + " ' and category name ' " + category
+            LOG.warn("Error registering a MBean with name ' " + id + " ' and category name ' " + category
                     + "' for JMX management", e);
             return false;
         }
@@ -86,7 +86,7 @@ public class MBeanRegistrar {
     }
 
     private static void handleException(String msg) {
-        log.error(msg);
+        LOG.error(msg);
     }
 }
 

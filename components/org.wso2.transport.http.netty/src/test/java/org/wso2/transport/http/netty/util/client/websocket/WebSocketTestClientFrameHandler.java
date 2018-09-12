@@ -45,7 +45,7 @@ import java.util.concurrent.CountDownLatch;
  */
 public class WebSocketTestClientFrameHandler extends SimpleChannelInboundHandler<Object> {
 
-    private static final Logger logger = LoggerFactory.getLogger(WebSocketTestClient.class);
+    private static final Logger LOG = LoggerFactory.getLogger(WebSocketTestClient.class);
 
     private final WebSocketClientHandshaker handshaker;
     private ChannelPromise handshakeFuture;
@@ -91,7 +91,7 @@ public class WebSocketTestClientFrameHandler extends SimpleChannelInboundHandler
 
     @Override
     public void channelInactive(ChannelHandlerContext ctx) throws InterruptedException {
-        logger.debug("WebSocket Client disconnected!");
+        LOG.debug("WebSocket Client disconnected!");
         countDownLatch();
     }
 
@@ -101,7 +101,7 @@ public class WebSocketTestClientFrameHandler extends SimpleChannelInboundHandler
         if (!handshaker.isHandshakeComplete()) {
             httpResponse = (FullHttpResponse) msg;
             handshaker.finishHandshake(channel, httpResponse);
-            logger.debug("WebSocket Client connected!");
+            LOG.debug("WebSocket Client connected!");
             handshakeFuture.setSuccess();
             return;
         }
@@ -116,24 +116,24 @@ public class WebSocketTestClientFrameHandler extends SimpleChannelInboundHandler
         WebSocketFrame frame = (WebSocketFrame) msg;
         if (frame instanceof TextWebSocketFrame) {
             TextWebSocketFrame textFrame = (TextWebSocketFrame) frame;
-            logger.debug("WebSocket Client received text message: " + textFrame.text());
+            LOG.debug("WebSocket Client received text message: " + textFrame.text());
             textReceived = textFrame.text();
         } else if (frame instanceof BinaryWebSocketFrame) {
             BinaryWebSocketFrame binaryFrame = (BinaryWebSocketFrame) frame;
             bufferReceived = binaryFrame.content().nioBuffer();
-            logger.debug("WebSocket Client received  binary message: " + bufferReceived.toString());
+            LOG.debug("WebSocket Client received  binary message: " + bufferReceived.toString());
         } else if (frame instanceof PingWebSocketFrame) {
-            logger.debug("WebSocket Client received pong");
+            LOG.debug("WebSocket Client received pong");
             PingWebSocketFrame pingFrame = (PingWebSocketFrame) frame;
             isPingReceived = true;
             bufferReceived = pingFrame.content().nioBuffer();
         } else if (frame instanceof PongWebSocketFrame) {
-            logger.debug("WebSocket Client received pong");
+            LOG.debug("WebSocket Client received pong");
             PongWebSocketFrame pongFrame = (PongWebSocketFrame) frame;
             isPongReceived = true;
             bufferReceived = pongFrame.content().nioBuffer();
         } else if (frame instanceof CloseWebSocketFrame) {
-            logger.debug("WebSocket Client received closing");
+            LOG.debug("WebSocket Client received closing");
             receivedCloseFrame = (CloseWebSocketFrame) frame.retain();
         }
         countDownLatch();
@@ -193,7 +193,7 @@ public class WebSocketTestClientFrameHandler extends SimpleChannelInboundHandler
         if (!handshakeFuture.isDone()) {
             handshakeFuture.setFailure(cause);
         }
-        logger.error("Exception caught: ", cause);
+        LOG.error("Exception caught: ", cause);
         ctx.close();
     }
 

@@ -33,7 +33,7 @@ import org.wso2.transport.http.netty.contract.websocket.WebSocketTextMessage;
  */
 public class WebSocketPassThroughClientConnectorListener implements WebSocketConnectorListener {
 
-    private static final Logger log = LoggerFactory.getLogger(WebSocketPassThroughClientConnectorListener.class);
+    private static final Logger LOG = LoggerFactory.getLogger(WebSocketPassThroughClientConnectorListener.class);
 
     @Override
     public void onHandshake(WebSocketHandshaker webSocketHandshaker) {

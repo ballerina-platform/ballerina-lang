@@ -34,7 +34,7 @@ import javax.net.ssl.SSLException;
  */
 public class CertificateValidationHandler extends ChannelInboundHandlerAdapter {
 
-    private static final Logger log = LoggerFactory.getLogger(CertificateValidationHandler.class);
+    private static final Logger LOG = LoggerFactory.getLogger(CertificateValidationHandler.class);
     private SSLEngine sslEngine;
     private RevocationVerificationManager revocationVerifier;
     private int cacheSize;
@@ -74,7 +74,7 @@ public class CertificateValidationHandler extends ChannelInboundHandlerAdapter {
      */
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
-        log.error("Exception occurred in CertificateValidationHandler.", cause);
+        LOG.error("Exception occurred in CertificateValidationHandler.", cause);
         ctx.fireExceptionCaught(cause);
     }
 }

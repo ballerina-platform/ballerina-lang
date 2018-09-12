@@ -39,7 +39,7 @@ import java.util.concurrent.CountDownLatch;
  */
 public class WebSocketTestClientConnectorListener implements WebSocketConnectorListener {
 
-    private static final Logger log = LoggerFactory.getLogger(WebSocketTestClientConnectorListener.class);
+    private static final Logger LOG = LoggerFactory.getLogger(WebSocketTestClientConnectorListener.class);
 
     private final Queue<WebSocketTextMessage> textQueue = new LinkedList<>();
     private final Queue<WebSocketBinaryMessage> binaryMessageQueue = new LinkedList<>();
@@ -115,7 +115,7 @@ public class WebSocketTestClientConnectorListener implements WebSocketConnectorL
     @Override
     public void onError(WebSocketConnection webSocketConnection, Throwable throwable) {
         errorsQueue.add(throwable);
-        log.error("Error handler received: " + throwable.getMessage());
+        LOG.error("Error handler received: " + throwable.getMessage());
         for (int i = 0; i < latch.getCount(); i++) {
             countDownLatch();
         }

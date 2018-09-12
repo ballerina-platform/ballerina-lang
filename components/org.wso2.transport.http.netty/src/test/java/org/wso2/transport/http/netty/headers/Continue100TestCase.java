@@ -49,7 +49,7 @@ import java.util.List;
 
 public class Continue100TestCase {
 
-    private static final Logger log = LoggerFactory.getLogger(Continue100TestCase.class);
+    private static final Logger LOG = LoggerFactory.getLogger(Continue100TestCase.class);
 
     private ServerConnector serverConnector;
     private HttpWsConnectorFactory httpWsConnectorFactory;
@@ -101,7 +101,7 @@ public class Continue100TestCase {
         try {
             httpWsConnectorFactory.shutdown();
         } catch (InterruptedException e) {
-            log.error("Interrupted while waiting for HttpWsFactory to shutdown", e);
+            LOG.error("Interrupted while waiting for HttpWsFactory to shutdown", e);
         }
     }
 }

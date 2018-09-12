@@ -50,7 +50,7 @@ import java.util.concurrent.TimeUnit;
  */
 public class TargetChannel {
 
-    private static final Logger log = LoggerFactory.getLogger(TargetChannel.class);
+    private static final Logger LOG = LoggerFactory.getLogger(TargetChannel.class);
 
     private Channel channel;
     private TargetHandler targetHandler;
@@ -202,7 +202,7 @@ public class TargetChannel {
                     } catch (Exception exception) {
                         String errorMsg = "Failed to send the request : "
                                 + exception.getMessage().toLowerCase(Locale.ENGLISH);
-                        log.error(errorMsg, exception);
+                        LOG.error(errorMsg, exception);
                         this.targetHandler.getHttpResponseFuture().notifyHttpListener(exception);
                     }
                 })));
@@ -235,7 +235,7 @@ public class TargetChannel {
             headerUpdater.transformAndSetForwardedHeader();
             return;
         }
-        log.warn("Both Forwarded and X-Forwarded-- headers are present. Hence updating only the forwarded header");
+        LOG.warn("Both Forwarded and X-Forwarded-- headers are present. Hence updating only the forwarded header");
         headerUpdater.setForwardedHeader();
     }
 

@@ -54,7 +54,7 @@ import static org.testng.AssertJUnit.assertNotNull;
  */
 public class ConnectionPoolProxyTestCase {
 
-    private static Logger logger = LoggerFactory.getLogger(ConnectionPoolProxyTestCase.class);
+    private static final Logger LOG = LoggerFactory.getLogger(ConnectionPoolProxyTestCase.class);
 
     private Future<String> requestTwoResponse;
     private ExecutorService executor = Executors.newFixedThreadPool(2);
@@ -79,7 +79,7 @@ public class ConnectionPoolProxyTestCase {
         try {
             serverConnectorFuture.sync();
         } catch (InterruptedException e) {
-            logger.warn("Interrupted while waiting for server connector to start");
+            LOG.warn("Interrupted while waiting for server connector to start");
         }
     }
 
@@ -118,7 +118,7 @@ public class ConnectionPoolProxyTestCase {
             httpServer.shutdown();
             httpWsConnectorFactory.shutdown();
         } catch (Exception e) {
-            logger.warn("Interrupted while waiting for response two", e);
+            LOG.warn("Interrupted while waiting for response two", e);
         }
     }
 
@@ -135,7 +135,7 @@ public class ConnectionPoolProxyTestCase {
                 urlConn.getOutputStream().write(TestUtil.smallEntity.getBytes());
                 response = TestUtil.getContent(urlConn);
             } catch (IOException e) {
-                logger.error("Couldn't get the response", e);
+                LOG.error("Couldn't get the response", e);
             }
 
             return response;

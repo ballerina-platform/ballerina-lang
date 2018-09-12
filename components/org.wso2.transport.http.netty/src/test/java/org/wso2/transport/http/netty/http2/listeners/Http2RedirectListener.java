@@ -38,7 +38,7 @@ import java.util.concurrent.Executors;
  */
 public class Http2RedirectListener implements HttpConnectorListener {
 
-    private static final Logger logger = LoggerFactory.getLogger(Http2RedirectListener.class);
+    private static final Logger LOG = LoggerFactory.getLogger(Http2RedirectListener.class);
 
     private ExecutorService executor = Executors.newSingleThreadExecutor();
 
@@ -82,11 +82,11 @@ public class Http2RedirectListener implements HttpConnectorListener {
                     Throwable error = responseFuture.getStatus().getCause();
                     if (error != null) {
                         responseFuture.resetStatus();
-                        logger.error("Error occurred while sending the response " + error.getMessage());
+                        LOG.error("Error occurred while sending the response " + error.getMessage());
                     }
                 }
             } catch (Exception e) {
-                logger.error("Error occurred while processing message: " + e.getMessage());
+                LOG.error("Error occurred while processing message: " + e.getMessage());
             }
         });
     }

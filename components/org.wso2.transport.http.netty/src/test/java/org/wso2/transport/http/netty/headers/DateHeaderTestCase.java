@@ -53,7 +53,7 @@ import static io.netty.handler.codec.http.HttpHeaders.Names.CONNECTION;
  */
 public class DateHeaderTestCase {
 
-    private static final Logger log = LoggerFactory.getLogger(DateHeaderTestCase.class);
+    private static final Logger LOG = LoggerFactory.getLogger(DateHeaderTestCase.class);
 
     private ServerConnector serverConnector;
     private HttpWsConnectorFactory httpWsConnectorFactory;
@@ -95,9 +95,9 @@ public class DateHeaderTestCase {
             Options.refresh();
             httpWsConnectorFactory.shutdown();
         } catch (InterruptedException e) {
-            log.warn("Interrupted while waiting for HttpWsFactory to shutdown", e);
+            LOG.warn("Interrupted while waiting for HttpWsFactory to shutdown", e);
         } catch (IOException e) {
-            log.warn("IOException occurred while waiting for Unirest connection to shutdown", e);
+            LOG.warn("IOException occurred while waiting for Unirest connection to shutdown", e);
         }
     }
 }

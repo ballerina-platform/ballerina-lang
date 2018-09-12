@@ -60,7 +60,7 @@ import static org.wso2.transport.http.netty.listener.states.StateUtil.ILLEGAL_ST
  */
 public class SendingEntityBody implements ListenerState {
 
-    private static Logger log = LoggerFactory.getLogger(SendingEntityBody.class);
+    private static final Logger LOG = LoggerFactory.getLogger(SendingEntityBody.class);
     private final HandlerExecutor handlerExecutor;
     private final HttpResponseFuture outboundRespStatusFuture;
     private final MessageStateContext messageStateContext;
@@ -82,17 +82,17 @@ public class SendingEntityBody implements ListenerState {
 
     @Override
     public void readInboundRequestHeaders(HttpCarbonMessage inboundRequestMsg, HttpRequest inboundRequestHeaders) {
-        log.warn("readInboundRequestHeaders {}", ILLEGAL_STATE_ERROR);
+        LOG.warn("readInboundRequestHeaders {}", ILLEGAL_STATE_ERROR);
     }
 
     @Override
     public void readInboundRequestBody(Object inboundRequestEntityBody) throws ServerConnectorException {
-        log.warn("readInboundRequestBody {}", ILLEGAL_STATE_ERROR);
+        LOG.warn("readInboundRequestBody {}", ILLEGAL_STATE_ERROR);
     }
 
     @Override
     public void writeOutboundResponseHeaders(HttpCarbonMessage outboundResponseMsg, HttpContent httpContent) {
-        log.warn("writeOutboundResponseHeaders {}", ILLEGAL_STATE_ERROR);
+        LOG.warn("writeOutboundResponseHeaders {}", ILLEGAL_STATE_ERROR);
     }
 
     @Override
@@ -140,14 +140,14 @@ public class SendingEntityBody implements ListenerState {
     @Override
     public void handleAbruptChannelClosure(ServerConnectorFuture serverConnectorFuture) {
         // OutboundResponseStatusFuture will be notified asynchronously via OutboundResponseListener.
-        log.error(REMOTE_CLIENT_CLOSED_WHILE_WRITING_OUTBOUND_RESPONSE_BODY);
+        LOG.error(REMOTE_CLIENT_CLOSED_WHILE_WRITING_OUTBOUND_RESPONSE_BODY);
     }
 
     @Override
     public ChannelFuture handleIdleTimeoutConnectionClosure(ServerConnectorFuture serverConnectorFuture,
                                                             ChannelHandlerContext ctx) {
         // OutboundResponseStatusFuture will be notified asynchronously via OutboundResponseListener.
-        log.error(IDLE_TIMEOUT_TRIGGERED_WHILE_WRITING_OUTBOUND_RESPONSE_BODY);
+        LOG.error(IDLE_TIMEOUT_TRIGGERED_WHILE_WRITING_OUTBOUND_RESPONSE_BODY);
         return null;
     }
 
@@ -230,14 +230,14 @@ public class SendingEntityBody implements ListenerState {
                 //next sequence number should be updated.
                 nextSequenceNumber++;
                 sourceContext.channel().attr(Constants.NEXT_SEQUENCE_NUMBER).set(nextSequenceNumber);
-                if (log.isDebugEnabled()) {
-                    log.debug("Current sequence id of the response : {}", outboundResponseMsg.getSequenceId());
-                    log.debug("Updated next sequence id to : {}", nextSequenceNumber);
+                if (LOG.isDebugEnabled()) {
+                    LOG.debug("Current sequence id of the response : {}", outboundResponseMsg.getSequenceId());
+                    LOG.debug("Updated next sequence id to : {}", nextSequenceNumber);
                 }
             }
             if (!responseQueue.isEmpty()) {
-                if (log.isDebugEnabled()) {
-                    log.debug("Pipelining logic is triggered from transport");
+                if (LOG.isDebugEnabled()) {
+                    LOG.debug("Pipelining logic is triggered from transport");
                 }
                 //Notify ballerina to send the response which is next in queue. This is needed because,
                 //if the other responses got ready before the nextSequenceNumber gets updated then the

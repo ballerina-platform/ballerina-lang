@@ -41,7 +41,7 @@ public class CacheManager {
     private int cacheMaxSize;
     private int delay;
     private CacheManagingTask cacheManagingTask;
-    private static final Logger log = LoggerFactory.getLogger(CacheManager.class);
+    private static final Logger LOG = LoggerFactory.getLogger(CacheManager.class);
 
     /**
      * A new cacheManager will be started on the given ManageableCache object.
@@ -68,8 +68,8 @@ public class CacheManager {
     private boolean start() {
         if (scheduledFuture == null || scheduledFuture.isCancelled()) {
             scheduledFuture = scheduler.scheduleWithFixedDelay(cacheManagingTask, delay, delay, TimeUnit.MINUTES);
-            if (log.isDebugEnabled()) {
-                log.debug("{} Cache Manager Started.", cache.getClass().getSimpleName());
+            if (LOG.isDebugEnabled()) {
+                LOG.debug("{} Cache Manager Started.", cache.getClass().getSimpleName());
             }
             return true;
         }
@@ -88,8 +88,8 @@ public class CacheManager {
                 scheduledFuture.cancel(DO_NOT_INTERRUPT_IF_RUNNING);
             }
             scheduledFuture = scheduler.scheduleWithFixedDelay(cacheManagingTask, 0, delay, TimeUnit.MINUTES);
-            if (log.isDebugEnabled()) {
-                log.debug("{} Cache Manager woke up.", cache.getClass().getSimpleName());
+            if (LOG.isDebugEnabled()) {
+                LOG.debug("{} Cache Manager woke up.", cache.getClass().getSimpleName());
             }
             return true;
         }
@@ -118,8 +118,8 @@ public class CacheManager {
     public boolean stop() {
         if (scheduledFuture != null && !scheduledFuture.isCancelled()) {
             scheduledFuture.cancel(DO_NOT_INTERRUPT_IF_RUNNING);
-            if (log.isDebugEnabled()) {
-                log.debug("{} Cache Manager stopped.", cache.getClass().getSimpleName());
+            if (LOG.isDebugEnabled()) {
+                LOG.debug("{} Cache Manager stopped.", cache.getClass().getSimpleName());
             }
             return true;
         }
@@ -139,8 +139,8 @@ public class CacheManager {
         public void run() {
 
             long start = System.currentTimeMillis();
-            if (log.isDebugEnabled()) {
-                log.debug("{} Cache Manager Task Started.", cache.getClass().getSimpleName());
+            if (LOG.isDebugEnabled()) {
+                LOG.debug("{} Cache Manager Task Started.", cache.getClass().getSimpleName());
             }
 
             ManageableCacheValue nextCacheValue;
@@ -158,16 +158,16 @@ public class CacheManager {
 
                 nextCacheValue = cache.getNextCacheValue();
                 if (nextCacheValue == null) {
-                    if (log.isDebugEnabled()) {
-                        log.debug("Cache manager iteration through Cache values done");
+                    if (LOG.isDebugEnabled()) {
+                        LOG.debug("Cache manager iteration through Cache values done");
                     }
                     break;
                 }
 
                 //Updating invalid cache values.
                 if (!nextCacheValue.isValid()) {
-                    if (log.isDebugEnabled()) {
-                        log.debug("Updating Invalid Cache Value by Manager");
+                    if (LOG.isDebugEnabled()) {
+                        LOG.debug("Updating Invalid Cache Value by Manager");
                     }
                     nextCacheValue.updateCacheWithNewValue();
                 }
@@ -180,14 +180,14 @@ public class CacheManager {
 
             //LRU entries removing
             for (ManageableCacheValue oldCacheValue : entriesToRemove) {
-                if (log.isDebugEnabled()) {
-                    log.debug("Removing LRU value from cache");
+                if (LOG.isDebugEnabled()) {
+                    LOG.debug("Removing LRU value from cache");
                 }
                 oldCacheValue.removeThisCacheValue();
             }
 
-            if (log.isDebugEnabled()) {
-                log.debug(cache.getClass().getSimpleName() + " Cache Manager Task Done. Took " + (
+            if (LOG.isDebugEnabled()) {
+                LOG.debug(cache.getClass().getSimpleName() + " Cache Manager Task Done. Took " + (
                         System.currentTimeMillis() - start) + " ms.");
             }
         }

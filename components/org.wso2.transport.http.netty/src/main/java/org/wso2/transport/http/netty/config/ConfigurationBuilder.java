@@ -40,7 +40,7 @@ public class ConfigurationBuilder {
     /* Environment variable which holds the location of the location of the transport configuration file */
     private static final String NETTY_TRANSPORT_CONF = "transports.netty.conf";
 
-    private static final Logger log = LoggerFactory.getLogger(ConfigurationBuilder.class);
+    private static final Logger LOG = LoggerFactory.getLogger(ConfigurationBuilder.class);
 
     private static ConfigurationBuilder instance = new ConfigurationBuilder();
 
@@ -88,7 +88,7 @@ public class ConfigurationBuilder {
                         "Error while loading " + configFileLocation + " configuration file", e);
             }
         } else { // return a default config
-            log.warn("Netty transport configuration file not found in: {} ,hence using default configuration",
+            LOG.warn("Netty transport configuration file not found in: {} ,hence using default configuration",
                      configFileLocation);
             transportsConfiguration = new TransportsConfiguration();
         }

@@ -45,7 +45,7 @@ import static org.wso2.transport.http.netty.listener.states.StateUtil.sendReques
  */
 public class EntityBodyReceived implements ListenerState {
 
-    private static Logger log = LoggerFactory.getLogger(EntityBodyReceived.class);
+    private static final Logger LOG = LoggerFactory.getLogger(EntityBodyReceived.class);
     private final MessageStateContext messageStateContext;
     private final SourceHandler sourceHandler;
     private final float httpVersion;
@@ -58,17 +58,17 @@ public class EntityBodyReceived implements ListenerState {
 
     @Override
     public void readInboundRequestHeaders(HttpCarbonMessage inboundRequestMsg, HttpRequest inboundRequestHeaders) {
-        log.warn("readInboundRequestHeaders is not a dependant action of this state");
+        LOG.warn("readInboundRequestHeaders is not a dependant action of this state");
     }
 
     @Override
     public void readInboundRequestBody(Object inboundRequestEntityBody) throws ServerConnectorException {
-        log.warn("readInboundRequestBody is not a dependant action of this state");
+        LOG.warn("readInboundRequestBody is not a dependant action of this state");
     }
 
     @Override
     public void writeOutboundResponseHeaders(HttpCarbonMessage outboundResponseMsg, HttpContent httpContent) {
-        log.warn("writeOutboundResponseHeaders is not a dependant action of this state");
+        LOG.warn("writeOutboundResponseHeaders is not a dependant action of this state");
     }
 
     @Override
@@ -84,7 +84,7 @@ public class EntityBodyReceived implements ListenerState {
             serverConnectorFuture.notifyErrorListener(
                     new ServerConnectorException(REMOTE_CLIENT_CLOSED_BEFORE_INITIATING_OUTBOUND_RESPONSE));
         } catch (ServerConnectorException e) {
-            log.error(CONNECTOR_NOTIFYING_ERROR, e);
+            LOG.error(CONNECTOR_NOTIFYING_ERROR, e);
         }
     }
 
@@ -95,7 +95,7 @@ public class EntityBodyReceived implements ListenerState {
             serverConnectorFuture.notifyErrorListener(
                     new ServerConnectorException(IDLE_TIMEOUT_TRIGGERED_BEFORE_INITIATING_OUTBOUND_RESPONSE));
         } catch (ServerConnectorException e) {
-            log.error(CONNECTOR_NOTIFYING_ERROR, e);
+            LOG.error(CONNECTOR_NOTIFYING_ERROR, e);
         }
         String responseValue = "Server time out";
         ChannelFuture outboundRespFuture =
@@ -105,7 +105,7 @@ public class EntityBodyReceived implements ListenerState {
         outboundRespFuture.addListener((ChannelFutureListener) channelFuture -> {
             Throwable cause = channelFuture.cause();
             if (cause != null) {
-                log.warn("Failed to send: {}", cause.getMessage());
+                LOG.warn("Failed to send: {}", cause.getMessage());
             }
             sourceHandler.channelInactive(ctx);
         });

@@ -54,7 +54,7 @@ import java.util.List;
 public class CRLVerifier implements RevocationVerifier {
 
     private CRLCache cache;
-    private static final Logger log = LoggerFactory.getLogger(CRLVerifier.class);
+    private static final Logger LOG = LoggerFactory.getLogger(CRLVerifier.class);
 
     public CRLVerifier(CRLCache cache) {
         this.cache = cache;
@@ -74,16 +74,16 @@ public class CRLVerifier implements RevocationVerifier {
         List<String> list = getCrlDistributionPoints(peerCert);
         //check with distributions points in the list one by one. if one fails move to the other.
         for (String crlUrl : list) {
-            if (log.isInfoEnabled()) {
-                log.info("Trying to get CRL for URL: {}", crlUrl);
+            if (LOG.isInfoEnabled()) {
+                LOG.info("Trying to get CRL for URL: {}", crlUrl);
             }
 
             if (cache != null) {
                 X509CRL x509CRL = cache.getCacheValue(crlUrl);
                 if (x509CRL != null) {
                     RevocationStatus status = getRevocationStatus(x509CRL, peerCert);
-                    if (log.isInfoEnabled()) {
-                        log.info("CRL taken from cache.");
+                    if (LOG.isInfoEnabled()) {
+                        LOG.info("CRL taken from cache.");
                     }
                     return status;
                 }
@@ -97,8 +97,8 @@ public class CRLVerifier implements RevocationVerifier {
                     return getRevocationStatus(x509CRL, peerCert);
                 }
             } catch (IOException e) {
-                if (log.isInfoEnabled()) {
-                    log.info("Either URL is bad or can't build X509CRL. So check with the next url in the list.", e);
+                if (LOG.isInfoEnabled()) {
+                    LOG.info("Either URL is bad or can't build X509CRL. So check with the next url in the list.", e);
                 }
             }
         }
@@ -164,7 +164,7 @@ public class CRLVerifier implements RevocationVerifier {
             try {
                 asn1In.close();
             } catch (IOException e) {
-                log.error("Cannot close input stream", e);
+                LOG.error("Cannot close input stream", e);
             }
         }
 

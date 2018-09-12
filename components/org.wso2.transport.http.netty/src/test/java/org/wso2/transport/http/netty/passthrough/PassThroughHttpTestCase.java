@@ -51,7 +51,7 @@ import static org.testng.AssertJUnit.assertEquals;
  */
 public class PassThroughHttpTestCase {
 
-    private static final Logger logger = LoggerFactory.getLogger(PassThroughHttpTestCase.class);
+    private static final Logger LOG = LoggerFactory.getLogger(PassThroughHttpTestCase.class);
 
     private static final String testValue = "Test Message";
     private HttpServer httpServer;
@@ -74,7 +74,7 @@ public class PassThroughHttpTestCase {
         try {
             serverConnectorFuture.sync();
         } catch (InterruptedException e) {
-            logger.warn("Interrupted while waiting for server connector to start");
+            LOG.warn("Interrupted while waiting for server connector to start");
         }
 
         httpServer = TestUtil.startHTTPServer(TestUtil.HTTP_SERVER_PORT,
@@ -110,9 +110,9 @@ public class PassThroughHttpTestCase {
             httpServer.shutdown();
             httpWsConnectorFactory.shutdown();
         } catch (InterruptedException e) {
-            logger.warn("Interrupted while waiting for clean up");
+            LOG.warn("Interrupted while waiting for clean up");
         } catch (IOException e) {
-            logger.warn("IOException occurred while waiting for Unirest connection to shutdown", e);
+            LOG.warn("IOException occurred while waiting for Unirest connection to shutdown", e);
         }
     }
 }

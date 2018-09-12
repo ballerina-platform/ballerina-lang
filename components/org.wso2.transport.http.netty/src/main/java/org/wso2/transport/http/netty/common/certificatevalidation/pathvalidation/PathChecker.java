@@ -42,7 +42,7 @@ public class PathChecker extends PKIXCertPathChecker {
     private X509Certificate[] certChainArray;
     private RevocationVerifier verifier;
     private int position;
-    private static final Logger log = LoggerFactory.getLogger(PathChecker.class);
+    private static final Logger LOG = LoggerFactory.getLogger(PathChecker.class);
 
     protected PathChecker(X509Certificate[] certChainArray, RevocationVerifier verifier) {
         this.certChainArray = certChainArray;
@@ -86,8 +86,8 @@ public class PathChecker extends PKIXCertPathChecker {
         RevocationStatus status;
         try {
             status = verifier.checkRevocationStatus((X509Certificate) cert, nextIssuer());
-            if (log.isInfoEnabled()) {
-                log.info("Certificate status is: {}", status.getMessage());
+            if (LOG.isInfoEnabled()) {
+                LOG.info("Certificate status is: {}", status.getMessage());
         }
             if (status != RevocationStatus.GOOD) {
                 throw new CertPathValidatorException("Revocation Status is Not Good");

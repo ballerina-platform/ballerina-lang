@@ -50,7 +50,7 @@ import static org.testng.Assert.assertNotNull;
  */
 public class Http2WithPriorKnowledgeTestCase {
 
-    private static Logger log = LoggerFactory.getLogger(Http2WithPriorKnowledgeTestCase.class);
+    private static final Logger LOG = LoggerFactory.getLogger(Http2WithPriorKnowledgeTestCase.class);
 
     private HttpClientConnector httpClientConnector;
     private ServerConnector serverConnector;
@@ -97,7 +97,7 @@ public class Http2WithPriorKnowledgeTestCase {
         try {
             connectorFactory.shutdown();
         } catch (InterruptedException e) {
-            log.warn("Interrupted while waiting for HttpWsFactory to close");
+            LOG.warn("Interrupted while waiting for HttpWsFactory to close");
         }
     }
 }

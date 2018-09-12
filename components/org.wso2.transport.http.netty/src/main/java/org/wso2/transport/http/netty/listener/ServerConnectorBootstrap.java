@@ -48,7 +48,7 @@ import java.net.InetSocketAddress;
  */
 public class ServerConnectorBootstrap {
 
-    private static final Logger log = LoggerFactory.getLogger(ServerConnectorBootstrap.class);
+    private static final Logger LOG = LoggerFactory.getLogger(ServerConnectorBootstrap.class);
 
     private ServerBootstrap serverBootstrap;
     private HttpServerChannelInitializer httpServerChannelInitializer;
@@ -81,14 +81,14 @@ public class ServerConnectorBootstrap {
         serverBootstrap.childOption(ChannelOption.SO_RCVBUF, serverBootstrapConfiguration.getReceiveBufferSize());
         serverBootstrap.childOption(ChannelOption.SO_SNDBUF, serverBootstrapConfiguration.getSendBufferSize());
 
-        if (log.isDebugEnabled()) {
-            log.debug(String.format("Netty Server Socket BACKLOG %d", serverBootstrapConfiguration.getSoBackLog()));
-            log.debug(String.format("Netty Server Socket TCP_NODELAY %s", serverBootstrapConfiguration.isTcpNoDelay()));
-            log.debug(String.format("Netty Server Socket CONNECT_TIMEOUT_MILLIS %d",
+        if (LOG.isDebugEnabled()) {
+            LOG.debug(String.format("Netty Server Socket BACKLOG %d", serverBootstrapConfiguration.getSoBackLog()));
+            LOG.debug(String.format("Netty Server Socket TCP_NODELAY %s", serverBootstrapConfiguration.isTcpNoDelay()));
+            LOG.debug(String.format("Netty Server Socket CONNECT_TIMEOUT_MILLIS %d",
                                     serverBootstrapConfiguration.getConnectTimeOut()));
-            log.debug(String.format("Netty Server Socket SO_RCVBUF %d",
+            LOG.debug(String.format("Netty Server Socket SO_RCVBUF %d",
                                     serverBootstrapConfiguration.getReceiveBufferSize()));
-            log.debug(String.format("Netty Server Socket SO_SNDBUF %d",
+            LOG.debug(String.format("Netty Server Socket SO_SNDBUF %d",
                                     serverBootstrapConfiguration.getSendBufferSize()));
         }
     }
