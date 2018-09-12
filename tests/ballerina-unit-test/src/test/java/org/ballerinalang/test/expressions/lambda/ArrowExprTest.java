@@ -121,6 +121,13 @@ public class ArrowExprTest {
     }
 
     @Test
+    public void testClosure() {
+        BValue[] returns = BRunUtil.invoke(basic, "testClosure");
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertEquals(((BInteger) returns[0]).intValue(), 35);
+    }
+
+    @Test
     public void testNegativeArrowExpr() {
         int i = 0;
         Assert.assertEquals(resultNegative.getErrorCount(), 9);

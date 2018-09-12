@@ -443,7 +443,7 @@ public class Desugar extends BLangNodeVisitor {
     }
 
     private boolean isFunctionArgument(BVarSymbol symbol, List<BVarSymbol> params) {
-        return params.stream().anyMatch(param -> (param.name.equals(symbol.name) && param.type.equals(symbol.type)));
+        return params.stream().anyMatch(param -> (param.name.equals(symbol.name) && param.type.tag == symbol.type.tag));
     }
 
     @Override
@@ -1025,6 +1025,14 @@ public class Desugar extends BLangNodeVisitor {
             genVarRefExpr = new BLangTypeLoad(varRefExpr.symbol);
         } else if ((ownerSymbol.tag & SymTag.INVOKABLE) == SymTag.INVOKABLE) {
             // Local variable in a function/resource/action/worker
+            if ((env.enclInvokable != null && env.enclInvokable.flagSet.contains(Flag.LAMBDA)) &&
+                    varRefExpr.variableName != null) {
+                BSymbol closureVarSymbol = symResolver
+                        .lookupClosureVarSymbol(env, new Name(varRefExpr.variableName.value), SymTag.VARIABLE_NAME);
+                if (closureVarSymbol != symTable.notFoundSymbol) {
+                    ((BLangFunction) env.enclInvokable).closureVarSymbols.add((BVarSymbol) closureVarSymbol);
+                }
+            }
             genVarRefExpr = new BLangLocalVarRef((BVarSymbol) varRefExpr.symbol);
         } else if ((ownerSymbol.tag & SymTag.CONNECTOR) == SymTag.CONNECTOR) {
             // Field variable in a receiver
@@ -1384,19 +1392,12 @@ public class Desugar extends BLangNodeVisitor {
         functionSymbol.type = bLangArrowFunction.funcType;
         function.symbol = functionSymbol;
 
+        SymbolEnv fucEnv = SymbolEnv.createFunctionEnv(function, function.symbol.scope, env);
+        rewrite(lambdaFunction.function.body, fucEnv);
         rewrite(lambdaFunction.function, env);
         env.enclPkg.addFunction(lambdaFunction.function);
         bLangArrowFunction.function = lambdaFunction.function;
         result = lambdaFunction;
-    }
-
-    private BlockNode populateArrowExprBodyBlock(BLangArrowFunction bLangArrowFunction) {
-        BlockNode blockNode = TreeBuilder.createBlockNode();
-        BLangReturn returnNode = (BLangReturn) TreeBuilder.createReturnNode();
-        returnNode.pos = bLangArrowFunction.expression.pos;
-        returnNode.setExpression(bLangArrowFunction.expression);
-        blockNode.addStatement(returnNode);
-        return blockNode;
     }
 
     @Override
@@ -1734,6 +1735,15 @@ public class Desugar extends BLangNodeVisitor {
     }
 
     // private functions
+
+    private BlockNode populateArrowExprBodyBlock(BLangArrowFunction bLangArrowFunction) {
+        BlockNode blockNode = TreeBuilder.createBlockNode();
+        BLangReturn returnNode = (BLangReturn) TreeBuilder.createReturnNode();
+        returnNode.pos = bLangArrowFunction.expression.pos;
+        returnNode.setExpression(bLangArrowFunction.expression);
+        blockNode.addStatement(returnNode);
+        return blockNode;
+    }
 
     private BLangInvocation createInvocationFromTableExpr(BLangTableQueryExpression tableQueryExpression) {
         List<BLangExpression> args = new ArrayList<>();

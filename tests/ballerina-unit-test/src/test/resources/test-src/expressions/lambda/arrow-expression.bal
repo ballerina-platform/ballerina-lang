@@ -90,3 +90,10 @@ function testTupleInput() returns (string, string) {
     (string, boolean, Person) tupleEntry = ("John", true, {name: "Doe", age: 12});
     return lambda(tupleEntry, "Peter");
 }
+
+function testClosure() returns int {
+
+    int closureVar = 10;
+    function (int, string) returns int lambda = (param1, param2) => closureVar + param1;
+    return lambda(25, "ignore");
+}
