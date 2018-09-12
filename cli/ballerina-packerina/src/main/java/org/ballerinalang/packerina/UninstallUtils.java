@@ -92,7 +92,7 @@ public class UninstallUtils {
             Files.deleteIfExists(path.resolve(pkgName + ProjectDirConstants.BLANG_COMPILED_PKG_EXT));
 
             // Delete the empty directories
-            deleteEmptyDirsUpTo(path, repoPath);
+            deleteEmptyParentDirs(path, repoPath);
 
             // Print that the package was successfully uninstalled
             outStream.println(fullPkgPath + " successfully uninstalled");
@@ -102,13 +102,13 @@ public class UninstallUtils {
     }
 
     /**
-     * Delete empty directories.
+     * Delete empty parent directories.
      *
      * @param from package directory path
      * @param to   home repository path
      * @throws IOException throw an exception if an error occurs
      */
-    private static void deleteEmptyDirsUpTo(Path from, Path to) throws IOException {
+    private static void deleteEmptyParentDirs(Path from, Path to) throws IOException {
         Path pathsInBetween = to.relativize(from);
         for (int i = pathsInBetween.getNameCount(); i > 0; i--) {
             Path toRemove = to.resolve(pathsInBetween.subpath(0, i));
