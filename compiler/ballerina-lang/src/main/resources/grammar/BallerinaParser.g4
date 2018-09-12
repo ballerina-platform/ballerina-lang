@@ -1000,22 +1000,22 @@ documentationLine
     ;
 
 parameterDocumentationLine
-    :   parameterDocumentation parameterDescription*
+    :   parameterDocumentation parameterDescriptionLine*
     ;
 
 returnParameterDocumentationLine
-    :   returnParameterDocumentation returnParameterDescription*
+    :   returnParameterDocumentation returnParameterDescriptionLine*
     ;
 
 documentationContent
     :   documentationText?
     ;
 
-parameterDescription
+parameterDescriptionLine
     :   DocumentationLineStart documentationText?
     ;
 
-returnParameterDescription
+returnParameterDescriptionLine
     :   DocumentationLineStart documentationText?
     ;
 
@@ -1036,19 +1036,15 @@ definitionReferenceType
     ;
 
 parameterDocumentation
-    :   ParameterDocumentationStart docParameterName DescriptionSeparator docParameterDescription
+    :   ParameterDocumentationStart docParameterName DescriptionSeparator documentationText?
     ;
 
 returnParameterDocumentation
-    :   ReturnParameterDocumentationStart docParameterDescription
+    :   ReturnParameterDocumentationStart documentationText?
     ;
 
 docParameterName
     :   ParameterName
-    ;
-
-docParameterDescription
-    :   documentationText?
     ;
 
 singleBacktickedBlock

@@ -531,12 +531,12 @@ DefinitionReference
 
 fragment
 DocumentationTextCharacter
-    :   ~[`\n+\- ]
+    :   ~[`\n ]
     |   '\\' BACKTICK
     ;
 
 DocumentationEscapedCharacters
-    :   DocumentationSpace | [+-]
+    :   DocumentationSpace
     ;
 
 DocumentationSpace

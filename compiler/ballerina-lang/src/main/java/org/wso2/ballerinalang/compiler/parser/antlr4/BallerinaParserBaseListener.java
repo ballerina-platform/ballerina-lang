@@ -2980,25 +2980,25 @@ public class BallerinaParserBaseListener implements BallerinaParserListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterParameterDescription(BallerinaParser.ParameterDescriptionContext ctx) { }
+	@Override public void enterParameterDescriptionLine(BallerinaParser.ParameterDescriptionLineContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitParameterDescription(BallerinaParser.ParameterDescriptionContext ctx) { }
+	@Override public void exitParameterDescriptionLine(BallerinaParser.ParameterDescriptionLineContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterReturnParameterDescription(BallerinaParser.ReturnParameterDescriptionContext ctx) { }
+	@Override public void enterReturnParameterDescriptionLine(BallerinaParser.ReturnParameterDescriptionLineContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitReturnParameterDescription(BallerinaParser.ReturnParameterDescriptionContext ctx) { }
+	@Override public void exitReturnParameterDescriptionLine(BallerinaParser.ReturnParameterDescriptionLineContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
@@ -3083,18 +3083,6 @@ public class BallerinaParserBaseListener implements BallerinaParserListener {
 	 * <p>The default implementation does nothing.</p>
 	 */
 	@Override public void exitDocParameterName(BallerinaParser.DocParameterNameContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void enterDocParameterDescription(BallerinaParser.DocParameterDescriptionContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void exitDocParameterDescription(BallerinaParser.DocParameterDescriptionContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *

@@ -2969,7 +2969,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
             return;
         }
         String parameterName = ctx.docParameterName() != null ? ctx.docParameterName().getText() : "";
-        String description = ctx.docParameterDescription() != null ? ctx.docParameterDescription().getText() : "";
+        String description = ctx.documentationText() != null ? ctx.documentationText().getText() : "";
         this.pkgBuilder.endParameterDocumentation(getCurrentPos(ctx), getWS(ctx), parameterName, description);
     }
 
@@ -2977,7 +2977,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
      * {@inheritDoc}
      */
     @Override
-    public void exitParameterDescription(BallerinaParser.ParameterDescriptionContext ctx) {
+    public void exitParameterDescriptionLine(BallerinaParser.ParameterDescriptionLineContext ctx) {
         if (ctx.exception != null) {
             return;
         }
@@ -2993,7 +2993,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         if (ctx.exception != null) {
             return;
         }
-        String description = ctx.docParameterDescription() != null ? ctx.docParameterDescription().getText() : "";
+        String description = ctx.documentationText() != null ? ctx.documentationText().getText() : "";
         this.pkgBuilder.endReturnParameterDocumentation(getCurrentPos(ctx.getParent()), getWS(ctx), description);
     }
 
@@ -3001,7 +3001,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
      * {@inheritDoc}
      */
     @Override
-    public void exitReturnParameterDescription(BallerinaParser.ReturnParameterDescriptionContext ctx) {
+    public void exitReturnParameterDescriptionLine(BallerinaParser.ReturnParameterDescriptionLineContext ctx) {
         if (ctx.exception != null) {
             return;
         }
