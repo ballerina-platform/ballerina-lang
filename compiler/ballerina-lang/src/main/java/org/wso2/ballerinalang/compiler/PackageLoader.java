@@ -42,7 +42,6 @@ import org.wso2.ballerinalang.compiler.packaging.Resolution;
 import org.wso2.ballerinalang.compiler.packaging.converters.Converter;
 import org.wso2.ballerinalang.compiler.packaging.repo.BinaryRepo;
 import org.wso2.ballerinalang.compiler.packaging.repo.CacheRepo;
-import org.wso2.ballerinalang.compiler.packaging.repo.NonSysRepo;
 import org.wso2.ballerinalang.compiler.packaging.repo.ProgramingSourceRepo;
 import org.wso2.ballerinalang.compiler.packaging.repo.ProjectSourceRepo;
 import org.wso2.ballerinalang.compiler.packaging.repo.RemoteRepo;
@@ -196,7 +195,8 @@ public class PackageLoader {
         return systemList.toArray(new RepoNode[systemList.size()]);
     }
 
-    private PackageEntity loadPackageEntity(PackageID pkgId, PackageID enclPackageId, RepoHierarchy encPkgRepoHierarchy) {
+    private PackageEntity loadPackageEntity(PackageID pkgId, PackageID enclPackageId,
+                                            RepoHierarchy encPkgRepoHierarchy) {
         updateVersionFromToml(pkgId, enclPackageId);
         Resolution resolution;
         if (null != encPkgRepoHierarchy) {
