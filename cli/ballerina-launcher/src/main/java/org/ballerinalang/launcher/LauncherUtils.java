@@ -36,6 +36,7 @@ import org.wso2.ballerinalang.compiler.Compiler;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.CompilerOptions;
+import org.wso2.ballerinalang.compiler.util.ProjectDirConstants;
 import org.wso2.ballerinalang.programfile.CompiledBinaryFile;
 import org.wso2.ballerinalang.programfile.ProgramFileWriter;
 import org.wso2.ballerinalang.util.RepoUtils;
@@ -90,7 +91,7 @@ public class LauncherUtils {
         String srcPathStr = sourcePath.toString();
         Path fullPath = sourceRootPath.resolve(sourcePath);
         // Set the source root path relative to the source path i.e. set the parent directory of the source path
-        System.setProperty("ballerina.source.root", fullPath.getParent().toString());
+        System.setProperty(ProjectDirConstants.BALLERINA_SOURCE_ROOT, fullPath.getParent().toString());
         loadConfigurations(fullPath.getParent(), runtimeParams, configFilePath, observeFlag);
 
         if (srcPathStr.endsWith(BLANG_EXEC_FILE_SUFFIX)) {
