@@ -72,7 +72,6 @@ import java.util.UUID;
 import static org.ballerinalang.mime.util.MimeConstants.APPLICATION_JSON;
 import static org.ballerinalang.mime.util.MimeConstants.APPLICATION_XML;
 import static org.ballerinalang.mime.util.MimeConstants.BODY_PARTS;
-import static org.ballerinalang.mime.util.MimeConstants.BYTE_CHANNEL_STRUCT;
 import static org.ballerinalang.mime.util.MimeConstants.CONTENT_DISPOSITION_NAME;
 import static org.ballerinalang.mime.util.MimeConstants.CONTENT_DISPOSITION_STRUCT;
 import static org.ballerinalang.mime.util.MimeConstants.ENTITY_BYTE_CHANNEL;
@@ -81,6 +80,7 @@ import static org.ballerinalang.mime.util.MimeConstants.MULTIPART_ENCODER;
 import static org.ballerinalang.mime.util.MimeConstants.MULTIPART_MIXED;
 import static org.ballerinalang.mime.util.MimeConstants.OCTET_STREAM;
 import static org.ballerinalang.mime.util.MimeConstants.PROTOCOL_PACKAGE_IO;
+import static org.ballerinalang.mime.util.MimeConstants.READABLE_BYTE_CHANNEL_STRUCT;
 import static org.ballerinalang.mime.util.MimeConstants.REQUEST_ENTITY_FIELD;
 import static org.ballerinalang.mime.util.MimeConstants.TEMP_FILE_EXTENSION;
 import static org.ballerinalang.mime.util.MimeConstants.TEMP_FILE_NAME;
@@ -612,7 +612,7 @@ public class Util {
     }
 
     public static BMap<String, BValue> getByteChannelStruct(CompileResult result) {
-        return BCompileUtil.createAndGetStruct(result.getProgFile(), PROTOCOL_PACKAGE_IO, BYTE_CHANNEL_STRUCT);
+        return BCompileUtil.createAndGetStruct(result.getProgFile(), PROTOCOL_PACKAGE_IO, READABLE_BYTE_CHANNEL_STRUCT);
     }
 
     @NotNull

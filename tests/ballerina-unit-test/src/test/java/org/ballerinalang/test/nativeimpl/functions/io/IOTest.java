@@ -93,7 +93,7 @@ public class IOTest {
         BByteArray readBytes;
 
         //Will initialize the channel
-        BValue[] args = {new BString(getAbsoluteFilePath(resourceToRead)), new BString("r")};
+        BValue[] args = {new BString(getAbsoluteFilePath(resourceToRead))};
         BRunUtil.invokeStateful(bytesInputOutputProgramFile, "initReadableChannel", args);
 
         //Reads the 1st three bytes "123"
@@ -126,7 +126,7 @@ public class IOTest {
         String resourceToRead = "datafiles/io/text/6charfile.txt";
 
         //Will initialize the channel with write permission
-        BValue[] args = {new BString(getAbsoluteFilePath(resourceToRead)), new BString("w")};
+        BValue[] args = {new BString(getAbsoluteFilePath(resourceToRead))};
         BRunUtil.invokeStateful(bytesInputOutputProgramFile, "initReadableChannel", args);
 
         //We try to read bytes
@@ -146,7 +146,7 @@ public class IOTest {
         BString readCharacters;
 
         //Will initialize the channel
-        BValue[] args = {new BString(getAbsoluteFilePath(resourceToRead)), new BString("r"), new BString("UTF-8")};
+        BValue[] args = {new BString(getAbsoluteFilePath(resourceToRead)), new BString("UTF-8")};
         BRunUtil.invokeStateful(characterInputOutputProgramFile, "initReadableChannel", args);
 
         String expectedCharacters = "aaa";
@@ -180,7 +180,7 @@ public class IOTest {
         int numberOfCharactersToRead = 3;
 
         //Will initialize the channel with write permissions
-        BValue[] args = {new BString(getAbsoluteFilePath(resourceToRead)), new BString("w"), new BString("UTF-8")};
+        BValue[] args = {new BString(getAbsoluteFilePath(resourceToRead)), new BString("UTF-8")};
         BRunUtil.invokeStateful(characterInputOutputProgramFile, "initReadableChannel", args);
 
         args = new BValue[]{new BInteger(numberOfCharactersToRead)};
@@ -198,7 +198,7 @@ public class IOTest {
         BString readCharacters;
 
         //Will initialize the channel
-        BValue[] args = {new BString(getAbsoluteFilePath(resourceToRead)), new BString("r"), new BString("UTF-8")};
+        BValue[] args = {new BString(getAbsoluteFilePath(resourceToRead)), new BString("UTF-8")};
         BRunUtil.invokeStateful(characterInputOutputProgramFile, "initReadableChannel", args);
 
         int expectedNumberOfCharacters = 2265223;
@@ -216,7 +216,7 @@ public class IOTest {
         BString readCharacters;
 
         //Will initialize the channel
-        BValue[] args = {new BString(getAbsoluteFilePath(resourceToRead)), new BString("r"), new BString("UTF-8")};
+        BValue[] args = {new BString(getAbsoluteFilePath(resourceToRead)), new BString("UTF-8")};
         BRunUtil.invokeStateful(characterInputOutputProgramFile, "initReadableChannel", args);
 
         int expectedNumberOfCharacters = 0;
@@ -235,7 +235,7 @@ public class IOTest {
         int expectedRecordLength = 3;
 
         //Will initialize the channel
-        BValue[] args = {new BString(getAbsoluteFilePath(resourceToRead)), new BString("r"), new BString("UTF-8"),
+        BValue[] args = {new BString(getAbsoluteFilePath(resourceToRead)), new BString("UTF-8"),
                 new BString("\n"), new BString(",")};
         BRunUtil.invokeStateful(recordsInputOutputProgramFile, "initReadableChannel", args);
 
@@ -273,7 +273,7 @@ public class IOTest {
         String resourceToRead = "datafiles/io/records/sample.csv";
 
         //Will initialize the channel with write permissions
-        BValue[] args = {new BString(getAbsoluteFilePath(resourceToRead)), new BString("w"), new BString("UTF-8"),
+        BValue[] args = {new BString(getAbsoluteFilePath(resourceToRead)), new BString("UTF-8"),
                 new BString("\n"), new BString(",")};
         BRunUtil.invokeStateful(recordsInputOutputProgramFile, "initReadableChannel", args);
 
@@ -292,7 +292,7 @@ public class IOTest {
         String sourceToWrite = currentDirectoryPath + "/bytesFile.txt";
 
         //Will initialize the channel
-        BValue[] args = {new BString(sourceToWrite), new BString("w")};
+        BValue[] args = {new BString(sourceToWrite)};
         BRunUtil.invokeStateful(bytesInputOutputProgramFile, "initWritableChannel", args);
 
         args = new BValue[]{new BByteArray(content), new BInteger(0)};
@@ -307,7 +307,7 @@ public class IOTest {
         String sourceToWrite = currentDirectoryPath + "/characterFile.txt";
 
         //Will initialize the channel
-        BValue[] args = {new BString(sourceToWrite), new BString("w"), new BString("UTF-8")};
+        BValue[] args = {new BString(sourceToWrite), new BString("UTF-8")};
         BRunUtil.invokeStateful(characterInputOutputProgramFile, "initWritableChannel", args);
 
         args = new BValue[]{new BString(content), new BInteger(0)};
@@ -323,7 +323,7 @@ public class IOTest {
         String sourceToWrite = currentDirectoryPath + "/recordsFile.csv";
 
         //Will initialize the channel
-        BValue[] args = {new BString(sourceToWrite), new BString("w"), new BString("UTF-8"), new BString("\n"), new
+        BValue[] args = {new BString(sourceToWrite), new BString("UTF-8"), new BString("\n"), new
                 BString(",")};
         BRunUtil.invokeStateful(recordsInputOutputProgramFile, "initWritableChannel", args);
 
@@ -338,7 +338,7 @@ public class IOTest {
         String resourceToRead = "datafiles/io/text/web-app.json";
 
         //Will initialize the channel
-        BValue[] args = {new BString(getAbsoluteFilePath(resourceToRead)), new BString("r"), new BString("UTF-8")};
+        BValue[] args = {new BString(getAbsoluteFilePath(resourceToRead)), new BString("UTF-8")};
         BRunUtil.invokeStateful(characterInputOutputProgramFile, "initReadableChannel", args);
 
         BValue[] returns = BRunUtil.invokeStateful(characterInputOutputProgramFile, "readJson");
@@ -358,7 +358,7 @@ public class IOTest {
         String sourceToWrite = currentDirectoryPath + "/jsonCharsFile.json";
 
         //Will initialize the channel
-        BValue[] args = {new BString(sourceToWrite), new BString("w"), new BString("UTF-8")};
+        BValue[] args = {new BString(sourceToWrite), new BString("UTF-8")};
         BRunUtil.invokeStateful(characterInputOutputProgramFile, "initWritableChannel", args);
 
         args = new BValue[] { JsonParser.parse(content) };
@@ -379,7 +379,7 @@ public class IOTest {
         String sourceToWrite = currentDirectoryPath + "/xmlCharsFile.xml";
 
         //Will initialize the channel
-        BValue[] args = {new BString(sourceToWrite), new BString("w"), new BString("UTF-8")};
+        BValue[] args = {new BString(sourceToWrite), new BString("UTF-8")};
         BRunUtil.invokeStateful(characterInputOutputProgramFile, "initWritableChannel", args);
 
         args = new BValue[]{new BXMLItem(content)};
@@ -397,7 +397,7 @@ public class IOTest {
         String resourceToRead = "datafiles/io/text/cd_catalog.xml";
 
         //Will initialize the channel
-        BValue[] args = {new BString(getAbsoluteFilePath(resourceToRead)), new BString("r"), new BString("UTF-8")};
+        BValue[] args = {new BString(getAbsoluteFilePath(resourceToRead)), new BString("UTF-8")};
         BRunUtil.invokeStateful(characterInputOutputProgramFile, "initReadableChannel", args);
 
         BValue[] returns = BRunUtil.invokeStateful(characterInputOutputProgramFile, "readXml");
