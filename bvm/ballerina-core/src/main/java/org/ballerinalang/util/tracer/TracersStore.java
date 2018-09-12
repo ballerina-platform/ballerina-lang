@@ -92,8 +92,7 @@ public class TracersStore {
                 try {
                     openTracer = tracer.generate(serviceName);
                 } catch (Throwable e) {
-                    consoleError.println("error: error getting tracer for "
-                            + tracer.name + ". " + e.getMessage());
+                    consoleError.println("error: error getting tracer for " + tracer.name + ". " + e.getMessage());
                 }
             }
             tracerStore.put(serviceName, openTracer);
