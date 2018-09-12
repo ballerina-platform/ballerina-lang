@@ -66,11 +66,11 @@ public class TracersStore {
                     openTracer.init();
                     tracer = new TracerGenerator(openTracer.getName(), openTracer);
                 } catch (InvalidConfigurationException e) {
-                    consoleError.println("ballerina: error in observability tracing configurations: " + e.getMessage());
+                    consoleError.println("error: error in observability tracing configurations: " + e.getMessage());
                 }
             } else {
                 consoleError.println(
-                        "ballerina: observability enabled but no tracing extension found for name " + tracerName);
+                        "error: observability enabled but no tracing extension found for name " + tracerName);
             }
         } else {
             this.tracerStore = new HashMap<>();
@@ -92,7 +92,7 @@ public class TracersStore {
                 try {
                     openTracer = tracer.generate(serviceName);
                 } catch (Throwable e) {
-                    consoleError.println("ballerina: error getting tracer for "
+                    consoleError.println("error: error getting tracer for "
                             + tracer.name + ". " + e.getMessage());
                 }
             }
