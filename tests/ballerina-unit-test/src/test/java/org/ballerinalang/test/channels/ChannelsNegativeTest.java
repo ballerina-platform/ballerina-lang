@@ -31,7 +31,7 @@ import org.testng.annotations.Test;
 public class ChannelsNegativeTest {
 
     private static final String CHANNEL_TEST = "ChannelsTest";
-    CompileResult result;
+    private CompileResult result;
 
     @BeforeClass
     public void setup() {

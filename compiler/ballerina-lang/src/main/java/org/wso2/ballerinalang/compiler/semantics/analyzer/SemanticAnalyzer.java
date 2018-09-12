@@ -1528,7 +1528,6 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         BType constraint = ((BChannelType) channelSymbol.type).constraint;
         if (node.expr.type.tag != constraint.tag) {
             dlog.error(node.pos, DiagnosticCode.INCOMPATIBLE_TYPES, constraint, node.expr.type);
-            return;
         }
     }
 

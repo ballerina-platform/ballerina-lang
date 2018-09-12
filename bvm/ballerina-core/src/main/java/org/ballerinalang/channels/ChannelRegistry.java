@@ -48,14 +48,6 @@ public class ChannelRegistry {
     }
 
     /**
-     * Add a new channel if not exist.
-     * @param name Channel identifier
-     */
-    public void addChannel(String name) {
-        channelList.computeIfAbsent(name, chn -> new HashMap<>());
-    }
-
-    /**
      * Add a worker context to the channels map that is waiting for a message.
      * @param channel Channel the worker is waiting for
      * @param key key of the message
@@ -92,6 +84,14 @@ public class ChannelRegistry {
             return pendingCtxs.poll();
         }
         return null;
+    }
+
+    /**
+     * Add a new channel if not exist.
+     * @param name Channel identifier
+     */
+    private void addChannel(String name) {
+        channelList.computeIfAbsent(name, chn -> new HashMap<>());
     }
 
     /**

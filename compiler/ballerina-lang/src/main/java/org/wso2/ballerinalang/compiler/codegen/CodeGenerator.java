@@ -3221,7 +3221,7 @@ public class CodeGenerator extends BLangNodeVisitor {
 
     // private helper methods of visitors.
 
-    public void visitChannelSend(BLangWorkerSend channelSend) {
+    private void visitChannelSend(BLangWorkerSend channelSend) {
         //CHNSEND hasKey, keyIndex, keyTypeCPIndex  channelName, dataIndex, dataTypeCPIndex
         int i = 0;
         Operand[] argRegs;
@@ -3250,7 +3250,7 @@ public class CodeGenerator extends BLangNodeVisitor {
         UTF8CPEntry dataCPEntry = new UTF8CPEntry(this.generateSig(new BType[] { dataType }));
         Operand dataCPIndex = getOperand(this.currentPkgInfo.addCPEntry(dataCPEntry));
         argRegs[i++] = dataReg;
-        argRegs[i++] = dataCPIndex;
+        argRegs[i] = dataCPIndex;
 
         emit(InstructionCodes.CHNSEND, argRegs);
     }
@@ -3294,7 +3294,7 @@ public class CodeGenerator extends BLangNodeVisitor {
         UTF8CPEntry sigCPEntry = new UTF8CPEntry(this.generateSig(new BType[] { bType }));
         Operand sigCPIndex = getOperand(currentPkgInfo.addCPEntry(sigCPEntry));
         chnReceiveArgRegs[i++] = sigCPIndex;
-        chnReceiveArgRegs[i++] = regIndex;
+        chnReceiveArgRegs[i] = regIndex;
 
         emit(InstructionCodes.CHNRECEIVE, chnReceiveArgRegs);
     }

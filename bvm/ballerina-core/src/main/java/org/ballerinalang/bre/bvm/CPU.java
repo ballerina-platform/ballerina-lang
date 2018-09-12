@@ -799,7 +799,6 @@ public class CPU {
             copyArgValueForWorkerReceive(pendingCtx.context.workerLocal, pendingCtx.regIndex, dataType, dataVal);
             BLangScheduler.resume(pendingCtx.context);
         }
-        return;
     }
 
     /**

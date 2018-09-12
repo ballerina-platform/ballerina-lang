@@ -26,7 +26,6 @@ import org.ballerinalang.model.values.BValue;
  * @since 0.982.0
  */
 public class BChannelType extends BType {
-    private BType constraint;
 
     /**
      * Creates a {@code BChannelType} which represents the channel type.
@@ -36,11 +35,6 @@ public class BChannelType extends BType {
      */
     BChannelType(String typeName, String pkgPath) {
         super(typeName, pkgPath, BChannel.class);
-    }
-
-    public BChannelType(BType constraint) {
-        super(TypeConstants.CHANNEL, null, BChannel.class);
-        this.constraint = constraint;
     }
 
     @Override
@@ -55,7 +49,7 @@ public class BChannelType extends BType {
 
     @Override
     public TypeSignature getSig() {
-        return new TypeSignature(TypeSignature.SIG_CHANNEL, constraint.getSig());
+        return new TypeSignature(TypeSignature.SIG_CHANNEL);
     }
 
     @Override
@@ -65,6 +59,6 @@ public class BChannelType extends BType {
 
     @Override
     public String toString() {
-        return "channel" + "<" + constraint.getName() + ">";
+        return "channel";
     }
 }

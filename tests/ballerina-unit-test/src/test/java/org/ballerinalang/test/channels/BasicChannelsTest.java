@@ -32,7 +32,7 @@ import org.testng.annotations.Test;
  */
 public class BasicChannelsTest {
 
-    CompileResult result;
+    private CompileResult result;
     private static final String CHANNEL_TEST = "ChannelsTest";
 
     @BeforeClass

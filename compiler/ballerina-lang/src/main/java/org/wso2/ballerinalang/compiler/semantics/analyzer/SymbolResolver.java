@@ -695,7 +695,7 @@ public class SymbolResolver extends BLangNodeVisitor {
             resultType = new BMapType(TypeTags.MAP, constraintType, type.tsymbol);
         } else if (type.tag == TypeTags.CHANNEL) {
             // only the simpleTypes, json and xml are allowed as channel data type.
-            if (constraintType.tag > 8 || constraintType.tag == 6) {
+            if (constraintType.tag > TypeTags.XML || constraintType.tag == TypeTags.TYPEDESC) {
                 dlog.error(constrainedTypeNode.pos, DiagnosticCode.INCOMPATIBLE_TYPE_CONSTRAINT, type, constraintType);
                 resultType = symTable.errType;
                 return;

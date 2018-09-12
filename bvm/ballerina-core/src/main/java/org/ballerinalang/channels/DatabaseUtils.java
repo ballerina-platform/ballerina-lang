@@ -70,8 +70,7 @@ public class DatabaseUtils {
             setParam(stmt, value, valType, 3);
             stmt.execute();
         } catch (SQLException e) {
-            throw new BallerinaException("error in saving received channel message " + e.getMessage(),
-                    e);
+            throw new BallerinaException("error in saving received channel message " + e.getMessage(), e);
         } finally {
             try {
                 if (stmt != null) {

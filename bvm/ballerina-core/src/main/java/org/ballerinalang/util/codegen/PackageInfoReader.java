@@ -1854,6 +1854,7 @@ public class PackageInfoReader {
                     return new BStreamType(constraint);
                 case 'G':
                 case 'T':
+                case 'Q':
                 default:
                     return constraint;
             }
