@@ -32,6 +32,7 @@
             <class name="org.ballerinalang.test.packaging.ListDependencyTestCase"/>
             <class name="org.ballerinalang.test.packaging.PackagingNegativeTestCase"/>
             <class name="org.ballerinalang.test.packaging.SingleBalBuildTestCase"/>
+            <class name="org.ballerinalang.test.packaging.BalRunWithConfigTestCase"/>
             <class name="org.ballerinalang.test.grpc.ServicePackagingTestCase"/>
         </classes>
     </test>
