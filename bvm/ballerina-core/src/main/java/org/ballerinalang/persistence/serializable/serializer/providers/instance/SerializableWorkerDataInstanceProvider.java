@@ -38,7 +38,7 @@ public class SerializableWorkerDataInstanceProvider implements TypeInstanceProvi
     @Override
     public Object newInstance() {
         WorkerExecutionContext ctx = new WorkerExecutionContext(new ProgramFile());
-        return new SerializableWorkerData(new WorkerData(), new SerializableState(null, ctx));
+        return new SerializableWorkerData(new WorkerData(), new SerializableState(null, ctx), null);
     }
 
     @Override

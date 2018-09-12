@@ -29,6 +29,8 @@ import org.ballerinalang.util.codegen.PackageInfo;
 import org.ballerinalang.util.codegen.ProgramFile;
 import org.ballerinalang.util.exceptions.BallerinaException;
 
+import java.util.HashSet;
+
 /**
  * Implementation of @{@link SerializableRefType} to serialize and deserialize {@link BFunctionPointer} objects.
  *
@@ -36,13 +38,13 @@ import org.ballerinalang.util.exceptions.BallerinaException;
  */
 public class SerializableBFuture implements SerializableRefType {
 
-    public String respCtxKey;
+    private String respCtxKey;
 
     private String callableName;
 
     private String pkgPath;
 
-    public SerializableBFuture(BCallableFuture bFuture, SerializableState state) {
+    public SerializableBFuture(BCallableFuture bFuture, SerializableState state, HashSet<String> updatedObjectSet) {
         CallableUnitInfo callableUnitInfo = ((AsyncInvocableWorkerResponseContext) bFuture.value())
                 .getCallableUnitInfo();
         if (callableUnitInfo.attachedToType != null) {
@@ -51,8 +53,7 @@ public class SerializableBFuture implements SerializableRefType {
             callableName = callableUnitInfo.getName();
         }
         pkgPath = ((AsyncInvocableWorkerResponseContext) bFuture.value()).getCallableUnitInfo().getPkgPath();
-
-        respCtxKey = state.addRespContext(bFuture.value()).getRespCtxKey();
+        respCtxKey = state.addRespContext(bFuture.value(), updatedObjectSet).getRespCtxKey();
     }
 
     @Override

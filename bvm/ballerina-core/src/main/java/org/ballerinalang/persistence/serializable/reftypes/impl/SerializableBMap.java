@@ -29,6 +29,7 @@ import org.ballerinalang.util.codegen.StructureTypeInfo;
 import org.ballerinalang.util.exceptions.BallerinaException;
 
 import java.util.HashMap;
+import java.util.HashSet;
 
 /**
  * Implementation of @{@link SerializableRefType} to serialize and deserialize {@link BMap} objects.
@@ -40,22 +41,23 @@ import java.util.HashMap;
 public class SerializableBMap<K, V extends BValue> implements SerializableRefType {
 
     private String pkgPath;
+
     private String structName;
 
     private HashMap<K, Object> map = new HashMap<>();
+
     private HashMap<String, Object> nativeData = new HashMap<>();
 
-    public SerializableBMap(BMap<K, V> bMap, SerializableState state) {
+    public SerializableBMap(BMap<K, V> bMap, SerializableState state, HashSet<String> updatedObjectSet) {
         structName = bMap.getType().getName();
         pkgPath = bMap.getType().getPackagePath();
-        bMap.getNativeData().forEach((k, o) -> nativeData.put(k, state.serialize(o)));
-        bMap.getMap().forEach((k, v) -> map.put(k, state.serialize(v)));
+        bMap.getNativeData().forEach((k, o) -> nativeData.put(k, state.serialize(o, updatedObjectSet)));
+        bMap.getMap().forEach((k, v) -> map.put(k, state.serialize(v, updatedObjectSet)));
     }
 
     @Override
     @SuppressWarnings("unchecked")
-    public BRefType getBRefType(ProgramFile programFile, SerializableState state, Deserializer
-            deserializer) {
+    public BRefType getBRefType(ProgramFile programFile, SerializableState state, Deserializer deserializer) {
         PackageInfo packageInfo = programFile.getPackageInfo(pkgPath);
         BMap<K, V> bMap;
         if (packageInfo != null) {

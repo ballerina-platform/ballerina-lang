@@ -36,11 +36,9 @@ public class SerializableResponseContextFactory {
 
     public SerializableResponseContext getResponseContext(String respCtxKey, WorkerResponseContext respCtx) {
         if (respCtx instanceof AsyncInvocableWorkerResponseContext) {
-            return new SerializableAsyncResponse(respCtxKey,
-                                                 (AsyncInvocableWorkerResponseContext) respCtx);
+            return new SerializableAsyncResponse(respCtxKey, (AsyncInvocableWorkerResponseContext) respCtx);
         } else if (respCtx instanceof ForkJoinWorkerResponseContext) {
-            return new SerializableForkJoinResponse(respCtxKey, (ForkJoinWorkerResponseContext) respCtx
-            );
+            return new SerializableForkJoinResponse(respCtxKey, (ForkJoinWorkerResponseContext) respCtx);
         } else {
             return new SerializableCallableResponse(respCtxKey, (CallableWorkerResponseContext) respCtx);
         }

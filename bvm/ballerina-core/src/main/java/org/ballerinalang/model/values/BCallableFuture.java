@@ -26,6 +26,8 @@ import org.ballerinalang.persistence.serializable.reftypes.Serializable;
 import org.ballerinalang.persistence.serializable.reftypes.SerializableRefType;
 import org.ballerinalang.persistence.serializable.reftypes.impl.SerializableBFuture;
 
+import java.util.HashSet;
+
 /**
  * Ballerina value for the callable "future" type.
  */
@@ -75,13 +77,9 @@ public class BCallableFuture implements BFuture, Serializable {
         return this.respCtx.isCancelled();
     }
 
-    public String getCallableName() {
-        return callableName;
-    }
-
     @Override
-    public SerializableRefType serialize(SerializableState state) {
-        return new SerializableBFuture(this, state);
+    public SerializableRefType serialize(SerializableState state, HashSet<String> updatedObjectSet) {
+        return new SerializableBFuture(this, state, updatedObjectSet);
     }
     public void setRespCtx(AsyncInvocableWorkerResponseContext respCtx) {
         this.respCtx = respCtx;

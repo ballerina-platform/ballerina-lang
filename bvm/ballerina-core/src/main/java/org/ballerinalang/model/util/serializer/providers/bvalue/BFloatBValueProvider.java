@@ -25,7 +25,8 @@ import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BValue;
 
 /**
- * Provide mapping between {@link BFloat} and {@link BValue} representation of it.
+ * Class implements @{@link SerializationBValueProvider} to provide the mapping between {@link BFloat} and
+ * {@link BValue} representation of it.
  *
  * @since 0.982.0
  */

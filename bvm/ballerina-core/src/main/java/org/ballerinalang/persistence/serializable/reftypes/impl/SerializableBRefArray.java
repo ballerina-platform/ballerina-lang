@@ -30,6 +30,7 @@ import org.ballerinalang.util.codegen.StructureTypeInfo;
 import org.ballerinalang.util.exceptions.BallerinaException;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 
 /**
  * Implementation of @{@link SerializableRefType} to serialize and deserialize {@link BRefValueArray} objects.
@@ -39,23 +40,25 @@ import java.util.ArrayList;
 public class SerializableBRefArray implements SerializableRefType {
 
     private String structName;
+
     private String pkgPath;
+
     private ArrayList<Object> values = new ArrayList<>();
 
-    public SerializableBRefArray(BRefValueArray bRefValueArray, SerializableState state) {
+    public SerializableBRefArray(BRefValueArray bRefValueArray, SerializableState state,
+                                 HashSet<String> updatedObjectSet) {
         BArrayType arrayType = (BArrayType) bRefValueArray.getType();
         if (arrayType != null) {
             structName = arrayType.getElementType().getName();
             pkgPath = arrayType.getElementType().getPackagePath();
         }
         for (int i = 0; i < bRefValueArray.size(); i++) {
-            values.add(state.serialize(bRefValueArray.get(i)));
+            values.add(state.serialize(bRefValueArray.get(i), updatedObjectSet));
         }
     }
 
     @Override
-    public BRefType getBRefType(ProgramFile programFile, SerializableState state,
-                                Deserializer deserializer) {
+    public BRefType getBRefType(ProgramFile programFile, SerializableState state, Deserializer deserializer) {
         PackageInfo packageInfo = programFile.getPackageInfo(pkgPath);
         BRefType[] bRefTypes = new BRefType[values.size()];
         for (int i = 0; i < values.size(); i++) {

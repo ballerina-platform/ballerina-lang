@@ -43,7 +43,7 @@ public class RuntimeStates {
         states.put(state.getId(), state);
     }
 
-    public static void add(WorkerExecutionContext context, String stateId) {
+    public static void add(String stateId, WorkerExecutionContext context) {
         add(new SerializableState(stateId, context));
     }
 

@@ -32,6 +32,7 @@ import org.wso2.ballerinalang.compiler.util.BArrayState;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.StringJoiner;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -161,7 +162,7 @@ public class BRefValueArray extends BNewArray implements Serializable {
     }
 
     @Override
-    public SerializableRefType serialize(SerializableState state) {
-        return new SerializableBRefArray(this, state);
+    public SerializableRefType serialize(SerializableState state, HashSet<String> updatedObjectSet) {
+        return new SerializableBRefArray(this, state, updatedObjectSet);
     }
 }

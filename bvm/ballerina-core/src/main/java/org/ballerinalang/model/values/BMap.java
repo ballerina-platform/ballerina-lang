@@ -35,6 +35,7 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -348,8 +349,8 @@ public class BMap<K, V extends BValue> implements BRefType, BCollection, Seriali
     }
 
     @Override
-    public SerializableRefType serialize(SerializableState state) {
-        return new SerializableBMap<>(this, state);
+    public SerializableRefType serialize(SerializableState state, HashSet<String> updatedObjectSet) {
+        return new SerializableBMap<>(this, state, updatedObjectSet);
     }
 
     /**

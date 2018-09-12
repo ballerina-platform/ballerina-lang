@@ -240,6 +240,8 @@ public class BLangFunctions {
         }
 
         if (parentCtx.interruptible && generalWorkersCount > 1) {
+            // Create and register all worker at first and then schedule. This to recover all workers if server
+            // interrupted.
             List<WorkerExecutionContext> ctxList = new ArrayList<>(generalWorkersCount);
             for (int i = 0; i < workerSet.generalWorkers.length; i++) {
                 ctxList.add(createWorker(respCtx, parentCtx, argRegs, callableUnitInfo, workerSet.generalWorkers[i],
@@ -323,6 +325,9 @@ public class BLangFunctions {
         }
         WorkerExecutionContext runInCallerCtx;
         if (parentCtx.interruptible && generalWorkersCount > 1) {
+            // If context is interruptible, we need to first create all workers, register in serializable state and
+            // then schedule at last. This is to make sure we can recover all workers if one worker checkpoint and
+            // server crash.
             List<WorkerExecutionContext> ctxList = new ArrayList<>(generalWorkersCount);
             for (int i = 1; i < generalWorkersCount; i++) {
                 ctxList.add(createWorker(respCtx, parentCtx, argRegs, callableUnitInfo, workerSet.generalWorkers[i],
@@ -592,6 +597,8 @@ public class BLangFunctions {
         BLangScheduler.workerWaitForResponse(parentCtx);
         WorkerExecutionContext ctx;
         if (parentCtx.interruptible) {
+            // Create and register all worker at first and then schedule. This to recover all workers if server
+            // interrupted.
             List<WorkerExecutionContext> ctxList = new ArrayList<>(workerInfos.length);
             for (int i = 1; i < workerInfos.length; i++) {
                 ctxList.add(createWorker(respCtx, parentCtx, forkjoinInfo.getArgRegs(), workerInfos[i], false));

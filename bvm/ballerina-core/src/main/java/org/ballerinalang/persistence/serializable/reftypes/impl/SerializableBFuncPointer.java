@@ -38,7 +38,9 @@ import java.util.List;
 public class SerializableBFuncPointer implements SerializableRefType {
 
     private String funcName;
+
     private String funcPkgPath;
+
     private List<BClosure> bClosures;
 
     public SerializableBFuncPointer(BFunctionPointer bfp) {
@@ -48,8 +50,7 @@ public class SerializableBFuncPointer implements SerializableRefType {
     }
 
     @Override
-    public BRefType getBRefType(ProgramFile programFile, SerializableState state, Deserializer
-            deserializer) {
+    public BRefType getBRefType(ProgramFile programFile, SerializableState state, Deserializer deserializer) {
         PackageInfo packageInfo = programFile.getPackageInfo(funcPkgPath);
         if (packageInfo == null) {
             throw new BallerinaException("Package cannot be found  for path: " + funcPkgPath);
@@ -59,9 +60,7 @@ public class SerializableBFuncPointer implements SerializableRefType {
                 throw new BallerinaException(funcName + " cannot be found in package: " + funcPkgPath);
             }
             BFunctionPointer bfp = new BFunctionPointer(functionInfo);
-            bClosures.forEach(bClosure -> {
-                bfp.addClosureVar(bClosure, bClosure.getType().getTag());
-            });
+            bClosures.forEach(bClosure -> bfp.addClosureVar(bClosure, bClosure.getType().getTag()));
             return bfp;
         }
     }
@@ -69,6 +68,5 @@ public class SerializableBFuncPointer implements SerializableRefType {
     @Override
     public void setContexts(BRefType refType, ProgramFile programFile, SerializableState state,
                             Deserializer deserializer) {
-
     }
 }

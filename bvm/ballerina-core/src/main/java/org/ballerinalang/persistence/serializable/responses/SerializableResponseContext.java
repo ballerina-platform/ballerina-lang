@@ -40,10 +40,8 @@ public abstract class SerializableResponseContext {
 
     public abstract void addTargetContexts(WorkerResponseContext respCtx, SerializableState state);
 
-    public abstract void joinTargetContextInfo(WorkerResponseContext respCtx,
-                                               ProgramFile programFile,
-                                               SerializableState state,
-                                               Deserializer deserializer);
+    public abstract void joinTargetContextInfo(WorkerResponseContext respCtx, ProgramFile programFile,
+                                               SerializableState state, Deserializer deserializer);
 
     public String getRespCtxKey() {
         return respCtxKey;

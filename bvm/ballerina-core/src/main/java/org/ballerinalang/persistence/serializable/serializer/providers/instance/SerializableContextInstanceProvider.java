@@ -37,7 +37,7 @@ public class SerializableContextInstanceProvider implements TypeInstanceProvider
     @Override
     public Object newInstance() {
         WorkerExecutionContext ctx = new WorkerExecutionContext(new ProgramFile());
-        return new SerializableContext(null, ctx, new SerializableState(null, ctx), 0, false, false, false);
+        return new SerializableContext(null, ctx, new SerializableState(null, ctx), 0, false, false, null);
     }
 
     @Override

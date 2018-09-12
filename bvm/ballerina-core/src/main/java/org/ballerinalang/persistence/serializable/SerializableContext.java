@@ -53,21 +53,21 @@ public class SerializableContext {
 
     public WorkerState state = WorkerState.CREATED;
 
-    public String respCtxKey;
+    String respCtxKey;
 
     public int ip;
 
     public int[] retRegIndexes;
 
-    public boolean runInCaller;
+    private boolean runInCaller;
 
     public boolean interruptible;
 
-    public String enclosingServiceName;
+    private String enclosingServiceName;
 
-    public String callableUnitName;
+    private String callableUnitName;
 
-    public String callableUnitPkgPath;
+    private String callableUnitPkgPath;
 
     public String workerName;
 
@@ -79,12 +79,12 @@ public class SerializableContext {
 
     public SerializableWorkerData workerLocal;
 
-    public SerializableWorkerData workerResult;
+    SerializableWorkerData workerResult;
 
     public HashSet<String> children = new HashSet<>();
 
     public SerializableContext(String ctxKey, WorkerExecutionContext ctx, SerializableState state, int ip,
-                        boolean isCompletedCtxRemoved, boolean updateParent, boolean updateIfExist) {
+                               boolean isCompletedCtxRemoved, boolean updateParent, HashSet<String> updatedObjectSet) {
         this.ctxKey = ctxKey;
         this.interruptible = ctx.interruptible;
         if (ctx.workerInfo != null) {
@@ -97,19 +97,31 @@ public class SerializableContext {
                 type = Type.WORKER;
             }
         }
-        populateData(ctx, ip, state, isCompletedCtxRemoved, updateParent, updateIfExist);
+        // Add or Update the parent contexts.
+        populateParentContexts(ctx, state, isCompletedCtxRemoved, updateParent, updatedObjectSet);
+        // Update worker execution context data.
+        populateData(ctx, ip, state, updatedObjectSet);
     }
 
-    void populateData(WorkerExecutionContext ctx, int ip, SerializableState state,
-                      boolean isCompletedCtxRemoved, boolean updateParent, boolean updateIfExist) {
-        populateParentContexts(ctx, state, isCompletedCtxRemoved, updateParent, updateIfExist);
-        populateData(ctx, ip, state);
+    private void populateParentContexts(WorkerExecutionContext ctx, SerializableState state,
+                                        boolean isCompletedCtxRemoved, boolean updateParent,
+                                        HashSet<String> updatedObjectSet) {
+        if (ctx.parent != null) {
+            SerializableContext sParentCtx = state.getSerializableContext(String.valueOf(ctx.parent.hashCode()));
+            if (sParentCtx == null || (updateParent && !type.equals(Type.ASYNC))) {
+                sParentCtx = state.populateContext(ctx.parent, ctx.parent.ip, isCompletedCtxRemoved, updateParent,
+                                                   updatedObjectSet, this);
+            }
+            sParentCtx.children.add(ctxKey);
+            this.parent = sParentCtx.ctxKey;
+        }
     }
 
-    private void populateData(WorkerExecutionContext ctx, int ip, SerializableState state) {
+    private void populateData(WorkerExecutionContext ctx, int ip, SerializableState state,
+                              HashSet<String> updatedObjectSet) {
         this.ip = ip;
-        populateProps(state.globalProps, ctx.globalProps, state);
-        populateProps(localProps, ctx.localProps, state);
+        populateProps(state.globalProps, ctx.globalProps, state, updatedObjectSet);
+        populateProps(localProps, ctx.localProps, state, updatedObjectSet);
         retRegIndexes = ctx.retRegIndexes;
         runInCaller = ctx.runInCaller;
         if (ctx.callableUnitInfo != null) {
@@ -124,26 +136,13 @@ public class SerializableContext {
             callableUnitPkgPath = ctx.callableUnitInfo.getPkgPath();
         }
         if (ctx.respCtx != null) {
-            respCtxKey = state.addRespContext(ctx.respCtx).getRespCtxKey();
+            respCtxKey = state.addRespContext(ctx.respCtx, updatedObjectSet).getRespCtxKey();
         }
         if (ctx.workerLocal != null) {
-            workerLocal = new SerializableWorkerData(ctx.workerLocal, state);
+            workerLocal = new SerializableWorkerData(ctx.workerLocal, state, updatedObjectSet);
         }
         if (ctx.workerResult != null) {
-            workerResult = new SerializableWorkerData(ctx.workerResult, state);
-        }
-    }
-
-    private void populateParentContexts(WorkerExecutionContext ctx, SerializableState state,
-                                        boolean isCompletedCtxRemoved, boolean updateParent, boolean updateIfExist) {
-        if (ctx.parent != null) {
-            SerializableContext sParentCtx = state.getSerializableContext(String.valueOf(ctx.parent.hashCode()));
-            if (sParentCtx == null || (updateParent && !type.equals(Type.ASYNC))) {
-                sParentCtx = state.populateContext(ctx.parent, ctx.parent.ip, isCompletedCtxRemoved, updateParent,
-                                                   updateIfExist, ctxKey);
-            }
-            this.parent = sParentCtx.ctxKey;
-            sParentCtx.children.add(this.ctxKey);
+            workerResult = new SerializableWorkerData(ctx.workerResult, state, updatedObjectSet);
         }
     }
 
@@ -189,7 +188,6 @@ public class SerializableContext {
             WorkerResponseContext respCtx = null;
             if (respCtxKey != null) {
                 respCtx = state.getResponseContext(this.respCtxKey, programFile, callableUnitInfo, deserializer);
-
             }
             WorkerInfo workerInfo = getWorkerInfo(respCtx, parentCtx, packageInfo, callableUnitInfo);
             workerExecutionContext = new WorkerExecutionContext(parentCtx, respCtx, callableUnitInfo,
@@ -217,9 +215,9 @@ public class SerializableContext {
     }
 
     private void populateProps(HashMap<String, Object> properties, Map<String, Object> props,
-                               SerializableState state) {
+                               SerializableState state, HashSet<String> updatedObjectSet) {
         if (props != null) {
-            props.forEach((s, o) -> properties.put(s, state.serialize(o)));
+            props.forEach((s, o) -> properties.put(s, state.serialize(o, updatedObjectSet)));
         }
     }
 

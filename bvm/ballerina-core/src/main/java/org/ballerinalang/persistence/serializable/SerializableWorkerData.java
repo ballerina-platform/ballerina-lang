@@ -21,6 +21,7 @@ import org.ballerinalang.persistence.Deserializer;
 import org.ballerinalang.util.codegen.ProgramFile;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 
 /**
  * This class represents a serializable Ballerina worker data.
@@ -29,22 +30,22 @@ import java.util.ArrayList;
  */
 public class SerializableWorkerData {
 
-    public long[] longRegs;
+    private long[] longRegs;
 
-    public double[] doubleRegs;
+    private double[] doubleRegs;
 
-    public String[] stringRegs;
+    private String[] stringRegs;
 
-    public int[] intRegs;
+    private int[] intRegs;
 
-    public ArrayList<Object> refFields;
+    ArrayList<Object> refFields;
 
-    public SerializableWorkerData(WorkerData workerData, SerializableState state) {
+    public SerializableWorkerData(WorkerData workerData, SerializableState state, HashSet<String> updatedObjectSet) {
         doubleRegs = workerData.doubleRegs;
         intRegs = workerData.intRegs;
         longRegs = workerData.longRegs;
         stringRegs = workerData.stringRegs;
-        refFields = state.serializeRefFields(workerData.refRegs);
+        refFields = state.serializeRefFields(workerData.refRegs, updatedObjectSet);
     }
 
     WorkerData getWorkerData(ProgramFile programFile, SerializableState state, Deserializer deserializer) {

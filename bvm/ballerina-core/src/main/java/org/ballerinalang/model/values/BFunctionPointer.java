@@ -27,6 +27,7 @@ import org.ballerinalang.util.codegen.FunctionInfo;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 
@@ -89,7 +90,7 @@ public class BFunctionPointer implements BRefType<FunctionInfo>, Serializable {
     }
 
     @Override
-    public SerializableRefType serialize(SerializableState state) {
+    public SerializableRefType serialize(SerializableState state, HashSet<String> updatedObjectSet) {
         return new SerializableBFuncPointer(this);
     }
 }

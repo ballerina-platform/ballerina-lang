@@ -17,13 +17,12 @@
  */
 package org.ballerinalang.persistence;
 
+import org.ballerinalang.bre.bvm.AsyncInvocableWorkerResponseContext;
 import org.ballerinalang.bre.bvm.BLangScheduler;
 import org.ballerinalang.persistence.store.PersistenceStore;
 import org.ballerinalang.util.codegen.ProgramFile;
 import org.ballerinalang.util.codegen.ResourceInfo;
 import org.ballerinalang.util.program.BLangVMUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.List;
 
@@ -35,8 +34,6 @@ import java.util.List;
 public class RecoveryTask implements Runnable {
 
     private ProgramFile programFile;
-
-    private static final Logger logger = LoggerFactory.getLogger(RecoveryTask.class);
 
     public RecoveryTask(ProgramFile programFile) {
         this.programFile = programFile;
@@ -55,6 +52,11 @@ public class RecoveryTask implements Runnable {
                 if (ctx.callableUnitInfo instanceof ResourceInfo) {
                     ResourceInfo resourceInfo = (ResourceInfo) ctx.callableUnitInfo;
                     BLangVMUtils.setServiceInfo(ctx, resourceInfo.getServiceInfo());
+                }
+                if (ctx.respCtx instanceof AsyncInvocableWorkerResponseContext) {
+                    if (((AsyncInvocableWorkerResponseContext) ctx.respCtx).isCancelled()) {
+                        return;
+                    }
                 }
                 // have to decrement ip as CPU class increments it as soon as instruction is fetched
                 ctx.ip--;

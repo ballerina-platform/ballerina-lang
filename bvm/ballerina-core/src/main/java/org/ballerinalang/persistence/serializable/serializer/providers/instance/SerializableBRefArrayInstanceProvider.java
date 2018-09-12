@@ -38,7 +38,7 @@ public class SerializableBRefArrayInstanceProvider implements TypeInstanceProvid
     @Override
     public Object newInstance() {
         WorkerExecutionContext ctx = new WorkerExecutionContext(new ProgramFile());
-        return new SerializableBRefArray(new BRefValueArray(), new SerializableState(null, ctx));
+        return new SerializableBRefArray(new BRefValueArray(), new SerializableState(null, ctx), null);
     }
 
     @Override

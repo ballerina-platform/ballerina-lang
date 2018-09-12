@@ -28,9 +28,25 @@ import java.util.List;
  */
 public interface StorageProvider {
 
+    /**
+     * Persist the serialized runtime state in the storage .
+     *
+     * @param stateId     Identifier of the runtime state
+     * @param stateString Serialized runtime state
+     */
     void persistState(String stateId, String stateString);
 
+    /**
+     * Remove serialized state from the given storage.
+     *
+     * @param stateId Identifier of the runtime state
+     */
     void removeActiveState(String stateId);
 
+    /**
+     * Provides all serialized states of the system.
+     *
+     * @return List of serialized state as strings
+     */
     List<String> getAllSerializedStates();
 }

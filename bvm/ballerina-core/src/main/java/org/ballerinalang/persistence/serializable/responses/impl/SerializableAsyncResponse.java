@@ -37,24 +37,16 @@ public class SerializableAsyncResponse extends SerializableResponseContext {
 
     public int workerCount;
 
-    private boolean cancelled;
-
     public SerializableAsyncResponse(String respCtxKey, AsyncInvocableWorkerResponseContext respCtx) {
         this.respCtxKey = respCtxKey;
         retRegIndexes = respCtx.getRetRegIndexes();
         workerCount = respCtx.getWorkerCount();
-        cancelled = respCtx.isCancelled();
     }
 
     @Override
     public WorkerResponseContext getResponseContext(ProgramFile programFile, CallableUnitInfo callableUnitInfo,
                                                     SerializableState state, Deserializer deserializer) {
-        AsyncInvocableWorkerResponseContext respCtx = new AsyncInvocableWorkerResponseContext(callableUnitInfo,
-                                                                                              workerCount);
-        if (cancelled) {
-            respCtx.cancel();
-        }
-        return respCtx;
+        return new AsyncInvocableWorkerResponseContext(callableUnitInfo, workerCount);
     }
 
     @Override

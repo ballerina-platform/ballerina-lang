@@ -19,23 +19,18 @@
 package org.ballerinalang.test.checkpointing;
 
 import org.awaitility.Awaitility;
-import org.ballerinalang.config.ConfigRegistry;
-import org.ballerinalang.persistence.store.impl.FileStorageProvider;
-import org.ballerinalang.test.BaseTest;
 import org.ballerinalang.test.context.BServerInstance;
 import org.ballerinalang.test.context.BallerinaTestException;
-import org.ballerinalang.test.context.Constant;
-import org.ballerinalang.test.context.Utils;
+import org.ballerinalang.test.context.LogLeecher;
 import org.ballerinalang.test.util.HttpClientRequest;
-import org.ballerinalang.test.util.HttpResponse;
 import org.testng.Assert;
+import org.testng.annotations.AfterTest;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
-import java.util.Locale;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -43,69 +38,61 @@ import java.util.concurrent.TimeUnit;
  *
  * @since 0.981.1
  */
-public class InterruptibleServiceTestCase extends BaseTest {
-
-    private final int servicePort = Constant.DEFAULT_HTTP_PORT;
-
-    private FileStorageProvider fileStorageProvider;
+public class InterruptibleWorkerServiceTestCase extends BaseInterruptibleTest {
 
     private String balFilePath;
 
-    private String[] args;
-
     @BeforeClass
-    public void setup() throws BallerinaTestException {
+    public void setup() {
+        super.setup("ballerina-worker-states");
         balFilePath = new File("src" + File.separator + "test" + File.separator +
                                        "resources" + File.separator + "checkpointing" + File.separator +
-                                       "interruptibleService.bal").getAbsolutePath();
-        File statesStorageDir = new File("target" + File.separator + "ballerina-states");
-        if (statesStorageDir.exists()) {
-            statesStorageDir.delete();
-        }
-        String statesStoragePath = statesStorageDir.getAbsolutePath();
-        String osName = Utils.getOSName();
-        if (osName != null && osName.toLowerCase(Locale.ENGLISH).contains("windows")) {
-            statesStoragePath = statesStoragePath.replace("\\", "\\\\");
-        }
-        args = new String[] { "-e", FileStorageProvider.INTERRUPTIBLE_STATES_FILE_PATH + "=" + statesStoragePath };
-        ConfigRegistry.getInstance().addConfiguration(FileStorageProvider.INTERRUPTIBLE_STATES_FILE_PATH,
-                                                      statesStoragePath);
-        fileStorageProvider = new FileStorageProvider();
+                                       "interruptibleWorkerService.bal").getAbsolutePath();
     }
 
     @Test(description = "Checkpoint will be saved and server interrupt before complete the request.")
     public void testCheckpointSuccess() throws IOException, BallerinaTestException {
         BServerInstance ballerinaServer = new BServerInstance(balServer);
         try {
-            int[] requiredPorts = new int[]{9090};
             ballerinaServer.startServer(balFilePath, args, requiredPorts);
-            HttpResponse response = HttpClientRequest.doGet(ballerinaServer
-                    .getServiceURLHttp(servicePort, "s1/r1"));
-            Assert.assertNotNull(response);
+            LogLeecher w1Log = new LogLeecher("Worker 1 parameter name worker 1");
+            ballerinaServer.addLogLeecher(w1Log);
+            HttpClientRequest.doGet(ballerinaServer.getServiceURLHttp(servicePort, "s1/r1"));
+            HttpClientRequest.doGet(ballerinaServer.getServiceURLHttp(servicePort, "s1/r2"));
             Awaitility.await().atMost(5, TimeUnit.SECONDS)
                       .until(() -> fileStorageProvider.getAllSerializedStates().size() > 0);
+            w1Log.waitForText(3000);
         } finally {
             ballerinaServer.killServer();
         }
         List<String> allSerializedStates = fileStorageProvider.getAllSerializedStates();
-        Assert.assertEquals(allSerializedStates.size(), 1,
-                            "Checkpoint haven't been save during request processing.");
+        Assert.assertEquals(allSerializedStates.size(), 1, "Checkpoint haven't been save during request processing.");
     }
 
     @Test(description = "Resume the request after server started from last checkPointed state",
           priority = 1)
-    public void testCheckpointResumeSuccess() throws BallerinaTestException {
+    public void testCheckpointResumeSuccess() throws BallerinaTestException, IOException {
         BServerInstance ballerinaServer = new BServerInstance(balServer);
         try {
-            int[] requiredPorts = new int[]{9090};
             ballerinaServer.startServer(balFilePath, args, requiredPorts);
-            Awaitility.await().atMost(20, TimeUnit.SECONDS)
+            LogLeecher w2Log = new LogLeecher("Worker 2 parameter name worker 2");
+            LogLeecher processCompleteLog = new LogLeecher("State completed");
+            ballerinaServer.addLogLeecher(w2Log);
+            ballerinaServer.addLogLeecher(processCompleteLog);
+            HttpClientRequest.doGet(ballerinaServer.getServiceURLHttp(servicePort, "s1/r3"));
+            w2Log.waitForText(3000);
+            processCompleteLog.waitForText(3000);
+            Awaitility.await().atMost(5, TimeUnit.SECONDS)
                       .until(() -> fileStorageProvider.getAllSerializedStates().size() == 0);
         } finally {
             ballerinaServer.shutdownServer();
         }
         List<String> allSerializedStates = fileStorageProvider.getAllSerializedStates();
-        Assert.assertEquals(allSerializedStates.size(), 0,
-                            "Server has not been resumed the checkpoint and complete it.");
+        Assert.assertEquals(allSerializedStates.size(), 0, "Server has not resumed the checkpoint and complete it.");
+    }
+
+    @AfterTest
+    public void cleanup() {
+        super.cleanup();
     }
 }

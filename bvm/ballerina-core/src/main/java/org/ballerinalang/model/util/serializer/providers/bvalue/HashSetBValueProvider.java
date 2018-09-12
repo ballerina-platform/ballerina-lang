@@ -32,7 +32,8 @@ import org.ballerinalang.model.values.BValue;
 import java.util.HashSet;
 
 /**
- * Provide mapping between {@link HashSet} and {@link BValue} representation of it.
+ * Class implements @{@link SerializationBValueProvider} to provide the mapping between {@link HashSet} and
+ * {@link BValue} representation of it.
  *
  * @since 0.982.0
  */

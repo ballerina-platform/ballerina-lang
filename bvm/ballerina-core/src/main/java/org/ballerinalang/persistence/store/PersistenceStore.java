@@ -77,8 +77,8 @@ public class PersistenceStore {
 
     private static State createState(SerializableState deSerializedState, ProgramFile programFile,
                                      Deserializer deserializer) {
-        // We need to generate new state with de serialised state inorder to use newly created serializable data and
-        // hashes.
+        // we need to generate new state with deserialised state inorder to use newly created serializable data and
+        // object hashes.
         List<WorkerExecutionContext> executableCtxList = deSerializedState.getExecutionContexts(programFile,
                                                                                                 deserializer);
         SerializableState sState = new SerializableState(deSerializedState.getId(), executableCtxList);
