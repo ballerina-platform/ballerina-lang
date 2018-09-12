@@ -192,6 +192,7 @@ public class PackagingTestCase extends BaseTest {
         LogLeecher clientLeecher = new LogLeecher(fullPkgPath + " successfully uninstalled");
         balClient.runMain("uninstall", clientArgs, envVariables, new String[]{}, new LogLeecher[]{clientLeecher},
                           tempProjectDirectory.toString());
+        clientLeecher.waitForText(2000);
 
         Path dirPath = Paths.get(ProjectDirConstants.DOT_BALLERINA_REPO_DIR_NAME, orgName, packageName, "0.0.1");
         Assert.assertTrue(Files.notExists(tempHomeDirectory.resolve(dirPath).resolve(packageName + ".zip")));
@@ -199,15 +200,15 @@ public class PackagingTestCase extends BaseTest {
     }
 
     @Test(description = "Test uninstalling a package from the home repository which was pulled from central",
-            dependsOnMethods = "testPull")
+            dependsOnMethods = { "testPull" , "testUninstallFromHomeRepo" })
     public void testUninstallFromCaches() throws Exception {
         String fullPkgPath = orgName + "/" + packageName + ":0.0.1";
         String[] clientArgs = {fullPkgPath};
 
         LogLeecher clientLeecher = new LogLeecher(fullPkgPath + " successfully uninstalled");
-
         balClient.runMain("uninstall", clientArgs, envVariables, new String[]{}, new LogLeecher[]{clientLeecher},
                           tempProjectDirectory.toString());
+        clientLeecher.waitForText(2000);
 
         Path dirPath = Paths.get(ProjectDirConstants.CACHES_DIR_NAME,
                                  ProjectDirConstants.BALLERINA_CENTRAL_DIR_NAME, orgName, packageName, "0.0.1");
