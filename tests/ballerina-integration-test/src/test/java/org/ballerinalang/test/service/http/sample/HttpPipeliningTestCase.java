@@ -36,6 +36,7 @@ import java.util.LinkedList;
 import static org.ballerinalang.test.util.TestUtils.getEntityBodyFrom;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertFalse;
+import static org.testng.Assert.assertTrue;
 
 /**
  * Test case for HTTP 1.1 pipelining.
@@ -49,6 +50,8 @@ public class HttpPipeliningTestCase extends BaseTest {
 
     private static final int BUFFER_SIZE = 1024;
     private static final String HOST = "localhost";
+    private static final String CONNECTION_RESET = "Connection reset by peer";
+    private static final String CHANNEL_INACTIVE = "Channel is inactive";
 
     @Test(description = "Test whether the response order matches the request order when HTTP pipelining is used")
     public void testPipelinedResponseOrder() throws IOException, InterruptedException {
@@ -94,8 +97,11 @@ public class HttpPipeliningTestCase extends BaseTest {
     public void testPipeliningLimit() throws IOException, InterruptedException {
         HttpClient httpClient = new HttpClient(HOST, 9222);
         String connectionCloseMsg = httpClient.sendMultiplePipelinedRequests("/pipeliningLimit/testMaxRequestLimit");
-        assertEquals(connectionCloseMsg, "Channel is inactive");
-
+        assertTrue(CHANNEL_INACTIVE.equals(connectionCloseMsg) ||
+                CONNECTION_RESET.equals(connectionCloseMsg), "When the channel is closed from the server " +
+                "side, client should either receive a channel inactive message or if another pipeline request is " +
+                "being written to the closed connection, a connection reset message. Actual value received is : " +
+                connectionCloseMsg);
     }
 
     private void verifyResponse(FullHttpResponse response, String expectedId, String expectedBody) {

@@ -48,6 +48,7 @@ public class DebugConstants {
     static final String CODE_INVALID = "INVALID";
     static final String MSG_INVALID = "Invalid Command";
     static final String MSG_INVALID_WORKER_ID = "Invalid Worker ID : ";
+    static final String MSG_INVALID_BREAKPOINT = "Invalid Breakpoint : ";
 
     static final String CODE_ACK = "ACK";
 

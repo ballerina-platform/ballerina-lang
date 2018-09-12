@@ -10,23 +10,36 @@
     }
   },
   "expected": {
-    "documentThis": {
-      "title": "Document This",
-      "command": "ADD_DOC",
-      "arguments": [
-        {
-          "argumentK": "node.type",
-          "argumentV": "type"
-        },
-        {
-          "argumentK": "node.line",
-          "argumentV": "23"
-        }
-      ]
-    },
-    "documentAll": {
-      "title":"Document All",
-      "command":"ADD_ALL_DOC"
+    "size": 3,
+    "actions": {
+      "createConstructor": {
+        "title":"Create Constructor",
+        "command":"CREATE_CONSTRUCTOR",
+        "arguments":[
+          {
+            "argumentK":"node.line",
+            "argumentV":"23"
+          }
+        ]
+      },
+      "documentThis": {
+        "title": "Document This",
+        "command": "ADD_DOC",
+        "arguments": [
+          {
+            "argumentK": "node.type",
+            "argumentV": "object"
+          },
+          {
+            "argumentK": "node.line",
+            "argumentV": "23"
+          }
+        ]
+      },
+      "documentAll": {
+        "title": "Document All",
+        "command": "ADD_ALL_DOC"
+      }
     }
   }
 }

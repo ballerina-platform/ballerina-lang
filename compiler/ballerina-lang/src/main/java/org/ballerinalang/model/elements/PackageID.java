@@ -68,6 +68,22 @@ public class PackageID {
     /**
      * Creates a {@code PackageID} for an unnamed package.
      *
+     * @param orgName        organization name
+     * @param sourceFileName name of the .bal file
+     * @param version        version
+     */
+    public PackageID(Name orgName, String sourceFileName, Name version) {
+        this.orgName = orgName;
+        this.name = Names.DEFAULT_PACKAGE;
+        this.version = version;
+        this.nameComps = Lists.of(Names.DEFAULT_PACKAGE);
+        this.isUnnamed = true;
+        this.sourceFileName = new Name(sourceFileName);
+    }
+
+    /**
+     * Creates a {@code PackageID} for an unnamed package.
+     *
      * @param sourceFileName name of the .bal file
      */
     public PackageID(String sourceFileName) {
@@ -110,11 +126,8 @@ public class PackageID {
         PackageID other = (PackageID) o;
         boolean samePkg = false;
 
-        boolean xor = this.isUnnamed && other.isUnnamed;
-        if (!xor && this.isUnnamed) {
-            samePkg = this.sourceFileName.equals(other.sourceFileName);
-        } else if (!xor) {
-            samePkg = true;
+        if (this.isUnnamed == other.isUnnamed) {
+            samePkg = (!this.isUnnamed) || (this.sourceFileName.equals(other.sourceFileName));
         }
 
         return samePkg && orgName.equals(other.orgName) && name.equals(other.name) && version.equals(other.version);

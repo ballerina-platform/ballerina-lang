@@ -1,5 +1,5 @@
 {
-  "nodeType": "type",
+  "nodeType": "record",
   "nodeLine": "18",
   "expected": {
     "result":{
