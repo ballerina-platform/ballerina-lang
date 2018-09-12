@@ -60,7 +60,7 @@ public class CipherSuiteswithCertsTest {
     private List<Parameter> clientParams = new ArrayList<>(1);
     private ServerConnector serverConnector;
     private HttpWsConnectorFactory factory;
-    private static final Logger LOGGER = LoggerFactory.getLogger(CipherSuitesTest.class);
+    private static final Logger LOG = LoggerFactory.getLogger(CipherSuitesTest.class);
 
     @DataProvider(name = "ciphers")
     public static Object[][] cipherSuites() {
@@ -171,7 +171,7 @@ public class CipherSuiteswithCertsTest {
             httpClientConnector.close();
             factory.shutdown();
         } catch (Exception e) {
-            LOGGER.warn("Interrupted while waiting for response", e);
+            LOG.warn("Interrupted while waiting for response", e);
         }
     }
 }

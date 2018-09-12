@@ -42,7 +42,7 @@ import static org.wso2.transport.http.netty.common.Constants.HTTPS_SCHEME;
  * This test contains 2 way ssl handshake with certs and Keys.
  */
 public class MutualSSLwithCertsTest {
-    private static final Logger LOGGER = LoggerFactory.getLogger(MutualSSLTestCase.class);
+    private static final Logger LOG = LoggerFactory.getLogger(MutualSSLTestCase.class);
 
     private static HttpClientConnector httpClientConnector;
     private HttpWsConnectorFactory factory;
@@ -96,7 +96,7 @@ public class MutualSSLwithCertsTest {
         try {
             factory.shutdown();
         } catch (Exception e) {
-            LOGGER.warn("Interrupted while waiting for HttpWsConnectorFactory to shut down", e);
+            LOG.warn("Interrupted while waiting for HttpWsConnectorFactory to shut down", e);
         }
     }
 }

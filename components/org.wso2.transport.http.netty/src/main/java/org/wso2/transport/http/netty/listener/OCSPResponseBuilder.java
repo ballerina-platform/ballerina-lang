@@ -55,7 +55,7 @@ public class OCSPResponseBuilder {
     private OCSPResponseBuilder() {
     }
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(OCSPResponseBuilder.class);
+    private static final Logger LOG = LoggerFactory.getLogger(OCSPResponseBuilder.class);
     private static List<X509Certificate> certList = new ArrayList<>();
     private static X509Certificate userCertificate = null;
     private static X509Certificate issuer = null;
@@ -196,7 +196,7 @@ public class OCSPResponseBuilder {
                 basicResponse = (BasicOCSPResp) response.getResponseObject();
                 responses = (basicResponse == null) ? null : basicResponse.getResponses();
             } catch (OCSPException | CertificateVerificationException e) {
-                LOGGER.debug("OCSP response failed for url{}. Hence trying the next url", serviceUrl);
+                LOG.debug("OCSP response failed for url{}. Hence trying the next url", serviceUrl);
                 continue;
             }
             if (responses != null && responses.length == 1) {
