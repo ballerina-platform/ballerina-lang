@@ -75,10 +75,17 @@ public class PushUtils {
      *
      * @param packageName   path of the package folder to be pushed
      * @param sourceRoot    path to the directory containing source files and packages
-     * @param installToRepo if it should be pushed to central or home
+     * @param installToRepo repo the package should be pushed to central or the home repository
+     * @param noBuild       do not build sources before pushing
      */
-    public static void pushPackages(String packageName, String sourceRoot, String installToRepo) {
+    public static void pushPackages(String packageName, String sourceRoot, String installToRepo, boolean noBuild) {
         Path prjDirPath = LauncherUtils.getSourceRootPath(sourceRoot);
+        // Check if the Ballerina.toml exists
+        if (Files.notExists(prjDirPath.resolve(ProjectDirConstants.MANIFEST_FILE_NAME))) {
+            throw new BLangCompilerException("Couldn't locate Ballerina.toml in the project directory. Run " +
+                                                     "'ballerina init' to create the Ballerina.toml file " +
+                                                     "automatically and re-run the 'ballerina push' command");
+        }
         Manifest manifest = TomlParserUtils.getManifest(prjDirPath);
         if (manifest.getName().isEmpty()) {
             throw new BLangCompilerException("An org-name is required when pushing. This is not specified in " +
@@ -99,10 +106,17 @@ public class PushUtils {
         Path pkgPathFromPrjtDir = Paths.get(prjDirPath.toString(), ProjectDirConstants.DOT_BALLERINA_DIR_NAME,
                                             ProjectDirConstants.DOT_BALLERINA_REPO_DIR_NAME, orgName,
                                             packageName, version, packageName + ".zip");
-        if (Files.notExists(pkgPathFromPrjtDir)) {
-            BuilderUtils.compileWithTestsAndWrite(prjDirPath, packageName, packageName, false, false, false, true);
-        }
 
+        // Always build if the flag is not given
+        if (!noBuild) {
+            BuilderUtils.compileWithTestsAndWrite(prjDirPath, packageName, packageName, false, false, false, false);
+        } else if (Files.notExists(pkgPathFromPrjtDir)) {
+            // If --no-build is given, first check if the package artifact exists. If it does not exist prompt the user
+            // to run "ballerina push" without the --no-build flag
+            throw new BLangCompilerException("Couldn't locate the package artifact to be pushed. Run 'ballerina " +
+                                                     "push' without the --no-build flag");
+        }
+        
         if (installToRepo == null) {
             // Get access token
             String accessToken = checkAccessToken();
@@ -331,9 +345,10 @@ public class PushUtils {
      * Push all packages to central.
      *
      * @param sourceRoot source root or project root
-     * @param home       if it should be pushed to central or home
+     * @param installToRepo repo the package should be pushed to central or the home repository
+     * @param noBuild    do not build sources before pushing
      */
-    public static void pushAllPackages(String sourceRoot, String home) {
+    public static void pushAllPackages(String sourceRoot, String installToRepo, boolean noBuild) {
         Path sourceRootPath = LauncherUtils.getSourceRootPath(sourceRoot);
         try {
             List<String> fileList = Files.list(sourceRootPath)
@@ -344,7 +359,7 @@ public class PushUtils {
             if (fileList.size() == 0) {
                 throw new BLangCompilerException("no packages found to push in " + sourceRootPath.toString());
             }
-            fileList.forEach(path -> pushPackages(path, sourceRoot, home));
+            fileList.forEach(path -> pushPackages(path, sourceRoot, installToRepo, noBuild));
         } catch (IOException ex) {
             throw new BLangCompilerException("error occurred when pushing packages from " + sourceRootPath.toString(),
                                              ex);

@@ -1,5 +1,5 @@
 {
-  "nodeType": "type",
+  "nodeType": "object",
   "nodeLine": "23",
   "expected": {
     "result":{

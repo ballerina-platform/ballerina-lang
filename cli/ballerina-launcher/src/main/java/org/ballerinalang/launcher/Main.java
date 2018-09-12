@@ -245,7 +245,6 @@ public class Main {
             }
 
             Path sourceRootPath = LauncherUtils.getSourceRootPath(sourceRoot);
-            System.setProperty("ballerina.source.root", sourceRootPath.toString());
             VMOptions.getInstance().addOptions(vmOptions);
 
             String programArg = argList.get(0);
