@@ -39,7 +39,6 @@ public class BPackageSymbol extends BTypeSymbol {
     public List<BPackageSymbol> imports = new ArrayList<>();
     public PackageFile packageFile;
     public CompiledPackage compiledPackage;
-    public RepoHierarchy repoHierarchy;
 
     // TODO Temporary mechanism to hold a reference to the generated bir model
     public BIRNode.BIRPackage bir;
@@ -86,7 +85,6 @@ public class BPackageSymbol extends BTypeSymbol {
         copy.compiledPackage = compiledPackage;
         copy.entryPointExists = entryPointExists;
         copy.isLabel = true;
-        copy.repoHierarchy = repoHierarchy;
         return copy;
     }
 

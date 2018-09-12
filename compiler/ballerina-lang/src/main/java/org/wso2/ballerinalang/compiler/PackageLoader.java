@@ -209,7 +209,7 @@ public class PackageLoader {
             return null;
         }
         
-        // If the packages is resolved within the same package, then manifest version will be used.
+        // If the packages is resolved within the same project, then manifest version is used for package ID.
         if (pkgId.version.value.isEmpty() && resolution.resolvedRepository instanceof ProjectSourceRepo) {
             pkgId.version = new Name(manifest.getVersion());
         }
