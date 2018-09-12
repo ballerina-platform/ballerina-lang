@@ -23,6 +23,7 @@ import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.VariableNode;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.util.diagnostic.DiagnosticCode;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotation;
 import org.wso2.ballerinalang.compiler.tree.BLangEndpoint;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
@@ -45,6 +46,7 @@ import org.wso2.ballerinalang.compiler.tree.types.BLangType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangValueType;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.diagnotic.BLangDiagnosticLog;
+import org.wso2.ballerinalang.util.Flags;
 
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -192,8 +194,11 @@ public class DocumentationAnalyzer extends BLangNodeVisitor {
                 param.setSymbol(((BLangVariable) parameter).symbol);
                 documentedParameterMap.remove(name);
             } else {
-                // Add warnings for undocumented parameters.
-                dlog.warning(((BLangNode) parameter).pos, undocumentedParameter, name);
+                // Check whether the parameter is public. Otherwise it is not mandatory to document it.
+                if (Symbols.isFlagOn(((BLangVariable) parameter).symbol.flags, Flags.PUBLIC)) {
+                    // Add warnings for undocumented parameters.
+                    dlog.warning(((BLangNode) parameter).pos, undocumentedParameter, name);
+                }
             }
         });
 

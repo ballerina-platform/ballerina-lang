@@ -72,8 +72,10 @@ public class MarkdownDocumentationTest {
         Assert.assertEquals(compileResult.getWarnCount(), 0);
 
         PackageNode packageNode = compileResult.getAST();
-        BLangMarkdownDocumentation documentationAttachment =
-                packageNode.getGlobalVariables().get(0).getMarkdownDocumentationAttachment();
+
+        VariableNode variableNode = packageNode.getGlobalVariables().get(0);
+        Assert.assertNotNull(variableNode);
+        BLangMarkdownDocumentation documentationAttachment = variableNode.getMarkdownDocumentationAttachment();
         Assert.assertNotNull(documentationAttachment);
         Assert.assertEquals(documentationAttachment.getDocumentation(), "Documentation for testConst constant");
 
@@ -82,6 +84,11 @@ public class MarkdownDocumentationTest {
 
         BLangMarkdownReturnParameterDocumentation returnParameter = documentationAttachment.getReturnParameter();
         Assert.assertNull(returnParameter);
+
+        variableNode = packageNode.getGlobalVariables().get(1);
+        Assert.assertNotNull(variableNode);
+        documentationAttachment = variableNode.getMarkdownDocumentationAttachment();
+        Assert.assertNull(documentationAttachment);
     }
 
     @Test(description = "Test doc finite types")
@@ -211,7 +218,7 @@ public class MarkdownDocumentationTest {
     public void testDocumentationNegative() {
         CompileResult compileResult = BCompileUtil.compile("test-src/documentation/markdown_negative.bal");
         Assert.assertEquals(compileResult.getErrorCount(), 0);
-        Assert.assertEquals(compileResult.getWarnCount(), 23);
+        Assert.assertEquals(compileResult.getWarnCount(), 22);
 
         int index = 0;
 
@@ -235,7 +242,6 @@ public class MarkdownDocumentationTest {
         BAssertUtil.validateWarning(compileResult, index++, "no documentable return parameter", 79, 1);
         BAssertUtil.validateWarning(compileResult, index++, "parameter 'req' already documented", 90, 9);
         BAssertUtil.validateWarning(compileResult, index++, "no such documentable parameter 'reqest'", 91, 9);
-        BAssertUtil.validateWarning(compileResult, index++, "undocumented parameter 'conn'", 92, 16);
         BAssertUtil.validateWarning(compileResult, index++, "no such documentable parameter 'testConstd'", 99, 5);
         BAssertUtil.validateWarning(compileResult, index, "no documentable return parameter", 100, 1);
     }
@@ -277,7 +283,7 @@ public class MarkdownDocumentationTest {
 
     @Test(description = "Test doc connector/function.")
     public void testDocConnectorFunction() {
-        CompileResult compileResult = BCompileUtil.compile("test-src/documentation/markdown_connector_function.bal");
+        CompileResult compileResult = BCompileUtil.compile("test-src/documentation/markdown_object.bal");
         Assert.assertEquals(compileResult.getErrorCount(), 0);
         Assert.assertEquals(compileResult.getWarnCount(), 0);
 
