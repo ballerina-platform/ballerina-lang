@@ -133,6 +133,7 @@ public class ClientSocketTest {
         BValue[] args = { new BString("localhost"), new BInteger(MockSocketServer.SERVER_PORT) };
         final BValue[] returns = BRunUtil.invokeStateful(socketClient, "openSocketConnection", args);
         socket = (BMap<String, BValue>) returns[0];
+        Assert.assertNotNull(socket, "Socket instance is null.");
     }
 
     @Test(dependsOnMethods = "testOpenClientSocket",
@@ -178,6 +179,7 @@ public class ClientSocketTest {
         BValue[] args = { new BString("localhost"), new BInteger(MockSocketServer.SERVER_PORT), new BInteger(port) };
         final BValue[] returns = BRunUtil.invokeStateful(socketClient, "openSocketConnectionWithProps", args);
         final BMap<String, BValue> socket = (BMap<String, BValue>) returns[0];
+        Assert.assertNotNull(socket, "Socket instance is null.");
         Assert.assertEquals(((BInteger) socket.get("localPort")).intValue(), port,
                 "Client port didn't bind to assign port.");
         args = new BValue[] { socket };

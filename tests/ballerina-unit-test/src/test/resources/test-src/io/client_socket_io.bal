@@ -1,23 +1,23 @@
 import ballerina/io;
 
-function openSocketConnection (string host, int port) returns io:Socket{
+function openSocketConnection(string host, int port) returns io:Socket {
     io:Socket s = new;
     check s.connect(host, port);
     return s;
 }
 
-function openSocketConnectionWithProps (string host, int port, int localPort) returns io:Socket {
+function openSocketConnectionWithProps(string host, int port, int localPort) returns io:Socket {
     io:Socket s = new;
     check s.bindAddress(localPort);
     check s.connect(host, port);
     return s;
 }
 
-function closeSocket (io:Socket socket) {
+function closeSocket(io:Socket socket) {
     error? err = socket.close();
 }
 
-function write (io:Socket socket, byte[] content) returns int|error {
+function write(io:Socket socket, byte[] content) returns int|error {
     io:ByteChannel channel = socket.channel;
     var result = channel.write(content, 0);
     match result {
@@ -31,7 +31,7 @@ function write (io:Socket socket, byte[] content) returns int|error {
     }
 }
 
-function read (io:Socket socket, int size) returns (byte[], int)|error {
+function read(io:Socket socket, int size) returns (byte[], int)|error {
     io:ByteChannel channel = socket.channel;
     var result = channel.read(size);
     match result {
