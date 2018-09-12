@@ -165,7 +165,7 @@ public class LauncherUtils {
         programFile.setServerConnectorRegistry(serverConnectorRegistry);
         serverConnectorRegistry.initServerConnectors();
 
-        outStream.println("initiating service(s) in '" + programFile.getProgramFilePath() + "'");
+        outStream.println("Initiating service(s) in '" + programFile.getProgramFilePath() + "'");
         BLangProgramRunner.runService(programFile);
 
         serverConnectorRegistry.deploymentComplete();
