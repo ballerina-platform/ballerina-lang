@@ -359,6 +359,92 @@ public class TestExecutionTestCase extends BaseTest {
                 new String[0], new LogLeecher[]{clientLeecher}, testPath.toString());
         clientLeecher.waitForText(3000);
 
+        // --disable-groups g2
+        msg = "Compiling tests\n" +
+                "    main_test.bal\n" +
+                "Running tests\n" +
+                "    main_test.bal\n" +
+                "I'm the ungrouped test\n" +
+                "I'm in test belonging to g1!\n" +
+                "\t  [pass] testFunction3\n" +
+                "\t  [pass] testFunction1\n" +
+                "\t  2 passing\n" +
+                "\t  0 failing\n" +
+                "\t  0 skipped";
+
+        clientLeecher = new LogLeecher(msg);
+        balClient.runMain("test", new String[] {"--disable-groups" , "g2", "main_test.bal"}, envVariables,
+                          new String[0], new LogLeecher[]{clientLeecher}, testPath.toString());
+        clientLeecher.waitForText(3000);
+
+        PackagingTestUtils.deleteFiles(pkgPath);
+    }
+
+    @Test(description = "Test executing multiple grouped tests", dependsOnMethods = "testInitProject")
+    public void testMultipleGroupTestsExecution() throws Exception {
+        Path pkgPath = tempProjectDirectory.resolve("grouptests");
+        Files.createDirectories(pkgPath);
+
+        Path testPath = pkgPath.resolve("tests");
+        Files.createDirectories(testPath);
+
+        String testContent = "import ballerina/test;\n" +
+                "import ballerina/io;\n" +
+                "@test:Config {\n" +
+                "    groups: [\"g1\"]\n" +
+                "}\n" +
+                "function testFunction1() {\n" +
+                "    io:println(\"I'm in test belonging to g1!\");\n" +
+                "    test:assertTrue(true, msg = \"Failed!\");\n" +
+                "}\n" +
+                "@test:Config {\n" +
+                "    groups: [\"g1\", \"g2\"]\n" +
+                "}\n" +
+                "function testFunction2() {\n" +
+                "    io:println(\"I'm in test belonging to g1 and g2!\");\n" +
+                "    test:assertTrue(true, msg = \"Failed!\");\n" +
+                "}\n" +
+                "@test:Config\n" +
+                "function testFunction3() {\n" +
+                "    io:println(\"I'm the ungrouped test\");\n" +
+                "    test:assertTrue(true, msg = \"Failed!\");\n" +
+                "}\n";
+        Files.write(testPath.resolve("main_test.bal"), testContent.getBytes(), StandardOpenOption.CREATE_NEW);
+
+        // --groups g1,g2
+        String msg = "Compiling tests\n" +
+                "    main_test.bal\n" +
+                "Running tests\n" +
+                "    main_test.bal\n" +
+                "I'm in test belonging to g1 and g2!\n" +
+                "I'm in test belonging to g1!\n" +
+                "\t  [pass] testFunction2\n" +
+                "\t  [pass] testFunction1\n" +
+                "\t  2 passing\n" +
+                "\t  0 failing\n" +
+                "\t  0 skipped";
+
+        LogLeecher clientLeecher = new LogLeecher(msg);
+        balClient.runMain("test", new String[]  {"--groups" , "g1,g2", "main_test.bal"}, envVariables,
+                          new String[0], new LogLeecher[]{clientLeecher}, testPath.toString());
+        clientLeecher.waitForText(3000);
+
+        // --disable-groups g1,g2
+        msg = "Compiling tests\n" +
+                "    main_test.bal\n" +
+                "Running tests\n" +
+                "    main_test.bal\n" +
+                "I'm the ungrouped test\n" +
+                "\t  [pass] testFunction3\n" +
+                "\t  1 passing\n" +
+                "\t  0 failing\n" +
+                "\t  0 skipped";
+
+        clientLeecher = new LogLeecher(msg);
+        balClient.runMain("test", new String[] {"--disable-groups" , "g1,g2" , "main_test.bal"}, envVariables,
+                          new String[0], new LogLeecher[]{clientLeecher}, testPath.toString());
+        clientLeecher.waitForText(3000);
+
         PackagingTestUtils.deleteFiles(pkgPath);
     }
 

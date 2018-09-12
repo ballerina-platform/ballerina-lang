@@ -54,6 +54,8 @@ public class SessionIdGenerator {
 
     /**
      * Node identifier when in a cluster. Defaults to the empty string.
+     *
+     * @param sessionIdLength length of session id
      */
 
     public void setSessionIdLength(int sessionIdLength) {
