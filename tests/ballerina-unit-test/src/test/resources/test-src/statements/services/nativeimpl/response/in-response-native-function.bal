@@ -41,7 +41,7 @@ function testGetXmlPayload(http:Response res) returns xml|error {
     return res.getXmlPayload();
 }
 
-function testSetPayloadAndGetText((string|xml|json|byte[]|io:ByteChannel) payload) returns string|error {
+function testSetPayloadAndGetText((string|xml|json|byte[]|io:ReadableByteChannel) payload) returns string|error {
     http:Response res = new;
     res.setPayload(payload);
     return res.getTextPayload();
