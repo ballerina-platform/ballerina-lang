@@ -17,15 +17,19 @@
  */
 package org.ballerinalang.test.debugger;
 
+import org.ballerinalang.model.types.BField;
+import org.ballerinalang.model.types.BObjectType;
 import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BByte;
 import org.ballerinalang.model.values.BInteger;
+import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BStringArray;
 import org.ballerinalang.test.utils.debug.DebugPoint;
 import org.ballerinalang.test.utils.debug.ExpectedResults;
 import org.ballerinalang.test.utils.debug.Util;
 import org.ballerinalang.test.utils.debug.VMDebuggerUtil;
+import org.ballerinalang.util.codegen.ObjectTypeInfo;
 import org.ballerinalang.util.debugger.Debugger;
 import org.ballerinalang.util.debugger.dto.BreakPointDTO;
 import org.ballerinalang.util.debugger.dto.VariableDTO;
@@ -42,6 +46,7 @@ import static org.ballerinalang.test.utils.debug.Step.RESUME;
 import static org.ballerinalang.test.utils.debug.Step.STEP_IN;
 import static org.ballerinalang.test.utils.debug.Step.STEP_OUT;
 import static org.ballerinalang.test.utils.debug.Step.STEP_OVER;
+import static org.ballerinalang.test.utils.debug.Util.createBreakNodeLocations;
 
 /**
  * Test Cases for {@link Debugger}.
@@ -65,8 +70,8 @@ public class VMDebuggerTest {
 
     @Test(description = "Testing Resume with break points.")
     public void testResume() {
-        BreakPointDTO[] breakPoints = Util.createBreakNodeLocations(".", FILE,
-                3, 9, 17, 29, 30, 33, 35, 37, 42, 43, 44, 45, 46, 47);
+        BreakPointDTO[] breakPoints = createBreakNodeLocations(".", FILE,
+                                                               3, 9, 17, 29, 30, 33, 35, 37, 42, 43, 44, 45, 46, 47);
 
         List<DebugPoint> debugPoints = new ArrayList<>();
         debugPoints.add(Util.createDebugPoint(".", FILE, 3, RESUME, 1));
@@ -84,7 +89,7 @@ public class VMDebuggerTest {
 
     @Test(description = "Testing Debugger with breakpoint in non executable and not reachable lines.")
     public void testNegativeBreakPoints() {
-        BreakPointDTO[] breakPoints = Util.createBreakNodeLocations(".", FILE, 4, 7, 51, 39);
+        BreakPointDTO[] breakPoints = createBreakNodeLocations(".", FILE, 4, 7, 51, 39);
 
         List<DebugPoint> debugPoints = new ArrayList<>();
 
@@ -94,7 +99,7 @@ public class VMDebuggerTest {
 
     @Test(description = "Testing Step In.")
     public void testStepIn() {
-        BreakPointDTO[] breakPoints = Util.createBreakNodeLocations(".", FILE, 5, 8, 41);
+        BreakPointDTO[] breakPoints = createBreakNodeLocations(".", FILE, 5, 8, 41);
 
         List<DebugPoint> debugPoints = new ArrayList<>();
         debugPoints.add(Util.createDebugPoint(".", FILE, 5, STEP_IN, 1));
@@ -126,7 +131,7 @@ public class VMDebuggerTest {
 
     @Test(description = "Testing Step Out.")
     public void testStepOut() {
-        BreakPointDTO[] breakPoints = Util.createBreakNodeLocations(".", FILE, 26);
+        BreakPointDTO[] breakPoints = createBreakNodeLocations(".", FILE, 26);
 
         List<DebugPoint> debugPoints = new ArrayList<>();
         debugPoints.add(Util.createDebugPoint(".", FILE, 26, STEP_OUT, 1));
@@ -140,7 +145,7 @@ public class VMDebuggerTest {
 
     @Test(description = "Testing Step Over.")
     public void testStepOver() {
-        BreakPointDTO[] breakPoints = Util.createBreakNodeLocations(".", FILE, 3);
+        BreakPointDTO[] breakPoints = createBreakNodeLocations(".", FILE, 3);
 
         List<DebugPoint> debugPoints = new ArrayList<>();
         debugPoints.add(Util.createDebugPoint(".", FILE, 3, STEP_OVER, 1));
@@ -157,7 +162,7 @@ public class VMDebuggerTest {
 
     @Test(description = "Testing Step over in IfCondition.")
     public void testStepOverIfStmt() {
-        BreakPointDTO[] breakPoints = Util.createBreakNodeLocations(".", FILE, 26);
+        BreakPointDTO[] breakPoints = createBreakNodeLocations(".", FILE, 26);
 
         List<DebugPoint> debugPoints = new ArrayList<>();
         debugPoints.add(Util.createDebugPoint(".", FILE, 26, STEP_OVER, 1));
@@ -176,7 +181,7 @@ public class VMDebuggerTest {
 
     @Test(description = "Testing Step over in WhileStmt.")
     public void testStepOverWhileStmt() {
-        BreakPointDTO[] breakPoints = Util.createBreakNodeLocations(".", FILE, 13, 14, 20, 22);
+        BreakPointDTO[] breakPoints = createBreakNodeLocations(".", FILE, 13, 14, 20, 22);
 
         List<DebugPoint> debugPoints = new ArrayList<>();
         debugPoints.add(Util.createDebugPoint(".", FILE, 13, STEP_OVER, 1));
@@ -191,8 +196,8 @@ public class VMDebuggerTest {
 
     @Test(description = "Testing while statement resume")
     public void testWhileStatementResume() {
-        BreakPointDTO[] breakPoints = Util.createBreakNodeLocations(".",
-                "while-statement.bal", 5);
+        BreakPointDTO[] breakPoints = createBreakNodeLocations(".",
+                                                                    "while-statement.bal", 5);
 
         List<DebugPoint> debugPoints = new ArrayList<>();
         debugPoints.add(Util.createDebugPoint(".", "while-statement.bal", 5, RESUME, 5));
@@ -208,8 +213,8 @@ public class VMDebuggerTest {
 
     @Test(description = "Testing try catch finally scenario for path")
     public void testTryCatchScenarioForPath() {
-        BreakPointDTO[] breakPoints = Util.createBreakNodeLocations(".",
-                "try-catch-finally.bal", 19);
+        BreakPointDTO[] breakPoints = createBreakNodeLocations(".",
+                                                                    "try-catch-finally.bal", 19);
 
         String file = "try-catch-finally.bal";
 
@@ -238,8 +243,8 @@ public class VMDebuggerTest {
 
     @Test(description = "Testing debug paths in workers")
     public void testDebuggingWorkers() {
-        BreakPointDTO[] breakPoints = Util.createBreakNodeLocations(".",
-                "test-worker.bal", 3, 9, 10, 18, 19, 23, 48);
+        BreakPointDTO[] breakPoints = createBreakNodeLocations(".",
+                                                                    "test-worker.bal", 3, 9, 10, 18, 19, 23, 48);
 
         String file = "test-worker.bal";
 
@@ -263,8 +268,8 @@ public class VMDebuggerTest {
 
     @Test(description = "Testing debug paths in package init")
     public void testDebuggingPackageInit() {
-        BreakPointDTO[] breakPoints = Util.createBreakNodeLocations(".",
-                "test-package-init.bal", 3, 9);
+        BreakPointDTO[] breakPoints = createBreakNodeLocations(".",
+                                                                    "test-package-init.bal", 3, 9);
 
         String file = "test-package-init.bal";
 
@@ -298,8 +303,8 @@ public class VMDebuggerTest {
 
     @Test(description = "Testing debug match statement and objects")
     public void testDebuggingMatchAndObject() {
-        BreakPointDTO[] breakPoints = Util.createBreakNodeLocations(".",
-                "test_object_and_match.bal", 3, 48, 66, 54);
+        BreakPointDTO[] breakPoints = createBreakNodeLocations(".",
+                                                                    "test_object_and_match.bal", 3, 48, 66, 54);
 
         String file = "test_object_and_match.bal";
 
@@ -350,7 +355,7 @@ public class VMDebuggerTest {
     @Test(description = "Testing global variables availability in debug hit message")
     public void testGlobalVarAvailability() {
         String file = "test_variables.bal";
-        BreakPointDTO[] breakPoints = Util.createBreakNodeLocations(".", file, 10);
+        BreakPointDTO[] breakPoints = createBreakNodeLocations(".", file, 10);
 
         List<DebugPoint> debugPoints = new ArrayList<>();
         debugPoints.add(Util.createDebugPoint(".", file, 10, STEP_OVER, 1));
@@ -370,7 +375,7 @@ public class VMDebuggerTest {
     @Test(description = "Testing local variables scopes")
     public void testLocalVarScope() {
         String file = "test_variables.bal";
-        BreakPointDTO[] breakPoints = Util.createBreakNodeLocations(".", file, 9);
+        BreakPointDTO[] breakPoints = createBreakNodeLocations(".", file, 9);
 
         List<DebugPoint> debugPoints = new ArrayList<>();
         debugPoints.add(Util.createDebugPoint(".", file, 9, RESUME, 1));
@@ -387,5 +392,36 @@ public class VMDebuggerTest {
         ExpectedResults expRes = new ExpectedResults(debugPoints, 1, 4, variables, true);
 
         VMDebuggerUtil.startDebug("test-src/debugger/test_variables.bal", breakPoints, expRes);
+    }
+
+    @Test(description = "Testing local variables scopes")
+    public void testMultiPackage() {
+        String file = "apple.bal";
+        String packagePath = "abc/fruits:0.0.1";
+        BreakPointDTO[] breakPoints = createBreakNodeLocations(packagePath, file, 5);
+
+        List<DebugPoint> debugPoints = new ArrayList<>();
+        debugPoints.add(Util.createDebugPoint(packagePath, file, 5, RESUME, 1));
+
+        List<VariableDTO> variables = new ArrayList<>();
+        variables.add(Util.createVariable("self", "Local", createObject("Apple", packagePath)));
+        ExpectedResults expRes = new ExpectedResults(debugPoints, 1, 0, variables, false);
+        VMDebuggerUtil.startDebug("test-src/debugger/multi-package/main.bal", breakPoints, expRes);
+    }
+
+    /**
+     * Creates and returns a pseudo object with empty flags and fields.
+     *
+     * @param objectName  object name
+     * @param packagePath package path eg. orgName/packageName:version
+     * @return Object representation
+     */
+    private BMap createObject(String objectName, String packagePath) {
+        BObjectType bObjectType;
+        ObjectTypeInfo objectTypeInfo = new ObjectTypeInfo();
+        bObjectType = new BObjectType(objectTypeInfo, objectName, packagePath, 0);
+        bObjectType.setFields(new BField[0]);
+        objectTypeInfo.setType(bObjectType);
+        return new BMap(bObjectType);
     }
 }

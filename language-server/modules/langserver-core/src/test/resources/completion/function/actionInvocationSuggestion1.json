@@ -6,7 +6,7 @@
   "source": "function/source/actionInvocationSuggestion1.bal",
   "items": [
     {
-      "label":"post(string path, ballerina/http:Request|string|xml|json|byte[]|ballerina/io:ByteChannel|ballerina/mime:Entity[]? message)(ballerina/http:Response|error)",
+      "label":"post(string path, ballerina/http:Request|string|xml|json|byte[]|ballerina/io:ReadableByteChannel|ballerina/mime:Entity[]? message)(ballerina/http:Response|error)",
       "kind":"Function",
       "detail":"Function",
       "sortText":"120",
@@ -14,7 +14,7 @@
       "insertTextFormat":"Snippet"
     },
     {
-      "label":"head(string path, ballerina/http:Request|string|xml|json|byte[]|ballerina/io:ByteChannel|ballerina/mime:Entity[]? message \u003d ())(ballerina/http:Response|error)",
+      "label":"head(string path, ballerina/http:Request|string|xml|json|byte[]|ballerina/io:ReadableByteChannel|ballerina/mime:Entity[]? message \u003d ())(ballerina/http:Response|error)",
       "kind":"Function",
       "detail":"Function",
       "sortText":"120",
@@ -22,7 +22,7 @@
       "insertTextFormat":"Snippet"
     },
     {
-      "label":"put(string path, ballerina/http:Request|string|xml|json|byte[]|ballerina/io:ByteChannel|ballerina/mime:Entity[]? message)(ballerina/http:Response|error)",
+      "label":"put(string path, ballerina/http:Request|string|xml|json|byte[]|ballerina/io:ReadableByteChannel|ballerina/mime:Entity[]? message)(ballerina/http:Response|error)",
       "kind":"Function",
       "detail":"Function",
       "sortText":"120",
@@ -30,7 +30,7 @@
       "insertTextFormat":"Snippet"
     },
     {
-      "label":"execute(string httpVerb, string path, ballerina/http:Request|string|xml|json|byte[]|ballerina/io:ByteChannel|ballerina/mime:Entity[]? message)(ballerina/http:Response|error)",
+      "label":"execute(string httpVerb, string path, ballerina/http:Request|string|xml|json|byte[]|ballerina/io:ReadableByteChannel|ballerina/mime:Entity[]? message)(ballerina/http:Response|error)",
       "kind":"Function",
       "detail":"Function",
       "sortText":"120",
@@ -38,7 +38,7 @@
       "insertTextFormat":"Snippet"
     },
     {
-      "label":"patch(string path, ballerina/http:Request|string|xml|json|byte[]|ballerina/io:ByteChannel|ballerina/mime:Entity[]? message)(ballerina/http:Response|error)",
+      "label":"patch(string path, ballerina/http:Request|string|xml|json|byte[]|ballerina/io:ReadableByteChannel|ballerina/mime:Entity[]? message)(ballerina/http:Response|error)",
       "kind":"Function",
       "detail":"Function",
       "sortText":"120",
@@ -46,7 +46,7 @@
       "insertTextFormat":"Snippet"
     },
     {
-      "label":"delete(string path, ballerina/http:Request|string|xml|json|byte[]|ballerina/io:ByteChannel|ballerina/mime:Entity[]? message)(ballerina/http:Response|error)",
+      "label":"delete(string path, ballerina/http:Request|string|xml|json|byte[]|ballerina/io:ReadableByteChannel|ballerina/mime:Entity[]? message)(ballerina/http:Response|error)",
       "kind":"Function",
       "detail":"Function",
       "sortText":"120",
@@ -54,7 +54,7 @@
       "insertTextFormat":"Snippet"
     },
     {
-      "label":"get(string path, ballerina/http:Request|string|xml|json|byte[]|ballerina/io:ByteChannel|ballerina/mime:Entity[]? message \u003d ())(ballerina/http:Response|error)",
+      "label":"get(string path, ballerina/http:Request|string|xml|json|byte[]|ballerina/io:ReadableByteChannel|ballerina/mime:Entity[]? message \u003d ())(ballerina/http:Response|error)",
       "kind":"Function",
       "detail":"Function",
       "sortText":"120",
@@ -62,7 +62,7 @@
       "insertTextFormat":"Snippet"
     },
     {
-      "label":"options(string path, ballerina/http:Request|string|xml|json|byte[]|ballerina/io:ByteChannel|ballerina/mime:Entity[]? message \u003d ())(ballerina/http:Response|error)",
+      "label":"options(string path, ballerina/http:Request|string|xml|json|byte[]|ballerina/io:ReadableByteChannel|ballerina/mime:Entity[]? message \u003d ())(ballerina/http:Response|error)",
       "kind":"Function",
       "detail":"Function",
       "sortText":"120",
@@ -78,7 +78,7 @@
       "insertTextFormat":"Snippet"
     },
     {
-      "label":"submit(string httpVerb, string path, ballerina/http:Request|string|xml|json|byte[]|ballerina/io:ByteChannel|ballerina/mime:Entity[]? message)(ballerina/http:HttpFuture|error)",
+      "label":"submit(string httpVerb, string path, ballerina/http:Request|string|xml|json|byte[]|ballerina/io:ReadableByteChannel|ballerina/mime:Entity[]? message)(ballerina/http:HttpFuture|error)",
       "kind":"Function",
       "detail":"Function",
       "sortText":"120",

@@ -56,7 +56,7 @@ function testSetEntityBody(string filePath, string contentType) returns http:Req
     return req;
 }
 
-function testSetPayloadAndGetText((string|xml|json|byte[]|io:ByteChannel) payload) returns string|error {
+function testSetPayloadAndGetText((string|xml|json|byte[]|io:ReadableByteChannel) payload) returns string|error {
     http:Request req = new;
     req.setPayload(payload);
     return req.getTextPayload();
@@ -240,7 +240,7 @@ service<http:Service> hello bind mockEP {
                 res.setTextPayload("Error occurred");
                 res.statusCode = 500;
             }
-            io:ByteChannel byteChannel => {
+            io:ReadableByteChannel byteChannel => {
                 res.setByteChannel(byteChannel);
             }
         }
