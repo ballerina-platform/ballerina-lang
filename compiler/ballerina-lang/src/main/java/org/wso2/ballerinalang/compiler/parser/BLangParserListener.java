@@ -408,8 +408,6 @@ public class BLangParserListener extends BallerinaParserBaseListener {
 
     /**
      * {@inheritDoc}
-     *
-     * <p>The default implementation does nothing.</p>
      */
     @Override
     public void exitTypeDefinition(BallerinaParser.TypeDefinitionContext ctx) {
@@ -424,8 +422,6 @@ public class BLangParserListener extends BallerinaParserBaseListener {
 
     /**
      * {@inheritDoc}
-     *
-     * <p>The default implementation does nothing.</p>
      */
     @Override
     public void enterObjectBody(BallerinaParser.ObjectBodyContext ctx) {
@@ -440,8 +436,6 @@ public class BLangParserListener extends BallerinaParserBaseListener {
 
     /**
      * {@inheritDoc}
-     *
-     * <p>The default implementation does nothing.</p>
      */
     @Override
     public void exitObjectBody(BallerinaParser.ObjectBodyContext ctx) {
@@ -460,8 +454,6 @@ public class BLangParserListener extends BallerinaParserBaseListener {
 
     /**
      * {@inheritDoc}
-     *
-     * <p>The default implementation does nothing.</p>
      */
     @Override
     public void enterObjectInitializer(BallerinaParser.ObjectInitializerContext ctx) {
@@ -474,8 +466,6 @@ public class BLangParserListener extends BallerinaParserBaseListener {
 
     /**
      * {@inheritDoc}
-     *
-     * <p>The default implementation does nothing.</p>
      */
     @Override
     public void exitObjectInitializer(BallerinaParser.ObjectInitializerContext ctx) {
@@ -492,8 +482,6 @@ public class BLangParserListener extends BallerinaParserBaseListener {
 
     /**
      * {@inheritDoc}
-     *
-     * <p>The default implementation does nothing.</p>
      */
     @Override
     public void exitObjectInitializerParameterList(BallerinaParser.ObjectInitializerParameterListContext ctx) {
@@ -507,8 +495,6 @@ public class BLangParserListener extends BallerinaParserBaseListener {
 
     /**
      * {@inheritDoc}
-     *
-     * <p>The default implementation does nothing.</p>
      */
     @Override
     public void exitFieldDefinition(BallerinaParser.FieldDefinitionContext ctx) {
@@ -526,8 +512,6 @@ public class BLangParserListener extends BallerinaParserBaseListener {
 
     /**
      * {@inheritDoc}
-     *
-     * <p>The default implementation does nothing.</p>
      */
     @Override
     public void exitObjectFieldDefinition(BallerinaParser.ObjectFieldDefinitionContext ctx) {
@@ -552,8 +536,6 @@ public class BLangParserListener extends BallerinaParserBaseListener {
 
     /**
      * {@inheritDoc}
-     *
-     * <p>The default implementation does nothing.</p>
      */
     @Override
     public void enterObjectParameterList(BallerinaParser.ObjectParameterListContext ctx) {
@@ -566,8 +548,6 @@ public class BLangParserListener extends BallerinaParserBaseListener {
 
     /**
      * {@inheritDoc}
-     *
-     * <p>The default implementation does nothing.</p>
      */
     @Override
     public void exitObjectParameter(BallerinaParser.ObjectParameterContext ctx) {
@@ -582,8 +562,6 @@ public class BLangParserListener extends BallerinaParserBaseListener {
 
     /**
      * {@inheritDoc}
-     *
-     * <p>The default implementation does nothing.</p>
      */
     @Override
     public void exitObjectDefaultableParameter(BallerinaParser.ObjectDefaultableParameterContext ctx) {
@@ -596,8 +574,6 @@ public class BLangParserListener extends BallerinaParserBaseListener {
 
     /**
      * {@inheritDoc}
-     *
-     * <p>The default implementation does nothing.</p>
      */
     @Override
     public void enterObjectFunctionDefinition(BallerinaParser.ObjectFunctionDefinitionContext ctx) {
@@ -610,8 +586,6 @@ public class BLangParserListener extends BallerinaParserBaseListener {
 
     /**
      * {@inheritDoc}
-     *
-     * <p>The default implementation does nothing.</p>
      */
     @Override
     public void exitObjectFunctionDefinition(BallerinaParser.ObjectFunctionDefinitionContext ctx) {
@@ -781,8 +755,6 @@ public class BLangParserListener extends BallerinaParserBaseListener {
 
     /**
      * {@inheritDoc}
-     *
-     * <p>The default implementation does nothing.</p>
      */
     @Override
     public void enterRecordFieldDefinitionList(BallerinaParser.RecordFieldDefinitionListContext ctx) {
@@ -1111,8 +1083,6 @@ public class BLangParserListener extends BallerinaParserBaseListener {
 
     /**
      * {@inheritDoc}
-     *
-     * <p>The default implementation does nothing.</p>
      */
     @Override
     public void exitCompoundOperator(BallerinaParser.CompoundOperatorContext ctx) {
@@ -2065,8 +2035,6 @@ public class BLangParserListener extends BallerinaParserBaseListener {
 
     /**
      * {@inheritDoc}
-     *
-     * <p>The default implementation does nothing.</p>
      */
     @Override
     public void exitReturnParameter(BallerinaParser.ReturnParameterContext ctx) {
@@ -2960,12 +2928,36 @@ public class BLangParserListener extends BallerinaParserBaseListener {
      * {@inheritDoc}
      */
     @Override
+    public void exitDocumentationLine(BallerinaParser.DocumentationLineContext ctx) {
+        if (ctx.exception != null) {
+            return;
+        }
+
+        this.pkgBuilder.endMarkDownDocumentLine(getWS(ctx));
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     public void exitDocumentationContent(BallerinaParser.DocumentationContentContext ctx) {
         if (ctx.exception != null) {
             return;
         }
         String text = ctx.getText() != null ? ctx.getText() : "";
-        this.pkgBuilder.endMarkdownDocumentationText(getCurrentPos(ctx), text);
+        this.pkgBuilder.endMarkdownDocumentationText(getCurrentPos(ctx), getWS(ctx), text);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void exitParameterDocumentationLine(BallerinaParser.ParameterDocumentationLineContext ctx) {
+        if (ctx.exception != null) {
+            return;
+        }
+
+        this.pkgBuilder.endParameterDocumentationLine(getWS(ctx));
     }
 
     /**
@@ -2978,7 +2970,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         }
         String parameterName = ctx.docParameterName() != null ? ctx.docParameterName().getText() : "";
         String description = ctx.docParameterDescription() != null ? ctx.docParameterDescription().getText() : "";
-        this.pkgBuilder.endParameterDocumentation(getCurrentPos(ctx), parameterName, description);
+        this.pkgBuilder.endParameterDocumentation(getCurrentPos(ctx), getWS(ctx), parameterName, description);
     }
 
     /**
@@ -2990,7 +2982,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
             return;
         }
         String description = ctx.documentationText() != null ? ctx.documentationText().getText() : "";
-        this.pkgBuilder.endParameterDocumentationDescription(description);
+        this.pkgBuilder.endParameterDocumentationDescription(getWS(ctx), description);
     }
 
     /**
@@ -3002,7 +2994,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
             return;
         }
         String description = ctx.docParameterDescription() != null ? ctx.docParameterDescription().getText() : "";
-        this.pkgBuilder.endReturnParameterDocumentation(getCurrentPos(ctx.getParent()), description);
+        this.pkgBuilder.endReturnParameterDocumentation(getCurrentPos(ctx.getParent()), getWS(ctx), description);
     }
 
     /**
@@ -3014,7 +3006,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
             return;
         }
         String description = ctx.documentationText() != null ? ctx.documentationText().getText() : "";
-        this.pkgBuilder.endReturnParameterDocumentationDescription(description);
+        this.pkgBuilder.endReturnParameterDocumentationDescription(getWS(ctx), description);
     }
 
     /**

@@ -404,7 +404,7 @@ class TreeBuilder {
 
         if (node.kind === 'RecordType') {
             if (node.restFieldType) {
-               node.isRestFieldAvailable = true;
+                node.isRestFieldAvailable = true;
             }
         }
 
