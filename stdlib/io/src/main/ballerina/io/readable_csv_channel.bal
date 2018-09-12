@@ -23,7 +23,7 @@
 //# Represents minimum number of headers which will be included in CSV.
 //@final int MINIMUM_HEADER_COUNT = 0;
 
-# Represents a CSVChannel which could be used to read/write records from CSV file.
+# Represents a ReadableCSVChannel which could be used to read records from CSV file.
 public type ReadableCSVChannel object {
     private ReadableTextRecordChannel? dc;
 

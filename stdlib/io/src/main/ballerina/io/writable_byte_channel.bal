@@ -14,7 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-# ByteChannel represents an input/output resource (i.e file, socket). which could be used to source/sink bytes.
+# WritableByteChannel represents an output resource (i.e file, socket). which could be used to sink bytes.
 public type WritableByteChannel object {
 
     # Source bytes from a given input/output resource.

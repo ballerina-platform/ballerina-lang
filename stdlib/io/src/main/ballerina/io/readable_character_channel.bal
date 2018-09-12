@@ -15,23 +15,23 @@
 // under the License.
 
 
-#Represents a channel which could be used to read/write characters through a given ByteChannel.
+#Represents a channel which could be used to read characters through a given ReadableByteChannel.
 public type ReadableCharacterChannel object {
 
     private ReadableByteChannel channel;
     private string charset;
 
-    # Constructs a CharacterChannel from a given ByteChannel and Charset.
+    # Constructs a ReadableCharacterChannel from a given ReadableByteChannel and Charset.
 
-    # + channel - ByteChannel which would be used to read/write characters
+    # + channel - ReadableByteChannel which would be used to read characters
     # + charset - Character-Set which would be used to encode/decode given bytes to characters
     public new(channel, charset) {
         init(channel, charset);
     }
 
-    # Initializes a character channel.
+    # Initializes a character ReadableCharacterChannel.
     #
-    # + byteChannel - ByteChannel which should be used to initalize the character channel
+    # + byteChannel - ReadableByteChannel which should be used to initalize the ReadableCharacterChannel
     # + cs - Character-set (i.e UTF-8) which should be used to encode/decode
     extern function init(ReadableByteChannel byteChannel, string cs);
 
