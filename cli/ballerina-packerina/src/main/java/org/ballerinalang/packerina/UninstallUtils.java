@@ -104,15 +104,18 @@ public class UninstallUtils {
 
     /**
      * Delete empty parent directories.
+     * After deleting the package.zip from the home repository we should delete the empty directories as well. We need
+     * to delete all folders from the package path to the home directory only if they are empty (going backwards).
+     * If the directory path is empty i.e. does not contain any files we simply delete the folder else we don't delete.
      *
-     * @param from package directory path
-     * @param to   home repository path
+     * @param pkgDirPath package directory path
+     * @param repoPath   home repository path
      * @throws IOException throw an exception if an error occurs
      */
-    private static void deleteEmptyParentDirs(Path from, Path to) throws IOException {
-        Path pathsInBetween = to.relativize(from);
+    private static void deleteEmptyParentDirs(Path pkgDirPath, Path repoPath) throws IOException {
+        Path pathsInBetween = repoPath.relativize(pkgDirPath);
         for (int i = pathsInBetween.getNameCount(); i > 0; i--) {
-            Path toRemove = to.resolve(pathsInBetween.subpath(0, i));
+            Path toRemove = repoPath.resolve(pathsInBetween.subpath(0, i));
             if (!Files.list(toRemove).findAny().isPresent()) {
                 Files.delete(toRemove);
             }
