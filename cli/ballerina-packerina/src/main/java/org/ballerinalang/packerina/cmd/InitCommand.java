@@ -109,11 +109,17 @@ public class InitCommand implements BLauncherCmd {
 
                 String srcInput;
                 boolean validInput = false;
+                boolean firstPrompt = true;
                 do {
-                    out.print("Ballerina source [service/s, main/m, finish/f]: (f) ");
+                    if (firstPrompt) {
+                        out.print("Ballerina source [service/s, main/m, finish/f]: (s) ");
+                    } else {
+                        out.print("Ballerina source [service/s, main/m, finish/f]: (f) ");
+                    }
                     srcInput = scanner.nextLine().trim();
 
-                    if (srcInput.equalsIgnoreCase("service") || srcInput.equalsIgnoreCase("s") || srcInput.isEmpty()) {
+                    if (srcInput.equalsIgnoreCase("service") || srcInput.equalsIgnoreCase("s")
+                            || (srcInput.isEmpty() && firstPrompt)) {
                         String packageName;
                         do {
                             out.print("Package for the service: (no package) ");
@@ -127,6 +133,7 @@ public class InitCommand implements BLauncherCmd {
                             PackageMdFile packageMdFile = new PackageMdFile(packageName, FileType.SERVICE);
                             packageMdFiles.add(packageMdFile);
                         }
+                        firstPrompt = false;
                     } else if (srcInput.equalsIgnoreCase("main") || srcInput.equalsIgnoreCase("m")) {
                         String packageName;
                         do {
@@ -141,8 +148,10 @@ public class InitCommand implements BLauncherCmd {
                             PackageMdFile packageMdFile = new PackageMdFile(packageName, FileType.MAIN);
                             packageMdFiles.add(packageMdFile);
                         }
+                        firstPrompt = false;
                     } else if (srcInput.isEmpty() || srcInput.equalsIgnoreCase("f")) {
                         validInput = true;
+                        firstPrompt = false;
                     } else {
                         out.println("Invalid input");
                     }
