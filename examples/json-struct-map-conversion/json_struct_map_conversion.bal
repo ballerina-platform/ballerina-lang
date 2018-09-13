@@ -34,7 +34,8 @@ public function main() {
     // Similarly, you can convert a record to a map.
     // This conversion is safe.
     map m = <map>theRevenant;
-    Person writer = check <Person>m["writer"];
+    map writerMap = check <map>m["writer"];
+    Person writer = check <Person>writerMap;
     io:println(writer.age);
 
     // Here's how you can convert a JSON object to a record.
