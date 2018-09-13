@@ -87,11 +87,12 @@ public class ChannelRegistry {
     }
 
     /**
-     * Add a new channel if not exist.
+     * Add a new channel if not exist and returns.
      * @param name Channel identifier
+     * @return A channel entry in given name from channels list
      */
-    private void addChannel(String name) {
-        channelList.computeIfAbsent(name, chn -> new HashMap<>());
+    public Map<String, LinkedList<PendingContext>> addChannel(String name) {
+        return channelList.computeIfAbsent(name, chn -> new HashMap<>());
     }
 
     /**
