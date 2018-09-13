@@ -327,7 +327,8 @@ public class CommonUtil {
      */
     public static String topLevelNodeTypeInLine(TextDocumentIdentifier identifier, Position startPosition,
                                                 WorkspaceDocumentManager docManager) {
-        List<String> topLevelKeywords = Arrays.asList("function", "service", "resource", "endpoint", "type");
+        List<String> topLevelKeywords = Arrays.asList("function", "service", "resource", "endpoint", "object",
+                "record");
         LSDocument document = new LSDocument(identifier.getUri());
 
         try {
@@ -752,7 +753,8 @@ public class CommonUtil {
         return bSymbol.getName().getValue().contains(UtilSymbolKeys.LT_SYMBOL_KEY)
                 || bSymbol.getName().getValue().contains(UtilSymbolKeys.GT_SYMBOL_KEY)
                 || bSymbol.getName().getValue().contains(UtilSymbolKeys.DOLLAR_SYMBOL_KEY)
-                || bSymbol.getName().getValue().equals("main");
+                || bSymbol.getName().getValue().equals("main")
+                || bSymbol.getName().getValue().endsWith(".new");
     }
 
     ///////////////////////////////
@@ -1044,7 +1046,7 @@ public class CommonUtil {
                     argNames.add(argName);
                 }
             }
-            return (!list.isEmpty()) ? list : null;
+            return (!list.isEmpty()) ? list : new ArrayList<>();
         }
 
         private static String lookupVariableReturnType(String variableName, BLangNode parent) {
