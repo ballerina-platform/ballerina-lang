@@ -29,6 +29,7 @@ import org.ballerinalang.model.values.BRefValueArray;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.persistence.Deserializer;
+import org.ballerinalang.persistence.RuntimeStates;
 import org.ballerinalang.persistence.State;
 import org.ballerinalang.persistence.serializable.SerializableState;
 import org.ballerinalang.persistence.serializable.reftypes.SerializableRefType;
@@ -45,6 +46,7 @@ import org.testng.annotations.Test;
 import java.lang.reflect.Field;
 import java.math.BigDecimal;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 
@@ -68,13 +70,11 @@ public class SerializationTest {
     private static final String VALUE_ITEM_2 = "Item-2";
     private static final String VALUE_ITEM_3 = "Item-3";
     private static final String INNER_BMAP_KEY = "obj1";
-    private static final String BSRING_CONTENT = "BString Content";
-    private static final String BSTRING = "bstring";
+    private static final String BSTRING_CONTENT = "BString Content";
+    private static final String BSTRING = "bString";
     private CompileResult compileResult;
-    private String serializedString;
     private TestStorageProvider storageProvider;
     private Deserializer deserializer = new Deserializer();
-    private List<WorkerExecutionContext> contexts;
 
     @BeforeClass
     public void setup() {
@@ -83,6 +83,7 @@ public class SerializationTest {
         compileResult = BCompileUtil.compile("test-src/checkpointing/checkpoint.bal");
         TestDebugger debugger = new TestDebugger(compileResult.getProgFile());
         compileResult.getProgFile().setDebugger(debugger);
+        RuntimeStates.add(STATE_ID, new WorkerExecutionContext(compileResult.getProgFile()));
     }
 
     @Test(description = "Test case for JsonSerializer using mocked WorkerExecutionContext object.")
@@ -146,7 +147,7 @@ public class SerializationTest {
         BMap<String, BValue> bmap =
                 (BMap) bmapKey1.getBRefType(compileResult.getProgFile(), state, new Deserializer());
         BString value = (BString) bmap.get(KEY_STR);
-        Assert.assertEquals(value.value(), BSRING_CONTENT);
+        Assert.assertEquals(value.value(), BSTRING_CONTENT);
 
         JsonSerializerTest.StringFieldAB multiLevel =
                 (JsonSerializerTest.StringFieldAB) state.globalProps.get(MULTI_LEVEL_KEY);
@@ -191,10 +192,10 @@ public class SerializationTest {
         serializableState.globalProps.put(DEC_KEY, BIG_DECIMAL);
 
         BMap<String, BRefType> bMap = new BMap<>();
-        bMap.put(KEY_STR, new BString(BSRING_CONTENT));
+        bMap.put(KEY_STR, new BString(BSTRING_CONTENT));
         bMap.put(INNER_BMAP_KEY, getInnerBMap());
         bMap.put(BSTRING, sharedString);
-        SerializableBMap value = new SerializableBMap(bMap, serializableState);
+        SerializableBMap value = new SerializableBMap(bMap, serializableState, new HashSet<>());
         getSRefTypesMap(serializableState).put(BMAP_KEY, value);
     }
 
