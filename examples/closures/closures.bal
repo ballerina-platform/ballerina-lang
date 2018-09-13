@@ -6,7 +6,7 @@ int globalA = 5;
 // variables.
 function basicClosure() returns (function (int) returns int) {
     int a = 3;
-    var foo =  (int b) => int {
+    var foo =  function (int b) returns int {
         int c = 34;
         if (b == 3) {
             c = c + b + a + globalA;
@@ -20,11 +20,11 @@ function basicClosure() returns (function (int) returns int) {
 // innermost lambda has access to all of its outer scope variables.
 function multilevelClosure() returns (function (int) returns int) {
     int a = 2;
-    var func1 = (int x) => int {
+    var func1 = function (int x) returns int {
         int b = 23;
-        var func2 = (int y) => int {
+        var func2 = function (int y) returns int {
             int c = 7;
-            var func3 = (int z) => int {
+            var func3 = function (int z) returns int {
                 return x + y + z + a + b + c;
             };
             return func3(8) + y + x;
@@ -38,8 +38,8 @@ function multilevelClosure() returns (function (int) returns int) {
 // and inner scope lambdas access the outer scope variables.
 function functionPointers(int a) returns
                     (function (int) returns (function (int) returns int)) {
-    return (int b) => (function (int) returns int) {
-        return (int c) => int {
+    return function (int b) returns (function (int) returns int) {
+        return function (int c) returns int {
             return a + b + c;
         };
     };

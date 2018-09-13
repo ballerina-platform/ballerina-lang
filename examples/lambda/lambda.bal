@@ -3,7 +3,7 @@ import ballerina/io;
 function main(string... args) {
     // Define the lambda function.
     function (string, string) returns (string) lambda =
-            (string x, string y) => (string) {
+            function (string x, string y) returns (string) {
                 string r = x + y;
                 return r;
             };
