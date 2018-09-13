@@ -8,6 +8,7 @@ type BinaryInsGenrator object {
     llvm:LLVMValueRef lhsRef;
     llvm:LLVMValueRef rhsOp1;
     llvm:LLVMValueRef rhsOp2;
+
     new(builder, lhsTmpName, lhsRef, rhsOp1, rhsOp2) {
     }
 

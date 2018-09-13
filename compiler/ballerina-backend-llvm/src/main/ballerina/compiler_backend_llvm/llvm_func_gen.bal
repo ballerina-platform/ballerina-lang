@@ -77,7 +77,7 @@ type FuncGenrator object {
     function genBbBodies() returns map<BbTermGenrator> {
         map<BbTermGenrator> bbTermGenrators;
         foreach bb in func.basicBlocks {
-            BbBodyGenrator g = new(builder, funcRef, func, self, bb);
+            BbBodyGenrator g = new(builder, self, bb);
             bbTermGenrators[bb.id.value] = g.genBasicBlockBody();
         }
         return bbTermGenrators;
@@ -94,21 +94,18 @@ type FuncGenrator object {
         }
     }
 
-    function genVarLoad(bir:Operand oprand) returns llvm:LLVMValueRef {
-        match oprand {
-            bir:VarRef refOprand => {
-                string tempName = localVarName(refOprand.variableDcl) + "_temp";
-                var localVarRef = getLocalVarRefById(func, refOprand.variableDcl.name.value);
-                return llvm:LLVMBuildLoad(builder, localVarRef, tempName);
-            }
-        }
+    function genLoadLocalToTempVar(bir:Operand oprand) returns llvm:LLVMValueRef {
+        bir:VarRef refOprand = oprand;
+        string tempName = localVarName(refOprand.variableDcl) + "_temp";
+        var localVarRef = getLocalVarRefById(refOprand.variableDcl.name.value);
+        return llvm:LLVMBuildLoad(builder, localVarRef, tempName);
     }
 
-    function getLocalVarRefById(bir:Function fun, string id) returns llvm:LLVMValueRef {
+    function getLocalVarRefById(string id) returns llvm:LLVMValueRef {
         match localVarRefs[id] {
             llvm:LLVMValueRef varRef => return varRef;
             any => {
-                error err = { message: "Local var by name '" + id + "' dosn't exist in " + fun.name.value };
+                error err = { message: "Local var by name '" + id + "' dosn't exist in " + func.name.value };
                 throw err;
             }
         }
@@ -120,5 +117,8 @@ type FuncGenrator object {
         return bbRef;
     }
 
+    function isVoidFunc() returns boolean {
+        return func.typeValue.retType != "()";
+    }
 };
 

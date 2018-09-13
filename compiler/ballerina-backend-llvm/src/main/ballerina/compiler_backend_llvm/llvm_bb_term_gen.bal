@@ -5,13 +5,11 @@ import ballerina/bir;
 type BbTermGenrator object {
 
     llvm:LLVMBuilderRef builder,
-    llvm:LLVMValueRef funcRef,
-    bir:Function func,
     FuncGenrator parent,
     bir:BasicBlock bb,
     llvm:LLVMBasicBlockRef bbRef;
 
-    new(builder, funcRef, func, bb, bbRef, parent) {
+    new(builder, bb, bbRef, parent) {
     }
 
     function genBasicBlockTerminator(map<FuncGenrator> funcGenrators, map<BbTermGenrator> bbGenrators) {
@@ -32,7 +30,7 @@ type BbTermGenrator object {
     function genBranchTerm(bir:Branch brIns, map<BbTermGenrator> bbGenrators) {
         var ifTrue = findBbRefById(bbGenrators, brIns.trueBB.id.value);
         var ifFalse = findBbRefById(bbGenrators, brIns.falseBB.id.value);
-        var vrInsRef = llvm:LLVMBuildCondBr(builder, genVarLoad(brIns.op), ifTrue, ifFalse);
+        var vrInsRef = llvm:LLVMBuildCondBr(builder, parent.genLoadLocalToTempVar(brIns.op), ifTrue, ifFalse);
     }
 
     function genCallTerm(bir:Call callIns, map<FuncGenrator> funcGenrators, map<BbTermGenrator> bbGenrators) {
@@ -55,7 +53,7 @@ type BbTermGenrator object {
         var argsCount = lengthof ops;
         int i = 0;
         while (i < argsCount) {
-            loaddedVars[i] = genVarLoad(ops[i]);
+            loaddedVars[i] = parent.genLoadLocalToTempVar(ops[i]);
             i++;
         }
         return loaddedVars;
@@ -75,7 +73,7 @@ type BbTermGenrator object {
         llvm:LLVMValueRef callReturn = llvm:LLVMBuildCall(builder, calleFuncRef, args, lengthof args, "");
         match callIns.lhsOp {
             bir:VarRef lhsOp => {
-                llvm:LLVMValueRef lhsRef = parent.getLocalVarRefById(func, lhsOp.variableDcl.name.value);
+                llvm:LLVMValueRef lhsRef = parent.getLocalVarRefById(lhsOp.variableDcl.name.value);
                 var loaded = llvm:LLVMBuildStore(builder, callReturn, lhsRef);
             }
             () => {
@@ -86,40 +84,15 @@ type BbTermGenrator object {
     }
 
     function genReturnTerm() {
-        if (isVoidFunc()){
-            var retValueRef = llvm:LLVMBuildLoad(builder, parent.getLocalVarRefById(func, "%0"), "retrun_temp");
+        if (parent.isVoidFunc()){
+            var retValueRef = llvm:LLVMBuildLoad(builder, parent.getLocalVarRefById("%0"), "retrun_temp");
             var ret = llvm:LLVMBuildRet(builder, retValueRef);
         } else {
             var ret = llvm:LLVMBuildRetVoid(builder);
         }
 
     }
-    function isVoidFunc() returns boolean {
-        return func.typeValue.retType != "()"; //TODO: use cont instead "()" eg: BTypeNil
-    }
-
-    // TODO remove duplicate func
-    function genVarLoad(bir:Operand oprand) returns llvm:LLVMValueRef {
-        match oprand {
-            bir:VarRef refOprand => {
-                string tempName = localVarName(refOprand.variableDcl) + "_temp";
-                return llvm:LLVMBuildLoad(builder, parent.getLocalVarRefById(func, refOprand.variableDcl.name.value),
-                    tempName);
-            }
-        }
-    }
-
-
 };
-
-function genCallToPrintf(llvm:LLVMBuilderRef builder, llvm:LLVMValueRef[] args, boolean hasNewLine) {
-    var argsCount = lengthof args;
-    var newLine = hasNewLine ? "\n" : "";
-    var printLnIntPatten = llvm:LLVMBuildGlobalStringPtr(builder, stringMul("%ld", argsCount) + newLine, "");
-    llvm:LLVMValueRef[] printArgs = [printLnIntPatten];
-    appendAllTo(printArgs, args);
-    llvm:LLVMValueRef callReturn = llvm:LLVMBuildCall(builder, printfRef, printArgs, argsCount + 1, "");
-}
 
 function stringMul(string str, int factor) returns string {
     int i;
