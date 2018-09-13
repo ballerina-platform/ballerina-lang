@@ -6,11 +6,19 @@
   "source": "resource/source/completionBeforeUnderscore1.bal",
   "items": [
     {
-      "label": "openFileForReading(string path, io:Mode accessMode)(ballerina/io:ReadableByteChannel)",
+      "label": "openFileForReading(string path)(ballerina/io:ReadableByteChannel)",
       "kind": "Function",
       "detail": "Function",
       "sortText": "121",
-      "insertText": "openFile(${1:path}, ${2:accessMode})",
+      "insertText": "openFileForReading(${1:path})",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "openFileForWriting(string path, boolean append = false)(ballerina/io:WritableByteChannel)",
+      "kind": "Function",
+      "detail": "Function",
+      "sortText": "121",
+      "insertText": "openFileForWriting(${1:path}, append = ${2:false})",
       "insertTextFormat": "Snippet"
     },
     {
@@ -22,19 +30,11 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "createMemoryChannel(byte[] content)(ballerina/io:ByteChannel)",
+      "label": "createReadableChannel(byte[] content)(ballerina/io:ReadableByteChannel)",
       "kind": "Function",
       "detail": "Function",
       "sortText": "121",
-      "insertText": "createMemoryChannel(${1:content})",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "openCsvFile(string path, io:Mode mode \u003d r, io:Separator fieldSeparator \u003d ,, string charset \u003d UTF-8, int skipHeaders \u003d 0)(ballerina/io:CSVChannel)",
-      "kind": "Function",
-      "detail": "Function",
-      "sortText": "121",
-      "insertText": "openCsvFile(${1:path}, mode \u003d ${5:r}, fieldSeparator \u003d ${6:,}, charset \u003d ${7:\"UTF-8\"}, skipHeaders \u003d ${8:0})",
+      "insertText": "createReadableChannel(${1:content})",
       "insertTextFormat": "Snippet"
     },
     {
@@ -88,16 +88,16 @@
       "insertText": "Separator"
     },
     {
-      "label": "ByteOrder",
-      "detail": "BType",
-      "sortText": "171",
-      "insertText": "ByteOrder"
-    },
-    {
       "label": "Mode",
       "detail": "BType",
       "sortText": "171",
       "insertText": "Mode"
+    },
+    {
+      "label": "ByteOrder",
+      "detail": "BType",
+      "sortText": "171",
+      "insertText": "ByteOrder"
     },
     {
       "label": "ReadableByteChannel",
