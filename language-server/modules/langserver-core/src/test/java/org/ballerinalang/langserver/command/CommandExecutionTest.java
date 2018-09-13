@@ -103,6 +103,22 @@ public class CommandExecutionTest {
         Assert.assertTrue(responseJson.equals(expected));
     }
     
+    @Test(description = "Test Create Constructor for object")
+    public void testCreateConstructor() {
+        String configJsonPath = "command" + File.separator + "createConstructor.json";
+        Path sourcePath = sourcesPath.resolve("source").resolve("commonDocumentation.bal");
+        JsonObject configJsonObject = FileUtils.fileContentAsObject(configJsonPath);
+        JsonObject expected = configJsonObject.get("expected").getAsJsonObject();
+        List<Object> args = Arrays.asList(
+                new CommandUtil.CommandArgument("node.type", configJsonObject.get("nodeType").getAsString()),
+                new CommandUtil.CommandArgument("doc.uri", sourcePath.toUri().toString()),
+                new CommandUtil.CommandArgument("node.line", configJsonObject.get("nodeLine").getAsString()));
+        JsonObject responseJson = getCommandResponse(args, CommandConstants.CMD_CREATE_CONSTRUCTOR);
+        responseJson.get("result").getAsJsonObject().get("edit").getAsJsonObject().getAsJsonArray("documentChanges")
+                .forEach(element -> element.getAsJsonObject().remove("textDocument"));
+        Assert.assertTrue(responseJson.equals(expected));
+    }
+    
     @Test(dataProvider = "create-function-data-provider")
     public void testCreateFunction(String config, String source) {
         String configJsonPath = "command" + File.separator + config;
@@ -160,6 +176,7 @@ public class CommandExecutionTest {
         return new Object[][] {
                 {"addSingleFunctionDocumentation1.json", "addSingleFunctionDocumentation1.bal"},
                 {"addSingleFunctionDocumentation2.json", "commonDocumentation.bal"},
+                {"addObjectFunctionDocumentation.json", "commonDocumentation.bal"},
                 {"addSingleEndpointDocumentation.json", "commonDocumentation.bal"},
                 {"addSingleServiceDocumentation.json", "commonDocumentation.bal"},
                 {"addSingleRecordDocumentation.json", "commonDocumentation.bal"},

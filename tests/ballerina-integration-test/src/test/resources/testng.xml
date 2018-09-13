@@ -53,6 +53,7 @@
             <class name="org.ballerinalang.test.service.http.sample.TestReusabilityOfRequest"/>
             <class name="org.ballerinalang.test.service.http.sample.CompressionTestCase"/>
             <class name="org.ballerinalang.test.service.http.sample.IdleTimeoutResponseTestCase"/>
+            <class name="org.ballerinalang.test.service.http.sample.HttpPipeliningTestCase"/>
         </classes>
     </test>
 

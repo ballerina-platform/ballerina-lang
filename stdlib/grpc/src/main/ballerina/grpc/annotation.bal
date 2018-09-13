@@ -25,6 +25,8 @@
 #                     sets to true, if the service defines as bidirectional streaming.
 public type GrpcServiceConfig record {
     string name;
+    typedesc requestType;
+    typedesc responseType;
     boolean clientStreaming;
     boolean serverStreaming;
 };
@@ -38,6 +40,8 @@ public annotation<service> ServiceConfig GrpcServiceConfig;
 #               multiple responses per request.
 public type GrpcResourceConfig record {
     boolean streaming;
+    typedesc requestType;
+    typedesc responseType;
 };
 
 # Service resource configuration. Sets only for server streaming service.

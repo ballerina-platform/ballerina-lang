@@ -29,10 +29,11 @@ import org.ballerinalang.langserver.completions.util.sorters.DefaultItemSorter;
 import org.ballerinalang.langserver.completions.util.sorters.ItemSorters;
 import org.eclipse.lsp4j.CompletionItem;
 import org.eclipse.lsp4j.InsertTextFormat;
+import org.wso2.ballerinalang.compiler.parser.antlr4.BallerinaParser;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Stack;
+import java.util.stream.Collectors;
 
 /**
  * Resolves all items that can appear as a top level element in the file.
@@ -45,16 +46,13 @@ public class TopLevelResolver extends AbstractItemResolver {
         ParserRuleContext parserRuleContext = ctx.get(CompletionKeys.PARSER_RULE_CONTEXT_KEY);
         AbstractItemResolver itemResolver = parserRuleContext == null ? null :
                 CompletionItemResolver.getResolverByClass(parserRuleContext.getClass());
-        Stack<Token> poppedTokens = ctx.get(CompletionKeys.FORCE_CONSUMED_TOKENS_KEY);
 
         if (this.isAnnotationStart(ctx)) {
             completionItems.addAll(CompletionItemResolver
                     .getResolverByClass(ParserRuleAnnotationAttachmentResolver.class).resolveItems(ctx));
-        } else if (itemResolver == null
-                || (itemResolver instanceof ParserRuleGlobalVariableDefinitionContextResolver
-                && poppedTokens.size() < 2)) {
-                addTopLevelItems(completionItems);
-                completionItems.addAll(this.populateBasicTypes(ctx.get(CompletionKeys.VISIBLE_SYMBOLS_KEY)));
+        } else if (itemResolver == null 
+                || itemResolver instanceof ParserRuleGlobalVariableDefinitionContextResolver) {
+            completionItems.addAll(getGlobalVarDefCompletions(ctx));
         } else {
             completionItems.addAll(itemResolver.resolveItems(ctx));
         }
@@ -104,5 +102,23 @@ public class TopLevelResolver extends AbstractItemResolver {
                 ItemResolverConstants.KEYWORD_TYPE);
         addStaticItem(completionItems, ItemResolverConstants.PUBLIC_KEYWORD, Snippet.PUBLIC_KEYWORD_SNIPPET.toString(),
                 ItemResolverConstants.KEYWORD_TYPE);
+    }
+    
+    private ArrayList<CompletionItem> getGlobalVarDefCompletions(LSServiceOperationContext context) {
+        ArrayList<CompletionItem> completionItems = new ArrayList<>();
+
+        List<String> poppedTokens = context.get(CompletionKeys.FORCE_CONSUMED_TOKENS_KEY).stream()
+                .map(Token::getText)
+                .collect(Collectors.toList());
+        if (poppedTokens.size() < 2) {
+            addTopLevelItems(completionItems);
+            completionItems.addAll(this.populateBasicTypes(context.get(CompletionKeys.VISIBLE_SYMBOLS_KEY)));
+        } else {
+            completionItems
+                    .addAll(CompletionItemResolver.getResolverByClass(BallerinaParser.DefinitionContext.class)
+                            .resolveItems(context));
+        }
+        
+        return completionItems;
     }
 }

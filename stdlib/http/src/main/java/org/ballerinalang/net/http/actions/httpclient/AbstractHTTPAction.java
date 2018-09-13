@@ -29,10 +29,8 @@ import org.ballerinalang.connector.api.BallerinaConnectorException;
 import org.ballerinalang.connector.api.Struct;
 import org.ballerinalang.mime.util.EntityBodyHandler;
 import org.ballerinalang.mime.util.HeaderUtil;
-import org.ballerinalang.mime.util.MimeUtil;
 import org.ballerinalang.mime.util.MultipartDataSource;
 import org.ballerinalang.model.InterruptibleNativeCallableUnit;
-import org.ballerinalang.model.util.JsonGenerator;
 import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BRefValueArray;
@@ -442,13 +440,7 @@ public abstract class AbstractHTTPAction implements InterruptibleNativeCallableU
         if (entityStruct != null) {
             BValue messageDataSource = EntityBodyHandler.getMessageDataSource(entityStruct);
             if (messageDataSource != null) {
-                if (MimeUtil.generateAsJSON(messageDataSource, entityStruct)) {
-                    JsonGenerator gen = new JsonGenerator(messageOutputStream);
-                    gen.serialize(messageDataSource);
-                    gen.flush();
-                } else {
-                    messageDataSource.serialize(messageOutputStream);
-                }
+                HttpUtil.serializeDataSource(messageDataSource, entityStruct, messageOutputStream);
                 HttpUtil.closeMessageOutputStream(messageOutputStream);
             } else { //When the entity body is a byte channel and when it is not null
                 if (EntityBodyHandler.getByteChannel(entityStruct) != null) {

@@ -292,14 +292,17 @@ public class TypeChecker extends BLangNodeVisitor {
     }
 
     private void validateTableColumns(BType tableConstraint, BLangTableLiteral tableLiteral) {
-        List<String> columnNames = new ArrayList<>();
-        for (BField field : ((BRecordType) tableConstraint).fields) {
-            columnNames.add(field.getName().getValue());
-        }
-        for (BLangTableLiteral.BLangTableColumn column : tableLiteral.columns) {
-            boolean contains = columnNames.contains(column.columnName);
-            if (!contains) {
-                dlog.error(tableLiteral.pos, DiagnosticCode.UNDEFINED_TABLE_COLUMN, column.columnName, tableConstraint);
+        if (tableConstraint.tag != TypeTags.ERROR) {
+            List<String> columnNames = new ArrayList<>();
+            for (BField field : ((BRecordType) tableConstraint).fields) {
+                columnNames.add(field.getName().getValue());
+            }
+            for (BLangTableLiteral.BLangTableColumn column : tableLiteral.columns) {
+                boolean contains = columnNames.contains(column.columnName);
+                if (!contains) {
+                    dlog.error(tableLiteral.pos, DiagnosticCode.UNDEFINED_TABLE_COLUMN, column.columnName,
+                            tableConstraint);
+                }
             }
         }
     }
@@ -762,8 +765,11 @@ public class TypeChecker extends BLangNodeVisitor {
         BType expType = checkExpr(awaitExpr.expr, env, this.symTable.noType);
         if (expType == symTable.errType) {
             actualType = symTable.errType;
-        } else {
+        } else if (expType.tag == TypeTags.FUTURE) {
             actualType = ((BFutureType) expType).constraint;
+        } else {
+            dlog.error(awaitExpr.pos, DiagnosticCode.INCOMPATIBLE_TYPES, symTable.futureType, expType);
+            return;
         }
         resultType = types.checkType(awaitExpr, actualType, this.expType);
     }
@@ -1418,6 +1424,7 @@ public class TypeChecker extends BLangNodeVisitor {
         switch (iExpr.expr.type.tag) {
             case TypeTags.ARRAY:
             case TypeTags.MAP:
+            case TypeTags.RECORD:
             case TypeTags.JSON:
             case TypeTags.STREAM:
             case TypeTags.TABLE:
