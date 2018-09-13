@@ -120,7 +120,7 @@ public class IOTest {
         BRunUtil.invokeStateful(bytesInputOutputProgramFile, "closeReadableChannel");
     }
 
-    // Test case is not valid with channel separation. 
+    // Test case is not valid with channel separation.
 //    @Test(description = "Test permission errors in byte read operations")
 //    public void testByteOperationPermissionError() throws URISyntaxException {
 //        int numberOfBytesToRead = 3;

@@ -110,3 +110,18 @@ function startServerSocket(int port, string welcomeMsg) {
     }
     check server.close();
 }
+
+function runOnDuplicatePort(int port) returns error? {
+    io:ServerSocket server1 = new();
+    check server1.bindAddress(port);
+    io:ServerSocket server2 = new();
+    match server2.bindAddress(port) {
+        error e => {
+            check server1.close();
+            return e;
+        }
+        () => {
+            return ();
+        }
+    }
+}
