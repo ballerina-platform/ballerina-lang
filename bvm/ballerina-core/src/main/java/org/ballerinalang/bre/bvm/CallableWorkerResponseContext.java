@@ -18,6 +18,7 @@
 package org.ballerinalang.bre.bvm;
 
 import org.ballerinalang.model.types.BType;
+import org.ballerinalang.model.types.TypeTags;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.util.program.BLangVMUtils;
@@ -107,8 +108,11 @@ public class CallableWorkerResponseContext extends BaseWorkerResponseContext {
         }
         return runInCallerCtx;
     }
-    
+
     protected boolean isReturnable() {
+        if (this.responseTypes.length == 1 && this.responseTypes[0].getTag() == TypeTags.NULL_TAG) {
+            return false;
+        }
         return this.responseTypes.length > 0;
     }
     
