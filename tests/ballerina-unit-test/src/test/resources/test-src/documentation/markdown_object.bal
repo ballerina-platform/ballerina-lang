@@ -4,6 +4,7 @@
 type TestConnector object {
     string url;
     string path;
+    private string abc; // Test private field
 
     # Test Connector action testAction
     # + return - whether successful or not
