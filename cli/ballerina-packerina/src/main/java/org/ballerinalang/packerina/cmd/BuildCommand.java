@@ -32,6 +32,7 @@ import java.nio.file.Paths;
 import java.util.List;
 
 import static org.ballerinalang.packerina.cmd.Constants.BUILD_COMMAND;
+import static org.ballerinalang.util.BLangConstants.BLANG_SRC_FILE_SUFFIX;
 
 /**
  * This class represents the "ballerina build" command.
@@ -139,6 +140,18 @@ public class BuildCommand implements BLauncherCmd {
                 if (Files.isDirectory(resolvedFullPath) && !RepoUtils.hasProjectRepo(sourceRootPath)) {
                     outStream.println("error: do you mean to build the ballerina package as a project? If so run" +
                                               " ballerina init to make it a project with a .ballerina directory");
+                    return;
+                }
+                // If we are trying to run a bal file inside a package from a project directory an error is thrown.
+                // To differentiate between top level bals and bals inside packages we need to check if the parent of
+                // the sourcePath given is null. If it is null then its a top level bal else its a bal inside a package
+                Path parentPath = sourcePath.getParent();
+                if (Files.isRegularFile(resolvedFullPath) && sourcePath.toString().endsWith(BLANG_SRC_FILE_SUFFIX) &&
+                        parentPath != null) {
+                    Path fileName = parentPath.getFileName();
+                    String srcPkgName = fileName != null ? fileName.toString() : "";
+                    outStream.println("error: you are trying to build a ballerina file inside a package within a " +
+                                              "project. Try running 'ballerina build " + srcPkgName + "'");
                     return;
                 }
             } else {

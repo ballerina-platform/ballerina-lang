@@ -29,6 +29,7 @@ import org.wso2.ballerinalang.compiler.util.ProjectDirConstants;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
 import java.util.Map;
 
@@ -305,6 +306,28 @@ public class PackagingNegativeTestCase extends BaseTest {
         String msg = "ballerina: no packages found to push in " + projectPath.toString();
         balClient.runMain("push", new String[0], envVariables, new String[0],
                 new LogLeecher[]{new LogLeecher(msg)}, projectPath.toString());
+    }
+
+    @Test(description = "Test running a bal file inside a package within a project")
+    public void testRunningBalInsidePackage() throws Exception {
+        Path projectPath = tempProjectDirectory.resolve("projectxyz");
+        initProject(projectPath);
+        String msg = "error: you are trying to run a ballerina file inside a package within a project. Try running " +
+                "'ballerina run" + packageName + "'";
+        String sourcePath = Paths.get(packageName, "main.bal").toString();
+        balClient.runMain("run", new String[] {sourcePath}, envVariables, new String[0],
+                          new LogLeecher[]{new LogLeecher(msg)}, projectPath.toString());
+    }
+
+    @Test(description = "Test building a bal file inside a package within a project",
+            dependsOnMethods = "testRunningBalInsidePackage")
+    public void testBuildingBalInsidePackage() throws Exception {
+        Path projectPath = tempProjectDirectory.resolve("projectxyz");
+        String msg = "error: you are trying to build a ballerina file inside a package within a project. Try running " +
+                "'ballerina build" + packageName + "'";
+        String sourcePath = Paths.get(packageName, "main.bal").toString();
+        balClient.runMain("build", new String[] {sourcePath}, envVariables, new String[0],
+                          new LogLeecher[]{new LogLeecher(msg)}, projectPath.toString());
     }
 
     /**
