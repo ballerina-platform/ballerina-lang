@@ -1,5 +1,3 @@
-import ballerina/io;
-
 public type PackageParser object {
     BirChannelReader reader,
 

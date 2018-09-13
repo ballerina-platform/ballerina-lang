@@ -1,5 +1,3 @@
-import ballerina/io;
-
 public type ConstPool record {
     PackageId[] packages;
     string[] strings;

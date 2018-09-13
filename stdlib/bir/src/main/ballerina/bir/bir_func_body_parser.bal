@@ -1,4 +1,3 @@
-import ballerina/io;
 import ballerina/internal;
 
 public type FuncBodyParser object {

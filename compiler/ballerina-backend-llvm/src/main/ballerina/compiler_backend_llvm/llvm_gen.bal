@@ -1,5 +1,4 @@
 import ballerina/llvm;
-import ballerina/io;
 import ballerina/bir;
 
 // TODO: make non-globle

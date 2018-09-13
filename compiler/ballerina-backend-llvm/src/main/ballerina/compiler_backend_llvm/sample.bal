@@ -1,4 +1,3 @@
-import ballerina/io;
 import ballerina/bir;
 
 function writeSample(string path) {
