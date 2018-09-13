@@ -119,4 +119,19 @@ public class OpenRecordEquivalencyTest {
         Assert.assertEquals(foo.get("f").stringValue(), "rest field");
         Assert.assertNull(foo.get("p"));
     }
+
+    @Test(description = "Test case for using records with unordered fields in a match")
+    public void testUnorderedFieldRecordsInAMatch() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testUnorderedFieldRecordsInAMatch");
+        BMap foo = (BMap) returns[0];
+
+        Assert.assertEquals(foo.size(), 7);
+        Assert.assertEquals(foo.get("a").stringValue(), "A");
+        Assert.assertEquals(foo.get("b").stringValue(), "B");
+        Assert.assertEquals(foo.get("c").stringValue(), "C");
+        Assert.assertEquals(((BInteger) foo.get("d")).intValue(), 10);
+        Assert.assertEquals(((BFloat) foo.get("e")).floatValue(), 0.0D);
+        Assert.assertEquals(foo.get("f").stringValue(), "rest field");
+        Assert.assertNull(foo.get("p"));
+    }
 }

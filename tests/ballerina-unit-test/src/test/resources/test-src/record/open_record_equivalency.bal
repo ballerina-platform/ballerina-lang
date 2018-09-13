@@ -214,3 +214,12 @@ function testRecordEquivalence() returns Foo {
     Foo f = af;
     return f;
 }
+
+function testUnorderedFieldRecordsInAMatch() returns Foo? {
+    AnotherFoo|string aFoo = {a: "A", b: "B", c: "C", d: 10, f: "rest field"};
+
+    match aFoo {
+        Foo f => return f;
+        any => return ();
+    }
+}
