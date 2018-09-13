@@ -18,7 +18,6 @@ import ballerina/http;
 import ballerina/io;
 import ballerina/runtime;
 
-
 endpoint http:Listener echoEP1 {
     port:9090
 };
@@ -48,7 +47,6 @@ service<http:Service> echo1 bind echoEP1 {
     }
 }
 
-
 public function addExitHooks() {
     int a = 4;
 
@@ -63,4 +61,3 @@ public function addExitHooks() {
 
     runtime:addExitHook(fn2);
 }
-

@@ -261,7 +261,6 @@ public class BServerInstance implements BServer {
         log.info("Server Stopped Successfully");
     }
 
-
     private synchronized void addJavaAgents(Map<String, String> envProperties) throws BallerinaTestException {
         if (agentsAadded) {
             return;
