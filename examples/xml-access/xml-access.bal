@@ -1,6 +1,6 @@
 import ballerina/io;
 
-function main(string... args) {
+public function main() {
     // The XML element with nested children.
     xml bookXML = xml `<book>
                 <name>Sherlock Holmes</name>
