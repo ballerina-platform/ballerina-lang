@@ -203,19 +203,7 @@ public class LauncherUtils {
         return launcherException;
     }
 
-    /**
-     * Create exceptions for command usages.
-     *
-     * @param errorMsg error message
-     * @return created exception message
-     */
-    public static BLauncherException createCommandException(String errorMsg) {
-        BLauncherException launcherException = new BLauncherException();
-        launcherException.addMessage("ballerina: " + errorMsg);
-        return launcherException;
-    }
-
-    static BLauncherException createLauncherException(String errorMsg) {
+    public static BLauncherException createLauncherException(String errorMsg) {
         BLauncherException launcherException = new BLauncherException();
         launcherException.addMessage(errorMsg);
         return launcherException;
