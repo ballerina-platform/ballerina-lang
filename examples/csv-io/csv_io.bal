@@ -101,9 +101,9 @@ function createTableAndAddData() returns table<Employee> {
     table<Employee> employeeTable = table{};
 
     Employee[] employees;
-    employees[0] = { id: "1", name: "Allen", salary: 300000 };
-    employees[1] = { id: "2", name: "Wallace", salary: 200000 };
-    employees[2] = { id: "3", name: "Sheldon", salary: 1000000 };
+    employees[0] = { id: "1", name: "Allen", salary: 300000.0 };
+    employees[1] = { id: "2", name: "Wallace", salary: 200000.0 };
+    employees[2] = { id: "3", name: "Sheldon", salary: 1000000.0 };
 
     foreach employee in employees {
         match employeeTable.add(employee) {
