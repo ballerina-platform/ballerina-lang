@@ -15,7 +15,7 @@ type Person object {
     }
 };
 
-function main(string... args) {
+public function main() {
     // Initializing variable of object type 'Person'
     Person p1 = new(5, "John", 4, 5);
     io:println(p1);

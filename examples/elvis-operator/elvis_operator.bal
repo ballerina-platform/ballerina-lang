@@ -1,6 +1,6 @@
 import ballerina/io;
 
-function main(string... args) {
+public function main() {
     string|() x = null;
 
     // If you need to get the string value of x, and if the value of x is `null`, you may want

@@ -16,7 +16,7 @@ endpoint http:Client backendClientEP {
 
         // Multiplier of the retry interval to exponentailly
         // increase; retry interval
-        backOffFactor: 2,
+        backOffFactor: 2.0,
 
         // Upper limit of the retry interval in milliseconds
         // If interval into backOffFactor value exceeded

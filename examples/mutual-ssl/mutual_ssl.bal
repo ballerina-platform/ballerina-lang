@@ -67,7 +67,7 @@ endpoint http:Client clientEP {
         ciphers: ["TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA"]
     }
 };
-function main(string... args) {
+public function main() {
     // Create a request.
     var resp = clientEP->get("/hello");
     match resp {

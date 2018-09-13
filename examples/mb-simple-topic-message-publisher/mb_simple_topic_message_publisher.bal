@@ -9,7 +9,7 @@ endpoint mb:SimpleTopicPublisher publisher {
 };
 
 
-function main(string... args) {
+public function main() {
     // Create a Text message.
     match (publisher.createTextMessage("Hello from Ballerina")) {
         error e => {

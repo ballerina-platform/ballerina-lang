@@ -10,7 +10,7 @@ endpoint h2:Client testDB {
     poolOptions: { maximumPoolSize: 5 }
 };
 
-function main(string... args) {
+public function main() {
     // Creates a table using the update operation.
     io:println("The update operation - Creating a table:");
     var ret = testDB->update("CREATE TABLE STUDENT(ID INTEGER,

@@ -1,6 +1,6 @@
 import ballerina/io;
 
-function main(string... args) {
+public function main() {
     io:println("Iterating over a string array:-");
     string[] fruits = ["apple", "banana", "cherry"];
     // To fetch the values defined in the array, use one variable.

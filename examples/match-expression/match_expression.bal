@@ -13,7 +13,7 @@ function getAgeCategory(int age) returns string|error {
     }
 }
 
-function main(string... args) {
+public function main() {
 
     // The `getAgeCategory` function returns a string for a valid age. This string
     // is matched with the string pattern in the match expression. Then the same value is assigned to the error

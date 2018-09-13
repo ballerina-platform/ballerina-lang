@@ -1,6 +1,6 @@
 import ballerina/io;
 
-function main(string... args) {
+public function main() {
 
     // Here, you can define the type of `a` as a pair that consists of an int and a string.
     (int, string) a = (10, "John");

@@ -19,7 +19,7 @@ endpoint jms:QueueReceiver queueReceiver {
     queueName:"MyQueue"
 };
 
-function main(string... args) {
+public function main() {
     // This keeps the JMS session alive until the message is received by the JMS provider. If the message is not received within five
     // seconds, the session times out.
     var result = queueReceiver->receive(timeoutInMilliSeconds=5000);

@@ -46,7 +46,7 @@ function functionPointers(int a) returns
 }
 
 
-function main(string... args) {
+public function main() {
     // Invoke the function that shows basic closure support.
     var foo = basicClosure();
     int result1 = foo(3);

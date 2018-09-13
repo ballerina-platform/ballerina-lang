@@ -1,7 +1,7 @@
 import ballerina/io;
 import ballerina/math;
 
-function main(string... args) {
+public function main() {
 
     io:println("Value of PI : " + math:PI);
     io:println("Value of E  : " + math:E);
@@ -27,7 +27,7 @@ function main(string... args) {
     io:println("Arc tangent of 0.027415567780803774 : " + arcTangent);
 
     //This returns the cube root of a float value.
-    float cubeRoot = math:cbrt(-27);
+    float cubeRoot = math:cbrt(-27.0);
     io:println("Cube root of 0.027415567780803774   : " + cubeRoot);
 
     //There are over 40 methods in the ballerina math API that can be used to perform numeric operations.

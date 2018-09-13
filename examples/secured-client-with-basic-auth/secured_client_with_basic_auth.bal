@@ -14,7 +14,7 @@ endpoint http:Client httpEndpoint {
     }
 };
 
-function main(string... args) {
+public function main() {
     // This defines the authentication credentials of the HTTP service.
     config:setConfig("b7a.users.tom.password", "1234");
 

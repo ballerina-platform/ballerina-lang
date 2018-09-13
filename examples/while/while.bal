@@ -1,6 +1,6 @@
 import ballerina/io;
 
-function main(string... args) {
+public function main() {
     int i = 0;
     // This is a basic `while` loop.
     while (i < 3) {

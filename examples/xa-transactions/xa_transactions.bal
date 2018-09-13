@@ -19,7 +19,7 @@ endpoint jdbc:Client testDB2 {
     poolOptions: { maximumPoolSize: 5, isXA: true }
 };
 
-function main(string... args) {
+public function main() {
     // Create the table named CUSTOMER in the first database.
     var ret = testDB1->update("CREATE TABLE CUSTOMER (ID INTEGER
                     AUTO_INCREMENT, NAME VARCHAR(30))");

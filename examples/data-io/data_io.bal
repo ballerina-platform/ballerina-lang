@@ -78,7 +78,7 @@ function readRecordFromFile(string path) returns Person {
     return deserialize(rc);
 }
 
-function main(string...args) {
+public function main() {
     Person wPerson = {name:"Ballerina", age:21, income:1543.12, isMarried:true};
     //Write record to file
     writeRecordToFile(wPerson, "./files/person.bin");

@@ -1,7 +1,7 @@
 // This is the server implementation for the secured connection (HTTPS) scenario.
 import ballerina/io;
 
-function main(string... args) {
+public function main() {
     // Client endpoint configuration with SSL configurations.
     endpoint HelloWorldBlockingClient helloWorldBlockingEp {
         url: "https://localhost:9090",
