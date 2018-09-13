@@ -111,9 +111,15 @@ public class InitCommand implements BLauncherCmd {
                 boolean validInput = false;
                 boolean firstPrompt = true;
                 do {
+                    // Following will be the first prompt and it will create a service by default
                     if (firstPrompt) {
+                        // Here if the user presses enter or "s" a service will be created (This will have the same
+                        // behavior as running ballerina init without the interactive mode)
                         out.print("Ballerina source [service/s, main/m, finish/f]: (s) ");
                     } else {
+                        // Following will be prompted after the first prompt
+                        // Here if the user presses enter, "f" or "finish" the command will be exited. If user gives
+                        // "m" a main function and "s" a service will be created.
                         out.print("Ballerina source [service/s, main/m, finish/f]: (f) ");
                     }
                     srcInput = scanner.nextLine().trim();
@@ -149,7 +155,8 @@ public class InitCommand implements BLauncherCmd {
                             packageMdFiles.add(packageMdFile);
                         }
                         firstPrompt = false;
-                    } else if (srcInput.isEmpty() || srcInput.equalsIgnoreCase("f")) {
+                    } else if (srcInput.isEmpty() || srcInput.equalsIgnoreCase("f") ||
+                            srcInput.equalsIgnoreCase("finish")) {
                         validInput = true;
                         firstPrompt = false;
                     } else {
