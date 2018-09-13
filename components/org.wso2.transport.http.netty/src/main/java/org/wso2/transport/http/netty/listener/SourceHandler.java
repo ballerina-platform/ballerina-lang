@@ -308,8 +308,11 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
         return serverName;
     }
 
-    public void resetInboundRequestMsg(HttpCarbonMessage inboundRequestMsg) {
-        requestSet.remove(inboundRequestMsg.hashCode());
+    public void removeRequestEntry(HttpCarbonMessage inboundRequestMsg) {
+        this.requestSet.remove(inboundRequestMsg.hashCode());
+    }
+
+    public void resetInboundRequestMsg() {
         this.inboundRequestMsg = null;
     }
 }
