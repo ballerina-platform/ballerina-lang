@@ -44,5 +44,5 @@ function testChainedIterable() {
 function testForeach() {
     int add = 0;
     int[] fa = [-5, 2, 4];
-    fa.foreach(val => val + 1);
+    fa.foreach(val => val + 1); // arrow expression can not be used with 'foreach' iterable
 }

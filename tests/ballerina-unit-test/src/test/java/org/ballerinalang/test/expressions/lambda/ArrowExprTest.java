@@ -145,10 +145,22 @@ public class ArrowExprTest {
         Assert.assertEquals(returns[0].stringValue(), "John18");
     }
 
-    @Test(description = "Test arrow expression inside an arrow expression")
+    @Test(description = "Test arrow expression chaining with 3 degrees")
     public void testNestedArrowExpression2() {
         BValue[] returns = BRunUtil.invoke(basic, "testNestedArrowExpression2");
         Assert.assertEquals(returns[0].stringValue(), "DoReMe");
+    }
+
+    @Test(description = "Test arrow expression chaining with 4 degrees")
+    public void testNestedArrowExpression3() {
+        BValue[] returns = BRunUtil.invoke(basic, "testNestedArrowExpression3");
+        Assert.assertEquals(returns[0].stringValue(), "DoReMeFa");
+    }
+
+    @Test(description = "Test arrow expression chaining with 4 degrees including lambda")
+    public void testNestedArrowExpression4() {
+        BValue[] returns = BRunUtil.invoke(basic, "testNestedArrowExpression4");
+        Assert.assertEquals(returns[0].stringValue(), "DoReMeFa");
     }
 
     @Test(description = "Test compile time errors for arrow expression")

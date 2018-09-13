@@ -133,3 +133,25 @@ function testNestedArrowExpression2() returns string {
     var lambda3 = lambda2(20, "Re");
     return lambda3(22, "Me");
 }
+
+function testNestedArrowExpression3() returns string {
+    function (int, string) returns function (int, string) returns function (int, string) returns function (int, string) returns string lambda =
+                        (integerVar, stringVar) => (integerVar2, stringVar2) =>
+                            (integerVar3, stringVar3) => (integerVar4, stringVar4) => stringVar + stringVar2 + stringVar3 + stringVar4;
+    var lambda2 = lambda(18, "Do");
+    var lambda3 = lambda2(20, "Re");
+    var lambda4 = lambda3(22, "Me");
+    return lambda4(24, "Fa");
+}
+
+function testNestedArrowExpression4() returns string {
+    function (int, string) returns function (int, string) returns function (int, string) returns function (int, string) returns string lambda =
+                        (integerVar, stringVar) => (integerVar2, stringVar2) =>
+                            function (int integerVar3, string stringVar3) returns function (int, string) returns string {
+                                return (integerVar4, stringVar4) => stringVar + stringVar2 + stringVar3 + stringVar4;
+                        };
+    var lambda2 = lambda(18, "Do");
+    var lambda3 = lambda2(20, "Re");
+    var lambda4 = lambda3(22, "Me");
+    return lambda4(24, "Fa");
+}
