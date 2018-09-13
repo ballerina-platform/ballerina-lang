@@ -50,6 +50,7 @@ public class ResponseCompleted implements ListenerState {
         this.sourceHandler = sourceHandler;
         this.messageStateContext = messageStateContext;
         this.inboundRequestMsg = inboundRequestMsg;
+        this.sourceHandler.removeRequestEntry(inboundRequestMsg);
     }
 
     @Override
@@ -91,6 +92,7 @@ public class ResponseCompleted implements ListenerState {
     }
 
     private void cleanupSourceHandler(HttpCarbonMessage inboundRequestMsg) {
-        sourceHandler.resetInboundRequestMsg(inboundRequestMsg);
+        sourceHandler.removeRequestEntry(inboundRequestMsg);
+        sourceHandler.resetInboundRequestMsg();
     }
 }

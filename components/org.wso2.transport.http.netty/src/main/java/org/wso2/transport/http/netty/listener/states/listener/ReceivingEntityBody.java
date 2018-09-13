@@ -86,7 +86,7 @@ public class ReceivingEntityBody implements ListenerState {
                     if (isDiffered(inboundRequestMsg)) {
                         serverConnectorFuture.notifyHttpListener(inboundRequestMsg);
                     }
-                    sourceHandler.resetInboundRequestMsg(inboundRequestMsg);
+                    sourceHandler.resetInboundRequestMsg();
                     messageStateContext.setListenerState(
                             new EntityBodyReceived(messageStateContext, sourceHandler, httpVersion));
                 }
