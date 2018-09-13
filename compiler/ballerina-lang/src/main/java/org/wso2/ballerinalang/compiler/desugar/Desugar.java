@@ -1354,7 +1354,6 @@ public class Desugar extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangArrowFunction bLangArrowFunction) {
-
         BLangFunction bLangFunction = (BLangFunction) TreeBuilder.createFunctionNode();
         bLangFunction.setName(bLangArrowFunction.functionName);
 

@@ -99,10 +99,10 @@ public class ClosedRecordIterationTest {
 
         // Test mismatching chained iterable op return values
         BAssertUtil.validateError(closedRecNegatives, index++,
-                                  "incompatible types: expected 'map<int>', found '(string,float) collection'",
+                                  "incompatible types: expected 'map<int>', found 'map<float>'",
                                   122, 10);
         BAssertUtil.validateError(closedRecNegatives, index++,
-                                  "incompatible types: expected 'int[]', found '(float) collection'",
+                                  "incompatible types: expected 'int[]', found 'float[]'",
                                   149, 10);
     }
 

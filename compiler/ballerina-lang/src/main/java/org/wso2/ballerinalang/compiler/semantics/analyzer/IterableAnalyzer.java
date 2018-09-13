@@ -231,7 +231,6 @@ public class IterableAnalyzer {
     }
 
     private int inferExpectedArity(Operation operation) {
-
         if (operation.collectionType.getKind() == TypeKind.INTERMEDIATE_COLLECTION) {
             return ((BIntermediateCollectionType) operation.collectionType).tupleType.tupleTypes.size();
         }
@@ -557,22 +556,12 @@ public class IterableAnalyzer {
             BIntermediateCollectionType collectionType = (BIntermediateCollectionType) outputType;
             final BTupleType tupleType = collectionType.tupleType;
             if (expectedType.tag == TypeTags.ARRAY && tupleType.tupleTypes.size() == 1) {
-                if (!types.isAssignable(tupleType.tupleTypes.get(0), ((BArrayType) expectedType).eType)) {
-                    context.resultType = symTable.errType;
-                    dlog.error(lastOperation.pos, DiagnosticCode.INCOMPATIBLE_TYPES, expectedType, collectionType);
-                    return;
-                }
                 // Convert result into an array.
                 context.resultType = types.checkType(lastOperation.pos, new BArrayType(tupleType.tupleTypes.get(0)),
                         expectedType, DiagnosticCode.INCOMPATIBLE_TYPES);
                 return;
             } else if (expectedType.tag == TypeTags.MAP && tupleType.tupleTypes.size() == 2
                     && tupleType.tupleTypes.get(0).tag == TypeTags.STRING) {
-                if (!types.isAssignable(tupleType.tupleTypes.get(1), ((BMapType) expectedType).constraint)) {
-                    context.resultType = symTable.errType;
-                    dlog.error(lastOperation.pos, DiagnosticCode.INCOMPATIBLE_TYPES, expectedType, collectionType);
-                    return;
-                }
                 // Convert result into a map.
                 context.resultType = types.checkType(lastOperation.pos, new BMapType(TypeTags.MAP,
                         tupleType.tupleTypes.get(1), null), expectedType, DiagnosticCode.INCOMPATIBLE_TYPES);

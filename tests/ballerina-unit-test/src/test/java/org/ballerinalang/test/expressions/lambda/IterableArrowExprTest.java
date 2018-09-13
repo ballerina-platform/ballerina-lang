@@ -118,7 +118,7 @@ public class IterableArrowExprTest {
         BAssertUtil.validateError(resultNegative, i++,
                 "function invocation on type '(string,string)' is not supported", 22, 42);
         BAssertUtil.validateError(resultNegative, i++,
-                "incompatible types: expected 'int[]', found '(string) collection'", 23, 31);
+                "incompatible types: expected 'int[]', found 'string[]'", 23, 31);
         BAssertUtil.validateError(resultNegative, i++,
                 "invalid number of parameters used in arrow expression. expected: '1' but found '2'", 24, 34);
         BAssertUtil.validateError(resultNegative, i++,

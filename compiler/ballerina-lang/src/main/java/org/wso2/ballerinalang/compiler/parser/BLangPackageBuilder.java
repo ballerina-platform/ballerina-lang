@@ -689,7 +689,6 @@ public class BLangPackageBuilder {
         } else {
             this.varListStack.peek().add(var);
         }
-
         return var;
     }
 

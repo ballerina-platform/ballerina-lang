@@ -145,6 +145,12 @@ public class ArrowExprTest {
         Assert.assertEquals(returns[0].stringValue(), "John18");
     }
 
+    @Test(description = "Test arrow expression inside an arrow expression")
+    public void testNestedArrowExpression2() {
+        BValue[] returns = BRunUtil.invoke(basic, "testNestedArrowExpression2");
+        Assert.assertEquals(returns[0].stringValue(), "DoReMe");
+    }
+
     @Test(description = "Test compile time errors for arrow expression")
     public void testNegativeArrowExpr() {
         int i = 0;

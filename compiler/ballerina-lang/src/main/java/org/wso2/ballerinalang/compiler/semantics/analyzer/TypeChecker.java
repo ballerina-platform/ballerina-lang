@@ -1355,7 +1355,6 @@ public class TypeChecker extends BLangNodeVisitor {
     }
 
     private void populateArrowExprParamTypes(BLangArrowFunction bLangArrowFunction, List<BType> paramTypes) {
-
         if (paramTypes.size() != bLangArrowFunction.params.size()) {
             dlog.error(bLangArrowFunction.pos, DiagnosticCode.ARROW_EXPRESSION_MISMATCHED_PARAMETER_LENGTH,
                     paramTypes.size(), bLangArrowFunction.params.size());
