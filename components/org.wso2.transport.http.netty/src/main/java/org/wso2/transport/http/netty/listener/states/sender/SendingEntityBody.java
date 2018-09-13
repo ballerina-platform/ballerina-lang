@@ -47,11 +47,12 @@ import static org.wso2.transport.http.netty.listener.states.StateUtil.ILLEGAL_ST
 import static org.wso2.transport.http.netty.listener.states.StateUtil.writeRequestHeaders;
 
 /**
- * State between start and end of outbound request entity body write
+ * State between start and end of outbound request entity body write.
  */
 public class SendingEntityBody implements SenderState {
 
     private static final Logger LOG = LoggerFactory.getLogger(SendingEntityBody.class);
+
     private final MessageStateContext messageStateContext;
     private final boolean headersWritten;
     private final HandlerExecutor handlerExecutor;
@@ -61,7 +62,7 @@ public class SendingEntityBody implements SenderState {
     private long contentLength = 0;
     private List<HttpContent> contentList = new ArrayList<>();
 
-    public SendingEntityBody(MessageStateContext messageStateContext, TargetChannel targetChannel,
+    SendingEntityBody(MessageStateContext messageStateContext, TargetChannel targetChannel,
                              boolean headersWritten, HttpResponseFuture httpInboundResponseFuture) {
         this.messageStateContext = messageStateContext;
         this.targetChannel = targetChannel;

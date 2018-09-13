@@ -105,7 +105,7 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
         if (msg instanceof HttpRequest) {
-            connectedState = false;
+            setConnectedState(false);
             inboundRequestMsg = createInboundReqCarbonMsg((HttpRequest) msg, ctx, this);
             if (requestSet.size() > this.pipeliningLimit) {
                 LOG.warn("Pipelining request limit exceeded hence closing the channel {}", ctx.channel().id());
@@ -141,7 +141,7 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
 
     @Override
     public void channelActive(final ChannelHandlerContext ctx) {
-        this.connectedState = true;
+        setConnectedState(true);
         this.ctx = ctx;
         this.allChannels.add(ctx.channel());
         setPipeliningProperties();
@@ -309,6 +309,10 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
 
     public String getServerName() {
         return serverName;
+    }
+
+    public void setConnectedState(boolean connectedState) {
+        this.connectedState = connectedState;
     }
 
     public void removeRequestEntry(HttpCarbonMessage inboundRequestMsg) {

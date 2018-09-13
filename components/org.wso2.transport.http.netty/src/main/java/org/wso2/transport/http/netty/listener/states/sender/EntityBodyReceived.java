@@ -29,7 +29,7 @@ import org.wso2.transport.http.netty.sender.TargetHandler;
 import static org.wso2.transport.http.netty.listener.states.StateUtil.ILLEGAL_STATE_ERROR;
 
 /**
- * State of successfully read response
+ * State of successfully read response.
  */
 public class EntityBodyReceived implements SenderState {
 

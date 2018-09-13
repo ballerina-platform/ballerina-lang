@@ -19,12 +19,14 @@
 package org.wso2.transport.http.netty.listener.states;
 
 import io.netty.buffer.ByteBuf;
+import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.DecoderException;
 import io.netty.handler.codec.DecoderResult;
 import io.netty.handler.codec.http.DefaultFullHttpResponse;
 import io.netty.handler.codec.http.DefaultLastHttpContent;
+import io.netty.handler.codec.http.HttpContent;
 import io.netty.handler.codec.http.HttpHeaderNames;
 import io.netty.handler.codec.http.HttpRequest;
 import io.netty.handler.codec.http.HttpResponse;
@@ -36,7 +38,10 @@ import org.slf4j.LoggerFactory;
 import org.wso2.transport.http.netty.common.Constants;
 import org.wso2.transport.http.netty.common.Util;
 import org.wso2.transport.http.netty.config.ChunkConfig;
+import org.wso2.transport.http.netty.config.KeepAliveConfig;
 import org.wso2.transport.http.netty.contract.HttpResponseFuture;
+import org.wso2.transport.http.netty.contractimpl.HttpOutboundRespListener;
+import org.wso2.transport.http.netty.listener.states.listener.SendingHeaders;
 import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 import org.wso2.transport.http.netty.sender.channel.TargetChannel;
 
@@ -46,14 +51,19 @@ import java.nio.channels.ClosedChannelException;
 import static org.wso2.transport.http.netty.common.Constants.CLIENT_TO_REMOTE_HOST_CONNECTION_CLOSED;
 
 /**
- * Utility functions for states
+ * Utility functions for states.
  */
 public class StateUtil {
 
     private static final Logger LOG = LoggerFactory.getLogger(StateUtil.class);
+
     public static final String ILLEGAL_STATE_ERROR = "is not a dependant action of this state";
     public static final String CONNECTOR_NOTIFYING_ERROR =
             "Error while notifying error state to server-connector listener";
+
+    private StateUtil() {
+        //Hides implicit public constructor.
+    }
 
     public static boolean checkChunkingCompatibility(String httpVersion, ChunkConfig chunkConfig) {
         return Util.isVersionCompatibleForChunking(httpVersion) || Util
@@ -117,5 +127,19 @@ public class StateUtil {
         lastHttpContent.setDecoderResult(DecoderResult.failure(new DecoderException(errorMessage)));
         inboundRequestMsg.addHttpContent(lastHttpContent);
         LOG.warn(errorMessage);
+    }
+
+    public static void respondToIncompleteRequest(Channel channel, HttpOutboundRespListener outboundResponseListener,
+                                                  MessageStateContext messageStateContext,
+                                                  HttpCarbonMessage outboundResponseMsg, HttpContent httpContent,
+                                                  String errorMsg) {
+        // Response is processing, but inbound request is not completed yet. So removing the read interest
+        channel.config().setAutoRead(false);
+        handleIncompleteInboundMessage(outboundResponseListener.getInboundRequestMsg(), errorMsg);
+
+        // It is an application error. Therefore connection needs to be closed once the response is sent.
+        outboundResponseListener.setKeepAliveConfig(KeepAliveConfig.NEVER);
+        messageStateContext.setListenerState(new SendingHeaders(outboundResponseListener, messageStateContext));
+        messageStateContext.getListenerState().writeOutboundResponseHeaders(outboundResponseMsg, httpContent);
     }
 }

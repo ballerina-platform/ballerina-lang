@@ -49,11 +49,12 @@ import static org.wso2.transport.http.netty.listener.states.StateUtil.CONNECTOR_
 import static org.wso2.transport.http.netty.listener.states.StateUtil.ILLEGAL_STATE_ERROR;
 
 /**
- * Special state of receiving request with expect:100-continue header
+ * Special state of receiving request with expect:100-continue header.buildResponse
  */
 public class Expect100ContinueHeaderReceived implements ListenerState {
 
     private static final Logger LOG = LoggerFactory.getLogger(Expect100ContinueHeaderReceived.class);
+
     private final MessageStateContext messageStateContext;
     private final SourceHandler sourceHandler;
     private final HttpCarbonMessage inboundRequestMsg;

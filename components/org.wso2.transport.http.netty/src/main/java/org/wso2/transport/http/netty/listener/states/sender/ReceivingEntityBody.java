@@ -42,10 +42,11 @@ import static org.wso2.transport.http.netty.listener.states.StateUtil.handleInco
 public class ReceivingEntityBody implements SenderState {
 
     private static final Logger LOG = LoggerFactory.getLogger(ReceivingEntityBody.class);
+
     private final MessageStateContext messageStateContext;
     private final TargetHandler targetHandler;
 
-    public ReceivingEntityBody(MessageStateContext messageStateContext, TargetHandler targetHandler) {
+    ReceivingEntityBody(MessageStateContext messageStateContext, TargetHandler targetHandler) {
         this.messageStateContext = messageStateContext;
         this.targetHandler = targetHandler;
     }
