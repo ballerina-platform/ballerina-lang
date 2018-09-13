@@ -496,7 +496,7 @@ public class BLangFunctions {
 
     public static void invokeServiceInitFunction(FunctionInfo initFuncInfo) {
         WorkerExecutionContext context = new WorkerExecutionContext(initFuncInfo.getPackageInfo().getProgramFile());
-        invokeCallable(initFuncInfo, context, new int[0], new int[0], true);
+        invokeCallable(initFuncInfo, context, new BValue[0]);
         if (context.getError() != null) {
             String stackTraceStr = BLangVMErrors.getPrintableStackTrace(context.getError());
             throw new BLangRuntimeException("error: " + stackTraceStr);
