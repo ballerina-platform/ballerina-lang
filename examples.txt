@@ -42,6 +42,7 @@ XML
 XML Namespaces
 XML Literal
 XML Attributes
+XML Access
 XML Functions
 JSON To XML Conversion
 XML To JSON Conversion

@@ -9,10 +9,10 @@ import ballerina/log;
 function getFileRecordChannel(string filePath, io:Mode permission,
                               string encoding, string rs,
                               string fs) returns (io:DelimitedTextRecordChannel) {
-    io:ByteChannel channel = io:openFile(filePath, permission);
+    io:ByteChannel byteChannel = io:openFile(filePath, permission);
     // Create a `character channel`
     // from the `byte channel` to read content as text.
-    io:CharacterChannel characterChannel = new(channel, encoding);
+    io:CharacterChannel characterChannel = new(byteChannel, encoding);
     // Convert the `character channel` to a `record channel`
     //to read the content as records.
     io:DelimitedTextRecordChannel delimitedRecordChannel = new(characterChannel,

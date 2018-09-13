@@ -98,16 +98,16 @@ service<http:Service> HTTPStreamingService bind { port: 9090 } {
 function getFileChannel(string filePath, io:Mode permission)
     returns (io:ByteChannel) {
     // Here is how the ByteChannel is retrieved from the file.
-    io:ByteChannel channel = io:openFile(filePath, permission);
-    return channel;
+    io:ByteChannel byteChannel = io:openFile(filePath, permission);
+    return byteChannel;
 }
 
 // This function reads a specified number of bytes from the given channel.
-function readBytes(io:ByteChannel channel, int numberOfBytes)
+function readBytes(io:ByteChannel byteChannel, int numberOfBytes)
     returns (byte[], int) {
 
     // Here is how the bytes are read from the channel.
-    var result = channel.read(numberOfBytes);
+    var result = byteChannel.read(numberOfBytes);
     match result {
         (byte[], int) content => {
             return content;
@@ -119,11 +119,11 @@ function readBytes(io:ByteChannel channel, int numberOfBytes)
 }
 
 // This function writes a byte content with the given offset to a channel.
-function writeBytes(io:ByteChannel channel, byte[] content, int startOffset = 0)
+function writeBytes(io:ByteChannel byteChannel, byte[] content, int startOffset = 0)
     returns (int) {
 
     // Here is how the bytes are written to the channel.
-    var result = channel.write(content, startOffset);
+    var result = byteChannel.write(content, startOffset);
     match result {
         int numberOfBytesWritten => {
             return numberOfBytesWritten;
