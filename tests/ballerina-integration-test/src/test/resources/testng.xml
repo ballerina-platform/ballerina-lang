@@ -212,7 +212,9 @@
 
     <test name="ballerina-checkpointing-tests" parallel="false">
         <classes>
-            <class name="org.ballerinalang.test.checkpointing.InterruptibleServiceTestCase"/>
+            <class name="org.ballerinalang.test.checkpointing.InterruptibleWorkerServiceTestCase"/>
+            <class name="org.ballerinalang.test.checkpointing.InterruptibleForkJoinServiceTestCase"/>
+            <class name="org.ballerinalang.test.checkpointing.InterruptibleAsyncServiceTestCase"/>
         </classes>
     </test>
 </suite>
