@@ -752,12 +752,13 @@ public class CodeGenerator extends BLangNodeVisitor {
         if (structSymbol.defaultsValuesInitFunc != null) {
             int funcRefCPIndex = getFuncRefCPIndex(structSymbol.defaultsValuesInitFunc.symbol);
             // call funcRefCPIndex 1 structRegIndex 0
-            Operand[] operands = new Operand[5];
+            Operand[] operands = new Operand[6];
             operands[0] = getOperand(funcRefCPIndex);
             operands[1] = getOperand(false);
             operands[2] = getOperand(1);
             operands[3] = structRegIndex;
-            operands[4] = getOperand(0);
+            operands[4] = getOperand(1);
+            operands[5] = getRegIndex(TypeTags.NIL);
             emit(InstructionCodes.CALL, operands);
         }
 
@@ -765,12 +766,13 @@ public class CodeGenerator extends BLangNodeVisitor {
         if (structLiteral.initializer != null) {
             int funcRefCPIndex = getFuncRefCPIndex(structLiteral.initializer.symbol);
             // call funcRefCPIndex 1 structRegIndex 0
-            Operand[] operands = new Operand[5];
+            Operand[] operands = new Operand[6];
             operands[0] = getOperand(funcRefCPIndex);
             operands[1] = getOperand(false);
             operands[2] = getOperand(1);
             operands[3] = structRegIndex;
-            operands[4] = getOperand(0);
+            operands[4] = getOperand(1);
+            operands[5] = getRegIndex(TypeTags.NIL);
             emit(InstructionCodes.CALL, operands);
         }
 
