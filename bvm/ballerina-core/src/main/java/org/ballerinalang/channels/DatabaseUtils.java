@@ -32,6 +32,8 @@ import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.util.exceptions.BallerinaException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.sql.Connection;
@@ -47,6 +49,8 @@ import java.util.Locale;
  * @since 0.982.0
  */
 public class DatabaseUtils {
+
+    private static final Logger logger = LoggerFactory.getLogger(DatabaseUtils.class);
 
     private static HikariDataSource hikariDataSource;
     public static HikariConfig config;
@@ -81,7 +85,7 @@ public class DatabaseUtils {
                     con.close();
                 }
             } catch (SQLException e) {
-                //ignore
+                logger.warn("Could not close db connection created for channels", e);
             }
         }
     }
@@ -112,8 +116,7 @@ public class DatabaseUtils {
                 return value;
             }
         } catch (SQLException e) {
-            throw new BallerinaException("error retrieving channel message " + e.getMessage(),
-                    e);
+            throw new BallerinaException("error retrieving channel message " + e.getMessage(), e);
         } finally {
             try {
                 if (prpStmt != null) {
@@ -126,7 +129,7 @@ public class DatabaseUtils {
                     con.close();
                 }
             } catch (SQLException e) {
-                //ignore
+                logger.warn("Could not close db connection created for channels", e);
             }
         }
         return null;

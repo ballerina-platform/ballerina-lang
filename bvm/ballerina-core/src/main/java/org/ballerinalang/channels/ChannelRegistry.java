@@ -22,6 +22,7 @@ import org.ballerinalang.model.values.BValue;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * {@code ChannelRegistry} is the registry for channel entries.
@@ -33,7 +34,7 @@ public class ChannelRegistry {
     private Map<String, Map<String, LinkedList<PendingContext>>> channelList;
 
     private ChannelRegistry() {
-        channelList = new HashMap<>();
+        channelList = new ConcurrentHashMap<>();
     }
 
     public static ChannelRegistry getInstance() {
