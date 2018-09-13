@@ -6,7 +6,7 @@ export function render(context: ExtensionContext, langClient: ExtendedLangClient
     : Thenable<string | undefined> {
     return langClient.fetchExamples()
         .then((resp) => {
-            const body = `<div style="overflow-y: scroll;" id="examples" />`;
+            const body = `<div id="examples" />`;
             const script = `
                 const vscode = acquireVsCodeApi();
                 const examples = ${JSON.stringify(resp.samples)};

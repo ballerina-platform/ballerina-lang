@@ -33,7 +33,7 @@ export function activate(context: ExtensionContext, langClient: ExtendedLangClie
         examplesPanel = window.createWebviewPanel(
             'ballerinaExamples',
             "Ballerina Examples",
-            { viewColumn: ViewColumn.One, preserveFocus: true } ,
+            { viewColumn: ViewColumn.One, preserveFocus: false } ,
             {
 				enableScripts: true,
 				retainContextWhenHidden: true,
@@ -57,12 +57,13 @@ export function activate(context: ExtensionContext, langClient: ExtendedLangClie
                         const filePath = path.join(folderPath, `${url.replace(/-/g, '_')}.bal`);
                         workspace.openTextDocument(Uri.file(filePath)).then(doc => {
                             window.showTextDocument(doc);
-                            // workspace.updateWorkspaceFolders(
-                            //     workspace.workspaceFolders ? workspace.workspaceFolders.length : 0,
-                            //     null,
-                            //     { uri: Uri.file(folderPath) }
-                            // );
-                         });            
+                            workspace.updateWorkspaceFolders(
+                                workspace.workspaceFolders ? workspace.workspaceFolders.length : 0,
+                                null,
+                                { uri: Uri.file(folderPath) }
+                            );
+                         }); 
+                        //commands.executeCommand('vscode.openFolder', Uri.file(folderPath), true);   
                     }
                     break;
                 default: 

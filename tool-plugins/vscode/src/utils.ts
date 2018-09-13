@@ -25,7 +25,7 @@ export function getLibraryWebViewContent(context: ExtensionContext,
         </style>
     </head>
     
-    <body>
+    <body style="overflow-y: scroll;">
         ${body}
     </body>
     <script charset="UTF-8" src="${resourceRoot}/ballerina-diagram-library.js"></script>
