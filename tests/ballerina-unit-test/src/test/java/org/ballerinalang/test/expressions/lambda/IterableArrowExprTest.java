@@ -47,7 +47,7 @@ public class IterableArrowExprTest {
                 .compile("test-src/expressions/lambda/iterable/iterable-arrow-expression-negative.bal");
     }
 
-    @Test
+    @Test(description = "Test arrow expression inside map() with return string collection")
     public void testMapIterable() {
         BValue[] returns = BRunUtil.invoke(basic, "testMapIterable");
         Assert.assertEquals(returns.length, 1);
@@ -55,14 +55,14 @@ public class IterableArrowExprTest {
         Assert.assertEquals(((BStringArray) returns[0]).get(1), "BEAR");
     }
 
-    @Test
+    @Test(description = "Test arrow expression inside filter() and then inside map() followed by average()")
     public void testFilterIterable() {
         BValue[] returns = BRunUtil.invoke(basic, "testFilterIterable");
         Assert.assertEquals(returns.length, 1);
         Assert.assertEquals(((BFloat) returns[0]).floatValue(), 9.0);
     }
 
-    @Test
+    @Test(description = "Test arrow expression inside map() followed by map()")
     public void testTwoLevelMapIterable() {
         BValue[] returns = BRunUtil.invoke(basic, "testTwoLevelMapIterable");
         Assert.assertEquals(returns.length, 1);
@@ -70,14 +70,14 @@ public class IterableArrowExprTest {
         Assert.assertEquals(((BStringArray) returns[0]).get(1), "BEAR");
     }
 
-    @Test
+    @Test(description = "Test arrow expression inside map() then filter() then map()")
     public void testTwoLevelMapIterableWithFilter() {
         BValue[] returns = BRunUtil.invoke(basic, "testTwoLevelMapIterableWithFilter");
         Assert.assertEquals(returns.length, 1);
         Assert.assertEquals(((BStringArray) returns[0]).get(0), "BEAR");
     }
 
-    @Test
+    @Test(description = "Test arrow expression with filter() first and then map")
     public void testFilterThenMap() {
         BValue[] returns = BRunUtil.invoke(basic, "testFilterThenMap");
         Assert.assertEquals(returns.length, 2);
@@ -85,7 +85,7 @@ public class IterableArrowExprTest {
         Assert.assertEquals(((BInteger) returns[1]).intValue(), 1);
     }
 
-    @Test
+    @Test(description = "Test arrow expression inside map() with return a single string")
     public void testFilterWithArityOne() {
         BValue[] returns = BRunUtil.invoke(basic, "testFilterWithArityOne");
         Assert.assertEquals(returns.length, 1);
@@ -93,7 +93,7 @@ public class IterableArrowExprTest {
         Assert.assertEquals(((BStringArray) returns[0]).get(1), "TIGER");
     }
 
-    @Test
+    @Test(description = "Test arrow expression inside map() which returns a lambda collection")
     public void testIterableReturnLambda() {
         BValue[] returns = BRunUtil.invoke(basic, "testIterableReturnLambda");
         Assert.assertNotNull(returns);
@@ -105,13 +105,13 @@ public class IterableArrowExprTest {
         Assert.assertEquals(returns[2].getType().toString(), "function (int) returns (boolean)");
     }
 
-    @Test
+    @Test(description = "Test arrow expression inside map() with return string collection and then count()")
     public void testCountFunction() {
         BValue[] returns = BRunUtil.invoke(basic, "testCountFunction");
         Assert.assertEquals(((BInteger) returns[0]).intValue(), 3);
     }
 
-    @Test
+    @Test(description = "Negative test cases for arrow expression used for functional iterations")
     public void testNegativeArrowExpr() {
         int i = 0;
         Assert.assertEquals(resultNegative.getErrorCount(), 10);

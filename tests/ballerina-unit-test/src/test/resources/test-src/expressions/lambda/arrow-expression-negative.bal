@@ -54,3 +54,12 @@ function testAccessInvalidClosure() {
     function (boolean) returns boolean lambda1 = param1 => !closureVar; // undefined symbol 'closureVar'
     boolean closureVar = true;
 }
+
+function() foo = function () returns () {
+    int i = 34;
+    function (int) returns (int) addFunc1 = a => a + p + m + i; // undefined symbol 'm'
+    int m = 3;
+    int k = addFunc1(6);
+};
+
+int p = 2;

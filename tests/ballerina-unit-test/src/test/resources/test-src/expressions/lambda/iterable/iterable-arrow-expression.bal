@@ -15,97 +15,57 @@
 // under the License.
 
 function testMapIterable() returns string[] {
-
     map<string> words = { a: "ant", b: "bear"};
-
-    //string[] animals = words.map(function (string word) returns (string) {
-    //    return word.toUpper();
-    //});
-
     string[] animals = words.map(word => word[1].toUpper());
-
     return animals;
-
 }
 
 function testFilterIterable() returns float {
-
     int[6] numberArray = [5, 6, 7, 8, 9, 10];
-
     float avg = numberArray.filter(num => num[0] >= 3).map(num => num[1]).average();
-
     return avg;
-
 }
 
 function testTwoLevelMapIterable () returns string[] {
-
     map<string> words = { a: "ant", b: "bear"};
-
-    //boolean[] animals2 = words.map(function ((string, string) entry) returns (string, string) {
-    //    return (entry[1].toUpper(), entry[1]);
-    //}).map(function ((string, string) entry) returns (string) {
-    //    return "2";
-    //});
-
     string[] animals = words.map(entry => (entry[1], entry[1].toUpper())).map(entry => entry[1].toUpper());
-
     return animals;
 }
 
 function testTwoLevelMapIterableWithFilter () returns string[] {
-
     map<string> words = { a: "ant", b: "bear"};
-
-    //string[] animals = words.map(function ((string, string) entry) returns (string, string) {
-    //    return (entry[1], entry[1].toUpper());
-    //}).filter(function ((string, string) entry) returns (boolean) {
-    //    return entry[0] == "ant";
-    //}).map(function ((string, string) entry) returns (string) {
-    //    return entry[1];
-    //});
-
     string[] animals = words
         .map(entry => (entry[1], entry[1].toUpper()))
         .filter(entry => entry[0] == "bear")
         .map(entry => entry[1]);
-
     return animals;
 }
 
 function testFilterThenMap () returns (string[], int) {
     map<string> words = { a: "ant", b: "bear"};
-
     string[] str = words.filter(word => word[1] == "ant").map(word => word[1].toUpper() + " MAN");
     int count = words.filter(word => word[1] == "ant").map(word => word[1].toUpper() + " MAN").count();
     return (str, count);
 }
 
 function testFilterWithArityOne () returns string[] {
-
     map<string> words = { a: "ant", b: "bear", c: "tiger"};
-
     string[] animals = words
         .map(entry => entry[1])
         .filter(entry => entry != "bear")
         .map(entry => entry.toUpper());
-
     return animals;
 }
 
 function testIterableReturnLambda () returns (function (int) returns boolean)[] {
-
     map<string> words = { a: "ant", b: "bear", c: "tiger"};
-
     (function (int) returns boolean)[] lambdas = words.map(function (string input) returns (function (int) returns boolean) {
             return param => true;
     });
-
     return lambdas;
 }
 
 function testCountFunction() returns any {
-
     map numbers = {a: "1", b: "2", c: "3"};
     int v = numbers.map(entry => entry).count();
     return v;

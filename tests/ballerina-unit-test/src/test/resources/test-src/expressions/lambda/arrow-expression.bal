@@ -50,10 +50,16 @@ function testBooleanParamType() returns boolean {
     return invertBoolean(false);
 }
 
-function testClosureAccess() returns float {
+function testClosure() returns int {
+    int closureVar = 10;
+    function (int, string) returns int lambda = (param1, param2) => closureVar + param1;
+    return lambda(25, "ignore");
+}
+
+function testClosureWithCasting() returns float {
     int closureVar = 25;
     function (int, string) returns float lambda = (param1, param2) => <float>closureVar + <float>param1;
-    return lambda(25, "ignore");
+    return lambda(20, "ignore");
 }
 
 type Person record {
@@ -78,26 +84,43 @@ function testTupleInput() returns (string, string) {
     return lambda(tupleEntry, "Peter");
 }
 
-function testClosure() returns int {
-    int closureVar = 10;
-    function (int, string) returns int lambda = (param1, param2) => closureVar + param1;
-    return lambda(25, "ignore");
-}
-
-function twoLevelTest() returns (function (int) returns (int)) {
+function twoLevelTestWithEndingArrowExpr() returns (function (int) returns (int)) {
     int methodInt1 = 2;
     var addFunc1 = function (int funcInt1) returns (int) {
         int methodInt2 = 23;
         function (int) returns (int) addFunc2 = funcInt2 => methodInt1 + funcInt2 + methodInt2;
-        //var addFunc2 = function (int funcInt2) returns (int) {
-        //return methodInt1 + funcInt2 + methodInt2;
-    //};
         return addFunc2(5) + funcInt1;
     };
     return addFunc1;
 }
 
-function test2() returns int {
-    var foo = twoLevelTest();
+function twoLevelTest() returns int {
+    var foo = twoLevelTestWithEndingArrowExpr();
     return foo(6);
+}
+
+function threeLevelTestWithEndingArrowExpr() returns (function (int) returns (int)) {
+    int methodInt1 = 2;
+    var addFunc1 = function (int funcInt1) returns (int) {
+        int methodInt2 = 23;
+        var addFunc2 = function (int funcInt2) returns (int) {
+            int methodInt3 = 7;
+            function (int) returns (int) addFunc3 = funcInt3 => funcInt3 + methodInt1 + methodInt2 + methodInt3;
+            return addFunc3(8) + funcInt2;
+        };
+        return addFunc2(4) + funcInt1;
+    };
+    return addFunc1;
+}
+
+function threeLevelTest() returns int {
+    var foo = threeLevelTestWithEndingArrowExpr();
+    return foo(6);
+}
+
+function testNestedArrowExpression() returns string {
+    function (int, string) returns function (int, string) returns string lambda =
+                        (integerVar, stringVar) => (integerVar2, stringVar2) => stringVar + integerVar;
+    var lambda2 = lambda(18, "John");
+    return lambda2(20, "Doe");
 }

@@ -46,28 +46,28 @@ public class ArrowExprTest {
         resultNegative = BCompileUtil.compile("test-src/expressions/lambda/arrow-expression-negative.bal");
     }
 
-    @Test
+    @Test(description = "Test arrow expression that takes one input parameter")
     public void testArrowExprWithOneParam() {
         BValue[] returns = BRunUtil.invoke(basic, "testArrowExprWithOneParam");
         Assert.assertEquals(returns.length, 1);
         Assert.assertEquals(((BInteger) returns[0]).intValue(), 24);
     }
 
-    @Test
+    @Test(description = "Test arrow expression that takes two input parameter")
     public void testArrowExprWithTwoParams() {
         BValue[] returns = BRunUtil.invoke(basic, "testArrowExprWithTwoParams");
         Assert.assertEquals(returns.length, 1);
         Assert.assertEquals(returns[0].stringValue(), "12John");
     }
 
-    @Test
+    @Test(description = "Test arrow expression inferring type from return signature")
     public void testReturnArrowExpr() {
         BValue[] returns = BRunUtil.invoke(basic, "testReturnArrowExpr");
         Assert.assertEquals(returns.length, 1);
         Assert.assertEquals(returns[0].stringValue(), "10Adam");
     }
 
-    @Test
+    @Test(description = "Test arrow expression that returns a tuple")
     public void testArrowExprReturnTuple() {
         BValue[] returns = BRunUtil.invoke(basic, "testArrowExprReturnTuple");
         Assert.assertEquals(returns.length, 2);
@@ -75,29 +75,36 @@ public class ArrowExprTest {
         Assert.assertEquals(((BInteger) returns[1]).intValue(), 12);
     }
 
-    @Test
+    @Test(description = "Test arrow expression that returns a union")
     public void testArrowExprReturnUnion() {
         BValue[] returns = BRunUtil.invoke(basic, "testArrowExprReturnUnion");
         Assert.assertEquals(returns.length, 1);
         Assert.assertEquals(returns[0].stringValue(), "12John");
     }
 
-    @Test
+    @Test(description = "Test arrow expression with boolean type input")
     public void testBooleanParamType() {
         BValue[] returns = BRunUtil.invoke(basic, "testBooleanParamType");
         Assert.assertEquals(returns.length, 1);
         Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
     }
 
-    @Test
-    public void testClosureAccess() {
-        BValue[] returns = BRunUtil.invoke(basic, "testClosureAccess");
+    @Test(description = "Test arrow expression accessing a closure variable")
+    public void testClosure() {
+        BValue[] returns = BRunUtil.invoke(basic, "testClosure");
         Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(((BFloat) returns[0]).floatValue(), 50.0);
+        Assert.assertEquals(((BInteger) returns[0]).intValue(), 35);
+    }
+
+    @Test(description = "Test arrow expression accessing a closure variable with casting to float")
+    public void testClosureWithCasting() {
+        BValue[] returns = BRunUtil.invoke(basic, "testClosureWithCasting");
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertEquals(((BFloat) returns[0]).floatValue(), 45.0);
 
     }
 
-    @Test
+    @Test(description = "Test arrow expression with input parameter and return type record")
     public void testRecordTypeWithArrowExpr() {
         BValue[] returns = BRunUtil.invoke(basic, "testRecordTypeWithArrowExpr");
         Assert.assertEquals(returns.length, 1);
@@ -105,14 +112,14 @@ public class ArrowExprTest {
         Assert.assertEquals(((BMap) returns[0]).getMap().get("age").toString(), "12");
     }
 
-    @Test
+    @Test(description = "Test arrow expression that takes one nillable input parameter")
     public void testNillableParameter() {
         BValue[] returns = BRunUtil.invoke(basic, "testNillableParameter");
         Assert.assertEquals(returns.length, 1);
         Assert.assertEquals(returns[0].toString(), "John");
     }
 
-    @Test
+    @Test(description = "Test arrow expression that takes tuple as an input parameter")
     public void testTupleInput() {
         BValue[] returns = BRunUtil.invoke(basic, "testTupleInput");
         Assert.assertEquals(returns.length, 2);
@@ -120,23 +127,28 @@ public class ArrowExprTest {
         Assert.assertEquals(returns[1].toString(), "Peter");
     }
 
-    @Test
-    public void testClosure() {
-        BValue[] returns = BRunUtil.invoke(basic, "testClosure");
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(((BInteger) returns[0]).intValue(), 35);
-    }
-
-    @Test
-    public void testTwoLevelClosure() {
-        BValue[] returns = BRunUtil.invoke(basic, "test2");
+    @Test(description = "Test arrow expression accessing a closure in an enclosing lambda")
+    public void twoLevelTestWithEndingArrowExpr() {
+        BValue[] returns = BRunUtil.invoke(basic, "twoLevelTest");
         Assert.assertEquals(((BInteger) returns[0]).intValue(), 36);
     }
 
-    @Test
+    @Test(description = "Test arrow expression accessing a closure in enclosing lambdas upto 3 levels")
+    public void threeLevelTestWithEndingArrowExpr() {
+        BValue[] returns = BRunUtil.invoke(basic, "threeLevelTest");
+        Assert.assertEquals(((BInteger) returns[0]).intValue(), 50);
+    }
+
+    @Test(description = "Test arrow expression inside an arrow expression")
+    public void testNestedArrowExpression() {
+        BValue[] returns = BRunUtil.invoke(basic, "testNestedArrowExpression");
+        Assert.assertEquals(returns[0].stringValue(), "John18");
+    }
+
+    @Test(description = "Test compile time errors for arrow expression")
     public void testNegativeArrowExpr() {
         int i = 0;
-        Assert.assertEquals(resultNegative.getErrorCount(), 10);
+        Assert.assertEquals(resultNegative.getErrorCount(), 11);
         BAssertUtil.validateError(resultNegative, i++,
                 "operator '/' not defined for 'string' and 'int'", 18, 54);
         BAssertUtil.validateError(resultNegative, i++,
@@ -157,5 +169,7 @@ public class ArrowExprTest {
                 "redeclared symbol 'param1'", 50, 50);
         BAssertUtil.validateError(resultNegative, i++,
                 "undefined symbol 'closureVar'", 54, 61);
+        BAssertUtil.validateError(resultNegative, i++,
+                "undefined symbol 'm'", 60, 58);
     }
 }
