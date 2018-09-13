@@ -1,11 +1,9 @@
 import ballerina/io;
 
-io:Socket socket;
-
-function openSocketConnection(string host, int port) {
+function openSocketConnection(string host, int port) returns io:Socket {
     io:Socket s = new;
     check s.connect(host, port);
-    socket = s;
+    return s;
 }
 
 function openSocketConnectionWithProps(string host, int port, int localPort) returns io:Socket {
@@ -15,11 +13,11 @@ function openSocketConnectionWithProps(string host, int port, int localPort) ret
     return s;
 }
 
-function closeSocket() {
+function closeSocket(io:Socket socket) {
     error? err = socket.close();
 }
 
-function write(byte[] content) returns int|error {
+function write(io:Socket socket, byte[] content) returns int|error {
     io:WritableByteChannel channel = socket.writableChannel;
     var result = channel.write(content, 0);
     match result {
@@ -33,7 +31,7 @@ function write(byte[] content) returns int|error {
     }
 }
 
-function read(int size) returns (byte[], int)|error {
+function read(io:Socket socket, int size) returns (byte[], int)|error {
     io:ReadableByteChannel channel = socket.readableChannel;
     var result = channel.read(size);
     match result {
@@ -48,11 +46,33 @@ function read(int size) returns (byte[], int)|error {
     }
 }
 
-function readRecord() returns string[]|error {
+function readShutdown(io:Socket s) {
+    check s.shutdownInput();
+}
+
+function writeShutDown(io:Socket s) {
+    check s.shutdownOutput();
+}
+
+function bindSocketForSamePort(int localPort) returns error? {
+    io:Socket client1 = new;
+    check client1.bindAddress(localPort);
+    io:Socket client2 = new;
+    match client2.bindAddress(localPort) {
+        error e => {
+            check client1.close();
+            return e;
+        }
+        () => {
+            return ();
+        }
+    }
+}
+
+function readRecord(io:Socket socket) returns string[]|error {
     io:ReadableByteChannel channel = socket.readableChannel;
     io:ReadableCharacterChannel characterChannel = new(channel, "UTF-8");
-    io:ReadableTextRecordChannel rChannel = new io:ReadableTextRecordChannel(characterChannel, rs = "\r\n",
-                                                                               fs = ",");
+    io:ReadableTextRecordChannel rChannel = new io:ReadableTextRecordChannel(characterChannel, rs = "\r\n", fs = ",");
     if (rChannel.hasNext()){
         var records = rChannel.getNext();
         match records {
@@ -63,11 +83,7 @@ function readRecord() returns string[]|error {
                 return fields;
             }
         }
-    } else{
-        return {message:"No records found"};
+    } else {
+        return { message: "No records found" };
     }
-}
-
-function close(io:Socket localSocket) {
-    error? err = localSocket.close();
 }

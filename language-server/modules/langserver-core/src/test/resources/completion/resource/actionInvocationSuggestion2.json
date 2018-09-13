@@ -22,7 +22,7 @@
       "insertTextFormat":"Snippet"
     },
     {
-      "label":"respond(ballerina/http:Response|string|xml|json|byte[]|ballerina/io:ByteChannel|ballerina/mime:Entity[]? message)(error?)",
+      "label":"respond(ballerina/http:Response|string|xml|json|byte[]|ballerina/io:ReadableByteChannel|ballerina/mime:Entity[]? message)(error?)",
       "kind":"Function",
       "detail":"Function",
       "sortText":"121",

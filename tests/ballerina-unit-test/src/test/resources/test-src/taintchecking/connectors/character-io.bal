@@ -2,14 +2,16 @@ import ballerina/io;
 
 public function main (string... args) {
     string filePath = "/test/path";
-    io:Mode permission = "r";
     string chars = "data";
 
-    io:ByteChannel bchannel = io:openFile(filePath, permission);
-    io:CharacterChannel channel = new io:CharacterChannel(bchannel, "UTF-8");
+    io:ReadableByteChannel rbh = io:openFileForReading(filePath);
+    io:ReadableCharacterChannel rch = new io:ReadableCharacterChannel(rbh, "UTF-8");
 
-    var writeOutput = channel.write(chars, 0);
-    var readOutput = channel.read(1);
+    io:WritableByteChannel wbh = io:openFileForWriting(filePath);
+    io:WritableCharacterChannel wch = new io:WritableCharacterChannel(wbh, "UTF-8");
+
+    var writeOutput = wch.write(chars, 0);
+    var readOutput = rch.read(1);
     match readOutput {
         string text => {
             testFunction(text, text);

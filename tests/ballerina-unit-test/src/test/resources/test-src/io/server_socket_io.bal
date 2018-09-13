@@ -63,9 +63,10 @@ function startServerSocket(int port, string welcomeMsg) {
         io:Socket s => {
             io:println("Client socket accepted!!!");
             io:println(s.remotePort);
-            io:ReadableByteChannel ch = s.readableChannel;
+            io:ReadableByteChannel rch = s.readableChannel;
+            io:WritableByteChannel wch = s.writableChannel;
             byte[] c1 = welcomeMsg.toByteArray("utf-8");
-            match ch.write(c1, 0) {
+            match wch.write(c1, 0) {
                 int i => {
                     io:println("No of bytes written: ", i);
                 }
@@ -73,7 +74,7 @@ function startServerSocket(int port, string welcomeMsg) {
                     io:println("Channel write error: ", e2.message);
                 }
             }
-            io:ReadableCharacterChannel? characterChannel1 = new io:ReadableCharacterChannel(ch, "utf-8");
+            io:ReadableCharacterChannel? characterChannel1 = new io:ReadableCharacterChannel(rch, "utf-8");
             match characterChannel1 {
                 io:ReadableCharacterChannel characterChannel => {
                     match readAllCharacters(characterChannel) {
@@ -108,4 +109,19 @@ function startServerSocket(int port, string welcomeMsg) {
         }
     }
     check server.close();
+}
+
+function runOnDuplicatePort(int port) returns error? {
+    io:ServerSocket server1 = new();
+    check server1.bindAddress(port);
+    io:ServerSocket server2 = new();
+    match server2.bindAddress(port) {
+        error e => {
+            check server1.close();
+            return e;
+        }
+        () => {
+            return ();
+        }
+    }
 }

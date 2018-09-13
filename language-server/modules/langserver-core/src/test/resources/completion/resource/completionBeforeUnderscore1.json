@@ -6,7 +6,7 @@
   "source": "resource/source/completionBeforeUnderscore1.bal",
   "items": [
     {
-      "label": "openFile(string path, io:Mode accessMode)(ballerina/io:ByteChannel)",
+      "label": "openFileForReading(string path, io:Mode accessMode)(ballerina/io:ReadableByteChannel)",
       "kind": "Function",
       "detail": "Function",
       "sortText": "121",
@@ -100,34 +100,34 @@
       "insertText": "Mode"
     },
     {
-      "label": "ByteChannel",
+      "label": "ReadableByteChannel",
       "detail": "BType",
       "sortText": "171",
-      "insertText": "ByteChannel"
+      "insertText": "ReadableByteChannel"
     },
     {
-      "label": "CharacterChannel",
+      "label": "ReadableCharacterChannel",
       "detail": "BType",
       "sortText": "171",
-      "insertText": "CharacterChannel"
+      "insertText": "ReadableCharacterChannel"
     },
     {
-      "label": "CSVChannel",
+      "label": "ReadableCSVChannel",
       "detail": "BType",
       "sortText": "171",
-      "insertText": "CSVChannel"
+      "insertText": "ReadableCSVChannel"
     },
     {
-      "label": "DataChannel",
+      "label": "ReadableDataChannel",
       "detail": "BType",
       "sortText": "171",
-      "insertText": "DataChannel"
+      "insertText": "ReadableDataChannel"
     },
     {
-      "label": "DelimitedTextRecordChannel",
+      "label": "ReadableTextRecordChannel",
       "detail": "BType",
       "sortText": "171",
-      "insertText": "DelimitedTextRecordChannel"
+      "insertText": "ReadableTextRecordChannel"
     },
     {
       "label": "Socket",
@@ -146,6 +146,36 @@
       "detail": "BType",
       "sortText": "171",
       "insertText": "StringReader"
+    },
+    {
+      "label": "WritableByteChannel",
+      "detail": "BType",
+      "sortText": "171",
+      "insertText": "WritableByteChannel"
+    },
+    {
+      "label": "WritableCharacterChannel",
+      "detail": "BType",
+      "sortText": "171",
+      "insertText": "WritableCharacterChannel"
+    },
+    {
+      "label": "WritableCSVChannel",
+      "detail": "BType",
+      "sortText": "171",
+      "insertText": "WritableCSVChannel"
+    },
+    {
+      "label": "WritableDataChannel",
+      "detail": "BType",
+      "sortText": "171",
+      "insertText": "WritableDataChannel"
+    },
+    {
+      "label": "WritableTextRecordChannel",
+      "detail": "BType",
+      "sortText": "171",
+      "insertText": "WritableTextRecordChannel"
     }
   ]
 }
