@@ -109,7 +109,7 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
             inboundRequestMsg = createInboundReqCarbonMsg((HttpRequest) msg, ctx, this);
             if (requestSet.size() > this.pipeliningLimit) {
                 LOG.warn("Pipelining request limit exceeded hence closing the channel {}", ctx.channel().id());
-                this.channelInactive(ctx);
+                closeChannel(ctx);
                 return;
             }
             requestSet.put(inboundRequestMsg.hashCode(), inboundRequestMsg);
@@ -154,7 +154,6 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
 
     @Override
     public void channelInactive(ChannelHandlerContext ctx) {
-        ctx.close();
         if (!idleTimeout) {
             if (!requestSet.isEmpty()) {
                 requestSet.forEach((key, inboundMsg) -> inboundMsg.getMessageStateContext().getListenerState()
@@ -198,11 +197,11 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
                     ChannelFuture outboundRespFuture = inboundMsg.getMessageStateContext().getListenerState()
                             .handleIdleTimeoutConnectionClosure(serverConnectorFuture, ctx);
                     if (outboundRespFuture == null) {
-                        this.channelInactive(ctx);
+                        closeChannel(ctx);
                     }
                 });
             } else {
-                this.channelInactive(ctx);
+                closeChannel(ctx);
                 if (connectedState) {
                     notifyErrorListenerAtConnectedState(IDLE_TIMEOUT_TRIGGERED_BEFORE_INITIATING_INBOUND_REQUEST);
                 }
@@ -223,6 +222,10 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
         } else {
             LOG.warn("Unexpected user event {} triggered", evt);
         }
+    }
+
+    private void closeChannel(ChannelHandlerContext ctx) {
+        ctx.close();
     }
 
     private void notifyErrorListenerAtConnectedState(String errorMsg) {

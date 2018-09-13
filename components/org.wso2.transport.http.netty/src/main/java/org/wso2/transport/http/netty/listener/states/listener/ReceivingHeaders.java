@@ -139,7 +139,7 @@ public class ReceivingHeaders implements ListenerState {
             if (cause != null) {
                 LOG.warn("Failed to send: {}", cause.getMessage());
             }
-            sourceHandler.channelInactive(ctx);
+            ctx.close();
             handleIncompleteInboundMessage(inboundRequestMsg,
                                            IDLE_TIMEOUT_TRIGGERED_WHILE_READING_INBOUND_REQUEST_HEADERS);
         });

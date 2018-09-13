@@ -122,7 +122,7 @@ public class Expect100ContinueHeaderReceived implements ListenerState {
             if (cause != null) {
                 LOG.warn("Failed to send: {}", cause.getMessage());
             }
-            sourceHandler.channelInactive(ctx);
+            ctx.close();
         });
         return outboundRespFuture;
     }
