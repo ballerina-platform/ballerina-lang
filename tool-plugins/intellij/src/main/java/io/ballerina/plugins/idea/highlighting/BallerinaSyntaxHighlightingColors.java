@@ -60,4 +60,6 @@ public class BallerinaSyntaxHighlightingColors {
             DefaultLanguageHighlighterColors.INSTANCE_FIELD);
     public static final TextAttributesKey RECORD_KEY = createTextAttributesKey("BALLERINA_RECORD_KEY",
             CustomHighlighterColors.CUSTOM_KEYWORD3_ATTRIBUTES);
+    public static final TextAttributesKey DEFAULT = createTextAttributesKey("BALLERINA_GLOBAL_VARIABLE",
+            DefaultLanguageHighlighterColors.OPERATION_SIGN);
 }

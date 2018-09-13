@@ -70,6 +70,17 @@ public class BallerinaAnnotator implements Annotator {
                     Annotation annotation = holder.createInfoAnnotation(element, null);
                     annotation.setTextAttributes(BallerinaSyntaxHighlightingColors.ANNOTATION);
                 }
+                // these keywords can be used as iterable operations as well
+            } else if (elementType == BallerinaTypes.MAP || elementType == BallerinaTypes.FOREACH) {
+                if (parent.getNode().getElementType() == BallerinaTypes.RESERVED_WORD) {
+                    //if the context is an iterable operation, skips highlighting as a keyword
+                    if (parent.getParent() != null
+                            && parent.getParent().getNode().getElementType() == BallerinaTypes.ANY_IDENTIFIER_NAME) {
+                        annotateKeyword(element, holder, BallerinaSyntaxHighlightingColors.DEFAULT);
+                    }
+                } else {
+                    annotateKeyword(element, holder);
+                }
             } else if (elementType == BallerinaTypes.STRING_TEMPLATE_LITERAL_START
                     || elementType == BallerinaTypes.XML_LITERAL_START) {
                 annotateKeyword(element, holder);
@@ -246,7 +257,7 @@ public class BallerinaAnnotator implements Annotator {
 
     private void annotateKeyword(@NotNull PsiElement element, @NotNull AnnotationHolder holder) {
         TextRange textRange = element.getTextRange();
-        TextRange newTextRange = new TextRange(textRange.getStartOffset(), textRange.getEndOffset() - 1);
+        TextRange newTextRange = new TextRange(textRange.getStartOffset(), textRange.getEndOffset());
         Annotation annotation = holder.createInfoAnnotation(newTextRange, null);
         annotation.setTextAttributes(BallerinaSyntaxHighlightingColors.KEYWORD);
     }
@@ -254,7 +265,7 @@ public class BallerinaAnnotator implements Annotator {
     private void annotateKeyword(@NotNull PsiElement element, @NotNull AnnotationHolder holder,
             @NotNull TextAttributesKey textAttributesKey) {
         TextRange textRange = element.getTextRange();
-        TextRange newTextRange = new TextRange(textRange.getStartOffset(), textRange.getEndOffset() - 1);
+        TextRange newTextRange = new TextRange(textRange.getStartOffset(), textRange.getEndOffset());
         Annotation annotation = holder.createInfoAnnotation(newTextRange, null);
         annotation.setTextAttributes(textAttributesKey);
     }
