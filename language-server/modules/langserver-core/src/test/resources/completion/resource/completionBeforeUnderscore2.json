@@ -278,7 +278,7 @@
       "insertTextFormat":"Snippet"
     },
     {
-      "label":"setPayload(string|xml|json|byte[]|ballerina/io:ByteChannel|ballerina/mime:Entity[] payload)",
+      "label":"setPayload(string|xml|json|byte[]|ballerina/io:ReadableByteChannel|ballerina/mime:Entity[] payload)",
       "kind":"Function",
       "detail":"Function",
       "sortText":"121",

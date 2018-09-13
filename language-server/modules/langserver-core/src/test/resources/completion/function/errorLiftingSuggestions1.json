@@ -182,7 +182,7 @@
       "insertTextFormat":"Snippet"
     },
     {
-      "label":"getByteChannel()(ballerina/io:ByteChannel|error)",
+      "label":"getByteChannel()(ballerina/io:ReadableByteChannel|error)",
       "kind":"Function",
       "detail":"Function",
       "sortText":"121",
@@ -262,7 +262,7 @@
       "insertTextFormat":"Snippet"
     },
     {
-      "label":"setByteChannel(io:ByteChannel payload, string contentType \u003d application/octet-stream)",
+      "label":"setByteChannel(io:ReadableByteChannel payload, string contentType \u003d application/octet-stream)",
       "kind":"Function",
       "detail":"Function",
       "sortText":"121",
@@ -270,7 +270,7 @@
       "insertTextFormat":"Snippet"
     },
     {
-      "label":"setPayload(string|xml|json|byte[]|ballerina/io:ByteChannel|ballerina/mime:Entity[] payload)",
+      "label":"setPayload(string|xml|json|byte[]|ballerina/io:ReadableByteChannel|ballerina/mime:Entity[] payload)",
       "kind":"Function",
       "detail":"Function",
       "sortText":"121",
