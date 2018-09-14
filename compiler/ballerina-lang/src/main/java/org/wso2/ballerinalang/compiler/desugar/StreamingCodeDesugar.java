@@ -48,6 +48,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangVariable;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangHaving;
+import org.wso2.ballerinalang.compiler.tree.clauses.BLangJoinStreamingInput;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangSelectClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangSelectExpression;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangStreamAction;
@@ -145,7 +146,6 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
     private List<BLangStatement> stmts;
     private BType inputStreamEventType;
     private BLangExpression filterConditionalExpression;
-    private BLangVariable filterTypeCastedVariable;
     private BType outputEventType;
     private Stack<BVarSymbol> nextProcessVarSymbolStack = new Stack<>();
     private Stack<BLangVariable> lambdaFuncMapVariableStack = new Stack<>();
@@ -182,10 +182,6 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangStreamingQueryStatement streamingQueryStatement) {
-        inputStreamEventType = null;
-        filterConditionalExpression = null;
-        filterTypeCastedVariable = null;
-        outputEventType = null;
 
         inputStreamEventType = ((BStreamType) ((BLangExpression) streamingQueryStatement.getStreamingInput().
                 getStreamReference()).type).constraint;
@@ -200,6 +196,12 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
         //Build elements to consume events from input stream
         BLangStreamingInput streamingInput = (BLangStreamingInput) streamingQueryStatement.getStreamingInput();
         streamingInput.accept(this);
+
+        BLangJoinStreamingInput joinStreamingInput = (BLangJoinStreamingInput)
+                streamingQueryStatement.getJoiningInput();
+        if (joinStreamingInput != null) {
+            joinStreamingInput.accept(this);
+        }
     }
 
     @Override
@@ -466,14 +468,10 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
         BLangVariable varStreamEvent = selectWithGroupBy.function.requiredParams.get(0);
         BLangVariable varAggregatorArray = selectWithGroupBy.function.requiredParams.get(1);
 
-        // e.data;
-        BLangFieldBasedAccess dataMapAccessExpr =
-                createStreamEventDataMapExpr(selectClause.pos, varStreamEvent);
-
         /* TeacherOutput teacherOutput = {
-                        name: t.name,
-                        age: t.age,
-                        sumAge: check <int> aggregatorArr1[0].process(t.age, e.eventType),
+                        name: e.data["inputStream.name"],
+                        age: e.data["inputStream.age"],
+                        sumAge: check <int> aggregatorArr1[0].process(e.data["inputStream.age"], e.eventType),
                         count: check <int> aggregatorArr1[1].process((), e.eventType),
                         ...
                         ...
@@ -500,9 +498,9 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
         BLangRecordLiteral outputEventRecordLiteral = ASTBuilderUtil.createEmptyRecordLiteral(selectClause.pos,
                 symTable.mapType);
         /* {
-             name: t.name,
-                    age: t.age,
-                    sumAge: check <int> aggregatorArr1[0].process(t.age, e.eventType),
+             name: e.data["inputStream.name"]
+                    age: e.data["inputStream.age"],
+                    sumAge: check <int> aggregatorArr1[0].process(e.data["inputStream.age"], e.eventType),
                     count: check <int> aggregatorArr1[1].process((), e.eventType),
                     ...
            }
@@ -665,6 +663,10 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
         lambdaFuncMapVariableStack.pop();
     }
 
+    @Override
+    public void visit(BLangJoinStreamingInput joinStreamingInput) {
+        super.visit(joinStreamingInput);
+    }
 
     //
     // This method create necessary Ballerina native constructs to consume events from stream based on the 'from'
@@ -684,7 +686,8 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
     @Override
     public void visit(BLangStreamingInput streamingInput) {
         //Lambda function parameter
-        BType lambdaParameterType = inputStreamEventType;
+        BType lambdaParameterType = ((BStreamType) ((BLangExpression) streamingInput.getStreamReference()).type)
+                .constraint;
 
         BLangWhere afterWhereNode = (BLangWhere) streamingInput.getAfterStreamingCondition();
         if (afterWhereNode != null) {
@@ -879,7 +882,7 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
     //
     @Override
     public void visit(BLangWhere where) {
-        visitFilter(where.pos, (BLangBinaryExpr) where.getExpression(), inputStreamEventType);
+        visitFilter(where.pos, (BLangBinaryExpr) where.getExpression(), null);
     }
 
     //
@@ -1205,18 +1208,17 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
 
         // arguments of aggregatorArr[0].process(..). e.g. (t.age, e.eventType)
         List<BVarSymbol> params = ((BInvokableSymbol) aggregatorInvocation.symbol).params;
-        aggregatorInvocation.requiredArgs = generateAggregatorInvocationArgs(streamEventSymbol,
-                streamEventSymbol, selectFuncInvocation, params);
+        aggregatorInvocation.requiredArgs = generateAggregatorInvocationArgs(streamEventSymbol, selectFuncInvocation,
+                params);
 
         return aggregatorInvocation;
     }
 
-    private List<BLangExpression> generateAggregatorInvocationArgs(BVarSymbol typeCastedVariableSymbol,
-                                                                   BVarSymbol streamEventSymbol,
+    private List<BLangExpression> generateAggregatorInvocationArgs(BVarSymbol streamEventSymbol,
                                                                    BLangInvocation funcInvocation,
                                                                    List<BVarSymbol> params) {
         // generates the fields which will be aggregated e.g. t.age
-        List<BLangExpression> args = generateAggregatorInputFieldsArgs(typeCastedVariableSymbol, funcInvocation,
+        List<BLangExpression> args = generateAggregatorInputFieldsArgs(streamEventSymbol, funcInvocation,
                 params);
         // generate the EventType for the aggregation o.eventType
         BLangFieldBasedAccess streamEventFieldAccess = generateStreamEventTypeForAggregatorArg(streamEventSymbol,
@@ -1235,14 +1237,14 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
         return streamEventFieldAccess;
     }
 
-    private List<BLangExpression> generateAggregatorInputFieldsArgs(BVarSymbol typeCastedVariableSymbol,
+    private List<BLangExpression> generateAggregatorInputFieldsArgs(BVarSymbol streamEventSymbol,
             BLangInvocation funcInvocation, List<BVarSymbol> params) {
         List<BLangExpression> args = new ArrayList<>();
         int i = 0;
         for (BLangExpression expr : funcInvocation.argExprs) {
             if (expr.getKind() == NodeKind.FIELD_BASED_ACCESS_EXPR) {
                 BLangExpression mapAccessExpr = createMapVariableIndexAccessExpr((BVarSymbol)
-                        createEventDataFieldAccessExpr(expr.pos, typeCastedVariableSymbol).symbol, expr);
+                        createEventDataFieldAccessExpr(expr.pos, streamEventSymbol).symbol, expr);
                 BLangExpression castExpr = Desugar.addConversionExprIfRequired(mapAccessExpr, params.get(i).type,
                         types, symTable, symResolver);
                 args.add(castExpr);
