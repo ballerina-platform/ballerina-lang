@@ -54,7 +54,7 @@ import static org.testng.AssertJUnit.assertEquals;
  */
 public class ClientRespDecompressionTestCase {
 
-    private static final Logger log = LoggerFactory.getLogger(ClientRespDecompressionTestCase.class);
+    private static final Logger LOG = LoggerFactory.getLogger(ClientRespDecompressionTestCase.class);
 
     private ServerConnector serverConnector;
     private HttpClientConnector clientConnector;
@@ -83,7 +83,7 @@ public class ClientRespDecompressionTestCase {
         try {
             serverConnectorFuture.sync();
         } catch (InterruptedException e) {
-            log.error("Thread Interrupted while sleeping ", e);
+            LOG.error("Thread Interrupted while sleeping ", e);
         }
     }
 

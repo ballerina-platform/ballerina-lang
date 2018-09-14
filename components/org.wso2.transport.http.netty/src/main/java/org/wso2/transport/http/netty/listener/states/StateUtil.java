@@ -50,7 +50,7 @@ import static org.wso2.transport.http.netty.common.Constants.CLIENT_TO_REMOTE_HO
  */
 public class StateUtil {
 
-    private static Logger log = LoggerFactory.getLogger(StateUtil.class);
+    private static final Logger LOG = LoggerFactory.getLogger(StateUtil.class);
     public static final String ILLEGAL_STATE_ERROR = "is not a dependant action of this state";
     public static final String CONNECTOR_NOTIFYING_ERROR =
             "Error while notifying error state to server-connector listener";
@@ -116,6 +116,6 @@ public class StateUtil {
         LastHttpContent lastHttpContent = new DefaultLastHttpContent();
         lastHttpContent.setDecoderResult(DecoderResult.failure(new DecoderException(errorMessage)));
         inboundRequestMsg.addHttpContent(lastHttpContent);
-        log.warn(errorMessage);
+        LOG.warn(errorMessage);
     }
 }

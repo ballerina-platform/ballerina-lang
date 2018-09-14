@@ -50,7 +50,7 @@ import static org.wso2.transport.http.netty.listener.states.StateUtil.sendReques
  */
 public class ReceivingEntityBody implements ListenerState {
 
-    private static Logger log = LoggerFactory.getLogger(ReceivingEntityBody.class);
+    private static final Logger LOG = LoggerFactory.getLogger(ReceivingEntityBody.class);
     private final HandlerExecutor handlerExecutor;
     private final ServerConnectorFuture serverConnectorFuture;
     private final MessageStateContext messageStateContext;
@@ -70,7 +70,7 @@ public class ReceivingEntityBody implements ListenerState {
 
     @Override
     public void readInboundRequestHeaders(HttpCarbonMessage inboundRequestMsg, HttpRequest inboundRequestHeaders) {
-        log.warn("readInboundRequestHeaders {}", ILLEGAL_STATE_ERROR);
+        LOG.warn("readInboundRequestHeaders {}", ILLEGAL_STATE_ERROR);
     }
 
     @Override
@@ -86,20 +86,20 @@ public class ReceivingEntityBody implements ListenerState {
                     if (isDiffered(inboundRequestMsg)) {
                         serverConnectorFuture.notifyHttpListener(inboundRequestMsg);
                     }
-                    sourceHandler.resetInboundRequestMsg(inboundRequestMsg);
+                    sourceHandler.resetInboundRequestMsg();
                     messageStateContext.setListenerState(
                             new EntityBodyReceived(messageStateContext, sourceHandler, httpVersion));
                 }
             } catch (RuntimeException ex) {
                 httpContent.release();
-                log.warn("Response already received before completing the inbound request {}", ex.getMessage());
+                LOG.warn("Response already received before completing the inbound request {}", ex.getMessage());
             }
         }
     }
 
     @Override
     public void writeOutboundResponseHeaders(HttpCarbonMessage outboundResponseMsg, HttpContent httpContent) {
-        log.warn("writeOutboundResponseHeaders {}", ILLEGAL_STATE_ERROR);
+        LOG.warn("writeOutboundResponseHeaders {}", ILLEGAL_STATE_ERROR);
     }
 
     @Override
@@ -124,7 +124,7 @@ public class ReceivingEntityBody implements ListenerState {
         outboundRespFuture.addListener((ChannelFutureListener) channelFuture -> {
             Throwable cause = channelFuture.cause();
             if (cause != null) {
-                log.warn("Failed to send: {}", cause.getMessage());
+                LOG.warn("Failed to send: {}", cause.getMessage());
             }
             sourceHandler.channelInactive(ctx);
             handleIncompleteInboundMessage(inboundRequestMsg,

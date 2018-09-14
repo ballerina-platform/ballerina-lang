@@ -41,7 +41,7 @@ public class RevocationVerificationManager {
 
     private int cacheSize = Constants.CACHE_DEFAULT_ALLOCATED_SIZE;
     private int cacheDelayMins = Constants.CACHE_DEFAULT_DELAY_MINS;
-    private static final Logger log = LoggerFactory.getLogger(RevocationVerificationManager.class);
+    private static final Logger LOG = LoggerFactory.getLogger(RevocationVerificationManager.class);
 
     public RevocationVerificationManager(Integer cacheAllocatedSize, Integer cacheDelayMins) {
 
@@ -81,14 +81,14 @@ public class RevocationVerificationManager {
             try {
                 CertificatePathValidator pathValidator = new CertificatePathValidator(convertedCertificates, verifier);
                 pathValidator.validatePath();
-                if (log.isInfoEnabled()) {
-                    log.info("Path verification is successful. Took {} ms.", System.currentTimeMillis() - start);
+                if (LOG.isInfoEnabled()) {
+                    LOG.info("Path verification is successful. Took {} ms.", System.currentTimeMillis() - start);
                 }
                 return true;
             } catch (Exception e) {
-                if (log.isDebugEnabled()) {
-                    log.debug("{} failed.", verifier.getClass().getSimpleName());
-                    log.debug("Certificate verification with {} failed. ", verifier.getClass().getSimpleName(), e);
+                if (LOG.isDebugEnabled()) {
+                    LOG.debug("{} failed.", verifier.getClass().getSimpleName());
+                    LOG.debug("Certificate verification with {} failed. ", verifier.getClass().getSimpleName(), e);
                 }
             }
         }

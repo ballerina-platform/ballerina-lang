@@ -41,7 +41,7 @@ import static org.wso2.transport.http.netty.listener.states.StateUtil.handleInco
  */
 public class ReceivingEntityBody implements SenderState {
 
-    private static Logger log = LoggerFactory.getLogger(ReceivingEntityBody.class);
+    private static final Logger LOG = LoggerFactory.getLogger(ReceivingEntityBody.class);
     private final MessageStateContext messageStateContext;
     private final TargetHandler targetHandler;
 
@@ -52,17 +52,17 @@ public class ReceivingEntityBody implements SenderState {
 
     @Override
     public void writeOutboundRequestHeaders(HttpCarbonMessage httpOutboundRequest, HttpContent httpContent) {
-        log.warn("writeOutboundRequestHeaders {}", ILLEGAL_STATE_ERROR);
+        LOG.warn("writeOutboundRequestHeaders {}", ILLEGAL_STATE_ERROR);
     }
 
     @Override
     public void writeOutboundRequestEntity(HttpCarbonMessage httpOutboundRequest, HttpContent httpContent) {
-        log.warn("writeOutboundRequestEntity {}", ILLEGAL_STATE_ERROR);
+        LOG.warn("writeOutboundRequestEntity {}", ILLEGAL_STATE_ERROR);
     }
 
     @Override
     public void readInboundResponseHeaders(TargetHandler targetHandler, HttpResponse httpInboundResponse) {
-        log.warn("readInboundResponseHeaders {}", ILLEGAL_STATE_ERROR);
+        LOG.warn("readInboundResponseHeaders {}", ILLEGAL_STATE_ERROR);
     }
 
     @Override

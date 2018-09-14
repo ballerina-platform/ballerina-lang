@@ -100,7 +100,7 @@ import static org.wso2.transport.http.netty.common.certificatevalidation.Constan
  */
 class Utils {
 
-    private static final Logger log = LoggerFactory.getLogger(Utils.class);
+    private static final Logger LOG = LoggerFactory.getLogger(Utils.class);
     private static HttpClientConnector httpClientConnector;
     private static ServerConnector serverConnector;
     private static HttpWsConnectorFactory factory;
@@ -381,7 +381,7 @@ class Utils {
         try {
             factory.shutdown();
         } catch (InterruptedException e) {
-            log.error("Interrupted while waiting for HttpWsFactory to shutdown", e);
+            LOG.error("Interrupted while waiting for HttpWsFactory to shutdown", e);
         }
     }
 }

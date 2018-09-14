@@ -49,7 +49,7 @@ import static org.testng.Assert.assertNotNull;
  */
 public class Http2ServerConnectorBasicTestCase {
 
-    private static Logger log = LoggerFactory.getLogger(Http2ServerConnectorBasicTestCase.class);
+    private static final Logger LOG = LoggerFactory.getLogger(Http2ServerConnectorBasicTestCase.class);
 
     private HttpClientConnector httpClientConnector;
     private ServerConnector serverConnector;
@@ -94,7 +94,7 @@ public class Http2ServerConnectorBasicTestCase {
         try {
             connectorFactory.shutdown();
         } catch (InterruptedException e) {
-            log.warn("Interrupted while waiting for HttpWsFactory to close");
+            LOG.warn("Interrupted while waiting for HttpWsFactory to close");
         }
     }
 }

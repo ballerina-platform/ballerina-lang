@@ -52,7 +52,7 @@ import static org.testng.AssertJUnit.assertNull;
  */
 public class ServerRespCompressionTestCase {
 
-    private static final Logger log = LoggerFactory.getLogger(ServerRespCompressionTestCase.class);
+    private static final Logger LOG = LoggerFactory.getLogger(ServerRespCompressionTestCase.class);
 
     protected ServerConnector serverConnector;
     protected ListenerConfiguration listenerConfiguration;
@@ -75,7 +75,7 @@ public class ServerRespCompressionTestCase {
         try {
             serverConnectorFuture.sync();
         } catch (InterruptedException e) {
-            log.error("Thread Interrupted while sleeping ", e);
+            LOG.error("Thread Interrupted while sleeping ", e);
         }
     }
 

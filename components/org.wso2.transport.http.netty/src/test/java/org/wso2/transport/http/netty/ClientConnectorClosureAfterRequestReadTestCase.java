@@ -50,7 +50,7 @@ import static org.testng.AssertJUnit.assertNotNull;
  */
 public class ClientConnectorClosureAfterRequestReadTestCase {
 
-    private static Logger logger = LoggerFactory.getLogger(ClientConnectorClosureAfterRequestReadTestCase.class);
+    private static final Logger LOG = LoggerFactory.getLogger(ClientConnectorClosureAfterRequestReadTestCase.class);
 
     private HttpServer httpServer;
     private HttpClientConnector httpClientConnector;
@@ -97,7 +97,7 @@ public class ClientConnectorClosureAfterRequestReadTestCase {
             httpServer.shutdown();
             connectorFactory.shutdown();
         } catch (InterruptedException e) {
-            logger.error("Failed to shutdown the test server");
+            LOG.error("Failed to shutdown the test server");
         }
     }
 }

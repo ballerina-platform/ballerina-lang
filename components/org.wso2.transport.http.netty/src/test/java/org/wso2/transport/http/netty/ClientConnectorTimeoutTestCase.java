@@ -50,7 +50,7 @@ import static org.testng.AssertJUnit.assertNotNull;
  */
 public class ClientConnectorTimeoutTestCase {
 
-    private static Logger logger = LoggerFactory.getLogger(ClientConnectorTimeoutTestCase.class);
+    private static final Logger LOG = LoggerFactory.getLogger(ClientConnectorTimeoutTestCase.class);
 
     private HttpServer httpServer;
     private HttpClientConnector httpClientConnector;
@@ -96,7 +96,7 @@ public class ClientConnectorTimeoutTestCase {
             httpServer.shutdown();
             connectorFactory.shutdown();
         } catch (InterruptedException e) {
-            logger.error("Failed to shutdown the test server");
+            LOG.error("Failed to shutdown the test server");
         }
     }
 }

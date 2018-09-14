@@ -44,7 +44,7 @@ public class CRLCache implements ManageableCache {
     private volatile Iterator<Map.Entry<String, CRLCacheValue>> iterator = hashMap.entrySet().iterator();
     private volatile CacheManager cacheManager;
     private static CRLVerifier crlVerifier = new CRLVerifier(null);
-    private static final Logger log = LoggerFactory.getLogger(CRLCache.class);
+    private static final Logger LOG = LoggerFactory.getLogger(CRLCache.class);
 
     private CRLCache() {
     }
@@ -126,22 +126,22 @@ public class CRLCache implements ManageableCache {
 
     public synchronized void setCacheValue(String crlUrl, X509CRL crl) {
         CRLCacheValue cacheValue = new CRLCacheValue(crlUrl, crl);
-        if (log.isDebugEnabled()) {
-            log.debug("Before setting - HashMap size {}", hashMap.size());
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("Before setting - HashMap size {}", hashMap.size());
         }
         hashMap.put(crlUrl, cacheValue);
-        if (log.isDebugEnabled()) {
-            log.debug("After setting - HashMap size {}", hashMap.size());
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("After setting - HashMap size {}", hashMap.size());
         }
     }
 
     public synchronized void removeCacheValue(String crlUrl) {
-        if (log.isDebugEnabled()) {
-            log.debug("Before removing - HashMap size {}", hashMap.size());
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("Before removing - HashMap size {}", hashMap.size());
         }
         hashMap.remove(crlUrl);
-        if (log.isDebugEnabled()) {
-            log.debug("After removing - HashMap size {}", hashMap.size());
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("After removing - HashMap size {}", hashMap.size());
         }
     }
 
@@ -204,8 +204,8 @@ public class CRLCache implements ManageableCache {
                 X509CRL x509CRL = crlVerifier.downloadCRLFromWeb(crlUrl);
                 setCacheValue(crlUrl, x509CRL);
             } catch (Exception e) {
-                if (log.isInfoEnabled()) {
-                    log.info("Cannot replace old CacheValue with new CacheValue. So remove", e);
+                if (LOG.isInfoEnabled()) {
+                    LOG.info("Cannot replace old CacheValue with new CacheValue. So remove", e);
                 }
                 //If cant be replaced remove.
                 removeThisCacheValue();

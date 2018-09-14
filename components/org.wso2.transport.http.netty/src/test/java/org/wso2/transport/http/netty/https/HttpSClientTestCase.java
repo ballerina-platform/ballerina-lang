@@ -53,7 +53,7 @@ import static org.wso2.transport.http.netty.common.Constants.TEXT_PLAIN;
  */
 public class HttpSClientTestCase {
 
-    private static Logger logger = LoggerFactory.getLogger(HttpSClientTestCase.class);
+    private static final Logger LOG = LoggerFactory.getLogger(HttpSClientTestCase.class);
 
     private HttpsServer httpsServer;
     private HttpClientConnector httpClientConnector;
@@ -103,7 +103,7 @@ public class HttpSClientTestCase {
             httpsServer.shutdown();
             connectorFactory.shutdown();
         } catch (InterruptedException e) {
-            logger.error("Failed to shutdown the test server");
+            LOG.error("Failed to shutdown the test server");
         }
     }
 }

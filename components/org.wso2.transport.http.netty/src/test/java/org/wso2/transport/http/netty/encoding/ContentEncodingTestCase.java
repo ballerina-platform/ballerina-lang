@@ -51,7 +51,7 @@ import static org.testng.AssertJUnit.assertEquals;
  */
 public class ContentEncodingTestCase {
 
-    private static final Logger logger = LoggerFactory.getLogger(ContentEncodingTestCase.class);
+    private static final Logger LOG = LoggerFactory.getLogger(ContentEncodingTestCase.class);
 
     private HttpWsConnectorFactory httpWsConnectorFactory;
     private ServerConnector serverConnector;
@@ -73,7 +73,7 @@ public class ContentEncodingTestCase {
         try {
             serverConnectorFuture.sync();
         } catch (InterruptedException e) {
-            logger.warn("Interrupted while waiting for server connector to start");
+            LOG.warn("Interrupted while waiting for server connector to start");
         }
     }
 
@@ -97,9 +97,9 @@ public class ContentEncodingTestCase {
             httpServer.shutdown();
             httpWsConnectorFactory.shutdown();
         } catch (InterruptedException e) {
-            logger.warn("Interrupted while waiting for clean up");
+            LOG.warn("Interrupted while waiting for clean up");
         } catch (IOException e) {
-            logger.warn("IOException occurred while waiting for Unirest connection to shutdown", e);
+            LOG.warn("IOException occurred while waiting for Unirest connection to shutdown", e);
         }
     }
 }

@@ -57,7 +57,7 @@ import java.util.concurrent.CountDownLatch;
  */
 public class WebSocketTestClient {
 
-    private static final Logger logger = LoggerFactory.getLogger(WebSocketTestClient.class);
+    private static final Logger LOG = LoggerFactory.getLogger(WebSocketTestClient.class);
 
     private final String subProtocol;
     private final int maxContentLength;
@@ -113,9 +113,9 @@ public class WebSocketTestClient {
             Bootstrap clientBootstrap = getClientBootstrap(uri, eventLoopGroup, headers);
             channel = clientBootstrap.connect(uri.getHost(), uri.getPort()).sync().channel();
             handshakeSuccessful = clientFrameHandler.handshakeFuture().sync().isSuccess();
-            logger.debug("WebSocket Handshake successful : " + handshakeSuccessful);
+            LOG.debug("WebSocket Handshake successful : " + handshakeSuccessful);
         } catch (Exception e) {
-            logger.error("Handshake unsuccessful : " + e.getMessage());
+            LOG.error("Handshake unsuccessful : " + e.getMessage());
             throw e;
         }
     }
@@ -145,7 +145,7 @@ public class WebSocketTestClient {
      */
     public void sendText(String text) throws InterruptedException {
         if (channel == null) {
-            logger.error("Channel is null. Cannot send text.");
+            LOG.error("Channel is null. Cannot send text.");
             throw new IllegalArgumentException("Cannot find the channel to write");
         }
         channel.writeAndFlush(new TextWebSocketFrame(text)).sync();
@@ -158,7 +158,7 @@ public class WebSocketTestClient {
      */
     public void sendBinary(ByteBuffer buf) throws InterruptedException {
         if (channel == null) {
-            logger.error("Channel is null. Cannot send binary frame.");
+            LOG.error("Channel is null. Cannot send binary frame.");
             throw new IllegalArgumentException("Cannot find the channel to write");
         }
         channel.writeAndFlush(new BinaryWebSocketFrame(Unpooled.wrappedBuffer(buf))).sync();
@@ -171,7 +171,7 @@ public class WebSocketTestClient {
      */
     public void sendPing(ByteBuffer buf) throws InterruptedException {
         if (channel == null) {
-            logger.error("Channel is null. Cannot send ping.");
+            LOG.error("Channel is null. Cannot send ping.");
             throw new IllegalArgumentException("Cannot find the channel to write");
         }
         channel.writeAndFlush(new PingWebSocketFrame(Unpooled.wrappedBuffer(buf))).sync();
@@ -187,7 +187,7 @@ public class WebSocketTestClient {
      */
     public WebSocketTestClient sendCloseFrame(int statusCode, String reason) throws InterruptedException {
         if (channel == null) {
-            logger.error("Channel is null. Cannot send text.");
+            LOG.error("Channel is null. Cannot send text.");
             throw new IllegalArgumentException("Cannot find the channel to write");
         }
         channel.writeAndFlush(new CloseWebSocketFrame(statusCode, reason)).sync();
@@ -202,7 +202,7 @@ public class WebSocketTestClient {
      */
     public WebSocketTestClient sendCorruptedFrame() throws InterruptedException {
         if (channel == null) {
-            logger.error("Channel is null. Cannot send text.");
+            LOG.error("Channel is null. Cannot send text.");
             throw new IllegalArgumentException("Cannot find the channel to write");
         }
         channel.writeAndFlush(Unpooled.wrappedBuffer(new byte[] { 1, 2, 3, 4 })).sync();

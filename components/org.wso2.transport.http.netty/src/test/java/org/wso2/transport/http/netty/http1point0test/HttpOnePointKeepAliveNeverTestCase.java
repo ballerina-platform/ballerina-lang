@@ -53,7 +53,7 @@ import static org.testng.AssertJUnit.assertTrue;
  */
 public class HttpOnePointKeepAliveNeverTestCase {
 
-    private static final Logger log = LoggerFactory.getLogger(HttpOnePointKeepAliveNeverTestCase.class);
+    private static final Logger LOG = LoggerFactory.getLogger(HttpOnePointKeepAliveNeverTestCase.class);
 
     protected ServerConnector serverConnector;
     protected ListenerConfiguration listenerConfiguration;
@@ -78,7 +78,7 @@ public class HttpOnePointKeepAliveNeverTestCase {
         try {
             serverConnectorFuture.sync();
         } catch (InterruptedException e) {
-            log.error("Thread Interrupted while sleeping ", e);
+            LOG.error("Thread Interrupted while sleeping ", e);
         }
     }
 

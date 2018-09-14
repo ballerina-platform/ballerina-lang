@@ -54,7 +54,7 @@ import static org.testng.AssertJUnit.assertTrue;
  */
 public class HttpOnePointZeroServerConnectorTestCase {
 
-    private static final Logger log = LoggerFactory.getLogger(HttpOnePointZeroServerConnectorTestCase.class);
+    private static final Logger LOG = LoggerFactory.getLogger(HttpOnePointZeroServerConnectorTestCase.class);
 
     protected ServerConnector serverConnector;
     protected ListenerConfiguration listenerConfiguration;
@@ -78,7 +78,7 @@ public class HttpOnePointZeroServerConnectorTestCase {
         try {
             serverConnectorFuture.sync();
         } catch (InterruptedException e) {
-            log.error("Thread Interrupted while sleeping ", e);
+            LOG.error("Thread Interrupted while sleeping ", e);
         }
     }
 
@@ -124,7 +124,7 @@ public class HttpOnePointZeroServerConnectorTestCase {
         try {
             httpWsConnectorFactory.shutdown();
         } catch (InterruptedException e) {
-            log.warn("Interrupted while waiting for HttpWsFactory to close");
+            LOG.warn("Interrupted while waiting for HttpWsFactory to close");
         }
     }
 }

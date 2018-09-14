@@ -63,7 +63,7 @@ import static org.wso2.transport.http.netty.common.Util.isKeepAliveConnection;
  * A Class responsible for handling incoming message through netty inbound pipeline.
  */
 public class SourceHandler extends ChannelInboundHandlerAdapter {
-    private static Logger log = LoggerFactory.getLogger(SourceHandler.class);
+    private static final Logger LOG = LoggerFactory.getLogger(SourceHandler.class);
 
     private HttpCarbonMessage inboundRequestMsg;
     private final Map<Integer, HttpCarbonMessage> requestSet = new ConcurrentHashMap<>();
@@ -108,7 +108,7 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
             connectedState = false;
             inboundRequestMsg = createInboundReqCarbonMsg((HttpRequest) msg, ctx, this);
             if (requestSet.size() > this.pipeliningLimit) {
-                log.warn("Pipelining request limit exceeded hence closing the channel {}", ctx.channel().id());
+                LOG.warn("Pipelining request limit exceeded hence closing the channel {}", ctx.channel().id());
                 this.channelInactive(ctx);
                 return;
             }
@@ -129,7 +129,7 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
             if (inboundRequestMsg != null) {
                 inboundRequestMsg.getMessageStateContext().getListenerState().readInboundRequestBody(msg);
             } else {
-                log.warn("Inconsistent state detected : inboundRequestMsg is null for channel read event");
+                LOG.warn("Inconsistent state detected : inboundRequestMsg is null for channel read event");
             }
         }
     }
@@ -175,7 +175,7 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
             try {
                 targetChannelPool.remove(hostPortKey).close();
             } catch (Exception e) {
-                log.error("Couldn't close target channel socket connections", e);
+                LOG.error("Couldn't close target channel socket connections", e);
             }
         });
     }
@@ -185,7 +185,7 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
         if (ctx != null && ctx.channel().isActive()) {
             ctx.writeAndFlush(Unpooled.EMPTY_BUFFER).addListener(ChannelFutureListener.CLOSE);
         }
-        log.warn("Exception occurred in SourceHandler : {}", cause.getMessage());
+        LOG.warn("Exception occurred in SourceHandler : {}", cause.getMessage());
     }
 
     @Override
@@ -208,20 +208,20 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
                 }
             }
             String channelId = ctx.channel().id().asShortText();
-            log.debug("Idle timeout has reached hence closing the connection {}", channelId);
+            LOG.debug("Idle timeout has reached hence closing the connection {}", channelId);
         } else if (evt instanceof HttpServerUpgradeHandler.UpgradeEvent) {
-            log.debug("Server upgrade event received");
+            LOG.debug("Server upgrade event received");
         } else if (evt instanceof SslCloseCompletionEvent) {
-            log.debug("SSL close completion event received");
+            LOG.debug("SSL close completion event received");
         } else if (evt instanceof ChannelInputShutdownReadComplete) {
             // When you try to read from a channel which has already been closed by the peer,
             // 'java.io.IOException: Connection reset by peer' is thrown and it is a harmless exception.
             // We can ignore this most of the time. see 'https://github.com/netty/netty/issues/2332'.
             // As per the code, when an IOException is thrown when reading from a channel, it closes the channel.
             // When closing the channel, if it is already closed it will trigger this event. So we can ignore this.
-            log.debug("Input side of the connection is already shutdown");
+            LOG.debug("Input side of the connection is already shutdown");
         } else {
-            log.warn("Unexpected user event {} triggered", evt);
+            LOG.warn("Unexpected user event {} triggered", evt);
         }
     }
 
@@ -229,9 +229,9 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
         try {
             serverConnectorFuture.notifyErrorListener(new ServerConnectorException(errorMsg));
             // Error is notified to server connector. Debug log is to make transport layer aware
-            log.debug(errorMsg);
+            LOG.debug(errorMsg);
         } catch (ServerConnectorException e) {
-            log.error("Error while notifying error state to server-connector listener");
+            LOG.error("Error while notifying error state to server-connector listener");
         }
     }
 
@@ -265,8 +265,8 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
      * Sequence number should be incremented per request.
      */
     private void setSequenceNumber() {
-        if (log.isDebugEnabled()) {
-            log.debug("Sequence id of the request is set to : {}", sequenceId);
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("Sequence id of the request is set to : {}", sequenceId);
         }
         inboundRequestMsg.setSequenceId(sequenceId);
         sequenceId++;
@@ -308,8 +308,11 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
         return serverName;
     }
 
-    public void resetInboundRequestMsg(HttpCarbonMessage inboundRequestMsg) {
-        requestSet.remove(inboundRequestMsg.hashCode());
+    public void removeRequestEntry(HttpCarbonMessage inboundRequestMsg) {
+        this.requestSet.remove(inboundRequestMsg.hashCode());
+    }
+
+    public void resetInboundRequestMsg() {
         this.inboundRequestMsg = null;
     }
 }

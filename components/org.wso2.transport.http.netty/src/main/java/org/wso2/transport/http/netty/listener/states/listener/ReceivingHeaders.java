@@ -51,7 +51,7 @@ import static org.wso2.transport.http.netty.listener.states.StateUtil.sendReques
  */
 public class ReceivingHeaders implements ListenerState {
 
-    private static Logger log = LoggerFactory.getLogger(ReceivingHeaders.class);
+    private static final Logger LOG = LoggerFactory.getLogger(ReceivingHeaders.class);
     private final SourceHandler sourceHandler;
     private final HandlerExecutor handlerExecutor;
     private final MessageStateContext messageStateContext;
@@ -76,7 +76,7 @@ public class ReceivingHeaders implements ListenerState {
         notifyRequestListener(inboundRequestMsg);
 
         if (inboundRequestHeaders.decoderResult().isFailure()) {
-            log.warn(inboundRequestHeaders.decoderResult().cause().getMessage());
+            LOG.warn(inboundRequestHeaders.decoderResult().cause().getMessage());
         }
         if (handlerExecutor != null) {
             handlerExecutor.executeAtSourceRequestReceiving(inboundRequestMsg);
@@ -96,10 +96,10 @@ public class ReceivingHeaders implements ListenerState {
                 httpRequestMsg.setSourceContext(sourceHandler.getInboundChannelContext());
                 sourceHandler.getServerConnectorFuture().notifyHttpListener(httpRequestMsg);
             } catch (Exception e) {
-                log.error("Error while notifying listeners", e);
+                LOG.error("Error while notifying listeners", e);
             }
         } else {
-            log.error("Cannot find registered listener to forward the message");
+            LOG.error("Cannot find registered listener to forward the message");
         }
     }
 
@@ -112,7 +112,7 @@ public class ReceivingHeaders implements ListenerState {
 
     @Override
     public void writeOutboundResponseHeaders(HttpCarbonMessage outboundResponseMsg, HttpContent httpContent) {
-        log.warn("writeOutboundResponseHeaders {}", ILLEGAL_STATE_ERROR);
+        LOG.warn("writeOutboundResponseHeaders {}", ILLEGAL_STATE_ERROR);
     }
 
     @Override
@@ -137,7 +137,7 @@ public class ReceivingHeaders implements ListenerState {
         outboundRespFuture.addListener((ChannelFutureListener) channelFuture -> {
             Throwable cause = channelFuture.cause();
             if (cause != null) {
-                log.warn("Failed to send: {}", cause.getMessage());
+                LOG.warn("Failed to send: {}", cause.getMessage());
             }
             sourceHandler.channelInactive(ctx);
             handleIncompleteInboundMessage(inboundRequestMsg,

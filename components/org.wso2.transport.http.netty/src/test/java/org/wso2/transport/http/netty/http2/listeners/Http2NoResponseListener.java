@@ -29,11 +29,11 @@ import org.wso2.transport.http.netty.message.HttpCarbonMessage;
  */
 public class Http2NoResponseListener implements HttpConnectorListener {
 
-    private static final Logger logger = LoggerFactory.getLogger(Http2NoResponseListener.class);
+    private static final Logger LOG = LoggerFactory.getLogger(Http2NoResponseListener.class);
 
     @Override
     public void onMessage(HttpCarbonMessage httpRequest) {
-        logger.info("Message received");
+        LOG.info("Message received");
     }
 
     @Override

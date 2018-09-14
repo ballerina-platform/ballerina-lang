@@ -33,37 +33,37 @@ import static org.wso2.transport.http.netty.listener.states.StateUtil.ILLEGAL_ST
  */
 public class EntityBodyReceived implements SenderState {
 
-    private static Logger log = LoggerFactory.getLogger(EntityBodyReceived.class);
+    private static final Logger LOG = LoggerFactory.getLogger(EntityBodyReceived.class);
 
     @Override
     public void writeOutboundRequestHeaders(HttpCarbonMessage httpOutboundRequest, HttpContent httpContent) {
-        log.warn("writeOutboundRequestHeaders {}", ILLEGAL_STATE_ERROR);
+        LOG.warn("writeOutboundRequestHeaders {}", ILLEGAL_STATE_ERROR);
     }
 
     @Override
     public void writeOutboundRequestEntity(HttpCarbonMessage httpOutboundRequest, HttpContent httpContent) {
-        log.warn("writeOutboundRequestEntity {}", ILLEGAL_STATE_ERROR);
+        LOG.warn("writeOutboundRequestEntity {}", ILLEGAL_STATE_ERROR);
     }
 
     @Override
     public void readInboundResponseHeaders(TargetHandler targetHandler, HttpResponse httpInboundResponse) {
-        log.warn("readInboundResponseHeaders {}", ILLEGAL_STATE_ERROR);
+        LOG.warn("readInboundResponseHeaders {}", ILLEGAL_STATE_ERROR);
     }
 
     @Override
     public void readInboundResponseEntityBody(ChannelHandlerContext ctx, HttpContent httpContent,
                                               HttpCarbonMessage inboundResponseMsg) {
-        log.warn("readInboundResponseEntityBody {}", ILLEGAL_STATE_ERROR);
+        LOG.warn("readInboundResponseEntityBody {}", ILLEGAL_STATE_ERROR);
     }
 
     @Override
     public void handleAbruptChannelClosure(HttpResponseFuture httpResponseFuture) {
-        log.debug("Closing the channel once response is received");
+        LOG.debug("Closing the channel once response is received");
     }
 
     @Override
     public void handleIdleTimeoutConnectionClosure(HttpResponseFuture httpResponseFuture, String channelID) {
-        log.debug("Closing the channel once response is received");
+        LOG.debug("Closing the channel once response is received");
 
     }
 }

@@ -54,7 +54,7 @@ import static org.wso2.transport.http.netty.common.Constants.HTTP_OBJECT_AGGREGA
  */
 public class WebSocketServerHandshakeHandler extends ChannelInboundHandlerAdapter {
 
-    private static final Logger log = LoggerFactory.getLogger(WebSocketServerHandshakeHandler.class);
+    private static final Logger LOG = LoggerFactory.getLogger(WebSocketServerHandshakeHandler.class);
 
     private final ServerConnectorFuture serverConnectorFuture;
     private final String interfaceId;
@@ -73,8 +73,8 @@ public class WebSocketServerHandshakeHandler extends ChannelInboundHandlerAdapte
 
             if (containsUpgradeHeaders(httpRequest)) {
                 if (HttpMethod.GET == requestMethod) {
-                    if (log.isDebugEnabled()) {
-                        log.debug("Upgrading the connection from Http to WebSocket for channel : {}", ctx.channel());
+                    if (LOG.isDebugEnabled()) {
+                        LOG.debug("Upgrading the connection from Http to WebSocket for channel : {}", ctx.channel());
                     }
                     ChannelPipeline pipeline = ctx.pipeline();
                     pipeline.remove(Constants.HTTP_SOURCE_HANDLER);
@@ -121,7 +121,7 @@ public class WebSocketServerHandshakeHandler extends ChannelInboundHandlerAdapte
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
         ctx.writeAndFlush(new DefaultFullHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.INTERNAL_SERVER_ERROR))
                 .addListener(ChannelFutureListener.CLOSE);
-        log.error("Error during WebSocket server handshake", cause);
+        LOG.error("Error during WebSocket server handshake", cause);
     }
 
     /**

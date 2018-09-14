@@ -27,7 +27,7 @@ import java.util.Map;
  */
 public class BootstrapConfiguration {
 
-    private static final Logger logger = LoggerFactory.getLogger(BootstrapConfiguration.class);
+    private static final Logger LOG = LoggerFactory.getLogger(BootstrapConfiguration.class);
 
     private boolean tcpNoDelay;
     private boolean keepAlive;
@@ -60,13 +60,13 @@ public class BootstrapConfiguration {
                 properties, Constants.CLIENT_BOOTSTRAP_SO_REUSE, false);
 
         String logValue = "{}:{}";
-        logger.debug(logValue, Constants.CLIENT_BOOTSTRAP_TCP_NO_DELY , tcpNoDelay);
-        logger.debug(logValue, Constants.CLIENT_BOOTSTRAP_CONNECT_TIME_OUT, connectTimeOut);
-        logger.debug(logValue, Constants.CLIENT_BOOTSTRAP_RECEIVE_BUFFER_SIZE, receiveBufferSize);
-        logger.debug(logValue, Constants.CLIENT_BOOTSTRAP_SEND_BUFFER_SIZE, sendBufferSize);
-        logger.debug(logValue, Constants.CLIENT_BOOTSTRAP_SO_TIMEOUT, socketTimeout);
-        logger.debug(logValue, Constants.CLIENT_BOOTSTRAP_KEEPALIVE, keepAlive);
-        logger.debug(logValue, Constants.CLIENT_BOOTSTRAP_SO_REUSE, socketReuse);
+        LOG.debug(logValue, Constants.CLIENT_BOOTSTRAP_TCP_NO_DELY , tcpNoDelay);
+        LOG.debug(logValue, Constants.CLIENT_BOOTSTRAP_CONNECT_TIME_OUT, connectTimeOut);
+        LOG.debug(logValue, Constants.CLIENT_BOOTSTRAP_RECEIVE_BUFFER_SIZE, receiveBufferSize);
+        LOG.debug(logValue, Constants.CLIENT_BOOTSTRAP_SEND_BUFFER_SIZE, sendBufferSize);
+        LOG.debug(logValue, Constants.CLIENT_BOOTSTRAP_SO_TIMEOUT, socketTimeout);
+        LOG.debug(logValue, Constants.CLIENT_BOOTSTRAP_KEEPALIVE, keepAlive);
+        LOG.debug(logValue, Constants.CLIENT_BOOTSTRAP_SO_REUSE, socketReuse);
     }
 
     public boolean isTcpNoDelay() {

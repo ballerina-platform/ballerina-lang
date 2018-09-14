@@ -55,7 +55,7 @@ import static org.wso2.transport.http.netty.common.Constants.HTTPS_SCHEME;
 
 public class MutualSSLTestCase {
 
-    private static Logger logger = LoggerFactory.getLogger(MutualSSLTestCase.class);
+    private static final Logger LOG = LoggerFactory.getLogger(MutualSSLTestCase.class);
 
     private static HttpClientConnector httpClientConnector;
     private HttpWsConnectorFactory factory;
@@ -131,7 +131,7 @@ public class MutualSSLTestCase {
         try {
             factory.shutdown();
         } catch (Exception e) {
-            logger.warn("Interrupted while waiting for response two", e);
+            LOG.warn("Interrupted while waiting for response two", e);
         }
     }
 }

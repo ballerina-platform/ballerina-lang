@@ -34,7 +34,7 @@ import org.wso2.transport.http.netty.common.Util;
  */
 public class UriAndHeaderLengthValidator extends ChannelInboundHandlerAdapter {
 
-    private static final Logger log = LoggerFactory.getLogger(UriAndHeaderLengthValidator.class);
+    private static final Logger LOG = LoggerFactory.getLogger(UriAndHeaderLengthValidator.class);
 
     private String serverName;
 
@@ -52,11 +52,11 @@ public class UriAndHeaderLengthValidator extends ChannelInboundHandlerAdapter {
                     if (cause.getMessage().contains(Constants.REQUEST_HEADER_TOO_LARGE)) {
                         Util.sendAndCloseNoEntityBodyResp(ctx, HttpResponseStatus.REQUEST_ENTITY_TOO_LARGE,
                                 HttpVersion.HTTP_1_0, serverName);
-                        log.warn("Inbound request Entity exceeds the max entity size allowed for a request");
+                        LOG.warn("Inbound request Entity exceeds the max entity size allowed for a request");
                     } else if (cause.getMessage().contains(Constants.REQUEST_LINE_TOO_LONG)) {
                         Util.sendAndCloseNoEntityBodyResp(ctx, HttpResponseStatus.REQUEST_URI_TOO_LONG,
                                 HttpVersion.HTTP_1_0, serverName);
-                        log.warn("Inbound request URI length exceeds the max uri length allowed for a request");
+                        LOG.warn("Inbound request URI length exceeds the max uri length allowed for a request");
                     } else {
                         super.channelRead(ctx, msg);
                     }

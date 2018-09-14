@@ -48,7 +48,7 @@ import java.util.concurrent.Executors;
  */
 public class PassthroughMessageProcessorListener implements HttpConnectorListener {
 
-    private static final Logger logger = LoggerFactory.getLogger(PassthroughMessageProcessorListener.class);
+    private static final Logger LOG = LoggerFactory.getLogger(PassthroughMessageProcessorListener.class);
     private ExecutorService executor = Executors.newSingleThreadExecutor();
     private HttpClientConnector clientConnector;
     private HttpWsConnectorFactory httpWsConnectorFactory;
@@ -77,7 +77,7 @@ public class PassthroughMessageProcessorListener implements HttpConnectorListene
                             try {
                                 httpRequestMessage.respond(httpResponse);
                             } catch (ServerConnectorException e) {
-                                logger.error("Error occurred during message notification: " + e.getMessage());
+                                LOG.error("Error occurred during message notification: " + e.getMessage());
                             }
                         });
                     }
@@ -100,12 +100,12 @@ public class PassthroughMessageProcessorListener implements HttpConnectorListene
                         try {
                             httpRequestMessage.respond(outboundResponse);
                         } catch (ServerConnectorException e) {
-                            logger.error("Error occurred while sending error-message", e);
+                            LOG.error("Error occurred while sending error-message", e);
                         }
                     }
                 });
             } catch (Exception e) {
-                logger.error("Error occurred during message processing: ", e);
+                LOG.error("Error occurred during message processing: ", e);
             }
         });
     }

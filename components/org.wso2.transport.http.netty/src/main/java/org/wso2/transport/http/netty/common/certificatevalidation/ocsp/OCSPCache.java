@@ -51,7 +51,7 @@ public class OCSPCache implements ManageableCache {
     private volatile Iterator<Map.Entry<BigInteger, OCSPCacheValue>> iterator
             = hashMap.entrySet().iterator();
     private volatile CacheManager cacheManager;
-    private static final Logger log = LoggerFactory.getLogger(OCSPCache.class);
+    private static final Logger LOG = LoggerFactory.getLogger(OCSPCache.class);
 
     private OCSPCache() {
     }
@@ -150,22 +150,22 @@ public class OCSPCache implements ManageableCache {
     public synchronized void setCacheValue(OCSPResp ocspResp, BigInteger serialNumber, SingleResp singleResp,
             OCSPReq request, String serviceUrl) {
         OCSPCacheValue cacheValue = new OCSPCacheValue(ocspResp, serialNumber, singleResp, request, serviceUrl);
-        if (log.isDebugEnabled()) {
-            log.debug("Before setting - HashMap size {}", hashMap.size());
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("Before setting - HashMap size {}", hashMap.size());
         }
         hashMap.put(serialNumber, cacheValue);
-        if (log.isDebugEnabled()) {
-            log.debug("After setting - HashMap size {}", hashMap.size());
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("After setting - HashMap size {}", hashMap.size());
         }
     }
 
     public synchronized void removeCacheValue(BigInteger serialNumber) {
-        if (log.isDebugEnabled()) {
-            log.debug("Before removing - HashMap size {}", hashMap.size());
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("Before removing - HashMap size {}", hashMap.size());
         }
         hashMap.remove(serialNumber);
-        if (log.isDebugEnabled()) {
-            log.debug("After removing - HashMap size {}", hashMap.size());
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("After removing - HashMap size {}", hashMap.size());
         }
     }
 
@@ -257,8 +257,8 @@ public class OCSPCache implements ManageableCache {
                 setCacheValue(response, serialNumber, resp, request, serviceUrl);
 
             } catch (CertificateVerificationException | OCSPException e) {
-                if (log.isInfoEnabled()) {
-                    log.info("Can not replace old CacheValue with new CacheValue. So removing ocsp cache value", e);
+                if (LOG.isInfoEnabled()) {
+                    LOG.info("Can not replace old CacheValue with new CacheValue. So removing ocsp cache value", e);
                 }
                 //If cant be replaced remove.
                 removeThisCacheValue();

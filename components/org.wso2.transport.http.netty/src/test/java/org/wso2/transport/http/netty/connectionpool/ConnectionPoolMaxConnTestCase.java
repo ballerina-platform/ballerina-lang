@@ -46,7 +46,7 @@ import static org.testng.Assert.assertTrue;
  */
 public class ConnectionPoolMaxConnTestCase {
 
-    private static final Logger log = LoggerFactory.getLogger(ConnectionPoolMaxConnTestCase.class);
+    private static final Logger LOG = LoggerFactory.getLogger(ConnectionPoolMaxConnTestCase.class);
 
     private static final int MAX_ACTIVE_CONNECTIONS = 7;
 
@@ -81,7 +81,7 @@ public class ConnectionPoolMaxConnTestCase {
             for (int i = 0; i < responseListeners.length; i++) {
                 String response = TestUtil.waitAndGetStringEntity(countDownLatches[i], responseListeners[i]);
                 channelIDs.add(response);
-                log.info("Response #" + (i + 1) + " received: " + response);
+                LOG.info("Response #" + (i + 1) + " received: " + response);
             }
 
             // The number of unique responses (channel IDs) should be equal or less than the max no. of active

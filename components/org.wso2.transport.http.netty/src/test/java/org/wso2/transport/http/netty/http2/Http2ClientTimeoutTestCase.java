@@ -54,7 +54,7 @@ import static org.testng.Assert.assertTrue;
  */
 public class Http2ClientTimeoutTestCase {
 
-    private static Logger log = LoggerFactory.getLogger(Http2ClientTimeoutTestCase.class);
+    private static final Logger LOG = LoggerFactory.getLogger(Http2ClientTimeoutTestCase.class);
 
     private HttpClientConnector httpClientConnector;
     private ServerConnector serverConnector;
@@ -113,7 +113,7 @@ public class Http2ClientTimeoutTestCase {
         try {
             connectorFactory.shutdown();
         } catch (InterruptedException e) {
-            log.warn("Interrupted while waiting for HttpWsFactory to close");
+            LOG.warn("Interrupted while waiting for HttpWsFactory to close");
         }
     }
 }

@@ -53,7 +53,7 @@ import static org.wso2.transport.http.netty.listener.states.StateUtil.ILLEGAL_ST
  */
 public class Expect100ContinueHeaderReceived implements ListenerState {
 
-    private static Logger log = LoggerFactory.getLogger(Expect100ContinueHeaderReceived.class);
+    private static final Logger LOG = LoggerFactory.getLogger(Expect100ContinueHeaderReceived.class);
     private final MessageStateContext messageStateContext;
     private final SourceHandler sourceHandler;
     private final HttpCarbonMessage inboundRequestMsg;
@@ -69,7 +69,7 @@ public class Expect100ContinueHeaderReceived implements ListenerState {
 
     @Override
     public void readInboundRequestHeaders(HttpCarbonMessage inboundRequestMsg, HttpRequest inboundRequestHeaders) {
-        log.warn("readInboundRequestHeaders {}", ILLEGAL_STATE_ERROR);
+        LOG.warn("readInboundRequestHeaders {}", ILLEGAL_STATE_ERROR);
     }
 
     @Override
@@ -82,7 +82,7 @@ public class Expect100ContinueHeaderReceived implements ListenerState {
 
     @Override
     public void writeOutboundResponseHeaders(HttpCarbonMessage outboundResponseMsg, HttpContent httpContent) {
-        log.warn("writeOutboundResponseHeaders {}", ILLEGAL_STATE_ERROR);
+        LOG.warn("writeOutboundResponseHeaders {}", ILLEGAL_STATE_ERROR);
     }
 
     @Override
@@ -100,7 +100,7 @@ public class Expect100ContinueHeaderReceived implements ListenerState {
             serverConnectorFuture.notifyErrorListener(
                     new ServerConnectorException(REMOTE_CLIENT_CLOSED_BEFORE_INITIATING_100_CONTINUE_RESPONSE));
         } catch (ServerConnectorException e) {
-            log.error(CONNECTOR_NOTIFYING_ERROR, e);
+            LOG.error(CONNECTOR_NOTIFYING_ERROR, e);
         }
     }
 
@@ -111,7 +111,7 @@ public class Expect100ContinueHeaderReceived implements ListenerState {
             serverConnectorFuture.notifyErrorListener(
                     new ServerConnectorException(IDLE_TIMEOUT_TRIGGERED_BEFORE_INITIATING_100_CONTINUE_RESPONSE));
         } catch (ServerConnectorException e) {
-            log.error(CONNECTOR_NOTIFYING_ERROR, e);
+            LOG.error(CONNECTOR_NOTIFYING_ERROR, e);
         }
         String responseValue = "Server time out";
         ChannelFuture outboundRespFuture =
@@ -120,7 +120,7 @@ public class Expect100ContinueHeaderReceived implements ListenerState {
         outboundRespFuture.addListener((ChannelFutureListener) channelFuture -> {
             Throwable cause = channelFuture.cause();
             if (cause != null) {
-                log.warn("Failed to send: {}", cause.getMessage());
+                LOG.warn("Failed to send: {}", cause.getMessage());
             }
             sourceHandler.channelInactive(ctx);
         });

@@ -47,7 +47,7 @@ import java.util.concurrent.Executors;
  */
 public class RequestResponseTransformListener implements HttpConnectorListener {
 
-    private static final Logger logger = LoggerFactory.getLogger(RequestResponseTransformListener.class);
+    private static final Logger LOG = LoggerFactory.getLogger(RequestResponseTransformListener.class);
 
     private ExecutorService executor = Executors.newSingleThreadExecutor();
     private String responseValue;
@@ -105,7 +105,7 @@ public class RequestResponseTransformListener implements HttpConnectorListener {
                                 try {
                                     httpRequest.respond(httpMessage);
                                 } catch (ServerConnectorException e) {
-                                    logger.error("Error occurred during message notification: " + e.getMessage());
+                                    LOG.error("Error occurred during message notification: " + e.getMessage());
                                 }
                             }
                         });
@@ -117,7 +117,7 @@ public class RequestResponseTransformListener implements HttpConnectorListener {
                     }
                 });
             } catch (Exception e) {
-                logger.error("Error while reading stream", e);
+                LOG.error("Error while reading stream", e);
             }
         });
     }
