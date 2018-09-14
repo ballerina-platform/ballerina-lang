@@ -52,6 +52,7 @@ public class AnnotationDesugar {
 
     private static final String ANNOTATION_DATA = "$annotation_data";
     private static final String DOT = ".";
+    private BLangVariable annotationMap;
 
     private static final CompilerContext.Key<AnnotationDesugar> ANNOTATION_DESUGAR_KEY =
             new CompilerContext.Key<>();
@@ -77,7 +78,7 @@ public class AnnotationDesugar {
         BLangFunction initFunction = pkgNode.initFunction;
 
         // This is the variable which store all package level annotations.
-        BLangVariable annotationMap = createGlobalAnnotationMapVar(pkgNode);
+        annotationMap = createGlobalAnnotationMapVar(pkgNode);
 
         // Handle service annotations
         handleServiceAnnotations(pkgNode, initFunction, annotationMap);
@@ -128,10 +129,7 @@ public class AnnotationDesugar {
 
     protected void rewritePackageAnnotations(BLangTestablePackage pkgNode) {
         BLangFunction initFunction = pkgNode.testInitFunction;
-
-        // This is the variable which store all package level annotations.
-        BLangVariable annotationMap = createGlobalAnnotationMapVar(pkgNode);
-
+        
         // Handle service annotations
         handleServiceAnnotations(pkgNode, initFunction, annotationMap);
 

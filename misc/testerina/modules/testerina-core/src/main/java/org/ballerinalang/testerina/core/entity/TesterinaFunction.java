@@ -84,7 +84,7 @@ public class TesterinaFunction {
     public BValue[] invoke() throws BallerinaException {
         if (this.type == Type.TEST_INIT) {
              BLangFunctions.invokePackageInitFunctions(programFile);
-             // BLangFunctions.invokePackageStartFunctions(programFile);
+             BLangFunctions.invokePackageStartFunctions(programFile);
 
              BLangFunctions.invokePackageTestInitFunctions(programFile);
              BLangFunctions.invokePackageTestStartFunctions(programFile);
