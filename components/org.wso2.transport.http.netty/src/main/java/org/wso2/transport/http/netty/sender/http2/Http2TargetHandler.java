@@ -63,7 +63,8 @@ import java.util.Locale;
  */
 public class Http2TargetHandler extends ChannelDuplexHandler {
 
-    private static final Logger log = LoggerFactory.getLogger(Http2TargetHandler.class);
+    private static final Logger LOG = LoggerFactory.getLogger(Http2TargetHandler.class);
+
     private Http2Connection connection;
     // Encoder associated with the HTTP2ConnectionHandler
     private Http2ConnectionEncoder encoder;
@@ -140,7 +141,7 @@ public class Http2TargetHandler extends ChannelDuplexHandler {
                                 } catch (Exception ex) {
                                     String errorMsg = "Failed to send the request : " +
                                             ex.getMessage().toLowerCase(Locale.ENGLISH);
-                                    log.error(errorMsg, ex);
+                                    LOG.error(errorMsg, ex);
                                     outboundMsgHolder.getResponseFuture().notifyHttpListener(ex);
                                 }
                             })));
@@ -198,7 +199,7 @@ public class Http2TargetHandler extends ChannelDuplexHandler {
                     outboundMsgHolder.setRequestWritten(true);
                 }
             } catch (Exception ex) {
-                log.error("Error while writing request", ex);
+                LOG.error("Error while writing request", ex);
             } finally {
                 if (release) {
                     ReferenceCountUtil.release(msg);
@@ -222,7 +223,7 @@ public class Http2TargetHandler extends ChannelDuplexHandler {
         private synchronized int getNextStreamId() throws Http2Exception {
             int nextStreamId = connection.local().incrementAndGetNextStreamId();
             connection.local().createStream(nextStreamId, false);
-            log.debug("Stream created streamId: {}", nextStreamId);
+            LOG.debug("Stream created streamId: {}", nextStreamId);
             return nextStreamId;
         }
 
@@ -293,7 +294,7 @@ public class Http2TargetHandler extends ChannelDuplexHandler {
             if (outboundMsgHolder != null) {
                 isServerPush = true;
             } else {
-                log.warn("Header Frame received on channel: {} with invalid stream id: {} ", http2ClientChannel,
+                LOG.warn("Header Frame received on channel: {} with invalid stream id: {} ", http2ClientChannel,
                         streamId);
                 return;
             }
@@ -370,7 +371,7 @@ public class Http2TargetHandler extends ChannelDuplexHandler {
             if (outboundMsgHolder != null) {
                 isServerPush = true;
             } else {
-                log.warn("Data Frame received on channel: {} with invalid stream id: {}", http2ClientChannel, streamId);
+                LOG.warn("Data Frame received on channel: {} with invalid stream id: {}", http2ClientChannel, streamId);
                 return;
             }
         }
@@ -397,14 +398,14 @@ public class Http2TargetHandler extends ChannelDuplexHandler {
         int streamId = pushPromise.getStreamId();
         int promisedStreamId = pushPromise.getPromisedStreamId();
 
-        if (log.isDebugEnabled()) {
-            log.debug("Received a push promise on channel: {} over stream id: {}, promisedStreamId: {}",
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("Received a push promise on channel: {} over stream id: {}, promisedStreamId: {}",
                     http2ClientChannel, streamId, promisedStreamId);
         }
 
         OutboundMsgHolder outboundMsgHolder = http2ClientChannel.getInFlightMessage(streamId);
         if (outboundMsgHolder == null) {
-            log.warn("Push promise received in channel: {} over invalid stream id : {}", http2ClientChannel, streamId);
+            LOG.warn("Push promise received in channel: {} over invalid stream id : {}", http2ClientChannel, streamId);
             return;
         }
         http2ClientChannel.putPromisedMessage(promisedStreamId, outboundMsgHolder);
