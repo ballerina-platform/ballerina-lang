@@ -20,6 +20,7 @@ export function getLibraryWebViewContent(context: ExtensionContext,
         <link rel="stylesheet" href="${resourceRoot}/bundle.css" />
         <link rel="stylesheet" href="${resourceRoot}/theme.css" />
         <link rel="stylesheet" href="${resourceRoot}/less.css" />
+        ${process.env.DIAGRAM_DEBUG === "true" ? '<script src="http://localhost:8097"></script>' : ''}
         <style>
             ${styles}
         </style>

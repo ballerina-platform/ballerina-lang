@@ -40,6 +40,7 @@ function renderDiagram(docUri: Uri, jsonModelObj: BallerinaAST,
         <link rel="stylesheet" href="${resourceRoot.toString()}/bundle.css" />
         <link rel="stylesheet" href="${resourceRoot.toString()}/theme.css" />
         <link rel="stylesheet" href="${resourceRoot.toString()}/less.css" />
+        ${process.env.DIAGRAM_DEBUG === "true" ? '<script src="http://localhost:8097"></script>' : ''}
         <style>
             .overlay {
                 display: none;
