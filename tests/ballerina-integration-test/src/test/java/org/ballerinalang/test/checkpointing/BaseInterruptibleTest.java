@@ -30,7 +30,7 @@ import java.util.Locale;
 /**
  * Class provides common functions for interruptible test cases.
  *
- * @since 0.982.0
+ * @since 0.981.2
  */
 public class BaseInterruptibleTest extends BaseTest {
 

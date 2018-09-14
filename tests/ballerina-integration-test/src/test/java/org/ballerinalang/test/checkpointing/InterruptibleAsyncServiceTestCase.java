@@ -36,7 +36,7 @@ import java.util.concurrent.TimeUnit;
 /**
  * Test cases for interruptible services check-pointing and resume.
  *
- * @since 0.981.1
+ * @since 0.981.2
  */
 public class InterruptibleAsyncServiceTestCase extends BaseInterruptibleTest {
 

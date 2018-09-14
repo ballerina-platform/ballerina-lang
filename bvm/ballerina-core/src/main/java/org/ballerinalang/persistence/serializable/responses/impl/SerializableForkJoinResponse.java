@@ -34,7 +34,7 @@ import java.util.Set;
 /**
  * This class implements @{@link SerializableResponseContext} to serialize @{@link ForkJoinWorkerResponseContext}.
  *
- * @since 0.982.0
+ * @since 0.981.2
  */
 public class SerializableForkJoinResponse extends SerializableResponseContext {
 

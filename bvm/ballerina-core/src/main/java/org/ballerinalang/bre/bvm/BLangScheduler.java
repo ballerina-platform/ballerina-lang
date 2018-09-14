@@ -252,7 +252,6 @@ public class BLangScheduler {
         if (ctx.interruptible && nativeCallable instanceof InterruptibleNativeCallableUnit) {
             InterruptibleNativeCallableUnit interruptibleNativeCallableUnit
                     = (InterruptibleNativeCallableUnit) nativeCallable;
-
             if (interruptibleNativeCallableUnit.persistBeforeOperation()) {
                 PersistenceStore.persistState(ctx, ctx.ip);
             }
@@ -283,7 +282,6 @@ public class BLangScheduler {
      * This represents the thread used to execute a runnable worker.
      */
     private static class WorkerExecutor implements Runnable {
-
 
         private WorkerExecutionContext ctx;
 

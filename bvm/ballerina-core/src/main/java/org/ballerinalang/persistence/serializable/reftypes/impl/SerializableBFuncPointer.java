@@ -33,7 +33,7 @@ import java.util.List;
 /**
  * Implementation of @{@link SerializableRefType} to serialize and deserialize {@link BFunctionPointer} objects.
  *
- * @since 0.982.0
+ * @since 0.981.2
  */
 public class SerializableBFuncPointer implements SerializableRefType {
 

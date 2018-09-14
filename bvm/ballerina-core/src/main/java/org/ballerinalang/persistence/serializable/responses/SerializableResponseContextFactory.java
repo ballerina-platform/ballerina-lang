@@ -30,7 +30,7 @@ import org.ballerinalang.persistence.serializable.responses.impl.SerializableFor
  * This factory class provides an implementation of @{@link SerializableResponseContext}
  * on given @{@link org.ballerinalang.bre.bvm.WorkerResponseContext}.
  *
- * @since 0.982.0
+ * @since 0.981.2
  */
 public class SerializableResponseContextFactory {
 

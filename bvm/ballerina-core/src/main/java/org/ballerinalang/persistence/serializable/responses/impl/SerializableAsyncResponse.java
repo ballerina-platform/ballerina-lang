@@ -29,7 +29,7 @@ import org.ballerinalang.util.codegen.ProgramFile;
 /**
  * This class implements @{@link SerializableResponseContext} to serialize @{@link ForkJoinWorkerResponseContext}.
  *
- * @since 0.982.0
+ * @since 0.981.2
  */
 public class SerializableAsyncResponse extends SerializableResponseContext {
 
