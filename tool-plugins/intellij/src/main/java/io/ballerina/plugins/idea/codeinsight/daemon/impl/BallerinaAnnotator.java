@@ -76,14 +76,14 @@ public class BallerinaAnnotator implements Annotator {
                     //if the context is an iterable operation, skips highlighting as a keyword
                     if (parent.getParent() != null
                             && parent.getParent().getNode().getElementType() == BallerinaTypes.ANY_IDENTIFIER_NAME) {
-                        annotateKeyword(element, holder, BallerinaSyntaxHighlightingColors.DEFAULT);
+                        annotateKeyword(element, holder, BallerinaSyntaxHighlightingColors.DEFAULT, false);
                     }
                 } else {
-                    annotateKeyword(element, holder);
+                    annotateKeyword(element, holder, false);
                 }
             } else if (elementType == BallerinaTypes.STRING_TEMPLATE_LITERAL_START
                     || elementType == BallerinaTypes.XML_LITERAL_START) {
-                annotateKeyword(element, holder);
+                annotateKeyword(element, holder, true);
                 annotateTemplateStart(element, holder);
             } else if (elementType == BallerinaTypes.STRING_TEMPLATE_LITERAL_END
                     || elementType == BallerinaTypes.XML_LITERAL_END) {
@@ -103,7 +103,7 @@ public class BallerinaAnnotator implements Annotator {
             } else if (elementType == BallerinaTypes.DOCUMENTATION_TEMPLATE_START
                     || elementType == BallerinaTypes.DEPRECATED_TEMPLATE_START) {
                 // This uses an overloaded method so that the color can be easily changeable if required.
-                annotateKeyword(element, holder, BallerinaSyntaxHighlightingColors.DOCUMENTATION);
+                annotateKeyword(element, holder, BallerinaSyntaxHighlightingColors.DOCUMENTATION, true);
             } else if (elementType == BallerinaTypes.DOCUMENTATION_TEMPLATE_ATTRIBUTE_START) {
                 // Doc type.
                 String msg = null;
@@ -255,17 +255,20 @@ public class BallerinaAnnotator implements Annotator {
         annotation.setTextAttributes(BallerinaSyntaxHighlightingColors.DOCUMENTATION_INLINE_CODE);
     }
 
-    private void annotateKeyword(@NotNull PsiElement element, @NotNull AnnotationHolder holder) {
+    private void annotateKeyword(@NotNull PsiElement element, @NotNull AnnotationHolder holder,
+            boolean excludeEndChar) {
         TextRange textRange = element.getTextRange();
-        TextRange newTextRange = new TextRange(textRange.getStartOffset(), textRange.getEndOffset());
+        TextRange newTextRange = new TextRange(textRange.getStartOffset(),
+                textRange.getEndOffset() - (excludeEndChar ? 1 : 0));
         Annotation annotation = holder.createInfoAnnotation(newTextRange, null);
         annotation.setTextAttributes(BallerinaSyntaxHighlightingColors.KEYWORD);
     }
 
     private void annotateKeyword(@NotNull PsiElement element, @NotNull AnnotationHolder holder,
-            @NotNull TextAttributesKey textAttributesKey) {
+            @NotNull TextAttributesKey textAttributesKey, boolean excludeEndChar) {
         TextRange textRange = element.getTextRange();
-        TextRange newTextRange = new TextRange(textRange.getStartOffset(), textRange.getEndOffset());
+        TextRange newTextRange = new TextRange(textRange.getStartOffset(),
+                textRange.getEndOffset() - (excludeEndChar ? 1 : 0));
         Annotation annotation = holder.createInfoAnnotation(newTextRange, null);
         annotation.setTextAttributes(textAttributesKey);
     }
