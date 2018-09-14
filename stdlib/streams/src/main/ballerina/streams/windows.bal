@@ -62,25 +62,9 @@ public type LengthWindow object {
         nextProcessorPointer(outputEvents);
     }
 
-    public function getCurrentEvents() returns StreamEvent[]{
-        StreamEvent[] events = [];
-        int i = 0;
-        foreach e in linkedList.asArray() {
-            match e {
-                StreamEvent s => {
-                    events[i] = s;
-                    i++;
-                }
-                any a => {
-                }
-            }
-        }
-        return events;
-    }
-
     public function getCandidateEvents(
                         StreamEvent originEvent,
-                        function (StreamEvent e1, StreamEvent e2) returns boolean conditionFunc,
+                        function (map e1Data, map e2Data) returns boolean conditionFunc,
                         boolean isLHSTrigger = true)
                         returns (StreamEvent, StreamEvent)[] {
         (StreamEvent, StreamEvent)[] events;
@@ -90,7 +74,7 @@ public type LengthWindow object {
                 StreamEvent s => {
                     StreamEvent lshEvent = (isLHSTrigger) ? originEvent : s;
                     StreamEvent rhsEvent = (isLHSTrigger) ? s : originEvent;
-                    if (conditionFunc(lshEvent, rhsEvent)) {
+                    if (conditionFunc(lshEvent.data, rhsEvent.data)) {
                         events[i] = (lshEvent, rhsEvent);
                         i++;
                     }
@@ -104,7 +88,7 @@ public type LengthWindow object {
 };
 
 public function lengthWindow(function (StreamEvent[]) nextProcessorPointer, int length)
-        returns LengthWindow {
+                    returns LengthWindow {
     LengthWindow lengthWindow1 = new(nextProcessorPointer, length);
     return lengthWindow1;
 }
@@ -121,6 +105,7 @@ public type TimeWindow object {
         expiredEventQueue = new;
         timerQueue = new;
     }
+
 
     public function process(StreamEvent[] streamEvents) {
         LinkedList streamEventChunk = new;
@@ -193,26 +178,9 @@ public type TimeWindow object {
         io:println("Error occured", e);
     }
 
-    public function getCurrentEvents() returns StreamEvent[]{
-        StreamEvent[] events = [];
-        int i = 0;
-        foreach e in expiredEventQueue.asArray() {
-            match e {
-                StreamEvent s => {
-                    events[i] = s;
-                    i++;
-                }
-                any a => {
-
-                }
-            }
-        }
-        return events;
-    }
-
     public function getCandidateEvents(
                         StreamEvent originEvent,
-                        function (StreamEvent e1, StreamEvent e2) returns boolean conditionFunc,
+                        function (map e1Data, map e2Data) returns boolean conditionFunc,
                         boolean isLHSTrigger = true)
                         returns (StreamEvent, StreamEvent)[] {
         (StreamEvent, StreamEvent)[] events = [];
@@ -222,7 +190,7 @@ public type TimeWindow object {
                 StreamEvent s => {
                     StreamEvent lshEvent = (isLHSTrigger) ? originEvent : s;
                     StreamEvent rhsEvent = (isLHSTrigger) ? s : originEvent;
-                    if (conditionFunc(lshEvent, rhsEvent)) {
+                    if (conditionFunc(lshEvent.data, rhsEvent.data)) {
                         events[i] = (lshEvent, rhsEvent);
                         i++;
                     }
@@ -308,26 +276,9 @@ public type LengthBatchWindow object {
         }
     }
 
-    public function getCurrentEvents() returns StreamEvent[]{
-        StreamEvent[] events = [];
-        int i = 0;
-        foreach e in currentEventQueue.asArray() {
-            match e {
-                StreamEvent s => {
-                    events[i] = s;
-                    i++;
-                }
-                any a => {
-
-                }
-            }
-        }
-        return events;
-    }
-
     public function getCandidateEvents(
                         StreamEvent originEvent,
-                        function (StreamEvent e1, StreamEvent e2) returns boolean conditionFunc,
+                        function (map e1Data, map e2Data) returns boolean conditionFunc,
                         boolean isLHSTrigger = true)
                         returns (StreamEvent, StreamEvent)[] {
         (StreamEvent, StreamEvent)[] events = [];
@@ -337,7 +288,7 @@ public type LengthBatchWindow object {
                 StreamEvent s => {
                     StreamEvent lshEvent = (isLHSTrigger) ? originEvent : s;
                     StreamEvent rhsEvent = (isLHSTrigger) ? s : originEvent;
-                    if (conditionFunc(lshEvent, rhsEvent)) {
+                    if (conditionFunc(lshEvent.data, rhsEvent.data)) {
                         events[i] = (lshEvent, rhsEvent);
                         i++;
                     }
@@ -435,26 +386,9 @@ public type TimeBatchWindow object {
         }
     }
 
-    public function getCurrentEvents() returns StreamEvent[]{
-        StreamEvent[] events = [];
-        int i = 0;
-        foreach e in currentEventQueue.asArray() {
-            match e {
-                StreamEvent s => {
-                    events[i] = s;
-                    i++;
-                }
-                any a => {
-
-                }
-            }
-        }
-        return events;
-    }
-
     public function getCandidateEvents(
                         StreamEvent originEvent,
-                        function (StreamEvent e1, StreamEvent e2) returns boolean conditionFunc,
+                        function (map e1Data, map e2Data) returns boolean conditionFunc,
                         boolean isLHSTrigger = true)
                         returns (StreamEvent, StreamEvent)[] {
         (StreamEvent, StreamEvent)[] events = [];
@@ -464,7 +398,7 @@ public type TimeBatchWindow object {
                 StreamEvent s => {
                     StreamEvent lshEvent = (isLHSTrigger) ? originEvent : s;
                     StreamEvent rhsEvent = (isLHSTrigger) ? s : originEvent;
-                    if (conditionFunc(lshEvent, rhsEvent)) {
+                    if (conditionFunc(lshEvent.data, rhsEvent.data)) {
                         events[i] = (lshEvent, rhsEvent);
                         i++;
                     }

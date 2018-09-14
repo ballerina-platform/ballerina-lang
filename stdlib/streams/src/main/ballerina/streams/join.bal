@@ -1,7 +1,7 @@
 import ballerina/io;
 
 public type JoinProcesor object {
-    private function (StreamEvent e1, StreamEvent e2) returns boolean onConditionFunc;
+    private function (map e1Data, map e2Data) returns boolean onConditionFunc;
     private function (any) nextProcessor;
     public LengthWindow? lhsWindow;
     public LengthWindow? rhsWindow;
@@ -22,7 +22,7 @@ public type JoinProcesor object {
         StreamEvent?[] joinedEvents;
         int i = 0;
         foreach event in streamEvents {
-            string originStream = getStreamName(event);
+            string originStream = event.data.keys()[0].split("\\.")[0];
             // resolve trigger according to join direction
             boolean triggerJoin = false;
             match unidirectionalStream {
@@ -111,10 +111,6 @@ public type JoinProcesor object {
 
     public function setUnidirectionalStream(string streamName) {
         self.unidirectionalStream = streamName;
-    }
-
-    function getStreamName(StreamEvent e) returns string {
-        return e.data.keys()[0].split("\\.")[0];
     }
 
     function joinEvents(StreamEvent? lhsEvent, StreamEvent? rhsEvent, boolean lhsTriggered = true)
@@ -218,8 +214,7 @@ public type JoinProcesor object {
 };
 
 public function createJoinProcesor(function (any) nextProcessor, JoinType joinType,
-                                   function (StreamEvent e1, StreamEvent e2)
-                                       returns boolean conditionFunc)
+                                   function (map e1Data, map e2Data) returns boolean conditionFunc)
                     returns JoinProcesor {
     JoinProcesor joinProcesor = new(nextProcessor, joinType, conditionFunc);
     return joinProcesor;
