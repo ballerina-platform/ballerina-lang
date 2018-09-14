@@ -336,7 +336,7 @@ type PersonA record {
 
 function testFuncPtrAsRecordField() returns string {
     PersonA p = {fname:"John", lname:"Doe"};
-    p.fullName = () => string {
+    p.fullName = function () returns string {
         return p.lname + ", " + p.fname;
     };
 
