@@ -21,7 +21,7 @@
         "Debuggers"
     ],
     "activationEvents": [
-        "onLanguage:ballerina"
+        "*"
     ],
     "contributes": {
         "languages": [
