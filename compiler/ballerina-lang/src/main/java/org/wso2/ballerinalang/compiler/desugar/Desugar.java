@@ -19,17 +19,20 @@ package org.wso2.ballerinalang.compiler.desugar;
 
 import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.model.TreeBuilder;
+import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.elements.TableColumnFlag;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.OperatorKind;
 import org.ballerinalang.model.tree.clauses.JoinStreamingInput;
 import org.ballerinalang.model.tree.expressions.NamedArgNode;
+import org.ballerinalang.model.tree.statements.BlockNode;
 import org.ballerinalang.model.tree.statements.StatementNode;
 import org.ballerinalang.model.tree.statements.StreamingQueryStatementNode;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.SymbolResolver;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.Types;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
+import org.wso2.ballerinalang.compiler.semantics.model.iterable.IterableContext;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BConversionOperatorSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BEndpointVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
@@ -68,6 +71,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangXMLNS.BLangPackageXMLNS;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangAccessExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrayLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrayLiteral.BLangJSONArrayLiteral;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrowFunction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangAwaitExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBracedOrTupleExpr;
@@ -159,6 +163,7 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangWorkerSend;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangXMLNSStatement;
 import org.wso2.ballerinalang.compiler.tree.types.BLangObjectTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangRecordTypeNode;
+import org.wso2.ballerinalang.compiler.tree.types.BLangValueType;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.Names;
@@ -438,7 +443,7 @@ public class Desugar extends BLangNodeVisitor {
     }
 
     private boolean isFunctionArgument(BVarSymbol symbol, List<BVarSymbol> params) {
-        return params.stream().anyMatch(param -> (param.name.equals(symbol.name) && param.type.equals(symbol.type)));
+        return params.stream().anyMatch(param -> (param.name.equals(symbol.name) && param.type.tag == symbol.type.tag));
     }
 
     @Override
@@ -1348,6 +1353,45 @@ public class Desugar extends BLangNodeVisitor {
     }
 
     @Override
+    public void visit(BLangArrowFunction bLangArrowFunction) {
+        BLangFunction bLangFunction = (BLangFunction) TreeBuilder.createFunctionNode();
+        bLangFunction.setName(bLangArrowFunction.functionName);
+
+        BLangLambdaFunction lambdaFunction = (BLangLambdaFunction) TreeBuilder.createLambdaFunctionNode();
+        lambdaFunction.pos = bLangArrowFunction.pos;
+        bLangFunction.addFlag(Flag.LAMBDA);
+        lambdaFunction.function = bLangFunction;
+
+        // Create function body with return node
+        BLangValueType returnType = (BLangValueType) TreeBuilder.createValueTypeNode();
+        returnType.type = bLangArrowFunction.expression.type;
+        bLangFunction.setReturnTypeNode(returnType);
+        bLangFunction.setBody(populateArrowExprBodyBlock(bLangArrowFunction));
+
+        bLangArrowFunction.params.forEach(bLangFunction::addParameter);
+        lambdaFunction.parent = bLangArrowFunction.parent;
+        lambdaFunction.type = bLangArrowFunction.funcType;
+
+        // Create function symbol
+        BLangFunction function = lambdaFunction.function;
+        BInvokableSymbol functionSymbol = Symbols.createFunctionSymbol(Flags.asMask(lambdaFunction.function.flagSet),
+                new Name(function.name.value), env.enclPkg.packageID, function.type, env.enclEnv.enclVarSym, true);
+        functionSymbol.retType = function.returnTypeNode.type;
+        functionSymbol.params = function.requiredParams.stream()
+                .map(param -> param.symbol)
+                .collect(Collectors.toList());
+        functionSymbol.scope = env.scope;
+        functionSymbol.type = bLangArrowFunction.funcType;
+        function.symbol = functionSymbol;
+
+        lambdaFunction.function.closureVarSymbols = bLangArrowFunction.closureVarSymbols;
+        rewrite(lambdaFunction.function, env);
+        env.enclPkg.addFunction(lambdaFunction.function);
+        bLangArrowFunction.function = lambdaFunction.function;
+        result = lambdaFunction;
+    }
+
+    @Override
     public void visit(BLangXMLQName xmlQName) {
         result = xmlQName;
     }
@@ -1683,6 +1727,15 @@ public class Desugar extends BLangNodeVisitor {
 
     // private functions
 
+    private BlockNode populateArrowExprBodyBlock(BLangArrowFunction bLangArrowFunction) {
+        BlockNode blockNode = TreeBuilder.createBlockNode();
+        BLangReturn returnNode = (BLangReturn) TreeBuilder.createReturnNode();
+        returnNode.pos = bLangArrowFunction.expression.pos;
+        returnNode.setExpression(bLangArrowFunction.expression);
+        blockNode.addStatement(returnNode);
+        return blockNode;
+    }
+
     private BLangInvocation createInvocationFromTableExpr(BLangTableQueryExpression tableQueryExpression) {
         List<BLangExpression> args = new ArrayList<>();
         String functionName = QUERY_TABLE_WITHOUT_JOIN_CLAUSE;
@@ -1799,12 +1852,14 @@ public class Desugar extends BLangNodeVisitor {
     }
 
     private void visitIterableOperationInvocation(BLangInvocation iExpr) {
-        if (iExpr.iContext.operations.getLast().iExpr != iExpr) {
+        IterableContext iContext = iExpr.iContext;
+        if (iContext.operations.getLast().iExpr != iExpr) {
             result = null;
             return;
         }
-        iterableCodeDesugar.desugar(iExpr.iContext);
-        result = rewriteExpr(iExpr.iContext.iteratorCaller);
+        iContext.operations.forEach(operation -> rewrite(operation.iExpr.argExprs, env));
+        iterableCodeDesugar.desugar(iContext);
+        result = rewriteExpr(iContext.iteratorCaller);
     }
 
     private void visitActionInvocationEndpoint(BLangInvocation iExpr) {
