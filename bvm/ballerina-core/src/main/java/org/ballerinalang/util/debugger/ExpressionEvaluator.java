@@ -19,14 +19,18 @@
 package org.ballerinalang.util.debugger;
 
 import org.ballerinalang.bre.bvm.WorkerExecutionContext;
+import org.ballerinalang.model.util.JsonGenerator;
 import org.ballerinalang.util.codegen.LineNumberInfo;
 import org.ballerinalang.util.codegen.LocalVariableInfo;
 import org.ballerinalang.util.codegen.PackageVarInfo;
 import org.ballerinalang.util.codegen.attributes.AttributeInfo;
 import org.ballerinalang.util.codegen.attributes.LocalVariableAttributeInfo;
 import org.ballerinalang.util.debugger.dto.VariableDTO;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import java.util.Arrays;
+import java.io.IOException;
+import java.io.StringWriter;
 import java.util.List;
 
 /**
@@ -35,6 +39,13 @@ import java.util.List;
  * @since 0.981
  */
 public class ExpressionEvaluator {
+
+    private static final Logger log = LoggerFactory.getLogger(ExpressionEvaluator.class);
+    private static final String STATUS = "status";
+    private static final String RESULTS = "results";
+    private static final String SUCCESS = "success";
+    private static final String FAILURE = "failure";
+    private static final String INTERNAL_ERROR  = "{ \"status\": \"failure\", \"results\": \"internal error\" }";
 
     /**
      * Method to evaluate a variable.
@@ -47,25 +58,31 @@ public class ExpressionEvaluator {
     public String evaluateVariable(WorkerExecutionContext ctx, LineNumberInfo currentExecLine, String variableName) {
         int currentExecLineNum = currentExecLine.getLineNumber();
 
-        List<PackageVarInfo> globalVars = getPackageVariables(ctx);
-        for (PackageVarInfo var : globalVars) {
-            if (var.getName().equals(variableName)) {
-                VariableDTO variableDTO = Debugger.constructGlobalVariable(ctx, var);
-                return variableDTO.getValue();
-            }
-        }
+        String defaultMessage = constructJsonResults(false, "cannot find local variable '" + variableName + "'");
 
         List<LocalVariableInfo> localVars = getLocalVariables(ctx);
         for (LocalVariableInfo var : localVars) {
-            if (var.getVariableName().equals(variableName) && (var.getScopeStartLineNumber() < currentExecLineNum) &&
-                    (currentExecLineNum <= var.getScopeEndLineNumber())) {
-                VariableDTO variableDTO = Debugger.constructLocalVariable(ctx, var);
-                return variableDTO.getValue();
+            if (var.getVariableName().equals(variableName)) {
+                if ((var.getScopeStartLineNumber() < currentExecLineNum) &&
+                        (currentExecLineNum <= var.getScopeEndLineNumber())) {
+                    VariableDTO variableDTO = Debugger.constructLocalVariable(ctx, var);
+                    return constructJsonResults(true, variableDTO.getValue());
+                }
+                // Variable found, but not in the current scope
+                return defaultMessage;
+            }
+        }
+
+        PackageVarInfo[] globalVars = getPackageVariables(ctx);
+        for (PackageVarInfo var : globalVars) {
+            if (var.getName().equals(variableName)) {
+                VariableDTO variableDTO = Debugger.constructGlobalVariable(ctx, var);
+                return constructJsonResults(true, variableDTO.getValue());
             }
         }
 
         // Return default message if the specified variable not found in the current scope
-        return "Cannot find local variable '" + variableName + "'";
+        return defaultMessage;
     }
 
     private List<LocalVariableInfo> getLocalVariables(WorkerExecutionContext ctx) {
@@ -74,9 +91,30 @@ public class ExpressionEvaluator {
         return localVarAttrInfo.getLocalVariables();
     }
 
-    private List<PackageVarInfo> getPackageVariables(WorkerExecutionContext ctx) {
-        PackageVarInfo[] packageVars = ctx.programFile.getPackageInfo(ctx.programFile.getEntryPkgName()).
+    private PackageVarInfo[] getPackageVariables(WorkerExecutionContext ctx) {
+        return ctx.programFile.getPackageInfo(ctx.programFile.getEntryPkgName()).
                 getPackageInfoEntries();
-        return Arrays.asList(packageVars);
+    }
+
+    private String constructJsonResults(boolean isSuccess, String value) {
+        StringWriter writer = new StringWriter();
+        JsonGenerator gen = new JsonGenerator(writer);
+
+        try {
+            gen.startObject();
+
+            gen.writeFieldName(STATUS);
+            gen.writeString(isSuccess ? SUCCESS : FAILURE);
+
+            gen.writeFieldName(RESULTS);
+            gen.writeString(value);
+
+            gen.endObject();
+            gen.flush();
+        } catch (IOException e) {
+            log.error("error while constructing json results after evaluating given expression, " + e.getMessage(), e);
+            return INTERNAL_ERROR;
+        }
+        return writer.toString();
     }
 }
