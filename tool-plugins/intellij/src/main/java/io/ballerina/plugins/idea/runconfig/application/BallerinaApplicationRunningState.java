@@ -36,6 +36,9 @@ import io.ballerina.plugins.idea.util.BallerinaHistoryProcessListener;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.io.File;
+import java.nio.file.Paths;
+
 /**
  * Represents Ballerina application running state.
  */
@@ -46,7 +49,7 @@ public class BallerinaApplicationRunningState extends BallerinaRunningState<Ball
     private BallerinaHistoryProcessListener myHistoryProcessHandler;
 
     BallerinaApplicationRunningState(@NotNull ExecutionEnvironment env, @NotNull Module module,
-                                     @NotNull BallerinaApplicationConfiguration configuration) {
+            @NotNull BallerinaApplicationConfiguration configuration) {
         super(env, module, configuration);
     }
 
@@ -75,6 +78,13 @@ public class BallerinaApplicationRunningState extends BallerinaRunningState<Ball
         // Find the file in the project. This is needed to find the module. Otherwise if the file is in a sub-module
         // and the SDK for the project is not set, SDK home path will be null.
         PsiFile file = BallerinaPsiImplUtil.findFileInProject(project, myConfiguration.getFilePath());
+        VirtualFile fileDir = file.getVirtualFile().getParent();
+        String rootDir = Paths.get(System.getProperty("user.dir")).getFileSystem().getRootDirectories().iterator()
+                .next().toString();
+        String sourcerootDir = getSourceRoot(fileDir.getPath(), rootDir);
+        // if no ballerina project found, use default base directory.
+        sourcerootDir = sourcerootDir != "" ? sourcerootDir : baseDir.getPath();
+
         Module module = null;
         if (file != null) {
             module = ModuleUtilCore.findModuleForPsiElement(file);
@@ -88,11 +98,6 @@ public class BallerinaApplicationRunningState extends BallerinaRunningState<Ball
                 // Note File.separator will not work here since filepath contains "/" regardless of the OS.
                 filePath = filePath.replace(baseDir.getPath() + "/", "");
             }
-
-            //            if (filePath.contains(File.separator)) {
-            //                int index = filePath.indexOf(File.separator);
-            //                filePath = filePath.substring(0, index);
-            //            }
         }
 
         BallerinaExecutor ballerinaExecutor;
@@ -103,9 +108,8 @@ public class BallerinaApplicationRunningState extends BallerinaRunningState<Ball
             if (isDebug()) {
                 ballerinaExecutor.withParameters("--debug", String.valueOf(myDebugPort));
             }
-            ballerinaExecutor = executor.withParameters("--sourceroot").withParameters(baseDir.getPath())
-                    .withBallerinaPath(
-                            BallerinaSdkService.getInstance(getConfiguration().getProject()).getSdkHomePath(module))
+            ballerinaExecutor.withParameters("--sourceroot").withParameters(sourcerootDir).withBallerinaPath(
+                    BallerinaSdkService.getInstance(getConfiguration().getProject()).getSdkHomePath(module))
                     .withParameterString(myConfiguration.getBallerinaToolParams()).withParameters(filePath);
         } else {
             ballerinaExecutor = executor.withParameters("run");
@@ -114,7 +118,7 @@ public class BallerinaApplicationRunningState extends BallerinaRunningState<Ball
             if (isDebug()) {
                 ballerinaExecutor.withParameters("--debug", String.valueOf(myDebugPort));
             }
-            ballerinaExecutor = executor.withBallerinaPath(
+            ballerinaExecutor.withBallerinaPath(
                     BallerinaSdkService.getInstance(getConfiguration().getProject()).getSdkHomePath(module))
                     .withParameterString(myConfiguration.getBallerinaToolParams()).withParameters(filePath);
         }
@@ -137,5 +141,29 @@ public class BallerinaApplicationRunningState extends BallerinaRunningState<Ball
      */
     private boolean isDebug() {
         return DefaultDebugExecutor.EXECUTOR_ID.equals(getEnvironment().getExecutor().getId());
+    }
+
+    /**
+     * Searches for a ballerina project using outward recursion starting from the file directory, until the root
+     * directory is found.
+     */
+    private String getSourceRoot(String currentPath, String root) {
+
+        if (currentPath.equals(root) || currentPath.equals("") || root.equals("")) {
+            return "";
+        } else {
+            File currentDir = new File(currentPath);
+            File[] files = currentDir.listFiles();
+            if (files != null) {
+                for (File f : files) {
+                    //skips the .ballerina folder in the user home directory.
+                    if (f.isDirectory() && !f.getParentFile().getAbsolutePath()
+                            .equals(System.getProperty("user.home")) && f.getName().equals(".ballerina")) {
+                        return currentDir.getAbsolutePath();
+                    }
+                }
+            }
+            return getSourceRoot(currentDir.getParentFile().getAbsolutePath(), root);
+        }
     }
 }
