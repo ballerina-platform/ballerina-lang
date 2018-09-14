@@ -57,11 +57,12 @@ import static org.wso2.transport.http.netty.common.Constants.HTTPS_SCHEME;
  */
 public class CipherSuitesTest {
 
+    private static final Logger LOG = LoggerFactory.getLogger(CipherSuitesTest.class);
+
     private static HttpClientConnector httpClientConnector;
     private List<Parameter> clientParams;
     private ServerConnector serverConnector;
     private HttpWsConnectorFactory factory;
-    private static Logger logger = LoggerFactory.getLogger(CipherSuitesTest.class);
 
     @DataProvider(name = "ciphers")
 
@@ -173,7 +174,7 @@ public class CipherSuitesTest {
             httpClientConnector.close();
             factory.shutdown();
         } catch (Exception e) {
-            logger.warn("Interrupted while waiting for response", e);
+            LOG.warn("Interrupted while waiting for response", e);
         }
     }
  }
