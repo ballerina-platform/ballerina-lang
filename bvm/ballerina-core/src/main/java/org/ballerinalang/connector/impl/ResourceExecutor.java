@@ -22,8 +22,7 @@ import org.ballerinalang.bre.bvm.WorkerExecutionContext;
 import org.ballerinalang.connector.api.BallerinaConnectorException;
 import org.ballerinalang.connector.api.Resource;
 import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.persistence.states.RuntimeStates;
-import org.ballerinalang.persistence.states.State;
+import org.ballerinalang.persistence.RuntimeStates;
 import org.ballerinalang.runtime.Constants;
 import org.ballerinalang.util.codegen.ResourceInfo;
 import org.ballerinalang.util.observability.ObserverContext;
@@ -66,7 +65,7 @@ public class ResourceExecutor {
             if (interruptible != null && (boolean) interruptible) {
                 String stateId = UUID.randomUUID().toString();
                 properties.put(Constants.STATE_ID, stateId);
-                RuntimeStates.add(new State(context, stateId));
+                RuntimeStates.add(stateId, context);
                 context.interruptible = true;
             }
             context.globalProps.putAll(properties);

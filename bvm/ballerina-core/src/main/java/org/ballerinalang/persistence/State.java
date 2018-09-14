@@ -15,9 +15,12 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.ballerinalang.persistence.states;
+package org.ballerinalang.persistence;
 
 import org.ballerinalang.bre.bvm.WorkerExecutionContext;
+import org.ballerinalang.persistence.serializable.SerializableState;
+
+import java.util.List;
 
 /**
  * Represents execution state for given @{@link WorkerExecutionContext}.
@@ -26,40 +29,12 @@ import org.ballerinalang.bre.bvm.WorkerExecutionContext;
  */
 public class State {
 
-    private WorkerExecutionContext context;
+    public SerializableState sState;
 
-    private String id;
+    public List<WorkerExecutionContext> executableCtxList;
 
-    private int ip;
-
-    public State(WorkerExecutionContext context, String stateId) {
-        this.context = context;
-        this.id = stateId;
-    }
-
-    public State(WorkerExecutionContext context, String id, int ip) {
-        this.context = context;
-        this.id = id;
-        this.ip = ip;
-    }
-
-    public WorkerExecutionContext getContext() {
-        return context;
-    }
-
-    public void setContext(WorkerExecutionContext context) {
-        this.context = context;
-    }
-
-    public int getIp() {
-        return ip;
-    }
-
-    public void setIp(int ip) {
-        this.ip = ip;
-    }
-
-    public String getId() {
-        return id;
+    public State(SerializableState sState, List<WorkerExecutionContext> executableCtxList) {
+        this.sState = sState;
+        this.executableCtxList = executableCtxList;
     }
 }

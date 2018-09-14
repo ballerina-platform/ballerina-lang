@@ -192,7 +192,9 @@ class JsonDeserializer implements BValueDeserializer {
                 addObjReference(jBMap, object);
             }
         }
-
+        if (targetType == null) {
+            targetType = findClass(typeName);
+        }
         // try reflective reconstruction
         if (object == null) {
             Object emptyInstance = createInstance(jBMap, targetType);

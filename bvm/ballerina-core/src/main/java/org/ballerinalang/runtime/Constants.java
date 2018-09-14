@@ -37,11 +37,6 @@ public class Constants {
     public static final String STATE_ID = "b7a.state.id";
     public static final String IS_INTERRUPTIBLE = "b7a.state.interruptible";
 
-    // Serialization related Constants
-    public static final String TYPE = "type";
-    public static final String DATA = "data";
-    public static final String NULL = "null";
-
     // Default worker name
     public static final String DEFAULT = "default";
 

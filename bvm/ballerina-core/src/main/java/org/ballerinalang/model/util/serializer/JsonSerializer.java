@@ -20,6 +20,7 @@ import org.ballerinalang.model.util.JsonGenerator;
 import org.ballerinalang.model.util.JsonParser;
 import org.ballerinalang.model.util.serializer.providers.bvalue.ArrayListBValueProvider;
 import org.ballerinalang.model.util.serializer.providers.bvalue.BBooleanBValueProvider;
+import org.ballerinalang.model.util.serializer.providers.bvalue.BFloatBValueProvider;
 import org.ballerinalang.model.util.serializer.providers.bvalue.BIntegerBValueProvider;
 import org.ballerinalang.model.util.serializer.providers.bvalue.BMapBValueProvider;
 import org.ballerinalang.model.util.serializer.providers.bvalue.BRefValueArrayBValueProvider;
@@ -30,6 +31,7 @@ import org.ballerinalang.model.util.serializer.providers.bvalue.BallerinaBrokerB
 import org.ballerinalang.model.util.serializer.providers.bvalue.ClassBValueProvider;
 import org.ballerinalang.model.util.serializer.providers.bvalue.ConcurrentHashMapBValueProvider;
 import org.ballerinalang.model.util.serializer.providers.bvalue.DateTimeBValueProviders;
+import org.ballerinalang.model.util.serializer.providers.bvalue.HashSetBValueProvider;
 import org.ballerinalang.model.util.serializer.providers.bvalue.InetSocketAddressBValueProvider;
 import org.ballerinalang.model.util.serializer.providers.bvalue.NumericBValueProviders;
 import org.ballerinalang.model.values.BRefType;
@@ -60,8 +62,10 @@ public class JsonSerializer implements ObjectToJsonSerializer {
         bValueProvider.register(new BallerinaBrokerByteBufBValueProvider());
         bValueProvider.register(new ConcurrentHashMapBValueProvider());
         bValueProvider.register(new BIntegerBValueProvider());
+        bValueProvider.register(new BFloatBValueProvider());
         bValueProvider.register(new BBooleanBValueProvider());
         bValueProvider.register(new ArrayListBValueProvider());
+        bValueProvider.register(new HashSetBValueProvider());
         bValueProvider.register(new BTypeBValueProviders.BObjectTypeBValueProvider());
         bValueProvider.register(new BTypeBValueProviders.BRecordTypeBValueProvider());
         bValueProvider.register(new BTypeBValueProviders.BAnyTypeBValueProvider());

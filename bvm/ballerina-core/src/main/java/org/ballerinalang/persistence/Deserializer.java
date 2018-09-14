@@ -18,12 +18,12 @@
  */
 package org.ballerinalang.persistence;
 
-import org.ballerinalang.bre.bvm.CallableWorkerResponseContext;
 import org.ballerinalang.bre.bvm.WorkerExecutionContext;
+import org.ballerinalang.bre.bvm.WorkerResponseContext;
 import org.ballerinalang.model.values.BRefType;
 
+import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Class manages the deserialization functionality.
@@ -33,11 +33,11 @@ import java.util.concurrent.ConcurrentHashMap;
 public class Deserializer {
 
     // These data structures will be used store deserialize objects temporary to manage sharable objects.
-    private Map<String, BRefType> refTypes = new ConcurrentHashMap<>();
+    private Map<String, BRefType> refTypes = new HashMap<>();
 
-    private Map<String, WorkerExecutionContext> contexts = new ConcurrentHashMap<>();
+    private Map<String, WorkerExecutionContext> contexts = new HashMap<>();
 
-    private Map<String, CallableWorkerResponseContext> respContexts = new ConcurrentHashMap<>();
+    private Map<String, WorkerResponseContext> respContexts = new HashMap<>();
 
     public void cleanUpDeserializer() {
         refTypes.clear();
@@ -53,7 +53,7 @@ public class Deserializer {
         return contexts;
     }
 
-    public Map<String, CallableWorkerResponseContext> getRespContexts() {
+    public Map<String, WorkerResponseContext> getRespContexts() {
         return respContexts;
     }
 

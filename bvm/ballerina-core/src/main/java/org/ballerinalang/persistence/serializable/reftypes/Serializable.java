@@ -17,7 +17,10 @@
  */
 package org.ballerinalang.persistence.serializable.reftypes;
 
+import org.ballerinalang.model.values.BRefType;
 import org.ballerinalang.persistence.serializable.SerializableState;
+
+import java.util.HashSet;
 
 /**
  * Interface used to serialize the given object.
@@ -25,5 +28,13 @@ import org.ballerinalang.persistence.serializable.SerializableState;
  * @since 0.981.1
  */
 public interface Serializable {
-    SerializableRefType serialize(SerializableState state);
+
+    /**
+     * Serialize @{@link BRefType} to persist.
+     *
+     * @param state            Serializable state
+     * @param updatedObjectSet Set of already updated objects
+     * @return Serialized @{@link BRefType}
+     */
+    SerializableRefType serialize(SerializableState state, HashSet<String> updatedObjectSet);
 }

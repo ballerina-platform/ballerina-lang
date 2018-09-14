@@ -17,6 +17,7 @@
  */
 package org.ballerinalang.persistence.serializable.reftypes;
 
+import org.ballerinalang.model.values.BFuture;
 import org.ballerinalang.model.values.BRefType;
 import org.ballerinalang.persistence.Deserializer;
 import org.ballerinalang.persistence.serializable.SerializableState;
@@ -28,5 +29,26 @@ import org.ballerinalang.util.codegen.ProgramFile;
  * @since 0.981.1
  */
 public interface SerializableRefType {
+
+    /**
+     * Deserialize the serializable object and provide its @{@link BRefType} object.
+     *
+     * @param programFile  Program file
+     * @param state        State
+     * @param deserializer Deserializer
+     * @return Deserialized @{@link BRefType} object
+     */
     BRefType getBRefType(ProgramFile programFile, SerializableState state, Deserializer deserializer);
+
+    /**
+     * Used to set any worker execution contexts or response contexts to deserialized @{@link BRefType}.
+     * ex. @{@link BFuture}
+     *
+     * @param refType      BRefType
+     * @param programFile  Program file
+     * @param state        State
+     * @param deserializer Deserializer
+     */
+    void setContexts(BRefType refType, ProgramFile programFile, SerializableState state,
+                     Deserializer deserializer);
 }

@@ -164,4 +164,31 @@ public class ForkJoinWorkerResponseContext extends SyncCallableWorkerResponseCon
         return BLangVMErrors.createCallFailedException(context, errors);
     }
 
+    public int getReqJoinCount() {
+        return reqJoinCount;
+    }
+
+    public int getJoinTargetIp() {
+        return joinTargetIp;
+    }
+
+    public int getJoinVarReg() {
+        return joinVarReg;
+    }
+
+    public int getTimeoutTargetIp() {
+        return timeoutTargetIp;
+    }
+
+    public int getTimeoutVarReg() {
+        return timeoutVarReg;
+    }
+
+    public Set<String> getJoinWorkerNames() {
+        return joinWorkerNames;
+    }
+
+    public Map<String, String> getChannelNames() {
+        return channelNames;
+    }
 }

@@ -17,20 +17,36 @@
  */
 package org.ballerinalang.persistence.store;
 
-import org.ballerinalang.persistence.states.State;
+import org.ballerinalang.persistence.serializable.SerializableState;
 
 import java.util.List;
 
 /**
- * Representation of storage provider which will be used to persist @{@link State}s.
+ * Representation of storage provider which will be used to persist @{@link SerializableState}s.
  *
  * @since 0.981.1
  */
 public interface StorageProvider {
 
+    /**
+     * Persist the serialized runtime state in the storage .
+     *
+     * @param stateId     Identifier of the runtime state
+     * @param stateString Serialized runtime state
+     */
     void persistState(String stateId, String stateString);
 
+    /**
+     * Remove serialized state from the given storage.
+     *
+     * @param stateId Identifier of the runtime state
+     */
     void removeActiveState(String stateId);
 
+    /**
+     * Provides all serialized states of the system.
+     *
+     * @return List of serialized state as strings
+     */
     List<String> getAllSerializedStates();
 }

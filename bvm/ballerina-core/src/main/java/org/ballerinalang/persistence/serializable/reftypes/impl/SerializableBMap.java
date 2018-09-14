@@ -29,6 +29,7 @@ import org.ballerinalang.util.codegen.StructureTypeInfo;
 import org.ballerinalang.util.exceptions.BallerinaException;
 
 import java.util.HashMap;
+import java.util.HashSet;
 
 /**
  * Implementation of @{@link SerializableRefType} to serialize and deserialize {@link BMap} objects.
@@ -40,16 +41,18 @@ import java.util.HashMap;
 public class SerializableBMap<K, V extends BValue> implements SerializableRefType {
 
     private String pkgPath;
+
     private String structName;
 
     private HashMap<K, Object> map = new HashMap<>();
+
     private HashMap<String, Object> nativeData = new HashMap<>();
 
-    public SerializableBMap(BMap<K, V> bMap, SerializableState state) {
+    public SerializableBMap(BMap<K, V> bMap, SerializableState state, HashSet<String> updatedObjectSet) {
         structName = bMap.getType().getName();
         pkgPath = bMap.getType().getPackagePath();
-        bMap.getNativeData().forEach((k, o) -> nativeData.put(k, state.serialize(o)));
-        bMap.getMap().forEach((k, v) -> map.put(k, state.serialize(v)));
+        bMap.getNativeData().forEach((k, o) -> nativeData.put(k, state.serialize(o, updatedObjectSet)));
+        bMap.getMap().forEach((k, v) -> map.put(k, state.serialize(v, updatedObjectSet)));
     }
 
     @Override
@@ -69,5 +72,10 @@ public class SerializableBMap<K, V extends BValue> implements SerializableRefTyp
         nativeData.forEach((s, o) -> bMap.addNativeData(s, state.deserialize(o, programFile, deserializer)));
         map.forEach((k, v) -> bMap.put(k, (V) state.deserialize(v, programFile, deserializer)));
         return bMap;
+    }
+
+    @Override
+    public void setContexts(BRefType refType, ProgramFile programFile, SerializableState state,
+                            Deserializer deserializer) {
     }
 }
