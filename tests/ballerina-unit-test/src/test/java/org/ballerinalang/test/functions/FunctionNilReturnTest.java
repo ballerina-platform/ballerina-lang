@@ -31,7 +31,10 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.PrintStream;
 
-public class NullReturnFunctionTest {
+/**
+ * Test nil return from functions.
+ */
+public class FunctionNilReturnTest {
 
     private CompileResult compileResult;
     private PrintStream original;
@@ -40,7 +43,7 @@ public class NullReturnFunctionTest {
     @BeforeClass(alwaysRun = true)
     public void setup() {
         original = System.out;
-        compileResult = BCompileUtil.compile("test-src/functions/null-return.bal");
+        compileResult = BCompileUtil.compile("test-src/functions/function-nil-return.bal");
     }
 
     @AfterClass(alwaysRun = true)
