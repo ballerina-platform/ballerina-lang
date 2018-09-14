@@ -21,24 +21,21 @@ import io.netty.handler.codec.http.HttpContent;
 import io.netty.handler.codec.http2.Http2Exception;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.wso2.transport.http.netty.contractimpl.Http2OutboundRespListener;
 import org.wso2.transport.http.netty.contractimpl.Http2OutboundRespListener.ResponseWriter;
 import org.wso2.transport.http.netty.message.Http2DataFrame;
 import org.wso2.transport.http.netty.message.Http2HeadersFrame;
 import org.wso2.transport.http.netty.message.HttpCarbonMessage;
-
-import static org.wso2.transport.http.netty.listener.states.StateUtil.ILLEGAL_STATE_ERROR;
 
 /**
  * State between start and end of outbound response headers write
  */
 public class SendingHeaders implements ListenerState {
 
-    private static Logger log = LoggerFactory.getLogger(SendingHeaders.class);
+    private static final Logger LOG = LoggerFactory.getLogger(SendingHeaders.class);
 
     @Override
     public void readInboundRequestHeaders(Http2HeadersFrame headersFrame) {
-        log.warn("readInboundRequestHeaders {}", ILLEGAL_STATE_ERROR);
+        LOG.warn("readInboundRequestHeaders is not a dependant action of this state");
     }
 
     @Override
@@ -56,6 +53,6 @@ public class SendingHeaders implements ListenerState {
     @Override
     public void writeOutboundResponseBody(ResponseWriter responseWriter, HttpCarbonMessage outboundResponseMsg,
                                           HttpContent httpContent) {
-        log.warn("writeOutboundResponseBody {}", ILLEGAL_STATE_ERROR);
+        LOG.warn("writeOutboundResponseBody is not a dependant action of this state");
     }
 }

@@ -31,14 +31,12 @@ import org.wso2.transport.http.netty.message.Http2DataFrame;
 import org.wso2.transport.http.netty.message.Http2HeadersFrame;
 import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 
-import static org.wso2.transport.http.netty.listener.states.StateUtil.ILLEGAL_STATE_ERROR;
-
 /**
  * State between start and end of payload read
  */
 public class ReceivingEntityBody implements ListenerState {
 
-    private static Logger log = LoggerFactory.getLogger(ReceivingEntityBody.class);
+    private static final Logger LOG = LoggerFactory.getLogger(ReceivingEntityBody.class);
     private final Http2SourceHandler http2SourceHandler;
     private final Http2MessageStateContext http2MessageStateContext;
 
@@ -49,7 +47,7 @@ public class ReceivingEntityBody implements ListenerState {
 
     @Override
     public void readInboundRequestHeaders(Http2HeadersFrame headersFrame) {
-        log.warn("readInboundRequestHeaders {}", ILLEGAL_STATE_ERROR);
+        LOG.warn("readInboundRequestHeaders is not a dependant action of this state");
     }
 
     @Override
@@ -67,14 +65,14 @@ public class ReceivingEntityBody implements ListenerState {
                 sourceReqCMsg.addHttpContent(new DefaultHttpContent(data));
             }
         } else {
-            log.warn("Inconsistent state detected : data has received before headers");
+            LOG.warn("Inconsistent state detected : data has received before headers");
         }
     }
 
     @Override
     public void writeOutboundResponseHeaders(ResponseWriter responseWriter, HttpCarbonMessage outboundResponseMsg,
                                              HttpContent httpContent) {
-        log.warn("writeOutboundResponseHeaders {}", ILLEGAL_STATE_ERROR);
+        LOG.warn("writeOutboundResponseHeaders is not a dependant action of this state");
     }
 
     @Override

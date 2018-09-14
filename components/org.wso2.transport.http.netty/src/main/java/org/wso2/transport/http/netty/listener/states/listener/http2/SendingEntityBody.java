@@ -26,32 +26,27 @@ import org.wso2.transport.http.netty.message.Http2DataFrame;
 import org.wso2.transport.http.netty.message.Http2HeadersFrame;
 import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 
-import static org.wso2.transport.http.netty.listener.states.StateUtil.ILLEGAL_STATE_ERROR;
-
 /**
  * State between start and end of outbound response entity body write
  */
 public class SendingEntityBody implements ListenerState {
 
-    private static Logger log = LoggerFactory.getLogger(SendingEntityBody.class);
-
-    public SendingEntityBody() {
-    }
+    private static final Logger LOG = LoggerFactory.getLogger(SendingEntityBody.class);
 
     @Override
     public void readInboundRequestHeaders(Http2HeadersFrame headersFrame) {
-        log.warn("readInboundRequestHeaders {}", ILLEGAL_STATE_ERROR);
+        LOG.warn("readInboundRequestHeaders is not a dependant action of this state");
     }
 
     @Override
     public void readInboundRequestBody(Http2DataFrame dataFrame) {
-        log.warn("readInboundRequestBody {}", ILLEGAL_STATE_ERROR);
+        LOG.warn("readInboundRequestBody is not a dependant action of this state");
     }
 
     @Override
     public void writeOutboundResponseHeaders(ResponseWriter responseWriter, HttpCarbonMessage outboundResponseMsg,
                                              HttpContent httpContent) {
-        log.warn("writeOutboundResponseHeaders {}", ILLEGAL_STATE_ERROR);
+        LOG.warn("writeOutboundResponseHeaders is not a dependant action of this state");
     }
 
     @Override

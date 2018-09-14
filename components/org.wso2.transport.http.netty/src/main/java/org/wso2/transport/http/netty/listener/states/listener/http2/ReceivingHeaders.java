@@ -27,7 +27,6 @@ import org.wso2.transport.http.netty.contract.ServerConnectorException;
 import org.wso2.transport.http.netty.contractimpl.Http2OutboundRespListener.ResponseWriter;
 import org.wso2.transport.http.netty.listener.http2.Http2SourceHandler;
 import org.wso2.transport.http.netty.listener.states.Http2MessageStateContext;
-import org.wso2.transport.http.netty.listener.states.StateUtil;
 import org.wso2.transport.http.netty.message.Http2DataFrame;
 import org.wso2.transport.http.netty.message.Http2HeadersFrame;
 import org.wso2.transport.http.netty.message.HttpCarbonMessage;
@@ -37,7 +36,7 @@ import org.wso2.transport.http.netty.message.HttpCarbonMessage;
  */
 public class ReceivingHeaders implements ListenerState {
 
-    private static Logger log = LoggerFactory.getLogger(ReceivingHeaders.class);
+    private static final Logger LOG = LoggerFactory.getLogger(ReceivingHeaders.class);
     private final Http2SourceHandler http2SourceHandler;
     private final Http2MessageStateContext http2MessageStateContext;
 
@@ -82,7 +81,7 @@ public class ReceivingHeaders implements ListenerState {
     @Override
     public void writeOutboundResponseHeaders(ResponseWriter responseWriter, HttpCarbonMessage outboundResponseMsg,
                                              HttpContent httpContent) {
-        log.warn("writeOutboundResponseHeaders {}", StateUtil.ILLEGAL_STATE_ERROR);
+        LOG.warn("writeOutboundResponseHeaders is not a dependant action of this state");
     }
 
     @Override

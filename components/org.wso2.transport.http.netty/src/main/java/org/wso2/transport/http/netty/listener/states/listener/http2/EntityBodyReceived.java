@@ -32,7 +32,7 @@ import org.wso2.transport.http.netty.message.HttpCarbonMessage;
  */
 public class EntityBodyReceived implements ListenerState {
 
-    private static Logger log = LoggerFactory.getLogger(EntityBodyReceived.class);
+    private static final Logger LOG = LoggerFactory.getLogger(EntityBodyReceived.class);
     private final Http2MessageStateContext http2MessageStateContext;
 
     public EntityBodyReceived(Http2MessageStateContext http2MessageStateContext) {
@@ -41,23 +41,24 @@ public class EntityBodyReceived implements ListenerState {
 
     @Override
     public void readInboundRequestHeaders(Http2HeadersFrame headersFrame) {
-        log.warn("readInboundRequestHeaders is not a dependant action of this state");
+        LOG.warn("readInboundRequestHeaders is not a dependant action of this state");
     }
 
     @Override
     public void readInboundRequestBody(Http2DataFrame dataFrame) {
-        log.warn("readInboundRequestBody is not a dependant action of this state");
+        LOG.warn("readInboundRequestBody is not a dependant action of this state");
     }
 
     @Override
     public void writeOutboundResponseHeaders(ResponseWriter responseWriter, HttpCarbonMessage outboundResponseMsg,
                                              HttpContent httpContent) {
-        log.warn("writeOutboundResponseHeaders is not a dependant action of this state");
+        LOG.warn("writeOutboundResponseHeaders is not a dependant action of this state");
     }
 
     @Override
     public void writeOutboundResponseBody(ResponseWriter responseWriter, HttpCarbonMessage outboundResponseMsg,
                                           HttpContent httpContent) throws Http2Exception {
+        // When the initial packets of the response is to be sent.
         http2MessageStateContext.setListenerState(new SendingHeaders());
         http2MessageStateContext.getListenerState()
                 .writeOutboundResponseHeaders(responseWriter, outboundResponseMsg, httpContent);
