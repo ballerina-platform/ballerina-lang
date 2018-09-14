@@ -44,6 +44,11 @@ import org.wso2.transport.http.netty.contract.HttpConnectorListener;
 import org.wso2.transport.http.netty.contract.HttpResponseFuture;
 import org.wso2.transport.http.netty.contract.ServerConnectorException;
 import org.wso2.transport.http.netty.listener.HttpServerChannelInitializer;
+import org.wso2.transport.http.netty.listener.http2.Http2SourceHandler;
+import org.wso2.transport.http.netty.listener.states.Http2MessageStateContext;
+import org.wso2.transport.http.netty.listener.states.listener.http2.EntityBodyReceived;
+import org.wso2.transport.http.netty.listener.states.listener.http2.ResponseCompleted;
+import org.wso2.transport.http.netty.listener.states.listener.http2.SendingEntityBody;
 import org.wso2.transport.http.netty.message.Http2PushPromise;
 import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 
@@ -61,8 +66,9 @@ public class Http2OutboundRespListener implements HttpConnectorListener {
     private static final Logger log = LoggerFactory.getLogger(Http2OutboundRespListener.class);
     private static final InternalLogger accessLogger = InternalLoggerFactory.getInstance(Constants.ACCESS_LOG);
 
+    private Http2MessageStateContext http2MessageStateContext;
+    private Http2SourceHandler http2SourceHandler;
     private HttpCarbonMessage inboundRequestMsg;
-    private ChannelHandlerContext ctx;
     private Http2ConnectionEncoder encoder;
     private int originalStreamId;   // stream id of the request received from the client
     private Http2Connection conn;
@@ -72,7 +78,10 @@ public class Http2OutboundRespListener implements HttpConnectorListener {
     private Calendar inboundRequestArrivalTime;
     private String remoteAddress = "-";
 
-    public Http2OutboundRespListener(HttpServerChannelInitializer serverChannelInitializer,
+    public ChannelHandlerContext ctx;
+
+    public Http2OutboundRespListener(Http2SourceHandler http2SourceHandler,
+                                     HttpServerChannelInitializer serverChannelInitializer,
                                      HttpCarbonMessage inboundRequestMsg, ChannelHandlerContext ctx,
                                      Http2Connection conn, Http2ConnectionEncoder encoder, int streamId,
                                      String serverName, String remoteAddress) {
@@ -88,6 +97,8 @@ public class Http2OutboundRespListener implements HttpConnectorListener {
         }
         this.outboundRespStatusFuture = inboundRequestMsg.getHttpOutboundRespStatusFuture();
         inboundRequestArrivalTime = Calendar.getInstance();
+        this.http2SourceHandler = http2SourceHandler;
+        this.http2MessageStateContext = inboundRequestMsg.getHttp2MessageStateContext();
     }
 
     @Override
@@ -146,29 +157,58 @@ public class Http2OutboundRespListener implements HttpConnectorListener {
                         writer.writeOutboundResponse(outboundResponseMsg, httpContent);
                     } catch (Http2Exception ex) {
                         String errorMsg = "Failed to send the outbound response : " +
-                                          ex.getMessage().toLowerCase(Locale.ENGLISH);
+                                ex.getMessage().toLowerCase(Locale.ENGLISH);
                         log.error(errorMsg, ex);
                         inboundRequestMsg.getHttpOutboundRespStatusFuture().notifyHttpListener(ex);
                     }
                 })));
     }
 
-    private class ResponseWriter {
+    /**
+     * {@code ResponseWriter} is responsible for delivering outbound response messages to the client.
+     */
+    public class ResponseWriter {
 
-        private boolean isHeaderWritten = false;
-        private int streamId;
+        public int streamId;
         private Long contentLength = 0L;
 
-        public ResponseWriter(int streamId) {
+        ResponseWriter(int streamId) {
             this.streamId = streamId;
         }
 
         private void writeOutboundResponse(HttpCarbonMessage outboundResponseMsg, HttpContent httpContent)
                 throws Http2Exception {
-            if (!isHeaderWritten) {
-                writeHeaders(outboundResponseMsg);
+            if (http2MessageStateContext == null) {
+                http2MessageStateContext = new Http2MessageStateContext();
+                http2MessageStateContext.setListenerState(
+                        new EntityBodyReceived(http2SourceHandler, http2MessageStateContext));
             }
-            if (Util.isLastHttpContent(httpContent)) {
+            http2MessageStateContext.getListenerState().writeOutboundResponseBody(
+                    Http2OutboundRespListener.this, this, outboundResponseMsg, httpContent);
+
+//            if (!isHeaderWritten) {
+//                writeHeaders(outboundResponseMsg);
+//            }
+//            if (Util.isLastHttpContent(httpContent)) {
+//                final LastHttpContent lastContent = (LastHttpContent) httpContent;
+//                HttpHeaders trailers = lastContent.trailingHeaders();
+//                if (serverChannelInitializer.isHttpAccessLogEnabled()) {
+//                    logAccessInfo(outboundResponseMsg);
+//                }
+//                boolean endStream = trailers.isEmpty();
+//                writeData(lastContent, endStream);
+//                if (!trailers.isEmpty()) {
+//                    Http2Headers http2Trailers = HttpConversionUtil.toHttp2Headers(trailers, true);
+//                    // Write trailing headers.
+//                    writeHttp2Headers(ctx, streamId, http2Trailers, true);
+//                }
+//            } else {
+//                writeData(httpContent, false);
+//            }
+        }
+
+        public void writeContent(HttpCarbonMessage outboundResponseMsg, HttpContent httpContent) throws Http2Exception {
+            if (httpContent instanceof LastHttpContent) {
                 final LastHttpContent lastContent = (LastHttpContent) httpContent;
                 HttpHeaders trailers = lastContent.trailingHeaders();
                 if (serverChannelInitializer.isHttpAccessLogEnabled()) {
@@ -181,12 +221,15 @@ public class Http2OutboundRespListener implements HttpConnectorListener {
                     // Write trailing headers.
                     writeHttp2Headers(ctx, streamId, http2Trailers, true);
                 }
+                http2MessageStateContext.setListenerState(
+                        new ResponseCompleted(http2SourceHandler, http2MessageStateContext));
             } else {
                 writeData(httpContent, false);
+                http2MessageStateContext.setListenerState(new SendingEntityBody());
             }
         }
 
-        private void writeHttp2Headers(ChannelHandlerContext ctx, int streamId, Http2Headers http2Headers, boolean
+        void writeHttp2Headers(ChannelHandlerContext ctx, int streamId, Http2Headers http2Headers, boolean
                 endStream) throws Http2Exception {
 
             ChannelFuture channelFuture = encoder.writeHeaders(
@@ -196,7 +239,7 @@ public class Http2OutboundRespListener implements HttpConnectorListener {
             Util.addResponseWriteFailureListener(outboundRespStatusFuture, channelFuture);
         }
 
-        private void writeHeaders(HttpCarbonMessage outboundResponseMsg) throws Http2Exception {
+        public void writeHeaders(HttpCarbonMessage outboundResponseMsg) throws Http2Exception {
             outboundResponseMsg.getHeaders().
                     add(HttpConversionUtil.ExtensionHeaderNames.SCHEME.text(), Constants.HTTP_SCHEME);
             HttpMessage httpMessage =
@@ -204,11 +247,10 @@ public class Http2OutboundRespListener implements HttpConnectorListener {
             // Construct Http2 headers
             Http2Headers http2Headers = HttpConversionUtil.toHttp2Headers(httpMessage, true);
             validatePromisedStreamState();
-            isHeaderWritten = true;
             writeHttp2Headers(ctx, streamId, http2Headers, false);
         }
 
-        private void writeData(HttpContent httpContent, boolean endStream) throws Http2Exception {
+        void writeData(HttpContent httpContent, boolean endStream) throws Http2Exception {
             contentLength += httpContent.content().readableBytes();
             validatePromisedStreamState();
             ChannelFuture channelFuture = encoder.writeData(
@@ -222,7 +264,7 @@ public class Http2OutboundRespListener implements HttpConnectorListener {
             }
         }
 
-        private void logAccessInfo(HttpCarbonMessage outboundResponseMsg) {
+        void logAccessInfo(HttpCarbonMessage outboundResponseMsg) {
 
             if (!accessLogger.isEnabled(InternalLogLevel.INFO)) {
                 return;

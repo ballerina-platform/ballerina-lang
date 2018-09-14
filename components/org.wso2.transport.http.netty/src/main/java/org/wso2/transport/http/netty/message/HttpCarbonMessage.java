@@ -36,6 +36,7 @@ import org.wso2.transport.http.netty.contract.ServerConnectorException;
 import org.wso2.transport.http.netty.contract.ServerConnectorFuture;
 import org.wso2.transport.http.netty.contractimpl.DefaultHttpResponseFuture;
 import org.wso2.transport.http.netty.contractimpl.HttpWsServerConnectorFuture;
+import org.wso2.transport.http.netty.listener.states.Http2MessageStateContext;
 import org.wso2.transport.http.netty.listener.states.MessageStateContext;
 
 import java.io.IOException;
@@ -58,8 +59,8 @@ public class HttpCarbonMessage {
     private final DefaultHttpResponseFuture httpOutboundRespStatusFuture = new DefaultHttpResponseFuture();
     private final Observable contentObservable = new DefaultObservable();
     private IOException ioException;
-    private MessageStateContext messageStateContext;
-
+    private MessageStateContext httpMessageStateContext;
+    private Http2MessageStateContext http2MessageStateContext;
 
     private long sequenceId; //Keep track of request/response order
     private ChannelHandlerContext sourceContext;
@@ -399,11 +400,19 @@ public class HttpCarbonMessage {
     }
 
     public MessageStateContext getMessageStateContext() {
-        return messageStateContext;
+        return httpMessageStateContext;
     }
 
     public void setMessageStateContext(MessageStateContext messageStateContext) {
-        this.messageStateContext = messageStateContext;
+        this.httpMessageStateContext = messageStateContext;
+    }
+
+    public Http2MessageStateContext getHttp2MessageStateContext() {
+        return http2MessageStateContext;
+    }
+
+    public void setHttp2MessageStateContext(Http2MessageStateContext http2MessageStateContext) {
+        this.http2MessageStateContext = http2MessageStateContext;
     }
 
     public long getSequenceId() {
