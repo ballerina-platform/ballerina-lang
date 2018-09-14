@@ -1,2 +1,3 @@
-// A record is a set of named fields where each field can be of a different type. When the set of fields is fixed,
-// the record is called a "sealed record" and when it is unfixed, it is called an "open record".
+// Records are a mapping type in Ballerina. However, the keys (fields) are named and their types define the
+// types of values allowed for the fields. When the set of fields is fixed, the record is called a "closed record" and
+// when it is unfixed, it is called an "open record".
