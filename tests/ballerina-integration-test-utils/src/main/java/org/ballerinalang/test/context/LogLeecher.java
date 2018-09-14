@@ -56,9 +56,8 @@ public class LogLeecher {
      * @param logLine The log line which was read
      */
     void feedLine(String logLine) {
-        if (text.contains(logLine)) {
+        if (logLine.contains(text)) {
             textFound = true;
-
             synchronized (this) {
                 this.notifyAll();
             }
@@ -91,12 +90,12 @@ public class LogLeecher {
         long startTime = System.currentTimeMillis();
 
         synchronized (this) {
-            while (!textFound && !forcedExit) {
+            while (!textFound || !forcedExit) {
                 try {
                     this.wait(timeout);
 
                     if (System.currentTimeMillis() - startTime > timeout) {
-                        throw new BallerinaTestException("Timeout expired waiting for matching log");
+                        throw new BallerinaTestException("Timeout expired waiting for matching log: " + text);
                     }
                 } catch (InterruptedException e) {
                     throw new BallerinaTestException("Error waiting for text", e);

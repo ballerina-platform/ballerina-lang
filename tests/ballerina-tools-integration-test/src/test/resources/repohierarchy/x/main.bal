@@ -19,5 +19,4 @@ import ballerina/io;
 
 public function main(string... args) {
     b:printB();
-    io:println("Hello, World from X");
 }

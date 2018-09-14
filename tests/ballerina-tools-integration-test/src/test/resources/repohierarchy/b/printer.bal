@@ -15,9 +15,7 @@
 // under the License.
 
 import integrationtests/a;
-import ballerina/io;
 
 public function printB() {
     a:printA();
-    io:println("Print B");
 }
