@@ -35,6 +35,11 @@ public class Util {
         return new DebugPoint(new BreakPointDTO(packagePath, fileName, lineNo), nextStep, noOfHits, expressionsMap);
     }
 
+    public static DebugPoint createDebugPoint(String packagePath, String fileName, int lineNo, Step nextStep,
+                                              int noOfHits) {
+        return createDebugPoint(packagePath, fileName, lineNo, nextStep, noOfHits, null);
+    }
+
     public static BreakPointDTO[] createBreakNodeLocations(String packagePath, String fileName, int... lineNos) {
         BreakPointDTO[] breakPointDTOS = new BreakPointDTO[lineNos.length];
         int i = 0;

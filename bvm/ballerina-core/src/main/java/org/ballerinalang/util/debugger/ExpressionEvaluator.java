@@ -45,7 +45,7 @@ public class ExpressionEvaluator {
     private static final String RESULTS = "results";
     private static final String SUCCESS = "success";
     private static final String FAILURE = "failure";
-    private static final String INTERNAL_ERROR  = "{ \"status\": \"failure\", \"results\": \"internal error\" }";
+    private static final String INTERNAL_ERROR  = "{\"status\":\"failure\", \"results\":\"internal error\"}";
 
     /**
      * Method to evaluate a variable.
