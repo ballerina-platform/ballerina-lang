@@ -39,14 +39,14 @@ import org.wso2.transport.http.netty.message.Http2Reset;
  */
 public class ClientFrameListener extends Http2EventAdapter {
 
-    private static final Logger log = LoggerFactory.getLogger(ClientFrameListener.class);
+    private static final Logger LOG = LoggerFactory.getLogger(ClientFrameListener.class);
 
     private Http2ClientChannel http2ClientChannel;
 
     @Override
     public int onDataRead(ChannelHandlerContext ctx, int streamId, ByteBuf data, int padding, boolean endOfStream) {
-        if (log.isDebugEnabled()) {
-            log.debug("Reading data on channel: {} with stream id: {}, isEndOfStream: {}", http2ClientChannel, streamId,
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("Reading data on channel: {} with stream id: {}, isEndOfStream: {}", http2ClientChannel, streamId,
                     endOfStream);
         }
 
@@ -70,8 +70,8 @@ public class ClientFrameListener extends Http2EventAdapter {
     @Override
     public void onHeadersRead(ChannelHandlerContext ctx, int streamId, Http2Headers headers, int padding,
                               boolean endStream) {
-        if (log.isDebugEnabled()) {
-            log.debug("Reading Http2 headers on channel: {} with stream id: {}, isEndOfStream: {}", http2ClientChannel,
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("Reading Http2 headers on channel: {} with stream id: {}, isEndOfStream: {}", http2ClientChannel,
                     streamId, endStream);
         }
 
@@ -87,14 +87,14 @@ public class ClientFrameListener extends Http2EventAdapter {
     @Override
     public void onSettingsRead(ChannelHandlerContext ctx, Http2Settings settings)
             throws Http2Exception {
-        log.debug("Http2FrameListenAdapter.onSettingRead()");
+        LOG.debug("Http2FrameListenAdapter.onSettingRead()");
         ctx.fireChannelRead(settings);
         super.onSettingsRead(ctx, settings);
     }
 
     @Override
     public void onRstStreamRead(ChannelHandlerContext ctx, int streamId, long errorCode) {
-        log.warn("RST received on channel: {} for streamId: {} errorCode: {}", http2ClientChannel, streamId, errorCode);
+        LOG.warn("RST received on channel: {} for streamId: {} errorCode: {}", http2ClientChannel, streamId, errorCode);
         Http2Reset http2Reset = new Http2Reset(streamId, Http2Error.valueOf(errorCode));
         ctx.fireChannelRead(http2Reset);
     }
@@ -102,8 +102,8 @@ public class ClientFrameListener extends Http2EventAdapter {
     @Override
     public void onPushPromiseRead(ChannelHandlerContext ctx, int streamId, int promisedStreamId,
                                   Http2Headers headers, int padding) throws Http2Exception {
-        if (log.isDebugEnabled()) {
-            log.debug("Received a push promise on channel: {} over stream id: {}, promisedStreamId: {}",
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("Received a push promise on channel: {} over stream id: {}, promisedStreamId: {}",
                     http2ClientChannel, streamId, promisedStreamId);
         }
         for (Http2DataEventListener listener : http2ClientChannel.getDataEventListeners()) {

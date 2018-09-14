@@ -61,7 +61,7 @@ import java.util.Map;
  */
 public final class Http2SourceHandler extends ChannelInboundHandlerAdapter {
 
-    private static final Logger log = LoggerFactory.getLogger(Http2SourceHandler.class);
+    private static final Logger LOG = LoggerFactory.getLogger(Http2SourceHandler.class);
 
     // streamIdRequestMap contains mapping of http carbon messages vs stream id to support multiplexing
     private Map<Integer, HttpCarbonMessage> streamIdRequestMap = PlatformDependent.newConcurrentHashMap();
@@ -162,7 +162,7 @@ public final class Http2SourceHandler extends ChannelInboundHandlerAdapter {
                     sourceReqCMsg.addHttpContent(new DefaultHttpContent(data));
                 }
             } else {
-                log.warn("Inconsistent state detected : data has received before headers");
+                LOG.warn("Inconsistent state detected : data has received before headers");
             }
         } else {
             ctx.fireChannelRead(msg);
@@ -208,10 +208,10 @@ public final class Http2SourceHandler extends ChannelInboundHandlerAdapter {
                         remoteAddress));
                 serverConnectorFuture.notifyHttpListener(httpRequestMsg);
             } catch (Exception e) {
-                log.error("Error while notifying listeners", e);
+                LOG.error("Error while notifying listeners", e);
             }
         } else {
-            log.error("Cannot find registered listener to forward the message");
+            LOG.error("Cannot find registered listener to forward the message");
         }
     }
 
