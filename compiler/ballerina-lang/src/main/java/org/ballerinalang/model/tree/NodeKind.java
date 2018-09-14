@@ -59,6 +59,7 @@ public enum NodeKind {
     INT_RANGE_EXPR,
     INVOCATION,
     LAMBDA,
+    ARROW_EXPR,
     LITERAL,
     RECORD_LITERAL_EXPR,
     SIMPLE_VARIABLE_REF,
