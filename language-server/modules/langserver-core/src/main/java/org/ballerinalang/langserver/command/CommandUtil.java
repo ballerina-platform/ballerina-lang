@@ -15,6 +15,7 @@
  */
 package org.ballerinalang.langserver.command;
 
+import org.ballerinalang.langserver.common.UtilSymbolKeys;
 import org.ballerinalang.langserver.common.constants.CommandConstants;
 import org.ballerinalang.langserver.common.constants.NodeContextKeys;
 import org.ballerinalang.langserver.common.position.PositionTreeVisitor;
@@ -55,8 +56,8 @@ import org.wso2.ballerinalang.compiler.tree.types.BLangObjectTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangRecordTypeNode;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
+import org.wso2.ballerinalang.util.Flags;
 
-import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -85,7 +86,7 @@ public class CommandUtil {
      * @param line              Line of the command being executed
      * @return {@link Command}  Document Generation command
      */
-    public static Command getDocGenerationCommand(String nodeType, String docUri, int line) {
+    private static Command getDocGenerationCommand(String nodeType, String docUri, int line) {
         CommandArgument nodeTypeArg = new CommandArgument(CommandConstants.ARG_KEY_NODE_TYPE, nodeType);
         CommandArgument docUriArg = new CommandArgument(CommandConstants.ARG_KEY_DOC_URI, docUri);
         CommandArgument lineStart = new CommandArgument(CommandConstants.ARG_KEY_NODE_LINE,
@@ -100,10 +101,37 @@ public class CommandUtil {
      * @param docUri            Document Uri
      * @return {@link Command}  All Document Generation command
      */
-    public static Command getAllDocGenerationCommand(String docUri) {
+    private static Command getAllDocGenerationCommand(String docUri) {
         CommandArgument docUriArg = new CommandArgument(CommandConstants.ARG_KEY_DOC_URI, docUri);
         return new Command(CommandConstants.ADD_ALL_DOC_TITLE, CommandConstants.CMD_ADD_ALL_DOC,
                 new ArrayList<>(Collections.singletonList(docUriArg)));
+    }
+
+    private static Command getConstructorGenerationCommand(String docUri, int line) {
+        CommandArgument docUriArg = new CommandArgument(CommandConstants.ARG_KEY_DOC_URI, docUri);
+        CommandArgument startLineArg = new CommandArgument(CommandConstants.ARG_KEY_NODE_LINE, String.valueOf(line));
+        return new Command(CommandConstants.CREATE_CONSTRUCTOR_TITLE, CommandConstants.CMD_CREATE_CONSTRUCTOR,
+                new ArrayList<>(Arrays.asList(docUriArg, startLineArg)));
+    }
+
+    /**
+     * Get the commands for the given node type.
+     *
+     * @param nodeType          Node Type
+     * @param docUri            Document URI
+     * @param line              Node line
+     * @return {@link List}     List of commands for the line
+     */
+    public static List<Command> getCommandForNodeType(String nodeType, String docUri, int line) {
+        List<Command> commands = new ArrayList<>();
+        
+        if (UtilSymbolKeys.OBJECT_KEYWORD_KEY.equals(nodeType)) {
+            commands.add(getConstructorGenerationCommand(docUri, line));
+        }
+        commands.add(getDocGenerationCommand(nodeType, docUri, line));
+        commands.add(getAllDocGenerationCommand(docUri));
+        
+        return commands;
     }
 
     /**
@@ -124,8 +152,7 @@ public class CommandUtil {
             String packageAlias = diagnosticMessage.substring(diagnosticMessage.indexOf("'") + 1,
                                                               diagnosticMessage.lastIndexOf("'"));
             LSDocument sourceDocument = new LSDocument(params.getTextDocument().getUri());
-            Path openedPath = sourceDocument.getPath();
-            String sourceRoot = LSCompilerUtil.getSourceRoot(openedPath);
+            String sourceRoot = LSCompilerUtil.getSourceRoot(sourceDocument.getPath());
             sourceDocument.setSourceRoot(sourceRoot);
             List<BallerinaPackage> packagesList = new ArrayList<>();
             Stream.of(LSPackageLoader.getSdkPackages(), LSPackageLoader.getHomeRepoPackages())
@@ -182,6 +209,24 @@ public class CommandUtil {
             commands.add(new Command(commandTitle, CommandConstants.CMD_CREATE_VARIABLE, args));
         }
         return commands;
+    }
+
+    /**
+     * Get the object constructor snippet generated from public object fields.
+     *
+     * @param fields            List of Fields
+     * @param baseOffset        Offset of snippet                         
+     * @return {@link String}   Constructor snippet as String
+     */
+    static String getObjectConstructorSnippet(List<BLangVariable> fields, int baseOffset) {
+        List<String> fieldNames = fields.stream()
+                .filter(bField -> ((bField.symbol.flags & Flags.PUBLIC) == Flags.PUBLIC))
+                .map(bField -> bField.getName().getValue())
+                .collect(Collectors.toList());
+        String offsetStr = String.join("", Collections.nCopies(baseOffset, " "));
+
+        return "new(" + String.join(", ", fieldNames) + ") {" + CommonUtil.LINE_SEPARATOR
+                + CommonUtil.LINE_SEPARATOR + offsetStr + "}" + CommonUtil.LINE_SEPARATOR + offsetStr;
     }
 
     private static Set<String> getAllEntries(BLangInvocation functionNode) {
@@ -241,10 +286,6 @@ public class CommandUtil {
         DiagnosticPos functionPos =  CommonUtil.toZeroBasedPosition((DiagnosticPos) bLangFunction.getPosition());
         int offset = functionPos.getStartColumn();
         List<String> attributes = new ArrayList<>();
-        if (bLangFunction.getReceiver() != null && bLangFunction.getReceiver() instanceof BLangVariable) {
-            BLangVariable receiverNode = (BLangVariable) bLangFunction.getReceiver();
-            attributes.add(getDocumentationAttribute(receiverNode.getName().getValue(), offset));
-        }
         bLangFunction.getParameters().forEach(bLangVariable ->
                         attributes.add(getDocAttributeFromBLangVariable((BLangVariable) bLangVariable, offset)));
         if (((BLangFunction) bLangFunction).symbol.retType.getKind() != TypeKind.NIL) {

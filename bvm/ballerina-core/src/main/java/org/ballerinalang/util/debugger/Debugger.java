@@ -40,8 +40,10 @@ import org.ballerinalang.util.debugger.dto.MessageDTO;
 import org.ballerinalang.util.debugger.dto.VariableDTO;
 import org.ballerinalang.util.debugger.util.DebugMsgUtil;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Semaphore;
+import java.util.stream.Collectors;
 
 
 /**
@@ -169,6 +171,7 @@ public class Debugger {
             case DebugConstants.CMD_SET_POINTS:
                 // we expect { "command": "SET_POINTS", points: [{ "fileName": "sample.bal", "lineNumber" : 5 },{...}]}
                 addDebugPoints(command.getPoints());
+                //TODO: Revisit sending acknowledgement message when there's invalid breakpoints
                 sendAcknowledge("Debug points updated");
                 break;
             case DebugConstants.CMD_START:
@@ -188,7 +191,17 @@ public class Debugger {
      * @param breakPointDTOS to be added.
      */
     public void addDebugPoints(List<BreakPointDTO> breakPointDTOS) {
-        debugInfoHolder.addDebugPoints(breakPointDTOS);
+        List<BreakPointDTO> undeployedList = new ArrayList<>(breakPointDTOS);
+        List<BreakPointDTO> deployedList = debugInfoHolder.addDebugPoints(breakPointDTOS);
+        undeployedList.removeAll(deployedList);
+        if (!undeployedList.isEmpty()) {
+            String bPoints = undeployedList.stream()
+                    .map(b -> "{" + b.toString() + "}")
+                    .collect(Collectors.joining(", "));
+            MessageDTO message = new MessageDTO(DebugConstants.CODE_INVALID,
+                                                DebugConstants.MSG_INVALID_BREAKPOINT + "[" + bPoints + "]");
+            clientHandler.sendCustomMsg(message);
+        }
     }
 
     /**
@@ -354,7 +367,8 @@ public class Debugger {
         PackageVarInfo[] packageVarInfoEntries = ctx.programFile.getPackageInfo(ctx.programFile.getEntryPkgName()).
                 getPackageInfoEntries();
         for (PackageVarInfo packVarInfo : packageVarInfoEntries) {
-            if (!packVarInfo.getName().startsWith(META_DATA_VAR_PATTERN)) {
+            // TODO: Need to change the 'contains' logic, if we allow user-defined variable names to have '$'
+            if (!packVarInfo.getName().contains(META_DATA_VAR_PATTERN)) {
                 VariableDTO variableDTO = new VariableDTO(packVarInfo.getName(), GLOBAL);
                 switch (packVarInfo.getType().getTag()) {
                     case TypeTags.INT_TAG:
@@ -390,32 +404,35 @@ public class Debugger {
                 getAttributeInfo(AttributeInfo.Kind.LOCAL_VARIABLES_ATTRIBUTE);
 
         localVarAttrInfo.getLocalVariables().forEach(l -> {
-            VariableDTO variableDTO = new VariableDTO(l.getVariableName(), LOCAL);
-            switch (l.getVariableType().getTag()) {
-                case TypeTags.INT_TAG:
-                    variableDTO.setBValue(new BInteger(ctx.workerLocal.longRegs[l.getVariableIndex()]));
-                    break;
-                case TypeTags.BYTE_TAG:
-                    variableDTO.setBValue(new BByte((byte) ctx.workerLocal.intRegs[l.getVariableIndex()]));
-                    break;
-                case TypeTags.FLOAT_TAG:
-                    variableDTO.setBValue(new BFloat(ctx.workerLocal.doubleRegs[l.getVariableIndex()]));
-                    break;
-                case TypeTags.STRING_TAG:
-                    variableDTO.setBValue(new BString(ctx.workerLocal.stringRegs[l.getVariableIndex()]));
-                    break;
-                case TypeTags.BOOLEAN_TAG:
-                    variableDTO.setBValue(new BBoolean(ctx.workerLocal.intRegs[l.getVariableIndex()] == 1));
-                    break;
-                default:
-                    variableDTO.setBValue(ctx.workerLocal.refRegs[l.getVariableIndex()]);
-                    break;
-            }
+            // TODO: Need to change the 'contains' logic, if we allow user-defined variable names to have '$'
+            if (!l.getVariableName().contains(META_DATA_VAR_PATTERN)) {
+                VariableDTO variableDTO = new VariableDTO(l.getVariableName(), LOCAL);
+                switch (l.getVariableType().getTag()) {
+                    case TypeTags.INT_TAG:
+                        variableDTO.setBValue(new BInteger(ctx.workerLocal.longRegs[l.getVariableIndex()]));
+                        break;
+                    case TypeTags.BYTE_TAG:
+                        variableDTO.setBValue(new BByte((byte) ctx.workerLocal.intRegs[l.getVariableIndex()]));
+                        break;
+                    case TypeTags.FLOAT_TAG:
+                        variableDTO.setBValue(new BFloat(ctx.workerLocal.doubleRegs[l.getVariableIndex()]));
+                        break;
+                    case TypeTags.STRING_TAG:
+                        variableDTO.setBValue(new BString(ctx.workerLocal.stringRegs[l.getVariableIndex()]));
+                        break;
+                    case TypeTags.BOOLEAN_TAG:
+                        variableDTO.setBValue(new BBoolean(ctx.workerLocal.intRegs[l.getVariableIndex()] == 1));
+                        break;
+                    default:
+                        variableDTO.setBValue(ctx.workerLocal.refRegs[l.getVariableIndex()]);
+                        break;
+                }
 
-            // Show only the variables within the current scope
-            if ((l.getScopeStartLineNumber() < callingLine.getLineNumber()) &&
-                    (callingLine.getLineNumber() <= l.getScopeEndLineNumber())) {
-                frameDTO.addVariable(variableDTO);
+                // Show only the variables within the current scope
+                if ((l.getScopeStartLineNumber() < callingLine.getLineNumber()) &&
+                        (callingLine.getLineNumber() <= l.getScopeEndLineNumber())) {
+                    frameDTO.addVariable(variableDTO);
+                }
             }
         });
         return message;

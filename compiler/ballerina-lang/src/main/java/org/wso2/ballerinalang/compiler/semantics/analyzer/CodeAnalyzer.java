@@ -51,6 +51,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangWorker;
 import org.wso2.ballerinalang.compiler.tree.BLangXMLNS;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrayLiteral;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrowFunction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangAwaitExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBracedOrTupleExpr;
@@ -143,6 +144,8 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.Stack;
 
+import static org.wso2.ballerinalang.compiler.util.Constants.MAIN_FUNCTION_NAME;
+
 /**
  * This represents the code analyzing pass of semantic analysis.
  * <p>
@@ -153,8 +156,6 @@ import java.util.Stack;
  * (*) Worker send/receive validation.
  */
 public class CodeAnalyzer extends BLangNodeVisitor {
-
-    private static final String MAIN_FUNC_NAME = "main";
 
     private static final CompilerContext.Key<CodeAnalyzer> CODE_ANALYZER_KEY =
             new CompilerContext.Key<>();
@@ -260,6 +261,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         }
         this.returnWithintransactionCheckStack.push(true);
         this.doneWithintransactionCheckStack.push(true);
+        this.validateMainFunction(funcNode);
         SymbolEnv funcEnv = SymbolEnv.createFunctionEnv(funcNode, funcNode.symbol.scope, env);
         this.visitInvocable(funcNode, funcEnv);
         this.returnWithintransactionCheckStack.pop();
@@ -986,6 +988,10 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         /* ignore */
     }
 
+    public void visit(BLangArrowFunction bLangArrowFunction) {
+        /* ignore */
+    }
+
     public void visit(BLangXMLAttributeAccess xmlAttributeAccessExpr) {
         analyzeExpr(xmlAttributeAccessExpr.expr);
         analyzeExpr(xmlAttributeAccessExpr.indexExpr);
@@ -1277,6 +1283,19 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     private boolean isValidTransactionBlock() {
         return (this.transactionWithinHandlerCheckStack.empty() || !this.transactionWithinHandlerCheckStack.peek()) &&
                 !this.withinRetryBlock;
+    }
+
+    private void validateMainFunction(BLangFunction funcNode) {
+        if (!MAIN_FUNCTION_NAME.equals(funcNode.name.value)) {
+            return;
+        }
+        if (!Symbols.isPublic(funcNode.symbol)) {
+            this.dlog.error(funcNode.pos, DiagnosticCode.MAIN_SHOULD_BE_PUBLIC);
+        }
+        if (!(funcNode.symbol.retType.tag == TypeTags.NIL || funcNode.symbol.retType.tag == TypeTags.INT)) {
+            this.dlog.error(funcNode.returnTypeNode.pos, DiagnosticCode.INVALID_RETURN_WITH_MAIN,
+                            funcNode.symbol.retType);
+        }
     }
 
     private void checkDuplicateNamedArgs(List<BLangExpression> args) {

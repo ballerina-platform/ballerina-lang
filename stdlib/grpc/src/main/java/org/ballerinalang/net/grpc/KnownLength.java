@@ -30,6 +30,7 @@ public interface KnownLength {
      * Returns the total number of bytes that can be read.
      *
      * @return readable byte count.
+     * @throws IOException fail when check availability
      */
     int available() throws IOException;
 }

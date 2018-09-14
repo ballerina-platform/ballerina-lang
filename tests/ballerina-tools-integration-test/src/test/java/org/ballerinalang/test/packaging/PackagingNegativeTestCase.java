@@ -181,6 +181,22 @@ public class PackagingNegativeTestCase extends BaseTest {
                 new LogLeecher[]{new LogLeecher(msg)}, projectPath.toString());
     }
 
+    @Test(description = "Test pushing a package without Ballerina.toml in the project directory")
+    public void testPushWithoutBallerinaToml() throws Exception {
+        Path projectPath = tempProjectDirectory.resolve("projectWithoutToml");
+        initProject(projectPath);
+
+        // Remove Ballerina.toml
+        Files.deleteIfExists(projectPath.resolve("Ballerina.toml"));
+
+        String msg = "ballerina: couldn't locate Ballerina.toml in the project directory. Run 'ballerina init' to " +
+                "create the Ballerina.toml file automatically and re-run the 'ballerina push' command";
+
+        String[] clientArgs = {packageName};
+        balClient.runMain("push", clientArgs, envVariables, new String[0],
+                          new LogLeecher[]{new LogLeecher(msg)}, projectPath.toString());
+    }
+
     @Test(description = "Test search without keywords")
     public void testSearchWithoutKeyWords() throws Exception {
         String msg = "ballerina: no keyword given";
@@ -239,6 +255,41 @@ public class PackagingNegativeTestCase extends BaseTest {
         String msg = "ballerina: too many arguments\n Run 'ballerina help' for usage.";
         balClient.runMain("list", new String[] {"wso2", "twitter"}, envVariables, new String[0],
                 new LogLeecher[]{new LogLeecher(msg)}, balServer.getServerHome());
+    }
+
+    @Test(description = "Test uninstall without any arguments")
+    public void testUninstallWithoutArgs() throws Exception {
+        String msg = "ballerina: no package given";
+        balClient.runMain("uninstall", new String[0], envVariables, new String[0],
+                          new LogLeecher[]{new LogLeecher(msg)}, balServer.getServerHome());
+    }
+
+    @Test(description = "Test uninstall with too many arguments")
+    public void testUninstallWithTooManyArgs() throws Exception {
+        String msg = "ballerina: too many arguments\n Run 'ballerina help' for usage.";
+        balClient.runMain("uninstall", new String[] {"integrationtests", "testxyz"}, envVariables, new String[0],
+                          new LogLeecher[]{new LogLeecher(msg)}, balServer.getServerHome());
+    }
+
+    @Test(description = "Test uninstall without an org-name")
+    public void testUninstallWithoutOrg() throws Exception {
+        String msg = "error: no org-name is provided";
+        balClient.runMain("uninstall", new String[] {"testxyz"}, envVariables, new String[0],
+                          new LogLeecher[]{new LogLeecher(msg)}, balServer.getServerHome());
+    }
+
+    @Test(description = "Test uninstall without a version")
+    public void testUninstallWithoutVersion() throws Exception {
+        String msg = "error: no package version is provided";
+        balClient.runMain("uninstall", new String[] {"integrationtests/testxyz"}, envVariables, new String[0],
+                          new LogLeecher[]{new LogLeecher(msg)}, balServer.getServerHome());
+    }
+
+    @Test(description = "Test uninstall with a non-existing package")
+    public void testUninstallWithNonExistingPackage() throws Exception {
+        String msg = "error: incorrect package signature provided integrationtests/testxyz:1.1.0";
+        balClient.runMain("uninstall", new String[] {"integrationtests/testxyz:1.1.0"}, envVariables, new String[0],
+                          new LogLeecher[]{new LogLeecher(msg)}, balServer.getServerHome());
     }
 
     @Test(description = "Test push without any packages in the project")

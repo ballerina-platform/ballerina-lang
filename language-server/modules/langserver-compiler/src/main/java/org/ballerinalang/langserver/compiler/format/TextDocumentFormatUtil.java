@@ -76,10 +76,11 @@ public class TextDocumentFormatUtil {
      * Get the AST for the current text document's content.
      *
      * @param uri             File path as a URI
-     * @param lsCompiler
+     * @param lsCompiler Language server compiler
      * @param documentManager Workspace document manager instance
      * @param context         Document formatting context
      * @return {@link JsonObject}   AST as a Json Object
+     * @throws JSONGenerationException when AST build fails
      */
     public static JsonObject getAST(String uri, LSCompiler lsCompiler,
                                     WorkspaceDocumentManager documentManager, LSContext context)
@@ -112,6 +113,7 @@ public class TextDocumentFormatUtil {
      * @param node        Node to get the json representation
      * @param anonStructs Map of anonymous structs
      * @return {@link JsonElement}          Json Representation of the node
+     * @throws JSONGenerationException when Json error occurs
      */
     public static JsonElement generateJSON(Node node, Map<String, Node> anonStructs) throws JSONGenerationException {
         if (node == null) {
