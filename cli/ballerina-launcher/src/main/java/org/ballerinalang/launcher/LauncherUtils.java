@@ -203,7 +203,7 @@ public class LauncherUtils {
         return launcherException;
     }
 
-    static BLauncherException createLauncherException(String errorMsg) {
+    public static BLauncherException createLauncherException(String errorMsg) {
         BLauncherException launcherException = new BLauncherException();
         launcherException.addMessage(errorMsg);
         return launcherException;
