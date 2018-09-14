@@ -31,6 +31,7 @@ public type BrokerURLConfig record {
     string clientID = "ballerina",
     string virtualHost = "default",
     ServiceSecureSocket? secureSocket,
+    !...
 };
 
 # Configurations related to TLS
@@ -42,6 +43,7 @@ public type ServiceSecureSocket record {
     Store? trustStore,
     Store? keyStore,
     string sslCertAlias,
+    !...
 };
 
 #
@@ -50,6 +52,7 @@ public type ServiceSecureSocket record {
 public type Store record {
     string path,
     string password,
+    !...
 };
 
 function generateBrokerURL(BrokerURLConfig config) returns string {

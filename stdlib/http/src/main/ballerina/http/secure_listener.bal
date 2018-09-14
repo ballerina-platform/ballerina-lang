@@ -81,6 +81,7 @@ public type SecureEndpointConfiguration record {
     int timeoutMillis = DEFAULT_LISTENER_TIMEOUT,
     int maxPipelinedRequests = MAX_PIPELINED_REQUESTS,
     AuthProvider[]? authProviders,
+    !...
 };
 
 # Configuration for authentication providers.
@@ -114,6 +115,7 @@ public type AuthProvider record {
     int expTime,
     string signingAlg,
     boolean propagateToken,
+    !...
 };
 
 function SecureListener::init(SecureEndpointConfiguration c) {
