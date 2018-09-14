@@ -182,27 +182,8 @@ public class Http2OutboundRespListener implements HttpConnectorListener {
                 http2MessageStateContext = new Http2MessageStateContext();
                 http2MessageStateContext.setListenerState(new EntityBodyReceived(http2MessageStateContext));
             }
-            http2MessageStateContext.getListenerState().writeOutboundResponseBody(this, outboundResponseMsg, httpContent);
-
-//            if (!isHeaderWritten) {
-//                writeHeaders(outboundResponseMsg);
-//            }
-//            if (Util.isLastHttpContent(httpContent)) {
-//                final LastHttpContent lastContent = (LastHttpContent) httpContent;
-//                HttpHeaders trailers = lastContent.trailingHeaders();
-//                if (serverChannelInitializer.isHttpAccessLogEnabled()) {
-//                    logAccessInfo(outboundResponseMsg);
-//                }
-//                boolean endStream = trailers.isEmpty();
-//                writeData(lastContent, endStream);
-//                if (!trailers.isEmpty()) {
-//                    Http2Headers http2Trailers = HttpConversionUtil.toHttp2Headers(trailers, true);
-//                    // Write trailing headers.
-//                    writeHttp2Headers(ctx, streamId, http2Trailers, true);
-//                }
-//            } else {
-//                writeData(httpContent, false);
-//            }
+            http2MessageStateContext.getListenerState()
+                    .writeOutboundResponseBody(this, outboundResponseMsg, httpContent);
         }
 
         public void writeContent(HttpCarbonMessage outboundResponseMsg, HttpContent httpContent) throws Http2Exception {
@@ -229,7 +210,6 @@ public class Http2OutboundRespListener implements HttpConnectorListener {
 
         void writeHttp2Headers(ChannelHandlerContext ctx, int streamId, Http2Headers http2Headers, boolean
                 endStream) throws Http2Exception {
-
             ChannelFuture channelFuture = encoder.writeHeaders(
                     ctx, streamId, http2Headers, 0, endStream, ctx.newPromise());
             encoder.flowController().writePendingBytes();

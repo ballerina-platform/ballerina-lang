@@ -131,50 +131,11 @@ public final class Http2SourceHandler extends ChannelInboundHandlerAdapter {
             Http2MessageStateContext http2MessageStateContext = new Http2MessageStateContext();
             http2MessageStateContext.setListenerState(new ReceivingHeaders(this, http2MessageStateContext));
             http2MessageStateContext.getListenerState().readInboundRequestHeaders(headersFrame);
-
-//            Http2HeadersFrame headersFrame = (Http2HeadersFrame) msg;
-//            int streamId = headersFrame.getStreamId();
-//
-//            if (headersFrame.isEndOfStream()) {
-//                // Retrieve HTTP request and add last http content with trailer headers.
-//                HttpCarbonMessage sourceReqCMsg = streamIdRequestMap.get(streamId);
-//                if (sourceReqCMsg != null) {
-//                    readTrailerHeaders(streamId, headersFrame.getHeaders(), sourceReqCMsg);
-//                    streamIdRequestMap.remove(streamId);
-//                } else if (headersFrame.getHeaders().contains(Constants.HTTP2_METHOD)) {
-//                    // if the header frame is an initial header frame and also it has endOfStream
-//                    sourceReqCMsg = setupHttp2CarbonMsg(headersFrame.getHeaders(), streamId);
-//                    // Add empty last http content if no data frames available in the http request
-//                    sourceReqCMsg.addHttpContent(new DefaultLastHttpContent());
-//                    notifyRequestListener(sourceReqCMsg, streamId);
-//                }
-//            } else {
-//                // Construct new HTTP Request
-//                HttpCarbonMessage sourceReqCMsg = setupHttp2CarbonMsg(headersFrame.getHeaders(), streamId);
-//                streamIdRequestMap.put(streamId, sourceReqCMsg);   // storing to add HttpContent later
-//                notifyRequestListener(sourceReqCMsg, streamId);
-//            }
-
         } else if (msg instanceof Http2DataFrame) {
             Http2DataFrame dataFrame = (Http2DataFrame) msg;
             int streamId = dataFrame.getStreamId();
             HttpCarbonMessage sourceReqCMsg = streamIdRequestMap.get(streamId);
             sourceReqCMsg.getHttp2MessageStateContext().getListenerState().readInboundRequestBody(dataFrame);
-
-//            Http2DataFrame dataFrame = (Http2DataFrame) msg;
-//            int streamId = dataFrame.getStreamId();
-//            ByteBuf data = dataFrame.getData();
-//            HttpCarbonMessage sourceReqCMsg = streamIdRequestMap.get(streamId);
-//            if (sourceReqCMsg != null) {
-//                if (dataFrame.isEndOfStream()) {
-//                    sourceReqCMsg.addHttpContent(new DefaultLastHttpContent(data));
-//                    streamIdRequestMap.remove(streamId);
-//                } else {
-//                    sourceReqCMsg.addHttpContent(new DefaultHttpContent(data));
-//                }
-//            } else {
-//                log.warn("Inconsistent state detected : data has received before headers");
-//            }
         } else {
             ctx.fireChannelRead(msg);
         }
