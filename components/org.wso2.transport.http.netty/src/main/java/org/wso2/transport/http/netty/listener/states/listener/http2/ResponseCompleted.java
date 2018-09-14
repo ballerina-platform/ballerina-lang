@@ -62,13 +62,11 @@ public class ResponseCompleted implements ListenerState {
     }
 
     @Override
-    public void writeOutboundResponseBody(Http2OutboundRespListener http2OutboundRespListener,
-                                          Http2OutboundRespListener.ResponseWriter responseWriter,
+    public void writeOutboundResponseBody(Http2OutboundRespListener.ResponseWriter responseWriter,
                                           HttpCarbonMessage outboundResponseMsg, HttpContent httpContent)
             throws Http2Exception {
         // Invoking this method means, promised message is going to be sent after the response has been sent.
-        http2MessageStateContext.setListenerState(
-                new SendingHeaders(http2OutboundRespListener, http2MessageStateContext));
+        http2MessageStateContext.setListenerState(new SendingHeaders());
         http2MessageStateContext.getListenerState()
                 .writeOutboundResponseHeaders(responseWriter, outboundResponseMsg, httpContent);
     }

@@ -62,8 +62,7 @@ public class ReceivingEntityBody implements ListenerState {
             if (dataFrame.isEndOfStream()) {
                 sourceReqCMsg.addHttpContent(new DefaultLastHttpContent(data));
                 http2SourceHandler.streamIdRequestMap.remove(streamId);
-                http2MessageStateContext.setListenerState(
-                        new EntityBodyReceived(http2SourceHandler, http2MessageStateContext));
+                http2MessageStateContext.setListenerState(new EntityBodyReceived(http2MessageStateContext));
             } else {
                 sourceReqCMsg.addHttpContent(new DefaultHttpContent(data));
             }
@@ -79,12 +78,10 @@ public class ReceivingEntityBody implements ListenerState {
     }
 
     @Override
-    public void writeOutboundResponseBody(Http2OutboundRespListener http2OutboundRespListener,
-                                          Http2OutboundRespListener.ResponseWriter responseWriter,
+    public void writeOutboundResponseBody(Http2OutboundRespListener.ResponseWriter responseWriter,
                                           HttpCarbonMessage outboundResponseMsg, HttpContent httpContent)
             throws Http2Exception {
-        http2MessageStateContext.setListenerState(
-                new SendingHeaders(http2OutboundRespListener, http2MessageStateContext));
+        http2MessageStateContext.setListenerState(new SendingHeaders());
         http2MessageStateContext.getListenerState()
                 .writeOutboundResponseHeaders(responseWriter, outboundResponseMsg, httpContent);
     }

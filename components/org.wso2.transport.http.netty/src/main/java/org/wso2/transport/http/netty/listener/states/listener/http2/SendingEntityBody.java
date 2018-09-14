@@ -55,8 +55,7 @@ public class SendingEntityBody implements ListenerState {
     }
 
     @Override
-    public void writeOutboundResponseBody(Http2OutboundRespListener http2OutboundRespListener,
-                                          Http2OutboundRespListener.ResponseWriter responseWriter,
+    public void writeOutboundResponseBody(Http2OutboundRespListener.ResponseWriter responseWriter,
                                           HttpCarbonMessage outboundResponseMsg, HttpContent httpContent)
             throws Http2Exception {
         responseWriter.writeContent(outboundResponseMsg, httpContent);

@@ -22,7 +22,6 @@ import io.netty.handler.codec.http2.Http2Exception;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.transport.http.netty.contractimpl.Http2OutboundRespListener;
-import org.wso2.transport.http.netty.listener.http2.Http2SourceHandler;
 import org.wso2.transport.http.netty.listener.states.Http2MessageStateContext;
 import org.wso2.transport.http.netty.message.Http2DataFrame;
 import org.wso2.transport.http.netty.message.Http2HeadersFrame;
@@ -34,12 +33,9 @@ import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 public class EntityBodyReceived implements ListenerState {
 
     private static Logger log = LoggerFactory.getLogger(EntityBodyReceived.class);
-    private final Http2SourceHandler http2SourceHandler;
     private final Http2MessageStateContext http2MessageStateContext;
 
-    public EntityBodyReceived(Http2SourceHandler http2SourceHandler,
-                              Http2MessageStateContext http2MessageStateContext) {
-        this.http2SourceHandler = http2SourceHandler;
+    public EntityBodyReceived(Http2MessageStateContext http2MessageStateContext) {
         this.http2MessageStateContext = http2MessageStateContext;
     }
 
@@ -60,12 +56,10 @@ public class EntityBodyReceived implements ListenerState {
     }
 
     @Override
-    public void writeOutboundResponseBody(Http2OutboundRespListener http2OutboundRespListener,
-                                          Http2OutboundRespListener.ResponseWriter responseWriter,
+    public void writeOutboundResponseBody(Http2OutboundRespListener.ResponseWriter responseWriter,
                                           HttpCarbonMessage outboundResponseMsg, HttpContent httpContent)
             throws Http2Exception {
-        http2MessageStateContext.setListenerState(
-                new SendingHeaders(http2OutboundRespListener, http2MessageStateContext));
+        http2MessageStateContext.setListenerState(new SendingHeaders());
         http2MessageStateContext.getListenerState()
                 .writeOutboundResponseHeaders(responseWriter, outboundResponseMsg, httpContent);
     }

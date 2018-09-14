@@ -86,12 +86,10 @@ public class ReceivingHeaders implements ListenerState {
     }
 
     @Override
-    public void writeOutboundResponseBody(Http2OutboundRespListener http2OutboundRespListener,
-                                          Http2OutboundRespListener.ResponseWriter responseWriter,
+    public void writeOutboundResponseBody(Http2OutboundRespListener.ResponseWriter responseWriter,
                                           HttpCarbonMessage outboundResponseMsg, HttpContent httpContent)
             throws Http2Exception {
-        http2MessageStateContext.setListenerState(
-                new SendingHeaders(http2OutboundRespListener, http2MessageStateContext));
+        http2MessageStateContext.setListenerState(new SendingHeaders());
         http2MessageStateContext.getListenerState()
                 .writeOutboundResponseHeaders(responseWriter, outboundResponseMsg, httpContent);
     }

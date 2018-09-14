@@ -180,11 +180,9 @@ public class Http2OutboundRespListener implements HttpConnectorListener {
                 throws Http2Exception {
             if (http2MessageStateContext == null) {
                 http2MessageStateContext = new Http2MessageStateContext();
-                http2MessageStateContext.setListenerState(
-                        new EntityBodyReceived(http2SourceHandler, http2MessageStateContext));
+                http2MessageStateContext.setListenerState(new EntityBodyReceived(http2MessageStateContext));
             }
-            http2MessageStateContext.getListenerState().writeOutboundResponseBody(
-                    Http2OutboundRespListener.this, this, outboundResponseMsg, httpContent);
+            http2MessageStateContext.getListenerState().writeOutboundResponseBody(this, outboundResponseMsg, httpContent);
 
 //            if (!isHeaderWritten) {
 //                writeHeaders(outboundResponseMsg);
