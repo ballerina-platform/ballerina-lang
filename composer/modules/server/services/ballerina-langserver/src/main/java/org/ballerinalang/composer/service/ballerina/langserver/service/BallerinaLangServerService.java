@@ -24,6 +24,7 @@ import org.ballerinalang.composer.server.spi.ServiceInfo;
 import org.ballerinalang.composer.server.spi.ServiceType;
 import org.ballerinalang.composer.service.ballerina.langserver.Constants;
 import org.ballerinalang.langserver.BallerinaLanguageServer;
+import org.ballerinalang.langserver.client.ExtendedLanguageClient;
 import org.ballerinalang.langserver.compiler.workspace.ExtendedWorkspaceDocumentManagerImpl;
 import org.ballerinalang.langserver.compiler.workspace.WorkspaceDocumentManager;
 import org.eclipse.lsp4j.jsonrpc.Launcher;
@@ -71,7 +72,7 @@ public class BallerinaLangServerService implements ComposerService {
 
     private final WorkspaceDocumentManager documentManager = ExtendedWorkspaceDocumentManagerImpl.getInstance();
     private final BallerinaLanguageServer server = new BallerinaLanguageServer(documentManager);
-    private Launcher<LanguageClient> launcher;
+    private Launcher<ExtendedLanguageClient> launcher;
 
     @OnOpen
     public void onOpen (Session session) {
@@ -79,8 +80,8 @@ public class BallerinaLangServerService implements ComposerService {
         if (launcher != null) {
             return;
         }
-        this.launcher = this.launchRPCServer(server, LanguageClient.class);
-        LanguageClient client = launcher.getRemoteProxy();
+        this.launcher = this.launchRPCServer(server, ExtendedLanguageClient.class);
+        ExtendedLanguageClient client = launcher.getRemoteProxy();
         server.connect(client);
         Future<?> startListening = launcher.startListening();
         try {
