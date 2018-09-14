@@ -46,7 +46,7 @@ import static org.wso2.transport.http.netty.common.Util.safelyRemoveHandlers;
  */
 public class Http2SourceConnectionHandler extends Http2ConnectionHandler {
 
-    private static final Logger log = LoggerFactory.getLogger(Http2SourceConnectionHandler.class);
+    private static final Logger LOG = LoggerFactory.getLogger(Http2SourceConnectionHandler.class);
 
     private Http2FrameListener http2FrameListener;
     private Http2ConnectionEncoder encoder;
@@ -94,7 +94,7 @@ public class Http2SourceConnectionHandler extends Http2ConnectionHandler {
         Http2Exception embedded = getEmbeddedHttp2Exception(cause);
         if (embedded instanceof Http2Exception.ClosedStreamCreationException) {
             // We will end up here if we try to write to a already rejected stream
-            log.warn("Stream creation failed, {}, {}", Constants.PROMISED_STREAM_REJECTED_ERROR, embedded.getMessage());
+            LOG.warn("Stream creation failed, {}, {}", Constants.PROMISED_STREAM_REJECTED_ERROR, embedded.getMessage());
         } else {
             super.onError(ctx, cause);
         }

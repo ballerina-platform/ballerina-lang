@@ -43,6 +43,8 @@ import java.util.concurrent.atomic.AtomicInteger;
  */
 public class Http2ClientChannel {
 
+    private static final Logger LOG = LoggerFactory.getLogger(Http2ClientChannel.class);
+
     private ConcurrentHashMap<Integer, OutboundMsgHolder> inFlightMessages;
     private ConcurrentHashMap<Integer, OutboundMsgHolder> promisedMessages;
     private Channel channel;
@@ -57,8 +59,6 @@ public class Http2ClientChannel {
     private int socketIdleTimeout = Constants.ENDPOINT_TIMEOUT;
     private Map<String, Http2DataEventListener> dataEventListeners;
     private StreamCloseListener streamCloseListener;
-
-    private static final Logger log = LoggerFactory.getLogger(Http2ClientChannel.class);
 
     public Http2ClientChannel(Http2ConnectionManager http2ConnectionManager, Http2Connection connection,
                               HttpRoute httpRoute, Channel channel) {
@@ -125,8 +125,8 @@ public class Http2ClientChannel {
      * @param inFlightMessage {@link OutboundMsgHolder} which holds the in-flight message
      */
     public void putInFlightMessage(int streamId, OutboundMsgHolder inFlightMessage) {
-        if (log.isDebugEnabled()) {
-            log.debug("In flight message added to channel: {} with stream id: {}  ", this, streamId);
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("In flight message added to channel: {} with stream id: {}  ", this, streamId);
         }
         inFlightMessages.put(streamId, inFlightMessage);
     }
@@ -138,8 +138,8 @@ public class Http2ClientChannel {
      * @return in-flight message associated with the a particular stream id
      */
     public OutboundMsgHolder getInFlightMessage(int streamId) {
-        if (log.isDebugEnabled()) {
-            log.debug("Getting in flight message for stream id: {} from channel: {}", streamId, this);
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("Getting in flight message for stream id: {} from channel: {}", streamId, this);
         }
         return inFlightMessages.get(streamId);
     }
@@ -150,8 +150,8 @@ public class Http2ClientChannel {
      * @param streamId stream id
      */
     void removeInFlightMessage(int streamId) {
-        if (log.isDebugEnabled()) {
-            log.debug("In flight message for stream id: {} removed from channel: {}", streamId, this);
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("In flight message for stream id: {} removed from channel: {}", streamId, this);
         }
         inFlightMessages.remove(streamId);
     }

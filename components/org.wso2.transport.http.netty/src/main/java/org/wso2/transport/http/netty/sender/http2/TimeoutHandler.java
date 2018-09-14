@@ -42,7 +42,7 @@ import java.util.concurrent.TimeUnit;
  */
 public class TimeoutHandler implements Http2DataEventListener {
 
-    private static final Logger log = LoggerFactory.getLogger(TimeoutHandler.class);
+    private static final Logger LOG = LoggerFactory.getLogger(TimeoutHandler.class);
     private static final long MIN_TIMEOUT_NANOS = TimeUnit.MILLISECONDS.toNanos(1);
 
     private long idleTimeNanos;
@@ -138,7 +138,7 @@ public class TimeoutHandler implements Http2DataEventListener {
         if (msgHolder != null) {
             msgHolder.setLastReadWriteTime(ticksInNanos());
         } else {
-            log.debug("OutboundMsgHolder may have already removed for streamId: {}", streamId);
+            LOG.debug("OutboundMsgHolder may have already removed for streamId: {}", streamId);
         }
     }
 
@@ -184,7 +184,7 @@ public class TimeoutHandler implements Http2DataEventListener {
             lastHttpContent.setDecoderResult(DecoderResult.failure(new DecoderException(
                     Constants.IDLE_TIMEOUT_TRIGGERED_WHILE_READING_INBOUND_RESPONSE_BODY)));
             msgHolder.getResponse().addHttpContent(lastHttpContent);
-            log.warn(Constants.IDLE_TIMEOUT_TRIGGERED_WHILE_READING_INBOUND_RESPONSE_BODY);
+            LOG.warn(Constants.IDLE_TIMEOUT_TRIGGERED_WHILE_READING_INBOUND_RESPONSE_BODY);
         }
 
         private void closeStream(int streamId, ChannelHandlerContext ctx) {

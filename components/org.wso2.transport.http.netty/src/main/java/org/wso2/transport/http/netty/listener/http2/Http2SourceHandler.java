@@ -61,7 +61,7 @@ import java.util.Map;
  */
 public final class Http2SourceHandler extends ChannelInboundHandlerAdapter {
 
-    private static final Logger log = LoggerFactory.getLogger(Http2SourceHandler.class);
+    private static final Logger LOG = LoggerFactory.getLogger(Http2SourceHandler.class);
 
     // streamIdRequestMap contains mapping of http carbon messages vs stream id to support multiplexing
     public Map<Integer, HttpCarbonMessage> streamIdRequestMap = PlatformDependent.newConcurrentHashMap();
@@ -179,10 +179,10 @@ public final class Http2SourceHandler extends ChannelInboundHandlerAdapter {
                         httpRequestMsg, ctx, conn, encoder, streamId, serverName, remoteAddress));
                 serverConnectorFuture.notifyHttpListener(httpRequestMsg);
             } catch (Exception e) {
-                log.error("Error while notifying listeners", e);
+                LOG.error("Error while notifying listeners", e);
             }
         } else {
-            log.error("Cannot find registered listener to forward the message");
+            LOG.error("Cannot find registered listener to forward the message");
         }
     }
 
