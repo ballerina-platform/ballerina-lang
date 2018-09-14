@@ -13,11 +13,9 @@ public class Resolution {
     public static final Resolution NOT_FOUND = new Resolution(null, null, null);
     public final RepoHierarchy resolvedBy;
     public final List<CompilerInput> inputs;
-    public final Repo resolvedRepository;
 
     Resolution(RepoHierarchy resolvedBy, List<CompilerInput> inputs, Repo resolvedRepository) {
         this.resolvedBy = resolvedBy;
         this.inputs = inputs;
-        this.resolvedRepository = resolvedRepository;
     }
 }

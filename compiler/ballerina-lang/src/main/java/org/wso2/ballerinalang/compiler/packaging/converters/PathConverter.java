@@ -3,9 +3,11 @@ package org.wso2.ballerinalang.compiler.packaging.converters;
 import com.sun.nio.zipfs.ZipFileSystem;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.repository.CompilerInput;
+import org.ballerinalang.toml.model.Manifest;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.compiler.util.ProjectDirConstants;
+import org.wso2.ballerinalang.util.TomlParserUtils;
 
 import java.io.IOException;
 import java.nio.file.FileSystem;
@@ -94,7 +96,14 @@ public class PathConverter implements Converter<Path> {
     }
 
     @Override
-    public Stream<CompilerInput> finalize(Path path, PackageID id) {
+    public Stream<CompilerInput> finalize(Path path, PackageID pkgId) {
+        // Set package version if its empty
+        if (pkgId.version.value.isEmpty() && !pkgId.orgName.equals(Names.BUILTIN_ORG)
+                                                                    && !pkgId.orgName.equals(Names.ANON_ORG)) {
+            Manifest manifest = TomlParserUtils.getManifest(root);
+            pkgId.version = new Name(manifest.getVersion());
+        }
+        
         if (Files.isRegularFile(path)) {
             return Stream.of(new FileSystemSourceInput(path));
         } else {

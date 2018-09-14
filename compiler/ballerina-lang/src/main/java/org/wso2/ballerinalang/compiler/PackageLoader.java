@@ -209,11 +209,6 @@ public class PackageLoader {
             return null;
         }
         
-        // If the packages is resolved within the same project, then manifest version is used for package ID.
-        if (pkgId.version.value.isEmpty() && resolution.resolvedRepository instanceof ProjectSourceRepo) {
-            pkgId.version = new Name(manifest.getVersion());
-        }
-        
         CompilerInput firstEntry = resolution.inputs.get(0);
         if (firstEntry.getEntryName().endsWith(PackageEntity.Kind.COMPILED.getExtension())) {
             // Binary package has only one file, so using first entry
