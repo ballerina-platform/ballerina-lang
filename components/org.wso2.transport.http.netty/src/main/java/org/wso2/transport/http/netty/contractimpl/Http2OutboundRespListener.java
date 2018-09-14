@@ -44,7 +44,6 @@ import org.wso2.transport.http.netty.contract.HttpConnectorListener;
 import org.wso2.transport.http.netty.contract.HttpResponseFuture;
 import org.wso2.transport.http.netty.contract.ServerConnectorException;
 import org.wso2.transport.http.netty.listener.HttpServerChannelInitializer;
-import org.wso2.transport.http.netty.listener.http2.Http2SourceHandler;
 import org.wso2.transport.http.netty.listener.states.Http2MessageStateContext;
 import org.wso2.transport.http.netty.listener.states.listener.http2.EntityBodyReceived;
 import org.wso2.transport.http.netty.listener.states.listener.http2.ResponseCompleted;
@@ -67,7 +66,6 @@ public class Http2OutboundRespListener implements HttpConnectorListener {
     private static final InternalLogger accessLogger = InternalLoggerFactory.getInstance(Constants.ACCESS_LOG);
 
     private Http2MessageStateContext http2MessageStateContext;
-    private Http2SourceHandler http2SourceHandler;
     private HttpCarbonMessage inboundRequestMsg;
     private Http2ConnectionEncoder encoder;
     private int originalStreamId;   // stream id of the request received from the client
@@ -80,8 +78,7 @@ public class Http2OutboundRespListener implements HttpConnectorListener {
 
     public ChannelHandlerContext ctx;
 
-    public Http2OutboundRespListener(Http2SourceHandler http2SourceHandler,
-                                     HttpServerChannelInitializer serverChannelInitializer,
+    public Http2OutboundRespListener(HttpServerChannelInitializer serverChannelInitializer,
                                      HttpCarbonMessage inboundRequestMsg, ChannelHandlerContext ctx,
                                      Http2Connection conn, Http2ConnectionEncoder encoder, int streamId,
                                      String serverName, String remoteAddress) {
@@ -97,7 +94,6 @@ public class Http2OutboundRespListener implements HttpConnectorListener {
         }
         this.outboundRespStatusFuture = inboundRequestMsg.getHttpOutboundRespStatusFuture();
         inboundRequestArrivalTime = Calendar.getInstance();
-        this.http2SourceHandler = http2SourceHandler;
         this.http2MessageStateContext = inboundRequestMsg.getHttp2MessageStateContext();
     }
 
@@ -200,8 +196,7 @@ public class Http2OutboundRespListener implements HttpConnectorListener {
                     // Write trailing headers.
                     writeHttp2Headers(ctx, streamId, http2Trailers, true);
                 }
-                http2MessageStateContext.setListenerState(
-                        new ResponseCompleted(http2SourceHandler, http2MessageStateContext));
+                http2MessageStateContext.setListenerState(new ResponseCompleted(http2MessageStateContext));
             } else {
                 writeData(httpContent, false);
                 http2MessageStateContext.setListenerState(new SendingEntityBody());
