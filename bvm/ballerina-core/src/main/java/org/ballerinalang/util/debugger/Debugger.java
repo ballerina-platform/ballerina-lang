@@ -460,7 +460,7 @@ public class Debugger {
                                 packVarInfo.getGlobalMemIndex()));
                         break;
                 }
-                returnvariableDTO;
+                return variableDTO;
             }
 
 

@@ -465,10 +465,11 @@ public class VMDebuggerTest {
         BreakPointDTO[] breakPoints = createBreakNodeLocations(packagePath, file, 5);
 
         List<DebugPoint> debugPoints = new ArrayList<>();
-        debugPoints.add(Util.createDebugPoint(packagePath, file, 5, RESUME, 1));
+        debugPoints.add(Util.createDebugPoint(packagePath, file, 5, RESUME, 1, null));
 
         List<VariableDTO> variables = new ArrayList<>();
-        variables.add(Util.createVariable("self", "Local", createObject("Apple", packagePath)));
+        String objName = "Apple";
+        variables.add(Util.createVariable("self", "Local", createObject(objName, packagePath)));
         ExpectedResults expRes = new ExpectedResults(debugPoints, 1, 0, variables, false);
         VMDebuggerUtil.startDebug("test-src/debugger/multi-package/main.bal", breakPoints, expRes);
     }
