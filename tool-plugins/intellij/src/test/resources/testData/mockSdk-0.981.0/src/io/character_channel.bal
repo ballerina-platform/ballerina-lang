@@ -24,11 +24,11 @@ public type CharacterChannel object {
     documentation {
         Constructs a CharacterChannel from a given ByteChannel and Charset.
 
-        P{{channel}} ByteChannel which would be used to read/write characters
+        P{{byteChannel}} ByteChannel which would be used to read/write characters
         P{{charset}} Character-Set which would be used to encode/decode given bytes to characters
     }
-    public new(channel, charset) {
-        init(channel, charset);
+    public new(byteChannel, charset) {
+        init(byteChannel, charset);
     }
 
     documentation {

@@ -1081,6 +1081,16 @@ public class BLangParserListener extends BallerinaParserBaseListener {
     }
 
     @Override
+    public void exitChannelType(BallerinaParser.ChannelTypeContext ctx) {
+        if (ctx.exception != null) {
+            return;
+        }
+
+        String typeName = ctx.getChild(0).getText();
+        this.pkgBuilder.addConstraintTypeWithTypeName(getCurrentPos(ctx), getWS(ctx), typeName);
+    }
+
+    @Override
     public void exitEndpointType(BallerinaParser.EndpointTypeContext ctx) {
         if (ctx.exception != null) {
             return;
@@ -1559,7 +1569,8 @@ public class BLangParserListener extends BallerinaParserBaseListener {
             return;
         }
 
-        this.pkgBuilder.addWorkerSendStmt(getCurrentPos(ctx), getWS(ctx), ctx.Identifier().getText(), false);
+        this.pkgBuilder.addWorkerSendStmt(getCurrentPos(ctx), getWS(ctx), ctx.Identifier().getText(), false, ctx
+                .expression().size() > 1);
     }
 
     @Override
@@ -1568,7 +1579,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
             return;
         }
 
-        this.pkgBuilder.addWorkerSendStmt(getCurrentPos(ctx), getWS(ctx), "FORK", true);
+        this.pkgBuilder.addWorkerSendStmt(getCurrentPos(ctx), getWS(ctx), "FORK", true, false);
     }
 
     @Override
@@ -1577,7 +1588,8 @@ public class BLangParserListener extends BallerinaParserBaseListener {
             return;
         }
 
-        this.pkgBuilder.addWorkerReceiveStmt(getCurrentPos(ctx), getWS(ctx), ctx.Identifier().getText());
+        this.pkgBuilder.addWorkerReceiveStmt(getCurrentPos(ctx), getWS(ctx), ctx.Identifier().getText(), ctx
+                .expression().size() > 1);
     }
 
     /**
