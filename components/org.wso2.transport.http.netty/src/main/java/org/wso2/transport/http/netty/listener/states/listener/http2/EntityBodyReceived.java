@@ -33,6 +33,7 @@ import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 public class EntityBodyReceived implements ListenerState {
 
     private static final Logger LOG = LoggerFactory.getLogger(EntityBodyReceived.class);
+
     private final Http2MessageStateContext http2MessageStateContext;
 
     public EntityBodyReceived(Http2MessageStateContext http2MessageStateContext) {

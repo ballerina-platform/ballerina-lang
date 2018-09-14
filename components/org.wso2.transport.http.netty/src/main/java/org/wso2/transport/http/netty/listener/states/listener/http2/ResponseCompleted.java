@@ -33,6 +33,7 @@ import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 public class ResponseCompleted implements ListenerState {
 
     private static final Logger LOG = LoggerFactory.getLogger(ResponseCompleted.class);
+
     private final Http2MessageStateContext http2MessageStateContext;
 
     public ResponseCompleted(Http2MessageStateContext http2MessageStateContext) {

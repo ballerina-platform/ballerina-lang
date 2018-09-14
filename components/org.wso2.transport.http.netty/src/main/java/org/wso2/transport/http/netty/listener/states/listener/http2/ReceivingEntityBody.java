@@ -37,6 +37,7 @@ import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 public class ReceivingEntityBody implements ListenerState {
 
     private static final Logger LOG = LoggerFactory.getLogger(ReceivingEntityBody.class);
+
     private final Http2SourceHandler http2SourceHandler;
     private final Http2MessageStateContext http2MessageStateContext;
 
@@ -78,6 +79,8 @@ public class ReceivingEntityBody implements ListenerState {
     @Override
     public void writeOutboundResponseBody(ResponseWriter responseWriter, HttpCarbonMessage outboundResponseMsg,
                                           HttpContent httpContent) throws Http2Exception {
+        // When receiving entity body, if payload is not consumed by the server, this method is invoked if server is
+        // going to send the response back.
         http2MessageStateContext.setListenerState(new SendingHeaders());
         http2MessageStateContext.getListenerState()
                 .writeOutboundResponseHeaders(responseWriter, outboundResponseMsg, httpContent);
