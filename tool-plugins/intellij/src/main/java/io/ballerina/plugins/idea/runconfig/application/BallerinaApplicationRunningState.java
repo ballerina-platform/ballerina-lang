@@ -78,6 +78,7 @@ public class BallerinaApplicationRunningState extends BallerinaRunningState<Ball
         // Find the file in the project. This is needed to find the module. Otherwise if the file is in a sub-module
         // and the SDK for the project is not set, SDK home path will be null.
         PsiFile file = BallerinaPsiImplUtil.findFileInProject(project, myConfiguration.getFilePath());
+
         VirtualFile fileDir = file.getVirtualFile().getParent();
         String rootDir = Paths.get(System.getProperty("user.dir")).getFileSystem().getRootDirectories().iterator()
                 .next().toString();
@@ -110,7 +111,7 @@ public class BallerinaApplicationRunningState extends BallerinaRunningState<Ball
             }
             ballerinaExecutor.withParameters("--sourceroot").withParameters(sourcerootDir).withBallerinaPath(
                     BallerinaSdkService.getInstance(getConfiguration().getProject()).getSdkHomePath(module))
-                    .withParameterString(myConfiguration.getBallerinaToolParams()).withParameters(filePath);
+                    .withParameterString(myConfiguration.getBallerinaToolParams());
         } else {
             ballerinaExecutor = executor.withParameters("run");
 
@@ -120,8 +121,11 @@ public class BallerinaApplicationRunningState extends BallerinaRunningState<Ball
             }
             ballerinaExecutor.withBallerinaPath(
                     BallerinaSdkService.getInstance(getConfiguration().getProject()).getSdkHomePath(module))
-                    .withParameterString(myConfiguration.getBallerinaToolParams()).withParameters(filePath);
+                    .withParameterString(myConfiguration.getBallerinaToolParams());
         }
+
+        // Adds ballerina file/package name after flags.
+        ballerinaExecutor.withParameters(filePath);
 
         return ballerinaExecutor;
     }
@@ -157,8 +161,8 @@ public class BallerinaApplicationRunningState extends BallerinaRunningState<Ball
             if (files != null) {
                 for (File f : files) {
                     //skips the .ballerina folder in the user home directory.
-                    if (f.isDirectory() && !f.getParentFile().getAbsolutePath()
-                            .equals(System.getProperty("user.home")) && f.getName().equals(".ballerina")) {
+                    if (f.isDirectory() && !f.getParentFile().getAbsolutePath().equals(System.getProperty("user.home"))
+                            && f.getName().equals(".ballerina")) {
                         return currentDir.getAbsolutePath();
                     }
                 }
