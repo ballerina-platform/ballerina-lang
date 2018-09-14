@@ -47,7 +47,6 @@ import org.wso2.transport.http.netty.listener.HttpServerChannelInitializer;
 import org.wso2.transport.http.netty.listener.states.Http2MessageStateContext;
 import org.wso2.transport.http.netty.listener.states.listener.http2.EntityBodyReceived;
 import org.wso2.transport.http.netty.listener.states.listener.http2.ResponseCompleted;
-import org.wso2.transport.http.netty.listener.states.listener.http2.SendingEntityBody;
 import org.wso2.transport.http.netty.message.Http2PushPromise;
 import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 
@@ -199,7 +198,6 @@ public class Http2OutboundRespListener implements HttpConnectorListener {
                 http2MessageStateContext.setListenerState(new ResponseCompleted(http2MessageStateContext));
             } else {
                 writeData(httpContent, false);
-                http2MessageStateContext.setListenerState(new SendingEntityBody());
             }
         }
 

@@ -61,7 +61,7 @@ public class ResponseCompleted implements ListenerState {
                                           HttpContent httpContent) throws Http2Exception {
         // When promised response message is going to be sent after the original response or previous promised responses
         // has been sent.
-        http2MessageStateContext.setListenerState(new SendingHeaders());
+        http2MessageStateContext.setListenerState(new SendingHeaders(http2MessageStateContext));
         http2MessageStateContext.getListenerState()
                 .writeOutboundResponseHeaders(responseWriter, outboundResponseMsg, httpContent);
     }

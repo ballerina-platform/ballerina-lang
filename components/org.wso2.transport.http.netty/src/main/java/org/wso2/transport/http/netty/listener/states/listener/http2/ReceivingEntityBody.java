@@ -81,7 +81,7 @@ public class ReceivingEntityBody implements ListenerState {
                                           HttpContent httpContent) throws Http2Exception {
         // When receiving entity body, if payload is not consumed by the server, this method is invoked if server is
         // going to send the response back.
-        http2MessageStateContext.setListenerState(new SendingHeaders());
+        http2MessageStateContext.setListenerState(new SendingHeaders(http2MessageStateContext));
         http2MessageStateContext.getListenerState()
                 .writeOutboundResponseHeaders(responseWriter, outboundResponseMsg, httpContent);
     }

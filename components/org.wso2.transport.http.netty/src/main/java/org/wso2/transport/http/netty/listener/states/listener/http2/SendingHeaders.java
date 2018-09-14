@@ -22,6 +22,7 @@ import io.netty.handler.codec.http2.Http2Exception;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.transport.http.netty.contractimpl.Http2OutboundRespListener.ResponseWriter;
+import org.wso2.transport.http.netty.listener.states.Http2MessageStateContext;
 import org.wso2.transport.http.netty.message.Http2DataFrame;
 import org.wso2.transport.http.netty.message.Http2HeadersFrame;
 import org.wso2.transport.http.netty.message.HttpCarbonMessage;
@@ -32,6 +33,12 @@ import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 public class SendingHeaders implements ListenerState {
 
     private static final Logger LOG = LoggerFactory.getLogger(SendingHeaders.class);
+
+    private final Http2MessageStateContext http2MessageStateContext;
+
+    public SendingHeaders(Http2MessageStateContext http2MessageStateContext) {
+        this.http2MessageStateContext = http2MessageStateContext;
+    }
 
     @Override
     public void readInboundRequestHeaders(Http2HeadersFrame headersFrame) {
@@ -47,7 +54,9 @@ public class SendingHeaders implements ListenerState {
     public void writeOutboundResponseHeaders(ResponseWriter responseWriter, HttpCarbonMessage outboundResponseMsg,
                                              HttpContent httpContent) throws Http2Exception {
         responseWriter.writeHeaders(outboundResponseMsg);
-        responseWriter.writeContent(outboundResponseMsg, httpContent);
+        http2MessageStateContext.setListenerState(new SendingEntityBody());
+        http2MessageStateContext.getListenerState()
+                .writeOutboundResponseBody(responseWriter, outboundResponseMsg, httpContent);
     }
 
     @Override

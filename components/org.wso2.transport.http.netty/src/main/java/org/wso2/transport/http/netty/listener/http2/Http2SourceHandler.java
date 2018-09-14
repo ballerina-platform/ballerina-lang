@@ -175,9 +175,8 @@ public final class Http2SourceHandler extends ChannelInboundHandlerAdapter {
         if (serverConnectorFuture != null) {
             try {
                 ServerConnectorFuture outboundRespFuture = httpRequestMsg.getHttpResponseFuture();
-                outboundRespFuture.setHttpConnectorListener(new Http2OutboundRespListener(this,
-                        serverChannelInitializer, httpRequestMsg, ctx, conn, encoder, streamId, serverName,
-                        remoteAddress));
+                outboundRespFuture.setHttpConnectorListener(new Http2OutboundRespListener(serverChannelInitializer,
+                        httpRequestMsg, ctx, conn, encoder, streamId, serverName, remoteAddress));
                 serverConnectorFuture.notifyHttpListener(httpRequestMsg);
             } catch (Exception e) {
                 log.error("Error while notifying listeners", e);
