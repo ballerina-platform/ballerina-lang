@@ -89,13 +89,18 @@ public class BuildCommand implements BLauncherCmd {
             if (pkgName.endsWith("/")) {
                 pkgName = pkgName.substring(0, pkgName.length() - 1);
             }
+
+            Path sourcePath = Paths.get(pkgName);
+
+            // Normalize the source path to remove './' or '.\' characters that can appear before the name
+            pkgName = sourcePath.normalize().toString();
+
             if (outputFileName != null && !outputFileName.isEmpty()) {
                 targetFileName = outputFileName;
             } else {
                 targetFileName = pkgName;
             }
 
-            Path sourcePath = Paths.get(pkgName);
             Path resolvedFullPath = sourceRootPath.resolve(sourcePath);
             // If the source is a single bal file which is not inside a project
             if (Files.isRegularFile(resolvedFullPath) &&

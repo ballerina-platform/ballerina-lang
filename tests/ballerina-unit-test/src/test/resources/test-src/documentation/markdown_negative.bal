@@ -44,8 +44,8 @@ function File::open (string accessMode) returns (boolean) {
 # + path - file path. Example: `C:\users\OddThinking\Documents\My Source\Widget\foo.src`
 # + path2 - file path. Example: `C:\users\OddThinking\Documents\My Source\Widget\foo.src`
 public type File object {
-    string path;
-    string path3;
+    public string path;
+    public string path3;
 
     public function open(string accessMode) returns boolean;
 };
