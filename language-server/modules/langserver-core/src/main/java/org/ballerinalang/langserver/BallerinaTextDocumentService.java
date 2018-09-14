@@ -376,8 +376,7 @@ class BallerinaTextDocumentService implements TextDocumentService {
                 String topLevelNodeType = CommonUtil
                         .topLevelNodeTypeInLine(params.getTextDocument(), start, documentManager);
                 if (topLevelNodeType != null) {
-                    commands.add(CommandUtil.getDocGenerationCommand(topLevelNodeType, fileUri, start.getLine()));
-                    commands.add(CommandUtil.getAllDocGenerationCommand(fileUri));
+                    commands.addAll(CommandUtil.getCommandForNodeType(topLevelNodeType, fileUri, start.getLine()));
                 }
                 if (!params.getContext().getDiagnostics().isEmpty()) {
                     params.getContext().getDiagnostics().forEach(diagnostic -> {

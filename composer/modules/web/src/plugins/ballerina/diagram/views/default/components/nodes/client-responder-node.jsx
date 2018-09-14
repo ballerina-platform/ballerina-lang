@@ -18,6 +18,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import ClientResponderDecorator from '../decorators/client-responder-decorator';
+import TreeUtil from '../../../../../model/tree-util';
 
 /**
  * Action Invocation Node component. This is a custom component for rendering all statements
@@ -47,11 +48,22 @@ class ClientResponderNode extends React.Component {
      * */
     render() {
         const model = this.props.model;
+        let expression = model.viewState.expression;
+
+        if (model.viewState.isClientResponder) {
+            if (TreeUtil.isExpressionStatement(model)) {
+                expression = TreeUtil.getInvocationSignature(model);
+            } else if (!TreeUtil.isExpressionStatement(model) &&
+                (model.viewState.displayText)) {
+                expression = model.viewState.displayText;
+            }
+        }
 
         return (
             <ClientResponderDecorator
                 model={model}
                 viewState={model.viewState}
+                expression={expression}
                 editorOptions={this.editorOptions}
             />);
     }
