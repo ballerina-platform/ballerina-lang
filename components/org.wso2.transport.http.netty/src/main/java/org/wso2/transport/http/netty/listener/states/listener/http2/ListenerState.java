@@ -31,22 +31,26 @@ public interface ListenerState {
     /**
      * Write headers of outbound response.
      *
+     * @param responseWriter      {@link Http2OutboundRespListener.ResponseWriter} which represents the response writer
      * @param outboundResponseMsg {@link HttpCarbonMessage} which represents the outbound message
      * @param httpContent         the initial content of the entity body
      * @throws Http2Exception if an error occurs while writing
      */
-    void writeOutboundResponseHeaders(HttpCarbonMessage outboundResponseMsg, HttpContent httpContent)
+    void writeOutboundResponseHeaders(Http2OutboundRespListener.ResponseWriter responseWriter,
+                                      HttpCarbonMessage outboundResponseMsg, HttpContent httpContent)
             throws Http2Exception;
 
     /**
      * Write entity body of outbound response.
      *
      * @param http2OutboundRespListener outbound response listener of response future
+     * @param responseWriter            {@link Http2OutboundRespListener.ResponseWriter} which represents the response writer
      * @param outboundResponseMsg       {@link HttpCarbonMessage} which represents the outbound message
      * @param httpContent               the content of the entity body
      * @throws Http2Exception if an error occurs while writing
      */
     void writeOutboundResponseBody(Http2OutboundRespListener http2OutboundRespListener,
+                                   Http2OutboundRespListener.ResponseWriter responseWriter,
                                    HttpCarbonMessage outboundResponseMsg, HttpContent httpContent)
             throws Http2Exception;
 }
