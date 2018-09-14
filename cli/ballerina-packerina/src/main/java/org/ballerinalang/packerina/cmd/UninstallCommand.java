@@ -19,7 +19,7 @@ package org.ballerinalang.packerina.cmd;
 
 import org.ballerinalang.launcher.BLauncherCmd;
 import org.ballerinalang.launcher.LauncherUtils;
-import org.ballerinalang.packerina.UserRepositoryUtils;
+import org.ballerinalang.packerina.UninstallUtils;
 import picocli.CommandLine;
 
 import java.io.PrintStream;
@@ -62,7 +62,7 @@ public class UninstallCommand implements BLauncherCmd {
             throw LauncherUtils.createUsageException("too many arguments");
         }
         String packageStr = argList.get(0);
-        UserRepositoryUtils.uninstallSourcePackage(packageStr);
+        UninstallUtils.uninstallPackage(packageStr);
     }
 
     @Override

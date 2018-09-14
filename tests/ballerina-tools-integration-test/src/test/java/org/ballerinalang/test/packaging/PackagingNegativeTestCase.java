@@ -257,6 +257,41 @@ public class PackagingNegativeTestCase extends BaseTest {
                 new LogLeecher[]{new LogLeecher(msg)}, balServer.getServerHome());
     }
 
+    @Test(description = "Test uninstall without any arguments")
+    public void testUninstallWithoutArgs() throws Exception {
+        String msg = "ballerina: no package given";
+        balClient.runMain("uninstall", new String[0], envVariables, new String[0],
+                          new LogLeecher[]{new LogLeecher(msg)}, balServer.getServerHome());
+    }
+
+    @Test(description = "Test uninstall with too many arguments")
+    public void testUninstallWithTooManyArgs() throws Exception {
+        String msg = "ballerina: too many arguments\n Run 'ballerina help' for usage.";
+        balClient.runMain("uninstall", new String[] {"integrationtests", "testxyz"}, envVariables, new String[0],
+                          new LogLeecher[]{new LogLeecher(msg)}, balServer.getServerHome());
+    }
+
+    @Test(description = "Test uninstall without an org-name")
+    public void testUninstallWithoutOrg() throws Exception {
+        String msg = "error: no org-name is provided";
+        balClient.runMain("uninstall", new String[] {"testxyz"}, envVariables, new String[0],
+                          new LogLeecher[]{new LogLeecher(msg)}, balServer.getServerHome());
+    }
+
+    @Test(description = "Test uninstall without a version")
+    public void testUninstallWithoutVersion() throws Exception {
+        String msg = "error: no package version is provided";
+        balClient.runMain("uninstall", new String[] {"integrationtests/testxyz"}, envVariables, new String[0],
+                          new LogLeecher[]{new LogLeecher(msg)}, balServer.getServerHome());
+    }
+
+    @Test(description = "Test uninstall with a non-existing package")
+    public void testUninstallWithNonExistingPackage() throws Exception {
+        String msg = "error: incorrect package signature provided integrationtests/testxyz:1.1.0";
+        balClient.runMain("uninstall", new String[] {"integrationtests/testxyz:1.1.0"}, envVariables, new String[0],
+                          new LogLeecher[]{new LogLeecher(msg)}, balServer.getServerHome());
+    }
+
     @Test(description = "Test push without any packages in the project")
     public void testPushAllWithoutPackages() throws Exception {
         Path projectPath = tempProjectDirectory.resolve("projectWithoutPackages");
