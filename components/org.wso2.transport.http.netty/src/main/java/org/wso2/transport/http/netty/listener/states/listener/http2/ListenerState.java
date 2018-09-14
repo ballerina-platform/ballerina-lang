@@ -4,6 +4,7 @@ import io.netty.handler.codec.http.HttpContent;
 import io.netty.handler.codec.http2.Http2Exception;
 import org.wso2.transport.http.netty.contract.ServerConnectorException;
 import org.wso2.transport.http.netty.contractimpl.Http2OutboundRespListener;
+import org.wso2.transport.http.netty.contractimpl.Http2OutboundRespListener.ResponseWriter;
 import org.wso2.transport.http.netty.message.Http2DataFrame;
 import org.wso2.transport.http.netty.message.Http2HeadersFrame;
 import org.wso2.transport.http.netty.message.HttpCarbonMessage;
@@ -31,23 +32,22 @@ public interface ListenerState {
     /**
      * Write headers of outbound response.
      *
-     * @param responseWriter      {@link Http2OutboundRespListener.ResponseWriter} which represents the response writer
+     * @param responseWriter      {@link ResponseWriter} which represents the response writer
      * @param outboundResponseMsg {@link HttpCarbonMessage} which represents the outbound message
      * @param httpContent         the initial content of the entity body
      * @throws Http2Exception if an error occurs while writing
      */
-    void writeOutboundResponseHeaders(Http2OutboundRespListener.ResponseWriter responseWriter,
-                                      HttpCarbonMessage outboundResponseMsg, HttpContent httpContent)
-            throws Http2Exception;
+    void writeOutboundResponseHeaders(ResponseWriter responseWriter, HttpCarbonMessage outboundResponseMsg,
+                                      HttpContent httpContent) throws Http2Exception;
 
     /**
      * Write entity body of outbound response.
      *
-     * @param responseWriter      {@link Http2OutboundRespListener.ResponseWriter} which represents the response writer
+     * @param responseWriter      {@link ResponseWriter} which represents the response writer
      * @param outboundResponseMsg {@link HttpCarbonMessage} which represents the outbound message
      * @param httpContent         the content of the entity body
      * @throws Http2Exception if an error occurs while writing
      */
-    void writeOutboundResponseBody(Http2OutboundRespListener.ResponseWriter responseWriter,
-                                   HttpCarbonMessage outboundResponseMsg, HttpContent httpContent) throws Http2Exception;
+    void writeOutboundResponseBody(ResponseWriter responseWriter, HttpCarbonMessage outboundResponseMsg,
+                                   HttpContent httpContent) throws Http2Exception;
 }

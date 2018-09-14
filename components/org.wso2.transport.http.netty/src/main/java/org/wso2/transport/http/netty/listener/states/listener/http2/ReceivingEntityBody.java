@@ -24,7 +24,7 @@ import io.netty.handler.codec.http.HttpContent;
 import io.netty.handler.codec.http2.Http2Exception;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.wso2.transport.http.netty.contractimpl.Http2OutboundRespListener;
+import org.wso2.transport.http.netty.contractimpl.Http2OutboundRespListener.ResponseWriter;
 import org.wso2.transport.http.netty.listener.http2.Http2SourceHandler;
 import org.wso2.transport.http.netty.listener.states.Http2MessageStateContext;
 import org.wso2.transport.http.netty.message.Http2DataFrame;
@@ -72,15 +72,14 @@ public class ReceivingEntityBody implements ListenerState {
     }
 
     @Override
-    public void writeOutboundResponseHeaders(Http2OutboundRespListener.ResponseWriter responseWriter,
-                                             HttpCarbonMessage outboundResponseMsg, HttpContent httpContent) {
+    public void writeOutboundResponseHeaders(ResponseWriter responseWriter, HttpCarbonMessage outboundResponseMsg,
+                                             HttpContent httpContent) {
         log.warn("writeOutboundResponseHeaders {}", ILLEGAL_STATE_ERROR);
     }
 
     @Override
-    public void writeOutboundResponseBody(Http2OutboundRespListener.ResponseWriter responseWriter,
-                                          HttpCarbonMessage outboundResponseMsg, HttpContent httpContent)
-            throws Http2Exception {
+    public void writeOutboundResponseBody(ResponseWriter responseWriter, HttpCarbonMessage outboundResponseMsg,
+                                          HttpContent httpContent) throws Http2Exception {
         http2MessageStateContext.setListenerState(new SendingHeaders());
         http2MessageStateContext.getListenerState()
                 .writeOutboundResponseHeaders(responseWriter, outboundResponseMsg, httpContent);
