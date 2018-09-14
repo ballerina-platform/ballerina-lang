@@ -6,7 +6,7 @@ float c = 0;}
 
 function name3(){}
 
-function name4(string s,float i) {}
+function name4(   string s,float i) {}
 
 @Description {value: "test annotation"}function name5() {}
 
@@ -19,5 +19,5 @@ return 0;
 }
 
 function name8()returns (int,string){
-return (0,"");
+return ( 0,"");
 }

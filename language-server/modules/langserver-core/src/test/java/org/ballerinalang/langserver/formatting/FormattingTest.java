@@ -80,7 +80,20 @@ public class FormattingTest {
                 {"expectedVariableDefinition.bal", "variableDefinition.bal"},
                 {"expectedUnionType.bal", "unionType.bal"},
                 {"expectedRecord.bal", "record.bal"},
-                {"expectedObject.bal", "object.bal"}
+                {"expectedObject.bal", "object.bal"},
+                {"expectedFieldBasedAccess.bal", "fieldBasedAccess.bal"},
+                {"expectedFunctionType.bal", "functionType.bal"},
+                {"expectedWhile.bal", "while.bal"},
+                {"expectedIf.bal", "if.bal"},
+                {"expectedTryCatch.bal", "tryCatch.bal"},
+                {"expectedBinaryExpr.bal", "binaryExpr.bal"},
+                {"expectedArrayLiteralExpr.bal", "arrayLiteralExpr.bal"},
+                {"expectedDone.bal", "done.bal"},
+                {"expectedForeach.bal", "foreach.bal"},
+                {"expectedConstrainedType.bal", "constrainedType.bal"},
+                {"expectedBreak.bal", "break.bal"},
+                {"expectedMatchStmt.bal", "matchStmt.bal"},
+                {"expectedMatchExpr.bal", "matchExpr.bal"},
         };
     }
 }

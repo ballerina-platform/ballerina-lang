@@ -29,8 +29,26 @@ service<http:Service> serviceName4 {
     }
 
     newResource2(endpoint caller, http:Request request) {
+        endpoint http:Listener listener1 {
+            port: 8080
+        };
+
         http:Response res = new;
         res.setPayload("sd");
         _ = caller->respond(res);
+    }
+
+    newResource3(endpoint caller, http:Request request) {
+        worker default {
+            http:Response res = new;
+            res.setPayload("sd");
+            _ = caller->respond(res);
+        }
+
+        worker worker1 {
+            http:Response res = new;
+            res.setPayload("sd");
+            _ = caller->respond(res);
+        }
     }
 }

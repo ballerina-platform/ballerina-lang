@@ -38,13 +38,6 @@ ArrayLiteralExpr
    : [ <expressions-joined-by,>* ]
    ;
 
-ArrayType
-   : <isRestParam?> <grouped?> ( <elementType.source> )
-   | <isRestParam?>              <elementType.source>
-   |                <grouped?> ( <elementType.source> <dimensionAsString> )
-   |                             <elementType.source> <dimensionAsString>
-   ;
-
 Assignment
    : <declaredWithVar?var> <variable.source> = <expression.source> ;
    ;

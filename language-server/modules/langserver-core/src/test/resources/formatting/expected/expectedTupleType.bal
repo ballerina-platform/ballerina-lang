@@ -7,5 +7,5 @@ function name8() returns (int, string) {
     string astr;
     (aint, astr) = theft;
     var (intd, stringd) = theft;
-    return (0,"");
+    return (0, "");
 }

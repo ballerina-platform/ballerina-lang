@@ -544,31 +544,6 @@ class TreeBuilder {
             }
         }
 
-        if (node.kind === 'ArrayType') {
-            if (node.dimensions > 0 && node.ws) {
-                node.dimensionAsString = "";
-                let startingBracket;
-                let endingBracket;
-                let content = "";
-
-                for (let j = 0; j < node.ws.length; j++) {
-                    if (node.ws[j].text === '[') {
-                        startingBracket = node.ws[j];
-                    } else if (node.ws[j].text === ']') {
-                        endingBracket = node.ws[j];
-                        node.dimensionAsString += startingBracket.text + content +
-                            endingBracket.ws + endingBracket.text;
-
-                        content = "";
-                        startingBracket = null;
-                        endingBracket = null;
-                    } else if (startingBracket) {
-                        content += node.ws[j].ws + node.ws[j].text;
-                    }
-                }
-            }
-        }
-
         if (node.kind === 'Block' && node.ws && node.ws[0] && node.ws[0].text === 'else') {
             node.isElseBlock = true;
         }

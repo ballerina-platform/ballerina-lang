@@ -28,6 +28,7 @@ public class FormattingConstants {
     public static final String SPACE_COUNT = "spacesCount";
     public static final String START_COLUMN = "startColumn";
     public static final String DO_INDENT = "doIndent";
+    public static final String INDENTED_START_COLUMN = "indentedStartColumn";
     public static final String FORMATTING_CONFIG = "formattingConfig";
 
     public static final String WS = "ws";

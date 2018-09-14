@@ -35,5 +35,5 @@ function name7() returns int {
 }
 
 function name8() returns (int, string) {
-    return (0,"");
+    return (0, "");
 }
