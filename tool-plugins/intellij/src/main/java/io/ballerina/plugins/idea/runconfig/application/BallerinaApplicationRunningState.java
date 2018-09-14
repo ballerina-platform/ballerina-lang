@@ -29,7 +29,6 @@ import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiFile;
 import io.ballerina.plugins.idea.psi.impl.BallerinaPsiImplUtil;
 import io.ballerina.plugins.idea.runconfig.BallerinaRunningState;
-import io.ballerina.plugins.idea.runconfig.RunConfigurationKind;
 import io.ballerina.plugins.idea.sdk.BallerinaSdkService;
 import io.ballerina.plugins.idea.util.BallerinaExecutor;
 import io.ballerina.plugins.idea.util.BallerinaHistoryProcessListener;
@@ -37,7 +36,6 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
-import java.nio.file.Paths;
 
 /**
  * Represents Ballerina application running state.
@@ -70,26 +68,36 @@ public class BallerinaApplicationRunningState extends BallerinaRunningState<Ball
 
     @Override
     protected BallerinaExecutor patchExecutor(@NotNull BallerinaExecutor executor) throws ExecutionException {
-        RunConfigurationKind kind = getConfiguration().getRunKind();
+        // RunConfigurationKind kind = getConfiguration().getRunKind();
         Project project = myConfiguration.getProject();
         VirtualFile baseDir = project.getBaseDir();
-        String filePath = myConfiguration.getPackage();
+        String filePath;
 
         // Find the file in the project. This is needed to find the module. Otherwise if the file is in a sub-module
         // and the SDK for the project is not set, SDK home path will be null.
         PsiFile file = BallerinaPsiImplUtil.findFileInProject(project, myConfiguration.getFilePath());
 
+        assert file != null;
         VirtualFile fileDir = file.getVirtualFile().getParent();
-        String rootDir = Paths.get(System.getProperty("user.dir")).getFileSystem().getRootDirectories().iterator()
-                .next().toString();
+        // Sets source root of the IDEA project as the termination of the recursive search.
+        String rootDir = project.getBasePath();
         String sourcerootDir = getSourceRoot(fileDir.getPath(), rootDir);
-        // if no ballerina project found, use default base directory.
-        sourcerootDir = sourcerootDir != "" ? sourcerootDir : baseDir.getPath();
 
-        Module module = null;
-        if (file != null) {
-            module = ModuleUtilCore.findModuleForPsiElement(file);
+        if (sourcerootDir.equals("")) {  // if no ballerina project is found.
+            sourcerootDir = baseDir.getPath();
+            filePath = file.getVirtualFile().getPath().replace(sourcerootDir, "").substring(1);
+        } else {
+            String relativeFilePath = file.getVirtualFile().getPath().replace(sourcerootDir, "").substring(1);
+            if (relativeFilePath.contains(File.separator)) { //If file is found in a ballerina package, runs the whole
+                // package, instead of the single file.
+                filePath = relativeFilePath.substring(0, relativeFilePath.indexOf(File.separator));
+            } else {
+                filePath = relativeFilePath;
+            }
         }
+
+        Module module;
+        module = ModuleUtilCore.findModuleForPsiElement(file);
         if (module == null) {
             throw new ExecutionException("Cannot find module for the file '" + file.getVirtualFile().getPath() + "'");
         }
