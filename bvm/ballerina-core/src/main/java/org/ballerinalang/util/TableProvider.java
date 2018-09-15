@@ -74,7 +74,7 @@ public class TableProvider {
     }
 
     public String createTable(BType constrainedType, BStringArray primaryKeys, BStringArray indexeColumns) {
-        String tableName = TableConstants.TABLE_PREFIX + (constrainedType).getName()
+        String tableName = TableConstants.TABLE_PREFIX + constrainedType.getName()
                 .toUpperCase() + "_" + getTableID();
         String sqlStmt = generateCreateTableStatment(tableName, constrainedType, primaryKeys);
         executeStatement(sqlStmt);

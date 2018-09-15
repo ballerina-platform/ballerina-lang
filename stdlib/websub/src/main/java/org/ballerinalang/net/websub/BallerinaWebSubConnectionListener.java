@@ -55,7 +55,6 @@ import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 import java.io.PrintStream;
 import java.io.UnsupportedEncodingException;
 import java.nio.charset.StandardCharsets;
-import java.util.HashMap;
 import java.util.List;
 
 import static org.ballerinalang.bre.bvm.BLangVMErrors.ERROR_MESSAGE_FIELD;
@@ -82,7 +81,6 @@ import static org.ballerinalang.net.websub.WebSubSubscriberConstants.VERIFICATIO
 import static org.ballerinalang.net.websub.WebSubSubscriberConstants.WEBSUB_PACKAGE;
 import static org.ballerinalang.net.websub.WebSubUtils.getHttpRequest;
 import static org.ballerinalang.net.websub.WebSubUtils.getJsonBody;
-import static org.ballerinalang.net.websub.WebSubUtils.retrieveResourceDetails;
 
 /**
  * HTTP Connection Listener for Ballerina WebSub services.
@@ -138,13 +136,13 @@ public class BallerinaWebSubConnectionListener extends BallerinaHTTPConnectorLis
         }
     }
 
-
+    @SuppressWarnings("unchecked")
     protected void extractPropertiesAndStartResourceExecution(HttpCarbonMessage httpCarbonMessage,
                                                               HttpResource httpResource) {
         BValue subscriberServiceEndpoint = getSubscriberServiceEndpoint(httpResource, httpCarbonMessage);
         BMap<String, BValue>  httpRequest;
         if (httpCarbonMessage.getProperty(ENTITY_ACCESSED_REQUEST) != null) {
-            httpRequest = (BMap<String, BValue> ) httpCarbonMessage.getProperty(ENTITY_ACCESSED_REQUEST);
+            httpRequest = (BMap<String, BValue>) httpCarbonMessage.getProperty(ENTITY_ACCESSED_REQUEST);
         } else {
             httpRequest = getHttpRequest(httpResource.getBalResource().getResourceInfo().getServiceInfo()
                                                              .getPackageInfo().getProgramFile(), httpCarbonMessage);
@@ -199,6 +197,7 @@ public class BallerinaWebSubConnectionListener extends BallerinaHTTPConnectorLis
         Executor.submit(balResource, callback, null, null, signatureParams);
     }
 
+    @SuppressWarnings("unchecked")
     private void validateSignature(HttpCarbonMessage httpCarbonMessage, HttpResource httpResource,
                                    BMap<String, BValue> requestStruct) {
         //invoke processWebSubNotification function
@@ -273,12 +272,12 @@ public class BallerinaWebSubConnectionListener extends BallerinaHTTPConnectorLis
      * Method to create the notification request struct representing WebSub notifications received.
      */
     private BMap<String, BValue> createCustomNotificationStruct(HttpCarbonMessage inboundRequest, Resource resource,
-                                                                BValue httpRequest) {
-        String[] paramDetails = getParamDetails(resource.getName());
+                                                                BMap<String, BValue> httpRequest) {
+        String[] paramDetails = webSubServicesRegistry.getResourceDetails().get(resource.getName());
         BMap<String, BValue> customNotificationStruct =
                 createBStruct(resource.getResourceInfo().getServiceInfo().getPackageInfo().getProgramFile(),
                               paramDetails[0], paramDetails[1]);
-        BMap<String, ?> jsonBody = getJsonBody((BMap<String, BValue>) httpRequest);
+        BMap<String, ?> jsonBody = getJsonBody(httpRequest);
         inboundRequest.setProperty(ENTITY_ACCESSED_REQUEST, httpRequest);
         if (jsonBody != null) {
             return JSONUtils.convertJSONToStruct(jsonBody, (BStructureType) customNotificationStruct.getType());
@@ -286,12 +285,6 @@ public class BallerinaWebSubConnectionListener extends BallerinaHTTPConnectorLis
             throw new BallerinaException("JSON payload: null. Cannot create custom notification record: "
                                                  + paramDetails[0] + ":" + paramDetails[1]);
         }
-    }
-
-    private String[] getParamDetails(String resourceName) {
-        // TODO: 8/1/18 create map once 
-        HashMap<String, String[]> resourceDetailMap = retrieveResourceDetails(webSubServicesRegistry);
-        return resourceDetailMap.get(resourceName);
     }
 
     /**

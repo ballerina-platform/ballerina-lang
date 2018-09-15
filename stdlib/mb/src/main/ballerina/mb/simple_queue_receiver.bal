@@ -115,6 +115,7 @@ public type SimpleQueueListenerEndpointConfiguration record {
     string messageSelector,
     map properties,
     string queueName,
+    !...
 };
 
 # Caller action handler related to SimpleQueueReceiver endpoint
