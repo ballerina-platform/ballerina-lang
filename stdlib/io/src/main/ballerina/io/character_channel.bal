@@ -16,15 +16,15 @@
 
 # Represents a channel which could be used to read/write characters through a given ByteChannel.
 public type CharacterChannel object {
-    private ByteChannel channel;
+    private ByteChannel bChannel;
     private string charset;
 
     # Constructs a CharacterChannel from a given ByteChannel and Charset.
-
-    # + channel - ByteChannel which would be used to read/write characters
+    #
+    # + bChannel - ByteChannel which would be used to read/write characters
     # + charset - Character-Set which would be used to encode/decode given bytes to characters
-    public new(channel, charset) {
-        init(channel, charset);
+    public new(bChannel, charset) {
+        init(bChannel, charset);
     }
 
     # Initializes a character channel.

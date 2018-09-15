@@ -72,6 +72,7 @@ public class LSContextManager {
      *
      * @param packageID  package ID
      * @param projectDir project directory path
+     * @param documentManager {@link WorkspaceDocumentManager} Document Manager
      * @return compiler context
      */
     public CompilerContext getCompilerContext(PackageID packageID, String projectDir,
@@ -85,6 +86,7 @@ public class LSContextManager {
      * Use this method if you don't have the current project ID.
      *
      * @param projectDir project directory path
+     * @param documentManager {@link WorkspaceDocumentManager} Document Manager
      * @return compiler context
      */
     public CompilerContext getCompilerContext(String projectDir, WorkspaceDocumentManager documentManager) {
@@ -96,6 +98,7 @@ public class LSContextManager {
      *
      * @param packageID         package ID or null
      * @param projectDir        project directory path
+     * @param documentManager {@link WorkspaceDocumentManager} Document Manager
      * @param createIfNotExists if true creates a new compiler context if not exists
      * @return compiler context
      */
@@ -145,6 +148,7 @@ public class LSContextManager {
     /**
      * Returns an unique temporary compiler context.
      *
+     * @param documentManager {@link WorkspaceDocumentManager} Document Manager
      * @return compiler context
      */
     public static CompilerContext createTempCompilerContext(WorkspaceDocumentManager documentManager) {

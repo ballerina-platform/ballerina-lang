@@ -43,20 +43,6 @@ public class ArgumentParserNegativeTest {
     private final boolean printReturn = true;
 
     @Test
-    public void testNonPublicMainFunction() {
-        try {
-            LauncherUtils.runProgram(Paths.get("src/test/resources/test-src/entry.function"), Paths.get(FILE_NAME),
-                                     runtimeParams, configFilePath, new String[]{}, offline, observe);
-        } catch (BLauncherException e) {
-            Assert.assertTrue(e.getMessages().contains("error: '" + FILE_NAME
-                                                               + "' does not contain a main function or a service"),
-                              "invalid error message, error message for public main function unavailability not found");
-            return;
-        }
-        Assert.fail("non-existence of public main function not identified");
-    }
-
-    @Test
     public void testTooManyArgs() {
         String functionName = "intEntry";
         try {
@@ -66,6 +52,22 @@ public class ArgumentParserNegativeTest {
         } catch (BLauncherException e) {
             Assert.assertTrue(e.getMessages().contains("usage error: too many arguments to call entry function '"
                                                                + functionName + "'"),
+                              "invalid error message, usage error for too many arguments not found");
+            return;
+        }
+        Assert.fail("too many arguments not identified");
+    }
+
+    @Test
+    public void testNonExistingEntryFunction() {
+        String functionName = "iDontExist";
+        try {
+            LauncherUtils.runProgram(Paths.get("src/test/resources/test-src/entry.function"), Paths.get(FILE_NAME),
+                                     functionName, runtimeParams, configFilePath, new String[]{"1", "Hello World"},
+                                     offline, observe, printReturn);
+        } catch (BLauncherException e) {
+            Assert.assertTrue(e.getMessages().contains("'" + functionName + "' function not found in '"
+                                                               + FILE_NAME + "'"),
                               "invalid error message, usage error for too many arguments not found");
             return;
         }

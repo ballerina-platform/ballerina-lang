@@ -21,7 +21,7 @@ package org.ballerinalang.net.grpc;
  * Receives notifications from an observable stream of messages.
  * <p>
  * Referenced from grpc-java implementation.
- * <p>
+ *
  * <p>It is used by both the client stubs and service implementations for sending or receiving
  * stream messages.
  *

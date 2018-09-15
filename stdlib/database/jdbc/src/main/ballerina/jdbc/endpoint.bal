@@ -29,6 +29,7 @@ public type ClientEndpointConfiguration record {
     string password,
     sql:PoolOptions poolOptions,
     map dbOptions,
+    !...
 };
 
 # Represents a JDBC SQL client endpoint.

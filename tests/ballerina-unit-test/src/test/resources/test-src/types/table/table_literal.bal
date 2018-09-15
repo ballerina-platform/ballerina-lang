@@ -466,7 +466,7 @@ function testTableRemoveSuccess() returns (int, json) {
     _ = dt.add(p2);
     _ = dt.add(p3);
 
-    int count = check dt.remove(isBellow35);
+    int count = check dt.remove(isBelow35);
     json j = check <json>dt;
 
     return (count, j);
@@ -499,7 +499,7 @@ function testTableRemoveFailed() returns (int, json) {
     _ = dt.add(p2);
     _ = dt.add(p3);
 
-    int count = check dt.remove(isBellow35);
+    int count = check dt.remove(isBelow35);
     json j = check <json>dt;
 
     return (count, j);
@@ -537,7 +537,7 @@ function testRemoveWithInvalidRecordType() returns string {
     _ = dt.add(p3);
 
     string returnStr;
-    var ret = dt.remove(isBellow35Invalid);
+    var ret = dt.remove(isBelow35Invalid);
 
     match ret {
         int i => returnStr = <string>i;
@@ -559,7 +559,7 @@ function testRemoveWithInvalidParamType() returns string {
     _ = dt.add(p3);
 
     string returnStr;
-    var ret = dt.remove(isBellow35InvalidParam);
+    var ret = dt.remove(isBelow35InvalidParam);
 
     match ret {
         int i => returnStr = <string>i;
@@ -578,7 +578,7 @@ function getCompanyId(Company p) returns (int) {
     return p.id;
 }
 
-function isBellow35(Person p) returns (boolean) {
+function isBelow35(Person p) returns (boolean) {
     return p.age < 35;
 }
 
@@ -586,10 +586,10 @@ function isJohn(Person p) returns (boolean) {
     return p.name == "john";
 }
 
-function isBellow35Invalid(Company p) returns (boolean) {
+function isBelow35Invalid(Company p) returns (boolean) {
     return p.id < 35;
 }
 
-function isBellow35InvalidParam(int p) returns (boolean) {
+function isBelow35InvalidParam(int p) returns (boolean) {
     return true;
 }

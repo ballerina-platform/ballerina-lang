@@ -26,7 +26,7 @@ type testDocObject object {
     private int testPrivate = 12;
     public string testString = "hello";
 
-    function testFunctionSignature();
+    function testFunctionSignature(int param1, string param2) returns newReturn;
     public function testFunctionWithImpl() {
         io:println("Hello World!!");
     }

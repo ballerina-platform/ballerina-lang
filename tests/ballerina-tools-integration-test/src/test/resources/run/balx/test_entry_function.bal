@@ -16,7 +16,7 @@
 import ballerina/io;
 
 public function main(string... args) {
-    // do nothing - placeholder to allow balx generation
+    io:println(args[0]);
 }
 
 public function noParamEntry() returns int {

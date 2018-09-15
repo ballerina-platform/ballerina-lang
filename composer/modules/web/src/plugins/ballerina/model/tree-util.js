@@ -279,7 +279,8 @@ class TreeUtil extends AbstractTreeUtil {
             invocationExpression = _.get(node, 'variable.initialExpression');
         }
 
-        if (invocationExpression && this.isCheckExpr(invocationExpression)) {
+        if (invocationExpression &&
+            (this.isCheckExpr(invocationExpression) || this.isMatchExpression(invocationExpression))) {
             invocationExpression = invocationExpression.expression;
         }
         return invocationExpression.getInvocationSignature();

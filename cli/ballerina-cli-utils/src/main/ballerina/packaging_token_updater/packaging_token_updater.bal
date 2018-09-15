@@ -8,8 +8,8 @@ import ballerina/system;
 # + encoding - Encoding
 # + return - CharacterChannel of the file after writing to the file
 function openForWriting (string filePath, string encoding) returns io:CharacterChannel {
-    io:ByteChannel channel = io:openFile(filePath, "w");
-    io:CharacterChannel result = new io:CharacterChannel(channel, encoding);
+    io:ByteChannel byteChannel = io:openFile(filePath, "w");
+    io:CharacterChannel result = new io:CharacterChannel(byteChannel, encoding);
     return result;
 }
 
