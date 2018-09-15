@@ -200,30 +200,30 @@ function defineEndpointWithoutProxy (string url) returns http:Client{
 # + permission - Permissions provided
 # + return - `ByteChannel` of the file content
 function getFileChannel (string filePath, io:Mode permission) returns (io:ByteChannel) {
-    io:ByteChannel channel = io:openFile(untaint filePath, permission);
-    return channel;
+    io:ByteChannel byteChannel = io:openFile(untaint filePath, permission);
+    return byteChannel;
 }
 
 # This function will read the bytes from the byte channel.
 #
-# + channel - Byte channel
+# + byteChannel - Byte channel
 # + numberOfBytes - Number of bytes to be read
 # + return - Read content as byte[] along with the number of bytes read.
-function readBytes (io:ByteChannel channel, int numberOfBytes) returns (byte[], int) {
+function readBytes (io:ByteChannel byteChannel, int numberOfBytes) returns (byte[], int) {
     byte[] bytes;
     int numberOfBytesRead;
-    (bytes, numberOfBytesRead) = check (channel.read(numberOfBytes));
+    (bytes, numberOfBytesRead) = check (byteChannel.read(numberOfBytes));
     return (bytes, numberOfBytesRead);
 }
 
 # This function will write the bytes from the byte channel.
 #
-# + channel - Byte channel
+# + byteChannel - Byte channel
 # + content - Content to be written as a byte[]
 # + startOffset - Offset
 # + return - number of bytes written.
-function writeBytes (io:ByteChannel channel, byte[] content, int startOffset) returns int {
-    int numberOfBytesWritten = check (channel.write(content, startOffset));
+function writeBytes (io:ByteChannel byteChannel, byte[] content, int startOffset) returns int {
+    int numberOfBytesWritten = check (byteChannel.write(content, startOffset));
     return numberOfBytesWritten;
 }
 
@@ -332,9 +332,9 @@ function createDirectories(string directoryPath) returns (boolean) {
 
 # This function will close the byte channel.
 #
-# + channel - Byte channel to be closed
-function closeChannel(io:ByteChannel channel) {
-    match channel.close() {
+# + byteChannel - Byte channel to be closed
+function closeChannel(io:ByteChannel byteChannel) {
+    match byteChannel.close() {
         error channelCloseError => {
             io:println(logger.formatLog("Error occured while closing the channel: " + channelCloseError.message));
         }
