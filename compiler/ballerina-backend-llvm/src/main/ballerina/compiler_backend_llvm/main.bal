@@ -7,12 +7,12 @@ public function main(string... args) {
 }
 
 function genObjectFile(byte[] birBinary, string destFilePath, boolean dumpLLVMIR) {
-    io:ByteChannel channel = io:createMemoryChannel(birBinary);
-    genObjectFileFromChannel(channel, destFilePath, dumpLLVMIR);
+    io:ByteChannel byteChannel = io:createMemoryChannel(birBinary);
+    genObjectFileFromChannel(byteChannel, destFilePath, dumpLLVMIR);
 }
 
-function genObjectFileFromChannel(io:ByteChannel channel, string destFilePath, boolean dumpLLVMIR) {
-    bir:ChannelReader reader = new(channel);
+function genObjectFileFromChannel(io:ByteChannel byteChannel, string destFilePath, boolean dumpLLVMIR) {
+    bir:ChannelReader reader = new(byteChannel);
     checkValidBirChannel(reader);
     bir:ConstPoolParser cpParser = new(reader);
     bir:BirChannelReader birReader = new(reader, cpParser.parse());
@@ -55,8 +55,8 @@ function checkVersion(bir:ChannelReader reader) {
 
 
 function openFileForReading(string filePath) returns io:ByteChannel {
-    io:ByteChannel channel = io:openFile(filePath, io:READ);
-    return channel;
+    io:ByteChannel byteChannel = io:openFile(filePath, io:READ);
+    return byteChannel;
 }
 
 function arrayEq(byte[] x, byte[] y) returns boolean {
