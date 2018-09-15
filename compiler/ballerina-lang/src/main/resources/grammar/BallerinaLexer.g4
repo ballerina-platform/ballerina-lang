@@ -32,6 +32,7 @@ XMLNS       : 'xmlns' ;
 RETURNS     : 'returns';
 VERSION     : 'version';
 DEPRECATED  :  'deprecated';
+CHANNEL    : 'channel';
 
 FROM        : 'from' { inSiddhi = true; inTableSqlQuery = true; inSiddhiInsertQuery = true; inSiddhiOutputRateLimit = true; } ;
 ON          : 'on' ;

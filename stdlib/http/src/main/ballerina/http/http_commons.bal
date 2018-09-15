@@ -26,6 +26,9 @@
 # Constant for the default failover starting index for failover endpoints
 @final int DEFAULT_FAILOVER_EP_STARTING_INDEX = 0;
 
+# Maximum number of requests that can be processed at a given time on a single connection.
+@final int MAX_PIPELINED_REQUESTS = 10;
+
 # Represents multipart primary type
 @final public string MULTIPART_AS_PRIMARY_TYPE = "multipart/";
 
@@ -112,6 +115,7 @@ public type HttpOperation "FORWARD" | "GET" | "POST" | "DELETE" | "OPTIONS" | "P
 public type TrustStore record {
     string path,
     string password,
+    !...
 };
 
 # A record for providing key store related configurations.
@@ -121,6 +125,7 @@ public type TrustStore record {
 public type KeyStore record {
     string path,
     string password,
+    !...
 };
 
 # A record for configuring SSL/TLS protocol and version to be used.
@@ -130,6 +135,7 @@ public type KeyStore record {
 public type Protocols record {
     string name,
     string[] versions,
+    !...
 };
 
 # A record for providing configurations for certificate revocation status checks.
@@ -141,6 +147,7 @@ public type ValidateCert record {
     boolean enable,
     int cacheSize,
     int cacheValidityPeriod,
+    !...
 };
 
 # A record for providing configurations for certificate revocation status checks.
@@ -152,6 +159,7 @@ public type ServiceOcspStapling record {
     boolean enable,
     int cacheSize,
     int cacheValidityPeriod,
+    !...
 };
 
 //////////////////////////////

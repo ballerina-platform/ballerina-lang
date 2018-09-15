@@ -124,6 +124,7 @@ public class HttpDispatcher {
     /**
      * This method finds the matching resource for the incoming request.
      *
+     * @param servicesRegistry HTTP service registry
      * @param inboundMessage incoming message.
      * @return matching resource.
      */

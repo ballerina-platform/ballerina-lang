@@ -98,7 +98,7 @@ class ClientResponderDecorator extends React.Component {
      * @returns {XML} rendered component.
      */
     render() {
-        const { viewState, isBreakpoint } = this.props;
+        const { viewState, expression, isBreakpoint } = this.props;
 
         const fullExp = _.trimEnd(this.props.viewState.fullExpression, ';').trim();
 
@@ -127,7 +127,7 @@ class ClientResponderDecorator extends React.Component {
                             + this.context.designer.config.statement.gutter.h}
                         y={viewState.components.invocation.end.y - 5}
                     >
-                        {viewState.displayText}
+                        {expression}
                         <title>{fullExp}</title>
                     </text>
                 </g>
@@ -157,6 +157,7 @@ ClientResponderDecorator.propTypes = {
     }).isRequired,
     children: PropTypes.node,
     model: PropTypes.instanceOf(Node).isRequired,
+    expression: PropTypes.string.isRequired,
     onBreakpointClick: PropTypes.func.isRequired,
     isBreakpoint: PropTypes.bool.isRequired,
 };

@@ -38,6 +38,8 @@ public enum CompilerOptionName {
 
     BUILD_COMPILED_PACKAGE("buildCompiledPackage"),
 
+    GEN_NATIVE_BINARY("genNativeBinary"),
+
     TEST_ENABLED("testEnabled"),
 
     TARGET_BINARY_PATH("targetBinaryPath"),

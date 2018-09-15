@@ -80,6 +80,7 @@ public type TopicPublisher object {
 public type TopicPublisherEndpointConfiguration record {
     Session? session;
     string? topicPattern;
+    !...
 };
 
 # Actions that topic publisher endpoint could perform

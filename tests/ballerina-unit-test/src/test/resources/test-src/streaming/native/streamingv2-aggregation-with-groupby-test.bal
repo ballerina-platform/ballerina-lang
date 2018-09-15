@@ -72,7 +72,7 @@ function startAggregationQuery() returns (OutputRecord[]) {
 
 function streamFunc() {
 
-    function (OutputRecord[]) outputFunc = (OutputRecord[] o) => {
+    function (OutputRecord[]) outputFunc = function (OutputRecord[] o) {
         outputStream.publish(o);
     };
 
@@ -118,11 +118,11 @@ function streamFunc() {
     streams:Select select = streams:createSelect(
                                 outputProcess.process,
                                 aggregators,
-                                (streams:StreamEvent e) => string {
+                                function (streams:StreamEvent e) returns string {
                                     InputRecord i = check <InputRecord>e.eventObject;
                                     return i.category;
                                 },
-                                (streams:StreamEvent e, streams:Aggregator[] aggregatorArray) => any {
+                                function (streams:StreamEvent e, streams:Aggregator[] aggregatorArray) returns any {
                                     InputRecord i = check <InputRecord>e.eventObject;
                                     streams:Sum iSumAggregator1 = check <streams:Sum>aggregatorArray[0];
                                     streams:Sum fSumAggregator1 = check <streams:Sum>aggregatorArray[1];
@@ -171,13 +171,13 @@ function streamFunc() {
 
     streams:Filter filter = streams:createFilter(
                                 select.process,
-                                (any o) => boolean {
+                                function (any o) returns boolean {
                                     InputRecord i = check <InputRecord>o;
                                     return i.intVal > getValue();
                                 }
     );
 
-    inputStream.subscribe((InputRecord i) => {
+    inputStream.subscribe(function (InputRecord i) {
             streams:StreamEvent[] eventArr = streams:buildStreamEvent(i);
             filter.process(eventArr);
         }

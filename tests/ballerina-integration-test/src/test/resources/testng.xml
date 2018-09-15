@@ -53,12 +53,19 @@
             <class name="org.ballerinalang.test.service.http.sample.TestReusabilityOfRequest"/>
             <class name="org.ballerinalang.test.service.http.sample.CompressionTestCase"/>
             <class name="org.ballerinalang.test.service.http.sample.IdleTimeoutResponseTestCase"/>
+            <class name="org.ballerinalang.test.service.http.sample.HttpPipeliningTestCase"/>
         </classes>
     </test>
 
     <test name="ballerina-resiliency-tests" parallel="methods" thread-count="13">
         <classes>
             <class name="org.ballerinalang.test.service.resiliency.HttpResiliencyTest"/>
+        </classes>
+    </test>
+
+    <test name="ballerina-channel-tests" parallel="false">
+        <classes>
+            <class name="org.ballerinalang.test.channel.ChannelsResourcesTest"/>
         </classes>
     </test>
 

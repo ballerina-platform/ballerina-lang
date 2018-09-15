@@ -26,6 +26,7 @@ import ballerina/io;
 public type FailoverConfig record {
     int[] failoverCodes,
     int interval,
+    !...
 };
 
 # Defines an error which occurred during an attempt to failover.
@@ -39,6 +40,7 @@ public type FailoverActionError record {
     error? cause,
     int statusCode,
     error[] httpActionErr,
+    !...
 };
 
 // TODO: This can be made package private
@@ -52,6 +54,7 @@ public type FailoverInferredConfig record {
     CallerActions[] failoverClientsArray,
     boolean[] failoverCodesIndex,
     int failoverInterval,
+    !...
 };
 
 # Failover caller actions which provides failover capabilities to the failover client endpoint.

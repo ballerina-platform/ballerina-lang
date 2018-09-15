@@ -64,6 +64,9 @@ public interface InstructionCodes {
     int BGLOAD = 36;
     int RGLOAD = 37;
 
+    int CHNRECEIVE = 38;
+    int CHNSEND = 39;
+
     int MAPLOAD = 47;
     int JSONLOAD = 48;
 
