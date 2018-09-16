@@ -34,7 +34,7 @@ install:
   - cmd: mvn --version
   - cmd: java -version
 build_script:
-  - SET MAVEN_OPTS="-Xms512m"
+  - SET MAVEN_OPTS="-Xms1024m"
   - mvn clean install -B -V -DskipTests
 cache:
   - C:\maven\ -> appveyor.yml
