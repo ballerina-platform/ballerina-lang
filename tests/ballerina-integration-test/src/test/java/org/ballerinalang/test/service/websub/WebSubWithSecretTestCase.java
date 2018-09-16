@@ -100,26 +100,14 @@ public class WebSubWithSecretTestCase extends BaseTest {
         });
 
         //Allow to bring up the hub
-        given().ignoreException(ConnectException.class).with().pollInterval(Duration.FIVE_SECONDS).and()
-                .with().pollDelay(Duration.TEN_SECONDS).await().atMost(60, SECONDS).until(() -> {
+        given().ignoreException(ConnectException.class).with().pollInterval(Duration.ONE_SECOND).await()
+                .atMost(60, SECONDS).until(() -> {
             //using same pack location, hence server home is same
             HttpResponse response = HttpsClientRequest.doGet(hubUrl, webSubSubscriber.getServerHome());
             return response.getResponseCode() == 202;
         });
 
         webSubSubscriber.startServer(subscriberBal, new int[]{subscriberServicePort});
-
-        //Allow to start up the subscriber service
-        given().ignoreException(ConnectException.class).with().pollInterval(Duration.FIVE_SECONDS).and()
-                .with().pollDelay(Duration.TEN_SECONDS).await().atMost(60, SECONDS).until(() -> {
-            Map<String, String> headers = new HashMap<>();
-            headers.put("X-Hub-Signature", "SHA256=5262411828583e9dc7eaf63aede0abac8e15212e06320bb021c433a20f27d553");
-            headers.put(HttpHeaderNames.CONTENT_TYPE.toString(), TestConstant.CONTENT_TYPE_JSON);
-            HttpResponse response = HttpClientRequest.doPost(
-                    webSubSubscriber.getServiceURLHttp(subscriberServicePort, "websub"), "{\"dummy\":\"body\"}",
-                    headers);
-            return response.getResponseCode() == 202;
-        });
     }
 
     @Test

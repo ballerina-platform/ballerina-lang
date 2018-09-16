@@ -106,8 +106,8 @@ public class WebSubAutoIntentVerificationTestCase extends BaseTest {
         });
 
         //Allow to bring up the hub
-        given().ignoreException(ConnectException.class).with().pollInterval(Duration.FIVE_SECONDS).and()
-                .with().pollDelay(Duration.TEN_SECONDS).await().atMost(60, SECONDS).until(() -> {
+        given().ignoreException(ConnectException.class).with().pollInterval(Duration.ONE_SECOND).await()
+                .atMost(60, SECONDS).until(() -> {
             //using same pack location, hence server home is same
             HttpResponse response = HttpsClientRequest.doGet(hubUrl, webSubSubscriber.getServerHome());
             return response.getResponseCode() == 202;
@@ -115,17 +115,6 @@ public class WebSubAutoIntentVerificationTestCase extends BaseTest {
 
         String[] subscriberArgs = {"-e test.hub.url=" + hubUrl};
         webSubSubscriber.startServer(subscriberBal, subscriberArgs, new int[]{servicePort});
-
-        //Allow to start up the subscriber service
-        given().ignoreException(ConnectException.class).with().pollInterval(Duration.FIVE_SECONDS).and()
-                .with().pollDelay(Duration.TEN_SECONDS).await().atMost(60, SECONDS).until(() -> {
-            Map<String, String> headers = new HashMap<>();
-            headers.put(HttpHeaderNames.CONTENT_TYPE.toString(), TestConstant.CONTENT_TYPE_JSON);
-            HttpResponse response = HttpClientRequest.doPost(
-                    webSubSubscriber.getServiceURLHttp(servicePort, "websub"), "{\"dummy\":\"body\"}",
-                    headers);
-            return response.getResponseCode() == 202;
-        });
     }
 
     @Test

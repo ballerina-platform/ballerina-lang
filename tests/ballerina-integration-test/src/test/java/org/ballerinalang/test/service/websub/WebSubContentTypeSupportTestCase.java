@@ -1,16 +1,13 @@
 package org.ballerinalang.test.service.websub;
 
-import io.netty.handler.codec.http.HttpHeaderNames;
 import org.awaitility.Duration;
 import org.ballerinalang.test.BaseTest;
 import org.ballerinalang.test.context.BMainInstance;
 import org.ballerinalang.test.context.BServerInstance;
 import org.ballerinalang.test.context.BallerinaTestException;
 import org.ballerinalang.test.context.LogLeecher;
-import org.ballerinalang.test.util.HttpClientRequest;
 import org.ballerinalang.test.util.HttpResponse;
 import org.ballerinalang.test.util.HttpsClientRequest;
-import org.ballerinalang.test.util.TestConstant;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -18,8 +15,6 @@ import org.testng.annotations.Test;
 import java.io.File;
 import java.io.IOException;
 import java.net.ConnectException;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.concurrent.Executors;
 
 import static org.awaitility.Awaitility.given;
@@ -124,8 +119,8 @@ public class WebSubContentTypeSupportTestCase extends BaseTest {
         });
 
         //Allow to bring up the hub
-        given().ignoreException(ConnectException.class).with().pollInterval(Duration.FIVE_SECONDS).and()
-                .with().pollDelay(Duration.TEN_SECONDS).await().atMost(60, SECONDS).until(() -> {
+        given().ignoreException(ConnectException.class).with().pollInterval(Duration.ONE_SECOND).await()
+                .atMost(60, SECONDS).until(() -> {
             //using same pack location, hence server home is same
             HttpResponse response = HttpsClientRequest.doGet(hubUrl, webSubSubscriber.getServerHome());
             return response.getResponseCode() == 202;
@@ -133,18 +128,6 @@ public class WebSubContentTypeSupportTestCase extends BaseTest {
 
         String[] subscriberArgs = {};
         webSubSubscriber.startServer(subscriberBal, subscriberArgs, new int[]{servicePort});
-
-        //Allow to start up the subscriber service
-        given().ignoreException(ConnectException.class).with().pollInterval(Duration.FIVE_SECONDS).and()
-                .with().pollDelay(Duration.TEN_SECONDS).await().atMost(60, SECONDS).until(() -> {
-            Map<String, String> headers = new HashMap<>();
-            headers.put(HttpHeaderNames.CONTENT_TYPE.toString(), TestConstant.CONTENT_TYPE_JSON);
-            headers.put("X-Hub-Signature", "SHA256=5262411828583e9dc7eaf63aede0abac8e15212e06320bb021c433a20f27d553");
-            HttpResponse response = HttpClientRequest.doPost(
-                    webSubSubscriber.getServiceURLHttp(servicePort, "websub"), "{\"dummy\":\"body\"}",
-                    headers);
-            return response.getResponseCode() == 202;
-        });
     }
 
     @Test
