@@ -41,8 +41,6 @@ function updateWebView(ast: BallerinaAST, docUri: Uri, stale: boolean): void {
 }
 
 export function activate(context: ExtensionContext, langClient: ExtendedLangClient) {
-	
-	const resourceRoot = getWebViewResourceRoot(context);
 	workspace.onDidChangeTextDocument(_.debounce((e: TextDocumentChangeEvent) => {
         if (activeEditor && (e.document === activeEditor.document) &&
             e.document.fileName.endsWith('.bal')) {
@@ -98,7 +96,7 @@ export function activate(context: ExtensionContext, langClient: ExtendedLangClie
             return "";
 		}
 		activeEditor = editor;
-		render(editor.document.uri, langClient, resourceRoot)
+		render(context, langClient, editor.document.uri)
 			.then((html) => {
 				if (previewPanel && html) {
 					previewPanel.webview.html = html;

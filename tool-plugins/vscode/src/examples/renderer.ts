@@ -8,7 +8,6 @@ export function render(context: ExtensionContext, langClient: ExtendedLangClient
         .then((resp) => {
             const body = `<div id="examples" />`;
             const script = `
-                const vscode = acquireVsCodeApi();
                 const examples = ${JSON.stringify(resp.samples)};
                 function openExample(url) {
                     vscode.postMessage({
