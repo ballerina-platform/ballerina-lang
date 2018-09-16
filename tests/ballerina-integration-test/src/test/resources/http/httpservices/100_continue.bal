@@ -43,7 +43,7 @@ service<http:Service> helloContinue bind { port: 9090 } {
     @http:ResourceConfig {
         methods: ["POST"]
     }
-    outOfOrder(endpoint caller, http:Request req) {
+    getFormParam(endpoint caller, http:Request req) {
         string replyMsg = "Result =";
         mime:Entity[] bodyParts = check req.getBodyParts();
         int i = 0;

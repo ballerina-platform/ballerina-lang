@@ -86,7 +86,7 @@ public class ExpectContinueTestCase extends HttpBaseTest {
         formData.put("team", "ballerina");
 
         HttpResponse response = HttpClientRequest.doMultipartFormData(
-                serverInstance.getServiceURLHttp(servicePort, "continue/outOfOrder"), headers, formData);
+                serverInstance.getServiceURLHttp(servicePort, "continue/getFormParam"), headers, formData);
         Assert.assertNotNull(response);
         Assert.assertEquals(response.getResponseCode(), 200, "Response code mismatched");
         Assert.assertEquals(response.getData(), "Result = Key:person Value: engineer Key:team Value: ballerina");
