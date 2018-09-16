@@ -44,6 +44,7 @@ function renderStaticDiagram(target, modelJson, props = {}) {
         height: 300,
         width: 300,
     };
+    target.classList.add('composer-library');
     Object.assign(defaultProps, props);
     const el = createElement(BalDiagram, defaultProps);
     target.innerHTML = renderToStaticMarkup(el);
@@ -148,17 +149,18 @@ function renderEditableDiagram(target, docUri, width, height,
         width,
         height,
     };
+    target.classList.add('composer-library');
     const BalDiagramElement = createElement(BallerinaDiagram, props);
     ReactDOM.render(BalDiagramElement, target);
 }
 
 function renderSamplesList(target, samples, openSample, openLink) {
-    console.log('Rendering samples');
     const props = {
         samples,
         openSample,
         openLink,
     };
+    target.classList.add('composer-library');
     const SamplesListElement = createElement(SamplesList, props);
     ReactDOM.render(SamplesListElement, target);
 }

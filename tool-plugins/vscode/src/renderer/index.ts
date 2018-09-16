@@ -17,11 +17,11 @@
  *
  */
 import { workspace, commands, window, Uri, ViewColumn, ExtensionContext, TextEditor, WebviewPanel, TextDocumentChangeEvent } from 'vscode';
-import * as path from 'path';
 import * as _ from 'lodash';
 import { StaticProvider } from './content-provider';
 import { render } from './renderer';
 import { BallerinaAST, ExtendedLangClient } from '../lang-client';
+import { getWebViewResourceRoot } from '../utils';
 
 const DEBOUNCE_WAIT = 500;
 
@@ -41,10 +41,6 @@ function updateWebView(ast: BallerinaAST, docUri: Uri, stale: boolean): void {
 }
 
 export function activate(context: ExtensionContext, langClient: ExtendedLangClient) {
-
-	const resourcePath = Uri.file(path.join(context.extensionPath, 'resources', 'diagram'));
-	const resourceRoot = resourcePath.with({ scheme: 'vscode-resource' });
-
 	workspace.onDidChangeTextDocument(_.debounce((e: TextDocumentChangeEvent) => {
         if (activeEditor && (e.document === activeEditor.document) &&
             e.document.fileName.endsWith('.bal')) {
@@ -92,7 +88,6 @@ export function activate(context: ExtensionContext, langClient: ExtendedLangClie
             { viewColumn: ViewColumn.Two, preserveFocus: true } ,
             {
 				enableScripts: true,
-				localResourceRoots: [resourcePath],
 				retainContextWhenHidden: true,
 			}
 		);
@@ -101,7 +96,7 @@ export function activate(context: ExtensionContext, langClient: ExtendedLangClie
             return "";
 		}
 		activeEditor = editor;
-		render(editor.document.uri, langClient, resourceRoot)
+		render(context, langClient, editor.document.uri)
 			.then((html) => {
 				if (previewPanel && html) {
 					previewPanel.webview.html = html;

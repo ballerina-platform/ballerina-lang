@@ -1,0 +1,1 @@
+var vscode = acquireVsCodeApi();

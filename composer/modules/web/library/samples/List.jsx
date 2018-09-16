@@ -17,7 +17,8 @@
  */
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Grid, Menu } from 'semantic-ui-react';
+import { Grid, Input } from 'semantic-ui-react';
+import _ from 'lodash';
 
 /**
  * React component for list of ballerina samples.
@@ -27,9 +28,38 @@ import { Grid, Menu } from 'semantic-ui-react';
  */
 class SamplesList extends React.Component {
 
+    constructor(props, context) {
+        super(props, context);
+        this.state = {
+            samples: _.cloneDeep(props.samples),
+        };
+        this.searchInput = undefined;
+        this.onSearchQueryEdit = _.debounce(() => {
+            if (this.searchInput) {
+                const searchQuery = this.searchInput.inputRef.value.toLowerCase();
+                let samples = _.cloneDeep(this.props.samples);
+                samples = samples.filter((sampleCategory) => {
+                    if (!sampleCategory.title.toLowerCase().includes(searchQuery)) {
+                        sampleCategory.samples = sampleCategory.samples.filter(sample => sample.name.toLowerCase().includes(searchQuery));
+                    }
+                    return sampleCategory.samples.length !== 0;
+                });
+                this.setState({
+                    samples,
+                });
+            }
+        }, 500).bind(this);
+    }
+
+    componentDidMount() {
+        if (this.searchInput) {
+            this.searchInput.focus();
+        }
+    }
+
     getColumnContents() {
         const columns = [];
-        this.props.samples.forEach((sample) => {
+        this.state.samples.forEach((sample) => {
             columns[sample.column] = columns[sample.column] || [];
             columns[sample.column].push(sample);
         });
@@ -67,51 +97,43 @@ class SamplesList extends React.Component {
      * @memberof SamplesList
      */
     render() {
-        const samples = this.getColumnContents();
+        const columns = this.getColumnContents();
+        // const columnSize = columns.length > 0 ? (16 / columns.length) : 16;
         return (
             <Grid className='welcome-page'>
-                <Grid.Column>
-                    <Grid.Row className='welcome-navbar' columns={2}>
-                        <Grid.Column className='nav-tagline'>
-                            Ballerina Language Examples
-                        </Grid.Column>
-                        <Grid.Column>
-                            <Menu className='top-nav-links' position='right'>
-                                <a
-                                    rel='noopener noreferrer'
-                                    target='_blank'
-                                    href='https://ballerina.io/learn/api-docs/ballerina/http.html'
-                                    onClick={(event) => {
-                                        event.preventDefault();
-                                        this.props.openLink(event.currentTarget.href);
-                                    }}
-                                >
-                                    <Menu.Item name='API Reference' />
-                                </a>
-                            </Menu>
-                        </Grid.Column>
-                    </Grid.Row>
-                    <Grid.Row className='welcome-content-wrapper'>
-                        <Grid.Column mobile={16} tablet={16} computer={16} className='rightContainer'>
-                            <Grid>
-                                <Grid.Row columns={4} className='sample-wrapper'>
-                                    <Grid.Column mobile={16} tablet={16} computer={4} className=''>
-                                        {samples[0].map(column => this.renderColumnItem(column))}
-                                    </Grid.Column>
-                                    <Grid.Column mobile={16} tablet={16} computer={4} className=''>
-                                        {samples[1].map(column => this.renderColumnItem(column))}
-                                    </Grid.Column>
-                                    <Grid.Column mobile={16} tablet={16} computer={4} className=''>
-                                        {samples[2].map(column => this.renderColumnItem(column))}
-                                    </Grid.Column>
-                                    <Grid.Column mobile={16} tablet={16} computer={4} className=''>
-                                        {samples[3].map(column => this.renderColumnItem(column))}
-                                    </Grid.Column>
-                                </Grid.Row>
-                            </Grid>
-                        </Grid.Column>
-                    </Grid.Row>
-                </Grid.Column>
+                <Grid.Row className='welcome-navbar' columns={2}>
+                    <Grid.Column className='nav-tagline'>
+                        Search and open available examples
+                    </Grid.Column>
+                    <Grid.Column>
+                        <div className='top-nav-links' style={{ paddingRight: 0, marginRight: 40 }} position='right'>
+                            <Input
+                                ref={(ref) => {
+                                    this.searchInput = ref;
+                                }}
+                                placeholder='Search'
+                                onChange={this.onSearchQueryEdit}
+                            />
+                        </div>
+                    </Grid.Column>
+                </Grid.Row>
+                <Grid.Row className='welcome-content-wrapper'>
+                    <Grid.Column mobile={16} tablet={16} computer={16} className='rightContainer'>
+                        <Grid>
+                            <Grid.Row columns={4} className='sample-wrapper'>
+                                {
+                                    columns.map((column) => {
+                                        return (
+                                            <Grid.Column mobile={16} tablet={16} computer={4}>
+                                                {column.map(columnItem => this.renderColumnItem(columnItem))}
+                                            </Grid.Column>
+                                        );
+                                    })
+                                }
+                            </Grid.Row>
+                        </Grid>
+                    </Grid.Column>
+                </Grid.Row>
             </Grid>);
     }
 }

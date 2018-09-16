@@ -13,7 +13,8 @@
             "--extensionDevelopmentPath=${workspaceFolder}"
         ],
         "env": {
-            "LSDEBUG": "false"
+            "LSDEBUG": "false",
+            "DIAGRAM_DEBUG": "false"
         },
         "outFiles": [
             "${workspaceFolder}/out/**/*.js"

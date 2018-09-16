@@ -234,7 +234,7 @@
                     </execution>
                     <execution>
                         <id>download-examples-config</id>
-                        <phase>verify</phase>
+                        <phase>validate</phase>
                         <goals>
                             <goal>run</goal>
                         </goals>
