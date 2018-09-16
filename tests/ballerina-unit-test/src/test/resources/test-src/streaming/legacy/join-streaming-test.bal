@@ -16,6 +16,7 @@
 
 import ballerina/runtime;
 import ballerina/io;
+import ballerina/streams;
 
 type Stock record {
     string symbol;
@@ -45,8 +46,8 @@ stream<StockWithPrice> stockWithPriceStream;
 function testJoinQuery() {
 
     forever {
-        from stockStream window time(1000)
-        join twitterStream window time(1000)
+        from stockStream window timeWindow(1000)
+        join twitterStream window timeWindow(1000)
         on stockStream.symbol == twitterStream.company
         select stockStream.symbol as symbol, twitterStream.tweet as tweet, stockStream.price as price
         => (StockWithPrice[] emp) {
