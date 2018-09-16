@@ -13,7 +13,6 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 import java.io.File;
-import java.io.IOException;
 import java.net.ConnectException;
 import java.util.concurrent.Executors;
 
@@ -131,7 +130,7 @@ public class WebSubContentTypeSupportTestCase extends BaseTest {
     }
 
     @Test
-    public void testSubscriptionAndIntentVerification() throws BallerinaTestException, IOException {
+    public void testSubscriptionAndIntentVerification() throws BallerinaTestException {
         intentVerificationLogLeecherOne.waitForText(30000);
         intentVerificationLogLeecherTwo.waitForText(30000);
         updateSubscribed(helperServicePortAsString);

@@ -17,6 +17,7 @@
  */
 package org.ballerinalang.test.service.websub;
 
+import org.ballerinalang.test.context.BallerinaTestException;
 import org.ballerinalang.test.util.HttpClientRequest;
 
 import java.io.IOException;
@@ -26,11 +27,19 @@ import java.io.IOException;
  */
 class WebSubTestUtils {
 
-    static void updateSubscribed(String port) throws IOException {
-        HttpClientRequest.doGet("http://localhost:" + port + "/helper/subscribed");
+    static void updateSubscribed(String port) throws BallerinaTestException {
+        try {
+            HttpClientRequest.doGet("http://localhost:" + port + "/helper/subscribed");
+        } catch (IOException e) {
+            throw new BallerinaTestException("Error updating subscription change");
+        }
     }
 
-    static void updateNotified(String port) throws IOException {
-        HttpClientRequest.doGet("http://localhost:" + port + "/helper/delivered");
+    static void updateNotified(String port) throws BallerinaTestException {
+        try {
+            HttpClientRequest.doGet("http://localhost:" + port + "/helper/delivered");
+        } catch (IOException e) {
+            throw new BallerinaTestException("Error updating content delivery");
+        }
     }
 }

@@ -30,7 +30,6 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 import java.io.File;
-import java.io.IOException;
 import java.net.ConnectException;
 import java.util.concurrent.Executors;
 
@@ -111,7 +110,7 @@ public class WebSubSubscriptionChangeTestCase extends BaseTest {
     }
 
     @Test
-    public void testSubscriptionAndIntentVerification() throws BallerinaTestException, IOException {
+    public void testSubscriptionAndIntentVerification() throws BallerinaTestException {
         subscriptionIntentVerificationLogLeecher.waitForText(30000);
         updateSubscribed(helperServicePortAsString);
     }

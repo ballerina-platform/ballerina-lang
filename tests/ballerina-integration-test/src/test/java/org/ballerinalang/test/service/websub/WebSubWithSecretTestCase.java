@@ -111,7 +111,7 @@ public class WebSubWithSecretTestCase extends BaseTest {
     }
 
     @Test
-    public void testSubscriptionAndIntentVerification() throws BallerinaTestException, IOException {
+    public void testSubscriptionAndIntentVerification() throws BallerinaTestException {
         intentVerificationLogLeecher.waitForText(30000);
         updateSubscribed(helperServicePortAsString);
     }
