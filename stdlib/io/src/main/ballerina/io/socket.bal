@@ -17,7 +17,8 @@
 
 # Represents a TCP socket.
 #
-# + channel - ByteChannel which will represent the socket connection
+# + readableChannel - ReadableByteChannel which will represent the socket connection
+# + writableChannel - WritableByteChannel which will represent the socket connection
 # + remotePort - Remote server connection port
 # + localPort - Local port the socket connection should bound
 # + remoteAddress - IP/Host of the remote server
@@ -40,11 +41,15 @@ public type Socket object {
 
     # Binds socket to a local port.
     #
+    # + port - the port number.
+    # + interface - the local interface the server will bind to
     # + return - An error if could not bind to the port
     public extern function bindAddress(@sensitive int port, @sensitive string? interface = ()) returns error?;
 
     # Open a connection with remote server.
     #
+    # + host - the host name.
+    # + port - the port number.
     # + return - An error if could not connect with the remote server.
     public extern function connect(@sensitive string host, @sensitive int port) returns error?;
 
@@ -76,6 +81,8 @@ public type ServerSocket object {
 
     # Binds socket to a local port.
     #
+    # + port - port
+    # + interface -
     # + return - An error if could not bind to the port
     public extern function bindAddress(@sensitive int port, @sensitive string? interface = ()) returns error?;
 
@@ -111,4 +118,5 @@ public type SocketProperties record {
     string sslEnabledProtocols;
     string ciphers;
     string sslProtocol;
+    !...
 };

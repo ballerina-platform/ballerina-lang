@@ -210,27 +210,27 @@ function defineEndpointWithoutProxy (string url) returns http:Client{
 documentation {
     This function will read the bytes from the byte channel.
 
-    P{{channel}} Byte channel
+    P{{byteChannel}} Byte channel
     P{{numberOfBytes}} Number of bytes to be read
     R{{}} Read content as byte[] along with the number of bytes read.
 }
-function readBytes(io:ReadableByteChannel channel, int numberOfBytes) returns (byte[], int) {
+function readBytes(io:ReadableByteChannel byteChannel, int numberOfBytes) returns (byte[], int) {
     byte[] bytes;
     int numberOfBytesRead;
-    (bytes, numberOfBytesRead) = check (channel.read(numberOfBytes));
+    (bytes, numberOfBytesRead) = check (byteChannel.read(numberOfBytes));
     return (bytes, numberOfBytesRead);
 }
 
 documentation {
     This function will write the bytes from the byte channel.
 
-    P{{channel}} Byte channel
+    P{{byteChannel}} Byte channel
     P{{content}} Content to be written as a byte[]
     P{{startOffset}} Offset
     R{{}} number of bytes written.
 }
-function writeBytes(io:WritableByteChannel channel, byte[] content, int startOffset) returns int {
-    int numberOfBytesWritten = check (channel.write(content, startOffset));
+function writeBytes(io:WritableByteChannel byteChannel, byte[] content, int startOffset) returns int {
+    int numberOfBytesWritten = check (byteChannel.write(content, startOffset));
     return numberOfBytesWritten;
 }
 
@@ -349,10 +349,10 @@ function createDirectories(string directoryPath) returns (boolean) {
 documentation {
     This function will close the byte channel.
 
-    P{{channel}} Byte channel to be closed
+    P{{byteChannel}} Byte channel to be closed
 }
-function closeChannel(io:ReadableByteChannel|io:WritableByteChannel channel) {
-    match channel {
+function closeChannel(io:ReadableByteChannel|io:WritableByteChannel byteChannel) {
+    match byteChannel {
         object { public function close() returns error?; } ch => {
             match ch.close() {
                 error channelCloseError => {

@@ -18,13 +18,15 @@
 # ReadableByteChannel represents an input resource (i.e file, socket). which could be used to source bytes.
 public type ReadableByteChannel object {
 
-    # Sink bytes from a given input/output resource.
+    # Source bytes from a given input/output resource.
     #
-    # This operation will be asynchronous, write might return without writing all the content.
+    # Number of bytes returned will be < 0 if the file reached its end.
     #
-    # + content - Block of bytes which should be written
-    # + return - Offset which should be kept when writing bytes.
-    #            Number of bytes written or an error.
+    # This operation will be asynchronous, where the total number of required bytes might not be returned at a given
+    # time.
+    #
+    # + nBytes - Positive integer. Represents the number of bytes which should be read
+    # + return - Content, the number of bytes read or an error
     public extern function read(@sensitive int nBytes) returns @tainted (byte[], int)|error;
 
     # Encodes a given ReadableByteChannel with Base64 encoding scheme.

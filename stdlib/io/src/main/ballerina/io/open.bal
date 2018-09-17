@@ -29,14 +29,12 @@ public type Mode "r"|"w"|"rw"|"a";
 # Retrieves a ReadableByteChannel from a given file path.
 #
 # + path - Relative/absolute path string to locate the file
-# + accessMode - Permission to open the file
 # + return - ByteChannel representation of the file resource
 public extern function openFileForReading(@sensitive string path) returns @tainted ReadableByteChannel;
 
 # Retrieves a WritableByteChannel from a given file path.
 #
 # + path - Relative/absolute path string to locate the file
-# + accessMode - Permission to open the file
 # + return - ByteChannel representation of the file resource
 public extern function openFileForWriting(@sensitive string path, boolean append = false)
     returns @tainted WritableByteChannel;

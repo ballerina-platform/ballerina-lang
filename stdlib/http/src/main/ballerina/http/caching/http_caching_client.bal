@@ -66,6 +66,7 @@ public type CacheConfig record {
     int capacity = 8388608, // 8MB
     float evictionFactor = 0.2,
     CachingPolicy policy = CACHE_CONTROL_AND_VALIDATORS,
+    !...
 };
 
 # An HTTP caching client implementation which takes an `HttpActions` instance and wraps it with an HTTP caching layer.

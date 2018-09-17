@@ -765,6 +765,15 @@ public class TaintAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangWorkerSend workerSendNode) {
+        if (workerSendNode.isChannel) {
+            List<BLangExpression> exprsList = new ArrayList<>();
+            exprsList.add(workerSendNode.expr);
+            if (workerSendNode.keyExpr != null) {
+                exprsList.add(workerSendNode.keyExpr);
+            }
+            analyzeExprList(exprsList);
+            return;
+        }
         if (workerSendNode.isForkJoinSend) {
             currForkIdentifier = workerSendNode.workerIdentifier;
         }
@@ -783,6 +792,16 @@ public class TaintAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangWorkerReceive workerReceiveNode) {
+        if (workerReceiveNode.isChannel) {
+            List<BLangExpression> exprList = new ArrayList<>();
+            exprList.add(workerReceiveNode.expr);
+            if (workerReceiveNode.keyExpr != null) {
+                exprList.add(workerReceiveNode.keyExpr);
+            }
+            analyzeExprList(exprList);
+            return;
+        }
+
         TaintedStatus taintedStatus = workerInteractionTaintedStatusMap.get(currWorkerIdentifier);
         if (taintedStatus == null) {
             blockedOnWorkerInteraction = true;

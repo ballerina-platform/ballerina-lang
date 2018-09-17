@@ -87,6 +87,7 @@ under the License.
             <package name="org.ballerinalang.test.balo.*" />
             <package name="org.ballerinalang.test.compression.*"/>
             <package name="org.ballerinalang.test.variable.shadowing.*" />
+            <package name="org.ballerinalang.test.channels.*" />
         </packages>
 
 		<!-- TODO: remove once constraint tests are fixed -->
