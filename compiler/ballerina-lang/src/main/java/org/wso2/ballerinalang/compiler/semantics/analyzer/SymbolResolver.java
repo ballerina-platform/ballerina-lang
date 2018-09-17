@@ -761,6 +761,12 @@ public class SymbolResolver extends BLangNodeVisitor {
                     this.env, typeName, SymTag.VARIABLE_NAME);
         }
 
+        // Special case the bLangTestablePackage
+        if (symbol == symTable.notFoundSymbol && env.enclPkg.getKind() == NodeKind.TESTABLE_PACKAGE) {
+            symbol = lookupMemberSymbol(userDefinedTypeNode.pos, this.env.enclEnv.enclEnv.enclEnv.scope,
+                                        this.env, typeName, SymTag.VARIABLE_NAME);
+        }
+
         if (this.env.logErrors && symbol == symTable.notFoundSymbol) {
             dlog.error(userDefinedTypeNode.pos, diagCode, typeName);
             resultType = symTable.errType;
