@@ -66,6 +66,7 @@ public class Http2OutboundRespListener implements HttpConnectorListener {
 
     private Http2MessageStateContext http2MessageStateContext;
     private HttpCarbonMessage inboundRequestMsg;
+    private ChannelHandlerContext ctx;
     private Http2ConnectionEncoder encoder;
     private int originalStreamId;   // stream id of the request received from the client
     private Http2Connection conn;
@@ -74,8 +75,6 @@ public class Http2OutboundRespListener implements HttpConnectorListener {
     private HttpServerChannelInitializer serverChannelInitializer;
     private Calendar inboundRequestArrivalTime;
     private String remoteAddress = "-";
-
-    public ChannelHandlerContext ctx;
 
     public Http2OutboundRespListener(HttpServerChannelInitializer serverChannelInitializer,
                                      HttpCarbonMessage inboundRequestMsg, ChannelHandlerContext ctx,
