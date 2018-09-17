@@ -111,7 +111,8 @@ public class InitCommand implements BLauncherCmd {
                 boolean validInput = false;
                 boolean firstPrompt = true;
                 do {
-                    // Following will be the first prompt and it will create a service by default
+                    // Following will be the first prompt and it will create a service by default. This is to align
+                    // with the non-interactive implementation.
                     if (firstPrompt) {
                         // Here if the user presses enter or "s" a service will be created (This will have the same
                         // behavior as running ballerina init without the interactive mode)
