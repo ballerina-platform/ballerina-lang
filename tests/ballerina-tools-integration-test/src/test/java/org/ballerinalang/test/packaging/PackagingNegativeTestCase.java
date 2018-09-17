@@ -313,7 +313,7 @@ public class PackagingNegativeTestCase extends BaseTest {
         Path projectPath = tempProjectDirectory.resolve("projectxyz");
         initProject(projectPath);
         String msg = "error: you are trying to run a ballerina file inside a package within a project. Try running " +
-                "'ballerina run" + packageName + "'";
+                "'ballerina run <package-name>'";
         String sourcePath = Paths.get(packageName, "main.bal").toString();
         balClient.runMain("run", new String[] {sourcePath}, envVariables, new String[0],
                           new LogLeecher[]{new LogLeecher(msg)}, projectPath.toString());
@@ -324,7 +324,7 @@ public class PackagingNegativeTestCase extends BaseTest {
     public void testBuildingBalInsidePackage() throws Exception {
         Path projectPath = tempProjectDirectory.resolve("projectxyz");
         String msg = "error: you are trying to build a ballerina file inside a package within a project. Try running " +
-                "'ballerina build" + packageName + "'";
+                "'ballerina build <package-name>'";
         String sourcePath = Paths.get(packageName, "main.bal").toString();
         balClient.runMain("build", new String[] {sourcePath}, envVariables, new String[0],
                           new LogLeecher[]{new LogLeecher(msg)}, projectPath.toString());

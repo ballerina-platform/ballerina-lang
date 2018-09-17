@@ -139,8 +139,8 @@ public class BuildCommand implements BLauncherCmd {
                 // Checks if the source is a package and if its inside a project (with a .ballerina folder)
                 if (Files.isDirectory(resolvedFullPath) && !RepoUtils.hasProjectRepo(sourceRootPath)) {
                     throw LauncherUtils.createLauncherException("error: do you mean to build the ballerina package " +
-                                                                "as a project? If so run ballerina init to make it a " +
-                                                                        "project with a .ballerina directory");
+                                                                "as a project? If so run 'ballerina build' from " +
+                                                                        "within the project");
                 }
                 // If we are trying to run a bal file inside a package from a project directory an error is thrown.
                 // To differentiate between top level bals and bals inside packages we need to check if the parent of
@@ -152,7 +152,7 @@ public class BuildCommand implements BLauncherCmd {
                     String srcPkgName = fileName != null ? fileName.toString() : "";
                     throw LauncherUtils.createLauncherException("error: you are trying to build a ballerina file " +
                                                                 "inside a package within a project. Try running " +
-                                                                        "'ballerina build " + srcPkgName + "'");
+                                                                        "'ballerina build <package-name>'");
                 }
             } else {
                 // Invalid source file provided
