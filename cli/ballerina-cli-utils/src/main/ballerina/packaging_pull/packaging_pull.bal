@@ -119,10 +119,6 @@ function pullPackage(http:Client definedEndpoint, string url, string dirPath, st
             int rightMargin = 3;
             int width = (check <int>terminalWidth) - rightMargin;
             copy(pkgSize, sourceChannel, wch, fullPkgPath, toAndFrom, width);
-            //io:WritableByteChannel destDirChannel = getFileChannel(destArchivePath, io:WRITE) but {
-            //    io:WritableByteChannel wch => wch,
-            //    io:ReadableByteChannel rch => io:println("Invalid channel, the operation should allow writing")
-            //};
 
             closeChannel(sourceChannel);
             closeChannel(wch);
@@ -210,23 +206,6 @@ function defineEndpointWithoutProxy (string url) returns http:Client{
     };
     return httpEndpoint;
 }
-
-//documentation {
-//    This function will get the file channel.
-//
-//    P{{filePath}} File path
-//    P{{permission}} Permissions provided
-//    R{{}} `ByteChannel` of the file content
-//}
-//function getFileChannel(string filePath, io:Mode permission) returns io:ReadableByteChannel|io:WritableByteChannel {
-//    //match io:openFile(untaint filePath, permission) {
-//    //    io:ReadableByteChannel rch => return rch;
-//    //    io:WritableByteChannel wch => return wch;
-//    //}
-//    //io:ByteChannel channel = io:openFile(untaint filePath, permission);
-//    //return channel;
-//    return io:openFile(untaint filePath, permission);
-//}
 
 documentation {
     This function will read the bytes from the byte channel.

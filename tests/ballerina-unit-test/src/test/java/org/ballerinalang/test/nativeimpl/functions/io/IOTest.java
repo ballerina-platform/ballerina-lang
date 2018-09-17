@@ -120,26 +120,6 @@ public class IOTest {
         BRunUtil.invokeStateful(bytesInputOutputProgramFile, "closeReadableChannel");
     }
 
-    // Test case is not valid with channel separation.
-//    @Test(description = "Test permission errors in byte read operations")
-//    public void testByteOperationPermissionError() throws URISyntaxException {
-//        int numberOfBytesToRead = 3;
-//        String resourceToRead = "datafiles/io/text/6charfile.txt";
-//
-//        //Will initialize the channel with write permission
-//        BValue[] args = {new BString(getAbsoluteFilePath(resourceToRead))};
-//        BRunUtil.invokeStateful(bytesInputOutputProgramFile, "initReadableChannel", args);
-//
-//        //We try to read bytes
-//        args = new BValue[]{new BInteger(numberOfBytesToRead)};
-//        BValue[] returns = BRunUtil.invokeStateful(bytesInputOutputProgramFile, "readBytes", args);
-//        BMap<String, BValue> readBytes = (BMap<String, BValue>) returns[0];
-//
-//        Assert.assertTrue(readBytes.toString().startsWith("{message:\"could not read"));
-//
-//        BRunUtil.invokeStateful(bytesInputOutputProgramFile, "closeReadableChannel");
-//    }
-
     @Test(description = "Test 'readCharacters' function in ballerina/io package")
     public void testReadCharacters() throws URISyntaxException {
         String resourceToRead = "datafiles/io/text/utf8file.txt";
@@ -174,25 +154,6 @@ public class IOTest {
         BRunUtil.invokeStateful(characterInputOutputProgramFile, "closeReadableChannel");
 
     }
-
-    // Test case is not valid with channel separation.
-//    @Test(description = "Test permission errors in byte read operations")
-//    public void testCharacterOperationPermissionError() throws URISyntaxException {
-//        String resourceToRead = "datafiles/io/text/utf8file.txt";
-//        int numberOfCharactersToRead = 3;
-//
-//        //Will initialize the channel with write permissions
-//        BValue[] args = {new BString(getAbsoluteFilePath(resourceToRead)), new BString("UTF-8")};
-//        BRunUtil.invokeStateful(characterInputOutputProgramFile, "initReadableChannel", args);
-//
-//        args = new BValue[]{new BInteger(numberOfCharactersToRead)};
-//        BValue[] returns = BRunUtil.invokeStateful(characterInputOutputProgramFile, "readCharacters", args);
-//        BMap<String, BValue> readCharacters = (BMap<String, BValue>) returns[0];
-//
-//        Assert.assertTrue(readCharacters.toString().startsWith("{message:\"Error occurred"));
-//
-//        BRunUtil.invokeStateful(characterInputOutputProgramFile, "closeReadableChannel");
-//    }
 
     @Test(description = "Test 'readCharacters' function in ballerina/io package")
     public void testReadAllCharacters() throws URISyntaxException {
@@ -269,24 +230,6 @@ public class IOTest {
 
         BRunUtil.invokeStateful(recordsInputOutputProgramFile, "closeReadableChannel");
     }
-
-    // Test case is not valid with channel separation.
-//    @Test(description = "Test permission errors in record read operations")
-//    public void testRecordOperationPermissionError() throws URISyntaxException {
-//        String resourceToRead = "datafiles/io/records/sample.csv";
-//
-//        //Will initialize the channel with write permissions
-//        BValue[] args = {new BString(getAbsoluteFilePath(resourceToRead)), new BString("UTF-8"),
-//                new BString("\n"), new BString(",")};
-//        BRunUtil.invokeStateful(recordsInputOutputProgramFile, "initReadableChannel", args);
-//
-//        BValue[] returns = BRunUtil.invokeStateful(recordsInputOutputProgramFile, "nextRecord");
-//        BMap<String, BValue> records = (BMap<String, BValue>) returns[0];
-//
-//        Assert.assertTrue(records.toString().startsWith("{message:\"Error occurred"));
-//
-//        BRunUtil.invokeStateful(recordsInputOutputProgramFile, "closeReadableChannel");
-//    }
 
 
     @Test(description = "Test 'writeBytes' function in ballerina/io package")

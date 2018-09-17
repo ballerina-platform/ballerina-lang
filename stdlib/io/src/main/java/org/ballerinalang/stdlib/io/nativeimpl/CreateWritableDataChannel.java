@@ -39,7 +39,7 @@ import java.nio.ByteOrder;
 /**
  * Extern function to create data channel.
  *
- * @since 0.973.1
+ * @since 0.982.0
  */
 @BallerinaFunction(
         orgName = "ballerina", packageName = "io",
