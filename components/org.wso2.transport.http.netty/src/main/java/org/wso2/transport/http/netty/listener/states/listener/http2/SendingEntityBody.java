@@ -40,7 +40,7 @@ public class SendingEntityBody implements ListenerState {
 
     @Override
     public void readInboundRequestBody(Http2DataFrame dataFrame) {
-        LOG.warn("readInboundRequestBody is not a dependant action of this state");
+        dataFrame.getData().release();
     }
 
     @Override
