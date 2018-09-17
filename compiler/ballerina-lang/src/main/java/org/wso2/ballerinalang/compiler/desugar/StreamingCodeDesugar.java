@@ -1130,7 +1130,8 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
     }
 
     public void visit(BLangInvocation invocationExpr) {
-        conditionExpr = invocationExpr;
+        conditionExpr = refactorInvocationWithIndexBasedArgs(mapVarArgs.get(mapVarArgs.size() - 1).symbol,
+                invocationExpr);
     }
 
     public void visit(BLangSimpleVarRef varRefExpr) {
@@ -1280,7 +1281,9 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
                 aggregatorIndex++;
             } else if (selectExpression.getExpression().getKind() == NodeKind.INVOCATION) {
                 BLangInvocation selectFuncInvocation = (BLangInvocation) selectExpression.getExpression();
-                refactorInvocationWithIndexBasedArgs(streamEventSymbol, selectFuncInvocation);
+                selectFuncInvocation = refactorInvocationWithIndexBasedArgs((BVarSymbol)
+                        createEventDataFieldAccessExpr(selectFuncInvocation.pos, streamEventSymbol).symbol,
+                        selectFuncInvocation);
                 recordKeyValue.valueExpr = generateConversionExpr(selectFuncInvocation, symTable.anyType, symResolver);
             } else {
                 recordKeyValue.valueExpr = generateConversionExpr((BLangExpression) selectExpression.getExpression(),
@@ -1294,7 +1297,7 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
     }
 
     // func(inputStream.name) into func(check <string> e.data["inputStream.name"])
-    private void refactorInvocationWithIndexBasedArgs(BVarSymbol streamEventSymbol, BLangInvocation invocation) {
+    private BLangInvocation refactorInvocationWithIndexBasedArgs(BVarSymbol mapVarSymbol, BLangInvocation invocation) {
         if (invocation.requiredArgs.size() > 0) {
             List<BLangExpression> expressionList = new ArrayList<>();
             List<BLangExpression> functionArgsList = invocation.requiredArgs;
@@ -1302,8 +1305,7 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
                 if (expression.getKind() == NodeKind.FIELD_BASED_ACCESS_EXPR &&
                     (((BLangFieldBasedAccess) expression).expr.type.tag == TypeTags.STREAM)) {
                     BLangExpression fieldAccessExpr =
-                            createMapVariableIndexAccessExpr((BVarSymbol) createEventDataFieldAccessExpr(
-                            expression.pos, streamEventSymbol).symbol, expression);
+                            createMapVariableIndexAccessExpr(mapVarSymbol, expression);
                     expressionList.add(createCheckedConversionExpr(generateConversionExpr(fieldAccessExpr,
                             expression.type, symResolver)));
                 } else {
@@ -1313,6 +1315,7 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
             invocation.argExprs = expressionList;
             invocation.requiredArgs = expressionList;
         }
+        return invocation;
     }
 
     private BLangInvocation generateAggregatorInvocation(BVarSymbol streamEventSymbol, BVarSymbol aggregatorArraySymbol,
