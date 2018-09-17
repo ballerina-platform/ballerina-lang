@@ -16,6 +16,8 @@
 package org.ballerinalang.langserver.launchers.stdio;
 
 import org.ballerinalang.langserver.BallerinaLanguageServer;
+import org.ballerinalang.langserver.client.ExtendedLanguageClient;
+import org.ballerinalang.langserver.client.ExtendedLanguageClientAware;
 import org.eclipse.lsp4j.jsonrpc.Launcher;
 import org.eclipse.lsp4j.launch.LSPLauncher;
 import org.eclipse.lsp4j.services.LanguageClient;
@@ -43,10 +45,10 @@ public class Main {
     public static void startServer(InputStream in, OutputStream out)
             throws InterruptedException, ExecutionException {
         BallerinaLanguageServer server = new BallerinaLanguageServer();
-        Launcher<LanguageClient> l = LSPLauncher.createServerLauncher(server, in, out);
-        LanguageClient client = l.getRemoteProxy();
-        ((LanguageClientAware) server).connect(client);
-        Future<?> startListening = l.startListening();
+        Launcher<ExtendedLanguageClient> launcher = Launcher.createLauncher(server, ExtendedLanguageClient.class, in, out);
+        ExtendedLanguageClient client = launcher.getRemoteProxy();
+        server.connect(client);
+        Future<?> startListening = launcher.startListening();
         startListening.get();
     }
 }

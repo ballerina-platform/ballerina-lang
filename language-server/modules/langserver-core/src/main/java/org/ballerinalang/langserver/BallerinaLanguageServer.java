@@ -15,6 +15,8 @@
  */
 package org.ballerinalang.langserver;
 
+import org.ballerinalang.langserver.client.ExtendedLanguageClient;
+import org.ballerinalang.langserver.client.ExtendedLanguageClientAware;
 import org.ballerinalang.langserver.common.constants.CommandConstants;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.compiler.workspace.WorkspaceDocumentManager;
@@ -26,6 +28,9 @@ import org.ballerinalang.langserver.extensions.ballerina.example.BallerinaExampl
 import org.ballerinalang.langserver.extensions.ballerina.example.BallerinaExampleServiceImpl;
 import org.ballerinalang.langserver.extensions.ballerina.symbol.BallerinaSymbolService;
 import org.ballerinalang.langserver.extensions.ballerina.symbol.BallerinaSymbolServiceImpl;
+import org.ballerinalang.langserver.extensions.ballerina.traces.BallerinaTraceService;
+import org.ballerinalang.langserver.extensions.ballerina.traces.BallerinaTraceServiceImpl;
+import org.ballerinalang.langserver.extensions.ballerina.traces.Listener;
 import org.ballerinalang.langserver.index.LSIndexImpl;
 import org.eclipse.lsp4j.CompletionOptions;
 import org.eclipse.lsp4j.ExecuteCommandOptions;
@@ -34,8 +39,6 @@ import org.eclipse.lsp4j.InitializeResult;
 import org.eclipse.lsp4j.ServerCapabilities;
 import org.eclipse.lsp4j.SignatureHelpOptions;
 import org.eclipse.lsp4j.TextDocumentSyncKind;
-import org.eclipse.lsp4j.services.LanguageClient;
-import org.eclipse.lsp4j.services.LanguageClientAware;
 import org.eclipse.lsp4j.services.TextDocumentService;
 import org.eclipse.lsp4j.services.WorkspaceService;
 
@@ -48,12 +51,14 @@ import java.util.concurrent.CompletableFuture;
 /**
  * Language server implementation for Ballerina.
  */
-public class BallerinaLanguageServer implements ExtendedLanguageServer, LanguageClientAware {
-    private LanguageClient client = null;
+public class BallerinaLanguageServer implements ExtendedLanguageServer, ExtendedLanguageClientAware {
+    private ExtendedLanguageClient client = null;
     private TextDocumentService textService;
     private WorkspaceService workspaceService;
     private BallerinaDocumentService ballerinaDocumentService;
     private BallerinaExampleService ballerinaExampleService;
+    private BallerinaTraceService ballerinaTraceService;
+    private Listener ballerinaTraceListener;
     private BallerinaSymbolService ballerinaSymbolService;
     private int shutdown = 1;
 
@@ -73,10 +78,12 @@ public class BallerinaLanguageServer implements ExtendedLanguageServer, Language
         workspaceService = new BallerinaWorkspaceService(lsGlobalContext);
         ballerinaDocumentService = new BallerinaDocumentServiceImpl(lsGlobalContext);
         ballerinaExampleService = new BallerinaExampleServiceImpl(lsGlobalContext);
+        ballerinaTraceService = new BallerinaTraceServiceImpl(lsGlobalContext);
+        ballerinaTraceListener = new Listener(ballerinaTraceService);
         ballerinaSymbolService = new BallerinaSymbolServiceImpl(lsGlobalContext);
     }
-
-    public LanguageClient getClient() {
+    
+    public ExtendedLanguageClient getClient() {
         return this.client;
     }
 
@@ -105,11 +112,13 @@ public class BallerinaLanguageServer implements ExtendedLanguageServer, Language
         res.getCapabilities().setRenameProvider(true);
         res.getCapabilities().setWorkspaceSymbolProvider(true);
 
+        ballerinaTraceListener.startListener();
         return CompletableFuture.supplyAsync(() -> res);
     }
 
     public CompletableFuture<Object> shutdown() {
         shutdown = 0;
+        ballerinaTraceListener.stopListener();
         LSIndexImpl.getInstance().closeConnection();
         return CompletableFuture.supplyAsync(Object::new);
     }
@@ -129,22 +138,25 @@ public class BallerinaLanguageServer implements ExtendedLanguageServer, Language
     public BallerinaDocumentService getBallerinaDocumentService() {
         return this.ballerinaDocumentService;
     }
-
     @Override
     public BallerinaExampleService getBallerinaExampleService() {
         return this.ballerinaExampleService;
     }
 
     @Override
+    public BallerinaTraceService getBallerinaTraceService() {
+        return this.ballerinaTraceService;
+    }
+
+    @Override
+    public void connect(ExtendedLanguageClient languageClient) {
+        this.client = languageClient;
+    }
+
     public BallerinaSymbolService getBallerinaSymbolService() {
         return ballerinaSymbolService;
     }
 
-    @Override
-    public void connect(LanguageClient languageClient) {
-        this.client = languageClient;
-    }
-    
     // Private Methods
 
     private void initLSIndex() {
