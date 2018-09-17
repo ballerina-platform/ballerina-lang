@@ -26,14 +26,14 @@ public type Mode "r"|"w"|"rw"|"a";
 @final public Mode RW = "rw";
 @final public Mode APPEND = "a";
 
-# Retrieves a ByteChannel from a given file path.
+# Retrieves a ReadableByteChannel from a given file path.
 #
 # + path - Relative/absolute path string to locate the file
 # + accessMode - Permission to open the file
 # + return - ByteChannel representation of the file resource
 public extern function openFileForReading(@sensitive string path) returns @tainted ReadableByteChannel;
 
-# Retrieves a ByteChannel from a given file path.
+# Retrieves a WritableByteChannel from a given file path.
 #
 # + path - Relative/absolute path string to locate the file
 # + accessMode - Permission to open the file

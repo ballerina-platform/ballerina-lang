@@ -22,7 +22,7 @@
 public type ByteOrder "BE";
 @final public ByteOrder BIG_ENDIAN = "BE";
 
-# Represents a data channel for reading/writing data.
+# Represents a WritableDataChannel for writing data.
 public type WritableDataChannel object {
 
     public new(WritableByteChannel byteChannel, ByteOrder bOrder = "BE") {

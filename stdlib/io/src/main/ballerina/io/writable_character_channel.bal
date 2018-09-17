@@ -14,24 +14,24 @@
 // specific language governing permissions and limitations
 // under the License.
 
-# Represents a channel which could be used to read/write characters through a given ByteChannel.
+# Represents a channel which could be used to write characters through a given WritableCharacterChannel.
 public type WritableCharacterChannel object {
 
     private WritableByteChannel channel;
     private string charset;
 
-    # Constructs a CharacterChannel from a given ByteChannel and Charset.
+    # Constructs a WritableByteChannel from a given WritableByteChannel and Charset.
 
-    # + channel - ByteChannel which would be used to read/write characters
-    # + charset - Character-Set which would be used to encode/decode given bytes to characters
+    # + channel - WritableByteChannel which would be used to write characters
+    # + charset - Character-Set which would be used to encode given bytes to characters
     public new(channel, charset) {
         init(channel, charset);
     }
 
     # Initializes a character channel.
     #
-    # + byteChannel - ByteChannel which should be used to initalize the character channel
-    # + cs - Character-set (i.e UTF-8) which should be used to encode/decode
+    # + byteChannel - WritableByteChannel which should be used to initalize the character channel
+    # + cs - Character-set (i.e UTF-8) which should be used to encode
     extern function init(WritableByteChannel byteChannel, string cs);
 
     # Writes a given sequence of characters (string).
@@ -52,7 +52,7 @@ public type WritableCharacterChannel object {
     # + return - If an error occurred while writing
     public extern function writeXml(xml content) returns error?;
 
-    # Closes a given character channel.
+    # Closes a given WritableCharacterChannel channel.
     #
     # + return - If an error occurred while writing
     public extern function close() returns error?;

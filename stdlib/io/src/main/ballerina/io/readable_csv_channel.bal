@@ -14,7 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-# Represents a CSVChannel which could be used to read/write records from CSV file.
+# Represents a ReadableCSVChannel which could be used to read records from CSV file.
 public type ReadableCSVChannel object {
     private ReadableTextRecordChannel? dc;
 

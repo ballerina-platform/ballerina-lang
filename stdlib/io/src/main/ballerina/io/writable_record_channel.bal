@@ -14,15 +14,15 @@
 // specific language governing permissions and limitations
 // under the License.
 
-# Represents a channel which will allow to read/write records through a given CharacterChannel.
+# Represents a channel which will allow to write records through a given WritableCharacterChannel.
 public type WritableTextRecordChannel object {
     private WritableCharacterChannel channel;
     private string rs;
     private string fs;
 
-    # Constructs a DelimitedTextRecordChannel from a given CharacterChannel.
+    # Constructs a DelimitedTextRecordChannel from a given WritableCharacterChannel.
 
-    # + channel - CharacterChannel which will point to the input/output resource
+    # + channel - WritableCharacterChannel which will point to the input/output resource
     # + rs - Record separator (this could be a regex)
     # + fs - Field separator (this could be a regex)
     public new(channel, fs = "", rs = "", string fmt = "default") {
@@ -38,7 +38,7 @@ public type WritableTextRecordChannel object {
     extern function init(WritableCharacterChannel characterChannel, string fieldSeparator,
                          string recordSeparator, string fmt);
 
-    # Writes records to a given input/output resource.
+    # Writes records to a given output resource.
 
     # + textRecord - List of fields to be written
     # + return - An error if the records could not be written properly

@@ -15,7 +15,7 @@
 // under the License.
 
 
-# ByteChannel represents an input/output resource (i.e file, socket). which could be used to source/sink bytes.
+# ReadableByteChannel represents an input resource (i.e file, socket). which could be used to source bytes.
 public type ReadableByteChannel object {
 
     # Sink bytes from a given input/output resource.
@@ -27,17 +27,17 @@ public type ReadableByteChannel object {
     #            Number of bytes written or an error.
     public extern function read(@sensitive int nBytes) returns @tainted (byte[], int)|error;
 
-    # Encodes a given ByteChannel with Base64 encoding scheme.
+    # Encodes a given ReadableByteChannel with Base64 encoding scheme.
     #
-    # + return - Return an encoded ByteChannel or an error
+    # + return - Return an encoded ReadableByteChannel or an error
     public extern function base64Encode() returns ReadableByteChannel|error;
 
-    # Decodes a given ByteChannel with Base64 encoding scheme.
+    # Decodes a given ReadableByteChannel with Base64 encoding scheme.
     #
-    # + return - Return a decoded ByteChannel or an error
+    # + return - Return a decoded ReadableByteChannel or an error
     public extern function base64Decode() returns ReadableByteChannel|error;
 
-    # Closes a given byte channel.
+    # Closes a given ReadableByteChannel.
     #
     # + return - Will return () if there's no error
     public extern function close() returns error?;

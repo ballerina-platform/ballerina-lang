@@ -14,7 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-# Represents a data channel for reading/writing data.
+# Represents a data channel for reading data.
 public type ReadableDataChannel object {
 
     public new(ReadableByteChannel byteChannel, ByteOrder bOrder = "BE") {

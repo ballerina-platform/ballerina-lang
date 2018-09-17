@@ -27,7 +27,7 @@
 @final int MINIMUM_HEADER_COUNT = 0;
 
 
-# Represents a CSVChannel which could be used to read/write records from CSV file.
+# Represents a WritableCSVChannel which could be used to write records from CSV file.
 public type WritableCSVChannel object {
     private WritableTextRecordChannel? dc;
 
