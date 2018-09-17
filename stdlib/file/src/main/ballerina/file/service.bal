@@ -21,4 +21,5 @@
 public type FileEvent record {
     string name,
     string operation,
+    !...
 };
