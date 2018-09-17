@@ -33,7 +33,9 @@ class Item extends React.Component {
                 className='interaction-menu-item'
                 onClick={() => {
                     this.props.callback(this.props.data);
-                    this.context.getOverlayContainer().click();
+                    if (this.props.closeMenu) {
+                        this.context.menuCloseCallback();
+                    }
                 }}
             >{this.props.icon !== '' && <i className={'button-icon ' + this.props.icon} />}{this.props.label}</a>);
     }
@@ -55,7 +57,7 @@ Item.defaultProps = {
 };
 
 Item.contextTypes = {
-    getOverlayContainer: PropTypes.instanceOf(Object).isRequired,
+    menuCloseCallback: PropTypes.func,
 };
 
 export default Item;

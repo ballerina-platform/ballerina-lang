@@ -60,6 +60,13 @@ class BallerinaDiagram extends React.Component {
         };
     }
 
+    getChildContext() {
+        return {
+            getEndpoints: this.props.getEndpoints,
+            astRoot: this.state.currentAST,
+        };
+    }
+
     componentDidMount() {
         this.updateDiagram(this.props.docUri);
     }
@@ -131,23 +138,31 @@ class BallerinaDiagram extends React.Component {
     }
 }
 
+BallerinaDiagram.childContextTypes = {
+    getEndpoints: PropTypes.func,
+    astRoot: PropTypes.instanceOf(Object).isRequired,
+};
+
 BallerinaDiagram.propTypes = {
     getAST: PropTypes.func.isRequired,
     onChange: PropTypes.func.isRequired,
     docUri: PropTypes.string.isRequired,
     width: PropTypes.number.isRequired,
     height: PropTypes.number.isRequired,
+    getEndpoints: PropTypes.func,
 };
 
 function renderEditableDiagram(target, docUri, width, height,
     getAST = () => Promise.resolve({}),
-    onChange = () => {}) {
+    onChange = () => {},
+    getEndpoints) {
     const props = {
         getAST,
         onChange,
         docUri,
         width,
         height,
+        getEndpoints,
     };
     target.classList.add('composer-library');
     const BalDiagramElement = createElement(BallerinaDiagram, props);

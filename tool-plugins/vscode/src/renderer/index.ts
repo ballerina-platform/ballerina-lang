@@ -21,7 +21,7 @@ import * as _ from 'lodash';
 import { StaticProvider } from './content-provider';
 import { render } from './renderer';
 import { BallerinaAST, ExtendedLangClient } from '../lang-client';
-import { getWebViewResourceRoot } from '../utils';
+import { WebViewRPCHandler } from '../utils';
 
 const DEBOUNCE_WAIT = 500;
 
@@ -102,6 +102,15 @@ export function activate(context: ExtensionContext, langClient: ExtendedLangClie
 					previewPanel.webview.html = html;
 				}
 			});
+
+		WebViewRPCHandler.create([
+			{
+				methodName: 'getEndpoints',
+				handler: (args: any[]) => {
+					return langClient.getEndpoints();
+				}
+			}
+		], previewPanel.webview);
 		// Handle messages from the webview
         previewPanel.webview.onDidReceiveMessage(message => {
             switch (message.command) {

@@ -14,7 +14,8 @@
         ],
         "env": {
             "LSDEBUG": "false",
-            "DIAGRAM_DEBUG": "false"
+            "DIAGRAM_DEBUG": "false",
+            "DIAGRAM_DEV_HOST": "http://localhost:8081"
         },
         "outFiles": [
             "${workspaceFolder}/out/**/*.js"

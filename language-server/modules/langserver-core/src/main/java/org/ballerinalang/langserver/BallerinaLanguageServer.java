@@ -26,6 +26,8 @@ import org.ballerinalang.langserver.extensions.ballerina.document.BallerinaDocum
 import org.ballerinalang.langserver.extensions.ballerina.document.BallerinaDocumentServiceImpl;
 import org.ballerinalang.langserver.extensions.ballerina.example.BallerinaExampleService;
 import org.ballerinalang.langserver.extensions.ballerina.example.BallerinaExampleServiceImpl;
+import org.ballerinalang.langserver.extensions.ballerina.symbol.BallerinaSymbolService;
+import org.ballerinalang.langserver.extensions.ballerina.symbol.BallerinaSymbolServiceImpl;
 import org.ballerinalang.langserver.extensions.ballerina.traces.BallerinaTraceService;
 import org.ballerinalang.langserver.extensions.ballerina.traces.BallerinaTraceServiceImpl;
 import org.ballerinalang.langserver.extensions.ballerina.traces.Listener;
@@ -55,8 +57,9 @@ public class BallerinaLanguageServer implements ExtendedLanguageServer, Extended
     private WorkspaceService workspaceService;
     private BallerinaDocumentService ballerinaDocumentService;
     private BallerinaExampleService ballerinaExampleService;
-    private BallerinaTraceServiceImpl ballerinaTraceService;
+    private BallerinaTraceService ballerinaTraceService;
     private Listener ballerinaTraceListener;
+    private BallerinaSymbolService ballerinaSymbolService;
     private int shutdown = 1;
 
     public BallerinaLanguageServer() {
@@ -77,6 +80,7 @@ public class BallerinaLanguageServer implements ExtendedLanguageServer, Extended
         ballerinaExampleService = new BallerinaExampleServiceImpl(lsGlobalContext);
         ballerinaTraceService = new BallerinaTraceServiceImpl(lsGlobalContext);
         ballerinaTraceListener = new Listener(ballerinaTraceService);
+        ballerinaSymbolService = new BallerinaSymbolServiceImpl(lsGlobalContext);
     }
     
     public ExtendedLanguageClient getClient() {
@@ -148,7 +152,11 @@ public class BallerinaLanguageServer implements ExtendedLanguageServer, Extended
     public void connect(ExtendedLanguageClient languageClient) {
         this.client = languageClient;
     }
-    
+
+    public BallerinaSymbolService getBallerinaSymbolService() {
+        return ballerinaSymbolService;
+    }
+
     // Private Methods
 
     private void initLSIndex() {
