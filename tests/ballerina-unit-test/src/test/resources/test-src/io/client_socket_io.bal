@@ -18,8 +18,8 @@ function closeSocket(io:Socket socket) {
 }
 
 function write(io:Socket socket, byte[] content) returns int|error {
-    io:ByteChannel channel = socket.channel;
-    var result = channel.write(content, 0);
+    io:ByteChannel byteChannel = socket.byteChannel;
+    var result = byteChannel.write(content, 0);
     match result {
         int numberOfBytesWritten => {
             io:println("Number of byte written to server: ", numberOfBytesWritten);
@@ -32,8 +32,8 @@ function write(io:Socket socket, byte[] content) returns int|error {
 }
 
 function read(io:Socket socket, int size) returns (byte[], int)|error {
-    io:ByteChannel channel = socket.channel;
-    var result = channel.read(size);
+    io:ByteChannel byteChannel = socket.byteChannel;
+    var result = byteChannel.read(size);
     match result {
         (byte[], int) content => {
             var (bytes, numberOfBytes) = content;
@@ -69,8 +69,8 @@ function bindSocketForSamePort(int localPort) returns error? {
     }
 }
 function readRecord(io:Socket socket) returns string[]|error {
-    io:ByteChannel channel = socket.channel;
-    io:CharacterChannel characterChannel = new(channel, "UTF-8");
+    io:ByteChannel byteChannel = socket.byteChannel;
+    io:CharacterChannel characterChannel = new(byteChannel, "UTF-8");
     io:DelimitedTextRecordChannel rChannel = new io:DelimitedTextRecordChannel(characterChannel, rs = "\r\n", fs = ",");
     if (rChannel.hasNext()){
         var records = rChannel.getNext();

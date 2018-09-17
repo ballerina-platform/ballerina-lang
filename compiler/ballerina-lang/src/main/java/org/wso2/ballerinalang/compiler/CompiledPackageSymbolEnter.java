@@ -42,6 +42,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.TaintRecord;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BAnnotationType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BChannelType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BField;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BFiniteType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
@@ -1130,6 +1131,8 @@ public class CompiledPackageSymbolEnter {
                     return new BMapType(TypeTags.MAP, constraint, symTable.mapType.tsymbol);
                 case 'H':
                     return new BStreamType(TypeTags.STREAM, constraint, symTable.streamType.tsymbol);
+                case 'Q':
+                    return new BChannelType(TypeTags.CHANNEL, constraint, symTable.channelType.tsymbol);
                 case 'G':
                 case 'T':
                 default:

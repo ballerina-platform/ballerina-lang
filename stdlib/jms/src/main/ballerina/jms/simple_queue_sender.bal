@@ -114,4 +114,5 @@ public type SimpleQueueSenderEndpointConfiguration record {
     string acknowledgementMode = "AUTO_ACKNOWLEDGE";
     map properties;
     string queueName;
+    !...
 };

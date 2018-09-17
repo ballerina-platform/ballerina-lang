@@ -25,6 +25,7 @@ public type TimeFormat "RFC_1123";
 public type Timezone record {
     string zoneId,
     int zoneOffset,
+    !...
 };
 
 # Ballerina Time represents a particular time with its associated timezone.

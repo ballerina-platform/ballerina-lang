@@ -2293,22 +2293,35 @@ public class BLangPackageBuilder {
         this.matchStmtStack.peekFirst().patternClauses.add(patternClause);
     }
 
-    void addWorkerSendStmt(DiagnosticPos pos, Set<Whitespace> ws, String workerName, boolean isForkJoinSend) {
+    void addWorkerSendStmt(DiagnosticPos pos, Set<Whitespace> ws, String workerName, boolean isForkJoinSend, boolean
+            hasKey) {
         BLangWorkerSend workerSendNode = (BLangWorkerSend) TreeBuilder.createWorkerSendNode();
         workerSendNode.setWorkerName(this.createIdentifier(workerName));
         workerSendNode.expr = (BLangExpression) exprNodeStack.pop();
         workerSendNode.isForkJoinSend = isForkJoinSend;
         workerSendNode.pos = pos;
         workerSendNode.addWS(ws);
+        //added to use for channels as well
+        if (hasKey) {
+            workerSendNode.keyExpr = workerSendNode.expr;
+            workerSendNode.expr = (BLangExpression) exprNodeStack.pop();
+            workerSendNode.isChannel = true;
+        }
         addStmtToCurrentBlock(workerSendNode);
     }
 
-    void addWorkerReceiveStmt(DiagnosticPos pos, Set<Whitespace> ws, String workerName) {
+    void addWorkerReceiveStmt(DiagnosticPos pos, Set<Whitespace> ws, String workerName, boolean hasKey) {
         BLangWorkerReceive workerReceiveNode = (BLangWorkerReceive) TreeBuilder.createWorkerReceiveNode();
         workerReceiveNode.setWorkerName(this.createIdentifier(workerName));
         workerReceiveNode.expr = (BLangExpression) exprNodeStack.pop();
         workerReceiveNode.pos = pos;
         workerReceiveNode.addWS(ws);
+        //if there are two expressions, this is a channel receive and the top expression is the key
+        if (hasKey) {
+            workerReceiveNode.keyExpr = workerReceiveNode.expr;
+            workerReceiveNode.expr = (BLangExpression) exprNodeStack.pop();
+            workerReceiveNode.isChannel = true;
+        }
         addStmtToCurrentBlock(workerReceiveNode);
     }
 

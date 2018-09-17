@@ -76,4 +76,5 @@ public type WebSocketClientEndpointConfig record {
     int idleTimeoutInSeconds = -1,
     boolean readyOnConnect = true,
     SecureSocket? secureSocket,
+    !...
 };

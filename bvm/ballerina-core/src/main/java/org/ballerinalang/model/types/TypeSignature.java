@@ -46,6 +46,7 @@ public class TypeSignature {
     public static final String SIG_NULL = "N";
     public static final String SIG_TUPLE = "P";
     public static final String SIG_FINITE_TYPE = "G";
+    public static final String SIG_CHANNEL = "Q";
 
     private String sigChar;
     private TypeSignature elementTypeSig;

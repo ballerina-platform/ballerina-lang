@@ -31,7 +31,7 @@ under the License.
         <classes>
             <class name="org.ballerinalang.test.nativeimpl.functions.io.socket.ClientSocketTest"/>
             <class name="org.ballerinalang.test.nativeimpl.functions.io.socket.SecureClientSocketTest"/>
-            <class name="org.ballerinalang.test.nativeimpl.functions.io.socket.ServerSocketTest"/>
+            <!--<class name="org.ballerinalang.test.nativeimpl.functions.io.socket.ServerSocketTest"/>-->
         </classes>
     </test>
     <!-- Ballerina language Test Cases. -->
@@ -87,6 +87,7 @@ under the License.
             <package name="org.ballerinalang.test.balo.*" />
             <package name="org.ballerinalang.test.compression.*"/>
             <package name="org.ballerinalang.test.variable.shadowing.*" />
+            <package name="org.ballerinalang.test.channels.*" />
         </packages>
 
 		<!-- TODO: remove once constraint tests are fixed -->
