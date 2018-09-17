@@ -39,6 +39,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangVariable;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrayLiteral;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrowFunction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBracedOrTupleExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
@@ -153,6 +154,8 @@ public class IterableCodeDesugar {
                 operation.lambdaSymbol = (BInvokableSymbol) ((BLangSimpleVarRef) lambdaExpression).symbol;
             } else if (lambdaExpression.getKind() == NodeKind.LAMBDA) {
                 operation.lambdaSymbol = ((BLangLambdaFunction) lambdaExpression).function.symbol;
+            } else if (lambdaExpression.getKind() == NodeKind.ARROW_EXPR) {
+                operation.lambdaSymbol = ((BLangArrowFunction) lambdaExpression).function.symbol;
             }
         }
         generateVariables(operation);
@@ -316,7 +319,7 @@ public class IterableCodeDesugar {
 
         // Generate aggregator and result
         if (isReturningIteratorFunction(ctx)) {
-            if (ctx.iteratorResultVariables.size() > 1) {
+            if (ctx.iteratorResultVariables.size() > 1 && ctx.getLastOperation().kind != IterableKind.COUNT) {
                 // Destructure return Values.
                 final BLangTupleDestructure tupleAssign = (BLangTupleDestructure) TreeBuilder
                         .createTupleDestructureStatementNode();
@@ -412,6 +415,7 @@ public class IterableCodeDesugar {
                 defStmt.var.expr = arrayInit;
                 break;
             case TypeTags.MAP:
+            case TypeTags.RECORD:
                 defStmt.var.expr = ASTBuilderUtil.createEmptyRecordLiteral(pos, ctx.resultType);
                 break;
             case TypeTags.TABLE:
@@ -452,6 +456,7 @@ public class IterableCodeDesugar {
                 generateArrayAggregator(blockStmt, ctx);
                 return;
             case TypeTags.MAP:
+            case TypeTags.RECORD:
                 generateMapAggregator(blockStmt, ctx);
                 return;
             case TypeTags.TABLE:
@@ -618,8 +623,7 @@ public class IterableCodeDesugar {
         indexAccessNode.type = ctx.iteratorResultVariables.get(1).symbol.type;
         final BLangAssignment valueAssign = ASTBuilderUtil.createAssignmentStmt(pos, blockStmt);
         valueAssign.varRef = indexAccessNode;
-        valueAssign.expr = ASTBuilderUtil.generateConversionExpr(ASTBuilderUtil.createVariableRef(pos,
-                ctx.iteratorResultVariables.get(1).symbol), symTable.anyType, symResolver);
+        valueAssign.expr = ASTBuilderUtil.createVariableRef(pos, ctx.iteratorResultVariables.get(1).symbol);
     }
 
     /**

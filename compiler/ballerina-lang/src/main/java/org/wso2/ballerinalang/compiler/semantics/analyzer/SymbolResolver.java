@@ -19,6 +19,7 @@ package org.wso2.ballerinalang.compiler.semantics.analyzer;
 
 import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.symbols.SymbolKind;
+import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.OperatorKind;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.util.diagnostic.DiagnosticCode;
@@ -37,6 +38,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BXMLNSSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BChannelType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BFiniteType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BFutureType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
@@ -51,6 +53,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrowFunction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.tree.types.BLangArrayType;
@@ -300,7 +303,6 @@ public class SymbolResolver extends BLangNodeVisitor {
                 (rhsType.tag == TypeTags.OBJECT ||
                         rhsType.tag == TypeTags.RECORD ||
                         rhsType.tag == TypeTags.ENDPOINT ||
-                        rhsType.tag == TypeTags.ENUM ||
                         rhsType.tag == TypeTags.INVOKABLE)) {
             BInvokableType opType = new BInvokableType(Lists.of(lhsType, rhsType), symTable.booleanType, null);
             return new BOperatorSymbol(names.fromString(opKind.value()), null, opType, null, opcode);
@@ -309,16 +311,8 @@ public class SymbolResolver extends BLangNodeVisitor {
         if ((lhsType.tag == TypeTags.OBJECT ||
                 lhsType.tag == TypeTags.RECORD ||
                 lhsType.tag == TypeTags.ENDPOINT ||
-                lhsType.tag == TypeTags.ENUM ||
                 lhsType.tag == TypeTags.INVOKABLE)
                 && rhsType.tag == TypeTags.NIL) {
-            BInvokableType opType = new BInvokableType(Lists.of(lhsType, rhsType), symTable.booleanType, null);
-            return new BOperatorSymbol(names.fromString(opKind.value()), null, opType, null, opcode);
-
-        }
-
-        if (lhsType.tag == TypeTags.ENUM && rhsType.tag == TypeTags.ENUM && lhsType == rhsType) {
-            opcode = (opKind == OperatorKind.EQUAL) ? InstructionCodes.REQ : InstructionCodes.RNE;
             BInvokableType opType = new BInvokableType(Lists.of(lhsType, rhsType), symTable.booleanType, null);
             return new BOperatorSymbol(names.fromString(opKind.value()), null, opType, null, opcode);
         }
@@ -472,6 +466,13 @@ public class SymbolResolver extends BLangNodeVisitor {
             if (bSymbol != symTable.notFoundSymbol && !env.enclInvokable.flagSet.contains(Flag.ATTACHED)
                     && env.enclInvokable.flagSet.contains(Flag.LAMBDA)) {
                 ((BLangFunction) env.enclInvokable).closureVarSymbols.add((BVarSymbol) bSymbol);
+            }
+            return bSymbol;
+        }
+        if (env.enclEnv != null && env.node != null && env.node.getKind() == NodeKind.ARROW_EXPR) {
+            BSymbol bSymbol = lookupClosureVarSymbol(env.enclEnv, name, expSymTag);
+            if (bSymbol != symTable.notFoundSymbol) {
+                ((BLangArrowFunction) env.node).closureVarSymbols.add((BVarSymbol) bSymbol);
             }
             return bSymbol;
         }
@@ -701,6 +702,14 @@ public class SymbolResolver extends BLangNodeVisitor {
             resultType = new BFutureType(TypeTags.FUTURE, constraintType, type.tsymbol);
         } else if (type.tag == TypeTags.MAP) {
             resultType = new BMapType(TypeTags.MAP, constraintType, type.tsymbol);
+        } else if (type.tag == TypeTags.CHANNEL) {
+            // only the simpleTypes, json and xml are allowed as channel data type.
+            if (constraintType.tag > TypeTags.XML || constraintType.tag == TypeTags.TYPEDESC) {
+                dlog.error(constrainedTypeNode.pos, DiagnosticCode.INCOMPATIBLE_TYPE_CONSTRAINT, type, constraintType);
+                resultType = symTable.errType;
+                return;
+            }
+            resultType = new BChannelType(TypeTags.CHANNEL, constraintType, type.tsymbol);
         } else {
             if (!types.checkStructToJSONCompatibility(constraintType) && constraintType != symTable.errType) {
                 dlog.error(constrainedTypeNode.pos, DiagnosticCode.INCOMPATIBLE_TYPE_CONSTRAINT, type, constraintType);

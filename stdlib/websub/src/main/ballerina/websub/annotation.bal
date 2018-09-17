@@ -48,6 +48,7 @@ public type SubscriberServiceConfiguration record {
     http:AuthConfig? auth,
     http:SecureSocket? secureSocket,
     http:FollowRedirects? followRedirects,
+    !...
 };
 
 # WebSub Subscriber Configuration for the service, indicating subscription related parameters.

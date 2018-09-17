@@ -82,6 +82,7 @@ public type QueueSender object {
 public type QueueSenderEndpointConfiguration record {
     Session? session;
     string? queueName;
+    !...
 };
 
 # JMS QueueSender action handling object

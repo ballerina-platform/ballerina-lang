@@ -73,6 +73,7 @@ import org.wso2.ballerinalang.compiler.tree.clauses.BLangWindow;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangWithinClause;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangAccessExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrayLiteral;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrowFunction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangAwaitExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBracedOrTupleExpr;
@@ -764,6 +765,15 @@ public class TaintAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangWorkerSend workerSendNode) {
+        if (workerSendNode.isChannel) {
+            List<BLangExpression> exprsList = new ArrayList<>();
+            exprsList.add(workerSendNode.expr);
+            if (workerSendNode.keyExpr != null) {
+                exprsList.add(workerSendNode.keyExpr);
+            }
+            analyzeExprList(exprsList);
+            return;
+        }
         if (workerSendNode.isForkJoinSend) {
             currForkIdentifier = workerSendNode.workerIdentifier;
         }
@@ -782,6 +792,16 @@ public class TaintAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangWorkerReceive workerReceiveNode) {
+        if (workerReceiveNode.isChannel) {
+            List<BLangExpression> exprList = new ArrayList<>();
+            exprList.add(workerReceiveNode.expr);
+            if (workerReceiveNode.keyExpr != null) {
+                exprList.add(workerReceiveNode.keyExpr);
+            }
+            analyzeExprList(exprList);
+            return;
+        }
+
         TaintedStatus taintedStatus = workerInteractionTaintedStatusMap.get(currWorkerIdentifier);
         if (taintedStatus == null) {
             blockedOnWorkerInteraction = true;
@@ -857,9 +877,6 @@ public class TaintAnalyzer extends BLangNodeVisitor {
                 break;
             case TypeTags.JSON:
                 fieldAccessExpr.expr.accept(this);
-                break;
-            case TypeTags.ENUM:
-                this.taintedStatus = TaintedStatus.UNTAINTED;
                 break;
         }
     }
@@ -1111,6 +1128,11 @@ public class TaintAnalyzer extends BLangNodeVisitor {
     }
 
     @Override
+    public void visit(BLangArrowFunction bLangArrowFunction) {
+        /* ignore */
+    }
+
+    @Override
     public void visit(BLangXMLAttributeAccess xmlAttributeAccessExpr) {
         xmlAttributeAccessExpr.expr.accept(this);
     }
@@ -1311,11 +1333,6 @@ public class TaintAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangXMLNS.BLangPackageXMLNS xmlnsNode) {
-        /* ignore */
-    }
-
-    @Override
-    public void visit(BLangFieldBasedAccess.BLangEnumeratorAccessExpr enumeratorAccessExpr) {
         /* ignore */
     }
 

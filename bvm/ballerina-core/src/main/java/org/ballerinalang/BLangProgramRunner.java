@@ -93,7 +93,7 @@ public class BLangProgramRunner {
     }
 
     public static FunctionInfo getEntryFunctionInfo(PackageInfo entryPkgInfo, String functionName) {
-        String errorMsg = functionName + " function not found in  '"
+        String errorMsg = "'" + functionName + "' function not found in '"
                             + entryPkgInfo.getProgramFile().getProgramFilePath() + "'";
 
         FunctionInfo functionInfo = entryPkgInfo.getFunctionInfo(functionName);

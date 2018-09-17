@@ -80,6 +80,7 @@ public class TrustStoreHolder {
      * @param certificateAlia    the alias name
      * @param trustStoreFilePath Trust store file path
      * @param trustStorePassword Trust store password
+     * @return certificate corresponding to the alias.
      * @throws BallerinaException if the trustStore has not been initialized
      *                           (loaded), or this operation fails for some other reason
      */

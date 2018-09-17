@@ -58,6 +58,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BChannelType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BField;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BObjectType;
@@ -451,10 +452,17 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             }
         }
 
-        varNode.annAttachments.forEach(annotationAttachment -> {
-            annotationAttachment.attachPoint = AttachPoint.TYPE;
-            annotationAttachment.accept(this);
-        });
+        if (varNode.symbol.type.tag == TypeTags.CHANNEL) {
+            varNode.annAttachments.forEach(annotationAttachment -> {
+                annotationAttachment.attachPoint = AttachPoint.CHANNEL;
+                annotationAttachment.accept(this);
+            });
+        } else {
+            varNode.annAttachments.forEach(annotationAttachment -> {
+                annotationAttachment.attachPoint = AttachPoint.TYPE;
+                annotationAttachment.accept(this);
+            });
+        }
 
         BType lhsType = varNode.symbol.type;
         varNode.type = lhsType;
@@ -1082,6 +1090,14 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
     public void visit(BLangWorkerSend workerSendNode) {
         workerSendNode.env = this.env;
         this.typeChecker.checkExpr(workerSendNode.expr, this.env);
+
+        BSymbol symbol = symResolver.lookupSymbol(env, names.fromIdNode(workerSendNode.workerIdentifier), SymTag
+                .VARIABLE);
+        if (workerSendNode.isChannel || symbol.getType().tag == TypeTags.CHANNEL) {
+            visitChannelSend(workerSendNode, symbol);
+            return;
+        }
+
         if (!this.isInTopLevelWorkerEnv()) {
             this.dlog.error(workerSendNode.pos, DiagnosticCode.INVALID_WORKER_SEND_POSITION);
         }
@@ -1095,6 +1111,14 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangWorkerReceive workerReceiveNode) {
+        BSymbol symbol = symResolver.lookupSymbol(env, names.fromIdNode(workerReceiveNode.workerIdentifier), SymTag
+                .VARIABLE);
+
+        if (workerReceiveNode.isChannel || symbol.getType().tag == TypeTags.CHANNEL) {
+            visitChannelReceive(workerReceiveNode, symbol);
+            return;
+        }
+
         this.typeChecker.checkExpr(workerReceiveNode.expr, this.env);
         if (!this.isInTopLevelWorkerEnv()) {
             this.dlog.error(workerReceiveNode.pos, DiagnosticCode.INVALID_WORKER_RECEIVE_POSITION);
@@ -1484,6 +1508,59 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
 
     // Private methods
 
+    private void visitChannelSend(BLangWorkerSend node, BSymbol channelSymbol) {
+        node.isChannel = true;
+
+        if (symTable.notFoundSymbol.equals(channelSymbol)) {
+            dlog.error(node.pos, DiagnosticCode.UNDEFINED_SYMBOL, node.getWorkerName().getValue());
+            return;
+        }
+
+        if (TypeTags.CHANNEL != channelSymbol.type.tag) {
+            dlog.error(node.pos, DiagnosticCode.INCOMPATIBLE_TYPES, symTable.channelType, channelSymbol.type);
+            return;
+        }
+
+        if (node.keyExpr != null) {
+            typeChecker.checkExpr(node.keyExpr, env);
+        }
+
+        BType constraint = ((BChannelType) channelSymbol.type).constraint;
+        if (node.expr.type.tag != constraint.tag) {
+            dlog.error(node.pos, DiagnosticCode.INCOMPATIBLE_TYPES, constraint, node.expr.type);
+        }
+    }
+
+    private void visitChannelReceive(BLangWorkerReceive node, BSymbol symbol) {
+        node.isChannel = true;
+        node.env = this.env;
+        if (symbol == null) {
+            symbol = symResolver.lookupSymbol(env, names.fromString(node.getWorkerName()
+                    .getValue()), SymTag.VARIABLE);
+        }
+
+        if (symTable.notFoundSymbol.equals(symbol)) {
+            dlog.error(node.pos, DiagnosticCode.UNDEFINED_SYMBOL, node.getWorkerName().getValue());
+            return;
+        }
+
+        if (TypeTags.CHANNEL != symbol.type.tag) {
+            dlog.error(node.pos, DiagnosticCode.INCOMPATIBLE_TYPES, symTable.channelType, symbol.type);
+            return;
+        }
+        typeChecker.checkExpr(node.expr, env);
+
+        BType constraint = ((BChannelType) symbol.type).constraint;
+        if (node.expr.type.tag != constraint.tag) {
+            dlog.error(node.pos, DiagnosticCode.INCOMPATIBLE_TYPES, constraint, node.expr.type);
+            return;
+        }
+
+        if (node.keyExpr != null) {
+            typeChecker.checkExpr(node.keyExpr, env);
+        }
+    }
+
     private void handleForeachVariables(BLangForeach foreachStmt, List<BType> varTypes, SymbolEnv env) {
         for (int i = 0; i < foreachStmt.varRefs.size(); i++) {
             BLangExpression varRef = foreachStmt.varRefs.get(i);
@@ -1712,13 +1789,6 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         BLangVariableReference varRefExpr = (BLangVariableReference) expr;
         varRefExpr.lhsVar = true;
         typeChecker.checkExpr(varRefExpr, env);
-
-        // Check whether we've got an enumerator access expression here.
-        if (varRefExpr.getKind() == NodeKind.FIELD_BASED_ACCESS_EXPR &&
-                ((BLangFieldBasedAccess) varRefExpr).expr.type.tag == TypeTags.ENUM) {
-            dlog.error(varRefExpr.pos, DiagnosticCode.INVALID_VARIABLE_ASSIGNMENT, varRefExpr);
-            return symTable.errType;
-        }
 
         //Check whether this is an readonly field.
         checkReadonlyAssignment(varRefExpr);

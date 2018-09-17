@@ -350,6 +350,43 @@
                 <classifier>ballerina-binary-repo</classifier>
             </dependency>
 
+            <!-- ballerina-llvm -->
+            <dependency>
+                <groupId>org.ballerinalang</groupId>
+                <artifactId>ballerina-llvm</artifactId>
+                <version>${ballerina.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.ballerinalang</groupId>
+                <artifactId>ballerina-llvm</artifactId>
+                <version>${ballerina.version}</version>
+                <type>zip</type>
+                <classifier>ballerina-binary-repo</classifier>
+            </dependency>
+            <dependency>
+                <groupId>org.ballerinalang</groupId>
+                <artifactId>ballerina-llvm</artifactId>
+                <version>${ballerina.version}</version>
+                <type>zip</type>
+                <classifier>ballerina-sources</classifier>
+            </dependency>
+
+            <!-- ballerina-bir -->
+            <dependency>
+                <groupId>org.ballerinalang</groupId>
+                <artifactId>ballerina-bir</artifactId>
+                <version>${ballerina.version}</version>
+                <type>zip</type>
+                <classifier>ballerina-binary-repo</classifier>
+            </dependency>
+            <dependency>
+                <groupId>org.ballerinalang</groupId>
+                <artifactId>ballerina-bir</artifactId>
+                <version>${ballerina.version}</version>
+                <type>zip</type>
+                <classifier>ballerina-sources</classifier>
+            </dependency>
+
             <!-- ballerina-grpc -->
             <dependency>
                 <groupId>org.ballerinalang</groupId>
@@ -772,6 +809,16 @@
                 <artifactId>ballerina-lang</artifactId>
                 <version>${ballerina.version}</version>
             </dependency>
+            <dependency>
+                <groupId>org.ballerinalang</groupId>
+                <artifactId>ballerina-backend-llvm</artifactId>
+                <version>${ballerina.version}</version>
+            </dependency>
+            <!--<dependency>-->
+                <!--<groupId>org.ballerinalang</groupId>-->
+                <!--<artifactId>ballerina-backend-bvm</artifactId>-->
+                <!--<version>${ballerina.version}</version>-->
+            <!--</dependency>-->
             <dependency>
                 <groupId>org.ballerinalang</groupId>
                 <artifactId>ballerina-launcher</artifactId>
@@ -1444,6 +1491,11 @@
                 <version>${javax.jms.version}</version>
             </dependency>
             <dependency>
+                <groupId>org.bytedeco.javacpp-presets</groupId>
+                <artifactId>llvm-platform</artifactId>
+                <version>${javacpp.llvm.version}</version>
+            </dependency>
+            <dependency>
                 <groupId>org.wso2.andes.wso2</groupId>
                 <artifactId>andes-client</artifactId>
                 <version>${andes.client.version}</version>
@@ -1597,6 +1649,8 @@
                 <module>stdlib/log-api</module>
                 <module>stdlib/transactions</module>
                 <module>stdlib/grpc</module>
+                <module>stdlib/bir</module>
+                <module>stdlib/llvm</module>
                 <module>stdlib/math</module>
                 <module>stdlib/mime</module>
                 <module>stdlib/reflect</module>
@@ -1621,6 +1675,8 @@
                 <module>bvm/ballerina-logging</module>
                 <module>cli/ballerina-launcher</module>
                 <module>cli/ballerina-packerina</module>
+                <module>compiler/ballerina-backend-llvm</module>
+                <!--<module>compiler/ballerina-backend-bvm</module>-->
 
                 <!--Should Run Before tests/ballerina-test-->
                 <module>misc/protobuf-ballerina</module>
@@ -1677,6 +1733,8 @@
                 <module>stdlib/log-api</module>
                 <module>stdlib/transactions</module>
                 <module>stdlib/grpc</module>
+                <module>stdlib/llvm</module>
+                <module>stdlib/bir</module>
                 <module>stdlib/math</module>
                 <module>stdlib/mime</module>
                 <module>stdlib/reflect</module>
@@ -1701,6 +1759,8 @@
                 <module>bvm/ballerina-logging</module>
                 <module>cli/ballerina-launcher</module>
                 <module>cli/ballerina-packerina</module>
+                <module>compiler/ballerina-backend-llvm</module>
+                <!--<module>compiler/ballerina-backend-bvm</module>-->
 
                 <!--Should Run Before tests/ballerina-test-->
                 <module>misc/protobuf-ballerina</module>
@@ -1753,6 +1813,8 @@
                 <module>stdlib/log-api</module>
                 <module>stdlib/transactions</module>
                 <module>stdlib/grpc</module>
+                <module>stdlib/llvm</module>
+                <module>stdlib/bir</module>
                 <module>stdlib/math</module>
                 <module>stdlib/mime</module>
                 <module>stdlib/reflect</module>
@@ -1777,6 +1839,8 @@
                 <module>bvm/ballerina-logging</module>
                 <module>cli/ballerina-launcher</module>
                 <module>cli/ballerina-packerina</module>
+                <module>compiler/ballerina-backend-llvm</module>
+                <!--<module>compiler/ballerina-backend-bvm</module>-->
 
                 <!--Should Run Before tests/ballerina-test-->
                 <module>misc/protobuf-ballerina</module>
@@ -2116,6 +2180,21 @@
                     <revisionOnScmFailure>${maven.build.timestamp}</revisionOnScmFailure>
                 </configuration>
             </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-javadoc-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>attach-javadocs</id>
+                        <goals>
+                            <goal>jar</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <failOnWarnings>true</failOnWarnings>
+                </configuration>
+            </plugin>
         </plugins>
     </build>
 
@@ -2144,7 +2223,7 @@
         <equinox.osgi.version>3.10.2.v20150203-1939</equinox.osgi.version>
         <equinox.osgi.services.version>3.4.0.v20140312-2051</equinox.osgi.services.version>
         <carbon.kernel.version>5.1.0</carbon.kernel.version>
-        <transport.http.version>6.0.227</transport.http.version>
+        <transport.http.version>6.0.228</transport.http.version>
         <carbon.messaging.version>2.3.7</carbon.messaging.version>
         <carbon.deployment.version>5.0.0</carbon.deployment.version>
         <carbon.config.version>2.1.2</carbon.config.version>
@@ -2228,7 +2307,7 @@
         <maven.install.plugin.version>2.5.2</maven.install.plugin.version>
         <maven.invoker.plugin.version>2.0.0</maven.invoker.plugin.version>
         <maven.jar.plugin.version>2.6</maven.jar.plugin.version>
-        <maven.javadoc.plugin.version>2.10.3</maven.javadoc.plugin.version>
+        <maven.javadoc.plugin.version>3.0.1</maven.javadoc.plugin.version>
         <maven.plugin.plugin.version>3.4</maven.plugin.plugin.version>
         <maven.remote.resources.plugin.version>1.5</maven.remote.resources.plugin.version>
         <maven.release.plugin.version>2.5.3</maven.release.plugin.version>
@@ -2268,6 +2347,7 @@
         <!-- JMS Connector -->
         <wso2.transport.jms.version>6.0.50</wso2.transport.jms.version>
         <javax.jms.version>2.0.1</javax.jms.version>
+        <javacpp.llvm.version>6.0.1-1.4.2</javacpp.llvm.version>
         <andes.client.version>3.2.55</andes.client.version>
         <wso2.securevault.version>1.0.0-wso2v2</wso2.securevault.version>
 

@@ -25,6 +25,7 @@ import org.ballerinalang.langserver.compiler.workspace.WorkspaceDocumentManager;
 import org.ballerinalang.langserver.compiler.workspace.repository.WorkspacePackageRepository;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.repository.PackageRepository;
+import org.ballerinalang.toml.model.Manifest;
 import org.ballerinalang.util.diagnostic.Diagnostic;
 import org.ballerinalang.util.diagnostic.DiagnosticListener;
 import org.eclipse.lsp4j.jsonrpc.messages.Either;
@@ -37,6 +38,7 @@ import org.wso2.ballerinalang.compiler.util.diagnotic.BLangDiagnosticLog;
 
 import java.io.File;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -74,7 +76,7 @@ public class LSCompiler {
      * @param content content to be compiled
      * @param phase   {@link CompilerPhase} for the compiler
      * @return {@link BallerinaFile} containing the compiled package
-     * @throws LSCompilerException
+     * @throws LSCompilerException when compiler error occurred
      */
     public static BallerinaFile compileContent(String content, CompilerPhase phase) throws LSCompilerException {
         java.nio.file.Path filePath = LSCompilerUtil.createTempFile(LSCompilerUtil.UNTITLED_BAL);
@@ -107,13 +109,17 @@ public class LSCompiler {
         LSDocument sourceDocument = new LSDocument(filePath.toUri().toString(), sourceRoot);
 
         PackageRepository packageRepository = new WorkspacePackageRepository(sourceRoot, documentManager);
-        PackageID packageID = new PackageID(Names.ANON_ORG, new Name(packageName), Names.DEFAULT_VERSION);
+        PackageID packageID;
         if ("".equals(packageName)) {
             Path path = filePath.getFileName();
             if (path != null) {
                 packageName = path.toString();
                 packageID = new PackageID(packageName);
+            } else {
+                packageID = new PackageID(Names.ANON_ORG, new Name(packageName), Names.DEFAULT_VERSION);
             }
+        } else {
+            packageID = generatePackageFromManifest(packageName, sourceRoot);
         }
         CompilerContext context = prepareCompilerContext(packageID, packageRepository, sourceDocument,
                                                                         true, documentManager, phase);
@@ -154,7 +160,7 @@ public class LSCompiler {
      * @param phase           {@link CompilerPhase} for the compiler
      * @param documentManager document manager
      * @return {@link BallerinaFile} containing compiled package
-     * @throws LSCompilerException
+     * @throws LSCompilerException when compiler error occurred
      */
     public BallerinaFile updateAndCompileFile(Path filePath, String content, CompilerPhase phase,
                                               WorkspaceDocumentManager documentManager)
@@ -227,7 +233,7 @@ public class LSCompiler {
                 packageID = new PackageID(fileName);
                 pkgName = fileName;
             } else {
-                packageID = new PackageID(Names.ANON_ORG, new Name(pkgName), Names.DEFAULT_VERSION);
+                packageID = generatePackageFromManifest(pkgName, sourceRoot);
             }
             CompilerContext compilerContext =
                     prepareCompilerContext(packageID, packageRepository, sourceDocument,
@@ -250,6 +256,15 @@ public class LSCompiler {
 
     private boolean isBallerinaFile(File file) {
         return !file.isDirectory() && file.getName().endsWith(BAL_EXTENSION);
+    }
+    
+    private PackageID generatePackageFromManifest(String pkgName, String sourceRoot) {
+        Manifest manifest = LSCompilerUtil.getManifest(Paths.get(sourceRoot));
+        Name orgName = manifest.getName() == null || manifest.getName().isEmpty() ?
+                Names.ANON_ORG : new Name(manifest.getName());
+        Name version = manifest.getVersion() == null || manifest.getVersion().isEmpty() ?
+                Names.DEFAULT_VERSION : new Name(manifest.getVersion());
+        return new PackageID(orgName, new Name(pkgName), version);
     }
 }
 

@@ -351,16 +351,59 @@ class SizingUtil {
         cmp.client.w = this.config.clientLine.width;
         cmp.client.h = maxWorkerHeight;
         cmp.client.arrowLine = (cmp.client.w / 2);
-        const paramText = node.parameters.filter((param) => {
-            // skip if the param is service endpoint.
-            return !param.serviceEndpoint;
-        }).map((param) => {
-            return param.name.value;
-        }).join(', ');
+
+        let paramExpression = [];
+        let paramText = [];
+
+        node.parameters.forEach((param) => {
+            // Skip if the param is service endpoint.
+            if (!param.serviceEndpoint) {
+                paramExpression.push(param.getSource());
+                paramText.push(param.getName().getValue());
+            }
+        });
+
+        paramExpression = paramExpression.join(', ');
+        paramText = paramText.join(', ');
+
+        if (TreeUtil.isFunction(node)) {
+            if ((node.defaultableParameters) && (node.defaultableParameters.length > 0)) {
+                const defParameterExpression = [];
+                const defParameterText = [];
+
+                node.defaultableParameters.forEach((param) => {
+                    // Skip if the param is service endpoint.
+                    if (!param.serviceEndpoint) {
+                        defParameterExpression.push(param.getVariable().getSource());
+                        defParameterText.push(
+                            param.getVariableName().getValue() +
+                            param.getVariable().parent.ws[0].text +
+                            param.getVariable().getInitialExpression().getValue());
+                    }
+                });
+
+                defParameterExpression.join(', ');
+                defParameterText.join(', ');
+
+                paramExpression = (paramExpression === '') ? defParameterExpression : paramExpression + ', ' +
+                    defParameterExpression;
+                paramText = (paramText === '') ? defParameterText : paramText + ', ' + defParameterText;
+            }
+
+            if (node.restParameters) {
+                const restParameterExpression = node.getRestParameters().getSource();
+                const restParameterText = '[' + node.getRestParameters().getName().getValue() + ']';
+
+                paramExpression = (paramExpression === '') ? restParameterExpression : paramExpression + ', ' +
+                    restParameterExpression;
+                paramText = (paramText === '') ? restParameterText : paramText + ', ' + restParameterText;
+            }
+        }
+
         const paramTextWidth = this.getTextWidth(paramText, 0,
             (this.config.clientLine.width + this.config.lifeLine.gutter.h));
         cmp.client.text = paramTextWidth.text;
-        cmp.client.fullText = paramText;
+        cmp.client.fullText = paramExpression.replace(/[\r\n]/g, '');
         cmp.client.title = this.getTextWidth(node.getClientTitle(), 0, (this.config.clientLine.head.width)).text;
 
         // calculate default worker

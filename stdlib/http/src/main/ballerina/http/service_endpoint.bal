@@ -64,6 +64,7 @@ public type Listener object {
 public type Remote record {
     @readonly string host;
     @readonly int port;
+    !...
 };
 
 # Presents a read-only view of the local address.
@@ -73,6 +74,7 @@ public type Remote record {
 public type Local record {
     @readonly string host;
     @readonly int port;
+    !...
 };
 
 # Configures limits for requests. If these limits are violated, the request is rejected.
@@ -87,6 +89,7 @@ public type RequestLimits record {
     int maxUriLength = -1;
     int maxHeaderSize = -1;
     int maxEntityBodySize = -1;
+    !...
 };
 
 # Provides a set of configurations for HTTP service endpoints.
@@ -103,6 +106,9 @@ public type RequestLimits record {
 #             resource, filters can applied
 # + timeoutMillis - Period of time in milliseconds that a connection waits for a read/write operation. Use value 0 to
 #                   disable timeout
+# + maxPipelinedRequests - Defines the maximum number of requests that can be processed at a given time on a single
+#                          connection. By default 10 requests can be pipelined on a single cinnection and user can
+#                          change this limit appropriately. This will be applicable only for HTTP 1.1
 public type ServiceEndpointConfiguration record {
     string host,
     int port,
@@ -112,6 +118,8 @@ public type ServiceEndpointConfiguration record {
     RequestLimits? requestLimits,
     Filter[] filters,
     int timeoutMillis = DEFAULT_LISTENER_TIMEOUT,
+    int maxPipelinedRequests = MAX_PIPELINED_REQUESTS,
+    !...
 };
 
 # Configures the SSL/TLS options to be used for HTTP service.
@@ -134,6 +142,7 @@ public type ServiceSecureSocket record {
     string sslVerifyClient,
     boolean shareSession = true,
     ServiceOcspStapling? ocspStapling,
+    !...
 };
 
 # Defines the possible values for the keep-alive configuration in service and client endpoints.

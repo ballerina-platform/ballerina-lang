@@ -90,11 +90,13 @@ public class BallerinaLanguageServer implements ExtendedLanguageServer, Extended
     public CompletableFuture<InitializeResult> initialize(InitializeParams params) {
         final InitializeResult res = new InitializeResult(new ServerCapabilities());
         final SignatureHelpOptions signatureHelpOptions = new SignatureHelpOptions(Arrays.asList("(", ","));
-        final List<String> commandList = new ArrayList<>(Arrays.asList(CommandConstants.CMD_IMPORT_PACKAGE,
-                                                                       CommandConstants.CMD_ADD_DOCUMENTATION,
-                                                                       CommandConstants.CMD_ADD_ALL_DOC,
-                                                                       CommandConstants.CMD_CREATE_FUNCTION,
-                                                                       CommandConstants.CMD_CREATE_VARIABLE));
+        final List<String> commandList = new ArrayList<>(Arrays.asList(
+                CommandConstants.CMD_IMPORT_PACKAGE,
+                CommandConstants.CMD_ADD_DOCUMENTATION,
+                CommandConstants.CMD_ADD_ALL_DOC,
+                CommandConstants.CMD_CREATE_FUNCTION,
+                CommandConstants.CMD_CREATE_VARIABLE,
+                CommandConstants.CMD_CREATE_CONSTRUCTOR));
         final ExecuteCommandOptions executeCommandOptions = new ExecuteCommandOptions(commandList);
         final CompletionOptions completionOptions = new CompletionOptions();
         completionOptions.setTriggerCharacters(Arrays.asList(":", ".", ">", "@"));
