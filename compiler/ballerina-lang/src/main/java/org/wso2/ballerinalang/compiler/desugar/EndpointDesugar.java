@@ -32,6 +32,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.tree.BLangEndpoint;
+import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangInvokableNode;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangService;
@@ -137,16 +138,24 @@ public class EndpointDesugar {
     }
 
     void rewriteServiceBoundToEndpointInPkg(BLangPackage pkgNode, SymbolEnv pkgEnv) {
-        pkgNode.services.forEach(service -> rewriteService(service, pkgEnv));
+        if (pkgNode.getKind() == NodeKind.PACKAGE) {
+            pkgNode.services.forEach(service -> rewriteService(service, pkgEnv, pkgEnv.enclPkg.startFunction));
+        }
+        if (pkgNode.getKind() == NodeKind.TESTABLE_PACKAGE) {
+            pkgNode.services.forEach(service -> rewriteService(service, pkgEnv,
+                                                               ((BLangTestablePackage) pkgEnv.enclPkg)
+                                                                       .testStartFunction));
+        }
+
     }
 
-    private void rewriteService(BLangService service, SymbolEnv pkgEnv) {
+    private void rewriteService(BLangService service, SymbolEnv pkgEnv, BLangFunction startFunction) {
         final BServiceSymbol serviceSymbol = (BServiceSymbol) service.symbol;
         if (serviceSymbol.boundEndpoints.isEmpty()) {
             return;
         }
-        final BSymbol varSymbol = pkgEnv.enclPkg.startFunction.symbol;
-        final BLangBlockStmt startBlock = pkgEnv.enclPkg.startFunction.body;
+        final BSymbol varSymbol = startFunction.symbol;
+        final BLangBlockStmt startBlock = startFunction.body;
         serviceSymbol.boundEndpoints.forEach(endpointVarSymbol -> {
             final BLangBlockStmt generateCode = generateServiceRegistered(endpointVarSymbol, service, pkgEnv,
                     endpointVarSymbol.owner, varSymbol);
