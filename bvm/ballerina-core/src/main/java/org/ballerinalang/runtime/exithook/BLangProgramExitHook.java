@@ -16,7 +16,7 @@
  * under the License.
  */
 
-package org.ballerinalang.runtime;
+package org.ballerinalang.runtime.exithook;
 
 import org.ballerinalang.model.values.BFunctionPointer;
 import org.ballerinalang.model.values.BValue;

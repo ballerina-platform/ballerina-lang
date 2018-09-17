@@ -16,7 +16,7 @@
  * under the License.
  */
 
-package org.ballerinalang.runtime;
+package org.ballerinalang.runtime.exithook;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -34,21 +34,33 @@ import java.util.concurrent.TimeoutException;
  */
 public class BLangProgramExitHookRegistry {
 
+    private static BLangProgramExitHookRegistry instance = new BLangProgramExitHookRegistry();
     private static final Set<BLangProgramExitHook> exitHooks = new HashSet<>();
+
+    private BLangProgramExitHookRegistry() {
+    }
+
+    /**
+     * Returns ths singleton instance of the BLangProgramExitHookRegistry.
+     * @return the registry instance
+     */
+    public static BLangProgramExitHookRegistry getInstance() {
+        return instance;
+    }
 
     /**
      * Add the given exit hook to the runtime.
      *
      * @param bLangProgramExitHook - exit hook to be added
      */
-    public static void addExitHook(BLangProgramExitHook bLangProgramExitHook) {
+    public void addExitHook(BLangProgramExitHook bLangProgramExitHook) {
         exitHooks.add(bLangProgramExitHook);
     }
 
     /**
      * Invoke all registered exit hooks.
      */
-    public static void invokeExitHooks() {
+    public void invokeExitHooks() {
         final ExecutorService executor = Executors.newSingleThreadExecutor();
         exitHooks.forEach(hook -> {
             try {
@@ -65,7 +77,7 @@ public class BLangProgramExitHookRegistry {
      *
      * @return true if the registry is empty, false otherwise
      */
-    public static boolean isEmpty() {
+    public boolean isEmpty() {
         return exitHooks.isEmpty();
     }
 }

@@ -24,8 +24,8 @@ import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BFunctionPointer;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
-import org.ballerinalang.runtime.BLangProgramExitHook;
-import org.ballerinalang.runtime.BLangProgramExitHookRegistry;
+import org.ballerinalang.runtime.exithook.BLangProgramExitHook;
+import org.ballerinalang.runtime.exithook.BLangProgramExitHookRegistry;
 
 /**
  * Native implementation of the runtime:addExitHook extern function.
@@ -43,6 +43,6 @@ public class AddExitHook extends BlockingNativeCallableUnit {
     @Override
     public void execute(Context context) {
         BFunctionPointer functionPointer = (BFunctionPointer) context.getRefArgument(0);
-        BLangProgramExitHookRegistry.addExitHook(new BLangProgramExitHook(functionPointer));
+        BLangProgramExitHookRegistry.getInstance().addExitHook(new BLangProgramExitHook(functionPointer));
     }
 }
