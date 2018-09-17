@@ -68,6 +68,10 @@ public class Field {
         public Field build() {
             String fieldType = FIELD_TYPE_MAP.get(fieldDescriptor.getType()) != null ? FIELD_TYPE_MAP.get
                     (fieldDescriptor.getType()) : fieldDescriptor.getTypeName();
+            if (fieldType.startsWith(".")) {
+                String[] fieldTypeArray = fieldType.split(("\\."));
+                fieldType = fieldTypeArray[fieldTypeArray.length - 1];
+            }
             String fieldLabel = FIELD_LABEL_MAP.get(fieldDescriptor.getLabel());
             return new Field(fieldDescriptor.getName(), fieldType, fieldLabel, fieldDescriptor.getDefaultValue());
         }
