@@ -5,23 +5,14 @@ public function testObjectWithInterface () returns (int, string, int, string) {
 }
 
 
-type Person object {
+type Person abstract object {
     public int age = 10,
     public string name = "sample name";
 
     int year = 50;
     string month = "february";
 
-    new (year, int count, name = "sample value1", string val1 = "default value") {
-        age = age + count;
-        month = val1;
-    }
-
-    function attachFunc1(int add, string value1) returns (int, string) {
-        int count = age + add;
-        string val2 = value1 + month;
-        return (count, val2);
-    }
+    function attachFunc1(int add, string value1) returns (int, string);
 
     function attachInterface(int add, string value1) returns (int, string);
 };

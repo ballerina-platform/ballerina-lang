@@ -19,7 +19,10 @@ package org.ballerinalang.test.object;
 
 import org.ballerinalang.launcher.util.BAssertUtil;
 import org.ballerinalang.launcher.util.BCompileUtil;
+import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.CompileResult;
+import org.ballerinalang.model.values.BValue;
+import org.testng.Assert;
 import org.testng.annotations.Test;
 
 /**
@@ -27,18 +30,60 @@ import org.testng.annotations.Test;
  */
 public class AbstractObjectTest {
 
+    CompileResult compileResult = BCompileUtil.compile("test-src/object/abstract_anon_object.bal");
+
     @Test
-    public void testAbstractObject() {
-        CompileResult compileResult = BCompileUtil.compile("test-src/object/abstract-object-negative.bal");
+    public void testAbstractObjectNegative() {
+        CompileResult negativeResult = BCompileUtil.compile("test-src/object/abstract-object-negative.bal");
         int index = 0;
-        BAssertUtil.validateError(compileResult, index++, "cannot initialize abstract object 'Person1'", 3, 18);
-        BAssertUtil.validateError(compileResult, index++, "cannot initialize abstract object 'Person2'", 4, 18);
-        BAssertUtil.validateError(compileResult, index++, "cannot initialize abstract object 'Person1'", 8, 18);
-        BAssertUtil.validateError(compileResult, index++, "cannot initialize abstract object 'Person2'", 9, 18);
-        BAssertUtil.validateError(compileResult, index++, "abstract object 'Person2' cannot have a constructor method",
+        BAssertUtil.validateError(negativeResult, index++, "cannot initialize abstract object 'Person1'", 3, 18);
+        BAssertUtil.validateError(negativeResult, index++, "cannot initialize abstract object 'Person2'", 4, 18);
+        BAssertUtil.validateError(negativeResult, index++, "cannot initialize abstract object 'Person1'", 8, 18);
+        BAssertUtil.validateError(negativeResult, index++, "cannot initialize abstract object 'Person2'", 9, 18);
+        BAssertUtil.validateError(negativeResult, index++, "abstract object 'Person2' cannot have a constructor method",
                 28, 5);
+        BAssertUtil.validateError(negativeResult, index++,
+                "no implementation found for the function 'getName' of non-abstract object 'Person3'", 40, 5);
+        BAssertUtil.validateError(negativeResult, index++,
+                "function 'getName' in abstract object 'Person4' cannot have a body", 51, 5);
+        BAssertUtil.validateError(negativeResult, index++,
+                "cannot attach function 'getName' to abstract object 'Person5'", 67, 1);
+    }
+
+    @Test
+    public void testAbstractAnonymousObjectNegative() {
+        CompileResult compileResult = BCompileUtil.compile("test-src/object/abstract_anon_object_negative.bal");
+        int index = 0;
         BAssertUtil.validateError(compileResult, index++,
-                "no implementation found for the method 'getName' of non-abstract object 'Person3'", 40, 5);
-        System.out.println(compileResult);
+                "abstract object '$anonType$0' cannot have a constructor method", 2, 54);
+        BAssertUtil.validateError(compileResult, index++, "variable 'p1' is not initialized", 2, 1);
+        BAssertUtil.validateError(compileResult, index++, "variable 'p2' is not initialized", 3, 1);
+        BAssertUtil.validateError(compileResult, index++, "cannot initialize abstract object '$anonType$2'", 4, 77);
+        BAssertUtil.validateError(compileResult, index++,
+                "abstract object '$anonType$3' cannot have a constructor method", 7, 58);
+        BAssertUtil.validateError(compileResult, index++, "variable 'p4' is not initialized", 7, 5);
+        BAssertUtil.validateError(compileResult, index++, "variable 'p5' is not initialized", 8, 5);
+        BAssertUtil.validateError(compileResult, index++, "cannot initialize abstract object '$anonType$5'", 9, 81);
+    }
+
+    @Test
+    public void testAbstractAnonObjectInMatch() {
+        BValue[] result = BRunUtil.invoke(compileResult, "testAbstractAnonObjectInMatch");
+        Assert.assertEquals(result[0].stringValue(), "Person Name");
+        Assert.assertEquals(result[1].stringValue(), "Employee Name");
+    }
+
+    @Test
+    public void testAbstractAnonObjectInFunction() {
+        BValue[] result = BRunUtil.invoke(compileResult, "testAbstractAnonObjectInFunction");
+        Assert.assertEquals(result[0].stringValue(), "Person Name");
+        Assert.assertEquals(result[1].stringValue(), "Employee Name");
+    }
+
+    @Test
+    public void testAbstractAnonObjectInVarDef() {
+        BValue[] result = BRunUtil.invoke(compileResult, "testAbstractAnonObjectInVarDef");
+        Assert.assertEquals(result[0].stringValue(), "Person Name");
+        Assert.assertEquals(result[1].stringValue(), "Employee Name");
     }
 }

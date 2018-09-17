@@ -1,7 +1,7 @@
 
 object {public int age, public string name, new(age, name){}} p1;
-abstract object {public int age, public string name, function test();} p2;
-abstract object {public int age, public string name, function test();} p3 = new;
+object {public int age, public string name, function test();} p2;
+object {public int age, public string name, function test();} p3 = new;
 
 function test () returns int {
     object {public int age, public string name, new(age, name){}} p4;

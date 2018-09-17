@@ -287,20 +287,12 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             this.analyzeDef(funcNode.restParam, funcEnv);
         }
 
-        if (funcNode.attachedOuterFunction && funcNode.body == null) { //object outer attached function must have a body
-            dlog.error(funcNode.pos, DiagnosticCode.ATTACHED_FUNCTIONS_MUST_HAVE_BODY, funcNode.name);
-            return;
-        }
-
-        if (isUnimplementedObjectAttachedFunction(funcNode)) {
-            dlog.error(funcNode.pos, DiagnosticCode.INVALID_INTERFACE_ON_NON_ABSTRACT_OBJECT, funcNode.name,
-                    funcNode.receiver.type);
-        }
+        validateObjectAttachedFunction(funcNode);
 
         // Check for native functions
         if (Symbols.isNative(funcNode.symbol) || funcNode.interfaceFunction) {
             if (funcNode.body != null) {
-                dlog.error(funcNode.pos, DiagnosticCode.FUNCTION_CANNOT_HAVE_BODY, funcNode.name);
+                dlog.error(funcNode.pos, DiagnosticCode.EXTERN_FUNCTION_CANNOT_HAVE_BODY, funcNode.name);
             }
             return;
         }
@@ -309,7 +301,10 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             symbolEnter.defineNode(e, funcEnv);
             analyzeDef(e, funcEnv);
         });
-        analyzeStmt(funcNode.body, funcEnv);
+
+        if (funcNode.body != null) {
+            analyzeStmt(funcNode.body, funcEnv);
+        }
 
         this.processWorkers(funcNode, funcEnv);
     }
@@ -2037,21 +2032,38 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
      * @param funcNode Function node
      * @return True if the function is an unimplemented method inside a non-abstract object.
      */
-    private boolean isUnimplementedObjectAttachedFunction(BLangFunction funcNode) {
-        if (!funcNode.attachedFunction || !funcNode.interfaceFunction) {
-            return false;
+    private void validateObjectAttachedFunction(BLangFunction funcNode) {
+        if (funcNode.attachedOuterFunction) {
+            // object outer attached function must have a body
+            if (funcNode.body == null) {
+                dlog.error(funcNode.pos, DiagnosticCode.ATTACHED_FUNCTIONS_MUST_HAVE_BODY, funcNode.name);
+            }
+
+            if (Symbols.isFlagOn(funcNode.receiver.type.tsymbol.flags, Flags.ABSTRACT)) {
+                dlog.error(funcNode.pos, DiagnosticCode.CANNOT_ATTACH_FUNCTIONS_TO_ABSTRACT_OBJECT, funcNode.name,
+                        funcNode.receiver.type);
+            }
+
+            return;
+        }
+
+        if (!funcNode.attachedFunction) {
+            return;
         }
 
         // If the function is attached to an abstract object, it don't need to have an implementation
         if (Symbols.isFlagOn(funcNode.receiver.type.tsymbol.flags, Flags.ABSTRACT)) {
-            return false;
+            if (funcNode.body != null) {
+                dlog.error(funcNode.pos, DiagnosticCode.ABSTRACT_OBJECT_FUNCTION_CANNOT_HAVE_BODY, funcNode.name,
+                        funcNode.receiver.type);
+            }
+            return;
         }
 
-        // Otherwise there must be an implementation at the outer level.
-        if (env.enclPkg.objAttachedFunctions.contains(funcNode.symbol)) {
-            return false;
+        // There must be an implementation at the outer level, if the function is an interface
+        if (funcNode.interfaceFunction && !env.enclPkg.objAttachedFunctions.contains(funcNode.symbol)) {
+            dlog.error(funcNode.pos, DiagnosticCode.INVALID_INTERFACE_ON_NON_ABSTRACT_OBJECT, funcNode.name,
+                    funcNode.receiver.type);
         }
-
-        return true;
     }
 }

@@ -39,3 +39,31 @@ type Person3 object {
 
     public function getName() returns string;
 };
+
+// Abstract object with method definition
+type Person4 abstract object {
+    public int age;
+    public string name;
+
+    int year;
+    string month;
+
+    public function getName() returns string {
+        return name;
+    }
+};
+
+// Attach function to an abstract object
+type Person5 abstract object {
+    public int age;
+    public string name;
+
+    int year;
+    string month;
+
+    public function getName() returns string;
+};
+
+function Person5::getName() returns string {
+    return "my name";
+}
