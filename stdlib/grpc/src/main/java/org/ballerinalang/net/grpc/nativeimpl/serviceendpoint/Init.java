@@ -57,11 +57,14 @@ import static org.ballerinalang.net.http.HttpConstants.ENDPOINT_CONFIG_OCSP_STAP
 import static org.ballerinalang.net.http.HttpConstants.ENDPOINT_CONFIG_PROTOCOLS;
 import static org.ballerinalang.net.http.HttpConstants.ENDPOINT_CONFIG_TRUST_STORE;
 import static org.ballerinalang.net.http.HttpConstants.ENDPOINT_CONFIG_VALIDATE_CERT;
+import static org.ballerinalang.net.http.HttpConstants.FILE_PATH;
+import static org.ballerinalang.net.http.HttpConstants.PASSWORD;
 import static org.ballerinalang.net.http.HttpConstants.PROTOCOL_VERSION;
 import static org.ballerinalang.net.http.HttpConstants.SSL_CONFIG_CACHE_SIZE;
 import static org.ballerinalang.net.http.HttpConstants.SSL_CONFIG_CACHE_VALIDITY_PERIOD;
 import static org.ballerinalang.net.http.HttpConstants.SSL_CONFIG_CIPHERS;
 import static org.ballerinalang.net.http.HttpConstants.SSL_CONFIG_ENABLE_SESSION_CREATION;
+import static org.ballerinalang.net.http.HttpConstants.SSL_CONFIG_SSL_VERIFY_CLIENT;
 import static org.ballerinalang.runtime.Constants.BALLERINA_VERSION;
 
 /**
@@ -145,32 +148,32 @@ public class Init extends AbstractGrpcNativeFunction {
                     + "for secure connection");
         }
         if (keyStore != null) {
-            String keyStoreFile = keyStore.getStringField(HttpConstants.FILE_PATH);
+            String keyStoreFile = keyStore.getStringField(FILE_PATH);
             if (StringUtils.isBlank(keyStoreFile)) {
-                throw new BallerinaException("keystore file location must be provided for secure connection");
+                throw new BallerinaException("Keystore file location must be provided for secure connection");
             }
-            String keyStorePassword = keyStore.getStringField(HttpConstants.PASSWORD);
+            String keyStorePassword = keyStore.getStringField(PASSWORD);
             if (StringUtils.isBlank(keyStorePassword)) {
-                throw new BallerinaException("keystore password must be provided for secure connection");
+                throw new BallerinaException("Keystore password must be provided for secure connection");
             }
             listenerConfiguration.setKeyStoreFile(keyStoreFile);
             listenerConfiguration.setKeyStorePass(keyStorePassword);
         } else {
             listenerConfiguration.setServerKeyFile(keyFile);
             listenerConfiguration.setServerCertificates(certFile);
-            if (keyPassword != null) {
+            if (StringUtils.isBlank(keyPassword)) {
                 listenerConfiguration.setServerKeyPassword(keyPassword);
             }
         }
-        String sslVerifyClient = sslConfig.getStringField(HttpConstants.SSL_CONFIG_SSL_VERIFY_CLIENT);
+        String sslVerifyClient = sslConfig.getStringField(SSL_CONFIG_SSL_VERIFY_CLIENT);
         listenerConfiguration.setVerifyClient(sslVerifyClient);
         if (trustStore == null && StringUtils.isNotBlank(sslVerifyClient) && StringUtils.isBlank(trustCerts)) {
             throw new BallerinaException(
                     "Truststore location or trustCertificates must be provided to enable Mutual SSL");
         }
         if (trustStore != null) {
-            String trustStoreFile = trustStore.getStringField(HttpConstants.FILE_PATH);
-            String trustStorePassword = trustStore.getStringField(HttpConstants.PASSWORD);
+            String trustStoreFile = trustStore.getStringField(FILE_PATH);
+            String trustStorePassword = trustStore.getStringField(PASSWORD);
             if (StringUtils.isBlank(trustStoreFile) && StringUtils.isNotBlank(sslVerifyClient)) {
                 throw new BallerinaException(
                         "Truststore location must be provided to enable Mutual SSL");
