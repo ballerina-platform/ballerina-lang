@@ -576,8 +576,8 @@ Variable
    | <endWithComma?>     <documentationAttachments>* <annotationAttachments>* <deprecatedAttachments>*                                                                 <typeNode.source> <rest?...> <name.value>                                ,
    |                                                                                                                                     <safeAssignment?>             <typeNode.source>            <name.value> =? <initialExpression.source>
    |                                                                                                                                                                   <typeNode.source>            <name.value> =  <initialExpression.source>
-   | <noVisibleType?>    <documentationAttachments>* <annotationAttachments>* <deprecatedAttachments>* <public?public>                                                                   <rest?...> <name.value>
-   |                     <documentationAttachments>* <annotationAttachments>* <deprecatedAttachments>* <public?public>                                                 <typeNode.source> <rest?...> <name.value>
+   | <arrowExprParam?>   <documentationAttachments>* <annotationAttachments>* <deprecatedAttachments>* <public?public>                                                               <name.value>
+   |                     <documentationAttachments>* <annotationAttachments>* <deprecatedAttachments>* <public?public>                                  <typeNode.source> <rest?...> <name.value>
    ;
 
 VariableDef

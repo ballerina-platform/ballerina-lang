@@ -231,10 +231,10 @@ public class SourceGen {
                 kind.equals("XmlElementLiteral") ||
                 kind.equals("XmlTextLiteral") ||
                 kind.equals("XmlPiLiteral")) &&
-                        node.has("ws") &&
-                        node.getAsJsonArray("ws").get(0) != null &&
-                        node.getAsJsonArray("ws").get(0).getAsJsonObject().get("text").getAsString().contains("xml")
-                        && node.getAsJsonArray("ws").get(0).getAsJsonObject().get("text").getAsString().contains("`")) {
+                node.has("ws") &&
+                node.getAsJsonArray("ws").get(0) != null &&
+                node.getAsJsonArray("ws").get(0).getAsJsonObject().get("text").getAsString().contains("xml")
+                && node.getAsJsonArray("ws").get(0).getAsJsonObject().get("text").getAsString().contains("`")) {
             node.addProperty("root", true);
             node.addProperty("startLiteral", node.getAsJsonArray("ws").get(0).getAsJsonObject().get("text").getAsString());
         }
@@ -371,10 +371,6 @@ public class SourceGen {
                     node.getAsJsonObject("typeNode").has("ws") &&
                     !node.has("ws")) {
                 node.addProperty("noVisibleName", true);
-            }
-
-            if (node.has("typeNode") && !node.getAsJsonObject("typeNode").has("ws")) {
-                node.addProperty("noVisibleType", true);
             }
 
             if (node.has("ws")) {
@@ -892,9 +888,20 @@ public class SourceGen {
             }
         }
 
-        if (kind.equals("ArrowExpr") && node.has("ws") && node.getAsJsonArray("ws").size() > 0
-                && node.getAsJsonArray("ws").get(0).getAsJsonObject().get("text").getAsString().equals("(")) {
-            node.addProperty("hasParantheses", true);
+        if (kind.equals("ArrowExpr")) {
+            if (node.has("ws") && node.getAsJsonArray("ws").size() > 0
+                    && node.getAsJsonArray("ws").get(0).getAsJsonObject().get("text")
+                    .getAsString().equals("(")) {
+                node.addProperty("hasParantheses", true);
+            }
+
+            if (node.has("parameters")) {
+                JsonArray parameters = node.getAsJsonArray("parameters");
+                for (int i = 0; i < parameters.size(); i++) {
+                    JsonObject parameter = parameters.get(i).getAsJsonObject();
+                    parameter.addProperty("arrowExprParam", true);
+                }
+            }
         }
     }
 

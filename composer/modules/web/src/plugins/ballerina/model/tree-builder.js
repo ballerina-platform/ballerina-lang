@@ -239,10 +239,6 @@ class TreeBuilder {
                 node.noVisibleName = true;
             }
 
-            if (node.typeNode && !node.typeNode.ws) {
-                node.noVisibleType = true;
-            }
-
             if (node.ws) {
                 for (let i = 0; i < node.ws.length; i++) {
                     if (node.ws[i].text === ';') {
@@ -408,7 +404,7 @@ class TreeBuilder {
 
         if (node.kind === 'RecordType') {
             if (node.restFieldType) {
-               node.isRestFieldAvailable = true;
+                node.isRestFieldAvailable = true;
             }
         }
 
@@ -672,8 +668,14 @@ class TreeBuilder {
             }
         }
 
-        if (kind === 'ArrowExpr' && node.ws && node.ws.length > 0 && node.ws[0].text === '(') {
-            node.hasParantheses = true;
+        if (kind === 'ArrowExpr') {
+            if (node.ws && node.ws.length > 0 && node.ws[0].text === '(') {
+                node.hasParantheses = true;
+            }
+
+            for (let i = 0; i < node.parameters.length; i++) {
+                node.parameters[i].arrowExprParam = true;
+            }
         }
     }
 

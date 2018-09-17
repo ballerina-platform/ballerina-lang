@@ -1951,14 +1951,13 @@ export default function getSourceOf(node, pretty = false, l = 0, replaceLambda) 
                 return getSourceOf(node.typeNode, pretty, l, replaceLambda) + w(' ')
                  + node.name.valueWithBar + a(' ') + w(' ') + '=' + a(' ')
                  + getSourceOf(node.initialExpression, pretty, l, replaceLambda);
-            } else if (node.noVisibleType && node.documentationAttachments
+            } else if (node.arrowExprParam && node.documentationAttachments
                          && node.annotationAttachments && node.deprecatedAttachments
                          && node.name.valueWithBar) {
                 return join(node.documentationAttachments, pretty, replaceLambda, l, w, '')
                  + join(node.annotationAttachments, pretty, replaceLambda, l, w, '')
-                 + join(node.deprecatedAttachments, pretty, replaceLambda, l, w, '') + (node.public ? w() + 'public' + a(' ') : '')
-                 + (node.rest ? w() + '...' : '') + w(' ') + node.name.valueWithBar
-                 + a(' ');
+                 + join(node.deprecatedAttachments, pretty, replaceLambda, l, w, '') + (node.public ? w() + 'public' + a(' ') : '') + w(' ')
+                 + node.name.valueWithBar + a(' ');
             } else {
                 return join(node.documentationAttachments, pretty, replaceLambda, l, w, '')
                  + join(node.annotationAttachments, pretty, replaceLambda, l, w, '')
