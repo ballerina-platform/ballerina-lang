@@ -3,10 +3,6 @@ import ballerina/io;
 io:ReadableByteChannel rch;
 io:WritableByteChannel wch;
 
-//function initFileChannel (string filePath, io:Mode permission) {
-//    rch = untaint io:openFile(filePath, permission);
-//}
-
 function initReadableChannel(string filePath) {
     rch = untaint io:openFileForReading(filePath);
 }
@@ -41,10 +37,6 @@ function writeBytes(byte[] content, int startOffset) returns int|error {
         }
     }
 }
-
-//function close () {
-//    var result = rch.close();
-//}
 
 function closeReadableChannel() {
     var result = rch.close();

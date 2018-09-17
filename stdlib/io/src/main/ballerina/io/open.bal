@@ -57,20 +57,3 @@ public extern function openSecureSocket(@sensitive string host,
 # + return - ByteChannel represenation to read the memory content
 public extern function createReadableChannel(byte[] content) returns ReadableByteChannel;
 
-//# Retrieves a CSV channel from a give file path.
-//#
-//# + path - File path which describes the location of the CSV
-//# + mode - Permission which should be used to open CSV file
-//# + fieldSeparator - CSV record seperator (i.e comma or tab)
-//# + charset - Encoding characters in the file represents
-//# + skipHeaders - Number of headers which should be skipped
-//# + return - CSVChannel which could be used to iterate through the CSV records
-//public function openCsvFile(@sensitive string path,
-//                            @sensitive Mode mode = "r",
-//                            @sensitive Separator fieldSeparator = ",",
-//                            @sensitive string charset = "UTF-8",
-//                            @sensitive int skipHeaders = 0) returns @tainted CSVChannel {
-//    ByteChannel channel = openFile(path, mode);
-//    CharacterChannel charChannel = new(channel, charset);
-//    return new CSVChannel(charChannel, fs = fieldSeparator, nHeaders = skipHeaders);
-//}

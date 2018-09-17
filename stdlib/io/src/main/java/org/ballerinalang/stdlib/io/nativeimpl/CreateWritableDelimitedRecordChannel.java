@@ -39,7 +39,7 @@ import org.slf4j.LoggerFactory;
 /**
  * Extern function ballerina/io#createWritableDelimitedRecordChannel.
  *
- * @since 0.963.0
+ * @since 0.982.0
  */
 @BallerinaFunction(
         orgName = "ballerina", packageName = "io",

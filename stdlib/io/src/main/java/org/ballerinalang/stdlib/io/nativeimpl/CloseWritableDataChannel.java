@@ -40,7 +40,7 @@ import org.ballerinalang.stdlib.io.utils.IOUtils;
 /**
  * Extern function ballerina.io#DataChannel.close().
  *
- * @since 0.974.1
+ * @since 0.982.0
  */
 @BallerinaFunction(
         orgName = "ballerina", packageName = "io",

@@ -37,7 +37,7 @@ import org.slf4j.LoggerFactory;
 /**
  * Extern function ballerina/io#createWritableCharacterChannel.
  *
- * @since 0.94
+ * @since 0.982.0
  */
 @BallerinaFunction(
         orgName = "ballerina", packageName = "io",

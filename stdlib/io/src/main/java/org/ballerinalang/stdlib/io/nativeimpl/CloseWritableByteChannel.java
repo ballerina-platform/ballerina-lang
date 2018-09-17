@@ -40,7 +40,7 @@ import org.ballerinalang.stdlib.io.utils.IOUtils;
 /**
  * Extern function ballerina/io#close.
  *
- * @since 0.94
+ * @since 0.982.0
  */
 @BallerinaFunction(
         orgName = "ballerina", packageName = "io",

@@ -37,7 +37,7 @@ import java.nio.file.Paths;
 /**
  * Extern function to obtain channel from File.
  *
- * @since 0.963.0
+ * @since 0.982.0
  */
 @BallerinaFunction(
         orgName = "ballerina", packageName = "io",
