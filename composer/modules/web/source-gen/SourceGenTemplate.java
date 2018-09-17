@@ -373,6 +373,10 @@ public class SourceGen {
                 node.addProperty("noVisibleName", true);
             }
 
+            if (node.has("typeNode") && !node.getAsJsonObject("typeNode").has("ws")) {
+                node.addProperty("noVisibleType", true);
+            }
+
             if (node.has("ws")) {
                 JsonArray ws = node.getAsJsonArray("ws");
                 for (int i = 0; i < ws.size(); i++) {
@@ -886,6 +890,11 @@ public class SourceGen {
                 literalWSAssignForTemplates(1, 2, node.getAsJsonArray("textFragments"),
                         node.getAsJsonArray("ws"), 2);
             }
+        }
+
+        if (kind.equals("ArrowExpr") && node.has("ws") && node.getAsJsonArray("ws").size() > 0
+                && node.getAsJsonArray("ws").get(0).getAsJsonObject().get("text").getAsString().equals("(")) {
+            node.addProperty("hasParantheses", true);
         }
     }
 

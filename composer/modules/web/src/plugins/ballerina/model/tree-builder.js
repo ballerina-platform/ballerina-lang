@@ -239,6 +239,10 @@ class TreeBuilder {
                 node.noVisibleName = true;
             }
 
+            if (node.typeNode && !node.typeNode.ws) {
+                node.noVisibleType = true;
+            }
+
             if (node.ws) {
                 for (let i = 0; i < node.ws.length; i++) {
                     if (node.ws[i].text === ';') {
@@ -666,6 +670,10 @@ class TreeBuilder {
             } else {
                 literalWSAssignForTemplates(1, 2, node.textFragments, node.ws, 2);
             }
+        }
+
+        if (kind === 'ArrowExpr' && node.ws && node.ws.length > 0 && node.ws[0].text === '(') {
+            node.hasParantheses = true;
         }
     }
 

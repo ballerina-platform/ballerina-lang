@@ -253,6 +253,24 @@ public class SourceGen {
                  + a("", sourceGenParams.isShouldIndent());
             }
         }
+        public String getSourceForArrowExpr(JsonObject node, boolean pretty, boolean replaceLambda, SourceGenParams sourceGenParams) {
+            if (node.get("hasParantheses") != null
+                         && node.get("hasParantheses") .getAsBoolean() && node.get("parameters") != null
+                         && node.get("expression") != null) {
+                return w("", sourceGenParams) + "("
+                 + a("", sourceGenParams.isShouldIndent())
+                 + join(node.getAsJsonArray("parameters"), pretty, replaceLambda, "", ",", false, sourceGenParams) + w("", sourceGenParams)
+                 + ")" + a("", sourceGenParams.isShouldIndent())
+                 + w("", sourceGenParams) + "=>" + a("", sourceGenParams.isShouldIndent())
+                 + a("", sourceGenParams.isShouldIndent())
+                 + getSourceOf(node.getAsJsonObject("expression"), pretty, replaceLambda);
+            } else {
+                return join(node.getAsJsonArray("parameters"), pretty, replaceLambda, "", ",", false, sourceGenParams) + w("", sourceGenParams) + "=>"
+                 + a("", sourceGenParams.isShouldIndent())
+                 + a("", sourceGenParams.isShouldIndent())
+                 + getSourceOf(node.getAsJsonObject("expression"), pretty, replaceLambda);
+            }
+        }
         public String getSourceForAssignment(JsonObject node, boolean pretty, boolean replaceLambda, SourceGenParams sourceGenParams) {
             return dent(sourceGenParams.isShouldIndent())
                  + (node.has("declaredWithVar") && node.get("declaredWithVar").getAsBoolean() ? w("", sourceGenParams) + "var"
@@ -3999,6 +4017,21 @@ public class SourceGen {
                  + w(" ", sourceGenParams) + "=" + a(" ", sourceGenParams.isShouldIndent())
                  + a("", sourceGenParams.isShouldIndent())
                  + getSourceOf(node.getAsJsonObject("initialExpression"), pretty, replaceLambda);
+            } else if (node.get("noVisibleType") != null
+                         && node.get("noVisibleType") .getAsBoolean() && node.get("documentationAttachments") != null
+                         && node.get("annotationAttachments") != null
+                         && node.get("deprecatedAttachments") != null
+                         && node.getAsJsonObject("name").get("valueWithBar") != null
+                         && !node.getAsJsonObject("name").get("valueWithBar").getAsString().isEmpty()) {
+                return join(node.getAsJsonArray("documentationAttachments"), pretty, replaceLambda, "", null, false, sourceGenParams)
+                 + join(node.getAsJsonArray("annotationAttachments"), pretty, replaceLambda, "", null, false, sourceGenParams)
+                 + join(node.getAsJsonArray("deprecatedAttachments"), pretty, replaceLambda, "", null, false, sourceGenParams)
+                 + (node.has("public") && node.get("public").getAsBoolean() ? w("", sourceGenParams) + "public"
+                 + a(" ", sourceGenParams.isShouldIndent()) : "")
+                 + (node.has("rest") && node.get("rest").getAsBoolean() ? w("", sourceGenParams) + "..."
+                 + a("", sourceGenParams.isShouldIndent()) : "") + w(" ", sourceGenParams)
+                 + node.getAsJsonObject("name").get("valueWithBar").getAsString()
+                 + a(" ", sourceGenParams.isShouldIndent());
             } else {
                 return join(node.getAsJsonArray("documentationAttachments"), pretty, replaceLambda, "", null, false, sourceGenParams)
                  + join(node.getAsJsonArray("annotationAttachments"), pretty, replaceLambda, "", null, false, sourceGenParams)
@@ -4309,6 +4342,8 @@ public class SourceGen {
             return getSourceForArrayLiteralExpr(node, pretty, replaceLambda, sourceGenParams);
         case "ArrayType":
             return getSourceForArrayType(node, pretty, replaceLambda, sourceGenParams);
+        case "ArrowExpr":
+            return getSourceForArrowExpr(node, pretty, replaceLambda, sourceGenParams);
         case "Assignment":
             return getSourceForAssignment(node, pretty, replaceLambda, sourceGenParams);
         case "AwaitExpr":
@@ -4810,6 +4845,10 @@ public class SourceGen {
                     node.getAsJsonObject("typeNode").has("ws") &&
                     !node.has("ws")) {
                 node.addProperty("noVisibleName", true);
+            }
+
+            if (node.has("typeNode") && !node.getAsJsonObject("typeNode").has("ws")) {
+                node.addProperty("noVisibleType", true);
             }
 
             if (node.has("ws")) {
@@ -5325,6 +5364,11 @@ public class SourceGen {
                 literalWSAssignForTemplates(1, 2, node.getAsJsonArray("textFragments"),
                         node.getAsJsonArray("ws"), 2);
             }
+        }
+
+        if (kind.equals("ArrowExpr") && node.has("ws") && node.getAsJsonArray("ws").size() > 0
+                && node.getAsJsonArray("ws").get(0).getAsJsonObject().get("text").getAsString().equals("(")) {
+            node.addProperty("hasParantheses", true);
         }
     }
 

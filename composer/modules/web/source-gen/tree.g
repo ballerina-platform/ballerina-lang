@@ -45,6 +45,11 @@ ArrayType
    |                             <elementType.source> <dimensionAsString>
    ;
 
+ArrowExpr
+   : <hasParantheses?> ( <parameters-joined-by,>* ) => <expression.source>
+   |                     <parameters-joined-by,>*   => <expression.source>
+   ;
+
 Assignment
    : <declaredWithVar?var> <variable.source> = <expression.source> ;
    ;
@@ -571,6 +576,7 @@ Variable
    | <endWithComma?>     <documentationAttachments>* <annotationAttachments>* <deprecatedAttachments>*                                                                 <typeNode.source> <rest?...> <name.value>                                ,
    |                                                                                                                                     <safeAssignment?>             <typeNode.source>            <name.value> =? <initialExpression.source>
    |                                                                                                                                                                   <typeNode.source>            <name.value> =  <initialExpression.source>
+   | <noVisibleType?>    <documentationAttachments>* <annotationAttachments>* <deprecatedAttachments>* <public?public>                                                                   <rest?...> <name.value>
    |                     <documentationAttachments>* <annotationAttachments>* <deprecatedAttachments>* <public?public>                                                 <typeNode.source> <rest?...> <name.value>
    ;
 
