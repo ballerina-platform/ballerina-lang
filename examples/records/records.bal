@@ -24,7 +24,7 @@ public function main() {
     Student s2 = { name: "John Doe", age: 17, grades: {maths: 80, physics: 75, chemistry: 65}};
     io:println(s2);
 
-    // This fetches the value of a specific field in this record. Fields can be accessed using dot (.) or the index operator.
+    // This fetches the value of a specific field in this record. To access fields, use the dot (.) or the index operator.
     io:println(s2.name);
     io:println(s2["name"]);
 
@@ -38,13 +38,14 @@ public function main() {
     io:println(s2);
 
     // This adds an additional field not defined in the record type definition above.
-    // Attempts to add additional fields to a closed record will result in compile errors.
+    // Note that an attempt to add additional fields to a closed record results in compile errors.
     // e.g., `s1.grades.ict = 77;`
     s1.department = "Computer Science";
     io:println(s1);
 
-    // Records are iterable and as such, they can be used with foreach loops. The foreach variables are the field name and the value.
-    // The field name's type is `string`. The type of the variable for the value depends on the types of the fields of the record.
+    // Records are iterable. Therefore, records can be used with foreach loops. Either the value of the field or
+    // both the name and the value of the field can be used as the foreach variable(s).
+    // The type of the field name is string. The variable type for the value depends on the types of fields of the record.
     // If the fields and the rest descriptor are of same type (or if it is a closed record, the rest descriptor does not matter),
     // the variable will also be of that same type. If not, the variable will be an `any` variable.
     int total = 0;
