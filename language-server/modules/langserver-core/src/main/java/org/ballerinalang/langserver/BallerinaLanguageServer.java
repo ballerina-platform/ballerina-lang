@@ -101,6 +101,7 @@ public class BallerinaLanguageServer implements ExtendedLanguageServer, Extended
                 CommandConstants.CMD_ADD_DOCUMENTATION,
                 CommandConstants.CMD_ADD_ALL_DOC,
                 CommandConstants.CMD_CREATE_FUNCTION,
+                CommandConstants.CMD_CREATE_TEST,
                 CommandConstants.CMD_CREATE_VARIABLE,
                 CommandConstants.CMD_CREATE_CONSTRUCTOR));
         final ExecuteCommandOptions executeCommandOptions = new ExecuteCommandOptions(commandList);

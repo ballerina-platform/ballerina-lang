@@ -54,6 +54,8 @@ public class CommandConstants {
 
     public static final String CREATE_FUNCTION_TITLE = "Create Function ";
 
+    public static final String CREATE_TEST_TITLE = "Create Test ";
+
     public static final String ADD_DOCUMENTATION_TITLE = "Document This";
 
     public static final String ADD_ALL_DOC_TITLE = "Document All";
@@ -65,6 +67,8 @@ public class CommandConstants {
     public static final String CMD_IMPORT_PACKAGE = "IMPORT_PKG";
 
     public static final String CMD_CREATE_FUNCTION = "CREATE_FUNC";
+
+    public static final String CMD_CREATE_TEST = "CREATE_TEST";
 
     public static final String CMD_CREATE_VARIABLE = "CREATE_VAR";
 

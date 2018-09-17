@@ -135,6 +135,17 @@ public class CommandUtil {
     }
 
     /**
+     * Get the command for generate test class.
+     * @param docUri            Document Uri
+     * @return {@link Command}  Test Generation command
+     */
+    public static Command getTestGenerationCommand(String docUri) {
+        CommandArgument arg = new CommandArgument(CommandConstants.ARG_KEY_DOC_URI, docUri);
+        return new Command(CommandConstants.CREATE_TEST_TITLE, CommandConstants.CMD_CREATE_TEST,
+                           new ArrayList<>(Collections.singletonList(arg)));
+    }
+
+    /**
      * Get the command instances for a given diagnostic.
      *
      * @param diagnostic        Diagnostic to get the command against
@@ -231,7 +242,7 @@ public class CommandUtil {
 
     private static Set<String> getAllEntries(BLangInvocation functionNode) {
         Set<String> strings = new HashSet<>();
-        BLangPackage packageNode = getPackageNode(functionNode);
+        BLangPackage packageNode = CommonUtil.getPackageNode(functionNode);
         if (packageNode != null) {
             packageNode.getGlobalVariables().forEach(globalVar -> strings.add(globalVar.name.value));
             packageNode.getGlobalEndpoints().forEach(endpoint -> strings.add(endpoint.getName().getValue()));
@@ -241,14 +252,6 @@ public class CommandUtil {
         Map<Name, Scope.ScopeEntry> entries = functionNode.symbol.scope.entries;
         entries.forEach((name, scopeEntry) -> strings.add(name.value));
         return strings;
-    }
-
-    private static BLangPackage getPackageNode(BLangNode bLangNode) {
-        BLangNode parent = bLangNode.parent;
-        if (parent != null) {
-            return (parent instanceof BLangPackage) ? (BLangPackage) parent : getPackageNode(parent);
-        }
-        return null;
     }
 
     /**

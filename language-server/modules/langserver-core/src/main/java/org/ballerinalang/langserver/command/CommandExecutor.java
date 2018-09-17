@@ -26,11 +26,15 @@ import org.ballerinalang.langserver.compiler.LSServiceOperationContext;
 import org.ballerinalang.langserver.compiler.common.LSCustomErrorStrategy;
 import org.ballerinalang.langserver.compiler.workspace.WorkspaceDocumentException;
 import org.ballerinalang.langserver.compiler.workspace.WorkspaceDocumentManager;
+import org.ballerinalang.langserver.test.TestGenerator;
+import org.ballerinalang.langserver.test.TestGeneratorException;
 import org.ballerinalang.model.symbols.SymbolKind;
 import org.ballerinalang.model.tree.Node;
 import org.ballerinalang.model.tree.TopLevelNode;
 import org.eclipse.lsp4j.ApplyWorkspaceEditParams;
 import org.eclipse.lsp4j.ExecuteCommandParams;
+import org.eclipse.lsp4j.MessageParams;
+import org.eclipse.lsp4j.MessageType;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4j.TextDocumentEdit;
@@ -98,6 +102,9 @@ public class CommandExecutor {
                 case CommandConstants.CMD_CREATE_FUNCTION:
                     result = executeCreateFunction(context);
                     break;
+                case CommandConstants.CMD_CREATE_TEST:
+                    result = executeCreateTest(context);
+                    break;
                 case CommandConstants.CMD_CREATE_VARIABLE:
                     result = executeCreateVariable(context);
                     break;
@@ -115,7 +122,7 @@ public class CommandExecutor {
                     result = new Object();
                     break;
             }
-        } catch (WorkspaceDocumentException | BallerinaCommandExecutionException e) {
+        } catch (WorkspaceDocumentException | BallerinaCommandExecutionException | TestGeneratorException e) {
             logger.error("Error occurred while executing command", e);
             result = new Object();
         }
@@ -255,6 +262,49 @@ public class CommandExecutor {
 
         LanguageClient client = context.get(ExecuteCommandKeys.LANGUAGE_SERVER_KEY).getClient();
         return applySingleTextEdit(editText, range, textDocumentIdentifier, client);
+    }
+
+    /**
+     * Execute the command, create function.
+     *
+     * @param context Workspace service context
+     */
+    private static Object executeCreateTest(LSServiceOperationContext context) throws TestGeneratorException {
+        String documentUri = null;
+        VersionedTextDocumentIdentifier textDocumentIdentifier = new VersionedTextDocumentIdentifier();
+
+        for (Object arg : context.get(ExecuteCommandKeys.COMMAND_ARGUMENTS_KEY)) {
+            String argKey = ((LinkedTreeMap) arg).get(ARG_KEY).toString();
+            String argVal = ((LinkedTreeMap) arg).get(ARG_VALUE).toString();
+            if (argKey.equals(CommandConstants.ARG_KEY_DOC_URI)) {
+                documentUri = argVal;
+                textDocumentIdentifier.setUri(documentUri);
+                context.put(DocumentServiceKeys.FILE_URI_KEY, documentUri);
+            }
+        }
+
+        if (documentUri == null) {
+            throw new TestGeneratorException(
+                    "Invalid parameter, `" + CommandConstants.ARG_KEY_DOC_URI + "` cannot be null!" + documentUri);
+        }
+
+        WorkspaceDocumentManager documentManager = context.get(ExecuteCommandKeys.DOCUMENT_MANAGER_KEY);
+        Path filePath = Paths.get(URI.create(documentUri));
+        LSCompiler lsCompiler = context.get(ExecuteCommandKeys.LS_COMPILER_KEY);
+        BLangPackage bLangPackage = lsCompiler.getBLangPackage(context, documentManager, false,
+                                                               LSCustomErrorStrategy.class, false).getRight();
+
+        if (bLangPackage == null) {
+            throw new TestGeneratorException("Could not compile the source file:" + documentUri);
+        }
+
+        // Generate test file
+        String generateTestFile = TestGenerator.generateTestFile(filePath, bLangPackage);
+
+        // Notify Client
+        LanguageClient client = context.get(ExecuteCommandKeys.LANGUAGE_SERVER_KEY).getClient();
+        client.showMessage(new MessageParams(MessageType.Info, "Test file generated: " + generateTestFile));
+        return new Object();
     }
 
     /**
@@ -450,7 +500,7 @@ public class CommandExecutor {
         int lastFieldOffset = zeroBasedIndex.getStartColumn();
         String constructorSnippet = CommandUtil.getObjectConstructorSnippet(fields, lastFieldOffset);
         Range range = new Range(new Position(lastFieldLine + 1, 0),
-                new Position(lastFieldLine + 1, 0));
+                                new Position(lastFieldLine + 1, 0));
 
         return applySingleTextEdit(constructorSnippet, range, textDocumentIdentifier,
                 context.get(ExecuteCommandKeys.LANGUAGE_SERVER_KEY).getClient());

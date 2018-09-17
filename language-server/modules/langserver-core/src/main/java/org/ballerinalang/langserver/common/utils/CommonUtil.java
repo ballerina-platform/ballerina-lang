@@ -110,7 +110,7 @@ public class CommonUtil {
 
     static {
         String debugLogStr = System.getProperty("ballerina.debugLog");
-        LS_DEBUG_ENABLED =  debugLogStr != null && Boolean.parseBoolean(debugLogStr);
+        LS_DEBUG_ENABLED = debugLogStr != null && Boolean.parseBoolean(debugLogStr);
         BALLERINA_HOME = System.getProperty("ballerina.home");
     }
 
@@ -210,9 +210,10 @@ public class CommonUtil {
 
     /**
      * Get n number of default tokens from a given start index.
-     * @param tokenStream       Token Stream
-     * @param n                 number of tokens to extract
-     * @param startIndex        Start token index
+     *
+     * @param tokenStream Token Stream
+     * @param n           number of tokens to extract
+     * @param startIndex  Start token index
      * @return {@link List}     List of tokens extracted
      */
     public static List<Token> getNDefaultTokensToLeft(TokenStream tokenStream, int n, int startIndex) {
@@ -227,7 +228,7 @@ public class CommonUtil {
             n--;
             startIndex = t.getTokenIndex();
         }
-        
+
         return Lists.reverse(tokens);
     }
 
@@ -253,7 +254,7 @@ public class CommonUtil {
     /**
      * Get the current token index from the token stream.
      *
-     * @param context               LSServiceOperationContext
+     * @param context LSServiceOperationContext
      * @return {@link Integer}      token index
      */
     public static int getCurrentTokenFromTokenStream(LSContext context) {
@@ -265,11 +266,11 @@ public class CommonUtil {
         int tokenLine;
         int tokenCol;
         int index = 0;
-        
+
         if (tokenStream == null) {
             return -1;
         }
-        
+
         while (true) {
             Token token = tokenStream.get(index);
             tokenLine = token.getLine() - 1;
@@ -280,26 +281,26 @@ public class CommonUtil {
             index++;
             lastToken = token;
         }
-        
+
         return lastToken == null ? -1 : lastToken.getTokenIndex();
     }
 
     /**
      * Pop n number of Elements from the stack and return as a List.
-     * 
+     * <p>
      * Note: If n is greater than stack, then all the elements of list will be returned
-     * 
-     * @param itemStack         Item Stack to pop elements from     
-     * @param n                 number of elements to pop
-     * @param <T>               Type of the Elements
+     *
+     * @param itemStack Item Stack to pop elements from
+     * @param n         number of elements to pop
+     * @param <T>       Type of the Elements
      * @return {@link List}     List of popped Items
      */
-    public static  <T> List<T> popNFromStack(Stack<T> itemStack, int n) {
+    public static <T> List<T> popNFromStack(Stack<T> itemStack, int n) {
         List<T> poppedList = new ArrayList<>(itemStack);
         if (n > poppedList.size()) {
             return poppedList;
         }
-        
+
         return poppedList.subList(poppedList.size() - n, poppedList.size());
     }
 
@@ -384,7 +385,7 @@ public class CommonUtil {
     /**
      * Get the Annotation completion Item.
      *
-     * @param packageID  Package Id
+     * @param packageID        Package Id
      * @param annotationSymbol BLang annotation to extract the completion Item
      * @return {@link CompletionItem}   Completion item for the annotation
      */
@@ -403,7 +404,7 @@ public class CommonUtil {
     /**
      * Get the annotation Insert text.
      *
-     * @param packageID  Package ID
+     * @param packageID        Package ID
      * @param annotationSymbol Annotation to get the insert text
      * @return {@link String}   Insert text
      */
@@ -421,7 +422,7 @@ public class CommonUtil {
         } else {
             annotationStart.append(annotationSymbol.getName().getValue());
         }
-        
+
         return annotationStart.toString();
     }
 
@@ -493,7 +494,8 @@ public class CommonUtil {
 
     /**
      * Check whether a given symbol is an endpoint object or not.
-     * @param bSymbol           BSymbol to evaluate
+     *
+     * @param bSymbol BSymbol to evaluate
      * @return {@link Boolean}  Symbol evaluation status
      */
     public static boolean isEndpointObject(BSymbol bSymbol) {
@@ -505,14 +507,15 @@ public class CommonUtil {
                 }
             }
         }
-        
+
         return false;
     }
 
     /**
      * Check whether the packages list contains a given package.
-     * @param pkg               Package to check
-     * @param pkgList           List of packages to check against
+     *
+     * @param pkg     Package to check
+     * @param pkgList List of packages to check against
      * @return {@link Boolean}  Check status of the package
      */
     public static boolean listContainsPackage(String pkg, List<BallerinaPackage> pkgList) {
@@ -521,8 +524,8 @@ public class CommonUtil {
 
     /**
      * Get completion items list for struct fields.
-     * 
-     * @param structFields      List of struct fields
+     *
+     * @param structFields List of struct fields
      * @return {@link List}     List of completion items for the struct fields
      */
     public static List<CompletionItem> getStructFieldCompletionItems(List<BField> structFields) {
@@ -548,7 +551,8 @@ public class CommonUtil {
 
     /**
      * Get the completion item to fill all the struct fields.
-     * @param fields                    List of struct fields
+     *
+     * @param fields List of struct fields
      * @return {@link CompletionItem}   Completion Item to fill all the options
      */
     public static CompletionItem getFillAllStructFieldsItem(List<BField> fields) {
@@ -574,8 +578,9 @@ public class CommonUtil {
 
     /**
      * Get the BType name as string.
-     * @param bType             BType to get the name
-     * @param ctx               LS Operation Context
+     *
+     * @param bType BType to get the name
+     * @param ctx   LS Operation Context
      * @return {@link String}   BType Name as String
      */
     public static String getBTypeName(BType bType, LSContext ctx) {
@@ -589,7 +594,7 @@ public class CommonUtil {
                     + nameComponents[nameComponents.length - 1];
         }
     }
-    
+
     public static <T> T getLastItem(List<T> list) {
         return list.get(list.size() - 1);
     }
@@ -627,7 +632,7 @@ public class CommonUtil {
     /**
      * Check whether the symbol is a valid invokable symbol.
      *
-     * @param symbol            Symbol to be evaluated
+     * @param symbol Symbol to be evaluated
      * @return {@link Boolean}  valid status
      */
     public static boolean isValidInvokableSymbol(BSymbol symbol) {
@@ -755,18 +760,18 @@ public class CommonUtil {
     /**
      * Generate variable code.
      *
-     * @param variableName          variable name
-     * @param variableType          variable type
+     * @param variableName variable name
+     * @param variableType variable type
      * @return {@link String}       generated function signature
      */
     public static String createVariableDeclaration(String variableName, String variableType) {
-        return variableType  + " " + variableName + " = ";
+        return variableType + " " + variableName + " = ";
     }
 
     /**
      * Generates a random name.
      *
-     * @param value index of the argument
+     * @param value    index of the argument
      * @param argNames argument set
      * @return random argument name
      */
@@ -783,6 +788,14 @@ public class CommonUtil {
         return result.toString();
     }
 
+    public static BLangPackage getPackageNode(BLangNode bLangNode) {
+        BLangNode parent = bLangNode.parent;
+        if (parent != null) {
+            return (parent instanceof BLangPackage) ? (BLangPackage) parent : getPackageNode(parent);
+        }
+        return null;
+    }
+
     /**
      * Inner class for generating function code.
      */
@@ -791,10 +804,10 @@ public class CommonUtil {
         /**
          * Generate function code.
          *
-         * @param name                  function name
-         * @param args                  Function arguments                             
-         * @param returnType            return type
-         * @param returnDefaultValue    default return value
+         * @param name               function name
+         * @param args               Function arguments
+         * @param returnType         return type
+         * @param returnDefaultValue default return value
          * @return {@link String}       generated function signature
          */
         public static String createFunction(String name, String args, String returnType, String returnDefaultValue) {
@@ -810,10 +823,32 @@ public class CommonUtil {
         }
 
         /**
+         * Generate function call.
+         *
+         * @param name               function name
+         * @param args               Function arguments
+         * @param returnType         return type
+         * @param returnDefaultValue default return value
+         * @return {@link String}       generated function signature
+         */
+        public static String createFunctionCall(String name, String args, String returnType,
+                                                String returnDefaultValue) {
+            String funcBody = CommonUtil.LINE_SEPARATOR;
+            String funcReturnSignature = "";
+            if (returnType != null) {
+                funcBody = returnDefaultValue + funcBody;
+                funcReturnSignature = " returns " + returnType + " ";
+            }
+            return CommonUtil.LINE_SEPARATOR + CommonUtil.LINE_SEPARATOR + "function " + name + "(" + args + ")"
+                    + funcReturnSignature + "{" + CommonUtil.LINE_SEPARATOR + funcBody + "}"
+                    + CommonUtil.LINE_SEPARATOR;
+        }
+
+        /**
          * Get the default function return statement.
          *
-         * @param bLangNode         BLangNode to evaluate
-         * @param returnStatement   return statement to modify
+         * @param bLangNode       BLangNode to evaluate
+         * @param returnStatement return statement to modify
          * @return {@link String}   Default return statement
          */
         public static String getFuncReturnDefaultStatement(BLangNode bLangNode, String returnStatement) {
@@ -864,6 +899,14 @@ public class CommonUtil {
                 if (!memberTypes.isEmpty()) {
                     return getFuncReturnDefaultStatement(memberTypes.stream().findFirst().get(), returnStatement);
                 }
+            } else if (bType instanceof BTupleType) {
+                BTupleType bTupleType = (BTupleType) bType;
+                List<BType> tupleTypes = bTupleType.tupleTypes;
+                List<String> list = new ArrayList<>();
+                for (BType type : tupleTypes) {
+                    list.add(getFuncReturnDefaultStatement(type, "{%1}"));
+                }
+                return returnStatement.replace("{%1}", "(" + String.join(", ", list) + ")");
             } else if (bType instanceof BObjectType && ((BObjectType) bType).tsymbol instanceof BObjectTypeSymbol) {
                 BObjectTypeSymbol bStructSymbol = (BObjectTypeSymbol) ((BObjectType) bType).tsymbol;
                 List<String> list = new ArrayList<>();
