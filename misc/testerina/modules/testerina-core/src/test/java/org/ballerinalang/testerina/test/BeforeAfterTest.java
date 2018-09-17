@@ -34,7 +34,7 @@ import java.util.HashMap;
  */
 public class BeforeAfterTest {
 
-    private String sourceRoot = "src/test/resources/before-test/tests";
+    private String sourceRoot = "src/test/resources/before-test";
 
     @Test
     public void tesDependsOnFunctions() {
