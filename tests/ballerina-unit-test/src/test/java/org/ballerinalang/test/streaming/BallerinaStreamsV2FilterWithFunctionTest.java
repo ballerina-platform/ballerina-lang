@@ -36,12 +36,13 @@ import org.testng.annotations.Test;
 public class BallerinaStreamsV2FilterWithFunctionTest {
 
     private CompileResult result;
+    private CompileResult result2;
 
     @BeforeClass
     public void setup() {
         System.setProperty("enable.siddhiRuntime", "false");
         result = BCompileUtil.compile("test-src/streaming/streamingv2-filter-with-function-test.bal");
-        result = BCompileUtil.compile("test-src/streaming/streamingv2-filter-with-function-test2.bal");
+        result2 = BCompileUtil.compile("test-src/streaming/streamingv2-filter-with-function-test2.bal");
     }
 
     @Test(description = "Test filter streaming query")
@@ -63,7 +64,7 @@ public class BallerinaStreamsV2FilterWithFunctionTest {
 
     @Test(description = "Test filter streaming query with functions in filter clause")
     public void testFilterQuery2() {
-        BValue[] outputEmployeeEvents = BRunUtil.invoke(result, "startFilterQuery");
+        BValue[] outputEmployeeEvents = BRunUtil.invoke(result2, "startFilterQuery");
         System.setProperty("enable.siddhiRuntime", "true");
         Assert.assertNotNull(outputEmployeeEvents);
 

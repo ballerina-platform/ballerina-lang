@@ -87,6 +87,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.Stack;
 import java.util.stream.Collectors;
@@ -1136,14 +1137,27 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
 
     public void visit(BLangSimpleVarRef varRefExpr) {
         if (isInHaving) {
-            conditionExpr = createMapVariableIndexAccessExpr(mapVarArgs.get(mapVarArgs.size() - 1).symbol,
-                    ASTBuilderUtil.createLiteral(varRefExpr.pos, symTable.stringType, "OUTPUT." +
-                            varRefExpr.variableName.value));
-            conditionExpr = Desugar.addConversionExprIfRequired(conditionExpr, varRefExpr.symbol.type, types,
-                    symTable, symResolver);
+            conditionExpr = getVarRefInHavingClause(varRefExpr);;
         } else {
             conditionExpr = varRefExpr;
         }
+    }
+
+    private BLangExpression getVarRefInHavingClause(BLangSimpleVarRef varRefExpr) {
+        BLangExpression refactoredVarRef;
+        Map<String, BField> fields = ((BRecordType) outputEventType).fields.stream()
+                .collect(Collectors.toMap(field -> field.name.getValue(), field -> field, (a, b) -> b));
+        String key = varRefExpr.variableName.value;
+        if (fields.containsKey(key)) {
+            refactoredVarRef = createMapVariableIndexAccessExpr(mapVarArgs.get(mapVarArgs.size() - 1).symbol,
+                    ASTBuilderUtil.createLiteral(varRefExpr.pos, symTable.stringType, "OUTPUT." + varRefExpr
+                    .variableName.value));
+            refactoredVarRef = Desugar.addConversionExprIfRequired(refactoredVarRef, varRefExpr.symbol.type, types,
+                    symTable, symResolver);
+        } else {
+            refactoredVarRef = varRefExpr;
+        }
+        return refactoredVarRef;
     }
 
     //----------------------------------------- Util Methods ---------------------------------------------------------
@@ -1308,6 +1322,8 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
                             createMapVariableIndexAccessExpr(mapVarSymbol, expression);
                     expressionList.add(createCheckedConversionExpr(generateConversionExpr(fieldAccessExpr,
                             expression.type, symResolver)));
+                } else if (expression.getKind() == NodeKind.SIMPLE_VARIABLE_REF && isInHaving){
+                    expressionList.add(getVarRefInHavingClause((BLangSimpleVarRef) expression));
                 } else {
                     expressionList.add(expression);
                 }
