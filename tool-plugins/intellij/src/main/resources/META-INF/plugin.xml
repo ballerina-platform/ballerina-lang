@@ -23,7 +23,7 @@
     <!-- uncomment to enable plugin in all products -->
     <depends>com.intellij.modules.lang</depends>
     <depends optional="true" config-file="java-deps.xml">com.intellij.modules.java</depends>
-
+    <depends optional="true" config-file="with-lsp.xml">com.github.gtache.lsp</depends>
     <module-components>
         <component>
             <implementation-class>
@@ -60,22 +60,22 @@
         <codeInsight.lineMarkerProvider language="Ballerina"
                                         implementationClass="io.ballerina.plugins.idea.marker.BallerinaTypeFunctionMarker"/>
 
-        <completion.contributor language="Ballerina"
-                                implementationClass="io.ballerina.plugins.idea.completion.BallerinaKeywordContributor"/>
-        <completion.contributor language="Ballerina"
-                                implementationClass="io.ballerina.plugins.idea.completion.BallerinaCompletionContributor"/>
+        <!--<completion.contributor language="Ballerina"-->
+                                <!--implementationClass="io.ballerina.plugins.idea.completion.BallerinaKeywordContributor"/>-->
+        <!--<completion.contributor language="Ballerina"-->
+                                <!--implementationClass="io.ballerina.plugins.idea.completion.BallerinaCompletionContributor"/>-->
 
-        <lang.findUsagesProvider language="Ballerina"
-                                 implementationClass="io.ballerina.plugins.idea.usage.BallerinaFindUsageProvider"/>
+        <!--<lang.findUsagesProvider language="Ballerina"-->
+                                 <!--implementationClass="io.ballerina.plugins.idea.usage.BallerinaFindUsageProvider"/>-->
 
-        <lang.elementManipulator forClass="io.ballerina.plugins.idea.psi.BallerinaCompletePackageName"
-                                 implementationClass="io.ballerina.plugins.idea.psi.manipulator.BallerinaPackageManipulator"/>
+        <!--<lang.elementManipulator forClass="io.ballerina.plugins.idea.psi.BallerinaCompletePackageName"-->
+                                 <!--implementationClass="io.ballerina.plugins.idea.psi.manipulator.BallerinaPackageManipulator"/>-->
 
-        <codeInsight.parameterInfo language="Ballerina"
-                                   implementationClass="io.ballerina.plugins.idea.editor.BallerinaParameterInfoHandler"/>
+        <!--<codeInsight.parameterInfo language="Ballerina"-->
+                                   <!--implementationClass="io.ballerina.plugins.idea.editor.BallerinaParameterInfoHandler"/>-->
 
-        <externalAnnotator language="Ballerina"
-                           implementationClass="io.ballerina.plugins.idea.BallerinaExternalAnnotator"/>
+        <!--<externalAnnotator language="Ballerina"-->
+                           <!--implementationClass="io.ballerina.plugins.idea.BallerinaExternalAnnotator"/>-->
 
         <!--<spellchecker.support language="Ballerina"-->
         <!--implementationClass="org.ballerinalang.plugins.idea.spellchecker.BallerinaSpellcheckingStrategy"/>-->
@@ -86,8 +86,8 @@
                    implementationClass="io.ballerina.plugins.idea.codeinsight.daemon.impl.BallerinaAnnotator"/>
 
         <!--refactoring-->
-        <lang.refactoringSupport language="Ballerina"
-                                 implementationClass="io.ballerina.plugins.idea.refactoring.BallerinaRefactoringSupport"/>
+        <!--<lang.refactoringSupport language="Ballerina"-->
+                                 <!--implementationClass="io.ballerina.plugins.idea.refactoring.BallerinaRefactoringSupport"/>-->
 
         <!-- file templates -->
         <internalFileTemplate name="Ballerina File"/>
@@ -97,13 +97,13 @@
                            implementationClass="io.ballerina.plugins.idea.codeinsight.highlighting.BallerinaPairedBraceMatcher"/>
 
         <!--live templates-->
-        <defaultLiveTemplatesProvider
-                implementation="io.ballerina.plugins.idea.template.BallerinaLiveTemplateProvider"/>
-        <liveTemplateContext implementation="io.ballerina.plugins.idea.template.BallerinaEverywhereContextType"/>
-        <liveTemplateContext implementation="io.ballerina.plugins.idea.template.BallerinaCodeContextType$File"/>
-        <liveTemplateContext implementation="io.ballerina.plugins.idea.template.BallerinaCodeContextType$Service"/>
-        <liveTemplateContext
-                implementation="io.ballerina.plugins.idea.template.BallerinaCodeContextType$Function"/>
+        <!--<defaultLiveTemplatesProvider-->
+                <!--implementation="io.ballerina.plugins.idea.template.BallerinaLiveTemplateProvider"/>-->
+        <!--<liveTemplateContext implementation="io.ballerina.plugins.idea.template.BallerinaEverywhereContextType"/>-->
+        <!--<liveTemplateContext implementation="io.ballerina.plugins.idea.template.BallerinaCodeContextType$File"/>-->
+        <!--<liveTemplateContext implementation="io.ballerina.plugins.idea.template.BallerinaCodeContextType$Service"/>-->
+        <!--<liveTemplateContext-->
+                <!--implementation="io.ballerina.plugins.idea.template.BallerinaCodeContextType$Function"/>-->
 
         <!--formatter-->
         <lang.formatter language="Ballerina"
@@ -131,6 +131,7 @@
         <projectService serviceInterface="io.ballerina.plugins.idea.sdk.BallerinaSdkService"
                         serviceImplementation="io.ballerina.plugins.idea.sdk.BallerinaSmallIDEsSdkService"
                         overrides="false"/>
+
         <editorNotificationProvider
                 implementation="io.ballerina.plugins.idea.inspections.WrongSdkConfigurationNotificationProvider"/>
 
@@ -199,7 +200,10 @@
                          shortName="BallerinaUnresolvedReference"
                          implementationClass="io.ballerina.plugins.idea.codeinspection.BallerinaUnresolvedReferenceInspection"/>
 
+        <editorNotificationProvider
+                implementation="io.ballerina.plugins.idea.inspections.LSPInstallationNotificationProvider"/>
     </extensions>
+
     <actions>
         <!-- Add your actions here -->
         <action id="Ballerina.NewBallerinaFile" class="io.ballerina.plugins.idea.actions.BallerinaCreateFileAction"
