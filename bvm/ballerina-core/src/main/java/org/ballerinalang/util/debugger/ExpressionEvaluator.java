@@ -22,6 +22,7 @@ import org.ballerinalang.bre.bvm.WorkerExecutionContext;
 import org.ballerinalang.model.util.JsonGenerator;
 import org.ballerinalang.util.codegen.LineNumberInfo;
 import org.ballerinalang.util.codegen.LocalVariableInfo;
+import org.ballerinalang.util.codegen.PackageInfo;
 import org.ballerinalang.util.codegen.PackageVarInfo;
 import org.ballerinalang.util.codegen.attributes.AttributeInfo;
 import org.ballerinalang.util.codegen.attributes.LocalVariableAttributeInfo;
@@ -46,6 +47,7 @@ public class ExpressionEvaluator {
     private static final String SUCCESS = "success";
     private static final String FAILURE = "failure";
     private static final String INTERNAL_ERROR = "{\"status\":\"failure\", \"results\":\"internal error\"}";
+    private static final String COLON = ":";
 
     /**
      * Method to evaluate a variable.
@@ -60,6 +62,7 @@ public class ExpressionEvaluator {
 
         String defaultMessage = constructJsonResults(false, "cannot find local variable '" + variableName + "'");
 
+        // Check local variables
         List<LocalVariableInfo> localVars = getLocalVariables(ctx);
         for (LocalVariableInfo var : localVars) {
             if (var.getVariableName().equals(variableName)) {
@@ -73,14 +76,43 @@ public class ExpressionEvaluator {
             }
         }
 
+        // Check global variables from the current package
         PackageVarInfo[] globalVars = getPackageVariables(ctx);
         for (PackageVarInfo var : globalVars) {
             if (var.getName().equals(variableName)) {
-                VariableDTO variableDTO = Debugger.constructGlobalVariable(ctx, var);
+                int pkgIndex = ctx.callableUnitInfo.getPackageInfo().pkgIndex;
+                VariableDTO variableDTO = Debugger.constructGlobalVariable(ctx, var, pkgIndex);
                 return constructJsonResults(true, variableDTO.getValue());
             }
         }
 
+        // Check global variables from other packages
+        // TODO: Need to rewrite this with a better logic to solve the below issues
+        // TODO cont(1): As of now, variable names must contain the complete pkg path to get matched
+        // TODO cont(2): Variable literals from other packages that contain ':' will be ignored currently
+        if (variableName.contains(COLON)) {
+            String[] varDetails = variableName.split(COLON);
+            StringBuilder pathBuilder = new StringBuilder(varDetails[0]);
+            for (int i = 1; i < varDetails.length - 1; i++) {
+                pathBuilder.append(COLON).append(varDetails[i]);
+            }
+
+            String packagePath = pathBuilder.toString();
+            String varName = varDetails[varDetails.length - 1];
+            PackageInfo[] packageInfoEntries = ctx.programFile.getPackageInfoEntries();
+            for (PackageInfo packageInfo : packageInfoEntries) {
+                if (packageInfo.pkgPath.equals(packagePath)) {
+                    PackageVarInfo[] otherPackageVars = packageInfo.getPackageInfoEntries();
+                    for (PackageVarInfo var : otherPackageVars) {
+                        if (var.getName().equals(varName)) {
+                            VariableDTO variableDTO = Debugger.constructGlobalVariable(ctx, var, packageInfo.pkgIndex);
+                            return constructJsonResults(true, variableDTO.getValue());
+                        }
+                    }
+                    break;
+                }
+            }
+        }
         // Return default message if the specified variable not found in the current scope
         return defaultMessage;
     }

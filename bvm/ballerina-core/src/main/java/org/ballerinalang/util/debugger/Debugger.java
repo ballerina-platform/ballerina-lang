@@ -70,7 +70,6 @@ public class Debugger {
     private static final String META_DATA_VAR_PATTERN = "$";
     private static final String GLOBAL = "Global";
     private static final String LOCAL = "Local";
-    private static final String TYPE_JSON = "json";
 
     public Debugger(ProgramFile programFile) {
         this.programFile = programFile;
@@ -403,7 +402,8 @@ public class Debugger {
         for (PackageVarInfo packVarInfo : packageVarInfoEntries) {
             // TODO: Need to change the 'contains' logic, if we allow user-defined variable names to have '$'
             if (!packVarInfo.getName().contains(META_DATA_VAR_PATTERN)) {
-                VariableDTO variableDTO = constructGlobalVariable(ctx, packVarInfo);
+                int pkgIndex = ctx.callableUnitInfo.getPackageInfo().pkgIndex;
+                VariableDTO variableDTO = constructGlobalVariable(ctx, packVarInfo, pkgIndex);
                 if (variableDTO.getValue() != null || packVarInfo.getType().getTag() == TypeTags.JSON_TAG) {
                     frameDTO.addVariable(variableDTO);
                 }
@@ -436,8 +436,8 @@ public class Debugger {
      * @param packVarInfo Package variable info.
      * @return Constructed global variable.
      */
-    public static VariableDTO constructGlobalVariable(WorkerExecutionContext ctx, PackageVarInfo packVarInfo) {
-        int pkgIndex = ctx.callableUnitInfo.getPackageInfo().pkgIndex;
+    public static VariableDTO constructGlobalVariable(WorkerExecutionContext ctx, PackageVarInfo packVarInfo,
+                                                      int pkgIndex) {
         VariableDTO variableDTO = new VariableDTO(packVarInfo.getName(), GLOBAL);
         BType varType = packVarInfo.getType();
 
@@ -469,7 +469,6 @@ public class Debugger {
         }
         return variableDTO;
     }
-
 
     /**
      * Method to construct a @{@link VariableDTO} that represents a local variable.
