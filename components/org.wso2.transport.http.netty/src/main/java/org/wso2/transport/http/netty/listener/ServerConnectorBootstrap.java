@@ -24,6 +24,7 @@ import io.netty.channel.ChannelOption;
 import io.netty.channel.EventLoopGroup;
 import io.netty.channel.group.ChannelGroup;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
+import io.netty.handler.ssl.SslContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.transport.http.netty.common.Util;
@@ -40,6 +41,8 @@ import org.wso2.transport.http.netty.internal.HandlerExecutor;
 import org.wso2.transport.http.netty.internal.HttpTransportContextHolder;
 
 import java.net.InetSocketAddress;
+
+import javax.net.ssl.SSLContext;
 
 /**
  * {@code ServerConnectorBootstrap} is the heart of the HTTP Server Connector.
@@ -122,6 +125,14 @@ public class ServerConnectorBootstrap {
 
     public void addSslHandlerFactory(SSLHandlerFactory sslHandlerFactory) {
         httpServerChannelInitializer.setSslHandlerFactory(sslHandlerFactory);
+    }
+
+    public void addKeystoreSslContext(SSLContext sslContext) {
+        httpServerChannelInitializer.setKeystoreSslContext(sslContext);
+    }
+
+    public void addCertAndKeySslContext(SslContext sslContext) {
+        httpServerChannelInitializer.setCertandKeySslContext(sslContext);
     }
 
     public void addHeaderAndEntitySizeValidation(RequestSizeValidationConfig requestSizeValidationConfig) {

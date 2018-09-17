@@ -104,6 +104,7 @@ public class HostnameVerificationTest {
                 .createHttpClientConnector(new HashMap<>(), getSenderConfigs(trustStoreFilePath, trustStorePassword));
 
         sendRequest(hasException, serverPort);
+        serverConnector.stop();
     }
 
     public void sendRequest(boolean hasException, int serverPort) {

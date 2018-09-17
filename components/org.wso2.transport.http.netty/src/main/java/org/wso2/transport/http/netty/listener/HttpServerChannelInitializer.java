@@ -56,7 +56,10 @@ import org.wso2.transport.http.netty.sender.CertificateValidationHandler;
 
 import java.io.IOException;
 import java.security.KeyStoreException;
+import java.security.cert.CertificateException;
 import java.util.concurrent.TimeUnit;
+
+import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLEngine;
 
 import static org.wso2.transport.http.netty.common.Constants.ACCESS_LOG;
@@ -80,6 +83,8 @@ public class HttpServerChannelInitializer extends ChannelInitializer<SocketChann
     private String serverName;
     private SSLConfig sslConfig;
     private SSLHandlerFactory sslHandlerFactory;
+    private SSLContext keystoreSslContext;
+    private SslContext certAndKeySslContext;
     private ServerConnectorFuture serverConnectorFuture;
     private RequestSizeValidationConfig reqSizeValidationConfig;
     private boolean http2Enabled = false;
@@ -100,8 +105,7 @@ public class HttpServerChannelInitializer extends ChannelInitializer<SocketChann
 
         if (http2Enabled) {
             if (sslHandlerFactory != null) {
-                SslContext sslCtx = sslHandlerFactory
-                        .createHttp2TLSContextForServer(ocspStaplingEnabled);
+                SslContext sslCtx = sslHandlerFactory.createHttp2TLSContextForServer(ocspStaplingEnabled);
                 if (ocspStaplingEnabled) {
                     OCSPResp response = getOcspResponse();
 
@@ -127,9 +131,9 @@ public class HttpServerChannelInitializer extends ChannelInitializer<SocketChann
         }
     }
 
-    private OCSPResp getOcspResponse() throws IOException, KeyStoreException,
-                   CertificateVerificationException {
-        OCSPResp response = OCSPResponseBuilder.generatetOcspResponse(sslConfig, cacheSize, cacheDelay);
+    private OCSPResp getOcspResponse()
+            throws IOException, KeyStoreException, CertificateVerificationException, CertificateException {
+        OCSPResp response = OCSPResponseBuilder.generateOcspResponse(sslConfig, cacheSize, cacheDelay);
         if (!OpenSsl.isAvailable()) {
             throw new IllegalStateException("OpenSSL is not available!");
         }
@@ -140,7 +144,7 @@ public class HttpServerChannelInitializer extends ChannelInitializer<SocketChann
     }
 
     private void configureSslForHttp(ChannelPipeline serverPipeline, SocketChannel ch)
-            throws CertificateVerificationException, KeyStoreException, IOException {
+            throws CertificateVerificationException, KeyStoreException, IOException, CertificateException {
 
         if (ocspStaplingEnabled) {
             OCSPResp response = getOcspResponse();
@@ -153,7 +157,14 @@ public class HttpServerChannelInitializer extends ChannelInitializer<SocketChann
             engine.setOcspResponse(response.getEncoded());
             ch.pipeline().addLast(sslHandler);
         } else {
-            SSLEngine sslEngine = sslHandlerFactory.buildServerSSLEngine();
+            SSLEngine sslEngine;
+            if (sslConfig.getServerKeyFile() != null) {
+                SslHandler sslHandler = certAndKeySslContext.newHandler(ch.alloc());
+                sslEngine = sslHandler.engine();
+                sslHandlerFactory.addCommonConfigs(sslEngine);
+            } else {
+                sslEngine = sslHandlerFactory.buildServerSSLEngine(keystoreSslContext);
+            }
             serverPipeline.addLast(Constants.SSL_HANDLER, new SslHandler(sslEngine));
             if (validateCertEnabled) {
                 serverPipeline.addLast(Constants.HTTP_CERT_VALIDATION_HANDLER,
@@ -283,6 +294,14 @@ public class HttpServerChannelInitializer extends ChannelInitializer<SocketChann
 
     void setSslHandlerFactory(SSLHandlerFactory sslHandlerFactory) {
         this.sslHandlerFactory = sslHandlerFactory;
+    }
+
+    void setKeystoreSslContext(SSLContext sslContext) {
+        this.keystoreSslContext = sslContext;
+    }
+
+    void setCertandKeySslContext(SslContext sslContext) {
+        this.certAndKeySslContext = sslContext;
     }
 
     void setReqSizeValidationConfig(RequestSizeValidationConfig reqSizeValidationConfig) {

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2018, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  * WSO2 Inc. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
@@ -53,21 +53,17 @@ import static org.testng.AssertJUnit.assertNotNull;
 import static org.wso2.transport.http.netty.common.Constants.HTTPS_SCHEME;
 
 /**
- * Tests for different cipher suites provided by client and server.
+ * Tests for different cipher suites provided by client and server with certs and keys.
  */
-public class CipherSuitesTest {
-
-    private static final Logger LOG = LoggerFactory.getLogger(CipherSuitesTest.class);
-
+public class CipherSuiteswithCertsTest {
     private static HttpClientConnector httpClientConnector;
-    private List<Parameter> clientParams;
+    private List<Parameter> clientParams = new ArrayList<>(1);
     private ServerConnector serverConnector;
     private HttpWsConnectorFactory factory;
+    private static final Logger LOG = LoggerFactory.getLogger(CipherSuitesTest.class);
 
     @DataProvider(name = "ciphers")
-
     public static Object[][] cipherSuites() {
-
         return new Object[][] {
                 // true = expecting a SSL hand shake failure.
                 // false = expecting no errors.
@@ -89,12 +85,13 @@ public class CipherSuitesTest {
             throws InterruptedException {
 
         Parameter paramClientCiphers = new Parameter("ciphers", clientCiphers);
-        clientParams = new ArrayList<>();
         clientParams.add(paramClientCiphers);
+        clientParams.add(new Parameter("shareSession", "true"));
 
         Parameter paramServerCiphers = new Parameter("ciphers", serverCiphers);
-        List<Parameter> serverParams = new ArrayList<>();
+        List<Parameter> serverParams = new ArrayList<>(1);
         serverParams.add(paramServerCiphers);
+        serverParams.add(new Parameter("shareSession", "true"));
 
         factory = new DefaultHttpWsConnectorFactory();
         serverConnector = factory.createServerConnector(TestUtil.getDefaultServerBootstrapConfig(),
@@ -105,11 +102,11 @@ public class CipherSuitesTest {
 
         httpClientConnector = factory.createHttpClientConnector(new HashMap<>(), getSenderConfigs());
 
-        testCiphersuites(hasException, serverPort);
+        testCiphersuitesWithCertsAndKeys(hasException, serverPort);
         serverConnector.stop();
     }
 
-    private void testCiphersuites(boolean hasException, int serverPort) {
+    private void testCiphersuitesWithCertsAndKeys(boolean hasException, int serverPort) {
         try {
             String testValue = "successful";
             HttpCarbonMessage msg = TestUtil.createHttpsPostReq(serverPort, testValue, "");
@@ -148,10 +145,9 @@ public class CipherSuitesTest {
         listenerConfiguration.setPort(serverPort);
         String verifyClient = "require";
         listenerConfiguration.setVerifyClient(verifyClient);
-        listenerConfiguration.setTrustStoreFile(TestUtil.getAbsolutePath(TestUtil.TRUST_STORE_FILE_PATH));
-        listenerConfiguration.setKeyStoreFile(TestUtil.getAbsolutePath(TestUtil.KEY_STORE_FILE_PATH));
-        listenerConfiguration.setTrustStorePass(TestUtil.KEY_STORE_PASSWORD);
-        listenerConfiguration.setKeyStorePass(TestUtil.KEY_STORE_PASSWORD);
+        listenerConfiguration.setServerKeyFile(TestUtil.getAbsolutePath(TestUtil.KEY_FILE));
+        listenerConfiguration.setServerCertificates(TestUtil.getAbsolutePath(TestUtil.CERT_FILE));
+        listenerConfiguration.setServerTrustCertificates(TestUtil.getAbsolutePath(TestUtil.TRUST_CERT_CHAIN));
         listenerConfiguration.setScheme(HTTPS_SCHEME);
         listenerConfiguration.setParameters(serverParams);
         return listenerConfiguration;
@@ -159,11 +155,11 @@ public class CipherSuitesTest {
 
     private SenderConfiguration getSenderConfigs() {
         SenderConfiguration senderConfiguration = new SenderConfiguration();
-        senderConfiguration.setKeyStoreFile(TestUtil.getAbsolutePath(TestUtil.KEY_STORE_FILE_PATH));
-        senderConfiguration.setTrustStoreFile(TestUtil.getAbsolutePath(TestUtil.TRUST_STORE_FILE_PATH));
-        senderConfiguration.setKeyStorePass(TestUtil.KEY_STORE_PASSWORD);
-        senderConfiguration.setTrustStorePass(TestUtil.KEY_STORE_PASSWORD);
+        senderConfiguration.setClientKeyFile(TestUtil.getAbsolutePath(TestUtil.KEY_FILE));
+        senderConfiguration.setClientCertificates(TestUtil.getAbsolutePath(TestUtil.CERT_FILE));
+        senderConfiguration.setClientTrustCertificates(TestUtil.getAbsolutePath(TestUtil.TRUST_CERT_CHAIN));
         senderConfiguration.setScheme(HTTPS_SCHEME);
+        senderConfiguration.setHostNameVerificationEnabled(false);
         senderConfiguration.setParameters(clientParams);
         return senderConfiguration;
     }
@@ -178,4 +174,5 @@ public class CipherSuitesTest {
             LOG.warn("Interrupted while waiting for response", e);
         }
     }
- }
+}
+

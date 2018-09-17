@@ -105,6 +105,7 @@ public class SSLProtocolsTest {
         httpClientConnector = httpWsConnectorFactory.createHttpClientConnector(new HashMap<>(), getSenderConfigs());
 
         testSSLProtocols(hasException, serverPort);
+        serverConnector.stop();
     }
 
     private ListenerConfiguration getListenerConfiguration(int serverPort, List<Parameter> severParams) {

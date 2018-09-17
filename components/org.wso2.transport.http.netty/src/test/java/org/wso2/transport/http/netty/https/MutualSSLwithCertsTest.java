@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2018, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  * WSO2 Inc. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
@@ -39,11 +39,9 @@ import java.util.HashMap;
 import static org.wso2.transport.http.netty.common.Constants.HTTPS_SCHEME;
 
 /**
- * Tests for mutual ssl
+ * This test contains 2 way ssl handshake with certs and Keys.
  */
-
-public class MutualSSLTestCase {
-
+public class MutualSSLwithCertsTest {
     private static final Logger LOG = LoggerFactory.getLogger(MutualSSLTestCase.class);
 
     private static HttpClientConnector httpClientConnector;
@@ -57,8 +55,7 @@ public class MutualSSLTestCase {
 
         ListenerConfiguration listenerConfiguration = getListenerConfiguration();
 
-        connector = factory
-                .createServerConnector(TestUtil.getDefaultServerBootstrapConfig(), listenerConfiguration);
+        connector = factory.createServerConnector(TestUtil.getDefaultServerBootstrapConfig(), listenerConfiguration);
         ServerConnectorFuture future = connector.start();
         future.setHttpConnectorListener(new EchoMessageListener());
         future.sync();
@@ -69,28 +66,26 @@ public class MutualSSLTestCase {
     private ListenerConfiguration getListenerConfiguration() {
         ListenerConfiguration listenerConfiguration = ListenerConfiguration.getDefault();
         listenerConfiguration.setPort(TestUtil.SERVER_PORT3);
-        String verifyClient = "require";
-        listenerConfiguration.setVerifyClient(verifyClient);
-        listenerConfiguration.setTrustStoreFile(TestUtil.getAbsolutePath(TestUtil.TRUST_STORE_FILE_PATH));
-        listenerConfiguration.setKeyStoreFile(TestUtil.getAbsolutePath(TestUtil.KEY_STORE_FILE_PATH));
-        listenerConfiguration.setTrustStorePass(TestUtil.KEY_STORE_PASSWORD);
-        listenerConfiguration.setKeyStorePass(TestUtil.KEY_STORE_PASSWORD);
+        listenerConfiguration.setServerKeyFile(TestUtil.getAbsolutePath(TestUtil.KEY_FILE));
+        listenerConfiguration.setServerCertificates(TestUtil.getAbsolutePath(TestUtil.CERT_FILE));
+        listenerConfiguration.setServerTrustCertificates(TestUtil.getAbsolutePath(TestUtil.TRUST_CERT_CHAIN));
         listenerConfiguration.setScheme(HTTPS_SCHEME);
+        listenerConfiguration.setVerifyClient("require");
         return listenerConfiguration;
     }
 
     private SenderConfiguration getSenderConfigs() {
         SenderConfiguration senderConfiguration = new SenderConfiguration();
-        senderConfiguration.setKeyStoreFile(TestUtil.getAbsolutePath(TestUtil.KEY_STORE_FILE_PATH));
-        senderConfiguration.setTrustStoreFile(TestUtil.getAbsolutePath(TestUtil.TRUST_STORE_FILE_PATH));
-        senderConfiguration.setKeyStorePass(TestUtil.KEY_STORE_PASSWORD);
-        senderConfiguration.setTrustStorePass(TestUtil.KEY_STORE_PASSWORD);
+        senderConfiguration.setClientKeyFile(TestUtil.getAbsolutePath(TestUtil.KEY_FILE));
+        senderConfiguration.setClientCertificates(TestUtil.getAbsolutePath(TestUtil.CERT_FILE));
+        senderConfiguration.setClientTrustCertificates(TestUtil.getAbsolutePath(TestUtil.TRUST_CERT_CHAIN));
         senderConfiguration.setScheme(HTTPS_SCHEME);
+        senderConfiguration.setHostNameVerificationEnabled(false);
         return senderConfiguration;
     }
 
     @Test
-    public void testHttpsPost() {
+    public void mutualSSLwithCertsTest() {
         TestUtil.testHttpsPost(httpClientConnector, TestUtil.SERVER_PORT3);
     }
 
@@ -101,7 +96,7 @@ public class MutualSSLTestCase {
         try {
             factory.shutdown();
         } catch (Exception e) {
-            LOG.warn("Interrupted while waiting for response two", e);
+            LOG.warn("Interrupted while waiting for HttpWsConnectorFactory to shut down", e);
         }
     }
 }

@@ -42,6 +42,8 @@ import org.wso2.transport.http.netty.sender.channel.pool.ConnectionManager;
 
 import java.util.Map;
 
+import javax.net.ssl.SSLException;
+
 /**
  * Implementation of HttpWsConnectorFactory interface.
  */
@@ -72,12 +74,7 @@ public class DefaultHttpWsConnectorFactory implements HttpWsConnectorFactory {
         SSLConfig sslConfig = listenerConfig.getListenerSSLConfig();
         serverConnectorBootstrap.addSecurity(sslConfig);
         if (sslConfig != null) {
-            serverConnectorBootstrap
-                    .addcertificateRevocationVerifier(sslConfig.isValidateCertEnabled());
-            serverConnectorBootstrap.addCacheDelay(sslConfig.getCacheValidityPeriod());
-            serverConnectorBootstrap.addCacheSize(sslConfig.getCacheSize());
-            serverConnectorBootstrap.addOcspStapling(sslConfig.isOcspStaplingEnabled());
-            serverConnectorBootstrap.addSslHandlerFactory(new SSLHandlerFactory(sslConfig));
+            setSslContext(serverConnectorBootstrap, sslConfig);
         }
         serverConnectorBootstrap.addIdleTimeout(listenerConfig.getSocketIdleTimeout());
         if (Constants.HTTP_2_0 == Float.valueOf(listenerConfig.getVersion())) {
@@ -95,6 +92,24 @@ public class DefaultHttpWsConnectorFactory implements HttpWsConnectorFactory {
         serverConnectorBootstrap.setPipeliningLimit(listenerConfig.getPipeliningLimit());
 
         return serverConnectorBootstrap.getServerConnector(listenerConfig.getHost(), listenerConfig.getPort());
+    }
+
+    private void setSslContext(ServerConnectorBootstrap serverConnectorBootstrap, SSLConfig sslConfig) {
+        try {
+            SSLHandlerFactory sslHandlerFactory = new SSLHandlerFactory(sslConfig);
+            serverConnectorBootstrap.addcertificateRevocationVerifier(sslConfig.isValidateCertEnabled());
+            serverConnectorBootstrap.addCacheDelay(sslConfig.getCacheValidityPeriod());
+            serverConnectorBootstrap.addCacheSize(sslConfig.getCacheSize());
+            serverConnectorBootstrap.addOcspStapling(sslConfig.isOcspStaplingEnabled());
+            serverConnectorBootstrap.addSslHandlerFactory(sslHandlerFactory);
+            if (sslConfig.getKeyStore() != null) {
+                serverConnectorBootstrap.addKeystoreSslContext(sslHandlerFactory.createSSLContextFromKeystores());
+            } else {
+                serverConnectorBootstrap.addCertAndKeySslContext(sslHandlerFactory.createHttpTLSContextForServer());
+            }
+        } catch (SSLException e) {
+            throw new RuntimeException("Failed to create ssl context from given certs and key", e);
+        }
     }
 
     @Override

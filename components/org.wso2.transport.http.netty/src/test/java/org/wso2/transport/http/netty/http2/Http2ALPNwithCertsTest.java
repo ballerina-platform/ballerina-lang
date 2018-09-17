@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2018, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  * WSO2 Inc. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
@@ -16,7 +16,7 @@
  * under the License.
  */
 
-package org.wso2.transport.http.netty.https;
+package org.wso2.transport.http.netty.http2;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -37,71 +37,63 @@ import org.wso2.transport.http.netty.util.TestUtil;
 import java.util.HashMap;
 
 import static org.wso2.transport.http.netty.common.Constants.HTTPS_SCHEME;
+import static org.wso2.transport.http.netty.common.Constants.HTTP_2_0;
 
 /**
- * Tests for mutual ssl
+ * Test ALPN protocol negotiation for HTTP2 with Certificates and keys.
  */
+public class Http2ALPNwithCertsTest {
 
-public class MutualSSLTestCase {
-
-    private static final Logger LOG = LoggerFactory.getLogger(MutualSSLTestCase.class);
-
-    private static HttpClientConnector httpClientConnector;
-    private HttpWsConnectorFactory factory;
-    private ServerConnector connector;
+    private static final Logger LOG = LoggerFactory.getLogger(Http2ALPNwithCertsTest.class);
+    private ServerConnector serverConnector;
+    private HttpClientConnector httpClientConnector;
+    private HttpWsConnectorFactory connectorFactory;
 
     @BeforeClass
     public void setup() throws InterruptedException {
 
-        factory = new DefaultHttpWsConnectorFactory();
-
-        ListenerConfiguration listenerConfiguration = getListenerConfiguration();
-
-        connector = factory
-                .createServerConnector(TestUtil.getDefaultServerBootstrapConfig(), listenerConfiguration);
-        ServerConnectorFuture future = connector.start();
+        HttpWsConnectorFactory factory = new DefaultHttpWsConnectorFactory();
+        serverConnector = factory
+                .createServerConnector(TestUtil.getDefaultServerBootstrapConfig(), getListenerConfigs());
+        ServerConnectorFuture future = serverConnector.start();
         future.setHttpConnectorListener(new EchoMessageListener());
         future.sync();
 
-        httpClientConnector = factory.createHttpClientConnector(new HashMap<>(), getSenderConfigs());
+        connectorFactory = new DefaultHttpWsConnectorFactory();
+        httpClientConnector = connectorFactory.createHttpClientConnector(new HashMap<>(), getSenderConfigs());
     }
 
-    private ListenerConfiguration getListenerConfiguration() {
-        ListenerConfiguration listenerConfiguration = ListenerConfiguration.getDefault();
-        listenerConfiguration.setPort(TestUtil.SERVER_PORT3);
-        String verifyClient = "require";
-        listenerConfiguration.setVerifyClient(verifyClient);
-        listenerConfiguration.setTrustStoreFile(TestUtil.getAbsolutePath(TestUtil.TRUST_STORE_FILE_PATH));
-        listenerConfiguration.setKeyStoreFile(TestUtil.getAbsolutePath(TestUtil.KEY_STORE_FILE_PATH));
-        listenerConfiguration.setTrustStorePass(TestUtil.KEY_STORE_PASSWORD);
-        listenerConfiguration.setKeyStorePass(TestUtil.KEY_STORE_PASSWORD);
+    @Test
+    public void testHttp2ALPNwithCerts() {
+        TestUtil.testHttpsPost(httpClientConnector, TestUtil.SERVER_PORT1);
+    }
+
+    private ListenerConfiguration getListenerConfigs() {
+        ListenerConfiguration listenerConfiguration = new ListenerConfiguration();
+        listenerConfiguration.setPort(TestUtil.SERVER_PORT1);
         listenerConfiguration.setScheme(HTTPS_SCHEME);
+        listenerConfiguration.setVersion(String.valueOf(HTTP_2_0));
+        listenerConfiguration.setServerKeyFile(TestUtil.getAbsolutePath(TestUtil.KEY_FILE));
+        listenerConfiguration.setServerCertificates(TestUtil.getAbsolutePath(TestUtil.CERT_FILE));
         return listenerConfiguration;
     }
 
     private SenderConfiguration getSenderConfigs() {
         SenderConfiguration senderConfiguration = new SenderConfiguration();
-        senderConfiguration.setKeyStoreFile(TestUtil.getAbsolutePath(TestUtil.KEY_STORE_FILE_PATH));
-        senderConfiguration.setTrustStoreFile(TestUtil.getAbsolutePath(TestUtil.TRUST_STORE_FILE_PATH));
-        senderConfiguration.setKeyStorePass(TestUtil.KEY_STORE_PASSWORD);
-        senderConfiguration.setTrustStorePass(TestUtil.KEY_STORE_PASSWORD);
+        senderConfiguration.setClientTrustCertificates(TestUtil.getAbsolutePath(TestUtil.CERT_FILE));
+        senderConfiguration.setHttpVersion(String.valueOf(HTTP_2_0));
         senderConfiguration.setScheme(HTTPS_SCHEME);
         return senderConfiguration;
     }
 
-    @Test
-    public void testHttpsPost() {
-        TestUtil.testHttpsPost(httpClientConnector, TestUtil.SERVER_PORT3);
-    }
-
     @AfterClass
     public void cleanUp() throws ServerConnectorException {
-        connector.stop();
         httpClientConnector.close();
+        serverConnector.stop();
         try {
-            factory.shutdown();
-        } catch (Exception e) {
-            LOG.warn("Interrupted while waiting for response two", e);
+            connectorFactory.shutdown();
+        } catch (InterruptedException e) {
+            LOG.error("Interrupted while waiting for HttpWsFactory to shutdown", e);
         }
     }
 }

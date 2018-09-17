@@ -40,7 +40,6 @@ public class SSLConfig {
     private String trustStorePass;
     private String sslProtocol;
     private String tlsStoreType;
-
     private String[] cipherSuites;
     private String[] enableProtocols;
     private boolean enableSessionCreation = true;
@@ -53,6 +52,14 @@ public class SSLConfig {
     private int cacheValidityPeriod = 15;
     private boolean ocspStaplingEnabled = false;
     private boolean hostNameVerificationEnabled = true;
+    private File serverKeyFile;
+    private File serverCertificates;
+    private File clientKeyFile;
+    private File clientCertificates;
+    private File serverTrustCertificates;
+    private File clientTrustCertificates;
+    private String serverKeyPassword;
+    private String clientKeyPassword;
 
     public SSLConfig() {}
 
@@ -236,5 +243,69 @@ public class SSLConfig {
 
     public void setHostNameVerificationEnabled(boolean hostNameVerificationEnabled) {
         this.hostNameVerificationEnabled = hostNameVerificationEnabled;
+    }
+
+    public File getServerKeyFile() {
+        return serverKeyFile;
+    }
+
+    public File getServerCertificates() {
+        return serverCertificates;
+    }
+
+    public File getClientKeyFile() {
+        return clientKeyFile;
+    }
+
+    public File getClientCertificates() {
+        return clientCertificates;
+    }
+
+    public File getServerTrustCertificates() {
+        return serverTrustCertificates;
+    }
+
+    public File getClientTrustCertificates() {
+        return clientTrustCertificates;
+    }
+
+    public void setServerKeyFile(File serverKeyFile) {
+        this.serverKeyFile = serverKeyFile;
+    }
+
+    public void setServerCertificates(File serverCertificates) {
+        this.serverCertificates = serverCertificates;
+    }
+
+    public void setClientKeyFile(File clientKeyFile) {
+        this.clientKeyFile = clientKeyFile;
+    }
+
+    public void setClientCertificates(File clientCertificates) {
+        this.clientCertificates = clientCertificates;
+    }
+
+    public void setServerTrustCertificates(File serverTrustCertificates) {
+        this.serverTrustCertificates = serverTrustCertificates;
+    }
+
+    public void setClientTrustCertificates(File clientTrustCertificates) {
+        this.clientTrustCertificates = clientTrustCertificates;
+    }
+
+    public String getServerKeyPassword() {
+        return serverKeyPassword;
+    }
+
+    public void setServerKeyPassword(String serverKeyPassword) {
+        this.serverKeyPassword = serverKeyPassword;
+    }
+
+    public String getClientKeyPassword() {
+        return clientKeyPassword;
+    }
+
+    public void setClientKeyPassword(String clientKeyPassword) {
+        this.clientKeyPassword = clientKeyPassword;
     }
 }

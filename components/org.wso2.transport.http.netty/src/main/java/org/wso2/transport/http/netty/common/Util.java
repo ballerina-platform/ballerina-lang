@@ -38,6 +38,7 @@ import io.netty.handler.codec.http2.Http2Headers;
 import io.netty.handler.codec.http2.HttpConversionUtil;
 import io.netty.handler.ssl.ReferenceCountedOpenSslContext;
 import io.netty.handler.ssl.ReferenceCountedOpenSslEngine;
+import io.netty.handler.ssl.SslContext;
 import io.netty.handler.ssl.SslHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -65,8 +66,10 @@ import java.time.format.DateTimeFormatter;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
 import javax.net.ssl.SSLEngine;
 import javax.net.ssl.SSLException;
+import javax.net.ssl.SSLParameters;
 
 import static org.wso2.transport.http.netty.common.Constants.COLON;
 import static org.wso2.transport.http.netty.common.Constants.HEADER_VAL_100_CONTINUE;
@@ -306,8 +309,9 @@ public class Util {
             SSLConfig sslConfig) throws SSLException {
         LOG.debug("adding ssl handler");
         ChannelPipeline pipeline = socketChannel.pipeline();
+        SSLHandlerFactory sslHandlerFactory = new SSLHandlerFactory(sslConfig);
         if (sslConfig.isOcspStaplingEnabled()) {
-            SSLHandlerFactory sslHandlerFactory = new SSLHandlerFactory(sslConfig);
+            sslHandlerFactory.createSSLContextFromKeystores();
             ReferenceCountedOpenSslContext referenceCountedOpenSslContext = sslHandlerFactory
                     .buildClientReferenceCountedOpenSslContext();
 
@@ -318,14 +322,33 @@ public class Util {
                 socketChannel.pipeline().addLast(new OCSPStaplingHandler(engine));
             }
         } else {
-            SSLEngine sslEngine = instantiateAndConfigSSL(sslConfig, host, port,
-                    sslConfig.isHostNameVerificationEnabled());
+            SSLEngine sslEngine;
+            if (sslConfig.getTrustStore() != null) {
+                sslHandlerFactory.createSSLContextFromKeystores();
+                sslEngine = instantiateAndConfigSSL(sslConfig, host, port, sslConfig.isHostNameVerificationEnabled(),
+                        sslHandlerFactory);
+            } else {
+                sslEngine = getSslEngineForCerts(socketChannel, host, port, sslConfig, sslHandlerFactory);
+            }
             pipeline.addLast(Constants.SSL_HANDLER, new SslHandler(sslEngine));
             if (sslConfig.isValidateCertEnabled()) {
                 pipeline.addLast(Constants.HTTP_CERT_VALIDATION_HANDLER, new CertificateValidationHandler(
                         sslEngine, sslConfig.getCacheValidityPeriod(), sslConfig.getCacheSize()));
             }
         }
+    }
+
+    private static SSLEngine getSslEngineForCerts(SocketChannel socketChannel, String host, int port,
+            SSLConfig sslConfig, SSLHandlerFactory sslHandlerFactory) throws SSLException {
+        SslContext sslContext = sslHandlerFactory.createHttpTLSContextForClient();
+        SslHandler sslHandler = sslContext.newHandler(socketChannel.alloc(), host, port);
+        SSLEngine sslEngine = sslHandler.engine();
+        sslHandlerFactory.addCommonConfigs(sslEngine);
+        sslHandlerFactory.setSNIServerNames(sslEngine, host);
+        if (sslConfig.isHostNameVerificationEnabled()) {
+            setHostNameVerfication(sslEngine);
+        }
+        return sslEngine;
     }
 
     /**
@@ -335,14 +358,14 @@ public class Util {
      * @param host host of the connection
      * @param port port of the connection
      * @param hostNameVerificationEnabled true if host name verification is enabled
+     * @param sslHandlerFactory an instance of sslHandlerFactory
      * @return ssl engine
      */
-    public static SSLEngine instantiateAndConfigSSL(SSLConfig sslConfig, String host, int port,
-            boolean hostNameVerificationEnabled) {
+    private static SSLEngine instantiateAndConfigSSL(SSLConfig sslConfig, String host, int port,
+            boolean hostNameVerificationEnabled, SSLHandlerFactory sslHandlerFactory) {
         // set the pipeline factory, which creates the pipeline for each newly created channels
         SSLEngine sslEngine = null;
         if (sslConfig != null) {
-            SSLHandlerFactory sslHandlerFactory = new SSLHandlerFactory(sslConfig);
             sslEngine = sslHandlerFactory.buildClientSSLEngine(host, port);
             sslEngine.setUseClientMode(true);
             sslHandlerFactory.setSNIServerNames(sslEngine, host);
@@ -773,5 +796,16 @@ public class Util {
         } else {
             return keepAliveConfig == KeepAliveConfig.ALWAYS;
         }
+    }
+
+    /**
+     * Disable host name verification if it is set to false by the user.
+     *
+     * @param sslEngine ssl engine
+     */
+    public static void setHostNameVerfication(SSLEngine sslEngine) {
+        SSLParameters sslParams = sslEngine.getSSLParameters();
+        sslParams.setEndpointIdentificationAlgorithm(Constants.HTTPS_SCHEME);
+        sslEngine.setSSLParameters(sslParams);
     }
 }
