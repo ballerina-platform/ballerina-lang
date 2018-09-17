@@ -86,7 +86,7 @@ public class LogParser {
     }
 
     /**
-     *
+     * Parse trace log line.
      * @param logLine String
      * @return log Trace
      */

@@ -26,6 +26,8 @@ import org.ballerinalang.langserver.extensions.ballerina.document.BallerinaDocum
 import org.ballerinalang.langserver.extensions.ballerina.document.BallerinaDocumentServiceImpl;
 import org.ballerinalang.langserver.extensions.ballerina.example.BallerinaExampleService;
 import org.ballerinalang.langserver.extensions.ballerina.example.BallerinaExampleServiceImpl;
+import org.ballerinalang.langserver.extensions.ballerina.symbol.BallerinaSymbolService;
+import org.ballerinalang.langserver.extensions.ballerina.symbol.BallerinaSymbolServiceImpl;
 import org.ballerinalang.langserver.extensions.ballerina.traces.BallerinaTraceService;
 import org.ballerinalang.langserver.extensions.ballerina.traces.BallerinaTraceServiceImpl;
 import org.ballerinalang.langserver.extensions.ballerina.traces.Listener;
@@ -57,6 +59,7 @@ public class BallerinaLanguageServer implements ExtendedLanguageServer, Extended
     private BallerinaExampleService ballerinaExampleService;
     private BallerinaTraceServiceImpl ballerinaTraceService;
     private Listener ballerinaTraceListener;
+    private BallerinaSymbolService ballerinaSymbolService;
     private int shutdown = 1;
 
     public BallerinaLanguageServer() {
@@ -77,6 +80,7 @@ public class BallerinaLanguageServer implements ExtendedLanguageServer, Extended
         ballerinaExampleService = new BallerinaExampleServiceImpl(lsGlobalContext);
         ballerinaTraceService = new BallerinaTraceServiceImpl(lsGlobalContext);
         ballerinaTraceListener = new Listener(ballerinaTraceService);
+        ballerinaSymbolService = new BallerinaSymbolServiceImpl(lsGlobalContext);
     }
     
     public ExtendedLanguageClient getClient() {
@@ -143,14 +147,16 @@ public class BallerinaLanguageServer implements ExtendedLanguageServer, Extended
     public BallerinaTraceService getBallerinaTraceService() {
         return this.ballerinaTraceService;
     }
-
+    @Override
+    public BallerinaSymbolService getBallerinaSymbolService() {
+        return ballerinaSymbolService;
+    }
     @Override
     public void connect(ExtendedLanguageClient languageClient) {
         this.client = languageClient;
     }
-    
-    // Private Methods
 
+    // Private Methods
     private void initLSIndex() {
         String indexDumpPath = Paths.get(CommonUtil.BALLERINA_HOME + "/lib/resources/composer/lang-server-index.sql")
                 .toString();
