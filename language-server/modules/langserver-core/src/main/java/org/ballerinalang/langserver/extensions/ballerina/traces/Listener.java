@@ -62,7 +62,7 @@ public class Listener {
                     } catch (Exception e) {
                         rawRecord = parsedTraceLog.getAsString();
                     }
-                    TraceRecord traceRecord = new TraceRecord(LogParser.parseLogLine(rawRecord), rawRecord);
+                    TraceRecord traceRecord = new TraceRecord(LogParser.fromString(rawRecord), rawRecord);
                     ballerinaTraceService.pushLogToClient(traceRecord);
                 }
             } catch (IOException e) {

@@ -90,7 +90,7 @@ public class LogParser {
      * @param logLine String
      * @return log Trace
      */
-    static Trace parseLogLine(String logLine) {
+    static Trace fromString(String logLine) {
         Trace log = new Trace();
         log.setId(getId(logLine));
         log.setDirection(getDirection(logLine));
