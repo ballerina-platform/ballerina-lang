@@ -215,7 +215,7 @@ public type JoinProcessor object {
 
 public function createJoinProcessor(function (any) nextProcessor, JoinType joinType,
                                    function (map e1Data, map e2Data) returns boolean conditionFunc)
-                    returns JoinProcesor {
+                    returns JoinProcessor {
     JoinProcessor joinProcesor = new(nextProcessor, joinType, conditionFunc);
     return joinProcesor;
 }
