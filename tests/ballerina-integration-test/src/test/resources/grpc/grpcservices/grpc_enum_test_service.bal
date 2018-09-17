@@ -33,8 +33,6 @@ public type Mode "r";
 @grpc:ServiceConfig
 service testEnumService bind listener {
     testEnum(endpoint caller, orderInfo orderReq) {
-        string orderId = orderReq.id;
-        ordersMap[orderReq.id] = orderReq;
         string permission;
         match orderReq.mode {
             READ => permission = "r";
