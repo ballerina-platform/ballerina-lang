@@ -18,6 +18,7 @@
 
 package org.ballerinalang.util.debugger.dto;
 
+import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BNewArray;
 import org.ballerinalang.model.values.BValue;
@@ -63,6 +64,11 @@ public class VariableDTO {
             return;
         }
         type = bValue.getType().toString();
+        value = getStringValue(bValue);
+    }
+
+    public void setBValue(BValue bValue, BType bType) {
+        type = bType.toString();
         value = getStringValue(bValue);
     }
 

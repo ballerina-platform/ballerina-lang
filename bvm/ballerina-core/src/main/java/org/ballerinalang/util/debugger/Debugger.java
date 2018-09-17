@@ -21,6 +21,7 @@ package org.ballerinalang.util.debugger;
 import io.netty.channel.Channel;
 import org.ballerinalang.bre.bvm.BLangScheduler;
 import org.ballerinalang.bre.bvm.WorkerExecutionContext;
+import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.TypeTags;
 import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BByte;
@@ -69,6 +70,7 @@ public class Debugger {
     private static final String META_DATA_VAR_PATTERN = "$";
     private static final String GLOBAL = "Global";
     private static final String LOCAL = "Local";
+    private static final String TYPE_JSON = "json";
 
     public Debugger(ProgramFile programFile) {
         this.programFile = programFile;
@@ -208,7 +210,7 @@ public class Debugger {
                     .map(b -> "{" + b.toString() + "}")
                     .collect(Collectors.joining(", "));
             MessageDTO message = new MessageDTO(DebugConstants.CODE_INVALID,
-                                                DebugConstants.MSG_INVALID_BREAKPOINT + "[" + bPoints + "]");
+                    DebugConstants.MSG_INVALID_BREAKPOINT + "[" + bPoints + "]");
             clientHandler.sendCustomMsg(message);
         }
     }
@@ -402,7 +404,9 @@ public class Debugger {
             // TODO: Need to change the 'contains' logic, if we allow user-defined variable names to have '$'
             if (!packVarInfo.getName().contains(META_DATA_VAR_PATTERN)) {
                 VariableDTO variableDTO = constructGlobalVariable(ctx, packVarInfo);
-                frameDTO.addVariable(variableDTO);
+                if (variableDTO.getValue() != null || variableDTO.getType().equals(TYPE_JSON)) {
+                    frameDTO.addVariable(variableDTO);
+                }
             }
         }
 
@@ -433,35 +437,38 @@ public class Debugger {
      * @return Constructed global variable.
      */
     public static VariableDTO constructGlobalVariable(WorkerExecutionContext ctx, PackageVarInfo packVarInfo) {
-        int pkgIndex = ctx.callableUnitInfo.getPackageInfo().pkgIndex;VariableDTO variableDTO = new VariableDTO(packVarInfo.getName(), GLOBAL);
-                switch (packVarInfo.getType().getTag()) {
-                    case TypeTags.INT_TAG:
-                        variableDTO.setBValue(new BInteger(ctx.programFile.globalMemArea.getIntField(pkgIndex,
-                                packVarInfo.getGlobalMemIndex())));
-                        break;
-                    case TypeTags.BYTE_TAG:
-                        variableDTO.setBValue(new BByte((byte) (ctx.programFile.globalMemArea.getBooleanField(pkgIndex,
-                                packVarInfo.getGlobalMemIndex()))));
-                        break;
-                    case TypeTags.FLOAT_TAG:
-                        variableDTO.setBValue(new BFloat(ctx.programFile.globalMemArea.getFloatField(pkgIndex,
-                                packVarInfo.getGlobalMemIndex())));
-                        break;
-                    case TypeTags.STRING_TAG:
-                        variableDTO.setBValue(new BString(ctx.programFile.globalMemArea.getStringField(pkgIndex,
-                                packVarInfo.getGlobalMemIndex())));
-                        break;
-                    case TypeTags.BOOLEAN_TAG:
-                        variableDTO.setBValue(new BBoolean(ctx.programFile.globalMemArea.getBooleanField(pkgIndex,
-                                packVarInfo.getGlobalMemIndex()) == 1));
-                        break;
-                    default:
-                        variableDTO.setBValue(ctx.programFile.globalMemArea.getRefField(pkgIndex,
-                                packVarInfo.getGlobalMemIndex()));
-                        break;
-                }
-                return variableDTO;
-            }
+        int pkgIndex = ctx.callableUnitInfo.getPackageInfo().pkgIndex;
+        VariableDTO variableDTO = new VariableDTO(packVarInfo.getName(), GLOBAL);
+        BType varType = packVarInfo.getType();
+
+        switch (varType.getTag()) {
+            case TypeTags.INT_TAG:
+                variableDTO.setBValue(new BInteger(ctx.programFile.globalMemArea.getIntField(pkgIndex,
+                        packVarInfo.getGlobalMemIndex())));
+                break;
+            case TypeTags.BYTE_TAG:
+                variableDTO.setBValue(new BByte((byte) (ctx.programFile.globalMemArea.getBooleanField(pkgIndex,
+                        packVarInfo.getGlobalMemIndex()))));
+                break;
+            case TypeTags.FLOAT_TAG:
+                variableDTO.setBValue(new BFloat(ctx.programFile.globalMemArea.getFloatField(pkgIndex,
+                        packVarInfo.getGlobalMemIndex())));
+                break;
+            case TypeTags.STRING_TAG:
+                variableDTO.setBValue(new BString(ctx.programFile.globalMemArea.getStringField(pkgIndex,
+                        packVarInfo.getGlobalMemIndex())));
+                break;
+            case TypeTags.BOOLEAN_TAG:
+                variableDTO.setBValue(new BBoolean(ctx.programFile.globalMemArea.getBooleanField(pkgIndex,
+                        packVarInfo.getGlobalMemIndex()) == 1));
+                break;
+            default:
+                variableDTO.setBValue(ctx.programFile.globalMemArea.getRefField(pkgIndex,
+                        packVarInfo.getGlobalMemIndex()), varType);
+                break;
+        }
+        return variableDTO;
+    }
 
 
     /**
@@ -473,8 +480,9 @@ public class Debugger {
      */
     public static VariableDTO constructLocalVariable(WorkerExecutionContext ctx, LocalVariableInfo variableInfo) {
         VariableDTO variableDTO = new VariableDTO(variableInfo.getVariableName(), LOCAL);
+        BType varType = variableInfo.getVariableType();
 
-        switch (variableInfo.getVariableType().getTag()) {
+        switch (varType.getTag()) {
             case TypeTags.INT_TAG:
                 variableDTO.setBValue(new BInteger(ctx.workerLocal.longRegs[variableInfo.getVariableIndex()]));
                 break;
@@ -491,7 +499,7 @@ public class Debugger {
                 variableDTO.setBValue(new BBoolean(ctx.workerLocal.intRegs[variableInfo.getVariableIndex()] == 1));
                 break;
             default:
-                variableDTO.setBValue(ctx.workerLocal.refRegs[variableInfo.getVariableIndex()]);
+                variableDTO.setBValue(ctx.workerLocal.refRegs[variableInfo.getVariableIndex()], varType);
                 break;
         }
         return variableDTO;
