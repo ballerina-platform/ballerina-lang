@@ -32,7 +32,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAttachedFunction
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BConversionOperatorSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BOperatorSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
@@ -88,7 +87,6 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import java.util.Stack;
 import java.util.stream.Collectors;
@@ -155,8 +153,10 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
     private Stack<BVarSymbol> nextProcessVarSymbolStack = new Stack<>();
     private Stack<BVarSymbol> joinProcessorStack = new Stack<>();
     private boolean isInJoin = false;
+    private boolean isInHaving = false;
     // Contains the StreamEvent.data variable args in conditional lambda functions like where and join on condition
     private List<BLangVariable> mapVarArgs = new ArrayList<>();
+
 
     private StreamingCodeDesugar(CompilerContext context) {
         context.put(STREAMING_DESUGAR_KEY, this);
@@ -987,7 +987,7 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
     //
     @Override
     public void visit(BLangWhere where) {
-        visitFilter(where.pos, (BLangBinaryExpr) where.getExpression(), null);
+        visitFilter(where.pos, (BLangBinaryExpr) where.getExpression());
     }
 
     //
@@ -1006,12 +1006,13 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
     //
     @Override
     public void visit(BLangHaving having) {
-        resolveBinaryExpr(having.pos, (BLangBinaryExpr) having.getExpression(), (BRecordType) outputEventType);
-        visitFilter(having.pos, (BLangBinaryExpr) having.getExpression(), outputEventType);
+        isInHaving = true;
+        visitFilter(having.pos, (BLangBinaryExpr) having.getExpression());
+        isInHaving = false;
     }
 
     //------------------------------------- Methods required for filter / having -----------------------------------
-    private void visitFilter(DiagnosticPos pos, BLangBinaryExpr expression, BType eventType) {
+    private void visitFilter(DiagnosticPos pos, BLangBinaryExpr expression) {
         //Create lambda function Variable
         BLangVariable lambdaFunctionVariable =
                 this.createMapTypeVariable(getVariableName(FILTER_LAMBDA_PARAM_REFERENCE), pos, env);
@@ -1097,7 +1098,7 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangFieldBasedAccess fieldAccessExpr) {
-        if (fieldAccessExpr.expr.type.tag == TypeTags.STREAM) {
+        if (fieldAccessExpr.expr.type.tag == TypeTags.STREAM && !isInHaving) {
             BLangSimpleVarRef varRef = (BLangSimpleVarRef) fieldAccessExpr.expr;
             BLangSimpleVarRef mapRef;
             int mapVarArgIndex;
@@ -1133,8 +1134,15 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
     }
 
     public void visit(BLangSimpleVarRef varRefExpr) {
-
-        conditionExpr = varRefExpr;
+        if (isInHaving) {
+            conditionExpr = createMapVariableIndexAccessExpr(mapVarArgs.get(mapVarArgs.size() - 1).symbol,
+                    ASTBuilderUtil.createLiteral(varRefExpr.pos, symTable.stringType, "OUTPUT." +
+                            varRefExpr.variableName.value));
+            conditionExpr = Desugar.addConversionExprIfRequired(conditionExpr, varRefExpr.symbol.type, types,
+                    symTable, symResolver);
+        } else {
+            conditionExpr = varRefExpr;
+        }
     }
 
     //----------------------------------------- Util Methods ---------------------------------------------------------
@@ -1400,14 +1408,11 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
 
     private BLangIndexBasedAccess createMapVariableIndexAccessExpr(BVarSymbol mapVariableSymbol,
                                                                    BLangExpression expression) {
-        BLangFieldBasedAccess fieldAccessExpr = (BLangFieldBasedAccess) expression;
         BLangSimpleVarRef varRef = ASTBuilderUtil.createVariableRef(expression.pos, mapVariableSymbol);
         BLangIndexBasedAccess selectFieldExpression = ASTBuilderUtil.createIndexAccessExpr(varRef,
-                ASTBuilderUtil.createLiteral(fieldAccessExpr.field.pos, symTable.stringType,
-                        fieldAccessExpr.toString()));
-        selectFieldExpression.symbol = fieldAccessExpr.symbol;
+                ASTBuilderUtil.createLiteral(expression.pos, symTable.stringType, expression.toString()));
         selectFieldExpression.type = symTable.anyType;
-        selectFieldExpression.pos = fieldAccessExpr.pos;
+        selectFieldExpression.pos = expression.pos;
         return selectFieldExpression;
     }
 
@@ -1430,43 +1435,5 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
         lambdaFunction.type = symTable.anyType;
 
         return lambdaFunction;
-    }
-
-    private void resolveBinaryExpr(DiagnosticPos pos, BLangBinaryExpr expression, BRecordType eventType) {
-        Map<String, BField> fields = eventType.fields.stream()
-                .collect(Collectors.toMap(field -> field.name.getValue(), field -> field, (a, b) -> b));
-        if (expression.rhsExpr.getKind() == NodeKind.SIMPLE_VARIABLE_REF) {
-            String key = ((BLangSimpleVarRef) expression.rhsExpr).variableName.value;
-            if (fields.containsKey(key)) {
-                BField field = fields.get(key);
-                expression.rhsExpr = createFieldBasedAccessExpr(pos, field);
-                if (expression.lhsExpr.type == null) {
-                    expression.lhsExpr.type = field.getType();
-                }
-            }
-        }
-        if (expression.lhsExpr.getKind() == NodeKind.SIMPLE_VARIABLE_REF) {
-            String key = ((BLangSimpleVarRef) expression.lhsExpr).variableName.value;
-            if (fields.containsKey(key)) {
-                BField field = fields.get(key);
-                expression.lhsExpr = createFieldBasedAccessExpr(pos, field);
-                if (expression.rhsExpr.type == null) {
-                    expression.rhsExpr.type = field.getType();
-                }
-            }
-        }
-        expression.opSymbol = (BOperatorSymbol) symResolver.resolveBinaryOperator(
-                expression.opKind, expression.lhsExpr.type, expression.rhsExpr.type);
-    }
-
-    private static BLangFieldBasedAccess createFieldBasedAccessExpr(DiagnosticPos pos, BField field) {
-        BLangFieldBasedAccess fieldBasedAccess = (BLangFieldBasedAccess)
-                TreeBuilder.createFieldBasedAccessNode();
-        fieldBasedAccess.expr = ASTBuilderUtil.createVariableRef(pos, field.symbol);
-        fieldBasedAccess.symbol = field.symbol;
-        fieldBasedAccess.type = field.getType();
-        fieldBasedAccess.pos = pos;
-        fieldBasedAccess.field = ASTBuilderUtil.createIdentifier(pos, field.name.value);
-        return fieldBasedAccess;
     }
 }
