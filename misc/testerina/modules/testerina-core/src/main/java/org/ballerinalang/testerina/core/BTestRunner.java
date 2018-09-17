@@ -62,6 +62,7 @@ public class BTestRunner {
     private static PrintStream outStream = System.out;
     private TesterinaReport tReport = new TesterinaReport();
     private TesterinaRegistry registry = TesterinaRegistry.getInstance();
+    private List<String> sourcePackages = new ArrayList<>();
 
     /**
      * Executes a given set of ballerina program files.
@@ -86,6 +87,8 @@ public class BTestRunner {
         registry.setGroups(groups);
         registry.setShouldIncludeGroups(shouldIncludeGroups);
         compileAndBuildSuites(sourceRoot, sourceFilePaths);
+        // Filter the test suites
+        filterTestSuites();
         // execute the test programs
         execute(false);
     }
@@ -99,10 +102,24 @@ public class BTestRunner {
         registry.setGroups(Collections.emptyList());
         registry.setShouldIncludeGroups(true);
         buildSuites(packageList);
+        // Filter the test suites
+        filterTestSuites();
         // execute the test programs
         execute(true);
     }
 
+    /**
+     * Filter the test suites for only the packages given. Since when compiling packages in the test annotation
+     * processor we create test suites for the import packages as well. To avoid them from running we have to filter
+     * the only the packages provided from the test suite
+     */
+    private void filterTestSuites() {
+        registry.setTestSuites(registry.getTestSuites().entrySet()
+                                       .stream()
+                                       .filter(map -> sourcePackages.contains(map.getKey()))
+                                       .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue)));
+
+    }
     /**
      * lists the groups available in tests.
      *
@@ -168,6 +185,7 @@ public class BTestRunner {
             }
 
             String packageName = TesterinaUtils.getFullPackageName(sourcePackage.toString());
+            sourcePackages.add(packageName);
 
             // Add test suite to registry if not added.
             addTestSuite(packageName);
@@ -196,7 +214,9 @@ public class BTestRunner {
         packageList.forEach((sourcePackage, compiledBinaryFile) -> {
             // Add test suite to registry if not added. In this package there are no tests to be executed. But we need
             // to say to the users that there are no tests found in the package to be executed
-            addTestSuite(TesterinaUtils.getFullPackageName(sourcePackage.packageID.getName().getValue()));
+            String packageName = TesterinaUtils.getFullPackageName(sourcePackage.packageID.getName().getValue());
+            addTestSuite(packageName);
+            sourcePackages.add(packageName);
 
             ProgramFile pFile = LauncherUtils.getExecutableProgram(compiledBinaryFile);
             processProgramFile(pFile);
