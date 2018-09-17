@@ -92,7 +92,7 @@ public class ObjectDocumentationTest {
     public void testDocumentationNegative() {
         CompileResult compileResult = BCompileUtil.compile("test-src/object/object_annotation_negative.bal");
         Assert.assertEquals(compileResult.getErrorCount(), 0, getErrorString(compileResult.getDiagnostics()));
-        Assert.assertEquals(compileResult.getWarnCount(), 17);
+        Assert.assertEquals(compileResult.getWarnCount(), 16);
         BAssertUtil.validateWarning(compileResult, 0, "field 'a' already documented", 6, 5);
         BAssertUtil.validateWarning(compileResult, 1, "no such documentable field 'c'", 8, 5);
         BAssertUtil.validateWarning(compileResult, 2, "undocumented field 'cd'", 12, 5);
@@ -108,8 +108,7 @@ public class ObjectDocumentationTest {
         BAssertUtil.validateWarning(compileResult, 12, "no such documentable parameter 'conn'", 81, 5);
         BAssertUtil.validateWarning(compileResult, 13, "parameter 'req' already documented", 87, 9);
         BAssertUtil.validateWarning(compileResult, 14, "no such documentable parameter 'reqest'", 88, 9);
-        BAssertUtil.validateWarning(compileResult, 15, "undocumented parameter 'conn'", 91, 16);
-        BAssertUtil.validateWarning(compileResult, 16, "no such documentable parameter 'testConstd'", 99, 5);
+        BAssertUtil.validateWarning(compileResult, 15, "no such documentable parameter 'testConstd'", 99, 5);
     }
 
     private String getErrorString(Diagnostic[] diagnostics) {
