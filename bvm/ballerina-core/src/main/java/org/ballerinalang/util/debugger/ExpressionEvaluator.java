@@ -60,7 +60,7 @@ public class ExpressionEvaluator {
     public String evaluateVariable(WorkerExecutionContext ctx, LineNumberInfo currentExecLine, String variableName) {
         int currentExecLineNum = currentExecLine.getLineNumber();
 
-        String defaultMessage = constructJsonResults(false, "cannot find local variable '" + variableName + "'");
+        String defaultMessage = constructJsonResults(false, "cannot find variable '" + variableName + "'");
 
         // Check local variables
         List<LocalVariableInfo> localVars = getLocalVariables(ctx);
