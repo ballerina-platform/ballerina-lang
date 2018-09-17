@@ -74,7 +74,10 @@ public class VariableDTO {
 
     private String getStringValue(BValue bValue) {
         String bValueString;
-        if (bValue instanceof BValueType || bValue instanceof BXML || bValue.getType().getTag() == TypeTags.JSON) {
+        if (bValue == null) {
+            bValueString = null;
+        } else if (bValue instanceof BValueType || bValue instanceof BXML ||
+                bValue.getType().getTag() == TypeTags.JSON) {
             bValueString = bValue.stringValue();
         } else if (bValue instanceof BNewArray) {
             BNewArray bArray = (BNewArray) bValue;
