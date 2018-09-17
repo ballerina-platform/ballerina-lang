@@ -350,6 +350,43 @@
                 <classifier>ballerina-binary-repo</classifier>
             </dependency>
 
+            <!-- ballerina-llvm -->
+            <dependency>
+                <groupId>org.ballerinalang</groupId>
+                <artifactId>ballerina-llvm</artifactId>
+                <version>${ballerina.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.ballerinalang</groupId>
+                <artifactId>ballerina-llvm</artifactId>
+                <version>${ballerina.version}</version>
+                <type>zip</type>
+                <classifier>ballerina-binary-repo</classifier>
+            </dependency>
+            <dependency>
+                <groupId>org.ballerinalang</groupId>
+                <artifactId>ballerina-llvm</artifactId>
+                <version>${ballerina.version}</version>
+                <type>zip</type>
+                <classifier>ballerina-sources</classifier>
+            </dependency>
+
+            <!-- ballerina-bir -->
+            <dependency>
+                <groupId>org.ballerinalang</groupId>
+                <artifactId>ballerina-bir</artifactId>
+                <version>${ballerina.version}</version>
+                <type>zip</type>
+                <classifier>ballerina-binary-repo</classifier>
+            </dependency>
+            <dependency>
+                <groupId>org.ballerinalang</groupId>
+                <artifactId>ballerina-bir</artifactId>
+                <version>${ballerina.version}</version>
+                <type>zip</type>
+                <classifier>ballerina-sources</classifier>
+            </dependency>
+
             <!-- ballerina-grpc -->
             <dependency>
                 <groupId>org.ballerinalang</groupId>
@@ -774,6 +811,16 @@
             </dependency>
             <dependency>
                 <groupId>org.ballerinalang</groupId>
+                <artifactId>ballerina-backend-llvm</artifactId>
+                <version>${ballerina.version}</version>
+            </dependency>
+            <!--<dependency>-->
+                <!--<groupId>org.ballerinalang</groupId>-->
+                <!--<artifactId>ballerina-backend-bvm</artifactId>-->
+                <!--<version>${ballerina.version}</version>-->
+            <!--</dependency>-->
+            <dependency>
+                <groupId>org.ballerinalang</groupId>
                 <artifactId>ballerina-launcher</artifactId>
                 <version>${ballerina.version}</version>
             </dependency>
@@ -1087,6 +1134,11 @@
                 <version>${netty.version}</version>
             </dependency>
             <dependency>
+                <groupId>org.javassist</groupId>
+                <artifactId>javassist</artifactId>
+                <version>${javassist.version}</version>
+            </dependency>
+            <dependency>
                 <groupId>io.netty</groupId>
                 <artifactId>netty-codec-http</artifactId>
                 <version>${netty.version}</version>
@@ -1151,7 +1203,7 @@
                 <groupId>org.jacoco</groupId>
                 <artifactId>org.jacoco.agent</artifactId>
                 <classifier>runtime</classifier>
-                <version>${jacoco.version}</version>
+                <version>${jacoco.agent.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.apache.maven</groupId>
@@ -1439,6 +1491,11 @@
                 <version>${javax.jms.version}</version>
             </dependency>
             <dependency>
+                <groupId>org.bytedeco.javacpp-presets</groupId>
+                <artifactId>llvm-platform</artifactId>
+                <version>${javacpp.llvm.version}</version>
+            </dependency>
+            <dependency>
                 <groupId>org.wso2.andes.wso2</groupId>
                 <artifactId>andes-client</artifactId>
                 <version>${andes.client.version}</version>
@@ -1592,6 +1649,8 @@
                 <module>stdlib/log-api</module>
                 <module>stdlib/transactions</module>
                 <module>stdlib/grpc</module>
+                <module>stdlib/bir</module>
+                <module>stdlib/llvm</module>
                 <module>stdlib/math</module>
                 <module>stdlib/mime</module>
                 <module>stdlib/reflect</module>
@@ -1616,6 +1675,8 @@
                 <module>bvm/ballerina-logging</module>
                 <module>cli/ballerina-launcher</module>
                 <module>cli/ballerina-packerina</module>
+                <module>compiler/ballerina-backend-llvm</module>
+                <!--<module>compiler/ballerina-backend-bvm</module>-->
 
                 <!--Should Run Before tests/ballerina-test-->
                 <module>misc/protobuf-ballerina</module>
@@ -1672,6 +1733,8 @@
                 <module>stdlib/log-api</module>
                 <module>stdlib/transactions</module>
                 <module>stdlib/grpc</module>
+                <module>stdlib/llvm</module>
+                <module>stdlib/bir</module>
                 <module>stdlib/math</module>
                 <module>stdlib/mime</module>
                 <module>stdlib/reflect</module>
@@ -1696,6 +1759,8 @@
                 <module>bvm/ballerina-logging</module>
                 <module>cli/ballerina-launcher</module>
                 <module>cli/ballerina-packerina</module>
+                <module>compiler/ballerina-backend-llvm</module>
+                <!--<module>compiler/ballerina-backend-bvm</module>-->
 
                 <!--Should Run Before tests/ballerina-test-->
                 <module>misc/protobuf-ballerina</module>
@@ -1748,6 +1813,8 @@
                 <module>stdlib/log-api</module>
                 <module>stdlib/transactions</module>
                 <module>stdlib/grpc</module>
+                <module>stdlib/llvm</module>
+                <module>stdlib/bir</module>
                 <module>stdlib/math</module>
                 <module>stdlib/mime</module>
                 <module>stdlib/reflect</module>
@@ -1772,6 +1839,8 @@
                 <module>bvm/ballerina-logging</module>
                 <module>cli/ballerina-launcher</module>
                 <module>cli/ballerina-packerina</module>
+                <module>compiler/ballerina-backend-llvm</module>
+                <!--<module>compiler/ballerina-backend-bvm</module>-->
 
                 <!--Should Run Before tests/ballerina-test-->
                 <module>misc/protobuf-ballerina</module>
@@ -2061,6 +2130,11 @@
                     <artifactId>protobuf-maven-plugin</artifactId>
                     <version>${protobuf.maven.plugin.version}</version>
                 </plugin>
+                <plugin>
+                    <groupId>org.jacoco</groupId>
+                    <artifactId>jacoco-maven-plugin</artifactId>
+                    <version>${maven.jacoco.plugin.version}</version>
+                </plugin>
             </plugins>
         </pluginManagement>
         <plugins>
@@ -2106,6 +2180,21 @@
                     <revisionOnScmFailure>${maven.build.timestamp}</revisionOnScmFailure>
                 </configuration>
             </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-javadoc-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>attach-javadocs</id>
+                        <goals>
+                            <goal>jar</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <failOnWarnings>true</failOnWarnings>
+                </configuration>
+            </plugin>
         </plugins>
     </build>
 
@@ -2134,7 +2223,7 @@
         <equinox.osgi.version>3.10.2.v20150203-1939</equinox.osgi.version>
         <equinox.osgi.services.version>3.4.0.v20140312-2051</equinox.osgi.services.version>
         <carbon.kernel.version>5.1.0</carbon.kernel.version>
-        <transport.http.version>6.0.227</transport.http.version>
+        <transport.http.version>6.0.228</transport.http.version>
         <carbon.messaging.version>2.3.7</carbon.messaging.version>
         <carbon.deployment.version>5.0.0</carbon.deployment.version>
         <carbon.config.version>2.1.2</carbon.config.version>
@@ -2153,8 +2242,9 @@
         <geronimo.stax>1.0.1</geronimo.stax>
         <mime4j.version>0.7.2</mime4j.version>
         <staxon.version>1.2.0.wso2v2</staxon.version>
-        <jacoco.version>0.7.5.201505241946</jacoco.version>
+        <jacoco.agent.version>0.8.1</jacoco.agent.version>
         <mockito.version>1.9.0</mockito.version>
+        <javassist.version>3.20.0-GA</javassist.version>
         <netty.version>4.1.19.Final</netty.version>
         <commons.pool.version>1.5.6.wso2v1</commons.pool.version>
         <org.snakeyaml.version>1.16.0.wso2v1</org.snakeyaml.version>
@@ -2217,7 +2307,7 @@
         <maven.install.plugin.version>2.5.2</maven.install.plugin.version>
         <maven.invoker.plugin.version>2.0.0</maven.invoker.plugin.version>
         <maven.jar.plugin.version>2.6</maven.jar.plugin.version>
-        <maven.javadoc.plugin.version>2.10.3</maven.javadoc.plugin.version>
+        <maven.javadoc.plugin.version>3.0.1</maven.javadoc.plugin.version>
         <maven.plugin.plugin.version>3.4</maven.plugin.plugin.version>
         <maven.remote.resources.plugin.version>1.5</maven.remote.resources.plugin.version>
         <maven.release.plugin.version>2.5.3</maven.release.plugin.version>
@@ -2229,6 +2319,7 @@
         <maven.surefire.plugin.version>2.21.0</maven.surefire.plugin.version>
         <maven.exec.plugin.version>1.6.0</maven.exec.plugin.version>
         <maven.replacer.plugin.version>1.5.3</maven.replacer.plugin.version>
+        <maven.jacoco.plugin.version>0.8.1</maven.jacoco.plugin.version>
 
         <apache.rat.plugin.version>0.11</apache.rat.plugin.version>
         <clirr.maven.plugin.version>2.7</clirr.maven.plugin.version>
@@ -2256,6 +2347,7 @@
         <!-- JMS Connector -->
         <wso2.transport.jms.version>6.0.50</wso2.transport.jms.version>
         <javax.jms.version>2.0.1</javax.jms.version>
+        <javacpp.llvm.version>6.0.1-1.4.2</javacpp.llvm.version>
         <andes.client.version>3.2.55</andes.client.version>
         <wso2.securevault.version>1.0.0-wso2v2</wso2.securevault.version>
 
@@ -2263,7 +2355,6 @@
         <chewiebug.gcviewer.version>1.35</chewiebug.gcviewer.version>
 
         <maven.spotbugsplugin.exclude.file>spotbugs-exclude.xml</maven.spotbugsplugin.exclude.file>
-
     </properties>
 
 </project>

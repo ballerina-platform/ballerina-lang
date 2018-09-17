@@ -29,8 +29,9 @@ public interface Decompressor {
 
     /**
      * Returns the message encoding that this compressor uses.
-     * <p>
+     *
      * <p>This can be values such as "gzip", "deflate", "snappy", etc.
+     * @return message encoding
      */
     String getMessageEncoding();
 
@@ -39,6 +40,7 @@ public interface Decompressor {
      *
      * @param is The input stream of uncompressed data
      * @return An input stream that decompresses
+     * @throws IOException fail when read/write input stream
      */
     InputStream decompress(InputStream is) throws IOException;
 }

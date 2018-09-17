@@ -23,16 +23,20 @@ import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.config.ConfigRegistry;
 import org.ballerinalang.connector.impl.ServerConnectorRegistry;
 import org.ballerinalang.logging.BLogManager;
+import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.runtime.threadpool.ThreadPoolFactory;
 import org.ballerinalang.util.LaunchListener;
 import org.ballerinalang.util.codegen.ProgramFile;
 import org.ballerinalang.util.codegen.ProgramFileReader;
 import org.ballerinalang.util.exceptions.BLangRuntimeException;
+import org.ballerinalang.util.exceptions.BLangUsageException;
+import org.ballerinalang.util.exceptions.BallerinaException;
 import org.ballerinalang.util.observability.ObservabilityConstants;
 import org.wso2.ballerinalang.compiler.Compiler;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.CompilerOptions;
+import org.wso2.ballerinalang.compiler.util.ProjectDirConstants;
 import org.wso2.ballerinalang.programfile.CompiledBinaryFile;
 import org.wso2.ballerinalang.programfile.ProgramFileWriter;
 import org.wso2.ballerinalang.util.RepoUtils;
@@ -63,6 +67,7 @@ import static org.ballerinalang.compiler.CompilerOptionName.PRESERVE_WHITESPACE;
 import static org.ballerinalang.compiler.CompilerOptionName.PROJECT_DIR;
 import static org.ballerinalang.util.BLangConstants.BLANG_EXEC_FILE_SUFFIX;
 import static org.ballerinalang.util.BLangConstants.BLANG_SRC_FILE_SUFFIX;
+import static org.ballerinalang.util.BLangConstants.MAIN_FUNCTION_NAME;
 
 /**
  * Contains utility methods for executing a Ballerina program.
@@ -71,13 +76,23 @@ import static org.ballerinalang.util.BLangConstants.BLANG_SRC_FILE_SUFFIX;
  */
 public class LauncherUtils {
 
-    public static void runProgram(Path sourceRootPath, Path sourcePath, boolean runServices,
+    private static PrintStream outStream = System.out;
+
+    public static void runProgram(Path sourceRootPath, Path sourcePath, Map<String, String> runtimeParams,
+                                  String configFilePath, String[] args, boolean offline, boolean observeFlag) {
+        runProgram(sourceRootPath, sourcePath, MAIN_FUNCTION_NAME, runtimeParams, configFilePath, args, offline,
+                   observeFlag, false);
+    }
+
+    public static void runProgram(Path sourceRootPath, Path sourcePath, String functionName,
                                   Map<String, String> runtimeParams, String configFilePath, String[] args,
-                                  boolean offline, boolean observeFlag) {
+                                  boolean offline, boolean observeFlag, boolean printReturn) {
         ProgramFile programFile;
         String srcPathStr = sourcePath.toString();
         Path fullPath = sourceRootPath.resolve(sourcePath);
-        loadConfigurations(sourceRootPath, runtimeParams, configFilePath, observeFlag);
+        // Set the source root path relative to the source path i.e. set the parent directory of the source path
+        System.setProperty(ProjectDirConstants.BALLERINA_SOURCE_ROOT, fullPath.getParent().toString());
+        loadConfigurations(fullPath.getParent(), runtimeParams, configFilePath, observeFlag);
 
         if (srcPathStr.endsWith(BLANG_EXEC_FILE_SUFFIX)) {
             programFile = BLangProgramLoader.read(sourcePath);
@@ -98,31 +113,44 @@ public class LauncherUtils {
                             " files can be used with the 'ballerina run' command.");
         }
 
-        // If there is no main or service entry point, throw an error
-        if (!programFile.isMainEPAvailable() && !programFile.isServiceEPAvailable()) {
+        // If a function named main is expected to be the entry point but such a function does not exist and there is
+        // no service entry point either, throw an error
+        if ((MAIN_FUNCTION_NAME.equals(functionName) && !programFile.isMainEPAvailable())
+                && !programFile.isServiceEPAvailable()) {
             throw LauncherUtils.createLauncherException(
                     "error: '" + programFile.getProgramFilePath() + "' does not contain a main function or a service");
         }
 
-        boolean runServicesOrNoMainEP = runServices || !programFile.isMainEPAvailable();
+        boolean runServicesOnly = MAIN_FUNCTION_NAME.equals(functionName) && !programFile.isMainEPAvailable();
 
         // Load launcher listeners
         ServiceLoader<LaunchListener> listeners = ServiceLoader.load(LaunchListener.class);
-        listeners.forEach(listener -> listener.beforeRunProgram(runServicesOrNoMainEP));
-        if (runServicesOrNoMainEP) {
+        listeners.forEach(listener -> listener.beforeRunProgram(runServicesOnly));
+
+        if (runServicesOnly) {
             if (args.length > 0) {
                 throw LauncherUtils.createUsageException("too many arguments");
             }
             runServices(programFile);
         } else {
-            runMain(programFile, args);
+            runMain(programFile, functionName, args, printReturn);
         }
         BLangProgramRunner.resumeStates(programFile);
-        listeners.forEach(listener -> listener.afterRunProgram(runServicesOrNoMainEP));
+        listeners.forEach(listener -> listener.afterRunProgram(runServicesOnly));
     }
 
-    public static void runMain(ProgramFile programFile, String[] args) {
-        BLangProgramRunner.runMain(programFile, args);
+    public static void runMain(ProgramFile programFile, String functionName, String[] args, boolean printReturn) {
+        try {
+            BValue[] entryFuncResult = BLangProgramRunner.runEntryFunc(programFile, functionName, args);
+            if (printReturn && entryFuncResult != null && entryFuncResult.length >= 1) {
+                outStream.println(entryFuncResult[0] == null ? "()" : entryFuncResult[0].stringValue());
+            }
+        } catch (BLangUsageException e) {
+            throw createLauncherException("usage error: " + makeFirstLetterLowerCase(e.getLocalizedMessage()));
+        } catch (BallerinaException e) {
+            throw createLauncherException(makeFirstLetterLowerCase(e.getLocalizedMessage()));
+        }
+
         if (programFile.isServiceEPAvailable()) {
             return;
         }
@@ -175,7 +203,7 @@ public class LauncherUtils {
         return launcherException;
     }
 
-    static BLauncherException createLauncherException(String errorMsg) {
+    public static BLauncherException createLauncherException(String errorMsg) {
         BLauncherException launcherException = new BLauncherException();
         launcherException.addMessage(errorMsg);
         return launcherException;

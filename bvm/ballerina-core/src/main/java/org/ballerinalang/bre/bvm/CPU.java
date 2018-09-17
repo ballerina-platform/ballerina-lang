@@ -18,6 +18,8 @@
 package org.ballerinalang.bre.bvm;
 
 import org.apache.commons.lang3.StringEscapeUtils;
+import org.ballerinalang.channels.ChannelManager;
+import org.ballerinalang.channels.ChannelRegistry;
 import org.ballerinalang.model.types.BArrayType;
 import org.ballerinalang.model.types.BAttachedFunction;
 import org.ballerinalang.model.types.BField;
@@ -75,6 +77,8 @@ import org.ballerinalang.util.codegen.ForkjoinInfo;
 import org.ballerinalang.util.codegen.FunctionInfo;
 import org.ballerinalang.util.codegen.Instruction;
 import org.ballerinalang.util.codegen.Instruction.InstructionCALL;
+import org.ballerinalang.util.codegen.Instruction.InstructionCHNReceive;
+import org.ballerinalang.util.codegen.Instruction.InstructionCHNSend;
 import org.ballerinalang.util.codegen.Instruction.InstructionFORKJOIN;
 import org.ballerinalang.util.codegen.Instruction.InstructionIteratorNext;
 import org.ballerinalang.util.codegen.Instruction.InstructionLock;
@@ -434,6 +438,18 @@ public class CPU {
                             return;
                         }
                         break;
+                    case InstructionCodes.CHNRECEIVE:
+                        InstructionCHNReceive chnReceiveIns = (InstructionCHNReceive) instruction;
+                        if (!handleCHNReceive(ctx, chnReceiveIns.channelName, chnReceiveIns.receiverType,
+                                chnReceiveIns.receiverReg, chnReceiveIns.keyType, chnReceiveIns.keyReg)) {
+                            return;
+                        }
+                        break;
+                    case InstructionCodes.CHNSEND:
+                        InstructionCHNSend chnSendIns = (InstructionCHNSend) instruction;
+                        handleCHNSend(ctx, chnSendIns.channelName, chnSendIns.dataType,
+                                chnSendIns.dataReg, chnSendIns.keyType, chnSendIns.keyReg);
+                        break;
                     case InstructionCodes.FORKJOIN:
                         InstructionFORKJOIN forkJoinIns = (InstructionFORKJOIN) instruction;
                         ctx = invokeForkJoin(ctx, forkJoinIns);
@@ -757,6 +773,59 @@ public class CPU {
                 handleError(ctx);
             }
         }
+    }
+
+    /**
+     * Handle sending a message to a channel. If there is a worker already waiting to accept this message, it is
+     * resumed.
+     * @param ctx Current worker context
+     * @param channelName Name os the channel to get the message
+     * @param dataType Type od the message
+     * @param dataReg Registry location of the message
+     * @param keyType Type of message key
+     * @param keyReg message key registry index
+     */
+    private static void handleCHNSend(WorkerExecutionContext ctx, String channelName, BType dataType, int dataReg,
+            BType keyType, int keyReg) {
+        BRefType keyVal = null;
+        if (keyType != null) {
+            keyVal = extractValue(ctx.workerLocal, keyType, keyReg);
+        }
+        BRefType dataVal = extractValue(ctx.workerLocal, dataType, dataReg);
+        ChannelRegistry.PendingContext pendingCtx = ChannelManager.channelSenderAction(channelName, keyVal, dataVal,
+                keyType, dataType);
+        if (pendingCtx != null) {
+            //inject the value to the ctx
+            copyArgValueForWorkerReceive(pendingCtx.context.workerLocal, pendingCtx.regIndex, dataType, dataVal);
+            BLangScheduler.resume(pendingCtx.context);
+        }
+    }
+
+    /**
+     * Handles message receiving using a channel.
+     * If the expected message is already available, it is assigned to the receiver reg and returns true.
+     * @param ctx Current worker context
+     * @param channelName Name os the channel to get the message
+     * @param receiverType Type of the expected message
+     * @param receiverReg Registry index of the receiving message
+     * @param keyType Type of message key
+     * @param keyIndex message key registry index
+     * @return true if a matching value is available
+     */
+    private static boolean handleCHNReceive(WorkerExecutionContext ctx, String channelName, BType receiverType,
+            int receiverReg, BType keyType, int keyIndex) {
+        BValue keyVal = null;
+        if (keyType != null) {
+            keyVal = extractValue(ctx.workerLocal, keyType, keyIndex);
+        }
+        BValue value = ChannelManager.channelReceiverAction(channelName, keyVal, keyType, ctx, receiverReg,
+                receiverType);
+        if (value != null) {
+            copyArgValueForWorkerReceive(ctx.workerLocal, receiverReg, receiverType, (BRefType) value);
+            return true;
+        }
+
+        return false;
     }
 
     private static WorkerExecutionContext invokeCallable(WorkerExecutionContext ctx, BFunctionPointer fp,
@@ -2150,7 +2219,7 @@ public class CPU {
         }
     }
 
-    private static boolean isByteLiteral(long longValue) {
+    public static boolean isByteLiteral(long longValue) {
         return (longValue >= BBYTE_MIN_VALUE && longValue <= BBYTE_MAX_VALUE);
     }
 

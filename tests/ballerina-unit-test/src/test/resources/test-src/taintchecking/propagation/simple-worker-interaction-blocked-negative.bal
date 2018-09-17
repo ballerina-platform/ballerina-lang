@@ -1,4 +1,4 @@
-function main (string... args) {
+public function main (string... args) {
     worker w1 {
         string data1 = "string";
         data1 <- w2;

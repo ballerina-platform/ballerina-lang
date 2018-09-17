@@ -58,6 +58,8 @@ public class CommandConstants {
 
     public static final String ADD_ALL_DOC_TITLE = "Document All";
 
+    public static final String CREATE_CONSTRUCTOR_TITLE = "Create Constructor";
+
 
     // Commands List
     public static final String CMD_IMPORT_PACKAGE = "IMPORT_PKG";
@@ -69,4 +71,6 @@ public class CommandConstants {
     public static final String CMD_ADD_DOCUMENTATION = "ADD_DOC";
 
     public static final String CMD_ADD_ALL_DOC = "ADD_ALL_DOC";
+
+    public static final String CMD_CREATE_CONSTRUCTOR = "CREATE_CONSTRUCTOR";
 }

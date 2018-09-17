@@ -19,6 +19,7 @@ package org.ballerinalang.test.packaging;
 
 import org.ballerinalang.test.BaseTest;
 import org.ballerinalang.test.context.BallerinaTestException;
+import org.ballerinalang.test.context.LogLeecher;
 import org.ballerinalang.test.utils.PackagingTestUtils;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
@@ -28,6 +29,7 @@ import org.testng.annotations.Test;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Map;
 
 /**
  * Testing doc generation using the doc command.
@@ -36,7 +38,7 @@ import java.nio.file.Path;
  */
 public class DocGenTestCase extends BaseTest {
     private Path tempProjectDirectory;
-    private String[] envVariables;
+    private Map<String, String> envVariables;
 
     @BeforeClass()
     public void setUp() throws BallerinaTestException, IOException {
@@ -48,14 +50,15 @@ public class DocGenTestCase extends BaseTest {
     public void testInitProject() throws Exception {
         String[] clientArgsForInit = {"-i"};
         String[] options = {"\n", "integrationtests\n", "\n", "m\n", "foo\n", "s\n", "bar\n", "f\n"};
-        serverInstance.runMainWithClientOptions(clientArgsForInit, options, envVariables, "init",
+        balClient.runMain("init", clientArgsForInit, envVariables, options, new LogLeecher[0],
                                                 tempProjectDirectory.toString());
     }
 
     @Test(description = "Test doc generation for package", dependsOnMethods = "testInitProject")
     public void testDocGenerationForPackage() throws Exception {
         String[] clientArgs = {"foo"};
-        serverInstance.runMain(clientArgs, envVariables, "doc", tempProjectDirectory.toString());
+        balClient.runMain("doc", clientArgs, envVariables, new String[0], new LogLeecher[0],
+                tempProjectDirectory.toString());
 
         Path apiDocsGenerated = tempProjectDirectory.resolve("target").resolve("api-docs");
         Assert.assertTrue(Files.exists(apiDocsGenerated.resolve("index.html")));
@@ -66,7 +69,8 @@ public class DocGenTestCase extends BaseTest {
     @Test(description = "Test doc generation for single bal file", dependsOnMethods = "testInitProject")
     public void testDocGenerationForSingleBalFile() throws Exception {
         String[] clientArgs = {"main.bal"};
-        serverInstance.runMain(clientArgs, envVariables, "doc", tempProjectDirectory.resolve("foo").toString());
+        balClient.runMain("doc", clientArgs, envVariables, new String[0], new LogLeecher[0],
+                tempProjectDirectory.resolve("foo").toString());
 
         Path apiDocsGenerated = tempProjectDirectory.resolve("foo").resolve("target").resolve("api-docs");
         Assert.assertTrue(Files.exists(apiDocsGenerated.resolve("index.html")));
@@ -76,7 +80,8 @@ public class DocGenTestCase extends BaseTest {
 
     @Test(description = "Test doc generation for a project", dependsOnMethods = "testInitProject")
     public void testDocGenerationForProject() throws Exception {
-        serverInstance.runMain(new String[0], envVariables, "doc", tempProjectDirectory.toString());
+        balClient.runMain("doc", new String[0], envVariables, new String[0], new LogLeecher[0],
+                tempProjectDirectory.toString());
 
         Path apiDocsGenerated = tempProjectDirectory.resolve("target").resolve("api-docs");
         Assert.assertTrue(Files.exists(apiDocsGenerated.resolve("index.html")));

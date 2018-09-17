@@ -19,9 +19,8 @@ package org.wso2.ballerinalang.compiler;
 
 import org.ballerinalang.compiler.BLangCompilerException;
 import org.ballerinalang.model.TreeBuilder;
-import org.ballerinalang.model.elements.DocAttachment;
-import org.ballerinalang.model.elements.DocTag;
 import org.ballerinalang.model.elements.Flag;
+import org.ballerinalang.model.elements.MarkdownDocAttachment;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.repository.PackageRepository;
 import org.wso2.ballerinalang.compiler.semantics.model.Scope;
@@ -43,6 +42,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.TaintRecord;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BAnnotationType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BChannelType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BField;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BFiniteType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
@@ -170,11 +170,11 @@ public class CompiledPackageSymbolEnter {
         } catch (IOException e) {
             // TODO dlog.error();
             throw new BLangCompilerException("io error: " + e.getMessage(), e);
-//            return null;
+            //            return null;
         } catch (Throwable e) {
             // TODO format error
             throw new BLangCompilerException("format error: " + e.getMessage(), e);
-//            return null;
+            //            return null;
         }
     }
 
@@ -208,7 +208,7 @@ public class CompiledPackageSymbolEnter {
 
         PackageID pkgId = createPackageID(orgName, pkgName, pkgVersion);
         this.env.pkgSymbol = Symbols.createPackageSymbol(pkgId, this.symTable);
-//        this.env.pkgSymbol.packageRepository = this.env.loadedRepository;
+        //        this.env.pkgSymbol.packageRepository = this.env.loadedRepository;
 
         // TODO Validate this pkdID with the requestedPackageID available in the env.
 
@@ -336,7 +336,7 @@ public class CompiledPackageSymbolEnter {
         String pkgVersion = getUTF8CPEntryValue(dataInStream);
         PackageID importPkgID = createPackageID(orgName, pkgName, pkgVersion);
         BPackageSymbol importPackageSymbol = packageLoader.loadPackageSymbol(importPkgID, this.env.pkgSymbol.pkgID,
-                                                                             this.env.loadedRepository);
+                this.env.loadedRepository);
         //TODO: after balo_change try to not to add to scope, it's duplicated with 'imports'
         // Define the import package with the alias being the package name
         this.env.pkgSymbol.scope.define(importPkgID.name, importPackageSymbol);
@@ -494,10 +494,10 @@ public class CompiledPackageSymbolEnter {
     }
 
     private BRecordTypeSymbol readRecordTypeSymbol(DataInputStream dataInStream,
-                                      String name, int flags) throws IOException {
+                                                   String name, int flags) throws IOException {
         BRecordTypeSymbol symbol = Symbols.createRecordSymbol(flags, names.fromString(name),
-                                                              this.env.pkgSymbol.pkgID, null,
-                                                              this.env.pkgSymbol);
+                this.env.pkgSymbol.pkgID, null,
+                this.env.pkgSymbol);
         symbol.scope = new Scope(symbol);
         BRecordType type = new BRecordType(symbol);
         symbol.type = type;
@@ -524,7 +524,7 @@ public class CompiledPackageSymbolEnter {
     }
 
     private BTypeSymbol readFiniteTypeSymbol(DataInputStream dataInStream,
-                                                   String name, int flags) throws IOException {
+                                             String name, int flags) throws IOException {
         BTypeSymbol symbol = Symbols.createTypeSymbol(SymTag.FINITE_TYPE, flags, names.fromString(name),
                 this.env.pkgSymbol.pkgID, null, this.env.pkgSymbol);
         symbol.scope = new Scope(symbol);
@@ -539,7 +539,7 @@ public class CompiledPackageSymbolEnter {
     }
 
     private BTypeSymbol readLabelTypeSymbol(DataInputStream dataInStream,
-                                             String name, int flags) throws IOException {
+                                            String name, int flags) throws IOException {
         String typeSig = getUTF8CPEntryValue(dataInStream);
         BType type = getBTypeFromDescriptor(typeSig);
 
@@ -603,8 +603,8 @@ public class CompiledPackageSymbolEnter {
     }
 
     private void defineStructureField(DataInputStream dataInStream,
-                                   BTypeSymbol objectSymbol,
-                                   BStructureType objectType) throws IOException {
+                                      BTypeSymbol objectSymbol,
+                                      BStructureType objectType) throws IOException {
         String fieldName = getUTF8CPEntryValue(dataInStream);
         String typeSig = getUTF8CPEntryValue(dataInStream);
         int flags = dataInStream.readInt();
@@ -735,9 +735,9 @@ public class CompiledPackageSymbolEnter {
 
     /**
      * Set parameter symbols to the invokable symbol.
-     * 
+     *
      * @param invokableSymbol Invokable symbol
-     * @param attrDataMap Attribute data map
+     * @param attrDataMap     Attribute data map
      * @throws IOException
      */
     private void setParamSymbols(BInvokableSymbol invokableSymbol, Map<AttributeInfo.Kind, byte[]> attrDataMap)
@@ -792,7 +792,7 @@ public class CompiledPackageSymbolEnter {
             invokableSymbol.defaultableParams.get(i).defaultValue = getDefaultValue(paramDefaultsDataInStream);
         }
     }
-    
+
     private Object getDefaultValue(DataInputStream dataInStream)
             throws IOException {
         String typeDesc = getUTF8CPEntryValue(dataInStream);
@@ -829,7 +829,7 @@ public class CompiledPackageSymbolEnter {
      * Set taint table to the invokable symbol.
      *
      * @param invokableSymbol Invokable symbol
-     * @param attrDataMap Attribute data map
+     * @param attrDataMap     Attribute data map
      * @throws IOException
      */
     private void setTaintTable(BInvokableSymbol invokableSymbol, Map<AttributeInfo.Kind, byte[]> attrDataMap)
@@ -869,26 +869,23 @@ public class CompiledPackageSymbolEnter {
 
         String docDesc = getUTF8CPEntryValue(documentDataStream);
 
-        DocAttachment docAttachment = new DocAttachment();
+        MarkdownDocAttachment docAttachment = new MarkdownDocAttachment();
         docAttachment.description = docDesc;
 
         int noOfParams = documentDataStream.readShort();
         for (int i = 0; i < noOfParams; i++) {
             String name = getUTF8CPEntryValue(documentDataStream);
-            //TODO remove below line ASAP, adding dummy value as we can't change binary file right now
-            documentDataStream.readInt();
-            String paramKind = getUTF8CPEntryValue(documentDataStream);
             String paramDesc = getUTF8CPEntryValue(documentDataStream);
-
-            DocAttachment.DocAttribute attribute = new DocAttachment
-                    .DocAttribute(name,
-                    paramDesc,
-                    DocTag.fromString(paramKind));
-
-            docAttachment.attributes.add(attribute);
+            MarkdownDocAttachment.Parameter parameter = new MarkdownDocAttachment.Parameter(name, paramDesc);
+            docAttachment.parameters.add(parameter);
         }
 
-        symbol.documentation = docAttachment;
+        boolean isReturnDocDescriptionAvailable = documentDataStream.readBoolean();
+        if (isReturnDocDescriptionAvailable) {
+            docAttachment.returnValueDescription = getUTF8CPEntryValue(documentDataStream);
+        }
+
+        symbol.markdownDocumentation = docAttachment;
     }
 
     private String getVarName(DataInputStream dataInStream) throws IOException {
@@ -1134,6 +1131,8 @@ public class CompiledPackageSymbolEnter {
                     return new BMapType(TypeTags.MAP, constraint, symTable.mapType.tsymbol);
                 case 'H':
                     return new BStreamType(TypeTags.STREAM, constraint, symTable.streamType.tsymbol);
+                case 'Q':
+                    return new BChannelType(TypeTags.CHANNEL, constraint, symTable.channelType.tsymbol);
                 case 'G':
                 case 'T':
                 default:

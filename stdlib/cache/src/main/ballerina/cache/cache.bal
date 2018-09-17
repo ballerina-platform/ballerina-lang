@@ -18,36 +18,36 @@ import ballerina/system;
 import ballerina/task;
 import ballerina/time;
 
-documentation { Cache cleanup task starting delay in ms. }
+# Cache cleanup task starting delay in ms.
 @final int CACHE_CLEANUP_START_DELAY = 0;
 
-documentation { Cache cleanup task invoking interval in ms. }
+# Cache cleanup task invoking interval in ms.
 @final int CACHE_CLEANUP_INTERVAL = 5000;
 
-documentation { Map which stores all of the caches. }
+# Map which stores all of the caches.
 map<Cache> cacheMap;
 
-documentation { Cleanup task which cleans the cache periodically. }
+# Cleanup task which cleans the cache periodically.
 task:Timer cacheCleanupTimer = createCacheCleanupTask();
 
-documentation {
-    Represents a cache entry.
-
-    F{{value}} cache value
-    F{{lastAccessedTime}} last accessed time in ms of this value which is used to remove LRU cached values
-}
+# Represents a cache entry.
+#
+# + value - cache value
+# + lastAccessedTime - last accessed time in ms of this value which is used to remove LRU cached values
 type CacheEntry record {
     any value;
     int lastAccessedTime;
+    !...
 };
 
-documentation { Represents a cache. }
+# Represents a cache.
 public type Cache object {
 
     private int capacity;
     map<CacheEntry> entries;
     int expiryTimeMillis;
     private float evictionFactor;
+    private string uuid;
 
     public new(expiryTimeMillis = 900000, capacity = 100, evictionFactor = 0.25) {
         // Cache expiry time must be a positive value.
@@ -65,33 +65,31 @@ public type Cache object {
             error e = { message: "Cache eviction factor must be between 0.0 (exclusive) and 1.0 (inclusive)." };
             throw e;
         }
-        cacheMap[system:uuid()] = self;
+        // We remove empty caches to prevent OOM issues. So in such scenarios, the cache will not be in the `cacheMap`
+        // when we are trying to add a new cache entry to that cache. So we need to create a new cache. For that, keep
+        // track of the UUID.
+        uuid = system:uuid();
+        cacheMap[uuid] = self;
     }
 
-    documentation {
-        Checks whether the given key has an accociated cache value.
-
-        R{{}} True if the given key has an associated value, false otherwise.
-    }
+    # Checks whether the given key has an accociated cache value.
+    #
+    # + return - True if the given key has an associated value, false otherwise.
     public function hasKey(string key) returns (boolean) {
         return entries.hasKey(key);
     }
 
-    documentation {
-        Returns the size of the cache.
-
-        R{{}} The size of the cache
-    }
+    # Returns the size of the cache.
+    #
+    # + return - The size of the cache
     public function size() returns (int) {
         return lengthof entries;
     }
 
-    documentation {
-        Adds the given key, value pair to the provided cache.
-
-        P{{key}} value which should be used as the key
-        P{{value}} value to be cached
-    }
+    # Adds the given key, value pair to the provided cache.
+    #
+    # + key - value which should be used as the key
+    # + value - value to be cached
     public function put(string key, any value) {
         // We need to synchronize this process otherwise concurrecy might cause issues.
         lock {
@@ -106,10 +104,16 @@ public type Cache object {
             int time = time:currentTime().time;
             CacheEntry entry = { value: value, lastAccessedTime: time };
             entries[key] = entry;
+
+            // If the UUID is not found, that means that cache was removed after being empty. So we need to create a
+            // new cache with the current cache object.
+            if (!cacheMap.hasKey(uuid)) {
+                cacheMap[uuid] = self;
+            }
         }
     }
 
-    documentation { Evicts the cache when cache is full. }
+    # Evicts the cache when cache is full.
     function evict() {
         int maxCapacity = capacity;
         float ef = evictionFactor;
@@ -123,16 +127,14 @@ public type Cache object {
         }
     }
 
-    documentation {
-        Returns the cached value associated with the given key. If the provided cache key is not found, ()
-        will be returned.
-
-        R{{key}} key which is used to retrieve the cached value
-        R{{}}The cached value associated with the given key
-    }
+    # Returns the cached value associated with the given key. If the provided cache key is not found,
+    # () will be returned.
+    #
+    # + key - key which is used to retrieve the cached value
+    # + return - The cached value associated with the given key
     public function get(string key) returns any? {
         // Check whether the requested cache is available.
-        if (!hasKey(key)){
+        if (!hasKey(key)) {
             return ();
         }
         // Get the requested cache entry from the map.
@@ -159,31 +161,25 @@ public type Cache object {
         }
     }
 
-    documentation {
-        Removes a cached value from a cache.
-
-        R{{key}} key of the cache entry which needs to be removed
-    }
+    # Removes a cached value from a cache.
+    #
+    # + return - key of the cache entry which needs to be removed
     public function remove(string key) {
         // Cache might already be removed by the cache clearing task. So no need to check the return value.
         _ = entries.remove(key);
     }
 
-    documentation {
-        Returns all keys from current cache.
-
-        R{{}} all keys
-    }
+    # Returns all keys from current cache.
+    #
+    # + return - all keys
     public function keys() returns string[] {
         return entries.keys();
     }
 
-    documentation {
-        Returns the key of the Least Recently Used cache entry. This is used to remove cache entries if the cache is
-        full.
-
-        R{{}} number of keys to be evicted
-    }
+    # Returns the key of the Least Recently Used cache entry. This is used to remove cache entries if the cache is
+    # full.
+    #
+    # + return - number of keys to be evicted
     function getLRUCacheKeys(int numberOfKeysToEvict) returns (string[]) {
         // Create new arrays to hold keys to be removed and hold the corresponding timestamps.
         string[] cacheKeysToBeRemoved = [];
@@ -208,12 +204,15 @@ public type Cache object {
     }
 };
 
-documentation {
-    Removes expired cache entries from all caches.
-
-    R{{error}} Any error which occured during cache expiration
-}
+# Removes expired cache entries from all caches.
+#
+# + return - Any error which occured during cache expiration
 function runCacheExpiry() returns error? {
+
+    // We need to keep track of empty caches. We remove these to prevent OOM issues.
+    int emptyCacheCount = 0;
+    string[] emptyCacheKeys = [];
+
     // Iterate through all caches.
     foreach currentCacheKey, currentCache in cacheMap {
 
@@ -243,11 +242,23 @@ function runCacheExpiry() returns error? {
             // Remove the cache entry.
             _ = currentCache.entries.remove(key);
         }
+
+        // If there are no entries, we add that cache key to the `emptyCacheKeys`.
+        int size = lengthof currentCache.entries;
+        if (size == 0) {
+            emptyCacheKeys[emptyCacheCount] = currentCacheKey;
+            emptyCacheCount++;
+        }
+    }
+
+    // We iterate though all empty cache keys and remove them from the `cacheMap`.
+    foreach emptyCacheKey in emptyCacheKeys {
+        _ = cacheMap.remove(emptyCacheKey);
     }
     return ();
 }
 
-documentation { Utility function to identify which cache entries should be evicted. }
+# Utility function to identify which cache entries should be evicted.
 function checkAndAdd(int numberOfKeysToEvict, string[] cacheKeys, int[] timestamps, string key, int lastAccessTime) {
     string myKey = key;
     int myLastAccessTime = lastAccessTime;
@@ -279,11 +290,9 @@ function checkAndAdd(int numberOfKeysToEvict, string[] cacheKeys, int[] timestam
     }
 }
 
-documentation {
-    Creates a new cache cleanup task.
-
-    R{{}} cache cleanup task ID
-}
+# Creates a new cache cleanup task.
+#
+# + return - cache cleanup task ID
 function createCacheCleanupTask() returns task:Timer {
     (function () returns error?) onTriggerFunction = runCacheExpiry;
     task:Timer timer = new(onTriggerFunction, (), CACHE_CLEANUP_INTERVAL, delay = CACHE_CLEANUP_START_DELAY);

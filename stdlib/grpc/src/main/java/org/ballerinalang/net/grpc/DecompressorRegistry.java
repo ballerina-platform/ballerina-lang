@@ -39,6 +39,8 @@ public final class DecompressorRegistry {
 
     /**
      * Returns the default instance.
+     *
+     * @return default instance
      */
     public static DecompressorRegistry getDefaultInstance() {
         return DEFAULT_INSTANCE;

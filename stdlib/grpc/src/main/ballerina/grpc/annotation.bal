@@ -14,53 +14,48 @@
 // specific language governing permissions and limitations
 // under the License.
 
-documentation {
-    Service configuration. Sets only for client and bidirectional streaming service.
-
-    F{{name}} - Resource name. This applies only for client streaming and bidirectional streaming
-                where we can define only one resource. In order to generate proto file, service resource name need to
-                pass as annotation parameter.
-    F{{clientStreaming}} - Client streaming flag. This applies only for client streaming and
-    bidirectional streaming. Flag sets to true, if the service defines as client/bidirectional streaming.
-    F{{serverStreaming}} - Server streaming flag. This applies only for bidirectional streaming. Flag
-    sets to true, if the service defines as bidirectional streaming.
-}
+# Service configuration. Sets only for client and bidirectional streaming service.
+#
+# + name - Resource name. This applies only for client streaming and bidirectional streaming
+#          where we can define only one resource. In order to generate proto file, service resource name need to
+#          pass as annotation parameter.
+# + clientStreaming - Client streaming flag. This applies only for client streaming and
+#                     bidirectional streaming. Flag sets to true, if the service defines as client/bidirectional streaming.
+# + serverStreaming - Server streaming flag. This applies only for bidirectional streaming. Flag
+#                     sets to true, if the service defines as bidirectional streaming.
 public type GrpcServiceConfig record {
     string name;
+    typedesc requestType;
+    typedesc responseType;
     boolean clientStreaming;
     boolean serverStreaming;
+    !...
 };
 
-documentation {
-    Service configuration. Sets only for client and bidirectional streaming service.
-}
+# Service configuration. Sets only for client and bidirectional streaming service.
 public annotation<service> ServiceConfig GrpcServiceConfig;
 
-documentation {
-    Service resource configuration. Sets only for server streaming service.
-
-    F{{streaming}} - Server streaming flag. This flag sets to true to specify that the resource is capable of sending
-     multiple responses per request.
-}
+# Service resource configuration. Sets only for server streaming service.
+#
+# + streaming - Server streaming flag. This flag sets to true to specify that the resource is capable of sending
+#               multiple responses per request.
 public type GrpcResourceConfig record {
     boolean streaming;
+    typedesc requestType;
+    typedesc responseType;
+    !...
 };
 
-documentation {
-    Service resource configuration. Sets only for server streaming service.
-}
+# Service resource configuration. Sets only for server streaming service.
 public annotation<resource> ResourceConfig GrpcResourceConfig;
 
-documentation {
-    Service descriptor data. This is for internal use.
-
-    F{{descriptor}} - Service descriptor sets at compile time.
-}
+# Service descriptor data. This is for internal use.
+#
+# + descriptor - Service descriptor sets at compile time.
 public type ServiceDescriptorData record {
     string descriptor;
+    !...
 };
 
-documentation {
-    Service descriptor data generated at compile time. This is for internal use.
-}
+# Service descriptor data generated at compile time. This is for internal use.
 public annotation <service> ServiceDescriptor ServiceDescriptorData;

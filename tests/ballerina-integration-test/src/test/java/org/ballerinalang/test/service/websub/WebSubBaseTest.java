@@ -19,9 +19,9 @@
 package org.ballerinalang.test.service.websub;
 
 import org.ballerinalang.test.BaseTest;
+import org.ballerinalang.test.context.BMainInstance;
+import org.ballerinalang.test.context.BServerInstance;
 import org.ballerinalang.test.context.BallerinaTestException;
-import org.ballerinalang.test.context.ServerInstance;
-import org.testng.annotations.AfterSuite;
 import org.testng.annotations.BeforeSuite;
 
 /**
@@ -29,24 +29,14 @@ import org.testng.annotations.BeforeSuite;
  * and after tests are run.
  */
 public class WebSubBaseTest extends BaseTest {
-    static ServerInstance webSubSubscriber;
-    static ServerInstance webSubPublisher;
-    static ServerInstance webSubPublisherService;
+    static BServerInstance webSubSubscriber;
+    static BMainInstance webSubPublisher;
+    static BServerInstance webSubPublisherService;
 
     @BeforeSuite(alwaysRun = true)
     public void init() throws BallerinaTestException {
-        webSubSubscriber = ServerInstance.initBallerinaServer();
-        webSubPublisher = ServerInstance.initBallerinaServer();
-        webSubPublisherService = ServerInstance.initBallerinaServer();
-    }
-
-    @AfterSuite(alwaysRun = true)
-    public void clean() throws BallerinaTestException {
-        webSubSubscriber.stopServer();
-        webSubSubscriber.cleanup();
-        webSubPublisher.stopServer();
-        webSubPublisher.cleanup();
-        webSubPublisherService.stopServer();
-        webSubPublisherService.cleanup();
+        webSubSubscriber = new BServerInstance(balServer);
+        webSubPublisher = new BMainInstance(balServer);
+        webSubPublisherService = new BServerInstance(balServer);
     }
 }

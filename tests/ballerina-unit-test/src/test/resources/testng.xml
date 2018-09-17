@@ -87,6 +87,7 @@ under the License.
             <package name="org.ballerinalang.test.balo.*" />
             <package name="org.ballerinalang.test.compression.*"/>
             <package name="org.ballerinalang.test.variable.shadowing.*" />
+            <package name="org.ballerinalang.test.channels.*" />
         </packages>
 
 		<!-- TODO: remove once constraint tests are fixed -->
@@ -112,5 +113,10 @@ under the License.
         <classes >
             <class name="org.ballerinalang.test.checkpointing.SerializationTest"/>
         </classes>
+    </test>
+    <test name="ballerina-entry-function-test-suite" preserve-order="true" parallel="false">
+        <packages >
+            <package name="org.ballerinalang.test.entry.function.*"/>
+        </packages>
     </test>
 </suite>

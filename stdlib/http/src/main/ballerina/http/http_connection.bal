@@ -15,21 +15,17 @@
 // under the License.
 
 
-documentation {
-    The caller actions for responding to client requests.
-}
+# The caller actions for responding to client requests.
 public type Connection object {
 
     private ServiceEndpointConfiguration config;
     private FilterContext? filterContext;
 
-    documentation {
-        Sends the outbound response to the caller.
-
-        P{{message}} The outbound response or any payload of type `string`, `xml`, `json`, `byte[]`, `io:ByteChannel`
-                     or `mime:Entity[]`
-        R{{}} Returns an `error` if failed to respond
-    }
+    # Sends the outbound response to the caller.
+    #
+    # + message - The outbound response or any payload of type `string`, `xml`, `json`, `byte[]`, `io:ByteChannel`
+    #             or `mime:Entity[]`
+    # + return - Returns an `error` if failed to respond
     public function respond(Response|string|xml|json|byte[]|io:ByteChannel|mime:Entity[]|() message) returns error? {
         Response response = buildResponse(message);
         match filterContext {
@@ -49,55 +45,43 @@ public type Connection object {
         return nativeRespond(self, response);
     }
 
-    documentation {
-        Pushes a promise to the caller.
-
-        P{{promise}} Push promise message
-        R{{}} An `error` in case of failures
-    }
+    # Pushes a promise to the caller.
+    #
+    # + promise - Push promise message
+    # + return - An `error` in case of failures
     public extern function promise(PushPromise promise) returns error?;
 
-    documentation {
-        Sends a promised push response to the caller.
-
-        P{{promise}} Push promise message
-        P{{response}} The outbound response
-        R{{}} An `error` in case of failures while responding with the promised response
-    }
+    # Sends a promised push response to the caller.
+    #
+    # + promise - Push promise message
+    # + response - The outbound response
+    # + return - An `error` in case of failures while responding with the promised response
     public extern function pushPromisedResponse(PushPromise promise, Response response) returns error?;
 
-    documentation {
-        Sends an upgrade request with custom headers.
-
-        P{{headers}} A `map` of custom headers for handshake
-    }
+    # Sends an upgrade request with custom headers.
+    #
+    # + headers - A `map` of custom headers for handshake
     public extern function acceptWebSocketUpgrade(map<string> headers) returns WebSocketListener;
 
-    documentation {
-        Cancels the handshake.
+    # Cancels the handshake.
+    #
+    # + status - Error Status code for cancelling the upgrade and closing the connection.
+    #            This error status code need to be 4xx or 5xx else the default status code would be 400.
+    # + reason - Reason for cancelling the upgrade
+    # + return - An `error` if an error occurs during cancelling the upgrade or nil
+    public extern function cancelWebSocketUpgrade(int status, string reason) returns error?;
 
-        P{{status}} Error Status code for cancelling the upgrade and closing the connection.
-        This error status code need to be 4xx or 5xx else the default status code would be 400.
-        P{{reason}} Reason for cancelling the upgrade
-        R{{}} An `error` if an error occurs during cancelling the upgrade or nil
-    }
-    public extern function cancelWebSocketUpgrade(int status, string reason) returns error|();
-
-    documentation {
-        Sends a `100-continue` response to the caller.
-
-        R{{}} Returns an `error` if failed to send the `100-continue` response
-    }
+    # Sends a `100-continue` response to the caller.
+    #
+    # + return - Returns an `error` if failed to send the `100-continue` response
     public function continue() returns error?;
 
-    documentation {
-        Sends a redirect response to the user with the specified redirection status code.
-
-        P{{response}} Response to be sent to the caller
-        P{{code}} The redirect status code to be sent
-        P{{locations}} An array of URLs to which the caller can redirect to
-        R{{}} Returns an `error` if failed to send the redirect response
-    }
+    # Sends a redirect response to the user with the specified redirection status code.
+    #
+    # + response - Response to be sent to the caller
+    # + code - The redirect status code to be sent
+    # + locations - An array of URLs to which the caller can redirect to
+    # + return - Returns an `error` if failed to send the redirect response
     public function redirect(Response response, RedirectCode code, string[] locations) returns error?;
 };
 
@@ -106,26 +90,24 @@ extern function nativeRespond(Connection connection, Response response) returns 
 /////////////////////////////////
 /// Ballerina Implementations ///
 /////////////////////////////////
-documentation {
-    Defines the HTTP redirect codes as a type.
-}
+# Defines the HTTP redirect codes as a type.
 public type RedirectCode 300|301|302|303|304|305|307|308;
 
-documentation { Represents the HTTP redirect status code `300 - Multiple Choices`. }
+# Represents the HTTP redirect status code `300 - Multiple Choices`.
 @final public RedirectCode REDIRECT_MULTIPLE_CHOICES_300 = 300;
-documentation { Represents the HTTP redirect status code `301 - Moved Permanently`. }
+# Represents the HTTP redirect status code `301 - Moved Permanently`.
 @final public RedirectCode REDIRECT_MOVED_PERMANENTLY_301 = 301;
-documentation { Represents the HTTP redirect status code `302 - Found`. }
+# Represents the HTTP redirect status code `302 - Found`.
 @final public RedirectCode REDIRECT_FOUND_302 = 302;
-documentation { Represents the HTTP redirect status code `303 - See Other`. }
+# Represents the HTTP redirect status code `303 - See Other`.
 @final public RedirectCode REDIRECT_SEE_OTHER_303 = 303;
-documentation { Represents the HTTP redirect status code `304 - Not Modified`. }
+# Represents the HTTP redirect status code `304 - Not Modified`.
 @final public RedirectCode REDIRECT_NOT_MODIFIED_304 = 304;
-documentation { Represents the HTTP redirect status code `305 - Use Proxy`. }
+# Represents the HTTP redirect status code `305 - Use Proxy`.
 @final public RedirectCode REDIRECT_USE_PROXY_305 = 305;
-documentation { Represents the HTTP redirect status code `307 - Temporary Redirect`. }
+# Represents the HTTP redirect status code `307 - Temporary Redirect`.
 @final public RedirectCode REDIRECT_TEMPORARY_REDIRECT_307 = 307;
-documentation { Represents the HTTP redirect status code `308 - Permanent Redirect`. }
+# Represents the HTTP redirect status code `308 - Permanent Redirect`.
 @final public RedirectCode REDIRECT_PERMANENT_REDIRECT_308 = 308;
 
 function Connection::continue() returns error? {

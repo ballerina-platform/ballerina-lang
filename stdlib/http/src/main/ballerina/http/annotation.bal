@@ -19,18 +19,16 @@
 /// Service Annotations ///
 ///////////////////////////
 
-documentation {
-    Contains the configurations for an HTTP service.
-
-    F{{endpoints}} An array of endpoints the service would be attached to
-    F{{host}} Domain name of the service
-    F{{basePath}} Service base path
-    F{{compression}} The status of compression
-    F{{chunking}} Configures the chunking behaviour for the service
-    F{{cors}} The cross origin resource sharing configurations for the service
-    F{{versioning}} The version of the service to be used
-    F{{authConfig}} Authentication configurations for securing the service
-}
+# Contains the configurations for an HTTP service.
+#
+# + endpoints - An array of endpoints the service would be attached to
+# + host - Domain name of the service
+# + basePath - Service base path
+# + compression - The status of compression
+# + chunking - Configures the chunking behaviour for the service
+# + cors - The cross origin resource sharing configurations for the service
+# + versioning - The version of the service to be used
+# + authConfig - Authentication configurations for securing the service
 public type HttpServiceConfig record {
     Listener[] endpoints,
     string host = "b7a.default",
@@ -40,18 +38,17 @@ public type HttpServiceConfig record {
     CorsConfig cors,
     Versioning versioning,
     ListenerAuthConfig? authConfig,
+    !...
 };
 
-documentation {
-    Configurations for CORS support.
-
-    F{{allowHeaders}} The array of allowed headers by the service
-    F{{allowMethods}} The array of allowed methods by the service
-    F{{allowOrigins}} The array of origins with which the response is shared by the service
-    F{{exposeHeaders}} The whitelisted headers which clients are allowed to access
-    F{{allowCredentials}} Specifies whether credentials are required to access the service
-    F{{maxAge}} The maximum duration to cache the preflight from client side
-}
+# Configurations for CORS support.
+#
+# + allowHeaders - The array of allowed headers by the service
+# + allowMethods - The array of allowed methods by the service
+# + allowOrigins - The array of origins with which the response is shared by the service
+# + exposeHeaders - The whitelisted headers which clients are allowed to access
+# + allowCredentials - Specifies whether credentials are required to access the service
+# + maxAge - The maximum duration to cache the preflight from client side
 public type CorsConfig record {
     string[] allowHeaders,
     string[] allowMethods,
@@ -59,33 +56,31 @@ public type CorsConfig record {
     string[] exposeHeaders,
     boolean allowCredentials,
     int maxAge= -1,
+    !...
 };
 
 
-documentation {
-    Configurations for service versioning.
-
-    F{{pattern}} Expected version pattern in the request URL
-    F{{allowNoVersion}} Allow requests with missing version path segment in the URL to be dispatched
-    F{{matchMajorVersion}} Allow requests with only the major version specified in the URL to be dispatched
-}
+# Configurations for service versioning.
+#
+# + pattern - Expected version pattern in the request URL
+# + allowNoVersion - Allow requests with missing version path segment in the URL to be dispatched
+# + matchMajorVersion - Allow requests with only the major version specified in the URL to be dispatched
 public type Versioning record {
     string pattern = "v{major}.{minor}",
     boolean allowNoVersion = false,
     boolean matchMajorVersion = false,
+    !...
 };
 
-documentation {
-    Configurations for a WebSocket service.
-
-    F{{endpoints}} An array of endpoints the service would be attached to
-    F{{webSocketEndpoints}} An array of endpoints the service would be attached to
-    F{{path}} Path of the WebSocket service
-    F{{subProtocols}} Negotiable sub protocol by the service
-    F{{idleTimeoutInSeconds}} Idle timeout for the client connection. This can be triggered by putting
-                              an `onIdleTimeout` resource in the WebSocket service.
-    F{{maxFrameSize}} The maximum payload size of a WebSocket frame in bytes
-}
+# Configurations for a WebSocket service.
+#
+# + endpoints - An array of endpoints the service would be attached to
+# + webSocketEndpoints - An array of endpoints the service would be attached to
+# + path - Path of the WebSocket service
+# + subProtocols - Negotiable sub protocol by the service
+# + idleTimeoutInSeconds - Idle timeout for the client connection. This can be triggered by putting
+#                          an `onIdleTimeout` resource in the WebSocket service.
+# + maxFrameSize - The maximum payload size of a WebSocket frame in bytes
 public type WSServiceConfig record {
     Listener[] endpoints,
     WebSocketListener[] webSocketEndpoints,
@@ -93,37 +88,32 @@ public type WSServiceConfig record {
     string[] subProtocols,
     int idleTimeoutInSeconds,
     int maxFrameSize,
+    !...
 };
 
 // TODO: Enable this when Ballerina supports service life time
 //public type HttpServiceLifeTime "REQUEST"|"CONNECTION"|"SESSION"|"SINGLETON";
 
-documentation {
-    The annotation which is used to configure an HTTP service.
-}
+# The annotation which is used to configure an HTTP service.
 public annotation <service> ServiceConfig HttpServiceConfig;
 
-documentation {
-    The annotation which is used to configure a WebSocket service.
-}
+# The annotation which is used to configure a WebSocket service.
 public annotation <service> WebSocketServiceConfig WSServiceConfig;
 
 ////////////////////////////
 /// Resource Annotations ///
 ////////////////////////////
-documentation {
-    Configuration for an HTTP resource.
-
-    F{{methods}} The array of allowed HTTP methods
-    F{{path}} The path of resource
-    F{{body}} Inbound request entity body name which declared in signature
-    F{{consumes}} The media types which are accepted by resource
-    F{{produces}} The media types which are produced by resource
-    F{{cors}} The cross origin resource sharing configurations for the resource. If not set, the resource will inherit the CORS behaviour of the enclosing service.
-    F{{transactionInfectable}} Allow to participate in the distributed transactions if value is true
-    F{{webSocketUpgrade}} Annotation to define HTTP to WebSocket upgrade
-    F{{authConfig}} Authentication Configs to secure the resource
-}
+# Configuration for an HTTP resource.
+#
+# + methods - The array of allowed HTTP methods
+# + path - The path of resource
+# + body - Inbound request entity body name which declared in signature
+# + consumes - The media types which are accepted by resource
+# + produces - The media types which are produced by resource
+# + cors - The cross origin resource sharing configurations for the resource. If not set, the resource will inherit the CORS behaviour of the enclosing service.
+# + transactionInfectable - Allow to participate in the distributed transactions if value is true
+# + webSocketUpgrade - Annotation to define HTTP to WebSocket upgrade
+# + authConfig - Authentication Configs to secure the resource
 public type HttpResourceConfig record {
     string[] methods,
     string path,
@@ -134,42 +124,38 @@ public type HttpResourceConfig record {
     boolean transactionInfectable = true,
     WebSocketUpgradeConfig? webSocketUpgrade,
     ListenerAuthConfig? authConfig,
+    !...
 };
 
-documentation {
-    Configures the HTTP to WebSocket upgrade.
-
-    F{{upgradePath}} Path which is used to upgrade from HTTP to WebSocket
-    F{{upgradeService}} WebSocket service which should be used after a successful upgrade
-}
+# Configures the HTTP to WebSocket upgrade.
+#
+# + upgradePath - Path which is used to upgrade from HTTP to WebSocket
+# + upgradeService - WebSocket service which should be used after a successful upgrade
 public type WebSocketUpgradeConfig record {
     string upgradePath,
     typedesc upgradeService,
+    !...
 };
 
-documentation {
-    Configures the authentication scheme for a service or a resource.
-
-    F{{authentication}} Enables/disables authentication
-    F{{authProviders}} Array of authentication provider IDs
-    F{{scopes}} Array of scopes
-}
+# Configures the authentication scheme for a service or a resource.
+#
+# + authentication - Enables/disables authentication
+# + authProviders - Array of authentication provider IDs
+# + scopes - Array of scopes
 public type ListenerAuthConfig record {
     Authentication? authentication,
     string[]? authProviders,
     string[]? scopes,
+    !...
 };
 
-documentation {
-    Can be used for enabling/disabling authentication in an HTTP service.
-
-    F{{enabled}} Specifies whether authentication is enabled
-}
+# Can be used for enabling/disabling authentication in an HTTP service.
+#
+# + enabled - Specifies whether authentication is enabled
 public type Authentication record {
     boolean enabled,
+    !...
 };
 
-documentation {
-    The annotation which is used to configure an HTTP resource.
-}
+# The annotation which is used to configure an HTTP resource.
 public annotation <resource> ResourceConfig HttpResourceConfig;

@@ -34,7 +34,6 @@ import org.ballerinalang.model.values.BRefValueArray;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BStringArray;
 import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.test.BaseTest;
 import org.ballerinalang.test.util.TestUtils;
 import org.ballerinalang.util.codegen.PackageInfo;
 import org.ballerinalang.util.codegen.StructureTypeInfo;
@@ -49,7 +48,7 @@ import java.nio.file.Paths;
  * Test class for gRPC unary service with array input/output.
  */
 @Test(groups = "grpc-test")
-public class UnaryBlockingArrayValueTestCase extends BaseTest {
+public class UnaryBlockingArrayValueTestCase extends GrpcBaseTest {
 
     private CompileResult result;
 

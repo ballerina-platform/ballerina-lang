@@ -18,7 +18,6 @@
 
 package org.ballerinalang.test.service.http2;
 
-import org.ballerinalang.test.BaseTest;
 import org.ballerinalang.test.util.HttpClientRequest;
 import org.ballerinalang.test.util.HttpResponse;
 import org.testng.Assert;
@@ -30,13 +29,14 @@ import java.io.IOException;
  * A test case for http2 redirect.
  */
 @Test(groups = "http2-test")
-public class RedirectTestCase extends BaseTest {
+public class RedirectTestCase extends Http2BaseTest {
 
     private final int servicePort = 9092;
 
     @Test(description = "Test http redirection and test whether the resolvedRequestedURI in the response is correct.")
     public void testRedirect() throws IOException {
         HttpResponse response = HttpClientRequest.doGet(serverInstance.getServiceURLHttp(servicePort, "service1/"));
+        Assert.assertNotNull(response);
         Assert.assertEquals(response.getResponseCode(), 200, "Response code mismatched");
         Assert.assertEquals(response.getData(), "http://localhost:9094/redirect2", "Incorrect resolvedRequestedURI");
     }
@@ -45,6 +45,7 @@ public class RedirectTestCase extends BaseTest {
     public void testMaxRedirect() throws IOException {
         HttpResponse response = HttpClientRequest.doGet(serverInstance.getServiceURLHttp(servicePort,
                 "service1/maxRedirect"));
+        Assert.assertNotNull(response);
         Assert.assertEquals(response.getResponseCode(), 200, "Response code mismatched");
         Assert.assertEquals(response.getData(), "/redirect1/round5:http://localhost:9093/redirect1/round4",
                 "Incorrect resolvedRequestedURI");
@@ -55,6 +56,7 @@ public class RedirectTestCase extends BaseTest {
     public void testCrossDomain() throws IOException {
         HttpResponse response = HttpClientRequest.doGet(serverInstance.getServiceURLHttp(servicePort,
                 "service1/crossDomain"));
+        Assert.assertNotNull(response);
         Assert.assertEquals(response.getResponseCode(), 200, "Response code mismatched");
         Assert.assertEquals(response.getData(), "hello world:http://localhost:9094/redirect2",
                 "Incorrect resolvedRequestedURI");
@@ -64,16 +66,17 @@ public class RedirectTestCase extends BaseTest {
     public void testNoRedirect() throws IOException {
         HttpResponse response = HttpClientRequest.doGet(serverInstance.getServiceURLHttp(servicePort,
                 "service1/noRedirect"));
+        Assert.assertNotNull(response);
         Assert.assertEquals(response.getResponseCode(), 200, "Response code mismatched");
         Assert.assertEquals(response.getData(), "hello world:http://localhost:9094/redirect2",
                 "Incorrect resolvedRequestedURI");
     }
 
-
     @Test(description = "Include query params in relative path of a redirect location")
     public void testQPWithRelativePath() throws IOException {
         HttpResponse response = HttpClientRequest.doGet(serverInstance.getServiceURLHttp(servicePort,
                 "service1/qpWithRelativePath"));
+        Assert.assertNotNull(response);
         Assert.assertEquals(response.getResponseCode(), 200, "Response code mismatched");
         Assert.assertEquals(response.getData(), "value:ballerina:http://localhost:9093/redirect1/" +
                 "processQP?key=value&lang=ballerina", "Incorrect resolvedRequestedURI");
@@ -83,6 +86,7 @@ public class RedirectTestCase extends BaseTest {
     public void testQPWithAbsolutePath() throws IOException {
         HttpResponse response = HttpClientRequest.doGet(serverInstance.getServiceURLHttp(servicePort,
                 "service1/qpWithAbsolutePath"));
+        Assert.assertNotNull(response);
         Assert.assertEquals(response.getResponseCode(), 200, "Response code mismatched");
         Assert.assertEquals(response.getData(), "value:ballerina:http://localhost:9093/redirect1/" +
                 "processQP?key=value&lang=ballerina", "Incorrect resolvedRequestedURI");
@@ -93,6 +97,7 @@ public class RedirectTestCase extends BaseTest {
     public void testOriginalRequestWithQP() throws IOException {
         HttpResponse response = HttpClientRequest.doGet(serverInstance.getServiceURLHttp(servicePort,
                 "service1/originalRequestWithQP"));
+        Assert.assertNotNull(response);
         Assert.assertEquals(response.getResponseCode(), 200, "Response code mismatched");
         Assert.assertEquals(response.getData(), "hello world:http://localhost:9094/redirect2",
                 "Incorrect resolvedRequestedURI");
@@ -102,6 +107,7 @@ public class RedirectTestCase extends BaseTest {
     public void test303Status() throws IOException {
         HttpResponse response = HttpClientRequest.doGet(serverInstance.getServiceURLHttp(servicePort,
                 "service1/test303"));
+        Assert.assertNotNull(response);
         Assert.assertEquals(response.getResponseCode(), 200, "Response code mismatched");
         Assert.assertEquals(response.getData(), "hello world:http://localhost:9094/redirect2",
                 "Incorrect resolvedRequestedURI");

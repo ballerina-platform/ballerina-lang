@@ -25,7 +25,7 @@ endpoint http:Client clientEP {
     }
 };
 
-function main (string... args) {
+public function main (string... args) {
     http:Request req = new;
     var resp = clientEP -> get("/echo/");
     match resp {

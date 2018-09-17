@@ -30,6 +30,9 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static org.ballerinalang.util.BLangConstants.COLON;
+import static org.ballerinalang.util.BLangConstants.MAIN_FUNCTION_NAME;
+
 /**
  * Test debug util class to test debug scenarios.
  *
@@ -39,12 +42,12 @@ public class VMDebuggerUtil {
 
     private static final String GLOBAL = "Global";
 
-    public static void startDebug(String srcPath, BreakPointDTO[] bPoints, ExpectedResults expRes) {
+    public static void startDebug(String programArgs, BreakPointDTO[] bPoints, ExpectedResults expRes) {
 
-        TestDebugger debugger = setupProgram(srcPath, bPoints);
+        TestDebugger debugger = setupProgram(programArgs, bPoints);
 
-        if (!debugger.tryAcquireLock(1000)) {
-            Assert.fail("VM doesn't start within 1000ms");
+        if (!debugger.tryAcquireLock(2000)) {
+            Assert.fail("VM doesn't start within 2000ms");
         }
 
         debugger.startDebug();
@@ -103,16 +106,27 @@ public class VMDebuggerUtil {
         }
     }
 
-    private static TestDebugger setupProgram(String sourceFilePath, BreakPointDTO[] breakPoints) {
-        CompileResult result = BCompileUtil.compile(sourceFilePath);
+    private static TestDebugger setupProgram(String programArg, BreakPointDTO[] breakPoints) {
+        String srcPath = programArg;
+        String functionName = MAIN_FUNCTION_NAME;
 
+        if (programArg.contains(COLON)) {
+            String[] programArgConstituents = programArg.split(COLON);
+            functionName = programArgConstituents[programArgConstituents.length - 1];
+            if (functionName.isEmpty() || programArg.endsWith(COLON)) {
+                Assert.fail("usage error: expected function name after final ':'");
+            }
+            srcPath = programArg.replace(COLON.concat(functionName), "");
+        }
+
+        CompileResult result = BCompileUtil.compile(srcPath);
         TestDebugger debugger = new TestDebugger(result.getProgFile());
         result.getProgFile().setDebugger(debugger);
         debugger.setDebugEnabled();
 
         String[] args = {"Hello", "World"};
-        DebuggerExecutor executor = new DebuggerExecutor(result, args, debugger,
-                new ArrayList<>(Arrays.asList(breakPoints)));
+        DebuggerExecutor executor = new DebuggerExecutor(result, functionName, args, debugger,
+                                                         new ArrayList<>(Arrays.asList(breakPoints)));
         (new Thread(executor)).start();
         return debugger;
     }

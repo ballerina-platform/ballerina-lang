@@ -17,11 +17,9 @@
  */
 package org.ballerinalang.test.service.http.sample;
 
-import org.ballerinalang.test.BaseTest;
-import org.ballerinalang.test.context.Constant;
+import org.ballerinalang.test.context.BMainInstance;
 import org.ballerinalang.test.context.LogLeecher;
-import org.ballerinalang.test.context.ServerInstance;
-import org.testng.annotations.AfterClass;
+import org.ballerinalang.test.service.http.HttpBaseTest;
 import org.testng.annotations.Test;
 
 import java.io.File;
@@ -30,33 +28,26 @@ import java.io.File;
  * Testing Mutual SSL.
  */
 @Test(groups = "http-test")
-public class MutualSSLTestCase extends BaseTest {
+public class MutualSSLTestCase extends HttpBaseTest {
 
-    private ServerInstance ballerinaClient;
+    private BMainInstance ballerinaClient;
 
 
     @Test(description = "Test mutual ssl")
     public void testMutualSSL() throws Exception {
-        String serverZipPath = System.getProperty(Constant.SYSTEM_PROP_SERVER_ZIP);
         String serverMessage = "successful";
         String serverResponse = "hello world";
 
         LogLeecher serverLeecher = new LogLeecher(serverMessage);
         serverInstance.addLogLeecher(serverLeecher);
 
-        String[] clientArgs = {new File("src" + File.separator + "test" + File.separator + "resources"
-                + File.separator + "mutualSSL" + File.separator + "mutual_ssl_client.bal").getAbsolutePath()};
+        String balFile = new File("src" + File.separator + "test" + File.separator + "resources"
+                + File.separator + "mutualSSL" + File.separator + "mutualSSLClient.bal").getAbsolutePath();
 
-        ballerinaClient = new ServerInstance(serverZipPath);
+        ballerinaClient = new BMainInstance(balServer);
         LogLeecher clientLeecher = new LogLeecher(serverResponse);
-        ballerinaClient.addLogLeecher(clientLeecher);
-        ballerinaClient.runMain(clientArgs);
+        ballerinaClient.runMain(balFile, new LogLeecher[]{clientLeecher});
         serverLeecher.waitForText(20000);
         clientLeecher.waitForText(20000);
-    }
-
-    @AfterClass
-    private void cleanup() throws Exception {
-        ballerinaClient.stopServer();
     }
 }

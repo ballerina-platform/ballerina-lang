@@ -20,7 +20,7 @@
 import { window, commands, ExtensionContext, extensions, workspace, Extension, debug,
 	DebugConfigurationProvider, WorkspaceFolder, DebugConfiguration, ProviderResult } from 'vscode';
 import { } from 'vscode-debugadapter';
-import { LanguageClient, LanguageClientOptions } from 'vscode-languageclient';
+import { LanguageClientOptions, StateChangeEvent, State } from 'vscode-languageclient';
 import { exec } from 'child_process';
 import * as path from 'path';
 import * as fs from 'fs';
@@ -29,6 +29,7 @@ import { getServerOptions } from './server';
 import { Messages } from './messages';
 import { BallerinaPluginConfig, getPluginConfig } from './config';
 import { activate as activateRenderer, errored as rendererErrored } from './renderer';
+import { ExtendedLangClient } from './lang-client';
 
 const { showWarningMessage } = window;
 const { executeCommand } = commands;
@@ -68,16 +69,16 @@ let oldConfig: BallerinaPluginConfig;
 const debugConfigResolver: DebugConfigurationProvider = {
 	resolveDebugConfiguration(folder: WorkspaceFolder, config: DebugConfiguration)
 								: ProviderResult<DebugConfiguration> {
-		if (!config.has('ballerina.home')) {
+		if (!config['ballerina.home']) {
 			// If ballerina.home is not defined in in debug config get it from workspace configs
 			const workspaceConfig: BallerinaPluginConfig = getPluginConfig();
 			if (workspaceConfig.home) {
-				config.update('ballerina.home', workspaceConfig.home);
+				config['ballerina.home'] = workspaceConfig.home;
 			}
 		}
 
-		if (config.has('ballerina.home')) {
-			if (fs.readdirSync(<string> config.get('ballerina.home')).indexOf('bin') < 0) {
+		if (config['ballerina.home']) {
+			if (fs.readdirSync(<string> config['ballerina.home']).indexOf('bin') < 0) {
 				showMsgAndOpenSettings(Messages.NO_BIN_IN_HOME);
 			}
 		} else {
@@ -154,10 +155,14 @@ export function activate(context: ExtensionContext) : void {
 		clientOptions.outputChannel = dropOutputChannel;
 	}
 
-	const langClient = new LanguageClient('ballerina-vscode', 'Ballerina vscode lanugage client',
+	const langClient = new ExtendedLangClient('ballerina-vscode', 'Ballerina vscode lanugage client',
 		getServerOptions(), clientOptions);
-	const langClientDisposable = langClient.start();	
-	activateRenderer(context, langClient);
+	langClient.onDidChangeState((e: StateChangeEvent) => {
+		if (e.newState === State.Running) {		
+			activateRenderer(context, langClient);
+		}
+	});
+	const langClientDisposable = langClient.start();
 
 	// Push the disposable to the context's subscriptions so that the 
 	// client can be deactivated on extension deactivation

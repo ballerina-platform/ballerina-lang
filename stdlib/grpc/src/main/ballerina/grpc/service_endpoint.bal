@@ -14,79 +14,64 @@
 // specific language governing permissions and limitations
 // under the License.
 
-documentation {
-    Represents service endpoint where one or more services can be registered. so that ballerina program can offer
-    service through this endpoint.
-
-    F{{id}} - Caller endpoint id.
-}
+# Represents service endpoint where one or more services can be registered. so that ballerina program can offer
+# service through this endpoint.
+#
+# + id - Caller endpoint id.
 public type Listener object {
     public int id;
 
     private CallerAction conn;
 
-    documentation {
-        Gets called when the endpoint is being initialize during package init time.
-
-        P{{config}} - The ServiceEndpointConfiguration of the endpoint.
-    }
+    # Gets called when the endpoint is being initialize during package init time.
+    #
+    # + config - The ServiceEndpointConfiguration of the endpoint.
     public extern function init(ServiceEndpointConfiguration config);
 
-    documentation {
-        Gets called every time a service attaches itself to this endpoint - also happens at package init time.
-
-        P{{serviceType}} - The type of the service to be registered.
-    }
+    # Gets called every time a service attaches itself to this endpoint - also happens at package init time.
+    #
+    # + serviceType - The type of the service to be registered.
     public extern function register(typedesc serviceType);
 
-    documentation {
-        Starts the registered service.
-    }
+    # Starts the registered service.
     public extern function start();
 
-    documentation {
-        Stops the registered service.
-    }
+    # Stops the registered service.
     public extern function stop();
 
-    documentation {
-        Returns the client connection that servicestub code uses.
-
-        R{{}} - Client connection.
-    }
+    # Returns the client connection that servicestub code uses.
+    #
+    # + return - Client connection.
     public extern function getCallerActions() returns CallerAction;
 };
 
-documentation {
-    Represents the gRPC server endpoint configuration.
-
-    F{{host}} - The server hostname.
-    F{{port}} - The server port.
-    F{{secureSocket}} - The SSL configurations for the client endpoint.
-}
+# Represents the gRPC server endpoint configuration.
+#
+# + host - The server hostname.
+# + port - The server port.
+# + secureSocket - The SSL configurations for the client endpoint.
 public type ServiceEndpointConfiguration record {
     string host,
     int port,
     ServiceSecureSocket? secureSocket,
+    !...
 };
 
-documentation {
-    SecureSocket struct represents SSL/TLS options to be used for gRPC service.
-
-    F{{trustStore}} - TrustStore related options.
-    F{{keyStore}} - KeyStore related options.
-    F{{certFile}} A file containing the certificate of the server.
-    F{{keyFile}} A file containing the private key of the server.
-    F{{keyPassword}} Password of the private key if it is encrypted.
-    F{{trustedCertFile}} A file containing a list of certificates or a single certificate that the server trusts.
-    F{{protocol}} - SSL/TLS protocol related options.
-    F{{certValidation}} - Certificate validation against CRL or OCSP related options.
-    F{{ciphers}} - List of ciphers to be used. eg: TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256,
-                   TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA.
-    F{{sslVerifyClient}} - The type of client certificate verification.
-    F{{shareSession}} - Enable/disable new ssl session creation.
-    F{{ocspStapling}} - Enable/disable ocsp stapling.
-}
+# SecureSocket struct represents SSL/TLS options to be used for gRPC service.
+#
+# + trustStore - TrustStore related options.
+# + keyStore - KeyStore related options.
+# + certFile - A file containing the certificate of the server.
+# + keyFile - A file containing the private key of the server.
+# + keyPassword - Password of the private key if it is encrypted.
+# + trustedCertFile - A file containing a list of certificates or a single certificate that the server trusts.
+# + protocol - SSL/TLS protocol related options.
+# + certValidation - Certificate validation against CRL or OCSP related options.
+# + ciphers - List of ciphers to be used. eg: TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256,
+#             TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA.
+# + sslVerifyClient - The type of client certificate verification.
+# + shareSession - Enable/disable new ssl session creation.
+# + ocspStapling - Enable/disable ocsp stapling.
 public type ServiceSecureSocket record {
     TrustStore? trustStore,
     KeyStore? keyStore,
@@ -100,6 +85,7 @@ public type ServiceSecureSocket record {
     string sslVerifyClient,
     boolean shareSession = true,
     ServiceOcspStapling? ocspStapling,
+    !...
 };
 
 public type Service object {

@@ -98,4 +98,5 @@ public type ConfigJwtAuthProviderConfig record {
     string keyStoreFilePath,
     string keyStorePassword,
     string signingAlg,
+    !...
 };

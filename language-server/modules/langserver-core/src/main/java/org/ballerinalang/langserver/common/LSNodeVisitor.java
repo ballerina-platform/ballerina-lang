@@ -55,6 +55,7 @@ import org.wso2.ballerinalang.compiler.tree.clauses.BLangWhere;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangWindow;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangWithinClause;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrayLiteral;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrowFunction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangAwaitExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBracedOrTupleExpr;
@@ -585,6 +586,11 @@ public class LSNodeVisitor extends BLangNodeVisitor {
     }
 
     @Override
+    public void visit(BLangArrowFunction bLangArrowFunction) {
+        // No implementation
+    }
+
+    @Override
     public void visit(BLangXMLAttributeAccess xmlAttributeAccessExpr) {
         // No implementation
     }
@@ -806,11 +812,6 @@ public class LSNodeVisitor extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangXMLNS.BLangPackageXMLNS xmlnsNode) {
-        // No implementation
-    }
-
-    @Override
-    public void visit(BLangFieldBasedAccess.BLangEnumeratorAccessExpr enumeratorAccessExpr) {
         // No implementation
     }
 

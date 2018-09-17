@@ -16,10 +16,9 @@
 
 import ballerina/jms;
 import ballerina/log;
-documentation { Ballerina message broker simple topic subscriber
-    E{{}}
-    F{{config}} Simple topic subscrirber enpoint configuration
-}
+# Ballerina message broker simple topic subscriber
+#
+# + config - Simple topic subscrirber enpoint configuration
 public type SimpleTopicSubscriber object {
 
     public SimpleTopicSubscriberEndpointConfiguration config;
@@ -27,9 +26,9 @@ public type SimpleTopicSubscriber object {
     private jms:SimpleTopicSubscriber subscriber;
     private TopicSubscriberActions? consumerActions;
 
-    documentation { Initialize simple topic subscriber
-        P{{c}} Simple topic subscrirber enpoint configuration
-    }
+    # Initialize simple topic subscriber
+    #
+    # + c - Simple topic subscrirber enpoint configuration
     public function init(SimpleTopicSubscriberEndpointConfiguration c) {
         self.config = c;
         self.subscriber.init({
@@ -45,19 +44,19 @@ public type SimpleTopicSubscriber object {
         self.consumerActions = new TopicSubscriberActions(self.subscriber.getCallerActions());
     }
 
-    documentation { Register simple topic subscriber endpoint
-        P{{serviceType}} Type descriptor of the service
-    }
+    # Register simple topic subscriber endpoint
+    #
+    # + serviceType - Type descriptor of the service
     public function register(typedesc serviceType) {
         self.subscriber.register(serviceType);
     }
 
-    documentation { Start simple topic subscriber endpoint }
+    # Start simple topic subscriber endpoint
     public function start() {
         self.subscriber.start();
     }
 
-    documentation { Get simple topic subscriber actions }
+    # Get simple topic subscriber actions
     public function getCallerActions() returns TopicSubscriberActions {
         match (self.consumerActions) {
             TopicSubscriberActions c => return c;
@@ -68,14 +67,14 @@ public type SimpleTopicSubscriber object {
         }
     }
 
-    documentation { Stop simple topic subscriber endpoint }
+    # Stop simple topic subscriber endpoint
     public function stop() {
         self.subscriber.stop();
     }
 
-    documentation { Create JMS text message
-        P{{message}} A message body to create a text message
-    }
+    # Create JMS text message
+    #
+    # + message - A message body to create a text message
     public function createTextMessage(string message) returns Message|error {
         var result = self.subscriber.createTextMessage(message);
         match (result) {
@@ -85,20 +84,20 @@ public type SimpleTopicSubscriber object {
     }
 };
 
-documentation { Configuration related to simple topic subscriber endpoint
-    F{{username}} Valid user to connect to the Ballerina message broker
-    F{{password}} Password of the user
-    F{{host}} Hostname of the Ballerina message broker
-    F{{port}} Hostname of the Ballerina message broker
-    F{{clientID}} Used to identify the JMS client
-    F{{virtualHost}} Name of the virtual host where the virtual host is a path that acts as a namespace
-    F{{connectionFactoryName}} JNDI name of the connection factory
-    F{{acknowledgementMode}} JMS session acknowledgement mode. Legal values are "AUTO_ACKNOWLEDGE",
-    "CLIENT_ACKNOWLEDGE", "SESSION_TRANSACTED" and "DUPS_OK_ACKNOWLEDGE"
-    F{{messageSelector}} Message selector condition to filter messages
-    F{{properties}} JMS message properties
-    F{{topicPattern}} Topic name pattern
-}
+# Configuration related to simple topic subscriber endpoint
+#
+# + username - Valid user to connect to the Ballerina message broker
+# + password - Password of the user
+# + host - Hostname of the Ballerina message broker
+# + port - Hostname of the Ballerina message broker
+# + clientID - Used to identify the JMS client
+# + virtualHost - Name of the virtual host where the virtual host is a path that acts as a namespace
+# + connectionFactoryName - JNDI name of the connection factory
+# + acknowledgementMode - JMS session acknowledgement mode. Legal values are "AUTO_ACKNOWLEDGE",
+#                         "CLIENT_ACKNOWLEDGE", "SESSION_TRANSACTED" and "DUPS_OK_ACKNOWLEDGE"
+# + messageSelector - Message selector condition to filter messages
+# + properties - JMS message properties
+# + topicPattern - Topic name pattern
 public type SimpleTopicSubscriberEndpointConfiguration record {
     string username = "admin",
     string password = "admin",
@@ -112,9 +111,10 @@ public type SimpleTopicSubscriberEndpointConfiguration record {
     string messageSelector,
     map properties,
     string topicPattern,
+    !...
 };
 
-documentation { Actions that topic subscriber endpoint could perform }
+# Actions that topic subscriber endpoint could perform
 public type TopicSubscriberActions object {
 
     public jms:TopicSubscriberActions helper;
@@ -123,17 +123,17 @@ public type TopicSubscriberActions object {
 
     }
 
-    documentation { Acknowledges a received message
-        P{{message}} Message to be acknowledged
-    }
+    # Acknowledges a received message
+    #
+    # + message - Message to be acknowledged
     public function acknowledge(Message message) returns error? {
         return self.helper.acknowledge(message.getJMSMessage());
     }
 
-    documentation { Synchronously receive a message from Ballerina message broker
-        P{{timeoutInMilliSeconds}} Time to wait until a message is received
-        R{{}} Returns a message or nill if the timeout exceededs. Returns an error on broker internal error.
-    }
+    # Synchronously receive a message from Ballerina message broker
+    #
+    # + timeoutInMilliSeconds - Time to wait until a message is received
+    # + return - Returns a message or nill if the timeout exceededs. Returns an error on broker internal error.
     public function receive(int timeoutInMilliSeconds = 0) returns (Message|error)? {
         var result = self.helper.receive(timeoutInMilliSeconds = timeoutInMilliSeconds);
         match (result) {

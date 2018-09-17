@@ -31,7 +31,7 @@ import java.util.Map;
  */
 public class TesterinaReport {
 
-    private static PrintStream outStream = System.err;
+    private static PrintStream outStream = System.out;
     private Map<String, TestSummary> testReportOfPackage = new HashMap<>();
     private boolean failure;
 
