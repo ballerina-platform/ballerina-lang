@@ -382,6 +382,7 @@ public type SubscriptionChangeRequest record {
     string callback,
     int leaseSeconds,
     string secret,
+    !...
 };
 
 # Record representing subscription/unsubscription details if a subscription/unsubscription request is successful.
@@ -393,6 +394,7 @@ public type SubscriptionChangeResponse record {
     string hub,
     string topic,
     http:Response response,
+    !...
 };
 
 /////////////////////////////////////////////////////////////
@@ -568,6 +570,7 @@ type SubscriptionDetails record {
     string secret,
     int leaseSeconds,
     int createdAt,
+    !...
 };
 
 function retrieveSubscriberServiceAnnotations(typedesc serviceType) returns SubscriberServiceConfiguration? {
@@ -589,6 +592,7 @@ function retrieveSubscriberServiceAnnotations(typedesc serviceType) returns Subs
 type WebSubContent record {
     string|xml|json|byte[]|io:ReadableByteChannel payload,
     string contentType,
+    !...
 };
 
 function isSuccessStatusCode(int statusCode) returns boolean {
@@ -598,9 +602,11 @@ function isSuccessStatusCode(int statusCode) returns boolean {
 # Error to represent that a WebSubHub is already started up, encapsulating the started up Hub.
 #
 # + message - The error message
+# + cause - The cause of the `HubStartedUpError`, if available
 # + startedUpHub - The `WebSubHub` object representing the started up Hub
 public type HubStartedUpError record {
     string message;
     error? cause;
     WebSubHub startedUpHub;
+    !...
 };

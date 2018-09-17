@@ -135,4 +135,5 @@ public type SimpleTopicSubscriberEndpointConfiguration record {
     string messageSelector;
     map properties;
     string topicPattern;
+    !...
 };

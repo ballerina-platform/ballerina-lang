@@ -111,6 +111,7 @@ public type SimpleTopicSubscriberEndpointConfiguration record {
     string messageSelector,
     map properties,
     string topicPattern,
+    !...
 };
 
 # Actions that topic subscriber endpoint could perform

@@ -18,22 +18,22 @@
 #Represents a channel which could be used to read characters through a given ReadableByteChannel.
 public type ReadableCharacterChannel object {
 
-    private ReadableByteChannel channel;
+    private ReadableByteChannel byteChannel;
     private string charset;
 
     # Constructs a ReadableCharacterChannel from a given ReadableByteChannel and Charset.
 
     # + channel - ReadableByteChannel which would be used to read characters
     # + charset - Character-Set which would be used to encode/decode given bytes to characters
-    public new(channel, charset) {
-        init(channel, charset);
+    public new(byteChannel, charset) {
+        init(byteChannel, charset);
     }
 
     # Initializes a character ReadableCharacterChannel.
     #
     # + byteChannel - ReadableByteChannel which should be used to initalize the ReadableCharacterChannel
     # + cs - Character-set (i.e UTF-8) which should be used to encode/decode
-    extern function init(ReadableByteChannel byteChannel, string cs);
+    extern function init(ReadableByteChannel bChannel, string cs);
 
     # Reads a given number of characters.
     #

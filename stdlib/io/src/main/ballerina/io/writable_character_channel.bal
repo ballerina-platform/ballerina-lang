@@ -17,15 +17,15 @@
 # Represents a channel which could be used to write characters through a given WritableCharacterChannel.
 public type WritableCharacterChannel object {
 
-    private WritableByteChannel channel;
+    private WritableByteChannel bChannel;
     private string charset;
 
     # Constructs a WritableByteChannel from a given WritableByteChannel and Charset.
 
-    # + channel - WritableByteChannel which would be used to write characters
+    # + bChannel - WritableByteChannel which would be used to write characters
     # + charset - Character-Set which would be used to encode given bytes to characters
-    public new(channel, charset) {
-        init(channel, charset);
+    public new(bChannel, charset) {
+        init(bChannel, charset);
     }
 
     # Initializes a character channel.

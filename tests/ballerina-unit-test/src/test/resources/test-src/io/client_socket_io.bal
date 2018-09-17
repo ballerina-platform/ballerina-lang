@@ -18,8 +18,8 @@ function closeSocket(io:Socket socket) {
 }
 
 function write(io:Socket socket, byte[] content) returns int|error {
-    io:WritableByteChannel channel = socket.writableChannel;
-    var result = channel.write(content, 0);
+    io:WritableByteChannel byteChannel = socket.writableChannel;
+    var result = byteChannel.write(content, 0);
     match result {
         int numberOfBytesWritten => {
             io:println("Number of byte written to server: ", numberOfBytesWritten);
@@ -32,8 +32,8 @@ function write(io:Socket socket, byte[] content) returns int|error {
 }
 
 function read(io:Socket socket, int size) returns (byte[], int)|error {
-    io:ReadableByteChannel channel = socket.readableChannel;
-    var result = channel.read(size);
+    io:ReadableByteChannel byteChannel = socket.readableChannel;
+    var result = byteChannel.read(size);
     match result {
         (byte[], int) content => {
             var (bytes, numberOfBytes) = content;
@@ -70,8 +70,8 @@ function bindSocketForSamePort(int localPort) returns error? {
 }
 
 function readRecord(io:Socket socket) returns string[]|error {
-    io:ReadableByteChannel channel = socket.readableChannel;
-    io:ReadableCharacterChannel characterChannel = new(channel, "UTF-8");
+    io:ReadableByteChannel byteChannel = socket.readableChannel;
+    io:ReadableCharacterChannel characterChannel = new(byteChannel, "UTF-8");
     io:ReadableTextRecordChannel rChannel = new io:ReadableTextRecordChannel(characterChannel, rs = "\r\n", fs = ",");
     if (rChannel.hasNext()){
         var records = rChannel.getNext();

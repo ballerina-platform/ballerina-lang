@@ -54,6 +54,7 @@ public type ServiceEndpointConfiguration record {
     string host,
     int port,
     ServiceSecureSocket? secureSocket,
+    !...
 };
 
 # SecureSocket struct represents SSL/TLS options to be used for gRPC service.
@@ -76,6 +77,7 @@ public type ServiceSecureSocket record {
     string sslVerifyClient,
     boolean shareSession = true,
     ServiceOcspStapling? ocspStapling,
+    !...
 };
 
 public type Service object {

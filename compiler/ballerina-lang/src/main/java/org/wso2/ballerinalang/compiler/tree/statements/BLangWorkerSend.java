@@ -36,6 +36,8 @@ public class BLangWorkerSend extends BLangStatement implements WorkerSendNode {
     public BLangIdentifier workerIdentifier;
     public boolean isForkJoinSend;
     public SymbolEnv env;
+    public BLangExpression keyExpr;
+    public boolean isChannel = false;
 
     @Override
     public BLangExpression getExpression() {
@@ -68,6 +70,9 @@ public class BLangWorkerSend extends BLangStatement implements WorkerSendNode {
     }
     
     public String toActionString() {
+        if (keyExpr != null) {
+            return this.expr + ", " + this.expr + " -> " + this.workerIdentifier;
+        }
         return this.expr + " -> " + this.workerIdentifier;
     }
 

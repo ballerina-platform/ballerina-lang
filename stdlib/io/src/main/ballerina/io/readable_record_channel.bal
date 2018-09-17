@@ -17,17 +17,17 @@
 # Represents a channel which will allow to read
 public type ReadableTextRecordChannel object {
 
-    private ReadableCharacterChannel channel;
+    private ReadableCharacterChannel charChannel;
     private string rs;
     private string fs;
 
     # Constructs a ReadableTextRecordChannel from a given ReadableCharacterChannel.
     #
-    # + channel - CharacterChannel which will point to the input/output resource
+    # + charChannel - CharacterChannel which will point to the input/output resource
     # + rs - Record separator (this could be a regex)
     # + fs - Field separator (this could be a regex)
-    public new(channel, fs = "", rs = "", string fmt = "default") {
-        init(channel, fs, rs, fmt);
+    public new(charChannel, fs = "", rs = "", string fmt = "default") {
+        init(charChannel, fs, rs, fmt);
     }
 
     # Initializes delimited record channel.

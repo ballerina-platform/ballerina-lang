@@ -43,4 +43,5 @@ public type Listener object {
 public type ListenerEndpointConfiguration record {
     string path,
     boolean recursive = false,
+    !...
 };

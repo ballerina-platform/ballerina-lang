@@ -35,13 +35,13 @@ public type WritableCSVChannel object {
 
     # + channel - ChracterChannel which will represent the content in the CSV
     # + fs - Field separator which will separate between the records in the CSV
-    public new(WritableCharacterChannel channel, Separator fs = ",") {
+    public new(WritableCharacterChannel characterChannel, Separator fs = ",") {
         if (fs == TAB){
-            dc = new WritableTextRecordChannel(channel, fmt = "TDF");
+            dc = new WritableTextRecordChannel(characterChannel, fmt = "TDF");
         } else if (fs == COLON){
-            dc = new WritableTextRecordChannel(channel, fs = FS_COLON, rs = CSV_RECORD_SEPERATOR);
+            dc = new WritableTextRecordChannel(characterChannel, fs = FS_COLON, rs = CSV_RECORD_SEPERATOR);
         } else {
-            dc = new WritableTextRecordChannel(channel, fmt = "CSV");
+            dc = new WritableTextRecordChannel(characterChannel, fmt = "CSV");
         }
     }
 

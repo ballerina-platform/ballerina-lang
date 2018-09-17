@@ -16,7 +16,7 @@
 
 # Represents a channel which will allow to write records through a given WritableCharacterChannel.
 public type WritableTextRecordChannel object {
-    private WritableCharacterChannel channel;
+    private WritableCharacterChannel characterChannel;
     private string rs;
     private string fs;
 
@@ -25,8 +25,8 @@ public type WritableTextRecordChannel object {
     # + channel - WritableCharacterChannel which will point to the input/output resource
     # + rs - Record separator (this could be a regex)
     # + fs - Field separator (this could be a regex)
-    public new(channel, fs = "", rs = "", string fmt = "default") {
-        init(channel, fs, rs, fmt);
+    public new(characterChannel, fs = "", rs = "", string fmt = "default") {
+        init(characterChannel, fs, rs, fmt);
     }
 
     # Initializes delimited record channel.
@@ -35,7 +35,7 @@ public type WritableTextRecordChannel object {
     # + fieldSeparator - Field separator which will separate between fields
     # + recordSeparator - Record separator which will separate between records
     # + fmt - Format which will be used to represent the type of record i.e csv
-    extern function init(WritableCharacterChannel characterChannel, string fieldSeparator,
+    extern function init(WritableCharacterChannel cChannel, string fieldSeparator,
                          string recordSeparator, string fmt);
 
     # Writes records to a given output resource.
