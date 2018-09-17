@@ -245,7 +245,6 @@ public class Main {
             }
 
             Path sourceRootPath = LauncherUtils.getSourceRootPath(sourceRoot);
-            System.setProperty("ballerina.source.root", sourceRootPath.toString());
             VMOptions.getInstance().addOptions(vmOptions);
 
             String programArg = argList.get(0);
@@ -272,7 +271,8 @@ public class Main {
                 programArgs = new String[0];
             }
 
-            LauncherUtils.runProgram(sourceRootPath, sourcePath, functionName, runtimeParams,
+            // Normalize the source path to remove './' or '.\' characters that can appear before the name
+            LauncherUtils.runProgram(sourceRootPath, sourcePath.normalize(), functionName, runtimeParams,
                                      configFilePath, programArgs, offline, observeFlag, printReturn);
         }
 

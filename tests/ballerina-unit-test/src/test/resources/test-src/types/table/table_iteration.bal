@@ -90,7 +90,7 @@ function testForEachInTable() returns (int, int, float, string) {
 
     table<Person> dt = check testDB->select("SELECT * from Person where id = 1", Person);
 
-    dt.foreach((Person p) => {
+    dt.foreach(function (Person p) {
             idValue = untaint p.id;
             ageValue = untaint p.age;
             salValue = untaint p.salary;
@@ -126,7 +126,7 @@ function testFilterTable() returns (int, int, int) {
     };
 
     table<Person> dt = check testDB->select("SELECT * from Person", Person);
-    Person[] personBelow35 = dt.filter(isBellow35);
+    Person[] personBelow35 = dt.filter(isBelow35);
     int count = lengthof personBelow35;
     int id1 = personBelow35[0].id;
     int id2 = personBelow35[1].id;
@@ -142,7 +142,7 @@ function testFilterWithAnonymousFuncOnTable() returns (int, int, int) {
     };
 
     table<Person> dt = check testDB->select("SELECT * from Person", Person);
-    Person[] personBelow35 = dt.filter((Person p) => (boolean) {
+    Person[] personBelow35 = dt.filter(function (Person p) returns (boolean) {
             return p.age < 35;
         });
     int count = lengthof personBelow35;
@@ -160,7 +160,7 @@ function testFilterTableWithCount() returns (int) {
     };
 
     table<Person> dt = check testDB->select("SELECT * from Person", Person);
-    int count = dt.filter(isBellow35).count();
+    int count = dt.filter(isBelow35).count();
     testDB.stop();
     return count;
 }
@@ -350,7 +350,7 @@ function createTable() returns (table<Employee>) {
     return dt;
 }
 
-function isBellow35(Person p) returns (boolean) {
+function isBelow35(Person p) returns (boolean) {
     return p.age < 35;
 }
 

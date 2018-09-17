@@ -85,4 +85,5 @@ public type ConsumerActions object {
 public type ConsumerEndpointConfiguration record {
     Session? session;
     string identifier;
+    !...
 };

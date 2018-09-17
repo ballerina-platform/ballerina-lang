@@ -113,6 +113,7 @@ public type SimpleDurableTopicSubscriberEndpointConfiguration record {
     map properties;
     string messageSelector;
     string topicPattern;
+    !...
 };
 
 public type DurableTopicSubscriberActions object {

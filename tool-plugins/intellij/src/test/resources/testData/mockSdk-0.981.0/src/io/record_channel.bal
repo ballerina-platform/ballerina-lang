@@ -18,19 +18,19 @@ documentation {
     Represents a channel which will allow to read/write records through a given CharacterChannel.
 }
 public type DelimitedTextRecordChannel object {
-    private CharacterChannel channel;
+    private CharacterChannel charChannel;
     private string rs;
     private string fs;
 
     documentation {
         Constructs a DelimitedTextRecordChannel from a given CharacterChannel.
 
-        P{{channel}} CharacterChannel which will point to the input/output resource
+        P{{characterChannel}} CharacterChannel which will point to the input/output resource
         P{{rs}} Record separator (this could be a regex)
         P{{fs}} Field separator (this could be a regex)
     }
-    public new(channel, fs = "", rs = "", string fmt = "default") {
-        init(channel, fs, rs, fmt);
+    public new(characterChannel, fs = "", rs = "", string fmt = "default") {
+        init(charChannel, fs, rs, fmt);
     }
 
     documentation {

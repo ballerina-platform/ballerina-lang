@@ -671,6 +671,7 @@ function distributeContent(string callback, SubscriptionDetails subscriptionDeta
 type TopicRegistration record {
     string topic,
     string secret,
+    !...
 };
 
 # Object to represent a pending subscription/unsubscription request.

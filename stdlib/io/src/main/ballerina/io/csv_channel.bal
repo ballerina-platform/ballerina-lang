@@ -29,16 +29,16 @@ public type CSVChannel object {
 
     # Constructs a CSV channel from a CharacterChannel to read/write CSV records.
     #
-    # + channel - ChracterChannel which will represent the content in the CSV
+    # + byteChannel - ChracterChannel which will represent the content in the CSV
     # + fs - Field separator which will separate between the records in the CSV
     # + nHeaders - Number of headers which should be skipped prior to reading records
-    public new(CharacterChannel channel, Separator fs = ",", int nHeaders = 0) {
+    public new(CharacterChannel byteChannel, Separator fs = ",", int nHeaders = 0) {
         if (fs == TAB){
-            dc = new DelimitedTextRecordChannel(channel, fmt = "TDF");
+            dc = new DelimitedTextRecordChannel(byteChannel, fmt = "TDF");
         } else if (fs == COLON){
-            dc = new DelimitedTextRecordChannel(channel, fs = FS_COLON, rs = CSV_RECORD_SEPERATOR);
+            dc = new DelimitedTextRecordChannel(byteChannel, fs = FS_COLON, rs = CSV_RECORD_SEPERATOR);
         } else {
-            dc = new DelimitedTextRecordChannel(channel, fmt = "CSV");
+            dc = new DelimitedTextRecordChannel(byteChannel, fmt = "CSV");
         }
         skipHeaders(nHeaders);
     }

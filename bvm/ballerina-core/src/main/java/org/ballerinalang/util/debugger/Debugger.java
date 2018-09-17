@@ -40,8 +40,10 @@ import org.ballerinalang.util.debugger.dto.MessageDTO;
 import org.ballerinalang.util.debugger.dto.VariableDTO;
 import org.ballerinalang.util.debugger.util.DebugMsgUtil;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Semaphore;
+import java.util.stream.Collectors;
 
 
 /**
@@ -169,6 +171,7 @@ public class Debugger {
             case DebugConstants.CMD_SET_POINTS:
                 // we expect { "command": "SET_POINTS", points: [{ "fileName": "sample.bal", "lineNumber" : 5 },{...}]}
                 addDebugPoints(command.getPoints());
+                //TODO: Revisit sending acknowledgement message when there's invalid breakpoints
                 sendAcknowledge("Debug points updated");
                 break;
             case DebugConstants.CMD_START:
@@ -188,7 +191,17 @@ public class Debugger {
      * @param breakPointDTOS to be added.
      */
     public void addDebugPoints(List<BreakPointDTO> breakPointDTOS) {
-        debugInfoHolder.addDebugPoints(breakPointDTOS);
+        List<BreakPointDTO> undeployedList = new ArrayList<>(breakPointDTOS);
+        List<BreakPointDTO> deployedList = debugInfoHolder.addDebugPoints(breakPointDTOS);
+        undeployedList.removeAll(deployedList);
+        if (!undeployedList.isEmpty()) {
+            String bPoints = undeployedList.stream()
+                    .map(b -> "{" + b.toString() + "}")
+                    .collect(Collectors.joining(", "));
+            MessageDTO message = new MessageDTO(DebugConstants.CODE_INVALID,
+                                                DebugConstants.MSG_INVALID_BREAKPOINT + "[" + bPoints + "]");
+            clientHandler.sendCustomMsg(message);
+        }
     }
 
     /**

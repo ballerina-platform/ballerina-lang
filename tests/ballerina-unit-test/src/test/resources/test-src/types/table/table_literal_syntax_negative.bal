@@ -68,3 +68,7 @@ function testTableLiteralDataAndAddWithObject() returns (int) {
 function testEmptyTableCreateInvalid() {
     table t1 = table{};
 }
+
+function testUnknownTableType() {
+    table<Student> t1 = table {};
+}
