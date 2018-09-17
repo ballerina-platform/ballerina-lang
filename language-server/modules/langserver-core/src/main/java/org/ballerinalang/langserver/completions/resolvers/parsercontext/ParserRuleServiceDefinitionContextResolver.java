@@ -145,10 +145,11 @@ public class ParserRuleServiceDefinitionContextResolver extends AbstractItemReso
                 completionItems.addAll(this.getCompletionItemList(endpointSymbols));
             }
         } else {
+            boolean isSnippet = ctx.get(CompletionKeys.CLIENT_CAPABILITIES_KEY).getCompletionItem().getSnippetSupport();
             // Fill the bind keyword completion item
             CompletionItem bindItem = new CompletionItem();
+            Snippet.KW_BIND.getBlock().populateCompletionItem(bindItem, isSnippet);
             bindItem.setLabel(ItemResolverConstants.BIND);
-            bindItem.setInsertText(Snippet.BIND.toString());
             bindItem.setDetail(ItemResolverConstants.KEYWORD_TYPE);
             completionItems.add(bindItem);
         }
