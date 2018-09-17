@@ -657,7 +657,13 @@ public class Desugar extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangReturn returnNode) {
-        returnNode.expr = rewriteExpr(returnNode.expr);
+        if (returnNode.expr == null) {
+            BLangDone doneStmt = (BLangDone) TreeBuilder.createDoneNode();
+            doneStmt.pos = returnNode.pos;
+            result = doneStmt;
+        } else {
+            returnNode.expr = rewriteExpr(returnNode.expr);
+        }
         result = returnNode;
     }
 
