@@ -16,9 +16,17 @@
 
 package io.ballerina.plugins.idea.inspections;
 
+import com.intellij.ide.plugins.IdeaPluginDescriptor;
+import com.intellij.ide.plugins.InstalledPluginsTableModel;
+import com.intellij.ide.plugins.PluginManager;
+import com.intellij.ide.plugins.PluginManagerConfigurable;
 import com.intellij.ide.plugins.PluginManagerCore;
+import com.intellij.ide.plugins.PluginManagerMain;
+import com.intellij.ide.plugins.PluginManagerUISettings;
+import com.intellij.openapi.extensions.PluginId;
 import com.intellij.openapi.fileEditor.FileEditor;
 import com.intellij.openapi.fileTypes.FileTypeFactory;
+import com.intellij.openapi.options.ShowSettingsUtil;
 import com.intellij.openapi.project.DumbAware;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.updateSettings.impl.pluginsAdvertisement.PluginsAdvertiser;
@@ -36,10 +44,14 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import static com.intellij.ide.plugins.PluginManagerCore.getDisabledPlugins;
+
 public class LSPInstallationNotificationProvider extends EditorNotifications.Provider<EditorNotificationPanel>
         implements DumbAware {
 
     private static final Key<EditorNotificationPanel> KEY = Key.create("LSP Support Plugin is not installed");
+    private static final String LSP_PLUGIN_ID = "com.github.gtache.lsp";
+    private static final String LSP_PLUGIN_NAME = "LSP Support";
     private final Project myProject;
     private final EditorNotifications myNotifications;
     private final Set<String> myEnabledExtensions = new HashSet<>();
@@ -59,50 +71,58 @@ public class LSPInstallationNotificationProvider extends EditorNotifications.Pro
     @Override
     public EditorNotificationPanel createNotificationPanel(@NotNull VirtualFile file, @NotNull FileEditor fileEditor) {
 
-        if (file.getFileType() != BallerinaFileType.INSTANCE) {
+        if (file.getFileType() != BallerinaFileType.INSTANCE || isAlreadyInstalled()) {
             return null;
-        } else {
-            final String extension = file.getExtension();
-            final String fileName = file.getName();
-            final EditorNotificationPanel panel = extension != null ? createPanel("*." + extension) : null;
-            if (panel != null) {
-                return panel;
-            }
-            return createPanel(fileName);
         }
+
+        final String extension = file.getExtension();
+        final String fileName = file.getName();
+        if (extension != null && isIgnored("*." + extension) || isIgnored(fileName))
+            return null;
+        else {
+            return extension != null ? createPanel("*." + extension) : null;
+        }
+    }
+
+    private boolean isIgnored(String extension) {
+        return myEnabledExtensions.contains(extension) || UnknownFeaturesCollector.getInstance(myProject)
+                .isIgnored(createExtensionFeature(extension));
     }
 
     private EditorNotificationPanel createPanel(String extension) {
         PluginsAdvertiser.Plugin LSPPlugin = new PluginsAdvertiser.Plugin();
-        LSPPlugin.myPluginId = "com.github.gtache.lsp";
-        LSPPlugin.myPluginName = "LSP Support";
+        LSPPlugin.myPluginId = LSP_PLUGIN_ID;
+        LSPPlugin.myPluginName = LSP_PLUGIN_NAME;
 
         return createPanel(extension, LSPPlugin);
     }
 
-    @Nullable
     private EditorNotificationPanel createPanel(final String extension, PluginsAdvertiser.Plugin plugin) {
         EditorNotificationPanel panel = new EditorNotificationPanel();
         panel.setText("LSP Support Plugin is either not installed or enabled properly");
-        if (isDisabled(plugin)) {
-            panel.createActionLabel("Enable LSP Support plugin", () -> {
+
+        final IdeaPluginDescriptor disabledPlugin = getDisabledPlugin(plugin);
+
+        if (disabledPlugin != null) {
+            panel.createActionLabel("Enable Language Server Plugin", () -> {
                 myEnabledExtensions.add(extension);
                 myNotifications.updateAllNotifications();
+                enablePlugin(myProject, disabledPlugin);
+
             });
         } else {
-            panel.createActionLabel("Install Support Plugin", () -> {
+            panel.createActionLabel("Install Language Server Plugin", () -> {
                 Set<String> pluginIds = new HashSet<>();
                 pluginIds.add(plugin.myPluginId);
                 PluginsAdvertiser.installAndEnablePlugins(pluginIds, () -> {
                     myEnabledExtensions.add(extension);
                     myNotifications.updateAllNotifications();
                 });
+
             });
         }
-        panel.createActionLabel("Ignore extension", () -> {
-            UnknownFeaturesCollector.getInstance(myProject).ignoreFeature(createExtensionFeature(extension));
-            myNotifications.updateAllNotifications();
-        });
+        //   UnknownFeaturesCollector.getInstance(myProject).ignoreFeature(createExtensionFeature(extension));
+        panel.createActionLabel("Ignore extension", myNotifications::updateAllNotifications);
         return panel;
     }
 
@@ -110,13 +130,36 @@ public class LSPInstallationNotificationProvider extends EditorNotifications.Pro
         return new UnknownFeature(FileTypeFactory.FILE_TYPE_FACTORY_EP.getName(), "File Type", extension);
     }
 
-    private boolean isDisabled(PluginsAdvertiser.Plugin plugin) {
-        final List<String> disabledPlugins = PluginManagerCore.getDisabledPlugins();
+    private static boolean isAlreadyInstalled() {
+        final IdeaPluginDescriptor[] installedPlugins = PluginManagerCore.getPlugins();
 
-        if (disabledPlugins.contains(plugin.myPluginId)) {
-            return true;
+        for (IdeaPluginDescriptor plugin : installedPlugins) {
+            if (plugin.getName().equals(LSP_PLUGIN_NAME)) {
+                return true;
+            }
         }
         return false;
     }
 
+    private static IdeaPluginDescriptor getDisabledPlugin(PluginsAdvertiser.Plugin plugin) {
+
+        final List<String> disabledPlugins = getDisabledPlugins();
+
+        return disabledPlugins.contains(plugin.myPluginId) ?
+                PluginManager.getPlugin(PluginId.getId(plugin.myPluginId)) :
+                null;
+    }
+
+    private static void enablePlugin(Project project, IdeaPluginDescriptor lspPlugin) {
+        final PluginManagerConfigurable managerConfigurable = new PluginManagerConfigurable(
+                PluginManagerUISettings.getInstance());
+        final PluginManagerMain createPanel = managerConfigurable.getOrCreatePanel();
+        ShowSettingsUtil.getInstance().editConfigurable(project, managerConfigurable, () -> {
+            final InstalledPluginsTableModel pluginsModel = (InstalledPluginsTableModel) createPanel.getPluginsModel();
+            final IdeaPluginDescriptor[] descriptors = new IdeaPluginDescriptor[1];
+            descriptors[0] = lspPlugin;
+            pluginsModel.enableRows(descriptors, Boolean.TRUE);
+            createPanel.getPluginTable().select(descriptors);
+        });
+    }
 }
