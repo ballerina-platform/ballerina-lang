@@ -404,7 +404,7 @@ public class Debugger {
             // TODO: Need to change the 'contains' logic, if we allow user-defined variable names to have '$'
             if (!packVarInfo.getName().contains(META_DATA_VAR_PATTERN)) {
                 VariableDTO variableDTO = constructGlobalVariable(ctx, packVarInfo);
-                if (variableDTO.getValue() != null || variableDTO.getType().equals(TYPE_JSON)) {
+                if (variableDTO.getValue() != null || packVarInfo.getType().getTag() == TypeTags.JSON_TAG) {
                     frameDTO.addVariable(variableDTO);
                 }
             }
