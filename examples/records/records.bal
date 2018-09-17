@@ -14,7 +14,7 @@ type Grades record {
     !...
 };
 
-public function main(string... args) {
+public function main() {
     // This creates an instance of the `Student` record with an empty record literal. The implicit initial value of each
     // field type is assigned to the corresponding field.
     Student s1 = {};
@@ -56,8 +56,8 @@ public function main(string... args) {
     io:println("Average grade: " + total/3.0);
 
     // Since records are iterable, the iterable operations `foreach()`, `map()`, `filter()`, `count()` can also be performed on records.
-    // In addition to these, if all the fields (including rest descriptor, if it is an open record) are either of type `int` or `float`,
-    // the following iterable operations are possible as well: `sum()`, `average()`, `max()`, `min()`.
+    // In addition to these, if all the fields (including the rest descriptor, if it is an open record) are either of type `int` or `float`,
+    // the iterable operations `sum()`, `average()`, `max()` and `min()` are allowed as well.
     map<string> letterGrades = s2.grades.map(mapToLetterGrade)
                                         .filter(function ((string, string) entry) returns boolean {
                                             if (entry[1] == "A" || entry[1] == "B") {
