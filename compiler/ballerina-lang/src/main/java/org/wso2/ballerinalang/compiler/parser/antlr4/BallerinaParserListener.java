@@ -148,6 +148,26 @@ public interface BallerinaParserListener extends ParseTreeListener {
 	 */
 	void exitLambdaFunction(BallerinaParser.LambdaFunctionContext ctx);
 	/**
+	 * Enter a parse tree produced by {@link BallerinaParser#arrowFunction}.
+	 * @param ctx the parse tree
+	 */
+	void enterArrowFunction(BallerinaParser.ArrowFunctionContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link BallerinaParser#arrowFunction}.
+	 * @param ctx the parse tree
+	 */
+	void exitArrowFunction(BallerinaParser.ArrowFunctionContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link BallerinaParser#arrowParam}.
+	 * @param ctx the parse tree
+	 */
+	void enterArrowParam(BallerinaParser.ArrowParamContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link BallerinaParser#arrowParam}.
+	 * @param ctx the parse tree
+	 */
+	void exitArrowParam(BallerinaParser.ArrowParamContext ctx);
+	/**
 	 * Enter a parse tree produced by {@link BallerinaParser#callableUnitSignature}.
 	 * @param ctx the parse tree
 	 */
@@ -317,6 +337,16 @@ public interface BallerinaParserListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitGlobalVariableDefinition(BallerinaParser.GlobalVariableDefinitionContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link BallerinaParser#channelType}.
+	 * @param ctx the parse tree
+	 */
+	void enterChannelType(BallerinaParser.ChannelTypeContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link BallerinaParser#channelType}.
+	 * @param ctx the parse tree
+	 */
+	void exitChannelType(BallerinaParser.ChannelTypeContext ctx);
 	/**
 	 * Enter a parse tree produced by {@link BallerinaParser#attachmentPoint}.
 	 * @param ctx the parse tree
@@ -1414,6 +1444,18 @@ public interface BallerinaParserListener extends ParseTreeListener {
 	 */
 	void exitNamespaceDeclaration(BallerinaParser.NamespaceDeclarationContext ctx);
 	/**
+	 * Enter a parse tree produced by the {@code arrowFunctionExpression}
+	 * labeled alternative in {@link BallerinaParser#expression}.
+	 * @param ctx the parse tree
+	 */
+	void enterArrowFunctionExpression(BallerinaParser.ArrowFunctionExpressionContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code arrowFunctionExpression}
+	 * labeled alternative in {@link BallerinaParser#expression}.
+	 * @param ctx the parse tree
+	 */
+	void exitArrowFunctionExpression(BallerinaParser.ArrowFunctionExpressionContext ctx);
+	/**
 	 * Enter a parse tree produced by the {@code binaryOrExpression}
 	 * labeled alternative in {@link BallerinaParser#expression}.
 	 * @param ctx the parse tree
@@ -1947,6 +1989,16 @@ public interface BallerinaParserListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitSimpleLiteral(BallerinaParser.SimpleLiteralContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link BallerinaParser#floatingPointLiteral}.
+	 * @param ctx the parse tree
+	 */
+	void enterFloatingPointLiteral(BallerinaParser.FloatingPointLiteralContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link BallerinaParser#floatingPointLiteral}.
+	 * @param ctx the parse tree
+	 */
+	void exitFloatingPointLiteral(BallerinaParser.FloatingPointLiteralContext ctx);
 	/**
 	 * Enter a parse tree produced by {@link BallerinaParser#integerLiteral}.
 	 * @param ctx the parse tree

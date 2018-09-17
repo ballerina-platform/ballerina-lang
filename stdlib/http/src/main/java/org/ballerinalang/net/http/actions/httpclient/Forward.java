@@ -32,7 +32,7 @@ import org.ballerinalang.net.http.DataContext;
 import org.ballerinalang.net.http.HttpConstants;
 import org.ballerinalang.net.http.HttpUtil;
 import org.ballerinalang.util.exceptions.BallerinaException;
-import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
+import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 
 import java.util.Locale;
 
@@ -67,7 +67,7 @@ public class Forward extends AbstractHTTPAction {
     }
 
     @Override
-    protected HTTPCarbonMessage createOutboundRequestMsg(Context context) {
+    protected HttpCarbonMessage createOutboundRequestMsg(Context context) {
         BMap<String, BValue> bConnector = (BMap<String, BValue>) context.getRefArgument(0);
         String path = context.getStringArgument(0);
         BMap<String, BValue> requestStruct = ((BMap<String, BValue>) context.getRefArgument(1));
@@ -76,7 +76,7 @@ public class Forward extends AbstractHTTPAction {
                 !HttpUtil.isEntityDataSourceAvailable(requestStruct)) {
             throw new BallerinaException("invalid inbound request parameter");
         }
-        HTTPCarbonMessage outboundRequestMsg = HttpUtil
+        HttpCarbonMessage outboundRequestMsg = HttpUtil
                 .getCarbonMsg(requestStruct, HttpUtil.createHttpCarbonMessage(true));
 
         if (HttpUtil.isEntityDataSourceAvailable(requestStruct)) {

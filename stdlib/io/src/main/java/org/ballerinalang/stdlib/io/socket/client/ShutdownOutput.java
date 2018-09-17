@@ -33,8 +33,12 @@ import org.ballerinalang.stdlib.io.utils.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.IOException;
+import java.nio.channels.ClosedChannelException;
+import java.nio.channels.NotYetConnectedException;
+
 /**
- * Native function to ShutdownOutput in a socket.
+ * Extern function to ShutdownOutput in a socket.
  *
  * @since 0.970.0
  */
@@ -60,8 +64,14 @@ public class ShutdownOutput extends BlockingNativeCallableUnit {
                 SocketIOChannel socketIOChannel = (SocketIOChannel) channel;
                 socketIOChannel.shutdownOutput();
             }
-        } catch (Throwable e) {
-            String message = "Failed to shutdown output in socket:" + e.getMessage();
+        } catch (NotYetConnectedException e) {
+            String message = "Socket is not connected.";
+            context.setReturnValues(IOUtils.createError(context, message));
+        } catch (ClosedChannelException e) {
+            String message = "Socket connection already closed.";
+            context.setReturnValues(IOUtils.createError(context, message));
+        } catch (IOException e) {
+            String message = "Failed to shutdown input in socket:" + e.getMessage();
             log.error(message, e);
             context.setReturnValues(IOUtils.createError(context, message));
         }

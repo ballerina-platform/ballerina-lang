@@ -39,8 +39,7 @@ public class TypeTags {
     public static final int ANY = INVOKABLE + 1;
     public static final int ENDPOINT = ANY + 1;
     public static final int SERVICE = ENDPOINT + 1;
-    public static final int ENUM = SERVICE + 1;
-    public static final int ARRAY = ENUM + 1;
+    public static final int ARRAY = SERVICE + 1;
     public static final int UNION = ARRAY + 1;
     public static final int NIL = UNION + 1;
     public static final int PACKAGE = NIL + 1;
@@ -58,6 +57,7 @@ public class TypeTags {
     public static final int OBJECT = FINITE + 1;
     public static final int RECORD = OBJECT + 1;
     public static final int BYTE_ARRAY = RECORD + 1;
+    public static final int CHANNEL = BYTE_ARRAY + 1;
 
     private TypeTags() {
     }

@@ -1,0 +1,33 @@
+{
+    "variableName": "a",
+    "functionReturnType": "(int, string)",
+    "functionLocation": "4,4",
+    "expected": {
+        "result": {
+            "edit": {
+                "changes": {
+                },
+                "documentChanges": [
+                    {
+                        "edits": [
+                            {
+                                "range": {
+                                    "start": {
+                                        "line": 3,
+                                        "character": 3
+                                    },
+                                    "end": {
+                                        "line": 3,
+                                        "character": 3
+                                    }
+                                },
+                                "newText": "(int, string) a = "
+                            }
+                        ]
+                    }
+                ]
+            }
+        },
+        "jsonrpc": "2.0"
+    }
+}

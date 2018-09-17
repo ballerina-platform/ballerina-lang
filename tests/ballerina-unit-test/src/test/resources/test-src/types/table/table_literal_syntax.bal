@@ -133,3 +133,57 @@ function testTableAddOnConstrainedTableWithViolation2() returns (string) {
     }
     return s;
 }
+
+function testTableAddWhileIterating() returns (int, int) {
+    table<Person> t1 = table {
+        { primarykey id, primarykey salary, name, age, married }
+    };
+
+    Person p1 = { id: 1, age: 30, salary: 300.50, name: "jane", married: true };
+    Person p2 = { id: 2, age: 30, salary: 350.50, name: "jane", married: true };
+    _ = t1.add(p1);
+
+    int loopVariable = 0;
+
+    while(t1.hasNext()) {
+        loopVariable = loopVariable + 1;
+        _ = t1.add(p2);
+        any data = t1.getNext();
+    }
+    int count = t1.count();
+    return (loopVariable, count);
+}
+
+function testUnconstraintTable() returns (int, json, xml, int, int, any, error?, int|error) {
+    table t1;
+    //iterable operation
+    int count1 = t1.count();
+    //json conversion
+    json j = check <json>t1;
+    //xml conversion
+    xml x = check <xml>t1;
+    //Iterate with while loop
+    int iter1 = 0;
+    while (t1.hasNext()) {
+        var data = t1.getNext();
+        iter1 = iter1 + 1;
+    }
+    //Iterate with foreach
+    int iter2 = 0;
+    foreach datarow in t1 {
+        iter2 = iter2 + 1;
+    }
+    //Get next row
+    any row = t1.getNext();
+    //Add data
+    Person p1 = { id: 1, age: 30, salary: 300.50, name: "jane", married: true };
+    error? e1 = t1.add(p1);
+    //Remove data
+    int|error e2 = t1.remove(isBelow35);
+
+    return (count1, j, x, iter1, iter2, row, e1, e2);
+}
+
+function isBelow35(Person p) returns (boolean) {
+    return p.age < 35;
+}

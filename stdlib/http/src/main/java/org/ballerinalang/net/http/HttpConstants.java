@@ -19,7 +19,7 @@
 package org.ballerinalang.net.http;
 
 import static org.ballerinalang.util.BLangConstants.BALLERINA_BUILTIN_PKG;
-import static org.ballerinalang.util.BLangConstants.ORG_NAME_SEPARATOR;;
+import static org.ballerinalang.util.BLangConstants.ORG_NAME_SEPARATOR;
 
 /**
  * Constants for HTTP.
@@ -80,6 +80,7 @@ public class HttpConstants {
 
     /* Annotations */
     public static final String ANN_NAME_RESOURCE_CONFIG = "ResourceConfig";
+    public static final String ANN_NAME_INTERRUPTIBLE = "interruptible";
     public static final String ANN_RESOURCE_ATTR_METHODS = "methods";
     public static final String ANN_RESOURCE_ATTR_PATH = "path";
     public static final String ANN_RESOURCE_ATTR_BODY = "body";
@@ -290,6 +291,9 @@ public class HttpConstants {
     public static final String REQUEST_LIMITS_MAXIMUM_URL_LENGTH = "maxUriLength";
     public static final String REQUEST_LIMITS_MAXIMUM_HEADER_SIZE = "maxHeaderSize";
     public static final String REQUEST_LIMITS_MAXIMUM_ENTITY_BODY_SIZE = "maxEntityBodySize";
+    public static final String ENDPOINT_CONFIG_PIPELINING = "pipelining";
+    public static final String ENABLE_PIPELINING = "enable";
+    public static final String PIPELINING_REQUEST_LIMIT = "maxPipelinedRequests";
 
     public static final String ENDPOINT_CONFIG_SECURE_SOCKET = "secureSocket";
 
@@ -376,4 +380,7 @@ public class HttpConstants {
     public static final int REQUEST_STRUCT_INDEX = 1;
     public static final String REQUEST_REUSE_STATUS_INDEX = "dirtyRequest";
     public static final boolean DIRTY_REQUEST = true;
+
+    private HttpConstants() {
+    }
 }

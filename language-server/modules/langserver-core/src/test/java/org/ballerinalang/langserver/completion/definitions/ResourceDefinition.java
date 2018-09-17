@@ -31,7 +31,8 @@ public class ResourceDefinition extends CompletionTest {
 
     @BeforeClass
     private void initLSIndex() {
-        String indexDumpPath = Paths.get("target/lang-server-index.sql").toAbsolutePath().toString();
+        String indexDumpPath = Paths.get("target/lib/resources/composer/lang-server-index.sql").toAbsolutePath()
+                .toString();
         LSIndexImpl.getInstance().initFromIndexDump(indexDumpPath);
     }
 
@@ -55,7 +56,9 @@ public class ResourceDefinition extends CompletionTest {
                 {"actionInvocationSuggestion2.json", "resource"},
                 {"completionBeforeUnderscore1.json", "resource"},
                 {"completionBeforeUnderscore2.json", "resource"},
-                {"completionBeforeUnderscore3.json", "resource"}
+                {"completionBeforeUnderscore3.json", "resource"},
+                {"matchExpressionSuggestion1.json", "resource"},
+                {"matchExpressionSuggestion2.json", "resource"}
         };
     }
 }

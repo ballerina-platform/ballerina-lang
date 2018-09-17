@@ -14,20 +14,16 @@
 // specific language governing permissions and limitations
 // under the License.
 
-documentation {
-    Encodes the given URL.
+# Encodes the given URL.
+#
+# + url - URL to be encoded
+# + charset - Charactor set that URL to be encoded in
+# + return - The `string` Value of the encoded url or an `error` that occured during encoding
+public extern function encode(string url, string charset) returns string|error;
 
-    P{{url}} URL to be encoded
-    P{{charset}} Charactor set that URL to be encoded in
-    R{{}} The `string` Value of the encoded url or an `error` that occured during encoding
-}
-public native function encode(string url, string charset) returns string|error;
-
-documentation {
-    Decodes the given URL.
-
-    P{{url}} URL to be decoded
-    P{{charset}} Charactor set that URL to be decoded from
-    R{{}} The `string` Value of the decoded url or an `error` that occured during decoding
-}
-public native function decode(string url, string charset) returns string|error;
+# Decodes the given URL.
+#
+# + url - URL to be decoded
+# + charset - Charactor set that URL to be decoded from
+# + return - The `string` Value of the decoded url or an `error` that occured during decoding
+public extern function decode(string url, string charset) returns string|error;

@@ -14,20 +14,19 @@
 // specific language governing permissions and limitations
 // under the License.
 
-documentation {
-    Executes a ballerina doc command
-    P{{packageList}} - List of packages
-    P{{outputPath}} - Path to write api-docs
-    P{{templatesPath}} - Location of the templates
-    P{{exclude}} - Packages to exclude
-    P{{includeNatives}} - Generate docs for natives
-    P{{envVars}} - Environment variables to pass
-    P{{config}} - Path to configuration file
-    P{{verbose}} - Verbose mode
-    P{{sourceRoot}} - Root folder of the packages
-    R{{}} - Data piped from the standard output and error output of the process
-}
-public native function execBallerinaDoc(string[] packageList,
+# Executes a ballerina doc command
+#
+# + packageList - List of packages
+# + outputPath - Path to write api-docs
+# + templatesPath - Location of the templates
+# + exclude - Packages to exclude
+# + includeNatives - Generate docs for natives
+# + envVars - Environment variables to pass
+# + config - Path to configuration file
+# + verbose - Verbose mode
+# + sourceRoot - Root folder of the packages
+# + return - Data piped from the standard output and error output of the process
+public extern function execBallerinaDoc(string[] packageList,
                                         string? sourceRoot = (),
                                         string? outputPath = (),
                                         string? templatesPath = (),

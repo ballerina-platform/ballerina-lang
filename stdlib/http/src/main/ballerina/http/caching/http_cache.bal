@@ -17,10 +17,8 @@
 
 import ballerina/cache;
 
-documentation {
-    Implements a cache for storing HTTP responses. This cache complies with the caching policy set when configuring
-    HTTP caching in the HTTP client endpoint.
-}
+# Implements a cache for storing HTTP responses. This cache complies with the caching policy set when configuring
+# HTTP caching in the HTTP client endpoint.
 public type HttpCache object {
 
     public cache:Cache cache;

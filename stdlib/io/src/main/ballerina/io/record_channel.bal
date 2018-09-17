@@ -14,61 +14,47 @@
 // specific language governing permissions and limitations
 // under the License.
 
-documentation {
-    Represents a channel which will allow to read/write records through a given CharacterChannel.
-}
+# Represents a channel which will allow to read/write records through a given CharacterChannel.
 public type DelimitedTextRecordChannel object {
-    private CharacterChannel channel;
+    private CharacterChannel charChannel;
     private string rs;
     private string fs;
 
-    documentation {
-        Constructs a DelimitedTextRecordChannel from a given CharacterChannel.
-
-        P{{channel}} CharacterChannel which will point to the input/output resource
-        P{{rs}} Record separator (this could be a regex)
-        P{{fs}} Field separator (this could be a regex)
-    }
-    public new(channel, fs = "", rs = "", string fmt = "default") {
-        init(channel, fs, rs, fmt);
+    # Constructs a DelimitedTextRecordChannel from a given CharacterChannel.
+    #
+    # + charChannel - CharacterChannel which will point to the input/output resource
+    # + rs - Record separator (this could be a regex)
+    # + fs - Field separator (this could be a regex)
+    public new(charChannel, fs = "", rs = "", string fmt = "default") {
+        init(charChannel, fs, rs, fmt);
     }
 
-    documentation {
-        Initializes delimited record channel.
+    # Initializes delimited record channel.
+    #
+    # + characterChannel - Character channel which will be used for reading/writing records
+    # + fieldSeparator - Field separator which will separate between fields
+    # + recordSeparator - Record separator which will separate between records
+    # + fmt - Format which will be used to represent the type of record i.e csv
+    extern function init(CharacterChannel characterChannel, string fieldSeparator, string recordSeparator, string fmt);
 
-        P{{characterChannel}} Character channel which will be used for reading/writing records
-        P{{fieldSeparator}} Field separator which will separate between fields
-        P{{recordSeparator}} Record separator which will separate between records
-        P{{fmt}} Format which will be used to represent the type of record i.e csv
-    }
-    native function init(CharacterChannel characterChannel, string fieldSeparator, string recordSeparator, string fmt);
+    # Checks whether there's a record left to be read.
+    #
+    # + return - True if there's a record left to be read
+    public extern function hasNext() returns boolean;
 
-    documentation {
-        Checks whether there's a record left to be read.
+    # Get next record from the input/output resource.
+    #
+    # + return - Set of fields included in the record or an error
+    public extern function getNext() returns @tainted string[]|error;
 
-        R{{}} True if there's a record left to be read
-    }
-    public native function hasNext() returns boolean;
+    # Writes records to a given input/output resource.
+    #
+    # + textRecord - List of fields to be written
+    # + return - An error if the records could not be written properly
+    public extern function write(string[] textRecord) returns error?;
 
-    documentation {
-        Get next record from the input/output resource.
-
-        R{{}} Set of fields included in the record or an error
-    }
-    public native function getNext() returns @tainted string[]|error;
-
-    documentation {
-        Writes records to a given input/output resource.
-
-        P{{textRecord}} List of fields to be written
-        R{{}} An error if the records could not be written properly
-    }
-    public native function write(string[] textRecord) returns error?;
-
-    documentation {
-        Closes a given record channel.
-
-        R{{}} An error if the record channel could not be closed properly
-    }
-    public native function close() returns error?;
+    # Closes a given record channel.
+    #
+    # + return - An error if the record channel could not be closed properly
+    public extern function close() returns error?;
 };

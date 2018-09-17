@@ -31,7 +31,7 @@ import org.ballerinalang.net.http.HttpConstants;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.wso2.transport.http.netty.common.Constants;
 import org.wso2.transport.http.netty.contract.HttpClientConnector;
-import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
+import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -74,6 +74,9 @@ public abstract class AbstractStub {
 
     /**
      * The underlying connector of the stub.
+     *
+     * @return client connector
+     *
      */
     public final HttpClientConnector getConnector() {
         return connector;
@@ -88,7 +91,7 @@ public abstract class AbstractStub {
 
     OutboundMessage createOutboundRequest(HttpHeaders httpHeaders) {
         try {
-            HTTPCarbonMessage carbonMessage = MessageUtils.createHttpCarbonMessage(true);
+            HttpCarbonMessage carbonMessage = MessageUtils.createHttpCarbonMessage(true);
             String urlString = getEndpointConfig().getStringField(GrpcConstants.CLIENT_ENDPOINT_URL);
             URL url = new URL(urlString);
             int port = getOutboundReqPort(url);
@@ -120,14 +123,14 @@ public abstract class AbstractStub {
         return port;
     }
 
-    private void setOutboundReqHeaders(HTTPCarbonMessage outboundRequest, int port, String host) {
+    private void setOutboundReqHeaders(HttpCarbonMessage outboundRequest, int port, String host) {
         HttpHeaders headers = outboundRequest.getHeaders();
         setHostHeader(host, port, headers);
         setOutboundUserAgent(headers);
         removeConnectionHeader(headers);
     }
 
-    private void setOutboundReqProperties(HTTPCarbonMessage outboundRequest, URL url, int port, String host) {
+    private void setOutboundReqProperties(HttpCarbonMessage outboundRequest, URL url, int port, String host) {
         outboundRequest.setProperty(Constants.HTTP_HOST, host);
         outboundRequest.setProperty(Constants.HTTP_PORT, port);
         String outboundReqPath = url.getPath();
@@ -186,7 +189,7 @@ public abstract class AbstractStub {
      * Callbacks for receiving headers, response messages and completion status from the server.
      * <p>
      * Referenced from grpc-java implementation.
-     * <p>
+     *
      */
     public interface Listener {
 
@@ -206,7 +209,7 @@ public abstract class AbstractStub {
 
         /**
          *  Calls when call is closed.
-         * <p>
+         *
          * <p>If {@code status} returns false for {@link Status#isOk()}, then the call failed.
          *
          * @param status   the result of the remote call.

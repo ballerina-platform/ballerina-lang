@@ -20,14 +20,21 @@ package org.ballerinalang.test.services.testutils;
 import org.ballerinalang.bre.bvm.BLangVMErrors;
 import org.ballerinalang.bre.bvm.CallableUnitCallback;
 import org.ballerinalang.model.values.BMap;
+import org.ballerinalang.model.values.BRefValueArray;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.net.http.HttpConstants;
 import org.ballerinalang.net.http.HttpUtil;
 import org.ballerinalang.services.ErrorHandlerUtils;
-import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
+import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
+
+import static org.ballerinalang.bre.bvm.BLangVMErrors.ERROR_CAUSE_FIELD;
+import static org.ballerinalang.bre.bvm.BLangVMErrors.ERROR_MESSAGE_FIELD;
+import static org.ballerinalang.bre.bvm.BLangVMErrors.STRUCT_CALL_FAILED_EXCEPTION;
 
 /**
  * Test callback implementation for service tests.
@@ -35,13 +42,13 @@ import java.util.concurrent.TimeUnit;
 public class TestCallableUnitCallback implements CallableUnitCallback {
 
     private volatile Semaphore executionWaitSem;
-    private HTTPCarbonMessage requestMessage;
+    private HttpCarbonMessage requestMessage;
     private BValue request;
 
-    private HTTPCarbonMessage responseMsg;
+    private HttpCarbonMessage responseMsg;
     private int timeOut = 120;
 
-    public TestCallableUnitCallback(HTTPCarbonMessage requestMessage) {
+    public TestCallableUnitCallback(HttpCarbonMessage requestMessage) {
         executionWaitSem = new Semaphore(0);
         this.requestMessage = requestMessage;
     }
@@ -55,7 +62,7 @@ public class TestCallableUnitCallback implements CallableUnitCallback {
     public void notifyFailure(BMap<String, BValue> error) {
         Object carbonStatusCode = requestMessage.getProperty(HttpConstants.HTTP_STATUS_CODE);
         int statusCode = (carbonStatusCode == null) ? 500 : Integer.parseInt(carbonStatusCode.toString());
-        String errorMsg = BLangVMErrors.getAggregatedRootErrorMessages(error);
+        String errorMsg = getAggregatedRootErrorMessages(error);
         ErrorHandlerUtils.printError("error: " + BLangVMErrors.getPrintableStackTrace(error));
         this.responseMsg = HttpUtil.createErrorMessage(errorMsg, statusCode);
         this.executionWaitSem.release();
@@ -68,7 +75,7 @@ public class TestCallableUnitCallback implements CallableUnitCallback {
 //    @Override
 //    public void notifyReply(BValue... response) {
 //        //TODO check below line
-//        HTTPCarbonMessage responseMessage = HttpUtil.getCarbonMsg((BStruct) response[0], null);
+//        HttpCarbonMessage responseMessage = HttpUtil.getCarbonMsg((BStruct) response[0], null);
 //        this.responseMsg = responseMessage;
 //        this.executionWaitSem.release();
 //    }
@@ -81,12 +88,34 @@ public class TestCallableUnitCallback implements CallableUnitCallback {
         }
     }
 
-    public void setResponseMsg(HTTPCarbonMessage httpCarbonMessage) {
+    public void setResponseMsg(HttpCarbonMessage httpCarbonMessage) {
         this.responseMsg = httpCarbonMessage;
         executionWaitSem.release();
     }
 
-    public HTTPCarbonMessage getResponseMsg() {
+    public HttpCarbonMessage getResponseMsg() {
         return responseMsg;
+    }
+
+    private static String getAggregatedRootErrorMessages(BMap<String, BValue> error) {
+        if (error.getType().getName().equals(STRUCT_CALL_FAILED_EXCEPTION)) {
+            BRefValueArray causesArray = (BRefValueArray) error.get(ERROR_CAUSE_FIELD);
+            if (causesArray != null && causesArray.size() > 0) {
+                List<String> messages = new ArrayList<>();
+                for (int i = 0; i < causesArray.size(); i++) {
+                    messages.add(getAggregatedRootErrorMessages((BMap<String, BValue>) causesArray.get(i)));
+                }
+                return String.join(", ", messages.toArray(new String[0]));
+            }
+
+            return error.get(ERROR_MESSAGE_FIELD).stringValue();
+        }
+
+        BMap<String, BValue> cause = (BMap<String, BValue>) error.get(ERROR_CAUSE_FIELD);
+        if (cause != null) {
+            return getAggregatedRootErrorMessages(cause);
+        }
+
+        return error.get(ERROR_MESSAGE_FIELD).stringValue();
     }
 }

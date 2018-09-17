@@ -1,0 +1,60 @@
+@post-color: #49cc90;
+@put-color: #fca130;
+@get-color: #61affe;
+@delete-color: #f93e3e;
+@patch-color: #50e3c2;
+@head-color: #9012fe;
+@options-color: #0d5aa7;
+
+@Operation-Options : get, post, put, delete, patch, head, options;
+
+.operation {
+    background-color: #f2f2f2;
+    margin: 0.3em 0;
+} 
+
+.operation .op-title{
+    padding: 0 !important;
+}
+
+.operation .op-title .op-method{
+    padding: .5em;
+    display: inline-block;
+    min-width: 5em;
+    margin-right: 1em;
+    text-align: center;
+    color: #fff;
+    text-transform: uppercase;
+    font-size: .8em;
+}
+
+.operation .op-summary{
+    font-weight: 100;
+    font-size: .9em;
+}
+
+.operation .content{
+    padding: 0.5em 1em 1.5em 1em !important;
+}
+
+.operation .delete-op{
+    margin: 6px 10px;
+    float: right;
+}
+
+.add-operation {
+    margin: 1em 0;
+    border: 1px solid #eee;
+    padding: 1em;
+}
+
+each( @Operation-Options, {
+    @borderColor: '@{value}-color';
+    .operation.@{value} .op-title,
+    .operation.@{value} .content{
+        border-left: 2px solid @@borderColor;
+    }
+    .operation.@{value} .op-title .op-method{
+        background-color: @@borderColor;
+    }
+});

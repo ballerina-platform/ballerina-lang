@@ -30,6 +30,7 @@ import org.ballerinalang.connector.api.ParamDetail;
 import org.ballerinalang.connector.api.Resource;
 import org.ballerinalang.model.types.BArrayType;
 import org.ballerinalang.model.types.BField;
+import org.ballerinalang.model.types.BFiniteType;
 import org.ballerinalang.model.types.BStructureType;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.TypeKind;
@@ -56,7 +57,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.transport.http.netty.contract.HttpWsConnectorFactory;
 import org.wso2.transport.http.netty.contractimpl.DefaultHttpWsConnectorFactory;
-import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
+import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -169,7 +170,7 @@ public class MessageUtils {
      * @param error          error message struct
      */
     static void handleFailure(StreamObserver streamObserver, BMap<String, BValue> error) {
-        String errorMsg = error.getMessageAsString();
+        String errorMsg = error.stringValue();
         LOG.error(errorMsg);
         ErrorHandlerUtils.printError("error: " + BLangVMErrors.getPrintableStackTrace(error));
         if (streamObserver != null) {
@@ -516,6 +517,9 @@ public class MessageUtils {
                         }
                         requestStruct.put(structFieldName, bArrayValue);
                     }
+                } else if (structFieldType instanceof BFiniteType) {
+                    BValue bEnumValue = new BString((String) request.getFields().get(structField.fieldName));
+                    requestStruct.put(structFieldName, bEnumValue);
                 }
             }
             bValue = requestStruct;
@@ -579,7 +583,9 @@ public class MessageUtils {
      *
      * <p>
      * Referenced from grpc-java implementation.
-     * <p>
+     *
+     * @param contentType gRPC content type
+     * @return is valid content type
      */
     public static boolean isGrpcContentType(String contentType) {
         if (contentType == null) {
@@ -606,13 +612,13 @@ public class MessageUtils {
         return new DefaultHttpWsConnectorFactory();
     }
 
-    public static HTTPCarbonMessage createHttpCarbonMessage(boolean isRequest) {
-        HTTPCarbonMessage httpCarbonMessage;
+    public static HttpCarbonMessage createHttpCarbonMessage(boolean isRequest) {
+        HttpCarbonMessage httpCarbonMessage;
         if (isRequest) {
-            httpCarbonMessage = new HTTPCarbonMessage(
+            httpCarbonMessage = new HttpCarbonMessage(
                     new DefaultHttpRequest(HttpVersion.HTTP_1_1, HttpMethod.GET, ""));
         } else {
-            httpCarbonMessage = new HTTPCarbonMessage(
+            httpCarbonMessage = new HttpCarbonMessage(
                     new DefaultHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.OK));
         }
         return httpCarbonMessage;

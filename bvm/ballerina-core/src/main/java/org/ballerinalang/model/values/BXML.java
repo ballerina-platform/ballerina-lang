@@ -21,11 +21,11 @@ import org.apache.axiom.om.OMNode;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.model.util.XMLNodeType;
-import org.ballerinalang.runtime.message.BallerinaMessageDataSource;
 import org.ballerinalang.util.exceptions.BallerinaException;
 
 import java.util.Iterator;
 import java.util.List;
+
 import javax.xml.namespace.QName;
 
 /**
@@ -42,7 +42,7 @@ import javax.xml.namespace.QName;
  *
  * @since 0.8.0
  */
-public abstract class BXML<T> extends BallerinaMessageDataSource implements BRefType<T>, BCollection {
+public abstract class BXML<T> implements BRefType<T>, BCollection {
 
     /**
      * Start of a XML comment.
@@ -262,22 +262,6 @@ public abstract class BXML<T> extends BallerinaMessageDataSource implements BRef
         return BTypes.typeXML;
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public String getMessageAsString() {
-        return stringValue();
-    }
-    
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public BallerinaMessageDataSource clone() {
-        return copy();
-    }
-
     // private methods
     
     protected static void handleXmlException(String message, Throwable t) {
@@ -340,4 +324,11 @@ public abstract class BXML<T> extends BallerinaMessageDataSource implements BRef
      * @param qname Qualified name of the attribute
      */
     public abstract void removeAttribute(String qname);
+
+    /**
+     * Remove children matching the given name from an XML.
+     * 
+     * @param qname Namespace qualified name of the children to be removed.
+     */
+    public abstract void removeChildren(String qname);
 }

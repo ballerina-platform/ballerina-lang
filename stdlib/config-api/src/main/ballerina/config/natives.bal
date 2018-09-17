@@ -14,20 +14,16 @@
 // specific language governing permissions and limitations
 // under the License.
 
-documentation {
-    Checks whether the given key is in the configuration registry.
+# Checks whether the given key is in the configuration registry.
+#
+# + key - The configuration key to be looked-up
+# + return - Returns true if the key is present; if not returs false
+public extern function contains(@sensitive string key) returns boolean;
 
-    P{{key}} The configuration key to be looked-up
-    R{{}} Returns true if the key is present; if not returs false
-}
-public native function contains(@sensitive string key) returns boolean;
+# Sets the specified key/value pair as a configuration.
+#
+# + key - The key of the configuration value to be set
+# + value - The configuration value to be set
+public extern function setConfig(string key, string|int|float|boolean value);
 
-documentation {
-    Sets the specified key/value pair as a configuration.
-
-    P{{key}} The key of the configuration value to be set
-    P{{value}} The configuration value to be set
-}
-public native function setConfig(string key, string|int|float|boolean value);
-
-native function get(@sensitive string key, ValueType vType) returns string|int|float|boolean|map|any[]|()|error;
+extern function get(@sensitive string key, ValueType vType) returns string|int|float|boolean|map|any[]|()|error;

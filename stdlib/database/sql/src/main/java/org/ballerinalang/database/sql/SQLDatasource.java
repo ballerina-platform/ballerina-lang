@@ -37,7 +37,6 @@ import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.util.Locale;
 import java.util.Map;
-import java.util.Set;
 import java.util.UUID;
 import javax.sql.XADataSource;
 
@@ -58,11 +57,10 @@ public class SQLDatasource implements BValue {
     public SQLDatasource() {
     }
 
-    public boolean init(Struct options, String url, String dbType, String hostOrPath, int port, String username,
-            String password, String dbName, String dbOptions, Map dbOptionsMap) {
-        databaseName = dbName;
-        peerAddress = url;
-        buildDataSource(options, url, dbType, hostOrPath, dbName, port, username, password, dbOptions, dbOptionsMap);
+    public boolean init(SQLDatasourceParams sqlDatasourceParams) {
+        databaseName = sqlDatasourceParams.dbName;
+        peerAddress = sqlDatasourceParams.jdbcUrl;
+        buildDataSource(sqlDatasourceParams);
         connectorId = UUID.randomUUID().toString();
         xaConn = isXADataSource();
         try (Connection con = getSQLConnection()) {
@@ -133,69 +131,75 @@ public class SQLDatasource implements BValue {
         hikariDataSource.close();
     }
 
-    private void buildDataSource(Struct options, String jdbcurl, String dbType, String hostOrPath, String dbName,
-            int port, String username, String password, String dbOptions, Map dbOptionsMap) {
+    private void buildDataSource(SQLDatasourceParams sqlDatasourceParams) {
         try {
             HikariConfig config = new HikariConfig();
             //Set username password
-            config.setUsername(username);
-            config.setPassword(password);
+            config.setUsername(sqlDatasourceParams.username);
+            config.setPassword(sqlDatasourceParams.password);
             //Set URL
-            if (jdbcurl.isEmpty()) {
-                jdbcurl = constructJDBCURL(dbType, hostOrPath, port, dbName, username, password, dbOptions);
+            if (sqlDatasourceParams.jdbcUrl.isEmpty()) {
+                sqlDatasourceParams.jdbcUrl = constructJDBCURL(sqlDatasourceParams.dbType,
+                        sqlDatasourceParams.hostOrPath, sqlDatasourceParams.port, sqlDatasourceParams.dbName,
+                        sqlDatasourceParams.username, sqlDatasourceParams.password, sqlDatasourceParams.urlOptions);
             }
             //Set optional properties
-            if (options != null) {
-                boolean isXA = options.getBooleanField(Constants.Options.IS_XA);
-                BMap<String, BRefType> dataSourceConfigMap = populatePropertiesMap(dbOptionsMap);
+            if (sqlDatasourceParams.options != null) {
+                boolean isXA = sqlDatasourceParams.options.getBooleanField(Constants.Options.IS_XA);
+                BMap<String, BRefType<?>> dataSourceConfigMap = populatePropertiesMap(sqlDatasourceParams.dbOptionsMap);
 
-                String dataSourceClassName = options.getStringField(Constants.Options.DATASOURCE_CLASSNAME);
+                String dataSourceClassName = sqlDatasourceParams.options
+                        .getStringField(Constants.Options.DATASOURCE_CLASSNAME);
                 if (isXA && dataSourceClassName.isEmpty()) {
-                    dataSourceClassName = getXADatasourceClassName(dbType, jdbcurl, username, password);
+                    dataSourceClassName = getXADatasourceClassName(sqlDatasourceParams.dbType,
+                            sqlDatasourceParams.jdbcUrl, sqlDatasourceParams.username, sqlDatasourceParams.password);
                 }
                 if (!dataSourceClassName.isEmpty()) {
                     config.setDataSourceClassName(dataSourceClassName);
-                    dataSourceConfigMap = setDataSourcePropertiesMap(dataSourceConfigMap, jdbcurl, username, password);
+                    dataSourceConfigMap = setDataSourcePropertiesMap(dataSourceConfigMap, sqlDatasourceParams.jdbcUrl,
+                            sqlDatasourceParams.username, sqlDatasourceParams.password);
                 } else {
-                    config.setJdbcUrl(jdbcurl);
+                    config.setJdbcUrl(sqlDatasourceParams.jdbcUrl);
                 }
-                String connectionInitSQL = options.getStringField(Constants.Options.CONNECTION_INIT_SQL);
+                String connectionInitSQL = sqlDatasourceParams.options
+                        .getStringField(Constants.Options.CONNECTION_INIT_SQL);
                 if (!connectionInitSQL.isEmpty()) {
                     config.setConnectionInitSql(connectionInitSQL);
                 }
 
-                int maximumPoolSize = (int) options.getIntField(Constants.Options.MAXIMUM_POOL_SIZE);
+                int maximumPoolSize = (int) sqlDatasourceParams.options
+                        .getIntField(Constants.Options.MAXIMUM_POOL_SIZE);
                 if (maximumPoolSize != -1) {
                     config.setMaximumPoolSize(maximumPoolSize);
                 }
-                long connectionTimeout = options.getIntField(Constants.Options.CONNECTION_TIMEOUT);
+                long connectionTimeout = sqlDatasourceParams.options.getIntField(Constants.Options.CONNECTION_TIMEOUT);
                 if (connectionTimeout != -1) {
                     config.setConnectionTimeout(connectionTimeout);
                 }
-                long idleTimeout = options.getIntField(Constants.Options.IDLE_TIMEOUT);
+                long idleTimeout = sqlDatasourceParams.options.getIntField(Constants.Options.IDLE_TIMEOUT);
                 if (idleTimeout != -1) {
                     config.setIdleTimeout(idleTimeout);
                 }
-                int minimumIdle = (int) options.getIntField(Constants.Options.MINIMUM_IDLE);
+                int minimumIdle = (int) sqlDatasourceParams.options.getIntField(Constants.Options.MINIMUM_IDLE);
                 if (minimumIdle != -1) {
                     config.setMinimumIdle(minimumIdle);
                 }
-                long maxLifetime = options.getIntField(Constants.Options.MAX_LIFE_TIME);
+                long maxLifetime = sqlDatasourceParams.options.getIntField(Constants.Options.MAX_LIFE_TIME);
                 if (maxLifetime != -1) {
                     config.setMaxLifetime(maxLifetime);
                 }
-                long validationTimeout = options.getIntField(Constants.Options.VALIDATION_TIMEOUT);
+                long validationTimeout = sqlDatasourceParams.options.getIntField(Constants.Options.VALIDATION_TIMEOUT);
                 if (validationTimeout != -1) {
                     config.setValidationTimeout(validationTimeout);
                 }
-                boolean autoCommit = options.getBooleanField(Constants.Options.AUTOCOMMIT);
+                boolean autoCommit = sqlDatasourceParams.options.getBooleanField(Constants.Options.AUTOCOMMIT);
                 config.setAutoCommit(autoCommit);
 
                 if (dataSourceConfigMap != null) {
                     setDataSourceProperties(dataSourceConfigMap, config);
                 }
             } else {
-                config.setJdbcUrl(jdbcurl);
+                config.setJdbcUrl(sqlDatasourceParams.jdbcUrl);
             }
             hikariDataSource = new HikariDataSource(config);
         } catch (Throwable t) {
@@ -234,7 +238,7 @@ public class SQLDatasource implements BValue {
         return mapProperties;
     }
 
-    private BMap<String, BRefType> setDataSourcePropertiesMap(BMap<String, BRefType> dataSourceConfigMap,
+    private BMap<String, BRefType<?>> setDataSourcePropertiesMap(BMap<String, BRefType<?>> dataSourceConfigMap,
             String jdbcurl, String username, String password) {
         if (dataSourceConfigMap != null) {
             if (!dataSourceConfigMap.hasKey(Constants.URL)) {
@@ -387,9 +391,8 @@ public class SQLDatasource implements BValue {
         return xaDataSource;
     }
 
-    private void setDataSourceProperties(BMap options, HikariConfig config) {
-        Set<String> keySet = options.keySet();
-        for (String key : keySet) {
+    private void setDataSourceProperties(BMap<String, BRefType<?>> options, HikariConfig config) {
+        for (String key : options.keys()) {
             BValue value = options.get(key);
             if (value instanceof BString) {
                 config.addDataSourceProperty(key, value.stringValue());
@@ -423,6 +426,109 @@ public class SQLDatasource implements BValue {
             return hikariDataSource.isWrapperFor(XADataSource.class);
         } catch (SQLException e) {
             throw new BallerinaException("error in check distributed data source: " + e.getCause().getMessage());
+        }
+    }
+
+    /**
+     * This class encapsulates the parameters required for the initialization of {@code SQLDatasource} class.
+     */
+    protected static class SQLDatasourceParams {
+         private Struct options;
+         private String jdbcUrl;
+         private String dbType;
+         private String hostOrPath;
+         private int port;
+         private String username;
+         private String password;
+         private String dbName;
+         private String urlOptions;
+         private Map dbOptionsMap;
+
+        private SQLDatasourceParams(SQLDatasourceParamsBuilder builder) {
+            this.options = builder.options;
+            this.jdbcUrl = builder.jdbcUrl;
+            this.dbType = builder.dbType;
+            this.hostOrPath = builder.hostOrPath;
+            this.port = builder.port;
+            this.username = builder.username;
+            this.password = builder.password;
+            this.dbName = builder.dbName;
+            this.urlOptions = builder.urlOptions;
+            this.dbOptionsMap = builder.dbOptionsMap;
+        }
+    }
+
+    /**
+     * Builder class for SQLDatasourceParams class.
+     */
+    public static class SQLDatasourceParamsBuilder {
+        private Struct options;
+        private String jdbcUrl;
+        private String dbType;
+        private String hostOrPath;
+        private int port;
+        private String username;
+        private String password;
+        private String dbName;
+        private String urlOptions;
+        private Map<String, Value> dbOptionsMap;
+
+        public SQLDatasourceParamsBuilder(String dbType) {
+            this.dbType = dbType;
+        }
+
+        public SQLDatasourceParams build() {
+            return new SQLDatasourceParams(this);
+        }
+
+        public SQLDatasourceParamsBuilder withJdbcUrl(String jdbcUrl) {
+            this.jdbcUrl = jdbcUrl;
+            return this;
+        }
+
+        public SQLDatasourceParamsBuilder withDbType(String dbType) {
+            this.dbType = dbType;
+            return this;
+        }
+
+        public SQLDatasourceParamsBuilder withHostOrPath(String hostOrPath) {
+            this.hostOrPath = hostOrPath;
+            return this;
+        }
+
+        public SQLDatasourceParamsBuilder withPort(int port) {
+            this.port = port;
+            return this;
+        }
+
+        public SQLDatasourceParamsBuilder withUsername(String username) {
+            this.username = username;
+            return this;
+        }
+
+        public SQLDatasourceParamsBuilder withPassword(String password) {
+            this.password = password;
+            return this;
+        }
+
+        public SQLDatasourceParamsBuilder withUrlOptions(String urlOptions) {
+            this.urlOptions = urlOptions;
+            return this;
+        }
+
+        public SQLDatasourceParamsBuilder withDbOptionsMap(Map<String, Value> dbOptionsMap) {
+            this.dbOptionsMap = dbOptionsMap;
+            return this;
+        }
+
+        public SQLDatasourceParamsBuilder withOptions(Struct options) {
+            this.options = options;
+            return this;
+        }
+
+        public SQLDatasourceParamsBuilder withDbName(String dbName) {
+            this.dbName = dbName;
+            return this;
         }
     }
 }

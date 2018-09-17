@@ -47,7 +47,7 @@ public class WebSubHttpService extends HttpService {
     private static final Logger logger = LoggerFactory.getLogger(WebSubHttpService.class);
     private String topic;
 
-    WebSubHttpService(Service service) {
+    private WebSubHttpService(Service service) {
         super(service);
     }
 
@@ -75,7 +75,7 @@ public class WebSubHttpService extends HttpService {
         }
 
         List<HttpResource> resources = new ArrayList<>();
-        for (Resource resource : websubHttpService.getBallerinaService().getResources()) {
+        for (Resource resource : websubHttpService.getBalService().getResources()) {
             HttpResource httpResource = WebSubHttpResource.buildWebSubHttpResource(resource, websubHttpService);
             resources.add(httpResource);
         }

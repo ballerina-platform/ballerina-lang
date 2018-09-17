@@ -14,11 +14,9 @@
 // specific language governing permissions and limitations
 // under the License.package internal;
 
-documentation {
-    Converts given byte array to a string.
-
-    P{{content}} Byte array content to be converted
-    P{{encoding}} Encoding to used in byte array conversion to string
-    R{{}} String representation of the given byte array
-}
-public native function byteArrayToString(byte[] content, string encoding) returns string;
+# Converts given byte array to a string.
+#
+# + content - Byte array content to be converted
+# + encoding - Encoding to used in byte array conversion to string
+# + return - String representation of the given byte array
+public extern function byteArrayToString(byte[] content, string encoding) returns string;

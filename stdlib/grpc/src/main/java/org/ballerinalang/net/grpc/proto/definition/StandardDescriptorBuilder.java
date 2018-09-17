@@ -41,7 +41,6 @@ public class StandardDescriptorBuilder {
     private static final String TIMESTAMP_PROTO_PACKAGE_KEY = "google/protobuf/timestamp.proto";
     private static final String TYPE_PROTO_PACKAGE_KEY = "google/protobuf/type.proto";
     private static final String COMPILER_PLUGIN_PROTO_PACKAGE_KEY = "google/protobuf/compiler/plugin.proto";
-    public static final String GOOGLE_PROTOBUF_PACKAGE_PREFIX = "google/protobuf/";
 
     static {
         standardLibDescriptor = new HashMap<>();
@@ -64,7 +63,7 @@ public class StandardDescriptorBuilder {
                 .getDescriptor());
     }
 
-    public static Descriptors.FileDescriptor getFileDescriptor(String libName) {
+    private static Descriptors.FileDescriptor getFileDescriptor(String libName) {
         return standardLibDescriptor.get(libName);
     }
 

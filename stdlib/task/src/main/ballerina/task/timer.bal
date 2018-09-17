@@ -14,9 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-documentation {
-    Schedules a timer task.
-}
+# Schedules a timer task.
 public type Timer object {
 
     // The function which gets called when the timer goes off
@@ -37,7 +35,7 @@ public type Timer object {
     public new(onTrigger, onError, interval, delay = -1) {}
 
     // Start the timer
-    public native function start();
+    public extern function start();
     // Stop the timer
-    public native function stop();
+    public extern function stop();
 };

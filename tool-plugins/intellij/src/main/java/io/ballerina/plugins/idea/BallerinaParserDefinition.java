@@ -50,6 +50,7 @@ import static io.ballerina.plugins.idea.psi.BallerinaTypes.BY;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.BYTE;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.CATCH;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.CHECK;
+import static io.ballerina.plugins.idea.psi.BallerinaTypes.CONTINUE;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.DAY;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.DAYS;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.DECIMAL_INTEGER_LITERAL;
@@ -64,6 +65,7 @@ import static io.ballerina.plugins.idea.psi.BallerinaTypes.ENUM;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.EQUAL_GT;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.EVENTS;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.EVERY;
+import static io.ballerina.plugins.idea.psi.BallerinaTypes.EXTERN;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.FAIL;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.FINALLY;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.FIRST;
@@ -103,7 +105,6 @@ import static io.ballerina.plugins.idea.psi.BallerinaTypes.MINUTE;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.MINUTES;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.MONTH;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.MONTHS;
-import static io.ballerina.plugins.idea.psi.BallerinaTypes.NATIVE;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.NEW;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.NULL_LITERAL;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.OBJECT;
@@ -174,12 +175,11 @@ public class BallerinaParserDefinition implements ParserDefinition {
 
     // Todo - Annotate ReservedWord in the runtime to prevent highlighting as keywords.
     public static final TokenSet KEYWORDS = TokenSet.create(ABORT, ALL, ANNOTATION, ANY, AS, AWAIT, BIND, BOOLEAN,
-            BREAK, BUT, BYTE, CATCH, CHECK, DEPRECATED, DONE, ELSE, ENDPOINT, ENUM, FAIL, FINALLY, FLOAT, FOREACH,
-            FORK, FUNCTION, FUTURE, IF, IMPORT, IN, INT, JOIN, JSON, LENGTHOF, LOCK, MAP, MATCH, NATIVE, NEW,
+            BREAK, BUT, BYTE, CATCH, CHECK, CONTINUE, DEPRECATED, DONE, ELSE, ENDPOINT, ENUM, EXTERN, FAIL, FINALLY,
+            FLOAT, FOREACH, FORK, FUNCTION, FUTURE, IF, IMPORT, IN, INT, JOIN, JSON, LENGTHOF, LOCK, MAP, MATCH, NEW,
             OBJECT, ONABORT, ONCOMMIT, ONRETRY, PARAMETER, PRIVATE, PUBLIC, RECORD, RESOURCE, RETRIES, RETRY, RETURN,
             RETURNS, SERVICE, SOME, START, STREAM, STRING, TABLE, TIMEOUT, TRANSACTION, TRY, TYPE, TYPEDESC, THROW,
             UNTAINT, WHILE, WITH, WORKER, VAR, VERSION, XML, XMLNS, BOOLEAN_LITERAL, NULL_LITERAL,
-
             FROM, ON, SELECT, GROUP, BY, HAVING, ORDER, WHERE, FOLLOWED, SET, FOR, WINDOW, EVENTS, EVERY, WITHIN,
             LAST, FIRST, SNAPSHOT, OUTPUT, INNER, OUTER, RIGHT, LEFT, FULL, UNIDIRECTIONAL, SECOND, SECONDS, MINUTE,
             MINUTES, HOUR, HOURS, DAY, DAYS, MONTH, MONTHS, YEAR, YEARS, FOREVER, LIMIT, ASCENDING, DESCENDING

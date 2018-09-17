@@ -54,6 +54,8 @@ public class SessionIdGenerator {
 
     /**
      * Node identifier when in a cluster. Defaults to the empty string.
+     *
+     * @param sessionIdLength length of session id
      */
 
     public void setSessionIdLength(int sessionIdLength) {
@@ -62,7 +64,7 @@ public class SessionIdGenerator {
 
     public String generateSessionId() {
 
-        byte random[] = new byte[16];
+        byte[] random = new byte[16];
 
         // Render the result as a String of hexadecimal digits
         // Start with enough space for sessionIdLength and medium route size
@@ -72,7 +74,7 @@ public class SessionIdGenerator {
 
         while (resultLenBytes < sessionIdLength) {
             getRandomBytes(random);
-            for (int j = 0; j < random.length && resultLenBytes < sessionIdLength; j++) {
+            for (int j = 0; j < random.length && resultLenBytes < sessionIdLength; j++, resultLenBytes++) {
                 byte b1 = (byte) ((random[j] & 0xf0) >> 4);
                 byte b2 = (byte) (random[j] & 0x0f);
                 if (b1 < 10) {
@@ -85,13 +87,12 @@ public class SessionIdGenerator {
                 } else {
                     buffer.append((char) ('A' + (b2 - 10)));
                 }
-                resultLenBytes++;
             }
         }
         return buffer.toString();
     }
 
-    protected void getRandomBytes(byte bytes[]) {
+    protected void getRandomBytes(byte[] bytes) {
 
         SecureRandom random = randoms.poll();
         if (random == null) {
@@ -157,7 +158,7 @@ public class SessionIdGenerator {
 
         long t2 = System.currentTimeMillis();
         if ((t2 - t1) > 100) {
-            log.warn("Session took more than 100ms to create! Time taken: " + (t2 - t1) + "ms");
+            log.warn("Session took more than 100ms to create! Time taken: {}ms", t2 - t1);
         }
         return result;
     }

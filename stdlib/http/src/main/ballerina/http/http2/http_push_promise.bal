@@ -14,83 +14,63 @@
 // specific language governing permissions and limitations
 // under the License.
 
-documentation {
-    Represents an HTTP/2 `PUSH_PROMISE` frame.
-
-    F{{path}} The resource path
-    F{{method}} The HTTP method
-}
+# Represents an HTTP/2 `PUSH_PROMISE` frame.
+#
+# + path - The resource path
+# + method - The HTTP method
 public type PushPromise object {
 
     public string path;
     public string method;
 
-    documentation {
-        Constructs a `PushPromise` from a given path and a method.
-
-        P{{path}} The resource path
-        P{{method}} The HTTP method
-    }
+    # Constructs a `PushPromise` from a given path and a method.
+    #
+    # + path - The resource path
+    # + method - The HTTP method
     public new (path = "/", method = "GET") {
     }
 
-    documentation {
-        Checks whether the requested header exists.
+    # Checks whether the requested header exists.
+    #
+    # + headerName - The header name
+    # + return - A `boolean` representing the existence of a given header
+    public extern function hasHeader (string headerName) returns (boolean);
 
-        P{{headerName}} The header name
-        R{{}} A `boolean` representing the existence of a given header
-    }
-    public native function hasHeader (string headerName) returns (boolean);
+    # Returns the header value with the specified header name.
+    # If there are more than one header value for the specified header name, the first value is returned.
+    #
+    # + headerName - The header name
+    # + return - The header value, or null if there is no such header
+    public extern function getHeader (string headerName) returns (string);
 
-    documentation {
-        Returns the header value with the specified header name.
-        If there are more than one header value for the specified header name, the first value is returned.
+    # Gets transport headers from the `PushPromise`.
+    #
+    # + headerName - The header name
+    # + return - The array of header values
+    public extern function getHeaders (string headerName) returns (string[]);
 
-        P{{headerName}} The header name
-        R{{}} The header value, or null if there is no such header
-    }
-    public native function getHeader (string headerName) returns (string);
+    # Adds the specified key/value pair as an HTTP header to the `PushPromise`.
+    #
+    # + headerName - The header name
+    # + headerValue - The header value
+    public extern function addHeader (string headerName, string headerValue);
 
-    documentation {
-        Gets transport headers from the `PushPromise`.
+    # Sets the value of a transport header in `PushPromise`.
+    #
+    # + headerName - The header name
+    # + headerValue - The header value
+    public extern function setHeader (string headerName, string headerValue);
 
-        P{{headerName}} The header name
-        R{{}} The array of header values
-    }
-    public native function getHeaders (string headerName) returns (string[]);
+    # Removes a transport header from the `PushPromise`.
+    #
+    # + headerName - The header name
+    public extern function removeHeader (string headerName);
 
-    documentation {
-        Adds the specified key/value pair as an HTTP header to the `PushPromise`.
+    # Removes all transport headers from the `PushPromise`.
+    public extern function removeAllHeaders ();
 
-        P{{headerName}} The header name
-        P{{headerValue}} The header value
-    }
-    public native function addHeader (string headerName, string headerValue);
-
-    documentation {
-        Sets the value of a transport header in `PushPromise`.
-
-        P{{headerName}} The header name
-        P{{headerValue}} The header value
-    }
-    public native function setHeader (string headerName, string headerValue);
-
-    documentation {
-        Removes a transport header from the `PushPromise`.
-
-        P{{headerName}} The header name
-    }
-    public native function removeHeader (string headerName);
-
-    documentation {
-        Removes all transport headers from the `PushPromise`.
-    }
-    public native function removeAllHeaders ();
-
-    documentation {
-        Gets all transport header names from the `PushPromise`.
-
-        R{{}} An array of all transport header names
-    }
-    public native function getHeaderNames () returns (string[]);
+    # Gets all transport header names from the `PushPromise`.
+    #
+    # + return - An array of all transport header names
+    public extern function getHeaderNames () returns (string[]);
 };

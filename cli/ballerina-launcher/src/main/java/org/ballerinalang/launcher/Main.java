@@ -18,12 +18,6 @@
 
 package org.ballerinalang.launcher;
 
-import com.beust.jcommander.DynamicParameter;
-import com.beust.jcommander.JCommander;
-import com.beust.jcommander.MissingCommandException;
-import com.beust.jcommander.Parameter;
-import com.beust.jcommander.ParameterException;
-import com.beust.jcommander.Parameters;
 import org.ballerinalang.compiler.BLangCompilerException;
 import org.ballerinalang.config.cipher.AESCipherTool;
 import org.ballerinalang.config.cipher.AESCipherToolException;
@@ -32,6 +26,7 @@ import org.ballerinalang.util.VMOptions;
 import org.ballerinalang.util.exceptions.BLangRuntimeException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import picocli.CommandLine;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -46,6 +41,8 @@ import java.util.Properties;
 import java.util.ServiceLoader;
 
 import static org.ballerinalang.runtime.Constants.SYSTEM_PROP_BAL_DEBUG;
+import static org.ballerinalang.util.BLangConstants.COLON;
+import static org.ballerinalang.util.BLangConstants.MAIN_FUNCTION_NAME;
 
 /**
  * This class executes a Ballerina program.
@@ -53,8 +50,8 @@ import static org.ballerinalang.runtime.Constants.SYSTEM_PROP_BAL_DEBUG;
  * @since 0.8.0
  */
 public class Main {
-    private static final String JC_UNKNOWN_OPTION_PREFIX = "Unknown option:";
-    private static final String JC_EXPECTED_A_VALUE_AFTER_PARAMETER_PREFIX = "Expected a value after parameter";
+    private static final String UNMATCHED_ARGUMENT_PREFIX = "Unmatched argument";
+    private static final String MISSING_REQUIRED_PARAMETER_PREFIX = "Missing required parameter";
 
     private static PrintStream outStream = System.err;
 
@@ -80,77 +77,76 @@ public class Main {
         }
     }
 
-    private static JCommander addSubCommand(JCommander parentCmd, String commandName, Object commandObject) {
-        parentCmd.addCommand(commandName, commandObject);
-        return parentCmd.getCommands().get(commandName);
+    private static CommandLine addSubCommand(CommandLine parentCmd, String commandName, Object commandObject) {
+        parentCmd.addSubcommand(commandName, commandObject);
+        return parentCmd.getSubcommands().get(commandName);
     }
 
     private static Optional<BLauncherCmd> getInvokedCmd(String... args) {
         try {
             DefaultCmd defaultCmd = new DefaultCmd();
-            JCommander cmdParser = new JCommander(defaultCmd);
+            CommandLine cmdParser = new CommandLine(defaultCmd);
             defaultCmd.setParentCmdParser(cmdParser);
 
             // Run command
             RunCmd runCmd = new RunCmd();
-            JCommander jcRunCmd = addSubCommand(cmdParser, BallerinaCliCommands.RUN, runCmd);
+            CommandLine pcRunCmd = addSubCommand(cmdParser, BallerinaCliCommands.RUN, runCmd);
             runCmd.setParentCmdParser(cmdParser);
-            runCmd.setSelfCmdParser(jcRunCmd);
+            runCmd.setSelfCmdParser(pcRunCmd);
+
+            // Set stop at positional before the other commands are added as sub commands, to enforce ordering only
+            // for the run command
+            cmdParser.setStopAtPositional(true);
 
             HelpCmd helpCmd = new HelpCmd();
-            cmdParser.addCommand(BallerinaCliCommands.HELP, helpCmd);
+            cmdParser.addSubcommand(BallerinaCliCommands.HELP, helpCmd);
             helpCmd.setParentCmdParser(cmdParser);
 
             // loading additional commands via SPI
             ServiceLoader<BLauncherCmd> bCmds = ServiceLoader.load(BLauncherCmd.class);
             for (BLauncherCmd bCmd : bCmds) {
-                cmdParser.addCommand(bCmd.getName(), bCmd);
+                cmdParser.addSubcommand(bCmd.getName(), bCmd);
                 bCmd.setParentCmdParser(cmdParser);
             }
 
             // Build Version Command
             VersionCmd versionCmd = new VersionCmd();
-            cmdParser.addCommand(BallerinaCliCommands.VERSION, versionCmd);
+            cmdParser.addSubcommand(BallerinaCliCommands.VERSION, versionCmd);
             versionCmd.setParentCmdParser(cmdParser);
 
             EncryptCmd encryptCmd = new EncryptCmd();
-            cmdParser.addCommand(BallerinaCliCommands.ENCRYPT, encryptCmd);
+            cmdParser.addSubcommand(BallerinaCliCommands.ENCRYPT, encryptCmd);
             encryptCmd.setParentCmdParser(cmdParser);
 
-            cmdParser.setProgramName("ballerina");
-            cmdParser.parse(args);
-            String parsedCmdName = cmdParser.getParsedCommand();
+            cmdParser.setCommandName("ballerina");
 
-            // User has not specified a command. Therefore returning the main command
-            // which simply prints usage information.
-            if (parsedCmdName == null) {
+
+            List<CommandLine> parsedCommands = cmdParser.parse(args);
+
+            if (parsedCommands.size() < 1) {
                 return Optional.of(defaultCmd);
             }
 
-            Map<String, JCommander> commanderMap = cmdParser.getCommands();
-            return Optional.of((BLauncherCmd) commanderMap.get(parsedCmdName).getObjects().get(0));
-
-        } catch (MissingCommandException e) {
-            String errorMsg = "unknown command '" + e.getUnknownCommand() + "'";
-            throw LauncherUtils.createUsageException(errorMsg);
-
-        } catch (ParameterException e) {
+            return Optional.of(parsedCommands.get(parsedCommands.size() - 1).getCommand());
+        } catch (CommandLine.UnmatchedArgumentException e) {
+            String errorMessage = e.getMessage();
+            if (errorMessage == null) {
+                throw LauncherUtils.createUsageException("internal error occurred");
+            }
+            if (errorMessage.contains(UNMATCHED_ARGUMENT_PREFIX)) {
+                throw LauncherUtils.createUsageException("unknown command '" + getFirstUnknownArg(errorMessage)
+                                                                 + "'");
+            }
+            throw LauncherUtils.createUsageException(LauncherUtils.makeFirstLetterLowerCase(errorMessage));
+        } catch (CommandLine.ParameterException e) {
             String msg = e.getMessage();
             if (msg == null) {
                 throw LauncherUtils.createUsageException("internal error occurred");
-
-            } else if (msg.startsWith(JC_UNKNOWN_OPTION_PREFIX)) {
-                String flag = msg.substring(JC_UNKNOWN_OPTION_PREFIX.length());
-                throw LauncherUtils.createUsageException("unknown flag '" + flag.trim() + "'");
-
-            } else if (msg.startsWith(JC_EXPECTED_A_VALUE_AFTER_PARAMETER_PREFIX)) {
-                String flag = msg.substring(JC_EXPECTED_A_VALUE_AFTER_PARAMETER_PREFIX.length());
-                throw LauncherUtils.createUsageException("flag '" + flag.trim() + "' needs an argument");
-
-            } else {
-                // Make the first character of the error message lower case
-                throw LauncherUtils.createUsageException(LauncherUtils.makeFirstLetterLowerCase(msg));
+            } else if (msg.startsWith(MISSING_REQUIRED_PARAMETER_PREFIX)) {
+                    throw LauncherUtils.createUsageException("flag " + msg.substring(msg.indexOf("'"))
+                                                                     + " needs an argument");
             }
+            throw LauncherUtils.createUsageException(LauncherUtils.makeFirstLetterLowerCase(msg));
         }
     }
 
@@ -186,42 +182,51 @@ public class Main {
         return "ballerina: " + LauncherUtils.makeFirstLetterLowerCase(message);
     }
 
+    private static String getFirstUnknownArg(String errorMessage) {
+        String optionsString = errorMessage.split(":")[1];
+        return (optionsString.split(","))[0].trim();
+    }
+
     /**
      * This class represents the "run" command and it holds arguments and flags specified by the user.
      *
      * @since 0.8.0
      */
-    @Parameters(commandNames = "run", commandDescription = "compile and run Ballerina program")
+    @CommandLine.Command(name = "run", description = "compile and run Ballerina programs")
     private static class RunCmd implements BLauncherCmd {
 
-        @Parameter(arity = 1, description = "arguments")
+        @CommandLine.Parameters(description = "arguments")
         private List<String> argList;
 
-        @Parameter(names = {"--sourceroot"}, description = "path to the directory containing source files and packages")
+        @CommandLine.Option(names = {"--sourceroot"},
+                description = "path to the directory containing source files and packages")
         private String sourceRoot;
 
-        @Parameter(names = {"--help", "-h", "?"}, hidden = true)
+        @CommandLine.Option(names = {"--help", "-h", "?"}, hidden = true)
         private boolean helpFlag;
 
-        @Parameter(names = {"--offline"})
+        @CommandLine.Option(names = {"--offline"})
         private boolean offline;
 
-        @Parameter(names = "--debug", hidden = true)
+        @CommandLine.Option(names = "--debug", hidden = true)
         private String debugPort;
 
-        @Parameter(names = "--java.debug", hidden = true, description = "remote java debugging port")
+        @CommandLine.Option(names = "--java.debug", hidden = true, description = "remote java debugging port")
         private String javaDebugPort;
 
-        @Parameter(names = {"--config", "-c"}, description = "path to the Ballerina configuration file")
+        @CommandLine.Option(names = {"--config", "-c"}, description = "path to the Ballerina configuration file")
         private String configFilePath;
 
-        @Parameter(names = "--observe", description = "enable observability with default configs")
+        @CommandLine.Option(names = "--observe", description = "enable observability with default configs")
         private boolean observeFlag;
 
-        @DynamicParameter(names = "-e", description = "Ballerina environment parameters")
+        @CommandLine.Option(names = "--printreturn", description = "print return value to the out stream")
+        private boolean printReturn;
+
+        @CommandLine.Option(names = "-e", description = "Ballerina environment parameters")
         private Map<String, String> runtimeParams = new HashMap<>();
 
-        @DynamicParameter(names = "-B", description = "Ballerina VM options")
+        @CommandLine.Option(names = "-B", description = "Ballerina VM options")
         private Map<String, String> vmOptions = new HashMap<>();
 
         public void execute() {
@@ -240,11 +245,24 @@ public class Main {
             }
 
             Path sourceRootPath = LauncherUtils.getSourceRootPath(sourceRoot);
-            System.setProperty("ballerina.source.root", sourceRootPath.toString());
             VMOptions.getInstance().addOptions(vmOptions);
 
-            Path sourcePath = Paths.get(argList.get(0));
+            String programArg = argList.get(0);
+            String functionName = MAIN_FUNCTION_NAME;
+            Path sourcePath;
+            if (programArg.contains(COLON)) {
+                String[] programArgConstituents = programArg.split(COLON);
+                functionName = programArgConstituents[programArgConstituents.length - 1];
+                if (functionName.isEmpty() || programArg.endsWith(COLON)) {
+                    throw LauncherUtils.createLauncherException("usage error: expected function name after final ':'");
+                }
+                sourcePath = Paths.get(programArg.replace(COLON.concat(functionName), ""));
+            } else {
+                sourcePath = Paths.get(argList.get(0));
+            }
+
             // Filter out the list of arguments given to the ballerina program.
+            // TODO: 7/26/18 improve logic with positioned param
             String[] programArgs;
             if (argList.size() >= 2) {
                 argList.remove(0);
@@ -253,8 +271,9 @@ public class Main {
                 programArgs = new String[0];
             }
 
-            LauncherUtils.runProgram(sourceRootPath, sourcePath, false, runtimeParams, configFilePath,
-                    programArgs, offline, observeFlag);
+            // Normalize the source path to remove './' or '.\' characters that can appear before the name
+            LauncherUtils.runProgram(sourceRootPath, sourcePath.normalize(), functionName, runtimeParams,
+                                     configFilePath, programArgs, offline, observeFlag, printReturn);
         }
 
         @Override
@@ -282,11 +301,11 @@ public class Main {
         }
 
         @Override
-        public void setParentCmdParser(JCommander parentCmdParser) {
+        public void setParentCmdParser(CommandLine parentCmdParser) {
         }
 
         @Override
-        public void setSelfCmdParser(JCommander selfCmdParser) {
+        public void setSelfCmdParser(CommandLine selfCmdParser) {
         }
     }
 
@@ -295,16 +314,16 @@ public class Main {
      *
      * @since 0.8.0
      */
-    @Parameters(commandNames = "help", commandDescription = "print usage information")
+    @CommandLine.Command(name = "help", description = "print usage information")
     private static class HelpCmd implements BLauncherCmd {
 
-        @Parameter(description = "Command name")
+        @CommandLine.Parameters(description = "Command name")
         private List<String> helpCommands;
 
-        @Parameter(names = "--java.debug", hidden = true)
+        @CommandLine.Option(names = "--java.debug", hidden = true)
         private String javaDebugPort;
 
-        private JCommander parentCmdParser;
+        private CommandLine parentCmdParser;
 
         public void execute() {
             if (helpCommands == null) {
@@ -316,7 +335,7 @@ public class Main {
             }
 
             String userCommand = helpCommands.get(0);
-            if (parentCmdParser.getCommands().get(userCommand) == null) {
+            if (parentCmdParser.getSubcommands().get(userCommand) == null) {
                 throw LauncherUtils.createUsageException("unknown help topic `" + userCommand + "`");
             }
 
@@ -339,12 +358,12 @@ public class Main {
         }
 
         @Override
-        public void setParentCmdParser(JCommander parentCmdParser) {
+        public void setParentCmdParser(CommandLine parentCmdParser) {
             this.parentCmdParser = parentCmdParser;
         }
 
         @Override
-        public void setSelfCmdParser(JCommander selfCmdParser) {
+        public void setSelfCmdParser(CommandLine selfCmdParser) {
         }
     }
 
@@ -353,19 +372,19 @@ public class Main {
      *
      * @since 0.8.1
      */
-    @Parameters(commandNames = "version", commandDescription = "print Ballerina version")
+    @CommandLine.Command(name = "version", description = "Prints Ballerina version")
     private static class VersionCmd implements BLauncherCmd {
 
-        @Parameter(description = "Command name")
+        @CommandLine.Parameters(description = "Command name")
         private List<String> versionCommands;
 
-        @Parameter(names = "--java.debug", hidden = true)
+        @CommandLine.Option(names = "--java.debug", hidden = true)
         private String javaDebugPort;
 
-        @Parameter(names = {"--help", "-h", "?"}, hidden = true)
+        @CommandLine.Option(names = {"--help", "-h", "?"}, hidden = true)
         private boolean helpFlag;
 
-        private JCommander parentCmdParser;
+        private CommandLine parentCmdParser;
 
         public void execute() {
             if (helpFlag) {
@@ -381,7 +400,7 @@ public class Main {
             }
 
             String userCommand = versionCommands.get(0);
-            if (parentCmdParser.getCommands().get(userCommand) == null) {
+            if (parentCmdParser.getSubcommands().get(userCommand) == null) {
                 throw LauncherUtils.createUsageException("unknown command `" + userCommand + "`");
             }
         }
@@ -402,12 +421,12 @@ public class Main {
         }
 
         @Override
-        public void setParentCmdParser(JCommander parentCmdParser) {
+        public void setParentCmdParser(CommandLine parentCmdParser) {
             this.parentCmdParser = parentCmdParser;
         }
 
         @Override
-        public void setSelfCmdParser(JCommander selfCmdParser) {
+        public void setSelfCmdParser(CommandLine selfCmdParser) {
 
         }
     }
@@ -418,13 +437,13 @@ public class Main {
      *
      * @since 0.966.0
      */
-    @Parameters(commandNames = "encrypt", commandDescription = "encrypt sensitive data")
+    @CommandLine.Command(name = "encrypt", description = "encrypt sensitive data")
     public static class EncryptCmd implements BLauncherCmd {
 
-        @Parameter(names = "--java.debug", hidden = true)
+        @CommandLine.Option(names = "--java.debug", hidden = true)
         private String javaDebugPort;
 
-        @Parameter(names = {"--help", "-h", "?"}, hidden = true)
+        @CommandLine.Option(names = {"--help", "-h", "?"}, hidden = true)
         private boolean helpFlag;
 
         @Override
@@ -497,11 +516,11 @@ public class Main {
         }
 
         @Override
-        public void setParentCmdParser(JCommander parentCmdParser) {
+        public void setParentCmdParser(CommandLine parentCmdParser) {
         }
 
         @Override
-        public void setSelfCmdParser(JCommander selfCmdParser) {
+        public void setSelfCmdParser(CommandLine selfCmdParser) {
 
         }
 
@@ -512,22 +531,23 @@ public class Main {
     }
 
     /**
-     * This class represents the "main" command required by the JCommander.
+     * This class represents the "default" command required by picocli.
      *
      * @since 0.8.0
      */
+    @CommandLine.Command(description = "Default Command.", name = "default")
     private static class DefaultCmd implements BLauncherCmd {
 
-        @Parameter(names = { "--help", "-h", "?" }, hidden = true, description = "for more information")
+        @CommandLine.Option(names = { "--help", "-h", "?" }, hidden = true, description = "for more information")
         private boolean helpFlag;
 
-        @Parameter(names = "--debug <port>", description = "start Ballerina in remote debugging mode")
+        @CommandLine.Option(names = "--debug", description = "start Ballerina in remote debugging mode")
         private String debugPort;
 
-        @Parameter(names = "--java.debug", hidden = true)
+        @CommandLine.Option(names = "--java.debug", hidden = true)
         private String javaDebugPort;
 
-        @Parameter(names = { "--version", "-v" }, hidden = true)
+        @CommandLine.Option(names = { "--version", "-v" }, hidden = true)
         private boolean versionFlag;
 
         @Override
@@ -560,11 +580,11 @@ public class Main {
         }
 
         @Override
-        public void setParentCmdParser(JCommander parentCmdParser) {
+        public void setParentCmdParser(CommandLine parentCmdParser) {
         }
 
         @Override
-        public void setSelfCmdParser(JCommander selfCmdParser) {
+        public void setSelfCmdParser(CommandLine selfCmdParser) {
         }
     }
 }

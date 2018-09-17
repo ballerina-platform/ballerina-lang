@@ -14,75 +14,59 @@
 // specific language governing permissions and limitations
 // under the License.
 
-documentation {
-    Releases the database connection. If the table data is fully iterated, it will be automatically closed. This explicit
-    close is required only if it is not fully iterated.
+# Releases the database connection. If the table data is fully iterated, it will be automatically closed. This explicit
+# close is required only if it is not fully iterated.
+public extern function table::close();
 
-}
-public native function table::close();
+# Checks for a new row in the given table. If a new row is found, moves the cursor to it.
+#
+# + return - True if there is a new row; false otherwise
+public extern function table::hasNext() returns boolean;
 
-documentation {
-    Checks for a new row in the given table. If a new row is found, moves the cursor to it.
+# Retrives the current row and return a record with the data in the columns.
+#
+# + return - The resulting row as a record
+public extern function table::getNext() returns any;
 
-    R{{}} True if there is a new row; false otherwise
-}
-public native function table::hasNext() returns boolean;
+# Add record to the table.
+#
+# + data - A record with data
+# + return - An `error` will be returned if there is any error occured during adding data or else nil is returned
+public extern function table::add(any data) returns error|();
 
-documentation {
-    Retrives the current row and return a record with the data in the columns.
+# Remove data from the table.
+#
+# + func - The function pointer for delete crieteria
+# + return - An `int` the number of deleted record count or `error` if any error occured during removing data
+public extern function table::remove(function (any) returns (boolean) func) returns int|error;
 
-    R{{}} The resulting row as a record
-}
-public native function table::getNext() returns any;
-
-documentation {
-    Add record to the table.
-
-    P{{data}} A record with data
-    R{{}} An `error` will be returned if there is any error occured during adding data or else nil is returned
-}
-public native function table::add(any data) returns error|();
-
-documentation {
-    Remove data from the table.
-
-    P{{func}} The function pointer for delete crieteria
-    R{{}} An `int` the number of deleted record count or `error` if any error occured during removing data
-}
-public native function table::remove(function (any) returns (boolean) func) returns int|error;
-
-documentation {
-    Execute the given sql query to fetch the records and return as a new in memory table.
-
-    P{{sqlQuery}} The query to execute
-    P{{fromTable}} The table on which the query is executed
-    P{{joinTable}} The table which is joined with 'fromTable'
-    P{{parameters}} liternal parameters to be passed to prepared statement 'sqlQuery'
-    P{{retType}} return type of the resultant table instance
-}
-native function queryTableWithJoinClause(string sqlQuery, table fromTable, table joinTable, any parameters,
+# Execute the given sql query to fetch the records and return as a new in memory table.
+#
+# + sqlQuery - The query to execute
+# + fromTable - The table on which the query is executed
+# + joinTable - The table which is joined with 'fromTable'
+# + parameters - liternal parameters to be passed to prepared statement 'sqlQuery'
+# + retType - return type of the resultant table instance
+extern function queryTableWithJoinClause(string sqlQuery, table fromTable, table joinTable, any parameters,
                                          any retType) returns table;
 
-documentation {
-    Execute the given sql query to fetch the records and return as a new in memory table.
-
-    P{{sqlQuery}} The query to execute
-    P{{fromTable}} The table on which the query is executed
-    P{{parameters}} literal parameters to be passed to prepared statement 'sqlQuery'
-    P{{retType}} return type of the resultant table instance
-}
-native function queryTableWithoutJoinClause(string sqlQuery, table fromTable, any parameters,
+# Execute the given sql query to fetch the records and return as a new in memory table.
+#
+# + sqlQuery - The query to execute
+# + fromTable - The table on which the query is executed
+# + parameters - literal parameters to be passed to prepared statement 'sqlQuery'
+# + retType - return type of the resultant table instance
+extern function queryTableWithoutJoinClause(string sqlQuery, table fromTable, any parameters,
                                             any retType) returns table;
 
-documentation {
-    TableConfig represents properties used during table initialization.
-
-    F{{primaryKey}}  An array of primary key columns
-    F{{index}} An array of index columns
-    F{{data}} An array of record data
-}
+# TableConfig represents properties used during table initialization.
+#
+# + primaryKey - An array of primary key columns
+# + index - An array of index columns
+# + data - An array of record data
 type TableConfig record {
     string[] primaryKey;
     string[] index;
     any[] data;
+    !...
 };

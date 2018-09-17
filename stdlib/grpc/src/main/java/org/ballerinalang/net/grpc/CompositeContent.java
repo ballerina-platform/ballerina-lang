@@ -50,6 +50,8 @@ public class CompositeContent {
 
     /**
      * Adds a new {@link ByteBuf} at the end of the buffer list.
+     *
+     * @param buffer Byte buffer
      */
     public void addBuffer(ByteBuf buffer) {
         buffers.add(buffer);

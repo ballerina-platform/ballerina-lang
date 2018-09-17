@@ -45,10 +45,10 @@ function search (http:Client definedEndpoint, string url, string querySearched, 
             int dateColWidth = 15;
             int versionColWidth = 8;
             int authorsColWidth = 15;
-            float nameColFactor = 9;
-            float descColFactor = 16;
+            float nameColFactor = 9.0;
+            float descColFactor = 16.0;
             int additionalSpace = 7;
-            float remainingWidth = width - (dateColWidth + versionColWidth + additionalSpace);  
+            float remainingWidth = width - <float>(dateColWidth + versionColWidth + additionalSpace);
             
             int nameColWidth = math:round(remainingWidth * (nameColFactor / (nameColFactor + descColFactor)));
             int descColWidth = math:round(remainingWidth * (descColFactor / (nameColFactor + descColFactor)));  
@@ -232,7 +232,7 @@ function getDateCreated(json jsonObj) returns string {
 documentation {
     This function invokes the method to search for packages.
 }
-function main (string... args) {
+public function main (string... args) {
     http:Client httpEndpoint;
     string host = args[2];
     string port = args[3];

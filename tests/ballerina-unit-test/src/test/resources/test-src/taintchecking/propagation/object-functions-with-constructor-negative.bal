@@ -14,7 +14,7 @@ function secureFunction(@sensitive string secureIn, string insecureIn) {
 
 }
 
-function main (string... args) {
+public function main (string... args) {
     TestObject obj = new (args[0]);
     string returnValue = obj.testFunction("staticValue");
     secureFunction(returnValue, returnValue);

@@ -19,7 +19,7 @@ import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import io.netty.handler.codec.http.DefaultHttpContent;
 import io.netty.handler.codec.http.DefaultLastHttpContent;
-import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
+import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -53,7 +53,7 @@ public class MessageFramer {
     private boolean messageCompression = true;
     private final OutputStreamAdapter outputStreamAdapter = new OutputStreamAdapter();
     private final byte[] headerScratch = new byte[HEADER_LENGTH];
-    private final HTTPCarbonMessage carbonMessage;
+    private final HttpCarbonMessage carbonMessage;
     private boolean closed;
 
     /**
@@ -61,7 +61,7 @@ public class MessageFramer {
      *
      * @param carbonMessage response carbon message to be delivered.
      */
-    MessageFramer(HTTPCarbonMessage carbonMessage) {
+    MessageFramer(HttpCarbonMessage carbonMessage) {
         this.carbonMessage = carbonMessage;
     }
 
@@ -223,6 +223,8 @@ public class MessageFramer {
 
     /**
      * Returns whether this framer has been closed or not.
+     *
+     * @return is closed
      */
     public boolean isClosed() {
         return closed;

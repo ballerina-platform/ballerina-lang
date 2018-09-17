@@ -35,7 +35,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Native function ballerina/io#createDelimitedRecordChannel.
+ * Extern function ballerina/io#createDelimitedRecordChannel.
  *
  * @since 0.963.0
  */
@@ -45,7 +45,7 @@ import org.slf4j.LoggerFactory;
         receiver = @Receiver(type = TypeKind.OBJECT,
                 structType = "DelimitedTextRecordChannel",
                 structPackage = "ballerina/io"),
-        args = {@Argument(name = "channel", type = TypeKind.OBJECT, structType = "CharacterChannel",
+        args = {@Argument(name = "charChannel", type = TypeKind.OBJECT, structType = "CharacterChannel",
                 structPackage = "ballerina/io"),
                 @Argument(name = "recordSeparator", type = TypeKind.STRING),
                 @Argument(name = "fieldSeparator", type = TypeKind.STRING)},

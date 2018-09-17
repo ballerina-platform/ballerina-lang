@@ -30,7 +30,7 @@ import org.ballerinalang.net.http.HttpUtil;
 import org.wso2.transport.http.netty.message.Http2PushPromise;
 
 /**
- * {@code SetHeader} is the ballerina native function to set a header of a Push Promise.
+ * {@code SetHeader} is the ballerina extern function to set a header of a Push Promise.
  */
 @BallerinaFunction(
         orgName = "ballerina", packageName = "http",
@@ -43,6 +43,7 @@ import org.wso2.transport.http.netty.message.Http2PushPromise;
         isPublic = true
 )
 public class SetHeader extends BlockingNativeCallableUnit {
+
     @Override
     public void execute(Context context) {
         BMap<String, BValue> pushPromiseStruct = (BMap<String, BValue>) context.getRefArgument(0);

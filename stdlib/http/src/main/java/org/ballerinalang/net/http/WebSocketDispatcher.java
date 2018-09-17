@@ -17,7 +17,9 @@
  */
 package org.ballerinalang.net.http;
 
+import io.netty.channel.ChannelFuture;
 import io.netty.handler.codec.CorruptedFrameException;
+import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BLangVMErrors;
 import org.ballerinalang.bre.bvm.BLangVMStructs;
 import org.ballerinalang.bre.bvm.CallableUnitCallback;
@@ -25,17 +27,29 @@ import org.ballerinalang.connector.api.BallerinaConnectorException;
 import org.ballerinalang.connector.api.Executor;
 import org.ballerinalang.connector.api.ParamDetail;
 import org.ballerinalang.connector.api.Resource;
+import org.ballerinalang.mime.util.MimeConstants;
+import org.ballerinalang.model.types.BArrayType;
+import org.ballerinalang.model.types.BStructureType;
+import org.ballerinalang.model.types.BType;
+import org.ballerinalang.model.types.TypeTags;
+import org.ballerinalang.model.util.JSONUtils;
+import org.ballerinalang.model.util.JsonParser;
+import org.ballerinalang.model.util.XMLNodeType;
+import org.ballerinalang.model.util.XMLUtils;
 import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BByteArray;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.model.values.BXML;
+import org.ballerinalang.net.uri.URITemplateException;
 import org.ballerinalang.services.ErrorHandlerUtils;
 import org.ballerinalang.util.BLangConstants;
 import org.ballerinalang.util.codegen.PackageInfo;
 import org.ballerinalang.util.codegen.ProgramFile;
 import org.ballerinalang.util.codegen.StructureTypeInfo;
+import org.ballerinalang.util.exceptions.BallerinaException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketBinaryMessage;
@@ -43,14 +57,18 @@ import org.wso2.transport.http.netty.contract.websocket.WebSocketCloseMessage;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketConnection;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketControlMessage;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketControlSignal;
-import org.wso2.transport.http.netty.contract.websocket.WebSocketInitMessage;
+import org.wso2.transport.http.netty.contract.websocket.WebSocketHandshaker;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketTextMessage;
-import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
+import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 
 import java.net.URI;
+import java.nio.charset.Charset;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import static org.ballerinalang.net.http.WebSocketConstants.STATUS_CODE_ABNORMAL_CLOSURE;
+import static org.ballerinalang.net.http.WebSocketConstants.STATUS_CODE_FOR_NO_STATUS_CODE_PRESENT;
 
 /**
  * {@code WebSocketDispatcher} This is the web socket request dispatcher implementation which finds best matching
@@ -62,37 +80,35 @@ public class WebSocketDispatcher {
 
     private static final Logger log = LoggerFactory.getLogger(WebSocketDispatcher.class);
 
+    private WebSocketDispatcher() {
+    }
+
     /**
      * This will find the best matching service for given web socket request.
      *
-     * @param webSocketMessage incoming message.
+     * @param webSocketHandshaker incoming message.
      * @return matching service.
      */
     static WebSocketService findService(WebSocketServicesRegistry servicesRegistry,
-                                        WebSocketInitMessage webSocketMessage) {
+                                        WebSocketHandshaker webSocketHandshaker) {
         try {
             Map<String, String> pathParams = new HashMap<>();
-            String serviceUri = webSocketMessage.getTarget();
-            serviceUri = WebSocketUtil.refactorUri(serviceUri);
-            URI requestUri;
-            try {
-                requestUri = URI.create(serviceUri);
-            } catch (IllegalArgumentException e) {
-                throw new BallerinaConnectorException(e.getMessage());
-            }
+            String serviceUri = webSocketHandshaker.getTarget();
+            serviceUri = HttpUtil.sanitizeBasePath(serviceUri);
+            URI requestUri = URI.create(serviceUri);
             WebSocketService service = servicesRegistry.getUriTemplate().matches(requestUri.getPath(), pathParams,
-                                                                                 webSocketMessage);
+                                                                                 webSocketHandshaker);
             if (service == null) {
                 throw new BallerinaConnectorException("no Service found to handle the service request: " + serviceUri);
             }
-            HTTPCarbonMessage msg = webSocketMessage.getHttpCarbonRequest();
+            HttpCarbonMessage msg = webSocketHandshaker.getHttpCarbonRequest();
             msg.setProperty(HttpConstants.QUERY_STR, requestUri.getRawQuery());
             msg.setProperty(HttpConstants.RESOURCE_ARGS, pathParams);
             return service;
-        } catch (Throwable throwable) {
+        } catch (BallerinaConnectorException | URITemplateException e) {
             String message = "No Service found to handle the service request";
-            webSocketMessage.cancelHandshake(404, message);
-            throw new BallerinaConnectorException(message, throwable);
+            webSocketHandshaker.cancelHandshake(404, message);
+            throw new BallerinaConnectorException(message, e);
         }
     }
 
@@ -108,12 +124,69 @@ public class WebSocketDispatcher {
         List<ParamDetail> paramDetails = onTextMessageResource.getParamDetails();
         BValue[] bValues = new BValue[paramDetails.size()];
         bValues[0] = connectionInfo.getWebSocketEndpoint();
-        bValues[1] = new BString(textMessage.getText());
-        if (paramDetails.size() == 3) {
-            bValues[2] = new BBoolean(textMessage.isFinalFragment());
+        boolean finalFragment = textMessage.isFinalFragment();
+        BType dataType = paramDetails.get(1).getVarType();
+        int dataTypeTag = dataType.getTag();
+        if (dataTypeTag == TypeTags.STRING_TAG) {
+            bValues[1] = new BString(textMessage.getText());
+            if (paramDetails.size() == 3) {
+                bValues[2] = new BBoolean(textMessage.isFinalFragment());
+            }
+            Executor.submit(onTextMessageResource, new WebSocketResourceCallableUnitCallback(webSocketConnection),
+                            null, null, bValues);
+        } else if (dataTypeTag == TypeTags.JSON_TAG || dataTypeTag == TypeTags.RECORD_TYPE_TAG ||
+                dataTypeTag == TypeTags.XML_TAG || dataTypeTag == TypeTags.ARRAY_TAG) {
+            if (finalFragment) {
+                connectionInfo.appendAggregateString(textMessage.getText());
+                dispatchResourceWithAggregatedData(webSocketConnection, onTextMessageResource, bValues, dataType,
+                                                   connectionInfo.getAggregateString());
+                connectionInfo.resetAggregateString();
+            } else {
+                connectionInfo.appendAggregateString(textMessage.getText());
+                webSocketConnection.readNextFrame();
+            }
+
         }
-        Executor.submit(onTextMessageResource, new WebSocketResourceCallableUnitCallback(webSocketConnection), null,
-                        null, bValues);
+    }
+
+    private static void dispatchResourceWithAggregatedData(WebSocketConnection webSocketConnection,
+                                                           Resource onTextMessageResource, BValue[] bValues,
+                                                           BType dataType, String aggregateString) {
+        try {
+            switch (dataType.getTag()) {
+                case TypeTags.JSON_TAG:
+                    bValues[1] = JsonParser.parse(aggregateString);
+                    break;
+                case TypeTags.XML_TAG:
+                    BXML bxml = XMLUtils.parse(aggregateString);
+                    if (bxml.getNodeType() != XMLNodeType.ELEMENT) {
+                        throw new BallerinaException("Invalid XML data");
+                    }
+                    bValues[1] = bxml;
+                    break;
+                case TypeTags.RECORD_TYPE_TAG:
+                    bValues[1] = JSONUtils.convertJSONToStruct(JsonParser.parse(aggregateString),
+                                                               (BStructureType) dataType);
+                    break;
+                case TypeTags.ARRAY_TAG:
+                    if (((BArrayType) dataType).getElementType().getTag() == TypeTags.BYTE_TAG) {
+                        bValues[1] = new BByteArray(
+                                aggregateString.getBytes(Charset.forName(MimeConstants.UTF_8)));
+                    }
+                    break;
+                default:
+                    //Throw an exception because a different type is invalid.
+                    //Cannot reach here because of compiler plugin validation.
+                    throw new BallerinaConnectorException("Invalid resource signature.");
+
+            }
+            Executor.submit(onTextMessageResource,
+                            new WebSocketResourceCallableUnitCallback(webSocketConnection),
+                            null, null, bValues);
+        } catch (BallerinaException ex) {
+            webSocketConnection.terminateConnection(1003, ex.getMessage());
+            throw ex;
+        }
     }
 
     static void dispatchBinaryMessage(WebSocketOpenConnectionInfo connectionInfo,
@@ -143,8 +216,6 @@ public class WebSocketDispatcher {
             WebSocketDispatcher.dispatchPingMessage(connectionInfo, controlMessage);
         } else if (controlMessage.getControlSignal() == WebSocketControlSignal.PONG) {
             WebSocketDispatcher.dispatchPongMessage(connectionInfo, controlMessage);
-        } else {
-            throw new BallerinaConnectorException("Received unknown control signal");
         }
     }
 
@@ -191,7 +262,11 @@ public class WebSocketDispatcher {
         String closeReason = closeMessage.getCloseReason();
         if (onCloseResource == null) {
             if (webSocketConnection.isOpen()) {
-                webSocketConnection.finishConnectionClosure(closeCode, null);
+                if (closeCode == STATUS_CODE_FOR_NO_STATUS_CODE_PRESENT) {
+                    webSocketConnection.finishConnectionClosure();
+                } else {
+                    webSocketConnection.finishConnectionClosure(closeCode, null);
+                }
             }
             return;
         }
@@ -203,17 +278,22 @@ public class WebSocketDispatcher {
         CallableUnitCallback onCloseCallback = new CallableUnitCallback() {
             @Override
             public void notifySuccess() {
-                if (closeMessage.getCloseCode() != WebSocketConstants.STATUS_CODE_ABNORMAL_CLOSURE
+                if (closeMessage.getCloseCode() != STATUS_CODE_ABNORMAL_CLOSURE
                         && webSocketConnection.isOpen()) {
-                    webSocketConnection.finishConnectionClosure(closeCode, null).addListener(
-                            closeFuture -> connectionInfo.getWebSocketEndpoint()
-                                    .put(WebSocketConstants.LISTENER_IS_SECURE_FIELD, new BBoolean(false)));
+                    ChannelFuture finishFuture;
+                    if (closeCode == STATUS_CODE_FOR_NO_STATUS_CODE_PRESENT) {
+                        finishFuture = webSocketConnection.finishConnectionClosure();
+                    } else {
+                        finishFuture = webSocketConnection.finishConnectionClosure(closeCode, null);
+                    }
+                    finishFuture.addListener(closeFuture -> connectionInfo.getWebSocketEndpoint()
+                            .put(WebSocketConstants.LISTENER_IS_SECURE_FIELD, new BBoolean(false)));
                 }
             }
 
             @Override
             public void notifyFailure(BMap<String, BValue> error) {
-                ErrorHandlerUtils.printError("error: " + BLangVMErrors.getPrintableStackTrace(error));
+                ErrorHandlerUtils.printError(BLangVMErrors.getPrintableStackTrace(error));
                 WebSocketUtil.closeDuringUnexpectedCondition(webSocketConnection);
             }
         };
@@ -232,7 +312,9 @@ public class WebSocketDispatcher {
         }
         BValue[] bValues = new BValue[onErrorResource.getParamDetails().size()];
         bValues[0] = connectionInfo.getWebSocketEndpoint();
-        bValues[1] = getError(webSocketService, throwable);
+        Context context = connectionInfo.getContext();
+        bValues[1] = context != null ? getError(context.getProgramFile(), throwable) : getError(
+                webSocketService.getServiceInfo().getPackageInfo().getProgramFile(), throwable);
         CallableUnitCallback onErrorCallback = new CallableUnitCallback() {
             @Override
             public void notifySuccess() {
@@ -241,14 +323,13 @@ public class WebSocketDispatcher {
 
             @Override
             public void notifyFailure(BMap<String, BValue> error) {
-                ErrorHandlerUtils.printError("error: " + BLangVMErrors.getPrintableStackTrace(error));
+                ErrorHandlerUtils.printError(BLangVMErrors.getPrintableStackTrace(error));
             }
         };
         Executor.submit(onErrorResource, onErrorCallback, null, null, bValues);
     }
 
-    private static BMap<String, BValue> getError(WebSocketService webSocketService, Throwable throwable) {
-        ProgramFile programFile = webSocketService.getServiceInfo().getPackageInfo().getProgramFile();
+    private static BMap<String, BValue> getError(ProgramFile programFile, Throwable throwable) {
         PackageInfo errorPackageInfo = programFile.getPackageInfo(BLangConstants.BALLERINA_BUILTIN_PKG);
         StructureTypeInfo errorStructInfo = errorPackageInfo.getStructInfo(BLangVMErrors.STRUCT_GENERIC_ERROR);
         String errMsg;
@@ -264,8 +345,7 @@ public class WebSocketDispatcher {
         return !(throwable instanceof CorruptedFrameException);
     }
 
-    static void dispatchIdleTimeout(WebSocketOpenConnectionInfo connectionInfo,
-                                    WebSocketControlMessage controlMessage) {
+    static void dispatchIdleTimeout(WebSocketOpenConnectionInfo connectionInfo) {
         WebSocketConnection webSocketConnection = connectionInfo.getWebSocketConnection();
         WebSocketService wsService = connectionInfo.getService();
         Resource onIdleTimeoutResource = wsService.getResourceByName(WebSocketConstants.RESOURCE_NAME_ON_IDLE_TIMEOUT);
@@ -276,7 +356,6 @@ public class WebSocketDispatcher {
         List<ParamDetail> paramDetails = onIdleTimeoutResource.getParamDetails();
         BValue[] bValues = new BValue[paramDetails.size()];
         bValues[0] = connectionInfo.getWebSocketEndpoint();
-        //TODO handle BallerinaConnectorException
         CallableUnitCallback onIdleTimeoutCallback = new CallableUnitCallback() {
             @Override
             public void notifySuccess() {
@@ -285,7 +364,7 @@ public class WebSocketDispatcher {
 
             @Override
             public void notifyFailure(BMap<String, BValue> error) {
-                ErrorHandlerUtils.printError("error: " + BLangVMErrors.getPrintableStackTrace(error));
+                ErrorHandlerUtils.printError(BLangVMErrors.getPrintableStackTrace(error));
                 WebSocketUtil.closeDuringUnexpectedCondition(webSocketConnection);
             }
         };
@@ -302,15 +381,5 @@ public class WebSocketDispatcher {
             }
             webSocketConnection.readNextFrame();
         });
-    }
-
-    public static void setPathParams(BValue[] bValues, List<ParamDetail> paramDetails, Map<String, String> pathParams,
-                                     int defaultArgSize) {
-        int parameterDetailsSize = paramDetails.size();
-        if (parameterDetailsSize > defaultArgSize) {
-            for (int i = defaultArgSize; i < parameterDetailsSize; i++) {
-                bValues[i] = new BString(pathParams.get(paramDetails.get(i).getVarName()));
-            }
-        }
     }
 }

@@ -66,12 +66,15 @@ type NillableDataTypes record {
     int? tinyint_type,
     int? smallint_type,
     string? clob_type,
-    byte[]? blob_type,
     byte[]? binary_type,
     time:Time? date_type,
     time:Time? time_type,
     time:Time? datetime_type,
     time:Time? timestamp_type,
+};
+
+type NillableBlob record {
+    byte[]? blob_type,
 };
 
 type ResultMapNonNillableTypeNillableElements record {
@@ -99,7 +102,7 @@ type ResultMapNillableTypeNonNillableElements record {
 };
 
 function testMappingToNillableTypeFields(string jdbcUrl, string userName, string password) returns (int?, int?, float?,
-            float?, boolean?, string?, float?, float?, float?, int?, int?, string?, byte[]?, byte[]?) {
+            float?, boolean?, string?, float?, float?, float?, int?, int?, string?, byte[]?) {
     endpoint jdbc:Client testDB {
         url: jdbcUrl,
         username: userName,
@@ -109,8 +112,7 @@ function testMappingToNillableTypeFields(string jdbcUrl, string userName, string
 
     table<NillableDataTypes> dt = check testDB->select("SELECT int_type, long_type, float_type, double_type,
     boolean_type, string_type, numeric_type, decimal_type, real_type, tinyint_type, smallint_type, clob_type,
-    blob_type, binary_type from DataTypeTableNillable where
-    row_id=1", NillableDataTypes);
+    binary_type from DataTypeTableNillable where row_id=1", NillableDataTypes);
 
     int? int_type;
     int? long_type;
@@ -124,7 +126,6 @@ function testMappingToNillableTypeFields(string jdbcUrl, string userName, string
     int? tinyint_type;
     int? smallint_type;
     string? clob_type;
-    byte[]? blob_type;
     byte[]? binary_type;
 
     while (dt.hasNext()) {
@@ -141,13 +142,32 @@ function testMappingToNillableTypeFields(string jdbcUrl, string userName, string
         tinyint_type = rs.tinyint_type;
         smallint_type = rs.smallint_type;
         clob_type = rs.clob_type;
-        blob_type = rs.blob_type;
         binary_type = rs.binary_type;
     }
     testDB.stop();
     return (int_type, long_type, float_type, double_type,
     boolean_type, string_type,
-    numeric_type, decimal_type, real_type, tinyint_type, smallint_type, clob_type, blob_type, binary_type);
+    numeric_type, decimal_type, real_type, tinyint_type, smallint_type, clob_type, binary_type);
+}
+
+function testMappingToNillableTypeFieldsBlob(string jdbcUrl, string userName, string password) returns (byte[]?) {
+    endpoint jdbc:Client testDB {
+        url: jdbcUrl,
+        username: userName,
+        password: password,
+        poolOptions: { maximumPoolSize: 1 }
+    };
+    byte[]? blob_type;
+    transaction {
+        table<NillableDataTypes> dt = check testDB->select("SELECT blob_type from DataTypeTableNillableBlob where
+    row_id=3", NillableBlob);
+        while (dt.hasNext()) {
+            NillableBlob rs = check <NillableBlob>dt.getNext();
+            blob_type = rs.blob_type;
+        }
+    }
+    testDB.stop();
+    return blob_type;
 }
 
 function testMappingDatesToNillableTimeType(string jdbcUrl, string userName, string password) returns (int, int, int,
@@ -282,7 +302,7 @@ timein, int timestampin) returns (string, string, string,
 }
 
 function testMappingNullToNillableTypes(string jdbcUrl, string userName, string password) returns (int?, int?, float?,
-            float?, boolean?, string?, float?, float?, float?, int?, int?, string?, byte[]?, byte[]?, time:Time?, time:Time?
+            float?, boolean?, string?, float?, float?, float?, int?, int?, string?, byte[]?, time:Time?, time:Time?
             , time:Time?, time:Time?) {
     endpoint jdbc:Client testDB {
         url: jdbcUrl,
@@ -292,7 +312,7 @@ function testMappingNullToNillableTypes(string jdbcUrl, string userName, string 
     };
     table<NillableDataTypes> dt = check testDB->select("SELECT int_type, long_type, float_type, double_type,
     boolean_type, string_type, numeric_type, decimal_type, real_type, tinyint_type, smallint_type, clob_type,
-    blob_type, binary_type, date_type, time_type, datetime_type, timestamp_type from DataTypeTableNillable where
+    binary_type, date_type, time_type, datetime_type, timestamp_type from DataTypeTableNillable where
     row_id=2", NillableDataTypes);
 
     int? int_type;
@@ -307,7 +327,6 @@ function testMappingNullToNillableTypes(string jdbcUrl, string userName, string 
     int? tinyint_type;
     int? smallint_type;
     string? clob_type;
-    byte[]? blob_type;
     byte[]? binary_type;
     time:Time? date_type;
     time:Time? time_type;
@@ -328,7 +347,6 @@ function testMappingNullToNillableTypes(string jdbcUrl, string userName, string 
         tinyint_type = rs.tinyint_type;
         smallint_type = rs.smallint_type;
         clob_type = rs.clob_type;
-        blob_type = rs.blob_type;
         binary_type = rs.binary_type;
         date_type = rs.date_type;
         time_type = rs.time_type;
@@ -337,8 +355,28 @@ function testMappingNullToNillableTypes(string jdbcUrl, string userName, string 
     }
     testDB.stop();
     return (int_type, long_type, float_type, double_type, boolean_type, string_type, numeric_type, decimal_type,
-    real_type, tinyint_type, smallint_type, clob_type, blob_type, binary_type, date_type, time_type, datetime_type,
+    real_type, tinyint_type, smallint_type, clob_type, binary_type, date_type, time_type, datetime_type,
     timestamp_type);
+}
+
+function testMappingNullToNillableTypesBlob(string jdbcUrl, string userName, string password) returns byte[]? {
+    endpoint jdbc:Client testDB {
+        url: jdbcUrl,
+        username: userName,
+        password: password,
+        poolOptions: { maximumPoolSize: 1 }
+    };
+    table<NillableBlob> dt = check testDB->select("SELECT blob_type from DataTypeTableNillableBlob where row_id=4",
+        NillableBlob);
+
+    byte[]? blob_type;
+
+    while (dt.hasNext()) {
+        NillableBlob rs = check <NillableBlob>dt.getNext();
+        blob_type = rs.blob_type;
+    }
+    testDB.stop();
+    return blob_type;
 }
 
 function testMapArrayToNonNillableTypeWithNillableElementType(string jdbcUrl, string userName, string password)

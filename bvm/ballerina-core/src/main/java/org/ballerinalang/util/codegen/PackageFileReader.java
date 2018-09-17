@@ -55,17 +55,12 @@ public class PackageFileReader {
         this.programFile = programFile;
     }
 
-    public void readPackage(String packageId) {
+    public void readPackage(String packageId) throws IOException {
         if (!packageId.startsWith(BALLERINA_PACKAGE_PREFIX)) {
-            throw new UnsupportedOperationException("unsupport package read from balo: " + packageId);
+            throw new UnsupportedOperationException("unsupported package read from balo: " + packageId);
         }
         String pkgName = packageId.replaceFirst("^ballerina\\/", "");
-
-        try {
-            readPackage(getCompiledPackageBinary(pkgName));
-        } catch (IOException e) {
-            throw new BLangRuntimeException("error while reading package: " + packageId);
-        }
+        readPackage(getCompiledPackageBinary(pkgName));
     }
 
     public void readPackage(Path programFilePath) throws IOException {

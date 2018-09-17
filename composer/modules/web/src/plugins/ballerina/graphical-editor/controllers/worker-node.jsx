@@ -29,6 +29,7 @@ import HoverButton from '../controller-utils/hover-button';
 import Item from '../controller-utils/item';
 import Search from '../controller-utils/search';
 import Toolbox from 'plugins/ballerina/diagram/views/default/components/decorators/action-box';
+import { ACTION_BOX_POSITION } from '../../constants';
 
 // Use your imagination to render suggestions.
 const renderSuggestion = (suggestion, value) => {
@@ -168,6 +169,11 @@ class DefaultCtrl extends React.Component {
         const y = bBox.y + bBox.h;
         const x = bBox.x;
 
+        if (model.parent.viewState.collapsed ||
+            (model.parent.parent && model.parent.parent.viewState.collapsed)) {
+            return null;
+        }
+
         return (
             <HoverButton
                 style={{
@@ -257,13 +263,28 @@ class ActionBox extends React.Component {
         const { viewState: { bBox } } = model.getBody();
 
         const top = bBox.y - 30;
-        const left = bBox.x;
+        let left = bBox.x;
 
         const onDelete = () => { model.remove(); };
         const onJumptoCodeLine = () => {
             const { editor } = this.context;
             editor.goToSource(model);
         };
+
+        if (model.name.value === 'default') {
+            left += ACTION_BOX_POSITION.SINGLE_ACTION_OFFSET;
+            return (
+                <Toolbox
+                    disableButtons={{ delete: true }}
+                    onJumptoCodeLine={onJumptoCodeLine}
+                    show
+                    style={{
+                        top,
+                        left,
+                    }}
+                />
+            );
+        }
 
         return (
             <Toolbox

@@ -19,6 +19,7 @@ import org.ballerinalang.langserver.command.CommandExecutor;
 import org.ballerinalang.langserver.command.ExecuteCommandKeys;
 import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
 import org.ballerinalang.langserver.compiler.LSCompiler;
+import org.ballerinalang.langserver.compiler.LSCompilerUtil;
 import org.ballerinalang.langserver.compiler.LSServiceOperationContext;
 import org.ballerinalang.langserver.compiler.common.LSCustomErrorStrategy;
 import org.ballerinalang.langserver.compiler.workspace.WorkspaceDocumentManager;
@@ -46,11 +47,13 @@ class BallerinaWorkspaceService implements WorkspaceService {
     private BallerinaLanguageServer ballerinaLanguageServer;
     private WorkspaceDocumentManager workspaceDocumentManager;
     private LSGlobalContext lsGlobalContext;
+    private LSCompiler lsCompiler;
 
     BallerinaWorkspaceService(LSGlobalContext globalContext) {
         this.lsGlobalContext = globalContext;
         this.ballerinaLanguageServer = this.lsGlobalContext.get(LSGlobalContextKeys.LANGUAGE_SERVER_KEY);
         this.workspaceDocumentManager = this.lsGlobalContext.get(LSGlobalContextKeys.DOCUMENT_MANAGER_KEY);
+        this.lsCompiler = new LSCompiler(workspaceDocumentManager);
     }
 
     @Override
@@ -61,13 +64,13 @@ class BallerinaWorkspaceService implements WorkspaceService {
         this.workspaceDocumentManager.getAllFilePaths().forEach(path -> {
             symbolsContext.put(DocumentServiceKeys.SYMBOL_LIST_KEY, symbols);
             symbolsContext.put(DocumentServiceKeys.FILE_URI_KEY, path.toUri().toString());
-            List<BLangPackage> bLangPackage = LSCompiler.getBLangPackage(symbolsContext, workspaceDocumentManager,
+            List<BLangPackage> bLangPackage = lsCompiler.getBLangPackage(symbolsContext, workspaceDocumentManager,
                                                                          false,
-                                                                         LSCustomErrorStrategy.class, false);
+                                                                         LSCustomErrorStrategy.class, true).getLeft();
             if (bLangPackage != null) {
                 bLangPackage.forEach(aPackage -> aPackage.compUnits.forEach(compUnit -> {
                     String unitName = compUnit.getName();
-                    String sourceRoot = LSCompiler.getSourceRoot(path);
+                    String sourceRoot = LSCompilerUtil.getSourceRoot(path);
                     String basePath = sourceRoot + File.separator + compUnit.getPosition().src.getPackageName();
                     String hash = generateHash(compUnit, basePath);
                     compUnits.put(hash, new Object[]{
@@ -92,10 +95,12 @@ class BallerinaWorkspaceService implements WorkspaceService {
 
     @Override
     public void didChangeConfiguration(DidChangeConfigurationParams params) {
+        // Operation not supported
     }
 
     @Override
     public void didChangeWatchedFiles(DidChangeWatchedFilesParams params) {
+        // Operation not supported
     }
 
     @Override
@@ -104,10 +109,8 @@ class BallerinaWorkspaceService implements WorkspaceService {
         executeCommandContext.put(ExecuteCommandKeys.COMMAND_ARGUMENTS_KEY, params.getArguments());
         executeCommandContext.put(ExecuteCommandKeys.DOCUMENT_MANAGER_KEY, this.workspaceDocumentManager);
         executeCommandContext.put(ExecuteCommandKeys.LANGUAGE_SERVER_KEY, this.ballerinaLanguageServer);
-        
-        return CompletableFuture.supplyAsync(() -> {
-            CommandExecutor.executeCommand(params, executeCommandContext, this.lsGlobalContext);
-            return true;
-        });
+        executeCommandContext.put(ExecuteCommandKeys.LS_COMPILER_KEY, this.lsCompiler);
+
+        return CompletableFuture.supplyAsync(() -> CommandExecutor.executeCommand(params, executeCommandContext));
     }
 }

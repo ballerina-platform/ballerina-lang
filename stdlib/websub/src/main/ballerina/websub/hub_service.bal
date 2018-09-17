@@ -167,7 +167,7 @@ service<http:Service> hubService {
                     byte[]|error binaryPayload;
                     string stringPayload;
                     string contentType;
-                    if (hubRemotePublishingMode == REMOTE_PUBLISHING_MODE_FETCH) {
+                    if (hubRemotePublishMode == PUBLISH_MODE_FETCH) {
                         match (fetchTopicUpdate(topic)) {
                             http:Response fetchResp => {
                                 binaryPayload = fetchResp.getBinaryPayload();
@@ -291,14 +291,12 @@ service<http:Service> hubService {
     }
 }
 
-documentation {
-    Function to validate a subscription/unsubscription request, by validating the mode, topic and callback specified.
-
-    P{{mode}} Mode specified in the subscription change request parameters
-    P{{topic}} Topic specified in the subscription change request parameters
-    P{{callback}} Callback specified in the subscription change request parameters
-    R{{}} `error` if validation failed for the subscription request
-}
+# Function to validate a subscription/unsubscription request, by validating the mode, topic and callback specified.
+#
+# + mode - Mode specified in the subscription change request parameters
+# + topic - Topic specified in the subscription change request parameters
+# + callback - Callback specified in the subscription change request parameters
+# + return - `error` if validation failed for the subscription request
 function validateSubscriptionChangeRequest(string mode, string topic, string callback) returns error? {
     if (topic != "" && callback != "") {
         PendingSubscriptionChangeRequest pendingRequest = new(mode, topic, callback);
@@ -317,13 +315,11 @@ function validateSubscriptionChangeRequest(string mode, string topic, string cal
     return err;
 }
 
-documentation {
-    Function to initiate intent verification for a valid subscription/unsubscription request received.
-
-    P{{callback}} The callback URL of the new subscription/unsubscription request
-    P{{topic}} The topic specified in the new subscription/unsubscription request
-    P{{params}} Parameters specified in the new subscription/unsubscription request
-}
+# Function to initiate intent verification for a valid subscription/unsubscription request received.
+#
+# + callback - The callback URL of the new subscription/unsubscription request
+# + topic - The topic specified in the new subscription/unsubscription request
+# + params - Parameters specified in the new subscription/unsubscription request
 function verifyIntent(string callback, string topic, map<string> params) {
     endpoint http:Client callbackEp {
         url:callback,
@@ -403,13 +399,11 @@ function verifyIntent(string callback, string topic, map<string> params) {
     }
 }
 
-documentation {
-    Function to add/remove the details of topics registered, in the database.
-
-    P{{mode}} Whether the change is for addition/removal
-    P{{topic}} The topic for which registration is changing
-    P{{secret}} The secret if specified when registering, empty string if not
-}
+# Function to add/remove the details of topics registered, in the database.
+#
+# + mode - Whether the change is for addition/removal
+# + topic - The topic for which registration is changing
+# + secret - The secret if specified when registering, empty string if not
 function changeTopicRegistrationInDatabase(string mode, string topic, string secret) {
     endpoint jdbc:Client subscriptionDbEp {
         url:hubDatabaseUrl,
@@ -437,12 +431,10 @@ function changeTopicRegistrationInDatabase(string mode, string topic, string sec
     subscriptionDbEp.stop();
 }
 
-documentation {
-    Function to add/change/remove the subscription details in the database.
-
-    P{{mode}} Whether the subscription change is for unsubscription/unsubscription
-    P{{subscriptionDetails}} The details of the subscription changing
-}
+# Function to add/change/remove the subscription details in the database.
+#
+# + mode - Whether the subscription change is for unsubscription/unsubscription
+# + subscriptionDetails - The details of the subscription changing
 function changeSubscriptionInDatabase(string mode, SubscriptionDetails subscriptionDetails) {
     endpoint jdbc:Client subscriptionDbEp {
         url:hubDatabaseUrl,
@@ -477,9 +469,7 @@ function changeSubscriptionInDatabase(string mode, SubscriptionDetails subscript
     subscriptionDbEp.stop();
 }
 
-documentation {
-    Function to initiate set up activities on startup/restart.
-}
+# Function to initiate set up activities on startup/restart.
 function setupOnStartup() {
     if (hubPersistenceEnabled) {
         if (hubTopicRegistrationRequired) {
@@ -490,9 +480,7 @@ function setupOnStartup() {
     return;
 }
 
-documentation {
-    Function to load topic registrations from the database.
-}
+# Function to load topic registrations from the database.
 function addTopicRegistrationsOnStartup() {
     endpoint jdbc:Client subscriptionDbEp {
         url:hubDatabaseUrl,
@@ -526,9 +514,7 @@ function addTopicRegistrationsOnStartup() {
     subscriptionDbEp.stop();
 }
 
-documentation {
-    Function to add subscriptions to the broker on startup, if persistence is enabled.
-}
+# Function to add subscriptions to the broker on startup, if persistence is enabled.
 function addSubscriptionsOnStartup() {
     endpoint jdbc:Client subscriptionDbEp {
         url:hubDatabaseUrl,
@@ -562,9 +548,7 @@ function addSubscriptionsOnStartup() {
     subscriptionDbEp.stop();
 }
 
-documentation {
-    Function to delete topic and subscription details from the database at shutdown, if persistence is enabled.
-}
+# Function to delete topic and subscription details from the database at shutdown, if persistence is enabled.
 function clearSubscriptionDataInDb() {
     endpoint jdbc:Client subscriptionDbEp {
         url:hubDatabaseUrl,
@@ -592,13 +576,11 @@ function clearSubscriptionDataInDb() {
     subscriptionDbEp.stop();
 }
 
-documentation {
-    Function to fetch updates for a particular topic.
-
-    P{{topic}} The topic URL to be fetched to retrieve updates
-    R{{}} `http:Response` indicating the response received on fetching the topic URL if successful,
-          `error` if an HTTP error occurred
-}
+# Function to fetch updates for a particular topic.
+#
+# + topic - The topic URL to be fetched to retrieve updates
+# + return - `http:Response` indicating the response received on fetching the topic URL if successful,
+#            `error` if an HTTP error occurred
 function fetchTopicUpdate(string topic) returns http:Response|error {
     endpoint http:Client topicEp {
         url:topic,
@@ -611,13 +593,11 @@ function fetchTopicUpdate(string topic) returns http:Response|error {
     return fetchResponse;
 }
 
-documentation {
-    Function to distribute content to a subscriber on notification from publishers.
-
-    P{{callback}} The callback URL registered for the subscriber
-    P{{subscriptionDetails}} The subscription details for the particular subscriber
-    P{{webSubContent}} The content to be sent to subscribers
-}
+# Function to distribute content to a subscriber on notification from publishers.
+#
+# + callback - The callback URL registered for the subscriber
+# + subscriptionDetails - The subscription details for the particular subscriber
+# + webSubContent - The content to be sent to subscribers
 function distributeContent(string callback, SubscriptionDetails subscriptionDetails, WebSubContent webSubContent) {
     endpoint http:Client callbackEp {
         url:callback,
@@ -684,24 +664,21 @@ function distributeContent(string callback, SubscriptionDetails subscriptionDeta
     }
 }
 
-documentation {
-    Struct to represent a topic registration.
-
-    F{{topic}} The topic for which notification would happen
-    F{{secret}} The secret if specified by the topic's publisher
-}
+# Struct to represent a topic registration.
+#
+# + topic - The topic for which notification would happen
+# + secret - The secret if specified by the topic's publisher
 type TopicRegistration record {
     string topic,
     string secret,
+    !...
 };
 
-documentation {
-    Object to represent a pending subscription/unsubscription request.
-
-    F{{mode}} Whether a pending subscription or unsubscription
-    F{{topic}} The topic for which the subscription or unsubscription is pending
-    F{{callback}} The callback specified for the pending subscription or unsubscription
-}
+# Object to represent a pending subscription/unsubscription request.
+#
+# + mode - Whether a pending subscription or unsubscription
+# + topic - The topic for which the subscription or unsubscription is pending
+# + callback - The callback specified for the pending subscription or unsubscription
 type PendingSubscriptionChangeRequest object {
 
     public string mode;
@@ -710,11 +687,9 @@ type PendingSubscriptionChangeRequest object {
 
     new (mode, topic, callback) {}
 
-    documentation {
-        Function to check if two pending subscription change requests are equal.
-
-        P{{pendingRequest}} The pending subscription change request to check against
-    }
+    # Function to check if two pending subscription change requests are equal.
+    #
+    # + pendingRequest - The pending subscription change request to check against
     function equals(PendingSubscriptionChangeRequest pendingRequest) returns (boolean) {
         return pendingRequest.mode == mode && pendingRequest.topic == topic && pendingRequest.callback == callback;
     }
@@ -724,13 +699,11 @@ function generateKey(string topic, string callback) returns (string) {
     return topic + "_" + callback;
 }
 
-documentation {
-    Function to build the link header for a request.
-
-    P{{hub}} The hub publishing the update
-    P{{topic}} The canonical URL of the topic for which the update occurred
-    R{{}} The link header content
-}
+# Function to build the link header for a request.
+#
+# + hub - The hub publishing the update
+# + topic - The canonical URL of the topic for which the update occurred
+# + return - The link header content
 function buildWebSubLinkHeader(string hub, string topic) returns (string) {
     string linkHeader = "<" + hub + ">; rel=\"hub\", <" + topic + ">; rel=\"self\"";
     return linkHeader;

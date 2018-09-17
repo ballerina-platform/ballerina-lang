@@ -96,7 +96,7 @@ public class BInvokableSymbolUtil {
                 && (SymbolKind.RECORD.equals(bInvokableSymbol.owner.kind)
                 || SymbolKind.FUNCTION.equals(bInvokableSymbol.owner.kind))) {
             List<String> funcArguments = CommonUtil.FunctionGenerator.getFuncArguments(bInvokableSymbol);
-            if (funcArguments != null) {
+            if (!funcArguments.isEmpty()) {
                 int funcArgumentsCount = funcArguments.size();
                 for (int itr = 0; itr < funcArgumentsCount; itr++) {
                     String argument = funcArguments.get(itr);
@@ -193,7 +193,7 @@ public class BInvokableSymbolUtil {
                     || tSymbol.pkgID.getName().getValue().equals(Names.DOT.getValue())) {
                 typeName = tSymbol.getName().getValue();
             } else {
-                typeName = nameComps.get(nameComps.size() - 1).getValue() + UtilSymbolKeys.PKG_DELIMITER_KEYWORD
+                typeName = CommonUtil.getLastItem(nameComps).getValue() + UtilSymbolKeys.PKG_DELIMITER_KEYWORD
                         + tSymbol.getName().getValue();
             }
             

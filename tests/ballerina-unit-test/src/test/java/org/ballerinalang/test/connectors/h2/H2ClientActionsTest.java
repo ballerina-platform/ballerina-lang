@@ -105,8 +105,8 @@ public class H2ClientActionsTest {
     }
 
     @Test
-    public void testAddToMirrorTable() throws Exception {
-        BValue[] returns = BRunUtil.invoke(result, "testAddToMirrorTable");
+    public void testAddToProxyTable() throws Exception {
+        BValue[] returns = BRunUtil.invoke(result, "testAddToProxyTable");
         Assert.assertEquals(returns.length, 2);
         Assert.assertTrue(returns[0] instanceof BMap);
         Assert.assertEquals(returns[0].stringValue(),
@@ -122,7 +122,7 @@ public class H2ClientActionsTest {
         BInteger retValue = (BInteger) returns[0];
         Assert.assertEquals(retValue.intValue(), 1);
         Assert.assertEquals(returns[1].stringValue(),
-                "[{\"customerId\":15,\"name\":\"Anne\",\"creditLimit\":1000.0," + "\"country\":\"UK\"}]");
+                "[{\"customerId\":15, \"name\":\"Anne\", \"creditLimit\":1000.0, \"country\":\"UK\"}]");
     }
 
     @Test
@@ -157,7 +157,13 @@ public class H2ClientActionsTest {
     public void testH2MemDBUpdate() {
         BValue[] returns = BRunUtil.invoke(result, "testH2MemDBUpdate");
         Assert.assertEquals(((BInteger) returns[0]).intValue(), 1);
-        Assert.assertEquals(returns[1].stringValue(), "[{\"ID\":15,\"NAME\":\"Anne\"}]");
+        Assert.assertEquals(returns[1].stringValue(), "[{\"ID\":15, \"NAME\":\"Anne\"}]");
+    }
+
+    @Test(description = "Test re-init endpoint")
+    public void testReInitEndpoint() {
+        BValue[] returns = BRunUtil.invoke(result, "testReInitEndpoint");
+        Assert.assertEquals(((BInteger) returns[0]).intValue(), 1);
     }
 
     @AfterSuite

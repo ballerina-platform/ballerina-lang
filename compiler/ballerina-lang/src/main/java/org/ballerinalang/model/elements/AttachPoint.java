@@ -56,7 +56,11 @@ public enum AttachPoint {
     /**
      * Indicates Annotation Attach point.
      */
-    ANNOTATION("annotation");
+    ANNOTATION("annotation"),
+    /**
+     * Indicate Channel Attach point.
+     */
+    CHANNEL("channel");
 
     private String value;
 

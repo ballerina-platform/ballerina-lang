@@ -27,6 +27,7 @@ import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.model.types.BUnionType;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.types.TypeTags;
+import org.ballerinalang.model.util.JsonParser;
 import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BBooleanArray;
 import org.ballerinalang.model.values.BByteArray;
@@ -34,7 +35,6 @@ import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BFloatArray;
 import org.ballerinalang.model.values.BIntArray;
 import org.ballerinalang.model.values.BInteger;
-import org.ballerinalang.model.values.BJSON;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BNewArray;
 import org.ballerinalang.model.values.BRefType;
@@ -199,42 +199,42 @@ public class TableIterator implements DataIterator {
                 BValue value = null;
                 ++index;
                 switch (type.getTag()) {
-                case TypeTags.INT_TAG:
-                    long iValue = rs.getInt(index);
-                    value = new BInteger(iValue);
-                    break;
-                case TypeTags.STRING_TAG:
-                    String sValue = rs.getString(index);
-                    value = new BString(sValue);
-                    break;
-                case TypeTags.FLOAT_TAG:
-                    double dValue = rs.getDouble(index);
-                    value = new BFloat(dValue);
-                    break;
-                case TypeTags.BOOLEAN_TAG:
-                    boolean boolValue = rs.getBoolean(index);
-                    value = new BBoolean(boolValue);
-                    break;
-                case TypeTags.JSON_TAG:
-                    String jsonValue = rs.getString(index);
-                    value = new BJSON(jsonValue);
-                    break;
-                case TypeTags.XML_TAG:
-                    String xmlValue = rs.getString(index);
-                    value = new BXMLItem(xmlValue);
-                    break;
-                case TypeTags.ARRAY_TAG:
-                    BType arrayElementType = ((BArrayType) type).getElementType();
-                    if (arrayElementType.getTag() == TypeTags.BYTE_TAG) {
-                        Blob blobValue = rs.getBlob(index);
-                        value = new BByteArray(blobValue.getBytes(1L, (int) blobValue.length()));
-                    } else {
-                        Array arrayValue = rs.getArray(index);
-                        value = getDataArray(arrayValue);
-                    }
-                    break;
+                    case TypeTags.INT_TAG:
+                        long iValue = rs.getInt(index);
+                        value = new BInteger(iValue);
+                        break;
+                    case TypeTags.STRING_TAG:
+                        String sValue = rs.getString(index);
+                        value = new BString(sValue);
+                        break;
+                    case TypeTags.FLOAT_TAG:
+                        double dValue = rs.getDouble(index);
+                        value = new BFloat(dValue);
+                        break;
+                    case TypeTags.BOOLEAN_TAG:
+                        boolean boolValue = rs.getBoolean(index);
+                        value = new BBoolean(boolValue);
+                        break;
+                    case TypeTags.JSON_TAG:
+                        String jsonValue = rs.getString(index);
+                        value = JsonParser.parse(jsonValue);
+                        break;
+                    case TypeTags.XML_TAG:
+                        String xmlValue = rs.getString(index);
+                        value = new BXMLItem(xmlValue);
+                        break;
+                    case TypeTags.ARRAY_TAG:
+                        BType arrayElementType = ((BArrayType) type).getElementType();
+                        if (arrayElementType.getTag() == TypeTags.BYTE_TAG) {
+                            Blob blobValue = rs.getBlob(index);
+                            value = new BByteArray(blobValue.getBytes(1L, (int) blobValue.length()));
+                        } else {
+                            Array arrayValue = rs.getArray(index);
+                            value = getDataArray(arrayValue);
+                        }
+                        break;
                 }
-                
+
                 bStruct.put(fieldName, value);
 
             }
@@ -267,7 +267,7 @@ public class TableIterator implements DataIterator {
         int length = dataArray.length;
         if (firstNonNullElement == null) {
             // Each element is null so a nil element array is returned
-            return new BRefValueArray(new BRefType[length], BTypes.typeNull);
+            return new BRefValueArray(new BRefType[length], new BArrayType(BTypes.typeNull));
         } else if (containsNull) {
             // If there are some null elements, return a union-type element array
             return createAndPopulateRefValueArray(firstNonNullElement, dataArray);
@@ -374,7 +374,7 @@ public class TableIterator implements DataIterator {
         memberTypes.add(type);
         memberTypes.add(BTypes.typeNull);
         BUnionType unionType = new BUnionType(memberTypes);
-        return new BRefValueArray(new BRefType[length], unionType);
+        return new BRefValueArray(new BRefType[length], new BArrayType(unionType));
     }
 
     private ArrayElementAttributes getArrayElementNullabilityInfo(Object[] objects) {

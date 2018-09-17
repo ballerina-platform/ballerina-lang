@@ -206,5 +206,13 @@ public class MapAccessExprTest {
 
         Assert.assertEquals(((BInteger) returns[0]).value(), new Long(1));
     }
+    
+    @Test(description = "Test concurrent map get keys.")
+    public void testConcurrentMapGetKeys() {
+        BValue[] args = {};
+        BValue[] returns = BRunUtil.invoke(compileResult, "testConcurrentMapGetKeys", args);
 
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertNull(returns[0]);
+    }
 }

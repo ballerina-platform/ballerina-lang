@@ -25,6 +25,8 @@ import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
+import static org.ballerinalang.launcher.util.BAssertUtil.validateError;
+
 /**
  * Tests related to BVM dynamic control stack growth. 
  */
@@ -45,19 +47,14 @@ public class MainFunctionsTest {
         args.add(1, "V2");
         BRunUtil.invoke(result, "main", new BValue[] { args });
     }
-    
+
     @Test
-    public void publicMainFunctionInvocationTest() {
-        CompileResult negativeResult = BCompileUtil.compile("test-src/vm/main-functions-negative.bal");
-        Assert.assertEquals(negativeResult.getErrorCount(), 1);
-        Assert.assertTrue(negativeResult.getDiagnostics()[0].getMessage().contains(
-                "the main function cannot be explicitly marked as public"));
+    public void invalidMainFunctionSignatureTest() {
+        CompileResult negativeResult = BCompileUtil.compile("test-src/vm/invalid_main_function.bal");
+        Assert.assertEquals(negativeResult.getErrorCount(), 2);
+        validateError(negativeResult, 0, "the main function should be public", 17, 1);
+        validateError(negativeResult, 1,
+                      "invalid return type 'string', the main function may have no returns or may only return int",
+                      17, 25);
     }
-    
-    @Test
-    public void invalidSigMainFunctionInvocationTest() {
-        CompileResult result = BCompileUtil.compile("test-src/vm/main-functions-negative2.bal");
-        Assert.assertFalse(result.getProgFile().isMainEPAvailable());
-    }
-    
 }

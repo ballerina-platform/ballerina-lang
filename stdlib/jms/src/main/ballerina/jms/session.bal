@@ -14,46 +14,69 @@
 // specific language governing permissions and limitations
 // under the License.
 
-documentation { Represents JMS session
-    F{{config}} Used to store configurations related to a JMS session
-}
+# Represents JMS session
+#
+# + config - Used to store configurations related to a JMS session
 public type Session object {
 
     public SessionConfiguration config;
 
-    documentation { Default constructor of the JMS session
-    }
+    # Default constructor of the JMS session
     public new(Connection connection, SessionConfiguration c) {
         self.config = c;
         self.initEndpoint(connection);
     }
 
-    native function initEndpoint(Connection connection);
+    extern function initEndpoint(Connection connection);
 
-    documentation { Creates a JMS message which holds text content
-        P{{content}} the text content used to initialize this message
+    # Creates a JMS message which holds text content
+    #
+    # + content - the text content used to initialize this message
+    public extern function createTextMessage(string content) returns Message|error;
+
+    # Creates a JMS message which holds Map content
+    #
+    # + content - the Map content used to initialize this message
+    public extern function createMapMessage(map content) returns Message|error;
+
+    # Unsubscribes a durable subscription that has been created by a client.
+    # It is erroneous for a client to delete a durable subscription while there is an active (not closed) consumer
+    # for the subscription, or while a consumed message is part of a pending transaction or has not been
+    # acknowledged in the session.
+    #
+    # + subscriptionId - the name used to identify this subscription
+    public extern function unsubscribe(string subscriptionId) returns error?;
+
+    documentation {
+        Creates a JMS Queue which can be used as temporary response destination.
     }
-    public native function createTextMessage(string content) returns Message|error;
+    public extern function createTemporaryQueue() returns Destination|error;
 
-    documentation { Creates a JMS message which holds Map content
-        P{{content}} the Map content used to initialize this message
+    documentation {
+        Creates a JMS Topic which can be used as temporary response destination.
     }
-    public native function createMapMessage(map content) returns Message|error;
+    public extern function createTemporaryTopic() returns Destination|error;
 
-    documentation { Unsubscribes a durable subscription that has been created by a client.
-        It is erroneous for a client to delete a durable subscription while there is an active (not closed) consumer
-        for the subscription, or while a consumed message is part of a pending transaction or has not been
-        acknowledged in the session.
+    documentation {
+        Creates a JMS Queue which can be used with a message producer.
 
-        P{{subscriptionId}} the name used to identify this subscription
+        P{{queueName}} name of the Queue
     }
-    public native function unsubscribe(string subscriptionId) returns error?;
+    public extern function createQueue(string queueName) returns Destination|error;
+
+    documentation {
+        Creates a JMS Topic which can be used with a message producer.
+
+        P{{topicName}} name of the Topic
+    }
+    public extern function createTopic(string topicName) returns Destination|error;
 };
 
-documentation { Configurations related to a JMS session
-    F{{acknowledgementMode}}  specifies the session mode that will be used. Legal values are "AUTO_ACKNOWLEDGE",
-    "CLIENT_ACKNOWLEDGE", "SESSION_TRANSACTED" and "DUPS_OK_ACKNOWLEDGE"
-}
+# Configurations related to a JMS session
+#
+# + acknowledgementMode - specifies the session mode that will be used. Legal values are "AUTO_ACKNOWLEDGE",
+#                         "CLIENT_ACKNOWLEDGE", "SESSION_TRANSACTED" and "DUPS_OK_ACKNOWLEDGE"
 public type SessionConfiguration record {
     string acknowledgementMode = "AUTO_ACKNOWLEDGE";
+    !...
 };

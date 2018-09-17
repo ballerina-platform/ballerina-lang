@@ -35,19 +35,19 @@ import java.util.concurrent.TimeUnit;
 /**
  * This Class tests ping pong support of WebSocket client and server.
  */
-public class PingPongSupportTestCase extends WebSocketIntegrationTest {
+@Test(groups = "websocket-test")
+public class PingPongSupportTestCase extends WebSocketTestCommons {
 
     private WebSocketRemoteServer remoteServer;
     private WebSocketTestClient client;
-    private static final String URL = "ws://localhost:9090/pingpong/ws";
+    private static final String URL = "ws://localhost:9095/pingpong/ws";
     private static final ByteBuffer SENDING_BYTE_BUFFER = ByteBuffer.wrap(new byte[]{1, 2, 3, 4, 5});
     private static final ByteBuffer RECEIVING_BYTE_BUFFER = ByteBuffer.wrap("data".getBytes(StandardCharsets.UTF_8));
 
     @BeforeClass(description = "Initializes the Ballerina server with the ping_pong.bal file")
-    public void setup() throws InterruptedException, BallerinaTestException, URISyntaxException {
-        remoteServer = new WebSocketRemoteServer(REMOTE_SERVER_PORT);
+    public void setup() throws InterruptedException, URISyntaxException, BallerinaTestException {
+        remoteServer = new WebSocketRemoteServer(15200);
         remoteServer.run();
-        initBallerinaServer("ping_pong.bal");
         client = new WebSocketTestClient(URL);
         client.handshake();
     }
@@ -91,9 +91,8 @@ public class PingPongSupportTestCase extends WebSocketIntegrationTest {
     }
 
     @AfterClass(description = "Stops the Ballerina server")
-    public void cleanup() throws BallerinaTestException, InterruptedException {
+    public void cleanup() throws InterruptedException {
         client.shutDown();
-        stopBallerinaServerInstance();
         remoteServer.stop();
     }
 }

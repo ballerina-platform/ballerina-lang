@@ -81,7 +81,7 @@ function testSetHeaderAndGetContentDisposition() returns string {
 }
 
 //Content-length tests
-function testSetContentLengthToEntity() returns int | error {
+function testSetContentLengthToEntity() returns int|error {
     mime:Entity entity = new;
     entity.setContentLength(45555);
     return entity.getContentLength();
@@ -149,21 +149,27 @@ function testGetJsonMultipleTimes(json jsonContent) returns (json) {
 
     match returnContent1 {
         error err => log:printInfo("error in returnContent1");
-        json j => { content1 = j;}
+        json jsonBody => {
+            content1 = jsonBody;
+        }
 
     }
 
     match returnContent2 {
         error err => log:printInfo("error in returnContent2");
-        json j => { content2 = j;}
+        json jsonBody => {
+            content2 = jsonBody;
+        }
     }
 
     match returnContent3 {
         error err => log:printInfo("error in returnContent3");
-        json j => { content3 = j;}
+        json jsonBody => {
+            content3 = jsonBody;
+        }
     }
 
-    json returnContent = {concatContent:[content1, content2, content3]};
+    json returnContent = { concatContent: [content1, content2, content3] };
     return returnContent;
 }
 
@@ -186,17 +192,23 @@ function testGetXmlMultipleTimes(xml xmlContent) returns (xml) {
 
     match returnContent1 {
         error err => log:printInfo("error in returnContent1");
-        xml j => { content1 = j;}
+        xml xmlBody => {
+            content1 = xmlBody;
+        }
     }
 
     match returnContent2 {
         error err => log:printInfo("error in returnContent2");
-        xml j => { content2 = j;}
+        xml xmlBody => {
+            content2 = xmlBody;
+        }
     }
 
     match returnContent3 {
         error err => log:printInfo("error in returnContent3");
-        xml j => { content3 = j;}
+        xml xmlBody => {
+            content3 = xmlBody;
+        }
     }
 
     xml returnContent = content1 + content2 + content3;
@@ -222,17 +234,23 @@ function testGetTextMultipleTimes(string textContent) returns (string) {
 
     match returnContent1 {
         error err => log:printInfo("error in returnContent1");
-        string j => { content1 = j;}
+        string textBody => {
+            content1 = textBody;
+        }
     }
 
     match returnContent2 {
         error err => log:printInfo("error in returnContent2");
-        string j => { content2 = j;}
+        string textBody => {
+            content2 = textBody;
+        }
     }
 
     match returnContent3 {
         error err => log:printInfo("error in returnContent3");
-        string j => { content3 = j;}
+        string textBody => {
+            content3 = textBody;
+        }
     }
     string returnContent = content1 + content2 + content3;
     return returnContent;
@@ -257,17 +275,23 @@ function testGetByteArrayMultipleTimes(byte[] blobContent) returns (string) {
 
     match returnContent1 {
         error err => log:printInfo("error in returnContent1");
-        byte[] j => { content1 = j;}
+        byte[] binaryBody => {
+            content1 = binaryBody;
+        }
     }
 
     match returnContent2 {
         error err => log:printInfo("error in returnContent2");
-        byte[] j => { content2 = j;}
+        byte[] binaryBody => {
+            content2 = binaryBody;
+        }
     }
 
     match returnContent3 {
         error err => log:printInfo("error in returnContent3");
-        byte[] j => { content3 = j;}
+        byte[] binaryBody => {
+            content3 = binaryBody;
+        }
     }
 
 
@@ -318,7 +342,9 @@ function testGetTextDataSource(io:ByteChannel byteChannel) returns string|error 
     var result = entity.getByteChannel();
     match result {
         error err => log:printInfo("error in returnContent1");
-        io:ByteChannel j => { consumeChannel(j);}
+        io:ByteChannel returnChannel => {
+            consumeChannel(returnChannel);
+        }
     }
     return entity.getText();
 }
@@ -331,14 +357,16 @@ function testGetJsonDataSource(io:ByteChannel byteChannel) returns json|error {
     var result = entity.getByteChannel();
     match result {
         error err => log:printInfo("error in returnContent1");
-        io:ByteChannel j => { consumeChannel(j);}
+        io:ByteChannel returnChannel => {
+            consumeChannel(returnChannel);
+        }
     }
 
     return entity.getJson();
 }
 
-function consumeChannel(io:ByteChannel channel) {
-    var result = channel.read(1000000);
+function consumeChannel(io:ByteChannel byteChannel) {
+    var result = byteChannel.read(1000000);
 }
 
 function testGetXmlWithSuffix(xml xmlContent) returns xml|error {
@@ -412,3 +440,86 @@ function testGetAnyStreamAsString(io:ByteChannel byteChannel, string contentType
     return entity.getBodyAsString();
 }
 
+function testByteArrayWithContentType(io:ByteChannel byteChannel, string contentTypeValue) returns byte[]|error {
+    mime:Entity entity = new;
+    entity.setByteChannel(byteChannel, contentType = contentTypeValue);
+    //First time the json will be constructed from the byte channel
+    json firstTime = check entity.getJson();
+    //Then get the body as byte[]
+    return entity.getByteArray();
+}
+
+function testGetBodyPartsAsChannel() returns io:ByteChannel|error {
+    //Create a body part with json content.
+    mime:Entity bodyPart1 = new;
+    bodyPart1.setJson({ "bodyPart": "jsonPart" });
+
+    //Create another body part with a xml file.
+    mime:Entity bodyPart2 = new;
+    bodyPart2.setFileAsEntityBody("src/test/resources/datafiles/mime/file.xml", contentType = mime:TEXT_XML);
+
+    //Create a text body part.
+    mime:Entity bodyPart3 = new;
+    bodyPart3.setText("Ballerina text body part");
+
+    //Create another body part with a text file.
+    mime:Entity bodyPart4 = new;
+    bodyPart4.setFileAsEntityBody("src/test/resources/datafiles/mime/test.tmp");
+
+    //Create an array to hold all the body parts.
+    mime:Entity[] bodyParts = [bodyPart1, bodyPart2, bodyPart3, bodyPart4];
+    mime:Entity multipartEntity = new;
+    string contentType = mime:MULTIPART_MIXED + "; boundary=e3a0b9ad7b4e7cdt";
+    multipartEntity.setBodyParts(bodyParts, contentType = contentType);
+
+    return multipartEntity.getBodyPartsAsChannel();
+}
+
+function getBodyPartsFromDiscreteTypeEntity() returns mime:Entity[]|error {
+    mime:Entity entity = new;
+    entity.setJson({ "bodyPart": "jsonPart" });
+    return entity.getBodyParts();
+}
+
+function getChannelFromParts() returns io:ByteChannel|error {
+    mime:Entity entity = new;
+    entity.setJson({ "bodyPart": "jsonPart" });
+    return entity.getBodyPartsAsChannel();
+}
+
+function getChannelFromMultipartEntity() returns io:ByteChannel|error {
+    mime:Entity bodyPart1 = new;
+    bodyPart1.setJson({ "bodyPart": "jsonPart" });
+
+    mime:Entity bodyPart2 = new;
+    bodyPart2.setText("Ballerina text body part");
+
+    mime:Entity[] bodyParts = [bodyPart1, bodyPart2];
+    mime:Entity multipartEntity = new;
+    multipartEntity.setBodyParts(bodyParts);
+
+    return multipartEntity.getByteChannel();
+}
+
+function getAnyStreamAsStringFromCache(io:ByteChannel byteChannel, string contentType) returns string|error {
+    mime:Entity entity = new;
+    entity.setByteChannel(byteChannel, contentType = contentType);
+    string returnContent;
+    returnContent = check entity.getBodyAsString();
+    //String body should be retrieved from the cache the second time this is called
+    returnContent = returnContent + check entity.getBodyAsString();
+    return returnContent;
+}
+
+function testXmlWithByteArrayContent(io:ByteChannel byteChannel, string contentTypeValue) returns xml|error {
+    mime:Entity entity = new;
+    entity.setByteChannel(byteChannel, contentType = contentTypeValue);
+    byte[] binaryPayload = check entity.getByteArray();
+    return entity.getXml();
+}
+
+function getPartsFromInvalidChannel(io:ByteChannel byteChannel, string contentType) returns mime:Entity[]|error {
+    mime:Entity entity = new;
+    entity.setByteChannel(byteChannel, contentType = contentType);
+    return entity.getBodyParts();
+}

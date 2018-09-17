@@ -17,7 +17,7 @@ IMPORT      : 'import' ;
 AS          : 'as' ;
 PUBLIC      : 'public' ;
 PRIVATE     : 'private' ;
-NATIVE      : 'native' ;
+EXTERN      : 'extern' ;
 SERVICE     : 'service' ;
 RESOURCE    : 'resource' ;
 FUNCTION    : 'function' ;
@@ -34,6 +34,7 @@ RETURNS     : 'returns';
 VERSION     : 'version';
 DOCUMENTATION  : 'documentation';
 DEPRECATED  :  'deprecated';
+CHANNEL    : 'channel';
 
 FROM        : 'from' { inSiddhi = true; inTableSqlQuery = true; inSiddhiInsertQuery = true; inSiddhiOutputRateLimit = true; } ;
 ON          : 'on' ;
@@ -184,8 +185,9 @@ OR          : '||' ;
 
 // Bitwise Operators
 
-BITAND  : '&' ;
-BITXOR  : '^' ;
+BIT_AND          : '&' ;
+BIT_XOR          : '^' ;
+BIT_COMPLEMENT   : '~' ;
 
 // Additional symbols 
 
@@ -224,10 +226,6 @@ HexIntegerLiteral
     :   HexNumeral
     ;
 
-OctalIntegerLiteral
-    :   OctalNumeral
-    ;
-
 BinaryIntegerLiteral
     :   BinaryNumeral
     ;
@@ -260,6 +258,18 @@ HexNumeral
     ;
 
 fragment
+DottedHexNumber
+    :   HexDigits DOT HexDigits
+    |   DOT HexDigits
+    ;
+
+fragment
+DottedDecimalNumber
+    :   DecimalNumeral DOT Digits
+    |   DOT Digit+
+    ;
+
+fragment
 HexDigits
     :   HexDigit+
     ;
@@ -267,21 +277,6 @@ HexDigits
 fragment
 HexDigit
     :   [0-9a-fA-F]
-    ;
-
-fragment
-OctalNumeral
-    :   '0' OctalDigits
-    ;
-
-fragment
-OctalDigits
-    :   OctalDigit+
-    ;
-
-fragment
-OctalDigit
-    :   [0-7]
     ;
 
 fragment
@@ -301,17 +296,13 @@ BinaryDigit
 
 // §3.10.2 Floating-Point Literals
 
-FloatingPointLiteral
-    :   DecimalFloatingPointLiteral
-    |   HexadecimalFloatingPointLiteral
+HexadecimalFloatingPointLiteral
+    :   HexIndicator HexFloatingPointNumber
     ;
 
-fragment
-DecimalFloatingPointLiteral
-    :   Digits '.' (Digits ExponentPart? | Digits? ExponentPart)
-    |   '.' Digits ExponentPart?
-    |   Digits ExponentPart
-    |   Digits
+DecimalFloatingPointNumber
+    :   DecimalNumeral ExponentPart
+    |   DottedDecimalNumber ExponentPart?
     ;
 
 fragment
@@ -335,14 +326,14 @@ Sign
     ;
 
 fragment
-HexadecimalFloatingPointLiteral
-    :   HexSignificand BinaryExponent
+HexIndicator
+    :   '0' [xX]
     ;
 
 fragment
-HexSignificand
-    :   HexNumeral '.'?
-    |   '0' [xX] HexDigits? '.' HexDigits
+HexFloatingPointNumber
+    :   HexDigits BinaryExponent
+    |   DottedHexNumber BinaryExponent?
     ;
 
 fragment
@@ -384,25 +375,12 @@ StringCharacter
 fragment
 EscapeSequence
     :   '\\' [btnfr"'\\]
-    |   OctalEscape
     |   UnicodeEscape
-    ;
-
-fragment
-OctalEscape
-    :   '\\' OctalDigit
-    |   '\\' OctalDigit OctalDigit
-    |   '\\' ZeroToThree OctalDigit OctalDigit
     ;
 
 fragment
 UnicodeEscape
     :   '\\' 'u' HexDigit HexDigit HexDigit HexDigit
-    ;
-
-fragment
-ZeroToThree
-    :   [0-3]
     ;
 
 // Blob Literal
@@ -497,7 +475,7 @@ DeprecatedTemplateStart
     ;
 
 ExpressionEnd
-    :   {inTemplate}? RIGHT_BRACE WS* RIGHT_BRACE   ->  popMode
+    :   {inTemplate}? RIGHT_BRACE RIGHT_BRACE   ->  popMode
     ;
 
 DocumentationTemplateAttributeEnd

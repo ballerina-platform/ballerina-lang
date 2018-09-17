@@ -1,27 +1,25 @@
 import ballerina/io;
 
-io:Socket socket;
-
-function openSocketConnection (string host, int port) {
+function openSocketConnection(string host, int port) returns io:Socket {
     io:Socket s = new;
     check s.connect(host, port);
-    socket = s;
+    return s;
 }
 
-function openSocketConnectionWithProps (string host, int port, int localPort) returns io:Socket {
+function openSocketConnectionWithProps(string host, int port, int localPort) returns io:Socket {
     io:Socket s = new;
     check s.bindAddress(localPort);
     check s.connect(host, port);
     return s;
 }
 
-function closeSocket () {
+function closeSocket(io:Socket socket) {
     error? err = socket.close();
 }
 
-function write (byte[] content) returns int|error {
-    io:ByteChannel channel = socket.channel;
-    var result = channel.write(content, 0);
+function write(io:Socket socket, byte[] content) returns int|error {
+    io:ByteChannel byteChannel = socket.byteChannel;
+    var result = byteChannel.write(content, 0);
     match result {
         int numberOfBytesWritten => {
             io:println("Number of byte written to server: ", numberOfBytesWritten);
@@ -33,11 +31,11 @@ function write (byte[] content) returns int|error {
     }
 }
 
-function read (int size) returns (byte[], int)|error {
-    io:ByteChannel channel = socket.channel;
-    var result = channel.read(size);
-    match result{
-        (byte[] , int)  content => {
+function read(io:Socket socket, int size) returns (byte[], int)|error {
+    io:ByteChannel byteChannel = socket.byteChannel;
+    var result = byteChannel.read(size);
+    match result {
+        (byte[], int) content => {
             var (bytes, numberOfBytes) = content;
             io:println("Number of byte read from server: ", numberOfBytes);
             return (bytes, numberOfBytes);
@@ -48,6 +46,43 @@ function read (int size) returns (byte[], int)|error {
     }
 }
 
-function close (io:Socket localSocket) {
-    error? err = localSocket.close();
+function readShutdown(io:Socket s) {
+    check s.shutdownInput();
+}
+
+function writeShutDown(io:Socket s) {
+    check s.shutdownOutput();
+}
+
+function bindSocketForSamePort(int localPort) returns error? {
+    io:Socket client1 = new;
+    check client1.bindAddress(localPort);
+    io:Socket client2 = new;
+    match client2.bindAddress(localPort) {
+        error e => {
+            check client1.close();
+            return e;
+        }
+        () => {
+            return ();
+        }
+    }
+}
+function readRecord(io:Socket socket) returns string[]|error {
+    io:ByteChannel byteChannel = socket.byteChannel;
+    io:CharacterChannel characterChannel = new(byteChannel, "UTF-8");
+    io:DelimitedTextRecordChannel rChannel = new io:DelimitedTextRecordChannel(characterChannel, rs = "\r\n", fs = ",");
+    if (rChannel.hasNext()){
+        var records = rChannel.getNext();
+        match records {
+            error e => {
+                return e;
+            }
+            string[] fields => {
+                return fields;
+            }
+        }
+    } else {
+        return { message: "No records found" };
+    }
 }

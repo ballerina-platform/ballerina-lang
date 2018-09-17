@@ -2,9 +2,11 @@ package org.ballerinalang.test.service.websub;
 
 import io.netty.handler.codec.http.HttpHeaderNames;
 import org.awaitility.Duration;
+import org.ballerinalang.test.BaseTest;
+import org.ballerinalang.test.context.BMainInstance;
+import org.ballerinalang.test.context.BServerInstance;
 import org.ballerinalang.test.context.BallerinaTestException;
 import org.ballerinalang.test.context.LogLeecher;
-import org.ballerinalang.test.context.ServerInstance;
 import org.ballerinalang.test.util.HttpClientRequest;
 import org.ballerinalang.test.util.HttpResponse;
 import org.ballerinalang.test.util.HttpsClientRequest;
@@ -29,7 +31,11 @@ import static java.util.concurrent.TimeUnit.SECONDS;
  * 2. Content delivery for subscriptions made with and without specifying a secret
  * 3. Content delivery for string and XML types. Other WebSub tests cover JSON content.
  */
-public class WebSubContentTypeSupportTestCase {
+public class WebSubContentTypeSupportTestCase extends BaseTest {
+    private BServerInstance webSubSubscriber;
+    private BMainInstance webSubPublisher;
+
+    private final int servicePort = 8686;
 
     private static String hubUrl = "https://localhost:9696/websub/hub";
     private static final String INTENT_VERIFICATION_SUBSCRIBER_ONE_LOG = "ballerina: Intent Verification agreed - Mode"
@@ -63,50 +69,50 @@ public class WebSubContentTypeSupportTestCase {
     private LogLeecher intentVerificationLogLeecherTwo = new LogLeecher(INTENT_VERIFICATION_SUBSCRIBER_TWO_LOG);
 
     private LogLeecher internalHubXmlNotificationLogLeecherOne
-                                                = new LogLeecher(XML_INTERNAL_HUB_NOTIFICATION_SUBSCRIBER_ONE_LOG);
+            = new LogLeecher(XML_INTERNAL_HUB_NOTIFICATION_SUBSCRIBER_ONE_LOG);
     private LogLeecher internalHubXmlNotificationLogLeecherTwo
-                                                = new LogLeecher(XML_INTERNAL_HUB_NOTIFICATION_SUBSCRIBER_TWO_LOG);
+            = new LogLeecher(XML_INTERNAL_HUB_NOTIFICATION_SUBSCRIBER_TWO_LOG);
     private LogLeecher internalHubTextNotificationLogLeecherOne
-                                                = new LogLeecher(TEXT_INTERNAL_HUB_NOTIFICATION_SUBSCRIBER_ONE_LOG);
+            = new LogLeecher(TEXT_INTERNAL_HUB_NOTIFICATION_SUBSCRIBER_ONE_LOG);
     private LogLeecher internalHubTextNotificationLogLeecherTwo
-                                                = new LogLeecher(TEXT_INTERNAL_HUB_NOTIFICATION_SUBSCRIBER_TWO_LOG);
+            = new LogLeecher(TEXT_INTERNAL_HUB_NOTIFICATION_SUBSCRIBER_TWO_LOG);
     private LogLeecher remoteHubXmlNotificationLogLeecherOne
-                                                = new LogLeecher(XML_REMOTE_HUB_NOTIFICATION_SUBSCRIBER_ONE_LOG);
+            = new LogLeecher(XML_REMOTE_HUB_NOTIFICATION_SUBSCRIBER_ONE_LOG);
     private LogLeecher remoteHubXmlNotificationLogLeecherTwo
-                                                = new LogLeecher(XML_REMOTE_HUB_NOTIFICATION_SUBSCRIBER_TWO_LOG);
+            = new LogLeecher(XML_REMOTE_HUB_NOTIFICATION_SUBSCRIBER_TWO_LOG);
     private LogLeecher remoteHubTextNotificationLogLeecherOne
-                                                = new LogLeecher(TEXT_REMOTE_HUB_NOTIFICATION_SUBSCRIBER_ONE_LOG);
+            = new LogLeecher(TEXT_REMOTE_HUB_NOTIFICATION_SUBSCRIBER_ONE_LOG);
     private LogLeecher remoteHubTextNotificationLogLeecherTwo
-                                                = new LogLeecher(TEXT_REMOTE_HUB_NOTIFICATION_SUBSCRIBER_TWO_LOG);
+            = new LogLeecher(TEXT_REMOTE_HUB_NOTIFICATION_SUBSCRIBER_TWO_LOG);
 
-    private ServerInstance ballerinaWebSubPublisher;
-    private ServerInstance ballerinaWebSubSubscribers;
 
     @BeforeClass
-    public void setup() throws BallerinaTestException, InterruptedException {
-        ballerinaWebSubPublisher = ServerInstance.initBallerinaServer();
-        String[] publisherArgs = {new File("src" + File.separator + "test" + File.separator + "resources"
-                                   + File.separator + "websub" + File.separator + "content_types" + File.separator
-                                   + "publisher.bal").getAbsolutePath(), "-e b7a.websub.hub.remotepublish=true"};
+    public void setup() throws BallerinaTestException {
+        webSubSubscriber = new BServerInstance(balServer);
+        webSubPublisher = new BMainInstance(balServer);
+
+        String balFile = new File("src" + File.separator + "test" + File.separator + "resources"
+                + File.separator + "websub" + File.separator + "content_types" + File.separator
+                + "publisher.bal").getAbsolutePath();
+        String[] publisherArgs = {"-e b7a.websub.hub.remotepublish=true"};
 
         String subscriberBal = new File("src" + File.separator + "test" + File.separator + "resources"
-                                + File.separator + "websub" + File.separator + "content_types" + File.separator
-                                + "subscribers.bal").getAbsolutePath();
-        ballerinaWebSubSubscribers = ServerInstance.initBallerinaServer(8686);
-        ballerinaWebSubSubscribers.addLogLeecher(intentVerificationLogLeecherOne);
-        ballerinaWebSubSubscribers.addLogLeecher(intentVerificationLogLeecherTwo);
-        ballerinaWebSubSubscribers.addLogLeecher(internalHubXmlNotificationLogLeecherOne);
-        ballerinaWebSubSubscribers.addLogLeecher(internalHubXmlNotificationLogLeecherTwo);
-        ballerinaWebSubSubscribers.addLogLeecher(internalHubTextNotificationLogLeecherOne);
-        ballerinaWebSubSubscribers.addLogLeecher(internalHubTextNotificationLogLeecherTwo);
-        ballerinaWebSubSubscribers.addLogLeecher(remoteHubXmlNotificationLogLeecherOne);
-        ballerinaWebSubSubscribers.addLogLeecher(remoteHubXmlNotificationLogLeecherTwo);
-        ballerinaWebSubSubscribers.addLogLeecher(remoteHubTextNotificationLogLeecherOne);
-        ballerinaWebSubSubscribers.addLogLeecher(remoteHubTextNotificationLogLeecherTwo);
+                + File.separator + "websub" + File.separator + "content_types" + File.separator
+                + "subscribers.bal").getAbsolutePath();
+        webSubSubscriber.addLogLeecher(intentVerificationLogLeecherOne);
+        webSubSubscriber.addLogLeecher(intentVerificationLogLeecherTwo);
+        webSubSubscriber.addLogLeecher(internalHubXmlNotificationLogLeecherOne);
+        webSubSubscriber.addLogLeecher(internalHubXmlNotificationLogLeecherTwo);
+        webSubSubscriber.addLogLeecher(internalHubTextNotificationLogLeecherOne);
+        webSubSubscriber.addLogLeecher(internalHubTextNotificationLogLeecherTwo);
+        webSubSubscriber.addLogLeecher(remoteHubXmlNotificationLogLeecherOne);
+        webSubSubscriber.addLogLeecher(remoteHubXmlNotificationLogLeecherTwo);
+        webSubSubscriber.addLogLeecher(remoteHubTextNotificationLogLeecherOne);
+        webSubSubscriber.addLogLeecher(remoteHubTextNotificationLogLeecherTwo);
 
         Executors.newSingleThreadExecutor().execute(() -> {
             try {
-                ballerinaWebSubPublisher.runMain(publisherArgs);
+                webSubPublisher.runMain(balFile, publisherArgs, new String[]{});
             } catch (BallerinaTestException e) {
                 //ignored since any errors here would be reflected as test failures
             }
@@ -115,12 +121,13 @@ public class WebSubContentTypeSupportTestCase {
         //Allow to bring up the hub
         given().ignoreException(ConnectException.class).with().pollInterval(Duration.FIVE_SECONDS).and()
                 .with().pollDelay(Duration.TEN_SECONDS).await().atMost(60, SECONDS).until(() -> {
-            HttpResponse response = HttpsClientRequest.doGet(hubUrl, ballerinaWebSubPublisher.getServerHome());
+            //using same pack location, hence server home is same
+            HttpResponse response = HttpsClientRequest.doGet(hubUrl, webSubSubscriber.getServerHome());
             return response.getResponseCode() == 202;
         });
 
         String[] subscriberArgs = {};
-        ballerinaWebSubSubscribers.startBallerinaServer(subscriberBal, subscriberArgs);
+        webSubSubscriber.startServer(subscriberBal, subscriberArgs, new int[]{servicePort});
 
         //Allow to start up the subscriber service
         given().ignoreException(ConnectException.class).with().pollInterval(Duration.FIVE_SECONDS).and()
@@ -129,14 +136,19 @@ public class WebSubContentTypeSupportTestCase {
             headers.put(HttpHeaderNames.CONTENT_TYPE.toString(), TestConstant.CONTENT_TYPE_JSON);
             headers.put("X-Hub-Signature", "SHA256=5262411828583e9dc7eaf63aede0abac8e15212e06320bb021c433a20f27d553");
             HttpResponse response = HttpClientRequest.doPost(
-                    ballerinaWebSubSubscribers.getServiceURLHttp("websub"), "{\"dummy\":\"body\"}",
+                    webSubSubscriber.getServiceURLHttp(servicePort, "websub"), "{\"dummy\":\"body\"}",
                     headers);
             return response.getResponseCode() == 202;
         });
     }
 
+    @AfterClass
+    private void cleanup() throws Exception {
+        webSubSubscriber.shutdownServer();
+    }
+
     @Test
-    public void testSubscriptionAndIntentVerification() throws BallerinaTestException, InterruptedException {
+    public void testSubscriptionAndIntentVerification() throws BallerinaTestException {
         intentVerificationLogLeecherOne.waitForText(30000);
         intentVerificationLogLeecherTwo.waitForText(30000);
     }
@@ -180,11 +192,4 @@ public class WebSubContentTypeSupportTestCase {
     public void testUnauthenticatedXmlContentReceiptForRemoteHub() throws BallerinaTestException {
         remoteHubXmlNotificationLogLeecherTwo.waitForText(45000);
     }
-
-    @AfterClass
-    private void cleanup() throws Exception {
-        ballerinaWebSubPublisher.stopServer();
-        ballerinaWebSubSubscribers.stopServer();
-    }
-
 }

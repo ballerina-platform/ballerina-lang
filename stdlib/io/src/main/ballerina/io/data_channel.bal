@@ -14,160 +14,120 @@
 // specific language governing permissions and limitations
 // under the License.
 
-documentation {
-    Represents network byte order.
-
-    BIG_ENDIAN - specifies the bytes to be in the order of most significant byte first
-
-    LITTLE_ENDIAN - specifies the byte order to be the least significant byte first
-}
+# Represents network byte order.
+#
+# BIG_ENDIAN - specifies the bytes to be in the order of most significant byte first
+#
+# LITTLE_ENDIAN - specifies the byte order to be the least significant byte first
 public type ByteOrder "BE";
 @final public ByteOrder BIG_ENDIAN = "BE";
 
-documentation {
-    Represents a data channel for reading/writing data.
-}
+# Represents a data channel for reading/writing data.
 public type DataChannel object {
 
     public new(ByteChannel byteChannel, ByteOrder bOrder = "BE") {
         init(byteChannel, bOrder);
     }
 
-    documentation {
-        Initializes data channel.
+    # Initializes data channel.
+    #
+    # + byteChannel - channel which would represent the source to read/write data
+    # + bOrder - network byte order
+    extern function init(ByteChannel byteChannel, ByteOrder bOrder);
 
-        P{{byteChannel}} channel which would represent the source to read/write data
-        P{{bOrder}} network byte order
-    }
-    native function init(ByteChannel byteChannel, ByteOrder bOrder);
+    # Reads a 16 bit integer.
+    #
+    # + return - value of the integer which is read or an error
+    public extern function readInt16() returns int|error;
 
-    documentation {
-        Reads a 16 bit integer.
+    # Reads a 32 bit integer.
+    #
+    # + return - value of the integer which is read or an error
+    public extern function readInt32() returns int|error;
 
-        R{{}} value of the integer which is read or an error
-    }
-    public native function readInt16() returns int|error;
+    # Reads a 64 bit integer.
+    #
+    # + return - value of the integer which is read or an error
+    public extern function readInt64() returns int|error;
 
-    documentation {
-        Reads a 32 bit integer.
+    # Writes 16 bit integer.
+    #
+    # + value - integer which will be written
+    # + return - nill if the content is written successfully or an error
+    public extern function writeInt16(int value) returns error?;
 
-        R{{}} value of the integer which is read or an error
-    }
-    public native function readInt32() returns int|error;
+    # Writes 32 bit integer.
+    #
+    # + value - integer which will be written
+    # + return - nill if the content is written successfully or an error
+    public extern function writeInt32(int value) returns error?;
 
-    documentation {
-        Reads a 64 bit integer.
+    # Writes 64 bit integer.
+    #
+    # + value - integer which will be written
+    # + return - nill if the content is written successfully or an error
+    public extern function writeInt64(int value) returns error?;
 
-        R{{}} value of the integer which is read or an error
-    }
-    public native function readInt64() returns int|error;
+    # Reads 32 bit float.
+    #
+    # + return - value of the float which is read or an error
+    public extern function readFloat32() returns float|error;
 
-    documentation {
-        Writes 16 bit integer.
+    # Reads 64 bit float.
+    #
+    # + return - value of the float which is read or an error
+    public extern function readFloat64() returns float|error;
 
-        P{{value}}   integer which will be written
-        R{{}} nill if the content is written successfully or an error
-    }
-    public native function writeInt16(int value) returns error?;
+    # Writes 32 bit float.
+    #
+    # + value - float which will be written
+    # + return - nill if the float is written successfully or an error
+    public extern function writeFloat32(float value) returns error?;
 
-    documentation {
-        Writes 32 bit integer.
+    # Writes 64 bit float.
+    #
+    # + value - float which will be written
+    # + return - nill if the float is written successfully or an error
+    public extern function writeFloat64(float value) returns error?;
 
-        P{{value}}   integer which will be written
-        R{{}} nill if the content is written successfully or an error
-    }
-    public native function writeInt32(int value) returns error?;
+    # Reads 1 byte and convert it's value to boolean.
+    #
+    # + return - boolean value which is read or an error
+    public extern function readBool() returns boolean|error;
 
-    documentation {
-        Writes 64 bit integer.
+    # Writes boolean.
+    #
+    # + value - boolean which will be written
+    # + return - nill if the content is written successfully or an error
+    public extern function writeBool(boolean value) returns error?;
 
-        P{{value}}   integer which will be written
-        R{{}} nill if the content is written successfully or an error
-    }
-    public native function writeInt64(int value) returns error?;
+    # Reads string value represented through the provided number of bytes.
+    #
+    # + nBytes - specifies the number of bytes which represents the string
+    # + encoding - specifies the char-set encoding of the string
+    # + return - value of the string or an error
+    public extern function readString(int nBytes, string encoding) returns string|error;
 
-    documentation {
-        Reads 32 bit float.
+    # Writes a given string value to the respective channel.
+    #
+    # + value - the value which should be written
+    # + encoding - the encoding which will represent the value string
+    # + return - nill if the content is written successfully or an error
+    public extern function writeString(string value, string encoding) returns error?;
 
-        R{{}} value of the float which is read or an error
-    }
-    public native function readFloat32() returns float|error;
+    # Reads a variable length integer.
+    #
+    # + return - value of the integer which is read or an error
+    public extern function readVarInt() returns int|error;
 
-    documentation {
-        Reads 64 bit float.
+    # Writes a given integer identifying the variable length.
+    #
+    # + value - the value which should be written
+    # + return - nill if the content is written successfully or an error
+    public extern function writeVarInt(int value) returns error?;
 
-        R{{}} value of the float which is read or an error
-    }
-    public native function readFloat64() returns float|error;
-
-    documentation {
-        Writes 32 bit float.
-
-        P{{value}}   float which will be written
-        R{{}} nill if the float is written successfully or an error
-    }
-    public native function writeFloat32(float value) returns error?;
-
-    documentation {
-        Writes 64 bit float.
-
-        P{{value}}   float which will be written
-        R{{}} nill if the float is written successfully or an error
-    }
-    public native function writeFloat64(float value) returns error?;
-
-    documentation {
-        Reads 1 byte and convert it's value to boolean.
-
-        R{{}} boolean value which is read or an error
-    }
-    public native function readBool() returns boolean|error;
-
-    documentation {
-        Writes boolean.
-
-        P{{value}}   boolean which will be written
-        R{{}} nill if the content is written successfully or an error
-    }
-    public native function writeBool(boolean value) returns error?;
-
-    documentation {
-        Reads string value represented through the provided number of bytes.
-
-        P{{nBytes}} specifies the number of bytes which represents the string
-        P{{encoding}} specifies the char-set encoding of the string
-        R{{}} value of the string or an error
-    }
-    public native function readString(int nBytes, string encoding) returns string|error;
-
-    documentation {
-        Writes a given string value to the respective channel.
-
-        P{{value}} the value which should be written
-        P{{encoding}} the encoding which will represent the value string
-        R{{}} nill if the content is written successfully or an error
-    }
-    public native function writeString(string value, string encoding) returns error?;
-
-    documentation {
-        Reads a variable length integer.
-
-        R{{}} value of the integer which is read or an error
-    }
-    public native function readVarInt() returns int|error;
-
-    documentation {
-        Writes a given integer identifying the variable length.
-
-        P{{value}} the value which should be written
-        R{{}} nill if the content is written successfully or an error
-    }
-    public native function writeVarInt(int value) returns error?;
-
-    documentation {
-        Closes the data channel.
-
-        R{{}} nill if the channel is closed successfully or an i/o error
-    }
-    public native function close() returns error?;
+    # Closes the data channel.
+    #
+    # + return - nill if the channel is closed successfully or an i/o error
+    public extern function close() returns error?;
 };

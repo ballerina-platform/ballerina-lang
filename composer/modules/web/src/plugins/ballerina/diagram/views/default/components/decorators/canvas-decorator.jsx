@@ -50,20 +50,39 @@ class CanvasDecorator extends React.Component {
             y: 0,
         };
         const { editMode } = this.context;
+
+        let heightDiff;
+
+        if (this.props.bBox.w > this.props.containerSize.width) {
+            const decrease = this.props.bBox.w - this.props.containerSize.width;
+            const descresePercentage = decrease / this.props.bBox.w * 100;
+
+            heightDiff = this.props.bBox.h - (this.props.bBox.h / 100 * descresePercentage);
+        } else {
+            const increase = this.props.containerSize.width - this.props.bBox.w;
+            const increasePercentage = increase / this.props.bBox.w * 100;
+
+            heightDiff = this.props.bBox.h + (this.props.bBox.h / 100 * increasePercentage);
+        }
+
         const svgSize = {
             w: editMode ? this.props.containerSize.width : this.props.bBox.w,
-            h: this.props.bBox.h,
+            h: editMode ? heightDiff : this.props.bBox.h,
         };
+
+        const zoomLevel = this.props.zoom;
+
         const viewBox = editMode ? `0 0 ${this.props.bBox.w} ${this.props.bBox.h}` : '';
+
         return (
-            <div className='' style={{ width: svgSize.w }} >
+            <div className='' style={{ width: svgSize.w * zoomLevel, height: svgSize.h * zoomLevel }} >
                 <div ref={(x) => { setCanvasOverlay(x); }}>
                     {/* This space is used to render html elements over svg */ }
                 </div>
                 <svg
                     className='svg-container'
-                    width={svgSize.w}
-                    height={svgSize.h}
+                    width={svgSize.w * zoomLevel}
+                    height={svgSize.h * zoomLevel}
                     viewBox={viewBox}
                     preserveAspectRatio='xMinYMin'
                     style={{ pointerEvents: editMode ? 'none' : 'auto' }}
@@ -90,6 +109,7 @@ CanvasDecorator.propTypes = {
         height: PropTypes.number.isRequired,
         width: PropTypes.number.isRequired,
     }).isRequired,
+    zoom: PropTypes.number.isRequired,
     bBox: PropTypes.shape({
         h: PropTypes.number.isRequired,
         w: PropTypes.number.isRequired,

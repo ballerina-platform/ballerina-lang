@@ -18,12 +18,12 @@
 
 package org.ballerinalang.testerina.core;
 
+import org.ballerinalang.compiler.BLangCompilerException;
 import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.compiler.plugins.CompilerPlugin;
 import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.values.BIterator;
-import org.ballerinalang.model.values.BJSON;
 import org.ballerinalang.model.values.BNewArray;
 import org.ballerinalang.model.values.BRefValueArray;
 import org.ballerinalang.model.values.BValue;
@@ -77,6 +77,7 @@ public class BTestRunner {
      * @param sourceRoot      source root
      * @param sourceFilePaths List of @{@link Path} of ballerina files
      * @param groups          List of groups to be included
+     * @param shouldIncludeGroups    flag to specify whether to include or exclude provided groups
      */
     public void runTest(String sourceRoot, Path[] sourceFilePaths, List<String> groups, boolean shouldIncludeGroups) {
         runTest(sourceRoot, sourceFilePaths, groups, shouldIncludeGroups, false);
@@ -89,6 +90,7 @@ public class BTestRunner {
      * @param sourceFilePaths List of @{@link Path} of ballerina files
      * @param groups          List of groups to be included/excluded
      * @param shouldIncludeGroups    flag to specify whether to include or exclude provided groups
+     * @param buildWithTests flag to specify whether to build with tests or not
      */
     public void runTest(String sourceRoot, Path[] sourceFilePaths, List<String> groups, boolean shouldIncludeGroups,
                         boolean buildWithTests) {
@@ -175,7 +177,7 @@ public class BTestRunner {
                                           + diagnostic.getPosition() + " " + diagnostic.getMessage());
             }
             if (compileResult.getErrorCount() > 0) {
-                throw new BallerinaException("error : compilation failed");
+                throw new BLangCompilerException("compilation contains errors");
             }
             // set the debugger
             ProgramFile programFile = compileResult.getProgFile();
@@ -399,22 +401,6 @@ public class BTestRunner {
                             args[j] = bNewArray.getBValue(j);
                         }
                         argsList.add(args);
-                    } else {
-                        // cannot happen due to validations done at annotation processor
-                    }
-                }
-            } else if (value instanceof BJSON) {
-                BJSON jsonArrayOfArrays = (BJSON) value;
-                for (BIterator it = jsonArrayOfArrays.newIterator(); it.hasNext(); ) {
-                    BValue[] vals = it.getNext(0);
-                    if (vals[1] instanceof BJSON) {
-                        List<BValue> args = new ArrayList<>();
-                        BJSON jsonArray = (BJSON) vals[1];
-                        for (BIterator it2 = jsonArray.newIterator(); it2.hasNext(); ) {
-                            BValue[] vals2 = it2.getNext(0);
-                            args.add(vals2[1]);
-                        }
-                        argsList.add(args.toArray(new BValue[0]));
                     } else {
                         // cannot happen due to validations done at annotation processor
                     }

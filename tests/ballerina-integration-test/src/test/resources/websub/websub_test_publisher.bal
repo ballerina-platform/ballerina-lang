@@ -7,9 +7,9 @@ endpoint websub:Client websubHubClientEP {
     url: config:getAsString("test.hub.url")
 };
 
-function main(string... args) {
+public function main(string... args) {
     io:println("Starting up the Ballerina Hub Service");
-    websub:WebSubHub webSubHub = websub:startUpBallerinaHub()
+    websub:WebSubHub webSubHub = websub:startHub(9292)
                                     but { websub:HubStartedUpError hubStartedUpErr => hubStartedUpErr.startedUpHub };
     //Register a topic at the hub
     _ = webSubHub.registerTopic("http://www.websubpubtopic.com");

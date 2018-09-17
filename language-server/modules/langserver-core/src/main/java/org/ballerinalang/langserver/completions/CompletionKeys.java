@@ -31,9 +31,14 @@ import java.util.Stack;
 
 /**
  * Text Document Service context keys for the completion operation context.
+ *
  * @since 0.95.5
  */
 public class CompletionKeys {
+
+    private CompletionKeys() {
+    }
+
     public static final LSContext.Key<BLangNode> SYMBOL_ENV_NODE_KEY
             = new LSContext.Key<>();
     public static final LSContext.Key<List<SymbolInfo>> VISIBLE_SYMBOLS_KEY

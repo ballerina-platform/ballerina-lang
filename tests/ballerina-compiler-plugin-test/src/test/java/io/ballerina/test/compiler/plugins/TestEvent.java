@@ -32,7 +32,6 @@ class TestEvent {
         ACTION_ANN("action"),
         STRUCT_ANN("struct"),
         TYPEDEF_ANN("struct"),
-        ENUM_ANN("enum"),
         FUNC_ANN("function"),
         VARIAVLE_ANN("variable"),
         ANNOTATION_ANN("annotation"),

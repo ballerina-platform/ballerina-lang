@@ -1,9 +1,5 @@
-#if (${PACKAGE_NAME} && ${PACKAGE_NAME} != "")
-package ${PACKAGE_NAME};
-#end
-
 import ballerina/io;
 
-function main(string... args) {
+public function main(string... args) {
     io:println("Hello, World!");
 }

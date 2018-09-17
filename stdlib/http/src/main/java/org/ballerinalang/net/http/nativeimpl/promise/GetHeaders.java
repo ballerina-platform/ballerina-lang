@@ -32,7 +32,7 @@ import org.ballerinalang.net.http.HttpUtil;
 import org.wso2.transport.http.netty.message.Http2PushPromise;
 
 /**
- * {@code GetHeaders} is the ballerina native function to get all header values for a particular header
+ * {@code GetHeaders} is the ballerina extern function to get all header values for a particular header
  * name in a Push Promise.
  */
 @BallerinaFunction(
@@ -45,6 +45,7 @@ import org.wso2.transport.http.netty.message.Http2PushPromise;
         isPublic = true
 )
 public class GetHeaders extends BlockingNativeCallableUnit {
+
     @Override
     public void execute(Context context) {
         BMap<String, BValue> pushPromiseStruct = (BMap<String, BValue>) context.getRefArgument(0);

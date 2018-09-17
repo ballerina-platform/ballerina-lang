@@ -21,9 +21,9 @@ import org.antlr.v4.runtime.TokenStream;
 import org.ballerinalang.langserver.common.UtilSymbolKeys;
 import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
 import org.ballerinalang.langserver.compiler.LSContext;
-import org.ballerinalang.langserver.compiler.LSServiceOperationContext;
 import org.ballerinalang.langserver.compiler.common.LSDocument;
 import org.ballerinalang.langserver.compiler.common.modal.BallerinaPackage;
+import org.ballerinalang.langserver.compiler.workspace.WorkspaceDocumentException;
 import org.ballerinalang.langserver.compiler.workspace.WorkspaceDocumentManager;
 import org.ballerinalang.langserver.completions.CompletionKeys;
 import org.ballerinalang.langserver.completions.SymbolInfo;
@@ -40,13 +40,12 @@ import org.eclipse.lsp4j.TextDocumentIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.ballerinalang.compiler.semantics.model.Scope;
-import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAnnotationSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAttachedFunction;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BEndpointVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BOperatorSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BServiceSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
@@ -60,6 +59,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BMapType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BObjectType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStructureType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTableType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BXMLType;
@@ -78,30 +78,27 @@ import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 
-import java.net.MalformedURLException;
-import java.net.URISyntaxException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import java.util.Stack;
+import java.util.function.Predicate;
+
+import static org.ballerinalang.langserver.compiler.LSCompilerUtil.getUntitledFilePath;
 
 /**
  * Common utils to be reuse in language server implementation.
  */
 public class CommonUtil {
-
     private static final Logger logger = LoggerFactory.getLogger(CommonUtil.class);
 
-    private static final String OPEN_BRACKET_KEY_WORD = "(";
-    
     public static final String LINE_SEPARATOR = System.lineSeparator();
 
     public static final String LINE_SEPARATOR_SPLIT = "\\r?\\n";
@@ -114,6 +111,9 @@ public class CommonUtil {
         String debugLogStr = System.getProperty("ballerina.debugLog");
         LS_DEBUG_ENABLED =  debugLogStr != null && Boolean.parseBoolean(debugLogStr);
         BALLERINA_HOME = System.getProperty("ballerina.home");
+    }
+
+    private CommonUtil() {
     }
 
     /**
@@ -148,23 +148,6 @@ public class CommonUtil {
     }
 
     /**
-     * Common utility to get a Path from the given uri string.
-     *
-     * @param document LSDocument object of the file
-     * @return {@link Path}     Path of the uri
-     */
-    public static Path getPath(LSDocument document) {
-        Path path = null;
-        try {
-            path = document.getPath();
-        } catch (URISyntaxException | MalformedURLException e) {
-            // Do Nothing
-        }
-
-        return path;
-    }
-
-    /**
      * Calculate the user defined type position.
      *
      * @param position position of the node
@@ -187,6 +170,19 @@ public class CommonUtil {
         int startColumn = diagnosticPos.getStartColumn() - 1;
         int endColumn = diagnosticPos.getEndColumn() - 1;
         return new DiagnosticPos(diagnosticPos.getSource(), startLine, endLine, startColumn, endColumn);
+    }
+
+    /**
+     * Replace and returns a diagnostic position with a new position.
+     *
+     * @param oldPos old position
+     * @param newPos new position
+     */
+    public static void replacePosition(DiagnosticPos oldPos, DiagnosticPos newPos) {
+        oldPos.sLine = newPos.sLine;
+        oldPos.eLine = newPos.eLine;
+        oldPos.sCol = newPos.sCol;
+        oldPos.eCol = newPos.eCol;
     }
 
     /**
@@ -235,26 +231,6 @@ public class CommonUtil {
     }
 
     /**
-     * Get n number of default tokens from a given start index.
-     * @param tokenStream       Token Stream
-     * @param n                 number of tokens to extract
-     * @param startIndex        Start token index
-     * @return {@link List}     List of tokens extracted
-     */
-    public static List<Token> getNDefaultTokensToRight(TokenStream tokenStream, int n, int startIndex) {
-        List<Token> tokens = new ArrayList<>();
-        Token t;
-        while (n > 0) {
-            t = getDefaultTokenToLeftOrRight(tokenStream, startIndex, 1);
-            tokens.add(t);
-            n--;
-            startIndex = t.getTokenIndex();
-        }
-        
-        return Lists.reverse(tokens);
-    }
-
-    /**
      * Get the Nth Default token to the left of current token index.
      *
      * @param tokenStream Token Stream to traverse
@@ -267,25 +243,6 @@ public class CommonUtil {
         int indexCounter = startIndex;
         for (int i = 0; i < offset; i++) {
             token = getPreviousDefaultToken(tokenStream, indexCounter);
-            indexCounter = token.getTokenIndex();
-        }
-
-        return token;
-    }
-
-    /**
-     * Get the Nth Default token to the right of current token index.
-     *
-     * @param tokenStream Token Stream to traverse
-     * @param startIndex  Start position of the token stream
-     * @param offset      Number of tokens to traverse right
-     * @return {@link Token}    Nth Token
-     */
-    public static Token getNthDefaultTokensToRight(TokenStream tokenStream, int startIndex, int offset) {
-        Token token = null;
-        int indexCounter = startIndex;
-        for (int i = 0; i < offset; i++) {
-            token = getNextDefaultToken(tokenStream, indexCounter);
             indexCounter = token.getTokenIndex();
         }
 
@@ -361,18 +318,6 @@ public class CommonUtil {
     }
 
     /**
-     * Check whether the given cursor position is within the brackets.
-     *
-     * @param context        Text document context
-     * @param terminalTokens List of terminal tokens
-     * @return {@link Boolean}  Whether the cursor is within the brackets or not
-     */
-    public static boolean isWithinBrackets(LSServiceOperationContext context, List<String> terminalTokens) {
-        // TODO: Revamp implementation
-        return false;
-    }
-
-    /**
      * Get the top level node type in the line.
      *
      * @param identifier    Document Identifier
@@ -382,23 +327,30 @@ public class CommonUtil {
      */
     public static String topLevelNodeTypeInLine(TextDocumentIdentifier identifier, Position startPosition,
                                                 WorkspaceDocumentManager docManager) {
-        // TODO: Need to support service and resources as well.
-        List<String> topLevelKeywords = Arrays.asList("function", "service", "resource", "endpoint", "type");
+        List<String> topLevelKeywords = Arrays.asList("function", "service", "resource", "endpoint", "object",
+                "record");
         LSDocument document = new LSDocument(identifier.getUri());
-        String fileContent = docManager.getFileContent(getPath(document));
-        String[] splitedFileContent = fileContent.split(LINE_SEPARATOR_SPLIT);
-        if ((splitedFileContent.length - 1) >= startPosition.getLine()) {
-            String lineContent = splitedFileContent[startPosition.getLine()];
-            List<String> alphaNumericTokens = new ArrayList<>(Arrays.asList(lineContent.split("[^\\w']+")));
 
-            for (String topLevelKeyword : topLevelKeywords) {
-                if (alphaNumericTokens.contains(topLevelKeyword)) {
-                    return topLevelKeyword;
+        try {
+            Path filePath = document.getPath();
+            Path compilationPath = getUntitledFilePath(filePath.toString()).orElse(filePath);
+            String fileContent = docManager.getFileContent(compilationPath);
+            String[] splitedFileContent = fileContent.split(LINE_SEPARATOR_SPLIT);
+            if ((splitedFileContent.length - 1) >= startPosition.getLine()) {
+                String lineContent = splitedFileContent[startPosition.getLine()];
+                List<String> alphaNumericTokens = new ArrayList<>(Arrays.asList(lineContent.split("[^\\w']+")));
+
+                for (String topLevelKeyword : topLevelKeywords) {
+                    if (alphaNumericTokens.contains(topLevelKeyword)) {
+                        return topLevelKeyword;
+                    }
                 }
             }
+            return null;
+        } catch (WorkspaceDocumentException e) {
+            logger.error("Error occurred while reading content of file: " + document.toString());
+            return null;
         }
-
-        return null;
     }
 
     /**
@@ -409,8 +361,7 @@ public class CommonUtil {
      * @return {@link BLangPackage} current package
      */
     public static BLangPackage getCurrentPackageByFileName(List<BLangPackage> packages, String fileUri) {
-        LSDocument document = new LSDocument(fileUri);
-        Path filePath = getPath(document);
+        Path filePath = new LSDocument(fileUri).getPath();
         Path fileNamePath = filePath.getFileName();
         BLangPackage currentPackage = null;
         try {
@@ -456,7 +407,7 @@ public class CommonUtil {
      * @return {@link String}   Insert text
      */
     private static String getAnnotationInsertText(PackageID packageID, BAnnotationSymbol annotationSymbol) {
-        String pkgAlias = packageID.getNameComps().get(packageID.getNameComps().size() - 1).getValue();
+        String pkgAlias = CommonUtil.getLastItem(packageID.getNameComps()).getValue();
         StringBuilder annotationStart = new StringBuilder();
         if (!packageID.getName().getValue().equals(Names.BUILTIN_PACKAGE.getValue())) {
             annotationStart.append(pkgAlias).append(UtilSymbolKeys.PKG_DELIMITER_KEYWORD);
@@ -483,8 +434,7 @@ public class CommonUtil {
     private static String getAnnotationLabel(PackageID packageID, BAnnotationSymbol annotation) {
         String pkgComponent = "";
         if (!packageID.getName().getValue().equals(Names.BUILTIN_PACKAGE.getValue())) {
-
-            pkgComponent += packageID.getNameComps().get(packageID.getNameComps().size() - 1).getValue()
+            pkgComponent = CommonUtil.getLastItem(packageID.getNameComps()).getValue()
                     + UtilSymbolKeys.PKG_DELIMITER_KEYWORD;
         }
 
@@ -541,112 +491,6 @@ public class CommonUtil {
     }
 
     /**
-     * Get the variable symbol info by the name.
-     *
-     * @param name    name of the variable
-     * @param symbols list of symbol info
-     * @return {@link SymbolInfo}   Symbol Info extracted
-     */
-    private static SymbolInfo getVariableByName(String name, List<SymbolInfo> symbols) {
-        return symbols.stream()
-                .filter(symbolInfo -> symbolInfo.getSymbolName().equals(name))
-                .findFirst()
-                .orElse(null);
-    }
-
-    /**
-     * Get the invocations and fields against an identifier (functions, struct fields and types including the enums).
-     *
-     * @param context               Text Document Service context (Completion Context)
-     * @param variableName          Variable name to evaluate against (Can be package alias or defined variable)
-     * @param delimiter             delimiter String (. or :)
-     * @return {@link ArrayList}    List of filtered symbol info
-     */
-    public static ArrayList<SymbolInfo> invocationsAndFieldsOnIdentifier(LSServiceOperationContext context,
-                                                                         String variableName, String delimiter) {
-        ArrayList<SymbolInfo> actionFunctionList = new ArrayList<>();
-        List<SymbolInfo> symbols = context.get(CompletionKeys.VISIBLE_SYMBOLS_KEY);
-        SymbolTable symbolTable = context.get(DocumentServiceKeys.SYMBOL_TABLE_KEY);
-        SymbolInfo variable = CommonUtil.getVariableByName(variableName, symbols);
-        String builtinPkgName = symbolTable.builtInPackageSymbol.pkgID.name.getValue();
-        Map<Name, Scope.ScopeEntry> entries = new HashMap<>();
-        String currentPkgName = context.get(DocumentServiceKeys.CURRENT_PACKAGE_NAME_KEY);
-
-        if (variable == null) {
-            return actionFunctionList;
-        }
-
-        String packageID;
-        BType bType = variable.getScopeEntry().symbol.getType();
-        String bTypeValue;
-
-        
-        if (variable.getScopeEntry().symbol instanceof BEndpointVarSymbol) {
-            BType getClientFuncType = ((BEndpointVarSymbol) variable.getScopeEntry().symbol)
-                    .getClientFunction.type;
-            if (!UtilSymbolKeys.ACTION_INVOCATION_SYMBOL_KEY.equals(delimiter)
-                    || !(getClientFuncType instanceof BInvokableType)) {
-                return actionFunctionList;
-            }
-            
-            actionFunctionList.addAll(getActionsOfEndpoint((BEndpointVarSymbol) variable.getScopeEntry().symbol));
-        } else {
-            if (bType instanceof BArrayType) {
-                packageID = ((BArrayType) bType).eType.tsymbol.pkgID.getName().getValue();
-                bTypeValue = bType.toString();
-            } else {
-                packageID = bType.tsymbol.pkgID.getName().getValue();
-                bTypeValue = bType.toString();
-            }
-
-            // Extract the package symbol. This is used to extract the entries of the particular package
-            SymbolInfo packageSymbolInfo = symbols.stream().filter(item -> {
-                Scope.ScopeEntry scopeEntry = item.getScopeEntry();
-                return (scopeEntry.symbol instanceof BPackageSymbol)
-                        && scopeEntry.symbol.pkgID.name.getValue().equals(packageID);
-            }).findFirst().orElse(null);
-
-            if (packageID.equals(builtinPkgName)) {
-                // If the packageID is ballerina/builtin, we extract entries of builtin package
-                entries = symbolTable.builtInPackageSymbol.scope.entries;
-            } else if (packageSymbolInfo == null && packageID.equals(currentPkgName)) {
-                entries = getScopeEntries(bType, context);
-            } else if (packageSymbolInfo != null) {
-                // If the package exist, we extract particular entries from package
-                entries = packageSymbolInfo.getScopeEntry().symbol.scope.entries;
-            }
-
-            entries.forEach((name, scopeEntry) -> {
-                if (scopeEntry.symbol instanceof BInvokableSymbol && scopeEntry.symbol.owner != null) {
-                    String symbolBoundedName = scopeEntry.symbol.owner.toString();
-
-                    if (symbolBoundedName.equals(bTypeValue)) {
-                        // TODO: Need to handle the name in a proper manner
-                        String[] nameComponents = name.toString().split("\\.");
-                        SymbolInfo actionFunctionSymbol =
-                                new SymbolInfo(nameComponents[nameComponents.length - 1], scopeEntry);
-                        actionFunctionList.add(actionFunctionSymbol);
-                    }
-                } else if ((scopeEntry.symbol instanceof BTypeSymbol)
-                        && (SymbolKind.OBJECT.equals(scopeEntry.symbol.kind)
-                        || SymbolKind.RECORD.equals(scopeEntry.symbol.kind))
-                        && bTypeValue.equals(scopeEntry.symbol.type.toString())) {
-                    // Get the struct fields
-                    Map<Name, Scope.ScopeEntry> fields = scopeEntry.symbol.scope.entries;
-                    fields.forEach((fieldName, fieldScopeEntry) -> {
-                        actionFunctionList.add(new SymbolInfo(fieldName.getValue(), fieldScopeEntry));
-                    });
-                }
-            });
-
-            // Populate possible iterable operators over the variable
-            populateIterableOperations(variable, actionFunctionList);
-        }
-
-        return actionFunctionList;
-    }
-
-    /**
      * Check whether a given symbol is an endpoint object or not.
      * @param bSymbol           BSymbol to evaluate
      * @return {@link Boolean}  Symbol evaluation status
@@ -680,8 +524,7 @@ public class CommonUtil {
      * @param structFields      List of struct fields
      * @return {@link List}     List of completion items for the struct fields
      */
-    public static List<CompletionItem> getStructFieldPopulateCompletionItems(List<BField>
-                                                                                     structFields) {
+    public static List<CompletionItem> getStructFieldCompletionItems(List<BField> structFields) {
         List<CompletionItem> completionItems = new ArrayList<>();
         structFields.forEach(bStructField -> {
             StringBuilder insertText = new StringBuilder(bStructField.getName().getValue() + ": ");
@@ -729,28 +572,6 @@ public class CommonUtil {
     }
 
     /**
-     * Get the actions defined over and endpoint.
-     * @param bEndpointVarSymbol    Endpoint variable symbol to evaluate
-     * @return {@link List}         List of extracted actions as Symbol Info
-     */
-    public static List<SymbolInfo> getActionsOfEndpoint(BEndpointVarSymbol bEndpointVarSymbol) {
-        List<SymbolInfo> endpointActions = new ArrayList<>();
-        BType getClientFuncType = bEndpointVarSymbol.getClientFunction.type;
-        BType boundType = ((BInvokableType) getClientFuncType).retType;
-        boundType.tsymbol.scope.entries.forEach((name, scopeEntry) -> {
-            String[] nameComponents = name.toString().split("\\.");
-            if (scopeEntry.symbol instanceof BInvokableSymbol
-                    && !nameComponents[nameComponents.length - 1].equals(UtilSymbolKeys.NEW_KEYWORD_KEY)) {
-                SymbolInfo actionFunctionSymbol =
-                        new SymbolInfo(nameComponents[nameComponents.length - 1], scopeEntry);
-                endpointActions.add(actionFunctionSymbol);
-            }
-        });
-
-        return endpointActions;
-    }
-
-    /**
      * Get the BType name as string.
      * @param bType             BType to get the name
      * @param ctx               LS Operation Context
@@ -767,10 +588,12 @@ public class CommonUtil {
                     + nameComponents[nameComponents.length - 1];
         }
     }
+    
+    public static <T> T getLastItem(List<T> list) {
+        return list.get(list.size() - 1);
+    }
 
-    // Private Methods
-
-    private static void populateIterableOperations(SymbolInfo variable, List<SymbolInfo> symbolInfoList) {
+    static void populateIterableOperations(SymbolInfo variable, List<SymbolInfo> symbolInfoList) {
         BType bType = variable.getScopeEntry().symbol.getType();
 
         if (bType instanceof BArrayType || bType instanceof BMapType || bType instanceof BJSONType
@@ -791,6 +614,36 @@ public class CommonUtil {
             // TODO: Add support for Table and Tuple collection
         }
     }
+
+    /**
+     * Check whether the symbol is a valid invokable symbol.
+     *
+     * @param symbol            Symbol to be evaluated
+     * @return {@link Boolean}  valid status
+     */
+    public static boolean isValidInvokableSymbol(BSymbol symbol) {
+        if (!(symbol instanceof BInvokableSymbol)) {
+            return false;
+        }
+
+        BInvokableSymbol bInvokableSymbol = (BInvokableSymbol) symbol;
+        return ((bInvokableSymbol.kind == null
+                && (SymbolKind.RECORD.equals(bInvokableSymbol.owner.kind)
+                || SymbolKind.FUNCTION.equals(bInvokableSymbol.owner.kind)))
+                || SymbolKind.FUNCTION.equals(bInvokableSymbol.kind));
+    }
+
+    public static boolean isInvalidSymbol(BSymbol symbol) {
+        return ("_".equals(symbol.name.getValue())
+                || "runtime".equals(symbol.getName().getValue())
+                || "transactions".equals(symbol.getName().getValue())
+                || symbol instanceof BAnnotationSymbol
+                || symbol instanceof BServiceSymbol
+                || symbol instanceof BOperatorSymbol
+                || symbolContainsInvalidChars(symbol));
+    }
+
+    // Private Methods
 
     private static void fillForeachIterableOperation(BType bType, List<SymbolInfo> symbolInfoList) {
         String params = getIterableOpLambdaParam(bType);
@@ -896,26 +749,58 @@ public class CommonUtil {
         return params;
     }
 
-    /**
-     * Get the scope entries.
-     *
-     * @param bType         BType
-     * @param completionCtx Completion context
-     * @return {@link Map} Scope entries map
-     */
-    private static Map<Name, Scope.ScopeEntry> getScopeEntries(BType bType, LSServiceOperationContext completionCtx) {
-        HashMap<Name, Scope.ScopeEntry> returnMap = new HashMap<>();
-        completionCtx.get(CompletionKeys.VISIBLE_SYMBOLS_KEY)
-                .forEach(symbolInfo -> {
-                    if ((symbolInfo.getScopeEntry().symbol instanceof BTypeSymbol
-                            && symbolInfo.getScopeEntry().symbol.getType() != null
-                            && symbolInfo.getScopeEntry().symbol.getType().toString().equals(bType.toString()))
-                            || symbolInfo.getScopeEntry().symbol instanceof BInvokableSymbol) {
-                        returnMap.put(symbolInfo.getScopeEntry().symbol.getName(), symbolInfo.getScopeEntry());
-                    }
-                });
+    private static boolean symbolContainsInvalidChars(BSymbol bSymbol) {
+        return bSymbol.getName().getValue().contains(UtilSymbolKeys.LT_SYMBOL_KEY)
+                || bSymbol.getName().getValue().contains(UtilSymbolKeys.GT_SYMBOL_KEY)
+                || bSymbol.getName().getValue().contains(UtilSymbolKeys.DOLLAR_SYMBOL_KEY)
+                || bSymbol.getName().getValue().equals("main")
+                || bSymbol.getName().getValue().endsWith(".new");
+    }
 
-        return returnMap;
+    ///////////////////////////////
+    /////      Predicates     /////
+    ///////////////////////////////
+
+    /**
+     * Predicate to check for the invalid symbols.
+     *
+     * @return {@link Predicate}    Predicate for the check
+     */
+    public static Predicate<SymbolInfo> invalidSymbolsPredicate() {
+        return symbolInfo -> !symbolInfo.isIterableOperation()
+                && symbolInfo.getScopeEntry() != null
+                && isInvalidSymbol(symbolInfo.getScopeEntry().symbol);
+    }
+
+    /**
+     * Generate variable code.
+     *
+     * @param variableName          variable name
+     * @param variableType          variable type
+     * @return {@link String}       generated function signature
+     */
+    public static String createVariableDeclaration(String variableName, String variableType) {
+        return variableType  + " " + variableName + " = ";
+    }
+
+    /**
+     * Generates a random name.
+     *
+     * @param value index of the argument
+     * @param argNames argument set
+     * @return random argument name
+     */
+    public static String generateName(int value, Set<String> argNames) {
+        StringBuilder result = new StringBuilder();
+        int index = value;
+        while (--index >= 0) {
+            result.insert(0, (char) ('a' + index % 26));
+            index /= 26;
+        }
+        while (argNames.contains(result.toString())) {
+            result = new StringBuilder(generateName(++value, argNames));
+        }
+        return result.toString();
     }
 
     /**
@@ -926,10 +811,11 @@ public class CommonUtil {
         /**
          * Generate function code.
          *
-         * @param name               function name
-         * @param returnType         return type
-         * @param returnDefaultValue default return value
-         * @return
+         * @param name                  function name
+         * @param args                  Function arguments                             
+         * @param returnType            return type
+         * @param returnDefaultValue    default return value
+         * @return {@link String}       generated function signature
          */
         public static String createFunction(String name, String args, String returnType, String returnDefaultValue) {
             String funcBody = CommonUtil.LINE_SEPARATOR;
@@ -943,6 +829,13 @@ public class CommonUtil {
                     + CommonUtil.LINE_SEPARATOR;
         }
 
+        /**
+         * Get the default function return statement.
+         *
+         * @param bLangNode         BLangNode to evaluate
+         * @param returnStatement   return statement to modify
+         * @return {@link String}   Default return statement
+         */
         public static String getFuncReturnDefaultStatement(BLangNode bLangNode, String returnStatement) {
             if (bLangNode.type == null && bLangNode instanceof BLangTupleDestructure) {
                 // Check for tuple assignment eg. (int, int)
@@ -1039,6 +932,12 @@ public class CommonUtil {
             return returnStatement.replace("{%1}", result);
         }
 
+        /**
+         * Returns signature of the return type.
+         *
+         * @param bLangNode {@link BLangNode}
+         * @return return type signature
+         */
         public static String getFuncReturnSignature(BLangNode bLangNode) {
             if (bLangNode.type == null && bLangNode instanceof BLangTupleDestructure) {
                 // Check for tuple assignment eg. (int, int)
@@ -1057,7 +956,13 @@ public class CommonUtil {
             return (bLangNode.type != null) ? getFuncReturnSignature(bLangNode.type) : null;
         }
 
-        private static String getFuncReturnSignature(BType bType) {
+        /**
+         * Returns signature of the return type.
+         *
+         * @param bType {@link BType}
+         * @return return type signature
+         */
+        public static String getFuncReturnSignature(BType bType) {
             if (bType.tsymbol == null && bType instanceof BArrayType) {
                 // Check for array assignment eg.  int[]
                 return getFuncReturnSignature(((BArrayType) bType).eType.tsymbol) + "[]";
@@ -1074,6 +979,13 @@ public class CommonUtil {
                     list.add(getFuncReturnSignature(memberType));
                 }
                 return "(" + String.join("|", list) + ")";
+            } else if (bType instanceof BTupleType) {
+                // Check for tuple type assignment eg. int, string
+                List<String> list = new ArrayList<>();
+                for (BType memberType : ((BTupleType) bType).tupleTypes) {
+                    list.add(getFuncReturnSignature(memberType));
+                }
+                return "(" + String.join(",", list) + ")";
             }
             return (bType.tsymbol != null) ? getFuncReturnSignature(bType.tsymbol) : "any";
         }
@@ -1105,11 +1017,11 @@ public class CommonUtil {
                         BLangInvocation invocation = (BLangInvocation) bLangExpression;
                         String functionName = invocation.name.value;
                         String argType = lookupFunctionReturnType(functionName, parent);
-                        String argName = generateArgName(argCounter++, argNames);
+                        String argName = generateName(argCounter++, argNames);
                         list.add(argType + " " + argName);
                         argNames.add(argName);
                     } else {
-                        String argName = generateArgName(argCounter++, argNames);
+                        String argName = generateName(argCounter++, argNames);
                         list.add("any " + argName);
                         argNames.add(argName);
                     }
@@ -1128,13 +1040,13 @@ public class CommonUtil {
                 int argCounter = 1;
                 Set<String> argNames = new HashSet<>();
                 for (BType bType : bInvokableType.getParameterTypes()) {
-                    String argName = generateArgName(argCounter++, argNames);
+                    String argName = generateName(argCounter++, argNames);
                     String argType = getFuncReturnSignature(bType);
                     list.add(argType + " " + argName);
                     argNames.add(argName);
                 }
             }
-            return (!list.isEmpty()) ? list : null;
+            return (!list.isEmpty()) ? list : new ArrayList<>();
         }
 
         private static String lookupVariableReturnType(String variableName, BLangNode parent) {
@@ -1168,19 +1080,6 @@ public class CommonUtil {
             }
             return (parent != null && parent.parent != null)
                     ? lookupFunctionReturnType(functionName, parent.parent) : "any";
-        }
-
-        private static String generateArgName(int value, Set<String> argNames) {
-            StringBuilder result = new StringBuilder();
-            int index = value;
-            while (--index >= 0) {
-                result.insert(0, (char) ('a' + index % 26));
-                index /= 26;
-            }
-            while (argNames.contains(result.toString())) {
-                result = new StringBuilder(generateArgName(++value, argNames));
-            }
-            return result.toString();
         }
     }
 }

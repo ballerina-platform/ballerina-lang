@@ -16,19 +16,18 @@
 
 import ballerina/log;
 
-documentation { Durable Topic Subscriber
-    E{{}}
-    F{{consumerActions}} Object that handles network operations related to the subscriber
-    F{{config}} Configurations related to the subscriber
-}
+# Durable Topic Subscriber
+#
+# + consumerActions - Object that handles network operations related to the subscriber
+# + config - Configurations related to the subscriber
 public type DurableTopicSubscriber object {
 
     public DurableTopicSubscriberActions consumerActions;
     public DurableTopicSubscriberEndpointConfiguration config;
 
-    documentation { Initialize durable topic subscriber endpoint
-        P{{c}} Configurations for a durable topic subscriber
-    }
+    # Initialize durable topic subscriber endpoint
+    #
+    # + c - Configurations for a durable topic subscriber
     public function init(DurableTopicSubscriberEndpointConfiguration c) {
         self.config = c;
         match (c.session) {
@@ -40,63 +39,61 @@ public type DurableTopicSubscriber object {
         }
     }
 
-    documentation { Binds the durable topic subscriber endpoint to a service
-        P{{serviceType}} Type descriptor of the service
-    }
+    # Binds the durable topic subscriber endpoint to a service
+    #
+    # + serviceType - Type descriptor of the service
     public function register(typedesc serviceType) {
         self.registerListener(serviceType, consumerActions);
     }
 
-    native function registerListener(typedesc serviceType, DurableTopicSubscriberActions actions);
+    extern function registerListener(typedesc serviceType, DurableTopicSubscriberActions actions);
 
-    native function createSubscriber(Session session, string messageSelector);
+    extern function createSubscriber(Session session, string messageSelector);
 
-    documentation { Starts the endpoint. Function is ignored by the subscriber endpoint
-    }
+    # Starts the endpoint. Function is ignored by the subscriber endpoint
     public function start() {
     }
 
-    documentation { Return the subscrber caller actions
-        R{{}} subscriber actions
-    }
+    # Return the subscrber caller actions
+    #
+    # + return - subscriber actions
     public function getCallerActions() returns DurableTopicSubscriberActions {
         return consumerActions;
     }
 
-    documentation { Ends consuming messages from the durable topic subscriber endpoint
-    }
+    # Ends consuming messages from the durable topic subscriber endpoint
     public function stop() {
         self.closeSubscriber(consumerActions);
     }
 
-    native function closeSubscriber(DurableTopicSubscriberActions actions);
+    extern function closeSubscriber(DurableTopicSubscriberActions actions);
 };
 
-documentation { Configurations related to the durable topic subscriber endpoint
-    F{{session}} JMS session object
-    F{{topicPattern}} Name or the pattern of the topic subscription
-    F{{messageSelector}} JMS selector statement
-    F{{identifier}} unique identifier for the subscription
-}
+# Configurations related to the durable topic subscriber endpoint
+#
+# + session - JMS session object
+# + topicPattern - Name or the pattern of the topic subscription
+# + messageSelector - JMS selector statement
+# + identifier - unique identifier for the subscription
 public type DurableTopicSubscriberEndpointConfiguration record {
     Session? session;
     string topicPattern;
     string messageSelector;
     string identifier;
+    !...
 };
 
-documentation { Caller actions related to durable topic subscriber endpoint
-}
+# Caller actions related to durable topic subscriber endpoint
 public type DurableTopicSubscriberActions object {
 
-    documentation { Acknowledges a received message
-        P{{message}} JMS message to be acknowledged
-    }
-    public native function acknowledge(Message message) returns error?;
+    # Acknowledges a received message
+    #
+    # + message - JMS message to be acknowledged
+    public extern function acknowledge(Message message) returns error?;
 
-    documentation { Synchronously receive a message from the JMS provider
-        P{{timeoutInMilliSeconds}} time to wait until a message is received
-        R{{}} Returns a message or nill if the timeout exceededs. Returns an error on jms provider internal error.
-    }
-    public native function receive(int timeoutInMilliSeconds = 0) returns (Message|error)?;
+    # Synchronously receive a message from the JMS provider
+    #
+    # + timeoutInMilliSeconds - time to wait until a message is received
+    # + return - Returns a message or nill if the timeout exceededs. Returns an error on jms provider internal error.
+    public extern function receive(int timeoutInMilliSeconds = 0) returns (Message|error)?;
 };

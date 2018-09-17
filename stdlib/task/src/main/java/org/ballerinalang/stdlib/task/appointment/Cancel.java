@@ -34,7 +34,7 @@ import static org.ballerinalang.stdlib.task.TaskConstants.APPOINTMENT_IS_RUNNING
 import static org.ballerinalang.stdlib.task.TaskConstants.APPOINTMENT_TASK_ID_FIELD;
 
 /**
- * Native function ballerina/task:Appointment.cancel.
+ * Extern function ballerina/task:Appointment.cancel.
  */
 @BallerinaFunction(
         orgName = "ballerina",

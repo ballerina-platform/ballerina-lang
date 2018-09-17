@@ -25,6 +25,7 @@ import org.ballerinalang.model.values.BByteArray;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BString;
+import org.ballerinalang.model.values.BStringArray;
 import org.ballerinalang.model.values.BValue;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -46,6 +47,7 @@ public class ClientSocketTest {
 
     private CompileResult socketClient;
     private Process server;
+    private BMap<String, BValue> socket;
 
     @BeforeClass
     public void setup() {
@@ -129,40 +131,106 @@ public class ClientSocketTest {
     @Test(description = "Open client socket connection to the remote server")
     public void testOpenClientSocket() {
         BValue[] args = { new BString("localhost"), new BInteger(MockSocketServer.SERVER_PORT) };
-        BRunUtil.invokeStateful(socketClient, "openSocketConnection", args);
+        final BValue[] returns = BRunUtil.invokeStateful(socketClient, "openSocketConnection", args);
+        socket = (BMap<String, BValue>) returns[0];
+        Assert.assertNotNull(socket, "Socket instance is null.");
     }
 
-    @Test(dependsOnMethods = "testOpenClientSocket", description = "Test content read/write")
-    public void testWriteReadContent() {
-        String content = "Hello World\n";
+    @Test(dependsOnMethods = "testOpenClientSocket",
+          description = "Test content read/write records")
+    public void testReadRecords() {
+        String content = "Ballerina,122\r\nC++,12";
         byte[] contentBytes = content.getBytes();
-        BValue[] args = {new BByteArray(contentBytes)};
+        BValue[] args = { socket, new BByteArray(contentBytes) };
         final BValue[] writeReturns = BRunUtil.invokeStateful(socketClient, "write", args);
         BInteger returnedSize = (BInteger) writeReturns[0];
         Assert.assertEquals(returnedSize.intValue(), content.length(), "Write content size is not match.");
-        args = new BValue[]{new BInteger(content.length())};
+        args = new BValue[] { socket };
+        final BValue[] readReturns = BRunUtil.invokeStateful(socketClient, "readRecord", args);
+        BStringArray fields = (BStringArray) readReturns[0];
+        Assert.assertEquals(fields.get(0), "Ballerina");
+    }
+
+    @Test(dependsOnMethods = "testReadRecords",
+          description = "Test content read/write")
+    public void testWriteReadContent() {
+        String content = "Hello World\n";
+        byte[] contentBytes = content.getBytes();
+        BValue[] args = { socket, new BByteArray(contentBytes) };
+        final BValue[] writeReturns = BRunUtil.invokeStateful(socketClient, "write", args);
+        BInteger returnedSize = (BInteger) writeReturns[0];
+        Assert.assertEquals(returnedSize.intValue(), content.length(), "Write content size is not match.");
+        args = new BValue[] { socket, new BInteger(content.length()) };
         final BValue[] readReturns = BRunUtil.invokeStateful(socketClient, "read", args);
         returnedSize = (BInteger) readReturns[1];
-
         Assert.assertEquals(returnedSize.intValue(), content.length(), "Read size not match with the request size");
+
+        content = MockSocketServer.POISON_PILL;
+        contentBytes = content.getBytes();
+        BRunUtil.invokeStateful(socketClient, "write", new BValue[] { socket, new BByteArray(contentBytes) });
+        args = new BValue[] { socket };
+        BRunUtil.invokeStateful(socketClient, "closeSocket", args);
     }
 
     @Test(dependsOnMethods = "testWriteReadContent",
-          description = "Test the connection closure")
-    public void testClosure() {
-        BRunUtil.invokeStateful(socketClient, "closeSocket");
-    }
-
-    @Test(dependsOnMethods = "testClosure",
           description = "Test connection open with properties")
     public void testOpenWithProperties() {
         int port = ThreadLocalRandom.current().nextInt(33000, 46000);
         BValue[] args = { new BString("localhost"), new BInteger(MockSocketServer.SERVER_PORT), new BInteger(port) };
         final BValue[] returns = BRunUtil.invokeStateful(socketClient, "openSocketConnectionWithProps", args);
         final BMap<String, BValue> socket = (BMap<String, BValue>) returns[0];
+        Assert.assertNotNull(socket, "Socket instance is null.");
         Assert.assertEquals(((BInteger) socket.get("localPort")).intValue(), port,
                 "Client port didn't bind to assign port.");
         args = new BValue[] { socket };
-        BRunUtil.invokeStateful(socketClient, "close", args);
+        BRunUtil.invokeStateful(socketClient, "closeSocket", args);
+    }
+
+    @Test(dependsOnMethods = "testOpenWithProperties",
+          description = "Try to bind two socket for same port")
+    public void testBindSocketForSamePort() {
+        int port = ThreadLocalRandom.current().nextInt(33000, 46000);
+        BValue[] args = { new BInteger(port) };
+        final BValue[] returns = BRunUtil.invokeStateful(socketClient, "bindSocketForSamePort", args);
+        final BMap<String, BValue> result = (BMap<String, BValue>) returns[0];
+        final BString message = (BString) result.get("message");
+        Assert.assertEquals(message.stringValue(),
+                "Error occurred while bind to the socket address: Address already in use",
+                "Didn't get the expected error message for duplicate port open.");
+    }
+
+    @Test(dependsOnMethods = "testBindSocketForSamePort",
+          description = "Check write shutdown")
+    public void testWriteShutdown() {
+        // Create new socket
+        BValue[] args = { new BString("localhost"), new BInteger(MockSocketServer.SERVER_PORT) };
+        final BValue[] returns = BRunUtil.invokeStateful(socketClient, "openSocketConnection", args);
+        BMap<String, BValue> socket = (BMap<String, BValue>) returns[0];
+        // Write content
+        String content = "Hello World\n";
+        byte[] contentBytes = content.getBytes();
+        args = new BValue[] { socket, new BByteArray(contentBytes) };
+        BValue[] writeReturns = BRunUtil.invokeStateful(socketClient, "write", args);
+        BInteger returnedSize = (BInteger) writeReturns[0];
+        Assert.assertEquals(returnedSize.intValue(), content.length(), "Write content size is not match.");
+        // Verify Echo
+        args = new BValue[] { socket, new BInteger(content.length()) };
+        BValue[] readReturns = BRunUtil.invokeStateful(socketClient, "read", args);
+        returnedSize = (BInteger) readReturns[1];
+        Assert.assertEquals(returnedSize.intValue(), content.length(), "Read size not match with the request size");
+        // Write shutdown
+        BRunUtil.invokeStateful(socketClient, "writeShutDown", new BValue[] { socket });
+
+        content = "New Content\n";
+        contentBytes = content.getBytes();
+        args = new BValue[] { socket, new BByteArray(contentBytes) };
+        writeReturns = BRunUtil.invokeStateful(socketClient, "write", args);
+        final BMap<String, BValue> errorResult = (BMap) writeReturns[0];
+        final BString message = (BString) errorResult.get("message");
+        Assert.assertEquals(message.stringValue(), "Error occurred while writing to channel ",
+                "Didn't get expected error message");
+
+        args = new BValue[] { socket };
+        BRunUtil.invokeStateful(socketClient, "closeSocket", args);
     }
 }

@@ -94,6 +94,7 @@ public class Mnemonics {
         mnemonics[InstructionCodes.BIRSHIFT] = "birshift";
         mnemonics[InstructionCodes.IRSHIFT] = "irshift";
         mnemonics[InstructionCodes.ILSHIFT] = "ilshift";
+        mnemonics[InstructionCodes.IURSHIFT] = "iurshift";
         mnemonics[InstructionCodes.BACONST] = "baconst";
 
         mnemonics[InstructionCodes.ISUB] = "isub";
@@ -147,12 +148,12 @@ public class Mnemonics {
         mnemonics[InstructionCodes.ERRSTORE] = "errstore";
         mnemonics[InstructionCodes.FPCALL] = "fp_call";
         mnemonics[InstructionCodes.FPLOAD] = "fp_load";
+        mnemonics[InstructionCodes.VFPLOAD] = "vfp_load";
 
         mnemonics[InstructionCodes.I2F] = "i2f";
         mnemonics[InstructionCodes.I2S] = "i2s";
         mnemonics[InstructionCodes.I2B] = "i2b";
         mnemonics[InstructionCodes.I2ANY] = "i2any";
-        mnemonics[InstructionCodes.I2JSON] = "i2json";
         mnemonics[InstructionCodes.I2BI] = "i2bi";
         mnemonics[InstructionCodes.BI2I] = "bi2i";
         mnemonics[InstructionCodes.BI2ANY] = "bi2any";
@@ -160,32 +161,23 @@ public class Mnemonics {
         mnemonics[InstructionCodes.F2S] = "f2s";
         mnemonics[InstructionCodes.F2B] = "f2b";
         mnemonics[InstructionCodes.F2ANY] = "f2any";
-        mnemonics[InstructionCodes.F2JSON] = "f2json";
         mnemonics[InstructionCodes.S2I] = "s2i";
         mnemonics[InstructionCodes.S2F] = "s2f";
         mnemonics[InstructionCodes.S2B] = "s2b";
         mnemonics[InstructionCodes.S2ANY] = "s2any";
-        mnemonics[InstructionCodes.S2JSON] = "s2json";
         mnemonics[InstructionCodes.B2I] = "b2i";
         mnemonics[InstructionCodes.B2F] = "b2f";
         mnemonics[InstructionCodes.B2S] = "b2s";
         mnemonics[InstructionCodes.B2ANY] = "b2any";
-        mnemonics[InstructionCodes.B2JSON] = "b2json";
-        mnemonics[InstructionCodes.JSON2I] = "json2i";
-        mnemonics[InstructionCodes.JSON2F] = "json2f";
-        mnemonics[InstructionCodes.JSON2S] = "json2s";
-        mnemonics[InstructionCodes.JSON2B] = "json2b";
         mnemonics[InstructionCodes.T2JSON] = "t2json";
         mnemonics[InstructionCodes.JSON2T] = "json2t";
         mnemonics[InstructionCodes.JSON2MAP] = "json2map";
         mnemonics[InstructionCodes.MAP2JSON] = "map2json";
         mnemonics[InstructionCodes.JSON2T] = "json2t";
         mnemonics[InstructionCodes.LENGTHOF] = "lengthof";
-        mnemonics[InstructionCodes.NULL2S] = "null2s";
         mnemonics[InstructionCodes.ANY2SCONV] = "any2sconv";
         mnemonics[InstructionCodes.IS_ASSIGNABLE] = "is_assignable";
 
-        mnemonics[InstructionCodes.TYPEOF] = "typeof";
         mnemonics[InstructionCodes.TYPELOAD] = "typeload";
 
         // Type cast
@@ -200,13 +192,12 @@ public class Mnemonics {
         mnemonics[InstructionCodes.ANY2E] = "any2e";
         mnemonics[InstructionCodes.ANY2T] = "any2t";
         mnemonics[InstructionCodes.ANY2MAP] = "any2map";
-        mnemonics[InstructionCodes.NULL2JSON] = "null2json";
         mnemonics[InstructionCodes.CHECKCAST] = "checkcast";
         mnemonics[InstructionCodes.DT2JSON] = "dt2json";
         mnemonics[InstructionCodes.DT2XML] = "dt2xml";
         mnemonics[InstructionCodes.ARRAY2JSON] = "array2json";
         mnemonics[InstructionCodes.JSON2ARRAY] = "json2array";
-        mnemonics[InstructionCodes.CHECK_CONVERSION] = "checkconversion";
+        mnemonics[InstructionCodes.O2JSON] = "o2json";
 
         // Transactions
         mnemonics[InstructionCodes.TR_BEGIN] = "tr_begin";
@@ -224,12 +215,9 @@ public class Mnemonics {
         mnemonics[InstructionCodes.SNEWARRAY] = "snewarray";
         mnemonics[InstructionCodes.BNEWARRAY] = "bnewarray";
         mnemonics[InstructionCodes.RNEWARRAY] = "rnewarray";
-        mnemonics[InstructionCodes.JSONNEWARRAY] = "jsonnewarray";
-        mnemonics[InstructionCodes.ARRAYLEN] = "arraylength";
 
         mnemonics[InstructionCodes.NEWSTRUCT] = "newstruct";
         mnemonics[InstructionCodes.NEWMAP] = "newmap";
-        mnemonics[InstructionCodes.NEWJSON] = "newjson";
         mnemonics[InstructionCodes.NEWTABLE] = "newtable";
         mnemonics[InstructionCodes.NEWSTREAM] = "newstream";
 
@@ -261,9 +249,7 @@ public class Mnemonics {
         mnemonics[InstructionCodes.XMLLOAD] = "xmlload";
         mnemonics[InstructionCodes.XMLLOADALL] = "xmlloadall";
         mnemonics[InstructionCodes.NEWXMLSEQ] = "newxmlseq";
-        mnemonics[InstructionCodes.S2XML] = "s2xml";
         mnemonics[InstructionCodes.XML2S] = "xml2s";
-        mnemonics[InstructionCodes.S2JSONX] = "s2jsonx";
         mnemonics[InstructionCodes.LOCK] = "lock";
         mnemonics[InstructionCodes.UNLOCK] = "unlock";
     }

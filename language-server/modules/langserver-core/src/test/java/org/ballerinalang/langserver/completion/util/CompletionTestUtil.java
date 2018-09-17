@@ -22,6 +22,7 @@ import com.google.gson.JsonArray;
 import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
 import org.ballerinalang.langserver.compiler.LSCompiler;
 import org.ballerinalang.langserver.compiler.LSServiceOperationContext;
+import org.ballerinalang.langserver.compiler.workspace.WorkspaceDocumentException;
 import org.ballerinalang.langserver.compiler.workspace.WorkspaceDocumentManager;
 import org.ballerinalang.langserver.compiler.workspace.WorkspaceDocumentManagerImpl;
 import org.ballerinalang.langserver.completions.CompletionCustomErrorStrategy;
@@ -124,22 +125,25 @@ public class CompletionTestUtil {
     /**
      * Get the completions list.
      *
+     * @param lsCompiler LS Compiler
      * @param documentManager Document manager instance
      * @param pos             {@link TextDocumentPositionParams} position params
      */
-    public static List<CompletionItem> getCompletions(WorkspaceDocumentManager documentManager,
+    public static List<CompletionItem> getCompletions(LSCompiler lsCompiler,
+                                                      WorkspaceDocumentManager documentManager,
                                                       TextDocumentPositionParams pos) {
         List<CompletionItem> completions;
         LSServiceOperationContext completionContext = new LSServiceOperationContext();
         completionContext.put(DocumentServiceKeys.POSITION_KEY, pos);
         completionContext.put(DocumentServiceKeys.FILE_URI_KEY, pos.getTextDocument().getUri());
         completionContext.put(CompletionKeys.DOC_MANAGER_KEY, documentManager);
-        BLangPackage bLangPackage = LSCompiler.getBLangPackage(completionContext, documentManager, false,
-                CompletionCustomErrorStrategy.class, false).get(0);
+        BLangPackage bLangPackage = lsCompiler.getBLangPackage(completionContext, documentManager, false,
+                CompletionCustomErrorStrategy.class, false).getRight();
         completionContext.put(DocumentServiceKeys.CURRENT_PACKAGE_NAME_KEY,
                               bLangPackage.symbol.getName().getValue());
+        completionContext.put(DocumentServiceKeys.CURRENT_BLANG_PACKAGE_CONTEXT_KEY, bLangPackage);
 
-        CompletionUtil.resolveSymbols(completionContext, bLangPackage);
+        CompletionUtil.resolveSymbols(completionContext);
         CompletionSubRuleParser.parse(completionContext);
         completions = CompletionUtil.getCompletionItems(completionContext);
 
@@ -149,17 +153,24 @@ public class CompletionTestUtil {
     /**
      * Prepare the Document manager instance with the given file and issue the did open operation.
      *
-     * @param uri        File Uri
+     * @param filePath        File path
      * @param balContent File Content
      * @return {@link WorkspaceDocumentManager}
      */
-    public static WorkspaceDocumentManagerImpl prepareDocumentManager(String uri, String balContent) {
-        Path openedPath;
+    public static WorkspaceDocumentManagerImpl prepareDocumentManager(Path filePath, String balContent)
+            throws WorkspaceDocumentException {
         WorkspaceDocumentManagerImpl documentManager = WorkspaceDocumentManagerImpl.getInstance();
-
-        openedPath = Paths.get(uri);
-        documentManager.openFile(openedPath, balContent);
-
+        documentManager.openFile(filePath, balContent);
         return documentManager;
+    }
+
+    /**
+     * Clear the Document manager instance given.
+     * @param documentManager document manager
+     * @param filePath file path
+     */
+    public static void clearDocumentManager(WorkspaceDocumentManager documentManager, Path filePath)
+            throws WorkspaceDocumentException {
+        documentManager.closeFile(filePath);
     }
 }

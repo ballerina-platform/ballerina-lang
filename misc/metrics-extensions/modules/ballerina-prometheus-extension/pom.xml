@@ -21,7 +21,7 @@
     <parent>
         <artifactId>metrics-extensions</artifactId>
         <groupId>org.ballerinalang</groupId>
-        <version>0.980.2-SNAPSHOT</version>
+        <version>0.981.2-SNAPSHOT</version>
         <relativePath>../../pom.xml</relativePath>
     </parent>
     <modelVersion>4.0.0</modelVersion>
@@ -120,6 +120,7 @@
                             </systemProperties>
                             <arguments>
                                 <argument>${ballerina.source.directory}/prometheus</argument>
+                                <argument>reporter.bal</argument>
                             </arguments>
                         </configuration>
                     </execution>

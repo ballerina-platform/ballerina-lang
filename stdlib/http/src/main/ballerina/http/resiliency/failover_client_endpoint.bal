@@ -15,13 +15,10 @@
 // under the License.
 
 
-documentation {
-    An HTTP client endpoint which provides failover support over multiple HTTP clients.
-
-    E{{}}
-    F{{epName}} Name of the endpoint
-    F{{failoverClientConfig}} The configurations for the failover client endpoint
-}
+# An HTTP client endpoint which provides failover support over multiple HTTP clients.
+#
+# + epName - Name of the endpoint
+# + failoverClientConfig - The configurations for the failover client endpoint
 public type FailoverClient object {
 
     public string epName;
@@ -29,43 +26,37 @@ public type FailoverClient object {
 
     private Client httpEP;
 
-    documentation {
-        Initializes the endpoint using the configurations provided.
-
-        P{{foClientConfig}} The configurations to be used when initializing the endpoint
-    }
+    # Initializes the endpoint using the configurations provided.
+    #
+    # + foClientConfig - The configurations to be used when initializing the endpoint
     public function init(FailoverClientEndpointConfiguration foClientConfig);
 
-    documentation {
-        Returns the HTTP failover actions associated with the endpoint.
-
-        R{{}} The HTTP failover actions associated with the endpoint
-    }
+    # Returns the HTTP failover actions associated with the endpoint.
+    #
+    # + return - The HTTP failover actions associated with the endpoint
     public function getCallerActions() returns FailoverActions {
         return check <FailoverActions>httpEP.httpClient;
     }
 };
 
-documentation {
-    Provides a set of HTTP related configurations and failover related configurations.
-
-    F{{circuitBreaker}} Circuit Breaker behaviour configurations
-    F{{timeoutMillis}} The maximum time to wait (in milliseconds) for a response before closing the connection
-    F{{httpVersion}} The HTTP version supported by the endpoint
-    F{{forwarded}} The choice of setting `forwarded`/`x-forwarded` header
-    F{{keepAlive}} Specifies whether to reuse a connection for multiple requests
-    F{{chunking}} The chunking behaviour of the request
-    F{{followRedirects}} Redirect related options
-    F{{retryConfig}} Retry related options
-    F{{proxy}} Proxy related options
-    F{{connectionThrottling}} The configurations for controlling the number of connections allowed concurrently
-    F{{targets}} The upstream HTTP endpoints among which the incoming HTTP traffic load should be sent on failover
-    F{{cache}} The configurations for controlling the caching behaviour
-    F{{compression}} Specifies the way of handling compression (`accept-encoding`) header
-    F{{auth}} HTTP authentication releated configurations
-    F{{failoverCodes}} Array of HTTP response status codes for which the failover behaviour should be triggered
-    F{{intervalMillis}} Failover delay interval in milliseconds
-}
+# Provides a set of HTTP related configurations and failover related configurations.
+#
+# + circuitBreaker - Circuit Breaker behaviour configurations
+# + timeoutMillis - The maximum time to wait (in milliseconds) for a response before closing the connection
+# + httpVersion - The HTTP version supported by the endpoint
+# + forwarded - The choice of setting `forwarded`/`x-forwarded` header
+# + keepAlive - Specifies whether to reuse a connection for multiple requests
+# + chunking - The chunking behaviour of the request
+# + followRedirects - Redirect related options
+# + retryConfig - Retry related options
+# + proxy - Proxy related options
+# + connectionThrottling - The configurations for controlling the number of connections allowed concurrently
+# + targets - The upstream HTTP endpoints among which the incoming HTTP traffic load should be sent on failover
+# + cache - The configurations for controlling the caching behaviour
+# + compression - Specifies the way of handling compression (`accept-encoding`) header
+# + auth - HTTP authentication releated configurations
+# + failoverCodes - Array of HTTP response status codes for which the failover behaviour should be triggered
+# + intervalMillis - Failover delay interval in milliseconds
 public type FailoverClientEndpointConfiguration record {
     CircuitBreakerConfig? circuitBreaker,
     int timeoutMillis = 60000,
@@ -83,6 +74,7 @@ public type FailoverClientEndpointConfiguration record {
     AuthConfig? auth,
     int[] failoverCodes = [501, 502, 503, 504],
     int intervalMillis,
+    !...
 };
 
 function FailoverClient::init(FailoverClientEndpointConfiguration foClientConfig) {

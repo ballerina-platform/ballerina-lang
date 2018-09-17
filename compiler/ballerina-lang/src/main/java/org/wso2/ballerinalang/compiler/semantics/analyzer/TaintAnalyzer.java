@@ -34,14 +34,12 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.TaintRecord;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.tree.BLangAction;
-import org.wso2.ballerinalang.compiler.tree.BLangAnnotAttribute;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotation;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
 import org.wso2.ballerinalang.compiler.tree.BLangCompilationUnit;
 import org.wso2.ballerinalang.compiler.tree.BLangDeprecatedNode;
 import org.wso2.ballerinalang.compiler.tree.BLangDocumentation;
 import org.wso2.ballerinalang.compiler.tree.BLangEndpoint;
-import org.wso2.ballerinalang.compiler.tree.BLangEnum;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
 import org.wso2.ballerinalang.compiler.tree.BLangImportPackage;
@@ -74,9 +72,8 @@ import org.wso2.ballerinalang.compiler.tree.clauses.BLangWhere;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangWindow;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangWithinClause;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangAccessExpression;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangAnnotAttachmentAttribute;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangAnnotAttachmentAttributeValue;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrayLiteral;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrowFunction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangAwaitExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBracedOrTupleExpr;
@@ -100,7 +97,6 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangStringTemplateLiter
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTableLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTableQueryExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTernaryExpr;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeCastExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeConversionExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeInit;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypedescExpr;
@@ -117,7 +113,6 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLSequenceLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLTextLiteral;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangAbort;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangAssignment;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangBind;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBreak;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangCatch;
@@ -371,16 +366,6 @@ public class TaintAnalyzer extends BLangNodeVisitor {
     }
 
     @Override
-    public void visit(BLangEnum enumNode) {
-        enumNode.symbol.tainted = false;
-    }
-
-    @Override
-    public void visit(BLangEnum.BLangEnumerator enumeratorNode) {
-        /* ignore */
-    }
-
-    @Override
     public void visit(BLangVariable varNode) {
         if (varNode.expr != null) {
             SymbolEnv varInitEnv = SymbolEnv.createVarInitEnv(varNode, env, varNode.symbol);
@@ -412,22 +397,7 @@ public class TaintAnalyzer extends BLangNodeVisitor {
     }
 
     @Override
-    public void visit(BLangAnnotAttribute annotationAttribute) {
-        /* ignore */
-    }
-
-    @Override
     public void visit(BLangAnnotationAttachment annAttachmentNode) {
-        /* ignore */
-    }
-
-    @Override
-    public void visit(BLangAnnotAttachmentAttributeValue annotAttributeValue) {
-        /* ignore */
-    }
-
-    @Override
-    public void visit(BLangAnnotAttachmentAttribute annotAttachmentAttribute) {
         /* ignore */
     }
 
@@ -532,6 +502,10 @@ public class TaintAnalyzer extends BLangNodeVisitor {
                 // Propagate tainted status to fields, when field symbols are present (Example: struct).
                 bracedOrTupleExpr.expressions.forEach(expr -> visitAssignment(expr, varTaintedStatus,
                         bracedOrTupleExpr.pos));
+            } else if (varRefExpr.getKind() == NodeKind.XML_ATTRIBUTE_ACCESS_EXPR) {
+                overridingAnalysis = false;
+                updatedVarRefTaintedState(((BLangXMLAttributeAccess) varRefExpr).expr, varTaintedStatus);
+                overridingAnalysis = true;
             } else {
                 setTaintedStatus((BLangVariableReference) varRefExpr, varTaintedStatus);
             }
@@ -546,11 +520,6 @@ public class TaintAnalyzer extends BLangNodeVisitor {
             BLangAccessExpression accessExpr = (BLangAccessExpression) varRef;
             updatedVarRefTaintedState(accessExpr.expr, taintedState);
         }
-    }
-
-    @Override
-    public void visit(BLangBind bindNode) {
-        /* ignore */
     }
 
     @Override
@@ -606,8 +575,8 @@ public class TaintAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangIf ifNode) {
-        ifNode.body.accept(this);
         overridingAnalysis = false;
+        ifNode.body.accept(this);
         if (ifNode.elseStmt != null) {
             ifNode.elseStmt.accept(this);
         }
@@ -691,7 +660,7 @@ public class TaintAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangForkJoin forkJoin) {
-        analyzeWorkers(forkJoin.workers);
+        analyzeWorkers(forkJoin.workers, true);
         if (currForkIdentifier != null) {
             TaintedStatus taintedStatus = workerInteractionTaintedStatusMap.get(currForkIdentifier);
             if (taintedStatus != null) {
@@ -796,22 +765,45 @@ public class TaintAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangWorkerSend workerSendNode) {
+        if (workerSendNode.isChannel) {
+            List<BLangExpression> exprsList = new ArrayList<>();
+            exprsList.add(workerSendNode.expr);
+            if (workerSendNode.keyExpr != null) {
+                exprsList.add(workerSendNode.keyExpr);
+            }
+            analyzeExprList(exprsList);
+            return;
+        }
         if (workerSendNode.isForkJoinSend) {
             currForkIdentifier = workerSendNode.workerIdentifier;
         }
         workerSendNode.expr.accept(this);
         TaintedStatus taintedStatus = workerInteractionTaintedStatusMap.get(workerSendNode.workerIdentifier);
-        if (taintedStatus == TaintedStatus.IGNORED) {
+        if (taintedStatus == null) {
             workerInteractionTaintedStatusMap.put(workerSendNode.workerIdentifier, this.taintedStatus);
         } else if (this.taintedStatus == TaintedStatus.TAINTED) {
+            // Worker interactions should be non-overriding. Hence changing the status only if the expression used in
+            // sending is evaluated to be a tainted value. By doing so, analyzer will not change an interaction that
+            // was identified to return a `Tainted` value to be `Untainted` later on. (Example: Conditional worker
+            // interactions)
             workerInteractionTaintedStatusMap.put(workerSendNode.workerIdentifier, TaintedStatus.TAINTED);
         }
     }
 
     @Override
     public void visit(BLangWorkerReceive workerReceiveNode) {
+        if (workerReceiveNode.isChannel) {
+            List<BLangExpression> exprList = new ArrayList<>();
+            exprList.add(workerReceiveNode.expr);
+            if (workerReceiveNode.keyExpr != null) {
+                exprList.add(workerReceiveNode.keyExpr);
+            }
+            analyzeExprList(exprList);
+            return;
+        }
+
         TaintedStatus taintedStatus = workerInteractionTaintedStatusMap.get(currWorkerIdentifier);
-        if (taintedStatus == TaintedStatus.IGNORED) {
+        if (taintedStatus == null) {
             blockedOnWorkerInteraction = true;
             stopAnalysis = true;
         } else {
@@ -846,12 +838,6 @@ public class TaintAnalyzer extends BLangNodeVisitor {
         TaintedStatus isTainted = TaintedStatus.UNTAINTED;
         for (BLangRecordLiteral.BLangRecordKeyValue keyValuePair : recordLiteral.keyValuePairs) {
             keyValuePair.valueExpr.accept(this);
-            // Update field symbols with tainted status of the individual field (Example: struct).
-            if (keyValuePair.key.fieldSymbol != null) {
-                if (overridingAnalysis || !keyValuePair.key.fieldSymbol.tainted) {
-                    setTaintedStatus(keyValuePair.key.fieldSymbol, this.taintedStatus);
-                }
-            }
             // Used to update the variable this literal is getting assigned to.
             if (this.taintedStatus == TaintedStatus.TAINTED) {
                 isTainted = TaintedStatus.TAINTED;
@@ -892,9 +878,6 @@ public class TaintAnalyzer extends BLangNodeVisitor {
             case TypeTags.JSON:
                 fieldAccessExpr.expr.accept(this);
                 break;
-            case TypeTags.ENUM:
-                this.taintedStatus = TaintedStatus.UNTAINTED;
-                break;
         }
     }
 
@@ -925,12 +908,14 @@ public class TaintAnalyzer extends BLangNodeVisitor {
         } else {
             BInvokableSymbol invokableSymbol = (BInvokableSymbol) invocationExpr.symbol;
             if (invokableSymbol.taintTable == null) {
-                if (analyzerPhase == AnalyzerPhase.LOOP_ANALYSIS
-                        || (analyzerPhase == AnalyzerPhase.LOOP_ANALYSIS_COMPLETE
-                        && ignoredInvokableSymbol == invokableSymbol)) {
+                if (analyzerPhase == AnalyzerPhase.LOOP_ANALYSIS) {
                     // If a looping invocation is being analyzed, skip analysis of invokable that does not have taint
                     // table already attached. This will prevent the analyzer to go in to a loop unnecessarily.
                     ignoredInvokableSymbol = invokableSymbol;
+                }
+                if (analyzerPhase == AnalyzerPhase.LOOP_ANALYSIS
+                        || (analyzerPhase == AnalyzerPhase.LOOP_ANALYSIS_COMPLETE
+                        && ignoredInvokableSymbol == invokableSymbol)) {
                     this.taintedStatus = TaintedStatus.IGNORED;
                     analyzerPhase = AnalyzerPhase.LOOP_ANALYSIS_COMPLETE;
                 } else {
@@ -965,9 +950,9 @@ public class TaintAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangTernaryExpr ternaryExpr) {
+        overridingAnalysis = false;
         ternaryExpr.thenExpr.accept(this);
         TaintedStatus thenTaintedCheckResult = this.taintedStatus;
-        overridingAnalysis = false;
         ternaryExpr.elseExpr.accept(this);
         overridingAnalysis = true;
         TaintedStatus elseTaintedCheckResult = this.taintedStatus;
@@ -1020,12 +1005,6 @@ public class TaintAnalyzer extends BLangNodeVisitor {
     @Override
     public void visit(BLangTypedescExpr accessExpr) {
         this.taintedStatus = TaintedStatus.UNTAINTED;
-    }
-
-    @Override
-    public void visit(BLangTypeCastExpr castExpr) {
-        // Result of the cast is tainted if value being casted is tainted.
-        castExpr.expr.accept(this);
     }
 
     @Override
@@ -1145,6 +1124,11 @@ public class TaintAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangLambdaFunction bLangLambdaFunction) {
+        /* ignore */
+    }
+
+    @Override
+    public void visit(BLangArrowFunction bLangArrowFunction) {
         /* ignore */
     }
 
@@ -1349,11 +1333,6 @@ public class TaintAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangXMLNS.BLangPackageXMLNS xmlnsNode) {
-        /* ignore */
-    }
-
-    @Override
-    public void visit(BLangFieldBasedAccess.BLangEnumeratorAccessExpr enumeratorAccessExpr) {
         /* ignore */
     }
 
@@ -1632,31 +1611,35 @@ public class TaintAnalyzer extends BLangNodeVisitor {
         if (invokableNode.workers.isEmpty()) {
             analyzeNode(invokableNode.body, symbolEnv);
         } else {
-            analyzeWorkers(invokableNode.workers);
+            analyzeWorkers(invokableNode.workers, true);
         }
         if (stopAnalysis) {
             stopAnalysis = false;
         }
     }
 
-    private void analyzeWorkers (List<BLangWorker> workers) {
-        workerInteractionTaintedStatusMap = new HashMap<>();
-        boolean doScan = true;
-        while (doScan) {
-            doScan = false;
-            for (BLangWorker worker : workers) {
-                blockedOnWorkerInteraction = false;
-                worker.endpoints.forEach(endpoint -> endpoint.accept(this));
-                worker.accept(this);
-                if (this.blockedNode != null || taintErrorSet.size() > 0) {
-                    return;
-                } else if (blockedOnWorkerInteraction) {
-                    doScan = true;
-                    stopAnalysis = false;
-                } else if (stopAnalysis) {
-                    return;
-                }
+    private void analyzeWorkers(List<BLangWorker> workers, boolean resetStatusMap) {
+        if (resetStatusMap) {
+            workerInteractionTaintedStatusMap = new HashMap<>();
+        }
+        boolean recurse = false;
+        for (BLangWorker worker : workers) {
+            blockedOnWorkerInteraction = false;
+            worker.endpoints.forEach(endpoint -> endpoint.accept(this));
+            worker.accept(this);
+            if (this.blockedNode != null || taintErrorSet.size() > 0) {
+                return;
+            } else if (blockedOnWorkerInteraction) {
+                recurse = true;
+                stopAnalysis = false;
+            } else if (stopAnalysis) {
+                return;
             }
+        }
+        // If any of the workers were blocked on a worker interaction, re-analyze the workers after completing the
+        // analysis of all workers, to resolve blocked interactions.
+        if (recurse) {
+            analyzeWorkers(workers, false);
         }
     }
 

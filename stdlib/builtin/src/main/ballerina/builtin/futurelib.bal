@@ -14,23 +14,18 @@
 // specific language governing permissions and limitations
 // under the License.
 
-documentation {
-    Checks if the given future is done.
 
-    R{{}} true if the future is done; false otherwise
-}
-public native function future::isDone() returns boolean;
+# Checks if the given future is done.
+#
+# + return - true if the future is done; false otherwise
+public extern function future::isDone() returns boolean;
 
-documentation {
-    Checks if the given future is cancelled.
+# Checks if the given future is cancelled.
+#
+# + return - true if the future is cancelled; false otherwise
+public extern function future::isCancelled() returns boolean;
 
-    R{{}} true if the future is cancelled; false otherwise
-}
-public native function future::isCancelled() returns boolean;
-
-documentation {
-    Cancels the given future.
-
-    R{{}} true if the future was cancelled; false otherwise
-}
-public native function future::cancel() returns boolean;
+# Cancels the given future.
+#
+# + return - true if the future was cancelled; false otherwise
+public extern function future::cancel() returns boolean;

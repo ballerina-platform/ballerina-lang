@@ -20,17 +20,15 @@ import ballerina/mime;
 import ballerina/crypto;
 import ballerina/time;
 
-documentation {
-    Represents an HTTP response.
-
-    F{{statusCode}} The response status code
-    F{{reasonPhrase}} The status code reason phrase
-    F{{server}} The server header
-    F{{resolvedRequestedURI}} The ultimate request URI that was made to receive the response when redirect is on
-    F{{cacheControl}} The cache-control directives for the response. This needs to be explicitly initialized if
-                      intending on utilizing HTTP caching. For incoming responses, this will already be populated
-                      if the response was sent with cache-control directives
-}
+# Represents an HTTP response.
+#
+# + statusCode - The response status code
+# + reasonPhrase - The status code reason phrase
+# + server - The server header
+# + resolvedRequestedURI - The ultimate request URI that was made to receive the response when redirect is on
+# + cacheControl - The cache-control directives for the response. This needs to be explicitly initialized if
+#                  intending on utilizing HTTP caching. For incoming responses, this will already be populated
+#                  if the response was sent with cache-control directives
 public type Response object {
 
     public int statusCode = 200;
@@ -47,240 +45,180 @@ public type Response object {
         self.entity = createNewEntity();
     }
 
-    documentation {
-        Create a new `Entity` and link it with the response.
+    # Create a new `Entity` and link it with the response.
+    #
+    # + return - Newly created `Entity` that has been set to the response
+    extern function createNewEntity() returns mime:Entity;
 
-        R{{}} Newly created `Entity` that has been set to the response
-    }
-    native function createNewEntity() returns mime:Entity;
-
-    documentation {
-        Gets the `Entity` associated with the response.
-
-        R{{}} The `Entity` of the response. An `error` is returned, if entity construction fails
-    }
-    public native function getEntity() returns mime:Entity|error;
+    # Gets the `Entity` associated with the response.
+    #
+    # + return - The `Entity` of the response. An `error` is returned, if entity construction fails
+    public extern function getEntity() returns mime:Entity|error;
 
     //Gets the `Entity` from the response without the entity body. This function is exposed only to be used internally.
-    native function getEntityWithoutBody() returns mime:Entity;
+    extern function getEntityWithoutBody() returns mime:Entity;
 
-    documentation {
-        Sets the provided `Entity` to the response.
+    # Sets the provided `Entity` to the response.
+    #
+    # + e - The `Entity` to be set to the response
+    public extern function setEntity(mime:Entity e);
 
-        P{{e}} The `Entity` to be set to the response
-    }
-    public native function setEntity(mime:Entity e);
-
-    documentation {
-        Checks whether the requested header key exists in the header map.
-
-        P{{headerName}} The header name
-        R{{}} Returns true if the specified header key exists
-    }
+    # Checks whether the requested header key exists in the header map.
+    #
+    # + headerName - The header name
+    # + return - Returns true if the specified header key exists
     public function hasHeader(string headerName) returns boolean;
 
-    documentation {
-        Returns the value of the specified header. If the specified header key maps to multiple values, the first of
-        these values is returned.
-
-        P{{headerName}} The header name
-        R{{}} The first header value for the specified header name. An exception is thrown if no header is found. Use
-              `hasHeader()` beforehand to check the existence of header.
-    }
+    # Returns the value of the specified header. If the specified header key maps to multiple values, the first of
+    # these values is returned.
+    #
+    # + headerName - The header name
+    # + return - The first header value for the specified header name. An exception is thrown if no header is found. Use
+    #            `hasHeader()` beforehand to check the existence of header.
     public function getHeader(string headerName) returns string;
 
-    documentation {
-        Adds the specified header to the response. Existing header values are not replaced.
-
-        P{{headerName}} The header name
-        P{{headerValue}} The header value
-    }
+    # Adds the specified header to the response. Existing header values are not replaced.
+    #
+    # + headerName - The header name
+    # + headerValue - The header value
     public function addHeader(string headerName, string headerValue);
 
-    documentation {
-        Gets all the header values to which the specified header key maps to.
-
-        P{{headerName}} The header name
-        R{{}} The header values the specified header key maps to. An exception is thrown if no header is found. Use
-              `hasHeader()` beforehand to check the existence of header.
-    }
+    # Gets all the header values to which the specified header key maps to.
+    #
+    # + headerName - The header name
+    # + return - The header values the specified header key maps to. An exception is thrown if no header is found. Use
+    #            `hasHeader()` beforehand to check the existence of header.
     public function getHeaders(string headerName) returns (string[]);
 
-    documentation {
-        Sets the specified header to the response. If a mapping already exists for the specified header key, the
-        existing header value is replaced with the specfied header value.
-
-        P{{headerName}} The header name
-        P{{headerValue}} The header value
-    }
+    # Sets the specified header to the response. If a mapping already exists for the specified header key, the
+    # existing header value is replaced with the specfied header value.
+    #
+    # + headerName - The header name
+    # + headerValue - The header value
     public function setHeader(string headerName, string headerValue);
 
-    documentation {
-        Removes the specified header from the response.
-
-        P{{key}} The header name
-    }
+    # Removes the specified header from the response.
+    #
+    # + key - The header name
     public function removeHeader(string key);
 
-    documentation {
-        Removes all the headers from the response.
-    }
+    # Removes all the headers from the response.
     public function removeAllHeaders();
 
-    documentation {
-        Gets all the names of the headers of the response.
-
-        R{{}} An array of all the header names
-    }
+    # Gets all the names of the headers of the response.
+    #
+    # + return - An array of all the header names
     public function getHeaderNames() returns string[];
 
-    documentation {
-        Sets the `content-type` header to the response.
-
-        P{{contentType}} Content type value to be set as the `content-type` header
-    }
+    # Sets the `content-type` header to the response.
+    #
+    # + contentType - Content type value to be set as the `content-type` header
     public function setContentType(string contentType);
 
-    documentation {
-        Gets the type of the payload of the response (i.e: the `content-type` header value).
-
-        R{{}} Returns the `content-type` header value as a string
-    }
+    # Gets the type of the payload of the response (i.e: the `content-type` header value).
+    #
+    # + return - Returns the `content-type` header value as a string
     public function getContentType() returns string;
 
-    documentation {
-        Extract `json` payload from the response. If the content type is not JSON, an `error` is returned.
-
-        R{{}} The `json` payload or `error` in case of errors
-    }
+    # Extract `json` payload from the response. If the content type is not JSON, an `error` is returned.
+    #
+    # + return - The `json` payload or `error` in case of errors
     public function getJsonPayload() returns json|error;
 
-    documentation {
-        Extracts `xml` payload from the response. If the the content type is not XML, an `error` is returned.
-
-        R{{}} The `xml` payload or `error` in case of errors
-    }
+    # Extracts `xml` payload from the response. If the the content type is not XML, an `error` is returned.
+    #
+    # + return - The `xml` payload or `error` in case of errors
     public function getXmlPayload() returns xml|error;
 
-    documentation {
-        Extracts `text` payload from the response. If the content type is not of type text, an `error` is returned.
-
-        R{{}} The string representation of the message payload or `error` in case of errors
-    }
+    # Extracts `text` payload from the response. If the content type is not of type text, an `error` is returned.
+    #
+    # + return - The string representation of the message payload or `error` in case of errors
     public function getTextPayload() returns string|error;
 
-    documentation {
-        Gets the response payload as a `string`. Content type is not checked during payload construction which
-        makes this different from `getTextPayload()` function.
-
-        R{{}} The string representation of the message payload or `error` in case of errors
-    }
+    # Gets the response payload as a `string`. Content type is not checked during payload construction which
+    # makes this different from `getTextPayload()` function.
+    #
+    # + return - The string representation of the message payload or `error` in case of errors
     public function getPayloadAsString() returns string|error;
 
-    documentation {
-        Gets the response payload as a `ByteChannel`, except in the case of multiparts. To retrieve multiparts, use
-        `getBodyParts()`.
-
-        R{{}} A byte channel from which the message payload can be read or `error` in case of errors
-    }
+    # Gets the response payload as a `ByteChannel`, except in the case of multiparts. To retrieve multiparts, use
+    # `getBodyParts()`.
+    #
+    # + return - A byte channel from which the message payload can be read or `error` in case of errors
     public function getByteChannel() returns io:ByteChannel|error;
 
-    documentation {
-        Gets the response payload as a `byte[]`.
-
-        R{{}} The byte[] representation of the message payload or `error` in case of errors
-    }
+    # Gets the response payload as a `byte[]`.
+    #
+    # + return - The byte[] representation of the message payload or `error` in case of errors
     public function getBinaryPayload() returns byte[]|error;
 
-    documentation {
-        Extracts body parts from the response. If the content type is not a composite media type, an error is returned.
-
-        R{{}} Returns the body parts as an array of entities or an `error` if there were any errors in
-              constructing the body parts from the response
-    }
+    # Extracts body parts from the response. If the content type is not a composite media type, an error is returned.
+    #
+    # + return - Returns the body parts as an array of entities or an `error` if there were any errors in
+    #            constructing the body parts from the response
     public function getBodyParts() returns mime:Entity[]|error;
 
-    documentation {
-        Sets the `etag` header for the given payload. The ETag is generated using a CRC32 hash function.
-
-        P{{payload}} The payload for which the ETag should be set
-    }
+    # Sets the `etag` header for the given payload. The ETag is generated using a CRC32 hash function.
+    #
+    # + payload - The payload for which the ETag should be set
     public function setETag(json|xml|string|byte[] payload);
 
-    documentation {
-        Sets the current time as the `last-modified` header.
-    }
+    # Sets the current time as the `last-modified` header.
     public function setLastModified();
 
-    documentation {
-        Sets a `json` as the payload.
-
-        P{{payload}} The `json` payload
-        P{{contentType}} The content type of the payload. Set this to override the default `content-type` header value
-                         for `json`
-    }
+    # Sets a `json` as the payload.
+    #
+    # + payload - The `json` payload
+    # + contentType - The content type of the payload. Set this to override the default `content-type` header value
+    #                 for `json`
     public function setJsonPayload(json payload, string contentType = "application/json");
 
-    documentation {
-        Sets an `xml` as the payload
-
-        P{{payload}} The `xml` payload
-        P{{contentType}} The content type of the payload. Set this to override the default `content-type` header value
-                         for `xml`
-    }
+    # Sets an `xml` as the payload
+    #
+    # + payload - The `xml` payload
+    # + contentType - The content type of the payload. Set this to override the default `content-type` header value
+    #                 for `xml`
     public function setXmlPayload(xml payload, string contentType = "application/xml");
 
-    documentation {
-        Sets a `string` as the payload.
-
-        P{{payload}} The `string` payload
-        P{{contentType}} The content type of the payload. Set this to override the default `content-type` header value
-                         for `string`
-    }
+    # Sets a `string` as the payload.
+    #
+    # + payload - The `string` payload
+    # + contentType - The content type of the payload. Set this to override the default `content-type` header value
+    #                 for `string`
     public function setTextPayload(string payload, string contentType = "text/plain");
 
-    documentation {
-        Sets a `byte[]` as the payload.
-
-        P{{payload}} The `byte[]` payload
-        P{{contentType}} The content type of the payload. Set this to override the default `content-type` header value
-                         for `byte[]`
-    }
+    # Sets a `byte[]` as the payload.
+    #
+    # + payload - The `byte[]` payload
+    # + contentType - The content type of the payload. Set this to override the default `content-type` header value
+    #                 for `byte[]`
     public function setBinaryPayload(byte[] payload, string contentType = "application/octet-stream");
 
-    documentation {
-        Set multiparts as the payload.
-
-        P{{bodyParts}} The entities which make up the message body
-        P{{contentType}} The content type of the top level message. Set this to override the default
-                         `content-type` header value
-    }
+    # Set multiparts as the payload.
+    #
+    # + bodyParts - The entities which make up the message body
+    # + contentType - The content type of the top level message. Set this to override the default
+    #                 `content-type` header value
     public function setBodyParts(mime:Entity[] bodyParts, string contentType = "multipart/form-data");
 
-    documentation {
-        Sets the content of the specified file as the entity body of the response.
-
-        P{{filePath}} Path to the file to be set as the payload
-        P{{contentType}} The content type of the specified file. Set this to override the default `content-type`
-                         header value
-    }
+    # Sets the content of the specified file as the entity body of the response.
+    #
+    # + filePath - Path to the file to be set as the payload
+    # + contentType - The content type of the specified file. Set this to override the default `content-type`
+    #                 header value
     public function setFileAsPayload(string filePath, string contentType = "application/octet-stream");
 
-    documentation {
-        Sets a `ByteChannel` as the payload.
-
-        P{{payload}} A `ByteChannel` through which the message payload can be read
-        P{{contentType}} The content type of the payload. Set this to override the default `content-type`
-                         header value
-    }
+    # Sets a `ByteChannel` as the payload.
+    #
+    # + payload - A `ByteChannel` through which the message payload can be read
+    # + contentType - The content type of the payload. Set this to override the default `content-type`
+    #                 header value
     public function setByteChannel(io:ByteChannel payload, string contentType = "application/octet-stream");
 
-    documentation {
-        Sets the response payload.
-
-        P{{payload}} Payload can be of type `string`, `xml`, `json`, `byte[]`, `ByteChannel` or `Entity[]` (i.e: a set
-                     of body parts)
-    }
+    # Sets the response payload.
+    #
+    # + payload - Payload can be of type `string`, `xml`, `json`, `byte[]`, `ByteChannel` or `Entity[]` (i.e: a set
+    #             of body parts)
     public function setPayload(string|xml|json|byte[]|io:ByteChannel|mime:Entity[] payload);
 };
 

@@ -218,7 +218,10 @@ class DebugManager extends EventEmitter {
      */
     publishBreakpoints() {
         try {
-            const message = { command: 'SET_POINTS', points: this.debugPoints };
+            const message = { 
+                command: 'SET_POINTS',
+                points: this.debugPoints 
+            };
             this.channel.sendMessage(message);
         } catch (e) {
             // @todo log

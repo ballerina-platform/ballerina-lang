@@ -1,0 +1,22 @@
+{
+    "position": {
+        "line": 2,
+        "character": 9
+    },
+    "newName": "a2",
+    "expected": [
+        {
+            "range": {
+                "start": {
+                    "line": 0,
+                    "character": 0
+                },
+                "end": {
+                    "line": 12,
+                    "character": 0
+                }
+            },
+            "newText": "import ballerina/io;\r\npublic function main(string... args) {\r\n    map a2;\r\n    foreach item in a2 {\r\n        io:println(a2);\r\n    }\r\n    iterate(a2);\r\n}\r\n\r\nfunction iterate(map m) {\r\n    io:println(\"\");\r\n}"
+        }
+    ]
+}

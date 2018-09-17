@@ -23,7 +23,7 @@ import org.ballerinalang.langserver.compiler.LSContext;
 import org.ballerinalang.langserver.compiler.LSPackageLoader;
 import org.ballerinalang.langserver.compiler.LSServiceOperationContext;
 import org.ballerinalang.model.Whitespace;
-import org.ballerinalang.model.elements.DocAttachment;
+import org.ballerinalang.model.elements.MarkdownDocAttachment;
 import org.ballerinalang.model.elements.PackageID;
 import org.eclipse.lsp4j.Hover;
 import org.eclipse.lsp4j.MarkedString;
@@ -38,8 +38,12 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
+import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
 import org.wso2.ballerinalang.compiler.tree.BLangEndpoint;
+import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
+import org.wso2.ballerinalang.compiler.tree.BLangResource;
+import org.wso2.ballerinalang.compiler.tree.BLangService;
 import org.wso2.ballerinalang.compiler.tree.BLangVariable;
 import org.wso2.ballerinalang.compiler.tree.types.BLangArrayType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangConstrainedType;
@@ -130,7 +134,7 @@ public class HoverUtil {
         }
 
         return filteredBSymbol != null
-                ? getHoverFromDocAttachment(filteredBSymbol.getDocAttachment())
+                ? getHoverFromDocAttachment(filteredBSymbol.getMarkdownDocAttachment(), hoverContext)
                 : getDefaultHoverObject();
     }
 
@@ -182,20 +186,24 @@ public class HoverUtil {
     /**
      * Get the doc annotation attributes.
      *
-     * @param attributes        attributes to be extracted
+     * @param parameters        parameters to be extracted
      * @return {@link String }  extracted content of annotation
      */
-    private static String getDocAttributes(List<DocAttachment.DocAttribute> attributes) {
+    private static String getDocAttributes(List<MarkdownDocAttachment.Parameter> parameters) {
         StringBuilder value = new StringBuilder();
-        for (DocAttachment.DocAttribute attribute : attributes) {
+        for (MarkdownDocAttachment.Parameter parameter : parameters) {
             value.append("- ")
-                    .append(attribute.name.trim())
+                    .append(parameter.name.trim())
                     .append(":")
-                    .append(attribute.description.trim()).append("\r\n");
+                    .append(parameter.description.trim()).append("\r\n");
         }
 
         return value.toString();
-    }   
+    }
+    
+    private static String getReturnValueDescription(String returnVal) {
+        return "- " + returnVal.trim() + "\r\n";
+    }
 
     /**
      * get the formatted string with markdowns.
@@ -213,19 +221,15 @@ public class HoverUtil {
      * @param docAttachment     Documentation attachment
      * @return {@link Hover}    hover object.
      */
-    private static Hover getHoverFromDocAttachment(DocAttachment docAttachment) {
+    private static Hover getHoverFromDocAttachment(MarkdownDocAttachment docAttachment, LSContext context) {
         Hover hover = new Hover();
         StringBuilder content = new StringBuilder();
-        Map<String, List<DocAttachment.DocAttribute>> filterAttributes = filterDocumentationAttributes(docAttachment);
+        Map<String, List<MarkdownDocAttachment.Parameter>> filterAttributes =
+                filterDocumentationAttributes(docAttachment, context);
 
         if (!docAttachment.description.isEmpty()) {
             String description = "\r\n" + docAttachment.description.trim() + "\r\n";
             content.append(getFormattedHoverDocContent(ContextConstants.DESCRIPTION, description));
-        }
-
-        if (filterAttributes.get(ContextConstants.DOC_RECEIVER) != null) {
-            content.append(getFormattedHoverDocContent(ContextConstants.RECEIVER_TITLE,
-                    getDocAttributes(filterAttributes.get(ContextConstants.DOC_RECEIVER))));
         }
 
         if (filterAttributes.get(ContextConstants.DOC_PARAM) != null) {
@@ -238,14 +242,9 @@ public class HoverUtil {
                     getDocAttributes(filterAttributes.get(ContextConstants.DOC_FIELD))));
         }
 
-        if (filterAttributes.get(ContextConstants.DOC_RETURN) != null) {
+        if (docAttachment.returnValueDescription != null && !docAttachment.returnValueDescription.isEmpty()) {
             content.append(getFormattedHoverDocContent(ContextConstants.RETURN_TITLE,
-                    getDocAttributes(filterAttributes.get(ContextConstants.DOC_RETURN))));
-        }
-
-        if (filterAttributes.get(ContextConstants.DOC_VARIABLE) != null) {
-            content.append(getFormattedHoverDocContent(ContextConstants.VARIABLE_TITLE,
-                    getDocAttributes(filterAttributes.get(ContextConstants.DOC_VARIABLE))));
+                    getReturnValueDescription(docAttachment.returnValueDescription)));
         }
 
         List<Either<String, MarkedString>> contents = new ArrayList<>();
@@ -261,15 +260,29 @@ public class HoverUtil {
      * @param docAttachment     documentation node
      * @return {@link Map}      filtered content map
      */
-    private static Map<String, List<DocAttachment.DocAttribute>> filterDocumentationAttributes(
-            DocAttachment docAttachment) {
-        Map<String, List<DocAttachment.DocAttribute>> filteredAttributes = new HashMap<>();
-        for (DocAttachment.DocAttribute docAttribute : docAttachment.attributes) {
-            if (filteredAttributes.get(docAttribute.docTag.name()) == null) {
-                filteredAttributes.put(docAttribute.docTag.name(), new ArrayList<>());
-                filteredAttributes.get(docAttribute.docTag.name()).add(docAttribute);
+    private static Map<String, List<MarkdownDocAttachment.Parameter>> filterDocumentationAttributes(
+            MarkdownDocAttachment docAttachment, LSContext context) {
+        Map<String, List<MarkdownDocAttachment.Parameter>> filteredAttributes = new HashMap<>();
+        String paramType = "";
+        switch (context.get((NodeContextKeys.SYMBOL_KIND_OF_NODE_PARENT_KEY))) {
+            case ContextConstants.FUNCTION:
+                paramType = ContextConstants.DOC_PARAM;
+                break;
+            case ContextConstants.OBJECT:
+            case ContextConstants.RECORD:
+            case ContextConstants.TYPE_DEF:
+                paramType = ContextConstants.DOC_FIELD;
+                break;
+            default:
+                break;
+        }
+
+        for (MarkdownDocAttachment.Parameter parameter : docAttachment.parameters) {
+            if (filteredAttributes.get(paramType) == null) {
+                filteredAttributes.put(paramType, new ArrayList<>());
+                filteredAttributes.get(paramType).add(parameter);
             } else {
-                filteredAttributes.get(docAttribute.docTag.name()).add(docAttribute);
+                filteredAttributes.get(paramType).add(parameter);
             }
         }
 
@@ -316,7 +329,7 @@ public class HoverUtil {
     /**
      * Calculate and returns identifier position of this BLangEndpoint.
      *
-     * @param endpointNode BLangEndpoint
+     * @param endpointNode {@link BLangEndpoint}
      * @return position
      */
     public static DiagnosticPos getIdentifierPosition(BLangEndpoint endpointNode) {
@@ -343,6 +356,84 @@ public class HoverUtil {
             }
             position.eCol += position.sCol + endpointNode.symbol.name.value.length();
         }
+        return position;
+    }
+
+    /**
+     * Calculate and returns identifier position of this BLangFunction.
+     *
+     * @param bLangFunction {@link BLangFunction}
+     * @return position
+     */
+    public static DiagnosticPos getIdentifierPosition(BLangFunction bLangFunction) {
+        DiagnosticPos funcPosition = bLangFunction.getPosition();
+        DiagnosticPos position = new DiagnosticPos(funcPosition.src, funcPosition.sLine, funcPosition.eLine,
+                                                   funcPosition.sCol,
+                                                   funcPosition.eCol);
+        Set<Whitespace> wsSet = bLangFunction.getWS();
+        if (wsSet != null && wsSet.size() > 4) {
+            Whitespace[] wsArray = new Whitespace[wsSet.size()];
+            wsSet.toArray(wsArray);
+            Arrays.sort(wsArray);
+            int functionKeywordLength = wsArray[0].getPrevious().length();
+            int beforeIdentifierWSLength = wsArray[1].getWs().length();
+            if (wsArray[2].getPrevious().equals("::")) {
+                beforeIdentifierWSLength += wsArray[1].getPrevious().length() + "::".length();
+            }
+            position.sCol += (beforeIdentifierWSLength + functionKeywordLength);
+            position.eCol = position.sCol + bLangFunction.name.value.length();
+        }
+        return position;
+    }
+
+    /**
+     * Calculate and returns identifier position of this BLangService.
+     *
+     * @param serviceNode {@link BLangService}
+     * @return position
+     */
+    public static DiagnosticPos getIdentifierPosition(BLangService serviceNode) {
+        DiagnosticPos servPosition = serviceNode.getPosition();
+        DiagnosticPos position = new DiagnosticPos(servPosition.src, servPosition.sLine, servPosition.eLine,
+                                                   servPosition.sCol,
+                                                   servPosition.eCol);
+        Set<Whitespace> wsSet = serviceNode.getWS();
+        if (wsSet != null && wsSet.size() > 4) {
+            Whitespace[] wsArray = new Whitespace[wsSet.size()];
+            wsSet.toArray(wsArray);
+            Arrays.sort(wsArray);
+            int serviceKeywordLength = wsArray[0].getPrevious().length() +
+                    wsArray[1].getPrevious().length() + wsArray[1].getWs().length() +
+                    wsArray[2].getPrevious().length() + wsArray[2].getWs().length() + wsArray[3].getWs().length();
+            int serviceTypeLength = 0;
+            Set<Whitespace> ws = serviceNode.getServiceTypeStruct().getWS();
+            for (Whitespace w : ws) {
+                serviceTypeLength += w.getPrevious().length() + w.getWs().length();
+            }
+            position.sCol += (serviceTypeLength + serviceKeywordLength);
+            position.eCol = position.sCol + serviceNode.name.value.length();
+        }
+        return position;
+    }
+
+    /**
+     * Calculate and returns identifier position of this BLangResource.
+     *
+     * @param resource {@link BLangResource}
+     * @return position
+     */
+    public static DiagnosticPos getIdentifierPosition(BLangResource resource) {
+        DiagnosticPos resPosition = resource.getPosition();
+        DiagnosticPos position = new DiagnosticPos(resPosition.src, resPosition.sLine, resPosition.eLine,
+                                                   resPosition.sCol,
+                                                   resPosition.eCol);
+        int maxELine = 0;
+        List<BLangAnnotationAttachment> annotations = resource.getAnnotationAttachments();
+        for (BLangAnnotationAttachment annotation : annotations) {
+            maxELine = Math.max(annotation.pos.eLine, maxELine);
+        }
+        position.sLine = Math.max(maxELine + 1, position.sLine);
+        position.eCol += resource.symbol.name.value.length();
         return position;
     }
 

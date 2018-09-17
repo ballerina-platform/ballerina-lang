@@ -39,13 +39,16 @@ public interface BallerinaObjectFunctionDefinition extends BallerinaCompositeEle
   BallerinaDocumentationAttachment getDocumentationAttachment();
 
   @Nullable
+  BallerinaDocumentationString getDocumentationString();
+
+  @Nullable
   PsiElement getSemicolon();
+
+  @Nullable
+  PsiElement getExtern();
 
   @NotNull
   PsiElement getFunction();
-
-  @Nullable
-  PsiElement getNative();
 
   @Nullable
   PsiElement getPublic();

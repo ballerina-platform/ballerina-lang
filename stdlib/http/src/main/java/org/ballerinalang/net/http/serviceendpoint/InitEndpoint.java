@@ -79,8 +79,8 @@ public class InitEndpoint extends AbstractHttpNativeFunction {
             resetRegistry(serviceEndpoint);
 
             context.setReturnValues((BValue) null);
-        } catch (Throwable throwable) {
-            BMap<String, BValue> errorStruct = HttpUtil.getError(context, throwable);
+        } catch (Exception e) {
+            BMap<String, BValue> errorStruct = HttpUtil.getError(context, e);
             context.setReturnValues(errorStruct);
         }
 
@@ -127,11 +127,15 @@ public class InitEndpoint extends AbstractHttpNativeFunction {
             listenerConfiguration.setVersion(httpVersion);
         }
 
+        listenerConfiguration.setServerHeader(getServerName());
+
         if (sslConfig != null) {
             return setSslConfig(sslConfig, listenerConfiguration);
         }
 
-        listenerConfiguration.setServerHeader(getServerName());
+        listenerConfiguration.setPipeliningNeeded(true); //Pipelining is enabled all the time
+        listenerConfiguration.setPipeliningLimit(endpointConfig.getIntField(
+                HttpConstants.PIPELINING_REQUEST_LIMIT));
 
         return listenerConfiguration;
     }
@@ -224,7 +228,7 @@ public class InitEndpoint extends AbstractHttpNativeFunction {
         if (protocols != null) {
             List<Value> sslEnabledProtocolsValueList = Arrays
                     .asList(protocols.getArrayField(HttpConstants.ENABLED_PROTOCOLS));
-            if (sslEnabledProtocolsValueList.size() > 0) {
+            if (!sslEnabledProtocolsValueList.isEmpty()) {
                 String sslEnabledProtocols = sslEnabledProtocolsValueList.stream().map(Value::getStringValue)
                         .collect(Collectors.joining(",", "", ""));
                 serverParameters = new Parameter(HttpConstants.ANN_CONFIG_ATTR_SSL_ENABLED_PROTOCOLS,
@@ -239,7 +243,7 @@ public class InitEndpoint extends AbstractHttpNativeFunction {
         }
 
         List<Value> ciphersValueList = Arrays.asList(sslConfig.getArrayField(HttpConstants.SSL_CONFIG_CIPHERS));
-        if (ciphersValueList.size() > 0) {
+        if (!ciphersValueList.isEmpty()) {
             String ciphers = ciphersValueList.stream().map(Value::getStringValue)
                     .collect(Collectors.joining(",", "", ""));
             serverParameters = new Parameter(HttpConstants.CIPHERS, ciphers);

@@ -169,7 +169,7 @@ function testMapWithMissingFieldsToStruct () returns (Person) {
 }
 
 function testMapWithIncompatibleArrayToStruct () returns (Person) {
-    float[] marks = [87, 94, 72];
+    float[] marks = [87.0, 94.0, 72.0];
     Person parent = {
                         name:"Parent",
                         age:50,
@@ -449,7 +449,7 @@ function testNonArrayJsonToArray () returns (StringArray) {
     return a;
 }
 
-function testNullJsonToStruct () returns (Person | error) {
+function testNullJsonToStruct () returns Person {
     json j;
     var p = check <Person>j;
     return p;
@@ -855,7 +855,7 @@ type A record {
     float f;
 };
 
-function testJsonFloatToInt() returns A {
+function testJsonIntToFloat() returns A {
     json j = {f : 3};
     return check <A> j;
 }

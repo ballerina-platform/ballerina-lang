@@ -14,67 +14,59 @@
 // specific language governing permissions and limitations
 // under the License.
 
-documentation {
-    Representation of `NullReferenceException`
-
-    F{{message}} error message
-    F{{cause}} optional error cause
-}
+# Representation of `NullReferenceException`
+#
+# + message - error message
+# + cause - optional error cause
 public type NullReferenceException record {
     string message;
     error? cause;
+    !...
 };
 
-documentation {
-    Representation of `IllegalStateException`
-
-    F{{message}} error message
-    F{{cause}} optional error cause
-}
+# Representation of `IllegalStateException`
+#
+# + message - error message
+# + cause - optional error cause
 public type IllegalStateException record {
     string message;
     error? cause;
+    !...
 };
 
-documentation {
-    Representation of `CallStackElement`
-
-    F{{callableName}} Callable name
-    F{{packageName}} Package name
-    F{{fileName}} File name
-    F{{lineNumber}} Line number
-}
+# Representation of `CallStackElement`
+#
+# + callableName - Callable name
+# + packageName - Package name
+# + fileName - File name
+# + lineNumber - Line number
 public type CallStackElement record {
     string callableName;
     string packageName;
     string fileName;
     int lineNumber;
+    !...
 };
 
-documentation {
-    Retrieves the Call Stack
+# Retrieves the Call Stack
+#
+# + return - Array of `CallStackElement` elements
+public extern function getCallStack() returns CallStackElement[];
 
-    R{{}} Array of `CallStackElement` elements
-}
-public native function getCallStack() returns (CallStackElement[]);
+# Retrieves the Call Stack Frame for a particular error
+#
+# + e - optional `error` instance
+# + return - `CallStackElement` instance
+public extern function getErrorCallStackFrame(error? e) returns CallStackElement;
 
-documentation {
-    Retrieves the Call Stack Frame for a particular error
-
-    P{{e}} optional `error` instance
-    R{{}} `CallStackElement` instance
-}
-public native function getErrorCallStackFrame(error? e) returns (CallStackElement);
-
-documentation {
-    Representation of `CallFailedException`
-
-    F{{message}} Error message
-    F{{cause}} optional `error` instance
-    F{{causes}} optional array of `error` instances
-}
+# Representation of `CallFailedException`
+#
+# + message - Error message
+# + cause - optional `error` instance
+# + causes - optional array of `error` instances
 public type CallFailedException record {
     string message;
     error? cause;
     error[]? causes;
+    !...
 };

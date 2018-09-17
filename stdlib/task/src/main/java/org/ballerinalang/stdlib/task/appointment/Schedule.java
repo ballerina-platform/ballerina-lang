@@ -29,7 +29,7 @@ import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.stdlib.task.SchedulingException;
-import org.ballerinalang.util.codegen.cpentries.FunctionRefCPEntry;
+import org.ballerinalang.util.codegen.FunctionInfo;
 import org.ballerinalang.util.exceptions.BLangExceptionHelper;
 import org.ballerinalang.util.exceptions.RuntimeErrors;
 
@@ -40,7 +40,7 @@ import static org.ballerinalang.stdlib.task.TaskConstants.APPOINTMENT_ON_TRIGGER
 import static org.ballerinalang.stdlib.task.TaskConstants.APPOINTMENT_TASK_ID_FIELD;
 
 /**
- * Native function ballerina/task:Appointment.schedule.
+ * Extern function ballerina/task:Appointment.schedule.
  */
 @BallerinaFunction(
         orgName = "ballerina",
@@ -58,16 +58,16 @@ public class Schedule extends BlockingNativeCallableUnit {
             throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.TASK_ALREADY_RUNNING);
         }
 
-        FunctionRefCPEntry onTriggerFunctionRefCPEntry =
+        FunctionInfo onTriggerFunctionRef =
                 ((BFunctionPointer) task.get(APPOINTMENT_ON_TRIGGER_FIELD)).value();
         BValue onErrorFunc = task.get(APPOINTMENT_ON_ERROR_FIELD);
-        FunctionRefCPEntry onErrorFunctionRefCPEntry =
+        FunctionInfo onErrorFunctionRef =
                 onErrorFunc != null ? ((BFunctionPointer) onErrorFunc).value() : null;
         String schedule = task.get(APPOINTMENT_CRON_EXPR_FIELD).stringValue();
 
         try {
             Appointment appointment =
-                    new Appointment(this, ctx, schedule, onTriggerFunctionRefCPEntry, onErrorFunctionRefCPEntry);
+                    new Appointment(this, ctx, schedule, onTriggerFunctionRef, onErrorFunctionRef);
             task.put(APPOINTMENT_TASK_ID_FIELD, new BString(appointment.getId()));
             task.put(APPOINTMENT_IS_RUNNING_FIELD, new BBoolean(true));
         } catch (SchedulingException e) {

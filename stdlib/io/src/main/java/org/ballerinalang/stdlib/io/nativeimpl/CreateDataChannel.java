@@ -37,7 +37,7 @@ import org.slf4j.LoggerFactory;
 import java.nio.ByteOrder;
 
 /**
- * Native function to create data channel.
+ * Extern function to create data channel.
  *
  * @since 0.973.1
  */
@@ -47,7 +47,7 @@ import java.nio.ByteOrder;
         receiver = @Receiver(type = TypeKind.OBJECT,
                 structType = "DataChannel",
                 structPackage = "ballerina/io"),
-        args = {@Argument(name = "channel", type = TypeKind.OBJECT, structType = "ByteChannel",
+        args = {@Argument(name = "byteChannel", type = TypeKind.OBJECT, structType = "ByteChannel",
                 structPackage = "ballerina/io"),
                 @Argument(name = "order", type = TypeKind.STRING)
         },

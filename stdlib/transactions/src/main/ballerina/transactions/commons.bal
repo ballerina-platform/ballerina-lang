@@ -21,24 +21,16 @@ import ballerina/system;
 import ballerina/task;
 import ballerina/time;
 
-documentation {
-    ID of the local participant used when registering with the initiator.
-}
+# ID of the local participant used when registering with the initiator.
 string localParticipantId = system:uuid();
 
-documentation {
-    This map is used for caching transaction that are initiated.
-}
+# This map is used for caching transaction that are initiated.
 map<TwoPhaseCommitTransaction> initiatedTransactions;
 
-documentation {
-    This map is used for caching transaction that are this Ballerina instance participates in.
-}
+# This map is used for caching transaction that are this Ballerina instance participates in.
 map<TwoPhaseCommitTransaction> participatedTransactions;
 
-documentation {
-    This cache is used for caching HTTP connectors against the URL, since creating connectors is expensive.
-}
+# This cache is used for caching HTTP connectors against the URL, since creating connectors is expensive.
 cache:Cache httpClientCache = new;
 
 @final boolean scheduleInit = scheduleTimer(1000, 60000);
@@ -170,10 +162,8 @@ function getParticipantProtocolAt(string protocolName, int transactionBlockId) r
         transactionBlockId;
 }
 
-documentation {
-    The initiator will create a new transaction context by calling this function. At this point, a transaction object
-    corresponding to the coordinationType will also be created and stored as an initiated transaction.
-}
+# The initiator will create a new transaction context by calling this function. At this point, a transaction object
+# corresponding to the coordinationType will also be created and stored as an initiated transaction.
 function createTransactionContext(string coordinationType, int transactionBlockId) returns TransactionContext|error {
     if (!isValidCoordinationType(coordinationType)) {
         string msg = "Invalid-Coordination-Type:" + coordinationType;
@@ -197,11 +187,9 @@ function createTransactionContext(string coordinationType, int transactionBlockI
     }
 }
 
-documentation {
-    Register a local participant, which corresponds to a nested transaction of the initiated transaction, with the
-    initiator. Such participants and the initiator don't have to communicate over the network, so we are special casing
-    such participants.
-}
+# Register a local participant, which corresponds to a nested transaction of the initiated transaction, with the
+# initiator. Such participants and the initiator don't have to communicate over the network, so we are special casing
+# such participants.
 function registerLocalParticipantWithInitiator(string transactionId, int transactionBlockId, string registerAtURL)
     returns TransactionContext|error {
 
@@ -301,13 +289,11 @@ function getParticipant2pcClient(string participantURL) returns Participant2pcCl
     }
 }
 
-documentation {
-    Registers a participant with the initiator's coordinator. This function will be called by the participant
-
-    P{{transactionId}} - ID of the transaction to which this participant is registering with
-    P{{transactionBlockId}} - The local ID of the transaction block on the participant
-    P{{registerAtURL}} - The URL of the initiator to which this participant will register with
-}
+# Registers a participant with the initiator's coordinator. This function will be called by the participant
+#
+# + transactionId - - ID of the transaction to which this participant is registering with
+# + transactionBlockId - - The local ID of the transaction block on the participant
+# + registerAtURL - - The URL of the initiator to which this participant will register with
 public function registerParticipantWithRemoteInitiator(string transactionId, int transactionBlockId,
                                                        string registerAtURL, RemoteProtocol[] participantProtocols)
     returns TransactionContext|error {
@@ -358,6 +344,6 @@ function getParticipantId(int transactionBlockId) returns string {
     return participantId;
 }
 
-native function getAvailablePort() returns int;
+extern function getAvailablePort() returns int;
 
-native function getHostAddress() returns string;
+extern function getHostAddress() returns string;

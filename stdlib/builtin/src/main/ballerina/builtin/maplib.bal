@@ -14,37 +14,26 @@
 // specific language governing permissions and limitations
 // under the License.
 
-documentation {
-    Removes the specified element from the map.
+# Removes the specified element from the map.
+#
+# + key - The key to be removed
+# + return - A boolean to indicate whether the key is removed or not from map
+public extern function map::remove(string key) returns (boolean);
 
-    P{{key}} The key to be removed
-    R{{}} A boolean to indicate whether the key is removed or not from map
-}
-public native function map::remove(string key) returns (boolean);
+# Returns an array of keys contained in the specified map.
+#
+# + return - A string array of keys contained in the specified map
+public extern function map::keys() returns (string[]);
 
-documentation {
-    Returns an array of keys contained in the specified map.
+# Check whether specific key exists from the given map.
+#
+# + key - The key to be find existence
+public extern function map::hasKey(string key) returns (boolean);
 
-    R{{}} A string array of keys contained in the specified map
-}
-public native function map::keys() returns (string[]);
+# Clear the items from given map.
+public extern function map::clear();
 
-documentation {
-    Check whether specific key exists from the given map.
-
-    P{{key}} The key to be find existence
-}
-public native function map::hasKey(string key) returns (boolean);
-
-documentation {
-    Clear the items from given map.
-
-}
-public native function map::clear();
-
-documentation {
-    Returns an array of values contained in the specified map.
-
-    R{{}} An any array of values contained in the specified map
-}
-public native function map::values() returns (any[]);
+# Returns an array of values contained in the specified map.
+#
+# + return - An any array of values contained in the specified map
+public extern function map::values() returns (any[]);

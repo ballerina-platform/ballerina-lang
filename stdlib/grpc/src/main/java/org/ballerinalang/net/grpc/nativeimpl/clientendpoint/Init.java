@@ -39,7 +39,7 @@ import org.wso2.transport.http.netty.config.Parameter;
 import org.wso2.transport.http.netty.config.SenderConfiguration;
 import org.wso2.transport.http.netty.contract.HttpClientConnector;
 import org.wso2.transport.http.netty.contract.HttpWsConnectorFactory;
-import org.wso2.transport.http.netty.message.HTTPConnectorUtil;
+import org.wso2.transport.http.netty.message.HttpConnectorUtil;
 
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -72,7 +72,7 @@ import static org.ballerinalang.net.http.HttpConstants.SSL_CONFIG_ENABLE_SESSION
 import static org.ballerinalang.net.http.HttpConstants.SSL_CONFIG_HOST_NAME_VERIFICATION_ENABLED;
 
 /**
- * Native function for initializing gRPC client endpoint.
+ * Extern function for initializing gRPC client endpoint.
  *
  * @since 1.0.0
  */
@@ -106,9 +106,9 @@ public class Init extends BlockingNativeCallableUnit {
 
         String scheme = url.getProtocol();
         Map<String, Object> properties =
-                HTTPConnectorUtil.getTransportProperties(connectionManager.getTransportConfig());
+                HttpConnectorUtil.getTransportProperties(connectionManager.getTransportConfig());
         SenderConfiguration senderConfiguration =
-                HTTPConnectorUtil.getSenderConfiguration(connectionManager.getTransportConfig(), scheme);
+                HttpConnectorUtil.getSenderConfiguration(connectionManager.getTransportConfig(), scheme);
 
         if (connectionManager.isHTTPTraceLoggerEnabled()) {
             senderConfiguration.setHttpTraceLogEnabled(true);
@@ -153,7 +153,7 @@ public class Init extends BlockingNativeCallableUnit {
                 }
                 String keyStorePassword = keyStore.getStringField(PASSWORD);
                 if (StringUtils.isNotBlank(keyStorePassword)) {
-                    senderConfiguration.setKeyStorePassword(keyStorePassword);
+                    senderConfiguration.setKeyStorePass(keyStorePassword);
                 }
             }
             senderConfiguration.setTLSStoreType(GrpcConstants.PKCS_STORE_TYPE);

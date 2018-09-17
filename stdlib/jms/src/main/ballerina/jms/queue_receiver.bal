@@ -16,86 +16,134 @@
 
 import ballerina/log;
 
-documentation { Queue Receiver endpoint
-    E{{}}
-    F{{consumerActions}} handles all the caller actions related to the queue receiver endpoint
-    F{{config}} configurations related to the QueueReceiver
-}
+# Queue Receiver endpoint
+#
+# + consumerActions - handles all the caller actions related to the queue receiver endpoint
+# + config - configurations related to the QueueReceiver
 public type QueueReceiver object {
 
     public QueueReceiverActions consumerActions;
     public QueueReceiverEndpointConfiguration config;
 
-    documentation { Initializes the QueueReceiver endpoint
-        P{{c}} Configurations related to the QueueReceiver endpoint
-    }
+    # Initializes the QueueReceiver endpoint
+    #
+    # + c - Configurations related to the QueueReceiver endpoint
     public function init(QueueReceiverEndpointConfiguration c) {
         self.config = c;
+        self.consumerActions.queueReceiver = self;
         match (c.session) {
             Session s => {
-                self.createQueueReceiver(s, c.messageSelector);
-                log:printInfo("Message receiver created for queue " + c.queueName);
+                match (c.queueName) {
+                    string queueName => {
+                        self.createQueueReceiver(s, c.messageSelector);
+                    }
+                    () => {}
+                }
             }
-            () => { log:printInfo("Message receiver not properly initialised for queue " + c.queueName); }
+            () => { log:printInfo("Message receiver is not properly initialised for queue"); }
         }
-
     }
 
-    documentation { Binds the queue receiver endpoint to a service
-        P{{serviceType}} type descriptor of the service to bind to
-    }
+    # Binds the queue receiver endpoint to a service
+    #
+    # + serviceType - type descriptor of the service to bind to
     public function register(typedesc serviceType) {
         self.registerListener(serviceType, consumerActions);
     }
 
-    native function registerListener(typedesc serviceType, QueueReceiverActions actions);
+    extern function registerListener(typedesc serviceType, QueueReceiverActions actions);
 
-    native function createQueueReceiver(Session session, string messageSelector);
+    extern function createQueueReceiver(Session session, string messageSelector, Destination? destination = ());
 
-    documentation { Starts the endpoint. Function is ignored by the receiver endpoint }
+    # Starts the endpoint. Function is ignored by the receiver endpoint
     public function start() {
         // Ignore
     }
 
-    documentation { Retrieves the QueueReceiver consumer action handler
-        R{{}} queue receiver action handler
-    }
+    # Retrieves the QueueReceiver consumer action handler
+    #
+    # + return - queue receiver action handler
     public function getCallerActions() returns QueueReceiverActions {
         return consumerActions;
     }
 
-    documentation { Stops consuming messages through QueueReceiver endpoint}
+    # Stops consuming messages through QueueReceiver endpoint
     public function stop() {
         self.closeQueueReceiver(consumerActions);
     }
 
-    native function closeQueueReceiver(QueueReceiverActions actions);
+    extern function closeQueueReceiver(QueueReceiverActions actions);
 };
 
-documentation { Configurations related to the QueueReceiver endpoint
-    F{{session}} JMS session object
-    F{{queueName}} Name of the queue
-    F{{messageSelector}} JMS selector statement
-    F{{identifier}} unique identifier for the subscription
-}
+# Configurations related to the QueueReceiver endpoint
+#
+# + session - JMS session object
+# + queueName - Name of the queue
+# + messageSelector - JMS selector statement
+# + identifier - unique identifier for the subscription
 public type QueueReceiverEndpointConfiguration record {
     Session? session;
-    string queueName;
+    string? queueName;
     string messageSelector;
     string identifier;
+    !...
 };
 
-documentation { Caller actions related to queue receiver endpoint }
+# Caller actions related to queue receiver endpoint
 public type QueueReceiverActions object {
 
-    documentation { Acknowledges a received message
-        P{{message}} JMS message to be acknowledged
-    }
-    public native function acknowledge(Message message) returns error?;
+    public QueueReceiver? queueReceiver;
 
-    documentation { Synchronously receive a message from the JMS provider
+    # Acknowledges a received message
+    #
+    # + message - JMS message to be acknowledged
+    public extern function acknowledge(Message message) returns error?;
+
+    # Synchronously receive a message from the JMS provider
+    #
+    # + timeoutInMilliSeconds - time to wait until a message is received
+    # + return - Returns a message or () if the timeout exceededs. Returns an error on jms provider internal error.
+    public extern function receive(int timeoutInMilliSeconds = 0) returns (Message|error)?;
+
+    documentation {
+        Synchronously receive a message from a given destination
+
+        P{{destination}} destination to subscribe to.
         P{{timeoutInMilliSeconds}} time to wait until a message is received
-        R{{}} Returns a message or nill if the timeout exceededs. Returns an error on jms provider internal error.
+        R{{}} Returns a message or () if the timeout exceededs. Returns an error on jms provider internal error.
     }
-    public native function receive(int timeoutInMilliSeconds = 0) returns (Message|error)?;
+    public function receiveFrom(Destination destination, int timeoutInMilliSeconds = 0) returns (Message|error)?;
 };
+
+function QueueReceiverActions::receiveFrom(Destination destination, int timeoutInMilliSeconds = 0) returns (Message|
+        error)? {
+    match (self.queueReceiver) {
+        QueueReceiver queueReceiver => {
+            match (queueReceiver.config.session) {
+                Session s => {
+                    validateQueue(destination);
+                    queueReceiver.createQueueReceiver(s, queueReceiver.config.messageSelector, destination = destination
+                    );
+                }
+                () => {}
+            }
+        }
+        () => { log:printInfo("Message receiver is not properly initialised for queue " +
+                destination.destinationName); }
+    }
+    var result = self.receive(timeoutInMilliSeconds = timeoutInMilliSeconds);
+    self.queueReceiver.closeQueueReceiver(self);
+    return result;
+}
+
+function validateQueue(Destination destination) {
+    if (destination.destinationName == "") {
+        string errorMessage = "Destination name cannot be empty";
+        error queueReceiverConfigError = { message: errorMessage };
+        throw queueReceiverConfigError;
+    } else if (destination.destinationType != "queue") {
+        string errorMessage = "Destination should should be a queue";
+        error queueReceiverConfigError = { message: errorMessage };
+        throw queueReceiverConfigError;
+    }
+}
