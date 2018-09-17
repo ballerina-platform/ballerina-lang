@@ -50,12 +50,12 @@ service<http:Service> echo1 bind echoEP1 {
 public function addExitHooks() {
     int a = 4;
 
-    (function() returns ()) fn1 = () => {
+    (function() returns ()) fn1 = function() {
         io:println("Exit hook one invoked");
     };
     runtime:addExitHook(fn1);
 
-    var fn2 = () => {
+    var fn2 = function() {
         io:println("Exit hook two invoked with var : ", a);
     };
 
