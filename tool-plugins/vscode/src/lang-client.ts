@@ -70,4 +70,9 @@ export class ExtendedLangClient extends LanguageClient {
     fetchExamples(args: BallerinaExampleListRequest = {}): Thenable<BallerinaExampleListResponse> {
         return this.sendRequest("ballerinaExample/list", args);
     }
+
+    getEndpoints(): Thenable<Array<any>> {
+        return this.sendRequest("ballerinaSymbol/endpoints", {})
+                    .then((resp: any) => resp.endpoints);
+    }
 }

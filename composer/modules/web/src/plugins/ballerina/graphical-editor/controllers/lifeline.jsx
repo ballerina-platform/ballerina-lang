@@ -179,11 +179,16 @@ class RightCtrl extends React.Component {
     }
 
     showEndpoints() {
-        getEndpoints().then((packages) => {
+        // give priority to getEndpoints method
+        // provided via context
+        const getEPs = this.context.getEndpoints
+                        ? this.context.getEndpoints
+                        : getEndpoints;
+        getEPs().then((endpoints) => {
             const suggestionsMap = {};
-            packages.forEach((pkg) => {
-                const pkgname = pkg.packageName;
-                const endpoint = pkg.name;
+            endpoints.forEach((ep) => {
+                const pkgname = ep.packageName;
+                const endpoint = ep.name;
                 if (endpoint.includes('Listener')) {
                     return;
                 }
@@ -192,7 +197,7 @@ class RightCtrl extends React.Component {
                     endpoint,
                     packageName: pkgname,
                     fullPackageName: pkgname,
-                    orgName: pkg.orgName,
+                    orgName: ep.orgName,
                 };
             });
             const suggestions = _.values(suggestionsMap);
@@ -308,6 +313,7 @@ RightCtrl.contextTypes = {
     config: PropTypes.instanceOf(Object),
     editor: PropTypes.instanceOf(Object).isRequired,
     astRoot: PropTypes.instanceOf(Object).isRequired,
+    getEndpoints: PropTypes.func,
 };
 
 class ActionBox extends React.Component {

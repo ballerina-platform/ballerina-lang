@@ -9,7 +9,7 @@ export function getLibraryWebViewContent(context: ExtensionContext,
         body: string, scripts: string, styles: string) {
     const resourceRoot = getWebViewResourceRoot(context).toString();
     const diagramResourceRoot = process.env.DIAGRAM_DEBUG === "true" 
-                ? 'http://localhost:8081'
+                ? process.env.DIAGRAM_DEV_HOST
                 : `${resourceRoot}/diagram`;
     return `
     <!DOCTYPE html>

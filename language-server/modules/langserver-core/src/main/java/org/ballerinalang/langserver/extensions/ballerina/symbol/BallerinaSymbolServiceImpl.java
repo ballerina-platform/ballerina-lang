@@ -61,6 +61,7 @@ public class BallerinaSymbolServiceImpl implements BallerinaSymbolService {
                 String orgName = packageIDDTO.getOrgName();
                 List<Endpoint> endpointsList = allEndpoints
                         .stream()
+                        .filter(endpoint -> endpoint.getPackageId() == packageIDDTO.getId())
                         .map(bObjectTypeSymbolDTO -> new Endpoint(bObjectTypeSymbolDTO.getName(), pkgName, orgName))
                         .collect(Collectors.toList());
                 endpoints.addAll(endpointsList);
