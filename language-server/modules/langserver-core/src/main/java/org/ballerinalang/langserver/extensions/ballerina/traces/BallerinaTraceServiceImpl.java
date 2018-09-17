@@ -1,6 +1,5 @@
 package org.ballerinalang.langserver.extensions.ballerina.traces;
 
-import com.google.gson.JsonObject;
 import org.ballerinalang.langserver.BallerinaLanguageServer;
 import org.ballerinalang.langserver.LSGlobalContext;
 import org.ballerinalang.langserver.LSGlobalContextKeys;
@@ -18,18 +17,17 @@ public class BallerinaTraceServiceImpl implements BallerinaTraceService {
     private final BallerinaLanguageServer ballerinaLanguageServer;
     private final WorkspaceDocumentManager documentManager;
 
-
     public BallerinaTraceServiceImpl(LSGlobalContext globalContext) {
         this.ballerinaLanguageServer = globalContext.get(LSGlobalContextKeys.LANGUAGE_SERVER_KEY);
         this.documentManager = globalContext.get(LSGlobalContextKeys.DOCUMENT_MANAGER_KEY);
     }
 
     @Override
-    public void pushLogToClient(JsonObject o) {
+    public void pushLogToClient(TraceRecord traceRecord) {
         ExtendedLanguageClient client = this.ballerinaLanguageServer.getClient();
         if (client == null) {
             return;
         }
-        client.traceLogs(o);
+        client.traceLogs(traceRecord);
     }
 }

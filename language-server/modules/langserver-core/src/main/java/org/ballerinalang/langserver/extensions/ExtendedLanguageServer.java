@@ -29,6 +29,8 @@ import org.eclipse.lsp4j.services.LanguageServer;
 public interface ExtendedLanguageServer extends LanguageServer {
     @JsonDelegate
     BallerinaDocumentService getBallerinaDocumentService();
+    @JsonDelegate
     BallerinaExampleService getBallerinaExampleService();
+    @JsonDelegate
     BallerinaTraceService getBallerinaTraceService();
 }

@@ -45,10 +45,10 @@ public class Main {
     public static void startServer(InputStream in, OutputStream out)
             throws InterruptedException, ExecutionException {
         BallerinaLanguageServer server = new BallerinaLanguageServer();
-        Launcher<ExtendedLanguageClient> l = Launcher.createLauncher(server, ExtendedLanguageClient.class, in, out);
-        ExtendedLanguageClient client = l.getRemoteProxy();
+        Launcher<ExtendedLanguageClient> launcher = Launcher.createLauncher(server, ExtendedLanguageClient.class, in, out);
+        ExtendedLanguageClient client = launcher.getRemoteProxy();
         server.connect(client);
-        Future<?> startListening = l.startListening();
+        Future<?> startListening = launcher.startListening();
         startListening.get();
     }
 }

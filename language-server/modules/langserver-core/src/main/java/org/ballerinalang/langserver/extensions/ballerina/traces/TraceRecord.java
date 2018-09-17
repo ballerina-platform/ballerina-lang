@@ -14,16 +14,31 @@
  * limitations under the License.
  */
 
-package org.ballerinalang.langserver.client;
-
-import org.ballerinalang.langserver.extensions.ballerina.traces.TraceRecord;
-import org.eclipse.lsp4j.jsonrpc.services.JsonNotification;
-import org.eclipse.lsp4j.services.LanguageClient;
+package org.ballerinalang.langserver.extensions.ballerina.traces;
 
 /**
- * Extended Language Client interface.
+ * Model class for trace log.
  */
-public interface ExtendedLanguageClient extends LanguageClient {
-    @JsonNotification("window/traceLogs")
-    void traceLogs(TraceRecord rawTrace);
+public class TraceRecord {
+    private Trace meta;
+    private String record;
+
+    TraceRecord(Trace meta, String record) {
+        this.setMeta(meta);
+        this.setRecord(record);
+    }
+
+    public void setMeta(Trace meta) {
+        this.meta = meta;
+    }
+    public Trace getMeta() {
+        return meta;
+    }
+    public String getRecord() {
+        return record;
+    }
+
+    public void setRecord(String record) {
+        this.record = record;
+    }
 }

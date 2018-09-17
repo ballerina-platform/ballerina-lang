@@ -16,15 +16,6 @@
 
 package org.ballerinalang.langserver.extensions.ballerina.traces;
 
-import com.google.gson.Gson;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
-
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
-import java.net.ServerSocket;
-import java.net.Socket;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -32,10 +23,6 @@ import java.util.regex.Pattern;
  * LogParser.
  */
 public class LogParser {
-
-    static LogParser logParserInstance;
-    static ServerSocket listenSocket;
-    static BufferedReader logReader;
 
     static final Pattern ID_PATTERN = Pattern.compile("id: ([a-z0-9]*)");
     static final Pattern DIRECTION = Pattern.compile("(INBOUND|OUTBOUND)");
@@ -45,115 +32,42 @@ public class LogParser {
             + " ([^\\s]+)");
     static final Pattern CONTENT_TYPE = Pattern.compile("(?:content-type): ?(.*)",  Pattern.CASE_INSENSITIVE);
 
-    public static LogParser getLogParserInstance() {
-        if (logParserInstance == null) {
-            logParserInstance = new LogParser();
-        }
-        return logParserInstance;
-    }
-
-    public void startListener(BallerinaTraceServiceImpl ballerinaTraceService) {
-        try {
-            listenSocket = new ServerSocket(5010);
-            Socket dataSocket = listenSocket.accept();
-            logReader = new BufferedReader(new InputStreamReader(dataSocket.getInputStream()));
-            String line;
-            while ((line = logReader.readLine()) != null) {
-                try {
-                    JsonElement jelement = new JsonParser().parse(line);
-                    JsonObject jobject = jelement.getAsJsonObject();
-                    String rawRecord;
-                    try {
-                        rawRecord = jobject.get("record").getAsJsonObject().get("message").getAsString();
-                    } catch (Exception e) {
-                        rawRecord = jelement.getAsString();
-                    }
-                    jobject.addProperty("meta", parseLogLine(rawRecord));
-                    ballerinaTraceService.pushLogToClient(jobject);
-                } catch (Exception e) {
-                    // do nothing
-                }
-            }
-        } catch (Exception e) {
-            stopListner();
-        }
-    }
-
-    public void stopListner() {
-        try {
-            if (logReader != null) {
-                logReader.close();
-            }
-            listenSocket.close();
-        } catch (Exception e) {
-            // do nothing
-        }
-    }
-
-    private String getId(String logLine) {
+    private static String getId(String logLine) {
         Matcher matcher = ID_PATTERN.matcher(logLine);
-        if (matcher.find()) {
-            return matcher.group(1);
-        } else {
-            return "";
-        }
+        return matcher.find() ? matcher.group(1) : "";
     }
 
-    private String getDirection(String logLine) {
+    private static String getDirection(String logLine) {
         Matcher matcher = DIRECTION.matcher(logLine);
-        if (matcher.find()) {
-            return matcher.group(1);
-        } else {
-            return "";
-        }
+        return matcher.find() ? matcher.group(1) : "";
     }
 
-    private String getHeaderType(String logLine) {
+    private static String getHeaderType(String logLine) {
         Matcher matcher = HEADER.matcher(logLine);
-        if (matcher.find()) {
-            return matcher.group(1);
-        } else {
-            return "";
-        }
+        return matcher.find() ? matcher.group(1) : "";
     }
 
-    private String getHeader(String logLine) {
+    private static String getHeader(String logLine) {
         Matcher matcher = HEADER.matcher(logLine);
-        if (matcher.find()) {
-            return matcher.group(2);
-        } else {
-            return "";
-        }
+        return matcher.find() ? matcher.group(2) : "";
     }
 
-    private String getHttpMethod(String logLine) {
+    private static String getHttpMethod(String logLine) {
         Matcher matcher = HTTP_METHOD.matcher(logLine);
-        if (matcher.find()) {
-            return matcher.group(1);
-        } else {
-            return "";
-        }
+        return matcher.find() ? matcher.group(1) : "";
     }
 
-    private String getPath(String logLine) {
+    private static String getPath(String logLine) {
         Matcher matcher = PATH.matcher(logLine);
-        if (matcher.find()) {
-            return matcher.group(1);
-        } else {
-            return "";
-        }
+        return matcher.find() ? matcher.group(1) : "";
     }
 
-    private String getContentType(String logLine) {
+    private static String getContentType(String logLine) {
         Matcher matcher = CONTENT_TYPE.matcher(logLine);
-        if (matcher.find()) {
-            return matcher.group(1);
-        } else {
-            return "";
-        }
+        return matcher.find() ? matcher.group(1) : "";
     }
 
-    private String getPayload(String header) {
+    private static String getPayload(String header) {
         int startIndex = header.lastIndexOf("\n");
         if (startIndex != -1 && startIndex != header.length()) {
             return header.substring(startIndex + 1);
@@ -167,14 +81,17 @@ public class LogParser {
      * @param payload String
      * @return header String
      */
-    private String removePayload(String header, String payload) {
+    private static String removePayload(String header, String payload) {
         return header.substring(0, header.length() - payload.length());
     }
 
-    private String parseLogLine(String logLine) {
-
-        Gson gson = new Gson();
-        LogDTO log = new LogDTO();
+    /**
+     *
+     * @param logLine String
+     * @return log Trace
+     */
+    static Trace parseLogLine(String logLine) {
+        Trace log = new Trace();
         log.setId(getId(logLine));
         log.setDirection(getDirection(logLine));
         String header = getHeader(logLine);
@@ -186,8 +103,6 @@ public class LogParser {
         log.setHttpMethod(getHttpMethod(logLine));
         log.setPath(getPath(logLine));
         log.setPayload(payload);
-
-        String json = gson.toJson(log);
-        return json;
+        return log;
     }
 }

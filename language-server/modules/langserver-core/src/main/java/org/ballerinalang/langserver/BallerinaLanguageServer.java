@@ -28,7 +28,7 @@ import org.ballerinalang.langserver.extensions.ballerina.example.BallerinaExampl
 import org.ballerinalang.langserver.extensions.ballerina.example.BallerinaExampleServiceImpl;
 import org.ballerinalang.langserver.extensions.ballerina.traces.BallerinaTraceService;
 import org.ballerinalang.langserver.extensions.ballerina.traces.BallerinaTraceServiceImpl;
-import org.ballerinalang.langserver.extensions.ballerina.traces.LogParser;
+import org.ballerinalang.langserver.extensions.ballerina.traces.Listener;
 import org.ballerinalang.langserver.index.LSIndexImpl;
 import org.eclipse.lsp4j.CompletionOptions;
 import org.eclipse.lsp4j.ExecuteCommandOptions;
@@ -56,6 +56,7 @@ public class BallerinaLanguageServer implements ExtendedLanguageServer, Extended
     private BallerinaDocumentService ballerinaDocumentService;
     private BallerinaExampleService ballerinaExampleService;
     private BallerinaTraceServiceImpl ballerinaTraceService;
+    private Listener ballerinaTraceListener;
     private int shutdown = 1;
 
     public BallerinaLanguageServer() {
@@ -74,8 +75,8 @@ public class BallerinaLanguageServer implements ExtendedLanguageServer, Extended
         workspaceService = new BallerinaWorkspaceService(lsGlobalContext);
         ballerinaDocumentService = new BallerinaDocumentServiceImpl(lsGlobalContext);
         ballerinaExampleService = new BallerinaExampleServiceImpl(lsGlobalContext);
-
         ballerinaTraceService = new BallerinaTraceServiceImpl(lsGlobalContext);
+        ballerinaTraceListener = new Listener(ballerinaTraceService);
     }
     
     public ExtendedLanguageClient getClient() {
@@ -107,14 +108,13 @@ public class BallerinaLanguageServer implements ExtendedLanguageServer, Extended
         res.getCapabilities().setRenameProvider(true);
         res.getCapabilities().setWorkspaceSymbolProvider(true);
 
-        new Thread(() -> LogParser.getLogParserInstance().startListener(ballerinaTraceService)).start();
-
+        ballerinaTraceListener.startListener();
         return CompletableFuture.supplyAsync(() -> res);
     }
 
     public CompletableFuture<Object> shutdown() {
         shutdown = 0;
-        LogParser.getLogParserInstance().stopListner();
+        ballerinaTraceListener.stopListener();
         LSIndexImpl.getInstance().closeConnection();
         return CompletableFuture.supplyAsync(Object::new);
     }

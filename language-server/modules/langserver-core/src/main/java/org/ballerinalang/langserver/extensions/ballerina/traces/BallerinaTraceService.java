@@ -1,6 +1,5 @@
 package org.ballerinalang.langserver.extensions.ballerina.traces;
 
-import com.google.gson.JsonObject;
 import org.eclipse.lsp4j.jsonrpc.services.JsonNotification;
 import org.eclipse.lsp4j.jsonrpc.services.JsonSegment;
 /**
@@ -10,5 +9,6 @@ import org.eclipse.lsp4j.jsonrpc.services.JsonSegment;
 public interface BallerinaTraceService {
 
     @JsonNotification("pushLogToClient")
-    void pushLogToClient(JsonObject o);
+    void pushLogToClient(TraceRecord traceRecord);
+
 }
