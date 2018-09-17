@@ -65,6 +65,8 @@ public class GrpcConstants {
     public static final String REQUEST_SENDER = "REQUEST_SENDER";
     public static final String GRPC_CLIENT = "GrpcClient";
     public static final String REQUEST_MESSAGE_DEFINITION = "REQUEST_DEFINITION";
+    public static final String REGEX_DOT_SEPERATOR = "\\.";
+    public static final String DOT = ".";
 
     public static final String CLIENT = "Client";
     public static final String ANN_RESOURCE_CONFIG = "ResourceConfig";

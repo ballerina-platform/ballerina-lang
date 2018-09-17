@@ -20,7 +20,7 @@ function testEnum() returns (string) {
         url:"http://localhost:8555"
     };
 
-    orderInfo orderReq = {id:"100500", mode:r};
+    orderInfo orderReq = { id:"100500", mode:r };
     var addResponse = blockingEp->testEnum(orderReq);
     match addResponse {
         (string, grpc:Headers) payload => {

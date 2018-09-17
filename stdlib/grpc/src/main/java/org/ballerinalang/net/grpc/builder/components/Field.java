@@ -18,8 +18,12 @@
 package org.ballerinalang.net.grpc.builder.components;
 
 import com.google.protobuf.DescriptorProtos;
+
 import java.util.HashMap;
 import java.util.Map;
+
+import static org.ballerinalang.net.grpc.GrpcConstants.DOT;
+import static org.ballerinalang.net.grpc.GrpcConstants.REGEX_DOT_SEPERATOR;
 
 /**
  * Field definition bean class.
@@ -68,8 +72,8 @@ public class Field {
         public Field build() {
             String fieldType = FIELD_TYPE_MAP.get(fieldDescriptor.getType()) != null ? FIELD_TYPE_MAP.get
                     (fieldDescriptor.getType()) : fieldDescriptor.getTypeName();
-            if (fieldType.startsWith(".")) {
-                String[] fieldTypeArray = fieldType.split(("\\."));
+            if (fieldType.startsWith(DOT)) {
+                String[] fieldTypeArray = fieldType.split(REGEX_DOT_SEPERATOR);
                 fieldType = fieldTypeArray[fieldTypeArray.length - 1];
             }
             String fieldLabel = FIELD_LABEL_MAP.get(fieldDescriptor.getLabel());
