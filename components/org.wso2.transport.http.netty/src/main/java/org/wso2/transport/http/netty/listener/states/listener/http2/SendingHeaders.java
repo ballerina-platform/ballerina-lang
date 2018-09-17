@@ -28,7 +28,7 @@ import org.wso2.transport.http.netty.message.Http2HeadersFrame;
 import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 
 /**
- * State between start and end of outbound response headers write
+ * State between start and end of outbound response headers write.
  */
 public class SendingHeaders implements ListenerState {
 

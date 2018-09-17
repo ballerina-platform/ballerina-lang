@@ -27,7 +27,7 @@ import org.wso2.transport.http.netty.message.Http2HeadersFrame;
 import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 
 /**
- * State between start and end of outbound response entity body write
+ * State between start and end of outbound response or push response entity body write.
  */
 public class SendingEntityBody implements ListenerState {
 

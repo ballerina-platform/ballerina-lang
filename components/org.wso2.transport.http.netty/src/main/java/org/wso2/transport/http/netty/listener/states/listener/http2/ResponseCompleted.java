@@ -28,7 +28,7 @@ import org.wso2.transport.http.netty.message.Http2HeadersFrame;
 import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 
 /**
- * State of successfully written response
+ * State of successfully written outbound response or push response.
  */
 public class ResponseCompleted implements ListenerState {
 

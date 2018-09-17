@@ -32,7 +32,7 @@ import org.wso2.transport.http.netty.message.Http2HeadersFrame;
 import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 
 /**
- * State between start and end of payload read
+ * State between start and end of inbound request payload read.
  */
 public class ReceivingEntityBody implements ListenerState {
 
