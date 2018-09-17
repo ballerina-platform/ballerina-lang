@@ -47,7 +47,7 @@ public class ExtendedWorkspaceDocumentManagerImplTest {
                 .resolve("singlepackage").resolve("io-sample.bal");
     }
 
-    @Test
+    @Test(enabled = false)
     public void testOpenFile() throws IOException, WorkspaceDocumentException {
         // Call open file
         Optional<Lock> lock = Optional.empty();
@@ -67,13 +67,13 @@ public class ExtendedWorkspaceDocumentManagerImplTest {
         Assert.assertNotNull(foundPath);
     }
 
-    @Test(dependsOnMethods = "testOpenFile")
+    @Test(dependsOnMethods = "testOpenFile", enabled = false)
     public void testOpenFileOnAlreadyOpenFile() throws IOException, WorkspaceDocumentException {
         // Call open file on already open file
         documentManager.openFile(filePath, readAll(filePath.toFile()));
     }
 
-    @Test(dependsOnMethods = "testOpenFile")
+    @Test(dependsOnMethods = "testOpenFile", enabled = false)
     public void testGetAllFilePaths() {
         Set<Path> allFilePaths = documentManager.getAllFilePaths();
         //  Test returned list size is one
@@ -89,7 +89,7 @@ public class ExtendedWorkspaceDocumentManagerImplTest {
         Assert.assertTrue(foundFile);
     }
 
-    @Test(dependsOnMethods = "testOpenFile")
+    @Test(dependsOnMethods = "testOpenFile", enabled = false)
     public void testIsFileOpen() throws WorkspaceDocumentException, IOException {
         // Test is file open returns false
         documentManager.closeFile(filePath);
@@ -99,7 +99,7 @@ public class ExtendedWorkspaceDocumentManagerImplTest {
         Assert.assertTrue(documentManager.isFileOpen(filePath));
     }
 
-    @Test(dependsOnMethods = "testGetAllFilePaths")
+    @Test(dependsOnMethods = "testGetAllFilePaths", enabled = false)
     public void testGetFileContent() throws IOException, WorkspaceDocumentException {
         // Read Actual content
         String expectedContent = readAll(filePath.toFile());
@@ -109,7 +109,7 @@ public class ExtendedWorkspaceDocumentManagerImplTest {
         Assert.assertEquals(actualContent, expectedContent);
     }
 
-    @Test(dependsOnMethods = "testGetFileContent")
+    @Test(dependsOnMethods = "testGetFileContent", enabled = false)
     public void testUpdateFile() throws IOException, WorkspaceDocumentException {
         String updateContent = readAll(filePath.toFile()) + "\nfunction foo(){\n}\n";
         // Update the file
@@ -125,7 +125,7 @@ public class ExtendedWorkspaceDocumentManagerImplTest {
         Assert.assertEquals(actualContent, updateContent);
     }
 
-    @Test(dependsOnMethods = "testUpdateFile")
+    @Test(dependsOnMethods = "testUpdateFile", enabled = false)
     public void testLockFile() {
         Optional<Lock> lock = Optional.empty();
         try {
@@ -136,24 +136,24 @@ public class ExtendedWorkspaceDocumentManagerImplTest {
         }
     }
 
-    @Test(dependsOnMethods = "testLockFile")
+    @Test(dependsOnMethods = "testLockFile", enabled = false)
     public void testCloseFile() throws WorkspaceDocumentException {
         documentManager.closeFile(filePath);
         boolean fileOpen = documentManager.isFileOpen(filePath);
         Assert.assertFalse(fileOpen);
     }
 
-    @Test(dependsOnMethods = "testCloseFile", expectedExceptions = WorkspaceDocumentException.class)
+    @Test(dependsOnMethods = "testCloseFile", expectedExceptions = WorkspaceDocumentException.class, enabled = false)
     public void testGetFileContentOnNonExistentFile() throws WorkspaceDocumentException {
         documentManager.getFileContent(filePath.resolve("non-existent"));
     }
 
-    @Test(dependsOnMethods = "testCloseFile")
+    @Test(dependsOnMethods = "testCloseFile", enabled = false)
     public void testUpdateFileOnClosedFile() throws WorkspaceDocumentException {
         documentManager.updateFile(filePath, "");
     }
 
-    @Test(dependsOnMethods = "testCloseFile")
+    @Test(dependsOnMethods = "testCloseFile", enabled = false)
     public void testExplicitMode() throws WorkspaceDocumentException {
         String newContent = "test";
         Optional<Lock> lock = documentManager.enableExplicitMode(filePath);
