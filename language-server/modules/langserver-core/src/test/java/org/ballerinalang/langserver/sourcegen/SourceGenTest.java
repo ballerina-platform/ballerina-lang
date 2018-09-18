@@ -65,21 +65,27 @@ public class SourceGenTest {
     @Test(description = "Source gen test suit", dataProvider = "exampleFiles")
     public void sourceGenTests(File file) throws IOException, WorkspaceDocumentException, JSONGenerationException {
         LSServiceOperationContext formatContext = new LSServiceOperationContext();
-        Path filePath = Paths.get(file.getPath());
-        formatContext.put(DocumentServiceKeys.FILE_URI_KEY, filePath.toUri().toString());
+        try {
+            Path filePath = Paths.get(file.getPath());
+            formatContext.put(DocumentServiceKeys.FILE_URI_KEY, filePath.toUri().toString());
 
-        WorkspaceDocumentManager documentManager = WorkspaceDocumentManagerImpl.getInstance();
-        byte[] encoded1 = Files.readAllBytes(filePath);
-        String expected = new String(encoded1);
-        TestUtil.openDocument(serviceEndpoint, filePath);
-        LSCompiler lsCompiler = new LSCompiler(documentManager);
-        JsonObject ast = TextDocumentFormatUtil.getAST(filePath.toUri().toString(), lsCompiler, documentManager,
-                                                       formatContext);
-        SourceGen sourceGen = new SourceGen(0);
-        sourceGen.build(ast.getAsJsonObject("model"), null, "CompilationUnit");
-        String actual = sourceGen.getSourceOf(ast.getAsJsonObject("model"), false, false);
-        TestUtil.closeDocument(serviceEndpoint, filePath);
-        Assert.assertEquals(actual, expected, "Generated source didn't match the expected");
+            WorkspaceDocumentManager documentManager = WorkspaceDocumentManagerImpl.getInstance();
+            byte[] encoded1 = Files.readAllBytes(filePath);
+            String expected = new String(encoded1);
+            TestUtil.openDocument(serviceEndpoint, filePath);
+            LSCompiler lsCompiler = new LSCompiler(documentManager);
+            JsonObject ast = TextDocumentFormatUtil.getAST(filePath.toUri().toString(), lsCompiler, documentManager,
+                    formatContext);
+            SourceGen sourceGen = new SourceGen(0);
+            sourceGen.build(ast.getAsJsonObject("model"), null, "CompilationUnit");
+            String actual = sourceGen.getSourceOf(ast.getAsJsonObject("model"), false, false);
+            TestUtil.closeDocument(serviceEndpoint, filePath);
+            Assert.assertEquals(actual, expected, "Generated source didn't match the expected for file: " +
+                    file.getName());
+        } catch (Exception e) {
+            Assert.fail("Exception occurred while processing file: " + file.getName() + "\nException:" +
+                    e.toString());
+        }
     }
 
     @AfterClass
