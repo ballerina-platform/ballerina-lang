@@ -26,7 +26,7 @@ service<http:Service> differentStatusCodes bind {port : 9223} {
         path:"/okWithBody"
     }
     sendOKWithBody (endpoint caller, http:Request req) {
-        _ = caller->ok("OK Response");
+        _ = caller->ok(message = "OK Response");
     }
 
     @http:ResourceConfig {
@@ -34,7 +34,7 @@ service<http:Service> differentStatusCodes bind {port : 9223} {
         path:"/okWithoutBody"
     }
     sendOKWithoutBody (endpoint caller, http:Request req) {
-        _ = caller->ok(());
+        _ = caller->ok();
     }
 
     @http:ResourceConfig {
@@ -75,8 +75,9 @@ service<http:Service> differentStatusCodes bind {port : 9223} {
     }
     sendNoContentWithBody (endpoint caller, http:Request req) {
         http:Response res = new;
+        res.setHeader("x-custom-header", "custom-header-value");
         res.setPayload(xml `<test>No Content</test>`);
-        _ = caller -> noContent(message = res); //Body will be removed internally by ballerina
+        _ = caller -> noContent(message = res); //Body will be removed
     }
 
     @http:ResourceConfig {

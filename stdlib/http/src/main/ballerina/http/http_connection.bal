@@ -87,9 +87,9 @@ public type Connection object {
     # Sends the outbound response to the caller with the status 200 OK.
     #
     # + message - The outbound response or any payload of type `string`, `xml`, `json`, `byte[]`, `io:ByteChannel`
-    #             or `mime:Entity[]`
+    #             or `mime:Entity[]`. This message is optional.
     # + return - Returns an `error` if failed to respond
-    public function ok(Response|string|xml|json|byte[]|io:ByteChannel|mime:Entity[]|() message) returns error?;
+    public function ok(Response|string|xml|json|byte[]|io:ByteChannel|mime:Entity[]|() message = ()) returns error?;
 
     # Sends the outbound response to the caller with the status 201 Created.
     #
@@ -188,7 +188,7 @@ function Connection::redirect(Response response, RedirectCode code, string[] loc
     return self.respond(response);
 }
 
-function Connection::ok(Response|string|xml|json|byte[]|io:ByteChannel|mime:Entity[]|() message) returns error? {
+function Connection::ok(Response|string|xml|json|byte[]|io:ByteChannel|mime:Entity[]|() message = ()) returns error? {
     Response response = buildResponse(message);
     response.statusCode = OK_200;
     return self.respond(response);
@@ -215,19 +215,6 @@ function Connection::noContent(Response|() message = ()) returns error? {
         Response response => {newResponse = response;}
     }
     newResponse.statusCode = NO_CONTENT_204;
-
-    //New entity will not have any body associated with it.
-    mime:Entity newEntity = new;
-    string[] headerNames = untaint newResponse.getHeaderNames();
-    foreach headerName in headerNames {
-        string[] headerValues = newResponse.getHeaders(headerName);
-        foreach (headerValue in headerValues) {
-            newEntity.addHeader(headerName, headerValue);
-        }
-    }
-    newEntity.removeHeader(TRANSFER_ENCODING);
-    newEntity.removeHeader(CONTENT_LENGTH);
-    newResponse.setEntity(newEntity);
     return self.respond(newResponse);
 }
 

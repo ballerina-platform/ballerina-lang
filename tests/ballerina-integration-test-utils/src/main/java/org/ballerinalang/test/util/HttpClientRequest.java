@@ -78,6 +78,19 @@ public class HttpClientRequest {
     }
 
     /**
+     * Sends an HTTP GET request to a url. In case of IOException, instead of printing the stacktrace that error
+     * will get bubbled up to the caller.
+     *
+     * @param requestUrl The URL of the service. (Example: "http://www.yahoo.com/search?params=value")
+     * @param throwError Boolean representing whether the error should be thrown instead of printing the stack trace
+     * @return HttpResponse from the end point
+     * @throws IOException If an error occurs while sending the GET request or in case an error response is received
+     */
+    public static HttpResponse doGet(String requestUrl, boolean throwError) throws IOException {
+        return executeRequestWithoutRequestBody(TestConstant.HTTP_METHOD_GET, requestUrl, new HashMap<>(), throwError);
+    }
+
+    /**
      * Send an HTTP POST request to a service.
      *
      * @param endpoint - service endpoint
@@ -163,6 +176,12 @@ public class HttpClientRequest {
                 defaultResponseBuilder);
     }
 
+    private static HttpResponse executeRequestWithoutRequestBody(String method, String requestUrl, Map<String
+            , String> headers, boolean throwError) throws IOException {
+        return executeRequestWithoutRequestBody(method, requestUrl, headers, DEFAULT_READ_TIMEOUT,
+                defaultResponseBuilder, throwError);
+    }
+
     private static HttpResponse executeRequestWithoutRequestBody(String method, String requestUrl,
             Map<String, String> headers, int readTimeout, CheckedFunction responseBuilder) throws IOException {
         HttpURLConnection conn = null;
@@ -171,6 +190,23 @@ public class HttpClientRequest {
             setHeadersAndMethod(conn, headers, method);
             conn.connect();
             return buildResponse(conn, responseBuilder);
+        } finally {
+            if (conn != null) {
+                conn.disconnect();
+            }
+        }
+    }
+
+    private static HttpResponse executeRequestWithoutRequestBody(String method, String requestUrl,
+                                                                 Map<String, String> headers, int readTimeout,
+                                                                 CheckedFunction responseBuilder, boolean throwError)
+            throws IOException {
+        HttpURLConnection conn = null;
+        try {
+            conn = getURLConnection(requestUrl, readTimeout);
+            setHeadersAndMethod(conn, headers, method);
+            conn.connect();
+            return buildResponse(conn, responseBuilder, throwError);
         } finally {
             if (conn != null) {
                 conn.disconnect();
@@ -240,6 +276,27 @@ public class HttpClientRequest {
                 sb.append(line);
             }
             responseData = sb.toString();
+        } finally {
+            if (rd != null) {
+                rd.close();
+            }
+        }
+        Map<String, String> responseHeaders = readHeaders(conn);
+        httpResponse = new HttpResponse(responseData, conn.getResponseCode(), responseHeaders);
+        httpResponse.setResponseMessage(conn.getResponseMessage());
+        return httpResponse;
+    }
+
+    private static HttpResponse buildResponse(HttpURLConnection conn,
+                                              CheckedFunction<BufferedReader, String> responseBuilder,
+                                              boolean throwError) throws IOException {
+        HttpResponse httpResponse;
+        BufferedReader rd = null;
+        String responseData;
+        try {
+            rd = new BufferedReader(new InputStreamReader(conn.getInputStream()
+                    , Charset.defaultCharset()));
+            responseData = responseBuilder.apply(rd);
         } finally {
             if (rd != null) {
                 rd.close();
