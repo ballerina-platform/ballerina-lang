@@ -163,15 +163,16 @@ class RightCtrl extends React.Component {
                 if (!importFound && `${orgName}/${pkgName}` !== 'ballerina/builtin') {
                     const importNodeCode = `\nimport ${orgName}/${pkgName};`;
                     const fragment = FragmentUtils.createTopLevelNodeFragment(importNodeCode);
-                    const newImportNode = FragmentUtils.parseFragment(fragment);
-                    this.context.astRoot.addImport(TreeBuilder.build(newImportNode));
+                    FragmentUtils.parseFragment(fragment)
+                        .then((newImportNode) => {
+                            this.context.astRoot.addImport(TreeBuilder.build(newImportNode));
+                        });
                 }
             } catch (err) {
                 log.error('Error while adding import', err);
             }
         }
-        const node = DefaultNodeFactory.createEndpoint(item.suggestion);
-        this.props.model.acceptDrop(node);
+        DefaultNodeFactory.createEndpoint(item.suggestion).then(node => this.props.model.acceptDrop(node));
     }
 
     getSuggestionValue(suggestion) {

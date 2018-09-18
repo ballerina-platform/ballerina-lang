@@ -127,13 +127,21 @@ function renderDiagram(context: ExtensionContext, docUri: Uri, jsonModelObj: Bal
             })
         }
 
+        function parseFragment(fragment) {
+            return new Promise((resolve, reject) => {
+                webViewRPCHandler.invokeRemoteMethod('parseFragment', [fragment], (resp) => {
+                    resolve(resp);
+                });
+            })
+        }
+
         function drawDiagram() {
             try {
                 let width = window.innerWidth - 6;
                 let height = window.innerHeight;
                 console.log('rendering ' + width);
                 ballerinaDiagram.renderEditableDiagram(document.getElementById("diagram"), docUri,
-                    width, height, getAST, onChange, getEndpoints
+                    width, height, getAST, onChange, getEndpoints, parseFragment
                 );
                 console.log('Successfully rendered');
             } catch(e) {

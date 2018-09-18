@@ -29,6 +29,7 @@ import SamplesList from './samples/List';
 import Diagram from 'plugins/ballerina/diagram/diagram.jsx';
 import DesignView from 'plugins/ballerina/views/design-view.jsx';
 import TreeBuilder from 'plugins/ballerina/model/tree-builder.js';
+import FragmentUtils from 'plugins/ballerina/utils/fragment-utils';
 import '../src/ballerina-theme/semantic.less';
 
 const BalDiagram = DragDropContext(HTML5Backend)(Diagram);
@@ -58,6 +59,9 @@ class BallerinaDiagram extends React.Component {
             editMode: true,
             diagramMode: 'action',
         };
+        if (props.parseFragment) {
+            FragmentUtils.setParseFragmentFn(props.parseFragment);
+        }
     }
 
     getChildContext() {
@@ -150,12 +154,14 @@ BallerinaDiagram.propTypes = {
     width: PropTypes.number.isRequired,
     height: PropTypes.number.isRequired,
     getEndpoints: PropTypes.func,
+    parseFragment: PropTypes.func,
 };
 
 function renderEditableDiagram(target, docUri, width, height,
     getAST = () => Promise.resolve({}),
     onChange = () => {},
-    getEndpoints) {
+    getEndpoints,
+    parseFragment) {
     const props = {
         getAST,
         onChange,
@@ -163,6 +169,7 @@ function renderEditableDiagram(target, docUri, width, height,
         width,
         height,
         getEndpoints,
+        parseFragment,
     };
     target.classList.add('composer-library');
     const BalDiagramElement = createElement(BallerinaDiagram, props);
