@@ -138,9 +138,8 @@ public class BuildCommand implements BLauncherCmd {
             } else if (Files.isDirectory(sourceRootPath)) { // If the source is a package from a project
                 // Checks if the source is a package and if its inside a project (with a .ballerina folder)
                 if (Files.isDirectory(resolvedFullPath) && !RepoUtils.hasProjectRepo(sourceRootPath)) {
-                    throw LauncherUtils.createLauncherException("error: do you mean to build the ballerina package " +
-                                                                "as a project? If so run 'ballerina build' from " +
-                                                                        "within the project");
+                    throw LauncherUtils.createLauncherException("did you mean to build the package ? If so build " +
+                                                                        "from the project folder");
                 }
                 // If we are trying to run a bal file inside a package from a project directory an error is thrown.
                 // To differentiate between top level bals and bals inside packages we need to check if the parent of
@@ -150,14 +149,14 @@ public class BuildCommand implements BLauncherCmd {
                         parentPath != null) {
                     Path fileName = parentPath.getFileName();
                     String srcPkgName = fileName != null ? fileName.toString() : "";
-                    throw LauncherUtils.createLauncherException("error: you are trying to build a ballerina file " +
-                                                                "inside a package within a project. Try running " +
+                    throw LauncherUtils.createLauncherException("you are trying to build a ballerina file inside a " +
+                                                                        "package within a project. Try running " +
                                                                         "'ballerina build <package-name>'");
                 }
             } else {
                 // Invalid source file provided
-                throw LauncherUtils.createLauncherException("error: invalid Ballerina source path, it should either " +
-                                                            "be a directory or a file  with a \'"
+                throw LauncherUtils.createLauncherException("invalid Ballerina source path, it should either be a " +
+                                                                    "directory or a file  with a \'"
                                                             + BLangConstants.BLANG_SRC_FILE_SUFFIX + "\' extension");
             }
             BuilderUtils.compileWithTestsAndWrite(sourceRootPath, pkgName, targetFileName, buildCompiledPkg,
