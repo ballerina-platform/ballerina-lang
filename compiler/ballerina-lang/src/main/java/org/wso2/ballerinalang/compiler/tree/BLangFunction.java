@@ -43,7 +43,6 @@ public class BLangFunction extends BLangInvokableNode implements FunctionNode {
     public boolean attachedOuterFunction;
     public boolean objInitFunction;
 
-    // TODO: Remove this. Use INTERFACE flag or body != null instead.
     public boolean interfaceFunction;
 
     public Set<BVarSymbol> closureVarSymbols =  new LinkedHashSet<>();

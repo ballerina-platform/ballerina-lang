@@ -432,8 +432,8 @@ public class Types {
         }
 
         return Symbols.isPrivate(lhsType.tsymbol) && rhsType.tsymbol.pkgID == lhsType.tsymbol.pkgID ?
-                checkEquivalencyOfTwoPrivateStructs(lhsType, rhsType, unresolvedTypes) :
-                checkEquivalencyOfPublicStructs(lhsType, rhsType, unresolvedTypes);
+                checkPrivateObjectEquivalency(lhsType, rhsType, unresolvedTypes) :
+                checkPublicObjectEquivalency(lhsType, rhsType, unresolvedTypes);
     }
 
     public boolean checkRecordEquivalency(BRecordType rhsType, BRecordType lhsType) {
@@ -456,7 +456,7 @@ public class Types {
             return false;
         }
 
-        return checkEquivalencyOfTwoRecords(lhsType, rhsType);
+        return checkFieldEquivalency(lhsType, rhsType);
     }
 
     List<BType> checkForeachTypes(BLangNode collection, int variableSize) {
@@ -1153,7 +1153,7 @@ public class Types {
         }
     };
 
-    private boolean checkEquivalencyOfTwoPrivateStructs(BStructureType lhsType, BStructureType rhsType,
+    private boolean checkPrivateObjectEquivalency(BStructureType lhsType, BStructureType rhsType,
                                                         List<TypePair> unresolvedTypes) {
         for (int fieldCounter = 0; fieldCounter < lhsType.fields.size(); fieldCounter++) {
             BField lhsField = lhsType.fields.get(fieldCounter);
@@ -1186,12 +1186,11 @@ public class Types {
         return true;
     }
 
-    private boolean checkEquivalencyOfTwoRecords(BRecordType lhsType, BRecordType rhsType) {
+    private boolean checkFieldEquivalency(BStructureType lhsType, BStructureType rhsType) {
         Map<Name, BField> rhsFields = rhsType.fields.stream().collect(
                 Collectors.toMap(BField::getName, field -> field));
 
-        for (int fieldCounter = 0; fieldCounter < lhsType.fields.size(); fieldCounter++) {
-            BField lhsField = lhsType.fields.get(fieldCounter);
+        for (BField lhsField : lhsType.fields) {
             BField rhsField = rhsFields.get(lhsField.name);
 
             if (rhsField == null) {
@@ -1206,7 +1205,7 @@ public class Types {
         return true;
     }
 
-    private boolean checkEquivalencyOfPublicStructs(BStructureType lhsType, BStructureType rhsType,
+    private boolean checkPublicObjectEquivalency(BStructureType lhsType, BStructureType rhsType,
                                                 List<TypePair> unresolvedTypes) {
         int fieldCounter = 0;
         for (; fieldCounter < lhsType.fields.size(); fieldCounter++) {
@@ -1450,6 +1449,11 @@ public class Types {
         return memberTypes;
     }
 
+    /**
+     * Type vector of size two, to hold the source and the target types.
+     * 
+     * @since 0.982.0
+     */
     private static class TypePair {
         BType sourceType;
         BType targetType;

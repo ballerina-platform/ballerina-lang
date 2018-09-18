@@ -3743,6 +3743,7 @@ public class CPU {
     }
 
     /**
+     * Type vector of size two, to hold the source and the target types.
      * 
      * @since 0.982.0
      */
