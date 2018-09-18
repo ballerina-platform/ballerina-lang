@@ -1,0 +1,4 @@
+// Invoke the service's receive resource using "curl".
+// This will return the message we sent earlier.
+$ curl localhost:9090/channelService/receive
+{"message":"message to channel"}

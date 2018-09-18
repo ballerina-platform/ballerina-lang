@@ -1,0 +1,3 @@
+// Channel is a constrained type introduced for communication between parallel processes in Ballerina programs.
+// Channels can be used for inter worker communications and inter resource communications.
+// In workflow related scenarios, channels can be used for receiving intermediate inputs.
