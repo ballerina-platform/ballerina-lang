@@ -88,7 +88,6 @@ public type grpcMutualSslServiceStub object {
 
 };
 
-
 public type grpcMutualSslServiceBlockingClient object {
     public grpc:Client client;
     public grpcMutualSslServiceBlockingStub stub;

@@ -45,7 +45,7 @@ public class GrpcMutualSslWithCertsTest extends GrpcBaseTest {
     }
 
     @Test
-    public void mutualSSLWithcerts() {
+    public void testMutualSSLWithcerts() {
         Path balFilePath = Paths.get("src", "test", "resources", "grpc", "clients", "grpc_ssl_client.bal");
         result = BCompileUtil.compile(balFilePath.toAbsolutePath().toString());
         final String serverMsg = "Hello WSO2";

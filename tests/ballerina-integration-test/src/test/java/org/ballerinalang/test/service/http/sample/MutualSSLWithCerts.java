@@ -34,7 +34,6 @@ public class MutualSSLWithCerts extends BaseTest {
 
     @Test(description = "Test mutual ssl")
     public void testMutualSSLWithCerts() throws Exception {
-        String serverZipPath = System.getProperty(Constant.SYSTEM_PROP_SERVER_ZIP);
         String serverResponse = "Response received";
         String privateKey = new File(
                 "src" + File.separator + "test" + File.separator + "resources" + File.separator + "certsAndKeys"
