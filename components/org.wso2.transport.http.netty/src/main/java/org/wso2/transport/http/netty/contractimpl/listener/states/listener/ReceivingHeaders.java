@@ -29,7 +29,6 @@ import org.wso2.transport.http.netty.contract.ServerConnectorException;
 import org.wso2.transport.http.netty.contract.ServerConnectorFuture;
 import org.wso2.transport.http.netty.contractimpl.HttpOutboundRespListener;
 import org.wso2.transport.http.netty.contractimpl.common.Constants;
-import org.wso2.transport.http.netty.contractimpl.config.KeepAliveConfig;
 import org.wso2.transport.http.netty.contractimpl.listener.SourceHandler;
 import org.wso2.transport.http.netty.contractimpl.listener.states.MessageStateContext;
 import org.wso2.transport.http.netty.internal.HandlerExecutor;
@@ -45,6 +44,7 @@ import static org.wso2.transport.http.netty.contractimpl.common.Constants
 import static org.wso2.transport.http.netty.contractimpl.common.Util.is100ContinueRequest;
 import static org.wso2.transport.http.netty.contractimpl.listener.states.StateUtil.ILLEGAL_STATE_ERROR;
 import static org.wso2.transport.http.netty.contractimpl.listener.states.StateUtil.handleIncompleteInboundMessage;
+import static org.wso2.transport.http.netty.contractimpl.listener.states.StateUtil.respondToIncompleteRequest;
 import static org.wso2.transport.http.netty.contractimpl.listener.states.StateUtil.sendRequestTimeoutResponse;
 
 /**
