@@ -101,6 +101,9 @@ import static org.ballerinalang.mime.util.MimeConstants.RESPONSE_ENTITY_FIELD;
 import static org.ballerinalang.net.http.HttpConstants.ALWAYS;
 import static org.ballerinalang.net.http.HttpConstants.ANN_CONFIG_ATTR_CHUNKING;
 import static org.ballerinalang.net.http.HttpConstants.ANN_CONFIG_ATTR_COMPRESSION;
+import static org.ballerinalang.net.http.HttpConstants.ANN_CONFIG_ATTR_COMPRESSION_CONTENT_TYPES;
+import static org.ballerinalang.net.http.HttpConstants.ANN_CONFIG_ATTR_COMPRESSION_ENABLE;
+import static org.ballerinalang.net.http.HttpConstants.ENABLE;
 import static org.ballerinalang.net.http.HttpConstants.ENTITY_INDEX;
 import static org.ballerinalang.net.http.HttpConstants.HTTP_MESSAGE_INDEX;
 import static org.ballerinalang.net.http.HttpConstants.HTTP_STATUS_CODE;
@@ -831,16 +834,42 @@ public class HttpUtil {
         if (contentEncoding != null) {
             return;
         }
-        String compressionValue = configAnnot.getValue().getRefField(ANN_CONFIG_ATTR_COMPRESSION).getStringValue();
-        String acceptEncodingValue = requestMsg.getHeaders().get(HttpHeaderNames.ACCEPT_ENCODING);
-        if (ALWAYS.equalsIgnoreCase(compressionValue)) {
-            if (acceptEncodingValue == null || HTTP_TRANSFER_ENCODING_IDENTITY.equals(acceptEncodingValue)) {
-                outboundResponseMsg.getHeaders().set(HttpHeaderNames.CONTENT_ENCODING, ENCODING_GZIP);
-            }
-        } else if (NEVER.equalsIgnoreCase(compressionValue)) {
-            outboundResponseMsg.getHeaders().set(HttpHeaderNames.CONTENT_ENCODING,
-                    HTTP_TRANSFER_ENCODING_IDENTITY);
+        Struct compressionConfig = configAnnot.getValue().getStructField(ANN_CONFIG_ATTR_COMPRESSION);
+        if (compressionConfig == null) {
+            return;
         }
+
+        String compressionValue = compressionConfig.getStringField(ANN_CONFIG_ATTR_COMPRESSION_ENABLE);
+        List<String> contentTypes = getAsStringList(
+                compressionConfig.getArrayField(ANN_CONFIG_ATTR_COMPRESSION_CONTENT_TYPES));
+
+        String acceptEncodingValue = requestMsg.getHeaders().get(HttpHeaderNames.ACCEPT_ENCODING);
+        if (contentTypes == null) {
+            if (ALWAYS.equalsIgnoreCase(compressionValue)) {
+                if (acceptEncodingValue == null || HTTP_TRANSFER_ENCODING_IDENTITY.equals(acceptEncodingValue)) {
+                    outboundResponseMsg.getHeaders().set(HttpHeaderNames.CONTENT_ENCODING, ENCODING_GZIP);
+                }
+            } else if (NEVER.equalsIgnoreCase(compressionValue)) {
+                outboundResponseMsg.getHeaders().set(HttpHeaderNames.CONTENT_ENCODING,
+                                                     HTTP_TRANSFER_ENCODING_IDENTITY);
+            }
+        } else {
+
+        }
+
+
+
+    }
+
+    public static List<String> getAsStringList(Value[] values) {
+        if (values == null) {
+            return null;
+        }
+        List<String> valuesList = new ArrayList<>();
+        for (Value val : values) {
+            valuesList.add(val.getStringValue().trim());
+        }
+        return !valuesList.isEmpty() ? valuesList : null;
     }
 
     public static String getListenerInterface(String host, int port) {
@@ -1143,7 +1172,7 @@ public class HttpUtil {
         }
 
         if (validateCert != null) {
-            boolean validateCertEnabled = validateCert.getBooleanField(HttpConstants.ENABLE);
+            boolean validateCertEnabled = validateCert.getBooleanField(ENABLE);
             int cacheSize = (int) validateCert.getIntField(HttpConstants.SSL_CONFIG_CACHE_SIZE);
             int cacheValidityPeriod = (int) validateCert
                     .getIntField(HttpConstants.SSL_CONFIG_CACHE_VALIDITY_PERIOD);

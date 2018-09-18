@@ -80,7 +80,7 @@ public type Chunking "AUTO" | "ALWAYS" | "NEVER";
 # Options to compress using gzip or deflate.
 #
 # `AUTO`: When service behaves as a HTTP gateway inbound request/response accept-encoding option is set as the
-#         outbound request/response accept-encoding option
+#         outbound request/response content-encoding option
 # `ALWAYS`: Always set accept-encoding in outbound request/response
 # `NEVER`: Never set accept-encoding header in outbound request/response
 public type Compression "AUTO" | "ALWAYS" | "NEVER";
@@ -159,6 +159,16 @@ public type ServiceOcspStapling record {
     boolean enable,
     int cacheSize,
     int cacheValidityPeriod,
+    !...
+};
+
+# A record for providing configurations for content compression.
+#
+# + enable - Expected version pattern in the request URL
+# + contentTypes - Content types which are allow for compression
+public type Compression record {
+    string enable = COMPRESSION_AUTO,
+    string[] contentTypes,
     !...
 };
 

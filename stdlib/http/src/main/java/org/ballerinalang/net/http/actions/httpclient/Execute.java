@@ -24,7 +24,6 @@ import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
-import org.ballerinalang.net.http.AcceptEncodingConfig;
 import org.ballerinalang.net.http.DataContext;
 import org.ballerinalang.net.http.HttpConstants;
 import org.ballerinalang.net.http.HttpUtil;
@@ -80,9 +79,7 @@ public class Execute extends AbstractHTTPAction {
             httpVerb = (String) outboundRequestMsg.getProperty(HttpConstants.HTTP_METHOD);
         }
         outboundRequestMsg.setProperty(HttpConstants.HTTP_METHOD, httpVerb.trim().toUpperCase(Locale.getDefault()));
-        AcceptEncodingConfig acceptEncodingConfig =
-                getAcceptEncodingConfig(getAcceptEncodingConfigFromEndpointConfig(bConnector));
-        handleAcceptEncodingHeader(outboundRequestMsg, acceptEncodingConfig);
+        handleAcceptEncodingHeader(outboundRequestMsg, getAcceptEncodingConfigFromEndpointConfig(bConnector));
 
         return outboundRequestMsg;
     }

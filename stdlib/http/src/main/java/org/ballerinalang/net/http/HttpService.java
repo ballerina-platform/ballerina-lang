@@ -194,7 +194,6 @@ public class HttpService implements Cloneable {
         if (serviceConfigAnnotation == null) {
             log.debug("serviceConfig not specified in the Service instance, using default base path");
             //service name cannot start with / hence concat
-//            httpService.setBasePath(HttpConstants.DEFAULT_BASE_PATH.concat(httpService.getName()));
             basePathList.add(HttpConstants.DEFAULT_BASE_PATH.concat(httpService.getName()));
             httpService.setHostName(DEFAULT_HOST);
         } else {

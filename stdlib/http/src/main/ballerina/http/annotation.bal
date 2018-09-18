@@ -33,7 +33,7 @@ public type HttpServiceConfig record {
     Listener[] endpoints,
     string host = "b7a.default",
     string basePath,
-    Compression compression = "AUTO",
+    Compression compression,
     Chunking chunking = CHUNKING_AUTO,
     CorsConfig cors,
     Versioning versioning,
