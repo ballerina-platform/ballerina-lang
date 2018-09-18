@@ -23,6 +23,7 @@ import ballerina/file;
 public type CompressionError record {
     string message,
     error? cause,
+    !...
 };
 
 # Decompresses a byte array into a directory.

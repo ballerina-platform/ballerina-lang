@@ -251,7 +251,7 @@ public class TaintedStatusPropagationTest {
         CompileResult result = BCompileUtil.compile("test-src/taintchecking/propagation/iterable-negative.bal");
         Assert.assertTrue(result.getDiagnostics().length == 2);
         BAssertUtil.validateError(result, 0, "tainted value passed to sensitive parameter 'secureIn'", 3, 20);
-        BAssertUtil.validateError(result, 1, "tainted value passed to sensitive parameter 'secureIn'", 5, 53);
+        BAssertUtil.validateError(result, 1, "tainted value passed to sensitive parameter 'secureIn'", 5, 59);
     }
 
     @Test
@@ -266,7 +266,7 @@ public class TaintedStatusPropagationTest {
                 .compile("test-src/taintchecking/propagation/iterable-within-iterable-negative.bal");
         Assert.assertTrue(result.getDiagnostics().length == 2);
         BAssertUtil.validateError(result, 0, "tainted value passed to sensitive parameter 'secureIn'", 7, 40);
-        BAssertUtil.validateError(result, 1, "tainted value passed to global variable 'globalVar'", 10, 28);
+        BAssertUtil.validateError(result, 1, "tainted value passed to global variable 'globalVar'", 10, 34);
     }
 
     @Test

@@ -19,6 +19,7 @@ package org.wso2.ballerinalang.compiler;
 
 import org.ballerinalang.compiler.CompilerOptionName;
 import org.ballerinalang.compiler.CompilerPhase;
+import org.wso2.ballerinalang.compiler.bir.BIRGen;
 import org.wso2.ballerinalang.compiler.codegen.CodeGenerator;
 import org.wso2.ballerinalang.compiler.desugar.Desugar;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.CodeAnalyzer;
@@ -74,6 +75,7 @@ public class CompilerDriver {
     private final CompilerPluginRunner compilerPluginRunner;
     private final Desugar desugar;
     private final CodeGenerator codeGenerator;
+    private final BIRGen birGenerator;
     private final CompilerPhase compilerPhase;
     private final SymbolResolver symResolver;
 
@@ -101,6 +103,7 @@ public class CompilerDriver {
         this.compilerPluginRunner = CompilerPluginRunner.getInstance(context);
         this.desugar = Desugar.getInstance(context);
         this.codeGenerator = CodeGenerator.getInstance(context);
+        this.birGenerator = BIRGen.getInstance(context);
         this.compilerPhase = getCompilerPhase();
         this.symResolver = SymbolResolver.getInstance(context);
     }
@@ -209,6 +212,10 @@ public class CompilerDriver {
     }
 
     public BLangPackage codegen(BLangPackage pkgNode) {
+        if (this.compilerPhase == CompilerPhase.BIR_GEN) {
+            return this.birGenerator.genBIR(pkgNode);
+        }
+
         return this.codeGenerator.generateBALO(pkgNode);
     }
 

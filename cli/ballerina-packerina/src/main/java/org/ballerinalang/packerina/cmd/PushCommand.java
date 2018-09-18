@@ -17,8 +17,8 @@
 */
 package org.ballerinalang.packerina.cmd;
 
-import org.ballerinalang.compiler.BLangCompilerException;
 import org.ballerinalang.launcher.BLauncherCmd;
+import org.ballerinalang.launcher.LauncherUtils;
 import org.ballerinalang.packerina.PushUtils;
 import picocli.CommandLine;
 
@@ -57,6 +57,9 @@ public class PushCommand implements BLauncherCmd {
             description = "path to the directory containing source files and packages")
     private String sourceRoot;
 
+    @CommandLine.Option(names = {"--no-build"}, description = "skip building before pushing")
+    private boolean noBuild;
+
     @Override
     public void execute() {
         if (helpFlag) {
@@ -71,12 +74,12 @@ public class PushCommand implements BLauncherCmd {
         }
 
         if (argList == null || argList.size() == 0) {
-            PushUtils.pushAllPackages(sourceRoot, repositoryHome);
+            PushUtils.pushAllPackages(sourceRoot, repositoryHome, noBuild);
         } else if (argList.size() == 1) {
             String packageName = argList.get(0);
-            PushUtils.pushPackages(packageName, sourceRoot, repositoryHome);
+            PushUtils.pushPackages(packageName, sourceRoot, repositoryHome, noBuild);
         } else {
-            throw new BLangCompilerException("too many arguments");
+            throw LauncherUtils.createUsageExceptionWithHelp("too many arguments");
         }
         Runtime.getRuntime().exit(0);
     }

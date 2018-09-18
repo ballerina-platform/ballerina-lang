@@ -25,6 +25,7 @@ import org.ballerinalang.util.codegen.attributes.LineNumberTableAttributeInfo;
 import org.ballerinalang.util.debugger.dto.BreakPointDTO;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -83,18 +84,34 @@ class DebugInfoHolder {
         packageInfoMap.put(packageInfo.getPkgPath(), debuggerPkgInfo);
     }
 
-    private void addDebugPoint(BreakPointDTO breakPointDTO) {
+    /**
+     * Adds a single debug point.
+     *
+     * @param breakPointDTO {@link BreakPointDTO}
+     * @return True if success, False otherwise
+     */
+    private boolean addDebugPoint(BreakPointDTO breakPointDTO) {
         if (packageInfoMap.get(breakPointDTO.getPackagePath()) == null) {
-            return;
+            return false;
         }
-        packageInfoMap.get(breakPointDTO.getPackagePath()).markDebugPoint(breakPointDTO);
+        return packageInfoMap.get(breakPointDTO.getPackagePath()).markDebugPoint(breakPointDTO);
     }
 
-    void addDebugPoints(List<BreakPointDTO> breakPointDTOS) {
+    /**
+     * Adds a list of debug points.
+     *
+     * @param breakPointDTOS a list of {@link BreakPointDTO}
+     * @return list of succeed {@link BreakPointDTO}
+     */
+    List<BreakPointDTO> addDebugPoints(List<BreakPointDTO> breakPointDTOS) {
+        List<BreakPointDTO> deployedBreakPoints = new ArrayList<>();
         packageInfoMap.values().forEach(DebuggerPkgInfo::clearDebugPoints);
         for (BreakPointDTO nodeLocation : breakPointDTOS) {
-            addDebugPoint(nodeLocation);
+            if (addDebugPoint(nodeLocation)) {
+                deployedBreakPoints.add(nodeLocation);
+            }
         }
+        return deployedBreakPoints;
     }
 
     void clearDebugLocations() {
@@ -128,7 +145,7 @@ class DebugInfoHolder {
             lineNumbers.put(fileNameAndNo, lineNumberInfo);
         }
 
-        void markDebugPoint(BreakPointDTO breakPointDTO) {
+        boolean markDebugPoint(BreakPointDTO breakPointDTO) {
             String fileName = breakPointDTO.getFileName();
             if (fileName.contains("/")) {
                 String[] pathArray = fileName.split("/");
@@ -140,9 +157,10 @@ class DebugInfoHolder {
             String fileNameAndNo = fileName + ":" + breakPointDTO.getLineNumber();
             LineNumberInfo lineNumberInfo = lineNumbers.get(fileNameAndNo);
             if (lineNumberInfo == null) {
-                return;
+                return false;
             }
             lineNumberInfo.setDebugPoint(true);
+            return true;
         }
 
         void clearDebugPoints() {

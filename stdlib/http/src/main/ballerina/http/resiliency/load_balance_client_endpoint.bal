@@ -74,6 +74,7 @@ public type LoadBalanceClientEndpointConfiguration record {
     AuthConfig? auth,
     string algorithm = ROUND_ROBIN,
     boolean failover = true;
+    !...
 };
 
 function LoadBalanceClient::init(LoadBalanceClientEndpointConfiguration lbClientConfig) {

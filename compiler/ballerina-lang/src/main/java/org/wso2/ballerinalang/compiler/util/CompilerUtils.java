@@ -20,6 +20,8 @@ package org.wso2.ballerinalang.compiler.util;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 
+import static org.wso2.ballerinalang.compiler.util.Constants.MAIN_FUNCTION_NAME;
+
 /**
  * A util class for handling common functions across compiler.
  *
@@ -29,8 +31,6 @@ public class CompilerUtils {
 
     private static final String DISTRIBUTED_TRANSACTIONS = "distributed.transactions";
     
-    private static final String MAIN_FUNCTION_NAME = "main";
-
     public static boolean isDistributedTransactionsEnabled() {
         boolean distributedTransactionEnabled = true; //TODO:Default will be true. Read from new VMOptions
         String distributedTxEnabledProp = System.getProperty(DISTRIBUTED_TRANSACTIONS);

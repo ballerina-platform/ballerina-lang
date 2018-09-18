@@ -10,6 +10,7 @@ import org.wso2.ballerinalang.compiler.packaging.repo.CacheRepo;
 import org.wso2.ballerinalang.compiler.util.ProjectDirConstants;
 import org.wso2.ballerinalang.programfile.ProgramFileConstants;
 import org.wso2.ballerinalang.util.RepoUtils;
+import org.wso2.ballerinalang.util.TomlParserUtils;
 
 import java.io.File;
 import java.io.IOException;
@@ -91,7 +92,7 @@ public class URIConverter implements Converter<URI> {
         createDirectory(destDirPath);
         try {
             String fullPkgPath = orgName + "/" + pkgName;
-            Proxy proxy = RepoUtils.readSettings().getProxy();
+            Proxy proxy = TomlParserUtils.readSettings().getProxy();
 
             String supportedVersionRange = "?supported-version-range=" + ProgramFileConstants.MIN_SUPPORTED_VERSION +
                     "," + ProgramFileConstants.MAX_SUPPORTED_VERSION;

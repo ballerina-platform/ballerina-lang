@@ -21,6 +21,7 @@
 public type NullReferenceException record {
     string message;
     error? cause;
+    !...
 };
 
 # Representation of `IllegalStateException`
@@ -30,6 +31,7 @@ public type NullReferenceException record {
 public type IllegalStateException record {
     string message;
     error? cause;
+    !...
 };
 
 # Representation of `CallStackElement`
@@ -43,6 +45,7 @@ public type CallStackElement record {
     string packageName;
     string fileName;
     int lineNumber;
+    !...
 };
 
 # Retrieves the Call Stack
@@ -65,4 +68,5 @@ public type CallFailedException record {
     string message;
     error? cause;
     error[]? causes;
+    !...
 };

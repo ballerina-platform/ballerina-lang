@@ -17,6 +17,7 @@
  */
 package org.ballerinalang.packerina.cmd;
 
+import org.ballerinalang.compiler.backend.llvm.NativeGen;
 import org.ballerinalang.launcher.BLauncherCmd;
 import org.ballerinalang.launcher.LauncherUtils;
 import org.ballerinalang.packerina.BuilderUtils;
@@ -60,6 +61,16 @@ public class BuildCommand implements BLauncherCmd {
     @CommandLine.Parameters
     private List<String> argList;
 
+    @CommandLine.Option(names = {"--native"}, hidden = true,
+                        description = "compile Ballerina program to a native binary")
+    private boolean nativeBinary;
+
+    @CommandLine.Option(names = "--dump-bir", hidden = true)
+    private boolean dumpBIR;
+
+    @CommandLine.Option(names = "--dump-llvm-ir", hidden = true)
+    private boolean dumpLLVMIR;
+
     @CommandLine.Option(names = {"--help", "-h"}, hidden = true)
     private boolean helpFlag;
 
@@ -74,12 +85,14 @@ public class BuildCommand implements BLauncherCmd {
         }
 
         if (argList != null && argList.size() > 1) {
-            throw LauncherUtils.createUsageException("too many arguments");
+            throw LauncherUtils.createUsageExceptionWithHelp("too many arguments");
         }
 
         // Get source root path.
         Path sourceRootPath = Paths.get(System.getProperty(USER_DIR));
-        if (argList == null || argList.size() == 0) {
+        if (nativeBinary) {
+            genNativeBinary(sourceRootPath, argList);
+        } else if (argList == null || argList.size() == 0) {
             // ballerina build
             BuilderUtils.compileWithTestsAndWrite(sourceRootPath, offline, lockEnabled, skiptests);
         } else {
@@ -89,13 +102,18 @@ public class BuildCommand implements BLauncherCmd {
             if (pkgName.endsWith("/")) {
                 pkgName = pkgName.substring(0, pkgName.length() - 1);
             }
+
+            Path sourcePath = Paths.get(pkgName);
+
+            // Normalize the source path to remove './' or '.\' characters that can appear before the name
+            pkgName = sourcePath.normalize().toString();
+
             if (outputFileName != null && !outputFileName.isEmpty()) {
                 targetFileName = outputFileName;
             } else {
                 targetFileName = pkgName;
             }
 
-            Path sourcePath = Paths.get(pkgName);
             Path resolvedFullPath = sourceRootPath.resolve(sourcePath);
             // If the source is a single bal file which is not inside a project
             if (Files.isRegularFile(resolvedFullPath) &&
@@ -178,5 +196,16 @@ public class BuildCommand implements BLauncherCmd {
 
     @Override
     public void setSelfCmdParser(CommandLine selfCmdParser) {
+    }
+
+    private void genNativeBinary(Path projectDirPath, List<String> argList) {
+        if (argList == null || argList.size() != 1) {
+            throw LauncherUtils.createUsageExceptionWithHelp("no Ballerina program given");
+        }
+        String programName = argList.get(0);
+
+        // TODO Check whether we need to remove last slash from program name.
+        NativeGen.genBinaryExecutable(projectDirPath, programName, outputFileName,
+                offline, lockEnabled, dumpBIR, dumpLLVMIR);
     }
 }

@@ -27,7 +27,7 @@ public type AuthStoreProvider object {
     # Reads the scope(s) for the user with the given username
     #
     # + username - user name
-    # + retrun - array of groups for the user denoted by the username
+    # + return - array of groups for the user denoted by the username
     public function getScopes(string username) returns string[];
 };
 
