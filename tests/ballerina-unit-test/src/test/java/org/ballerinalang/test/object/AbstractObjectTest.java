@@ -30,7 +30,7 @@ import org.testng.annotations.Test;
  */
 public class AbstractObjectTest {
 
-    CompileResult compileResult = BCompileUtil.compile("test-src/object/abstract_anon_object.bal");
+    CompileResult anonAbstractObjects = BCompileUtil.compile("test-src/object/abstract_anon_object.bal");
 
     @Test
     public void testAbstractObjectNegative() {
@@ -68,21 +68,21 @@ public class AbstractObjectTest {
 
     @Test
     public void testAbstractAnonObjectInMatch() {
-        BValue[] result = BRunUtil.invoke(compileResult, "testAbstractAnonObjectInMatch");
+        BValue[] result = BRunUtil.invoke(anonAbstractObjects, "testAbstractAnonObjectInMatch");
         Assert.assertEquals(result[0].stringValue(), "Person Name");
         Assert.assertEquals(result[1].stringValue(), "Employee Name");
     }
 
     @Test
     public void testAbstractAnonObjectInFunction() {
-        BValue[] result = BRunUtil.invoke(compileResult, "testAbstractAnonObjectInFunction");
+        BValue[] result = BRunUtil.invoke(anonAbstractObjects, "testAbstractAnonObjectInFunction");
         Assert.assertEquals(result[0].stringValue(), "Person Name");
         Assert.assertEquals(result[1].stringValue(), "Employee Name");
     }
 
     @Test
     public void testAbstractAnonObjectInVarDef() {
-        BValue[] result = BRunUtil.invoke(compileResult, "testAbstractAnonObjectInVarDef");
+        BValue[] result = BRunUtil.invoke(anonAbstractObjects, "testAbstractAnonObjectInVarDef");
         Assert.assertEquals(result[0].stringValue(), "Person Name");
         Assert.assertEquals(result[1].stringValue(), "Employee Name");
     }

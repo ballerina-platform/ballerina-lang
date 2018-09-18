@@ -114,6 +114,7 @@ import org.ballerinalang.util.transactions.TransactionUtils;
 import org.wso2.ballerinalang.compiler.util.BArrayState;
 
 import java.io.PrintStream;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
@@ -2721,10 +2722,10 @@ public class CPU {
         return false;
     }
     
-    private static boolean checkUnionCast(BValue rhsValue, BType lhsType) {
+    private static boolean checkUnionCast(BValue rhsValue, BType lhsType, List<TypePair> unresolvedTypes) {
         BUnionType unionType = (BUnionType) lhsType;
         for (BType memberType : unionType.getMemberTypes()) {
-            if (checkCast(rhsValue, memberType)) {
+            if (checkCast(rhsValue, memberType, unresolvedTypes)) {
                 return true;
             }
         }
@@ -2732,6 +2733,10 @@ public class CPU {
     }
 
     public static boolean checkCast(BValue rhsValue, BType lhsType) {
+        return checkCast(rhsValue, lhsType, new ArrayList<>());
+    }
+
+    private static boolean checkCast(BValue rhsValue, BType lhsType, List<TypePair> unresolvedTypes) {
         BType rhsType = BTypes.typeNull;
 
         if (rhsValue == null && lhsType.getTag() == TypeTags.JSON_TAG) {
@@ -2751,11 +2756,11 @@ public class CPU {
         }
 
         if (lhsType.getTag() == TypeTags.UNION_TAG) {
-            return checkUnionCast(rhsValue, lhsType);
+            return checkUnionCast(rhsValue, lhsType, unresolvedTypes);
         }
 
         if (getElementType(rhsType).getTag() == TypeTags.JSON_TAG) {
-            return checkJSONCast(rhsValue, rhsType, lhsType);
+            return checkJSONCast(rhsValue, rhsType, lhsType, unresolvedTypes);
         }
 
         if (lhsType.getTag() == TypeTags.ARRAY_TAG && rhsValue instanceof BNewArray) {
@@ -2768,18 +2773,18 @@ public class CPU {
                 }
                 sourceType = ((BArrayType) rhsValue.getType()).getElementType();
             }
-            return checkArrayCast(sourceType, ((BArrayType) lhsType).getElementType());
+            return checkArrayCast(sourceType, ((BArrayType) lhsType).getElementType(), unresolvedTypes);
         }
 
         if (rhsType.getTag() == TypeTags.TUPLE_TAG && lhsType.getTag() == TypeTags.TUPLE_TAG) {
-            return checkTupleCast(rhsValue, lhsType);
+            return checkTupleCast(rhsValue, lhsType, unresolvedTypes);
         }
 
         if (lhsType.getTag() == TypeTags.FINITE_TYPE_TAG) {
             return checkFiniteTypeAssignable(rhsValue, lhsType);
         }
 
-        return checkCastByType(rhsType, lhsType);
+        return checkCastByType(rhsType, lhsType, unresolvedTypes);
     }
 
     /**
@@ -2795,7 +2800,7 @@ public class CPU {
         return lhsType.getTag() == TypeTags.ANY_TAG || rhsType.equals(lhsType);
     }
 
-    private static boolean checkCastByType(BType rhsType, BType lhsType) {
+    private static boolean checkCastByType(BType rhsType, BType lhsType, List<TypePair> unresolvedTypes) {
         if (rhsType.getTag() == TypeTags.INT_TAG &&
                 (lhsType.getTag() == TypeTags.JSON_TAG || lhsType.getTag() == TypeTags.FLOAT_TAG)) {
             return true;
@@ -2811,11 +2816,11 @@ public class CPU {
 
         if ((rhsType.getTag() == TypeTags.OBJECT_TYPE_TAG || rhsType.getTag() == TypeTags.RECORD_TYPE_TAG)
                 && (lhsType.getTag() == TypeTags.OBJECT_TYPE_TAG || lhsType.getTag() == TypeTags.RECORD_TYPE_TAG)) {
-            return checkStructEquivalency((BStructureType) rhsType, (BStructureType) lhsType);
+            return checkStructEquivalency((BStructureType) rhsType, (BStructureType) lhsType, unresolvedTypes);
         }
 
         if (rhsType.getTag() == TypeTags.MAP_TAG && lhsType.getTag() == TypeTags.MAP_TAG) {
-            return checkMapCast(rhsType, lhsType);
+            return checkMapCast(rhsType, lhsType, unresolvedTypes);
         }
 
         if (rhsType.getTag() == TypeTags.TABLE_TAG && lhsType.getTag() == TypeTags.TABLE_TAG) {
@@ -2824,7 +2829,7 @@ public class CPU {
 
         if (rhsType.getTag() == TypeTags.STREAM_TAG && lhsType.getTag() == TypeTags.STREAM_TAG) {
             return isAssignable(((BStreamType) rhsType).getConstrainedType(),
-                                ((BStreamType) lhsType).getConstrainedType());
+                    ((BStreamType) lhsType).getConstrainedType(), unresolvedTypes);
         }
 
         if (rhsType.getTag() == TypeTags.FUNCTION_POINTER_TAG && lhsType.getTag() == TypeTags.FUNCTION_POINTER_TAG) {
@@ -2834,8 +2839,7 @@ public class CPU {
         return false;
     }
 
-    private static boolean checkMapCast(BType sourceType, BType targetType) {
-
+    private static boolean checkMapCast(BType sourceType, BType targetType, List<TypePair> unresolvedTypes) {
         BMapType sourceMapType = (BMapType) sourceType;
         BMapType targetMapType = (BMapType) targetType;
 
@@ -2852,13 +2856,13 @@ public class CPU {
                 && (targetMapType.getConstrainedType().getTag() == TypeTags.OBJECT_TYPE_TAG
                 || targetMapType.getConstrainedType().getTag() == TypeTags.RECORD_TYPE_TAG)) {
             return checkStructEquivalency((BStructureType) sourceMapType.getConstrainedType(),
-                    (BStructureType) targetMapType.getConstrainedType());
+                    (BStructureType) targetMapType.getConstrainedType(), unresolvedTypes);
         }
 
         return false;
     }
 
-    private static boolean checkArrayCast(BType sourceType, BType targetType) {
+    private static boolean checkArrayCast(BType sourceType, BType targetType, List<TypePair> unresolvedTypes) {
         if (targetType.getTag() == TypeTags.ARRAY_TAG && sourceType.getTag() == TypeTags.ARRAY_TAG) {
             BArrayType sourceArrayType = (BArrayType) sourceType;
             BArrayType targetArrayType = (BArrayType) targetType;
@@ -2866,9 +2870,9 @@ public class CPU {
                 return false;
             }
 
-            return checkArrayCast(sourceArrayType.getElementType(), targetArrayType.getElementType());
+            return checkArrayCast(sourceArrayType.getElementType(), targetArrayType.getElementType(), unresolvedTypes);
         } else if (targetType.getTag() == TypeTags.UNION_TAG) {
-            return checkUnionAssignable(sourceType, targetType);
+            return checkUnionAssignable(sourceType, targetType, unresolvedTypes);
         }
 
         if (targetType.getTag() == TypeTags.ANY_TAG) {
@@ -2878,7 +2882,7 @@ public class CPU {
         return sourceType.equals(targetType);
     }
     
-    private static boolean checkTupleCast(BValue sourceValue, BType targetType) {
+    private static boolean checkTupleCast(BValue sourceValue, BType targetType, List<TypePair> unresolvedTypes) {
         BRefValueArray source = (BRefValueArray) sourceValue;
         BTupleType target = (BTupleType) targetType;
         List<BType> targetTupleTypes = target.getTupleTypes();
@@ -2886,7 +2890,7 @@ public class CPU {
             return false;
         }
         for (int i = 0; i < source.size(); i++) {
-            if (!checkCast(source.getBValue(i), targetTupleTypes.get(i))) {
+            if (!checkCast(source.getBValue(i), targetTupleTypes.get(i), unresolvedTypes)) {
                 return false;
             }
         }
@@ -2902,6 +2906,19 @@ public class CPU {
     }
 
     public static boolean checkStructEquivalency(BStructureType rhsType, BStructureType lhsType) {
+        return checkStructEquivalency(rhsType, lhsType, new ArrayList<>());
+    }
+
+    private static boolean checkStructEquivalency(BStructureType rhsType, BStructureType lhsType,
+                                                 List<TypePair> unresolvedTypes) {
+        // If we encounter two types that we are still resolving, then skip it.
+        // This is done to avoid recursive checking of the same type.
+        TypePair pair = new TypePair(rhsType, lhsType);
+        if (unresolvedTypes.contains(pair)) {
+            return true;
+        }
+        unresolvedTypes.add(pair);
+
         // Both structs should be public or private.
         // Get the XOR of both flags(masks)
         // If both are public, then public bit should be 0;
@@ -2930,11 +2947,12 @@ public class CPU {
 
         return !Flags.isFlagOn(lhsType.flags, Flags.PUBLIC) &&
                 rhsType.getPackagePath().equals(lhsType.getPackagePath()) ?
-                checkEquivalencyOfTwoPrivateStructs(lhsType, rhsType) :
-                checkEquivalencyOfPublicStructs(lhsType, rhsType);
+                checkEquivalencyOfTwoPrivateStructs(lhsType, rhsType, unresolvedTypes) :
+                checkEquivalencyOfPublicStructs(lhsType, rhsType, unresolvedTypes);
     }
 
-    private static boolean checkEquivalencyOfTwoPrivateStructs(BStructureType lhsType, BStructureType rhsType) {
+    private static boolean checkEquivalencyOfTwoPrivateStructs(BStructureType lhsType, BStructureType rhsType,
+                                                               List<TypePair> unresolvedTypes) {
         for (int fieldCounter = 0; fieldCounter < lhsType.getFields().length; fieldCounter++) {
             BField lhsField = lhsType.getFields()[fieldCounter];
             BField rhsField = rhsType.getFields()[fieldCounter];
@@ -2952,7 +2970,7 @@ public class CPU {
                 continue;
             }
 
-            BAttachedFunction rhsFunc = getMatchingInvokableType(rhsFuncs, lhsFunc);
+            BAttachedFunction rhsFunc = getMatchingInvokableType(rhsFuncs, lhsFunc, unresolvedTypes);
             if (rhsFunc == null) {
                 return false;
             }
@@ -2960,7 +2978,8 @@ public class CPU {
         return true;
     }
 
-    private static boolean checkEquivalencyOfPublicStructs(BStructureType lhsType, BStructureType rhsType) {
+    private static boolean checkEquivalencyOfPublicStructs(BStructureType lhsType, BStructureType rhsType,
+                                                           List<TypePair> unresolvedTypes) {
         int fieldCounter = 0;
         for (; fieldCounter < lhsType.getFields().length; fieldCounter++) {
             // Return false if either field is private
@@ -2996,7 +3015,7 @@ public class CPU {
                 return false;
             }
 
-            BAttachedFunction rhsFunc = getMatchingInvokableType(rhsFuncs, lhsFunc);
+            BAttachedFunction rhsFunc = getMatchingInvokableType(rhsFuncs, lhsFunc, unresolvedTypes);
             if (rhsFunc == null || !Flags.isFlagOn(rhsFunc.flags, Flags.PUBLIC)) {
                 return false;
             }
@@ -3033,14 +3052,15 @@ public class CPU {
         return true;
     }
 
-    private static boolean checkFunctionTypeEqualityForObjectType(BFunctionType source, BFunctionType target) {
+    private static boolean checkFunctionTypeEqualityForObjectType(BFunctionType source, BFunctionType target,
+                                                                  List<TypePair> unresolvedTypes) {
         if (source.paramTypes.length != target.paramTypes.length ||
                 source.retParamTypes.length != target.retParamTypes.length) {
             return false;
         }
 
         for (int i = 0; i < source.paramTypes.length; i++) {
-            if (!isAssignable(source.paramTypes[i], target.paramTypes[i])) {
+            if (!isAssignable(source.paramTypes[i], target.paramTypes[i], unresolvedTypes)) {
                 return false;
             }
         }
@@ -3052,7 +3072,7 @@ public class CPU {
         }
 
         for (int i = 0; i < source.retParamTypes.length; i++) {
-            if (!isAssignable(source.retParamTypes[i], target.retParamTypes[i])) {
+            if (!isAssignable(source.retParamTypes[i], target.retParamTypes[i], unresolvedTypes)) {
                 return false;
             }
         }
@@ -3060,11 +3080,11 @@ public class CPU {
         return true;
     }
 
-    private static BAttachedFunction getMatchingInvokableType(BAttachedFunction[] rhsFuncs,
-                                                                         BAttachedFunction lhsFunc) {
+    private static BAttachedFunction getMatchingInvokableType(BAttachedFunction[] rhsFuncs, BAttachedFunction lhsFunc,
+                                                              List<TypePair> unresolvedTypes) {
         return Arrays.stream(rhsFuncs)
                 .filter(rhsFunc -> lhsFunc.funcName.equals(rhsFunc.funcName))
-                .filter(rhsFunc -> checkFunctionTypeEqualityForObjectType(rhsFunc.type, lhsFunc.type))
+                .filter(rhsFunc -> checkFunctionTypeEqualityForObjectType(rhsFunc.type, lhsFunc.type, unresolvedTypes))
                 .findFirst()
                 .orElse(null);
     }
@@ -3102,7 +3122,8 @@ public class CPU {
         return false;
     }
 
-    private static boolean checkJSONEquivalency(BValue json, BJSONType sourceType, BJSONType targetType) {
+    private static boolean checkJSONEquivalency(BValue json, BJSONType sourceType, BJSONType targetType,
+                                                List<TypePair> unresolvedTypes) {
         BStructureType sourceConstrainedType = (BStructureType) sourceType.getConstrainedType();
         BStructureType targetConstrainedType = (BStructureType) targetType.getConstrainedType();
 
@@ -3117,7 +3138,7 @@ public class CPU {
                 return true;
             }
 
-            return checkStructEquivalency(sourceConstrainedType, targetConstrainedType);
+            return checkStructEquivalency(sourceConstrainedType, targetConstrainedType, unresolvedTypes);
         }
 
         // Casting from unconstrained JSON to constrained JSON
@@ -3139,7 +3160,7 @@ public class CPU {
             }
 
             BValue fieldVal = jsonObject.get(fieldName);
-            if (!checkJSONCast(fieldVal, fieldVal.getType(), tFields[i].getFieldType())) {
+            if (!checkJSONCast(fieldVal, fieldVal.getType(), tFields[i].getFieldType(), unresolvedTypes)) {
                 return false;
             }
         }
@@ -3153,9 +3174,11 @@ public class CPU {
      * @param json       JSON to cast
      * @param sourceType Type of the source JSON
      * @param targetType Target type
+     * @param unresolvedTypes Unresolved types
      * @return Runtime compatibility for casting
      */
-    private static boolean checkJSONCast(BValue json, BType sourceType, BType targetType) {
+    private static boolean checkJSONCast(BValue json, BType sourceType, BType targetType,
+                                         List<TypePair> unresolvedTypes) {
         switch (targetType.getTag()) {
             case TypeTags.STRING_TAG:
             case TypeTags.INT_TAG:
@@ -3172,7 +3195,7 @@ public class CPU {
                     // get the element type of source and json, and recursively check for json casting.
                     BType sourceElementType = sourceType.getTag() == TypeTags.ARRAY_TAG
                             ? ((BArrayType) sourceType).getElementType() : sourceType;
-                    if (!checkJSONCast(array.get(i), sourceElementType, arrayType.getElementType())) {
+                    if (!checkJSONCast(array.get(i), sourceElementType, arrayType.getElementType(), unresolvedTypes)) {
                         return false;
                     }
                 }
@@ -3186,7 +3209,7 @@ public class CPU {
                     // If JSON is constrained, only JSON objects are compatible
                     return false;
                 }
-                return checkJSONEquivalency(json, (BJSONType) sourceType, (BJSONType) targetType);
+                return checkJSONEquivalency(json, (BJSONType) sourceType, (BJSONType) targetType, unresolvedTypes);
             case TypeTags.ANY_TAG:
                 return true;
             default:
@@ -3319,7 +3342,7 @@ public class CPU {
                                 RuntimeErrors.INCOMPATIBLE_FIELD_TYPE_FOR_CASTING, key, fieldType, null);
                     }
 
-                    if (mapVal != null && !checkCast(mapVal, fieldType)) {
+                    if (mapVal != null && !checkCast(mapVal, fieldType, new ArrayList<TypePair>())) {
                         throw BLangExceptionHelper.getRuntimeException(
                                 RuntimeErrors.INCOMPATIBLE_FIELD_TYPE_FOR_CASTING, key, fieldType, mapVal.getType());
                     }
@@ -3504,16 +3527,16 @@ public class CPU {
             return true;
         }
 
-        return checkCast(value, constraintType);
+        return checkCast(value, constraintType, new ArrayList<>());
     }
 
-    public static boolean isAssignable(BType sourceType, BType targetType) {
+    public static boolean isAssignable(BType sourceType, BType targetType, List<TypePair> unresolvedTypes) {
         if (isSameOrAnyType(sourceType, targetType)) {
             return true;
         }
 
         if (targetType.getTag() == TypeTags.UNION_TAG) {
-            return checkUnionAssignable(sourceType, targetType);
+            return checkUnionAssignable(sourceType, targetType, unresolvedTypes);
         }
 
         // TODO: 6/26/18 complete impl. for JSON assignable
@@ -3528,20 +3551,20 @@ public class CPU {
                 return false;
             }
             return checkArrayCast(((BArrayType) sourceType).getElementType(),
-                                  ((BArrayType) targetType).getElementType());
+                                  ((BArrayType) targetType).getElementType(), unresolvedTypes);
         }
 
         if (sourceType.getTag() == TypeTags.TUPLE_TAG && targetType.getTag() == TypeTags.TUPLE_TAG) {
-            return checkTupleAssignable(sourceType, targetType);
+            return checkTupleAssignable(sourceType, targetType, unresolvedTypes);
         }
 
-        return checkCastByType(sourceType, targetType);
+        return checkCastByType(sourceType, targetType, unresolvedTypes);
     }
 
-    private static boolean checkUnionAssignable(BType sourceType, BType targetType) {
+    private static boolean checkUnionAssignable(BType sourceType, BType targetType, List<TypePair> unresolvedTypes) {
         if (sourceType.getTag() == TypeTags.UNION_TAG) {
             for (BType sourceMemberType : ((BUnionType) sourceType).getMemberTypes()) {
-                if (!checkUnionAssignable(sourceMemberType, targetType)) {
+                if (!checkUnionAssignable(sourceMemberType, targetType, unresolvedTypes)) {
                     return false;
                 }
             }
@@ -3549,7 +3572,7 @@ public class CPU {
         } else {
             BUnionType targetUnionType = (BUnionType) targetType;
             for (BType memberType : targetUnionType.getMemberTypes()) {
-                if (isAssignable(sourceType, memberType)) {
+                if (isAssignable(sourceType, memberType, unresolvedTypes)) {
                     return true;
                 }
             }
@@ -3557,7 +3580,7 @@ public class CPU {
         }
     }
 
-    private static boolean checkTupleAssignable(BType sourceType, BType targetType) {
+    private static boolean checkTupleAssignable(BType sourceType, BType targetType, List<TypePair> unresolvedTypes) {
         List<BType> targetTupleTypes = ((BTupleType) targetType).getTupleTypes();
         List<BType> sourceTupleTypes = ((BTupleType) sourceType).getTupleTypes();
 
@@ -3565,7 +3588,7 @@ public class CPU {
             return false;
         }
         for (int i = 0; i < sourceTupleTypes.size(); i++) {
-            if (!isAssignable(sourceTupleTypes.get(i), targetTupleTypes.get(i))) {
+            if (!isAssignable(sourceTupleTypes.get(i), targetTupleTypes.get(i), unresolvedTypes)) {
                 return false;
             }
         }
@@ -3595,5 +3618,29 @@ public class CPU {
         entry.fPointer = fp;
         compensationTable.compensations.add(entry);
         compensationTable.index++;
+    }
+
+    /**
+     * 
+     * @since 0.982.0
+     */
+    private static class TypePair {
+        BType sourceType;
+        BType targetType;
+
+        public TypePair(BType sourceType, BType targetType) {
+            this.sourceType = sourceType;
+            this.targetType = targetType;
+        }
+
+        @Override
+        public boolean equals(Object obj) {
+            if (!(obj instanceof TypePair)) {
+                return false;
+            }
+
+            TypePair other = (TypePair) obj;
+            return this.sourceType.equals(other.sourceType) && this.targetType.equals(other.targetType);
+        }
     }
 }

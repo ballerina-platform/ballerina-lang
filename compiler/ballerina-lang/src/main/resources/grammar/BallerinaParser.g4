@@ -89,11 +89,6 @@ objectBody
 objectMember
     :   objectFieldDefinition
     |   objectFunctionDefinition
-    |   objectTypeReference
-    ;
-
-objectTypeReference
-    :   Identifier
     ;
 
 objectInitializer

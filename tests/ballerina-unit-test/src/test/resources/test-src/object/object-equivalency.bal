@@ -600,9 +600,9 @@ public type ObjectWithoutNew object {
     public string name;
     public string id;
 
-//    public function getPerson() returns ObjectWithoutNew {
-//        return self;
-//    }
+    public function getPerson() returns ObjectWithoutNew {
+        return self;
+    }
 };
 
 public type ObjectWithNew object {
@@ -612,9 +612,9 @@ public type ObjectWithNew object {
     public new () {
     }
 
-//    public function getPerson() returns ObjectWithNew {
-//        return self;
-//    }
+    public function getPerson() returns ObjectWithNew {
+        return self;
+    }
 };
 
 function testObjectEqualityWithDefaultConstructor() returns (ObjectWithNew, ObjectWithoutNew) {
@@ -623,6 +623,54 @@ function testObjectEqualityWithDefaultConstructor() returns (ObjectWithNew, Obje
 
     ObjectWithNew obj3 = obj1;
     ObjectWithoutNew obj4 = obj2;
+    
+    return (obj3, obj4);
+}
+
+type A object {
+
+    public string field;
+    
+    new () {
+        field = "value A"; 
+    }
+
+    function foo(C c) returns A {
+        return new ();
+    }
+};
+
+type B object {
+
+    public string field;
+    
+    new () {
+        field = "value B"; 
+    }
+
+    function foo(D d) returns B {
+        return new ();
+    }
+};
+
+type C object {
+    function foo(A c) returns C {
+        return new ();
+    }
+};
+
+type D object {
+    function foo(B a) returns D {
+        return new ();
+    }
+};
+
+function testObjectEqualityWithRecursiveTypes() returns (A, B) {
+    A obj1 = new();
+    B obj2 = new();
+
+    B obj3 = obj1;
+    A obj4 = obj2;
     
     return (obj3, obj4);
 }
