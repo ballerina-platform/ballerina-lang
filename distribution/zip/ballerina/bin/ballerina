@@ -136,25 +136,17 @@ fi
 
 # ----- Process the input command ----------------------------------------------
 
-for c in "$@"
-do
-    if [ "$c" = "--java.debug" ] || [ "$c" = "-java.debug" ] || [ "$c" = "java.debug" ]; then
-          CMD="--java.debug"
-    elif [ "$CMD" = "--java.debug" ] && [ -z "$PORT" ]; then
-          PORT=$c
+if [[ -v BAL_JAVA_DEBUG ]]; then
+    if [[ -z "$BAL_JAVA_DEBUG" ]]; then
+        echo "Please specify the debug port for the BAL_JAVA_DEBUG variable"
+	exit 1
+    else
+	if [ -n "$JAVA_OPTS" ]; then
+	  echo "Warning !!!. User specified JAVA_OPTS will be ignored, once you give the BAL_JAVA_DEBUG variable."
+	fi
+	JAVA_OPTS="-Xdebug -Xnoagent -Djava.compiler=NONE -Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=$BAL_JAVA_DEBUG"
+	echo "Please start the remote debugging client to continue..."
     fi
-done
-
-if [ "$CMD" = "--java.debug" ]; then
-  if [ "$PORT" = "" ]; then
-    echo "Please specify the debug port after the --java.debug option"
-    exit 1
-  fi
-  if [ -n "$JAVA_OPTS" ]; then
-    echo "Warning !!!. User specified JAVA_OPTS will be ignored, once you give the --java.debug option."
-  fi
-  JAVA_OPTS="-Xdebug -Xnoagent -Djava.compiler=NONE -Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=$PORT"
-  echo "Please start the remote debugging client to continue..."
 fi
 
 JDK_18=`$JAVA_HOME/bin/java -version 2>&1 | grep -e "1.8."`
