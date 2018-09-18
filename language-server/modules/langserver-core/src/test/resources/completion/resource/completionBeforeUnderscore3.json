@@ -6,6 +6,12 @@
   "source": "resource/source/completionBeforeUnderscore3.bal",
   "items": [
     {
+      "label":"channel",
+      "detail":"BType",
+      "sortText":"170",
+      "insertText":"channel"
+    },
+    {
       "label":"xml",
       "detail":"BType",
       "sortText":"170",
@@ -169,7 +175,8 @@
       "label":"var",
       "detail":"Keyword",
       "sortText":"210",
-      "insertText":"var "
+      "insertText":"var ",
+      "insertTextFormat":"Snippet"
     },
     {
       "label":"foreach",
@@ -245,14 +252,14 @@
       "label":"wrply   Worker Reply Statement",
       "detail":"Statement",
       "sortText":"200",
-      "insertText":"${1} \u003c- ${2};",
+      "insertText":"${1:var1} \u003c- ${2:w1};",
       "insertTextFormat":"Snippet"
     },
     {
       "label":"wtrg   Worker Trigger Statement",
       "detail":"Statement",
       "sortText":"200",
-      "insertText":"${1} -\u003e ${2};",
+      "insertText":"${1:var1} -\u003e ${2:w1};",
       "insertTextFormat":"Snippet"
     },
     {

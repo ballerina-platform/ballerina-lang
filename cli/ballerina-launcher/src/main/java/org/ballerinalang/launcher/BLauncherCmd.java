@@ -77,14 +77,14 @@ public interface BLauncherCmd {
      */
     static String getCommandUsageInfo(String commandName) {
         if (commandName == null) {
-            throw LauncherUtils.createUsageException("invalid command");
+            throw LauncherUtils.createUsageExceptionWithHelp("invalid command");
         }
 
         String fileName = "cli-help/ballerina-" + commandName + ".help";
         try {
             return BCompileUtil.readFileAsString(fileName);
         } catch (IOException e) {
-            throw LauncherUtils.createUsageException("usage info not available for command: " + commandName);
+            throw LauncherUtils.createUsageExceptionWithHelp("usage info not available for command: " + commandName);
         }
     }
 }

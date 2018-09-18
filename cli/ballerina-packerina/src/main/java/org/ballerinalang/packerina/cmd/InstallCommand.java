@@ -67,7 +67,7 @@ public class InstallCommand implements BLauncherCmd {
             String packageStr = argList.get(0);
             PushUtils.pushPackages(packageStr, sourceRoot, "home", noBuild);
         } else {
-            throw LauncherUtils.createUsageException("too many arguments");
+            throw LauncherUtils.createUsageExceptionWithHelp("too many arguments");
         }
     }
 
