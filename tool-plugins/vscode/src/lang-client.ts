@@ -46,6 +46,15 @@ export interface BallerinaExampleListResponse {
     samples: Array<BallerinaExampleCategory>;
 }
 
+export interface BallerinaFragmentASTRequest {
+    enclosingScope?: string;
+    expectedNodeType?: string;
+    source?: string;
+}
+
+export interface BallerinaFragmentASTResponse {
+}
+
 export class ExtendedLangClient extends LanguageClient {
 
     getAST(uri: Uri): Thenable<BallerinaASTResponse> {
@@ -69,6 +78,10 @@ export class ExtendedLangClient extends LanguageClient {
 
     fetchExamples(args: BallerinaExampleListRequest = {}): Thenable<BallerinaExampleListResponse> {
         return this.sendRequest("ballerinaExample/list", args);
+    }
+
+    parseFragment(args: BallerinaFragmentASTRequest): Thenable<BallerinaFragmentASTResponse> {
+        return this.sendRequest("ballerinaFragment/ast", args).then((resp: any)=> resp.ast);
     }
 
     getEndpoints(): Thenable<Array<any>> {

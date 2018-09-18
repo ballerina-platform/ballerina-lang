@@ -109,6 +109,16 @@ export function activate(context: ExtensionContext, langClient: ExtendedLangClie
 				handler: (args: any[]) => {
 					return langClient.getEndpoints();
 				}
+			},
+			{
+				methodName: 'parseFragment',
+				handler: (args: any[]) => {
+					return langClient.parseFragment({
+						enclosingScope: args[0].enclosingScope,
+						expectedNodeType: args[0].expectedNodeType,
+						source: args[0].source
+					});
+				}
 			}
 		], previewPanel.webview);
 		// Handle messages from the webview
