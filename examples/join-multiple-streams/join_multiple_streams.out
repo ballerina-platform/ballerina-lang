@@ -1,7 +1,7 @@
 # At the command line, navigate to the directory that contains the
 # `join_multiple_streams.bal` file and run the `ballerina run` command.
 $ ballerina run join_multiple_streams.bal
-ballerina: initiating service(s) in 'join_multiple_streams.bal'
+Initiating service(s) in 'join_multiple_streams.bal'
 ballerina: started HTTP/WS endpoint 0.0.0.0:9090
 
 # Run the following cURL request. 
