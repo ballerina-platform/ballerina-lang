@@ -29,7 +29,6 @@ import org.ballerinalang.langserver.completions.util.ItemResolverConstants;
 import org.ballerinalang.langserver.completions.util.Snippet;
 import org.eclipse.lsp4j.CompletionItem;
 import org.eclipse.lsp4j.CompletionItemKind;
-import org.eclipse.lsp4j.InsertTextFormat;
 import org.eclipse.lsp4j.jsonrpc.messages.Either;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
@@ -178,12 +177,14 @@ public abstract class AbstractItemResolver {
      * Get variable definition context related completion items. This will extract the completion items analyzing the
      * variable definition context properties.
      * 
-     * @param completionContext     Completion context
-     * @return {@link List}         List of resolved completion items
+     * @param context           Completion context
+     * @return {@link List}     List of resolved completion items
      */
-    protected List<CompletionItem> getVarDefCompletionItems(LSServiceOperationContext completionContext) {
+    protected List<CompletionItem> getVarDefCompletionItems(LSServiceOperationContext context) {
         ArrayList<CompletionItem> completionItems = new ArrayList<>();
-        List<SymbolInfo> filteredList = completionContext.get(CompletionKeys.VISIBLE_SYMBOLS_KEY);
+        List<SymbolInfo> filteredList = context.get(CompletionKeys.VISIBLE_SYMBOLS_KEY);
+        boolean snippetCapability = context.get(CompletionKeys.CLIENT_CAPABILITIES_KEY)
+                .getCompletionItem().getSnippetSupport();
         // Remove the functions without a receiver symbol, bTypes not being packages and attached functions
         filteredList.removeIf(symbolInfo -> {
             BSymbol bSymbol = symbolInfo.getScopeEntry().symbol;
@@ -199,20 +200,19 @@ public abstract class AbstractItemResolver {
 
         // Add the check keyword
         CompletionItem checkKeyword = new CompletionItem();
-        checkKeyword.setInsertText(Snippet.CHECK_KEYWORD_SNIPPET.toString());
+        Snippet.KW_CHECK.getBlock().populateCompletionItem(checkKeyword, snippetCapability);
         checkKeyword.setLabel(ItemResolverConstants.CHECK_KEYWORD);
         checkKeyword.setDetail(ItemResolverConstants.KEYWORD_TYPE);
 
         // Add But keyword item
         CompletionItem butKeyword = new CompletionItem();
-        butKeyword.setInsertText(Snippet.BUT.toString());
+        Snippet.EXPR_MATCH.getBlock().populateCompletionItem(butKeyword, snippetCapability);
         butKeyword.setLabel(ItemResolverConstants.BUT);
-        butKeyword.setInsertTextFormat(InsertTextFormat.Snippet);
         butKeyword.setDetail(ItemResolverConstants.STATEMENT_TYPE);
 
         // Add lengthof keyword item
         CompletionItem lengthofKeyword = new CompletionItem();
-        lengthofKeyword.setInsertText(Snippet.LENGTHOF.toString());
+        Snippet.KW_LENGTHOF.getBlock().populateCompletionItem(lengthofKeyword, snippetCapability);
         lengthofKeyword.setLabel(ItemResolverConstants.LENGTHOF);
         lengthofKeyword.setDetail(ItemResolverConstants.KEYWORD_TYPE);
 

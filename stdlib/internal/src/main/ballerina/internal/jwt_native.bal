@@ -27,6 +27,7 @@ type TrustStore record {
     string certificateAlias,
     string trustStoreFilePath,
     string trustStorePassword,
+    !...
 };
 
 # Sign the given input jwt data.
@@ -42,6 +43,7 @@ type KeyStore record {
     string keyPassword,
     string keyStoreFilePath,
     string keyStorePassword,
+    !...
 };
 
 # Parse JSON string to generate JSON object.

@@ -338,6 +338,16 @@ public interface BallerinaParserListener extends ParseTreeListener {
 	 */
 	void exitGlobalVariableDefinition(BallerinaParser.GlobalVariableDefinitionContext ctx);
 	/**
+	 * Enter a parse tree produced by {@link BallerinaParser#channelType}.
+	 * @param ctx the parse tree
+	 */
+	void enterChannelType(BallerinaParser.ChannelTypeContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link BallerinaParser#channelType}.
+	 * @param ctx the parse tree
+	 */
+	void exitChannelType(BallerinaParser.ChannelTypeContext ctx);
+	/**
 	 * Enter a parse tree produced by {@link BallerinaParser#attachmentPoint}.
 	 * @param ctx the parse tree
 	 */

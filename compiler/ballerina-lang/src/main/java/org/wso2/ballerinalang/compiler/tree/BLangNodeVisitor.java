@@ -731,4 +731,5 @@ public abstract class BLangNodeVisitor {
     public void visit(BLangScope scopeNode) {
         throw new AssertionError();
     }
+
 }

@@ -46,6 +46,7 @@ public enum NodeKind {
     VARIABLE,
     WORKER,
     XMLNS,
+    CHANNEL,
 
     /* Expressions */
     DOCUMENTATION_ATTRIBUTE,
@@ -124,6 +125,8 @@ public enum NodeKind {
     STREAM,
     SCOPE,
     COMPENSATE,
+    CHANNEL_RECEIVE,
+    CHANNEL_SEND,
 
     /* Types */
     ARRAY_TYPE,

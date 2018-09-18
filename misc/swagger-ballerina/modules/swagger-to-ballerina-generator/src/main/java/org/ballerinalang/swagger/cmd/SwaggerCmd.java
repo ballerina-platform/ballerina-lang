@@ -78,7 +78,7 @@ public class SwaggerCmd implements BLauncherCmd {
         }
 
         if (argList == null || argList.size() < 2) {
-            throw LauncherUtils.createUsageException("action and a input file should be provided. "
+            throw LauncherUtils.createUsageExceptionWithHelp("action and a input file should be provided. "
                     + "Ex: ballerina swagger client swagger_file");
         }
         String action = argList.get(0).toUpperCase(Locale.ENGLISH);
@@ -98,7 +98,7 @@ public class SwaggerCmd implements BLauncherCmd {
                 msg.append("generated swagger definition");
                 break;
             default:
-                throw LauncherUtils.createUsageException(
+                throw LauncherUtils.createLauncherException(
                         "Only following actions(mock, client) are " + "supported in swagger command");
         }
         msg.append(" for input file - " + argList.get(1));
@@ -125,7 +125,7 @@ public class SwaggerCmd implements BLauncherCmd {
         try {
             generator.generate(GenType.valueOf(targetLanguage), argList.get(1), output);
         } catch (Exception e) {
-            throw LauncherUtils.createUsageException(
+            throw LauncherUtils.createLauncherException(
                     "Error occurred when generating " + targetLanguage + " for " + "swagger file at " + argList.get(1)
                             + ". " + e.getMessage() + ".");
         }
@@ -138,7 +138,7 @@ public class SwaggerCmd implements BLauncherCmd {
         try {
             SwaggerConverterUtils.generateOAS3Definitions(servicePath, outPath, serviceName);
         } catch (Exception e) {
-            throw LauncherUtils.createUsageException(
+            throw LauncherUtils.createLauncherException(
                     "Error occurred when exporting swagger file for service file at " + argList.get(1)
                             + ". " + e.getMessage() + ".");
         }

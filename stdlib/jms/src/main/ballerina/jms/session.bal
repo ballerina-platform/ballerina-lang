@@ -78,4 +78,5 @@ public type Session object {
 #                         "CLIENT_ACKNOWLEDGE", "SESSION_TRANSACTED" and "DUPS_OK_ACKNOWLEDGE"
 public type SessionConfiguration record {
     string acknowledgementMode = "AUTO_ACKNOWLEDGE";
+    !...
 };

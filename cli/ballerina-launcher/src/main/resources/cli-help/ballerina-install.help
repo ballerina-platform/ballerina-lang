@@ -13,8 +13,8 @@ DESCRIPTION
 
 OPTIONS
      --no-build
-        Skip building before pushing. The sources will not be
-        built before pushing to Ballerina Central
+        Skip building before installing. The sources will not be
+        built before installing to the home repository
 
 DEFAULT BEHAVIOR
      Installs package from project repository to home repository. 

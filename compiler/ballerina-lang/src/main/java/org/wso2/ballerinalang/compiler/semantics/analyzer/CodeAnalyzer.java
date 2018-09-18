@@ -799,6 +799,13 @@ public class CodeAnalyzer extends BLangNodeVisitor {
 
     public void visit(BLangWorkerSend workerSendNode) {
         this.checkStatementExecutionValidity(workerSendNode);
+        if (workerSendNode.isChannel) {
+            analyzeExpr(workerSendNode.expr);
+            if (workerSendNode.keyExpr != null) {
+                analyzeExpr(workerSendNode.keyExpr);
+            }
+            return;
+        }
         if (!this.inWorker()) {
             return;
         }
@@ -809,6 +816,13 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     @Override
     public void visit(BLangWorkerReceive workerReceiveNode) {
         this.checkStatementExecutionValidity(workerReceiveNode);
+        if (workerReceiveNode.isChannel) {
+            analyzeExpr(workerReceiveNode.expr);
+            if (workerReceiveNode.keyExpr != null) {
+                analyzeExpr(workerReceiveNode.keyExpr);
+            }
+            return;
+        }
         if (!this.inWorker()) {
             return;
         }
