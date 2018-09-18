@@ -27,11 +27,13 @@ import org.ballerinalang.model.tree.ResourceNode;
 import org.ballerinalang.model.tree.ServiceNode;
 import org.ballerinalang.model.tree.statements.BlockNode;
 import org.ballerinalang.model.tree.statements.StatementNode;
+import org.ballerinalang.model.types.FiniteType;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.net.grpc.config.ResourceConfiguration;
 import org.ballerinalang.net.grpc.config.ServiceConfiguration;
 import org.ballerinalang.net.grpc.exception.GrpcServerException;
 import org.ballerinalang.net.grpc.proto.definition.EmptyMessage;
+import org.ballerinalang.net.grpc.proto.definition.EnumField;
 import org.ballerinalang.net.grpc.proto.definition.Field;
 import org.ballerinalang.net.grpc.proto.definition.File;
 import org.ballerinalang.net.grpc.proto.definition.Message;
@@ -44,6 +46,7 @@ import org.ballerinalang.net.grpc.proto.definition.UserDefinedMessage;
 import org.ballerinalang.net.grpc.proto.definition.WrapperMessage;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BField;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BFiniteType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BNilType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStructureType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
@@ -510,6 +513,19 @@ public class ServiceProtoUtils {
                 }
                 fieldType = elementType;
                 fieldLabel = "repeated";
+            } else if (fieldType instanceof FiniteType) {
+                UserDefinedEnumMessage.Builder enumBuilder = UserDefinedEnumMessage
+                        .newBuilder(fieldType.tsymbol.name.value);
+                BFiniteType finiteType = (BFiniteType) fieldType;
+                int enumFieldIndex = 0;
+                EnumField.Builder enumFieldBuilder = EnumField.newBuilder();
+                EnumField enumField;
+                for (BLangExpression bLangExpression : finiteType.valueSpace) {
+                    String enumValue = String.valueOf(bLangExpression);
+                    enumField = enumFieldBuilder.setIndex(enumFieldIndex++).setName(enumValue).build();
+                    enumBuilder.addFieldDefinition(enumField);
+                }
+                messageBuilder.addMessageDefinition(enumBuilder.build());
             }
             messageField = Field.newBuilder(fieldName)
                     .setIndex(++fieldIndex)
