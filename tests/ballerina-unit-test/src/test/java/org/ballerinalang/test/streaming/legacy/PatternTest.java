@@ -46,7 +46,7 @@ public class PatternTest {
         BValue[] tempDifferences = BRunUtil.invoke(result, "runPatternQuery1");
 
         Assert.assertNotNull(tempDifferences);
-
+        Assert.assertEquals(tempDifferences.length, 1);
         BMap<String, BValue> tempDifference = (BMap<String, BValue>) tempDifferences[0];
         Assert.assertEquals(((BFloat) tempDifference.get("tempDifference")).floatValue(), 7.0);
     }
