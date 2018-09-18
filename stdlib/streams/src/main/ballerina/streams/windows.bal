@@ -23,6 +23,15 @@ public type Window object {
     public function process(StreamEvent[] streamEvents) {
 
     }
+
+    public function getCandidateEvents(
+                        StreamEvent originEvent,
+                        function (map e1Data, map e2Data) returns boolean conditionFunc,
+                        boolean isLHSTrigger = true)
+                        returns (StreamEvent, StreamEvent)[] {
+        (StreamEvent, StreamEvent)[] events;
+        return events;
+    }
 };
 
 public type LengthWindow object {
