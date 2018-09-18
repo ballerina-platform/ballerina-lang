@@ -50,11 +50,6 @@ import org.bouncycastle.operator.bc.BcRSAContentSignerBuilder;
 import org.bouncycastle.operator.jcajce.JcaContentSignerBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.wso2.transport.http.netty.common.certificatevalidation.Constants;
-import org.wso2.transport.http.netty.common.certificatevalidation.ocsp.OCSPCache;
-import org.wso2.transport.http.netty.common.certificatevalidation.ocsp.OCSPVerifier;
-import org.wso2.transport.http.netty.config.ListenerConfiguration;
-import org.wso2.transport.http.netty.config.SenderConfiguration;
 import org.wso2.transport.http.netty.contentaware.listeners.EchoMessageListener;
 import org.wso2.transport.http.netty.contract.HttpClientConnector;
 import org.wso2.transport.http.netty.contract.HttpResponseFuture;
@@ -62,6 +57,12 @@ import org.wso2.transport.http.netty.contract.HttpWsConnectorFactory;
 import org.wso2.transport.http.netty.contract.ServerConnector;
 import org.wso2.transport.http.netty.contract.ServerConnectorFuture;
 import org.wso2.transport.http.netty.contractimpl.DefaultHttpWsConnectorFactory;
+import org.wso2.transport.http.netty.contractimpl.common.certificatevalidation.Constants;
+import org.wso2.transport.http.netty.contractimpl.common.certificatevalidation.ocsp.OCSPCache;
+import org.wso2.transport.http.netty.contractimpl.common.certificatevalidation.ocsp.OCSPVerifier;
+import org.wso2.transport.http.netty.contractimpl.config.ListenerConfiguration;
+import org.wso2.transport.http.netty.contractimpl.config.Parameter;
+import org.wso2.transport.http.netty.contractimpl.config.SenderConfiguration;
 import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 import org.wso2.transport.http.netty.message.HttpMessageDataStreamer;
 import org.wso2.transport.http.netty.util.DefaultHttpConnectorListener;
@@ -84,16 +85,18 @@ import java.security.Security;
 import java.security.cert.CertificateException;
 import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 import static org.testng.Assert.assertEquals;
 import static org.testng.AssertJUnit.assertNotNull;
-import static org.wso2.transport.http.netty.common.Constants.HTTPS_SCHEME;
-import static org.wso2.transport.http.netty.common.certificatevalidation.Constants.BOUNCY_CASTLE_PROVIDER;
+import static org.wso2.transport.http.netty.contractimpl.common.Constants.HTTPS_SCHEME;
+import static org.wso2.transport.http.netty.contractimpl.common.certificatevalidation.Constants.BOUNCY_CASTLE_PROVIDER;
 
 /**
  * Contains utility methods used by the test classes.
@@ -310,9 +313,13 @@ class Utils {
     private static SenderConfiguration getSenderConfigs(String type) {
         SenderConfiguration senderConfiguration = new SenderConfiguration();
         String trustStoreFilePath = "/simple-test-config/cacerts.p12";
+        List<Parameter> clientParams = new ArrayList<>(1);
+        Parameter paramClientCiphers = new Parameter("ciphers", "TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256");
+        clientParams.add(paramClientCiphers);
         senderConfiguration.setTrustStoreFile(TestUtil.getAbsolutePath(trustStoreFilePath));
         String trustStorePassword = "cacertspassword";
         senderConfiguration.setTrustStorePass(trustStorePassword);
+        senderConfiguration.setParameters(clientParams);
         senderConfiguration.setTLSStoreType("PKCS12");
         senderConfiguration.setHostNameVerificationEnabled(false);
         if (type.equals("ocspStapling")) {
@@ -325,7 +332,11 @@ class Utils {
 
     private static ListenerConfiguration setListenerConfiguration(String keyStore, String keyStorePassword,
             String type) {
+        List<Parameter> serverParams = new ArrayList<>(1);
+        Parameter paramServerCiphers = new Parameter("ciphers", "TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256");
+        serverParams.add(paramServerCiphers);
         ListenerConfiguration listenerConfiguration = ListenerConfiguration.getDefault();
+        listenerConfiguration.setParameters(serverParams);
         listenerConfiguration.setPort(TestUtil.SERVER_PORT3);
         listenerConfiguration.setKeyStoreFile(TestUtil.getAbsolutePath(keyStore));
         listenerConfiguration.setKeyStorePass(keyStorePassword);

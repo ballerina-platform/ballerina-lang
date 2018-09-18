@@ -21,7 +21,7 @@ package org.wso2.transport.http.netty.chunkdisable;
 import io.netty.handler.codec.http.HttpHeaderNames;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
-import org.wso2.transport.http.netty.config.ChunkConfig;
+import org.wso2.transport.http.netty.contractimpl.config.ChunkConfig;
 import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 import org.wso2.transport.http.netty.util.TestUtil;
 

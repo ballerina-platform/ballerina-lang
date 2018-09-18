@@ -20,7 +20,7 @@ package org.wso2.transport.http.netty.internal;
 
 import io.netty.channel.EventLoopGroup;
 import org.osgi.framework.BundleContext;
-import org.wso2.transport.http.netty.config.ListenerConfiguration;
+import org.wso2.transport.http.netty.contractimpl.config.ListenerConfiguration;
 
 import java.util.HashMap;
 import java.util.Map;

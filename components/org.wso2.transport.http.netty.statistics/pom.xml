@@ -21,7 +21,7 @@
     <parent>
         <groupId>org.wso2.transport.http</groupId>
         <artifactId>http-parent</artifactId>
-        <version>6.0.232-SNAPSHOT</version>
+        <version>6.0.234-SNAPSHOT</version>
         <relativePath>../../pom.xml</relativePath>
     </parent>
 
@@ -67,7 +67,7 @@
             org.slf4j.*;version="${slf4j.logging.package.import.version.range}",
             org.wso2.carbon.metrics.core,
             org.wso2.carbon.messaging.*;version="${carbon.messaging.package.import.version.range}",
-            org.wso2.transport.http.netty.config.*;version="${netty.transport.package.export.version}"
+            org.wso2.transport.http.netty.contractimpl.config.*;version="${netty.transport.package.export.version}"
         </import.package>
     </properties>
 

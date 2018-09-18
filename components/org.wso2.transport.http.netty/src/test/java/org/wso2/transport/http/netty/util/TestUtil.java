@@ -29,14 +29,14 @@ import io.netty.handler.codec.http.HttpVersion;
 import org.apache.commons.io.Charsets;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.wso2.transport.http.netty.common.Constants;
-import org.wso2.transport.http.netty.config.TransportsConfiguration;
 import org.wso2.transport.http.netty.contract.HttpClientConnector;
 import org.wso2.transport.http.netty.contract.HttpResponseFuture;
 import org.wso2.transport.http.netty.contract.HttpWsConnectorFactory;
 import org.wso2.transport.http.netty.contract.ServerConnector;
 import org.wso2.transport.http.netty.contractimpl.DefaultHttpWsConnectorFactory;
-import org.wso2.transport.http.netty.listener.ServerBootstrapConfiguration;
+import org.wso2.transport.http.netty.contractimpl.common.Constants;
+import org.wso2.transport.http.netty.contractimpl.config.TransportsConfiguration;
+import org.wso2.transport.http.netty.contractimpl.listener.ServerBootstrapConfiguration;
 import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 import org.wso2.transport.http.netty.message.HttpMessageDataStreamer;
 import org.wso2.transport.http.netty.util.server.HttpServer;
@@ -68,6 +68,8 @@ import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import javax.net.ssl.HttpsURLConnection;
 
+import static org.testng.Assert.assertEquals;
+import static org.testng.AssertJUnit.assertNotNull;
 import static org.testng.AssertJUnit.fail;
 
 /**
@@ -96,6 +98,9 @@ public class TestUtil {
             String.format("ws://%s:%d/%s", TEST_HOST, WEBSOCKET_REMOTE_SERVER_PORT, "websocket");
     public static final String WEBSOCKET_SECURE_REMOTE_SERVER_URL =
             String.format("wss://%s:%d/%s", TEST_HOST, WEBSOCKET_REMOTE_SERVER_PORT, "websocket");
+    public static final String KEY_FILE = "/simple-test-config/certsAndKeys/private.key";
+    public static final String CERT_FILE = "/simple-test-config/certsAndKeys/public.crt";
+    public static final String TRUST_CERT_CHAIN = "/simple-test-config/certsAndKeys/public.crt";
     private static final DefaultHttpWsConnectorFactory httpConnectorFactory = new DefaultHttpWsConnectorFactory();
 
     public static HttpServer startHTTPServer(int port, ChannelInitializer channelInitializer) {
@@ -272,6 +277,29 @@ public class TestUtil {
             httpServer.shutdown();
         } catch (InterruptedException e) {
             LOG.error("Thread Interrupted while sleeping ", e);
+        }
+    }
+
+    public static void testHttpsPost(HttpClientConnector httpClientConnector, int port) {
+        try {
+            String testValue = "Test Message";
+            HttpCarbonMessage msg = TestUtil.createHttpsPostReq(port, testValue, "");
+
+            CountDownLatch latch = new CountDownLatch(1);
+            DefaultHttpConnectorListener listener = new DefaultHttpConnectorListener(latch);
+            HttpResponseFuture responseFuture = httpClientConnector.send(msg);
+            responseFuture.setHttpConnectorListener(listener);
+
+            latch.await(30, TimeUnit.SECONDS);
+
+            HttpCarbonMessage response = listener.getHttpResponseMessage();
+            assertNotNull(response);
+            String result = new BufferedReader(
+                    new InputStreamReader(new HttpMessageDataStreamer(response).getInputStream())).lines()
+                    .collect(Collectors.joining("\n"));
+            assertEquals(result, testValue);
+        } catch (Exception e) {
+            TestUtil.handleException("Exception occurred while running Test", e);
         }
     }
 

@@ -23,7 +23,7 @@ import io.netty.channel.EventLoopGroup;
 import org.wso2.transport.http.netty.contract.websocket.ClientHandshakeFuture;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketClientConnector;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketClientConnectorConfig;
-import org.wso2.transport.http.netty.sender.websocket.WebSocketClient;
+import org.wso2.transport.http.netty.contractimpl.sender.websocket.WebSocketClient;
 
 /**
  * Implementation of WebSocket client connector.
