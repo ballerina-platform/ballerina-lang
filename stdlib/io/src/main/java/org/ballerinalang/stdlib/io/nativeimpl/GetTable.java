@@ -62,7 +62,7 @@ import static org.ballerinalang.util.BLangConstants.BALLERINA_BUILTIN_PKG;
 @BallerinaFunction(
         orgName = "ballerina", packageName = "io",
         functionName = "getTable",
-        receiver = @Receiver(type = TypeKind.OBJECT, structType = "CSVChannel", structPackage = "ballerina/io"),
+        receiver = @Receiver(type = TypeKind.OBJECT, structType = "ReadableCSVChannel", structPackage = "ballerina/io"),
         args = {@Argument(name = "structType", type = TypeKind.TYPEDESC)},
         returnType = {
                 @ReturnType(type = TypeKind.TABLE),

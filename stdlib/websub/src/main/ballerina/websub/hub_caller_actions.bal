@@ -72,7 +72,7 @@ public type CallerActions object {
     # + signatureMethod - The signature method to use to generate a secret
     # + headers - The headers, if any, that need to be set
     # + return - `error` if an error occurred with the update
-    public function publishUpdate(string topic, string|xml|json|byte[]|io:ByteChannel payload, string? contentType = (),
+    public function publishUpdate(string topic, string|xml|json|byte[]|io:ReadableByteChannel payload, string? contentType = (),
                                   string? secret = (), string signatureMethod = "sha256", map<string>? headers = ())
         returns error?;
 
@@ -149,7 +149,7 @@ function CallerActions::unregisterTopic(string topic, string? secret = ()) retur
     }
 }
 
-function CallerActions::publishUpdate(string topic, string|xml|json|byte[]|io:ByteChannel payload,
+function CallerActions::publishUpdate(string topic, string|xml|json|byte[]|io:ReadableByteChannel payload,
                                              string? contentType = (), string? secret = (),
                                              string signatureMethod = "sha256", map<string>? headers = ())
         returns error? {

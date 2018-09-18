@@ -46,7 +46,7 @@ import org.ballerinalang.stdlib.io.utils.IOUtils;
         orgName = "ballerina", packageName = "io",
         functionName = "hasNext",
         receiver = @Receiver(type = TypeKind.OBJECT,
-                structType = "DelimitedTextRecordChannel",
+                structType = "ReadableTextRecordChannel",
                 structPackage = "ballerina/io"),
         returnType = {@ReturnType(type = TypeKind.BOOLEAN)},
         isPublic = true

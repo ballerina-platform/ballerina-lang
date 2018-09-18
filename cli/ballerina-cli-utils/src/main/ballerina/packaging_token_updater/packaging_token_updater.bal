@@ -9,9 +9,9 @@ documentation {
     P{{encoding}} Encoding
     R{{}} CharacterChannel of the file after writing to the file
 }
-function openForWriting (string filePath, string encoding) returns io:CharacterChannel {
-    io:ByteChannel byteChannel = io:openFile(filePath, "w");
-    io:CharacterChannel result = new io:CharacterChannel(byteChannel, encoding);
+function openForWriting (string filePath, string encoding) returns io:WritableCharacterChannel {
+    io:WritableByteChannel byteChannel = io:openFileForWriting(filePath);
+    io:WritableCharacterChannel result = new io:WritableCharacterChannel(byteChannel, encoding);
     return result;
 }
 

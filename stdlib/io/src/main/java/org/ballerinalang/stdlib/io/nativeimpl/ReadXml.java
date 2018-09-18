@@ -44,7 +44,8 @@ import org.ballerinalang.util.exceptions.BallerinaException;
         orgName = "ballerina",
         packageName = "io",
         functionName = "readXml",
-        receiver = @Receiver(type = TypeKind.OBJECT, structType = "CharacterChannel", structPackage = "ballerina/io"),
+        receiver = @Receiver(type = TypeKind.OBJECT, structType = "ReadableCharacterChannel",
+                structPackage = "ballerina/io"),
         isPublic = true
 )
 public class ReadXml implements NativeCallableUnit {

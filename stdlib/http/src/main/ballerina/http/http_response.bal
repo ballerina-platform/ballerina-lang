@@ -145,7 +145,7 @@ public type Response object {
     # `getBodyParts()`.
     #
     # + return - A byte channel from which the message payload can be read or `error` in case of errors
-    public function getByteChannel() returns io:ByteChannel|error;
+    public function getByteChannel() returns io:ReadableByteChannel|error;
 
     # Gets the response payload as a `byte[]`.
     #
@@ -213,13 +213,13 @@ public type Response object {
     # + payload - A `ByteChannel` through which the message payload can be read
     # + contentType - The content type of the payload. Set this to override the default `content-type`
     #                 header value
-    public function setByteChannel(io:ByteChannel payload, string contentType = "application/octet-stream");
+    public function setByteChannel(io:ReadableByteChannel payload, string contentType = "application/octet-stream");
 
     # Sets the response payload.
     #
     # + payload - Payload can be of type `string`, `xml`, `json`, `byte[]`, `ByteChannel` or `Entity[]` (i.e: a set
     #             of body parts)
-    public function setPayload(string|xml|json|byte[]|io:ByteChannel|mime:Entity[] payload);
+    public function setPayload(string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[] payload);
 };
 
 /////////////////////////////////
@@ -341,13 +341,13 @@ function Response::getBinaryPayload() returns byte[]|error {
     }
 }
 
-function Response::getByteChannel() returns io:ByteChannel|error {
+function Response::getByteChannel() returns io:ReadableByteChannel|error {
     match self.getEntity() {
         error err => return err;
         mime:Entity mimeEntity => {
             match mimeEntity.getByteChannel() {
                 error payloadErr => return payloadErr;
-                io:ByteChannel byteChannel => return byteChannel;
+                io:ReadableByteChannel byteChannel => return byteChannel;
             }
         }
     }
@@ -409,19 +409,19 @@ function Response::setFileAsPayload(string filePath, string contentType = "appli
     self.setEntity(entity);
 }
 
-function Response::setByteChannel(io:ByteChannel payload, string contentType = "application/octet-stream") {
+function Response::setByteChannel(io:ReadableByteChannel payload, string contentType = "application/octet-stream") {
     mime:Entity entity = self.getEntityWithoutBody();
     entity.setByteChannel(payload, contentType = contentType);
     self.setEntity(entity);
 }
 
-function Response::setPayload(string|xml|json|byte[]|io:ByteChannel|mime:Entity[] payload) {
+function Response::setPayload(string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[] payload) {
     match payload {
         string textContent => self.setTextPayload(textContent);
         xml xmlContent => self.setXmlPayload(xmlContent);
         json jsonContent => self.setJsonPayload(jsonContent);
         byte[] blobContent => self.setBinaryPayload(blobContent);
-        io:ByteChannel byteChannelContent => self.setByteChannel(byteChannelContent);
+        io:ReadableByteChannel byteChannelContent => self.setByteChannel(byteChannelContent);
         mime:Entity[] bodyParts => self.setBodyParts(bodyParts);
     }
 }

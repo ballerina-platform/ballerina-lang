@@ -52,7 +52,7 @@ public class GetTableTest {
     public void loadRecordFromFile() throws URISyntaxException {
         String resourceToRead = "datafiles/io/records/sample5.csv";
         BValue[] args = {
-                new BString(getAbsoluteFilePath(resourceToRead)), new BString("r"), new BString("UTF-8"),
+                new BString(getAbsoluteFilePath(resourceToRead)), new BString("UTF-8"),
                 new BString(",")
         };
         final BValue[] result = BRunUtil.invoke(recordsInputOutputProgramFile, "getTable", args);

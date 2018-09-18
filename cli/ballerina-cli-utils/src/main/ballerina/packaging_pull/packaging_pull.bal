@@ -42,8 +42,8 @@ documentation {
     P{{terminalWidth}} Width of the terminal
     P{{versionRange}} Supported version range
 }
-function pullPackage (http:Client definedEndpoint, string url, string dirPath, string pkgPath, string fileSeparator,
-                      string terminalWidth, string versionRange) {
+function pullPackage(http:Client definedEndpoint, string url, string dirPath, string pkgPath, string fileSeparator,
+                     string terminalWidth, string versionRange) {
     endpoint http:Client httpEndpoint = definedEndpoint;
     string fullPkgPath = pkgPath;
     string destDirPath = dirPath;
@@ -51,7 +51,7 @@ function pullPackage (http:Client definedEndpoint, string url, string dirPath, s
     req.addHeader("Accept-Encoding", "identity");
 
     http:Response httpResponse = new;
-    var result = httpEndpoint -> get(untaint versionRange, message=req);
+    var result = httpEndpoint->get(untaint versionRange, message = req);
 
     match result {
         http:Response response => httpResponse = response;
@@ -62,7 +62,7 @@ function pullPackage (http:Client definedEndpoint, string url, string dirPath, s
     }
 
     http:Response res = new;
-    string statusCode = <string> httpResponse.statusCode;
+    string statusCode = <string>httpResponse.statusCode;
     if (statusCode.hasPrefix("5")) {
         io:println(logger.formatLog("remote registry failed for url :" + url));
     } else if (statusCode != "200") {
@@ -81,19 +81,19 @@ function pullPackage (http:Client definedEndpoint, string url, string dirPath, s
 
         if (httpResponse.hasHeader("content-length")) {
             contentLengthHeader = httpResponse.getHeader("content-length");
-            pkgSize = check <int> contentLengthHeader;
+            pkgSize = check <int>contentLengthHeader;
         } else {
             io:println(logger.formatLog("warning: package size information is missing from remote repository"));
         }
 
-        io:ByteChannel sourceChannel = check (httpResponse.getByteChannel());
+        io:ReadableByteChannel sourceChannel = check (httpResponse.getByteChannel());
 
         string resolvedURI = httpResponse.resolvedRequestedURI;
         if (resolvedURI == "") {
             resolvedURI = url;
         }
 
-        string [] uriParts = resolvedURI.split("/");
+        string[] uriParts = resolvedURI.split("/");
         string pkgVersion = uriParts[lengthof uriParts - 2];
         boolean valid = check pkgVersion.matches(VERSION_REGEX);
 
@@ -103,7 +103,7 @@ function pullPackage (http:Client definedEndpoint, string url, string dirPath, s
 
             fullPkgPath = fullPkgPath + ":" + pkgVersion;
             destDirPath = destDirPath + fileSeparator + pkgVersion;
-            string destArchivePath = destDirPath  + fileSeparator + archiveFileName;
+            string destArchivePath = destDirPath + fileSeparator + archiveFileName;
 
             if (!createDirectories(destDirPath)) {
                 internal:Path pkgArchivePath = new(destArchivePath);
@@ -113,14 +113,15 @@ function pullPackage (http:Client definedEndpoint, string url, string dirPath, s
                 }
             }
 
-            io:ByteChannel destDirChannel = getFileChannel(destArchivePath, io:WRITE);
+            io:WritableByteChannel wch = io:openFileForWriting(untaint destArchivePath);
+
             string toAndFrom = " [central.ballerina.io -> home repo]";
             int rightMargin = 3;
-            int width = (check <int> terminalWidth) - rightMargin;
-            copy(pkgSize, sourceChannel, destDirChannel, fullPkgPath, toAndFrom, width);
+            int width = (check <int>terminalWidth) - rightMargin;
+            copy(pkgSize, sourceChannel, wch, fullPkgPath, toAndFrom, width);
 
-            closeChannel(destDirChannel);
             closeChannel(sourceChannel);
+            closeChannel(wch);
         } else {
             io:println(logger.formatLog("package version could not be detected"));
         }
@@ -207,25 +208,13 @@ function defineEndpointWithoutProxy (string url) returns http:Client{
 }
 
 documentation {
-    This function will get the file channel.
-
-    P{{filePath}} File path
-    P{{permission}} Permissions provided
-    R{{}} `ByteChannel` of the file content
-}
-function getFileChannel (string filePath, io:Mode permission) returns (io:ByteChannel) {
-    io:ByteChannel byteChannel = io:openFile(untaint filePath, permission);
-    return byteChannel;
-}
-
-documentation {
     This function will read the bytes from the byte channel.
 
     P{{byteChannel}} Byte channel
     P{{numberOfBytes}} Number of bytes to be read
     R{{}} Read content as byte[] along with the number of bytes read.
 }
-function readBytes (io:ByteChannel byteChannel, int numberOfBytes) returns (byte[], int) {
+function readBytes(io:ReadableByteChannel byteChannel, int numberOfBytes) returns (byte[], int) {
     byte[] bytes;
     int numberOfBytesRead;
     (bytes, numberOfBytesRead) = check (byteChannel.read(numberOfBytes));
@@ -240,7 +229,7 @@ documentation {
     P{{startOffset}} Offset
     R{{}} number of bytes written.
 }
-function writeBytes (io:ByteChannel byteChannel, byte[] content, int startOffset) returns int {
+function writeBytes(io:WritableByteChannel byteChannel, byte[] content, int startOffset) returns int {
     int numberOfBytesWritten = check (byteChannel.write(content, startOffset));
     return numberOfBytesWritten;
 }
@@ -255,7 +244,8 @@ documentation {
     P{{toAndFrom}} Pulled package details
     P{{width}} Width of the terminal
 }
-function copy (int pkgSize, io:ByteChannel src, io:ByteChannel dest, string fullPkgPath, string toAndFrom, int width) {
+function copy(int pkgSize, io:ReadableByteChannel src, io:WritableByteChannel dest,
+              string fullPkgPath, string toAndFrom, int width) {
     int terminalWidth = width - logger.offset;
     int bytesChunk = 8;
     byte[] readContent;
@@ -282,7 +272,7 @@ function copy (int pkgSize, io:ByteChannel src, io:ByteChannel dest, string full
             totalCount = totalCount + readCount;
             float percentage = totalCount / pkgSize;
             noOfBytesRead = totalCount + "/" + pkgSize;
-            string bar = equals.substring(startVal, <int> (percentage * totalVal));
+            string bar = equals.substring(startVal, <int>(percentage * totalVal));
             string spaces = tabspaces.substring(startVal, totalVal - <int>(percentage * totalVal));
             string size = "[" + bar + ">" + spaces + "] " + <int>totalCount + "/" + pkgSize;
             string msg = truncateString(fullPkgPath + toAndFrom, terminalWidth - size.length());
@@ -301,7 +291,7 @@ documentation {
     P{{logMsgLength}} Length of the log message
     R{{}} The log message to be printed after adding the right pad
 }
-function rightPad (string logMsg, int logMsgLength) returns (string) {
+function rightPad(string logMsg, int logMsgLength) returns (string) {
     string msg = logMsg;
     int length = logMsgLength;
     int i = -1;
@@ -321,7 +311,7 @@ documentation {
     P{{maxSize}} Maximum size of the log message printed
     R{{}} Truncated string.
 }
-function truncateString (string text, int maxSize) returns (string) {
+function truncateString(string text, int maxSize) returns (string) {
     int lengthOfText = text.length();
     if (lengthOfText > maxSize) {
         int endIndex = 3;
@@ -361,12 +351,17 @@ documentation {
 
     P{{byteChannel}} Byte channel to be closed
 }
-function closeChannel(io:ByteChannel byteChannel) {
-    match byteChannel.close() {
-        error channelCloseError => {
-            io:println(logger.formatLog("Error occured while closing the channel: " + channelCloseError.message));
+function closeChannel(io:ReadableByteChannel|io:WritableByteChannel byteChannel) {
+    match byteChannel {
+        object { public function close() returns error?; } ch => {
+            match ch.close() {
+                error channelCloseError => {
+                    io:println(logger.formatLog("Error occured while closing the channel: " +
+                                channelCloseError.message));
+                }
+                () => return;
+            }
         }
-        () => return;
     }
 }
 
@@ -379,8 +374,9 @@ documentation {
     P{{password}} Password of the proxy
     R{{}} Proxy configurations for the endpoint
 }
-function getProxyConfigurations(string hostName, string port, string username, string password) returns http:ProxyConfig {
-    int portInt = check <int> port;
-    http:ProxyConfig proxy = { host : hostName, port : portInt , userName: username, password : password };
+function getProxyConfigurations(string hostName, string port, string username, string password) returns http:ProxyConfig
+{
+    int portInt = check <int>port;
+    http:ProxyConfig proxy = {host:hostName, port:portInt, userName:username, password:password};
     return proxy;
 }

@@ -69,9 +69,9 @@ public class CsvChannelTest {
         int expectedRecordLength = 3;
 
         //Will initialize the channel
-        BValue[] args = {new BString(getAbsoluteFilePath(resourceToRead)), new BString("r"), new BString("UTF-8"),
+        BValue[] args = {new BString(getAbsoluteFilePath(resourceToRead)), new BString("UTF-8"),
                 new BString(",")};
-        BRunUtil.invokeStateful(csvInputOutputProgramFile, "initCSVChannel", args);
+        BRunUtil.invokeStateful(csvInputOutputProgramFile, "initReadableCsvChannel", args);
 
         BValue[] returns = BRunUtil.invokeStateful(csvInputOutputProgramFile, "nextRecord");
         records = (BStringArray) returns[0];
@@ -111,9 +111,9 @@ public class CsvChannelTest {
         int expectedRecordLength = 3;
 
         //Will initialize the channel
-        BValue[] args = {new BString(getAbsoluteFilePath(resourceToRead)), new BString("r"), new BString("UTF-8"),
+        BValue[] args = {new BString(getAbsoluteFilePath(resourceToRead)), new BString("UTF-8"),
                 new BString(","), new BInteger(0)};
-        BRunUtil.invokeStateful(csvInputOutputProgramFile, "initOpenCsv", args);
+        BRunUtil.invokeStateful(csvInputOutputProgramFile, "initOpenCsvChannel", args);
 
         BValue[] returns = BRunUtil.invokeStateful(csvInputOutputProgramFile, "nextRecord");
         records = (BStringArray) returns[0];
@@ -153,9 +153,9 @@ public class CsvChannelTest {
         int expectedRecordLength = 3;
 
         //Will initialize the channel
-        BValue[] args = {new BString(getAbsoluteFilePath(resourceToRead)), new BString("r"), new BString("UTF-8"),
+        BValue[] args = {new BString(getAbsoluteFilePath(resourceToRead)), new BString("UTF-8"),
                 new BString(":"), new BInteger(0)};
-        BRunUtil.invokeStateful(csvInputOutputProgramFile, "initOpenCsv", args);
+        BRunUtil.invokeStateful(csvInputOutputProgramFile, "initOpenCsvChannel", args);
 
         BValue[] returns = BRunUtil.invokeStateful(csvInputOutputProgramFile, "nextRecord");
         records = (BStringArray) returns[0];
@@ -194,9 +194,9 @@ public class CsvChannelTest {
         int expectedRecordLength = 3;
 
         //Will initialize the channel
-        BValue[] args = {new BString(getAbsoluteFilePath(resourceToRead)), new BString("r"), new BString("UTF-8"),
+        BValue[] args = {new BString(getAbsoluteFilePath(resourceToRead)), new BString("UTF-8"),
                 new BString(","), new BInteger(1)};
-        BRunUtil.invokeStateful(csvInputOutputProgramFile, "initOpenCsv", args);
+        BRunUtil.invokeStateful(csvInputOutputProgramFile, "initOpenCsvChannel", args);
 
         BValue[] returns = BRunUtil.invokeStateful(csvInputOutputProgramFile, "nextRecord");
         records = (BStringArray) returns[0];
@@ -224,9 +224,9 @@ public class CsvChannelTest {
         int expectedRecordLength = 3;
 
         //Will initialize the channel
-        BValue[] args = {new BString(getAbsoluteFilePath(resourceToRead)), new BString("r"), new BString("UTF-8"),
+        BValue[] args = {new BString(getAbsoluteFilePath(resourceToRead)), new BString("UTF-8"),
                 new BString(",")};
-        BRunUtil.invokeStateful(csvInputOutputProgramFile, "initCSVChannel", args);
+        BRunUtil.invokeStateful(csvInputOutputProgramFile, "initReadableCsvChannel", args);
 
         BValue[] returns = BRunUtil.invokeStateful(csvInputOutputProgramFile, "nextRecord");
         records = (BStringArray) returns[0];
@@ -268,9 +268,9 @@ public class CsvChannelTest {
         int expectedRecordLength = 3;
 
         //Will initialize the channel
-        BValue[] args = {new BString(getAbsoluteFilePath(resourceToRead)), new BString("r"), new BString("UTF-8"),
+        BValue[] args = {new BString(getAbsoluteFilePath(resourceToRead)), new BString("UTF-8"),
                 new BString("\t")};
-        BRunUtil.invokeStateful(csvInputOutputProgramFile, "initCSVChannel", args);
+        BRunUtil.invokeStateful(csvInputOutputProgramFile, "initReadableCsvChannel", args);
 
         BValue[] returns = BRunUtil.invokeStateful(csvInputOutputProgramFile, "nextRecord");
         records = (BStringArray) returns[0];
@@ -309,9 +309,9 @@ public class CsvChannelTest {
         String sourceToWrite = currentDirectoryPath + "/recordsDefault.csv";
 
         //Will initialize the channel
-        BValue[] args = {new BString(sourceToWrite), new BString("w"), new BString("UTF-8"),
+        BValue[] args = {new BString(sourceToWrite), new BString("UTF-8"),
                 new BString(",")};
-        BRunUtil.invokeStateful(csvInputOutputProgramFile, "initCSVChannel", args);
+        BRunUtil.invokeStateful(csvInputOutputProgramFile, "initWritableCsvChannel", args);
 
         args = new BValue[]{record};
         BRunUtil.invokeStateful(csvInputOutputProgramFile, "writeRecord", args);
@@ -332,9 +332,9 @@ public class CsvChannelTest {
         String sourceToWrite = currentDirectoryPath + "/recordsTdf.csv";
 
         //Will initialize the channel
-        BValue[] args = {new BString(sourceToWrite), new BString("w"), new BString("UTF-8"),
+        BValue[] args = {new BString(sourceToWrite), new BString("UTF-8"),
                 new BString("\t")};
-        BRunUtil.invokeStateful(csvInputOutputProgramFile, "initCSVChannel", args);
+        BRunUtil.invokeStateful(csvInputOutputProgramFile, "initWritableCsvChannel", args);
 
         args = new BValue[]{record};
         BRunUtil.invokeStateful(csvInputOutputProgramFile, "writeRecord", args);

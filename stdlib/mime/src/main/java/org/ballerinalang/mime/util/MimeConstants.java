@@ -30,7 +30,7 @@ public class MimeConstants {
     public static final String CONTENT_DISPOSITION_STRUCT = "ContentDisposition";
     public static final String PROTOCOL_PACKAGE_MIME = BALLERINA_PACKAGE_PREFIX + "mime";
     public static final String PROTOCOL_PACKAGE_IO = BALLERINA_PACKAGE_PREFIX + "io";
-    public static final String BYTE_CHANNEL_STRUCT = "ByteChannel";
+    public static final String READABLE_BYTE_CHANNEL_STRUCT = "ReadableByteChannel";
 
     /**
      * Content type HTTP header.

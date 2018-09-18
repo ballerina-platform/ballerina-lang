@@ -351,7 +351,7 @@ public type Notification object {
     # Retrieves the request payload as a `ByteChannel` except in the case of multiparts.
     #
     # + return - A byte channel from which the message payload can be read or `error` in case of errors
-    public function getByteChannel() returns io:ByteChannel|error {
+    public function getByteChannel() returns io:ReadableByteChannel|error {
         return request.getByteChannel();
     }
 
@@ -481,7 +481,7 @@ public type WebSubHub object {
     # + payload - The update payload
     # + contentType - The content type header to set for the request delivering the payload
     # + return - `error` if the hub is not initialized or does not represent the internal hub
-    public function publishUpdate(string topic, string|xml|json|byte[]|io:ByteChannel payload,
+    public function publishUpdate(string topic, string|xml|json|byte[]|io:ReadableByteChannel payload,
                                   string? contentType = ()) returns error?;
 
     # Registers a topic in the Ballerina Hub.
@@ -503,7 +503,7 @@ function WebSubHub::stop() returns boolean {
     return stopHubService(self.hubUrl);
 }
 
-function WebSubHub::publishUpdate(string topic, string|xml|json|byte[]|io:ByteChannel payload,
+function WebSubHub::publishUpdate(string topic, string|xml|json|byte[]|io:ReadableByteChannel payload,
                                          string? contentType = ()) returns error? {
 
     if (self.hubUrl == "") {
@@ -514,7 +514,7 @@ function WebSubHub::publishUpdate(string topic, string|xml|json|byte[]|io:ByteCh
     WebSubContent content = {};
 
     match(payload) {
-        io:ByteChannel byteChannel => content.payload = constructByteArray(byteChannel);
+        io:ReadableByteChannel byteChannel => content.payload = constructByteArray(byteChannel);
         string|xml|json|byte[] => content.payload = payload;
     }
 
@@ -525,7 +525,7 @@ function WebSubHub::publishUpdate(string topic, string|xml|json|byte[]|io:ByteCh
                 string => content.contentType = mime:TEXT_PLAIN;
                 xml => content.contentType = mime:APPLICATION_XML;
                 json => content.contentType = mime:APPLICATION_JSON;
-                byte[]|io:ByteChannel => content.contentType = mime:APPLICATION_OCTET_STREAM;
+                byte[]|io:ReadableByteChannel => content.contentType = mime:APPLICATION_OCTET_STREAM;
             }
         }
     }
@@ -590,7 +590,7 @@ function retrieveSubscriberServiceAnnotations(typedesc serviceType) returns Subs
 # + payload - The payload to be sent
 # + contentType - The content-type of the payload
 type WebSubContent record {
-    string|xml|json|byte[]|io:ByteChannel payload,
+    string|xml|json|byte[]|io:ReadableByteChannel payload,
     string contentType,
     !...
 };

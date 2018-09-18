@@ -1,4 +1,4 @@
-// Copyright (c) 2017 WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+// Copyright (c) 2018 WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
 //
 // WSO2 Inc. licenses this file to you under the Apache License,
 // Version 2.0 (the "License"); you may not use this file except
@@ -14,36 +14,32 @@
 // specific language governing permissions and limitations
 // under the License.
 
-# Represents a channel which could be used to read/write characters through a given ByteChannel.
-public type CharacterChannel object {
-    private ByteChannel bChannel;
+
+#Represents a channel which could be used to read characters through a given ReadableByteChannel.
+public type ReadableCharacterChannel object {
+
+    private ReadableByteChannel byteChannel;
     private string charset;
 
-    # Constructs a CharacterChannel from a given ByteChannel and Charset.
-    #
-    # + bChannel - ByteChannel which would be used to read/write characters
+    # Constructs a ReadableCharacterChannel from a given ReadableByteChannel and Charset.
+
+    # + channel - ReadableByteChannel which would be used to read characters
     # + charset - Character-Set which would be used to encode/decode given bytes to characters
-    public new(bChannel, charset) {
-        init(bChannel, charset);
+    public new(byteChannel, charset) {
+        init(byteChannel, charset);
     }
 
-    # Initializes a character channel.
+    # Initializes a character ReadableCharacterChannel.
     #
-    # + byteChannel - ByteChannel which should be used to initalize the character channel
+    # + byteChannel - ReadableByteChannel which should be used to initalize the ReadableCharacterChannel
     # + cs - Character-set (i.e UTF-8) which should be used to encode/decode
-    extern function init(ByteChannel byteChannel, string cs);
+    extern function init(ReadableByteChannel bChannel, string cs);
 
     # Reads a given number of characters.
     #
     # + numberOfChars - Number of characters which should be read
     # + return - Content which is read or an error
     public extern function read(@sensitive int numberOfChars) returns @tainted string|error;
-
-    # Writes a given sequence of characters (string).
-    #
-    # + content - Content which should be written
-    # + startOffset - Number of characters which should be offset when writing content
-    public extern function write(string content, int startOffset) returns int|error;
 
     # Reads a json from the given channel.
     #
@@ -54,18 +50,6 @@ public type CharacterChannel object {
     #
     # + return - Read xml or an error
     public extern function readXml() returns @tainted xml|error;
-
-    # Writes a given json to the given channel.
-    #
-    # + content - The json which should be written
-    # + return - If an error occurred while writing
-    public extern function writeJson(json content) returns error?;
-
-    # Writes a given xml to the channel.
-    #
-    # + content - The XML which should be written
-    # + return - If an error occurred while writing
-    public extern function writeXml(xml content) returns error?;
 
     # Closes a given character channel.
     #

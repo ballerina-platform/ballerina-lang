@@ -6,20 +6,20 @@
  * in compliance with the License.
  * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
  * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- * KIND, either express or implied. See the License for the
+ * KIND, either express or implied.  See the License for the
  * specific language governing permissions and limitations
  * under the License.
+ *
  */
 package org.ballerinalang.stdlib.io.nativeimpl;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BString;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
@@ -37,25 +37,26 @@ import java.nio.file.Paths;
 /**
  * Extern function to obtain channel from File.
  *
- * @since 0.963.0
+ * @since 0.982.0
  */
 @BallerinaFunction(
         orgName = "ballerina", packageName = "io",
-        functionName = "openFile",
-        args = {@Argument(name = "path", type = TypeKind.STRING),
-                @Argument(name = "accessMode", type = TypeKind.STRING)},
-        returnType = {@ReturnType(type = TypeKind.OBJECT, structType = "ByteChannel", structPackage = "ballerina/io")},
+        functionName = "openFileForReading",
+        args = {@Argument(name = "path", type = TypeKind.STRING)},
+        returnType = {
+                @ReturnType(type = TypeKind.OBJECT, structType = "ReadableByteChannel", structPackage = "ballerina/io")
+        },
         isPublic = true
 )
-public class OpenFile extends AbstractNativeChannel {
+public class OpenReadableFile extends AbstractNativeChannel {
     /**
      * Index which defines the file path.
      */
     private static final int PATH_FIELD_INDEX = 0;
     /**
-     * Index which will specify the file access mode.
+     * Read only access mode.
      */
-    private static final int FILE_ACCESS_MODE_INDEX = 0;
+    private static final String READ_ACCESS_MODE = "r";
 
     /**
      * {@inheritDoc}
@@ -63,14 +64,14 @@ public class OpenFile extends AbstractNativeChannel {
     @Override
     public Channel inFlow(Context context) throws BallerinaException {
         String pathUrl = context.getStringArgument(PATH_FIELD_INDEX);
-        BString accessMode = (BString) context.getRefArgument(FILE_ACCESS_MODE_INDEX);
         Channel channel;
         try {
             Path path = Paths.get(pathUrl);
-            FileChannel fileChannel = IOUtils.openFileChannel(path, accessMode.stringValue());
+            FileChannel fileChannel = IOUtils.openFileChannel(path, READ_ACCESS_MODE);
             channel = new FileIOChannel(fileChannel);
+            channel.setReadable(true);
         } catch (AccessDeniedException e) {
-            throw new BallerinaException("Do not have access to write file: ", e);
+            throw new BallerinaException("Do not have access to read file: ", e);
         } catch (Throwable e) {
             throw new BallerinaException("failed to open file: " + e.getMessage(), e);
         }

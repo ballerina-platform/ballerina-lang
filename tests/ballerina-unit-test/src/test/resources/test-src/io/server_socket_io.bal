@@ -22,7 +22,7 @@ function getResultValue() returns string {
     return returnValue;
 }
 
-function readAllCharacters(io:CharacterChannel characterChannel) returns string|error? {
+function readAllCharacters(io:ReadableCharacterChannel characterChannel) returns string|error? {
     int fixedSize = 50;
     boolean isDone = false;
     string result;
@@ -43,7 +43,7 @@ function readAllCharacters(io:CharacterChannel characterChannel) returns string|
     return result;
 }
 
-function readCharacters(int numberOfCharacters, io:CharacterChannel characterChannel) returns string|error {
+function readCharacters(int numberOfCharacters, io:ReadableCharacterChannel characterChannel) returns string|error {
     var result = characterChannel.read(numberOfCharacters);
     match result {
         string characters => {
@@ -63,9 +63,10 @@ function startServerSocket(int port, string welcomeMsg) {
         io:Socket s => {
             io:println("Client socket accepted!!!");
             io:println(s.remotePort);
-            io:ByteChannel ch = s.byteChannel;
+            io:ReadableByteChannel rch = s.readableChannel;
+            io:WritableByteChannel wch = s.writableChannel;
             byte[] c1 = welcomeMsg.toByteArray("utf-8");
-            match ch.write(c1, 0) {
+            match wch.write(c1, 0) {
                 int i => {
                     io:println("No of bytes written: ", i);
                 }
@@ -73,9 +74,9 @@ function startServerSocket(int port, string welcomeMsg) {
                     io:println("Channel write error: ", e2.message);
                 }
             }
-            io:CharacterChannel? characterChannel1 = new io:CharacterChannel(ch, "utf-8");
+            io:ReadableCharacterChannel? characterChannel1 = new io:ReadableCharacterChannel(rch, "utf-8");
             match characterChannel1 {
-                io:CharacterChannel characterChannel => {
+                io:ReadableCharacterChannel characterChannel => {
                     match readAllCharacters(characterChannel) {
                         string str => {
                             returnValue = untaint str;
