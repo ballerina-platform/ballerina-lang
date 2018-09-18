@@ -267,7 +267,7 @@ DottedHexNumber
 fragment
 DottedDecimalNumber
     :   DecimalNumeral DOT Digits
-    |   DOT Digit+
+    |   DOT Digits
     ;
 
 fragment
@@ -304,6 +304,16 @@ HexadecimalFloatingPointLiteral
 DecimalFloatingPointNumber
     :   DecimalNumeral ExponentPart
     |   DottedDecimalNumber ExponentPart?
+    ;
+
+DecimalFloatingPointLiteral
+    :   DecimalNumeral DecimalLiteralIndicator
+    |   DottedDecimalNumber DecimalLiteralIndicator
+    ;
+
+fragment
+DecimalLiteralIndicator
+    :   [dD]
     ;
 
 fragment
