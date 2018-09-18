@@ -657,6 +657,8 @@ public class Desugar extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangReturn returnNode) {
+        // If the return node do not have an expression, we add `done` statement instead of a return statement. This is
+        // to distinguish between returning nil value specifically and not returning any value.
         if (returnNode.expr == null) {
             BLangDone doneStmt = (BLangDone) TreeBuilder.createDoneNode();
             doneStmt.pos = returnNode.pos;
