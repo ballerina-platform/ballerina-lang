@@ -85,7 +85,7 @@ public class BuildCommand implements BLauncherCmd {
         }
 
         if (argList != null && argList.size() > 1) {
-            throw LauncherUtils.createUsageException("too many arguments");
+            throw LauncherUtils.createUsageExceptionWithHelp("too many arguments");
         }
 
         // Get source root path.
@@ -200,7 +200,7 @@ public class BuildCommand implements BLauncherCmd {
 
     private void genNativeBinary(Path projectDirPath, List<String> argList) {
         if (argList == null || argList.size() != 1) {
-            throw LauncherUtils.createUsageException("no Ballerina program given");
+            throw LauncherUtils.createUsageExceptionWithHelp("no Ballerina program given");
         }
         String programName = argList.get(0);
 

@@ -298,6 +298,24 @@ public class SourceGen {
                  + a("", sourceGenParams.isShouldIndent());
             }
         }
+        public String getSourceForArrowExpr(JsonObject node, boolean pretty, boolean replaceLambda, SourceGenParams sourceGenParams) {
+            if (node.get("hasParantheses") != null
+                         && node.get("hasParantheses") .getAsBoolean() && node.get("parameters") != null
+                         && node.get("expression") != null) {
+                return w("", sourceGenParams) + "("
+                 + a("", sourceGenParams.isShouldIndent())
+                 + join(node.getAsJsonArray("parameters"), pretty, replaceLambda, "", ",", false, sourceGenParams) + w("", sourceGenParams)
+                 + ")" + a("", sourceGenParams.isShouldIndent())
+                 + w("", sourceGenParams) + "=>" + a("", sourceGenParams.isShouldIndent())
+                 + a("", sourceGenParams.isShouldIndent())
+                 + getSourceOf(node.getAsJsonObject("expression"), pretty, replaceLambda);
+            } else {
+                return join(node.getAsJsonArray("parameters"), pretty, replaceLambda, "", ",", false, sourceGenParams) + w("", sourceGenParams) + "=>"
+                 + a("", sourceGenParams.isShouldIndent())
+                 + a("", sourceGenParams.isShouldIndent())
+                 + getSourceOf(node.getAsJsonObject("expression"), pretty, replaceLambda);
+            }
+        }
         public String getSourceForAssignment(JsonObject node, boolean pretty, boolean replaceLambda, SourceGenParams sourceGenParams) {
             return dent(sourceGenParams.isShouldIndent())
                  + (node.has("declaredWithVar") && node.get("declaredWithVar").getAsBoolean() ? w("", sourceGenParams) + "var"
@@ -5386,6 +5404,31 @@ public class SourceGen {
                  + w(" ", sourceGenParams) + "=" + a(" ", sourceGenParams.isShouldIndent())
                  + a("", sourceGenParams.isShouldIndent())
                  + getSourceOf(node.getAsJsonObject("initialExpression"), pretty, replaceLambda);
+            } else if (node.get("arrowExprParam") != null
+                         && node.get("arrowExprParam") .getAsBoolean()
+                         && node.get("markdownDocumentationAttachment") != null && node.get("annotationAttachments") != null
+                         && node.get("deprecatedAttachments") != null
+                         && node.getAsJsonObject("name").get("valueWithBar") != null
+                         && !node.getAsJsonObject("name").get("valueWithBar").getAsString().isEmpty()) {
+                return a("", sourceGenParams.isShouldIndent())
+                 + getSourceOf(node.getAsJsonObject("markdownDocumentationAttachment"), pretty, replaceLambda)
+                 + join(node.getAsJsonArray("annotationAttachments"), pretty, replaceLambda, "", null, false, sourceGenParams)
+                 + join(node.getAsJsonArray("deprecatedAttachments"), pretty, replaceLambda, "", null, false, sourceGenParams)
+                 + (node.has("public") && node.get("public").getAsBoolean() ? w("", sourceGenParams) + "public"
+                 + a(" ", sourceGenParams.isShouldIndent()) : "")
+                 + w(" ", sourceGenParams)
+                 + node.getAsJsonObject("name").get("valueWithBar").getAsString() + a(" ", sourceGenParams.isShouldIndent());
+            } else if (node.get("arrowExprParam") != null
+                         && node.get("arrowExprParam") .getAsBoolean() && node.get("annotationAttachments") != null
+                         && node.get("deprecatedAttachments") != null
+                         && node.getAsJsonObject("name").get("valueWithBar") != null
+                         && !node.getAsJsonObject("name").get("valueWithBar").getAsString().isEmpty()) {
+                return join(node.getAsJsonArray("annotationAttachments"), pretty, replaceLambda, "", null, false, sourceGenParams)
+                 + join(node.getAsJsonArray("deprecatedAttachments"), pretty, replaceLambda, "", null, false, sourceGenParams)
+                 + (node.has("public") && node.get("public").getAsBoolean() ? w("", sourceGenParams) + "public"
+                 + a(" ", sourceGenParams.isShouldIndent()) : "") + w(" ", sourceGenParams)
+                 + node.getAsJsonObject("name").get("valueWithBar").getAsString()
+                 + a(" ", sourceGenParams.isShouldIndent());
             } else if (node.get("markdownDocumentationAttachment") != null
                          && node.get("annotationAttachments") != null
                          && node.get("deprecatedAttachments") != null && node.get("typeNode") != null
@@ -5744,6 +5787,8 @@ public class SourceGen {
             return getSourceForArrayLiteralExpr(node, pretty, replaceLambda, sourceGenParams);
         case "ArrayType":
             return getSourceForArrayType(node, pretty, replaceLambda, sourceGenParams);
+        case "ArrowExpr":
+            return getSourceForArrowExpr(node, pretty, replaceLambda, sourceGenParams);
         case "Assignment":
             return getSourceForAssignment(node, pretty, replaceLambda, sourceGenParams);
         case "AwaitExpr":
@@ -6103,10 +6148,10 @@ public class SourceGen {
                 kind.equals("XmlElementLiteral") ||
                 kind.equals("XmlTextLiteral") ||
                 kind.equals("XmlPiLiteral")) &&
-                        node.has("ws") &&
-                        node.getAsJsonArray("ws").get(0) != null &&
-                        node.getAsJsonArray("ws").get(0).getAsJsonObject().get("text").getAsString().contains("xml")
-                        && node.getAsJsonArray("ws").get(0).getAsJsonObject().get("text").getAsString().contains("`")) {
+                node.has("ws") &&
+                node.getAsJsonArray("ws").get(0) != null &&
+                node.getAsJsonArray("ws").get(0).getAsJsonObject().get("text").getAsString().contains("xml")
+                && node.getAsJsonArray("ws").get(0).getAsJsonObject().get("text").getAsString().contains("`")) {
             node.addProperty("root", true);
             node.addProperty("startLiteral", node.getAsJsonArray("ws").get(0).getAsJsonObject().get("text").getAsString());
         }
@@ -6760,6 +6805,22 @@ public class SourceGen {
             } else {
                 literalWSAssignForTemplates(1, 2, node.getAsJsonArray("textFragments"),
                         node.getAsJsonArray("ws"), 2);
+            }
+        }
+
+        if (kind.equals("ArrowExpr")) {
+            if (node.has("ws") && node.getAsJsonArray("ws").size() > 0
+                    && node.getAsJsonArray("ws").get(0).getAsJsonObject().get("text")
+                    .getAsString().equals("(")) {
+                node.addProperty("hasParantheses", true);
+            }
+
+            if (node.has("parameters")) {
+                JsonArray parameters = node.getAsJsonArray("parameters");
+                for (int i = 0; i < parameters.size(); i++) {
+                    JsonObject parameter = parameters.get(i).getAsJsonObject();
+                    parameter.addProperty("arrowExprParam", true);
+                }
             }
         }
     }

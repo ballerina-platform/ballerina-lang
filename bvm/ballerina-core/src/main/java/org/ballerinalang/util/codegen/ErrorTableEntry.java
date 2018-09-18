@@ -18,7 +18,7 @@
 package org.ballerinalang.util.codegen;
 
 import org.ballerinalang.bre.bvm.CPU;
-import org.ballerinalang.model.types.BStructureType;
+import org.ballerinalang.model.types.BRecordType;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.util.codegen.attributes.AttributeInfo;
@@ -129,8 +129,9 @@ public class ErrorTableEntry {
                         // exact match.
                         entry.status = 0;
                         rangeMatched.add(entry);
-                    } else if (CPU.checkStructEquivalency((BStructureType) error.getType(),
-                            ((StructureTypeInfo) errorTableEntry.getError().typeInfo).getType())) {
+                    } else if (CPU.checkRecordEquivalency(
+                            ((RecordTypeInfo) errorTableEntry.getError().typeInfo).getType(),
+                            (BRecordType) error.getType())) {
                         entry.status = 1;
                         rangeMatched.add(entry);
                     }

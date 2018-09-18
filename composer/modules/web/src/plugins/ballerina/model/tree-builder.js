@@ -667,6 +667,16 @@ class TreeBuilder {
                 literalWSAssignForTemplates(1, 2, node.textFragments, node.ws, 2);
             }
         }
+
+        if (kind === 'ArrowExpr') {
+            if (node.ws && node.ws.length > 0 && node.ws[0].text === '(') {
+                node.hasParantheses = true;
+            }
+
+            for (let i = 0; i < node.parameters.length; i++) {
+                node.parameters[i].arrowExprParam = true;
+            }
+        }
     }
 
     static modify(tree, parentKind = null) {
