@@ -2,7 +2,6 @@ lexer grammar BallerinaLexer;
 
 @members {
     boolean inTemplate = false;
-    boolean inDocTemplate = false;
     boolean inDeprecatedTemplate = false;
     boolean inSiddhi = false;
     boolean inTableSqlQuery = false;
@@ -32,7 +31,6 @@ BIND        : 'bind' ;
 XMLNS       : 'xmlns' ;
 RETURNS     : 'returns';
 VERSION     : 'version';
-DOCUMENTATION  : 'documentation';
 DEPRECATED  : 'deprecated';
 CHANNEL     : 'channel';
 ABSTRACT    : 'abstract';
@@ -467,9 +465,6 @@ ReturnParameterDocumentationStart
     :   HASH DocumentationSpace? ADD DocumentationSpace* RETURN DocumentationSpace* SUB DocumentationSpace* -> pushMode(MARKDOWN_DOCUMENTATION)
     ;
 
-DocumentationTemplateStart
-    :   DOCUMENTATION WS* LEFT_BRACE   { inDocTemplate = true; } -> pushMode(DOCUMENTATION_TEMPLATE)
-    ;
 
 DeprecatedTemplateStart
     :   DEPRECATED WS* LEFT_BRACE   { inDeprecatedTemplate = true; } -> pushMode(DEPRECATED_TEMPLATE)
@@ -477,10 +472,6 @@ DeprecatedTemplateStart
 
 ExpressionEnd
     :   {inTemplate}? RIGHT_BRACE RIGHT_BRACE   ->  popMode
-    ;
-
-DocumentationTemplateAttributeEnd
-    :   {inDocTemplate}? RIGHT_BRACE WS* RIGHT_BRACE               ->  popMode
     ;
 
 // Whitespace and comments
@@ -521,7 +512,7 @@ ReferenceType
     ;
 
 DocumentationText
-    :   DocumentationTextCharacter+
+    :   (DocumentationTextCharacter | DocumentationEscapedCharacters)+
     ;
 
 SingleBacktickStart
@@ -542,12 +533,12 @@ DefinitionReference
 
 fragment
 DocumentationTextCharacter
-    :   ~[`\n+\- ]
+    :   ~[`\n ]
     |   '\\' BACKTICK
     ;
 
 DocumentationEscapedCharacters
-    :   DocumentationSpace | [+-]
+    :   DocumentationSpace
     ;
 
 DocumentationSpace
@@ -869,64 +860,6 @@ XMLCommentSpecialSequence
     |   '-'? '>'* '-'+
     ;
 
-mode DOCUMENTATION_TEMPLATE;
-
-DocumentationTemplateEnd
-    :   RIGHT_BRACE { inDocTemplate = false; }                                 -> popMode
-    ;
-
-DocumentationTemplateAttributeStart
-    :   AttributePrefix ExpressionStart                                        -> pushMode(DEFAULT_MODE)
-    ;
-
-SBDocInlineCodeStart
-    :  AttributePrefix? DocBackTick                                            -> pushMode(SINGLE_BACKTICK_INLINE_CODE)
-    ;
-
-DBDocInlineCodeStart
-    :  AttributePrefix? DocBackTick DocBackTick                                -> pushMode(DOUBLE_BACKTICK_INLINE_CODE)
-    ;
-
-TBDocInlineCodeStart
-    :  AttributePrefix? DocBackTick DocBackTick DocBackTick                    -> pushMode(TRIPLE_BACKTICK_INLINE_CODE)
-    ;
-
-DocumentationTemplateText
-    :   DocumentationValidCharSequence? (DocumentationTemplateStringChar DocumentationValidCharSequence?)+
-    |   DocumentationValidCharSequence  (DocumentationTemplateStringChar DocumentationValidCharSequence?)*
-    ;
-
-fragment
-DocumentationTemplateStringChar
-    :   ~[`{}\\FPTRVE]
-    |   '\\' [{}`]
-    |   WS
-    |   DocumentationEscapedSequence
-    ;
-
-fragment
-AttributePrefix
-    :   [FPTRVE]
-    ;
-
-fragment
-DocBackTick
-    :   '`'
-    ;
-
-fragment
-DocumentationEscapedSequence
-    :   '\\\\'
-    ;
-
-fragment
-DocumentationValidCharSequence
-     :  [FPTRVE] ~[`{}\\]
-     |  [FPTRVE] '\\' [{}`]
-     |  [FPTRVE] '\\' ~[{}`]
-     |  '\\' ~'\\'
-     ;
-
 mode TRIPLE_BACKTICK_INLINE_CODE;
 
 TripleBackTickInlineCodeEnd
@@ -974,6 +907,8 @@ fragment
 SingleBackTickInlineCodeChar
     :  ~[`]
     ;
+
+// Todo - Remove after finalizing the new deprecated annotation
 
 mode DEPRECATED_TEMPLATE;
 

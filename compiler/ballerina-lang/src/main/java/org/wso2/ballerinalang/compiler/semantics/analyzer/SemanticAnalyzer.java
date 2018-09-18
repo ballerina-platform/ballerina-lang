@@ -70,7 +70,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 import org.wso2.ballerinalang.compiler.tree.BLangAction;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotation;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
-import org.wso2.ballerinalang.compiler.tree.BLangDocumentation;
 import org.wso2.ballerinalang.compiler.tree.BLangEndpoint;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
@@ -101,7 +100,6 @@ import org.wso2.ballerinalang.compiler.tree.clauses.BLangWhere;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangWindow;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBracedOrTupleExpr;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangDocumentationAttribute;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess;
@@ -162,10 +160,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.EnumSet;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
@@ -281,7 +277,6 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             this.analyzeDef(annotationAttachment, funcEnv);
         });
 
-        funcNode.docAttachments.forEach(doc -> analyzeDef(doc, funcEnv));
         funcNode.requiredParams.forEach(p -> this.analyzeDef(p, funcEnv));
         funcNode.defaultableParams.forEach(p -> this.analyzeDef(p, funcEnv));
         if (funcNode.restParam != null) {
@@ -332,8 +327,6 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             annotationAttachment.attachPoint = AttachPoint.TYPE;
             annotationAttachment.accept(this);
         });
-
-        typeDefinition.docAttachments.forEach(doc -> analyzeDef(doc, typeDefEnv));
     }
 
     @Override
@@ -365,47 +358,12 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         validateDefaultable(recordTypeNode);
     }
 
-    @Override
-    public void visit(BLangDocumentation docNode) {
-        Set<BLangIdentifier> visitedAttributes = new HashSet<>();
-        for (BLangDocumentationAttribute attribute : docNode.attributes) {
-            attribute.type = symTable.errType;
-
-            switch (attribute.docTag) {
-                case ENDPOINT:
-                    if (!((BLangObjectTypeNode) this.env.enclTypeDefinition.typeNode).getFunctions()
-                            .stream().anyMatch(bLangFunction -> Names.EP_SPI_GET_CALLER_ACTIONS.value
-                                    .equals(bLangFunction.getName().toString()))) {
-                        this.dlog.warning(attribute.pos, DiagnosticCode.INVALID_USE_OF_ENDPOINT_DOCUMENTATION_ATTRIBUTE,
-                                attribute.docTag.getValue());
-                    }
-                    break;
-                case RETURN:
-                    attribute.type = this.env.enclInvokable.returnTypeNode.type;
-                    // return params can't have names, hence can't validate
-                    break;
-                case RECEIVER:
-                    // fall through
-                    // TODO: should not allow variables as a receiver
-                default:
-                    if (!visitedAttributes.add(attribute.documentationField)) {
-                        this.dlog.warning(attribute.pos, DiagnosticCode.DUPLICATE_DOCUMENTED_ATTRIBUTE,
-                                attribute.documentationField);
-                        continue;
-                    }
-                    validateDocAttribute(attribute);
-                    break;
-            }
-        }
-    }
-
     public void visit(BLangAnnotation annotationNode) {
         SymbolEnv annotationEnv = SymbolEnv.createAnnotationEnv(annotationNode, annotationNode.symbol.scope, env);
         annotationNode.annAttachments.forEach(annotationAttachment -> {
             annotationAttachment.attachPoint = AttachPoint.ANNOTATION;
             annotationAttachment.accept(this);
         });
-        annotationNode.docAttachments.forEach(doc -> analyzeDef(doc, annotationEnv));
     }
 
     public void visit(BLangAnnotationAttachment annAttachmentNode) {
@@ -476,12 +434,6 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
 
         BType lhsType = varNode.symbol.type;
         varNode.type = lhsType;
-
-        // Here we validate annotation attachments for package level variables.
-        // Here we validate document attachments for package level variables.
-        varNode.docAttachments.forEach(doc -> {
-            doc.accept(this);
-        });
 
         // Analyze the init expression
         BLangExpression rhsExpr = varNode.expr;
@@ -736,7 +688,6 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         BSymbol actionSymbol = actionNode.symbol;
 
         SymbolEnv actionEnv = SymbolEnv.createResourceActionSymbolEnv(actionNode, actionSymbol.scope, env);
-        actionNode.docAttachments.forEach(doc -> analyzeDef(doc, actionEnv));
 
         if (Symbols.isNative(actionSymbol)) {
             return;
@@ -763,7 +714,6 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             a.attachPoint = AttachPoint.SERVICE;
             this.analyzeDef(a, serviceEnv);
         });
-        serviceNode.docAttachments.forEach(doc -> analyzeDef(doc, serviceEnv));
         serviceNode.nsDeclarations.forEach(xmlns -> this.analyzeDef(xmlns, serviceEnv));
         serviceNode.vars.forEach(v -> this.analyzeDef(v, serviceEnv));
         serviceNode.endpoints.forEach(e -> {
@@ -902,7 +852,6 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             this.analyzeDef(a, resourceEnv);
         });
         defineResourceEndpoint(resourceNode, resourceEnv);
-        resourceNode.docAttachments.forEach(doc -> analyzeDef(doc, resourceEnv));
         resourceNode.requiredParams.forEach(p -> analyzeDef(p, resourceEnv));
         resourceNode.endpoints.forEach(e -> {
             symbolEnter.defineNode(e, resourceEnv);
@@ -2069,42 +2018,8 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         }
     }
 
-    private void validateDocAttribute(BLangDocumentationAttribute attribute) {
-        Name attributeName = names.fromIdNode(attribute.documentationField);
-        BSymbol attributeSymbol = this.env.scope.lookup(attributeName).symbol;
-        if (attributeSymbol == null && this.env.enclTypeDefinition != null) {
-            // check whether the parameter is an inherited one
-            String originalParam = this.env.enclTypeDefinition.getName().getValue()
-                    + "." + attribute.documentationField.getValue();
-            attributeSymbol = this.env.scope.lookup(names.fromString(originalParam)).symbol;
-        }
-
-        if (attributeSymbol == null) {
-            this.dlog.warning(attribute.pos, DiagnosticCode.NO_SUCH_DOCUMENTABLE_ATTRIBUTE,
-                    attribute.documentationField, attribute.docTag.getValue());
-            return;
-        }
-        int ownerSymTag = env.scope.owner.tag;
-        if ((ownerSymTag & SymTag.ANNOTATION) == SymTag.ANNOTATION) {
-            if (attributeSymbol.tag != SymTag.ANNOTATION_ATTRIBUTE) {
-                this.dlog.warning(attribute.pos, DiagnosticCode.NO_SUCH_DOCUMENTABLE_ATTRIBUTE,
-                        attribute.documentationField, attribute.docTag.getValue());
-                return;
-            }
-        } else {
-            if (!(attributeSymbol.tag == SymTag.VARIABLE || attributeSymbol.tag == SymTag.ENDPOINT) || (
-                    (BVarSymbol) attributeSymbol).docTag != attribute.docTag) {
-                this.dlog.warning(attribute.pos, DiagnosticCode.NO_SUCH_DOCUMENTABLE_ATTRIBUTE, attribute
-                        .documentationField, attribute.docTag.getValue());
-                return;
-            }
-        }
-        attribute.type = attributeSymbol.type;
-    }
-
     /**
-     * Checks whether a function node is an unimplemented method inside a
-     * non-abstract object.
+     * Validate functions attached to objects.
      * 
      * @param funcNode Function node
      * @return True if the function is an unimplemented method inside a non-abstract object.

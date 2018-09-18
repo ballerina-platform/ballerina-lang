@@ -28,12 +28,17 @@ import io.netty.handler.codec.http.HttpMethod;
 import io.netty.handler.codec.http.HttpResponseStatus;
 import io.netty.handler.codec.http.HttpVersion;
 import org.ballerinalang.test.service.http.HttpBaseTest;
+import org.ballerinalang.test.util.HttpClientRequest;
+import org.ballerinalang.test.util.HttpResponse;
 import org.ballerinalang.test.util.TestUtils;
 import org.ballerinalang.test.util.client.HttpClient;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
+import java.io.IOException;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Test case for verifying the server-side 100-continue behaviour.
@@ -41,9 +46,11 @@ import java.util.List;
 @Test(groups = "http-test")
 public class ExpectContinueTestCase extends HttpBaseTest {
 
+    private final int servicePort = 9090;
+
     @Test
     public void test100Continue() {
-        HttpClient httpClient = new HttpClient("localhost", 9090);
+        HttpClient httpClient = new HttpClient("localhost", servicePort);
 
         DefaultHttpRequest reqHeaders = new DefaultHttpRequest(HttpVersion.HTTP_1_1, HttpMethod.POST, "/continue");
         DefaultLastHttpContent reqPayload = new DefaultLastHttpContent(
@@ -67,5 +74,21 @@ public class ExpectContinueTestCase extends HttpBaseTest {
         Assert.assertEquals(responsePayload.getBytes().length, TestUtils.LARGE_ENTITY.getBytes().length);
         Assert.assertEquals(Integer.parseInt(responses.get(1).headers().get(HttpHeaderNames.CONTENT_LENGTH)),
                 TestUtils.LARGE_ENTITY.getBytes().length);
+    }
+
+    @Test(description = "Test multipart form data request with expect:100-continue header")
+    public void testMultipartWith100ContinueHeader() throws IOException {
+        Map<String, String> headers = new HashMap<>();
+        headers.put(HttpHeaderNames.EXPECT.toString(), HttpHeaderValues.CONTINUE.toString());
+
+        Map<String, String> formData = new HashMap<>();
+        formData.put("person", "engineer");
+        formData.put("team", "ballerina");
+
+        HttpResponse response = HttpClientRequest.doMultipartFormData(
+                serverInstance.getServiceURLHttp(servicePort, "continue/getFormParam"), headers, formData);
+        Assert.assertNotNull(response);
+        Assert.assertEquals(response.getResponseCode(), 200, "Response code mismatched");
+        Assert.assertEquals(response.getData(), "Result = Key:person Value: engineer Key:team Value: ballerina");
     }
 }
