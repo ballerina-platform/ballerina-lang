@@ -67,7 +67,7 @@ function startServerSocket(string welcomeMsg) {
         io:Socket s => {
             io:println("Client socket accepted!!!");
             io:println(s.remotePort);
-            io:ByteChannel ch = s.channel;
+            io:ByteChannel ch = s.byteChannel;
             byte[] c1 = welcomeMsg.toByteArray("utf-8");
             match ch.write(c1, 0) {
                 int i => {

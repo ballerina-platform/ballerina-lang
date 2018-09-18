@@ -752,12 +752,16 @@ public class CodeGenerator extends BLangNodeVisitor {
         if (structSymbol.defaultsValuesInitFunc != null) {
             int funcRefCPIndex = getFuncRefCPIndex(structSymbol.defaultsValuesInitFunc.symbol);
             // call funcRefCPIndex 1 structRegIndex 0
-            Operand[] operands = new Operand[5];
+            Operand[] operands = new Operand[6];
             operands[0] = getOperand(funcRefCPIndex);
             operands[1] = getOperand(false);
             operands[2] = getOperand(1);
             operands[3] = structRegIndex;
-            operands[4] = getOperand(0);
+            // Earlier, init function did not return any value. But now all functions should return a value. So we add
+            // new two operands to indicate the return value of the init function. The first one is the number of
+            // return values and the second one is the type of the return value.
+            operands[4] = getOperand(1);
+            operands[5] = getRegIndex(TypeTags.NIL);
             emit(InstructionCodes.CALL, operands);
         }
 
@@ -765,12 +769,13 @@ public class CodeGenerator extends BLangNodeVisitor {
         if (structLiteral.initializer != null) {
             int funcRefCPIndex = getFuncRefCPIndex(structLiteral.initializer.symbol);
             // call funcRefCPIndex 1 structRegIndex 0
-            Operand[] operands = new Operand[5];
+            Operand[] operands = new Operand[6];
             operands[0] = getOperand(funcRefCPIndex);
             operands[1] = getOperand(false);
             operands[2] = getOperand(1);
             operands[3] = structRegIndex;
-            operands[4] = getOperand(0);
+            operands[4] = getOperand(1);
+            operands[5] = getRegIndex(TypeTags.NIL);
             emit(InstructionCodes.CALL, operands);
         }
 
@@ -2174,16 +2179,10 @@ public class CodeGenerator extends BLangNodeVisitor {
     }
 
     private void populateInvokableSignature(BInvokableType bInvokableType, CallableUnitInfo callableUnitInfo) {
-        if (bInvokableType.retType == symTable.nilType) {
-            callableUnitInfo.retParamTypes = new BType[0];
-            callableUnitInfo.signatureCPIndex = addUTF8CPEntry(this.currentPkgInfo,
-                    generateFunctionSig(callableUnitInfo.paramTypes));
-        } else {
-            callableUnitInfo.retParamTypes = new BType[1];
-            callableUnitInfo.retParamTypes[0] = bInvokableType.retType;
-            callableUnitInfo.signatureCPIndex = addUTF8CPEntry(this.currentPkgInfo,
-                    generateFunctionSig(callableUnitInfo.paramTypes, bInvokableType.retType));
-        }
+        callableUnitInfo.retParamTypes = new BType[1];
+        callableUnitInfo.retParamTypes[0] = bInvokableType.retType;
+        callableUnitInfo.signatureCPIndex = addUTF8CPEntry(this.currentPkgInfo,
+                generateFunctionSig(callableUnitInfo.paramTypes, bInvokableType.retType));
     }
 
     private void addWorkerInfoEntries(CallableUnitInfo callableUnitInfo, List<BLangWorker> workers) {
@@ -2532,6 +2531,10 @@ public class CodeGenerator extends BLangNodeVisitor {
     }
 
     public void visit(BLangWorkerSend workerSendStmt) {
+        if (workerSendStmt.isChannel) {
+            visitChannelSend(workerSendStmt);
+            return;
+        }
         WorkerDataChannelInfo workerDataChannelInfo = this.getWorkerDataChannelInfo(this.currentCallableUnitInfo,
                 this.currentWorkerInfo.getWorkerName(), workerSendStmt.workerIdentifier.value);
         WorkerDataChannelRefCPEntry wrkrInvRefCPEntry = new WorkerDataChannelRefCPEntry(workerDataChannelInfo
@@ -2559,6 +2562,10 @@ public class CodeGenerator extends BLangNodeVisitor {
     }
 
     public void visit(BLangWorkerReceive workerReceiveStmt) {
+        if (workerReceiveStmt.isChannel) {
+            visitChannelReceive(workerReceiveStmt);
+            return;
+        }
         WorkerDataChannelInfo workerDataChannelInfo = this.getWorkerDataChannelInfo(this.currentCallableUnitInfo,
                 workerReceiveStmt.workerIdentifier.value, this.currentWorkerInfo.getWorkerName());
         WorkerDataChannelRefCPEntry wrkrChnlRefCPEntry = new WorkerDataChannelRefCPEntry(workerDataChannelInfo
@@ -3212,6 +3219,84 @@ public class CodeGenerator extends BLangNodeVisitor {
     }
 
     // private helper methods of visitors.
+
+    private void visitChannelSend(BLangWorkerSend channelSend) {
+        //CHNSEND hasKey, keyIndex, keyTypeCPIndex  channelName, dataIndex, dataTypeCPIndex
+        int i = 0;
+        Operand[] argRegs;
+        if (channelSend.keyExpr != null) {
+            genNode(channelSend.keyExpr, this.env);
+            argRegs = new Operand[6];
+            argRegs[i++] = getOperand(true);
+
+            RegIndex keyReg = channelSend.keyExpr.regIndex;
+            BType keyType = channelSend.keyExpr.type;
+            UTF8CPEntry keyCPEntry = new UTF8CPEntry(this.generateSig(new BType[] { keyType }));
+            Operand keyCPIndex = getOperand(this.currentPkgInfo.addCPEntry(keyCPEntry));
+            argRegs[i++] = keyReg;
+            argRegs[i++] = keyCPIndex;
+        } else {
+            argRegs = new Operand[4];
+            argRegs[i++] = getOperand(false);
+        }
+        int channelName = addUTF8CPEntry(currentPkgInfo, channelSend.env.enclPkg.symbol.name + "."
+                + channelSend.getWorkerName().getValue());
+        argRegs[i++] = getOperand(channelName);
+
+        genNode(channelSend.expr, this.env);
+        RegIndex dataReg = channelSend.expr.regIndex;
+        BType dataType = channelSend.expr.type;
+        UTF8CPEntry dataCPEntry = new UTF8CPEntry(this.generateSig(new BType[] { dataType }));
+        Operand dataCPIndex = getOperand(this.currentPkgInfo.addCPEntry(dataCPEntry));
+        argRegs[i++] = dataReg;
+        argRegs[i] = dataCPIndex;
+
+        emit(InstructionCodes.CHNSEND, argRegs);
+    }
+
+    private void visitChannelReceive(BLangWorkerReceive channelReceive) {
+        // CHNRECEIVE hasKey, (keyTypeCPIndex, keyRegIndex), channelName, receiverTypeCPIndex, receiverRegIndex
+        Operand[] chnReceiveArgRegs;
+        int i = 0;
+        if (channelReceive.keyExpr != null) {
+            genNode(channelReceive.keyExpr, this.env);
+            chnReceiveArgRegs = new Operand[6];
+            chnReceiveArgRegs[i++] = getOperand(true);
+            RegIndex keyReg = channelReceive.keyExpr.regIndex;
+            BType keyType = channelReceive.keyExpr.type;
+            UTF8CPEntry keyCPEntry = new UTF8CPEntry(this.generateSig(new BType[] { keyType }));
+            Operand keyCPIndex = getOperand(this.currentPkgInfo.addCPEntry(keyCPEntry));
+            chnReceiveArgRegs[i++] = keyCPIndex;
+            chnReceiveArgRegs[i++] = keyReg;
+        } else {
+            chnReceiveArgRegs = new Operand[4];
+            chnReceiveArgRegs[i++] = getOperand(false);
+        }
+
+        int chnName = addUTF8CPEntry(currentPkgInfo, channelReceive.env.enclPkg.symbol.name + "."
+                + channelReceive.getWorkerName().getValue());
+        chnReceiveArgRegs[i++] = getOperand(chnName);
+
+        BLangExpression receiverExpr = channelReceive.expr;
+        RegIndex regIndex;
+        BType bType;
+        if (receiverExpr.getKind() == NodeKind.SIMPLE_VARIABLE_REF && receiverExpr instanceof BLangLocalVarRef) {
+            receiverExpr.regIndex = ((BLangLocalVarRef) receiverExpr).varSymbol.varIndex;
+            regIndex = receiverExpr.regIndex;
+        } else {
+            receiverExpr.regIndex = getRegIndex(receiverExpr.type.tag);
+            receiverExpr.regIndex.isLHSIndex = true;
+            regIndex = receiverExpr.regIndex;
+        }
+
+        bType = receiverExpr.type;
+        UTF8CPEntry sigCPEntry = new UTF8CPEntry(this.generateSig(new BType[] { bType }));
+        Operand sigCPIndex = getOperand(currentPkgInfo.addCPEntry(sigCPEntry));
+        chnReceiveArgRegs[i++] = sigCPIndex;
+        chnReceiveArgRegs[i] = regIndex;
+
+        emit(InstructionCodes.CHNRECEIVE, chnReceiveArgRegs);
+    }
 
     private void generateForeachVarAssignment(BLangForeach foreach, Operand iteratorIndex) {
         List<BLangVariableReference> variables = foreach.varRefs.stream()

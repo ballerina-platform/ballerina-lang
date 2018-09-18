@@ -35,6 +35,7 @@ public type ClientEndpointConfiguration record {
     string password,
     sql:PoolOptions poolOptions,
     map dbOptions,
+    !...
 };
 
 

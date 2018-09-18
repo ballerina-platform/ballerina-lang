@@ -180,6 +180,7 @@ public type SubscriberServiceEndpointConfiguration record {
     int port;
     http:ServiceSecureSocket? httpServiceSecureSocket;
     ExtensionConfig? extensionConfig;
+    !...
 };
 
 # The extension configuration to introduce custom subscriber services.
@@ -223,6 +224,7 @@ public type ExtensionConfig record {
     //    }
     //  };
     map<map<map<(string, typedesc)>>>? headerAndPayloadKeyResourceMap;
+    !...
 };
 
 # The function called to discover hub and topic URLs defined by a resource URL.

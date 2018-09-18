@@ -133,4 +133,5 @@ public type SimpleTopicPublisherEndpointConfiguration record {
     string acknowledgementMode = "AUTO_ACKNOWLEDGE",
     map properties,
     string topicPattern,
+    !...
 };

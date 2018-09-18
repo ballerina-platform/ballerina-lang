@@ -55,6 +55,7 @@ public type Client object {
 public type TargetService record {
     string url,
     SecureSocket? secureSocket,
+    !...
 };
 
 # Provides a set of configurations for controlling the behaviours when communicating with a remote HTTP endpoint.
@@ -90,6 +91,7 @@ public type ClientEndpointConfig record {
     CacheConfig cache,
     Compression compression = COMPRESSION_AUTO,
     AuthConfig? auth,
+    !...
 };
 
 extern function createHttpClient(string uri, ClientEndpointConfig config) returns CallerActions;
@@ -107,6 +109,7 @@ public type RetryConfig record {
     int interval,
     float backOffFactor,
     int maxWaitInterval,
+    !...
 };
 
 # Provides configurations for facilitating secure communication with a remote HTTP endpoint.
@@ -129,6 +132,7 @@ public type SecureSocket record {
     boolean verifyHostname = true,
     boolean shareSession = true,
     boolean ocspStapling,
+    !...
 };
 
 # Provides configurations for controlling the endpoint's behaviour in response to HTTP redirect related responses.
@@ -138,6 +142,7 @@ public type SecureSocket record {
 public type FollowRedirects record {
     boolean enabled = false,
     int maxCount = 5,
+    !...
 };
 
 # Proxy server configurations to be used with the HTTP client endpoint.
@@ -151,6 +156,7 @@ public type ProxyConfig record {
     int port,
     string userName,
     string password,
+    !...
 };
 
 # Provides configurations for throttling connections of the endpoint.
@@ -163,6 +169,7 @@ public type ConnectionThrottling record {
     int maxActiveConnections = -1,
     int waitTime = 60000,
     int maxActiveStreamsPerConnection = -1,
+    !...
 };
 
 # AuthConfig record can be used to configure the authentication mechanism used by the HTTP endpoint.
@@ -190,6 +197,7 @@ public type AuthConfig record {
     string tokenUrl,
     string clientId,
     string clientSecret,
+    !...
 };
 
 function Client::init(ClientEndpointConfig c) {

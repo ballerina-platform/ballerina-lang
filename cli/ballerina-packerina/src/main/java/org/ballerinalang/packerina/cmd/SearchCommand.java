@@ -17,7 +17,6 @@
 */
 package org.ballerinalang.packerina.cmd;
 
-import org.ballerinalang.compiler.BLangCompilerException;
 import org.ballerinalang.launcher.BLauncherCmd;
 import org.ballerinalang.packerina.SearchUtils;
 import picocli.CommandLine;
@@ -25,6 +24,7 @@ import picocli.CommandLine;
 import java.io.PrintStream;
 import java.util.List;
 
+import static org.ballerinalang.launcher.LauncherUtils.createUsageExceptionWithHelp;
 import static org.ballerinalang.packerina.cmd.Constants.SEARCH_COMMAND;
 import static org.ballerinalang.runtime.Constants.SYSTEM_PROP_BAL_DEBUG;
 
@@ -62,11 +62,11 @@ public class SearchCommand implements BLauncherCmd {
         }
 
         if (argList == null || argList.size() == 0) {
-            throw new BLangCompilerException("no keyword given");
+            throw createUsageExceptionWithHelp("no keyword given");
         }
 
         if (argList.size() > 1) {
-            throw new BLangCompilerException("too many arguments");
+            throw createUsageExceptionWithHelp("too many arguments");
         }
 
         String searchArgs = argList.get(0);
