@@ -30,7 +30,6 @@ import org.ballerinalang.langserver.completions.util.filters.SymbolFilters;
 import org.ballerinalang.langserver.completions.util.sorters.ActionAndFieldAccessContextItemSorter;
 import org.ballerinalang.langserver.completions.util.sorters.ItemSorters;
 import org.eclipse.lsp4j.CompletionItem;
-import org.eclipse.lsp4j.InsertTextFormat;
 import org.eclipse.lsp4j.jsonrpc.messages.Either;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
@@ -45,18 +44,20 @@ import java.util.List;
 public class ParserRuleStatementContextResolver extends AbstractItemResolver {
     @Override
     @SuppressWarnings("unchecked")
-    public List<CompletionItem> resolveItems(LSServiceOperationContext completionContext) {
+    public List<CompletionItem> resolveItems(LSServiceOperationContext context) {
         ArrayList<CompletionItem> completionItems = new ArrayList<>();
         Either<List<CompletionItem>, List<SymbolInfo>> itemList;
 
         Class itemSorterClass;
-        if (isInvocationOrFieldAccess(completionContext)) {
+        if (isInvocationOrFieldAccess(context)) {
             itemSorterClass = ActionAndFieldAccessContextItemSorter.class;
             itemList = SymbolFilters.get(DelimiterBasedContentFilter.class)
-                    .filterItems(completionContext);
+                    .filterItems(context);
         } else {
-            itemSorterClass = completionContext.get(CompletionKeys.BLOCK_OWNER_KEY).getClass();
-            List<SymbolInfo> filteredSymbols = completionContext.get(CompletionKeys.VISIBLE_SYMBOLS_KEY);
+            boolean isSnippet = context.get(CompletionKeys.CLIENT_CAPABILITIES_KEY).getCompletionItem()
+                    .getSnippetSupport();
+            List<SymbolInfo> filteredSymbols = context.get(CompletionKeys.VISIBLE_SYMBOLS_KEY);
+            itemSorterClass = context.get(CompletionKeys.BLOCK_OWNER_KEY).getClass();
             filteredSymbols.removeIf(CommonUtil.invalidSymbolsPredicate());
             
             filteredSymbols.removeIf(symbolInfo -> {
@@ -64,18 +65,16 @@ public class ParserRuleStatementContextResolver extends AbstractItemResolver {
                 return bSymbol instanceof BInvokableSymbol && ((bSymbol.flags & Flags.ATTACHED) == Flags.ATTACHED);
             });
             completionItems.addAll(this.getCompletionItemList(filteredSymbols));
-            itemList = SymbolFilters.get(StatementTemplateFilter.class)
-                    .filterItems(completionContext);
+            itemList = SymbolFilters.get(StatementTemplateFilter.class).filterItems(context);
 
             CompletionItem xmlns = new CompletionItem();
+            Snippet.STMT_NAMESPACE_DECLARATION.getBlock().populateCompletionItem(xmlns, isSnippet);
             xmlns.setLabel(ItemResolverConstants.XMLNS);
-            xmlns.setInsertText(Snippet.NAMESPACE_DECLARATION.toString());
-            xmlns.setInsertTextFormat(InsertTextFormat.Snippet);
             xmlns.setDetail(ItemResolverConstants.SNIPPET_TYPE);
             completionItems.add(xmlns);
 
             CompletionItem varKeyword = new CompletionItem();
-            varKeyword.setInsertText(Snippet.VAR_KEYWORD_SNIPPET.toString());
+            Snippet.KW_VAR.getBlock().populateCompletionItem(varKeyword, isSnippet);
             varKeyword.setLabel(ItemResolverConstants.VAR_KEYWORD);
             varKeyword.setDetail(ItemResolverConstants.KEYWORD_TYPE);
             completionItems.add(varKeyword);
@@ -85,7 +84,7 @@ public class ParserRuleStatementContextResolver extends AbstractItemResolver {
         
         // Now we need to sort the completion items and populate the completion items specific to the scope owner
         // as an example, resource, action, function scopes are different from the if-else, while, and etc
-        ItemSorters.get(itemSorterClass).sortItems(completionContext, completionItems);
+        ItemSorters.get(itemSorterClass).sortItems(context, completionItems);
 
         return completionItems;
     }

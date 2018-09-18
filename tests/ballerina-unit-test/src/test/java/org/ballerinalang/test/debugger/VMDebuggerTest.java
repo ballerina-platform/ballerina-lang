@@ -40,7 +40,9 @@ import org.testng.annotations.Test;
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import static org.ballerinalang.test.utils.debug.Step.RESUME;
 import static org.ballerinalang.test.utils.debug.Step.STEP_IN;
@@ -54,6 +56,8 @@ import static org.ballerinalang.test.utils.debug.Util.createBreakNodeLocations;
 public class VMDebuggerTest {
 
     private static final String FILE = "test-debug.bal";
+    private static final String SUCCESS = "success";
+    private static final String FAILURE = "failure";
     private PrintStream original;
 
     @BeforeClass
@@ -71,7 +75,7 @@ public class VMDebuggerTest {
     @Test(description = "Testing Resume with break points.")
     public void testResume() {
         BreakPointDTO[] breakPoints = createBreakNodeLocations(".", FILE,
-                                                               3, 9, 17, 29, 30, 33, 35, 37, 42, 43, 44, 45, 46, 47);
+                3, 9, 17, 29, 30, 33, 35, 37, 42, 43, 44, 45, 46, 47);
 
         List<DebugPoint> debugPoints = new ArrayList<>();
         debugPoints.add(Util.createDebugPoint(".", FILE, 3, RESUME, 1));
@@ -80,7 +84,11 @@ public class VMDebuggerTest {
         debugPoints.add(Util.createDebugPoint(".", FILE, 37, RESUME, 1));
         debugPoints.add(Util.createDebugPoint(".", FILE, 42, RESUME, 1));
         debugPoints.add(Util.createDebugPoint(".", FILE, 43, RESUME, 1));
-        debugPoints.add(Util.createDebugPoint(".", FILE, 9, RESUME, 1));
+
+        // Key: expression, Value: expected results
+        Map<String, String> expMap1 = new HashMap<>();
+        populateExpressionMap(expMap1, "p", SUCCESS, "10");
+        debugPoints.add(Util.createDebugPoint(".", FILE, 9, RESUME, 1, expMap1));
 
         ExpectedResults expRes = new ExpectedResults(debugPoints, 7, 0, new ArrayList<>(), false);
 
@@ -108,7 +116,15 @@ public class VMDebuggerTest {
         debugPoints.add(Util.createDebugPoint(".", FILE, 14, STEP_IN, 1));
         debugPoints.add(Util.createDebugPoint(".", FILE, 15, STEP_IN, 1));
         debugPoints.add(Util.createDebugPoint(".", FILE, 16, STEP_IN, 1));
-        debugPoints.add(Util.createDebugPoint(".", FILE, 20, STEP_IN, 1));
+
+        // Key: expression, Value: expected results
+        Map<String, String> expMap1 = new HashMap<>();
+        populateExpressionMap(expMap1, "x", SUCCESS, "15");
+        populateExpressionMap(expMap1, "y", SUCCESS, "5");
+        populateExpressionMap(expMap1, "z", SUCCESS, "0");
+        populateExpressionMap(expMap1, "a", SUCCESS, "6");
+        populateExpressionMap(expMap1, "k", FAILURE, "cannot find variable 'k'");
+        debugPoints.add(Util.createDebugPoint(".", FILE, 20, STEP_IN, 1, expMap1));
         debugPoints.add(Util.createDebugPoint(".", FILE, 14, RESUME, 1));
         debugPoints.add(Util.createDebugPoint(".", FILE, 8, STEP_IN, 1));
         debugPoints.add(Util.createDebugPoint(".", FILE, 41, STEP_IN, 1));
@@ -122,7 +138,13 @@ public class VMDebuggerTest {
         debugPoints.add(Util.createDebugPoint(".", FILE, 38, STEP_IN, 1));
         debugPoints.add(Util.createDebugPoint(".", FILE, 42, STEP_IN, 1));
         debugPoints.add(Util.createDebugPoint(".", FILE, 43, STEP_IN, 1));
-        debugPoints.add(Util.createDebugPoint(".", FILE, 9, RESUME, 1));
+
+        // Key: expression, Value: expected results
+        Map<String, String> expMap2 = new HashMap<>();
+        populateExpressionMap(expMap2, "p", SUCCESS, "10");
+        populateExpressionMap(expMap2, "r", SUCCESS, "100");
+        populateExpressionMap(expMap2, "s", SUCCESS, "large");
+        debugPoints.add(Util.createDebugPoint(".", FILE, 9, RESUME, 1, expMap2));
 
         ExpectedResults expRes = new ExpectedResults(debugPoints, 21, 0, new ArrayList<>(), false);
 
@@ -136,7 +158,14 @@ public class VMDebuggerTest {
         List<DebugPoint> debugPoints = new ArrayList<>();
         debugPoints.add(Util.createDebugPoint(".", FILE, 26, STEP_OUT, 1));
         debugPoints.add(Util.createDebugPoint(".", FILE, 41, STEP_OUT, 1));
-        debugPoints.add(Util.createDebugPoint(".", FILE, 9, RESUME, 1));
+
+        // Key: expression, Value: expected results
+        Map<String, String> expMap1 = new HashMap<>();
+        populateExpressionMap(expMap1, "p", SUCCESS, "10");
+        populateExpressionMap(expMap1, "q", SUCCESS, "5");
+        populateExpressionMap(expMap1, "r", SUCCESS, "100");
+        populateExpressionMap(expMap1, "s", SUCCESS, "large");
+        debugPoints.add(Util.createDebugPoint(".", FILE, 9, RESUME, 1, expMap1));
 
         ExpectedResults expRes = new ExpectedResults(debugPoints, 3, 0, new ArrayList<>(), false);
 
@@ -187,7 +216,14 @@ public class VMDebuggerTest {
         debugPoints.add(Util.createDebugPoint(".", FILE, 13, STEP_OVER, 1));
         debugPoints.add(Util.createDebugPoint(".", FILE, 14, RESUME, 5));
         debugPoints.add(Util.createDebugPoint(".", FILE, 20, RESUME, 4));
-        debugPoints.add(Util.createDebugPoint(".", FILE, 22, RESUME, 1));
+
+        // Key: expression, Value: expected results
+        Map<String, String> expMap1 = new HashMap<>();
+        populateExpressionMap(expMap1, "x", SUCCESS, "15");
+        populateExpressionMap(expMap1, "y", SUCCESS, "5");
+        populateExpressionMap(expMap1, "z", SUCCESS, "100");
+        populateExpressionMap(expMap1, "a", SUCCESS, "10");
+        debugPoints.add(Util.createDebugPoint(".", FILE, 22, RESUME, 1, expMap1));
 
         ExpectedResults expRes = new ExpectedResults(debugPoints, 11, 0, new ArrayList<>(), false);
 
@@ -197,10 +233,13 @@ public class VMDebuggerTest {
     @Test(description = "Testing while statement resume")
     public void testWhileStatementResume() {
         BreakPointDTO[] breakPoints = createBreakNodeLocations(".",
-                                                                    "while-statement.bal", 5);
+                "while-statement.bal", 5);
 
         List<DebugPoint> debugPoints = new ArrayList<>();
-        debugPoints.add(Util.createDebugPoint(".", "while-statement.bal", 5, RESUME, 5));
+        // Key: expression, Value: expected results
+        Map<String, String> expMap1 = new HashMap<>();
+        populateExpressionMap(expMap1, "args", SUCCESS, "Array[2] [\\\"Hello\\\", \\\"World\\\"]");
+        debugPoints.add(Util.createDebugPoint(".", "while-statement.bal", 5, RESUME, 5, expMap1));
 
         List<VariableDTO> variables = new ArrayList<>();
         variables.add(Util.createVariable("i", "Local", new BInteger(4)));
@@ -213,8 +252,7 @@ public class VMDebuggerTest {
 
     @Test(description = "Testing try catch finally scenario for path")
     public void testTryCatchScenarioForPath() {
-        BreakPointDTO[] breakPoints = createBreakNodeLocations(".",
-                                                                    "try-catch-finally.bal", 19);
+        BreakPointDTO[] breakPoints = createBreakNodeLocations(".", "try-catch-finally.bal", 19);
 
         String file = "try-catch-finally.bal";
 
@@ -234,7 +272,12 @@ public class VMDebuggerTest {
         debugPoints.add(Util.createDebugPoint(".", file, 55, STEP_OVER, 1));
         debugPoints.add(Util.createDebugPoint(".", file, 56, STEP_OVER, 1));
         debugPoints.add(Util.createDebugPoint(".", file, 58, STEP_OVER, 1));
-        debugPoints.add(Util.createDebugPoint(".", file, 60, RESUME, 1));
+
+        // Key: expression, Value: expected results
+        Map<String, String> expMap1 = new HashMap<>();
+        populateExpressionMap(expMap1, "path", SUCCESS, "start insideTry insideInnerTry onError " +
+                "innerTestErrorCatch:test innerFinally TestErrorCatch Finally ");
+        debugPoints.add(Util.createDebugPoint(".", file, 60, RESUME, 1, expMap1));
 
         ExpectedResults expRes = new ExpectedResults(debugPoints, 16, 0, new ArrayList<>(), false);
 
@@ -243,8 +286,7 @@ public class VMDebuggerTest {
 
     @Test(description = "Testing debug paths in workers")
     public void testDebuggingWorkers() {
-        BreakPointDTO[] breakPoints = createBreakNodeLocations(".",
-                                                                    "test-worker.bal", 3, 9, 10, 18, 19, 23, 48);
+        BreakPointDTO[] breakPoints = createBreakNodeLocations(".", "test-worker.bal", 3, 9, 10, 18, 19, 23, 48);
 
         String file = "test-worker.bal";
 
@@ -252,14 +294,27 @@ public class VMDebuggerTest {
         debugPoints.add(Util.createDebugPoint(".", file, 3, RESUME, 1));
         debugPoints.add(Util.createDebugPoint(".", file, 9, STEP_OVER, 1));
         debugPoints.add(Util.createDebugPoint(".", file, 10, STEP_OVER, 1));
-        debugPoints.add(Util.createDebugPoint(".", file, 12, STEP_IN, 1));
+
+        // Key: expression, Value: expected results
+        Map<String, String> expMap1 = new HashMap<>();
+        populateExpressionMap(expMap1, "a", FAILURE, "cannot find variable 'a'");
+        populateExpressionMap(expMap1, "p", SUCCESS, "15");
+        populateExpressionMap(expMap1, "q", SUCCESS, "5");
+        debugPoints.add(Util.createDebugPoint(".", file, 12, STEP_IN, 1, expMap1));
         debugPoints.add(Util.createDebugPoint(".", file, 30, STEP_IN, 1));
         debugPoints.add(Util.createDebugPoint(".", file, 31, STEP_OUT, 1));
         debugPoints.add(Util.createDebugPoint(".", file, 13, RESUME, 1));
         debugPoints.add(Util.createDebugPoint(".", file, 18, STEP_OVER, 1));
         debugPoints.add(Util.createDebugPoint(".", file, 19, RESUME, 1));
         debugPoints.add(Util.createDebugPoint(".", file, 48, RESUME, 5));
-        debugPoints.add(Util.createDebugPoint(".", file, 23, RESUME, 1));
+
+        // Key: expression, Value: expected results
+        Map<String, String> expMap2 = new HashMap<>();
+        populateExpressionMap(expMap2, "a", SUCCESS, "0");
+        populateExpressionMap(expMap2, "p", SUCCESS, "15");
+        populateExpressionMap(expMap2, "q", SUCCESS, "5");
+        populateExpressionMap(expMap2, "b", SUCCESS, "100");
+        debugPoints.add(Util.createDebugPoint(".", file, 23, RESUME, 1, expMap2));
 
         ExpectedResults expRes = new ExpectedResults(debugPoints, 15, 0, new ArrayList<>(), false);
 
@@ -268,8 +323,7 @@ public class VMDebuggerTest {
 
     @Test(description = "Testing debug paths in package init")
     public void testDebuggingPackageInit() {
-        BreakPointDTO[] breakPoints = createBreakNodeLocations(".",
-                                                                    "test-package-init.bal", 3, 9);
+        BreakPointDTO[] breakPoints = createBreakNodeLocations(".", "test-package-init.bal", 3, 9);
 
         String file = "test-package-init.bal";
 
@@ -288,7 +342,12 @@ public class VMDebuggerTest {
         debugPoints.add(Util.createDebugPoint(".", file, 21, STEP_OVER, 1));
         debugPoints.add(Util.createDebugPoint(".", file, 15, STEP_OVER, 1));
         debugPoints.add(Util.createDebugPoint(".", file, 23, RESUME, 1));
-        debugPoints.add(Util.createDebugPoint(".", file, 9, RESUME, 1));
+        // Key: expression, Value: expected results
+        Map<String, String> expMap1 = new HashMap<>();
+        populateExpressionMap(expMap1, "val1", SUCCESS, "60");
+        populateExpressionMap(expMap1, "val2", SUCCESS, "20");
+        populateExpressionMap(expMap1, "cal", SUCCESS, "80");
+        debugPoints.add(Util.createDebugPoint(".", file, 9, RESUME, 1, expMap1));
 
         List<VariableDTO> variables = new ArrayList<>();
         variables.add(Util.createVariable("val1", "Global", new BInteger(60)));
@@ -303,8 +362,7 @@ public class VMDebuggerTest {
 
     @Test(description = "Testing debug match statement and objects")
     public void testDebuggingMatchAndObject() {
-        BreakPointDTO[] breakPoints = createBreakNodeLocations(".",
-                                                                    "test_object_and_match.bal", 3, 48, 66, 54);
+        BreakPointDTO[] breakPoints = createBreakNodeLocations(".", "test_object_and_match.bal", 3, 48, 66, 54);
 
         String file = "test_object_and_match.bal";
 
@@ -355,19 +413,26 @@ public class VMDebuggerTest {
     @Test(description = "Testing global variables availability in debug hit message")
     public void testGlobalVarAvailability() {
         String file = "test_variables.bal";
-        BreakPointDTO[] breakPoints = createBreakNodeLocations(".", file, 10);
+        BreakPointDTO[] breakPoints = createBreakNodeLocations(".", file, 13);
 
         List<DebugPoint> debugPoints = new ArrayList<>();
-        debugPoints.add(Util.createDebugPoint(".", file, 10, STEP_OVER, 1));
-        debugPoints.add(Util.createDebugPoint(".", file, 11, RESUME, 1));
+        debugPoints.add(Util.createDebugPoint(".", file, 13, STEP_OVER, 1));
+        // Key: expression, Value: expected results
+        Map<String, String> expMap1 = new HashMap<>();
+        populateExpressionMap(expMap1, "gInt", SUCCESS, "5");
+        populateExpressionMap(expMap1, "gBool", SUCCESS, "true");
+        populateExpressionMap(expMap1, "y", SUCCESS, "25");
+        populateExpressionMap(expMap1, "foo", SUCCESS, "Record Foo {count:5, last:\\\"last\\\"}");
+        debugPoints.add(Util.createDebugPoint(".", file, 14, RESUME, 1, expMap1));
 
         List<VariableDTO> variables = new ArrayList<>();
         variables.add(Util.createVariable("gInt", "Global", new BInteger(5)));
         variables.add(Util.createVariable("gStr", "Global", new BString("str")));
         variables.add(Util.createVariable("gBool", "Global", new BBoolean(true)));
         variables.add(Util.createVariable("gByte", "Global", new BByte((byte) 255)));
+        variables.add(Util.createVariable("gNewStr", "Global", new BString("ABCDEFG HIJ")));
 
-        ExpectedResults expRes = new ExpectedResults(debugPoints, 2, 4, variables, false);
+        ExpectedResults expRes = new ExpectedResults(debugPoints, 2, 7, variables, false);
 
         VMDebuggerUtil.startDebug("test-src/debugger/test_variables.bal", breakPoints, expRes);
     }
@@ -375,38 +440,97 @@ public class VMDebuggerTest {
     @Test(description = "Testing local variables scopes")
     public void testLocalVarScope() {
         String file = "test_variables.bal";
-        BreakPointDTO[] breakPoints = createBreakNodeLocations(".", file, 9);
+        BreakPointDTO[] breakPoints = createBreakNodeLocations(".", file, 12);
 
         List<DebugPoint> debugPoints = new ArrayList<>();
-        debugPoints.add(Util.createDebugPoint(".", file, 9, RESUME, 1));
+        // Key: expression, Value: expected results
+        Map<String, String> expMap1 = new HashMap<>();
+        populateExpressionMap(expMap1, "gStr", SUCCESS, "str");
+        populateExpressionMap(expMap1, "gByte", SUCCESS, "255");
+        populateExpressionMap(expMap1, "x", SUCCESS, "10");
+        populateExpressionMap(expMap1, "z", SUCCESS, "15");
+        populateExpressionMap(expMap1, "args", SUCCESS, "Array[2] [\\\"Hello\\\", \\\"World\\\"]");
+        debugPoints.add(Util.createDebugPoint(".", file, 12, RESUME, 1, expMap1));
 
         List<VariableDTO> variables = new ArrayList<>();
         variables.add(Util.createVariable("gInt", "Global", new BInteger(5)));
         variables.add(Util.createVariable("gStr", "Global", new BString("str")));
         variables.add(Util.createVariable("gBool", "Global", new BBoolean(true)));
         variables.add(Util.createVariable("gByte", "Global", new BByte((byte) 255)));
+        variables.add(Util.createVariable("gNewStr", "Global", new BString("ABCDEFG HIJ")));
         variables.add(Util.createVariable("args", "Local", new BStringArray(new String[]{"Hello", "World"})));
         variables.add(Util.createVariable("x", "Local", new BInteger(10)));
         variables.add(Util.createVariable("z", "Local", new BInteger(15)));
 
-        ExpectedResults expRes = new ExpectedResults(debugPoints, 1, 4, variables, true);
+        ExpectedResults expRes = new ExpectedResults(debugPoints, 1, 7, variables, false);
 
         VMDebuggerUtil.startDebug("test-src/debugger/test_variables.bal", breakPoints, expRes);
     }
 
-    @Test(description = "Testing local variables scopes")
+    @Test(description = "Test debugging when multi-packages available")
     public void testMultiPackage() {
         String file = "apple.bal";
         String packagePath = "abc/fruits:0.0.1";
-        BreakPointDTO[] breakPoints = createBreakNodeLocations(packagePath, file, 5);
+        BreakPointDTO[] breakPoints = createBreakNodeLocations(packagePath, file, 9);
 
         List<DebugPoint> debugPoints = new ArrayList<>();
-        debugPoints.add(Util.createDebugPoint(packagePath, file, 5, RESUME, 1));
+        debugPoints.add(Util.createDebugPoint(packagePath, file, 9, RESUME, 1));
 
         List<VariableDTO> variables = new ArrayList<>();
-        variables.add(Util.createVariable("self", "Local", createObject("Apple", packagePath)));
+        String objName = "Apple";
+        variables.add(Util.createVariable("self", "Local", createObject(objName, packagePath)));
+
         ExpectedResults expRes = new ExpectedResults(debugPoints, 1, 0, variables, false);
+
         VMDebuggerUtil.startDebug("test-src/debugger/multi-package/main.bal", breakPoints, expRes);
+    }
+
+    @Test(description = "Test evaluating global variables from other packages")
+    public void testEvaluatingOtherPackageGlobalVars() {
+        String file = "apple.bal";
+        String packagePath = "abc/fruits:0.0.1";
+        BreakPointDTO[] breakPoints = createBreakNodeLocations(packagePath, file, 9);
+
+        List<DebugPoint> debugPoints = new ArrayList<>();
+        // Key: expression, Value: expected results
+        Map<String, String> expMap1 = new HashMap<>();
+        populateExpressionMap(expMap1, "abc/fruits:0.0.1:gInt", SUCCESS, "10");
+        populateExpressionMap(expMap1, "abc/fruits:0.0.1:gApple", SUCCESS, "Object Apple {}");
+        populateExpressionMap(expMap1, "abc/vegetables:0.0.1:gInt", FAILURE,
+                "cannot find variable 'abc/vegetables:0.0.1:gInt'");
+        debugPoints.add(Util.createDebugPoint(packagePath, file, 9, RESUME, 1, expMap1));
+
+        List<VariableDTO> variables = new ArrayList<>();
+        String objName = "Apple";
+        variables.add(Util.createVariable("self", "Local", createObject(objName, packagePath)));
+
+        ExpectedResults expRes = new ExpectedResults(debugPoints, 1, 0, variables, false);
+
+        VMDebuggerUtil.startDebug("test-src/debugger/multi-package/main.bal", breakPoints, expRes);
+    }
+
+    @Test(description = "Test ignoring non-nullable global variables with null values")
+    public void testGlobalVariableNullability() {
+        String file = "test_variables.bal";
+        BreakPointDTO[] breakPoints = createBreakNodeLocations(".", file, 31);
+
+        List<DebugPoint> debugPoints = new ArrayList<>();
+        debugPoints.add(Util.createDebugPoint(".", file, 31, STEP_OVER, 1));
+        debugPoints.add(Util.createDebugPoint(".", file, 32, RESUME, 1));
+
+        List<VariableDTO> variables = new ArrayList<>();
+        variables.add(Util.createVariable("gInt", "Global", new BInteger(5)));
+        variables.add(Util.createVariable("gStr", "Global", new BString("str")));
+        variables.add(Util.createVariable("gBool", "Global", new BBoolean(true)));
+        variables.add(Util.createVariable("gNewStr", "Global", new BString("")));
+        variables.add(Util.createVariable("gByte", "Global", new BByte((byte) 0)));
+
+        // Expected global variables count should be 6 in this case
+        // Reason: Variable 'gPerson' is not yet initialized. Thus, its current value is null
+        // But this is a non-nullable variable and hence we omit this when adding variables to the frame
+        ExpectedResults expRes = new ExpectedResults(debugPoints, 2, 6, variables, false);
+
+        VMDebuggerUtil.startDebug("test-src/debugger/test_variables.bal", breakPoints, expRes);
     }
 
     /**
@@ -423,5 +547,10 @@ public class VMDebuggerTest {
         bObjectType.setFields(new BField[0]);
         objectTypeInfo.setType(bObjectType);
         return new BMap(bObjectType);
+    }
+
+    private void populateExpressionMap(Map<String, String> expMap, String expression, String status, String expected) {
+        String jsonResults = "{\"status\":\"" + status + "\", \"results\":\"" + expected + "\"}";
+        expMap.put(expression, jsonResults);
     }
 }

@@ -179,6 +179,7 @@ public type LoadBalanceActionError record {
     error? cause,
     int statusCode,
     error[] httpActionErr,
+    !...
 };
 
 function LoadBalancerActions::post(string path, Request|string|xml|json|byte[]|io:ByteChannel|mime:Entity[]|()

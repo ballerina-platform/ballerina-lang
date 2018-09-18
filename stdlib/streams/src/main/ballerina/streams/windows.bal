@@ -18,6 +18,15 @@ import ballerina/io;
 import ballerina/time;
 import ballerina/task;
 
+public type EventType "CURRENT"|"EXPIRED"|"ALL"|"RESET"|"TIMER";
+
+public type StreamEvent record {
+    EventType eventType;
+    any eventObject;
+    int timestamp;
+    !...
+};
+
 public type Window object {
 
     public function process(StreamEvent[] streamEvents) {
@@ -105,7 +114,6 @@ public type TimeWindow object {
         expiredEventQueue = new;
         timerQueue = new;
     }
-
 
     public function process(StreamEvent[] streamEvents) {
         LinkedList streamEventChunk = new;

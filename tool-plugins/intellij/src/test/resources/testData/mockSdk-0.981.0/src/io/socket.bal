@@ -18,7 +18,7 @@
 documentation {
     Represents a TCP socket.
 
-    F{{channel}} ByteChannel which will represent the socket connection
+    F{{byteChannel}} ByteChannel which will represent the socket connection
     F{{remotePort}} Remote server connection port
     F{{localPort}} Local port the socket connection should bound
     F{{remoteAddress}} IP/Host of the remote server
@@ -26,7 +26,7 @@ documentation {
 }
 public type Socket object {
 
-    @readonly public ByteChannel channel;
+    @readonly public ByteChannel byteChannel;
     @readonly public int remotePort;
     @readonly public int localPort;
     @readonly public string remoteAddress;
