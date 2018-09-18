@@ -33,11 +33,13 @@ public class TaintRecord {
     public List<Boolean> parameterTaintedStatusList;
     public List<TaintError> taintError;
 
-    public TaintRecord(Boolean returnTaintedStatus, List<Boolean> parameterTaintedStatusList,
-                       List<TaintError> taintError) {
+    public TaintRecord(List<TaintError> taintError) {
+        this.taintError = taintError;
+    }
+
+    public TaintRecord(Boolean returnTaintedStatus, List<Boolean> parameterTaintedStatusList) {
         this.returnTaintedStatus = returnTaintedStatus;
         this.parameterTaintedStatusList = parameterTaintedStatusList;
-        this.taintError = taintError;
     }
 
     /**

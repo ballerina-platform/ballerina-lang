@@ -1511,9 +1511,10 @@ public class TaintAnalyzer extends BLangNodeVisitor {
                 // If taint error occurred when no parameter is tainted, there is no point of checking tainted status of
                 // returns when each parameter is tainted. An compiler error will get generated for the usage anyway,
                 // hence adding dummy table to the function to make sure remaining analysis stays intact.
-                taintTable.put(ALL_UNTAINTED_TABLE_ENTRY_INDEX, new TaintRecord(Boolean.FALSE, null, null));
+                List<Boolean> paramTaintedStatus = Collections.nCopies(totalParamCount, Boolean.FALSE);
+                taintTable.put(ALL_UNTAINTED_TABLE_ENTRY_INDEX, new TaintRecord(Boolean.FALSE, paramTaintedStatus));
                 for (int paramIndex = 0; paramIndex < totalParamCount; paramIndex++) {
-                    taintTable.put(paramIndex, new TaintRecord(Boolean.FALSE, null, null));
+                    taintTable.put(paramIndex, new TaintRecord(Boolean.FALSE, paramTaintedStatus));
                 }
                 taintErrorSet.clear();
             } else {
@@ -1576,7 +1577,7 @@ public class TaintAnalyzer extends BLangNodeVisitor {
                     || analyzerPhase == AnalyzerPhase.LOOPS_RESOLVED_ANALYSIS)) {
                 taintErrorSet.forEach(error -> this.dlog.error(error.pos, error.diagnosticCode, error.paramName));
             } else {
-                taintTable.put(paramIndex, new TaintRecord(null, null, new ArrayList<>(taintErrorSet)));
+                taintTable.put(paramIndex, new TaintRecord(new ArrayList<>(taintErrorSet)));
             }
         } else if (this.blockedNode == null) {
             if (invokableNode.returnTypeNode.type != symTable.nilType) {
@@ -1592,7 +1593,7 @@ public class TaintAnalyzer extends BLangNodeVisitor {
                     .map(taintedStatus -> taintedStatus == TaintedStatus.TAINTED ? Boolean.TRUE : Boolean.FALSE)
                     .collect(Collectors.toList());
 
-            taintTable.put(paramIndex, new TaintRecord(storedReturnTaintedStatus, paramTaintedStatusList, null));
+            taintTable.put(paramIndex, new TaintRecord(storedReturnTaintedStatus, paramTaintedStatusList));
         }
     }
 
@@ -1662,7 +1663,7 @@ public class TaintAnalyzer extends BLangNodeVisitor {
             // Append taint table with tainted status when no parameter is tainted.
             Map<Integer, TaintRecord> taintTable = new HashMap<>();
             taintTable.put(ALL_UNTAINTED_TABLE_ENTRY_INDEX, new TaintRecord(retParamsTaintedStatus,
-                    paramTaintedStatusList, null));
+                    paramTaintedStatusList));
 
             if (totalParamCount > 0) {
                 // Append taint table with tainted status when each parameter is tainted.
@@ -1673,7 +1674,7 @@ public class TaintAnalyzer extends BLangNodeVisitor {
                     if (hasAnnotation(param, ANNOTATION_SENSITIVE)) {
                         continue;
                     }
-                    taintTable.put(paramIndex, new TaintRecord(retParamsTaintedStatus, paramTaintedStatusList, null));
+                    taintTable.put(paramIndex, new TaintRecord(retParamsTaintedStatus, paramTaintedStatusList));
                 }
             }
             invokableNode.symbol.taintTable = taintTable;
@@ -1761,18 +1762,16 @@ public class TaintAnalyzer extends BLangNodeVisitor {
 
     private void combinedParameterTaintedStatus(List<TaintedStatus> combinedArgTaintedStatus,
                                                 List<Boolean> argTaintedStatus) {
-        if (argTaintedStatus != null) {
-            if (combinedArgTaintedStatus.isEmpty()) {
-                List<TaintedStatus> argTaintedStatusTempList = argTaintedStatus.stream().map(taintedStatus ->
-                        taintedStatus ? TaintedStatus.TAINTED : TaintedStatus.UNTAINTED).collect(Collectors.toList());
-                combinedArgTaintedStatus.addAll(argTaintedStatusTempList);
-            } else {
-                // Merge lists together while making sure "Tainted" status of "argTaintedStatus" list is not overwritten
-                // with "Untainted", whereas it is allowed to overwritten "Untainted" status with with "Tainted".
-                for (int paramIndex = 0; paramIndex < argTaintedStatus.size(); paramIndex++) {
-                    if (argTaintedStatus.get(paramIndex) == Boolean.TRUE) {
-                        combinedArgTaintedStatus.set(paramIndex, TaintedStatus.TAINTED);
-                    }
+        if (combinedArgTaintedStatus.isEmpty()) {
+            List<TaintedStatus> argTaintedStatusTempList = argTaintedStatus.stream().map(taintedStatus ->
+                    taintedStatus ? TaintedStatus.TAINTED : TaintedStatus.UNTAINTED).collect(Collectors.toList());
+            combinedArgTaintedStatus.addAll(argTaintedStatusTempList);
+        } else {
+            // Merge lists together while making sure "Tainted" status of "argTaintedStatus" list is not overwritten
+            // with "Untainted", whereas it is allowed to overwritten "Untainted" status with with "Tainted".
+            for (int paramIndex = 0; paramIndex < argTaintedStatus.size(); paramIndex++) {
+                if (argTaintedStatus.get(paramIndex) == Boolean.TRUE) {
+                    combinedArgTaintedStatus.set(paramIndex, TaintedStatus.TAINTED);
                 }
             }
         }
@@ -1918,46 +1917,48 @@ public class TaintAnalyzer extends BLangNodeVisitor {
     }
 
     private void updateArgTaintedStatus (BLangInvocation invocationExpr, List<TaintedStatus> argTaintedStatusList) {
-        if (!argTaintedStatusList.isEmpty()) {
-            BInvokableSymbol invokableSymbol = (BInvokableSymbol) invocationExpr.symbol;
-            int requiredParamCount = invokableSymbol.params.size();
-            int defaultableParamCount = invokableSymbol.defaultableParams.size();
+        BInvokableSymbol invokableSymbol = (BInvokableSymbol) invocationExpr.symbol;
+        int requiredParamCount = invokableSymbol.params.size();
+        int defaultableParamCount = invokableSymbol.defaultableParams.size();
 
-            for (int argIndex = 0; argIndex < invocationExpr.requiredArgs.size(); argIndex++) {
-                BLangExpression argExpr = invocationExpr.requiredArgs.get(argIndex);
-                TaintedStatus argTaintedStatus = TaintedStatus.UNTAINTED;
-                if (!argTaintedStatusList.isEmpty()) {
-                    argTaintedStatus = argTaintedStatusList.get(argIndex);
-                }
-                updateArgTaintedStatus(argExpr, argTaintedStatus);
+        int requiredArgsCount = invocationExpr.requiredArgs.size();
+        int namedArgsCount = invocationExpr.namedArgs.size();
+        int restArgsCount = invocationExpr.restArgs.size();
+
+        for (int argIndex = 0; argIndex < requiredArgsCount; argIndex++) {
+            BLangExpression argExpr = invocationExpr.requiredArgs.get(argIndex);
+            TaintedStatus argTaintedStatus = TaintedStatus.UNTAINTED;
+            if (!argTaintedStatusList.isEmpty()) {
+                argTaintedStatus = argTaintedStatusList.get(argIndex);
             }
+            updateArgTaintedStatus(argExpr, argTaintedStatus);
+        }
 
-            for (int argIndex = 0; argIndex < invocationExpr.namedArgs.size(); argIndex++) {
-                BLangExpression argExpr = invocationExpr.namedArgs.get(argIndex);
-                if (argExpr.getKind() == NodeKind.NAMED_ARGS_EXPR) {
-                    String currentNamedArgExprName = ((BLangNamedArgsExpression) argExpr).name.value;
-                    // Pick the index of this defaultable parameter in the invokable definition.
-                    int paramIndex = 0;
-                    for (int defaultableParamIndex = 0; defaultableParamIndex < invokableSymbol.defaultableParams
-                            .size(); defaultableParamIndex++) {
-                        BVarSymbol defaultableParam = invokableSymbol.defaultableParams.get(defaultableParamIndex);
-                        if (defaultableParam.name.value.equals(currentNamedArgExprName)) {
-                            paramIndex = requiredParamCount + defaultableParamIndex;
-                            break;
-                        }
+        for (int argIndex = 0; argIndex < namedArgsCount; argIndex++) {
+            BLangExpression argExpr = invocationExpr.namedArgs.get(argIndex);
+            if (argExpr.getKind() == NodeKind.NAMED_ARGS_EXPR) {
+                String currentNamedArgExprName = ((BLangNamedArgsExpression) argExpr).name.value;
+                // Pick the index of this defaultable parameter in the invokable definition.
+                int paramIndex = 0;
+                for (int defaultableParamIndex = 0; defaultableParamIndex < defaultableParamCount;
+                     defaultableParamIndex++) {
+                    BVarSymbol defaultableParam = invokableSymbol.defaultableParams.get(defaultableParamIndex);
+                    if (defaultableParam.name.value.equals(currentNamedArgExprName)) {
+                        paramIndex = requiredParamCount + defaultableParamIndex;
+                        break;
                     }
-                    TaintedStatus argTaintedStatus = argTaintedStatusList.get(paramIndex);
-                    updateArgTaintedStatus(argExpr, argTaintedStatus);
                 }
-            }
-
-            for (int argIndex = 0; argIndex < invocationExpr.restArgs.size(); argIndex++) {
-                BLangExpression argExpr = invocationExpr.restArgs.get(argIndex);
-                // Pick the index of the rest parameter in the invokable definition.
-                int paramIndex = requiredParamCount + defaultableParamCount;
                 TaintedStatus argTaintedStatus = argTaintedStatusList.get(paramIndex);
                 updateArgTaintedStatus(argExpr, argTaintedStatus);
             }
+        }
+
+        for (int argIndex = 0; argIndex < restArgsCount; argIndex++) {
+            BLangExpression argExpr = invocationExpr.restArgs.get(argIndex);
+            // Pick the index of the rest parameter in the invokable definition.
+            int paramIndex = requiredParamCount + defaultableParamCount;
+            TaintedStatus argTaintedStatus = argTaintedStatusList.get(paramIndex);
+            updateArgTaintedStatus(argExpr, argTaintedStatus);
         }
     }
 

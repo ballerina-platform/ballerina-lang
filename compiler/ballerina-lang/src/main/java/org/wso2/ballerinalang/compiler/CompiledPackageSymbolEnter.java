@@ -849,18 +849,12 @@ public class CompiledPackageSymbolEnter {
         invokableSymbol.taintTable = new HashMap<>();
         for (int rowIndex = 0; rowIndex < rowCount; rowIndex++) {
             int paramIndex = taintTableDataInStream.readShort();
-            Boolean returnTaintedStatus = Boolean.FALSE;
-            TaintRecord taintRecord;
-            if (columnCount > 0) {
-                returnTaintedStatus = taintTableDataInStream.readBoolean();
-                List<Boolean> parameterTaintedStatusList = new ArrayList<>();
-                for (int columnIndex = 1; columnIndex < columnCount; columnIndex++) {
-                    parameterTaintedStatusList.add(taintTableDataInStream.readBoolean());
-                }
-                taintRecord = new TaintRecord(returnTaintedStatus, parameterTaintedStatusList, null);
-            } else {
-                taintRecord = new TaintRecord(returnTaintedStatus, null, null);
+            Boolean returnTaintedStatus = taintTableDataInStream.readBoolean();
+            List<Boolean> parameterTaintedStatusList = new ArrayList<>();
+            for (int columnIndex = 1; columnIndex < columnCount; columnIndex++) {
+                parameterTaintedStatusList.add(taintTableDataInStream.readBoolean());
             }
+            TaintRecord taintRecord = new TaintRecord(returnTaintedStatus, parameterTaintedStatusList);
             invokableSymbol.taintTable.put(paramIndex, taintRecord);
         }
     }
