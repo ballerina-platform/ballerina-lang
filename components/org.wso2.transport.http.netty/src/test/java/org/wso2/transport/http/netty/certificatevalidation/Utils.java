@@ -50,12 +50,6 @@ import org.bouncycastle.operator.bc.BcRSAContentSignerBuilder;
 import org.bouncycastle.operator.jcajce.JcaContentSignerBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.wso2.transport.http.netty.common.certificatevalidation.Constants;
-import org.wso2.transport.http.netty.common.certificatevalidation.ocsp.OCSPCache;
-import org.wso2.transport.http.netty.common.certificatevalidation.ocsp.OCSPVerifier;
-import org.wso2.transport.http.netty.config.ListenerConfiguration;
-import org.wso2.transport.http.netty.config.Parameter;
-import org.wso2.transport.http.netty.config.SenderConfiguration;
 import org.wso2.transport.http.netty.contentaware.listeners.EchoMessageListener;
 import org.wso2.transport.http.netty.contract.HttpClientConnector;
 import org.wso2.transport.http.netty.contract.HttpResponseFuture;
@@ -63,6 +57,12 @@ import org.wso2.transport.http.netty.contract.HttpWsConnectorFactory;
 import org.wso2.transport.http.netty.contract.ServerConnector;
 import org.wso2.transport.http.netty.contract.ServerConnectorFuture;
 import org.wso2.transport.http.netty.contractimpl.DefaultHttpWsConnectorFactory;
+import org.wso2.transport.http.netty.contractimpl.common.certificatevalidation.Constants;
+import org.wso2.transport.http.netty.contractimpl.common.certificatevalidation.ocsp.OCSPCache;
+import org.wso2.transport.http.netty.contractimpl.common.certificatevalidation.ocsp.OCSPVerifier;
+import org.wso2.transport.http.netty.contractimpl.config.ListenerConfiguration;
+import org.wso2.transport.http.netty.contractimpl.config.Parameter;
+import org.wso2.transport.http.netty.contractimpl.config.SenderConfiguration;
 import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 import org.wso2.transport.http.netty.message.HttpMessageDataStreamer;
 import org.wso2.transport.http.netty.util.DefaultHttpConnectorListener;
@@ -95,8 +95,8 @@ import java.util.stream.Collectors;
 
 import static org.testng.Assert.assertEquals;
 import static org.testng.AssertJUnit.assertNotNull;
-import static org.wso2.transport.http.netty.common.Constants.HTTPS_SCHEME;
-import static org.wso2.transport.http.netty.common.certificatevalidation.Constants.BOUNCY_CASTLE_PROVIDER;
+import static org.wso2.transport.http.netty.contractimpl.common.Constants.HTTPS_SCHEME;
+import static org.wso2.transport.http.netty.contractimpl.common.certificatevalidation.Constants.BOUNCY_CASTLE_PROVIDER;
 
 /**
  * Contains utility methods used by the test classes.

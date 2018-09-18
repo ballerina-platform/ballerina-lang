@@ -19,11 +19,11 @@
 
 package org.wso2.transport.http.netty.contract;
 
-import org.wso2.transport.http.netty.config.ListenerConfiguration;
-import org.wso2.transport.http.netty.config.SenderConfiguration;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketClientConnector;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketClientConnectorConfig;
-import org.wso2.transport.http.netty.listener.ServerBootstrapConfiguration;
+import org.wso2.transport.http.netty.contractimpl.config.ListenerConfiguration;
+import org.wso2.transport.http.netty.contractimpl.config.SenderConfiguration;
+import org.wso2.transport.http.netty.contractimpl.listener.ServerBootstrapConfiguration;
 
 import java.util.Map;
 

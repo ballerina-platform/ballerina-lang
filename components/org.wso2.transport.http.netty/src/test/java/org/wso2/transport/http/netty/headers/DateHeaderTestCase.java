@@ -29,14 +29,14 @@ import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
-import org.wso2.transport.http.netty.config.ListenerConfiguration;
 import org.wso2.transport.http.netty.contentaware.listeners.EchoStreamingMessageListener;
 import org.wso2.transport.http.netty.contract.HttpWsConnectorFactory;
 import org.wso2.transport.http.netty.contract.ServerConnector;
 import org.wso2.transport.http.netty.contract.ServerConnectorException;
 import org.wso2.transport.http.netty.contract.ServerConnectorFuture;
 import org.wso2.transport.http.netty.contractimpl.DefaultHttpWsConnectorFactory;
-import org.wso2.transport.http.netty.listener.ServerBootstrapConfiguration;
+import org.wso2.transport.http.netty.contractimpl.config.ListenerConfiguration;
+import org.wso2.transport.http.netty.contractimpl.listener.ServerBootstrapConfiguration;
 import org.wso2.transport.http.netty.util.TestUtil;
 
 import java.io.IOException;

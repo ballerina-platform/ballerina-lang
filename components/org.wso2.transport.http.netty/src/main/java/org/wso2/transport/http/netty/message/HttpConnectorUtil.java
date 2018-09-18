@@ -1,10 +1,10 @@
 package org.wso2.transport.http.netty.message;
 
-import org.wso2.transport.http.netty.common.Constants;
-import org.wso2.transport.http.netty.config.SenderConfiguration;
-import org.wso2.transport.http.netty.config.TransportProperty;
-import org.wso2.transport.http.netty.config.TransportsConfiguration;
-import org.wso2.transport.http.netty.listener.ServerBootstrapConfiguration;
+import org.wso2.transport.http.netty.contractimpl.common.Constants;
+import org.wso2.transport.http.netty.contractimpl.config.SenderConfiguration;
+import org.wso2.transport.http.netty.contractimpl.config.TransportProperty;
+import org.wso2.transport.http.netty.contractimpl.config.TransportsConfiguration;
+import org.wso2.transport.http.netty.contractimpl.listener.ServerBootstrapConfiguration;
 
 import java.util.HashMap;
 import java.util.Locale;

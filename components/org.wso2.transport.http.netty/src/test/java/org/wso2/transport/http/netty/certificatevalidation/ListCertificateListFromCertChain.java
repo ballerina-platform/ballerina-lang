@@ -19,7 +19,7 @@
 package org.wso2.transport.http.netty.certificatevalidation;
 
 import org.testng.annotations.Test;
-import org.wso2.transport.http.netty.common.ssl.SSLConfig;
+import org.wso2.transport.http.netty.contractimpl.common.ssl.SSLConfig;
 import org.wso2.transport.http.netty.util.TestUtil;
 
 import java.io.File;
@@ -27,7 +27,7 @@ import java.security.cert.X509Certificate;
 import java.util.List;
 
 import static org.testng.Assert.assertEquals;
-import static org.wso2.transport.http.netty.listener.OCSPResponseBuilder.getCertInfo;
+import static org.wso2.transport.http.netty.contractimpl.listener.OCSPResponseBuilder.getCertInfo;
 
 /**
  * This test is to test retrieving certificate list from certificate chains.
