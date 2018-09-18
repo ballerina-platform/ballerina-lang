@@ -203,6 +203,15 @@ export default function getSourceOf(node, pretty = false, l = 0, replaceLambda) 
                 return getSourceOf(node.elementType, pretty, l, replaceLambda) + w()
                  + node.dimensionAsString;
             }
+        case 'ArrowExpr':
+            if (node.hasParantheses && node.parameters && node.expression) {
+                return w() + '('
+                 + join(node.parameters, pretty, replaceLambda, l, w, '', ',') + w() + ')' + w() + '=>'
+                 + getSourceOf(node.expression, pretty, l, replaceLambda);
+            } else {
+                return join(node.parameters, pretty, replaceLambda, l, w, '', ',') + w()
+                 + '=>' + getSourceOf(node.expression, pretty, l, replaceLambda);
+            }
         case 'Assignment':
             return dent() + (node.declaredWithVar ? w() + 'var' + a(' ') : '')
                  + getSourceOf(node.variable, pretty, l, replaceLambda) + w(' ') + '='
@@ -1943,6 +1952,13 @@ export default function getSourceOf(node, pretty = false, l = 0, replaceLambda) 
                 return getSourceOf(node.typeNode, pretty, l, replaceLambda) + w(' ')
                  + node.name.valueWithBar + a(' ') + w(' ') + '=' + a(' ')
                  + getSourceOf(node.initialExpression, pretty, l, replaceLambda);
+            } else if (node.arrowExprParam && node.documentationAttachments
+                         && node.annotationAttachments && node.deprecatedAttachments
+                         && node.name.valueWithBar) {
+                return join(node.documentationAttachments, pretty, replaceLambda, l, w, '')
+                 + join(node.annotationAttachments, pretty, replaceLambda, l, w, '')
+                 + join(node.deprecatedAttachments, pretty, replaceLambda, l, w, '') + (node.public ? w() + 'public' + a(' ') : '') + w(' ')
+                 + node.name.valueWithBar + a(' ');
             } else {
                 return join(node.documentationAttachments, pretty, replaceLambda, l, w, '')
                  + join(node.annotationAttachments, pretty, replaceLambda, l, w, '')
