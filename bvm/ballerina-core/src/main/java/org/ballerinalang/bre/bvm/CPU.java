@@ -18,6 +18,8 @@
 package org.ballerinalang.bre.bvm;
 
 import org.apache.commons.lang3.StringEscapeUtils;
+import org.ballerinalang.channels.ChannelManager;
+import org.ballerinalang.channels.ChannelRegistry;
 import org.ballerinalang.model.types.BArrayType;
 import org.ballerinalang.model.types.BAttachedFunction;
 import org.ballerinalang.model.types.BField;
@@ -25,6 +27,7 @@ import org.ballerinalang.model.types.BFiniteType;
 import org.ballerinalang.model.types.BFunctionType;
 import org.ballerinalang.model.types.BJSONType;
 import org.ballerinalang.model.types.BMapType;
+import org.ballerinalang.model.types.BRecordType;
 import org.ballerinalang.model.types.BStreamType;
 import org.ballerinalang.model.types.BStructureType;
 import org.ballerinalang.model.types.BTupleType;
@@ -75,6 +78,8 @@ import org.ballerinalang.util.codegen.ForkjoinInfo;
 import org.ballerinalang.util.codegen.FunctionInfo;
 import org.ballerinalang.util.codegen.Instruction;
 import org.ballerinalang.util.codegen.Instruction.InstructionCALL;
+import org.ballerinalang.util.codegen.Instruction.InstructionCHNReceive;
+import org.ballerinalang.util.codegen.Instruction.InstructionCHNSend;
 import org.ballerinalang.util.codegen.Instruction.InstructionFORKJOIN;
 import org.ballerinalang.util.codegen.Instruction.InstructionIteratorNext;
 import org.ballerinalang.util.codegen.Instruction.InstructionLock;
@@ -117,8 +122,10 @@ import java.io.PrintStream;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.stream.Collectors;
 import java.util.stream.LongStream;
 
 import static org.ballerinalang.util.BLangConstants.BBYTE_MAX_VALUE;
@@ -433,6 +440,18 @@ public class CPU {
                                 wrkReceiveIns.reg)) {
                             return;
                         }
+                        break;
+                    case InstructionCodes.CHNRECEIVE:
+                        InstructionCHNReceive chnReceiveIns = (InstructionCHNReceive) instruction;
+                        if (!handleCHNReceive(ctx, chnReceiveIns.channelName, chnReceiveIns.receiverType,
+                                chnReceiveIns.receiverReg, chnReceiveIns.keyType, chnReceiveIns.keyReg)) {
+                            return;
+                        }
+                        break;
+                    case InstructionCodes.CHNSEND:
+                        InstructionCHNSend chnSendIns = (InstructionCHNSend) instruction;
+                        handleCHNSend(ctx, chnSendIns.channelName, chnSendIns.dataType,
+                                chnSendIns.dataReg, chnSendIns.keyType, chnSendIns.keyReg);
                         break;
                     case InstructionCodes.FORKJOIN:
                         InstructionFORKJOIN forkJoinIns = (InstructionFORKJOIN) instruction;
@@ -757,6 +776,59 @@ public class CPU {
                 handleError(ctx);
             }
         }
+    }
+
+    /**
+     * Handle sending a message to a channel. If there is a worker already waiting to accept this message, it is
+     * resumed.
+     * @param ctx Current worker context
+     * @param channelName Name os the channel to get the message
+     * @param dataType Type od the message
+     * @param dataReg Registry location of the message
+     * @param keyType Type of message key
+     * @param keyReg message key registry index
+     */
+    private static void handleCHNSend(WorkerExecutionContext ctx, String channelName, BType dataType, int dataReg,
+            BType keyType, int keyReg) {
+        BRefType keyVal = null;
+        if (keyType != null) {
+            keyVal = extractValue(ctx.workerLocal, keyType, keyReg);
+        }
+        BRefType dataVal = extractValue(ctx.workerLocal, dataType, dataReg);
+        ChannelRegistry.PendingContext pendingCtx = ChannelManager.channelSenderAction(channelName, keyVal, dataVal,
+                keyType, dataType);
+        if (pendingCtx != null) {
+            //inject the value to the ctx
+            copyArgValueForWorkerReceive(pendingCtx.context.workerLocal, pendingCtx.regIndex, dataType, dataVal);
+            BLangScheduler.resume(pendingCtx.context);
+        }
+    }
+
+    /**
+     * Handles message receiving using a channel.
+     * If the expected message is already available, it is assigned to the receiver reg and returns true.
+     * @param ctx Current worker context
+     * @param channelName Name os the channel to get the message
+     * @param receiverType Type of the expected message
+     * @param receiverReg Registry index of the receiving message
+     * @param keyType Type of message key
+     * @param keyIndex message key registry index
+     * @return true if a matching value is available
+     */
+    private static boolean handleCHNReceive(WorkerExecutionContext ctx, String channelName, BType receiverType,
+            int receiverReg, BType keyType, int keyIndex) {
+        BValue keyVal = null;
+        if (keyType != null) {
+            keyVal = extractValue(ctx.workerLocal, keyType, keyIndex);
+        }
+        BValue value = ChannelManager.channelReceiverAction(channelName, keyVal, keyType, ctx, receiverReg,
+                receiverType);
+        if (value != null) {
+            copyArgValueForWorkerReceive(ctx.workerLocal, receiverReg, receiverType, (BRefType) value);
+            return true;
+        }
+
+        return false;
     }
 
     private static WorkerExecutionContext invokeCallable(WorkerExecutionContext ctx, BFunctionPointer fp,
@@ -2363,7 +2435,7 @@ public class CPU {
                 .getLineNumber(ctx.callableUnitInfo.getPackageInfo().getPkgPath(), ctx.ip);
         /*
          Below if check stops hitting the same debug line again and again in case that single line has
-         multctx.iple instructions.
+         multiple instructions.
          */
         if (currentExecLine.equals(debugContext.getLastLine())) {
             return false;
@@ -2809,9 +2881,12 @@ public class CPU {
             return true;
         }
 
-        if ((rhsType.getTag() == TypeTags.OBJECT_TYPE_TAG || rhsType.getTag() == TypeTags.RECORD_TYPE_TAG)
-                && (lhsType.getTag() == TypeTags.OBJECT_TYPE_TAG || lhsType.getTag() == TypeTags.RECORD_TYPE_TAG)) {
+        if (rhsType.getTag() == TypeTags.OBJECT_TYPE_TAG && lhsType.getTag() == TypeTags.OBJECT_TYPE_TAG) {
             return checkStructEquivalency((BStructureType) rhsType, (BStructureType) lhsType);
+        }
+
+        if (rhsType.getTag() == TypeTags.RECORD_TYPE_TAG && lhsType.getTag() == TypeTags.RECORD_TYPE_TAG) {
+            return checkRecordEquivalency((BRecordType) lhsType, (BRecordType) rhsType);
         }
 
         if (rhsType.getTag() == TypeTags.MAP_TAG && lhsType.getTag() == TypeTags.MAP_TAG) {
@@ -2847,12 +2922,16 @@ public class CPU {
             return true;
         }
 
-        if ((sourceMapType.getConstrainedType().getTag() == TypeTags.OBJECT_TYPE_TAG
-                || sourceMapType.getConstrainedType().getTag() == TypeTags.RECORD_TYPE_TAG)
-                && (targetMapType.getConstrainedType().getTag() == TypeTags.OBJECT_TYPE_TAG
-                || targetMapType.getConstrainedType().getTag() == TypeTags.RECORD_TYPE_TAG)) {
+        if (sourceMapType.getConstrainedType().getTag() == TypeTags.OBJECT_TYPE_TAG &&
+                targetMapType.getConstrainedType().getTag() == TypeTags.OBJECT_TYPE_TAG) {
             return checkStructEquivalency((BStructureType) sourceMapType.getConstrainedType(),
-                    (BStructureType) targetMapType.getConstrainedType());
+                                          (BStructureType) targetMapType.getConstrainedType());
+        }
+
+        if (sourceMapType.getConstrainedType().getTag() == TypeTags.RECORD_TYPE_TAG &&
+                targetMapType.getConstrainedType().getTag() == TypeTags.RECORD_TYPE_TAG) {
+            return checkRecordEquivalency((BRecordType) targetMapType.getConstrainedType(),
+                                          (BRecordType) sourceMapType.getConstrainedType());
         }
 
         return false;
@@ -2934,6 +3013,29 @@ public class CPU {
                 checkEquivalencyOfPublicStructs(lhsType, rhsType);
     }
 
+    public static boolean checkRecordEquivalency(BRecordType lhsType, BRecordType rhsType) {
+        // Both records should be public or private.
+        // Get the XOR of both flags(masks)
+        // If both are public, then public bit should be 0;
+        // If both are private, then public bit should be 0;
+        // The public bit is on means, one is public, and the other one is private.
+        if (Flags.isFlagOn(lhsType.flags ^ rhsType.flags, Flags.PUBLIC)) {
+            return false;
+        }
+
+        // If both records are private, they should be in the same package.
+        if (!Flags.isFlagOn(lhsType.flags, Flags.PUBLIC) &&
+                !rhsType.getPackagePath().equals(lhsType.getPackagePath())) {
+            return false;
+        }
+
+        if (lhsType.getFields().length > rhsType.getFields().length) {
+            return false;
+        }
+
+        return checkEquivalencyOfTwoRecords(lhsType, rhsType);
+    }
+
     private static boolean checkEquivalencyOfTwoPrivateStructs(BStructureType lhsType, BStructureType rhsType) {
         for (int fieldCounter = 0; fieldCounter < lhsType.getFields().length; fieldCounter++) {
             BField lhsField = lhsType.getFields()[fieldCounter];
@@ -3005,6 +3107,27 @@ public class CPU {
         // Check for private attached function in RHS type
         for (BAttachedFunction rhsFunc : rhsFuncs) {
             if (!Flags.isFlagOn(rhsFunc.flags, Flags.PUBLIC)) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    private static boolean checkEquivalencyOfTwoRecords(BRecordType lhsType, BRecordType rhsType) {
+        Map<String, BField> rhsFields = Arrays.stream(rhsType.getFields()).collect(
+                Collectors.toMap(BField::getFieldName, field -> field));
+
+        BField[] fields = lhsType.getFields();
+        for (int fieldCounter = 0; fieldCounter < fields.length; fieldCounter++) {
+            BField lhsField = fields[fieldCounter];
+            BField rhsField = rhsFields.get(lhsField.fieldName);
+
+            if (rhsField == null) {
+                return false;
+            }
+
+            if (!isSameType(rhsField.fieldType, lhsField.fieldType)) {
                 return false;
             }
         }
@@ -3103,8 +3226,8 @@ public class CPU {
     }
 
     private static boolean checkJSONEquivalency(BValue json, BJSONType sourceType, BJSONType targetType) {
-        BStructureType sourceConstrainedType = (BStructureType) sourceType.getConstrainedType();
-        BStructureType targetConstrainedType = (BStructureType) targetType.getConstrainedType();
+        BRecordType sourceConstrainedType = (BRecordType) sourceType.getConstrainedType();
+        BRecordType targetConstrainedType = (BRecordType) targetType.getConstrainedType();
 
         // Casting to an unconstrained JSON
         if (targetConstrainedType == null) {
@@ -3117,7 +3240,7 @@ public class CPU {
                 return true;
             }
 
-            return checkStructEquivalency(sourceConstrainedType, targetConstrainedType);
+            return checkRecordEquivalency(targetConstrainedType, sourceConstrainedType);
         }
 
         // Casting from unconstrained JSON to constrained JSON

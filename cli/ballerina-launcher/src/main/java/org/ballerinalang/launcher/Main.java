@@ -52,6 +52,7 @@ import static org.ballerinalang.util.BLangConstants.MAIN_FUNCTION_NAME;
 public class Main {
     private static final String UNMATCHED_ARGUMENT_PREFIX = "Unmatched argument";
     private static final String MISSING_REQUIRED_PARAMETER_PREFIX = "Missing required parameter";
+    private static final String COMPILATION_ERROR_MESSAGE = "compilation contains errors";
 
     private static PrintStream outStream = System.err;
 
@@ -65,7 +66,10 @@ public class Main {
             outStream.println(e.getMessage());
             Runtime.getRuntime().exit(1);
         } catch (BLangCompilerException e) {
-            outStream.println(prepareCompilerErrorMessage(e.getMessage()));
+            if (!(e.getMessage().contains(COMPILATION_ERROR_MESSAGE))) {
+                // print the error message only if the exception was not thrown due to compilation errors
+                outStream.println(prepareCompilerErrorMessage(e.getMessage()));
+            }
             Runtime.getRuntime().exit(1);
         } catch (BLauncherException e) {
             LauncherUtils.printLauncherException(e, outStream);
@@ -131,22 +135,22 @@ public class Main {
         } catch (CommandLine.UnmatchedArgumentException e) {
             String errorMessage = e.getMessage();
             if (errorMessage == null) {
-                throw LauncherUtils.createUsageException("internal error occurred");
+                throw LauncherUtils.createUsageExceptionWithHelp("internal error occurred");
             }
             if (errorMessage.contains(UNMATCHED_ARGUMENT_PREFIX)) {
-                throw LauncherUtils.createUsageException("unknown command '" + getFirstUnknownArg(errorMessage)
+                throw LauncherUtils.createUsageExceptionWithHelp("unknown command '" + getFirstUnknownArg(errorMessage)
                                                                  + "'");
             }
-            throw LauncherUtils.createUsageException(LauncherUtils.makeFirstLetterLowerCase(errorMessage));
+            throw LauncherUtils.createUsageExceptionWithHelp(LauncherUtils.makeFirstLetterLowerCase(errorMessage));
         } catch (CommandLine.ParameterException e) {
             String msg = e.getMessage();
             if (msg == null) {
-                throw LauncherUtils.createUsageException("internal error occurred");
+                throw LauncherUtils.createUsageExceptionWithHelp("internal error occurred");
             } else if (msg.startsWith(MISSING_REQUIRED_PARAMETER_PREFIX)) {
-                    throw LauncherUtils.createUsageException("flag " + msg.substring(msg.indexOf("'"))
+                    throw LauncherUtils.createUsageExceptionWithHelp("flag " + msg.substring(msg.indexOf("'"))
                                                                      + " needs an argument");
             }
-            throw LauncherUtils.createUsageException(LauncherUtils.makeFirstLetterLowerCase(msg));
+            throw LauncherUtils.createUsageExceptionWithHelp(LauncherUtils.makeFirstLetterLowerCase(msg));
         }
     }
 
@@ -164,7 +168,7 @@ public class Main {
             outStream.print(version);
         } catch (Throwable ignore) {
             // Exception is ignored
-            throw LauncherUtils.createUsageException("version info not available");
+            throw LauncherUtils.createUsageExceptionWithHelp("version info not available");
         }
     }
 
@@ -179,7 +183,7 @@ public class Main {
     }
 
     private static String prepareCompilerErrorMessage(String message) {
-        return "ballerina: " + LauncherUtils.makeFirstLetterLowerCase(message);
+        return "error: " + LauncherUtils.makeFirstLetterLowerCase(message);
     }
 
     private static String getFirstUnknownArg(String errorMessage) {
@@ -236,7 +240,7 @@ public class Main {
             }
 
             if (argList == null || argList.size() == 0) {
-                throw LauncherUtils.createUsageException("no ballerina program given");
+                throw LauncherUtils.createUsageExceptionWithHelp("no ballerina program given");
             }
 
             // Enable remote debugging
@@ -254,7 +258,7 @@ public class Main {
                 String[] programArgConstituents = programArg.split(COLON);
                 functionName = programArgConstituents[programArgConstituents.length - 1];
                 if (functionName.isEmpty() || programArg.endsWith(COLON)) {
-                    throw LauncherUtils.createLauncherException("usage error: expected function name after final ':'");
+                    throw LauncherUtils.createUsageExceptionWithHelp("expected function name after final ':'");
                 }
                 sourcePath = Paths.get(programArg.replace(COLON.concat(functionName), ""));
             } else {
@@ -271,7 +275,8 @@ public class Main {
                 programArgs = new String[0];
             }
 
-            LauncherUtils.runProgram(sourceRootPath, sourcePath, functionName, runtimeParams,
+            // Normalize the source path to remove './' or '.\' characters that can appear before the name
+            LauncherUtils.runProgram(sourceRootPath, sourcePath.normalize(), functionName, runtimeParams,
                                      configFilePath, programArgs, offline, observeFlag, printReturn);
         }
 
@@ -330,12 +335,12 @@ public class Main {
                 return;
 
             } else if (helpCommands.size() > 1) {
-                throw LauncherUtils.createUsageException("too many arguments given");
+                throw LauncherUtils.createUsageExceptionWithHelp("too many arguments given");
             }
 
             String userCommand = helpCommands.get(0);
             if (parentCmdParser.getSubcommands().get(userCommand) == null) {
-                throw LauncherUtils.createUsageException("unknown help topic `" + userCommand + "`");
+                throw LauncherUtils.createUsageExceptionWithHelp("unknown help topic `" + userCommand + "`");
             }
 
             String commandUsageInfo = BLauncherCmd.getCommandUsageInfo(userCommand);
@@ -395,12 +400,12 @@ public class Main {
                 printVersionInfo();
                 return;
             } else if (versionCommands.size() > 1) {
-                throw LauncherUtils.createUsageException("too many arguments given");
+                throw LauncherUtils.createUsageExceptionWithHelp("too many arguments given");
             }
 
             String userCommand = versionCommands.get(0);
             if (parentCmdParser.getSubcommands().get(userCommand) == null) {
-                throw LauncherUtils.createUsageException("unknown command `" + userCommand + "`");
+                throw LauncherUtils.createUsageExceptionWithHelp("unknown command `" + userCommand + "`");
             }
         }
 

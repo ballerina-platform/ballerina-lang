@@ -33,6 +33,7 @@ public class Http2ServerPushTestCase extends Http2BaseTest {
     @Test(description = "Test HTTP/2.0 Server Push scenario")
     public void testPushPromise() throws IOException {
         HttpResponse response = HttpClientRequest.doGet(serverInstance.getServiceURLHttp(9090, "frontend"));
+        Assert.assertNotNull(response);
         Assert.assertEquals(response.getResponseCode(), 200, "Response code mismatched");
         String responseData = response.getData();
         Assert.assertTrue(responseData.contains("successful"), responseData);

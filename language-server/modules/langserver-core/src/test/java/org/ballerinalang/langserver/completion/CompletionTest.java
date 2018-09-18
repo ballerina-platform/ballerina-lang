@@ -17,24 +17,27 @@
 */
 package org.ballerinalang.langserver.completion;
 
+import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
-import org.ballerinalang.langserver.compiler.LSCompiler;
+import com.google.gson.JsonParser;
+import com.google.gson.reflect.TypeToken;
 import org.ballerinalang.langserver.compiler.workspace.WorkspaceDocumentException;
-import org.ballerinalang.langserver.compiler.workspace.WorkspaceDocumentManager;
 import org.ballerinalang.langserver.completion.util.CompletionTestUtil;
 import org.ballerinalang.langserver.completion.util.FileUtils;
+import org.ballerinalang.langserver.util.TestUtil;
 import org.eclipse.lsp4j.CompletionItem;
 import org.eclipse.lsp4j.Position;
-import org.eclipse.lsp4j.TextDocumentPositionParams;
+import org.eclipse.lsp4j.jsonrpc.Endpoint;
 import org.testng.Assert;
-import org.testng.ITestResult;
-import org.testng.annotations.AfterMethod;
+import org.testng.annotations.AfterClass;
+import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
-import org.testng.log4testng.Logger;
 
 import java.io.File;
+import java.io.IOException;
+import java.lang.reflect.Type;
 import java.nio.file.Path;
 import java.util.List;
 
@@ -43,38 +46,52 @@ import java.util.List;
  */
 public abstract class CompletionTest {
 
-    private static final Logger LOGGER = Logger.getLogger(CompletionTest.class);
+    private Endpoint serviceEndpoint;
 
-    @Test(dataProvider = "completion-data-provider")
-    public void test(String config, String configPath) throws WorkspaceDocumentException {
-        String configJsonPath = "completion" + File.separator + configPath + File.separator + config;
-        JsonObject configJsonObject = FileUtils.fileContentAsObject(configJsonPath);
-        List<CompletionItem> responseItemList = getResponseItemList(configJsonObject);
-        List<CompletionItem> expectedList = getExpectedList(configJsonObject);
-        Assert.assertTrue(CompletionTestUtil.isSubList(expectedList, responseItemList));
+    private Path sourcesPath = FileUtils.RES_DIR.resolve("completion");
+
+    private JsonParser parser = new JsonParser();
+
+    private Gson gson = new Gson();
+
+    @BeforeClass
+    public void init() {
+        this.serviceEndpoint = TestUtil.initializeLanguageSever();
     }
 
-    protected List<CompletionItem> getResponseItemList(JsonObject configJsonObject) throws WorkspaceDocumentException {
-        JsonObject positionObj = configJsonObject.get("position").getAsJsonObject();
-        String balPath = "completion" + File.separator + configJsonObject.get("source").getAsString();
+    @Test(dataProvider = "completion-data-provider")
+    public void test(String config, String configPath) throws WorkspaceDocumentException, IOException {
+        String configJsonPath = "completion" + File.separator + configPath + File.separator + config;
+        JsonObject configJsonObject = FileUtils.fileContentAsObject(configJsonPath);
+
+        String response = getResponse(configJsonObject);
+        JsonObject json = parser.parse(response).getAsJsonObject();
+        Type collectionType = new TypeToken<List<CompletionItem>>() {
+        }.getType();
+        JsonArray resultList = json.getAsJsonObject("result").getAsJsonArray("left");
+        List<CompletionItem> responseItemList = gson.fromJson(resultList, collectionType);
+        List<CompletionItem> expectedList = getExpectedList(configJsonObject);
+        
+        Assert.assertTrue(CompletionTestUtil.isSubList(expectedList, responseItemList), "Failed Test for: "
+                + configJsonPath);
+    }
+    
+    String getResponse(JsonObject configJsonObject) throws IOException {
+        Path sourcePath = sourcesPath.resolve(configJsonObject.get("source").getAsString());
+        String responseString;
         Position position = new Position();
-        String content = FileUtils.fileContent(balPath);
+        JsonObject positionObj = configJsonObject.get("position").getAsJsonObject();
         position.setLine(positionObj.get("line").getAsInt());
         position.setCharacter(positionObj.get("character").getAsInt());
 
-        Path filePath = FileUtils.RES_DIR.resolve(balPath);
-        TextDocumentPositionParams positionParams =
-                CompletionTestUtil.getPositionParams(position, filePath.toString());
-        WorkspaceDocumentManager documentManager =
-                CompletionTestUtil.prepareDocumentManager(filePath, content);
-        LSCompiler lsCompiler = new LSCompiler(documentManager);
-        List<CompletionItem> completions = CompletionTestUtil.getCompletions(lsCompiler, documentManager,
-                                                                             positionParams);
-        CompletionTestUtil.clearDocumentManager(documentManager, filePath);
-        return completions;
+        TestUtil.openDocument(serviceEndpoint, sourcePath);
+        responseString = TestUtil.getCompletionResponse(sourcePath.toString(), position, this.serviceEndpoint);
+        TestUtil.closeDocument(serviceEndpoint, sourcePath);
+
+        return responseString;
     }
 
-    protected List<CompletionItem> getExpectedList(JsonObject configJsonObject) {
+    List<CompletionItem> getExpectedList(JsonObject configJsonObject) {
         JsonArray expectedItems = configJsonObject.get("items").getAsJsonArray();
         return CompletionTestUtil.getExpectedItemList(expectedItems);
     }
@@ -82,10 +99,8 @@ public abstract class CompletionTest {
     @DataProvider(name = "completion-data-provider")
     public abstract Object[][] dataProvider();
 
-    @AfterMethod
-    public void tearDown(ITestResult result) {
-        if (result.getStatus() == ITestResult.FAILURE) {
-            LOGGER.error("Test Failed for: [" + result.getParameters()[1] + "/" + result.getParameters()[0] + "]");
-        }
+    @AfterClass
+    public void cleanupLanguageServer() {
+        TestUtil.shutdownLanguageServer(this.serviceEndpoint);
     }
 }

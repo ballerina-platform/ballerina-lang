@@ -17,7 +17,6 @@
  */
 package org.ballerinalang.packerina;
 
-import org.ballerinalang.compiler.BLangCompilerException;
 import org.ballerinalang.launcher.LauncherUtils;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.spi.EmbeddedExecutor;
@@ -54,6 +53,8 @@ import java.util.stream.Collectors;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
+import static org.ballerinalang.launcher.LauncherUtils.createLauncherException;
+
 /**
  * This class provides util methods when pushing Ballerina packages to central and home repository.
  *
@@ -66,7 +67,7 @@ public class PushUtils {
     private static final Path BALLERINA_HOME_PATH = RepoUtils.createAndGetHomeReposPath();
     private static final Path SETTINGS_TOML_FILE_PATH = BALLERINA_HOME_PATH.resolve(
             ProjectDirConstants.SETTINGS_FILE_NAME);
-    private static PrintStream outStream = System.err;
+    private static PrintStream outStream = System.out;
     private static EmbeddedExecutor executor = EmbeddedExecutorProvider.getInstance().getExecutor();
     private static Settings settings;
 
@@ -82,18 +83,18 @@ public class PushUtils {
         Path prjDirPath = LauncherUtils.getSourceRootPath(sourceRoot);
         // Check if the Ballerina.toml exists
         if (Files.notExists(prjDirPath.resolve(ProjectDirConstants.MANIFEST_FILE_NAME))) {
-            throw new BLangCompilerException("Couldn't locate Ballerina.toml in the project directory. Run " +
+            throw createLauncherException("Couldn't locate Ballerina.toml in the project directory. Run " +
                                                      "'ballerina init' to create the Ballerina.toml file " +
                                                      "automatically and re-run the 'ballerina push' command");
         }
         Manifest manifest = TomlParserUtils.getManifest(prjDirPath);
         if (manifest.getName().isEmpty()) {
-            throw new BLangCompilerException("An org-name is required when pushing. This is not specified in " +
+            throw createLauncherException("An org-name is required when pushing. This is not specified in " +
                                                      "Ballerina.toml inside the project");
         }
 
         if (manifest.getVersion().isEmpty()) {
-            throw new BLangCompilerException("A package version is required when pushing. This is not specified " +
+            throw createLauncherException("A package version is required when pushing. This is not specified " +
                                                      "in Ballerina.toml inside the project");
         }
 
@@ -113,7 +114,7 @@ public class PushUtils {
         } else if (Files.notExists(pkgPathFromPrjtDir)) {
             // If --no-build is given, first check if the package artifact exists. If it does not exist prompt the user
             // to run "ballerina push" without the --no-build flag
-            throw new BLangCompilerException("Couldn't locate the package artifact to be pushed. Run 'ballerina " +
+            throw createLauncherException("Couldn't locate the package artifact to be pushed. Run 'ballerina " +
                                                      "push' without the --no-build flag");
         }
         
@@ -124,7 +125,7 @@ public class PushUtils {
             // Read the Package.md file content from the artifact
             String mdFileContent = getPackageMDFileContent(pkgPathFromPrjtDir.toString(), packageName);
             if (mdFileContent == null) {
-                throw new BLangCompilerException("Cannot find Package.md file in the artifact");
+                throw createLauncherException("Cannot find Package.md file in the artifact");
             }
 
             String description = readSummary(mdFileContent);
@@ -147,7 +148,7 @@ public class PushUtils {
 
         } else {
             if (!installToRepo.equals("home")) {
-                throw new BLangCompilerException("Unknown repository provided to push the package");
+                throw createLauncherException("Unknown repository provided to push the package");
             }
             installToHomeRepo(packageID, pkgPathFromPrjtDir);
         }
@@ -169,7 +170,7 @@ public class PushUtils {
 
                 BrowserLauncher.startInDefaultBrowser(BALLERINA_CENTRAL_CLI_TOKEN);
             } catch (IOException e) {
-                throw new BLangCompilerException("Access token is missing in " + SETTINGS_TOML_FILE_PATH.toString() +
+                throw createLauncherException("Access token is missing in " + SETTINGS_TOML_FILE_PATH.toString() +
                                                  "\nAuto update failed. Please visit https://central.ballerina.io");
             }
             long modifiedTimeOfFileAtStart = getLastModifiedTimeOfFile(SETTINGS_TOML_FILE_PATH);
@@ -182,7 +183,7 @@ public class PushUtils {
                 if (modifiedTimeOfFileAtStart != modifiedTimeOfFileAfter) {
                     accessToken = getAccessTokenOfCLI();
                     if (accessToken.isEmpty()) {
-                        throw new BLangCompilerException("Access token is missing in " +
+                        throw createLauncherException("Access token is missing in " +
                                                                  SETTINGS_TOML_FILE_PATH.toString() + "\nPlease " +
                                                                  "visit https://central.ballerina.io");
                     } else {
@@ -201,7 +202,7 @@ public class PushUtils {
         try {
             Thread.sleep(3000);
         } catch (InterruptedException ex) {
-            throw new BLangCompilerException("Error occurred when getting the access token");
+            throw createLauncherException("Error occurred while retrieving the access token");
         }
     }
 
@@ -218,7 +219,7 @@ public class PushUtils {
         try {
             return Files.getLastModifiedTime(path).toMillis();
         } catch (IOException ex) {
-            throw new BLangCompilerException("Error occurred when reading file for token " +
+            throw createLauncherException("Error occurred when reading file for token " +
                                              SETTINGS_TOML_FILE_PATH.toString());
         }
     }
@@ -237,7 +238,7 @@ public class PushUtils {
                                              packageID.version.getValue(),
                                              packageID.name.getValue() + ".zip");
         if (Files.exists(targetDirectoryPath)) {
-            throw new BLangCompilerException("Ballerina package exists in the home repository");
+            throw createLauncherException("Ballerina package exists in the home repository");
         } else {
             try {
                 Files.createDirectories(targetDirectoryPath);
@@ -245,7 +246,7 @@ public class PushUtils {
                 outStream.println(packageID.orgName.getValue() + "/" + packageID.name.getValue() + ":" +
                                           packageID.version.getValue() + " [project repo -> home repo]");
             } catch (IOException e) {
-                throw new BLangCompilerException("Error occurred when creating directories in the home repository");
+                throw createLauncherException("Error occurred when creating directories in the home repository");
             }
         }
     }
@@ -260,12 +261,12 @@ public class PushUtils {
         Repo<URI> remoteRepo = new RemoteRepo(URI.create(RepoUtils.getRemoteRepoURL()));
         Patten patten = remoteRepo.calculate(packageID);
         if (patten == Patten.NULL) {
-            throw new BLangCompilerException("Couldn't find package " + packageID.toString());
+            throw createLauncherException("Couldn't find package " + packageID.toString());
         }
         Converter<URI> converter = remoteRepo.getConverterInstance();
         List<URI> uris = patten.convert(converter, packageID).collect(Collectors.toList());
         if (uris.isEmpty()) {
-            throw new BLangCompilerException("Couldn't find package " + packageID.toString());
+            throw createLauncherException("Couldn't find package " + packageID.toString());
         }
         return uris.get(0).toString();
     }
@@ -323,7 +324,7 @@ public class PushUtils {
      */
     private static String readSummary(String mdFileContent) {
         if (mdFileContent.isEmpty()) {
-            throw new BLangCompilerException("Package.md in the artifact is empty");
+            throw createLauncherException("Package.md in the artifact is empty");
         }
 
         Optional<String> result = Arrays.stream(mdFileContent.split("\n"))
@@ -331,12 +332,12 @@ public class PushUtils {
                                         .findFirst();
 
         if (!result.isPresent()) {
-            throw new BLangCompilerException("Cannot find package summary");
+            throw createLauncherException("Cannot find package summary");
         }
 
         String firstLine = result.get();
         if (firstLine.length() > 50) {
-            throw new BLangCompilerException("Summary of the package exceeds 50 characters");
+            throw createLauncherException("Summary of the package exceeds 50 characters");
         }
         return firstLine;
     }
@@ -357,12 +358,12 @@ public class PushUtils {
                                          .filter(dirName -> !isSpecialDirectory(dirName))
                                          .map(Path::toString).collect(Collectors.toList());
             if (fileList.size() == 0) {
-                throw new BLangCompilerException("no packages found to push in " + sourceRootPath.toString());
+                throw createLauncherException("no packages found to push in " + sourceRootPath.toString());
             }
             fileList.forEach(path -> pushPackages(path, sourceRoot, installToRepo, noBuild));
         } catch (IOException ex) {
-            throw new BLangCompilerException("error occurred when pushing packages from " + sourceRootPath.toString(),
-                                             ex);
+            throw createLauncherException("error occurred while pushing packages from " + sourceRootPath.toString()
+                                                     + " " + ex.getMessage());
         }
     }
 

@@ -21,6 +21,7 @@ import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.values.BFloat;
+import org.ballerinalang.model.values.BFunctionPointer;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BStringArray;
 import org.ballerinalang.model.values.BValue;
@@ -84,19 +85,21 @@ public class IterableOperationsTests {
                                   14);
         BAssertUtil.validateError(negative, index++, "not enough return arguments are defined for operation 'filter'",
                                   66, 14);
-        BAssertUtil.validateError(negative, index++, "unknown type 'person'", 67, 15);
+        BAssertUtil.validateError(negative, index++, "unknown type 'person'", 67, 24);
         BAssertUtil.validateError(negative, index++, "not enough return arguments are defined for operation 'filter'",
                                   67,
                 14);
-        BAssertUtil.validateError(negative, index++, "unknown type 'person'", 68, 33);
-        BAssertUtil.validateError(negative, index++, "incompatible types: expected 'int[]', found 'any[]'", 73, 23);
-        BAssertUtil.validateError(negative, index++, "incompatible types: expected 'int[]', found 'string[]'", 82, 27);
-        BAssertUtil.validateError(negative, index++, "incompatible types: expected 'int[]', found 'string[]'", 93, 30);
-        BAssertUtil.validateError(negative, index++, "incompatible types: expected 'map', found '(any) collection'", 99,
-                                  22);
+        BAssertUtil.validateError(negative, index++, "unknown type 'person'", 68, 47);
+        BAssertUtil.validateError(negative, index++, "incompatible types: expected 'int[]', found 'any[]'",
+                73, 23);
         BAssertUtil.validateError(negative, index++,
-                                  "cannot assign return value of 'filter' operation here, use a reduce operation", 103,
-                                  22);
+                "incompatible types: expected 'int[]', found 'string[]'", 82, 27);
+        BAssertUtil.validateError(negative, index++,
+                "incompatible types: expected 'int[]', found 'string[]'", 93, 30);
+        BAssertUtil.validateError(negative, index++,
+                "incompatible types: expected 'map', found '(any) collection'", 99, 22);
+        BAssertUtil.validateError(negative, index++,
+                "cannot assign return value of 'filter' operation here, use a reduce operation", 103, 22);
     }
 
     @Test
@@ -302,5 +305,17 @@ public class IterableOperationsTests {
         Assert.assertEquals(a3.intValue(), -8);
         Assert.assertEquals(a4.intValue(), 7);
         Assert.assertEquals(a5.intValue(), 4);
+    }
+
+    @Test
+    public void testIterableReturnLambda() {
+        BValue[] returns = BRunUtil.invoke(basic, "testIterableReturnLambda");
+        Assert.assertNotNull(returns);
+        Assert.assertTrue(returns[0] instanceof BFunctionPointer);
+        Assert.assertTrue(returns[1] instanceof BFunctionPointer);
+        Assert.assertTrue(returns[2] instanceof BFunctionPointer);
+        Assert.assertEquals(returns[0].getType().toString(), "function (int) returns (boolean)");
+        Assert.assertEquals(returns[1].getType().toString(), "function (int) returns (boolean)");
+        Assert.assertEquals(returns[2].getType().toString(), "function (int) returns (boolean)");
     }
 }

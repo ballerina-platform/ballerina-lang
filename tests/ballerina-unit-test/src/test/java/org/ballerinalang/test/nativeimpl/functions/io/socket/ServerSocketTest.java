@@ -22,6 +22,7 @@ import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.values.BInteger;
+import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.stdlib.socket.tcp.SelectorManager;
@@ -43,6 +44,7 @@ import java.util.concurrent.ThreadLocalRandom;
 /**
  * Unit tests for server socket.
  */
+@Test(enabled = false)
 public class ServerSocketTest {
 
     private static final Logger log = LoggerFactory.getLogger(ServerSocketTest.class);
@@ -90,6 +92,19 @@ public class ServerSocketTest {
         });
         connectClient(port, 1000, delayedStartServer);
         executor.shutdownNow();
+    }
+
+    @Test(description = "This will check the error situation when the server trying to bind to already occupied port.",
+          dependsOnMethods = "testSeverSocketDelayedAccept")
+    public void testServerStartOnDuplicatePort() {
+        int port = ThreadLocalRandom.current().nextInt(47000, 51000);
+        BValue[] args = { new BInteger(port) };
+        final BValue[] results = BRunUtil.invokeStateful(normalServer, "runOnDuplicatePort", args);
+        final BMap<String, BValue> result = (BMap) results[0];
+        final BString message = (BString) result.get("message");
+        Assert.assertEquals(message.stringValue(),
+                "Error occurred while bind to the socket address: Address already in use",
+                "Didn't get the expected error message for duplicate port open.");
     }
 
     private void connectClient(int port, int retryInterval, CompileResult compileResult) {
