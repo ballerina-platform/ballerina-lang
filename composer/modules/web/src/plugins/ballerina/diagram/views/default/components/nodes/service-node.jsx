@@ -100,13 +100,15 @@ class ServiceNode extends React.Component {
             return;
         }
         const fragment = FragmentUtils.createStatementFragment(`${value}`);
-        const parsedJson = FragmentUtils.parseFragment(fragment);
-        if (!parsedJson.error) {
-            const index = this.props.model.getVariables().length - 1;
-            this.props.model.addVariables(TreeBuilder.build(parsedJson), index + 1);
-        } else {
-            this.context.alert.showError('Invalid content provided !');
-        }
+        FragmentUtils.parseFragment(fragment)
+            .then((parsedJson) => {
+                if (!parsedJson.error) {
+                    const index = this.props.model.getVariables().length - 1;
+                    this.props.model.addVariables(TreeBuilder.build(parsedJson), index + 1);
+                } else {
+                    this.context.alert.showError('Invalid content provided !');
+                }
+            });
     }
 
     /**

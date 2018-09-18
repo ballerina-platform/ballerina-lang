@@ -463,29 +463,31 @@ class TreeUtil extends AbstractTreeUtil {
             }
 
             // invoke the fragment util for the coresponding kind.
-            const parsedJson = FragmentUtils.parseFragment(fragment);
-            // show an error and skip the setSource method when user provides an unparsable content.
-            if (parsedJson.error) {
-                ballerinaFileEditor.context.alert.showError('Invalid content provided !');
-                return;
-            }
-            const newStatementNode = TreeBuilder.build(parsedJson, statementParentNode, statementParentNode.kind);
-            // clear white space data so it will be formated properly.
-            newStatementNode.clearWS();
+            FragmentUtils.parseFragment(fragment)
+                .then((parsedJson) => {
+                    // show an error and skip the setSource method when user provides an unparsable content.
+                    if (parsedJson.error) {
+                        ballerinaFileEditor.context.alert.showError('Invalid content provided !');
+                        return;
+                    }
+                    const newStatementNode = TreeBuilder.build(parsedJson, statementParentNode, statementParentNode.kind);
+                    // clear white space data so it will be formated properly.
+                    newStatementNode.clearWS();
 
-            if (this.statementIsInvocation(node)) {
-                this.syncInvocationType(node, newStatementNode);
-            }
+                    if (this.statementIsInvocation(node)) {
+                        this.syncInvocationType(node, newStatementNode);
+                    }
 
-            // replace the old node with new node.
-            if (this.isService(statementParentNode)) {
-                statementParentNode.replaceVariables(node, newStatementNode, false);
-            } else if (this.isTransaction(newStatementNode)) {
-                statementParentNode.parent.setCondition(newStatementNode.getCondition());
-                statementParentNode.replaceStatements(node, newStatementNode.getFailedBody().getStatements()[0], false);
-            } else {
-                statementParentNode.replaceStatements(node, newStatementNode, false);
-            }
+                    // replace the old node with new node.
+                    if (this.isService(statementParentNode)) {
+                        statementParentNode.replaceVariables(node, newStatementNode, false);
+                    } else if (this.isTransaction(newStatementNode)) {
+                        statementParentNode.parent.setCondition(newStatementNode.getCondition());
+                        statementParentNode.replaceStatements(node, newStatementNode.getFailedBody().getStatements()[0], false);
+                    } else {
+                        statementParentNode.replaceStatements(node, newStatementNode, false);
+                    }
+                });
         } else if (node.isExpression) {
             // Get the parent node.
             const expressionParentNode = node.parent;
@@ -495,37 +497,43 @@ class TreeUtil extends AbstractTreeUtil {
                 : source;
 
             // invoke the fragment util and get the new node.
-            const parseJson = FragmentUtils.parseFragment(FragmentUtils.createExpressionFragment(source));
-            const newExpressionNode = TreeBuilder.build(parseJson, expressionParentNode, expressionParentNode.kind);
-            // clear white space data so it will be formated properly.
-            newExpressionNode.clearWS();
-            // Get the initial expression from returning node.
-            if (newExpressionNode && newExpressionNode.variable.initialExpression) {
-                newExpressionNode.variable.initialExpression.parent = expressionParentNode;
-                // Set the condition using new node.
-                expressionParentNode.setCondition(newExpressionNode.variable.initialExpression);
-            }
+            FragmentUtils.parseFragment(FragmentUtils.createExpressionFragment(source))
+                .then((parsedJson) => {
+                    const newExpressionNode = TreeBuilder.build(parsedJson, expressionParentNode, expressionParentNode.kind);
+                    // clear white space data so it will be formated properly.
+                    newExpressionNode.clearWS();
+                    // Get the initial expression from returning node.
+                    if (newExpressionNode && newExpressionNode.variable.initialExpression) {
+                        newExpressionNode.variable.initialExpression.parent = expressionParentNode;
+                        // Set the condition using new node.
+                        expressionParentNode.setCondition(newExpressionNode.variable.initialExpression);
+                    }
+                });
         } else {
             const parent = node.parent;
             source = source.replace(/;$/, '');
             if (parent.filterParameters instanceof Function
                 && (parent.filterParameters(param => (param.id === node.id)).length > 0)) {
                 // Invoke the fragment parser util for parsing argument parameter.
-                const parseJson = FragmentUtils.parseFragment(FragmentUtils.createArgumentParameterFragment(source));
-                const newParameterNode = TreeBuilder.build(parseJson, parent, parent.kind);
-                // clear white space data so it will be formated properly.
-                newParameterNode.clearWS();
-                // Replace the old parameter with the newly created parameter node.
-                parent.replaceParameters(node, newParameterNode, false);
+                FragmentUtils.parseFragment(FragmentUtils.createArgumentParameterFragment(source))
+                    .then((parsedJson) => {
+                        const newParameterNode = TreeBuilder.build(parsedJson, parent, parent.kind);
+                        // clear white space data so it will be formated properly.
+                        newParameterNode.clearWS();
+                        // Replace the old parameter with the newly created parameter node.
+                        parent.replaceParameters(node, newParameterNode, false);
+                    });
             } else if (parent.filterReturnParameters instanceof Function
                 && (parent.filterReturnParameters(returnParam => (returnParam.id === node.id)).length > 0)) {
                 // Invoke the fragment parser util for parsing return parameter.
-                const parseJson = FragmentUtils.parseFragment(FragmentUtils.createReturnParameterFragment(source));
-                const newReturnParameterNode = TreeBuilder.build(parseJson, parent, parent.kind);
-                // clear white space data so it will be formated properly.
-                newReturnParameterNode.clearWS();
-                // Replace the old parameter with the newly created parameter node.
-                parent.replaceReturnParameters(node, newReturnParameterNode, false);
+                FragmentUtils.parseFragment(FragmentUtils.createReturnParameterFragment(source))
+                    .then((parsedJson) => {
+                        const newReturnParameterNode = TreeBuilder.build(parsedJson, parent, parent.kind);
+                        // clear white space data so it will be formated properly.
+                        newReturnParameterNode.clearWS();
+                        // Replace the old parameter with the newly created parameter node.
+                        parent.replaceReturnParameters(node, newReturnParameterNode, false);
+                    });
             }
         }
     }
