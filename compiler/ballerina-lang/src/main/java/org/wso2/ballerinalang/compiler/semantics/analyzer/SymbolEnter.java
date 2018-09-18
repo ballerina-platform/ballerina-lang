@@ -239,9 +239,10 @@ public class SymbolEnter extends BLangNodeVisitor {
         }
         BPackageSymbol pkgSymbol = Symbols.createPackageSymbol(pkgNode.packageID, this.symTable);
         pkgNode.symbol = pkgSymbol;
-        SymbolEnv enclosingPkgEnv = this.symTable.pkgEnvMap.get(pkgSymbol);
 
-        // Set symbol environment of the enclosing bLangpackage
+        // Get the enclosing package symbol environment
+        SymbolEnv enclosingPkgEnv = this.symTable.pkgEnvMap.get(pkgSymbol);
+        // Set symbol environment of the enclosing package
         SymbolEnv pkgEnv = SymbolEnv.createPkgEnv(pkgNode, pkgSymbol.scope, enclosingPkgEnv);
 
         createPackageTestInitFunctions(pkgNode);

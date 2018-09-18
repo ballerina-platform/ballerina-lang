@@ -300,6 +300,8 @@ public class TaintAnalyzer extends BLangNodeVisitor {
         SymbolEnv enclosingPkgEnv = this.symTable.pkgEnvMap.get(pkgNode.symbol);
         // Set symbol environment of enclosing package
         SymbolEnv pkgEnv = SymbolEnv.createPkgEnv(pkgNode, pkgNode.symbol.scope, enclosingPkgEnv);
+        // Enabled logging errors
+        pkgEnv.logErrors = true;
         analyze(pkgNode, pkgEnv);
     }
 

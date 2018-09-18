@@ -185,10 +185,10 @@ public class BTestRunner {
             }
 
             String packageName = TesterinaUtils.getFullPackageName(sourcePackage.toString());
-            sourcePackages.add(packageName);
-
             // Add test suite to registry if not added.
             addTestSuite(packageName);
+            // Keeps a track of the sources that are being tested
+            sourcePackages.add(packageName);
 
             // Set the source file name if the package is the default package
             if (packageName.equals(Names.DEFAULT_PACKAGE.value)) {
@@ -208,14 +208,12 @@ public class BTestRunner {
      * @param packageList map containing bLangPackage nodes along with their compiled program files
      */
     private void buildSuites(Map<BLangPackage, CompiledBinaryFile.ProgramFile> packageList) {
-        // Remove test suite associated with the default package since we are only executing tests of packages
-        registry.getTestSuites().remove(Names.DEFAULT_PACKAGE.value);
-
         packageList.forEach((sourcePackage, compiledBinaryFile) -> {
-            // Add test suite to registry if not added. In this package there are no tests to be executed. But we need
-            // to say to the users that there are no tests found in the package to be executed
             String packageName = TesterinaUtils.getFullPackageName(sourcePackage.packageID.getName().getValue());
+            // Add test suite to registry if not added. In this package there are no tests to be executed. But we need
+            // to say that there are no tests found in the package to be executed
             addTestSuite(packageName);
+            // Keeps a track of the sources that are being built
             sourcePackages.add(packageName);
 
             ProgramFile pFile = LauncherUtils.getExecutableProgram(compiledBinaryFile);

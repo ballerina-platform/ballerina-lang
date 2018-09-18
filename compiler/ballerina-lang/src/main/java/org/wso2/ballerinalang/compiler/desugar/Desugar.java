@@ -350,6 +350,8 @@ public class Desugar extends BLangNodeVisitor {
         }
         SymbolEnv enclosingPkgEnv = this.symTable.pkgEnvMap.get(pkgNode.symbol);
         SymbolEnv env = SymbolEnv.createPkgEnv(pkgNode, pkgNode.symbol.scope, enclosingPkgEnv);
+        // Enabled logging errors
+        env.logErrors = true;
 
         pkgNode.globalVars.forEach(v -> {
             BLangAssignment assignment = (BLangAssignment) createAssignmentStmt(v);

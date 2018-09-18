@@ -238,6 +238,8 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         parent = pkgNode;
         SymbolEnv enclosingPkgEnv = this.symTable.pkgEnvMap.get(pkgNode.symbol);
         SymbolEnv pkgEnv = SymbolEnv.createPkgEnv(pkgNode, pkgNode.symbol.scope, enclosingPkgEnv);
+        // Enabled logging errors
+        pkgEnv.logErrors = true;
         analyzeTopLevelNodes(pkgNode, pkgEnv);
     }
 
