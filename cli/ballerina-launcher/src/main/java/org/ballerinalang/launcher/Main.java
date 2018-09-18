@@ -216,9 +216,6 @@ public class Main {
         @CommandLine.Option(names = "--debug", hidden = true)
         private String debugPort;
 
-        @CommandLine.Option(names = "--java.debug", hidden = true, description = "remote java debugging port")
-        private String javaDebugPort;
-
         @CommandLine.Option(names = {"--config", "-c"}, description = "path to the Ballerina configuration file")
         private String configFilePath;
 
@@ -325,9 +322,6 @@ public class Main {
         @CommandLine.Parameters(description = "Command name")
         private List<String> helpCommands;
 
-        @CommandLine.Option(names = "--java.debug", hidden = true)
-        private String javaDebugPort;
-
         private CommandLine parentCmdParser;
 
         public void execute() {
@@ -382,9 +376,6 @@ public class Main {
 
         @CommandLine.Parameters(description = "Command name")
         private List<String> versionCommands;
-
-        @CommandLine.Option(names = "--java.debug", hidden = true)
-        private String javaDebugPort;
 
         @CommandLine.Option(names = {"--help", "-h", "?"}, hidden = true)
         private boolean helpFlag;
@@ -444,9 +435,6 @@ public class Main {
      */
     @CommandLine.Command(name = "encrypt", description = "encrypt sensitive data")
     public static class EncryptCmd implements BLauncherCmd {
-
-        @CommandLine.Option(names = "--java.debug", hidden = true)
-        private String javaDebugPort;
 
         @CommandLine.Option(names = {"--help", "-h", "?"}, hidden = true)
         private boolean helpFlag;
@@ -548,9 +536,6 @@ public class Main {
 
         @CommandLine.Option(names = "--debug", description = "start Ballerina in remote debugging mode")
         private String debugPort;
-
-        @CommandLine.Option(names = "--java.debug", hidden = true)
-        private String javaDebugPort;
 
         @CommandLine.Option(names = { "--version", "-v" }, hidden = true)
         private boolean versionFlag;
