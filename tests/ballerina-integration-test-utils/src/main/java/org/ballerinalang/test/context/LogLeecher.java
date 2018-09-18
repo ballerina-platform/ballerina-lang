@@ -80,20 +80,19 @@ public class LogLeecher {
     }
 
     /**
-     * Wait until a specific log is found.
+     * Wait until a specific log is found. The log is checked 10 times upto the timeout given.
      *
      * @param timeout timeout
      * @throws BallerinaTestException if waiting is interrupted
      */
     public void waitForText(long timeout) throws BallerinaTestException {
-
         long startTime = System.currentTimeMillis();
 
         synchronized (this) {
-            while (!textFound || !forcedExit) {
+            while (!textFound && !forcedExit) {
                 try {
-                    this.wait(timeout);
-
+                    long waitingTime = timeout / 10;
+                    this.wait(waitingTime);
                     if (System.currentTimeMillis() - startTime > timeout) {
                         throw new BallerinaTestException("Timeout expired waiting for matching log: " + text);
                     }

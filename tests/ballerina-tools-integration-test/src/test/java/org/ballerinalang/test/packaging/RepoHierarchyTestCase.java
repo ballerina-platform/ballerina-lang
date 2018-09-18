@@ -37,7 +37,7 @@ import java.nio.file.Paths;
 import java.util.Map;
 
 /**
- *
+ * Integration test cases for repository hierarchy.
  */
 public class RepoHierarchyTestCase extends BaseTest {
     private Path tempHomeDirectory;
@@ -109,68 +109,68 @@ public class RepoHierarchyTestCase extends BaseTest {
      */
     @Test(description = "Test running package 'x'", dependsOnMethods = "testInstallingPackageB")
     public void testRunningPackageX() throws BallerinaTestException {
-        String outputMessage = "Print A from XXX";
+        String outputMessage = "Print A from Home";
         LogLeecher clientLeecher = new LogLeecher(outputMessage);
         balClient.runMain("run", new String[]{"x:main"}, envVariables, new String[]{},
                 new LogLeecher[]{clientLeecher}, tempProjectDirectory.toString());
         clientLeecher.waitForText(10000);
     }
     
-//    /**
-//     * Change print content of 'x' package from 'Print A from Home' to 'Print A from Proj'. Running the 'x' package
-//     * should print 'Print A from Proj'.
-//     * @throws IOException Error changing the contents of the package.
-//     * @throws BallerinaTestException When an error occurs executing the command.
-//     */
-//    @Test(description = "Change content in package 'x' function", dependsOnMethods = "testRunningPackageX")
-//    public void testRunningModifiedPackageX() throws IOException, BallerinaTestException {
-//        File aPkgPrinterFile = tempProjectDirectory.resolve("a").resolve("printer.bal").toFile();
-//        String fileContext = FileUtils.readFileToString(aPkgPrinterFile);
-//        fileContext = fileContext.replaceAll("Print A from Home", "Print A from Proj");
-//        FileUtils.write(aPkgPrinterFile, fileContext);
-//
-//        String outputMessage = "Print A from DFG";
-//        LogLeecher clientLeecher = new LogLeecher(outputMessage);
-//        balClient.runMain("run", new String[]{"x:main"}, envVariables, new String[]{},
-//                new LogLeecher[]{clientLeecher}, tempProjectDirectory.toString());
-//        clientLeecher.waitForText(5000);
-//    }
-//
-//    /**
-//     * Change package name of 'b' to 'bc' and run 'x' package. This should print 'Print A from Home'.The 'b' package
-//     * should be resolved from project repository.
-//     * @throws IOException Error when modifying the package name.
-//     * @throws BallerinaTestException When an error occurs executing the command.
-//     */
-//    @Test(description = "Change content in package 'x' function", dependsOnMethods = "testRunningModifiedPackageX")
-//    public void testRunningWithPackageBFromProjectRepo() throws IOException, BallerinaTestException {
-//        Files.copy(tempProjectDirectory.resolve("b"), tempProjectDirectory.resolve("bc"));
-//        FileUtils.deleteDirectory(tempProjectDirectory.resolve("b").toFile());
-//
-//        String outputMessage = "Print A from ACBC";
-//        LogLeecher clientLeecher = new LogLeecher(outputMessage);
-//        balClient.runMain("run", new String[]{"x:main"}, envVariables, new String[]{},
-//                new LogLeecher[]{clientLeecher}, tempProjectDirectory.toString());
-//        clientLeecher.waitForText(5000);
-//    }
-//
-//    /**
-//     * Remove the project repository and run 'x' package. This should print 'Print A from Home'.The 'b' package
-//     *      * should be resolved from home repository.
-//     * @throws IOException Error when removing project repo.
-//     * @throws BallerinaTestException When an error occurs executing the command.
-//     */
-//    @Test(description = "Change content in package 'x' function",
-//          dependsOnMethods = "testRunningWithPackageBFromProjectRepo")
-//    public void testRunningWithPackageBFromProjectHome() throws IOException, BallerinaTestException {
-//        FileUtils.deleteDirectory(tempProjectDirectory.resolve(".ballerina").resolve("repo").toFile());
-//
-//        String outputMessage = "Print A from XCV";
-//        LogLeecher clientLeecher = new LogLeecher(outputMessage);
-//        balClient.runMain("run", new String[]{"x:main"}, envVariables, new String[]{},
-//                new LogLeecher[]{clientLeecher}, tempProjectDirectory.toString());
-//        clientLeecher.waitForText(5000);
-//    }
+    /**
+     * Change print content of 'x' package from 'Print A from Home' to 'Print A from Proj'. Running the 'x' package
+     * should print 'Print A from Proj'.
+     * @throws IOException Error changing the contents of the package.
+     * @throws BallerinaTestException When an error occurs executing the command.
+     */
+    @Test(description = "Change content in package 'x' function", dependsOnMethods = "testRunningPackageX")
+    public void testRunningModifiedPackageX() throws IOException, BallerinaTestException {
+        File aPkgPrinterFile = tempProjectDirectory.resolve("a").resolve("printer.bal").toFile();
+        String fileContext = FileUtils.readFileToString(aPkgPrinterFile);
+        fileContext = fileContext.replaceAll("Print A from Home", "Print A from Proj");
+        FileUtils.write(aPkgPrinterFile, fileContext);
+
+        String outputMessage = "Print A from Proj";
+        LogLeecher clientLeecher = new LogLeecher(outputMessage);
+        balClient.runMain("run", new String[]{"x:main"}, envVariables, new String[]{},
+                new LogLeecher[]{clientLeecher}, tempProjectDirectory.toString());
+        clientLeecher.waitForText(5000);
+    }
+
+    /**
+     * Change package name of 'b' to 'bc' and run 'x' package. This should print 'Print A from Home'.The 'b' package
+     * should be resolved from project repository.
+     * @throws IOException Error when modifying the package name.
+     * @throws BallerinaTestException When an error occurs executing the command.
+     */
+    @Test(description = "Change content in package 'x' function", dependsOnMethods = "testRunningModifiedPackageX")
+    public void testRunningWithPackageBFromProjectRepo() throws IOException, BallerinaTestException {
+        Files.copy(tempProjectDirectory.resolve("b"), tempProjectDirectory.resolve("bc"));
+        FileUtils.deleteDirectory(tempProjectDirectory.resolve("b").toFile());
+
+        String outputMessage = "Print A from Home";
+        LogLeecher clientLeecher = new LogLeecher(outputMessage);
+        balClient.runMain("run", new String[]{"x:main"}, envVariables, new String[]{},
+                new LogLeecher[]{clientLeecher}, tempProjectDirectory.toString());
+        clientLeecher.waitForText(5000);
+    }
+
+    /**
+     * Remove the project repository and run 'x' package. This should print 'Print A from Home'.The 'b' package
+     * should be resolved from home repository.
+     * @throws IOException Error when removing project repo.
+     * @throws BallerinaTestException When an error occurs executing the command.
+     */
+    @Test(description = "Change content in package 'x' function",
+          dependsOnMethods = "testRunningWithPackageBFromProjectRepo")
+    public void testRunningWithPackageBFromProjectHome() throws IOException, BallerinaTestException {
+        FileUtils.deleteDirectory(tempProjectDirectory.resolve(".ballerina").resolve("repo").toFile());
+
+        String outputMessage = "Print A from Home";
+        LogLeecher clientLeecher = new LogLeecher(outputMessage);
+        balClient.runMain("run", new String[]{"x:main"}, envVariables, new String[]{},
+                new LogLeecher[]{clientLeecher}, tempProjectDirectory.toString());
+        clientLeecher.waitForText(5000);
+    }
     
     /**
      * Get environment variables and add ballerina_home as a env variable the tmp directory.
@@ -185,6 +185,6 @@ public class RepoHierarchyTestCase extends BaseTest {
     
     @AfterClass
     private void cleanup() throws Exception {
-//        PackagingTestUtils.deleteFiles(tempHomeDirectory);
+        PackagingTestUtils.deleteFiles(tempHomeDirectory);
     }
 }
