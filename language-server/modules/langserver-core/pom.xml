@@ -232,28 +232,28 @@
                             </target>
                         </configuration>
                     </execution>
-                    <execution>
-                        <id>download-examples-config</id>
-                        <phase>validate</phase>
-                        <goals>
-                            <goal>run</goal>
-                        </goals>
-                        <configuration>
-                            <target>
-                                <get src="${bbes.json.path}"
-                                     dest="${project.basedir}/src/main/resources/all-bbes.json"
-                                     verbose="false"
-                                     usetimestamp="true"/>
-                            </target>
-                        </configuration>
-                    </execution>
+                    <!--<execution>-->
+                        <!--<id>download-examples-config</id>-->
+                        <!--<phase>validate</phase>-->
+                        <!--<goals>-->
+                            <!--<goal>run</goal>-->
+                        <!--</goals>-->
+                        <!--<configuration>-->
+                            <!--<target>-->
+                                <!--<get src="${bbes.json.path}"-->
+                                     <!--dest="${project.basedir}/src/main/resources/all-bbes.json"-->
+                                     <!--verbose="false"-->
+                                     <!--usetimestamp="true"/>-->
+                            <!--</target>-->
+                        <!--</configuration>-->
+                    <!--</execution>-->
                 </executions>
             </plugin>
         </plugins>
     </build>
 
     <properties>
-        <bbes.json.path>https://raw.githubusercontent.com/ballerina-platform/ballerina-www/master/website/tools/ballerinaByExample/tools/all-bbes.json</bbes.json.path>
+        <!--<bbes.json.path>https://raw.githubusercontent.com/ballerina-platform/ballerina-www/master/website/tools/ballerinaByExample/tools/all-bbes.json</bbes.json.path>-->
         <maven.checkstyleplugin.excludes>**/SourceGen.java</maven.checkstyleplugin.excludes>
         <maven.spotbugsplugin.exclude.file>spotbugs-exclude.xml</maven.spotbugsplugin.exclude.file>
     </properties>
