@@ -55,11 +55,11 @@ public class UninstallCommand implements BLauncherCmd {
         }
 
         if (argList == null || argList.size() == 0) {
-            throw LauncherUtils.createUsageException("no package given");
+            throw LauncherUtils.createUsageExceptionWithHelp("no package given");
         }
 
         if (argList.size() > 1) {
-            throw LauncherUtils.createUsageException("too many arguments");
+            throw LauncherUtils.createUsageExceptionWithHelp("too many arguments");
         }
         String packageStr = argList.get(0);
         UninstallUtils.uninstallPackage(packageStr);

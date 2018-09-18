@@ -49,14 +49,14 @@ public class UninstallUtils {
         // Get org-name
         int orgNameIndex = fullPkgPath.indexOf("/");
         if (orgNameIndex == -1) {
-            throw LauncherUtils.createLauncherException("error: no org-name is provided");
+            throw LauncherUtils.createLauncherException("no org-name is provided");
         }
         orgName = fullPkgPath.substring(0, orgNameIndex);
 
         // Get package name
         int packageNameIndex = fullPkgPath.indexOf(":");
         if (packageNameIndex == -1) { // version is not provided
-            throw LauncherUtils.createLauncherException("error: no package version is provided");
+            throw LauncherUtils.createLauncherException("no package version is provided");
         }
         packageName = fullPkgPath.substring(orgNameIndex + 1, packageNameIndex);
         version = fullPkgPath.substring(packageNameIndex + 1, fullPkgPath.length());
@@ -73,7 +73,7 @@ public class UninstallUtils {
             deletePackage(cacheRepoPath, pkgDirPath, fullPkgPath, packageName);
         } else {
             // package to be uninstalled doesn't exists
-            throw LauncherUtils.createLauncherException("error: incorrect package signature provided " + fullPkgPath);
+            throw LauncherUtils.createLauncherException("incorrect package signature provided " + fullPkgPath);
         }
     }
 
@@ -97,8 +97,7 @@ public class UninstallUtils {
             // Print that the package was successfully uninstalled
             outStream.println(fullPkgPath + " successfully uninstalled");
         } catch (IOException e) {
-            throw LauncherUtils.createLauncherException("error: uninstalling package " + fullPkgPath + " was " +
-                                                                "unsuccessful");
+            throw LauncherUtils.createLauncherException("uninstalling package " + fullPkgPath + " was unsuccessful");
         }
     }
 
