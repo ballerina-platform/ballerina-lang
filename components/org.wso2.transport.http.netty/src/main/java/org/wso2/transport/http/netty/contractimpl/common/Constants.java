@@ -13,13 +13,13 @@
  * See the License for the specific language governing permissions and limitations under the License.
  */
 
-package org.wso2.transport.http.netty.common;
+package org.wso2.transport.http.netty.contractimpl.common;
 
 import io.netty.util.AttributeKey;
 import org.wso2.transport.http.netty.contract.HttpResponseFuture;
 import org.wso2.transport.http.netty.contractimpl.DefaultHttpClientConnector;
-import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 import org.wso2.transport.http.netty.contractimpl.sender.channel.TargetChannel;
+import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 
 import java.util.Queue;
 

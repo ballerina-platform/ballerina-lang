@@ -16,14 +16,14 @@
  * under the License.
  */
 
-package org.wso2.transport.http.netty.listener.states.sender;
+package org.wso2.transport.http.netty.contractimpl.listener.states.sender;
 
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.http.HttpContent;
 import io.netty.handler.codec.http.HttpResponse;
 import org.wso2.transport.http.netty.contract.HttpResponseFuture;
+import org.wso2.transport.http.netty.contractimpl.sender.TargetHandler;
 import org.wso2.transport.http.netty.message.HttpCarbonMessage;
-import org.wso2.transport.http.netty.sender.TargetHandler;
 
 /**
  * SenderStates of target handler.

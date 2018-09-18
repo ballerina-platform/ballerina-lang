@@ -17,7 +17,7 @@
  *
  */
 
-package org.wso2.transport.http.netty.sender;
+package org.wso2.transport.http.netty.contractimpl.sender;
 
 import io.netty.channel.ChannelFuture;
 import org.wso2.transport.http.netty.contract.ClientConnectorException;

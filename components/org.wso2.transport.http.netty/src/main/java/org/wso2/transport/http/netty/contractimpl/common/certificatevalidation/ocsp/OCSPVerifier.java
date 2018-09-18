@@ -16,7 +16,7 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-package org.wso2.transport.http.netty.common.certificatevalidation.ocsp;
+package org.wso2.transport.http.netty.contractimpl.common.certificatevalidation.ocsp;
 
 import org.bouncycastle.asn1.ASN1InputStream;
 import org.bouncycastle.asn1.DERIA5String;
@@ -45,10 +45,10 @@ import org.bouncycastle.operator.OperatorCreationException;
 import org.bouncycastle.operator.jcajce.JcaDigestCalculatorProviderBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.wso2.transport.http.netty.common.certificatevalidation.CertificateVerificationException;
-import org.wso2.transport.http.netty.common.certificatevalidation.Constants;
-import org.wso2.transport.http.netty.common.certificatevalidation.RevocationStatus;
-import org.wso2.transport.http.netty.common.certificatevalidation.RevocationVerifier;
+import org.wso2.transport.http.netty.contractimpl.common.certificatevalidation.CertificateVerificationException;
+import org.wso2.transport.http.netty.contractimpl.common.certificatevalidation.Constants;
+import org.wso2.transport.http.netty.contractimpl.common.certificatevalidation.RevocationStatus;
+import org.wso2.transport.http.netty.contractimpl.common.certificatevalidation.RevocationVerifier;
 
 import java.io.BufferedOutputStream;
 import java.io.ByteArrayInputStream;

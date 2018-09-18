@@ -23,7 +23,7 @@ import io.netty.handler.codec.http.HttpContent;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
-import static org.wso2.transport.http.netty.common.Util.isLastHttpContent;
+import static org.wso2.transport.http.netty.contractimpl.common.Util.isLastHttpContent;
 
 /**
  * Default implementation of the message Listener.

@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and limitations under the License.
  */
 
-package org.wso2.transport.http.netty.sender;
+package org.wso2.transport.http.netty.contractimpl.sender;
 
 import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelFutureListener;
@@ -38,27 +38,27 @@ import io.netty.handler.ssl.ReferenceCountedOpenSslContext;
 import io.netty.handler.ssl.ReferenceCountedOpenSslEngine;
 import io.netty.handler.ssl.SslContext;
 import io.netty.handler.ssl.SslHandler;
-import org.wso2.transport.http.netty.common.Constants;
-import org.wso2.transport.http.netty.common.FrameLogger;
-import org.wso2.transport.http.netty.common.HttpRoute;
-import org.wso2.transport.http.netty.common.ProxyServerConfiguration;
-import org.wso2.transport.http.netty.common.Util;
-import org.wso2.transport.http.netty.common.ssl.SSLConfig;
-import org.wso2.transport.http.netty.common.ssl.SSLHandlerFactory;
+import org.wso2.transport.http.netty.contractimpl.common.Constants;
+import org.wso2.transport.http.netty.contractimpl.common.FrameLogger;
+import org.wso2.transport.http.netty.contractimpl.common.HttpRoute;
+import org.wso2.transport.http.netty.contractimpl.common.ProxyServerConfiguration;
+import org.wso2.transport.http.netty.contractimpl.common.Util;
+import org.wso2.transport.http.netty.contractimpl.common.ssl.SSLConfig;
+import org.wso2.transport.http.netty.contractimpl.common.ssl.SSLHandlerFactory;
 import org.wso2.transport.http.netty.contractimpl.config.KeepAliveConfig;
 import org.wso2.transport.http.netty.contractimpl.config.SenderConfiguration;
-import org.wso2.transport.http.netty.listener.HttpTraceLoggingHandler;
-import org.wso2.transport.http.netty.sender.channel.pool.ConnectionManager;
-import org.wso2.transport.http.netty.sender.http2.ClientFrameListener;
-import org.wso2.transport.http.netty.sender.http2.Http2ClientChannel;
-import org.wso2.transport.http.netty.sender.http2.Http2ConnectionManager;
-import org.wso2.transport.http.netty.sender.http2.Http2TargetHandler;
+import org.wso2.transport.http.netty.contractimpl.listener.HttpTraceLoggingHandler;
+import org.wso2.transport.http.netty.contractimpl.sender.channel.pool.ConnectionManager;
+import org.wso2.transport.http.netty.contractimpl.sender.http2.ClientFrameListener;
+import org.wso2.transport.http.netty.contractimpl.sender.http2.Http2ClientChannel;
+import org.wso2.transport.http.netty.contractimpl.sender.http2.Http2ConnectionManager;
+import org.wso2.transport.http.netty.contractimpl.sender.http2.Http2TargetHandler;
 
 import javax.net.ssl.SSLEngine;
 import javax.net.ssl.SSLException;
 
 import static io.netty.handler.logging.LogLevel.TRACE;
-import static org.wso2.transport.http.netty.common.Util.setHostNameVerfication;
+import static org.wso2.transport.http.netty.contractimpl.common.Util.setHostNameVerfication;
 
 /**
  * A class that responsible for initialize target server pipeline.

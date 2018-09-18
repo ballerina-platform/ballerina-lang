@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and limitations under the License.
  */
 
-package org.wso2.transport.http.netty.common;
+package org.wso2.transport.http.netty.contractimpl.common;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelFuture;
@@ -42,21 +42,21 @@ import io.netty.handler.ssl.SslContext;
 import io.netty.handler.ssl.SslHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.wso2.transport.http.netty.common.ssl.SSLConfig;
-import org.wso2.transport.http.netty.common.ssl.SSLHandlerFactory;
+import org.wso2.transport.http.netty.contract.HttpResponseFuture;
+import org.wso2.transport.http.netty.contractimpl.common.ssl.SSLConfig;
+import org.wso2.transport.http.netty.contractimpl.common.ssl.SSLHandlerFactory;
 import org.wso2.transport.http.netty.contractimpl.config.ChunkConfig;
 import org.wso2.transport.http.netty.contractimpl.config.KeepAliveConfig;
-import org.wso2.transport.http.netty.contract.HttpResponseFuture;
 import org.wso2.transport.http.netty.contractimpl.exception.ConfigurationException;
 import org.wso2.transport.http.netty.contractimpl.listener.SourceHandler;
+import org.wso2.transport.http.netty.contractimpl.sender.CertificateValidationHandler;
+import org.wso2.transport.http.netty.contractimpl.sender.OCSPStaplingHandler;
 import org.wso2.transport.http.netty.message.DefaultListener;
 import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 import org.wso2.transport.http.netty.message.HttpCarbonRequest;
 import org.wso2.transport.http.netty.message.HttpCarbonResponse;
 import org.wso2.transport.http.netty.message.Listener;
 import org.wso2.transport.http.netty.message.PooledDataStreamerFactory;
-import org.wso2.transport.http.netty.contractimpl.sender.CertificateValidationHandler;
-import org.wso2.transport.http.netty.contractimpl.sender.OCSPStaplingHandler;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
@@ -66,21 +66,21 @@ import java.time.format.DateTimeFormatter;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
 import javax.net.ssl.SSLEngine;
 import javax.net.ssl.SSLException;
 import javax.net.ssl.SSLParameters;
 
-import static org.wso2.transport.http.netty.common.Constants.COLON;
-import static org.wso2.transport.http.netty.common.Constants.HEADER_VAL_100_CONTINUE;
-import static org.wso2.transport.http.netty.common.Constants.HTTP_HOST;
-import static org.wso2.transport.http.netty.common.Constants.HTTP_PORT;
-import static org.wso2.transport.http.netty.common.Constants.HTTP_SCHEME;
-import static org.wso2.transport.http.netty.common.Constants.IS_PROXY_ENABLED;
-import static org.wso2.transport.http.netty.common.Constants.PROTOCOL;
-import static org.wso2.transport.http.netty.common.Constants.REMOTE_CLIENT_CLOSED_WHILE_WRITING_OUTBOUND_RESPONSE_HEADERS;
-import static org.wso2.transport.http.netty.common.Constants.TO;
-import static org.wso2.transport.http.netty.common.Constants.URL_AUTHORITY;
+import static org.wso2.transport.http.netty.contractimpl.common.Constants.COLON;
+import static org.wso2.transport.http.netty.contractimpl.common.Constants.HEADER_VAL_100_CONTINUE;
+import static org.wso2.transport.http.netty.contractimpl.common.Constants.HTTP_HOST;
+import static org.wso2.transport.http.netty.contractimpl.common.Constants.HTTP_PORT;
+import static org.wso2.transport.http.netty.contractimpl.common.Constants.HTTP_SCHEME;
+import static org.wso2.transport.http.netty.contractimpl.common.Constants.IS_PROXY_ENABLED;
+import static org.wso2.transport.http.netty.contractimpl.common.Constants.PROTOCOL;
+import static org.wso2.transport.http.netty.contractimpl.common.Constants
+        .REMOTE_CLIENT_CLOSED_WHILE_WRITING_OUTBOUND_RESPONSE_HEADERS;
+import static org.wso2.transport.http.netty.contractimpl.common.Constants.TO;
+import static org.wso2.transport.http.netty.contractimpl.common.Constants.URL_AUTHORITY;
 
 /**
  * Includes utility methods for creating http requests and responses and their related properties.

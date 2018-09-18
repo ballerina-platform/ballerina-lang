@@ -16,25 +16,27 @@
  * under the License.
  */
 
-package org.wso2.transport.http.netty.listener.states.sender;
+package org.wso2.transport.http.netty.contractimpl.listener.states.sender;
 
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.http.HttpContent;
 import io.netty.handler.codec.http.HttpResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.wso2.transport.http.netty.common.Constants;
 import org.wso2.transport.http.netty.contract.HttpResponseFuture;
-import org.wso2.transport.http.netty.listener.states.MessageStateContext;
+import org.wso2.transport.http.netty.contractimpl.common.Constants;
+import org.wso2.transport.http.netty.contractimpl.listener.states.MessageStateContext;
+import org.wso2.transport.http.netty.contractimpl.sender.TargetHandler;
 import org.wso2.transport.http.netty.message.HttpCarbonMessage;
-import org.wso2.transport.http.netty.sender.TargetHandler;
 
-import static org.wso2.transport.http.netty.common.Constants.IDLE_TIMEOUT_TRIGGERED_WHILE_READING_INBOUND_RESPONSE_BODY;
-import static org.wso2.transport.http.netty.common.Constants.REMOTE_SERVER_CLOSED_WHILE_READING_INBOUND_RESPONSE_BODY;
-import static org.wso2.transport.http.netty.common.Util.isKeepAlive;
-import static org.wso2.transport.http.netty.common.Util.isLastHttpContent;
-import static org.wso2.transport.http.netty.listener.states.StateUtil.ILLEGAL_STATE_ERROR;
-import static org.wso2.transport.http.netty.listener.states.StateUtil.handleIncompleteInboundMessage;
+import static org.wso2.transport.http.netty.contractimpl.common.Constants
+        .IDLE_TIMEOUT_TRIGGERED_WHILE_READING_INBOUND_RESPONSE_BODY;
+import static org.wso2.transport.http.netty.contractimpl.common.Constants
+        .REMOTE_SERVER_CLOSED_WHILE_READING_INBOUND_RESPONSE_BODY;
+import static org.wso2.transport.http.netty.contractimpl.common.Util.isKeepAlive;
+import static org.wso2.transport.http.netty.contractimpl.common.Util.isLastHttpContent;
+import static org.wso2.transport.http.netty.contractimpl.listener.states.StateUtil.ILLEGAL_STATE_ERROR;
+import static org.wso2.transport.http.netty.contractimpl.listener.states.StateUtil.handleIncompleteInboundMessage;
 
 /**
  * State between start and end of inbound response entity body read.

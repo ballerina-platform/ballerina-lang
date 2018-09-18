@@ -13,10 +13,10 @@
  * See the License for the specific language governing permissions and limitations under the License.
  */
 
-package org.wso2.transport.http.netty.listener;
+package org.wso2.transport.http.netty.contractimpl.listener;
 
-import org.wso2.transport.http.netty.common.Constants;
-import org.wso2.transport.http.netty.common.Util;
+import org.wso2.transport.http.netty.contractimpl.common.Constants;
+import org.wso2.transport.http.netty.contractimpl.common.Util;
 
 import java.util.Map;
 

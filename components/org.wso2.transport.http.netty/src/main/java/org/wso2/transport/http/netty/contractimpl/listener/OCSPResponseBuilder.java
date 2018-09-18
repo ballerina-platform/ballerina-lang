@@ -16,7 +16,7 @@
  * under the License.
  */
 
-package org.wso2.transport.http.netty.listener;
+package org.wso2.transport.http.netty.contractimpl.listener;
 
 import org.bouncycastle.asn1.ocsp.OCSPResponseStatus;
 import org.bouncycastle.cert.ocsp.BasicOCSPResp;
@@ -27,11 +27,11 @@ import org.bouncycastle.cert.ocsp.OCSPResp;
 import org.bouncycastle.cert.ocsp.SingleResp;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.wso2.transport.http.netty.common.certificatevalidation.CertificateVerificationException;
-import org.wso2.transport.http.netty.common.certificatevalidation.Constants;
-import org.wso2.transport.http.netty.common.certificatevalidation.ocsp.OCSPCache;
-import org.wso2.transport.http.netty.common.certificatevalidation.ocsp.OCSPVerifier;
-import org.wso2.transport.http.netty.common.ssl.SSLConfig;
+import org.wso2.transport.http.netty.contractimpl.common.certificatevalidation.CertificateVerificationException;
+import org.wso2.transport.http.netty.contractimpl.common.certificatevalidation.Constants;
+import org.wso2.transport.http.netty.contractimpl.common.certificatevalidation.ocsp.OCSPCache;
+import org.wso2.transport.http.netty.contractimpl.common.certificatevalidation.ocsp.OCSPVerifier;
+import org.wso2.transport.http.netty.contractimpl.common.ssl.SSLConfig;
 
 import java.io.File;
 import java.io.FileInputStream;

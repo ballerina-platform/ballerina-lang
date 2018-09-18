@@ -16,7 +16,7 @@
  *  under the License.
  *
  */
-package org.wso2.transport.http.netty.common.ssl;
+package org.wso2.transport.http.netty.contractimpl.common.ssl;
 
 import io.netty.handler.codec.http2.Http2SecurityUtil;
 import io.netty.handler.ssl.ApplicationProtocolConfig;
@@ -27,7 +27,7 @@ import io.netty.handler.ssl.SslContext;
 import io.netty.handler.ssl.SslContextBuilder;
 import io.netty.handler.ssl.SslProvider;
 import io.netty.handler.ssl.SupportedCipherSuiteFilter;
-import org.wso2.transport.http.netty.common.Constants;
+import org.wso2.transport.http.netty.contractimpl.common.Constants;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -42,7 +42,6 @@ import java.security.cert.CertificateException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-
 import javax.net.ssl.KeyManager;
 import javax.net.ssl.KeyManagerFactory;
 import javax.net.ssl.SNIHostName;

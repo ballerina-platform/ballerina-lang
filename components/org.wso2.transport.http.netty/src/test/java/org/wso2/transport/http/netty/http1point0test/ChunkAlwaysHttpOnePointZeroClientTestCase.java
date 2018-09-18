@@ -23,8 +23,8 @@ import org.junit.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import org.wso2.transport.http.netty.chunkdisable.ChunkClientTemplate;
-import org.wso2.transport.http.netty.common.Constants;
-import org.wso2.transport.http.netty.config.ChunkConfig;
+import org.wso2.transport.http.netty.contractimpl.common.Constants;
+import org.wso2.transport.http.netty.contractimpl.config.ChunkConfig;
 import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 import org.wso2.transport.http.netty.util.TestUtil;
 

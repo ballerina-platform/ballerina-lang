@@ -16,7 +16,7 @@
  * under the License.
  */
 
-package org.wso2.transport.http.netty.common.certificatevalidation.cache;
+package org.wso2.transport.http.netty.contractimpl.common.certificatevalidation.cache;
 
 /**
  * Bean class for cache control.

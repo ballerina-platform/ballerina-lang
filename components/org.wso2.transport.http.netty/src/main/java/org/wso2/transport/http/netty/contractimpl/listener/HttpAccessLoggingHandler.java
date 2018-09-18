@@ -16,7 +16,7 @@
  *  under the License.
  *
  */
-package org.wso2.transport.http.netty.listener;
+package org.wso2.transport.http.netty.contractimpl.listener;
 
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelPromise;
@@ -27,7 +27,7 @@ import io.netty.handler.codec.http.HttpResponse;
 import io.netty.handler.codec.http.LastHttpContent;
 import io.netty.handler.logging.LogLevel;
 import io.netty.handler.logging.LoggingHandler;
-import org.wso2.transport.http.netty.common.Constants;
+import org.wso2.transport.http.netty.contractimpl.common.Constants;
 
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;

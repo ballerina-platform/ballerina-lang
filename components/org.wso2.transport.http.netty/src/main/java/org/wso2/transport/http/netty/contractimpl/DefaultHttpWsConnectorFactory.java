@@ -24,24 +24,23 @@ import io.netty.channel.group.ChannelGroup;
 import io.netty.channel.group.DefaultChannelGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.util.concurrent.GlobalEventExecutor;
-import org.wso2.transport.http.netty.common.Constants;
-import org.wso2.transport.http.netty.common.ssl.SSLConfig;
-import org.wso2.transport.http.netty.common.ssl.SSLHandlerFactory;
-import org.wso2.transport.http.netty.config.ListenerConfiguration;
-import org.wso2.transport.http.netty.config.SenderConfiguration;
 import org.wso2.transport.http.netty.contract.HttpClientConnector;
 import org.wso2.transport.http.netty.contract.HttpWsConnectorFactory;
 import org.wso2.transport.http.netty.contract.ServerConnector;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketClientConnector;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketClientConnectorConfig;
+import org.wso2.transport.http.netty.contractimpl.common.Constants;
+import org.wso2.transport.http.netty.contractimpl.common.ssl.SSLConfig;
+import org.wso2.transport.http.netty.contractimpl.common.ssl.SSLHandlerFactory;
+import org.wso2.transport.http.netty.contractimpl.config.ListenerConfiguration;
+import org.wso2.transport.http.netty.contractimpl.config.SenderConfiguration;
+import org.wso2.transport.http.netty.contractimpl.listener.ServerBootstrapConfiguration;
+import org.wso2.transport.http.netty.contractimpl.listener.ServerConnectorBootstrap;
+import org.wso2.transport.http.netty.contractimpl.sender.channel.BootstrapConfiguration;
+import org.wso2.transport.http.netty.contractimpl.sender.channel.pool.ConnectionManager;
 import org.wso2.transport.http.netty.contractimpl.websocket.DefaultWebSocketClientConnector;
-import org.wso2.transport.http.netty.listener.ServerBootstrapConfiguration;
-import org.wso2.transport.http.netty.listener.ServerConnectorBootstrap;
-import org.wso2.transport.http.netty.sender.channel.BootstrapConfiguration;
-import org.wso2.transport.http.netty.sender.channel.pool.ConnectionManager;
 
 import java.util.Map;
-
 import javax.net.ssl.SSLException;
 
 /**

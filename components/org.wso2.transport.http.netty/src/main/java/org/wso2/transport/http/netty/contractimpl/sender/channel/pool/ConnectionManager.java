@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and limitations under the License.
  */
 
-package org.wso2.transport.http.netty.sender.channel.pool;
+package org.wso2.transport.http.netty.contractimpl.sender.channel.pool;
 
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.EventLoopGroup;
@@ -21,12 +21,12 @@ import io.netty.channel.socket.nio.NioSocketChannel;
 import org.apache.commons.pool.impl.GenericObjectPool;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.wso2.transport.http.netty.common.HttpRoute;
+import org.wso2.transport.http.netty.contractimpl.common.HttpRoute;
 import org.wso2.transport.http.netty.contractimpl.config.SenderConfiguration;
-import org.wso2.transport.http.netty.listener.SourceHandler;
-import org.wso2.transport.http.netty.sender.channel.BootstrapConfiguration;
-import org.wso2.transport.http.netty.sender.channel.TargetChannel;
-import org.wso2.transport.http.netty.sender.http2.Http2ConnectionManager;
+import org.wso2.transport.http.netty.contractimpl.listener.SourceHandler;
+import org.wso2.transport.http.netty.contractimpl.sender.channel.BootstrapConfiguration;
+import org.wso2.transport.http.netty.contractimpl.sender.channel.TargetChannel;
+import org.wso2.transport.http.netty.contractimpl.sender.http2.Http2ConnectionManager;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;

@@ -16,14 +16,14 @@
  * under the License.
  */
 
-package org.wso2.transport.http.netty.common.certificatevalidation.pathvalidation;
+package org.wso2.transport.http.netty.contractimpl.common.certificatevalidation.pathvalidation;
 
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.wso2.transport.http.netty.common.certificatevalidation.CertificateVerificationException;
-import org.wso2.transport.http.netty.common.certificatevalidation.Constants;
-import org.wso2.transport.http.netty.common.certificatevalidation.RevocationVerifier;
+import org.wso2.transport.http.netty.contractimpl.common.certificatevalidation.CertificateVerificationException;
+import org.wso2.transport.http.netty.contractimpl.common.certificatevalidation.Constants;
+import org.wso2.transport.http.netty.contractimpl.common.certificatevalidation.RevocationVerifier;
 
 import java.security.Security;
 import java.security.cert.CertPath;

@@ -16,7 +16,7 @@
  * under the License.
  */
 
-package org.wso2.transport.http.netty.common.certificatevalidation.crl;
+package org.wso2.transport.http.netty.contractimpl.common.certificatevalidation.crl;
 
 import org.bouncycastle.asn1.ASN1InputStream;
 import org.bouncycastle.asn1.ASN1Primitive;
@@ -30,10 +30,10 @@ import org.bouncycastle.asn1.x509.GeneralName;
 import org.bouncycastle.asn1.x509.GeneralNames;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.wso2.transport.http.netty.common.certificatevalidation.CertificateVerificationException;
-import org.wso2.transport.http.netty.common.certificatevalidation.Constants;
-import org.wso2.transport.http.netty.common.certificatevalidation.RevocationStatus;
-import org.wso2.transport.http.netty.common.certificatevalidation.RevocationVerifier;
+import org.wso2.transport.http.netty.contractimpl.common.certificatevalidation.CertificateVerificationException;
+import org.wso2.transport.http.netty.contractimpl.common.certificatevalidation.Constants;
+import org.wso2.transport.http.netty.contractimpl.common.certificatevalidation.RevocationStatus;
+import org.wso2.transport.http.netty.contractimpl.common.certificatevalidation.RevocationVerifier;
 
 import java.io.IOException;
 import java.io.InputStream;

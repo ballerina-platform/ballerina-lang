@@ -16,7 +16,7 @@
  *  under the License.
  *
  */
-package org.wso2.transport.http.netty.common.ssl;
+package org.wso2.transport.http.netty.contractimpl.common.ssl;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

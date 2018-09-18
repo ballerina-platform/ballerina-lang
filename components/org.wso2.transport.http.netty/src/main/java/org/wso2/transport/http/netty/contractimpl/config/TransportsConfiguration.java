@@ -22,7 +22,6 @@ package org.wso2.transport.http.netty.contractimpl.config;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
-
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;

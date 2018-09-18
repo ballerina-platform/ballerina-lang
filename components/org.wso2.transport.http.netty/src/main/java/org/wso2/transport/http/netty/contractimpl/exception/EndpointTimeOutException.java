@@ -16,7 +16,7 @@
  * under the License.
  */
 
-package org.wso2.transport.http.netty.exception;
+package org.wso2.transport.http.netty.contractimpl.exception;
 
 import org.wso2.transport.http.netty.contract.ClientConnectorException;
 

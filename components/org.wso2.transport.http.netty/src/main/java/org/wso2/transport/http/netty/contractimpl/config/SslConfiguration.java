@@ -18,25 +18,25 @@
 
 package org.wso2.transport.http.netty.contractimpl.config;
 
-import org.wso2.transport.http.netty.common.Util;
-import org.wso2.transport.http.netty.common.ssl.SSLConfig;
+import org.wso2.transport.http.netty.contractimpl.common.Util;
+import org.wso2.transport.http.netty.contractimpl.common.ssl.SSLConfig;
 
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.wso2.transport.http.netty.common.Constants.CLIENT_ENABLE_SESSION_CREATION;
-import static org.wso2.transport.http.netty.common.Constants.CLIENT_SUPPORT_CIPHERS;
-import static org.wso2.transport.http.netty.common.Constants.CLIENT_SUPPORT_SSL_PROTOCOLS;
-import static org.wso2.transport.http.netty.common.Constants.HTTPS_SCHEME;
-import static org.wso2.transport.http.netty.common.Constants.JKS;
-import static org.wso2.transport.http.netty.common.Constants.REQUIRE;
-import static org.wso2.transport.http.netty.common.Constants.SERVER_ENABLE_SESSION_CREATION;
-import static org.wso2.transport.http.netty.common.Constants.SERVER_SUPPORTED_SERVER_NAMES;
-import static org.wso2.transport.http.netty.common.Constants.SERVER_SUPPORTED_SNIMATCHERS;
-import static org.wso2.transport.http.netty.common.Constants.SERVER_SUPPORT_CIPHERS;
-import static org.wso2.transport.http.netty.common.Constants.SERVER_SUPPORT_SSL_PROTOCOLS;
-import static org.wso2.transport.http.netty.common.Constants.TLS_PROTOCOL;
+import static org.wso2.transport.http.netty.contractimpl.common.Constants.CLIENT_ENABLE_SESSION_CREATION;
+import static org.wso2.transport.http.netty.contractimpl.common.Constants.CLIENT_SUPPORT_CIPHERS;
+import static org.wso2.transport.http.netty.contractimpl.common.Constants.CLIENT_SUPPORT_SSL_PROTOCOLS;
+import static org.wso2.transport.http.netty.contractimpl.common.Constants.HTTPS_SCHEME;
+import static org.wso2.transport.http.netty.contractimpl.common.Constants.JKS;
+import static org.wso2.transport.http.netty.contractimpl.common.Constants.REQUIRE;
+import static org.wso2.transport.http.netty.contractimpl.common.Constants.SERVER_ENABLE_SESSION_CREATION;
+import static org.wso2.transport.http.netty.contractimpl.common.Constants.SERVER_SUPPORTED_SERVER_NAMES;
+import static org.wso2.transport.http.netty.contractimpl.common.Constants.SERVER_SUPPORTED_SNIMATCHERS;
+import static org.wso2.transport.http.netty.contractimpl.common.Constants.SERVER_SUPPORT_CIPHERS;
+import static org.wso2.transport.http.netty.contractimpl.common.Constants.SERVER_SUPPORT_SSL_PROTOCOLS;
+import static org.wso2.transport.http.netty.contractimpl.common.Constants.TLS_PROTOCOL;
 /**
  * SSL configuration for HTTP connection.
  */

@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and limitations under the License.
  */
 
-package org.wso2.transport.http.netty.sender.channel;
+package org.wso2.transport.http.netty.contractimpl.sender.channel;
 
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
@@ -22,24 +22,24 @@ import io.netty.handler.codec.http.HttpContent;
 import io.netty.handler.timeout.IdleStateHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.wso2.transport.http.netty.common.Constants;
-import org.wso2.transport.http.netty.common.HttpRoute;
+import org.wso2.transport.http.netty.contract.HttpResponseFuture;
+import org.wso2.transport.http.netty.contractimpl.common.Constants;
+import org.wso2.transport.http.netty.contractimpl.common.HttpRoute;
 import org.wso2.transport.http.netty.contractimpl.config.ChunkConfig;
 import org.wso2.transport.http.netty.contractimpl.config.ForwardedExtensionConfig;
-import org.wso2.transport.http.netty.contract.HttpResponseFuture;
+import org.wso2.transport.http.netty.contractimpl.listener.HttpTraceLoggingHandler;
+import org.wso2.transport.http.netty.contractimpl.listener.SourceHandler;
+import org.wso2.transport.http.netty.contractimpl.listener.states.MessageStateContext;
+import org.wso2.transport.http.netty.contractimpl.listener.states.sender.SendingHeaders;
+import org.wso2.transport.http.netty.contractimpl.sender.ConnectionAvailabilityFuture;
+import org.wso2.transport.http.netty.contractimpl.sender.ForwardedHeaderUpdater;
+import org.wso2.transport.http.netty.contractimpl.sender.HttpClientChannelInitializer;
+import org.wso2.transport.http.netty.contractimpl.sender.TargetHandler;
+import org.wso2.transport.http.netty.contractimpl.sender.channel.pool.ConnectionManager;
+import org.wso2.transport.http.netty.contractimpl.sender.http2.Http2ClientChannel;
 import org.wso2.transport.http.netty.internal.HandlerExecutor;
 import org.wso2.transport.http.netty.internal.HttpTransportContextHolder;
-import org.wso2.transport.http.netty.listener.HttpTraceLoggingHandler;
-import org.wso2.transport.http.netty.listener.SourceHandler;
-import org.wso2.transport.http.netty.listener.states.MessageStateContext;
-import org.wso2.transport.http.netty.listener.states.sender.SendingHeaders;
 import org.wso2.transport.http.netty.message.HttpCarbonMessage;
-import org.wso2.transport.http.netty.sender.ConnectionAvailabilityFuture;
-import org.wso2.transport.http.netty.sender.ForwardedHeaderUpdater;
-import org.wso2.transport.http.netty.sender.HttpClientChannelInitializer;
-import org.wso2.transport.http.netty.sender.TargetHandler;
-import org.wso2.transport.http.netty.sender.channel.pool.ConnectionManager;
-import org.wso2.transport.http.netty.sender.http2.Http2ClientChannel;
 
 import java.net.InetSocketAddress;
 import java.util.Locale;

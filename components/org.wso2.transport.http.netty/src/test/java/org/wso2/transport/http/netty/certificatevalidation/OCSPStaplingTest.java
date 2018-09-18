@@ -24,10 +24,10 @@ import org.bouncycastle.cert.ocsp.OCSPResp;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
-import org.wso2.transport.http.netty.common.certificatevalidation.CertificateVerificationException;
-import org.wso2.transport.http.netty.common.certificatevalidation.ocsp.OCSPCache;
 import org.wso2.transport.http.netty.contract.ServerConnectorException;
-import org.wso2.transport.http.netty.listener.OCSPResponseBuilder;
+import org.wso2.transport.http.netty.contractimpl.common.certificatevalidation.CertificateVerificationException;
+import org.wso2.transport.http.netty.contractimpl.common.certificatevalidation.ocsp.OCSPCache;
+import org.wso2.transport.http.netty.contractimpl.listener.OCSPResponseBuilder;
 import org.wso2.transport.http.netty.util.TestUtil;
 
 import java.io.File;

@@ -42,10 +42,10 @@ import org.bouncycastle.operator.OperatorCreationException;
 import org.bouncycastle.operator.jcajce.JcaContentSignerBuilder;
 import org.bouncycastle.operator.jcajce.JcaDigestCalculatorProviderBuilder;
 import org.testng.annotations.Test;
-import org.wso2.transport.http.netty.common.certificatevalidation.Constants;
-import org.wso2.transport.http.netty.common.certificatevalidation.RevocationStatus;
-import org.wso2.transport.http.netty.common.certificatevalidation.ocsp.OCSPCache;
-import org.wso2.transport.http.netty.common.certificatevalidation.ocsp.OCSPVerifier;
+import org.wso2.transport.http.netty.contractimpl.common.certificatevalidation.Constants;
+import org.wso2.transport.http.netty.contractimpl.common.certificatevalidation.RevocationStatus;
+import org.wso2.transport.http.netty.contractimpl.common.certificatevalidation.ocsp.OCSPCache;
+import org.wso2.transport.http.netty.contractimpl.common.certificatevalidation.ocsp.OCSPVerifier;
 
 import java.lang.reflect.Method;
 import java.math.BigInteger;

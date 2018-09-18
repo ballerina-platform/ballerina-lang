@@ -18,8 +18,8 @@
  */
 package org.wso2.transport.http.netty.contractimpl.config;
 
-import org.wso2.transport.http.netty.common.ProxyServerConfiguration;
-import org.wso2.transport.http.netty.sender.channel.pool.PoolConfiguration;
+import org.wso2.transport.http.netty.contractimpl.common.ProxyServerConfiguration;
+import org.wso2.transport.http.netty.contractimpl.sender.channel.pool.PoolConfiguration;
 
 /**
  * JAXB representation of the Netty transport sender configuration.

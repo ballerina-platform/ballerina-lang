@@ -16,10 +16,10 @@
  * under the License.
  */
 
-package org.wso2.transport.http.netty.sender.http2;
+package org.wso2.transport.http.netty.contractimpl.sender.http2;
 
 import io.netty.channel.Channel;
-import org.wso2.transport.http.netty.common.HttpRoute;
+import org.wso2.transport.http.netty.contractimpl.common.HttpRoute;
 import org.wso2.transport.http.netty.contractimpl.config.SenderConfiguration;
 
 import java.util.concurrent.BlockingQueue;

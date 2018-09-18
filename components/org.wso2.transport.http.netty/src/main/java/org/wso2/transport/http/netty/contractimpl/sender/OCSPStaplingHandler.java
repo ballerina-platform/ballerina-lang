@@ -16,7 +16,7 @@
  * under the License.
  */
 
-package org.wso2.transport.http.netty.sender;
+package org.wso2.transport.http.netty.contractimpl.sender;
 
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.ssl.ReferenceCountedOpenSslEngine;
@@ -28,15 +28,16 @@ import org.bouncycastle.cert.ocsp.OCSPResp;
 import org.bouncycastle.cert.ocsp.SingleResp;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.wso2.transport.http.netty.common.certificatevalidation.RevocationVerificationManager;
+import org.wso2.transport.http.netty.contractimpl.common.certificatevalidation.RevocationVerificationManager;
 
 import java.math.BigInteger;
-
 import javax.net.ssl.SSLSession;
 import javax.security.cert.X509Certificate;
 
-import static org.wso2.transport.http.netty.common.certificatevalidation.Constants.CACHE_DEFAULT_ALLOCATED_SIZE;
-import static org.wso2.transport.http.netty.common.certificatevalidation.Constants.CACHE_DEFAULT_DELAY_MINS;
+import static org.wso2.transport.http.netty.contractimpl.common.certificatevalidation.Constants
+        .CACHE_DEFAULT_ALLOCATED_SIZE;
+import static org.wso2.transport.http.netty.contractimpl.common.certificatevalidation.Constants
+        .CACHE_DEFAULT_DELAY_MINS;
 
 /**
  * A handler for OCSP stapling.

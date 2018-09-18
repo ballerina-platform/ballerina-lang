@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and limitations under the License.
  */
 
-package org.wso2.transport.http.netty.sender.channel.pool;
+package org.wso2.transport.http.netty.contractimpl.sender.channel.pool;
 
 import org.apache.commons.pool.impl.GenericObjectPool;
 

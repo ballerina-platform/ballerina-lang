@@ -16,11 +16,11 @@
  * under the License.
  */
 
-package org.wso2.transport.http.netty.common.certificatevalidation.cache;
+package org.wso2.transport.http.netty.contractimpl.common.certificatevalidation.cache;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.wso2.transport.http.netty.common.certificatevalidation.Constants;
+import org.wso2.transport.http.netty.contractimpl.common.certificatevalidation.Constants;
 
 import java.util.ArrayList;
 import java.util.List;

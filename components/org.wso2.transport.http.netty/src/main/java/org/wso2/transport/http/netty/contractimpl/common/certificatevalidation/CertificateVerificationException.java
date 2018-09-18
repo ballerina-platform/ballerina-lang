@@ -16,7 +16,7 @@
  * under the License.
  */
 
-package org.wso2.transport.http.netty.common.certificatevalidation;
+package org.wso2.transport.http.netty.contractimpl.common.certificatevalidation;
 
 /**
  * Handle exceptions.

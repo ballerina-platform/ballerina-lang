@@ -16,15 +16,15 @@
  * under the License.
  */
 
-package org.wso2.transport.http.netty.common.certificatevalidation.crl;
+package org.wso2.transport.http.netty.contractimpl.common.certificatevalidation.crl;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.wso2.transport.http.netty.common.MBeanRegistrar;
-import org.wso2.transport.http.netty.common.certificatevalidation.cache.CacheController;
-import org.wso2.transport.http.netty.common.certificatevalidation.cache.CacheManager;
-import org.wso2.transport.http.netty.common.certificatevalidation.cache.ManageableCache;
-import org.wso2.transport.http.netty.common.certificatevalidation.cache.ManageableCacheValue;
+import org.wso2.transport.http.netty.contractimpl.common.MBeanRegistrar;
+import org.wso2.transport.http.netty.contractimpl.common.certificatevalidation.cache.CacheController;
+import org.wso2.transport.http.netty.contractimpl.common.certificatevalidation.cache.CacheManager;
+import org.wso2.transport.http.netty.contractimpl.common.certificatevalidation.cache.ManageableCache;
+import org.wso2.transport.http.netty.contractimpl.common.certificatevalidation.cache.ManageableCacheValue;
 
 import java.security.cert.X509CRL;
 import java.util.Date;

@@ -17,14 +17,14 @@
  *
  */
 
-package org.wso2.transport.http.netty.sender;
+package org.wso2.transport.http.netty.contractimpl.sender;
 
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
 import io.netty.handler.ssl.SslHandshakeCompletionEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.wso2.transport.http.netty.common.certificatevalidation.RevocationVerificationManager;
+import org.wso2.transport.http.netty.contractimpl.common.certificatevalidation.RevocationVerificationManager;
 
 import javax.net.ssl.SSLEngine;
 import javax.net.ssl.SSLException;

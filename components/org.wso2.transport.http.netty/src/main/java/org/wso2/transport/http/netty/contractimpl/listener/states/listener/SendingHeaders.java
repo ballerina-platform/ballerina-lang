@@ -16,7 +16,7 @@
  * under the License.
  */
 
-package org.wso2.transport.http.netty.listener.states.listener;
+package org.wso2.transport.http.netty.contractimpl.listener.states.listener;
 
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelHandlerContext;
@@ -25,26 +25,27 @@ import io.netty.handler.codec.http.HttpRequest;
 import io.netty.handler.codec.http.HttpResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.wso2.transport.http.netty.contractimpl.config.ChunkConfig;
 import org.wso2.transport.http.netty.contract.HttpResponseFuture;
 import org.wso2.transport.http.netty.contract.ServerConnectorException;
 import org.wso2.transport.http.netty.contract.ServerConnectorFuture;
 import org.wso2.transport.http.netty.contractimpl.HttpOutboundRespListener;
-import org.wso2.transport.http.netty.listener.states.MessageStateContext;
+import org.wso2.transport.http.netty.contractimpl.config.ChunkConfig;
+import org.wso2.transport.http.netty.contractimpl.listener.states.MessageStateContext;
 import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 
-import static org.wso2.transport.http.netty.common.Constants.CHUNKING_CONFIG;
-import static org.wso2.transport.http.netty.common.Constants
+import static org.wso2.transport.http.netty.contractimpl.common.Constants.CHUNKING_CONFIG;
+import static org.wso2.transport.http.netty.contractimpl.common.Constants
         .IDLE_TIMEOUT_TRIGGERED_WHILE_WRITING_OUTBOUND_RESPONSE_HEADERS;
-import static org.wso2.transport.http.netty.common.Constants.REMOTE_CLIENT_CLOSED_BEFORE_INITIATING_OUTBOUND_RESPONSE;
-import static org.wso2.transport.http.netty.common.Constants
+import static org.wso2.transport.http.netty.contractimpl.common.Constants
+        .REMOTE_CLIENT_CLOSED_BEFORE_INITIATING_OUTBOUND_RESPONSE;
+import static org.wso2.transport.http.netty.contractimpl.common.Constants
         .REMOTE_CLIENT_CLOSED_WHILE_WRITING_OUTBOUND_RESPONSE_HEADERS;
-import static org.wso2.transport.http.netty.common.Util.createHttpResponse;
-import static org.wso2.transport.http.netty.common.Util.isLastHttpContent;
-import static org.wso2.transport.http.netty.common.Util.setupChunkedRequest;
-import static org.wso2.transport.http.netty.listener.states.StateUtil.ILLEGAL_STATE_ERROR;
-import static org.wso2.transport.http.netty.listener.states.StateUtil.checkChunkingCompatibility;
-import static org.wso2.transport.http.netty.listener.states.StateUtil.notifyIfHeaderWriteFailure;
+import static org.wso2.transport.http.netty.contractimpl.common.Util.createHttpResponse;
+import static org.wso2.transport.http.netty.contractimpl.common.Util.isLastHttpContent;
+import static org.wso2.transport.http.netty.contractimpl.common.Util.setupChunkedRequest;
+import static org.wso2.transport.http.netty.contractimpl.listener.states.StateUtil.ILLEGAL_STATE_ERROR;
+import static org.wso2.transport.http.netty.contractimpl.listener.states.StateUtil.checkChunkingCompatibility;
+import static org.wso2.transport.http.netty.contractimpl.listener.states.StateUtil.notifyIfHeaderWriteFailure;
 
 /**
  * State between start and end of outbound response headers write

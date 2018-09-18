@@ -16,21 +16,20 @@
  * under the License.
  */
 
-package org.wso2.transport.http.netty.common.certificatevalidation;
+package org.wso2.transport.http.netty.contractimpl.common.certificatevalidation;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.wso2.transport.http.netty.common.certificatevalidation.crl.CRLCache;
-import org.wso2.transport.http.netty.common.certificatevalidation.crl.CRLVerifier;
-import org.wso2.transport.http.netty.common.certificatevalidation.ocsp.OCSPCache;
-import org.wso2.transport.http.netty.common.certificatevalidation.ocsp.OCSPVerifier;
-import org.wso2.transport.http.netty.common.certificatevalidation.pathvalidation.CertificatePathValidator;
+import org.wso2.transport.http.netty.contractimpl.common.certificatevalidation.crl.CRLCache;
+import org.wso2.transport.http.netty.contractimpl.common.certificatevalidation.crl.CRLVerifier;
+import org.wso2.transport.http.netty.contractimpl.common.certificatevalidation.ocsp.OCSPCache;
+import org.wso2.transport.http.netty.contractimpl.common.certificatevalidation.ocsp.OCSPVerifier;
+import org.wso2.transport.http.netty.contractimpl.common.certificatevalidation.pathvalidation.CertificatePathValidator;
 
 import java.io.ByteArrayInputStream;
 import java.security.cert.CertificateException;
 import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
-
 import javax.security.cert.CertificateEncodingException;
 
 /**

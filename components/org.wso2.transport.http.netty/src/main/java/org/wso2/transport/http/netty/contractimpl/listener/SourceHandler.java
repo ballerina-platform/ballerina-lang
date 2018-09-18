@@ -17,7 +17,7 @@
  *
  */
 
-package org.wso2.transport.http.netty.listener;
+package org.wso2.transport.http.netty.contractimpl.listener;
 
 import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelFuture;
@@ -35,15 +35,15 @@ import io.netty.handler.timeout.IdleStateEvent;
 import org.apache.commons.pool.impl.GenericObjectPool;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.wso2.transport.http.netty.common.Constants;
-import org.wso2.transport.http.netty.contractimpl.config.ChunkConfig;
-import org.wso2.transport.http.netty.contractimpl.config.KeepAliveConfig;
 import org.wso2.transport.http.netty.contract.ServerConnectorException;
 import org.wso2.transport.http.netty.contract.ServerConnectorFuture;
+import org.wso2.transport.http.netty.contractimpl.common.Constants;
+import org.wso2.transport.http.netty.contractimpl.config.ChunkConfig;
+import org.wso2.transport.http.netty.contractimpl.config.KeepAliveConfig;
+import org.wso2.transport.http.netty.contractimpl.listener.states.MessageStateContext;
+import org.wso2.transport.http.netty.contractimpl.listener.states.listener.ReceivingHeaders;
 import org.wso2.transport.http.netty.internal.HandlerExecutor;
 import org.wso2.transport.http.netty.internal.HttpTransportContextHolder;
-import org.wso2.transport.http.netty.listener.states.MessageStateContext;
-import org.wso2.transport.http.netty.listener.states.listener.ReceivingHeaders;
 import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 
 import java.net.SocketAddress;
@@ -52,12 +52,14 @@ import java.util.PriorityQueue;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentHashMap;
 
-import static org.wso2.transport.http.netty.common.Constants.EXPECTED_SEQUENCE_NUMBER;
-import static org.wso2.transport.http.netty.common.Constants.IDLE_TIMEOUT_TRIGGERED_BEFORE_INITIATING_INBOUND_REQUEST;
-import static org.wso2.transport.http.netty.common.Constants.NUMBER_OF_INITIAL_EVENTS_HELD;
-import static org.wso2.transport.http.netty.common.Constants.REMOTE_CLIENT_CLOSED_BEFORE_INITIATING_INBOUND_REQUEST;
-import static org.wso2.transport.http.netty.common.Util.createInboundReqCarbonMsg;
-import static org.wso2.transport.http.netty.common.Util.isKeepAliveConnection;
+import static org.wso2.transport.http.netty.contractimpl.common.Constants.EXPECTED_SEQUENCE_NUMBER;
+import static org.wso2.transport.http.netty.contractimpl.common.Constants
+        .IDLE_TIMEOUT_TRIGGERED_BEFORE_INITIATING_INBOUND_REQUEST;
+import static org.wso2.transport.http.netty.contractimpl.common.Constants.NUMBER_OF_INITIAL_EVENTS_HELD;
+import static org.wso2.transport.http.netty.contractimpl.common.Constants
+        .REMOTE_CLIENT_CLOSED_BEFORE_INITIATING_INBOUND_REQUEST;
+import static org.wso2.transport.http.netty.contractimpl.common.Util.createInboundReqCarbonMsg;
+import static org.wso2.transport.http.netty.contractimpl.common.Util.isKeepAliveConnection;
 
 /**
  * A Class responsible for handling incoming message through netty inbound pipeline.

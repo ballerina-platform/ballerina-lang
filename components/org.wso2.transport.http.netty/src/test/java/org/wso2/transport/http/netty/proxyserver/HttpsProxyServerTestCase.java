@@ -27,7 +27,7 @@ import org.mockserver.integration.ClientAndProxy;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
-import org.wso2.transport.http.netty.config.ListenerConfiguration;
+import org.wso2.transport.http.netty.contractimpl.config.ListenerConfiguration;
 import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 import org.wso2.transport.http.netty.message.HttpCarbonRequest;
 import org.wso2.transport.http.netty.util.TestUtil;
@@ -36,12 +36,12 @@ import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
 
 import static org.mockserver.integration.ClientAndProxy.startClientAndProxy;
-import static org.wso2.transport.http.netty.common.Constants.HTTPS_SCHEME;
-import static org.wso2.transport.http.netty.common.Constants.HTTP_HOST;
-import static org.wso2.transport.http.netty.common.Constants.HTTP_METHOD;
-import static org.wso2.transport.http.netty.common.Constants.HTTP_PORT;
-import static org.wso2.transport.http.netty.common.Constants.HTTP_POST_METHOD;
-import static org.wso2.transport.http.netty.common.Constants.PROTOCOL;
+import static org.wso2.transport.http.netty.contractimpl.common.Constants.HTTPS_SCHEME;
+import static org.wso2.transport.http.netty.contractimpl.common.Constants.HTTP_HOST;
+import static org.wso2.transport.http.netty.contractimpl.common.Constants.HTTP_METHOD;
+import static org.wso2.transport.http.netty.contractimpl.common.Constants.HTTP_PORT;
+import static org.wso2.transport.http.netty.contractimpl.common.Constants.HTTP_POST_METHOD;
+import static org.wso2.transport.http.netty.contractimpl.common.Constants.PROTOCOL;
 
 /**
  * A test for connecting to a proxy server over HTTPS.

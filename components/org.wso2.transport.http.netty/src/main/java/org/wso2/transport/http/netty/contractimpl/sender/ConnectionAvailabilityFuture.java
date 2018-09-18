@@ -17,13 +17,13 @@
  *
  */
 
-package org.wso2.transport.http.netty.sender;
+package org.wso2.transport.http.netty.contractimpl.sender;
 
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelFutureListener;
 import io.netty.handler.codec.http.HttpResponseStatus;
-import org.wso2.transport.http.netty.common.Constants;
 import org.wso2.transport.http.netty.contract.ClientConnectorException;
+import org.wso2.transport.http.netty.contractimpl.common.Constants;
 
 /**
  * A future to check the connection availability.

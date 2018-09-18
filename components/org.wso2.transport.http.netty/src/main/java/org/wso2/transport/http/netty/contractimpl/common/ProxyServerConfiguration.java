@@ -16,7 +16,7 @@
  * under the License.
  */
 
-package org.wso2.transport.http.netty.common;
+package org.wso2.transport.http.netty.contractimpl.common;
 
 import java.net.InetAddress;
 import java.net.InetSocketAddress;

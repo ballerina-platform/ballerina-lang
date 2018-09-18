@@ -16,11 +16,11 @@
  * under the License.
  */
 
-package org.wso2.transport.http.netty.sender;
+package org.wso2.transport.http.netty.contractimpl.sender;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.wso2.transport.http.netty.common.Constants;
+import org.wso2.transport.http.netty.contractimpl.common.Constants;
 import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 
 import java.net.InetSocketAddress;

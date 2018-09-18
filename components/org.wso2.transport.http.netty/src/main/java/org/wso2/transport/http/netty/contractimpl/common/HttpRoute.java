@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and limitations under the License.
  */
 
-package org.wso2.transport.http.netty.common;
+package org.wso2.transport.http.netty.contractimpl.common;
 
 /**
  * Class encapsulates the Endpoint address.

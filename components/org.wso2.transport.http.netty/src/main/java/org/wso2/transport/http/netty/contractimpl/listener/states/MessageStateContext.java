@@ -16,10 +16,10 @@
  * under the License.
  */
 
-package org.wso2.transport.http.netty.listener.states;
+package org.wso2.transport.http.netty.contractimpl.listener.states;
 
-import org.wso2.transport.http.netty.listener.states.listener.ListenerState;
-import org.wso2.transport.http.netty.listener.states.sender.SenderState;
+import org.wso2.transport.http.netty.contractimpl.listener.states.listener.ListenerState;
+import org.wso2.transport.http.netty.contractimpl.listener.states.sender.SenderState;
 
 /**
  * Context class to manipulate current state of the message.
