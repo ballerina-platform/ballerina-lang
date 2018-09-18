@@ -434,6 +434,7 @@ public class Debugger {
      *
      * @param ctx         Current context.
      * @param packVarInfo Package variable info.
+     * @param pkgIndex    Package index.
      * @return Constructed global variable.
      */
     public static VariableDTO constructGlobalVariable(WorkerExecutionContext ctx, PackageVarInfo packVarInfo,
