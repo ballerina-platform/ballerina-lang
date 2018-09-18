@@ -1024,6 +1024,90 @@ public class BallerinaParserBaseListener implements BallerinaParserListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
+	@Override public void enterBindingPattern(BallerinaParser.BindingPatternContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitBindingPattern(BallerinaParser.BindingPatternContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterStructuredBindingPattern(BallerinaParser.StructuredBindingPatternContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitStructuredBindingPattern(BallerinaParser.StructuredBindingPatternContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterTupleBindingPattern(BallerinaParser.TupleBindingPatternContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitTupleBindingPattern(BallerinaParser.TupleBindingPatternContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterRecordBindingPattern(BallerinaParser.RecordBindingPatternContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitRecordBindingPattern(BallerinaParser.RecordBindingPatternContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterEntryBindingPattern(BallerinaParser.EntryBindingPatternContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitEntryBindingPattern(BallerinaParser.EntryBindingPatternContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterFieldBindingPattern(BallerinaParser.FieldBindingPatternContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitFieldBindingPattern(BallerinaParser.FieldBindingPatternContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterRestBindingPattern(BallerinaParser.RestBindingPatternContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitRestBindingPattern(BallerinaParser.RestBindingPatternContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
 	@Override public void enterForeachStatement(BallerinaParser.ForeachStatementContext ctx) { }
 	/**
 	 * {@inheritDoc}

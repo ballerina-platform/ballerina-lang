@@ -394,6 +394,40 @@ matchStatement
 matchPatternClause
     :   typeName EQUAL_GT (statement | (LEFT_BRACE statement* RIGHT_BRACE))
     |   typeName Identifier EQUAL_GT (statement | (LEFT_BRACE statement* RIGHT_BRACE))
+    |   typeName bindingPattern EQUAL_GT (statement | (LEFT_BRACE statement* RIGHT_BRACE))
+    ;
+
+bindingPattern
+    :   nameReference
+    |   structuredBindingPattern
+    ;
+
+structuredBindingPattern
+    :   tupleBindingPattern
+    |   recordBindingPattern
+    ;
+
+tupleBindingPattern
+    :   LEFT_PARENTHESIS bindingPattern (COMMA bindingPattern)+ RIGHT_PARENTHESIS
+    ;
+
+recordBindingPattern
+    :   LEFT_BRACE entryBindingPattern RIGHT_BRACE
+    ;
+
+entryBindingPattern
+    :   fieldBindingPattern (COMMA fieldBindingPattern)* (COMMA restBindingPattern)?
+    |   restBindingPattern?
+    ;
+
+fieldBindingPattern
+    :   recordKey COLON bindingPattern
+    |   nameReference
+    ;
+
+restBindingPattern
+    :   ELLIPSIS nameReference
+    |   sealedLiteral
     ;
 
 foreachStatement

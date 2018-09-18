@@ -864,6 +864,76 @@ public interface BallerinaParserListener extends ParseTreeListener {
 	 */
 	void exitMatchPatternClause(BallerinaParser.MatchPatternClauseContext ctx);
 	/**
+	 * Enter a parse tree produced by {@link BallerinaParser#bindingPattern}.
+	 * @param ctx the parse tree
+	 */
+	void enterBindingPattern(BallerinaParser.BindingPatternContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link BallerinaParser#bindingPattern}.
+	 * @param ctx the parse tree
+	 */
+	void exitBindingPattern(BallerinaParser.BindingPatternContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link BallerinaParser#structuredBindingPattern}.
+	 * @param ctx the parse tree
+	 */
+	void enterStructuredBindingPattern(BallerinaParser.StructuredBindingPatternContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link BallerinaParser#structuredBindingPattern}.
+	 * @param ctx the parse tree
+	 */
+	void exitStructuredBindingPattern(BallerinaParser.StructuredBindingPatternContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link BallerinaParser#tupleBindingPattern}.
+	 * @param ctx the parse tree
+	 */
+	void enterTupleBindingPattern(BallerinaParser.TupleBindingPatternContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link BallerinaParser#tupleBindingPattern}.
+	 * @param ctx the parse tree
+	 */
+	void exitTupleBindingPattern(BallerinaParser.TupleBindingPatternContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link BallerinaParser#recordBindingPattern}.
+	 * @param ctx the parse tree
+	 */
+	void enterRecordBindingPattern(BallerinaParser.RecordBindingPatternContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link BallerinaParser#recordBindingPattern}.
+	 * @param ctx the parse tree
+	 */
+	void exitRecordBindingPattern(BallerinaParser.RecordBindingPatternContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link BallerinaParser#entryBindingPattern}.
+	 * @param ctx the parse tree
+	 */
+	void enterEntryBindingPattern(BallerinaParser.EntryBindingPatternContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link BallerinaParser#entryBindingPattern}.
+	 * @param ctx the parse tree
+	 */
+	void exitEntryBindingPattern(BallerinaParser.EntryBindingPatternContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link BallerinaParser#fieldBindingPattern}.
+	 * @param ctx the parse tree
+	 */
+	void enterFieldBindingPattern(BallerinaParser.FieldBindingPatternContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link BallerinaParser#fieldBindingPattern}.
+	 * @param ctx the parse tree
+	 */
+	void exitFieldBindingPattern(BallerinaParser.FieldBindingPatternContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link BallerinaParser#restBindingPattern}.
+	 * @param ctx the parse tree
+	 */
+	void enterRestBindingPattern(BallerinaParser.RestBindingPatternContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link BallerinaParser#restBindingPattern}.
+	 * @param ctx the parse tree
+	 */
+	void exitRestBindingPattern(BallerinaParser.RestBindingPatternContext ctx);
+	/**
 	 * Enter a parse tree produced by {@link BallerinaParser#foreachStatement}.
 	 * @param ctx the parse tree
 	 */
