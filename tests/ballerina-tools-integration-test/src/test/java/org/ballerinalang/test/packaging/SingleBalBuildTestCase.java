@@ -53,9 +53,7 @@ public class SingleBalBuildTestCase extends BaseTest {
         Files.createFile(balFilePath);
         String mainFuncContent = "import ballerina/io;\n" +
                 "\n" +
-                "documentation {\n" +
-                "   Prints `Hello World`.\n" +
-                "}\n" +
+                "# Prints `Hello World`.\n" +
                 "public function main(string... args) {\n" +
                 "    io:println(\"Hello World!\");\n" +
                 "}\n";
@@ -84,7 +82,7 @@ public class SingleBalBuildTestCase extends BaseTest {
         Assert.assertTrue(Files.exists(generatedBalx));
     }
 
-    @Test(description = "Test building a bal file to the output file givenby the user")
+    @Test(description = "Test building a bal file to the output file given by the user")
     public void testBuildingSourceToOutput() throws Exception {
         Path targetDirPath = tempProjectDirectory.resolve("target");
         Files.createDirectories(targetDirPath);
