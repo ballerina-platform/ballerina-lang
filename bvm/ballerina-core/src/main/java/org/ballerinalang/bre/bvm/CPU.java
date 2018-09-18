@@ -149,7 +149,7 @@ public class CPU {
 
     private static WorkerExecutionContext handleHalt(WorkerExecutionContext ctx) {
         BLangScheduler.workerDone(ctx);
-        return ctx.respCtx.signal(new WorkerSignal(ctx, SignalType.HALT, null));
+        return ctx.respCtx.signal(new WorkerSignal(ctx, SignalType.HALT, ctx.workerResult));
     }
 
     public static void exec(WorkerExecutionContext ctx) {
