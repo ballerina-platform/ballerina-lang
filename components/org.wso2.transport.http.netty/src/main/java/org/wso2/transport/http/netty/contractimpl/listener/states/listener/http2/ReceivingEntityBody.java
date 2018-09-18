@@ -15,28 +15,34 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.wso2.transport.http.netty.listener.states.listener.http2;
+package org.wso2.transport.http.netty.contractimpl.listener.states.listener.http2;
 
+import io.netty.buffer.ByteBuf;
+import io.netty.handler.codec.http.DefaultHttpContent;
+import io.netty.handler.codec.http.DefaultLastHttpContent;
 import io.netty.handler.codec.http.HttpContent;
 import io.netty.handler.codec.http2.Http2Exception;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.transport.http.netty.contractimpl.Http2OutboundRespListener.ResponseWriter;
-import org.wso2.transport.http.netty.listener.states.Http2MessageStateContext;
+import org.wso2.transport.http.netty.contractimpl.listener.http2.Http2SourceHandler;
+import org.wso2.transport.http.netty.contractimpl.listener.states.Http2MessageStateContext;
 import org.wso2.transport.http.netty.message.Http2DataFrame;
 import org.wso2.transport.http.netty.message.Http2HeadersFrame;
 import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 
 /**
- * State of successfully written outbound response or push response.
+ * State between start and end of inbound request payload read.
  */
-public class ResponseCompleted implements ListenerState {
+public class ReceivingEntityBody implements ListenerState {
 
-    private static final Logger LOG = LoggerFactory.getLogger(ResponseCompleted.class);
+    private static final Logger LOG = LoggerFactory.getLogger(ReceivingEntityBody.class);
 
+    private final Http2SourceHandler http2SourceHandler;
     private final Http2MessageStateContext http2MessageStateContext;
 
-    public ResponseCompleted(Http2MessageStateContext http2MessageStateContext) {
+    ReceivingEntityBody(Http2SourceHandler http2SourceHandler, Http2MessageStateContext http2MessageStateContext) {
+        this.http2SourceHandler = http2SourceHandler;
         this.http2MessageStateContext = http2MessageStateContext;
     }
 
@@ -47,7 +53,21 @@ public class ResponseCompleted implements ListenerState {
 
     @Override
     public void readInboundRequestBody(Http2DataFrame dataFrame) {
-        dataFrame.getData().release();
+        int streamId = dataFrame.getStreamId();
+        ByteBuf data = dataFrame.getData();
+        HttpCarbonMessage sourceReqCMsg = http2SourceHandler.streamIdRequestMap.get(streamId);
+
+        if (sourceReqCMsg != null) {
+            if (dataFrame.isEndOfStream()) {
+                sourceReqCMsg.addHttpContent(new DefaultLastHttpContent(data));
+                http2SourceHandler.streamIdRequestMap.remove(streamId);
+                http2MessageStateContext.setListenerState(new EntityBodyReceived(http2MessageStateContext));
+            } else {
+                sourceReqCMsg.addHttpContent(new DefaultHttpContent(data));
+            }
+        } else {
+            LOG.warn("Inconsistent state detected : data has received before headers");
+        }
     }
 
     @Override
@@ -59,8 +79,8 @@ public class ResponseCompleted implements ListenerState {
     @Override
     public void writeOutboundResponseBody(ResponseWriter responseWriter, HttpCarbonMessage outboundResponseMsg,
                                           HttpContent httpContent) throws Http2Exception {
-        // When promised response message is going to be sent after the original response or previous promised responses
-        // has been sent.
+        // When receiving entity body, if payload is not consumed by the server, this method is invoked if server is
+        // going to send the response back.
         http2MessageStateContext.setListenerState(new SendingHeaders(http2MessageStateContext));
         http2MessageStateContext.getListenerState()
                 .writeOutboundResponseHeaders(responseWriter, outboundResponseMsg, httpContent);

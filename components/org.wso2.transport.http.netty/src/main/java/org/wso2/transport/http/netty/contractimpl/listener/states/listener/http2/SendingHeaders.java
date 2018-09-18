@@ -15,23 +15,30 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.wso2.transport.http.netty.listener.states.listener.http2;
+package org.wso2.transport.http.netty.contractimpl.listener.states.listener.http2;
 
 import io.netty.handler.codec.http.HttpContent;
 import io.netty.handler.codec.http2.Http2Exception;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.transport.http.netty.contractimpl.Http2OutboundRespListener.ResponseWriter;
+import org.wso2.transport.http.netty.contractimpl.listener.states.Http2MessageStateContext;
 import org.wso2.transport.http.netty.message.Http2DataFrame;
 import org.wso2.transport.http.netty.message.Http2HeadersFrame;
 import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 
 /**
- * State between start and end of outbound response or push response entity body write.
+ * State between start and end of outbound response headers write.
  */
-public class SendingEntityBody implements ListenerState {
+public class SendingHeaders implements ListenerState {
 
-    private static final Logger LOG = LoggerFactory.getLogger(SendingEntityBody.class);
+    private static final Logger LOG = LoggerFactory.getLogger(SendingHeaders.class);
+
+    private final Http2MessageStateContext http2MessageStateContext;
+
+    public SendingHeaders(Http2MessageStateContext http2MessageStateContext) {
+        this.http2MessageStateContext = http2MessageStateContext;
+    }
 
     @Override
     public void readInboundRequestHeaders(Http2HeadersFrame headersFrame) {
@@ -45,13 +52,16 @@ public class SendingEntityBody implements ListenerState {
 
     @Override
     public void writeOutboundResponseHeaders(ResponseWriter responseWriter, HttpCarbonMessage outboundResponseMsg,
-                                             HttpContent httpContent) {
-        LOG.warn("writeOutboundResponseHeaders is not a dependant action of this state");
+                                             HttpContent httpContent) throws Http2Exception {
+        responseWriter.writeHeaders(outboundResponseMsg);
+        http2MessageStateContext.setListenerState(new SendingEntityBody());
+        http2MessageStateContext.getListenerState()
+                .writeOutboundResponseBody(responseWriter, outboundResponseMsg, httpContent);
     }
 
     @Override
     public void writeOutboundResponseBody(ResponseWriter responseWriter, HttpCarbonMessage outboundResponseMsg,
-                                          HttpContent httpContent) throws Http2Exception {
-        responseWriter.writeContent(outboundResponseMsg, httpContent);
+                                          HttpContent httpContent) {
+        LOG.warn("writeOutboundResponseBody is not a dependant action of this state");
     }
 }

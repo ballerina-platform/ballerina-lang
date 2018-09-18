@@ -36,8 +36,8 @@ import org.wso2.transport.http.netty.contract.ServerConnectorFuture;
 import org.wso2.transport.http.netty.contractimpl.DefaultHttpResponseFuture;
 import org.wso2.transport.http.netty.contractimpl.HttpWsServerConnectorFuture;
 import org.wso2.transport.http.netty.contractimpl.common.Constants;
+import org.wso2.transport.http.netty.contractimpl.listener.states.Http2MessageStateContext;
 import org.wso2.transport.http.netty.contractimpl.listener.states.MessageStateContext;
-import org.wso2.transport.http.netty.listener.states.Http2MessageStateContext;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;

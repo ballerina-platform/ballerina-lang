@@ -15,9 +15,9 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.wso2.transport.http.netty.listener.states;
+package org.wso2.transport.http.netty.contractimpl.listener.states;
 
-import org.wso2.transport.http.netty.listener.states.listener.http2.ListenerState;
+import org.wso2.transport.http.netty.contractimpl.listener.states.listener.http2.ListenerState;
 
 /**
  * Context class to manipulate current state of the HTTP/2 message.

@@ -15,30 +15,23 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.wso2.transport.http.netty.listener.states.listener.http2;
+package org.wso2.transport.http.netty.contractimpl.listener.states.listener.http2;
 
 import io.netty.handler.codec.http.HttpContent;
 import io.netty.handler.codec.http2.Http2Exception;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.transport.http.netty.contractimpl.Http2OutboundRespListener.ResponseWriter;
-import org.wso2.transport.http.netty.listener.states.Http2MessageStateContext;
 import org.wso2.transport.http.netty.message.Http2DataFrame;
 import org.wso2.transport.http.netty.message.Http2HeadersFrame;
 import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 
 /**
- * State between end of inbound request payload read and start of outbound response or push response headers write.
+ * State between start and end of outbound response or push response entity body write.
  */
-public class EntityBodyReceived implements ListenerState {
+public class SendingEntityBody implements ListenerState {
 
-    private static final Logger LOG = LoggerFactory.getLogger(EntityBodyReceived.class);
-
-    private final Http2MessageStateContext http2MessageStateContext;
-
-    public EntityBodyReceived(Http2MessageStateContext http2MessageStateContext) {
-        this.http2MessageStateContext = http2MessageStateContext;
-    }
+    private static final Logger LOG = LoggerFactory.getLogger(SendingEntityBody.class);
 
     @Override
     public void readInboundRequestHeaders(Http2HeadersFrame headersFrame) {
@@ -47,7 +40,7 @@ public class EntityBodyReceived implements ListenerState {
 
     @Override
     public void readInboundRequestBody(Http2DataFrame dataFrame) {
-        LOG.warn("readInboundRequestBody is not a dependant action of this state");
+        dataFrame.getData().release();
     }
 
     @Override
@@ -59,9 +52,6 @@ public class EntityBodyReceived implements ListenerState {
     @Override
     public void writeOutboundResponseBody(ResponseWriter responseWriter, HttpCarbonMessage outboundResponseMsg,
                                           HttpContent httpContent) throws Http2Exception {
-        // When the initial packets of the response is to be sent.
-        http2MessageStateContext.setListenerState(new SendingHeaders(http2MessageStateContext));
-        http2MessageStateContext.getListenerState()
-                .writeOutboundResponseHeaders(responseWriter, outboundResponseMsg, httpContent);
+        responseWriter.writeContent(outboundResponseMsg, httpContent);
     }
 }

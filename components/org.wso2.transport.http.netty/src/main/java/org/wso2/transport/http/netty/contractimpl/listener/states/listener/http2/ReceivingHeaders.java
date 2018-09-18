@@ -15,7 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.wso2.transport.http.netty.listener.states.listener.http2;
+package org.wso2.transport.http.netty.contractimpl.listener.states.listener.http2;
 
 import io.netty.handler.codec.http.DefaultLastHttpContent;
 import io.netty.handler.codec.http.HttpContent;
@@ -25,7 +25,7 @@ import org.slf4j.LoggerFactory;
 import org.wso2.transport.http.netty.contractimpl.Http2OutboundRespListener.ResponseWriter;
 import org.wso2.transport.http.netty.contractimpl.common.Constants;
 import org.wso2.transport.http.netty.contractimpl.listener.http2.Http2SourceHandler;
-import org.wso2.transport.http.netty.listener.states.Http2MessageStateContext;
+import org.wso2.transport.http.netty.contractimpl.listener.states.Http2MessageStateContext;
 import org.wso2.transport.http.netty.message.Http2DataFrame;
 import org.wso2.transport.http.netty.message.Http2HeadersFrame;
 import org.wso2.transport.http.netty.message.HttpCarbonMessage;

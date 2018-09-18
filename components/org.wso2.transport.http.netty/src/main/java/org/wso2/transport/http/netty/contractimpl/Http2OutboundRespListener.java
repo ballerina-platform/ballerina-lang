@@ -44,9 +44,9 @@ import org.wso2.transport.http.netty.contract.ServerConnectorException;
 import org.wso2.transport.http.netty.contractimpl.common.Constants;
 import org.wso2.transport.http.netty.contractimpl.common.Util;
 import org.wso2.transport.http.netty.contractimpl.listener.HttpServerChannelInitializer;
-import org.wso2.transport.http.netty.listener.states.Http2MessageStateContext;
-import org.wso2.transport.http.netty.listener.states.listener.http2.EntityBodyReceived;
-import org.wso2.transport.http.netty.listener.states.listener.http2.ResponseCompleted;
+import org.wso2.transport.http.netty.contractimpl.listener.states.Http2MessageStateContext;
+import org.wso2.transport.http.netty.contractimpl.listener.states.listener.http2.EntityBodyReceived;
+import org.wso2.transport.http.netty.contractimpl.listener.states.listener.http2.ResponseCompleted;
 import org.wso2.transport.http.netty.message.Http2PushPromise;
 import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 
