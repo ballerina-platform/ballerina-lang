@@ -125,7 +125,7 @@ export function activate(context: ExtensionContext, langClient: ExtendedLangClie
 				handler: (args: any[]) => {
 					if (activeEditor) {
 						const start = new Position(args[0] - 1, args[1] - 1);
-						const end = new Position(args[2] - 1, args[3] - 1);
+						const end = new Position(args[2] - 1, args[3]);
 						activeEditor.revealRange(new Range(start, end));
 						activeEditor.selection = new Selection(start, end);
 					}
