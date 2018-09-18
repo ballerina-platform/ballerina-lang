@@ -24,7 +24,7 @@ import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.stdlib.io.socket.SelectorManager;
+import org.ballerinalang.stdlib.socket.tcp.SelectorManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.testng.Assert;
@@ -76,7 +76,7 @@ public class ServerSocketTest {
     public void testSeverSocketDelayedAccept() {
         CompileResult delayedStartServer = BCompileUtil
                 .compileAndSetup("test-src/io/server_socket_io_delayed_accept.bal");
-        SelectorManager.start();
+//        SelectorManager.start();
         final int port = ThreadLocalRandom.current().nextInt(47000, 51000);
         ExecutorService executor = Executors.newSingleThreadExecutor();
         executor.execute(() -> {

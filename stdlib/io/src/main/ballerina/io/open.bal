@@ -33,15 +33,15 @@ public type Mode "r"|"w"|"rw"|"a";
 # + return - ByteChannel representation of the file resource
 public extern function openFile(@sensitive string path, @sensitive Mode accessMode) returns @tainted ByteChannel;
 
-# Opens a secure socket connection with a remote server.
-#
-# + host - Remote server domain/IP
-# + port - Remote server port
-# + options - Mata data to initialize the connection(i.e security information)
-# + return - Socket which will represent the network object or an error
-public extern function openSecureSocket(@sensitive string host,
-                                        @sensitive int port,
-                                        SocketProperties options) returns @tainted Socket|error;
+//# Opens a secure socket connection with a remote server.
+//#
+//# + host - Remote server domain/IP
+//# + port - Remote server port
+//# + options - Mata data to initialize the connection(i.e security information)
+//# + return - Socket which will represent the network object or an error
+//public extern function openSecureSocket(@sensitive string host,
+//                                        @sensitive int port,
+//                                        SocketProperties options) returns @tainted Socket|error;
 
 # Creates an in-memory channel which will reference stream of bytes.
 #

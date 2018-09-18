@@ -26,6 +26,8 @@ import org.ballerinalang.util.exceptions.BallerinaException;
  * @since 0.94
  */
 public class BallerinaConnectorException extends BallerinaException {
+    private static final long serialVersionUID = 381055783364464822L;
+
     /**
      * Constructs a new {@link BallerinaConnectorException} with the specified detail message.
      *
