@@ -19,10 +19,9 @@
 package org.ballerinalang.test.service.http.sample;
 
 import org.ballerinalang.test.BaseTest;
+import org.ballerinalang.test.context.BMainInstance;
 import org.ballerinalang.test.context.Constant;
 import org.ballerinalang.test.context.LogLeecher;
-import org.ballerinalang.test.context.ServerInstance;
-import org.testng.annotations.AfterClass;
 import org.testng.annotations.Test;
 
 import java.io.File;
@@ -32,7 +31,6 @@ import java.io.File;
  */
 @Test(groups = "http-test")
 public class MutualSSLWithCerts extends BaseTest {
-    private ServerInstance ballerinaClient;
 
     @Test(description = "Test mutual ssl")
     public void testMutualSSLWithCerts() throws Exception {
@@ -45,20 +43,16 @@ public class MutualSSLWithCerts extends BaseTest {
                 "src" + File.separator + "test" + File.separator + "resources" + File.separator + "certsAndKeys"
                         + File.separator + "public.crt").getAbsolutePath();
 
-        String[] clientArgs = { "-e certificate.key=" + privateKey, "-e public.cert=" + publicCert, new File(
+        String balFile = new File(
                 "src" + File.separator + "test" + File.separator + "resources" + File.separator + "mutualSSL"
-                        + File.separator + "ssl_client.bal").getAbsolutePath() };
+                        + File.separator + "ssl_client.bal").getAbsolutePath();
 
-        ballerinaClient = new ServerInstance(serverZipPath);
+        String[] flags = { "-e certificate.key=" + privateKey, "-e public.cert=" + publicCert};
+
+        BMainInstance ballerinaClient = new BMainInstance(balServer);
         LogLeecher clientLeecher = new LogLeecher(serverResponse);
-        ballerinaClient.addLogLeecher(clientLeecher);
-        ballerinaClient.runMain(clientArgs);
+        ballerinaClient.runMain(balFile, flags, null, new LogLeecher[]{clientLeecher});
         clientLeecher.waitForText(20000);
-    }
-
-    @AfterClass
-    private void cleanup() throws Exception {
-        ballerinaClient.stopServer();
     }
 }
 

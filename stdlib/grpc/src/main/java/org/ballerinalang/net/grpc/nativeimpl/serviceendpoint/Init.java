@@ -161,7 +161,7 @@ public class Init extends AbstractGrpcNativeFunction {
         } else {
             listenerConfiguration.setServerKeyFile(keyFile);
             listenerConfiguration.setServerCertificates(certFile);
-            if (StringUtils.isBlank(keyPassword)) {
+            if (StringUtils.isNotBlank(keyPassword)) {
                 listenerConfiguration.setServerKeyPassword(keyPassword);
             }
         }

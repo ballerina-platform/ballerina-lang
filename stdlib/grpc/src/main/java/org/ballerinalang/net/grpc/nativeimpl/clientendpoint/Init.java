@@ -142,8 +142,7 @@ public class Init extends BlockingNativeCallableUnit {
             String keyPassword = secureSocket.getStringField(HttpConstants.ENDPOINT_CONFIG_KEY_PASSWORD);
             List<Parameter> clientParams = new ArrayList<>();
             if (trustStore != null && StringUtils.isNotBlank(trustCerts)) {
-                throw new BallerinaConnectorException(
-                        "Cannot configure both trustStore and trustCerts at the same time.");
+                throw new BallerinaException("Cannot configure both trustStore and trustCerts at the same time.");
             }
             if (trustStore != null) {
                 String trustStoreFile = trustStore.getStringField(FILE_PATH);
