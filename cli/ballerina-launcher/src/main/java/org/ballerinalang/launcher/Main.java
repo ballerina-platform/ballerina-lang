@@ -54,7 +54,8 @@ public class Main {
     private static final String MISSING_REQUIRED_PARAMETER_PREFIX = "Missing required parameter";
     private static final String COMPILATION_ERROR_MESSAGE = "compilation contains errors";
 
-    private static PrintStream outStream = System.err;
+    private static PrintStream errStream = System.err;
+    private static PrintStream outStream = System.out;
 
     private static final Logger breLog = LoggerFactory.getLogger(Main.class);
 
@@ -63,19 +64,19 @@ public class Main {
             Optional<BLauncherCmd> optionalInvokedCmd = getInvokedCmd(args);
             optionalInvokedCmd.ifPresent(BLauncherCmd::execute);
         } catch (BLangRuntimeException e) {
-            outStream.println(e.getMessage());
+            errStream.println(e.getMessage());
             Runtime.getRuntime().exit(1);
         } catch (BLangCompilerException e) {
             if (!(e.getMessage().contains(COMPILATION_ERROR_MESSAGE))) {
                 // print the error message only if the exception was not thrown due to compilation errors
-                outStream.println(prepareCompilerErrorMessage(e.getMessage()));
+                errStream.println(prepareCompilerErrorMessage(e.getMessage()));
             }
             Runtime.getRuntime().exit(1);
         } catch (BLauncherException e) {
-            LauncherUtils.printLauncherException(e, outStream);
+            LauncherUtils.printLauncherException(e, errStream);
             Runtime.getRuntime().exit(1);
         } catch (Throwable e) {
-            outStream.println(getMessageForInternalErrors());
+            errStream.println(getMessageForInternalErrors());
             breLog.error(e.getMessage(), e);
             Runtime.getRuntime().exit(1);
         }
@@ -156,7 +157,7 @@ public class Main {
 
     private static void printUsageInfo(String commandName) {
         String usageInfo = BLauncherCmd.getCommandUsageInfo(commandName);
-        outStream.println(usageInfo);
+        errStream.println(usageInfo);
     }
 
     private static void printVersionInfo() {
@@ -344,7 +345,7 @@ public class Main {
             }
 
             String commandUsageInfo = BLauncherCmd.getCommandUsageInfo(userCommand);
-            outStream.println(commandUsageInfo);
+            errStream.println(commandUsageInfo);
         }
 
         @Override
@@ -487,11 +488,11 @@ public class Main {
                 AESCipherTool cipherTool = new AESCipherTool(secret);
                 String encryptedValue = cipherTool.encrypt(value);
 
-                outStream.println("Add the following to the runtime config:");
-                outStream.println("@encrypted:{" + encryptedValue + "}\n");
+                errStream.println("Add the following to the runtime config:");
+                errStream.println("@encrypted:{" + encryptedValue + "}\n");
 
-                outStream.println("Or add to the runtime command line:");
-                outStream.println("-e<param>=@encrypted:{" + encryptedValue + "}");
+                errStream.println("Or add to the runtime command line:");
+                errStream.println("-e<param>=@encrypted:{" + encryptedValue + "}");
             } catch (AESCipherToolException e) {
                 throw LauncherUtils.createLauncherException("failed to encrypt value: " + e.getMessage());
             }
@@ -529,7 +530,7 @@ public class Main {
         }
 
         private String promptForInput(String msg) {
-            outStream.println(msg);
+            errStream.println(msg);
             return new String(System.console().readPassword());
         }
     }
