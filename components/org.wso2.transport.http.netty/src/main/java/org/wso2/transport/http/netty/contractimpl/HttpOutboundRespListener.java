@@ -23,20 +23,20 @@ import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.http.HttpContent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.wso2.transport.http.netty.config.ChunkConfig;
-import org.wso2.transport.http.netty.config.KeepAliveConfig;
 import org.wso2.transport.http.netty.contract.HttpConnectorListener;
+import org.wso2.transport.http.netty.contractimpl.config.ChunkConfig;
+import org.wso2.transport.http.netty.contractimpl.config.KeepAliveConfig;
+import org.wso2.transport.http.netty.contractimpl.listener.RequestDataHolder;
+import org.wso2.transport.http.netty.contractimpl.listener.SourceHandler;
+import org.wso2.transport.http.netty.contractimpl.listener.states.MessageStateContext;
 import org.wso2.transport.http.netty.internal.HandlerExecutor;
 import org.wso2.transport.http.netty.internal.HttpTransportContextHolder;
-import org.wso2.transport.http.netty.listener.RequestDataHolder;
-import org.wso2.transport.http.netty.listener.SourceHandler;
-import org.wso2.transport.http.netty.listener.states.MessageStateContext;
 import org.wso2.transport.http.netty.message.Http2PushPromise;
 import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 
 import java.util.Locale;
 
-import static org.wso2.transport.http.netty.common.Util.isKeepAliveConnection;
+import static org.wso2.transport.http.netty.contractimpl.common.Util.isKeepAliveConnection;
 
 /**
  * Get executed when the response is available.

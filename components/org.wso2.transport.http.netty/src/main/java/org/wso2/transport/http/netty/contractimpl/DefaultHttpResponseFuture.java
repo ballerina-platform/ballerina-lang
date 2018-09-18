@@ -22,9 +22,9 @@ package org.wso2.transport.http.netty.contractimpl;
 import org.wso2.transport.http.netty.contract.HttpClientConnectorListener;
 import org.wso2.transport.http.netty.contract.HttpConnectorListener;
 import org.wso2.transport.http.netty.contract.HttpResponseFuture;
+import org.wso2.transport.http.netty.contractimpl.sender.http2.OutboundMsgHolder;
 import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 import org.wso2.transport.http.netty.message.ResponseHandle;
-import org.wso2.transport.http.netty.sender.http2.OutboundMsgHolder;
 
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Semaphore;

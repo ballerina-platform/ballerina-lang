@@ -19,13 +19,13 @@ package org.wso2.transport.http.netty.certificatevalidation;
 
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.testng.annotations.Test;
-import org.wso2.transport.http.netty.common.certificatevalidation.CertificateVerificationException;
-import org.wso2.transport.http.netty.common.certificatevalidation.RevocationVerifier;
-import org.wso2.transport.http.netty.common.certificatevalidation.crl.CRLCache;
-import org.wso2.transport.http.netty.common.certificatevalidation.crl.CRLVerifier;
-import org.wso2.transport.http.netty.common.certificatevalidation.ocsp.OCSPCache;
-import org.wso2.transport.http.netty.common.certificatevalidation.ocsp.OCSPVerifier;
-import org.wso2.transport.http.netty.common.certificatevalidation.pathvalidation.CertificatePathValidator;
+import org.wso2.transport.http.netty.contractimpl.common.certificatevalidation.CertificateVerificationException;
+import org.wso2.transport.http.netty.contractimpl.common.certificatevalidation.RevocationVerifier;
+import org.wso2.transport.http.netty.contractimpl.common.certificatevalidation.crl.CRLCache;
+import org.wso2.transport.http.netty.contractimpl.common.certificatevalidation.crl.CRLVerifier;
+import org.wso2.transport.http.netty.contractimpl.common.certificatevalidation.ocsp.OCSPCache;
+import org.wso2.transport.http.netty.contractimpl.common.certificatevalidation.ocsp.OCSPVerifier;
+import org.wso2.transport.http.netty.contractimpl.common.certificatevalidation.pathvalidation.CertificatePathValidator;
 
 import java.security.Security;
 import java.security.cert.X509Certificate;

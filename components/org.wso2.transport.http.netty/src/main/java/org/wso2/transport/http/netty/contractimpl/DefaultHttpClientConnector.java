@@ -30,33 +30,33 @@ import io.netty.util.AsciiString;
 import io.netty.util.CharsetUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.wso2.transport.http.netty.common.Constants;
-import org.wso2.transport.http.netty.common.HttpRoute;
-import org.wso2.transport.http.netty.common.ssl.SSLConfig;
-import org.wso2.transport.http.netty.config.ChunkConfig;
-import org.wso2.transport.http.netty.config.ForwardedExtensionConfig;
-import org.wso2.transport.http.netty.config.KeepAliveConfig;
-import org.wso2.transport.http.netty.config.SenderConfiguration;
 import org.wso2.transport.http.netty.contract.ClientConnectorException;
 import org.wso2.transport.http.netty.contract.HttpClientConnector;
 import org.wso2.transport.http.netty.contract.HttpResponseFuture;
-import org.wso2.transport.http.netty.listener.SourceHandler;
+import org.wso2.transport.http.netty.contractimpl.common.Constants;
+import org.wso2.transport.http.netty.contractimpl.common.HttpRoute;
+import org.wso2.transport.http.netty.contractimpl.common.ssl.SSLConfig;
+import org.wso2.transport.http.netty.contractimpl.config.ChunkConfig;
+import org.wso2.transport.http.netty.contractimpl.config.ForwardedExtensionConfig;
+import org.wso2.transport.http.netty.contractimpl.config.KeepAliveConfig;
+import org.wso2.transport.http.netty.contractimpl.config.SenderConfiguration;
+import org.wso2.transport.http.netty.contractimpl.listener.SourceHandler;
+import org.wso2.transport.http.netty.contractimpl.sender.ConnectionAvailabilityListener;
+import org.wso2.transport.http.netty.contractimpl.sender.channel.TargetChannel;
+import org.wso2.transport.http.netty.contractimpl.sender.channel.pool.ConnectionManager;
+import org.wso2.transport.http.netty.contractimpl.sender.http2.Http2ClientChannel;
+import org.wso2.transport.http.netty.contractimpl.sender.http2.Http2ConnectionManager;
+import org.wso2.transport.http.netty.contractimpl.sender.http2.OutboundMsgHolder;
+import org.wso2.transport.http.netty.contractimpl.sender.http2.TimeoutHandler;
 import org.wso2.transport.http.netty.message.Http2PushPromise;
 import org.wso2.transport.http.netty.message.Http2Reset;
 import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 import org.wso2.transport.http.netty.message.ResponseHandle;
-import org.wso2.transport.http.netty.sender.ConnectionAvailabilityListener;
-import org.wso2.transport.http.netty.sender.channel.TargetChannel;
-import org.wso2.transport.http.netty.sender.channel.pool.ConnectionManager;
-import org.wso2.transport.http.netty.sender.http2.Http2ClientChannel;
-import org.wso2.transport.http.netty.sender.http2.Http2ConnectionManager;
-import org.wso2.transport.http.netty.sender.http2.OutboundMsgHolder;
-import org.wso2.transport.http.netty.sender.http2.TimeoutHandler;
 
 import java.util.NoSuchElementException;
 
-import static org.wso2.transport.http.netty.common.Constants.COLON;
-import static org.wso2.transport.http.netty.common.Constants.HTTP_SCHEME;
+import static org.wso2.transport.http.netty.contractimpl.common.Constants.COLON;
+import static org.wso2.transport.http.netty.contractimpl.common.Constants.HTTP_SCHEME;
 
 /**
  * Implementation of the client connector.

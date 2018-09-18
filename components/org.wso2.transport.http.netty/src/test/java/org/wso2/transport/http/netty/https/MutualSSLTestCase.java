@@ -23,31 +23,20 @@ import org.slf4j.LoggerFactory;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
-import org.wso2.transport.http.netty.config.ListenerConfiguration;
-import org.wso2.transport.http.netty.config.SenderConfiguration;
 import org.wso2.transport.http.netty.contentaware.listeners.EchoMessageListener;
 import org.wso2.transport.http.netty.contract.HttpClientConnector;
-import org.wso2.transport.http.netty.contract.HttpResponseFuture;
 import org.wso2.transport.http.netty.contract.HttpWsConnectorFactory;
 import org.wso2.transport.http.netty.contract.ServerConnector;
 import org.wso2.transport.http.netty.contract.ServerConnectorException;
 import org.wso2.transport.http.netty.contract.ServerConnectorFuture;
 import org.wso2.transport.http.netty.contractimpl.DefaultHttpWsConnectorFactory;
-import org.wso2.transport.http.netty.message.HttpCarbonMessage;
-import org.wso2.transport.http.netty.message.HttpMessageDataStreamer;
-import org.wso2.transport.http.netty.util.DefaultHttpConnectorListener;
+import org.wso2.transport.http.netty.contractimpl.config.ListenerConfiguration;
+import org.wso2.transport.http.netty.contractimpl.config.SenderConfiguration;
 import org.wso2.transport.http.netty.util.TestUtil;
 
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
 import java.util.HashMap;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.TimeUnit;
-import java.util.stream.Collectors;
 
-import static org.testng.Assert.assertEquals;
-import static org.testng.AssertJUnit.assertNotNull;
-import static org.wso2.transport.http.netty.common.Constants.HTTPS_SCHEME;
+import static org.wso2.transport.http.netty.contractimpl.common.Constants.HTTPS_SCHEME;
 
 /**
  * Tests for mutual ssl
@@ -102,26 +91,7 @@ public class MutualSSLTestCase {
 
     @Test
     public void testHttpsPost() {
-        try {
-            String testValue = "Test";
-            HttpCarbonMessage msg = TestUtil.createHttpsPostReq(TestUtil.SERVER_PORT3, testValue, "");
-
-            CountDownLatch latch = new CountDownLatch(1);
-            DefaultHttpConnectorListener listener = new DefaultHttpConnectorListener(latch);
-            HttpResponseFuture responseFuture = httpClientConnector.send(msg);
-            responseFuture.setHttpConnectorListener(listener);
-
-            latch.await(5, TimeUnit.SECONDS);
-
-            HttpCarbonMessage response = listener.getHttpResponseMessage();
-            assertNotNull(response);
-            String result = new BufferedReader(
-                    new InputStreamReader(new HttpMessageDataStreamer(response).getInputStream())).lines()
-                    .collect(Collectors.joining("\n"));
-            assertEquals(testValue, result);
-        } catch (Exception e) {
-            TestUtil.handleException("Exception occurred while running httpsGetTest", e);
-        }
+        TestUtil.testHttpsPost(httpClientConnector, TestUtil.SERVER_PORT3);
     }
 
     @AfterClass
