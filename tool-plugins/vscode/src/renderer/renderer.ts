@@ -135,13 +135,28 @@ function renderDiagram(context: ExtensionContext, docUri: Uri, jsonModelObj: Bal
             })
         }
 
+        function goToSource(model) {
+            const pos = model.position;
+            if (pos) {
+                return new Promise((resolve, reject) => {
+                    webViewRPCHandler.invokeRemoteMethod(
+                        'revealRange', 
+                        [pos.startLine, pos.startColumn, pos.endLine, pos.endColumn], 
+                        (resp) => {
+                            resolve(resp);
+                        }
+                    );
+                })
+            }
+        }
+
         function drawDiagram() {
             try {
                 let width = window.innerWidth - 6;
                 let height = window.innerHeight;
                 console.log('rendering ' + width);
                 ballerinaDiagram.renderEditableDiagram(document.getElementById("diagram"), docUri,
-                    width, height, getAST, onChange, getEndpoints, parseFragment
+                    width, height, getAST, onChange, getEndpoints, parseFragment, goToSource
                 );
                 console.log('Successfully rendered');
             } catch(e) {

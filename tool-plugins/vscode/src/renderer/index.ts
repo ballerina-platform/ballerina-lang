@@ -16,7 +16,7 @@
  * under the License.
  *
  */
-import { workspace, commands, window, Uri, ViewColumn, ExtensionContext, TextEditor, WebviewPanel, TextDocumentChangeEvent } from 'vscode';
+import { workspace, commands, window, Uri, ViewColumn, ExtensionContext, TextEditor, WebviewPanel, TextDocumentChangeEvent, Position, Range, Selection } from 'vscode';
 import * as _ from 'lodash';
 import { StaticProvider } from './content-provider';
 import { render } from './renderer';
@@ -118,6 +118,18 @@ export function activate(context: ExtensionContext, langClient: ExtendedLangClie
 						expectedNodeType: args[0].expectedNodeType,
 						source: args[0].source
 					});
+				}
+			},
+			{
+				methodName: 'revealRange',
+				handler: (args: any[]) => {
+					if (activeEditor) {
+						const start = new Position(args[0] - 1, args[1] - 1);
+						const end = new Position(args[2] - 1, args[3] - 1);
+						activeEditor.revealRange(new Range(start, end));
+						activeEditor.selection = new Selection(start, end);
+					}
+					return Promise.resolve();
 				}
 			}
 		], previewPanel.webview);
