@@ -71,7 +71,16 @@ functionDefinition
     ;
 
 lambdaFunction
-    :   LEFT_PARENTHESIS formalParameterList? RIGHT_PARENTHESIS EQUAL_GT lambdaReturnParameter? callableUnitBody
+    :  FUNCTION LEFT_PARENTHESIS formalParameterList? RIGHT_PARENTHESIS (RETURNS lambdaReturnParameter)? callableUnitBody
+    ;
+
+arrowFunction
+    :   arrowParam EQUAL_GT expression
+    |   LEFT_PARENTHESIS arrowParam (COMMA arrowParam)* RIGHT_PARENTHESIS EQUAL_GT expression
+    ;
+
+arrowParam
+    :   Identifier
     ;
 
 callableUnitSignature
@@ -141,6 +150,11 @@ annotationDefinition
 
 globalVariableDefinition
     :   (PUBLIC)? typeName Identifier (ASSIGN expression )? SEMICOLON
+    |   channelType Identifier SEMICOLON
+    ;
+
+channelType
+    : CHANNEL (LT typeName GT)
     ;
 
 attachmentPoint
@@ -483,15 +497,15 @@ workerInteractionStatement
     |   workerReply
     ;
 
-// below left Identifier is of type TYPE_MESSAGE and the right Identifier is of type WORKER
+// below left Identifier is of type TYPE_MESSAGE and the right Identifier is of type WORKER or CHANNEL
 triggerWorker
-    :   expression RARROW Identifier SEMICOLON        #invokeWorker
+    :   expression RARROW Identifier (COMMA expression)? SEMICOLON        #invokeWorker
     |   expression RARROW FORK SEMICOLON              #invokeFork
     ;
 
-// below left Identifier is of type WORKER and the right Identifier is of type message
+// below left Identifier is of type WORKER or CHANNEL and the right Identifier is of type message
 workerReply
-    :   expression LARROW Identifier SEMICOLON
+    :   expression LARROW Identifier (COMMA expression)? SEMICOLON
     ;
 
 variableReference
@@ -608,6 +622,7 @@ expression
     |   START? variableReference                                            # variableReferenceExpression
     |   actionInvocation                                                    # actionInvocationExpression
     |   lambdaFunction                                                      # lambdaFunctionExpression
+    |   arrowFunction                                                       # arrowFunctionExpression
     |   typeInitExpr                                                        # typeInitExpression
     |   tableQuery                                                          # tableQueryExpression
     |   LT typeName (COMMA functionInvocation)? GT expression               # typeConversionExpression

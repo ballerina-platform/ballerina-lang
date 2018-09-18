@@ -15,16 +15,16 @@
 // under the License.
 
 
-# Represents a TCP socket.
+
 #
-# + channel - ByteChannel which will represent the socket connection
+# + byteChannel - ByteChannel which will represent the socket connection
 # + remotePort - Remote server connection port
 # + localPort - Local port the socket connection should bound
 # + remoteAddress - IP/Host of the remote server
 # + localAddress - Local interface the connection should bound
 public type Socket object {
 
-    @readonly public ByteChannel channel;
+    @readonly public ByteChannel byteChannel;
     @readonly public int remotePort;
     @readonly public int localPort;
     @readonly public string remoteAddress;
@@ -110,4 +110,5 @@ public type SocketProperties record {
     string sslEnabledProtocols;
     string ciphers;
     string sslProtocol;
+    !...
 };

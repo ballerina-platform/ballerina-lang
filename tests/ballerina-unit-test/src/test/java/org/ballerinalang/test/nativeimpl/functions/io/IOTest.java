@@ -55,6 +55,7 @@ import java.util.stream.Stream;
  * Tests I/O related functions.
  */
 public class IOTest {
+
     private CompileResult bytesInputOutputProgramFile;
     private CompileResult characterInputOutputProgramFile;
     private CompileResult recordsInputOutputProgramFile;
@@ -361,11 +362,11 @@ public class IOTest {
         BValue[] args = {new BString(sourceToWrite), new BString("w"), new BString("UTF-8")};
         BRunUtil.invokeStateful(characterInputOutputProgramFile, "initCharacterChannel", args);
 
-        args = new BValue[] { JsonParser.parse(content) };
+        args = new BValue[]{JsonParser.parse(content)};
         BValue[] result = BRunUtil.invokeStateful(characterInputOutputProgramFile, "writeJson", args);
 
         //Assert if there's no error return
-        Assert.assertTrue(result.length == 0);
+        Assert.assertNull(result[0]);
 
         BRunUtil.invokeStateful(characterInputOutputProgramFile, "close");
     }
@@ -386,7 +387,7 @@ public class IOTest {
         BValue[] result = BRunUtil.invokeStateful(characterInputOutputProgramFile, "writeXml", args);
 
         //Assert if there's no error return
-        Assert.assertTrue(result.length == 0);
+        Assert.assertNull(result[0]);
 
         BRunUtil.invokeStateful(characterInputOutputProgramFile, "close");
     }

@@ -85,6 +85,7 @@ public type TopicSubscriberEndpointConfiguration record {
     string? topicPattern;
     string messageSelector;
     string identifier;
+    !...
 };
 
 # Actions that topic subscriber endpoint could perform

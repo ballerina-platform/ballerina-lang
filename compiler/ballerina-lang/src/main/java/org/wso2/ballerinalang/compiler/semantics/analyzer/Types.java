@@ -17,6 +17,7 @@
  */
 package org.wso2.ballerinalang.compiler.semantics.analyzer;
 
+import org.ballerinalang.model.Name;
 import org.ballerinalang.model.TreeBuilder;
 import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.symbols.SymbolKind;
@@ -67,8 +68,10 @@ import java.util.Collections;
 import java.util.EnumSet;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.Stack;
+import java.util.stream.Collectors;
 
 /**
  * This class consists of utility methods which operate on types.
@@ -389,12 +392,6 @@ public class Types {
     }
 
     private boolean checkStructEquivalency(BType rhsType, BType lhsType, List<TypePair> unresolvedTypes) {
-        // For equivalency, both lhs and rhs types should be of the same type. Allowed types: objects and records.
-        if ((rhsType.tag != TypeTags.OBJECT || lhsType.tag != TypeTags.OBJECT)
-                && (rhsType.tag != TypeTags.RECORD || lhsType.tag != TypeTags.RECORD)) {
-            return false;
-        }
-
         // If we encounter two types that we are still resolving, then skip it.
         // This is done to avoid recursive checking of the same type.
         TypePair pair = new TypePair(rhsType, lhsType);
@@ -403,7 +400,19 @@ public class Types {
         }
         unresolvedTypes.add(pair);
 
-        // Both structs should be public or private.
+        if (rhsType.tag == TypeTags.OBJECT && lhsType.tag == TypeTags.OBJECT) {
+            return checkObjectEquivalency((BObjectType) rhsType, (BObjectType) lhsType, unresolvedTypes);
+        }
+
+        if (rhsType.tag == TypeTags.RECORD && lhsType.tag == TypeTags.RECORD) {
+            return checkRecordEquivalency((BRecordType) rhsType, (BRecordType) lhsType);
+        }
+
+        return false;
+    }
+
+    public boolean checkObjectEquivalency(BObjectType rhsType, BObjectType lhsType, List<TypePair> unresolvedTypes) {
+        // Both objects should be public or private.
         // Get the XOR of both flags(masks)
         // If both are public, then public bit should be 0;
         // If both are private, then public bit should be 0;
@@ -412,21 +421,42 @@ public class Types {
             return false;
         }
 
-        // If both structs are private, they should be in the same package.
+        // If both objects are private, they should be in the same package.
         if (Symbols.isPrivate(lhsType.tsymbol) && rhsType.tsymbol.pkgID != lhsType.tsymbol.pkgID) {
             return false;
         }
 
-        //RHS type should have at least all the fields as well attached functions of LHS type.
-        BStructureType lhsStructType = (BStructureType) lhsType;
-        BStructureType rhsStructType = (BStructureType) rhsType;
-        if (lhsStructType.fields.size() > rhsStructType.fields.size()) {
+        // RHS type should have at least all the fields as well attached functions of LHS type.
+        if (lhsType.fields.size() > rhsType.fields.size()) {
             return false;
         }
 
         return Symbols.isPrivate(lhsType.tsymbol) && rhsType.tsymbol.pkgID == lhsType.tsymbol.pkgID ?
-                checkEquivalencyOfTwoPrivateStructs(lhsStructType, rhsStructType, unresolvedTypes) :
-                checkEquivalencyOfPublicStructs(lhsStructType, rhsStructType, unresolvedTypes);
+                checkEquivalencyOfTwoPrivateStructs(lhsType, rhsType, unresolvedTypes) :
+                checkEquivalencyOfPublicStructs(lhsType, rhsType, unresolvedTypes);
+    }
+
+    public boolean checkRecordEquivalency(BRecordType rhsType, BRecordType lhsType) {
+        // Both records should be public or private.
+        // Get the XOR of both flags(masks)
+        // If both are public, then public bit should be 0;
+        // If both are private, then public bit should be 0;
+        // The public bit is on means, one is public, and the other one is private.
+        if (Symbols.isFlagOn(lhsType.tsymbol.flags ^ rhsType.tsymbol.flags, Flags.PUBLIC)) {
+            return false;
+        }
+
+        // If both records are private, they should be in the same package.
+        if (Symbols.isPrivate(lhsType.tsymbol) && rhsType.tsymbol.pkgID != lhsType.tsymbol.pkgID) {
+            return false;
+        }
+
+        // RHS type should have at least all the fields as well attached functions of LHS type.
+        if (lhsType.fields.size() > rhsType.fields.size()) {
+            return false;
+        }
+
+        return checkEquivalencyOfTwoRecords(lhsType, rhsType);
     }
 
     List<BType> checkForeachTypes(BLangNode collection, int variableSize) {
@@ -477,6 +507,9 @@ public class Types {
             case TypeTags.TABLE:
                 BTableType tableType = (BTableType) collectionType;
                 if (variableSize == 1) {
+                    if (tableType.constraint.tag == TypeTags.NONE) {
+                        return Lists.of(symTable.anyType);
+                    }
                     return Lists.of(tableType.constraint);
                 } else if (variableSize == 2) {
                     return Lists.of(symTable.intType, tableType.constraint);
@@ -1153,8 +1186,28 @@ public class Types {
         return true;
     }
 
+    private boolean checkEquivalencyOfTwoRecords(BRecordType lhsType, BRecordType rhsType) {
+        Map<Name, BField> rhsFields = rhsType.fields.stream().collect(
+                Collectors.toMap(BField::getName, field -> field));
+
+        for (int fieldCounter = 0; fieldCounter < lhsType.fields.size(); fieldCounter++) {
+            BField lhsField = lhsType.fields.get(fieldCounter);
+            BField rhsField = rhsFields.get(lhsField.name);
+
+            if (rhsField == null) {
+                return false;
+            }
+
+            if (!isSameType(rhsField.type, lhsField.type)) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
     private boolean checkEquivalencyOfPublicStructs(BStructureType lhsType, BStructureType rhsType,
-                                                    List<TypePair> unresolvedTypes) {
+                                                List<TypePair> unresolvedTypes) {
         int fieldCounter = 0;
         for (; fieldCounter < lhsType.fields.size(); fieldCounter++) {
             BField lhsField = lhsType.fields.get(fieldCounter);

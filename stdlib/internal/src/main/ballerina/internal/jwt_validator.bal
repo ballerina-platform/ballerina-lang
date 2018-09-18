@@ -25,6 +25,7 @@ public type JWTValidatorConfig record {
     string certificateAlias,
     string trustStoreFilePath,
     string trustStorePassword,
+    !...
 };
 
 # Validity given JWT token.

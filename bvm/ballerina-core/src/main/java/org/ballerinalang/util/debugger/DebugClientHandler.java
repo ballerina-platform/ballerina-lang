@@ -85,6 +85,13 @@ public interface DebugClientHandler {
     void notifyHalt(MessageDTO message);
 
     /**
+     * Send the results of an expression to the client after evaluating it.
+     *
+     * @param message results to be sent to the client.
+     */
+    void sendExpressionResults(MessageDTO message);
+
+    /**
      * Send a custom message to the client.
      *
      * @param message message to send to the client

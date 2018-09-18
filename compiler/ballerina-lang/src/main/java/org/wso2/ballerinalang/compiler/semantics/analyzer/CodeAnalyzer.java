@@ -51,6 +51,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangWorker;
 import org.wso2.ballerinalang.compiler.tree.BLangXMLNS;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrayLiteral;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrowFunction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangAwaitExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBracedOrTupleExpr;
@@ -798,6 +799,13 @@ public class CodeAnalyzer extends BLangNodeVisitor {
 
     public void visit(BLangWorkerSend workerSendNode) {
         this.checkStatementExecutionValidity(workerSendNode);
+        if (workerSendNode.isChannel) {
+            analyzeExpr(workerSendNode.expr);
+            if (workerSendNode.keyExpr != null) {
+                analyzeExpr(workerSendNode.keyExpr);
+            }
+            return;
+        }
         if (!this.inWorker()) {
             return;
         }
@@ -808,6 +816,13 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     @Override
     public void visit(BLangWorkerReceive workerReceiveNode) {
         this.checkStatementExecutionValidity(workerReceiveNode);
+        if (workerReceiveNode.isChannel) {
+            analyzeExpr(workerReceiveNode.expr);
+            if (workerReceiveNode.keyExpr != null) {
+                analyzeExpr(workerReceiveNode.keyExpr);
+            }
+            return;
+        }
         if (!this.inWorker()) {
             return;
         }
@@ -984,6 +999,10 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     }
 
     public void visit(BLangLambdaFunction bLangLambdaFunction) {
+        /* ignore */
+    }
+
+    public void visit(BLangArrowFunction bLangArrowFunction) {
         /* ignore */
     }
 

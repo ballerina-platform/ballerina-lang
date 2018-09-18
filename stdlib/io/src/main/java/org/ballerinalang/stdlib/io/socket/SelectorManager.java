@@ -182,20 +182,4 @@ public class SelectorManager {
         }
         return false;
     }
-
-    public static void stop() {
-        try {
-            if (log.isDebugEnabled()) {
-                log.debug("Stopping the selector loop.");
-            }
-            execution = false;
-            running = false;
-            selector.wakeup();
-            selector.close();
-            Thread.sleep(1500);
-            executor.shutdownNow();
-        } catch (Throwable e) {
-            log.error("Error occurred while stopping the selector loop: " + e.getMessage(), e);
-        }
-    }
 }

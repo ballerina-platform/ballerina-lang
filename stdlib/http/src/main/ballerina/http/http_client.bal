@@ -186,6 +186,7 @@ public type HttpTimeoutError record {
     string message,
     error? cause,
     int statusCode,
+    !...
 };
 
 //Since the struct equivalency doesn't work with private keyword, following functions are defined outside the object

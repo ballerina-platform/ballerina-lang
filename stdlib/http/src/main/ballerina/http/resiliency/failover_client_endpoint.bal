@@ -74,6 +74,7 @@ public type FailoverClientEndpointConfiguration record {
     AuthConfig? auth,
     int[] failoverCodes = [501, 502, 503, 504],
     int intervalMillis,
+    !...
 };
 
 function FailoverClient::init(FailoverClientEndpointConfiguration foClientConfig) {

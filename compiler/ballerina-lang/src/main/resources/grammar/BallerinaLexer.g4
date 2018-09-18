@@ -34,6 +34,7 @@ RETURNS     : 'returns';
 VERSION     : 'version';
 DOCUMENTATION  : 'documentation';
 DEPRECATED  : 'deprecated';
+CHANNEL     : 'channel';
 ABSTRACT    : 'abstract';
 
 FROM        : 'from' { inSiddhi = true; inTableSqlQuery = true; inSiddhiInsertQuery = true; inSiddhiOutputRateLimit = true; } ;
