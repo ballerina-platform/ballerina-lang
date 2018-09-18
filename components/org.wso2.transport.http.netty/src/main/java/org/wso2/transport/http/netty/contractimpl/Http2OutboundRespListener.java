@@ -151,7 +151,7 @@ public class Http2OutboundRespListener implements HttpConnectorListener {
                         writer.writeOutboundResponse(outboundResponseMsg, httpContent);
                     } catch (Http2Exception ex) {
                         String errorMsg = "Failed to send the outbound response : " +
-                                          ex.getMessage().toLowerCase(Locale.ENGLISH);
+                                ex.getMessage().toLowerCase(Locale.ENGLISH);
                         LOG.error(errorMsg, ex);
                         inboundRequestMsg.getHttpOutboundRespStatusFuture().notifyHttpListener(ex);
                     }
@@ -200,8 +200,8 @@ public class Http2OutboundRespListener implements HttpConnectorListener {
             }
         }
 
-        void writeHttp2Headers(ChannelHandlerContext ctx, int streamId, Http2Headers http2Headers, boolean
-                endStream) throws Http2Exception {
+        private void writeHttp2Headers(ChannelHandlerContext ctx, int streamId, Http2Headers http2Headers,
+                                       boolean endStream) throws Http2Exception {
             ChannelFuture channelFuture = encoder.writeHeaders(
                     ctx, streamId, http2Headers, 0, endStream, ctx.newPromise());
             encoder.flowController().writePendingBytes();
@@ -220,7 +220,7 @@ public class Http2OutboundRespListener implements HttpConnectorListener {
             writeHttp2Headers(ctx, streamId, http2Headers, false);
         }
 
-        void writeData(HttpContent httpContent, boolean endStream) throws Http2Exception {
+        private void writeData(HttpContent httpContent, boolean endStream) throws Http2Exception {
             contentLength += httpContent.content().readableBytes();
             validatePromisedStreamState();
             ChannelFuture channelFuture = encoder.writeData(
@@ -234,7 +234,7 @@ public class Http2OutboundRespListener implements HttpConnectorListener {
             }
         }
 
-        void logAccessInfo(HttpCarbonMessage outboundResponseMsg) {
+        private void logAccessInfo(HttpCarbonMessage outboundResponseMsg) {
 
             if (!accessLogger.isEnabled(InternalLogLevel.INFO)) {
                 return;
@@ -300,4 +300,3 @@ public class Http2OutboundRespListener implements HttpConnectorListener {
         return conn.stream(streamId) != null;
     }
 }
-

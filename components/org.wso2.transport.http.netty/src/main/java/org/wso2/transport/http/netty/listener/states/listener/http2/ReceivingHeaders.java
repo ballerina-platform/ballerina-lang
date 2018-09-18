@@ -23,7 +23,6 @@ import io.netty.handler.codec.http2.Http2Exception;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.transport.http.netty.common.Constants;
-import org.wso2.transport.http.netty.contract.ServerConnectorException;
 import org.wso2.transport.http.netty.contractimpl.Http2OutboundRespListener.ResponseWriter;
 import org.wso2.transport.http.netty.listener.http2.Http2SourceHandler;
 import org.wso2.transport.http.netty.listener.states.Http2MessageStateContext;
@@ -70,13 +69,13 @@ public class ReceivingHeaders implements ListenerState {
             http2SourceHandler.streamIdRequestMap.put(streamId, sourceReqCMsg);   // storing to add HttpContent later
             http2SourceHandler.notifyRequestListener(sourceReqCMsg, streamId);
         }
+        http2MessageStateContext.setListenerState(
+                new ReceivingEntityBody(http2SourceHandler, http2MessageStateContext));
     }
 
     @Override
-    public void readInboundRequestBody(Http2DataFrame dataFrame) throws ServerConnectorException {
-        http2MessageStateContext.setListenerState(
-                new ReceivingEntityBody(http2SourceHandler, http2MessageStateContext));
-        http2MessageStateContext.getListenerState().readInboundRequestBody(dataFrame);
+    public void readInboundRequestBody(Http2DataFrame dataFrame) {
+        LOG.warn("readInboundRequestBody is not a dependant action of this state");
     }
 
     @Override

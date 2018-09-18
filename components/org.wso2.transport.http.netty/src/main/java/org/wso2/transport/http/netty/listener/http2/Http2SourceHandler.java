@@ -125,7 +125,6 @@ public final class Http2SourceHandler extends ChannelInboundHandlerAdapter {
 
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
-
         if (msg instanceof Http2HeadersFrame) {
             Http2HeadersFrame headersFrame = (Http2HeadersFrame) msg;
             Http2MessageStateContext http2MessageStateContext = new Http2MessageStateContext();
