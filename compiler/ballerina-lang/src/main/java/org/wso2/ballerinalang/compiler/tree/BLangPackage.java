@@ -36,11 +36,14 @@ import org.ballerinalang.util.diagnostic.Diagnostic;
 import org.wso2.ballerinalang.compiler.packaging.RepoHierarchy;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangLambdaFunction;
 import org.wso2.ballerinalang.compiler.util.diagnotic.BDiagnostic;
 
+import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.List;
+import java.util.Queue;
 import java.util.Set;
 
 /**
@@ -60,6 +63,7 @@ public class BLangPackage extends BLangNode implements PackageNode {
     public Set<CompilerPhase> completedPhases;
     public List<BSymbol> objAttachedFunctions;
     public List<TopLevelNode> topLevelNodes;
+    public Queue<BLangLambdaFunction> lambdaFunctions = new ArrayDeque<>();
 
     public PackageID packageID;
     public BPackageSymbol symbol;

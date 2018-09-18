@@ -231,10 +231,16 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         }
         SymbolEnv pkgEnv = this.symTable.pkgEnvMap.get(pkgNode.symbol);
 
-        pkgNode.topLevelNodes.stream().filter(pkgLevelNode -> pkgLevelNode.getKind() != NodeKind.FUNCTION)
+        pkgNode.topLevelNodes.stream().filter(pkgLevelNode -> !(pkgLevelNode.getKind() == NodeKind.FUNCTION
+                && ((BLangFunction) pkgLevelNode).flagSet.contains(Flag.LAMBDA)))
                 .forEach(topLevelNode -> analyzeDef((BLangNode) topLevelNode, pkgEnv));
 
-        analyzeFunctions(pkgNode.functions, pkgEnv);
+        while (pkgNode.lambdaFunctions.peek() != null) {
+            BLangLambdaFunction lambdaFunction = pkgNode.lambdaFunctions.poll();
+            BLangFunction function = lambdaFunction.function;
+            lambdaFunction.type = function.symbol.type;
+            analyzeDef(lambdaFunction.function, lambdaFunction.cachedEnv);
+        }
 
         pkgNode.typeDefinitions.forEach(this::validateConstructorAndCheckDefaultable);
 
@@ -243,16 +249,6 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         analyzeDef(pkgNode.stopFunction, pkgEnv);
 
         pkgNode.completedPhases.add(CompilerPhase.TYPE_CHECK);
-    }
-
-    private void analyzeFunctions(List<BLangFunction> functions, SymbolEnv pkgEnv) {
-        //reversing the order here to process lambdas last - needed for analysing closures
-        Collections.reverse(functions);
-        //if the isTypeChecked flag is set, then this is a lambda expression which is already analysed and type checked.
-        functions.stream()
-                .filter(func -> !func.isTypeChecked)
-                .forEach(func -> analyzeDef(func, pkgEnv));
-        Collections.reverse(functions);
     }
 
     public void visit(BLangXMLNS xmlnsNode) {

@@ -152,7 +152,6 @@ public class TypeChecker extends BLangNodeVisitor {
     private SymbolResolver symResolver;
     private Types types;
     private IterableAnalyzer iterableAnalyzer;
-    private SemanticAnalyzer semanticAnalyzer;
     private BLangDiagnosticLog dlog;
 
     private SymbolEnv env;
@@ -183,7 +182,6 @@ public class TypeChecker extends BLangNodeVisitor {
         this.symResolver = SymbolResolver.getInstance(context);
         this.types = Types.getInstance(context);
         this.iterableAnalyzer = IterableAnalyzer.getInstance(context);
-        this.semanticAnalyzer = SemanticAnalyzer.getInstance(context);
         this.dlog = BLangDiagnosticLog.getInstance(context);
     }
 
@@ -1006,11 +1004,10 @@ public class TypeChecker extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangLambdaFunction bLangLambdaFunction) {
-        //analysing the lambda function here in order to resolve and type check for closure scenarios.
-        BLangFunction lambdaFunction = bLangLambdaFunction.function;
-        bLangLambdaFunction.type = lambdaFunction.symbol.type;
-        semanticAnalyzer.analyzeDef(lambdaFunction, env);
-        lambdaFunction.isTypeChecked = true;
+        bLangLambdaFunction.type = bLangLambdaFunction.function.symbol.type;
+        // creating a copy of the env to visit the lambda function later
+        bLangLambdaFunction.cachedEnv = env.createClone();
+        env.enclPkg.lambdaFunctions.add(bLangLambdaFunction);
         resultType = types.checkType(bLangLambdaFunction, bLangLambdaFunction.type, expType);
     }
 
