@@ -19,7 +19,7 @@
 package org.ballerinalang.net.http;
 
 /**
- * Contains value for configuring content-compression.
+ * Contains states of content-compression.
  */
 public enum CompressionConfigState {
     AUTO,

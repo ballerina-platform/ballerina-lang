@@ -148,5 +148,4 @@ public class CorsHeaders {
         }
         return !valuesList.isEmpty() ? valuesList : null;
     }
-
 }
