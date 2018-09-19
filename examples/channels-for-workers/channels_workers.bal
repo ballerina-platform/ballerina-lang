@@ -6,15 +6,15 @@ public function main(string... args) {
 
     worker w1 {
         map key = {myKey:"abc123"};
-        io:println("W1 Waiting for a message...");
+        io:println("w1 Waiting for a message...");
         xml message;
         //Waiting to receive a message with key from xmlChn channel.
         message <- xmlChn, key;
-        io:println("W1 Received message: ", message);
-        io:println("W1 Waiting for a null key message...");
+        io:println("w1 Received message: ", message);
+        io:println("w1 Waiting for a null key message...");
         //Waiting to receive a message without key from xmlChn channel.
         message <- xmlChn;
-        io:println("W1 Received message: ", message);
+        io:println("w1 Received message: ", message);
     }
 
     worker w2 {
