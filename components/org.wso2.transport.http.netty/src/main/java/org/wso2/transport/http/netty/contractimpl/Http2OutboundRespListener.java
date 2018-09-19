@@ -37,7 +37,7 @@ import org.wso2.transport.http.netty.contractimpl.common.Constants;
 import org.wso2.transport.http.netty.contractimpl.common.Util;
 import org.wso2.transport.http.netty.contractimpl.listener.HttpServerChannelInitializer;
 import org.wso2.transport.http.netty.contractimpl.listener.states.Http2MessageStateContext;
-import org.wso2.transport.http.netty.contractimpl.listener.states.listener.http2.EntityBodyReceived;
+import org.wso2.transport.http.netty.contractimpl.listener.states.listener.http2.SendingHeaders;
 import org.wso2.transport.http.netty.message.Http2PushPromise;
 import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 
@@ -149,12 +149,9 @@ public class Http2OutboundRespListener implements HttpConnectorListener {
                 })));
     }
 
-    /**
-     * {@code ResponseWriter} is responsible for delivering outbound response messages to the client.
-     */
-    public class ResponseWriter {
+    private class ResponseWriter {
 
-        public int streamId;
+        private int streamId;
 
         ResponseWriter(int streamId) {
             this.streamId = streamId;
@@ -164,7 +161,8 @@ public class Http2OutboundRespListener implements HttpConnectorListener {
                 throws Http2Exception {
             if (http2MessageStateContext == null) {
                 http2MessageStateContext = new Http2MessageStateContext();
-                http2MessageStateContext.setListenerState(new EntityBodyReceived(http2MessageStateContext));
+                http2MessageStateContext.setListenerState(
+                        new SendingHeaders(Http2OutboundRespListener.this, http2MessageStateContext));
             }
             http2MessageStateContext.getListenerState().writeOutboundResponseBody(Http2OutboundRespListener.this,
                     outboundResponseMsg, httpContent, streamId);

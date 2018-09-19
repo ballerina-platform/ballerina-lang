@@ -55,7 +55,7 @@ public class SendingHeaders implements ListenerState {
     private final int originalStreamId;
     private final String serverName;
 
-    SendingHeaders(Http2OutboundRespListener http2OutboundRespListener,
+    public SendingHeaders(Http2OutboundRespListener http2OutboundRespListener,
                    Http2MessageStateContext http2MessageStateContext) {
         this.http2MessageStateContext = http2MessageStateContext;
         this.ctx = http2OutboundRespListener.getChannelHandlerContext();
@@ -91,8 +91,9 @@ public class SendingHeaders implements ListenerState {
     @Override
     public void writeOutboundResponseBody(Http2OutboundRespListener http2OutboundRespListener,
                                           HttpCarbonMessage outboundResponseMsg, HttpContent httpContent,
-                                          int streamId) {
-        LOG.warn("writeOutboundResponseBody is not a dependant action of this state");
+                                          int streamId) throws Http2Exception {
+        // When the initial frames of the response for the upgraded request is to be sent.
+        writeOutboundResponseHeaders(http2OutboundRespListener, outboundResponseMsg, httpContent, streamId);
     }
 
     private void writeHeaders(HttpCarbonMessage outboundResponseMsg, int streamId) throws Http2Exception {
