@@ -30,4 +30,9 @@ public class BLangTestablePackage extends BLangPackage {
     public NodeKind getKind() {
         return NodeKind.TESTABLE_PACKAGE;
     }
+
+    @Override
+    public void accept(BLangNodeVisitor visitor) {
+        visitor.visit(this);
+    }
 }

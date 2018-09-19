@@ -433,6 +433,9 @@ public class BTestRunner {
             });
             // print package test results
             tReport.printTestSuiteSummary(packageName);
+
+            // Call package stop and test stop function
+            suite.getInitFunction().invokeStopFunctions();
         });
     }
 

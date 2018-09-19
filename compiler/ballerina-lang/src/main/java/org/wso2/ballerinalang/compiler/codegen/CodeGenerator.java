@@ -389,9 +389,6 @@ public class CodeGenerator extends BLangNodeVisitor {
 
     private void genNode(BLangTestablePackage pkgNode) {
         genNode(pkgNode, this.symTable.pkgEnvMap.get(pkgNode.symbol));
-
-        // Add global variable indexes to the ProgramFile
-        // Create Global variable attribute info
         addGlobalVarIndex();
 
         pkgNode.symbol.packageFile = new PackageFile(getPackageBinaryContent(pkgNode));
@@ -424,15 +421,8 @@ public class CodeGenerator extends BLangNodeVisitor {
         if (pkgNode.completedPhases.contains(CompilerPhase.CODE_GEN)) {
             return;
         }
-
-        pkgNode.imports.forEach(impPkgNode -> {
-            int impPkgOrgNameCPIndex = addUTF8CPEntry(this.currentPkgInfo, impPkgNode.symbol.pkgID.orgName.value);
-            int impPkgNameCPIndex = addUTF8CPEntry(this.currentPkgInfo, impPkgNode.symbol.pkgID.name.value);
-            int impPkgVersionCPIndex = addUTF8CPEntry(this.currentPkgInfo, impPkgNode.symbol.pkgID.version.value);
-            ImportPackageInfo importPkgInfo =
-                    new ImportPackageInfo(impPkgOrgNameCPIndex, impPkgNameCPIndex, impPkgVersionCPIndex);
-            this.currentPkgInfo.importPkgInfoSet.add(importPkgInfo);
-        });
+        // Visit imports
+        visitImports(pkgNode);
 
         // Add the current package to the program file
         BPackageSymbol pkgSymbol = pkgNode.symbol;
@@ -446,48 +436,109 @@ public class CodeGenerator extends BLangNodeVisitor {
 
         // This attribute keep track of line numbers
         int lineNoAttrNameIndex = addUTF8CPEntry(currentPkgInfo,
-                AttributeInfo.Kind.LINE_NUMBER_TABLE_ATTRIBUTE.value());
+                                                 AttributeInfo.Kind.LINE_NUMBER_TABLE_ATTRIBUTE.value());
         lineNoAttrInfo = new LineNumberTableAttributeInfo(lineNoAttrNameIndex);
 
         // This attribute keep package-level variable information
-        int pkgVarAttrNameIndex = addUTF8CPEntry(currentPkgInfo,
-                AttributeInfo.Kind.LOCAL_VARIABLES_ATTRIBUTE.value());
+        int pkgVarAttrNameIndex = addUTF8CPEntry(currentPkgInfo, AttributeInfo.Kind.LOCAL_VARIABLES_ATTRIBUTE.value());
         currentPkgInfo.addAttributeInfo(AttributeInfo.Kind.LOCAL_VARIABLES_ATTRIBUTE,
                 new LocalVariableAttributeInfo(pkgVarAttrNameIndex));
 
+        // Visit top level constructs
+        visitTopLevelNodes(pkgNode);
+
+        // Visit the builtin functions
+        visitBuiltinFunctions(pkgNode.initFunction);
+        visitBuiltinFunctions(pkgNode.startFunction);
+        visitBuiltinFunctions(pkgNode.stopFunction);
+
+        // Gen for top level nodes
+        genTopLevelNodes(pkgNode);
+        // Add function symbol for all functions
+        addFunctionSymbol(pkgNode);
+
+        currentPkgInfo.addAttributeInfo(AttributeInfo.Kind.LINE_NUMBER_TABLE_ATTRIBUTE, lineNoAttrInfo);
+        currentPackageRefCPIndex = -1;
+        currentPkgID = null;
+        pkgNode.completedPhases.add(CompilerPhase.CODE_GEN);
+    }
+
+    public void visit(BLangTestablePackage pkgNode) {
+        if (pkgNode.completedPhases.contains(CompilerPhase.CODE_GEN)) {
+            return;
+        }
+        // Visit imports
+        visitImports(pkgNode);
+        // Visit top level constructs
+        visitTopLevelNodes(pkgNode);
+
+        // Visit builtin functions in testable package
+        visitBuiltinFunctions(pkgNode.testInitFunction);
+        visitBuiltinFunctions(pkgNode.testStartFunction);
+        visitBuiltinFunctions(pkgNode.testStopFunction);
+
+        // Gen for top level nodes
+        genTopLevelNodes(pkgNode);
+        // Add function symbol for all functions
+        addFunctionSymbol(pkgNode);
+
+        currentPkgInfo.addAttributeInfo(AttributeInfo.Kind.LINE_NUMBER_TABLE_ATTRIBUTE, lineNoAttrInfo);
+        currentPackageRefCPIndex = -1;
+        currentPkgID = null;
+        pkgNode.completedPhases.add(CompilerPhase.CODE_GEN);
+    }
+
+    /**
+     * Visit imports.
+     *
+     * @param pkgNode package node
+     */
+    private void visitImports(BLangPackage pkgNode) {
+        pkgNode.imports.forEach(impPkgNode -> {
+            int impPkgOrgNameCPIndex = addUTF8CPEntry(this.currentPkgInfo, impPkgNode.symbol.pkgID.orgName.value);
+            int impPkgNameCPIndex = addUTF8CPEntry(this.currentPkgInfo, impPkgNode.symbol.pkgID.name.value);
+            int impPkgVersionCPIndex = addUTF8CPEntry(this.currentPkgInfo, impPkgNode.symbol.pkgID.version.value);
+            ImportPackageInfo importPkgInfo =
+                    new ImportPackageInfo(impPkgOrgNameCPIndex, impPkgNameCPIndex, impPkgVersionCPIndex);
+            this.currentPkgInfo.importPkgInfoSet.add(importPkgInfo);
+        });
+    }
+
+    /**
+     * Add function symbol.
+     *
+     * @param pkgNode package node
+     */
+    private void addFunctionSymbol(BLangPackage pkgNode) {
+        pkgNode.functions.forEach(funcNode -> {
+            funcNode.symbol = funcNode.originalFuncSymbol;
+        });
+    }
+
+    /**
+     * Generate code for top level nodes.
+     *
+     * @param pkgNode package node
+     */
+    private void genTopLevelNodes(BLangPackage pkgNode) {
+        pkgNode.topLevelNodes.stream()
+                             .filter(pkgLevelNode -> pkgLevelNode.getKind() != NodeKind.VARIABLE &&
+                                     pkgLevelNode.getKind() != NodeKind.XMLNS)
+                             .forEach(pkgLevelNode -> genNode((BLangNode) pkgLevelNode, this.env));
+    }
+
+    /**
+     * Visit top level constructs.
+     *
+     * @param pkgNode package node
+     */
+    private void visitTopLevelNodes(BLangPackage pkgNode) {
         pkgNode.globalVars.forEach(this::createPackageVarInfo);
         pkgNode.typeDefinitions.forEach(this::createTypeDefinitionInfoEntry);
         pkgNode.annotations.forEach(this::createAnnotationInfoEntry);
         pkgNode.functions.forEach(this::createFunctionInfoEntry);
         pkgNode.services.forEach(this::createServiceInfoEntry);
         pkgNode.functions.forEach(this::createFunctionInfoEntry);
-
-        if (pkgNode.getKind() == NodeKind.PACKAGE) {
-            // Visit the builtin functions
-            visitBuiltinFunctions(pkgNode.initFunction);
-            visitBuiltinFunctions(pkgNode.startFunction);
-            visitBuiltinFunctions(pkgNode.stopFunction);
-        } else if (pkgNode.getKind() == NodeKind.TESTABLE_PACKAGE) {
-            // Visit package test init function
-            visitBuiltinFunctions(((BLangTestablePackage) pkgNode).testInitFunction);
-            visitBuiltinFunctions(((BLangTestablePackage) pkgNode).testStartFunction);
-            visitBuiltinFunctions(((BLangTestablePackage) pkgNode).testStopFunction);
-        }
-
-
-        pkgNode.topLevelNodes.stream()
-                .filter(pkgLevelNode -> pkgLevelNode.getKind() != NodeKind.VARIABLE &&
-                        pkgLevelNode.getKind() != NodeKind.XMLNS)
-                .forEach(pkgLevelNode -> genNode((BLangNode) pkgLevelNode, this.env));
-
-        pkgNode.functions.forEach(funcNode -> {
-            funcNode.symbol = funcNode.originalFuncSymbol;
-        });
-
-        currentPkgInfo.addAttributeInfo(AttributeInfo.Kind.LINE_NUMBER_TABLE_ATTRIBUTE, lineNoAttrInfo);
-        currentPackageRefCPIndex = -1;
-        currentPkgID = null;
-        pkgNode.completedPhases.add(CompilerPhase.CODE_GEN);
     }
 
     private void visitBuiltinFunctions(BLangFunction function) {

@@ -34,7 +34,6 @@ public class TesterinaReport {
     private static PrintStream outStream = System.out;
     private Map<String, TestSummary> testReportOfPackage = new HashMap<>();
     private boolean failure;
-    private PrintStream outStream = System.out;
 
     public void printTestSuiteSummary(String packageName) {
         TestSummary testSummary = testReportOfPackage.get(packageName);

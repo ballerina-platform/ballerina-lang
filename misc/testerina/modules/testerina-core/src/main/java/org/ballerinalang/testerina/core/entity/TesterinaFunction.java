@@ -83,17 +83,28 @@ public class TesterinaFunction {
 
     public BValue[] invoke() throws BallerinaException {
         if (this.type == Type.TEST_INIT) {
-             BLangFunctions.invokePackageInitFunctions(programFile);
-             BLangFunctions.invokePackageStartFunctions(programFile);
-
-             BLangFunctions.invokePackageTestInitFunctions(programFile);
-             BLangFunctions.invokePackageTestStartFunctions(programFile);
+            // Invoke init functions
+            BLangFunctions.invokePackageInitFunctions(programFile);
+            BLangFunctions.invokePackageTestInitFunctions(programFile);
+            // Invoke start functions
+            BLangFunctions.invokePackageStartFunctions(programFile);
+            BLangFunctions.invokePackageTestStartFunctions(programFile);
 
             TesterinaRegistry.getInstance().addInitializedPackage(programFile.getEntryPkgName());
-            return new BValue[] {};
+            return new BValue[]{};
         } else {
-            return invoke(new BValue[] {});
+            return invoke(new BValue[]{});
         }
+    }
+
+    /**
+     * Invoke package init and package stop functions.
+     *
+     * @throws BallerinaException exception is thrown
+     */
+    public void invokeStopFunctions() throws BallerinaException {
+        BLangFunctions.invokePackageStopFunctions(programFile);
+        BLangFunctions.invokePackageTestStopFunctions(programFile);
     }
 
     /**
