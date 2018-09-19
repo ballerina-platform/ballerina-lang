@@ -145,16 +145,15 @@ public class Compiler {
         List<BLangPackage> packages = pkgIdStream
                 .filter(p -> !SymbolTable.BUILTIN.equals(p))
                 .map((PackageID pkgId) -> this.pkgLoader.loadEntryPackage(pkgId, null, isBuild))
+                .filter(pkgNode -> pkgNode != null) // skip the packages that were not loaded properly
                 .collect(Collectors.toList());
 
         // 3) Invoke compiler phases. e.g. type_check, code_analyze, taint_analyze, desugar etc.
-        // Those phases are run only against the packages that were loaded correctly during the previous step.
-        List<BLangPackage> foundPackages = packages.stream()
-                .filter(pkgNode -> pkgNode != null && pkgNode.symbol != null)
-                .collect(Collectors.toList());
-
-        foundPackages.forEach(this.compilerDriver::compilePackage);
-        return foundPackages;
+        packages.stream()
+//                .filter(pkgNode -> !pkgNode.diagCollector.hasErrors())
+                .filter(pkgNode -> pkgNode.symbol != null)
+                .forEach(this.compilerDriver::compilePackage);
+        return packages;
     }
 
     private List<BLangPackage> compilePackages() {
@@ -174,7 +173,7 @@ public class Compiler {
         List<BLangPackage> compiledPackages = compilePackages(Stream.of(packageID), isBuild);
         // TODO: this should check for dlog.errorCount > 0. But currently some errors are
         // not getting added to dlog, hence cannot check for error count. Issue #10454.
-        if (compiledPackages.size() == 0) {
+        if (compiledPackages.isEmpty()) {
             throw new BLangCompilerException("compilation contains errors");
         }
         return compiledPackages.get(0);
