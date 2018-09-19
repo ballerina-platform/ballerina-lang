@@ -114,7 +114,7 @@ function checkVersion(homePath: string) : void {
 	}
 
 	exec(`${path.join(homePath, 'bin', 'ballerina')} version`, (err, stdout, stderr) => {
-		const platformVersion = stderr.toString().trim();
+		const platformVersion = stdout.toString().trim();
 		const extension = getExtension();
         const extensionVersion = 'Ballerina ' + (extension ? extension.packageJSON.version : '');
 
