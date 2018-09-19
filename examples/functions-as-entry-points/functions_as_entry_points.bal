@@ -3,8 +3,8 @@ import ballerina/io;
 error unknownOpError = { message: "unknown operation" };
 
 // A function named `main` acts as a default entry point to a Ballerina program.
-// This entry function could have zero or more parameters and could either have no
-// returns or could return an int.
+// This entry function can have zero or more parameters, and can either return
+// an int or can have no return value.
 public function main(string s, int i, int j) returns int {
     if (s == "add") {
         io:println("Operation: Addition");
