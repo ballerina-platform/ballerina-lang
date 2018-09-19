@@ -38,9 +38,9 @@ public class StreamJoiningTest {
 
     @BeforeClass
     public void setup() {
-        System.setProperty("enable.siddhiRuntime", "false");
+        System.setProperty("enable.siddhiRuntime", "true");
         result = BCompileUtil.compile("test-src/streaming/legacy/join-streaming-test.bal");
-    //    resultNegative = BCompileUtil.compile("test-src/streaming/negative/join-streaming-negative-test.bal");
+        resultNegative = BCompileUtil.compile("test-src/streaming/negative/join-streaming-negative-test.bal");
     }
 
     @Test(description = "Test streaming join query.")
@@ -53,7 +53,7 @@ public class StreamJoiningTest {
         Assert.assertEquals(outputStatusCountArray.length, 2, "Expected events are not received");
     }
 
-    @Test(description = "Test streaming join query with errors", enabled = false)
+    @Test(description = "Test streaming join query with errors")
     public void testJoinNegativeCases() {
         System.setProperty("enable.siddhiRuntime", "true");
         Assert.assertEquals(resultNegative.getErrorCount(), 3);
