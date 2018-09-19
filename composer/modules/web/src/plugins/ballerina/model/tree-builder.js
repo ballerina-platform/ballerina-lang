@@ -378,6 +378,13 @@ class TreeBuilder {
 
             if (node.typeNode.kind === 'ObjectType') {
                 node.isObjectType = true;
+                if (node.ws) {
+                    for (let i = 0; i < node.ws.length; i++) {
+                        if (node.ws[i].text === "abstract") {
+                            node.isAbstractKeywordAvailable = true;
+                        }
+                    }
+                }
             }
 
             if (node.typeNode.kind === 'RecordType') {

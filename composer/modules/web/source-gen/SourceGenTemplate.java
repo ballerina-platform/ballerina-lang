@@ -623,6 +623,14 @@ public class SourceGen {
 
             if (node.getAsJsonObject("typeNode").get("kind").getAsString().equals("ObjectType")) {
                 node.addProperty("isObjectType", true);
+                if (node.has("ws")) {
+                    JsonArray typeDefWS = node.getAsJsonArray("ws");
+                    for (int i = 0; i < typeDefWS.size(); i++) {
+                        if (typeDefWS.get(i).getAsJsonObject().get("text").getAsString().equals("abstract")) {
+                            node.addProperty("isAbstractKeywordAvailable", true);
+                        }
+                    }
+                }
             }
 
             if (node.getAsJsonObject("typeNode").get("kind").getAsString().equals("RecordType")) {
