@@ -21,10 +21,10 @@ package org.ballerinalang.testerina.core.entity;
 import org.ballerinalang.util.codegen.FunctionInfo;
 import org.ballerinalang.util.codegen.ProgramFile;
 
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
+import java.util.LinkedHashSet;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * Entity class to hold a test suite.
@@ -35,51 +35,17 @@ public class TestSuite {
     private String suiteName;
     private String sourceFileName;
     private TesterinaFunction initFunction;
-    private List<Test> tests = new ArrayList<>();
+    private Set<Test> tests = new LinkedHashSet<>();
     private ProgramFile programFile;
-    private List<String> beforeSuiteFunctionNames = new ArrayList<>();
-    private List<String> afterSuiteFunctionNames = new ArrayList<>();
-
-    public List<String> getBeforeSuiteFunctionNames() {
-        return beforeSuiteFunctionNames;
-    }
-
-    public void setBeforeSuiteFunctionNames(List<String> beforeSuiteFunctionNames) {
-        this.beforeSuiteFunctionNames = beforeSuiteFunctionNames;
-    }
-
-    public List<String> getAfterSuiteFunctionNames() {
-        return afterSuiteFunctionNames;
-    }
-
-    public void setAfterSuiteFunctionNames(List<String> afterSuiteFunctionNames) {
-        this.afterSuiteFunctionNames = afterSuiteFunctionNames;
-    }
-
-    public List<String> getBeforeEachFunctionNames() {
-        return beforeEachFunctionNames;
-    }
-
-    public void setBeforeEachFunctionNames(List<String> beforeEachFunctionNames) {
-        this.beforeEachFunctionNames = beforeEachFunctionNames;
-    }
-
-    public List<String> getAfterEachFunctionNames() {
-        return afterEachFunctionNames;
-    }
-
-    public void setAfterEachFunctionNames(List<String> afterEachFunctionNames) {
-        this.afterEachFunctionNames = afterEachFunctionNames;
-    }
-
-    private List<String> beforeEachFunctionNames = new ArrayList<>();
-    private List<String> afterEachFunctionNames = new ArrayList<>();
-    private List<TesterinaFunction> beforeSuiteFunctions = new ArrayList<>();
-    private List<TesterinaFunction> afterSuiteFunctions = new ArrayList<>();
-    private List<TesterinaFunction> testUtilityFunctions = new ArrayList<>();
-    private List<TesterinaFunction> beforeEachFunctions = new ArrayList<>();
-    private List<TesterinaFunction> afterEachFunctions = new ArrayList<>();
-
+    private Set<String> beforeSuiteFunctionNames = new LinkedHashSet<>();
+    private Set<String> afterSuiteFunctionNames = new LinkedHashSet<>();
+    private Set<String> beforeEachFunctionNames = new LinkedHashSet<>();
+    private Set<String> afterEachFunctionNames = new LinkedHashSet<>();
+    private Set<TesterinaFunction> beforeSuiteFunctions = new LinkedHashSet<>();
+    private Set<TesterinaFunction> afterSuiteFunctions = new LinkedHashSet<>();
+    private Set<TesterinaFunction> testUtilityFunctions = new LinkedHashSet<>();
+    private Set<TesterinaFunction> beforeEachFunctions = new LinkedHashSet<>();
+    private Set<TesterinaFunction> afterEachFunctions = new LinkedHashSet<>();
     /**
      * Key - unique identifier for the function to be mocked.
      * Value - name of the mock function
@@ -90,84 +56,81 @@ public class TestSuite {
      * Value - a @{@link TesterinaFunction} mock function.
      */
     private Map<String, TesterinaFunction> mockFunctionsMap = new HashMap<>();
-
     /**
      * Key - unique identifier for the function to be mocked.
      * Value - real function.
      */
     private Map<String, FunctionInfo> mockedRealFunctionsMap = new HashMap<>();
 
-    public Map<String, FunctionInfo> getMockedRealFunctionsMap() {
-        return mockedRealFunctionsMap;
-    }
-    public Map<String, String> getMockFunctionNamesMap() {
-        return mockFunctionNamesMap;
-    }
-
-    public void setMockFunctionNamesMap(Map<String, String> mockFunctionNamesMap) {
-        this.mockFunctionNamesMap = mockFunctionNamesMap;
-    }
-
-    public Map<String, TesterinaFunction> getMockFunctionsMap() {
-        return mockFunctionsMap;
-    }
-
-    public void setMockFunctionsMap(Map<String, TesterinaFunction> mockFunctionsMap) {
-        this.mockFunctionsMap = mockFunctionsMap;
-    }
-
     public TestSuite(String suiteName) {
         this.suiteName = suiteName;
-    }
-
-    public ProgramFile getProgramFile() {
-        return programFile;
-    }
-
-    public TesterinaFunction getInitFunction() {
-        return initFunction;
-    }
-    public void setInitFunction(TesterinaFunction initFunction) {
-        this.initFunction = initFunction;
-    }
-
-    public List<TesterinaFunction> getTestUtilityFunctions() {
-        return testUtilityFunctions;
-    }
-
-    public void setTestUtilityFunctions(List<TesterinaFunction> testUtilityFunctions) {
-        this.testUtilityFunctions = testUtilityFunctions;
-    }
-
-    public void setBeforeEachFunctions(List<TesterinaFunction> beforeEachFunctions) {
-        this.beforeEachFunctions = beforeEachFunctions;
-    }
-
-    public void setAfterEachFunctions(List<TesterinaFunction> afterEachFunctions) {
-        this.afterEachFunctions = afterEachFunctions;
-    }
-
-    public List<TesterinaFunction> getBeforeEachFunctions() {
-        return beforeEachFunctions;
-    }
-
-    public List<TesterinaFunction> getAfterEachFunctions() {
-        return afterEachFunctions;
     }
 
     public String getSuiteName() {
         return suiteName;
     }
 
-    public void setSuiteName(String suiteName) {
-        this.suiteName = suiteName;
+    public Set<String> getBeforeSuiteFunctionNames() {
+        return beforeSuiteFunctionNames;
     }
 
-    public List<Test> getTests() {
+    public Set<String> getAfterSuiteFunctionNames() {
+        return afterSuiteFunctionNames;
+    }
+
+    public Set<String> getBeforeEachFunctionNames() {
+        return beforeEachFunctionNames;
+    }
+
+    public Set<String> getAfterEachFunctionNames() {
+        return afterEachFunctionNames;
+    }
+
+    public Map<String, FunctionInfo> getMockedRealFunctionsMap() {
+        return mockedRealFunctionsMap;
+    }
+
+    public Map<String, String> getMockFunctionNamesMap() {
+        return mockFunctionNamesMap;
+    }
+
+    public Map<String, TesterinaFunction> getMockFunctionsMap() {
+        return mockFunctionsMap;
+    }
+
+    public ProgramFile getProgramFile() {
+        return programFile;
+    }
+
+    public void setProgramFile(ProgramFile programFile) {
+        this.programFile = programFile;
+    }
+
+    public TesterinaFunction getInitFunction() {
+        return initFunction;
+    }
+
+    public void setInitFunction(TesterinaFunction initFunction) {
+        this.initFunction = initFunction;
+    }
+
+    public Set<TesterinaFunction> getTestUtilityFunctions() {
+        return testUtilityFunctions;
+    }
+
+    public Set<TesterinaFunction> getBeforeEachFunctions() {
+        return beforeEachFunctions;
+    }
+
+    public Set<TesterinaFunction> getAfterEachFunctions() {
+        return afterEachFunctions;
+    }
+
+    public Set<Test> getTests() {
         return tests;
     }
 
-    public void setTests(List<Test> tests) {
+    public void setTests(Set<Test> tests) {
         this.tests = tests;
     }
 
@@ -175,12 +138,8 @@ public class TestSuite {
         this.tests.add(tests);
     }
 
-    public List<TesterinaFunction> getBeforeSuiteFunctions() {
+    public Set<TesterinaFunction> getBeforeSuiteFunctions() {
         return beforeSuiteFunctions;
-    }
-
-    public void setBeforeSuiteFunctions(List<TesterinaFunction> beforeSuiteFunctions) {
-        this.beforeSuiteFunctions = beforeSuiteFunctions;
     }
 
     public void addBeforeSuiteFunction(String function) {
@@ -231,16 +190,8 @@ public class TestSuite {
         this.afterEachFunctions.add(function);
     }
 
-    public List<TesterinaFunction> getAfterSuiteFunctions() {
+    public Set<TesterinaFunction> getAfterSuiteFunctions() {
         return afterSuiteFunctions;
-    }
-
-    public void setAfterSuiteFunctions(List<TesterinaFunction> afterSuiteFunctions) {
-        this.afterSuiteFunctions = afterSuiteFunctions;
-    }
-
-    public void setProgramFile(ProgramFile programFile) {
-        this.programFile = programFile;
     }
 
     public String getSourceFileName() {

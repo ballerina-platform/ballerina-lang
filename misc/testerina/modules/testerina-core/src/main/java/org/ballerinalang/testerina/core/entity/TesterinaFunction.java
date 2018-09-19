@@ -28,6 +28,7 @@ import org.ballerinalang.util.program.BLangFunctions;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * TesterinaFunction entity class.
@@ -156,5 +157,22 @@ public class TesterinaFunction {
             debugger.init();
             debugger.waitTillDebuggeeResponds();
         }
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (o == this) {
+            return true;
+        }
+        if (!(o instanceof TesterinaFunction)) {
+            return false;
+        }
+        TesterinaFunction c = (TesterinaFunction) o;
+        return Objects.equals(c.name, name);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(name, type, bFunction);
     }
 }

@@ -41,10 +41,12 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Queue;
+import java.util.Set;
 import java.util.Vector;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
@@ -254,9 +256,9 @@ public class TestAnnotationProcessor extends AbstractCompilerPlugin {
             suite.addTestUtilityFunction(new TesterinaFunction(programFile, functionInfo, TesterinaFunction.Type.UTIL));
         });
         resolveFunctions(suite);
-        int[] testExecutionOrder = checkCyclicDependencies(suite.getTests());
-        List<Test> sortedTests = orderTests(suite.getTests(), testExecutionOrder);
-        suite.setTests(sortedTests);
+        ArrayList<Test> tests = new ArrayList<>(suite.getTests());
+        int[] testExecutionOrder = checkCyclicDependencies(tests);
+        suite.setTests(orderTests(tests, testExecutionOrder));
         suite.setProgramFile(programFile);
     }
 
@@ -320,8 +322,8 @@ public class TestAnnotationProcessor extends AbstractCompilerPlugin {
         });
     }
 
-    private static List<Test> orderTests(List<Test> tests, int[] testExecutionOrder) {
-        List<Test> sortedTests = new ArrayList<>();
+    private static Set<Test> orderTests(List<Test> tests, int[] testExecutionOrder) {
+        Set<Test> sortedTests = new LinkedHashSet<>();
 //        outStream.println("Test execution order: ");
         for (int idx : testExecutionOrder) {
             sortedTests.add(tests.get(idx));
@@ -337,8 +339,8 @@ public class TestAnnotationProcessor extends AbstractCompilerPlugin {
      * @param suite {@link TestSuite} whose functions to be resolved.
      */
     private static void resolveFunctions(TestSuite suite) {
-        List<TesterinaFunction> functions = suite.getTestUtilityFunctions();
-        List<String> functionNames = functions.stream().map(testerinaFunction -> testerinaFunction.getName()).collect
+        Set<TesterinaFunction> functions = suite.getTestUtilityFunctions();
+        List<String> functionNames = functions.stream().map(TesterinaFunction::getName).collect
                 (Collectors.toList());
         for (Test test : suite.getTests()) {
             if (test.getTestName() != null && functionNames.contains(test.getTestName())) {
