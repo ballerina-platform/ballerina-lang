@@ -24,14 +24,16 @@ public type OutputProcess object {
     public function process(StreamEvent[] streamEvents) {
         int index = 0;
         foreach event in streamEvents {
-            map outputData;
-            foreach k, v in event.data {
-                string[] s = k.split("\\.");
-                if (OUTPUT.equalsIgnoreCase(s[0])) {
-                    outputData[s[1]] = v;
+            if (event.eventType == "CURRENT") {
+                map outputData;
+                foreach k, v in event.data {
+                    string[] s = k.split("\\.");
+                    if (OUTPUT.equalsIgnoreCase(s[0])) {
+                        outputData[s[1]] = v;
+                    }
                 }
+                outputFunc(outputData);
             }
-            outputFunc(outputData);
         }
     }
 };
