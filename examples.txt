@@ -92,7 +92,7 @@ HTTP 2.0 Server Push
 HTTP 1.1 To 2.0 Protocol Switch
 Log API
 Function Pointers
-Lambda
+Anonymous Functions
 Closures
 WebSocket Basic Sample
 WebSocket Chat Application
