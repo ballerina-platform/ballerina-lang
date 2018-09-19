@@ -58,9 +58,13 @@ import static org.ballerinalang.net.grpc.GrpcConstants.PROTOCOL_PACKAGE_GRPC;
 import static org.ballerinalang.net.grpc.GrpcConstants.PROTOCOL_STRUCT_PACKAGE_GRPC;
 import static org.ballerinalang.net.http.HttpConstants.ENABLE;
 import static org.ballerinalang.net.http.HttpConstants.ENABLED_PROTOCOLS;
+import static org.ballerinalang.net.http.HttpConstants.ENDPOINT_CONFIG_CERTIFICATE;
+import static org.ballerinalang.net.http.HttpConstants.ENDPOINT_CONFIG_KEY;
+import static org.ballerinalang.net.http.HttpConstants.ENDPOINT_CONFIG_KEY_PASSWORD;
 import static org.ballerinalang.net.http.HttpConstants.ENDPOINT_CONFIG_KEY_STORE;
 import static org.ballerinalang.net.http.HttpConstants.ENDPOINT_CONFIG_OCSP_STAPLING;
 import static org.ballerinalang.net.http.HttpConstants.ENDPOINT_CONFIG_PROTOCOLS;
+import static org.ballerinalang.net.http.HttpConstants.ENDPOINT_CONFIG_TRUST_CERTIFICATES;
 import static org.ballerinalang.net.http.HttpConstants.ENDPOINT_CONFIG_TRUST_STORE;
 import static org.ballerinalang.net.http.HttpConstants.ENDPOINT_CONFIG_VALIDATE_CERT;
 import static org.ballerinalang.net.http.HttpConstants.FILE_PATH;
@@ -136,10 +140,10 @@ public class Init extends BlockingNativeCallableUnit {
             Struct keyStore = secureSocket.getStructField(ENDPOINT_CONFIG_KEY_STORE);
             Struct protocols = secureSocket.getStructField(ENDPOINT_CONFIG_PROTOCOLS);
             Struct validateCert = secureSocket.getStructField(ENDPOINT_CONFIG_VALIDATE_CERT);
-            String keyFile = secureSocket.getStringField(HttpConstants.ENDPOINT_CONFIG_KEY);
-            String certFile = secureSocket.getStringField(HttpConstants.ENDPOINT_CONFIG_CERTIFICATE);
-            String trustCerts = secureSocket.getStringField(HttpConstants.ENDPOINT_CONFIG_TRUST_CERTIFICATES);
-            String keyPassword = secureSocket.getStringField(HttpConstants.ENDPOINT_CONFIG_KEY_PASSWORD);
+            String keyFile = secureSocket.getStringField(ENDPOINT_CONFIG_KEY);
+            String certFile = secureSocket.getStringField(ENDPOINT_CONFIG_CERTIFICATE);
+            String trustCerts = secureSocket.getStringField(ENDPOINT_CONFIG_TRUST_CERTIFICATES);
+            String keyPassword = secureSocket.getStringField(ENDPOINT_CONFIG_KEY_PASSWORD);
             List<Parameter> clientParams = new ArrayList<>();
             if (trustStore != null && StringUtils.isNotBlank(trustCerts)) {
                 throw new BallerinaException("Cannot configure both trustStore and trustCerts at the same time.");
