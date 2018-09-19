@@ -34,7 +34,7 @@ import org.testng.annotations.Test;
  *
  * @since 0.980.0
  */
-public class NativeBallerinaStreamsAggregationWithGroupByTest {
+public class BallerinaStreamsV2AggregationWithGroupByTest {
 
     private CompileResult result;
 
@@ -47,7 +47,6 @@ public class NativeBallerinaStreamsAggregationWithGroupByTest {
     @Test(description = "Test streaming query with aggregation and group by.")
     public void testFilterQuery() {
         BValue[] outputEvents = BRunUtil.invoke(result, "startAggregationQuery");
-        System.setProperty("enable.siddhiRuntime", "true");
         Assert.assertNotNull(outputEvents);
 
         Assert.assertEquals(outputEvents.length, 5, "Expected events are not received");
