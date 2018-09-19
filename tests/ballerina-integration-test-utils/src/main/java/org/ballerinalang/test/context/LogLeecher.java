@@ -53,10 +53,10 @@ public class LogLeecher {
     /**
      * Feed a log line to check if it matches the expected text.
      *
-     * @param logLIne The log line which was read
+     * @param logLine The log line which was read
      */
-    void feedLine(String logLIne) {
-        if (text.contains(logLIne)) {
+    void feedLine(String logLine) {
+        if (text.contains(logLine)) {
             textFound = true;
 
             synchronized (this) {

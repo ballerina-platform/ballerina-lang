@@ -56,6 +56,11 @@
       "insertText":"float"
     },
     {
+      "label":"testEmptyObject",
+      "detail":"BType",
+      "insertText":"testEmptyObject"
+    },
+    {
       "label":"null",
       "detail":"BType",
       "insertText":"null"
@@ -94,18 +99,6 @@
       "label":"boolean",
       "detail":"BType",
       "insertText":"boolean"
-    },
-    {
-      "label":"public",
-      "detail":"Snippet",
-      "insertText":"public {\n\t${1}\n}",
-      "insertTextFormat":"Snippet"
-    },
-    {
-      "label":"private",
-      "detail":"Snippet",
-      "insertText":"private {\n\t${1}\n}",
-      "insertTextFormat":"Snippet"
     }
   ]
 }

@@ -16,7 +16,8 @@
       "label":"var",
       "detail":"Keyword",
       "sortText":"210",
-      "insertText":"var "
+      "insertText":"var ",
+      "insertTextFormat":"Snippet"
     },
     {
       "label":"foreach",
@@ -92,15 +93,21 @@
       "label":"wrply   Worker Reply Statement",
       "detail":"Statement",
       "sortText":"200",
-      "insertText":"${1} \u003c- ${2};",
+      "insertText":"${1:var1} \u003c- ${2:w1};",
       "insertTextFormat":"Snippet"
     },
     {
       "label":"wtrg   Worker Trigger Statement",
       "detail":"Statement",
       "sortText":"200",
-      "insertText":"${1} -\u003e ${2};",
+      "insertText":"${1:var1} -\u003e ${2:w1};",
       "insertTextFormat":"Snippet"
+    },
+    {
+      "label":"channel",
+      "detail":"BType",
+      "sortText":"170",
+      "insertText":"channel"
     },
     {
       "label":"xml",
@@ -133,6 +140,21 @@
       "detail":"BType",
       "sortText":"170",
       "insertText":"byte"
+    },
+    {
+      "label":"testDB",
+      "kind":"Unit",
+      "detail":"ballerina/jdbc:Client",
+      "sortText":"110",
+      "insertText":"testDB"
+    },
+    {
+      "label":"onAbortFunction(string transactionId)",
+      "kind":"Function",
+      "detail":"Function",
+      "sortText":"120",
+      "insertText":"onAbortFunction(${1:transactionId})",
+      "insertTextFormat":"Snippet"
     },
     {
       "label":"queryTableWithoutJoinClause(string sqlQuery, table fromTable, any parameters, any retType)(table)",
@@ -169,6 +191,14 @@
       "insertText":"table"
     },
     {
+      "label":"onCommitFunction(string transactionId)",
+      "kind":"Function",
+      "detail":"Function",
+      "sortText":"120",
+      "insertText":"onCommitFunction(${1:transactionId})",
+      "insertTextFormat":"Snippet"
+    },
+    {
       "label":"a",
       "kind":"Unit",
       "detail":"int",
@@ -195,10 +225,26 @@
       "insertText":"typedesc"
     },
     {
+      "label":"transactionFunc()",
+      "kind":"Function",
+      "detail":"Function",
+      "sortText":"120",
+      "insertText":"transactionFunc()",
+      "insertTextFormat":"Snippet"
+    },
+    {
       "label":"float",
       "detail":"BType",
       "sortText":"170",
       "insertText":"float"
+    },
+    {
+      "label":"divideNumbers(int a, int b)(int|error)",
+      "kind":"Function",
+      "detail":"Function",
+      "sortText":"120",
+      "insertText":"divideNumbers(${1:a}, ${2:b})",
+      "insertTextFormat":"Snippet"
     },
     {
       "label":"null",
@@ -219,6 +265,12 @@
       "insertText":"string"
     },
     {
+      "label":"jdbc",
+      "detail":"BType",
+      "sortText":"170",
+      "insertText":"jdbc"
+    },
+    {
       "label":"error",
       "detail":"BType",
       "sortText":"170",
@@ -236,6 +288,14 @@
       "detail":"int",
       "sortText":"110",
       "insertText":"checkValue"
+    },
+    {
+      "label":"functionForkJoin()",
+      "kind":"Function",
+      "detail":"Function",
+      "sortText":"120",
+      "insertText":"functionForkJoin()",
+      "insertTextFormat":"Snippet"
     },
     {
       "label":"any",

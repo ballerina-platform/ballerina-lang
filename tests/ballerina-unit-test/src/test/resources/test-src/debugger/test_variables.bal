@@ -1,6 +1,9 @@
 int gInt = 5;
 string gStr = "str";
 boolean gBool = true;
+string gNewStr = callFunc();
+json gJson = null;
+Person gPerson = new;
 byte gByte = 255;
 
 public function main(string... args) {
@@ -22,3 +25,9 @@ type Person object {
     public Person? parent,
     private string email = "default@abc.com",
 };
+
+function callFunc() returns (string) {
+    string newStr = "ABCDEFG";
+    newStr = newStr + " HIJ";
+    return newStr;
+}

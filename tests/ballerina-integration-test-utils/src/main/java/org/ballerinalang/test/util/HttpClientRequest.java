@@ -17,6 +17,9 @@
 */
 package org.ballerinalang.test.util;
 
+import io.netty.handler.codec.http.HttpHeaderNames;
+import io.netty.handler.codec.http.HttpHeaderValues;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -310,5 +313,52 @@ public class HttpClientRequest {
     @FunctionalInterface
     public interface CheckedFunction<T, R> {
         R apply(T t) throws IOException;
+    }
+
+    /**
+     * Sends multipart/form-data requests.
+     *
+     * @param requestUrl - The URL of the service
+     * @param headers    - http request header map
+     * @param formData   - map of form data
+     * @return - HttpResponse from the end point
+     * @throws IOException If an error occurs while sending the GET request
+     */
+    public static HttpResponse doMultipartFormData(String requestUrl, Map<String, String> headers,
+                                                   Map<String, String> formData) throws IOException {
+        String boundary = "---" + System.currentTimeMillis() + "---";
+        String lineFeed = "\r\n";
+        HttpURLConnection urlConnection = null;
+
+        try {
+            urlConnection = getURLConnection(requestUrl);
+            setHeadersAndMethod(urlConnection, headers, TestConstant.HTTP_METHOD_POST);
+            urlConnection.setUseCaches(false);
+            urlConnection.setDoInput(true);
+            urlConnection.setRequestProperty(HttpHeaderNames.CONTENT_TYPE.toString(),
+                                             HttpHeaderValues.MULTIPART_FORM_DATA + "; boundary=" + boundary);
+
+            try (OutputStream out = urlConnection.getOutputStream()) {
+                Writer writer = new OutputStreamWriter(out, TestConstant.CHARSET_NAME);
+                for (Map.Entry<String, String> data : formData.entrySet()) {
+                    writer.append("--" + boundary).append(lineFeed);
+                    writer.append("Content-Disposition: form-data; name=\"" + data.getKey() + "\"")
+                            .append(lineFeed);
+                    writer.append(HttpHeaderNames.CONTENT_TYPE.toString() + ":" + HttpHeaderValues.TEXT_PLAIN +
+                                          "; charset=" + TestConstant.CHARSET_NAME).append(lineFeed);
+                    writer.append(lineFeed);
+                    writer.append(data.getValue()).append(lineFeed);
+                    writer.flush();
+                }
+                writer.append(lineFeed).flush();
+                writer.append("--" + boundary + "--").append(lineFeed);
+                writer.close();
+            }
+            return buildResponse(urlConnection);
+        } finally {
+            if (urlConnection != null) {
+                urlConnection.disconnect();
+            }
+        }
     }
 }
