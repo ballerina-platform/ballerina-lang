@@ -35,7 +35,6 @@ import static org.ballerinalang.net.http.HttpConstants.ANN_NAME_INTERRUPTIBLE;
 import static org.ballerinalang.net.http.HttpConstants.ANN_NAME_RESOURCE_CONFIG;
 import static org.ballerinalang.net.http.HttpConstants.HTTP_PACKAGE_PATH;
 import static org.ballerinalang.net.http.HttpConstants.PACKAGE_BALLERINA_BUILTIN;
-import static org.ballerinalang.net.http.HttpUtil.getAsStringList;
 
 /**
  * {@code HttpResource} This is the http wrapper for the {@code Resource} implementation.
@@ -226,6 +225,17 @@ public class HttpResource {
     private static boolean hasInterruptibleAnnotation(Resource resource) {
         List<Annotation> annotationList = resource.getAnnotationList(PACKAGE_BALLERINA_BUILTIN, ANN_NAME_INTERRUPTIBLE);
         return annotationList != null && !annotationList.isEmpty();
+    }
+
+    private static List<String> getAsStringList(Value[] values) {
+        if (values == null) {
+            return null;
+        }
+        List<String> valuesList = new ArrayList<>();
+        for (Value val : values) {
+            valuesList.add(val.getStringValue().trim());
+        }
+        return !valuesList.isEmpty() ? valuesList : null;
     }
 
     private static void processResourceCors(HttpResource resource, HttpService service) {

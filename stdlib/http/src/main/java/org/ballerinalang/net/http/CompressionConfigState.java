@@ -21,8 +21,9 @@ package org.ballerinalang.net.http;
 /**
  * Contains value for configuring content-compression.
  */
-public enum CompressionConfig {
+public enum CompressionConfigState {
     AUTO,
     ALWAYS,
     NEVER
 }
+

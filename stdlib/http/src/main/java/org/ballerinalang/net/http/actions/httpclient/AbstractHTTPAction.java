@@ -36,7 +36,7 @@ import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BRefValueArray;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.net.http.CompressionConfig;
+import org.ballerinalang.net.http.CompressionConfigState;
 import org.ballerinalang.net.http.DataContext;
 import org.ballerinalang.net.http.HttpConstants;
 import org.ballerinalang.net.http.HttpUtil;
@@ -65,11 +65,13 @@ import java.net.URL;
 import java.util.Optional;
 
 import static org.ballerinalang.mime.util.MimeConstants.REQUEST_ENTITY_FIELD;
+import static org.ballerinalang.net.http.HttpConstants.ANN_CONFIG_ATTR_COMPRESSION_ENABLE;
 import static org.ballerinalang.net.http.HttpConstants.CLIENT_ENDPOINT_SERVICE_URI;
 import static org.ballerinalang.net.http.HttpConstants.HTTP_PACKAGE_PATH;
 import static org.ballerinalang.net.http.HttpConstants.HTTP_STATUS_CODE;
 import static org.ballerinalang.net.http.HttpConstants.REQUEST;
 import static org.ballerinalang.net.http.HttpUtil.extractEntity;
+import static org.ballerinalang.net.http.HttpUtil.getCompressionState;
 import static org.ballerinalang.runtime.Constants.BALLERINA_VERSION;
 import static org.wso2.transport.http.netty.common.Constants.ENCODING_DEFLATE;
 import static org.wso2.transport.http.netty.common.Constants.ENCODING_GZIP;
@@ -86,6 +88,7 @@ public abstract class AbstractHTTPAction implements InterruptibleNativeCallableU
     static {
         CACHE_BALLERINA_VERSION = System.getProperty(BALLERINA_VERSION);
     }
+
     @Override
     public boolean persistBeforeOperation() {
         return false;
@@ -114,39 +117,25 @@ public abstract class AbstractHTTPAction implements InterruptibleNativeCallableU
         HttpUtil.checkEntityAvailability(context, requestStruct);
         HttpUtil.enrichOutboundMessage(requestMsg, requestStruct);
         prepareOutboundRequest(context, bConnector, path, requestMsg);
-        handleAcceptEncodingHeader(requestMsg, getAcceptEncodingConfigFromEndpointConfig(bConnector));
+        handleAcceptEncodingHeader(requestMsg, getCompressionConfigFromEndpointConfig(bConnector));
         return requestMsg;
     }
 
-    String getAcceptEncodingConfigFromEndpointConfig(BMap<String, BValue> httpClientStruct) {
+    Struct getCompressionConfigFromEndpointConfig(BMap<String, BValue> httpClientStruct) {
         Struct clientEndpointConfig = BLangConnectorSPIUtil.toStruct(httpClientStruct);
         Struct epConfig = (Struct) clientEndpointConfig.getNativeData(HttpConstants.CLIENT_ENDPOINT_CONFIG);
-        if (epConfig == null) {
-            return HttpConstants.AUTO;
-        }
-        return epConfig.getRefField(HttpConstants.ANN_CONFIG_ATTR_COMPRESSION).getStringValue();
+        return epConfig.getStructField(HttpConstants.ANN_CONFIG_ATTR_COMPRESSION);
     }
 
-    protected static CompressionConfig getAcceptEncodingConfig(String acceptEncodingConfig) {
-        if (HttpConstants.AUTO.equalsIgnoreCase(acceptEncodingConfig)) {
-            return CompressionConfig.AUTO;
-        } else if (HttpConstants.ALWAYS.equalsIgnoreCase(acceptEncodingConfig)) {
-            return CompressionConfig.ALWAYS;
-        } else if (HttpConstants.NEVER.equalsIgnoreCase(acceptEncodingConfig)) {
-            return CompressionConfig.NEVER;
-        } else {
-            throw new BallerinaConnectorException(
-                    "Invalid configuration found for content compression: " + acceptEncodingConfig);
-        }
-    }
+    void handleAcceptEncodingHeader(HttpCarbonMessage outboundRequest, Struct compressionConfig) {
+        CompressionConfigState compressionState = getCompressionState(
+                compressionConfig.getStringField(ANN_CONFIG_ATTR_COMPRESSION_ENABLE));
 
-    void handleAcceptEncodingHeader(HttpCarbonMessage outboundRequest, String acceptEncodingConfigValue) {
-        CompressionConfig acceptEncodingConfig = getAcceptEncodingConfig(acceptEncodingConfigValue);
-        if (acceptEncodingConfig == CompressionConfig.ALWAYS && (
+        if (compressionState == CompressionConfigState.ALWAYS && (
                 outboundRequest.getHeader(HttpHeaderNames.ACCEPT_ENCODING.toString()) == null)) {
             outboundRequest
                     .setHeader(HttpHeaderNames.ACCEPT_ENCODING.toString(), ENCODING_DEFLATE + ", " + ENCODING_GZIP);
-        } else if (acceptEncodingConfig == CompressionConfig.NEVER && (
+        } else if (compressionState == CompressionConfigState.NEVER && (
                 outboundRequest.getHeader(HttpHeaderNames.ACCEPT_ENCODING.toString()) != null)) {
             outboundRequest.removeHeader(HttpHeaderNames.ACCEPT_ENCODING.toString());
         }
@@ -471,8 +460,8 @@ public abstract class AbstractHTTPAction implements InterruptibleNativeCallableU
         @Override
         public void onResponseHandle(ResponseHandle responseHandle) {
             BMap<String, BValue> httpFuture = BLangConnectorSPIUtil.createBStruct(this.dataContext.context,
-                                                                     HttpConstants.PROTOCOL_PACKAGE_HTTP,
-                                                                     HttpConstants.HTTP_FUTURE);
+                                                                                  HttpConstants.PROTOCOL_PACKAGE_HTTP,
+                                                                                  HttpConstants.HTTP_FUTURE);
             httpFuture.addNativeData(HttpConstants.TRANSPORT_HANDLE, responseHandle);
             this.dataContext.notifyInboundResponseStatus(httpFuture, null);
         }

@@ -79,7 +79,7 @@ public class Execute extends AbstractHTTPAction {
             httpVerb = (String) outboundRequestMsg.getProperty(HttpConstants.HTTP_METHOD);
         }
         outboundRequestMsg.setProperty(HttpConstants.HTTP_METHOD, httpVerb.trim().toUpperCase(Locale.getDefault()));
-        handleAcceptEncodingHeader(outboundRequestMsg, getAcceptEncodingConfigFromEndpointConfig(bConnector));
+        handleAcceptEncodingHeader(outboundRequestMsg, getCompressionConfigFromEndpointConfig(bConnector));
 
         return outboundRequestMsg;
     }

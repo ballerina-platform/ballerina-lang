@@ -80,19 +80,19 @@ public type Chunking "AUTO" | "ALWAYS" | "NEVER";
 # Options to compress using gzip or deflate.
 #
 # `AUTO`: When service behaves as a HTTP gateway inbound request/response accept-encoding option is set as the
-#         outbound request/response content-encoding option
-# `ALWAYS`: Always set accept-encoding in outbound request/response
-# `NEVER`: Never set accept-encoding header in outbound request/response
+#         outbound request/response accept-encoding/content-encoding option
+# `ALWAYS`: Always set accept-encoding/content-encoding in outbound request/response
+# `NEVER`: Never set accept-encoding/content-encoding header in outbound request/response
 public type Compression "AUTO" | "ALWAYS" | "NEVER";
 
 # When service behaves as a HTTP gateway inbound request/response accept-encoding option is set as the
-# outbound request/response accept-encoding option.
+# outbound request/response accept-encoding/content-encoding option.
 @final public Compression COMPRESSION_AUTO = "AUTO";
 
-# Always set accept-encoding in outbound request/response.
+# Always set accept-encoding/content-encoding in outbound request/response.
 @final public Compression COMPRESSION_ALWAYS = "ALWAYS";
 
-# Never set accept-encoding header in outbound request/response.
+# Never set accept-encoding/content-encoding header in outbound request/response.
 @final public Compression COMPRESSION_NEVER = "NEVER";
 
 # Defines the HTTP operations related to circuit breaker, failover and load balancer.
@@ -164,10 +164,10 @@ public type ServiceOcspStapling record {
 
 # A record for providing configurations for content compression.
 #
-# + enable - Expected version pattern in the request URL
+# + enable - The status of compression
 # + contentTypes - Content types which are allow for compression
-public type Compression record {
-    string enable = COMPRESSION_AUTO,
+public type CompressionConfig record {
+    Compression enable = COMPRESSION_AUTO,
     string[] contentTypes,
     !...
 };

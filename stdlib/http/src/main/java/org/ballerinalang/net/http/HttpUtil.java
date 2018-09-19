@@ -103,6 +103,7 @@ import static org.ballerinalang.net.http.HttpConstants.ANN_CONFIG_ATTR_CHUNKING;
 import static org.ballerinalang.net.http.HttpConstants.ANN_CONFIG_ATTR_COMPRESSION;
 import static org.ballerinalang.net.http.HttpConstants.ANN_CONFIG_ATTR_COMPRESSION_CONTENT_TYPES;
 import static org.ballerinalang.net.http.HttpConstants.ANN_CONFIG_ATTR_COMPRESSION_ENABLE;
+import static org.ballerinalang.net.http.HttpConstants.AUTO;
 import static org.ballerinalang.net.http.HttpConstants.ENABLE;
 import static org.ballerinalang.net.http.HttpConstants.ENTITY_INDEX;
 import static org.ballerinalang.net.http.HttpConstants.HTTP_MESSAGE_INDEX;
@@ -834,42 +835,57 @@ public class HttpUtil {
         if (contentEncoding != null) {
             return;
         }
+
         Struct compressionConfig = configAnnot.getValue().getStructField(ANN_CONFIG_ATTR_COMPRESSION);
-        if (compressionConfig == null) {
+        CompressionConfigState compressionState = getCompressionState(
+                compressionConfig.getStringField(ANN_CONFIG_ATTR_COMPRESSION_ENABLE));
+
+        if (compressionState == CompressionConfigState.NEVER) {
+            outboundResponseMsg.getHeaders().set(HttpHeaderNames.CONTENT_ENCODING, HTTP_TRANSFER_ENCODING_IDENTITY);
             return;
         }
 
-        String compressionValue = compressionConfig.getStringField(ANN_CONFIG_ATTR_COMPRESSION_ENABLE);
-        List<String> contentTypes = getAsStringList(
-                compressionConfig.getArrayField(ANN_CONFIG_ATTR_COMPRESSION_CONTENT_TYPES));
-
         String acceptEncodingValue = requestMsg.getHeaders().get(HttpHeaderNames.ACCEPT_ENCODING);
-        if (contentTypes == null) {
-            if (ALWAYS.equalsIgnoreCase(compressionValue)) {
-                if (acceptEncodingValue == null || HTTP_TRANSFER_ENCODING_IDENTITY.equals(acceptEncodingValue)) {
-                    outboundResponseMsg.getHeaders().set(HttpHeaderNames.CONTENT_ENCODING, ENCODING_GZIP);
-                }
-            } else if (NEVER.equalsIgnoreCase(compressionValue)) {
-                outboundResponseMsg.getHeaders().set(HttpHeaderNames.CONTENT_ENCODING,
-                                                     HTTP_TRANSFER_ENCODING_IDENTITY);
+        List<String> contentTypesAnnotationValues = getAsStringList(
+                compressionConfig.getArrayField(ANN_CONFIG_ATTR_COMPRESSION_CONTENT_TYPES));
+        String contentType = outboundResponseMsg.getHeader(HttpHeaderNames.CONTENT_TYPE.toString());
+
+        if (contentTypesAnnotationValues.isEmpty() || isContentTypeMatched(contentTypesAnnotationValues, contentType)) {
+            if (compressionState == CompressionConfigState.ALWAYS &&
+                    (acceptEncodingValue == null || HTTP_TRANSFER_ENCODING_IDENTITY.equals(acceptEncodingValue))) {
+                outboundResponseMsg.getHeaders().set(HttpHeaderNames.CONTENT_ENCODING, ENCODING_GZIP);
             }
         } else {
-
+            outboundResponseMsg.getHeaders().set(HttpHeaderNames.CONTENT_ENCODING, HTTP_TRANSFER_ENCODING_IDENTITY);
         }
-
-
-
     }
 
-    public static List<String> getAsStringList(Value[] values) {
-        if (values == null) {
-            return null;
+    public static CompressionConfigState getCompressionState(String compressionState) {
+        switch (compressionState) {
+            case AUTO:
+                return CompressionConfigState.AUTO;
+            case ALWAYS:
+                return CompressionConfigState.ALWAYS;
+            case NEVER:
+                return CompressionConfigState.NEVER;
+            default:
+                return null;
         }
+    }
+
+    private static boolean isContentTypeMatched(List<String> contentTypes, String contentType) {
+        return contentType != null && contentTypes.stream().anyMatch(contentType.toLowerCase()::contains);
+    }
+
+    private static List<String> getAsStringList(Value[] values) {
         List<String> valuesList = new ArrayList<>();
-        for (Value val : values) {
-            valuesList.add(val.getStringValue().trim());
+        if (values == null) {
+            return valuesList;
         }
-        return !valuesList.isEmpty() ? valuesList : null;
+        for (Value val : values) {
+            valuesList.add(val.getStringValue().trim().toLowerCase());
+        }
+        return valuesList;
     }
 
     public static String getListenerInterface(String host, int port) {
@@ -1172,7 +1188,7 @@ public class HttpUtil {
         }
 
         if (validateCert != null) {
-            boolean validateCertEnabled = validateCert.getBooleanField(ENABLE);
+            boolean validateCertEnabled = validateCert.getBooleanField(HttpConstants.ENABLE);
             int cacheSize = (int) validateCert.getIntField(HttpConstants.SSL_CONFIG_CACHE_SIZE);
             int cacheValidityPeriod = (int) validateCert
                     .getIntField(HttpConstants.SSL_CONFIG_CACHE_VALIDITY_PERIOD);

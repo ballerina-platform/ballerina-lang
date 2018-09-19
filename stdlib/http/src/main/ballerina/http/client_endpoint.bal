@@ -89,7 +89,7 @@ public type ClientEndpointConfig record {
     ConnectionThrottling? connectionThrottling,
     SecureSocket? secureSocket,
     CacheConfig cache,
-    Compression compression,
+    Compression compression = COMPRESSION_AUTO,
     AuthConfig? auth,
     !...
 };

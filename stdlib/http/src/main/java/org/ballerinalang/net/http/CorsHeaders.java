@@ -23,8 +23,6 @@ import org.ballerinalang.connector.api.Value;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.ballerinalang.net.http.HttpUtil.getAsStringList;
-
 /**
  * {@code CorsHeaders} This is the cors headers holder.
  *
@@ -140,5 +138,15 @@ public class CorsHeaders {
         return corsHeaders;
     }
 
+    private static List<String> getAsStringList(Value[] values) {
+        if (values == null) {
+            return null;
+        }
+        List<String> valuesList = new ArrayList<>();
+        for (Value val : values) {
+            valuesList.add(val.getStringValue().trim());
+        }
+        return !valuesList.isEmpty() ? valuesList : null;
+    }
 
 }
