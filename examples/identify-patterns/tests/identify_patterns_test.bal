@@ -18,8 +18,6 @@ public function mockPrint(any... s) {
 function testFunc() {
     // Invoke the main function. 
     main();
-    string out1 = "alertRoomAction function invoked for Room : 2 and the action : stop";
-    string out2 = "alertRoomAction function invoked for Room : 2 and the action : stop";
-    test:assertEquals(outputs[0], out1);
-    test:assertEquals(outputs[1], out1);
+    string out = "alertRoomAction function invoked for Room : 2 and the action : stop";
+    test:assertEquals(outputs[0], out);
 }
