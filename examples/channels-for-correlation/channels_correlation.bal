@@ -9,7 +9,6 @@ receive (endpoint caller, http:Request request) {
        http:Response response = new;
 
        //A key can be associated with a channel action, this is used to correlate receivers and senders.
-       //Specifying a key is optional, non key message receivers are matched with messages sent without a key.
        string key = "123";
 
        json result;
