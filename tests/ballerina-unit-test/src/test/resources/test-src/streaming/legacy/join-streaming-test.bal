@@ -21,7 +21,7 @@ import ballerina/streams;
 type Stock record {
     string symbol;
     float price;
-    string volume;
+    int volume;
 };
 
 type Twitter record {
