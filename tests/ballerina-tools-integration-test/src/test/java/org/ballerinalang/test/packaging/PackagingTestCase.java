@@ -86,7 +86,7 @@ public class PackagingTestCase extends BaseTest {
         LogLeecher clientLeecher = new LogLeecher(firstMsg);
         balClient.runMain("push", new String[]{packageName, "--no-build"}, envVariables, new String[]{},
                           new LogLeecher[]{clientLeecher}, projectPath.toString());
-        clientLeecher.waitForText(5000);
+        clientLeecher.waitForText(2000);
         Path dirPath = Paths.get(ProjectDirConstants.DOT_BALLERINA_REPO_DIR_NAME, orgName, packageName, "0.0.1");
         Assert.assertTrue(Files.notExists(projectPath.resolve(dirPath)));
         Assert.assertTrue(Files.notExists(projectPath.resolve(dirPath).resolve(packageName + ".zip")));

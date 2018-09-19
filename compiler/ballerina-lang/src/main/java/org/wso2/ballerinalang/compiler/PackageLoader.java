@@ -290,15 +290,14 @@ public class PackageLoader {
         return packageNode;
     }
 
-    public BLangPackage loadPackage(PackageID pkgId, PackageID enclPackageId, RepoHierarchy encPkgRepoHierarchy) {
+    private BLangPackage loadPackage(PackageID pkgId) {
         // TODO Remove this method()
         BLangPackage bLangPackage = packageCache.get(pkgId);
         if (bLangPackage != null) {
             return bLangPackage;
         }
-
-        BLangPackage packageNode = loadPackageFromEntity(pkgId, loadPackageEntity(pkgId, enclPackageId,
-                                                                                                encPkgRepoHierarchy));
+    
+        BLangPackage packageNode = loadPackageFromEntity(pkgId, loadPackageEntity(pkgId, null, null));
         if (packageNode == null) {
             throw ProjectDirs.getPackageNotFoundError(pkgId);
         }
@@ -313,7 +312,7 @@ public class PackageLoader {
 
     public BLangPackage loadAndDefinePackage(PackageID pkgId) {
         // TODO this used only by the language server component and the above method.
-        BLangPackage bLangPackage = loadPackage(pkgId, null, null);
+        BLangPackage bLangPackage = loadPackage(pkgId);
         if (bLangPackage == null) {
             return null;
         }

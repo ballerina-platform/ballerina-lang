@@ -15,7 +15,6 @@
 // under the License.
 
 import integrationtests/b;
-import ballerina/io;
 
 public function main(string... args) {
     b:printB();
