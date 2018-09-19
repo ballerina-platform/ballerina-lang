@@ -68,7 +68,7 @@ public class BallerinaApplicationRunningState extends BallerinaRunningState<Ball
 
     @Override
     protected BallerinaExecutor patchExecutor(@NotNull BallerinaExecutor executor) throws ExecutionException {
-        // RunConfigurationKind kind = getConfiguration().getRunKind();
+
         Project project = myConfiguration.getProject();
         VirtualFile baseDir = project.getBaseDir();
         String filePath;
@@ -76,19 +76,22 @@ public class BallerinaApplicationRunningState extends BallerinaRunningState<Ball
         // Find the file in the project. This is needed to find the module. Otherwise if the file is in a sub-module
         // and the SDK for the project is not set, SDK home path will be null.
         PsiFile file = BallerinaPsiImplUtil.findFileInProject(project, myConfiguration.getFilePath());
+        if (file == null) {
+            return executor;
+        }
 
-        assert file != null;
         VirtualFile fileDir = file.getVirtualFile().getParent();
         // Sets source root of the IDEA project as the termination of the recursive search.
         String rootDir = project.getBasePath();
         String sourcerootDir = getSourceRoot(fileDir.getPath(), rootDir);
-
-        if (sourcerootDir.equals("")) {  // if no ballerina project is found.
+        // if no ballerina project is found.
+        if (sourcerootDir.equals("")) {
             sourcerootDir = baseDir.getPath();
             filePath = file.getVirtualFile().getPath().replace(sourcerootDir, "").substring(1);
         } else {
             String relativeFilePath = file.getVirtualFile().getPath().replace(sourcerootDir, "").substring(1);
-            if (relativeFilePath.contains(File.separator)) { //If file is found in a ballerina package, runs the whole
+            //If file is found in a ballerina package, runs the whole
+            if (relativeFilePath.contains(File.separator)) {
                 // package, instead of the single file.
                 filePath = relativeFilePath.substring(0, relativeFilePath.indexOf(File.separator));
             } else {
@@ -96,8 +99,7 @@ public class BallerinaApplicationRunningState extends BallerinaRunningState<Ball
             }
         }
 
-        Module module;
-        module = ModuleUtilCore.findModuleForPsiElement(file);
+        Module module = ModuleUtilCore.findModuleForPsiElement(file);
         if (module == null) {
             throw new ExecutionException("Cannot find module for the file '" + file.getVirtualFile().getPath() + "'");
         }
@@ -156,26 +158,26 @@ public class BallerinaApplicationRunningState extends BallerinaRunningState<Ball
     }
 
     /**
-     * Searches for a ballerina project using outward recursion starting from the file directory, until the root
+     * Searches for a ballerina project using outward recursion starting from the file directory, until the given root
      * directory is found.
      */
     private String getSourceRoot(String currentPath, String root) {
 
         if (currentPath.equals(root) || currentPath.equals("") || root.equals("")) {
             return "";
-        } else {
-            File currentDir = new File(currentPath);
-            File[] files = currentDir.listFiles();
-            if (files != null) {
-                for (File f : files) {
-                    //skips the .ballerina folder in the user home directory.
-                    if (f.isDirectory() && !f.getParentFile().getAbsolutePath().equals(System.getProperty("user.home"))
-                            && f.getName().equals(".ballerina")) {
-                        return currentDir.getAbsolutePath();
-                    }
+        }
+        File currentDir = new File(currentPath);
+        File[] files = currentDir.listFiles();
+        if (files != null) {
+            for (File f : files) {
+                //skips the .ballerina folder in the user home directory.
+                if (f.isDirectory() && !f.getParentFile().getAbsolutePath().equals(System.getProperty("user.home")) && f
+                        .getName().equals(".ballerina")) {
+                    return currentDir.getAbsolutePath();
                 }
             }
-            return getSourceRoot(currentDir.getParentFile().getAbsolutePath(), root);
         }
+        return getSourceRoot(currentDir.getParentFile().getAbsolutePath(), root);
+
     }
 }
