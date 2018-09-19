@@ -18,19 +18,19 @@ import ballerina/io;
 import ballerina/time;
 import ballerina/task;
 
-public type EventType "CURRENT"|"EXPIRED"|"ALL"|"RESET"|"TIMER";
-
-public type StreamEvent record {
-    EventType eventType;
-    any eventObject;
-    int timestamp;
-    !...
-};
-
 public type Window object {
 
     public function process(StreamEvent[] streamEvents) {
 
+    }
+
+    public function getCandidateEvents(
+                        StreamEvent originEvent,
+                        function (map e1Data, map e2Data) returns boolean conditionFunc,
+                        boolean isLHSTrigger = true)
+                        returns (StreamEvent, StreamEvent)[] {
+        (StreamEvent, StreamEvent)[] events;
+        return events;
     }
 };
 
