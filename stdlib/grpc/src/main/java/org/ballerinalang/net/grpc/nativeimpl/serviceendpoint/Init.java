@@ -32,7 +32,6 @@ import org.ballerinalang.net.grpc.GrpcConstants;
 import org.ballerinalang.net.grpc.ServicesRegistry;
 import org.ballerinalang.net.grpc.nativeimpl.AbstractGrpcNativeFunction;
 import org.ballerinalang.net.http.HttpConnectionManager;
-import org.ballerinalang.net.http.HttpConstants;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.wso2.transport.http.netty.common.Constants;
 import org.wso2.transport.http.netty.config.ListenerConfiguration;
@@ -52,9 +51,13 @@ import static org.ballerinalang.net.grpc.GrpcConstants.SERVICE_ENDPOINT_TYPE;
 import static org.ballerinalang.net.grpc.GrpcConstants.SERVICE_REGISTRY_BUILDER;
 import static org.ballerinalang.net.http.HttpConstants.ENABLE;
 import static org.ballerinalang.net.http.HttpConstants.ENABLED_PROTOCOLS;
+import static org.ballerinalang.net.http.HttpConstants.ENDPOINT_CONFIG_CERTIFICATE;
+import static org.ballerinalang.net.http.HttpConstants.ENDPOINT_CONFIG_KEY;
+import static org.ballerinalang.net.http.HttpConstants.ENDPOINT_CONFIG_KEY_PASSWORD;
 import static org.ballerinalang.net.http.HttpConstants.ENDPOINT_CONFIG_KEY_STORE;
 import static org.ballerinalang.net.http.HttpConstants.ENDPOINT_CONFIG_OCSP_STAPLING;
 import static org.ballerinalang.net.http.HttpConstants.ENDPOINT_CONFIG_PROTOCOLS;
+import static org.ballerinalang.net.http.HttpConstants.ENDPOINT_CONFIG_TRUST_CERTIFICATES;
 import static org.ballerinalang.net.http.HttpConstants.ENDPOINT_CONFIG_TRUST_STORE;
 import static org.ballerinalang.net.http.HttpConstants.ENDPOINT_CONFIG_VALIDATE_CERT;
 import static org.ballerinalang.net.http.HttpConstants.FILE_PATH;
@@ -136,10 +139,10 @@ public class Init extends AbstractGrpcNativeFunction {
         Struct protocols = sslConfig.getStructField(ENDPOINT_CONFIG_PROTOCOLS);
         Struct validateCert = sslConfig.getStructField(ENDPOINT_CONFIG_VALIDATE_CERT);
         Struct ocspStapling = sslConfig.getStructField(ENDPOINT_CONFIG_OCSP_STAPLING);
-        String keyFile = sslConfig.getStringField(HttpConstants.ENDPOINT_CONFIG_KEY);
-        String certFile = sslConfig.getStringField(HttpConstants.ENDPOINT_CONFIG_CERTIFICATE);
-        String trustCerts = sslConfig.getStringField(HttpConstants.ENDPOINT_CONFIG_TRUST_CERTIFICATES);
-        String keyPassword = sslConfig.getStringField(HttpConstants.ENDPOINT_CONFIG_KEY_PASSWORD);
+        String keyFile = sslConfig.getStringField(ENDPOINT_CONFIG_KEY);
+        String certFile = sslConfig.getStringField(ENDPOINT_CONFIG_CERTIFICATE);
+        String trustCerts = sslConfig.getStringField(ENDPOINT_CONFIG_TRUST_CERTIFICATES);
+        String keyPassword = sslConfig.getStringField(ENDPOINT_CONFIG_KEY_PASSWORD);
 
         if (keyStore != null && StringUtils.isNotBlank(keyFile)) {
             throw new BallerinaException("Cannot configure both keyStore and keyFile at the same time.");
