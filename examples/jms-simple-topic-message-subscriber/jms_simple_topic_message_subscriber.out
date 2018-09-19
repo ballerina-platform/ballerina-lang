@@ -5,5 +5,5 @@ $ broker
 # 'jms_simple_topic_message_subscriber.bal' file and issue the 'ballerina run' command.
 $ ballerina run jms_simple_topic_message_subscriber.bal
 # The JMS subscriber runs as a Ballerina service and listens to the subscribed topic.
-ballerina: initiating service(s) in 'jms_simple_topic_message_subscriber.bal'
+Initiating service(s) in 'jms_simple_topic_message_subscriber.bal'
 2018-06-14 15:29:50,366 INFO  [ballerina/jms] - Subscriber created for topic BallerinaTopic
