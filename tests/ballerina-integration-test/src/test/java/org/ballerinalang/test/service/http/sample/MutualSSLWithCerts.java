@@ -20,7 +20,6 @@ package org.ballerinalang.test.service.http.sample;
 
 import org.ballerinalang.test.BaseTest;
 import org.ballerinalang.test.context.BMainInstance;
-import org.ballerinalang.test.context.Constant;
 import org.ballerinalang.test.context.LogLeecher;
 import org.testng.annotations.Test;
 
