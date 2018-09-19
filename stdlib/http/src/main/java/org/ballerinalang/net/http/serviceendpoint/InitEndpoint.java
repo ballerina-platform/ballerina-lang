@@ -217,7 +217,7 @@ public class InitEndpoint extends AbstractHttpNativeFunction {
         } else {
             listenerConfiguration.setServerKeyFile(keyFile);
             listenerConfiguration.setServerCertificates(certFile);
-            if (keyPassword != null) {
+            if (StringUtils.isNotBlank(keyPassword)) {
                 listenerConfiguration.setServerKeyPassword(keyPassword);
             }
         }
