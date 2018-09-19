@@ -21,7 +21,7 @@ import io.netty.handler.codec.http.HttpContent;
 import io.netty.handler.codec.http2.Http2Exception;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.wso2.transport.http.netty.contractimpl.Http2OutboundRespListener.ResponseWriter;
+import org.wso2.transport.http.netty.contractimpl.Http2OutboundRespListener;
 import org.wso2.transport.http.netty.contractimpl.listener.states.Http2MessageStateContext;
 import org.wso2.transport.http.netty.message.Http2DataFrame;
 import org.wso2.transport.http.netty.message.Http2HeadersFrame;
@@ -36,7 +36,7 @@ public class ResponseCompleted implements ListenerState {
 
     private final Http2MessageStateContext http2MessageStateContext;
 
-    public ResponseCompleted(Http2MessageStateContext http2MessageStateContext) {
+    ResponseCompleted(Http2MessageStateContext http2MessageStateContext) {
         this.http2MessageStateContext = http2MessageStateContext;
     }
 
@@ -51,18 +51,21 @@ public class ResponseCompleted implements ListenerState {
     }
 
     @Override
-    public void writeOutboundResponseHeaders(ResponseWriter responseWriter, HttpCarbonMessage outboundResponseMsg,
-                                             HttpContent httpContent) {
+    public void writeOutboundResponseHeaders(Http2OutboundRespListener http2OutboundRespListener,
+                                             HttpCarbonMessage outboundResponseMsg, HttpContent httpContent,
+                                             int streamId) {
         LOG.warn("writeOutboundResponseHeaders is not a dependant action of this state");
     }
 
     @Override
-    public void writeOutboundResponseBody(ResponseWriter responseWriter, HttpCarbonMessage outboundResponseMsg,
-                                          HttpContent httpContent) throws Http2Exception {
+    public void writeOutboundResponseBody(Http2OutboundRespListener http2OutboundRespListener,
+                                          HttpCarbonMessage outboundResponseMsg, HttpContent httpContent, int streamId)
+            throws Http2Exception {
         // When promised response message is going to be sent after the original response or previous promised responses
         // has been sent.
-        http2MessageStateContext.setListenerState(new SendingHeaders(http2MessageStateContext));
+        http2MessageStateContext.setListenerState(
+                new SendingHeaders(http2OutboundRespListener, http2MessageStateContext));
         http2MessageStateContext.getListenerState()
-                .writeOutboundResponseHeaders(responseWriter, outboundResponseMsg, httpContent);
+                .writeOutboundResponseHeaders(http2OutboundRespListener, outboundResponseMsg, httpContent, streamId);
     }
 }

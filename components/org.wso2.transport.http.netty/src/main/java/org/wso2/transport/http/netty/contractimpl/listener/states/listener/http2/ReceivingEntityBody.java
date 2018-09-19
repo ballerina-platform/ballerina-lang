@@ -24,7 +24,7 @@ import io.netty.handler.codec.http.HttpContent;
 import io.netty.handler.codec.http2.Http2Exception;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.wso2.transport.http.netty.contractimpl.Http2OutboundRespListener.ResponseWriter;
+import org.wso2.transport.http.netty.contractimpl.Http2OutboundRespListener;
 import org.wso2.transport.http.netty.contractimpl.listener.http2.Http2SourceHandler;
 import org.wso2.transport.http.netty.contractimpl.listener.states.Http2MessageStateContext;
 import org.wso2.transport.http.netty.message.Http2DataFrame;
@@ -55,12 +55,12 @@ public class ReceivingEntityBody implements ListenerState {
     public void readInboundRequestBody(Http2DataFrame dataFrame) {
         int streamId = dataFrame.getStreamId();
         ByteBuf data = dataFrame.getData();
-        HttpCarbonMessage sourceReqCMsg = http2SourceHandler.streamIdRequestMap.get(streamId);
+        HttpCarbonMessage sourceReqCMsg = http2SourceHandler.getStreamIdRequestMap().get(streamId);
 
         if (sourceReqCMsg != null) {
             if (dataFrame.isEndOfStream()) {
                 sourceReqCMsg.addHttpContent(new DefaultLastHttpContent(data));
-                http2SourceHandler.streamIdRequestMap.remove(streamId);
+                http2SourceHandler.getStreamIdRequestMap().remove(streamId);
                 http2MessageStateContext.setListenerState(new EntityBodyReceived(http2MessageStateContext));
             } else {
                 sourceReqCMsg.addHttpContent(new DefaultHttpContent(data));
@@ -71,18 +71,21 @@ public class ReceivingEntityBody implements ListenerState {
     }
 
     @Override
-    public void writeOutboundResponseHeaders(ResponseWriter responseWriter, HttpCarbonMessage outboundResponseMsg,
-                                             HttpContent httpContent) {
+    public void writeOutboundResponseHeaders(Http2OutboundRespListener http2OutboundRespListener,
+                                             HttpCarbonMessage outboundResponseMsg, HttpContent httpContent,
+                                             int streamId) {
         LOG.warn("writeOutboundResponseHeaders is not a dependant action of this state");
     }
 
     @Override
-    public void writeOutboundResponseBody(ResponseWriter responseWriter, HttpCarbonMessage outboundResponseMsg,
-                                          HttpContent httpContent) throws Http2Exception {
+    public void writeOutboundResponseBody(Http2OutboundRespListener http2OutboundRespListener,
+                                          HttpCarbonMessage outboundResponseMsg, HttpContent httpContent, int streamId)
+            throws Http2Exception {
         // When receiving entity body, if payload is not consumed by the server, this method is invoked if server is
         // going to send the response back.
-        http2MessageStateContext.setListenerState(new SendingHeaders(http2MessageStateContext));
+        http2MessageStateContext.setListenerState(
+                new SendingHeaders(http2OutboundRespListener, http2MessageStateContext));
         http2MessageStateContext.getListenerState()
-                .writeOutboundResponseHeaders(responseWriter, outboundResponseMsg, httpContent);
+                .writeOutboundResponseHeaders(http2OutboundRespListener, outboundResponseMsg, httpContent, streamId);
     }
 }

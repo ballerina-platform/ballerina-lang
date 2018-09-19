@@ -22,20 +22,12 @@ package org.wso2.transport.http.netty.contractimpl;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.http.HttpContent;
-import io.netty.handler.codec.http.HttpHeaderNames;
-import io.netty.handler.codec.http.HttpHeaders;
-import io.netty.handler.codec.http.HttpMessage;
 import io.netty.handler.codec.http.HttpRequest;
-import io.netty.handler.codec.http.LastHttpContent;
 import io.netty.handler.codec.http2.Http2Connection;
 import io.netty.handler.codec.http2.Http2ConnectionEncoder;
-import io.netty.handler.codec.http2.Http2Error;
 import io.netty.handler.codec.http2.Http2Exception;
 import io.netty.handler.codec.http2.Http2Headers;
 import io.netty.handler.codec.http2.HttpConversionUtil;
-import io.netty.util.internal.logging.InternalLogLevel;
-import io.netty.util.internal.logging.InternalLogger;
-import io.netty.util.internal.logging.InternalLoggerFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.transport.http.netty.contract.HttpConnectorListener;
@@ -46,7 +38,6 @@ import org.wso2.transport.http.netty.contractimpl.common.Util;
 import org.wso2.transport.http.netty.contractimpl.listener.HttpServerChannelInitializer;
 import org.wso2.transport.http.netty.contractimpl.listener.states.Http2MessageStateContext;
 import org.wso2.transport.http.netty.contractimpl.listener.states.listener.http2.EntityBodyReceived;
-import org.wso2.transport.http.netty.contractimpl.listener.states.listener.http2.ResponseCompleted;
 import org.wso2.transport.http.netty.message.Http2PushPromise;
 import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 
@@ -54,6 +45,7 @@ import java.util.Calendar;
 import java.util.Locale;
 
 import static org.wso2.transport.http.netty.contractimpl.common.Constants.PROMISED_STREAM_REJECTED_ERROR;
+import static org.wso2.transport.http.netty.contractimpl.listener.states.Http2StateUtil.isValidStreamId;
 
 /**
  * {@code Http2OutboundRespListener} is responsible for listening for outbound response messages
@@ -62,7 +54,6 @@ import static org.wso2.transport.http.netty.contractimpl.common.Constants.PROMIS
 public class Http2OutboundRespListener implements HttpConnectorListener {
 
     private static final Logger LOG = LoggerFactory.getLogger(Http2OutboundRespListener.class);
-    private static final InternalLogger accessLogger = InternalLoggerFactory.getInstance(Constants.ACCESS_LOG);
 
     private Http2MessageStateContext http2MessageStateContext;
     private HttpCarbonMessage inboundRequestMsg;
@@ -135,7 +126,7 @@ public class Http2OutboundRespListener implements HttpConnectorListener {
 
     @Override
     public void onPushResponse(int promiseId, HttpCarbonMessage outboundResponseMsg) {
-        if (isValidStreamId(promiseId)) {
+        if (isValidStreamId(promiseId, conn)) {
             writeMessage(outboundResponseMsg, promiseId);
         } else {
             inboundRequestMsg.getHttpOutboundRespStatusFuture().notifyHttpListener(
@@ -164,7 +155,6 @@ public class Http2OutboundRespListener implements HttpConnectorListener {
     public class ResponseWriter {
 
         public int streamId;
-        private Long contentLength = 0L;
 
         ResponseWriter(int streamId) {
             this.streamId = streamId;
@@ -176,119 +166,8 @@ public class Http2OutboundRespListener implements HttpConnectorListener {
                 http2MessageStateContext = new Http2MessageStateContext();
                 http2MessageStateContext.setListenerState(new EntityBodyReceived(http2MessageStateContext));
             }
-            http2MessageStateContext.getListenerState()
-                    .writeOutboundResponseBody(this, outboundResponseMsg, httpContent);
-        }
-
-        public void writeContent(HttpCarbonMessage outboundResponseMsg, HttpContent httpContent) throws Http2Exception {
-            if (httpContent instanceof LastHttpContent) {
-                final LastHttpContent lastContent = (LastHttpContent) httpContent;
-                HttpHeaders trailers = lastContent.trailingHeaders();
-                if (serverChannelInitializer.isHttpAccessLogEnabled()) {
-                    logAccessInfo(outboundResponseMsg);
-                }
-                boolean endStream = trailers.isEmpty();
-                writeData(lastContent, endStream);
-                if (!trailers.isEmpty()) {
-                    Http2Headers http2Trailers = HttpConversionUtil.toHttp2Headers(trailers, true);
-                    // Write trailing headers.
-                    writeHttp2Headers(ctx, streamId, http2Trailers, true);
-                }
-                http2MessageStateContext.setListenerState(new ResponseCompleted(http2MessageStateContext));
-            } else {
-                writeData(httpContent, false);
-            }
-        }
-
-        private void writeHttp2Headers(ChannelHandlerContext ctx, int streamId, Http2Headers http2Headers,
-                                       boolean endStream) throws Http2Exception {
-            ChannelFuture channelFuture = encoder.writeHeaders(
-                    ctx, streamId, http2Headers, 0, endStream, ctx.newPromise());
-            encoder.flowController().writePendingBytes();
-            ctx.flush();
-            Util.addResponseWriteFailureListener(outboundRespStatusFuture, channelFuture);
-        }
-
-        public void writeHeaders(HttpCarbonMessage outboundResponseMsg) throws Http2Exception {
-            outboundResponseMsg.getHeaders().
-                    add(HttpConversionUtil.ExtensionHeaderNames.SCHEME.text(), Constants.HTTP_SCHEME);
-            HttpMessage httpMessage =
-                    Util.createHttpResponse(outboundResponseMsg, Constants.HTTP2_VERSION, serverName, true);
-            // Construct Http2 headers
-            Http2Headers http2Headers = HttpConversionUtil.toHttp2Headers(httpMessage, true);
-            validatePromisedStreamState();
-            writeHttp2Headers(ctx, streamId, http2Headers, false);
-        }
-
-        private void writeData(HttpContent httpContent, boolean endStream) throws Http2Exception {
-            contentLength += httpContent.content().readableBytes();
-            validatePromisedStreamState();
-            ChannelFuture channelFuture = encoder.writeData(
-                    ctx, streamId, httpContent.content(), 0, endStream, ctx.newPromise());
-            encoder.flowController().writePendingBytes();
-            ctx.flush();
-            if (endStream) {
-                Util.checkForResponseWriteStatus(inboundRequestMsg, outboundRespStatusFuture, channelFuture);
-            } else {
-                Util.addResponseWriteFailureListener(outboundRespStatusFuture, channelFuture);
-            }
-        }
-
-        private void logAccessInfo(HttpCarbonMessage outboundResponseMsg) {
-
-            if (!accessLogger.isEnabled(InternalLogLevel.INFO)) {
-                return;
-            }
-
-            if (originalStreamId != streamId) { // Skip access logs for server push messages
-                LOG.debug("Access logging skipped for server push response");
-                return;
-            }
-
-            HttpHeaders headers = inboundRequestMsg.getHeaders();
-            if (headers.contains(Constants.HTTP_X_FORWARDED_FOR)) {
-                String forwardedHops = headers.get(Constants.HTTP_X_FORWARDED_FOR);
-                // If multiple IPs available, the first ip is the client
-                int firstCommaIndex = forwardedHops.indexOf(',');
-                remoteAddress = firstCommaIndex != -1 ? forwardedHops.substring(0, firstCommaIndex) : forwardedHops;
-            }
-
-            // Populate request parameters
-            String userAgent = "-";
-            if (headers.contains(HttpHeaderNames.USER_AGENT)) {
-                userAgent = headers.get(HttpHeaderNames.USER_AGENT);
-            }
-            String referrer = "-";
-            if (headers.contains(HttpHeaderNames.REFERER)) {
-                referrer = headers.get(HttpHeaderNames.REFERER);
-            }
-            String method = (String) inboundRequestMsg.getProperty(Constants.HTTP_METHOD);
-            String uri = (String) inboundRequestMsg.getProperty(Constants.TO);
-            HttpMessage request = inboundRequestMsg.getNettyHttpRequest();
-            String protocol;
-            if (request != null) {
-                protocol = request.protocolVersion().toString();
-            } else {
-                protocol = (String) inboundRequestMsg.getProperty(Constants.HTTP_VERSION);
-            }
-
-            // Populate response parameters
-            int statusCode = Util.getHttpResponseStatus(outboundResponseMsg).code();
-
-            accessLogger.log(InternalLogLevel.INFO, String.format(
-                    Constants.ACCESS_LOG_FORMAT, remoteAddress, inboundRequestArrivalTime, method, uri, protocol,
-                    statusCode, contentLength, referrer, userAgent));
-        }
-
-        private void validatePromisedStreamState() throws Http2Exception {
-            if (streamId == originalStreamId) { // Not a promised stream, no need to validate
-                return;
-            }
-            if (!isValidStreamId(streamId)) {
-                inboundRequestMsg.getHttpOutboundRespStatusFuture().
-                        notifyHttpListener(new ServerConnectorException(PROMISED_STREAM_REJECTED_ERROR));
-                throw new Http2Exception(Http2Error.REFUSED_STREAM, PROMISED_STREAM_REJECTED_ERROR);
-            }
+            http2MessageStateContext.getListenerState().writeOutboundResponseBody(Http2OutboundRespListener.this,
+                    outboundResponseMsg, httpContent, streamId);
         }
     }
 
@@ -296,7 +175,43 @@ public class Http2OutboundRespListener implements HttpConnectorListener {
         return conn.local().incrementAndGetNextStreamId();
     }
 
-    private boolean isValidStreamId(int streamId) {
-        return conn.stream(streamId) != null;
+    public ChannelHandlerContext getChannelHandlerContext() {
+        return ctx;
+    }
+
+    public Http2ConnectionEncoder getEncoder() {
+        return encoder;
+    }
+
+    public HttpResponseFuture getOutboundRespStatusFuture() {
+        return outboundRespStatusFuture;
+    }
+
+    public HttpServerChannelInitializer getServerChannelInitializer() {
+        return serverChannelInitializer;
+    }
+
+    public HttpCarbonMessage getInboundRequestMsg() {
+        return inboundRequestMsg;
+    }
+
+    public Http2Connection getConnection() {
+        return conn;
+    }
+
+    public Calendar getInboundRequestArrivalTime() {
+        return inboundRequestArrivalTime;
+    }
+
+    public int getOriginalStreamId() {
+        return originalStreamId;
+    }
+
+    public String getRemoteAddress() {
+        return remoteAddress;
+    }
+
+    public String getServerName() {
+        return serverName;
     }
 }
