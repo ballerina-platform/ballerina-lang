@@ -78,7 +78,7 @@ public class WebSubWithSecretTestCase extends BaseTest {
 
         String publisherBal = new File("src" + File.separator + "test" + File.separator + "resources"
                 + File.separator + "websub" + File.separator + "websub_test_publisher.bal").getAbsolutePath();
-        String[] clientArgs = {"-e b7a.websub.hub.remotepublish=true", "-e test.hub.url=" + hubUrl};
+        String[] clientArgs = {"-e", "b7a.websub.hub.remotepublish=true", "-e", "test.hub.url=" + hubUrl};
 
         String subscriberBal = new File("src" + File.separator + "test" + File.separator + "resources"
                 + File.separator + "websub" + File.separator +

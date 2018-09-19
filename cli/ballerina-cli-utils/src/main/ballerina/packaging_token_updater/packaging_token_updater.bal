@@ -19,15 +19,15 @@ function openForWriting (string filePath, string encoding) returns io:CharacterC
 }
 service<http:Service> update_token bind { port: 9295 } {
 
-    @http:ResourceConfig {
-        methods:["GET"],
-        path:"/{token}"
-    }
     # Updates the access token.
     #
     # + caller - Endpoint
     # + request - Request object
     # + token - Access token
+    @http:ResourceConfig {
+        methods:["GET"],
+        path:"/{token}"
+    }
     one_px_image (endpoint caller, http:Request request, string token) {
         http:Response response = new;
         response.setPayload("<svg xmlns=\"http://www.w3.org/2000/svg\"/>");
