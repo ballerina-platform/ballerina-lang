@@ -4,7 +4,7 @@
 # `.bal` file and run the `ballerina run` command with this runtime argument. 
 $ ballerina run -e b7a.http.tracelog.console=true http_trace_logs.bal
 ballerina: HTTP trace log enabled
-ballerina: initiating service(s) in 'http_trace_logs.bal'
+Initiating service(s) in 'http_trace_logs.bal'
 ballerina: started HTTP/WS server connector 0.0.0.0:9090
 # In the logs, `http.downstream` refers to the HTTP traffic that flows between the client and Ballerina, 
 # while `http.upstream` refers to the HTTP traffic that flows between Ballerina and the backend.
