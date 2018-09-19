@@ -96,19 +96,21 @@ public type Connection object {
     # + message - The outbound response or any payload of type `string`, `xml`, `json`, `byte[]`, `io:ByteChannel`
     #             or `mime:Entity[]`. This message is optional.
     # + return - Returns an `error` if failed to respond
-    public function created(Response|string|xml|json|byte[]|io:ByteChannel|mime:Entity[]|() message = ()) returns error?;
+    public function created(Response|string|xml|json|byte[]|io:ByteChannel|mime:Entity[]|() message = ())
+                                                                                            returns error?;
 
     # Sends the outbound response to the caller with the status 202 Accepted.
     #
     # + message - The outbound response or any payload of type `string`, `xml`, `json`, `byte[]`, `io:ByteChannel`
     #             or `mime:Entity[]`. This message is optional.
     # + return - Returns an `error` if failed to respond
-    public function accepted(Response|string|xml|json|byte[]|io:ByteChannel|mime:Entity[]|() message = ()) returns error?;
+    public function accepted(Response|string|xml|json|byte[]|io:ByteChannel|mime:Entity[]|() message = ())
+                                                                                            returns error?;
 
     # Sends the outbound response to the caller with the status 204 No Content. If the given response contains a body
     # that will be removed.
     #
-    # + message - Outbound response is optional.
+    # + message - Outbound response is optional
     # + return - Returns an `error` if failed to respond
     public function noContent(Response|() message = ()) returns error?;
 
@@ -118,7 +120,7 @@ public type Connection object {
     #             or `mime:Entity[]`. This message is optional.
     # + return - Returns an `error` if failed to respond
     public function badRequest(Response|string|xml|json|byte[]|io:ByteChannel|mime:Entity[]|() message = ())
-                                                                                                        returns error?;
+                                                                                                returns error?;
 
     # Sends the outbound response to the caller with the status 500 Internal Server Error.
     #

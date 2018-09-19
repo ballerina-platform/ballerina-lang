@@ -189,7 +189,7 @@ public class HttpClientRequest {
             conn = getURLConnection(requestUrl, readTimeout);
             setHeadersAndMethod(conn, headers, method);
             conn.connect();
-            return buildResponse(conn, responseBuilder);
+            return buildResponse(conn, responseBuilder, false);
         } finally {
             if (conn != null) {
                 conn.disconnect();
@@ -251,40 +251,7 @@ public class HttpClientRequest {
     }
 
     private static HttpResponse buildResponse(HttpURLConnection conn) throws IOException {
-        return buildResponse(conn, defaultResponseBuilder);
-    }
-
-    private static HttpResponse buildResponse(HttpURLConnection conn,
-            CheckedFunction<BufferedReader, String> responseBuilder) throws IOException {
-        HttpResponse httpResponse;
-        BufferedReader rd = null;
-        String responseData;
-        try {
-            rd = new BufferedReader(new InputStreamReader(conn.getInputStream()
-                    , Charset.defaultCharset()));
-            responseData = responseBuilder.apply(rd);
-        } catch (IOException ex) {
-            if (conn.getErrorStream() == null) {
-                ex.printStackTrace();
-                return null;
-            }
-            rd = new BufferedReader(new InputStreamReader(conn.getErrorStream()
-                    , Charset.defaultCharset()));
-            String line;
-            StringBuilder sb = new StringBuilder();
-            while ((line = rd.readLine()) != null) {
-                sb.append(line);
-            }
-            responseData = sb.toString();
-        } finally {
-            if (rd != null) {
-                rd.close();
-            }
-        }
-        Map<String, String> responseHeaders = readHeaders(conn);
-        httpResponse = new HttpResponse(responseData, conn.getResponseCode(), responseHeaders);
-        httpResponse.setResponseMessage(conn.getResponseMessage());
-        return httpResponse;
+        return buildResponse(conn, defaultResponseBuilder, false);
     }
 
     private static HttpResponse buildResponse(HttpURLConnection conn,
@@ -297,6 +264,23 @@ public class HttpClientRequest {
             rd = new BufferedReader(new InputStreamReader(conn.getInputStream()
                     , Charset.defaultCharset()));
             responseData = responseBuilder.apply(rd);
+        } catch (IOException ex) {
+            if (conn.getErrorStream() == null) {
+                if (throwError) {
+                    throw ex;
+                } else {
+                    ex.printStackTrace();
+                    return null;
+                }
+            }
+            rd = new BufferedReader(new InputStreamReader(conn.getErrorStream()
+                    , Charset.defaultCharset()));
+            String line;
+            StringBuilder sb = new StringBuilder();
+            while ((line = rd.readLine()) != null) {
+                sb.append(line);
+            }
+            responseData = sb.toString();
         } finally {
             if (rd != null) {
                 rd.close();
