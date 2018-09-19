@@ -278,12 +278,11 @@ public class BLangParserListener extends BallerinaParserBaseListener {
             return;
         }
 
-        boolean docExists = ctx.documentationAttachment() != null;
         boolean markdownDocExists = ctx.documentationString() != null;
         boolean isDeprecated = ctx.deprecatedAttachment() != null;
         boolean hasParameters = ctx.resourceParameterList() != null;
-        this.pkgBuilder.endResourceDef(getCurrentPos(ctx), getWS(ctx),
-                ctx.Identifier().getText(), docExists, markdownDocExists, isDeprecated, hasParameters);
+        this.pkgBuilder.endResourceDef(getCurrentPos(ctx), getWS(ctx), ctx.Identifier().getText(), markdownDocExists,
+                isDeprecated, hasParameters);
     }
 
     @Override
@@ -392,6 +391,33 @@ public class BLangParserListener extends BallerinaParserBaseListener {
                 ctx.formalParameterList() != null && ctx.formalParameterList().restParameter() != null);
     }
 
+    @Override
+    public void enterArrowFunction(BallerinaParser.ArrowFunctionContext ctx) {
+        if (ctx.exception != null) {
+            return;
+        }
+
+        this.pkgBuilder.startVarList();
+    }
+
+    @Override
+    public void exitArrowFunctionExpression(BallerinaParser.ArrowFunctionExpressionContext ctx) {
+        if (ctx.exception != null) {
+            return;
+        }
+
+        this.pkgBuilder.addArrowFunctionDef(getCurrentPos(ctx), getWS(ctx), diagnosticSrc.pkgID);
+    }
+
+    @Override
+    public void exitArrowParam(BallerinaParser.ArrowParamContext ctx) {
+        if (ctx.exception != null) {
+            return;
+        }
+
+        this.pkgBuilder.addVarWithoutType(getCurrentPos(ctx), getWS(ctx), ctx.Identifier().getText(), false, 0);
+    }
+
     /**
      * {@inheritDoc}
      */
@@ -409,8 +435,6 @@ public class BLangParserListener extends BallerinaParserBaseListener {
 
     /**
      * {@inheritDoc}
-     *
-     * <p>The default implementation does nothing.</p>
      */
     @Override
     public void exitTypeDefinition(BallerinaParser.TypeDefinitionContext ctx) {
@@ -425,8 +449,6 @@ public class BLangParserListener extends BallerinaParserBaseListener {
 
     /**
      * {@inheritDoc}
-     *
-     * <p>The default implementation does nothing.</p>
      */
     @Override
     public void enterObjectBody(BallerinaParser.ObjectBodyContext ctx) {
@@ -441,8 +463,6 @@ public class BLangParserListener extends BallerinaParserBaseListener {
 
     /**
      * {@inheritDoc}
-     *
-     * <p>The default implementation does nothing.</p>
      */
     @Override
     public void exitObjectBody(BallerinaParser.ObjectBodyContext ctx) {
@@ -461,8 +481,6 @@ public class BLangParserListener extends BallerinaParserBaseListener {
 
     /**
      * {@inheritDoc}
-     *
-     * <p>The default implementation does nothing.</p>
      */
     @Override
     public void enterObjectInitializer(BallerinaParser.ObjectInitializerContext ctx) {
@@ -475,8 +493,6 @@ public class BLangParserListener extends BallerinaParserBaseListener {
 
     /**
      * {@inheritDoc}
-     *
-     * <p>The default implementation does nothing.</p>
      */
     @Override
     public void exitObjectInitializer(BallerinaParser.ObjectInitializerContext ctx) {
@@ -486,16 +502,13 @@ public class BLangParserListener extends BallerinaParserBaseListener {
 
         boolean publicFunc = ctx.PUBLIC() != null;
         boolean bodyExists = ctx.callableUnitBody() != null;
-        boolean docExists = ctx.documentationAttachment() != null;
         boolean markdownDocExists = ctx.documentationString() != null;
-        this.pkgBuilder.endObjectInitFunctionDef(getCurrentPos(ctx), getWS(ctx), ctx.NEW().getText(),
-                publicFunc, bodyExists, docExists, markdownDocExists, false, ctx.annotationAttachment().size());
+        this.pkgBuilder.endObjectInitFunctionDef(getCurrentPos(ctx), getWS(ctx), ctx.NEW().getText(), publicFunc,
+                bodyExists, markdownDocExists, false, ctx.annotationAttachment().size());
     }
 
     /**
      * {@inheritDoc}
-     *
-     * <p>The default implementation does nothing.</p>
      */
     @Override
     public void exitObjectInitializerParameterList(BallerinaParser.ObjectInitializerParameterListContext ctx) {
@@ -509,8 +522,6 @@ public class BLangParserListener extends BallerinaParserBaseListener {
 
     /**
      * {@inheritDoc}
-     *
-     * <p>The default implementation does nothing.</p>
      */
     @Override
     public void exitFieldDefinition(BallerinaParser.FieldDefinitionContext ctx) {
@@ -528,8 +539,6 @@ public class BLangParserListener extends BallerinaParserBaseListener {
 
     /**
      * {@inheritDoc}
-     *
-     * <p>The default implementation does nothing.</p>
      */
     @Override
     public void exitObjectFieldDefinition(BallerinaParser.ObjectFieldDefinitionContext ctx) {
@@ -542,22 +551,18 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         String name = ctx.Identifier().getText();
         boolean exprAvailable = ctx.expression() != null;
 
-
-        boolean docExists = ctx.documentationAttachment() != null;
         boolean deprecatedDocExists = ctx.deprecatedAttachment() != null;
         int annotationCount = ctx.annotationAttachment().size();
 
         boolean isPrivate = ctx.PRIVATE() != null;
         boolean isPublic = ctx.PUBLIC() != null;
 
-        this.pkgBuilder.addFieldVariable(currentPos, ws, name, exprAvailable, docExists,
-                deprecatedDocExists, annotationCount, isPrivate, isPublic);
+        this.pkgBuilder.addFieldVariable(currentPos, ws, name, exprAvailable, deprecatedDocExists, annotationCount,
+                isPrivate, isPublic);
     }
 
     /**
      * {@inheritDoc}
-     *
-     * <p>The default implementation does nothing.</p>
      */
     @Override
     public void enterObjectParameterList(BallerinaParser.ObjectParameterListContext ctx) {
@@ -570,8 +575,6 @@ public class BLangParserListener extends BallerinaParserBaseListener {
 
     /**
      * {@inheritDoc}
-     *
-     * <p>The default implementation does nothing.</p>
      */
     @Override
     public void exitObjectParameter(BallerinaParser.ObjectParameterContext ctx) {
@@ -586,8 +589,6 @@ public class BLangParserListener extends BallerinaParserBaseListener {
 
     /**
      * {@inheritDoc}
-     *
-     * <p>The default implementation does nothing.</p>
      */
     @Override
     public void exitObjectDefaultableParameter(BallerinaParser.ObjectDefaultableParameterContext ctx) {
@@ -600,8 +601,6 @@ public class BLangParserListener extends BallerinaParserBaseListener {
 
     /**
      * {@inheritDoc}
-     *
-     * <p>The default implementation does nothing.</p>
      */
     @Override
     public void enterObjectFunctionDefinition(BallerinaParser.ObjectFunctionDefinitionContext ctx) {
@@ -614,8 +613,6 @@ public class BLangParserListener extends BallerinaParserBaseListener {
 
     /**
      * {@inheritDoc}
-     *
-     * <p>The default implementation does nothing.</p>
      */
     @Override
     public void exitObjectFunctionDefinition(BallerinaParser.ObjectFunctionDefinitionContext ctx) {
@@ -627,12 +624,10 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         boolean isPrivate = ctx.PRIVATE() != null;
         boolean nativeFunc = ctx.EXTERN() != null;
         boolean bodyExists = ctx.callableUnitBody() != null;
-        boolean docExists = ctx.documentationAttachment() != null;
         boolean markdownDocExists = ctx.documentationString() != null;
         boolean deprecatedDocExists = ctx.deprecatedAttachment() != null;
         this.pkgBuilder.endObjectAttachedFunctionDef(getCurrentPos(ctx), getWS(ctx), publicFunc, isPrivate,
-                nativeFunc, bodyExists, docExists, markdownDocExists, deprecatedDocExists,
-                ctx.annotationAttachment().size());
+                nativeFunc, bodyExists, markdownDocExists, deprecatedDocExists, ctx.annotationAttachment().size());
     }
 
     /**
@@ -787,8 +782,6 @@ public class BLangParserListener extends BallerinaParserBaseListener {
 
     /**
      * {@inheritDoc}
-     *
-     * <p>The default implementation does nothing.</p>
      */
     @Override
     public void enterRecordFieldDefinitionList(BallerinaParser.RecordFieldDefinitionListContext ctx) {
@@ -1054,6 +1047,16 @@ public class BLangParserListener extends BallerinaParserBaseListener {
     }
 
     @Override
+    public void exitChannelType(BallerinaParser.ChannelTypeContext ctx) {
+        if (ctx.exception != null) {
+            return;
+        }
+
+        String typeName = ctx.getChild(0).getText();
+        this.pkgBuilder.addConstraintTypeWithTypeName(getCurrentPos(ctx), getWS(ctx), typeName);
+    }
+
+    @Override
     public void exitEndpointType(BallerinaParser.EndpointTypeContext ctx) {
         if (ctx.exception != null) {
             return;
@@ -1117,8 +1120,6 @@ public class BLangParserListener extends BallerinaParserBaseListener {
 
     /**
      * {@inheritDoc}
-     *
-     * <p>The default implementation does nothing.</p>
      */
     @Override
     public void exitCompoundOperator(BallerinaParser.CompoundOperatorContext ctx) {
@@ -1532,7 +1533,8 @@ public class BLangParserListener extends BallerinaParserBaseListener {
             return;
         }
 
-        this.pkgBuilder.addWorkerSendStmt(getCurrentPos(ctx), getWS(ctx), ctx.Identifier().getText(), false);
+        this.pkgBuilder.addWorkerSendStmt(getCurrentPos(ctx), getWS(ctx), ctx.Identifier().getText(), false, ctx
+                .expression().size() > 1);
     }
 
     @Override
@@ -1541,7 +1543,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
             return;
         }
 
-        this.pkgBuilder.addWorkerSendStmt(getCurrentPos(ctx), getWS(ctx), "FORK", true);
+        this.pkgBuilder.addWorkerSendStmt(getCurrentPos(ctx), getWS(ctx), "FORK", true, false);
     }
 
     @Override
@@ -1550,7 +1552,8 @@ public class BLangParserListener extends BallerinaParserBaseListener {
             return;
         }
 
-        this.pkgBuilder.addWorkerReceiveStmt(getCurrentPos(ctx), getWS(ctx), ctx.Identifier().getText());
+        this.pkgBuilder.addWorkerReceiveStmt(getCurrentPos(ctx), getWS(ctx), ctx.Identifier().getText(), ctx
+                .expression().size() > 1);
     }
 
     /**
@@ -2071,8 +2074,6 @@ public class BLangParserListener extends BallerinaParserBaseListener {
 
     /**
      * {@inheritDoc}
-     *
-     * <p>The default implementation does nothing.</p>
      */
     @Override
     public void exitReturnParameter(BallerinaParser.ReturnParameterContext ctx) {
@@ -2944,28 +2945,6 @@ public class BLangParserListener extends BallerinaParserBaseListener {
      * {@inheritDoc}
      */
     @Override
-    public void enterDocumentationAttachment(BallerinaParser.DocumentationAttachmentContext ctx) {
-        if (ctx.exception != null) {
-            return;
-        }
-        this.pkgBuilder.startDocumentationAttachment(getCurrentPos(ctx));
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void exitDocumentationAttachment(BallerinaParser.DocumentationAttachmentContext ctx) {
-        if (ctx.exception != null) {
-            return;
-        }
-        this.pkgBuilder.endDocumentationAttachment(getWS(ctx));
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
     public void enterDocumentationString(BallerinaParser.DocumentationStringContext ctx) {
         if (ctx.exception != null) {
             return;
@@ -2988,12 +2967,36 @@ public class BLangParserListener extends BallerinaParserBaseListener {
      * {@inheritDoc}
      */
     @Override
+    public void exitDocumentationLine(BallerinaParser.DocumentationLineContext ctx) {
+        if (ctx.exception != null) {
+            return;
+        }
+
+        this.pkgBuilder.endMarkDownDocumentLine(getWS(ctx));
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     public void exitDocumentationContent(BallerinaParser.DocumentationContentContext ctx) {
         if (ctx.exception != null) {
             return;
         }
         String text = ctx.getText() != null ? ctx.getText() : "";
-        this.pkgBuilder.endMarkdownDocumentationText(getCurrentPos(ctx), text);
+        this.pkgBuilder.endMarkdownDocumentationText(getCurrentPos(ctx), getWS(ctx), text);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void exitParameterDocumentationLine(BallerinaParser.ParameterDocumentationLineContext ctx) {
+        if (ctx.exception != null) {
+            return;
+        }
+
+        this.pkgBuilder.endParameterDocumentationLine(getWS(ctx));
     }
 
     /**
@@ -3005,20 +3008,21 @@ public class BLangParserListener extends BallerinaParserBaseListener {
             return;
         }
         String parameterName = ctx.docParameterName() != null ? ctx.docParameterName().getText() : "";
-        String description = ctx.docParameterDescription() != null ? ctx.docParameterDescription().getText() : "";
-        this.pkgBuilder.endParameterDocumentation(getCurrentPos(ctx), parameterName, description);
+        String description = ctx.documentationText() != null ? ctx.documentationText().getText() : "";
+        this.pkgBuilder.endParameterDocumentation(getCurrentPos(ctx.docParameterName()), getWS(ctx), parameterName,
+                description);
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public void exitParameterDescription(BallerinaParser.ParameterDescriptionContext ctx) {
+    public void exitParameterDescriptionLine(BallerinaParser.ParameterDescriptionLineContext ctx) {
         if (ctx.exception != null) {
             return;
         }
         String description = ctx.documentationText() != null ? ctx.documentationText().getText() : "";
-        this.pkgBuilder.endParameterDocumentationDescription(description);
+        this.pkgBuilder.endParameterDocumentationDescription(getWS(ctx), description);
     }
 
     /**
@@ -3029,49 +3033,20 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         if (ctx.exception != null) {
             return;
         }
-        String description = ctx.docParameterDescription() != null ? ctx.docParameterDescription().getText() : "";
-        this.pkgBuilder.endReturnParameterDocumentation(getCurrentPos(ctx.getParent()), description);
+        String description = ctx.documentationText() != null ? ctx.documentationText().getText() : "";
+        this.pkgBuilder.endReturnParameterDocumentation(getCurrentPos(ctx.getParent()), getWS(ctx), description);
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public void exitReturnParameterDescription(BallerinaParser.ReturnParameterDescriptionContext ctx) {
+    public void exitReturnParameterDescriptionLine(BallerinaParser.ReturnParameterDescriptionLineContext ctx) {
         if (ctx.exception != null) {
             return;
         }
         String description = ctx.documentationText() != null ? ctx.documentationText().getText() : "";
-        this.pkgBuilder.endReturnParameterDocumentationDescription(description);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void exitDocumentationTemplateContent(BallerinaParser.DocumentationTemplateContentContext ctx) {
-        if (ctx.exception != null) {
-            return;
-        }
-        String contentText = ctx.docText() != null ? ctx.docText().getText() : "";
-        this.pkgBuilder.setDocumentationAttachmentContent(getCurrentPos(ctx), getWS(ctx), contentText);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void exitDocumentationTemplateAttributeDescription
-    (BallerinaParser.DocumentationTemplateAttributeDescriptionContext ctx) {
-        if (ctx.exception != null) {
-            return;
-        }
-        String attributeStart = ctx.DocumentationTemplateAttributeStart().getText();
-        String docPrefix = attributeStart.substring(0, 1);
-        String attributeName = ctx.Identifier() != null ? ctx.Identifier().getText() : "";
-        String endText = ctx.docText() != null ? ctx.docText().getText() : "";
-        this.pkgBuilder.createDocumentationAttribute(getCurrentPos(ctx), getWS(ctx),
-                attributeName, endText, docPrefix);
+        this.pkgBuilder.endReturnParameterDocumentationDescription(getWS(ctx), description);
     }
 
     /**

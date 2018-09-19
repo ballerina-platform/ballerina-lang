@@ -64,6 +64,15 @@ public class BalxRunFunctionPositiveTestCase extends BaseTest {
     }
 
     @Test
+    public void testMainWithNoReturn() throws BallerinaTestException {
+        sourceArg = balxPath;
+        String arg0 = "main with no return";
+        LogLeecher outLogLeecher = new LogLeecher(arg0);
+        balClient.runMain(sourceArg, new String[]{PRINT_RETURN}, new String[]{arg0}, new LogLeecher[]{outLogLeecher});
+        outLogLeecher.waitForText(2000);
+    }
+
+    @Test
     public void testNoArg() throws BallerinaTestException {
         String functionName = "noParamEntry";
         sourceArg = balxPath + ":" + functionName;

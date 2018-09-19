@@ -22,12 +22,13 @@ import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.common.utils.CommonUtil.FunctionGenerator;
 import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
 import org.ballerinalang.langserver.compiler.LSCompiler;
-import org.ballerinalang.langserver.compiler.LSContext;
 import org.ballerinalang.langserver.compiler.LSServiceOperationContext;
 import org.ballerinalang.langserver.compiler.common.LSCustomErrorStrategy;
 import org.ballerinalang.langserver.compiler.workspace.WorkspaceDocumentException;
 import org.ballerinalang.langserver.compiler.workspace.WorkspaceDocumentManager;
+import org.ballerinalang.model.symbols.SymbolKind;
 import org.ballerinalang.model.tree.Node;
+import org.ballerinalang.model.tree.TopLevelNode;
 import org.eclipse.lsp4j.ApplyWorkspaceEditParams;
 import org.eclipse.lsp4j.ExecuteCommandParams;
 import org.eclipse.lsp4j.Position;
@@ -48,6 +49,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangResource;
 import org.wso2.ballerinalang.compiler.tree.BLangService;
 import org.wso2.ballerinalang.compiler.tree.BLangTypeDefinition;
+import org.wso2.ballerinalang.compiler.tree.BLangVariable;
 import org.wso2.ballerinalang.compiler.tree.types.BLangObjectTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangRecordTypeNode;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
@@ -84,6 +86,7 @@ public class CommandExecutor {
      *
      * @param params  Parameters for the command
      * @param context Workspace service context
+     * @return Result object
      */
     public static Object executeCommand(ExecuteCommandParams params, LSServiceOperationContext context) {
         Object result;
@@ -104,12 +107,15 @@ public class CommandExecutor {
                 case CommandConstants.CMD_ADD_ALL_DOC:
                     result = executeAddAllDocumentation(context);
                     break;
+                case CommandConstants.CMD_CREATE_CONSTRUCTOR:
+                    result = executeCreateObjectConstructor(context);
+                    break;
                 default:
                     // Do Nothing
                     result = new Object();
                     break;
             }
-        } catch (WorkspaceDocumentException e) {
+        } catch (WorkspaceDocumentException | BallerinaCommandExecutionException e) {
             logger.error("Error occurred while executing command", e);
             result = new Object();
         }
@@ -327,7 +333,7 @@ public class CommandExecutor {
                 false, LSCustomErrorStrategy.class, false).getRight();
         context.put(DocumentServiceKeys.CURRENT_BLANG_PACKAGE_CONTEXT_KEY, bLangPackage);
         CommandUtil.DocAttachmentInfo docAttachmentInfo =
-                getDocumentEditForNodeByPosition(topLevelNodeType, bLangPackage, line, context);
+                getDocumentationEditForNodeByPosition(topLevelNodeType, bLangPackage, line);
 
         if (docAttachmentInfo != null) {
             Path filePath = Paths.get(URI.create(documentUri));
@@ -379,13 +385,13 @@ public class CommandExecutor {
         bLangPackage.topLevelNodes.stream()
                 .filter(node -> node.getPosition().getSource().getCompilationUnitName().equals(fileName))
                 .forEach(topLevelNode -> {
-                    CommandUtil.DocAttachmentInfo docAttachmentInfo = getDocumentEditForNode(topLevelNode);
+                    CommandUtil.DocAttachmentInfo docAttachmentInfo = getDocumentationEditForNode(topLevelNode);
                     if (docAttachmentInfo != null) {
                         textEdits.add(getTextEdit(docAttachmentInfo, contentComponents));
                     }
                     if (topLevelNode instanceof BLangService) {
                         ((BLangService) topLevelNode).getResources().forEach(bLangResource -> {
-                            CommandUtil.DocAttachmentInfo resourceInfo = getDocumentEditForNode(bLangResource);
+                            CommandUtil.DocAttachmentInfo resourceInfo = getDocumentationEditForNode(bLangResource);
                             if (resourceInfo != null) {
                                 textEdits.add(getTextEdit(resourceInfo, contentComponents));
                             }
@@ -394,6 +400,59 @@ public class CommandExecutor {
                 });
         TextDocumentEdit textDocumentEdit = new TextDocumentEdit(textDocumentIdentifier, textEdits);
         return applyWorkspaceEdit(Collections.singletonList(textDocumentEdit),
+                context.get(ExecuteCommandKeys.LANGUAGE_SERVER_KEY).getClient());
+    }
+
+    /**
+     * Execute the create object constructor. Generates the snippet for the new constructor and hence the text edit.
+     *
+     * @param context                               LsServiceOperationContext instance for command execution
+     * @return {@link Object}                       ApplyWorkspaceEditParams related to text edit
+     * @throws WorkspaceDocumentException           Error while accessing the document manager
+     * @throws BallerinaCommandExecutionException   Error while the command Execution
+     */
+    private static Object executeCreateObjectConstructor(LSServiceOperationContext context)
+            throws WorkspaceDocumentException, BallerinaCommandExecutionException {
+        String documentUri;
+        int line = 0;
+        VersionedTextDocumentIdentifier textDocumentIdentifier = new VersionedTextDocumentIdentifier();
+        for (Object arg : context.get(ExecuteCommandKeys.COMMAND_ARGUMENTS_KEY)) {
+            if (((LinkedTreeMap) arg).get(ARG_KEY).equals(CommandConstants.ARG_KEY_DOC_URI)) {
+                documentUri = (String) ((LinkedTreeMap) arg).get(ARG_VALUE);
+                textDocumentIdentifier.setUri(documentUri);
+                context.put(DocumentServiceKeys.FILE_URI_KEY, documentUri);
+            } else if (((LinkedTreeMap) arg).get(ARG_KEY).equals(CommandConstants.ARG_KEY_NODE_LINE)) {
+                line = Integer.parseInt((String) ((LinkedTreeMap) arg).get(ARG_VALUE));
+            }
+        }
+        LSCompiler lsCompiler = context.get(ExecuteCommandKeys.LS_COMPILER_KEY);
+        WorkspaceDocumentManager documentManager = context.get(ExecuteCommandKeys.DOCUMENT_MANAGER_KEY);
+        BLangPackage bLangPackage = lsCompiler.getBLangPackage(context, documentManager,
+                false, LSCustomErrorStrategy.class, false).getRight();
+        context.put(DocumentServiceKeys.CURRENT_BLANG_PACKAGE_CONTEXT_KEY, bLangPackage);
+
+        int finalLine = line;
+        
+        /*
+        In the ideal situation Command execution exception should never throw. If thrown, create constructor command
+        has been executed over a non object type node.
+         */
+        TopLevelNode objectNode = bLangPackage.topLevelNodes.stream()
+                .filter(topLevelNode -> topLevelNode instanceof BLangTypeDefinition
+                        && ((BLangTypeDefinition) topLevelNode).symbol.kind.equals(SymbolKind.OBJECT)
+                        && topLevelNode.getPosition().getStartLine() - 1 == finalLine)
+                .findAny().orElseThrow(() ->
+                        new BallerinaCommandExecutionException("Error Executing Create Constructor Command"));
+        List<BLangVariable> fields = ((BLangObjectTypeNode) ((BLangTypeDefinition) objectNode).typeNode).fields;
+        
+        DiagnosticPos zeroBasedIndex = CommonUtil.toZeroBasedPosition(CommonUtil.getLastItem(fields).getPosition());
+        int lastFieldLine = zeroBasedIndex.getEndLine();
+        int lastFieldOffset = zeroBasedIndex.getStartColumn();
+        String constructorSnippet = CommandUtil.getObjectConstructorSnippet(fields, lastFieldOffset);
+        Range range = new Range(new Position(lastFieldLine + 1, lastFieldOffset),
+                new Position(lastFieldLine + 1, lastFieldOffset));
+
+        return applySingleTextEdit(constructorSnippet, range, textDocumentIdentifier,
                 context.get(ExecuteCommandKeys.LANGUAGE_SERVER_KEY).getClient());
     }
 
@@ -414,30 +473,30 @@ public class CommandExecutor {
     }
 
     /**
-     * Get Document edit for node at a given position.
+     * Get Documentation edit for node at a given position.
      *
-     * @param topLevelNodeType top level node type
-     * @param bLangPackage     BLang package
-     * @param line             position to be compared with
-     * @param context               Execute Command Context
+     * @param topLevelNodeType  top level node type
+     * @param bLangPkg          BLang package
+     * @param line              position to be compared with
      * @return Document attachment info
      */
-    private static CommandUtil.DocAttachmentInfo getDocumentEditForNodeByPosition(String topLevelNodeType,
-                                                                                  BLangPackage bLangPackage, int line,
-                                                                                  LSContext context) {
+    private static CommandUtil.DocAttachmentInfo getDocumentationEditForNodeByPosition(String topLevelNodeType, 
+                                                                                       BLangPackage bLangPkg,
+                                                                                       int line) {
         CommandUtil.DocAttachmentInfo docAttachmentInfo = null;
         switch (topLevelNodeType) {
             case UtilSymbolKeys.FUNCTION_KEYWORD_KEY:
-                docAttachmentInfo = CommandUtil.getFunctionDocumentationByPosition(bLangPackage, line);
+                docAttachmentInfo = CommandUtil.getFunctionDocumentationByPosition(bLangPkg, line);
                 break;
             case UtilSymbolKeys.ENDPOINT_KEYWORD_KEY:
-                docAttachmentInfo = CommandUtil.getEndpointDocumentationByPosition(bLangPackage, line);
+                docAttachmentInfo = CommandUtil.getEndpointDocumentationByPosition(bLangPkg, line);
                 break;
             case UtilSymbolKeys.SERVICE_KEYWORD_KEY:
-                docAttachmentInfo = CommandUtil.getServiceDocumentationByPosition(bLangPackage, line);
+                docAttachmentInfo = CommandUtil.getServiceDocumentationByPosition(bLangPkg, line);
                 break;
-            case UtilSymbolKeys.TYPE_KEYWORD_KEY:
-                docAttachmentInfo = CommandUtil.getTypeNodeDocumentationByPosition(bLangPackage, line);
+            case UtilSymbolKeys.RECORD_KEYWORD_KEY:
+            case UtilSymbolKeys.OBJECT_KEYWORD_KEY:
+                docAttachmentInfo = CommandUtil.getTypeNodeDocumentationByPosition(bLangPkg, line);
                 break;
             default:
                 break;
@@ -447,23 +506,23 @@ public class CommandExecutor {
     }
 
     /**
-     * Get the document edit attachment info for a given particular node.
+     * Get the documentation edit attachment info for a given particular node.
      *
      * @param node Node given
      * @return Doc Attachment Info
      */
-    private static CommandUtil.DocAttachmentInfo getDocumentEditForNode(Node node) {
+    private static CommandUtil.DocAttachmentInfo getDocumentationEditForNode(Node node) {
         CommandUtil.DocAttachmentInfo docAttachmentInfo = null;
         int replaceFrom;
         switch (node.getKind()) {
             case FUNCTION:
-                if (((BLangFunction) node).docAttachments.isEmpty()) {
+                if (((BLangFunction) node).markdownDocumentationAttachment == null) {
                     replaceFrom = CommonUtil.toZeroBasedPosition(((BLangFunction) node).getPosition()).getStartLine();
                     docAttachmentInfo = CommandUtil.getFunctionNodeDocumentation((BLangFunction) node, replaceFrom);
                 }
                 break;
             case TYPE_DEFINITION:
-                if (((BLangTypeDefinition) node).docAttachments.isEmpty()
+                if (((BLangTypeDefinition) node).markdownDocumentationAttachment == null
                         && (((BLangTypeDefinition) node).typeNode instanceof BLangRecordTypeNode
                         || ((BLangTypeDefinition) node).typeNode instanceof BLangObjectTypeNode)) {
                     replaceFrom = CommonUtil
@@ -478,7 +537,7 @@ public class CommandExecutor {
                 docAttachmentInfo = CommandUtil.getEndpointNodeDocumentation((BLangEndpoint) node, replaceFrom);
                 break;
             case RESOURCE:
-                if (((BLangResource) node).docAttachments.isEmpty()) {
+                if (((BLangResource) node).markdownDocumentationAttachment == null) {
                     BLangResource bLangResource = (BLangResource) node;
                     replaceFrom =
                             getReplaceFromForServiceOrResource(bLangResource, bLangResource.getAnnotationAttachments());
@@ -486,7 +545,7 @@ public class CommandExecutor {
                 }
                 break;
             case SERVICE:
-                if (((BLangService) node).docAttachments.isEmpty()) {
+                if (((BLangService) node).markdownDocumentationAttachment == null) {
                     BLangService bLangService = (BLangService) node;
                     replaceFrom = getReplaceFromForServiceOrResource(bLangService,
                             bLangService.getAnnotationAttachments());

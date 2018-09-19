@@ -376,7 +376,8 @@ public class Generator {
         }
         returnParams.add(getVariableForType(EMPTY_STRING, invokable.retType));
 
-        return new FunctionDoc(name, invokable.documentation.description, new ArrayList<>(), parameters, returnParams);
+        return new FunctionDoc(name, invokable.markdownDocumentation.description, new ArrayList<>(), parameters,
+                returnParams);
     }
 
     /**
@@ -446,6 +447,7 @@ public class Generator {
      * Create documentation for records.
      *
      * @param recordType ballerina record node.
+     * @param structName  struct name.
      * @return documentation of the record.
      */
     private static RecordDoc createDocForType(BLangTypeDefinition typeDefinition, BLangRecordTypeNode recordType,

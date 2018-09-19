@@ -80,6 +80,7 @@ public type TopicPublisher object {
 public type TopicPublisherEndpointConfiguration record {
     Session? session;
     string? topicPattern;
+    !...
 };
 
 # Actions that topic publisher endpoint could perform
@@ -92,12 +93,10 @@ public type TopicPublisherActions object {
     # + message - Message to be sent to the JMS provider
     public extern function send(Message message) returns error?;
 
-    documentation {
-        Sends a message to the JMS provider
-
-        P{{destination}} destination used for the message sender
-        P{{message}} message to be sent to the JMS provider
-    }
+    # Sends a message to the JMS provider
+    #
+    # + destination - destination used for the message sender
+    # + message - message to be sent to the JMS provider
     public function sendTo(Destination destination, Message message) returns error?;
 };
 

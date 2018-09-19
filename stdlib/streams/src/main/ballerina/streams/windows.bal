@@ -24,6 +24,7 @@ public type StreamEvent record {
     EventType eventType;
     any eventObject;
     int timestamp;
+    !...
 };
 
 public type Window object {

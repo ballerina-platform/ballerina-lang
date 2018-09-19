@@ -114,7 +114,6 @@ public class UserDefinedMessage extends Message {
         public Builder addMessageDefinition(Message messageDefinition) {
             if (messageDefinition instanceof UserDefinedEnumMessage) {
                 UserDefinedEnumMessage enumMessage = (UserDefinedEnumMessage) messageDefinition;
-                messageDescriptorBuilder.addEnumType(enumMessage.getDescriptorProto());
                 nestedEnumList.add(enumMessage);
             } else if (messageDefinition instanceof UserDefinedMessage) {
                 UserDefinedMessage message = (UserDefinedMessage) messageDefinition;

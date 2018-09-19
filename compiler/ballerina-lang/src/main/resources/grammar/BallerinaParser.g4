@@ -10,7 +10,7 @@ options {
 // starting point for parsing a bal file
 compilationUnit
     :   (importDeclaration | namespaceDeclaration)*
-        ((documentationAttachment|documentationString)? deprecatedAttachment? annotationAttachment* definition)*
+        (documentationString? deprecatedAttachment? annotationAttachment* definition)*
         EOF
     ;
 
@@ -53,7 +53,7 @@ serviceBody
     ;
 
 resourceDefinition
-    :   annotationAttachment* (documentationAttachment|documentationString)? deprecatedAttachment? Identifier LEFT_PARENTHESIS resourceParameterList? RIGHT_PARENTHESIS callableUnitBody
+    :   documentationString? annotationAttachment* deprecatedAttachment? Identifier LEFT_PARENTHESIS resourceParameterList? RIGHT_PARENTHESIS callableUnitBody
     ;
 
 resourceParameterList
@@ -71,7 +71,16 @@ functionDefinition
     ;
 
 lambdaFunction
-    :  LEFT_PARENTHESIS formalParameterList? RIGHT_PARENTHESIS EQUAL_GT lambdaReturnParameter? callableUnitBody
+    :  FUNCTION LEFT_PARENTHESIS formalParameterList? RIGHT_PARENTHESIS (RETURNS lambdaReturnParameter)? callableUnitBody
+    ;
+
+arrowFunction
+    :   arrowParam EQUAL_GT expression
+    |   LEFT_PARENTHESIS arrowParam (COMMA arrowParam)* RIGHT_PARENTHESIS EQUAL_GT expression
+    ;
+
+arrowParam
+    :   Identifier
     ;
 
 callableUnitSignature
@@ -87,7 +96,7 @@ objectBody
     ;
 
 objectInitializer
-    :   annotationAttachment* (documentationAttachment|documentationString)? (PUBLIC)? NEW objectInitializerParameterList callableUnitBody
+    :   documentationString? annotationAttachment* (PUBLIC)? NEW objectInitializerParameterList callableUnitBody
     ;
 
 objectInitializerParameterList
@@ -99,7 +108,7 @@ objectFunctions
     ;
 
 objectFieldDefinition
-    :   annotationAttachment* documentationAttachment? deprecatedAttachment? (PUBLIC | PRIVATE)? typeName Identifier (ASSIGN expression)? (COMMA | SEMICOLON)
+    :   annotationAttachment* deprecatedAttachment? (PUBLIC | PRIVATE)? typeName Identifier (ASSIGN expression)? (COMMA | SEMICOLON)
     ;
 
 fieldDefinition
@@ -131,7 +140,7 @@ objectDefaultableParameter
     ;
 
 objectFunctionDefinition
-    :   annotationAttachment* (documentationAttachment|documentationString)? deprecatedAttachment? (PUBLIC | PRIVATE)? (EXTERN)? FUNCTION callableUnitSignature (callableUnitBody | SEMICOLON)
+    :   documentationString? annotationAttachment* deprecatedAttachment? (PUBLIC | PRIVATE)? (EXTERN)? FUNCTION callableUnitSignature (callableUnitBody | SEMICOLON)
     ;
 
 annotationDefinition
@@ -140,6 +149,11 @@ annotationDefinition
 
 globalVariableDefinition
     :   (PUBLIC)? typeName Identifier (ASSIGN expression )? SEMICOLON
+    |   channelType Identifier SEMICOLON
+    ;
+
+channelType
+    : CHANNEL (LT typeName GT)
     ;
 
 attachmentPoint
@@ -482,15 +496,15 @@ workerInteractionStatement
     |   workerReply
     ;
 
-// below left Identifier is of type TYPE_MESSAGE and the right Identifier is of type WORKER
+// below left Identifier is of type TYPE_MESSAGE and the right Identifier is of type WORKER or CHANNEL
 triggerWorker
-    :   expression RARROW Identifier SEMICOLON        #invokeWorker
+    :   expression RARROW Identifier (COMMA expression)? SEMICOLON        #invokeWorker
     |   expression RARROW FORK SEMICOLON              #invokeFork
     ;
 
-// below left Identifier is of type WORKER and the right Identifier is of type message
+// below left Identifier is of type WORKER or CHANNEL and the right Identifier is of type message
 workerReply
-    :   expression LARROW Identifier SEMICOLON
+    :   expression LARROW Identifier (COMMA expression)? SEMICOLON
     ;
 
 variableReference
@@ -607,6 +621,7 @@ expression
     |   START? variableReference                                            # variableReferenceExpression
     |   actionInvocation                                                    # actionInvocationExpression
     |   lambdaFunction                                                      # lambdaFunctionExpression
+    |   arrowFunction                                                       # arrowFunctionExpression
     |   typeInitExpr                                                        # typeInitExpression
     |   tableQuery                                                          # tableQueryExpression
     |   LT typeName (COMMA functionInvocation)? GT expression               # typeConversionExpression
@@ -990,42 +1005,6 @@ tripleBackTickDeprecatedInlineCode
     :   TBDeprecatedInlineCodeStart TripleBackTickInlineCode? TripleBackTickInlineCodeEnd
     ;
 
-documentationAttachment
-    :   DocumentationTemplateStart documentationTemplateContent? DocumentationTemplateEnd
-    ;
-
-documentationTemplateContent
-    :   docText? documentationTemplateAttributeDescription+
-    |   docText
-    ;
-
-documentationTemplateAttributeDescription
-    :   DocumentationTemplateAttributeStart Identifier? DocumentationTemplateAttributeEnd docText?
-    ;
-
-docText
-    :   documentationTemplateInlineCode (DocumentationTemplateText | documentationTemplateInlineCode)*
-    |   DocumentationTemplateText  (DocumentationTemplateText | documentationTemplateInlineCode)*
-    ;
-
-documentationTemplateInlineCode
-    :   singleBackTickDocInlineCode
-    |   doubleBackTickDocInlineCode
-    |   tripleBackTickDocInlineCode
-    ;
-
-singleBackTickDocInlineCode
-    :   SBDocInlineCodeStart SingleBackTickInlineCode? SingleBackTickInlineCodeEnd
-    ;
-
-doubleBackTickDocInlineCode
-    :   DBDocInlineCodeStart DoubleBackTickInlineCode? DoubleBackTickInlineCodeEnd
-    ;
-
-tripleBackTickDocInlineCode
-    :   TBDocInlineCodeStart TripleBackTickInlineCode? TripleBackTickInlineCodeEnd
-    ;
-
 // Markdown documentation
 documentationString
     :   documentationLine+ parameterDocumentationLine* returnParameterDocumentationLine?
@@ -1036,27 +1015,27 @@ documentationLine
     ;
 
 parameterDocumentationLine
-    :   (ParameterDocumentationStart parameterDocumentation) (DocumentationLineStart parameterDescription)*
+    :   parameterDocumentation parameterDescriptionLine*
     ;
 
 returnParameterDocumentationLine
-    :   (ReturnParameterDocumentationStart returnParameterDocumentation) (DocumentationLineStart returnParameterDescription)*
+    :   returnParameterDocumentation returnParameterDescriptionLine*
     ;
 
 documentationContent
     :   documentationText?
     ;
 
-parameterDescription
-    :   documentationText?
+parameterDescriptionLine
+    :   DocumentationLineStart documentationText?
     ;
 
-returnParameterDescription
-    :   documentationText?
+returnParameterDescriptionLine
+    :   DocumentationLineStart documentationText?
     ;
 
 documentationText
-    :   (DocumentationText | ReferenceType | VARIABLE | MODULE | DocumentationEscapedCharacters | documentationReference | singleBacktickedBlock | doubleBacktickedBlock | tripleBacktickedBlock | DefinitionReference)+
+    :   (DocumentationText | ReferenceType | VARIABLE | MODULE | documentationReference | singleBacktickedBlock | doubleBacktickedBlock | tripleBacktickedBlock | DefinitionReference)+
     ;
 
 documentationReference
@@ -1072,19 +1051,15 @@ definitionReferenceType
     ;
 
 parameterDocumentation
-    :   docParameterName DescriptionSeparator docParameterDescription
+    :   ParameterDocumentationStart docParameterName DescriptionSeparator documentationText?
     ;
 
 returnParameterDocumentation
-    :   docParameterDescription
+    :   ReturnParameterDocumentationStart documentationText?
     ;
 
 docParameterName
     :   ParameterName
-    ;
-
-docParameterDescription
-    :   documentationText?
     ;
 
 singleBacktickedBlock

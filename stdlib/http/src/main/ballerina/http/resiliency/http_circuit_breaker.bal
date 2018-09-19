@@ -57,6 +57,7 @@ public type CircuitHealth record {
     time:Time lastErrorTime,
     time:Time lastForcedOpenTime,
     Bucket[] totalBuckets,
+    !...
 };
 
 # Provides a set of configurations for controlling the behaviour of the Circuit Breaker.
@@ -72,6 +73,7 @@ public type CircuitBreakerConfig record {
     float failureThreshold,
     int resetTimeMillis,
     int[] statusCodes,
+    !...
 };
 
 # Represents a rolling window in the Circuit Breaker.
@@ -83,6 +85,7 @@ public type RollingWindow record {
     int requestVolumeThreshold = 10,
     int timeWindowMillis = 60000,
     int bucketSizeMillis = 10000,
+    !...
 };
 
 # Represents a discrete sub-part of the time window (Bucket).
@@ -96,6 +99,7 @@ public type Bucket record {
     int failureCount,
     int rejectedCount,
     time:Time lastUpdatedTime,
+    !...
 };
 
 # Derived set of configurations from the `CircuitBreakerConfig`.
@@ -113,6 +117,7 @@ public type CircuitBreakerInferredConfig record {
     boolean[] statusCodes,
     int noOfBuckets,
     RollingWindow rollingWindow,
+    !...
 };
 
 # A Circuit Breaker implementation which can be used to gracefully handle network failures.
@@ -778,14 +783,12 @@ function updateLastUsedBucketId(int bucketId, CircuitHealth circuitHealth) {
     }
 }
 
-documentation {
-    Switches circuit state from open to half open state when reset time exceeded.
-
-    P{{circuitBreakerInferredConfig}}  Configurations derived from `CircuitBreakerConfig`
-    P{{circuitHealth}}  Circuit Breaker health status
-    P{{currentState}}  current state of the circuit
-    R{{}} Calculated state value of the circuit
-}
+# Switches circuit state from open to half open state when reset time exceeded.
+#
+# + circuitBreakerInferredConfig -  Configurations derived from `CircuitBreakerConfig`
+# + circuitHealth - Circuit Breaker health status
+# + currentState - current state of the circuit
+# + return - Calculated state value of the circuit
 function switchCircuitStateOpenToHalfOpenOnResetTime(CircuitBreakerInferredConfig circuitBreakerInferredConfig,
                                         CircuitHealth circuitHealth, CircuitState currentState) returns CircuitState {
     CircuitState currentCircuitState = currentState;

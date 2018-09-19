@@ -144,8 +144,8 @@ class WebSubResourceDispatcher {
         BMap<String, BMap<String, BMap<String, BValue>>> headerAndPayloadKeyResourceMap =
                                                                 servicesRegistry.getHeaderAndPayloadKeyResourceMap();
         String topic = inboundRequest.getHeader(servicesRegistry.getTopicHeader());
-        BValue httpRequest = getHttpRequest(programFile, inboundRequest);
-        BMap<String, ?> jsonBody = getJsonBody((BMap<String, BValue>) httpRequest);
+        BMap<String, BValue> httpRequest = getHttpRequest(programFile, inboundRequest);
+        BMap<String, ?> jsonBody = getJsonBody(httpRequest);
         inboundRequest.setProperty(ENTITY_ACCESSED_REQUEST, httpRequest);
 
         if (headerAndPayloadKeyResourceMap.hasKey(topic)) {
@@ -192,8 +192,8 @@ class WebSubResourceDispatcher {
      */
     private static String retrieveResourceName(ProgramFile programFile, HttpCarbonMessage inboundRequest,
                                                BMap<String, BMap<String, BValue>> payloadKeyResourceMap) {
-        BValue httpRequest = getHttpRequest(programFile, inboundRequest);
-        BMap<String, ?> jsonBody = getJsonBody((BMap<String, BValue>) httpRequest);
+        BMap<String, BValue> httpRequest = getHttpRequest(programFile, inboundRequest);
+        BMap<String, ?> jsonBody = getJsonBody(httpRequest);
         inboundRequest.setProperty(ENTITY_ACCESSED_REQUEST, httpRequest);
         String resourceName = retrieveResourceNameForKey(jsonBody, payloadKeyResourceMap);
         if (resourceName != null) {
