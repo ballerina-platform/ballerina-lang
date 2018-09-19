@@ -658,7 +658,15 @@ public class Desugar extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangReturn returnNode) {
-        returnNode.expr = rewriteExpr(returnNode.expr);
+        // If the return node do not have an expression, we add `done` statement instead of a return statement. This is
+        // to distinguish between returning nil value specifically and not returning any value.
+        if (returnNode.expr == null) {
+            BLangDone doneStmt = (BLangDone) TreeBuilder.createDoneNode();
+            doneStmt.pos = returnNode.pos;
+            result = doneStmt;
+        } else {
+            returnNode.expr = rewriteExpr(returnNode.expr);
+        }
         result = returnNode;
     }
 
@@ -2706,7 +2714,6 @@ public class Desugar extends BLangNodeVisitor {
         dupFuncSymbol.taintTable = invokableSymbol.taintTable;
         dupFuncSymbol.tainted = invokableSymbol.tainted;
         dupFuncSymbol.closure = invokableSymbol.closure;
-        dupFuncSymbol.documentation = invokableSymbol.documentation;
         dupFuncSymbol.markdownDocumentation = invokableSymbol.markdownDocumentation;
         dupFuncSymbol.scope = invokableSymbol.scope;
 
