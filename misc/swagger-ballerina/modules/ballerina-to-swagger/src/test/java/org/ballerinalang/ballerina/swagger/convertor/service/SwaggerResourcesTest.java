@@ -46,39 +46,43 @@ public class SwaggerResourcesTest {
     }
     
     /**
-     * Test case to check if path value in ResourceConfig annotation having no hyphen generates valid OAS definition.
+     * Test case to check if path value in ResourceConfig annotation having no prefixed forward slash generates valid
+     * OAS definition.
      */
-    @Test(description = "Test hyphen is added when hyphen is not in the resource path value")
-    public void testPathNoPrefixedHyphen() throws SwaggerConverterException, IOException {
-        String balSrc = FileUtils.readFileToString(balFilesPath.resolve("path-annotations-no-hyphen.bal").toFile());
-        String oasSrc =
-                FileUtils.readFileToString(oasDefinitionsPath.resolve("path-annotation-no-hyphen.yaml").toFile());
+    @Test(description = "Test forward slash is added when forward slash is not in the resource path value")
+    public void testPathNoPrefixedForwardSlash() throws SwaggerConverterException, IOException {
+        String balSrc =
+                FileUtils.readFileToString(balFilesPath.resolve("path-annotations-no-forward-slash.bal").toFile());
+        String oasSrc = FileUtils.readFileToString(oasDefinitionsPath.resolve("path-annotation-no-forward-slash.yaml")
+                .toFile());
         
         String generatedOAS = SwaggerConverterUtils.generateOAS3Definitions(balSrc, "hello");
-    
+        
         SwaggerDeserializationResult resultParseResult = new SwaggerParser().readWithInfo(generatedOAS);
         SwaggerDeserializationResult oasSrcParseResult = new SwaggerParser().readWithInfo(oasSrc);
-    
-        Assert.assertEquals(oasSrcParseResult.getSwagger(), resultParseResult.getSwagger(), "Generated OAS resource " +
-                                                                                            "path is wrong.");
+        
+        Assert.assertEquals(oasSrcParseResult.getSwagger(), resultParseResult.getSwagger(),
+                "Generated OAS resource " + "path is wrong.");
     }
     
     /**
-     * Test case to check if path value in ResourceConfig annotation having an hyphen generates valid OAS definition.
+     * Test case to check if path value in ResourceConfig annotation having a prefixed forward slash generates valid
+     * OAS definition.
      */
-    @Test(description = "Test hyphen is added when hyphen is not in the resource path value")
-    public void testPathWithPrefixedHyphen() throws SwaggerConverterException, IOException {
-        String balSrc = FileUtils.readFileToString(balFilesPath.resolve("path-annotations-with-hyphen.bal").toFile());
-        String oasSrc =
-                FileUtils.readFileToString(oasDefinitionsPath.resolve("path-annotation-no-hyphen.yaml").toFile());
+    @Test(description = "Test forward slash is added when forward slash is not in the resource path value")
+    public void testPathWithPrefixedForwardSlash() throws SwaggerConverterException, IOException {
+        String balSrc =
+                FileUtils.readFileToString(balFilesPath.resolve("path-annotations-with-forward-slash.bal").toFile());
+        String oasSrc = FileUtils.readFileToString(oasDefinitionsPath.resolve("path-annotation-no-forward-slash.yaml")
+                .toFile());
         
         String generatedOAS = SwaggerConverterUtils.generateOAS3Definitions(balSrc, "hello");
-    
+        
         SwaggerDeserializationResult resultParseResult = new SwaggerParser().readWithInfo(generatedOAS);
         SwaggerDeserializationResult oasSrcParseResult = new SwaggerParser().readWithInfo(oasSrc);
-    
-        Assert.assertEquals(oasSrcParseResult.getSwagger(), resultParseResult.getSwagger(), "Generated OAS resource " +
-                                                                                            "path is wrong.");
+        
+        Assert.assertEquals(oasSrcParseResult.getSwagger(), resultParseResult.getSwagger(),
+                "Generated OAS resource " + "path is wrong.");
     }
 }
 
