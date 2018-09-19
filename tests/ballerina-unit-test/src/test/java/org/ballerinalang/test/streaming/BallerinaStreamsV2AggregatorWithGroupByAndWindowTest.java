@@ -46,9 +46,9 @@ public class BallerinaStreamsV2AggregatorWithGroupByAndWindowTest {
     @Test(description = "Test filter streaming query")
     public void testSelectWithGroupByAndWindow() {
         BValue[] outputTeacherEvents = BRunUtil.invoke(result, "startAggregationWithGroupByQuery");
-        System.setProperty("enable.siddhiRuntime", "true");
+        System.setProperty("enable.siddhiRuntime", "false");
         Assert.assertNotNull(outputTeacherEvents);
-        Assert.assertEquals(outputTeacherEvents.length, 9, "Expected events are not received");
+        Assert.assertEquals(outputTeacherEvents.length, 7, "Expected events are not received");
 
         BMap<String, BValue> teacher0 = (BMap<String, BValue>) outputTeacherEvents[0];
         BMap<String, BValue> teacher1 = (BMap<String, BValue>) outputTeacherEvents[1];
@@ -57,9 +57,6 @@ public class BallerinaStreamsV2AggregatorWithGroupByAndWindowTest {
         BMap<String, BValue> teacher4 = (BMap<String, BValue>) outputTeacherEvents[4];
         BMap<String, BValue> teacher5 = (BMap<String, BValue>) outputTeacherEvents[5];
         BMap<String, BValue> teacher6 = (BMap<String, BValue>) outputTeacherEvents[6];
-        BMap<String, BValue> teacher7 = (BMap<String, BValue>) outputTeacherEvents[7];
-        BMap<String, BValue> teacher8 = (BMap<String, BValue>) outputTeacherEvents[8];
-
 
         Assert.assertEquals(teacher0.get("name").stringValue(), "Mohan");
         Assert.assertEquals(((BInteger) teacher0.get("sumAge")).intValue(), 30);
@@ -81,20 +78,12 @@ public class BallerinaStreamsV2AggregatorWithGroupByAndWindowTest {
         Assert.assertEquals(((BInteger) teacher4.get("sumAge")).intValue(), 120);
         Assert.assertEquals(((BInteger) teacher4.get("count")).intValue(), 4);
 
-        Assert.assertEquals(teacher5.get("name").stringValue(), "Mohan");
+        Assert.assertEquals(teacher5.get("name").stringValue(), "Raja");
         Assert.assertEquals(((BInteger) teacher5.get("sumAge")).intValue(), 90);
-        Assert.assertEquals(((BInteger) teacher5.get("count")).intValue(), 3);
+        Assert.assertEquals(((BInteger) teacher5.get("count")).intValue(), 2);
 
-        Assert.assertEquals(teacher6.get("name").stringValue(), "Raja");
-        Assert.assertEquals(((BInteger) teacher6.get("sumAge")).intValue(), 90);
-        Assert.assertEquals(((BInteger) teacher6.get("count")).intValue(), 2);
-
-        Assert.assertEquals(teacher7.get("name").stringValue(), "Raja");
-        Assert.assertEquals(((BInteger) teacher7.get("sumAge")).intValue(), 45);
-        Assert.assertEquals(((BInteger) teacher7.get("count")).intValue(), 1);
-
-        Assert.assertEquals(teacher8.get("name").stringValue(), "Mohan");
-        Assert.assertEquals(((BInteger) teacher8.get("sumAge")).intValue(), 120);
-        Assert.assertEquals(((BInteger) teacher8.get("count")).intValue(), 4);
+        Assert.assertEquals(teacher6.get("name").stringValue(), "Mohan");
+        Assert.assertEquals(((BInteger) teacher6.get("sumAge")).intValue(), 120);
+        Assert.assertEquals(((BInteger) teacher6.get("count")).intValue(), 4);
     }
 }
