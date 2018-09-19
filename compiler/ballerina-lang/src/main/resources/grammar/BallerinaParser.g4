@@ -288,7 +288,7 @@ statement
     ;
 
 variableDefinitionStatement
-    :   typeName Identifier (ASSIGN expression)? SEMICOLON
+    :   typeName bindingPattern (ASSIGN expression)? SEMICOLON
     ;
 
 recordLiteral
@@ -398,7 +398,7 @@ matchPatternClause
     ;
 
 bindingPattern
-    :   nameReference
+    :   Identifier
     |   structuredBindingPattern
     ;
 
@@ -422,11 +422,11 @@ entryBindingPattern
 
 fieldBindingPattern
     :   recordKey COLON bindingPattern
-    |   nameReference
+    |   Identifier
     ;
 
 restBindingPattern
-    :   ELLIPSIS nameReference
+    :   ELLIPSIS Identifier
     |   sealedLiteral
     ;
 
