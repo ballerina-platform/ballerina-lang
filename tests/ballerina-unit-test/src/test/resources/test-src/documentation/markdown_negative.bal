@@ -82,13 +82,13 @@ type TestConnector record {
 }
 service<http:Service> PizzaService {
 
-    @http:ResourceConfig {
-        path:"/"
-    }
     # Check orderPizza resource.
     # + req - In request.
     # + req - In request.
     # + reqest - In request.
+    @http:ResourceConfig {
+        path:"/"
+    }
     orderPizza(endpoint conn, http:Request req) {
         http:Response res = new;
         _ = conn -> respond(res);
