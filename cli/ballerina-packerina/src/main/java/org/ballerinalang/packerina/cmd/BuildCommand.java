@@ -155,7 +155,7 @@ public class BuildCommand implements BLauncherCmd {
                 }
             } else {
                 // Invalid source file provided
-                throw LauncherUtils.createLauncherException("invalid Ballerina source path, it should either be a " +
+                throw LauncherUtils.createLauncherException("invalid ballerina source path, it should either be a " +
                                                                     "directory or a file  with a \'"
                                                             + BLangConstants.BLANG_SRC_FILE_SUFFIX + "\' extension");
             }
