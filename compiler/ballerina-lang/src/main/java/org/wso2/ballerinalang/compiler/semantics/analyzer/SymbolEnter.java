@@ -802,23 +802,10 @@ public class SymbolEnter extends BLangNodeVisitor {
      */
     private void populateTestablePackageNode(BLangPackage pkgNode) {
         List<BLangCompilationUnit> compUnits = pkgNode.testablePackage.getCompilationUnits();
-        compUnits.forEach(compUnit -> {
-            // Get all imports from the compilation unit node
-            List<TopLevelNode> importList = compUnit.getTopLevelNodes()
-                                                    .stream()
-                                                    .filter(topLevelNode -> topLevelNode instanceof
-                                                            BLangImportPackage)
-                                                    .collect(Collectors.toList());
-
-            // Remove imports if it already exists in the enclosed pkg node
-            importList.forEach(importPkg -> {
-                if (pkgNode.getImports().contains(importPkg)) {
-                    compUnit.removeTopLevelNode(importPkg);
-                }
-            });
-
-        });
         compUnits.forEach(compUnit -> populateCompilationUnit(pkgNode.testablePackage, compUnit));
+        // Remove recurring imports from the testable package which appears in the enclosing bLangPackage
+        pkgNode.testablePackage.getImports().removeIf(bLangImportPackage -> pkgNode.getImports()
+                                                                                   .contains(bLangImportPackage));
     }
 
     /**
