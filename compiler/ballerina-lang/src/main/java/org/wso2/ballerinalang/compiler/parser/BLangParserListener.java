@@ -943,7 +943,10 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         }
 
         boolean exprAvailable = ctx.ASSIGN() != null;
-        if (ctx.bindingPattern().Identifier() != null) {
+        if (ctx.Identifier() != null) {
+            this.pkgBuilder.addSimpleVariableDefStatement(getCurrentPos(ctx), getWS(ctx),
+                    ctx.Identifier().getText(), exprAvailable, false);
+        } else if (ctx.bindingPattern().Identifier() != null) {
             this.pkgBuilder.addSimpleVariableDefStatement(getCurrentPos(ctx), getWS(ctx),
                     ctx.bindingPattern().Identifier().getText(), exprAvailable, false);
         } else {
@@ -1297,14 +1300,8 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         if (ctx.exception != null) {
             return;
         }
-        if (ctx.Identifier() != null) {
-            String identifier = ctx.Identifier().getText();
-            this.pkgBuilder.addMatchStmtSimpleBindingPattern(getCurrentPos(ctx), getWS(ctx), identifier);
-        } else if (ctx.bindingPattern() != null) {
-            if (ctx.bindingPattern().structuredBindingPattern().tupleBindingPattern() != null) {
-                //todo
-            }
-        }
+        String identifier = ctx.Identifier() != null ? ctx.Identifier().getText() : null;
+        this.pkgBuilder.addMatchStmtSimpleBindingPattern(getCurrentPos(ctx), getWS(ctx), identifier);
     }
 
     @Override

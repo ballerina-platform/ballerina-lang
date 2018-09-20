@@ -288,7 +288,8 @@ statement
     ;
 
 variableDefinitionStatement
-    :   typeName bindingPattern (ASSIGN expression)? SEMICOLON
+    :   typeName Identifier SEMICOLON
+    |   typeName bindingPattern (ASSIGN expression) SEMICOLON
     ;
 
 recordLiteral
@@ -394,7 +395,6 @@ matchStatement
 matchPatternClause
     :   typeName EQUAL_GT (statement | (LEFT_BRACE statement* RIGHT_BRACE))
     |   typeName Identifier EQUAL_GT (statement | (LEFT_BRACE statement* RIGHT_BRACE))
-    |   typeName bindingPattern EQUAL_GT (statement | (LEFT_BRACE statement* RIGHT_BRACE))
     ;
 
 bindingPattern
