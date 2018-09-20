@@ -437,7 +437,7 @@ public class Types {
         }
 
         // If only one is a closed record, the records aren't equivalent
-        if (rhsType.sealed ^ lhsType.sealed) {
+        if (lhsType.sealed && !rhsType.sealed) {
             return false;
         }
 

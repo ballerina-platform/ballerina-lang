@@ -19,7 +19,6 @@ public type myerror record {
     string message;
     error? cause;
     int code;
-    !...
 };
 
 public type customError record {
@@ -27,7 +26,6 @@ public type customError record {
     error? cause;
     int code;
     string data;
-    !...
 };
 
 function readLine() returns myerror | customError {
