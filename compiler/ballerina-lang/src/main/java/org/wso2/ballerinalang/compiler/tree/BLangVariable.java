@@ -22,10 +22,7 @@ import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.tree.AnnotationAttachmentNode;
 import org.ballerinalang.model.tree.DeprecatedNode;
 import org.ballerinalang.model.tree.DocumentationNode;
-import org.ballerinalang.model.tree.IdentifierNode;
 import org.ballerinalang.model.tree.MarkdownDocumentationNode;
-import org.ballerinalang.model.tree.NodeKind;
-import org.ballerinalang.model.tree.SimpleVariableNode;
 import org.ballerinalang.model.tree.VariableNode;
 import org.ballerinalang.model.tree.expressions.ExpressionNode;
 import org.ballerinalang.model.tree.types.TypeNode;
@@ -33,8 +30,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.types.BLangType;
 
-import java.util.ArrayList;
-import java.util.EnumSet;
 import java.util.List;
 import java.util.Set;
 
@@ -126,8 +121,8 @@ public abstract class BLangVariable extends BLangNode implements VariableNode {
         this.expr = (BLangExpression) expr;
     }
 
-//    @Override
-//    public String toString() {
-//        return String.valueOf(type) + " " + symbol.name.value + (expr != null ? " = " + String.valueOf(expr) : "");
-//    }
+    @Override
+    public String toString() {
+        return String.valueOf(type) + " " + symbol.name.value + (expr != null ? " = " + String.valueOf(expr) : "");
+    }
 }

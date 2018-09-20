@@ -80,6 +80,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangResource;
 import org.wso2.ballerinalang.compiler.tree.BLangService;
 import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
+import org.wso2.ballerinalang.compiler.tree.BLangTupleVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangTypeDefinition;
 import org.wso2.ballerinalang.compiler.tree.BLangWorker;
 import org.wso2.ballerinalang.compiler.tree.BLangXMLNS;
@@ -140,6 +141,7 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangThrow;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangTransaction;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangTryCatchFinally;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangTupleDestructure;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangTupleVariableDef;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangWhile;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangWorkerReceive;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangWorkerSend;
@@ -486,6 +488,10 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         typeChecker.checkExpr(rhsExpr, varInitEnv, lhsType);
     }
 
+    public void visit(BLangTupleVariable varNode) {
+        //todo
+    }
+
     // Statements
 
     public void visit(BLangBlockStmt blockNode) {
@@ -501,6 +507,11 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         if (varDefNode.var.expr == null && !types.defaultValueExists(varDefNode.pos, varDefNode.var.type)) {
             dlog.error(varDefNode.pos, DiagnosticCode.UNINITIALIZED_VARIABLE, varDefNode.var.name);
         }
+    }
+
+    @Override
+    public void visit(BLangTupleVariableDef tupleVariableDef) {
+        //todo
     }
 
     public void visit(BLangPostIncrement postIncrement) {
