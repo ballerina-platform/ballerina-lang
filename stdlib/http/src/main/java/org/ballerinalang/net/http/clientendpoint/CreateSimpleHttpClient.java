@@ -130,6 +130,8 @@ public class CreateSimpleHttpClient extends BlockingNativeCallableUnit {
 
         if (secureSocket != null) {
             HttpUtil.populateSSLConfiguration(senderConfiguration, secureSocket);
+        } else {
+            HttpUtil.setDefaultTrustStore(senderConfiguration);
         }
         Struct proxy = clientEndpointConfig.getStructField(HttpConstants.PROXY_STRUCT_REFERENCE);
         if (proxy != null) {
