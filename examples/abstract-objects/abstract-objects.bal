@@ -4,9 +4,9 @@ import ballerina/io;
 // each field and method. However it cannot have a constructor method,
 // or any attached functions.
 type Person abstract object {
-    public int age,
-    public string firstName,
-    public string lastName,
+    public int age;
+    public string firstName;
+    public string lastName;
 
     // Function declarations can be within the object. But the function cannot 
     // have a body.
@@ -18,9 +18,9 @@ type Person abstract object {
 // A non-abstract object called 'Employee', which is structurally equivalent
 // to 'Person'. It cannot have any member functions without a body.
 type Employee object {
-    public int age,
-    public string firstName,
-    public string lastName,
+    public int age;
+    public string firstName;
+    public string lastName;
 
     // Non-abstract object can have a constructor method.
     new(age, firstName, lastName) {
