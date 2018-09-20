@@ -118,7 +118,7 @@ public class HttpStatusCodeTestCase extends HttpBaseTest {
         assertEquals(response.getResponseCode(), 400, "Response code mismatched");
         assertEquals(response.getHeaders().get(HttpHeaderNames.CONTENT_TYPE.toString())
                 , TestConstant.CONTENT_TYPE_XML, "Content-Type mismatched");
-        assertEquals(response.getData(), "<test>Bad Request</test>", "Message body should be empty");
+        assertEquals(response.getData(), "<test>Bad Request</test>", "Message content mismatched");
     }
 
     @Test(description = "Test ballerina badRequest() function without entity body", expectedExceptions =
@@ -135,7 +135,7 @@ public class HttpStatusCodeTestCase extends HttpBaseTest {
         assertEquals(response.getHeaders().get(HttpHeaderNames.CONTENT_TYPE.toString())
                 , TestConstant.CONTENT_TYPE_XML, "Content-Type mismatched");
         assertEquals(response.getData(), "<test>Internal Server Error Occurred</test>",
-                "Message body should be empty");
+                "Message content mismatched");
     }
 
     @Test(description = "Test ballerina badRequest() function without entity body",
