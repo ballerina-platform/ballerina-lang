@@ -112,6 +112,7 @@ public class SymbolTable {
     public BPackageSymbol builtInPackageSymbol;
     private Names names;
     public Map<BPackageSymbol, SymbolEnv> pkgEnvMap = new HashMap<>();
+    public Map<BPackageSymbol, SymbolEnv> testPkgEnvMap = new HashMap<>();
 
     public static SymbolTable getInstance(CompilerContext context) {
         SymbolTable symTable = context.get(SYM_TABLE_KEY);

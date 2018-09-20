@@ -236,10 +236,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
             return;
         }
         parent = pkgNode;
-        SymbolEnv enclosingPkgEnv = this.symTable.pkgEnvMap.get(pkgNode.symbol);
-        SymbolEnv pkgEnv = SymbolEnv.createPkgEnv(pkgNode, pkgNode.symbol.scope, enclosingPkgEnv);
-        // Enabled logging errors
-        pkgEnv.logErrors = true;
+        SymbolEnv pkgEnv = symTable.testPkgEnvMap.get(pkgNode.symbol);
         analyzeTopLevelNodes(pkgNode, pkgEnv);
     }
 

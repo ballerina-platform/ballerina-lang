@@ -256,10 +256,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         if (pkgNode.completedPhases.contains(CompilerPhase.TYPE_CHECK)) {
             return;
         }
-        SymbolEnv enclosingPkgEnv = this.symTable.pkgEnvMap.get(pkgNode.symbol);
-        SymbolEnv pkgEnv = SymbolEnv.createPkgEnv(pkgNode, pkgNode.symbol.scope, enclosingPkgEnv);
-        // Enabled logging errors
-        pkgEnv.logErrors = true;
+        SymbolEnv pkgEnv = this.symTable.testPkgEnvMap.get(pkgNode.symbol);
 
         analyzeConstructs(pkgNode, pkgEnv);
 
