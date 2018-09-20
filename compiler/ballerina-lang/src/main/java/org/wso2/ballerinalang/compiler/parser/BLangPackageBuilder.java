@@ -1465,7 +1465,8 @@ public class BLangPackageBuilder {
         this.compUnit.addTopLevelNode(var);
     }
 
-    void addObjectType(DiagnosticPos pos, Set<Whitespace> ws, boolean isFieldAnalyseRequired, boolean isAnonymous) {
+    void addObjectType(DiagnosticPos pos, Set<Whitespace> ws, boolean isFieldAnalyseRequired, boolean isAnonymous,
+                       boolean isAbstract) {
         BLangObjectTypeNode objectTypeNode = populateObjectTypeNode(pos, ws, isAnonymous);
         objectTypeNode.addWS(this.objectFieldBlockWs.pop());
         objectTypeNode.isFieldAnalyseRequired = isFieldAnalyseRequired;
@@ -1476,6 +1477,10 @@ public class BLangPackageBuilder {
                 objectTypeNode.functions.add(f);
             }
         });
+
+        if (isAbstract) {
+            objectTypeNode.flagSet.add(Flag.ABSTRACT);
+        }
 
         if (!isAnonymous) {
             addType(objectTypeNode);
