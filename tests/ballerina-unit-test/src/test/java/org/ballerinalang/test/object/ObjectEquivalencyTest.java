@@ -145,4 +145,11 @@ public class ObjectEquivalencyTest {
         Assert.assertEquals(returns[0].stringValue(), "{field:\"value A\"}");
         Assert.assertEquals(returns[1].stringValue(), "{field:\"value B\"}");
     }
+
+    @Test
+    public void testObjectMemberOrder() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testObjectMemberOrder");
+        Assert.assertEquals(returns[0].stringValue(), "{age:45, name:\"Doe\", address:\"\"}");
+        Assert.assertEquals(returns[1].stringValue(), "{age:35, name:\"John\", address:\"\"}");
+    }
 }
