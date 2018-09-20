@@ -110,7 +110,7 @@ public class HtmlDocTest {
     @Test(description = "Connectors in a package should be shown in the constructs")
     public void testConnectors() {
         String source = "# GitHub client connector\n" +
-                "public type TestConnector object {\n" +
+                "public type TestConnector abstract object {\n" +
                 "public string url;\n" +
                 "public string path;\n" +
                 "    # Test Connector action testAction.\n" +
@@ -162,7 +162,7 @@ public class HtmlDocTest {
                         "# + githubClientConfiguration - GitHub client configurations (Access token, Client " +
                         "endpoint configurations)\n" +
                         "# + githubConnector - GitHub connector object\n" +
-                        "public type Client object {\n" +
+                        "public type Client abstract object {\n" +
                         "        public GitHubClientConfig githubClientConfiguration = {};\n" +
                         "        public TestConnector githubConnector = new;\n" +
                         "\n" +
@@ -265,7 +265,7 @@ public class HtmlDocTest {
     @Test(description = "Objects in a package should be shown in the constructs")
     public void testObjects() {
         String source = "# Object Test\n" +
-                "public type Test object {\n" +
+                "public type Test abstract object {\n" +
                 "    \n" +
                 "    public string url;\n" +
                 "    public string path;\n" +
@@ -308,6 +308,41 @@ public class HtmlDocTest {
         Assert.assertEquals(functionDoc2.returnParams.get(0).description, "<p>whether successful or not</p>\n");
     }
 
+    @Test(description = "Test user defined types")
+    public void testUserDefinedTypes() {
+        BLangPackage bLangPackage = createPackage("# person description.\n" +
+                "#\n" +
+                "# + name - name of the person\n" +
+                "public type Person object {\n" +
+                "    public string name;\n" +
+                "};\n" +
+                "\n" +
+                "# user description.\n" +
+                "public type User Person;\n");
+        Page page = generatePage(bLangPackage);
+        Assert.assertEquals(page.constructs.size(), 2);
+
+        Documentable construct = page.constructs.get(0);
+        Assert.assertEquals(construct.getClass(), ObjectDoc.class, "Invalid documentable type");
+        ObjectDoc object = (ObjectDoc) construct;
+        Assert.assertEquals(object.name, "Person");
+        Assert.assertEquals(object.description, "<p>person description.</p>\n");
+        Assert.assertEquals(object.icon, "fw-struct");
+
+        List<Field> fields = object.fields;
+        Assert.assertEquals(fields.size(), 1);
+        Field field = fields.get(0);
+        Assert.assertEquals(field.name, "name");
+        Assert.assertEquals(field.description, "<p>name of the person</p>\n");
+
+        construct = page.constructs.get(1);
+        Assert.assertEquals(construct.getClass(), EnumDoc.class, "Invalid documentable type");
+        EnumDoc userDefinedType = (EnumDoc) construct;
+        Assert.assertEquals(userDefinedType.name, "User");
+        Assert.assertEquals(userDefinedType.description, "<p>user description.</p>\n");
+        Assert.assertEquals(userDefinedType.icon, "fw-type");
+    }
+
     @Test(description = "Objects in a package should be shown in the constructs with new docerina syntax")
     public void testObjectsWithNewSyntax() {
         String code = "#Object Test\n#Description.\n" +
@@ -337,15 +372,15 @@ public class HtmlDocTest {
                 " \n" +
                 "   # + return - is success?\n" +
                 "\n" +
-                "    public function test1(int x) returns boolean;\n" +
+                "    public function test1(int x) returns boolean { return true; } \n" +
                 "\n" +
                 "    # test1 function\n" +
                 "    # + return - returns the string or an error\n" +
                 "\n" +
                 " \n" +
-                "   public function test2() returns string|error;\n" +
+                "   public function test2() returns string|error { return \"hello\"; } \n" +
                 "\n" +
-                "    function test3();\n" +
+                "    function test3() {}\n" +
                 "};\n";
         BLangPackage bLangPackage = createPackage(code);
         Page page = generatePage(bLangPackage);

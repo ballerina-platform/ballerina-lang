@@ -635,32 +635,33 @@ public class SymbolResolver extends BLangNodeVisitor {
     }
 
     public void visit(BLangObjectTypeNode objectTypeNode) {
-        BTypeSymbol objectSymbol = Symbols.createObjectSymbol(Flags.asMask(EnumSet.of(Flag.PUBLIC)),
-                Names.EMPTY, env.enclPkg.symbol.pkgID, null, env.scope.owner);
+        EnumSet<Flag> flags = EnumSet.copyOf(objectTypeNode.flagSet);
+        if (objectTypeNode.isAnonymous) {
+            flags.add(Flag.PUBLIC);
+        }
+
+        BTypeSymbol objectSymbol = Symbols.createObjectSymbol(Flags.asMask(flags), Names.EMPTY,
+                env.enclPkg.symbol.pkgID, null, env.scope.owner);
         BObjectType objectType = new BObjectType(objectSymbol);
         objectSymbol.type = objectType;
-
         objectTypeNode.symbol = objectSymbol;
 
         resultType = objectType;
     }
 
     public void visit(BLangRecordTypeNode recordTypeNode) {
-        BRecordTypeSymbol recordSymbol = Symbols.createRecordSymbol(Flags.asMask(EnumSet.of(Flag.PUBLIC)),
-                                                                    Names.EMPTY, env.enclPkg.symbol.pkgID, null,
-                                                                    env.scope.owner);
-
+        EnumSet<Flag> flags = recordTypeNode.isAnonymous ? EnumSet.of(Flag.PUBLIC) : EnumSet.noneOf(Flag.class);
+        BRecordTypeSymbol recordSymbol = Symbols.createRecordSymbol(Flags.asMask(flags), Names.EMPTY,
+                env.enclPkg.symbol.pkgID, null, env.scope.owner);
         BRecordType recordType = new BRecordType(recordSymbol);
         recordSymbol.type = recordType;
-
         recordTypeNode.symbol = recordSymbol;
-
         resultType = recordType;
     }
 
     public void visit(BLangFiniteTypeNode finiteTypeNode) {
-        BTypeSymbol finiteTypeSymbol = Symbols.createTypeSymbol(SymTag.FINITE_TYPE, Flags.asMask(EnumSet
-                .of(Flag.PUBLIC)), Names.EMPTY, env.enclPkg.symbol.pkgID, null, env.scope.owner);
+        BTypeSymbol finiteTypeSymbol = Symbols.createTypeSymbol(SymTag.FINITE_TYPE,
+                Flags.asMask(EnumSet.noneOf(Flag.class)), Names.EMPTY, env.enclPkg.symbol.pkgID, null, env.scope.owner);
 
         BFiniteType finiteType = new BFiniteType(finiteTypeSymbol);
         for (BLangExpression literal : finiteTypeNode.valueSpace) {

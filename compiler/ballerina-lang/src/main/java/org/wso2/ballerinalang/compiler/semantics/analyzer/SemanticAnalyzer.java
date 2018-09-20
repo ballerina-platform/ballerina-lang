@@ -309,15 +309,12 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             this.analyzeDef(funcNode.restParam, funcEnv);
         }
 
-        if (funcNode.attachedOuterFunction && funcNode.body == null) { //object outer attached function must have a body
-            dlog.error(funcNode.pos, DiagnosticCode.ATTACHED_FUNCTIONS_MUST_HAVE_BODY, funcNode.name);
-            return;
-        }
+        validateObjectAttachedFunction(funcNode);
 
         // Check for native functions
         if (Symbols.isNative(funcNode.symbol) || funcNode.interfaceFunction) {
             if (funcNode.body != null) {
-                dlog.error(funcNode.pos, DiagnosticCode.FUNCTION_CANNOT_HAVE_BODY, funcNode.name);
+                dlog.error(funcNode.pos, DiagnosticCode.EXTERN_FUNCTION_CANNOT_HAVE_BODY, funcNode.name);
             }
             return;
         }
@@ -326,7 +323,10 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             symbolEnter.defineNode(e, funcEnv);
             analyzeDef(e, funcEnv);
         });
-        analyzeStmt(funcNode.body, funcEnv);
+
+        if (funcNode.body != null) {
+            analyzeStmt(funcNode.body, funcEnv);
+        }
 
         this.processWorkers(funcNode, funcEnv);
     }
@@ -358,9 +358,19 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
     @Override
     public void visit(BLangObjectTypeNode objectTypeNode) {
         objectTypeNode.fields.forEach(field -> analyzeDef(field, env));
+        objectTypeNode.functions.forEach(f -> analyzeDef(f, env));
+
+        if (objectTypeNode.initFunction == null) {
+            return;
+        }
+
+        if (objectTypeNode.flagSet.contains(Flag.ABSTRACT)) {
+            this.dlog.error(objectTypeNode.initFunction.pos, DiagnosticCode.ABSTRACT_OBJECT_CONSTRUCTOR,
+                    objectTypeNode.symbol.name);
+            return;
+        }
 
         analyzeDef(objectTypeNode.initFunction, env);
-        objectTypeNode.functions.forEach(f -> analyzeDef(f, env));
     }
 
     @Override
@@ -811,20 +821,31 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             return;
         }
 
+        boolean defaultableStatus = false;
         BLangObjectTypeNode objectTypeNode = (BLangObjectTypeNode) typeDef.typeNode;
-        boolean defaultableStatus = true;
+
+        // If the object is an abstract object then it is not defaultable.
+        if (objectTypeNode.flagSet.contains(Flag.ABSTRACT)) {
+            markDefaultableStatus(typeDef.symbol, defaultableStatus);
+            return;
+        }
+
+        // No initFunction implies having a default constructor with no params
+        List<BVarSymbol> initFuncParams =
+                objectTypeNode.initFunction == null ? new ArrayList<>(0) : objectTypeNode.initFunction.symbol.params;
+        defaultableStatus = true;
         for (BLangVariable field : objectTypeNode.fields) {
             if (field.expr != null || types.defaultValueExists(field.pos, field.symbol.type)) {
                 continue;
             }
             defaultableStatus = false;
-            if (objectTypeNode.initFunction.symbol.params.stream().filter(p -> p.name.equals(field.symbol.name))
+            if (initFuncParams.stream().filter(p -> p.name.equals(field.symbol.name))
                     .collect(Collectors.toList()).size() == 0) {
                 dlog.error(typeDef.pos, DiagnosticCode.OBJECT_UN_INITIALIZABLE_FIELD, field);
             }
         }
 
-        if (objectTypeNode.initFunction.symbol.params.size() > 0) {
+        if (initFuncParams.size() > 0) {
             defaultableStatus = false;
         }
 
@@ -835,9 +856,13 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             }
         }
 
-        typeDef.symbol.flags |= Flags.asMask(EnumSet.of(Flag.DEFAULTABLE_CHECKED));
+        markDefaultableStatus(typeDef.symbol, defaultableStatus);
+    }
+
+    private void markDefaultableStatus(BSymbol symbol, boolean defaultableStatus) {
+        symbol.flags |= Flags.asMask(EnumSet.of(Flag.DEFAULTABLE_CHECKED));
         if (defaultableStatus) {
-            typeDef.symbol.flags |= Flags.asMask(EnumSet.of(Flag.DEFAULTABLE));
+            symbol.flags |= Flags.asMask(EnumSet.of(Flag.DEFAULTABLE));
         }
     }
 
@@ -2028,6 +2053,47 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             for (BField field : outputStreamFieldList) {
                 stmtEnv.scope.define(field.name, field.symbol);
             }
+        }
+    }
+
+    /**
+     * Validate functions attached to objects.
+     * 
+     * @param funcNode Function node
+     * @return True if the function is an unimplemented method inside a non-abstract object.
+     */
+    private void validateObjectAttachedFunction(BLangFunction funcNode) {
+        if (funcNode.attachedOuterFunction) {
+            // object outer attached function must have a body
+            if (funcNode.body == null) {
+                dlog.error(funcNode.pos, DiagnosticCode.ATTACHED_FUNCTIONS_MUST_HAVE_BODY, funcNode.name);
+            }
+
+            if (Symbols.isFlagOn(funcNode.receiver.type.tsymbol.flags, Flags.ABSTRACT)) {
+                dlog.error(funcNode.pos, DiagnosticCode.CANNOT_ATTACH_FUNCTIONS_TO_ABSTRACT_OBJECT, funcNode.name,
+                        funcNode.receiver.type);
+            }
+
+            return;
+        }
+
+        if (!funcNode.attachedFunction) {
+            return;
+        }
+
+        // If the function is attached to an abstract object, it don't need to have an implementation
+        if (Symbols.isFlagOn(funcNode.receiver.type.tsymbol.flags, Flags.ABSTRACT)) {
+            if (funcNode.body != null) {
+                dlog.error(funcNode.pos, DiagnosticCode.ABSTRACT_OBJECT_FUNCTION_CANNOT_HAVE_BODY, funcNode.name,
+                        funcNode.receiver.type);
+            }
+            return;
+        }
+
+        // There must be an implementation at the outer level, if the function is an interface
+        if (funcNode.interfaceFunction && !env.enclPkg.objAttachedFunctions.contains(funcNode.symbol)) {
+            dlog.error(funcNode.pos, DiagnosticCode.INVALID_INTERFACE_ON_NON_ABSTRACT_OBJECT, funcNode.name,
+                    funcNode.receiver.type);
         }
     }
 }

@@ -282,7 +282,10 @@ public class PackageLoader {
         }
         PackageEntity pkgEntity = loadPackageEntity(pkgId, enclPackageId, null);
         if (pkgEntity == null) {
-            throw ProjectDirs.getPackageNotFoundError(pkgId);
+            // Do not throw an error here. Otherwise package build will terminate immediately if
+            // there are errors in atleast one package during the build. But instead we should
+            // continue compiling the other packages as well, and check for their errors.
+            return null;
         }
 
         BLangPackage packageNode = parse(pkgId, (PackageSource) pkgEntity);
