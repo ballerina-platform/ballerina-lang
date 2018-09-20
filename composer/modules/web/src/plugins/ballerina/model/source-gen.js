@@ -1503,12 +1503,100 @@ export default function getSourceOf(node, pretty = false, l = 0, replaceLambda) 
                  + getSourceOf(node.expression, pretty, l, replaceLambda);
         case 'Next':
             return dent() + w() + 'continue' + w() + ';';
+        case 'OutputRateLimit':
+            if (node.snapshot && node.rateLimitValue && node.timeScale) {
+                return w() + 'output' + w() + 'snapshot' + w() + 'every' + w()
+                 + node.rateLimitValue + w() + node.timeScale;
+            } else if (node.outputRateType && node.rateLimitValue && node.timeScale) {
+                return w() + 'output' + w() + node.outputRateType + w() + 'every' + w()
+                 + node.rateLimitValue + w() + node.timeScale;
+            } else {
+                return w() + 'output' + w() + node.outputRateType + w() + 'every' + w()
+                 + node.rateLimitValue + w() + 'events';
+            }
         case 'OrderBy':
             return w() + 'order' + w() + 'by'
                  + join(node.variables, pretty, replaceLambda, l, w, '', ',');
         case 'OrderByVariable':
-            return getSourceOf(node.variableReference, pretty, l, replaceLambda)
-                 + w(' ') + node.orderByType;
+            if (node.noVisibleType && node.variableReference) {
+                return getSourceOf(node.variableReference, pretty, l, replaceLambda);
+            } else {
+                return getSourceOf(node.variableReference, pretty, l, replaceLambda)
+                 + w() + node.typeString;
+            }
+        case 'PatternClause':
+            if (node.forAllEvents && node.patternStreamingNode
+                         && node.withinClause) {
+                return w() + 'every'
+                 + getSourceOf(node.patternStreamingNode, pretty, l, replaceLambda)
+                 + getSourceOf(node.withinClause, pretty, l, replaceLambda);
+            } else if (node.forAllEvents && node.patternStreamingNode) {
+                return w() + 'every'
+                 + getSourceOf(node.patternStreamingNode, pretty, l, replaceLambda);
+            } else if (node.patternStreamingNode && node.withinClause) {
+                return getSourceOf(node.patternStreamingNode, pretty, l, replaceLambda)
+                 + getSourceOf(node.withinClause, pretty, l, replaceLambda);
+            } else {
+                return getSourceOf(node.patternStreamingNode, pretty, l, replaceLambda);
+            }
+        case 'PatternStreamingInput':
+            if (node.followedBy && node.patternStreamingEdgeInputs
+                         && node.patternStreamingInput) {
+                return join(node.patternStreamingEdgeInputs, pretty, replaceLambda, l, w, '') + w() + 'followed' + w() + 'by'
+                 + getSourceOf(node.patternStreamingInput, pretty, l, replaceLambda);
+            } else if (node.commaSeparated && node.patternStreamingEdgeInputs
+                         && node.patternStreamingInput) {
+                return join(node.patternStreamingEdgeInputs, pretty, replaceLambda, l, w, '') + w() + ','
+                 + getSourceOf(node.patternStreamingInput, pretty, l, replaceLambda);
+            } else if (node.enclosedInParenthesis && node.patternStreamingInput) {
+                return w() + '('
+                 + getSourceOf(node.patternStreamingInput, pretty, l, replaceLambda) + w() + ')';
+            } else if (node.andWithNot && node.patternStreamingEdgeInputs) {
+                return w() + '!'
+                 + join(node.patternStreamingEdgeInputs, pretty, replaceLambda, l, w, '', '&&');
+            } else if (node.forWithNot && node.patternStreamingEdgeInputs
+                         && node.timeDurationValue && node.timeScale) {
+                return w() + '!'
+                 + join(node.patternStreamingEdgeInputs, pretty, replaceLambda, l, w, '') + w() + 'for' + w() + node.timeDurationValue
+                 + w() + node.timeScale;
+            } else if (node.andOnly && node.patternStreamingEdgeInputs) {
+                return join(node.patternStreamingEdgeInputs, pretty, replaceLambda, l, w, '', '&&');
+            } else if (node.orOnly && node.patternStreamingEdgeInputs) {
+                return join(node.patternStreamingEdgeInputs, pretty, replaceLambda, l, w, '', '||');
+            } else {
+                return join(node.patternStreamingEdgeInputs, pretty, replaceLambda, l, w, '');
+            }
+        case 'PatternStreamingEdgeInput':
+            if (node.streamReference && node.whereClause && node.expression
+                         && node.aliasIdentifier) {
+                return getSourceOf(node.streamReference, pretty, l, replaceLambda)
+                 + getSourceOf(node.whereClause, pretty, l, replaceLambda)
+                 + getSourceOf(node.expression, pretty, l, replaceLambda) + w() + 'as' + w()
+                 + node.aliasIdentifier;
+            } else if (node.streamReference && node.whereClause && node.expression) {
+                return getSourceOf(node.streamReference, pretty, l, replaceLambda)
+                 + getSourceOf(node.whereClause, pretty, l, replaceLambda)
+                 + getSourceOf(node.expression, pretty, l, replaceLambda);
+            } else if (node.streamReference && node.whereClause && node.aliasIdentifier) {
+                return getSourceOf(node.streamReference, pretty, l, replaceLambda)
+                 + getSourceOf(node.whereClause, pretty, l, replaceLambda) + w() + 'as'
+                 + w() + node.aliasIdentifier;
+            } else if (node.streamReference && node.whereClause) {
+                return getSourceOf(node.streamReference, pretty, l, replaceLambda)
+                 + getSourceOf(node.whereClause, pretty, l, replaceLambda);
+            } else if (node.streamReference && node.expression && node.aliasIdentifier) {
+                return getSourceOf(node.streamReference, pretty, l, replaceLambda)
+                 + getSourceOf(node.expression, pretty, l, replaceLambda) + w() + 'as'
+                 + w() + node.aliasIdentifier;
+            } else if (node.streamReference && node.expression) {
+                return getSourceOf(node.streamReference, pretty, l, replaceLambda)
+                 + getSourceOf(node.expression, pretty, l, replaceLambda);
+            } else if (node.streamReference && node.aliasIdentifier) {
+                return getSourceOf(node.streamReference, pretty, l, replaceLambda) + w()
+                 + 'as' + w() + node.aliasIdentifier;
+            } else {
+                return getSourceOf(node.streamReference, pretty, l, replaceLambda);
+            }
         case 'PostIncrement':
             return dent() + getSourceOf(node.variable, pretty, l, replaceLambda)
                  + w() + node.operator + w() + ';';
@@ -1557,7 +1645,9 @@ export default function getSourceOf(node, pretty = false, l = 0, replaceLambda) 
                  + getSourceOf(node.expression, pretty, l, replaceLambda) + w() + ';';
             }
         case 'SelectClause':
-            if (node.selectAll && node.groupBy && node.having) {
+            if (node.notVisible) {
+                return '';
+            } else if (node.selectAll && node.groupBy && node.having) {
                 return w() + 'select' + w() + '*'
                  + getSourceOf(node.groupBy, pretty, l, replaceLambda)
                  + getSourceOf(node.having, pretty, l, replaceLambda);
@@ -1770,96 +1860,443 @@ export default function getSourceOf(node, pretty = false, l = 0, replaceLambda) 
         case 'StreamAction':
             return getSourceOf(node.invokableBody, pretty, l, replaceLambda);
         case 'StreamingInput':
-            if (node.windowTraversedAfterWhere && node.streamReference
-                         && node.beforeStreamingCondition && node.windowClause
-                         && node.afterStreamingCondition && node.aliasAvailable && node.alias) {
+            if (node.aliasAvailable && node.streamReference
+                         && node.beforeStreamingCondition && node.preFunctionInvocations && node.windowClause
+                         && node.postFunctionInvocations && node.afterStreamingCondition
+                         && node.alias) {
+                return getSourceOf(node.streamReference, pretty, l, replaceLambda)
+                 + getSourceOf(node.beforeStreamingCondition, pretty, l, replaceLambda)
+                 + join(node.preFunctionInvocations, pretty, replaceLambda, l, w, '') + getSourceOf(node.windowClause, pretty, l, replaceLambda)
+                 + join(node.postFunctionInvocations, pretty, replaceLambda, l, w, '')
+                 + getSourceOf(node.afterStreamingCondition, pretty, l, replaceLambda) + w() + 'as' + w() + node.alias;
+            } else if (node.aliasAvailable && node.streamReference
+                         && node.beforeStreamingCondition && node.preFunctionInvocations && node.windowClause
+                         && node.postFunctionInvocations && node.alias) {
+                return getSourceOf(node.streamReference, pretty, l, replaceLambda)
+                 + getSourceOf(node.beforeStreamingCondition, pretty, l, replaceLambda)
+                 + join(node.preFunctionInvocations, pretty, replaceLambda, l, w, '') + getSourceOf(node.windowClause, pretty, l, replaceLambda)
+                 + join(node.postFunctionInvocations, pretty, replaceLambda, l, w, '') + w() + 'as' + w() + node.alias;
+            } else if (node.aliasAvailable && node.streamReference
+                         && node.beforeStreamingCondition && node.preFunctionInvocations && node.windowClause
+                         && node.afterStreamingCondition && node.alias) {
+                return getSourceOf(node.streamReference, pretty, l, replaceLambda)
+                 + getSourceOf(node.beforeStreamingCondition, pretty, l, replaceLambda)
+                 + join(node.preFunctionInvocations, pretty, replaceLambda, l, w, '') + getSourceOf(node.windowClause, pretty, l, replaceLambda)
+                 + getSourceOf(node.afterStreamingCondition, pretty, l, replaceLambda) + w() + 'as' + w() + node.alias;
+            } else if (node.aliasAvailable && node.streamReference
+                         && node.beforeStreamingCondition && node.preFunctionInvocations && node.windowClause
+                         && node.alias) {
+                return getSourceOf(node.streamReference, pretty, l, replaceLambda)
+                 + getSourceOf(node.beforeStreamingCondition, pretty, l, replaceLambda)
+                 + join(node.preFunctionInvocations, pretty, replaceLambda, l, w, '') + getSourceOf(node.windowClause, pretty, l, replaceLambda)
+                 + w() + 'as' + w() + node.alias;
+            } else if (node.aliasAvailable && node.streamReference
+                         && node.beforeStreamingCondition && node.preFunctionInvocations
+                         && node.postFunctionInvocations && node.afterStreamingCondition && node.alias) {
+                return getSourceOf(node.streamReference, pretty, l, replaceLambda)
+                 + getSourceOf(node.beforeStreamingCondition, pretty, l, replaceLambda)
+                 + join(node.preFunctionInvocations, pretty, replaceLambda, l, w, '')
+                 + join(node.postFunctionInvocations, pretty, replaceLambda, l, w, '')
+                 + getSourceOf(node.afterStreamingCondition, pretty, l, replaceLambda) + w() + 'as' + w() + node.alias;
+            } else if (node.aliasAvailable && node.streamReference
+                         && node.beforeStreamingCondition && node.preFunctionInvocations
+                         && node.postFunctionInvocations && node.alias) {
+                return getSourceOf(node.streamReference, pretty, l, replaceLambda)
+                 + getSourceOf(node.beforeStreamingCondition, pretty, l, replaceLambda)
+                 + join(node.preFunctionInvocations, pretty, replaceLambda, l, w, '')
+                 + join(node.postFunctionInvocations, pretty, replaceLambda, l, w, '') + w() + 'as' + w() + node.alias;
+            } else if (node.aliasAvailable && node.streamReference
+                         && node.beforeStreamingCondition && node.preFunctionInvocations
+                         && node.afterStreamingCondition && node.alias) {
+                return getSourceOf(node.streamReference, pretty, l, replaceLambda)
+                 + getSourceOf(node.beforeStreamingCondition, pretty, l, replaceLambda)
+                 + join(node.preFunctionInvocations, pretty, replaceLambda, l, w, '')
+                 + getSourceOf(node.afterStreamingCondition, pretty, l, replaceLambda) + w() + 'as' + w() + node.alias;
+            } else if (node.aliasAvailable && node.streamReference
+                         && node.beforeStreamingCondition && node.preFunctionInvocations && node.alias) {
+                return getSourceOf(node.streamReference, pretty, l, replaceLambda)
+                 + getSourceOf(node.beforeStreamingCondition, pretty, l, replaceLambda)
+                 + join(node.preFunctionInvocations, pretty, replaceLambda, l, w, '') + w() + 'as' + w() + node.alias;
+            } else if (node.aliasAvailable && node.streamReference
+                         && node.beforeStreamingCondition && node.windowClause && node.postFunctionInvocations
+                         && node.afterStreamingCondition && node.alias) {
+                return getSourceOf(node.streamReference, pretty, l, replaceLambda)
+                 + getSourceOf(node.beforeStreamingCondition, pretty, l, replaceLambda)
+                 + getSourceOf(node.windowClause, pretty, l, replaceLambda)
+                 + join(node.postFunctionInvocations, pretty, replaceLambda, l, w, '')
+                 + getSourceOf(node.afterStreamingCondition, pretty, l, replaceLambda) + w() + 'as' + w() + node.alias;
+            } else if (node.aliasAvailable && node.streamReference
+                         && node.beforeStreamingCondition && node.windowClause && node.postFunctionInvocations
+                         && node.alias) {
+                return getSourceOf(node.streamReference, pretty, l, replaceLambda)
+                 + getSourceOf(node.beforeStreamingCondition, pretty, l, replaceLambda)
+                 + getSourceOf(node.windowClause, pretty, l, replaceLambda)
+                 + join(node.postFunctionInvocations, pretty, replaceLambda, l, w, '')
+                 + w() + 'as' + w() + node.alias;
+            } else if (node.aliasAvailable && node.streamReference
+                         && node.beforeStreamingCondition && node.windowClause && node.afterStreamingCondition
+                         && node.alias) {
                 return getSourceOf(node.streamReference, pretty, l, replaceLambda)
                  + getSourceOf(node.beforeStreamingCondition, pretty, l, replaceLambda)
                  + getSourceOf(node.windowClause, pretty, l, replaceLambda)
                  + getSourceOf(node.afterStreamingCondition, pretty, l, replaceLambda)
                  + w() + 'as' + w() + node.alias;
-            } else if (node.windowTraversedAfterWhere && node.streamReference
-                         && node.beforeStreamingCondition && node.windowClause
-                         && node.afterStreamingCondition) {
-                return getSourceOf(node.streamReference, pretty, l, replaceLambda)
-                 + getSourceOf(node.beforeStreamingCondition, pretty, l, replaceLambda)
-                 + getSourceOf(node.windowClause, pretty, l, replaceLambda)
-                 + getSourceOf(node.afterStreamingCondition, pretty, l, replaceLambda);
-            } else if (node.windowTraversedAfterWhere && node.streamReference
-                         && node.windowClause && node.afterStreamingCondition && node.aliasAvailable
-                         && node.alias) {
-                return getSourceOf(node.streamReference, pretty, l, replaceLambda)
-                 + getSourceOf(node.windowClause, pretty, l, replaceLambda)
-                 + getSourceOf(node.afterStreamingCondition, pretty, l, replaceLambda) + w()
-                 + 'as' + w() + node.alias;
-            } else if (node.windowTraversedAfterWhere && node.streamReference
-                         && node.windowClause && node.afterStreamingCondition) {
-                return getSourceOf(node.streamReference, pretty, l, replaceLambda)
-                 + getSourceOf(node.windowClause, pretty, l, replaceLambda)
-                 + getSourceOf(node.afterStreamingCondition, pretty, l, replaceLambda);
-            } else if (node.windowTraversedAfterWhere && node.streamReference
-                         && node.windowClause && node.afterStreamingCondition && node.aliasAvailable
-                         && node.alias) {
-                return getSourceOf(node.streamReference, pretty, l, replaceLambda)
-                 + getSourceOf(node.windowClause, pretty, l, replaceLambda)
-                 + getSourceOf(node.afterStreamingCondition, pretty, l, replaceLambda) + w()
-                 + 'as' + w() + node.alias;
-            } else if (node.windowTraversedAfterWhere && node.streamReference
-                         && node.windowClause && node.afterStreamingCondition) {
-                return getSourceOf(node.streamReference, pretty, l, replaceLambda)
-                 + getSourceOf(node.windowClause, pretty, l, replaceLambda)
-                 + getSourceOf(node.afterStreamingCondition, pretty, l, replaceLambda);
-            } else if (node.windowTraversedAfterWhere && node.streamReference
-                         && node.beforeStreamingCondition && node.windowClause
-                         && node.aliasAvailable && node.alias) {
+            } else if (node.aliasAvailable && node.streamReference
+                         && node.beforeStreamingCondition && node.windowClause && node.alias) {
                 return getSourceOf(node.streamReference, pretty, l, replaceLambda)
                  + getSourceOf(node.beforeStreamingCondition, pretty, l, replaceLambda)
                  + getSourceOf(node.windowClause, pretty, l, replaceLambda) + w()
                  + 'as' + w() + node.alias;
-            } else if (node.windowTraversedAfterWhere && node.streamReference
-                         && node.beforeStreamingCondition && node.windowClause) {
+            } else if (node.aliasAvailable && node.streamReference
+                         && node.beforeStreamingCondition && node.postFunctionInvocations
+                         && node.afterStreamingCondition && node.alias) {
+                return getSourceOf(node.streamReference, pretty, l, replaceLambda)
+                 + getSourceOf(node.beforeStreamingCondition, pretty, l, replaceLambda)
+                 + join(node.postFunctionInvocations, pretty, replaceLambda, l, w, '')
+                 + getSourceOf(node.afterStreamingCondition, pretty, l, replaceLambda) + w() + 'as' + w() + node.alias;
+            } else if (node.aliasAvailable && node.streamReference
+                         && node.beforeStreamingCondition && node.postFunctionInvocations && node.alias) {
+                return getSourceOf(node.streamReference, pretty, l, replaceLambda)
+                 + getSourceOf(node.beforeStreamingCondition, pretty, l, replaceLambda)
+                 + join(node.postFunctionInvocations, pretty, replaceLambda, l, w, '') + w() + 'as' + w() + node.alias;
+            } else if (node.aliasAvailable && node.streamReference
+                         && node.beforeStreamingCondition && node.afterStreamingCondition && node.alias) {
+                return getSourceOf(node.streamReference, pretty, l, replaceLambda)
+                 + getSourceOf(node.beforeStreamingCondition, pretty, l, replaceLambda)
+                 + getSourceOf(node.afterStreamingCondition, pretty, l, replaceLambda) + w() + 'as' + w() + node.alias;
+            } else if (node.aliasAvailable && node.streamReference
+                         && node.beforeStreamingCondition && node.alias) {
+                return getSourceOf(node.streamReference, pretty, l, replaceLambda)
+                 + getSourceOf(node.beforeStreamingCondition, pretty, l, replaceLambda)
+                 + w() + 'as' + w() + node.alias;
+            } else if (node.aliasAvailable && node.streamReference
+                         && node.preFunctionInvocations && node.windowClause && node.postFunctionInvocations
+                         && node.afterStreamingCondition && node.alias) {
+                return getSourceOf(node.streamReference, pretty, l, replaceLambda)
+                 + join(node.preFunctionInvocations, pretty, replaceLambda, l, w, '')
+                 + getSourceOf(node.windowClause, pretty, l, replaceLambda)
+                 + join(node.postFunctionInvocations, pretty, replaceLambda, l, w, '')
+                 + getSourceOf(node.afterStreamingCondition, pretty, l, replaceLambda) + w() + 'as' + w() + node.alias;
+            } else if (node.aliasAvailable && node.streamReference
+                         && node.preFunctionInvocations && node.windowClause && node.postFunctionInvocations
+                         && node.alias) {
+                return getSourceOf(node.streamReference, pretty, l, replaceLambda)
+                 + join(node.preFunctionInvocations, pretty, replaceLambda, l, w, '')
+                 + getSourceOf(node.windowClause, pretty, l, replaceLambda)
+                 + join(node.postFunctionInvocations, pretty, replaceLambda, l, w, '')
+                 + w() + 'as' + w() + node.alias;
+            } else if (node.aliasAvailable && node.streamReference
+                         && node.preFunctionInvocations && node.windowClause && node.afterStreamingCondition
+                         && node.alias) {
+                return getSourceOf(node.streamReference, pretty, l, replaceLambda)
+                 + join(node.preFunctionInvocations, pretty, replaceLambda, l, w, '')
+                 + getSourceOf(node.windowClause, pretty, l, replaceLambda)
+                 + getSourceOf(node.afterStreamingCondition, pretty, l, replaceLambda)
+                 + w() + 'as' + w() + node.alias;
+            } else if (node.aliasAvailable && node.streamReference
+                         && node.preFunctionInvocations && node.windowClause && node.alias) {
+                return getSourceOf(node.streamReference, pretty, l, replaceLambda)
+                 + join(node.preFunctionInvocations, pretty, replaceLambda, l, w, '')
+                 + getSourceOf(node.windowClause, pretty, l, replaceLambda) + w()
+                 + 'as' + w() + node.alias;
+            } else if (node.aliasAvailable && node.streamReference
+                         && node.preFunctionInvocations && node.postFunctionInvocations
+                         && node.afterStreamingCondition && node.alias) {
+                return getSourceOf(node.streamReference, pretty, l, replaceLambda)
+                 + join(node.preFunctionInvocations, pretty, replaceLambda, l, w, '')
+                 + join(node.postFunctionInvocations, pretty, replaceLambda, l, w, '')
+                 + getSourceOf(node.afterStreamingCondition, pretty, l, replaceLambda) + w() + 'as' + w() + node.alias;
+            } else if (node.aliasAvailable && node.streamReference
+                         && node.preFunctionInvocations && node.postFunctionInvocations && node.alias) {
+                return getSourceOf(node.streamReference, pretty, l, replaceLambda)
+                 + join(node.preFunctionInvocations, pretty, replaceLambda, l, w, '')
+                 + join(node.postFunctionInvocations, pretty, replaceLambda, l, w, '') + w() + 'as' + w() + node.alias;
+            } else if (node.aliasAvailable && node.streamReference
+                         && node.preFunctionInvocations && node.afterStreamingCondition && node.alias) {
+                return getSourceOf(node.streamReference, pretty, l, replaceLambda)
+                 + join(node.preFunctionInvocations, pretty, replaceLambda, l, w, '')
+                 + getSourceOf(node.afterStreamingCondition, pretty, l, replaceLambda) + w() + 'as' + w() + node.alias;
+            } else if (node.aliasAvailable && node.streamReference
+                         && node.preFunctionInvocations && node.alias) {
+                return getSourceOf(node.streamReference, pretty, l, replaceLambda)
+                 + join(node.preFunctionInvocations, pretty, replaceLambda, l, w, '')
+                 + w() + 'as' + w() + node.alias;
+            } else if (node.aliasAvailable && node.streamReference && node.windowClause
+                         && node.postFunctionInvocations && node.afterStreamingCondition
+                         && node.alias) {
+                return getSourceOf(node.streamReference, pretty, l, replaceLambda)
+                 + getSourceOf(node.windowClause, pretty, l, replaceLambda)
+                 + join(node.postFunctionInvocations, pretty, replaceLambda, l, w, '')
+                 + getSourceOf(node.afterStreamingCondition, pretty, l, replaceLambda)
+                 + w() + 'as' + w() + node.alias;
+            } else if (node.aliasAvailable && node.streamReference && node.windowClause
+                         && node.postFunctionInvocations && node.alias) {
+                return getSourceOf(node.streamReference, pretty, l, replaceLambda)
+                 + getSourceOf(node.windowClause, pretty, l, replaceLambda)
+                 + join(node.postFunctionInvocations, pretty, replaceLambda, l, w, '') + w()
+                 + 'as' + w() + node.alias;
+            } else if (node.aliasAvailable && node.streamReference && node.windowClause
+                         && node.afterStreamingCondition && node.alias) {
+                return getSourceOf(node.streamReference, pretty, l, replaceLambda)
+                 + getSourceOf(node.windowClause, pretty, l, replaceLambda)
+                 + getSourceOf(node.afterStreamingCondition, pretty, l, replaceLambda) + w()
+                 + 'as' + w() + node.alias;
+            } else if (node.aliasAvailable && node.streamReference && node.windowClause
+                         && node.alias) {
+                return getSourceOf(node.streamReference, pretty, l, replaceLambda)
+                 + getSourceOf(node.windowClause, pretty, l, replaceLambda) + w()
+                 + 'as' + w() + node.alias;
+            } else if (node.aliasAvailable && node.streamReference
+                         && node.postFunctionInvocations && node.afterStreamingCondition && node.alias) {
+                return getSourceOf(node.streamReference, pretty, l, replaceLambda)
+                 + join(node.postFunctionInvocations, pretty, replaceLambda, l, w, '')
+                 + getSourceOf(node.afterStreamingCondition, pretty, l, replaceLambda) + w() + 'as' + w() + node.alias;
+            } else if (node.aliasAvailable && node.streamReference
+                         && node.postFunctionInvocations && node.alias) {
+                return getSourceOf(node.streamReference, pretty, l, replaceLambda)
+                 + join(node.postFunctionInvocations, pretty, replaceLambda, l, w, '')
+                 + w() + 'as' + w() + node.alias;
+            } else if (node.aliasAvailable && node.streamReference
+                         && node.afterStreamingCondition && node.alias) {
+                return getSourceOf(node.streamReference, pretty, l, replaceLambda)
+                 + getSourceOf(node.afterStreamingCondition, pretty, l, replaceLambda)
+                 + w() + 'as' + w() + node.alias;
+            } else if (node.aliasAvailable && node.streamReference && node.alias) {
+                return getSourceOf(node.streamReference, pretty, l, replaceLambda) + w()
+                 + 'as' + w() + node.alias;
+            } else if (node.streamReference && node.beforeStreamingCondition
+                         && node.preFunctionInvocations && node.windowClause
+                         && node.postFunctionInvocations && node.afterStreamingCondition) {
+                return getSourceOf(node.streamReference, pretty, l, replaceLambda)
+                 + getSourceOf(node.beforeStreamingCondition, pretty, l, replaceLambda)
+                 + join(node.preFunctionInvocations, pretty, replaceLambda, l, w, '') + getSourceOf(node.windowClause, pretty, l, replaceLambda)
+                 + join(node.postFunctionInvocations, pretty, replaceLambda, l, w, '')
+                 + getSourceOf(node.afterStreamingCondition, pretty, l, replaceLambda);
+            } else if (node.streamReference && node.beforeStreamingCondition
+                         && node.preFunctionInvocations && node.windowClause
+                         && node.postFunctionInvocations) {
+                return getSourceOf(node.streamReference, pretty, l, replaceLambda)
+                 + getSourceOf(node.beforeStreamingCondition, pretty, l, replaceLambda)
+                 + join(node.preFunctionInvocations, pretty, replaceLambda, l, w, '') + getSourceOf(node.windowClause, pretty, l, replaceLambda)
+                 + join(node.postFunctionInvocations, pretty, replaceLambda, l, w, '');
+            } else if (node.streamReference && node.beforeStreamingCondition
+                         && node.preFunctionInvocations && node.windowClause
+                         && node.afterStreamingCondition) {
+                return getSourceOf(node.streamReference, pretty, l, replaceLambda)
+                 + getSourceOf(node.beforeStreamingCondition, pretty, l, replaceLambda)
+                 + join(node.preFunctionInvocations, pretty, replaceLambda, l, w, '') + getSourceOf(node.windowClause, pretty, l, replaceLambda)
+                 + getSourceOf(node.afterStreamingCondition, pretty, l, replaceLambda);
+            } else if (node.streamReference && node.beforeStreamingCondition
+                         && node.preFunctionInvocations && node.windowClause) {
+                return getSourceOf(node.streamReference, pretty, l, replaceLambda)
+                 + getSourceOf(node.beforeStreamingCondition, pretty, l, replaceLambda)
+                 + join(node.preFunctionInvocations, pretty, replaceLambda, l, w, '') + getSourceOf(node.windowClause, pretty, l, replaceLambda);
+            } else if (node.streamReference && node.beforeStreamingCondition
+                         && node.preFunctionInvocations && node.postFunctionInvocations
+                         && node.afterStreamingCondition) {
+                return getSourceOf(node.streamReference, pretty, l, replaceLambda)
+                 + getSourceOf(node.beforeStreamingCondition, pretty, l, replaceLambda)
+                 + join(node.preFunctionInvocations, pretty, replaceLambda, l, w, '')
+                 + join(node.postFunctionInvocations, pretty, replaceLambda, l, w, '')
+                 + getSourceOf(node.afterStreamingCondition, pretty, l, replaceLambda);
+            } else if (node.streamReference && node.beforeStreamingCondition
+                         && node.preFunctionInvocations && node.postFunctionInvocations) {
+                return getSourceOf(node.streamReference, pretty, l, replaceLambda)
+                 + getSourceOf(node.beforeStreamingCondition, pretty, l, replaceLambda)
+                 + join(node.preFunctionInvocations, pretty, replaceLambda, l, w, '')
+                 + join(node.postFunctionInvocations, pretty, replaceLambda, l, w, '');
+            } else if (node.streamReference && node.beforeStreamingCondition
+                         && node.preFunctionInvocations && node.afterStreamingCondition) {
+                return getSourceOf(node.streamReference, pretty, l, replaceLambda)
+                 + getSourceOf(node.beforeStreamingCondition, pretty, l, replaceLambda)
+                 + join(node.preFunctionInvocations, pretty, replaceLambda, l, w, '')
+                 + getSourceOf(node.afterStreamingCondition, pretty, l, replaceLambda);
+            } else if (node.streamReference && node.beforeStreamingCondition
+                         && node.preFunctionInvocations) {
+                return getSourceOf(node.streamReference, pretty, l, replaceLambda)
+                 + getSourceOf(node.beforeStreamingCondition, pretty, l, replaceLambda)
+                 + join(node.preFunctionInvocations, pretty, replaceLambda, l, w, '');
+            } else if (node.streamReference && node.beforeStreamingCondition
+                         && node.windowClause && node.postFunctionInvocations
+                         && node.afterStreamingCondition) {
+                return getSourceOf(node.streamReference, pretty, l, replaceLambda)
+                 + getSourceOf(node.beforeStreamingCondition, pretty, l, replaceLambda)
+                 + getSourceOf(node.windowClause, pretty, l, replaceLambda)
+                 + join(node.postFunctionInvocations, pretty, replaceLambda, l, w, '')
+                 + getSourceOf(node.afterStreamingCondition, pretty, l, replaceLambda);
+            } else if (node.streamReference && node.beforeStreamingCondition
+                         && node.windowClause && node.postFunctionInvocations) {
+                return getSourceOf(node.streamReference, pretty, l, replaceLambda)
+                 + getSourceOf(node.beforeStreamingCondition, pretty, l, replaceLambda)
+                 + getSourceOf(node.windowClause, pretty, l, replaceLambda)
+                 + join(node.postFunctionInvocations, pretty, replaceLambda, l, w, '');
+            } else if (node.streamReference && node.beforeStreamingCondition
+                         && node.windowClause && node.afterStreamingCondition) {
+                return getSourceOf(node.streamReference, pretty, l, replaceLambda)
+                 + getSourceOf(node.beforeStreamingCondition, pretty, l, replaceLambda)
+                 + getSourceOf(node.windowClause, pretty, l, replaceLambda)
+                 + getSourceOf(node.afterStreamingCondition, pretty, l, replaceLambda);
+            } else if (node.streamReference && node.beforeStreamingCondition
+                         && node.windowClause) {
                 return getSourceOf(node.streamReference, pretty, l, replaceLambda)
                  + getSourceOf(node.beforeStreamingCondition, pretty, l, replaceLambda)
                  + getSourceOf(node.windowClause, pretty, l, replaceLambda);
             } else if (node.streamReference && node.beforeStreamingCondition
-                         && node.afterStreamingCondition && node.aliasAvailable && node.alias) {
+                         && node.postFunctionInvocations && node.afterStreamingCondition) {
                 return getSourceOf(node.streamReference, pretty, l, replaceLambda)
                  + getSourceOf(node.beforeStreamingCondition, pretty, l, replaceLambda)
-                 + getSourceOf(node.afterStreamingCondition, pretty, l, replaceLambda) + w() + 'as' + w() + node.alias;
+                 + join(node.postFunctionInvocations, pretty, replaceLambda, l, w, '')
+                 + getSourceOf(node.afterStreamingCondition, pretty, l, replaceLambda);
+            } else if (node.streamReference && node.beforeStreamingCondition
+                         && node.postFunctionInvocations) {
+                return getSourceOf(node.streamReference, pretty, l, replaceLambda)
+                 + getSourceOf(node.beforeStreamingCondition, pretty, l, replaceLambda)
+                 + join(node.postFunctionInvocations, pretty, replaceLambda, l, w, '');
             } else if (node.streamReference && node.beforeStreamingCondition
                          && node.afterStreamingCondition) {
                 return getSourceOf(node.streamReference, pretty, l, replaceLambda)
                  + getSourceOf(node.beforeStreamingCondition, pretty, l, replaceLambda)
                  + getSourceOf(node.afterStreamingCondition, pretty, l, replaceLambda);
-            } else if (node.streamReference && node.beforeStreamingCondition
-                         && node.aliasAvailable && node.alias) {
-                return getSourceOf(node.streamReference, pretty, l, replaceLambda)
-                 + getSourceOf(node.beforeStreamingCondition, pretty, l, replaceLambda)
-                 + w() + 'as' + w() + node.alias;
             } else if (node.streamReference && node.beforeStreamingCondition) {
                 return getSourceOf(node.streamReference, pretty, l, replaceLambda)
                  + getSourceOf(node.beforeStreamingCondition, pretty, l, replaceLambda);
-            } else if (node.streamReference && node.afterStreamingCondition
-                         && node.aliasAvailable && node.alias) {
+            } else if (node.streamReference && node.preFunctionInvocations
+                         && node.windowClause && node.postFunctionInvocations
+                         && node.afterStreamingCondition) {
                 return getSourceOf(node.streamReference, pretty, l, replaceLambda)
-                 + getSourceOf(node.afterStreamingCondition, pretty, l, replaceLambda)
-                 + w() + 'as' + w() + node.alias;
+                 + join(node.preFunctionInvocations, pretty, replaceLambda, l, w, '')
+                 + getSourceOf(node.windowClause, pretty, l, replaceLambda)
+                 + join(node.postFunctionInvocations, pretty, replaceLambda, l, w, '')
+                 + getSourceOf(node.afterStreamingCondition, pretty, l, replaceLambda);
+            } else if (node.streamReference && node.preFunctionInvocations
+                         && node.windowClause && node.postFunctionInvocations) {
+                return getSourceOf(node.streamReference, pretty, l, replaceLambda)
+                 + join(node.preFunctionInvocations, pretty, replaceLambda, l, w, '')
+                 + getSourceOf(node.windowClause, pretty, l, replaceLambda)
+                 + join(node.postFunctionInvocations, pretty, replaceLambda, l, w, '');
+            } else if (node.streamReference && node.preFunctionInvocations
+                         && node.windowClause && node.afterStreamingCondition) {
+                return getSourceOf(node.streamReference, pretty, l, replaceLambda)
+                 + join(node.preFunctionInvocations, pretty, replaceLambda, l, w, '')
+                 + getSourceOf(node.windowClause, pretty, l, replaceLambda)
+                 + getSourceOf(node.afterStreamingCondition, pretty, l, replaceLambda);
+            } else if (node.streamReference && node.preFunctionInvocations
+                         && node.windowClause) {
+                return getSourceOf(node.streamReference, pretty, l, replaceLambda)
+                 + join(node.preFunctionInvocations, pretty, replaceLambda, l, w, '')
+                 + getSourceOf(node.windowClause, pretty, l, replaceLambda);
+            } else if (node.streamReference && node.preFunctionInvocations
+                         && node.postFunctionInvocations && node.afterStreamingCondition) {
+                return getSourceOf(node.streamReference, pretty, l, replaceLambda)
+                 + join(node.preFunctionInvocations, pretty, replaceLambda, l, w, '')
+                 + join(node.postFunctionInvocations, pretty, replaceLambda, l, w, '')
+                 + getSourceOf(node.afterStreamingCondition, pretty, l, replaceLambda);
+            } else if (node.streamReference && node.preFunctionInvocations
+                         && node.postFunctionInvocations) {
+                return getSourceOf(node.streamReference, pretty, l, replaceLambda)
+                 + join(node.preFunctionInvocations, pretty, replaceLambda, l, w, '')
+                 + join(node.postFunctionInvocations, pretty, replaceLambda, l, w, '');
+            } else if (node.streamReference && node.preFunctionInvocations
+                         && node.afterStreamingCondition) {
+                return getSourceOf(node.streamReference, pretty, l, replaceLambda)
+                 + join(node.preFunctionInvocations, pretty, replaceLambda, l, w, '')
+                 + getSourceOf(node.afterStreamingCondition, pretty, l, replaceLambda);
+            } else if (node.streamReference && node.preFunctionInvocations) {
+                return getSourceOf(node.streamReference, pretty, l, replaceLambda)
+                 + join(node.preFunctionInvocations, pretty, replaceLambda, l, w, '');
+            } else if (node.streamReference && node.windowClause
+                         && node.postFunctionInvocations && node.afterStreamingCondition) {
+                return getSourceOf(node.streamReference, pretty, l, replaceLambda)
+                 + getSourceOf(node.windowClause, pretty, l, replaceLambda)
+                 + join(node.postFunctionInvocations, pretty, replaceLambda, l, w, '')
+                 + getSourceOf(node.afterStreamingCondition, pretty, l, replaceLambda);
+            } else if (node.streamReference && node.windowClause
+                         && node.postFunctionInvocations) {
+                return getSourceOf(node.streamReference, pretty, l, replaceLambda)
+                 + getSourceOf(node.windowClause, pretty, l, replaceLambda)
+                 + join(node.postFunctionInvocations, pretty, replaceLambda, l, w, '');
+            } else if (node.streamReference && node.windowClause
+                         && node.afterStreamingCondition) {
+                return getSourceOf(node.streamReference, pretty, l, replaceLambda)
+                 + getSourceOf(node.windowClause, pretty, l, replaceLambda)
+                 + getSourceOf(node.afterStreamingCondition, pretty, l, replaceLambda);
+            } else if (node.streamReference && node.windowClause) {
+                return getSourceOf(node.streamReference, pretty, l, replaceLambda)
+                 + getSourceOf(node.windowClause, pretty, l, replaceLambda);
+            } else if (node.streamReference && node.postFunctionInvocations
+                         && node.afterStreamingCondition) {
+                return getSourceOf(node.streamReference, pretty, l, replaceLambda)
+                 + join(node.postFunctionInvocations, pretty, replaceLambda, l, w, '')
+                 + getSourceOf(node.afterStreamingCondition, pretty, l, replaceLambda);
+            } else if (node.streamReference && node.postFunctionInvocations) {
+                return getSourceOf(node.streamReference, pretty, l, replaceLambda)
+                 + join(node.postFunctionInvocations, pretty, replaceLambda, l, w, '');
             } else if (node.streamReference && node.afterStreamingCondition) {
                 return getSourceOf(node.streamReference, pretty, l, replaceLambda)
                  + getSourceOf(node.afterStreamingCondition, pretty, l, replaceLambda);
-            } else if (node.streamReference && node.aliasAvailable && node.alias) {
-                return getSourceOf(node.streamReference, pretty, l, replaceLambda) + w()
-                 + 'as' + w() + node.alias;
             } else {
                 return getSourceOf(node.streamReference, pretty, l, replaceLambda);
             }
         case 'StreamingQuery':
-            if (node.streamingInput && node.joinStreamingInput
-                         && node.selectClause && node.orderbyClause && node.streamingAction) {
+            if (node.streamingInput && node.joiningInput && node.selectClause
+                         && node.orderbyClause && node.outputRateLimitNode
+                         && node.streamingAction) {
                 return w() + 'from'
                  + getSourceOf(node.streamingInput, pretty, l, replaceLambda)
-                 + getSourceOf(node.joinStreamingInput, pretty, l, replaceLambda)
+                 + getSourceOf(node.joiningInput, pretty, l, replaceLambda) + getSourceOf(node.selectClause, pretty, l, replaceLambda)
+                 + getSourceOf(node.orderbyClause, pretty, l, replaceLambda)
+                 + getSourceOf(node.outputRateLimitNode, pretty, l, replaceLambda)
+                 + getSourceOf(node.streamingAction, pretty, l, replaceLambda);
+            } else if (node.streamingInput && node.joiningInput && node.selectClause
+                         && node.orderbyClause && node.streamingAction) {
+                return w() + 'from'
+                 + getSourceOf(node.streamingInput, pretty, l, replaceLambda)
+                 + getSourceOf(node.joiningInput, pretty, l, replaceLambda) + getSourceOf(node.selectClause, pretty, l, replaceLambda)
+                 + getSourceOf(node.orderbyClause, pretty, l, replaceLambda)
+                 + getSourceOf(node.streamingAction, pretty, l, replaceLambda);
+            } else if (node.streamingInput && node.joiningInput && node.selectClause
+                         && node.outputRateLimitNode && node.streamingAction) {
+                return w() + 'from'
+                 + getSourceOf(node.streamingInput, pretty, l, replaceLambda)
+                 + getSourceOf(node.joiningInput, pretty, l, replaceLambda) + getSourceOf(node.selectClause, pretty, l, replaceLambda)
+                 + getSourceOf(node.outputRateLimitNode, pretty, l, replaceLambda)
+                 + getSourceOf(node.streamingAction, pretty, l, replaceLambda);
+            } else if (node.streamingInput && node.joiningInput && node.orderbyClause
+                         && node.outputRateLimitNode && node.streamingAction) {
+                return w() + 'from'
+                 + getSourceOf(node.streamingInput, pretty, l, replaceLambda)
+                 + getSourceOf(node.joiningInput, pretty, l, replaceLambda) + getSourceOf(node.orderbyClause, pretty, l, replaceLambda)
+                 + getSourceOf(node.outputRateLimitNode, pretty, l, replaceLambda)
+                 + getSourceOf(node.streamingAction, pretty, l, replaceLambda);
+            } else if (node.streamingInput && node.joiningInput && node.selectClause
+                         && node.streamingAction) {
+                return w() + 'from'
+                 + getSourceOf(node.streamingInput, pretty, l, replaceLambda)
+                 + getSourceOf(node.joiningInput, pretty, l, replaceLambda) + getSourceOf(node.selectClause, pretty, l, replaceLambda)
+                 + getSourceOf(node.streamingAction, pretty, l, replaceLambda);
+            } else if (node.streamingInput && node.joiningInput && node.orderbyClause
+                         && node.streamingAction) {
+                return w() + 'from'
+                 + getSourceOf(node.streamingInput, pretty, l, replaceLambda)
+                 + getSourceOf(node.joiningInput, pretty, l, replaceLambda) + getSourceOf(node.orderbyClause, pretty, l, replaceLambda)
+                 + getSourceOf(node.streamingAction, pretty, l, replaceLambda);
+            } else if (node.streamingInput && node.joiningInput
+                         && node.outputRateLimitNode && node.streamingAction) {
+                return w() + 'from'
+                 + getSourceOf(node.streamingInput, pretty, l, replaceLambda)
+                 + getSourceOf(node.joiningInput, pretty, l, replaceLambda)
+                 + getSourceOf(node.outputRateLimitNode, pretty, l, replaceLambda)
+                 + getSourceOf(node.streamingAction, pretty, l, replaceLambda);
+            } else if (node.streamingInput && node.joiningInput && node.streamingAction) {
+                return w() + 'from'
+                 + getSourceOf(node.streamingInput, pretty, l, replaceLambda)
+                 + getSourceOf(node.joiningInput, pretty, l, replaceLambda) + getSourceOf(node.streamingAction, pretty, l, replaceLambda);
+            } else if (node.streamingInput && node.selectClause && node.orderbyClause
+                         && node.outputRateLimitNode && node.streamingAction) {
+                return w() + 'from'
+                 + getSourceOf(node.streamingInput, pretty, l, replaceLambda)
                  + getSourceOf(node.selectClause, pretty, l, replaceLambda) + getSourceOf(node.orderbyClause, pretty, l, replaceLambda)
+                 + getSourceOf(node.outputRateLimitNode, pretty, l, replaceLambda)
                  + getSourceOf(node.streamingAction, pretty, l, replaceLambda);
             } else if (node.streamingInput && node.selectClause && node.orderbyClause
                          && node.streamingAction) {
@@ -1867,36 +2304,84 @@ export default function getSourceOf(node, pretty = false, l = 0, replaceLambda) 
                  + getSourceOf(node.streamingInput, pretty, l, replaceLambda)
                  + getSourceOf(node.selectClause, pretty, l, replaceLambda) + getSourceOf(node.orderbyClause, pretty, l, replaceLambda)
                  + getSourceOf(node.streamingAction, pretty, l, replaceLambda);
-            } else if (node.streamingInput && node.joinStreamingInput
-                         && node.selectClause && node.streamingAction) {
+            } else if (node.streamingInput && node.selectClause
+                         && node.outputRateLimitNode && node.streamingAction) {
                 return w() + 'from'
                  + getSourceOf(node.streamingInput, pretty, l, replaceLambda)
-                 + getSourceOf(node.joinStreamingInput, pretty, l, replaceLambda)
-                 + getSourceOf(node.selectClause, pretty, l, replaceLambda) + getSourceOf(node.streamingAction, pretty, l, replaceLambda);
+                 + getSourceOf(node.selectClause, pretty, l, replaceLambda)
+                 + getSourceOf(node.outputRateLimitNode, pretty, l, replaceLambda)
+                 + getSourceOf(node.streamingAction, pretty, l, replaceLambda);
             } else if (node.streamingInput && node.selectClause && node.streamingAction) {
                 return w() + 'from'
                  + getSourceOf(node.streamingInput, pretty, l, replaceLambda)
                  + getSourceOf(node.selectClause, pretty, l, replaceLambda) + getSourceOf(node.streamingAction, pretty, l, replaceLambda);
-            } else if (node.streamingInput && node.joinStreamingInput
-                         && node.selectClause && node.orderbyClause) {
+            } else if (node.streamingInput && node.orderbyClause
+                         && node.outputRateLimitNode && node.streamingAction) {
                 return w() + 'from'
                  + getSourceOf(node.streamingInput, pretty, l, replaceLambda)
-                 + getSourceOf(node.joinStreamingInput, pretty, l, replaceLambda)
-                 + getSourceOf(node.selectClause, pretty, l, replaceLambda) + getSourceOf(node.orderbyClause, pretty, l, replaceLambda);
-            } else if (node.streamingInput && node.selectClause && node.orderbyClause) {
+                 + getSourceOf(node.orderbyClause, pretty, l, replaceLambda)
+                 + getSourceOf(node.outputRateLimitNode, pretty, l, replaceLambda)
+                 + getSourceOf(node.streamingAction, pretty, l, replaceLambda);
+            } else if (node.streamingInput && node.orderbyClause
+                         && node.streamingAction) {
                 return w() + 'from'
                  + getSourceOf(node.streamingInput, pretty, l, replaceLambda)
-                 + getSourceOf(node.selectClause, pretty, l, replaceLambda) + getSourceOf(node.orderbyClause, pretty, l, replaceLambda);
-            } else if (node.streamingInput && node.joinStreamingInput
-                         && node.selectClause) {
+                 + getSourceOf(node.orderbyClause, pretty, l, replaceLambda)
+                 + getSourceOf(node.streamingAction, pretty, l, replaceLambda);
+            } else if (node.streamingInput && node.outputRateLimitNode
+                         && node.streamingAction) {
                 return w() + 'from'
                  + getSourceOf(node.streamingInput, pretty, l, replaceLambda)
-                 + getSourceOf(node.joinStreamingInput, pretty, l, replaceLambda)
-                 + getSourceOf(node.selectClause, pretty, l, replaceLambda);
+                 + getSourceOf(node.outputRateLimitNode, pretty, l, replaceLambda)
+                 + getSourceOf(node.streamingAction, pretty, l, replaceLambda);
+            } else if (node.streamingInput && node.streamingAction) {
+                return w() + 'from'
+                 + getSourceOf(node.streamingInput, pretty, l, replaceLambda)
+                 + getSourceOf(node.streamingAction, pretty, l, replaceLambda);
+            } else if (node.patternClause && node.selectClause && node.orderbyClause
+                         && node.outputRateLimitNode && node.streamingAction) {
+                return w() + 'from'
+                 + getSourceOf(node.patternClause, pretty, l, replaceLambda)
+                 + getSourceOf(node.selectClause, pretty, l, replaceLambda) + getSourceOf(node.orderbyClause, pretty, l, replaceLambda)
+                 + getSourceOf(node.outputRateLimitNode, pretty, l, replaceLambda)
+                 + getSourceOf(node.streamingAction, pretty, l, replaceLambda);
+            } else if (node.patternClause && node.selectClause && node.orderbyClause
+                         && node.streamingAction) {
+                return w() + 'from'
+                 + getSourceOf(node.patternClause, pretty, l, replaceLambda)
+                 + getSourceOf(node.selectClause, pretty, l, replaceLambda) + getSourceOf(node.orderbyClause, pretty, l, replaceLambda)
+                 + getSourceOf(node.streamingAction, pretty, l, replaceLambda);
+            } else if (node.patternClause && node.selectClause
+                         && node.outputRateLimitNode && node.streamingAction) {
+                return w() + 'from'
+                 + getSourceOf(node.patternClause, pretty, l, replaceLambda)
+                 + getSourceOf(node.selectClause, pretty, l, replaceLambda)
+                 + getSourceOf(node.outputRateLimitNode, pretty, l, replaceLambda) + getSourceOf(node.streamingAction, pretty, l, replaceLambda);
+            } else if (node.patternClause && node.selectClause && node.streamingAction) {
+                return w() + 'from'
+                 + getSourceOf(node.patternClause, pretty, l, replaceLambda)
+                 + getSourceOf(node.selectClause, pretty, l, replaceLambda) + getSourceOf(node.streamingAction, pretty, l, replaceLambda);
+            } else if (node.patternClause && node.orderbyClause
+                         && node.outputRateLimitNode && node.streamingAction) {
+                return w() + 'from'
+                 + getSourceOf(node.patternClause, pretty, l, replaceLambda)
+                 + getSourceOf(node.orderbyClause, pretty, l, replaceLambda)
+                 + getSourceOf(node.outputRateLimitNode, pretty, l, replaceLambda)
+                 + getSourceOf(node.streamingAction, pretty, l, replaceLambda);
+            } else if (node.patternClause && node.orderbyClause && node.streamingAction) {
+                return w() + 'from'
+                 + getSourceOf(node.patternClause, pretty, l, replaceLambda)
+                 + getSourceOf(node.orderbyClause, pretty, l, replaceLambda) + getSourceOf(node.streamingAction, pretty, l, replaceLambda);
+            } else if (node.patternClause && node.outputRateLimitNode
+                         && node.streamingAction) {
+                return w() + 'from'
+                 + getSourceOf(node.patternClause, pretty, l, replaceLambda)
+                 + getSourceOf(node.outputRateLimitNode, pretty, l, replaceLambda)
+                 + getSourceOf(node.streamingAction, pretty, l, replaceLambda);
             } else {
                 return w() + 'from'
-                 + getSourceOf(node.streamingInput, pretty, l, replaceLambda)
-                 + getSourceOf(node.selectClause, pretty, l, replaceLambda);
+                 + getSourceOf(node.patternClause, pretty, l, replaceLambda)
+                 + getSourceOf(node.streamingAction, pretty, l, replaceLambda);
             }
         case 'StringTemplateLiteral':
             return w() + node.startTemplate
@@ -2673,6 +3158,9 @@ export default function getSourceOf(node, pretty = false, l = 0, replaceLambda) 
             return dent() + w() + 'while'
                  + getSourceOf(node.condition, pretty, l, replaceLambda) + w(' ') + '{' + indent()
                  + getSourceOf(node.body, pretty, l, replaceLambda) + outdent() + w() + '}';
+        case 'Within':
+            return w() + 'within' + w() + node.timeDurationValue + w()
+                 + node.timeScale;
         case 'WindowClause':
             return w() + 'window'
                  + getSourceOf(node.functionInvocation, pretty, l, replaceLambda);
