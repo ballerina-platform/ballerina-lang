@@ -23,7 +23,7 @@ import org.slf4j.LoggerFactory;
  * Launcher Terminator Implementation for Windows. ( Xp professional SP2++).
  */
 public class TerminatorWindows implements Terminator {
-    private final String PROCESS_IDENTIFIER = "org.ballerinalang.langserver.launchers.stdio.Main";
+    private final String processIdentifier = "org.ballerinalang.langserver.launchers.stdio.Main";
     private static final Logger LOGGER = LoggerFactory.getLogger(TerminatorWindows.class);
 
     /**
@@ -31,7 +31,7 @@ public class TerminatorWindows implements Terminator {
      */
     private String getFindProcessCommand() {
         // escape forward slashes
-        return "cmd /c wmic.exe Process where \"Commandline like '%" + PROCESS_IDENTIFIER + "%'\" CALL TERMINATE";
+        return "cmd /c wmic.exe Process where \"Commandline like '%" + processIdentifier + "%'\" CALL TERMINATE";
     }
 
     /**
@@ -43,7 +43,7 @@ public class TerminatorWindows implements Terminator {
             Process findProcess = Runtime.getRuntime().exec(findProcessCommand);
             findProcess.waitFor();
         } catch (Throwable e) {
-            LOGGER.error("Launcher was unable to find the process ID for " + PROCESS_IDENTIFIER + ".");
+            LOGGER.error("Launcher was unable to find the process ID for " + processIdentifier + ".");
         }
     }
 }

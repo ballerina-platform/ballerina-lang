@@ -28,7 +28,7 @@ import java.nio.charset.Charset;
  * Launcher Terminator Implementation for Unix.
  */
 public class TerminatorUnix implements Terminator {
-    private final String PROCESS_IDENTIFIER = "org.ballerinalang.langserver.launchers.stdio.Main";
+    private final String processIdentifier = "org.ballerinalang.langserver.launchers.stdio.Main";
     private static final Logger LOGGER = LoggerFactory.getLogger(TerminatorUnix.class);
 
     /**
@@ -50,7 +50,7 @@ public class TerminatorUnix implements Terminator {
      */
     public void terminate() {
         int processID;
-        String[] findProcessCommand = getFindProcessCommand(PROCESS_IDENTIFIER);
+        String[] findProcessCommand = getFindProcessCommand(processIdentifier);
         BufferedReader reader = null;
         try {
             Process findProcess = Runtime.getRuntime().exec(findProcessCommand);
@@ -68,7 +68,7 @@ public class TerminatorUnix implements Terminator {
                 }
             }
         } catch (Throwable e) {
-            LOGGER.error("Launcher was unable to find the process ID for " + PROCESS_IDENTIFIER + ".");
+            LOGGER.error("Launcher was unable to find the process ID for " + processIdentifier + ".");
         } finally {
             if (reader != null) {
                 IOUtils.closeQuietly(reader);
