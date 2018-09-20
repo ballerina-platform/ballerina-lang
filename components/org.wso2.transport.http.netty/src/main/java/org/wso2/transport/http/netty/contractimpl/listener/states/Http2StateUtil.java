@@ -27,6 +27,7 @@ import io.netty.handler.codec.http2.Http2ConnectionEncoder;
 import io.netty.handler.codec.http2.Http2Error;
 import io.netty.handler.codec.http2.Http2Exception;
 import io.netty.handler.codec.http2.Http2Headers;
+import io.netty.handler.codec.http2.HttpConversionUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.transport.http.netty.contract.Constants;
@@ -37,6 +38,7 @@ import org.wso2.transport.http.netty.contractimpl.Http2OutboundRespListener;
 import org.wso2.transport.http.netty.contractimpl.common.Util;
 import org.wso2.transport.http.netty.contractimpl.listener.http2.Http2SourceHandler;
 import org.wso2.transport.http.netty.message.DefaultListener;
+import org.wso2.transport.http.netty.message.Http2PushPromise;
 import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 import org.wso2.transport.http.netty.message.HttpCarbonRequest;
 import org.wso2.transport.http.netty.message.PooledDataStreamerFactory;
@@ -130,6 +132,44 @@ public class Http2StateUtil {
         encoder.flowController().writePendingBytes();
         ctx.flush();
         Util.addResponseWriteFailureListener(outboundRespStatusFuture, channelFuture);
+    }
+
+    /**
+     * Write HTTP2 promise.
+     *
+     * @param pushPromise              HTTP/2 promise message
+     * @param ctx                      the channel handler context
+     * @param conn                     HTTP2 connection
+     * @param encoder                  the HTTP2 connection encoder
+     * @param inboundRequestMsg        request message received from the client
+     * @param outboundRespStatusFuture the future of outbound response write operation
+     * @param originalStreamId         the original id of the stream
+     * @throws Http2Exception throws if a protocol-related error occurred
+     */
+    public static void writeHttp2Promise(Http2PushPromise pushPromise, ChannelHandlerContext ctx, Http2Connection conn,
+                                         Http2ConnectionEncoder encoder, HttpCarbonMessage inboundRequestMsg,
+                                         HttpResponseFuture outboundRespStatusFuture, int originalStreamId)
+            throws Http2Exception {
+        int promisedStreamId = getNextStreamId(conn);
+        // Update streamIds
+        pushPromise.setPromisedStreamId(promisedStreamId);
+        pushPromise.setStreamId(originalStreamId);
+        // Construct http request
+        HttpRequest httpRequest = pushPromise.getHttpRequest();
+        httpRequest.headers().add(HttpConversionUtil.ExtensionHeaderNames.SCHEME.text(), Constants.HTTP_SCHEME);
+        // A push promise is a server initiated request, hence it should contain request headers
+        Http2Headers http2Headers =
+                HttpConversionUtil.toHttp2Headers(httpRequest, true);
+        // Write the push promise to the wire
+        ChannelFuture channelFuture = encoder.writePushPromise(
+                ctx, originalStreamId, promisedStreamId, http2Headers, 0, ctx.newPromise());
+        encoder.flowController().writePendingBytes();
+        ctx.flush();
+        Util.checkForResponseWriteStatus(inboundRequestMsg, outboundRespStatusFuture, channelFuture);
+    }
+
+    private static synchronized int getNextStreamId(Http2Connection conn) {
+        return conn.local().incrementAndGetNextStreamId();
     }
 
     /**

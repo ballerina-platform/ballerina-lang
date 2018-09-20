@@ -26,6 +26,7 @@ import org.wso2.transport.http.netty.contractimpl.Http2OutboundRespListener;
 import org.wso2.transport.http.netty.contractimpl.listener.states.Http2MessageStateContext;
 import org.wso2.transport.http.netty.message.Http2DataFrame;
 import org.wso2.transport.http.netty.message.Http2HeadersFrame;
+import org.wso2.transport.http.netty.message.Http2PushPromise;
 import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 
 /**
@@ -68,5 +69,11 @@ public class ResponseCompleted implements ListenerState {
                 new SendingHeaders(http2OutboundRespListener, http2MessageStateContext));
         http2MessageStateContext.getListenerState()
                 .writeOutboundResponseHeaders(http2OutboundRespListener, outboundResponseMsg, httpContent, streamId);
+    }
+
+    @Override
+    public void writeOutboundPromise(Http2OutboundRespListener http2OutboundRespListener,
+                                     Http2PushPromise pushPromise) {
+        LOG.warn("writeOutboundPromise is not a dependant action of this state");
     }
 }

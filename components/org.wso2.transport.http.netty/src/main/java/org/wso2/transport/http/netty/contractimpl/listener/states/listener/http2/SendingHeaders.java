@@ -35,6 +35,7 @@ import org.wso2.transport.http.netty.contractimpl.common.Util;
 import org.wso2.transport.http.netty.contractimpl.listener.states.Http2MessageStateContext;
 import org.wso2.transport.http.netty.message.Http2DataFrame;
 import org.wso2.transport.http.netty.message.Http2HeadersFrame;
+import org.wso2.transport.http.netty.message.Http2PushPromise;
 import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 
 import static org.wso2.transport.http.netty.contractimpl.listener.states.Http2StateUtil.validatePromisedStreamState;
@@ -95,6 +96,12 @@ public class SendingHeaders implements ListenerState {
                                           int streamId) throws Http2Exception {
         // When the initial frames of the response for the upgraded request is to be sent.
         writeOutboundResponseHeaders(http2OutboundRespListener, outboundResponseMsg, httpContent, streamId);
+    }
+
+    @Override
+    public void writeOutboundPromise(Http2OutboundRespListener http2OutboundRespListener,
+                                     Http2PushPromise pushPromise) {
+        LOG.warn("writeOutboundPromise is not a dependant action of this state");
     }
 
     private void writeHeaders(HttpCarbonMessage outboundResponseMsg, int streamId) throws Http2Exception {

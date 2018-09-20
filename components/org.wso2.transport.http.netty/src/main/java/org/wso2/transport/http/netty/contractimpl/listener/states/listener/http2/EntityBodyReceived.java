@@ -26,7 +26,10 @@ import org.wso2.transport.http.netty.contractimpl.Http2OutboundRespListener;
 import org.wso2.transport.http.netty.contractimpl.listener.states.Http2MessageStateContext;
 import org.wso2.transport.http.netty.message.Http2DataFrame;
 import org.wso2.transport.http.netty.message.Http2HeadersFrame;
+import org.wso2.transport.http.netty.message.Http2PushPromise;
 import org.wso2.transport.http.netty.message.HttpCarbonMessage;
+
+import static org.wso2.transport.http.netty.contractimpl.listener.states.Http2StateUtil.writeHttp2Promise;
 
 /**
  * State between end of inbound request payload read and start of outbound response or push response headers write.
@@ -37,7 +40,7 @@ public class EntityBodyReceived implements ListenerState {
 
     private final Http2MessageStateContext http2MessageStateContext;
 
-    EntityBodyReceived(Http2MessageStateContext http2MessageStateContext) {
+    public EntityBodyReceived(Http2MessageStateContext http2MessageStateContext) {
         this.http2MessageStateContext = http2MessageStateContext;
     }
 
@@ -67,5 +70,15 @@ public class EntityBodyReceived implements ListenerState {
                 new SendingHeaders(http2OutboundRespListener, http2MessageStateContext));
         http2MessageStateContext.getListenerState()
                 .writeOutboundResponseHeaders(http2OutboundRespListener, outboundResponseMsg, httpContent, streamId);
+    }
+
+    @Override
+    public void writeOutboundPromise(Http2OutboundRespListener http2OutboundRespListener,
+                                     Http2PushPromise pushPromise) throws Http2Exception {
+        writeHttp2Promise(pushPromise, http2OutboundRespListener.getChannelHandlerContext(),
+                http2OutboundRespListener.getConnection(), http2OutboundRespListener.getEncoder(),
+                http2OutboundRespListener.getInboundRequestMsg(),
+                http2OutboundRespListener.getInboundRequestMsg().getHttpOutboundRespStatusFuture(),
+                http2OutboundRespListener.getOriginalStreamId());
     }
 }

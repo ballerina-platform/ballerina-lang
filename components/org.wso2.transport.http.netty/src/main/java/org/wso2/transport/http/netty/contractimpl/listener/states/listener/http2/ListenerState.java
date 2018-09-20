@@ -23,6 +23,7 @@ import io.netty.handler.codec.http2.Http2Exception;
 import org.wso2.transport.http.netty.contractimpl.Http2OutboundRespListener;
 import org.wso2.transport.http.netty.message.Http2DataFrame;
 import org.wso2.transport.http.netty.message.Http2HeadersFrame;
+import org.wso2.transport.http.netty.message.Http2PushPromise;
 import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 
 /**
@@ -70,5 +71,15 @@ public interface ListenerState {
      */
     void writeOutboundResponseBody(Http2OutboundRespListener http2OutboundRespListener,
                                    HttpCarbonMessage outboundResponseMsg, HttpContent httpContent, int streamId)
+            throws Http2Exception;
+
+    /**
+     * Write the outbound promise message.
+     *
+     * @param http2OutboundRespListener outbound response listener of response future
+     * @param pushPromise               outbound promise message
+     * @throws Http2Exception if an error occurs while writing
+     */
+    void writeOutboundPromise(Http2OutboundRespListener http2OutboundRespListener, Http2PushPromise pushPromise)
             throws Http2Exception;
 }

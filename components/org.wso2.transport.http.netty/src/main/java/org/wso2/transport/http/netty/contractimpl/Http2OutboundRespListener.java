@@ -19,24 +19,19 @@
 
 package org.wso2.transport.http.netty.contractimpl;
 
-import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.http.HttpContent;
-import io.netty.handler.codec.http.HttpRequest;
 import io.netty.handler.codec.http2.Http2Connection;
 import io.netty.handler.codec.http2.Http2ConnectionEncoder;
 import io.netty.handler.codec.http2.Http2Exception;
-import io.netty.handler.codec.http2.Http2Headers;
-import io.netty.handler.codec.http2.HttpConversionUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.wso2.transport.http.netty.contract.Constants;
 import org.wso2.transport.http.netty.contract.HttpConnectorListener;
 import org.wso2.transport.http.netty.contract.HttpResponseFuture;
 import org.wso2.transport.http.netty.contract.ServerConnectorException;
-import org.wso2.transport.http.netty.contractimpl.common.Util;
 import org.wso2.transport.http.netty.contractimpl.listener.HttpServerChannelInitializer;
 import org.wso2.transport.http.netty.contractimpl.listener.states.Http2MessageStateContext;
+import org.wso2.transport.http.netty.contractimpl.listener.states.listener.http2.EntityBodyReceived;
 import org.wso2.transport.http.netty.contractimpl.listener.states.listener.http2.SendingHeaders;
 import org.wso2.transport.http.netty.message.Http2PushPromise;
 import org.wso2.transport.http.netty.message.HttpCarbonMessage;
@@ -98,30 +93,7 @@ public class Http2OutboundRespListener implements HttpConnectorListener {
 
     @Override
     public void onPushPromise(Http2PushPromise pushPromise) {
-        ctx.channel().eventLoop().execute(() -> {
-            try {
-                int promisedStreamId = getNextStreamId();
-                // Update streamIds
-                pushPromise.setPromisedStreamId(promisedStreamId);
-                pushPromise.setStreamId(originalStreamId);
-                // Construct http request
-                HttpRequest httpRequest = pushPromise.getHttpRequest();
-                httpRequest.headers().add(HttpConversionUtil.ExtensionHeaderNames.SCHEME.text(), Constants.HTTP_SCHEME);
-                // A push promise is a server initiated request, hence it should contain request headers
-                Http2Headers http2Headers =
-                        HttpConversionUtil.toHttp2Headers(httpRequest, true);
-                // Write the push promise to the wire
-                ChannelFuture channelFuture = encoder.writePushPromise(
-                        ctx, originalStreamId, promisedStreamId, http2Headers, 0, ctx.newPromise());
-                encoder.flowController().writePendingBytes();
-                ctx.flush();
-                Util.checkForResponseWriteStatus(inboundRequestMsg, outboundRespStatusFuture, channelFuture);
-            } catch (Exception ex) {
-                String errorMsg = "Failed to send push promise : " + ex.getMessage().toLowerCase(Locale.ENGLISH);
-                LOG.error(errorMsg, ex);
-                inboundRequestMsg.getHttpOutboundRespStatusFuture().notifyHttpListener(ex);
-            }
-        });
+        writePromise(pushPromise);
     }
 
     @Override
@@ -132,6 +104,22 @@ public class Http2OutboundRespListener implements HttpConnectorListener {
             inboundRequestMsg.getHttpOutboundRespStatusFuture().notifyHttpListener(
                     new ServerConnectorException(PROMISED_STREAM_REJECTED_ERROR));
         }
+    }
+
+    private void writePromise(Http2PushPromise pushPromise) {
+        ctx.channel().eventLoop().execute(() -> {
+            try {
+                if (http2MessageStateContext == null) {
+                    http2MessageStateContext = new Http2MessageStateContext();
+                    http2MessageStateContext.setListenerState(new EntityBodyReceived(http2MessageStateContext));
+                }
+                http2MessageStateContext.getListenerState().writeOutboundPromise(this, pushPromise);
+            } catch (Exception ex) {
+                String errorMsg = "Failed to send push promise : " + ex.getMessage().toLowerCase(Locale.ENGLISH);
+                LOG.error(errorMsg, ex);
+                inboundRequestMsg.getHttpOutboundRespStatusFuture().notifyHttpListener(ex);
+            }
+        });
     }
 
     private void writeMessage(HttpCarbonMessage outboundResponseMsg, int streamId) {
@@ -167,10 +155,6 @@ public class Http2OutboundRespListener implements HttpConnectorListener {
             http2MessageStateContext.getListenerState().writeOutboundResponseBody(Http2OutboundRespListener.this,
                     outboundResponseMsg, httpContent, streamId);
         }
-    }
-
-    private synchronized int getNextStreamId() {
-        return conn.local().incrementAndGetNextStreamId();
     }
 
     public ChannelHandlerContext getChannelHandlerContext() {
