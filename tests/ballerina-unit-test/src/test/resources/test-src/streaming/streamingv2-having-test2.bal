@@ -18,57 +18,64 @@ import ballerina/runtime;
 import ballerina/io;
 import ballerina/streams;
 
-type Teacher record {
+type Employee record {
     string name;
     int age;
-    string status;
-    string batch;
-    string school;
 };
 
 int index = 0;
-stream<Teacher> inputStream;
-stream<Teacher> outputStream;
-Teacher[] globalEmployeeArray = [];
+stream<Employee> inputStream;
+stream<Employee> outputStream;
+Employee[] globalEmployeeArray = [];
 
-function startFilterQuery() returns (Teacher[]) {
+function startFilterQuery() returns (Employee[]) {
 
-    Teacher[] teachers = [];
-    Teacher t1 = { name: "Raja", age: 25, status: "single", batch: "LK2014", school: "Ananda College" };
-    Teacher t2 = { name: "Mohan", age: 45, status: "single", batch: "LK2014", school: "Hindu College" };
-    Teacher t3 = { name: "Shareek", age: 50, status: "single", batch: "LK2014", school: "Zahira College" };
-    teachers[0] = t1;
-    teachers[1] = t2;
-    teachers[2] = t3;
+    Employee[] employeeArr = [];
+    Employee t1 = { name: "Mohan", age: 29 };
+    Employee t2 = { name: "Nisala", age: 25 };
+    Employee t3 = { name: "Gimantha", age: 28 };
+    Employee t4 = { name: "Grainier", age: 26 };
+    employeeArr[0] = t1;
+    employeeArr[1] = t2;
+    employeeArr[2] = t3;
+    employeeArr[3] = t4;
 
     testFilterQuery();
 
     outputStream.subscribe(printTeachers);
-    foreach t in teachers {
-        inputStream.publish(t);
+    foreach e in employeeArr {
+        inputStream.publish(e);
     }
 
     runtime:sleep(1000);
-    io:println(globalEmployeeArray);
     return globalEmployeeArray;
 }
 
 function testFilterQuery() {
 
     forever {
-        from inputStream where inputStream.age > 25
-        select inputStream.name, inputStream.age, inputStream.status, inputStream.batch, inputStream.school
-        => (Teacher[] emp) {
+        from inputStream
+        select inputStream.name, inputStream.age
+        having getAge(age) > getMaxAge() && getAge(age) > 25
+        => (Employee[] emp) {
             outputStream.publish(emp);
         }
     }
 }
 
-function printTeachers(Teacher e) {
+function getMaxAge() returns int  {
+    return 25;
+}
+
+function getAge(int age) returns int {
+    return age;
+}
+
+function printTeachers(Employee e) {
     addToGlobalEmployeeArray(e);
 }
 
-function addToGlobalEmployeeArray(Teacher e) {
+function addToGlobalEmployeeArray(Employee e) {
     globalEmployeeArray[index] = e;
     index = index + 1;
 }

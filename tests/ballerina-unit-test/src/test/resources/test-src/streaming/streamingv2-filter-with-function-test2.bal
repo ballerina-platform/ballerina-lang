@@ -49,19 +49,26 @@ function startFilterQuery() returns (Teacher[]) {
     }
 
     runtime:sleep(1000);
-    io:println(globalEmployeeArray);
     return globalEmployeeArray;
 }
 
 function testFilterQuery() {
 
     forever {
-        from inputStream where inputStream.age > 25
+        from inputStream where getAge(inputStream.age) > getMaxAgeLimit()
         select inputStream.name, inputStream.age, inputStream.status, inputStream.batch, inputStream.school
         => (Teacher[] emp) {
             outputStream.publish(emp);
         }
     }
+}
+
+function getMaxAgeLimit() returns int  {
+    return 25;
+}
+
+function getAge(int age) returns int {
+    return age;
 }
 
 function printTeachers(Teacher e) {

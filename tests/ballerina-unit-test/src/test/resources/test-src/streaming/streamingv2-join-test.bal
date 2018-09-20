@@ -46,8 +46,8 @@ stream<StockWithPrice> stockWithPriceStream;
 function testJoinQuery() {
 
     forever {
-        from stockStream window time(1000)
-        join twitterStream window time(1000)
+        from stockStream window lengthWindow(1)
+        join twitterStream window lengthWindow(1)
         on stockStream.symbol == twitterStream.company
         select stockStream.symbol as symbol, twitterStream.tweet as tweet, stockStream.price as price
         => (StockWithPrice[] emp) {
@@ -59,7 +59,7 @@ function testJoinQuery() {
 function startJoinQuery() returns (StockWithPrice[]) {
 
     testJoinQuery();
-    map d;
+
     Stock s1 = {symbol:"WSO2", price:55.6, volume:100};
     Stock s2 = {symbol:"MBI", price:74.6, volume:100};
     Stock s3 = {symbol:"WSO2", price:58.6, volume:100};
@@ -69,11 +69,15 @@ function startJoinQuery() returns (StockWithPrice[]) {
     stockWithPriceStream.subscribe(printCompanyStockPrice);
 
     stockStream.publish(s1);
+    runtime:sleep(100);
     twitterStream.publish(t1);
+    runtime:sleep(100);
     stockStream.publish(s2);
+    runtime:sleep(100);
     stockStream.publish(s3);
+    runtime:sleep(1000);
 
-    runtime:sleep(3000);
+    io:println(globalEventsArray);
     return globalEventsArray;
 }
 
