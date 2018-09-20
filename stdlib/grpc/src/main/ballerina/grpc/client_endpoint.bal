@@ -47,8 +47,8 @@ public type Client object {
 # + url - The server url.
 # + secureSocket - The SSL configurations for the client endpoint.
 public type ClientEndpointConfig record {
-    string url,
-    SecureSocket? secureSocket,
+    string url;
+    SecureSocket? secureSocket;
     !...
 };
 
@@ -56,10 +56,6 @@ public type ClientEndpointConfig record {
 #
 # + trustStore - TrustStore related options.
 # + keyStore - KeyStore related options.
-# + certFile - A file containing the certificate of the client.
-# + keyFile - A file containing the private key of the client.
-# + keyPassword - Password of the private key if it is encrypted.
-# + trustedCertFile - A file containing a list of certificates or a single certificate that the client trusts.
 # + protocol - SSL/TLS protocol related options.
 # + certValidation - Certificate validation against CRL or OCSP related options.
 # + ciphers - List of ciphers to be used. eg: TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256,
@@ -68,17 +64,13 @@ public type ClientEndpointConfig record {
 # + shareSession - Enable/disable new ssl session creation.
 # + ocspStapling - Enable/disable ocsp stapling.
 public type SecureSocket record {
-    TrustStore? trustStore,
-    KeyStore? keyStore,
-    string certFile,
-    string keyFile,
-    string keyPassword,
-    string trustedCertFile,
-    Protocols? protocol,
-    ValidateCert? certValidation,
-    string[] ciphers,
-    boolean verifyHostname = true,
-    boolean shareSession = true,
-    boolean ocspStapling,
+    TrustStore? trustStore;
+    KeyStore? keyStore;
+    Protocols? protocol;
+    ValidateCert? certValidation;
+    string[] ciphers;
+    boolean verifyHostname = true;
+    boolean shareSession = true;
+    boolean ocspStapling;
     !...
 };
