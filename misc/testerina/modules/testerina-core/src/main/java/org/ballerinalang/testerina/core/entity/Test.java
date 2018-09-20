@@ -20,7 +20,6 @@ package org.ballerinalang.testerina.core.entity;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 
 /**
  * Holds a Ballerina test info.
@@ -122,28 +121,11 @@ public class Test {
         this.dependsOnTestFunctionObjs.add(function);
     }
 
-    public List<String> getGroups() {
-        return groups;
-    }
-
     public void setGroups(List<String> groups) {
         this.groups = groups;
     }
 
-    @Override
-    public boolean equals(Object o) {
-        if (o == this) {
-            return true;
-        }
-        if (!(o instanceof Test)) {
-            return false;
-        }
-        Test c = (Test) o;
-        return Objects.equals(c.testName, testName);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(testName, testFunction);
+    public List<String> getGroups() {
+        return groups;
     }
 }
