@@ -19,6 +19,7 @@ function renderDiagram(context: ExtensionContext, docUri: Uri): string {
     const styles = `
         body {
             background: #f1f1f1;
+            overflow-y: hidden!important;
         }
         .overlay {
             display: none;
@@ -27,7 +28,6 @@ function renderDiagram(context: ExtensionContext, docUri: Uri): string {
             fill-opacity: 0;
         }
         #diagram {
-            overflow: scroll;
             height : 100%;
         }
         #errors {
