@@ -3033,6 +3033,16 @@ public class CPU {
             return false;
         }
 
+        // If only one is a closed record, the records aren't equivalent
+        if (rhsType.sealed ^ lhsType.sealed) {
+            return false;
+        }
+
+        // The rest field types should match if they are open records
+        if ((!lhsType.sealed && !rhsType.sealed) && !isAssignable(rhsType.restFieldType, lhsType.restFieldType)) {
+            return false;
+        }
+
         return checkEquivalencyOfTwoRecords(lhsType, rhsType);
     }
 
