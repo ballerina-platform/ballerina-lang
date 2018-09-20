@@ -16,7 +16,7 @@
  *  under the License.
  *
  */
-package org.wso2.transport.http.netty.contractimpl.config;
+package org.wso2.transport.http.netty.contract.config;
 
 
 import java.util.Collections;
@@ -35,7 +35,6 @@ import javax.xml.bind.annotation.XmlRootElement;
 @XmlRootElement(name = "transports")
 @XmlAccessorType(XmlAccessType.FIELD)
 public class TransportsConfiguration {
-
     /**
      * @deprecated
      * @return the default transport configuration.

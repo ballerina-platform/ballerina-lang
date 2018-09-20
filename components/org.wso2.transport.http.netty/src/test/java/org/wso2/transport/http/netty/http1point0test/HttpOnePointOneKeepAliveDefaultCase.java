@@ -34,9 +34,9 @@ import org.wso2.transport.http.netty.contentaware.listeners.EchoStreamingMessage
 import org.wso2.transport.http.netty.contract.HttpWsConnectorFactory;
 import org.wso2.transport.http.netty.contract.ServerConnector;
 import org.wso2.transport.http.netty.contract.ServerConnectorFuture;
+import org.wso2.transport.http.netty.contract.config.ListenerConfiguration;
+import org.wso2.transport.http.netty.contract.config.ServerBootstrapConfiguration;
 import org.wso2.transport.http.netty.contractimpl.DefaultHttpWsConnectorFactory;
-import org.wso2.transport.http.netty.contractimpl.config.ListenerConfiguration;
-import org.wso2.transport.http.netty.contractimpl.listener.ServerBootstrapConfiguration;
 import org.wso2.transport.http.netty.util.TestUtil;
 import org.wso2.transport.http.netty.util.client.http.HttpClient;
 

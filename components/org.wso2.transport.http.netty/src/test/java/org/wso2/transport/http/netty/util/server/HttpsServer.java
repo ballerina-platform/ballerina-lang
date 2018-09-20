@@ -36,8 +36,8 @@ import java.security.KeyStore;
 import javax.net.ssl.KeyManagerFactory;
 import javax.net.ssl.SSLContext;
 
-import static org.wso2.transport.http.netty.contractimpl.common.Constants.JKS;
-import static org.wso2.transport.http.netty.contractimpl.common.Constants.TLS_PROTOCOL;
+import static org.wso2.transport.http.netty.contract.Constants.JKS;
+import static org.wso2.transport.http.netty.contract.Constants.TLS_PROTOCOL;
 
 /**
  * A Simple HTTPS Server

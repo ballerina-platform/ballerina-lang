@@ -38,8 +38,8 @@ import io.netty.handler.codec.http.HttpResponseStatus;
 import io.netty.handler.codec.http.HttpVersion;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.wso2.transport.http.netty.contract.Constants;
 import org.wso2.transport.http.netty.contract.ServerConnectorFuture;
-import org.wso2.transport.http.netty.contractimpl.common.Constants;
 import org.wso2.transport.http.netty.contractimpl.websocket.message.DefaultWebSocketHandshaker;
 import org.wso2.transport.http.netty.message.DefaultListener;
 import org.wso2.transport.http.netty.message.HttpCarbonRequest;
@@ -47,7 +47,7 @@ import org.wso2.transport.http.netty.message.PooledDataStreamerFactory;
 
 import java.net.InetSocketAddress;
 
-import static org.wso2.transport.http.netty.contractimpl.common.Constants.HTTP_OBJECT_AGGREGATOR;
+import static org.wso2.transport.http.netty.contract.Constants.HTTP_OBJECT_AGGREGATOR;
 
 /**
  * WebSocket handshake handler for carbon transports.

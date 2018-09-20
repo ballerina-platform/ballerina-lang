@@ -16,7 +16,7 @@
  *  under the License.
  *
  */
-package org.wso2.transport.http.netty.contractimpl.config;
+package org.wso2.transport.http.netty.contract.config;
 
 import java.util.ArrayList;
 import java.util.List;

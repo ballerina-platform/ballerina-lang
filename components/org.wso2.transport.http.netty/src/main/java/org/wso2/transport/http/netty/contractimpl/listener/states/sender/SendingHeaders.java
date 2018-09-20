@@ -23,9 +23,9 @@ import io.netty.handler.codec.http.HttpContent;
 import io.netty.handler.codec.http.HttpResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.wso2.transport.http.netty.contract.Constants;
 import org.wso2.transport.http.netty.contract.HttpResponseFuture;
-import org.wso2.transport.http.netty.contractimpl.common.Constants;
-import org.wso2.transport.http.netty.contractimpl.config.ChunkConfig;
+import org.wso2.transport.http.netty.contract.config.ChunkConfig;
 import org.wso2.transport.http.netty.contractimpl.listener.states.MessageStateContext;
 import org.wso2.transport.http.netty.contractimpl.sender.TargetHandler;
 import org.wso2.transport.http.netty.contractimpl.sender.channel.TargetChannel;
@@ -33,10 +33,10 @@ import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 
 import java.io.IOException;
 
-import static org.wso2.transport.http.netty.contractimpl.common.Constants
+import static org.wso2.transport.http.netty.contract.Constants
         .IDLE_TIMEOUT_TRIGGERED_WHILE_WRITING_OUTBOUND_REQUEST_HEADERS;
-import static org.wso2.transport.http.netty.contractimpl.common.Constants.INBOUND_RESPONSE_ALREADY_RECEIVED;
-import static org.wso2.transport.http.netty.contractimpl.common.Constants
+import static org.wso2.transport.http.netty.contract.Constants.INBOUND_RESPONSE_ALREADY_RECEIVED;
+import static org.wso2.transport.http.netty.contract.Constants
         .REMOTE_SERVER_CLOSED_WHILE_WRITING_OUTBOUND_REQUEST_HEADERS;
 import static org.wso2.transport.http.netty.contractimpl.common.Util.isEntityBodyAllowed;
 import static org.wso2.transport.http.netty.contractimpl.common.Util.isLastHttpContent;

@@ -17,12 +17,12 @@
  *
  */
 
-package org.wso2.transport.http.netty.contractimpl.config;
+package org.wso2.transport.http.netty.contract.config;
 
 /**
- * Contains value for configuring keep-alive
+ * Contains value for configuring content encoding
  */
-public enum KeepAliveConfig {
+public enum ChunkConfig {
     ALWAYS,
     NEVER,
     AUTO
