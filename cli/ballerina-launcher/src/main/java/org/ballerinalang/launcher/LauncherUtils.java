@@ -150,8 +150,8 @@ public class LauncherUtils {
     public static void runMain(ProgramFile programFile, String functionName, String[] args, boolean printReturn) {
         try {
             BValue[] entryFuncResult = BLangProgramRunner.runEntryFunc(programFile, functionName, args);
-            if (printReturn && entryFuncResult != null && entryFuncResult.length >= 1) {
-                outStream.println(entryFuncResult[0] == null ? "()" : entryFuncResult[0].stringValue());
+            if (printReturn && entryFuncResult != null && entryFuncResult.length >= 1 && entryFuncResult[0] != null) {
+                outStream.print(entryFuncResult[0].stringValue());
             }
         } catch (BLangUsageException | BallerinaException e) {
             throw createUsageException(makeFirstLetterLowerCase(e.getLocalizedMessage()));
