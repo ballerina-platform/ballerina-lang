@@ -1,35 +1,14 @@
-import { log } from '../logger';
-import { BallerinaAST, ExtendedLangClient } from '../lang-client';
+import { ExtendedLangClient } from '../lang-client';
 import { Uri, ExtensionContext } from 'vscode';
 import { getLibraryWebViewContent } from '../utils';
 
-const RETRY_COUNT = 5;
-const RETRY_WAIT = 1000;
-
 export function render (context: ExtensionContext, langClient: ExtendedLangClient, docUri: Uri, retries: number = 1)
-        : Thenable<string | undefined> {       
-    return langClient.getAST(docUri)
-                .then((resp) => {
-                    let stale = true;
-                    if (resp.ast) {
-                        stale = false;
-                        return renderDiagram(context, docUri, resp.ast, stale);
-                    } else {
-                        if (retries > RETRY_COUNT) {
-                            log('Could not render');
-                            return renderError();
-                        }
-                        setTimeout(() => {
-                            log(`Retrying rendering ${retries}/${RETRY_COUNT}\n`);
-                            return render(context, langClient, docUri, retries + 1);
-                        }, RETRY_WAIT);
-                    }
-                });
+        : string {       
+   return renderDiagram(context, docUri);
 }
 
-function renderDiagram(context: ExtensionContext, docUri: Uri, jsonModelObj: BallerinaAST, stale: boolean): string {
-    const jsonModel = JSON.stringify(jsonModelObj);
-
+function renderDiagram(context: ExtensionContext, docUri: Uri): string {
+    
     const body = `
         <div id="warning">
         </div>
@@ -38,6 +17,9 @@ function renderDiagram(context: ExtensionContext, docUri: Uri, jsonModelObj: Bal
     `;
 
     const styles = `
+        body {
+            background: #f1f1f1;
+        }
         .overlay {
             display: none;
         }
@@ -76,8 +58,6 @@ function renderDiagram(context: ExtensionContext, docUri: Uri, jsonModelObj: Bal
 
     const script = `
         let docUri = ${JSON.stringify(docUri.toString())};
-        let json = ${jsonModel};
-        let stale = ${JSON.stringify(stale)};
 
         // Handle the message inside the webview
         window.addEventListener('message', event => {
@@ -86,24 +66,19 @@ function renderDiagram(context: ExtensionContext, docUri: Uri, jsonModelObj: Bal
 
             switch (message.command) {
                 case 'update':
-                    json = message.json;
                     docUri = message.docUri;
-                    stale = message.stale;
                     drawDiagram();
                     break;
             }
         });
 
-        if (stale) {
-            showWarning('Cannot update design view due to syntax errors.')
-        }
-
-        if (!json) {
-            return;
-        }
-
         function getAST(docUri) {
-            return Promise.resolve({ model: json });
+
+            return new Promise((resolve, reject) => {
+                webViewRPCHandler.invokeRemoteMethod('getAST', [docUri], (resp) => {
+                    resolve(resp);
+                });
+            });
         }
 
         function onChange(evt) {
@@ -180,6 +155,8 @@ function renderDiagram(context: ExtensionContext, docUri: Uri, jsonModelObj: Bal
         }
         
         window.onresize = drawDiagram;
+        drawDiagram();
+        // Fix the need to do a React update here
         drawDiagram();
     `;
 

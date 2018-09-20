@@ -32,9 +32,7 @@ export function getLibraryWebViewContent(context: ExtensionContext,
         <script charset="UTF-8" src="${resourceRoot}/utils/messaging.js"></script>
         <script charset="UTF-8" src="${diagramResourceRoot}/ballerina-diagram-library.js"></script>
         <script>
-            (function() {
-                ${scripts}
-            }());
+            ${scripts}
         </script>
     </body>
     </html>

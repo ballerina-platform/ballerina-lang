@@ -96,14 +96,13 @@ export function activate(context: ExtensionContext, langClient: ExtendedLangClie
             return "";
 		}
 		activeEditor = editor;
-		render(context, langClient, editor.document.uri)
-			.then((html) => {
-				if (previewPanel && html) {
-					previewPanel.webview.html = html;
-				}
-			});
-
 		WebViewRPCHandler.create([
+			{
+				methodName: 'getAST',
+				handler: (args: any[]) => {
+					return langClient.getAST(args[0]);
+				}
+			},
 			{
 				methodName: 'getEndpoints',
 				handler: (args: any[]) => {
@@ -133,6 +132,10 @@ export function activate(context: ExtensionContext, langClient: ExtendedLangClie
 				}
 			}
 		], previewPanel.webview);
+		const html = render(context, langClient, editor.document.uri);
+		if (previewPanel && html) {
+			previewPanel.webview.html = html;
+		}
 		// Handle messages from the webview
         previewPanel.webview.onDidReceiveMessage(message => {
             switch (message.command) {
