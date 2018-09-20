@@ -15,6 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+
 package org.wso2.transport.http.netty.contractimpl.listener.states;
 
 import io.netty.channel.ChannelFuture;
@@ -45,7 +46,7 @@ import java.net.InetSocketAddress;
 import static org.wso2.transport.http.netty.contractimpl.common.Constants.PROMISED_STREAM_REJECTED_ERROR;
 
 /**
- * HTTP/2 utility functions for states
+ * HTTP/2 utility functions for states.
  */
 public class Http2StateUtil {
 
@@ -111,7 +112,7 @@ public class Http2StateUtil {
     }
 
     /**
-     * Write HTTP2 headers to outbound response
+     * Write HTTP2 headers to outbound response.
      *
      * @param ctx                      the channel handler context
      * @param encoder                  the HTTP2 connection encoder
@@ -132,7 +133,7 @@ public class Http2StateUtil {
     }
 
     /**
-     * Validate the state of promised stream with the original stream id and given stream id
+     * Validate the state of promised stream with the original stream id and given stream id.
      *
      * @param originalStreamId  the original id of the stream
      * @param streamId          the id of the stream to be validated
@@ -153,7 +154,7 @@ public class Http2StateUtil {
     }
 
     /**
-     * Check for the validity of stream id
+     * Check for the validity of stream id.
      *
      * @param streamId the id of the stream
      * @param conn     HTTP2 connection

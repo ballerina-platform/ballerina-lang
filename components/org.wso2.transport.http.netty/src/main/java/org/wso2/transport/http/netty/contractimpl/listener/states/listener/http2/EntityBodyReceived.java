@@ -15,6 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+
 package org.wso2.transport.http.netty.contractimpl.listener.states.listener.http2;
 
 import io.netty.handler.codec.http.HttpContent;
@@ -36,7 +37,7 @@ public class EntityBodyReceived implements ListenerState {
 
     private final Http2MessageStateContext http2MessageStateContext;
 
-    public EntityBodyReceived(Http2MessageStateContext http2MessageStateContext) {
+    EntityBodyReceived(Http2MessageStateContext http2MessageStateContext) {
         this.http2MessageStateContext = http2MessageStateContext;
     }
 
