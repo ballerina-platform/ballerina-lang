@@ -136,8 +136,8 @@ fi
 
 # ----- Process the input command ----------------------------------------------
 
-if [[ -v BAL_JAVA_DEBUG ]]; then
-    if [[ -z "$BAL_JAVA_DEBUG" ]]; then
+if [ -n "${BAL_JAVA_DEBUG+set}" ]; then
+    if [ -z "$BAL_JAVA_DEBUG" ]; then
         echo "Please specify the debug port for the BAL_JAVA_DEBUG variable"
 	exit 1
     else
