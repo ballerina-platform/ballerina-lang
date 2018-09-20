@@ -18,7 +18,7 @@
  *
  */
 import {
-	window, ExtensionContext, debug,
+	ExtensionContext, debug,
 	DebugConfigurationProvider, WorkspaceFolder, DebugConfiguration, ProviderResult
 } from 'vscode';
 import { } from 'vscode-debugadapter';

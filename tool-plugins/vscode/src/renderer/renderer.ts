@@ -163,7 +163,7 @@ function renderDiagram(context: ExtensionContext, docUri: Uri): string {
     return getLibraryWebViewContent(context, body, script, styles);
 }
 
-function renderError() {
+export function renderError() {
     return `
     <!DOCTYPE html>
     <html>
