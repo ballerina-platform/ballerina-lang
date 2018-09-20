@@ -143,6 +143,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.Stack;
+import java.util.stream.Collectors;
 
 import static org.wso2.ballerinalang.compiler.util.Constants.MAIN_FUNCTION_NAME;
 
@@ -839,9 +840,18 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     }
 
     public void visit(BLangRecordLiteral recordLiteral) {
-        recordLiteral.keyValuePairs.forEach(kv -> {
+        List<BLangRecordLiteral.BLangRecordKeyValue> keyValuePairs = recordLiteral.keyValuePairs;
+        keyValuePairs.forEach(kv -> {
             analyzeExpr(kv.valueExpr);
         });
+
+        long uniqueKeys = keyValuePairs.stream()
+                .map(p -> p.getKey().toString())
+                .collect(Collectors.toSet())
+                .size();
+        if (keyValuePairs.size() != uniqueKeys) {
+            this.dlog.error(recordLiteral.pos, DiagnosticCode.DUPLICATE_RECORD_LITERAL);
+        }
     }
 
     public void visit(BLangTableLiteral tableLiteral) {
