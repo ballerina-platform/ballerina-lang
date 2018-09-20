@@ -53,8 +53,8 @@ public class SwaggerResourcesTest {
     public void testPathNoPrefixedForwardSlash() throws SwaggerConverterException, IOException {
         String balSrc =
                 FileUtils.readFileToString(balFilesPath.resolve("path-annotations-no-forward-slash.bal").toFile());
-        String oasSrc = FileUtils.readFileToString(oasDefinitionsPath.resolve("path-annotation-no-forward-slash.yaml")
-                .toFile());
+        String oasSrc =
+            FileUtils.readFileToString(oasDefinitionsPath.resolve("path-annotation-no-forward-slash.yaml").toFile());
         
         String generatedOAS = SwaggerConverterUtils.generateOAS3Definitions(balSrc, "hello");
         
@@ -73,8 +73,8 @@ public class SwaggerResourcesTest {
     public void testPathWithPrefixedForwardSlash() throws SwaggerConverterException, IOException {
         String balSrc =
                 FileUtils.readFileToString(balFilesPath.resolve("path-annotations-with-forward-slash.bal").toFile());
-        String oasSrc = FileUtils.readFileToString(oasDefinitionsPath.resolve("path-annotation-no-forward-slash.yaml")
-                .toFile());
+        String oasSrc =
+            FileUtils.readFileToString(oasDefinitionsPath.resolve("path-annotation-no-forward-slash.yaml").toFile());
         
         String generatedOAS = SwaggerConverterUtils.generateOAS3Definitions(balSrc, "hello");
         
