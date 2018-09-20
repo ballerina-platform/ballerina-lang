@@ -124,7 +124,7 @@ public class Main {
             encryptCmd.setParentCmdParser(cmdParser);
 
             cmdParser.setCommandName("ballerina");
-
+            cmdParser.setPosixClusteredShortOptionsAllowed(false);
 
             List<CommandLine> parsedCommands = cmdParser.parse(args);
 

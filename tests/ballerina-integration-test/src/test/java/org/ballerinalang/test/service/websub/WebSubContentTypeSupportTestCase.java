@@ -94,7 +94,7 @@ public class WebSubContentTypeSupportTestCase extends BaseTest {
         String balFile = new File("src" + File.separator + "test" + File.separator + "resources"
                 + File.separator + "websub" + File.separator + "content_types" + File.separator
                 + "publisher.bal").getAbsolutePath();
-        String[] publisherArgs = {"-e b7a.websub.hub.remotepublish=true"};
+        String[] publisherArgs = {"-e", "b7a.websub.hub.remotepublish=true"};
 
         String subscriberBal = new File("src" + File.separator + "test" + File.separator + "resources"
                 + File.separator + "websub" + File.separator + "content_types" + File.separator
