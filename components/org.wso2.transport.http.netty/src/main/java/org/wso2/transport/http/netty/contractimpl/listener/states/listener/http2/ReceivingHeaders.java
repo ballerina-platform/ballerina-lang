@@ -97,14 +97,9 @@ public class ReceivingHeaders implements ListenerState {
 
     @Override
     public void writeOutboundResponseBody(Http2OutboundRespListener http2OutboundRespListener,
-                                          HttpCarbonMessage outboundResponseMsg, HttpContent httpContent, int streamId)
-            throws Http2Exception {
-        // When receiving headers, if payload is not consumed by the server, this method is invoked if server is
-        // going to send the response back.
-        http2MessageStateContext.setListenerState(
-                new SendingHeaders(http2OutboundRespListener, http2MessageStateContext));
-        http2MessageStateContext.getListenerState()
-                .writeOutboundResponseHeaders(http2OutboundRespListener, outboundResponseMsg, httpContent, streamId);
+                                          HttpCarbonMessage outboundResponseMsg, HttpContent httpContent,
+                                          int streamId) {
+        LOG.warn("writeOutboundResponseBody is not a dependant action of this state");
     }
 
     @Override
@@ -118,8 +113,7 @@ public class ReceivingHeaders implements ListenerState {
         HttpVersion version = new HttpVersion(Constants.HTTP_VERSION_2_0, true);
         LastHttpContent lastHttpContent = new DefaultLastHttpContent();
         HttpHeaders trailers = lastHttpContent.trailingHeaders();
-        HttpConversionUtil.addHttp2ToHttpHeaders(
-                streamId, headers, trailers, version, true, false);
+        HttpConversionUtil.addHttp2ToHttpHeaders(streamId, headers, trailers, version, true, false);
         responseMessage.addHttpContent(lastHttpContent);
     }
 
