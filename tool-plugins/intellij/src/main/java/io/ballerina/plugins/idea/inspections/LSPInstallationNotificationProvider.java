@@ -46,6 +46,9 @@ import java.util.Set;
 
 import static com.intellij.ide.plugins.PluginManagerCore.getDisabledPlugins;
 
+/**
+ * Provides message/notification with the fix, if the LSP dependency plugin is not installed or not enabled.
+ */
 public class LSPInstallationNotificationProvider extends EditorNotifications.Provider<EditorNotificationPanel>
         implements DumbAware {
 
@@ -77,11 +80,10 @@ public class LSPInstallationNotificationProvider extends EditorNotifications.Pro
 
         final String extension = file.getExtension();
         final String fileName = file.getName();
-        if (extension != null && isIgnored("*." + extension) || isIgnored(fileName))
+        if (extension != null && isIgnored("*." + extension) || isIgnored(fileName)) {
             return null;
-        else {
-            return extension != null ? createPanel("*." + extension) : null;
         }
+        return extension != null ? createPanel("*." + extension) : null;
     }
 
     private boolean isIgnored(String extension) {
@@ -90,11 +92,11 @@ public class LSPInstallationNotificationProvider extends EditorNotifications.Pro
     }
 
     private EditorNotificationPanel createPanel(String extension) {
-        PluginsAdvertiser.Plugin LSPPlugin = new PluginsAdvertiser.Plugin();
-        LSPPlugin.myPluginId = LSP_PLUGIN_ID;
-        LSPPlugin.myPluginName = LSP_PLUGIN_NAME;
+        PluginsAdvertiser.Plugin lspPlugin = new PluginsAdvertiser.Plugin();
+        lspPlugin.myPluginId = LSP_PLUGIN_ID;
+        lspPlugin.myPluginName = LSP_PLUGIN_NAME;
 
-        return createPanel(extension, LSPPlugin);
+        return createPanel(extension, lspPlugin);
     }
 
     private EditorNotificationPanel createPanel(final String extension, PluginsAdvertiser.Plugin plugin) {
@@ -121,8 +123,7 @@ public class LSPInstallationNotificationProvider extends EditorNotifications.Pro
 
             });
         }
-        //   UnknownFeaturesCollector.getInstance(myProject).ignoreFeature(createExtensionFeature(extension));
-        panel.createActionLabel("Ignore extension", myNotifications::updateAllNotifications);
+        panel.createActionLabel("Ignore", myNotifications::updateAllNotifications);
         return panel;
     }
 

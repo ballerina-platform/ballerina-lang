@@ -44,7 +44,7 @@ public class BallerinaLanguageServerPreloadingActivity extends PreloadingActivit
     private static final Logger LOGGER = LoggerFactory.getLogger(BallerinaLanguageServerPreloadingActivity.class);
 
     /**
-     * Preloading of the plugin
+     * Preloading of the ballerina plugin.
      */
     @Override
     public void preload(@NotNull ProgressIndicator indicator) {
@@ -74,6 +74,7 @@ public class BallerinaLanguageServerPreloadingActivity extends PreloadingActivit
 
     /**
      * Registered language server definition using currently opened ballerina projects.
+     *
      * @return Returns true if a definition is registered successfully.
      */
     public boolean registerServerDefinition() {
