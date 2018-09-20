@@ -211,7 +211,6 @@ public class TreeVisitor extends LSNodeVisitor {
         CursorPositionResolver cpr = CursorPositionResolvers.getResolverByClass(this.cursorPositionResolver);
 
         funcNode.annAttachments.forEach(annotationAttachment -> this.acceptNode(annotationAttachment, funcEnv));
-        funcNode.docAttachments.forEach(bLangDocumentation -> this.acceptNode(bLangDocumentation, funcEnv));
 
         if (terminateVisitor || cpr.isCursorBeforeNode(funcNode.getPosition(), funcNode, this, this.lsContext)
                 || isWithinParameterContext(functionName, UtilSymbolKeys.FUNCTION_KEYWORD_KEY, funcEnv)) {

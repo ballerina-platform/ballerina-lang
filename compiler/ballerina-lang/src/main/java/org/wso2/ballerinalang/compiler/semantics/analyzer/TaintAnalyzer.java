@@ -26,6 +26,7 @@ import org.ballerinalang.util.diagnostic.DiagnosticCode;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
@@ -38,7 +39,6 @@ import org.wso2.ballerinalang.compiler.tree.BLangAnnotation;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
 import org.wso2.ballerinalang.compiler.tree.BLangCompilationUnit;
 import org.wso2.ballerinalang.compiler.tree.BLangDeprecatedNode;
-import org.wso2.ballerinalang.compiler.tree.BLangDocumentation;
 import org.wso2.ballerinalang.compiler.tree.BLangEndpoint;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
@@ -78,7 +78,6 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangAwaitExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBracedOrTupleExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangCheckedExpr;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangDocumentationAttribute;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangElvisExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess;
@@ -224,7 +223,7 @@ public class TaintAnalyzer extends BLangNodeVisitor {
     private static final String ANNOTATION_UNTAINTED = "untainted";
     private static final String ANNOTATION_SENSITIVE = "sensitive";
 
-    private static final int ALL_UNTAINTED_TABLE_ENTRY_INDEX = -1;
+    public static final int ALL_UNTAINTED_TABLE_ENTRY_INDEX = -1;
 
     private enum AnalyzerPhase {
         INITIAL_ANALYSIS,
@@ -364,7 +363,9 @@ public class TaintAnalyzer extends BLangNodeVisitor {
         BSymbol objectSymbol = objectNode.symbol;
         SymbolEnv objectEnv = SymbolEnv.createPkgLevelSymbolEnv(objectNode, objectSymbol.scope, env);
         objectNode.fields.forEach(field -> analyzeNode(field, objectEnv));
-        analyzeNode(objectNode.initFunction, objectEnv);
+        if (objectNode.initFunction != null) {
+            analyzeNode(objectNode.initFunction, objectEnv);
+        }
         objectNode.functions.forEach(f -> analyzeNode(f, objectEnv));
     }
 
@@ -409,16 +410,6 @@ public class TaintAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangAnnotationAttachment annAttachmentNode) {
-        /* ignore */
-    }
-
-    @Override
-    public void visit(BLangDocumentationAttribute docAttribute) {
-        /* ignore */
-    }
-
-    @Override
-    public void visit(BLangDocumentation doc) {
         /* ignore */
     }
 
@@ -951,7 +942,14 @@ public class TaintAnalyzer extends BLangNodeVisitor {
                 typeTaintedStatus = TaintedStatus.TAINTED;
             }
         }
-        typeInit.objectInitInvocation.accept(this);
+
+        // If this is an object init using the default constructor,
+        // then skip the taint checking.
+        if (typeInit.type.tag != TypeTags.OBJECT ||
+                ((BObjectTypeSymbol) typeInit.type.tsymbol).initializerFunc != null) {
+            typeInit.objectInitInvocation.accept(this);
+        }
+
         this.taintedStatus = typeTaintedStatus;
     }
 

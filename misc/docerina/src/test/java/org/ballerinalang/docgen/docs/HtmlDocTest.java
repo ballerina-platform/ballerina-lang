@@ -110,7 +110,7 @@ public class HtmlDocTest {
     @Test(description = "Connectors in a package should be shown in the constructs")
     public void testConnectors() {
         String source = "# GitHub client connector\n" +
-                "public type TestConnector object {\n" +
+                "public type TestConnector abstract object {\n" +
                 "public string url;\n" +
                 "public string path;\n" +
                 "    # Test Connector action testAction.\n" +
@@ -162,7 +162,7 @@ public class HtmlDocTest {
                         "# + githubClientConfiguration - GitHub client configurations (Access token, Client " +
                         "endpoint configurations)\n" +
                         "# + githubConnector - GitHub connector object\n" +
-                        "public type Client object {\n" +
+                        "public type Client abstract object {\n" +
                         "        public GitHubClientConfig githubClientConfiguration = {};\n" +
                         "        public TestConnector githubConnector = new;\n" +
                         "\n" +
@@ -265,7 +265,7 @@ public class HtmlDocTest {
     @Test(description = "Objects in a package should be shown in the constructs")
     public void testObjects() {
         String source = "# Object Test\n" +
-                "public type Test object {\n" +
+                "public type Test abstract object {\n" +
                 "    \n" +
                 "    public string url;\n" +
                 "    public string path;\n" +
@@ -337,15 +337,15 @@ public class HtmlDocTest {
                 " \n" +
                 "   # + return - is success?\n" +
                 "\n" +
-                "    public function test1(int x) returns boolean;\n" +
+                "    public function test1(int x) returns boolean { return true; } \n" +
                 "\n" +
                 "    # test1 function\n" +
                 "    # + return - returns the string or an error\n" +
                 "\n" +
                 " \n" +
-                "   public function test2() returns string|error;\n" +
+                "   public function test2() returns string|error { return \"hello\"; } \n" +
                 "\n" +
-                "    function test3();\n" +
+                "    function test3() {}\n" +
                 "};\n";
         BLangPackage bLangPackage = createPackage(code);
         Page page = generatePage(bLangPackage);

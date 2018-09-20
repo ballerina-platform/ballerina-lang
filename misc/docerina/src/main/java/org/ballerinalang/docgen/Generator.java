@@ -376,7 +376,8 @@ public class Generator {
         }
         returnParams.add(getVariableForType(EMPTY_STRING, invokable.retType));
 
-        return new FunctionDoc(name, invokable.documentation.description, new ArrayList<>(), parameters, returnParams);
+        return new FunctionDoc(name, invokable.markdownDocumentation.description, new ArrayList<>(), parameters,
+                returnParams);
     }
 
     /**
