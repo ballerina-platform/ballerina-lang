@@ -32,7 +32,6 @@ public class MutualSSLTestCase extends HttpBaseTest {
 
     private BMainInstance ballerinaClient;
 
-
     @Test(description = "Test mutual ssl")
     public void testMutualSSL() throws Exception {
         String serverMessage = "successful";

@@ -3,25 +3,23 @@ import ballerina/io;
 import ballerina/mime;
 import ballerina/http;
 
-documentation {
-    This functions pulls a package from ballerina central.
-
-    P{{definedEndpoint}} Endpoint defined with the proxy configurations
-    P{{accessToken}} Access token
-    P{{mdFileContent}} Package.md file content of the package
-    P{{summary}} Summary of the package
-    P{{homePageURL}} Website URL of the package
-    P{{repositoryURL}} Source code URL of the package
-    P{{apiDocURL}} API documentation URL of the package
-    P{{authors}} Authors of the package
-    P{{keywords}} Keywords which describes the package
-    P{{license}} License of the package
-    P{{url}} URL to be invoked to push the package
-    P{{dirPath}} Directory path where the archived package resides
-    P{{ballerinaVersion}} Ballerina version the package is built
-    P{{msg}} Message printed when the package is pushed successfully which includes package info
-    P{{baloVersion}} Balo version of the package
-}
+# This functions pulls a package from ballerina central.
+#
+# + definedEndpoint - Endpoint defined with the proxy configurations
+# + accessToken - Access token
+# + mdFileContent - Package.md file content of the package
+# + summary - Summary of the package
+# + homePageURL - Website URL of the package
+# + repositoryURL - Source code URL of the package
+# + apiDocURL - API documentation URL of the package
+# + authors - Authors of the package
+# + keywords - Keywords which describes the package
+# + license - License of the package
+# + url - URL to be invoked to push the package
+# + dirPath - Directory path where the archived package resides
+# + ballerinaVersion - Ballerina version the package is built
+# + msg - Message printed when the package is pushed successfully which includes package info
+# + baloVersion - Balo version of the package
 function pushPackage (http:Client definedEndpoint, string accessToken, string mdFileContent, string summary, string homePageURL, string repositoryURL,
                 string apiDocURL, string authors, string keywords, string license, string url, string dirPath, string ballerinaVersion, string msg, string baloVersion) {
     
@@ -71,9 +69,7 @@ function pushPackage (http:Client definedEndpoint, string accessToken, string md
     }
 }
 
-documentation {
-    This function will invoke the method to push the package.
-}
+# This function will invoke the method to push the package.
 public function main (string... args) {
     http:Client httpEndpoint;
     string host = args[13];
@@ -94,16 +90,14 @@ public function main (string... args) {
     pushPackage(httpEndpoint, args[0], args[1], args[2], args[3], args[4], args[5], args[6], args[7], args[8], args[9], args[10], args[12], args[11], args[17]);    
 }
 
-documentation {
-    This function defines an endpoint with proxy configurations.
-
-    P{{url}} URL to be invoked
-    P{{hostname}} Host name of the proxy
-    P{{port}} Port of the proxy
-    P{{username}} Username of the proxy
-    P{{password}} Password of the proxy
-    R{{}} Endpoint defined
-}
+# This function defines an endpoint with proxy configurations.
+#
+# + url - URL to be invoked
+# + hostname - Host name of the proxy
+# + port - Port of the proxy
+# + username - Username of the proxy
+# + password - Password of the proxy
+# + return - Endpoint defined
 function defineEndpointWithProxy (string url, string hostname, string port, string username, string password) returns http:Client{
     endpoint http:Client httpEndpoint {
         url: url,
@@ -120,12 +114,10 @@ function defineEndpointWithProxy (string url, string hostname, string port, stri
     return httpEndpoint;
 }
 
-documentation {
-    This function defines an endpoint without proxy configurations.
-
-    P{{url}} URL to be invoked
-    R{{}} Endpoint defined
-}
+# This function defines an endpoint without proxy configurations.
+#
+# + url - URL to be invoked
+# + return - Endpoint defined
 function defineEndpointWithoutProxy (string url) returns http:Client{
     endpoint http:Client httpEndpoint {
         url: url,
@@ -141,12 +133,10 @@ function defineEndpointWithoutProxy (string url) returns http:Client{
     return httpEndpoint;
 }
 
-documentation {
-    This function will get the content disposition of the form data sent.
-
-    P{{partName}} Multipart name
-    R{{}} `ContentDisposition` of the multipart
-}
+# This function will get the content disposition of the form data sent.
+#
+# + partName - Multipart name
+# + return - `ContentDisposition` of the multipart
 function getContentDispositionForFormData(string partName) returns (mime:ContentDisposition){
     mime:ContentDisposition contentDisposition = new;
     contentDisposition.name =  partName;
@@ -154,13 +144,11 @@ function getContentDispositionForFormData(string partName) returns (mime:Content
     return contentDisposition;
 }
 
-documentation {
-    This function will add string part information in multiparts.
-
-    P{{key}} Name of the multipart
-    P{{value}} String value to be included in the multipart
-    R{{}} `Entity` with the part information.
-}
+# This function will add string part information in multiparts.
+#
+# + key - Name of the multipart
+# + value - String value to be included in the multipart
+# + return - `Entity` with the part information.
 function addStringBodyParts (string key, string value) returns (mime:Entity) {
     mime:Entity stringBodyPart = new;
     stringBodyPart.setContentDisposition(getContentDispositionForFormData(key));
@@ -169,15 +157,13 @@ function addStringBodyParts (string key, string value) returns (mime:Entity) {
     return stringBodyPart;
 }
 
-documentation {
-    This function sets the proxy configurations for the endpoint.
-
-    P{{hostName}} Host name of the proxy
-    P{{port}} Port of the proxy
-    P{{username}} Username of the proxy
-    P{{password}} Password of the proxy
-    R{{}} Proxy configurations for the endpoint
-}
+# This function sets the proxy configurations for the endpoint.
+#
+# + hostName - Host name of the proxy
+# + port - Port of the proxy
+# + username - Username of the proxy
+# + password - Password of the proxy
+# + return - Proxy configurations for the endpoint
 function getProxyConfigurations(string hostName, string port, string username, string password) returns http:ProxyConfig {
     int portInt = check <int> port;
     http:ProxyConfig proxy = { host : hostName, port : portInt , userName: username, password : password };

@@ -163,17 +163,13 @@ public type Message object {
     # + return - The JMS correlation ID header value or JMS error or nil if header is not set
     public extern function getCorrelationID() returns @tainted (string|error)?;
 
-    documentation {
-        Gets JMS replyTo header from the message
-
-        R{{}} The JMS replyTo Destination or JMS error or nil if header is not set
-    }
+    # Gets JMS replyTo header from the message
+    #
+    # + return - The JMS replyTo Destination or JMS error or nil if header is not set
     public extern function getReplyTo() returns @tainted (Destination|error)?;
 
-    documentation {
-        Set the replyTo destination from the message
-
-        P{{replyTo}} replyTo destination.
-    }
+    # Set the replyTo destination from the message
+    #
+    # + replyTo - replyTo destination.
     public extern function setReplyTo(Destination replyTo) returns error?;
 };

@@ -18,6 +18,7 @@
 package org.ballerinalang.bre.bvm;
 
 import org.ballerinalang.model.types.BType;
+import org.ballerinalang.model.types.TypeTags;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.util.program.BLangVMUtils;
@@ -107,8 +108,13 @@ public class CallableWorkerResponseContext extends BaseWorkerResponseContext {
         }
         return runInCallerCtx;
     }
-    
+
     protected boolean isReturnable() {
+        // All functions are now considered as returnable. So in here, what we check is whether the function actually
+        // returns a value other than nil.
+        if (this.responseTypes.length == 1 && this.responseTypes[0].getTag() == TypeTags.NULL_TAG) {
+            return false;
+        }
         return this.responseTypes.length > 0;
     }
     

@@ -20,6 +20,9 @@ package org.ballerinalang.test.record;
 import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.CompileResult;
+import org.ballerinalang.model.values.BFloat;
+import org.ballerinalang.model.values.BInteger;
+import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BValue;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
@@ -28,13 +31,13 @@ import org.testng.annotations.Test;
 /**
  * Test cases for equivalency of user defined record types with attached functions in ballerina.
  */
-public class SealedRecordEquivalencyTest {
+public class ClosedRecordEquivalencyTest {
 
     private CompileResult compileResult;
 
     @BeforeClass
     public void setup() {
-        compileResult = BCompileUtil.compile("test-src/record/sealed_record_equivalency.bal");
+        compileResult = BCompileUtil.compile("test-src/record/closed_record_equivalency.bal");
     }
 
     @Test(description = "Test equivalence of records that are in the same package")
@@ -100,5 +103,33 @@ public class SealedRecordEquivalencyTest {
         BValue[] returns = BRunUtil.invoke(compileResult, "testRuntimeEqPublicStructs1");
 
         Assert.assertEquals(returns[0].stringValue(), "Brandon");
+    }
+
+    @Test(description = "Test case for record equivalence")
+    public void testRecordEquivalence() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testRecordEquivalence");
+        BMap foo = (BMap) returns[0];
+
+        Assert.assertEquals(foo.size(), 6);
+        Assert.assertEquals(foo.get("a").stringValue(), "A");
+        Assert.assertEquals(foo.get("b").stringValue(), "B");
+        Assert.assertEquals(foo.get("c").stringValue(), "C");
+        Assert.assertEquals(((BInteger) foo.get("d")).intValue(), 10);
+        Assert.assertEquals(((BFloat) foo.get("e")).floatValue(), 0.0D);
+        Assert.assertNull(foo.get("p"));
+    }
+
+    @Test(description = "Test case for using records with unordered fields in a match")
+    public void testUnorderedFieldRecordsInAMatch() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testUnorderedFieldRecordsInAMatch");
+        BMap foo = (BMap) returns[0];
+
+        Assert.assertEquals(foo.size(), 6);
+        Assert.assertEquals(foo.get("a").stringValue(), "A");
+        Assert.assertEquals(foo.get("b").stringValue(), "B");
+        Assert.assertEquals(foo.get("c").stringValue(), "C");
+        Assert.assertEquals(((BInteger) foo.get("d")).intValue(), 10);
+        Assert.assertEquals(((BFloat) foo.get("e")).floatValue(), 0.0D);
+        Assert.assertNull(foo.get("p"));
     }
 }

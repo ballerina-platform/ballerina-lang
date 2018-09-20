@@ -16,14 +16,14 @@
       "label":"function",
       "detail":"Snippet",
       "sortText":"190",
-      "insertText":"function ${1:name} (${2}) {\n\t${3}\n}",
+      "insertText":"function ${1:name}(${2}) {\n\t${3}\n}",
       "insertTextFormat":"Snippet"
     },
     {
       "label":"main function",
       "detail":"Snippet",
       "sortText":"190",
-      "insertText":"public function main (string... args) {\n\t${1}\n}",
+      "insertText":"public function main(string... args) {\n\t${1}\n}",
       "insertTextFormat":"Snippet"
     },
     {

@@ -21,17 +21,22 @@ import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import org.ballerinalang.langserver.BallerinaLanguageServer;
+import org.eclipse.lsp4j.ClientCapabilities;
 import org.eclipse.lsp4j.CodeActionContext;
 import org.eclipse.lsp4j.CodeActionParams;
+import org.eclipse.lsp4j.CompletionCapabilities;
+import org.eclipse.lsp4j.CompletionItemCapabilities;
 import org.eclipse.lsp4j.DidCloseTextDocumentParams;
 import org.eclipse.lsp4j.DidOpenTextDocumentParams;
 import org.eclipse.lsp4j.DocumentSymbolParams;
 import org.eclipse.lsp4j.ExecuteCommandParams;
+import org.eclipse.lsp4j.InitializeParams;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4j.ReferenceContext;
 import org.eclipse.lsp4j.ReferenceParams;
 import org.eclipse.lsp4j.RenameParams;
+import org.eclipse.lsp4j.TextDocumentClientCapabilities;
 import org.eclipse.lsp4j.TextDocumentIdentifier;
 import org.eclipse.lsp4j.TextDocumentItem;
 import org.eclipse.lsp4j.TextDocumentPositionParams;
@@ -54,6 +59,8 @@ import java.util.concurrent.ExecutionException;
 public class TestUtil {
 
     private static final String HOVER = "textDocument/hover";
+
+    private static final String COMPLETION = "textDocument/completion";
 
     private static final String SIGNATURE_HELP = "textDocument/signatureHelp";
 
@@ -86,6 +93,19 @@ public class TestUtil {
      */
     public static String getHoverResponse(String filePath, Position position, Endpoint serviceEndpoint) {
         CompletableFuture result = serviceEndpoint.request(HOVER, getTextDocumentPositionParams(filePath, position));
+        return getResponseString(result);
+    }
+
+    /**
+     * Get the textDocument/completion response.
+     *
+     * @param filePath          Path of the Bal file
+     * @param position          Cursor Position
+     * @param endpoint          Service Endpoint to Language Server
+     * @return {@link String}   Response as String
+     */
+    public static String getCompletionResponse(String filePath, Position position, Endpoint endpoint) {
+        CompletableFuture result = endpoint.request(COMPLETION, getTextDocumentPositionParams(filePath, position));
         return getResponseString(result);
     }
 
@@ -241,7 +261,18 @@ public class TestUtil {
      * @return {@link Endpoint}     Service Endpoint
      */
     public static Endpoint initializeLanguageSever() {
-        return ServiceEndpoints.toEndpoint(new BallerinaLanguageServer());
+        Endpoint endpoint = ServiceEndpoints.toEndpoint(new BallerinaLanguageServer());
+        InitializeParams params = new InitializeParams();
+        ClientCapabilities capabilities = new ClientCapabilities();
+        TextDocumentClientCapabilities textDocumentClientCapabilities = new TextDocumentClientCapabilities();
+        CompletionCapabilities completionCapabilities = new CompletionCapabilities();
+        completionCapabilities.setCompletionItem(new CompletionItemCapabilities(true));
+        textDocumentClientCapabilities.setCompletion(completionCapabilities);
+        capabilities.setTextDocument(textDocumentClientCapabilities);
+        params.setCapabilities(capabilities);
+        endpoint.request("initialize", params);
+
+        return endpoint;
     }
 
     /**
