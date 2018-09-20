@@ -38,6 +38,7 @@ import org.wso2.transport.http.netty.contractimpl.Http2OutboundRespListener;
 import org.wso2.transport.http.netty.contractimpl.common.Util;
 import org.wso2.transport.http.netty.contractimpl.listener.http2.Http2SourceHandler;
 import org.wso2.transport.http.netty.message.DefaultListener;
+import org.wso2.transport.http.netty.message.Http2DataFrame;
 import org.wso2.transport.http.netty.message.Http2PushPromise;
 import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 import org.wso2.transport.http.netty.message.HttpCarbonRequest;
@@ -202,5 +203,14 @@ public class Http2StateUtil {
      */
     public static boolean isValidStreamId(int streamId, Http2Connection conn) {
         return conn.stream(streamId) != null;
+    }
+
+    /**
+     * Release the {@link io.netty.buffer.ByteBuf} content.
+     *
+     * @param dataFrame HTTP2 data frame
+     */
+    public static void releaseDataFrame(Http2DataFrame dataFrame) {
+        dataFrame.getData().release();
     }
 }

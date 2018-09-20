@@ -38,6 +38,7 @@ import org.wso2.transport.http.netty.message.Http2HeadersFrame;
 import org.wso2.transport.http.netty.message.Http2PushPromise;
 import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 
+import static org.wso2.transport.http.netty.contractimpl.listener.states.Http2StateUtil.releaseDataFrame;
 import static org.wso2.transport.http.netty.contractimpl.listener.states.Http2StateUtil.validatePromisedStreamState;
 import static org.wso2.transport.http.netty.contractimpl.listener.states.Http2StateUtil.writeHttp2Headers;
 
@@ -76,7 +77,8 @@ public class SendingHeaders implements ListenerState {
 
     @Override
     public void readInboundRequestBody(Http2DataFrame dataFrame) {
-        dataFrame.getData().release();
+        // Response is already started to send, hence the incoming data frames need to be released.
+        releaseDataFrame(dataFrame);
     }
 
     @Override
