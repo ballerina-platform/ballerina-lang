@@ -49,7 +49,7 @@ import static com.intellij.ide.plugins.PluginManagerCore.getDisabledPlugins;
 /**
  * Provides message/notification with the fix, if the LSP dependency plugin is not installed or not enabled.
  */
-public class LSPInstallationNotificationProvider extends EditorNotifications.Provider<EditorNotificationPanel>
+public class LSPluginInstallationNotificationProvider extends EditorNotifications.Provider<EditorNotificationPanel>
         implements DumbAware {
 
     private static final Key<EditorNotificationPanel> KEY = Key.create("LSP Support Plugin is not installed");
@@ -59,7 +59,7 @@ public class LSPInstallationNotificationProvider extends EditorNotifications.Pro
     private final EditorNotifications myNotifications;
     private final Set<String> myEnabledExtensions = new HashSet<>();
 
-    public LSPInstallationNotificationProvider(Project project, final EditorNotifications notifications) {
+    public LSPluginInstallationNotificationProvider(Project project, final EditorNotifications notifications) {
         myProject = project;
         myNotifications = notifications;
     }
@@ -80,7 +80,7 @@ public class LSPInstallationNotificationProvider extends EditorNotifications.Pro
 
         final String extension = file.getExtension();
         final String fileName = file.getName();
-        if (extension != null && isIgnored("*." + extension) || isIgnored(fileName)) {
+        if (extension != null && (isIgnored("*." + extension) || isIgnored(fileName))) {
             return null;
         }
         return extension != null ? createPanel("*." + extension) : null;
@@ -101,19 +101,21 @@ public class LSPInstallationNotificationProvider extends EditorNotifications.Pro
 
     private EditorNotificationPanel createPanel(final String extension, PluginsAdvertiser.Plugin plugin) {
         EditorNotificationPanel panel = new EditorNotificationPanel();
-        panel.setText("LSP Support Plugin is either not installed or enabled properly");
 
         final IdeaPluginDescriptor disabledPlugin = getDisabledPlugin(plugin);
 
         if (disabledPlugin != null) {
-            panel.createActionLabel("Enable Language Server Plugin", () -> {
+            panel.setText("LSP Support Plugin is not enable to provide ballerina language server features (code "
+                    + "completion, diagnostics, hover support etc)");
+            panel.createActionLabel("Enable Plugin", () -> {
                 myEnabledExtensions.add(extension);
                 myNotifications.updateAllNotifications();
                 enablePlugin(myProject, disabledPlugin);
-
             });
         } else {
-            panel.createActionLabel("Install Language Server Plugin", () -> {
+            panel.setText("LSP Support plugin is not installed to enable ballerina language server features (code "
+                    + "completion, diagnostics, hover support etc.)");
+            panel.createActionLabel("Install Plugin", () -> {
                 Set<String> pluginIds = new HashSet<>();
                 pluginIds.add(plugin.myPluginId);
                 PluginsAdvertiser.installAndEnablePlugins(pluginIds, () -> {

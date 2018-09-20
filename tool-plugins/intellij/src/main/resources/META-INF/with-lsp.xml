@@ -16,7 +16,7 @@
 
 <idea-plugin>
     <extensions defaultExtensionNs="com.intellij">
-        <preloadingActivity implementation="io.ballerina.plugins.idea.preloading.BallerinaPreloadingActivity"
-                            id="io.ballerina.plugins.idea.preloading.BallerinaPreloadingActivity"/>
+        <preloadingActivity implementation="io.ballerina.plugins.idea.preloading.BallerinaLanguageServerPreloadingActivity"
+                            id="io.ballerina.plugins.idea.preloading.BallerinaLanguageServerPreloadingActivity"/>
     </extensions>
 </idea-plugin>

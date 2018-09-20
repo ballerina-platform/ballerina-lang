@@ -23,7 +23,6 @@ import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.project.ProjectManager;
 import com.intellij.openapi.project.ProjectManagerListener;
-import com.intellij.openapi.project.VetoableProjectManagerListener;
 import com.intellij.openapi.projectRoots.Sdk;
 import com.intellij.openapi.roots.ProjectRootManager;
 import com.intellij.util.messages.MessageBusConnection;
@@ -55,20 +54,17 @@ public class BallerinaLanguageServerPreloadingActivity extends PreloadingActivit
         final MessageBusConnection connect = ApplicationManager.getApplication().getMessageBus().connect();
         connect.subscribe(ProjectManager.TOPIC, new ProjectManagerListener() {
             @Override
-            public void projectOpened(@Nullable final Project projectFromCommandLine) {
-                registerServerDefinition();
+            public void projectOpened(@Nullable final Project project) {
+                registerServerDefinition(project);
             }
         });
 
-        ProjectManager.getInstance().addProjectManagerListener(new VetoableProjectManagerListener() {
-            @Override
-            public boolean canClose(@NotNull Project project) {
-                Project[] openProjects = ProjectManager.getInstance().getOpenProjects();
-                if (openProjects.length <= 1) {
-                    stopProcesses();
-                }
-                return true;
+        ProjectManager.getInstance().addProjectManagerListener(project -> {
+            Project[] openProjects = ProjectManager.getInstance().getOpenProjects();
+            if (openProjects.length <= 1) {
+                stopProcesses();
             }
+            return true;
         });
     }
 
@@ -88,6 +84,7 @@ public class BallerinaLanguageServerPreloadingActivity extends PreloadingActivit
     }
 
     public boolean registerServerDefinition(Project project) {
+        //If the project does not have a ballerina SDK attached, ballerinaSdkPath will be null.
         String balSdkPath = getBallerinaSdk(project);
         if (balSdkPath != null) {
             return doRegister(balSdkPath);
@@ -99,14 +96,14 @@ public class BallerinaLanguageServerPreloadingActivity extends PreloadingActivit
 
         String os = OperatingSystemUtils.getOperatingSystem();
         if (os != null) {
-            String args[] = new String[1];
+            String[] args = new String[1];
             if (os.equals(OperatingSystemUtils.UNIX) || os.equals(OperatingSystemUtils.MAC)) {
                 args[0] = Paths.get(sdkPath, "/lib/resources/composer/language-server-launcher.sh").toString();
             } else if (os.equals(OperatingSystemUtils.WINDOWS)) {
                 args[0] = Paths.get(sdkPath, "/lib/resources/composer/language-server-launcher.bat").toString();
             }
 
-            if (args.length > 0) {
+            if (args[0] != null) {
                 LanguageServerDefinition$.MODULE$.register(new RawCommandServerDefinition("bal", args));
                 LOGGER.info("registered language server definition using Sdk path: " + sdkPath);
                 return true;
