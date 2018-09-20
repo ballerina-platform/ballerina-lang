@@ -19,52 +19,44 @@ import com.github.gtache.lsp.client.languageserver.serverdefinition.LanguageServ
 import com.github.gtache.lsp.client.languageserver.serverdefinition.RawCommandServerDefinition;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.application.PreloadingActivity;
-import com.intellij.openapi.module.Module;
-import com.intellij.openapi.module.ModuleManager;
 import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.project.ProjectManager;
 import com.intellij.openapi.project.ProjectManagerListener;
 import com.intellij.openapi.project.VetoableProjectManagerListener;
+import com.intellij.openapi.projectRoots.Sdk;
+import com.intellij.openapi.roots.ProjectRootManager;
 import com.intellij.util.messages.MessageBusConnection;
-import io.ballerina.plugins.idea.sdk.BallerinaSdkService;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.nio.file.Paths;
+
+import static io.ballerina.plugins.idea.preloading.OperatingSystemUtils.getOperatingSystem;
+
 /**
  * Preloading Activity of ballerina plugin.
  */
-public class BallerinaLanguageServerLauncher extends PreloadingActivity {
+public class BallerinaLanguageServerPreloadingActivity extends PreloadingActivity {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(BallerinaLanguageServerLauncher.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(BallerinaLanguageServerPreloadingActivity.class);
 
+    /**
+     * Preloading of the plugin
+     */
     @Override
     public void preload(@NotNull ProgressIndicator indicator) {
 
-        Project[] openProjects = ProjectManager.getInstance().getOpenProjects();
-        String sdkPath = "";
-        for (Project project : openProjects) {
-            Module[] projectModules = ModuleManager.getInstance(project).getModules();
-            for (Module module:projectModules){
-                if (BallerinaSdkService.getInstance(project).isBallerinaModule(module)) {
-                    sdkPath = BallerinaSdkService.getInstance(project).getSdkHomePath(null);
-                }
-            }
-
-        }
-
-        if (!sdkPath.equals("")) {
-            String[] command = { "/home/nino/Desktop/ls-launcher/launcher.sh" };
-            LanguageServerDefinition$.MODULE$.register(new RawCommandServerDefinition("bal", command));
-        }
+        //Tries to register language server definition, if a ballerina project is being opened initially.
+        registerServerDefinition();
 
         final MessageBusConnection connect = ApplicationManager.getApplication().getMessageBus().connect();
         connect.subscribe(ProjectManager.TOPIC, new ProjectManagerListener() {
             @Override
             public void projectOpened(@Nullable final Project projectFromCommandLine) {
-                System.out.print("");
+                registerServerDefinition();
             }
         });
 
@@ -73,26 +65,62 @@ public class BallerinaLanguageServerLauncher extends PreloadingActivity {
             public boolean canClose(@NotNull Project project) {
                 Project[] openProjects = ProjectManager.getInstance().getOpenProjects();
                 if (openProjects.length <= 1) {
-                    stopLanguageServerProcesses();
+                    stopProcesses();
                 }
                 return true;
-            }
-        });
-
-        ProjectManager.getInstance().addProjectManagerListener(new ProjectManagerListener() {
-            @Override
-            public void projectOpened(Project project) {
-                System.out.print("h");
             }
         });
     }
 
     /**
+     * Registered language server definition using currently opened ballerina projects.
+     * @return Returns true if a definition is registered successfully.
+     */
+    public boolean registerServerDefinition() {
+        Project[] openProjects = ProjectManager.getInstance().getOpenProjects();
+        for (Project project : openProjects) {
+            if (registerServerDefinition(project)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public boolean registerServerDefinition(Project project) {
+        String balSdkPath = getBallerinaSdk(project);
+        if (balSdkPath != null) {
+            return doRegister(balSdkPath);
+        }
+        return false;
+    }
+
+    public boolean doRegister(@NotNull String sdkPath) {
+
+        String os = OperatingSystemUtils.getOperatingSystem();
+        if (os != null) {
+            String args[] = new String[1];
+            if (os.equals(OperatingSystemUtils.UNIX) || os.equals(OperatingSystemUtils.MAC)) {
+                args[0] = Paths.get(sdkPath, "/lib/resources/composer/language-server-launcher.sh").toString();
+            } else if (os.equals(OperatingSystemUtils.WINDOWS)) {
+                args[0] = Paths.get(sdkPath, "/lib/resources/composer/language-server-launcher.bat").toString();
+            }
+
+            if (args.length > 0) {
+                LanguageServerDefinition$.MODULE$.register(new RawCommandServerDefinition("bal", args));
+                LOGGER.info("registered language server definition using Sdk path: " + sdkPath);
+                return true;
+            }
+            return false;
+        }
+        return false;
+    }
+
+    /**
      * Stops running language server instances.
      */
-    public void stopLanguageServerProcesses() {
+    public void stopProcesses() {
         try {
-            String os = LaunchUtils.getOperatingSystem();
+            String os = getOperatingSystem();
             if (os == null) {
                 LOGGER.error("unsupported operating system");
                 return;
@@ -107,5 +135,14 @@ public class BallerinaLanguageServerLauncher extends PreloadingActivity {
         } catch (Exception e) {
             LOGGER.error("Error occured", e);
         }
+    }
+
+    @Nullable
+    private String getBallerinaSdk(Project project) {
+        Sdk projectSdk = ProjectRootManager.getInstance(project).getProjectSdk();
+        String sdkPath = projectSdk.getHomePath();
+
+        //returns sdk path if it contains "ballerina".
+        return (sdkPath != null && !sdkPath.equals("") && sdkPath.toLowerCase().contains("ballerina")) ? sdkPath : null;
     }
 }
