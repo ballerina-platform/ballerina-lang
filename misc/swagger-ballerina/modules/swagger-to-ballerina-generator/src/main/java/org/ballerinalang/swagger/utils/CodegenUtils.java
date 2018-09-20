@@ -95,7 +95,7 @@ public class CodegenUtils {
      * @param identifier Path
      * @return Cleaned identifier.
      */
-    public static String normalizeForBIdentifier(@Nullable String identifier){
+    public static String normalizeForBIdentifier(@Nullable String identifier) {
         if (identifier == null) {
             return null;
         }

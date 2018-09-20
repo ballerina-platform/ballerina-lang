@@ -206,7 +206,11 @@ public class SwaggerConverterUtils {
      * @throws IOException Error when creating or writing the file.
      */
     private static void writeFile(Path path, String content) throws IOException {
-        Files.createDirectories(path.getParent());
+        Path parentPath = path.getParent();
+        if (null != parentPath && Files.exists(parentPath)) {
+            Files.createDirectories(parentPath);
+        }
+        Files.deleteIfExists(path);
         Files.createFile(path);
         try (PrintWriter writer = new PrintWriter(path.toString(), "UTF-8")) {
             writer.print(content);
