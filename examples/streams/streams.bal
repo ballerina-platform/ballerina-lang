@@ -2,8 +2,8 @@ import ballerina/io;
 import ballerina/runtime;
 
 type Employee record {
-    int id,
-    string name,
+    int id;
+    string name;
 };
 
 public function main() {

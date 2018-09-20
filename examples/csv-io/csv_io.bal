@@ -2,9 +2,9 @@ import ballerina/io;
 import ballerina/log;
 
 type Employee record {
-    string id,
-    string name,
-    float salary,
+    string id;
+    string name;
+    float salary;
 };
 
 // This function reads the next record from the csvChannel.

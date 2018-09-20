@@ -41,6 +41,6 @@ public type DummyObject object {
 # + fieldTwo - This is the description for the `DummyType`'s field `fieldTwo`.
 #              `F` doc prefix is used to mark a field on Record.
 public type DummyType record {
-    string fieldOne,
-    int fieldTwo,
+    string fieldOne;
+    int fieldTwo;
 };
