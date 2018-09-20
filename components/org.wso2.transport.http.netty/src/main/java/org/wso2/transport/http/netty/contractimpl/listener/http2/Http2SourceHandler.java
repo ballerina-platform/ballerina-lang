@@ -31,9 +31,9 @@ import io.netty.handler.codec.http2.Http2ConnectionEncoder;
 import io.netty.util.internal.PlatformDependent;
 import org.wso2.transport.http.netty.contract.Constants;
 import org.wso2.transport.http.netty.contract.ServerConnectorFuture;
+import org.wso2.transport.http.netty.contractimpl.common.states.Http2MessageStateContext;
 import org.wso2.transport.http.netty.contractimpl.listener.HttpServerChannelInitializer;
-import org.wso2.transport.http.netty.contractimpl.listener.states.Http2MessageStateContext;
-import org.wso2.transport.http.netty.contractimpl.listener.states.listener.http2.ReceivingHeaders;
+import org.wso2.transport.http.netty.contractimpl.listener.states.http2.ReceivingHeaders;
 import org.wso2.transport.http.netty.message.Http2DataFrame;
 import org.wso2.transport.http.netty.message.Http2HeadersFrame;
 import org.wso2.transport.http.netty.message.HttpCarbonMessage;
@@ -43,8 +43,8 @@ import java.net.InetSocketAddress;
 import java.net.SocketAddress;
 import java.util.Map;
 
-import static org.wso2.transport.http.netty.contractimpl.listener.states.Http2StateUtil.notifyRequestListener;
-import static org.wso2.transport.http.netty.contractimpl.listener.states.Http2StateUtil.setupCarbonRequest;
+import static org.wso2.transport.http.netty.contractimpl.common.states.Http2StateUtil.notifyRequestListener;
+import static org.wso2.transport.http.netty.contractimpl.common.states.Http2StateUtil.setupCarbonRequest;
 
 /**
  * {@code HTTP2SourceHandler} read the HTTP/2 binary frames sent from client through the channel.

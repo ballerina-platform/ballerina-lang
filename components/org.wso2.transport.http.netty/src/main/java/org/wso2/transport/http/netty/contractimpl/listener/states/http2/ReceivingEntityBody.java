@@ -16,7 +16,7 @@
  * under the License.
  */
 
-package org.wso2.transport.http.netty.contractimpl.listener.states.listener.http2;
+package org.wso2.transport.http.netty.contractimpl.listener.states.http2;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.handler.codec.http.DefaultHttpContent;
@@ -26,14 +26,14 @@ import io.netty.handler.codec.http2.Http2Exception;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.transport.http.netty.contractimpl.Http2OutboundRespListener;
+import org.wso2.transport.http.netty.contractimpl.common.states.Http2MessageStateContext;
 import org.wso2.transport.http.netty.contractimpl.listener.http2.Http2SourceHandler;
-import org.wso2.transport.http.netty.contractimpl.listener.states.Http2MessageStateContext;
 import org.wso2.transport.http.netty.message.Http2DataFrame;
 import org.wso2.transport.http.netty.message.Http2HeadersFrame;
 import org.wso2.transport.http.netty.message.Http2PushPromise;
 import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 
-import static org.wso2.transport.http.netty.contractimpl.listener.states.Http2StateUtil.writeHttp2Promise;
+import static org.wso2.transport.http.netty.contractimpl.common.states.Http2StateUtil.writeHttp2Promise;
 
 /**
  * State between start and end of inbound request payload read.

@@ -29,10 +29,10 @@ import org.slf4j.LoggerFactory;
 import org.wso2.transport.http.netty.contract.HttpConnectorListener;
 import org.wso2.transport.http.netty.contract.HttpResponseFuture;
 import org.wso2.transport.http.netty.contract.ServerConnectorException;
+import org.wso2.transport.http.netty.contractimpl.common.states.Http2MessageStateContext;
 import org.wso2.transport.http.netty.contractimpl.listener.HttpServerChannelInitializer;
-import org.wso2.transport.http.netty.contractimpl.listener.states.Http2MessageStateContext;
-import org.wso2.transport.http.netty.contractimpl.listener.states.listener.http2.EntityBodyReceived;
-import org.wso2.transport.http.netty.contractimpl.listener.states.listener.http2.SendingHeaders;
+import org.wso2.transport.http.netty.contractimpl.listener.states.http2.EntityBodyReceived;
+import org.wso2.transport.http.netty.contractimpl.listener.states.http2.SendingHeaders;
 import org.wso2.transport.http.netty.message.Http2PushPromise;
 import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 
@@ -40,7 +40,7 @@ import java.util.Calendar;
 import java.util.Locale;
 
 import static org.wso2.transport.http.netty.contract.Constants.PROMISED_STREAM_REJECTED_ERROR;
-import static org.wso2.transport.http.netty.contractimpl.listener.states.Http2StateUtil.isValidStreamId;
+import static org.wso2.transport.http.netty.contractimpl.common.states.Http2StateUtil.isValidStreamId;
 
 /**
  * {@code Http2OutboundRespListener} is responsible for listening for outbound response messages

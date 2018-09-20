@@ -16,7 +16,7 @@
  * under the License.
  */
 
-package org.wso2.transport.http.netty.contractimpl.listener.states;
+package org.wso2.transport.http.netty.contractimpl.common.states;
 
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelHandlerContext;

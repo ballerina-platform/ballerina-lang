@@ -16,7 +16,7 @@
  * under the License.
  */
 
-package org.wso2.transport.http.netty.contractimpl.listener.states.listener.http2;
+package org.wso2.transport.http.netty.contractimpl.listener.states.http2;
 
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelHandlerContext;
@@ -39,8 +39,8 @@ import org.wso2.transport.http.netty.contract.Constants;
 import org.wso2.transport.http.netty.contract.HttpResponseFuture;
 import org.wso2.transport.http.netty.contractimpl.Http2OutboundRespListener;
 import org.wso2.transport.http.netty.contractimpl.common.Util;
+import org.wso2.transport.http.netty.contractimpl.common.states.Http2MessageStateContext;
 import org.wso2.transport.http.netty.contractimpl.listener.HttpServerChannelInitializer;
-import org.wso2.transport.http.netty.contractimpl.listener.states.Http2MessageStateContext;
 import org.wso2.transport.http.netty.message.Http2DataFrame;
 import org.wso2.transport.http.netty.message.Http2HeadersFrame;
 import org.wso2.transport.http.netty.message.Http2PushPromise;
@@ -48,9 +48,9 @@ import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 
 import java.util.Calendar;
 
-import static org.wso2.transport.http.netty.contractimpl.listener.states.Http2StateUtil.releaseDataFrame;
-import static org.wso2.transport.http.netty.contractimpl.listener.states.Http2StateUtil.validatePromisedStreamState;
-import static org.wso2.transport.http.netty.contractimpl.listener.states.Http2StateUtil.writeHttp2Headers;
+import static org.wso2.transport.http.netty.contractimpl.common.states.Http2StateUtil.releaseDataFrame;
+import static org.wso2.transport.http.netty.contractimpl.common.states.Http2StateUtil.validatePromisedStreamState;
+import static org.wso2.transport.http.netty.contractimpl.common.states.Http2StateUtil.writeHttp2Headers;
 
 /**
  * State between start and end of outbound response or push response entity body write.

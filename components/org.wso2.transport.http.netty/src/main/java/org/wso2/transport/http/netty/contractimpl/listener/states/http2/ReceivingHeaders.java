@@ -16,7 +16,7 @@
  * under the License.
  */
 
-package org.wso2.transport.http.netty.contractimpl.listener.states.listener.http2;
+package org.wso2.transport.http.netty.contractimpl.listener.states.http2;
 
 import io.netty.handler.codec.http.DefaultLastHttpContent;
 import io.netty.handler.codec.http.HttpContent;
@@ -31,15 +31,15 @@ import org.slf4j.LoggerFactory;
 import org.wso2.transport.http.netty.contract.Constants;
 import org.wso2.transport.http.netty.contractimpl.Http2OutboundRespListener;
 import org.wso2.transport.http.netty.contractimpl.common.Util;
+import org.wso2.transport.http.netty.contractimpl.common.states.Http2MessageStateContext;
 import org.wso2.transport.http.netty.contractimpl.listener.http2.Http2SourceHandler;
-import org.wso2.transport.http.netty.contractimpl.listener.states.Http2MessageStateContext;
 import org.wso2.transport.http.netty.message.Http2DataFrame;
 import org.wso2.transport.http.netty.message.Http2HeadersFrame;
 import org.wso2.transport.http.netty.message.Http2PushPromise;
 import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 
-import static org.wso2.transport.http.netty.contractimpl.listener.states.Http2StateUtil.notifyRequestListener;
-import static org.wso2.transport.http.netty.contractimpl.listener.states.Http2StateUtil.setupCarbonRequest;
+import static org.wso2.transport.http.netty.contractimpl.common.states.Http2StateUtil.notifyRequestListener;
+import static org.wso2.transport.http.netty.contractimpl.common.states.Http2StateUtil.setupCarbonRequest;
 
 /**
  * State between start and end of inbound request headers read.
