@@ -145,7 +145,7 @@ public class TestCmd implements BLauncherCmd {
                 .toArray(Path[]::new);
 
         if (srcDirectory != null) {
-            TesterinaUtils.setManifestConfigs();
+            TesterinaUtils.setManifestConfigs(sourceRootPath);
         }
         BTestRunner testRunner = new BTestRunner();
         if (listGroups) {

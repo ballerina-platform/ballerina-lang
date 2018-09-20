@@ -22,7 +22,6 @@ import org.ballerinalang.testerina.core.BTestRunner;
 import org.ballerinalang.testerina.core.TesterinaConstants;
 import org.ballerinalang.testerina.core.TesterinaRegistry;
 import org.ballerinalang.toml.model.Manifest;
-import org.ballerinalang.toml.parser.ManifestProcessor;
 import org.ballerinalang.util.codegen.PackageInfo;
 import org.ballerinalang.util.codegen.ProgramFile;
 import org.ballerinalang.util.debugger.Debugger;
@@ -30,15 +29,14 @@ import org.ballerinalang.util.exceptions.BallerinaException;
 import org.ballerinalang.util.program.BLangFunctions;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.Names;
-import org.wso2.ballerinalang.compiler.util.ProjectDirConstants;
 import org.wso2.ballerinalang.programfile.CompiledBinaryFile;
+import org.wso2.ballerinalang.util.TomlParserUtils;
 
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -133,28 +131,15 @@ public class TesterinaUtils {
 
     /**
      * Set manifest configurations.
+     *
+     * @param sourceRoot source root path
      */
-    public static void setManifestConfigs() {
-        Manifest manifest = readManifestConfigurations();
+    public static void setManifestConfigs(Path sourceRoot) {
+        Manifest manifest = TomlParserUtils.getManifest(sourceRoot);
         String orgName = manifest.getName();
         String version = manifest.getVersion();
         TesterinaRegistry.getInstance().setOrgName(orgName);
         TesterinaRegistry.getInstance().setVersion(version);
-    }
-
-    /**
-     * Read the manifest.
-     *
-     * @return manifest configuration object
-     */
-    private static Manifest readManifestConfigurations() {
-        String tomlFilePath = Paths.get(".").toAbsolutePath().normalize().resolve
-                (ProjectDirConstants.MANIFEST_FILE_NAME).toString();
-        try {
-            return ManifestProcessor.parseTomlContentFromFile(tomlFilePath);
-        } catch (IOException e) {
-            return new Manifest();
-        }
     }
 
     /**
@@ -169,7 +154,7 @@ public class TesterinaUtils {
         LauncherUtils.loadConfigurations(sourceRootPath, new HashMap<>(), null, false);
 
         // Set org-name and version to the TesterinaRegistry
-        setManifestConfigs();
+        setManifestConfigs(sourceRootPath);
 
         BTestRunner testRunner = new BTestRunner();
         // Run the tests
