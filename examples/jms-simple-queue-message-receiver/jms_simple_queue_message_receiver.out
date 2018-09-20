@@ -6,5 +6,5 @@ $ broker
 $ ballerina run jms_simple_queue_message_receiver.bal
 # The JMS subscriber runs as a Ballerina service and listens to the subscribed queue
 # or topic.
-ballerina: initiating service(s) in 'jms_simple_queue_message_receiver.bal'
+Initiating service(s) in 'jms_simple_queue_message_receiver.bal'
 2018-06-14 15:26:55,895 INFO  [ballerina/jms] - Message receiver created for queue MyQueue

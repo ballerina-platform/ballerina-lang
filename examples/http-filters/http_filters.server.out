@@ -5,7 +5,7 @@ $ ballerina run http_filters.bal
 # To start the service, put the code in "http_filters.bal"
 # and use "ballerina run" command.
 $ ballerina run http_filters.bal
-ballerina: initiating service(s) in 'http_filters.bal'
+Initiating service(s) in 'http_filters.bal'
 ballerina: started HTTP/WS endpoint 0.0.0.0:9090
 
 # To build a compiled program file, we can use the
