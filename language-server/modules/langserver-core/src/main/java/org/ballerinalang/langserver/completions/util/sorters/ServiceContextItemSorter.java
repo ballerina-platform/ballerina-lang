@@ -26,7 +26,7 @@ import org.eclipse.lsp4j.CompletionItem;
 import org.eclipse.lsp4j.InsertTextFormat;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangResource;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangVariableDef;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangSimpleVariableDef;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -44,7 +44,7 @@ public class ServiceContextItemSorter extends CompletionItemSorter {
                 completionItems);
         if (previousNode == null) {
             this.populateWhenCursorBeforeOrAfterEp(completionItems);
-        } else if (previousNode instanceof BLangVariableDef) {
+        } else if (previousNode instanceof BLangSimpleVariableDef) {
             this.setPriorities(completionItems);
             CompletionItem resItem = this.getResourceSnippet();
             resItem.setSortText(Priority.PRIORITY160.toString());

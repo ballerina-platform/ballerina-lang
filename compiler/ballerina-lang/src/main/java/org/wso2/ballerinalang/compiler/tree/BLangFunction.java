@@ -19,7 +19,7 @@ package org.wso2.ballerinalang.compiler.tree;
 
 import org.ballerinalang.model.tree.FunctionNode;
 import org.ballerinalang.model.tree.NodeKind;
-import org.ballerinalang.model.tree.VariableNode;
+import org.ballerinalang.model.tree.SimpleVariableNode;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
@@ -35,7 +35,7 @@ import java.util.Set;
  */
 public class BLangFunction extends BLangInvokableNode implements FunctionNode {
 
-    public BLangVariable receiver;
+    public BLangSimpleVariable receiver;
 
     //TODO remove this and use ATTACHED flag instead
     // TODO remove when removing struct
@@ -53,12 +53,12 @@ public class BLangFunction extends BLangInvokableNode implements FunctionNode {
 
     public boolean isTypeChecked = false;
 
-    public VariableNode getReceiver() {
+    public SimpleVariableNode getReceiver() {
         return receiver;
     }
 
-    public void setReceiver(VariableNode receiver) {
-        this.receiver = (BLangVariable) receiver;
+    public void setReceiver(SimpleVariableNode receiver) {
+        this.receiver = (BLangSimpleVariable) receiver;
     }
 
     @Override

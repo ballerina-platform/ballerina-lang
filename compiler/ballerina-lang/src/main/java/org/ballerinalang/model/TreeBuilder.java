@@ -31,8 +31,9 @@ import org.ballerinalang.model.tree.MarkdownDocumentationNode;
 import org.ballerinalang.model.tree.PackageNode;
 import org.ballerinalang.model.tree.ResourceNode;
 import org.ballerinalang.model.tree.ServiceNode;
+import org.ballerinalang.model.tree.TupleVariableNode;
 import org.ballerinalang.model.tree.TypeDefinition;
-import org.ballerinalang.model.tree.VariableNode;
+import org.ballerinalang.model.tree.SimpleVariableNode;
 import org.ballerinalang.model.tree.WorkerNode;
 import org.ballerinalang.model.tree.XMLNSDeclarationNode;
 import org.ballerinalang.model.tree.clauses.FunctionClauseNode;
@@ -107,7 +108,8 @@ import org.ballerinalang.model.tree.statements.ForkJoinNode;
 import org.ballerinalang.model.tree.statements.IfNode;
 import org.ballerinalang.model.tree.statements.LockNode;
 import org.ballerinalang.model.tree.statements.MatchNode;
-import org.ballerinalang.model.tree.statements.MatchNode.MatchStatementPatternNode;
+import org.ballerinalang.model.tree.statements.MatchNode.MatchStatementSimpleBindingPatternNode;
+import org.ballerinalang.model.tree.statements.MatchNode.MatchStatementTupleBindingPatternNode;
 import org.ballerinalang.model.tree.statements.PostIncrementNode;
 import org.ballerinalang.model.tree.statements.RetryNode;
 import org.ballerinalang.model.tree.statements.ReturnNode;
@@ -147,8 +149,9 @@ import org.wso2.ballerinalang.compiler.tree.BLangMarkdownDocumentation;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangResource;
 import org.wso2.ballerinalang.compiler.tree.BLangService;
+import org.wso2.ballerinalang.compiler.tree.BLangTupleVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangTypeDefinition;
-import org.wso2.ballerinalang.compiler.tree.BLangVariable;
+import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangWorker;
 import org.wso2.ballerinalang.compiler.tree.BLangXMLNS;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangFunctionClause;
@@ -226,7 +229,8 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangForkJoin;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangIf;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangLock;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch.BLangMatchStmtPatternClause;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch.BLangMatchStmtSimpleBindingPatternClause;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch.BLangMatchStmtTupleBindingPatternClause;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangPostIncrement;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangRetry;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangReturn;
@@ -236,7 +240,8 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangThrow;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangTransaction;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangTryCatchFinally;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangTupleDestructure;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangVariableDef;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangSimpleVariableDef;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangTupleVariableDef;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangWhile;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangWorkerReceive;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangWorkerSend;
@@ -284,8 +289,12 @@ public class TreeBuilder {
         return new BLangXMLNSStatement();
     }
 
-    public static VariableNode createVariableNode() {
-        return new BLangVariable();
+    public static SimpleVariableNode createSimpleVariableNode() {
+        return new BLangSimpleVariable();
+    }
+
+    public static TupleVariableNode createTupleVariableNode() {
+        return new BLangTupleVariable();
     }
 
     public static EndpointNode createEndpointNode() {
@@ -340,8 +349,12 @@ public class TreeBuilder {
         return new BLangTableLiteral();
     }
 
-    public static VariableDefinitionNode createVariableDefinitionNode() {
-        return new BLangVariableDef();
+    public static VariableDefinitionNode createSimpleVariableDefinitionNode() {
+        return new BLangSimpleVariableDef();
+    }
+
+    public static VariableDefinitionNode createTupleVariableDefinitionNode() {
+        return new BLangTupleVariableDef();
     }
 
     public static ValueTypeNode createValueTypeNode() {
@@ -532,8 +545,12 @@ public class TreeBuilder {
         return new BLangMatch();
     }
 
-    public static MatchStatementPatternNode createMatchStatementPattern() {
-        return new BLangMatchStmtPatternClause();
+    public static MatchStatementSimpleBindingPatternNode createMatchStatementSimpleBindingPattern() {
+        return new BLangMatchStmtSimpleBindingPatternClause();
+    }
+
+    public static MatchStatementTupleBindingPatternNode createMatchStatementTupleBindingPattern() {
+        return new BLangMatchStmtTupleBindingPatternClause();
     }
 
     public static ServiceNode createServiceNode() {

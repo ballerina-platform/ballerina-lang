@@ -17,7 +17,7 @@
 */
 package org.ballerinalang.model.tree.statements;
 
-import org.ballerinalang.model.tree.VariableNode;
+import org.ballerinalang.model.tree.SimpleVariableNode;
 
 import java.util.List;
 
@@ -31,9 +31,9 @@ public interface ForeverNode extends ExpressionStatementNode {
 
     List<StreamingQueryStatementNode> getStreamingQueryStatements();
 
-    List<? extends VariableNode> getParameters();
+    List<? extends SimpleVariableNode> getParameters();
 
-    void addParameter(VariableNode param);
+    void addParameter(SimpleVariableNode param);
 
     boolean isSiddhiRuntimeEnabled();
 

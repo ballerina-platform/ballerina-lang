@@ -54,7 +54,7 @@ public class MatchStatementScopeResolver extends CursorPositionResolver {
         BLangMatch matchNode = (BLangMatch) treeVisitor.getBlockOwnerStack().peek();
         DiagnosticPos matchNodePos = CommonUtil.toZeroBasedPosition(matchNode.getPosition());
         DiagnosticPos nodePos = CommonUtil.toZeroBasedPosition(node.getPosition());
-        List<BLangMatch.BLangMatchStmtPatternClause> patternClauseList = matchNode.getPatternClauses();
+        List<BLangMatch.BLangMatchStmtSimpleBindingPatternClause> patternClauseList = matchNode.getSimplePatternClauses();
         int line = completionContext.get(DocumentServiceKeys.POSITION_KEY).getPosition().getLine();
         int col = completionContext.get(DocumentServiceKeys.POSITION_KEY).getPosition().getCharacter();
         int nodeStartLine = nodePos.getStartLine();

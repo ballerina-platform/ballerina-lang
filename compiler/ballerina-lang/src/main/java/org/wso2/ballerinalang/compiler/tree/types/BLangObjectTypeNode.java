@@ -22,7 +22,7 @@ import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.types.ObjectTypeNode;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
-import org.wso2.ballerinalang.compiler.tree.BLangVariable;
+import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -38,7 +38,7 @@ public class BLangObjectTypeNode extends BLangStructureTypeNode implements Objec
 
     public List<BLangFunction> functions;
     public BLangFunction initFunction;
-    public BLangVariable receiver;
+    public BLangSimpleVariable receiver;
 
     public BLangObjectTypeNode() {
         this.functions = new ArrayList<>();

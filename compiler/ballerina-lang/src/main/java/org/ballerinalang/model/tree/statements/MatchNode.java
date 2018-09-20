@@ -17,7 +17,8 @@
  */
 package org.ballerinalang.model.tree.statements;
 
-import org.ballerinalang.model.tree.VariableNode;
+import org.ballerinalang.model.tree.TupleVariableNode;
+import org.ballerinalang.model.tree.SimpleVariableNode;
 import org.ballerinalang.model.tree.expressions.ExpressionNode;
 
 import java.util.List;
@@ -30,18 +31,31 @@ import java.util.List;
 public interface MatchNode {
 
     /**
-     * {@code MatchStatementPatternNode} represents a pattern inside a type switch statement.
+     * {@code MatchStatementSimpleBindingPatternNode} represents a pattern inside a type switch statement.
      *
      * @since 0.966.0
      */
-    interface MatchStatementPatternNode {
+    interface MatchStatementSimpleBindingPatternNode {
 
-        VariableNode getVariableNode();
+        SimpleVariableNode getVariableNode();
 
         StatementNode getStatement();
     }
 
+    /**
+     * @since 0.982.0
+     */
+    interface MatchStatementTupleBindingPatternNode {
+
+        TupleVariableNode getTupleVariableNode();
+
+        StatementNode getStatement();
+    }
+
+
     ExpressionNode getExpression();
 
-    List<? extends MatchStatementPatternNode> getPatternClauses();
+    List<? extends MatchStatementSimpleBindingPatternNode> getSimplePatternClauses();
+
+    List<? extends MatchStatementTupleBindingPatternNode> getTuplePatternClauses();
 }

@@ -18,11 +18,13 @@
 package org.wso2.ballerinalang.compiler.tree.statements;
 
 import org.ballerinalang.model.tree.NodeKind;
+import org.ballerinalang.model.tree.TupleVariableNode;
 import org.ballerinalang.model.tree.statements.MatchNode;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
-import org.wso2.ballerinalang.compiler.tree.BLangVariable;
+import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
+import org.wso2.ballerinalang.compiler.tree.BLangTupleVariable;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 
 import java.util.HashSet;
@@ -38,7 +40,8 @@ import java.util.StringJoiner;
 public class BLangMatch extends BLangStatement implements MatchNode {
 
     public BLangExpression expr;
-    public List<BLangMatchStmtPatternClause> patternClauses;
+    public List<BLangMatchStmtSimpleBindingPatternClause> simplePatternClauses;
+    public List<BLangMatchStmtTupleBindingPatternClause> tuplePatternClauses;
     public List<BType> exprTypes;
 
     @Override
@@ -52,8 +55,13 @@ public class BLangMatch extends BLangStatement implements MatchNode {
     }
 
     @Override
-    public List<BLangMatchStmtPatternClause> getPatternClauses() {
-        return patternClauses;
+    public List<BLangMatchStmtSimpleBindingPatternClause> getSimplePatternClauses() {
+        return simplePatternClauses;
+    }
+
+    @Override
+    public List<BLangMatchStmtTupleBindingPatternClause> getTuplePatternClauses() {
+        return tuplePatternClauses;
     }
 
     @Override
@@ -64,18 +72,19 @@ public class BLangMatch extends BLangStatement implements MatchNode {
     @Override
     public String toString() {
         StringJoiner sj = new StringJoiner(";");
-        patternClauses.forEach(pattern -> sj.add(pattern.toString()));
+        simplePatternClauses.forEach(pattern -> sj.add(pattern.toString()));
         return String.valueOf(expr) + " match {" + String.valueOf(sj) + "}";
     }
 
     /**
-     * {@code BLangMatchStmtPatternClause} represents a pattern inside a type switch statement.
+     * {@code BLangMatchStmtSimpleBindingPatternClause} represents a pattern inside a type switch statement.
      *
      * @since 0.966.0
      */
-    public static class BLangMatchStmtPatternClause extends BLangNode implements MatchStatementPatternNode {
+    public static class BLangMatchStmtSimpleBindingPatternClause extends BLangNode
+            implements MatchStatementSimpleBindingPatternNode {
 
-        public BLangVariable variable;
+        public BLangSimpleVariable variable;
         public BLangBlockStmt body;
 
         // This field is used to capture types that are matched to this pattern.
@@ -88,7 +97,7 @@ public class BLangMatch extends BLangStatement implements MatchNode {
         }
 
         @Override
-        public BLangVariable getVariableNode() {
+        public BLangSimpleVariable getVariableNode() {
             return variable;
         }
 
@@ -102,6 +111,46 @@ public class BLangMatch extends BLangStatement implements MatchNode {
             visitor.visit(this);
         }
         
+        @Override
+        public String toString() {
+            return String.valueOf(variable) + " => " + String.valueOf(body);
+        }
+    }
+
+    /**
+     * @since 0.982.0
+     */
+
+    public static class BLangMatchStmtTupleBindingPatternClause extends BLangNode
+            implements MatchStatementTupleBindingPatternNode {
+
+        public BLangTupleVariable variable;
+        public BLangBlockStmt body;
+
+        // This field is used to capture types that are matched to this pattern.
+        public Set<BType> matchedTypesDirect = new HashSet<>();
+        public Set<BType> matchedTypesIndirect = new HashSet<>();
+
+        @Override
+        public NodeKind getKind() {
+            return NodeKind.MATCH_PATTERN_CLAUSE;
+        }
+
+        @Override
+        public TupleVariableNode getTupleVariableNode() {
+            return variable;
+        }
+
+        @Override
+        public BLangStatement getStatement() {
+            return body;
+        }
+
+        @Override
+        public void accept(BLangNodeVisitor visitor) {
+            visitor.visit(this);
+        }
+
         @Override
         public String toString() {
             return String.valueOf(variable) + " => " + String.valueOf(body);

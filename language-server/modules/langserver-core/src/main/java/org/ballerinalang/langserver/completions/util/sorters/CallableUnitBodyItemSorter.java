@@ -27,7 +27,7 @@ import org.eclipse.lsp4j.InsertTextFormat;
 import org.wso2.ballerinalang.compiler.tree.BLangInvokableNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangWorker;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangVariableDef;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangSimpleVariableDef;
 
 import java.util.List;
 
@@ -42,7 +42,7 @@ class CallableUnitBodyItemSorter extends CompletionItemSorter {
         this.clearItemsIfWorkerExists(ctx, completionItems);
         if (previousNode == null) {
             this.populateWhenCursorBeforeOrAfterEp(completionItems);
-        } else if (previousNode instanceof BLangVariableDef) {
+        } else if (previousNode instanceof BLangSimpleVariableDef) {
             if (ctx.get(CompletionKeys.INVOCATION_STATEMENT_KEY) == null
                     || !ctx.get(CompletionKeys.INVOCATION_STATEMENT_KEY)) {
                 CompletionItem workerItem = this.getWorkerSnippet();

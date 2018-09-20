@@ -34,7 +34,7 @@ import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.symbols.SymbolKind;
 import org.ballerinalang.model.tree.FunctionNode;
 import org.ballerinalang.model.tree.TopLevelNode;
-import org.ballerinalang.model.tree.VariableNode;
+import org.ballerinalang.model.tree.SimpleVariableNode;
 import org.ballerinalang.model.types.TypeKind;
 import org.eclipse.lsp4j.CodeActionParams;
 import org.eclipse.lsp4j.Command;
@@ -49,8 +49,8 @@ import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangResource;
 import org.wso2.ballerinalang.compiler.tree.BLangService;
+import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangTypeDefinition;
-import org.wso2.ballerinalang.compiler.tree.BLangVariable;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
 import org.wso2.ballerinalang.compiler.tree.types.BLangObjectTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangRecordTypeNode;
@@ -218,7 +218,7 @@ public class CommandUtil {
      * @param baseOffset        Offset of snippet                         
      * @return {@link String}   Constructor snippet as String
      */
-    static String getObjectConstructorSnippet(List<BLangVariable> fields, int baseOffset) {
+    static String getObjectConstructorSnippet(List<BLangSimpleVariable> fields, int baseOffset) {
         List<String> fieldNames = fields.stream()
                 .filter(bField -> ((bField.symbol.flags & Flags.PUBLIC) == Flags.PUBLIC))
                 .map(bField -> bField.getName().getValue())
@@ -287,7 +287,7 @@ public class CommandUtil {
         int offset = functionPos.getStartColumn();
         List<String> attributes = new ArrayList<>();
         bLangFunction.getParameters().forEach(bLangVariable ->
-                        attributes.add(getDocAttributeFromBLangVariable((BLangVariable) bLangVariable, offset)));
+                        attributes.add(getDocAttributeFromBLangVariable((BLangSimpleVariable) bLangVariable, offset)));
         if (((BLangFunction) bLangFunction).symbol.retType.getKind() != TypeKind.NIL) {
             attributes.add(getReturnFieldDescription(offset));
         }
@@ -297,7 +297,7 @@ public class CommandUtil {
 
     static DocAttachmentInfo getRecordOrObjectDocumentation(BLangTypeDefinition typeDef, int replaceFrom) {
         List<String> attributes = new ArrayList<>();
-        List<BLangVariable> fields = new ArrayList<>();
+        List<BLangSimpleVariable> fields = new ArrayList<>();
         DiagnosticPos structPos = CommonUtil.toZeroBasedPosition(typeDef.getPosition());
         if (typeDef.typeNode instanceof BLangObjectTypeNode) {
             fields.addAll(((BLangObjectTypeNode) typeDef.typeNode).fields);
@@ -398,7 +398,7 @@ public class CommandUtil {
         List<String> attributes = new ArrayList<>();
         DiagnosticPos typeNodePos = CommonUtil.toZeroBasedPosition((DiagnosticPos) typeNode.getPosition());
         int offset = typeNodePos.getStartColumn();
-        List<VariableNode> publicFields = new ArrayList<>();
+        List<SimpleVariableNode> publicFields = new ArrayList<>();
         if (typeNode instanceof BLangTypeDefinition &&
                 ((BLangTypeDefinition) typeNode).symbol.kind == SymbolKind.OBJECT) {
             publicFields.addAll(((BLangObjectTypeNode) ((BLangTypeDefinition) typeNode).typeNode).getFields().stream()
@@ -410,7 +410,7 @@ public class CommandUtil {
         }
         
         publicFields.forEach(variableNode -> {
-            attributes.add(getDocAttributeFromBLangVariable((BLangVariable) variableNode, offset));
+            attributes.add(getDocAttributeFromBLangVariable((BLangSimpleVariable) variableNode, offset));
         });
         
         return new DocAttachmentInfo(getDocumentationAttachment(attributes, offset), replaceFrom);
@@ -421,7 +421,7 @@ public class CommandUtil {
         return new DocAttachmentInfo(getDocumentationAttachment(null, servicePos.getStartColumn()), replaceFrom);
     }
 
-    private static String getDocAttributeFromBLangVariable(BLangVariable bLangVariable, int offset) {
+    private static String getDocAttributeFromBLangVariable(BLangSimpleVariable bLangVariable, int offset) {
         return getDocumentationAttribute(bLangVariable.getName().getValue(), offset);
     }
 

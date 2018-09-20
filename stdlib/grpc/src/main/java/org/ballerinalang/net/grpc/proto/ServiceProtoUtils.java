@@ -48,7 +48,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BNilType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStructureType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
-import org.wso2.ballerinalang.compiler.tree.BLangVariable;
+import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
@@ -59,7 +59,7 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangForeach;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangIf;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangVariableDef;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangSimpleVariableDef;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangWhile;
 
 import java.io.IOException;
@@ -557,7 +557,8 @@ public class ServiceProtoUtils {
             //send inside match block.
             if (statementNode instanceof BLangMatch) {
                 BLangMatch langMatch = (BLangMatch) statementNode;
-                for (BLangMatch.BLangMatchStmtPatternClause patternClause : langMatch.patternClauses) {
+                for (BLangMatch.BLangMatchStmtSimpleBindingPatternClause patternClause :
+                        langMatch.simplePatternClauses) {
                     BLangInvocation invocExp = getInvocationExpression(patternClause.body);
                     if (invocExp != null) {
                         return invocExp;
@@ -570,9 +571,9 @@ public class ServiceProtoUtils {
                 expression = assignment.getExpression();
             }
             // variable assignment.
-            if (statementNode instanceof BLangVariableDef) {
-                BLangVariableDef variableDef = (BLangVariableDef) statementNode;
-                BLangVariable variable = variableDef.getVariable();
+            if (statementNode instanceof BLangSimpleVariableDef) {
+                BLangSimpleVariableDef variableDef = (BLangSimpleVariableDef) statementNode;
+                BLangSimpleVariable variable = variableDef.getVariable();
                 expression = variable.getInitialExpression();
             }
             

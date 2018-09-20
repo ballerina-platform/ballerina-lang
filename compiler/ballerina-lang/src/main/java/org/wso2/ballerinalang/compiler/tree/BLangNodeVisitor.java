@@ -115,6 +115,7 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangForkJoin;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangIf;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangLock;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch.BLangMatchStmtTupleBindingPatternClause;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangPostIncrement;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangRetry;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangReturn;
@@ -124,7 +125,8 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangThrow;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangTransaction;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangTryCatchFinally;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangTupleDestructure;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangVariableDef;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangSimpleVariableDef;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangTupleVariableDef;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangWhile;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangWorkerReceive;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangWorkerSend;
@@ -182,7 +184,7 @@ public abstract class BLangNodeVisitor {
         throw new AssertionError();
     }
 
-    public void visit(BLangVariable varNode) {
+    public void visit(BLangSimpleVariable varNode) {
         throw new AssertionError();
     }
 
@@ -223,7 +225,7 @@ public abstract class BLangNodeVisitor {
         throw new AssertionError();
     }
 
-    public void visit(BLangVariableDef varDefNode) {
+    public void visit(BLangSimpleVariableDef varDefNode) {
         throw new AssertionError();
     }
 
@@ -283,7 +285,7 @@ public abstract class BLangNodeVisitor {
         throw new AssertionError();
     }
 
-    public void visit(BLangMatch.BLangMatchStmtPatternClause patternClauseNode) {
+    public void visit(BLangMatch.BLangMatchStmtSimpleBindingPatternClause patternClauseNode) {
         throw new AssertionError();
     }
 
@@ -724,6 +726,18 @@ public abstract class BLangNodeVisitor {
     }
 
     public void visit(BLangScope scopeNode) {
+        throw new AssertionError();
+    }
+
+    public void visit(BLangMatchStmtTupleBindingPatternClause bLangMatchStmtTupleBindingPatternClause) {
+        throw new AssertionError();
+    }
+
+    public void visit(BLangTupleVariable bLangTupleVariable) {
+        throw new AssertionError();
+    }
+
+    public void visit(BLangTupleVariableDef bLangTupleVariableDef) {
         throw new AssertionError();
     }
 }

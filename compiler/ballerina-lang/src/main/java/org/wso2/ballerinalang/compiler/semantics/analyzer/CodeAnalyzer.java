@@ -47,7 +47,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangResource;
 import org.wso2.ballerinalang.compiler.tree.BLangService;
 import org.wso2.ballerinalang.compiler.tree.BLangTypeDefinition;
-import org.wso2.ballerinalang.compiler.tree.BLangVariable;
+import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangWorker;
 import org.wso2.ballerinalang.compiler.tree.BLangXMLNS;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrayLiteral;
@@ -101,7 +101,7 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangForkJoin;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangIf;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangLock;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch.BLangMatchStmtPatternClause;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch.BLangMatchStmtSimpleBindingPatternClause;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangPostIncrement;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangRetry;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangReturn;
@@ -111,7 +111,7 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangThrow;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangTransaction;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangTryCatchFinally;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangTupleDestructure;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangVariableDef;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangSimpleVariableDef;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangWhile;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangWorkerReceive;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangWorkerSend;
@@ -493,7 +493,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         List<BType> unmatchedExprTypes = new ArrayList<>();
         for (BType exprType : matchStmt.exprTypes) {
             boolean assignable = false;
-            for (BLangMatchStmtPatternClause pattern : matchStmt.patternClauses) {
+            for (BLangMatch.BLangMatchStmtSimpleBindingPatternClause pattern : matchStmt.simplePatternClauses) {
                 BType patternType = pattern.variable.type;
                 if (exprType.tag == TypeTags.ERROR || patternType.tag == TypeTags.ERROR) {
                     return;
@@ -531,8 +531,8 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         }
 
         boolean matchedPatternsAvailable = false;
-        for (int i = matchStmt.patternClauses.size() - 1; i >= 0; i--) {
-            BLangMatchStmtPatternClause pattern = matchStmt.patternClauses.get(i);
+        for (int i = matchStmt.simplePatternClauses.size() - 1; i >= 0; i--) {
+            BLangMatchStmtSimpleBindingPatternClause pattern = matchStmt.simplePatternClauses.get(i);
             if (pattern.matchedTypesDirect.isEmpty() && pattern.matchedTypesIndirect.isEmpty()) {
                 if (matchedPatternsAvailable) {
                     dlog.error(pattern.pos, DiagnosticCode.MATCH_STMT_UNMATCHED_PATTERN);
@@ -548,7 +548,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         if (!unmatchedExprTypesAvailable) {
             this.checkStatementExecutionValidity(matchStmt);
             boolean matchStmtReturns = true;
-            for (BLangMatchStmtPatternClause patternClause : matchStmt.patternClauses) {
+            for (BLangMatch.BLangMatchStmtSimpleBindingPatternClause patternClause : matchStmt.simplePatternClauses) {
                 analyzeNode(patternClause.body, env);
                 matchStmtReturns = matchStmtReturns && this.statementReturns;
                 this.resetStatementReturns();
@@ -664,7 +664,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         }
     }
 
-    public void visit(BLangVariable varNode) {
+    public void visit(BLangSimpleVariable varNode) {
         analyzeExpr(varNode.expr);
 
         if (Objects.isNull(varNode.symbol) || !Symbols.isPublic(varNode.symbol)) {
@@ -690,7 +690,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         /* ignore */
     }
 
-    public void visit(BLangVariableDef varDefNode) {
+    public void visit(BLangSimpleVariableDef varDefNode) {
         this.checkStatementExecutionValidity(varDefNode);
         analyzeNode(varDefNode.var, env);
     }

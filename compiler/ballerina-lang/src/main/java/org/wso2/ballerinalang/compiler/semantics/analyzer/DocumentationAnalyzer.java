@@ -20,7 +20,7 @@ package org.wso2.ballerinalang.compiler.semantics.analyzer;
 import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.model.tree.DocumentableNode;
 import org.ballerinalang.model.tree.NodeKind;
-import org.ballerinalang.model.tree.VariableNode;
+import org.ballerinalang.model.tree.SimpleVariableNode;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.util.diagnostic.DiagnosticCode;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
@@ -34,12 +34,12 @@ import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangResource;
 import org.wso2.ballerinalang.compiler.tree.BLangService;
+import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangTypeDefinition;
-import org.wso2.ballerinalang.compiler.tree.BLangVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangXMLNS;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangMarkdownParameterDocumentation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangMarkdownReturnParameterDocumentation;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangVariableDef;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangSimpleVariableDef;
 import org.wso2.ballerinalang.compiler.tree.types.BLangObjectTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangRecordTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangType;
@@ -104,7 +104,7 @@ public class DocumentationAnalyzer extends BLangNodeVisitor {
     }
 
     @Override
-    public void visit(BLangVariable varNode) {
+    public void visit(BLangSimpleVariable varNode) {
         validateNoParameters(varNode);
         validateReturnParameter(varNode, null, false);
     }
@@ -139,14 +139,14 @@ public class DocumentationAnalyzer extends BLangNodeVisitor {
     public void visit(BLangTypeDefinition typeDefinition) {
         BLangType typeNode = typeDefinition.getTypeNode();
         if (typeDefinition.typeNode.getKind() == NodeKind.OBJECT_TYPE) {
-            List<? extends VariableNode> fields = ((BLangObjectTypeNode) typeNode).getFields();
+            List<? extends SimpleVariableNode> fields = ((BLangObjectTypeNode) typeNode).getFields();
             validateParameters(typeDefinition, fields, new LinkedList<>(), null, DiagnosticCode.UNDOCUMENTED_FIELD,
                     DiagnosticCode.NO_SUCH_DOCUMENTABLE_FIELD, DiagnosticCode.FIELD_ALREADY_DOCUMENTED);
             validateReturnParameter(typeDefinition, null, false);
 
             ((BLangObjectTypeNode) typeDefinition.getTypeNode()).getFunctions().forEach(this::analyzeNode);
         } else if (typeDefinition.typeNode.getKind() == NodeKind.RECORD_TYPE) {
-            List<? extends VariableNode> fields = ((BLangRecordTypeNode) typeNode).getFields();
+            List<? extends SimpleVariableNode> fields = ((BLangRecordTypeNode) typeNode).getFields();
             validateParameters(typeDefinition, fields, new LinkedList<>(), null, DiagnosticCode.UNDOCUMENTED_FIELD,
                     DiagnosticCode.NO_SUCH_DOCUMENTABLE_FIELD, DiagnosticCode.FIELD_ALREADY_DOCUMENTED);
             validateReturnParameter(typeDefinition, null, false);
@@ -163,8 +163,8 @@ public class DocumentationAnalyzer extends BLangNodeVisitor {
         validateReturnParameter(resourceNode, null, false);
     }
 
-    private void validateParameters(DocumentableNode documentableNode, List<? extends VariableNode> actualParameters,
-                                    List<? extends BLangVariableDef> defaultableParameters, BLangVariable restParam,
+    private void validateParameters(DocumentableNode documentableNode, List<? extends SimpleVariableNode> actualParameters,
+                                    List<? extends BLangSimpleVariableDef> defaultableParameters, BLangSimpleVariable restParam,
                                     DiagnosticCode undocumentedParameter, DiagnosticCode noSuchParameter,
                                     DiagnosticCode parameterAlreadyDefined) {
         BLangMarkdownDocumentation documentation = documentableNode.getMarkdownDocumentationAttachment();
@@ -191,11 +191,11 @@ public class DocumentationAnalyzer extends BLangNodeVisitor {
             BLangMarkdownParameterDocumentation param = documentedParameterMap.get(name);
             if (param != null) {
                 // Set the symbol in the documentation node.
-                param.setSymbol(((BLangVariable) parameter).symbol);
+                param.setSymbol(((BLangSimpleVariable) parameter).symbol);
                 documentedParameterMap.remove(name);
             } else {
                 // Check whether the parameter is public. Otherwise it is not mandatory to document it.
-                if (Symbols.isFlagOn(((BLangVariable) parameter).symbol.flags, Flags.PUBLIC)) {
+                if (Symbols.isFlagOn(((BLangSimpleVariable) parameter).symbol.flags, Flags.PUBLIC)) {
                     // Add warnings for undocumented parameters.
                     dlog.warning(((BLangNode) parameter).pos, undocumentedParameter, name);
                 }

@@ -79,8 +79,8 @@ import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangResource;
 import org.wso2.ballerinalang.compiler.tree.BLangService;
+import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangTypeDefinition;
-import org.wso2.ballerinalang.compiler.tree.BLangVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangWorker;
 import org.wso2.ballerinalang.compiler.tree.BLangXMLNS;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangGroupBy;
@@ -128,18 +128,18 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangForkJoin;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangIf;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangLock;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch.BLangMatchStmtPatternClause;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch.BLangMatchStmtSimpleBindingPatternClause;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangPostIncrement;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangRetry;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangReturn;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangScope;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangSimpleVariableDef;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangStatement;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangStreamingQueryStatement;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangThrow;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangTransaction;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangTryCatchFinally;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangTupleDestructure;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangVariableDef;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangWhile;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangWorkerReceive;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangWorkerSend;
@@ -433,7 +433,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         }
     }
 
-    public void visit(BLangVariable varNode) {
+    public void visit(BLangSimpleVariable varNode) {
         // This will prevent cases Eg:- int _ = 100;
         // We have prevented '_' from registering variable symbol at SymbolEnter, Hence this validation added.
         Name varName = names.fromIdNode(varNode.name);
@@ -493,7 +493,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         blockNode.stmts.forEach(stmt -> analyzeStmt(stmt, blockEnv));
     }
 
-    public void visit(BLangVariableDef varDefNode) {
+    public void visit(BLangSimpleVariableDef varDefNode) {
         analyzeDef(varDefNode.var, env);
 
         // Check whether variable is initialized, if the type don't support default values.
@@ -673,11 +673,11 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         }
 
         //  visit patterns
-        matchNode.patternClauses.forEach(patternClause -> patternClause.accept(this));
+        matchNode.simplePatternClauses.forEach(patternClause -> patternClause.accept(this));
         matchNode.exprTypes = exprTypes;
     }
 
-    public void visit(BLangMatchStmtPatternClause patternClause) {
+    public void visit(BLangMatchStmtSimpleBindingPatternClause patternClause) {
         // If the variable is not equal to '_', then define the variable in the block scope
         if (!patternClause.variable.name.value.endsWith(Names.IGNORE.value)) {
             SymbolEnv blockEnv = SymbolEnv.createBlockEnv((BLangBlockStmt) patternClause.body, env);
@@ -817,7 +817,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
 
         BLangObjectTypeNode objectTypeNode = (BLangObjectTypeNode) typeDef.typeNode;
         boolean defaultableStatus = true;
-        for (BLangVariable field : objectTypeNode.fields) {
+        for (BLangSimpleVariable field : objectTypeNode.fields) {
             if (field.expr != null || types.defaultValueExists(field.pos, field.symbol.type)) {
                 continue;
             }
@@ -847,7 +847,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
 
     private void validateDefaultable(BLangRecordTypeNode recordTypeNode) {
         boolean defaultableStatus = true;
-        for (BLangVariable field : recordTypeNode.fields) {
+        for (BLangSimpleVariable field : recordTypeNode.fields) {
             if (field.expr != null || types.defaultValueExists(field.pos, field.symbol.type)) {
                 continue;
             }
@@ -881,7 +881,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
 
     private void defineResourceEndpoint(BLangResource resourceNode, SymbolEnv resourceEnv) {
         if (!resourceNode.getParameters().isEmpty()) {
-            final BLangVariable variable = resourceNode.getParameters().get(0);
+            final BLangSimpleVariable variable = resourceNode.getParameters().get(0);
             if (variable.type == symTable.endpointType) {
                 String actualVarName = variable.name.value.substring(1);
                 variable.name = new BLangIdentifier();
@@ -973,7 +973,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         /* ignore */
     }
 
-    private boolean isJoinResultType(BLangVariable var) {
+    private boolean isJoinResultType(BLangSimpleVariable var) {
         BLangType type = var.typeNode;
         if (type instanceof BuiltInReferenceTypeNode) {
             return ((BuiltInReferenceTypeNode) type).getTypeKind() == TypeKind.MAP;
@@ -981,8 +981,8 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         return false;
     }
 
-    private BLangVariableDef createVarDef(BLangVariable var) {
-        BLangVariableDef varDefNode = new BLangVariableDef();
+    private BLangSimpleVariableDef createVarDef(BLangSimpleVariable var) {
+        BLangSimpleVariableDef varDefNode = new BLangSimpleVariableDef();
         varDefNode.var = var;
         varDefNode.pos = var.pos;
         return varDefNode;
@@ -1935,7 +1935,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
     }
 
     private void validateStreamingActionFunctionParameters(BLangStreamAction streamAction) {
-        List<BLangVariable> functionParameters = ((BLangFunction) streamAction.getInvokableBody().
+        List<BLangSimpleVariable> functionParameters = ((BLangFunction) streamAction.getInvokableBody().
                 getFunctionNode()).requiredParams;
         if (functionParameters == null || functionParameters.size() != 1) {
             dlog.error((streamAction).pos,

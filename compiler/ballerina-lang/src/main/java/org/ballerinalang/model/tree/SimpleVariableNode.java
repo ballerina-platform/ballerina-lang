@@ -17,25 +17,14 @@
 */
 package org.ballerinalang.model.tree;
 
-import org.ballerinalang.model.tree.expressions.ExpressionNode;
-import org.ballerinalang.model.tree.types.TypeNode;
-
 /**
  * @since 0.94
  */
-public interface VariableNode extends AnnotatableNode, DocumentableNode, TopLevelNode {
-    
-    TypeNode getTypeNode();
-    
-    void setTypeNode(TypeNode type);
+public interface SimpleVariableNode extends VariableNode, AnnotatableNode, DocumentableNode, TopLevelNode {
 
     IdentifierNode getName();
     
     void setName(IdentifierNode name);
-
-    ExpressionNode getInitialExpression();
-    
-    void setInitialExpression(ExpressionNode expr);
 
     boolean isSafeAssignment();
     

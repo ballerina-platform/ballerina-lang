@@ -25,7 +25,7 @@ import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.tree.PackageNode;
 import org.ballerinalang.model.tree.ServiceNode;
 import org.ballerinalang.model.tree.TypeDefinition;
-import org.ballerinalang.model.tree.VariableNode;
+import org.ballerinalang.model.tree.SimpleVariableNode;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
@@ -73,7 +73,7 @@ public class MarkdownDocumentationTest {
 
         PackageNode packageNode = compileResult.getAST();
 
-        VariableNode variableNode = packageNode.getGlobalVariables().get(0);
+        SimpleVariableNode variableNode = packageNode.getGlobalVariables().get(0);
         Assert.assertNotNull(variableNode);
         BLangMarkdownDocumentation documentationAttachment = variableNode.getMarkdownDocumentationAttachment();
         Assert.assertNotNull(documentationAttachment);
@@ -105,9 +105,9 @@ public class MarkdownDocumentationTest {
 
         // Todo - need to come up with a proper way to document finite types
 
-        List<? extends VariableNode> globalVariables = packageNode.getGlobalVariables();
+        List<? extends SimpleVariableNode> globalVariables = packageNode.getGlobalVariables();
 
-        VariableNode variableNode = globalVariables.get(0);
+        SimpleVariableNode variableNode = globalVariables.get(0);
         Assert.assertNotNull(variableNode);
         documentationAttachment = variableNode.getMarkdownDocumentationAttachment();
         Assert.assertNotNull(documentationAttachment);

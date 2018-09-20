@@ -18,13 +18,13 @@
 package org.ballerinalang.model.tree.statements;
 
 import org.ballerinalang.model.tree.Node;
-import org.ballerinalang.model.tree.VariableNode;
+import org.ballerinalang.model.tree.SimpleVariableNode;
 
 /**
  * @since 0.94
  */
 public interface CatchNode extends Node {
-    VariableNode getParameter();
+    SimpleVariableNode getParameter();
 
     BlockNode getBody();
 }

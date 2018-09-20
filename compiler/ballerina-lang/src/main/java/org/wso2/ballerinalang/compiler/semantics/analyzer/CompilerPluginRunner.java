@@ -43,7 +43,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangResource;
 import org.wso2.ballerinalang.compiler.tree.BLangService;
 import org.wso2.ballerinalang.compiler.tree.BLangTypeDefinition;
-import org.wso2.ballerinalang.compiler.tree.BLangVariable;
+import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangXMLNS;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangForever;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
@@ -166,7 +166,7 @@ public class CompilerPluginRunner extends BLangNodeVisitor {
         notifyProcessors(attachmentList, (processor, list) -> processor.process(typeDefNode, list));
     }
 
-    public void visit(BLangVariable varNode) {
+    public void visit(BLangSimpleVariable varNode) {
         List<BLangAnnotationAttachment> attachmentList = varNode.getAnnotationAttachments();
         notifyProcessors(attachmentList, (processor, list) -> processor.process(varNode, list));
     }

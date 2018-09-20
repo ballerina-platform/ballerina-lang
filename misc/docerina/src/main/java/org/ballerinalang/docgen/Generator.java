@@ -40,7 +40,7 @@ import org.ballerinalang.model.elements.AttachPoint;
 import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.tree.DocumentableNode;
 import org.ballerinalang.model.tree.NodeKind;
-import org.ballerinalang.model.tree.VariableNode;
+import org.ballerinalang.model.tree.SimpleVariableNode;
 import org.ballerinalang.model.tree.types.TypeNode;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol;
@@ -55,10 +55,10 @@ import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangMarkdownDocumentation;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
+import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangTypeDefinition;
-import org.wso2.ballerinalang.compiler.tree.BLangVariable;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangMarkdownParameterDocumentation;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangVariableDef;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangSimpleVariableDef;
 import org.wso2.ballerinalang.compiler.tree.types.BLangFiniteTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangObjectTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangRecordTypeNode;
@@ -148,7 +148,7 @@ public class Generator {
             }
         }
         // Check for global variables
-        for (BLangVariable var : balPackage.getGlobalVariables()) {
+        for (BLangSimpleVariable var : balPackage.getGlobalVariables()) {
             if (var.getFlags().contains(Flag.PUBLIC)) {
                 documentables.add(createDocForNode(var));
             }
@@ -342,7 +342,7 @@ public class Generator {
      * @param bLangVariable ballerina variable node.
      * @return documentation for global variables.
      */
-    public static GlobalVariableDoc createDocForNode(BLangVariable bLangVariable) {
+    public static GlobalVariableDoc createDocForNode(BLangSimpleVariable bLangVariable) {
         String globalVarName = bLangVariable.getName().getValue();
         String dataType = getTypeName(bLangVariable.getTypeNode());
         String desc = description(bLangVariable);
@@ -391,24 +391,24 @@ public class Generator {
         List<Variable> returnParams = new ArrayList<>();
         // Iterate through the parameters
         if (functionNode.getParameters().size() > 0) {
-            for (BLangVariable param : functionNode.getParameters()) {
+            for (BLangSimpleVariable param : functionNode.getParameters()) {
                 Field variable = getVariable(functionNode, param);
                 parameters.add(variable);
             }
         }
         // defaultable params
         if (functionNode.getDefaultableParameters().size() > 0) {
-            for (BLangVariableDef variableDef : functionNode.getDefaultableParameters()) {
-                BLangVariable param = variableDef.getVariable();
+            for (BLangSimpleVariableDef variableDef : functionNode.getDefaultableParameters()) {
+                BLangSimpleVariable param = variableDef.getVariable();
                 Field variable = getVariable(functionNode, param);
                 parameters.add(variable);
             }
         }
         // rest params
         if (functionNode.getRestParameters() != null) {
-            VariableNode restParameter = functionNode.getRestParameters();
-            if (restParameter instanceof BLangVariable) {
-                BLangVariable param = (BLangVariable) restParameter;
+            SimpleVariableNode restParameter = functionNode.getRestParameters();
+            if (restParameter instanceof BLangSimpleVariable) {
+                BLangSimpleVariable param = (BLangSimpleVariable) restParameter;
                 Field variable = getVariable(functionNode, param);
                 parameters.add(variable);
             }
@@ -431,7 +431,7 @@ public class Generator {
         return new FunctionDoc(functionName, description(functionNode), new ArrayList<>(), parameters, returnParams);
     }
 
-    private static Field getVariable(BLangFunction functionNode, BLangVariable param) {
+    private static Field getVariable(BLangFunction functionNode, BLangSimpleVariable param) {
         String dataType = type(param);
         String desc = paramAnnotation(functionNode, param);
         String href = param.typeNode != null ? extractLink(param.typeNode) : extractLink(param.type);
@@ -461,10 +461,10 @@ public class Generator {
         return new RecordDoc(structName, documentationText, new ArrayList<>(), fields);
     }
 
-    private static List<Field> getFields(BLangNode node, List<BLangVariable> allFields,
+    private static List<Field> getFields(BLangNode node, List<BLangSimpleVariable> allFields,
                                          BLangMarkdownDocumentation documentation) {
         List<Field> fields = new ArrayList<>();
-        for (BLangVariable param : allFields) {
+        for (BLangSimpleVariable param : allFields) {
             if (param.getFlags().contains(Flag.PUBLIC)) {
                 String name = param.getName().value;
                 String dataType = type(param);
@@ -582,7 +582,7 @@ public class Generator {
      * @param bLangVariable a varibale
      * @return data type of the variable.
      */
-    private static String type(final BLangVariable bLangVariable) {
+    private static String type(final BLangSimpleVariable bLangVariable) {
         return bLangVariable.type != null ? bLangVariable.type.toString() : "null";
     }
 
@@ -604,7 +604,7 @@ public class Generator {
      * @param param parameter.
      * @return description of the parameter.
      */
-    private static String paramAnnotation(BLangNode node, BLangVariable param) {
+    private static String paramAnnotation(BLangNode node, BLangSimpleVariable param) {
         String subName = param.getName() == null ? param.type.tsymbol.name.value : param.getName().getValue();
         return getParameterDocumentation(node, subName);
     }
@@ -633,10 +633,10 @@ public class Generator {
      */
     private static String fieldAnnotation(BLangNode node, BLangNode param) {
         String subName = EMPTY_STRING;
-        if (!(param instanceof BLangVariable)) {
+        if (!(param instanceof BLangSimpleVariable)) {
             return getParameterDocumentation(node, subName);
         }
-        BLangVariable paramVariable = (BLangVariable) param;
+        BLangSimpleVariable paramVariable = (BLangSimpleVariable) param;
         subName = (paramVariable.getName() == null) ?
                 paramVariable.type.tsymbol.name.value : paramVariable.getName().getValue();
         return getParameterDocumentation(node, subName);

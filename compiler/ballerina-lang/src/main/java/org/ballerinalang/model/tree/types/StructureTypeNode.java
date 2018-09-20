@@ -17,7 +17,7 @@
 */
 package org.ballerinalang.model.tree.types;
 
-import org.ballerinalang.model.tree.VariableNode;
+import org.ballerinalang.model.tree.SimpleVariableNode;
 
 import java.util.List;
 
@@ -28,8 +28,8 @@ import java.util.List;
  */
 public interface StructureTypeNode extends ReferenceTypeNode {
     
-    List<? extends VariableNode> getFields();
+    List<? extends SimpleVariableNode> getFields();
 
-    void addField(VariableNode field);
+    void addField(SimpleVariableNode field);
     
 }

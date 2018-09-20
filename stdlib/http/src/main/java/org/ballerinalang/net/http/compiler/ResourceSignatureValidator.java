@@ -4,7 +4,7 @@ import org.ballerinalang.model.tree.AnnotationAttachmentNode;
 import org.ballerinalang.model.tree.ResourceNode;
 import org.ballerinalang.util.diagnostic.Diagnostic;
 import org.ballerinalang.util.diagnostic.DiagnosticLog;
-import org.wso2.ballerinalang.compiler.tree.BLangVariable;
+import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
@@ -29,7 +29,7 @@ public class ResourceSignatureValidator {
     private static final String ENDPOINT_TYPE = PROTOCOL_PACKAGE_HTTP + ":" + SERVICE_ENDPOINT;
     private static final String HTTP_REQUEST_TYPE = PROTOCOL_PACKAGE_HTTP + ":" + REQUEST;
 
-    public static void validate(List<BLangVariable> signatureParams, DiagnosticLog dlog, DiagnosticPos pos) {
+    public static void validate(List<BLangSimpleVariable> signatureParams, DiagnosticLog dlog, DiagnosticPos pos) {
         final int nParams = signatureParams.size();
 
         if (nParams < COMPULSORY_PARAM_COUNT) {
@@ -47,7 +47,7 @@ public class ResourceSignatureValidator {
         }
     }
 
-    private static boolean isValidResourceParam(BLangVariable param, String expectedType) {
+    private static boolean isValidResourceParam(BLangSimpleVariable param, String expectedType) {
         return expectedType.equals(param.type.toString());
     }
 

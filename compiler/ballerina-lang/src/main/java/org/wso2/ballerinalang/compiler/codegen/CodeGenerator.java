@@ -63,8 +63,8 @@ import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangResource;
 import org.wso2.ballerinalang.compiler.tree.BLangService;
+import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangTypeDefinition;
-import org.wso2.ballerinalang.compiler.tree.BLangVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangWorker;
 import org.wso2.ballerinalang.compiler.tree.BLangXMLNS;
 import org.wso2.ballerinalang.compiler.tree.BLangXMLNS.BLangLocalXMLNS;
@@ -142,7 +142,7 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangStatement;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangThrow;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangTransaction;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangTryCatchFinally;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangVariableDef;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangSimpleVariableDef;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangWhile;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangWorkerReceive;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangWorkerSend;
@@ -500,7 +500,7 @@ public class CodeGenerator extends BLangNodeVisitor {
         }
     }
 
-    public void visit(BLangVariable varNode) {
+    public void visit(BLangSimpleVariable varNode) {
         BVarSymbol varSymbol = varNode.symbol;
         int ownerSymTag = env.scope.owner.tag;
         if ((ownerSymTag & SymTag.INVOKABLE) == SymTag.INVOKABLE) {
@@ -523,7 +523,7 @@ public class CodeGenerator extends BLangNodeVisitor {
 
     // Statements
 
-    public void visit(BLangVariableDef varDefNode) {
+    public void visit(BLangSimpleVariableDef varDefNode) {
         genNode(varDefNode.var, this.env);
     }
 
@@ -1930,7 +1930,7 @@ public class CodeGenerator extends BLangNodeVisitor {
 
     // Create info entries
 
-    private void createPackageVarInfo(BLangVariable varNode) {
+    private void createPackageVarInfo(BLangSimpleVariable varNode) {
         BVarSymbol varSymbol = varNode.symbol;
         varSymbol.varIndex = getPVIndex(varSymbol.type.tag);
 
@@ -2014,8 +2014,8 @@ public class CodeGenerator extends BLangNodeVisitor {
 
         BLangObjectTypeNode objectTypeNode = (BLangObjectTypeNode) typeDefinition.typeNode;
 
-        List<BLangVariable> objFields = objectTypeNode.fields;
-        for (BLangVariable objField : objFields) {
+        List<BLangSimpleVariable> objFields = objectTypeNode.fields;
+        for (BLangSimpleVariable objField : objFields) {
             // Create StructFieldInfo Entry
             int fieldNameCPIndex = addUTF8CPEntry(currentPkgInfo, objField.name.value);
             int sigCPIndex = addUTF8CPEntry(currentPkgInfo, objField.type.getDesc());
@@ -2076,8 +2076,8 @@ public class CodeGenerator extends BLangNodeVisitor {
 
         BLangRecordTypeNode recordTypeNode = (BLangRecordTypeNode) typeDefinition.typeNode;
 
-        List<BLangVariable> recordFields = recordTypeNode.fields;
-        for (BLangVariable recordField : recordFields) {
+        List<BLangSimpleVariable> recordFields = recordTypeNode.fields;
+        for (BLangSimpleVariable recordField : recordFields) {
             // Create StructFieldInfo Entry
             int fieldNameCPIndex = addUTF8CPEntry(currentPkgInfo, recordField.name.value);
             int sigCPIndex = addUTF8CPEntry(currentPkgInfo, recordField.type.getDesc());
@@ -2289,7 +2289,7 @@ public class CodeGenerator extends BLangNodeVisitor {
         int paramCount = resourceNode.requiredParams.size();
         resourceInfo.paramNameCPIndexes = new int[paramCount];
         for (int i = 0; i < paramCount; i++) {
-            BLangVariable paramVar = resourceNode.requiredParams.get(i);
+            BLangSimpleVariable paramVar = resourceNode.requiredParams.get(i);
             String paramName = null;
             boolean isAnnotated = false;
             for (BLangAnnotationAttachment annotationAttachment : paramVar.annAttachments) {
@@ -2523,7 +2523,7 @@ public class CodeGenerator extends BLangNodeVisitor {
         this.processTimeoutBlock(forkJoin, forkJoinEnv, timeoutVarRegIndex, timeoutBlockAddr);
     }
 
-    private void visitForkJoinParameterDefs(BLangVariable parameterDef, SymbolEnv forkJoinEnv) {
+    private void visitForkJoinParameterDefs(BLangSimpleVariable parameterDef, SymbolEnv forkJoinEnv) {
         LocalVariableAttributeInfo localVariableAttributeInfo = new LocalVariableAttributeInfo(1);
         parameterDef.symbol.varIndex = getLVIndex(parameterDef.type.tag);
         this.genNode(parameterDef, forkJoinEnv);
@@ -3186,7 +3186,7 @@ public class CodeGenerator extends BLangNodeVisitor {
 
     public void visit(BLangCatch bLangCatch) {
         // Define local variable index for Error.
-        BLangVariable variable = bLangCatch.param;
+        BLangSimpleVariable variable = bLangCatch.param;
         RegIndex lvIndex = getLVIndex(variable.symbol.type.tag);
         variable.symbol.varIndex = lvIndex;
         emit(InstructionFactory.get(InstructionCodes.ERRSTORE, lvIndex));
@@ -3561,7 +3561,7 @@ public class CodeGenerator extends BLangNodeVisitor {
                 new ParamDefaultValueAttributeInfo(paramDefaultsAttrNameIndex);
 
         // Only named parameters can have default values.
-        for (BLangVariableDef param : invokableNode.defaultableParams) {
+        for (BLangSimpleVariableDef param : invokableNode.defaultableParams) {
             DefaultValue defaultVal = getDefaultValue((BLangLiteral) param.var.expr);
             paramDefaulValAttrInfo.addParamDefaultValueInfo(defaultVal);
         }
@@ -3682,13 +3682,13 @@ public class CodeGenerator extends BLangNodeVisitor {
         }
     }
 
-    private void setVariableScopeStart(LocalVariableInfo localVarInfo, BLangVariable varNode) {
+    private void setVariableScopeStart(LocalVariableInfo localVarInfo, BLangSimpleVariable varNode) {
         if (varNode.pos != null) {
             localVarInfo.scopeStartLineNumber = varNode.pos.sLine;
         }
     }
 
-    private void setVariableScopeEnd(LocalVariableInfo localVarInfo, BLangVariable varNode) {
+    private void setVariableScopeEnd(LocalVariableInfo localVarInfo, BLangSimpleVariable varNode) {
         if ((varNode.parent == null) && (varNode.pos != null)) {
             localVarInfo.scopeEndLineNumber = varNode.pos.eLine;
             return;

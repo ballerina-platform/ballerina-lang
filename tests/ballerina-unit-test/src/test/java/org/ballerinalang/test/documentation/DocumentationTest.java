@@ -31,8 +31,8 @@ import org.wso2.ballerinalang.compiler.tree.BLangDeprecatedNode;
 import org.wso2.ballerinalang.compiler.tree.BLangDocumentation;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangService;
+import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangTypeDefinition;
-import org.wso2.ballerinalang.compiler.tree.BLangVariable;
 import org.wso2.ballerinalang.compiler.tree.types.BLangObjectTypeNode;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 
@@ -87,7 +87,7 @@ public class DocumentationTest {
         Assert.assertEquals(compileResult.getErrorCount(), 0, getErrorString(compileResult.getDiagnostics()));
         Assert.assertEquals(compileResult.getWarnCount(), 0, getErrorString(compileResult.getDiagnostics()));
         PackageNode packageNode = compileResult.getAST();
-        List<BLangDocumentation> docNodes = ((BLangVariable) packageNode.getGlobalVariables().get(0)).docAttachments;
+        List<BLangDocumentation> docNodes = ((BLangSimpleVariable) packageNode.getGlobalVariables().get(0)).docAttachments;
         BLangDocumentation dNode = docNodes.get(0);
         Assert.assertNotNull(dNode);
         Assert.assertTrue(dNode.documentationText.replaceAll(CARRIAGE_RETURN_CHAR, EMPTY_STRING)
@@ -330,7 +330,7 @@ public class DocumentationTest {
         Assert.assertEquals(compileResult.getErrorCount(), 0, getErrorString(compileResult.getDiagnostics()));
         Assert.assertEquals(compileResult.getWarnCount(), 0, getErrorString(compileResult.getDiagnostics()));
         PackageNode packageNode = compileResult.getAST();
-        BLangVariable connector = (BLangVariable) packageNode.getGlobalVariables().get(0);
+        BLangSimpleVariable connector = (BLangSimpleVariable) packageNode.getGlobalVariables().get(0);
         List<BLangDocumentation> docNodes = connector.docAttachments;
         BLangDocumentation dNode = docNodes.get(0);
         Assert.assertNotNull(dNode);
@@ -347,7 +347,7 @@ public class DocumentationTest {
         Assert.assertEquals(compileResult.getErrorCount(), 0, getErrorString(compileResult.getDiagnostics()));
         Assert.assertEquals(compileResult.getWarnCount(), 0, getErrorString(compileResult.getDiagnostics()));
         PackageNode packageNode = compileResult.getAST();
-        BLangVariable constant = (BLangVariable) packageNode.getGlobalVariables().get(0);
+        BLangSimpleVariable constant = (BLangSimpleVariable) packageNode.getGlobalVariables().get(0);
         List<BLangDocumentation> docNodes = constant.docAttachments;
         BLangDocumentation dNode = docNodes.get(0);
         Assert.assertNotNull(dNode);
@@ -486,7 +486,7 @@ public class DocumentationTest {
         //        Assert.assertEquals(dNode.documentationText.replaceAll(CARRIAGE_RETURN_CHAR, EMPTY_STRING),
         //                "\n" + "  This Enum is deprecated use `Enum2` instead.\n");
 
-        dNodes = ((BLangVariable) packageNode.getGlobalVariables().get(0)).deprecatedAttachments;
+        dNodes = ((BLangSimpleVariable) packageNode.getGlobalVariables().get(0)).deprecatedAttachments;
         dNode = dNodes.get(0);
         Assert.assertNotNull(dNode);
         Assert.assertEquals(dNode.documentationText.replaceAll(CARRIAGE_RETURN_CHAR, EMPTY_STRING),
@@ -553,7 +553,7 @@ public class DocumentationTest {
         Assert.assertEquals(compileResult.getErrorCount(), 0, getErrorString(compileResult.getDiagnostics()));
         Assert.assertEquals(compileResult.getWarnCount(), 0, getErrorString(compileResult.getDiagnostics()));
         PackageNode packageNode = compileResult.getAST();
-        BLangVariable constant = (BLangVariable) packageNode.getGlobalVariables().get(0);
+        BLangSimpleVariable constant = (BLangSimpleVariable) packageNode.getGlobalVariables().get(0);
         List<BLangDocumentation> docNodes = constant.docAttachments;
         BLangDocumentation dNode = docNodes.get(0);
         Assert.assertNotNull(dNode);
@@ -571,7 +571,7 @@ public class DocumentationTest {
         Assert.assertEquals(compileResult.getErrorCount(), 0, getErrorString(compileResult.getDiagnostics()));
         Assert.assertEquals(compileResult.getWarnCount(), 0, getErrorString(compileResult.getDiagnostics()));
         PackageNode packageNode = compileResult.getAST();
-        BLangVariable constant = (BLangVariable) packageNode.getGlobalVariables().get(0);
+        BLangSimpleVariable constant = (BLangSimpleVariable) packageNode.getGlobalVariables().get(0);
         List<BLangDeprecatedNode> docNodes = constant.deprecatedAttachments;
         BLangDeprecatedNode dNode = docNodes.get(0);
         Assert.assertNotNull(dNode);

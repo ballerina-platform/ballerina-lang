@@ -86,7 +86,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
             return;
         }
 
-        this.pkgBuilder.addVar(getCurrentPos(ctx), getWS(ctx), ctx.Identifier().getText(),
+        this.pkgBuilder.addSimpleVar(getCurrentPos(ctx), getWS(ctx), ctx.Identifier().getText(),
                 false, ctx.annotationAttachment().size());
     }
 
@@ -149,7 +149,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         }
 
         //TODO setting annotation count 0 as parameters won't adding annotations to parameters.
-        this.pkgBuilder.addVar(getCurrentPos(ctx), getWS(ctx), null, false, 0);
+        this.pkgBuilder.addSimpleVar(getCurrentPos(ctx), getWS(ctx), null, false, 0);
     }
 
     @Override
@@ -916,6 +916,25 @@ public class BLangParserListener extends BallerinaParserBaseListener {
                 getCurrentPos(ctx), false);
     }
 
+    @Override
+    public void exitTupleBindingPattern(BallerinaParser.TupleBindingPatternContext ctx) {
+        if (ctx.exception != null) {
+            return;
+        }
+
+        this.pkgBuilder.addTupleVariable(getCurrentPos(ctx), getWS(ctx), ctx.bindingPattern().size());
+    }
+
+    @Override
+    public void exitBindingPattern(BallerinaParser.BindingPatternContext ctx) {
+        if (ctx.exception != null) {
+            return;
+        }
+
+        if (ctx.Identifier() != null) {
+            this.pkgBuilder.addTupleMemberVar(getCurrentPos(ctx), getWS(ctx), ctx.Identifier().getText());
+        }
+    }
 
     @Override
     public void exitVariableDefinitionStatement(BallerinaParser.VariableDefinitionStatementContext ctx) {
@@ -924,8 +943,12 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         }
 
         boolean exprAvailable = ctx.ASSIGN() != null;
-        this.pkgBuilder.addVariableDefStatement(getCurrentPos(ctx), getWS(ctx),
-                ctx.Identifier().getText(), exprAvailable, false);
+        if (ctx.bindingPattern().Identifier() != null) {
+            this.pkgBuilder.addSimpleVariableDefStatement(getCurrentPos(ctx), getWS(ctx),
+                    ctx.bindingPattern().Identifier().getText(), exprAvailable, false);
+        } else {
+            this.pkgBuilder.addTupleVariableDefStatement(getCurrentPos(ctx), getWS(ctx), exprAvailable, false);
+        }
     }
 
     @Override
@@ -1274,8 +1297,14 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         if (ctx.exception != null) {
             return;
         }
-        String identifier = ctx.Identifier() != null ? ctx.Identifier().getText() : null;
-        this.pkgBuilder.addMatchStmtPattern(getCurrentPos(ctx), getWS(ctx), identifier);
+        if (ctx.Identifier() != null) {
+            String identifier = ctx.Identifier().getText();
+            this.pkgBuilder.addMatchStmtSimpleBindingPattern(getCurrentPos(ctx), getWS(ctx), identifier);
+        } else if (ctx.bindingPattern() != null) {
+            if (ctx.bindingPattern().structuredBindingPattern().tupleBindingPattern() != null) {
+                //todo
+            }
+        }
     }
 
     @Override
