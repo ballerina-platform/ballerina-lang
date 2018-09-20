@@ -87,9 +87,9 @@ public type Connection object {
     # Sends the outbound response to the caller with the status 200 OK.
     #
     # + message - The outbound response or any payload of type `string`, `xml`, `json`, `byte[]`, `io:ByteChannel`
-    #             or `mime:Entity[]`. This message is optional.
+    #             or `mime:Entity[]`
     # + return - Returns an `error` if failed to respond
-    public function ok(Response|string|xml|json|byte[]|io:ByteChannel|mime:Entity[]|() message = ()) returns error?;
+    public function ok(Response|string|xml|json|byte[]|io:ByteChannel|mime:Entity[]|() message) returns error?;
 
     # Sends the outbound response to the caller with the status 201 Created.
     #
@@ -190,7 +190,7 @@ function Connection::redirect(Response response, RedirectCode code, string[] loc
     return self.respond(response);
 }
 
-function Connection::ok(Response|string|xml|json|byte[]|io:ByteChannel|mime:Entity[]|() message = ()) returns error? {
+function Connection::ok(Response|string|xml|json|byte[]|io:ByteChannel|mime:Entity[]|() message) returns error? {
     Response response = buildResponse(message);
     response.statusCode = OK_200;
     return self.respond(response);

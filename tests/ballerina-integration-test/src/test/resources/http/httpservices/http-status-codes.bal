@@ -26,7 +26,7 @@ service<http:Service> differentStatusCodes bind {port : 9223} {
         path:"/okWithBody"
     }
     sendOKWithBody (endpoint caller, http:Request req) {
-        _ = caller->ok(message = "OK Response");
+        _ = caller->ok("OK Response");
     }
 
     @http:ResourceConfig {
@@ -34,7 +34,7 @@ service<http:Service> differentStatusCodes bind {port : 9223} {
         path:"/okWithoutBody"
     }
     sendOKWithoutBody (endpoint caller, http:Request req) {
-        _ = caller->ok();
+        _ = caller->ok(());
     }
 
     @http:ResourceConfig {
