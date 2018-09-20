@@ -41,14 +41,14 @@ import io.netty.util.AsciiString;
 import org.bouncycastle.cert.ocsp.OCSPResp;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.wso2.transport.http.netty.contract.Constants;
 import org.wso2.transport.http.netty.contract.ServerConnectorFuture;
-import org.wso2.transport.http.netty.contractimpl.common.Constants;
+import org.wso2.transport.http.netty.contract.config.ChunkConfig;
+import org.wso2.transport.http.netty.contract.config.KeepAliveConfig;
+import org.wso2.transport.http.netty.contract.config.RequestSizeValidationConfig;
 import org.wso2.transport.http.netty.contractimpl.common.certificatevalidation.CertificateVerificationException;
 import org.wso2.transport.http.netty.contractimpl.common.ssl.SSLConfig;
 import org.wso2.transport.http.netty.contractimpl.common.ssl.SSLHandlerFactory;
-import org.wso2.transport.http.netty.contractimpl.config.ChunkConfig;
-import org.wso2.transport.http.netty.contractimpl.config.KeepAliveConfig;
-import org.wso2.transport.http.netty.contractimpl.config.RequestSizeValidationConfig;
 import org.wso2.transport.http.netty.contractimpl.listener.http2.Http2SourceConnectionHandlerBuilder;
 import org.wso2.transport.http.netty.contractimpl.listener.http2.Http2ToHttpFallbackHandler;
 import org.wso2.transport.http.netty.contractimpl.listener.http2.Http2WithPriorKnowledgeHandler;
@@ -61,10 +61,10 @@ import java.util.concurrent.TimeUnit;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLEngine;
 
-import static org.wso2.transport.http.netty.contractimpl.common.Constants.ACCESS_LOG;
-import static org.wso2.transport.http.netty.contractimpl.common.Constants.HTTP_ACCESS_LOG_HANDLER;
-import static org.wso2.transport.http.netty.contractimpl.common.Constants.HTTP_TRACE_LOG_HANDLER;
-import static org.wso2.transport.http.netty.contractimpl.common.Constants.TRACE_LOG_DOWNSTREAM;
+import static org.wso2.transport.http.netty.contract.Constants.ACCESS_LOG;
+import static org.wso2.transport.http.netty.contract.Constants.HTTP_ACCESS_LOG_HANDLER;
+import static org.wso2.transport.http.netty.contract.Constants.HTTP_TRACE_LOG_HANDLER;
+import static org.wso2.transport.http.netty.contract.Constants.TRACE_LOG_DOWNSTREAM;
 
 /**
  * A class that responsible for build server side channels.

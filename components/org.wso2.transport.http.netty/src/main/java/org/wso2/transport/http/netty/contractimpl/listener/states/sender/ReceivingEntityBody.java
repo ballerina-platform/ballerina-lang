@@ -23,16 +23,15 @@ import io.netty.handler.codec.http.HttpContent;
 import io.netty.handler.codec.http.HttpResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.wso2.transport.http.netty.contract.Constants;
 import org.wso2.transport.http.netty.contract.HttpResponseFuture;
-import org.wso2.transport.http.netty.contractimpl.common.Constants;
 import org.wso2.transport.http.netty.contractimpl.listener.states.MessageStateContext;
 import org.wso2.transport.http.netty.contractimpl.sender.TargetHandler;
 import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 
-import static org.wso2.transport.http.netty.contractimpl.common.Constants
+import static org.wso2.transport.http.netty.contract.Constants
         .IDLE_TIMEOUT_TRIGGERED_WHILE_READING_INBOUND_RESPONSE_BODY;
-import static org.wso2.transport.http.netty.contractimpl.common.Constants
-        .REMOTE_SERVER_CLOSED_WHILE_READING_INBOUND_RESPONSE_BODY;
+import static org.wso2.transport.http.netty.contract.Constants.REMOTE_SERVER_CLOSED_WHILE_READING_INBOUND_RESPONSE_BODY;
 import static org.wso2.transport.http.netty.contractimpl.common.Util.isKeepAlive;
 import static org.wso2.transport.http.netty.contractimpl.common.Util.isLastHttpContent;
 import static org.wso2.transport.http.netty.contractimpl.listener.states.StateUtil.ILLEGAL_STATE_ERROR;

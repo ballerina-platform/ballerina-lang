@@ -22,7 +22,7 @@ import io.netty.handler.codec.http.DefaultHttpRequest;
 import io.netty.handler.codec.http.HttpMethod;
 import io.netty.handler.codec.http.HttpRequest;
 import io.netty.handler.codec.http.HttpVersion;
-import org.wso2.transport.http.netty.contractimpl.common.Constants;
+import org.wso2.transport.http.netty.contract.Constants;
 import org.wso2.transport.http.netty.contractimpl.sender.http2.OutboundMsgHolder;
 
 import java.util.List;

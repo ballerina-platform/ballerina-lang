@@ -22,7 +22,7 @@ package org.wso2.transport.http.netty.contractimpl.sender;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
 import io.netty.handler.ssl.SslHandshakeCompletionEvent;
-import org.wso2.transport.http.netty.contractimpl.common.Constants;
+import org.wso2.transport.http.netty.contract.Constants;
 
 /**
  * A handler to check whether TLS handshake has been completed and notify the listener.

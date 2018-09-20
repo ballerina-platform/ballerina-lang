@@ -12,15 +12,15 @@ import io.netty.handler.codec.http.websocketx.ContinuationWebSocketFrame;
 import io.netty.handler.codec.http.websocketx.PingWebSocketFrame;
 import io.netty.handler.codec.http.websocketx.PongWebSocketFrame;
 import io.netty.handler.codec.http.websocketx.TextWebSocketFrame;
+import org.wso2.transport.http.netty.contract.Constants;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketConnection;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketFrameType;
-import org.wso2.transport.http.netty.contractimpl.common.Constants;
 import org.wso2.transport.http.netty.contractimpl.listener.MessageQueueHandler;
 
 import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
 
-import static org.wso2.transport.http.netty.contractimpl.common.Constants.MESSAGE_QUEUE_HANDLER;
+import static org.wso2.transport.http.netty.contract.Constants.MESSAGE_QUEUE_HANDLER;
 
 /**
  * Default implementation of {@link WebSocketConnection}.

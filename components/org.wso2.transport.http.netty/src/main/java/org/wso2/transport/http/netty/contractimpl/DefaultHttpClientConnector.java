@@ -31,15 +31,15 @@ import io.netty.util.CharsetUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.transport.http.netty.contract.ClientConnectorException;
+import org.wso2.transport.http.netty.contract.Constants;
 import org.wso2.transport.http.netty.contract.HttpClientConnector;
 import org.wso2.transport.http.netty.contract.HttpResponseFuture;
-import org.wso2.transport.http.netty.contractimpl.common.Constants;
+import org.wso2.transport.http.netty.contract.config.ChunkConfig;
+import org.wso2.transport.http.netty.contract.config.ForwardedExtensionConfig;
+import org.wso2.transport.http.netty.contract.config.KeepAliveConfig;
+import org.wso2.transport.http.netty.contract.config.SenderConfiguration;
 import org.wso2.transport.http.netty.contractimpl.common.HttpRoute;
 import org.wso2.transport.http.netty.contractimpl.common.ssl.SSLConfig;
-import org.wso2.transport.http.netty.contractimpl.config.ChunkConfig;
-import org.wso2.transport.http.netty.contractimpl.config.ForwardedExtensionConfig;
-import org.wso2.transport.http.netty.contractimpl.config.KeepAliveConfig;
-import org.wso2.transport.http.netty.contractimpl.config.SenderConfiguration;
 import org.wso2.transport.http.netty.contractimpl.listener.SourceHandler;
 import org.wso2.transport.http.netty.contractimpl.sender.ConnectionAvailabilityListener;
 import org.wso2.transport.http.netty.contractimpl.sender.channel.TargetChannel;
@@ -55,8 +55,8 @@ import org.wso2.transport.http.netty.message.ResponseHandle;
 
 import java.util.NoSuchElementException;
 
-import static org.wso2.transport.http.netty.contractimpl.common.Constants.COLON;
-import static org.wso2.transport.http.netty.contractimpl.common.Constants.HTTP_SCHEME;
+import static org.wso2.transport.http.netty.contract.Constants.COLON;
+import static org.wso2.transport.http.netty.contract.Constants.HTTP_SCHEME;
 
 /**
  * Implementation of the client connector.

@@ -16,19 +16,13 @@
  * under the License.
  */
 
-package org.wso2.transport.http.netty.contractimpl.exception;
+package org.wso2.transport.http.netty.contract.config;
 
 /**
- * A class that represent configuration Exception.
+ * Contains value for configuring Forwarded extension.
  */
-public class ConfigurationException extends Exception {
-
-    /**
-     * Constructs a new ConfigurationException with the specified detail message.
-     *
-     * @param message the detail message.
-     */
-    public ConfigurationException(String message) {
-        super(message);
-    }
+public enum ForwardedExtensionConfig {
+    ENABLE,
+    TRANSITION,
+    DISABLE
 }

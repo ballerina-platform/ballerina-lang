@@ -30,11 +30,11 @@ import io.netty.handler.codec.http.HttpResponse;
 import io.netty.handler.codec.http.LastHttpContent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.wso2.transport.http.netty.contract.Constants;
 import org.wso2.transport.http.netty.contract.HttpResponseFuture;
 import org.wso2.transport.http.netty.contract.ServerConnectorException;
 import org.wso2.transport.http.netty.contract.ServerConnectorFuture;
 import org.wso2.transport.http.netty.contractimpl.HttpOutboundRespListener;
-import org.wso2.transport.http.netty.contractimpl.common.Constants;
 import org.wso2.transport.http.netty.contractimpl.listener.SourceHandler;
 import org.wso2.transport.http.netty.contractimpl.listener.states.MessageStateContext;
 import org.wso2.transport.http.netty.internal.HandlerExecutor;
@@ -47,12 +47,12 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Queue;
 
-import static org.wso2.transport.http.netty.contractimpl.common.Constants.HTTP_HEAD_METHOD;
-import static org.wso2.transport.http.netty.contractimpl.common.Constants
+import static org.wso2.transport.http.netty.contract.Constants.HTTP_HEAD_METHOD;
+import static org.wso2.transport.http.netty.contract.Constants
         .IDLE_TIMEOUT_TRIGGERED_WHILE_WRITING_OUTBOUND_RESPONSE_BODY;
-import static org.wso2.transport.http.netty.contractimpl.common.Constants
+import static org.wso2.transport.http.netty.contract.Constants
         .REMOTE_CLIENT_CLOSED_WHILE_WRITING_OUTBOUND_RESPONSE_BODY;
-import static org.wso2.transport.http.netty.contractimpl.common.Constants.REMOTE_CLIENT_TO_HOST_CONNECTION_CLOSED;
+import static org.wso2.transport.http.netty.contract.Constants.REMOTE_CLIENT_TO_HOST_CONNECTION_CLOSED;
 import static org.wso2.transport.http.netty.contractimpl.common.Util.createFullHttpResponse;
 import static org.wso2.transport.http.netty.contractimpl.common.Util.setupContentLengthRequest;
 import static org.wso2.transport.http.netty.contractimpl.listener.states.StateUtil.ILLEGAL_STATE_ERROR;

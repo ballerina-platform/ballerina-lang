@@ -35,8 +35,8 @@ import org.wso2.transport.http.netty.contractimpl.listener.states.MessageStateCo
 import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 
 import static io.netty.buffer.Unpooled.copiedBuffer;
-import static org.wso2.transport.http.netty.contractimpl.common.Constants.IDLE_TIMEOUT_TRIGGERED_BEFORE_INITIATING_OUTBOUND_RESPONSE;
-import static org.wso2.transport.http.netty.contractimpl.common.Constants.REMOTE_CLIENT_CLOSED_BEFORE_INITIATING_OUTBOUND_RESPONSE;
+import static org.wso2.transport.http.netty.contract.Constants.IDLE_TIMEOUT_TRIGGERED_BEFORE_INITIATING_OUTBOUND_RESPONSE;
+import static org.wso2.transport.http.netty.contract.Constants.REMOTE_CLIENT_CLOSED_BEFORE_INITIATING_OUTBOUND_RESPONSE;
 import static org.wso2.transport.http.netty.contractimpl.listener.states.StateUtil.CONNECTOR_NOTIFYING_ERROR;
 import static org.wso2.transport.http.netty.contractimpl.listener.states.StateUtil.sendRequestTimeoutResponse;
 

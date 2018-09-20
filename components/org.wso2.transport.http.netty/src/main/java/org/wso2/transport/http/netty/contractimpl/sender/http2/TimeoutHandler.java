@@ -29,8 +29,8 @@ import io.netty.handler.codec.http2.Http2Error;
 import io.netty.handler.codec.http2.Http2Headers;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.wso2.transport.http.netty.contractimpl.common.Constants;
-import org.wso2.transport.http.netty.contractimpl.exception.EndpointTimeOutException;
+import org.wso2.transport.http.netty.contract.Constants;
+import org.wso2.transport.http.netty.contract.EndpointTimeOutException;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;

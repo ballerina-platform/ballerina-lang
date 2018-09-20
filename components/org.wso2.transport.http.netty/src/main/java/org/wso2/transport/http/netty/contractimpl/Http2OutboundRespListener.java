@@ -38,10 +38,10 @@ import io.netty.util.internal.logging.InternalLogger;
 import io.netty.util.internal.logging.InternalLoggerFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.wso2.transport.http.netty.contract.Constants;
 import org.wso2.transport.http.netty.contract.HttpConnectorListener;
 import org.wso2.transport.http.netty.contract.HttpResponseFuture;
 import org.wso2.transport.http.netty.contract.ServerConnectorException;
-import org.wso2.transport.http.netty.contractimpl.common.Constants;
 import org.wso2.transport.http.netty.contractimpl.common.Util;
 import org.wso2.transport.http.netty.contractimpl.listener.HttpServerChannelInitializer;
 import org.wso2.transport.http.netty.message.Http2PushPromise;
@@ -50,7 +50,7 @@ import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 import java.util.Calendar;
 import java.util.Locale;
 
-import static org.wso2.transport.http.netty.contractimpl.common.Constants.PROMISED_STREAM_REJECTED_ERROR;
+import static org.wso2.transport.http.netty.contract.Constants.PROMISED_STREAM_REJECTED_ERROR;
 
 /**
  * {@code Http2OutboundRespListener} is responsible for listening for outbound response messages

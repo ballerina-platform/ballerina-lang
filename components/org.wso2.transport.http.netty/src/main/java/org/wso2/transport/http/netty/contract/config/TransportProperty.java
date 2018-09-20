@@ -1,4 +1,4 @@
-package org.wso2.transport.http.netty.contractimpl.config;
+package org.wso2.transport.http.netty.contract.config;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;

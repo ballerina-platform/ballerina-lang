@@ -35,9 +35,11 @@ import io.netty.handler.codec.http.HttpVersion;
 import io.netty.handler.codec.http.LastHttpContent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.wso2.transport.http.netty.contract.Constants;
 import org.wso2.transport.http.netty.contract.HttpResponseFuture;
 import org.wso2.transport.http.netty.contractimpl.HttpOutboundRespListener;
 import org.wso2.transport.http.netty.contractimpl.common.Constants;
+import org.wso2.transport.http.netty.contract.config.ChunkConfig;
 import org.wso2.transport.http.netty.contractimpl.common.Util;
 import org.wso2.transport.http.netty.contractimpl.config.ChunkConfig;
 import org.wso2.transport.http.netty.contractimpl.config.KeepAliveConfig;
@@ -48,7 +50,7 @@ import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 import java.io.IOException;
 import java.nio.channels.ClosedChannelException;
 
-import static org.wso2.transport.http.netty.contractimpl.common.Constants.CLIENT_TO_REMOTE_HOST_CONNECTION_CLOSED;
+import static org.wso2.transport.http.netty.contract.Constants.CLIENT_TO_REMOTE_HOST_CONNECTION_CLOSED;
 
 /**
  * Utility functions for states.

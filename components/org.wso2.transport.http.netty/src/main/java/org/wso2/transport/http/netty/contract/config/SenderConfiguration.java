@@ -16,9 +16,8 @@
  *  under the License.
  *
  */
-package org.wso2.transport.http.netty.contractimpl.config;
+package org.wso2.transport.http.netty.contract.config;
 
-import org.wso2.transport.http.netty.contractimpl.common.ProxyServerConfiguration;
 import org.wso2.transport.http.netty.contractimpl.sender.channel.pool.PoolConfiguration;
 
 /**

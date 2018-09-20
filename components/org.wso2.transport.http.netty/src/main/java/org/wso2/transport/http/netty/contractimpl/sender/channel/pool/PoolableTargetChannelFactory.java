@@ -22,8 +22,8 @@ import io.netty.channel.EventLoopGroup;
 import org.apache.commons.pool.PoolableObjectFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.wso2.transport.http.netty.contract.config.SenderConfiguration;
 import org.wso2.transport.http.netty.contractimpl.common.HttpRoute;
-import org.wso2.transport.http.netty.contractimpl.config.SenderConfiguration;
 import org.wso2.transport.http.netty.contractimpl.sender.ConnectionAvailabilityFuture;
 import org.wso2.transport.http.netty.contractimpl.sender.HttpClientChannelInitializer;
 import org.wso2.transport.http.netty.contractimpl.sender.channel.BootstrapConfiguration;
@@ -31,7 +31,7 @@ import org.wso2.transport.http.netty.contractimpl.sender.channel.TargetChannel;
 
 import java.net.InetSocketAddress;
 
-import static org.wso2.transport.http.netty.contractimpl.common.Constants.HTTP_SCHEME;
+import static org.wso2.transport.http.netty.contract.Constants.HTTP_SCHEME;
 
 /**
  * A class which creates a TargetChannel pool for each route.

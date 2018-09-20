@@ -21,8 +21,8 @@ package org.wso2.transport.http.netty.contract.websocket;
 
 import io.netty.handler.codec.http.DefaultHttpHeaders;
 import io.netty.handler.codec.http.HttpHeaders;
-import org.wso2.transport.http.netty.contractimpl.common.Constants;
-import org.wso2.transport.http.netty.contractimpl.config.SslConfiguration;
+import org.wso2.transport.http.netty.contract.Constants;
+import org.wso2.transport.http.netty.contract.config.SslConfiguration;
 
 import java.net.URI;
 import java.util.Arrays;

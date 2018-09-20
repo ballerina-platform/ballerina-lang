@@ -23,7 +23,7 @@ import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
 import io.netty.channel.ChannelPipeline;
 import io.netty.handler.ssl.SslHandshakeCompletionEvent;
-import org.wso2.transport.http.netty.contractimpl.common.Constants;
+import org.wso2.transport.http.netty.contract.Constants;
 
 /**
  * A handler to check whether TLS handshake has been completed. Rest of the handlers will be added to the pipeline
