@@ -16,7 +16,7 @@
  * under the License.
  */
 
-package org.wso2.transport.http.netty.contractimpl.listener.states;
+package org.wso2.transport.http.netty.contractimpl.common.states;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.Channel;
@@ -37,13 +37,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.transport.http.netty.contract.Constants;
 import org.wso2.transport.http.netty.contract.HttpResponseFuture;
-import org.wso2.transport.http.netty.contractimpl.HttpOutboundRespListener;
-import org.wso2.transport.http.netty.contractimpl.common.Constants;
 import org.wso2.transport.http.netty.contract.config.ChunkConfig;
+import org.wso2.transport.http.netty.contract.config.KeepAliveConfig;
+import org.wso2.transport.http.netty.contractimpl.HttpOutboundRespListener;
 import org.wso2.transport.http.netty.contractimpl.common.Util;
-import org.wso2.transport.http.netty.contractimpl.config.ChunkConfig;
-import org.wso2.transport.http.netty.contractimpl.config.KeepAliveConfig;
-import org.wso2.transport.http.netty.contractimpl.listener.states.listener.SendingHeaders;
+import org.wso2.transport.http.netty.contractimpl.listener.states.SendingHeaders;
 import org.wso2.transport.http.netty.contractimpl.sender.channel.TargetChannel;
 import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 

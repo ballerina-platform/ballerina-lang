@@ -16,39 +16,40 @@
  * under the License.
  */
 
-package org.wso2.transport.http.netty.contractimpl.listener.states.sender;
+package org.wso2.transport.http.netty.contractimpl.sender.states;
 
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.http.HttpContent;
 import io.netty.handler.codec.http.HttpResponse;
-import io.netty.handler.codec.http2.Http2CodecUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.wso2.transport.http.netty.contract.Constants;
 import org.wso2.transport.http.netty.contract.HttpResponseFuture;
-import org.wso2.transport.http.netty.contractimpl.listener.states.MessageStateContext;
+import org.wso2.transport.http.netty.contractimpl.common.states.MessageStateContext;
 import org.wso2.transport.http.netty.contractimpl.sender.TargetHandler;
-import org.wso2.transport.http.netty.contractimpl.sender.http2.OutboundMsgHolder;
 import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 
 import static org.wso2.transport.http.netty.contract.Constants
-        .IDLE_TIMEOUT_TRIGGERED_WHILE_READING_INBOUND_RESPONSE_HEADERS;
-import static org.wso2.transport.http.netty.contract.Constants
-        .REMOTE_SERVER_CLOSED_WHILE_READING_INBOUND_RESPONSE_HEADERS;
-import static org.wso2.transport.http.netty.contractimpl.listener.states.StateUtil.ILLEGAL_STATE_ERROR;
-import static org.wso2.transport.http.netty.contractimpl.listener.states.StateUtil.handleIncompleteInboundMessage;
+        .IDLE_TIMEOUT_TRIGGERED_WHILE_READING_INBOUND_RESPONSE_BODY;
+import static org.wso2.transport.http.netty.contract.Constants.REMOTE_SERVER_CLOSED_WHILE_READING_INBOUND_RESPONSE_BODY;
+import static org.wso2.transport.http.netty.contractimpl.common.Util.isKeepAlive;
+import static org.wso2.transport.http.netty.contractimpl.common.Util.isLastHttpContent;
+import static org.wso2.transport.http.netty.contractimpl.common.states.StateUtil.ILLEGAL_STATE_ERROR;
+import static org.wso2.transport.http.netty.contractimpl.common.states.StateUtil.handleIncompleteInboundMessage;
 
 /**
- * State between start and end of inbound response headers read.
+ * State between start and end of inbound response entity body read.
  */
-public class ReceivingHeaders implements SenderState {
+public class ReceivingEntityBody implements SenderState {
 
-    private static final Logger LOG = LoggerFactory.getLogger(ReceivingHeaders.class);
+    private static final Logger LOG = LoggerFactory.getLogger(ReceivingEntityBody.class);
 
     private final MessageStateContext messageStateContext;
-    private TargetHandler targetHandler;
+    private final TargetHandler targetHandler;
 
-    ReceivingHeaders(MessageStateContext messageStateContext) {
+    ReceivingEntityBody(MessageStateContext messageStateContext, TargetHandler targetHandler) {
         this.messageStateContext = messageStateContext;
+        this.targetHandler = targetHandler;
     }
 
     @Override
@@ -63,40 +64,35 @@ public class ReceivingHeaders implements SenderState {
 
     @Override
     public void readInboundResponseHeaders(TargetHandler targetHandler, HttpResponse httpInboundResponse) {
-        this.targetHandler = targetHandler;
-        OutboundMsgHolder msgHolder = targetHandler.getHttp2TargetHandler()
-                .getHttp2ClientChannel().getInFlightMessage(Http2CodecUtil.HTTP_UPGRADE_STREAM_ID);
-        if (msgHolder != null) {
-            // Response received over HTTP/1.x connection, so mark no push promises available in the channel
-            msgHolder.markNoPromisesReceived();
-        }
-        if (targetHandler.getHttpResponseFuture() != null) {
-            targetHandler.getHttpResponseFuture().notifyHttpListener(targetHandler.getInboundResponseMsg());
-        } else {
-            LOG.error("Cannot notify the response to client as there is no associated responseFuture");
-        }
-
-        if (httpInboundResponse.decoderResult().isFailure()) {
-            LOG.warn(httpInboundResponse.decoderResult().cause().getMessage());
-        }
+        LOG.warn("readInboundResponseHeaders {}", ILLEGAL_STATE_ERROR);
     }
 
     @Override
     public void readInboundResponseEntityBody(ChannelHandlerContext ctx, HttpContent httpContent,
                                               HttpCarbonMessage inboundResponseMsg) throws Exception {
-        messageStateContext.setSenderState(new ReceivingEntityBody(messageStateContext, targetHandler));
-        messageStateContext.getSenderState().readInboundResponseEntityBody(ctx, httpContent, inboundResponseMsg);
+        inboundResponseMsg.addHttpContent(httpContent);
+
+        if (isLastHttpContent(httpContent)) {
+            targetHandler.resetInboundMsg();
+            targetHandler.getTargetChannel().getChannel().pipeline().remove(Constants.IDLE_STATE_HANDLER);
+            messageStateContext.setSenderState(new EntityBodyReceived());
+
+            if (!isKeepAlive(targetHandler.getKeepAliveConfig(), targetHandler.getOutboundRequestMsg())) {
+                targetHandler.closeChannel(ctx);
+            }
+            targetHandler.getConnectionManager().returnChannel(targetHandler.getTargetChannel());
+        }
     }
 
     @Override
     public void handleAbruptChannelClosure(HttpResponseFuture httpResponseFuture) {
         handleIncompleteInboundMessage(targetHandler.getInboundResponseMsg(),
-                                        REMOTE_SERVER_CLOSED_WHILE_READING_INBOUND_RESPONSE_HEADERS);
+                                        REMOTE_SERVER_CLOSED_WHILE_READING_INBOUND_RESPONSE_BODY);
     }
 
     @Override
     public void handleIdleTimeoutConnectionClosure(HttpResponseFuture httpResponseFuture, String channelID) {
         handleIncompleteInboundMessage(targetHandler.getInboundResponseMsg(),
-                                        IDLE_TIMEOUT_TRIGGERED_WHILE_READING_INBOUND_RESPONSE_HEADERS);
+                                        IDLE_TIMEOUT_TRIGGERED_WHILE_READING_INBOUND_RESPONSE_BODY);
     }
 }

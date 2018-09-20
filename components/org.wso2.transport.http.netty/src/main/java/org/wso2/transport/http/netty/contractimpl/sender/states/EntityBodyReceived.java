@@ -16,38 +16,25 @@
  * under the License.
  */
 
-package org.wso2.transport.http.netty.contractimpl.listener.states.sender;
+package org.wso2.transport.http.netty.contractimpl.sender.states;
 
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.http.HttpContent;
 import io.netty.handler.codec.http.HttpResponse;
-import io.netty.handler.codec.http.HttpResponseStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.wso2.transport.http.netty.contract.EndpointTimeOutException;
 import org.wso2.transport.http.netty.contract.HttpResponseFuture;
-import org.wso2.transport.http.netty.contract.ServerConnectorException;
-import org.wso2.transport.http.netty.contractimpl.listener.states.MessageStateContext;
 import org.wso2.transport.http.netty.contractimpl.sender.TargetHandler;
 import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 
-import static org.wso2.transport.http.netty.contract.Constants
-        .IDLE_TIMEOUT_TRIGGERED_BEFORE_INITIATING_INBOUND_RESPONSE;
-import static org.wso2.transport.http.netty.contract.Constants.REMOTE_SERVER_CLOSED_BEFORE_INITIATING_INBOUND_RESPONSE;
-import static org.wso2.transport.http.netty.contractimpl.listener.states.StateUtil.ILLEGAL_STATE_ERROR;
+import static org.wso2.transport.http.netty.contractimpl.common.states.StateUtil.ILLEGAL_STATE_ERROR;
 
 /**
- * State between end of payload write and start of response headers read.
+ * State of successfully read response.
  */
-public class RequestCompleted implements SenderState {
+public class EntityBodyReceived implements SenderState {
 
-    private static final Logger LOG = LoggerFactory.getLogger(RequestCompleted.class);
-
-    private final MessageStateContext messageStateContext;
-
-    RequestCompleted(MessageStateContext messageStateContext) {
-        this.messageStateContext = messageStateContext;
-    }
+    private static final Logger LOG = LoggerFactory.getLogger(EntityBodyReceived.class);
 
     @Override
     public void writeOutboundRequestHeaders(HttpCarbonMessage httpOutboundRequest, HttpContent httpContent) {
@@ -61,8 +48,7 @@ public class RequestCompleted implements SenderState {
 
     @Override
     public void readInboundResponseHeaders(TargetHandler targetHandler, HttpResponse httpInboundResponse) {
-        messageStateContext.setSenderState(new ReceivingHeaders(messageStateContext));
-        messageStateContext.getSenderState().readInboundResponseHeaders(targetHandler, httpInboundResponse);
+        LOG.warn("readInboundResponseHeaders {}", ILLEGAL_STATE_ERROR);
     }
 
     @Override
@@ -73,16 +59,12 @@ public class RequestCompleted implements SenderState {
 
     @Override
     public void handleAbruptChannelClosure(HttpResponseFuture httpResponseFuture) {
-        httpResponseFuture.notifyHttpListener(
-                new ServerConnectorException(REMOTE_SERVER_CLOSED_BEFORE_INITIATING_INBOUND_RESPONSE));
-        LOG.error(REMOTE_SERVER_CLOSED_BEFORE_INITIATING_INBOUND_RESPONSE);
+        LOG.debug("Closing the channel once response is received");
     }
 
     @Override
     public void handleIdleTimeoutConnectionClosure(HttpResponseFuture httpResponseFuture, String channelID) {
-        httpResponseFuture.notifyHttpListener(
-                new EndpointTimeOutException(channelID, IDLE_TIMEOUT_TRIGGERED_BEFORE_INITIATING_INBOUND_RESPONSE,
-                                             HttpResponseStatus.GATEWAY_TIMEOUT.code()));
-        LOG.error("Error in HTTP client: {}", IDLE_TIMEOUT_TRIGGERED_BEFORE_INITIATING_INBOUND_RESPONSE);
+        LOG.debug("Closing the channel once response is received");
+
     }
 }

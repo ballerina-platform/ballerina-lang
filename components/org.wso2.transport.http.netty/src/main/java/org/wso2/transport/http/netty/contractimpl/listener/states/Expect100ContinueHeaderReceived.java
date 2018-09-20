@@ -16,74 +16,90 @@
  * under the License.
  */
 
-package org.wso2.transport.http.netty.contractimpl.listener.states.listener;
+package org.wso2.transport.http.netty.contractimpl.listener.states;
 
+import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandlerContext;
+import io.netty.handler.codec.http.DefaultFullHttpResponse;
 import io.netty.handler.codec.http.HttpContent;
+import io.netty.handler.codec.http.HttpHeaderNames;
 import io.netty.handler.codec.http.HttpRequest;
+import io.netty.handler.codec.http.HttpResponse;
 import io.netty.handler.codec.http.HttpResponseStatus;
+import io.netty.handler.codec.http.HttpVersion;
 import io.netty.util.CharsetUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.wso2.transport.http.netty.contract.Constants;
 import org.wso2.transport.http.netty.contract.ServerConnectorException;
 import org.wso2.transport.http.netty.contract.ServerConnectorFuture;
 import org.wso2.transport.http.netty.contractimpl.HttpOutboundRespListener;
+import org.wso2.transport.http.netty.contractimpl.common.states.MessageStateContext;
 import org.wso2.transport.http.netty.contractimpl.listener.SourceHandler;
-import org.wso2.transport.http.netty.contractimpl.listener.states.MessageStateContext;
 import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 
 import static io.netty.buffer.Unpooled.copiedBuffer;
-import static org.wso2.transport.http.netty.contract.Constants.IDLE_TIMEOUT_TRIGGERED_BEFORE_INITIATING_OUTBOUND_RESPONSE;
-import static org.wso2.transport.http.netty.contract.Constants.REMOTE_CLIENT_CLOSED_BEFORE_INITIATING_OUTBOUND_RESPONSE;
-import static org.wso2.transport.http.netty.contractimpl.listener.states.StateUtil.CONNECTOR_NOTIFYING_ERROR;
-import static org.wso2.transport.http.netty.contractimpl.listener.states.StateUtil.sendRequestTimeoutResponse;
+import static org.wso2.transport.http.netty.contract.Constants
+        .IDLE_TIMEOUT_TRIGGERED_BEFORE_INITIATING_100_CONTINUE_RESPONSE;
+import static org.wso2.transport.http.netty.contract.Constants
+        .REMOTE_CLIENT_CLOSED_BEFORE_INITIATING_100_CONTINUE_RESPONSE;
+import static org.wso2.transport.http.netty.contractimpl.common.states.StateUtil.CONNECTOR_NOTIFYING_ERROR;
+import static org.wso2.transport.http.netty.contractimpl.common.states.StateUtil.ILLEGAL_STATE_ERROR;
 
 /**
- * State between end of payload read and start of response headers write.
+ * Special state of receiving request with expect:100-continue header.buildResponse
  */
-public class EntityBodyReceived implements ListenerState {
+public class Expect100ContinueHeaderReceived implements ListenerState {
 
-    private static final Logger LOG = LoggerFactory.getLogger(EntityBodyReceived.class);
+    private static final Logger LOG = LoggerFactory.getLogger(Expect100ContinueHeaderReceived.class);
 
     private final MessageStateContext messageStateContext;
     private final SourceHandler sourceHandler;
+    private final HttpCarbonMessage inboundRequestMsg;
     private final float httpVersion;
 
-    EntityBodyReceived(MessageStateContext messageStateContext, SourceHandler sourceHandler, float httpVersion) {
+    Expect100ContinueHeaderReceived(MessageStateContext messageStateContext, SourceHandler sourceHandler,
+                                    HttpCarbonMessage inboundRequestMsg, float httpVersion) {
         this.messageStateContext = messageStateContext;
         this.sourceHandler = sourceHandler;
+        this.inboundRequestMsg = inboundRequestMsg;
         this.httpVersion = httpVersion;
     }
 
     @Override
     public void readInboundRequestHeaders(HttpCarbonMessage inboundRequestMsg, HttpRequest inboundRequestHeaders) {
-        LOG.warn("readInboundRequestHeaders is not a dependant action of this state");
+        LOG.warn("readInboundRequestHeaders {}", ILLEGAL_STATE_ERROR);
     }
 
     @Override
     public void readInboundRequestBody(Object inboundRequestEntityBody) throws ServerConnectorException {
-        LOG.warn("readInboundRequestBody is not a dependant action of this state");
+        // Client may send request body without/after waiting for the 100-continue response.
+        messageStateContext.setListenerState(
+                new ReceivingEntityBody(messageStateContext, inboundRequestMsg, sourceHandler, httpVersion));
+        messageStateContext.getListenerState().readInboundRequestBody(inboundRequestEntityBody);
     }
 
     @Override
     public void writeOutboundResponseHeaders(HttpCarbonMessage outboundResponseMsg, HttpContent httpContent) {
-        LOG.warn("writeOutboundResponseHeaders is not a dependant action of this state");
+        LOG.warn("writeOutboundResponseHeaders {}", ILLEGAL_STATE_ERROR);
     }
 
     @Override
     public void writeOutboundResponseBody(HttpOutboundRespListener outboundResponseListener,
                                           HttpCarbonMessage outboundResponseMsg, HttpContent httpContent) {
-        messageStateContext.setListenerState(new SendingHeaders(outboundResponseListener, messageStateContext));
-        messageStateContext.getListenerState().writeOutboundResponseHeaders(outboundResponseMsg, httpContent);
+        messageStateContext.setListenerState(
+                new Response100ContinueSent(outboundResponseListener, sourceHandler, messageStateContext));
+        messageStateContext.getListenerState().writeOutboundResponseBody(outboundResponseListener, outboundResponseMsg,
+                                                                         httpContent);
     }
 
     @Override
     public void handleAbruptChannelClosure(ServerConnectorFuture serverConnectorFuture) {
         try {
             serverConnectorFuture.notifyErrorListener(
-                    new ServerConnectorException(REMOTE_CLIENT_CLOSED_BEFORE_INITIATING_OUTBOUND_RESPONSE));
+                    new ServerConnectorException(REMOTE_CLIENT_CLOSED_BEFORE_INITIATING_100_CONTINUE_RESPONSE));
         } catch (ServerConnectorException e) {
             LOG.error(CONNECTOR_NOTIFYING_ERROR, e);
         }
@@ -94,15 +110,14 @@ public class EntityBodyReceived implements ListenerState {
                                                             ChannelHandlerContext ctx) {
         try {
             serverConnectorFuture.notifyErrorListener(
-                    new ServerConnectorException(IDLE_TIMEOUT_TRIGGERED_BEFORE_INITIATING_OUTBOUND_RESPONSE));
+                    new ServerConnectorException(IDLE_TIMEOUT_TRIGGERED_BEFORE_INITIATING_100_CONTINUE_RESPONSE));
         } catch (ServerConnectorException e) {
             LOG.error(CONNECTOR_NOTIFYING_ERROR, e);
         }
         String responseValue = "Server time out";
         ChannelFuture outboundRespFuture =
                 sendRequestTimeoutResponse(ctx, HttpResponseStatus.INTERNAL_SERVER_ERROR,
-                                           copiedBuffer(responseValue, CharsetUtil.UTF_8), responseValue.length(),
-                                           httpVersion, sourceHandler.getServerName());
+                                           copiedBuffer(responseValue, CharsetUtil.UTF_8), responseValue.length());
         outboundRespFuture.addListener((ChannelFutureListener) channelFuture -> {
             Throwable cause = channelFuture.cause();
             if (cause != null) {
@@ -111,5 +126,15 @@ public class EntityBodyReceived implements ListenerState {
             ctx.close();
         });
         return outboundRespFuture;
+    }
+
+    private ChannelFuture sendRequestTimeoutResponse(ChannelHandlerContext ctx, HttpResponseStatus status,
+                                                     ByteBuf content, int length) {
+        HttpResponse outboundResponse = new DefaultFullHttpResponse(HttpVersion.HTTP_1_1, status, content);
+        outboundResponse.headers().set(HttpHeaderNames.CONTENT_LENGTH, length);
+        outboundResponse.headers().set(HttpHeaderNames.CONTENT_TYPE, Constants.TEXT_PLAIN);
+        outboundResponse.headers().set(HttpHeaderNames.CONNECTION.toString(), Constants.CONNECTION_CLOSE);
+        outboundResponse.headers().set(HttpHeaderNames.SERVER.toString(), sourceHandler.getServerName());
+        return ctx.channel().writeAndFlush(outboundResponse);
     }
 }

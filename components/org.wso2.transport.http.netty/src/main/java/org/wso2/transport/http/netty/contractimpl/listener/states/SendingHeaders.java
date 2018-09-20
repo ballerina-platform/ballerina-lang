@@ -16,7 +16,7 @@
  * under the License.
  */
 
-package org.wso2.transport.http.netty.contractimpl.listener.states.listener;
+package org.wso2.transport.http.netty.contractimpl.listener.states;
 
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelHandlerContext;
@@ -30,7 +30,7 @@ import org.wso2.transport.http.netty.contract.ServerConnectorException;
 import org.wso2.transport.http.netty.contract.ServerConnectorFuture;
 import org.wso2.transport.http.netty.contract.config.ChunkConfig;
 import org.wso2.transport.http.netty.contractimpl.HttpOutboundRespListener;
-import org.wso2.transport.http.netty.contractimpl.listener.states.MessageStateContext;
+import org.wso2.transport.http.netty.contractimpl.common.states.MessageStateContext;
 import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 
 import static org.wso2.transport.http.netty.contract.Constants.CHUNKING_CONFIG;
@@ -42,9 +42,9 @@ import static org.wso2.transport.http.netty.contract.Constants
 import static org.wso2.transport.http.netty.contractimpl.common.Util.createHttpResponse;
 import static org.wso2.transport.http.netty.contractimpl.common.Util.isLastHttpContent;
 import static org.wso2.transport.http.netty.contractimpl.common.Util.setupChunkedRequest;
-import static org.wso2.transport.http.netty.contractimpl.listener.states.StateUtil.ILLEGAL_STATE_ERROR;
-import static org.wso2.transport.http.netty.contractimpl.listener.states.StateUtil.checkChunkingCompatibility;
-import static org.wso2.transport.http.netty.contractimpl.listener.states.StateUtil.notifyIfHeaderWriteFailure;
+import static org.wso2.transport.http.netty.contractimpl.common.states.StateUtil.ILLEGAL_STATE_ERROR;
+import static org.wso2.transport.http.netty.contractimpl.common.states.StateUtil.checkChunkingCompatibility;
+import static org.wso2.transport.http.netty.contractimpl.common.states.StateUtil.notifyIfHeaderWriteFailure;
 
 /**
  * State between start and end of outbound response headers write.
