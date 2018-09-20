@@ -83,8 +83,8 @@ public class ReceivingEntityBody implements ListenerState {
 
     @Override
     public void writeOutboundResponseBody(Http2OutboundRespListener http2OutboundRespListener,
-                                          HttpCarbonMessage outboundResponseMsg, HttpContent httpContent, int streamId)
-            throws Http2Exception {
+                                          HttpCarbonMessage outboundResponseMsg, HttpContent httpContent,
+                                          int streamId) throws Http2Exception {
         // When receiving entity body, if payload is not consumed by the server, this method is invoked if server is
         // going to send the response back.
         http2MessageStateContext.setListenerState(

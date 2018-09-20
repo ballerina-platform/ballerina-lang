@@ -59,7 +59,7 @@ public class SendingHeaders implements ListenerState {
     private final String serverName;
 
     public SendingHeaders(Http2OutboundRespListener http2OutboundRespListener,
-                   Http2MessageStateContext http2MessageStateContext) {
+                          Http2MessageStateContext http2MessageStateContext) {
         this.http2MessageStateContext = http2MessageStateContext;
         this.ctx = http2OutboundRespListener.getChannelHandlerContext();
         this.conn = http2OutboundRespListener.getConnection();

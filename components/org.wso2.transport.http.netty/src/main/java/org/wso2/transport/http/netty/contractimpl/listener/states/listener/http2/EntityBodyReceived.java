@@ -63,8 +63,8 @@ public class EntityBodyReceived implements ListenerState {
 
     @Override
     public void writeOutboundResponseBody(Http2OutboundRespListener http2OutboundRespListener,
-                                          HttpCarbonMessage outboundResponseMsg, HttpContent httpContent, int streamId)
-            throws Http2Exception {
+                                          HttpCarbonMessage outboundResponseMsg, HttpContent httpContent,
+                                          int streamId) throws Http2Exception {
         // When the initial frames of the response is to be sent.
         http2MessageStateContext.setListenerState(
                 new SendingHeaders(http2OutboundRespListener, http2MessageStateContext));

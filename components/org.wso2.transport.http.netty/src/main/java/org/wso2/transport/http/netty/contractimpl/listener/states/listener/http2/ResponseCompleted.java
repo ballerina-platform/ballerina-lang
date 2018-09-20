@@ -64,8 +64,8 @@ public class ResponseCompleted implements ListenerState {
 
     @Override
     public void writeOutboundResponseBody(Http2OutboundRespListener http2OutboundRespListener,
-                                          HttpCarbonMessage outboundResponseMsg, HttpContent httpContent, int streamId)
-            throws Http2Exception {
+                                          HttpCarbonMessage outboundResponseMsg, HttpContent httpContent,
+                                          int streamId) throws Http2Exception {
         // When promised response message is going to be sent after the original response or previous promised responses
         // has been sent.
         http2MessageStateContext.setListenerState(

@@ -149,8 +149,8 @@ public class Http2StateUtil {
      */
     public static void writeHttp2Promise(Http2PushPromise pushPromise, ChannelHandlerContext ctx, Http2Connection conn,
                                          Http2ConnectionEncoder encoder, HttpCarbonMessage inboundRequestMsg,
-                                         HttpResponseFuture outboundRespStatusFuture, int originalStreamId)
-            throws Http2Exception {
+                                         HttpResponseFuture outboundRespStatusFuture,
+                                         int originalStreamId) throws Http2Exception {
         int promisedStreamId = getNextStreamId(conn);
         // Update streamIds
         pushPromise.setPromisedStreamId(promisedStreamId);

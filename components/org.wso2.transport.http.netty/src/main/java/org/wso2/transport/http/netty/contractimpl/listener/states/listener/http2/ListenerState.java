@@ -57,8 +57,8 @@ public interface ListenerState {
      * @throws Http2Exception if an error occurs while writing
      */
     void writeOutboundResponseHeaders(Http2OutboundRespListener http2OutboundRespListener,
-                                      HttpCarbonMessage outboundResponseMsg, HttpContent httpContent, int streamId)
-            throws Http2Exception;
+                                      HttpCarbonMessage outboundResponseMsg, HttpContent httpContent,
+                                      int streamId) throws Http2Exception;
 
     /**
      * Write entity body of outbound response.
@@ -70,8 +70,8 @@ public interface ListenerState {
      * @throws Http2Exception if an error occurs while writing
      */
     void writeOutboundResponseBody(Http2OutboundRespListener http2OutboundRespListener,
-                                   HttpCarbonMessage outboundResponseMsg, HttpContent httpContent, int streamId)
-            throws Http2Exception;
+                                   HttpCarbonMessage outboundResponseMsg, HttpContent httpContent,
+                                   int streamId) throws Http2Exception;
 
     /**
      * Write the outbound promise message.
