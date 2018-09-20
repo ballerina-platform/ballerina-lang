@@ -74,7 +74,7 @@ public class SourceGenTest {
         TestUtil.openDocument(serviceEndpoint, filePath);
         LSCompiler lsCompiler = new LSCompiler(documentManager);
         JsonObject ast = TextDocumentFormatUtil.getAST(filePath.toUri().toString(), lsCompiler, documentManager,
-                                                       formatContext);
+                formatContext);
         SourceGen sourceGen = new SourceGen(0);
         sourceGen.build(ast.getAsJsonObject("model"), null, "CompilationUnit");
         String actual = sourceGen.getSourceOf(ast.getAsJsonObject("model"), false, false);
@@ -104,9 +104,7 @@ public class SourceGenTest {
      */
     static class FileVisitor extends SimpleFileVisitor<Path> {
         private List<File> files;
-        private String[] ignoredFiles = {"identify_patterns.bal", "identify_trends.bal",
-                "join_multiple_streams.bal", "table_queries.bal", "temporal_aggregations_and_windows.bal",
-                "table.bal", "csv_io.bal", "grpc_bidirectional_streaming_client.bal"};
+        private String[] ignoredFiles = {"table_queries.bal", "table.bal", "csv_io.bal"};
 
         FileVisitor(List<File> ballerinaFiles) {
             this.files = ballerinaFiles;

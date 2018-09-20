@@ -906,6 +906,28 @@ public class SourceGen {
                 }
             }
         }
+
+        if (kind.equals("PatternStreamingInput")) {
+            if (node.has("ws") && node.getAsJsonArray("ws").get(0)
+                    .getAsJsonObject().get("text").getAsString().equals("(")) {
+                node.addProperty("enclosedInParenthesis", true);
+            }
+        }
+
+        if (kind.equals("SelectClause")) {
+            if (!node.has("ws")) {
+                node.addProperty("notVisible", true);
+            }
+        }
+
+        if (kind.equals("OrderByVariable")) {
+            if (!node.has("ws")) {
+                node.addProperty("noVisibleType", true);
+            } else {
+                node.addProperty("typeString", node.getAsJsonArray("ws")
+                        .get(0).getAsJsonObject().get("text").getAsString());
+            }
+        }
     }
 
     @FindbugsSuppressWarnings
