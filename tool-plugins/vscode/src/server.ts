@@ -28,14 +28,13 @@ const jrePath: string = '/bre/lib/jre*';
 const composerlibPath: string = '/lib/resources/composer/services/*';
 const main: string = 'org.ballerinalang.langserver.launchers.stdio.Main';
 
-function getClassPath(): string {
+function getClassPath(ballerinaHome: string): string {
     const config = getPluginConfig();
     const customClassPath: string | undefined = config.classpath;
-    const sdkPath = <string> config.home; // since we verify sdk path upon plugin activation, we know home is there for sure
     const jarPath: string = path.join(__dirname, '..', 'server-build', 'language-server-stdio-launcher.jar');
 	// in windows class path seperated by ';'
 	const sep = process.platform === 'win32' ? ';' : ':';
-    let classpath = path.join(sdkPath, composerlibPath) + sep + path.join(sdkPath, libPath) + sep + jarPath;
+    let classpath = path.join(ballerinaHome, composerlibPath) + sep + path.join(ballerinaHome, libPath) + sep + jarPath;
 
     if (customClassPath) {
         classpath =  customClassPath + sep + classpath;
@@ -43,12 +42,10 @@ function getClassPath(): string {
     return classpath;
 }
 
-function getExcecutable() : string {
-    const config = getPluginConfig();
+function getExcecutable(ballerinaHome: string) : string {
     let excecutable : string = 'java';
     const { JAVA_HOME } = process.env;
-    const sdkPath = <string> config.home; // since we verify sdk path upon plugin activation, we know home is there for sure
-    const files = sync(path.join(sdkPath, jrePath));
+    const files = sync(path.join(ballerinaHome, jrePath));
 
     if (files[0]) {
         log(`Using java from ballerina.home: ${files[0]}`);
@@ -60,19 +57,18 @@ function getExcecutable() : string {
     return excecutable;
 }
 
-export function getServerOptions() : ServerOptions {
+export function getServerOptions(ballerinaHome: string) : ServerOptions {
     const config = getPluginConfig();
-    const args: string[] = ['-cp', getClassPath()];
+    const args: string[] = ['-cp', getClassPath(ballerinaHome)];
     if (process.env.LSDEBUG === "true") {
         log('LSDEBUG is set to "true". Services will run on debug mode');
         args.push('-agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=5005,quiet=y');
     }
-    const balHomePath = <string> config.home;
-    const balHomeSysProp = `-Dballerina.home=${balHomePath}`;
-    const balDebugLogSysProp = `-Dballerina.debugLog=${config.debugLog}`;
 
+    const balHomeSysProp = `-Dballerina.home=${ballerinaHome}`;
+    const balDebugLogSysProp = `-Dballerina.debugLog=${config.debugLog}`;
     return {
-        command: getExcecutable(),
+        command: getExcecutable(ballerinaHome),
         args: [balHomeSysProp, balDebugLogSysProp, ...args, main],
         options: {
         }

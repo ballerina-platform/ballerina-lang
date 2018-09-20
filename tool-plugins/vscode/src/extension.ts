@@ -17,57 +17,19 @@
  * under the License.
  *
  */
-import { window, commands, ExtensionContext, extensions, workspace, Extension, debug,
-	DebugConfigurationProvider, WorkspaceFolder, DebugConfiguration, ProviderResult, ConfigurationChangeEvent } from 'vscode';
+import {
+	window, ExtensionContext, debug,
+	DebugConfigurationProvider, WorkspaceFolder, DebugConfiguration, ProviderResult
+} from 'vscode';
 import { } from 'vscode-debugadapter';
-import { LanguageClientOptions, StateChangeEvent, State } from 'vscode-languageclient';
-import { exec } from 'child_process';
-import * as path from 'path';
-import * as fs from 'fs';
-
-import { getServerOptions } from './server';
-import { Messages } from './messages';
 import { BallerinaPluginConfig, getPluginConfig } from './config';
 import { activate as activateRenderer, errored as rendererErrored } from './renderer';
 import { activate as activateSamples } from './examples';
-import { ExtendedLangClient } from './lang-client';
-
-const { showWarningMessage } = window;
-const { executeCommand } = commands;
-
-function openGlobalSettings(): void {
-    executeCommand('workbench.action.openGlobalSettings');
-}
-
-function reloadWindow(): void {
-    executeCommand('workbench.action.reloadWindow');
-}
-
-function showMsgAndRestart(msg: string): void {
-    const action = 'Restart Now';
-    showWarningMessage(msg, action).then((selection) => {
-        if (action === selection) {
-            reloadWindow();
-        }
-    });
-}
-
-function showMsgAndOpenSettings(msg: string): void {
-    const action = 'Open Settings';
-    showWarningMessage(msg, action).then((selection) => {
-        if (action === selection) {
-            openGlobalSettings();
-        }
-    });
-}
-
-function getExtension(): Extension<any> | undefined {
-    return extensions.getExtension('ballerina.ballerina');
-}
+import BallerinaExtension from './core/ballerina-extension';
 
 const debugConfigResolver: DebugConfigurationProvider = {
 	resolveDebugConfiguration(folder: WorkspaceFolder, config: DebugConfiguration)
-								: ProviderResult<DebugConfiguration> {
+		: ProviderResult<DebugConfiguration> {
 		if (!config['ballerina.home']) {
 			// If ballerina.home is not defined in in debug config get it from workspace configs
 			const workspaceConfig: BallerinaPluginConfig = getPluginConfig();
@@ -75,116 +37,32 @@ const debugConfigResolver: DebugConfigurationProvider = {
 				config['ballerina.home'] = workspaceConfig.home;
 			}
 		}
-
-		if (config['ballerina.home']) {
-			if (fs.readdirSync(<string> config['ballerina.home']).indexOf('bin') < 0) {
-				showMsgAndOpenSettings(Messages.NO_BIN_IN_HOME);
-			}
-		} else {
-			showMsgAndOpenSettings(Messages.DEBUG_HOME_NOT_SET);
-		}
 		return config;
 	}
 };
 
+export function activate(context: ExtensionContext): void {
 
-function checkHome(homePath: string) : boolean {
-	try {
-		if (fs.readdirSync(path.join(homePath, 'lib', 'resources')).indexOf('composer') > -1) {
-			return true;
-		}
-	} catch(e) {
-		// could not read the home path. Let the warning show
-	}
+	BallerinaExtension.setContext(context);
+	BallerinaExtension.init()
+		.then(success => {
+			// start the features.
+			activateRenderer(context, BallerinaExtension.langClient!);
+			activateSamples(context, BallerinaExtension.langClient!);
+		}, () => {
+			// If home is not valid show error on design page.
+			if (!BallerinaExtension.isValidBallerinaHome()) {
+				rendererErrored(context);
+			}
+		})
+		.catch(error => {
+			// unknown error
+			BallerinaExtension.showPluginActivationError()
+		});
 
-	const homeSetWarning = Messages.HOME_INCORRECT;
-	const action = 'Open Settings';	
-	showWarningMessage(homeSetWarning, action).then((selection) => {
-		if (action === selection) {
-			openGlobalSettings();
-		}
-	});
-	return false;
-}
-
-function checkVersion(homePath: string) : void {
-	if (!fs.existsSync(path.join(homePath, 'bin', 'ballerina'))) {
-		return;
-	}
-
-	exec(`${path.join(homePath, 'bin', 'ballerina')} version`, (err, stdout, stderr) => {
-		const platformVersion = stderr.toString().trim();
-		const extension = getExtension();
-        const extensionVersion = 'Ballerina ' + (extension ? extension.packageJSON.version : '');
-
-		if (platformVersion !== extensionVersion) {
-            const msg  = `Version mismatch. Platform version: ${platformVersion} Extension version: ${extensionVersion}`;
-			console.log(msg);
-			showWarningMessage(Messages.VERSION_MISMATCH);
-		}
-	});
-}
-
-export function activate(context: ExtensionContext) : void {
-	// Options to control the language client
-	const clientOptions: LanguageClientOptions = {
-		documentSelector: [{ scheme: 'file', language: 'ballerina' }],
-	};
-
-	const config = getPluginConfig();
-	// in windows class path seperated by ';'
-	//const sep = process.platform === 'win32' ? ';' : ':';
-
-	if (!config.home) {
-		// home path is not set. The plugin can't activate. Show warning and exit.
-		rendererErrored(context);
-		showMsgAndOpenSettings(Messages.HOME_NOT_SET);
-		return;
-	}
-
-	checkVersion(config.home);
-
-	if (!checkHome(config.home)) {
-		rendererErrored(context);
-		return;
-	}
-
-	if (!config.debugLog) {
+	/*if (!config.debugLog) {
 		clientOptions.outputChannel = dropOutputChannel;
-	}
+	}*/
 
-	const langClient = new ExtendedLangClient('ballerina-vscode', 'Ballerina vscode lanugage client',
-		getServerOptions(), clientOptions);
-	langClient.onDidChangeState((e: StateChangeEvent) => {
-		if (e.newState === State.Running) {		
-			activateRenderer(context, langClient);
-			activateSamples(context, langClient);
-		}
-	});
-	const langClientDisposable = langClient.start();
-
-	// Push the disposable to the context's subscriptions so that the 
-	// client can be deactivated on extension deactivation
-	context.subscriptions.push(langClientDisposable);
 	context.subscriptions.push(debug.registerDebugConfigurationProvider('ballerina', debugConfigResolver));
 }
-
-workspace.onDidChangeConfiguration((params: ConfigurationChangeEvent) => {
-	if (params.affectsConfiguration('ballerina.home')) {
-		showMsgAndRestart(Messages.HOME_CHANGED);
-	} else if (params.affectsConfiguration('ballerina.debugLog')) {
-		showMsgAndRestart(Messages.DEBUG_LOG_CHANGED);
-	}
-});
-
-// This channel ignores(drops) all requests it receives.
-// So the user won't see any output sent through this channel
-const dropOutputChannel = {
-	name: 'dropOutputChannel',
-	append: () => {},
-	appendLine: () => {},
-	clear: () => {},
-	show: () => {},
-	hide: () => {},
-	dispose: () => {},
-};

@@ -23,6 +23,24 @@
         "preLaunchTask": "npm: watch"
     },
     {
+        "name": "Extension Tests",
+        "type": "extensionHost",
+        "request": "launch",
+        "runtimeExecutable": "${execPath}",
+        "env": {
+            "LSDEBUG": "false",
+            "DIAGRAM_DEBUG": "false"
+        },
+        "args": [
+            "--extensionDevelopmentPath=${workspaceFolder}",
+            "--extensionTestsPath=${workspaceFolder}/out/test"
+        ],
+        "outFiles": [
+            "${workspaceFolder}/out/test/**/*.js"
+        ],
+        "preLaunchTask": "npm: watch"
+    },
+    {
         "type": "node",
         "request": "launch",
         "name": "Server",
