@@ -39,13 +39,6 @@ function getCoordinationTypeToProtocolsMap() returns map<string[]> {
 //# participants.
 service InitiatorService bind coordinatorListener {
 
-    @http:ResourceConfig {
-        methods:["POST"],
-        path:registrationPathPattern,
-        body:"regReq",
-        consumes:["application/json"]
-    }
-
     # register(in: Micro-Transaction-Registration,
     # out: Micro-Transaction-Coordination?,
     # fault: ( Invalid-Protocol |
@@ -73,6 +66,12 @@ service InitiatorService bind coordinatorListener {
     # returned:
     #
     # Micro-Transaction-Unknown
+    @http:ResourceConfig {
+        methods:["POST"],
+        path:registrationPathPattern,
+        body:"regReq",
+        consumes:["application/json"]
+    }
     register(endpoint conn, http:Request req, int transactionBlockId, RegistrationRequest regReq) {
         string participantId = regReq.participantId;
         string txnId = regReq.transactionId;
