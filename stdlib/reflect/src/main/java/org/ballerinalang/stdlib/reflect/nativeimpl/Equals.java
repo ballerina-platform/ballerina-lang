@@ -30,6 +30,7 @@ import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BNewArray;
 import org.ballerinalang.model.values.BRefType;
+import org.ballerinalang.model.values.BRefValueArray;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
@@ -152,6 +153,10 @@ public class Equals extends BlockingNativeCallableUnit {
             case TypeTags.XML_TAG:
                 // TODO: https://www.pixelstech.net/article/1453272563-Canonicalize-XML-in-Java
                 break;
+            case TypeTags.TUPLE_TAG:
+                BRefValueArray lhsTuple = (BRefValueArray) lhsValue;
+                BRefValueArray rhsTuple = (BRefValueArray) rhsValue;
+                return isEqual(lhsTuple, rhsTuple);
             default:
                 return false;
         }
@@ -197,6 +202,21 @@ public class Equals extends BlockingNativeCallableUnit {
         List<String> keys = Arrays.stream(lhsMap.keys()).map(String.class::cast).collect(Collectors.toList());
         for (int i = 0; i < lhsMap.size(); i++) {
             if (!isEqual(lhsMap.get(keys.get(i)), rhsMap.get(keys.get(i)))) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    private boolean isEqual(BRefValueArray lhsTuple, BRefValueArray rhsTuple) {
+        long lhsLen = lhsTuple.size();
+        long rhsLen = rhsTuple.size();
+        if (lhsLen != rhsLen) {
+            return false;
+        }
+
+        for (int i = 0; i < lhsLen; i++) {
+            if (!isEqual(lhsTuple.getBValue(i), rhsTuple.getBValue(i))) {
                 return false;
             }
         }
