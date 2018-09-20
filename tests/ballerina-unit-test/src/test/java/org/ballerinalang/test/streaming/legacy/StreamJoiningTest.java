@@ -38,12 +38,14 @@ public class StreamJoiningTest {
 
     @BeforeClass
     public void setup() {
+        System.setProperty("enable.siddhiRuntime", "true");
         result = BCompileUtil.compile("test-src/streaming/legacy/join-streaming-test.bal");
         resultNegative = BCompileUtil.compile("test-src/streaming/negative/join-streaming-negative-test.bal");
     }
 
     @Test(description = "Test streaming join query.")
     public void testStreamJoinQuery() {
+        System.setProperty("enable.siddhiRuntime", "true");
         BValue[] outputStatusCountArray = BRunUtil.invoke(result, "startJoinQuery");
 
         Assert.assertNotNull(outputStatusCountArray);
@@ -53,6 +55,7 @@ public class StreamJoiningTest {
 
     @Test(description = "Test streaming join query with errors")
     public void testJoinNegativeCases() {
+        System.setProperty("enable.siddhiRuntime", "true");
         Assert.assertEquals(resultNegative.getErrorCount(), 3);
         BAssertUtil.validateError(resultNegative, 0,
                 "undefined stream name (or alias) 'stockStream' found in select clause",
