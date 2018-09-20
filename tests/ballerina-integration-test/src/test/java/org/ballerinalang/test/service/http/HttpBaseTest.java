@@ -45,7 +45,7 @@ public class HttpBaseTest extends BaseTest {
         String publicCert = new File(
                 "src" + File.separator + "test" + File.separator + "resources" + File.separator + "certsAndKeys"
                         + File.separator + "public.crt").getAbsolutePath();
-        String[] args = new String[] { "-e certificate.key=" + privateKey, "-e public.cert=" + publicCert };
+        String[] args = new String[] { "-e", "certificate.key=" + privateKey, "-e", "public.cert=" + publicCert };
         serverInstance = new BServerInstance(balServer);
         serverInstance.startServer(balFile, "httpservices", args, requiredPorts);
     }
