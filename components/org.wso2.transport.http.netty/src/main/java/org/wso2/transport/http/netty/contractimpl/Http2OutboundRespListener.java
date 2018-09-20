@@ -44,7 +44,7 @@ import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 import java.util.Calendar;
 import java.util.Locale;
 
-import static org.wso2.transport.http.netty.contractimpl.common.Constants.PROMISED_STREAM_REJECTED_ERROR;
+import static org.wso2.transport.http.netty.contract.Constants.PROMISED_STREAM_REJECTED_ERROR;
 import static org.wso2.transport.http.netty.contractimpl.listener.states.Http2StateUtil.isValidStreamId;
 
 /**
