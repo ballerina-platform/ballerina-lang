@@ -6,7 +6,7 @@ public function testObjectWithInterface () returns (int, string, int, string) {
 
 
 type Person object {
-    public int age = 10,
+    public int age = 10;
     public string name = "sample name";
 
     int year = 50;
@@ -27,7 +27,7 @@ type Person object {
 };
 
 type Employee object {
-    public int age = 20,
+    public int age = 20;
     public string name = "sample name";
 
     int year = 50;
