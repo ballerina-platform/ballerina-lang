@@ -239,8 +239,8 @@ public class HtmlDocTest {
                 "# + name - name of the user\n" +
                 "# + age - age of the user\n" +
                 "public type User record {\n" +
-                "    string name,\n" +
-                "    int age,\n" +
+                "    string name;\n" +
+                "    int age;\n" +
                 "};");
         Page page = generatePage(bLangPackage);
         Assert.assertEquals(page.constructs.size(), 1);
