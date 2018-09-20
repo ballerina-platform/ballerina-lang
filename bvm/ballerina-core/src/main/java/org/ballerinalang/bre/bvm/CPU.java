@@ -2890,7 +2890,7 @@ public class CPU {
         }
 
         if (rhsType.getTag() == TypeTags.RECORD_TYPE_TAG && lhsType.getTag() == TypeTags.RECORD_TYPE_TAG) {
-            return checkRecordEquivalency((BRecordType) lhsType, (BRecordType) rhsType);
+            return checkRecordEquivalency((BRecordType) lhsType, (BRecordType) rhsType, unresolvedTypes);
         }
 
         if (rhsType.getTag() == TypeTags.MAP_TAG && lhsType.getTag() == TypeTags.MAP_TAG) {
@@ -2934,7 +2934,7 @@ public class CPU {
         if (sourceMapType.getConstrainedType().getTag() == TypeTags.RECORD_TYPE_TAG &&
                 targetMapType.getConstrainedType().getTag() == TypeTags.RECORD_TYPE_TAG) {
             return checkRecordEquivalency((BRecordType) targetMapType.getConstrainedType(),
-                    (BRecordType) sourceMapType.getConstrainedType());
+                                          (BRecordType) sourceMapType.getConstrainedType(), unresolvedTypes);
         }
 
         return false;
@@ -3029,7 +3029,8 @@ public class CPU {
                 checkEquivalencyOfPublicStructs(lhsType, rhsType, unresolvedTypes);
     }
 
-    public static boolean checkRecordEquivalency(BRecordType lhsType, BRecordType rhsType) {
+    public static boolean checkRecordEquivalency(BRecordType lhsType, BRecordType rhsType,
+                                                 List<TypePair> unresolvedTypes) {
         // Both records should be public or private.
         // Get the XOR of both flags(masks)
         // If both are public, then public bit should be 0;
@@ -3055,7 +3056,8 @@ public class CPU {
         }
 
         // The rest field types should match if they are open records
-        if ((!lhsType.sealed && !rhsType.sealed) && !isAssignable(rhsType.restFieldType, lhsType.restFieldType)) {
+        if ((!lhsType.sealed && !rhsType.sealed) &&
+                !isAssignable(rhsType.restFieldType, lhsType.restFieldType, unresolvedTypes)) {
             return false;
         }
 
@@ -3270,7 +3272,7 @@ public class CPU {
                 return true;
             }
 
-            return checkRecordEquivalency(targetConstrainedType, sourceConstrainedType);
+            return checkRecordEquivalency(targetConstrainedType, sourceConstrainedType, unresolvedTypes);
         }
 
         // Casting from unconstrained JSON to constrained JSON

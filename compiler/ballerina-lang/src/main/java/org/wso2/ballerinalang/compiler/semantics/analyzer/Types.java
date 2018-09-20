@@ -405,7 +405,7 @@ public class Types {
         }
 
         if (rhsType.tag == TypeTags.RECORD && lhsType.tag == TypeTags.RECORD) {
-            return checkRecordEquivalency((BRecordType) rhsType, (BRecordType) lhsType);
+            return checkRecordEquivalency((BRecordType) rhsType, (BRecordType) lhsType, unresolvedTypes);
         }
 
         return false;
@@ -436,7 +436,7 @@ public class Types {
                 checkPublicObjectEquivalency(lhsType, rhsType, unresolvedTypes);
     }
 
-    public boolean checkRecordEquivalency(BRecordType rhsType, BRecordType lhsType) {
+    public boolean checkRecordEquivalency(BRecordType rhsType, BRecordType lhsType, List<TypePair> unresolvedTypes) {
         // Both records should be public or private.
         // Get the XOR of both flags(masks)
         // If both are public, then public bit should be 0;
@@ -462,7 +462,8 @@ public class Types {
         }
 
         // The rest field types should match if they are open records
-        if ((!lhsType.sealed && !rhsType.sealed) && !isAssignable(rhsType.restFieldType, lhsType.restFieldType)) {
+        if ((!lhsType.sealed && !rhsType.sealed) &&
+                !isAssignable(rhsType.restFieldType, lhsType.restFieldType, unresolvedTypes)) {
             return false;
         }
 
