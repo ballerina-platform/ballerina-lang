@@ -12,7 +12,7 @@ public function main(string... args) {
         message <- xmlChn, key;
         io:println("w1 Received message: ", message);
         io:println("w1 Waiting for a null key message...");
-        //Waiting to receive a message without key from xmlChn channel.
+        //Wait to receive a message without a key from the xmlChn channel.
         message <- xmlChn;
         io:println("w1 Received message: ", message);
     }
@@ -20,14 +20,14 @@ public function main(string... args) {
     worker w2 {
         map key = {myKey:"abc123"};
         xml msg = xml `<msg><name>ballerina</name><worker>w2</worker></msg>`;
-        //Sending a message to the xmlChn, with key.
+        //Send a message with a key to xmlChn.
         msg -> xmlChn, key;
         io:println("Sent message from w2");
     }
 
     worker w3 {
         xml msg = xml `<msg><name>ballerina</name><worker>w3</worker></msg>`;
-        //Sending a message to the xmlChn, without a key.
+        //Send a message without a key to xmlChn.
         msg -> xmlChn;
         io:println("Sent message from w3");
     }

@@ -1,2 +1,2 @@
-//Channels can be used for inter worker communications and synchronising workers.
-//It can be considered as a common pipe that is accessible by any number of workers within the channel's lexical scope.
+//You can use channels for inter-worker communication and also to synchronize workers.
+//A channel can be considered as a common pipe that is accessible by any number of workers within the channel's lexical scope.
