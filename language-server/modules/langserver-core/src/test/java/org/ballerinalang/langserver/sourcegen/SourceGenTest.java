@@ -110,7 +110,8 @@ public class SourceGenTest {
      */
     static class FileVisitor extends SimpleFileVisitor<Path> {
         private List<File> files;
-        private String[] ignoredFiles = {"table_queries.bal", "table.bal", "csv_io.bal"};
+        private String[] ignoredFiles = {"table_queries.bal", "table.bal", "csv_io.bal",
+                "channels_correlation.bal", "channels_workers.bal"};
 
         FileVisitor(List<File> ballerinaFiles) {
             this.files = ballerinaFiles;
