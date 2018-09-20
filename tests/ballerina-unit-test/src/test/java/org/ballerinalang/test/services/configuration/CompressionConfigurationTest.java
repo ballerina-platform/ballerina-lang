@@ -33,9 +33,9 @@ import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.wso2.transport.http.netty.common.Constants.ENCODING_DEFLATE;
-import static org.wso2.transport.http.netty.common.Constants.ENCODING_GZIP;
-import static org.wso2.transport.http.netty.common.Constants.HTTP_TRANSFER_ENCODING_IDENTITY;
+import static org.wso2.transport.http.netty.contract.Constants.ENCODING_DEFLATE;
+import static org.wso2.transport.http.netty.contract.Constants.ENCODING_GZIP;
+import static org.wso2.transport.http.netty.contract.Constants.HTTP_TRANSFER_ENCODING_IDENTITY;
 
 /**
  * Unit tests for 'Compression' service annotation. Since this back end is just a mock, these tests only check the

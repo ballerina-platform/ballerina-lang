@@ -752,12 +752,16 @@ public class CodeGenerator extends BLangNodeVisitor {
         if (structSymbol.defaultsValuesInitFunc != null) {
             int funcRefCPIndex = getFuncRefCPIndex(structSymbol.defaultsValuesInitFunc.symbol);
             // call funcRefCPIndex 1 structRegIndex 0
-            Operand[] operands = new Operand[5];
+            Operand[] operands = new Operand[6];
             operands[0] = getOperand(funcRefCPIndex);
             operands[1] = getOperand(false);
             operands[2] = getOperand(1);
             operands[3] = structRegIndex;
-            operands[4] = getOperand(0);
+            // Earlier, init function did not return any value. But now all functions should return a value. So we add
+            // new two operands to indicate the return value of the init function. The first one is the number of
+            // return values and the second one is the type of the return value.
+            operands[4] = getOperand(1);
+            operands[5] = getRegIndex(TypeTags.NIL);
             emit(InstructionCodes.CALL, operands);
         }
 
@@ -765,12 +769,13 @@ public class CodeGenerator extends BLangNodeVisitor {
         if (structLiteral.initializer != null) {
             int funcRefCPIndex = getFuncRefCPIndex(structLiteral.initializer.symbol);
             // call funcRefCPIndex 1 structRegIndex 0
-            Operand[] operands = new Operand[5];
+            Operand[] operands = new Operand[6];
             operands[0] = getOperand(funcRefCPIndex);
             operands[1] = getOperand(false);
             operands[2] = getOperand(1);
             operands[3] = structRegIndex;
-            operands[4] = getOperand(0);
+            operands[4] = getOperand(1);
+            operands[5] = getRegIndex(TypeTags.NIL);
             emit(InstructionCodes.CALL, operands);
         }
 
@@ -2174,16 +2179,10 @@ public class CodeGenerator extends BLangNodeVisitor {
     }
 
     private void populateInvokableSignature(BInvokableType bInvokableType, CallableUnitInfo callableUnitInfo) {
-        if (bInvokableType.retType == symTable.nilType) {
-            callableUnitInfo.retParamTypes = new BType[0];
-            callableUnitInfo.signatureCPIndex = addUTF8CPEntry(this.currentPkgInfo,
-                    generateFunctionSig(callableUnitInfo.paramTypes));
-        } else {
-            callableUnitInfo.retParamTypes = new BType[1];
-            callableUnitInfo.retParamTypes[0] = bInvokableType.retType;
-            callableUnitInfo.signatureCPIndex = addUTF8CPEntry(this.currentPkgInfo,
-                    generateFunctionSig(callableUnitInfo.paramTypes, bInvokableType.retType));
-        }
+        callableUnitInfo.retParamTypes = new BType[1];
+        callableUnitInfo.retParamTypes[0] = bInvokableType.retType;
+        callableUnitInfo.signatureCPIndex = addUTF8CPEntry(this.currentPkgInfo,
+                generateFunctionSig(callableUnitInfo.paramTypes, bInvokableType.retType));
     }
 
     private void addWorkerInfoEntries(CallableUnitInfo callableUnitInfo, List<BLangWorker> workers) {

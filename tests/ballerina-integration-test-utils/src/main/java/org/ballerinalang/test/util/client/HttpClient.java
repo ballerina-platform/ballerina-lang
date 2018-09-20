@@ -39,7 +39,7 @@ import io.netty.handler.codec.http.HttpResponseStatus;
 import io.netty.handler.codec.http.HttpVersion;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.wso2.transport.http.netty.common.Constants;
+import org.wso2.transport.http.netty.contract.Constants;
 
 import java.net.InetSocketAddress;
 import java.util.LinkedList;

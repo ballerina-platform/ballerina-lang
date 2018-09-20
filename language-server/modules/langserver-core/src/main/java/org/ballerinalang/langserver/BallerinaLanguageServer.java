@@ -40,6 +40,7 @@ import org.eclipse.lsp4j.InitializeParams;
 import org.eclipse.lsp4j.InitializeResult;
 import org.eclipse.lsp4j.ServerCapabilities;
 import org.eclipse.lsp4j.SignatureHelpOptions;
+import org.eclipse.lsp4j.TextDocumentClientCapabilities;
 import org.eclipse.lsp4j.TextDocumentSyncKind;
 import org.eclipse.lsp4j.services.TextDocumentService;
 import org.eclipse.lsp4j.services.WorkspaceService;
@@ -74,17 +75,17 @@ public class BallerinaLanguageServer implements ExtendedLanguageServer, Extended
         LSGlobalContext lsGlobalContext = new LSGlobalContext();
         lsGlobalContext.put(LSGlobalContextKeys.LANGUAGE_SERVER_KEY, this);
         lsGlobalContext.put(LSGlobalContextKeys.DOCUMENT_MANAGER_KEY, documentManager);
-        LSAnnotationCache.initiate();
-        initLSIndex();
-
-        textService = new BallerinaTextDocumentService(lsGlobalContext);
-        workspaceService = new BallerinaWorkspaceService(lsGlobalContext);
-        ballerinaDocumentService = new BallerinaDocumentServiceImpl(lsGlobalContext);
+        this.textService = new BallerinaTextDocumentService(lsGlobalContext);
+        this.workspaceService = new BallerinaWorkspaceService(lsGlobalContext);
+        this.ballerinaDocumentService = new BallerinaDocumentServiceImpl(lsGlobalContext); 
         ballerinaExampleService = new BallerinaExampleServiceImpl(lsGlobalContext);
         ballerinaTraceService = new BallerinaTraceServiceImpl(lsGlobalContext);
         ballerinaTraceListener = new Listener(ballerinaTraceService);
         ballerinaSymbolService = new BallerinaSymbolServiceImpl(lsGlobalContext);
         ballerinaFragmentService = new BallerinaFragmentServiceImpl(lsGlobalContext);
+       
+        LSAnnotationCache.initiate();
+        initLSIndex();
     }
     
     public ExtendedLanguageClient getClient() {
@@ -117,6 +118,9 @@ public class BallerinaLanguageServer implements ExtendedLanguageServer, Extended
         res.getCapabilities().setDocumentFormattingProvider(true);
         res.getCapabilities().setRenameProvider(true);
         res.getCapabilities().setWorkspaceSymbolProvider(true);
+        
+        TextDocumentClientCapabilities textDocCapabilities = params.getCapabilities().getTextDocument();
+        ((BallerinaTextDocumentService) this.textService).setClientCapabilities(textDocCapabilities);
 
         ballerinaTraceListener.startListener();
         return CompletableFuture.supplyAsync(() -> res);

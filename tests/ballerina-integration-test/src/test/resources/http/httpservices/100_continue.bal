@@ -1,5 +1,6 @@
 import ballerina/http;
 import ballerina/log;
+import ballerina/mime;
 
 @http:ServiceConfig {
     basePath: "/continue"
@@ -37,5 +38,23 @@ service<http:Service> helloContinue bind { port: 9090 } {
                 };
             }
         }
+    }
+
+    @http:ResourceConfig {
+        methods: ["POST"]
+    }
+    getFormParam(endpoint caller, http:Request req) {
+        string replyMsg = "Result =";
+        mime:Entity[] bodyParts = check req.getBodyParts();
+        int i = 0;
+        while (i < lengthof bodyParts) {
+            mime:Entity part = bodyParts[i];
+            mime:ContentDisposition contentDisposition = part.getContentDisposition();
+            replyMsg += " Key:" + contentDisposition.name + " Value: " + check part.getBodyAsString();
+            i++;
+        }
+        caller->respond(untaint replyMsg) but {
+            error err => log:printError(err.message, err = err)
+        };
     }
 }
