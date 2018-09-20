@@ -19,6 +19,8 @@ package org.ballerinalang.test.util;
 
 import io.netty.handler.codec.http.HttpHeaderNames;
 import io.netty.handler.codec.http.HttpHeaderValues;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -39,6 +41,7 @@ import java.util.Map;
  * This class can be used to send http request.
  */
 public class HttpClientRequest {
+    private static final Logger LOG = LoggerFactory.getLogger(HttpClientRequest.class);
     private static final int DEFAULT_READ_TIMEOUT = 30000;
 
     /**
@@ -272,7 +275,7 @@ public class HttpClientRequest {
                 if (throwError) {
                     throw ex;
                 } else {
-                    ex.printStackTrace();
+                    LOG.error("Error in building HTTP response", ex.getMessage());
                     return null;
                 }
             }
