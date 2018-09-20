@@ -116,22 +116,13 @@ function passSelfAsValue(Boy p) returns string {
     return p.getName();
 }
 
-public type Bin object {
+public type Bin abstract object {
     public int age = 10;
     public string name = "sample name";
     public int year = 50;
     public string month = "february";
 
-    public new (year, int count, name = "sample value1", string val1 = "default value") {
-        age = age + count;
-        month = val1;
-    }
-
-    public function attachFunc1(int add, string value1) returns (int, string) {
-        int count = age + add;
-        string val2 = value1 + month;
-        return (count, val2);
-    }
+    public function attachFunc1(int add, string value1) returns (int, string);
 
     public function attachInterface(int add, string value1) returns (int, string);
 };
@@ -217,7 +208,7 @@ public type Architect object {
     }
 };
 
-public type Country object {
+public type Country abstract object {
     public int age = 10;
     public string month = "february";
 
