@@ -34,9 +34,9 @@ public class CheckedExprNegativeTest {
                 "test-src/expressions/checkedexpr/checked_expr_negative.bal");
         Assert.assertEquals(compile.getErrorCount(), 4);
         BAssertUtil.validateError(compile, 0, "invalid usage of the checked expression " +
-                "operator: no expression type is equivalent to error type", 13, 25);
+                "operator: no expression type is equivalent to error type", 11, 25);
         BAssertUtil.validateError(compile, 1, "invalid usage of the checked expression " +
-                "operator: all expression types are equivalent to error type", 17, 25);
+                "operator: all expression types are equivalent to error type", 15, 25);
         BAssertUtil.validateError(compile, 2, "invalid usage of the checked expression " +
                 "operator: all expression types are equivalent to error type", 39, 25);
         BAssertUtil.validateError(compile, 3, "invalid usage of the checked expression " +

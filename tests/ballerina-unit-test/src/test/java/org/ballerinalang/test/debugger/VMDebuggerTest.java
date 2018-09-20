@@ -252,32 +252,32 @@ public class VMDebuggerTest {
 
     @Test(description = "Testing try catch finally scenario for path")
     public void testTryCatchScenarioForPath() {
-        BreakPointDTO[] breakPoints = createBreakNodeLocations(".", "try-catch-finally.bal", 19);
+        BreakPointDTO[] breakPoints = createBreakNodeLocations(".", "try-catch-finally.bal", 22);
 
         String file = "try-catch-finally.bal";
 
         List<DebugPoint> debugPoints = new ArrayList<>();
-        debugPoints.add(Util.createDebugPoint(".", file, 19, STEP_IN, 1));
-        debugPoints.add(Util.createDebugPoint(".", file, 27, STEP_OVER, 1));
-        debugPoints.add(Util.createDebugPoint(".", file, 29, STEP_OVER, 1));
-        debugPoints.add(Util.createDebugPoint(".", file, 31, STEP_OVER, 1));
+        debugPoints.add(Util.createDebugPoint(".", file, 22, STEP_IN, 1));
+        debugPoints.add(Util.createDebugPoint(".", file, 30, STEP_OVER, 1));
         debugPoints.add(Util.createDebugPoint(".", file, 32, STEP_OVER, 1));
-        debugPoints.add(Util.createDebugPoint(".", file, 33, STEP_OVER, 1));
         debugPoints.add(Util.createDebugPoint(".", file, 34, STEP_OVER, 1));
         debugPoints.add(Util.createDebugPoint(".", file, 35, STEP_OVER, 1));
-        debugPoints.add(Util.createDebugPoint(".", file, 43, STEP_OVER, 1));
-        debugPoints.add(Util.createDebugPoint(".", file, 44, STEP_OVER, 1));
-        debugPoints.add(Util.createDebugPoint(".", file, 45, STEP_OVER, 1));
-        debugPoints.add(Util.createDebugPoint(".", file, 50, STEP_OVER, 1));
-        debugPoints.add(Util.createDebugPoint(".", file, 55, STEP_OVER, 1));
-        debugPoints.add(Util.createDebugPoint(".", file, 56, STEP_OVER, 1));
+        debugPoints.add(Util.createDebugPoint(".", file, 36, STEP_OVER, 1));
+        debugPoints.add(Util.createDebugPoint(".", file, 37, STEP_OVER, 1));
+        debugPoints.add(Util.createDebugPoint(".", file, 38, STEP_OVER, 1));
+        debugPoints.add(Util.createDebugPoint(".", file, 46, STEP_OVER, 1));
+        debugPoints.add(Util.createDebugPoint(".", file, 47, STEP_OVER, 1));
+        debugPoints.add(Util.createDebugPoint(".", file, 48, STEP_OVER, 1));
+        debugPoints.add(Util.createDebugPoint(".", file, 53, STEP_OVER, 1));
         debugPoints.add(Util.createDebugPoint(".", file, 58, STEP_OVER, 1));
+        debugPoints.add(Util.createDebugPoint(".", file, 59, STEP_OVER, 1));
+        debugPoints.add(Util.createDebugPoint(".", file, 61, STEP_OVER, 1));
 
         // Key: expression, Value: expected results
         Map<String, String> expMap1 = new HashMap<>();
         populateExpressionMap(expMap1, "path", SUCCESS, "start insideTry insideInnerTry onError " +
                 "innerTestErrorCatch:test innerFinally TestErrorCatch Finally ");
-        debugPoints.add(Util.createDebugPoint(".", file, 60, RESUME, 1, expMap1));
+        debugPoints.add(Util.createDebugPoint(".", file, 63, RESUME, 1, expMap1));
 
         ExpectedResults expRes = new ExpectedResults(debugPoints, 16, 0, new ArrayList<>(), false);
 

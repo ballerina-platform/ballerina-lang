@@ -87,13 +87,18 @@ public type Person object {
     string name,
 };
 
+public type RecPerson record {
+    string name;
+    int id;
+};
+
 function testRecordLiteralAssignment() returns string {
-    Person|error x = {name:"John", id:12};
+    Person|RecPerson x = {name:"John", id:12};
     match x {
         Person p => {
             return "Invalid";
         }
-        error e => {
+        RecPerson e => {
             return <string> e.name;
         }
     }

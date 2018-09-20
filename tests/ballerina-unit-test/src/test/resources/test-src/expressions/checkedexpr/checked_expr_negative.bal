@@ -1,5 +1,3 @@
-
-
 function readLineSuccess() returns string {
     return "Hello, World!!!";
 }
@@ -21,6 +19,7 @@ public type myerror record {
     string message;
     error? cause;
     int code;
+    !...
 };
 
 public type customError record {
@@ -28,6 +27,7 @@ public type customError record {
     error? cause;
     int code;
     string data;
+    !...
 };
 
 function readLine() returns myerror | customError {
@@ -55,4 +55,3 @@ function readLineProper() returns string | myerror | customError {
 function testCheckedExprSemanticErrors5() {
     string line = check readLineProper();
 }
-
