@@ -19,7 +19,7 @@
 package org.wso2.transport.http.netty.contractimpl.listener;
 
 import io.netty.handler.codec.http.HttpHeaderNames;
-import org.wso2.transport.http.netty.contractimpl.common.Constants;
+import org.wso2.transport.http.netty.contract.Constants;
 import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 
 /**

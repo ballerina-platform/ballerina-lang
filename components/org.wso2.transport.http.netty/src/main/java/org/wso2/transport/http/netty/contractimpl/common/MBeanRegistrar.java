@@ -20,6 +20,7 @@ package org.wso2.transport.http.netty.contractimpl.common;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.wso2.transport.http.netty.contract.Constants;
 
 import java.lang.management.ManagementFactory;
 import java.util.Set;

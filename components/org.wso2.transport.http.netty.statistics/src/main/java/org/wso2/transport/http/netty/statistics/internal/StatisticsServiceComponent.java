@@ -28,8 +28,8 @@ import org.osgi.service.component.annotations.ReferencePolicy;
 import org.wso2.carbon.messaging.handler.MessagingHandler;
 import org.wso2.carbon.metrics.core.MetricManagementService;
 import org.wso2.carbon.metrics.core.MetricService;
-import org.wso2.transport.http.netty.contractimpl.config.ConfigurationBuilder;
-import org.wso2.transport.http.netty.contractimpl.config.TransportProperty;
+import org.wso2.transport.http.netty.contract.config.ConfigurationBuilder;
+import org.wso2.transport.http.netty.contract.config.TransportProperty;
 import org.wso2.transport.http.netty.statistics.StatisticsHandler;
 import org.wso2.transport.http.netty.statistics.TimerHolder;
 

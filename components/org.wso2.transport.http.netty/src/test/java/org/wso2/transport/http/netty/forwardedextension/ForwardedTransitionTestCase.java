@@ -21,8 +21,8 @@ package org.wso2.transport.http.netty.forwardedextension;
 import io.netty.handler.codec.http.DefaultHttpHeaders;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
-import org.wso2.transport.http.netty.contractimpl.common.Constants;
-import org.wso2.transport.http.netty.contractimpl.config.ForwardedExtensionConfig;
+import org.wso2.transport.http.netty.contract.Constants;
+import org.wso2.transport.http.netty.contract.config.ForwardedExtensionConfig;
 import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 import org.wso2.transport.http.netty.util.TestUtil;
 

@@ -42,12 +42,13 @@ import io.netty.handler.ssl.SslContext;
 import io.netty.handler.ssl.SslHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.wso2.transport.http.netty.contract.ConfigurationException;
+import org.wso2.transport.http.netty.contract.Constants;
 import org.wso2.transport.http.netty.contract.HttpResponseFuture;
+import org.wso2.transport.http.netty.contract.config.ChunkConfig;
+import org.wso2.transport.http.netty.contract.config.KeepAliveConfig;
 import org.wso2.transport.http.netty.contractimpl.common.ssl.SSLConfig;
 import org.wso2.transport.http.netty.contractimpl.common.ssl.SSLHandlerFactory;
-import org.wso2.transport.http.netty.contractimpl.config.ChunkConfig;
-import org.wso2.transport.http.netty.contractimpl.config.KeepAliveConfig;
-import org.wso2.transport.http.netty.contractimpl.exception.ConfigurationException;
 import org.wso2.transport.http.netty.contractimpl.listener.SourceHandler;
 import org.wso2.transport.http.netty.contractimpl.sender.CertificateValidationHandler;
 import org.wso2.transport.http.netty.contractimpl.sender.OCSPStaplingHandler;
@@ -70,17 +71,17 @@ import javax.net.ssl.SSLEngine;
 import javax.net.ssl.SSLException;
 import javax.net.ssl.SSLParameters;
 
-import static org.wso2.transport.http.netty.contractimpl.common.Constants.COLON;
-import static org.wso2.transport.http.netty.contractimpl.common.Constants.HEADER_VAL_100_CONTINUE;
-import static org.wso2.transport.http.netty.contractimpl.common.Constants.HTTP_HOST;
-import static org.wso2.transport.http.netty.contractimpl.common.Constants.HTTP_PORT;
-import static org.wso2.transport.http.netty.contractimpl.common.Constants.HTTP_SCHEME;
-import static org.wso2.transport.http.netty.contractimpl.common.Constants.IS_PROXY_ENABLED;
-import static org.wso2.transport.http.netty.contractimpl.common.Constants.PROTOCOL;
-import static org.wso2.transport.http.netty.contractimpl.common.Constants
+import static org.wso2.transport.http.netty.contract.Constants.COLON;
+import static org.wso2.transport.http.netty.contract.Constants.HEADER_VAL_100_CONTINUE;
+import static org.wso2.transport.http.netty.contract.Constants.HTTP_HOST;
+import static org.wso2.transport.http.netty.contract.Constants.HTTP_PORT;
+import static org.wso2.transport.http.netty.contract.Constants.HTTP_SCHEME;
+import static org.wso2.transport.http.netty.contract.Constants.IS_PROXY_ENABLED;
+import static org.wso2.transport.http.netty.contract.Constants.PROTOCOL;
+import static org.wso2.transport.http.netty.contract.Constants
         .REMOTE_CLIENT_CLOSED_WHILE_WRITING_OUTBOUND_RESPONSE_HEADERS;
-import static org.wso2.transport.http.netty.contractimpl.common.Constants.TO;
-import static org.wso2.transport.http.netty.contractimpl.common.Constants.URL_AUTHORITY;
+import static org.wso2.transport.http.netty.contract.Constants.TO;
+import static org.wso2.transport.http.netty.contract.Constants.URL_AUTHORITY;
 
 /**
  * Includes utility methods for creating http requests and responses and their related properties.

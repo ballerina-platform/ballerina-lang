@@ -67,7 +67,7 @@
             org.slf4j.*;version="${slf4j.logging.package.import.version.range}",
             org.wso2.carbon.metrics.core,
             org.wso2.carbon.messaging.*;version="${carbon.messaging.package.import.version.range}",
-            org.wso2.transport.http.netty.contractimpl.config.*;version="${netty.transport.package.export.version}"
+            org.wso2.transport.http.netty.contract.config.*;version="${netty.transport.package.export.version}"
         </import.package>
     </properties>
 
