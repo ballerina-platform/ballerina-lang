@@ -170,7 +170,6 @@ public class HttpConnectionManager {
 
         SenderConfiguration httpsSender = new SenderConfiguration("https-sender");
         httpsSender.setScheme("https");
-        HttpUtil.setDefaultTrustStore(httpsSender);
 
         TransportProperty latencyMetrics = new TransportProperty();
         latencyMetrics.setName("latency.metrics.enabled");

@@ -43,13 +43,13 @@ endpoint http:Listener prometheusListener {
 //}
 service<http:Service> PrometheusReporter bind prometheusListener {
 
+    # This method retrieves all metrics registered in the ballerina metrics registry,
+    # and reformats based on the expected format by prometheus server.
     @http:ResourceConfig {
         methods: ["GET"],
         path: "/",
         produces: ["application/text"]
     }
-    # This method retrieves all metrics registered in the ballerina metrics registry,
-    # and reformats based on the expected format by prometheus server.
     getMetrics(endpoint caller, http:Request req) {
         observe:Metric[] metrics = observe:getAllMetrics();
         string payload = EMPTY_STRING;

@@ -104,6 +104,14 @@ public class CommandParserTestCase extends BaseTest {
         errLogLeecher.waitForText(2000);
     }
 
+    @Test (description = "Test unknown option", dataProvider = "invalidOptions")
+    public void testUnknownOption(String unknownOption) throws BallerinaTestException {
+        LogLeecher errLogLeecher = new LogLeecher("ballerina: unknown option: " + unknownOption, LeecherType.ERROR);
+        balClient.runMain(unknownOption, new String[0], null, new String[0], new LogLeecher[]{errLogLeecher},
+                          balServer.getServerHome());
+        errLogLeecher.waitForText(2000);
+    }
+
     @DataProvider(name = "runCmdOptions")
     public Object[][] runCmdOptions() {
         return new Object[][] {
@@ -129,6 +137,14 @@ public class CommandParserTestCase extends BaseTest {
                 { "runs" },
                 { "buil" },
                 { "text" }
+        };
+    }
+
+    @DataProvider(name = "invalidOptions")
+    public Object[][] invalidOptions() {
+        return new Object[][] {
+                { "-version" },
+                { "--hel" }
         };
     }
 }
