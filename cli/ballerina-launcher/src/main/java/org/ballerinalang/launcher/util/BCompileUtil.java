@@ -221,20 +221,31 @@ public class BCompileUtil {
     /**
      * Compile with tests and return the semantic errors.
      *
-     * @param sourceRoot    root path of the source packages
+     * @param context       Compiler Context
      * @param packageName   name of the package to compile
      * @param compilerPhase Compiler phase
      * @return Semantic errors
      */
-    public static CompileResult compileWithTests(String sourceRoot, String packageName, CompilerPhase compilerPhase) {
+    public static CompileResult compileWithTests(CompilerContext context, String packageName,
+                                                 CompilerPhase compilerPhase) {
+        return compile(context, packageName, compilerPhase, true);
+    }
+
+    /**
+     * Create a compiler context.
+     *
+     * @param sourceRoot    source root or project directory path
+     * @param compilerPhase Compiler phase
+     * @return new compiler context object
+     */
+    public static CompilerContext createCompilerContext(String sourceRoot, CompilerPhase compilerPhase) {
         CompilerContext context = new CompilerContext();
         CompilerOptions options = CompilerOptions.getInstance(context);
         options.put(PROJECT_DIR, sourceRoot);
         options.put(COMPILER_PHASE, compilerPhase.toString());
         options.put(PRESERVE_WHITESPACE, "false");
         options.put(TEST_ENABLED, "true");
-
-        return compile(context, packageName, compilerPhase, true);
+        return context;
     }
 
     public static CompileResult compile(String sourceRoot, String packageName, CompilerPhase compilerPhase,

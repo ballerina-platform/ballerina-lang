@@ -37,6 +37,7 @@ import org.ballerinalang.util.debugger.Debugger;
 import org.ballerinalang.util.diagnostic.Diagnostic;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
+import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.programfile.CompiledBinaryFile;
 
@@ -171,9 +172,12 @@ public class BTestRunner {
             outStream.println("    No tests found");
             return;
         }
+        // Reuse the same compiler context so that packages already compiled and persisted in the package cache are not
+        // compiled again.
+        CompilerContext compilerContext = BCompileUtil.createCompilerContext(sourceRoot, CompilerPhase.CODE_GEN);
         Arrays.stream(sourceFilePaths).forEach(sourcePackage -> {
             // compile
-            CompileResult compileResult = BCompileUtil.compileWithTests(sourceRoot, sourcePackage.toString(),
+            CompileResult compileResult = BCompileUtil.compileWithTests(compilerContext, sourcePackage.toString(),
                 CompilerPhase.CODE_GEN);
             // print errors
             for (Diagnostic diagnostic : compileResult.getDiagnostics()) {
