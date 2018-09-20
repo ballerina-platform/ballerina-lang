@@ -47,18 +47,19 @@ import static org.wso2.transport.http.netty.contractimpl.common.states.StateUtil
 import static org.wso2.transport.http.netty.contractimpl.common.states.StateUtil.notifyIfHeaderWriteFailure;
 
 /**
- * State between start and end of outbound response headers write
+ * State between start and end of outbound response headers write.
  */
 public class SendingHeaders implements ListenerState {
 
     private static final Logger LOG = LoggerFactory.getLogger(SendingHeaders.class);
+
     private final HttpOutboundRespListener outboundResponseListener;
     boolean keepAlive;
     private final MessageStateContext messageStateContext;
     ChunkConfig chunkConfig;
     HttpResponseFuture outboundRespStatusFuture;
 
-    SendingHeaders(HttpOutboundRespListener outboundResponseListener, MessageStateContext messageStateContext) {
+    public SendingHeaders(HttpOutboundRespListener outboundResponseListener, MessageStateContext messageStateContext) {
         this.outboundResponseListener = outboundResponseListener;
         this.messageStateContext = messageStateContext;
         this.chunkConfig = outboundResponseListener.getChunkConfig();

@@ -43,10 +43,11 @@ import static org.wso2.transport.http.netty.contractimpl.common.states.StateUtil
 public class ReceivingHeaders implements SenderState {
 
     private static final Logger LOG = LoggerFactory.getLogger(ReceivingHeaders.class);
+
     private final MessageStateContext messageStateContext;
     private TargetHandler targetHandler;
 
-    public ReceivingHeaders(MessageStateContext messageStateContext) {
+    ReceivingHeaders(MessageStateContext messageStateContext) {
         this.messageStateContext = messageStateContext;
     }
 

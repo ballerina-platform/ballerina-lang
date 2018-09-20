@@ -98,7 +98,6 @@ public class TargetHandler extends ChannelInboundHandlerAdapter {
 
     @Override
     public void channelInactive(ChannelHandlerContext ctx) throws Exception {
-        closeChannel(ctx);
         if (!idleTimeoutTriggered) {
             outboundRequestMsg.getMessageStateContext().getSenderState().handleAbruptChannelClosure(httpResponseFuture);
         }
@@ -123,7 +122,7 @@ public class TargetHandler extends ChannelInboundHandlerAdapter {
             if (event.state() == IdleState.READER_IDLE || event.state() == IdleState.WRITER_IDLE) {
                 targetChannel.getChannel().pipeline().remove(Constants.IDLE_STATE_HANDLER);
                 this.idleTimeoutTriggered = true;
-                this.channelInactive(ctx);
+                ctx.close();
                 outboundRequestMsg.getMessageStateContext().getSenderState().handleIdleTimeoutConnectionClosure(
                         httpResponseFuture, ctx.channel().id().asLongText());
             }
