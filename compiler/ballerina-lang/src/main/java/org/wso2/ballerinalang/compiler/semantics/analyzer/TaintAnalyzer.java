@@ -508,7 +508,7 @@ public class TaintAnalyzer extends BLangNodeVisitor {
                 overridingAnalysis = false;
                 updatedVarRefTaintedState(((BLangXMLAttributeAccess) varRefExpr).expr, varTaintedStatus);
                 overridingAnalysis = true;
-            } else {
+            } else if (varRefExpr.getKind() == NodeKind.SIMPLE_VARIABLE_REF) {
                 setTaintedStatus((BLangVariableReference) varRefExpr, varTaintedStatus);
             }
         }
