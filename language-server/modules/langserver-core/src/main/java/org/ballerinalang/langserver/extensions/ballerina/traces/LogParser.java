@@ -90,19 +90,19 @@ public class LogParser {
      * @param logLine String
      * @return log Trace
      */
-    static Trace fromString(String logLine) {
-        Trace log = new Trace();
-        log.setId(getId(logLine));
-        log.setDirection(getDirection(logLine));
+    static Message fromString(String logLine) {
+        Message message = new Message();
+        message.setId(getId(logLine));
+        message.setDirection(getDirection(logLine));
         String header = getHeader(logLine);
         String headerType = getHeaderType(logLine);
         String payload = getPayload(header);
-        log.setHeaders(removePayload(header, payload));
-        log.setHeaderType(headerType);
-        log.setContentType(getContentType(logLine));
-        log.setHttpMethod(getHttpMethod(logLine));
-        log.setPath(getPath(logLine));
-        log.setPayload(payload);
-        return log;
+        message.setHeaders(removePayload(header, payload));
+        message.setHeaderType(headerType);
+        message.setContentType(getContentType(logLine));
+        message.setHttpMethod(getHttpMethod(logLine));
+        message.setPath(getPath(logLine));
+        message.setPayload(payload);
+        return message;
     }
 }

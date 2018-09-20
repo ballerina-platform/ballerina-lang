@@ -16,29 +16,125 @@
 
 package org.ballerinalang.langserver.extensions.ballerina.traces;
 
+import com.google.gson.JsonObject;
+
+import java.util.UUID;
+
 /**
  * Model class for trace log.
  */
 public class TraceRecord {
-    private Trace meta;
-    private String record;
+    private Message message;
+    private String rawMessage;
+    private String id;
+    private String logDate;
+    private String millis;
+    private String sequence;
+    private String logger;
+    private String level;
+    private String sourceClass;
+    private String sourceMethod;
+    private String thread;
 
-    TraceRecord(Trace meta, String record) {
-        this.setMeta(meta);
-        this.setRecord(record);
+    TraceRecord(Message message, JsonObject record, String rawMessage) {
+        this.message = message;
+        this.rawMessage = rawMessage;
+        this.id = UUID.randomUUID().toString();
+        this.logDate = record.get("logDate").getAsString();
+        this.millis = record.get("millis").getAsString();
+        this.sequence = record.get("sequence").getAsString();
+        this.logger = record.get("logger").getAsString();
+        this.level = record.get("level").getAsString();
+        this.sourceClass = record.get("sourceClass").getAsString();
+        this.sourceMethod = record.get("sourceMethod").getAsString();
+        this.thread = record.get("thread").getAsString();
     }
 
-    public void setMeta(Trace meta) {
-        this.meta = meta;
-    }
-    public Trace getMeta() {
-        return meta;
-    }
-    public String getRecord() {
-        return record;
+    public String getRawMessage() {
+        return rawMessage;
     }
 
-    public void setRecord(String record) {
-        this.record = record;
+    public String getLogger() {
+        return logger;
+    }
+
+    public String getSequence() {
+        return sequence;
+    }
+
+    public String getThread() {
+        return thread;
+    }
+
+    public String getMillis() {
+        return millis;
+    }
+
+    public String getLogDate() {
+        return logDate;
+    }
+
+    public String getSourceMethod() {
+        return sourceMethod;
+    }
+
+    public String getSourceClass() {
+        return sourceClass;
+    }
+
+    public String getLevel() {
+        return level;
+    }
+
+    public Message getMessage() {
+        return message;
+    }
+
+    public String getId() {
+        return id;
+    }
+
+    public void setRawMessage(String rawMessage) {
+        this.rawMessage = rawMessage;
+    }
+
+    public void setThread(String thread) {
+        this.thread = thread;
+    }
+
+    public void setSourceMethod(String sourceMethod) {
+        this.sourceMethod = sourceMethod;
+    }
+
+    public void setSourceClass(String sourceClass) {
+        this.sourceClass = sourceClass;
+    }
+
+    public void setLogger(String logger) {
+        this.logger = logger;
+    }
+
+    public void setSequence(String sequence) {
+        this.sequence = sequence;
+    }
+
+    public void setMillis(String millis) {
+        this.millis = millis;
+    }
+
+    public void setLogDate(String logDate) {
+        this.logDate = logDate;
+    }
+
+    public void setLevel(String level) {
+        this.level = level;
+    }
+
+    public void setId(String id) {
+        this.id = id;
+    }
+
+    public void setMessage(Message message) {
+        this.message = message;
     }
 }

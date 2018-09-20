@@ -17,10 +17,10 @@
 package org.ballerinalang.langserver.extensions.ballerina.traces;
 
 /**
- * {@link Trace} Parsed log message sent to client.
+ * {@link Message} Parsed log message sent to client.
  *
  */
-public class Trace {
+public class Message {
     private String id;
     private String direction;
     private String headers;
