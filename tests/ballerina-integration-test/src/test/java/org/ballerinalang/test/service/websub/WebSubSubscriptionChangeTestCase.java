@@ -81,7 +81,7 @@ public class WebSubSubscriptionChangeTestCase extends BaseTest {
 
         String publisherBal = new File("src" + File.separator + "test" + File.separator + "resources"
                 + File.separator + "websub" + File.separator + "websub_test_periodic_publisher.bal").getAbsolutePath();
-        String[] publisherArgs = {"-e b7a.websub.hub.remotepublish=true"};
+        String[] publisherArgs = {"-e", "b7a.websub.hub.remotepublish=true"};
 
         String subscriberBal = new File("src" + File.separator + "test" + File.separator + "resources"
                 + File.separator + "websub" + File.separator + "websub_test_subscriber.bal").getAbsolutePath();
@@ -106,7 +106,7 @@ public class WebSubSubscriptionChangeTestCase extends BaseTest {
             return response.getResponseCode() == 202;
         });
 
-        String[] subscriberArgs = {"-e test.hub.url=" + hubUrl};
+        String[] subscriberArgs = {"-e", "test.hub.url=" + hubUrl};
         webSubSubscriber.startServer(subscriberBal, subscriberArgs, new int[]{subscriberServicePort});
 
         //Allow to start up the subscriber service
