@@ -20,6 +20,8 @@ package org.ballerinalang.model.values;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.BTypes;
 
+import java.math.BigDecimal;
+
 /**
  * The {@code BBoolean} represents a boolean value in Ballerina.
  *
@@ -58,6 +60,11 @@ public final class BBoolean extends BValueType implements BRefType<Boolean> {
     @Override
     public double floatValue() {
         return 0;
+    }
+
+    @Override
+    public BigDecimal decimalValue() {
+        return new BigDecimal(0);
     }
 
     @Override

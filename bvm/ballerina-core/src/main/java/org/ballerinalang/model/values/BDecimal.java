@@ -1,12 +1,12 @@
 /*
- *  Copyright (c) 2016, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *  Copyright (c) 2018, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  *  WSO2 Inc. licenses this file to you under the Apache License,
  *  Version 2.0 (the "License"); you may not use this file except
  *  in compliance with the License.
  *  You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *  http://www.apache.org/licenses/LICENSE-2.0
  *
  *  Unless required by applicable law or agreed to in writing,
  *  software distributed under the License is distributed on an
@@ -15,6 +15,7 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
+
 package org.ballerinalang.model.values;
 
 import org.ballerinalang.model.types.BType;
@@ -23,36 +24,36 @@ import org.ballerinalang.model.types.BTypes;
 import java.math.BigDecimal;
 
 /**
- * The {@code BFloat} represents a float value in Ballerina.
+ * The {@code BDecimal} represents a decimal value in Ballerina.
  *
- * @since 0.8.0
+ * @since 0.981.2
  */
-public final class BFloat extends BValueType implements BRefType<Double> {
+public final class BDecimal extends BValueType implements BRefType<BigDecimal> {
 
-    private double value;
+    private BigDecimal value;
 
-    public BFloat(double value) {
+    public BDecimal(BigDecimal value) {
         this.value = value;
     }
 
     @Override
-    public long intValue() {
-        return (long) this.value;
-    }
-
-    @Override
-    public byte byteValue() {
-        return (byte) this.value;
-    }
-
-    @Override
-    public double floatValue() {
+    public BigDecimal decimalValue() {
         return this.value;
     }
 
     @Override
-    public BigDecimal decimalValue() {
-        return new BigDecimal(this.value);
+    public long intValue() {
+        return value.longValue();
+    }
+
+    @Override
+    public byte byteValue() {
+        return value.byteValue();
+    }
+
+    @Override
+    public double floatValue() {
+        return value.doubleValue();
     }
 
     @Override
@@ -62,42 +63,40 @@ public final class BFloat extends BValueType implements BRefType<Double> {
 
     @Override
     public String stringValue() {
-        return Double.toString(value);
+        return value.toString();
+    }
+
+    @Override
+    public BigDecimal value() {
+        return this.value;
     }
 
     @Override
     public BType getType() {
-        return BTypes.typeFloat;
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) {
-            return true;
-        }
-        if (o == null || getClass() != o.getClass()) {
-            return false;
-        }
-
-        BFloat bFloat = (BFloat) o;
-
-        return Double.compare(bFloat.value, value) == 0;
-
-    }
-
-    @Override
-    public int hashCode() {
-        long temp = Double.doubleToLongBits(value);
-        return (int) (temp ^ (temp >>> 32));
-    }
-
-    @Override
-    public Double value() {
-        return value;
+        return BTypes.typeDecimal;
     }
 
     @Override
     public BValue copy() {
-        return new BFloat(value);
+        return new BDecimal(value);
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+
+        if (obj == null || getClass() != obj.getClass()) {
+            return false;
+        }
+
+        BDecimal bDecimal = (BDecimal) obj;
+        return value.equals(bDecimal.value);
+    }
+
+    @Override
+    public int hashCode() {
+        return value.hashCode();
     }
 }
