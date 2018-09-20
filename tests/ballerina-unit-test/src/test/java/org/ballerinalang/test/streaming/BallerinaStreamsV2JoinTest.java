@@ -44,7 +44,7 @@ public class BallerinaStreamsV2JoinTest {
 
     @Test(description = "Test stream join query.")
     public void testStreamJoinQuery() {
-        System.setProperty("enable.siddhiRuntime", "false");
+        System.setProperty("enable.siddhiRuntime", "true");
         BValue[] stocksWithPrices = BRunUtil.invoke(result, "startJoinQuery");
         Assert.assertNotNull(stocksWithPrices);
         Assert.assertEquals(stocksWithPrices.length, 2, "Expected events are not received");
