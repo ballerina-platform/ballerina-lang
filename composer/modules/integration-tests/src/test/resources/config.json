@@ -9,7 +9,9 @@
             "temporal_aggregations_and_windows.bal",
             "grpc_bidirectional_streaming_client.bal",
             "table.bal",
-            "csv_io.bal"
+            "csv_io.bal",
+            "channels_correlation.bal",
+            "channels_workers.bal"
         ]
     }
 }
