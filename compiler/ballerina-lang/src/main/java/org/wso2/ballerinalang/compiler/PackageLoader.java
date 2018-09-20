@@ -194,7 +194,11 @@ public class PackageLoader {
                                   .collect(Collectors.toList());
         return systemList.toArray(new RepoNode[systemList.size()]);
     }
-
+    
+    private PackageEntity loadPackageEntity(PackageID pkgId) {
+        return loadPackageEntity(pkgId, null, null);
+    }
+    
     private PackageEntity loadPackageEntity(PackageID pkgId, PackageID enclPackageId,
                                             RepoHierarchy encPkgRepoHierarchy) {
         updateVersionFromToml(pkgId, enclPackageId);
@@ -297,7 +301,7 @@ public class PackageLoader {
             return bLangPackage;
         }
     
-        BLangPackage packageNode = loadPackageFromEntity(pkgId, loadPackageEntity(pkgId, null, null));
+        BLangPackage packageNode = loadPackageFromEntity(pkgId, loadPackageEntity(pkgId));
         if (packageNode == null) {
             throw ProjectDirs.getPackageNotFoundError(pkgId);
         }
