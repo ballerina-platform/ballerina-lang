@@ -16,9 +16,7 @@
  * under the License.
  */
 
-package org.wso2.transport.http.netty.contractimpl.exception;
-
-import org.wso2.transport.http.netty.contract.ClientConnectorException;
+package org.wso2.transport.http.netty.contract;
 
 /**
  * A class that represent EndpointTimeout Exception.

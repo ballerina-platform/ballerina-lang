@@ -30,9 +30,9 @@ import org.wso2.transport.http.netty.contractimpl.sender.TargetHandler;
 import org.wso2.transport.http.netty.contractimpl.sender.http2.OutboundMsgHolder;
 import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 
-import static org.wso2.transport.http.netty.contractimpl.common.Constants
+import static org.wso2.transport.http.netty.contract.Constants
         .IDLE_TIMEOUT_TRIGGERED_WHILE_READING_INBOUND_RESPONSE_HEADERS;
-import static org.wso2.transport.http.netty.contractimpl.common.Constants
+import static org.wso2.transport.http.netty.contract.Constants
         .REMOTE_SERVER_CLOSED_WHILE_READING_INBOUND_RESPONSE_HEADERS;
 import static org.wso2.transport.http.netty.contractimpl.listener.states.StateUtil.ILLEGAL_STATE_ERROR;
 import static org.wso2.transport.http.netty.contractimpl.listener.states.StateUtil.handleIncompleteInboundMessage;

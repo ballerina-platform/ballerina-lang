@@ -19,8 +19,8 @@
 package org.wso2.transport.http.netty.contractimpl.sender.http2;
 
 import io.netty.channel.Channel;
+import org.wso2.transport.http.netty.contract.config.SenderConfiguration;
 import org.wso2.transport.http.netty.contractimpl.common.HttpRoute;
-import org.wso2.transport.http.netty.contractimpl.config.SenderConfiguration;
 
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ConcurrentHashMap;

@@ -29,18 +29,18 @@ import org.wso2.transport.http.netty.contract.HttpWsConnectorFactory;
 import org.wso2.transport.http.netty.contract.ServerConnector;
 import org.wso2.transport.http.netty.contract.ServerConnectorException;
 import org.wso2.transport.http.netty.contract.ServerConnectorFuture;
+import org.wso2.transport.http.netty.contract.config.ListenerConfiguration;
+import org.wso2.transport.http.netty.contract.config.Parameter;
+import org.wso2.transport.http.netty.contract.config.SenderConfiguration;
 import org.wso2.transport.http.netty.contractimpl.DefaultHttpWsConnectorFactory;
-import org.wso2.transport.http.netty.contractimpl.config.ListenerConfiguration;
-import org.wso2.transport.http.netty.contractimpl.config.Parameter;
-import org.wso2.transport.http.netty.contractimpl.config.SenderConfiguration;
 import org.wso2.transport.http.netty.util.TestUtil;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-import static org.wso2.transport.http.netty.contractimpl.common.Constants.HTTPS_SCHEME;
-import static org.wso2.transport.http.netty.contractimpl.common.Constants.HTTP_2_0;
+import static org.wso2.transport.http.netty.contract.Constants.HTTPS_SCHEME;
+import static org.wso2.transport.http.netty.contract.Constants.HTTP_2_0;
 
 /**
  * A test case consisting of a http2 client and server communicating over TLS.
