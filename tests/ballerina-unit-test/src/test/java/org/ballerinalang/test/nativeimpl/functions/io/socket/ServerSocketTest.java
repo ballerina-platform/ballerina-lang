@@ -44,6 +44,7 @@ import java.util.concurrent.ThreadLocalRandom;
 /**
  * Unit tests for server socket.
  */
+@Test(enabled = false)
 public class ServerSocketTest {
 
     private static final Logger log = LoggerFactory.getLogger(ServerSocketTest.class);

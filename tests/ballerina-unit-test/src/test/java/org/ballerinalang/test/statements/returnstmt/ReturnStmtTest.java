@@ -44,16 +44,14 @@ public class ReturnStmtTest {
     public void testReturn() {
         BValue[] args = {};
         BValue[] returns = BRunUtil.invoke(compileResult, "testReturn", args);
-
-        Assert.assertEquals(returns.length, 0);
+        Assert.assertNull(returns[0]);
     }
 
     @Test(description = "Test void return")
     public void testReturnOneVarDcl() {
         BValue[] args = {};
         BValue[] returns = BRunUtil.invoke(compileResult, "testReturnOneVarDcl", args);
-
-        Assert.assertEquals(returns.length, 0);
+        Assert.assertNull(returns[0]);
     }
 
     @Test(description = "Test one return value")
@@ -69,8 +67,7 @@ public class ReturnStmtTest {
     public void testReturnOneParam() {
         BValue[] args = {new BInteger(10)};
         BValue[] returns = BRunUtil.invoke(compileResult, "testReturnOneParam", args);
-
-        Assert.assertEquals(returns.length, 0);
+        Assert.assertNull(returns[0]);
     }
 
     @Test(description = "Test one parameter and one return value")

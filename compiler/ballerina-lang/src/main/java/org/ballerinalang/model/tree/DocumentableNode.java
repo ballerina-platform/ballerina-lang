@@ -30,10 +30,6 @@ import java.util.List;
  */
 public interface DocumentableNode  extends Node {
 
-    List<? extends DocumentationNode> getDocumentationAttachments();
-
-    void addDocumentationAttachment(DocumentationNode annAttachment);
-
     BLangMarkdownDocumentation getMarkdownDocumentationAttachment();
 
     void setMarkdownDocumentationAttachment(MarkdownDocumentationNode documentationNode);

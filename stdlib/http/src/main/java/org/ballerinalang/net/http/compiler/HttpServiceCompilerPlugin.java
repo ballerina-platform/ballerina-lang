@@ -69,7 +69,8 @@ public class HttpServiceCompilerPlugin extends AbstractCompilerPlugin {
         }
         if (serviceConfigCount > 1) {
             dlog.logDiagnostic(Diagnostic.Kind.ERROR, serviceNode.getPosition(),
-                               "There cannot be more than one service annotations");
+                               "multiple service configuration annotations found in service : " +
+                                       serviceNode.getName().getValue());
         }
         final UserDefinedTypeNode serviceType = serviceNode.getServiceTypeStruct();
         if (serviceType != null && HttpConstants.HTTP_SERVICE_TYPE.equals(serviceType.getTypeName().getValue())) {
@@ -90,6 +91,9 @@ public class HttpServiceCompilerPlugin extends AbstractCompilerPlugin {
 
     private void handleServiceConfigAnnotation(ServiceNode serviceNode, BLangAnnotationAttachment annotation) {
         // TODO: Handle service config annotation. Related issue #10476
+        if (annotation.getExpression() == null) {
+            return;
+        }
         List<BLangRecordLiteral.BLangRecordKeyValue> annotationValues =
                 ((BLangRecordLiteral) annotation.getExpression()).keyValuePairs;
         int compressionConfigCount = 0;

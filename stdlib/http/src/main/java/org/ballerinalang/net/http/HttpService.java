@@ -26,7 +26,6 @@ import org.ballerinalang.net.uri.DispatcherUtil;
 import org.ballerinalang.net.uri.URITemplate;
 import org.ballerinalang.net.uri.URITemplateException;
 import org.ballerinalang.net.uri.parser.Literal;
-import org.ballerinalang.util.exceptions.BallerinaException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.transport.http.netty.message.HttpCarbonMessage;
@@ -307,12 +306,6 @@ public class HttpService implements Cloneable {
         if (annotationList == null || annotationList.isEmpty()) {
             return null;
         }
-
-        if (annotationList.size() > 1) {
-            throw new BallerinaException(
-                    "multiple service configuration annotations found in service: " + service.getName());
-        }
-
         return annotationList.get(0);
     }
 

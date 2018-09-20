@@ -60,13 +60,13 @@ import org.ballerinalang.util.observability.ObserverContext;
 import org.ballerinalang.util.tracer.TraceConstants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.wso2.transport.http.netty.config.ChunkConfig;
-import org.wso2.transport.http.netty.config.ForwardedExtensionConfig;
-import org.wso2.transport.http.netty.config.KeepAliveConfig;
-import org.wso2.transport.http.netty.config.Parameter;
-import org.wso2.transport.http.netty.config.SslConfiguration;
 import org.wso2.transport.http.netty.contract.HttpResponseFuture;
 import org.wso2.transport.http.netty.contract.HttpWsConnectorFactory;
+import org.wso2.transport.http.netty.contract.config.ChunkConfig;
+import org.wso2.transport.http.netty.contract.config.ForwardedExtensionConfig;
+import org.wso2.transport.http.netty.contract.config.KeepAliveConfig;
+import org.wso2.transport.http.netty.contract.config.Parameter;
+import org.wso2.transport.http.netty.contract.config.SslConfiguration;
 import org.wso2.transport.http.netty.contractimpl.DefaultHttpWsConnectorFactory;
 import org.wso2.transport.http.netty.message.Http2PushPromise;
 import org.wso2.transport.http.netty.message.HttpCarbonMessage;
@@ -104,11 +104,23 @@ import static org.ballerinalang.net.http.HttpConstants.ANN_CONFIG_ATTR_COMPRESSI
 import static org.ballerinalang.net.http.HttpConstants.ANN_CONFIG_ATTR_COMPRESSION_CONTENT_TYPES;
 import static org.ballerinalang.net.http.HttpConstants.ANN_CONFIG_ATTR_COMPRESSION_ENABLE;
 import static org.ballerinalang.net.http.HttpConstants.AUTO;
+import static org.ballerinalang.net.http.HttpConstants.ENABLED_PROTOCOLS;
+import static org.ballerinalang.net.http.HttpConstants.ENDPOINT_CONFIG_CERTIFICATE;
+import static org.ballerinalang.net.http.HttpConstants.ENDPOINT_CONFIG_KEY;
+import static org.ballerinalang.net.http.HttpConstants.ENDPOINT_CONFIG_KEY_PASSWORD;
+import static org.ballerinalang.net.http.HttpConstants.ENDPOINT_CONFIG_KEY_STORE;
+import static org.ballerinalang.net.http.HttpConstants.ENDPOINT_CONFIG_PROTOCOLS;
+import static org.ballerinalang.net.http.HttpConstants.ENDPOINT_CONFIG_TRUST_CERTIFICATES;
+import static org.ballerinalang.net.http.HttpConstants.ENDPOINT_CONFIG_TRUST_STORE;
+import static org.ballerinalang.net.http.HttpConstants.ENDPOINT_CONFIG_VALIDATE_CERT;
 import static org.ballerinalang.net.http.HttpConstants.ENTITY_INDEX;
+import static org.ballerinalang.net.http.HttpConstants.FILE_PATH;
 import static org.ballerinalang.net.http.HttpConstants.HTTP_MESSAGE_INDEX;
 import static org.ballerinalang.net.http.HttpConstants.HTTP_STATUS_CODE;
 import static org.ballerinalang.net.http.HttpConstants.NEVER;
+import static org.ballerinalang.net.http.HttpConstants.PASSWORD;
 import static org.ballerinalang.net.http.HttpConstants.PROTOCOL_PACKAGE_HTTP;
+import static org.ballerinalang.net.http.HttpConstants.PROTOCOL_VERSION;
 import static org.ballerinalang.net.http.HttpConstants.REQUEST;
 import static org.ballerinalang.net.http.HttpConstants.REQUEST_CACHE_CONTROL;
 import static org.ballerinalang.net.http.HttpConstants.REQUEST_CACHE_CONTROL_FIELD;
@@ -118,6 +130,7 @@ import static org.ballerinalang.net.http.HttpConstants.RESPONSE_CACHE_CONTROL;
 import static org.ballerinalang.net.http.HttpConstants.RESPONSE_CACHE_CONTROL_FIELD;
 import static org.ballerinalang.net.http.HttpConstants.RESPONSE_REASON_PHRASE_FIELD;
 import static org.ballerinalang.net.http.HttpConstants.RESPONSE_STATUS_CODE_FIELD;
+import static org.ballerinalang.net.http.HttpConstants.SSL_ENABLED_PROTOCOLS;
 import static org.ballerinalang.net.http.HttpConstants.TRANSPORT_MESSAGE;
 import static org.ballerinalang.net.http.nativeimpl.pipelining.PipeliningHandler.sendPipelinedResponse;
 import static org.ballerinalang.util.observability.ObservabilityConstants.PROPERTY_HTTP_HOST;
@@ -126,8 +139,8 @@ import static org.ballerinalang.util.observability.ObservabilityConstants.TAG_KE
 import static org.ballerinalang.util.observability.ObservabilityConstants.TAG_KEY_HTTP_STATUS_CODE;
 import static org.ballerinalang.util.observability.ObservabilityConstants.TAG_KEY_HTTP_URL;
 import static org.ballerinalang.util.observability.ObservabilityConstants.TAG_KEY_PEER_ADDRESS;
-import static org.wso2.transport.http.netty.common.Constants.ENCODING_GZIP;
-import static org.wso2.transport.http.netty.common.Constants.HTTP_TRANSFER_ENCODING_IDENTITY;
+import static org.wso2.transport.http.netty.contract.Constants.ENCODING_GZIP;
+import static org.wso2.transport.http.netty.contract.Constants.HTTP_TRANSFER_ENCODING_IDENTITY;
 
 /**
  * Utility class providing utility methods.
@@ -462,9 +475,9 @@ public class HttpUtil {
 
     private static void setHttpStatusCodes(int statusCode, HttpCarbonMessage response) {
         HttpHeaders httpHeaders = response.getHeaders();
-        httpHeaders.set(HttpHeaderNames.CONTENT_TYPE, org.wso2.transport.http.netty.common.Constants.TEXT_PLAIN);
+        httpHeaders.set(HttpHeaderNames.CONTENT_TYPE, org.wso2.transport.http.netty.contract.Constants.TEXT_PLAIN);
 
-        response.setProperty(org.wso2.transport.http.netty.common.Constants.HTTP_STATUS_CODE, statusCode);
+        response.setProperty(org.wso2.transport.http.netty.contract.Constants.HTTP_STATUS_CODE, statusCode);
     }
 
     /**
@@ -1145,42 +1158,61 @@ public class HttpUtil {
     }
 
     public static void populateSSLConfiguration(SslConfiguration sslConfiguration, Struct secureSocket) {
-        Struct trustStore = secureSocket.getStructField(HttpConstants.ENDPOINT_CONFIG_TRUST_STORE);
-        Struct keyStore = secureSocket.getStructField(HttpConstants.ENDPOINT_CONFIG_KEY_STORE);
-        Struct protocols = secureSocket.getStructField(HttpConstants.ENDPOINT_CONFIG_PROTOCOLS);
-        Struct validateCert = secureSocket.getStructField(HttpConstants.ENDPOINT_CONFIG_VALIDATE_CERT);
+        Struct trustStore = secureSocket.getStructField(ENDPOINT_CONFIG_TRUST_STORE);
+        Struct keyStore = secureSocket.getStructField(ENDPOINT_CONFIG_KEY_STORE);
+        Struct protocols = secureSocket.getStructField(ENDPOINT_CONFIG_PROTOCOLS);
+        Struct validateCert = secureSocket.getStructField(ENDPOINT_CONFIG_VALIDATE_CERT);
+        String keyFile = secureSocket.getStringField(ENDPOINT_CONFIG_KEY);
+        String certFile = secureSocket.getStringField(ENDPOINT_CONFIG_CERTIFICATE);
+        String trustCerts = secureSocket.getStringField(ENDPOINT_CONFIG_TRUST_CERTIFICATES);
+        String keyPassword = secureSocket.getStringField(ENDPOINT_CONFIG_KEY_PASSWORD);
         List<Parameter> clientParams = new ArrayList<>();
+        if (trustStore != null && StringUtils.isNotBlank(trustCerts)) {
+            throw new BallerinaException("Cannot configure both trustStore and trustCerts at the same time.");
+        }
         if (trustStore != null) {
-            String trustStoreFile = trustStore.getStringField(HttpConstants.FILE_PATH);
+            String trustStoreFile = trustStore.getStringField(FILE_PATH);
             if (StringUtils.isNotBlank(trustStoreFile)) {
                 sslConfiguration.setTrustStoreFile(trustStoreFile);
             }
-            String trustStorePassword = trustStore.getStringField(HttpConstants.PASSWORD);
+            String trustStorePassword = trustStore.getStringField(PASSWORD);
             if (StringUtils.isNotBlank(trustStorePassword)) {
                 sslConfiguration.setTrustStorePass(trustStorePassword);
             }
+        } else if (StringUtils.isNotBlank(trustCerts)) {
+            sslConfiguration.setClientTrustCertificates(trustCerts);
+        }
+        if (keyStore != null && StringUtils.isNotBlank(keyFile)) {
+            throw new BallerinaException("Cannot configure both keyStore and keyFile.");
+        } else if (StringUtils.isNotBlank(keyFile) && StringUtils.isBlank(certFile)) {
+            throw new BallerinaException("Need to configure certFile containing client ssl certificates.");
         }
         if (keyStore != null) {
-            String keyStoreFile = keyStore.getStringField(HttpConstants.FILE_PATH);
+            String keyStoreFile = keyStore.getStringField(FILE_PATH);
             if (StringUtils.isNotBlank(keyStoreFile)) {
                 sslConfiguration.setKeyStoreFile(keyStoreFile);
             }
-            String keyStorePassword = keyStore.getStringField(HttpConstants.PASSWORD);
+            String keyStorePassword = keyStore.getStringField(PASSWORD);
             if (StringUtils.isNotBlank(keyStorePassword)) {
                 sslConfiguration.setKeyStorePass(keyStorePassword);
+            }
+        } else if (StringUtils.isNotBlank(keyFile)) {
+            sslConfiguration.setClientKeyFile(keyFile);
+            sslConfiguration.setClientCertificates(certFile);
+            if (StringUtils.isNotBlank(keyPassword)) {
+                sslConfiguration.setClientKeyPassword(keyPassword);
             }
         }
         if (protocols != null) {
             List<Value> sslEnabledProtocolsValueList = Arrays
-                    .asList(protocols.getArrayField(HttpConstants.ENABLED_PROTOCOLS));
+                    .asList(protocols.getArrayField(ENABLED_PROTOCOLS));
             if (sslEnabledProtocolsValueList.size() > 0) {
                 String sslEnabledProtocols = sslEnabledProtocolsValueList.stream().map(Value::getStringValue)
                         .collect(Collectors.joining(",", "", ""));
-                Parameter clientProtocols = new Parameter(HttpConstants.SSL_ENABLED_PROTOCOLS,
-                        sslEnabledProtocols);
+                Parameter clientProtocols = new Parameter(SSL_ENABLED_PROTOCOLS, sslEnabledProtocols);
                 clientParams.add(clientProtocols);
             }
-            String sslProtocol = protocols.getStringField(HttpConstants.PROTOCOL_VERSION);
+            String sslProtocol = protocols.getStringField(PROTOCOL_VERSION);
             if (StringUtils.isNotBlank(sslProtocol)) {
                 sslConfiguration.setSSLProtocol(sslProtocol);
             }
