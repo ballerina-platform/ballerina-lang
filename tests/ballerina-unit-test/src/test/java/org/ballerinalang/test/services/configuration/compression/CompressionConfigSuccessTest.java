@@ -15,7 +15,7 @@
 *  specific language governing permissions and limitations
 *  under the License.
 */
-package org.ballerinalang.test.services.configuration;
+package org.ballerinalang.test.services.configuration.compression;
 
 import io.netty.handler.codec.http.HttpHeaderNames;
 import org.ballerinalang.launcher.util.BServiceUtil;
@@ -43,14 +43,14 @@ import static org.wso2.transport.http.netty.common.Constants.HTTP_TRANSFER_ENCOD
  *
  * @since 0.966.0
  */
-public class CompressionConfigurationTest {
+public class CompressionConfigSuccessTest {
 
     private CompileResult serviceResult;
     private static final String MOCK_ENDPOINT_NAME = "mockEP";
 
     @BeforeClass
     public void setup() {
-        String sourceFilePath = "test-src/services/configuration/compression-annotation-test.bal";
+        String sourceFilePath = "test-src/services/configuration/compression/compression-annotation-test.bal";
         serviceResult = BServiceUtil.setupProgramFile(this, sourceFilePath);
     }
 
@@ -162,8 +162,8 @@ public class CompressionConfigurationTest {
         HttpCarbonMessage response = Services.invokeNew(serviceResult, MOCK_ENDPOINT_NAME, inRequestMsg);
         Assert.assertNotNull(response, "Response message not found");
         Assert.assertEquals(response.getHeader(HttpHeaderNames.CONTENT_ENCODING.toString()),
-                            HTTP_TRANSFER_ENCODING_IDENTITY, "The content-encoding header of the response that was sent " +
-                                    "to transport should be set to identity.");
+                            HTTP_TRANSFER_ENCODING_IDENTITY, "The content-encoding header of the response " +
+                                    "that was sent to transport should be set to identity.");
     }
 
     @Test(description = "Test Compression.AUTO, with incompatible contentTypes. + " +
@@ -174,8 +174,8 @@ public class CompressionConfigurationTest {
         HttpCarbonMessage response = Services.invokeNew(serviceResult, MOCK_ENDPOINT_NAME, inRequestMsg);
         Assert.assertNotNull(response, "Response message not found");
         Assert.assertEquals(response.getHeader(HttpHeaderNames.CONTENT_ENCODING.toString()),
-                            HTTP_TRANSFER_ENCODING_IDENTITY, "The content-encoding header of the response that was sent " +
-                                    "to transport should be set to identity.");
+                            HTTP_TRANSFER_ENCODING_IDENTITY, "The content-encoding header of the response " +
+                                    "that was sent to transport should be set to identity.");
     }
 
     @Test(description = "Test Compression.ALWAYS, with empty contentTypes. + " +

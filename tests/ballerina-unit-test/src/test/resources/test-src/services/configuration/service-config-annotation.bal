@@ -5,7 +5,7 @@ endpoint http:NonListener helloEP {
 };
 
 @http:ServiceConfig {basePath:"/hello"}
-@http:ServiceConfig {compression: http:COMPRESSION_AUTO}
+@http:ServiceConfig {compression: {enable: http:COMPRESSION_AUTO}}
 service<http:Service> helloWorldServiceConfig bind helloEP{
 
     @http:ResourceConfig {
