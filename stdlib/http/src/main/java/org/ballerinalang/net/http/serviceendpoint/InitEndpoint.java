@@ -34,10 +34,10 @@ import org.ballerinalang.net.http.HttpConnectionManager;
 import org.ballerinalang.net.http.HttpConstants;
 import org.ballerinalang.net.http.HttpUtil;
 import org.ballerinalang.util.exceptions.BallerinaException;
+import org.wso2.transport.http.netty.contract.ServerConnector;
 import org.wso2.transport.http.netty.contract.config.ListenerConfiguration;
 import org.wso2.transport.http.netty.contract.config.Parameter;
 import org.wso2.transport.http.netty.contract.config.RequestSizeValidationConfig;
-import org.wso2.transport.http.netty.contract.ServerConnector;
 
 import java.util.ArrayList;
 import java.util.Arrays;
