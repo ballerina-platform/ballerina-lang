@@ -684,6 +684,26 @@ class TreeBuilder {
                 node.parameters[i].arrowExprParam = true;
             }
         }
+
+        if (kind === 'PatternStreamingInput') {
+            if (node.ws && node.ws[0].text === '(') {
+                node.enclosedInParenthesis = true;
+            }
+        }
+
+        if (kind === 'SelectClause') {
+            if (!node.ws) {
+                node.notVisible = true;
+            }
+        }
+
+        if (kind === 'OrderByVariable') {
+            if (!node.ws) {
+                node.noVisibleType = true;
+            } else {
+                node.typeString = node.ws[0].text;
+            }
+        }
     }
 
     static modify(tree, parentKind = null) {

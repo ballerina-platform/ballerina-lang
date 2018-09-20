@@ -2925,6 +2925,37 @@ public class SourceGen {
                  + "continue" + a("", sourceGenParams.isShouldIndent())
                  + w("", sourceGenParams) + ";" + a("", sourceGenParams.isShouldIndent());
         }
+        public String getSourceForOutputRateLimit(JsonObject node, boolean pretty, boolean replaceLambda, SourceGenParams sourceGenParams) {
+            if (node.get("snapshot") != null
+                         && node.get("snapshot") .getAsBoolean() && node.get("rateLimitValue") != null
+                         && node.get("timeScale") != null) {
+                return w("", sourceGenParams) + "output"
+                 + a("", sourceGenParams.isShouldIndent()) + w("", sourceGenParams) + "snapshot"
+                 + a("", sourceGenParams.isShouldIndent()) + w("", sourceGenParams) + "every"
+                 + a("", sourceGenParams.isShouldIndent()) + w("", sourceGenParams)
+                 + node.get("rateLimitValue").getAsString()
+                 + a("", sourceGenParams.isShouldIndent()) + w("", sourceGenParams)
+                 + node.get("timeScale").getAsString() + a("", sourceGenParams.isShouldIndent());
+            } else if (node.get("outputRateType") != null
+                         && node.get("rateLimitValue") != null && node.get("timeScale") != null) {
+                return w("", sourceGenParams) + "output"
+                 + a("", sourceGenParams.isShouldIndent()) + w("", sourceGenParams)
+                 + node.get("outputRateType").getAsString() + a("", sourceGenParams.isShouldIndent())
+                 + w("", sourceGenParams) + "every"
+                 + a("", sourceGenParams.isShouldIndent()) + w("", sourceGenParams)
+                 + node.get("rateLimitValue").getAsString() + a("", sourceGenParams.isShouldIndent())
+                 + w("", sourceGenParams) + node.get("timeScale").getAsString()
+                 + a("", sourceGenParams.isShouldIndent());
+            } else {
+                return w("", sourceGenParams) + "output"
+                 + a("", sourceGenParams.isShouldIndent()) + w("", sourceGenParams)
+                 + node.get("outputRateType").getAsString() + a("", sourceGenParams.isShouldIndent())
+                 + w("", sourceGenParams) + "every"
+                 + a("", sourceGenParams.isShouldIndent()) + w("", sourceGenParams)
+                 + node.get("rateLimitValue").getAsString() + a("", sourceGenParams.isShouldIndent())
+                 + w("", sourceGenParams) + "events" + a("", sourceGenParams.isShouldIndent());
+            }
+        }
         public String getSourceForOrderBy(JsonObject node, boolean pretty, boolean replaceLambda, SourceGenParams sourceGenParams) {
             return w("", sourceGenParams) + "order"
                  + a("", sourceGenParams.isShouldIndent()) + w("", sourceGenParams) + "by"
@@ -2932,10 +2963,153 @@ public class SourceGen {
                  + join(node.getAsJsonArray("variables"), pretty, replaceLambda, "", ",", false, sourceGenParams);
         }
         public String getSourceForOrderByVariable(JsonObject node, boolean pretty, boolean replaceLambda, SourceGenParams sourceGenParams) {
-            return a("", sourceGenParams.isShouldIndent())
+            if (node.get("noVisibleType") != null
+                         && node.get("noVisibleType") .getAsBoolean() && node.get("variableReference") != null) {
+                return a("", sourceGenParams.isShouldIndent())
+                 + getSourceOf(node.getAsJsonObject("variableReference"), pretty, replaceLambda);
+            } else {
+                return a("", sourceGenParams.isShouldIndent())
                  + getSourceOf(node.getAsJsonObject("variableReference"), pretty, replaceLambda)
-                 + w(" ", sourceGenParams) + node.get("orderByType").getAsString()
+                 + w("", sourceGenParams) + node.get("typeString").getAsString()
                  + a("", sourceGenParams.isShouldIndent());
+            }
+        }
+        public String getSourceForPatternClause(JsonObject node, boolean pretty, boolean replaceLambda, SourceGenParams sourceGenParams) {
+            if (node.get("forAllEvents") != null
+                         && node.get("forAllEvents") .getAsBoolean() && node.get("patternStreamingNode") != null
+                         && node.get("withinClause") != null) {
+                return w("", sourceGenParams) + "every"
+                 + a("", sourceGenParams.isShouldIndent()) + a("", sourceGenParams.isShouldIndent())
+                 + getSourceOf(node.getAsJsonObject("patternStreamingNode"), pretty, replaceLambda) + a("", sourceGenParams.isShouldIndent())
+                 + getSourceOf(node.getAsJsonObject("withinClause"), pretty, replaceLambda);
+            } else if (node.get("forAllEvents") != null
+                         && node.get("forAllEvents") .getAsBoolean() && node.get("patternStreamingNode") != null) {
+                return w("", sourceGenParams) + "every"
+                 + a("", sourceGenParams.isShouldIndent()) + a("", sourceGenParams.isShouldIndent())
+                 + getSourceOf(node.getAsJsonObject("patternStreamingNode"), pretty, replaceLambda);
+            } else if (node.get("patternStreamingNode") != null
+                         && node.get("withinClause") != null) {
+                return a("", sourceGenParams.isShouldIndent())
+                 + getSourceOf(node.getAsJsonObject("patternStreamingNode"), pretty, replaceLambda)
+                 + a("", sourceGenParams.isShouldIndent())
+                 + getSourceOf(node.getAsJsonObject("withinClause"), pretty, replaceLambda);
+            } else {
+                return a("", sourceGenParams.isShouldIndent())
+                 + getSourceOf(node.getAsJsonObject("patternStreamingNode"), pretty, replaceLambda);
+            }
+        }
+        public String getSourceForPatternStreamingInput(JsonObject node, boolean pretty, boolean replaceLambda, SourceGenParams sourceGenParams) {
+            if (node.get("followedBy") != null
+                         && node.get("followedBy") .getAsBoolean() && node.get("patternStreamingEdgeInputs") != null
+                         && node.get("patternStreamingInput") != null) {
+                return join(node.getAsJsonArray("patternStreamingEdgeInputs"), pretty, replaceLambda, "", null, false, sourceGenParams)
+                 + w("", sourceGenParams) + "followed" + a("", sourceGenParams.isShouldIndent())
+                 + w("", sourceGenParams) + "by"
+                 + a("", sourceGenParams.isShouldIndent()) + a("", sourceGenParams.isShouldIndent())
+                 + getSourceOf(node.getAsJsonObject("patternStreamingInput"), pretty, replaceLambda);
+            } else if (node.get("commaSeparated") != null
+                         && node.get("commaSeparated") .getAsBoolean() && node.get("patternStreamingEdgeInputs") != null
+                         && node.get("patternStreamingInput") != null) {
+                return join(node.getAsJsonArray("patternStreamingEdgeInputs"), pretty, replaceLambda, "", null, false, sourceGenParams)
+                 + w("", sourceGenParams) + "," + a("", sourceGenParams.isShouldIndent())
+                 + a("", sourceGenParams.isShouldIndent())
+                 + getSourceOf(node.getAsJsonObject("patternStreamingInput"), pretty, replaceLambda);
+            } else if (node.get("enclosedInParenthesis") != null
+                         && node.get("enclosedInParenthesis") .getAsBoolean()
+                         && node.get("patternStreamingInput") != null) {
+                return w("", sourceGenParams) + "("
+                 + a("", sourceGenParams.isShouldIndent()) + a("", sourceGenParams.isShouldIndent())
+                 + getSourceOf(node.getAsJsonObject("patternStreamingInput"), pretty, replaceLambda) + w("", sourceGenParams) + ")"
+                 + a("", sourceGenParams.isShouldIndent());
+            } else if (node.get("andWithNot") != null
+                         && node.get("andWithNot") .getAsBoolean() && node.get("patternStreamingEdgeInputs") != null) {
+                return w("", sourceGenParams) + "!"
+                 + a("", sourceGenParams.isShouldIndent())
+                 + join(node.getAsJsonArray("patternStreamingEdgeInputs"), pretty, replaceLambda, "", "&&", false, sourceGenParams);
+            } else if (node.get("forWithNot") != null
+                         && node.get("forWithNot") .getAsBoolean() && node.get("patternStreamingEdgeInputs") != null
+                         && node.get("timeDurationValue") != null
+                         && node.get("timeScale") != null) {
+                return w("", sourceGenParams) + "!"
+                 + a("", sourceGenParams.isShouldIndent())
+                 + join(node.getAsJsonArray("patternStreamingEdgeInputs"), pretty, replaceLambda, "", null, false, sourceGenParams)
+                 + w("", sourceGenParams) + "for" + a("", sourceGenParams.isShouldIndent())
+                 + w("", sourceGenParams)
+                 + node.get("timeDurationValue").getAsString() + a("", sourceGenParams.isShouldIndent())
+                 + w("", sourceGenParams) + node.get("timeScale").getAsString()
+                 + a("", sourceGenParams.isShouldIndent());
+            } else if (node.get("andOnly") != null
+                         && node.get("andOnly") .getAsBoolean() && node.get("patternStreamingEdgeInputs") != null) {
+                return join(node.getAsJsonArray("patternStreamingEdgeInputs"), pretty, replaceLambda, "", "&&", false, sourceGenParams);
+            } else if (node.get("orOnly") != null && node.get("orOnly") .getAsBoolean()
+                         && node.get("patternStreamingEdgeInputs") != null) {
+                return join(node.getAsJsonArray("patternStreamingEdgeInputs"), pretty, replaceLambda, "", "||", false, sourceGenParams);
+            } else {
+                return join(node.getAsJsonArray("patternStreamingEdgeInputs"), pretty, replaceLambda, "", null, false, sourceGenParams);
+            }
+        }
+        public String getSourceForPatternStreamingEdgeInput(JsonObject node, boolean pretty, boolean replaceLambda, SourceGenParams sourceGenParams) {
+            if (node.get("streamReference") != null
+                         && node.get("whereClause") != null && node.get("expression") != null
+                         && node.get("aliasIdentifier") != null) {
+                return a("", sourceGenParams.isShouldIndent())
+                 + getSourceOf(node.getAsJsonObject("streamReference"), pretty, replaceLambda)
+                 + a("", sourceGenParams.isShouldIndent())
+                 + getSourceOf(node.getAsJsonObject("whereClause"), pretty, replaceLambda)
+                 + a("", sourceGenParams.isShouldIndent())
+                 + getSourceOf(node.getAsJsonObject("expression"), pretty, replaceLambda) + w("", sourceGenParams) + "as"
+                 + a("", sourceGenParams.isShouldIndent()) + w("", sourceGenParams)
+                 + node.get("aliasIdentifier").getAsString()
+                 + a("", sourceGenParams.isShouldIndent());
+            } else if (node.get("streamReference") != null
+                         && node.get("whereClause") != null && node.get("expression") != null) {
+                return a("", sourceGenParams.isShouldIndent())
+                 + getSourceOf(node.getAsJsonObject("streamReference"), pretty, replaceLambda)
+                 + a("", sourceGenParams.isShouldIndent())
+                 + getSourceOf(node.getAsJsonObject("whereClause"), pretty, replaceLambda)
+                 + a("", sourceGenParams.isShouldIndent())
+                 + getSourceOf(node.getAsJsonObject("expression"), pretty, replaceLambda);
+            } else if (node.get("streamReference") != null
+                         && node.get("whereClause") != null && node.get("aliasIdentifier") != null) {
+                return a("", sourceGenParams.isShouldIndent())
+                 + getSourceOf(node.getAsJsonObject("streamReference"), pretty, replaceLambda)
+                 + a("", sourceGenParams.isShouldIndent())
+                 + getSourceOf(node.getAsJsonObject("whereClause"), pretty, replaceLambda) + w("", sourceGenParams)
+                 + "as" + a("", sourceGenParams.isShouldIndent())
+                 + w("", sourceGenParams) + node.get("aliasIdentifier").getAsString()
+                 + a("", sourceGenParams.isShouldIndent());
+            } else if (node.get("streamReference") != null
+                         && node.get("whereClause") != null) {
+                return a("", sourceGenParams.isShouldIndent())
+                 + getSourceOf(node.getAsJsonObject("streamReference"), pretty, replaceLambda)
+                 + a("", sourceGenParams.isShouldIndent())
+                 + getSourceOf(node.getAsJsonObject("whereClause"), pretty, replaceLambda);
+            } else if (node.get("streamReference") != null
+                         && node.get("expression") != null && node.get("aliasIdentifier") != null) {
+                return a("", sourceGenParams.isShouldIndent())
+                 + getSourceOf(node.getAsJsonObject("streamReference"), pretty, replaceLambda)
+                 + a("", sourceGenParams.isShouldIndent())
+                 + getSourceOf(node.getAsJsonObject("expression"), pretty, replaceLambda) + w("", sourceGenParams)
+                 + "as" + a("", sourceGenParams.isShouldIndent())
+                 + w("", sourceGenParams) + node.get("aliasIdentifier").getAsString()
+                 + a("", sourceGenParams.isShouldIndent());
+            } else if (node.get("streamReference") != null
+                         && node.get("expression") != null) {
+                return a("", sourceGenParams.isShouldIndent())
+                 + getSourceOf(node.getAsJsonObject("streamReference"), pretty, replaceLambda)
+                 + a("", sourceGenParams.isShouldIndent())
+                 + getSourceOf(node.getAsJsonObject("expression"), pretty, replaceLambda);
+            } else if (node.get("streamReference") != null
+                         && node.get("aliasIdentifier") != null) {
+                return a("", sourceGenParams.isShouldIndent())
+                 + getSourceOf(node.getAsJsonObject("streamReference"), pretty, replaceLambda)
+                 + w("", sourceGenParams) + "as" + a("", sourceGenParams.isShouldIndent())
+                 + w("", sourceGenParams) + node.get("aliasIdentifier").getAsString()
+                 + a("", sourceGenParams.isShouldIndent());
+            } else {
+                return a("", sourceGenParams.isShouldIndent())
+                 + getSourceOf(node.getAsJsonObject("streamReference"), pretty, replaceLambda);
+            }
         }
         public String getSourceForPostIncrement(JsonObject node, boolean pretty, boolean replaceLambda, SourceGenParams sourceGenParams) {
             return dent(sourceGenParams.isShouldIndent())
@@ -3034,7 +3208,10 @@ public class SourceGen {
             }
         }
         public String getSourceForSelectClause(JsonObject node, boolean pretty, boolean replaceLambda, SourceGenParams sourceGenParams) {
-            if (node.get("selectAll") != null
+            if (node.get("notVisible") != null
+                         && node.get("notVisible") .getAsBoolean()) {
+                return "";
+            } else if (node.get("selectAll") != null
                          && node.get("selectAll") .getAsBoolean() && node.get("groupBy") != null
                          && node.get("having") != null) {
                 return w("", sourceGenParams) + "select"
@@ -3443,12 +3620,161 @@ public class SourceGen {
                  + getSourceOf(node.getAsJsonObject("invokableBody"), pretty, replaceLambda);
         }
         public String getSourceForStreamingInput(JsonObject node, boolean pretty, boolean replaceLambda, SourceGenParams sourceGenParams) {
-            if (node.get("windowTraversedAfterWhere") != null
-                         && node.get("windowTraversedAfterWhere") .getAsBoolean()
-                         && node.get("streamReference") != null && node.get("beforeStreamingCondition") != null
-                         && node.get("windowClause") != null
-                         && node.get("afterStreamingCondition") != null && node.get("aliasAvailable") != null
-                         && node.get("aliasAvailable") .getAsBoolean() && node.get("alias") != null) {
+            if (node.get("aliasAvailable") != null
+                         && node.get("aliasAvailable") .getAsBoolean() && node.get("streamReference") != null
+                         && node.get("beforeStreamingCondition") != null
+                         && node.get("preFunctionInvocations") != null && node.get("windowClause") != null
+                         && node.get("postFunctionInvocations") != null
+                         && node.get("afterStreamingCondition") != null && node.get("alias") != null) {
+                return a("", sourceGenParams.isShouldIndent())
+                 + getSourceOf(node.getAsJsonObject("streamReference"), pretty, replaceLambda)
+                 + a("", sourceGenParams.isShouldIndent())
+                 + getSourceOf(node.getAsJsonObject("beforeStreamingCondition"), pretty, replaceLambda)
+                 + join(node.getAsJsonArray("preFunctionInvocations"), pretty, replaceLambda, "", null, false, sourceGenParams)
+                 + a("", sourceGenParams.isShouldIndent())
+                 + getSourceOf(node.getAsJsonObject("windowClause"), pretty, replaceLambda)
+                 + join(node.getAsJsonArray("postFunctionInvocations"), pretty, replaceLambda, "", null, false, sourceGenParams) + a("", sourceGenParams.isShouldIndent())
+                 + getSourceOf(node.getAsJsonObject("afterStreamingCondition"), pretty, replaceLambda)
+                 + w("", sourceGenParams) + "as"
+                 + a("", sourceGenParams.isShouldIndent()) + w("", sourceGenParams)
+                 + node.get("alias").getAsString() + a("", sourceGenParams.isShouldIndent());
+            } else if (node.get("aliasAvailable") != null
+                         && node.get("aliasAvailable") .getAsBoolean() && node.get("streamReference") != null
+                         && node.get("beforeStreamingCondition") != null
+                         && node.get("preFunctionInvocations") != null && node.get("windowClause") != null
+                         && node.get("postFunctionInvocations") != null
+                         && node.get("alias") != null) {
+                return a("", sourceGenParams.isShouldIndent())
+                 + getSourceOf(node.getAsJsonObject("streamReference"), pretty, replaceLambda)
+                 + a("", sourceGenParams.isShouldIndent())
+                 + getSourceOf(node.getAsJsonObject("beforeStreamingCondition"), pretty, replaceLambda)
+                 + join(node.getAsJsonArray("preFunctionInvocations"), pretty, replaceLambda, "", null, false, sourceGenParams)
+                 + a("", sourceGenParams.isShouldIndent())
+                 + getSourceOf(node.getAsJsonObject("windowClause"), pretty, replaceLambda)
+                 + join(node.getAsJsonArray("postFunctionInvocations"), pretty, replaceLambda, "", null, false, sourceGenParams) + w("", sourceGenParams) + "as"
+                 + a("", sourceGenParams.isShouldIndent()) + w("", sourceGenParams)
+                 + node.get("alias").getAsString() + a("", sourceGenParams.isShouldIndent());
+            } else if (node.get("aliasAvailable") != null
+                         && node.get("aliasAvailable") .getAsBoolean() && node.get("streamReference") != null
+                         && node.get("beforeStreamingCondition") != null
+                         && node.get("preFunctionInvocations") != null && node.get("windowClause") != null
+                         && node.get("afterStreamingCondition") != null
+                         && node.get("alias") != null) {
+                return a("", sourceGenParams.isShouldIndent())
+                 + getSourceOf(node.getAsJsonObject("streamReference"), pretty, replaceLambda)
+                 + a("", sourceGenParams.isShouldIndent())
+                 + getSourceOf(node.getAsJsonObject("beforeStreamingCondition"), pretty, replaceLambda)
+                 + join(node.getAsJsonArray("preFunctionInvocations"), pretty, replaceLambda, "", null, false, sourceGenParams)
+                 + a("", sourceGenParams.isShouldIndent())
+                 + getSourceOf(node.getAsJsonObject("windowClause"), pretty, replaceLambda) + a("", sourceGenParams.isShouldIndent())
+                 + getSourceOf(node.getAsJsonObject("afterStreamingCondition"), pretty, replaceLambda) + w("", sourceGenParams) + "as"
+                 + a("", sourceGenParams.isShouldIndent()) + w("", sourceGenParams)
+                 + node.get("alias").getAsString() + a("", sourceGenParams.isShouldIndent());
+            } else if (node.get("aliasAvailable") != null
+                         && node.get("aliasAvailable") .getAsBoolean() && node.get("streamReference") != null
+                         && node.get("beforeStreamingCondition") != null
+                         && node.get("preFunctionInvocations") != null && node.get("windowClause") != null
+                         && node.get("alias") != null) {
+                return a("", sourceGenParams.isShouldIndent())
+                 + getSourceOf(node.getAsJsonObject("streamReference"), pretty, replaceLambda)
+                 + a("", sourceGenParams.isShouldIndent())
+                 + getSourceOf(node.getAsJsonObject("beforeStreamingCondition"), pretty, replaceLambda)
+                 + join(node.getAsJsonArray("preFunctionInvocations"), pretty, replaceLambda, "", null, false, sourceGenParams)
+                 + a("", sourceGenParams.isShouldIndent())
+                 + getSourceOf(node.getAsJsonObject("windowClause"), pretty, replaceLambda) + w("", sourceGenParams) + "as"
+                 + a("", sourceGenParams.isShouldIndent()) + w("", sourceGenParams)
+                 + node.get("alias").getAsString() + a("", sourceGenParams.isShouldIndent());
+            } else if (node.get("aliasAvailable") != null
+                         && node.get("aliasAvailable") .getAsBoolean() && node.get("streamReference") != null
+                         && node.get("beforeStreamingCondition") != null
+                         && node.get("preFunctionInvocations") != null && node.get("postFunctionInvocations") != null
+                         && node.get("afterStreamingCondition") != null
+                         && node.get("alias") != null) {
+                return a("", sourceGenParams.isShouldIndent())
+                 + getSourceOf(node.getAsJsonObject("streamReference"), pretty, replaceLambda)
+                 + a("", sourceGenParams.isShouldIndent())
+                 + getSourceOf(node.getAsJsonObject("beforeStreamingCondition"), pretty, replaceLambda)
+                 + join(node.getAsJsonArray("preFunctionInvocations"), pretty, replaceLambda, "", null, false, sourceGenParams)
+                 + join(node.getAsJsonArray("postFunctionInvocations"), pretty, replaceLambda, "", null, false, sourceGenParams) + a("", sourceGenParams.isShouldIndent())
+                 + getSourceOf(node.getAsJsonObject("afterStreamingCondition"), pretty, replaceLambda) + w("", sourceGenParams) + "as"
+                 + a("", sourceGenParams.isShouldIndent()) + w("", sourceGenParams)
+                 + node.get("alias").getAsString() + a("", sourceGenParams.isShouldIndent());
+            } else if (node.get("aliasAvailable") != null
+                         && node.get("aliasAvailable") .getAsBoolean() && node.get("streamReference") != null
+                         && node.get("beforeStreamingCondition") != null
+                         && node.get("preFunctionInvocations") != null && node.get("postFunctionInvocations") != null
+                         && node.get("alias") != null) {
+                return a("", sourceGenParams.isShouldIndent())
+                 + getSourceOf(node.getAsJsonObject("streamReference"), pretty, replaceLambda)
+                 + a("", sourceGenParams.isShouldIndent())
+                 + getSourceOf(node.getAsJsonObject("beforeStreamingCondition"), pretty, replaceLambda)
+                 + join(node.getAsJsonArray("preFunctionInvocations"), pretty, replaceLambda, "", null, false, sourceGenParams)
+                 + join(node.getAsJsonArray("postFunctionInvocations"), pretty, replaceLambda, "", null, false, sourceGenParams) + w("", sourceGenParams) + "as"
+                 + a("", sourceGenParams.isShouldIndent()) + w("", sourceGenParams)
+                 + node.get("alias").getAsString() + a("", sourceGenParams.isShouldIndent());
+            } else if (node.get("aliasAvailable") != null
+                         && node.get("aliasAvailable") .getAsBoolean() && node.get("streamReference") != null
+                         && node.get("beforeStreamingCondition") != null
+                         && node.get("preFunctionInvocations") != null && node.get("afterStreamingCondition") != null
+                         && node.get("alias") != null) {
+                return a("", sourceGenParams.isShouldIndent())
+                 + getSourceOf(node.getAsJsonObject("streamReference"), pretty, replaceLambda)
+                 + a("", sourceGenParams.isShouldIndent())
+                 + getSourceOf(node.getAsJsonObject("beforeStreamingCondition"), pretty, replaceLambda)
+                 + join(node.getAsJsonArray("preFunctionInvocations"), pretty, replaceLambda, "", null, false, sourceGenParams)
+                 + a("", sourceGenParams.isShouldIndent())
+                 + getSourceOf(node.getAsJsonObject("afterStreamingCondition"), pretty, replaceLambda) + w("", sourceGenParams) + "as"
+                 + a("", sourceGenParams.isShouldIndent()) + w("", sourceGenParams)
+                 + node.get("alias").getAsString()
+                 + a("", sourceGenParams.isShouldIndent());
+            } else if (node.get("aliasAvailable") != null
+                         && node.get("aliasAvailable") .getAsBoolean() && node.get("streamReference") != null
+                         && node.get("beforeStreamingCondition") != null
+                         && node.get("preFunctionInvocations") != null && node.get("alias") != null) {
+                return a("", sourceGenParams.isShouldIndent())
+                 + getSourceOf(node.getAsJsonObject("streamReference"), pretty, replaceLambda)
+                 + a("", sourceGenParams.isShouldIndent())
+                 + getSourceOf(node.getAsJsonObject("beforeStreamingCondition"), pretty, replaceLambda)
+                 + join(node.getAsJsonArray("preFunctionInvocations"), pretty, replaceLambda, "", null, false, sourceGenParams) + w("", sourceGenParams) + "as"
+                 + a("", sourceGenParams.isShouldIndent())
+                 + w("", sourceGenParams) + node.get("alias").getAsString()
+                 + a("", sourceGenParams.isShouldIndent());
+            } else if (node.get("aliasAvailable") != null
+                         && node.get("aliasAvailable") .getAsBoolean() && node.get("streamReference") != null
+                         && node.get("beforeStreamingCondition") != null
+                         && node.get("windowClause") != null && node.get("postFunctionInvocations") != null
+                         && node.get("afterStreamingCondition") != null
+                         && node.get("alias") != null) {
+                return a("", sourceGenParams.isShouldIndent())
+                 + getSourceOf(node.getAsJsonObject("streamReference"), pretty, replaceLambda)
+                 + a("", sourceGenParams.isShouldIndent())
+                 + getSourceOf(node.getAsJsonObject("beforeStreamingCondition"), pretty, replaceLambda)
+                 + a("", sourceGenParams.isShouldIndent())
+                 + getSourceOf(node.getAsJsonObject("windowClause"), pretty, replaceLambda)
+                 + join(node.getAsJsonArray("postFunctionInvocations"), pretty, replaceLambda, "", null, false, sourceGenParams) + a("", sourceGenParams.isShouldIndent())
+                 + getSourceOf(node.getAsJsonObject("afterStreamingCondition"), pretty, replaceLambda) + w("", sourceGenParams) + "as"
+                 + a("", sourceGenParams.isShouldIndent()) + w("", sourceGenParams)
+                 + node.get("alias").getAsString() + a("", sourceGenParams.isShouldIndent());
+            } else if (node.get("aliasAvailable") != null
+                         && node.get("aliasAvailable") .getAsBoolean() && node.get("streamReference") != null
+                         && node.get("beforeStreamingCondition") != null
+                         && node.get("windowClause") != null && node.get("postFunctionInvocations") != null
+                         && node.get("alias") != null) {
+                return a("", sourceGenParams.isShouldIndent())
+                 + getSourceOf(node.getAsJsonObject("streamReference"), pretty, replaceLambda)
+                 + a("", sourceGenParams.isShouldIndent())
+                 + getSourceOf(node.getAsJsonObject("beforeStreamingCondition"), pretty, replaceLambda)
+                 + a("", sourceGenParams.isShouldIndent())
+                 + getSourceOf(node.getAsJsonObject("windowClause"), pretty, replaceLambda)
+                 + join(node.getAsJsonArray("postFunctionInvocations"), pretty, replaceLambda, "", null, false, sourceGenParams) + w("", sourceGenParams) + "as"
+                 + a("", sourceGenParams.isShouldIndent()) + w("", sourceGenParams)
+                 + node.get("alias").getAsString()
+                 + a("", sourceGenParams.isShouldIndent());
+            } else if (node.get("aliasAvailable") != null
+                         && node.get("aliasAvailable") .getAsBoolean() && node.get("streamReference") != null
+                         && node.get("beforeStreamingCondition") != null
+                         && node.get("windowClause") != null && node.get("afterStreamingCondition") != null
+                         && node.get("alias") != null) {
                 return a("", sourceGenParams.isShouldIndent())
                  + getSourceOf(node.getAsJsonObject("streamReference"), pretty, replaceLambda)
                  + a("", sourceGenParams.isShouldIndent())
@@ -3460,75 +3786,10 @@ public class SourceGen {
                  + "as" + a("", sourceGenParams.isShouldIndent())
                  + w("", sourceGenParams) + node.get("alias").getAsString()
                  + a("", sourceGenParams.isShouldIndent());
-            } else if (node.get("windowTraversedAfterWhere") != null
-                         && node.get("windowTraversedAfterWhere") .getAsBoolean()
-                         && node.get("streamReference") != null && node.get("beforeStreamingCondition") != null
-                         && node.get("windowClause") != null
-                         && node.get("afterStreamingCondition") != null) {
-                return a("", sourceGenParams.isShouldIndent())
-                 + getSourceOf(node.getAsJsonObject("streamReference"), pretty, replaceLambda)
-                 + a("", sourceGenParams.isShouldIndent())
-                 + getSourceOf(node.getAsJsonObject("beforeStreamingCondition"), pretty, replaceLambda)
-                 + a("", sourceGenParams.isShouldIndent())
-                 + getSourceOf(node.getAsJsonObject("windowClause"), pretty, replaceLambda)
-                 + a("", sourceGenParams.isShouldIndent())
-                 + getSourceOf(node.getAsJsonObject("afterStreamingCondition"), pretty, replaceLambda);
-            } else if (node.get("windowTraversedAfterWhere") != null
-                         && node.get("windowTraversedAfterWhere") .getAsBoolean()
-                         && node.get("streamReference") != null && node.get("windowClause") != null
-                         && node.get("afterStreamingCondition") != null
-                         && node.get("aliasAvailable") != null && node.get("aliasAvailable") .getAsBoolean()
-                         && node.get("alias") != null) {
-                return a("", sourceGenParams.isShouldIndent())
-                 + getSourceOf(node.getAsJsonObject("streamReference"), pretty, replaceLambda)
-                 + a("", sourceGenParams.isShouldIndent())
-                 + getSourceOf(node.getAsJsonObject("windowClause"), pretty, replaceLambda)
-                 + a("", sourceGenParams.isShouldIndent())
-                 + getSourceOf(node.getAsJsonObject("afterStreamingCondition"), pretty, replaceLambda) + w("", sourceGenParams)
-                 + "as" + a("", sourceGenParams.isShouldIndent())
-                 + w("", sourceGenParams) + node.get("alias").getAsString()
-                 + a("", sourceGenParams.isShouldIndent());
-            } else if (node.get("windowTraversedAfterWhere") != null
-                         && node.get("windowTraversedAfterWhere") .getAsBoolean()
-                         && node.get("streamReference") != null && node.get("windowClause") != null
-                         && node.get("afterStreamingCondition") != null) {
-                return a("", sourceGenParams.isShouldIndent())
-                 + getSourceOf(node.getAsJsonObject("streamReference"), pretty, replaceLambda)
-                 + a("", sourceGenParams.isShouldIndent())
-                 + getSourceOf(node.getAsJsonObject("windowClause"), pretty, replaceLambda)
-                 + a("", sourceGenParams.isShouldIndent())
-                 + getSourceOf(node.getAsJsonObject("afterStreamingCondition"), pretty, replaceLambda);
-            } else if (node.get("windowTraversedAfterWhere") != null
-                         && node.get("windowTraversedAfterWhere") .getAsBoolean()
-                         && node.get("streamReference") != null && node.get("windowClause") != null
-                         && node.get("afterStreamingCondition") != null
-                         && node.get("aliasAvailable") != null && node.get("aliasAvailable") .getAsBoolean()
-                         && node.get("alias") != null) {
-                return a("", sourceGenParams.isShouldIndent())
-                 + getSourceOf(node.getAsJsonObject("streamReference"), pretty, replaceLambda)
-                 + a("", sourceGenParams.isShouldIndent())
-                 + getSourceOf(node.getAsJsonObject("windowClause"), pretty, replaceLambda)
-                 + a("", sourceGenParams.isShouldIndent())
-                 + getSourceOf(node.getAsJsonObject("afterStreamingCondition"), pretty, replaceLambda) + w("", sourceGenParams)
-                 + "as" + a("", sourceGenParams.isShouldIndent())
-                 + w("", sourceGenParams) + node.get("alias").getAsString()
-                 + a("", sourceGenParams.isShouldIndent());
-            } else if (node.get("windowTraversedAfterWhere") != null
-                         && node.get("windowTraversedAfterWhere") .getAsBoolean()
-                         && node.get("streamReference") != null && node.get("windowClause") != null
-                         && node.get("afterStreamingCondition") != null) {
-                return a("", sourceGenParams.isShouldIndent())
-                 + getSourceOf(node.getAsJsonObject("streamReference"), pretty, replaceLambda)
-                 + a("", sourceGenParams.isShouldIndent())
-                 + getSourceOf(node.getAsJsonObject("windowClause"), pretty, replaceLambda)
-                 + a("", sourceGenParams.isShouldIndent())
-                 + getSourceOf(node.getAsJsonObject("afterStreamingCondition"), pretty, replaceLambda);
-            } else if (node.get("windowTraversedAfterWhere") != null
-                         && node.get("windowTraversedAfterWhere") .getAsBoolean()
-                         && node.get("streamReference") != null && node.get("beforeStreamingCondition") != null
-                         && node.get("windowClause") != null
-                         && node.get("aliasAvailable") != null && node.get("aliasAvailable") .getAsBoolean()
-                         && node.get("alias") != null) {
+            } else if (node.get("aliasAvailable") != null
+                         && node.get("aliasAvailable") .getAsBoolean() && node.get("streamReference") != null
+                         && node.get("beforeStreamingCondition") != null
+                         && node.get("windowClause") != null && node.get("alias") != null) {
                 return a("", sourceGenParams.isShouldIndent())
                  + getSourceOf(node.getAsJsonObject("streamReference"), pretty, replaceLambda)
                  + a("", sourceGenParams.isShouldIndent())
@@ -3538,20 +3799,37 @@ public class SourceGen {
                  + "as" + a("", sourceGenParams.isShouldIndent())
                  + w("", sourceGenParams) + node.get("alias").getAsString()
                  + a("", sourceGenParams.isShouldIndent());
-            } else if (node.get("windowTraversedAfterWhere") != null
-                         && node.get("windowTraversedAfterWhere") .getAsBoolean()
-                         && node.get("streamReference") != null && node.get("beforeStreamingCondition") != null
-                         && node.get("windowClause") != null) {
+            } else if (node.get("aliasAvailable") != null
+                         && node.get("aliasAvailable") .getAsBoolean() && node.get("streamReference") != null
+                         && node.get("beforeStreamingCondition") != null
+                         && node.get("postFunctionInvocations") != null
+                         && node.get("afterStreamingCondition") != null && node.get("alias") != null) {
                 return a("", sourceGenParams.isShouldIndent())
                  + getSourceOf(node.getAsJsonObject("streamReference"), pretty, replaceLambda)
                  + a("", sourceGenParams.isShouldIndent())
                  + getSourceOf(node.getAsJsonObject("beforeStreamingCondition"), pretty, replaceLambda)
+                 + join(node.getAsJsonArray("postFunctionInvocations"), pretty, replaceLambda, "", null, false, sourceGenParams)
                  + a("", sourceGenParams.isShouldIndent())
-                 + getSourceOf(node.getAsJsonObject("windowClause"), pretty, replaceLambda);
-            } else if (node.get("streamReference") != null
-                         && node.get("beforeStreamingCondition") != null && node.get("afterStreamingCondition") != null
-                         && node.get("aliasAvailable") != null
-                         && node.get("aliasAvailable") .getAsBoolean() && node.get("alias") != null) {
+                 + getSourceOf(node.getAsJsonObject("afterStreamingCondition"), pretty, replaceLambda) + w("", sourceGenParams) + "as"
+                 + a("", sourceGenParams.isShouldIndent()) + w("", sourceGenParams)
+                 + node.get("alias").getAsString()
+                 + a("", sourceGenParams.isShouldIndent());
+            } else if (node.get("aliasAvailable") != null
+                         && node.get("aliasAvailable") .getAsBoolean() && node.get("streamReference") != null
+                         && node.get("beforeStreamingCondition") != null
+                         && node.get("postFunctionInvocations") != null && node.get("alias") != null) {
+                return a("", sourceGenParams.isShouldIndent())
+                 + getSourceOf(node.getAsJsonObject("streamReference"), pretty, replaceLambda)
+                 + a("", sourceGenParams.isShouldIndent())
+                 + getSourceOf(node.getAsJsonObject("beforeStreamingCondition"), pretty, replaceLambda)
+                 + join(node.getAsJsonArray("postFunctionInvocations"), pretty, replaceLambda, "", null, false, sourceGenParams) + w("", sourceGenParams) + "as"
+                 + a("", sourceGenParams.isShouldIndent())
+                 + w("", sourceGenParams) + node.get("alias").getAsString()
+                 + a("", sourceGenParams.isShouldIndent());
+            } else if (node.get("aliasAvailable") != null
+                         && node.get("aliasAvailable") .getAsBoolean() && node.get("streamReference") != null
+                         && node.get("beforeStreamingCondition") != null
+                         && node.get("afterStreamingCondition") != null && node.get("alias") != null) {
                 return a("", sourceGenParams.isShouldIndent())
                  + getSourceOf(node.getAsJsonObject("streamReference"), pretty, replaceLambda)
                  + a("", sourceGenParams.isShouldIndent())
@@ -3561,6 +3839,345 @@ public class SourceGen {
                  + w("", sourceGenParams) + "as" + a("", sourceGenParams.isShouldIndent())
                  + w("", sourceGenParams) + node.get("alias").getAsString()
                  + a("", sourceGenParams.isShouldIndent());
+            } else if (node.get("aliasAvailable") != null
+                         && node.get("aliasAvailable") .getAsBoolean() && node.get("streamReference") != null
+                         && node.get("beforeStreamingCondition") != null
+                         && node.get("alias") != null) {
+                return a("", sourceGenParams.isShouldIndent())
+                 + getSourceOf(node.getAsJsonObject("streamReference"), pretty, replaceLambda)
+                 + a("", sourceGenParams.isShouldIndent())
+                 + getSourceOf(node.getAsJsonObject("beforeStreamingCondition"), pretty, replaceLambda)
+                 + w("", sourceGenParams) + "as" + a("", sourceGenParams.isShouldIndent())
+                 + w("", sourceGenParams) + node.get("alias").getAsString()
+                 + a("", sourceGenParams.isShouldIndent());
+            } else if (node.get("aliasAvailable") != null
+                         && node.get("aliasAvailable") .getAsBoolean() && node.get("streamReference") != null
+                         && node.get("preFunctionInvocations") != null
+                         && node.get("windowClause") != null && node.get("postFunctionInvocations") != null
+                         && node.get("afterStreamingCondition") != null && node.get("alias") != null) {
+                return a("", sourceGenParams.isShouldIndent())
+                 + getSourceOf(node.getAsJsonObject("streamReference"), pretty, replaceLambda)
+                 + join(node.getAsJsonArray("preFunctionInvocations"), pretty, replaceLambda, "", null, false, sourceGenParams)
+                 + a("", sourceGenParams.isShouldIndent())
+                 + getSourceOf(node.getAsJsonObject("windowClause"), pretty, replaceLambda)
+                 + join(node.getAsJsonArray("postFunctionInvocations"), pretty, replaceLambda, "", null, false, sourceGenParams) + a("", sourceGenParams.isShouldIndent())
+                 + getSourceOf(node.getAsJsonObject("afterStreamingCondition"), pretty, replaceLambda)
+                 + w("", sourceGenParams) + "as"
+                 + a("", sourceGenParams.isShouldIndent()) + w("", sourceGenParams)
+                 + node.get("alias").getAsString() + a("", sourceGenParams.isShouldIndent());
+            } else if (node.get("aliasAvailable") != null
+                         && node.get("aliasAvailable") .getAsBoolean() && node.get("streamReference") != null
+                         && node.get("preFunctionInvocations") != null
+                         && node.get("windowClause") != null && node.get("postFunctionInvocations") != null
+                         && node.get("alias") != null) {
+                return a("", sourceGenParams.isShouldIndent())
+                 + getSourceOf(node.getAsJsonObject("streamReference"), pretty, replaceLambda)
+                 + join(node.getAsJsonArray("preFunctionInvocations"), pretty, replaceLambda, "", null, false, sourceGenParams)
+                 + a("", sourceGenParams.isShouldIndent())
+                 + getSourceOf(node.getAsJsonObject("windowClause"), pretty, replaceLambda)
+                 + join(node.getAsJsonArray("postFunctionInvocations"), pretty, replaceLambda, "", null, false, sourceGenParams) + w("", sourceGenParams) + "as"
+                 + a("", sourceGenParams.isShouldIndent()) + w("", sourceGenParams)
+                 + node.get("alias").getAsString() + a("", sourceGenParams.isShouldIndent());
+            } else if (node.get("aliasAvailable") != null
+                         && node.get("aliasAvailable") .getAsBoolean() && node.get("streamReference") != null
+                         && node.get("preFunctionInvocations") != null
+                         && node.get("windowClause") != null && node.get("afterStreamingCondition") != null
+                         && node.get("alias") != null) {
+                return a("", sourceGenParams.isShouldIndent())
+                 + getSourceOf(node.getAsJsonObject("streamReference"), pretty, replaceLambda)
+                 + join(node.getAsJsonArray("preFunctionInvocations"), pretty, replaceLambda, "", null, false, sourceGenParams)
+                 + a("", sourceGenParams.isShouldIndent())
+                 + getSourceOf(node.getAsJsonObject("windowClause"), pretty, replaceLambda) + a("", sourceGenParams.isShouldIndent())
+                 + getSourceOf(node.getAsJsonObject("afterStreamingCondition"), pretty, replaceLambda) + w("", sourceGenParams) + "as"
+                 + a("", sourceGenParams.isShouldIndent()) + w("", sourceGenParams)
+                 + node.get("alias").getAsString() + a("", sourceGenParams.isShouldIndent());
+            } else if (node.get("aliasAvailable") != null
+                         && node.get("aliasAvailable") .getAsBoolean() && node.get("streamReference") != null
+                         && node.get("preFunctionInvocations") != null
+                         && node.get("windowClause") != null && node.get("alias") != null) {
+                return a("", sourceGenParams.isShouldIndent())
+                 + getSourceOf(node.getAsJsonObject("streamReference"), pretty, replaceLambda)
+                 + join(node.getAsJsonArray("preFunctionInvocations"), pretty, replaceLambda, "", null, false, sourceGenParams)
+                 + a("", sourceGenParams.isShouldIndent())
+                 + getSourceOf(node.getAsJsonObject("windowClause"), pretty, replaceLambda) + w("", sourceGenParams) + "as"
+                 + a("", sourceGenParams.isShouldIndent()) + w("", sourceGenParams)
+                 + node.get("alias").getAsString()
+                 + a("", sourceGenParams.isShouldIndent());
+            } else if (node.get("aliasAvailable") != null
+                         && node.get("aliasAvailable") .getAsBoolean() && node.get("streamReference") != null
+                         && node.get("preFunctionInvocations") != null
+                         && node.get("postFunctionInvocations") != null && node.get("afterStreamingCondition") != null
+                         && node.get("alias") != null) {
+                return a("", sourceGenParams.isShouldIndent())
+                 + getSourceOf(node.getAsJsonObject("streamReference"), pretty, replaceLambda)
+                 + join(node.getAsJsonArray("preFunctionInvocations"), pretty, replaceLambda, "", null, false, sourceGenParams)
+                 + join(node.getAsJsonArray("postFunctionInvocations"), pretty, replaceLambda, "", null, false, sourceGenParams) + a("", sourceGenParams.isShouldIndent())
+                 + getSourceOf(node.getAsJsonObject("afterStreamingCondition"), pretty, replaceLambda) + w("", sourceGenParams) + "as"
+                 + a("", sourceGenParams.isShouldIndent()) + w("", sourceGenParams)
+                 + node.get("alias").getAsString() + a("", sourceGenParams.isShouldIndent());
+            } else if (node.get("aliasAvailable") != null
+                         && node.get("aliasAvailable") .getAsBoolean() && node.get("streamReference") != null
+                         && node.get("preFunctionInvocations") != null
+                         && node.get("postFunctionInvocations") != null && node.get("alias") != null) {
+                return a("", sourceGenParams.isShouldIndent())
+                 + getSourceOf(node.getAsJsonObject("streamReference"), pretty, replaceLambda)
+                 + join(node.getAsJsonArray("preFunctionInvocations"), pretty, replaceLambda, "", null, false, sourceGenParams)
+                 + join(node.getAsJsonArray("postFunctionInvocations"), pretty, replaceLambda, "", null, false, sourceGenParams) + w("", sourceGenParams) + "as"
+                 + a("", sourceGenParams.isShouldIndent()) + w("", sourceGenParams)
+                 + node.get("alias").getAsString() + a("", sourceGenParams.isShouldIndent());
+            } else if (node.get("aliasAvailable") != null
+                         && node.get("aliasAvailable") .getAsBoolean() && node.get("streamReference") != null
+                         && node.get("preFunctionInvocations") != null
+                         && node.get("afterStreamingCondition") != null && node.get("alias") != null) {
+                return a("", sourceGenParams.isShouldIndent())
+                 + getSourceOf(node.getAsJsonObject("streamReference"), pretty, replaceLambda)
+                 + join(node.getAsJsonArray("preFunctionInvocations"), pretty, replaceLambda, "", null, false, sourceGenParams)
+                 + a("", sourceGenParams.isShouldIndent())
+                 + getSourceOf(node.getAsJsonObject("afterStreamingCondition"), pretty, replaceLambda) + w("", sourceGenParams) + "as"
+                 + a("", sourceGenParams.isShouldIndent()) + w("", sourceGenParams)
+                 + node.get("alias").getAsString()
+                 + a("", sourceGenParams.isShouldIndent());
+            } else if (node.get("aliasAvailable") != null
+                         && node.get("aliasAvailable") .getAsBoolean() && node.get("streamReference") != null
+                         && node.get("preFunctionInvocations") != null && node.get("alias") != null) {
+                return a("", sourceGenParams.isShouldIndent())
+                 + getSourceOf(node.getAsJsonObject("streamReference"), pretty, replaceLambda)
+                 + join(node.getAsJsonArray("preFunctionInvocations"), pretty, replaceLambda, "", null, false, sourceGenParams) + w("", sourceGenParams) + "as"
+                 + a("", sourceGenParams.isShouldIndent())
+                 + w("", sourceGenParams) + node.get("alias").getAsString()
+                 + a("", sourceGenParams.isShouldIndent());
+            } else if (node.get("aliasAvailable") != null
+                         && node.get("aliasAvailable") .getAsBoolean() && node.get("streamReference") != null
+                         && node.get("windowClause") != null
+                         && node.get("postFunctionInvocations") != null && node.get("afterStreamingCondition") != null
+                         && node.get("alias") != null) {
+                return a("", sourceGenParams.isShouldIndent())
+                 + getSourceOf(node.getAsJsonObject("streamReference"), pretty, replaceLambda)
+                 + a("", sourceGenParams.isShouldIndent())
+                 + getSourceOf(node.getAsJsonObject("windowClause"), pretty, replaceLambda)
+                 + join(node.getAsJsonArray("postFunctionInvocations"), pretty, replaceLambda, "", null, false, sourceGenParams) + a("", sourceGenParams.isShouldIndent())
+                 + getSourceOf(node.getAsJsonObject("afterStreamingCondition"), pretty, replaceLambda) + w("", sourceGenParams) + "as"
+                 + a("", sourceGenParams.isShouldIndent()) + w("", sourceGenParams)
+                 + node.get("alias").getAsString() + a("", sourceGenParams.isShouldIndent());
+            } else if (node.get("aliasAvailable") != null
+                         && node.get("aliasAvailable") .getAsBoolean() && node.get("streamReference") != null
+                         && node.get("windowClause") != null
+                         && node.get("postFunctionInvocations") != null && node.get("alias") != null) {
+                return a("", sourceGenParams.isShouldIndent())
+                 + getSourceOf(node.getAsJsonObject("streamReference"), pretty, replaceLambda)
+                 + a("", sourceGenParams.isShouldIndent())
+                 + getSourceOf(node.getAsJsonObject("windowClause"), pretty, replaceLambda)
+                 + join(node.getAsJsonArray("postFunctionInvocations"), pretty, replaceLambda, "", null, false, sourceGenParams) + w("", sourceGenParams) + "as"
+                 + a("", sourceGenParams.isShouldIndent()) + w("", sourceGenParams)
+                 + node.get("alias").getAsString()
+                 + a("", sourceGenParams.isShouldIndent());
+            } else if (node.get("aliasAvailable") != null
+                         && node.get("aliasAvailable") .getAsBoolean() && node.get("streamReference") != null
+                         && node.get("windowClause") != null
+                         && node.get("afterStreamingCondition") != null && node.get("alias") != null) {
+                return a("", sourceGenParams.isShouldIndent())
+                 + getSourceOf(node.getAsJsonObject("streamReference"), pretty, replaceLambda)
+                 + a("", sourceGenParams.isShouldIndent())
+                 + getSourceOf(node.getAsJsonObject("windowClause"), pretty, replaceLambda)
+                 + a("", sourceGenParams.isShouldIndent())
+                 + getSourceOf(node.getAsJsonObject("afterStreamingCondition"), pretty, replaceLambda) + w("", sourceGenParams)
+                 + "as" + a("", sourceGenParams.isShouldIndent())
+                 + w("", sourceGenParams) + node.get("alias").getAsString()
+                 + a("", sourceGenParams.isShouldIndent());
+            } else if (node.get("aliasAvailable") != null
+                         && node.get("aliasAvailable") .getAsBoolean() && node.get("streamReference") != null
+                         && node.get("windowClause") != null && node.get("alias") != null) {
+                return a("", sourceGenParams.isShouldIndent())
+                 + getSourceOf(node.getAsJsonObject("streamReference"), pretty, replaceLambda)
+                 + a("", sourceGenParams.isShouldIndent())
+                 + getSourceOf(node.getAsJsonObject("windowClause"), pretty, replaceLambda) + w("", sourceGenParams)
+                 + "as" + a("", sourceGenParams.isShouldIndent())
+                 + w("", sourceGenParams) + node.get("alias").getAsString()
+                 + a("", sourceGenParams.isShouldIndent());
+            } else if (node.get("aliasAvailable") != null
+                         && node.get("aliasAvailable") .getAsBoolean() && node.get("streamReference") != null
+                         && node.get("postFunctionInvocations") != null
+                         && node.get("afterStreamingCondition") != null && node.get("alias") != null) {
+                return a("", sourceGenParams.isShouldIndent())
+                 + getSourceOf(node.getAsJsonObject("streamReference"), pretty, replaceLambda)
+                 + join(node.getAsJsonArray("postFunctionInvocations"), pretty, replaceLambda, "", null, false, sourceGenParams)
+                 + a("", sourceGenParams.isShouldIndent())
+                 + getSourceOf(node.getAsJsonObject("afterStreamingCondition"), pretty, replaceLambda) + w("", sourceGenParams) + "as"
+                 + a("", sourceGenParams.isShouldIndent())
+                 + w("", sourceGenParams) + node.get("alias").getAsString()
+                 + a("", sourceGenParams.isShouldIndent());
+            } else if (node.get("aliasAvailable") != null
+                         && node.get("aliasAvailable") .getAsBoolean() && node.get("streamReference") != null
+                         && node.get("postFunctionInvocations") != null
+                         && node.get("alias") != null) {
+                return a("", sourceGenParams.isShouldIndent())
+                 + getSourceOf(node.getAsJsonObject("streamReference"), pretty, replaceLambda)
+                 + join(node.getAsJsonArray("postFunctionInvocations"), pretty, replaceLambda, "", null, false, sourceGenParams) + w("", sourceGenParams)
+                 + "as" + a("", sourceGenParams.isShouldIndent())
+                 + w("", sourceGenParams) + node.get("alias").getAsString()
+                 + a("", sourceGenParams.isShouldIndent());
+            } else if (node.get("aliasAvailable") != null
+                         && node.get("aliasAvailable") .getAsBoolean() && node.get("streamReference") != null
+                         && node.get("afterStreamingCondition") != null
+                         && node.get("alias") != null) {
+                return a("", sourceGenParams.isShouldIndent())
+                 + getSourceOf(node.getAsJsonObject("streamReference"), pretty, replaceLambda)
+                 + a("", sourceGenParams.isShouldIndent())
+                 + getSourceOf(node.getAsJsonObject("afterStreamingCondition"), pretty, replaceLambda)
+                 + w("", sourceGenParams) + "as" + a("", sourceGenParams.isShouldIndent())
+                 + w("", sourceGenParams) + node.get("alias").getAsString()
+                 + a("", sourceGenParams.isShouldIndent());
+            } else if (node.get("aliasAvailable") != null
+                         && node.get("aliasAvailable") .getAsBoolean() && node.get("streamReference") != null
+                         && node.get("alias") != null) {
+                return a("", sourceGenParams.isShouldIndent())
+                 + getSourceOf(node.getAsJsonObject("streamReference"), pretty, replaceLambda)
+                 + w("", sourceGenParams) + "as" + a("", sourceGenParams.isShouldIndent())
+                 + w("", sourceGenParams) + node.get("alias").getAsString()
+                 + a("", sourceGenParams.isShouldIndent());
+            } else if (node.get("streamReference") != null
+                         && node.get("beforeStreamingCondition") != null && node.get("preFunctionInvocations") != null
+                         && node.get("windowClause") != null
+                         && node.get("postFunctionInvocations") != null && node.get("afterStreamingCondition") != null) {
+                return a("", sourceGenParams.isShouldIndent())
+                 + getSourceOf(node.getAsJsonObject("streamReference"), pretty, replaceLambda)
+                 + a("", sourceGenParams.isShouldIndent())
+                 + getSourceOf(node.getAsJsonObject("beforeStreamingCondition"), pretty, replaceLambda)
+                 + join(node.getAsJsonArray("preFunctionInvocations"), pretty, replaceLambda, "", null, false, sourceGenParams)
+                 + a("", sourceGenParams.isShouldIndent())
+                 + getSourceOf(node.getAsJsonObject("windowClause"), pretty, replaceLambda)
+                 + join(node.getAsJsonArray("postFunctionInvocations"), pretty, replaceLambda, "", null, false, sourceGenParams) + a("", sourceGenParams.isShouldIndent())
+                 + getSourceOf(node.getAsJsonObject("afterStreamingCondition"), pretty, replaceLambda);
+            } else if (node.get("streamReference") != null
+                         && node.get("beforeStreamingCondition") != null && node.get("preFunctionInvocations") != null
+                         && node.get("windowClause") != null
+                         && node.get("postFunctionInvocations") != null) {
+                return a("", sourceGenParams.isShouldIndent())
+                 + getSourceOf(node.getAsJsonObject("streamReference"), pretty, replaceLambda)
+                 + a("", sourceGenParams.isShouldIndent())
+                 + getSourceOf(node.getAsJsonObject("beforeStreamingCondition"), pretty, replaceLambda)
+                 + join(node.getAsJsonArray("preFunctionInvocations"), pretty, replaceLambda, "", null, false, sourceGenParams)
+                 + a("", sourceGenParams.isShouldIndent())
+                 + getSourceOf(node.getAsJsonObject("windowClause"), pretty, replaceLambda)
+                 + join(node.getAsJsonArray("postFunctionInvocations"), pretty, replaceLambda, "", null, false, sourceGenParams);
+            } else if (node.get("streamReference") != null
+                         && node.get("beforeStreamingCondition") != null && node.get("preFunctionInvocations") != null
+                         && node.get("windowClause") != null
+                         && node.get("afterStreamingCondition") != null) {
+                return a("", sourceGenParams.isShouldIndent())
+                 + getSourceOf(node.getAsJsonObject("streamReference"), pretty, replaceLambda)
+                 + a("", sourceGenParams.isShouldIndent())
+                 + getSourceOf(node.getAsJsonObject("beforeStreamingCondition"), pretty, replaceLambda)
+                 + join(node.getAsJsonArray("preFunctionInvocations"), pretty, replaceLambda, "", null, false, sourceGenParams)
+                 + a("", sourceGenParams.isShouldIndent())
+                 + getSourceOf(node.getAsJsonObject("windowClause"), pretty, replaceLambda) + a("", sourceGenParams.isShouldIndent())
+                 + getSourceOf(node.getAsJsonObject("afterStreamingCondition"), pretty, replaceLambda);
+            } else if (node.get("streamReference") != null
+                         && node.get("beforeStreamingCondition") != null && node.get("preFunctionInvocations") != null
+                         && node.get("windowClause") != null) {
+                return a("", sourceGenParams.isShouldIndent())
+                 + getSourceOf(node.getAsJsonObject("streamReference"), pretty, replaceLambda)
+                 + a("", sourceGenParams.isShouldIndent())
+                 + getSourceOf(node.getAsJsonObject("beforeStreamingCondition"), pretty, replaceLambda)
+                 + join(node.getAsJsonArray("preFunctionInvocations"), pretty, replaceLambda, "", null, false, sourceGenParams)
+                 + a("", sourceGenParams.isShouldIndent())
+                 + getSourceOf(node.getAsJsonObject("windowClause"), pretty, replaceLambda);
+            } else if (node.get("streamReference") != null
+                         && node.get("beforeStreamingCondition") != null && node.get("preFunctionInvocations") != null
+                         && node.get("postFunctionInvocations") != null
+                         && node.get("afterStreamingCondition") != null) {
+                return a("", sourceGenParams.isShouldIndent())
+                 + getSourceOf(node.getAsJsonObject("streamReference"), pretty, replaceLambda)
+                 + a("", sourceGenParams.isShouldIndent())
+                 + getSourceOf(node.getAsJsonObject("beforeStreamingCondition"), pretty, replaceLambda)
+                 + join(node.getAsJsonArray("preFunctionInvocations"), pretty, replaceLambda, "", null, false, sourceGenParams)
+                 + join(node.getAsJsonArray("postFunctionInvocations"), pretty, replaceLambda, "", null, false, sourceGenParams) + a("", sourceGenParams.isShouldIndent())
+                 + getSourceOf(node.getAsJsonObject("afterStreamingCondition"), pretty, replaceLambda);
+            } else if (node.get("streamReference") != null
+                         && node.get("beforeStreamingCondition") != null && node.get("preFunctionInvocations") != null
+                         && node.get("postFunctionInvocations") != null) {
+                return a("", sourceGenParams.isShouldIndent())
+                 + getSourceOf(node.getAsJsonObject("streamReference"), pretty, replaceLambda)
+                 + a("", sourceGenParams.isShouldIndent())
+                 + getSourceOf(node.getAsJsonObject("beforeStreamingCondition"), pretty, replaceLambda)
+                 + join(node.getAsJsonArray("preFunctionInvocations"), pretty, replaceLambda, "", null, false, sourceGenParams)
+                 + join(node.getAsJsonArray("postFunctionInvocations"), pretty, replaceLambda, "", null, false, sourceGenParams);
+            } else if (node.get("streamReference") != null
+                         && node.get("beforeStreamingCondition") != null && node.get("preFunctionInvocations") != null
+                         && node.get("afterStreamingCondition") != null) {
+                return a("", sourceGenParams.isShouldIndent())
+                 + getSourceOf(node.getAsJsonObject("streamReference"), pretty, replaceLambda)
+                 + a("", sourceGenParams.isShouldIndent())
+                 + getSourceOf(node.getAsJsonObject("beforeStreamingCondition"), pretty, replaceLambda)
+                 + join(node.getAsJsonArray("preFunctionInvocations"), pretty, replaceLambda, "", null, false, sourceGenParams)
+                 + a("", sourceGenParams.isShouldIndent())
+                 + getSourceOf(node.getAsJsonObject("afterStreamingCondition"), pretty, replaceLambda);
+            } else if (node.get("streamReference") != null
+                         && node.get("beforeStreamingCondition") != null && node.get("preFunctionInvocations") != null) {
+                return a("", sourceGenParams.isShouldIndent())
+                 + getSourceOf(node.getAsJsonObject("streamReference"), pretty, replaceLambda)
+                 + a("", sourceGenParams.isShouldIndent())
+                 + getSourceOf(node.getAsJsonObject("beforeStreamingCondition"), pretty, replaceLambda)
+                 + join(node.getAsJsonArray("preFunctionInvocations"), pretty, replaceLambda, "", null, false, sourceGenParams);
+            } else if (node.get("streamReference") != null
+                         && node.get("beforeStreamingCondition") != null && node.get("windowClause") != null
+                         && node.get("postFunctionInvocations") != null
+                         && node.get("afterStreamingCondition") != null) {
+                return a("", sourceGenParams.isShouldIndent())
+                 + getSourceOf(node.getAsJsonObject("streamReference"), pretty, replaceLambda)
+                 + a("", sourceGenParams.isShouldIndent())
+                 + getSourceOf(node.getAsJsonObject("beforeStreamingCondition"), pretty, replaceLambda)
+                 + a("", sourceGenParams.isShouldIndent())
+                 + getSourceOf(node.getAsJsonObject("windowClause"), pretty, replaceLambda)
+                 + join(node.getAsJsonArray("postFunctionInvocations"), pretty, replaceLambda, "", null, false, sourceGenParams) + a("", sourceGenParams.isShouldIndent())
+                 + getSourceOf(node.getAsJsonObject("afterStreamingCondition"), pretty, replaceLambda);
+            } else if (node.get("streamReference") != null
+                         && node.get("beforeStreamingCondition") != null && node.get("windowClause") != null
+                         && node.get("postFunctionInvocations") != null) {
+                return a("", sourceGenParams.isShouldIndent())
+                 + getSourceOf(node.getAsJsonObject("streamReference"), pretty, replaceLambda)
+                 + a("", sourceGenParams.isShouldIndent())
+                 + getSourceOf(node.getAsJsonObject("beforeStreamingCondition"), pretty, replaceLambda)
+                 + a("", sourceGenParams.isShouldIndent())
+                 + getSourceOf(node.getAsJsonObject("windowClause"), pretty, replaceLambda)
+                 + join(node.getAsJsonArray("postFunctionInvocations"), pretty, replaceLambda, "", null, false, sourceGenParams);
+            } else if (node.get("streamReference") != null
+                         && node.get("beforeStreamingCondition") != null && node.get("windowClause") != null
+                         && node.get("afterStreamingCondition") != null) {
+                return a("", sourceGenParams.isShouldIndent())
+                 + getSourceOf(node.getAsJsonObject("streamReference"), pretty, replaceLambda)
+                 + a("", sourceGenParams.isShouldIndent())
+                 + getSourceOf(node.getAsJsonObject("beforeStreamingCondition"), pretty, replaceLambda)
+                 + a("", sourceGenParams.isShouldIndent())
+                 + getSourceOf(node.getAsJsonObject("windowClause"), pretty, replaceLambda)
+                 + a("", sourceGenParams.isShouldIndent())
+                 + getSourceOf(node.getAsJsonObject("afterStreamingCondition"), pretty, replaceLambda);
+            } else if (node.get("streamReference") != null
+                         && node.get("beforeStreamingCondition") != null && node.get("windowClause") != null) {
+                return a("", sourceGenParams.isShouldIndent())
+                 + getSourceOf(node.getAsJsonObject("streamReference"), pretty, replaceLambda)
+                 + a("", sourceGenParams.isShouldIndent())
+                 + getSourceOf(node.getAsJsonObject("beforeStreamingCondition"), pretty, replaceLambda)
+                 + a("", sourceGenParams.isShouldIndent())
+                 + getSourceOf(node.getAsJsonObject("windowClause"), pretty, replaceLambda);
+            } else if (node.get("streamReference") != null
+                         && node.get("beforeStreamingCondition") != null && node.get("postFunctionInvocations") != null
+                         && node.get("afterStreamingCondition") != null) {
+                return a("", sourceGenParams.isShouldIndent())
+                 + getSourceOf(node.getAsJsonObject("streamReference"), pretty, replaceLambda)
+                 + a("", sourceGenParams.isShouldIndent())
+                 + getSourceOf(node.getAsJsonObject("beforeStreamingCondition"), pretty, replaceLambda)
+                 + join(node.getAsJsonArray("postFunctionInvocations"), pretty, replaceLambda, "", null, false, sourceGenParams)
+                 + a("", sourceGenParams.isShouldIndent())
+                 + getSourceOf(node.getAsJsonObject("afterStreamingCondition"), pretty, replaceLambda);
+            } else if (node.get("streamReference") != null
+                         && node.get("beforeStreamingCondition") != null
+                         && node.get("postFunctionInvocations") != null) {
+                return a("", sourceGenParams.isShouldIndent())
+                 + getSourceOf(node.getAsJsonObject("streamReference"), pretty, replaceLambda)
+                 + a("", sourceGenParams.isShouldIndent())
+                 + getSourceOf(node.getAsJsonObject("beforeStreamingCondition"), pretty, replaceLambda)
+                 + join(node.getAsJsonArray("postFunctionInvocations"), pretty, replaceLambda, "", null, false, sourceGenParams);
             } else if (node.get("streamReference") != null
                          && node.get("beforeStreamingCondition") != null
                          && node.get("afterStreamingCondition") != null) {
@@ -3571,47 +4188,121 @@ public class SourceGen {
                  + a("", sourceGenParams.isShouldIndent())
                  + getSourceOf(node.getAsJsonObject("afterStreamingCondition"), pretty, replaceLambda);
             } else if (node.get("streamReference") != null
-                         && node.get("beforeStreamingCondition") != null && node.get("aliasAvailable") != null
-                         && node.get("aliasAvailable") .getAsBoolean()
-                         && node.get("alias") != null) {
-                return a("", sourceGenParams.isShouldIndent())
-                 + getSourceOf(node.getAsJsonObject("streamReference"), pretty, replaceLambda)
-                 + a("", sourceGenParams.isShouldIndent())
-                 + getSourceOf(node.getAsJsonObject("beforeStreamingCondition"), pretty, replaceLambda)
-                 + w("", sourceGenParams) + "as" + a("", sourceGenParams.isShouldIndent())
-                 + w("", sourceGenParams) + node.get("alias").getAsString()
-                 + a("", sourceGenParams.isShouldIndent());
-            } else if (node.get("streamReference") != null
                          && node.get("beforeStreamingCondition") != null) {
                 return a("", sourceGenParams.isShouldIndent())
                  + getSourceOf(node.getAsJsonObject("streamReference"), pretty, replaceLambda)
                  + a("", sourceGenParams.isShouldIndent())
                  + getSourceOf(node.getAsJsonObject("beforeStreamingCondition"), pretty, replaceLambda);
             } else if (node.get("streamReference") != null
-                         && node.get("afterStreamingCondition") != null && node.get("aliasAvailable") != null
-                         && node.get("aliasAvailable") .getAsBoolean()
-                         && node.get("alias") != null) {
+                         && node.get("preFunctionInvocations") != null && node.get("windowClause") != null
+                         && node.get("postFunctionInvocations") != null
+                         && node.get("afterStreamingCondition") != null) {
+                return a("", sourceGenParams.isShouldIndent())
+                 + getSourceOf(node.getAsJsonObject("streamReference"), pretty, replaceLambda)
+                 + join(node.getAsJsonArray("preFunctionInvocations"), pretty, replaceLambda, "", null, false, sourceGenParams)
+                 + a("", sourceGenParams.isShouldIndent())
+                 + getSourceOf(node.getAsJsonObject("windowClause"), pretty, replaceLambda)
+                 + join(node.getAsJsonArray("postFunctionInvocations"), pretty, replaceLambda, "", null, false, sourceGenParams) + a("", sourceGenParams.isShouldIndent())
+                 + getSourceOf(node.getAsJsonObject("afterStreamingCondition"), pretty, replaceLambda);
+            } else if (node.get("streamReference") != null
+                         && node.get("preFunctionInvocations") != null && node.get("windowClause") != null
+                         && node.get("postFunctionInvocations") != null) {
+                return a("", sourceGenParams.isShouldIndent())
+                 + getSourceOf(node.getAsJsonObject("streamReference"), pretty, replaceLambda)
+                 + join(node.getAsJsonArray("preFunctionInvocations"), pretty, replaceLambda, "", null, false, sourceGenParams)
+                 + a("", sourceGenParams.isShouldIndent())
+                 + getSourceOf(node.getAsJsonObject("windowClause"), pretty, replaceLambda)
+                 + join(node.getAsJsonArray("postFunctionInvocations"), pretty, replaceLambda, "", null, false, sourceGenParams);
+            } else if (node.get("streamReference") != null
+                         && node.get("preFunctionInvocations") != null && node.get("windowClause") != null
+                         && node.get("afterStreamingCondition") != null) {
+                return a("", sourceGenParams.isShouldIndent())
+                 + getSourceOf(node.getAsJsonObject("streamReference"), pretty, replaceLambda)
+                 + join(node.getAsJsonArray("preFunctionInvocations"), pretty, replaceLambda, "", null, false, sourceGenParams)
+                 + a("", sourceGenParams.isShouldIndent())
+                 + getSourceOf(node.getAsJsonObject("windowClause"), pretty, replaceLambda) + a("", sourceGenParams.isShouldIndent())
+                 + getSourceOf(node.getAsJsonObject("afterStreamingCondition"), pretty, replaceLambda);
+            } else if (node.get("streamReference") != null
+                         && node.get("preFunctionInvocations") != null && node.get("windowClause") != null) {
+                return a("", sourceGenParams.isShouldIndent())
+                 + getSourceOf(node.getAsJsonObject("streamReference"), pretty, replaceLambda)
+                 + join(node.getAsJsonArray("preFunctionInvocations"), pretty, replaceLambda, "", null, false, sourceGenParams)
+                 + a("", sourceGenParams.isShouldIndent())
+                 + getSourceOf(node.getAsJsonObject("windowClause"), pretty, replaceLambda);
+            } else if (node.get("streamReference") != null
+                         && node.get("preFunctionInvocations") != null && node.get("postFunctionInvocations") != null
+                         && node.get("afterStreamingCondition") != null) {
+                return a("", sourceGenParams.isShouldIndent())
+                 + getSourceOf(node.getAsJsonObject("streamReference"), pretty, replaceLambda)
+                 + join(node.getAsJsonArray("preFunctionInvocations"), pretty, replaceLambda, "", null, false, sourceGenParams)
+                 + join(node.getAsJsonArray("postFunctionInvocations"), pretty, replaceLambda, "", null, false, sourceGenParams) + a("", sourceGenParams.isShouldIndent())
+                 + getSourceOf(node.getAsJsonObject("afterStreamingCondition"), pretty, replaceLambda);
+            } else if (node.get("streamReference") != null
+                         && node.get("preFunctionInvocations") != null && node.get("postFunctionInvocations") != null) {
+                return a("", sourceGenParams.isShouldIndent())
+                 + getSourceOf(node.getAsJsonObject("streamReference"), pretty, replaceLambda)
+                 + join(node.getAsJsonArray("preFunctionInvocations"), pretty, replaceLambda, "", null, false, sourceGenParams)
+                 + join(node.getAsJsonArray("postFunctionInvocations"), pretty, replaceLambda, "", null, false, sourceGenParams);
+            } else if (node.get("streamReference") != null
+                         && node.get("preFunctionInvocations") != null && node.get("afterStreamingCondition") != null) {
+                return a("", sourceGenParams.isShouldIndent())
+                 + getSourceOf(node.getAsJsonObject("streamReference"), pretty, replaceLambda)
+                 + join(node.getAsJsonArray("preFunctionInvocations"), pretty, replaceLambda, "", null, false, sourceGenParams)
+                 + a("", sourceGenParams.isShouldIndent())
+                 + getSourceOf(node.getAsJsonObject("afterStreamingCondition"), pretty, replaceLambda);
+            } else if (node.get("streamReference") != null
+                         && node.get("preFunctionInvocations") != null) {
+                return a("", sourceGenParams.isShouldIndent())
+                 + getSourceOf(node.getAsJsonObject("streamReference"), pretty, replaceLambda)
+                 + join(node.getAsJsonArray("preFunctionInvocations"), pretty, replaceLambda, "", null, false, sourceGenParams);
+            } else if (node.get("streamReference") != null
+                         && node.get("windowClause") != null && node.get("postFunctionInvocations") != null
+                         && node.get("afterStreamingCondition") != null) {
                 return a("", sourceGenParams.isShouldIndent())
                  + getSourceOf(node.getAsJsonObject("streamReference"), pretty, replaceLambda)
                  + a("", sourceGenParams.isShouldIndent())
-                 + getSourceOf(node.getAsJsonObject("afterStreamingCondition"), pretty, replaceLambda)
-                 + w("", sourceGenParams) + "as" + a("", sourceGenParams.isShouldIndent())
-                 + w("", sourceGenParams) + node.get("alias").getAsString()
-                 + a("", sourceGenParams.isShouldIndent());
+                 + getSourceOf(node.getAsJsonObject("windowClause"), pretty, replaceLambda)
+                 + join(node.getAsJsonArray("postFunctionInvocations"), pretty, replaceLambda, "", null, false, sourceGenParams) + a("", sourceGenParams.isShouldIndent())
+                 + getSourceOf(node.getAsJsonObject("afterStreamingCondition"), pretty, replaceLambda);
+            } else if (node.get("streamReference") != null
+                         && node.get("windowClause") != null && node.get("postFunctionInvocations") != null) {
+                return a("", sourceGenParams.isShouldIndent())
+                 + getSourceOf(node.getAsJsonObject("streamReference"), pretty, replaceLambda)
+                 + a("", sourceGenParams.isShouldIndent())
+                 + getSourceOf(node.getAsJsonObject("windowClause"), pretty, replaceLambda)
+                 + join(node.getAsJsonArray("postFunctionInvocations"), pretty, replaceLambda, "", null, false, sourceGenParams);
+            } else if (node.get("streamReference") != null
+                         && node.get("windowClause") != null && node.get("afterStreamingCondition") != null) {
+                return a("", sourceGenParams.isShouldIndent())
+                 + getSourceOf(node.getAsJsonObject("streamReference"), pretty, replaceLambda)
+                 + a("", sourceGenParams.isShouldIndent())
+                 + getSourceOf(node.getAsJsonObject("windowClause"), pretty, replaceLambda)
+                 + a("", sourceGenParams.isShouldIndent())
+                 + getSourceOf(node.getAsJsonObject("afterStreamingCondition"), pretty, replaceLambda);
+            } else if (node.get("streamReference") != null
+                         && node.get("windowClause") != null) {
+                return a("", sourceGenParams.isShouldIndent())
+                 + getSourceOf(node.getAsJsonObject("streamReference"), pretty, replaceLambda)
+                 + a("", sourceGenParams.isShouldIndent())
+                 + getSourceOf(node.getAsJsonObject("windowClause"), pretty, replaceLambda);
+            } else if (node.get("streamReference") != null
+                         && node.get("postFunctionInvocations") != null && node.get("afterStreamingCondition") != null) {
+                return a("", sourceGenParams.isShouldIndent())
+                 + getSourceOf(node.getAsJsonObject("streamReference"), pretty, replaceLambda)
+                 + join(node.getAsJsonArray("postFunctionInvocations"), pretty, replaceLambda, "", null, false, sourceGenParams)
+                 + a("", sourceGenParams.isShouldIndent())
+                 + getSourceOf(node.getAsJsonObject("afterStreamingCondition"), pretty, replaceLambda);
+            } else if (node.get("streamReference") != null
+                         && node.get("postFunctionInvocations") != null) {
+                return a("", sourceGenParams.isShouldIndent())
+                 + getSourceOf(node.getAsJsonObject("streamReference"), pretty, replaceLambda)
+                 + join(node.getAsJsonArray("postFunctionInvocations"), pretty, replaceLambda, "", null, false, sourceGenParams);
             } else if (node.get("streamReference") != null
                          && node.get("afterStreamingCondition") != null) {
                 return a("", sourceGenParams.isShouldIndent())
                  + getSourceOf(node.getAsJsonObject("streamReference"), pretty, replaceLambda)
                  + a("", sourceGenParams.isShouldIndent())
                  + getSourceOf(node.getAsJsonObject("afterStreamingCondition"), pretty, replaceLambda);
-            } else if (node.get("streamReference") != null
-                         && node.get("aliasAvailable") != null && node.get("aliasAvailable") .getAsBoolean()
-                         && node.get("alias") != null) {
-                return a("", sourceGenParams.isShouldIndent())
-                 + getSourceOf(node.getAsJsonObject("streamReference"), pretty, replaceLambda)
-                 + w("", sourceGenParams) + "as" + a("", sourceGenParams.isShouldIndent())
-                 + w("", sourceGenParams) + node.get("alias").getAsString()
-                 + a("", sourceGenParams.isShouldIndent());
             } else {
                 return a("", sourceGenParams.isShouldIndent())
                  + getSourceOf(node.getAsJsonObject("streamReference"), pretty, replaceLambda);
@@ -3619,17 +4310,120 @@ public class SourceGen {
         }
         public String getSourceForStreamingQuery(JsonObject node, boolean pretty, boolean replaceLambda, SourceGenParams sourceGenParams) {
             if (node.get("streamingInput") != null
-                         && node.get("joinStreamingInput") != null && node.get("selectClause") != null
+                         && node.get("joiningInput") != null && node.get("selectClause") != null
+                         && node.get("orderbyClause") != null && node.get("outputRateLimitNode") != null
+                         && node.get("streamingAction") != null) {
+                return w("", sourceGenParams) + "from"
+                 + a("", sourceGenParams.isShouldIndent()) + a("", sourceGenParams.isShouldIndent())
+                 + getSourceOf(node.getAsJsonObject("streamingInput"), pretty, replaceLambda)
+                 + a("", sourceGenParams.isShouldIndent())
+                 + getSourceOf(node.getAsJsonObject("joiningInput"), pretty, replaceLambda)
+                 + a("", sourceGenParams.isShouldIndent())
+                 + getSourceOf(node.getAsJsonObject("selectClause"), pretty, replaceLambda)
+                 + a("", sourceGenParams.isShouldIndent())
+                 + getSourceOf(node.getAsJsonObject("orderbyClause"), pretty, replaceLambda)
+                 + a("", sourceGenParams.isShouldIndent())
+                 + getSourceOf(node.getAsJsonObject("outputRateLimitNode"), pretty, replaceLambda) + a("", sourceGenParams.isShouldIndent())
+                 + getSourceOf(node.getAsJsonObject("streamingAction"), pretty, replaceLambda);
+            } else if (node.get("streamingInput") != null
+                         && node.get("joiningInput") != null && node.get("selectClause") != null
                          && node.get("orderbyClause") != null && node.get("streamingAction") != null) {
                 return w("", sourceGenParams) + "from"
                  + a("", sourceGenParams.isShouldIndent()) + a("", sourceGenParams.isShouldIndent())
                  + getSourceOf(node.getAsJsonObject("streamingInput"), pretty, replaceLambda)
                  + a("", sourceGenParams.isShouldIndent())
-                 + getSourceOf(node.getAsJsonObject("joinStreamingInput"), pretty, replaceLambda)
+                 + getSourceOf(node.getAsJsonObject("joiningInput"), pretty, replaceLambda)
                  + a("", sourceGenParams.isShouldIndent())
                  + getSourceOf(node.getAsJsonObject("selectClause"), pretty, replaceLambda)
                  + a("", sourceGenParams.isShouldIndent())
                  + getSourceOf(node.getAsJsonObject("orderbyClause"), pretty, replaceLambda)
+                 + a("", sourceGenParams.isShouldIndent())
+                 + getSourceOf(node.getAsJsonObject("streamingAction"), pretty, replaceLambda);
+            } else if (node.get("streamingInput") != null
+                         && node.get("joiningInput") != null && node.get("selectClause") != null
+                         && node.get("outputRateLimitNode") != null && node.get("streamingAction") != null) {
+                return w("", sourceGenParams) + "from"
+                 + a("", sourceGenParams.isShouldIndent()) + a("", sourceGenParams.isShouldIndent())
+                 + getSourceOf(node.getAsJsonObject("streamingInput"), pretty, replaceLambda)
+                 + a("", sourceGenParams.isShouldIndent())
+                 + getSourceOf(node.getAsJsonObject("joiningInput"), pretty, replaceLambda)
+                 + a("", sourceGenParams.isShouldIndent())
+                 + getSourceOf(node.getAsJsonObject("selectClause"), pretty, replaceLambda)
+                 + a("", sourceGenParams.isShouldIndent())
+                 + getSourceOf(node.getAsJsonObject("outputRateLimitNode"), pretty, replaceLambda)
+                 + a("", sourceGenParams.isShouldIndent())
+                 + getSourceOf(node.getAsJsonObject("streamingAction"), pretty, replaceLambda);
+            } else if (node.get("streamingInput") != null
+                         && node.get("joiningInput") != null && node.get("orderbyClause") != null
+                         && node.get("outputRateLimitNode") != null && node.get("streamingAction") != null) {
+                return w("", sourceGenParams) + "from"
+                 + a("", sourceGenParams.isShouldIndent()) + a("", sourceGenParams.isShouldIndent())
+                 + getSourceOf(node.getAsJsonObject("streamingInput"), pretty, replaceLambda)
+                 + a("", sourceGenParams.isShouldIndent())
+                 + getSourceOf(node.getAsJsonObject("joiningInput"), pretty, replaceLambda)
+                 + a("", sourceGenParams.isShouldIndent())
+                 + getSourceOf(node.getAsJsonObject("orderbyClause"), pretty, replaceLambda)
+                 + a("", sourceGenParams.isShouldIndent())
+                 + getSourceOf(node.getAsJsonObject("outputRateLimitNode"), pretty, replaceLambda)
+                 + a("", sourceGenParams.isShouldIndent())
+                 + getSourceOf(node.getAsJsonObject("streamingAction"), pretty, replaceLambda);
+            } else if (node.get("streamingInput") != null
+                         && node.get("joiningInput") != null && node.get("selectClause") != null
+                         && node.get("streamingAction") != null) {
+                return w("", sourceGenParams) + "from"
+                 + a("", sourceGenParams.isShouldIndent()) + a("", sourceGenParams.isShouldIndent())
+                 + getSourceOf(node.getAsJsonObject("streamingInput"), pretty, replaceLambda)
+                 + a("", sourceGenParams.isShouldIndent())
+                 + getSourceOf(node.getAsJsonObject("joiningInput"), pretty, replaceLambda)
+                 + a("", sourceGenParams.isShouldIndent())
+                 + getSourceOf(node.getAsJsonObject("selectClause"), pretty, replaceLambda)
+                 + a("", sourceGenParams.isShouldIndent())
+                 + getSourceOf(node.getAsJsonObject("streamingAction"), pretty, replaceLambda);
+            } else if (node.get("streamingInput") != null
+                         && node.get("joiningInput") != null && node.get("orderbyClause") != null
+                         && node.get("streamingAction") != null) {
+                return w("", sourceGenParams) + "from"
+                 + a("", sourceGenParams.isShouldIndent()) + a("", sourceGenParams.isShouldIndent())
+                 + getSourceOf(node.getAsJsonObject("streamingInput"), pretty, replaceLambda)
+                 + a("", sourceGenParams.isShouldIndent())
+                 + getSourceOf(node.getAsJsonObject("joiningInput"), pretty, replaceLambda)
+                 + a("", sourceGenParams.isShouldIndent())
+                 + getSourceOf(node.getAsJsonObject("orderbyClause"), pretty, replaceLambda)
+                 + a("", sourceGenParams.isShouldIndent())
+                 + getSourceOf(node.getAsJsonObject("streamingAction"), pretty, replaceLambda);
+            } else if (node.get("streamingInput") != null
+                         && node.get("joiningInput") != null && node.get("outputRateLimitNode") != null
+                         && node.get("streamingAction") != null) {
+                return w("", sourceGenParams) + "from"
+                 + a("", sourceGenParams.isShouldIndent()) + a("", sourceGenParams.isShouldIndent())
+                 + getSourceOf(node.getAsJsonObject("streamingInput"), pretty, replaceLambda)
+                 + a("", sourceGenParams.isShouldIndent())
+                 + getSourceOf(node.getAsJsonObject("joiningInput"), pretty, replaceLambda)
+                 + a("", sourceGenParams.isShouldIndent())
+                 + getSourceOf(node.getAsJsonObject("outputRateLimitNode"), pretty, replaceLambda)
+                 + a("", sourceGenParams.isShouldIndent())
+                 + getSourceOf(node.getAsJsonObject("streamingAction"), pretty, replaceLambda);
+            } else if (node.get("streamingInput") != null
+                         && node.get("joiningInput") != null && node.get("streamingAction") != null) {
+                return w("", sourceGenParams) + "from"
+                 + a("", sourceGenParams.isShouldIndent()) + a("", sourceGenParams.isShouldIndent())
+                 + getSourceOf(node.getAsJsonObject("streamingInput"), pretty, replaceLambda)
+                 + a("", sourceGenParams.isShouldIndent())
+                 + getSourceOf(node.getAsJsonObject("joiningInput"), pretty, replaceLambda)
+                 + a("", sourceGenParams.isShouldIndent())
+                 + getSourceOf(node.getAsJsonObject("streamingAction"), pretty, replaceLambda);
+            } else if (node.get("streamingInput") != null
+                         && node.get("selectClause") != null && node.get("orderbyClause") != null
+                         && node.get("outputRateLimitNode") != null && node.get("streamingAction") != null) {
+                return w("", sourceGenParams) + "from"
+                 + a("", sourceGenParams.isShouldIndent()) + a("", sourceGenParams.isShouldIndent())
+                 + getSourceOf(node.getAsJsonObject("streamingInput"), pretty, replaceLambda)
+                 + a("", sourceGenParams.isShouldIndent())
+                 + getSourceOf(node.getAsJsonObject("selectClause"), pretty, replaceLambda)
+                 + a("", sourceGenParams.isShouldIndent())
+                 + getSourceOf(node.getAsJsonObject("orderbyClause"), pretty, replaceLambda)
+                 + a("", sourceGenParams.isShouldIndent())
+                 + getSourceOf(node.getAsJsonObject("outputRateLimitNode"), pretty, replaceLambda)
                  + a("", sourceGenParams.isShouldIndent())
                  + getSourceOf(node.getAsJsonObject("streamingAction"), pretty, replaceLambda);
             } else if (node.get("streamingInput") != null
@@ -3645,15 +4439,15 @@ public class SourceGen {
                  + a("", sourceGenParams.isShouldIndent())
                  + getSourceOf(node.getAsJsonObject("streamingAction"), pretty, replaceLambda);
             } else if (node.get("streamingInput") != null
-                         && node.get("joinStreamingInput") != null && node.get("selectClause") != null
+                         && node.get("selectClause") != null && node.get("outputRateLimitNode") != null
                          && node.get("streamingAction") != null) {
                 return w("", sourceGenParams) + "from"
                  + a("", sourceGenParams.isShouldIndent()) + a("", sourceGenParams.isShouldIndent())
                  + getSourceOf(node.getAsJsonObject("streamingInput"), pretty, replaceLambda)
                  + a("", sourceGenParams.isShouldIndent())
-                 + getSourceOf(node.getAsJsonObject("joinStreamingInput"), pretty, replaceLambda)
-                 + a("", sourceGenParams.isShouldIndent())
                  + getSourceOf(node.getAsJsonObject("selectClause"), pretty, replaceLambda)
+                 + a("", sourceGenParams.isShouldIndent())
+                 + getSourceOf(node.getAsJsonObject("outputRateLimitNode"), pretty, replaceLambda)
                  + a("", sourceGenParams.isShouldIndent())
                  + getSourceOf(node.getAsJsonObject("streamingAction"), pretty, replaceLambda);
             } else if (node.get("streamingInput") != null
@@ -3666,41 +4460,125 @@ public class SourceGen {
                  + a("", sourceGenParams.isShouldIndent())
                  + getSourceOf(node.getAsJsonObject("streamingAction"), pretty, replaceLambda);
             } else if (node.get("streamingInput") != null
-                         && node.get("joinStreamingInput") != null && node.get("selectClause") != null
-                         && node.get("orderbyClause") != null) {
+                         && node.get("orderbyClause") != null && node.get("outputRateLimitNode") != null
+                         && node.get("streamingAction") != null) {
                 return w("", sourceGenParams) + "from"
                  + a("", sourceGenParams.isShouldIndent()) + a("", sourceGenParams.isShouldIndent())
                  + getSourceOf(node.getAsJsonObject("streamingInput"), pretty, replaceLambda)
                  + a("", sourceGenParams.isShouldIndent())
-                 + getSourceOf(node.getAsJsonObject("joinStreamingInput"), pretty, replaceLambda)
+                 + getSourceOf(node.getAsJsonObject("orderbyClause"), pretty, replaceLambda)
+                 + a("", sourceGenParams.isShouldIndent())
+                 + getSourceOf(node.getAsJsonObject("outputRateLimitNode"), pretty, replaceLambda)
+                 + a("", sourceGenParams.isShouldIndent())
+                 + getSourceOf(node.getAsJsonObject("streamingAction"), pretty, replaceLambda);
+            } else if (node.get("streamingInput") != null
+                         && node.get("orderbyClause") != null && node.get("streamingAction") != null) {
+                return w("", sourceGenParams) + "from"
+                 + a("", sourceGenParams.isShouldIndent()) + a("", sourceGenParams.isShouldIndent())
+                 + getSourceOf(node.getAsJsonObject("streamingInput"), pretty, replaceLambda)
+                 + a("", sourceGenParams.isShouldIndent())
+                 + getSourceOf(node.getAsJsonObject("orderbyClause"), pretty, replaceLambda)
+                 + a("", sourceGenParams.isShouldIndent())
+                 + getSourceOf(node.getAsJsonObject("streamingAction"), pretty, replaceLambda);
+            } else if (node.get("streamingInput") != null
+                         && node.get("outputRateLimitNode") != null && node.get("streamingAction") != null) {
+                return w("", sourceGenParams) + "from"
+                 + a("", sourceGenParams.isShouldIndent()) + a("", sourceGenParams.isShouldIndent())
+                 + getSourceOf(node.getAsJsonObject("streamingInput"), pretty, replaceLambda)
+                 + a("", sourceGenParams.isShouldIndent())
+                 + getSourceOf(node.getAsJsonObject("outputRateLimitNode"), pretty, replaceLambda)
+                 + a("", sourceGenParams.isShouldIndent())
+                 + getSourceOf(node.getAsJsonObject("streamingAction"), pretty, replaceLambda);
+            } else if (node.get("streamingInput") != null
+                         && node.get("streamingAction") != null) {
+                return w("", sourceGenParams) + "from"
+                 + a("", sourceGenParams.isShouldIndent()) + a("", sourceGenParams.isShouldIndent())
+                 + getSourceOf(node.getAsJsonObject("streamingInput"), pretty, replaceLambda)
+                 + a("", sourceGenParams.isShouldIndent())
+                 + getSourceOf(node.getAsJsonObject("streamingAction"), pretty, replaceLambda);
+            } else if (node.get("patternClause") != null
+                         && node.get("selectClause") != null && node.get("orderbyClause") != null
+                         && node.get("outputRateLimitNode") != null && node.get("streamingAction") != null) {
+                return w("", sourceGenParams) + "from"
+                 + a("", sourceGenParams.isShouldIndent()) + a("", sourceGenParams.isShouldIndent())
+                 + getSourceOf(node.getAsJsonObject("patternClause"), pretty, replaceLambda)
                  + a("", sourceGenParams.isShouldIndent())
                  + getSourceOf(node.getAsJsonObject("selectClause"), pretty, replaceLambda)
                  + a("", sourceGenParams.isShouldIndent())
-                 + getSourceOf(node.getAsJsonObject("orderbyClause"), pretty, replaceLambda);
-            } else if (node.get("streamingInput") != null
-                         && node.get("selectClause") != null && node.get("orderbyClause") != null) {
+                 + getSourceOf(node.getAsJsonObject("orderbyClause"), pretty, replaceLambda)
+                 + a("", sourceGenParams.isShouldIndent())
+                 + getSourceOf(node.getAsJsonObject("outputRateLimitNode"), pretty, replaceLambda)
+                 + a("", sourceGenParams.isShouldIndent())
+                 + getSourceOf(node.getAsJsonObject("streamingAction"), pretty, replaceLambda);
+            } else if (node.get("patternClause") != null
+                         && node.get("selectClause") != null && node.get("orderbyClause") != null
+                         && node.get("streamingAction") != null) {
                 return w("", sourceGenParams) + "from"
                  + a("", sourceGenParams.isShouldIndent()) + a("", sourceGenParams.isShouldIndent())
-                 + getSourceOf(node.getAsJsonObject("streamingInput"), pretty, replaceLambda)
+                 + getSourceOf(node.getAsJsonObject("patternClause"), pretty, replaceLambda)
                  + a("", sourceGenParams.isShouldIndent())
                  + getSourceOf(node.getAsJsonObject("selectClause"), pretty, replaceLambda)
                  + a("", sourceGenParams.isShouldIndent())
-                 + getSourceOf(node.getAsJsonObject("orderbyClause"), pretty, replaceLambda);
-            } else if (node.get("streamingInput") != null
-                         && node.get("joinStreamingInput") != null && node.get("selectClause") != null) {
+                 + getSourceOf(node.getAsJsonObject("orderbyClause"), pretty, replaceLambda)
+                 + a("", sourceGenParams.isShouldIndent())
+                 + getSourceOf(node.getAsJsonObject("streamingAction"), pretty, replaceLambda);
+            } else if (node.get("patternClause") != null
+                         && node.get("selectClause") != null && node.get("outputRateLimitNode") != null
+                         && node.get("streamingAction") != null) {
                 return w("", sourceGenParams) + "from"
                  + a("", sourceGenParams.isShouldIndent()) + a("", sourceGenParams.isShouldIndent())
-                 + getSourceOf(node.getAsJsonObject("streamingInput"), pretty, replaceLambda)
+                 + getSourceOf(node.getAsJsonObject("patternClause"), pretty, replaceLambda)
                  + a("", sourceGenParams.isShouldIndent())
-                 + getSourceOf(node.getAsJsonObject("joinStreamingInput"), pretty, replaceLambda)
+                 + getSourceOf(node.getAsJsonObject("selectClause"), pretty, replaceLambda)
                  + a("", sourceGenParams.isShouldIndent())
-                 + getSourceOf(node.getAsJsonObject("selectClause"), pretty, replaceLambda);
+                 + getSourceOf(node.getAsJsonObject("outputRateLimitNode"), pretty, replaceLambda)
+                 + a("", sourceGenParams.isShouldIndent())
+                 + getSourceOf(node.getAsJsonObject("streamingAction"), pretty, replaceLambda);
+            } else if (node.get("patternClause") != null
+                         && node.get("selectClause") != null && node.get("streamingAction") != null) {
+                return w("", sourceGenParams) + "from"
+                 + a("", sourceGenParams.isShouldIndent()) + a("", sourceGenParams.isShouldIndent())
+                 + getSourceOf(node.getAsJsonObject("patternClause"), pretty, replaceLambda)
+                 + a("", sourceGenParams.isShouldIndent())
+                 + getSourceOf(node.getAsJsonObject("selectClause"), pretty, replaceLambda)
+                 + a("", sourceGenParams.isShouldIndent())
+                 + getSourceOf(node.getAsJsonObject("streamingAction"), pretty, replaceLambda);
+            } else if (node.get("patternClause") != null
+                         && node.get("orderbyClause") != null && node.get("outputRateLimitNode") != null
+                         && node.get("streamingAction") != null) {
+                return w("", sourceGenParams) + "from"
+                 + a("", sourceGenParams.isShouldIndent()) + a("", sourceGenParams.isShouldIndent())
+                 + getSourceOf(node.getAsJsonObject("patternClause"), pretty, replaceLambda)
+                 + a("", sourceGenParams.isShouldIndent())
+                 + getSourceOf(node.getAsJsonObject("orderbyClause"), pretty, replaceLambda)
+                 + a("", sourceGenParams.isShouldIndent())
+                 + getSourceOf(node.getAsJsonObject("outputRateLimitNode"), pretty, replaceLambda)
+                 + a("", sourceGenParams.isShouldIndent())
+                 + getSourceOf(node.getAsJsonObject("streamingAction"), pretty, replaceLambda);
+            } else if (node.get("patternClause") != null
+                         && node.get("orderbyClause") != null && node.get("streamingAction") != null) {
+                return w("", sourceGenParams) + "from"
+                 + a("", sourceGenParams.isShouldIndent()) + a("", sourceGenParams.isShouldIndent())
+                 + getSourceOf(node.getAsJsonObject("patternClause"), pretty, replaceLambda)
+                 + a("", sourceGenParams.isShouldIndent())
+                 + getSourceOf(node.getAsJsonObject("orderbyClause"), pretty, replaceLambda)
+                 + a("", sourceGenParams.isShouldIndent())
+                 + getSourceOf(node.getAsJsonObject("streamingAction"), pretty, replaceLambda);
+            } else if (node.get("patternClause") != null
+                         && node.get("outputRateLimitNode") != null && node.get("streamingAction") != null) {
+                return w("", sourceGenParams) + "from"
+                 + a("", sourceGenParams.isShouldIndent()) + a("", sourceGenParams.isShouldIndent())
+                 + getSourceOf(node.getAsJsonObject("patternClause"), pretty, replaceLambda)
+                 + a("", sourceGenParams.isShouldIndent())
+                 + getSourceOf(node.getAsJsonObject("outputRateLimitNode"), pretty, replaceLambda)
+                 + a("", sourceGenParams.isShouldIndent())
+                 + getSourceOf(node.getAsJsonObject("streamingAction"), pretty, replaceLambda);
             } else {
                 return w("", sourceGenParams) + "from"
                  + a("", sourceGenParams.isShouldIndent()) + a("", sourceGenParams.isShouldIndent())
-                 + getSourceOf(node.getAsJsonObject("streamingInput"), pretty, replaceLambda)
+                 + getSourceOf(node.getAsJsonObject("patternClause"), pretty, replaceLambda)
                  + a("", sourceGenParams.isShouldIndent())
-                 + getSourceOf(node.getAsJsonObject("selectClause"), pretty, replaceLambda);
+                 + getSourceOf(node.getAsJsonObject("streamingAction"), pretty, replaceLambda);
             }
         }
         public String getSourceForStringTemplateLiteral(JsonObject node, boolean pretty, boolean replaceLambda, SourceGenParams sourceGenParams) {
@@ -5496,6 +6374,13 @@ public class SourceGen {
                  + outdent(node, sourceGenParams.isShouldIndent()) + w("", sourceGenParams) + "}"
                  + a("", sourceGenParams.isShouldIndent());
         }
+        public String getSourceForWithin(JsonObject node, boolean pretty, boolean replaceLambda, SourceGenParams sourceGenParams) {
+            return w("", sourceGenParams) + "within"
+                 + a("", sourceGenParams.isShouldIndent()) + w("", sourceGenParams)
+                 + node.get("timeDurationValue").getAsString() + a("", sourceGenParams.isShouldIndent())
+                 + w("", sourceGenParams) + node.get("timeScale").getAsString()
+                 + a("", sourceGenParams.isShouldIndent());
+        }
         public String getSourceForWindowClause(JsonObject node, boolean pretty, boolean replaceLambda, SourceGenParams sourceGenParams) {
             return w("", sourceGenParams) + "window"
                  + a("", sourceGenParams.isShouldIndent()) + a("", sourceGenParams.isShouldIndent())
@@ -5884,10 +6769,18 @@ public class SourceGen {
             return getSourceForNamedArgsExpr(node, pretty, replaceLambda, sourceGenParams);
         case "Next":
             return getSourceForNext(node, pretty, replaceLambda, sourceGenParams);
+        case "OutputRateLimit":
+            return getSourceForOutputRateLimit(node, pretty, replaceLambda, sourceGenParams);
         case "OrderBy":
             return getSourceForOrderBy(node, pretty, replaceLambda, sourceGenParams);
         case "OrderByVariable":
             return getSourceForOrderByVariable(node, pretty, replaceLambda, sourceGenParams);
+        case "PatternClause":
+            return getSourceForPatternClause(node, pretty, replaceLambda, sourceGenParams);
+        case "PatternStreamingInput":
+            return getSourceForPatternStreamingInput(node, pretty, replaceLambda, sourceGenParams);
+        case "PatternStreamingEdgeInput":
+            return getSourceForPatternStreamingEdgeInput(node, pretty, replaceLambda, sourceGenParams);
         case "PostIncrement":
             return getSourceForPostIncrement(node, pretty, replaceLambda, sourceGenParams);
         case "RecordLiteralExpr":
@@ -5972,6 +6865,8 @@ public class SourceGen {
             return getSourceForWhere(node, pretty, replaceLambda, sourceGenParams);
         case "While":
             return getSourceForWhile(node, pretty, replaceLambda, sourceGenParams);
+        case "Within":
+            return getSourceForWithin(node, pretty, replaceLambda, sourceGenParams);
         case "WindowClause":
             return getSourceForWindowClause(node, pretty, replaceLambda, sourceGenParams);
         case "Worker":
@@ -6834,6 +7729,28 @@ public class SourceGen {
                     JsonObject parameter = parameters.get(i).getAsJsonObject();
                     parameter.addProperty("arrowExprParam", true);
                 }
+            }
+        }
+
+        if (kind.equals("PatternStreamingInput")) {
+            if (node.has("ws") && node.getAsJsonArray("ws").get(0)
+                    .getAsJsonObject().get("text").getAsString().equals("(")) {
+                node.addProperty("enclosedInParenthesis", true);
+            }
+        }
+
+        if (kind.equals("SelectClause")) {
+            if (!node.has("ws")) {
+                node.addProperty("notVisible", true);
+            }
+        }
+
+        if (kind.equals("OrderByVariable")) {
+            if (!node.has("ws")) {
+                node.addProperty("noVisibleType", true);
+            } else {
+                node.addProperty("typeString", node.getAsJsonArray("ws")
+                        .get(0).getAsJsonObject().get("text").getAsString());
             }
         }
     }
