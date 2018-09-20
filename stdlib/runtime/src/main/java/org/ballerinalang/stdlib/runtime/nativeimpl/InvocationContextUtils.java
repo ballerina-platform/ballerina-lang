@@ -32,7 +32,7 @@ import java.util.UUID;
 import static org.ballerinalang.util.BLangConstants.BALLERINA_RUNTIME_PKG;
 
 /**
- * This class contains the contract.config and methods required for invocation context processing.
+ * This class contains the common constants and methods required for invocation context processing.
  *
  * @since 0.970.0
  */
