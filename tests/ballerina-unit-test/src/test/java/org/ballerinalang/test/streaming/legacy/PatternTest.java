@@ -71,7 +71,7 @@ public class PatternTest {
         Assert.assertEquals(tempDifference.get("userAction").stringValue(), "RoomClosedWithRegulatorOff");
     }
 
-    @Test(description = "Test pattern streaming query with 'Not' and 'And'")
+    @Test(enabled = false, description = "Test pattern streaming query with 'Not' and 'And'")
     public void testPatternQuery4() {
         BValue[] roomActions = BRunUtil.invoke(result, "runPatternQuery4");
 
