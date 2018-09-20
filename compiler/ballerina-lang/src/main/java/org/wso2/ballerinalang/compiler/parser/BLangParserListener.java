@@ -28,6 +28,7 @@ import org.ballerinalang.model.tree.CompilationUnitNode;
 import org.ballerinalang.util.diagnostic.DiagnosticCode;
 import org.wso2.ballerinalang.compiler.parser.antlr4.BallerinaParser;
 import org.wso2.ballerinalang.compiler.parser.antlr4.BallerinaParser.FieldContext;
+import org.wso2.ballerinalang.compiler.parser.antlr4.BallerinaParser.ObjectTypeNameLabelContext;
 import org.wso2.ballerinalang.compiler.parser.antlr4.BallerinaParser.StringTemplateContentContext;
 import org.wso2.ballerinalang.compiler.parser.antlr4.BallerinaParserBaseListener;
 import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
@@ -476,7 +477,8 @@ public class BLangParserListener extends BallerinaParserBaseListener {
                 (ctx.parent.parent instanceof BallerinaParser.GlobalVariableDefinitionContext ||
                         ctx.parent.parent instanceof BallerinaParser.ReturnParameterContext) ||
                         ctx.parent.parent.parent.parent instanceof BallerinaParser.TypeDefinitionContext;
-        this.pkgBuilder.addObjectType(getCurrentPos(ctx), getWS(ctx), isFieldAnalyseRequired, isAnonymous);
+        boolean isAbstract = ((ObjectTypeNameLabelContext) ctx.parent).ABSTRACT() != null;
+        this.pkgBuilder.addObjectType(getCurrentPos(ctx), getWS(ctx), isFieldAnalyseRequired, isAnonymous, isAbstract);
     }
 
     /**

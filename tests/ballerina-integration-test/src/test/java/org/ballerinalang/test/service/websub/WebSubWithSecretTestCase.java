@@ -61,7 +61,7 @@ public class WebSubWithSecretTestCase extends BaseTest {
     private final int subscriberServicePort = 8181;
 
     private static String hubUrl = "https://localhost:9292/websub/hub";
-    private static final String INTENT_VERIFICATION_SUBSCRIBER_LOG = "\"Intent verified for subscription request\"";
+    private static final String INTENT_VERIFICATION_SUBSCRIBER_LOG = "Intent verified for subscription request";
     private static final String INTERNAL_HUB_NOTIFICATION_SUBSCRIBER_LOG =
             "WebSub Notification Received: {\"action\":\"publish\", \"mode\":\"internal-hub\"}";
     private static final String REMOTE_HUB_NOTIFICATION_SUBSCRIBER_LOG =

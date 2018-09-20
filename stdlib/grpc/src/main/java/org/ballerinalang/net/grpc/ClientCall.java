@@ -21,7 +21,7 @@ import io.netty.handler.codec.http.DefaultHttpHeaders;
 import io.netty.handler.codec.http.HttpHeaders;
 
 import org.ballerinalang.net.grpc.stubs.AbstractStub;
-import org.wso2.transport.http.netty.common.Constants;
+import org.wso2.transport.http.netty.contract.Constants;
 import org.wso2.transport.http.netty.contract.HttpClientConnector;
 import org.wso2.transport.http.netty.contract.HttpResponseFuture;
 
