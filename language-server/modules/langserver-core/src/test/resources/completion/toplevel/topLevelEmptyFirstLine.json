@@ -30,7 +30,7 @@
       "label":"service",
       "detail":"Snippet",
       "sortText":"190",
-      "insertText":"service\u003c${1:http:Service}\u003e ${2:serviceName} bind { port: 9090 } {\n\t${3:newResource} (endpoint ${4:caller}, ${5:http:Request request}) {\n\t}\n}",
+      "insertText":"service\u003c${1:http:Service}\u003e ${2:serviceName} bind { port: 9090 } {\n\t${3:newResource} (endpoint ${4:caller}, http:Request ${5:request}) {\n\t}\n}",
       "insertTextFormat":"Snippet"
     },
     {
