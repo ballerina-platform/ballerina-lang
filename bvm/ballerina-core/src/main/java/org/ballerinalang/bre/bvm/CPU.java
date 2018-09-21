@@ -3479,41 +3479,42 @@ public class CPU {
                 if (mapVal != null) {
                     BType mapValType = mapVal.getType();
                     if (mapValType.getTag() == TypeTags.MAP_TAG) {
-                        if (fieldType.getTag() == TypeTags.RECORD_TYPE_TAG) {
-                            bStruct.put(key, convertMapToStruct(ctx, (BMap<String, BValue>) mapVal,
-                                                                ((BStructureType) fieldType)));
-                            continue;
-                        } else if (fieldType.getTag() == TypeTags.UNION_TAG) {
-                            boolean conversionDone = false;
-                            for (BType memType : ((BUnionType) fieldType).getMemberTypes()) {
-                                if (memType.getTag() == TypeTags.RECORD_TYPE_TAG) {
-                                    try {
-                                        bStruct.put(key, convertMapToStruct(ctx, (BMap<String, BValue>) mapVal,
-                                                                            ((BStructureType) memType)));
-                                        conversionDone = true;
-                                        break;
-                                    } catch (BallerinaException e) {
-                                        //ignore conversion exception if thrown when the expected type is a union type,
-                                        // to allow attempting conversion for other types
+                        boolean conversionDone = false;
+                        switch (fieldType.getTag()) {
+                            case TypeTags.RECORD_TYPE_TAG:
+                                bStruct.put(key, convertMapToStruct(ctx, (BMap<String, BValue>) mapVal,
+                                                                    ((BStructureType) fieldType)));
+                                conversionDone = true;
+                                break;
+                            case TypeTags.UNION_TAG:
+                                for (BType memType : ((BUnionType) fieldType).getMemberTypes()) {
+                                    if (memType.getTag() == TypeTags.RECORD_TYPE_TAG) {
+                                        try {
+                                            bStruct.put(key, convertMapToStruct(ctx, (BMap<String, BValue>) mapVal,
+                                                                                ((BStructureType) memType)));
+                                            conversionDone = true;
+                                            break;
+                                        } catch (BallerinaException e) {
+                                            // ignore conversion exception if thrown when the expected type is a union
+                                            // type, to allow attempting conversion for other types
+                                        }
                                     }
                                 }
-                            }
-                            if (conversionDone) {
-                                continue;
-                            }
+                                break;
+                        }
+                        if (conversionDone) {
+                            continue;
                         }
                     }
 
                     if (!checkCast(mapVal, fieldType, new ArrayList<TypePair>())) {
                         throw BLangExceptionHelper.getRuntimeException(
-                                RuntimeErrors.INCOMPATIBLE_FIELD_TYPE_FOR_CASTING, key, fieldType,
-                                mapValType);
+                                RuntimeErrors.INCOMPATIBLE_FIELD_TYPE_FOR_CASTING, key, fieldType, mapValType);
                     }
                 }
             } else {
-                defaultValAttrInfo = (DefaultValueAttributeInfo) getAttributeInfo(fieldInfo,
-                                                                                  AttributeInfo.Kind
-                                                                                          .DEFAULT_VALUE_ATTRIBUTE);
+                defaultValAttrInfo = (DefaultValueAttributeInfo)
+                        getAttributeInfo(fieldInfo, AttributeInfo.Kind.DEFAULT_VALUE_ATTRIBUTE);
             }
 
             switch (fieldType.getTag()) {
