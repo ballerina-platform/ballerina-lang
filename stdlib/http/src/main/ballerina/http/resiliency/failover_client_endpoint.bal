@@ -58,22 +58,22 @@ public type FailoverClient object {
 # + failoverCodes - Array of HTTP response status codes for which the failover behaviour should be triggered
 # + intervalMillis - Failover delay interval in milliseconds
 public type FailoverClientEndpointConfiguration record {
-    CircuitBreakerConfig? circuitBreaker,
-    int timeoutMillis = 60000,
-    string httpVersion = "1.1",
-    string forwarded = "disable",
-    KeepAlive keepAlive = KEEPALIVE_AUTO,
-    Chunking chunking = "AUTO",
-    FollowRedirects? followRedirects,
-    RetryConfig? retryConfig,
-    ProxyConfig? proxy,
-    ConnectionThrottling? connectionThrottling,
-    TargetService[] targets,
-    CacheConfig cache = {},
-    Compression compression = COMPRESSION_AUTO,
-    AuthConfig? auth,
-    int[] failoverCodes = [501, 502, 503, 504],
-    int intervalMillis,
+    CircuitBreakerConfig? circuitBreaker;
+    int timeoutMillis = 60000;
+    string httpVersion = "1.1";
+    string forwarded = "disable";
+    KeepAlive keepAlive = KEEPALIVE_AUTO;
+    Chunking chunking = "AUTO";
+    FollowRedirects? followRedirects;
+    RetryConfig? retryConfig;
+    ProxyConfig? proxy;
+    ConnectionThrottling? connectionThrottling;
+    TargetService[] targets;
+    CacheConfig cache = {};
+    Compression compression = COMPRESSION_AUTO;
+    AuthConfig? auth;
+    int[] failoverCodes = [501, 502, 503, 504];
+    int intervalMillis;
     !...
 };
 

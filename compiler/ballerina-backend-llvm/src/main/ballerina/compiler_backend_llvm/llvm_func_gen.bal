@@ -3,11 +3,11 @@ import ballerina/io;
 import ballerina/bir;
 
 type FuncGenrator object {
-    bir:Function func,
-    llvm:LLVMValueRef funcRef,
-    llvm:LLVMModuleRef mod,
-    map<llvm:LLVMValueRef> localVarRefs,
-    llvm:LLVMValueRef varAllocBB,
+    bir:Function func;
+    llvm:LLVMValueRef funcRef;
+    llvm:LLVMModuleRef mod;
+    map<llvm:LLVMValueRef> localVarRefs;
+    llvm:LLVMValueRef varAllocBB;
     llvm:LLVMBuilderRef builder;
 
     new(mod, builder, func) {

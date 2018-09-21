@@ -5,7 +5,7 @@ public function testSimpleRecord () returns (int, string) {
 }
 
 type Person record {
-    int age,
+    int age;
     string name;
 };
 

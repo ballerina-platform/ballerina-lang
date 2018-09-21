@@ -1,5 +1,5 @@
 public type PackageParser object {
-    BirChannelReader reader,
+    BirChannelReader reader;
 
     public new(reader) {
     }

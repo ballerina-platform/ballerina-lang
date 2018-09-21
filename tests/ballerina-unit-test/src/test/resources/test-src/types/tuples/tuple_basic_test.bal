@@ -113,13 +113,13 @@ function testIndexBasedAccess () returns (string, int, boolean) {
 }
 
 type Person record {
-    string name,
+    string name;
     !...
 };
 
 type Employee record {
-    string name,
-    boolean intern,
+    string name;
+    boolean intern;
 };
 
 function testIndexBasedAccessOfRecords () returns (string, boolean, string, string, float) {

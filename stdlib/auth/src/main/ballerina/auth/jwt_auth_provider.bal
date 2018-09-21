@@ -116,17 +116,17 @@ public type JWTAuthProvider object {
 
 # Represents JWT validator configurations
 public type JWTAuthProviderConfig record {
-    string issuer,
-    string audience,
-    int clockSkew,
-    string certificateAlias,
-    string trustStoreFilePath,
-    string trustStorePassword,
+    string issuer;
+    string audience;
+    int clockSkew;
+    string certificateAlias;
+    string trustStoreFilePath;
+    string trustStorePassword;
     !...
 };
 
 type CachedJWTAuthContext record {
-    internal:JwtPayload jwtPayload,
+    internal:JwtPayload jwtPayload;
     int expiryTime;
     !...
 };

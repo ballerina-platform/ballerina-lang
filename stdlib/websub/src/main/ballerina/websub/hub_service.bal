@@ -669,8 +669,8 @@ function distributeContent(string callback, SubscriptionDetails subscriptionDeta
 # + topic - The topic for which notification would happen
 # + secret - The secret if specified by the topic's publisher
 type TopicRegistration record {
-    string topic,
-    string secret,
+    string topic;
+    string secret;
     !...
 };
 

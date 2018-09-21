@@ -378,10 +378,10 @@ public type Notification object {
 # + leaseSeconds - The lease period for which the subscription is expected to be active
 # + secret - The secret to be used for authenticated content distribution with this subscription
 public type SubscriptionChangeRequest record {
-    string topic,
-    string callback,
-    int leaseSeconds,
-    string secret,
+    string topic;
+    string callback;
+    int leaseSeconds;
+    string secret;
     !...
 };
 
@@ -391,9 +391,9 @@ public type SubscriptionChangeRequest record {
 # + topic - The topic for which the subscription/unsubscription was successful
 # + response - The response from the hub to the subscription/unsubscription request
 public type SubscriptionChangeResponse record {
-    string hub,
-    string topic,
-    http:Response response,
+    string hub;
+    string topic;
+    http:Response response;
     !...
 };
 
@@ -565,11 +565,11 @@ public function addWebSubLinkHeader(http:Response response, string[] hubs, strin
 # + leaseSeconds - The lease second period specified for the particular subscription
 # + createdAt - The time at which the subscription was created
 type SubscriptionDetails record {
-    string topic,
-    string callback,
-    string secret,
-    int leaseSeconds,
-    int createdAt,
+    string topic;
+    string callback;
+    string secret;
+    int leaseSeconds;
+    int createdAt;
     !...
 };
 
@@ -590,8 +590,8 @@ function retrieveSubscriberServiceAnnotations(typedesc serviceType) returns Subs
 # + payload - The payload to be sent
 # + contentType - The content-type of the payload
 type WebSubContent record {
-    string|xml|json|byte[]|io:ByteChannel payload,
-    string contentType,
+    string|xml|json|byte[]|io:ByteChannel payload;
+    string contentType;
     !...
 };
 
