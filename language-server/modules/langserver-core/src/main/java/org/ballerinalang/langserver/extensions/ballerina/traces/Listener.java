@@ -30,6 +30,7 @@ import java.net.Socket;
 
 /**
  * TraceLogs Listener.
+ *
  */
 public class Listener {
 
@@ -56,13 +57,14 @@ public class Listener {
                 while ((line = logReader.readLine()) != null) {
                     JsonElement parsedTraceLog = new JsonParser().parse(line);
                     JsonObject rawTrace = parsedTraceLog.getAsJsonObject();
-                    String rawRecord;
+                    String rawMessage;
+                    JsonObject record = rawTrace.get("record").getAsJsonObject();
                     try {
-                        rawRecord = rawTrace.get("record").getAsJsonObject().get("message").getAsString();
+                        rawMessage = record.get("message").getAsString();
                     } catch (Exception e) {
-                        rawRecord = parsedTraceLog.getAsString();
+                        rawMessage = parsedTraceLog.getAsString();
                     }
-                    TraceRecord traceRecord = new TraceRecord(LogParser.fromString(rawRecord), rawRecord);
+                    TraceRecord traceRecord = new TraceRecord(LogParser.fromString(rawMessage), record, rawMessage);
                     ballerinaTraceService.pushLogToClient(traceRecord);
                 }
             } catch (IOException e) {

@@ -21,7 +21,6 @@ package org.ballerinalang.mime.util;
 
 import io.netty.handler.codec.http.HttpHeaderNames;
 import io.netty.util.internal.PlatformDependent;
-
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BLangVMErrors;
 import org.ballerinalang.connector.api.BLangConnectorSPIUtil;
@@ -45,7 +44,6 @@ import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.Enumeration;
 import java.util.Locale;
-
 import javax.activation.MimeType;
 import javax.activation.MimeTypeParameterList;
 import javax.activation.MimeTypeParseException;
@@ -502,5 +500,10 @@ public class MimeUtil {
         }
 
         return isJSONContentType(entityRecord) && isJSONCompatible(value.getType());
+    }
+
+    public static String validateContentType(String contentType) throws MimeTypeParseException {
+        MimeType mimeType = new MimeType(contentType);
+        return mimeType.getBaseType();
     }
 }

@@ -19,10 +19,11 @@
 package org.ballerinalang.net.http;
 
 /**
- * Contains value for configuring Accept-Encoding.
+ * Contains states of content-compression.
  */
-public enum AcceptEncodingConfig {
+public enum CompressionConfigState {
     AUTO,
     ALWAYS,
     NEVER
 }
+

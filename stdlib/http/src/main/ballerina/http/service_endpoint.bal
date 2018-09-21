@@ -35,7 +35,7 @@ public type Listener object {
 
     # Gets invoked during package initialization to initialize the endpoint.
     #
-    # + return - Error occurred during initialization
+    # + c - Configurations for HTTP service endpoints
     public function init(ServiceEndpointConfiguration c);
 
     public extern function initEndpoint() returns error;
