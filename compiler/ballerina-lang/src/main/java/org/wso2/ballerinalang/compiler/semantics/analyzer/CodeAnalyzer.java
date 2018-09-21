@@ -849,7 +849,9 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         for (BLangRecordLiteral.BLangRecordKeyValue recFieldDecl : keyValuePairs) {
             String fieldName = recFieldDecl.key.expr.toString();
             if (names.contains(fieldName)) {
-                this.dlog.error(recFieldDecl.getKey().pos, DiagnosticCode.DUPLICATE_RECORD_LITERAL, fieldName);
+                TypeKind assigneeType = recordLiteral.parent.type.getKind();
+                this.dlog.error(recFieldDecl.getKey().pos, DiagnosticCode.DUPLICATE_RECORD_LITERAL,
+                        assigneeType, fieldName);
             }
             names.add(fieldName);
         }
