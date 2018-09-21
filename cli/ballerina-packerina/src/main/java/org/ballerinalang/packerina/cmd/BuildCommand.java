@@ -22,6 +22,7 @@ import org.ballerinalang.launcher.BLauncherCmd;
 import org.ballerinalang.launcher.LauncherUtils;
 import org.ballerinalang.packerina.BuilderUtils;
 import org.ballerinalang.util.BLangConstants;
+import org.wso2.ballerinalang.compiler.util.ProjectDirs;
 import org.wso2.ballerinalang.util.RepoUtils;
 import picocli.CommandLine;
 
@@ -144,11 +145,17 @@ public class BuildCommand implements BLauncherCmd {
                 Path parentPath = sourcePath.getParent();
                 if (Files.isRegularFile(resolvedFullPath) && sourcePath.toString().endsWith(BLANG_SRC_FILE_SUFFIX) &&
                         parentPath != null) {
-                    Path fileName = parentPath.getFileName();
-                    String srcPkgName = fileName != null ? fileName.toString() : "";
                     throw LauncherUtils.createLauncherException("you are trying to build a ballerina file inside a " +
                                                                         "package within a project. Try running " +
                                                                         "'ballerina build <package-name>'");
+                }
+                // Checks if the source path is a package
+                if (Files.isDirectory(resolvedFullPath)) {
+                    // Checks if the package contains ballerina source files
+                    if (!ProjectDirs.containsSourceFiles(resolvedFullPath)) {
+                        throw LauncherUtils.createLauncherException("no ballerina source files found in package "
+                                                                            + pkgName);
+                    }
                 }
             } else {
                 // Invalid source file provided
