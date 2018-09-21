@@ -19,55 +19,50 @@ import ballerina/mime;
 import ballerina/runtime;
 import ballerina/io;
 
-documentation {
-    Provides a set of configurations for controlling the failover behaviour of the endpoint.
-
-    F{{failoverCodes}} Array of HTTP response status codes for which the failover mechanism triggers
-    F{{interval}} Failover delay interval in milliseconds
-}
+# Provides a set of configurations for controlling the failover behaviour of the endpoint.
+#
+# + failoverCodes - Array of HTTP response status codes for which the failover mechanism triggers
+# + interval - Failover delay interval in milliseconds
 public type FailoverConfig record {
-    int[] failoverCodes,
-    int interval,
+    int[] failoverCodes;
+    int interval;
+    !...
 };
 
-documentation {
-    Defines an error which occurred during an attempt to failover.
-
-    F{{message}} An explanation on what went wrong
-    F{{cause}} The cause of the `FailoverActionError`, if available
-    F{{statusCode}} HTTP status code to be sent to the caller
-    F{{httpActionErr}} Errors which occurred at each endpoint during the failover
-}
+# Defines an error which occurred during an attempt to failover.
+#
+# + message - An explanation on what went wrong
+# + cause - The cause of the `FailoverActionError`, if available
+# + statusCode - HTTP status code to be sent to the caller
+# + httpActionErr - Errors which occurred at each endpoint during the failover
 public type FailoverActionError record {
-    string message,
-    error? cause,
-    int statusCode,
-    error[] httpActionErr,
+    string message;
+    error? cause;
+    int statusCode;
+    error[] httpActionErr;
+    !...
 };
 
 // TODO: This can be made package private
 // Represents inferred failover configurations passed to Failover connector.
-documentation {
-    Inferred failover configurations passed into the failover client.
-
-    F{{failoverClientsArray}} Array of HTTP Clients that needs to be Failover
-    F{{failoverCodesIndex}} An indexed array of HTTP response status codes for which the failover mechanism triggers
-    F{{failoverInterval}} Failover delay interval in milliseconds
-}
+# Inferred failover configurations passed into the failover client.
+#
+# + failoverClientsArray - Array of HTTP Clients that needs to be Failover
+# + failoverCodesIndex - An indexed array of HTTP response status codes for which the failover mechanism triggers
+# + failoverInterval - Failover delay interval in milliseconds
 public type FailoverInferredConfig record {
-    CallerActions[] failoverClientsArray,
-    boolean[] failoverCodesIndex,
-    int failoverInterval,
+    CallerActions[] failoverClientsArray;
+    boolean[] failoverCodesIndex;
+    int failoverInterval;
+    !...
 };
 
-documentation {
-    Failover caller actions which provides failover capabilities to the failover client endpoint.
-
-    F{{serviceUri}} The URL of the remote HTTP endpoint
-    F{{config}} The configurations of the client endpoint associated with this `Failover` instance
-    F{{failoverInferredConfig}} Configurations derived from `FailoverConfig`
-    F{{succeededEndpointIndex}} Index of the `CallerActions[]` array which given a successful response
-}
+# Failover caller actions which provides failover capabilities to the failover client endpoint.
+#
+# + serviceUri - The URL of the remote HTTP endpoint
+# + config - The configurations of the client endpoint associated with this `Failover` instance
+# + failoverInferredConfig - Configurations derived from `FailoverConfig`
+# + succeededEndpointIndex - Index of the `CallerActions[]` array which given a successful response
 public type FailoverActions object {
 
     public string serviceUri;
@@ -75,165 +70,133 @@ public type FailoverActions object {
     public FailoverInferredConfig failoverInferredConfig;
     public int succeededEndpointIndex;
 
-    documentation {
-        Failover caller actions which provides failover capabilities to an HTTP client endpoint.
-
-        P{{serviceUri}} The URL of the remote HTTP endpoint
-        P{{config}} The configurations of the client endpoint associated with this `Failover` instance
-        P{{failoverInferredConfig}} Configurations derived from `FailoverConfig`
-    }
+    # Failover caller actions which provides failover capabilities to an HTTP client endpoint.
+    #
+    # + serviceUri - The URL of the remote HTTP endpoint
+    # + config - The configurations of the client endpoint associated with this `Failover` instance
+    # + failoverInferredConfig - Configurations derived from `FailoverConfig`
     public new (serviceUri, config, failoverInferredConfig) {}
 
-    documentation {
-        The POST action implementation of the Failover Connector.
-
-        P{{path}} Resource path
-        P{{message}} HTTP request or any payload of type `string`, `xml`, `json`, `byte[]`, `io:ByteChannel`
-                     or `mime:Entity[]`
-        R{{}} The response or an `error` if failed to fulfill the request
-    }
+    # The POST action implementation of the Failover Connector.
+    #
+    # + path - Resource path
+    # + message - HTTP request or any payload of type `string`, `xml`, `json`, `byte[]`, `io:ByteChannel`
+    #             or `mime:Entity[]`
+    # + return - The response or an `error` if failed to fulfill the request
     public function post(string path, Request|string|xml|json|byte[]|io:ByteChannel|mime:Entity[]|()
                                         message) returns Response|error;
 
-    documentation {
-        The HEAD action implementation of the Failover Connector.
-
-        P{{path}} Resource path
-        P{{message}} An optional HTTP request or any payload of type `string`, `xml`, `json`, `byte[]`, `io:ByteChannel`
-                     or `mime:Entity[]`
-        R{{}} The response or an `error` if failed to fulfill the request
-    }
+    # The HEAD action implementation of the Failover Connector.
+    #
+    # + path - Resource path
+    # + message - An optional HTTP request or any payload of type `string`, `xml`, `json`, `byte[]`, `io:ByteChannel`
+    #             or `mime:Entity[]`
+    # + return - The response or an `error` if failed to fulfill the request
     public function head(string path, Request|string|xml|json|byte[]|io:ByteChannel|mime:Entity[]|()
                                         message = ()) returns Response|error;
 
-    documentation {
-        The PATCH action implementation of the Failover Connector.
-
-        P{{path}} Resource path
-        P{{message}} An HTTP request or any payload of type `string`, `xml`, `json`, `byte[]`, `io:ByteChannel`
-                     or `mime:Entity[]`
-        R{{}} The response or an `error` if failed to fulfill the request
-    }
+    # The PATCH action implementation of the Failover Connector.
+    #
+    # + path - Resource path
+    # + message - An HTTP request or any payload of type `string`, `xml`, `json`, `byte[]`, `io:ByteChannel`
+    #             or `mime:Entity[]`
+    # + return - The response or an `error` if failed to fulfill the request
     public function patch(string path, Request|string|xml|json|byte[]|io:ByteChannel|mime:Entity[]|()
                                             message) returns Response|error;
 
-    documentation {
-        The PUT action  implementation of the Failover Connector.
-
-        P{{path}} Resource path
-        P{{message}} An HTTP request or any payload of type `string`, `xml`, `json`, `byte[]`, `io:ByteChannel`
-                     or `mime:Entity[]`
-        R{{}} The response or an `error` if failed to fulfill the request
-    }
+    # The PUT action  implementation of the Failover Connector.
+    #
+    # + path - Resource path
+    # + message - An HTTP request or any payload of type `string`, `xml`, `json`, `byte[]`, `io:ByteChannel`
+    #             or `mime:Entity[]`
+    # + return - The response or an `error` if failed to fulfill the request
     public function put(string path, Request|string|xml|json|byte[]|io:ByteChannel|mime:Entity[]|()
                                         message) returns Response|error;
 
-    documentation {
-        The OPTIONS action implementation of the Failover Connector.
-
-        P{{path}} Resource path
-        P{{message}} An optional HTTP request or any payload of type `string`, `xml`, `json`, `byte[]`, `io:ByteChannel`
-                     or `mime:Entity[]`
-        R{{}} The response or an `error` if failed to fulfill the request
-    }
+    # The OPTIONS action implementation of the Failover Connector.
+    #
+    # + path - Resource path
+    # + message - An optional HTTP request or any payload of type `string`, `xml`, `json`, `byte[]`, `io:ByteChannel`
+    #             or `mime:Entity[]`
+    # + return - The response or an `error` if failed to fulfill the request
     public function options(string path, Request|string|xml|json|byte[]|io:ByteChannel|mime:Entity[]|()
                                             message = ()) returns Response|error;
 
-    documentation {
-        Invokes an HTTP call using the incoming request's HTTP method.
-
-        P{{path}} Resource path
-        P{{request}} An HTTP request
-        R{{}} The response or an `error` if failed to fulfill the request
-    }
+    # Invokes an HTTP call using the incoming request's HTTP method.
+    #
+    # + path - Resource path
+    # + request - An HTTP request
+    # + return - The response or an `error` if failed to fulfill the request
     public function forward(string path, Request request) returns Response|error;
 
-    documentation {
-        Invokes an HTTP call with the specified HTTP method.
-
-        P{{httpVerb}} HTTP method to be used for the request
-        P{{path}} Resource path
-        P{{message}} An HTTP request or any payload of type `string`, `xml`, `json`, `byte[]`, `io:ByteChannel`
-                     or `mime:Entity[]`
-        R{{}} The response or an `error` if failed to fulfill the request
-    }
+    # Invokes an HTTP call with the specified HTTP method.
+    #
+    # + httpVerb - HTTP method to be used for the request
+    # + path - Resource path
+    # + message - An HTTP request or any payload of type `string`, `xml`, `json`, `byte[]`, `io:ByteChannel`
+    #             or `mime:Entity[]`
+    # + return - The response or an `error` if failed to fulfill the request
     public function execute(string httpVerb, string path, Request|string|xml|json|byte[]|io:ByteChannel|mime:Entity[]|()
                                                             message) returns Response|error;
 
-    documentation {
-        The DELETE action implementation of the Failover Connector.
-
-        P{{path}} Resource path
-        P{{message}} An HTTP request or any payload of type `string`, `xml`, `json`, `byte[]`, `io:ByteChannel`
-                     or `mime:Entity[]`
-        R{{}} The response or an `error` if failed to fulfill the request
-    }
+    # The DELETE action implementation of the Failover Connector.
+    #
+    # + path - Resource path
+    # + message - An HTTP request or any payload of type `string`, `xml`, `json`, `byte[]`, `io:ByteChannel`
+    #             or `mime:Entity[]`
+    # + return - The response or an `error` if failed to fulfill the request
     public function delete(string path, Request|string|xml|json|byte[]|io:ByteChannel|mime:Entity[]|()
                                             message) returns Response|error;
 
-    documentation {
-        The GET action implementation of the Failover Connector.
-
-        P{{path}} Resource path
-        P{{message}} An optional HTTP request or any payload of type `string`, `xml`, `json`, `byte[]`, `io:ByteChannel`
-                     or `mime:Entity[]`
-        R{{}} The response or an `error` if failed to fulfill the request
-    }
+    # The GET action implementation of the Failover Connector.
+    #
+    # + path - Resource path
+    # + message - An optional HTTP request or any payload of type `string`, `xml`, `json`, `byte[]`, `io:ByteChannel`
+    #             or `mime:Entity[]`
+    # + return - The response or an `error` if failed to fulfill the request
     public function get(string path, Request|string|xml|json|byte[]|io:ByteChannel|mime:Entity[]|()
                                         message = ()) returns Response|error;
 
-    documentation {
-        Submits an HTTP request to a service with the specified HTTP verb. The `submit()` function does not return
-        a `Response` as the result, rather it returns an `HttpFuture` which can be used for subsequent interactions
-        with the HTTP endpoint.
-
-        P{{httpVerb}} The HTTP verb value
-        P{{path}} The resource path
-        P{{message}} An HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`,
-                     `io:ByteChannel` or `mime:Entity[]`
-        R{{}} An `HttpFuture` that represents an asynchronous service invocation, or an `error` if the submission fails
-    }
+    # Submits an HTTP request to a service with the specified HTTP verb. The `submit()` function does not return
+    # a `Response` as the result, rather it returns an `HttpFuture` which can be used for subsequent interactions
+    # with the HTTP endpoint.
+    #
+    # + httpVerb - The HTTP verb value
+    # + path - The resource path
+    # + message - An HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`,
+    #             `io:ByteChannel` or `mime:Entity[]`
+    # + return - An `HttpFuture` that represents an asynchronous service invocation, or an `error` if the submission fails
     public function submit(string httpVerb, string path, Request|string|xml|json|byte[]|io:ByteChannel|mime:Entity[]|()
                                                             message) returns HttpFuture|error;
 
-    documentation {
-        Retrieves the `Response` for a previously submitted request.
-
-        P{{httpFuture}} The `HttpFuture` related to a previous asynchronous invocation
-        R{{}} An HTTP response message, or an `error` if the invocation fails
-    }
+    # Retrieves the `Response` for a previously submitted request.
+    #
+    # + httpFuture - The `HttpFuture` related to a previous asynchronous invocation
+    # + return - An HTTP response message, or an `error` if the invocation fails
     public function getResponse(HttpFuture httpFuture) returns error;
 
-    documentation {
-        Checks whether a `PushPromise` exists for a previously submitted request.
-
-        P{{httpFuture}} The `HttpFuture` relates to a previous asynchronous invocation
-        R{{}} A `boolean` that represents whether a `PushPromise` exists
-    }
+    # Checks whether a `PushPromise` exists for a previously submitted request.
+    #
+    # + httpFuture - The `HttpFuture` relates to a previous asynchronous invocation
+    # + return - A `boolean` that represents whether a `PushPromise` exists
     public function hasPromise(HttpFuture httpFuture) returns boolean;
 
-    documentation {
-        Retrieves the next available `PushPromise` for a previously submitted request.
-
-        P{{httpFuture}} The `HttpFuture` relates to a previous asynchronous invocation
-        R{{}} An HTTP Push Promise message, or an `error` if the invocation fails
-    }
+    # Retrieves the next available `PushPromise` for a previously submitted request.
+    #
+    # + httpFuture - The `HttpFuture` relates to a previous asynchronous invocation
+    # + return - An HTTP Push Promise message, or an `error` if the invocation fails
     public function getNextPromise(HttpFuture httpFuture) returns PushPromise|error;
 
-    documentation {
-        Retrieves the promised server push `Response` message.
-
-        P{{promise}} The related `PushPromise`
-        R{{}} A promised HTTP `Response` message, or an `error` if the invocation fails
-    }
+    # Retrieves the promised server push `Response` message.
+    #
+    # + promise - The related `PushPromise`
+    # + return - A promised HTTP `Response` message, or an `error` if the invocation fails
     public function getPromisedResponse(PushPromise promise) returns Response|error;
 
-    documentation {
-        Rejects a `PushPromise`. When a `PushPromise` is rejected, there is no chance of fetching a promised
-        response using the rejected promise.
-
-        P{{promise}} The Push Promise to be rejected
-    }
+    # Rejects a `PushPromise`. When a `PushPromise` is rejected, there is no chance of fetching a promised
+    # response using the rejected promise.
+    #
+    # + promise - The Push Promise to be rejected
     public function rejectPromise(PushPromise promise);
 };
 

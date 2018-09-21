@@ -18,15 +18,15 @@
 package org.ballerinalang.net.http;
 
 import org.ballerinalang.connector.api.BallerinaConnectorException;
-import org.wso2.transport.http.netty.config.ListenerConfiguration;
-import org.wso2.transport.http.netty.config.SenderConfiguration;
-import org.wso2.transport.http.netty.config.TransportProperty;
-import org.wso2.transport.http.netty.config.TransportsConfiguration;
 import org.wso2.transport.http.netty.contract.HttpWsConnectorFactory;
 import org.wso2.transport.http.netty.contract.ServerConnector;
+import org.wso2.transport.http.netty.contract.config.ListenerConfiguration;
+import org.wso2.transport.http.netty.contract.config.SenderConfiguration;
+import org.wso2.transport.http.netty.contract.config.ServerBootstrapConfiguration;
+import org.wso2.transport.http.netty.contract.config.TransportProperty;
+import org.wso2.transport.http.netty.contract.config.TransportsConfiguration;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketClientConnector;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketClientConnectorConfig;
-import org.wso2.transport.http.netty.listener.ServerBootstrapConfiguration;
 import org.wso2.transport.http.netty.message.HttpConnectorUtil;
 
 import java.util.HashMap;
@@ -63,8 +63,7 @@ public class HttpConnectionManager {
 
     public ServerConnector createHttpServerConnector(ListenerConfiguration listenerConfig) {
         String listenerInterface = listenerConfig.getHost() + ":" + listenerConfig.getPort();
-        HttpServerConnectorContext httpServerConnectorContext =
-                serverConnectorPool.get(listenerInterface);
+        HttpServerConnectorContext httpServerConnectorContext = serverConnectorPool.get(listenerInterface);
         if (httpServerConnectorContext != null) {
             if (checkForConflicts(listenerConfig, httpServerConnectorContext)) {
                 throw new BallerinaConnectorException("Conflicting configuration detected for listener " +
@@ -97,6 +96,7 @@ public class HttpConnectionManager {
     /**
      * Add a HTTP ServerConnector which startup is delayed at the service deployment time.
      *
+     * @param id connector identifier
      * @param serverConnector ServerConnector
      */
     public void addStartupDelayedHTTPServerConnector(String id, ServerConnector serverConnector) {
@@ -170,7 +170,6 @@ public class HttpConnectionManager {
 
         SenderConfiguration httpsSender = new SenderConfiguration("https-sender");
         httpsSender.setScheme("https");
-        HttpUtil.setDefaultTrustStore(httpsSender);
 
         TransportProperty latencyMetrics = new TransportProperty();
         latencyMetrics.setName("latency.metrics.enabled");

@@ -186,6 +186,12 @@ public class MatchExpressionTest {
     }
 
     @Test
+    public void testRecordMatchIndirectly() {
+        BValue[] results = BRunUtil.invoke(compileResult, "testRecordMatchIndirectly");
+        Assert.assertEquals(results[0].stringValue(), "Not John");
+    }
+
+    @Test
     public void testMatchExprNegative() {
         CompileResult negativeResult = BCompileUtil.compile("test-src/expressions/match/match-expr-negative.bal");
         BAssertUtil.validateError(negativeResult, 0, "incompatible types: expected 'string', found 'int'", 8, 36);

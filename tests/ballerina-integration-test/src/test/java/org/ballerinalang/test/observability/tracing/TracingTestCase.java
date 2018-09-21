@@ -21,12 +21,12 @@ package org.ballerinalang.test.observability.tracing;
 import com.google.common.reflect.TypeToken;
 import com.google.gson.Gson;
 import org.apache.commons.io.FileUtils;
-import org.ballerinalang.test.context.BallerinaTestException;
-import org.ballerinalang.test.context.ServerInstance;
+import org.ballerinalang.test.BaseTest;
+import org.ballerinalang.test.context.BServerInstance;
 import org.ballerinalang.test.util.HttpClientRequest;
 import org.testng.Assert;
-import org.testng.annotations.AfterClass;
-import org.testng.annotations.BeforeClass;
+import org.testng.annotations.AfterGroups;
+import org.testng.annotations.BeforeGroups;
 import org.testng.annotations.Test;
 
 import java.io.File;
@@ -42,11 +42,10 @@ import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
 /**
  * Test cases for observability tracing.
  */
-public class TracingTestCase {
+@Test(groups = "tracing-test")
+public class TracingTestCase extends BaseTest {
+    private static BServerInstance serverInstance;
 
-    private ServerInstance serverInstanceOne;
-    private ServerInstance serverInstanceTwo;
-    private ServerInstance serverInstanceThree;
     private static final String BASEDIR = System.getProperty("basedir");
     private static final String RESOURCE_LOCATION = "src" + File.separator + "test" + File.separator +
             "resources" + File.separator + "observability" + File.separator + "tracing" + File.separator;
@@ -55,31 +54,33 @@ public class TracingTestCase {
     private static final String DEST_FUNCTIONS_JAR = File.separator + "bre" + File.separator + "lib"
             + File.separator + TEST_NATIVES_JAR;
 
-    @BeforeClass
+    @BeforeGroups(value = "tracing-test", alwaysRun = true)
     private void setup() throws Exception {
-        serverInstanceOne = ServerInstance.initBallerinaServer(9090);
-        startBallerinaService(serverInstanceOne, "trace-test-ootb.bal");
-        serverInstanceTwo = ServerInstance.initBallerinaServer(9091);
-        startBallerinaService(serverInstanceTwo, "trace-test-user-trace-false.bal");
-        serverInstanceThree = ServerInstance.initBallerinaServer(9092);
-        startBallerinaService(serverInstanceThree, "trace-test-user-trace-true.bal");
-    }
+        int[] requiredPorts = new int[]{9090, 9091, 9092};
 
-    private void startBallerinaService(ServerInstance serverInstance, String serviceName)
-            throws IOException, BallerinaTestException {
-        String balFile = new File(RESOURCE_LOCATION + serviceName).getAbsolutePath();
-        String configFile = new File(RESOURCE_LOCATION + "ballerina.conf").getAbsolutePath();
+        serverInstance = new BServerInstance(balServer);
 
         copyFile(new File(System.getProperty(TEST_NATIVES_JAR)), new File(serverInstance.getServerHome()
                 + DEST_FUNCTIONS_JAR));
 
         FileUtils.copyDirectoryToDirectory(
-                new File(BASEDIR + File.separator + "target" + File.separator +
-                "lib"  + File.separator + "repo" + File.separator + "ballerina" + File.separator + "testobserve"),
+                new File(BASEDIR + File.separator + "target" + File.separator + "lib" + File.separator + "repo" +
+                        File.separator + "ballerina" + File.separator + "testobserve"),
                 new File(serverInstance.getServerHome()
                         + File.separator + "lib" + File.separator + "repo" + File.separator + "ballerina"));
 
-        serverInstance.startBallerinaServerWithConfigPath(balFile, configFile);
+        String basePath = new File("src" + File.separator + "test" + File.separator + "resources" + File.separator +
+                "observability" + File.separator + "tracing").getAbsolutePath();
+
+        String configFile = new File(RESOURCE_LOCATION + "ballerina.conf").getAbsolutePath();
+        String[] args = new String[]{"--config", configFile};
+        serverInstance.startServer(basePath, "tracingservices", args, requiredPorts);
+    }
+
+    @AfterGroups(value = "tracing-test", alwaysRun = true)
+    private void cleanup() throws Exception {
+        serverInstance.removeAllLeechers();
+        serverInstance.shutdownServer();
     }
 
     @Test
@@ -111,10 +112,11 @@ public class TracingTestCase {
         out.println(data);
         List<BMockSpan> mockSpans = new Gson().fromJson(data, type);
 
-        Assert.assertEquals(mockSpans.size(), 7, "Mismatch in number of spans reported.");
-        Assert.assertEquals(mockSpans.stream()
-                .filter(bMockSpan ->
-                        bMockSpan.getParentId() == 0).count(), 2, "Mismatch in number of root spans.");
+        Assert.assertEquals(mockSpans.size(), 14, "Mismatch in number of spans reported.");
+        Assert.assertEquals(mockSpans
+                .stream()
+                .filter(bMockSpan -> bMockSpan.getParentId() == 0)
+                .count(), 5, "Mismatch in number of root spans.");
     }
 
     @Test
@@ -129,14 +131,13 @@ public class TracingTestCase {
         out.println(data);
         List<BMockSpan> mockSpans = new Gson().fromJson(data, type);
 
-        Assert.assertEquals(mockSpans.size(), 7, "Mismatch in number of spans reported.");
+        Assert.assertEquals(mockSpans.size(), 23, "Mismatch in number of spans reported.");
 
         Assert.assertEquals(mockSpans.stream()
-                .filter(bMockSpan ->
-                        bMockSpan.getParentId() == 0).count(), 3, "Mismatch in number of root spans.");
+                .filter(bMockSpan -> bMockSpan.getParentId() == 0).count(), 9, "Mismatch in number of root spans.");
 
         Optional<BMockSpan> uSpanTwo = mockSpans.stream()
-                .filter(bMockSpan -> bMockSpan.getOperationName().equals("uSpanTwo")).findFirst();
+                .filter(bMockSpan -> bMockSpan.getOperationName().equals("uSpanFour")).findFirst();
 
         Assert.assertTrue(uSpanTwo.isPresent());
         uSpanTwo.ifPresent(bMockSpan -> {
@@ -147,12 +148,5 @@ public class TracingTestCase {
 
     private static void copyFile(File source, File dest) throws IOException {
         Files.copy(source.toPath(), dest.toPath(), REPLACE_EXISTING);
-    }
-
-    @AfterClass
-    private void cleanup() throws Exception {
-        serverInstanceOne.stopServer();
-        serverInstanceTwo.stopServer();
-        serverInstanceThree.stopServer();
     }
 }

@@ -57,4 +57,11 @@ public interface Event extends Supplier<EventResult> {
      * @return byte channel which represents the event.
      */
      Channel getChannel();
+
+    /**
+     * Specifies whether there're remaining content in user-space.
+     *
+     * @return true if there're remaining content.
+     */
+     boolean remaining();
 }

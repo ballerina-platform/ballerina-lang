@@ -21,25 +21,21 @@ import ballerina/http;
 @http:ServiceConfig {
     basePath:participant2pcCoordinatorBasePath
 }
-//documentation {
-//    Service on the participant which handles protocol messages related to the 2-phase commit (2PC) coordination type.
-//}
+// # Service on the participant which handles protocol messages related to the 2-phase commit (2PC) coordination type.
 service Participant2pcService bind coordinatorListener {
 
+    # When the initiator sends "prepare" this resource on the participant will get called.
+    # This participant will in turn call prepare on all its resource managers registered with the respective
+    # transaction.
+    #
+    # + transactionBlockId - transaction block ID on the participant. This is sent during registration by the
+    #                        participant as part of the participant protocol endpoint. The initiator isn't aware
+    #                        of this `transactionBlockId` and will simply send it back as part of the URL it calls.
     @http:ResourceConfig {
         methods:["POST"],
         path:"{transactionBlockId}/prepare",
         body:"prepareReq",
         consumes:["application/json"]
-    }
-    documentation {
-        When the initiator sends "prepare" this resource on the participant will get called.
-        This participant will in turn call prepare on all its resource managers registered with the respective
-        transaction.
-
-        P{{transactionBlockId}} - transaction block ID on the participant. This is sent during registration by the
-                                  participant as part of the participant protocol endpoint. The initiator isn't aware
-                                  of this `transactionBlockId` and will simply send it back as part of the URL it calls.
     }
     prepare(endpoint conn, http:Request req, int transactionBlockId, PrepareRequest prepareReq) {
         http:Response res = new;
@@ -86,20 +82,18 @@ service Participant2pcService bind coordinatorListener {
         }
     }
 
+    # When the initiator sends "notify(commit | abort)" this resource on the participant will get called.
+    # This participant will in turn call "commit" or "abort" on all the resource managers registered with the
+    # respective transaction.
+    #
+    # + transactionBlockId - transaction block ID on the participant. This is sent during registration by the
+    #                        participant as part of the participant protocol endpoint. The initiator isn't aware
+    #                        of this `transactionBlockId` and will simply send it back as part of the URL it calls.
     @http:ResourceConfig {
         methods:["POST"],
         path:"{transactionBlockId}/notify",
         body:"notifyReq",
         consumes:["application/json"]
-    }
-    documentation {
-        When the initiator sends "notify(commit | abort)" this resource on the participant will get called.
-        This participant will in turn call "commit" or "abort" on all the resource managers registered with the
-        respective transaction.
-
-        P{{transactionBlockId}} - transaction block ID on the participant. This is sent during registration by the
-                                  participant as part of the participant protocol endpoint. The initiator isn't aware
-                                  of this `transactionBlockId` and will simply send it back as part of the URL it calls.
     }
     notify(endpoint conn, http:Request req, int transactionBlockId, NotifyRequest notifyReq) {
         http:Response res = new;

@@ -19,23 +19,8 @@ package org.ballerinalang.langserver.completion.util;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
-import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
-import org.ballerinalang.langserver.compiler.LSCompiler;
-import org.ballerinalang.langserver.compiler.LSServiceOperationContext;
-import org.ballerinalang.langserver.compiler.workspace.WorkspaceDocumentManager;
-import org.ballerinalang.langserver.compiler.workspace.WorkspaceDocumentManagerImpl;
-import org.ballerinalang.langserver.completions.CompletionCustomErrorStrategy;
-import org.ballerinalang.langserver.completions.CompletionKeys;
-import org.ballerinalang.langserver.completions.CompletionSubRuleParser;
-import org.ballerinalang.langserver.completions.util.CompletionUtil;
 import org.eclipse.lsp4j.CompletionItem;
-import org.eclipse.lsp4j.Position;
-import org.eclipse.lsp4j.TextDocumentIdentifier;
-import org.eclipse.lsp4j.TextDocumentPositionParams;
-import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -45,24 +30,6 @@ import java.util.List;
 public class CompletionTestUtil {
 
     private static final Gson GSON = new Gson();
-
-    /**
-     * Get a new request message from the content.
-     *
-     * @param position position of the cursor
-     * @param uri      documentURI
-     * @return {@link TextDocumentPositionParams}
-     */
-    public static TextDocumentPositionParams getPositionParams(Position position, String uri) {
-        TextDocumentPositionParams textDocumentPositionParams = new TextDocumentPositionParams();
-        TextDocumentIdentifier documentIdentifier = new TextDocumentIdentifier();
-        documentIdentifier.setUri(Paths.get(uri).toUri().toString());
-
-        textDocumentPositionParams.setPosition(position);
-        textDocumentPositionParams.setTextDocument(documentIdentifier);
-
-        return textDocumentPositionParams;
-    }
 
     private static String getCompletionItemPropertyString(CompletionItem completionItem) {
 
@@ -119,48 +86,5 @@ public class CompletionTestUtil {
         }
 
         return false;
-    }
-
-    /**
-     * Get the completions list.
-     *
-     * @param documentManager Document manager instance
-     * @param pos             {@link TextDocumentPositionParams} position params
-     */
-    public static List<CompletionItem> getCompletions(WorkspaceDocumentManager documentManager,
-                                                      TextDocumentPositionParams pos) {
-        List<CompletionItem> completions;
-        LSServiceOperationContext completionContext = new LSServiceOperationContext();
-        completionContext.put(DocumentServiceKeys.POSITION_KEY, pos);
-        completionContext.put(DocumentServiceKeys.FILE_URI_KEY, pos.getTextDocument().getUri());
-        completionContext.put(CompletionKeys.DOC_MANAGER_KEY, documentManager);
-        BLangPackage bLangPackage = LSCompiler.getBLangPackage(completionContext, documentManager, false,
-                CompletionCustomErrorStrategy.class, false).getRight();
-        completionContext.put(DocumentServiceKeys.CURRENT_PACKAGE_NAME_KEY,
-                              bLangPackage.symbol.getName().getValue());
-        completionContext.put(DocumentServiceKeys.CURRENT_BLANG_PACKAGE_CONTEXT_KEY, bLangPackage);
-
-        CompletionUtil.resolveSymbols(completionContext);
-        CompletionSubRuleParser.parse(completionContext);
-        completions = CompletionUtil.getCompletionItems(completionContext);
-
-        return completions;
-    }
-
-    /**
-     * Prepare the Document manager instance with the given file and issue the did open operation.
-     *
-     * @param uri        File Uri
-     * @param balContent File Content
-     * @return {@link WorkspaceDocumentManager}
-     */
-    public static WorkspaceDocumentManagerImpl prepareDocumentManager(String uri, String balContent) {
-        Path openedPath;
-        WorkspaceDocumentManagerImpl documentManager = WorkspaceDocumentManagerImpl.getInstance();
-
-        openedPath = Paths.get(uri);
-        documentManager.openFile(openedPath, balContent);
-
-        return documentManager;
     }
 }

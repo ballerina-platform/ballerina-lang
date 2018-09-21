@@ -109,7 +109,7 @@ public class InboundMessage {
      */
     public String getHttpMethod() {
         return (String) httpCarbonMessage
-                .getProperty(org.wso2.transport.http.netty.common.Constants.HTTP_METHOD);
+                .getProperty(org.wso2.transport.http.netty.contract.Constants.HTTP_METHOD);
     }
 
     /**
@@ -151,7 +151,7 @@ public class InboundMessage {
      *
      * <p>
      * Referenced from grpc-java implementation.
-     * <p>
+     *
      */
     public abstract static class InboundStateListener implements MessageDeframer.Listener {
 
@@ -166,6 +166,8 @@ public class InboundMessage {
 
         /**
          * Override this method to provide a stream listener.
+         *
+         * @return stream listener
          */
         protected abstract StreamListener listener();
 

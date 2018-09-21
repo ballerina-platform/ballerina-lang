@@ -16,6 +16,9 @@
 package org.ballerinalang.langserver.compiler;
 
 import org.ballerinalang.compiler.CompilerPhase;
+import org.ballerinalang.langserver.compiler.workspace.WorkspaceDocumentManager;
+import org.ballerinalang.langserver.compiler.workspace.WorkspaceDocumentManagerImpl;
+import org.ballerinalang.langserver.compiler.workspace.repository.LSPathConverter;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.repository.CompiledPackage;
 import org.ballerinalang.util.diagnostic.Diagnostic;
@@ -31,6 +34,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.Charset;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -68,10 +72,12 @@ public class LSContextManager {
      *
      * @param packageID  package ID
      * @param projectDir project directory path
+     * @param documentManager {@link WorkspaceDocumentManager} Document Manager
      * @return compiler context
      */
-    public CompilerContext getCompilerContext(PackageID packageID, String projectDir) {
-        return getCompilerContext(packageID, projectDir, true);
+    public CompilerContext getCompilerContext(PackageID packageID, String projectDir,
+                                              WorkspaceDocumentManager documentManager) {
+        return getCompilerContext(packageID, projectDir, documentManager, true);
     }
 
     /**
@@ -80,10 +86,11 @@ public class LSContextManager {
      * Use this method if you don't have the current project ID.
      *
      * @param projectDir project directory path
+     * @param documentManager {@link WorkspaceDocumentManager} Document Manager
      * @return compiler context
      */
-    public CompilerContext getCompilerContext(String projectDir) {
-        return getCompilerContext(null, projectDir, true);
+    public CompilerContext getCompilerContext(String projectDir, WorkspaceDocumentManager documentManager) {
+        return getCompilerContext(null, projectDir, documentManager, true);
     }
 
     /**
@@ -91,17 +98,18 @@ public class LSContextManager {
      *
      * @param packageID         package ID or null
      * @param projectDir        project directory path
+     * @param documentManager {@link WorkspaceDocumentManager} Document Manager
      * @param createIfNotExists if true creates a new compiler context if not exists
      * @return compiler context
      */
     public CompilerContext getCompilerContext(@Nullable PackageID packageID, String projectDir,
-                                              boolean createIfNotExists) {
+                                              WorkspaceDocumentManager documentManager, boolean createIfNotExists) {
         CompilerContext compilerContext = contextMap.get(projectDir);
         if (compilerContext == null && createIfNotExists) {
             synchronized (LSContextManager.class) {
                 compilerContext = contextMap.get(projectDir);
                 if (compilerContext == null) {
-                    compilerContext = createNewCompilerContext(packageID);
+                    compilerContext = createNewCompilerContext(projectDir, documentManager);
                     contextMap.put(projectDir, compilerContext);
                 }
             }
@@ -140,10 +148,11 @@ public class LSContextManager {
     /**
      * Returns an unique temporary compiler context.
      *
+     * @param documentManager {@link WorkspaceDocumentManager} Document Manager
      * @return compiler context
      */
-    public static CompilerContext createTempCompilerContext() {
-        return createNewCompilerContext(null);
+    public static CompilerContext createTempCompilerContext(WorkspaceDocumentManager documentManager) {
+        return createNewCompilerContext(null, documentManager);
     }
 
     /**
@@ -152,17 +161,19 @@ public class LSContextManager {
      * @return compiler context
      */
     public CompilerContext getBuiltInPackagesCompilerContext() {
-        return getCompilerContext(null, BUILT_IN_PACKAGES_PROJ_DIR);
+        //TODO: Revisit explicitly retrieving WorkspaceDocumentManagerImpl as doc manager
+        return getCompilerContext(null, BUILT_IN_PACKAGES_PROJ_DIR, WorkspaceDocumentManagerImpl.getInstance());
     }
 
-    private static CompilerContext createNewCompilerContext(@Nullable PackageID packageID) {
+    private static CompilerContext createNewCompilerContext(String projectDir,
+                                                            WorkspaceDocumentManager documentManager) {
         CompilerContext context = new CompilerContext();
         CompilerOptions options = CompilerOptions.getInstance(context);
-        options.put(PROJECT_DIR, "");
+        options.put(PROJECT_DIR, projectDir);
         options.put(COMPILER_PHASE, CompilerPhase.DESUGAR.toString());
         options.put(PRESERVE_WHITESPACE, "false");
         options.put(OFFLINE, Boolean.toString(true));
-        context.put(SourceDirectory.class, new NullSourceDirectory());
+        context.put(SourceDirectory.class, new NullSourceDirectory(Paths.get(projectDir), documentManager));
         List<Diagnostic> balDiagnostics = new ArrayList<>();
         CollectDiagnosticListener diagnosticListener = new CollectDiagnosticListener(balDiagnostics);
         context.put(DiagnosticListener.class, diagnosticListener);
@@ -183,6 +194,14 @@ public class LSContextManager {
      * Null source directory.
      */
     public static class NullSourceDirectory implements SourceDirectory {
+        private final Path projectDir;
+        private final WorkspaceDocumentManager documentManager;
+
+        public NullSourceDirectory(Path projectDir, WorkspaceDocumentManager documentManager) {
+            this.projectDir = projectDir;
+            this.documentManager = documentManager;
+        }
+
         @Override
         public boolean canHandle(Path dirPath) {
             return true;
@@ -226,7 +245,7 @@ public class LSContextManager {
 
         @Override
         public Converter<Path> getConverter() {
-            return null;
+            return new LSPathConverter(projectDir, documentManager);
         }
     }
 }

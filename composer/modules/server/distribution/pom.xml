@@ -20,7 +20,7 @@
     <parent>
         <artifactId>composer-server-parent</artifactId>
         <groupId>org.ballerinalang</groupId>
-        <version>0.981.1-SNAPSHOT</version>
+        <version>0.981.2-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
     <artifactId>composer-server-distribution</artifactId>
@@ -54,6 +54,11 @@
         <dependency>
             <groupId>org.ballerinalang</groupId>
             <artifactId>composer-ballerina-launcher-service</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.ballerinalang</groupId>
+            <artifactId>language-server-stdio-launcher</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
@@ -161,8 +166,8 @@
             <artifactId>msf4j-core</artifactId>
         </dependency>
         <dependency>
-            <groupId>com.beust</groupId>
-            <artifactId>jcommander</artifactId>
+            <groupId>info.picocli</groupId>
+            <artifactId>picocli</artifactId>
         </dependency>
         <dependency>
             <groupId>org.wso2.msf4j.example</groupId>
@@ -214,6 +219,8 @@
                                     <exclude>org.yaml:snakeyaml</exclude>
                                     <exclude>org.slf4j:slf4j-log4j12</exclude>
                                     <exclude>org.slf4j:slf4j-simple</exclude>
+                                    <exclude>org.bytedeco</exclude>
+                                    <exclude>org.bytedeco.javacpp-presets</exclude>
                                 </excludes>
                             </artifactSet>
                         </configuration>

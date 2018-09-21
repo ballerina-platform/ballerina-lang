@@ -1,0 +1,21 @@
+{
+  "position": {
+    "line": 9,
+    "character": 4
+  },
+  "source": "object/source/objectTest1.bal",
+  "items": [
+    {
+      "label":"function signature",
+      "detail":"Snippet",
+      "insertText":"function ${1:name}(${2});",
+      "insertTextFormat":"Snippet"
+    },
+    {
+      "label":"function",
+      "detail":"Snippet",
+      "insertText":"function ${1:name}(${2}) {\n\t${3}\n}",
+      "insertTextFormat":"Snippet"
+    }
+  ]
+}

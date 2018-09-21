@@ -448,10 +448,6 @@ h6,
     display: none;
 }
 
-.SplitPane .vertical {
-    overflow: hidden;
-}
-
 .swagger-container .SplitPane .Pane2 {
     overflow: scroll;
     padding-bottom: 40px;
@@ -517,6 +513,20 @@ h6,
     }
     .definitions-menu {
         margin-top: 6px !important;
+    }
+    .buttons {
+        margin-right: 5px;
+        .ui.button {
+            height: 28px;
+            margin: 5px 0 3px 0 !important;
+            background-color: $secondary-color;
+            color: $white;
+            opacity: 0.8;
+            &:hover {
+                background-color: $secondary-color-hover;
+                opacity: 1;
+            }
+        }
     }
 }
 
@@ -593,10 +603,9 @@ h6,
     white-space: nowrap;
 }
 
-a.item.menu-button.ui.button {
+.item.menu-button.ui.button {
     padding: 7px 10px !important;
-    margin: 5px 0 3px 0 !important;
-    font-weight: 400;
+    margin: 5px 5px 3px 0 !important;
     height: 28px;
     &.primary {
         background: $brand-primary;

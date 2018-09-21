@@ -27,37 +27,30 @@ import io.netty.handler.codec.http.HttpHeaderValues;
 import io.netty.handler.codec.http.HttpMethod;
 import io.netty.handler.codec.http.HttpResponseStatus;
 import io.netty.handler.codec.http.HttpVersion;
-import org.ballerinalang.test.context.ServerInstance;
+import org.ballerinalang.test.service.http.HttpBaseTest;
+import org.ballerinalang.test.util.HttpClientRequest;
+import org.ballerinalang.test.util.HttpResponse;
 import org.ballerinalang.test.util.TestUtils;
 import org.ballerinalang.test.util.client.HttpClient;
 import org.testng.Assert;
-import org.testng.annotations.AfterClass;
-import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
-import java.io.File;
-import java.nio.file.Paths;
+import java.io.IOException;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Test case for verifying the server-side 100-continue behaviour.
  */
-public class ExpectContinueTestCase {
+@Test(groups = "http-test")
+public class ExpectContinueTestCase extends HttpBaseTest {
 
-    private ServerInstance ballerinaServer;
-
-    @BeforeClass
-    public void setup() throws Exception {
-        ballerinaServer = ServerInstance.initBallerinaServer();
-        String resourceRoot = new File(getClass().getProtectionDomain().getCodeSource().getLocation().toURI().getPath())
-                .getAbsolutePath();
-        String balFile = Paths.get(resourceRoot, "httpService", "100_continue.bal").toAbsolutePath().toString();
-        ballerinaServer.startBallerinaServer(balFile);
-    }
+    private final int servicePort = 9090;
 
     @Test
     public void test100Continue() {
-        HttpClient httpClient = new HttpClient("localhost", 9090);
+        HttpClient httpClient = new HttpClient("localhost", servicePort);
 
         DefaultHttpRequest reqHeaders = new DefaultHttpRequest(HttpVersion.HTTP_1_1, HttpMethod.POST, "/continue");
         DefaultLastHttpContent reqPayload = new DefaultLastHttpContent(
@@ -80,11 +73,22 @@ public class ExpectContinueTestCase {
         Assert.assertEquals(responsePayload, TestUtils.LARGE_ENTITY);
         Assert.assertEquals(responsePayload.getBytes().length, TestUtils.LARGE_ENTITY.getBytes().length);
         Assert.assertEquals(Integer.parseInt(responses.get(1).headers().get(HttpHeaderNames.CONTENT_LENGTH)),
-                            TestUtils.LARGE_ENTITY.getBytes().length);
+                TestUtils.LARGE_ENTITY.getBytes().length);
     }
 
-    @AfterClass
-    public void cleanup() throws Exception {
-        ballerinaServer.stopServer();
+    @Test(description = "Test multipart form data request with expect:100-continue header")
+    public void testMultipartWith100ContinueHeader() throws IOException {
+        Map<String, String> headers = new HashMap<>();
+        headers.put(HttpHeaderNames.EXPECT.toString(), HttpHeaderValues.CONTINUE.toString());
+
+        Map<String, String> formData = new HashMap<>();
+        formData.put("person", "engineer");
+        formData.put("team", "ballerina");
+
+        HttpResponse response = HttpClientRequest.doMultipartFormData(
+                serverInstance.getServiceURLHttp(servicePort, "continue/getFormParam"), headers, formData);
+        Assert.assertNotNull(response);
+        Assert.assertEquals(response.getResponseCode(), 200, "Response code mismatched");
+        Assert.assertEquals(response.getData(), "Result = Key:person Value: engineer Key:team Value: ballerina");
     }
 }

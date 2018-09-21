@@ -22,7 +22,6 @@ import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.tree.AnnotationNode;
 import org.ballerinalang.model.tree.CompilationUnitNode;
 import org.ballerinalang.model.tree.EndpointNode;
-import org.ballerinalang.model.tree.EnumNode;
 import org.ballerinalang.model.tree.FunctionNode;
 import org.ballerinalang.model.tree.ImportPackageNode;
 import org.ballerinalang.model.tree.NodeKind;
@@ -32,7 +31,6 @@ import org.ballerinalang.model.tree.TopLevelNode;
 import org.ballerinalang.model.tree.TypeDefinition;
 import org.ballerinalang.model.tree.VariableNode;
 import org.ballerinalang.model.tree.XMLNSDeclarationNode;
-import org.ballerinalang.repository.PackageRepository;
 import org.ballerinalang.util.diagnostic.Diagnostic;
 import org.wso2.ballerinalang.compiler.packaging.RepoHierarchy;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
@@ -56,7 +54,6 @@ public class BLangPackage extends BLangNode implements PackageNode {
     public List<BLangService> services;
     public List<BLangFunction> functions;
     public List<BLangTypeDefinition> typeDefinitions;
-    public List<BLangEnum> enums;
     public List<BLangAnnotation> annotations;
     public BLangFunction initFunction, startFunction, stopFunction;
     public Set<CompilerPhase> completedPhases;
@@ -65,7 +62,6 @@ public class BLangPackage extends BLangNode implements PackageNode {
 
     public PackageID packageID;
     public BPackageSymbol symbol;
-    public PackageRepository packageRepository;
 
     // TODO Revisit these instance variables
     public BDiagnosticCollector diagCollector;
@@ -81,7 +77,6 @@ public class BLangPackage extends BLangNode implements PackageNode {
         this.services = new ArrayList<>();
         this.functions = new ArrayList<>();
         this.typeDefinitions = new ArrayList<>();
-        this.enums = new ArrayList<>();
         this.annotations = new ArrayList<>();
 
         this.objAttachedFunctions = new ArrayList<>();
@@ -136,11 +131,6 @@ public class BLangPackage extends BLangNode implements PackageNode {
     }
 
     @Override
-    public List<? extends EnumNode> getEnums() {
-        return enums;
-    }
-
-    @Override
     public List<BLangAnnotation> getAnnotations() {
         return annotations;
     }
@@ -177,12 +167,6 @@ public class BLangPackage extends BLangNode implements PackageNode {
     public void addFunction(FunctionNode function) {
         this.functions.add((BLangFunction) function);
         this.topLevelNodes.add(function);
-    }
-
-    @Override
-    public void addEnum(EnumNode enumNode) {
-        this.enums.add((BLangEnum) enumNode);
-        this.topLevelNodes.add(enumNode);
     }
 
     @Override

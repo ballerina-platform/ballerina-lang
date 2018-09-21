@@ -24,7 +24,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 import org.wso2.ballerinalang.compiler.util.FieldKind;
-import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 
 /**
  * Implementation of {@link FieldBasedAccessNode}.
@@ -71,27 +70,6 @@ public class BLangFieldBasedAccess extends BLangAccessExpression implements Fiel
         public BLangStructFunctionVarRef(BLangVariableReference varRef, BVarSymbol varSymbol) {
             this.expr = varRef;
             this.symbol = varSymbol;
-        }
-
-        @Override
-        public void accept(BLangNodeVisitor visitor) {
-            visitor.visit(this);
-        }
-    }
-
-    /**
-     * @since 0.94
-     */
-    public static class BLangEnumeratorAccessExpr extends BLangFieldBasedAccess {
-
-        public BLangIdentifier enumeratorName;
-
-        public BLangEnumeratorAccessExpr(DiagnosticPos pos, BLangIdentifier enumeratorName,
-                                         BVarSymbol enumeratorSymbol) {
-            this.pos = pos;
-            this.enumeratorName = enumeratorName;
-            this.symbol = enumeratorSymbol;
-            this.varSymbol = enumeratorSymbol;
         }
 
         @Override

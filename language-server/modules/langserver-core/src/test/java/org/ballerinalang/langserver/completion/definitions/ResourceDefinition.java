@@ -18,22 +18,12 @@
 package org.ballerinalang.langserver.completion.definitions;
 
 import org.ballerinalang.langserver.completion.CompletionTest;
-import org.ballerinalang.langserver.index.LSIndexImpl;
-import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
-
-import java.nio.file.Paths;
 
 /**
  * Completion item tests for resource definition.
  */
 public class ResourceDefinition extends CompletionTest {
-
-    @BeforeClass
-    private void initLSIndex() {
-        String indexDumpPath = Paths.get("target/lang-server-index.sql").toAbsolutePath().toString();
-        LSIndexImpl.getInstance().initFromIndexDump(indexDumpPath);
-    }
 
     @DataProvider(name = "completion-data-provider")
     @Override

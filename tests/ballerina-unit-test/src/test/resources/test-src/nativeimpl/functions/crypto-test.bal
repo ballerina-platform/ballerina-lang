@@ -5,11 +5,11 @@ function testHmacWithMD5 (string base, string key) returns (string) {
 }
 
 function testHmacHexKeyMD5(string base, string key) returns (string) {
-    return crypto:hmac(base, key, keyEncoding = "HEX", crypto:MD5);
+    return crypto:hmac(base, key, keyEncoding = crypto:HEX, crypto:MD5);
 }
 
 function testHmacBase64KeyMD5(string base, string key) returns (string) {
-    return crypto:hmac(base, key, keyEncoding = "BASE64", crypto:MD5);
+    return crypto:hmac(base, key, keyEncoding = crypto:BASE64, crypto:MD5);
 }
 
 function testHmacWithSHA1 (string base, string key) returns (string) {
@@ -17,11 +17,11 @@ function testHmacWithSHA1 (string base, string key) returns (string) {
 }
 
 function testHmacHexKeySHA1(string base, string key) returns (string) {
-    return crypto:hmac(base, key, keyEncoding = "HEX", crypto:SHA1);
+    return crypto:hmac(base, key, keyEncoding = crypto:HEX, crypto:SHA1);
 }
 
 function testHmacBase64KeySHA1(string base, string key) returns (string) {
-    return crypto:hmac(base, key, keyEncoding = "BASE64", crypto:SHA1);
+    return crypto:hmac(base, key, keyEncoding = crypto:BASE64, crypto:SHA1);
 }
 
 function testHmacWithSHA256 (string base, string key) returns (string) {
@@ -29,11 +29,11 @@ function testHmacWithSHA256 (string base, string key) returns (string) {
 }
 
 function testHmacHexKeySHA256(string base, string key) returns (string) {
-    return crypto:hmac(base, key, keyEncoding = "HEX", crypto:SHA256);
+    return crypto:hmac(base, key, keyEncoding = crypto:HEX, crypto:SHA256);
 }
 
 function testHmacBase64KeySHA256(string base, string key) returns (string) {
-    return crypto:hmac(base, key, keyEncoding = "BASE64", crypto:SHA256);
+    return crypto:hmac(base, key, keyEncoding = crypto:BASE64, crypto:SHA256);
 }
 
 function testHashWithMD5 (string base) returns (string) {

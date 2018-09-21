@@ -83,6 +83,7 @@ describe('Ballerina Composer Test Suite', () => {
             it('renders', function () {
                 if(renderingSkip.includes(path.basename(testFile))) {
                     this.skip();
+                    return;
                 }
 
                 testEnv.render(model)
@@ -91,6 +92,7 @@ describe('Ballerina Composer Test Suite', () => {
             it('generates source', function () {
                 if(sourceGenSkip.includes(path.basename(testFile))) {
                     this.skip();
+                    return;
                 }
 
                 const generatedSource = testEnv.generateSource(model);

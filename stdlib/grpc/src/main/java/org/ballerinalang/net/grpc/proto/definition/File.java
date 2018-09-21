@@ -148,9 +148,10 @@ public class File {
             return this;
         }
         
-        public void setDependency(String dependency) {
+        public Builder setDependency(String dependency) {
             fileBuilder.addDependency(dependency);
             dependencyList.add(dependency);
+            return this;
         }
         
         public List<DescriptorProtos.DescriptorProto> getRegisteredMessages() {

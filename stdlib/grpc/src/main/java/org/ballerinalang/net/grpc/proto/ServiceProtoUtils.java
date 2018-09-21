@@ -22,11 +22,14 @@ import com.google.protobuf.Descriptors;
 import org.ballerinalang.connector.api.Annotation;
 import org.ballerinalang.connector.api.Struct;
 import org.ballerinalang.model.tree.AnnotationAttachmentNode;
+import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.ResourceNode;
 import org.ballerinalang.model.tree.ServiceNode;
 import org.ballerinalang.model.tree.statements.BlockNode;
 import org.ballerinalang.model.tree.statements.StatementNode;
+import org.ballerinalang.model.types.FiniteType;
 import org.ballerinalang.model.types.TypeKind;
+import org.ballerinalang.net.grpc.config.ResourceConfiguration;
 import org.ballerinalang.net.grpc.config.ServiceConfiguration;
 import org.ballerinalang.net.grpc.exception.GrpcServerException;
 import org.ballerinalang.net.grpc.proto.definition.EmptyMessage;
@@ -41,10 +44,9 @@ import org.ballerinalang.net.grpc.proto.definition.StandardDescriptorBuilder;
 import org.ballerinalang.net.grpc.proto.definition.UserDefinedEnumMessage;
 import org.ballerinalang.net.grpc.proto.definition.UserDefinedMessage;
 import org.ballerinalang.net.grpc.proto.definition.WrapperMessage;
-import org.wso2.ballerinalang.compiler.semantics.model.Scope;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BEnumType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BField;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BFiniteType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BNilType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStructureType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
@@ -53,6 +55,8 @@ import org.wso2.ballerinalang.compiler.tree.BLangVariable;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypedescExpr;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangAssignment;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangForeach;
@@ -60,14 +64,12 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangIf;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangVariableDef;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangWhile;
-import org.wso2.ballerinalang.compiler.util.Name;
 
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
-import java.util.Map;
 
 import static org.ballerinalang.net.grpc.GrpcConstants.ANN_ATTR_RESOURCE_SERVER_STREAM;
 import static org.ballerinalang.net.grpc.GrpcConstants.ANN_RESOURCE_CONFIG;
@@ -117,6 +119,8 @@ public class ServiceProtoUtils {
     
     static ServiceConfiguration getServiceConfiguration(ServiceNode serviceNode) {
         String rpcEndpoint = null;
+        BType requestType = null;
+        BType responseType = null;
         boolean clientStreaming = false;
         boolean serverStreaming = false;
         
@@ -129,20 +133,27 @@ public class ServiceProtoUtils {
                         .getExpression()).getKeyValuePairs();
                 for (BLangRecordLiteral.BLangRecordKeyValue attributeNode : attributes) {
                     String attributeName = attributeNode.getKey().toString();
-                    String attributeValue = attributeNode.getValue() != null ? attributeNode.getValue().toString() :
-                            null;
+                    BLangExpression attributeValue = attributeNode.getValue();
                     
                     switch (attributeName) {
                         case ServiceProtoConstants.SERVICE_CONFIG_RPC_ENDPOINT: {
-                            rpcEndpoint = attributeValue;
+                            rpcEndpoint = attributeValue != null ? attributeValue.toString() : null;
                             break;
                         }
                         case ServiceProtoConstants.SERVICE_CONFIG_CLIENT_STREAMING: {
-                            clientStreaming = attributeValue != null && Boolean.parseBoolean(attributeValue);
+                            clientStreaming = attributeValue != null && Boolean.parseBoolean(attributeValue.toString());
                             break;
                         }
                         case ServiceProtoConstants.SERVICE_CONFIG_SERVER_STREAMING: {
-                            serverStreaming = attributeValue != null && Boolean.parseBoolean(attributeValue);
+                            serverStreaming = attributeValue != null && Boolean.parseBoolean(attributeValue.toString());
+                            break;
+                        }
+                        case ServiceProtoConstants.RESOURCE_CONFIG_REQUEST_TYPE: {
+                            requestType = getMessageBType(attributeValue);
+                            break;
+                        }
+                        case ServiceProtoConstants.RESOURCE_CONFIG_RESPONSE_TYPE: {
+                            responseType = getMessageBType(attributeValue);
                             break;
                         }
                         default: {
@@ -152,7 +163,56 @@ public class ServiceProtoUtils {
                 }
             }
         }
-        return new ServiceConfiguration(rpcEndpoint, clientStreaming, serverStreaming);
+        return new ServiceConfiguration(rpcEndpoint, requestType, responseType, clientStreaming, serverStreaming);
+    }
+
+    private static BType getMessageBType(BLangExpression attributeValue) {
+        BType requestType = null;
+        if (NodeKind.SIMPLE_VARIABLE_REF.equals(attributeValue.getKind())) {
+            requestType = ((BLangSimpleVarRef) attributeValue).symbol.getType();
+        } else if (NodeKind.TYPEDESC_EXPRESSION.equals(attributeValue.getKind())) {
+            requestType = ((BLangTypedescExpr) attributeValue).resolvedType;
+        }
+        return requestType;
+    }
+
+    private static ResourceConfiguration getResourceConfiguration(ResourceNode resourceNode) {
+        boolean streaming = false;
+        BType requestType = null;
+        BType responseType = null;
+
+        for (AnnotationAttachmentNode annotationNode : resourceNode.getAnnotationAttachments()) {
+            if (!ServiceProtoConstants.ANN_RESOURCE_CONFIG.equals(annotationNode.getAnnotationName().getValue())) {
+                continue;
+            }
+            if (annotationNode.getExpression() instanceof BLangRecordLiteral) {
+                List<BLangRecordLiteral.BLangRecordKeyValue> attributes = ((BLangRecordLiteral) annotationNode
+                        .getExpression()).getKeyValuePairs();
+                for (BLangRecordLiteral.BLangRecordKeyValue attributeNode : attributes) {
+                    String attributeName = attributeNode.getKey().toString();
+                    BLangExpression attributeValue = attributeNode.getValue();
+
+                    switch (attributeName) {
+                        case ServiceProtoConstants.RESOURCE_CONFIG_STREAMING: {
+                            streaming = attributeValue != null && Boolean.parseBoolean(attributeValue.toString());
+                            break;
+                        }
+                        case ServiceProtoConstants.RESOURCE_CONFIG_REQUEST_TYPE: {
+                            requestType = getMessageBType(attributeValue);
+                            break;
+                        }
+                        case ServiceProtoConstants.RESOURCE_CONFIG_RESPONSE_TYPE: {
+                            responseType = getMessageBType(attributeValue);
+                            break;
+                        }
+                        default: {
+                            break;
+                        }
+                    }
+                }
+            }
+        }
+        return new ResourceConfiguration(streaming, requestType, responseType);
     }
     
     private static Service getUnaryServiceDefinition(ServiceNode serviceNode, File.Builder fileBuilder) throws
@@ -161,7 +221,13 @@ public class ServiceProtoUtils {
         Service.Builder serviceBuilder = Service.newBuilder(serviceNode.getName().getValue());
         
         for (ResourceNode resourceNode : serviceNode.getResources()) {
-            Message requestMessage = getRequestMessage(resourceNode);
+            ResourceConfiguration resourceConfiguration = getResourceConfiguration(resourceNode);
+            Message requestMessage;
+            if (resourceConfiguration.getRequestType() != null) {
+                requestMessage = generateMessageDefinition(resourceConfiguration.getRequestType());
+            } else {
+                requestMessage = getRequestMessage(resourceNode);
+            }
             if (requestMessage == null) {
                 throw new GrpcServerException("Error while deriving request message of the resource");
             }
@@ -173,7 +239,12 @@ public class ServiceProtoUtils {
                 fileBuilder.setDependency(requestMessage.getDependency());
             }
 
-            Message responseMessage = getResponseMessage(resourceNode);
+            Message responseMessage;
+            if (resourceConfiguration.getResponseType() != null) {
+                responseMessage = generateMessageDefinition(resourceConfiguration.getResponseType());
+            } else {
+                responseMessage = getResponseMessage(resourceNode);
+            }
             if (responseMessage == null) {
                 throw new GrpcServerException("Connection send expression not found in resource body");
             }
@@ -227,20 +298,28 @@ public class ServiceProtoUtils {
         Service.Builder serviceBuilder = Service.newBuilder(serviceNode.getName().getValue());
         Message requestMessage = null;
         Message responseMessage = null;
-        for (ResourceNode resourceNode : serviceNode.getResources()) {
-            if (ON_MESSAGE_RESOURCE.equals(resourceNode.getName().getValue())) {
-                requestMessage = getRequestMessage(resourceNode);
-                Message respMsg = getResponseMessage(resourceNode);
-                if (respMsg != null && !(MessageKind.EMPTY.equals(respMsg.getMessageKind()))) {
-                    responseMessage = respMsg;
-                    break;
+        if (serviceConfig.getRequestType() != null) {
+            requestMessage = generateMessageDefinition(serviceConfig.getRequestType());
+        }
+        if (serviceConfig.getResponseType() != null) {
+            responseMessage = generateMessageDefinition(serviceConfig.getResponseType());
+        }
+        if (requestMessage == null || responseMessage == null) {
+            for (ResourceNode resourceNode : serviceNode.getResources()) {
+                if (ON_MESSAGE_RESOURCE.equals(resourceNode.getName().getValue())) {
+                    requestMessage = requestMessage == null ? getRequestMessage(resourceNode) : requestMessage;
+                    Message respMsg = responseMessage == null ? getResponseMessage(resourceNode) : responseMessage;
+                    if (respMsg != null && !(MessageKind.EMPTY.equals(respMsg.getMessageKind()))) {
+                        responseMessage = respMsg;
+                        break;
+                    }
                 }
-            }
-            
-            if (ON_COMPLETE_RESOURCE.equals(resourceNode.getName().getValue())) {
-                Message respMsg = getResponseMessage(resourceNode);
-                if (respMsg != null && !(MessageKind.EMPTY.equals(respMsg.getMessageKind()))) {
-                    responseMessage = respMsg;
+
+                if (ON_COMPLETE_RESOURCE.equals(resourceNode.getName().getValue())) {
+                    Message respMsg = responseMessage == null ? getResponseMessage(resourceNode) : responseMessage;
+                    if (respMsg != null && !(MessageKind.EMPTY.equals(respMsg.getMessageKind()))) {
+                        responseMessage = respMsg;
+                    }
                 }
             }
         }
@@ -402,14 +481,6 @@ public class ServiceProtoUtils {
                 }
                 break;
             }
-            case ENUM: {
-                if (messageType instanceof org.wso2.ballerinalang.compiler.semantics.model.types.BEnumType) {
-                    org.wso2.ballerinalang.compiler.semantics.model.types.BEnumType enumType = (org
-                            .wso2.ballerinalang.compiler.semantics.model.types.BEnumType) messageType;
-                    message = getEnumMessage(enumType);
-                }
-                break;
-            }
             case NIL: {
                 message = EmptyMessage.newBuilder().build();
                 break;
@@ -431,10 +502,7 @@ public class ServiceProtoUtils {
             String fieldName = structField.getName().getValue();
             BType fieldType = structField.getType();
             String fieldLabel = null;
-            if (fieldType instanceof BEnumType) {
-                BEnumType enumType = (BEnumType) fieldType;
-                messageBuilder.addMessageDefinition(getEnumMessage(enumType));
-            } else if (fieldType instanceof BStructureType) {
+            if (fieldType instanceof BStructureType) {
                 BStructureType structType = (BStructureType) fieldType;
                 messageBuilder.addMessageDefinition(getStructMessage(structType));
             } else if (fieldType instanceof BArrayType) {
@@ -445,6 +513,19 @@ public class ServiceProtoUtils {
                 }
                 fieldType = elementType;
                 fieldLabel = "repeated";
+            } else if (fieldType instanceof FiniteType) {
+                UserDefinedEnumMessage.Builder enumBuilder = UserDefinedEnumMessage
+                        .newBuilder(fieldType.tsymbol.name.value);
+                BFiniteType finiteType = (BFiniteType) fieldType;
+                int enumFieldIndex = 0;
+                EnumField.Builder enumFieldBuilder = EnumField.newBuilder();
+                EnumField enumField;
+                for (BLangExpression bLangExpression : finiteType.valueSpace) {
+                    String enumValue = String.valueOf(bLangExpression);
+                    enumField = enumFieldBuilder.setIndex(enumFieldIndex++).setName(enumValue).build();
+                    enumBuilder.addFieldDefinition(enumField);
+                }
+                messageBuilder.addMessageDefinition(enumBuilder.build());
             }
             messageField = Field.newBuilder(fieldName)
                     .setIndex(++fieldIndex)
@@ -455,18 +536,6 @@ public class ServiceProtoUtils {
         return messageBuilder.build();
     }
 
-    private static UserDefinedEnumMessage getEnumMessage(BEnumType messageType) throws GrpcServerException {
-        UserDefinedEnumMessage.Builder messageBuilder = UserDefinedEnumMessage.newBuilder(messageType.toString());
-        int fieldIndex = 0;
-        Map<Name, Scope.ScopeEntry> enumField = (messageType.tsymbol.scope.entries);
-        for (Map.Entry<Name, Scope.ScopeEntry> field : enumField.entrySet()) {
-            String fieldName = field.getKey().getValue();
-            EnumField messageField = EnumField.newBuilder().setName(fieldName).setIndex(fieldIndex++).build();
-            messageBuilder.addFieldDefinition(messageField);
-        }
-        return messageBuilder.build();
-    }
-    
     private static BLangInvocation getInvocationExpression(BlockNode body) {
         if (body == null) {
             return null;
@@ -549,6 +618,7 @@ public class ServiceProtoUtils {
      *
      * @param service gRPC service.
      * @return File Descriptor of the service.
+     * @throws GrpcServerException cannot read service descriptor
      */
     public static com.google.protobuf.Descriptors.FileDescriptor getDescriptor(
             org.ballerinalang.connector.api.Service service) throws GrpcServerException {
@@ -573,7 +643,12 @@ public class ServiceProtoUtils {
         }
     }
 
-    private static byte[] hexStringToByteArray(String s) {
+    /**
+     * Convert Hex string value to byte array.
+     * @param s hexadecimal string value
+     * @return Byte array
+     */
+    public static byte[] hexStringToByteArray(String s) {
         int len = s.length();
         byte[] data = new byte[len / 2];
         for (int i = 0; i < len; i += 2) {

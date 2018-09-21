@@ -65,6 +65,8 @@ public class GrpcConstants {
     public static final String REQUEST_SENDER = "REQUEST_SENDER";
     public static final String GRPC_CLIENT = "GrpcClient";
     public static final String REQUEST_MESSAGE_DEFINITION = "REQUEST_DEFINITION";
+    public static final String REGEX_DOT_SEPERATOR = "\\.";
+    public static final String DOT = ".";
 
     public static final String CLIENT = "Client";
     public static final String ANN_RESOURCE_CONFIG = "ResourceConfig";
@@ -122,18 +124,7 @@ public class GrpcConstants {
     public static final String BOOLEAN = "boolean";
     
     //stub template builder constants
-    public static final String COMMA = ",";
-    public static final String INPUT_TYPE_NAME = "req";
-    public static final String RESULT_TYPE_NAME = "result";
-    public static final String IGNORE_CAST = "_";
-    public static final String INIT_EMPTY_STUB = "Empty req = {};";
     public static final String EMPTY_DATATYPE_NAME = "Empty";
-    public static final String DIAMOND_CAST_OPEN = "<";
-    public static final String DIAMOND_CAST_CLOSE = ">";
-    public static final String BRACKET_OPEN = "(";
-    public static final String BRACKET_CLOSE = ")";
-    public static final String SPACE = " ";
-    public static final String CHECK = "check ";
 
     //Service Endpoint Config
     public static final String ENDPOINT_CONFIG_HOST = "host";

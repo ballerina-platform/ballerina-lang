@@ -1,7 +1,7 @@
 type Person record {
     string name;
     int age;
-    string address,
+    string address;
     !...
 };
 
@@ -9,7 +9,7 @@ type Student record {
     string name;
     int age;
     string address;
-    string class,
+    string class;
     !...
 };
 
@@ -68,7 +68,7 @@ type Employee record {
     string first_name;
     string last_name;
     int age;
-    Address address,
+    Address address;
     !...
 };
 
@@ -76,13 +76,13 @@ type Address record {
     string number;
     string street;
     string city;
-    PhoneNumber phoneNumber,
+    PhoneNumber phoneNumber;
     !...
 };
 
 type PhoneNumber record {
     string areaCode;
-    string number,
+    string number;
     !...
 };
 
@@ -175,4 +175,22 @@ function testConstrainedJsonWithFunctions() returns (string | ()){
 function testConstrainedJsonWithFunctionGetKeys() returns (string[] | ()){
     json<Person> j = {name:"John Doe", age:30, address:"London"};
     return j.getKeys();
+}
+
+type StudentObj object {
+    string name;
+    int age;
+
+    function getName() returns string {
+        return name;
+    }
+};
+
+function testJsonObjectConstraint() returns (json, json, string|error, int|error) {
+    json<StudentObj> j = {};
+    j.name = "John Doe";
+    j.age = 30;
+    var name = <string> j["name"];
+    var age = <int> j.age;
+    return (j.name, j.age, name, age);
 }

@@ -16,10 +16,9 @@
 
 import ballerina/log;
 
-documentation { JMS simple topic publisher
-    E{{}}
-    F{{config}} Simple topic publisher enpoint configuration
-}
+# JMS simple topic publisher
+#
+# + config - Simple topic publisher enpoint configuration
 public type SimpleTopicPublisher object {
 
     public SimpleTopicPublisherEndpointConfiguration config;
@@ -28,9 +27,9 @@ public type SimpleTopicPublisher object {
     private Session? session;
     private TopicPublisher? publisher;
 
-    documentation { Initialize simple topic publisher endpoint
-        P{{c}} Simple topic publisher enpoint configuration
-    }
+    # Initialize simple topic publisher endpoint
+    #
+    # + c - Simple topic publisher enpoint configuration
     public function init(SimpleTopicPublisherEndpointConfiguration c) {
         self.config = c;
         Connection conn = new({
@@ -55,19 +54,21 @@ public type SimpleTopicPublisher object {
         self.publisher = topicPublisher;
     }
 
-    documentation { Register simple topic publisher endpoint
-        P{{serviceType}} Type descriptor of the service
-    }
+    # Register simple topic publisher endpoint
+    #
+    # + serviceType - Type descriptor of the service
     public function register(typedesc serviceType) {
 
     }
 
-    documentation { Start simple topic pubilsher endpoint }
+    # Start simple topic pubilsher endpoint
     public function start() {
 
     }
 
-    documentation { Get simple topic pubilsher actions }
+    # Get simple topic pubilsher actions
+    #
+    # + return - Topic publisher actions
     public function getCallerActions() returns TopicPublisherActions {
         match (publisher) {
             TopicPublisher s => return s.getCallerActions();
@@ -78,14 +79,15 @@ public type SimpleTopicPublisher object {
         }
     }
 
-    documentation { Stop simple topic pubilsher endpoint }
+    # Stop simple topic pubilsher endpoint
     public function stop() {
 
     }
 
-    documentation { Create JMS text message
-        P{{message}} A message body to create a text message
-    }
+    # Create JMS text message
+    #
+    # + message - A message body to create a text message
+    # + return - a message or nil if the session is nil
     public function createTextMessage(string message) returns Message|error {
         match (session) {
             Session s => return s.createTextMessage(message);
@@ -95,9 +97,10 @@ public type SimpleTopicPublisher object {
             }
         }
     }
-    documentation { Create JMS map message
-        P{{message}} A message body to create a map message
-    }
+    # Create JMS map message
+    #
+    # + message - A message body to create a map message
+    # + return - a message or nil if the session is nil
     public function createMapMessage(map message) returns Message|error {
         match (session) {
             Session s => return s.createMapMessage(message);
@@ -109,14 +112,14 @@ public type SimpleTopicPublisher object {
     }
 };
 
-documentation { Configuration related to simple topic publisher endpoint
-    F{{initialContextFactory}} JNDI initial context factory class
-    F{{providerUrl}} JNDI provider URL
-    F{{connectionFactoryName}}  JNDI name of the connection factory
-    F{{acknowledgementMode}} JMS session acknwoledge mode
-    F{{properties}} JMS message properties
-    F{{topicPattern}} name of the target topic
-}
+# Configuration related to simple topic publisher endpoint
+#
+# + initialContextFactory - JNDI initial context factory class
+# + providerUrl - JNDI provider URL
+# + connectionFactoryName - JNDI name of the connection factory
+# + acknowledgementMode - JMS session acknwoledge mode
+# + properties - JMS message properties
+# + topicPattern - name of the target topic
 public type SimpleTopicPublisherEndpointConfiguration record {
     string initialContextFactory = "bmbInitialContextFactory";
     string providerUrl = "amqp://admin:admin@ballerina/default?brokerlist='tcp://localhost:5672'";
@@ -124,4 +127,5 @@ public type SimpleTopicPublisherEndpointConfiguration record {
     string acknowledgementMode = "AUTO_ACKNOWLEDGE";
     map properties;
     string topicPattern;
+    !...
 };

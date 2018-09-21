@@ -17,7 +17,8 @@
  */
 package org.ballerinalang.test.observability.metrics;
 
-import org.ballerinalang.test.context.ServerInstance;
+import org.ballerinalang.test.BaseTest;
+import org.ballerinalang.test.context.BServerInstance;
 import org.ballerinalang.test.util.HttpClientRequest;
 import org.ballerinalang.test.util.SQLDBUtils;
 import org.testng.Assert;
@@ -43,9 +44,9 @@ import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
 /**
  * Integration test for observability of metrics.
  */
-public class MetricsTestCase {
+public class MetricsTestCase extends BaseTest {
+    private static BServerInstance serverInstance;
 
-    private ServerInstance serverInstance;
     private SQLDBUtils.SqlServer sqlServer;
     private static final String RESOURCE_LOCATION = "src" + File.separator + "test" + File.separator +
             "resources" + File.separator + "observability" + File.separator + "metrics" + File.separator;
@@ -54,7 +55,7 @@ public class MetricsTestCase {
 
     @BeforeClass
     private void setup() throws Exception {
-        serverInstance = ServerInstance.initBallerinaServer();
+        serverInstance = new BServerInstance(balServer);
         Files.copy(new File(System.getProperty("hsqldb.jar")).toPath(), new File(serverInstance.getServerHome() +
                         File.separator + "bre" + File.separator + "lib" + File.separator + "hsqldb.jar").toPath(),
                 REPLACE_EXISTING);
@@ -63,12 +64,10 @@ public class MetricsTestCase {
                 File.separator + "metrics" + File.separator + "data.sql");
         String balFile = new File(RESOURCE_LOCATION + "metrics-test.bal").getAbsolutePath();
         List<String> args = new ArrayList<>();
-        args.add(balFile);
         args.add("--observe");
         args.add("-e");
         args.add(CONFIG_TABLE_METRICS + ".statistic.percentiles=0.5, 0.75, 0.98, 0.99, 0.999");
-        serverInstance.setArguments(args.toArray(new String[args.size()]));
-        serverInstance.startServer();
+        serverInstance.startServer(balFile, args.toArray(new String[args.size()]), new int[]{9090});
         addMetrics();
     }
 
@@ -108,7 +107,7 @@ public class MetricsTestCase {
 
     @AfterClass
     private void cleanup() throws Exception {
-        serverInstance.stopServer();
+        serverInstance.shutdownServer();
         sqlServer.stop();
     }
 

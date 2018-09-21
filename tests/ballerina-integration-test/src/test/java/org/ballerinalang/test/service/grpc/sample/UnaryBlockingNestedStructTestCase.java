@@ -27,14 +27,10 @@ import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.test.IntegrationTestCase;
-import org.ballerinalang.test.context.BallerinaTestException;
-import org.ballerinalang.test.context.ServerInstance;
 import org.ballerinalang.test.util.TestUtils;
 import org.ballerinalang.util.codegen.PackageInfo;
 import org.ballerinalang.util.codegen.StructureTypeInfo;
 import org.testng.Assert;
-import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
@@ -43,25 +39,22 @@ import java.nio.file.Paths;
 
 /**
  * Test class for gRPC unary service with nested struct input/output.
- *
  */
-public class UnaryBlockingNestedStructTestCase extends IntegrationTestCase {
+@Test(groups = "grpc-test")
+public class UnaryBlockingNestedStructTestCase extends GrpcBaseTest {
 
-    private ServerInstance ballerinaServer;
-    
+    private CompileResult result;
+
     @BeforeClass
     private void setup() throws Exception {
-        ballerinaServer = ServerInstance.initBallerinaServer(9090);
-        Path serviceBalPath = Paths.get("src", "test", "resources", "grpc", "advanced_type_service.bal");
-        ballerinaServer.startBallerinaServer(serviceBalPath.toAbsolutePath().toString());
         TestUtils.prepareBalo(this);
+        Path balFilePath = Paths.get("src", "test", "resources", "grpc", "clients", "advanced_type_client.bal");
+        result = BCompileUtil.compile(balFilePath.toAbsolutePath().toString());
     }
 
     @Test
     public void testInputNestedStructClient() {
         //Person p = {name:"Danesh", address:{postalCode:10300, state:"Western", country:"Sri Lanka"}};
-        Path balFilePath = Paths.get("src", "test", "resources", "grpc", "advanced_type_client.bal");
-        CompileResult result = BCompileUtil.compile(balFilePath.toAbsolutePath().toString());
         PackageInfo packageInfo = result.getProgFile().getPackageInfo(".");
         // Address struct
         StructureTypeInfo addressInfo = packageInfo.getStructInfo("Address");
@@ -85,8 +78,6 @@ public class UnaryBlockingNestedStructTestCase extends IntegrationTestCase {
 
     @Test
     public void testOutputNestedStructClient() {
-        Path balFilePath = Paths.get("src", "test", "resources", "grpc", "advanced_type_client.bal");
-        CompileResult result = BCompileUtil.compile(balFilePath.toAbsolutePath().toString());
         BString request = new BString("WSO2");
 
         BValue[] responses = BRunUtil.invoke(result, "testOutputNestedStruct", new BValue[]{request});
@@ -105,8 +96,6 @@ public class UnaryBlockingNestedStructTestCase extends IntegrationTestCase {
     @Test
     public void testInputStructOutputStruct() {
         //StockRequest request = {name: "WSO2"};
-        Path balFilePath = Paths.get("src", "test", "resources", "grpc", "advanced_type_client.bal");
-        CompileResult result = BCompileUtil.compile(balFilePath.toAbsolutePath().toString());
         PackageInfo packageInfo = result.getProgFile().getPackageInfo(".");
         // Address struct
         StructureTypeInfo requestInfo = packageInfo.getStructInfo("StockRequest");
@@ -125,10 +114,5 @@ public class UnaryBlockingNestedStructTestCase extends IntegrationTestCase {
         Assert.assertEquals(((BFloat) response.get("last")).floatValue(), 149.52);
         Assert.assertEquals(((BFloat) response.get("low")).floatValue(), 150.70);
         Assert.assertEquals(((BFloat) response.get("high")).floatValue(), 149.18);
-    }
-    
-    @AfterClass
-    private void cleanup() throws BallerinaTestException {
-        ballerinaServer.stopServer();
     }
 }

@@ -16,10 +16,9 @@
 
 import ballerina/log;
 
-documentation { JMS simple topic subscriber
-    E{{}}
-    F{{config}} Simple topic subscrirber enpoint configuration
-}
+# JMS simple topic subscriber
+#
+# + config - Simple topic subscrirber enpoint configuration
 public type SimpleTopicSubscriber object {
 
     public SimpleTopicSubscriberEndpointConfiguration config;
@@ -28,9 +27,9 @@ public type SimpleTopicSubscriber object {
     private Session? session;
     private TopicSubscriber? subscriber;
 
-    documentation { Initialize simple topic subscirber endpoint
-        P{{c}} Simple topic subscrirber enpoint configuration
-    }
+    # Initialize simple topic subscirber endpoint
+    #
+    # + c - Simple topic subscrirber enpoint configuration
     public function init(SimpleTopicSubscriberEndpointConfiguration c) {
         self.config = c;
         Connection conn = new({
@@ -56,9 +55,9 @@ public type SimpleTopicSubscriber object {
         self.subscriber = topicSubscriber;
     }
 
-    documentation { Register simple topic subscriber endpoint
-        P{{serviceType}} Type descriptor of the service
-    }
+    # Register simple topic subscriber endpoint
+    #
+    # + serviceType - Type descriptor of the service
     public function register(typedesc serviceType) {
         match (subscriber) {
             TopicSubscriber c => {
@@ -71,12 +70,14 @@ public type SimpleTopicSubscriber object {
         }
     }
 
-    documentation { Start simple topic subscriber endpoint }
+    # Start simple topic subscriber endpoint
     public function start() {
 
     }
 
-    documentation { Get simple topic subscriber actions }
+    # Get simple topic subscriber actions
+    #
+    # + return - Topic subscriber actions
     public function getCallerActions() returns TopicSubscriberActions {
         match (subscriber) {
             TopicSubscriber c => return c.getCallerActions();
@@ -87,14 +88,15 @@ public type SimpleTopicSubscriber object {
         }
     }
 
-    documentation { Stop simple topic subsriber endpoint }
+    # Stop simple topic subsriber endpoint
     public function stop() {
 
     }
 
-    documentation { Create JMS text message
-        P{{message}} A message body to create a text message
-    }
+    # Create JMS text message
+    #
+    # + message - A message body to create a text message
+    # + return - a message or nil if the session is nil
     public function createTextMessage(string message) returns Message|error {
         match (session) {
             Session s => return s.createTextMessage(message);
@@ -105,9 +107,10 @@ public type SimpleTopicSubscriber object {
         }
     }
 
-    documentation { Create JMS map message
-        P{{message}} A message body to create a map message
-    }
+    # Create JMS map message
+    #
+    # + message - A message body to create a map message
+    # + return - a message or nil if the session is nil.
     public function createMapMessage(map message) returns Message|error {
         match (session) {
             Session s => return s.createMapMessage(message);
@@ -119,15 +122,15 @@ public type SimpleTopicSubscriber object {
     }
 };
 
-documentation { Configuration related to simple topic subscriber endpoint
-    F{{initialContextFactory}} JNDI initial context factory class
-    F{{providerUrl}} JNDI provider URL
-    F{{connectionFactoryName}}  JNDI name of the connection factory
-    F{{acknowledgementMode}} JMS session acknwoledge mode
-    F{{messageSelector}}  Message selector condition to filter messages
-    F{{properties}} JMS message properties
-    F{{topicPattern}} Topic name pattern
-}
+# Configuration related to simple topic subscriber endpoint
+#
+# + initialContextFactory - JNDI initial context factory class
+# + providerUrl - JNDI provider URL
+# + connectionFactoryName - JNDI name of the connection factory
+# + acknowledgementMode - JMS session acknwoledge mode
+# + messageSelector - Message selector condition to filter messages
+# + properties - JMS message properties
+# + topicPattern - Topic name pattern
 public type SimpleTopicSubscriberEndpointConfiguration record {
     string initialContextFactory = "bmbInitialContextFactory";
     string providerUrl = "amqp://admin:admin@ballerina/default?brokerlist='tcp://localhost:5672'";
@@ -136,4 +139,5 @@ public type SimpleTopicSubscriberEndpointConfiguration record {
     string messageSelector;
     map properties;
     string topicPattern;
+    !...
 };

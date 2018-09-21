@@ -18,7 +18,6 @@
 package org.ballerinalang.net.http;
 
 import io.netty.handler.codec.http.HttpHeaderNames;
-
 import org.ballerinalang.connector.api.BLangConnectorSPIUtil;
 import org.ballerinalang.connector.api.BallerinaConnectorException;
 import org.ballerinalang.connector.api.Struct;
@@ -111,7 +110,7 @@ public class HttpDispatcher {
         inboundReqMsg.setProperty(HttpConstants.RAW_QUERY_STR, requestUri.getRawQuery());
     }
 
-    private static URI getValidatedURI(String uriStr) {
+    public static URI getValidatedURI(String uriStr) {
         URI requestUri;
         try {
             requestUri = URI.create(uriStr);
@@ -124,6 +123,7 @@ public class HttpDispatcher {
     /**
      * This method finds the matching resource for the incoming request.
      *
+     * @param servicesRegistry HTTP service registry
      * @param inboundMessage incoming message.
      * @return matching resource.
      */

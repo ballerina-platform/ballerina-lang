@@ -76,15 +76,18 @@ public class TextDocumentFormatUtil {
      * Get the AST for the current text document's content.
      *
      * @param uri             File path as a URI
+     * @param lsCompiler Language server compiler
      * @param documentManager Workspace document manager instance
      * @param context         Document formatting context
      * @return {@link JsonObject}   AST as a Json Object
+     * @throws JSONGenerationException when AST build fails
      */
-    public static JsonObject getAST(String uri, WorkspaceDocumentManager documentManager,
-                                    LSContext context) throws InvocationTargetException, IllegalAccessException {
+    public static JsonObject getAST(String uri, LSCompiler lsCompiler,
+                                    WorkspaceDocumentManager documentManager, LSContext context)
+            throws JSONGenerationException {
         String[] uriParts = uri.split(Pattern.quote("/"));
         String fileName = uriParts[uriParts.length - 1];
-        final BLangPackage bLangPackage = LSCompiler.getBLangPackage(context, documentManager, 
+        final BLangPackage bLangPackage = lsCompiler.getBLangPackage(context, documentManager,
                 true, LSCustomErrorStrategy.class, false).getRight();
         context.put(DocumentServiceKeys.CURRENT_PACKAGE_NAME_KEY, bLangPackage.symbol.getName().getValue());
         final List<Diagnostic> diagnostics = new ArrayList<>();
@@ -110,9 +113,9 @@ public class TextDocumentFormatUtil {
      * @param node        Node to get the json representation
      * @param anonStructs Map of anonymous structs
      * @return {@link JsonElement}          Json Representation of the node
+     * @throws JSONGenerationException when Json error occurs
      */
-    public static JsonElement generateJSON(Node node, Map<String, Node> anonStructs)
-            throws InvocationTargetException, IllegalAccessException {
+    public static JsonElement generateJSON(Node node, Map<String, Node> anonStructs) throws JSONGenerationException {
         if (node == null) {
             return JsonNull.INSTANCE;
         }
@@ -177,7 +180,12 @@ public class TextDocumentFormatUtil {
                 continue;
             }
 
-            Object prop = m.invoke(node);
+            Object prop = null;
+            try {
+                prop = m.invoke(node);
+            } catch (IllegalAccessException | InvocationTargetException e) {
+                throw new JSONGenerationException("Error occurred while generating JSON", e);
+            }
 
             /* Literal class - This class is escaped in backend to address cases like "ss\"" and 8.0 and null */
             if (node.getKind() == NodeKind.LITERAL && "value".equals(jsonName)) {
@@ -224,6 +232,8 @@ public class TextDocumentFormatUtil {
                             }
                         }
                         listPropJson.add(generateJSON((Node) listPropItem, anonStructs));
+                    } else if (listPropItem instanceof String) {
+                        listPropJson.add((String) listPropItem);
                     } else {
                         logger.debug("Can't serialize " + jsonName + ", has a an array of " + listPropItem);
                     }

@@ -3,7 +3,7 @@
     <parent>
         <groupId>org.ballerinalang</groupId>
         <artifactId>ballerina-parent</artifactId>
-        <version>0.981.1-SNAPSHOT</version>
+        <version>0.981.2-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
 
@@ -13,6 +13,46 @@
 
     <name>Ballerina - Language Server - Parent</name>
     <url>http://ballerinalang.org</url>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.jacoco</groupId>
+                <artifactId>jacoco-maven-plugin</artifactId>
+                <configuration>
+                    <destFile>${basedir}/target/coverage-reports/jacoco-unit.exec</destFile>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>jacoco-initialize</id>
+                        <goals>
+                            <goal>prepare-agent</goal>
+                        </goals>
+                    </execution>
+                    <execution>
+                        <id>jacoco-site</id>
+                        <phase>test</phase>
+                        <goals>
+                            <goal>report</goal>
+                        </goals>
+                        <configuration>
+                            <dataFile>${basedir}/target/coverage-reports/jacoco-unit.exec</dataFile>
+                            <outputDirectory>${basedir}/target/coverage-reports/site</outputDirectory>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+        <pluginManagement>
+            <plugins>
+                <plugin>
+                    <groupId>org.jacoco</groupId>
+                    <artifactId>jacoco-maven-plugin</artifactId>
+                    <version>${jacoco.maven.plugin.version}</version>
+                </plugin>
+            </plugins>
+        </pluginManagement>
+    </build>
 
     <dependencyManagement>
         <dependencies>
@@ -44,10 +84,16 @@
         <lsp4j.version>0.3.0</lsp4j.version>
         <apache.commons.io.version>2.6</apache.commons.io.version>
         <google.guava.version>21.0</google.guava.version>
+
+        <!-- Test Coverage -->
+        <jacoco.maven.plugin.version>0.7.8</jacoco.maven.plugin.version>
+        <jacoco.ant.verision>0.7.5.201505241946</jacoco.ant.verision>
+        <ant.contrib.version>1.0b3</ant.contrib.version>
     </properties>
     <modules>
         <module>modules/langserver-compiler</module>
         <module>modules/langserver-core</module>
         <module>modules/launchers</module>
+        <module>modules/test-coverage</module>
     </modules>
 </project>

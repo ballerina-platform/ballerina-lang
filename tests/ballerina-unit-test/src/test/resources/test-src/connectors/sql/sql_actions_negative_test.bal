@@ -3,17 +3,17 @@ import ballerina/jdbc;
 import ballerina/io;
 
 type ResultCustomers record {
-    string FIRSTNAME,
+    string FIRSTNAME;
 };
 
 type Person record {
-    int id,
-    string name,
+    int id;
+    string name;
 };
 
 type ResultCustomers2 record {
-    string FIRSTNAME,
-    string LASTNAME,
+    string FIRSTNAME;
+    string LASTNAME;
 };
 
 function testSelectData(string jdbcUrl, string userName, string password) returns (string) {
@@ -30,7 +30,7 @@ function testSelectData(string jdbcUrl, string userName, string password) return
         match x {
             table dt => {
                 json j = check <json>dt;
-                returnData = io:sprintf("%j", j);
+                returnData = io:sprintf("%s", j);
             }
             error err1 => {
                 returnData = err1.message;
@@ -86,7 +86,7 @@ function testCallProcedure(string jdbcUrl, string userName, string password) ret
         match x {
             table[] dt => {
                 json j = check <json>dt[0];
-                returnData = io:sprintf("%j", j);
+                returnData = io:sprintf("%s", j);
             }
             () => returnData = "";
             error err1 => {
@@ -168,7 +168,7 @@ function testInvalidArrayofQueryParameters(string jdbcUrl, string userName, stri
         match x {
             table dt => {
                 json j = check <json>dt;
-                returnData = io:sprintf("%j", j);
+                returnData = io:sprintf("%s", j);
             }
             error err1 => {
                 returnData = err1.message;

@@ -94,39 +94,39 @@ type InvalidUnion record {
 };
 
 type InvalidUnionArrayElement record {
-    (int|string)[] val,
+    (int|string)[] val;
 };
 
 type InvalidUnionArray record {
-    int[]|string val,
+    int[]|string val;
 };
 
 type InvalidUnionArray2 record {
-    string?[] val,
+    string?[] val;
 };
 
 type ResultMap record {
-    int[] INT_ARRAY,
-    int[] LONG_ARRAY,
-    float[] FLOAT_ARRAY,
-    boolean[] BOOLEAN_ARRAY,
-    string[] STRING_ARRAY,
+    int[] INT_ARRAY;
+    int[] LONG_ARRAY;
+    float[] FLOAT_ARRAY;
+    boolean[] BOOLEAN_ARRAY;
+    string[] STRING_ARRAY;
 };
 
 type ResultMapNonNillableTypeNillableElements record {
-    int?[] INT_ARRAY,
-    int?[] LONG_ARRAY,
-    float?[] FLOAT_ARRAY,
-    boolean?[] BOOLEAN_ARRAY,
-    string?[] STRING_ARRAY,
+    int?[] INT_ARRAY;
+    int?[] LONG_ARRAY;
+    float?[] FLOAT_ARRAY;
+    boolean?[] BOOLEAN_ARRAY;
+    string?[] STRING_ARRAY;
 };
 
 type ResultMapNillable record {
-    int?[]? INT_ARRAY,
-    int?[]? LONG_ARRAY,
-    float?[]? FLOAT_ARRAY,
-    boolean?[]? BOOLEAN_ARRAY,
-    string?[]? STRING_ARRAY,
+    int?[]? INT_ARRAY;
+    int?[]? LONG_ARRAY;
+    float?[]? FLOAT_ARRAY;
+    boolean?[]? BOOLEAN_ARRAY;
+    string?[]? STRING_ARRAY;
 };
 
 type ResultMapNillableTypeNonNillableElements record {
@@ -218,7 +218,18 @@ function testAssignNilToNonNillableField(string jdbcUrl, string userName, string
         poolOptions: { maximumPoolSize: 1 }
     };
 
-    table dt = check testDB->select("SELECT " + field + " from DataTypeTableNillable where row_id=2", recordType);
+    string dbTable;
+    int rowId;
+
+    if (field == "blob_type") {
+        dbTable = "DataTypeTableNillableBlob";
+        rowId = 4;
+    } else {
+        dbTable = "DataTypeTableNillable";
+        rowId = 2;
+    }
+
+    table dt = check testDB->select("SELECT " + field + " from " + dbTable + " where row_id=?", recordType, rowId);
 
     try {
         while (dt.hasNext()) {
@@ -339,7 +350,18 @@ function testAssignToInvalidUnionField(string jdbcUrl, string userName, string p
         poolOptions: { maximumPoolSize: 1 }
     };
 
-    table dt = check testDB->select("SELECT " + field + " from DataTypeTableNillable where row_id=1", InvalidUnion);
+    string dbTable;
+    int rowId;
+
+    if (field == "blob_type") {
+        dbTable = "DataTypeTableNillableBlob";
+        rowId = 3;
+    } else {
+        dbTable = "DataTypeTableNillable";
+        rowId = 1;
+    }
+
+    table dt = check testDB->select("SELECT " + field + " from " + dbTable + " where row_id=?", InvalidUnion, rowId);
 
     try {
         while (dt.hasNext()) {

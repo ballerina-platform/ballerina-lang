@@ -14,65 +14,55 @@
 // specific language governing permissions and limitations
 // under the License.
 
-documentation {
-   Represents the set of permissions supported to open file.
-
-   READ - open the file in read mode
-   WRITE - open the file in write mode
-   READ/WRITE - open the file either to read or write
-   APPEND - append to existing file instead of replacing
-}
+# Represents the set of permissions supported to open file.
+#
+# READ - open the file in read mode
+# WRITE - open the file in write mode
+# READ/WRITE - open the file either to read or write
+# APPEND - append to existing file instead of replacing
 public type Mode "r"|"w"|"rw"|"a";
 @final public Mode READ = "r";
 @final public Mode WRITE = "w";
 @final public Mode RW = "rw";
 @final public Mode APPEND = "a";
 
-documentation {
-    Retrieves a ByteChannel from a given file path.
-
-    P{{path}} Relative/absolute path string to locate the file
-    P{{accessMode}} Permission to open the file
-    R{{}} ByteChannel representation of the file resource
-}
+# Retrieves a ByteChannel from a given file path.
+#
+# + path - Relative/absolute path string to locate the file
+# + accessMode - Permission to open the file
+# + return - ByteChannel representation of the file resource
 public extern function openFile(@sensitive string path, @sensitive Mode accessMode) returns @tainted ByteChannel;
 
-documentation {
-    Opens a secure socket connection with a remote server.
-
-    P{{host}} Remote server domain/IP
-    P{{port}} Remote server port
-    P{{options}} Mata data to initialize the connection(i.e security information)
-    R{{}} Socket which will represent the network object or an error
-}
+# Opens a secure socket connection with a remote server.
+#
+# + host - Remote server domain/IP
+# + port - Remote server port
+# + options - Mata data to initialize the connection(i.e security information)
+# + return - Socket which will represent the network object or an error
 public extern function openSecureSocket(@sensitive string host,
                                         @sensitive int port,
                                         SocketProperties options) returns @tainted Socket|error;
 
-documentation {
-    Creates an in-memory channel which will reference stream of bytes.
-
-    P{{content}} Content which should be exposed as channel
-    R{{}} ByteChannel represenation to read the memory content
-}
+# Creates an in-memory channel which will reference stream of bytes.
+#
+# + content - Content which should be exposed as channel
+# + return - ByteChannel represenation to read the memory content
 public extern function createMemoryChannel(byte[] content) returns ByteChannel;
 
-documentation {
-    Retrieves a CSV channel from a give file path.
-
-    P{{path}} File path which describes the location of the CSV
-    P{{mode}} Permission which should be used to open CSV file
-    P{{fieldSeparator}} CSV record seperator (i.e comma or tab)
-    P{{charset}} Encoding characters in the file represents
-    P{{skipHeaders}} Number of headers which should be skipped
-    R{{}} CSVChannel which could be used to iterate through the CSV records
-}
+# Retrieves a CSV channel from a give file path.
+#
+# + path - File path which describes the location of the CSV
+# + mode - Permission which should be used to open CSV file
+# + fieldSeparator - CSV record seperator (i.e comma or tab)
+# + charset - Encoding characters in the file represents
+# + skipHeaders - Number of headers which should be skipped
+# + return - CSVChannel which could be used to iterate through the CSV records
 public function openCsvFile(@sensitive string path,
                             @sensitive Mode mode = "r",
                             @sensitive Separator fieldSeparator = ",",
                             @sensitive string charset = "UTF-8",
                             @sensitive int skipHeaders = 0) returns @tainted CSVChannel {
-    ByteChannel channel = openFile(path, mode);
-    CharacterChannel charChannel = new(channel, charset);
+    ByteChannel byteChannel = openFile(path, mode);
+    CharacterChannel charChannel = new(byteChannel, charset);
     return new CSVChannel(charChannel, fs = fieldSeparator, nHeaders = skipHeaders);
 }

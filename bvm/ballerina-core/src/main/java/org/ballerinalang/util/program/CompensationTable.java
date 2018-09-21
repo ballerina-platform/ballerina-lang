@@ -46,7 +46,7 @@ public class CompensationTable {
      * Get a new Compensation table entry.
      * @return CompensationEntry
      */
-    public static CompensationEntry getNewEntry() {
+    public CompensationEntry getNewEntry() {
         return new CompensationEntry();
     }
 

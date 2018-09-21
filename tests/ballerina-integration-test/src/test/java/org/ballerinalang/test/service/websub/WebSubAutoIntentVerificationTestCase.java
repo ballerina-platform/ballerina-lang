@@ -1,28 +1,29 @@
 /*
-*  Copyright (c) 2018, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
-*
-*  WSO2 Inc. licenses this file to you under the Apache License,
-*  Version 2.0 (the "License"); you may not use this file except
-*  in compliance with the License.
-*  You may obtain a copy of the License at
-*
-*  http://www.apache.org/licenses/LICENSE-2.0
-*
-*  Unless required by applicable law or agreed to in writing,
-*  software distributed under the License is distributed on an
-*  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-*  KIND, either express or implied.  See the License for the
-*  specific language governing permissions and limitations
-*  under the License.
-*/
+ *  Copyright (c) 2018, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ *  WSO2 Inc. licenses this file to you under the Apache License,
+ *  Version 2.0 (the "License"); you may not use this file except
+ *  in compliance with the License.
+ *  You may obtain a copy of the License at
+ *
+ *  http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing,
+ *  software distributed under the License is distributed on an
+ *  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ *  KIND, either express or implied.  See the License for the
+ *  specific language governing permissions and limitations
+ *  under the License.
+ */
 package org.ballerinalang.test.service.websub;
 
 import io.netty.handler.codec.http.HttpHeaderNames;
 import org.awaitility.Duration;
-import org.ballerinalang.test.IntegrationTestCase;
+import org.ballerinalang.test.BaseTest;
+import org.ballerinalang.test.context.BMainInstance;
+import org.ballerinalang.test.context.BServerInstance;
 import org.ballerinalang.test.context.BallerinaTestException;
 import org.ballerinalang.test.context.LogLeecher;
-import org.ballerinalang.test.context.ServerInstance;
 import org.ballerinalang.test.util.HttpClientRequest;
 import org.ballerinalang.test.util.HttpResponse;
 import org.ballerinalang.test.util.HttpsClientRequest;
@@ -44,17 +45,21 @@ import static java.util.concurrent.TimeUnit.SECONDS;
 
 /**
  * This class includes an integration scenario which covers the following:
- *  1. Bringing up the Ballerina Hub
- *  2. Sending the subscription request for WebSub Subscriber services on start up, and auto verifying intent to
- *  subscribe, when the hub sends an intent verification request, since an onIntentVerification resource is not
- *  specified
- *  3. Functions made available to the Publishers - publishing directly on to the Ballerina Hub or to a Hub by
- *      specifying the URL (usecase: remote hubs)
- *  4. Content Delivery process - by verifying content is delivered when update notification is done for a subscribed
- *      topic - both directly to the hub and specifying hub URL
- *  5. Subscription and content distribution when a secret is not specified
+ * 1. Bringing up the Ballerina Hub
+ * 2. Sending the subscription request for WebSub Subscriber services on start up, and auto verifying intent to
+ * subscribe, when the hub sends an intent verification request, since an onIntentVerification resource is not
+ * specified
+ * 3. Functions made available to the Publishers - publishing directly on to the Ballerina Hub or to a Hub by
+ * specifying the URL (usecase: remote hubs)
+ * 4. Content Delivery process - by verifying content is delivered when update notification is done for a subscribed
+ * topic - both directly to the hub and specifying hub URL
+ * 5. Subscription and content distribution when a secret is not specified
  */
-public class WebSubAutoIntentVerificationTestCase extends IntegrationTestCase {
+public class WebSubAutoIntentVerificationTestCase extends BaseTest {
+    private BServerInstance webSubSubscriber;
+    private BMainInstance webSubPublisher;
+
+    private final int servicePort = 8181;
 
     private static String hubUrl = "https://localhost:9191/websub/hub";
     private static final String INTENT_VERIFICATION_LOG = "ballerina: Intent Verification agreed - Mode [subscribe], "
@@ -71,27 +76,27 @@ public class WebSubAutoIntentVerificationTestCase extends IntegrationTestCase {
     private LogLeecher remoteHubNotificationLogLeecher = new LogLeecher(REMOTE_HUB_NOTIFICATION_LOG);
     private LogLeecher intentVerificationDenialLogLeecher = new LogLeecher(INTENT_VERIFICATION_DENIAL_LOG);
 
-    private ServerInstance ballerinaWebSubSubscriber;
-    private ServerInstance ballerinaWebSubPublisher;
 
     @BeforeClass
-    public void setup() throws BallerinaTestException, InterruptedException {
-        String[] publisherArgs = {new File("src" + File.separator + "test" + File.separator + "resources"
-            + File.separator + "websub" + File.separator + "websub_test_publisher.bal").getAbsolutePath(),
-            "-e b7a.websub.hub.port=9191", "-e b7a.websub.hub.remotepublish=true", "-e test.hub.url=" + hubUrl};
-        ballerinaWebSubPublisher = ServerInstance.initBallerinaServer();
+    public void setup() throws BallerinaTestException {
+        webSubSubscriber = new BServerInstance(balServer);
+        webSubPublisher = new BMainInstance(balServer);
+
+        String balFile = new File("src" + File.separator + "test" + File.separator + "resources"
+                + File.separator + "websub" + File.separator + "websub_test_publisher.bal").getAbsolutePath();
+        String[] publisherArgs = {"-e", "b7a.websub.hub.port=9191", "-e", "b7a.websub.hub.remotepublish=true",
+                "-e", "test.hub.url=" + hubUrl};
 
         String subscriberBal = new File("src" + File.separator + "test" + File.separator + "resources"
-                        + File.separator + "websub" + File.separator + "websub_test_subscriber.bal").getAbsolutePath();
-        ballerinaWebSubSubscriber = ServerInstance.initBallerinaServer(8181);
-        ballerinaWebSubSubscriber.addLogLeecher(intentVerificationLogLeecher);
-        ballerinaWebSubSubscriber.addLogLeecher(internalHubNotificationLogLeecher);
-        ballerinaWebSubSubscriber.addLogLeecher(remoteHubNotificationLogLeecher);
-        ballerinaWebSubSubscriber.addLogLeecher(intentVerificationDenialLogLeecher);
+                + File.separator + "websub" + File.separator + "websub_test_subscriber.bal").getAbsolutePath();
+        webSubSubscriber.addLogLeecher(intentVerificationLogLeecher);
+        webSubSubscriber.addLogLeecher(internalHubNotificationLogLeecher);
+        webSubSubscriber.addLogLeecher(remoteHubNotificationLogLeecher);
+        webSubSubscriber.addLogLeecher(intentVerificationDenialLogLeecher);
 
         Executors.newSingleThreadExecutor().execute(() -> {
             try {
-                ballerinaWebSubPublisher.runMain(publisherArgs);
+                webSubPublisher.runMain(balFile, publisherArgs, new String[]{});
             } catch (BallerinaTestException e) {
                 //ignored since any errors here would be reflected as test failures
             }
@@ -100,12 +105,13 @@ public class WebSubAutoIntentVerificationTestCase extends IntegrationTestCase {
         //Allow to bring up the hub
         given().ignoreException(ConnectException.class).with().pollInterval(Duration.FIVE_SECONDS).and()
                 .with().pollDelay(Duration.TEN_SECONDS).await().atMost(60, SECONDS).until(() -> {
-            HttpResponse response = HttpsClientRequest.doGet(hubUrl, ballerinaWebSubPublisher.getServerHome());
+            //using same pack location, hence server home is same
+            HttpResponse response = HttpsClientRequest.doGet(hubUrl, webSubSubscriber.getServerHome());
             return response.getResponseCode() == 202;
         });
 
-        String[] subscriberArgs = {"-e test.hub.url=" + hubUrl};
-        ballerinaWebSubSubscriber.startBallerinaServer(subscriberBal, subscriberArgs);
+        String[] subscriberArgs = {"-e", "test.hub.url=" + hubUrl};
+        webSubSubscriber.startServer(subscriberBal, subscriberArgs, new int[]{servicePort});
 
         //Allow to start up the subscriber service
         given().ignoreException(ConnectException.class).with().pollInterval(Duration.FIVE_SECONDS).and()
@@ -113,14 +119,19 @@ public class WebSubAutoIntentVerificationTestCase extends IntegrationTestCase {
             Map<String, String> headers = new HashMap<>();
             headers.put(HttpHeaderNames.CONTENT_TYPE.toString(), TestConstant.CONTENT_TYPE_JSON);
             HttpResponse response = HttpClientRequest.doPost(
-                    ballerinaWebSubSubscriber.getServiceURLHttp("websub"), "{\"dummy\":\"body\"}",
+                    webSubSubscriber.getServiceURLHttp(servicePort, "websub"), "{\"dummy\":\"body\"}",
                     headers);
             return response.getResponseCode() == 202;
         });
     }
 
+    @AfterClass
+    private void cleanup() throws Exception {
+        webSubSubscriber.shutdownServer();
+    }
+
     @Test
-    public void testSubscriptionAndIntentVerification() throws BallerinaTestException, InterruptedException {
+    public void testSubscriptionAndIntentVerification() throws BallerinaTestException {
         intentVerificationLogLeecher.waitForText(30000);
     }
 
@@ -135,24 +146,19 @@ public class WebSubAutoIntentVerificationTestCase extends IntegrationTestCase {
     }
 
     @Test(dependsOnMethods = "testSubscriptionAndIntentVerification")
-    public void testRemoteTopicRegistration() throws BallerinaTestException, IOException {
+    public void testRemoteTopicRegistration() throws IOException {
         Map<String, String> headers = new HashMap<>();
         headers.put(HttpHeaderNames.CONTENT_TYPE.toString(), TestConstant.CONTENT_TYPE_FORM_URL_ENCODED);
         HttpResponse response = HttpClientRequest.doPost(hubUrl,
-     "hub.mode=subscribe&hub.topic=http://websubpubtopictwo.com&hub.callback=http://localhost:8181/websub",
-                     headers);
+                "hub.mode=subscribe&hub.topic=http://websubpubtopictwo.com&hub.callback=http://localhost:8181/websub",
+                headers);
         Assert.assertEquals(response.getResponseCode(), 202, "Remote topic registration unsuccessful "
-                                                                                + "to allow registering subscription");
+                + "to allow registering subscription");
     }
 
     @Test(dependsOnMethods = "testRemoteTopicRegistration")
-    public void testIntentVerificationRejectionForIncorrectTopic() throws BallerinaTestException, IOException {
+    public void testIntentVerificationRejectionForIncorrectTopic() throws BallerinaTestException {
         intentVerificationDenialLogLeecher.waitForText(45000);
     }
 
-    @AfterClass
-    private void cleanup() throws Exception {
-        ballerinaWebSubPublisher.stopServer();
-        ballerinaWebSubSubscriber.stopServer();
-    }
 }

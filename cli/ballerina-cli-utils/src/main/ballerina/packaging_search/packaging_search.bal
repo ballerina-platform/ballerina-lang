@@ -4,14 +4,12 @@ import ballerina/http;
 import ballerina/time;
 import ballerina/math;
 
-documentation {
-    This function searches packages from ballerina central.
-
-    P{{definedEndpoint}} Endpoint defined with the proxy configurations
-    P{{url}} Endpoint url to be invoked
-    P{{querySearched}} Text searched for
-    P{{terminalWidth}} Width of the terminal
-}
+# This function searches packages from ballerina central.
+#
+# + definedEndpoint - Endpoint defined with the proxy configurations
+# + url - Endpoint url to be invoked
+# + querySearched - Text searched for
+# + terminalWidth - Width of the terminal
 function search (http:Client definedEndpoint, string url, string querySearched, string terminalWidth) {
     endpoint http:Client httpEndpoint = definedEndpoint;
     http:Request req = new;
@@ -45,10 +43,10 @@ function search (http:Client definedEndpoint, string url, string querySearched, 
             int dateColWidth = 15;
             int versionColWidth = 8;
             int authorsColWidth = 15;
-            float nameColFactor = 9;
-            float descColFactor = 16;
+            float nameColFactor = 9.0;
+            float descColFactor = 16.0;
             int additionalSpace = 7;
-            float remainingWidth = width - (dateColWidth + versionColWidth + additionalSpace);  
+            float remainingWidth = width - <float>(dateColWidth + versionColWidth + additionalSpace);
             
             int nameColWidth = math:round(remainingWidth * (nameColFactor / (nameColFactor + descColFactor)));
             int descColWidth = math:round(remainingWidth * (descColFactor / (nameColFactor + descColFactor)));  
@@ -121,16 +119,14 @@ function search (http:Client definedEndpoint, string url, string querySearched, 
     }
 }
 
-documentation {
-    This function defines an endpoint with proxy configurations.
-
-    P{{url}} URL to be invoked
-    P{{hostname}} Host name of the proxy
-    P{{port}} Port of the proxy
-    P{{username}} Username of the proxy
-    P{{password}} Password of the proxy
-    R{{}} Endpoint defined
-}
+# This function defines an endpoint with proxy configurations.
+#
+# + url - URL to be invoked
+# + hostname - Host name of the proxy
+# + port - Port of the proxy
+# + username - Username of the proxy
+# + password - Password of the proxy
+# + return - Endpoint defined
 function defineEndpointWithProxy (string url, string hostname, string port, string username, string password) returns http:Client{
     endpoint http:Client httpEndpoint {
         url: url,
@@ -147,12 +143,10 @@ function defineEndpointWithProxy (string url, string hostname, string port, stri
     return httpEndpoint;
 }
 
-documentation {
-    This function defines an endpoint without proxy configurations.
-
-    P{{url}} URL to be invoked
-    R{{}} Endpoint defined
-}
+# This function defines an endpoint without proxy configurations.
+#
+# + url - URL to be invoked
+# + return - Endpoint defined
 function defineEndpointWithoutProxy (string url) returns http:Client{
     endpoint http:Client httpEndpoint {
         url: url,
@@ -168,12 +162,10 @@ function defineEndpointWithoutProxy (string url) returns http:Client{
     return httpEndpoint;
 }
 
-documentation {
-    This function prints package information.
-
-    P{{element}} Text to be printed
-    P{{charactersAllowed}} Maximum number of characters to be printed
-}
+# This function prints package information.
+#
+# + element - Text to be printed
+# + charactersAllowed - Maximum number of characters to be printed
 function printInCLI(string element, int charactersAllowed) {
     int lengthOfElement = element.length();
     if (lengthOfElement > charactersAllowed || lengthOfElement == charactersAllowed) {
@@ -185,13 +177,11 @@ function printInCLI(string element, int charactersAllowed) {
     }
 }
 
-documentation {
-    This function prints any given character the specified number of times.
-
-    P{{element}} Characters to be printed
-    P{{charactersAllowed}} Maximum number of characters to be printed
-    P{{separator}} Character to be used as the separator
-}
+# This function prints any given character the specified number of times.
+#
+# + element - Characters to be printed
+# + charactersAllowed - Maximum number of characters to be printed
+# + separator - Character to be used as the separator
 function printCharacter(string element, int charactersAllowed, string separator) {
     int lengthOfElement = element.length();
     string print = element;
@@ -203,11 +193,9 @@ function printCharacter(string element, int charactersAllowed, string separator)
     io:print(print + "| ");
 }
 
-documentation {
-    This function prints the title along with a horizontal separation.
-
-    P{{title}} Title to be printed
-}
+# This function prints the title along with a horizontal separation.
+#
+# + title - Title to be printed
 function printTitle(string title) {
     io:println("");
     io:println(title);
@@ -215,12 +203,10 @@ function printTitle(string title) {
     io:println("");
 }
 
-documentation {
-    This function gets the date the package was created in UTC.
-
-    P{{jsonObj}} Time object as a json
-    R{{}} Date and time the package was created
-}
+# This function gets the date the package was created in UTC.
+#
+# + jsonObj - Time object as a json
+# + return - Date and time the package was created
 function getDateCreated(json jsonObj) returns string {
     string jsonTime = jsonObj.time.toString();
     int timeInMillis = check <int> jsonTime;
@@ -229,10 +215,8 @@ function getDateCreated(json jsonObj) returns string {
     return customTimeString;
 }
 
-documentation {
-    This function invokes the method to search for packages.
-}
-function main (string... args) {
+# This function invokes the method to search for packages.
+public function main (string... args) {
     http:Client httpEndpoint;
     string host = args[2];
     string port = args[3];
@@ -252,15 +236,13 @@ function main (string... args) {
     search(httpEndpoint, args[0], args[1], args[6]);
 }
 
-documentation {
-    This function sets the proxy configurations for the endpoint.
-
-    P{{hostName}} Host name of the proxy
-    P{{port}} Port of the proxy
-    P{{username}} Username of the proxy
-    P{{password}} Password of the proxy
-    R{{}} Proxy configurations for the endpoint
-}
+# This function sets the proxy configurations for the endpoint.
+#
+# + hostName - Host name of the proxy
+# + port - Port of the proxy
+# + username - Username of the proxy
+# + password - Password of the proxy
+# + return - Proxy configurations for the endpoint
 function getProxyConfigurations(string hostName, string port, string username, string password) returns http:ProxyConfig {
     int portInt = check <int> port;
     http:ProxyConfig proxy = { host : hostName, port : portInt , userName: username, password : password };

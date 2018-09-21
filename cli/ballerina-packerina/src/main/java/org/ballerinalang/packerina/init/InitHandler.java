@@ -46,6 +46,8 @@ public class InitHandler {
      * @param projectPath The output path.
      * @param manifest    The manifest for Ballerina.toml.
      * @param srcFiles    The source files.
+     * @param packageMdFile packageMD file list to be created.
+     * @throws IOException If file write exception occurs.
      */
     public static void initialize(Path projectPath, Manifest manifest, List<SrcFile> srcFiles,
                                   List<PackageMdFile> packageMdFile) throws IOException {
@@ -130,10 +132,11 @@ public class InitHandler {
         if (null != srcFiles && srcFiles.size() > 0) {
             for (SrcFile srcFile : srcFiles) {
                 Path packagePath = projectPath.resolve(srcFile.getName());
-                if ((srcFile.getSrcFileType().equals(FileType.MAIN_TEST) ||
-                        srcFile.getSrcFileType().equals(FileType.SERVICE_TEST)) &&
-                        !Files.isSameFile(projectPath, packagePath)) {
-                    createSrcFile(srcFile, packagePath.resolve("tests"));
+                if (srcFile.getSrcFileType().equals(FileType.MAIN_TEST) ||
+                        srcFile.getSrcFileType().equals(FileType.SERVICE_TEST)) {
+                    if (!Files.isSameFile(projectPath, packagePath)) {
+                        createSrcFile(srcFile, packagePath.resolve("tests"));
+                    }
                 } else {
                     createSrcFile(srcFile, packagePath);
                 }
@@ -150,8 +153,8 @@ public class InitHandler {
      */
     private static void createSrcFile(SrcFile srcFile, Path dirPath) throws IOException {
         Files.createDirectories(dirPath);
-        Path testFilePath = dirPath.resolve(srcFile.getSrcFileType().getFileName());
-        createAndWriteToFile(testFilePath, srcFile.getSrcFileType().getContent());
+        Path srcFilePath = dirPath.resolve(srcFile.getSrcFileType().getFileName());
+        createAndWriteToFile(srcFilePath, srcFile.getSrcFileType().getContent());
     }
 
     /**

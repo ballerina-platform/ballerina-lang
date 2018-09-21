@@ -22,7 +22,6 @@ import io.netty.handler.codec.EncoderException;
 import io.netty.handler.codec.http.DefaultLastHttpContent;
 import io.netty.handler.codec.http.HttpHeaderNames;
 import io.netty.handler.codec.http.HttpHeaders;
-
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BLangVMErrors;
 import org.ballerinalang.connector.api.BLangConnectorSPIUtil;
@@ -30,16 +29,14 @@ import org.ballerinalang.connector.api.BallerinaConnectorException;
 import org.ballerinalang.connector.api.Struct;
 import org.ballerinalang.mime.util.EntityBodyHandler;
 import org.ballerinalang.mime.util.HeaderUtil;
-import org.ballerinalang.mime.util.MimeUtil;
 import org.ballerinalang.mime.util.MultipartDataSource;
-import org.ballerinalang.model.NativeCallableUnit;
-import org.ballerinalang.model.util.JsonGenerator;
+import org.ballerinalang.model.InterruptibleNativeCallableUnit;
 import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BRefValueArray;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.net.http.AcceptEncodingConfig;
+import org.ballerinalang.net.http.CompressionConfigState;
 import org.ballerinalang.net.http.DataContext;
 import org.ballerinalang.net.http.HttpConstants;
 import org.ballerinalang.net.http.HttpUtil;
@@ -50,12 +47,12 @@ import org.ballerinalang.util.observability.ObserverContext;
 import org.ballerinalang.util.transactions.LocalTransactionInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.wso2.transport.http.netty.common.Constants;
 import org.wso2.transport.http.netty.contract.ClientConnectorException;
+import org.wso2.transport.http.netty.contract.Constants;
+import org.wso2.transport.http.netty.contract.EndpointTimeOutException;
 import org.wso2.transport.http.netty.contract.HttpClientConnector;
 import org.wso2.transport.http.netty.contract.HttpClientConnectorListener;
 import org.wso2.transport.http.netty.contract.HttpResponseFuture;
-import org.wso2.transport.http.netty.exception.EndpointTimeOutException;
 import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 import org.wso2.transport.http.netty.message.HttpMessageDataStreamer;
 import org.wso2.transport.http.netty.message.PooledDataStreamerFactory;
@@ -67,20 +64,24 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Optional;
 
+import static io.netty.handler.codec.http.HttpHeaderNames.ACCEPT_ENCODING;
 import static org.ballerinalang.mime.util.MimeConstants.REQUEST_ENTITY_FIELD;
+import static org.ballerinalang.net.http.HttpConstants.ANN_CONFIG_ATTR_COMPRESSION;
+import static org.ballerinalang.net.http.HttpConstants.CLIENT_ENDPOINT_CONFIG;
 import static org.ballerinalang.net.http.HttpConstants.CLIENT_ENDPOINT_SERVICE_URI;
 import static org.ballerinalang.net.http.HttpConstants.HTTP_PACKAGE_PATH;
 import static org.ballerinalang.net.http.HttpConstants.HTTP_STATUS_CODE;
 import static org.ballerinalang.net.http.HttpConstants.REQUEST;
 import static org.ballerinalang.net.http.HttpUtil.extractEntity;
+import static org.ballerinalang.net.http.HttpUtil.getCompressionState;
 import static org.ballerinalang.runtime.Constants.BALLERINA_VERSION;
-import static org.wso2.transport.http.netty.common.Constants.ENCODING_DEFLATE;
-import static org.wso2.transport.http.netty.common.Constants.ENCODING_GZIP;
+import static org.wso2.transport.http.netty.contract.Constants.ENCODING_DEFLATE;
+import static org.wso2.transport.http.netty.contract.Constants.ENCODING_GZIP;
 
 /**
  * {@code AbstractHTTPAction} is the base class for all HTTP Connector Actions.
  */
-public abstract class AbstractHTTPAction implements NativeCallableUnit {
+public abstract class AbstractHTTPAction implements InterruptibleNativeCallableUnit {
 
     private static final Logger logger = LoggerFactory.getLogger(AbstractHTTPAction.class);
 
@@ -89,6 +90,17 @@ public abstract class AbstractHTTPAction implements NativeCallableUnit {
     static {
         CACHE_BALLERINA_VERSION = System.getProperty(BALLERINA_VERSION);
     }
+
+    @Override
+    public boolean persistBeforeOperation() {
+        return false;
+    }
+
+    @Override
+    public boolean persistAfterOperation() {
+        return false;
+    }
+
 
     protected HttpCarbonMessage createOutboundRequestMsg(Context context) {
 
@@ -107,43 +119,25 @@ public abstract class AbstractHTTPAction implements NativeCallableUnit {
         HttpUtil.checkEntityAvailability(context, requestStruct);
         HttpUtil.enrichOutboundMessage(requestMsg, requestStruct);
         prepareOutboundRequest(context, bConnector, path, requestMsg);
-        AcceptEncodingConfig acceptEncodingConfig = getAcceptEncodingConfig
-                (getAcceptEncodingConfigFromEndpointConfig(bConnector));
-        handleAcceptEncodingHeader(requestMsg, acceptEncodingConfig);
+        handleAcceptEncodingHeader(requestMsg, getCompressionConfigFromEndpointConfig(bConnector));
         return requestMsg;
     }
 
-    protected String getAcceptEncodingConfigFromEndpointConfig(BMap<String, BValue> httpClientStruct) {
+    String getCompressionConfigFromEndpointConfig(BMap<String, BValue> httpClientStruct) {
         Struct clientEndpointConfig = BLangConnectorSPIUtil.toStruct(httpClientStruct);
-        Struct epConfig = (Struct) clientEndpointConfig.getNativeData(HttpConstants.CLIENT_ENDPOINT_CONFIG);
-        if (epConfig == null) {
-            return HttpConstants.AUTO;
-        }
-        return epConfig.getRefField(HttpConstants.ANN_CONFIG_ATTR_COMPRESSION).getStringValue();
+        Struct epConfig = (Struct) clientEndpointConfig.getNativeData(CLIENT_ENDPOINT_CONFIG);
+        return epConfig.getRefField(ANN_CONFIG_ATTR_COMPRESSION).getStringValue();
     }
 
-    protected static AcceptEncodingConfig getAcceptEncodingConfig(String acceptEncodingConfig) {
-        if (HttpConstants.AUTO.equalsIgnoreCase(acceptEncodingConfig)) {
-            return AcceptEncodingConfig.AUTO;
-        } else if (HttpConstants.ALWAYS.equalsIgnoreCase(acceptEncodingConfig)) {
-            return AcceptEncodingConfig.ALWAYS;
-        } else if (HttpConstants.NEVER.equalsIgnoreCase(acceptEncodingConfig)) {
-            return AcceptEncodingConfig.NEVER;
-        } else {
-            throw new BallerinaConnectorException(
-                    "Invalid configuration found for Accept-Encoding: " + acceptEncodingConfig);
-        }
-    }
+    void handleAcceptEncodingHeader(HttpCarbonMessage outboundRequest, String compressionConfigValue) {
+        CompressionConfigState compressionState = getCompressionState(compressionConfigValue);
 
-    protected void handleAcceptEncodingHeader(HttpCarbonMessage outboundRequest,
-                                              AcceptEncodingConfig acceptEncodingConfig) {
-        if (acceptEncodingConfig == AcceptEncodingConfig.ALWAYS && (
-                outboundRequest.getHeader(HttpHeaderNames.ACCEPT_ENCODING.toString()) == null)) {
-            outboundRequest
-                    .setHeader(HttpHeaderNames.ACCEPT_ENCODING.toString(), ENCODING_DEFLATE + ", " + ENCODING_GZIP);
-        } else if (acceptEncodingConfig == AcceptEncodingConfig.NEVER && (
-                outboundRequest.getHeader(HttpHeaderNames.ACCEPT_ENCODING.toString()) != null)) {
-            outboundRequest.removeHeader(HttpHeaderNames.ACCEPT_ENCODING.toString());
+        if (compressionState == CompressionConfigState.ALWAYS && (outboundRequest.getHeader(
+                ACCEPT_ENCODING.toString()) == null)) {
+            outboundRequest.setHeader(ACCEPT_ENCODING.toString(), ENCODING_DEFLATE + ", " + ENCODING_GZIP);
+        } else if (compressionState == CompressionConfigState.NEVER && (outboundRequest.getHeader(
+                ACCEPT_ENCODING.toString()) != null)) {
+            outboundRequest.removeHeader(ACCEPT_ENCODING.toString());
         }
     }
 
@@ -339,11 +333,10 @@ public abstract class AbstractHTTPAction implements NativeCallableUnit {
 
         HttpUtil.checkAndObserveHttpRequest(dataContext.context, outboundRequestMsg);
 
-        final HttpMessageDataStreamer outboundMsgDataStreamer = getHttpMessageDataStreamer(outboundRequestMsg);
-
         final HTTPClientConnectorListener httpClientConnectorLister = ObservabilityUtils.isObservabilityEnabled() ?
-                new ObservableHttpClientConnectorListener(dataContext, outboundMsgDataStreamer) :
-                new HTTPClientConnectorListener(dataContext, outboundMsgDataStreamer);
+                new ObservableHttpClientConnectorListener(dataContext) :
+                new HTTPClientConnectorListener(dataContext);
+        final HttpMessageDataStreamer outboundMsgDataStreamer = getHttpMessageDataStreamer(outboundRequestMsg);
         final OutputStream messageOutputStream = outboundMsgDataStreamer.getOutputStream();
         HttpResponseFuture future = clientConnector.send(outboundRequestMsg);
         if (async) {
@@ -434,13 +427,7 @@ public abstract class AbstractHTTPAction implements NativeCallableUnit {
         if (entityStruct != null) {
             BValue messageDataSource = EntityBodyHandler.getMessageDataSource(entityStruct);
             if (messageDataSource != null) {
-                if (MimeUtil.generateAsJSON(messageDataSource, entityStruct)) {
-                    JsonGenerator gen = new JsonGenerator(messageOutputStream);
-                    gen.serialize(messageDataSource);
-                    gen.flush();
-                } else {
-                    messageDataSource.serialize(messageOutputStream);
-                }
+                HttpUtil.serializeDataSource(messageDataSource, entityStruct, messageOutputStream);
                 HttpUtil.closeMessageOutputStream(messageOutputStream);
             } else { //When the entity body is a byte channel and when it is not null
                 if (EntityBodyHandler.getByteChannel(entityStruct) != null) {
@@ -459,12 +446,9 @@ public abstract class AbstractHTTPAction implements NativeCallableUnit {
     private class HTTPClientConnectorListener implements HttpClientConnectorListener {
 
         private DataContext dataContext;
-        private HttpMessageDataStreamer outboundMsgDataStreamer;
-        // Reference for post validation.
 
-        private HTTPClientConnectorListener(DataContext dataContext, HttpMessageDataStreamer outboundMsgDataStreamer) {
+        private HTTPClientConnectorListener(DataContext dataContext) {
             this.dataContext = dataContext;
-            this.outboundMsgDataStreamer = outboundMsgDataStreamer;
         }
 
         @Override
@@ -490,10 +474,11 @@ public abstract class AbstractHTTPAction implements NativeCallableUnit {
                                                                          HttpConstants.PROTOCOL_PACKAGE_HTTP,
                                                                          HttpConstants.HTTP_TIMEOUT_ERROR);
             } else if (throwable instanceof IOException) {
-                this.outboundMsgDataStreamer.setIoException((IOException) throwable);
+                this.dataContext.getOutboundRequest().setIoException((IOException) throwable);
                 httpConnectorError = HttpUtil.getError(this.dataContext.context, throwable);
             } else {
-                this.outboundMsgDataStreamer.setIoException(new IOException(throwable.getMessage()));
+                this.dataContext.getOutboundRequest()
+                        .setIoException(new IOException(throwable.getMessage(), throwable));
                 httpConnectorError = HttpUtil.getError(this.dataContext.context, throwable);
             }
             httpConnectorError.put(BLangVMErrors.ERROR_MESSAGE_FIELD, new BString(throwable.getMessage()));
@@ -508,9 +493,8 @@ public abstract class AbstractHTTPAction implements NativeCallableUnit {
 
         private final Context context;
 
-        private ObservableHttpClientConnectorListener(DataContext dataContext,
-                                                      HttpMessageDataStreamer outboundMsgDataStreamer) {
-            super(dataContext, outboundMsgDataStreamer);
+        private ObservableHttpClientConnectorListener(DataContext dataContext) {
+            super(dataContext);
             this.context = dataContext.context;
         }
 

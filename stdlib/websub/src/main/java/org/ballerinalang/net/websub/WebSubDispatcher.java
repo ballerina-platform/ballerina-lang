@@ -25,6 +25,11 @@ import org.ballerinalang.net.http.HttpResource;
 import org.ballerinalang.net.http.HttpService;
 import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 
+import java.net.URI;
+
+import static org.ballerinalang.net.http.HttpConstants.TO;
+import static org.ballerinalang.net.http.HttpDispatcher.getValidatedURI;
+
 /**
  * Dispatches incoming HTTP requests for WebSub Subscriber services to the correct resource.
  *
@@ -49,6 +54,13 @@ class WebSubDispatcher {
             if (service == null) {
                 throw new BallerinaConnectorException("no service found to handle the service request");
                 // Finer details of the errors are thrown from the dispatcher itself, ideally we shouldn't get here.
+            }
+
+            // TODO: 8/9/18 remove dependency on HTTP dispatcher - this check may not be needed here
+            URI validatedUri = getValidatedURI((String) inboundMessage.getProperty(TO));
+            if (!validatedUri.getPath().equals(service.getBasePath())) {
+                throw new BallerinaConnectorException("no matching service found for path : "
+                                                              + validatedUri.getRawPath());
             }
             return WebSubResourceDispatcher.findResource(service, inboundMessage, servicesRegistry);
         } catch (Exception e) {

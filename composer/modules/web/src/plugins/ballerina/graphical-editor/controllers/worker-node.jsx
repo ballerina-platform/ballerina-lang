@@ -29,6 +29,7 @@ import HoverButton from '../controller-utils/hover-button';
 import Item from '../controller-utils/item';
 import Search from '../controller-utils/search';
 import Toolbox from 'plugins/ballerina/diagram/views/default/components/decorators/action-box';
+import { ACTION_BOX_POSITION } from '../../constants';
 
 // Use your imagination to render suggestions.
 const renderSuggestion = (suggestion, value) => {
@@ -252,23 +253,34 @@ DefaultCtrl.defaultProps = {
     showAlways: false,
 };
 
-DefaultCtrl.contextTypes = {
-    editor: PropTypes.instanceOf(Object).isRequired,
-};
-
 class ActionBox extends React.Component {
     render() {
         const { model } = this.props;
         const { viewState: { bBox } } = model.getBody();
 
         const top = bBox.y - 30;
-        const left = bBox.x;
+        let left = bBox.x;
 
         const onDelete = () => { model.remove(); };
         const onJumptoCodeLine = () => {
-            const { editor } = this.context;
-            editor.goToSource(model);
+            const { goToSource } = this.context;
+            goToSource(model);
         };
+
+        if (model.name.value === 'default') {
+            left += ACTION_BOX_POSITION.SINGLE_ACTION_OFFSET;
+            return (
+                <Toolbox
+                    disableButtons={{ delete: true }}
+                    onJumptoCodeLine={onJumptoCodeLine}
+                    show
+                    style={{
+                        top,
+                        left,
+                    }}
+                />
+            );
+        }
 
         return (
             <Toolbox
@@ -286,13 +298,7 @@ class ActionBox extends React.Component {
 
 ActionBox.contextTypes = {
     config: PropTypes.instanceOf(Object),
-    editor: PropTypes.shape({
-        isFileOpenedInEditor: PropTypes.func,
-        getEditorByID: PropTypes.func,
-        setActiveEditor: PropTypes.func,
-        getActiveEditor: PropTypes.func,
-        getDefaultContent: PropTypes.func,
-    }).isRequired,
+    goToSource: PropTypes.func.isRequired,
     designer: PropTypes.instanceOf(Object),
 };
 

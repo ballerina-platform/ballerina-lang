@@ -1,4 +1,4 @@
-function main (string... args) {
+public function main (string... args) {
     function (string, string) returns (string) testLambda =
     function (@sensitive string x,@sensitive  string y) returns (@tainted string) {
         string r = x + y;

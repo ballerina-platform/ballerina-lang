@@ -67,7 +67,7 @@ function functionWithOnlyNamedParams(int a=5, float b=6.0, string c = "John", in
 }
 
 function testInvokeFuncWithOnlyNamedParams1() returns (int, float, string, int, string) {
-    return functionWithOnlyNamedParams(b = 20, e="Bob", d=30, a=10 , c="Alex");
+    return functionWithOnlyNamedParams(b = 20.0, e="Bob", d=30, a=10 , c="Alex");
 }
 
 function testInvokeFuncWithOnlyNamedParams2() returns (int, float, string, int, string) {
@@ -170,7 +170,7 @@ function testDefaultableParamOuterFunc () returns (int, string) {
 }
 
 type Person object {
-    public int age,
+    public int age;
 
     function test1(int a = 77, string n = "inner default") returns (int, string);
 

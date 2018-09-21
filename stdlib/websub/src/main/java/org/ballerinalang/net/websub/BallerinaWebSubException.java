@@ -29,8 +29,4 @@ public class BallerinaWebSubException extends BallerinaException {
     public BallerinaWebSubException(String message) {
         super(message);
     }
-
-    public BallerinaWebSubException(String message, Throwable cause) {
-        super(message, cause);
-    }
 }

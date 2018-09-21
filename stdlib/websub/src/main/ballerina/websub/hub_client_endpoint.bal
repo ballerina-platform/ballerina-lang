@@ -20,23 +20,18 @@ import ballerina/http;
 /////// WebSub Hub Client Endpoint ///////
 //////////////////////////////////////////
 
-documentation {
-    Object representing the WebSub Hub Client Endpoint.
-
-    E{{}}
-    F{{config}} The configuration for the endpoint
-}
+# Object representing the WebSub Hub Client Endpoint.
+#
+# + config - The configuration for the endpoint
 public type Client object {
 
     public HubClientEndpointConfig config;
 
     private http:Client httpClientEndpoint;
 
-    documentation {
-        Called when the endpoint is being initialized during package initialization.
-
-        P{{c}} The configuration for the endpoint
-    }
+    # Called when the endpoint is being initialized during package initialization.
+    #
+    # + c - The configuration for the endpoint
     public function init(HubClientEndpointConfig c) {
         endpoint http:Client ep {
             url: c.url,
@@ -49,11 +44,9 @@ public type Client object {
         self.config = c;
     }
 
-    documentation {
-        Retrieves the caller actions client code uses.
-
-        R{{}} `CallerActions` The caller actions available for clients
-    }
+    # Retrieves the caller actions client code uses.
+    #
+    # + return - `CallerActions` The caller actions available for clients
     public function getCallerActions() returns (CallerActions) {
         //TODO: create a single object - move to init
         CallerActions webSubHubClientConn = new CallerActions(config.url, httpClientEndpoint, config.followRedirects);
@@ -62,17 +55,16 @@ public type Client object {
 
 };
 
-documentation {
-    Record representing the configuration parameters for the WebSub Hub Client Endpoint.
-
-    F{{url}} The URL of the target Hub
-    F{{clientSecureSocket}} SSL/TLS related options for the underlying HTTP Client
-    F{{auth}} Authentication mechanism for the underlying HTTP Client
-    F{{followRedirects}} HTTP redirect related configuration
-}
+# Record representing the configuration parameters for the WebSub Hub Client Endpoint.
+#
+# + url - The URL of the target Hub
+# + clientSecureSocket - SSL/TLS related options for the underlying HTTP Client
+# + auth - Authentication mechanism for the underlying HTTP Client
+# + followRedirects - HTTP redirect related configuration
 public type HubClientEndpointConfig record {
-    string url,
-    http:SecureSocket? clientSecureSocket,
-    http:AuthConfig? auth,
-    http:FollowRedirects? followRedirects,
+    string url;
+    http:SecureSocket? clientSecureSocket;
+    http:AuthConfig? auth;
+    http:FollowRedirects? followRedirects;
+    !...
 };

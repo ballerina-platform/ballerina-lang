@@ -28,7 +28,7 @@ import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.natives.annotations.ReturnType;
-import org.ballerinalang.net.jms.AbstractBlockinAction;
+import org.ballerinalang.net.jms.AbstractBlockingAction;
 import org.ballerinalang.net.jms.JMSUtils;
 import org.ballerinalang.net.jms.utils.BallerinaAdapter;
 import org.slf4j.Logger;
@@ -48,7 +48,7 @@ import javax.jms.TextMessage;
         returnType = {@ReturnType(type = TypeKind.STRING)},
         isPublic = true
 )
-public class GetTextMessageContent extends AbstractBlockinAction {
+public class GetTextMessageContent extends AbstractBlockingAction {
 
     private static final Logger log = LoggerFactory.getLogger(GetTextMessageContent.class);
 

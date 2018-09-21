@@ -1,0 +1,122 @@
+{
+  "position": {
+    "line": 14,
+    "character": 4
+  },
+  "source": "object/source/objectTest1.bal",
+  "items": [
+    {
+      "label":"xml",
+      "detail":"BType",
+      "insertText":"xml"
+    },
+    {
+      "label":"TableConfig",
+      "detail":"BType",
+      "insertText":"TableConfig"
+    },
+    {
+      "label":"byte",
+      "detail":"BType",
+      "insertText":"byte"
+    },
+    {
+      "label":"stream",
+      "detail":"BType",
+      "insertText":"stream"
+    },
+    {
+      "label":"testObject",
+      "detail":"BType",
+      "insertText":"testObject"
+    },
+    {
+      "label":"map",
+      "detail":"BType",
+      "insertText":"map"
+    },
+    {
+      "label":"table",
+      "detail":"BType",
+      "insertText":"table"
+    },
+    {
+      "label":"future",
+      "detail":"BType",
+      "insertText":"future"
+    },
+    {
+      "label":"typedesc",
+      "detail":"BType",
+      "insertText":"typedesc"
+    },
+    {
+      "label":"float",
+      "detail":"BType",
+      "insertText":"float"
+    },
+    {
+      "label":"testEmptyObject",
+      "detail":"BType",
+      "insertText":"testEmptyObject"
+    },
+    {
+      "label":"null",
+      "detail":"BType",
+      "insertText":"null"
+    },
+    {
+      "label":"string",
+      "detail":"BType",
+      "insertText":"string"
+    },
+    {
+      "label":"error",
+      "detail":"BType",
+      "insertText":"error"
+    },
+    {
+      "label":"json",
+      "detail":"BType",
+      "insertText":"json"
+    },
+    {
+      "label":"any",
+      "detail":"BType",
+      "insertText":"any"
+    },
+    {
+      "label":"int",
+      "detail":"BType",
+      "insertText":"int"
+    },
+    {
+      "label":"docData",
+      "detail":"BType",
+      "insertText":"docData"
+    },
+    {
+      "label":"boolean",
+      "detail":"BType",
+      "insertText":"boolean"
+    },
+    {
+      "label":"new object constructor",
+      "detail":"Snippet",
+      "insertText":"public new(${1:args}) {\n\t${2}\n}",
+      "insertTextFormat":"Snippet"
+    },
+    {
+      "label":"function signature",
+      "detail":"Snippet",
+      "insertText":"function ${1:name}(${2});",
+      "insertTextFormat":"Snippet"
+    },
+    {
+      "label":"function",
+      "detail":"Snippet",
+      "insertText":"function ${1:name}(${2}) {\n\t${3}\n}",
+      "insertTextFormat":"Snippet"
+    }
+  ]
+}

@@ -21,24 +21,16 @@ import ballerina/system;
 import ballerina/task;
 import ballerina/time;
 
-documentation {
-    ID of the local participant used when registering with the initiator.
-}
+# ID of the local participant used when registering with the initiator.
 string localParticipantId = system:uuid();
 
-documentation {
-    This map is used for caching transaction that are initiated.
-}
+# This map is used for caching transaction that are initiated.
 map<TwoPhaseCommitTransaction> initiatedTransactions;
 
-documentation {
-    This map is used for caching transaction that are this Ballerina instance participates in.
-}
+# This map is used for caching transaction that are this Ballerina instance participates in.
 map<TwoPhaseCommitTransaction> participatedTransactions;
 
-documentation {
-    This cache is used for caching HTTP connectors against the URL, since creating connectors is expensive.
-}
+# This cache is used for caching HTTP connectors against the URL, since creating connectors is expensive.
 cache:Cache httpClientCache = new;
 
 @final boolean scheduleInit = scheduleTimer(1000, 60000);
@@ -170,10 +162,13 @@ function getParticipantProtocolAt(string protocolName, int transactionBlockId) r
         transactionBlockId;
 }
 
-documentation {
-    The initiator will create a new transaction context by calling this function. At this point, a transaction object
-    corresponding to the coordinationType will also be created and stored as an initiated transaction.
-}
+# The initiator will create a new transaction context by calling this function. At this point, a transaction object
+# corresponding to the coordinationType will also be created and stored as an initiated transaction.
+#
+# + coordinationType - The type of the coordination relevant to the transaction block for which this TransactionContext
+#                      is being created for.
+# + transactionBlockId - The ID of the transaction block.
+# + return - TransactionContext if the coordination type is valid or an error in case of an invalid coordination type.
 function createTransactionContext(string coordinationType, int transactionBlockId) returns TransactionContext|error {
     if (!isValidCoordinationType(coordinationType)) {
         string msg = "Invalid-Coordination-Type:" + coordinationType;
@@ -197,11 +192,14 @@ function createTransactionContext(string coordinationType, int transactionBlockI
     }
 }
 
-documentation {
-    Register a local participant, which corresponds to a nested transaction of the initiated transaction, with the
-    initiator. Such participants and the initiator don't have to communicate over the network, so we are special casing
-    such participants.
-}
+# Register a local participant, which corresponds to a nested transaction of the initiated transaction, with the
+# initiator. Such participants and the initiator don't have to communicate over the network, so we are special casing
+# such participants.
+#
+# + transactionId - Globally unique transaction ID
+# + transactionBlockId - ID of the transaction block. Each transaction block in a process has a unique ID.
+# + registerAtURL - The URL of the initiator
+# + return - TransactionContext if the registration is successul or an error in case of a failure.
 function registerLocalParticipantWithInitiator(string transactionId, int transactionBlockId, string registerAtURL)
     returns TransactionContext|error {
 
@@ -301,13 +299,13 @@ function getParticipant2pcClient(string participantURL) returns Participant2pcCl
     }
 }
 
-documentation {
-    Registers a participant with the initiator's coordinator. This function will be called by the participant
-
-    P{{transactionId}} - ID of the transaction to which this participant is registering with
-    P{{transactionBlockId}} - The local ID of the transaction block on the participant
-    P{{registerAtURL}} - The URL of the initiator to which this participant will register with
-}
+# Registers a participant with the initiator's coordinator. This function will be called by the participant.
+#
+# + transactionId -  Global transaction ID to which this participant is registering with.
+# + transactionBlockId - The local ID of the transaction block on the participant.
+# + registerAtURL - The URL of the coordinator.
+# + participantProtocols - The coordination protocals supported by the participant.
+# + return - TransactionContext if the registration is successful or an error in case of a failure.
 public function registerParticipantWithRemoteInitiator(string transactionId, int transactionBlockId,
                                                        string registerAtURL, RemoteProtocol[] participantProtocols)
     returns TransactionContext|error {

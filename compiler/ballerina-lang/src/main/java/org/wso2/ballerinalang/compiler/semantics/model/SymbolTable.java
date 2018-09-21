@@ -31,6 +31,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BAnyType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BChannelType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BErrorType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BFutureType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
@@ -101,6 +102,7 @@ public class SymbolTable {
     public final BType endpointType = new BType(TypeTags.ENDPOINT, null);
     public final BType arrayType = new BArrayType(noType);
     public final BType intArrayType = new BArrayType(intType);
+    public final BType channelType = new BChannelType(TypeTags.CHANNEL, anyType, null);
 
     public final BTypeSymbol errSymbol;
     public final BType errType;
@@ -147,6 +149,7 @@ public class SymbolTable {
         initializeType(futureType, TypeKind.FUTURE.typeName());
         initializeType(anyType, TypeKind.ANY.typeName());
         initializeType(nilType, TypeKind.NIL.typeName());
+        initializeType(channelType, TypeKind.CHANNEL.typeName());
 
         // Initialize error type;
         this.errType = new BErrorType(null);
@@ -158,7 +161,8 @@ public class SymbolTable {
         BTypeSymbol errorStructSymbol = new BRecordTypeSymbol(SymTag.RECORD, Flags.PUBLIC, Names.ERROR,
                 rootPkgSymbol.pkgID, null, rootPkgSymbol);
         this.errStructType = new BRecordType(errorStructSymbol);
-        this.errStructType.restFieldType = new BAnyType(TypeTags.ANY, null);
+        this.errStructType.restFieldType = anyType;
+        this.errStructType.sealed = false;
         errorStructSymbol.type = this.errStructType;
         errorStructSymbol.scope = new Scope(errorStructSymbol);
         defineType(this.errStructType, errorStructSymbol);
@@ -355,7 +359,6 @@ public class SymbolTable {
         // Define both implicit and explicit conversion operators
         defineImplicitConversionOperator(intType, jsonType, true, InstructionCodes.I2ANY);
         defineImplicitConversionOperator(intType, anyType, true, InstructionCodes.I2ANY);
-        defineImplicitConversionOperator(intType, floatType, true, InstructionCodes.I2F);
         defineImplicitConversionOperator(byteType, anyType, true, InstructionCodes.BI2ANY);
         defineImplicitConversionOperator(floatType, jsonType, true, InstructionCodes.F2ANY);
         defineImplicitConversionOperator(floatType, anyType, true, InstructionCodes.F2ANY);
@@ -385,7 +388,7 @@ public class SymbolTable {
 
         // Define conversion operators
         defineConversionOperator(anyType, stringType, true, InstructionCodes.ANY2SCONV);
-//        defineConversionOperator(intType, floatType, true, InstructionCodes.I2F);
+        defineConversionOperator(intType, floatType, true, InstructionCodes.I2F);
         defineConversionOperator(intType, booleanType, true, InstructionCodes.I2B);
         defineConversionOperator(intType, stringType, true, InstructionCodes.I2S);
         defineConversionOperator(intType, byteType, false, InstructionCodes.I2BI);

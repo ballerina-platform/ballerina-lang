@@ -645,6 +645,12 @@ public class BallerinaParser implements PsiParser, LightPsiParser {
     else if (t == XML_TYPE_NAME) {
       r = XmlTypeName(b, 0);
     }
+    else if (t == BACKTICKED_BLOCK) {
+      r = backtickedBlock(b, 0);
+    }
+    else if (t == DEFINITION_REFERENCE_TYPE) {
+      r = definitionReferenceType(b, 0);
+    }
     else if (t == DEPRECATED_ATTACHMENT) {
       r = deprecatedAttachment(b, 0);
     }
@@ -654,11 +660,29 @@ public class BallerinaParser implements PsiParser, LightPsiParser {
     else if (t == DEPRECATED_TEXT) {
       r = deprecatedText(b, 0);
     }
+    else if (t == DOC_PARAMETER_DESCRIPTION) {
+      r = docParameterDescription(b, 0);
+    }
     else if (t == DOC_TEXT) {
       r = docText(b, 0);
     }
     else if (t == DOCUMENTATION_ATTACHMENT) {
       r = documentationAttachment(b, 0);
+    }
+    else if (t == DOCUMENTATION_CONTENT) {
+      r = documentationContent(b, 0);
+    }
+    else if (t == DOCUMENTATION_DEFINITION_REFERENCE) {
+      r = documentationDefinitionReference(b, 0);
+    }
+    else if (t == DOCUMENTATION_LINE) {
+      r = documentationLine(b, 0);
+    }
+    else if (t == DOCUMENTATION_REFERENCE) {
+      r = documentationReference(b, 0);
+    }
+    else if (t == DOCUMENTATION_STRING) {
+      r = documentationString(b, 0);
     }
     else if (t == DOCUMENTATION_TEMPLATE_ATTRIBUTE_DESCRIPTION) {
       r = documentationTemplateAttributeDescription(b, 0);
@@ -669,11 +693,17 @@ public class BallerinaParser implements PsiParser, LightPsiParser {
     else if (t == DOCUMENTATION_TEMPLATE_INLINE_CODE) {
       r = documentationTemplateInlineCode(b, 0);
     }
+    else if (t == DOCUMENTATION_TEXT) {
+      r = documentationText(b, 0);
+    }
     else if (t == DOUBLE_BACK_TICK_DEPRECATED_INLINE_CODE) {
       r = doubleBackTickDeprecatedInlineCode(b, 0);
     }
     else if (t == DOUBLE_BACK_TICK_DOC_INLINE_CODE) {
       r = doubleBackTickDocInlineCode(b, 0);
+    }
+    else if (t == DOUBLE_BACKTICKED_BLOCK) {
+      r = doubleBacktickedBlock(b, 0);
     }
     else if (t == ENDPOINT_PARAMETER) {
       r = endpointParameter(b, 0);
@@ -696,6 +726,15 @@ public class BallerinaParser implements PsiParser, LightPsiParser {
     else if (t == NAMED_PATTERN) {
       r = namedPattern(b, 0);
     }
+    else if (t == PARAMETER_DESCRIPTION) {
+      r = parameterDescription(b, 0);
+    }
+    else if (t == PARAMETER_DOCUMENTATION) {
+      r = parameterDocumentation(b, 0);
+    }
+    else if (t == PARAMETER_DOCUMENTATION_LINE) {
+      r = parameterDocumentationLine(b, 0);
+    }
     else if (t == PARAMETER_TYPE_NAME) {
       r = parameterTypeName(b, 0);
     }
@@ -705,17 +744,32 @@ public class BallerinaParser implements PsiParser, LightPsiParser {
     else if (t == RESOURCE_PARAMETER_LIST) {
       r = resourceParameterList(b, 0);
     }
+    else if (t == RETURN_PARAMETER_DESCRIPTION) {
+      r = returnParameterDescription(b, 0);
+    }
+    else if (t == RETURN_PARAMETER_DOCUMENTATION) {
+      r = returnParameterDocumentation(b, 0);
+    }
+    else if (t == RETURN_PARAMETER_DOCUMENTATION_LINE) {
+      r = returnParameterDocumentationLine(b, 0);
+    }
     else if (t == SINGLE_BACK_TICK_DEPRECATED_INLINE_CODE) {
       r = singleBackTickDeprecatedInlineCode(b, 0);
     }
     else if (t == SINGLE_BACK_TICK_DOC_INLINE_CODE) {
       r = singleBackTickDocInlineCode(b, 0);
     }
+    else if (t == SINGLE_BACKTICKED_BLOCK) {
+      r = singleBacktickedBlock(b, 0);
+    }
     else if (t == TRIPLE_BACK_TICK_DEPRECATED_INLINE_CODE) {
       r = tripleBackTickDeprecatedInlineCode(b, 0);
     }
     else if (t == TRIPLE_BACK_TICK_DOC_INLINE_CODE) {
       r = tripleBackTickDocInlineCode(b, 0);
+    }
+    else if (t == TRIPLE_BACKTICKED_BLOCK) {
+      r = tripleBacktickedBlock(b, 0);
     }
     else if (t == TUPLE_DESTRUCTURING_STATEMENT) {
       r = tupleDestructuringStatement(b, 0);
@@ -1656,7 +1710,7 @@ public class BallerinaParser implements PsiParser, LightPsiParser {
   }
 
   /* ********************************************************** */
-  // documentationAttachment? deprecatedAttachment? AnnotationAttachment AnnotationAttachment+ Definition
+  // (documentationAttachment | documentationString)? deprecatedAttachment? AnnotationAttachment AnnotationAttachment+ Definition
   public static boolean DefinitionWithMultipleAnnotationAttachments(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "DefinitionWithMultipleAnnotationAttachments")) return false;
     boolean r, p;
@@ -1671,11 +1725,20 @@ public class BallerinaParser implements PsiParser, LightPsiParser {
     return r || p;
   }
 
-  // documentationAttachment?
+  // (documentationAttachment | documentationString)?
   private static boolean DefinitionWithMultipleAnnotationAttachments_0(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "DefinitionWithMultipleAnnotationAttachments_0")) return false;
-    documentationAttachment(b, l + 1);
+    DefinitionWithMultipleAnnotationAttachments_0_0(b, l + 1);
     return true;
+  }
+
+  // documentationAttachment | documentationString
+  private static boolean DefinitionWithMultipleAnnotationAttachments_0_0(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "DefinitionWithMultipleAnnotationAttachments_0_0")) return false;
+    boolean r;
+    r = documentationAttachment(b, l + 1);
+    if (!r) r = documentationString(b, l + 1);
+    return r;
   }
 
   // deprecatedAttachment?
@@ -1701,7 +1764,7 @@ public class BallerinaParser implements PsiParser, LightPsiParser {
   }
 
   /* ********************************************************** */
-  // documentationAttachment? deprecatedAttachment? AnnotationAttachment Definition
+  // (documentationAttachment | documentationString)? deprecatedAttachment? AnnotationAttachment Definition
   public static boolean DefinitionWithSingleAnnotationAttachment(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "DefinitionWithSingleAnnotationAttachment")) return false;
     boolean r, p;
@@ -1715,11 +1778,20 @@ public class BallerinaParser implements PsiParser, LightPsiParser {
     return r || p;
   }
 
-  // documentationAttachment?
+  // (documentationAttachment | documentationString)?
   private static boolean DefinitionWithSingleAnnotationAttachment_0(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "DefinitionWithSingleAnnotationAttachment_0")) return false;
-    documentationAttachment(b, l + 1);
+    DefinitionWithSingleAnnotationAttachment_0_0(b, l + 1);
     return true;
+  }
+
+  // documentationAttachment | documentationString
+  private static boolean DefinitionWithSingleAnnotationAttachment_0_0(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "DefinitionWithSingleAnnotationAttachment_0_0")) return false;
+    boolean r;
+    r = documentationAttachment(b, l + 1);
+    if (!r) r = documentationString(b, l + 1);
+    return r;
   }
 
   // deprecatedAttachment?
@@ -1730,7 +1802,7 @@ public class BallerinaParser implements PsiParser, LightPsiParser {
   }
 
   /* ********************************************************** */
-  // documentationAttachment? deprecatedAttachment? Definition
+  // (documentationAttachment | documentationString)? deprecatedAttachment? Definition
   public static boolean DefinitionWithoutAnnotationAttachments(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "DefinitionWithoutAnnotationAttachments")) return false;
     boolean r;
@@ -1742,11 +1814,20 @@ public class BallerinaParser implements PsiParser, LightPsiParser {
     return r;
   }
 
-  // documentationAttachment?
+  // (documentationAttachment | documentationString)?
   private static boolean DefinitionWithoutAnnotationAttachments_0(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "DefinitionWithoutAnnotationAttachments_0")) return false;
-    documentationAttachment(b, l + 1);
+    DefinitionWithoutAnnotationAttachments_0_0(b, l + 1);
     return true;
+  }
+
+  // documentationAttachment | documentationString
+  private static boolean DefinitionWithoutAnnotationAttachments_0_0(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "DefinitionWithoutAnnotationAttachments_0_0")) return false;
+    boolean r;
+    r = documentationAttachment(b, l + 1);
+    if (!r) r = documentationString(b, l + 1);
+    return r;
   }
 
   // deprecatedAttachment?
@@ -3570,7 +3651,7 @@ public class BallerinaParser implements PsiParser, LightPsiParser {
   }
 
   /* ********************************************************** */
-  // AnnotationAttachment* documentationAttachment? deprecatedAttachment? (public | private)? TypeName identifier (ASSIGN Expression)? (COMMA | SEMICOLON)
+  // AnnotationAttachment* (documentationAttachment | documentationString)? deprecatedAttachment? (public | private)? TypeName identifier (ASSIGN Expression)? (COMMA | SEMICOLON)
   public static boolean ObjectFieldDefinition(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "ObjectFieldDefinition")) return false;
     boolean r, p;
@@ -3599,11 +3680,20 @@ public class BallerinaParser implements PsiParser, LightPsiParser {
     return true;
   }
 
-  // documentationAttachment?
+  // (documentationAttachment | documentationString)?
   private static boolean ObjectFieldDefinition_1(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "ObjectFieldDefinition_1")) return false;
-    documentationAttachment(b, l + 1);
+    ObjectFieldDefinition_1_0(b, l + 1);
     return true;
+  }
+
+  // documentationAttachment | documentationString
+  private static boolean ObjectFieldDefinition_1_0(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "ObjectFieldDefinition_1_0")) return false;
+    boolean r;
+    r = documentationAttachment(b, l + 1);
+    if (!r) r = documentationString(b, l + 1);
+    return r;
   }
 
   // deprecatedAttachment?
@@ -3657,7 +3747,7 @@ public class BallerinaParser implements PsiParser, LightPsiParser {
   }
 
   /* ********************************************************** */
-  // AnnotationAttachment* documentationAttachment? deprecatedAttachment? (public)? (extern)? function CallableUnitSignature (CallableUnitBody | SEMICOLON)
+  // AnnotationAttachment* (documentationAttachment | documentationString)? deprecatedAttachment? (public)? (extern)? function CallableUnitSignature (CallableUnitBody | SEMICOLON)
   public static boolean ObjectFunctionDefinition(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "ObjectFunctionDefinition")) return false;
     boolean r, p;
@@ -3686,11 +3776,20 @@ public class BallerinaParser implements PsiParser, LightPsiParser {
     return true;
   }
 
-  // documentationAttachment?
+  // (documentationAttachment | documentationString)?
   private static boolean ObjectFunctionDefinition_1(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "ObjectFunctionDefinition_1")) return false;
-    documentationAttachment(b, l + 1);
+    ObjectFunctionDefinition_1_0(b, l + 1);
     return true;
+  }
+
+  // documentationAttachment | documentationString
+  private static boolean ObjectFunctionDefinition_1_0(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "ObjectFunctionDefinition_1_0")) return false;
+    boolean r;
+    r = documentationAttachment(b, l + 1);
+    if (!r) r = documentationString(b, l + 1);
+    return r;
   }
 
   // deprecatedAttachment?
@@ -3740,7 +3839,7 @@ public class BallerinaParser implements PsiParser, LightPsiParser {
   }
 
   /* ********************************************************** */
-  // AnnotationAttachment* documentationAttachment? (public)? new ObjectInitializerParameterList CallableUnitBody
+  // AnnotationAttachment* (documentationAttachment | documentationString)? (public)? new ObjectInitializerParameterList CallableUnitBody
   public static boolean ObjectInitializer(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "ObjectInitializer")) return false;
     boolean r, p;
@@ -3767,11 +3866,20 @@ public class BallerinaParser implements PsiParser, LightPsiParser {
     return true;
   }
 
-  // documentationAttachment?
+  // (documentationAttachment | documentationString)?
   private static boolean ObjectInitializer_1(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "ObjectInitializer_1")) return false;
-    documentationAttachment(b, l + 1);
+    ObjectInitializer_1_0(b, l + 1);
     return true;
+  }
+
+  // documentationAttachment | documentationString
+  private static boolean ObjectInitializer_1_0(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "ObjectInitializer_1_0")) return false;
+    boolean r;
+    r = documentationAttachment(b, l + 1);
+    if (!r) r = documentationString(b, l + 1);
+    return r;
   }
 
   // (public)?
@@ -4718,7 +4826,7 @@ public class BallerinaParser implements PsiParser, LightPsiParser {
   }
 
   /* ********************************************************** */
-  // AnnotationAttachment* documentationAttachment? deprecatedAttachment? identifier LEFT_PARENTHESIS resourceParameterList? RIGHT_PARENTHESIS CallableUnitBody
+  // AnnotationAttachment* (documentationAttachment | documentationString)? deprecatedAttachment? identifier LEFT_PARENTHESIS resourceParameterList? RIGHT_PARENTHESIS CallableUnitBody
   public static boolean ResourceDefinition(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "ResourceDefinition")) return false;
     boolean r, p;
@@ -4746,11 +4854,20 @@ public class BallerinaParser implements PsiParser, LightPsiParser {
     return true;
   }
 
-  // documentationAttachment?
+  // (documentationAttachment | documentationString)?
   private static boolean ResourceDefinition_1(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "ResourceDefinition_1")) return false;
-    documentationAttachment(b, l + 1);
+    ResourceDefinition_1_0(b, l + 1);
     return true;
+  }
+
+  // documentationAttachment | documentationString
+  private static boolean ResourceDefinition_1_0(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "ResourceDefinition_1_0")) return false;
+    boolean r;
+    r = documentationAttachment(b, l + 1);
+    if (!r) r = documentationString(b, l + 1);
+    return r;
   }
 
   // deprecatedAttachment?
@@ -6253,7 +6370,7 @@ public class BallerinaParser implements PsiParser, LightPsiParser {
   }
 
   /* ********************************************************** */
-  // !(DOCUMENTATION_TEMPLATE_START|DEPRECATED_TEMPLATE_START|'@'|extern|public|type|typedesc|service|function|enum|annotation|endpoint|record|int|float|boolean|string|byte|map|xml|xmlns|json|table|any|stream|object|future|identifier|'{')
+  // !(DOCUMENTATION_TEMPLATE_START|MARKDOWN_DOCUMENTATION_LINE_START|PARAMETER_DOCUMENTATION_START|RETURN_PARAMETER_DOCUMENTATION_START|DEPRECATED_TEMPLATE_START|'@'|extern|public|type|typedesc|service|function|enum|annotation|endpoint|int|float|boolean|string|byte|map|xml|xmlns|json|table|any|stream|object|future|identifier|'{')
   static boolean TopLevelDefinitionRecover(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "TopLevelDefinitionRecover")) return false;
     boolean r;
@@ -6263,12 +6380,15 @@ public class BallerinaParser implements PsiParser, LightPsiParser {
     return r;
   }
 
-  // DOCUMENTATION_TEMPLATE_START|DEPRECATED_TEMPLATE_START|'@'|extern|public|type|typedesc|service|function|enum|annotation|endpoint|record|int|float|boolean|string|byte|map|xml|xmlns|json|table|any|stream|object|future|identifier|'{'
+  // DOCUMENTATION_TEMPLATE_START|MARKDOWN_DOCUMENTATION_LINE_START|PARAMETER_DOCUMENTATION_START|RETURN_PARAMETER_DOCUMENTATION_START|DEPRECATED_TEMPLATE_START|'@'|extern|public|type|typedesc|service|function|enum|annotation|endpoint|int|float|boolean|string|byte|map|xml|xmlns|json|table|any|stream|object|future|identifier|'{'
   private static boolean TopLevelDefinitionRecover_0(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "TopLevelDefinitionRecover_0")) return false;
     boolean r;
     Marker m = enter_section_(b);
     r = consumeToken(b, DOCUMENTATION_TEMPLATE_START);
+    if (!r) r = consumeToken(b, MARKDOWN_DOCUMENTATION_LINE_START);
+    if (!r) r = consumeToken(b, PARAMETER_DOCUMENTATION_START);
+    if (!r) r = consumeToken(b, RETURN_PARAMETER_DOCUMENTATION_START);
     if (!r) r = consumeToken(b, DEPRECATED_TEMPLATE_START);
     if (!r) r = consumeToken(b, AT);
     if (!r) r = consumeToken(b, EXTERN);
@@ -6280,7 +6400,6 @@ public class BallerinaParser implements PsiParser, LightPsiParser {
     if (!r) r = consumeToken(b, ENUM);
     if (!r) r = consumeToken(b, ANNOTATION);
     if (!r) r = consumeToken(b, ENDPOINT);
-    if (!r) r = consumeToken(b, RECORD);
     if (!r) r = consumeToken(b, INT);
     if (!r) r = consumeToken(b, FLOAT);
     if (!r) r = consumeToken(b, BOOLEAN);
@@ -7269,6 +7388,19 @@ public class BallerinaParser implements PsiParser, LightPsiParser {
   }
 
   /* ********************************************************** */
+  // tripleBacktickedBlock | doubleBacktickedBlock | singleBacktickedBlock
+  public static boolean backtickedBlock(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "backtickedBlock")) return false;
+    boolean r;
+    Marker m = enter_section_(b, l, _NONE_, BACKTICKED_BLOCK, "<backticked block>");
+    r = tripleBacktickedBlock(b, l + 1);
+    if (!r) r = doubleBacktickedBlock(b, l + 1);
+    if (!r) r = singleBacktickedBlock(b, l + 1);
+    exit_section_(b, l, m, r, false, null);
+    return r;
+  }
+
+  /* ********************************************************** */
   // (LEFT_BRACKET|LEFT_PARENTHESIS) Expression RANGE Expression (RIGHT_BRACKET|RIGHT_PARENTHESIS)
   static boolean closedRange(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "closedRange")) return false;
@@ -7300,6 +7432,18 @@ public class BallerinaParser implements PsiParser, LightPsiParser {
     boolean r;
     r = consumeToken(b, RIGHT_BRACKET);
     if (!r) r = consumeToken(b, RIGHT_PARENTHESIS);
+    return r;
+  }
+
+  /* ********************************************************** */
+  // DEFINITION_REFERENCE
+  public static boolean definitionReferenceType(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "definitionReferenceType")) return false;
+    if (!nextTokenIs(b, DEFINITION_REFERENCE)) return false;
+    boolean r;
+    Marker m = enter_section_(b);
+    r = consumeToken(b, DEFINITION_REFERENCE);
+    exit_section_(b, m, DEFINITION_REFERENCE_TYPE, r);
     return r;
   }
 
@@ -7414,6 +7558,16 @@ public class BallerinaParser implements PsiParser, LightPsiParser {
   }
 
   /* ********************************************************** */
+  // documentationText?
+  public static boolean docParameterDescription(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "docParameterDescription")) return false;
+    Marker m = enter_section_(b, l, _NONE_, DOC_PARAMETER_DESCRIPTION, "<doc parameter description>");
+    documentationText(b, l + 1);
+    exit_section_(b, l, m, true, false, null);
+    return true;
+  }
+
+  /* ********************************************************** */
   // documentationTemplateInlineCode (DOCUMENTATION_TEMPLATE_TEXT | documentationTemplateInlineCode)*
   //             | DOCUMENTATION_TEMPLATE_TEXT  (DOCUMENTATION_TEMPLATE_TEXT | documentationTemplateInlineCode)*
   public static boolean docText(PsiBuilder b, int l) {
@@ -7511,6 +7665,102 @@ public class BallerinaParser implements PsiParser, LightPsiParser {
   }
 
   /* ********************************************************** */
+  // documentationText?
+  public static boolean documentationContent(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "documentationContent")) return false;
+    Marker m = enter_section_(b, l, _NONE_, DOCUMENTATION_CONTENT, "<documentation content>");
+    documentationText(b, l + 1);
+    exit_section_(b, l, m, true, false, null);
+    return true;
+  }
+
+  /* ********************************************************** */
+  // definitionReferenceType singleBacktickedBlock
+  public static boolean documentationDefinitionReference(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "documentationDefinitionReference")) return false;
+    if (!nextTokenIs(b, DEFINITION_REFERENCE)) return false;
+    boolean r;
+    Marker m = enter_section_(b);
+    r = definitionReferenceType(b, l + 1);
+    r = r && singleBacktickedBlock(b, l + 1);
+    exit_section_(b, m, DOCUMENTATION_DEFINITION_REFERENCE, r);
+    return r;
+  }
+
+  /* ********************************************************** */
+  // MARKDOWN_DOCUMENTATION_LINE_START documentationContent
+  public static boolean documentationLine(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "documentationLine")) return false;
+    if (!nextTokenIs(b, MARKDOWN_DOCUMENTATION_LINE_START)) return false;
+    boolean r, p;
+    Marker m = enter_section_(b, l, _NONE_, DOCUMENTATION_LINE, null);
+    r = consumeToken(b, MARKDOWN_DOCUMENTATION_LINE_START);
+    p = r; // pin = 1
+    r = r && documentationContent(b, l + 1);
+    exit_section_(b, l, m, r, p, null);
+    return r || p;
+  }
+
+  /* ********************************************************** */
+  // documentationDefinitionReference
+  public static boolean documentationReference(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "documentationReference")) return false;
+    if (!nextTokenIs(b, DEFINITION_REFERENCE)) return false;
+    boolean r;
+    Marker m = enter_section_(b);
+    r = documentationDefinitionReference(b, l + 1);
+    exit_section_(b, m, DOCUMENTATION_REFERENCE, r);
+    return r;
+  }
+
+  /* ********************************************************** */
+  // documentationLine+ parameterDocumentationLine* returnParameterDocumentationLine?
+  public static boolean documentationString(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "documentationString")) return false;
+    if (!nextTokenIs(b, MARKDOWN_DOCUMENTATION_LINE_START)) return false;
+    boolean r;
+    Marker m = enter_section_(b);
+    r = documentationString_0(b, l + 1);
+    r = r && documentationString_1(b, l + 1);
+    r = r && documentationString_2(b, l + 1);
+    exit_section_(b, m, DOCUMENTATION_STRING, r);
+    return r;
+  }
+
+  // documentationLine+
+  private static boolean documentationString_0(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "documentationString_0")) return false;
+    boolean r;
+    Marker m = enter_section_(b);
+    r = documentationLine(b, l + 1);
+    while (r) {
+      int c = current_position_(b);
+      if (!documentationLine(b, l + 1)) break;
+      if (!empty_element_parsed_guard_(b, "documentationString_0", c)) break;
+    }
+    exit_section_(b, m, null, r);
+    return r;
+  }
+
+  // parameterDocumentationLine*
+  private static boolean documentationString_1(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "documentationString_1")) return false;
+    while (true) {
+      int c = current_position_(b);
+      if (!parameterDocumentationLine(b, l + 1)) break;
+      if (!empty_element_parsed_guard_(b, "documentationString_1", c)) break;
+    }
+    return true;
+  }
+
+  // returnParameterDocumentationLine?
+  private static boolean documentationString_2(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "documentationString_2")) return false;
+    returnParameterDocumentationLine(b, l + 1);
+    return true;
+  }
+
+  /* ********************************************************** */
   // DOCUMENTATION_TEMPLATE_ATTRIBUTE_START identifier? DOCUMENTATION_TEMPLATE_ATTRIBUTE_END docText?
   public static boolean documentationTemplateAttributeDescription(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "documentationTemplateAttributeDescription")) return false;
@@ -7599,6 +7849,35 @@ public class BallerinaParser implements PsiParser, LightPsiParser {
   }
 
   /* ********************************************************** */
+  // (MARKDOWN_DOCUMENTATION_TEXT | REFERENCE_TYPE | DOCUMENTATION_ESCAPED_CHARACTERS | documentationReference | backtickedBlock | DEFINITION_REFERENCE)+
+  public static boolean documentationText(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "documentationText")) return false;
+    boolean r;
+    Marker m = enter_section_(b, l, _NONE_, DOCUMENTATION_TEXT, "<documentation text>");
+    r = documentationText_0(b, l + 1);
+    while (r) {
+      int c = current_position_(b);
+      if (!documentationText_0(b, l + 1)) break;
+      if (!empty_element_parsed_guard_(b, "documentationText", c)) break;
+    }
+    exit_section_(b, l, m, r, false, null);
+    return r;
+  }
+
+  // MARKDOWN_DOCUMENTATION_TEXT | REFERENCE_TYPE | DOCUMENTATION_ESCAPED_CHARACTERS | documentationReference | backtickedBlock | DEFINITION_REFERENCE
+  private static boolean documentationText_0(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "documentationText_0")) return false;
+    boolean r;
+    r = consumeToken(b, MARKDOWN_DOCUMENTATION_TEXT);
+    if (!r) r = consumeToken(b, REFERENCE_TYPE);
+    if (!r) r = consumeToken(b, DOCUMENTATION_ESCAPED_CHARACTERS);
+    if (!r) r = documentationReference(b, l + 1);
+    if (!r) r = backtickedBlock(b, l + 1);
+    if (!r) r = consumeToken(b, DEFINITION_REFERENCE);
+    return r;
+  }
+
+  /* ********************************************************** */
   // DB_DEPRECATED_INLINE_CODE_START DOUBLE_BACK_TICK_INLINE_CODE? DOUBLE_BACK_TICK_INLINE_CODE_END
   public static boolean doubleBackTickDeprecatedInlineCode(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "doubleBackTickDeprecatedInlineCode")) return false;
@@ -7639,6 +7918,28 @@ public class BallerinaParser implements PsiParser, LightPsiParser {
   private static boolean doubleBackTickDocInlineCode_1(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "doubleBackTickDocInlineCode_1")) return false;
     consumeToken(b, DOUBLE_BACK_TICK_INLINE_CODE);
+    return true;
+  }
+
+  /* ********************************************************** */
+  // DOUBLE_BACKTICK_MARKDOWN_START DOUBLE_BACKTICK_CONTENT? DOUBLE_BACKTICK_MARKDOWN_END
+  public static boolean doubleBacktickedBlock(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "doubleBacktickedBlock")) return false;
+    if (!nextTokenIs(b, DOUBLE_BACKTICK_MARKDOWN_START)) return false;
+    boolean r, p;
+    Marker m = enter_section_(b, l, _NONE_, DOUBLE_BACKTICKED_BLOCK, null);
+    r = consumeToken(b, DOUBLE_BACKTICK_MARKDOWN_START);
+    p = r; // pin = 1
+    r = r && report_error_(b, doubleBacktickedBlock_1(b, l + 1));
+    r = p && consumeToken(b, DOUBLE_BACKTICK_MARKDOWN_END) && r;
+    exit_section_(b, l, m, r, p, null);
+    return r || p;
+  }
+
+  // DOUBLE_BACKTICK_CONTENT?
+  private static boolean doubleBacktickedBlock_1(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "doubleBacktickedBlock_1")) return false;
+    consumeToken(b, DOUBLE_BACKTICK_CONTENT);
     return true;
   }
 
@@ -7855,6 +8156,83 @@ public class BallerinaParser implements PsiParser, LightPsiParser {
   }
 
   /* ********************************************************** */
+  // documentationText?
+  public static boolean parameterDescription(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "parameterDescription")) return false;
+    Marker m = enter_section_(b, l, _NONE_, PARAMETER_DESCRIPTION, "<parameter description>");
+    documentationText(b, l + 1);
+    exit_section_(b, l, m, true, false, null);
+    return true;
+  }
+
+  /* ********************************************************** */
+  // PARAMETER_NAME DESCRIPTION_SEPARATOR documentationText?
+  public static boolean parameterDocumentation(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "parameterDocumentation")) return false;
+    if (!nextTokenIs(b, PARAMETER_NAME)) return false;
+    boolean r, p;
+    Marker m = enter_section_(b, l, _NONE_, PARAMETER_DOCUMENTATION, null);
+    r = consumeTokens(b, 2, PARAMETER_NAME, DESCRIPTION_SEPARATOR);
+    p = r; // pin = 2
+    r = r && parameterDocumentation_2(b, l + 1);
+    exit_section_(b, l, m, r, p, null);
+    return r || p;
+  }
+
+  // documentationText?
+  private static boolean parameterDocumentation_2(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "parameterDocumentation_2")) return false;
+    documentationText(b, l + 1);
+    return true;
+  }
+
+  /* ********************************************************** */
+  // (PARAMETER_DOCUMENTATION_START parameterDocumentation) (MARKDOWN_DOCUMENTATION_LINE_START parameterDescription)*
+  public static boolean parameterDocumentationLine(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "parameterDocumentationLine")) return false;
+    if (!nextTokenIs(b, PARAMETER_DOCUMENTATION_START)) return false;
+    boolean r;
+    Marker m = enter_section_(b);
+    r = parameterDocumentationLine_0(b, l + 1);
+    r = r && parameterDocumentationLine_1(b, l + 1);
+    exit_section_(b, m, PARAMETER_DOCUMENTATION_LINE, r);
+    return r;
+  }
+
+  // PARAMETER_DOCUMENTATION_START parameterDocumentation
+  private static boolean parameterDocumentationLine_0(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "parameterDocumentationLine_0")) return false;
+    boolean r;
+    Marker m = enter_section_(b);
+    r = consumeToken(b, PARAMETER_DOCUMENTATION_START);
+    r = r && parameterDocumentation(b, l + 1);
+    exit_section_(b, m, null, r);
+    return r;
+  }
+
+  // (MARKDOWN_DOCUMENTATION_LINE_START parameterDescription)*
+  private static boolean parameterDocumentationLine_1(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "parameterDocumentationLine_1")) return false;
+    while (true) {
+      int c = current_position_(b);
+      if (!parameterDocumentationLine_1_0(b, l + 1)) break;
+      if (!empty_element_parsed_guard_(b, "parameterDocumentationLine_1", c)) break;
+    }
+    return true;
+  }
+
+  // MARKDOWN_DOCUMENTATION_LINE_START parameterDescription
+  private static boolean parameterDocumentationLine_1_0(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "parameterDocumentationLine_1_0")) return false;
+    boolean r;
+    Marker m = enter_section_(b);
+    r = consumeToken(b, MARKDOWN_DOCUMENTATION_LINE_START);
+    r = r && parameterDescription(b, l + 1);
+    exit_section_(b, m, null, r);
+    return r;
+  }
+
+  /* ********************************************************** */
   // AnnotationAttachment* TypeName
   public static boolean parameterTypeName(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "parameterTypeName")) return false;
@@ -7931,6 +8309,73 @@ public class BallerinaParser implements PsiParser, LightPsiParser {
   }
 
   /* ********************************************************** */
+  // documentationText?
+  public static boolean returnParameterDescription(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "returnParameterDescription")) return false;
+    Marker m = enter_section_(b, l, _NONE_, RETURN_PARAMETER_DESCRIPTION, "<return parameter description>");
+    documentationText(b, l + 1);
+    exit_section_(b, l, m, true, false, null);
+    return true;
+  }
+
+  /* ********************************************************** */
+  // docParameterDescription
+  public static boolean returnParameterDocumentation(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "returnParameterDocumentation")) return false;
+    boolean r;
+    Marker m = enter_section_(b, l, _NONE_, RETURN_PARAMETER_DOCUMENTATION, "<return parameter documentation>");
+    r = docParameterDescription(b, l + 1);
+    exit_section_(b, l, m, r, false, null);
+    return r;
+  }
+
+  /* ********************************************************** */
+  // (RETURN_PARAMETER_DOCUMENTATION_START returnParameterDocumentation) (MARKDOWN_DOCUMENTATION_LINE_START returnParameterDescription)*
+  public static boolean returnParameterDocumentationLine(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "returnParameterDocumentationLine")) return false;
+    if (!nextTokenIs(b, RETURN_PARAMETER_DOCUMENTATION_START)) return false;
+    boolean r;
+    Marker m = enter_section_(b);
+    r = returnParameterDocumentationLine_0(b, l + 1);
+    r = r && returnParameterDocumentationLine_1(b, l + 1);
+    exit_section_(b, m, RETURN_PARAMETER_DOCUMENTATION_LINE, r);
+    return r;
+  }
+
+  // RETURN_PARAMETER_DOCUMENTATION_START returnParameterDocumentation
+  private static boolean returnParameterDocumentationLine_0(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "returnParameterDocumentationLine_0")) return false;
+    boolean r;
+    Marker m = enter_section_(b);
+    r = consumeToken(b, RETURN_PARAMETER_DOCUMENTATION_START);
+    r = r && returnParameterDocumentation(b, l + 1);
+    exit_section_(b, m, null, r);
+    return r;
+  }
+
+  // (MARKDOWN_DOCUMENTATION_LINE_START returnParameterDescription)*
+  private static boolean returnParameterDocumentationLine_1(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "returnParameterDocumentationLine_1")) return false;
+    while (true) {
+      int c = current_position_(b);
+      if (!returnParameterDocumentationLine_1_0(b, l + 1)) break;
+      if (!empty_element_parsed_guard_(b, "returnParameterDocumentationLine_1", c)) break;
+    }
+    return true;
+  }
+
+  // MARKDOWN_DOCUMENTATION_LINE_START returnParameterDescription
+  private static boolean returnParameterDocumentationLine_1_0(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "returnParameterDocumentationLine_1_0")) return false;
+    boolean r;
+    Marker m = enter_section_(b);
+    r = consumeToken(b, MARKDOWN_DOCUMENTATION_LINE_START);
+    r = r && returnParameterDescription(b, l + 1);
+    exit_section_(b, m, null, r);
+    return r;
+  }
+
+  /* ********************************************************** */
   // SB_DEPRECATED_INLINE_CODE_START SINGLE_BACK_TICK_INLINE_CODE? SINGLE_BACK_TICK_INLINE_CODE_END
   public static boolean singleBackTickDeprecatedInlineCode(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "singleBackTickDeprecatedInlineCode")) return false;
@@ -7975,6 +8420,28 @@ public class BallerinaParser implements PsiParser, LightPsiParser {
   }
 
   /* ********************************************************** */
+  // SINGLE_BACKTICK_MARKDOWN_START SINGLE_BACKTICK_CONTENT? SINGLE_BACKTICK_MARKDOWN_END
+  public static boolean singleBacktickedBlock(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "singleBacktickedBlock")) return false;
+    if (!nextTokenIs(b, SINGLE_BACKTICK_MARKDOWN_START)) return false;
+    boolean r, p;
+    Marker m = enter_section_(b, l, _NONE_, SINGLE_BACKTICKED_BLOCK, null);
+    r = consumeToken(b, SINGLE_BACKTICK_MARKDOWN_START);
+    p = r; // pin = 1
+    r = r && report_error_(b, singleBacktickedBlock_1(b, l + 1));
+    r = p && consumeToken(b, SINGLE_BACKTICK_MARKDOWN_END) && r;
+    exit_section_(b, l, m, r, p, null);
+    return r || p;
+  }
+
+  // SINGLE_BACKTICK_CONTENT?
+  private static boolean singleBacktickedBlock_1(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "singleBacktickedBlock_1")) return false;
+    consumeToken(b, SINGLE_BACKTICK_CONTENT);
+    return true;
+  }
+
+  /* ********************************************************** */
   // TB_DEPRECATED_INLINE_CODE_START TRIPLE_BACK_TICK_INLINE_CODE? TRIPLE_BACK_TICK_INLINE_CODE_END
   public static boolean tripleBackTickDeprecatedInlineCode(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "tripleBackTickDeprecatedInlineCode")) return false;
@@ -8015,6 +8482,28 @@ public class BallerinaParser implements PsiParser, LightPsiParser {
   private static boolean tripleBackTickDocInlineCode_1(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "tripleBackTickDocInlineCode_1")) return false;
     consumeToken(b, TRIPLE_BACK_TICK_INLINE_CODE);
+    return true;
+  }
+
+  /* ********************************************************** */
+  // TRIPLE_BACKTICK_MARKDOWN_START TRIPLE_BACKTICK_CONTENT? TRIPLE_BACKTICK_MARKDOWN_END
+  public static boolean tripleBacktickedBlock(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "tripleBacktickedBlock")) return false;
+    if (!nextTokenIs(b, TRIPLE_BACKTICK_MARKDOWN_START)) return false;
+    boolean r, p;
+    Marker m = enter_section_(b, l, _NONE_, TRIPLE_BACKTICKED_BLOCK, null);
+    r = consumeToken(b, TRIPLE_BACKTICK_MARKDOWN_START);
+    p = r; // pin = 1
+    r = r && report_error_(b, tripleBacktickedBlock_1(b, l + 1));
+    r = p && consumeToken(b, TRIPLE_BACKTICK_MARKDOWN_END) && r;
+    exit_section_(b, l, m, r, p, null);
+    return r || p;
+  }
+
+  // TRIPLE_BACKTICK_CONTENT?
+  private static boolean tripleBacktickedBlock_1(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "tripleBacktickedBlock_1")) return false;
+    consumeToken(b, TRIPLE_BACKTICK_CONTENT);
     return true;
   }
 

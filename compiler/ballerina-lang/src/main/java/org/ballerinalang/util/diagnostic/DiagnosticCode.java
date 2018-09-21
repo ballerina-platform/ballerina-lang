@@ -52,8 +52,13 @@ public enum DiagnosticCode {
     ATTACHED_FUNC_CANT_HAVE_VISIBILITY_MODIFIERS("attached.functions.cannot.have.visibility.modifiers"),
     ATTACHED_FUNCTIONS_MUST_HAVE_BODY("attached.functions.must.have.body"),
     IMPLEMENTATION_ALREADY_EXIST("implementation.already.exist"),
-    CANNOT_INITIALIZE_OBJECT("cannot.initialize.object"),
     CANNOT_FIND_MATCHING_INTERFACE("cannot.find.matching.interface.function"),
+    EXTERN_FUNCTION_CANNOT_HAVE_BODY("extern.function.cannot.have.body"),
+    ABSTRACT_OBJECT_CONSTRUCTOR("abstract.object.constructor"),
+    CANNOT_INITIALIZE_ABSTRACT_OBJECT("cannot.initialize.abstract.object"),
+    INVALID_INTERFACE_ON_NON_ABSTRACT_OBJECT("invalid.interface.of.non.abstract.object"),
+    CANNOT_ATTACH_FUNCTIONS_TO_ABSTRACT_OBJECT("cannot.attach.functions.to.abstract.object"),
+    ABSTRACT_OBJECT_FUNCTION_CANNOT_HAVE_BODY("abstract.object.function.cannot.have.body"),
 
     INCOMPATIBLE_TYPES("incompatible.types"),
     INCOMPATIBLE_TYPES_EXP_TUPLE("incompatible.types.exp.tuple"),
@@ -72,7 +77,8 @@ public enum DiagnosticCode {
     INVALID_MULTIPLE_FORK_JOIN_SEND("worker.multiple.fork.join.send"),
 
     INVOKABLE_MUST_RETURN("invokable.must.return"),
-    MAIN_CANNOT_BE_PUBLIC("main.cannot.be.public"),
+    MAIN_SHOULD_BE_PUBLIC("main.should.be.public"),
+    INVALID_RETURN_WITH_MAIN("invalid.return.with.main"),
     ATLEAST_ONE_WORKER_MUST_RETURN("atleast.one.worker.must.return"),
     FORK_JOIN_WORKER_CANNOT_RETURN("fork.join.worker.cannot.return"),
     FORK_JOIN_INVALID_WORKER_COUNT("fork.join.invalid.worker.count"),
@@ -84,8 +90,6 @@ public enum DiagnosticCode {
     INTEGER_TOO_SMALL("integer.too.small"),
     HEXADECIMAL_TOO_LARGE("hexadecimal.too.large"),
     HEXADECIMAL_TOO_SMALL("hexadecimal.too.small"),
-    OCTAL_TOO_LARGE("octal.too.large"),
-    OCTAL_TOO_SMALL("octal.too.small"),
     BINARY_TOO_LARGE("binary.too.large"),
     BINARY_TOO_SMALL("binary.too.small"),
 
@@ -208,15 +212,12 @@ public enum DiagnosticCode {
     UNDOCUMENTED_PARAMETER("undocumented.parameter"),
     NO_SUCH_DOCUMENTABLE_PARAMETER("no.such.documentable.parameter"),
     PARAMETER_ALREADY_DOCUMENTED("parameter.already.documented"),
-
     UNDOCUMENTED_FIELD("undocumented.field"),
     NO_SUCH_DOCUMENTABLE_FIELD("no.such.documentable.field"),
     FIELD_ALREADY_DOCUMENTED("field.already.documented"),
-
     UNDOCUMENTED_VARIABLE("undocumented.variable"),
     NO_SUCH_DOCUMENTABLE_VARIABLE("no.such.documentable.variable"),
     VARIABLE_ALREADY_DOCUMENTED("variable.already.documented"),
-
     UNDOCUMENTED_RETURN_PARAMETER("undocumented.return.parameter"),
     NO_DOCUMENTABLE_RETURN_PARAMETER("no.documentable.return.parameter"),
 
@@ -276,12 +277,19 @@ public enum DiagnosticCode {
     INCOMPATIBLE_STREAM_ACTION_ARGUMENT("incompatible.stream.action.argument"),
     INVALID_STREAM_ACTION_ARGUMENT_COUNT("invalid.stream.action.argument.count"),
     INVALID_STREAM_ACTION_ARGUMENT_TYPE("invalid.stream.action.argument.type"),
+    INVALID_STREAM_ATTRIBUTE_TYPE("invalid.stream.attribute.type"),
+    STREAMING_INCOMPATIBLE_TYPES("streaming.incompatible.types"),
 
     // Taint checking related codes
     ENTRY_POINT_PARAMETERS_CANNOT_BE_SENSITIVE("entry.point.parameters.cannot.be.sensitive"),
     TAINTED_VALUE_PASSED_TO_SENSITIVE_PARAMETER("tainted.value.passed.to.sensitive.parameter"),
     TAINTED_VALUE_PASSED_TO_GLOBAL_VARIABLE("tainted.value.passed.to.global.variable"),
-    UNABLE_TO_PERFORM_TAINT_CHECKING_WITH_RECURSION("unable.to.perform.taint.checking.with.recursion")
+    UNABLE_TO_PERFORM_TAINT_CHECKING_WITH_RECURSION("unable.to.perform.taint.checking.with.recursion"),
+
+    // Anonymous functions related codes
+    ARROW_EXPRESSION_MISMATCHED_PARAMETER_LENGTH("arrow.expression.mismatched.parameter.length"),
+    ARROW_EXPRESSION_CANNOT_INFER_TYPE_FROM_LHS("arrow.expression.cannot.infer.type.from.lhs"),
+    ARROW_EXPRESSION_NOT_SUPPORTED_ITERABLE_OPERATION("arrow.expression.not.supported.iterable.operation")
     ;
 
     private String value;
