@@ -253,10 +253,6 @@ DefaultCtrl.defaultProps = {
     showAlways: false,
 };
 
-DefaultCtrl.contextTypes = {
-    editor: PropTypes.instanceOf(Object).isRequired,
-};
-
 class ActionBox extends React.Component {
     render() {
         const { model } = this.props;
@@ -267,8 +263,8 @@ class ActionBox extends React.Component {
 
         const onDelete = () => { model.remove(); };
         const onJumptoCodeLine = () => {
-            const { editor } = this.context;
-            editor.goToSource(model);
+            const { goToSource } = this.context;
+            goToSource(model);
         };
 
         if (model.name.value === 'default') {
@@ -302,13 +298,7 @@ class ActionBox extends React.Component {
 
 ActionBox.contextTypes = {
     config: PropTypes.instanceOf(Object),
-    editor: PropTypes.shape({
-        isFileOpenedInEditor: PropTypes.func,
-        getEditorByID: PropTypes.func,
-        setActiveEditor: PropTypes.func,
-        getActiveEditor: PropTypes.func,
-        getDefaultContent: PropTypes.func,
-    }).isRequired,
+    goToSource: PropTypes.func.isRequired,
     designer: PropTypes.instanceOf(Object),
 };
 
