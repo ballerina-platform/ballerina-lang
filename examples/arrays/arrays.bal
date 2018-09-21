@@ -37,8 +37,8 @@ public function main() {
     int[5] f;
     io:println(lengthof f);
 
-    // To infer the size of the array from the array literal, following syntax is used.
-    // This will fix the length of the array to four.
+    // To infer the size of the array from the array literal, use the following syntax.
+    // This sets the length of the array to four.
     int[!...] g = [1, 2, 3, 4];
     io:println(lengthof g);
 }
