@@ -171,6 +171,6 @@ public type Message object {
     # Set the replyTo destination from the message
     #
     # + replyTo - replyTo destination.
-    # + return - nil or and JMS error
+    # + return - nil or JMS error
     public extern function setReplyTo(Destination replyTo) returns error?;
 };

@@ -101,7 +101,7 @@ public type SimpleDurableTopicSubscriber object {
     # Creates a text message that can be sent through any JMS message producer to a queue or topic.
     #
     # + message - text content of the message
-    # + return - Returns a message or nill if the session is nil
+    # + return - the created message, or nil if the session is nil
     public function createTextMessage(string message) returns Message|error {
         match (session) {
             Session s => return s.createTextMessage(message);
