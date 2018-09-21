@@ -91,6 +91,7 @@ public type TopicSubscriberEndpointConfiguration record {
 };
 
 # Actions that topic subscriber endpoint could perform
+#
 # + topicSubscriber - JMS topic subscriber
 public type TopicSubscriberActions object {
 

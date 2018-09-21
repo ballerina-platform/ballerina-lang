@@ -75,6 +75,8 @@ public type ConsumerActions object {
     # Acknowledge the received message to JMS provider.
     # This should be used only with acknowledgment modes which require explicit acknowledgements like
     # CLIENT_ACKNOWLEDGMENT.
+    #
+    # + message - incoming message
     # + return - error upon failure to acknowledge the received message to JMS provider.
     public function acknowledge(Message message) returns error? {
         return;
