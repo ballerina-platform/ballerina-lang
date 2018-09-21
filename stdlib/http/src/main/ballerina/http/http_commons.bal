@@ -167,8 +167,8 @@ public type ServiceOcspStapling record {
 # + enable - The status of compression
 # + contentTypes - Content types which are allowed for compression
 public type CompressionConfig record {
-    Compression enable = COMPRESSION_AUTO,
-    string[] contentTypes,
+    Compression enable = COMPRESSION_AUTO;
+    string[] contentTypes;
     !...
 };
 
