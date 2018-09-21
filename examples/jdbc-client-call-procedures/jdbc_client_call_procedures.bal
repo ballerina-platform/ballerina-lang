@@ -6,8 +6,8 @@ import ballerina/sql;
 // supported database by providing the corresponding jdbc url.
 endpoint jdbc:Client testDB {
     url: "jdbc:mysql://localhost:3306/testdb",
-    username: "root",
-    password: "root",
+    username: "test",
+    password: "test",
     poolOptions: { maximumPoolSize: 5 },
     dbOptions: {useSSL: false }
 };
@@ -19,7 +19,7 @@ type Student record {
     string name;
 };
 
-function main(string... args) {
+public function main() {
     // Creates a table using the update operation. If the DDL
     // statement execution is successful, the `update` operation returns 0.
     io:println("The update operation - Creating table and procedures:");
