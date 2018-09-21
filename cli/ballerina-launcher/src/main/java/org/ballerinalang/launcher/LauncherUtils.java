@@ -25,6 +25,7 @@ import org.ballerinalang.config.ConfigRegistry;
 import org.ballerinalang.connector.impl.ServerConnectorRegistry;
 import org.ballerinalang.logging.BLogManager;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.runtime.exithook.BLangProgramExitHookRegistry;
 import org.ballerinalang.runtime.threadpool.ThreadPoolFactory;
 import org.ballerinalang.util.LaunchListener;
 import org.ballerinalang.util.codegen.ProgramFile;
@@ -166,7 +167,10 @@ public class LauncherUtils {
         } catch (InterruptedException ex) {
             // Ignore the error
         }
-        Runtime.getRuntime().exit(0);
+        //If there are hooks registered, we do not directly exit, but rather wait for hooks to exit
+        if (BLangProgramExitHookRegistry.getInstance().isEmpty()) {
+            Runtime.getRuntime().exit(0);
+        }
     }
 
     public static void runServices(ProgramFile programFile) {

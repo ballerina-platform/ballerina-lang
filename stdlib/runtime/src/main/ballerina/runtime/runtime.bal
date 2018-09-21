@@ -29,3 +29,8 @@ public extern function getProperty(@sensitive string name) returns string;
 
 # Check point the current state of the execution.
 public extern function checkpoint ();
+
+# Adds a ballerina program exit hook to the runtime.
+#
+# + exitHookFunction - The exit hook function that will be called when program is exiting
+public extern function addExitHook((function() returns ()) exitHookFunction);

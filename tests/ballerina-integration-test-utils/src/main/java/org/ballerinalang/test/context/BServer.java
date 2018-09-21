@@ -118,6 +118,13 @@ public interface BServer {
     void shutdownServer() throws BallerinaTestException;
 
     /**
+     * Gracefully stops the server started by startServer method and wait for its completion.
+     *
+     * @throws BallerinaTestException if service stop fails
+     */
+    void gracefulShutdownServer() throws BallerinaTestException;
+
+    /**
      * Forcefully kills the server.
      *
      * @throws BallerinaTestException if service stop fails

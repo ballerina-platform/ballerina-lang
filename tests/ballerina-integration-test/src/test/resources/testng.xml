@@ -225,4 +225,10 @@
             <class name="org.ballerinalang.test.checkpointing.InterruptibleServiceTestCase"/>
         </classes>
     </test>
+
+    <test name="ballerina-exit-hook-tests" parallel="false">
+        <classes>
+            <class name="org.ballerinalang.test.runtime.BLangProgramExitHookTest"/>
+        </classes>
+    </test>
 </suite>

@@ -22,6 +22,7 @@ import org.ballerinalang.compiler.BLangCompilerException;
 import org.ballerinalang.config.cipher.AESCipherTool;
 import org.ballerinalang.config.cipher.AESCipherToolException;
 import org.ballerinalang.launcher.util.BCompileUtil;
+import org.ballerinalang.runtime.exithook.BLangProgramExitHookRegistry;
 import org.ballerinalang.util.VMOptions;
 import org.ballerinalang.util.exceptions.BLangRuntimeException;
 import org.slf4j.Logger;
@@ -61,6 +62,7 @@ public class Main {
 
     public static void main(String... args) {
         try {
+            registerBallerinaShutdownHook();
             Optional<BLauncherCmd> optionalInvokedCmd = getInvokedCmd(args);
             optionalInvokedCmd.ifPresent(BLauncherCmd::execute);
         } catch (BLangRuntimeException e) {
@@ -80,6 +82,14 @@ public class Main {
             breLog.error(e.getMessage(), e);
             Runtime.getRuntime().exit(1);
         }
+    }
+
+    /**
+     * Registers a new virtual-machine shutdown hook.
+     */
+    private static void registerBallerinaShutdownHook() {
+        Runtime.getRuntime().addShutdownHook(new Thread(() ->
+                BLangProgramExitHookRegistry.getInstance().invokeExitHooks()));
     }
 
     private static CommandLine addSubCommand(CommandLine parentCmd, String commandName, Object commandObject) {
