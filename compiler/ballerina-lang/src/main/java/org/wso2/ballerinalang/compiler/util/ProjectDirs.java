@@ -20,11 +20,15 @@ package org.wso2.ballerinalang.compiler.util;
 import org.ballerinalang.compiler.BLangCompilerException;
 import org.ballerinalang.model.elements.PackageID;
 
+import java.io.IOException;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.LinkOption;
 import java.nio.file.Path;
 import java.nio.file.PathMatcher;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
 
 import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.BLANG_SOURCE_EXT;
 
@@ -60,5 +64,23 @@ public class ProjectDirs {
         }
 
         return new BLangCompilerException("cannot find package '" + sourcePackage + "'");
+    }
+
+    /**
+     * Checks if the package contains ballerina source files.
+     *
+     * @param pkgPath package path
+     * @return true if source files exists else false
+     */
+    public static boolean containsSourceFiles(Path pkgPath) {
+        List<Path> sourceFiles = new ArrayList<>();
+        try {
+            sourceFiles = Files.find(pkgPath, Integer.MAX_VALUE, (path, attrs) ->
+                    path.toString().endsWith(ProjectDirConstants.BLANG_SOURCE_EXT)).collect(Collectors.toList());
+        } catch (IOException ignored) {
+            // Here we are trying to check if there are source files inside the package to be compiled. If an error
+            // occurs when trying to visit the files inside the package then we simply return the empty list created.
+        }
+        return sourceFiles.size() > 0;
     }
 }
