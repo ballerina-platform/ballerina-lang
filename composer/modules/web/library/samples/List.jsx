@@ -30,14 +30,15 @@ class SamplesList extends React.Component {
 
     constructor(props, context) {
         super(props, context);
+        this._availableSamples = undefined;
         this.state = {
-            samples: _.cloneDeep(props.samples),
+            samples: undefined,
         };
         this.searchInput = undefined;
         this.onSearchQueryEdit = _.debounce(() => {
-            if (this.searchInput) {
+            if (this.searchInput && this._availableSamples) {
                 const searchQuery = this.searchInput.inputRef.value.toLowerCase();
-                let samples = _.cloneDeep(this.props.samples);
+                let samples = _.cloneDeep(this._availableSamples);
                 samples = samples.filter((sampleCategory) => {
                     if (!sampleCategory.title.toLowerCase().includes(searchQuery)) {
                         sampleCategory.samples = sampleCategory.samples.filter(sample => sample.name.toLowerCase().includes(searchQuery));
@@ -55,6 +56,21 @@ class SamplesList extends React.Component {
         if (this.searchInput) {
             this.searchInput.focus();
         }
+        this.props.getSamples().then((samples) => {
+            this._availableSamples = samples;
+            this.setState({
+                samples,
+            });
+        });
+    }
+
+    componentWillReceiveProps(nextProps) {
+        this.props.getSamples().then((samples) => {
+            this._availableSamples = samples;
+            this.setState({
+                samples,
+            });
+        });
     }
 
     getColumnContents() {
@@ -97,7 +113,6 @@ class SamplesList extends React.Component {
      * @memberof SamplesList
      */
     render() {
-        const columns = this.getColumnContents();
         // const columnSize = columns.length > 0 ? (16 / columns.length) : 16;
         return (
             <Grid className='welcome-page'>
@@ -111,8 +126,10 @@ class SamplesList extends React.Component {
                                 ref={(ref) => {
                                     this.searchInput = ref;
                                 }}
+                                loading={!this.state.samples}
                                 placeholder='Search'
                                 onChange={this.onSearchQueryEdit}
+                                
                             />
                         </div>
                     </Grid.Column>
@@ -120,17 +137,19 @@ class SamplesList extends React.Component {
                 <Grid.Row className='welcome-content-wrapper'>
                     <Grid.Column mobile={16} tablet={16} computer={16} className='rightContainer'>
                         <Grid>
-                            <Grid.Row columns={4} className='sample-wrapper'>
-                                {
-                                    columns.map((column) => {
-                                        return (
-                                            <Grid.Column mobile={16} tablet={16} computer={4}>
-                                                {column.map(columnItem => this.renderColumnItem(columnItem))}
-                                            </Grid.Column>
-                                        );
-                                    })
-                                }
-                            </Grid.Row>
+                            {this.state.samples &&
+                                <Grid.Row columns={4} className='sample-wrapper'>
+                                    {
+                                        this.getColumnContents().map((column) => {
+                                            return (
+                                                <Grid.Column mobile={16} tablet={8} computer={4}>
+                                                    {column.map(columnItem => this.renderColumnItem(columnItem))}
+                                                </Grid.Column>
+                                            );
+                                        })
+                                    }
+                                </Grid.Row>
+                            }
                         </Grid>
                     </Grid.Column>
                 </Grid.Row>
@@ -146,6 +165,7 @@ SamplesList.propTypes = {
         path: PropTypes.string.isRequired,
         image: PropTypes.string.isRequired,
     })).isRequired,
+    getSamples: PropTypes.func.isRequired,
     openSample: PropTypes.func.isRequired,
     openLink: PropTypes.func.isRequired,
 };
