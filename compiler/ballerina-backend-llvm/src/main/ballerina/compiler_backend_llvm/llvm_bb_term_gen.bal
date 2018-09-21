@@ -3,9 +3,9 @@ import ballerina/bir;
 
 type BbTermGenrator object {
 
-    llvm:LLVMBuilderRef builder,
-    FuncGenrator parent,
-    bir:BasicBlock bb,
+    llvm:LLVMBuilderRef builder;
+    FuncGenrator parent;
+    bir:BasicBlock bb;
     llvm:LLVMBasicBlockRef bbRef;
 
     new(builder, bb, bbRef, parent) {

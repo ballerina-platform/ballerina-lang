@@ -20,16 +20,16 @@ import ballerina/websub;
 @final string MOCK_HEADER = "MockHeader";
 
 public type WebhookListenerConfiguration record {
-    string host,
-    int port,
+    string host;
+    int port;
 };
 
 public type MockActionEvent record {
-    string action,
+    string action;
 };
 
 public type MockDomainEvent record {
-    string domain,
+    string domain;
 };
 
 endpoint WebhookListenerForPayload listenerOneEP {

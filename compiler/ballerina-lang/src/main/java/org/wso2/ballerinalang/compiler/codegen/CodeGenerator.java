@@ -1742,7 +1742,8 @@ public class CodeGenerator extends BLangNodeVisitor {
             TaintRecord taintRecord = taintTable.get(paramIndex);
             boolean added = addTaintTableEntry(taintTableAttributeInfo, paramIndex, taintRecord);
             if (added) {
-                taintTableAttributeInfo.columnCount = taintRecord.retParamTaintedStatus.size();
+                // Number of columns required is: One column per parameter and one column for return tainted status.
+                taintTableAttributeInfo.columnCount = taintRecord.parameterTaintedStatusList.size() + 1;
                 rowCount++;
             }
         }
@@ -1755,7 +1756,10 @@ public class CodeGenerator extends BLangNodeVisitor {
         // It is not useful to preserve the propagated taint errors, since user will not be able to correct the compiled
         // code and will not need to know internals of the already compiled code.
         if (taintRecord.taintError == null || taintRecord.taintError.isEmpty()) {
-            taintTableAttributeInfo.taintTable.put(index, taintRecord.retParamTaintedStatus);
+            List<Boolean> storedTaintTableValue = new ArrayList<>();
+            storedTaintTableValue.add(taintRecord.returnTaintedStatus);
+            storedTaintTableValue.addAll(taintRecord.parameterTaintedStatusList);
+            taintTableAttributeInfo.taintTable.put(index, storedTaintTableValue);
             return true;
         }
         return false;
