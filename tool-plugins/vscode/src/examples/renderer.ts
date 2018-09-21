@@ -3,29 +3,40 @@ import { ExtensionContext } from 'vscode';
 import { getLibraryWebViewContent } from '../utils';
 
 export function render(context: ExtensionContext, langClient: ExtendedLangClient)
-    : Thenable<string | undefined> {
-    return langClient.fetchExamples()
-        .then((resp) => {
-            const body = `<div id="examples" />`;
-            const script = `
-                const examples = ${JSON.stringify(resp.samples)};
-                function openExample(url) {
-                    vscode.postMessage({
-                        command: 'openExample',
-                        url: JSON.stringify(url)
-                    });
-                }
-                ballerinaDiagram.renderSamplesList(document.getElementById("examples"), examples, openExample, () => {});
-                `;
-            const styles = `
-                body.vscode-dark {
-                    background-color: #1e1e1e;
-                }
-                body.vscode-light {
-                    background-color: white;
-                }
-            `;
+    : string {
+    const body = `<div id="examples" />`;
+    const script = `
+        function getSamples() {
+            return Promise.resolve(examples);
+        }
+        function getExamples() {
+            return new Promise((resolve, reject) => {
+                webViewRPCHandler.invokeRemoteMethod('getExamples', [], (resp) => {
+                    resolve(resp.samples);
+                });
+            })
+        }
+        function openExample(url) {
+            vscode.postMessage({
+                command: 'openExample',
+                url: JSON.stringify(url)
+            });
+        }
+        function renderSamples() {
+            ballerinaDiagram.renderSamplesList(document.getElementById("examples"), getExamples, openExample, () => {});
+        }
+        renderSamples();
+        renderSamples();
+        
+        `;
+    const styles = `
+        body.vscode-dark {
+            background-color: #1e1e1e;
+        }
+        body.vscode-light {
+            background-color: white;
+        }
+    `;
 
-            return Promise.resolve(getLibraryWebViewContent(context, body, script, styles));
-        });
+    return getLibraryWebViewContent(context, body, script, styles);
 }
