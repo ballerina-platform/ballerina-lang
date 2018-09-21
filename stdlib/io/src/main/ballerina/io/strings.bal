@@ -51,6 +51,7 @@ public type StringReader object {
     }
 
     # Closes reader.
+    # + return - An error if could not close the channel.
     public function close() returns error? {
         return charChannel.close();
     }
