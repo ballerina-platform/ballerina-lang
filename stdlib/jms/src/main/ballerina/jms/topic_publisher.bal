@@ -63,6 +63,7 @@ public type TopicPublisher object {
     }
 
     # Get topic publisher actions
+    # + return - action object of TopicPublisherActions
     public function getCallerActions() returns TopicPublisherActions {
         return self.producerActions;
     }
@@ -84,6 +85,7 @@ public type TopicPublisherEndpointConfiguration record {
 };
 
 # Actions that topic publisher endpoint could perform
+# + topicPublisher - JMS topic publisher
 public type TopicPublisherActions object {
 
     public TopicPublisher? topicPublisher;
@@ -91,13 +93,15 @@ public type TopicPublisherActions object {
     # Sends a message to the JMS provider
     #
     # + message - Message to be sent to the JMS provider
+    # + return - error upon failure to send the message to the JMS provider
     public extern function send(Message message) returns error?;
 
     # Sends a message to the JMS provider
     #
     # + destination - destination used for the message sender
     # + message - message to be sent to the JMS provider
-    public function sendTo(Destination destination, Message message) returns error?;
+    # + return - error upon failure to send the message to the JMS provider
+public function sendTo(Destination destination, Message message) returns error?;
 };
 
 function TopicPublisherActions::sendTo(Destination destination, Message message) returns error? {
