@@ -17,7 +17,7 @@
 */
 package org.ballerinalang.model.values;
 
-import java.math.BigDecimal;
+import org.ballerinalang.model.types.util.Decimal128;
 
 /**
  * The {@code BValueType} represents a value type value in Ballerina.
@@ -60,7 +60,7 @@ public abstract class BValueType implements BValue {
      * @return  the numeric value represented by this object after conversion
      *          to type {@code decimal}.
      */
-    public abstract BigDecimal decimalValue();
+    public abstract Decimal128 decimalValue();
 
     public abstract boolean booleanValue();
 

@@ -19,9 +19,8 @@ package org.ballerinalang.model.values;
 
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.BTypes;
+import org.ballerinalang.model.types.util.Decimal128;
 import org.ballerinalang.util.exceptions.BallerinaException;
-
-import java.math.BigDecimal;
 
 /**
  * The {@code BString} represents a string in Ballerina.
@@ -70,10 +69,10 @@ public final class BString extends BValueType implements BRefType<String> {
     }
 
     @Override
-    public BigDecimal decimalValue() {
-        BigDecimal result;
+    public Decimal128 decimalValue() {
+        Decimal128 result;
         try {
-            result = new BigDecimal(this.value);
+            result = new Decimal128(this.value);
         } catch (NumberFormatException e) {
             throw new BallerinaException("input value " + this.value + " cannot be cast to decimal");
         }

@@ -63,6 +63,8 @@ public class BTypes {
                 return typeByte;
             case TypeConstants.FLOAT_TNAME:
                 return typeFloat;
+            case TypeConstants.DECIMAL_TNAME:
+                return typeDecimal;
             case TypeConstants.STRING_TNAME:
                 return typeString;
             case TypeConstants.BOOLEAN_TNAME:
