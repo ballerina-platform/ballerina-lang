@@ -14,15 +14,11 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerina/time;
-
-public function buildStreamEvent(map keyVals, string streamName) returns StreamEvent[] {
-    EventType evntType = "CURRENT";
-    StreamEvent[] streamEvents = [new((streamName, keyVals), evntType, time:currentTime().time)];
-    return streamEvents;
-}
-
-public function createResetStreamEvent(StreamEvent event) returns StreamEvent {
-    StreamEvent resetStreamEvent = new(event.data, "RESET", event.timestamp);
-    return resetStreamEvent;
-}
+public type EventType "CURRENT"|"EXPIRED"|"ALL"|"RESET"|"TIMER";
+public type JoinType "INNER"|"LEFT"|"RIGHT"|"FULL";
+public string OUTPUT = "OUTPUT";
+public EventType RESET = "RESET";
+public EventType EXPIRED = "EXPIRED";
+public string DEFAULT = "DEFAULT";
+public string DELIMITER = ".";
+public string DELIMITER_REGEX = "\\.";
