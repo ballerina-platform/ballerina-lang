@@ -14,9 +14,9 @@ endpoint jdbc:Client testDB {
 
 // This is the type created to represent data row.
 type Student record {
-    int id,
-    int age,
-    string name,
+    int id;
+    int age;
+    string name;
 };
 
 public function main() {

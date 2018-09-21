@@ -2,16 +2,16 @@ import ballerina/io;
 
 // This is a Ballerina record definition.
 type Person record {
-    string fname,
-    string lname,
-    int age,
+    string fname;
+    string lname;
+    int age;
 };
 
 type Movie record {
-    string title,
-    string year,
-    string released,
-    Person writer,
+    string title;
+    string year;
+    string released;
+    Person writer;
 };
 
 public function main() {
