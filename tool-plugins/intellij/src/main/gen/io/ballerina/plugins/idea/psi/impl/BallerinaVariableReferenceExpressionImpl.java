@@ -28,7 +28,7 @@ import io.ballerina.plugins.idea.psi.*;
 
 public class BallerinaVariableReferenceExpressionImpl extends BallerinaExpressionImpl implements BallerinaVariableReferenceExpression {
 
-  public BallerinaVariableReferenceExpressionImpl(ASTNode node) {
+  public BallerinaVariableReferenceExpressionImpl(@NotNull ASTNode node) {
     super(node);
   }
 

@@ -28,7 +28,7 @@ import io.ballerina.plugins.idea.psi.*;
 
 public class BallerinaSetClauseImpl extends BallerinaCompositeElementImpl implements BallerinaSetClause {
 
-  public BallerinaSetClauseImpl(ASTNode node) {
+  public BallerinaSetClauseImpl(@NotNull ASTNode node) {
     super(node);
   }
 
