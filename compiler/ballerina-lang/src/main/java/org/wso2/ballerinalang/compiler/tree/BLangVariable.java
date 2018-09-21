@@ -26,7 +26,6 @@ import org.ballerinalang.model.tree.MarkdownDocumentationNode;
 import org.ballerinalang.model.tree.VariableNode;
 import org.ballerinalang.model.tree.expressions.ExpressionNode;
 import org.ballerinalang.model.tree.types.TypeNode;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.types.BLangType;
 
@@ -46,10 +45,6 @@ public abstract class BLangVariable extends BLangNode implements VariableNode {
     public List<BLangDocumentation> docAttachments;
     public BLangMarkdownDocumentation markdownDocumentationAttachment;
     public List<BLangDeprecatedNode> deprecatedAttachments;
-    public boolean safeAssignment = false;
-    public boolean isField;
-
-    public BVarSymbol symbol;
 
     @Override
     public BLangType getTypeNode() {
@@ -123,6 +118,6 @@ public abstract class BLangVariable extends BLangNode implements VariableNode {
 
     @Override
     public String toString() {
-        return String.valueOf(type) + " " + symbol.name.value + (expr != null ? " = " + String.valueOf(expr) : "");
+        return String.valueOf(type) + " " + (expr != null ? " = " + String.valueOf(expr) : "");
     }
 }

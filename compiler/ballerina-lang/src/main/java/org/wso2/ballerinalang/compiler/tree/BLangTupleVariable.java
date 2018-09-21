@@ -31,19 +31,19 @@ import java.util.List;
  */
 public class BLangTupleVariable extends BLangVariable implements TupleVariableNode {
 
-    public List<BLangVariable> variableList;
+    public List<BLangVariable> memberVariables;
 
     public BLangTupleVariable() {
         this.docAttachments = new ArrayList<>();
         this.annAttachments = new ArrayList<>();
         this.flagSet = EnumSet.noneOf(Flag.class);
         this.deprecatedAttachments = new ArrayList<>();
-        this.variableList = new ArrayList<>();
+        this.memberVariables = new ArrayList<>();
     }
 
     @Override
     public List<BLangVariable> getVariables() {
-        return variableList;
+        return memberVariables;
     }
 
     @Override
@@ -53,7 +53,7 @@ public class BLangTupleVariable extends BLangVariable implements TupleVariableNo
 
     @Override
     public void addVariable(VariableNode variable) {
-        this.variableList.add((BLangVariable) variable);
+        this.memberVariables.add((BLangVariable) variable);
     }
 
     @Override
@@ -61,8 +61,8 @@ public class BLangTupleVariable extends BLangVariable implements TupleVariableNo
         return NodeKind.TUPLE_VARIABLE;
     }
 
-//    @Override
-//    public String toString() {
-//        return String.valueOf(type) + " " + symbol.name.value + (expr != null ? " = " + String.valueOf(expr) : "");
-//    }
+    @Override
+    public String toString() {
+        return String.valueOf(type) + " " + (expr != null ? " = " + String.valueOf(expr) : "");
+    }
 }
