@@ -449,8 +449,8 @@ public class CommandExecutor {
         int lastFieldLine = zeroBasedIndex.getEndLine();
         int lastFieldOffset = zeroBasedIndex.getStartColumn();
         String constructorSnippet = CommandUtil.getObjectConstructorSnippet(fields, lastFieldOffset);
-        Range range = new Range(new Position(lastFieldLine + 1, lastFieldOffset),
-                new Position(lastFieldLine + 1, lastFieldOffset));
+        Range range = new Range(new Position(lastFieldLine + 1, 0),
+                new Position(lastFieldLine + 1, 0));
 
         return applySingleTextEdit(constructorSnippet, range, textDocumentIdentifier,
                 context.get(ExecuteCommandKeys.LANGUAGE_SERVER_KEY).getClient());
