@@ -58,6 +58,11 @@
         </dependency>
         <dependency>
             <groupId>org.ballerinalang</groupId>
+            <artifactId>language-server-stdio-launcher</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.ballerinalang</groupId>
             <artifactId>composer-ballerina-parser-service</artifactId>
             <version>${project.version}</version>
         </dependency>
