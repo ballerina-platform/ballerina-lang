@@ -950,7 +950,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
             this.pkgBuilder.addSimpleVariableDefStatement(getCurrentPos(ctx), getWS(ctx),
                     ctx.bindingPattern().Identifier().getText(), exprAvailable, false);
         } else {
-            this.pkgBuilder.addTupleVariableDefStatement(getCurrentPos(ctx), getWS(ctx), exprAvailable, false);
+            this.pkgBuilder.addTupleVariableDefStatement(getCurrentPos(ctx), getWS(ctx), exprAvailable);
         }
     }
 

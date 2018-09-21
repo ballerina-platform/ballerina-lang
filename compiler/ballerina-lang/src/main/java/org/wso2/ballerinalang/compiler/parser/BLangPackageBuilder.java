@@ -43,7 +43,6 @@ import org.ballerinalang.model.tree.OperatorKind;
 import org.ballerinalang.model.tree.ResourceNode;
 import org.ballerinalang.model.tree.ServiceNode;
 import org.ballerinalang.model.tree.SimpleVariableNode;
-import org.ballerinalang.model.tree.TupleVariableNode;
 import org.ballerinalang.model.tree.VariableNode;
 import org.ballerinalang.model.tree.WorkerNode;
 import org.ballerinalang.model.tree.clauses.GroupByNode;
@@ -225,7 +224,6 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Queue;
 import java.util.Set;
 import java.util.Stack;
 import java.util.TreeSet;
@@ -710,7 +708,7 @@ public class BLangPackageBuilder {
         for (int i = 0; i < members; i++) {
             final BLangVariable member = (BLangVariable) this.varStack.pop();
             member.setTypeNode(tupleTypeNodes.get(tupleTypeNodes.size() - (i + 1)));
-            tupleVariable.variableList.add(0, member);
+            tupleVariable.memberVariables.add(0, member);
         }
         this.varStack.push(tupleVariable);
         return tupleVariable;
@@ -874,22 +872,10 @@ public class BLangPackageBuilder {
 
     void addTupleVariableDefStatement(DiagnosticPos pos,
                                       Set<Whitespace> ws,
-                                      boolean exprAvailable,
-                                      boolean endpoint) {
-        BLangTupleVariable var = (BLangTupleVariable) TreeBuilder.createTupleVariableNode();
+                                      boolean exprAvailable) {
+        BLangTupleVariable var = (BLangTupleVariable) this.varStack.pop();
         BLangTupleVariableDef varDefNode = (BLangTupleVariableDef) TreeBuilder.createTupleVariableDefinitionNode();
-        Set<Whitespace> wsOfSemiColon = null;
-        if (endpoint) {
-            var.addWS(endpointVarWs);
-            var.addWS(endpointKeywordWs);
-            endpointVarWs = null;
-            endpointKeywordWs = null;
-        } else {
-            wsOfSemiColon = removeNthFromLast(ws, 0);
-        }
-        var.pos = pos;
-        var.addWS(ws);
-        var.addVariable(this.varStack.pop());
+        Set<Whitespace> wsOfSemiColon = removeNthFromLast(ws, 0);
         if (exprAvailable) {
             var.setInitialExpression(this.exprNodeStack.pop());
         }
@@ -1480,23 +1466,6 @@ public class BLangPackageBuilder {
         if (exprAvailable) {
             var.setInitialExpression(this.exprNodeStack.pop());
         }
-        return var;
-    }
-
-    private TupleVariableNode generateTupleVarNode(DiagnosticPos pos,
-                                                   Set<Whitespace> ws,
-                                                   String identifier) {
-        BLangTupleVariable var = (BLangTupleVariable) TreeBuilder.createTupleVariableNode();
-        var.pos = pos;
-        var.addWS(ws);
-        BLangSimpleVariable memberVar = (BLangSimpleVariable) TreeBuilder.createSimpleVariableNode();
-        memberVar.pos = pos;
-        IdentifierNode name = this.createIdentifier(identifier);
-        memberVar.setName(name);
-        memberVar.addWS(ws);
-//        memberVar.setTypeNode(this.typeNodeStack.pop());
-        var.addVariable(memberVar);
-//        var.setTypeNode(this.typeNodeStack.pop());
         return var;
     }
 
