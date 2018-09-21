@@ -2,10 +2,10 @@
 # use the ballerina `run` command with the `--printreturn` option set to print the
 # return value to the standard out stream.
 
-# Use the ballerina `run` command to invoke the `main` function specifying `add` as
-# the string argument for `op`, and `4` and `8` as the integer arguments on which the
-# operation is to be performed.
-$ ballerina run --printreturn functions_as_entry_points.bal add 4 8
+# Use the ballerina `run` command to invoke the `main` function, specifying `4` and
+# `8` as the integer arguments on which the operation is to be performed, and `add`
+# as the string argument for `op`.
+$ ballerina run --printreturn functions_as_entry_points.bal 4 8 add
 Operation: Addition
 12
 
