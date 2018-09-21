@@ -205,6 +205,9 @@ public class Symbols {
             case TypeTags.FLOAT:
                 opcode = InstructionCodes.ANY2F;
                 break;
+            case TypeTags.DECIMAL:
+                opcode = InstructionCodes.ANY2D;
+                break;
             case TypeTags.STRING:
                 opcode = InstructionCodes.ANY2S;
                 break;
