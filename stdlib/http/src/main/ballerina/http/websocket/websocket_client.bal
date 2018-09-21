@@ -20,6 +20,7 @@
 # + negotiatedSubProtocol - The subprotocols negoriated with the server
 # + isSecure - `true` if the connection is secure
 # + isOpen - `true` if the connection is open
+# + response - Represents the HTTP response
 # + attributes - A map to store connection related attributes
 public type WebSocketClient object {
 

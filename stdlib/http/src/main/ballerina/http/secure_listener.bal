@@ -36,6 +36,8 @@ public type SecureListener object {
     public function init(SecureEndpointConfiguration c);
 
     # Initializes the endpoint.
+    #
+    # + return - An `error` if an error occurs during initialization of the endpoint
     public function initEndpoint() returns (error);
 
     # Gets called every time a service attaches itself to this endpoint. Also happens at package initialization.
@@ -265,6 +267,8 @@ function getConfigJwtAuthProviderConfig(AuthProvider authProvider) returns auth:
 }
 
 # The caller actions for responding to client requests to secure listener.
+#
+# + httpCallerActions - HTTP caller actions reference
 public type SecureListenerActions object {
 
     public Connection httpCallerActions;
@@ -303,6 +307,7 @@ public type SecureListenerActions object {
     # Sends an upgrade request with custom headers.
     #
     # + headers - A `map` of custom headers for handshake
+    # + return - WebSocket service endpoint
     public function acceptWebSocketUpgrade(map<string> headers) returns WebSocketListener {
         return httpCallerActions.acceptWebSocketUpgrade(headers);
     }
