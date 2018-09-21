@@ -94,7 +94,16 @@ public class NativeConversionTest {
 
     @Test
     public void testMapToStruct() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testMapToStruct");
+        testMapToStruct(compileResult, "testMapToStruct");
+    }
+
+    @Test
+    public void testNestedMapToNestedStruct() {
+        testMapToStruct(compileResult, "testNestedMapToNestedStruct");
+    }
+
+    private void testMapToStruct(CompileResult compileResult, String functionName) {
+        BValue[] returns = BRunUtil.invoke(compileResult, functionName);
         Assert.assertTrue(returns[0] instanceof BMap);
         BMap<String, BValue> struct = (BMap<String, BValue>) returns[0];
 

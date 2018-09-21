@@ -74,6 +74,36 @@ function testMapToStruct () returns (Person) {
     return p;
 }
 
+function testNestedMapToNestedStruct() returns Person {
+    int[] marks = [87, 94, 72];
+    map parent = {
+        name:"Parent",
+        age:50,
+        parent:null,
+        address:null,
+        info:null,
+        marks:null,
+        a:null,
+        score:4.57,
+        alive:false
+    };
+
+    json info = {status:"single"};
+    map addr = {"city":"Colombo", "country":"SriLanka"};
+    map m = {name:"Child",
+        age:25,
+        parent:parent,
+        address:addr,
+        info:info,
+        marks:marks,
+        a:"any value",
+        score:5.67,
+        alive:true
+    };
+    Person p = check <Person> m;
+    return p;
+}
+
 function testStructToJson () returns (json) {
     Person p = {name:"Child",
                    age:25,
