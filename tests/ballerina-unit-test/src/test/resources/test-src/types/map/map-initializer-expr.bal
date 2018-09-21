@@ -44,3 +44,8 @@ function mapInitWithIdentifiersTest() returns (map) {
 function getKey() returns (string) {
 	return "key2";
 }
+
+function duplicatedMapKeys() returns (map) {
+    map dupKey = {key: "value-1", key: "value-2"};
+    return dupKey;
+}

@@ -376,4 +376,18 @@ public class OpenRecordTest {
         BValue[] returns = BRunUtil.invoke(compileResult, "testFuncPtrAsRecordField");
         Assert.assertEquals(returns[0].stringValue(), "Doe, John");
     }
+
+    @Test(description = "Test record literal when keys are repeated")
+    public void testDuplicatedKeysInRecordLiteral() {
+        try {
+            BValue[] returns = BRunUtil.invoke(compileResult, "testDuplicatedKey");
+            Assert.fail();
+        } catch (IllegalStateException e) {
+            boolean errorMessageMatched = e.getMessage().contains("invalid usage of 'RECORD' literal: duplicate key " +
+                    "'noOfChildren'");
+            if (!errorMessageMatched) {
+                throw e;
+            }
+        }
+    }
 }

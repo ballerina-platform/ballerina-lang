@@ -342,3 +342,7 @@ function testFuncPtrAsRecordField() returns string {
 
     return p.fullName();
 }
+
+function testDuplicatedKey() {
+    Family family = {spouse: "Shereen", noOfChildren: 1, noOfChildren: 0, children: []};
+}

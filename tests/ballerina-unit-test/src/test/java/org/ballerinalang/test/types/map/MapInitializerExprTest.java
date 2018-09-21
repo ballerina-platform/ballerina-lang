@@ -159,4 +159,17 @@ public class MapInitializerExprTest {
         Assert.assertEquals(mapValue.get("key1").stringValue(), "Cat");
         Assert.assertEquals(mapValue.get("key2").stringValue(), "Dog");
     }
+
+    @Test(description = "Test map initializer expression with duplicated keys")
+    public void mapInitWithDuplicatedKeysTest() {
+        try {
+            BValue[] returns = BRunUtil.invoke(compileResult, "duplicatedMapKeys");
+            Assert.fail();
+        } catch (IllegalStateException e) {
+            String errorMessage = e.getMessage();
+            if (!errorMessage.contains("invalid usage of 'MAP' literal: duplicate key 'key'")) {
+                throw e;
+            }
+        }
+    }
 }
