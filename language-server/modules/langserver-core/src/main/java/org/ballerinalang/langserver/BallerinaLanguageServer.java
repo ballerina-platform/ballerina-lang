@@ -48,6 +48,7 @@ import org.eclipse.lsp4j.services.WorkspaceService;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
@@ -122,7 +123,13 @@ public class BallerinaLanguageServer implements ExtendedLanguageServer, Extended
         TextDocumentClientCapabilities textDocCapabilities = params.getCapabilities().getTextDocument();
         ((BallerinaTextDocumentService) this.textService).setClientCapabilities(textDocCapabilities);
 
-        ballerinaTraceListener.startListener();
+        HashMap<String, Boolean> experimentalCapabilities =
+                (HashMap<String, Boolean>) params.getCapabilities().getExperimental();
+
+        if (experimentalCapabilities != null && experimentalCapabilities.get("introspection")) {
+            ballerinaTraceListener.startListener();
+        }
+
         return CompletableFuture.supplyAsync(() -> res);
     }
 

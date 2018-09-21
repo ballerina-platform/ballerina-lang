@@ -17,10 +17,10 @@
 package org.ballerinalang.langserver.extensions.ballerina.traces;
 
 /**
- * {@link Trace} Parsed log message sent to client.
+ * {@link Message} Parsed log message sent to client.
  *
  */
-public class Trace {
+public class Message {
     private String id;
     private String direction;
     private String headers;
@@ -30,16 +30,24 @@ public class Trace {
     private String payload;
     private String headerType;
 
+    Message(String id, String direction, String headers, String httpMethod, String path, String contentType,
+            String payload, String headerType) {
+        this.id = id;
+        this.direction = direction;
+        this.headers = headers;
+        this.httpMethod = httpMethod;
+        this.path = path;
+        this.contentType = contentType;
+        this.payload = payload;
+        this.headerType = headerType;
+    }
+
     public void setId(String id) {
         this.id = id;
     }
 
     public String getId() {
         return id;
-    }
-
-    public void setDirection(String direction) {
-        this.direction = direction;
     }
 
     public String getDirection() {
@@ -50,44 +58,20 @@ public class Trace {
         return headers;
     }
 
-    public void setHeaders(String headers) {
-        this.headers = headers;
-    }
-
     public String getHttpMethod() {
         return httpMethod;
-    }
-
-    public void setHttpMethod(String httpMethod) {
-        this.httpMethod = httpMethod;
     }
 
     public String getPath() {
         return path;
     }
 
-    public void setPath(String path) {
-        this.path = path;
-    }
-
-    public void setContentType(String contentType) {
-        this.contentType = contentType;
-    }
-
     public String getContentType() {
         return contentType;
     }
 
-    public void setPayload(String payload) {
-        this.payload = payload;
-    }
-
     public String getPayload() {
         return payload;
-    }
-
-    public void setHeaderType(String headerType) {
-        this.headerType = headerType;
     }
 
     public String getHeaderType() {
