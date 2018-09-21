@@ -29,36 +29,31 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 /**
- * This contains methods to test external function call in select clause in Ballerina Streaming V2.
+ * This contains methods to test external function call in select clause (with aggregation) in Ballerina Streaming V2.
  *
  * @since 0.980.0
  */
-public class BallerinaStreamsV2SelectorWithGroupByAndWindowTest {
+public class BallerinaStreamsV2AggregatorWithGroupByTest {
 
     private CompileResult result;
 
     @BeforeClass
     public void setup() {
         System.setProperty("enable.siddhiRuntime", "false");
-        result = BCompileUtil.compile("test-src/streaming/streamingv2-select-with-groupby-and-window-test.bal");
+        result = BCompileUtil.compile("test-src/streaming/streamingv2-aggregate-with-groupby-test.bal");
     }
 
     @Test(description = "Test filter streaming query")
-    public void testSelectWithGroupByAndWindow() {
+    public void testSelectQuery() {
         BValue[] outputTeacherEvents = BRunUtil.invoke(result, "startAggregationWithGroupByQuery");
         System.setProperty("enable.siddhiRuntime", "true");
         Assert.assertNotNull(outputTeacherEvents);
-        Assert.assertEquals(outputTeacherEvents.length, 9, "Expected events are not received");
+        Assert.assertEquals(outputTeacherEvents.length, 4, "Expected events are not received");
 
         BMap<String, BValue> teacher0 = (BMap<String, BValue>) outputTeacherEvents[0];
         BMap<String, BValue> teacher1 = (BMap<String, BValue>) outputTeacherEvents[1];
         BMap<String, BValue> teacher2 = (BMap<String, BValue>) outputTeacherEvents[2];
         BMap<String, BValue> teacher3 = (BMap<String, BValue>) outputTeacherEvents[3];
-        BMap<String, BValue> teacher4 = (BMap<String, BValue>) outputTeacherEvents[4];
-        BMap<String, BValue> teacher5 = (BMap<String, BValue>) outputTeacherEvents[5];
-        BMap<String, BValue> teacher6 = (BMap<String, BValue>) outputTeacherEvents[6];
-        BMap<String, BValue> teacher7 = (BMap<String, BValue>) outputTeacherEvents[7];
-        BMap<String, BValue> teacher8 = (BMap<String, BValue>) outputTeacherEvents[8];
 
 
         Assert.assertEquals(teacher0.get("name").stringValue(), "Mohan");
@@ -69,32 +64,12 @@ public class BallerinaStreamsV2SelectorWithGroupByAndWindowTest {
         Assert.assertEquals(((BInteger) teacher1.get("sumAge")).intValue(), 45);
         Assert.assertEquals(((BInteger) teacher1.get("count")).intValue(), 1);
 
-        Assert.assertEquals(teacher2.get("name").stringValue(), "Mohan");
-        Assert.assertEquals(((BInteger) teacher2.get("sumAge")).intValue(), 60);
+        Assert.assertEquals(teacher2.get("name").stringValue(), "Raja");
+        Assert.assertEquals(((BInteger) teacher2.get("sumAge")).intValue(), 90);
         Assert.assertEquals(((BInteger) teacher2.get("count")).intValue(), 2);
 
         Assert.assertEquals(teacher3.get("name").stringValue(), "Mohan");
-        Assert.assertEquals(((BInteger) teacher3.get("sumAge")).intValue(), 90);
-        Assert.assertEquals(((BInteger) teacher3.get("count")).intValue(), 3);
-
-        Assert.assertEquals(teacher4.get("name").stringValue(), "Mohan");
-        Assert.assertEquals(((BInteger) teacher4.get("sumAge")).intValue(), 120);
-        Assert.assertEquals(((BInteger) teacher4.get("count")).intValue(), 4);
-
-        Assert.assertEquals(teacher5.get("name").stringValue(), "Mohan");
-        Assert.assertEquals(((BInteger) teacher5.get("sumAge")).intValue(), 90);
-        Assert.assertEquals(((BInteger) teacher5.get("count")).intValue(), 3);
-
-        Assert.assertEquals(teacher6.get("name").stringValue(), "Raja");
-        Assert.assertEquals(((BInteger) teacher6.get("sumAge")).intValue(), 90);
-        Assert.assertEquals(((BInteger) teacher6.get("count")).intValue(), 2);
-
-        Assert.assertEquals(teacher7.get("name").stringValue(), "Raja");
-        Assert.assertEquals(((BInteger) teacher7.get("sumAge")).intValue(), 45);
-        Assert.assertEquals(((BInteger) teacher7.get("count")).intValue(), 1);
-
-        Assert.assertEquals(teacher8.get("name").stringValue(), "Mohan");
-        Assert.assertEquals(((BInteger) teacher8.get("sumAge")).intValue(), 120);
-        Assert.assertEquals(((BInteger) teacher8.get("count")).intValue(), 4);
+        Assert.assertEquals(((BInteger) teacher3.get("sumAge")).intValue(), 60);
+        Assert.assertEquals(((BInteger) teacher3.get("count")).intValue(), 2);
     }
 }

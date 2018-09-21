@@ -15,29 +15,30 @@
 // under the License.
 
 public type SimpleSelect object {
-    private function (StreamEvent[]) nextProcessorPointer1;
-    private function(any o) returns any selectFunc;
 
-    new(nextProcessorPointer1, selectFunc) {
+    private function (StreamEvent[]) nextProcessorPointer;
+    private function(StreamEvent o) returns map selectFunc;
+
+
+    new(nextProcessorPointer, selectFunc) {
     }
 
     public function process(StreamEvent[] streamEvents) {
         StreamEvent[] newStreamEventArr = [];
         int index = 0;
         foreach event in streamEvents {
-            StreamEvent streamEvent = {eventType: event.eventType, timestamp: event.timestamp,
-                                                        eventObject: selectFunc(event)};
+            StreamEvent streamEvent = new((OUTPUT, selectFunc(event)), event.eventType, event.timestamp);
             newStreamEventArr[index] = streamEvent;
             index += 1;
         }
         if (index > 0) {
-            nextProcessorPointer1(newStreamEventArr);
+            nextProcessorPointer(newStreamEventArr);
         }
 
     }
 };
 
-public function createSimpleSelect(function (StreamEvent[]) nextProcPointer, function(any o) returns any selectFunc)
+public function createSimpleSelect(function (StreamEvent[]) nextProcPointer, function(StreamEvent o) returns map selectFunc)
         returns SimpleSelect {
     SimpleSelect simpleSelect = new(nextProcPointer, selectFunc);
     return simpleSelect;

@@ -131,7 +131,7 @@ public class BStream implements BRefType<Object> {
     public void subscribe(BFunctionPointer functionPointer) {
         BType[] parameters = functionPointer.value().getParamTypes();
         int lastArrayIndex = parameters.length - 1;
-        if (!CPU.isAssignable(constraintType, parameters[lastArrayIndex])) {
+        if (!CPU.isAssignable(constraintType, parameters[lastArrayIndex], new ArrayList<>())) {
             throw new BallerinaException("incompatible function: subscription function needs to be a function"
                                                  + " accepting:" + this.constraintType);
         }
