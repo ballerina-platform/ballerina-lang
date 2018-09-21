@@ -406,7 +406,7 @@ public type SubscriptionChangeResponse record {
 # + leaseSeconds - The default lease seconds value to honour if not specified in subscription requests
 # + signatureMethod - The signature method to use for authenticated content delivery (`SHA1`|`SHA256`)
 # + remotePublishingEnabled - Whether remote publishers should be allowed to publish to this hub (HTTP requests)
-# + remotePublishingMode - If remote publishing is allowed, the mode to use, `direct` (default) - fat ping with
+# + remotePublishMode - If remote publishing is allowed, the mode to use, `direct` (default) - fat ping with
 #                          the notification payload specified or `fetch` - the hub fetches the topic URL
 #                          specified in the "publish" request to identify the payload
 # + topicRegistrationRequired - Whether a topic needs to be registered at the hub prior to publishing/subscribing

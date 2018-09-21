@@ -225,8 +225,8 @@ public class CommandUtil {
                 .collect(Collectors.toList());
         String offsetStr = String.join("", Collections.nCopies(baseOffset, " "));
 
-        return "new(" + String.join(", ", fieldNames) + ") {" + CommonUtil.LINE_SEPARATOR
-                + CommonUtil.LINE_SEPARATOR + offsetStr + "}" + CommonUtil.LINE_SEPARATOR + offsetStr;
+        return offsetStr + "new(" + String.join(", ", fieldNames) + ") {" + CommonUtil.LINE_SEPARATOR
+                + CommonUtil.LINE_SEPARATOR + offsetStr + "}" + CommonUtil.LINE_SEPARATOR;
     }
 
     private static Set<String> getAllEntries(BLangInvocation functionNode) {
