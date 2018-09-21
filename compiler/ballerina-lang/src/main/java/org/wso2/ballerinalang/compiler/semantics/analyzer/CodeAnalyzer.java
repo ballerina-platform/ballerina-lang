@@ -847,13 +847,16 @@ public class CodeAnalyzer extends BLangNodeVisitor {
 
         Set<String> names = new HashSet<>();
         for (BLangRecordLiteral.BLangRecordKeyValue recFieldDecl : keyValuePairs) {
-            String fieldName = recFieldDecl.key.expr.toString();
-            if (names.contains(fieldName)) {
-                TypeKind assigneeType = recordLiteral.parent.type.getKind();
-                this.dlog.error(recFieldDecl.getKey().pos, DiagnosticCode.DUPLICATE_RECORD_LITERAL,
-                        assigneeType, fieldName);
+            BLangExpression keyExpr = recFieldDecl.getKey();
+            if (keyExpr.getKind() == NodeKind.SIMPLE_VARIABLE_REF) {
+                BLangSimpleVarRef keyRef = (BLangSimpleVarRef) keyExpr;
+                if (names.contains(keyRef.variableName.value)) {
+                    TypeKind assigneeType = recordLiteral.parent.type.getKind();
+                    this.dlog.error(keyExpr.pos, DiagnosticCode.DUPLICATE_RECORD_LITERAL,
+                            assigneeType.typeName(), keyRef);
+                }
+                names.add(keyRef.variableName.value);
             }
-            names.add(fieldName);
         }
     }
 

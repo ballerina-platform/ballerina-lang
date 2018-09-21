@@ -167,7 +167,7 @@ public class MapInitializerExprTest {
             Assert.fail();
         } catch (IllegalStateException e) {
             String errorMessage = e.getMessage();
-            if (!errorMessage.contains("invalid usage of 'MAP' literal: duplicate key 'key'")) {
+            if (!errorMessage.contains("invalid usage of map literal: duplicate key 'key'")) {
                 throw e;
             }
         }

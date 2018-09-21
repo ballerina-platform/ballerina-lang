@@ -383,7 +383,7 @@ public class OpenRecordTest {
             BValue[] returns = BRunUtil.invoke(compileResult, "testDuplicatedKey");
             Assert.fail();
         } catch (IllegalStateException e) {
-            boolean errorMessageMatched = e.getMessage().contains("invalid usage of 'RECORD' literal: duplicate key " +
+            boolean errorMessageMatched = e.getMessage().contains("invalid usage of record literal: duplicate key " +
                     "'noOfChildren'");
             if (!errorMessageMatched) {
                 throw e;
