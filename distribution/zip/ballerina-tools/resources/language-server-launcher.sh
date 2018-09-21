@@ -73,7 +73,7 @@ done
 PRGDIR=`dirname "$PRG"`
 
 # set BALLERINA_HOME
-BALLERINA_HOME=`cd "$PRGDIR/../../.." ; pwd`
+BALLERINA_HOME=`cd "$PRGDIR/../../../.." ; pwd`
 
 # For Cygwin, ensure paths are in UNIX format before anything is touched
 if $cygwin; then
@@ -103,15 +103,6 @@ if $mingw ; then
   # TODO classpath?
 fi
 
-if [ -z "$JAVA_HOME" ]; then
-  echo "JAVA_HOME is not set. Trying to find jre in BALLERINA_HOME.."
-  if [ -x "$BALLERINA_HOME/bre/lib/jre1.8.0_172/bin/java" ] ; then
-      JAVA_HOME="$BALLERINA_HOME/bre/lib/jre1.8.0_172"
-  else
-      echo "Failed find jre from BALLERINA_HOME."
-  fi
-fi
-
 if [ -z "$JAVACMD" ] ; then
   if [ -n "$JAVA_HOME"  ] ; then
     if [ -x "$JAVA_HOME/jre/sh/java" ] ; then
@@ -125,12 +116,15 @@ if [ -z "$JAVACMD" ] ; then
   fi
 fi
 
+# If the jre is found in BALLERINA_HOME, override java executable
+if [ -x "$BALLERINA_HOME/bre/lib/jre1.8.0_172/bin/java" ] ; then
+  JAVACMD="$BALLERINA_HOME/bre/lib/jre1.8.0_172/bin/java"
+fi
+
 if [ ! -x "$JAVACMD" ] ; then
   echo "Error: JAVA_HOME is not defined correctly."
   exit 1
 fi
-
-
 
 # if JAVA_HOME is not set we're not happy
 if [ -z "$JAVA_HOME" ]; then
@@ -151,15 +145,9 @@ if [ "$JDK_18" = "" ]; then
     exit 1
 fi
 
-for j in "$BALLERINA_HOME"/bre/lib/*.jar
-do
-    CLASSPATHS="$CLASSPATHS":$j
-done
+CLASSPATHS="$CLASSPATHS":"$BALLERINA_HOME"/bre/lib/*
 
-for j in "$BALLERINA_HOME"/lib/resources/composer/services/*.jar
-do
-    CLASSPATHS="$CLASSPATHS":$j
-done
+CLASSPATHS="$CLASSPATHS":"$BALLERINA_HOME"/lib/resources/composer/services/*
 
 # For Cygwin, switch paths to Windows format before running java
 if $cygwin; then
@@ -183,4 +171,3 @@ $JAVACMD \
 	-Dballerina.debugLog=$DEBUG_LOG \
 	-cp "$CLASSPATHS" \
 	 org.ballerinalang.langserver.launchers.stdio.Main 
-
