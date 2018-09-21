@@ -101,6 +101,7 @@ public type Path object {
 
     # Resolve given path.
     #
+    # + paths - Paths to be resolved within the current path
     # + return - Resolved path
     public extern function resolve(string... paths) returns Path;
 };

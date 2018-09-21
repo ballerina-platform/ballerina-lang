@@ -17,6 +17,10 @@
 import ballerina/io;
 
 # Represents JWT issuer configurations.
+# + keyAlias - Key alias used for signing
+# + keyPassword - Key password used for signing
+# + keyStoreFilePath - Key store file path
+# + keyStorePassword - Key store password
 public type JWTIssuerConfig record {
     string keyAlias;
     string keyPassword;
