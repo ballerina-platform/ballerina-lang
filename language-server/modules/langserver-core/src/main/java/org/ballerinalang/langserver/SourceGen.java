@@ -5211,12 +5211,14 @@ public class SourceGen {
                  + w("", sourceGenParams) + "type"
                  + a(" ", sourceGenParams.isShouldIndent()) + w("", sourceGenParams)
                  + node.getAsJsonObject("name").get("valueWithBar").getAsString()
-                 + a(" ", sourceGenParams.isShouldIndent()) + w("", sourceGenParams) + "object"
+                 + a(" ", sourceGenParams.isShouldIndent())
+                 + (node.has("isAbstractKeywordAvailable") && node.get("isAbstractKeywordAvailable").getAsBoolean() ? w("", sourceGenParams) + "abstract" + a("", sourceGenParams.isShouldIndent()) : "")
+                 + w("", sourceGenParams) + "object"
                  + a("", sourceGenParams.isShouldIndent()) + w("", sourceGenParams) + "{"
                  + a("", sourceGenParams.isShouldIndent()) + indent()
                  + a("", sourceGenParams.isShouldIndent())
-                 + getSourceOf(node.getAsJsonObject("typeNode"), pretty, replaceLambda)
-                 + outdent(node, sourceGenParams.isShouldIndent()) + w("", sourceGenParams) + "}"
+                 + getSourceOf(node.getAsJsonObject("typeNode"), pretty, replaceLambda) + outdent(node, sourceGenParams.isShouldIndent())
+                 + w("", sourceGenParams) + "}"
                  + a("", sourceGenParams.isShouldIndent()) + w("", sourceGenParams) + ";"
                  + a("", sourceGenParams.isShouldIndent());
             } else if (node.get("isObjectType") != null
@@ -5234,13 +5236,16 @@ public class SourceGen {
                  + w("", sourceGenParams) + "type" + a(" ", sourceGenParams.isShouldIndent())
                  + w("", sourceGenParams)
                  + node.getAsJsonObject("name").get("valueWithBar").getAsString()
-                 + a(" ", sourceGenParams.isShouldIndent()) + w("", sourceGenParams) + "object"
+                 + a(" ", sourceGenParams.isShouldIndent())
+                 + (node.has("isAbstractKeywordAvailable") && node.get("isAbstractKeywordAvailable").getAsBoolean() ? w("", sourceGenParams)
+                 + "abstract" + a("", sourceGenParams.isShouldIndent()) : "")
+                 + w("", sourceGenParams) + "object"
                  + a("", sourceGenParams.isShouldIndent()) + w("", sourceGenParams) + "{"
                  + a("", sourceGenParams.isShouldIndent()) + indent()
                  + a("", sourceGenParams.isShouldIndent())
-                 + getSourceOf(node.getAsJsonObject("typeNode"), pretty, replaceLambda)
-                 + outdent(node, sourceGenParams.isShouldIndent()) + w("", sourceGenParams) + "}"
-                 + a("", sourceGenParams.isShouldIndent()) + w("", sourceGenParams) + ";"
+                 + getSourceOf(node.getAsJsonObject("typeNode"), pretty, replaceLambda) + outdent(node, sourceGenParams.isShouldIndent())
+                 + w("", sourceGenParams) + "}" + a("", sourceGenParams.isShouldIndent())
+                 + w("", sourceGenParams) + ";"
                  + a("", sourceGenParams.isShouldIndent());
             } else if (node.get("isRecordType") != null
                          && node.get("isRecordType") .getAsBoolean() && node.get("isRecordKeywordAvailable") != null
@@ -7402,6 +7407,14 @@ public class SourceGen {
 
             if (node.getAsJsonObject("typeNode").get("kind").getAsString().equals("ObjectType")) {
                 node.addProperty("isObjectType", true);
+                if (node.has("ws")) {
+                    JsonArray typeDefWS = node.getAsJsonArray("ws");
+                    for (int i = 0; i < typeDefWS.size(); i++) {
+                        if (typeDefWS.get(i).getAsJsonObject().get("text").getAsString().equals("abstract")) {
+                            node.addProperty("isAbstractKeywordAvailable", true);
+                        }
+                    }
+                }
             }
 
             if (node.getAsJsonObject("typeNode").get("kind").getAsString().equals("RecordType")) {

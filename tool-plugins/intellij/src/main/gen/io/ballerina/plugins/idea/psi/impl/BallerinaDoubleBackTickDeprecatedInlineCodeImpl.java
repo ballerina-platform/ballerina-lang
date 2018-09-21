@@ -28,7 +28,7 @@ import io.ballerina.plugins.idea.psi.*;
 
 public class BallerinaDoubleBackTickDeprecatedInlineCodeImpl extends BallerinaCompositeElementImpl implements BallerinaDoubleBackTickDeprecatedInlineCode {
 
-  public BallerinaDoubleBackTickDeprecatedInlineCodeImpl(ASTNode node) {
+  public BallerinaDoubleBackTickDeprecatedInlineCodeImpl(@NotNull ASTNode node) {
     super(node);
   }
 

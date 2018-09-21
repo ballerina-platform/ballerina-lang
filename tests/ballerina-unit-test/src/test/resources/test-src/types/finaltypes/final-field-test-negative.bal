@@ -47,3 +47,8 @@ function baz(float f, string s, boolean b, json j) returns (float, string, boole
 @final service<http:Service> FooService {
 
 }
+
+function testCompound(int a) returns int {
+    a += 10;
+    return a;
+}

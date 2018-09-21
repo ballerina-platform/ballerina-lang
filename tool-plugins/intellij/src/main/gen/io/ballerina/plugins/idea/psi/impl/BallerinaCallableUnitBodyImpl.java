@@ -28,7 +28,7 @@ import io.ballerina.plugins.idea.psi.*;
 
 public class BallerinaCallableUnitBodyImpl extends BallerinaCompositeElementImpl implements BallerinaCallableUnitBody {
 
-  public BallerinaCallableUnitBodyImpl(ASTNode node) {
+  public BallerinaCallableUnitBodyImpl(@NotNull ASTNode node) {
     super(node);
   }
 

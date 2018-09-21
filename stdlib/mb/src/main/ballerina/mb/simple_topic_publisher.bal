@@ -123,15 +123,15 @@ public type TopicPublisherActions object {
 # + properties - Additional properties use in initializing the initial context
 # + topicPattern - name of the target topic
 public type SimpleTopicPublisherEndpointConfiguration record {
-    string username = "admin",
-    string password = "admin",
-    string host = "localhost",
-    int port = 5672,
-    string clientID = "ballerina",
-    string virtualHost = "default",
-    ServiceSecureSocket? secureSocket,
-    string acknowledgementMode = "AUTO_ACKNOWLEDGE",
-    map properties,
-    string topicPattern,
+    string username = "admin";
+    string password = "admin";
+    string host = "localhost";
+    int port = 5672;
+    string clientID = "ballerina";
+    string virtualHost = "default";
+    ServiceSecureSocket? secureSocket;
+    string acknowledgementMode = "AUTO_ACKNOWLEDGE";
+    map properties;
+    string topicPattern;
     !...
 };

@@ -1,5 +1,5 @@
 type Person object {
-    public int age = 3,
+    public int age = 3;
     public string name = "sample name";
 
     private int year = 5;

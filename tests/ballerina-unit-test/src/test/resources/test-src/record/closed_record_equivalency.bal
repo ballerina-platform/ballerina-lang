@@ -65,10 +65,10 @@ function testEquivalenceOfPublicStructsInSamePackage () returns (string) {
 
 
 function testEqOfPublicStructs () returns (string) {
-    eq:employee e = {age:14, name:"rat"};
+    eq:closedEmployee e = {age:14, name:"rat"};
     e.ssn = "234-56-7890:employee";
 
-    eq:person p = <eq:person>e;
+    eq:closedPerson p = <eq:closedPerson>e;
 
     return p.ssn;
 }
@@ -89,16 +89,16 @@ function testEqOfPublicStructs1 () returns (string) {
     employee3 e = {age:14, name:"rat"};
     e.ssn = "234-56-1234:employee";
 
-    eq:person p = <eq:person>e;
+    eq:closedPerson p = <eq:closedPerson>e;
 
     return p.ssn;
 }
 
 function testEqOfPublicStructs2 () returns (string) {
-    eq2:employee e = {age:14, name:"rat"};
+    eq2:closedEmployee e = {age:14, name:"rat"};
     e.ssn = "234-56-3345:employee";
 
-    eq:person p = <eq:person>e;
+    eq:closedPerson p = <eq:closedPerson>e;
 
     return p.ssn;
 }
@@ -177,7 +177,7 @@ function testRuntimeEqPublicStructsInSamePackage () returns (string) {
 }
 
 function testRuntimeEqPublicStructs () returns (string) {
-    req:userPFoo uFoo = {age:10, name:"Skytop", address:"102 Skyhigh street #129, San Jose"};
+    req:closedUserPFoo uFoo = {age:10, name:"Skytop", address:"102 Skyhigh street #129, San Jose"};
 
     // This is a safe cast
     var uA = <userPA>uFoo;
@@ -191,13 +191,13 @@ function testRuntimeEqPublicStructs () returns (string) {
 }
 
 function testRuntimeEqPublicStructs1 () returns (string) {
-    req:userPFoo uFoo = {age:10, name:"Brandon", address:"102 Skyhigh street #129, San Jose"};
+    req:closedUserPFoo uFoo = {age:10, name:"Brandon", address:"102 Skyhigh street #129, San Jose"};
 
     // This is a safe cast
     var uA = <userPA>uFoo;
 
     // This is a unsafe cast
-    var uB  = <req2:userPB>uA;
+    var uB  = <req2:closedUserPB>uA;
     match uB {
         error err => return err.message;
         userPB user=> return user.name;

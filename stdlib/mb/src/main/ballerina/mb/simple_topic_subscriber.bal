@@ -99,18 +99,18 @@ public type SimpleTopicSubscriber object {
 # + properties - JMS message properties
 # + topicPattern - Topic name pattern
 public type SimpleTopicSubscriberEndpointConfiguration record {
-    string username = "admin",
-    string password = "admin",
-    string host = "localhost",
-    int port = 5672,
-    string clientID = "ballerina",
-    string virtualHost = "default",
-    ServiceSecureSocket? secureSocket,
-    string connectionFactoryName = "ConnectionFactory",
-    string acknowledgementMode = "AUTO_ACKNOWLEDGE",
-    string messageSelector,
-    map properties,
-    string topicPattern,
+    string username = "admin";
+    string password = "admin";
+    string host = "localhost";
+    int port = 5672;
+    string clientID = "ballerina";
+    string virtualHost = "default";
+    ServiceSecureSocket? secureSocket;
+    string connectionFactoryName = "ConnectionFactory";
+    string acknowledgementMode = "AUTO_ACKNOWLEDGE";
+    string messageSelector;
+    map properties;
+    string topicPattern;
     !...
 };
 
