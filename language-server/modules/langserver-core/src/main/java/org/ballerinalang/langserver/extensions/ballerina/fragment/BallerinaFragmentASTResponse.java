@@ -18,7 +18,7 @@ package org.ballerinalang.langserver.extensions.ballerina.fragment;
 import com.google.gson.JsonObject;
 
 /**
- * Represents a represents with an AST for a code fragment
+ * Represents a represents with an AST for a code fragment.
  *
  * @since 0.981.2
  */

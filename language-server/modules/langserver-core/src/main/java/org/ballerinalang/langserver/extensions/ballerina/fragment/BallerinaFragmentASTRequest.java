@@ -16,7 +16,7 @@
 package org.ballerinalang.langserver.extensions.ballerina.fragment;
 
 /**
- * Represents a request for parsing a code fragment
+ * Represents a request for parsing a code fragment.
  *
  * @since 0.981.2
  */
