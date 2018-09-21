@@ -76,7 +76,8 @@ public type SimpleTopicSubscriber object {
     }
 
     # Get simple topic subscriber actions
-    # + return - action object of TopicSubscriberActions
+    #
+    # + return - Topic subscriber actions
     public function getCallerActions() returns TopicSubscriberActions {
         match (subscriber) {
             TopicSubscriber c => return c.getCallerActions();
@@ -95,7 +96,7 @@ public type SimpleTopicSubscriber object {
     # Create JMS text message
     #
     # + message - A message body to create a text message
-    # + return - Returns a message or nill if the session is nil
+    # + return - a message or nil if the session is nil
     public function createTextMessage(string message) returns Message|error {
         match (session) {
             Session s => return s.createTextMessage(message);
@@ -109,7 +110,7 @@ public type SimpleTopicSubscriber object {
     # Create JMS map message
     #
     # + message - A message body to create a map message
-    # + return - Returns a message or nill if the session is nil.
+    # + return - a message or nil if the session is nil.
     public function createMapMessage(map message) returns Message|error {
         match (session) {
             Session s => return s.createMapMessage(message);

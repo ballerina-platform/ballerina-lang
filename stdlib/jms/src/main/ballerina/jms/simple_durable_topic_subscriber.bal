@@ -150,7 +150,7 @@ public type SimpleDurableTopicSubscriberActions object {
     # Acknowledges a received message
     #
     # + message - JMS message to be acknowledged
-    # + return - error upon failure to acknowledge thegit  received message
+    # + return - error upon failure to acknowledge the received message
     public function acknowledge(Message message) returns error? {
         return self.helper.acknowledge(message);
     }

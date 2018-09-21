@@ -62,7 +62,8 @@ public type TopicSubscriber object {
     }
 
     # Get topic subscriber actions
-    # + return - action object of TopicSubscriberActions
+    #
+    # + return - Topic subscriber actions
     public function getCallerActions() returns TopicSubscriberActions {
         return consumerActions;
     }
@@ -98,7 +99,7 @@ public type TopicSubscriberActions object {
     # Acknowledges a received message
     #
     # + message - JMS message to be acknowledged
-    # + return - Returns an error on failure to acknowledge a received message
+    # + return - error on failure to acknowledge a received message
     public extern function acknowledge(Message message) returns error?;
 
     # Synchronously receive a message from the JMS provider

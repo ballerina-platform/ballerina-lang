@@ -97,14 +97,14 @@ public type QueueSenderActions object {
     # Sends a message to the JMS provider
     #
     # + message - message to be sent to the JMS provider
-    # + return - Returns error if unable to send the message to the queue
+    # + return - error if unable to send the message to the queue
     public extern function send(Message message) returns error?;
 
     # Sends a message to a given destination of the JMS provider
     #
     # + destination - destination used for the message sender
     # + message - message to be sent to the JMS provider
-    # + return - Returns error if sending fails to the given destination
+    # + return - error if sending fails to the given destination
     public function sendTo(Destination destination, Message message) returns error?;
 };
 

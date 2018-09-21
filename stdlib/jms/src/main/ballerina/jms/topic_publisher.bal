@@ -101,7 +101,7 @@ public type TopicPublisherActions object {
     # + destination - destination used for the message sender
     # + message - message to be sent to the JMS provider
     # + return - error upon failure to send the message to the JMS provider
-public function sendTo(Destination destination, Message message) returns error?;
+    public function sendTo(Destination destination, Message message) returns error?;
 };
 
 function TopicPublisherActions::sendTo(Destination destination, Message message) returns error? {

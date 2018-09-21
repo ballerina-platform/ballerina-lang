@@ -56,7 +56,7 @@ public type DurableTopicSubscriber object {
 
     # Return the subscrber caller actions
     #
-    # + return - Returns durable topic subscriber actions
+    # + return - durable topic subscriber actions
     public function getCallerActions() returns DurableTopicSubscriberActions {
         return consumerActions;
     }
