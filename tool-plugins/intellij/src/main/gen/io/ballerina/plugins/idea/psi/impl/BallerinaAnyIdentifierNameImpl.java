@@ -28,7 +28,7 @@ import io.ballerina.plugins.idea.psi.*;
 
 public class BallerinaAnyIdentifierNameImpl extends BallerinaCompositeElementImpl implements BallerinaAnyIdentifierName {
 
-  public BallerinaAnyIdentifierNameImpl(ASTNode node) {
+  public BallerinaAnyIdentifierNameImpl(@NotNull ASTNode node) {
     super(node);
   }
 

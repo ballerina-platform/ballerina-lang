@@ -28,7 +28,7 @@ import io.ballerina.plugins.idea.psi.*;
 
 public class BallerinaExpressionStmtImpl extends BallerinaCompositeElementImpl implements BallerinaExpressionStmt {
 
-  public BallerinaExpressionStmtImpl(ASTNode node) {
+  public BallerinaExpressionStmtImpl(@NotNull ASTNode node) {
     super(node);
   }
 

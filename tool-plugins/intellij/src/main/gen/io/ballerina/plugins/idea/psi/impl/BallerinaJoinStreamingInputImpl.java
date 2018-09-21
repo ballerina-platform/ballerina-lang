@@ -28,7 +28,7 @@ import io.ballerina.plugins.idea.psi.*;
 
 public class BallerinaJoinStreamingInputImpl extends BallerinaCompositeElementImpl implements BallerinaJoinStreamingInput {
 
-  public BallerinaJoinStreamingInputImpl(ASTNode node) {
+  public BallerinaJoinStreamingInputImpl(@NotNull ASTNode node) {
     super(node);
   }
 

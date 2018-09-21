@@ -30,11 +30,11 @@ import com.intellij.psi.stubs.IStubElementType;
 
 public class BallerinaAliasImpl extends BallerinaNamedElementImpl<BallerinaAliasStub> implements BallerinaAlias {
 
-  public BallerinaAliasImpl(BallerinaAliasStub stub, IStubElementType type) {
+  public BallerinaAliasImpl(@NotNull BallerinaAliasStub stub, @NotNull IStubElementType type) {
     super(stub, type);
   }
 
-  public BallerinaAliasImpl(ASTNode node) {
+  public BallerinaAliasImpl(@NotNull ASTNode node) {
     super(node);
   }
 

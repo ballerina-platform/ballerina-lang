@@ -239,8 +239,8 @@ public class HtmlDocTest {
                 "# + name - name of the user\n" +
                 "# + age - age of the user\n" +
                 "public type User record {\n" +
-                "    string name,\n" +
-                "    int age,\n" +
+                "    string name;\n" +
+                "    int age;\n" +
                 "};");
         Page page = generatePage(bLangPackage);
         Assert.assertEquals(page.constructs.size(), 1);
@@ -306,6 +306,41 @@ public class HtmlDocTest {
         Assert.assertEquals(functionDoc2.parameters.get(0).description, "<p>endpoint url</p>\n");
         Assert.assertEquals(functionDoc2.returnParams.get(0).toString(), "boolean", "Invalid return type");
         Assert.assertEquals(functionDoc2.returnParams.get(0).description, "<p>whether successful or not</p>\n");
+    }
+
+    @Test(description = "Test user defined types")
+    public void testUserDefinedTypes() {
+        BLangPackage bLangPackage = createPackage("# person description.\n" +
+                "#\n" +
+                "# + name - name of the person\n" +
+                "public type Person object {\n" +
+                "    public string name;\n" +
+                "};\n" +
+                "\n" +
+                "# user description.\n" +
+                "public type User Person;\n");
+        Page page = generatePage(bLangPackage);
+        Assert.assertEquals(page.constructs.size(), 2);
+
+        Documentable construct = page.constructs.get(0);
+        Assert.assertEquals(construct.getClass(), ObjectDoc.class, "Invalid documentable type");
+        ObjectDoc object = (ObjectDoc) construct;
+        Assert.assertEquals(object.name, "Person");
+        Assert.assertEquals(object.description, "<p>person description.</p>\n");
+        Assert.assertEquals(object.icon, "fw-struct");
+
+        List<Field> fields = object.fields;
+        Assert.assertEquals(fields.size(), 1);
+        Field field = fields.get(0);
+        Assert.assertEquals(field.name, "name");
+        Assert.assertEquals(field.description, "<p>name of the person</p>\n");
+
+        construct = page.constructs.get(1);
+        Assert.assertEquals(construct.getClass(), EnumDoc.class, "Invalid documentable type");
+        EnumDoc userDefinedType = (EnumDoc) construct;
+        Assert.assertEquals(userDefinedType.name, "User");
+        Assert.assertEquals(userDefinedType.description, "<p>user description.</p>\n");
+        Assert.assertEquals(userDefinedType.icon, "fw-type");
     }
 
     @Test(description = "Objects in a package should be shown in the constructs with new docerina syntax")

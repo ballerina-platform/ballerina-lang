@@ -48,9 +48,6 @@ public class ListCommand implements BLauncherCmd {
     @CommandLine.Option(names = {"--help", "-h"}, hidden = true)
     private boolean helpFlag;
 
-    @CommandLine.Option(names = "--java.debug", hidden = true)
-    private String debugPort;
-
     public void execute() {
         if (helpFlag) {
             String commandUsageInfo = BLauncherCmd.getCommandUsageInfo(LIST_COMMAND);

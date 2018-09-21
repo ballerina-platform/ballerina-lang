@@ -1,5 +1,3 @@
-
-
 function readLineSuccess() returns string {
     return "Hello, World!!!";
 }
@@ -55,4 +53,3 @@ function readLineProper() returns string | myerror | customError {
 function testCheckedExprSemanticErrors5() {
     string line = check readLineProper();
 }
-

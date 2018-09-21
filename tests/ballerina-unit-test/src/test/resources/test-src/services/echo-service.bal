@@ -5,8 +5,8 @@ import ballerina/io;
 @final string constPath = getConstPath();
 
 type Person record {
-    string name,
-    int age,
+    string name;
+    int age;
 };
 
 endpoint http:NonListener echoEP {

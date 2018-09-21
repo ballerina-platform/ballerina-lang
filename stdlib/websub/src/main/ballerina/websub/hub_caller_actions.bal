@@ -68,6 +68,7 @@ public type CallerActions object {
     #
     # + topic - The topic for which the update occurred
     # + payload - The update payload
+    # + contentType - The type of the update content, to set as the `ContentType` header
     # + secret - The secret used when registering the topic
     # + signatureMethod - The signature method to use to generate a secret
     # + headers - The headers, if any, that need to be set

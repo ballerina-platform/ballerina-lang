@@ -39,11 +39,15 @@ public type Socket object {
 
     # Binds socket to a local port.
     #
+    # + port - The port number.
+    # + interface - The interface that wish to bind.
     # + return - An error if could not bind to the port
     public extern function bindAddress(@sensitive int port, @sensitive string? interface = ()) returns error?;
 
     # Open a connection with remote server.
     #
+    # + host - The interface that wish to bind.
+    # + port - The port number.
     # + return - An error if could not connect with the remote server.
     public extern function connect(@sensitive string host, @sensitive int port) returns error?;
 
@@ -75,6 +79,8 @@ public type ServerSocket object {
 
     # Binds socket to a local port.
     #
+    # + port - The port number that server start.
+    # + interface - The interface that wish to bind.
     # + return - An error if could not bind to the port
     public extern function bindAddress(@sensitive int port, @sensitive string? interface = ()) returns error?;
 
