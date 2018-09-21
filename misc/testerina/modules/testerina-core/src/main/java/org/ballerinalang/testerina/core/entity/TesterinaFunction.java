@@ -103,8 +103,8 @@ public class TesterinaFunction {
      * @throws BallerinaException exception is thrown
      */
     public void invokeStopFunctions() throws BallerinaException {
-        BLangFunctions.invokePackageStopFunctions(programFile);
         BLangFunctions.invokePackageTestStopFunctions(programFile);
+        BLangFunctions.invokePackageStopFunctions(programFile);
     }
 
     /**
