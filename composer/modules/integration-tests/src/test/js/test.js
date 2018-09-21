@@ -67,18 +67,24 @@ describe('Ballerina Composer Test Suite', () => {
             before(done => {
                 model = undefined;
                 content = undefined;
-                fs.readFile(testFile, 'utf8', (err, fileContent) => {
-                    parse(fileContent, testFile, parsedModel => {
-                        content = fileContent;
-                        model = parsedModel;
-                        let error;
-                        if (!model && !(sourceGenSkip.includes(path.basename(testFile)) ||
-                                renderingSkip.includes(path.basename(testFile)))) {
-                            error = new Error('Could not parse!');
-                        }
-                        done(error);
-                    });
-                })
+
+                if (sourceGenSkip.includes(path.basename(testFile)) &&
+                    renderingSkip.includes(path.basename(testFile))) {
+                    done();
+                } else {
+                    fs.readFile(testFile, 'utf8', (err, fileContent) => {
+                        parse(fileContent, testFile, parsedModel => {
+                            content = fileContent;
+                            model = parsedModel;
+                            let error;
+
+                            if (!model) {
+                                error = new Error('Could not parse!');
+                            }
+                            done(error);
+                        });
+                    })
+                }
             });
 
             it('renders', function () {
@@ -100,7 +106,7 @@ describe('Ballerina Composer Test Suite', () => {
                 expect(generatedSource).to.equal(content);
             });
 
-            if (process.env.DEBUG == "true") {
+            if (process.env.DEBUG === "true") {
                 it('debug print', () => {
                     const tree = testEnv.buildTree(model);
                     debugPrint(tree);
