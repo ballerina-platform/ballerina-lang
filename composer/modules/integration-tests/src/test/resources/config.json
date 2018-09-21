@@ -1,28 +1,44 @@
 {
-    "skip": {
-        "rendering": [],
-        "source-gen": [
-            "table_queries.bal",
-            "table.bal",
-            "csv_io.bal",
-            "channels_correlation.bal",
-            "channels_workers.bal",
-            "grpc_bidirectional_streaming_client.bal",
-            "xml_test.bal",
-            "xml.bal",
-            "xml_access_test.bal",
-            "xml-access.bal",
-            "xml_attributes_test.bal",
-            "xml_attributes.bal",
-            "xml_functions_test.bal",
-            "xml_functions.bal",
-            "xml_io.bal",
-            "xml_literal_test.bal",
-            "xml_literal.bal",
-            "xml_namespaces_test.bal",
-            "xml_namespaces.bal",
-            "xml_namespaces_test.bal",
-            "xml_to_json_conversion.bal"
-        ]
-    }
+  "skip": {
+    "rendering": [
+      "xml_test.bal",
+      "xml.bal",
+      "xml_access_test.bal",
+      "xml-access.bal",
+      "xml_attributes_test.bal",
+      "xml_attributes.bal",
+      "xml_functions_test.bal",
+      "xml_functions.bal",
+      "xml_io.bal",
+      "xml_literal_test.bal",
+      "xml_literal.bal",
+      "xml_namespaces_test.bal",
+      "xml_namespaces.bal",
+      "xml_namespaces_test.bal",
+      "xml_to_json_conversion.bal"
+    ],
+    "source-gen": [
+      "table_queries.bal",
+      "table.bal",
+      "csv_io.bal",
+      "channels_correlation.bal",
+      "channels_workers.bal",
+      "grpc_bidirectional_streaming_client.bal",
+      "xml_test.bal",
+      "xml.bal",
+      "xml_access_test.bal",
+      "xml-access.bal",
+      "xml_attributes_test.bal",
+      "xml_attributes.bal",
+      "xml_functions_test.bal",
+      "xml_functions.bal",
+      "xml_io.bal",
+      "xml_literal_test.bal",
+      "xml_literal.bal",
+      "xml_namespaces_test.bal",
+      "xml_namespaces.bal",
+      "xml_namespaces_test.bal",
+      "xml_to_json_conversion.bal"
+    ]
+  }
 }
