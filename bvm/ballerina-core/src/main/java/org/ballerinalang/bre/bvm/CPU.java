@@ -3477,87 +3477,68 @@ public class CPU {
                 }
 
                 if (mapVal != null) {
-                    BType mapValType = mapVal.getType();
-                    if (mapValType.getTag() == TypeTags.MAP_TAG) {
-                        boolean conversionDone = false;
-                        switch (fieldType.getTag()) {
-                            case TypeTags.RECORD_TYPE_TAG:
-                                bStruct.put(key, convertMapToStruct(ctx, (BMap<String, BValue>) mapVal,
-                                                                    ((BStructureType) fieldType)));
-                                conversionDone = true;
-                                break;
-                            case TypeTags.UNION_TAG:
-                                for (BType memType : ((BUnionType) fieldType).getMemberTypes()) {
-                                    if (memType.getTag() == TypeTags.RECORD_TYPE_TAG) {
-                                        try {
-                                            bStruct.put(key, convertMapToStruct(ctx, (BMap<String, BValue>) mapVal,
-                                                                                ((BStructureType) memType)));
-                                            conversionDone = true;
-                                            break;
-                                        } catch (BallerinaException e) {
-                                            // ignore conversion exception if thrown when the expected type is a union
-                                            // type, to allow attempting conversion for other types
-                                        }
-                                    }
-                                }
-                                break;
-                        }
-                        if (conversionDone) {
-                            continue;
-                        }
+                    if (mapVal.getType().getTag() == TypeTags.MAP_TAG) {
+                        bStruct.put(key, convertMap(ctx, (BMap<String, BValue>) mapVal, fieldType, key));
+                        continue;
                     }
 
                     if (!checkCast(mapVal, fieldType, new ArrayList<TypePair>())) {
                         throw BLangExceptionHelper.getRuntimeException(
-                                RuntimeErrors.INCOMPATIBLE_FIELD_TYPE_FOR_CASTING, key, fieldType, mapValType);
+                                RuntimeErrors.INCOMPATIBLE_FIELD_TYPE_FOR_CASTING, key, fieldType, mapVal.getType());
                     }
                 }
             } else {
                 defaultValAttrInfo = (DefaultValueAttributeInfo)
                         getAttributeInfo(fieldInfo, AttributeInfo.Kind.DEFAULT_VALUE_ATTRIBUTE);
+                if (defaultValAttrInfo != null) {
+                    switch (fieldType.getTag()) {
+                        case TypeTags.INT_TAG:
+                            bStruct.put(key, new BInteger(defaultValAttrInfo.getDefaultValue().getIntValue()));
+                            continue;
+                        case TypeTags.BYTE_TAG:
+                            bStruct.put(key, new BByte(defaultValAttrInfo.getDefaultValue().getByteValue()));
+                            continue;
+                        case TypeTags.FLOAT_TAG:
+                            bStruct.put(key, new BFloat(defaultValAttrInfo.getDefaultValue().getFloatValue()));
+                            continue;
+                        case TypeTags.STRING_TAG:
+                            bStruct.put(key, new BString(defaultValAttrInfo.getDefaultValue().getStringValue()));
+                            continue;
+                        case TypeTags.BOOLEAN_TAG:
+                            bStruct.put(key, new BBoolean(defaultValAttrInfo.getDefaultValue().getBooleanValue()));
+                            continue;
+                    }
+                }
             }
-
-            switch (fieldType.getTag()) {
-                case TypeTags.INT_TAG:
-                    if (containsField) {
-                        bStruct.put(key, mapVal);
-                    } else if (defaultValAttrInfo != null) {
-                        bStruct.put(key, new BInteger(defaultValAttrInfo.getDefaultValue().getIntValue()));
-                    }
-                    break;
-                case TypeTags.BYTE_TAG:
-                    if (containsField) {
-                        bStruct.put(key, mapVal);
-                    } else if (defaultValAttrInfo != null) {
-                        bStruct.put(key, new BByte(defaultValAttrInfo.getDefaultValue().getByteValue()));
-                    }
-                    break;
-                case TypeTags.FLOAT_TAG:
-                    if (containsField) {
-                        bStruct.put(key, mapVal);
-                    } else if (defaultValAttrInfo != null) {
-                        bStruct.put(key, new BFloat(defaultValAttrInfo.getDefaultValue().getFloatValue()));
-                    }
-                    break;
-                case TypeTags.STRING_TAG:
-                    if (containsField) {
-                        bStruct.put(key, mapVal);
-                    } else if (defaultValAttrInfo != null) {
-                        bStruct.put(key, new BString(defaultValAttrInfo.getDefaultValue().getStringValue()));
-                    }
-                    break;
-                case TypeTags.BOOLEAN_TAG:
-                    if (containsField) {
-                        bStruct.put(key, mapVal);
-                    } else if (defaultValAttrInfo != null) {
-                        bStruct.put(key, new BBoolean(defaultValAttrInfo.getDefaultValue().getBooleanValue()));
-                    }
-                    break;
-                default:
-                    bStruct.put(key, mapVal);
-            }
+            bStruct.put(key, mapVal);
         }
         return bStruct;
+    }
+
+    private static BValue convertMap(WorkerExecutionContext ctx, BMap<String, BValue> mapValue, BType targetType,
+                                     String key) {
+        switch (targetType.getTag()) {
+            case TypeTags.RECORD_TYPE_TAG:
+                return convertMapToStruct(ctx, mapValue, (BStructureType) targetType);
+            case TypeTags.JSON_TAG:
+                return JSONUtils.convertMapToJSON(mapValue, (BJSONType) targetType);
+            case TypeTags.UNION_TAG:
+                for (BType memType : ((BUnionType) targetType).getMemberTypes()) {
+                    try {
+                        return convertMap(ctx, mapValue, memType, key);
+                    } catch (BallerinaException e) {
+                        // ignore conversion exception if thrown when the expected type is a union
+                        // type, to allow attempting conversion for other types
+                    }
+                }
+                break;
+            default:
+                if (checkCast(mapValue, targetType, new ArrayList<TypePair>())) {
+                    return mapValue;
+                }
+        }
+        throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.INCOMPATIBLE_FIELD_TYPE_FOR_CASTING, key,
+                                                       targetType, mapValue.getType());
     }
 
     private static void convertJSONToStruct(WorkerExecutionContext ctx, int[] operands, WorkerData sf) {

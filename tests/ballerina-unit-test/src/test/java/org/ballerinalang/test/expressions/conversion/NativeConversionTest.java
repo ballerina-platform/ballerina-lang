@@ -241,11 +241,15 @@ public class NativeConversionTest {
         Assert.assertEquals(result[0].toString(), "{\"name\":\"Supun\", \"age\":25, \"gpa\":2.81, \"status\":true}");
     }
 
-    @Test(expectedExceptions = {BLangRuntimeException.class},
-          expectedExceptionsMessageRegExp = ".*cannot convert 'map' to type 'Person: error while mapping 'info': " +
-                  "incompatible types: expected 'json', found 'map'.*")
-    public void testIncompatibleMapToStruct() {
-        BRunUtil.invoke(compileResult, "testIncompatibleMapToStruct");
+    @Test(description = "Test converting a map to a record, with a map value for a JSON field")
+    public void testMapToStructWithMapValueForJsonField() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testMapToStructWithMapValueForJsonField");
+        Assert.assertTrue(returns[0] instanceof BMap);
+        BMap<String, BValue> personStruct = (BMap<String, BValue>) returns[0];
+
+        Assert.assertEquals(personStruct.stringValue(), "{name:\"Child\", age:25, parent:null, "
+                + "info:{\"status\":\"single\"}, address:{\"city\":\"Colombo\", \"country\":\"SriLanka\"}, "
+                + "marks:[87, 94, 72], a:null, score:0.0, alive:false, children:null}");
     }
 
     @Test(description = "Test converting a map with missing field to a struct")

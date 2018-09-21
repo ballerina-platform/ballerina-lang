@@ -172,7 +172,7 @@ function testJsonToStruct () returns (Person | error) {
     return p;
 }
 
-function testIncompatibleMapToStruct () returns (Person) {
+function testMapToStructWithMapValueForJsonField() returns Person {
     int[] marks = [87, 94, 72];
     map addr = {"city":"Colombo", "country":"SriLanka"};
     map info = {status:"single"};
