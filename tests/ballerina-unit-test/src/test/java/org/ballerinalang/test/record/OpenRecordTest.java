@@ -380,6 +380,7 @@ public class OpenRecordTest {
     @Test(description = "Test record literal when keys are repeated")
     public void testDuplicatedKeysInRecordLiteral() {
         try {
+            CompileResult compileResult = BCompileUtil.compile("test-src/record/open_record_duplicated_key.bal");
             BValue[] returns = BRunUtil.invoke(compileResult, "testDuplicatedKey");
             Assert.fail();
         } catch (IllegalStateException e) {

@@ -163,6 +163,8 @@ public class MapInitializerExprTest {
     @Test(description = "Test map initializer expression with duplicated keys")
     public void mapInitWithDuplicatedKeysTest() {
         try {
+            CompileResult compileResult = BCompileUtil.compile(
+                    "test-src/types/map/map-initializer-expr-duplicated-keys.bal");
             BValue[] returns = BRunUtil.invoke(compileResult, "duplicatedMapKeys");
             Assert.fail();
         } catch (IllegalStateException e) {
@@ -176,6 +178,8 @@ public class MapInitializerExprTest {
     @Test(description = "Test map initializer expression with duplicated keys when one key is a string literal")
     public void mapInitWithDuplicatedKeysOneStringKeyTest() {
         try {
+            CompileResult compileResult = BCompileUtil.compile(
+                    "test-src/types/map/map-initializer-expr-duplicated-keys.bal");
             BValue[] returns = BRunUtil.invoke(compileResult, "duplicatedMapKeysStrKey");
             Assert.fail();
         } catch (IllegalStateException e) {
