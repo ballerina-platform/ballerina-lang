@@ -71,16 +71,16 @@ public type SecureListener object {
 #                          change this limit appropriately. This will be applicable only for HTTP 1.1
 # + authProviders - The array of authentication providers which are used to authenticate the users
 public type SecureEndpointConfiguration record {
-    string host,
-    int port = 9090,
-    KeepAlive keepAlive = KEEPALIVE_AUTO,
-    ServiceSecureSocket? secureSocket,
-    string httpVersion = "1.1",
-    RequestLimits? requestLimits,
-    Filter[] filters,
-    int timeoutMillis = DEFAULT_LISTENER_TIMEOUT,
-    int maxPipelinedRequests = MAX_PIPELINED_REQUESTS,
-    AuthProvider[]? authProviders,
+    string host;
+    int port = 9090;
+    KeepAlive keepAlive = KEEPALIVE_AUTO;
+    ServiceSecureSocket? secureSocket;
+    string httpVersion = "1.1";
+    RequestLimits? requestLimits;
+    Filter[] filters;
+    int timeoutMillis = DEFAULT_LISTENER_TIMEOUT;
+    int maxPipelinedRequests = MAX_PIPELINED_REQUESTS;
+    AuthProvider[]? authProviders;
     !...
 };
 
@@ -101,20 +101,20 @@ public type SecureEndpointConfiguration record {
 # + signingAlg - The signing algorithm which is used to sign the JWT token
 # + propagateToken - `true` if propagating authentication info as JWT
 public type AuthProvider record {
-    string scheme,
-    string id,
-    string authStoreProvider,
-    string issuer,
-    string audience,
-    TrustStore? trustStore,
-    string certificateAlias,
-    int clockSkew,
-    KeyStore? keyStore,
-    string keyAlias,
-    string keyPassword,
-    int expTime,
-    string signingAlg,
-    boolean propagateToken,
+    string scheme;
+    string id;
+    string authStoreProvider;
+    string issuer;
+    string audience;
+    TrustStore? trustStore;
+    string certificateAlias;
+    int clockSkew;
+    KeyStore? keyStore;
+    string keyAlias;
+    string keyPassword;
+    int expTime;
+    string signingAlg;
+    boolean propagateToken;
     !...
 };
 

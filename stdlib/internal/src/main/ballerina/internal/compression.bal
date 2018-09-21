@@ -21,8 +21,8 @@ import ballerina/file;
 # + message - The error message
 # + cause - The error which caused the compression error
 public type CompressionError record {
-    string message,
-    error? cause,
+    string message;
+    error? cause;
     !...
 };
 

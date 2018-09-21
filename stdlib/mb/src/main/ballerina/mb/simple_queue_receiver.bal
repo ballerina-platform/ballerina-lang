@@ -103,18 +103,18 @@ public type SimpleQueueReceiver object {
 # + properties - Additional properties use in initializing the initial context
 # + queueName - Name of the target queue
 public type SimpleQueueListenerEndpointConfiguration record {
-    string username = "admin",
-    string password = "admin",
-    string host = "localhost",
-    int port = 5672,
-    string clientID = "ballerina",
-    string virtualHost = "default",
-    ServiceSecureSocket? secureSocket,
-    string connectionFactoryName = "ConnectionFactory",
-    string acknowledgementMode = "AUTO_ACKNOWLEDGE",
-    string messageSelector,
-    map properties,
-    string queueName,
+    string username = "admin";
+    string password = "admin";
+    string host = "localhost";
+    int port = 5672;
+    string clientID = "ballerina";
+    string virtualHost = "default";
+    ServiceSecureSocket? secureSocket;
+    string connectionFactoryName = "ConnectionFactory";
+    string acknowledgementMode = "AUTO_ACKNOWLEDGE";
+    string messageSelector;
+    map properties;
+    string queueName;
     !...
 };
 

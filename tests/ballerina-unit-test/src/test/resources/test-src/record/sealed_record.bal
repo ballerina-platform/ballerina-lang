@@ -156,9 +156,9 @@ function testStructWithRecordKeyword() returns Employee {
 }
 
 type PersonA record {
-    string fname,
-    string lname,
-    function() returns string fullName,
+    string fname;
+    string lname;
+    function() returns string fullName;
 	!...
 };
 

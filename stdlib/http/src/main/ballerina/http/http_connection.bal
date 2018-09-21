@@ -83,6 +83,52 @@ public type Connection object {
     # + locations - An array of URLs to which the caller can redirect to
     # + return - Returns an `error` if failed to send the redirect response
     public function redirect(Response response, RedirectCode code, string[] locations) returns error?;
+
+    # Sends the outbound response to the caller with the status 200 OK.
+    #
+    # + message - The outbound response or any payload of type `string`, `xml`, `json`, `byte[]`, `io:ByteChannel`
+    #             or `mime:Entity[]`
+    # + return - Returns an `error` if failed to respond
+    public function ok(Response|string|xml|json|byte[]|io:ByteChannel|mime:Entity[]|() message) returns error?;
+
+    # Sends the outbound response to the caller with the status 201 Created.
+    #
+    # + message - The outbound response or any payload of type `string`, `xml`, `json`, `byte[]`, `io:ByteChannel`
+    #             or `mime:Entity[]`. This message is optional.
+    # + return - Returns an `error` if failed to respond
+    public function created(Response|string|xml|json|byte[]|io:ByteChannel|mime:Entity[]|() message = ())
+                                                                                            returns error?;
+
+    # Sends the outbound response to the caller with the status 202 Accepted.
+    #
+    # + message - The outbound response or any payload of type `string`, `xml`, `json`, `byte[]`, `io:ByteChannel`
+    #             or `mime:Entity[]`. This message is optional.
+    # + return - Returns an `error` if failed to respond
+    public function accepted(Response|string|xml|json|byte[]|io:ByteChannel|mime:Entity[]|() message = ())
+                                                                                            returns error?;
+
+    # Sends the outbound response to the caller with the status 204 No Content. If the given response contains a body
+    # that will be removed.
+    #
+    # + message - Outbound response is optional
+    # + return - Returns an `error` if failed to respond
+    public function noContent(Response|() message = ()) returns error?;
+
+    # Sends the outbound response to the caller with the status 400 Bad Request.
+    #
+    # + message - The outbound response or any payload of type `string`, `xml`, `json`, `byte[]`, `io:ByteChannel`
+    #             or `mime:Entity[]`. This message is optional.
+    # + return - Returns an `error` if failed to respond
+    public function badRequest(Response|string|xml|json|byte[]|io:ByteChannel|mime:Entity[]|() message = ())
+                                                                                                returns error?;
+
+    # Sends the outbound response to the caller with the status 500 Internal Server Error.
+    #
+    # + message - The outbound response or any payload of type `string`, `xml`, `json`, `byte[]`, `io:ByteChannel`
+    #             or `mime:Entity[]`. This message is optional.
+    # + return - Returns an `error` if failed to respond
+    public function internalServerError(Response|string|xml|json|byte[]|io:ByteChannel|mime:Entity[]|() message = ())
+                                                                                                        returns error?;
 };
 
 extern function nativeRespond(Connection connection, Response response) returns error?;
@@ -141,5 +187,49 @@ function Connection::redirect(Response response, RedirectCode code, string[] loc
     locationsStr = locationsStr.substring(0, (lengthof locationsStr) - 1);
 
     response.setHeader(LOCATION, locationsStr);
+    return self.respond(response);
+}
+
+function Connection::ok(Response|string|xml|json|byte[]|io:ByteChannel|mime:Entity[]|() message) returns error? {
+    Response response = buildResponse(message);
+    response.statusCode = OK_200;
+    return self.respond(response);
+}
+
+function Connection::created(Response|string|xml|json|byte[]|io:ByteChannel|mime:Entity[]|() message = ())
+                                                                                            returns error? {
+    Response response = buildResponse(message);
+    response.statusCode = CREATED_201;
+    return self.respond(response);
+}
+
+function Connection::accepted(Response|string|xml|json|byte[]|io:ByteChannel|mime:Entity[]|() message = ())
+                                                                                            returns error? {
+    Response response = buildResponse(message);
+    response.statusCode = ACCEPTED_202;
+    return self.respond(response);
+}
+
+function Connection::noContent(Response|() message = ()) returns error? {
+    Response newResponse = new;
+    match message {
+        () => {}
+        Response response => {newResponse = response;}
+    }
+    newResponse.statusCode = NO_CONTENT_204;
+    return self.respond(newResponse);
+}
+
+function Connection::badRequest(Response|string|xml|json|byte[]|io:ByteChannel|mime:Entity[]|() message = ())
+                                                                                            returns error? {
+    Response response = buildResponse(message);
+    response.statusCode = BAD_REQUEST_400;
+    return self.respond(response);
+}
+
+function Connection::internalServerError(Response|string|xml|json|byte[]|io:ByteChannel|mime:Entity[]|() message = ())
+                                                                                            returns error? {
+    Response response = buildResponse(message);
+    response.statusCode = INTERNAL_SERVER_ERROR_500;
     return self.respond(response);
 }

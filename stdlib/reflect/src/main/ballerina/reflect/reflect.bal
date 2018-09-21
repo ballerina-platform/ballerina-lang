@@ -25,10 +25,10 @@ public extern function equals(any value1, any value2) returns (boolean);
 public type anyStruct record {};
 
 public type annotationData record {
-    string name,
-    string pkgName,
-    string pkgVersion,
-    anyStruct value,
+    string name;
+    string pkgName;
+    string pkgVersion;
+    anyStruct value;
 };
 
 public extern function getServiceAnnotations(typedesc serviceType) returns (annotationData[]);
