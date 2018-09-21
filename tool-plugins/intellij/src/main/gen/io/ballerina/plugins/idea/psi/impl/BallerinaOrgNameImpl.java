@@ -30,11 +30,11 @@ import com.intellij.psi.stubs.IStubElementType;
 
 public class BallerinaOrgNameImpl extends BallerinaNamedElementImpl<BallerinaOrgNameStub> implements BallerinaOrgName {
 
-  public BallerinaOrgNameImpl(BallerinaOrgNameStub stub, IStubElementType type) {
+  public BallerinaOrgNameImpl(@NotNull BallerinaOrgNameStub stub, @NotNull IStubElementType type) {
     super(stub, type);
   }
 
-  public BallerinaOrgNameImpl(ASTNode node) {
+  public BallerinaOrgNameImpl(@NotNull ASTNode node) {
     super(node);
   }
 

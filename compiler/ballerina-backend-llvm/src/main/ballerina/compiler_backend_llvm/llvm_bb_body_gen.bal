@@ -2,8 +2,8 @@ import ballerina/llvm;
 
 type BbBodyGenrator object {
 
-    llvm:LLVMBuilderRef builder,
-    FuncGenrator parent,
+    llvm:LLVMBuilderRef builder;
+    FuncGenrator parent;
     bir:BasicBlock bb;
 
     new(builder, parent, bb) {

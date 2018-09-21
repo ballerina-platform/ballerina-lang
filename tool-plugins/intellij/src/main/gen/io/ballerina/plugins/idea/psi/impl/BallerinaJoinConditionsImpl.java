@@ -28,7 +28,7 @@ import io.ballerina.plugins.idea.psi.*;
 
 public class BallerinaJoinConditionsImpl extends BallerinaCompositeElementImpl implements BallerinaJoinConditions {
 
-  public BallerinaJoinConditionsImpl(ASTNode node) {
+  public BallerinaJoinConditionsImpl(@NotNull ASTNode node) {
     super(node);
   }
 

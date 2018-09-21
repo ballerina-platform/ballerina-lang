@@ -134,7 +134,8 @@ public class Equals extends BlockingNativeCallableUnit {
                 return isEqual((BMap) lhsValue, (BMap) rhsValue);
             case TypeTags.ARRAY_TAG:
             case TypeTags.ANY_TAG:
-                // TODO: This block should ideally be in the ARRAY_TAG case only. Not ANY_TAG. #4505.
+            case TypeTags.TUPLE_TAG:
+                // TODO: This block should ideally be in the ARRAY_TAG, TUPLE_TAG cases only. Not ANY_TAG. #4505.
                 if (lhsValue instanceof BNewArray) {
                     BNewArray lhsArray = (BNewArray) lhsValue;
                     BNewArray rhsArray = (BNewArray) rhsValue;

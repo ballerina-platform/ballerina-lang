@@ -40,7 +40,7 @@ public type RemoteProtocol record {
     @readonly string url;
 };
 
-type Participant object {
+type Participant abstract object {
 
     string participantId;
 

@@ -85,8 +85,8 @@ public extern function xml::setAttributes(map attributes);
 # + options - xmlOptions struct for XML to JSON conversion properties
 # + return - JSON representation of the given XML
 public extern function xml::toJSON(record {
-                                         string attributePrefix = "@",
-                                         boolean preserveNamespaces = true,
+                                         string attributePrefix = "@";
+                                         boolean preserveNamespaces = true;
                                      } options) returns (json);
 
 # Searches in children recursively for elements matching the qualified name and returns a sequence containing them

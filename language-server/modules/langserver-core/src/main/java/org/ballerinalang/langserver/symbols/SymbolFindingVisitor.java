@@ -86,7 +86,9 @@ public class SymbolFindingVisitor extends LSNodeVisitor {
 
     @Override
     public void visit(BLangObjectTypeNode objectTypeNode) {
-        this.visit(objectTypeNode.initFunction);
+        if (objectTypeNode.initFunction != null) {
+            this.visit(objectTypeNode.initFunction);
+        }
         objectTypeNode.fields.forEach(field -> this.addSymbol(field, field.symbol, SymbolKind.Field));
         objectTypeNode.functions.forEach(this::visit);
     }

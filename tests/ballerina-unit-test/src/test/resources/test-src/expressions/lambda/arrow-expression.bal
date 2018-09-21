@@ -63,8 +63,8 @@ function testClosureWithCasting() returns float {
 }
 
 type Person record {
-   string name,
-    int age,
+   string name;
+    int age;
     !...
 };
 
