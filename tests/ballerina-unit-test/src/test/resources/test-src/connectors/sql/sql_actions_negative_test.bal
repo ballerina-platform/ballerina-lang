@@ -3,17 +3,17 @@ import ballerina/jdbc;
 import ballerina/io;
 
 type ResultCustomers record {
-    string FIRSTNAME,
+    string FIRSTNAME;
 };
 
 type Person record {
-    int id,
-    string name,
+    int id;
+    string name;
 };
 
 type ResultCustomers2 record {
-    string FIRSTNAME,
-    string LASTNAME,
+    string FIRSTNAME;
+    string LASTNAME;
 };
 
 function testSelectData(string jdbcUrl, string userName, string password) returns (string) {

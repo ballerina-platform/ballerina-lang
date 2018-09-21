@@ -3,14 +3,14 @@ import ballerina/sql;
 import ballerina/io;
 
 public type Customer record {
-    int customerId,
-    string name,
-    float creditLimit,
-    string country,
+    int customerId;
+    string name;
+    float creditLimit;
+    string country;
 };
 
 public type Result record {
-   int val,
+   int val;
 };
 
 function testSelect() returns (int[]) {

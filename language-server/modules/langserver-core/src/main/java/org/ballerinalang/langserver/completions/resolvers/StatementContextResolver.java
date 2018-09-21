@@ -28,7 +28,6 @@ import org.ballerinalang.langserver.completions.util.filters.StatementTemplateFi
 import org.ballerinalang.langserver.completions.util.filters.SymbolFilters;
 import org.ballerinalang.langserver.completions.util.sorters.ItemSorters;
 import org.eclipse.lsp4j.CompletionItem;
-import org.eclipse.lsp4j.InsertTextFormat;
 import org.eclipse.lsp4j.jsonrpc.messages.Either;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
@@ -43,31 +42,32 @@ import java.util.List;
 public class StatementContextResolver extends AbstractItemResolver {
     @Override
     public List<CompletionItem> resolveItems(LSServiceOperationContext context) {
-
+        Either<List<CompletionItem>, List<SymbolInfo>> itemList;
         if (isInvocationOrFieldAccess(context)) {
-            Either<List<CompletionItem>, List<SymbolInfo>> itemList =
-                    SymbolFilters.get(DelimiterBasedContentFilter.class).filterItems(context);
+            itemList = SymbolFilters.get(DelimiterBasedContentFilter.class).filterItems(context);
             return itemList.isLeft() ? itemList.getLeft() : this.getCompletionItemList(itemList.getRight());
         } else {
+            boolean supportSnippet = context.get(CompletionKeys.CLIENT_CAPABILITIES_KEY)
+                    .getCompletionItem()
+                    .getSnippetSupport();
             ArrayList<CompletionItem> completionItems = new ArrayList<>();
 
+            // Add the xmlns snippet
             CompletionItem xmlns = new CompletionItem();
+            Snippet.STMT_NAMESPACE_DECLARATION.getBlock().populateCompletionItem(xmlns, supportSnippet);
             xmlns.setLabel(ItemResolverConstants.XMLNS);
-            xmlns.setInsertText(Snippet.NAMESPACE_DECLARATION.toString());
-            xmlns.setInsertTextFormat(InsertTextFormat.Snippet);
             xmlns.setDetail(ItemResolverConstants.SNIPPET_TYPE);
             completionItems.add(xmlns);
 
             // Add the var keyword
             CompletionItem varKeyword = new CompletionItem();
-            varKeyword.setInsertText("var ");
-            varKeyword.setLabel("var");
+            Snippet.KW_VAR.getBlock().populateCompletionItem(varKeyword, supportSnippet);
+            varKeyword.setLabel(ItemResolverConstants.VAR_KEYWORD);
             varKeyword.setDetail(ItemResolverConstants.KEYWORD_TYPE);
             completionItems.add(varKeyword);
 
             // Add the statement templates
-            Either<List<CompletionItem>, List<SymbolInfo>> itemList =
-                    SymbolFilters.get(StatementTemplateFilter.class).filterItems(context);
+            itemList = SymbolFilters.get(StatementTemplateFilter.class).filterItems(context);
             // Statement Template filter always populates the left of Either
             completionItems.addAll(itemList.getLeft());
             List<SymbolInfo> filteredList = context.get(CompletionKeys.VISIBLE_SYMBOLS_KEY);

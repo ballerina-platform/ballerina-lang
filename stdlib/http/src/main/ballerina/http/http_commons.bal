@@ -113,8 +113,8 @@ public type HttpOperation "FORWARD" | "GET" | "POST" | "DELETE" | "OPTIONS" | "P
 # + path - Path to the trust store file
 # + password - Trust store password
 public type TrustStore record {
-    string path,
-    string password,
+    string path;
+    string password;
     !...
 };
 
@@ -123,8 +123,8 @@ public type TrustStore record {
 # + path - Path to the key store file
 # + password - Key store password
 public type KeyStore record {
-    string path,
-    string password,
+    string path;
+    string password;
     !...
 };
 
@@ -133,8 +133,8 @@ public type KeyStore record {
 # + name - SSL Protocol to be used (e.g.: TLS1.2)
 # + versions - SSL/TLS protocols to be enabled (e.g.: TLSv1,TLSv1.1,TLSv1.2)
 public type Protocols record {
-    string name,
-    string[] versions,
+    string name;
+    string[] versions;
     !...
 };
 
@@ -144,9 +144,9 @@ public type Protocols record {
 # + cacheSize - Maximum size of the cache
 # + cacheValidityPeriod - The time period for which a cache entry is valid
 public type ValidateCert record {
-    boolean enable,
-    int cacheSize,
-    int cacheValidityPeriod,
+    boolean enable;
+    int cacheSize;
+    int cacheValidityPeriod;
     !...
 };
 
@@ -156,9 +156,9 @@ public type ValidateCert record {
 # + cacheSize - Maximum size of the cache
 # + cacheValidityPeriod - The time period for which a cache entry is valid
 public type ServiceOcspStapling record {
-    boolean enable,
-    int cacheSize,
-    int cacheValidityPeriod,
+    boolean enable;
+    int cacheSize;
+    int cacheValidityPeriod;
     !...
 };
 
@@ -203,16 +203,14 @@ function buildResponse(Response|string|xml|json|byte[]|io:ByteChannel|mime:Entit
     return response;
 }
 
-documentation {
-    The HEAD action implementation of the Circuit Breaker. This wraps the `head()` function of the underlying
-    HTTP actions provider.
+# The HEAD action implementation of the Circuit Breaker. This wraps the `head()` function of the underlying
+# HTTP actions provider.
 
-    P{{path}} Resource path
-    P{{outRequest}} A Request struct
-    P{{requestAction}} `HttpOperation` related to the request
-    P{{httpClient}} HTTP client which uses to call the relavant functions
-    R{{}} The response for the request or an `error` if failed to establish communication with the upstream server
-}
+# + path - Resource path
+# + outRequest - A Request struct
+# + requestAction - `HttpOperation` related to the request
+# + httpClient - HTTP client which uses to call the relavant functions
+# + return - The response for the request or an `error` if failed to establish communication with the upstream server
 public function invokeEndpoint (string path, Request outRequest,
                                 HttpOperation requestAction, CallerActions httpClient) returns Response|error {
     if (HTTP_GET == requestAction) {

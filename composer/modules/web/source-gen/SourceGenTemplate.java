@@ -74,6 +74,39 @@ public class SourceGen {
                 return join(node.getAsJsonArray("topLevelNodes"), pretty, replaceLambda,
                         "", null, false, sourceGenParams) +
                         w("", sourceGenParams);
+            case "MarkdownDocumentation":
+                JsonArray markDownWS = node.getAsJsonArray("ws");
+                StringBuilder docString = new StringBuilder();
+                for (int i = 0; i < markDownWS.size(); i++) {
+                    JsonObject docWS = markDownWS.get(i).getAsJsonObject();
+
+                    docString.append(docWS.get("ws").getAsString())
+                            .append(docWS.get("text").getAsString());
+
+                    docString.append(node.getAsJsonArray("documentationLines")
+                            .get(i).getAsJsonObject().get("text").getAsString());
+                }
+
+                if (node.has("parameters")) {
+                    JsonArray parameters = node.getAsJsonArray("parameters");
+                    for (int i = 0; i < parameters.size(); i++) {
+                        JsonArray parameterWS = parameters.get(i).getAsJsonObject().getAsJsonArray("ws");
+                        for (int j = 0; j < parameterWS.size(); j++) {
+                            docString.append(parameterWS.get(j).getAsJsonObject().get("ws").getAsString())
+                                    .append(parameterWS.get(j).getAsJsonObject().get("text").getAsString());
+                        }
+                    }
+                }
+
+                if (node.has("returnParameter")) {
+                    JsonArray returnParamWS = node.getAsJsonObject("returnParameter").getAsJsonArray("ws");
+                    for (int i = 0; i < returnParamWS.size(); i++) {
+                        docString.append(returnParamWS.get(i).getAsJsonObject().get("ws").getAsString())
+                                .append(returnParamWS.get(i).getAsJsonObject().get("text").getAsString());
+                    }
+                }
+
+                return docString.toString();
             /* eslint-disable max-len */
             // auto gen start
             // auto-gen-code
@@ -231,10 +264,10 @@ public class SourceGen {
                 kind.equals("XmlElementLiteral") ||
                 kind.equals("XmlTextLiteral") ||
                 kind.equals("XmlPiLiteral")) &&
-                        node.has("ws") &&
-                        node.getAsJsonArray("ws").get(0) != null &&
-                        node.getAsJsonArray("ws").get(0).getAsJsonObject().get("text").getAsString().contains("xml")
-                        && node.getAsJsonArray("ws").get(0).getAsJsonObject().get("text").getAsString().contains("`")) {
+                node.has("ws") &&
+                node.getAsJsonArray("ws").get(0) != null &&
+                node.getAsJsonArray("ws").get(0).getAsJsonObject().get("text").getAsString().contains("xml")
+                && node.getAsJsonArray("ws").get(0).getAsJsonObject().get("text").getAsString().contains("`")) {
             node.addProperty("root", true);
             node.addProperty("startLiteral", node.getAsJsonArray("ws").get(0).getAsJsonObject().get("text").getAsString());
         }
@@ -590,6 +623,14 @@ public class SourceGen {
 
             if (node.getAsJsonObject("typeNode").get("kind").getAsString().equals("ObjectType")) {
                 node.addProperty("isObjectType", true);
+                if (node.has("ws")) {
+                    JsonArray typeDefWS = node.getAsJsonArray("ws");
+                    for (int i = 0; i < typeDefWS.size(); i++) {
+                        if (typeDefWS.get(i).getAsJsonObject().get("text").getAsString().equals("abstract")) {
+                            node.addProperty("isAbstractKeywordAvailable", true);
+                        }
+                    }
+                }
             }
 
             if (node.getAsJsonObject("typeNode").get("kind").getAsString().equals("RecordType")) {
@@ -888,6 +929,44 @@ public class SourceGen {
             } else {
                 literalWSAssignForTemplates(1, 2, node.getAsJsonArray("textFragments"),
                         node.getAsJsonArray("ws"), 2);
+            }
+        }
+
+        if (kind.equals("ArrowExpr")) {
+            if (node.has("ws") && node.getAsJsonArray("ws").size() > 0
+                    && node.getAsJsonArray("ws").get(0).getAsJsonObject().get("text")
+                    .getAsString().equals("(")) {
+                node.addProperty("hasParantheses", true);
+            }
+
+            if (node.has("parameters")) {
+                JsonArray parameters = node.getAsJsonArray("parameters");
+                for (int i = 0; i < parameters.size(); i++) {
+                    JsonObject parameter = parameters.get(i).getAsJsonObject();
+                    parameter.addProperty("arrowExprParam", true);
+                }
+            }
+        }
+
+        if (kind.equals("PatternStreamingInput")) {
+            if (node.has("ws") && node.getAsJsonArray("ws").get(0)
+                    .getAsJsonObject().get("text").getAsString().equals("(")) {
+                node.addProperty("enclosedInParenthesis", true);
+            }
+        }
+
+        if (kind.equals("SelectClause")) {
+            if (!node.has("ws")) {
+                node.addProperty("notVisible", true);
+            }
+        }
+
+        if (kind.equals("OrderByVariable")) {
+            if (!node.has("ws")) {
+                node.addProperty("noVisibleType", true);
+            } else {
+                node.addProperty("typeString", node.getAsJsonArray("ws")
+                        .get(0).getAsJsonObject().get("text").getAsString());
             }
         }
     }

@@ -80,8 +80,8 @@ public class WebSubDiscoveryWithMultipleSubscribersTestCase extends BaseTest {
 
         String publisherBal = new File("src" + File.separator + "test" + File.separator + "resources"
                 + File.separator + "websub" + File.separator + "websub_test_publisher.bal").getAbsolutePath();
-        String[] publisherArgs = {"-e b7a.websub.hub.port=9494", "-e b7a.websub.hub.remotepublish=true",
-                "-e test.hub.url=" + hubUrl, "-e test.helper.service.port=" + helperServicePortAsString};
+        String[] publisherArgs = {"-e", "b7a.websub.hub.port=9494", "-e", "b7a.websub.hub.remotepublish=true",
+                "-e", "test.hub.url=" + hubUrl, "-e", "test.helper.service.port=" + helperServicePortAsString};
 
         String publisherServiceBal = new File("src" + File.separator + "test" + File.separator + "resources"
                 + File.separator + "websub" + File.separator + "websub_test_publisher_service.bal").getAbsolutePath();
@@ -111,7 +111,7 @@ public class WebSubDiscoveryWithMultipleSubscribersTestCase extends BaseTest {
             return response.getResponseCode() == 202;
         });
 
-        String[] subscriberArgs = {"-e test.hub.url=" + hubUrl};
+        String[] subscriberArgs = {"-e", "test.hub.url=" + hubUrl};
         webSubSubscriber.startServer(subscriberBal, subscriberArgs, new int[]{subscriberServicePort});
     }
 

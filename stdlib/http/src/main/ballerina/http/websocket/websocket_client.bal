@@ -69,12 +69,12 @@ public type WebSocketClient object {
     #                    `WebSocketClient`needs to be called once to start receiving messages.
     # + secureSocket - SSL/TLS related options
 public type WebSocketClientEndpointConfig record {
-    string url,
-    typedesc? callbackService,
-    string[] subProtocols,
-    map<string> customHeaders,
-    int idleTimeoutInSeconds = -1,
-    boolean readyOnConnect = true,
-    SecureSocket? secureSocket,
+    string url;
+    typedesc? callbackService;
+    string[] subProtocols;
+    map<string> customHeaders;
+    int idleTimeoutInSeconds = -1;
+    boolean readyOnConnect = true;
+    SecureSocket? secureSocket;
     !...
 };

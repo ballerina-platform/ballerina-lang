@@ -378,6 +378,13 @@ class TreeBuilder {
 
             if (node.typeNode.kind === 'ObjectType') {
                 node.isObjectType = true;
+                if (node.ws) {
+                    for (let i = 0; i < node.ws.length; i++) {
+                        if (node.ws[i].text === "abstract") {
+                            node.isAbstractKeywordAvailable = true;
+                        }
+                    }
+                }
             }
 
             if (node.typeNode.kind === 'RecordType') {
@@ -404,7 +411,7 @@ class TreeBuilder {
 
         if (node.kind === 'RecordType') {
             if (node.restFieldType) {
-               node.isRestFieldAvailable = true;
+                node.isRestFieldAvailable = true;
             }
         }
 
@@ -665,6 +672,36 @@ class TreeBuilder {
                 literalWSAssignForTemplates(2, 3, node.textFragments, node.ws, 4);
             } else {
                 literalWSAssignForTemplates(1, 2, node.textFragments, node.ws, 2);
+            }
+        }
+
+        if (kind === 'ArrowExpr') {
+            if (node.ws && node.ws.length > 0 && node.ws[0].text === '(') {
+                node.hasParantheses = true;
+            }
+
+            for (let i = 0; i < node.parameters.length; i++) {
+                node.parameters[i].arrowExprParam = true;
+            }
+        }
+
+        if (kind === 'PatternStreamingInput') {
+            if (node.ws && node.ws[0].text === '(') {
+                node.enclosedInParenthesis = true;
+            }
+        }
+
+        if (kind === 'SelectClause') {
+            if (!node.ws) {
+                node.notVisible = true;
+            }
+        }
+
+        if (kind === 'OrderByVariable') {
+            if (!node.ws) {
+                node.noVisibleType = true;
+            } else {
+                node.typeString = node.ws[0].text;
             }
         }
     }

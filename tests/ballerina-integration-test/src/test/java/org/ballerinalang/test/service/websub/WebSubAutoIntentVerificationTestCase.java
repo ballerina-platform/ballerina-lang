@@ -87,8 +87,8 @@ public class WebSubAutoIntentVerificationTestCase extends BaseTest {
 
         String balFile = new File("src" + File.separator + "test" + File.separator + "resources"
                 + File.separator + "websub" + File.separator + "websub_test_publisher.bal").getAbsolutePath();
-        String[] publisherArgs = {"-e b7a.websub.hub.port=9191", "-e b7a.websub.hub.remotepublish=true",
-                "-e test.hub.url=" + hubUrl, "-e test.helper.service.port=" + helperServicePortAsString};
+        String[] publisherArgs = {"-e", "b7a.websub.hub.port=9191", "-e", "b7a.websub.hub.remotepublish=true",
+                "-e", "test.hub.url=" + hubUrl, "-e", "test.helper.service.port=" + helperServicePortAsString};
 
         String subscriberBal = new File("src" + File.separator + "test" + File.separator + "resources"
                 + File.separator + "websub" + File.separator + "websub_test_subscriber.bal").getAbsolutePath();
@@ -113,7 +113,7 @@ public class WebSubAutoIntentVerificationTestCase extends BaseTest {
             return response.getResponseCode() == 202;
         });
 
-        String[] subscriberArgs = {"-e test.hub.url=" + hubUrl};
+        String[] subscriberArgs = {"-e", "test.hub.url=" + hubUrl};
         webSubSubscriber.startServer(subscriberBal, subscriberArgs, new int[]{servicePort});
     }
 

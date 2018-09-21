@@ -90,7 +90,7 @@ public class WebSubRedirectionTestCase extends BaseTest {
         Executors.newSingleThreadExecutor().execute(() -> {
             try {
                 webSubPublisher.runMain(publisherBal,
-                                        new String[]{"-e test.helper.service.port=" + helperServicePortAsString},
+                                        new String[]{"-e", "test.helper.service.port=" + helperServicePortAsString},
                                         new String[0]);
             } catch (BallerinaTestException e) {
                 //ignored since any errors here would be reflected as test failures

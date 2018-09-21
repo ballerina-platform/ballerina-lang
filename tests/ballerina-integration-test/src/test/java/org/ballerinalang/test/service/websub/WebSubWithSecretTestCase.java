@@ -64,7 +64,7 @@ public class WebSubWithSecretTestCase extends BaseTest {
     private final String helperServicePortAsString = "8092";
 
     private static String hubUrl = "https://localhost:9292/websub/hub";
-    private static final String INTENT_VERIFICATION_SUBSCRIBER_LOG = "\"Intent verified for subscription request\"";
+    private static final String INTENT_VERIFICATION_SUBSCRIBER_LOG = "Intent verified for subscription request";
     private static final String INTERNAL_HUB_NOTIFICATION_SUBSCRIBER_LOG =
             "WebSub Notification Received: {\"action\":\"publish\", \"mode\":\"internal-hub\"}";
     private static final String REMOTE_HUB_NOTIFICATION_SUBSCRIBER_LOG =
@@ -81,8 +81,8 @@ public class WebSubWithSecretTestCase extends BaseTest {
 
         String publisherBal = new File("src" + File.separator + "test" + File.separator + "resources"
                 + File.separator + "websub" + File.separator + "websub_test_publisher.bal").getAbsolutePath();
-        String[] clientArgs = {"-e b7a.websub.hub.remotepublish=true", "-e test.hub.url=" + hubUrl,
-                                "-e test.helper.service.port=" + helperServicePortAsString};
+        String[] clientArgs = {"-e", "b7a.websub.hub.remotepublish=true", "-e", "test.hub.url=" + hubUrl,
+                "-e", "test.helper.service.port=" + helperServicePortAsString};
 
         String subscriberBal = new File("src" + File.separator + "test" + File.separator + "resources"
                 + File.separator + "websub" + File.separator +

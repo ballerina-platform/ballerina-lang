@@ -113,11 +113,11 @@ public class TryCatchThrowStmtTest {
         BMap<String, BValue> stackFrame1 = (BMap<String, BValue>) returns[0];
         Assert.assertEquals(stackFrame1.get("callableName").stringValue(), "testErrorCallStackFrame");
         Assert.assertEquals(stackFrame1.get("fileName").stringValue(), "try-catch-stmt.bal");
-        Assert.assertEquals(((BInteger) stackFrame1.get("lineNumber")).intValue(), 95);
+        Assert.assertEquals(((BInteger) stackFrame1.get("lineNumber")).intValue(), 98);
         BMap<String, BValue> stackFrame2 = (BMap<String, BValue>) returns[1];
         Assert.assertEquals(stackFrame2.get("callableName").stringValue(), "testUncaughtException");
         Assert.assertEquals(stackFrame2.get("fileName").stringValue(), "try-catch-stmt.bal");
-        Assert.assertEquals(((BInteger) stackFrame2.get("lineNumber")).intValue(), 88);
+        Assert.assertEquals(((BInteger) stackFrame2.get("lineNumber")).intValue(), 91);
     }
 
     @Test(description = "Test scope issue when using try catch inside while loop")
@@ -214,22 +214,22 @@ public class TryCatchThrowStmtTest {
 
     @Test()
     public void testDuplicateCatchBlock() {
-        BAssertUtil.validateError(compileResultNegative, 3, "error 'TestError' already caught in catch block", 38, 14);
+        BAssertUtil.validateError(compileResultNegative, 3, "error 'TestError' already caught in catch block", 39, 14);
     }
 
     @Test(description = "test not all catch blocks including a return statement when the finally block does not "
             + "contain a return statement")
     public void testIncorrectReturnsInCatchBlocks() {
-        BAssertUtil.validateError(compileResultNegative, 4, "this function must return a result", 44, 1);
+        BAssertUtil.validateError(compileResultNegative, 4, "this function must return a result", 45, 1);
     }
 
     @Test()
     public void testUnreachableReturnWithTryCatch() {
-        BAssertUtil.validateError(compileResultNegative, 5, "unreachable code", 64, 5);
+        BAssertUtil.validateError(compileResultNegative, 5, "unreachable code", 65, 5);
     }
 
     @Test()
     public void testUnreachableReturnWithTryCatchFinally() {
-        BAssertUtil.validateError(compileResultNegative, 6, "unreachable code", 77, 5);
+        BAssertUtil.validateError(compileResultNegative, 6, "unreachable code", 78, 5);
     }
 }

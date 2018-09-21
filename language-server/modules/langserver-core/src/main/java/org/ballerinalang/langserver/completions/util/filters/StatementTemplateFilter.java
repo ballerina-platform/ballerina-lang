@@ -35,130 +35,128 @@ import java.util.List;
  */
 public class StatementTemplateFilter extends AbstractSymbolFilter {
     @Override
-    public Either<List<CompletionItem>, List<SymbolInfo>> filterItems(LSServiceOperationContext completionContext) {
+    public Either<List<CompletionItem>, List<SymbolInfo>> filterItems(LSServiceOperationContext context) {
         ArrayList<CompletionItem> completionItems = new ArrayList<>();
-
-        // Populate the statement templates
+        boolean isSnippet = context.get(CompletionKeys.CLIENT_CAPABILITIES_KEY).getCompletionItem().getSnippetSupport();
 
         // Populate If Statement template
         CompletionItem ifItem = new CompletionItem();
+        Snippet.STMT_IF.getBlock().populateCompletionItem(ifItem, isSnippet);
         ifItem.setLabel(ItemResolverConstants.IF);
-        ifItem.setInsertText(Snippet.IF.toString());
         ifItem.setDetail(ItemResolverConstants.STATEMENT_TYPE);
         completionItems.add(ifItem);
 
         // Populate While Statement template
         CompletionItem whileItem = new CompletionItem();
+        Snippet.STMT_WHILE.getBlock().populateCompletionItem(whileItem, isSnippet);
         whileItem.setLabel(ItemResolverConstants.WHILE);
-        whileItem.setInsertText(Snippet.WHILE.toString());
         whileItem.setDetail(ItemResolverConstants.STATEMENT_TYPE);
         completionItems.add(whileItem);
 
         // Populate Lock Statement template
         CompletionItem lockItem = new CompletionItem();
+        Snippet.STMT_LOCK.getBlock().populateCompletionItem(lockItem, isSnippet);
         lockItem.setLabel(ItemResolverConstants.LOCK);
-        lockItem.setInsertText(Snippet.LOCK.toString());
         lockItem.setDetail(ItemResolverConstants.STATEMENT_TYPE);
         completionItems.add(lockItem);
 
         // Populate Foreach Statement template
         CompletionItem forEachItem = new CompletionItem();
+        Snippet.STMT_FOREACH.getBlock().populateCompletionItem(forEachItem, isSnippet);
         forEachItem.setLabel(ItemResolverConstants.FOREACH);
-        forEachItem.setInsertText(Snippet.FOREACH.toString());
         forEachItem.setDetail(ItemResolverConstants.STATEMENT_TYPE);
         completionItems.add(forEachItem);
 
         // Populate Fork Statement template
-        // TODO: Should make this a snippet type and move to specific sorters
         CompletionItem forkItem = new CompletionItem();
+        Snippet.STMT_FORK_JOIN.getBlock().populateCompletionItem(forkItem, isSnippet);
         forkItem.setLabel(ItemResolverConstants.FORK);
-        forkItem.setInsertText(Snippet.FORK.toString());
         forkItem.setDetail(ItemResolverConstants.STATEMENT_TYPE);
         completionItems.add(forkItem);
 
         // Populate Try Catch Statement template
         CompletionItem tryCatchItem = new CompletionItem();
+        Snippet.STMT_TRY_CATCH.getBlock().populateCompletionItem(tryCatchItem, isSnippet);
         tryCatchItem.setLabel(ItemResolverConstants.TRY);
-        tryCatchItem.setInsertText(Snippet.TRY_CATCH.toString());
         tryCatchItem.setDetail(ItemResolverConstants.STATEMENT_TYPE);
         completionItems.add(tryCatchItem);
 
         // Populate Transaction Statement template
         CompletionItem transactionItem = new CompletionItem();
+        Snippet.STMT_TRANSACTION.getBlock().populateCompletionItem(transactionItem, isSnippet);
         transactionItem.setLabel(ItemResolverConstants.TRANSACTION);
-        transactionItem.setInsertText(Snippet.TRANSACTION.toString());
         transactionItem.setDetail(ItemResolverConstants.STATEMENT_TYPE);
         completionItems.add(transactionItem);
 
         // Populate Trigger Worker Statement template
-        CompletionItem workerInvokeItem = new CompletionItem();
-        workerInvokeItem.setLabel(ItemResolverConstants.TRIGGER_WORKER);
-        workerInvokeItem.setInsertText(Snippet.TRIGGER_WORKER.toString());
-        workerInvokeItem.setDetail(ItemResolverConstants.STATEMENT_TYPE);
-        completionItems.add(workerInvokeItem);
+        CompletionItem workerTriggerItem = new CompletionItem();
+        Snippet.STMT_WORKER_TRIGGER.getBlock().populateCompletionItem(workerTriggerItem, isSnippet);
+        workerTriggerItem.setLabel(ItemResolverConstants.TRIGGER_WORKER);
+        workerTriggerItem.setDetail(ItemResolverConstants.STATEMENT_TYPE);
+        completionItems.add(workerTriggerItem);
 
         // Populate Worker Reply Statement template
         CompletionItem workerReplyItem = new CompletionItem();
+        Snippet.STMT_WORKER_REPLY.getBlock().populateCompletionItem(workerReplyItem, isSnippet);
         workerReplyItem.setLabel(ItemResolverConstants.WORKER_REPLY);
-        workerReplyItem.setInsertText(Snippet.WORKER_REPLY.toString());
         workerReplyItem.setDetail(ItemResolverConstants.STATEMENT_TYPE);
         completionItems.add(workerReplyItem);
         
         // Populate Match statement template
         CompletionItem matchItem = new CompletionItem();
+        Snippet.STMT_MATCH.getBlock().populateCompletionItem(matchItem, isSnippet);
         matchItem.setLabel(ItemResolverConstants.MATCH);
-        matchItem.setInsertText(Snippet.MATCH.toString());
         matchItem.setDetail(ItemResolverConstants.STATEMENT_TYPE);
         completionItems.add(matchItem);
         
-        if (completionContext.get(CompletionKeys.LOOP_COUNT_KEY) > 0
-                && !completionContext.get(CompletionKeys.CURRENT_NODE_TRANSACTION_KEY)) {
+        if (context.get(CompletionKeys.LOOP_COUNT_KEY) > 0 
+                && !context.get(CompletionKeys.CURRENT_NODE_TRANSACTION_KEY)) {
             /*
             Populate Continue Statement template only if enclosed within a looping construct
             and not in immediate transaction construct
              */
             CompletionItem nextItem = new CompletionItem();
+            Snippet.STMT_CONTINUE.getBlock().populateCompletionItem(nextItem, isSnippet);
             nextItem.setLabel(ItemResolverConstants.CONTINUE);
-            nextItem.setInsertText(Snippet.CONTINUE.toString());
             nextItem.setDetail(ItemResolverConstants.STATEMENT_TYPE);
             completionItems.add(nextItem);
         }
         
-        if (completionContext.get(CompletionKeys.LOOP_COUNT_KEY) > 0) {
+        if (context.get(CompletionKeys.LOOP_COUNT_KEY) > 0) {
             // Populate Break Statement template only if there is an enclosing looping construct such as while/ foreach
             CompletionItem breakItem = new CompletionItem();
+            Snippet.STMT_BREAK.getBlock().populateCompletionItem(breakItem, isSnippet);
             breakItem.setLabel(ItemResolverConstants.BREAK);
-            breakItem.setInsertText(Snippet.BREAK.toString());
             breakItem.setDetail(ItemResolverConstants.STATEMENT_TYPE);
             completionItems.add(breakItem);
         }
 
         // Populate Return Statement template
         CompletionItem returnItem = new CompletionItem();
+        Snippet.STMT_RETURN.getBlock().populateCompletionItem(returnItem, isSnippet);
         returnItem.setLabel(ItemResolverConstants.RETURN);
-        returnItem.setInsertText(Snippet.RETURN.toString());
         returnItem.setDetail(ItemResolverConstants.STATEMENT_TYPE);
         completionItems.add(returnItem);
         
-        if (completionContext.get(CompletionKeys.TRANSACTION_COUNT_KEY) > 0) {
+        if (context.get(CompletionKeys.TRANSACTION_COUNT_KEY) > 0) {
             // Populate Worker Reply Statement template on if there is at least one enclosing transaction construct 
             CompletionItem abortItem = new CompletionItem();
+            Snippet.STMT_ABORT.getBlock().populateCompletionItem(abortItem, isSnippet);
             abortItem.setLabel(ItemResolverConstants.ABORT);
-            abortItem.setInsertText(Snippet.ABORT.toString());
             abortItem.setDetail(ItemResolverConstants.STATEMENT_TYPE);
             completionItems.add(abortItem);
 
             CompletionItem retryItem = new CompletionItem();
+            Snippet.STMT_RETRY.getBlock().populateCompletionItem(retryItem, isSnippet);
             retryItem.setLabel(ItemResolverConstants.RETRY);
-            retryItem.setInsertText(Snippet.RETRY.toString());
             retryItem.setDetail(ItemResolverConstants.STATEMENT_TYPE);
             completionItems.add(retryItem);
         }
 
         // Populate Throw Statement template
         CompletionItem throwItem = new CompletionItem();
+        Snippet.STMT_THROW.getBlock().populateCompletionItem(throwItem, isSnippet);
         throwItem.setLabel(ItemResolverConstants.THROW);
-        throwItem.setInsertText(Snippet.THROW.toString());
         throwItem.setDetail(ItemResolverConstants.STATEMENT_TYPE);
         completionItems.add(throwItem);
 
