@@ -137,13 +137,13 @@ import org.wso2.ballerinalang.util.Flags;
 import org.wso2.ballerinalang.util.Lists;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.Stack;
+import java.util.TreeSet;
 
 import static org.wso2.ballerinalang.compiler.util.Constants.MAIN_FUNCTION_NAME;
 
@@ -845,19 +845,28 @@ public class CodeAnalyzer extends BLangNodeVisitor {
             analyzeExpr(kv.valueExpr);
         });
 
-        Set<String> names = new HashSet<>();
+        Set<Object> names = new TreeSet<>((l, r) -> l.equals(r) ? 0 : 1);
         for (BLangRecordLiteral.BLangRecordKeyValue recFieldDecl : keyValuePairs) {
-            BLangExpression keyExpr = recFieldDecl.getKey();
-            if (keyExpr.getKind() == NodeKind.SIMPLE_VARIABLE_REF) {
-                BLangSimpleVarRef keyRef = (BLangSimpleVarRef) keyExpr;
+            BLangExpression key = recFieldDecl.getKey();
+            if (key.getKind() == NodeKind.SIMPLE_VARIABLE_REF) {
+                BLangSimpleVarRef keyRef = (BLangSimpleVarRef) key;
                 if (names.contains(keyRef.variableName.value)) {
-                    TypeKind assigneeType = recordLiteral.parent.type.getKind();
-                    this.dlog.error(keyExpr.pos, DiagnosticCode.DUPLICATE_RECORD_LITERAL,
-                            assigneeType.typeName(), keyRef);
+                    logDuplicateKeyError(recordLiteral, keyRef, key.pos);
                 }
                 names.add(keyRef.variableName.value);
+            } else if (key.getKind() == NodeKind.LITERAL) {
+                BLangLiteral keyLiteral = (BLangLiteral) key;
+                if (names.contains(keyLiteral.value)) {
+                    logDuplicateKeyError(recordLiteral, keyLiteral, key.pos);
+                }
             }
         }
+    }
+
+    private void logDuplicateKeyError(BLangRecordLiteral recordLiteral, BLangExpression key, DiagnosticPos pos) {
+        String assigneeType = recordLiteral.parent.type.getKind().typeName();
+        this.dlog.error(pos, DiagnosticCode.DUPLICATE_KEY_IN_RECORD_LITERAL,
+                assigneeType, key);
     }
 
     public void visit(BLangTableLiteral tableLiteral) {

@@ -172,4 +172,17 @@ public class MapInitializerExprTest {
             }
         }
     }
+
+    @Test(description = "Test map initializer expression with duplicated keys when one key is a string literal")
+    public void mapInitWithDuplicatedKeysOneStringKeyTest() {
+        try {
+            BValue[] returns = BRunUtil.invoke(compileResult, "duplicatedMapKeysStrKey");
+            Assert.fail();
+        } catch (IllegalStateException e) {
+            String errorMessage = e.getMessage();
+            if (!errorMessage.contains("invalid usage of map literal: duplicate key 'key'")) {
+                throw e;
+            }
+        }
+    }
 }
