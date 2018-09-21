@@ -690,7 +690,9 @@ type PendingSubscriptionChangeRequest object {
     # Function to check if two pending subscription change requests are equal.
     #
     # + pendingRequest - The pending subscription change request to check against
-    function equals(PendingSubscriptionChangeRequest pendingRequest) returns (boolean) {
+    #
+    # + return - `boolean` indicating whether the requests are equal or not
+    function equals(PendingSubscriptionChangeRequest pendingRequest) returns boolean {
         return pendingRequest.mode == mode && pendingRequest.topic == topic && pendingRequest.callback == callback;
     }
 };
