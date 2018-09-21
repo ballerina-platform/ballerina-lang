@@ -65,7 +65,6 @@ import java.net.URL;
 import java.util.Optional;
 
 import static io.netty.handler.codec.http.HttpHeaderNames.ACCEPT_ENCODING;
-import static org.ballerinalang.mime.util.MimeConstants.REQUEST_ENTITY_FIELD;
 import static org.ballerinalang.net.http.HttpConstants.ANN_CONFIG_ATTR_COMPRESSION;
 import static org.ballerinalang.net.http.HttpConstants.CLIENT_ENDPOINT_CONFIG;
 import static org.ballerinalang.net.http.HttpConstants.CLIENT_ENDPOINT_SERVICE_URI;
@@ -345,10 +344,23 @@ public abstract class AbstractHTTPAction implements InterruptibleNativeCallableU
             future.setHttpConnectorListener(httpClientConnectorLister);
         }
         try {
-            if (boundaryString != null) {
-                serializeMultiparts(dataContext.context, messageOutputStream, boundaryString);
-            } else {
-                serializeDataSource(dataContext.context, messageOutputStream);
+            BMap<String, BValue> requestStruct = ((BMap<String, BValue>) dataContext.context.getNullableRefArgument(1));
+
+            if (requestStruct != null) {
+                BMap<String, BValue> entityStruct = extractEntity(requestStruct);
+                if (entityStruct != null) {
+                    if (boundaryString != null) {
+                        serializeMultiparts(entityStruct, messageOutputStream, boundaryString);
+                    } else {
+                        serializeDataSource(entityStruct, messageOutputStream);
+                    }
+                } else {
+                    //This is reached when it is a passthrough scenario(the body has not been built) or when the
+                    // entity body is empty/null. It is not possible to differentiate the two scenarios in Ballerina,
+                    // hence the value for passthrough is set to be true for both cases because transport side will
+                    // interpret this value only when there is an unbuilt body in carbon message.
+                    outboundRequestMsg.setPassthrough(true);
+                }
             }
         } catch (IOException | EncoderException serializerException) {
             // We don't have to do anything here as the client connector will notify
@@ -380,27 +392,18 @@ public abstract class AbstractHTTPAction implements InterruptibleNativeCallableU
      * Serialize multipart entity body. If an array of body parts exist, encode body parts else serialize body content
      * if it exist as a byte channel.
      *
-     * @param context             Represent the ballerina context which is the runtime state of the program
+     * @param entityStruct        Represents the entity that holds the actual body
      * @param boundaryString      Boundary string that should be used in encoding body parts
      * @param messageOutputStream Output stream to which the payload is written
      */
-    private void serializeMultiparts(Context context, OutputStream messageOutputStream, String boundaryString)
-            throws IOException {
-        BMap<String, BValue> entityStruct = getEntityStruct(context);
-        if (entityStruct != null) {
-            BRefValueArray bodyParts = EntityBodyHandler.getBodyPartArray(entityStruct);
-            if (bodyParts != null && bodyParts.size() > 0) {
-                serializeMultipartDataSource(messageOutputStream, boundaryString,
-                                             entityStruct);
-            } else { //If the content is in a byte channel
-                serializeDataSource(context, messageOutputStream);
-            }
+    private void serializeMultiparts(BMap<String, BValue> entityStruct, OutputStream messageOutputStream,
+                                     String boundaryString) throws IOException {
+        BRefValueArray bodyParts = EntityBodyHandler.getBodyPartArray(entityStruct);
+        if (bodyParts != null && bodyParts.size() > 0) {
+            serializeMultipartDataSource(messageOutputStream, boundaryString, entityStruct);
+        } else { //If the content is in a byte channel
+            serializeDataSource(entityStruct, messageOutputStream);
         }
-    }
-
-    private BMap<String, BValue> getEntityStruct(Context context) {
-        BMap<String, BValue> requestStruct = ((BMap<String, BValue>) context.getRefArgument(1));
-        return (BMap<String, BValue>) requestStruct.get(REQUEST_ENTITY_FIELD);
     }
 
     /**
@@ -417,24 +420,16 @@ public abstract class AbstractHTTPAction implements InterruptibleNativeCallableU
         HttpUtil.closeMessageOutputStream(messageOutputStream);
     }
 
-    private void serializeDataSource(Context context, OutputStream messageOutputStream) throws IOException {
-        BMap<String, BValue> requestStruct = ((BMap<String, BValue>) context.getNullableRefArgument(1));
-        if (requestStruct == null) {
-            return;
-        }
-
-        BMap<String, BValue> entityStruct = extractEntity(requestStruct);
-        if (entityStruct != null) {
-            BValue messageDataSource = EntityBodyHandler.getMessageDataSource(entityStruct);
-            if (messageDataSource != null) {
-                HttpUtil.serializeDataSource(messageDataSource, entityStruct, messageOutputStream);
-                HttpUtil.closeMessageOutputStream(messageOutputStream);
-            } else { //When the entity body is a byte channel and when it is not null
-                if (EntityBodyHandler.getByteChannel(entityStruct) != null) {
-                    EntityBodyHandler.writeByteChannelToOutputStream(entityStruct, messageOutputStream);
-                    HttpUtil.closeMessageOutputStream(messageOutputStream);
-                }
-            }
+    private void serializeDataSource(BMap<String, BValue> entityStruct, OutputStream messageOutputStream)
+            throws IOException {
+        BValue messageDataSource = EntityBodyHandler.getMessageDataSource(entityStruct);
+        if (messageDataSource != null) {
+            HttpUtil.serializeDataSource(messageDataSource, entityStruct, messageOutputStream);
+            HttpUtil.closeMessageOutputStream(messageOutputStream);
+        } else if (EntityBodyHandler.getByteChannel(entityStruct) != null) {
+            //When the entity body is a byte channel and when it is not null
+            EntityBodyHandler.writeByteChannelToOutputStream(entityStruct, messageOutputStream);
+            HttpUtil.closeMessageOutputStream(messageOutputStream);
         }
     }
 
