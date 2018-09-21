@@ -38,6 +38,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.CompilerOptions;
 import org.wso2.ballerinalang.compiler.util.ProjectDirConstants;
+import org.wso2.ballerinalang.compiler.util.ProjectDirs;
 import org.wso2.ballerinalang.programfile.CompiledBinaryFile;
 import org.wso2.ballerinalang.programfile.ProgramFileWriter;
 import org.wso2.ballerinalang.util.RepoUtils;
@@ -97,8 +98,7 @@ public class LauncherUtils {
 
         if (srcPathStr.endsWith(BLANG_EXEC_FILE_SUFFIX)) {
             programFile = BLangProgramLoader.read(sourcePath);
-        } else if (Files.isRegularFile(fullPath) &&
-                srcPathStr.endsWith(BLANG_SRC_FILE_SUFFIX) &&
+        } else if (Files.isRegularFile(fullPath) && srcPathStr.endsWith(BLANG_SRC_FILE_SUFFIX) &&
                 !RepoUtils.hasProjectRepo(sourceRootPath)) {
             programFile = compile(fullPath.getParent(), fullPath.getFileName(), offline);
         } else if (Files.isDirectory(sourceRootPath)) {
@@ -114,6 +114,13 @@ public class LauncherUtils {
                     sourcePath.getParent() != null) {
                 throw createLauncherException("you are trying to run a ballerina file inside a package within a " +
                                                       "project. Try running 'ballerina run <package-name>'");
+            }
+            // Checks if the source path is a package
+            if (Files.isDirectory(fullPath)) {
+                // Checks if the package contains ballerina source files
+                if (!ProjectDirs.containsSourceFiles(fullPath)) {
+                    throw createLauncherException("no ballerina source files found in package " + sourcePath);
+                }
             }
             programFile = compile(sourceRootPath, sourcePath, offline);
         } else {
