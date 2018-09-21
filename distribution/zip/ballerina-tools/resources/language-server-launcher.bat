@@ -39,30 +39,25 @@ set "DEBUG_MODE="
 set DEBUG_PORT=5005;
 rem ---------------------------------------------------------------------------
 
-:checkJava
-if "%JAVA_HOME%" == "" goto setJavaHome
-if not exist "%JAVA_HOME%\bin\java.exe" goto setJavaHome
-goto checkServer
+rem -------------------------- set BALLERINA_HOME -----------------------------
+:checkServer
+rem TODO: Validate BALLERINA_HOME
+rem %~sdp0 is expanded pathname of the current script under NT with spaces in the path removed
+set BALLERINA_HOME=%~sdp0..\..\..\..
+goto setJava
 
-
-:setJavaHome
+:setJava
 set "%JAVA_HOME%"="%BALLERINA_HOME%\bre\lib\jre1.8.0_172"
+if not exist "%JAVA_HOME%\bin\java.exe" goto checkJavaHome
+goto updateClasspath
+
+:checkJava
+if "%JAVA_HOME%" == "" goto noJavaHome
 if not exist "%JAVA_HOME%\bin\java.exe" goto noJavaHome
-goto checkServer
+goto updateClasspath
 
 :noJavaHome
 echo "You must set the JAVA_HOME variable before running Ballerina."
-goto end
-
-rem ----- set BALLERINA_HOME ----------------------------
-:checkServer
-rem %~sdp0 is expanded pathname of the current script under NT with spaces in the path removed
-set BALLERINA_HOME=%~sdp0..\..\..\..
-
-goto updateClasspath
-
-:noServerHome
-echo BALLERINA_HOME is set incorrectly or BALLERINA could not be located. Please set BALLERINA_HOME.
 goto end
 
 rem ----- update classpath -----------------------------------------------------
@@ -98,6 +93,7 @@ goto end
 :doneStart
 if "%OS%"=="Windows_NT" @setlocal
 if "%OS%"=="WINNT" @setlocal
+
 rem find the version of the jdk
 :findJdk
 
