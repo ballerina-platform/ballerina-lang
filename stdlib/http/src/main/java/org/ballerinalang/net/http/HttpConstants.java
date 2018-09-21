@@ -107,6 +107,8 @@ public class HttpConstants {
     public static final String ANN_CONFIG_ATTR_SSL_PROTOCOL = "sslProtocol";
     public static final String ANN_CONFIG_ATTR_VALIDATE_CERT_ENABLED = "validateCertEnabled";
     public static final String ANN_CONFIG_ATTR_COMPRESSION = "compression";
+    public static final String ANN_CONFIG_ATTR_COMPRESSION_ENABLE = "enable";
+    public static final String ANN_CONFIG_ATTR_COMPRESSION_CONTENT_TYPES = "contentTypes";
     public static final String ANN_CONFIG_ATTR_CACHE_SIZE = "cacheSize";
     public static final String ANN_CONFIG_ATTR_CACHE_VALIDITY_PERIOD = "cacheValidityPeriod";
     public static final String ANN_CONFIG_ATTR_WEBSOCKET = "webSocket";
