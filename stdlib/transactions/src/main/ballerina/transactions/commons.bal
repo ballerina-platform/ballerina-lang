@@ -166,9 +166,9 @@ function getParticipantProtocolAt(string protocolName, int transactionBlockId) r
 # corresponding to the coordinationType will also be created and stored as an initiated transaction.
 #
 # + coordinationType - The type of the coordination relevant to the transaction block for which this TransactionContext
-#                      is being created for
-# + transactionBlockId - The ID of the transaction block
-# + return - The created TransactionContext or error if the coordinationType is invalid
+#                      is being created for.
+# + transactionBlockId - The ID of the transaction block.
+# + return - TransactionContext if the coordination type is valid or an error in case of an invalid coordination type.
 function createTransactionContext(string coordinationType, int transactionBlockId) returns TransactionContext|error {
     if (!isValidCoordinationType(coordinationType)) {
         string msg = "Invalid-Coordination-Type:" + coordinationType;
@@ -301,9 +301,9 @@ function getParticipant2pcClient(string participantURL) returns Participant2pcCl
 
 # Registers a participant with the initiator's coordinator. This function will be called by the participant.
 #
-# + transactionId - ID of the transaction to which this participant is registering with.
+# + transactionId -  Global transaction ID to which this participant is registering with.
 # + transactionBlockId - The local ID of the transaction block on the participant.
-# + registerAtURL - The URL of the initiator to which this participant will register with.
+# + registerAtURL - The URL of the coordinator.
 # + participantProtocols - The coordination protocals supported by the participant.
 # + return - TransactionContext if the registration is successful or an error in case of a failure.
 public function registerParticipantWithRemoteInitiator(string transactionId, int transactionBlockId,
