@@ -16,7 +16,7 @@ function basicClosure() returns (function (int) returns int) {
     return foo;
 }
 
-// Example function with multiple levels of anonymous functions in which the
+// Example function with multiple levels of anonymous functions where the
 // innermost anonymous function has access to all of its outer scope variables.
 function multilevelClosure() returns (function (int) returns int) {
     int a = 2;
@@ -34,8 +34,8 @@ function multilevelClosure() returns (function (int) returns int) {
     return func1;
 }
 
-// Example showing how function pointers are passed around with closures
-// and inner scope anonymous function access the outer scope variables.
+// Example to represents how function pointers are passed with closures
+// so that the inner scope anonymous function can access the outer scope variables.
 function functionPointers(int a) returns
                     (function (int) returns (function (int) returns int)) {
     return function (int b) returns (function (int) returns int) {
@@ -52,7 +52,7 @@ public function main() {
     int result1 = foo(3);
     io:println("Answer: " + result1);
 
-    // This function invocation shows multiple levels of anonymous functions
+    // Function invocation that represents multiple levels of anonymous functions
     // with closure support.
     var bar = multilevelClosure();
     int result2 = bar(5);
