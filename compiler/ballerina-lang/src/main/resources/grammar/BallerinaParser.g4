@@ -94,10 +94,14 @@ typeDefinition
 objectBody
     :   objectMember* objectInitializer? objectMember*
     ;
-
 objectMember
     :   objectFieldDefinition
     |   objectFunctionDefinition
+    |   typeReference
+    ;
+
+typeReference
+    :   MUL userDefineTypeName
     ;
 
 objectInitializer

@@ -481,6 +481,15 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         this.pkgBuilder.addObjectType(getCurrentPos(ctx), getWS(ctx), isFieldAnalyseRequired, isAnonymous, isAbstract);
     }
 
+    @Override
+    public void exitTypeReference(BallerinaParser.TypeReferenceContext ctx) {
+        if (ctx.exception != null) {
+            return;
+        }
+
+        this.pkgBuilder.addTypeReference(getCurrentPos(ctx), getWS(ctx));
+    }
+
     /**
      * {@inheritDoc}
      */

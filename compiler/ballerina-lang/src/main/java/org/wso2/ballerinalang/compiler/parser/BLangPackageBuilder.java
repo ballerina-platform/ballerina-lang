@@ -3395,4 +3395,9 @@ public class BLangPackageBuilder {
     void startOnCompensationBlock() {
         startFunctionDef();
     }
+
+    public void addTypeReference(DiagnosticPos currentPos, Set<Whitespace> ws) {
+        // TODO Auto-generated method stub
+        
+    }
 }
