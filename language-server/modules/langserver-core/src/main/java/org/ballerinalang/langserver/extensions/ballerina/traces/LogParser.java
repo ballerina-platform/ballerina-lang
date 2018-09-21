@@ -91,18 +91,16 @@ public class LogParser {
      * @return log Trace
      */
     static Message fromString(String logLine) {
-        Message message = new Message();
-        message.setId(getId(logLine));
-        message.setDirection(getDirection(logLine));
+        String id = getId(logLine);
+        String direction = getDirection(logLine);
         String header = getHeader(logLine);
         String headerType = getHeaderType(logLine);
         String payload = getPayload(header);
-        message.setHeaders(removePayload(header, payload));
-        message.setHeaderType(headerType);
-        message.setContentType(getContentType(logLine));
-        message.setHttpMethod(getHttpMethod(logLine));
-        message.setPath(getPath(logLine));
-        message.setPayload(payload);
-        return message;
+        String headers = removePayload(header, payload);
+        String httpMethod = getHttpMethod(logLine);
+        String path = getPath(logLine);
+        String contentType = getContentType(logLine);
+
+        return new Message(id, direction, headers, httpMethod, path, contentType, payload, headerType);
     }
 }

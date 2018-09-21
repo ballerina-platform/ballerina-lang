@@ -93,48 +93,4 @@ public class TraceRecord {
     public String getId() {
         return id;
     }
-
-    public void setRawMessage(String rawMessage) {
-        this.rawMessage = rawMessage;
-    }
-
-    public void setThread(String thread) {
-        this.thread = thread;
-    }
-
-    public void setSourceMethod(String sourceMethod) {
-        this.sourceMethod = sourceMethod;
-    }
-
-    public void setSourceClass(String sourceClass) {
-        this.sourceClass = sourceClass;
-    }
-
-    public void setLogger(String logger) {
-        this.logger = logger;
-    }
-
-    public void setSequence(String sequence) {
-        this.sequence = sequence;
-    }
-
-    public void setMillis(String millis) {
-        this.millis = millis;
-    }
-
-    public void setLogDate(String logDate) {
-        this.logDate = logDate;
-    }
-
-    public void setLevel(String level) {
-        this.level = level;
-    }
-
-    public void setId(String id) {
-        this.id = id;
-    }
-
-    public void setMessage(Message message) {
-        this.message = message;
-    }
 }
