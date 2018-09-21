@@ -3,44 +3,44 @@ import ballerina/jdbc;
 import ballerina/sql;
 
 type Person record {
-    int id,
-    int age,
-    float salary,
-    string name,
-    boolean married,
+    int id;
+    int age;
+    float salary;
+    string name;
+    boolean married;
 };
 
 type Company record {
-    int id,
-    string name,
+    int id;
+    string name;
 };
 
 type TypeTest record {
-    int id,
-    json jsonData,
-    xml xmlData,
+    int id;
+    json jsonData;
+    xml xmlData;
 };
 
 type BlobTypeTest record {
-    int id,
-    byte[] blobData,
+    int id;
+    byte[] blobData;
 };
 
 type AnyTypeTest record {
-    int id,
-    any anyData,
+    int id;
+    any anyData;
 };
 
 type ArraTypeTest record {
-    int id,
-    int[] intArrData,
-    float[] floatArrData,
-    string[] stringArrData,
-    boolean[] booleanArrData,
+    int id;
+    int[] intArrData;
+    float[] floatArrData;
+    string[] stringArrData;
+    boolean[] booleanArrData;
 };
 
 type ResultCount record {
-    int COUNTVAL,
+    int COUNTVAL;
 };
 
 table<Person> dt1 = table{};

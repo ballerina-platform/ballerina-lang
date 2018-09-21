@@ -523,6 +523,9 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             expTypes.add(varRef.type);
         }
         this.typeChecker.checkExpr(compoundAssignment.expr, env);
+
+        checkConstantAssignment(varRef);
+
         if (expTypes.get(0) != symTable.errType && compoundAssignment.expr.type != symTable.errType) {
             BSymbol opSymbol = this.symResolver.resolveBinaryOperator(compoundAssignment.opKind, expTypes.get(0),
                     compoundAssignment.expr.type);

@@ -28,7 +28,7 @@ import io.ballerina.plugins.idea.psi.*;
 
 public class BallerinaUnnamedPatternImpl extends BallerinaCompositeElementImpl implements BallerinaUnnamedPattern {
 
-  public BallerinaUnnamedPatternImpl(ASTNode node) {
+  public BallerinaUnnamedPatternImpl(@NotNull ASTNode node) {
     super(node);
   }
 

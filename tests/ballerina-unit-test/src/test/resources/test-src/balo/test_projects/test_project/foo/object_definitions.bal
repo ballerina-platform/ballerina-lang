@@ -1,13 +1,13 @@
 
 public type Man object {
-    public int age = 10,
+    public int age = 10;
     public string name = "sample name";
     public int year = 50;
     public string month = "february";
 };
 
 public type Human object {
-    public int age = 10,
+    public int age = 10;
     public string name = "sample name";
     public int year = 50;
     public string month = "february";
@@ -19,7 +19,7 @@ public type Human object {
 };
 
 public type Planet object {
-    public int age = 10,
+    public int age = 10;
     public string name;
     public int year;
     public string month = "february";
@@ -31,7 +31,7 @@ public type Planet object {
 };
 
 public type Company object {
-    public int age = 10,
+    public int age = 10;
     public string name = "sample name";
     public int year = 50;
     public string month = "february";
@@ -48,7 +48,7 @@ public type Company object {
 };
 
 public type Building object {
-    public int age = 10,
+    public int age = 10;
     public string name = "sample name";
 
     private int year = 50;
@@ -87,7 +87,7 @@ function Building::getNameWrapperOutside2() returns string {
 }
 
 public type Boy object {
-    public int age = 10,
+    public int age = 10;
     public string name = "sample name";
 
     private int year = 50;
@@ -117,7 +117,7 @@ function passSelfAsValue(Boy p) returns string {
 }
 
 public type Bin abstract object {
-    public int age = 10,
+    public int age = 10;
     public string name = "sample name";
     public int year = 50;
     public string month = "february";
@@ -128,8 +128,8 @@ public type Bin abstract object {
 };
 
 public type Car object {
-    public int age = 10,
-    public string name,
+    public int age = 10;
+    public string name;
 
     public new (int a = 10, string n = "sample result") {
         self.age = a;
@@ -138,7 +138,7 @@ public type Car object {
 };
 
 public type Girl object {
-    public int age,
+    public int age;
 
     public new (age) {
 
@@ -146,8 +146,8 @@ public type Girl object {
 };
 
 public type Bus object {
-    public int age,
-    public string name,
+    public int age;
+    public string name;
 
     public new (age = 6, string key = "abc") {
         name = "sample value";
@@ -155,8 +155,8 @@ public type Bus object {
 };
 
 public type Tyre object {
-    public int key,
-    public string value,
+    public int key;
+    public string value;
 
     public new () {
 
@@ -164,44 +164,44 @@ public type Tyre object {
 };
 
 public type Wheel object {
-    public string address,
+    public string address;
 };
 
 public type Tiger object {
-    public int age,
-    public Cat? emp,
+    public int age;
+    public Cat? emp;
 };
 
 public type Cat object {
-    public int age,
-    public Dog? foo,
-    public Lion? bar,
+    public int age;
+    public Dog? foo;
+    public Lion? bar;
 };
 
 public type Dog object {
-    public int calc,
-    public Lion? bar1,
+    public int calc;
+    public Lion? bar1;
 };
 
 public type Lion record {
-    int barVal,
-    string name,
-    Tiger? person,
+    int barVal;
+    string name;
+    Tiger? person;
 };
 
 public type Bird object {
-    public int age = 90,
-    public Parrot ep,
+    public int age = 90;
+    public Parrot ep;
 };
 
 public type Parrot object {
-    public int pp,
-    public Bird? p,
+    public int pp;
+    public Bird? p;
 };
 
 public type Architect object {
-    public int pp,
-    public string name,
+    public int pp;
+    public string name;
 
     public new (pp, name) {
 
@@ -209,14 +209,14 @@ public type Architect object {
 };
 
 public type Country abstract object {
-    public int age = 10,
+    public int age = 10;
     public string month = "february";
 
     public function attachInterface(int add) returns int;
 };
 
 public type House object {
-    public int age,
+    public int age;
 
     public new (age) {
 
@@ -224,7 +224,7 @@ public type House object {
 };
 
 public type Apartment object {
-    public int age,
+    public int age;
 
     public new (age, int addVal) {
         age = age + addVal;
@@ -233,11 +233,11 @@ public type Apartment object {
 
 public type Desk object {
 
-    public int length = 23,
-    public int width = 12,
-    public float height = 4.5,
-    public byte[] dimensions = [3,4,5,8],
-    public byte[] code1 = base64 `aGVsbG8gYmFsbGVyaW5hICEhIQ==`,
+    public int length = 23;
+    public int width = 12;
+    public float height = 4.5;
+    public byte[] dimensions = [3,4,5,8];
+    public byte[] code1 = base64 `aGVsbG8gYmFsbGVyaW5hICEhIQ==`;
     public byte[] code2 = base16 `aaabcfccad afcd34 1a4bdf abcd8912df`;
 
     public new (){

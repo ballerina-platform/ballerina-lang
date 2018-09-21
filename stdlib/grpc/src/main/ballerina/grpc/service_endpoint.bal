@@ -51,9 +51,9 @@ public type Listener object {
 # + port - The server port.
 # + secureSocket - The SSL configurations for the client endpoint.
 public type ServiceEndpointConfiguration record {
-    string host,
-    int port,
-    ServiceSecureSocket? secureSocket,
+    string host;
+    int port;
+    ServiceSecureSocket? secureSocket;
     !...
 };
 
@@ -73,18 +73,18 @@ public type ServiceEndpointConfiguration record {
 # + shareSession - Enable/disable new ssl session creation.
 # + ocspStapling - Enable/disable ocsp stapling.
 public type ServiceSecureSocket record {
-    TrustStore? trustStore,
-    KeyStore? keyStore,
-    string certFile,
-    string keyFile,
-    string keyPassword,
-    string trustedCertFile,
-    Protocols? protocol,
-    ValidateCert? certValidation,
-    string[] ciphers,
-    string sslVerifyClient,
-    boolean shareSession = true,
-    ServiceOcspStapling? ocspStapling,
+    TrustStore? trustStore;
+    KeyStore? keyStore;
+    string certFile;
+    string keyFile;
+    string keyPassword;
+    string trustedCertFile;
+    Protocols? protocol;
+    ValidateCert? certValidation;
+    string[] ciphers;
+    string sslVerifyClient;
+    boolean shareSession = true;
+    ServiceOcspStapling? ocspStapling;
     !...
 };
 

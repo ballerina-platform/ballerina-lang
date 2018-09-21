@@ -34,7 +34,7 @@ function fooFunc(string a, // foo function
 
 type Person record { // Person type
     // name field
-    string name,
+    string name;
 
     // only one field
 };
@@ -65,7 +65,7 @@ service<DummyService> FooService {
 // end of file
 
 type Config record {
-    string name,
+    string name;
 };
 
 type DummyEndpoint object {
