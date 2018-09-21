@@ -124,6 +124,9 @@ type TwoPhaseCommitTransaction object {
 
     # When an abort statement is executed, this function gets called. The transaction in concern will be marked for
     # abortion.
+    #
+    # + return - error or nil retured when marking transaction for abortion is unsuccessful or successful
+    #            respectively
     function markForAbortion() returns error? {
         if (self.isInitiated) {
             self.state = TXN_STATE_ABORTED;
@@ -246,6 +249,9 @@ type TwoPhaseCommitTransaction object {
 
     # The participant should notify the initiator that it aborted. This function is called by the participant.
     # The initiator is remote.
+    #
+    # + return - An empty string or an error is returned when transaction abortion is successful or unsccuessful
+    #            respectively
     function abortLocalParticipantTransaction() returns string|error {
         string|error ret = "";
         boolean successful = abortResourceManagers(self.transactionId, self.transactionBlockId);
