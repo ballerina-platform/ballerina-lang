@@ -137,13 +137,13 @@ import org.wso2.ballerinalang.util.Flags;
 import org.wso2.ballerinalang.util.Lists;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.Stack;
-import java.util.stream.Collectors;
 
 import static org.wso2.ballerinalang.compiler.util.Constants.MAIN_FUNCTION_NAME;
 
@@ -845,12 +845,13 @@ public class CodeAnalyzer extends BLangNodeVisitor {
             analyzeExpr(kv.valueExpr);
         });
 
-        long uniqueKeys = keyValuePairs.stream()
-                .map(p -> p.getKey().toString())
-                .collect(Collectors.toSet())
-                .size();
-        if (keyValuePairs.size() != uniqueKeys) {
-            this.dlog.error(recordLiteral.pos, DiagnosticCode.DUPLICATE_RECORD_LITERAL);
+        Set<String> names = new HashSet<>();
+        for (BLangRecordLiteral.BLangRecordKeyValue recFieldDecl : keyValuePairs) {
+            String fieldName = recFieldDecl.key.expr.toString();
+            if (names.contains(fieldName)) {
+                this.dlog.error(recFieldDecl.getKey().pos, DiagnosticCode.DUPLICATE_RECORD_LITERAL, fieldName);
+            }
+            names.add(fieldName);
         }
     }
 
