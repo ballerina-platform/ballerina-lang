@@ -18,6 +18,7 @@
 package org.ballerinalang.test.service.websub;
 
 import io.netty.handler.codec.http.HttpHeaderNames;
+import org.ballerinalang.test.context.BMainInstance;
 import org.ballerinalang.test.context.BServerInstance;
 import org.ballerinalang.test.context.BallerinaTestException;
 import org.ballerinalang.test.context.LogLeecher;
@@ -33,6 +34,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.Executors;
 
 import static org.ballerinalang.test.service.websub.WebSubTestUtils.directJsonUpdate;
 import static org.ballerinalang.test.service.websub.WebSubTestUtils.remoteJsonUpdate;
@@ -52,6 +54,7 @@ import static org.ballerinalang.test.service.websub.WebSubTestUtils.remoteJsonUp
 @Test(groups = "websub-test")
 public class WebSubAutoIntentVerificationTestCase extends WebSubBaseTest {
     private BServerInstance webSubSubscriber;
+    private BMainInstance subscriptionChanger;
 
     private boolean firstTest = true;
     private boolean lastTest = false;
@@ -63,12 +66,17 @@ public class WebSubAutoIntentVerificationTestCase extends WebSubBaseTest {
             + "{\"action\":\"publish\", \"mode\":\"internal-hub\"}";
     private static final String REMOTE_HUB_NOTIFICATION_LOG = "WebSub Notification Received: "
             + "{\"action\":\"publish\", \"mode\":\"remote-hub\"}";
+    private static final String UNSUBSCRIPTION_INTENT_VERIFICATION_LOG = "ballerina: Intent Verification agreed - Mode "
+            + "[unsubscribe], Topic [http://one.websub.topic.com]";
     private static final String INTENT_VERIFICATION_DENIAL_LOG = "ballerina: Intent Verification denied - Mode "
             + "[subscribe], Topic [http://two.websub.topic.com]";
 
     private LogLeecher intentVerificationLogLeecher = new LogLeecher(INTENT_VERIFICATION_LOG);
     private LogLeecher internalHubNotificationLogLeecher = new LogLeecher(INTERNAL_HUB_NOTIFICATION_LOG);
     private LogLeecher remoteHubNotificationLogLeecher = new LogLeecher(REMOTE_HUB_NOTIFICATION_LOG);
+    private LogLeecher unsubscriptionIntentVerificationLogLeecher = new LogLeecher(
+            UNSUBSCRIPTION_INTENT_VERIFICATION_LOG);
+    private LogLeecher logAbsenceTestLogLeecher = new LogLeecher(INTERNAL_HUB_NOTIFICATION_LOG);
     private LogLeecher intentVerificationDenialLogLeecher = new LogLeecher(INTENT_VERIFICATION_DENIAL_LOG);
 
 
@@ -79,11 +87,13 @@ public class WebSubAutoIntentVerificationTestCase extends WebSubBaseTest {
         }
         firstTest = false;
         webSubSubscriber = new BServerInstance(balServer);
+        subscriptionChanger = new BMainInstance(balServer);
         String subscriberBal = new File("src" + File.separator + "test" + File.separator + "resources"
                 + File.separator + "websub" + File.separator + "websub_test_subscriber.bal").getAbsolutePath();
         webSubSubscriber.addLogLeecher(intentVerificationLogLeecher);
         webSubSubscriber.addLogLeecher(internalHubNotificationLogLeecher);
         webSubSubscriber.addLogLeecher(remoteHubNotificationLogLeecher);
+        webSubSubscriber.addLogLeecher(unsubscriptionIntentVerificationLogLeecher);
         webSubSubscriber.addLogLeecher(intentVerificationDenialLogLeecher);
 
         String[] subscriberArgs = {"-e", "test.hub.url=" + hubUrl};
@@ -107,7 +117,33 @@ public class WebSubAutoIntentVerificationTestCase extends WebSubBaseTest {
         remoteHubNotificationLogLeecher.waitForText(45000);
     }
 
-    @Test(dependsOnMethods = "testSubscriptionAndIntentVerification")
+    @Test(dependsOnMethods = "testContentReceiptForRemoteHubNotification")
+    public void testUnsubscriptionIntentVerification() throws BallerinaTestException {
+        String balFile = new File("src" + File.separator + "test" + File.separator + "resources"
+                                          + File.separator + "websub" + File.separator +
+                                          "websub_test_unsubscription_client.bal").getAbsolutePath();
+        Executors.newSingleThreadExecutor().execute(() -> {
+            try {
+                subscriptionChanger.runMain(balFile);
+            } catch (BallerinaTestException e) {
+                //ignored since any errors here would be reflected as test failures
+            }
+        });
+        webSubSubscriber.addLogLeecher(logAbsenceTestLogLeecher);
+        unsubscriptionIntentVerificationLogLeecher.waitForText(30000);
+    }
+
+    @Test(dependsOnMethods = "testUnsubscriptionIntentVerification",
+            description = "Tests that no notifications are received after unsubscription",
+            expectedExceptions = BallerinaTestException.class,
+            expectedExceptionsMessageRegExp = ".*Timeout expired waiting for matching log.*"
+    )
+    public void testUnsubscription() throws BallerinaTestException {
+        directJsonUpdate("http://localhost:8080/publisher/notify");
+        logAbsenceTestLogLeecher.waitForText(5000);
+    }
+
+    @Test(dependsOnMethods = "testUnsubscription")
     public void testRemoteTopicRegistration() throws IOException {
         Map<String, String> headers = new HashMap<>();
         headers.put(HttpHeaderNames.CONTENT_TYPE.toString(), TestConstant.CONTENT_TYPE_FORM_URL_ENCODED);

@@ -4,14 +4,14 @@ import ballerina/websub;
 
 // This is the remote WebSub Hub Endpoint to which subscription and unsubscription requests are sent.
 endpoint websub:Client websubHubClientEP {
-    url: "https://localhost:9393/websub/hub"
+    url: "https://localhost:9191/websub/hub"
 };
 
 public function main(string... args) {
 
     // Send unsubscription request for the subscriber service.
     websub:SubscriptionChangeRequest unsubscriptionRequest = {
-        topic: "http://www.websubpubtopic.com",
+        topic: "http://one.websub.topic.com",
         callback: "http://localhost:8181/websub"
     };
 
