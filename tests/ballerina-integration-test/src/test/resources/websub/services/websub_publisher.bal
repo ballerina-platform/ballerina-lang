@@ -5,6 +5,8 @@ import ballerina/websub;
 
 @final string WEBSUB_TOPIC_ONE = "http://one.websub.topic.com";
 @final string WEBSUB_TOPIC_TWO = "http://two.websub.topic.com";
+@final string WEBSUB_TOPIC_THREE = "http://three.websub.topic.com";
+@final string WEBSUB_TOPIC_FOUR = "http://four.websub.topic.com";
 
 boolean remoteTopicRegistered;
 
@@ -59,11 +61,51 @@ service<http:Service> publisher bind publisherServiceEP {
     }
 }
 
+service<http:Service> publisherTwo bind publisherServiceEP {
+    @http:ResourceConfig {
+        methods: ["GET", "HEAD"]
+    }
+    discover(endpoint caller, http:Request req) {
+        http:Response response;
+        // Add a link header indicating the hub and topic
+        websub:addWebSubLinkHeader(response, [webSubHub.hubUrl], WEBSUB_TOPIC_FOUR);
+        response.statusCode = 202;
+        caller->respond(response) but {
+            error e => log:printError("Error responding on ordering", err = e)
+        };
+    }
+
+    @http:ResourceConfig {
+        methods: ["POST"]
+    }
+    notify(endpoint caller, http:Request req) {
+        http:Response response;
+        response.statusCode = 202;
+        caller->respond(response) but {
+            error e => log:printError("Error responding on notify request", err = e)
+        };
+
+        webSubHub.publishUpdate(WEBSUB_TOPIC_THREE, {"action":"publish","mode":"internal-hub"}) but {
+            error e => log:printError("Error publishing update directly", err = e)
+        };
+
+        webSubHub.publishUpdate(WEBSUB_TOPIC_FOUR, {"action":"publish","mode":"internal-hub-two"}) but {
+            error e => log:printError("Error publishing update directly", err = e)
+        };
+    }
+}
+
 function startHubAndRegisterTopic() returns websub:WebSubHub {
     websub:WebSubHub internalHub = websub:startHub(9191, remotePublishingEnabled = true) but {
         websub:HubStartedUpError hubStartedUpErr => hubStartedUpErr.startedUpHub
     };
     internalHub.registerTopic(WEBSUB_TOPIC_ONE) but {
+        error e => log:printError("Error registering topic directly", err = e)
+    };
+    internalHub.registerTopic(WEBSUB_TOPIC_THREE) but {
+        error e => log:printError("Error registering topic directly", err = e)
+    };
+    internalHub.registerTopic(WEBSUB_TOPIC_FOUR) but {
         error e => log:printError("Error registering topic directly", err = e)
     };
     return internalHub;

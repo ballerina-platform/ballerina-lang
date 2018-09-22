@@ -207,7 +207,7 @@
             <class name="org.ballerinalang.test.service.websub.WebSubBaseTest"/>
             <class name="org.ballerinalang.test.service.websub.WebSubAutoIntentVerificationTestCase"/>
             <class name="org.ballerinalang.test.service.websub.WebSubContentTypeSupportTestCase"/>
-            <!--<class name="org.ballerinalang.test.service.websub.WebSubDiscoveryWithMultipleSubscribersTestCase"/>-->
+            <class name="org.ballerinalang.test.service.websub.WebSubDiscoveryWithMultipleSubscribersTestCase"/>
             <!--<class name="org.ballerinalang.test.service.websub.WebSubRedirectionTestCase"/>-->
             <!--<class name="org.ballerinalang.test.service.websub.WebSubWithSecretTestCase"/>-->
             <!--<class name="org.ballerinalang.test.service.websub.WebSubServiceExtensionTestCase"/>-->

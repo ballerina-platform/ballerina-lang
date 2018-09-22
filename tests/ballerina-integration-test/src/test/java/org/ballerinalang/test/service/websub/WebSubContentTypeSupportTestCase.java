@@ -1,6 +1,5 @@
 package org.ballerinalang.test.service.websub;
 
-import org.ballerinalang.test.BaseTest;
 import org.ballerinalang.test.context.BServerInstance;
 import org.ballerinalang.test.context.BallerinaTestException;
 import org.ballerinalang.test.context.LogLeecher;
@@ -26,7 +25,7 @@ import static org.ballerinalang.test.service.websub.WebSubTestUtils.requestUpdat
  * 3. Content delivery for JSON, string and XML types.
  */
 @Test(groups = "websub-test")
-public class WebSubContentTypeSupportTestCase extends BaseTest {
+public class WebSubContentTypeSupportTestCase extends WebSubBaseTest {
     private BServerInstance webSubSubscriber;
 
     private boolean firstTest = true;

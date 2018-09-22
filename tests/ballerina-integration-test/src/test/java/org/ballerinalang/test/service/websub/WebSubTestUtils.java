@@ -31,6 +31,7 @@ import java.util.HashMap;
 class WebSubTestUtils {
 
     static final String PUBLISHER_NOTIFY_URL = "http://localhost:8080/publisher/notify";
+    static final String PUBLISHER_NOTIFY_URL_TWO = "http://localhost:8080/publisherTwo/notify";
 
     static final String HUB_MODE_INTERNAL = "internal";
     static final String HUB_MODE_REMOTE = "remote";
