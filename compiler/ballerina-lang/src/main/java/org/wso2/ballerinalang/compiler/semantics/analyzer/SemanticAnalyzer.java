@@ -489,7 +489,25 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
     }
 
     public void visit(BLangTupleVariable varNode) {
-        //todo
+        int ownerSymTag = env.scope.owner.tag;
+        if ((ownerSymTag & SymTag.INVOKABLE) == SymTag.INVOKABLE) {
+            // todo fail the other branch
+            symbolEnter.defineNode(varNode, env);
+        }
+
+        if (((BTupleType) varNode.type).tupleTypes.size() != varNode.memberVariables.size()) {
+            dlog.error(varNode.pos, DiagnosticCode.INVALID_TUPLE_BINDING_PATTERN);
+        }
+
+        // todo analyse the semantics of the tuple var
+
+        BType lhsType = varNode.type;
+
+        BLangExpression rhsExpr = varNode.expr;
+
+        SymbolEnv varInitEnv = SymbolEnv.createVarInitEnv(varNode, env, null);
+
+        typeChecker.checkExpr(rhsExpr, varInitEnv, lhsType);
     }
 
     // Statements
@@ -511,7 +529,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangTupleVariableDef tupleVariableDef) {
-        //todo
+        analyzeDef(tupleVariableDef.var, env);
     }
 
     public void visit(BLangPostIncrement postIncrement) {

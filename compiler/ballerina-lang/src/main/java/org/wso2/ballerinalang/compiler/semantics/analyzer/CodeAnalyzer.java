@@ -112,6 +112,7 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangTransaction;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangTryCatchFinally;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangTupleDestructure;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangSimpleVariableDef;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangTupleVariableDef;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangWhile;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangWorkerReceive;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangWorkerSend;
@@ -251,6 +252,11 @@ public class CodeAnalyzer extends BLangNodeVisitor {
             return;
         }
         analyseType(typeDefinition.symbol.type, typeDefinition.pos);
+    }
+
+    @Override
+    public void visit(BLangTupleVariableDef bLangTupleVariableDef) {
+        // ignore
     }
 
     @Override

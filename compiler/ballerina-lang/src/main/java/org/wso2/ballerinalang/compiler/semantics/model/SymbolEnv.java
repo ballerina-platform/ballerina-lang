@@ -26,6 +26,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangService;
 import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangTypeDefinition;
+import org.wso2.ballerinalang.compiler.tree.BLangVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangWorker;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLAttribute;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLElementLiteral;
@@ -155,7 +156,7 @@ public class SymbolEnv {
         return symbolEnv;
     }
 
-    public static SymbolEnv createVarInitEnv(BLangSimpleVariable node, SymbolEnv env, BVarSymbol enclVarSym) {
+    public static SymbolEnv createVarInitEnv(BLangVariable node, SymbolEnv env, BVarSymbol enclVarSym) {
         SymbolEnv symbolEnv = new SymbolEnv(node, env.scope);
         env.copyTo(symbolEnv);
         symbolEnv.enclVarSym = enclVarSym;

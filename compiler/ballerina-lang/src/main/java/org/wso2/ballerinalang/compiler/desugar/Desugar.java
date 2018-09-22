@@ -60,7 +60,9 @@ import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangResource;
 import org.wso2.ballerinalang.compiler.tree.BLangService;
 import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
+import org.wso2.ballerinalang.compiler.tree.BLangTupleVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangTypeDefinition;
+import org.wso2.ballerinalang.compiler.tree.BLangVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangWorker;
 import org.wso2.ballerinalang.compiler.tree.BLangXMLNS;
 import org.wso2.ballerinalang.compiler.tree.BLangXMLNS.BLangLocalXMLNS;
@@ -153,6 +155,7 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangThrow;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangTransaction;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangTryCatchFinally;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangTupleDestructure;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangTupleVariableDef;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangWhile;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangWorkerReceive;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangWorkerSend;
@@ -539,6 +542,17 @@ public class Desugar extends BLangNodeVisitor {
 
     }
 
+    @Override
+    public void visit(BLangTupleVariable varNode) {
+        if ((env.scope.owner.tag & SymTag.INVOKABLE) != SymTag.INVOKABLE) {
+            varNode.expr = null;
+            result = varNode;
+            return;
+        }
+
+        result = varNode;
+    }
+
     // Statements
 
     @Override
@@ -559,6 +573,71 @@ public class Desugar extends BLangNodeVisitor {
         }
         result = varDefNode;
 
+    }
+
+    @Override
+    public void visit(BLangTupleVariableDef varDefNode) {
+        varDefNode.var = rewrite(varDefNode.var, env);
+        BLangTupleVariable varNode = varDefNode.var;
+
+        //create tuple destruct block stmt
+        final BLangBlockStmt blockStmt = ASTBuilderUtil.createBlockStmt(varDefNode.pos);
+
+        BType runTimeType = new BArrayType(symTable.anyType);
+        final BLangSimpleVariable tuple = ASTBuilderUtil.createVariable(varDefNode.pos, "", runTimeType, null,
+                new BVarSymbol(0, names.fromString("tuple"), this.env.scope.owner.pkgID,
+                        runTimeType, this.env.scope.owner));
+        tuple.expr = varNode.expr;
+        final BLangSimpleVariableDef variableDef = ASTBuilderUtil.createVariableDefStmt(varDefNode.pos, blockStmt);
+        variableDef.var = tuple;
+
+        // check if all the member nodes are of simple variable type
+        final List<BLangVariable> memberVars = varNode.memberVariables;
+        boolean allSimpleVars = memberVars.stream().allMatch(node -> NodeKind.VARIABLE == node.getKind());
+        if (allSimpleVars) {
+            for (int index = 0; index < memberVars.size(); index++) {
+                BLangSimpleVariable memberVar = (BLangSimpleVariable) memberVars.get(index);
+                Name varName = names.fromIdNode(memberVar.name);
+                if (varName == Names.IGNORE) {
+                    continue;
+                }
+
+                final BLangSimpleVariableDef memberVarDef = ASTBuilderUtil.createVariableDefStmt(varDefNode.pos,
+                        blockStmt);
+                memberVarDef.var = memberVar;
+
+                BLangSimpleVarRef varRef = (BLangSimpleVarRef) TreeBuilder.createSimpleVariableReferenceNode();
+
+                varRef.pos = memberVar.pos;
+                varRef.variableName = memberVar.name;
+                varRef.pkgAlias = (BLangIdentifier) TreeBuilder.createIdentifierNode();
+                varRef.symbol = memberVar.symbol;
+                varRef.type = memberVar.type;
+
+
+                BLangLiteral indexExpr = ASTBuilderUtil.createLiteral(memberVar.pos, symTable.intType, (long) index);
+                BLangIndexBasedAccess arrayAccess = ASTBuilderUtil.createIndexBasesAccessExpr(memberVar.pos,
+                        symTable.anyType, tuple.symbol, indexExpr);
+
+                final BLangExpression assignmentExpr;
+                if (types.isValueType(memberVar.type)) {
+                    BLangTypeConversionExpr castExpr = (BLangTypeConversionExpr) TreeBuilder.createTypeConversionNode();
+                    castExpr.expr = arrayAccess;
+                    castExpr.conversionSymbol = Symbols.createUnboxValueTypeOpSymbol(symTable.anyType, memberVar.type);
+                    castExpr.type = memberVar.type;
+                    assignmentExpr = castExpr;
+                } else {
+                    assignmentExpr = arrayAccess;
+                }
+
+                final BLangAssignment assignmentStmt = ASTBuilderUtil.createAssignmentStmt(memberVar.pos, blockStmt);
+                assignmentStmt.varRef = varRef;
+                assignmentStmt.expr = assignmentExpr;
+            }
+        }
+
+        //todo the other branch
+        result = rewrite(blockStmt, env);
     }
 
     @Override
@@ -2247,6 +2326,10 @@ public class Desugar extends BLangNodeVisitor {
 
     private BLangExpression getInitExpr(BLangSimpleVariable varNode) {
         return getInitExpr(varNode.type, varNode.name);
+    }
+
+    private BLangExpression getInitExpr(BLangTupleVariable varNode) {
+        return getInitExpr(varNode.type, null);
     }
 
     private BLangExpression getInitExpr(BType type, BLangIdentifier name) {

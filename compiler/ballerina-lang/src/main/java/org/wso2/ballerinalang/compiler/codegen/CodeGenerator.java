@@ -65,6 +65,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangResource;
 import org.wso2.ballerinalang.compiler.tree.BLangService;
 import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangTypeDefinition;
+import org.wso2.ballerinalang.compiler.tree.BLangVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangWorker;
 import org.wso2.ballerinalang.compiler.tree.BLangXMLNS;
 import org.wso2.ballerinalang.compiler.tree.BLangXMLNS.BLangLocalXMLNS;
@@ -3682,13 +3683,13 @@ public class CodeGenerator extends BLangNodeVisitor {
         }
     }
 
-    private void setVariableScopeStart(LocalVariableInfo localVarInfo, BLangSimpleVariable varNode) {
+    private void setVariableScopeStart(LocalVariableInfo localVarInfo, BLangVariable varNode) {
         if (varNode.pos != null) {
             localVarInfo.scopeStartLineNumber = varNode.pos.sLine;
         }
     }
 
-    private void setVariableScopeEnd(LocalVariableInfo localVarInfo, BLangSimpleVariable varNode) {
+    private void setVariableScopeEnd(LocalVariableInfo localVarInfo, BLangVariable varNode) {
         if ((varNode.parent == null) && (varNode.pos != null)) {
             localVarInfo.scopeEndLineNumber = varNode.pos.eLine;
             return;

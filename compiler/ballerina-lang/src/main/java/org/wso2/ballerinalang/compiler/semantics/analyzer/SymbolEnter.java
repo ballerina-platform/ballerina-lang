@@ -694,7 +694,12 @@ public class SymbolEnter extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangTupleVariable varNode) {
-        //todo
+        // assign the type to var type node
+        if (varNode.type == null) {
+            varNode.type = symResolver.resolveTypeNode(varNode.typeNode, env);
+        }
+
+        varNode.memberVariables.forEach(variable -> defineNode(variable, env));
     }
 
     @Override
