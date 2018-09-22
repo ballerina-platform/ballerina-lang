@@ -19,6 +19,7 @@ package org.ballerinalang.test.service.websub;
 
 import io.netty.handler.codec.http.HttpHeaderNames;
 import io.netty.handler.codec.http.HttpResponseStatus;
+import org.awaitility.Duration;
 import org.ballerinalang.test.BaseTest;
 import org.ballerinalang.test.context.BServerInstance;
 import org.ballerinalang.test.context.BallerinaTestException;
@@ -33,8 +34,12 @@ import org.testng.annotations.Test;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.ConnectException;
 import java.util.HashMap;
 import java.util.Map;
+
+import static org.awaitility.Awaitility.given;
+import static java.util.concurrent.TimeUnit.SECONDS;
 
 /**
  * This class tests introducing custom/specific webhooks, extending the WebSub Subscriber Service.
@@ -91,19 +96,47 @@ public class WebSubServiceExtensionTestCase extends BaseTest {
         webSubSubscriber.addLogLeecher(byHeaderAndPayloadFeaturePullLogLeecher);
         webSubSubscriber.addLogLeecher(byHeaderAndPayloadKeyOnlyLogLeecher);
 
-        webSubSubscriber.startServer(subscriberBal, new int[]{8181, 8282, 8383});
+        webSubSubscriber.startServer(subscriberBal, new int[]{8484, 8585, 8686});
+        // Wait for the services to start up
+        Map<String, String> headers = new HashMap<>(2);
+        headers.put(HttpHeaderNames.CONTENT_TYPE.toString(), TestConstant.CONTENT_TYPE_JSON);
+
+        given().ignoreException(ConnectException.class).with().pollInterval(Duration.ONE_SECOND).await()
+                .atMost(60, SECONDS).until(() -> {
+            HttpResponse response = HttpClientRequest.doPost("http://localhost:8484/key",
+                                                             "{\"action\":\"statuscheck\"}", headers);
+            return response.getResponseCode() == 202;
+        });
+
+        given().ignoreException(ConnectException.class).with().pollInterval(Duration.ONE_SECOND).await()
+                .atMost(60, SECONDS).until(() -> {
+            headers.put(MOCK_HEADER, "status");
+            HttpResponse response = HttpClientRequest.doPost("http://localhost:8585/header",
+                                                             "{\"action\":\"deleted\"}",
+                                                             headers);
+            return response.getResponseCode() == 202;
+        });
+
+        given().ignoreException(ConnectException.class).with().pollInterval(Duration.ONE_SECOND).await()
+                .atMost(60, SECONDS).until(() -> {
+            headers.remove(MOCK_HEADER);
+            headers.put(MOCK_HEADER, "status");
+            HttpResponse response = HttpClientRequest.doPost("http://localhost:8686/headerAndPayload",
+                                                             "{\"action\":\"created\"}", headers);
+            return response.getResponseCode() == 202;
+        });
     }
 
     @Test
     public void testDispatchingByKey() throws BallerinaTestException, IOException {
         Map<String, String> headers = new HashMap<>(1);
         headers.put(HttpHeaderNames.CONTENT_TYPE.toString(), TestConstant.CONTENT_TYPE_JSON);
-        HttpResponse response = HttpClientRequest.doPost("http://localhost:8181/key", "{\"action\":\"created\"}",
+        HttpResponse response = HttpClientRequest.doPost("http://localhost:8484/key", "{\"action\":\"created\"}",
                                                          headers);
         Assert.assertEquals(response.getResponseCode(), HttpResponseStatus.ACCEPTED.code());
         byKeyCreatedLogLeecher.waitForText(LOG_LEECHER_TIMEOUT);
 
-        response = HttpClientRequest.doPost("http://localhost:8181/key", "{\"domain\":\"feature\"}", headers);
+        response = HttpClientRequest.doPost("http://localhost:8484/key", "{\"domain\":\"feature\"}", headers);
         Assert.assertEquals(response.getResponseCode(), HttpResponseStatus.ACCEPTED.code());
         byKeyCreatedLogLeecher.waitForText(LOG_LEECHER_TIMEOUT);
     }
@@ -113,7 +146,7 @@ public class WebSubServiceExtensionTestCase extends BaseTest {
         Map<String, String> headers = new HashMap<>(2);
         headers.put(HttpHeaderNames.CONTENT_TYPE.toString(), TestConstant.CONTENT_TYPE_JSON);
         headers.put(MOCK_HEADER, "issue");
-        HttpResponse response = HttpClientRequest.doPost("http://localhost:8282/header", "{\"action\":\"deleted\"}",
+        HttpResponse response = HttpClientRequest.doPost("http://localhost:8585/header", "{\"action\":\"deleted\"}",
                                                          headers);
         Assert.assertEquals(response.getResponseCode(), HttpResponseStatus.ACCEPTED.code());
         byHeaderIssueLogLeecher.waitForText(LOG_LEECHER_TIMEOUT);
@@ -121,7 +154,7 @@ public class WebSubServiceExtensionTestCase extends BaseTest {
         headers = new HashMap<>(2);
         headers.put(HttpHeaderNames.CONTENT_TYPE.toString(), TestConstant.CONTENT_TYPE_JSON);
         headers.put(MOCK_HEADER, "commit");
-        response = HttpClientRequest.doPost("http://localhost:8282/header", "{\"action\":\"created\"}", headers);
+        response = HttpClientRequest.doPost("http://localhost:8585/header", "{\"action\":\"created\"}", headers);
         Assert.assertEquals(response.getResponseCode(), HttpResponseStatus.ACCEPTED.code());
         byHeaderCommitLogLeecher.waitForText(LOG_LEECHER_TIMEOUT);
     }
@@ -131,7 +164,7 @@ public class WebSubServiceExtensionTestCase extends BaseTest {
         Map<String, String> headers = new HashMap<>(2);
         headers.put(HttpHeaderNames.CONTENT_TYPE.toString(), TestConstant.CONTENT_TYPE_JSON);
         headers.put(MOCK_HEADER, "issue");
-        HttpResponse response = HttpClientRequest.doPost("http://localhost:8383/headerAndPayload",
+        HttpResponse response = HttpClientRequest.doPost("http://localhost:8686/headerAndPayload",
                                                          "{\"action\":\"created\"}", headers);
         Assert.assertEquals(response.getResponseCode(), HttpResponseStatus.ACCEPTED.code());
         byHeaderAndPayloadIssueCreatedLogLeecher.waitForText(LOG_LEECHER_TIMEOUT);
@@ -139,7 +172,7 @@ public class WebSubServiceExtensionTestCase extends BaseTest {
         headers = new HashMap<>(2);
         headers.put(HttpHeaderNames.CONTENT_TYPE.toString(), TestConstant.CONTENT_TYPE_JSON);
         headers.put(MOCK_HEADER, "pull");
-        response = HttpClientRequest.doPost("http://localhost:8383/headerAndPayload", "{\"domain\":\"feature\"}",
+        response = HttpClientRequest.doPost("http://localhost:8686/headerAndPayload", "{\"domain\":\"feature\"}",
                                             headers);
         Assert.assertEquals(response.getResponseCode(), HttpResponseStatus.ACCEPTED.code());
         byHeaderAndPayloadFeaturePullLogLeecher.waitForText(LOG_LEECHER_TIMEOUT);
@@ -150,7 +183,7 @@ public class WebSubServiceExtensionTestCase extends BaseTest {
         Map<String, String> headers = new HashMap<>(2);
         headers.put(HttpHeaderNames.CONTENT_TYPE.toString(), TestConstant.CONTENT_TYPE_JSON);
         headers.put(MOCK_HEADER, "headeronly");
-        HttpResponse response = HttpClientRequest.doPost("http://localhost:8383/headerAndPayload",
+        HttpResponse response = HttpClientRequest.doPost("http://localhost:8686/headerAndPayload",
                                                          "{\"action\":\"header_only\"}", headers);
         Assert.assertEquals(response.getResponseCode(), HttpResponseStatus.ACCEPTED.code());
         byHeaderAndPayloadHeaderOnlyLogLeecher.waitForText(LOG_LEECHER_TIMEOUT);
@@ -161,7 +194,7 @@ public class WebSubServiceExtensionTestCase extends BaseTest {
         Map<String, String> headers = new HashMap<>(2);
         headers.put(HttpHeaderNames.CONTENT_TYPE.toString(), TestConstant.CONTENT_TYPE_JSON);
         headers.put(MOCK_HEADER, "key_only");
-        HttpResponse response = HttpClientRequest.doPost("http://localhost:8383/headerAndPayload",
+        HttpResponse response = HttpClientRequest.doPost("http://localhost:8686/headerAndPayload",
                                                          "{\"action\":\"keyonly\"}", headers);
         Assert.assertEquals(response.getResponseCode(), HttpResponseStatus.ACCEPTED.code());
         byHeaderAndPayloadHeaderOnlyLogLeecher.waitForText(LOG_LEECHER_TIMEOUT);

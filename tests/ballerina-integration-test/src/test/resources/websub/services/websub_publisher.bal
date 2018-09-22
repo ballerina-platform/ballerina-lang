@@ -7,6 +7,8 @@ import ballerina/websub;
 @final string WEBSUB_TOPIC_TWO = "http://two.websub.topic.com";
 @final string WEBSUB_TOPIC_THREE = "http://three.websub.topic.com";
 @final string WEBSUB_TOPIC_FOUR = "http://four.websub.topic.com";
+@final string WEBSUB_TOPIC_FIVE = "http://one.redir.topic.com";
+@final string WEBSUB_TOPIC_SIX = "http://two.redir.topic.com";
 
 boolean remoteTopicRegistered;
 
@@ -106,6 +108,12 @@ function startHubAndRegisterTopic() returns websub:WebSubHub {
         error e => log:printError("Error registering topic directly", err = e)
     };
     internalHub.registerTopic(WEBSUB_TOPIC_FOUR) but {
+        error e => log:printError("Error registering topic directly", err = e)
+    };
+    internalHub.registerTopic(WEBSUB_TOPIC_FIVE) but {
+        error e => log:printError("Error registering topic directly", err = e)
+    };
+    internalHub.registerTopic(WEBSUB_TOPIC_SIX) but {
         error e => log:printError("Error registering topic directly", err = e)
     };
     return internalHub;

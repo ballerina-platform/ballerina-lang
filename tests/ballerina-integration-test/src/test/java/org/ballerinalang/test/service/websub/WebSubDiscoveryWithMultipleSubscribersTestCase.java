@@ -39,6 +39,7 @@ import static org.ballerinalang.test.service.websub.WebSubTestUtils.requestUpdat
  * 3. Intent verification for subscription request sent following WebSub discovery
  * 4. Prioritizing hub and topic specified as annotations over the resource URL if specified
  */
+@Test(groups = "websub-test")
 public class WebSubDiscoveryWithMultipleSubscribersTestCase extends WebSubBaseTest {
     private BServerInstance webSubSubscriber;
 
