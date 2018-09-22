@@ -30,23 +30,23 @@ import java.util.HashMap;
  */
 class WebSubTestUtils {
 
-    static void directJsonUpdate(String url) throws BallerinaTestException {
-        try {
-            HashMap<String, String> headers = new HashMap<>(1);
-            headers.put(HttpHeaderNames.CONTENT_TYPE.toString(), TestConstant.CONTENT_TYPE_JSON);
-            HttpClientRequest.doPost(url, "{\"mode\":\"direct\"}", headers);
-        } catch (IOException e) {
-            throw new BallerinaTestException("Error requesting direct update");
-        }
-    }
+    static final String PUBLISHER_NOTIFY_URL = "http://localhost:8080/publisher/notify";
 
-    static void remoteJsonUpdate(String url) throws BallerinaTestException {
+    static final String HUB_MODE_INTERNAL = "internal";
+    static final String HUB_MODE_REMOTE = "remote";
+
+    static final String CONTENT_TYPE_JSON = "json";
+    static final String CONTENT_TYPE_XML = "xml";
+    static final String CONTENT_TYPE_STRING = "string";
+
+    static void requestUpdate(String url, String mode, String contentType) throws BallerinaTestException {
         try {
             HashMap<String, String> headers = new HashMap<>(1);
             headers.put(HttpHeaderNames.CONTENT_TYPE.toString(), TestConstant.CONTENT_TYPE_JSON);
-            HttpClientRequest.doPost(url, "{\"mode\":\"remote\"}", headers);
+            HttpClientRequest.doPost(url, "{\"mode\":\"" + mode + "\",\"content_type\":\"" + contentType + "\"}",
+                                     headers);
         } catch (IOException e) {
-            throw new BallerinaTestException("Error requesting remote update");
+            throw new BallerinaTestException("Error requesting content delivery");
         }
     }
 

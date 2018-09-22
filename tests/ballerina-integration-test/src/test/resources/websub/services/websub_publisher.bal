@@ -1,4 +1,5 @@
 import ballerina/http;
+import ballerina/io;
 import ballerina/log;
 import ballerina/websub;
 
@@ -38,6 +39,7 @@ service<http:Service> publisher bind publisherServiceEP {
         remoteRegisterTopic();
         json jsonPayload = check req.getJsonPayload();
         string mode = jsonPayload.mode.toString();
+        string contentType = jsonPayload.content_type.toString();
 
         http:Response response;
         response.statusCode = 202;
@@ -45,15 +47,12 @@ service<http:Service> publisher bind publisherServiceEP {
             error e => log:printError("Error responding on notify request", err = e)
         };
 
-
-        if (mode == "direct") {
-            json payload = {"action":"publish","mode":"internal-hub"};
-            webSubHub.publishUpdate(WEBSUB_TOPIC_ONE, payload) but {
+        if (mode == "internal") {
+            webSubHub.publishUpdate(WEBSUB_TOPIC_ONE, getPayloadContent(contentType, mode)) but {
                 error e => log:printError("Error publishing update directly", err = e)
             };
         } else {
-            json payload = {"action":"publish","mode":"remote-hub"};
-            websubHubClientEP->publishUpdate(WEBSUB_TOPIC_ONE, payload) but {
+            websubHubClientEP->publishUpdate(WEBSUB_TOPIC_ONE, getPayloadContent(contentType, mode)) but {
                 error e => log:printError("Error publishing update remotely", err = e)
             };
         }
@@ -78,4 +77,31 @@ function remoteRegisterTopic()  {
         error e => log:printError("Error registering topic remotely", err = e)
     };
     remoteTopicRegistered = true;
+}
+
+function getPayloadContent(string contentType, string mode) returns string|xml|json|byte[]|io:ByteChannel {
+    string errorMessage = "unknown content type";
+    if (contentType == "" || contentType == "json") {
+        if (mode == "internal") {
+            return {"action":"publish","mode":"internal-hub"};
+        } else {
+            return {"action":"publish","mode":"remote-hub"};
+        }
+    } else if (contentType == "string") {
+        if (mode == "internal") {
+            return "Text update for internal Hub";
+        } else {
+            return "Text update for remote Hub";
+        }
+    } else if (contentType == "xml") {
+        if (mode == "internal") {
+            return xml `<websub><request>Notification</request><type>Internal</type></websub>`;
+        } else {
+            return xml `<websub><request>Notification</request><type>Remote</type></websub>`;
+        }
+    } else if (contentType == "byte[]" || contentType == "io:ByteChannel") {
+        errorMessage = "content type " + contentType + " not yet supported with WebSub tests";
+    }
+    error e = { errorMessage: errorMessage };
+    throw e;
 }

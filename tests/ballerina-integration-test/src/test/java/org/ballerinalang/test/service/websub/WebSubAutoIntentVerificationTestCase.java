@@ -36,8 +36,11 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.Executors;
 
-import static org.ballerinalang.test.service.websub.WebSubTestUtils.directJsonUpdate;
-import static org.ballerinalang.test.service.websub.WebSubTestUtils.remoteJsonUpdate;
+import static org.ballerinalang.test.service.websub.WebSubTestUtils.CONTENT_TYPE_JSON;
+import static org.ballerinalang.test.service.websub.WebSubTestUtils.HUB_MODE_INTERNAL;
+import static org.ballerinalang.test.service.websub.WebSubTestUtils.HUB_MODE_REMOTE;
+import static org.ballerinalang.test.service.websub.WebSubTestUtils.PUBLISHER_NOTIFY_URL;
+import static org.ballerinalang.test.service.websub.WebSubTestUtils.requestUpdate;
 
 /**
  * This class includes an integration scenario which covers the following:
@@ -107,13 +110,13 @@ public class WebSubAutoIntentVerificationTestCase extends WebSubBaseTest {
 
     @Test(dependsOnMethods = "testSubscriptionAndIntentVerification")
     public void testContentReceiptForDirectHubNotification() throws BallerinaTestException {
-        directJsonUpdate("http://localhost:8080/publisher/notify");
+        requestUpdate(PUBLISHER_NOTIFY_URL, HUB_MODE_INTERNAL, CONTENT_TYPE_JSON);
         internalHubNotificationLogLeecher.waitForText(45000);
     }
 
     @Test(dependsOnMethods = "testContentReceiptForDirectHubNotification")
     public void testContentReceiptForRemoteHubNotification() throws BallerinaTestException {
-        remoteJsonUpdate("http://localhost:8080/publisher/notify");
+        requestUpdate(PUBLISHER_NOTIFY_URL, HUB_MODE_REMOTE, CONTENT_TYPE_JSON);
         remoteHubNotificationLogLeecher.waitForText(45000);
     }
 
@@ -139,7 +142,7 @@ public class WebSubAutoIntentVerificationTestCase extends WebSubBaseTest {
             expectedExceptionsMessageRegExp = ".*Timeout expired waiting for matching log.*"
     )
     public void testUnsubscription() throws BallerinaTestException {
-        directJsonUpdate("http://localhost:8080/publisher/notify");
+        requestUpdate(PUBLISHER_NOTIFY_URL, HUB_MODE_INTERNAL, CONTENT_TYPE_JSON);
         logAbsenceTestLogLeecher.waitForText(5000);
     }
 
