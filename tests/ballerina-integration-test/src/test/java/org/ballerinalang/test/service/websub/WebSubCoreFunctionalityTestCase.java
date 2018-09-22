@@ -22,6 +22,7 @@ import org.ballerinalang.test.context.BMainInstance;
 import org.ballerinalang.test.context.BServerInstance;
 import org.ballerinalang.test.context.BallerinaTestException;
 import org.ballerinalang.test.context.LogLeecher;
+import org.ballerinalang.test.util.HttpClientRequest;
 import org.ballerinalang.test.util.HttpResponse;
 import org.ballerinalang.test.util.HttpsClientRequest;
 import org.ballerinalang.test.util.TestConstant;
@@ -55,7 +56,7 @@ import static org.ballerinalang.test.service.websub.WebSubTestUtils.requestUpdat
  * 5. Subscription and content distribution when a secret is not specified
  */
 @Test(groups = "websub-test")
-public class WebSubAutoIntentVerificationTestCase extends WebSubBaseTest {
+public class WebSubCoreFunctionalityTestCase extends WebSubBaseTest {
     private BServerInstance webSubSubscriber;
     private BMainInstance subscriptionChanger;
 
@@ -65,18 +66,33 @@ public class WebSubAutoIntentVerificationTestCase extends WebSubBaseTest {
     private static String hubUrl = "https://localhost:9191/websub/hub";
     private static final String INTENT_VERIFICATION_LOG = "ballerina: Intent Verification agreed - Mode [subscribe], "
             + "Topic [http://one.websub.topic.com], Lease Seconds [86400]";
+    private static final String EXPLICIT_INTENT_VERIFICATION_LOG = "Intent verified explicitly for subscription "
+            + "change request";
+
     private static final String INTERNAL_HUB_NOTIFICATION_LOG = "WebSub Notification Received: "
             + "{\"action\":\"publish\", \"mode\":\"internal-hub\"}";
     private static final String REMOTE_HUB_NOTIFICATION_LOG = "WebSub Notification Received: "
             + "{\"action\":\"publish\", \"mode\":\"remote-hub\"}";
+
+    private static final String INTERNAL_HUB_NOTIFICATION_LOG_TWO = "WebSub Notification Received by Two: "
+            + "{\"action\":\"publish\", \"mode\":\"internal-hub\"}";
+    private static final String REMOTE_HUB_NOTIFICATION_LOG_TWO = "WebSub Notification Received by Two: "
+            + "{\"action\":\"publish\", \"mode\":\"remote-hub\"}";
+
     private static final String UNSUBSCRIPTION_INTENT_VERIFICATION_LOG = "ballerina: Intent Verification agreed - Mode "
             + "[unsubscribe], Topic [http://one.websub.topic.com]";
     private static final String INTENT_VERIFICATION_DENIAL_LOG = "ballerina: Intent Verification denied - Mode "
             + "[subscribe], Topic [http://two.websub.topic.com]";
 
     private LogLeecher intentVerificationLogLeecher = new LogLeecher(INTENT_VERIFICATION_LOG);
+    private LogLeecher explicitIntentVerificationLogLeecher = new LogLeecher(EXPLICIT_INTENT_VERIFICATION_LOG);
+
     private LogLeecher internalHubNotificationLogLeecher = new LogLeecher(INTERNAL_HUB_NOTIFICATION_LOG);
     private LogLeecher remoteHubNotificationLogLeecher = new LogLeecher(REMOTE_HUB_NOTIFICATION_LOG);
+
+    private LogLeecher internalHubNotificationLogLeecherTwo = new LogLeecher(INTERNAL_HUB_NOTIFICATION_LOG_TWO);
+    private LogLeecher remoteHubNotificationLogLeecherTwo = new LogLeecher(REMOTE_HUB_NOTIFICATION_LOG_TWO);
+
     private LogLeecher unsubscriptionIntentVerificationLogLeecher = new LogLeecher(
             UNSUBSCRIPTION_INTENT_VERIFICATION_LOG);
     private LogLeecher logAbsenceTestLogLeecher = new LogLeecher(INTERNAL_HUB_NOTIFICATION_LOG);
@@ -94,8 +110,11 @@ public class WebSubAutoIntentVerificationTestCase extends WebSubBaseTest {
         String subscriberBal = new File("src" + File.separator + "test" + File.separator + "resources"
                 + File.separator + "websub" + File.separator + "websub_test_subscriber.bal").getAbsolutePath();
         webSubSubscriber.addLogLeecher(intentVerificationLogLeecher);
+        webSubSubscriber.addLogLeecher(explicitIntentVerificationLogLeecher);
         webSubSubscriber.addLogLeecher(internalHubNotificationLogLeecher);
         webSubSubscriber.addLogLeecher(remoteHubNotificationLogLeecher);
+        webSubSubscriber.addLogLeecher(internalHubNotificationLogLeecherTwo);
+        webSubSubscriber.addLogLeecher(remoteHubNotificationLogLeecherTwo);
         webSubSubscriber.addLogLeecher(unsubscriptionIntentVerificationLogLeecher);
         webSubSubscriber.addLogLeecher(intentVerificationDenialLogLeecher);
 
@@ -104,20 +123,35 @@ public class WebSubAutoIntentVerificationTestCase extends WebSubBaseTest {
     }
 
     @Test
-    public void testSubscriptionAndIntentVerification() throws BallerinaTestException {
+    public void testSubscriptionAndAutomaticIntentVerification() throws BallerinaTestException {
         intentVerificationLogLeecher.waitForText(30000);
     }
 
-    @Test(dependsOnMethods = "testSubscriptionAndIntentVerification")
-    public void testContentReceiptForDirectHubNotification() throws BallerinaTestException {
+    @Test(dependsOnMethods = "testSubscriptionAndAutomaticIntentVerification")
+    public void testSubscriptionAndExplicitIntentVerification() throws BallerinaTestException {
+        explicitIntentVerificationLogLeecher.waitForText(30000);
         requestUpdate(PUBLISHER_NOTIFY_URL, HUB_MODE_INTERNAL, CONTENT_TYPE_JSON);
+        requestUpdate(PUBLISHER_NOTIFY_URL, HUB_MODE_REMOTE, CONTENT_TYPE_JSON);
+    }
+
+    @Test(dependsOnMethods = "testSubscriptionAndExplicitIntentVerification")
+    public void testContentReceiptForDirectHubNotification() throws BallerinaTestException {
         internalHubNotificationLogLeecher.waitForText(45000);
     }
 
-    @Test(dependsOnMethods = "testContentReceiptForDirectHubNotification")
+    @Test(dependsOnMethods = "testSubscriptionAndExplicitIntentVerification")
     public void testContentReceiptForRemoteHubNotification() throws BallerinaTestException {
-        requestUpdate(PUBLISHER_NOTIFY_URL, HUB_MODE_REMOTE, CONTENT_TYPE_JSON);
         remoteHubNotificationLogLeecher.waitForText(45000);
+    }
+
+    @Test(dependsOnMethods = "testSubscriptionAndExplicitIntentVerification")
+    public void testAuthenticatedContentReceiptForDirectHubNotification() throws BallerinaTestException {
+        internalHubNotificationLogLeecherTwo.waitForText(45000);
+    }
+
+    @Test(dependsOnMethods = "testSubscriptionAndExplicitIntentVerification")
+    public void testAuthenticatedContentReceiptForRemoteHubNotification() throws BallerinaTestException {
+        remoteHubNotificationLogLeecherTwo.waitForText(45000);
     }
 
     @Test(dependsOnMethods = "testContentReceiptForRemoteHubNotification")
@@ -165,6 +199,29 @@ public class WebSubAutoIntentVerificationTestCase extends WebSubBaseTest {
     public void testIntentVerificationRejectionForIncorrectTopic() throws BallerinaTestException {
         intentVerificationDenialLogLeecher.waitForText(45000);
         lastTest = true;
+    }
+
+    @Test(dependsOnMethods = "testSubscriptionAndExplicitIntentVerification")
+    public void testSignatureValidationFailure() throws IOException {
+        Map<String, String> headers = new HashMap<>();
+        headers.put("X-Hub-Signature", "SHA256=incorrect583e9dc7eaf63aede0abac8e15212e06320bb021c433a20f27d553");
+        headers.put(HttpHeaderNames.CONTENT_TYPE.toString(), TestConstant.CONTENT_TYPE_JSON);
+        HttpResponse response = HttpClientRequest.doPost(
+                webSubSubscriber.getServiceURLHttp(8181, "websubTwo"), "{\"dummy\":\"body\"}",
+                headers);
+        Assert.assertEquals(response.getResponseCode(), 404);
+        Assert.assertEquals(response.getData(), "validation failed for notification");
+    }
+
+    @Test(dependsOnMethods = "testSubscriptionAndExplicitIntentVerification")
+    public void testRejectionIfNoSignature() throws IOException {
+        Map<String, String> headers = new HashMap<>();
+        headers.put(HttpHeaderNames.CONTENT_TYPE.toString(), TestConstant.CONTENT_TYPE_JSON);
+        HttpResponse response = HttpClientRequest.doPost(
+                webSubSubscriber.getServiceURLHttp(8181, "websubTwo"), "{\"dummy\":\"body\"}",
+                headers);
+        Assert.assertEquals(response.getResponseCode(), 404);
+        Assert.assertEquals(response.getData(), "validation failed for notification");
     }
 
     @AfterMethod
