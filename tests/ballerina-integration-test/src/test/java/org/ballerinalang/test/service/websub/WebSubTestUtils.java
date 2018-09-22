@@ -17,15 +17,38 @@
  */
 package org.ballerinalang.test.service.websub;
 
+import io.netty.handler.codec.http.HttpHeaderNames;
 import org.ballerinalang.test.context.BallerinaTestException;
 import org.ballerinalang.test.util.HttpClientRequest;
+import org.ballerinalang.test.util.TestConstant;
 
 import java.io.IOException;
+import java.util.HashMap;
 
 /**
  * Utils class for WebSub Tests.
  */
 class WebSubTestUtils {
+
+    static void directJsonUpdate(String url) throws BallerinaTestException {
+        try {
+            HashMap<String, String> headers = new HashMap<>(1);
+            headers.put(HttpHeaderNames.CONTENT_TYPE.toString(), TestConstant.CONTENT_TYPE_JSON);
+            HttpClientRequest.doPost(url, "{\"mode\":\"direct\"}", headers);
+        } catch (IOException e) {
+            throw new BallerinaTestException("Error requesting direct update");
+        }
+    }
+
+    static void remoteJsonUpdate(String url) throws BallerinaTestException {
+        try {
+            HashMap<String, String> headers = new HashMap<>(1);
+            headers.put(HttpHeaderNames.CONTENT_TYPE.toString(), TestConstant.CONTENT_TYPE_JSON);
+            HttpClientRequest.doPost(url, "{\"mode\":\"remote\"}", headers);
+        } catch (IOException e) {
+            throw new BallerinaTestException("Error requesting remote update");
+        }
+    }
 
     static void updateSubscribed(String port) throws BallerinaTestException {
         try {

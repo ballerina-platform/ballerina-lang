@@ -18,32 +18,24 @@
 package org.ballerinalang.test.service.websub;
 
 import io.netty.handler.codec.http.HttpHeaderNames;
-import org.awaitility.Duration;
-import org.ballerinalang.test.BaseTest;
-import org.ballerinalang.test.context.BMainInstance;
 import org.ballerinalang.test.context.BServerInstance;
 import org.ballerinalang.test.context.BallerinaTestException;
 import org.ballerinalang.test.context.LogLeecher;
-import org.ballerinalang.test.util.HttpClientRequest;
 import org.ballerinalang.test.util.HttpResponse;
 import org.ballerinalang.test.util.HttpsClientRequest;
 import org.ballerinalang.test.util.TestConstant;
 import org.testng.Assert;
-import org.testng.annotations.AfterClass;
-import org.testng.annotations.BeforeClass;
+import org.testng.annotations.AfterMethod;
+import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import java.io.File;
 import java.io.IOException;
-import java.net.ConnectException;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.Executors;
 
-import static org.awaitility.Awaitility.given;
-import static org.ballerinalang.test.service.websub.WebSubTestUtils.updateNotified;
-import static org.ballerinalang.test.service.websub.WebSubTestUtils.updateSubscribed;
-import static java.util.concurrent.TimeUnit.SECONDS;
+import static org.ballerinalang.test.service.websub.WebSubTestUtils.directJsonUpdate;
+import static org.ballerinalang.test.service.websub.WebSubTestUtils.remoteJsonUpdate;
 
 /**
  * This class includes an integration scenario which covers the following:
@@ -57,22 +49,22 @@ import static java.util.concurrent.TimeUnit.SECONDS;
  * topic - both directly to the hub and specifying hub URL
  * 5. Subscription and content distribution when a secret is not specified
  */
-public class WebSubAutoIntentVerificationTestCase extends BaseTest {
+@Test(groups = "websub-test")
+public class WebSubAutoIntentVerificationTestCase extends WebSubBaseTest {
     private BServerInstance webSubSubscriber;
-    private BMainInstance webSubPublisher;
 
-    private final int servicePort = 8181;
-    private final String helperServicePortAsString = "8091";
+    private boolean firstTest = true;
+    private boolean lastTest = false;
 
     private static String hubUrl = "https://localhost:9191/websub/hub";
     private static final String INTENT_VERIFICATION_LOG = "ballerina: Intent Verification agreed - Mode [subscribe], "
-            + "Topic [http://www.websubpubtopic.com], Lease Seconds [86400]";
+            + "Topic [http://one.websub.topic.com], Lease Seconds [86400]";
     private static final String INTERNAL_HUB_NOTIFICATION_LOG = "WebSub Notification Received: "
             + "{\"action\":\"publish\", \"mode\":\"internal-hub\"}";
     private static final String REMOTE_HUB_NOTIFICATION_LOG = "WebSub Notification Received: "
             + "{\"action\":\"publish\", \"mode\":\"remote-hub\"}";
     private static final String INTENT_VERIFICATION_DENIAL_LOG = "ballerina: Intent Verification denied - Mode "
-            + "[subscribe], Topic [http://websubpubtopictwo.com]";
+            + "[subscribe], Topic [http://two.websub.topic.com]";
 
     private LogLeecher intentVerificationLogLeecher = new LogLeecher(INTENT_VERIFICATION_LOG);
     private LogLeecher internalHubNotificationLogLeecher = new LogLeecher(INTERNAL_HUB_NOTIFICATION_LOG);
@@ -80,16 +72,13 @@ public class WebSubAutoIntentVerificationTestCase extends BaseTest {
     private LogLeecher intentVerificationDenialLogLeecher = new LogLeecher(INTENT_VERIFICATION_DENIAL_LOG);
 
 
-    @BeforeClass
+    @BeforeMethod
     public void setup() throws BallerinaTestException {
+        if (!firstTest) {
+            return;
+        }
+        firstTest = false;
         webSubSubscriber = new BServerInstance(balServer);
-        webSubPublisher = new BMainInstance(balServer);
-
-        String balFile = new File("src" + File.separator + "test" + File.separator + "resources"
-                + File.separator + "websub" + File.separator + "websub_test_publisher.bal").getAbsolutePath();
-        String[] publisherArgs = {"-e", "b7a.websub.hub.port=9191", "-e", "b7a.websub.hub.remotepublish=true",
-                "-e", "test.hub.url=" + hubUrl, "-e", "test.helper.service.port=" + helperServicePortAsString};
-
         String subscriberBal = new File("src" + File.separator + "test" + File.separator + "resources"
                 + File.separator + "websub" + File.separator + "websub_test_subscriber.bal").getAbsolutePath();
         webSubSubscriber.addLogLeecher(intentVerificationLogLeecher);
@@ -97,39 +86,24 @@ public class WebSubAutoIntentVerificationTestCase extends BaseTest {
         webSubSubscriber.addLogLeecher(remoteHubNotificationLogLeecher);
         webSubSubscriber.addLogLeecher(intentVerificationDenialLogLeecher);
 
-        Executors.newSingleThreadExecutor().execute(() -> {
-            try {
-                webSubPublisher.runMain(balFile, publisherArgs, new String[]{});
-            } catch (BallerinaTestException e) {
-                //ignored since any errors here would be reflected as test failures
-            }
-        });
-
-        //Allow to bring up the hub
-        given().ignoreException(ConnectException.class).with().pollInterval(Duration.ONE_SECOND).await()
-                .atMost(60, SECONDS).until(() -> {
-            //using same pack location, hence server home is same
-            HttpResponse response = HttpsClientRequest.doGet(hubUrl, webSubSubscriber.getServerHome());
-            return response.getResponseCode() == 202;
-        });
-
         String[] subscriberArgs = {"-e", "test.hub.url=" + hubUrl};
-        webSubSubscriber.startServer(subscriberBal, subscriberArgs, new int[]{servicePort});
+        webSubSubscriber.startServer(subscriberBal, subscriberArgs, new int[]{8181});
     }
 
     @Test
     public void testSubscriptionAndIntentVerification() throws BallerinaTestException {
         intentVerificationLogLeecher.waitForText(30000);
-        updateSubscribed(helperServicePortAsString);
     }
 
     @Test(dependsOnMethods = "testSubscriptionAndIntentVerification")
     public void testContentReceiptForDirectHubNotification() throws BallerinaTestException {
+        directJsonUpdate("http://localhost:8080/publisher/notify");
         internalHubNotificationLogLeecher.waitForText(45000);
     }
 
     @Test(dependsOnMethods = "testContentReceiptForDirectHubNotification")
     public void testContentReceiptForRemoteHubNotification() throws BallerinaTestException {
+        remoteJsonUpdate("http://localhost:8080/publisher/notify");
         remoteHubNotificationLogLeecher.waitForText(45000);
     }
 
@@ -137,9 +111,13 @@ public class WebSubAutoIntentVerificationTestCase extends BaseTest {
     public void testRemoteTopicRegistration() throws IOException {
         Map<String, String> headers = new HashMap<>();
         headers.put(HttpHeaderNames.CONTENT_TYPE.toString(), TestConstant.CONTENT_TYPE_FORM_URL_ENCODED);
-        HttpResponse response = HttpClientRequest.doPost(hubUrl,
-                "hub.mode=subscribe&hub.topic=http://websubpubtopictwo.com&hub.callback=http://localhost:8181/websub",
-                headers);
+        HttpResponse response = HttpsClientRequest.doPost(hubUrl,
+                                                          "hub.mode=subscribe"
+                                                                  + "&hub.topic=http://two.websub.topic.com"
+                                                                  + "&hub.callback=http://localhost:8181/websub",
+                                                          headers,
+                                                          webSubSubscriber.getServerHome());
+        Assert.assertTrue(response != null);
         Assert.assertEquals(response.getResponseCode(), 202, "Remote topic registration unsuccessful "
                 + "to allow registering subscription");
     }
@@ -147,11 +125,15 @@ public class WebSubAutoIntentVerificationTestCase extends BaseTest {
     @Test(dependsOnMethods = "testRemoteTopicRegistration")
     public void testIntentVerificationRejectionForIncorrectTopic() throws BallerinaTestException {
         intentVerificationDenialLogLeecher.waitForText(45000);
+        lastTest = true;
     }
 
-    @AfterClass
-    private void cleanup() throws Exception {
-        updateNotified(helperServicePortAsString);
+    @AfterMethod
+    public void cleanup() throws Exception {
+        if (!lastTest) {
+            return;
+        }
+        webSubSubscriber.removeAllLeechers();
         webSubSubscriber.shutdownServer();
     }
 }

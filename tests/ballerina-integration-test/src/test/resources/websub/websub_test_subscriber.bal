@@ -11,7 +11,7 @@ endpoint websub:Listener websubEP {
 @websub:SubscriberServiceConfig {
     path:"/websub",
     subscribeOnStartUp:true,
-    topic: "http://www.websubpubtopic.com",
+    topic: "http://one.websub.topic.com",
     hub: config:getAsString("test.hub.url")
 }
 service<websub:Service> websubSubscriber bind websubEP {
