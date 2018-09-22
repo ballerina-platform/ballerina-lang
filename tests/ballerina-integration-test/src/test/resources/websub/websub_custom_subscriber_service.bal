@@ -33,7 +33,7 @@ public type MockDomainEvent record {
 };
 
 endpoint WebhookListenerForPayload listenerOneEP {
-    port:8484
+    port:8585
 };
 
 @websub:SubscriberServiceConfig {
@@ -54,7 +54,7 @@ service<WebhookServiceForPayload> keyWebhook bind listenerOneEP {
 }
 
 endpoint WebhookListenerForHeader listenerTwoEP {
-    port:8585
+    port:8686
 };
 
 @websub:SubscriberServiceConfig {
@@ -77,7 +77,7 @@ service<WebhookServiceForHeader> headerWebhook bind listenerTwoEP {
 }
 
 endpoint WebhookListenerForHeaderAndPayload listenerThreeEP {
-    port:8686
+    port:8787
 };
 
 @websub:SubscriberServiceConfig {

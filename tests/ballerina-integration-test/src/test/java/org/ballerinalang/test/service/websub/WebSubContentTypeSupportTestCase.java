@@ -28,8 +28,7 @@ import static org.ballerinalang.test.service.websub.WebSubTestUtils.requestUpdat
 public class WebSubContentTypeSupportTestCase extends WebSubBaseTest {
     private BServerInstance webSubSubscriber;
 
-    private boolean firstTest = true;
-    private boolean lastTest = false;
+    private boolean allowExec = true;
 
     private static final String INTENT_VERIFICATION_SUBSCRIBER_ONE_LOG = "ballerina: Intent Verification agreed - Mode"
             + " [subscribe], Topic [http://one.websub.topic.com], Lease Seconds [3000]";
@@ -102,10 +101,10 @@ public class WebSubContentTypeSupportTestCase extends WebSubBaseTest {
 
     @BeforeMethod
     public void setup() throws BallerinaTestException {
-        if (!firstTest) {
+        if (!allowExec) {
             return;
         }
-        firstTest = false;
+        allowExec = false;
         webSubSubscriber = new BServerInstance(balServer);
 
         String subscriberBal = new File("src" + File.separator + "test" + File.separator + "resources"
@@ -201,12 +200,12 @@ public class WebSubContentTypeSupportTestCase extends WebSubBaseTest {
     @Test(dependsOnMethods = "testUnauthenticatedJsonContentReceiptForInternalHub")
     public void testUnauthenticatedJsonContentReceiptForRemoteHub() throws BallerinaTestException {
         remoteHubJsonNotificationLogLeecherTwo.waitForText(45000);
-        lastTest = true;
+        allowExec = true;
     }
 
     @AfterMethod
-    private void cleanup() throws Exception {
-        if (!lastTest) {
+    private void teardown() throws Exception {
+        if (!allowExec) {
             return;
         }
         webSubSubscriber.shutdownServer();

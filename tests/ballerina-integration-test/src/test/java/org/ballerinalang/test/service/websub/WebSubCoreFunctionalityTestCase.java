@@ -60,8 +60,7 @@ public class WebSubCoreFunctionalityTestCase extends WebSubBaseTest {
     private BServerInstance webSubSubscriber;
     private BMainInstance subscriptionChanger;
 
-    private boolean firstTest = true;
-    private boolean lastTest = false;
+    private boolean allowExec = true;
 
     private static String hubUrl = "https://localhost:9191/websub/hub";
     private static final String INTENT_VERIFICATION_LOG = "ballerina: Intent Verification agreed - Mode [subscribe], "
@@ -101,10 +100,10 @@ public class WebSubCoreFunctionalityTestCase extends WebSubBaseTest {
 
     @BeforeMethod
     public void setup() throws BallerinaTestException {
-        if (!firstTest) {
+        if (!allowExec) {
             return;
         }
-        firstTest = false;
+        allowExec = false;
         webSubSubscriber = new BServerInstance(balServer);
         subscriptionChanger = new BMainInstance(balServer);
         String subscriberBal = new File("src" + File.separator + "test" + File.separator + "resources"
@@ -198,10 +197,10 @@ public class WebSubCoreFunctionalityTestCase extends WebSubBaseTest {
     @Test(dependsOnMethods = "testRemoteTopicRegistration")
     public void testIntentVerificationRejectionForIncorrectTopic() throws BallerinaTestException {
         intentVerificationDenialLogLeecher.waitForText(45000);
-        lastTest = true;
     }
 
-    @Test(dependsOnMethods = "testSubscriptionAndExplicitIntentVerification")
+    @Test(dependsOnMethods = {"testSubscriptionAndExplicitIntentVerification",
+            "testIntentVerificationRejectionForIncorrectTopic"})
     public void testSignatureValidationFailure() throws IOException {
         Map<String, String> headers = new HashMap<>();
         headers.put("X-Hub-Signature", "SHA256=incorrect583e9dc7eaf63aede0abac8e15212e06320bb021c433a20f27d553");
@@ -213,7 +212,7 @@ public class WebSubCoreFunctionalityTestCase extends WebSubBaseTest {
         Assert.assertEquals(response.getData(), "validation failed for notification");
     }
 
-    @Test(dependsOnMethods = "testSubscriptionAndExplicitIntentVerification")
+    @Test(dependsOnMethods = "testSignatureValidationFailure")
     public void testRejectionIfNoSignature() throws IOException {
         Map<String, String> headers = new HashMap<>();
         headers.put(HttpHeaderNames.CONTENT_TYPE.toString(), TestConstant.CONTENT_TYPE_JSON);
@@ -222,11 +221,12 @@ public class WebSubCoreFunctionalityTestCase extends WebSubBaseTest {
                 headers);
         Assert.assertEquals(response.getResponseCode(), 404);
         Assert.assertEquals(response.getData(), "validation failed for notification");
+        allowExec = true;
     }
 
     @AfterMethod
-    public void cleanup() throws Exception {
-        if (!lastTest) {
+    public void teardown() throws Exception {
+        if (!allowExec) {
             return;
         }
         webSubSubscriber.removeAllLeechers();

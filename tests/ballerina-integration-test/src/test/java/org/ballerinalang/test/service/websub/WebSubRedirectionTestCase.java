@@ -32,6 +32,7 @@ import java.io.File;
  * 3. 307 - Temporary redirect to a new hub for subscription
  * 4. 308 - Permanent redirect to a new hub for subscription
  */
+@Test(groups = "websub-test")
 public class WebSubRedirectionTestCase extends WebSubBaseTest {
     private BServerInstance webSubSubscriber;
 
@@ -40,18 +41,17 @@ public class WebSubRedirectionTestCase extends WebSubBaseTest {
     private static final String INTENT_VERIFICATION_SUBSCRIBER_TWO_LOG = "ballerina: Intent Verification agreed - Mode "
             + "[subscribe], Topic [http://two.redir.topic.com], Lease Seconds [1200]";
 
-    private boolean firstTest = true;
-    private boolean lastTest = false;
+    private boolean allowExec = true;
 
     private LogLeecher intentVerificationLogLeecherOne;
     private LogLeecher intentVerificationLogLeecherTwo;
 
     @BeforeMethod
     public void setup() throws BallerinaTestException {
-        if (!firstTest) {
+        if (!allowExec) {
             return;
         }
-        firstTest = false;
+        allowExec = false;
 
         webSubSubscriber = new BServerInstance(balServer);
 
@@ -76,12 +76,12 @@ public class WebSubRedirectionTestCase extends WebSubBaseTest {
     @Test(dependsOnMethods = "testTopicMovedPermanentlyAndHubTemporaryRedirect")
     public void testTopicRedirectFoundAndHubPermanentRedirect() throws BallerinaTestException {
         intentVerificationLogLeecherTwo.waitForText(30000);
-        lastTest = true;
+        allowExec = true;
     }
 
     @AfterMethod
-    private void cleanup() throws Exception {
-        if (!lastTest) {
+    private void teardown() throws Exception {
+        if (!allowExec) {
             return;
         }
         webSubSubscriber.shutdownServer();

@@ -21,7 +21,7 @@ package org.ballerinalang.test.service.websub;
 import org.ballerinalang.test.BaseTest;
 import org.ballerinalang.test.context.BServerInstance;
 import org.ballerinalang.test.context.BallerinaTestException;
-//import org.testng.annotations.AfterGroups;
+import org.testng.annotations.AfterGroups;
 import org.testng.annotations.BeforeGroups;
 
 import java.io.File;
@@ -41,9 +41,9 @@ public class WebSubBaseTest extends BaseTest {
         publisherServerInstance = new BServerInstance(balServer);
         publisherServerInstance.startServer(balFile, "services", requiredPorts);
     }
-//
-//    @AfterGroups(value = "websub-test")
-//    public void cleanup() throws Exception {
-//        publisherServerInstance.shutdownServer();
-//    }
+
+    @AfterGroups(value = "websub-test")
+    public void cleanup() throws Exception {
+        publisherServerInstance.shutdownServer();
+    }
 }
