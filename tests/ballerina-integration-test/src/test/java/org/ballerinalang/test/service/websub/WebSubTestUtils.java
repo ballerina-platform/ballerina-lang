@@ -50,20 +50,4 @@ class WebSubTestUtils {
             throw new BallerinaTestException("Error requesting content delivery");
         }
     }
-
-    static void updateSubscribed(String port) throws BallerinaTestException {
-        try {
-            HttpClientRequest.doGet("http://localhost:" + port + "/helper/subscribed");
-        } catch (IOException e) {
-            throw new BallerinaTestException("Error updating subscription change");
-        }
-    }
-
-    static void updateNotified(String port) throws BallerinaTestException {
-        try {
-            HttpClientRequest.doGet("http://localhost:" + port + "/helper/delivered");
-        } catch (IOException e) {
-            throw new BallerinaTestException("Error updating content delivery");
-        }
-    }
 }

@@ -85,7 +85,7 @@ public class WebSubServiceExtensionTestCase extends BaseTest {
 
         String subscriberBal = new File("src" + File.separator + "test" + File.separator + "resources"
                                                 + File.separator + "websub" + File.separator
-                                                + "websub_custom_subscriber_service.bal").getAbsolutePath();
+                                                + "test_custom_subscribers.bal").getAbsolutePath();
 
         webSubSubscriber.addLogLeecher(byKeyCreatedLogLeecher);
         webSubSubscriber.addLogLeecher(byKeyFeatureLogLeecher);

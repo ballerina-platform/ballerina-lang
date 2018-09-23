@@ -107,7 +107,7 @@ public class WebSubCoreFunctionalityTestCase extends WebSubBaseTest {
         webSubSubscriber = new BServerInstance(balServer);
         subscriptionChanger = new BMainInstance(balServer);
         String subscriberBal = new File("src" + File.separator + "test" + File.separator + "resources"
-                + File.separator + "websub" + File.separator + "websub_test_subscriber.bal").getAbsolutePath();
+                + File.separator + "websub" + File.separator + "test_subscriber.bal").getAbsolutePath();
         webSubSubscriber.addLogLeecher(intentVerificationLogLeecher);
         webSubSubscriber.addLogLeecher(explicitIntentVerificationLogLeecher);
         webSubSubscriber.addLogLeecher(internalHubNotificationLogLeecher);
@@ -156,8 +156,8 @@ public class WebSubCoreFunctionalityTestCase extends WebSubBaseTest {
     @Test(dependsOnMethods = "testContentReceiptForRemoteHubNotification")
     public void testUnsubscriptionIntentVerification() throws BallerinaTestException {
         String balFile = new File("src" + File.separator + "test" + File.separator + "resources"
-                                          + File.separator + "websub" + File.separator +
-                                          "websub_test_unsubscription_client.bal").getAbsolutePath();
+                                          + File.separator + "websub" + File.separator
+                                          + "test_unsubscription_client.bal").getAbsolutePath();
         Executors.newSingleThreadExecutor().execute(() -> {
             try {
                 subscriptionChanger.runMain(balFile);

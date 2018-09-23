@@ -108,8 +108,8 @@ public class WebSubContentTypeSupportTestCase extends WebSubBaseTest {
         webSubSubscriber = new BServerInstance(balServer);
 
         String subscriberBal = new File("src" + File.separator + "test" + File.separator + "resources"
-                + File.separator + "websub" + File.separator + "content_types" + File.separator
-                + "subscribers.bal").getAbsolutePath();
+                + File.separator + "websub" + File.separator + "test_different_content_type_subscribers.bal")
+                .getAbsolutePath();
         webSubSubscriber.addLogLeecher(intentVerificationLogLeecherOne);
         webSubSubscriber.addLogLeecher(intentVerificationLogLeecherTwo);
         webSubSubscriber.addLogLeecher(internalHubXmlNotificationLogLeecherOne);

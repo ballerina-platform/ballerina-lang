@@ -69,8 +69,7 @@ public class WebSubDiscoveryWithMultipleSubscribersTestCase extends WebSubBaseTe
         allowExec = false;
         webSubSubscriber = new BServerInstance(balServer);
         String subscriberBal = new File("src" + File.separator + "test" + File.separator + "resources"
-                + File.separator + "websub" + File.separator +
-                "websub_test_multiple_subscribers.bal").getAbsolutePath();
+                + File.separator + "websub" + File.separator + "test_multiple_subscribers.bal").getAbsolutePath();
         webSubSubscriber.addLogLeecher(intentVerificationLogLeecherOne);
         webSubSubscriber.addLogLeecher(intentVerificationLogLeecherTwo);
         webSubSubscriber.addLogLeecher(internalHubNotificationLogLeecherOne);
