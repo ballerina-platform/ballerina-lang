@@ -153,26 +153,16 @@ function buildIntentVerificationResponse(IntentVerificationRequest intentVerific
     returns http:Response {
 
     http:Response response = new;
-    string reqTopic = check http:decode(intentVerificationRequest.topic, "UTF-8");
-    if (topic == "") {
-        response.statusCode = http:NOT_FOUND_404;
-        log:printError("Intent Verification denied - Mode [" + mode + "], Topic [" + reqTopic +
-                "], since topic unavailable as an annotation or unspecified as a parameter");
+    string reqTopic = http:decode(intentVerificationRequest.topic, "UTF-8") but { error => topic };
+
+    string reqMode = intentVerificationRequest.mode;
+    string challenge = intentVerificationRequest.challenge;
+
+    if (reqMode == mode && reqTopic == topic) {
+        response.statusCode = http:ACCEPTED_202;
+        response.setTextPayload(challenge);
     } else {
-        string reqMode = intentVerificationRequest.mode;
-        string challenge = intentVerificationRequest.challenge;
-
-        string reqLeaseSeconds = <string>intentVerificationRequest.leaseSeconds;
-
-        if (reqMode == mode && reqTopic == topic) {
-            response.statusCode = http:ACCEPTED_202;
-            response.setTextPayload(challenge);
-            log:printInfo("Intent Verification agreed - Mode [" + mode + "], Topic [" + topic + "], Lease Seconds ["
-                    + reqLeaseSeconds + "]");
-        } else {
-            response.statusCode = http:NOT_FOUND_404;
-            log:printWarn("Intent Verification denied - Mode [" + mode + "], Topic [" + reqTopic + "]");
-        }
+        response.statusCode = http:NOT_FOUND_404;
     }
     return response;
 }
@@ -186,7 +176,7 @@ function processWebSubNotification(http:Request request, typedesc serviceType) r
     string secret;
     match (retrieveSubscriberServiceAnnotations(serviceType)) {
         SubscriberServiceConfiguration subscriberServiceAnnotation => { secret = subscriberServiceAnnotation.secret; }
-        () => { log:printDebug("WebSub notification received for subscription with no secret specified"); }
+        () => {}
     }
 
     string xHubSignature;
@@ -227,7 +217,6 @@ function processWebSubNotification(http:Request request, typedesc serviceType) r
 # + secret - The secret used when subscribing
 # + return - `error` if an error occurs validating the signature or the signature is invalid
 function validateSignature(string xHubSignature, string stringPayload, string secret) returns error? {
-
     string[] splitSignature = xHubSignature.split("=");
     string method = splitSignature[0];
     string signature = xHubSignature.replace(method + "=", "");
@@ -497,8 +486,7 @@ function WebSubHub::stop() returns boolean {
 }
 
 function WebSubHub::publishUpdate(string topic, string|xml|json|byte[]|io:ByteChannel payload,
-                                         string? contentType = ()) returns error? {
-
+                                  string? contentType = ()) returns error? {
     if (self.hubUrl == "") {
         error webSubError = {message: "Internal Ballerina Hub not initialized or incorrectly referenced"};
         return webSubError;
