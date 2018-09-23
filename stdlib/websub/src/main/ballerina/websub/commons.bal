@@ -67,7 +67,6 @@ import ballerina/reflect;
 @final string CONTENT_TYPE = "Content-Type";
 @final string SHA1 = "SHA1";
 @final string SHA256 = "SHA256";
-@final string MD5 = "MD5";
 
 @final string ANN_NAME_WEBSUB_SUBSCRIBER_SERVICE_CONFIG = "SubscriberServiceConfig";
 @final string WEBSUB_PACKAGE_NAME = "ballerina/websub";
@@ -238,8 +237,6 @@ function validateSignature(string xHubSignature, string stringPayload, string se
         generatedSignature = crypto:hmac(stringPayload, secret, crypto:SHA1);
     } else if (SHA256.equalsIgnoreCase(method)) {
         generatedSignature = crypto:hmac(stringPayload, secret, crypto:SHA256);
-    } else if (MD5.equalsIgnoreCase(method)) {
-        generatedSignature = crypto:hmac(stringPayload, secret, crypto:MD5);
     } else {
         error webSubError = {message:"Unsupported signature method: " + method};
         return webSubError;

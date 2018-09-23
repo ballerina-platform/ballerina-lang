@@ -591,8 +591,6 @@ function distributeContent(string callback, SubscriptionDetails subscriptionDeta
                 generatedSignature = crypto:hmac(stringPayload, subscriptionDetails.secret, crypto:SHA1);
             } else if (SHA256.equalsIgnoreCase(hubSignatureMethod)) {
                 generatedSignature = crypto:hmac(stringPayload, subscriptionDetails.secret, crypto:SHA256);
-            } else if (MD5.equalsIgnoreCase(hubSignatureMethod)) {
-                generatedSignature = crypto:hmac(stringPayload, subscriptionDetails.secret, crypto:MD5);
             }
             xHubSignature = xHubSignature + generatedSignature;
             request.setHeader(X_HUB_SIGNATURE, xHubSignature);
