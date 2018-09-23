@@ -9,7 +9,7 @@ endpoint jdbc:Client testDB {
     username: "test",
     password: "test",
     poolOptions: { maximumPoolSize: 5 },
-    dbOptions: {useSSL: false }
+    dbOptions: { useSSL: false }
 };
 
 // This is the type created to represent data row.
@@ -29,16 +29,18 @@ public function main() {
                          age INT, name VARCHAR(255), PRIMARY KEY (id))");
     handleUpdate(ret, "Create student table");
 
-    json jsonMsg = { "student": [ { "firstname": "Peter",
-                                    "age": 10
-                                  }, {
-                                    "firstname": "John",
-                                    "age": 15
-                                  }, {
-                                    "firstname": "James",
-                                    "age": 12
-                                  } ]
-                   };
+    json jsonMsg = {
+        "student": [{
+            "firstname": "Peter",
+            "age": 10
+        }, {
+            "firstname": "John",
+            "age": 15
+        }, {
+            "firstname": "James",
+            "age": 12
+        }]
+    };
 
     // Prepare the data batches.
     int datalen = lengthof jsonMsg.student;

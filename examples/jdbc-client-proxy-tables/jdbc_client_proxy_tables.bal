@@ -9,7 +9,7 @@ endpoint jdbc:Client testDB {
     username: "test",
     password: "test",
     poolOptions: { maximumPoolSize: 5 },
-    dbOptions: {useSSL: false }
+    dbOptions: { useSSL: false }
 };
 
 // This is the type created to represent data row.

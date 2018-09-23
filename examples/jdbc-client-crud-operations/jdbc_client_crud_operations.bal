@@ -40,7 +40,7 @@ public function main() {
     int age = 24;
     string name = "Anne";
     ret = testDB->update("INSERT INTO student(age, name) values (?, ?)",
-                         age, name);
+        age, name);
     handleUpdate(ret, "Insert to student table with variable parameters");
 
     // The query parameters are given as sql:Parameters for the update operation.
@@ -48,14 +48,14 @@ public function main() {
     sql:Parameter p1 = { sqlType: sql:TYPE_INTEGER, value: 25 };
     sql:Parameter p2 = { sqlType: sql:TYPE_VARCHAR, value: "James" };
     ret = testDB->update("INSERT INTO student(age, name) values (?, ?)",
-                          p1, p2);
+        p1, p2);
     handleUpdate(ret, "Insert to student table with sql:parameter values");
 
 
     // Update data in the table using the update operation.
     io:println("\nThe Update operation - Update data in a table");
     ret = testDB->update("Update student set name = 'Jones' where age = ?",
-                         23);
+        23);
     handleUpdate(ret, "Update a row in student table");
 
     // Delete data in a table using the update operation.
@@ -91,7 +91,7 @@ public function main() {
     match selectRet {
         table tableReturned => dt = tableReturned;
         error e => io:println("Select data from student table failed: "
-                               + e.message);
+                + e.message);
     }
     // Conversion from type 'table' to either JSON or XML results in data streaming.
     // When a service client makes a request, the result is streamed to the service
@@ -116,7 +116,7 @@ public function main() {
     match selectRet {
         table tableReturned => dt = tableReturned;
         error e => io:println("Select data from student table failed: "
-                               + e.message);
+                + e.message);
     }
 
     // Iterating data first time.
