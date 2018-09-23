@@ -105,8 +105,7 @@ service<http:Service> hubService {
                 done;
             }
 
-            string secret = params[PUBLISHER_SECRET] but { () => "" };
-            match(registerTopicAtHub(topic, secret)) {
+            match(registerTopicAtHub(topic)) {
                 error e => {
                     string errorMessage = e.message;
                     response.statusCode = http:BAD_REQUEST_400;
@@ -136,8 +135,7 @@ service<http:Service> hubService {
                 done;
             }
 
-            string secret = params[PUBLISHER_SECRET] but { () => "" };
-            match(unregisterTopicAtHub(topic, secret)) {
+            match(unregisterTopicAtHub(topic)) {
                 error e => {
                     string errorMessage = e.message;
                     response.statusCode = http:BAD_REQUEST_400;
@@ -196,36 +194,6 @@ service<http:Service> hubService {
                             contentType = request.getHeader(CONTENT_TYPE);
                         }
                         stringPayload = request.getPayloadAsString() but { error => "" };
-                    }
-
-                    if (hubTopicRegistrationRequired) {
-                        string secret = retrievePublisherSecret(topic);
-                        if (secret != "") {
-                            if (request.hasHeader(PUBLISHER_SIGNATURE)) {
-                                string publisherSignature = request.getHeader(PUBLISHER_SIGNATURE);
-                                var signatureValidation = validateSignature(publisherSignature, stringPayload, secret);
-                                match (signatureValidation) {
-                                    error err => {
-                                        string errorMessage = "Signature validation failed for publish request"
-                                                                + "for topic[" + topic + "]: " + err.message;
-                                        log:printError(errorMessage);
-                                        response.statusCode = http:BAD_REQUEST_400;
-                                        response.setTextPayload(untaint errorMessage);
-                                        var responseError = client->respond(response);
-                                        match(responseError) {
-                                            error e => log:printError("Error responding on signature validation failure"
-                                                        + " for publish request", err = e);
-                                            () => {}
-                                        }
-                                        done;
-                                    }
-                                    () => {
-                                        log:printDebug("Signature validation successful for publish request "
-                                                + "for Topic [" + topic + "]");
-                                    }
-                                }
-                            }
-                        }
                     }
 
                     error? publishStatus = ();
@@ -403,8 +371,7 @@ function verifyIntent(string callback, string topic, map<string> params) {
 #
 # + mode - Whether the change is for addition/removal
 # + topic - The topic for which registration is changing
-# + secret - The secret if specified when registering, empty string if not
-function changeTopicRegistrationInDatabase(string mode, string topic, string secret) {
+function changeTopicRegistrationInDatabase(string mode, string topic) {
     endpoint jdbc:Client subscriptionDbEp {
         url:hubDatabaseUrl,
         username:hubDatabaseUsername,
@@ -413,16 +380,14 @@ function changeTopicRegistrationInDatabase(string mode, string topic, string sec
     };
 
     sql:Parameter para1 = {sqlType:sql:TYPE_VARCHAR, value:topic};
-    sql:Parameter para2 = {sqlType:sql:TYPE_VARCHAR, value:secret};
     if (mode == MODE_REGISTER) {
-        var updateStatus = subscriptionDbEp->update("INSERT INTO topics (topic,secret) VALUES (?,?)", para1, para2);
+        var updateStatus = subscriptionDbEp->update("INSERT INTO topics (topic) VALUES (?)", para1);
         match (updateStatus) {
             int rowCount => log:printInfo("Successfully updated " + rowCount + " entries for registration");
             error err => log:printError("Error occurred updating registration data: " + err.message);
         }
     } else {
-        var updateStatus = subscriptionDbEp->update("DELETE FROM topics WHERE topic=? AND secret=?",
-            para1, para2);
+        var updateStatus = subscriptionDbEp->update("DELETE FROM topics WHERE topic=?", para1);
         match (updateStatus) {
             int rowCount => log:printInfo("Successfully updated " + rowCount + " entries for unregistration");
             error err => log:printError("Error occurred updating unregistration data: " + err.message);
@@ -489,7 +454,7 @@ function addTopicRegistrationsOnStartup() {
         poolOptions:{maximumPoolSize:5}
     };
     table dt;
-    var dbResult = subscriptionDbEp->select("SELECT topic, secret FROM topics", TopicRegistration);
+    var dbResult = subscriptionDbEp->select("SELECT * FROM topics", TopicRegistration);
     match (dbResult) {
         table t => { dt = t; }
         error sqlErr => {
@@ -499,8 +464,7 @@ function addTopicRegistrationsOnStartup() {
     while (dt.hasNext()) {
         match (<TopicRegistration>dt.getNext()) {
             TopicRegistration registrationDetails => {
-                match(registerTopicAtHub(registrationDetails.topic, registrationDetails.secret,
-                        loadingOnStartUp = true)) {
+                match(registerTopicAtHub(registrationDetails.topic, loadingOnStartUp = true)) {
                     error e => log:printError("Error registering topic details retrieved from the database: "
                                                 + e.message);
                     () => {}
@@ -664,13 +628,12 @@ function distributeContent(string callback, SubscriptionDetails subscriptionDeta
     }
 }
 
+// TODO: validate if no longer necessary
 # Struct to represent a topic registration.
 #
 # + topic - The topic for which notification would happen
-# + secret - The secret if specified by the topic's publisher
 type TopicRegistration record {
     string topic;
-    string secret;
     !...
 };
 

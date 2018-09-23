@@ -57,16 +57,12 @@ import ballerina/reflect;
 # `hub.mode` value indicating "unregister" mode, used by a publisher to unregister a topic at a hub.
 @final string MODE_UNREGISTER = "unregister";
 
-# Topic registration parameter `publisher.secret` indicating a secret specified by a publisher when registering a
-# topic at the hub, to use for authenticated content delivery between publisher and hub.
-@final string PUBLISHER_SECRET = "publisher.secret";
 @final string REMOTE_PUBLISHING_MODE_DIRECT = "direct";
 @final string REMOTE_PUBLISHING_MODE_FETCH = "fetch";
 
 @final string X_HUB_UUID = "X-Hub-Uuid";
 @final string X_HUB_TOPIC = "X-Hub-Topic";
 @final string X_HUB_SIGNATURE = "X-Hub-Signature";
-@final string PUBLISHER_SIGNATURE = "Publisher-Signature";
 
 @final string CONTENT_TYPE = "Content-Type";
 @final string SHA1 = "SHA1";
@@ -534,11 +530,11 @@ function WebSubHub::publishUpdate(string topic, string|xml|json|byte[]|io:ByteCh
 }
 
 function WebSubHub::registerTopic(string topic) returns error? {
-    return registerTopicAtHub(topic, "");
+    return registerTopicAtHub(topic);
 }
 
 function WebSubHub::unregisterTopic(string topic) returns error? {
-    return unregisterTopicAtHub(topic, "");
+    return unregisterTopicAtHub(topic);
 }
 
 ///////////////////////////////////////////////////////////////////
