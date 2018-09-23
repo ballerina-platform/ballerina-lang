@@ -14,7 +14,7 @@ public function main() {
 #              `F` doc prefix is used to mark a field on Object.
 # + fieldTwo - This is the description for the `DummyObject`'s field `fieldTwo`.
 #              `F` doc prefix is used to mark a field on Object.
-public type DummyObject object {
+public type DummyObject abstract object {
 
     public string fieldOne;
     public string fieldTwo;
