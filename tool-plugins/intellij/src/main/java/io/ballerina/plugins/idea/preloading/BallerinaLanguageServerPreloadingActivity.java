@@ -31,6 +31,7 @@ import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.File;
 import java.nio.file.Paths;
 
 import static io.ballerina.plugins.idea.preloading.OperatingSystemUtils.getOperatingSystem;
@@ -142,9 +143,18 @@ public class BallerinaLanguageServerPreloadingActivity extends PreloadingActivit
     @Nullable
     private String getBallerinaSdk(Project project) {
         Sdk projectSdk = ProjectRootManager.getInstance(project).getProjectSdk();
+        if (projectSdk == null) {
+            return null;
+        }
         String sdkPath = projectSdk.getHomePath();
+        return (isBallerinaSdkHome(sdkPath)) ? sdkPath : null;
+    }
 
-        //returns sdk path if it contains "ballerina".
-        return (sdkPath != null && !sdkPath.equals("") && sdkPath.toLowerCase().contains("ballerina")) ? sdkPath : null;
+    private boolean isBallerinaSdkHome(String sdkPath) {
+        if (sdkPath == null || sdkPath.equals("")) {
+            return false;
+        }
+        String balScriptPath = Paths.get(sdkPath, "bin", "ballerina").toString();
+        return new File(balScriptPath).exists();
     }
 }
