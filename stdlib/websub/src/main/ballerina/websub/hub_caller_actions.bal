@@ -14,11 +14,11 @@
 // specific language governing permissions and limitations
 // under the License.
 
+import ballerina/crypto;
 import ballerina/http;
 import ballerina/io;
 import ballerina/log;
 import ballerina/mime;
-import ballerina/crypto;
 
 # The HTTP based Caller actions for outbound WebSub Subscription, Unsubscription, Registration, Unregistration and
 # Notification requests to a Hub.
@@ -328,9 +328,8 @@ function invokeClientConnectorOnRedirection(@sensitive string hub, @sensitive st
 
     if (mode == MODE_SUBSCRIBE) {
         return subscribeWithRetries(hub, subscriptionChangeRequest, auth, remainingRedirects = remainingRedirects);
-    } else {
-        return unsubscribeWithRetries(hub, subscriptionChangeRequest, auth, remainingRedirects = remainingRedirects);
     }
+    return unsubscribeWithRetries(hub, subscriptionChangeRequest, auth, remainingRedirects = remainingRedirects);
 }
 
 function subscribeWithRetries(string hubUrl, SubscriptionChangeRequest subscriptionRequest, http:AuthConfig? auth,

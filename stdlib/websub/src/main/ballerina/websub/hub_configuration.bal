@@ -21,6 +21,7 @@ import ballerina/log;
 @final string BASE_PATH = "/websub";
 @final string HUB_PATH = "/hub";
 
+@final string DEFAULT_HOST = "0.0.0.0";
 @final int DEFAULT_LEASE_SECONDS_VALUE = 86400; //one day
 @final string DEFAULT_SIGNATURE_METHOD = "SHA256";
 
@@ -29,6 +30,7 @@ import ballerina/log;
 @final string DEFAULT_DB_USERNAME = "ballerina";
 @final string DEFAULT_DB_PASSWORD = "ballerina";
 
+@readonly string hubHost;
 @readonly int hubPort;
 @readonly int hubLeaseSeconds;
 @readonly string hubSignatureMethod;
@@ -53,8 +55,9 @@ import ballerina/log;
 function startHubService() returns http:Listener {
     http:Listener hubServiceEP = new;
     hubServiceEP.init({
-            port:hubPort,
-            secureSocket:hubServiceSecureSocket
+            host: hubHost,
+            port: hubPort,
+            secureSocket: hubServiceSecureSocket
     });
     hubServiceEP.register(hubService);
     hubServiceEP.start();

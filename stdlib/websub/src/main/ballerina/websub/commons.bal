@@ -384,6 +384,7 @@ public type SubscriptionChangeResponse record {
 /////////////////////////////////////////////////////////////
 # Starts up the Ballerina Hub.
 #
+# + host - The hostname to start up the hub on
 # + port - The port to start up the hub on
 # + leaseSeconds - The default lease seconds value to honour if not specified in subscription requests
 # + signatureMethod - The signature method to use for authenticated content delivery (`SHA1`|`SHA256`)
@@ -402,13 +403,12 @@ public type SubscriptionChangeResponse record {
 # + return - `WebSubHub` The WebSubHub object representing the newly started up hub, or `HubStartedUpError` indicating
 #            that the hub is already started, and including the WebSubHub object representing the
 #            already started up hub
-public function startHub(int port, int? leaseSeconds = (), string? signatureMethod = (),
-boolean? remotePublishingEnabled = (), RemotePublishMode? remotePublishMode = (),
-boolean? topicRegistrationRequired = (), string? publicUrl = (),
-boolean? sslEnabled = (), http:ServiceSecureSocket? serviceSecureSocket = (),
-http:SecureSocket? clientSecureSocket = ())
-    returns WebSubHub|HubStartedUpError {
-
+public function startHub(string? host = (), int port, int? leaseSeconds = (), string? signatureMethod = (),
+                         boolean? remotePublishingEnabled = (), RemotePublishMode? remotePublishMode = (),
+                         boolean? topicRegistrationRequired = (), string? publicUrl = (),
+                         boolean? sslEnabled = (), http:ServiceSecureSocket? serviceSecureSocket = (),
+                         http:SecureSocket? clientSecureSocket = ()) returns WebSubHub|HubStartedUpError {
+    hubHost = config:getAsString("b7a.websub.hub.host", default = host but { () => DEFAULT_HOST });
     hubPort = config:getAsInt("b7a.websub.hub.port", default = port);
     hubLeaseSeconds = config:getAsInt("b7a.websub.hub.leasetime",
                                       default = leaseSeconds but { () => DEFAULT_LEASE_SECONDS_VALUE });
