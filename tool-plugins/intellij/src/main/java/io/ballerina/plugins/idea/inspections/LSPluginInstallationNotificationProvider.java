@@ -105,7 +105,7 @@ public class LSPluginInstallationNotificationProvider extends EditorNotification
         final IdeaPluginDescriptor disabledPlugin = getDisabledPlugin(plugin);
 
         if (disabledPlugin != null) {
-            panel.setText("LSP Support Plugin is not enable to provide ballerina language server features (code "
+            panel.setText("LSP Support Plugin is not enabled to provide ballerina language server features (code "
                     + "completion, diagnostics, hover support etc)");
             panel.createActionLabel("Enable Plugin", () -> {
                 myEnabledExtensions.add(extension);
@@ -122,7 +122,6 @@ public class LSPluginInstallationNotificationProvider extends EditorNotification
                     myEnabledExtensions.add(extension);
                     myNotifications.updateAllNotifications();
                 });
-
             });
         }
         panel.createActionLabel("Ignore", myNotifications::updateAllNotifications);
