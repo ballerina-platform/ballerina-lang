@@ -21,24 +21,18 @@ import java.util.List;
 import org.jetbrains.annotations.*;
 import com.intellij.psi.PsiElement;
 
-public interface BallerinaDefinition extends BallerinaCompositeElement {
+public interface BallerinaChannelType extends BallerinaCompositeElement {
 
   @Nullable
-  BallerinaAnnotationDefinition getAnnotationDefinition();
+  BallerinaTypeName getTypeName();
 
   @Nullable
-  BallerinaFunctionDefinition getFunctionDefinition();
+  PsiElement getGt();
 
   @Nullable
-  BallerinaGlobalEndpointDefinition getGlobalEndpointDefinition();
+  PsiElement getLt();
 
-  @Nullable
-  BallerinaGlobalVariable getGlobalVariable();
-
-  @Nullable
-  BallerinaServiceDefinition getServiceDefinition();
-
-  @Nullable
-  BallerinaTypeDefinition getTypeDefinition();
+  @NotNull
+  PsiElement getChannel();
 
 }

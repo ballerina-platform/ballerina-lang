@@ -26,14 +26,14 @@ import com.intellij.psi.util.PsiTreeUtil;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.*;
 import io.ballerina.plugins.idea.psi.*;
 
-public class BallerinaDefinitionImpl extends BallerinaCompositeElementImpl implements BallerinaDefinition {
+public class BallerinaGlobalVariableImpl extends BallerinaCompositeElementImpl implements BallerinaGlobalVariable {
 
-  public BallerinaDefinitionImpl(ASTNode node) {
+  public BallerinaGlobalVariableImpl(ASTNode node) {
     super(node);
   }
 
   public void accept(@NotNull BallerinaVisitor visitor) {
-    visitor.visitDefinition(this);
+    visitor.visitGlobalVariable(this);
   }
 
   public void accept(@NotNull PsiElementVisitor visitor) {
@@ -43,38 +43,8 @@ public class BallerinaDefinitionImpl extends BallerinaCompositeElementImpl imple
 
   @Override
   @Nullable
-  public BallerinaAnnotationDefinition getAnnotationDefinition() {
-    return PsiTreeUtil.getChildOfType(this, BallerinaAnnotationDefinition.class);
-  }
-
-  @Override
-  @Nullable
-  public BallerinaFunctionDefinition getFunctionDefinition() {
-    return PsiTreeUtil.getChildOfType(this, BallerinaFunctionDefinition.class);
-  }
-
-  @Override
-  @Nullable
-  public BallerinaGlobalEndpointDefinition getGlobalEndpointDefinition() {
-    return PsiTreeUtil.getChildOfType(this, BallerinaGlobalEndpointDefinition.class);
-  }
-
-  @Override
-  @Nullable
-  public BallerinaGlobalVariable getGlobalVariable() {
-    return PsiTreeUtil.getChildOfType(this, BallerinaGlobalVariable.class);
-  }
-
-  @Override
-  @Nullable
-  public BallerinaServiceDefinition getServiceDefinition() {
-    return PsiTreeUtil.getChildOfType(this, BallerinaServiceDefinition.class);
-  }
-
-  @Override
-  @Nullable
-  public BallerinaTypeDefinition getTypeDefinition() {
-    return PsiTreeUtil.getChildOfType(this, BallerinaTypeDefinition.class);
+  public BallerinaChannelDefinition getChannelDefinition() {
+    return PsiTreeUtil.getChildOfType(this, BallerinaChannelDefinition.class);
   }
 
 }

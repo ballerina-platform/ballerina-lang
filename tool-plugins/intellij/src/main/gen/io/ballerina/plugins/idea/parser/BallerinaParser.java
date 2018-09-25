@@ -108,6 +108,12 @@ public class BallerinaParser implements PsiParser, LightPsiParser {
     else if (t == CATCH_CLAUSES) {
       r = CatchClauses(b, 0);
     }
+    else if (t == CHANNEL_DEFINITION) {
+      r = ChannelDefinition(b, 0);
+    }
+    else if (t == CHANNEL_TYPE) {
+      r = ChannelType(b, 0);
+    }
     else if (t == CLOSE_TAG) {
       r = CloseTag(b, 0);
     }
@@ -227,6 +233,9 @@ public class BallerinaParser implements PsiParser, LightPsiParser {
     }
     else if (t == GLOBAL_ENDPOINT_DEFINITION) {
       r = GlobalEndpointDefinition(b, 0);
+    }
+    else if (t == GLOBAL_VARIABLE) {
+      r = GlobalVariable(b, 0);
     }
     else if (t == GLOBAL_VARIABLE_DEFINITION) {
       r = GlobalVariableDefinition(b, 0);
@@ -1496,6 +1505,45 @@ public class BallerinaParser implements PsiParser, LightPsiParser {
   }
 
   /* ********************************************************** */
+  // ChannelType identifier SEMICOLON
+  public static boolean ChannelDefinition(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "ChannelDefinition")) return false;
+    if (!nextTokenIs(b, CHANNEL)) return false;
+    boolean r;
+    Marker m = enter_section_(b);
+    r = ChannelType(b, l + 1);
+    r = r && consumeTokens(b, 0, IDENTIFIER, SEMICOLON);
+    exit_section_(b, m, CHANNEL_DEFINITION, r);
+    return r;
+  }
+
+  /* ********************************************************** */
+  // channel (LT TypeName GT)
+  public static boolean ChannelType(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "ChannelType")) return false;
+    if (!nextTokenIs(b, CHANNEL)) return false;
+    boolean r, p;
+    Marker m = enter_section_(b, l, _NONE_, CHANNEL_TYPE, null);
+    r = consumeToken(b, CHANNEL);
+    p = r; // pin = 1
+    r = r && ChannelType_1(b, l + 1);
+    exit_section_(b, l, m, r, p, null);
+    return r || p;
+  }
+
+  // LT TypeName GT
+  private static boolean ChannelType_1(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "ChannelType_1")) return false;
+    boolean r;
+    Marker m = enter_section_(b);
+    r = consumeToken(b, LT);
+    r = r && TypeName(b, l + 1, -1);
+    r = r && consumeToken(b, GT);
+    exit_section_(b, m, null, r);
+    return r;
+  }
+
+  /* ********************************************************** */
   // XML_TAG_OPEN_SLASH XmlQualifiedName XML_TAG_CLOSE
   public static boolean CloseTag(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "CloseTag")) return false;
@@ -1792,7 +1840,7 @@ public class BallerinaParser implements PsiParser, LightPsiParser {
 
   /* ********************************************************** */
   // TypeDefinition
-  //                | GlobalVariableDefinition
+  //                | GlobalVariable
   //                | ServiceDefinition
   //                | FunctionDefinition
   //                | AnnotationDefinition
@@ -1802,7 +1850,7 @@ public class BallerinaParser implements PsiParser, LightPsiParser {
     boolean r;
     Marker m = enter_section_(b, l, _NONE_, DEFINITION, "<definition>");
     r = TypeDefinition(b, l + 1);
-    if (!r) r = GlobalVariableDefinition(b, l + 1);
+    if (!r) r = GlobalVariable(b, l + 1);
     if (!r) r = ServiceDefinition(b, l + 1);
     if (!r) r = FunctionDefinition(b, l + 1);
     if (!r) r = AnnotationDefinition(b, l + 1);
@@ -2867,6 +2915,19 @@ public class BallerinaParser implements PsiParser, LightPsiParser {
     if (!recursion_guard_(b, l, "GlobalEndpointDefinition_0")) return false;
     consumeToken(b, PUBLIC);
     return true;
+  }
+
+  /* ********************************************************** */
+  // GlobalVariable | ChannelDefinition
+  public static boolean GlobalVariable(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "GlobalVariable")) return false;
+    if (!nextTokenIs(b, CHANNEL)) return false;
+    boolean r;
+    Marker m = enter_section_(b, l, _COLLAPSE_, GLOBAL_VARIABLE, null);
+    r = GlobalVariable(b, l + 1);
+    if (!r) r = ChannelDefinition(b, l + 1);
+    exit_section_(b, l, m, r, false, null);
+    return r;
   }
 
   /* ********************************************************** */

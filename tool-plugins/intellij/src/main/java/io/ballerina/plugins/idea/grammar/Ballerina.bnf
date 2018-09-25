@@ -191,7 +191,7 @@ Alias ::= as identifier {
 
 // Note - Global variable definition should be the first definition since it can contain identifier as type.
 Definition ::= ( TypeDefinition
-               | GlobalVariableDefinition
+               | GlobalVariable
                | ServiceDefinition
                | FunctionDefinition
                | AnnotationDefinition
@@ -285,10 +285,15 @@ AnnotationDefinition ::= (public)? annotation (LT AttachmentPoint (COMMA Attachm
 
 //private AttachmentPointsRecover ::= !(GT | Identifier | SEMICOLON)
 
+GlobalVariable ::= GlobalVariable | ChannelDefinition
+
 GlobalVariableDefinition ::= (public)? TypeName identifier (ASSIGN  Expression)? SEMICOLON {
-    pin=2
-    stubClass="io.ballerina.plugins.idea.stubs.BallerinaGlobalVariableDefinitionStub"
+   pin=2
+   stubClass="io.ballerina.plugins.idea.stubs.BallerinaGlobalVariableDefinitionStub"
 }
+
+ChannelDefinition ::= ChannelType identifier SEMICOLON
+ChannelType ::= channel (LT TypeName GT) {pin=1}
 
 // Todo - Need to update the service?
 // Note - "parameter" is treated differently here because there is a parser rule named "parameter" as well.

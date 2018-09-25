@@ -110,8 +110,6 @@ DecimalFloatingPointNumber = {DecimalNumeral} {ExponentPart} | {DottedDecimalNum
 
 // §3.10.2 Floating-Point Literals
 
-FLOATING_POINT_LITERAL = {DecimalFloatingPointLiteral} | {HexadecimalFloatingPointLiteral}
-
 DecimalFloatingPointLiteral = {Digits} "." ({Digits} {ExponentPart}? | {Digits}? {ExponentPart})
     | "." {Digits} {ExponentPart}?
     | {Digits} {ExponentPart}
@@ -393,7 +391,7 @@ STRING_TEMPLATE_TEXT = {STRING_TEMPLATE_VALID_CHAR_SEQUENCE}? ({STRING_TEMPLATE_
     "byte"                                      { return BYTE; }
 
     "catch"                                     { return CATCH; }
-//    "channel"                                   { return CHANNEL; }
+    "channel"                                   { return CHANNEL; }
     "check"                                     { return CHECK; }
     "compensation"                              { return COMPENSATION; }
     "compensate"                                { return COMPENSATE; }
@@ -576,7 +574,6 @@ STRING_TEMPLATE_TEXT = {STRING_TEMPLATE_VALID_CHAR_SEQUENCE}? ({STRING_TEMPLATE_
     {DECIMAL_INTEGER_LITERAL}                   { return DECIMAL_INTEGER_LITERAL; }
     {HEX_INTEGER_LITERAL}                       { return HEX_INTEGER_LITERAL; }
     {BINARY_INTEGER_LITERAL}                    { return BINARY_INTEGER_LITERAL; }
-    {FLOATING_POINT_LITERAL}                    { return FLOATING_POINT_LITERAL; }
     {QUOTED_STRING_LITERAL}                     { return QUOTED_STRING_LITERAL; }
 
     {DecimalFloatingPointNumber}                { return DECIMAL_FLOATING_POINT_NUMBER; }

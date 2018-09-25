@@ -26,14 +26,14 @@ import com.intellij.psi.util.PsiTreeUtil;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.*;
 import io.ballerina.plugins.idea.psi.*;
 
-public class BallerinaDefinitionImpl extends BallerinaCompositeElementImpl implements BallerinaDefinition {
+public class BallerinaChannelTypeImpl extends BallerinaCompositeElementImpl implements BallerinaChannelType {
 
-  public BallerinaDefinitionImpl(ASTNode node) {
+  public BallerinaChannelTypeImpl(ASTNode node) {
     super(node);
   }
 
   public void accept(@NotNull BallerinaVisitor visitor) {
-    visitor.visitDefinition(this);
+    visitor.visitChannelType(this);
   }
 
   public void accept(@NotNull PsiElementVisitor visitor) {
@@ -43,38 +43,26 @@ public class BallerinaDefinitionImpl extends BallerinaCompositeElementImpl imple
 
   @Override
   @Nullable
-  public BallerinaAnnotationDefinition getAnnotationDefinition() {
-    return PsiTreeUtil.getChildOfType(this, BallerinaAnnotationDefinition.class);
+  public BallerinaTypeName getTypeName() {
+    return PsiTreeUtil.getChildOfType(this, BallerinaTypeName.class);
   }
 
   @Override
   @Nullable
-  public BallerinaFunctionDefinition getFunctionDefinition() {
-    return PsiTreeUtil.getChildOfType(this, BallerinaFunctionDefinition.class);
+  public PsiElement getGt() {
+    return findChildByType(GT);
   }
 
   @Override
   @Nullable
-  public BallerinaGlobalEndpointDefinition getGlobalEndpointDefinition() {
-    return PsiTreeUtil.getChildOfType(this, BallerinaGlobalEndpointDefinition.class);
+  public PsiElement getLt() {
+    return findChildByType(LT);
   }
 
   @Override
-  @Nullable
-  public BallerinaGlobalVariable getGlobalVariable() {
-    return PsiTreeUtil.getChildOfType(this, BallerinaGlobalVariable.class);
-  }
-
-  @Override
-  @Nullable
-  public BallerinaServiceDefinition getServiceDefinition() {
-    return PsiTreeUtil.getChildOfType(this, BallerinaServiceDefinition.class);
-  }
-
-  @Override
-  @Nullable
-  public BallerinaTypeDefinition getTypeDefinition() {
-    return PsiTreeUtil.getChildOfType(this, BallerinaTypeDefinition.class);
+  @NotNull
+  public PsiElement getChannel() {
+    return notNullChild(findChildByType(CHANNEL));
   }
 
 }

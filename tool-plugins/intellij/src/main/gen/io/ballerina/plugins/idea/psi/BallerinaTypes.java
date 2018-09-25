@@ -64,6 +64,8 @@ public interface BallerinaTypes {
   IElementType CALLABLE_UNIT_SIGNATURE = new BallerinaCompositeElementType("CALLABLE_UNIT_SIGNATURE");
   IElementType CATCH_CLAUSE = new BallerinaCompositeElementType("CATCH_CLAUSE");
   IElementType CATCH_CLAUSES = new BallerinaCompositeElementType("CATCH_CLAUSES");
+  IElementType CHANNEL_DEFINITION = new BallerinaCompositeElementType("CHANNEL_DEFINITION");
+  IElementType CHANNEL_TYPE = new BallerinaCompositeElementType("CHANNEL_TYPE");
   IElementType CHECKED_EXPRESSION = new BallerinaCompositeElementType("CHECKED_EXPRESSION");
   IElementType CLOSE_TAG = new BallerinaCompositeElementType("CLOSE_TAG");
   IElementType COMMENT = new BallerinaCompositeElementType("COMMENT");
@@ -129,6 +131,7 @@ public interface BallerinaTypes {
   IElementType FUNCTION_TYPE_NAME = new BallerinaCompositeElementType("FUNCTION_TYPE_NAME");
   IElementType FUTURE_TYPE_NAME = new BallerinaCompositeElementType("FUTURE_TYPE_NAME");
   IElementType GLOBAL_ENDPOINT_DEFINITION = BallerinaElementTypeFactory.stubFactory("GLOBAL_ENDPOINT_DEFINITION");
+  IElementType GLOBAL_VARIABLE = new BallerinaCompositeElementType("GLOBAL_VARIABLE");
   IElementType GLOBAL_VARIABLE_DEFINITION = BallerinaElementTypeFactory.stubFactory("GLOBAL_VARIABLE_DEFINITION");
   IElementType GROUP_BY_CLAUSE = new BallerinaCompositeElementType("GROUP_BY_CLAUSE");
   IElementType GROUP_TYPE_NAME = new BallerinaCompositeElementType("GROUP_TYPE_NAME");
@@ -349,6 +352,7 @@ public interface BallerinaTypes {
   IElementType BYTE = new BallerinaTokenType("byte");
   IElementType CATCH = new BallerinaTokenType("catch");
   IElementType CDATA = new BallerinaTokenType("cdata");
+  IElementType CHANNEL = new BallerinaTokenType("channel");
   IElementType CHECK = new BallerinaTokenType("check");
   IElementType COLON = new BallerinaTokenType(":");
   IElementType COMMA = new BallerinaTokenType(",");
@@ -691,6 +695,12 @@ public interface BallerinaTypes {
       else if (type == CATCH_CLAUSES) {
         return new BallerinaCatchClausesImpl(node);
       }
+      else if (type == CHANNEL_DEFINITION) {
+        return new BallerinaChannelDefinitionImpl(node);
+      }
+      else if (type == CHANNEL_TYPE) {
+        return new BallerinaChannelTypeImpl(node);
+      }
       else if (type == CHECKED_EXPRESSION) {
         return new BallerinaCheckedExpressionImpl(node);
       }
@@ -885,6 +895,9 @@ public interface BallerinaTypes {
       }
       else if (type == GLOBAL_ENDPOINT_DEFINITION) {
         return new BallerinaGlobalEndpointDefinitionImpl(node);
+      }
+      else if (type == GLOBAL_VARIABLE) {
+        return new BallerinaGlobalVariableImpl(node);
       }
       else if (type == GLOBAL_VARIABLE_DEFINITION) {
         return new BallerinaGlobalVariableDefinitionImpl(node);

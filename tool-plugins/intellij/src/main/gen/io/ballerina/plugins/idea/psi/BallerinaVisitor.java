@@ -180,6 +180,14 @@ public class BallerinaVisitor extends PsiElementVisitor {
     visitCompositeElement(o);
   }
 
+  public void visitChannelDefinition(@NotNull BallerinaChannelDefinition o) {
+    visitCompositeElement(o);
+  }
+
+  public void visitChannelType(@NotNull BallerinaChannelType o) {
+    visitCompositeElement(o);
+  }
+
   public void visitCheckedExpression(@NotNull BallerinaCheckedExpression o) {
     visitExpression(o);
   }
@@ -357,6 +365,10 @@ public class BallerinaVisitor extends PsiElementVisitor {
   public void visitGlobalEndpointDefinition(@NotNull BallerinaGlobalEndpointDefinition o) {
     visitNamedElement(o);
     // visitTopLevelDefinition(o);
+  }
+
+  public void visitGlobalVariable(@NotNull BallerinaGlobalVariable o) {
+    visitCompositeElement(o);
   }
 
   public void visitGlobalVariableDefinition(@NotNull BallerinaGlobalVariableDefinition o) {
