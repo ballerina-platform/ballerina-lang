@@ -1,28 +1,30 @@
 /*
-*   Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
-*
-*  WSO2 Inc. licenses this file to you under the Apache License,
-*  Version 2.0 (the "License"); you may not use this file except
-*  in compliance with the License.
-*  You may obtain a copy of the License at
-*
-*    http://www.apache.org/licenses/LICENSE-2.0
-*
-* Unless required by applicable law or agreed to in writing,
-* software distributed under the License is distributed on an
-* "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-* KIND, either express or implied.  See the License for the
-* specific language governing permissions and limitations
-* under the License.
-*/
+ *   Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ *  WSO2 Inc. licenses this file to you under the Apache License,
+ *  Version 2.0 (the "License"); you may not use this file except
+ *  in compliance with the License.
+ *  You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
 package org.ballerinalang.bre.bvm;
 
 import org.ballerinalang.model.types.BField;
 import org.ballerinalang.model.types.BStructureType;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.TypeTags;
+import org.ballerinalang.model.types.util.Decimal128;
 import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BByte;
+import org.ballerinalang.model.values.BDecimal;
 import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BMap;
@@ -112,6 +114,16 @@ public class BLangVMStructs {
                         return new BFloat(((Double) value).doubleValue());
                     } else if (value instanceof BFloat) {
                         return (BFloat) value;
+                    }
+                }
+            case TypeTags.DECIMAL_TAG:
+                if (value != null) {
+                    if (value instanceof Integer) {
+                        return new BDecimal(new Decimal128((Integer) value));
+                    } else if (value instanceof Long) {
+                        return new BDecimal(new Decimal128((Long) value));
+                    } else if (value instanceof BDecimal) {
+                        return (BDecimal) value;
                     }
                 }
                 break;
