@@ -167,3 +167,4 @@ Optional Type
 Tuple Type
 Documentation
 Integer Ranges
+Functions as Entry Points
