@@ -144,7 +144,7 @@ script:
 - ballerina test json-io
 - ballerina test json-struct-map-conversion
 - ballerina test json-to-xml-conversion
-- ballerina test lambda
+- ballerina test anonymous-functions
 - ballerina test lengthof
 - ballerina test local-transactions
 - ballerina test locks
