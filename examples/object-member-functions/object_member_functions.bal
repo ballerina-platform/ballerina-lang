@@ -1,5 +1,5 @@
 import ballerina/io;
-
+z
 // Defines a object called 'Person'. It has attached functions both inside and outside of the object.
 type Person object {
     public int age;
@@ -20,7 +20,7 @@ type Person object {
 
 // Implementation for the declared function.
 function Person::checkAndModifyAge(int condition, int a) {
-    // The keyword self is bound to the object and can be used to
+    // The keyword `self` is bound to the object and can be used to
     // access fields and functions of the object.
     if (self.age < condition) {
         self.age = a;
