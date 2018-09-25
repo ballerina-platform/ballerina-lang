@@ -1277,6 +1277,9 @@ class SizingUtil {
         const viewState = node.viewState;
         const components = viewState.components;
         const dropZoneHeight = TreeUtil.isBlock(node.parent) ? this.config.statement.gutter.v : 0;
+        const parentBlockGutter = ((node.elseStatement) &&
+            (node.elseStatement.statements) &&
+            (node.elseStatement.statements.length > 0)) ? this.config.statement.height : 0;
         const nodeBodyViewState = node.body.viewState;
 
         // flow chart if width and height is different to normal block node width and height
@@ -1303,9 +1306,9 @@ class SizingUtil {
         viewState.components['drop-zone'].w = bodyWidth;
         viewState.components['statement-box'].h = bodyHeight;
         viewState.components['statement-box'].w = bodyWidth;
-        viewState.bBox.h = viewState.components['statement-box'].h
-                            + viewState.components['drop-zone'].h
-                            + components['block-header'].h;
+        viewState.bBox.h = viewState.components['statement-box'].h +
+            viewState.components['drop-zone'].h +
+            components['block-header'].h + parentBlockGutter;
         viewState.bBox.w = bodyWidth;
 
         components['block-header'].setOpaque(true);
@@ -1317,7 +1320,7 @@ class SizingUtil {
         // we will calculate the width of the expression and adjust the block statement
         if (expression) {
             components.expression = this.getTextWidth(expression.getSource(true), 0,
-                                        this.config.flowChartControlStatement.heading.width - 5);
+                this.config.flowChartControlStatement.heading.width - 20);
         }
 
         // end of if block sizing
