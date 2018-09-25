@@ -173,8 +173,7 @@ import ballerina/jms;
 import ballerina/log;
 jms:Connection conn = new({
     initialContextFactory:"bmbInitialContextFactory",
-    providerUrl:"amqp://admin:admin@carbon/carbon"
-                + "?brokerlist='tcp://localhost:5672'"
+    providerUrl:"amqp://admin:admin@carbon/carbon?brokerlist='tcp://localhost:5672'"
 });
 
 jms:Session jmsSession = new(conn, {
@@ -190,8 +189,7 @@ service<jms:Consumer> jmsListener bind subscriberEndpoint {
     onMessage(endpoint subscriber, jms:Message message) {
         match (message.getTextMessageContent()) {
             string messageText => log:printInfo("Message : " + messageText);
-            error e => log:printError("Error occurred while reading message",
-                                      err=e);
+            error e => log:printError("Error occurred while reading message", err=e);
         }
     }
 }
@@ -206,8 +204,7 @@ import ballerina/jms;
 import ballerina/log;
 jms:Connection jmsConnection = new({
     initialContextFactory:"bmbInitialContextFactory",
-    providerUrl:"amqp://admin:admin@carbon/carbon"
-                + "?brokerlist='tcp://localhost:5672'"
+    providerUrl:"amqp://admin:admin@carbon/carbon?brokerlist='tcp://localhost:5672'"
 });
 
 jms:Session jmsSession = new(jmsConnection, {
@@ -223,10 +220,10 @@ public function main(string... args) {
     match (jmsSession.createTextMessage("Hello from Ballerina")) {
         error e => {
             log:printError("Error occurred while creating message", err=e);
-        }        jms:Message msg => {
+        }
+        jms:Message msg => {
             topicPublisher->send(msg) but {
-                error e => log:printError("Error occurred while sending "
-                                          + "message", err=e)
+                error e => log:printError("Error occurred while sending message", err=e)
             };
         }
     }
