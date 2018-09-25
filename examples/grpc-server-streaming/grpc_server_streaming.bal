@@ -1,6 +1,6 @@
 // This is the server implementation for the server streaming scenario.
-import ballerina/io;
 import ballerina/grpc;
+import ballerina/io;
 
 // Server endpoint configuration
 endpoint grpc:Listener ep {

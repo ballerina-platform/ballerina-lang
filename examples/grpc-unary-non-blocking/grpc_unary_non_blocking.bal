@@ -1,6 +1,6 @@
 // This is the server implementation for the unary blocking/unblocking scenario.
-import ballerina/io;
 import ballerina/grpc;
+import ballerina/io;
 
 // Server endpoint configuration.
 endpoint grpc:Listener ep {

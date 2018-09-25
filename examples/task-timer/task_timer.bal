@@ -1,7 +1,7 @@
 import ballerina/io;
-import ballerina/task;
 import ballerina/math;
 import ballerina/runtime;
+import ballerina/task;
 
 int count;
 task:Timer? timer;

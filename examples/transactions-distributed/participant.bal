@@ -1,6 +1,6 @@
-import ballerina/log;
-import ballerina/io;
 import ballerina/http;
+import ballerina/io;
+import ballerina/log;
 import ballerina/transactions;
 
 // This service is a participant in the distributed transaction. It will get
