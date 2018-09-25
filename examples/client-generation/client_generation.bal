@@ -1,6 +1,6 @@
 import ballerina/http;
-import ballerina/swagger;
 import ballerina/log;
+import ballerina/swagger;
 
 // Defines this endpoint as a selected endpoint for client generation
 @swagger:ClientEndpoint

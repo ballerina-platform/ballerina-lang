@@ -1,7 +1,6 @@
 // This is the server implementation for the secured connection (HTTPS) scenario.
-import ballerina/io;
-import ballerina/log;
 import ballerina/grpc;
+import ballerina/io;
 
 // Server endpoint configuration with the SSL configurations.
 endpoint grpc:Listener listener {

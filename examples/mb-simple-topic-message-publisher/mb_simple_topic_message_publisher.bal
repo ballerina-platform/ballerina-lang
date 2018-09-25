@@ -1,5 +1,5 @@
-import ballerina/mb;
 import ballerina/log;
+import ballerina/mb;
 
 // Create a topic publisher.
 endpoint mb:SimpleTopicPublisher publisher {

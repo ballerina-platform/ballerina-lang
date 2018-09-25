@@ -1,5 +1,5 @@
-import ballerina/log;
 import ballerina/http;
+import ballerina/log;
 
 @final string NAME = "NAME";
 @final string AGE = "AGE";

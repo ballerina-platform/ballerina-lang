@@ -1,5 +1,5 @@
-import ballerina/mb;
 import ballerina/log;
+import ballerina/mb;
 
 // Create a simple topic subscriber to listen to the `BallerinaTopic`.
 endpoint mb:SimpleTopicSubscriber subscriber {

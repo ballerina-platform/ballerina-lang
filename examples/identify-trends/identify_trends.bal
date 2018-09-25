@@ -1,5 +1,5 @@
-import ballerina/runtime;
 import ballerina/io;
+import ballerina/runtime;
 
 // Create a record type that represents the device temperature reading.
 type DeviceTempInfo record {

@@ -1,6 +1,6 @@
 // This is client implementation for unary blocking scenario.
-import ballerina/io;
 import ballerina/grpc;
+import ballerina/io;
 
 public function main() {
     // Client endpoint configuration

@@ -1,7 +1,6 @@
-import ballerina/io;
 import ballerina/http;
+import ballerina/io;
 import ballerina/log;
-import ballerina/mime;
 
 endpoint http:Client clientEP {
     url: "http://localhost:9090",
