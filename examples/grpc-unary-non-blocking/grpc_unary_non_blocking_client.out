@@ -13,7 +13,3 @@ $ ballerina build client
 
 # Run the client using the following command.
 $ ballerina run target/client.balx
-Connected successfully
-Response received from server: Hello WSO2
-Server Complete Sending Response.
-Client got response successfully.
