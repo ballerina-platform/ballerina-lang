@@ -1,6 +1,5 @@
 // Ballerina WebSub Subscriber service, which subscribes to notifications at a Hub.
 import ballerina/log;
-import ballerina/mime;
 import ballerina/http;
 import ballerina/websub;
 
