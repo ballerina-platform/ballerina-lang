@@ -851,22 +851,18 @@ public class CodeAnalyzer extends BLangNodeVisitor {
             if (key.getKind() == NodeKind.SIMPLE_VARIABLE_REF) {
                 BLangSimpleVarRef keyRef = (BLangSimpleVarRef) key;
                 if (names.contains(keyRef.variableName.value)) {
-                    logDuplicateKeyError(recordLiteral, keyRef, key.pos);
+                    String assigneeType = recordLiteral.parent.type.getKind().typeName();
+                    this.dlog.error(key.pos, DiagnosticCode.DUPLICATE_KEY_IN_RECORD_LITERAL, assigneeType, keyRef);
                 }
                 names.add(keyRef.variableName.value);
             } else if (key.getKind() == NodeKind.LITERAL) {
                 BLangLiteral keyLiteral = (BLangLiteral) key;
                 if (names.contains(keyLiteral.value)) {
-                    logDuplicateKeyError(recordLiteral, keyLiteral, key.pos);
+                    String assigneeType = recordLiteral.parent.type.getKind().typeName();
+                    this.dlog.error(key.pos, DiagnosticCode.DUPLICATE_KEY_IN_RECORD_LITERAL, assigneeType, keyLiteral);
                 }
             }
         }
-    }
-
-    private void logDuplicateKeyError(BLangRecordLiteral recordLiteral, BLangExpression key, DiagnosticPos pos) {
-        String assigneeType = recordLiteral.parent.type.getKind().typeName();
-        this.dlog.error(pos, DiagnosticCode.DUPLICATE_KEY_IN_RECORD_LITERAL,
-                assigneeType, key);
     }
 
     public void visit(BLangTableLiteral tableLiteral) {
