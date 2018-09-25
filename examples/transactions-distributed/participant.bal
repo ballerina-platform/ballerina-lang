@@ -33,7 +33,7 @@ service<http:Service> ParticipantService bind { port: 8889 } {
                 json updateReqJson => {
                     string msg = 
                         io:sprintf("Update stock quote request received.
-                                    symbol:%j, price:%j",
+                                    symbol:%s, price:%s",
                                     updateReqJson.symbol,
                                     updateReqJson.price);
                     log:printInfo(msg);

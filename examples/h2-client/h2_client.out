@@ -10,7 +10,7 @@ Insert to student table with no parameters status: 1
 The select operation - Select data from a table
 
 Convert the table into json
-JSON: [{"ID":1,"AGE":23,"NAME":"john"}]
+JSON: [{"ID":1, "AGE":23, "NAME":"john"}]
 
 The update operation - Drop student table
 Drop table student status: 0
