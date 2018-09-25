@@ -11,6 +11,7 @@ type Person object {
 
     new(age, name = "John", string firstname,
         string lastname = "Doe", int... scores) {
+        fullName = firstname + " " + lastname;
         marks = scores;
     }
 };
