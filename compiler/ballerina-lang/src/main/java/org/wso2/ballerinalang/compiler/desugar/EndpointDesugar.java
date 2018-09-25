@@ -36,7 +36,6 @@ import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangInvokableNode;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangService;
-import org.wso2.ballerinalang.compiler.tree.BLangTestablePackage;
 import org.wso2.ballerinalang.compiler.tree.BLangVariable;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
@@ -107,26 +106,6 @@ public class EndpointDesugar {
         });
     }
 
-    void rewriteAllEndpointsInTestPkg(BLangTestablePackage pkgNode, SymbolEnv env) {
-        pkgNode.globalEndpoints.forEach(ep -> this.rewriteEndpointForTestPkg(ep, env));
-
-        pkgNode.functions.forEach(function -> {
-            SymbolEnv fucEnv = SymbolEnv.createFunctionEnv(function, function.symbol.scope, env);
-            function.endpoints.forEach(endpoint -> rewriteEndpointForTestPkg(endpoint, fucEnv));
-        });
-
-        pkgNode.services.forEach(serviceNode -> {
-            SymbolEnv serviceEnv = SymbolEnv.createServiceEnv(serviceNode, serviceNode.symbol.scope, env);
-            serviceNode.endpoints.forEach(endpoint -> rewriteEndpointForTestPkg(endpoint, serviceEnv));
-
-            serviceNode.resources.forEach(resourceNode -> {
-                SymbolEnv resourceEnv = SymbolEnv.createResourceActionSymbolEnv(resourceNode, resourceNode.symbol.scope,
-                                                                                serviceEnv);
-                resourceNode.endpoints.forEach(endpoint -> rewriteEndpointForTestPkg(endpoint, resourceEnv));
-            });
-        });
-    }
-
     void rewriteAnonymousEndpointsInPkg(BLangPackage pkgNode, SymbolEnv pkgEnv) {
         pkgNode.services.forEach(service -> rewriteAnonymousEndpointInService(service, pkgEnv));
     }
@@ -138,15 +117,7 @@ public class EndpointDesugar {
     }
 
     void rewriteServiceBoundToEndpointInPkg(BLangPackage pkgNode, SymbolEnv pkgEnv) {
-        if (pkgNode.getKind() == NodeKind.PACKAGE) {
-            pkgNode.services.forEach(service -> rewriteService(service, pkgEnv, pkgEnv.enclPkg.startFunction));
-        }
-        if (pkgNode.getKind() == NodeKind.TESTABLE_PACKAGE) {
-            pkgNode.services.forEach(service -> rewriteService(service, pkgEnv,
-                                                               ((BLangTestablePackage) pkgEnv.enclPkg)
-                                                                       .testStartFunction));
-        }
-
+        pkgNode.services.forEach(service -> rewriteService(service, pkgEnv, pkgEnv.enclPkg.startFunction));
     }
 
     private void rewriteService(BLangService service, SymbolEnv pkgEnv, BLangFunction startFunction) {
@@ -243,37 +214,6 @@ public class EndpointDesugar {
             ASTBuilderUtil.appendStatements(genStartCall, startBlock);
             ASTBuilderUtil.appendStatements(genStopCall, Objects.requireNonNull(stopBlock));
         }
-    }
-
-    void rewriteEndpointForTestPkg(BLangEndpoint endpoint, SymbolEnv env) {
-        final BSymbol encSymbol, varSymbol;
-        final BLangBlockStmt initBlock, startBlock;
-        BLangBlockStmt stopBlock = null;
-        if (env.enclInvokable != null) {
-            // Function, Action, Resource. Code generate to its body directly.
-            encSymbol = varSymbol = env.enclInvokable.symbol;
-            initBlock = startBlock = ((BLangInvokableNode) env.node).body;
-        } else if (env.enclService != null) {
-            encSymbol = env.enclService.symbol;
-            varSymbol = ((BLangService) env.node).initFunction.symbol;
-            initBlock = startBlock = ((BLangService) env.node).initFunction.body;
-        } else {
-            // Pkg level endpoint.
-            encSymbol = env.enclPkg.symbol;
-            varSymbol = ((BLangTestablePackage) env.node).testInitFunction.symbol;
-            initBlock = ((BLangTestablePackage) env.node).testInitFunction.body;
-            startBlock = ((BLangTestablePackage) env.node).testStartFunction.body;
-            stopBlock =  ((BLangTestablePackage) env.node).testStopFunction.body;
-        }
-
-        BLangBlockStmt genInit, genInitCall, genStartCall, genStopCall;
-        genInit = generateEndpointInit(endpoint, env, encSymbol);
-        genInitCall = generateEndpointInitFunctionCall(endpoint, env, encSymbol, varSymbol);
-        genStartCall = generateEndpointStartOrStop(endpoint, endpoint.symbol.startFunction, env, encSymbol);
-        genStopCall = generateEndpointStartOrStop(endpoint, endpoint.symbol.stopFunction, env, encSymbol);
-
-        prependEndpointStatements(env, initBlock, startBlock, stopBlock, genInit, genInitCall, genStartCall,
-                                  genStopCall);
     }
 
     private BLangBlockStmt generateEndpointInit(BLangEndpoint endpoint,

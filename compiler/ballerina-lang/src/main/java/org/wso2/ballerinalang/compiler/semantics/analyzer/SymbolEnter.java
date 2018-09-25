@@ -83,8 +83,6 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLAttribute;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLQName;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangAssignment;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangReturn;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangScope;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangStatement;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangVariableDef;
@@ -156,7 +154,7 @@ public class SymbolEnter extends BLangNodeVisitor {
 
     public BLangPackage definePackage(BLangPackage pkgNode) {
         populatePackageNode(pkgNode);
-        defineNode(pkgNode, null);
+        defineNode(pkgNode, this.symTable.pkgEnvMap.get(symTable.builtInPackageSymbol));
         return pkgNode;
     }
 
@@ -179,19 +177,16 @@ public class SymbolEnter extends BLangNodeVisitor {
         // Create PackageSymbol
         BPackageSymbol pkgSymbol = Symbols.createPackageSymbol(pkgNode.packageID, this.symTable);
         pkgNode.symbol = pkgSymbol;
-        SymbolEnv builtinEnv = this.symTable.pkgEnvMap.get(symTable.builtInPackageSymbol);
-        SymbolEnv pkgEnv = SymbolEnv.createPkgEnv(pkgNode, pkgSymbol.scope, builtinEnv);
+        SymbolEnv pkgEnv = SymbolEnv.createPkgEnv(pkgNode, pkgSymbol.scope, this.env);
         this.symTable.pkgEnvMap.put(pkgSymbol, pkgEnv);
 
-        createPackageInitFunctions(pkgNode);
         defineConstructs(pkgNode, pkgEnv);
-        definePackageInitFunctions(pkgNode, pkgEnv);
-        pkgNode.completedPhases.add(CompilerPhase.DEFINE);
 
         // Visit testable node if not null
         if (pkgNode.testablePackage != null) {
             visit(pkgNode.testablePackage);
         }
+        pkgNode.completedPhases.add(CompilerPhase.DEFINE);
     }
 
     private void defineConstructs(BLangPackage pkgNode, SymbolEnv pkgEnv) {
@@ -243,10 +238,7 @@ public class SymbolEnter extends BLangNodeVisitor {
         SymbolEnv pkgEnv = SymbolEnv.createPkgEnv(pkgNode, pkgSymbol.scope, enclosingPkgEnv);
         this.symTable.testPkgEnvMap.put(pkgSymbol, pkgEnv);
 
-        createPackageTestInitFunctions(pkgNode);
         defineConstructs(pkgNode, pkgEnv);
-        definePackageTestInitFunctions(pkgNode, pkgEnv);
-
         pkgNode.completedPhases.add(CompilerPhase.DEFINE);
     }
 
@@ -1181,82 +1173,12 @@ public class SymbolEnter extends BLangNodeVisitor {
         return receiver;
     }
 
-    private void definePackageInitFunctions(BLangPackage pkgNode, SymbolEnv env) {
-        BLangFunction initFunction = pkgNode.initFunction;
-        // Add package level namespace declarations to the init function
-        pkgNode.xmlnsList.forEach(xmlns -> {
-            initFunction.body.addStatement(createNamespaceDeclrStatement(xmlns));
-        });
-
-        defineNode(pkgNode.initFunction, env);
-        pkgNode.symbol.initFunctionSymbol = pkgNode.initFunction.symbol;
-
-        addInitReturnStatement(pkgNode.startFunction.body);
-        defineNode(pkgNode.startFunction, env);
-        pkgNode.symbol.startFunctionSymbol = pkgNode.startFunction.symbol;
-
-        addInitReturnStatement(pkgNode.stopFunction.body);
-        defineNode(pkgNode.stopFunction, env);
-        pkgNode.symbol.stopFunctionSymbol = pkgNode.stopFunction.symbol;
-    }
-
-    private void createPackageInitFunctions(BLangPackage pkgNode) {
-        String alias = pkgNode.symbol.pkgID.toString();
-        pkgNode.initFunction = ASTBuilderUtil.createInitFunction(pkgNode.pos, alias,
-                Names.INIT_FUNCTION_SUFFIX);
-        pkgNode.startFunction = ASTBuilderUtil.createInitFunction(pkgNode.pos, alias,
-                Names.START_FUNCTION_SUFFIX);
-        pkgNode.stopFunction = ASTBuilderUtil.createInitFunction(pkgNode.pos, alias,
-                Names.STOP_FUNCTION_SUFFIX);
-    }
-
-    private void createPackageTestInitFunctions(BLangTestablePackage pkgNode) {
-        String alias = pkgNode.symbol.pkgID.toString();
-        pkgNode.testInitFunction = ASTBuilderUtil.createInitFunction(pkgNode.pos, alias,
-                                                  Names.TEST_INIT_FUNCTION_SUFFIX);
-        pkgNode.testStartFunction = ASTBuilderUtil.createInitFunction(pkgNode.pos, alias,
-                                                   Names.TEST_START_FUNCTION_SUFFIX);
-        pkgNode.testStopFunction = ASTBuilderUtil.createInitFunction(pkgNode.pos, alias,
-                                                  Names.TEST_STOP_FUNCTION_SUFFIX);
-    }
-
-    private void definePackageTestInitFunctions(BLangTestablePackage pkgNode, SymbolEnv env) {
-        BLangFunction initFunction = pkgNode.testInitFunction;
-        // Add package level namespace declarations to the test init function
-        pkgNode.xmlnsList.forEach(xmlns -> {
-            initFunction.body.addStatement(createNamespaceDeclrStatement(xmlns));
-        });
-
-        defineNode(pkgNode.testInitFunction, env);
-        pkgNode.symbol.testInitFunctionSymbol = pkgNode.testInitFunction.symbol;
-
-        addInitReturnStatement(pkgNode.testStartFunction.body);
-        defineNode(pkgNode.testStartFunction, env);
-        pkgNode.symbol.testStartFunctionSymbol = pkgNode.testStartFunction.symbol;
-
-        addInitReturnStatement(pkgNode.testStopFunction.body);
-        defineNode(pkgNode.testStopFunction, env);
-        pkgNode.symbol.testStopFunctionSymbol = pkgNode.testStopFunction.symbol;
-    }
-
     private IdentifierNode createIdentifier(String value) {
         IdentifierNode node = TreeBuilder.createIdentifierNode();
         if (value != null) {
             node.setValue(value);
         }
         return node;
-    }
-
-    private void addInitReturnStatement(BLangBlockStmt bLangBlockStmt) {
-        BLangReturn returnStmt = ASTBuilderUtil.createNilReturnStmt(bLangBlockStmt.pos, symTable.nilType);
-        bLangBlockStmt.addStatement(returnStmt);
-    }
-
-    private BLangXMLNSStatement createNamespaceDeclrStatement(BLangXMLNS xmlns) {
-        BLangXMLNSStatement xmlnsStmt = (BLangXMLNSStatement) TreeBuilder.createXMLNSDeclrStatementNode();
-        xmlnsStmt.xmlnsDecl = xmlns;
-        xmlnsStmt.pos = xmlns.pos;
-        return xmlnsStmt;
     }
 
     private boolean validateFuncReceiver(BLangFunction funcNode) {

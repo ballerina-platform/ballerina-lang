@@ -448,9 +448,9 @@ public class CodeGenerator extends BLangNodeVisitor {
         visitTopLevelNodes(pkgNode);
 
         // Visit the builtin functions
-        visitBuiltinFunctions(pkgNode.initFunction);
-        visitBuiltinFunctions(pkgNode.startFunction);
-        visitBuiltinFunctions(pkgNode.stopFunction);
+        visitBuiltinFunctions(pkgNode, pkgNode.initFunction);
+        visitBuiltinFunctions(pkgNode, pkgNode.startFunction);
+        visitBuiltinFunctions(pkgNode, pkgNode.stopFunction);
 
         // Gen for top level nodes
         genTopLevelNodes(pkgNode);
@@ -473,9 +473,9 @@ public class CodeGenerator extends BLangNodeVisitor {
         visitTopLevelNodes(pkgNode);
 
         // Visit builtin functions in testable package
-        visitBuiltinFunctions(pkgNode.testInitFunction);
-        visitBuiltinFunctions(pkgNode.testStartFunction);
-        visitBuiltinFunctions(pkgNode.testStopFunction);
+        visitBuiltinFunctions(pkgNode, pkgNode.initFunction);
+        visitBuiltinFunctions(pkgNode, pkgNode.startFunction);
+        visitBuiltinFunctions(pkgNode, pkgNode.stopFunction);
 
         // Gen for top level nodes
         genTopLevelNodes(pkgNode);
@@ -541,7 +541,15 @@ public class CodeGenerator extends BLangNodeVisitor {
         pkgNode.functions.forEach(this::createFunctionInfoEntry);
     }
 
-    private void visitBuiltinFunctions(BLangFunction function) {
+    private void visitBuiltinFunctions(BLangPackage pkgNode, BLangFunction function) {
+        if (pkgNode.getKind() == NodeKind.TESTABLE_PACKAGE) {
+            String funcName = function.getName().value;
+            String builtinFuncName = funcName.substring(funcName.indexOf("<") + 1, funcName.indexOf(">"));
+            String modifiedFuncName = funcName.replace(builtinFuncName, "test" + builtinFuncName);
+            function.name.setValue(modifiedFuncName);
+            function.originalFuncSymbol.name.value = modifiedFuncName;
+            function.symbol.name.value = modifiedFuncName;
+        }
         createFunctionInfoEntry(function);
         genNode(function, this.env);
     }

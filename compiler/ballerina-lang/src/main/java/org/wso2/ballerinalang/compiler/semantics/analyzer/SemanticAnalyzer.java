@@ -229,18 +229,11 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         SymbolEnv pkgEnv = this.symTable.pkgEnvMap.get(pkgNode.symbol);
 
         analyzeConstructs(pkgNode, pkgEnv);
-
-        analyzeDef(pkgNode.initFunction, pkgEnv);
-        analyzeDef(pkgNode.startFunction, pkgEnv);
-        analyzeDef(pkgNode.stopFunction, pkgEnv);
-
-        pkgNode.completedPhases.add(CompilerPhase.TYPE_CHECK);
-
         // Visit testable node if not null
         if (pkgNode.testablePackage != null) {
             visit(pkgNode.testablePackage);
         }
-
+        pkgNode.completedPhases.add(CompilerPhase.TYPE_CHECK);
     }
 
     private void analyzeConstructs(BLangPackage pkgNode, SymbolEnv pkgEnv) {
@@ -259,11 +252,6 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         SymbolEnv pkgEnv = this.symTable.testPkgEnvMap.get(pkgNode.symbol);
 
         analyzeConstructs(pkgNode, pkgEnv);
-
-        analyzeDef(pkgNode.testInitFunction, pkgEnv);
-        analyzeDef(pkgNode.testStartFunction, pkgEnv);
-        analyzeDef(pkgNode.testStopFunction, pkgEnv);
-
         pkgNode.completedPhases.add(CompilerPhase.TYPE_CHECK);
     }
 
@@ -613,25 +601,13 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         }
 
         Name varName = names.fromIdNode(simpleVarRef.variableName);
-        if (env.enclPkg.getKind() == NodeKind.PACKAGE) {
-            if (!Names.IGNORE.equals(varName) && env.enclInvokable != env.enclPkg.initFunction) {
-                if ((simpleVarRef.symbol.flags & Flags.FINAL) == Flags.FINAL) {
-                    dlog.error(varRef.pos, DiagnosticCode.CANNOT_ASSIGN_VALUE_FINAL, varRef);
-                } else if ((simpleVarRef.symbol.flags & Flags.FUNCTION_FINAL) == Flags.FUNCTION_FINAL) {
-                    dlog.error(varRef.pos, DiagnosticCode.CANNOT_ASSIGN_VALUE_FUNCTION_ARGUMENT, varRef);
-                }
-            }
-        } else if (env.enclPkg.getKind() == NodeKind.TESTABLE_PACKAGE) {
-            BLangTestablePackage enclPkg = (BLangTestablePackage) env.enclPkg;
-            if (!Names.IGNORE.equals(varName) && env.enclInvokable != enclPkg.testInitFunction) {
-                if ((simpleVarRef.symbol.flags & Flags.FINAL) == Flags.FINAL) {
-                    dlog.error(varRef.pos, DiagnosticCode.CANNOT_ASSIGN_VALUE_FINAL, varRef);
-                } else if ((simpleVarRef.symbol.flags & Flags.FUNCTION_FINAL) == Flags.FUNCTION_FINAL) {
-                    dlog.error(varRef.pos, DiagnosticCode.CANNOT_ASSIGN_VALUE_FUNCTION_ARGUMENT, varRef);
-                }
+        if (!Names.IGNORE.equals(varName) && env.enclInvokable != env.enclPkg.initFunction) {
+            if ((simpleVarRef.symbol.flags & Flags.FINAL) == Flags.FINAL) {
+                dlog.error(varRef.pos, DiagnosticCode.CANNOT_ASSIGN_VALUE_FINAL, varRef);
+            } else if ((simpleVarRef.symbol.flags & Flags.FUNCTION_FINAL) == Flags.FUNCTION_FINAL) {
+                dlog.error(varRef.pos, DiagnosticCode.CANNOT_ASSIGN_VALUE_FUNCTION_ARGUMENT, varRef);
             }
         }
-
     }
 
     private void checkReadonlyAssignment(BLangExpression varRef) {

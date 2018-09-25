@@ -128,7 +128,7 @@ public class AnnotationDesugar {
     }
 
     protected void rewritePackageAnnotations(BLangTestablePackage pkgNode) {
-        BLangFunction initFunction = pkgNode.testInitFunction;
+        BLangFunction initFunction = pkgNode.initFunction;
         
         // Handle service annotations
         handleServiceAnnotations(pkgNode, initFunction, annotationMap);
@@ -141,7 +141,7 @@ public class AnnotationDesugar {
         handleGlobalEndpointAnnotations(pkgNode, initFunction, annotationMap);
 
         BLangReturn returnStmt = ASTBuilderUtil.createNilReturnStmt(pkgNode.pos, symTable.nilType);
-        pkgNode.testInitFunction.body.stmts.add(returnStmt);
+        pkgNode.initFunction.body.stmts.add(returnStmt);
     }
 
     private void handleServiceAnnotations(BLangPackage pkgNode, BLangFunction initFunction,
@@ -175,20 +175,6 @@ public class AnnotationDesugar {
 
         final BLangRecordLiteral recordLiteralNode = ASTBuilderUtil.createEmptyRecordLiteral(pos, symTable.mapType);
         final BLangAssignment annMapAssignment = ASTBuilderUtil.createAssignmentStmt(pos, pkgNode.initFunction.body);
-        annMapAssignment.expr = recordLiteralNode;
-        annMapAssignment.setVariable(ASTBuilderUtil.createVariableRef(pos, annotationMap.symbol));
-        return annotationMap;
-    }
-
-    private BLangVariable createGlobalAnnotationMapVar(BLangTestablePackage pkgNode) {
-        DiagnosticPos pos = pkgNode.pos;
-        BLangVariable annotationMap = ASTBuilderUtil.createVariable(pkgNode.pos, ANNOTATION_DATA, symTable.mapType);
-        ASTBuilderUtil.defineVariable(annotationMap, pkgNode.symbol, names);
-        pkgNode.addGlobalVariable(annotationMap);
-
-        final BLangRecordLiteral recordLiteralNode = ASTBuilderUtil.createEmptyRecordLiteral(pos, symTable.mapType);
-        final BLangAssignment annMapAssignment = ASTBuilderUtil.createAssignmentStmt(pos,
-                                                                                     pkgNode.testInitFunction.body);
         annMapAssignment.expr = recordLiteralNode;
         annMapAssignment.setVariable(ASTBuilderUtil.createVariableRef(pos, annotationMap.symbol));
         return annotationMap;
