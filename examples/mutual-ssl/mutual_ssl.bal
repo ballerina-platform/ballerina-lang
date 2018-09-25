@@ -25,7 +25,6 @@ endpoint http:Listener helloWorldEP {
 };
 
 @http:ServiceConfig {
-    endpoints: [helloWorldEP],
     basePath: "/hello"
 }
 

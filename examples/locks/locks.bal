@@ -7,6 +7,7 @@ public function main() {
     process();
     io:println("final counter value - ", counter);
 }
+
 function process() {
     worker w1 {
         // Lock the shared variable and increment the counter.
