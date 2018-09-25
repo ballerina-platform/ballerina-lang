@@ -48,12 +48,12 @@
     padding: 1em;
 }
 
-.generate-colors(length(@Operation-Options));
+.genOperationStyle(length(@Operation-Options));
 
-.generate-colors(@opCount) when (@opCount > 0) {
-    .generate-colors((@opCount - 1));
-    @value : extract(@Operation-Options, @opCount);
+.genOperationStyle(@OperationList) when (@OperationList > 0) {
+    .genOperationStyle(@OperationList - 1);
 
+    @value: extract(@Operation-Options, @OperationList);
     @borderColor: '@{value}-color';
     .operation.@{value} .op-title,
     .operation.@{value} .content{
@@ -62,4 +62,5 @@
     .operation.@{value} .op-title .op-method{
         background-color: @@borderColor;
     }
+
 }
