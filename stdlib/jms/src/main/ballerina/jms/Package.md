@@ -189,7 +189,7 @@ service<jms:Consumer> jmsListener bind subscriberEndpoint {
     onMessage(endpoint subscriber, jms:Message message) {
         match (message.getTextMessageContent()) {
             string messageText => log:printInfo("Message : " + messageText);
-            error e => log:printError("Error occurred while reading message", err=e);
+            error e => log:printError("Error occurred while reading message", err = e);
         }
     }
 }
@@ -223,7 +223,7 @@ public function main(string... args) {
         }
         jms:Message msg => {
             topicPublisher->send(msg) but {
-                error e => log:printError("Error occurred while sending message", err=e)
+                error e => log:printError("Error occurred while sending message", err = e)
             };
         }
     }
