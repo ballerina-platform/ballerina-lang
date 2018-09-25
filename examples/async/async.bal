@@ -1,12 +1,12 @@
 import ballerina/io;
 import ballerina/runtime;
 import ballerina/http;
-import ballerina/mime;
 
 int count;
 
-endpoint http:Client clientEndpoint { 
-    url: "https://postman-echo.com" };
+endpoint http:Client clientEndpoint {
+    url: "https://postman-echo.com"
+};
 
 public function main() {
     // Asynchronously call the function named `sum()`.
@@ -40,7 +40,9 @@ public function main() {
         http:Response resp => {
             io:println(untaint resp.getJsonPayload());
         }
-        error err => { io:println(err.message); }
+        error err => {
+            io:println(err.message);
+        }
     }
     io:println(f3.isDone());
 }
