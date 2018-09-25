@@ -1320,7 +1320,7 @@ class SizingUtil {
         // we will calculate the width of the expression and adjust the block statement
         if (expression) {
             components.expression = this.getTextWidth(expression.getSource(true), 0,
-                this.config.flowChartControlStatement.heading.width - 20);
+                node.viewState.bBox.w - 20);
         }
 
         // end of if block sizing
@@ -1792,7 +1792,7 @@ class SizingUtil {
         // we will calculate the width of the expression and adjust the block statement
         if (expression) {
             components.expression = this.getTextWidth(expression.getSource(true, true), 0,
-                                        this.config.flowChartControlStatement.heading.width - 5);
+                node.viewState.bBox.w - 20);
         }
     }
 
