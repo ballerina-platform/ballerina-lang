@@ -1,7 +1,7 @@
-# To run the program, put the code in `websocket-client-connector`
-# and use the `ballerina run websocket-client-connector` command.
+# To run the program, save the code in `websocket_proxy_server.bal`
+# and use the `ballerina run websocket_proxy_server.bal` command.
 $ ballerina run websocket_proxy_server.bal
-# Now, we can run this program using any WebSocket client with "ws://localhost:9090/proxy/ws"
+# Now, this service can be invoked by any WebSocket client using the url "ws://localhost:9090/proxy/ws"
 
 # To check the sample, you can use Chrome or Firefox JavaScript console and run the following commands. <br>
 $ var ws = new WebSocket("ws://localhost:9090/proxy/ws");
