@@ -378,8 +378,8 @@ public class BLangVMUtils {
         }
     }
     
-    public static void mergeInitWorkertData(WorkerData sourceData, WorkerData targetData, 
-            CodeAttributeInfo initWorkerCAI) {
+    public static void mergeInitWorkerData(WorkerData sourceData, WorkerData targetData,
+                                           CodeAttributeInfo initWorkerCAI) {
         for (int i = 0; i < initWorkerCAI.getMaxDoubleLocalVars(); i++) {
             targetData.doubleRegs[i] = sourceData.doubleRegs[i];
         }
@@ -442,7 +442,7 @@ public class BLangVMUtils {
         ctx.globalProps.put(GLOBAL_TRANSACTION_ENABLED, isGlobalTransactionEnabled);
     }
 
-    public static boolean getGlobalTransactionenabled(WorkerExecutionContext ctx) {
+    public static boolean getGlobalTransactionEnabled(WorkerExecutionContext ctx) {
         return (boolean) ctx.globalProps.get(GLOBAL_TRANSACTION_ENABLED);
     }
 }

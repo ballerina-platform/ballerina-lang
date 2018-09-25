@@ -15,8 +15,6 @@
  */
 package org.ballerinalang.langserver;
 
-import org.ballerinalang.langserver.client.ExtendedLanguageClient;
-import org.ballerinalang.langserver.client.ExtendedLanguageClientAware;
 import org.ballerinalang.langserver.common.constants.CommandConstants;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.compiler.workspace.WorkspaceDocumentManager;
@@ -42,6 +40,8 @@ import org.eclipse.lsp4j.ServerCapabilities;
 import org.eclipse.lsp4j.SignatureHelpOptions;
 import org.eclipse.lsp4j.TextDocumentClientCapabilities;
 import org.eclipse.lsp4j.TextDocumentSyncKind;
+import org.eclipse.lsp4j.services.LanguageClient;
+import org.eclipse.lsp4j.services.LanguageClientAware;
 import org.eclipse.lsp4j.services.TextDocumentService;
 import org.eclipse.lsp4j.services.WorkspaceService;
 
@@ -55,8 +55,8 @@ import java.util.concurrent.CompletableFuture;
 /**
  * Language server implementation for Ballerina.
  */
-public class BallerinaLanguageServer implements ExtendedLanguageServer, ExtendedLanguageClientAware {
-    private ExtendedLanguageClient client = null;
+public class BallerinaLanguageServer implements ExtendedLanguageServer, LanguageClientAware {
+    private LanguageClient client = null;
     private TextDocumentService textService;
     private WorkspaceService workspaceService;
     private BallerinaDocumentService ballerinaDocumentService;
@@ -89,7 +89,7 @@ public class BallerinaLanguageServer implements ExtendedLanguageServer, Extended
         initLSIndex();
     }
     
-    public ExtendedLanguageClient getClient() {
+    public LanguageClient getClient() {
         return this.client;
     }
 
@@ -166,7 +166,7 @@ public class BallerinaLanguageServer implements ExtendedLanguageServer, Extended
     }
 
     @Override
-    public void connect(ExtendedLanguageClient languageClient) {
+    public void connect(LanguageClient languageClient) {
         this.client = languageClient;
     }
 
