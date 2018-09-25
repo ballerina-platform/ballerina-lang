@@ -1,8 +1,7 @@
-# Download `Ballerina Message Broker` from the following link.
-https://github.com/ballerina-platform/ballerina-message-broker/releases/download/v0.970.5/message-broker-0.970.5.zip
-
-# Start Ballerina message broker by executing either the 'broker' or the 'broker.bat' command inside the <BMS_HOME>/bin
-$ broker
+# Download Ballerina message broker from [here](https://github.com/ballerina-platform/ballerina-message-broker/releases/download/v0.970.5/message-broker-0.970.5.zip)
+# Extract the zip file and navigate to <BROKER_HOME>/bin
+# Start Ballerina message broker by executing either the `broker` or the `broker.bat` command.
+$ ./broker
 
 # Navigate to the directory that contains the
 # 'jms_simple_topic_message_subscriber.bal' file and issue the 'ballerina run' command.
