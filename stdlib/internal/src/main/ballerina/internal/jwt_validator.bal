@@ -18,13 +18,19 @@ import ballerina/log;
 import ballerina/time;
 
 # Represents JWT validator configurations.
+# + issuer - Expected issuer
+# + audience - Expected audience
+# + clockSkew - Clock skew in seconds
+# + certificateAlias - Certificate alias used for validation
+# + trustStoreFilePath - Trust store file path
+# + trustStorePassword - Trust store password
 public type JWTValidatorConfig record {
-    string issuer,
-    string audience,
-    int clockSkew,
-    string certificateAlias,
-    string trustStoreFilePath,
-    string trustStorePassword,
+    string issuer;
+    string audience;
+    int clockSkew;
+    string certificateAlias;
+    string trustStoreFilePath;
+    string trustStorePassword;
     !...
 };
 

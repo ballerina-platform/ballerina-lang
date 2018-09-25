@@ -57,6 +57,8 @@ public type SimpleTopicPublisher object {
     }
 
     # Get simple topic publisher actions
+    #
+    # + return - the caller action object of the `TopicPublisher`
     public function getCallerActions() returns TopicPublisherActions {
         match (self.producerActions) {
             TopicPublisherActions s => return s;
@@ -75,6 +77,7 @@ public type SimpleTopicPublisher object {
     # Create JMS text message
     #
     # + message - A message body to create a text message
+    # + return - the `Message` object created using the `string` message. or `error` on failure
     public function createTextMessage(string message) returns Message|error {
         match (self.publisher) {
             jms:SimpleTopicPublisher s => {
@@ -103,6 +106,7 @@ public type TopicPublisherActions object {
     # Sends a message to Ballerina message broker
     #
     # + message - message to be sent to Ballerina message broker
+    # + return - `error` on failure to send the `Message`
     public function send(Message message) returns error? {
         endpoint jms:SimpleTopicPublisher publisherEP = self.publisher;
         var result = publisherEP->send(message.getJMSMessage());
@@ -118,20 +122,21 @@ public type TopicPublisherActions object {
 # + port - AMQP port of the broker node
 # + clientID - Identifier used to uniquely identify the client connection
 # + virtualHost - target virtualhost
+# + secureSocket - Configuration for the TLS options to be used
 # + acknowledgementMode - specifies the session mode that will be used. Legal values are "AUTO_ACKNOWLEDGE",
 #                         "CLIENT_ACKNOWLEDGE", "SESSION_TRANSACTED" and "DUPS_OK_ACKNOWLEDGE"
 # + properties - Additional properties use in initializing the initial context
 # + topicPattern - name of the target topic
 public type SimpleTopicPublisherEndpointConfiguration record {
-    string username = "admin",
-    string password = "admin",
-    string host = "localhost",
-    int port = 5672,
-    string clientID = "ballerina",
-    string virtualHost = "default",
-    ServiceSecureSocket? secureSocket,
-    string acknowledgementMode = "AUTO_ACKNOWLEDGE",
-    map properties,
-    string topicPattern,
+    string username = "admin";
+    string password = "admin";
+    string host = "localhost";
+    int port = 5672;
+    string clientID = "ballerina";
+    string virtualHost = "default";
+    ServiceSecureSocket? secureSocket;
+    string acknowledgementMode = "AUTO_ACKNOWLEDGE";
+    map properties;
+    string topicPattern;
     !...
 };

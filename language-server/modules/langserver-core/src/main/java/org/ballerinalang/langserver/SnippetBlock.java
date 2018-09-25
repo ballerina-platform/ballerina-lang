@@ -62,6 +62,8 @@ public class SnippetBlock {
     // Private Methods
     
     private String getPlainTextSnippet() {
-        return this.snippet.replaceAll("(\\$\\{\\d:)([a-zA-Z]*)(\\})", "$2").replaceAll("(\\$\\{\\d\\})", "");
-    }   
+        return this.snippet
+                .replaceAll("(\\$\\{\\d:)([a-zA-Z]*:*[a-zA-Z]*)(\\})", "$2")
+                .replaceAll("(\\$\\{\\d\\})", "");
+    }
 }

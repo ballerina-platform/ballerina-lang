@@ -28,7 +28,7 @@ import io.ballerina.plugins.idea.psi.*;
 
 public class BallerinaElvisExpressionImpl extends BallerinaExpressionImpl implements BallerinaElvisExpression {
 
-  public BallerinaElvisExpressionImpl(ASTNode node) {
+  public BallerinaElvisExpressionImpl(@NotNull ASTNode node) {
     super(node);
   }
 

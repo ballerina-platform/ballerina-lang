@@ -28,7 +28,7 @@ import io.ballerina.plugins.idea.psi.*;
 
 public class BallerinaDocumentationStringImpl extends BallerinaCompositeElementImpl implements BallerinaDocumentationString {
 
-  public BallerinaDocumentationStringImpl(ASTNode node) {
+  public BallerinaDocumentationStringImpl(@NotNull ASTNode node) {
     super(node);
   }
 

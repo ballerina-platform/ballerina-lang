@@ -38,6 +38,7 @@
             <class name="org.ballerinalang.test.service.http.sample.RedirectTestCase"/>
             <class name="org.ballerinalang.test.service.http.sample.RoutingServiceSampleTestCase"/>
             <class name="org.ballerinalang.test.service.http.sample.MutualSSLTestCase"/>
+            <class name="org.ballerinalang.test.service.http.sample.MutualSSLWithCerts"/>
             <class name="org.ballerinalang.test.service.http.sample.HTTPVerbsPassthruTestCases"/>
             <class name="org.ballerinalang.test.service.http.sample.HTTPClientActionsTestCase"/>
             <class name="org.ballerinalang.test.service.http.sample.EchoServiceSampleTestCase"/>
@@ -54,6 +55,7 @@
             <class name="org.ballerinalang.test.service.http.sample.CompressionTestCase"/>
             <class name="org.ballerinalang.test.service.http.sample.IdleTimeoutResponseTestCase"/>
             <class name="org.ballerinalang.test.service.http.sample.HttpPipeliningTestCase"/>
+            <class name="org.ballerinalang.test.service.http.sample.HttpStatusCodeTestCase"/>
         </classes>
     </test>
 
@@ -159,6 +161,7 @@
             <class name="org.ballerinalang.test.service.grpc.sample.UnaryBlockingArrayValueTestCase"/>
             <class name="org.ballerinalang.test.service.grpc.sample.UnaryBlockingHeaderTestCase"/>
             <class name="org.ballerinalang.test.service.grpc.sample.UnarySecuredBlockingBasicTestCase"/>
+            <class name="org.ballerinalang.test.service.grpc.sample.GrpcMutualSslWithCertsTest"/>
             <class name="org.ballerinalang.test.service.grpc.sample.UnaryBlockingNestedStructTestCase"/>
             <class name="org.ballerinalang.test.service.grpc.sample.InvalidServiceMethodTestCase"/>
             <class name="org.ballerinalang.test.service.grpc.sample.UnaryBlockingEmptyValueTestCase"/>

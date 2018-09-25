@@ -25,7 +25,7 @@ import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 
 import java.util.Objects;
 
-import static org.wso2.transport.http.netty.common.Constants.MEANINGFULLY_EQUAL;
+import static org.wso2.transport.http.netty.contract.Constants.MEANINGFULLY_EQUAL;
 
 /**
  * Represents a pipelined response. Response order can be determined based on the sequence number.

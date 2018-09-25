@@ -89,6 +89,18 @@
             <fileMode>644</fileMode>
         </file>
         <file>
+            <source>resources/language-server-launcher.sh</source>
+            <outputDirectory>lib/resources/composer/language-server-launcher/</outputDirectory>
+            <filtered>true</filtered>
+            <fileMode>755</fileMode>
+        </file>
+        <file>
+            <source>resources/language-server-launcher.bat</source>
+            <outputDirectory>lib/resources/composer/language-server-launcher/</outputDirectory>
+            <filtered>true</filtered>
+            <fileMode>644</fileMode>
+        </file>
+        <file>
             <source>LICENSE</source>
             <outputDirectory>.</outputDirectory>
             <filtered>true</filtered>
