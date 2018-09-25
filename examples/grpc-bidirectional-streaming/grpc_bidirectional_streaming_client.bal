@@ -1,11 +1,10 @@
 // This is client implementation for bidirectional streaming scenario.
 import ballerina/grpc;
 import ballerina/io;
-import ballerina/log;
 import ballerina/runtime;
 
 int total = 0;
-function main(string... args) {
+public function main() {
 
     //Client endpoint configuration.
     endpoint ChatClient chatEp {
@@ -26,7 +25,7 @@ function main(string... args) {
     }
 
     // Sends multiple messages to the server.
-    ChatMsg mes = { name: "Sam", message: "Hi " };
+    ChatMessage mes = { name: "Sam", message: "Hi " };
     error? connErr = ep->send(mes);
 
     io:println(connErr.message but { () => "" });

@@ -1,9 +1,8 @@
-import ballerina/io;
 import ballerina/http;
-import ballerina/swagger;
 import ballerina/log;
+import ballerina/swagger;
 
-// Defines this endpoint as a selected ednpoint for client generation
+// Defines this endpoint as a selected endpoint for client generation
 @swagger:ClientEndpoint
 endpoint http:Listener helloEp {
     port: 9090

@@ -35,7 +35,7 @@ function testAggregationQuery(
     }
 }
 
-function main(string... args) {
+public function main() {
     // Create a stream that is constrained by the `StatusCount` record type.
     stream<StatusCount> filteredStatusCountStream;
 

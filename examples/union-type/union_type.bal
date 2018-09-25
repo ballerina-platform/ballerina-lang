@@ -22,7 +22,7 @@ function getValue(string key) returns string|KeyNotFoundError {
     }
 }
 
-function main(string... args) {
+public function main() {
     // This passes a string value.
     println("This is a string");
 

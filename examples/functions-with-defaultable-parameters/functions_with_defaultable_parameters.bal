@@ -15,7 +15,7 @@ function printSalaryDetails(int baseSalary,
                 " | Bonus Rate: ", bonusRate);
 }
 
-function main(string... args) {
+public function main() {
     // Call the function by passing only the `salary`. The `annualIncrement` and 
     // the `bonusRate` defaults to 20 and 0.02 respectively.
     printSalaryDetails(2500);

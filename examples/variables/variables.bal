@@ -15,7 +15,7 @@ public string OK = "ok";
 @readonly
 public int status = 1;
 
-function main(string... args) {
+public function main() {
 
     // Access a global variable.
     io:println(total);

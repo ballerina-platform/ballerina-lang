@@ -7,11 +7,11 @@ function userDefinedSecureOperation(@sensitive string secureParameter) {
 }
 
 type Student record {
-    string firstname,
+    string firstname;
 };
 
 
-function main(string... args) {
+public function main(string... args) {
     endpoint mysql:Client customerDBEP {
         host: "localhost",
         port: 3306,

@@ -17,24 +17,24 @@ public function mockPrint(any... s) {
 function testFunc() {
     // Invoking the main function
     main();
-    test:assertEquals("ToUpper: LION IN TOWN. CATCH THE LION ", outputs[0]);
-    test:assertEquals("ToLower: lion in town. catch the lion ", outputs[1]);
-    test:assertEquals("EqualsIgnoreCase: true", outputs[2]);
-    test:assertEquals("SubString: Lion", outputs[3]);
-    test:assertEquals("Contains: true", outputs[4]);
-    test:assertEquals("IndexOf: 2", outputs[5]);
-    test:assertEquals("LastIndexOf: 26", outputs[6]);
-    test:assertEquals("ValueOf: 5.8", outputs[7]);
-    test:assertEquals("ReplaceFirst: Tiger in Town. Catch the Lion ", outputs[8]);
-    test:assertEquals("Replace: Tiger in Town. Catch the Tiger ", outputs[9]);
-    test:assertEquals("ReplaceAll: Li0n in T0wn. Catch the Li0n ", outputs[10]);
-    test:assertEquals("Length: 29", outputs[11]);
-    test:assertEquals("Trim: Lion in Town. Catch the Lion", outputs[12]);
-    test:assertEquals("HasSuffix: true", outputs[13]);
-    test:assertEquals("HasPrefix: true", outputs[14]);
-    test:assertEquals("Unescape: Lion in Town. Catch the Lion ", outputs[15]);
-    test:assertEquals("Split: Lion", outputs[16]);
-    test:assertEquals("Split: in", outputs[17]);
-    test:assertEquals("Split: Town.", outputs[18]);
-    test:assertEquals("Bytes: Lion in Town. Catch the Lion ", outputs[19]);
+    test:assertEquals(outputs[0], "ToUpper: LION IN TOWN. CATCH THE LION ");
+    test:assertEquals(outputs[1], "ToLower: lion in town. catch the lion ");
+    test:assertEquals(outputs[2], "EqualsIgnoreCase: true");
+    test:assertEquals(outputs[3], "SubString: Lion");
+    test:assertEquals(outputs[4], "Contains: true");
+    test:assertEquals(outputs[5], "IndexOf: 2");
+    test:assertEquals(outputs[6], "LastIndexOf: 26");
+    test:assertEquals(outputs[7], "ValueOf: 5.8");
+    test:assertEquals(outputs[8], "ReplaceFirst: Tiger in Town. Catch the Lion ");
+    test:assertEquals(outputs[9], "Replace: Tiger in Town. Catch the Tiger ");
+    test:assertEquals(outputs[10], "ReplaceAll: Li0n in T0wn. Catch the Li0n ");
+    test:assertEquals(outputs[11], "Length: 29");
+    test:assertEquals(outputs[12], "Trim: Lion in Town. Catch the Lion");
+    test:assertEquals(outputs[13], "HasSuffix: true");
+    test:assertEquals(outputs[14], "HasPrefix: true");
+    test:assertEquals(outputs[15], "Unescape: Lion in Town. Catch the Lion ");
+    test:assertEquals(outputs[16], "Split: Lion");
+    test:assertEquals(outputs[17], "Split: in");
+    test:assertEquals(outputs[18], "Split: Town.");
+    test:assertEquals(outputs[19], "Bytes: Lion in Town. Catch the Lion ");
 }

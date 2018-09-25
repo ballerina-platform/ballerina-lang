@@ -9,7 +9,7 @@ type Status record {
     int code;
 };
 
-function main(string... args) {
+public function main() {
     error e = { message: "response error" };
     Response|error firstResponse = e;
 

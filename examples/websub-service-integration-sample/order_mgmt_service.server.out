@@ -1,6 +1,6 @@
 # This sample requires starting up the Subscriber Service after the Publisher Service
-$ ballerina run order_mgmt_service.server.bal
-ballerina: initiating service(s) in 'websub_service_integration_sample.bal'
+$ ballerina run order_mgmt_service.bal
+Initiating service(s) in 'order_mgmt_service.bal'
 ballerina: started HTTPS/WSS endpoint 0.0.0.0:9191
 ballerina: Default Ballerina WebSub Hub started up at https://localhost:9191/websub/hub
 ballerina: started HTTP/WS endpoint 0.0.0.0:9090

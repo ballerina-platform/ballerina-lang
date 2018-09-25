@@ -76,7 +76,7 @@ service<http:Service> helloWorld bind { port: 8080 } {
         res.cacheControl = resCC;
 
         // The `setETag()` function can be used for generating ETags for
-        // `string`, `json`, `xml`, and `blob` types. This uses the `getCRC32()
+        // `string`, `json`, and `xml` types. This uses the `getCRC32()
         // ` function from the `ballerina/crypto` package for generating the ETag.
         res.setETag(payload);
 

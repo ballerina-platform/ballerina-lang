@@ -3,7 +3,7 @@ import ballerina/io;
 import ballerina/runtime;
 import ballerina/websub;
 
-function main(string... args) {
+public function main() {
 
     // Start up the internal Ballerina Hub on port 9191, allowing remote publishers to register topics and publish
     // updates for the topics.

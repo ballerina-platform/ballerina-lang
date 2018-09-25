@@ -6,19 +6,19 @@ import ballerina/io;
 function getFileCharacterChannel(string filePath, io:Mode permission,
                                  string encoding) returns io:CharacterChannel {
     // First, get the ByteChannel representation of the file.
-    io:ByteChannel channel = io:openFile(filePath, permission);
+    io:ByteChannel byteChannel = io:openFile(filePath, permission);
     // Then, create an instance of the CharacterChannel from the ByteChannel
     // to read content as text.
-    io:CharacterChannel charChannel = new(channel, encoding);
+    io:CharacterChannel charChannel = new(byteChannel, encoding);
     return charChannel;
 }
 
-// This function reads characters from 'channel',
+// This function reads characters from 'charChannel',
 //which is an instance of CharacterChannel.
-function readCharacters(io:CharacterChannel channel,
+function readCharacters(io:CharacterChannel charChannel,
                         int numberOfChars) returns string {
     //This is how the characters are read.
-    match channel.read(numberOfChars) {
+    match charChannel.read(numberOfChars) {
         string characters => {
             return characters;
         }
@@ -28,11 +28,11 @@ function readCharacters(io:CharacterChannel channel,
     }
 }
 
-// This function wrties characters to 'channel'
-function writeCharacters(io:CharacterChannel channel, string content,
+// This function wrties characters to 'charChannel'
+function writeCharacters(io:CharacterChannel charChannel, string content,
                          int startOffset) {
     //This is how the characters are written.
-    match channel.write(content, startOffset) {
+    match charChannel.write(content, startOffset) {
         int numberOfCharsWritten => {
             io:println(" No of characters written : " + numberOfCharsWritten);
         }
@@ -65,7 +65,7 @@ function process(io:CharacterChannel sourceChannel,
     }
 }
 
-function main(string... args) {
+public function main() {
     var sourceChannel = getFileCharacterChannel("./files/sample.txt",
                                                 io:READ, "UTF-8");
     var destinationChannel = getFileCharacterChannel("./files/sampleResponse.txt",

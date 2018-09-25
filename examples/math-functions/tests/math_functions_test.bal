@@ -27,12 +27,12 @@ function testFunc() {
     string out6 = "Arc sine of 0.027415567780803774    : 0.02741900326072046";
     string out7 = "Arc tangent of 0.027415567780803774 : 0.0274087022410345";
     string out8 = "Cube root of 0.027415567780803774   : -3.0";
-    test:assertEquals(out1, outputs[0]);
-    test:assertEquals(out2, outputs[1]);
-    test:assertEquals(out3, outputs[2]);
-    test:assertEquals(out4, outputs[3]);
-    test:assertEquals(out5, outputs[4]);
-    test:assertEquals(out6, outputs[5]);
-    test:assertEquals(out7, outputs[6]);
-    test:assertEquals(out8, outputs[7]);
+    test:assertEquals(outputs[0], out1);
+    test:assertEquals(outputs[1], out2);
+    test:assertEquals(outputs[2], out3);
+    test:assertEquals(outputs[3], out4);
+    test:assertEquals(outputs[4], out5);
+    test:assertEquals(outputs[5], out6);
+    test:assertEquals(outputs[6], out7);
+    test:assertEquals(outputs[7], out8);
 }

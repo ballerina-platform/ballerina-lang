@@ -6,7 +6,7 @@ endpoint http:Client clientEP {
     url:"http://www.mocky.io"
 };
 
-function main(string... args) {
+public function main() {
     // Send a get request to the server.
     var resp = clientEP->get("/v2/5ae082123200006b00510c3d/");
 

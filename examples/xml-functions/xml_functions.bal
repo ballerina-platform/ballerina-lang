@@ -1,6 +1,6 @@
 import ballerina/io;
 
-function main(string... args) {
+public function main() {
     xml bookName = xml `<name>Book1</name>`;
     xml bookComment = xml `<!--some comment-->`;
     xml someText = xml `Hello, World!`;

@@ -20,7 +20,7 @@ script:
 - ACTIVEMQ_VERSION=apache-activemq-5.12.0
 
 # Ballerina
-- BALLERINA_VERSION="${VERSION:-0.980.2-SNAPSHOT}"
+- BALLERINA_VERSION="${VERSION:-0.981.2-SNAPSHOT}"
 - echo -e "\033[36m${BALLERINA_VERSION}\033[m"
 
 - DISTRIBUTION_NAME=ballerina-platform-$BALLERINA_VERSION
@@ -85,6 +85,7 @@ script:
 - ballerina test function-pointers
 - ballerina test functional-iteration
 - ballerina test functions
+- ballerina test functions-as-entry-points
 - ballerina test functions-with-defaultable-parameters
 - ballerina test functions-with-rest-parameter
 - ballerina test grpc-bidirectional-streaming
@@ -124,7 +125,10 @@ script:
 - ballerina test identify-trends
 - ballerina test if-else
 - ballerina test integer-ranges
-- ballerina test jdbc-client
+- ballerina test jdbc-client-crud-operations
+- ballerina test jdbc-client-batch-update
+- ballerina test jdbc-client-call-procedures
+- ballerina test jdbc-client-proxy-tables
 - ballerina test jms-durable-topic-message-subscriber
 - ballerina test jms-headers-and-properties
 - ballerina test jms-queue-message-producer
@@ -142,9 +146,9 @@ script:
 - ballerina test json
 - ballerina test json-arrays
 - ballerina test json-io
-- ballerina test json-struct-map-conversion
+- ballerina test json-record-map-conversion
 - ballerina test json-to-xml-conversion
-- ballerina test lambda
+- ballerina test anonymous-functions
 - ballerina test lengthof
 - ballerina test local-transactions
 - ballerina test locks
@@ -165,6 +169,7 @@ script:
 - ballerina test object-initializer
 - ballerina test object-member-functions
 - ballerina test objects
+- ballerina test abstract-objects
 - ballerina test optional-type
 - ballerina test packages
 - ballerina test passthrough
@@ -210,6 +215,7 @@ script:
 - ballerina test websocket-chat-application
 - ballerina test websocket-proxy-server
 - ballerina test websub-internal-hub-sample
+- ballerina test websub-service-integration-sample
 - ballerina test while
 - ballerina test worker-interaction
 - ballerina test workers

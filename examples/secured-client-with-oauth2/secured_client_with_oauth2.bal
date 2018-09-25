@@ -17,7 +17,7 @@ endpoint http:Client httpEndpoint {
     }
 };
 
-function main(string... args) {
+public function main() {
     // Send a `GET` request to the specified endpoint.
     var response = httpEndpoint->get("/users/@me/lists/");
     match response {

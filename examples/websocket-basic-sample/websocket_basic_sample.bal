@@ -31,7 +31,8 @@ service<http:WebSocketService> basic bind { port: 9090 } {
                 error e => log:printError("Error sending ping", err = e)
             };
         } else if (text == "closeMe") {
-            _ = caller->close(1001, "You asked me to close the connection");
+            _ = caller->close(statusCode = 1001,
+                reason = "You asked me to close the connection");
         } else {
             caller->pushText("You said: " + text) but {
                 error e => log:printError("Error occurred when sending text",
@@ -71,7 +72,7 @@ service<http:WebSocketService> basic bind { port: 9090 } {
     onIdleTimeout(endpoint caller) {
         io:println("\nReached idle timeout");
         io:println("Closing connection " + caller.id);
-        caller->close(1001, "Connection timeout") but {
+        caller->close(statusCode = 1001, reason = "Connection timeout") but {
             error e => log:printError(
                            "Error occured when closing the connection", err = e)
         };

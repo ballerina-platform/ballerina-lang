@@ -1,6 +1,5 @@
 import ballerina/http;
 import ballerina/log;
-import ballerina/mime;
 
 //Define the attributes associated with the client endpoint here.
 endpoint http:Client locationEP {

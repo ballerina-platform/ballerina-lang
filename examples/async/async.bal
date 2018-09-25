@@ -1,19 +1,19 @@
+import ballerina/http;
 import ballerina/io;
 import ballerina/runtime;
-import ballerina/http;
-import ballerina/mime;
 
 int count;
 
 endpoint http:Client clientEndpoint { 
-    url: "https://postman-echo.com" };
+    url: "https://postman-echo.com"
+};
 
-function main(string... args) {
+public function main() {
     // Asynchronously call the function named `sum()`.
     future<int> f1 = start sum(40, 50);
     // You can pass around the value of the `future` variable
     // and call its results later.
-    int result = square_plus_cube(f1);
+    int result = squarePlusCube(f1);
     io:println("SQ + CB = ", result);
 
     // Call the `countInfinity()` function, which runs forever in asynchronous mode.
@@ -40,7 +40,9 @@ function main(string... args) {
         http:Response resp => {
             io:println(untaint resp.getJsonPayload());
         }
-        error err => { io:println(err.message); }
+        error err => {
+            io:println(err.message);
+        }
     }
     io:println(f3.isDone());
 }
@@ -57,7 +59,7 @@ function cube(int n) returns int {
     return n * n * n;
 }
 
-function square_plus_cube(future<int> f) returns int {
+function squarePlusCube(future<int> f) returns int {
     worker w1 {
         int n = await f;
         int sq = square(n);

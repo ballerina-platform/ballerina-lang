@@ -1,5 +1,5 @@
-import ballerina/mb;
 import ballerina/log;
+import ballerina/mb;
 
 // Create a topic publisher.
 endpoint mb:SimpleTopicPublisher publisher {
@@ -9,7 +9,7 @@ endpoint mb:SimpleTopicPublisher publisher {
 };
 
 
-function main(string... args) {
+public function main() {
     // Create a Text message.
     match (publisher.createTextMessage("Hello from Ballerina")) {
         error e => {

@@ -2,7 +2,7 @@
 import ballerina/io;
 
 int total = 0;
-function main(string... args) {
+public function main() {
     // Client endpoint configuration.
     endpoint HelloWorldClient helloWorldEp {
         url: "http://localhost:9090"
@@ -62,4 +62,3 @@ service<grpc:Service> HelloWorldMessageListener {
         io:println("Server Complete Sending Responses.");
     }
 }
-

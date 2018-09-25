@@ -32,17 +32,17 @@ function testFunc() {
     string jt11 = "{\"fname\":\"Peter\", \"lname\":\"Stallone\", \"age\":30, \"address\":{\"line\":\"20 Palm Grove\", \"city\":\"Colombo 03\", \"country\":\"Sri Lanka\"}}";
     string jt12 = "{\"fname\":\"Peter\", \"lname\":\"Stallone\", \"age\":30, \"address\":{\"line\":\"20 Palm Grove\", \"city\":\"Colombo 03\", \"country\":\"Sri Lanka\", \"province\":\"Western\"}}";
 
-    test:assertEquals(jt1, outputs[0]);
-    test:assertEquals(jt2, outputs[1]);
-    test:assertEquals(jt3, outputs[2]);
-    test:assertEquals(jt4, outputs[3]);
-    test:assertEquals(jt5, outputs[4]);
-    test:assertEquals(jt6, outputs[5]);
-    test:assertEquals(jt7, outputs[6]);
-    test:assertEquals(jt8, outputs[7]);
-    test:assertEquals(jt9, outputs[8]);
-    test:assertEquals(jt10, outputs[9]);
-    test:assertEquals(jt11, outputs[10]);
-    test:assertEquals(jt12, outputs[11]);
+    test:assertEquals(outputs[0], jt1);
+    test:assertEquals(outputs[1], jt2);
+    test:assertEquals(outputs[2], jt3);
+    test:assertEquals(outputs[3], jt4);
+    test:assertEquals(outputs[4], jt5);
+    test:assertEquals(outputs[5], jt6);
+    test:assertEquals(outputs[6], jt7);
+    test:assertEquals(outputs[7], jt8);
+    test:assertEquals(outputs[8], jt9);
+    test:assertEquals(outputs[9], jt10);
+    test:assertEquals(outputs[10], jt11);
+    test:assertEquals(outputs[11], jt12);
 }
 

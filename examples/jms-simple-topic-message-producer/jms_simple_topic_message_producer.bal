@@ -10,7 +10,7 @@ endpoint jms:SimpleTopicPublisher topicPublisher {
     topicPattern:"BallerinaTopic"
 };
 
-function main(string... args) {
+public function main() {
     // This creates a Text message.
     match (topicPublisher.createTextMessage("Hello from Ballerina")) {
         error e => {

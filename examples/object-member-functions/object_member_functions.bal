@@ -2,9 +2,9 @@ import ballerina/io;
 
 // Defines a object called 'Person'. It has attached functions both inside and outside of the object.
 type Person object {
-    public int age,
-    public string firstName,
-    public string lastName,
+    public int age;
+    public string firstName;
+    public string lastName;
 
     new(age, firstName, lastName) {
     }
@@ -20,12 +20,14 @@ type Person object {
 
 // Implementation for the declared function.
 function Person::checkAndModifyAge(int condition, int a) {
+    // The keyword `self` is bound to the object and can be used to
+    // access fields and functions of the object.
     if (self.age < condition) {
         self.age = a;
     }
 }
 
-function main(string... args) {
+public function main() {
     // Initializing variable of object type Person
     Person p1 = new(5, "John", "Doe");
     io:println(p1);

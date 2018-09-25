@@ -1,5 +1,5 @@
-import ballerina/runtime;
 import ballerina/io;
+import ballerina/runtime;
 
 // Create a record type that represents the device temperature reading.
 type DeviceTempInfo record {
@@ -41,7 +41,7 @@ function deployPeakTempDetectionRules() {
     }
 }
 
-function main(string... args) {
+public function main() {
 
     index = 0;
     // Deploy the streaming sequence rules.

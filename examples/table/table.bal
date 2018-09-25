@@ -1,17 +1,17 @@
 import ballerina/io;
 
 type Employee record {
-    int id,
-    string name,
-    float salary,
+    int id;
+    string name;
+    float salary;
 };
 
 type EmployeeSalary record {
-    int id,
-    float salary,
+    int id;
+    float salary;
 };
 
-function main(string... args) {
+public function main() {
     // This creates an in-memory table constrained by the `Employee` type with id marked as the
     // primary key in column descriptor. Three data records are inserted to the table. Order of
     // the data values should match with the order of the column descriptor.

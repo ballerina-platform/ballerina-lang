@@ -2,14 +2,14 @@ import ballerina/io;
 import ballerina/log;
 
 type Employee record {
-    string id,
-    string name,
-    float salary,
+    string id;
+    string name;
+    float salary;
 };
 
-// This function reads the next record from the channel.
-function readNext(io:CSVChannel channel) returns string[] {
-    match channel.getNext() {
+// This function reads the next record from the csvChannel.
+function readNext(io:CSVChannel csvChannel) returns string[] {
+    match csvChannel.getNext() {
         string[] records => {
             return records;
         }
@@ -24,13 +24,13 @@ function readNext(io:CSVChannel channel) returns string[] {
 }
 
 // This function reads records one by one and prints the records.
-function process(io:CSVChannel channel) {
+function process(io:CSVChannel csvChannel) {
     try {
         // Read all the records from the provided file
         // until there are no more records.
-        while (channel.hasNext()) {
+        while (csvChannel.hasNext()) {
             // Read the records.
-            string[] records = readNext(channel);
+            string[] records = readNext(csvChannel);
             // Print the records.
             io:println(records);
         }
@@ -39,7 +39,7 @@ function process(io:CSVChannel channel) {
     }
 }
 //Specify the location of the `.CSV` file.
-function main(string... args) {
+public function main() {
     string srcFileName = "./files/sample.csv";
 
     // Open a CSV channel in `write` mode and write some data to
@@ -101,9 +101,9 @@ function createTableAndAddData() returns table<Employee> {
     table<Employee> employeeTable = table{};
 
     Employee[] employees;
-    employees[0] = { id: "1", name: "Allen", salary: 300000 };
-    employees[1] = { id: "2", name: "Wallace", salary: 200000 };
-    employees[2] = { id: "3", name: "Sheldon", salary: 1000000 };
+    employees[0] = { id: "1", name: "Allen", salary: 300000.0 };
+    employees[1] = { id: "2", name: "Wallace", salary: 200000.0 };
+    employees[2] = { id: "3", name: "Sheldon", salary: 1000000.0 };
 
     foreach employee in employees {
         match employeeTable.add(employee) {

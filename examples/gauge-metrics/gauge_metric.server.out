@@ -1,11 +1,11 @@
 # To start the service, navigate to the directory that contains the
 # `.bal` file and use the `ballerina run` command with `--observe` param.
-$ ballerina run counter-metrics.bal --observe
+$ ballerina run --observe gauge_metrics.bal
 ballerina: started publishing tracers to Jaeger on localhost:5775
-ballerina: initiating service(s) in 'ballerina-home/lib/balx/prometheus/reporter.balx'
+Initiating service(s) in 'ballerina-home/lib/balx/prometheus/reporter.balx'
 ballerina: started HTTP/WS endpoint 0.0.0.0:9797
 ballerina: started Prometheus HTTP endpoint 0.0.0.0:9797
-ballerina: initiating service(s) in 'counter_metrics.bal'
+Initiating service(s) in 'counter_metrics.bal'
 ballerina: started HTTP/WS endpoint 0.0.0.0:9090
 ------------------------------------------
 Gauge - global_gauge Snapshot: [{timeWindow:600000, mean:15.0, max:15.0, min:15.0, stdDev:0.0, percentileValues:[{percentile:0.33, value:15.0}, {percentile:0.5, value:15.0}, {percentile:0.66, value:15.0}, {percentile:0.99, value:15.0}]}]

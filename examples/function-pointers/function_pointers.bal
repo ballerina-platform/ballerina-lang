@@ -18,7 +18,7 @@ function getIt() returns (function (int, string) returns (float)) {
     return test;
 }
 
-function main(string... args) {
+public function main() {
     // Value 'test' will serve as a function pointer to the 'foo' function.
     io:println("Answer: " + foo(10, test));
     io:println("Answer: " + foo(10, getIt()));

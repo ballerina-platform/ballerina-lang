@@ -54,7 +54,7 @@ service<http:WebSocketService> SimpleProxyService bind { port: 9090 } {
 
         endpoint http:WebSocketClient clientEp =
         getAssociatedClientEndpoint(caller);
-        clientEp->close(1011, "Unexpected condition")
+        clientEp->close(statusCode = 1011, reason = "Unexpected condition")
         but { error e => log:printError(
                      "Error occurred when closing the connection", err = e) };
         _ = caller.attributes.remove(ASSOCIATED_CONNECTION);
@@ -67,7 +67,7 @@ service<http:WebSocketService> SimpleProxyService bind { port: 9090 } {
 
         endpoint http:WebSocketClient clientEp =
                         getAssociatedClientEndpoint(caller);
-        clientEp->close(statusCode, reason)
+        clientEp->close(statusCode = statusCode, reason = reason)
             but { error e => log:printError(
                      "Error occurred when closing the connection", err = e) };
         _ = caller.attributes.remove(ASSOCIATED_CONNECTION);
@@ -102,7 +102,7 @@ service<http:WebSocketClientService> ClientService {
 
         endpoint http:WebSocketListener serverEp =
                         getAssociatedServerEndpoint(caller);
-        serverEp->close(1011, "Unexpected condition")
+        serverEp->close(statusCode = 1011, reason = "Unexpected condition")
         but { error e => log:printError(
                      "Error occurred when closing the connection", err = e) };
         _ = caller.attributes.remove(ASSOCIATED_CONNECTION);
@@ -115,7 +115,7 @@ service<http:WebSocketClientService> ClientService {
 
         endpoint http:WebSocketListener serverEp =
                         getAssociatedServerEndpoint(caller);
-        serverEp->close(statusCode, reason)
+        serverEp->close(statusCode = statusCode, reason = reason)
             but { error e => log:printError(
                      "Error occurred when closing the connection", err = e) };
         _ = caller.attributes.remove(ASSOCIATED_CONNECTION);

@@ -1,5 +1,5 @@
-import ballerina/test;
 import ballerina/io;
+import ballerina/test;
 
 // This test function depends on `testFunction3`.
 @test:Config {

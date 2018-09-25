@@ -1,6 +1,6 @@
 import ballerina/io;
 
-function main(string... args) {
+public function main() {
     // Create a JSON object.
     json j1 = {
         "Store": {

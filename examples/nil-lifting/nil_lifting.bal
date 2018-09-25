@@ -28,7 +28,7 @@ function getPerson(string name) returns person? {
     }
 }
 
-function main(string... args) {
+public function main() {
     person? p1 = getPerson("John");
     io:println(p1);
 

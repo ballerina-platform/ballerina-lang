@@ -1,6 +1,6 @@
 import ballerina/io;
 
-function main(string... args) {
+public function main() {
     map words = { a: "ant", b: "bear", c: "cat", d: "dear",
                   e: "elephant" };
     // The count operation returns the number of elements in any collection type.
@@ -16,7 +16,7 @@ function main(string... args) {
     // The filter operation returns a collection of all the elements that satisfy the input predicate function.
     // The average operation returns the average of the int/float collection. Other support operations are max(), min(),
     // and sum().
-    float avg = numbers.filter((int i) => boolean {
+    float avg = numbers.filter(function (int i) returns boolean {
                                   return i >= 0;
                               }).average();
     io:println("Average of positive numbers: " + avg);
@@ -25,11 +25,12 @@ function main(string... args) {
     // This is an example for multiple iterable operations.
     // The foreach operation applies the given function to each item of the iterable collection.
     json j = { name: "apple", colors: ["red", "green"], price: 5 };
-    j.map((json j) => string {
-            string s = j.toString();
+    j.map(function (json j) returns string {
+            string s = j
+            .toString();
             io:println("- map operation's value: ", s);
             return s;
-        }).foreach((string s) => {
+        }).foreach(function (string s) {
             io:println("-- foreach operation's value: ", s);
         });
 

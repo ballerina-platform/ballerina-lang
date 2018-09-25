@@ -1,14 +1,13 @@
-import ballerina/io;
 import ballerina/http;
+import ballerina/io;
 import ballerina/log;
-import ballerina/mime;
 
 endpoint http:Client clientEP {
     url: "http://localhost:9090",
     followRedirects: { enabled: true, maxCount: 5 }
 };
 
-function main(string... args) {
+public function main() {
 
     // Send a GET request to the specified endpoint.
     var returnResult = clientEP->get("/redirect1");

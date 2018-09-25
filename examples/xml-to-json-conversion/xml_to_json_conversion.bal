@@ -1,6 +1,6 @@
 import ballerina/io;
 
-function main(string... args) {
+public function main() {
     // This creates an XML and associates it with a variable.
     var x = xml `<h:Store id = "AST" xmlns:h="http://www.test.com">
                      <h:name>Anne</h:name>

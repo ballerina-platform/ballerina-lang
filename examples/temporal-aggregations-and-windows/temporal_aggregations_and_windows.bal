@@ -1,5 +1,4 @@
 import ballerina/http;
-import ballerina/mime;
 import ballerina/io;
 
 type ClientRequest record {

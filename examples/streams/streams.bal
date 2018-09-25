@@ -2,11 +2,11 @@ import ballerina/io;
 import ballerina/runtime;
 
 type Employee record {
-    int id,
-    string name,
+    int id;
+    string name;
 };
 
-function main(string... args) {
+public function main() {
 
     // Declare a stream constrained by the `Employee` type.
     stream<Employee> employeeStream;

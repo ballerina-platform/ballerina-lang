@@ -24,6 +24,13 @@ public function mockPrint(any... s) {
 function testFunc() {
     // Invoke the main function. 
     main();
-    test:assertEquals("sum of first 10000000 positive numbers = 50000005000000", outputs[0]);
-    test:assertEquals("sum of squares of first 10000000 positive numbers = 1291990006563070912", outputs[1]);
+    boolean assert = false;
+    if((outputs[0] == "sum of first 10000000 positive numbers = 50000005000000") &&
+                    (outputs[1] == "sum of squares of first 10000000 positive numbers = 1291990006563070912")) {
+        assert = true;
+    } else if ((outputs[1] == "sum of first 10000000 positive numbers = 50000005000000") &&
+                   (outputs[0] == "sum of squares of first 10000000 positive numbers = 1291990006563070912")) {
+        assert = true;
+    }
+    test:assertTrue(assert);
 }

@@ -1,5 +1,5 @@
-import ballerina/test;
 import ballerina/io;
+import ballerina/test;
 
 // The `BeforeSuite` function is executed before all test functions in this package. 
 @test:BeforeSuite

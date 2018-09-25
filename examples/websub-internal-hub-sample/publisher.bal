@@ -3,7 +3,7 @@ import ballerina/io;
 import ballerina/runtime;
 import ballerina/websub;
 
-function main(string... args) {
+public function main() {
 
     // Specify the port that the internal Ballerina hub needs to start on and start the hub.
     io:println("Starting up the Ballerina Hub Service");

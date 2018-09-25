@@ -4,7 +4,7 @@ import ballerina/io;
 import ballerina/runtime;
 import ballerina/websub;
 
-function main(string... args) {
+public function main() {
 
     // Start up the internal Ballerina Hub.
     io:println("Starting up the Ballerina Hub Service");

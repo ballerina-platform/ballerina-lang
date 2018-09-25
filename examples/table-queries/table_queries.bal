@@ -2,44 +2,44 @@ import ballerina/io;
 
 // This type represents a person.
 type Person record {
-    int id,
-    int age = -1,
-    float salary,
-    string name,
-    boolean married,
+    int id;
+    int age = -1;
+    float salary;
+    string name;
+    boolean married;
 };
 
 // This type represents an order.
 type Order record {
-    int personId,
-    int orderId,
-    string items,
-    float amount,
+    int personId;
+    int orderId;
+    string items;
+    float amount;
 };
 
 // This type represents the summed up order details.
 type SummedOrder record {
-    int personId,
-    float amount,
+    int personId;
+    float amount;
 };
 
 // This type represents order details (this is derived by joining the person details
 //and the order details).
 type OrderDetails record {
-    int orderId,
-    string personName,
-    string items,
-    float amount,
+    int orderId;
+    string personName;
+    string items;
+    float amount;
 };
 
 // This type represents the Person public profile.
 type PersonPublicProfile record {
-    string knownName,
-    int age = -1,
+    string knownName;
+    int age = -1;
 };
 
 // This is the main function.
-function main(string... args) {
+public function main() {
     string queryStmt;
 
     // These are a few sample values that represent different `Person` records.

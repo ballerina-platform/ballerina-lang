@@ -30,17 +30,17 @@ function testFunc() {
     xml content = someText + bookName + bookComment;
     book.setChildren(content);
 
-    test:assertEquals(itemType, outputs[0]);
-    test:assertEquals(nameOfElem, outputs[1]);
-    test:assertEquals(txtVal, outputs[2]);
-    test:assertEquals(isEmpty, outputs[3]);
-    test:assertEquals(isSingleton, outputs[4]);
-    test:assertEquals(bookComment, outputs[5]);
-    test:assertEquals(bookName, outputs[6]);
-    test:assertEquals(bookName, outputs[7]);
-    test:assertEquals(book, outputs[8]);
-    test:assertEquals(book.*, outputs[9]);
-    test:assertEquals(bookName, outputs[10]);
-    test:assertEquals(content.strip(), outputs[11]);
-    test:assertEquals(bookComment.copy(), outputs[12]);
+    test:assertEquals(outputs[0], itemType);
+    test:assertEquals(outputs[1], nameOfElem);
+    test:assertEquals(outputs[2], txtVal);
+    test:assertEquals(outputs[3], isEmpty);
+    test:assertEquals(outputs[4], isSingleton);
+    test:assertEquals(outputs[5], bookComment);
+    test:assertEquals(outputs[6], bookName);
+    test:assertEquals(outputs[7], bookName);
+    test:assertEquals(outputs[8], book);
+    test:assertEquals(outputs[9], book.*);
+    test:assertEquals(outputs[10], bookName);
+    test:assertEquals(outputs[11], content.strip());
+    test:assertEquals(outputs[12], bookComment.copy());
 }

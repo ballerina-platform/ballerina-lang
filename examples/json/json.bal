@@ -1,6 +1,6 @@
 import ballerina/io;
 
-function main(string... args) {
+public function main() {
     // Create a JSON string value.
     json j1 = "Apple";
     io:println(j1);

@@ -3,10 +3,11 @@ import ballerina/io;
 // Shared counter variable among multiple workers.
 int counter;
 
-function main(string... args) {
+public function main() {
     process();
     io:println("final counter value - ", counter);
 }
+
 function process() {
     worker w1 {
         // Lock the shared variable and increment the counter.

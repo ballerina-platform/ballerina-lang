@@ -1,8 +1,8 @@
 // This is client implementation for unary blocking scenario.
-import ballerina/io;
 import ballerina/grpc;
+import ballerina/io;
 
-function main(string... args) {
+public function main() {
     // Client endpoint configuration
     endpoint HelloWorldBlockingClient helloWorldBlockingEp {
         url: "http://localhost:9090"

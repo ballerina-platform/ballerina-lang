@@ -1,12 +1,12 @@
-import ballerina/task;
-import ballerina/math;
 import ballerina/log;
+import ballerina/math;
 import ballerina/runtime;
+import ballerina/task;
 
 int app1Count;
 task:Appointment? appointment1;
 
-function main(string... args) {
+public function main() {
     worker w1 {
         log:printInfo("------ Scheduling Appointments --------------");
 

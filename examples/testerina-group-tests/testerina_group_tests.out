@@ -2,7 +2,7 @@
 #`.bal` file and run the `ballerina test` command.
 #Note that you need to have the ballerina-tools distribution 
 #installed in order to run this command. 
-$ ballerina test testerina_group_tests.bal --groups g1,g2
+$ ballerina test testerina_group_tests.bal --groups g1 --groups g2
 Compiling tests
     testerina_group_tests.bal
 

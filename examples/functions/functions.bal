@@ -10,7 +10,7 @@ function add(int a, int b) returns (int) {
     return a + b;
 }
 
-function main(string... args) {
+public function main() {
     // Call a function that prints the given value to the console.
     printValue("This is a sample text");
 

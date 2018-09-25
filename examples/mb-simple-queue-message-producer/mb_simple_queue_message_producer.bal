@@ -1,5 +1,5 @@
-import ballerina/mb;
 import ballerina/log;
+import ballerina/mb;
 
 // Create a queue sender.
 endpoint mb:SimpleQueueSender queueSender {
@@ -9,7 +9,7 @@ endpoint mb:SimpleQueueSender queueSender {
 };
 
 
-function main(string... args) {
+public function main() {
     // Create a Text message.
     match (queueSender.createTextMessage("Hello from Ballerina")) {
         error e => {

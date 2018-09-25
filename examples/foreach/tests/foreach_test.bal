@@ -20,14 +20,14 @@ public function mockPrint(any... s) {
 function testFunc() {
     // Invoking the main function
     main();
-    test:assertEquals("Iterating over a string array:-", outputs[0]);
-    test:assertEquals("fruit: apple", outputs[1]);
-    test:assertEquals("fruit: banana", outputs[2]);
-    test:assertEquals("fruit: cherry", outputs[3]);
+    test:assertEquals(outputs[0], "Iterating over a string array:-");
+    test:assertEquals(outputs[1], "fruit: apple");
+    test:assertEquals(outputs[2], "fruit: banana");
+    test:assertEquals(outputs[3], "fruit: cherry");
 
-    test:assertEquals("letter: a, word: apple", outputs[5]);
-    test:assertEquals("letter: b, word: banana", outputs[6]);
-    test:assertEquals("letter: c, word: cherry", outputs[7]);
+    test:assertEquals(outputs[5], "letter: a, word: apple");
+    test:assertEquals(outputs[6], "letter: b, word: banana");
+    test:assertEquals(outputs[7], "letter: c, word: cherry");
 
     //TODO : Add the rest of the assertions
 }

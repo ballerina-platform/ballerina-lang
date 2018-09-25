@@ -1,4 +1,4 @@
-# To run the program, put the code in `websocket_basic_application.bal`
+# To run the program, save the code in `websocket_chat_application.bal`
 # and use the `ballerina run websocket_chat_application.bal` command.
 $ ballerina run websocket_chat_application.bal
 

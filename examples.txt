@@ -35,13 +35,14 @@ Identifier Literals
 JSON
 JSON Literals
 JSON Arrays
-JSON/Struct/Map Conversion
+JSON/Record/Map Conversion
 Constrained JSON
 Nil Lifting
 XML
 XML Namespaces
 XML Literal
 XML Attributes
+XML Access
 XML Functions
 JSON To XML Conversion
 XML To JSON Conversion
@@ -54,7 +55,10 @@ Fork/Join
 Fork/Join Conditional Join
 Fork/Join Variable Access
 Async
-JDBC Client
+JDBC Client CRUD Operations
+JDBC Client Batch Update
+JDBC Client Call Procedures
+JDBC Client Proxy Tables
 MYSQL Client
 H2 Client
 Local Transactions
@@ -91,7 +95,7 @@ HTTP 2.0 Server Push
 HTTP 1.1 To 2.0 Protocol Switch
 Log API
 Function Pointers
-Lambda
+Anonymous Functions
 Closures
 WebSocket Basic Sample
 WebSocket Chat Application
@@ -156,9 +160,11 @@ Objects
 Object Initializer
 Object Member Functions
 Object Assignability
+Abstract Objects
 Locks
 Union Type
 Optional Type
 Tuple Type
 Documentation
 Integer Ranges
+Functions as Entry Points

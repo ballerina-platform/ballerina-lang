@@ -1,5 +1,5 @@
-import ballerina/test;
 import ballerina/io;
+import ballerina/test;
 
 // Test function, which belongs to `g1`
 @test:Config {

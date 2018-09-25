@@ -18,10 +18,10 @@ public function mockPrint(any... s) {
 function testFunc() {
     // Invoking the main function
     main();
-    test:assertEquals(10, outputs[0]);
-    test:assertEquals("error: 'string' cannot be converted to 'int'", outputs[1]);
-    test:assertEquals(1, outputs[2]);
-    test:assertEquals(true, outputs[3]);
-    test:assertEquals(true, outputs[4]);
-    test:assertEquals(3.14, outputs[5]);
+    test:assertEquals(outputs[0], 10);
+    test:assertEquals(outputs[1], "error: 'string' cannot be converted to 'int'");
+    test:assertEquals(outputs[2], 1);
+    test:assertEquals(outputs[3], true);
+    test:assertEquals(outputs[4], true);
+    test:assertEquals(outputs[5], 3.14);
 }
