@@ -36,7 +36,7 @@ public type QueueReceiver object {
                 match (c.queueName) {
                     string queueName => {
                         self.createQueueReceiver(s, c.messageSelector);
-                        log:printInfo("Message receiver created for queue " + c.queueName);
+                        log:printInfo("Message receiver created for queue " + queueName);
                     }
                     () => {}
                 }
