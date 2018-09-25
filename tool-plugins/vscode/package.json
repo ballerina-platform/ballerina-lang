@@ -141,6 +141,10 @@
             {
                 "command": "ballerina.showExamples",
                 "title": "Ballerina: Show Examples"
+            },
+            {
+                "command": "ballerina.showAPIEditor",
+                "title": "Ballerina: Show API Editor"
             }
         ],
         "menus": {
@@ -148,6 +152,13 @@
                 {
                     "when": "resourceLangId == ballerina",
                     "command": "ballerina.showDiagram",
+                    "group": "navigation"
+                }
+            ],
+            "editor/context": [
+                {
+                    "when": "resourceLangId == ballerina",
+                    "command": "ballerina.showAPIEditor",
                     "group": "navigation"
                 }
             ]

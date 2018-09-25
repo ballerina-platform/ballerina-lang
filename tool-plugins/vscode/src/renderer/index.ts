@@ -20,12 +20,14 @@ import { workspace, commands, window, Uri, ViewColumn, ExtensionContext, TextEdi
 import * as _ from 'lodash';
 import { StaticProvider } from './content-provider';
 import { render } from './renderer';
+import { apiEditorRender } from './api-editor-renderer';
 import { BallerinaAST, ExtendedLangClient } from '../lang-client';
 import { WebViewRPCHandler } from '../utils';
 
 const DEBOUNCE_WAIT = 500;
 
 let previewPanel: WebviewPanel | undefined;
+let oasEditorPanel: WebviewPanel | undefined;
 let activeEditor: TextEditor | undefined;
 let preventDiagramUpdate = false;
 
@@ -73,6 +75,33 @@ export function activate(context: ExtensionContext, langClient: ExtendedLangClie
 						updateWebView(resp.ast, docUri, stale);
 					}
 				});
+		}
+	});
+
+	commands.registerCommand('ballerina.showAPIEditor', () => {
+		oasEditorPanel = window.createWebviewPanel(
+            'ballerinaOASEditor',
+            "Ballerina API Editor",
+            { viewColumn: ViewColumn.Two, preserveFocus: true } ,
+            {
+				enableScripts: true,
+				retainContextWhenHidden: true,
+			}
+		);
+		const editor = window.activeTextEditor;
+		if(!editor) {
+            return "";
+		}
+		activeEditor = editor;
+		WebViewRPCHandler.create([{
+			methodName: 'getSwaggerDef',
+			handler: (args: any[]) => {
+				return langClient.getBallerinaOASDef(args[0], args[1]);
+			}
+		}], oasEditorPanel.webview)
+		const html = apiEditorRender(context, langClient, editor.document.uri);
+		if (oasEditorPanel && html) {
+			oasEditorPanel.webview.html = html;
 		}
 	});
 

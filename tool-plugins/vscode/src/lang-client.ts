@@ -55,6 +55,17 @@ export interface BallerinaFragmentASTRequest {
 export interface BallerinaFragmentASTResponse {
 }
 
+export interface BallerinaOASResponse {
+    ballerinaOASJson?: string;
+}
+
+export interface BallerinaOASRequest {
+    ballerinaDocument: {
+        uri: string;
+    };
+    ballerinaService?: string;
+}
+
 export class ExtendedLangClient extends LanguageClient {
 
     getAST(uri: Uri): Thenable<BallerinaASTResponse> {
@@ -87,5 +98,15 @@ export class ExtendedLangClient extends LanguageClient {
     getEndpoints(): Thenable<Array<any>> {
         return this.sendRequest("ballerinaSymbol/endpoints", {})
                     .then((resp: any) => resp.endpoints);
+    }
+
+    getBallerinaOASDef(uri: Uri, oasService: string): Thenable<BallerinaOASResponse> {
+        const req: BallerinaOASRequest = {
+            ballerinaDocument: {
+                uri: uri.toString()
+            },
+            ballerinaService: oasService
+        }
+        return this.sendRequest("ballerinaDocument/swaggerDef", req);
     }
 }
