@@ -85,8 +85,7 @@ public class SourceGenTest {
         } catch (Exception e) {
             // This error being catch to print failing source-gen file.
             Assert.fail("Exception occurred while processing file: " + file.getName() + "\nException:" +
-                                e.toString());
-            throw e;
+                                e.toString(), e);
         }
     }
 
