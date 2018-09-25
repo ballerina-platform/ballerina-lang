@@ -1,1 +1,2 @@
 $ ballerina run request_with_multiparts.bal
+ballerina: started HTTP/WS endpoint 0.0.0.0:9090
