@@ -20,7 +20,7 @@ script:
 - ACTIVEMQ_VERSION=apache-activemq-5.12.0
 
 # Ballerina
-- BALLERINA_VERSION="${VERSION:-0.980.2-SNAPSHOT}"
+- BALLERINA_VERSION="${VERSION:-0.981.2-SNAPSHOT}"
 - echo -e "\033[36m${BALLERINA_VERSION}\033[m"
 
 - DISTRIBUTION_NAME=ballerina-platform-$BALLERINA_VERSION
@@ -144,7 +144,7 @@ script:
 - ballerina test json-io
 - ballerina test json-struct-map-conversion
 - ballerina test json-to-xml-conversion
-- ballerina test lambda
+- ballerina test anonymous-functions
 - ballerina test lengthof
 - ballerina test local-transactions
 - ballerina test locks

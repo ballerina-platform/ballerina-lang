@@ -19,6 +19,7 @@ function testFunc() {
     // Invoking the main function
     main();
 
-    string out1 = "Output: Hello world.!!!";
+    string out1 = "Output: Hello World.!!!";
     test:assertEquals(outputs[0], out1);
+    test:assertEquals(outputs[1], out1);
 }

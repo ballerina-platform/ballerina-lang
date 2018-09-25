@@ -29,15 +29,16 @@ public function main() {
     // This prints the first value of the two-dimensional array.
     io:println(iarray[0][0]);
 
-    // This creates a sealed `int` array of length 5.
+    // This creates an `int` array with a fixed length of five.
     int[5] e = [1, 2, 3, 4, 5];
     io:println(lengthof e);
 
-    // This creates a sealed `int` array of length 5 with default value `0` as member values.
+    // This creates an `int` array with a fixed length of five and default value `0` as member values.
     int[5] f;
     io:println(lengthof f);
 
-    // To infer the size of the sealed array from the array literal, following syntax is used.
+    // To infer the size of the array from the array literal, use the following syntax.
+    // This sets the length of the array to four.
     int[!...] g = [1, 2, 3, 4];
     io:println(lengthof g);
 }

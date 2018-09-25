@@ -9,11 +9,11 @@ public function main() {
     io:println(addrMap);
 
     // This retrieves a value of a key using an index operator.
-    var country = <string>addrMap["country"];
+    string country = <string>addrMap["country"];
     io:println(country);
 
     // This retrieves a value of a key from the map using the dot (.) operator.
-    var city = <string>addrMap.city;
+    string city = <string>addrMap.city;
     io:println(city);
 
     // This adds or updates the value of a key.
@@ -28,7 +28,7 @@ public function main() {
     io:println(lengthof addrMap);
 
     // You can remove a key using the `remove()` function.
-    var isRemoved = addrMap.remove("postalCode");
+    boolean isRemoved = addrMap.remove("postalCode");
     io:println(addrMap);
 
     // Constrained maps can only contain values of the type specified by the type descriptor.
