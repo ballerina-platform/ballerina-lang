@@ -28,7 +28,7 @@ import io.ballerina.plugins.idea.psi.*;
 
 public class BallerinaBitwiseExpressionImpl extends BallerinaExpressionImpl implements BallerinaBitwiseExpression {
 
-  public BallerinaBitwiseExpressionImpl(ASTNode node) {
+  public BallerinaBitwiseExpressionImpl(@NotNull ASTNode node) {
     super(node);
   }
 

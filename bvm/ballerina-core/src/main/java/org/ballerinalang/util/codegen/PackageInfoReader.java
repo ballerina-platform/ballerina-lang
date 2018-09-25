@@ -1600,6 +1600,13 @@ public class PackageInfoReader {
                 structFields[i] = structField;
             }
 
+            if (structType.getTag() == TypeTags.RECORD_TYPE_TAG && !((BRecordType) structType).sealed) {
+                RecordTypeInfo recTypeInfo = (RecordTypeInfo) structureTypeInfo;
+                String restTypeDesc = recTypeInfo.getRestFieldTypeSignature();
+                BType restFieldType = getBTypeFromDescriptor(packageInfo, restTypeDesc);
+                recTypeInfo.getType().restFieldType = restFieldType;
+            }
+
             VarTypeCountAttributeInfo attributeInfo = (VarTypeCountAttributeInfo)
                     structInfo.typeInfo.getAttributeInfo(AttributeInfo.Kind.VARIABLE_TYPE_COUNT_ATTRIBUTE);
             structType.setFieldTypeCount(attributeInfo.getVarTypeCount());

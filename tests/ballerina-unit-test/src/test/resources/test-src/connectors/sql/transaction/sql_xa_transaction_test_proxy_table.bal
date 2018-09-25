@@ -1,19 +1,19 @@
 import ballerina/jdbc;
 
 type ResultCount record {
-    int COUNTVAL,
+    int COUNTVAL;
 };
 
 type CustomersTrx record {
-    int customerId,
-    string name,
-    float creditLimit,
-    string country,
+    int customerId;
+    string name;
+    float creditLimit;
+    string country;
 };
 
 type SalaryTrx record {
-    int id,
-    float value,
+    int id;
+    float value;
 };
 
 function testXATransactionSuccess() returns (int, int) {

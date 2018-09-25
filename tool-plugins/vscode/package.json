@@ -1,0 +1,200 @@
+{
+    "name": "ballerina",
+    "displayName": "Ballerina",
+    "description": "Intellisense, Diagram View, Debugging, code formatting and refactoring for Ballerina",
+    "version": "0.981.2-SNAPSHOT",
+    "publisher": "ballerina",
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/ballerina-lang/ballerina"
+    },
+    "icon": "resources/images/ballerina.png",
+    "galleryBanner": {
+        "color": "#e7eaeb",
+        "theme": "light"
+    },
+    "engines": {
+        "vscode": "^1.26.1"
+    },
+    "categories": [
+        "Programming Languages",
+        "Debuggers"
+    ],
+    "activationEvents": [
+        "*"
+    ],
+    "contributes": {
+        "languages": [
+            {
+                "id": "ballerina",
+                "aliases": [
+                    "Ballerina",
+                    "ballerina"
+                ],
+                "extensions": [
+                    ".bal"
+                ],
+                "configuration": "./grammar/ballerina.configuration.json"
+            }
+        ],
+        "grammars": [
+            {
+                "language": "ballerina",
+                "scopeName": "source.ballerina",
+                "path": "./grammar/ballerina-grammar/syntaxes/ballerina.tmLanguage"
+            }
+        ],
+        "configuration": {
+            "type": "object",
+            "title": "Ballerina",
+            "properties": {
+                "ballerina.home": {
+                    "type": "string",
+                    "default": "",
+                    "description": "Specifies the path to the ballerina home directory"
+                },
+                "ballerina.debugLog": {
+                    "type": "boolean",
+                    "default": false,
+                    "description": "If set to true debug msgs will be printed to Ballerina output channel"
+                }
+            }
+        },
+        "configurationDefaults": {
+            "[ballerina]": {
+                "editor.wordBasedSuggestions": false
+            }
+        },
+        "breakpoints": [
+            {
+                "language": "ballerina"
+            }
+        ],
+        "debuggers": [
+            {
+                "type": "ballerina",
+                "label": "Ballerina Debug",
+                "program": "./out/debugger/index.js",
+                "runtime": "node",
+                "configurationAttributes": {
+                    "attach": {
+                        "required": [
+                            "port",
+                            "host"
+                        ],
+                        "properties": {
+                            "host": {
+                                "type": "string",
+                                "description": "Remote debug server host",
+                                "default": "127.0.0.1"
+                            },
+                            "port": {
+                                "type": "integer",
+                                "description": "Remote debug server port",
+                                "default": 5000
+                            }
+                        }
+                    },
+                    "launch": {
+                        "properties": {
+                            "required": [
+                                "script"
+                            ],
+                            "script": {
+                                "type": "string",
+                                "default": "${file}"
+                            },
+                            "debugServerTimeout": {
+                                "type": "integer",
+                                "default": 5000,
+                                "description": "How long to wait for the debug server to start up in miliseconds"
+                            }
+                        }
+                    }
+                },
+                "initialConfigurations": [
+                    {
+                        "type": "ballerina",
+                        "request": "launch",
+                        "name": "Ballerina Debug",
+                        "script": "${file}"
+                    },
+                    {
+                        "type": "ballerina",
+                        "request": "attach",
+                        "name": "Ballerina Remote Debug",
+                        "host": "127.0.0.1",
+                        "port": 5000
+                    }
+                ]
+            }
+        ],
+        "commands": [
+            {
+                "command": "ballerina.showDiagram",
+                "title": "Ballerina: Show Diagram",
+                "icon": {
+                    "dark": "./resources/images/icons/design-view-white.svg",
+                    "light": "./resources/images/icons/design-view.svg"
+                }
+            },
+            {
+                "command": "ballerina.showExamples",
+                "title": "Ballerina: Show Examples"
+            },
+            {
+                "command": "ballerina.showAPIEditor",
+                "title": "Ballerina: Show API Editor"
+            }
+        ],
+        "menus": {
+            "editor/title": [
+                {
+                    "when": "resourceLangId == ballerina",
+                    "command": "ballerina.showDiagram",
+                    "group": "navigation"
+                }
+            ],
+            "editor/context": [
+                {
+                    "when": "resourceLangId == ballerina",
+                    "command": "ballerina.showAPIEditor",
+                    "group": "navigation"
+                }
+            ]
+        }
+    },
+    "main": "./out/extension",
+    "scripts": {
+        "vscode:prepublish": "npm run compile",
+        "compile": "tsc -p ./",
+        "watch": "tsc -watch -p ./",
+        "postinstall": "node ./node_modules/vscode/bin/install",
+        "test": "npm run compile && node ./node_modules/vscode/bin/test",
+        "package": "npm run compile && vsce package"
+    },
+    "dependencies": {
+        "glob": "^7.1.2",
+        "lodash": "^4.17.5",
+        "openport": "0.0.4",
+        "request-promise": "^4.2.2",
+        "toml": "^2.3.3",
+        "vscode": "^1.1.21",
+        "vscode-debugadapter": "^1.31.0",
+        "vscode-debugprotocol": "^1.31.0",
+        "vscode-languageclient": "^5.1.0",
+        "ws": "^4.0.0"
+    },
+    "devDependencies": {
+        "@types/glob": "^5.0.35",
+        "@types/lodash": "^4.14.116",
+        "@types/mocha": "^2.2.42",
+        "@types/node": "^8.10.25",
+        "@types/ws": "^6.0.0",
+        "mocha": "^5.2.0",
+        "ps-node": "^0.1.6",
+        "tslint": "^5.8.0",
+        "typescript": "^2.6.1",
+        "vsce": "^1.36.2"
+    }
+}

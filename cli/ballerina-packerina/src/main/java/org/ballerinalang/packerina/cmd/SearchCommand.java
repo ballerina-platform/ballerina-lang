@@ -43,9 +43,6 @@ public class SearchCommand implements BLauncherCmd {
     @CommandLine.Option(names = {"--help", "-h"}, hidden = true)
     private boolean helpFlag;
 
-    @CommandLine.Option(names = "--java.debug", hidden = true, description = "remote java debugging port")
-    private String javaDebugPort;
-
     @CommandLine.Option(names = "--debug", hidden = true)
     private String debugPort;
 

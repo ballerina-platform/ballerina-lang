@@ -18,6 +18,7 @@ package org.ballerinalang.langserver.extensions.ballerina.document;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import org.ballerinalang.compiler.CompilerPhase;
+import org.ballerinalang.ballerina.swagger.convertor.service.SwaggerConverterUtils;
 import org.ballerinalang.langserver.BallerinaLanguageServer;
 import org.ballerinalang.langserver.LSGlobalContext;
 import org.ballerinalang.langserver.LSGlobalContextKeys;
@@ -31,6 +32,9 @@ import org.ballerinalang.langserver.compiler.format.JSONGenerationException;
 import org.ballerinalang.langserver.compiler.format.TextDocumentFormatUtil;
 import org.ballerinalang.langserver.compiler.workspace.WorkspaceDocumentException;
 import org.ballerinalang.langserver.compiler.workspace.WorkspaceDocumentManager;
+import org.ballerinalang.swagger.utils.GeneratorConstants;
+import org.ballerinalang.swagger.CodeGenerator;
+import org.ballerinalang.swagger.model.GenSrcFile;
 import org.eclipse.lsp4j.ApplyWorkspaceEditParams;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
@@ -42,6 +46,10 @@ import org.slf4j.LoggerFactory;
 import org.wso2.ballerinalang.compiler.tree.BLangCompilationUnit;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
+import java.util.List;
 import java.nio.file.Path;
 import java.util.Collections;
 import java.util.HashMap;
@@ -53,6 +61,8 @@ import static org.ballerinalang.langserver.compiler.LSCompilerUtil.getUntitledFi
 
 /**
  * Implementation of Ballerina Document extension for Language Server.
+ *
+ * @since 0.981.2
  */
 public class BallerinaDocumentServiceImpl implements BallerinaDocumentService {
 
@@ -64,6 +74,52 @@ public class BallerinaDocumentServiceImpl implements BallerinaDocumentService {
     public BallerinaDocumentServiceImpl(LSGlobalContext globalContext) {
         this.ballerinaLanguageServer = globalContext.get(LSGlobalContextKeys.LANGUAGE_SERVER_KEY);
         this.documentManager = globalContext.get(LSGlobalContextKeys.DOCUMENT_MANAGER_KEY);
+    }
+
+    @Override
+    public CompletableFuture<BallerinaOASResponse> swaggerDef(BallerinaOASRequest request) {
+        String fileUri = request.getBallerinaDocument().getUri();
+        Path formattingFilePath = new LSDocument(fileUri).getPath();
+        Path compilationPath = getUntitledFilePath(formattingFilePath.toString()).orElse(formattingFilePath);
+        Optional<Lock> lock = documentManager.lockFile(compilationPath);
+
+        BallerinaOASResponse reply = new BallerinaOASResponse();
+
+        try {
+            String fileContent = documentManager.getFileContent(compilationPath);
+            String swaggerDefinition = SwaggerConverterUtils
+                .generateSwaggerDefinitions(fileContent, request.getBallerinaService());
+            reply.setBallerinaOASJson(swaggerDefinition);
+        } catch (Exception e) {
+            reply.isIsError(true);
+            logger.error("error: while processing service definition at converter service: " + e.getMessage(), e);
+        } finally {
+            lock.ifPresent(Lock::unlock);
+        }
+
+        return CompletableFuture.supplyAsync(() -> reply);
+    }
+
+    @Override
+    public CompletableFuture<BallerinaASTOASChangeResponse> astOasChange(BallerinaASTOASChangeRequest request) {
+        BallerinaASTOASChangeResponse reply = new BallerinaASTOASChangeResponse();
+
+        try {
+            String swaggerSource = request.getOasDefinition();
+            File temp = File.createTempFile("tempfile", ".json");
+            BufferedWriter bw = new BufferedWriter(new FileWriter(temp));
+            bw.write(swaggerSource);
+            bw.close();
+
+            CodeGenerator generator = new CodeGenerator();
+            List<GenSrcFile> source = generator.generate(GeneratorConstants.GenType.MOCK, temp.getPath());
+
+            reply.setOasAST(getTreeForContent(source.get(0).getContent()));
+        } catch (Exception ex) {
+            logger.error("error: while processing service definition at converter service: " + ex.getMessage(), ex);
+        }
+
+        return CompletableFuture.supplyAsync(() -> reply);
     }
 
     @Override

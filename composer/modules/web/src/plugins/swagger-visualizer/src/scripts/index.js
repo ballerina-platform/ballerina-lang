@@ -65,6 +65,7 @@ class SwaggerVisualizer extends React.Component {
      */
     componentDidMount() {
         const { oasJson } = this.props;
+        debugger;
 
         if (!oasJson) {
             this.setState({
@@ -186,7 +187,6 @@ class SwaggerVisualizer extends React.Component {
      */
     render() {
         const { isError, oasJson: { paths, info }, actionState, oasJson } = this.state;
-        console.log(info);
         if (isError.state) {
             return (
                 <Message error content={isError.message} />

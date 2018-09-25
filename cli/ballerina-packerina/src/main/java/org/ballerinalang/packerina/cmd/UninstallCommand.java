@@ -43,9 +43,6 @@ public class UninstallCommand implements BLauncherCmd {
     @CommandLine.Option(names = {"--help", "-h"}, hidden = true)
     private boolean helpFlag;
 
-    @CommandLine.Option(names = "--java.debug", hidden = true)
-    private String debugPort;
-
     @Override
     public void execute() {
         if (helpFlag) {

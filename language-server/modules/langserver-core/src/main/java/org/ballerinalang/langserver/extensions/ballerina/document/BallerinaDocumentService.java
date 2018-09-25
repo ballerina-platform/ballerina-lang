@@ -22,6 +22,8 @@ import java.util.concurrent.CompletableFuture;
 
 /**
  * An extension interface for Language server to add features related to ballerina files.
+ *
+ * @since 0.981.2
  */
 @JsonSegment("ballerinaDocument")
 public interface BallerinaDocumentService {
@@ -30,4 +32,10 @@ public interface BallerinaDocumentService {
 
     @JsonRequest
     CompletableFuture<BallerinaASTDidChangeResponse> astDidChange(BallerinaASTDidChange notification);
+
+    @JsonRequest
+    CompletableFuture<BallerinaOASResponse> swaggerDef(BallerinaOASRequest request);
+
+    @JsonRequest
+    CompletableFuture<BallerinaASTOASChangeResponse> astOasChange(BallerinaASTOASChangeRequest request);
 }
