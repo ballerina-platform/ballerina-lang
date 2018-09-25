@@ -54,10 +54,11 @@ export function activate(context: ExtensionContext): void {
 			if (!BallerinaExtension.isValidBallerinaHome()) {
 				rendererErrored(context);
 			}
+			BallerinaExtension.showPluginActivationError();
 		})
 		.catch(error => {
 			// unknown error
-			BallerinaExtension.showPluginActivationError()
+			BallerinaExtension.showPluginActivationError();
 		});
 
 	/*if (!config.debugLog) {
