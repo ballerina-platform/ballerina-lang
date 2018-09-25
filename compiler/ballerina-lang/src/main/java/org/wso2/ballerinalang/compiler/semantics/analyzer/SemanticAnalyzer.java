@@ -24,6 +24,7 @@ import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.symbols.SymbolKind;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.OperatorKind;
+import org.ballerinalang.model.tree.RecordVariableNode.BLangRecordVariableKeyValueNode;
 import org.ballerinalang.model.tree.clauses.GroupByNode;
 import org.ballerinalang.model.tree.clauses.HavingNode;
 import org.ballerinalang.model.tree.clauses.JoinStreamingInput;
@@ -61,6 +62,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BField;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BObjectType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStreamType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStructureType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleType;
@@ -77,11 +79,13 @@ import org.wso2.ballerinalang.compiler.tree.BLangInvokableNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
+import org.wso2.ballerinalang.compiler.tree.BLangRecordVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangResource;
 import org.wso2.ballerinalang.compiler.tree.BLangService;
 import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangTupleVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangTypeDefinition;
+import org.wso2.ballerinalang.compiler.tree.BLangVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangWorker;
 import org.wso2.ballerinalang.compiler.tree.BLangXMLNS;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangGroupBy;
@@ -108,6 +112,8 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLambdaFunction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLangRecordKeyValue;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTableLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTernaryExpr;
@@ -131,6 +137,7 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangLock;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch.BLangMatchStmtSimpleBindingPatternClause;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangPostIncrement;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangRecordVariableDef;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangRetry;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangReturn;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangScope;
@@ -510,6 +517,75 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         typeChecker.checkExpr(rhsExpr, varInitEnv, lhsType);
     }
 
+    public void visit(BLangRecordVariable varNode) {
+        int ownerSymTag = env.scope.owner.tag;
+        if ((ownerSymTag & SymTag.INVOKABLE) == SymTag.INVOKABLE) {
+            // This is a variable declared in a function, an action or a resource
+            // If the variable is parameter then the variable symbol is already defined
+            symbolEnter.defineNode(varNode, env);
+
+            if (varNode.type == null) {
+                varNode.type = symResolver.resolveTypeNode(varNode.typeNode, env);
+            }
+
+            // If record variable has !... the same amount of fields must be there in the record literal of lhs
+            // todo only works for lhs record literal
+            if (varNode.isClosed) {
+                if (varNode.variableList.size() != ((BLangRecordLiteral) varNode.expr).keyValuePairs.size()) {
+                    dlog.error(varNode.pos, DiagnosticCode.INVALID_CLOSED_RECORD_BINDING_PATTERN,
+                            varNode.variableList.size(), ((BLangRecordLiteral) varNode.expr).keyValuePairs.size());
+                    return;
+                }
+            }
+
+            for (BLangRecordVariableKeyValueNode variable : varNode.variableList) {
+                // Check if record literal has all expected fields and assign the rhs expression to the correct variable
+                boolean foundMatch = false;
+                for (BLangRecordKeyValue keyValuePair : ((BLangRecordLiteral) varNode.expr).keyValuePairs) {
+                    if (keyValuePair.key.expr.getKind() != NodeKind.SIMPLE_VARIABLE_REF) {
+                        dlog.error(varNode.pos, DiagnosticCode.INVALID_RECORD_LITERAL_KEY);
+                        return;
+                    }
+                    if (variable.getKey().getValue()
+                            .equals(((BLangSimpleVarRef) keyValuePair.key.expr).variableName.value)) {
+                        ((BLangVariable) variable.getValue()).expr = keyValuePair.valueExpr;
+                        foundMatch = true;
+                        break;
+                    }
+                }
+                if (!foundMatch) {
+                    dlog.error(varNode.pos,
+                            DiagnosticCode.INVALID_RECORD_LITERAL_BINDING_PATTERN, variable.getKey().getValue());
+                    return;
+                }
+
+                // Infer the type of the variable from the given record type so that symbol enter is done recursively
+                foundMatch = false;
+                for (BField typeFields : ((BRecordType) varNode.type).getFields()) {
+                    if (variable.getKey().getValue().equals(typeFields.name.value)) {
+                        BLangVariable value = (BLangVariable) variable.getValue();
+                        value.type = typeFields.type;
+                        value.accept(this);
+                        foundMatch = true;
+                        break;
+                    }
+                }
+                if (!foundMatch) {
+                    dlog.error(varNode.pos,
+                            DiagnosticCode.INVALID_RECORD_BINDING_PATTERN, variable.getKey().getValue(), varNode.type);
+                    return;
+                }
+            }
+        }
+
+        // todo create symbol for rest param variable
+        BType lhsType = varNode.type;
+        BLangExpression rhsExpr = varNode.expr;
+
+        SymbolEnv varInitEnv = SymbolEnv.createVarInitEnv(varNode, env, null);
+        typeChecker.checkExpr(rhsExpr, varInitEnv, lhsType);
+    }
+
     // Statements
 
     public void visit(BLangBlockStmt blockNode) {
@@ -525,6 +601,10 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         if (varDefNode.var.expr == null && !types.defaultValueExists(varDefNode.pos, varDefNode.var.type)) {
             dlog.error(varDefNode.pos, DiagnosticCode.UNINITIALIZED_VARIABLE, varDefNode.var.name);
         }
+    }
+
+    public void visit(BLangRecordVariableDef varDefNode) {
+        analyzeDef(varDefNode.var, env);
     }
 
     @Override

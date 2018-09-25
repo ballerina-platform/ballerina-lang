@@ -18,11 +18,13 @@
 package org.wso2.ballerinalang.compiler.tree.statements;
 
 import org.ballerinalang.model.tree.NodeKind;
+import org.ballerinalang.model.tree.RecordVariableNode;
 import org.ballerinalang.model.tree.TupleVariableNode;
 import org.ballerinalang.model.tree.statements.MatchNode;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
+import org.wso2.ballerinalang.compiler.tree.BLangRecordVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangTupleVariable;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
@@ -42,6 +44,7 @@ public class BLangMatch extends BLangStatement implements MatchNode {
     public BLangExpression expr;
     public List<BLangMatchStmtSimpleBindingPatternClause> simplePatternClauses;
     public List<BLangMatchStmtTupleBindingPatternClause> tuplePatternClauses;
+    public List<BLangMatchStmtRecordBindingPatternClause> recordPatternClauses;
     public List<BType> exprTypes;
 
     @Override
@@ -62,6 +65,11 @@ public class BLangMatch extends BLangStatement implements MatchNode {
     @Override
     public List<BLangMatchStmtTupleBindingPatternClause> getTuplePatternClauses() {
         return tuplePatternClauses;
+    }
+
+    @Override
+    public List<? extends MatchStatementRecordBindingPatternNode> getRecordPatternClauses() {
+        return recordPatternClauses;
     }
 
     @Override
@@ -138,6 +146,45 @@ public class BLangMatch extends BLangStatement implements MatchNode {
 
         @Override
         public TupleVariableNode getTupleVariableNode() {
+            return variable;
+        }
+
+        @Override
+        public BLangStatement getStatement() {
+            return body;
+        }
+
+        @Override
+        public void accept(BLangNodeVisitor visitor) {
+            visitor.visit(this);
+        }
+
+        @Override
+        public String toString() {
+            return String.valueOf(variable) + " => " + String.valueOf(body);
+        }
+    }
+    /**
+     * @since 0.982.0
+     */
+    // todo complete
+    public static class BLangMatchStmtRecordBindingPatternClause extends BLangNode
+            implements MatchStatementRecordBindingPatternNode {
+
+        public BLangRecordVariable variable;
+        public BLangBlockStmt body;
+
+        // This field is used to capture types that are matched to this pattern.
+        public Set<BType> matchedTypesDirect = new HashSet<>();
+        public Set<BType> matchedTypesIndirect = new HashSet<>();
+
+        @Override
+        public NodeKind getKind() {
+            return NodeKind.MATCH_PATTERN_CLAUSE;
+        }
+
+        @Override
+        public RecordVariableNode getRecordVariableNode() {
             return variable;
         }
 

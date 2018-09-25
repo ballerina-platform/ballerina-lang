@@ -926,13 +926,54 @@ public class BLangParserListener extends BallerinaParserBaseListener {
     }
 
     @Override
+    public void exitRecordBindingPattern(BallerinaParser.RecordBindingPatternContext ctx) {
+        if (ctx.exception != null) {
+            return;
+        }
+        int numberOfVars = ctx.entryBindingPattern().fieldBindingPattern().size();
+        boolean restParam = false;
+        boolean closed = false;
+        if (ctx.entryBindingPattern().restBindingPattern() != null) {
+            if (ctx.entryBindingPattern().restBindingPattern().sealedLiteral() != null) {
+                closed = true;
+            } else {
+                restParam = true;
+            }
+        }
+        this.pkgBuilder.addRecordVariable(getCurrentPos(ctx), getWS(ctx), numberOfVars, restParam, closed);
+    }
+
+    @Override
     public void exitBindingPattern(BallerinaParser.BindingPatternContext ctx) {
         if (ctx.exception != null) {
             return;
         }
 
-        if (ctx.Identifier() != null && (ctx.parent instanceof BallerinaParser.TupleBindingPatternContext)) {
-            this.pkgBuilder.addTupleMemberVar(getCurrentPos(ctx), getWS(ctx), ctx.Identifier().getText());
+        if (ctx.Identifier() != null
+                && (ctx.parent instanceof BallerinaParser.TupleBindingPatternContext
+                || ctx.parent instanceof BallerinaParser.FieldBindingPatternContext)) {
+            this.pkgBuilder.addBindingMemberVar(getCurrentPos(ctx), getWS(ctx), ctx.Identifier().getText());
+        }
+    }
+
+    @Override
+    public void exitFieldBindingPattern(BallerinaParser.FieldBindingPatternContext ctx) {
+        if (ctx.exception != null) {
+            return;
+        }
+
+        this.pkgBuilder.addFieldBindingMemberVar(
+                getCurrentPos(ctx), getWS(ctx), ctx.Identifier().getText(), ctx.bindingPattern() != null);
+    }
+
+    @Override
+    public void exitRestBindingPattern(BallerinaParser.RestBindingPatternContext ctx) {
+        if (ctx.exception != null) {
+            return;
+        }
+
+        if (ctx.Identifier() != null) {
+            this.pkgBuilder.addBindingMemberVar(getCurrentPos(ctx), getWS(ctx), ctx.Identifier().getText());
         }
     }
 
@@ -949,6 +990,8 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         } else if (ctx.bindingPattern().Identifier() != null) {
             this.pkgBuilder.addSimpleVariableDefStatement(getCurrentPos(ctx), getWS(ctx),
                     ctx.bindingPattern().Identifier().getText(), exprAvailable, false);
+        } else if (ctx.bindingPattern().structuredBindingPattern().recordBindingPattern() != null) {
+            this.pkgBuilder.addRecordVariableDefStatement(getCurrentPos(ctx), getWS(ctx), exprAvailable);
         } else {
             this.pkgBuilder.addTupleVariableDefStatement(getCurrentPos(ctx), getWS(ctx), exprAvailable);
         }

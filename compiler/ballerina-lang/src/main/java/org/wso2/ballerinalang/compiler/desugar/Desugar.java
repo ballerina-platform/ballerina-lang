@@ -57,6 +57,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangInvokableNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
+import org.wso2.ballerinalang.compiler.tree.BLangRecordVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangResource;
 import org.wso2.ballerinalang.compiler.tree.BLangService;
 import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
@@ -145,6 +146,7 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangLock;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch.BLangMatchStmtSimpleBindingPatternClause;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangPostIncrement;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangRecordVariableDef;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangRetry;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangReturn;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangScope;
@@ -553,6 +555,17 @@ public class Desugar extends BLangNodeVisitor {
         result = varNode;
     }
 
+    @Override
+    public void visit(BLangRecordVariable varNode) {
+        if ((env.scope.owner.tag & SymTag.INVOKABLE) != SymTag.INVOKABLE) {
+            varNode.expr = null;
+            result = varNode;
+            return;
+        }
+
+        result = varNode;
+    }
+
     // Statements
 
     @Override
@@ -638,6 +651,11 @@ public class Desugar extends BLangNodeVisitor {
 
         //todo the other branch
         result = rewrite(blockStmt, env);
+    }
+
+    @Override
+    public void visit(BLangRecordVariableDef bLangRecordVariableDef) {
+        // todo
     }
 
     @Override

@@ -93,6 +93,8 @@ import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
 import org.wso2.ballerinalang.compiler.tree.BLangImportPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangMarkdownDocumentation;
 import org.wso2.ballerinalang.compiler.tree.BLangNameReference;
+import org.wso2.ballerinalang.compiler.tree.BLangRecordVariable;
+import org.wso2.ballerinalang.compiler.tree.BLangRecordVariable.BLangRecordVariableKeyValue;
 import org.wso2.ballerinalang.compiler.tree.BLangResource;
 import org.wso2.ballerinalang.compiler.tree.BLangService;
 import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
@@ -180,6 +182,7 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangLock;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch.BLangMatchStmtSimpleBindingPatternClause;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangPostIncrement;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangRecordVariableDef;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangRetry;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangReturn;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangScope;
@@ -249,6 +252,8 @@ public class BLangPackageBuilder {
     private Stack<List<VariableNode>> varListStack = new Stack<>();
 
     private List<BLangTupleTypeNode> tupleTypeQueue = new LinkedList<>();
+
+    private Stack<BLangRecordVariableKeyValue> recordVarStack = new Stack<>();
 
     private Stack<InvokableNode> invokableNodeStack = new Stack<>();
 
@@ -684,9 +689,9 @@ public class BLangPackageBuilder {
         return var;
     }
 
-    BLangVariable addTupleMemberVar(DiagnosticPos pos,
-                                    Set<Whitespace> ws,
-                                    String identifier) {
+    BLangVariable addBindingMemberVar(DiagnosticPos pos,
+                                      Set<Whitespace> ws,
+                                      String identifier) {
         BLangSimpleVariable memberVar = (BLangSimpleVariable) TreeBuilder.createSimpleVariableNode();
         memberVar.pos = pos;
         IdentifierNode name = this.createIdentifier(identifier);
@@ -712,6 +717,34 @@ public class BLangPackageBuilder {
         }
         this.varStack.push(tupleVariable);
         return tupleVariable;
+    }
+
+    void addRecordVariable(DiagnosticPos pos, Set<Whitespace> ws, int members, boolean hasRestParam, boolean closed) {
+        BLangRecordVariable recordVariable = (BLangRecordVariable) TreeBuilder.createRecordVariableNode();
+        recordVariable.pos = pos;
+        recordVariable.addWS(ws);
+        recordVariable.isClosed = closed;
+        TypeNode typeNode = this.typeNodeStack.peek();
+        recordVariable.setTypeNode(typeNode);
+        for (int i = 0; i < members; i++) {
+            final BLangRecordVariableKeyValue member = this.recordVarStack.pop();
+            recordVariable.variableList.add(member);
+        }
+        if (hasRestParam) {
+            recordVariable.restParam = this.varStack.pop();
+        }
+        this.varStack.push(recordVariable);
+    }
+
+    void addFieldBindingMemberVar(DiagnosticPos pos, Set<Whitespace> ws, String identifier,
+                                  boolean bindingPattern) {
+        BLangRecordVariableKeyValue recordKeyValue = new BLangRecordVariableKeyValue();
+        recordKeyValue.key = (BLangIdentifier) this.createIdentifier(identifier);
+        if (!bindingPattern) {
+            addBindingMemberVar(pos, ws, identifier);
+        }
+        recordKeyValue.valueBindingPattern = (BLangVariable) this.varStack.pop();
+        this.recordVarStack.push(recordKeyValue);
     }
 
     public void endFormalParameterList(Set<Whitespace> ws) {
@@ -883,6 +916,20 @@ public class BLangPackageBuilder {
         varDefNode.pos = pos;
         varDefNode.setVariable(var);
         varDefNode.addWS(wsOfSemiColon);
+        addStmtToCurrentBlock(varDefNode);
+    }
+
+    void addRecordVariableDefStatement(DiagnosticPos pos,
+                                      Set<Whitespace> ws,
+                                      boolean exprAvailable) {
+        BLangRecordVariableDef varDefNode = (BLangRecordVariableDef) TreeBuilder.createRecordVariableDefinitionNode();
+        BLangRecordVariable var = (BLangRecordVariable) this.varStack.pop();
+        if (exprAvailable) {
+            var.setInitialExpression(this.exprNodeStack.pop());
+        }
+        varDefNode.pos = pos;
+        varDefNode.addWS(ws);
+        varDefNode.var = var;
         addStmtToCurrentBlock(varDefNode);
     }
 

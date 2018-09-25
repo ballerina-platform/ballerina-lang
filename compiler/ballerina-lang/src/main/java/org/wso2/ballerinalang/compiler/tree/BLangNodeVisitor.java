@@ -117,6 +117,7 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangLock;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch.BLangMatchStmtTupleBindingPatternClause;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangPostIncrement;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangRecordVariableDef;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangRetry;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangReturn;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangScope;
@@ -738,6 +739,18 @@ public abstract class BLangNodeVisitor {
     }
 
     public void visit(BLangTupleVariableDef bLangTupleVariableDef) {
+        throw new AssertionError();
+    }
+
+    public void visit(BLangRecordVariable bLangRecordVariable) {
+        throw new AssertionError();
+    }
+
+    public void visit(BLangRecordVariableDef bLangRecordVariableDef) {
+        throw new AssertionError();
+    }
+
+    public void visit(BLangMatch.BLangMatchStmtRecordBindingPatternClause bLangMatchStmtRecordBindingPatternClause) {
         throw new AssertionError();
     }
 }
