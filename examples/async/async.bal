@@ -40,7 +40,9 @@ public function main() {
         http:Response resp => {
             io:println(untaint resp.getJsonPayload());
         }
-        error err => { io:println(err.message); }
+        error err => {
+            io:println(err.message);
+        }
     }
     io:println(f3.isDone());
 }
