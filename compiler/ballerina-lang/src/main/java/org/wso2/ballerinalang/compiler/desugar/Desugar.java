@@ -557,12 +557,6 @@ public class Desugar extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangRecordVariable varNode) {
-        if ((env.scope.owner.tag & SymTag.INVOKABLE) != SymTag.INVOKABLE) {
-            varNode.expr = null;
-            result = varNode;
-            return;
-        }
-
         result = varNode;
     }
 
@@ -594,21 +588,16 @@ public class Desugar extends BLangNodeVisitor {
         //  (string, int) (a, b) = (tuple)
         //
         //  any[] x = (tuple);
-        //  string a;
-        //  a = x[0];
-        //  int b;
-        //  b = x[1];
+        //  string a = x[0];
+        //  int b = x[1];
         //
         //  case 2:
         //  ((string, float) int)) ((a, b), c)) = (tuple)
         //
         //  any[][] x = (tuple);
-        //  string a;
-        //  a = x[0][0];
-        //  float b;
-        //  b = x[0][1];
-        //  int c;
-        //  c = x[1][0];
+        //  string a = x[0][0];
+        //  float b = x[0][1];
+        //  int c = x[1][0];
         varDefNode.var = rewrite(varDefNode.var, env);
         BLangTupleVariable tupleVariable = varDefNode.var;
 
@@ -673,12 +662,10 @@ public class Desugar extends BLangNodeVisitor {
      * parent array access expr.
      *
      *  case 1: when there is no parent array access expression, but with the index : 1
-     *  string s;
-     *  s = x[1];
+     *  string s = x[1];
      *
      *  case 2: when there is a parent array expression : x[2] and index : 3
-     *  string s;
-     *  s = x[2][3];
+     *  string s = x[2][3];
      *
      */
     private void createSimpleVarDefStmt(BLangSimpleVariable simpleVariable, BLangBlockStmt parentBlockStmt, int index,
@@ -689,17 +676,9 @@ public class Desugar extends BLangNodeVisitor {
             return;
         }
 
-        final BLangSimpleVariableDef memberVarDef = ASTBuilderUtil.createVariableDefStmt(simpleVariable.pos,
+        final BLangSimpleVariableDef simpleVariableDef = ASTBuilderUtil.createVariableDefStmt(simpleVariable.pos,
                 parentBlockStmt);
-        memberVarDef.var = simpleVariable;
-
-        BLangSimpleVarRef varRef = (BLangSimpleVarRef) TreeBuilder.createSimpleVariableReferenceNode();
-
-        varRef.pos = simpleVariable.pos;
-        varRef.variableName = simpleVariable.name;
-        varRef.pkgAlias = (BLangIdentifier) TreeBuilder.createIdentifierNode();
-        varRef.symbol = simpleVariable.symbol;
-        varRef.type = simpleVariable.type;
+        simpleVariableDef.var = simpleVariable;
 
         BLangLiteral indexExpr = ASTBuilderUtil.createLiteral(simpleVariable.pos, symTable.intType, (long) index);
         BLangIndexBasedAccess arrayAccess = ASTBuilderUtil.createIndexBasesAccessExpr(simpleVariable.pos,
@@ -720,9 +699,7 @@ public class Desugar extends BLangNodeVisitor {
             assignmentExpr = arrayAccess;
         }
 
-        final BLangAssignment assignmentStmt = ASTBuilderUtil.createAssignmentStmt(simpleVariable.pos, parentBlockStmt);
-        assignmentStmt.varRef = varRef;
-        assignmentStmt.expr = assignmentExpr;
+        simpleVariable.expr = assignmentExpr;
     }
 
     @Override
