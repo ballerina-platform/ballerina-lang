@@ -917,6 +917,7 @@ public class BLangPackageBuilder {
         varDefNode.setVariable(var);
         varDefNode.addWS(wsOfSemiColon);
         addStmtToCurrentBlock(varDefNode);
+        this.typeNodeStack.pop();
     }
 
     void addRecordVariableDefStatement(DiagnosticPos pos,
