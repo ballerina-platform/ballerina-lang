@@ -1,5 +1,5 @@
 import ballerina/io;
-z
+
 // Defines a object called 'Person'. It has attached functions both inside and outside of the object.
 type Person object {
     public int age;
