@@ -21,10 +21,12 @@ import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.TupleVariableNode;
 import org.ballerinalang.model.tree.VariableNode;
+import org.wso2.ballerinalang.compiler.tree.types.BLangType;
 
 import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * @since 0.982.0
@@ -63,6 +65,7 @@ public class BLangTupleVariable extends BLangVariable implements TupleVariableNo
 
     @Override
     public String toString() {
-        return String.valueOf(type) + " " + (expr != null ? " = " + String.valueOf(expr) : "");
+        return "(" + memberVariables.stream().map(BLangVariable::toString).collect(Collectors.joining(",")) + ") " +
+                (expr != null ? " = " + String.valueOf(expr) : "");
     }
 }
