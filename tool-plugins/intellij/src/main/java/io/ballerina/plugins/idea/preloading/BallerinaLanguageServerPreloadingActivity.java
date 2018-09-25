@@ -42,6 +42,7 @@ import static io.ballerina.plugins.idea.preloading.OperatingSystemUtils.getOpera
 public class BallerinaLanguageServerPreloadingActivity extends PreloadingActivity {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(BallerinaLanguageServerPreloadingActivity.class);
+    private static final String launcherScriptPath = "lib/resources/composer/language-server-launcher";
 
     /**
      * Preloading of the ballerina plugin.
@@ -99,13 +100,9 @@ public class BallerinaLanguageServerPreloadingActivity extends PreloadingActivit
         if (os != null) {
             String[] args = new String[1];
             if (os.equals(OperatingSystemUtils.UNIX) || os.equals(OperatingSystemUtils.MAC)) {
-                args[0] = Paths
-                        .get(sdkPath, "/lib/resources/composer/language-server-launcher/language-server-launcher.sh")
-                        .toString();
+                args[0] = Paths.get(sdkPath, launcherScriptPath, "language-server-launcher.sh").toString();
             } else if (os.equals(OperatingSystemUtils.WINDOWS)) {
-                args[0] = Paths
-                        .get(sdkPath, "/lib/resources/composer/language-server-launcher/language-server-launcher.bat")
-                        .toString();
+                args[0] = Paths.get(sdkPath, launcherScriptPath, "language-server-launcher.bat").toString();
             }
 
             if (args[0] != null) {

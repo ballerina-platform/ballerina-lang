@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017, WSO2 Inc. (http://wso2.com) All Rights Reserved.
+ * Copyright (c) 2018, WSO2 Inc. (http://wso2.com) All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -31,11 +31,9 @@ public class OperatingSystemUtils {
 
     /**
      * Returns name of the operating system running. null if not a unsupported operating system.
-     *
      * @return operating system
      */
     static String getOperatingSystem() {
-
         if (OperatingSystemUtils.isWindows()) {
             return WINDOWS;
         } else if (OperatingSystemUtils.isUnix() || OperatingSystemUtils.isSolaris()) {
@@ -61,5 +59,4 @@ public class OperatingSystemUtils {
     private static boolean isSolaris() {
         return (OS.contains("sunos"));
     }
-
 }

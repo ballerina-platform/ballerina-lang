@@ -105,8 +105,8 @@ public class LSPluginInstallationNotificationProvider extends EditorNotification
         final IdeaPluginDescriptor disabledPlugin = getDisabledPlugin(plugin);
 
         if (disabledPlugin != null) {
-            panel.setText("LSP Support Plugin is not enabled to provide ballerina language server features (code "
-                    + "completion, diagnostics, hover support etc)");
+            panel.setText("LSP Support Plugin is not enabled to provide ballerina language server features (code " +
+                    "completion, diagnostics, hover support etc)");
             panel.createActionLabel("Enable Plugin", () -> {
                 myEnabledExtensions.add(extension);
                 myNotifications.updateAllNotifications();
@@ -144,17 +144,14 @@ public class LSPluginInstallationNotificationProvider extends EditorNotification
     }
 
     private static IdeaPluginDescriptor getDisabledPlugin(PluginsAdvertiser.Plugin plugin) {
-
         final List<String> disabledPlugins = getDisabledPlugins();
-
         return disabledPlugins.contains(plugin.myPluginId) ?
-                PluginManager.getPlugin(PluginId.getId(plugin.myPluginId)) :
-                null;
+                PluginManager.getPlugin(PluginId.getId(plugin.myPluginId)) : null;
     }
 
     private static void enablePlugin(Project project, IdeaPluginDescriptor lspPlugin) {
-        final PluginManagerConfigurable managerConfigurable = new PluginManagerConfigurable(
-                PluginManagerUISettings.getInstance());
+        final PluginManagerConfigurable managerConfigurable =
+                new PluginManagerConfigurable(PluginManagerUISettings.getInstance());
         final PluginManagerMain createPanel = managerConfigurable.getOrCreatePanel();
         ShowSettingsUtil.getInstance().editConfigurable(project, managerConfigurable, () -> {
             final InstalledPluginsTableModel pluginsModel = (InstalledPluginsTableModel) createPanel.getPluginsModel();
