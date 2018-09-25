@@ -165,6 +165,7 @@ script:
 - ballerina test object-initializer
 - ballerina test object-member-functions
 - ballerina test objects
+- ballerina test abstract-objects
 - ballerina test optional-type
 - ballerina test packages
 - ballerina test passthrough
