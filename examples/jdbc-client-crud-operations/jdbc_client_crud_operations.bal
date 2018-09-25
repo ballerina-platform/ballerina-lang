@@ -6,9 +6,10 @@ import ballerina/sql;
 // supported database by providing the corresponding jdbc url.
 endpoint jdbc:Client testDB {
     url: "jdbc:mysql://localhost:3306/testdb",
-    username: "root",
-    password: "root",
-    poolOptions: { maximumPoolSize: 5 }
+    username: "test",
+    password: "test",
+    poolOptions: { maximumPoolSize: 5 },
+    dbOptions: { useSSL: false }
 };
 
 // This is the type created to represent data row.
@@ -21,7 +22,7 @@ type Student record {
 public function main() {
     // Creates a table using the update operation. If the DDL
     // statement execution is successful, the `update` operation returns 0.
-    io:println("The update operation - Creating a table:");
+    io:println("The update operation - Creating a table");
     var ret = testDB->update("CREATE TABLE student(id INT AUTO_INCREMENT,
                          age INT, name VARCHAR(255), PRIMARY KEY (id))");
     handleUpdate(ret, "Create student table");
@@ -39,7 +40,7 @@ public function main() {
     int age = 24;
     string name = "Anne";
     ret = testDB->update("INSERT INTO student(age, name) values (?, ?)",
-                         age, name);
+        age, name);
     handleUpdate(ret, "Insert to student table with variable parameters");
 
     // The query parameters are given as sql:Parameters for the update operation.
@@ -47,19 +48,19 @@ public function main() {
     sql:Parameter p1 = { sqlType: sql:TYPE_INTEGER, value: 25 };
     sql:Parameter p2 = { sqlType: sql:TYPE_VARCHAR, value: "James" };
     ret = testDB->update("INSERT INTO student(age, name) values (?, ?)",
-                          p1, p2);
+        p1, p2);
     handleUpdate(ret, "Insert to student table with sql:parameter values");
 
 
     // Update data in the table using the update operation.
     io:println("\nThe Update operation - Update data in a table");
-    ret = testDB->update("Update student set name = 'Jones' where age = ?",
-                         23);
+    ret = testDB->update("UPDATE student SET name = 'Jones' WHERE age = ?",
+        23);
     handleUpdate(ret, "Update a row in student table");
 
     // Delete data in a table using the update operation.
     io:println("\nThe Update operation - Delete data from table");
-    ret = testDB->update("DELETE FROM student where age = ?", 24);
+    ret = testDB->update("DELETE FROM student WHERE age = ?", 24);
     handleUpdate(ret, "Delete a row from student table");
 
     // Column values generated during the update can be retrieved using the
@@ -82,112 +83,6 @@ public function main() {
         error e => io:println("Insert to table failed: " + e.message);
     }
 
-    // A batch of data can be inserted using the `batchUpdate` operation. The number
-    // of inserted rows for each insert in the batch is returned as an array.
-    io:println("\nThe batchUpdate operation - Inserting a batch of data");
-    sql:Parameter para1 = { sqlType: sql:TYPE_INTEGER, value: 27 };
-    sql:Parameter para2 = { sqlType: sql:TYPE_VARCHAR, value: "Alex" };
-    sql:Parameter[] parameters1 = [para1, para2];
-
-    //Create the second batch of parameters.
-    sql:Parameter para3 = { sqlType: sql:TYPE_INTEGER, value: 28 };
-    sql:Parameter para4 = { sqlType: sql:TYPE_VARCHAR, value: "Peter" };
-    sql:Parameter[] parameters2 = [para3, para4];
-
-    //Do the batch update by passing the multiple parameter arrays.
-    var retBatch = testDB->batchUpdate("INSERT INTO student(age, name)
-                    values (?, ?)", parameters1, parameters2);
-    match retBatch {
-        int[] counts => {
-            io:println("Batch 1 update counts: " + counts[0]);
-            io:println("Batch 2 update counts: " + counts[1]);
-        }
-        error e => io:println("Batch update operation failed: " + e.message);
-    }
-
-    // Call operiation is used to invoke a stored procedure. Here stored procedure
-    // with IN parameters is invoked.
-    io:println("\nThe call operation - With IN params");
-    // Create the stored procedure
-    ret = testDB->update("CREATE PROCEDURE INSERTDATA(IN pAge INT,
-                       IN pName VARCHAR(255))
-	                   BEGIN
-                       INSERT INTO student(age, name) values (pAge, pName);
-                       END");
-    handleUpdate(ret, "Stored procedure with IN param creation");
-
-    // Invoke the stored procedure with IN type parameters.
-    var retCall = testDB->call("{CALL INSERTDATA(?,?)}", (), 19, "George");
-    match retCall {
-        ()|table[] => io:println("Call operation with IN params successful");
-        error e => io:println("Stored procedure call failed: "
-                              + e.message);
-    }
-
-    // Here stored procedure with OUT and INOUT parameters is invoked.
-    io:println("\nThe call operation - With INOUT/OUT params");
-    // Create the stored procedure.
-    ret = testDB->update("CREATE PROCEDURE GETCOUNT (INOUT pID INT,
-                          OUT pCount INT)
-                          BEGIN
-                          SELECT id INTO pID FROM student WHERE age = pID;
-                          SELECT COUNT(*) INTO pCount FROM student
-                            WHERE age = 27;
-                          END");
-    handleUpdate(ret, "Stored procedure with INOUT/OUT param creation");
-
-    // Inovke the stored procedure.
-    sql:Parameter param1 = { sqlType: sql:TYPE_INTEGER, value: 25,
-        direction: sql:DIRECTION_INOUT };
-    sql:Parameter param2 = { sqlType: sql:TYPE_INTEGER,
-        direction: sql:DIRECTION_OUT };
-    retCall = testDB->call("{CALL GETCOUNT(?,?)}", (), param1, param2);
-    match retCall {
-        ()|table[] => {
-            io:println("Call operation with INOUT and OUT params successful");
-            io:print("Student ID of the person with age = 25: ");
-            io:println(param1.value);
-            io:print("Student count with age = 27: ");
-            io:println(param2.value);
-        }
-        error e => io:println("Stored procedure call failed: "
-                                + e.message);
-    }
-
-    // A proxy for a database table that allows performing add/remove operations over
-    // the actual database table, can be obtained by `getProxyTable` operation.
-    io:println("\nThe getProxyTable operation - Get a proxy for a table");
-    var proxyRet = testDB->getProxyTable("student", Student);
-    table<Student> tbProxy;
-    match proxyRet {
-        table tbReturned => tbProxy = tbReturned;
-        error e => io:println("Proxy table retrieval failed: " + e.message);
-    }
-
-    // Iterate through the table and retrieve the data record corresponding to each row.
-    foreach row in tbProxy {
-        io:println("Student:" + row.id + "|" + row.name + "|" + row.age);
-    }
-
-    // Data can be added to the database table through the proxied table.
-    io:println("\nAdd data to a proxied table");
-    Student s = { name: "Tim", age: 14 };
-    var addRet = tbProxy.add(s);
-    match addRet {
-        () => io:println("Insertion to table successful");
-        error e => io:println("Insertion to table failed: " + e.message);
-    }
-
-    // Data can be removed from the database table through the proxied table, by passing
-    // a function pointer which returns a boolean value evaluating whether a given record
-    // should be removed or not.
-    io:println("\nRemove data from a proxied table");
-    var rmRet = tbProxy.remove(isUnder20);
-    match rmRet {
-        int count => io:println("Removed count: " + count);
-        error e => io:println("Removing from table failed: " + e.message);
-    }
-
     // Select data using the `select` operation. The `select` operation returns a table.
     // See the `table` ballerina example for more details on how to access data.
     io:println("\nThe select operation - Select data from a table");
@@ -196,7 +91,7 @@ public function main() {
     match selectRet {
         table tableReturned => dt = tableReturned;
         error e => io:println("Select data from student table failed: "
-                               + e.message);
+                + e.message);
     }
     // Conversion from type 'table' to either JSON or XML results in data streaming.
     // When a service client makes a request, the result is streamed to the service
@@ -221,7 +116,7 @@ public function main() {
     match selectRet {
         table tableReturned => dt = tableReturned;
         error e => io:println("Select data from student table failed: "
-                               + e.message);
+                + e.message);
     }
 
     // Iterating data first time.
@@ -240,19 +135,8 @@ public function main() {
     ret = testDB->update("DROP TABLE student");
     handleUpdate(ret, "Drop table student");
 
-    ret = testDB->update("DROP PROCEDURE INSERTDATA");
-    handleUpdate(ret, "Drop stored procedure INSERTDATA");
-
-    ret = testDB->update("DROP PROCEDURE GETCOUNT");
-    handleUpdate(ret, "Drop stored procedure GETCOUNT");
-
     // Finally, close the connection pool.
     testDB.stop();
-}
-
-// Check crieteria for remove.
-function isUnder20(Student s) returns boolean {
-    return s.age < 20;
 }
 
 // Function to handle return of the update operation.
