@@ -104,7 +104,7 @@ function handleUpdate(int|error returned, string message) {
 
 // Select data from the table and print.
 function checkData() {
-    var dtReturned = testDB->select("Select * from student", Student);
+    var dtReturned = testDB->select("SELECT * FROM student", Student);
 
     table<Student> dt;
     match dtReturned {

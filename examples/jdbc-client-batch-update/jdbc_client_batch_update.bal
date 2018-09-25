@@ -56,8 +56,8 @@ public function main() {
     }
     // A batch of data can be inserted using the `batchUpdate` operation. The number
     // of inserted rows for each insert in the batch is returned as an array.
-    var retBatch = testDB->batchUpdate("Insert into student
-                    (age,name) values (?,?)", ...dataBatch);
+    var retBatch = testDB->batchUpdate("INSERT INTO student
+                    (age,name) VALUES (?,?)", ...dataBatch);
     match retBatch {
         int[] counts => {
             io:println("Batch 1 update counts: " + counts[0]);
@@ -87,7 +87,7 @@ function handleUpdate(int|error returned, string message) {
 
 // Select data from the table and print.
 function checkData() {
-    var dtReturned = testDB->select("Select * from student", Student);
+    var dtReturned = testDB->select("SELECT * FROM student", Student);
 
     table<Student> dt;
     match dtReturned {

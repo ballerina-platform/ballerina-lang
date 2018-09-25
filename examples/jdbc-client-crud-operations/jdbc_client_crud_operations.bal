@@ -54,13 +54,13 @@ public function main() {
 
     // Update data in the table using the update operation.
     io:println("\nThe Update operation - Update data in a table");
-    ret = testDB->update("Update student set name = 'Jones' where age = ?",
+    ret = testDB->update("UPDATE student SET name = 'Jones' WHERE age = ?",
         23);
     handleUpdate(ret, "Update a row in student table");
 
     // Delete data in a table using the update operation.
     io:println("\nThe Update operation - Delete data from table");
-    ret = testDB->update("DELETE FROM student where age = ?", 24);
+    ret = testDB->update("DELETE FROM student WHERE age = ?", 24);
     handleUpdate(ret, "Delete a row from student table");
 
     // Column values generated during the update can be retrieved using the
