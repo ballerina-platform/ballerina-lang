@@ -60,6 +60,7 @@ public class FileContentConstants {
                                                         "\n" +
                                                         "# Prints `Hello World`.\n" +
                                                         "\n" +
+                                                        "# + args - Arguments passed\n" +
                                                         "public function main(string... args) {\n" +
                                                         "    io:println(\"Hello World!\");\n" +
                                                         "}\n";
