@@ -148,9 +148,9 @@ public class BIRInstructionWriter extends BIRVisitor {
     }
 
     // Operands
-    public void visit(BIROperand.BIRVarRef birVarRef) {
+    public void visit(BIROperand birOperand) {
         // TODO use the integer index of the variable.
-        addCpAndWriteString(birVarRef.variableDcl.name.value);
+        addCpAndWriteString(birOperand.variableDcl.name.value);
     }
 
 

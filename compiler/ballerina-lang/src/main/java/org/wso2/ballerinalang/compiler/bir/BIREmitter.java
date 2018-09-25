@@ -153,11 +153,7 @@ public class BIREmitter extends BIRVisitor {
 
 
     // Operands
-    public void visit(BIROperand.BIRVarRef birVarRef) {
-        sb.append(birVarRef.variableDcl.name);
-    }
-
-    public void visit(BIROperand.BIRConstant birConstant) {
-        sb.append("const ").append(birConstant.value);
+    public void visit(BIROperand birOp) {
+        sb.append(birOp.variableDcl.name);
     }
 }

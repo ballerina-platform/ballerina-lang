@@ -27,7 +27,6 @@ import org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator.BinaryOp;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator.Move;
 import org.wso2.ballerinalang.compiler.bir.model.BIROperand;
-import org.wso2.ballerinalang.compiler.bir.model.BIROperand.BIRVarRef;
 import org.wso2.ballerinalang.compiler.bir.model.BIRTerminator;
 import org.wso2.ballerinalang.compiler.bir.model.InstructionKind;
 import org.wso2.ballerinalang.compiler.bir.model.VarKind;
@@ -183,7 +182,7 @@ public class BIRGen extends BLangNodeVisitor {
         astVarDefStmt.var.expr.accept(this);
 
         // Create a variable reference and
-        BIRVarRef varRef = new BIRVarRef(birVarDcl);
+        BIROperand varRef = new BIROperand(birVarDcl);
         emit(new Move(this.env.targetOperand, varRef));
     }
 
@@ -192,7 +191,7 @@ public class BIRGen extends BLangNodeVisitor {
         BLangLocalVarRef astVarRef = (BLangLocalVarRef) astAssignStmt.varRef;
 
         astAssignStmt.expr.accept(this);
-        BIRVarRef varRef = new BIRVarRef(this.env.symbolVarMap.get(astVarRef.symbol));
+        BIROperand varRef = new BIROperand(this.env.symbolVarMap.get(astVarRef.symbol));
         emit(new Move(this.env.targetOperand, varRef));
     }
 
@@ -208,7 +207,7 @@ public class BIRGen extends BLangNodeVisitor {
 
         List<BLangExpression> requiredArgs = invocationExpr.requiredArgs;
         List<BLangExpression> restArgs = invocationExpr.restArgs;
-        List<BIROperand> args = new ArrayList<>();
+        List<org.wso2.ballerinalang.compiler.bir.model.BIROperand> args = new ArrayList<>();
 
         for (BLangExpression requiredArg : requiredArgs) {
             requiredArg.accept(this);
@@ -234,13 +233,13 @@ public class BIRGen extends BLangNodeVisitor {
             }
         }
 
-        BIRVarRef lhsOp = null;
+        BIROperand lhsOp = null;
         if (invocationExpr.type.tag != TypeTags.NIL) {
             // Create a temporary variable to store the return operation result.
             BIRVariableDcl tempVarDcl = new BIRVariableDcl(invocationExpr.type,
                                                            this.env.nextLocalVarId(names), VarKind.TEMP);
             this.env.enclFunc.localVars.add(tempVarDcl);
-            lhsOp = new BIRVarRef(tempVarDcl);
+            lhsOp = new BIROperand(tempVarDcl);
             this.env.targetOperand = lhsOp;
         }
 
@@ -257,7 +256,7 @@ public class BIRGen extends BLangNodeVisitor {
     public void visit(BLangReturn astReturnStmt) {
         if (astReturnStmt.expr.type.tag != TypeTags.NIL) {
             astReturnStmt.expr.accept(this);
-            BIRVarRef retVarRef = new BIRVarRef(this.env.enclFunc.localVars.get(0));
+            BIROperand retVarRef = new BIROperand(this.env.enclFunc.localVars.get(0));
             emit(new Move(this.env.targetOperand, retVarRef));
         }
 
@@ -275,7 +274,7 @@ public class BIRGen extends BLangNodeVisitor {
 
     public void visit(BLangIf astIfStmt) {
         astIfStmt.expr.accept(this);
-        BIROperand ifExprResult = this.env.targetOperand;
+        org.wso2.ballerinalang.compiler.bir.model.BIROperand ifExprResult = this.env.targetOperand;
 
         // Create the basic block for the if-then block.
         BIRBasicBlock thenBB = new BIRBasicBlock(this.env.nextBBId(names));
@@ -334,7 +333,7 @@ public class BIRGen extends BLangNodeVisitor {
         // Visit condition expression
         this.env.enclBB = whileExprBB;
         astWhileStmt.expr.accept(this);
-        BIROperand whileExprResult = this.env.targetOperand;
+        org.wso2.ballerinalang.compiler.bir.model.BIROperand whileExprResult = this.env.targetOperand;
 
         // Create the basic block for the while-body block.
         BIRBasicBlock whileBodyBB = new BIRBasicBlock(this.env.nextBBId(names));
@@ -366,7 +365,7 @@ public class BIRGen extends BLangNodeVisitor {
         BIRVariableDcl tempVarDcl = new BIRVariableDcl(astLiteralExpr.type,
                 this.env.nextLocalVarId(names), VarKind.TEMP);
         this.env.enclFunc.localVars.add(tempVarDcl);
-        BIRVarRef toVarRef = new BIRVarRef(tempVarDcl);
+        BIROperand toVarRef = new BIROperand(tempVarDcl);
         emit(new BIRNonTerminator.ConstantLoad(astLiteralExpr.value, astLiteralExpr.type, toVarRef));
         this.env.targetOperand = toVarRef;
     }
@@ -375,24 +374,24 @@ public class BIRGen extends BLangNodeVisitor {
         BIRVariableDcl tempVarDcl = new BIRVariableDcl(astVarRefExpr.type,
                 this.env.nextLocalVarId(names), VarKind.TEMP);
         this.env.enclFunc.localVars.add(tempVarDcl);
-        BIRVarRef tempVarRef = new BIRVarRef(tempVarDcl);
-        BIRVarRef fromVarRef = new BIRVarRef(this.env.symbolVarMap.get(astVarRefExpr.symbol));
+        BIROperand tempVarRef = new BIROperand(tempVarDcl);
+        BIROperand fromVarRef = new BIROperand(this.env.symbolVarMap.get(astVarRefExpr.symbol));
         emit(new Move(fromVarRef, tempVarRef));
         this.env.targetOperand = tempVarRef;
     }
 
     public void visit(BLangBinaryExpr astBinaryExpr) {
         astBinaryExpr.lhsExpr.accept(this);
-        BIROperand rhsOp1 = this.env.targetOperand;
+        org.wso2.ballerinalang.compiler.bir.model.BIROperand rhsOp1 = this.env.targetOperand;
 
         astBinaryExpr.rhsExpr.accept(this);
-        BIROperand rhsOp2 = this.env.targetOperand;
+        org.wso2.ballerinalang.compiler.bir.model.BIROperand rhsOp2 = this.env.targetOperand;
 
         // Create a temporary variable to store the binary operation result.
         BIRVariableDcl tempVarDcl = new BIRVariableDcl(astBinaryExpr.type,
                 this.env.nextLocalVarId(names), VarKind.TEMP);
         this.env.enclFunc.localVars.add(tempVarDcl);
-        BIRVarRef lhsOp = new BIRVarRef(tempVarDcl);
+        BIROperand lhsOp = new BIROperand(tempVarDcl);
         this.env.targetOperand = lhsOp;
 
         // Create binary instruction

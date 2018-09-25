@@ -67,7 +67,7 @@ public abstract class BIRTerminator extends BIRNode implements BIRInstruction {
      * @since 0.980.0
      */
     public static class Call extends BIRTerminator implements BIRAssignInstruction {
-        public BIROperand.BIRVarRef lhsOp;
+        public BIROperand lhsOp;
         public List<BIROperand> args;
         public BIRBasicBlock thenBB;
         public Name name;
@@ -76,7 +76,7 @@ public abstract class BIRTerminator extends BIRNode implements BIRInstruction {
         public Call(PackageID calleePkg,
                     Name name,
                     List<BIROperand> args,
-                    BIROperand.BIRVarRef lhsOp,
+                    BIROperand lhsOp,
                     BIRBasicBlock thenBB) {
             super(InstructionKind.CALL);
             this.lhsOp = lhsOp;
@@ -87,7 +87,7 @@ public abstract class BIRTerminator extends BIRNode implements BIRInstruction {
         }
 
         @Override
-        public BIROperand.BIRVarRef getLhsOperand() {
+        public BIROperand getLhsOperand() {
             return lhsOp;
         }
 

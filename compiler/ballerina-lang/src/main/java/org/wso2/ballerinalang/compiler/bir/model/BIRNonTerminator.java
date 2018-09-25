@@ -17,7 +17,6 @@
  */
 package org.wso2.ballerinalang.compiler.bir.model;
 
-import org.wso2.ballerinalang.compiler.bir.model.BIROperand.BIRVarRef;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 
 /**
@@ -43,17 +42,17 @@ public abstract class BIRNonTerminator extends BIRNode implements BIRInstruction
      * @since 0.980.0
      */
     public static class Move extends BIRNonTerminator implements BIRAssignInstruction {
-        public BIRVarRef lhsOp;
-        public BIROperand rhsOp;
+        public BIROperand lhsOp;
+        public org.wso2.ballerinalang.compiler.bir.model.BIROperand rhsOp;
 
-        public Move(BIROperand fromOperand, BIRVarRef toOperand) {
+        public Move(org.wso2.ballerinalang.compiler.bir.model.BIROperand fromOperand, BIROperand toOperand) {
             super(InstructionKind.MOVE);
             this.rhsOp = fromOperand;
             this.lhsOp = toOperand;
         }
 
         @Override
-        public BIRVarRef getLhsOperand() {
+        public BIROperand getLhsOperand() {
             return lhsOp;
         }
 
@@ -71,15 +70,15 @@ public abstract class BIRNonTerminator extends BIRNode implements BIRInstruction
      * @since 0.980.0
      */
     public static class BinaryOp extends BIRNonTerminator implements BIRAssignInstruction {
-        public BIRVarRef lhsOp;
-        public BIROperand rhsOp1;
-        public BIROperand rhsOp2;
+        public BIROperand lhsOp;
+        public org.wso2.ballerinalang.compiler.bir.model.BIROperand rhsOp1;
+        public org.wso2.ballerinalang.compiler.bir.model.BIROperand rhsOp2;
 
         public BinaryOp(InstructionKind kind,
                         BType type,
-                        BIRVarRef lhsOp,
-                        BIROperand rhsOp1,
-                        BIROperand rhsOp2) {
+                        BIROperand lhsOp,
+                        org.wso2.ballerinalang.compiler.bir.model.BIROperand rhsOp1,
+                        org.wso2.ballerinalang.compiler.bir.model.BIROperand rhsOp2) {
             super(kind);
             this.lhsOp = lhsOp;
             this.rhsOp1 = rhsOp1;
@@ -87,7 +86,7 @@ public abstract class BIRNonTerminator extends BIRNode implements BIRInstruction
         }
 
         @Override
-        public BIRVarRef getLhsOperand() {
+        public BIROperand getLhsOperand() {
             return lhsOp;
         }
 
@@ -105,15 +104,15 @@ public abstract class BIRNonTerminator extends BIRNode implements BIRInstruction
      * @since 0.980.0
      */
     public static class UnaryOP extends BIRNonTerminator implements BIRAssignInstruction {
-        public BIRVarRef lhsOp;
+        public BIROperand lhsOp;
 
-        public UnaryOP(InstructionKind kind, BIRVarRef lhsOp) {
+        public UnaryOP(InstructionKind kind, BIROperand lhsOp) {
             super(kind);
             this.lhsOp = lhsOp;
         }
 
         @Override
-        public BIRVarRef getLhsOperand() {
+        public BIROperand getLhsOperand() {
             return lhsOp;
         }
 
@@ -131,11 +130,11 @@ public abstract class BIRNonTerminator extends BIRNode implements BIRInstruction
      * @since 0.980.0
      */
     public static class ConstantLoad extends BIRNonTerminator implements BIRAssignInstruction {
-        public BIRVarRef lhsOp;
+        public BIROperand lhsOp;
         public Object value;
         public BType type;
 
-        public ConstantLoad(Object value, BType type, BIRVarRef lhsOp) {
+        public ConstantLoad(Object value, BType type, BIROperand lhsOp) {
             super(InstructionKind.CONST_LOAD);
             this.value = value;
             this.type = type;
@@ -143,7 +142,7 @@ public abstract class BIRNonTerminator extends BIRNode implements BIRInstruction
         }
 
         @Override
-        public BIRVarRef getLhsOperand() {
+        public BIROperand getLhsOperand() {
             return lhsOp;
         }
 
