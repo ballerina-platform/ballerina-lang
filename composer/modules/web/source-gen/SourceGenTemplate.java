@@ -600,7 +600,7 @@ public class SourceGen {
             }
 
             if (node.has("restParameters") &&
-                    node.has("parameters") && node.getAsJsonArray("parameters").size() > 0) {
+                    (node.has("allParams") && node.getAsJsonArray("allParams").size() > 0)) {
                 node.addProperty("hasRestParams", true);
             }
 
