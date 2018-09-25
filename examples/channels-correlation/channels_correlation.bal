@@ -1,4 +1,5 @@
 import ballerina/http;
+import ballerina/log;
 
 //Defines a channel with json constrained type.
 channel<json> jsonChannel;
