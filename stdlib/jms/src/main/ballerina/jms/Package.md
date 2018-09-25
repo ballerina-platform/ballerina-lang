@@ -171,6 +171,7 @@ Following is a topic subscriber program that subscribes to a particular JMS topi
 ```ballerina
 import ballerina/jms;
 import ballerina/log;
+
 jms:Connection conn = new({
     initialContextFactory:"bmbInitialContextFactory",
     providerUrl:"amqp://admin:admin@carbon/carbon?brokerlist='tcp://localhost:5672'"
@@ -202,6 +203,7 @@ Following is a topic producer program that publishes to a particular JMS topic
 ```ballerina
 import ballerina/jms;
 import ballerina/log;
+
 jms:Connection jmsConnection = new({
     initialContextFactory:"bmbInitialContextFactory",
     providerUrl:"amqp://admin:admin@carbon/carbon?brokerlist='tcp://localhost:5672'"
