@@ -20,6 +20,8 @@ type Person object {
 
 // Implementation for the declared function.
 function Person::checkAndModifyAge(int condition, int a) {
+    // The keyword `self` is bound to the object and can be used to
+    // access fields and functions of the object.
     if (self.age < condition) {
         self.age = a;
     }
