@@ -35,7 +35,7 @@ Identifier Literals
 JSON
 JSON Literals
 JSON Arrays
-JSON/Struct/Map Conversion
+JSON/Record/Map Conversion
 Constrained JSON
 Nil Lifting
 XML
