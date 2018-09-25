@@ -235,8 +235,10 @@ AttachedObject ::= identifier
 
 LambdaFunction ::= function LEFT_PARENTHESIS FormalParameterList? RIGHT_PARENTHESIS (returns LambdaReturnParameter)? CallableUnitBody {pin(".*")=1}
 
+ArrowFunction ::= ArrowFunctionWithoutParenthesis | ArrowFunctionWithParenthesis
 
-ArrowFunction ::= ArrowParam EQUAL_GT Expression | LEFT_PARENTHESIS ArrowParam (COMMA ArrowParam)* RIGHT_PARENTHESIS EQUAL_GT Expression
+private ArrowFunctionWithoutParenthesis ::= ArrowParam EQUAL_GT Expression {pin=2}
+private ArrowFunctionWithParenthesis ::= LEFT_PARENTHESIS ArrowParam (COMMA ArrowParam)* RIGHT_PARENTHESIS EQUAL_GT Expression {pin=5}
 
 ArrowParam ::= identifier
 
@@ -276,7 +278,6 @@ ObjectFunctionDefinition ::= documentationString? AnnotationAttachment* deprecat
 
 //TODO merge with callableUnitSignature later
 ObjectCallableUnitSignature ::= AnyIdentifierName LEFT_PARENTHESIS FormalParameterList? RIGHT_PARENTHESIS ReturnParameter? {pin=1}
-
 
 AnnotationDefinition ::= (public)? annotation (LT AttachmentPoint (COMMA AttachmentPoint)* GT)? identifier UserDefineTypeName? SEMICOLON {
     pin=2
@@ -653,6 +654,7 @@ NamespaceDeclaration ::= xmlns QUOTED_STRING_LITERAL (as identifier)? SEMICOLON 
 Expression
     ::=
         LambdaFunctionExpression
+    |   ArrowFunctionExpression
     |   SimpleLiteralExpression
     |   StringTemplateLiteralExpression
     |   XmlLiteralExpression
@@ -683,7 +685,6 @@ Expression
     |   IntegerRangeExpression
     |   BitwiseExpression
     |   BitwiseShiftExpression
-    |   ArrowFunctionExpression
     {recoverWhile=ExpressionRecover}
 
 typeAccessExpression ::= TypeName

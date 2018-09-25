@@ -28,7 +28,7 @@ import io.ballerina.plugins.idea.psi.*;
 
 public class BallerinaArrowFunctionImpl extends BallerinaCompositeElementImpl implements BallerinaArrowFunction {
 
-  public BallerinaArrowFunctionImpl(ASTNode node) {
+  public BallerinaArrowFunctionImpl(@NotNull ASTNode node) {
     super(node);
   }
 
@@ -48,9 +48,9 @@ public class BallerinaArrowFunctionImpl extends BallerinaCompositeElementImpl im
   }
 
   @Override
-  @NotNull
+  @Nullable
   public BallerinaExpression getExpression() {
-    return notNullChild(PsiTreeUtil.getChildOfType(this, BallerinaExpression.class));
+    return PsiTreeUtil.getChildOfType(this, BallerinaExpression.class);
   }
 
   @Override

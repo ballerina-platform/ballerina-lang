@@ -28,7 +28,7 @@ import io.ballerina.plugins.idea.psi.*;
 
 public class BallerinaChannelTypeImpl extends BallerinaCompositeElementImpl implements BallerinaChannelType {
 
-  public BallerinaChannelTypeImpl(ASTNode node) {
+  public BallerinaChannelTypeImpl(@NotNull ASTNode node) {
     super(node);
   }
 

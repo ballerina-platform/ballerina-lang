@@ -28,7 +28,7 @@ import io.ballerina.plugins.idea.psi.*;
 
 public class BallerinaArrowFunctionExpressionImpl extends BallerinaExpressionImpl implements BallerinaArrowFunctionExpression {
 
-  public BallerinaArrowFunctionExpressionImpl(ASTNode node) {
+  public BallerinaArrowFunctionExpressionImpl(@NotNull ASTNode node) {
     super(node);
   }
 

@@ -28,7 +28,7 @@ import io.ballerina.plugins.idea.psi.*;
 
 public class BallerinaTriggerWorkerImpl extends BallerinaCompositeElementImpl implements BallerinaTriggerWorker {
 
-  public BallerinaTriggerWorkerImpl(ASTNode node) {
+  public BallerinaTriggerWorkerImpl(@NotNull ASTNode node) {
     super(node);
   }
 

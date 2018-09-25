@@ -26,4 +26,7 @@ public interface BallerinaGlobalVariable extends BallerinaCompositeElement {
   @Nullable
   BallerinaChannelDefinition getChannelDefinition();
 
+  @Nullable
+  BallerinaGlobalVariableDefinition getGlobalVariableDefinition();
+
 }

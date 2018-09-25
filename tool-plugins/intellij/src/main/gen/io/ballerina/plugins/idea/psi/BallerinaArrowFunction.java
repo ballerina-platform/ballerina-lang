@@ -26,7 +26,7 @@ public interface BallerinaArrowFunction extends BallerinaCompositeElement {
   @NotNull
   List<BallerinaArrowParam> getArrowParamList();
 
-  @NotNull
+  @Nullable
   BallerinaExpression getExpression();
 
   @NotNull

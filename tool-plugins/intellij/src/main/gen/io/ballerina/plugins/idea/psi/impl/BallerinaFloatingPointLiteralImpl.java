@@ -28,7 +28,7 @@ import io.ballerina.plugins.idea.psi.*;
 
 public class BallerinaFloatingPointLiteralImpl extends BallerinaCompositeElementImpl implements BallerinaFloatingPointLiteral {
 
-  public BallerinaFloatingPointLiteralImpl(ASTNode node) {
+  public BallerinaFloatingPointLiteralImpl(@NotNull ASTNode node) {
     super(node);
   }
 

@@ -28,7 +28,7 @@ import io.ballerina.plugins.idea.psi.*;
 
 public class BallerinaWorkerReplyImpl extends BallerinaCompositeElementImpl implements BallerinaWorkerReply {
 
-  public BallerinaWorkerReplyImpl(ASTNode node) {
+  public BallerinaWorkerReplyImpl(@NotNull ASTNode node) {
     super(node);
   }
 
