@@ -67,7 +67,7 @@ endpoint jms:SimpleTopicPublisher topicPublisher {
     topicPattern: "BallerinaTopic"
 };
 
-function main(string... args) {
+public function main(string... args) {
     // Create a text message.
     match (topicPublisher.createTextMessage("Hello from Ballerina")) {
         error e => {
@@ -149,7 +149,7 @@ endpoint jms:QueueSender queueSender {
     queueName: "MyQueue"
 };
 
-function main(string... args) {
+public function main(string... args) {
     // Create a text message.
     match (jmsSession.createTextMessage("Hello from Ballerina")) {
         error e => {
