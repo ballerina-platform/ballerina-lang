@@ -1,5 +1,5 @@
 type Person object {
-    public int age = 3,
+    public int age = 3;
     public string name = "sample name";
 
     private int year = 5;
@@ -10,7 +10,7 @@ type Person object {
     }
 
     function attachedFn2() returns (function (int, float) returns (int)) {
-        var foo = (int a, float b) => (int) {
+        var foo = function (int a, float b) returns (int) {
             return 7 + a + <int>b;
         };
         return foo;
@@ -21,8 +21,8 @@ type Person object {
     function attachedFn4() returns (function (int, float) returns (int));
 
     function attachedFn5(int a, float b) returns (function (float) returns ((function (boolean) returns (int)))) {
-        var fooOut = (float f) => (function (boolean) returns (int)) {
-            var fooIn = (boolean boo) => (int) {
+        var fooOut = function (float f) returns (function (boolean) returns (int)) {
+            var fooIn = function (boolean boo) returns (int) {
                 return 7 + a + <int>b + <int>f;
             };
             return fooIn;
@@ -47,7 +47,7 @@ function Person::attachedFn3(int a, float b) returns (int) {
 }
 
 function Person::attachedFn4() returns (function (int, float) returns (int)) {
-    var foo = (int a, float b) => (int) {
+    var foo = function (int a, float b) returns (int) {
         return 7 + a + <int>b;
     };
     return foo;
@@ -123,8 +123,8 @@ public type FooObj object {
 function test8() returns (string, int) {
     string[] s = ["B", "A"];
     int[] i = [1,2,3,4,5];
-    var foo = (string[] v) => string { return v[1];};
-    var bar = (int[] v) => int { return v[1];};
+    var foo = function (string[] v) returns string { return v[1];};
+    var bar = function (int[] v) returns int { return v[1];};
     FooObj fooObj = new (foo, bar);
     _ = fooObj.processStrArray(s);
     var x = fooObj.processStrArray;
@@ -138,7 +138,7 @@ function test8() returns (string, int) {
 
 function test9() returns string {
     string[] vals = ["finally", "ballerina"];
-    O1 o1 = new ((string[] v) => string { return vals[0]; });
+    O1 o1 = new (function (string[] v) returns string { return vals[0]; });
     O2 o2 = new(o1.process);
     O3 o3 = new(o2.process);
     O4 o4 = new(o3.process);

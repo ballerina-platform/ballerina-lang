@@ -16,21 +16,21 @@
       "label":"function",
       "detail":"Snippet",
       "sortText":"190",
-      "insertText":"function ${1:name} (${2}) {\n\t${3}\n}",
+      "insertText":"function ${1:name}(${2}) {\n\t${3}\n}",
       "insertTextFormat":"Snippet"
     },
     {
       "label":"main function",
       "detail":"Snippet",
       "sortText":"190",
-      "insertText":"public function main (string... args) {\n\t${1}\n}",
+      "insertText":"public function main(string... args) {\n\t${1}\n}",
       "insertTextFormat":"Snippet"
     },
     {
       "label":"service",
       "detail":"Snippet",
       "sortText":"190",
-      "insertText":"service\u003c${1:http:Service}\u003e ${2:serviceName} bind { port: 9090 } {\n\t${3:newResource} (endpoint ${4:caller}, ${5:http:Request request}) {\n\t}\n}",
+      "insertText":"service\u003c${1:http:Service}\u003e ${2:serviceName} bind { port: 9090 } {\n\t${3:newResource} (endpoint ${4:caller}, http:Request ${5:request}) {\n\t}\n}",
       "insertTextFormat":"Snippet"
     },
     {

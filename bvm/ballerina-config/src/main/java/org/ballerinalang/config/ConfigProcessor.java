@@ -185,7 +185,7 @@ public class ConfigProcessor {
     }
 
     private static void addErrorMsg(StringBuilder errMsgBuilder, String msg, String key, String val) {
-        errMsgBuilder.append("ballerina: ");
+        errMsgBuilder.append("error: ");
         errMsgBuilder.append(msg);
         errMsgBuilder.append(" '");
         errMsgBuilder.append(key);

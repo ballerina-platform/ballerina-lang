@@ -61,6 +61,12 @@
             </directory>
             <outputDirectory>docs/examples</outputDirectory>
         </fileSet>
+        <fileSet>
+            <directory>
+                ${project.build.directory}/extracted-distributions/ballerina/
+            </directory>
+            <outputDirectory>src</outputDirectory>
+        </fileSet>
     </fileSets>
 
     <files>
@@ -79,6 +85,18 @@
         <file>
             <source>bin/composer.bat</source>
             <outputDirectory>bin/</outputDirectory>
+            <filtered>true</filtered>
+            <fileMode>644</fileMode>
+        </file>
+        <file>
+            <source>resources/language-server-launcher.sh</source>
+            <outputDirectory>lib/resources/composer/language-server-launcher/</outputDirectory>
+            <filtered>true</filtered>
+            <fileMode>755</fileMode>
+        </file>
+        <file>
+            <source>resources/language-server-launcher.bat</source>
+            <outputDirectory>lib/resources/composer/language-server-launcher/</outputDirectory>
             <filtered>true</filtered>
             <fileMode>644</fileMode>
         </file>
@@ -132,6 +150,13 @@
         <dependencySet>
             <outputDirectory>bre/lib</outputDirectory>
             <includes>
+                <!-- LLVM related jars-->
+                <include>org.ballerinalang:ballerina-llvm:jar</include>
+                <include>org.ballerinalang:ballerina-backend-llvm:jar</include>
+                <include>org.bytedeco.javacpp-presets:llvm-platform:jar</include>
+                <include>org.bytedeco.javacpp-presets:llvm:jar</include>
+                <include>org.bytedeco:javacpp:jar</include>
+
                 <include>org.ballerinalang:ballerina-cli-utils:jar</include>
                 <include>org.ballerinalang:testerina-core:jar</include>
                 <include>org.ballerinalang:swagger-to-ballerina-generator:jar</include>

@@ -28,7 +28,7 @@ import io.ballerina.plugins.idea.psi.*;
 
 public class BallerinaXmlAttribVariableReferenceImpl extends BallerinaVariableReferenceImpl implements BallerinaXmlAttribVariableReference {
 
-  public BallerinaXmlAttribVariableReferenceImpl(ASTNode node) {
+  public BallerinaXmlAttribVariableReferenceImpl(@NotNull ASTNode node) {
     super(node);
   }
 

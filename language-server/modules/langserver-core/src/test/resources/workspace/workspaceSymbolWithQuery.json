@@ -8,11 +8,11 @@
         "location":{
           "range":{
             "start":{
-              "line":7,
+              "line":5,
               "character":0
             },
             "end":{
-              "line":14,
+              "line":12,
               "character":1
             }
           }
@@ -24,11 +24,11 @@
         "location":{
           "range":{
             "start":{
-              "line":16,
+              "line":14,
               "character":0
             },
             "end":{
-              "line":24,
+              "line":22,
               "character":1
             }
           }

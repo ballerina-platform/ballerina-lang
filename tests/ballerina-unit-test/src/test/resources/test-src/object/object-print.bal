@@ -7,7 +7,7 @@ function testPrintingObject() returns Person {
 }
 
 type Person object {
-    public int age = 10,
+    public int age = 10;
     public string name = "sample name";
 
     int year = 50;

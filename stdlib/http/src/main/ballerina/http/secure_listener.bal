@@ -36,6 +36,8 @@ public type SecureListener object {
     public function init(SecureEndpointConfiguration c);
 
     # Initializes the endpoint.
+    #
+    # + return - An `error` if an error occurs during initialization of the endpoint
     public function initEndpoint() returns (error);
 
     # Gets called every time a service attaches itself to this endpoint. Also happens at package initialization.
@@ -66,17 +68,22 @@ public type SecureListener object {
 # + filters - Filters to be applied to the request before being dispatched to the actual `resource`
 # + timeoutMillis - Period of time in milliseconds that a connection waits for a read/write operation. Use value 0
 #                   to disable timeout
+# + maxPipelinedRequests - Defines the maximum number of requests that can be processed at a given time on a single
+#                          connection. By default 10 requests can be pipelined on a single cinnection and user can
+#                          change this limit appropriately. This will be applicable only for HTTP 1.1
 # + authProviders - The array of authentication providers which are used to authenticate the users
 public type SecureEndpointConfiguration record {
-    string host,
-    int port = 9090,
-    KeepAlive keepAlive = KEEPALIVE_AUTO,
-    ServiceSecureSocket? secureSocket,
-    string httpVersion = "1.1",
-    RequestLimits? requestLimits,
-    Filter[] filters,
-    int timeoutMillis = DEFAULT_LISTENER_TIMEOUT,
-    AuthProvider[]? authProviders,
+    string host;
+    int port = 9090;
+    KeepAlive keepAlive = KEEPALIVE_AUTO;
+    ServiceSecureSocket? secureSocket;
+    string httpVersion = "1.1";
+    RequestLimits? requestLimits;
+    Filter[] filters;
+    int timeoutMillis = DEFAULT_LISTENER_TIMEOUT;
+    int maxPipelinedRequests = MAX_PIPELINED_REQUESTS;
+    AuthProvider[]? authProviders;
+    !...
 };
 
 # Configuration for authentication providers.
@@ -96,20 +103,21 @@ public type SecureEndpointConfiguration record {
 # + signingAlg - The signing algorithm which is used to sign the JWT token
 # + propagateToken - `true` if propagating authentication info as JWT
 public type AuthProvider record {
-    string scheme,
-    string id,
-    string authStoreProvider,
-    string issuer,
-    string audience,
-    TrustStore? trustStore,
-    string certificateAlias,
-    int clockSkew,
-    KeyStore? keyStore,
-    string keyAlias,
-    string keyPassword,
-    int expTime,
-    string signingAlg,
-    boolean propagateToken,
+    string scheme;
+    string id;
+    string authStoreProvider;
+    string issuer;
+    string audience;
+    TrustStore? trustStore;
+    string certificateAlias;
+    int clockSkew;
+    KeyStore? keyStore;
+    string keyAlias;
+    string keyPassword;
+    int expTime;
+    string signingAlg;
+    boolean propagateToken;
+    !...
 };
 
 function SecureListener::init(SecureEndpointConfiguration c) {
@@ -259,6 +267,8 @@ function getConfigJwtAuthProviderConfig(AuthProvider authProvider) returns auth:
 }
 
 # The caller actions for responding to client requests to secure listener.
+#
+# + httpCallerActions - HTTP caller actions reference
 public type SecureListenerActions object {
 
     public Connection httpCallerActions;
@@ -297,6 +307,7 @@ public type SecureListenerActions object {
     # Sends an upgrade request with custom headers.
     #
     # + headers - A `map` of custom headers for handshake
+    # + return - WebSocket service endpoint
     public function acceptWebSocketUpgrade(map<string> headers) returns WebSocketListener {
         return httpCallerActions.acceptWebSocketUpgrade(headers);
     }

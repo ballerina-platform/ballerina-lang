@@ -98,6 +98,7 @@ public type SimpleQueueReceiver object {
     # Creates a JMS message which holds text content
     #
     # + content - the text content used to initialize this message
+    # + return - the created message, or nil if the session is nil
     public function createTextMessage(string content) returns Message|error {
         match (session) {
             Session s => return s.createTextMessage(content);
@@ -127,4 +128,5 @@ public type SimpleQueueReceiverEndpointConfiguration record {
     string messageSelector;
     map properties;
     string queueName;
+    !...
 };

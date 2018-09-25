@@ -60,4 +60,5 @@ public type ConsumerActions object {
 public type ConsumerEndpointConfiguration record {
     jms:Session? session;
     string identifier;
+    !...
 };

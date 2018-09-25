@@ -180,15 +180,16 @@ public type SubscriberServiceEndpointConfiguration record {
     int port;
     http:ServiceSecureSocket? httpServiceSecureSocket;
     ExtensionConfig? extensionConfig;
+    !...
 };
 
 # The extension configuration to introduce custom subscriber services.
 #
-# topicIdentifier - The identifier based on which dispatching should happen for custom subscriber
-# topicHeader - The header to consider if required with dispatching for custom services
-# headerResourceMap - The mapping between header value and resource details
-# payloadKeyResourceMap - The mapping between value for a particular JSON payload key and resource details
-# headerAndPayloadKeyResourceMap - The mapping between values for the header and a particular JSON payload key and resource details
+# + topicIdentifier - The identifier based on which dispatching should happen for custom subscriber
+# + topicHeader - The header to consider if required with dispatching for custom services
+# + headerResourceMap - The mapping between header value and resource details
+# + payloadKeyResourceMap - The mapping between value for a particular JSON payload key and resource details
+# + headerAndPayloadKeyResourceMap - The mapping between values for the header and a particular JSON payload key and resource details
 public type ExtensionConfig record {
     TopicIdentifier topicIdentifier = TOPIC_ID_HEADER;
 
@@ -223,6 +224,7 @@ public type ExtensionConfig record {
     //    }
     //  };
     map<map<map<(string, typedesc)>>>? headerAndPayloadKeyResourceMap;
+    !...
 };
 
 # The function called to discover hub and topic URLs defined by a resource URL.

@@ -29,6 +29,7 @@ import org.wso2.ballerinalang.compiler.util.ProjectDirConstants;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
 import java.util.Map;
 
@@ -257,6 +258,41 @@ public class PackagingNegativeTestCase extends BaseTest {
                 new LogLeecher[]{new LogLeecher(msg)}, balServer.getServerHome());
     }
 
+    @Test(description = "Test uninstall without any arguments")
+    public void testUninstallWithoutArgs() throws Exception {
+        String msg = "ballerina: no package given";
+        balClient.runMain("uninstall", new String[0], envVariables, new String[0],
+                          new LogLeecher[]{new LogLeecher(msg)}, balServer.getServerHome());
+    }
+
+    @Test(description = "Test uninstall with too many arguments")
+    public void testUninstallWithTooManyArgs() throws Exception {
+        String msg = "ballerina: too many arguments\n Run 'ballerina help' for usage.";
+        balClient.runMain("uninstall", new String[] {"integrationtests", "testxyz"}, envVariables, new String[0],
+                          new LogLeecher[]{new LogLeecher(msg)}, balServer.getServerHome());
+    }
+
+    @Test(description = "Test uninstall without an org-name")
+    public void testUninstallWithoutOrg() throws Exception {
+        String msg = "error: no org-name is provided";
+        balClient.runMain("uninstall", new String[] {"testxyz"}, envVariables, new String[0],
+                          new LogLeecher[]{new LogLeecher(msg)}, balServer.getServerHome());
+    }
+
+    @Test(description = "Test uninstall without a version")
+    public void testUninstallWithoutVersion() throws Exception {
+        String msg = "error: no package version is provided";
+        balClient.runMain("uninstall", new String[] {"integrationtests/testxyz"}, envVariables, new String[0],
+                          new LogLeecher[]{new LogLeecher(msg)}, balServer.getServerHome());
+    }
+
+    @Test(description = "Test uninstall with a non-existing package")
+    public void testUninstallWithNonExistingPackage() throws Exception {
+        String msg = "error: incorrect package signature provided integrationtests/testxyz:1.1.0";
+        balClient.runMain("uninstall", new String[] {"integrationtests/testxyz:1.1.0"}, envVariables, new String[0],
+                          new LogLeecher[]{new LogLeecher(msg)}, balServer.getServerHome());
+    }
+
     @Test(description = "Test push without any packages in the project")
     public void testPushAllWithoutPackages() throws Exception {
         Path projectPath = tempProjectDirectory.resolve("projectWithoutPackages");
@@ -270,6 +306,28 @@ public class PackagingNegativeTestCase extends BaseTest {
         String msg = "ballerina: no packages found to push in " + projectPath.toString();
         balClient.runMain("push", new String[0], envVariables, new String[0],
                 new LogLeecher[]{new LogLeecher(msg)}, projectPath.toString());
+    }
+
+    @Test(description = "Test running a bal file inside a package within a project")
+    public void testRunningBalInsidePackage() throws Exception {
+        Path projectPath = tempProjectDirectory.resolve("projectxyz");
+        initProject(projectPath);
+        String msg = "error: you are trying to run a ballerina file inside a package within a project. Try running " +
+                "'ballerina run <package-name>'";
+        String sourcePath = Paths.get(packageName, "main.bal").toString();
+        balClient.runMain("run", new String[] {sourcePath}, envVariables, new String[0],
+                          new LogLeecher[]{new LogLeecher(msg)}, projectPath.toString());
+    }
+
+    @Test(description = "Test building a bal file inside a package within a project",
+            dependsOnMethods = "testRunningBalInsidePackage")
+    public void testBuildingBalInsidePackage() throws Exception {
+        Path projectPath = tempProjectDirectory.resolve("projectxyz");
+        String msg = "error: you are trying to build a ballerina file inside a package within a project. Try running " +
+                "'ballerina build <package-name>'";
+        String sourcePath = Paths.get(packageName, "main.bal").toString();
+        balClient.runMain("build", new String[] {sourcePath}, envVariables, new String[0],
+                          new LogLeecher[]{new LogLeecher(msg)}, projectPath.toString());
     }
 
     /**

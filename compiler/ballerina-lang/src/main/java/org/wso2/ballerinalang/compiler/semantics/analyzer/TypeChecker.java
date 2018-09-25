@@ -73,6 +73,7 @@ import org.wso2.ballerinalang.compiler.tree.clauses.BLangStreamingInput;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangTableQuery;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangAccessExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrayLiteral;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrowFunction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangAwaitExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBracedOrTupleExpr;
@@ -111,6 +112,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLQName;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLQuotedString;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLTextLiteral;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
+import org.wso2.ballerinalang.compiler.tree.types.BLangValueType;
 import org.wso2.ballerinalang.compiler.util.BArrayState;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.FieldKind;
@@ -143,8 +145,6 @@ public class TypeChecker extends BLangNodeVisitor {
 
     private static final CompilerContext.Key<TypeChecker> TYPE_CHECKER_KEY =
             new CompilerContext.Key<>();
-
-    private static final String TABLE_CONFIG = "TableConfig";
 
     private Names names;
     private SymbolTable symTable;
@@ -292,14 +292,17 @@ public class TypeChecker extends BLangNodeVisitor {
     }
 
     private void validateTableColumns(BType tableConstraint, BLangTableLiteral tableLiteral) {
-        List<String> columnNames = new ArrayList<>();
-        for (BField field : ((BRecordType) tableConstraint).fields) {
-            columnNames.add(field.getName().getValue());
-        }
-        for (BLangTableLiteral.BLangTableColumn column : tableLiteral.columns) {
-            boolean contains = columnNames.contains(column.columnName);
-            if (!contains) {
-                dlog.error(tableLiteral.pos, DiagnosticCode.UNDEFINED_TABLE_COLUMN, column.columnName, tableConstraint);
+        if (tableConstraint.tag != TypeTags.ERROR) {
+            List<String> columnNames = new ArrayList<>();
+            for (BField field : ((BRecordType) tableConstraint).fields) {
+                columnNames.add(field.getName().getValue());
+            }
+            for (BLangTableLiteral.BLangTableColumn column : tableLiteral.columns) {
+                boolean contains = columnNames.contains(column.columnName);
+                if (!contains) {
+                    dlog.error(tableLiteral.pos, DiagnosticCode.UNDEFINED_TABLE_COLUMN, column.columnName,
+                            tableConstraint);
+                }
             }
         }
     }
@@ -505,6 +508,15 @@ public class TypeChecker extends BLangNodeVisitor {
                         ((BLangFunction) env.enclInvokable).closureVarSymbols.add((BVarSymbol) closureVarSymbol);
                     }
                 }
+                if (env.node.getKind() == NodeKind.ARROW_EXPR) {
+                    SymbolEnv encInvokableEnv = findEnclosingInvokableEnv(env, encInvokable);
+                    BSymbol closureVarSymbol = symResolver.lookupClosureVarSymbol(encInvokableEnv, symbol.name,
+                            SymTag.VARIABLE_NAME);
+                    if (closureVarSymbol != symTable.notFoundSymbol &&
+                            !isFunctionArgument(closureVarSymbol, ((BLangArrowFunction) env.node).params)) {
+                        ((BLangArrowFunction) env.node).closureVarSymbols.add((BVarSymbol) closureVarSymbol);
+                    }
+                }
             } else if ((symbol.tag & SymTag.TYPE) == SymTag.TYPE) {
                 actualType = symTable.typeDesc;
                 varRefExpr.symbol = symbol;
@@ -544,6 +556,9 @@ public class TypeChecker extends BLangNodeVisitor {
      * enclosing invokable node's environment, which are outside of the scope of a lambda function.
      */
     private SymbolEnv findEnclosingInvokableEnv(SymbolEnv env, BLangInvokableNode encInvokable) {
+        if (env.enclEnv.node != null && env.enclEnv.node.getKind() == NodeKind.ARROW_EXPR) {
+            return env.enclEnv;
+        }
         if (env.enclInvokable == encInvokable) {
             return findEnclosingInvokableEnv(env.enclEnv, encInvokable);
         }
@@ -552,7 +567,7 @@ public class TypeChecker extends BLangNodeVisitor {
 
     private boolean isFunctionArgument(BSymbol symbol, List<BLangVariable> params) {
         return params.stream().anyMatch(param -> (param.symbol.name.equals(symbol.name) &&
-                param.type.equals(symbol.type)));
+                param.type.tag == symbol.type.tag));
     }
 
     public void visit(BLangFieldBasedAccess fieldAccessExpr) {
@@ -725,17 +740,26 @@ public class TypeChecker extends BLangNodeVisitor {
             return;
         }
 
-        //TODO cache this in symbol as a flag?
-        ((BObjectTypeSymbol) actualType.tsymbol).attachedFuncs.forEach(f -> {
-            if ((f.symbol.flags & Flags.INTERFACE) == Flags.INTERFACE) {
-                dlog.error(cIExpr.pos, DiagnosticCode.CANNOT_INITIALIZE_OBJECT, actualType.tsymbol, f.symbol);
-            }
-        });
+        if ((actualType.tsymbol.flags & Flags.ABSTRACT) == Flags.ABSTRACT) {
+            dlog.error(cIExpr.pos, DiagnosticCode.CANNOT_INITIALIZE_ABSTRACT_OBJECT, actualType.tsymbol);
+            cIExpr.objectInitInvocation.argExprs.forEach(expr -> checkExpr(expr, env, symTable.noType));
+            resultType = symTable.errType;
+            return;
+        }
 
-        cIExpr.objectInitInvocation.symbol = ((BObjectTypeSymbol) actualType.tsymbol).initializerFunc.symbol;
+        if (((BObjectTypeSymbol) actualType.tsymbol).initializerFunc != null) {
+            cIExpr.objectInitInvocation.symbol = ((BObjectTypeSymbol) actualType.tsymbol).initializerFunc.symbol;
+            checkInvocationParam(cIExpr.objectInitInvocation);
+        } else if (cIExpr.objectInitInvocation.argExprs.size() > 0) {
+            // If the initializerFunc null then this is a default constructor invocation. Hence should not 
+            // pass any arguments.
+            dlog.error(cIExpr.pos, DiagnosticCode.TOO_MANY_ARGS_FUNC_CALL, cIExpr.objectInitInvocation.exprSymbol);
+            cIExpr.objectInitInvocation.argExprs.forEach(expr -> checkExpr(expr, env, symTable.noType));
+            resultType = symTable.errType;
+            return;
+        }
+
         cIExpr.objectInitInvocation.type = symTable.nilType;
-        checkInvocationParam(cIExpr.objectInitInvocation);
-
         resultType = types.checkType(cIExpr, actualType, expType);
     }
 
@@ -997,6 +1021,24 @@ public class TypeChecker extends BLangNodeVisitor {
         semanticAnalyzer.analyzeDef(lambdaFunction, env);
         lambdaFunction.isTypeChecked = true;
         resultType = types.checkType(bLangLambdaFunction, bLangLambdaFunction.type, expType);
+    }
+
+    @Override
+    public void visit(BLangArrowFunction bLangArrowFunction) {
+        if (expType.tag != TypeTags.INVOKABLE) {
+            dlog.error(bLangArrowFunction.pos, DiagnosticCode.ARROW_EXPRESSION_CANNOT_INFER_TYPE_FROM_LHS);
+            resultType = symTable.errType;
+            return;
+        }
+
+        BInvokableType expectedInvocation = (BInvokableType) this.expType;
+        populateArrowExprParamTypes(bLangArrowFunction, expectedInvocation.paramTypes);
+        bLangArrowFunction.expression.type = populateArrowExprReturn(bLangArrowFunction, expectedInvocation.retType);
+        // if function return type is none, assign the inferred return type
+        if (expectedInvocation.retType.tag == TypeTags.NONE) {
+            expectedInvocation.retType = bLangArrowFunction.expression.type;
+        }
+        resultType = bLangArrowFunction.funcType = expectedInvocation;
     }
 
     public void visit(BLangXMLQName bLangXMLQName) {
@@ -1318,6 +1360,31 @@ public class TypeChecker extends BLangNodeVisitor {
 
     // Private methods
 
+    private BType populateArrowExprReturn(BLangArrowFunction bLangArrowFunction, BType expectedRetType) {
+        SymbolEnv arrowFunctionEnv = SymbolEnv.createArrowFunctionSymbolEnv(bLangArrowFunction, env);
+        bLangArrowFunction.params.forEach(param -> symbolEnter.defineNode(param, arrowFunctionEnv));
+        return checkExpr(bLangArrowFunction.expression, arrowFunctionEnv, expectedRetType);
+    }
+
+    private void populateArrowExprParamTypes(BLangArrowFunction bLangArrowFunction, List<BType> paramTypes) {
+        if (paramTypes.size() != bLangArrowFunction.params.size()) {
+            dlog.error(bLangArrowFunction.pos, DiagnosticCode.ARROW_EXPRESSION_MISMATCHED_PARAMETER_LENGTH,
+                    paramTypes.size(), bLangArrowFunction.params.size());
+            resultType = symTable.errType;
+            bLangArrowFunction.params.forEach(param -> param.type = symTable.errType);
+            return;
+        }
+
+        for (int i = 0; i < bLangArrowFunction.params.size(); i++) {
+            BLangVariable paramIdentifier = bLangArrowFunction.params.get(i);
+            BType bType = paramTypes.get(i);
+            BLangValueType valueTypeNode = (BLangValueType) TreeBuilder.createValueTypeNode();
+            valueTypeNode.setTypeKind(bType.getKind());
+            paramIdentifier.setTypeNode(valueTypeNode);
+            paramIdentifier.type = bType;
+        }
+    }
+
     private void checkSefReferences(DiagnosticPos pos, SymbolEnv env, BVarSymbol varSymbol) {
         if (env.enclVarSym == varSymbol) {
             dlog.error(pos, DiagnosticCode.SELF_REFERENCE_VAR, varSymbol.name);
@@ -1421,6 +1488,7 @@ public class TypeChecker extends BLangNodeVisitor {
         switch (iExpr.expr.type.tag) {
             case TypeTags.ARRAY:
             case TypeTags.MAP:
+            case TypeTags.RECORD:
             case TypeTags.JSON:
             case TypeTags.STREAM:
             case TypeTags.TABLE:
@@ -1748,7 +1816,7 @@ public class TypeChecker extends BLangNodeVisitor {
     }
 
     private BType checkTupleFieldType(BLangIndexBasedAccess indexBasedAccessExpr, BType varRefType, int indexValue) {
-        List<BType> tupleTypes = ((BTupleType) varRefType.tsymbol.type).tupleTypes;
+        List<BType> tupleTypes = ((BTupleType) varRefType).tupleTypes;
         if (indexValue < 0 || tupleTypes.size() <= indexValue) {
             dlog.error(indexBasedAccessExpr.pos,
                     DiagnosticCode.TUPLE_INDEX_OUT_OF_RANGE, indexValue, tupleTypes.size());

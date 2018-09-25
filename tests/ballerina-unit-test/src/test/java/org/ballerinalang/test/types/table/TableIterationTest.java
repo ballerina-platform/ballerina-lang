@@ -53,16 +53,16 @@ public class TableIterationTest {
     public void testNegative() {
         BAssertUtil.validateError(resultNegative, 0, "incompatible types: expected 'int', found 'float'", 24, 30);
         BAssertUtil.validateError(resultNegative, 1,
-                "incompatible types: expected 'float', found 'int'", 29, 42);
+                                  "incompatible types: expected 'float', found 'int'", 29, 42);
         BAssertUtil.validateError(resultNegative, 2,
-                "incompatible lambda function types: expected 'Employee', found " + "'EmployeeIncompatible'", 55,
-                41);
+                                  "incompatible lambda function types: expected 'EmployeeIncompatible', found " +
+                                          "'Employee'", 55, 41);
         BAssertUtil.validateError(resultNegative, 3,
-                "incompatible types: expected 'EmployeeSalary', found '" + "(EmployeeSalaryIncompatible) collection'",
-                62, 41);
+                                  "incompatible types: expected 'EmployeeSalary', found '" +
+                                          "(EmployeeSalaryIncompatible) collection'", 62, 41);
         BAssertUtil.validateError(resultNegative, 4,
-                "incompatible lambda function types: expected 'Employee', found " + "'EmployeeIncompatible'", 69,
-                41);
+                                  "incompatible lambda function types: expected 'EmployeeIncompatible', found " +
+                                          "'Employee'", 69, 41);
     }
 
     @Test(groups = "TableIterationTest", description = "Check accessing data using foreach iteration")
@@ -197,7 +197,8 @@ public class TableIterationTest {
         Assert.assertNotNull(returns);
         Assert.assertEquals(returns.length, 1);
         Assert.assertEquals(returns[0].stringValue(),
-                "[{\"id\":1, \"salary\":100.0}, {\"id\":2, \"salary\":200.0}, {\"id\":3, \"salary\":300.0}]");
+                            "[{\"id\":1, \"salary\":100.0}, {\"id\":2, \"salary\":200.0}, {\"id\":3, " +
+                                    "\"salary\":300.0}]");
     }
 
     @Test()
@@ -206,7 +207,8 @@ public class TableIterationTest {
         Assert.assertNotNull(returns);
         Assert.assertEquals(returns.length, 1);
         Assert.assertEquals(returns[0].stringValue(),
-                "[{\"id\":1, \"salary\":100.0}, {\"id\":2, \"salary\":200.0}, {\"id\":3, \"salary\":300.0}]");
+                            "[{\"id\":1, \"salary\":100.0}, {\"id\":2, \"salary\":200.0}, {\"id\":3, " +
+                                    "\"salary\":300.0}]");
     }
 
     @Test()
@@ -215,7 +217,8 @@ public class TableIterationTest {
         Assert.assertNotNull(returns);
         Assert.assertEquals(returns.length, 1);
         Assert.assertEquals(returns[0].stringValue(),
-                "[{\"id\":1, \"salary\":100.0}, {\"id\":2, \"salary\":200.0}, {\"id\":3, \"salary\":300.0}]");
+                            "[{\"id\":1, \"salary\":100.0}, {\"id\":2, \"salary\":200.0}, {\"id\":3, " +
+                                    "\"salary\":300.0}]");
     }
 
     @Test()
@@ -224,7 +227,8 @@ public class TableIterationTest {
         Assert.assertNotNull(returns);
         Assert.assertEquals(returns.length, 1);
         Assert.assertEquals(returns[0].stringValue(),
-                "[{\"id\":1, \"salary\":100.0}, {\"id\":2, \"salary\":200.0}, {\"id\":3, \"salary\":300.0}]");
+                            "[{\"id\":1, \"salary\":100.0}, {\"id\":2, \"salary\":200.0}, {\"id\":3, " +
+                                    "\"salary\":300.0}]");
     }
 
     @AfterSuite

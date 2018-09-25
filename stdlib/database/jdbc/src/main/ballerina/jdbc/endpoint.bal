@@ -24,11 +24,12 @@ import ballerina/sql;
 # + poolOptions - Properties for the connection pool configuration. Refer `sql:PoolOptions` for more details
 # + dbOptions - A map of DB specific properties. These properties will have an effect only if the dataSourceClassName is provided in poolOptions
 public type ClientEndpointConfiguration record {
-    string url,
-    string username,
-    string password,
-    sql:PoolOptions poolOptions,
-    map dbOptions,
+    string url;
+    string username;
+    string password;
+    sql:PoolOptions poolOptions;
+    map dbOptions;
+    !...
 };
 
 # Represents a JDBC SQL client endpoint.

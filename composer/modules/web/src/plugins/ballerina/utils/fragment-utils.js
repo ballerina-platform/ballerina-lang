@@ -19,6 +19,8 @@
 // using relative imports here, since gen-default-nodes runs without webpack
 import { parseFragment } from 'api-client/api-client';
 
+let customParseFragmentFn;
+
 /**
  * Class for fragment utils.
  *
@@ -215,7 +217,21 @@ class FragmentUtils {
      * @return {object} fragment details to be sent to fragment parser.
      * */
     static parseFragment(fragment) {
+        if (customParseFragmentFn) {
+            return customParseFragmentFn(fragment);
+        }
         return parseFragment(fragment);
+    }
+
+    /**
+     * Lets developers override default fragment parsing logic.
+     * This is used to use LS api when possible for fragment parsing.
+     * This can be cleaned up once composer services are no longer used.
+     *
+     * @param {Function} parseFragmentFn call back function for parsing.
+     */
+    static setParseFragmentFn(parseFragmentFn) {
+        customParseFragmentFn = parseFragmentFn;
     }
 }
 

@@ -28,7 +28,7 @@ import io.ballerina.plugins.idea.psi.*;
 
 public class BallerinaPostArithmeticOperatorImpl extends BallerinaCompositeElementImpl implements BallerinaPostArithmeticOperator {
 
-  public BallerinaPostArithmeticOperatorImpl(ASTNode node) {
+  public BallerinaPostArithmeticOperatorImpl(@NotNull ASTNode node) {
     super(node);
   }
 

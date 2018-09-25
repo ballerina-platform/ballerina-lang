@@ -28,7 +28,7 @@ import io.ballerina.plugins.idea.psi.*;
 
 public class BallerinaStringTemplateContentImpl extends BallerinaCompositeElementImpl implements BallerinaStringTemplateContent {
 
-  public BallerinaStringTemplateContentImpl(ASTNode node) {
+  public BallerinaStringTemplateContentImpl(@NotNull ASTNode node) {
     super(node);
   }
 

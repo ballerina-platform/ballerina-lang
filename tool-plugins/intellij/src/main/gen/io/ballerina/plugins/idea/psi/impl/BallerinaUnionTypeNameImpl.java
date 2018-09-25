@@ -28,7 +28,7 @@ import io.ballerina.plugins.idea.psi.*;
 
 public class BallerinaUnionTypeNameImpl extends BallerinaTypeNameImpl implements BallerinaUnionTypeName {
 
-  public BallerinaUnionTypeNameImpl(ASTNode node) {
+  public BallerinaUnionTypeNameImpl(@NotNull ASTNode node) {
     super(node);
   }
 

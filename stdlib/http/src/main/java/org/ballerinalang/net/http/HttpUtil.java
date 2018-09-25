@@ -44,6 +44,7 @@ import org.ballerinalang.mime.util.EntityWrapper;
 import org.ballerinalang.mime.util.HeaderUtil;
 import org.ballerinalang.mime.util.MimeUtil;
 import org.ballerinalang.mime.util.MultipartDecoder;
+import org.ballerinalang.model.util.JsonGenerator;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BString;
@@ -59,13 +60,13 @@ import org.ballerinalang.util.observability.ObserverContext;
 import org.ballerinalang.util.tracer.TraceConstants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.wso2.transport.http.netty.config.ChunkConfig;
-import org.wso2.transport.http.netty.config.ForwardedExtensionConfig;
-import org.wso2.transport.http.netty.config.KeepAliveConfig;
-import org.wso2.transport.http.netty.config.Parameter;
-import org.wso2.transport.http.netty.config.SslConfiguration;
 import org.wso2.transport.http.netty.contract.HttpResponseFuture;
 import org.wso2.transport.http.netty.contract.HttpWsConnectorFactory;
+import org.wso2.transport.http.netty.contract.config.ChunkConfig;
+import org.wso2.transport.http.netty.contract.config.ForwardedExtensionConfig;
+import org.wso2.transport.http.netty.contract.config.KeepAliveConfig;
+import org.wso2.transport.http.netty.contract.config.Parameter;
+import org.wso2.transport.http.netty.contract.config.SslConfiguration;
 import org.wso2.transport.http.netty.contractimpl.DefaultHttpWsConnectorFactory;
 import org.wso2.transport.http.netty.message.Http2PushPromise;
 import org.wso2.transport.http.netty.message.HttpCarbonMessage;
@@ -100,11 +101,26 @@ import static org.ballerinalang.mime.util.MimeConstants.RESPONSE_ENTITY_FIELD;
 import static org.ballerinalang.net.http.HttpConstants.ALWAYS;
 import static org.ballerinalang.net.http.HttpConstants.ANN_CONFIG_ATTR_CHUNKING;
 import static org.ballerinalang.net.http.HttpConstants.ANN_CONFIG_ATTR_COMPRESSION;
+import static org.ballerinalang.net.http.HttpConstants.ANN_CONFIG_ATTR_COMPRESSION_CONTENT_TYPES;
+import static org.ballerinalang.net.http.HttpConstants.ANN_CONFIG_ATTR_COMPRESSION_ENABLE;
+import static org.ballerinalang.net.http.HttpConstants.AUTO;
+import static org.ballerinalang.net.http.HttpConstants.ENABLED_PROTOCOLS;
+import static org.ballerinalang.net.http.HttpConstants.ENDPOINT_CONFIG_CERTIFICATE;
+import static org.ballerinalang.net.http.HttpConstants.ENDPOINT_CONFIG_KEY;
+import static org.ballerinalang.net.http.HttpConstants.ENDPOINT_CONFIG_KEY_PASSWORD;
+import static org.ballerinalang.net.http.HttpConstants.ENDPOINT_CONFIG_KEY_STORE;
+import static org.ballerinalang.net.http.HttpConstants.ENDPOINT_CONFIG_PROTOCOLS;
+import static org.ballerinalang.net.http.HttpConstants.ENDPOINT_CONFIG_TRUST_CERTIFICATES;
+import static org.ballerinalang.net.http.HttpConstants.ENDPOINT_CONFIG_TRUST_STORE;
+import static org.ballerinalang.net.http.HttpConstants.ENDPOINT_CONFIG_VALIDATE_CERT;
 import static org.ballerinalang.net.http.HttpConstants.ENTITY_INDEX;
+import static org.ballerinalang.net.http.HttpConstants.FILE_PATH;
 import static org.ballerinalang.net.http.HttpConstants.HTTP_MESSAGE_INDEX;
 import static org.ballerinalang.net.http.HttpConstants.HTTP_STATUS_CODE;
 import static org.ballerinalang.net.http.HttpConstants.NEVER;
+import static org.ballerinalang.net.http.HttpConstants.PASSWORD;
 import static org.ballerinalang.net.http.HttpConstants.PROTOCOL_PACKAGE_HTTP;
+import static org.ballerinalang.net.http.HttpConstants.PROTOCOL_VERSION;
 import static org.ballerinalang.net.http.HttpConstants.REQUEST;
 import static org.ballerinalang.net.http.HttpConstants.REQUEST_CACHE_CONTROL;
 import static org.ballerinalang.net.http.HttpConstants.REQUEST_CACHE_CONTROL_FIELD;
@@ -114,15 +130,17 @@ import static org.ballerinalang.net.http.HttpConstants.RESPONSE_CACHE_CONTROL;
 import static org.ballerinalang.net.http.HttpConstants.RESPONSE_CACHE_CONTROL_FIELD;
 import static org.ballerinalang.net.http.HttpConstants.RESPONSE_REASON_PHRASE_FIELD;
 import static org.ballerinalang.net.http.HttpConstants.RESPONSE_STATUS_CODE_FIELD;
+import static org.ballerinalang.net.http.HttpConstants.SSL_ENABLED_PROTOCOLS;
 import static org.ballerinalang.net.http.HttpConstants.TRANSPORT_MESSAGE;
+import static org.ballerinalang.net.http.nativeimpl.pipelining.PipeliningHandler.sendPipelinedResponse;
 import static org.ballerinalang.util.observability.ObservabilityConstants.PROPERTY_HTTP_HOST;
 import static org.ballerinalang.util.observability.ObservabilityConstants.PROPERTY_HTTP_PORT;
 import static org.ballerinalang.util.observability.ObservabilityConstants.TAG_KEY_HTTP_METHOD;
 import static org.ballerinalang.util.observability.ObservabilityConstants.TAG_KEY_HTTP_STATUS_CODE;
 import static org.ballerinalang.util.observability.ObservabilityConstants.TAG_KEY_HTTP_URL;
 import static org.ballerinalang.util.observability.ObservabilityConstants.TAG_KEY_PEER_ADDRESS;
-import static org.wso2.transport.http.netty.common.Constants.ENCODING_GZIP;
-import static org.wso2.transport.http.netty.common.Constants.HTTP_TRANSFER_ENCODING_IDENTITY;
+import static org.wso2.transport.http.netty.contract.Constants.ENCODING_GZIP;
+import static org.wso2.transport.http.netty.contract.Constants.HTTP_TRANSFER_ENCODING_IDENTITY;
 
 /**
  * Utility class providing utility methods.
@@ -354,6 +372,14 @@ public class HttpUtil {
         }
     }
 
+    /**
+     * This method should never be called directly to send out responses for ballerina HTTP 1.1. Use
+     * PipeliningHandler's sendPipelinedResponse() method instead.
+     *
+     * @param requestMsg  Represent the request message
+     * @param responseMsg Represent the corresponding response
+     * @return HttpResponseFuture that represent the future results
+     */
     public static HttpResponseFuture sendOutboundResponse(HttpCarbonMessage requestMsg,
                                                           HttpCarbonMessage responseMsg) {
         HttpResponseFuture responseFuture;
@@ -404,14 +430,14 @@ public class HttpUtil {
     public static void handleFailure(HttpCarbonMessage requestMessage, BallerinaConnectorException ex) {
         String errorMsg = ex.getMessage();
         int statusCode = getStatusCode(requestMessage, errorMsg);
-        sendOutboundResponse(requestMessage, createErrorMessage(errorMsg, statusCode));
+        sendPipelinedResponse(requestMessage, createErrorMessage(errorMsg, statusCode));
     }
 
     public static void handleFailure(HttpCarbonMessage requestMessage, BMap<String, BValue> error) {
         String errorMsg = error.get(BLangVMErrors.ERROR_MESSAGE_FIELD).stringValue();
         int statusCode = getStatusCode(requestMessage, errorMsg);
         ErrorHandlerUtils.printError("error: " + BLangVMErrors.getPrintableStackTrace(error));
-        sendOutboundResponse(requestMessage, createErrorMessage(errorMsg, statusCode));
+        sendPipelinedResponse(requestMessage, createErrorMessage(errorMsg, statusCode));
     }
 
     private static int getStatusCode(HttpCarbonMessage requestMessage, String errorMsg) {
@@ -449,9 +475,9 @@ public class HttpUtil {
 
     private static void setHttpStatusCodes(int statusCode, HttpCarbonMessage response) {
         HttpHeaders httpHeaders = response.getHeaders();
-        httpHeaders.set(HttpHeaderNames.CONTENT_TYPE, org.wso2.transport.http.netty.common.Constants.TEXT_PLAIN);
+        httpHeaders.set(HttpHeaderNames.CONTENT_TYPE, org.wso2.transport.http.netty.contract.Constants.TEXT_PLAIN);
 
-        response.setProperty(org.wso2.transport.http.netty.common.Constants.HTTP_STATUS_CODE, statusCode);
+        response.setProperty(org.wso2.transport.http.netty.contract.Constants.HTTP_STATUS_CODE, statusCode);
     }
 
     /**
@@ -821,16 +847,57 @@ public class HttpUtil {
         if (contentEncoding != null) {
             return;
         }
-        String compressionValue = configAnnot.getValue().getRefField(ANN_CONFIG_ATTR_COMPRESSION).getStringValue();
+
+        Struct compressionConfig = configAnnot.getValue().getStructField(ANN_CONFIG_ATTR_COMPRESSION);
+        CompressionConfigState compressionState = getCompressionState(
+                compressionConfig.getStringField(ANN_CONFIG_ATTR_COMPRESSION_ENABLE));
+
+        if (compressionState == CompressionConfigState.NEVER) {
+            outboundResponseMsg.getHeaders().set(HttpHeaderNames.CONTENT_ENCODING, HTTP_TRANSFER_ENCODING_IDENTITY);
+            return;
+        }
+
         String acceptEncodingValue = requestMsg.getHeaders().get(HttpHeaderNames.ACCEPT_ENCODING);
-        if (ALWAYS.equalsIgnoreCase(compressionValue)) {
-            if (acceptEncodingValue == null || HTTP_TRANSFER_ENCODING_IDENTITY.equals(acceptEncodingValue)) {
+        List<String> contentTypesAnnotationValues = getAsStringList(
+                compressionConfig.getArrayField(ANN_CONFIG_ATTR_COMPRESSION_CONTENT_TYPES));
+        String contentType = outboundResponseMsg.getHeader(HttpHeaderNames.CONTENT_TYPE.toString());
+
+        if (contentTypesAnnotationValues.isEmpty() || isContentTypeMatched(contentTypesAnnotationValues, contentType)) {
+            if (compressionState == CompressionConfigState.ALWAYS &&
+                    (acceptEncodingValue == null || HTTP_TRANSFER_ENCODING_IDENTITY.equals(acceptEncodingValue))) {
                 outboundResponseMsg.getHeaders().set(HttpHeaderNames.CONTENT_ENCODING, ENCODING_GZIP);
             }
-        } else if (NEVER.equalsIgnoreCase(compressionValue)) {
-            outboundResponseMsg.getHeaders().set(HttpHeaderNames.CONTENT_ENCODING,
-                    HTTP_TRANSFER_ENCODING_IDENTITY);
+        } else {
+            outboundResponseMsg.getHeaders().set(HttpHeaderNames.CONTENT_ENCODING, HTTP_TRANSFER_ENCODING_IDENTITY);
         }
+    }
+
+    public static CompressionConfigState getCompressionState(String compressionState) {
+        switch (compressionState) {
+            case AUTO:
+                return CompressionConfigState.AUTO;
+            case ALWAYS:
+                return CompressionConfigState.ALWAYS;
+            case NEVER:
+                return CompressionConfigState.NEVER;
+            default:
+                return null;
+        }
+    }
+
+    private static boolean isContentTypeMatched(List<String> contentTypes, String contentType) {
+        return contentType != null && contentTypes.stream().anyMatch(contentType.toLowerCase()::contains);
+    }
+
+    private static List<String> getAsStringList(Value[] values) {
+        List<String> valuesList = new ArrayList<>();
+        if (values == null) {
+            return valuesList;
+        }
+        for (Value val : values) {
+            valuesList.add(val.getStringValue().trim().toLowerCase());
+        }
+        return valuesList;
     }
 
     public static String getListenerInterface(String host, int port) {
@@ -1091,42 +1158,61 @@ public class HttpUtil {
     }
 
     public static void populateSSLConfiguration(SslConfiguration sslConfiguration, Struct secureSocket) {
-        Struct trustStore = secureSocket.getStructField(HttpConstants.ENDPOINT_CONFIG_TRUST_STORE);
-        Struct keyStore = secureSocket.getStructField(HttpConstants.ENDPOINT_CONFIG_KEY_STORE);
-        Struct protocols = secureSocket.getStructField(HttpConstants.ENDPOINT_CONFIG_PROTOCOLS);
-        Struct validateCert = secureSocket.getStructField(HttpConstants.ENDPOINT_CONFIG_VALIDATE_CERT);
+        Struct trustStore = secureSocket.getStructField(ENDPOINT_CONFIG_TRUST_STORE);
+        Struct keyStore = secureSocket.getStructField(ENDPOINT_CONFIG_KEY_STORE);
+        Struct protocols = secureSocket.getStructField(ENDPOINT_CONFIG_PROTOCOLS);
+        Struct validateCert = secureSocket.getStructField(ENDPOINT_CONFIG_VALIDATE_CERT);
+        String keyFile = secureSocket.getStringField(ENDPOINT_CONFIG_KEY);
+        String certFile = secureSocket.getStringField(ENDPOINT_CONFIG_CERTIFICATE);
+        String trustCerts = secureSocket.getStringField(ENDPOINT_CONFIG_TRUST_CERTIFICATES);
+        String keyPassword = secureSocket.getStringField(ENDPOINT_CONFIG_KEY_PASSWORD);
         List<Parameter> clientParams = new ArrayList<>();
+        if (trustStore != null && StringUtils.isNotBlank(trustCerts)) {
+            throw new BallerinaException("Cannot configure both trustStore and trustCerts at the same time.");
+        }
         if (trustStore != null) {
-            String trustStoreFile = trustStore.getStringField(HttpConstants.FILE_PATH);
+            String trustStoreFile = trustStore.getStringField(FILE_PATH);
             if (StringUtils.isNotBlank(trustStoreFile)) {
                 sslConfiguration.setTrustStoreFile(trustStoreFile);
             }
-            String trustStorePassword = trustStore.getStringField(HttpConstants.PASSWORD);
+            String trustStorePassword = trustStore.getStringField(PASSWORD);
             if (StringUtils.isNotBlank(trustStorePassword)) {
                 sslConfiguration.setTrustStorePass(trustStorePassword);
             }
+        } else if (StringUtils.isNotBlank(trustCerts)) {
+            sslConfiguration.setClientTrustCertificates(trustCerts);
+        }
+        if (keyStore != null && StringUtils.isNotBlank(keyFile)) {
+            throw new BallerinaException("Cannot configure both keyStore and keyFile.");
+        } else if (StringUtils.isNotBlank(keyFile) && StringUtils.isBlank(certFile)) {
+            throw new BallerinaException("Need to configure certFile containing client ssl certificates.");
         }
         if (keyStore != null) {
-            String keyStoreFile = keyStore.getStringField(HttpConstants.FILE_PATH);
+            String keyStoreFile = keyStore.getStringField(FILE_PATH);
             if (StringUtils.isNotBlank(keyStoreFile)) {
                 sslConfiguration.setKeyStoreFile(keyStoreFile);
             }
-            String keyStorePassword = keyStore.getStringField(HttpConstants.PASSWORD);
+            String keyStorePassword = keyStore.getStringField(PASSWORD);
             if (StringUtils.isNotBlank(keyStorePassword)) {
                 sslConfiguration.setKeyStorePass(keyStorePassword);
+            }
+        } else if (StringUtils.isNotBlank(keyFile)) {
+            sslConfiguration.setClientKeyFile(keyFile);
+            sslConfiguration.setClientCertificates(certFile);
+            if (StringUtils.isNotBlank(keyPassword)) {
+                sslConfiguration.setClientKeyPassword(keyPassword);
             }
         }
         if (protocols != null) {
             List<Value> sslEnabledProtocolsValueList = Arrays
-                    .asList(protocols.getArrayField(HttpConstants.ENABLED_PROTOCOLS));
+                    .asList(protocols.getArrayField(ENABLED_PROTOCOLS));
             if (sslEnabledProtocolsValueList.size() > 0) {
                 String sslEnabledProtocols = sslEnabledProtocolsValueList.stream().map(Value::getStringValue)
                         .collect(Collectors.joining(",", "", ""));
-                Parameter clientProtocols = new Parameter(HttpConstants.SSL_ENABLED_PROTOCOLS,
-                        sslEnabledProtocols);
+                Parameter clientProtocols = new Parameter(SSL_ENABLED_PROTOCOLS, sslEnabledProtocols);
                 clientParams.add(clientProtocols);
             }
-            String sslProtocol = protocols.getStringField(HttpConstants.PROTOCOL_VERSION);
+            String sslProtocol = protocols.getStringField(PROTOCOL_VERSION);
             if (StringUtils.isNotBlank(sslProtocol)) {
                 sslConfiguration.setSSLProtocol(sslProtocol);
             }
@@ -1191,6 +1277,25 @@ public class HttpUtil {
         }
 
         return basePath;
+    }
+
+    /**
+     * Serialize outbound message.
+     *
+     * @param outboundMessageSource Represent the outbound message datasource
+     * @param entity                Represent the entity of the outbound message
+     * @param messageOutputStream   Represent the output stream
+     * @throws IOException In case an error occurs while writing to output stream
+     */
+    public static void serializeDataSource(BValue outboundMessageSource, BMap<String, BValue> entity,
+                                           OutputStream messageOutputStream) throws IOException {
+        if (MimeUtil.generateAsJSON(outboundMessageSource, entity)) {
+            JsonGenerator gen = new JsonGenerator(messageOutputStream);
+            gen.serialize(outboundMessageSource);
+            gen.flush();
+        } else {
+            outboundMessageSource.serialize(messageOutputStream);
+        }
     }
 
     private HttpUtil() {
