@@ -28,7 +28,7 @@ import io.ballerina.plugins.idea.psi.*;
 
 public class BallerinaObjectTypeNameImpl extends BallerinaTypeNameImpl implements BallerinaObjectTypeName {
 
-  public BallerinaObjectTypeNameImpl(@NotNull ASTNode node) {
+  public BallerinaObjectTypeNameImpl(ASTNode node) {
     super(node);
   }
 
@@ -57,6 +57,12 @@ public class BallerinaObjectTypeNameImpl extends BallerinaTypeNameImpl implement
   @Nullable
   public PsiElement getRightBrace() {
     return findChildByType(RIGHT_BRACE);
+  }
+
+  @Override
+  @Nullable
+  public PsiElement getAbstract() {
+    return findChildByType(ABSTRACT);
   }
 
   @Override

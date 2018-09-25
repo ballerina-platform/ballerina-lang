@@ -28,7 +28,7 @@ import io.ballerina.plugins.idea.psi.*;
 
 public class BallerinaCatchClausesImpl extends BallerinaCompositeElementImpl implements BallerinaCatchClauses {
 
-  public BallerinaCatchClausesImpl(@NotNull ASTNode node) {
+  public BallerinaCatchClausesImpl(ASTNode node) {
     super(node);
   }
 

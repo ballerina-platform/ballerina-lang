@@ -28,7 +28,7 @@ import io.ballerina.plugins.idea.psi.*;
 
 public class BallerinaReturnTypeImpl extends BallerinaCompositeElementImpl implements BallerinaReturnType {
 
-  public BallerinaReturnTypeImpl(@NotNull ASTNode node) {
+  public BallerinaReturnTypeImpl(ASTNode node) {
     super(node);
   }
 

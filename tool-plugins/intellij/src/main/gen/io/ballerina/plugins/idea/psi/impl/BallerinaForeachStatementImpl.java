@@ -28,7 +28,7 @@ import io.ballerina.plugins.idea.psi.*;
 
 public class BallerinaForeachStatementImpl extends BallerinaCompositeElementImpl implements BallerinaForeachStatement {
 
-  public BallerinaForeachStatementImpl(@NotNull ASTNode node) {
+  public BallerinaForeachStatementImpl(ASTNode node) {
     super(node);
   }
 

@@ -28,7 +28,7 @@ import io.ballerina.plugins.idea.psi.*;
 
 public class BallerinaFunctionInvocationReferenceImpl extends BallerinaVariableReferenceImpl implements BallerinaFunctionInvocationReference {
 
-  public BallerinaFunctionInvocationReferenceImpl(@NotNull ASTNode node) {
+  public BallerinaFunctionInvocationReferenceImpl(ASTNode node) {
     super(node);
   }
 

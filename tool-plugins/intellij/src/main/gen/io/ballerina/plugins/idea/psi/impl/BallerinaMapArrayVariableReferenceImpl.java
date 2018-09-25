@@ -28,7 +28,7 @@ import io.ballerina.plugins.idea.psi.*;
 
 public class BallerinaMapArrayVariableReferenceImpl extends BallerinaVariableReferenceImpl implements BallerinaMapArrayVariableReference {
 
-  public BallerinaMapArrayVariableReferenceImpl(@NotNull ASTNode node) {
+  public BallerinaMapArrayVariableReferenceImpl(ASTNode node) {
     super(node);
   }
 

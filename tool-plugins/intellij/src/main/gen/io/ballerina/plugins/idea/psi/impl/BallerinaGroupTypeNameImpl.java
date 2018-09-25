@@ -28,7 +28,7 @@ import io.ballerina.plugins.idea.psi.*;
 
 public class BallerinaGroupTypeNameImpl extends BallerinaTypeNameImpl implements BallerinaGroupTypeName {
 
-  public BallerinaGroupTypeNameImpl(@NotNull ASTNode node) {
+  public BallerinaGroupTypeNameImpl(ASTNode node) {
     super(node);
   }
 

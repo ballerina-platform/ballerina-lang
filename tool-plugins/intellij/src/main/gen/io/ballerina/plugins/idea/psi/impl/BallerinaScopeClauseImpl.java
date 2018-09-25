@@ -28,7 +28,7 @@ import io.ballerina.plugins.idea.psi.*;
 
 public class BallerinaScopeClauseImpl extends BallerinaCompositeElementImpl implements BallerinaScopeClause {
 
-  public BallerinaScopeClauseImpl(@NotNull ASTNode node) {
+  public BallerinaScopeClauseImpl(ASTNode node) {
     super(node);
   }
 

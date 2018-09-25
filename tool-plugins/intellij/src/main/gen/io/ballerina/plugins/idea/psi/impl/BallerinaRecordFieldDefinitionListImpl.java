@@ -28,7 +28,7 @@ import io.ballerina.plugins.idea.psi.*;
 
 public class BallerinaRecordFieldDefinitionListImpl extends BallerinaCompositeElementImpl implements BallerinaRecordFieldDefinitionList {
 
-  public BallerinaRecordFieldDefinitionListImpl(@NotNull ASTNode node) {
+  public BallerinaRecordFieldDefinitionListImpl(ASTNode node) {
     super(node);
   }
 

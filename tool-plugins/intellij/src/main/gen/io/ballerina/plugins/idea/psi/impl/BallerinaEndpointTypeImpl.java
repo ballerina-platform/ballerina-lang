@@ -28,7 +28,7 @@ import io.ballerina.plugins.idea.psi.*;
 
 public class BallerinaEndpointTypeImpl extends BallerinaCompositeElementImpl implements BallerinaEndpointType {
 
-  public BallerinaEndpointTypeImpl(@NotNull ASTNode node) {
+  public BallerinaEndpointTypeImpl(ASTNode node) {
     super(node);
   }
 

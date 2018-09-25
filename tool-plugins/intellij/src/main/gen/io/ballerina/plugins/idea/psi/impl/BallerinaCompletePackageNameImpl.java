@@ -29,7 +29,7 @@ import com.intellij.psi.PsiReference;
 
 public class BallerinaCompletePackageNameImpl extends BallerinaCompositeElementImpl implements BallerinaCompletePackageName {
 
-  public BallerinaCompletePackageNameImpl(@NotNull ASTNode node) {
+  public BallerinaCompletePackageNameImpl(ASTNode node) {
     super(node);
   }
 

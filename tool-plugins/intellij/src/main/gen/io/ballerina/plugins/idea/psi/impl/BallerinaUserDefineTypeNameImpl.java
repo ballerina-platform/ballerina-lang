@@ -28,7 +28,7 @@ import io.ballerina.plugins.idea.psi.*;
 
 public class BallerinaUserDefineTypeNameImpl extends BallerinaCompositeElementImpl implements BallerinaUserDefineTypeName {
 
-  public BallerinaUserDefineTypeNameImpl(@NotNull ASTNode node) {
+  public BallerinaUserDefineTypeNameImpl(ASTNode node) {
     super(node);
   }
 

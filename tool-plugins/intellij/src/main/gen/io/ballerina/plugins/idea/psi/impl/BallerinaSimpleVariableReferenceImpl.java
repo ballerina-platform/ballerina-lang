@@ -28,7 +28,7 @@ import io.ballerina.plugins.idea.psi.*;
 
 public class BallerinaSimpleVariableReferenceImpl extends BallerinaVariableReferenceImpl implements BallerinaSimpleVariableReference {
 
-  public BallerinaSimpleVariableReferenceImpl(@NotNull ASTNode node) {
+  public BallerinaSimpleVariableReferenceImpl(ASTNode node) {
     super(node);
   }
 

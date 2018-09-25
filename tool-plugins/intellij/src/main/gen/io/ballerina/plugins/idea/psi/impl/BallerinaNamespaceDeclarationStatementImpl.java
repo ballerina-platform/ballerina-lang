@@ -28,7 +28,7 @@ import io.ballerina.plugins.idea.psi.*;
 
 public class BallerinaNamespaceDeclarationStatementImpl extends BallerinaCompositeElementImpl implements BallerinaNamespaceDeclarationStatement {
 
-  public BallerinaNamespaceDeclarationStatementImpl(@NotNull ASTNode node) {
+  public BallerinaNamespaceDeclarationStatementImpl(ASTNode node) {
     super(node);
   }
 

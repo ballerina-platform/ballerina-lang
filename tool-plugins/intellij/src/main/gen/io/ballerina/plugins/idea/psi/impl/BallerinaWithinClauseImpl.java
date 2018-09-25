@@ -28,7 +28,7 @@ import io.ballerina.plugins.idea.psi.*;
 
 public class BallerinaWithinClauseImpl extends BallerinaCompositeElementImpl implements BallerinaWithinClause {
 
-  public BallerinaWithinClauseImpl(@NotNull ASTNode node) {
+  public BallerinaWithinClauseImpl(ASTNode node) {
     super(node);
   }
 

@@ -28,7 +28,7 @@ import io.ballerina.plugins.idea.psi.*;
 
 public class BallerinaTimeoutClauseImpl extends BallerinaCompositeElementImpl implements BallerinaTimeoutClause {
 
-  public BallerinaTimeoutClauseImpl(@NotNull ASTNode node) {
+  public BallerinaTimeoutClauseImpl(ASTNode node) {
     super(node);
   }
 

@@ -28,7 +28,7 @@ import io.ballerina.plugins.idea.psi.*;
 
 public class BallerinaRestArgsImpl extends BallerinaCompositeElementImpl implements BallerinaRestArgs {
 
-  public BallerinaRestArgsImpl(@NotNull ASTNode node) {
+  public BallerinaRestArgsImpl(ASTNode node) {
     super(node);
   }
 

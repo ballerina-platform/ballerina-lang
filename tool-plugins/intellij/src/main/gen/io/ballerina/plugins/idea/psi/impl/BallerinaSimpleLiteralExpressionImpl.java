@@ -28,7 +28,7 @@ import io.ballerina.plugins.idea.psi.*;
 
 public class BallerinaSimpleLiteralExpressionImpl extends BallerinaExpressionImpl implements BallerinaSimpleLiteralExpression {
 
-  public BallerinaSimpleLiteralExpressionImpl(@NotNull ASTNode node) {
+  public BallerinaSimpleLiteralExpressionImpl(ASTNode node) {
     super(node);
   }
 

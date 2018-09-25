@@ -26,14 +26,14 @@ import com.intellij.psi.util.PsiTreeUtil;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.*;
 import io.ballerina.plugins.idea.psi.*;
 
-public class BallerinaObjectFunctionsImpl extends BallerinaCompositeElementImpl implements BallerinaObjectFunctions {
+public class BallerinaArrowFunctionExpressionImpl extends BallerinaExpressionImpl implements BallerinaArrowFunctionExpression {
 
-  public BallerinaObjectFunctionsImpl(@NotNull ASTNode node) {
+  public BallerinaArrowFunctionExpressionImpl(ASTNode node) {
     super(node);
   }
 
   public void accept(@NotNull BallerinaVisitor visitor) {
-    visitor.visitObjectFunctions(this);
+    visitor.visitArrowFunctionExpression(this);
   }
 
   public void accept(@NotNull PsiElementVisitor visitor) {
@@ -43,8 +43,8 @@ public class BallerinaObjectFunctionsImpl extends BallerinaCompositeElementImpl 
 
   @Override
   @NotNull
-  public List<BallerinaObjectFunctionDefinition> getObjectFunctionDefinitionList() {
-    return PsiTreeUtil.getChildrenOfTypeAsList(this, BallerinaObjectFunctionDefinition.class);
+  public BallerinaArrowFunction getArrowFunction() {
+    return notNullChild(PsiTreeUtil.getChildOfType(this, BallerinaArrowFunction.class));
   }
 
 }

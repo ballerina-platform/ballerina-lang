@@ -28,7 +28,7 @@ import io.ballerina.plugins.idea.psi.*;
 
 public class BallerinaCallableUnitSignatureImpl extends BallerinaCompositeElementImpl implements BallerinaCallableUnitSignature {
 
-  public BallerinaCallableUnitSignatureImpl(@NotNull ASTNode node) {
+  public BallerinaCallableUnitSignatureImpl(ASTNode node) {
     super(node);
   }
 

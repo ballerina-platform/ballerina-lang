@@ -28,7 +28,7 @@ import io.ballerina.plugins.idea.psi.*;
 
 public class BallerinaBinaryAddSubExpressionImpl extends BallerinaBinaryExpressionImpl implements BallerinaBinaryAddSubExpression {
 
-  public BallerinaBinaryAddSubExpressionImpl(@NotNull ASTNode node) {
+  public BallerinaBinaryAddSubExpressionImpl(ASTNode node) {
     super(node);
   }
 

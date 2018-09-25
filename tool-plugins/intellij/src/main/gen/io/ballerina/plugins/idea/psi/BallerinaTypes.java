@@ -37,6 +37,9 @@ public interface BallerinaTypes {
   IElementType ARRAY_LITERAL = new BallerinaCompositeElementType("ARRAY_LITERAL");
   IElementType ARRAY_LITERAL_EXPRESSION = new BallerinaCompositeElementType("ARRAY_LITERAL_EXPRESSION");
   IElementType ARRAY_TYPE_NAME = new BallerinaCompositeElementType("ARRAY_TYPE_NAME");
+  IElementType ARROW_FUNCTION = new BallerinaCompositeElementType("ARROW_FUNCTION");
+  IElementType ARROW_FUNCTION_EXPRESSION = new BallerinaCompositeElementType("ARROW_FUNCTION_EXPRESSION");
+  IElementType ARROW_PARAM = new BallerinaCompositeElementType("ARROW_PARAM");
   IElementType ASSIGNMENT_STATEMENT = new BallerinaCompositeElementType("ASSIGNMENT_STATEMENT");
   IElementType ATTACHED_OBJECT = new BallerinaCompositeElementType("ATTACHED_OBJECT");
   IElementType ATTACHMENT_POINT = new BallerinaCompositeElementType("ATTACHMENT_POINT");
@@ -112,6 +115,7 @@ public interface BallerinaTypes {
   IElementType FINALLY_CLAUSE = new BallerinaCompositeElementType("FINALLY_CLAUSE");
   IElementType FINITE_TYPE = new BallerinaCompositeElementType("FINITE_TYPE");
   IElementType FINITE_TYPE_UNIT = new BallerinaCompositeElementType("FINITE_TYPE_UNIT");
+  IElementType FLOATING_POINT_LITERAL = new BallerinaCompositeElementType("FLOATING_POINT_LITERAL");
   IElementType FOREACH_STATEMENT = new BallerinaCompositeElementType("FOREACH_STATEMENT");
   IElementType FOREVER_STATEMENT = new BallerinaCompositeElementType("FOREVER_STATEMENT");
   IElementType FOREVER_STATEMENT_BODY = new BallerinaCompositeElementType("FOREVER_STATEMENT_BODY");
@@ -169,10 +173,10 @@ public interface BallerinaTypes {
   IElementType OBJECT_CALLABLE_UNIT_SIGNATURE = new BallerinaCompositeElementType("OBJECT_CALLABLE_UNIT_SIGNATURE");
   IElementType OBJECT_DEFAULTABLE_PARAMETER = new BallerinaCompositeElementType("OBJECT_DEFAULTABLE_PARAMETER");
   IElementType OBJECT_FIELD_DEFINITION = new BallerinaCompositeElementType("OBJECT_FIELD_DEFINITION");
-  IElementType OBJECT_FUNCTIONS = new BallerinaCompositeElementType("OBJECT_FUNCTIONS");
   IElementType OBJECT_FUNCTION_DEFINITION = new BallerinaCompositeElementType("OBJECT_FUNCTION_DEFINITION");
   IElementType OBJECT_INITIALIZER = new BallerinaCompositeElementType("OBJECT_INITIALIZER");
   IElementType OBJECT_INITIALIZER_PARAMETER_LIST = new BallerinaCompositeElementType("OBJECT_INITIALIZER_PARAMETER_LIST");
+  IElementType OBJECT_MEMBER = new BallerinaCompositeElementType("OBJECT_MEMBER");
   IElementType OBJECT_PARAMETER = new BallerinaCompositeElementType("OBJECT_PARAMETER");
   IElementType OBJECT_PARAMETER_LIST = new BallerinaCompositeElementType("OBJECT_PARAMETER_LIST");
   IElementType OBJECT_TYPE_NAME = new BallerinaCompositeElementType("OBJECT_TYPE_NAME");
@@ -318,6 +322,7 @@ public interface BallerinaTypes {
   IElementType XML_TYPE_NAME = new BallerinaCompositeElementType("XML_TYPE_NAME");
 
   IElementType ABORT = new BallerinaTokenType("abort");
+  IElementType ABSTRACT = new BallerinaTokenType("abstract");
   IElementType ADD = new BallerinaTokenType("+");
   IElementType ALL = new BallerinaTokenType("all");
   IElementType AND = new BallerinaTokenType("&&");
@@ -335,6 +340,7 @@ public interface BallerinaTypes {
   IElementType BIND = new BallerinaTokenType("bind");
   IElementType BITAND = new BallerinaTokenType("BITAND");
   IElementType BITXOR = new BallerinaTokenType("BITXOR");
+  IElementType BIT_COMPLEMENT = new BallerinaTokenType("BIT_COMPLEMENT");
   IElementType BOOLEAN = new BallerinaTokenType("boolean");
   IElementType BOOLEAN_LITERAL = new BallerinaTokenType("BOOLEAN_LITERAL");
   IElementType BREAK = new BallerinaTokenType("break");
@@ -357,6 +363,7 @@ public interface BallerinaTypes {
   IElementType DAYS = new BallerinaTokenType("days");
   IElementType DB_DEPRECATED_INLINE_CODE_START = new BallerinaTokenType("DB_DEPRECATED_INLINE_CODE_START");
   IElementType DB_DOC_INLINE_CODE_START = new BallerinaTokenType("DB_DOC_INLINE_CODE_START");
+  IElementType DECIMAL_FLOATING_POINT_NUMBER = new BallerinaTokenType("DECIMAL_FLOATING_POINT_NUMBER");
   IElementType DECIMAL_INTEGER_LITERAL = new BallerinaTokenType("DECIMAL_INTEGER_LITERAL");
   IElementType DECREMENT = new BallerinaTokenType("--");
   IElementType DEFINITION_REFERENCE = new BallerinaTokenType("DEFINITION_REFERENCE");
@@ -400,7 +407,6 @@ public interface BallerinaTypes {
   IElementType FINALLY = new BallerinaTokenType("finally");
   IElementType FIRST = new BallerinaTokenType("first");
   IElementType FLOAT = new BallerinaTokenType("float");
-  IElementType FLOATING_POINT_LITERAL = new BallerinaTokenType("FLOATING_POINT_LITERAL");
   IElementType FOLLOWED = new BallerinaTokenType("followed");
   IElementType FOR = new BallerinaTokenType("for");
   IElementType FOREACH = new BallerinaTokenType("foreach");
@@ -415,6 +421,7 @@ public interface BallerinaTypes {
   IElementType GT_EQUAL = new BallerinaTokenType(">=");
   IElementType HALF_OPEN_RANGE = new BallerinaTokenType("HALF_OPEN_RANGE");
   IElementType HAVING = new BallerinaTokenType("having");
+  IElementType HEXADECIMAL_FLOATING_POINT_LITERAL = new BallerinaTokenType("HEXADECIMAL_FLOATING_POINT_LITERAL");
   IElementType HEX_INTEGER_LITERAL = new BallerinaTokenType("HEX_INTEGER_LITERAL");
   IElementType HOUR = new BallerinaTokenType("hour");
   IElementType HOURS = new BallerinaTokenType("hours");
@@ -602,6 +609,15 @@ public interface BallerinaTypes {
       }
       else if (type == ARRAY_TYPE_NAME) {
         return new BallerinaArrayTypeNameImpl(node);
+      }
+      else if (type == ARROW_FUNCTION) {
+        return new BallerinaArrowFunctionImpl(node);
+      }
+      else if (type == ARROW_FUNCTION_EXPRESSION) {
+        return new BallerinaArrowFunctionExpressionImpl(node);
+      }
+      else if (type == ARROW_PARAM) {
+        return new BallerinaArrowParamImpl(node);
       }
       else if (type == ASSIGNMENT_STATEMENT) {
         return new BallerinaAssignmentStatementImpl(node);
@@ -828,6 +844,9 @@ public interface BallerinaTypes {
       else if (type == FINITE_TYPE_UNIT) {
         return new BallerinaFiniteTypeUnitImpl(node);
       }
+      else if (type == FLOATING_POINT_LITERAL) {
+        return new BallerinaFloatingPointLiteralImpl(node);
+      }
       else if (type == FOREACH_STATEMENT) {
         return new BallerinaForeachStatementImpl(node);
       }
@@ -999,9 +1018,6 @@ public interface BallerinaTypes {
       else if (type == OBJECT_FIELD_DEFINITION) {
         return new BallerinaObjectFieldDefinitionImpl(node);
       }
-      else if (type == OBJECT_FUNCTIONS) {
-        return new BallerinaObjectFunctionsImpl(node);
-      }
       else if (type == OBJECT_FUNCTION_DEFINITION) {
         return new BallerinaObjectFunctionDefinitionImpl(node);
       }
@@ -1010,6 +1026,9 @@ public interface BallerinaTypes {
       }
       else if (type == OBJECT_INITIALIZER_PARAMETER_LIST) {
         return new BallerinaObjectInitializerParameterListImpl(node);
+      }
+      else if (type == OBJECT_MEMBER) {
+        return new BallerinaObjectMemberImpl(node);
       }
       else if (type == OBJECT_PARAMETER) {
         return new BallerinaObjectParameterImpl(node);

@@ -28,7 +28,7 @@ import io.ballerina.plugins.idea.psi.*;
 
 public class BallerinaEmptyTagImpl extends BallerinaCompositeElementImpl implements BallerinaEmptyTag {
 
-  public BallerinaEmptyTagImpl(@NotNull ASTNode node) {
+  public BallerinaEmptyTagImpl(ASTNode node) {
     super(node);
   }
 

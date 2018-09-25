@@ -28,7 +28,7 @@ import io.ballerina.plugins.idea.psi.*;
 
 public class BallerinaTableQueryExpressionImpl extends BallerinaExpressionImpl implements BallerinaTableQueryExpression {
 
-  public BallerinaTableQueryExpressionImpl(@NotNull ASTNode node) {
+  public BallerinaTableQueryExpressionImpl(ASTNode node) {
     super(node);
   }
 

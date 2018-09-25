@@ -28,7 +28,7 @@ import io.ballerina.plugins.idea.psi.*;
 
 public class BallerinaForkJoinStatementImpl extends BallerinaCompositeElementImpl implements BallerinaForkJoinStatement {
 
-  public BallerinaForkJoinStatementImpl(@NotNull ASTNode node) {
+  public BallerinaForkJoinStatementImpl(ASTNode node) {
     super(node);
   }
 

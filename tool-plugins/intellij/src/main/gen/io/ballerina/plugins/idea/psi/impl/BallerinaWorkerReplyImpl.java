@@ -28,7 +28,7 @@ import io.ballerina.plugins.idea.psi.*;
 
 public class BallerinaWorkerReplyImpl extends BallerinaCompositeElementImpl implements BallerinaWorkerReply {
 
-  public BallerinaWorkerReplyImpl(@NotNull ASTNode node) {
+  public BallerinaWorkerReplyImpl(ASTNode node) {
     super(node);
   }
 
@@ -43,8 +43,14 @@ public class BallerinaWorkerReplyImpl extends BallerinaCompositeElementImpl impl
 
   @Override
   @NotNull
-  public BallerinaExpression getExpression() {
-    return notNullChild(PsiTreeUtil.getChildOfType(this, BallerinaExpression.class));
+  public List<BallerinaExpression> getExpressionList() {
+    return PsiTreeUtil.getChildrenOfTypeAsList(this, BallerinaExpression.class);
+  }
+
+  @Override
+  @Nullable
+  public PsiElement getComma() {
+    return findChildByType(COMMA);
   }
 
   @Override

@@ -28,7 +28,7 @@ import io.ballerina.plugins.idea.psi.*;
 
 public class BallerinaSimpleTypeNameImpl extends BallerinaTypeNameImpl implements BallerinaSimpleTypeName {
 
-  public BallerinaSimpleTypeNameImpl(@NotNull ASTNode node) {
+  public BallerinaSimpleTypeNameImpl(ASTNode node) {
     super(node);
   }
 

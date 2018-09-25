@@ -28,7 +28,7 @@ import io.ballerina.plugins.idea.psi.*;
 
 public class BallerinaActionInvocationImpl extends BallerinaCompositeElementImpl implements BallerinaActionInvocation {
 
-  public BallerinaActionInvocationImpl(@NotNull ASTNode node) {
+  public BallerinaActionInvocationImpl(ASTNode node) {
     super(node);
   }
 

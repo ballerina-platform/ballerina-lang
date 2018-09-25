@@ -28,7 +28,7 @@ import io.ballerina.plugins.idea.psi.*;
 
 public class BallerinaRecordLiteralImpl extends BallerinaCompositeElementImpl implements BallerinaRecordLiteral {
 
-  public BallerinaRecordLiteralImpl(@NotNull ASTNode node) {
+  public BallerinaRecordLiteralImpl(ASTNode node) {
     super(node);
   }
 

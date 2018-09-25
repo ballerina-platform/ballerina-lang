@@ -82,7 +82,6 @@ import static io.ballerina.plugins.idea.psi.BallerinaTypes.*;
 
 DECIMAL_INTEGER_LITERAL = {DecimalNumeral}
 HEX_INTEGER_LITERAL = {HexNumeral}
-OCTAL_INTEGER_LITERAL = {OctalNumeral}
 BINARY_INTEGER_LITERAL = {BinaryNumeral}
 
 DecimalNumeral = 0 | {NonZeroDigit} {Digits}?
@@ -91,16 +90,23 @@ Digit = 0 | {NonZeroDigit}
 NonZeroDigit = [1-9]
 
 HexNumeral = 0 [xX] {HexDigits}
+
+DOT = '\.'
+
+DottedHexNumber = {HexDigits} {DOT} {HexDigits} | {DOT} {HexDigits}
+
+DottedDecimalNumber = {DecimalNumeral} {DOT} {Digits} | {DOT} {Digit}+
+
 HexDigits = {HexDigit}+
 HexDigit = [0-9a-fA-F]
-
-OctalNumeral = 0 {OctalDigits}
-OctalDigits = {OctalDigit}+
-OctalDigit = [0-7]
 
 BinaryNumeral = 0 [bB] {BinaryDigits}
 BinaryDigits = {BinaryDigit}+
 BinaryDigit = [01]
+
+HexadecimalFloatingPointLiteral =  {HexIndicator} {HexFloatingPointNumber}
+
+DecimalFloatingPointNumber = {DecimalNumeral} {ExponentPart} | {DottedDecimalNumber} {ExponentPart}?
 
 // §3.10.2 Floating-Point Literals
 
@@ -114,6 +120,9 @@ ExponentPart = {ExponentIndicator} {SignedInteger}
 ExponentIndicator = [eE]
 SignedInteger = {Sign}? {Digits}
 Sign = [+-]
+
+HexIndicator = 0 [xX]
+HexFloatingPointNumber = {HexDigits} {BinaryExponent} | {DottedHexNumber} {BinaryExponent}?
 
 HexadecimalFloatingPointLiteral = {HexSignificand} {BinaryExponent}
 HexSignificand = {HexNumeral} "."? | '0' [xX] {HexDigits}? "." {HexDigits}
@@ -369,6 +378,7 @@ STRING_TEMPLATE_TEXT = {STRING_TEMPLATE_VALID_CHAR_SEQUENCE}? ({STRING_TEMPLATE_
 %%
 <YYINITIAL> {
     "abort"                                     { return ABORT; }
+    "abstract"                                  { return ABSTRACT; }
     "all"                                       { return ALL; }
     "annotation"                                { return ANNOTATION; }
     "any"                                       { return ANY; }
@@ -383,12 +393,12 @@ STRING_TEMPLATE_TEXT = {STRING_TEMPLATE_VALID_CHAR_SEQUENCE}? ({STRING_TEMPLATE_
     "byte"                                      { return BYTE; }
 
     "catch"                                     { return CATCH; }
+//    "channel"                                   { return CHANNEL; }
     "check"                                     { return CHECK; }
     "compensation"                              { return COMPENSATION; }
     "compensate"                                { return COMPENSATE; }
     "continue"                                  { return CONTINUE; }
 
-    "documentation"                             { return DOCUMENTATION; }
     "done"                                      { return DONE; }
     "deprecated"                                { return DEPRECATED; }
     "descending"                                { return DESCENDING; }
@@ -498,6 +508,8 @@ STRING_TEMPLATE_TEXT = {STRING_TEMPLATE_VALID_CHAR_SEQUENCE}? ({STRING_TEMPLATE_
     "&"                                         { return BITAND; }
     "^"                                         { return BITXOR; }
 
+    "~"                                         { return BIT_COMPLEMENT; }
+
     "->"                                        { return RARROW; }
     "<-"                                        { return LARROW; }
     "@"                                         { return AT; }
@@ -563,10 +575,13 @@ STRING_TEMPLATE_TEXT = {STRING_TEMPLATE_VALID_CHAR_SEQUENCE}? ({STRING_TEMPLATE_
     {BOOLEAN_LITERAL}                           { return BOOLEAN_LITERAL; }
     {DECIMAL_INTEGER_LITERAL}                   { return DECIMAL_INTEGER_LITERAL; }
     {HEX_INTEGER_LITERAL}                       { return HEX_INTEGER_LITERAL; }
-    {OCTAL_INTEGER_LITERAL}                     { return OCTAL_INTEGER_LITERAL; }
     {BINARY_INTEGER_LITERAL}                    { return BINARY_INTEGER_LITERAL; }
     {FLOATING_POINT_LITERAL}                    { return FLOATING_POINT_LITERAL; }
     {QUOTED_STRING_LITERAL}                     { return QUOTED_STRING_LITERAL; }
+
+    {DecimalFloatingPointNumber}                { return DECIMAL_FLOATING_POINT_NUMBER; }
+    {HexadecimalFloatingPointLiteral}           { return HEXADECIMAL_FLOATING_POINT_LITERAL; }
+
 
     {BASE_16_BLOB_LITERAL}                      { return BASE_16_BLOB_LITERAL; }
     {BASE_64_BLOB_LITERAL}                      { return BASE_64_BLOB_LITERAL; }

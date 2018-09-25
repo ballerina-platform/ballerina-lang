@@ -28,7 +28,7 @@ import io.ballerina.plugins.idea.psi.*;
 
 public class BallerinaTransactionPropertyInitStatementListImpl extends BallerinaCompositeElementImpl implements BallerinaTransactionPropertyInitStatementList {
 
-  public BallerinaTransactionPropertyInitStatementListImpl(@NotNull ASTNode node) {
+  public BallerinaTransactionPropertyInitStatementListImpl(ASTNode node) {
     super(node);
   }
 

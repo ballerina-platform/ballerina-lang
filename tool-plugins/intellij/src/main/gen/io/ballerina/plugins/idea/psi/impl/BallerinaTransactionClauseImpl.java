@@ -28,7 +28,7 @@ import io.ballerina.plugins.idea.psi.*;
 
 public class BallerinaTransactionClauseImpl extends BallerinaCompositeElementImpl implements BallerinaTransactionClause {
 
-  public BallerinaTransactionClauseImpl(@NotNull ASTNode node) {
+  public BallerinaTransactionClauseImpl(ASTNode node) {
     super(node);
   }
 

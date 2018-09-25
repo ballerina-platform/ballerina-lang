@@ -28,7 +28,7 @@ import io.ballerina.plugins.idea.psi.*;
 
 public class BallerinaIntegerLiteralImpl extends BallerinaCompositeElementImpl implements BallerinaIntegerLiteral {
 
-  public BallerinaIntegerLiteralImpl(@NotNull ASTNode node) {
+  public BallerinaIntegerLiteralImpl(ASTNode node) {
     super(node);
   }
 
@@ -57,12 +57,6 @@ public class BallerinaIntegerLiteralImpl extends BallerinaCompositeElementImpl i
   @Nullable
   public PsiElement getHexIntegerLiteral() {
     return findChildByType(HEX_INTEGER_LITERAL);
-  }
-
-  @Override
-  @Nullable
-  public PsiElement getOctalIntegerLiteral() {
-    return findChildByType(OCTAL_INTEGER_LITERAL);
   }
 
 }

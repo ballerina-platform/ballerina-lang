@@ -28,7 +28,7 @@ import io.ballerina.plugins.idea.psi.*;
 
 public class BallerinaLambdaFunctionImpl extends BallerinaCompositeElementImpl implements BallerinaLambdaFunction {
 
-  public BallerinaLambdaFunctionImpl(@NotNull ASTNode node) {
+  public BallerinaLambdaFunctionImpl(ASTNode node) {
     super(node);
   }
 
@@ -60,21 +60,27 @@ public class BallerinaLambdaFunctionImpl extends BallerinaCompositeElementImpl i
   }
 
   @Override
-  @NotNull
-  public PsiElement getEqualGt() {
-    return notNullChild(findChildByType(EQUAL_GT));
-  }
-
-  @Override
-  @NotNull
+  @Nullable
   public PsiElement getLeftParenthesis() {
-    return notNullChild(findChildByType(LEFT_PARENTHESIS));
+    return findChildByType(LEFT_PARENTHESIS);
+  }
+
+  @Override
+  @Nullable
+  public PsiElement getRightParenthesis() {
+    return findChildByType(RIGHT_PARENTHESIS);
   }
 
   @Override
   @NotNull
-  public PsiElement getRightParenthesis() {
-    return notNullChild(findChildByType(RIGHT_PARENTHESIS));
+  public PsiElement getFunction() {
+    return notNullChild(findChildByType(FUNCTION));
+  }
+
+  @Override
+  @Nullable
+  public PsiElement getReturns() {
+    return findChildByType(RETURNS);
   }
 
 }

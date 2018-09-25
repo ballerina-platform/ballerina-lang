@@ -28,7 +28,7 @@ import io.ballerina.plugins.idea.psi.*;
 
 public class BallerinaForeverStatementBodyImpl extends BallerinaCompositeElementImpl implements BallerinaForeverStatementBody {
 
-  public BallerinaForeverStatementBodyImpl(@NotNull ASTNode node) {
+  public BallerinaForeverStatementBodyImpl(ASTNode node) {
     super(node);
   }
 

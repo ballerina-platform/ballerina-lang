@@ -28,7 +28,7 @@ import io.ballerina.plugins.idea.psi.*;
 
 public class BallerinaWhereClauseImpl extends BallerinaCompositeElementImpl implements BallerinaWhereClause {
 
-  public BallerinaWhereClauseImpl(@NotNull ASTNode node) {
+  public BallerinaWhereClauseImpl(ASTNode node) {
     super(node);
   }
 

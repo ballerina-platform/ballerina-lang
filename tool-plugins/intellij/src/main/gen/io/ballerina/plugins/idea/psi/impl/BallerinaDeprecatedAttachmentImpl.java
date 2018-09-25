@@ -28,7 +28,7 @@ import io.ballerina.plugins.idea.psi.*;
 
 public class BallerinaDeprecatedAttachmentImpl extends BallerinaCompositeElementImpl implements BallerinaDeprecatedAttachment {
 
-  public BallerinaDeprecatedAttachmentImpl(@NotNull ASTNode node) {
+  public BallerinaDeprecatedAttachmentImpl(ASTNode node) {
     super(node);
   }
 

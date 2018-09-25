@@ -28,7 +28,7 @@ import io.ballerina.plugins.idea.psi.*;
 
 public class BallerinaTripleBackTickDeprecatedInlineCodeImpl extends BallerinaCompositeElementImpl implements BallerinaTripleBackTickDeprecatedInlineCode {
 
-  public BallerinaTripleBackTickDeprecatedInlineCodeImpl(@NotNull ASTNode node) {
+  public BallerinaTripleBackTickDeprecatedInlineCodeImpl(ASTNode node) {
     super(node);
   }
 

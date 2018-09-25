@@ -28,7 +28,7 @@ import io.ballerina.plugins.idea.psi.*;
 
 public class BallerinaRecordTypeNameImpl extends BallerinaTypeNameImpl implements BallerinaRecordTypeName {
 
-  public BallerinaRecordTypeNameImpl(@NotNull ASTNode node) {
+  public BallerinaRecordTypeNameImpl(ASTNode node) {
     super(node);
   }
 

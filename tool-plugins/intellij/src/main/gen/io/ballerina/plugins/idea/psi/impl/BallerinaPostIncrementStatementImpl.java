@@ -28,7 +28,7 @@ import io.ballerina.plugins.idea.psi.*;
 
 public class BallerinaPostIncrementStatementImpl extends BallerinaCompositeElementImpl implements BallerinaPostIncrementStatement {
 
-  public BallerinaPostIncrementStatementImpl(@NotNull ASTNode node) {
+  public BallerinaPostIncrementStatementImpl(ASTNode node) {
     super(node);
   }
 

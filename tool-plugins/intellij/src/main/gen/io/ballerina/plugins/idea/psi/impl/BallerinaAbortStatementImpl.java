@@ -28,7 +28,7 @@ import io.ballerina.plugins.idea.psi.*;
 
 public class BallerinaAbortStatementImpl extends BallerinaCompositeElementImpl implements BallerinaAbortStatement {
 
-  public BallerinaAbortStatementImpl(@NotNull ASTNode node) {
+  public BallerinaAbortStatementImpl(ASTNode node) {
     super(node);
   }
 

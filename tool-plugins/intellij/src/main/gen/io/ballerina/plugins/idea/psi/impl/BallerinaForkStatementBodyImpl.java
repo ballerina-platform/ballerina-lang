@@ -28,7 +28,7 @@ import io.ballerina.plugins.idea.psi.*;
 
 public class BallerinaForkStatementBodyImpl extends BallerinaCompositeElementImpl implements BallerinaForkStatementBody {
 
-  public BallerinaForkStatementBodyImpl(@NotNull ASTNode node) {
+  public BallerinaForkStatementBodyImpl(ASTNode node) {
     super(node);
   }
 

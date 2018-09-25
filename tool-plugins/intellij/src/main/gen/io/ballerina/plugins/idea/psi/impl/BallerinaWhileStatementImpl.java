@@ -28,7 +28,7 @@ import io.ballerina.plugins.idea.psi.*;
 
 public class BallerinaWhileStatementImpl extends BallerinaCompositeElementImpl implements BallerinaWhileStatement {
 
-  public BallerinaWhileStatementImpl(@NotNull ASTNode node) {
+  public BallerinaWhileStatementImpl(ASTNode node) {
     super(node);
   }
 

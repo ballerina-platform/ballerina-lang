@@ -28,7 +28,7 @@ import io.ballerina.plugins.idea.psi.*;
 
 public class BallerinaBinaryDivMulModExpressionImpl extends BallerinaBinaryExpressionImpl implements BallerinaBinaryDivMulModExpression {
 
-  public BallerinaBinaryDivMulModExpressionImpl(@NotNull ASTNode node) {
+  public BallerinaBinaryDivMulModExpressionImpl(ASTNode node) {
     super(node);
   }
 

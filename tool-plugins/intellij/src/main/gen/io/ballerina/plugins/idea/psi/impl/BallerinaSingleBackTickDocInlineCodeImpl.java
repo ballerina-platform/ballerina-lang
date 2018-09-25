@@ -28,7 +28,7 @@ import io.ballerina.plugins.idea.psi.*;
 
 public class BallerinaSingleBackTickDocInlineCodeImpl extends BallerinaCompositeElementImpl implements BallerinaSingleBackTickDocInlineCode {
 
-  public BallerinaSingleBackTickDocInlineCodeImpl(@NotNull ASTNode node) {
+  public BallerinaSingleBackTickDocInlineCodeImpl(ASTNode node) {
     super(node);
   }
 

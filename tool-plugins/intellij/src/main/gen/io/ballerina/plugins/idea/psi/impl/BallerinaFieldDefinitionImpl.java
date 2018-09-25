@@ -28,7 +28,7 @@ import io.ballerina.plugins.idea.psi.*;
 
 public class BallerinaFieldDefinitionImpl extends BallerinaCompositeElementImpl implements BallerinaFieldDefinition {
 
-  public BallerinaFieldDefinitionImpl(@NotNull ASTNode node) {
+  public BallerinaFieldDefinitionImpl(ASTNode node) {
     super(node);
   }
 
@@ -63,12 +63,6 @@ public class BallerinaFieldDefinitionImpl extends BallerinaCompositeElementImpl 
   @Nullable
   public PsiElement getAssign() {
     return findChildByType(ASSIGN);
-  }
-
-  @Override
-  @Nullable
-  public PsiElement getComma() {
-    return findChildByType(COMMA);
   }
 
   @Override

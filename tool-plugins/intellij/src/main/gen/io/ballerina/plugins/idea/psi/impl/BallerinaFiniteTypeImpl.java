@@ -28,7 +28,7 @@ import io.ballerina.plugins.idea.psi.*;
 
 public class BallerinaFiniteTypeImpl extends BallerinaCompositeElementImpl implements BallerinaFiniteType {
 
-  public BallerinaFiniteTypeImpl(@NotNull ASTNode node) {
+  public BallerinaFiniteTypeImpl(ASTNode node) {
     super(node);
   }
 

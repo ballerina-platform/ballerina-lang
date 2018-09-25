@@ -28,7 +28,7 @@ import io.ballerina.plugins.idea.psi.*;
 
 public class BallerinaTableDataArrayImpl extends BallerinaCompositeElementImpl implements BallerinaTableDataArray {
 
-  public BallerinaTableDataArrayImpl(@NotNull ASTNode node) {
+  public BallerinaTableDataArrayImpl(ASTNode node) {
     super(node);
   }
 

@@ -28,7 +28,7 @@ import io.ballerina.plugins.idea.psi.*;
 
 public class BallerinaXmlDoubleQuotedStringImpl extends BallerinaCompositeElementImpl implements BallerinaXmlDoubleQuotedString {
 
-  public BallerinaXmlDoubleQuotedStringImpl(@NotNull ASTNode node) {
+  public BallerinaXmlDoubleQuotedStringImpl(ASTNode node) {
     super(node);
   }
 

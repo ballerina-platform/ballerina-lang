@@ -28,7 +28,7 @@ import io.ballerina.plugins.idea.psi.*;
 
 public class BallerinaTypeAccessExpressionImpl extends BallerinaExpressionImpl implements BallerinaTypeAccessExpression {
 
-  public BallerinaTypeAccessExpressionImpl(@NotNull ASTNode node) {
+  public BallerinaTypeAccessExpressionImpl(ASTNode node) {
     super(node);
   }
 

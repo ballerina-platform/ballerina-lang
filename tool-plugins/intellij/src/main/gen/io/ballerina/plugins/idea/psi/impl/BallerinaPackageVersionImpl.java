@@ -30,11 +30,11 @@ import com.intellij.psi.stubs.IStubElementType;
 
 public class BallerinaPackageVersionImpl extends BallerinaNamedElementImpl<BallerinaPackageVersionStub> implements BallerinaPackageVersion {
 
-  public BallerinaPackageVersionImpl(@NotNull BallerinaPackageVersionStub stub, @NotNull IStubElementType type) {
+  public BallerinaPackageVersionImpl(BallerinaPackageVersionStub stub, IStubElementType type) {
     super(stub, type);
   }
 
-  public BallerinaPackageVersionImpl(@NotNull ASTNode node) {
+  public BallerinaPackageVersionImpl(ASTNode node) {
     super(node);
   }
 

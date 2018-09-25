@@ -28,7 +28,7 @@ import io.ballerina.plugins.idea.psi.*;
 
 public class BallerinaXmlLocalNameImpl extends BallerinaCompositeElementImpl implements BallerinaXmlLocalName {
 
-  public BallerinaXmlLocalNameImpl(@NotNull ASTNode node) {
+  public BallerinaXmlLocalNameImpl(ASTNode node) {
     super(node);
   }
 

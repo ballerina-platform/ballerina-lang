@@ -28,7 +28,7 @@ import io.ballerina.plugins.idea.psi.*;
 
 public class BallerinaSimpleLiteralImpl extends BallerinaCompositeElementImpl implements BallerinaSimpleLiteral {
 
-  public BallerinaSimpleLiteralImpl(@NotNull ASTNode node) {
+  public BallerinaSimpleLiteralImpl(ASTNode node) {
     super(node);
   }
 
@@ -55,6 +55,12 @@ public class BallerinaSimpleLiteralImpl extends BallerinaCompositeElementImpl im
 
   @Override
   @Nullable
+  public BallerinaFloatingPointLiteral getFloatingPointLiteral() {
+    return PsiTreeUtil.getChildOfType(this, BallerinaFloatingPointLiteral.class);
+  }
+
+  @Override
+  @Nullable
   public BallerinaIntegerLiteral getIntegerLiteral() {
     return PsiTreeUtil.getChildOfType(this, BallerinaIntegerLiteral.class);
   }
@@ -69,12 +75,6 @@ public class BallerinaSimpleLiteralImpl extends BallerinaCompositeElementImpl im
   @Nullable
   public PsiElement getBooleanLiteral() {
     return findChildByType(BOOLEAN_LITERAL);
-  }
-
-  @Override
-  @Nullable
-  public PsiElement getFloatingPointLiteral() {
-    return findChildByType(FLOATING_POINT_LITERAL);
   }
 
   @Override

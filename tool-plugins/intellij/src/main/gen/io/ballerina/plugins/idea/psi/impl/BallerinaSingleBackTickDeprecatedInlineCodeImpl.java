@@ -28,7 +28,7 @@ import io.ballerina.plugins.idea.psi.*;
 
 public class BallerinaSingleBackTickDeprecatedInlineCodeImpl extends BallerinaCompositeElementImpl implements BallerinaSingleBackTickDeprecatedInlineCode {
 
-  public BallerinaSingleBackTickDeprecatedInlineCodeImpl(@NotNull ASTNode node) {
+  public BallerinaSingleBackTickDeprecatedInlineCodeImpl(ASTNode node) {
     super(node);
   }
 

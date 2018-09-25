@@ -28,7 +28,7 @@ import io.ballerina.plugins.idea.psi.*;
 
 public class BallerinaStartTagImpl extends BallerinaCompositeElementImpl implements BallerinaStartTag {
 
-  public BallerinaStartTagImpl(@NotNull ASTNode node) {
+  public BallerinaStartTagImpl(ASTNode node) {
     super(node);
   }
 

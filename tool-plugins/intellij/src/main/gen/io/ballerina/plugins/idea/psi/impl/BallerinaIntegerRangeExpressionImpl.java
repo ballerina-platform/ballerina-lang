@@ -28,7 +28,7 @@ import io.ballerina.plugins.idea.psi.*;
 
 public class BallerinaIntegerRangeExpressionImpl extends BallerinaExpressionImpl implements BallerinaIntegerRangeExpression {
 
-  public BallerinaIntegerRangeExpressionImpl(@NotNull ASTNode node) {
+  public BallerinaIntegerRangeExpressionImpl(ASTNode node) {
     super(node);
   }
 

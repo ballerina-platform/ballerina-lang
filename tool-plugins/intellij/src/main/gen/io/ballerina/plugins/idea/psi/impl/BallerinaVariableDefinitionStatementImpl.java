@@ -30,11 +30,11 @@ import com.intellij.psi.stubs.IStubElementType;
 
 public class BallerinaVariableDefinitionStatementImpl extends BallerinaNamedElementImpl<BallerinaVariableDefinitionStatementStub> implements BallerinaVariableDefinitionStatement {
 
-  public BallerinaVariableDefinitionStatementImpl(@NotNull BallerinaVariableDefinitionStatementStub stub, @NotNull IStubElementType type) {
+  public BallerinaVariableDefinitionStatementImpl(BallerinaVariableDefinitionStatementStub stub, IStubElementType type) {
     super(stub, type);
   }
 
-  public BallerinaVariableDefinitionStatementImpl(@NotNull ASTNode node) {
+  public BallerinaVariableDefinitionStatementImpl(ASTNode node) {
     super(node);
   }
 

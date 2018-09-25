@@ -28,7 +28,7 @@ import io.ballerina.plugins.idea.psi.*;
 
 public class BallerinaDeprecatedTemplateInlineCodeImpl extends BallerinaCompositeElementImpl implements BallerinaDeprecatedTemplateInlineCode {
 
-  public BallerinaDeprecatedTemplateInlineCodeImpl(@NotNull ASTNode node) {
+  public BallerinaDeprecatedTemplateInlineCodeImpl(ASTNode node) {
     super(node);
   }
 

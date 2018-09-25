@@ -28,7 +28,7 @@ import io.ballerina.plugins.idea.psi.*;
 
 public class BallerinaNullableTypeNameImpl extends BallerinaTypeNameImpl implements BallerinaNullableTypeName {
 
-  public BallerinaNullableTypeNameImpl(@NotNull ASTNode node) {
+  public BallerinaNullableTypeNameImpl(ASTNode node) {
     super(node);
   }
 

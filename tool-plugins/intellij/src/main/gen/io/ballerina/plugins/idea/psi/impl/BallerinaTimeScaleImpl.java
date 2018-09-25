@@ -28,7 +28,7 @@ import io.ballerina.plugins.idea.psi.*;
 
 public class BallerinaTimeScaleImpl extends BallerinaCompositeElementImpl implements BallerinaTimeScale {
 
-  public BallerinaTimeScaleImpl(@NotNull ASTNode node) {
+  public BallerinaTimeScaleImpl(ASTNode node) {
     super(node);
   }
 

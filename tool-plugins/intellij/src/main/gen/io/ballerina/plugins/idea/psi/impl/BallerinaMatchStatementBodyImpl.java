@@ -28,7 +28,7 @@ import io.ballerina.plugins.idea.psi.*;
 
 public class BallerinaMatchStatementBodyImpl extends BallerinaCompositeElementImpl implements BallerinaMatchStatementBody {
 
-  public BallerinaMatchStatementBodyImpl(@NotNull ASTNode node) {
+  public BallerinaMatchStatementBodyImpl(ASTNode node) {
     super(node);
   }
 

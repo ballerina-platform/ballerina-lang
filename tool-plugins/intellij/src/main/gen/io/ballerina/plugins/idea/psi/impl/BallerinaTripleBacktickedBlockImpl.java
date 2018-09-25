@@ -28,7 +28,7 @@ import io.ballerina.plugins.idea.psi.*;
 
 public class BallerinaTripleBacktickedBlockImpl extends BallerinaCompositeElementImpl implements BallerinaTripleBacktickedBlock {
 
-  public BallerinaTripleBacktickedBlockImpl(@NotNull ASTNode node) {
+  public BallerinaTripleBacktickedBlockImpl(ASTNode node) {
     super(node);
   }
 

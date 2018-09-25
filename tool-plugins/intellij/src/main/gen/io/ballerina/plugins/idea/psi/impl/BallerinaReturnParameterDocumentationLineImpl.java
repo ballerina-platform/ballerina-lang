@@ -28,7 +28,7 @@ import io.ballerina.plugins.idea.psi.*;
 
 public class BallerinaReturnParameterDocumentationLineImpl extends BallerinaCompositeElementImpl implements BallerinaReturnParameterDocumentationLine {
 
-  public BallerinaReturnParameterDocumentationLineImpl(@NotNull ASTNode node) {
+  public BallerinaReturnParameterDocumentationLineImpl(ASTNode node) {
     super(node);
   }
 

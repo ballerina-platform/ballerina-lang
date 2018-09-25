@@ -28,7 +28,7 @@ import io.ballerina.plugins.idea.psi.*;
 
 public class BallerinaObjectBodyImpl extends BallerinaCompositeElementImpl implements BallerinaObjectBody {
 
-  public BallerinaObjectBodyImpl(@NotNull ASTNode node) {
+  public BallerinaObjectBodyImpl(ASTNode node) {
     super(node);
   }
 
@@ -42,21 +42,15 @@ public class BallerinaObjectBodyImpl extends BallerinaCompositeElementImpl imple
   }
 
   @Override
-  @NotNull
-  public List<BallerinaObjectFieldDefinition> getObjectFieldDefinitionList() {
-    return PsiTreeUtil.getChildrenOfTypeAsList(this, BallerinaObjectFieldDefinition.class);
-  }
-
-  @Override
-  @Nullable
-  public BallerinaObjectFunctions getObjectFunctions() {
-    return PsiTreeUtil.getChildOfType(this, BallerinaObjectFunctions.class);
-  }
-
-  @Override
   @Nullable
   public BallerinaObjectInitializer getObjectInitializer() {
     return PsiTreeUtil.getChildOfType(this, BallerinaObjectInitializer.class);
+  }
+
+  @Override
+  @NotNull
+  public List<BallerinaObjectMember> getObjectMemberList() {
+    return PsiTreeUtil.getChildrenOfTypeAsList(this, BallerinaObjectMember.class);
   }
 
 }

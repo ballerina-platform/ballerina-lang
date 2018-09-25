@@ -28,7 +28,7 @@ import io.ballerina.plugins.idea.psi.*;
 
 public class BallerinaUnaryExpressionImpl extends BallerinaExpressionImpl implements BallerinaUnaryExpression {
 
-  public BallerinaUnaryExpressionImpl(@NotNull ASTNode node) {
+  public BallerinaUnaryExpressionImpl(ASTNode node) {
     super(node);
   }
 
@@ -51,6 +51,12 @@ public class BallerinaUnaryExpressionImpl extends BallerinaExpressionImpl implem
   @Nullable
   public PsiElement getAdd() {
     return findChildByType(ADD);
+  }
+
+  @Override
+  @Nullable
+  public PsiElement getBitComplement() {
+    return findChildByType(BIT_COMPLEMENT);
   }
 
   @Override

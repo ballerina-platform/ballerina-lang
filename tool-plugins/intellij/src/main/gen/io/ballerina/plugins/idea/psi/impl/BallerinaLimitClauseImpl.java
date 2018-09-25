@@ -28,7 +28,7 @@ import io.ballerina.plugins.idea.psi.*;
 
 public class BallerinaLimitClauseImpl extends BallerinaCompositeElementImpl implements BallerinaLimitClause {
 
-  public BallerinaLimitClauseImpl(@NotNull ASTNode node) {
+  public BallerinaLimitClauseImpl(ASTNode node) {
     super(node);
   }
 

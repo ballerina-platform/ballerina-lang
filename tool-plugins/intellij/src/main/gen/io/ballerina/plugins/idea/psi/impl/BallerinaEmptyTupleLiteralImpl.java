@@ -28,7 +28,7 @@ import io.ballerina.plugins.idea.psi.*;
 
 public class BallerinaEmptyTupleLiteralImpl extends BallerinaCompositeElementImpl implements BallerinaEmptyTupleLiteral {
 
-  public BallerinaEmptyTupleLiteralImpl(@NotNull ASTNode node) {
+  public BallerinaEmptyTupleLiteralImpl(ASTNode node) {
     super(node);
   }
 

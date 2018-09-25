@@ -28,7 +28,7 @@ import io.ballerina.plugins.idea.psi.*;
 
 public class BallerinaFinallyClauseImpl extends BallerinaCompositeElementImpl implements BallerinaFinallyClause {
 
-  public BallerinaFinallyClauseImpl(@NotNull ASTNode node) {
+  public BallerinaFinallyClauseImpl(ASTNode node) {
     super(node);
   }
 

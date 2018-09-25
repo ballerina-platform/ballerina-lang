@@ -28,7 +28,7 @@ import io.ballerina.plugins.idea.psi.*;
 
 public class BallerinaDocumentationDefinitionReferenceImpl extends BallerinaCompositeElementImpl implements BallerinaDocumentationDefinitionReference {
 
-  public BallerinaDocumentationDefinitionReferenceImpl(@NotNull ASTNode node) {
+  public BallerinaDocumentationDefinitionReferenceImpl(ASTNode node) {
     super(node);
   }
 

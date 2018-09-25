@@ -28,7 +28,7 @@ import io.ballerina.plugins.idea.psi.*;
 
 public class BallerinaValueTypeTypeExpressionImpl extends BallerinaExpressionImpl implements BallerinaValueTypeTypeExpression {
 
-  public BallerinaValueTypeTypeExpressionImpl(@NotNull ASTNode node) {
+  public BallerinaValueTypeTypeExpressionImpl(ASTNode node) {
     super(node);
   }
 

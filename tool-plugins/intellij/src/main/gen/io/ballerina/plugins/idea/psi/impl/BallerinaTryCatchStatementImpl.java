@@ -28,7 +28,7 @@ import io.ballerina.plugins.idea.psi.*;
 
 public class BallerinaTryCatchStatementImpl extends BallerinaCompositeElementImpl implements BallerinaTryCatchStatement {
 
-  public BallerinaTryCatchStatementImpl(@NotNull ASTNode node) {
+  public BallerinaTryCatchStatementImpl(ASTNode node) {
     super(node);
   }
 

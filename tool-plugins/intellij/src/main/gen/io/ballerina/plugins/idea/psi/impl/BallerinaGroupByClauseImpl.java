@@ -28,7 +28,7 @@ import io.ballerina.plugins.idea.psi.*;
 
 public class BallerinaGroupByClauseImpl extends BallerinaCompositeElementImpl implements BallerinaGroupByClause {
 
-  public BallerinaGroupByClauseImpl(@NotNull ASTNode node) {
+  public BallerinaGroupByClauseImpl(ASTNode node) {
     super(node);
   }
 

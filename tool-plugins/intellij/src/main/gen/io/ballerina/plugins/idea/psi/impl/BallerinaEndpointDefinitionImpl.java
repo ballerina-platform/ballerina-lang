@@ -30,11 +30,11 @@ import com.intellij.psi.stubs.IStubElementType;
 
 public class BallerinaEndpointDefinitionImpl extends BallerinaNamedElementImpl<BallerinaEndpointDefinitionStub> implements BallerinaEndpointDefinition {
 
-  public BallerinaEndpointDefinitionImpl(@NotNull BallerinaEndpointDefinitionStub stub, @NotNull IStubElementType type) {
+  public BallerinaEndpointDefinitionImpl(BallerinaEndpointDefinitionStub stub, IStubElementType type) {
     super(stub, type);
   }
 
-  public BallerinaEndpointDefinitionImpl(@NotNull ASTNode node) {
+  public BallerinaEndpointDefinitionImpl(ASTNode node) {
     super(node);
   }
 

@@ -28,7 +28,7 @@ import io.ballerina.plugins.idea.psi.*;
 
 public class BallerinaTypeDescTypeNameImpl extends BallerinaCompositeElementImpl implements BallerinaTypeDescTypeName {
 
-  public BallerinaTypeDescTypeNameImpl(@NotNull ASTNode node) {
+  public BallerinaTypeDescTypeNameImpl(ASTNode node) {
     super(node);
   }
 

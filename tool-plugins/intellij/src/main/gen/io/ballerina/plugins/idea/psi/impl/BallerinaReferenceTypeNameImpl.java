@@ -28,7 +28,7 @@ import io.ballerina.plugins.idea.psi.*;
 
 public class BallerinaReferenceTypeNameImpl extends BallerinaCompositeElementImpl implements BallerinaReferenceTypeName {
 
-  public BallerinaReferenceTypeNameImpl(@NotNull ASTNode node) {
+  public BallerinaReferenceTypeNameImpl(ASTNode node) {
     super(node);
   }
 

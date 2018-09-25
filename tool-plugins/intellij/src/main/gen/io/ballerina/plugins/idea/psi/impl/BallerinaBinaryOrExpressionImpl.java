@@ -28,7 +28,7 @@ import io.ballerina.plugins.idea.psi.*;
 
 public class BallerinaBinaryOrExpressionImpl extends BallerinaBinaryExpressionImpl implements BallerinaBinaryOrExpression {
 
-  public BallerinaBinaryOrExpressionImpl(@NotNull ASTNode node) {
+  public BallerinaBinaryOrExpressionImpl(ASTNode node) {
     super(node);
   }
 

@@ -30,7 +30,7 @@ import com.intellij.psi.scope.PsiScopeProcessor;
 
 public class BallerinaBlockImpl extends BallerinaCompositeElementImpl implements BallerinaBlock {
 
-  public BallerinaBlockImpl(@NotNull ASTNode node) {
+  public BallerinaBlockImpl(ASTNode node) {
     super(node);
   }
 
@@ -49,7 +49,7 @@ public class BallerinaBlockImpl extends BallerinaCompositeElementImpl implements
     return PsiTreeUtil.getChildrenOfTypeAsList(this, BallerinaStatement.class);
   }
 
-  public boolean processDeclarations(@NotNull PsiScopeProcessor processor, @NotNull ResolveState state, PsiElement lastParent, @NotNull PsiElement place) {
+  public boolean processDeclarations(PsiScopeProcessor processor, ResolveState state, PsiElement lastParent, PsiElement place) {
     return BallerinaPsiImplUtil.processDeclarations(this, processor, state, lastParent, place);
   }
 

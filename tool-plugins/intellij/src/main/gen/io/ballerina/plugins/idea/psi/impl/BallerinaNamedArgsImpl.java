@@ -28,7 +28,7 @@ import io.ballerina.plugins.idea.psi.*;
 
 public class BallerinaNamedArgsImpl extends BallerinaCompositeElementImpl implements BallerinaNamedArgs {
 
-  public BallerinaNamedArgsImpl(@NotNull ASTNode node) {
+  public BallerinaNamedArgsImpl(ASTNode node) {
     super(node);
   }
 

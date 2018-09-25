@@ -28,7 +28,7 @@ import io.ballerina.plugins.idea.psi.*;
 
 public class BallerinaOutputRateLimitImpl extends BallerinaCompositeElementImpl implements BallerinaOutputRateLimit {
 
-  public BallerinaOutputRateLimitImpl(@NotNull ASTNode node) {
+  public BallerinaOutputRateLimitImpl(ASTNode node) {
     super(node);
   }
 

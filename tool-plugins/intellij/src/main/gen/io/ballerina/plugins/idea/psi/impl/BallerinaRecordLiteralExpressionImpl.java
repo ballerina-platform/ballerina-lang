@@ -28,7 +28,7 @@ import io.ballerina.plugins.idea.psi.*;
 
 public class BallerinaRecordLiteralExpressionImpl extends BallerinaExpressionImpl implements BallerinaRecordLiteralExpression {
 
-  public BallerinaRecordLiteralExpressionImpl(@NotNull ASTNode node) {
+  public BallerinaRecordLiteralExpressionImpl(ASTNode node) {
     super(node);
   }
 

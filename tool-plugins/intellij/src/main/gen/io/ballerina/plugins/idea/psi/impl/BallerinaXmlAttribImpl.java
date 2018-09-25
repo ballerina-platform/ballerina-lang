@@ -28,7 +28,7 @@ import io.ballerina.plugins.idea.psi.*;
 
 public class BallerinaXmlAttribImpl extends BallerinaCompositeElementImpl implements BallerinaXmlAttrib {
 
-  public BallerinaXmlAttribImpl(@NotNull ASTNode node) {
+  public BallerinaXmlAttribImpl(ASTNode node) {
     super(node);
   }
 

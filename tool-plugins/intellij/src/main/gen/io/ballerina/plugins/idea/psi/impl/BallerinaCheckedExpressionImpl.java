@@ -28,7 +28,7 @@ import io.ballerina.plugins.idea.psi.*;
 
 public class BallerinaCheckedExpressionImpl extends BallerinaExpressionImpl implements BallerinaCheckedExpression {
 
-  public BallerinaCheckedExpressionImpl(@NotNull ASTNode node) {
+  public BallerinaCheckedExpressionImpl(ASTNode node) {
     super(node);
   }
 

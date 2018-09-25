@@ -28,7 +28,7 @@ import io.ballerina.plugins.idea.psi.*;
 
 public class BallerinaOnRetryClauseImpl extends BallerinaCompositeElementImpl implements BallerinaOnRetryClause {
 
-  public BallerinaOnRetryClauseImpl(@NotNull ASTNode node) {
+  public BallerinaOnRetryClauseImpl(ASTNode node) {
     super(node);
   }
 

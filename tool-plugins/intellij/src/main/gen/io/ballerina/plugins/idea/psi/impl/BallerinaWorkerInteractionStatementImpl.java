@@ -28,7 +28,7 @@ import io.ballerina.plugins.idea.psi.*;
 
 public class BallerinaWorkerInteractionStatementImpl extends BallerinaCompositeElementImpl implements BallerinaWorkerInteractionStatement {
 
-  public BallerinaWorkerInteractionStatementImpl(@NotNull ASTNode node) {
+  public BallerinaWorkerInteractionStatementImpl(ASTNode node) {
     super(node);
   }
 

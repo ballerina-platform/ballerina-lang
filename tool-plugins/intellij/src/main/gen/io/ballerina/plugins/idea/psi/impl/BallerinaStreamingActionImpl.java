@@ -28,7 +28,7 @@ import io.ballerina.plugins.idea.psi.*;
 
 public class BallerinaStreamingActionImpl extends BallerinaCompositeElementImpl implements BallerinaStreamingAction {
 
-  public BallerinaStreamingActionImpl(@NotNull ASTNode node) {
+  public BallerinaStreamingActionImpl(ASTNode node) {
     super(node);
   }
 

@@ -28,7 +28,7 @@ import io.ballerina.plugins.idea.psi.*;
 
 public class BallerinaLambdaFunctionExpressionImpl extends BallerinaExpressionImpl implements BallerinaLambdaFunctionExpression {
 
-  public BallerinaLambdaFunctionExpressionImpl(@NotNull ASTNode node) {
+  public BallerinaLambdaFunctionExpressionImpl(ASTNode node) {
     super(node);
   }
 

@@ -28,7 +28,7 @@ import io.ballerina.plugins.idea.psi.*;
 
 public class BallerinaBreakStatementImpl extends BallerinaCompositeElementImpl implements BallerinaBreakStatement {
 
-  public BallerinaBreakStatementImpl(@NotNull ASTNode node) {
+  public BallerinaBreakStatementImpl(ASTNode node) {
     super(node);
   }
 

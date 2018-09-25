@@ -30,11 +30,11 @@ import com.intellij.psi.stubs.IStubElementType;
 
 public class BallerinaWorkerDefinitionImpl extends BallerinaNamedElementImpl<BallerinaWorkerDefinitionStub> implements BallerinaWorkerDefinition {
 
-  public BallerinaWorkerDefinitionImpl(@NotNull BallerinaWorkerDefinitionStub stub, @NotNull IStubElementType type) {
+  public BallerinaWorkerDefinitionImpl(BallerinaWorkerDefinitionStub stub, IStubElementType type) {
     super(stub, type);
   }
 
-  public BallerinaWorkerDefinitionImpl(@NotNull ASTNode node) {
+  public BallerinaWorkerDefinitionImpl(ASTNode node) {
     super(node);
   }
 

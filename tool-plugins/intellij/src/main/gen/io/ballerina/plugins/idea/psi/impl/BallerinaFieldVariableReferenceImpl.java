@@ -28,7 +28,7 @@ import io.ballerina.plugins.idea.psi.*;
 
 public class BallerinaFieldVariableReferenceImpl extends BallerinaVariableReferenceImpl implements BallerinaFieldVariableReference {
 
-  public BallerinaFieldVariableReferenceImpl(@NotNull ASTNode node) {
+  public BallerinaFieldVariableReferenceImpl(ASTNode node) {
     super(node);
   }
 

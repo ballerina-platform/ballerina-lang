@@ -28,7 +28,7 @@ import io.ballerina.plugins.idea.psi.*;
 
 public class BallerinaBinaryEqualExpressionImpl extends BallerinaBinaryExpressionImpl implements BallerinaBinaryEqualExpression {
 
-  public BallerinaBinaryEqualExpressionImpl(@NotNull ASTNode node) {
+  public BallerinaBinaryEqualExpressionImpl(ASTNode node) {
     super(node);
   }
 
