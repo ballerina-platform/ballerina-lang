@@ -142,7 +142,7 @@ script:
 - ballerina test json
 - ballerina test json-arrays
 - ballerina test json-io
-- ballerina test json-struct-map-conversion
+- ballerina test json-record-map-conversion
 - ballerina test json-to-xml-conversion
 - ballerina test anonymous-functions
 - ballerina test lengthof
