@@ -417,12 +417,11 @@ recordBindingPattern
 
 entryBindingPattern
     :   fieldBindingPattern (COMMA fieldBindingPattern)* (COMMA restBindingPattern)?
-    |   restBindingPattern?
+    |   restBindingPattern
     ;
 
 fieldBindingPattern
-    :   recordKey COLON bindingPattern
-    |   Identifier
+    :   Identifier (COLON bindingPattern)?
     ;
 
 restBindingPattern

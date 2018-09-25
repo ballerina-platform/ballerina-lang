@@ -45,6 +45,7 @@ public enum NodeKind {
     TABLE_COLUMN,
     VARIABLE,
     TUPLE_VARIABLE,
+    RECORD_VARIABLE,
     WORKER,
     XMLNS,
 

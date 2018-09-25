@@ -17,6 +17,7 @@
  */
 package org.ballerinalang.model.tree.statements;
 
+import org.ballerinalang.model.tree.RecordVariableNode;
 import org.ballerinalang.model.tree.TupleVariableNode;
 import org.ballerinalang.model.tree.SimpleVariableNode;
 import org.ballerinalang.model.tree.expressions.ExpressionNode;
@@ -52,10 +53,22 @@ public interface MatchNode {
         StatementNode getStatement();
     }
 
+    /**
+     * @since 0.982.0
+     */
+    interface MatchStatementRecordBindingPatternNode {
+
+        RecordVariableNode getRecordVariableNode();
+
+        StatementNode getStatement();
+    }
+
 
     ExpressionNode getExpression();
 
     List<? extends MatchStatementSimpleBindingPatternNode> getSimplePatternClauses();
 
     List<? extends MatchStatementTupleBindingPatternNode> getTuplePatternClauses();
+
+    List<? extends MatchStatementRecordBindingPatternNode> getRecordPatternClauses();
 }

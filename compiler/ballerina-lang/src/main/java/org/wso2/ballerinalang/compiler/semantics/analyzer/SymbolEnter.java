@@ -73,6 +73,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangMarkdownDocumentation;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
+import org.wso2.ballerinalang.compiler.tree.BLangRecordVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangResource;
 import org.wso2.ballerinalang.compiler.tree.BLangService;
 import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
@@ -89,8 +90,8 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangAssignment;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangReturn;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangScope;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangStatement;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangSimpleVariableDef;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangStatement;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangXMLNSStatement;
 import org.wso2.ballerinalang.compiler.tree.types.BLangObjectTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangRecordTypeNode;
@@ -111,7 +112,6 @@ import java.util.EnumSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
-
 import javax.xml.XMLConstants;
 
 import static org.ballerinalang.model.tree.NodeKind.IMPORT;
@@ -700,6 +700,13 @@ public class SymbolEnter extends BLangNodeVisitor {
         }
 
         varNode.memberVariables.forEach(variable -> defineNode(variable, env));
+    }
+
+    @Override
+    public void visit(BLangRecordVariable bLangRecordVariable) {
+        if (bLangRecordVariable.type == null) {
+            bLangRecordVariable.type = symResolver.resolveTypeNode(bLangRecordVariable.typeNode, env);
+        }
     }
 
     @Override
