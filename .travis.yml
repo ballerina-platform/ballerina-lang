@@ -85,6 +85,7 @@ script:
 - ballerina test function-pointers
 - ballerina test functional-iteration
 - ballerina test functions
+- ballerina test functions-as-entry-points
 - ballerina test functions-with-defaultable-parameters
 - ballerina test functions-with-rest-parameter
 - ballerina test grpc-bidirectional-streaming
@@ -168,6 +169,7 @@ script:
 - ballerina test object-initializer
 - ballerina test object-member-functions
 - ballerina test objects
+- ballerina test abstract-objects
 - ballerina test optional-type
 - ballerina test packages
 - ballerina test passthrough

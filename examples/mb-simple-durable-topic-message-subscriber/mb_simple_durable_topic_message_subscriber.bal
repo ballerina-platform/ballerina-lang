@@ -1,5 +1,5 @@
-import ballerina/mb;
 import ballerina/log;
+import ballerina/mb;
 
 // Create a simple durable topic subscriber.
 endpoint mb:SimpleDurableTopicSubscriber subscriber {

@@ -1,5 +1,5 @@
-import ballerina/test;
 import ballerina/io;
+import ballerina/test;
 
 // Before each function, which is executed before each test function
 @test:BeforeEach

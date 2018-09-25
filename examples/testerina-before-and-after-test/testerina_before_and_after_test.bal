@@ -1,5 +1,5 @@
-import ballerina/test;
 import ballerina/io;
+import ballerina/test;
 
 // Before function is executed before the test function
 function beforeFunc() {

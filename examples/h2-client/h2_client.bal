@@ -1,5 +1,5 @@
-import ballerina/io;
 import ballerina/h2;
+import ballerina/io;
 
 // Create an endpoint for h2 database. Change the path before running the sample.
 endpoint h2:Client testDB {

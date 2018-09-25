@@ -1,6 +1,5 @@
 import ballerina/http;
 import ballerina/log;
-import ballerina/mime;
 
 // The `BasePath` attribute associates a path to the service.
 // It binds the service endpoint to the service.

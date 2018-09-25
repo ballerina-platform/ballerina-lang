@@ -1,6 +1,5 @@
-import ballerina/io;
 import ballerina/http;
-import ballerina/mime;
+import ballerina/io;
 import ballerina/log;
 
 @http:ServiceConfig {
