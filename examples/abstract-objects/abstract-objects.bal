@@ -27,7 +27,7 @@ type Employee object {
     new(age, firstName, lastName) {
     }
 
-    // Member function should have a body
+    // Member function should have a body.
     function getFullName() returns string {
         return firstName + " " + lastName; 
     }
