@@ -21,6 +21,8 @@ import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.util.diagnostic.Diagnostic;
 
 /**
+ * {@code BDiagnosticSource} represents the source file in a diagnostic.
+ *
  * @since 0.94
  */
 public class BDiagnosticSource implements Diagnostic.DiagnosticSource {
