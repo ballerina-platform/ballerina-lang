@@ -70,7 +70,6 @@ class SwaggerVisualizer extends React.Component {
      */
     componentDidMount() {
         const { oasJson } = this.props;
-        debugger;
 
         if (!oasJson) {
             this.setState({
