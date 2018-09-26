@@ -932,6 +932,7 @@ public class BLangPackageBuilder {
         varDefNode.addWS(ws);
         varDefNode.var = var;
         addStmtToCurrentBlock(varDefNode);
+        this.typeNodeStack.pop();
     }
 
     void addTypeInitExpression(DiagnosticPos pos, Set<Whitespace> ws, String initName, boolean typeAvailable,
