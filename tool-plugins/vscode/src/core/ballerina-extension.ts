@@ -157,7 +157,11 @@ class BallerinaExtension {
                 message: "Trying to get ballerina version without setting ballerina home."
             });
         }
-        let version = execSync(`${path.join(ballerinaHome, 'bin', 'ballerina')} version`).toString();
+        let command = `${path.join(ballerinaHome, 'bin', 'ballerina')} version`;
+        if (process.platform === 'win32') {
+            command = `"${path.join(ballerinaHome, 'bin', 'ballerina.bat')}" version`;
+        }
+        let version = execSync(command).toString();
         version = version.replace(/Ballerina /, '').replace(/[\n\t\r]/g, '');
         return version;
     }

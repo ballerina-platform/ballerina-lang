@@ -21,6 +21,7 @@ import * as path from 'path';
 import { render } from './renderer';
 import { ExtendedLangClient } from '../lang-client';
 import { getPluginConfig } from '../config';
+import { WebViewRPCHandler } from '../utils';
 
 let examplesPanel: WebviewPanel | undefined;
 
@@ -38,13 +39,20 @@ export function activate(context: ExtensionContext, langClient: ExtendedLangClie
 				enableScripts: true,
 				retainContextWhenHidden: true,
 			}
-		);
-		render(context, langClient)
-			.then((html) => {
-				if (examplesPanel && html) {
-					examplesPanel.webview.html = html;
+        );
+        WebViewRPCHandler.create([
+			{
+				methodName: 'getExamples',
+				handler: (args: any[]) => {
+					return langClient.fetchExamples();
 				}
-            });
+            }], 
+            examplesPanel.webview
+        );
+        const html = render(context, langClient);
+		if (examplesPanel && html) {
+			examplesPanel.webview.html = html;
+		}
         
 		// Handle messages from the webview
         examplesPanel.webview.onDidReceiveMessage(message => {

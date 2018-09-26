@@ -101,6 +101,7 @@ public type SimpleDurableTopicSubscriber object {
     # Creates a text message that can be sent through any JMS message producer to a queue or topic.
     #
     # + message - text content of the message
+    # + return - the created message, or nil if the session is nil
     public function createTextMessage(string message) returns Message|error {
         match (session) {
             Session s => return s.createTextMessage(message);
@@ -149,6 +150,7 @@ public type SimpleDurableTopicSubscriberActions object {
     # Acknowledges a received message
     #
     # + message - JMS message to be acknowledged
+    # + return - error upon failure to acknowledge the received message
     public function acknowledge(Message message) returns error? {
         return self.helper.acknowledge(message);
     }

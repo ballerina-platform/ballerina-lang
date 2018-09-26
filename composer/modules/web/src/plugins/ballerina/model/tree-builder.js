@@ -358,7 +358,7 @@ class TreeBuilder {
                 }
             }
 
-            if (node.restParameters && node.parameters && node.parameters.length > 0) {
+            if (node.restParameters && (node.allParams && node.allParams.length > 0)) {
                 node.hasRestParams = true;
             }
 
