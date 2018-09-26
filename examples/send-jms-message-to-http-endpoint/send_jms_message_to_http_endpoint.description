@@ -1,3 +1,6 @@
 // This example shows how to send a JMS message, consumed by the JMS listener service,
 // to an HTTP endpoint. A text payload from the JMS broker is expected and that payload is then
 // forwarded to an HTTP endpoint.
+// If you don't have already setup a JMS message broker, you can get the Ballerina message broker
+// from [github](https://github.com/ballerina-platform/ballerina-message-broker/releases) or get the
+// [docker image](https://hub.docker.com/r/ballerina/message-broker/).

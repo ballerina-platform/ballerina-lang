@@ -1,2 +1,6 @@
 // This example demonstrates how to publish a message to a queue using a simple Java Message Service (JMS) queue sender
 // endpoint.
+// If you don't have already setup a JMS message broker, you can get the Ballerina message broker
+// from [github](https://github.com/ballerina-platform/ballerina-message-broker/releases) or get the
+// [docker image](https://hub.docker.com/r/ballerina/message-broker/).
+
