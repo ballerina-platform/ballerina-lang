@@ -1,5 +1,2 @@
 // Ballerina natively supports Java Message Service (JMS). In this example, a simple JMS durable topic
 // subscriber is created.
-// If you don't have already setup a JMS message broker, you can get the Ballerina message broker
-// from [github](https://github.com/ballerina-platform/ballerina-message-broker/releases) or get the
-// [docker image](https://hub.docker.com/r/ballerina/message-broker/).
