@@ -84,11 +84,9 @@ NonZeroDigit = [1-9]
 
 HexNumeral = 0 [xX] {HexDigits}
 
-DOT = '\.'
+DottedHexNumber = {HexDigits} "." {HexDigits} | "." {HexDigits}
 
-DottedHexNumber = {HexDigits} {DOT} {HexDigits} | {DOT} {HexDigits}
-
-DottedDecimalNumber = {DecimalNumeral} {DOT} {Digits} | {DOT} {Digit}+
+DottedDecimalNumber = {DecimalNumeral} "." {Digits} | "." {Digit}+
 
 HexDigits = {HexDigit}+
 HexDigit = [0-9a-fA-F]
