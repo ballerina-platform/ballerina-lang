@@ -97,15 +97,18 @@ public class URIConverter implements Converter<URI> {
             String supportedVersionRange = "?supported-version-range=" + ProgramFileConstants.MIN_SUPPORTED_VERSION +
                     "," + ProgramFileConstants.MAX_SUPPORTED_VERSION;
             EmbeddedExecutor executor = EmbeddedExecutorProvider.getInstance().getExecutor();
-            executor.execute("packaging_pull/packaging_pull.balx", true, u.toString(), destDirPath.toString(),
-                             fullPkgPath, File.separator, proxy.getHost(), proxy.getPort(), proxy.getUserName(),
-                             proxy.getPassword(), RepoUtils.getTerminalWidth(), supportedVersionRange,
-                             String.valueOf(isBuild));
-
-            Patten patten = binaryRepo.calculate(packageID);
-            return patten.convertToSources(binaryRepo.getConverterInstance(), packageID);
+            long execute = executor.execute("packaging_pull/packaging_pull.balx", true, u.toString(),
+                    destDirPath.toString(), fullPkgPath, File.separator, proxy.getHost(), proxy.getPort(),
+                    proxy.getUserName(), proxy.getPassword(), RepoUtils.getTerminalWidth(), supportedVersionRange,
+                    String.valueOf(isBuild));
+            if (execute == 1) {
+                return Stream.of();
+            } else {
+                Patten patten = binaryRepo.calculate(packageID);
+                return patten.convertToSources(binaryRepo.getConverterInstance(), packageID);
+            }
         } catch (Exception e) {
-            outStream.println(isBuild ? "    " : "" + "Error occurred when pulling the remote artifact");
+            outStream.println(isBuild ? "    " : "" + e.getMessage());
         }
         return Stream.of();
     }

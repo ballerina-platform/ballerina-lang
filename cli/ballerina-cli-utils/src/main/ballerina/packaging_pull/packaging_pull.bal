@@ -1,26 +1,42 @@
+// Copyright (c) 2018 WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+//
+// WSO2 Inc. licenses this file to you under the Apache License,
+// Version 2.0 (the "License"); you may not use this file except
+// in compliance with the License.
+// You may obtain a copy of the License at
+//
+// http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing,
+// software distributed under the License is distributed on an
+// "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+// KIND, either express or implied.  See the License for the
+// specific language governing permissions and limitations
+// under the License.
+
+import ballerina/http;
 import ballerina/internal;
 import ballerina/io;
 import ballerina/mime;
-import ballerina/http;
 
 @final int MAX_INT_VALUE = 2147483647;
 @final string VERSION_REGEX = "(\\d+\\.)(\\d+\\.)(\\d+)";
-DefaultLogger logger;
+DefaultLogFormatter logFormatter;
 
-# This object denotes the default logger object used when pulling a package directly.
+# This object denotes the default log formatter used when pulling a package directly.
 #
 # + offset - Offset from the terminal width.
-type DefaultLogger object {
+type DefaultLogFormatter object {
     int offset = 0;
     function formatLog(string msg) returns string {
         return msg;
     }
 };
 
-# This object denotes the build logger object used when pulling a package while building.
+# This object denotes the build log formatter used when pulling a package while building.
 #
 # + offset - Offset from the terminal width.
-type BuildLogger object {
+type BuildLogFormatter object {
     int offset = 10;
     function formatLog(string msg) returns string {
         return "\t" + msg;
@@ -36,8 +52,9 @@ type BuildLogger object {
 # + fileSeparator - File separator based on the operating system
 # + terminalWidth - Width of the terminal
 # + versionRange - Supported version range
+# + return - 1 if package is not found, else 0 if package already exists or successfully pulled
 function pullPackage (http:Client definedEndpoint, string url, string dirPath, string pkgPath, string fileSeparator,
-                      string terminalWidth, string versionRange) {
+                      string terminalWidth, string versionRange) returns int {
     endpoint http:Client httpEndpoint = definedEndpoint;
     string fullPkgPath = pkgPath;
     string destDirPath = dirPath;
@@ -50,23 +67,38 @@ function pullPackage (http:Client definedEndpoint, string url, string dirPath, s
     match result {
         http:Response response => httpResponse = response;
         error e => {
-            io:println(logger.formatLog("connection to the remote host failed : " + e.message));
-            return;
+            error endpointError = {
+                message: logFormatter.formatLog("connection to the remote host failed : " + e.message)
+            };
+            throw endpointError;
         }
     }
 
     http:Response res = new;
     string statusCode = <string> httpResponse.statusCode;
     if (statusCode.hasPrefix("5")) {
-        io:println(logger.formatLog("remote registry failed for url :" + url));
+        error serverError = {
+            message: logFormatter.formatLog("remote registry failed for url :" + url)
+        };
+        throw serverError;
     } else if (statusCode != "200") {
         var jsonResponse = httpResponse.getJsonPayload();
         match jsonResponse {
             json resp => {
-                io:println(logger.formatLog(resp.message.toString()));
+                if (statusCode == "404") {
+                    return 1;
+                } else {
+                    error pullError = {
+                        message: logFormatter.formatLog(resp.message.toString())
+                    };
+                    throw pullError;
+                }
             }
             error err => {
-                io:println(logger.formatLog("error occurred when pulling the package"));
+                error pullError = {
+                    message: logFormatter.formatLog("error occurred when pulling the package")
+                };
+                throw pullError;
             }
         }
     } else {
@@ -77,7 +109,10 @@ function pullPackage (http:Client definedEndpoint, string url, string dirPath, s
             contentLengthHeader = httpResponse.getHeader("content-length");
             pkgSize = check <int> contentLengthHeader;
         } else {
-            io:println(logger.formatLog("warning: package size information is missing from remote repository"));
+            error pullError = {
+                message: logFormatter.formatLog("warning: package size information is missing from remote repository")
+            };
+            throw pullError;
         }
 
         io:ByteChannel sourceChannel = check (httpResponse.getByteChannel());
@@ -102,8 +137,8 @@ function pullPackage (http:Client definedEndpoint, string url, string dirPath, s
             if (!createDirectories(destDirPath)) {
                 internal:Path pkgArchivePath = new(destArchivePath);
                 if (pkgArchivePath.exists()){
-                    io:println(logger.formatLog("package already exists in the home repository"));
-                    return;
+                    io:println(logFormatter.formatLog("package already exists in the home repository"));
+                    return 0;
                 }
             }
 
@@ -115,39 +150,48 @@ function pullPackage (http:Client definedEndpoint, string url, string dirPath, s
 
             closeChannel(destDirChannel);
             closeChannel(sourceChannel);
+            return 0;
         } else {
-            io:println(logger.formatLog("package version could not be detected"));
+            error versionError = {
+                message: logFormatter.formatLog("package version could not be detected")
+            };
+            throw versionError;
         }
     }
 }
 
-# This function will invoke the method to pull the package.
-# + args - Arguments passed
-public function main(string... args){
+# This function will invoke the method to pull the package. If error occurs, it is thrown.
+# + args - package pull arguments
+# + return - 1 if package is not found, else 0 if package already exists or successfully pulled
+public function main(string... args) returns int {
     http:Client httpEndpoint;
     string host = args[4];
     string port = args[5];
     boolean isBuild = <boolean>args[10];
     if (isBuild) {
-        logger = new BuildLogger();
+        logFormatter = new BuildLogFormatter();
     } else {
-        logger = new DefaultLogger();
+        logFormatter = new DefaultLogFormatter();
     }
 
     if (host != "" && port != "") {
         try {
             httpEndpoint = defineEndpointWithProxy(args[0], host, port, args[6], args[7]);
         } catch (error err) {
-            io:println(logger.formatLog("failed to resolve host : " + host + " with port " + port));
-            return;
+            error endpointError = {
+                message: logFormatter.formatLog("failed to resolve host : " + host + " with port " + port)
+            };
+            throw endpointError;
         }
     } else  if (host != "" || port != "") {
-        io:println(logger.formatLog("both host and port should be provided to enable proxy"));
-        return;
+        error endpointError = {
+            message: logFormatter.formatLog("both host and port should be provided to enable proxy")
+        };
+        throw endpointError;
     } else {
         httpEndpoint = defineEndpointWithoutProxy(args[0]);
     }
-    pullPackage(httpEndpoint, args[0], args[1], args[2], args[3], args[8], args[9]);
+    return pullPackage(httpEndpoint, args[0], args[1], args[2], args[3], args[8], args[9]);
 }
 
 # This function defines an endpoint with proxy configurations.
@@ -237,7 +281,7 @@ function writeBytes (io:ByteChannel byteChannel, byte[] content, int startOffset
 # + toAndFrom - Pulled package details
 # + width - Width of the terminal
 function copy (int pkgSize, io:ByteChannel src, io:ByteChannel dest, string fullPkgPath, string toAndFrom, int width) {
-    int terminalWidth = width - logger.offset;
+    int terminalWidth = width - logFormatter.offset;
     int bytesChunk = 8;
     byte[] readContent;
     int readCount = -1;
@@ -267,12 +311,12 @@ function copy (int pkgSize, io:ByteChannel src, io:ByteChannel dest, string full
             string spaces = tabspaces.substring(startVal, totalVal - <int>(percentage * totalVal));
             string size = "[" + bar + ">" + spaces + "] " + <int>totalCount + "/" + pkgSize;
             string msg = truncateString(fullPkgPath + toAndFrom, terminalWidth - size.length());
-            io:print("\r" + logger.formatLog(rightPad(msg, rightpadLength) + size));
+            io:print("\r" + logFormatter.formatLog(rightPad(msg, rightpadLength) + size));
         }
     } catch (error err) {
         io:println("");
     }
-    io:println("\r" + logger.formatLog(rightPad(fullPkgPath + toAndFrom, terminalWidth)));
+    io:println("\r" + logFormatter.formatLog(rightPad(fullPkgPath + toAndFrom, terminalWidth)));
 }
 
 # This function adds the right pad.
@@ -337,7 +381,10 @@ function createDirectories(string directoryPath) returns (boolean) {
 function closeChannel(io:ByteChannel byteChannel) {
     match byteChannel.close() {
         error channelCloseError => {
-            io:println(logger.formatLog("Error occured while closing the channel: " + channelCloseError.message));
+            error channelError = {
+                message: logFormatter.formatLog("Error occured while closing the channel: " + channelCloseError.message)
+            };
+            throw channelError;
         }
         () => return;
     }

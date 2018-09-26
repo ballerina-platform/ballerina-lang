@@ -19,6 +19,8 @@ package org.ballerinalang.cli.utils;
 
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.compiler.BLangCompilerException;
+import org.ballerinalang.model.values.BInteger;
+import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.spi.EmbeddedExecutor;
 
 import java.net.URI;
@@ -36,7 +38,8 @@ import static org.ballerinalang.util.BLangConstants.MAIN_FUNCTION_NAME;
 @JavaSPIService("org.ballerinalang.spi.EmbeddedExecutor")
 public class BVMEmbeddedExecutor implements EmbeddedExecutor {
     @Override
-    public void execute(String programArg, boolean isFunction, String... args) {
+    public long execute(String programArg, boolean isFunction, String... args) {
+        
         String balxPath = programArg;
         String functionName = MAIN_FUNCTION_NAME;
 
@@ -54,12 +57,17 @@ public class BVMEmbeddedExecutor implements EmbeddedExecutor {
         if (resource == null) {
             throw new BLangCompilerException("Missing internal modules when retrieving remote package");
         }
+        
         try {
             URI balxResource = resource.toURI();
-            // TODO: 8/5/18 return BValue[] ignored 
-            ExecutorUtils.execute(balxResource, isFunction, isFunction ? functionName : null, args);
+            BValue[] returns = ExecutorUtils.execute(balxResource, isFunction, isFunction ? functionName : null, args);
+            if (returns.length == 1 && returns[0] instanceof BInteger) {
+                return ((BInteger) returns[0]).intValue();
+            } else {
+                return 0L;
+            }
         } catch (URISyntaxException e) {
-            throw new BLangCompilerException("Error loading internal modules when retrieving remote package");
+            throw new BLangCompilerException("Error reading balx path in internal executor.");
         }
     }
 }
