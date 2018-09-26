@@ -49,7 +49,6 @@ import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangResource;
 import org.wso2.ballerinalang.compiler.tree.BLangService;
-import org.wso2.ballerinalang.compiler.tree.BLangTestablePackage;
 import org.wso2.ballerinalang.compiler.tree.BLangTypeDefinition;
 import org.wso2.ballerinalang.compiler.tree.BLangVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangWorker;
@@ -263,13 +262,9 @@ public class TaintAnalyzer extends BLangNodeVisitor {
         if (pkgNode.completedPhases.contains(CompilerPhase.TAINT_ANALYZE)) {
             return;
         }
-        SymbolEnv pkgEnv = symTable.pkgEnvMap.get(pkgNode.symbol);
+        SymbolEnv pkgEnv = this.symTable.getPkgEnv(pkgNode.getKind(), pkgNode.symbol);
         analyze(pkgNode, pkgEnv);
-
-        // Visit testable node if not null
-        if (pkgNode.testablePackage != null) {
-            visit(pkgNode.testablePackage);
-        }
+        pkgNode.getTestablePkgs().forEach(testablePackage -> visit((BLangPackage) testablePackage));
     }
 
     private void analyze(BLangPackage pkgNode, SymbolEnv pkgEnv) {
@@ -287,20 +282,6 @@ public class TaintAnalyzer extends BLangNodeVisitor {
 
         this.currPkgEnv = prevPkgEnv;
         pkgNode.completedPhases.add(CompilerPhase.TAINT_ANALYZE);
-    }
-
-    @Override
-    public void visit(BLangTestablePackage pkgNode) {
-        blockedNodeList = new ArrayList<>();
-        blockedEntryPointNodeList = new ArrayList<>();
-
-        analyzerPhase = AnalyzerPhase.INITIAL_ANALYSIS;
-        if (pkgNode.completedPhases.contains(CompilerPhase.TAINT_ANALYZE)) {
-            return;
-        }
-
-        SymbolEnv pkgEnv = symTable.testPkgEnvMap.get(pkgNode.symbol);
-        analyze(pkgNode, pkgEnv);
     }
 
     @Override

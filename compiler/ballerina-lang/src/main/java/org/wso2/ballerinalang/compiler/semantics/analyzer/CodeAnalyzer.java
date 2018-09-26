@@ -46,7 +46,6 @@ import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangResource;
 import org.wso2.ballerinalang.compiler.tree.BLangService;
-import org.wso2.ballerinalang.compiler.tree.BLangTestablePackage;
 import org.wso2.ballerinalang.compiler.tree.BLangTypeDefinition;
 import org.wso2.ballerinalang.compiler.tree.BLangVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangWorker;
@@ -221,23 +220,9 @@ public class CodeAnalyzer extends BLangNodeVisitor {
             return;
         }
         parent = pkgNode;
-        SymbolEnv pkgEnv = symTable.pkgEnvMap.get(pkgNode.symbol);
+        SymbolEnv pkgEnv = this.symTable.getPkgEnv(pkgNode.getKind(), pkgNode.symbol);
         analyzeTopLevelNodes(pkgNode, pkgEnv);
-
-        // Visit testable node if not null
-        if (pkgNode.testablePackage != null) {
-            visit(pkgNode.testablePackage);
-        }
-    }
-
-    @Override
-    public void visit(BLangTestablePackage pkgNode) {
-        if (pkgNode.completedPhases.contains(CompilerPhase.CODE_ANALYZE)) {
-            return;
-        }
-        parent = pkgNode;
-        SymbolEnv pkgEnv = symTable.testPkgEnvMap.get(pkgNode.symbol);
-        analyzeTopLevelNodes(pkgNode, pkgEnv);
+        pkgNode.getTestablePkgs().forEach(testablePackage -> visit((BLangPackage) testablePackage));
     }
 
     private void analyzeTopLevelNodes(BLangPackage pkgNode, SymbolEnv pkgEnv) {

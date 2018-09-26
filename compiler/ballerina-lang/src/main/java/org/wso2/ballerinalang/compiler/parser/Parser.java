@@ -34,6 +34,7 @@ import org.wso2.ballerinalang.compiler.parser.antlr4.BallerinaParserErrorListene
 import org.wso2.ballerinalang.compiler.parser.antlr4.BallerinaParserErrorStrategy;
 import org.wso2.ballerinalang.compiler.tree.BLangCompilationUnit;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
+import org.wso2.ballerinalang.compiler.tree.BLangTestablePackage;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.CompilerOptions;
 import org.wso2.ballerinalang.compiler.util.diagnotic.BDiagnosticSource;
@@ -81,16 +82,16 @@ public class Parser {
         BLangPackage pkgNode = (BLangPackage) TreeBuilder.createPackageNode();
         this.pkgCache.put(pkgId, pkgNode);
 
-        pkgSource.getPackageSourceEntries().forEach(e -> {
-            if (((FileSystemSourceInput) e).isTestSource()) {
-                if (pkgNode.testablePackage == null) {
-                    pkgNode.testablePackage = TreeBuilder.createTestablePackageNode();
-                    pkgNode.testablePackage.pos = new DiagnosticPos
-                            (new BDiagnosticSource(pkgId, pkgSource.getName()), 1, 1, 1, 1);
+        pkgSource.getPackageSourceEntries().forEach(source -> {
+            if (((FileSystemSourceInput) source).isTestSource()) {
+                if (!pkgNode.containsTestablePkg()) {
+                    BLangTestablePackage testablePkg = TreeBuilder.createTestablePackageNode();
+                    testablePkg.pos = new DiagnosticPos(new BDiagnosticSource(pkgId, pkgSource.getName()), 1, 1, 1, 1);
+                    pkgNode.addTestablePkg(testablePkg);
                 }
-                pkgNode.testablePackage.addCompilationUnit(generateCompilationUnit(e, pkgId));
+                pkgNode.getTestablePkg().addCompilationUnit(generateCompilationUnit(source, pkgId));
             } else {
-                pkgNode.addCompilationUnit(generateCompilationUnit(e, pkgId));
+                pkgNode.addCompilationUnit(generateCompilationUnit(source, pkgId));
             }
         });
         pkgNode.pos = new DiagnosticPos(new BDiagnosticSource(pkgId,

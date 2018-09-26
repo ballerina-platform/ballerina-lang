@@ -165,6 +165,12 @@ public class SymbolEnter extends BLangNodeVisitor {
         this.env = prevEnv;
     }
 
+    public BLangPackage definePackage(BLangTestablePackage pkgNode, SymbolEnv env,
+                                      List<BLangImportPackage> enclPkgImports) {
+        populatePackageNode(pkgNode, enclPkgImports);
+        defineNode(pkgNode, env);
+        return pkgNode;
+    }
 
     // Visitor methods
 
@@ -178,14 +184,10 @@ public class SymbolEnter extends BLangNodeVisitor {
         BPackageSymbol pkgSymbol = Symbols.createPackageSymbol(pkgNode.packageID, this.symTable);
         pkgNode.symbol = pkgSymbol;
         SymbolEnv pkgEnv = SymbolEnv.createPkgEnv(pkgNode, pkgSymbol.scope, this.env);
-        this.symTable.pkgEnvMap.put(pkgSymbol, pkgEnv);
+        this.symTable.addToPkgEnv(pkgNode.getKind(), pkgSymbol, pkgEnv);
 
         defineConstructs(pkgNode, pkgEnv);
-
-        // Visit testable node if not null
-        if (pkgNode.testablePackage != null) {
-            visit(pkgNode.testablePackage);
-        }
+        pkgNode.getTestablePkgs().forEach(testablePackage -> definePackage(testablePackage, pkgEnv, pkgNode.imports));
         pkgNode.completedPhases.add(CompilerPhase.DEFINE);
     }
 
@@ -223,23 +225,6 @@ public class SymbolEnter extends BLangNodeVisitor {
         pkgNode.annotations.forEach(annot -> defineNode(annot, pkgEnv));
 
         pkgNode.globalEndpoints.forEach(ep -> defineNode(ep, pkgEnv));
-    }
-
-    public void visit(BLangTestablePackage pkgNode) {
-        if (pkgNode.completedPhases.contains(CompilerPhase.DEFINE)) {
-            return;
-        }
-        BPackageSymbol pkgSymbol = Symbols.createPackageSymbol(pkgNode.packageID, this.symTable);
-        pkgNode.symbol = pkgSymbol;
-
-        // Get the enclosing package symbol environment
-        SymbolEnv enclosingPkgEnv = this.symTable.pkgEnvMap.get(pkgSymbol);
-        // Set symbol environment of the enclosing package
-        SymbolEnv pkgEnv = SymbolEnv.createPkgEnv(pkgNode, pkgSymbol.scope, enclosingPkgEnv);
-        this.symTable.testPkgEnvMap.put(pkgSymbol, pkgEnv);
-
-        defineConstructs(pkgNode, pkgEnv);
-        pkgNode.completedPhases.add(CompilerPhase.DEFINE);
     }
 
     public void visit(BLangAnnotation annotationNode) {
@@ -776,11 +761,6 @@ public class SymbolEnter extends BLangNodeVisitor {
     private void populatePackageNode(BLangPackage pkgNode) {
         List<BLangCompilationUnit> compUnits = pkgNode.getCompilationUnits();
         compUnits.forEach(compUnit -> populateCompilationUnit(pkgNode, compUnit));
-
-        // Populate testable node if not null
-        if (pkgNode.testablePackage != null) {
-            populateTestablePackageNode(pkgNode);
-        }
     }
 
     /**
@@ -788,13 +768,12 @@ public class SymbolEnter extends BLangNodeVisitor {
      * testable package node.
      *
      * @param pkgNode current package node
+     * @param enclPkgImports imports of the enclosed package
      */
-    private void populateTestablePackageNode(BLangPackage pkgNode) {
-        List<BLangCompilationUnit> compUnits = pkgNode.testablePackage.getCompilationUnits();
-        compUnits.forEach(compUnit -> populateCompilationUnit(pkgNode.testablePackage, compUnit));
+    private void populatePackageNode(BLangTestablePackage pkgNode, List<BLangImportPackage> enclPkgImports) {
+        populatePackageNode(pkgNode);
         // Remove recurring imports from the testable package which appears in the enclosing bLangPackage
-        pkgNode.testablePackage.getImports().removeIf(bLangImportPackage -> pkgNode.getImports()
-                                                                                   .contains(bLangImportPackage));
+        pkgNode.getImports().removeIf(enclPkgImports::contains);
     }
 
     /**

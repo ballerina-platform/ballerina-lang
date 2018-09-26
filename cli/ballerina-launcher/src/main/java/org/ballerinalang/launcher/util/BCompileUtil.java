@@ -299,8 +299,8 @@ public class BCompileUtil {
         } else {
             // If its executing tests, then check if the testable package is null or not. If its not null, then the
             // ballerina test file is inside the 'tests' folder
-            if (packageNode.testablePackage != null) {
-                programFile = compiler.getExecutableProgram(packageNode.testablePackage);
+            if (packageNode.containsTestablePkg()) {
+                programFile = compiler.getExecutableProgram(packageNode.getTestablePkg());
             } else {
                 // If the testable package is null, then the ballerina test file is not inside the 'tests' folder
                 programFile = compiler.getExecutableProgram(packageNode);

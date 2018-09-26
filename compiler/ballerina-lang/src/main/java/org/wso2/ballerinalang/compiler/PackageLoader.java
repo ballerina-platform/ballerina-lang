@@ -421,9 +421,7 @@ public class PackageLoader {
         BLangPackage packageNode = this.parser.parse(pkgSource);
         packageNode.packageID = pkgId;
         // Set the same packageId to the testable node
-        if (packageNode.testablePackage != null) {
-            packageNode.testablePackage.packageID = pkgId;
-        }
+        packageNode.getTestablePkgs().forEach(testablePkg -> testablePkg.packageID = pkgId);
         this.packageCache.put(pkgId, packageNode);
         return packageNode;
     }

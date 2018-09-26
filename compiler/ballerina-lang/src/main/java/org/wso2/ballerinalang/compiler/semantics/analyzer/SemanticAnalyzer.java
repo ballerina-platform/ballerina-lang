@@ -79,7 +79,6 @@ import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangResource;
 import org.wso2.ballerinalang.compiler.tree.BLangService;
-import org.wso2.ballerinalang.compiler.tree.BLangTestablePackage;
 import org.wso2.ballerinalang.compiler.tree.BLangTypeDefinition;
 import org.wso2.ballerinalang.compiler.tree.BLangVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangWorker;
@@ -226,13 +225,9 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         if (pkgNode.completedPhases.contains(CompilerPhase.TYPE_CHECK)) {
             return;
         }
-        SymbolEnv pkgEnv = this.symTable.pkgEnvMap.get(pkgNode.symbol);
-
+        SymbolEnv pkgEnv = this.symTable.getPkgEnv(pkgNode.getKind(), pkgNode.symbol);
         analyzeConstructs(pkgNode, pkgEnv);
-        // Visit testable node if not null
-        if (pkgNode.testablePackage != null) {
-            visit(pkgNode.testablePackage);
-        }
+        pkgNode.getTestablePkgs().forEach(testablePackage -> visit((BLangPackage) testablePackage));
         pkgNode.completedPhases.add(CompilerPhase.TYPE_CHECK);
     }
 
@@ -243,16 +238,6 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         analyzeFunctions(pkgNode.functions, pkgEnv);
 
         pkgNode.typeDefinitions.forEach(this::validateConstructorAndCheckDefaultable);
-    }
-
-    public void visit(BLangTestablePackage pkgNode) {
-        if (pkgNode.completedPhases.contains(CompilerPhase.TYPE_CHECK)) {
-            return;
-        }
-        SymbolEnv pkgEnv = this.symTable.testPkgEnvMap.get(pkgNode.symbol);
-
-        analyzeConstructs(pkgNode, pkgEnv);
-        pkgNode.completedPhases.add(CompilerPhase.TYPE_CHECK);
     }
 
     private void analyzeFunctions(List<BLangFunction> functions, SymbolEnv pkgEnv) {

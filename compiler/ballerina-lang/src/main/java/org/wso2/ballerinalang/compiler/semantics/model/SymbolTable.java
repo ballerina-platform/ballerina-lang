@@ -20,6 +20,7 @@ package org.wso2.ballerinalang.compiler.semantics.model;
 import org.ballerinalang.model.TreeBuilder;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.symbols.SymbolKind;
+import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.OperatorKind;
 import org.ballerinalang.model.types.TypeKind;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BConversionOperatorSymbol;
@@ -479,5 +480,37 @@ public class SymbolTable {
         BInvokableType opType = new BInvokableType(paramTypes, retType, null);
         BOperatorSymbol symbol = new BOperatorSymbol(name, rootPkgSymbol.pkgID, opType, rootPkgSymbol, opcode);
         rootScope.define(name, symbol);
+    }
+
+    /**
+     * Add to package env map.
+     *
+     * @param nodeKind  kind of node
+     * @param pkgSymbol package symbol
+     * @param pkgEnv    symbol environment of the package
+     */
+    public void addToPkgEnv(NodeKind nodeKind, BPackageSymbol pkgSymbol, SymbolEnv pkgEnv) {
+        switch (nodeKind) {
+            case PACKAGE:
+                pkgEnvMap.put(pkgSymbol, pkgEnv);
+                break;
+            case TESTABLE_PACKAGE:
+                testPkgEnvMap.put(pkgSymbol, pkgEnv);
+                break;
+        }
+    }
+
+    /**
+     * Get symbol env of the package.
+     *
+     * @param nodeKind  kind of node
+     * @param pkgSymbol package symbol
+     * @return symbol env of the package
+     */
+    public SymbolEnv getPkgEnv(NodeKind nodeKind, BPackageSymbol pkgSymbol) {
+        if (nodeKind == NodeKind.TESTABLE_PACKAGE) {
+            return testPkgEnvMap.get(pkgSymbol);
+        }
+        return pkgEnvMap.get(pkgSymbol);
     }
 }

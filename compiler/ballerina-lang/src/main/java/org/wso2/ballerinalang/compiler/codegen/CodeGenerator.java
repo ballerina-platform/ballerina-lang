@@ -354,9 +354,7 @@ public class CodeGenerator extends BLangNodeVisitor {
         genNode(pkgNode);
 
         // Generate program file for the Testable package
-        if (pkgNode.testablePackage != null) {
-            generateBALO(pkgNode.testablePackage);
-        }
+        pkgNode.getTestablePkgs().forEach(this::generateBALO);
         this.currentPkgInfo = null;
         return pkgNode;
     }
@@ -368,12 +366,11 @@ public class CodeGenerator extends BLangNodeVisitor {
         // bLangpackage get a deep copy of it and resue the copy to generate the balo of the testablePackage
         enclPkgInfo.copyTo(this.currentPkgInfo);
         genNode(pkgNode);
-
         this.currentPkgInfo = null;
     }
 
     private void genNode(BLangPackage pkgNode) {
-        genNode(pkgNode, this.symTable.pkgEnvMap.get(pkgNode.symbol));
+        genNode(pkgNode, this.symTable.getPkgEnv(pkgNode.getKind(), pkgNode.symbol));
         addGlobalVarIndex();
 
         pkgNode.symbol.packageFile = new PackageFile(getPackageBinaryContent(pkgNode));
@@ -385,14 +382,6 @@ public class CodeGenerator extends BLangNodeVisitor {
         prepareIndexes(this.pvIndexes);
         // Create Global variable attribute info
         addVarCountAttrInfo(this.currentPkgInfo, this.currentPkgInfo, pvIndexes);
-    }
-
-    private void genNode(BLangTestablePackage pkgNode) {
-        genNode(pkgNode, this.symTable.pkgEnvMap.get(pkgNode.symbol));
-        addGlobalVarIndex();
-
-        pkgNode.symbol.packageFile = new PackageFile(getPackageBinaryContent(pkgNode));
-        setEntryPoints(pkgNode.symbol.packageFile, pkgNode);
     }
 
     private void setEntryPoints(CompiledBinaryFile compiledBinaryFile, BLangPackage pkgNode) {
@@ -424,55 +413,33 @@ public class CodeGenerator extends BLangNodeVisitor {
         // Visit imports
         visitImports(pkgNode);
 
-        // Add the current package to the program file
-        BPackageSymbol pkgSymbol = pkgNode.symbol;
-        currentPkgID = pkgSymbol.pkgID;
-        currentPkgInfo.orgNameCPIndex = addUTF8CPEntry(currentPkgInfo, currentPkgID.orgName.value);
-        currentPkgInfo.nameCPIndex = addUTF8CPEntry(currentPkgInfo, currentPkgID.name.value);
-        currentPkgInfo.versionCPIndex = addUTF8CPEntry(currentPkgInfo, currentPkgID.version.value);
+        if (pkgNode.getKind() == NodeKind.PACKAGE) {
+            // Add the current package to the program file
+            BPackageSymbol pkgSymbol = pkgNode.symbol;
+            currentPkgID = pkgSymbol.pkgID;
+            currentPkgInfo.orgNameCPIndex = addUTF8CPEntry(currentPkgInfo, currentPkgID.orgName.value);
+            currentPkgInfo.nameCPIndex = addUTF8CPEntry(currentPkgInfo, currentPkgID.name.value);
+            currentPkgInfo.versionCPIndex = addUTF8CPEntry(currentPkgInfo, currentPkgID.version.value);
 
-        // Insert the package reference to the constant pool of the current package
-        currentPackageRefCPIndex = addPackageRefCPEntry(currentPkgInfo, currentPkgID);
+            // Insert the package reference to the constant pool of the current package
+            currentPackageRefCPIndex = addPackageRefCPEntry(currentPkgInfo, currentPkgID);
 
-        // This attribute keep track of line numbers
-        int lineNoAttrNameIndex = addUTF8CPEntry(currentPkgInfo,
-                                                 AttributeInfo.Kind.LINE_NUMBER_TABLE_ATTRIBUTE.value());
-        lineNoAttrInfo = new LineNumberTableAttributeInfo(lineNoAttrNameIndex);
+            // This attribute keep track of line numbers
+            int lineNoAttrNameIndex = addUTF8CPEntry(currentPkgInfo,
+                                                     AttributeInfo.Kind.LINE_NUMBER_TABLE_ATTRIBUTE.value());
+            lineNoAttrInfo = new LineNumberTableAttributeInfo(lineNoAttrNameIndex);
 
-        // This attribute keep package-level variable information
-        int pkgVarAttrNameIndex = addUTF8CPEntry(currentPkgInfo, AttributeInfo.Kind.LOCAL_VARIABLES_ATTRIBUTE.value());
-        currentPkgInfo.addAttributeInfo(AttributeInfo.Kind.LOCAL_VARIABLES_ATTRIBUTE,
-                new LocalVariableAttributeInfo(pkgVarAttrNameIndex));
+            // This attribute keep package-level variable information
+            int pkgVarAttrNameIndex = addUTF8CPEntry(currentPkgInfo, AttributeInfo.Kind.LOCAL_VARIABLES_ATTRIBUTE
+                    .value());
+            currentPkgInfo.addAttributeInfo(AttributeInfo.Kind.LOCAL_VARIABLES_ATTRIBUTE,
+                                            new LocalVariableAttributeInfo(pkgVarAttrNameIndex));
+        }
 
         // Visit top level constructs
         visitTopLevelNodes(pkgNode);
 
         // Visit the builtin functions
-        visitBuiltinFunctions(pkgNode, pkgNode.initFunction);
-        visitBuiltinFunctions(pkgNode, pkgNode.startFunction);
-        visitBuiltinFunctions(pkgNode, pkgNode.stopFunction);
-
-        // Gen for top level nodes
-        genTopLevelNodes(pkgNode);
-        // Add function symbol for all functions
-        addFunctionSymbol(pkgNode);
-
-        currentPkgInfo.addAttributeInfo(AttributeInfo.Kind.LINE_NUMBER_TABLE_ATTRIBUTE, lineNoAttrInfo);
-        currentPackageRefCPIndex = -1;
-        currentPkgID = null;
-        pkgNode.completedPhases.add(CompilerPhase.CODE_GEN);
-    }
-
-    public void visit(BLangTestablePackage pkgNode) {
-        if (pkgNode.completedPhases.contains(CompilerPhase.CODE_GEN)) {
-            return;
-        }
-        // Visit imports
-        visitImports(pkgNode);
-        // Visit top level constructs
-        visitTopLevelNodes(pkgNode);
-
-        // Visit builtin functions in testable package
         visitBuiltinFunctions(pkgNode, pkgNode.initFunction);
         visitBuiltinFunctions(pkgNode, pkgNode.startFunction);
         visitBuiltinFunctions(pkgNode, pkgNode.stopFunction);

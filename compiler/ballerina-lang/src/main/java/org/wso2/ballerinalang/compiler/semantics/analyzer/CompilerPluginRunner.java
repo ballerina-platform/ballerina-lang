@@ -42,7 +42,6 @@ import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangResource;
 import org.wso2.ballerinalang.compiler.tree.BLangService;
-import org.wso2.ballerinalang.compiler.tree.BLangTestablePackage;
 import org.wso2.ballerinalang.compiler.tree.BLangTypeDefinition;
 import org.wso2.ballerinalang.compiler.tree.BLangVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangXMLNS;
@@ -130,25 +129,10 @@ public class CompilerPluginRunner extends BLangNodeVisitor {
         pkgNode.topLevelNodes.forEach(topLevelNode -> ((BLangNode) topLevelNode).accept(this));
 
         pkgNode.completedPhases.add(CompilerPhase.COMPILER_PLUGIN);
-
-        // Visit testable node if not null
-        if (pkgNode.testablePackage != null) {
-            this.defaultPos = pkgNode.testablePackage.pos;
-            visit(pkgNode.testablePackage);
-        }
-    }
-
-    public void visit(BLangTestablePackage testablePkgNode) {
-        if (testablePkgNode.completedPhases.contains(CompilerPhase.COMPILER_PLUGIN)) {
-            return;
-        }
-
-        pluginList.forEach(plugin -> plugin.process(testablePkgNode));
-
-        // Then visit each top-level element sorted using the compilation unit
-        testablePkgNode.topLevelNodes.forEach(topLevelNode -> ((BLangNode) topLevelNode).accept(this));
-
-        testablePkgNode.completedPhases.add(CompilerPhase.COMPILER_PLUGIN);
+        pkgNode.getTestablePkgs().forEach(testablePackage -> {
+            this.defaultPos = testablePackage.pos;
+            visit((BLangPackage) testablePackage);
+        });
     }
 
     public void visit(BLangAnnotation annotationNode) {

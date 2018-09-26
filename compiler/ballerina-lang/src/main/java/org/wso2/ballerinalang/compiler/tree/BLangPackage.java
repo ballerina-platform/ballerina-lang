@@ -59,7 +59,7 @@ public class BLangPackage extends BLangNode implements PackageNode {
     public Set<CompilerPhase> completedPhases;
     public List<BSymbol> objAttachedFunctions;
     public List<TopLevelNode> topLevelNodes;
-    public BLangTestablePackage testablePackage;
+    public List<BLangTestablePackage> testablePkgs;
     public PackageID packageID;
     public BPackageSymbol symbol;
 
@@ -83,7 +83,7 @@ public class BLangPackage extends BLangNode implements PackageNode {
         this.topLevelNodes = new ArrayList<>();
         this.completedPhases = EnumSet.noneOf(CompilerPhase.class);
         this.diagCollector = new BDiagnosticCollector();
-        this.testablePackage = null;
+        this.testablePkgs = new ArrayList<>();
     }
 
     @Override
@@ -182,6 +182,41 @@ public class BLangPackage extends BLangNode implements PackageNode {
         this.topLevelNodes.add(typeDefinition);
     }
 
+    /**
+     * Add testable package to package list.
+     *
+     * @param testablePkg testable package node
+     */
+    public void addTestablePkg(BLangTestablePackage testablePkg) {
+        this.testablePkgs.add(testablePkg);
+    }
+
+    /**
+     * Get the testable package list.
+     *
+     * @return testable package list
+     */
+    public List<BLangTestablePackage> getTestablePkgs() {
+        return testablePkgs;
+    }
+
+    /**
+     * Get testable package from the list.
+     *
+     * @return testable package
+     */
+    public BLangTestablePackage getTestablePkg() {
+        return testablePkgs.stream().findAny().get();
+    }
+
+    /**
+     * Checks if the package contains a testable package.
+     *
+     * @return true it testable package exists else false
+     */
+    public boolean containsTestablePkg() {
+        return testablePkgs.stream().findAny().isPresent();
+    }
     @Override
     public NodeKind getKind() {
         return NodeKind.PACKAGE;

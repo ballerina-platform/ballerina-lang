@@ -115,8 +115,8 @@ public class BuilderUtils {
                 return;
             }
             CompiledBinaryFile.ProgramFile programFile;
-            if (bLangPackage.testablePackage != null) {
-                programFile = compiler.getExecutableProgram(bLangPackage.testablePackage);
+            if (bLangPackage.containsTestablePkg()) {
+                programFile = compiler.getExecutableProgram(bLangPackage.getTestablePkg());
             } else {
                 // In this package there are no tests to be executed. But we need to say to the users that there are
                 // no tests found in the package to be executed
