@@ -22,10 +22,21 @@ import { render } from './renderer';
 import { ExtendedLangClient } from '../lang-client';
 import { getPluginConfig } from '../config';
 import { WebViewRPCHandler } from '../utils';
+import * as messages from './messages';
 
 let examplesPanel: WebviewPanel | undefined;
 
 export function activate(context: ExtensionContext, langClient: ExtendedLangClient) {
+    const { experimental } = langClient.initializeResult!.capabilities;
+    const serverProvidesExamples = experimental && experimental.examplesProvider;
+
+    if (!serverProvidesExamples) {
+        commands.registerCommand('ballerina.showExamples', () => {
+            window.showErrorMessage(messages.NO_SERVER_CAPABILITY);
+        });
+        return;
+    }
+
 	const examplesListRenderer = commands.registerCommand('ballerina.showExamples', () => {
 		if (examplesPanel) {
 			return;

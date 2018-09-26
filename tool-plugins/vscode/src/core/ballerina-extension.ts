@@ -25,7 +25,7 @@ import {
 } from "vscode";
 import {
     INVALID_HOME_MSG, INSTALL_BALLERINA, DOWNLOAD_BALLERINA,
-    CONFIG_CHANGED, UNKNOWN_ERROR
+    CONFIG_CHANGED, VERSION_MISSMATCH, UNKNOWN_ERROR,
 } from "./messages";
 import * as path from 'path';
 import * as fs from 'fs';
@@ -89,7 +89,7 @@ class BallerinaExtension {
             const pluginVersion = this.extention.packageJSON.version;
             const ballerinaVersion = this.getBallerinaVersion(this.ballerinaHome);
             if (!this.isCompatibleVersion(pluginVersion, ballerinaVersion)) {
-                reject();
+                window.showInformationMessage(VERSION_MISSMATCH);
             }
 
             // if Home is found load Language Server.
