@@ -195,7 +195,7 @@
 
         <!--inspections-->
         <localInspection language="Ballerina" displayName="Unresolved reference inspection" groupPath="Ballerina"
-                         groupName="General" enabledByDefault="true" level="ERROR"
+                         groupName="General" enabledByDefault="true" level="WARNING"
                          shortName="BallerinaUnresolvedReference"
                          implementationClass="io.ballerina.plugins.idea.codeinspection.BallerinaUnresolvedReferenceInspection"/>
 
