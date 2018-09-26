@@ -24,6 +24,7 @@ import { DragDropContext } from 'react-dnd';
 import HTML5Backend from 'react-dnd-html5-backend';
 import PropTypes from 'prop-types';
 import ReactDOM from 'react-dom';
+import { Dimmer, Loader } from 'semantic-ui-react';
 import SamplesList from './samples/List';
 
 import Diagram from 'plugins/ballerina/diagram/diagram.jsx';
@@ -112,9 +113,9 @@ class BallerinaDiagram extends React.Component {
         const { width, height } = this.props;
         if (!currentAST) {
             return (
-                <div className='spinnerContainer'>
-                    <div className='fa fa-spinner fa-pulse fa-3x fa-fw' style={{ color: 'grey' }} />
-                </div>
+                <Dimmer active inverted>
+                    <Loader size='large'></Loader>
+                </Dimmer>
             );
         }
         return (
@@ -180,9 +181,9 @@ function renderEditableDiagram(target, docUri, width, height,
     ReactDOM.render(BalDiagramElement, target);
 }
 
-function renderSamplesList(target, samples, openSample, openLink) {
+function renderSamplesList(target, getSamples, openSample, openLink) {
     const props = {
-        samples,
+        getSamples,
         openSample,
         openLink,
     };

@@ -482,7 +482,7 @@ public class BLangFunctions {
         WorkerData workerLocal = BLangVMUtils
                 .createWorkerDataForLocal(workerInfo, parentCtx, argRegs, callableUnitInfo.getParamTypes());
         if (initWorkerLocalData != null) {
-            BLangVMUtils.mergeInitWorkertData(initWorkerLocalData, workerLocal, initWorkerCAI);
+            BLangVMUtils.mergeInitWorkerData(initWorkerLocalData, workerLocal, initWorkerCAI);
         }
         WorkerData workerResult = BLangVMUtils.createWorkerData(wdi);
         WorkerExecutionContext ctx = new WorkerExecutionContext(parentCtx, respCtx, callableUnitInfo, workerInfo,
