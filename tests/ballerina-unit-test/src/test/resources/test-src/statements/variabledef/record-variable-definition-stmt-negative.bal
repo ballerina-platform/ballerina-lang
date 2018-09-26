@@ -40,4 +40,5 @@ function bindingPatternError() {
     Person{name1: fName2, married: maritalStatus2} = {name1: "John", married: true, age: 12};
     Person{name: fName3, married: maritalStatus3} = {name1: "John", married: true, age: 12};
     Person{name: fName4, married: maritalStatus4, !...} = {name: "John", married: true, age: 12};
+    Person{name: fName5, married: maritalStatus5} = {married: true, age: 12};
 }

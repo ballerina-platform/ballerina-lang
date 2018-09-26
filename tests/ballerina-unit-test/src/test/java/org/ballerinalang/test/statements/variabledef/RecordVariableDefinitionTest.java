@@ -92,9 +92,23 @@ public class RecordVariableDefinitionTest {
         Assert.assertEquals(((BInteger) returns[1]).intValue(), 50);
     }
 
+    @Test(description = "Test declaring 3 record variables and using the variables")
+    public void recordVariableWithRHSInvocation() {
+        BValue[] returns = BRunUtil.invoke(result, "recordVariableWithRHSInvocation");
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertEquals(returns[0].stringValue(), "Jack Jill");
+    }
+
+    @Test(description = "Test declaring 3 record variables and using the variables")
+    public void nestedRecordVariableWithRHSInvocation() {
+        BValue[] returns = BRunUtil.invoke(result, "nestedRecordVariableWithRHSInvocation");
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertEquals(returns[0].stringValue(), "Peter Parker");
+    }
+
     @Test
     public void testNegativeRecordVariables() {
-        Assert.assertEquals(resultNegative.getErrorCount(), 6);
+        Assert.assertEquals(resultNegative.getErrorCount(), 7);
         int i = -1;
         BAssertUtil.validateError(resultNegative, ++i, "redeclared symbol 'married'", 35, 61);
         BAssertUtil.validateError(resultNegative, ++i, "redeclared symbol 'fName'", 35, 26);
@@ -106,5 +120,7 @@ public class RecordVariableDefinitionTest {
                 "invalid record literal in binding pattern. 'name' field not found in literal", 41, 11);
         BAssertUtil.validateError(resultNegative, ++i,
                 "invalid closed record binding pattern. expected '2' fields, but found '3'", 42, 11);
+        BAssertUtil.validateError(resultNegative, ++i,
+                "invalid record literal in binding pattern. 'name' field not found in literal", 43, 11);
     }
 }
