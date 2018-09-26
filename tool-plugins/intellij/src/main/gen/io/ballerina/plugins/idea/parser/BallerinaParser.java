@@ -3430,13 +3430,12 @@ public class BallerinaParser implements PsiParser, LightPsiParser {
   }
 
   /* ********************************************************** */
-  // GlobalVariable | ChannelDefinition
+  // GlobalVariableDefinition | ChannelDefinition
   public static boolean GlobalVariable(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "GlobalVariable")) return false;
-    if (!nextTokenIs(b, CHANNEL)) return false;
     boolean r;
-    Marker m = enter_section_(b, l, _COLLAPSE_, GLOBAL_VARIABLE, null);
-    r = GlobalVariable(b, l + 1);
+    Marker m = enter_section_(b, l, _NONE_, GLOBAL_VARIABLE, "<global variable>");
+    r = GlobalVariableDefinition(b, l + 1);
     if (!r) r = ChannelDefinition(b, l + 1);
     exit_section_(b, l, m, r, false, null);
     return r;

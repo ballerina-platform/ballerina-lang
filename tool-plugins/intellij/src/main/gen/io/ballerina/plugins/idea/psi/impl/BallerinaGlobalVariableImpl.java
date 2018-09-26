@@ -22,6 +22,7 @@ import com.intellij.psi.PsiElementVisitor;
 import com.intellij.psi.util.PsiTreeUtil;
 import io.ballerina.plugins.idea.psi.BallerinaChannelDefinition;
 import io.ballerina.plugins.idea.psi.BallerinaGlobalVariable;
+import io.ballerina.plugins.idea.psi.BallerinaGlobalVariableDefinition;
 import io.ballerina.plugins.idea.psi.BallerinaVisitor;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -45,6 +46,12 @@ public class BallerinaGlobalVariableImpl extends BallerinaCompositeElementImpl i
   @Nullable
   public BallerinaChannelDefinition getChannelDefinition() {
     return PsiTreeUtil.getChildOfType(this, BallerinaChannelDefinition.class);
+  }
+
+  @Override
+  @Nullable
+  public BallerinaGlobalVariableDefinition getGlobalVariableDefinition() {
+    return PsiTreeUtil.getChildOfType(this, BallerinaGlobalVariableDefinition.class);
   }
 
 }

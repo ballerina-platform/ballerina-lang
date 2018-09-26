@@ -199,7 +199,7 @@ Definition ::= ( TypeDefinition
     recoverWhile=TopLevelDefinitionRecover
 }
 
-private TopLevelDefinitionRecover ::= !(MARKDOWN_DOCUMENTATION_LINE_START|PARAMETER_DOCUMENTATION_START|RETURN_PARAMETER_DOCUMENTATION_START|DEPRECATED_TEMPLATE_START|'@'|extern|public|type|typedesc|service|function|enum|annotation|endpoint|int|float|boolean|string|byte|map|xml|xmlns|json|table|any|stream|object|future|identifier|'{')
+private TopLevelDefinitionRecover ::= !(MARKDOWN_DOCUMENTATION_LINE_START|PARAMETER_DOCUMENTATION_START|RETURN_PARAMETER_DOCUMENTATION_START|DEPRECATED_TEMPLATE_START|'@'|extern|public|type|typedesc|service|function|enum|annotation|endpoint|int|float|boolean|string|byte|map|xml|xmlns|json|table|any|stream|object|channel|future|identifier|'{')
 
 ServiceDefinition ::= service (LT NameReference GT)? identifier ServiceEndpointAttachments?  ServiceBody {pin=1}
 ServiceEndpointAttachments ::= bind (NameReference (COMMA NameReference)* | RecordLiteral) {pin=1}
@@ -285,7 +285,7 @@ AnnotationDefinition ::= (public)? annotation (LT AttachmentPoint (COMMA Attachm
 
 //private AttachmentPointsRecover ::= !(GT | Identifier | SEMICOLON)
 
-GlobalVariable ::= GlobalVariable | ChannelDefinition
+GlobalVariable ::= GlobalVariableDefinition | ChannelDefinition
 
 GlobalVariableDefinition ::= (public)? TypeName identifier (ASSIGN  Expression)? SEMICOLON {
    pin=2

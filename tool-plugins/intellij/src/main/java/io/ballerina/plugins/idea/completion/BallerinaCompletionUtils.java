@@ -90,6 +90,7 @@ public class BallerinaCompletionUtils {
     private static final LookupElementBuilder SERVICE;
     private static final LookupElementBuilder TYPE;
     private static final LookupElementBuilder XMLNS;
+    private static final LookupElement CHANNEL;
 
     // Simple types
     private static final LookupElementBuilder BLOB;
@@ -166,6 +167,7 @@ public class BallerinaCompletionUtils {
         SERVICE = createKeywordLookupElement("service");
         TYPE = createKeywordLookupElement("type");
         XMLNS = createKeywordLookupElement("xmlns");
+        CHANNEL = createLookupElement("channel");
 
         BLOB = createLookupElement("blob");
         BOOLEAN = createLookupElement("boolean");
@@ -424,6 +426,7 @@ public class BallerinaCompletionUtils {
         // Note - Other top level definitions are added as live templates.
         resultSet.addElement(PrioritizedLookupElement.withPriority(ANNOTATION, REFERENCE_TYPES_PRIORITY));
         resultSet.addElement(PrioritizedLookupElement.withPriority(TYPE, REFERENCE_TYPES_PRIORITY));
+        resultSet.addElement(PrioritizedLookupElement.withPriority(CHANNEL, REFERENCE_TYPES_PRIORITY));
     }
 
     static void addExpressionKeywordsAsLookups(@NotNull CompletionResultSet resultSet) {
