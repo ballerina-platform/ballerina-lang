@@ -22,7 +22,7 @@ import { render } from './renderer';
 import { ExtendedLangClient } from '../lang-client';
 import { getPluginConfig } from '../config';
 import { WebViewRPCHandler } from '../utils';
-import * as messages from './messages';
+import BallerinaExtension from '../core/ballerina-extension';
 
 let examplesPanel: WebviewPanel | undefined;
 
@@ -32,7 +32,7 @@ export function activate(context: ExtensionContext, langClient: ExtendedLangClie
 
     if (!serverProvidesExamples) {
         commands.registerCommand('ballerina.showExamples', () => {
-            window.showErrorMessage(messages.NO_SERVER_CAPABILITY);
+            BallerinaExtension.showMessageServerMissingCapability();
         });
         return;
     }

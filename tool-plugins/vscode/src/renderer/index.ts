@@ -22,7 +22,7 @@ import { StaticProvider } from './content-provider';
 import { render } from './renderer';
 import { BallerinaAST, ExtendedLangClient } from '../lang-client';
 import { WebViewRPCHandler } from '../utils';
-import * as messages from './messages';
+import BallerinaExtension from '../core/ballerina-extension';
 
 const DEBOUNCE_WAIT = 500;
 
@@ -47,7 +47,7 @@ export function activate(context: ExtensionContext, langClient: ExtendedLangClie
 
     if (!serverProvidesAST) {
         commands.registerCommand('ballerina.showDiagram', () => {
-            window.showErrorMessage(messages.NO_SERVER_CAPABILITY);
+            BallerinaExtension.showMessageServerMissingCapability();
         });
         return;
     }
