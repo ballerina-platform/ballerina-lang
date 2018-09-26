@@ -27,8 +27,8 @@ import org.ballerinalang.test.util.HttpResponse;
 import org.ballerinalang.test.util.HttpsClientRequest;
 import org.ballerinalang.test.util.TestConstant;
 import org.testng.Assert;
-import org.testng.annotations.AfterMethod;
-import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.AfterClass;
+import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 import java.io.File;
@@ -44,23 +44,22 @@ import static org.ballerinalang.test.service.websub.WebSubTestUtils.PUBLISHER_NO
 import static org.ballerinalang.test.service.websub.WebSubTestUtils.requestUpdate;
 
 /**
- * This class includes an integration scenario which covers the following:
+ * This class tests the core functionality with WebSub:
  * 1. Bringing up the Ballerina Hub
  * 2. Sending the subscription request for WebSub Subscriber services on start up, and auto verifying intent to
  * subscribe, when the hub sends an intent verification request, since an onIntentVerification resource is not
- * specified
+ * specified, or explicitly verifying intent to subscribe in an onIntentVerification resource
  * 3. Functions made available to the Publishers - publishing directly on to the Ballerina Hub or to a Hub by
  * specifying the URL (usecase: remote hubs)
  * 4. Content Delivery process - by verifying content is delivered when update notification is done for a subscribed
  * topic - both directly to the hub and specifying hub URL
- * 5. Subscription and content distribution when a secret is not specified
+ * 5. Subscription and content distribution when a secret is specified and not specified
+ * 6. Rejection of requests that fail validation
  */
 @Test(groups = "websub-test")
 public class WebSubCoreFunctionalityTestCase extends WebSubBaseTest {
     private BServerInstance webSubSubscriber;
     private BMainInstance subscriptionChanger;
-
-    private boolean allowExec = true;
 
     private static String hubUrl = "https://localhost:9191/websub/hub";
     private static final String INTENT_VERIFICATION_LOG = "ballerina: Intent Verification agreed - Mode [subscribe], "
@@ -98,12 +97,8 @@ public class WebSubCoreFunctionalityTestCase extends WebSubBaseTest {
     private LogLeecher intentVerificationDenialLogLeecher = new LogLeecher(INTENT_VERIFICATION_DENIAL_LOG);
 
 
-    @BeforeMethod
+    @BeforeClass
     public void setup() throws BallerinaTestException {
-        if (!allowExec) {
-            return;
-        }
-        allowExec = false;
         webSubSubscriber = new BServerInstance(balServer);
         subscriptionChanger = new BMainInstance(balServer);
         String subscriberBal = new File("src" + File.separator + "test" + File.separator + "resources"
@@ -153,7 +148,7 @@ public class WebSubCoreFunctionalityTestCase extends WebSubBaseTest {
         remoteHubNotificationLogLeecherTwo.waitForText(45000);
     }
 
-    @Test(dependsOnMethods = "testContentReceiptForRemoteHubNotification")
+    @Test(dependsOnMethods = "testSubscriptionAndExplicitIntentVerification")
     public void testUnsubscriptionIntentVerification() throws BallerinaTestException {
         String balFile = new File("src" + File.separator + "test" + File.separator + "resources"
                                           + File.separator + "websub" + File.separator
@@ -169,7 +164,7 @@ public class WebSubCoreFunctionalityTestCase extends WebSubBaseTest {
         unsubscriptionIntentVerificationLogLeecher.waitForText(30000);
     }
 
-    @Test(dependsOnMethods = "testUnsubscriptionIntentVerification",
+    @Test(dependsOnMethods = "testSubscriptionAndExplicitIntentVerification",
             description = "Tests that no notifications are received after unsubscription",
             expectedExceptions = BallerinaTestException.class,
             expectedExceptionsMessageRegExp = ".*Timeout expired waiting for matching log.*"
@@ -179,7 +174,7 @@ public class WebSubCoreFunctionalityTestCase extends WebSubBaseTest {
         logAbsenceTestLogLeecher.waitForText(5000);
     }
 
-    @Test(dependsOnMethods = "testUnsubscription")
+    @Test(dependsOnMethods = "testSubscriptionAndExplicitIntentVerification")
     public void testRemoteTopicRegistration() throws IOException {
         Map<String, String> headers = new HashMap<>();
         headers.put(HttpHeaderNames.CONTENT_TYPE.toString(), TestConstant.CONTENT_TYPE_FORM_URL_ENCODED);
@@ -199,8 +194,7 @@ public class WebSubCoreFunctionalityTestCase extends WebSubBaseTest {
         intentVerificationDenialLogLeecher.waitForText(45000);
     }
 
-    @Test(dependsOnMethods = {"testSubscriptionAndExplicitIntentVerification",
-            "testIntentVerificationRejectionForIncorrectTopic"})
+    @Test(dependsOnMethods = "testSubscriptionAndExplicitIntentVerification")
     public void testSignatureValidationFailure() throws IOException {
         Map<String, String> headers = new HashMap<>();
         headers.put("X-Hub-Signature", "SHA256=incorrect583e9dc7eaf63aede0abac8e15212e06320bb021c433a20f27d553");
@@ -212,7 +206,7 @@ public class WebSubCoreFunctionalityTestCase extends WebSubBaseTest {
         Assert.assertEquals(response.getData(), "validation failed for notification");
     }
 
-    @Test(dependsOnMethods = "testSignatureValidationFailure")
+    @Test(dependsOnMethods = "testSubscriptionAndExplicitIntentVerification")
     public void testRejectionIfNoSignature() throws IOException {
         Map<String, String> headers = new HashMap<>();
         headers.put(HttpHeaderNames.CONTENT_TYPE.toString(), TestConstant.CONTENT_TYPE_JSON);
@@ -221,14 +215,10 @@ public class WebSubCoreFunctionalityTestCase extends WebSubBaseTest {
                 headers);
         Assert.assertEquals(response.getResponseCode(), 404);
         Assert.assertEquals(response.getData(), "validation failed for notification");
-        allowExec = true;
     }
 
-    @AfterMethod
+    @AfterClass
     public void teardown() throws Exception {
-        if (!allowExec) {
-            return;
-        }
         webSubSubscriber.removeAllLeechers();
         webSubSubscriber.shutdownServer();
     }

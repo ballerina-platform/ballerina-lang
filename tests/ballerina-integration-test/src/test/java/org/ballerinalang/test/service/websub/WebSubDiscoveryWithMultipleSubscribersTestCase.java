@@ -20,8 +20,8 @@ package org.ballerinalang.test.service.websub;
 import org.ballerinalang.test.context.BServerInstance;
 import org.ballerinalang.test.context.BallerinaTestException;
 import org.ballerinalang.test.context.LogLeecher;
-import org.testng.annotations.AfterMethod;
-import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.AfterClass;
+import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 import java.io.File;
@@ -43,8 +43,6 @@ import static org.ballerinalang.test.service.websub.WebSubTestUtils.requestUpdat
 public class WebSubDiscoveryWithMultipleSubscribersTestCase extends WebSubBaseTest {
     private BServerInstance webSubSubscriber;
 
-    private boolean allowExec = true;
-
     private static final String INTENT_VERIFICATION_SUBSCRIBER_ONE_LOG = "ballerina: Intent Verification agreed - Mode "
             + "[subscribe], Topic [http://three.websub.topic.com], Lease Seconds [3600]";
     private static final String INTENT_VERIFICATION_SUBSCRIBER_TWO_LOG = "ballerina: Intent Verification agreed - Mode "
@@ -61,12 +59,8 @@ public class WebSubDiscoveryWithMultipleSubscribersTestCase extends WebSubBaseTe
     private LogLeecher internalHubNotificationLogLeecherTwo =
             new LogLeecher(INTERNAL_HUB_NOTIFICATION_SUBSCRIBER_TWO_LOG);
 
-    @BeforeMethod
+    @BeforeClass
     public void setup() throws BallerinaTestException {
-        if (!allowExec) {
-            return;
-        }
-        allowExec = false;
         webSubSubscriber = new BServerInstance(balServer);
         String subscriberBal = new File("src" + File.separator + "test" + File.separator + "resources"
                 + File.separator + "websub" + File.separator + "test_multiple_subscribers.bal").getAbsolutePath();
@@ -90,14 +84,10 @@ public class WebSubDiscoveryWithMultipleSubscribersTestCase extends WebSubBaseTe
     public void testContentReceipt() throws BallerinaTestException {
         internalHubNotificationLogLeecherOne.waitForText(45000);
         internalHubNotificationLogLeecherTwo.waitForText(45000);
-        allowExec = true;
     }
 
-    @AfterMethod
+    @AfterClass
     private void teardown() throws Exception {
-        if (!allowExec) {
-            return;
-        }
         webSubSubscriber.shutdownServer();
     }
 }

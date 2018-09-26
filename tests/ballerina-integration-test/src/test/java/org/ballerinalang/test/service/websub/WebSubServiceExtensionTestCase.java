@@ -20,7 +20,6 @@ package org.ballerinalang.test.service.websub;
 import io.netty.handler.codec.http.HttpHeaderNames;
 import io.netty.handler.codec.http.HttpResponseStatus;
 import org.awaitility.Duration;
-import org.ballerinalang.test.BaseTest;
 import org.ballerinalang.test.context.BServerInstance;
 import org.ballerinalang.test.context.BallerinaTestException;
 import org.ballerinalang.test.context.LogLeecher;
@@ -44,7 +43,8 @@ import static java.util.concurrent.TimeUnit.SECONDS;
 /**
  * This class tests introducing custom/specific webhooks, extending the WebSub Subscriber Service.
  */
-public class WebSubServiceExtensionTestCase extends BaseTest {
+@Test(groups = "websub-test") // not necessary, introduced as a workaround to get @BeforeGroup to run before other tests
+public class WebSubServiceExtensionTestCase extends WebSubBaseTest {
     private BServerInstance webSubSubscriber;
 
     private static final String MOCK_HEADER = "MockHeader";

@@ -20,8 +20,8 @@ package org.ballerinalang.test.service.websub;
 import org.ballerinalang.test.context.BServerInstance;
 import org.ballerinalang.test.context.BallerinaTestException;
 import org.ballerinalang.test.context.LogLeecher;
-import org.testng.annotations.AfterMethod;
-import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.AfterClass;
+import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 import java.io.File;
@@ -41,18 +41,11 @@ public class WebSubRedirectionTestCase extends WebSubBaseTest {
     private static final String INTENT_VERIFICATION_SUBSCRIBER_TWO_LOG = "ballerina: Intent Verification agreed - Mode "
             + "[subscribe], Topic [http://two.redir.topic.com], Lease Seconds [1200]";
 
-    private boolean allowExec = true;
-
     private LogLeecher intentVerificationLogLeecherOne;
     private LogLeecher intentVerificationLogLeecherTwo;
 
-    @BeforeMethod
+    @BeforeClass
     public void setup() throws BallerinaTestException {
-        if (!allowExec) {
-            return;
-        }
-        allowExec = false;
-
         webSubSubscriber = new BServerInstance(balServer);
 
         intentVerificationLogLeecherOne = new LogLeecher(INTENT_VERIFICATION_SUBSCRIBER_ONE_LOG);
@@ -75,15 +68,10 @@ public class WebSubRedirectionTestCase extends WebSubBaseTest {
     @Test(dependsOnMethods = "testTopicMovedPermanentlyAndHubTemporaryRedirect")
     public void testTopicRedirectFoundAndHubPermanentRedirect() throws BallerinaTestException {
         intentVerificationLogLeecherTwo.waitForText(30000);
-        allowExec = true;
     }
 
-    @AfterMethod
+    @AfterClass
     private void teardown() throws Exception {
-        if (!allowExec) {
-            return;
-        }
         webSubSubscriber.shutdownServer();
     }
-
 }
