@@ -528,43 +528,48 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                 varNode.type = symResolver.resolveTypeNode(varNode.typeNode, env);
             }
 
-            // If record variable has !... the same amount of fields must be there in the record literal of lhs
-            // todo only works for lhs record literal
-            if (varNode.isClosed) {
-                if (varNode.variableList.size() != ((BLangRecordLiteral) varNode.expr).keyValuePairs.size()) {
-                    dlog.error(varNode.pos, DiagnosticCode.INVALID_CLOSED_RECORD_BINDING_PATTERN,
-                            varNode.variableList.size(), ((BLangRecordLiteral) varNode.expr).keyValuePairs.size());
-                    return;
-                }
-            }
-
             for (BLangRecordVariableKeyValueNode variable : varNode.variableList) {
-                // Check if record literal has all expected fields and assign the rhs expression to the correct variable
                 boolean foundMatch = false;
-                for (BLangRecordKeyValue keyValuePair : ((BLangRecordLiteral) varNode.expr).keyValuePairs) {
-                    if (keyValuePair.key.expr.getKind() != NodeKind.SIMPLE_VARIABLE_REF) {
-                        dlog.error(varNode.pos, DiagnosticCode.INVALID_RECORD_LITERAL_KEY);
+                if (varNode.expr != null && varNode.expr.getKind() == NodeKind.RECORD_LITERAL_EXPR) {
+
+                    // If record variable has !... the same amount of fields must be there in the record literal of lhs
+                    if (varNode.isClosed) {
+                        if (varNode.variableList.size() != ((BLangRecordLiteral) varNode.expr).keyValuePairs.size()) {
+                            dlog.error(varNode.pos, DiagnosticCode.INVALID_CLOSED_RECORD_BINDING_PATTERN,
+                                    varNode.variableList.size(),
+                                    ((BLangRecordLiteral) varNode.expr).keyValuePairs.size());
+                            return;
+                        }
+                    }
+
+                    // Check if record literal has all expected fields
+                    // and assign the rhs expression to the correct variable
+                    for (BLangRecordKeyValue keyValuePair : ((BLangRecordLiteral) varNode.expr).keyValuePairs) {
+                        if (keyValuePair.key.expr.getKind() != NodeKind.SIMPLE_VARIABLE_REF) {
+                            dlog.error(varNode.pos, DiagnosticCode.INVALID_RECORD_LITERAL_KEY);
+                            return;
+                        }
+                        if (variable.getKey().getValue()
+                                .equals(((BLangSimpleVarRef) keyValuePair.key.expr).variableName.value)) {
+                            ((BLangVariable) variable.getValue()).expr = keyValuePair.valueExpr;
+                            foundMatch = true;
+                            break;
+                        }
+                    }
+                    if (!foundMatch) {
+                        dlog.error(varNode.pos,
+                                DiagnosticCode.INVALID_RECORD_LITERAL_BINDING_PATTERN, variable.getKey().getValue());
                         return;
                     }
-                    if (variable.getKey().getValue()
-                            .equals(((BLangSimpleVarRef) keyValuePair.key.expr).variableName.value)) {
-                        ((BLangVariable) variable.getValue()).expr = keyValuePair.valueExpr;
-                        foundMatch = true;
-                        break;
-                    }
                 }
-                if (!foundMatch) {
-                    dlog.error(varNode.pos,
-                            DiagnosticCode.INVALID_RECORD_LITERAL_BINDING_PATTERN, variable.getKey().getValue());
+
+                if (varNode.type.tag != TypeTags.RECORD) {
+                    // If expected type is not record, type will not be set and will fail at type checker
                     return;
                 }
 
-                // Infer the type of the variable from the given record type so that symbol enter is done recursively
                 foundMatch = false;
-                if (varNode.type.tag != TypeTags.RECORD) {
-                    // If expected type is not record type will not be set and will fail at type checker
-                    return;
-                }
+                // Infer the type of the variable from the given record type so that symbol enter is done recursively
                 for (BField typeFields : ((BRecordType) varNode.type).getFields()) {
                     if (variable.getKey().getValue().equals(typeFields.name.value)) {
                         BLangVariable value = (BLangVariable) variable.getValue();
@@ -589,6 +594,11 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
 
         BType lhsType = varNode.type;
         BLangExpression rhsExpr = varNode.expr;
+
+        if (rhsExpr == null) {
+            // we have no rhs to do type checking
+            return;
+        }
 
         SymbolEnv varInitEnv = SymbolEnv.createVarInitEnv(varNode, env, null);
         typeChecker.checkExpr(rhsExpr, varInitEnv, lhsType);

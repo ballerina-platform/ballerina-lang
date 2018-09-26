@@ -82,3 +82,24 @@ function defineThreeRecordVariables() returns (string, int) {
     int intAddition = theAge1 + theAge2 + theAge3;
     return (stringAddition, intAddition);
 }
+function recordVariableWithRHSInvocation() returns string {
+    Person {name: fName, married} = getPersonRecord();
+    string name = fName + " Jill";
+    return name;
+}
+
+function getPersonRecord() returns Person {
+    Person p = {name: "Jack", married: true};
+    return p;
+}
+
+function nestedRecordVariableWithRHSInvocation() returns string {
+    PersonWithAge {name: fName, age: {age: theAge, format}, married} = {name: "Peter", age: getAgeRecord(), married: true, work: "SE"};
+    string name = fName + " Parker";
+    return name;
+}
+
+function getAgeRecord() returns Age {
+    Age a = {age: 99, format:"MM"};
+    return a;
+}
