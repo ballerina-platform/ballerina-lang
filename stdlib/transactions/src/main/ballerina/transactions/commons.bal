@@ -66,6 +66,7 @@ function cleanupTransactions() returns error? {
                         if (commitSuccessful) {
                             twopcTxn.state = TXN_STATE_COMMITTED;
                             log:printInfo("Auto-committed participated  transaction: " + participatedTxnId);
+                            removeParticipatedTransaction(participatedTxnId);
                         } else {
                             log:printError("Auto-commit of participated transaction: " + participatedTxnId + " failed");
                         }
@@ -85,8 +86,11 @@ function cleanupTransactions() returns error? {
                     // Commit the transaction since prepare hasn't been received
                     var result = twopcTxn.twoPhaseCommit();
                     match result {
-                        string str => log:printInfo("Auto-committed initiated transaction: " + twopcTxn.transactionId +
+                        string str => {
+                            log:printInfo("Auto-committed initiated transaction: " + twopcTxn.transactionId +
                                 ". Result: " + str);
+                            removeInitiatedTransaction(twopcTxn.transactionId);
+                        }
                         error err => log:printError("Auto-commit of participated transaction: " +
                                 twopcTxn.transactionId + " failed", err = err);
                     }
