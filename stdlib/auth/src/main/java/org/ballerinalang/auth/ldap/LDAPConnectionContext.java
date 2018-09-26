@@ -72,7 +72,7 @@ public class LDAPConnectionContext {
 
         environment.put("com.sun.jndi.ldap.connect.pool", isLDAPConnectionPoolingEnabled ? "true" : "false");
 
-        //Set connect timeout if provided in configuration. Otherwise set default value
+        // Set connect timeout if provided in configuration. Otherwise set default value
         String connectTimeout = String.valueOf(ldapConfiguration.getLdapConnectionTimeout());
         String readTimeout = String.valueOf(ldapConfiguration.getReadTimeout());
         if (!connectTimeout.trim().isEmpty()) {
@@ -87,25 +87,12 @@ public class LDAPConnectionContext {
     }
 
     public DirContext getContext() throws UserStoreException {
-
-        DirContext context = null;
-        //if dcMap is not populated, it is not DNS case
         try {
-            context = new InitialDirContext(environment);
-
+            DirContext context = new InitialDirContext(environment);
+            return context;
         } catch (NamingException e) {
-            LOG.error("Error obtaining connection. " + e.getMessage(), e);
-            LOG.error("Trying again to get connection.");
-
-            try {
-                context = new InitialDirContext(environment);
-            } catch (Exception e1) {
-                LOG.error("Error obtaining connection for the second time" + e.getMessage(), e);
-                throw new UserStoreException("Error obtaining connection. " + e.getMessage(), e);
-            }
-
+            throw new UserStoreException("Error obtaining connection. " + e.getMessage(), e);
         }
-        return (context);
     }
 
     /**
@@ -122,13 +109,12 @@ public class LDAPConnectionContext {
         Secret credentialObj = null;
         try {
             credentialObj = Secret.getSecret(password);
-            //create a temp env for this particular authentication session by copying the original env
+            // Create a temp env for this particular authentication session by copying the original env
             Hashtable<String, Object> tempEnv = new Hashtable<>();
             tempEnv.putAll(environment);
-            //replace connection name and password with the passed credentials to this method
+            // Replace connection name and password with the passed credentials to this method
             tempEnv.put(javax.naming.Context.SECURITY_PRINCIPAL, userDN);
             tempEnv.put(javax.naming.Context.SECURITY_CREDENTIALS, credentialObj.getBytes());
-
             return getContextForEnvironmentVariables(tempEnv);
         } catch (UserStoreException e) {
             throw new UserStoreException("Unsupported credential type", e);

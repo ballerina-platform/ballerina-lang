@@ -42,6 +42,8 @@ import javax.naming.ldap.LdapContext;
 
 /**
  * Ballerina function to authenticate users with LDAP user store.
+ *
+ * @since 0.982.0
  */
 @BallerinaFunction(
         orgName = "ballerina", packageName = "auth",
@@ -100,7 +102,7 @@ public class Authenticate extends BlockingNativeCallableUnit {
             if (LOG.isDebugEnabled()) {
                 LOG.debug(errorMessage, e);
             }
-            //TODO: Return errors when auth framework support returning errors.
+            // TODO: Return errors when auth framework support returning errors.
             throw new BallerinaException(errorMessage, e);
         } catch (UserStoreException e) {
             if (LOG.isDebugEnabled()) {

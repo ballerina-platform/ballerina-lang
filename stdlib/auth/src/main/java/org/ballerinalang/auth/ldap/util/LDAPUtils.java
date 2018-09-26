@@ -31,7 +31,6 @@ import javax.naming.NamingException;
 import javax.naming.directory.DirContext;
 import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
-import javax.naming.ldap.LdapName;
 
 /**
  * Utility class for LDAP related common operations.
@@ -61,11 +60,9 @@ public class LDAPUtils {
      */
     public static String getNameInSpaceForUsernameFromLDAP(String userName, CommonLDAPConfiguration ldapConfiguration,
                                   LDAPConnectionContext connectionSource) throws UserStoreException {
-
-        String searchBase = null;
         String userSearchFilter = ldapConfiguration.getUserNameSearchFilter();
         userSearchFilter = userSearchFilter.replace("?", LDAPUtils.escapeSpecialCharactersForFilter(userName));
-        searchBase = ldapConfiguration.getUserSearchBase();
+        String searchBase = ldapConfiguration.getUserSearchBase();
         return LDAPUtils.getNameInSpaceForUserName(userName, searchBase, userSearchFilter, connectionSource);
     }
 
@@ -89,7 +86,6 @@ public class LDAPUtils {
         }
 
         String userDN = null;
-
         DirContext dirContext = null;
         NamingEnumeration<SearchResult> answer = null;
         try {
@@ -105,22 +101,19 @@ public class LDAPUtils {
                     LOG.debug("Error while getting DN of search base", e);
                 }
             }
-            SearchResult userObj = null;
             String[] searchBases = searchBase.split("#");
             for (String base : searchBases) {
                 answer = dirContext.search(escapeDNForSearch(base), searchFilter, searchCtls);
-                if (answer.hasMore()) {
-                    userObj = (SearchResult) answer.next();
-                    if (userObj != null) {
-                        //no need to decode since , if decoded the whole string, can't be encoded again
-                        //eg CN=Hello\,Ok=test\,test, OU=Industry
-                        userDN = userObj.getNameInNamespace();
-                        break;
-                    }
+                if (!(answer.hasMore())) {
+                    continue;
                 }
-            }
-            if (userDN != null) {
-                LdapName ldn = new LdapName(userDN);
+                SearchResult userObj = (SearchResult) answer.next();
+                if (userObj != null) {
+                    //no need to decode since , if decoded the whole string, can't be encoded again
+                    //eg CN=Hello\,Ok=test\,test, OU=Industry
+                    userDN = userObj.getNameInNamespace();
+                    break;
+                }
             }
             if (debug) {
                 LOG.debug("Name in space for " + userName + " is " + userDN);
@@ -155,7 +148,6 @@ public class LDAPUtils {
      * @throws UserStoreException if a naming exception is encountered
      */
     public static void closeContext(DirContext dirContext) throws UserStoreException {
-
         try {
             if (dirContext != null) {
                 dirContext.close();
@@ -173,7 +165,6 @@ public class LDAPUtils {
      * @param namingEnumeration enumeration needs to be closed
      */
     public static void closeNamingEnumeration(NamingEnumeration<?> namingEnumeration) {
-
         if (namingEnumeration != null) {
             try {
                 namingEnumeration.close();

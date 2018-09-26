@@ -78,22 +78,21 @@ public type LDAPAuthStoreProvider object {
     # + return - true if authentication is a success, else false
     public function authenticate(string user, string password) returns boolean {
         boolean isAuthenticated = self.doAuthenticate(user, password);
-            if(isAuthenticated){
-                runtime:UserPrincipal userPrincipal = runtime:getInvocationContext().userPrincipal;
-                userPrincipal.userId = user;
-                // By default set userId as username.
-                userPrincipal.username = user;
-            }
-            return isAuthenticated;
+        if (isAuthenticated) {
+            runtime:UserPrincipal userPrincipal = runtime:getInvocationContext().userPrincipal;
+            userPrincipal.userId = user;
+            // By default set userId as username.
+            userPrincipal.username = user;
         }
+        return isAuthenticated;
+    }
 
     # Reads the scope(s) for the user with the given username
     #
     # + username - username
     # + return - array of groups for the user denoted by the username
     public function getScopes(string username) returns string[] {
-        // first read the user id from user->id mapping
-        // reads the groups for the userid
+        // Reads the groups for the username
         return self.getScopesOfUser(username);
     }
 

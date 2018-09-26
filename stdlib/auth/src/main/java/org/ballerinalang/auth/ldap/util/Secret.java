@@ -36,7 +36,6 @@ public class Secret {
     private int accessCount;
 
     private Secret(char[] chars) {
-
         this.chars = chars;
         this.accessCount = 0;
     }
@@ -47,11 +46,9 @@ public class Secret {
      * @return char[]
      */
     public char[] getChars() {
-
         if (chars == null) {
             this.chars = ArrayUtils.EMPTY_CHAR_ARRAY;
         }
-
         return Arrays.copyOf(chars, chars.length);
     }
 
@@ -71,12 +68,9 @@ public class Secret {
      * @return byte[]
      */
     public byte[] getBytes(Charset charset) {
-
         clearBytes(bytes);
-
         CharBuffer charBuffer = CharBuffer.wrap(getChars());
         ByteBuffer byteBuffer = charset.encode(charBuffer);
-
         bytes = Arrays.copyOfRange(byteBuffer.array(), byteBuffer.position(), byteBuffer.limit());
         Arrays.fill(byteBuffer.array(), (byte) 0); // clear sensitive data
         return Arrays.copyOf(bytes, bytes.length);
@@ -97,7 +91,6 @@ public class Secret {
      * @param chars character array of the secret
      */
     public void setChars(char[] chars) {
-
         clearChars(this.chars);
         this.chars = Arrays.copyOf(chars, chars.length);
     }
@@ -108,7 +101,6 @@ public class Secret {
      * @param chars character array to be added
      */
     public void addChars(char[] chars) {
-
         char[] previous = getChars();
         setChars(ArrayUtils.addAll(previous, chars));
         clearChars(previous);
@@ -122,7 +114,6 @@ public class Secret {
      * For proper operation, this method should be invoked once, per each invocation of getSecret factory method.
      */
     public void clear() {
-
         accessCount--;
         if (accessCount < 0) {
             clearChars(this.chars);
@@ -143,7 +134,6 @@ public class Secret {
      *                            a Secret, char[] or String
      */
     public static Secret getSecret(Object secret) throws UserStoreException {
-
         if (secret != null) {
             if (secret instanceof Secret) {
                 Secret secretObj = (Secret) secret;

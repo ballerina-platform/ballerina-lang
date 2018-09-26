@@ -52,12 +52,13 @@ import javax.naming.ldap.Rdn;
 
 /**
  * Provides the scopes of a given user.
+ *
+ * @since 0.982.0
  */
 @BallerinaFunction(
         orgName = "ballerina", packageName = "auth",
         functionName = "LDAPAuthStoreProvider.getScopesOfUser",
-        args = {@Argument(name = "username", type = TypeKind.STRING)
-        },
+        args = {@Argument(name = "username", type = TypeKind.STRING)},
         returnType = {@ReturnType(type = TypeKind.ARRAY, elementType = TypeKind.STRING)},
         isPublic = true)
 public class GetLDAPScopesOfUser extends BlockingNativeCallableUnit {
@@ -85,7 +86,6 @@ public class GetLDAPScopesOfUser extends BlockingNativeCallableUnit {
 
     private String[] doGetGroupsListOfUser(String userName, String filter,
                                            CommonLDAPConfiguration ldapAuthConfig) throws UserStoreException {
-
         // Get the effective search base
         String searchBase = ldapAuthConfig.getGroupSearchBase();
         return getLDAPGroupsListOfUser(userName, searchBase, ldapAuthConfig);
@@ -93,7 +93,6 @@ public class GetLDAPScopesOfUser extends BlockingNativeCallableUnit {
 
     private String[] getLDAPGroupsListOfUser(String userName, String searchBase,
                                              CommonLDAPConfiguration ldapAuthConfig) throws UserStoreException {
-
         if (userName == null) {
             throw new BallerinaException("userName value is null.");
         }
@@ -137,8 +136,7 @@ public class GetLDAPScopesOfUser extends BlockingNativeCallableUnit {
             LOG.debug("Reading roles with the membershipProperty Property: " + membershipProperty);
         }
 
-        List<String> list = this.getListOfNames(searchBase, searchFilter, searchCtls,
-                roleNameProperty, false);
+        List<String> list = this.getListOfNames(searchBase, searchFilter, searchCtls, roleNameProperty, false);
         String[] result = list.toArray(new String[list.size()]);
 
         if (result != null) {
@@ -149,9 +147,8 @@ public class GetLDAPScopesOfUser extends BlockingNativeCallableUnit {
         return result;
     }
 
-    private List<String> getListOfNames(String searchBases, String searchFilter,
-                                        SearchControls searchCtls, String property, boolean appendDn)
-            throws UserStoreException {
+    private List<String> getListOfNames(String searchBases, String searchFilter, SearchControls searchCtls,
+                                        String property, boolean appendDn) throws UserStoreException {
 
         List<String> names = new ArrayList<String>();
         DirContext dirContext = null;
@@ -164,27 +161,26 @@ public class GetLDAPScopesOfUser extends BlockingNativeCallableUnit {
 
         try {
             dirContext = connectionSource.getContext();
-
             // handle multiple search bases
             String[] searchBaseArray = searchBases.split("#");
             for (String searchBase : searchBaseArray) {
-
                 try {
                     answer = dirContext.search(LDAPUtils.escapeDNForSearch(searchBase), searchFilter, searchCtls);
-
                     while (answer.hasMoreElements()) {
-                        SearchResult sr = answer.next();
-                        if (sr.getAttributes() != null) {
-                            Attribute attr = sr.getAttributes().get(property);
-                            if (attr != null) {
-                                for (Enumeration vals = attr.getAll(); vals.hasMoreElements(); ) {
-                                    String name = (String) vals.nextElement();
-                                    if (LOG.isDebugEnabled()) {
-                                        LOG.debug("Found user: " + name);
-                                    }
-                                    names.add(name);
-                                }
+                        SearchResult searchResult = answer.next();
+                        if (searchResult.getAttributes() == null) {
+                            continue;
+                        }
+                        Attribute attr = searchResult.getAttributes().get(property);
+                        if (attr == null) {
+                            continue;
+                        }
+                        for (Enumeration vals = attr.getAll(); vals.hasMoreElements(); ) {
+                            String name = (String) vals.nextElement();
+                            if (LOG.isDebugEnabled()) {
+                                LOG.debug("Found user: " + name);
                             }
+                            names.add(name);
                         }
                     }
                 } catch (NamingException e) {
@@ -199,7 +195,6 @@ public class GetLDAPScopesOfUser extends BlockingNativeCallableUnit {
                         LOG.debug("Result  :  " + name);
                     }
                 }
-
             }
         } finally {
             LDAPUtils.closeNamingEnumeration(answer);

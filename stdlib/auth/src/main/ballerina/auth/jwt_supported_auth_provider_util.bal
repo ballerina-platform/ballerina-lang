@@ -14,13 +14,13 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerina/log;
-import ballerina/runtime;
-import ballerina/time;
 import ballerina/config;
 import ballerina/crypto;
 import ballerina/internal;
+import ballerina/log;
+import ballerina/runtime;
 import ballerina/system;
+import ballerina/time;
 
 function setAuthToken(string username, InferredJwtAuthProviderConfig authConfig) {
     internal:JwtHeader header = createHeader(authConfig);
@@ -40,31 +40,32 @@ function setAuthToken(string username, InferredJwtAuthProviderConfig authConfig)
 }
 
 function createHeader(InferredJwtAuthProviderConfig authConfig) returns (internal:JwtHeader) {
-    internal:JwtHeader header = {};
-    header.alg = authConfig.signingAlg;
-    header.typ = "JWT";
+    internal:JwtHeader header = { alg: authConfig.signingAlg, typ: "JWT" };
     return header;
 }
 
 function createPayload(string username, InferredJwtAuthProviderConfig authConfig) returns (internal:JwtPayload) {
-    internal:JwtPayload payload = {};
-    payload.sub = username;
-    payload.iss = authConfig.issuer;
-    payload.exp = time:currentTime().time / 1000 + authConfig.expTime;
-    payload.iat = time:currentTime().time / 1000;
-    payload.nbf = time:currentTime().time / 1000;
-    payload.jti = system:uuid();
     string audList = authConfig.audience;
-    payload.aud = audList.split(" ");
+    string[] audience = audList.split(" ");
+    internal:JwtPayload payload = {
+        sub: username,
+        iss: authConfig.issuer,
+        exp: time:currentTime().time / 1000 + authConfig.expTime,
+        iat: time:currentTime().time / 1000,
+        nbf: time:currentTime().time / 1000,
+        jti: system:uuid(),
+        aud: audience
+    };
     return payload;
 }
 
 function createJWTIssueConfig(InferredJwtAuthProviderConfig authConfig) returns (internal:JWTIssuerConfig) {
-    internal:JWTIssuerConfig config = {};
-    config.keyAlias = authConfig.keyAlias;
-    config.keyPassword = authConfig.keyPassword;
-    config.keyStoreFilePath = authConfig.keyStoreFilePath;
-    config.keyStorePassword = authConfig.keyStorePassword;
+    internal:JWTIssuerConfig config = {
+        keyAlias: authConfig.keyAlias,
+        keyPassword: authConfig.keyPassword,
+        keyStoreFilePath: authConfig.keyStoreFilePath,
+        keyStorePassword: authConfig.keyStorePassword
+    };
     return config;
 }
 

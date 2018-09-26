@@ -35,6 +35,8 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
 
 /**
  * Initializes LDAP connection context.
+ *
+ * @since 0.982.0
  */
 @BallerinaFunction(
         orgName = "ballerina", packageName = "auth",

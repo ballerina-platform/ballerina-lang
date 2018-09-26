@@ -184,7 +184,7 @@ function createAuthFiltersForSecureListener(SecureEndpointConfiguration config) 
                 if (provider.scheme == AUTHN_SCHEME_BASIC) {
                     if (provider.authStoreProvider == AUTH_PROVIDER_LDAP) {
                         match provider.authStoreProviderConfig {
-                                auth:LdapAuthProviderConfig authStoreProviderConfig => {
+                            auth:LdapAuthProviderConfig authStoreProviderConfig => {
                                 auth:LDAPAuthStoreProvider ldapAuthStoreProvider = new(authStoreProviderConfig);
                                 auth:initLDAPConnectionContext(ldapAuthStoreProvider);
                                 authStoreProvider = <auth:AuthStoreProvider>ldapAuthStoreProvider;
