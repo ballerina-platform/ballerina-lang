@@ -41,6 +41,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
+import static org.ballerinalang.net.grpc.builder.utils.BalGenConstants.GRPC_CLIENT;
+import static org.ballerinalang.net.grpc.builder.utils.BalGenConstants.GRPC_CLIENT_AND_SERVER;
+import static org.ballerinalang.net.grpc.builder.utils.BalGenConstants.GRPC_SERVICE;
 import static org.ballerinalang.net.grpc.proto.ServiceProtoConstants.TMP_DIRECTORY_PATH;
 import static org.ballerinalang.protobuf.BalGenerationConstants.BUILD_COMMAND_NAME;
 import static org.ballerinalang.protobuf.BalGenerationConstants.COMPONENT_IDENTIFIER;
@@ -78,6 +81,12 @@ public class GrpcCmd implements BLauncherCmd {
     )
     private String protoPath;
 
+    @CommandLine.Option(names = {"--mode"},
+            description = "client or service",
+            defaultValue = "both"
+    )
+    private String mode;
+
     @CommandLine.Option(names = {"--output"},
             description = "Generated Ballerina source files location"
     )
@@ -98,6 +107,11 @@ public class GrpcCmd implements BLauncherCmd {
     
     @Override
     public void execute() {
+        if (!this.mode.equals(GRPC_SERVICE) && !this.mode.equals(GRPC_CLIENT) && !this.mode
+                .equals(GRPC_CLIENT_AND_SERVER)) {
+            throw new BalGenToolException("Mode should be either client or service.");
+        }
+
         // check input protobuf file path
         if (protoPath == null || !protoPath.toLowerCase(Locale.ENGLISH).endsWith(PROTO_SUFFIX)) {
             String errorMessage = "Invalid proto file path. Please input valid proto file location.";
@@ -190,7 +204,7 @@ public class GrpcCmd implements BLauncherCmd {
             ballerinaFileBuilder = new BallerinaFileBuilder(root, dependant, balOutPath);
         }
         try {
-            ballerinaFileBuilder.build();
+            ballerinaFileBuilder.build(this.mode);
         } catch (BalGenerationException e) {
             LOG.error("Error generating ballerina file.", e);
             msg.append("Error generating ballerina file.").append(e.getMessage()).append(NEW_LINE_CHARACTER);

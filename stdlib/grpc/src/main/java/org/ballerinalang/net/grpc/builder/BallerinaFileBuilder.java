@@ -27,6 +27,7 @@ import com.github.jknack.handlebars.helper.StringHelpers;
 import com.github.jknack.handlebars.io.ClassPathTemplateLoader;
 import com.github.jknack.handlebars.io.FileTemplateLoader;
 import com.google.protobuf.DescriptorProtos;
+import org.apache.commons.lang3.StringUtils;
 import org.ballerinalang.net.grpc.MethodDescriptor;
 import org.ballerinalang.net.grpc.builder.components.ClientFile;
 import org.ballerinalang.net.grpc.builder.components.Descriptor;
@@ -57,8 +58,13 @@ import static org.ballerinalang.net.grpc.builder.utils.BalGenConstants.DEFAULT_S
 import static org.ballerinalang.net.grpc.builder.utils.BalGenConstants.DEFAULT_SKELETON_DIR;
 import static org.ballerinalang.net.grpc.builder.utils.BalGenConstants.EMPTY_DATA_TYPE;
 import static org.ballerinalang.net.grpc.builder.utils.BalGenConstants.FILE_SEPARATOR;
+import static org.ballerinalang.net.grpc.builder.utils.BalGenConstants.GRPC_CLIENT;
+import static org.ballerinalang.net.grpc.builder.utils.BalGenConstants.GRPC_CLIENT_AND_SERVER;
+import static org.ballerinalang.net.grpc.builder.utils.BalGenConstants.GRPC_SERVICE;
 import static org.ballerinalang.net.grpc.builder.utils.BalGenConstants.PACKAGE_SEPARATOR;
 import static org.ballerinalang.net.grpc.builder.utils.BalGenConstants.SAMPLE_FILE_PREFIX;
+import static org.ballerinalang.net.grpc.builder.utils.BalGenConstants.SAMPLE_SERVICE_FILE_PREFIX;
+import static org.ballerinalang.net.grpc.builder.utils.BalGenConstants.SAMPLE_SERVICE_TEMPLATE_NAME;
 import static org.ballerinalang.net.grpc.builder.utils.BalGenConstants.SAMPLE_TEMPLATE_NAME;
 import static org.ballerinalang.net.grpc.builder.utils.BalGenConstants.SERVICE_INDEX;
 import static org.ballerinalang.net.grpc.builder.utils.BalGenConstants.SKELETON_TEMPLATE_NAME;
@@ -87,7 +93,7 @@ public class BallerinaFileBuilder {
         this.balOutPath = balOutPath;
     }
     
-    public void build() {
+    public void build(String mode) {
         try (InputStream targetStream = new ByteArrayInputStream(rootDescriptor)) {
             DescriptorProtos.FileDescriptorProto fileDescriptorSet = DescriptorProtos.FileDescriptorProto
                     .parseFrom(targetStream);
@@ -144,7 +150,9 @@ public class BallerinaFileBuilder {
                 }
                 serviceBuilder.setType(ServiceStub.StubType.NONBLOCKING);
                 stubFileObject.addServiceStub(serviceBuilder.build());
-                clientFileObject = new ClientFile(serviceDescriptor.getName(), isUnaryContains);
+                if (mode.equals(GRPC_CLIENT) || mode.equals(GRPC_CLIENT_AND_SERVER)) {
+                    clientFileObject = new ClientFile(serviceDescriptor.getName(), isUnaryContains);
+                }
             }
             // read message types.
             for (DescriptorProtos.DescriptorProto descriptorProto : messageTypeList) {
@@ -158,13 +166,21 @@ public class BallerinaFileBuilder {
             }
             // write definition objects to ballerina files.
             if (this.balOutPath == null) {
-                this.balOutPath = BalGenConstants.DEFAULT_PACKAGE;
+                if (StringUtils.isNotBlank(fileDescriptorSet.getPackage())) {
+                    this.balOutPath = fileDescriptorSet.getPackage();
+                } else {
+                    this.balOutPath = BalGenConstants.DEFAULT_PACKAGE;
+                }
             }
             String stubFilePath = generateOutputFile(this.balOutPath, filename + STUB_FILE_PREFIX);
             writeOutputFile(stubFileObject, DEFAULT_SKELETON_DIR, SKELETON_TEMPLATE_NAME, stubFilePath);
             if (clientFileObject != null) {
                 String clientFilePath = generateOutputFile(this.balOutPath, filename + SAMPLE_FILE_PREFIX);
                 writeOutputFile(clientFileObject, DEFAULT_SAMPLE_DIR, SAMPLE_TEMPLATE_NAME, clientFilePath);
+            }
+            if (mode.equals(GRPC_SERVICE) || mode.equals("both")) {
+                String servicePath = generateOutputFile(this.balOutPath, filename + SAMPLE_SERVICE_FILE_PREFIX);
+                writeOutputFile(stubFileObject, DEFAULT_SAMPLE_DIR, SAMPLE_SERVICE_TEMPLATE_NAME, servicePath);
             }
         } catch (IOException | GrpcServerException e) {
             throw new BalGenerationException("Error while generating .bal file.", e);

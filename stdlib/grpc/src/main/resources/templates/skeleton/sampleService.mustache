@@ -1,0 +1,18 @@
+import ballerina/grpc;
+import ballerina/io;
+
+endpoint grpc:Listener listener {
+    host:"hostname",
+    port:9000
+};
+
+@grpc:ServiceConfig
+service {{fileName}} bind listener {
+{{#stubList.0.blockingFunctions}}
+    {{methodName}}(endpoint caller, {{inputType}} value) {
+        // Implementation goes here.
+
+        // You should return a {{outputType}}
+    }
+{{/stubList.0.blockingFunctions}}
+}
