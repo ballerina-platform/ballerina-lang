@@ -28,7 +28,7 @@ import io.ballerina.plugins.idea.psi.*;
 
 public class BallerinaFutureTypeNameImpl extends BallerinaCompositeElementImpl implements BallerinaFutureTypeName {
 
-  public BallerinaFutureTypeNameImpl(ASTNode node) {
+  public BallerinaFutureTypeNameImpl(@NotNull ASTNode node) {
     super(node);
   }
 

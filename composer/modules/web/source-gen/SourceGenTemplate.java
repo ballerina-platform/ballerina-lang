@@ -600,7 +600,7 @@ public class SourceGen {
             }
 
             if (node.has("restParameters") &&
-                    node.has("parameters") && node.getAsJsonArray("parameters").size() > 0) {
+                    (node.has("allParams") && node.getAsJsonArray("allParams").size() > 0)) {
                 node.addProperty("hasRestParams", true);
             }
 
@@ -623,6 +623,14 @@ public class SourceGen {
 
             if (node.getAsJsonObject("typeNode").get("kind").getAsString().equals("ObjectType")) {
                 node.addProperty("isObjectType", true);
+                if (node.has("ws")) {
+                    JsonArray typeDefWS = node.getAsJsonArray("ws");
+                    for (int i = 0; i < typeDefWS.size(); i++) {
+                        if (typeDefWS.get(i).getAsJsonObject().get("text").getAsString().equals("abstract")) {
+                            node.addProperty("isAbstractKeywordAvailable", true);
+                        }
+                    }
+                }
             }
 
             if (node.getAsJsonObject("typeNode").get("kind").getAsString().equals("RecordType")) {
@@ -937,6 +945,28 @@ public class SourceGen {
                     JsonObject parameter = parameters.get(i).getAsJsonObject();
                     parameter.addProperty("arrowExprParam", true);
                 }
+            }
+        }
+
+        if (kind.equals("PatternStreamingInput")) {
+            if (node.has("ws") && node.getAsJsonArray("ws").get(0)
+                    .getAsJsonObject().get("text").getAsString().equals("(")) {
+                node.addProperty("enclosedInParenthesis", true);
+            }
+        }
+
+        if (kind.equals("SelectClause")) {
+            if (!node.has("ws")) {
+                node.addProperty("notVisible", true);
+            }
+        }
+
+        if (kind.equals("OrderByVariable")) {
+            if (!node.has("ws")) {
+                node.addProperty("noVisibleType", true);
+            } else {
+                node.addProperty("typeString", node.getAsJsonArray("ws")
+                        .get(0).getAsJsonObject().get("text").getAsString());
             }
         }
     }

@@ -28,7 +28,7 @@ import io.ballerina.plugins.idea.psi.*;
 
 public class BallerinaStreamingQueryStatementImpl extends BallerinaCompositeElementImpl implements BallerinaStreamingQueryStatement {
 
-  public BallerinaStreamingQueryStatementImpl(ASTNode node) {
+  public BallerinaStreamingQueryStatementImpl(@NotNull ASTNode node) {
     super(node);
   }
 

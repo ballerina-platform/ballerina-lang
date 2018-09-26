@@ -319,7 +319,7 @@ public class SnippetGenerator {
     public static SnippetBlock getServiceDefSnippet() {
         String snippet = "service<${1:http:Service}> ${2:serviceName} bind { port: 9090 } {"
                 + CommonUtil.LINE_SEPARATOR + "\t${3:newResource} (endpoint ${4:caller}, "
-                + "${5:http:Request request}) {" + CommonUtil.LINE_SEPARATOR + "\t}" + CommonUtil.LINE_SEPARATOR + "}";
+                + "http:Request ${5:request}) {" + CommonUtil.LINE_SEPARATOR + "\t}" + CommonUtil.LINE_SEPARATOR + "}";
 
         return new SnippetBlock(snippet);
     }

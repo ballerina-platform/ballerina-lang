@@ -80,19 +80,19 @@ public type Chunking "AUTO" | "ALWAYS" | "NEVER";
 # Options to compress using gzip or deflate.
 #
 # `AUTO`: When service behaves as a HTTP gateway inbound request/response accept-encoding option is set as the
-#         outbound request/response accept-encoding option
-# `ALWAYS`: Always set accept-encoding in outbound request/response
-# `NEVER`: Never set accept-encoding header in outbound request/response
+#         outbound request/response accept-encoding/content-encoding option
+# `ALWAYS`: Always set accept-encoding/content-encoding in outbound request/response
+# `NEVER`: Never set accept-encoding/content-encoding header in outbound request/response
 public type Compression "AUTO" | "ALWAYS" | "NEVER";
 
 # When service behaves as a HTTP gateway inbound request/response accept-encoding option is set as the
-# outbound request/response accept-encoding option.
+# outbound request/response accept-encoding/content-encoding option.
 @final public Compression COMPRESSION_AUTO = "AUTO";
 
-# Always set accept-encoding in outbound request/response.
+# Always set accept-encoding/content-encoding in outbound request/response.
 @final public Compression COMPRESSION_ALWAYS = "ALWAYS";
 
-# Never set accept-encoding header in outbound request/response.
+# Never set accept-encoding/content-encoding header in outbound request/response.
 @final public Compression COMPRESSION_NEVER = "NEVER";
 
 # Defines the HTTP operations related to circuit breaker, failover and load balancer.
@@ -113,8 +113,8 @@ public type HttpOperation "FORWARD" | "GET" | "POST" | "DELETE" | "OPTIONS" | "P
 # + path - Path to the trust store file
 # + password - Trust store password
 public type TrustStore record {
-    string path,
-    string password,
+    string path;
+    string password;
     !...
 };
 
@@ -123,8 +123,8 @@ public type TrustStore record {
 # + path - Path to the key store file
 # + password - Key store password
 public type KeyStore record {
-    string path,
-    string password,
+    string path;
+    string password;
     !...
 };
 
@@ -133,8 +133,8 @@ public type KeyStore record {
 # + name - SSL Protocol to be used (e.g.: TLS1.2)
 # + versions - SSL/TLS protocols to be enabled (e.g.: TLSv1,TLSv1.1,TLSv1.2)
 public type Protocols record {
-    string name,
-    string[] versions,
+    string name;
+    string[] versions;
     !...
 };
 
@@ -144,9 +144,9 @@ public type Protocols record {
 # + cacheSize - Maximum size of the cache
 # + cacheValidityPeriod - The time period for which a cache entry is valid
 public type ValidateCert record {
-    boolean enable,
-    int cacheSize,
-    int cacheValidityPeriod,
+    boolean enable;
+    int cacheSize;
+    int cacheValidityPeriod;
     !...
 };
 
@@ -156,9 +156,19 @@ public type ValidateCert record {
 # + cacheSize - Maximum size of the cache
 # + cacheValidityPeriod - The time period for which a cache entry is valid
 public type ServiceOcspStapling record {
-    boolean enable,
-    int cacheSize,
-    int cacheValidityPeriod,
+    boolean enable;
+    int cacheSize;
+    int cacheValidityPeriod;
+    !...
+};
+
+# A record for providing configurations for content compression.
+#
+# + enable - The status of compression
+# + contentTypes - Content types which are allowed for compression
+public type CompressionConfig record {
+    Compression enable = COMPRESSION_AUTO;
+    string[] contentTypes;
     !...
 };
 

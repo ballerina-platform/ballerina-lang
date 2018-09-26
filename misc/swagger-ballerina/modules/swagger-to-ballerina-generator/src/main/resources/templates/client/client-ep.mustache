@@ -6,23 +6,21 @@ import ballerina/http;
 //============Client Config============
 //=====================================
 public type {{cut info.title " "}}ClientConfig record {
-    string serviceUrl,
-    http:ClientEndpointConfig clientConfig,
+    string serviceUrl;
+    http:ClientEndpointConfig clientConfig;
 };
 
 //=======================================
 //============Client Endpoint============
 //=======================================
 public type {{cut info.title " "}}ClientEp object {
-    public {
-        http:Client client;
-        {{cut info.title " "}}ClientConfig config;
-    }
+    public http:Client client;
+    public {{cut info.title " "}}ClientConfig config;
 
     public function init({{cut info.title " "}}ClientConfig config) {
         endpoint http:Client httpEp {
-            url: config.serviceUrl,
-            auth: config.clientConfig.auth,
+            url: config.serviceUrl;
+            auth: config.clientConfig.auth;
             cache: config.clientConfig.cache
         };
 
@@ -39,9 +37,7 @@ public type {{cut info.title " "}}ClientEp object {
 //============Client============
 //==============================
 public type {{cut info.title " "}}Client object {
-    public {
-        {{cut info.title " "}}ClientEp clientEp;
-    }
+    public {{cut info.title " "}}ClientEp clientEp;
 
     new (clientEp) {}
 {{#paths}}{{#value}}{{#operations}}{{#value}}{{#equals key "multi"}}{{#if methods}}{{#methods}}

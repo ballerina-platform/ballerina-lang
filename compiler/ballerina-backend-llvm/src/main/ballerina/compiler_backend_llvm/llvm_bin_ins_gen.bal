@@ -2,7 +2,7 @@ import ballerina/llvm;
 
 type BinaryInsGenrator object {
 
-    llvm:LLVMBuilderRef builder,
+    llvm:LLVMBuilderRef builder;
     string lhsTmpName;
     llvm:LLVMValueRef lhsRef;
     llvm:LLVMValueRef rhsOp1;

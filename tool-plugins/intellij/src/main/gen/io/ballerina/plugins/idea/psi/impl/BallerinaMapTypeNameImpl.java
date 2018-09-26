@@ -28,7 +28,7 @@ import io.ballerina.plugins.idea.psi.*;
 
 public class BallerinaMapTypeNameImpl extends BallerinaCompositeElementImpl implements BallerinaMapTypeName {
 
-  public BallerinaMapTypeNameImpl(ASTNode node) {
+  public BallerinaMapTypeNameImpl(@NotNull ASTNode node) {
     super(node);
   }
 

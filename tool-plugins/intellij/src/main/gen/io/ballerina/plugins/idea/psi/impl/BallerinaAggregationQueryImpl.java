@@ -28,7 +28,7 @@ import io.ballerina.plugins.idea.psi.*;
 
 public class BallerinaAggregationQueryImpl extends BallerinaCompositeElementImpl implements BallerinaAggregationQuery {
 
-  public BallerinaAggregationQueryImpl(ASTNode node) {
+  public BallerinaAggregationQueryImpl(@NotNull ASTNode node) {
     super(node);
   }
 
