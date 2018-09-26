@@ -103,7 +103,6 @@ public class ServiceProtoBuilder extends AbstractCompilerPlugin {
                         .getKeyValuePairs().get(0).getValue().toString();
                 addDescriptorAnnotation(serviceNode, null, proto);
             } else {
-
                 if (ServiceDefinitionValidator.validate(serviceNode, dlog)) {
                     File fileDefinition = ServiceProtoUtils.generateProtoDefinition(serviceNode);
                     addDescriptorAnnotation(serviceNode, fileDefinition, null);
