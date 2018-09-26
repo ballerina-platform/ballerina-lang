@@ -18,6 +18,7 @@
  */
 package org.ballerinalang.test.statements.variabledef;
 
+import org.ballerinalang.launcher.util.BAssertUtil;
 import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.CompileResult;
@@ -35,17 +36,19 @@ import org.testng.annotations.Test;
  */
 public class RecordVariableDefinitionTest {
 
-    private CompileResult basic;
+    private CompileResult result, resultNegative;
 
     @BeforeClass
     public void setup() {
-        basic = BCompileUtil.
+        result = BCompileUtil.
                 compile("test-src/statements/variabledef/record-variable-definition-stmt.bal");
+        resultNegative = BCompileUtil.
+                compile("test-src/statements/variabledef/record-variable-definition-stmt-negative.bal");
     }
 
     @Test(description = "Test simple record variable definition")
     public void simpleDefinition() {
-        BValue[] returns = BRunUtil.invoke(basic, "simpleDefinition");
+        BValue[] returns = BRunUtil.invoke(result, "simpleDefinition");
         Assert.assertEquals(returns.length, 2);
         Assert.assertEquals(returns[0].stringValue(), "Peter");
         Assert.assertTrue(((BBoolean) returns[1]).booleanValue());
@@ -53,7 +56,7 @@ public class RecordVariableDefinitionTest {
 
     @Test(description = "Test record variable inside record variable")
     public void recordVarInRecordVar() {
-        BValue[] returns = BRunUtil.invoke(basic, "recordVarInRecordVar");
+        BValue[] returns = BRunUtil.invoke(result, "recordVarInRecordVar");
         Assert.assertEquals(returns.length, 4);
         Assert.assertEquals(returns[0].stringValue(), "Peter");
         Assert.assertEquals(((BInteger) returns[1]).intValue(), 29);
@@ -63,7 +66,7 @@ public class RecordVariableDefinitionTest {
 
     @Test(description = "Test record variable inside record variable inside record variable")
     public void recordVarInRecordVarInRecordVar() {
-        BValue[] returns = BRunUtil.invoke(basic, "recordVarInRecordVarInRecordVar");
+        BValue[] returns = BRunUtil.invoke(result, "recordVarInRecordVarInRecordVar");
         Assert.assertEquals(returns.length, 5);
         Assert.assertEquals(returns[0].stringValue(), "Peter");
         Assert.assertTrue(((BBoolean) returns[1]).booleanValue());
@@ -74,10 +77,34 @@ public class RecordVariableDefinitionTest {
 
 //    @Test(description = "Test tuple variable inside record variable")
 //    public void tupleVarInRecordVar() {
-//        BValue[] returns = BRunUtil.invoke(basic, "tupleVarInRecordVar");
+//        BValue[] returns = BRunUtil.invoke(result, "tupleVarInRecordVar");
 //        Assert.assertEquals(returns.length, 3);
 //        Assert.assertEquals(returns[0].stringValue(), "John");
 //        Assert.assertEquals(((BInteger) returns[1]).intValue(), 20);
 //        Assert.assertEquals(returns[2].stringValue(), "PG");
 //    }
+
+    @Test(description = "Test declaring 3 record variables and using the variables")
+    public void defineThreeRecordVariables() {
+        BValue[] returns = BRunUtil.invoke(result, "defineThreeRecordVariables");
+        Assert.assertEquals(returns.length, 2);
+        Assert.assertEquals(returns[0].stringValue(), "JohnDoePeterYYMMDD");
+        Assert.assertEquals(((BInteger) returns[1]).intValue(), 50);
+    }
+
+    @Test
+    public void testNegativeRecordVariables() {
+        Assert.assertEquals(resultNegative.getErrorCount(), 6);
+        int i = -1;
+        BAssertUtil.validateError(resultNegative, ++i, "redeclared symbol 'married'", 35, 61);
+        BAssertUtil.validateError(resultNegative, ++i, "redeclared symbol 'fName'", 35, 26);
+        BAssertUtil.validateError(resultNegative, ++i,
+                "invalid record literal in binding pattern. 'name1' field not found in literal", 39, 11);
+        BAssertUtil.validateError(resultNegative, ++i,
+                "invalid record binding pattern. unknown field 'name1' in record type 'Person'", 40, 11);
+        BAssertUtil.validateError(resultNegative, ++i,
+                "invalid record literal in binding pattern. 'name' field not found in literal", 41, 11);
+        BAssertUtil.validateError(resultNegative, ++i,
+                "invalid closed record binding pattern. expected '2' fields, but found '3'", 42, 11);
+    }
 }

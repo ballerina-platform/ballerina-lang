@@ -26,11 +26,8 @@ type Person record {
 };
 
 function simpleDefinition() returns (string, boolean) {
-
     Person {name: fName, married} = {name: "Peter", married: true};
-
     return (fName, married);
-
 }
 
 type PersonWithAge record {
@@ -40,11 +37,8 @@ type PersonWithAge record {
 };
 
 function recordVarInRecordVar() returns (string, int, string, boolean) {
-
     PersonWithAge {name: fName, age: {age: theAge, format}, married} = {name: "Peter", age: {age:29, format: "Y"}, married: true, work: "SE"};
-
     return (fName, theAge, format, married);
-
 }
 
 type StreetCity record {
@@ -64,12 +58,9 @@ type PersonWithAddress record {
 };
 
 function recordVarInRecordVarInRecordVar() returns (string, boolean, int, string, string) {
-
     PersonWithAddress {name: fName, married, address: {postalCode, street: {streetName: sName, city}}} =
                 {name: "Peter", married: true, address: {postalCode: 1000, street: {streetName: "PG", city: "Colombo 10"}}};
-
     return (fName, married, postalCode, sName, city);
-
 }
 
 //type Employee record {
@@ -78,8 +69,16 @@ function recordVarInRecordVarInRecordVar() returns (string, boolean, int, string
 //};
 //
 //function tupleVarInRecordVar() returns (string, int, string) {
-//
 //    Employee {name, address: (number, street)} = {name: "John", address: (20, "PG")};
-//
 //    return (name, number, street);
 //}
+
+function defineThreeRecordVariables() returns (string, int) {
+    PersonWithAge {name: fName1, age: {age: theAge1, format: format1}, married: married1} = {name: "John", age: {age:30, format: "YY"}, married: true, work: "SE"};
+    PersonWithAge {name: fName2, age: {age: theAge2, format: format2}, married: married2} = {name: "Doe", age: {age:15, format: "MM"}, married: true, work: "SE"};
+    PersonWithAge {name: fName3, age: {age: theAge3, format: format3}, married: married3} = {name: "Peter", age: {age:5, format: "DD"}, married: true, work: "SE"};
+
+    string stringAddition = fName1 + fName2 + fName3 + format1 + format2 + format3;
+    int intAddition = theAge1 + theAge2 + theAge3;
+    return (stringAddition, intAddition);
+}
