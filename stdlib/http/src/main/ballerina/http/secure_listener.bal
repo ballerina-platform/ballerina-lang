@@ -16,6 +16,7 @@
 
 
 import ballerina/auth;
+import ballerina/log;
 
 # Defines Secure Listener endpoint.
 #
@@ -91,6 +92,7 @@ public type SecureEndpointConfiguration record {
 # + scheme - Authentication scheme
 # + id - Authentication provider instance id
 # + authStoreProvider - Authentication store provider (file, LDAP, etc.) implementation
+# + authStoreProviderConfig - Auth store related configurations
 # + issuer - Identifier of the token issuer
 # + audience - Identifier of the token recipients
 # + trustStore - Trustore configurations
@@ -106,6 +108,7 @@ public type AuthProvider record {
     string scheme;
     string id;
     string authStoreProvider;
+    auth:LdapAuthProviderConfig? authStoreProviderConfig;
     string issuer;
     string audience;
     TrustStore? trustStore;
@@ -174,8 +177,37 @@ function createAuthFiltersForSecureListener(SecureEndpointConfiguration config) 
     AuthnHandlerChain authnHandlerChain = new(registry);
     AuthnFilter authnFilter = new(authnHandlerChain);
     cache:Cache authzCache = new(expiryTimeMillis = 300000);
-    auth:ConfigAuthStoreProvider configAuthStoreProvider = new;
-    auth:AuthStoreProvider authStoreProvider = <auth:AuthStoreProvider>configAuthStoreProvider;
+    auth:AuthStoreProvider authStoreProvider;
+    match config.authProviders {
+        AuthProvider[] providers => {
+            foreach provider in providers {
+                if (provider.scheme == AUTHN_SCHEME_BASIC) {
+                    if (provider.authStoreProvider == AUTH_PROVIDER_LDAP) {
+                        match provider.authStoreProviderConfig {
+                            auth:LdapAuthProviderConfig authStoreProviderConfig => {
+                                auth:LDAPAuthStoreProvider ldapAuthStoreProvider = new(authStoreProviderConfig);
+                                auth:initLDAPConnectionContext(ldapAuthStoreProvider);
+                                authStoreProvider = <auth:AuthStoreProvider>ldapAuthStoreProvider;
+                            }
+                            () => {
+                                error e = {message: "Authstore config not provided for : " + provider.authStoreProvider };
+                                throw e;
+                            }
+                        }
+                    } else if (provider.authStoreProvider == AUTH_PROVIDER_CONFIG) {
+                        auth:ConfigAuthStoreProvider configAuthStoreProvider = new;
+                        authStoreProvider = <auth:AuthStoreProvider>configAuthStoreProvider;
+                    } else {
+                        error configError = {message: "Unsupported auth store provider : " + provider.authStoreProvider };
+                        throw configError;
+                    }
+                }
+            }
+        }
+        () => {
+            // No auth providers configured.
+        }
+    }
     HttpAuthzHandler authzHandler = new(authStoreProvider, authzCache);
     AuthzFilter authzFilter = new(authzHandler);
     authFilters[0] = authnFilter;
@@ -195,12 +227,31 @@ function createAuthHandler(AuthProvider authProvider) returns HttpAuthnHandler {
         auth:AuthStoreProvider authStoreProvider;
         if (authProvider.authStoreProvider == AUTH_PROVIDER_CONFIG) {
             if (authProvider.propagateToken) {
-                auth:ConfigJwtAuthProvider configAuthProvider = new(getConfigJwtAuthProviderConfig(authProvider));
+                auth:ConfigJwtAuthProvider configAuthProvider = new(getInferredJwtAuthProviderConfig(authProvider));
                 authStoreProvider = <auth:AuthStoreProvider>configAuthProvider;
             } else {
                 auth:ConfigAuthStoreProvider configAuthStoreProvider = new;
                 authStoreProvider = <auth:AuthStoreProvider>configAuthStoreProvider;
             }
+        } else if (authProvider.authStoreProvider == AUTH_PROVIDER_LDAP) {
+            match authProvider.authStoreProviderConfig {
+                        auth:LdapAuthProviderConfig authStoreProviderConfig => {
+                        auth:LDAPAuthStoreProvider ldapAuthStoreProvider = new(authStoreProviderConfig);
+                        auth:initLDAPConnectionContext(ldapAuthStoreProvider);
+                        if (authProvider.propagateToken) {
+                            auth:LDAPJwtAuthProvider configAuthProvider =
+                                        new(getInferredJwtAuthProviderConfig(authProvider),ldapAuthStoreProvider);
+                            authStoreProvider = <auth:AuthStoreProvider>configAuthProvider;
+                        } else {
+                            authStoreProvider = <auth:AuthStoreProvider>ldapAuthStoreProvider;
+                        }
+                    }
+                    () => {
+                        error e = {message: "Authstore config not provided for : " + authProvider.authStoreProvider };
+                        throw e;
+                    }
+            }
+
         } else {
             // other auth providers are unsupported yet
             error e = {message: "Invalid auth provider: " + authProvider.authStoreProvider };
@@ -220,7 +271,6 @@ function createAuthHandler(AuthProvider authProvider) returns HttpAuthnHandler {
         HttpJwtAuthnHandler jwtAuthnHandler = new(jwtAuthProvider);
         return <HttpAuthnHandler>jwtAuthnHandler;
     } else {
-        // TODO: create other HttpAuthnHandlers
         error e = {message: "Invalid auth scheme: " + authProvider.scheme};
         throw e;
     }
@@ -247,24 +297,25 @@ function SecureListener::stop() {
     self.httpListener.stop();
 }
 
-function getConfigJwtAuthProviderConfig(AuthProvider authProvider) returns auth:ConfigJwtAuthProviderConfig {
+function getInferredJwtAuthProviderConfig(AuthProvider authProvider) returns auth:InferredJwtAuthProviderConfig {
     //ConfigJwtAuthProviderConfig
     string defaultIssuer = "ballerina";
     string defaultAudience = "ballerina";
     int defaultExpTime = 300; // in seconds
     string defaultSignAlg = "RS256";
 
-    auth:ConfigJwtAuthProviderConfig configjwtAuth = {};
-    configjwtAuth.issuer = authProvider.issuer == "" ? defaultIssuer : authProvider.issuer;
-    configjwtAuth.expTime = authProvider.expTime == 0 ? defaultExpTime : authProvider.expTime;
-    configjwtAuth.signingAlg = authProvider.signingAlg == "" ? defaultSignAlg : authProvider.signingAlg;
-    configjwtAuth.audience = authProvider.audience == "" ? defaultAudience : authProvider.audience;
-    configjwtAuth.keyAlias = authProvider.keyAlias;
-    configjwtAuth.keyPassword = authProvider.keyPassword;
-    configjwtAuth.keyStoreFilePath = authProvider.keyStore.path but { () => "" };
-    configjwtAuth.keyStorePassword = authProvider.keyStore.password but { () => "" };
-    return configjwtAuth;
+    auth:InferredJwtAuthProviderConfig jwtAuthConfig = {};
+    jwtAuthConfig.issuer = authProvider.issuer == "" ? defaultIssuer : authProvider.issuer;
+    jwtAuthConfig.expTime = authProvider.expTime == 0 ? defaultExpTime : authProvider.expTime;
+    jwtAuthConfig.signingAlg = authProvider.signingAlg == "" ? defaultSignAlg : authProvider.signingAlg;
+    jwtAuthConfig.audience = authProvider.audience == "" ? defaultAudience : authProvider.audience;
+    jwtAuthConfig.keyAlias = authProvider.keyAlias;
+    jwtAuthConfig.keyPassword = authProvider.keyPassword;
+    jwtAuthConfig.keyStoreFilePath = authProvider.keyStore.path but { () => "" };
+    jwtAuthConfig.keyStorePassword = authProvider.keyStore.password but { () => "" };
+    return jwtAuthConfig;
 }
+
 
 # The caller actions for responding to client requests to secure listener.
 #
