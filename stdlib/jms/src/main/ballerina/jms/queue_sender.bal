@@ -65,6 +65,8 @@ public type QueueSender object {
     }
 
     # Returns the caller action object of the QueueSender
+    #
+    # + return - Queue sender actions
     public function getCallerActions() returns QueueSenderActions {
         return self.producerActions;
     }
@@ -82,9 +84,12 @@ public type QueueSender object {
 public type QueueSenderEndpointConfiguration record {
     Session? session;
     string? queueName;
+    !...
 };
 
 # JMS QueueSender action handling object
+#
+# + queueSender - Queue sender endpoint
 public type QueueSenderActions object {
 
     public QueueSender? queueSender;
@@ -92,14 +97,14 @@ public type QueueSenderActions object {
     # Sends a message to the JMS provider
     #
     # + message - message to be sent to the JMS provider
+    # + return - error if unable to send the message to the queue
     public extern function send(Message message) returns error?;
 
-    documentation {
-        Sends a message to the JMS provider
-
-        P{{destination}} destination used for the message sender
-        P{{message}} message to be sent to the JMS provider
-    }
+    # Sends a message to a given destination of the JMS provider
+    #
+    # + destination - destination used for the message sender
+    # + message - message to be sent to the JMS provider
+    # + return - error if sending fails to the given destination
     public function sendTo(Destination destination, Message message) returns error?;
 };
 

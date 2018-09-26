@@ -17,6 +17,7 @@
  */
 package org.ballerinalang.packerina.cmd;
 
+import org.ballerinalang.compiler.backend.llvm.NativeGen;
 import org.ballerinalang.launcher.BLauncherCmd;
 import org.ballerinalang.launcher.LauncherUtils;
 import org.ballerinalang.packerina.BuilderUtils;
@@ -31,6 +32,7 @@ import java.nio.file.Paths;
 import java.util.List;
 
 import static org.ballerinalang.packerina.cmd.Constants.BUILD_COMMAND;
+import static org.ballerinalang.util.BLangConstants.BLANG_SRC_FILE_SUFFIX;
 
 /**
  * This class represents the "ballerina build" command.
@@ -60,11 +62,18 @@ public class BuildCommand implements BLauncherCmd {
     @CommandLine.Parameters
     private List<String> argList;
 
+    @CommandLine.Option(names = {"--native"}, hidden = true,
+                        description = "compile Ballerina program to a native binary")
+    private boolean nativeBinary;
+
+    @CommandLine.Option(names = "--dump-bir", hidden = true)
+    private boolean dumpBIR;
+
+    @CommandLine.Option(names = "--dump-llvm-ir", hidden = true)
+    private boolean dumpLLVMIR;
+
     @CommandLine.Option(names = {"--help", "-h"}, hidden = true)
     private boolean helpFlag;
-
-    @CommandLine.Option(names = "--java.debug", hidden = true)
-    private String debugPort;
 
     public void execute() {
         if (helpFlag) {
@@ -74,12 +83,14 @@ public class BuildCommand implements BLauncherCmd {
         }
 
         if (argList != null && argList.size() > 1) {
-            throw LauncherUtils.createUsageException("too many arguments");
+            throw LauncherUtils.createUsageExceptionWithHelp("too many arguments");
         }
 
         // Get source root path.
         Path sourceRootPath = Paths.get(System.getProperty(USER_DIR));
-        if (argList == null || argList.size() == 0) {
+        if (nativeBinary) {
+            genNativeBinary(sourceRootPath, argList);
+        } else if (argList == null || argList.size() == 0) {
             // ballerina build
             BuilderUtils.compileWithTestsAndWrite(sourceRootPath, offline, lockEnabled, skiptests);
         } else {
@@ -124,15 +135,26 @@ public class BuildCommand implements BLauncherCmd {
             } else if (Files.isDirectory(sourceRootPath)) { // If the source is a package from a project
                 // Checks if the source is a package and if its inside a project (with a .ballerina folder)
                 if (Files.isDirectory(resolvedFullPath) && !RepoUtils.hasProjectRepo(sourceRootPath)) {
-                    outStream.println("error: do you mean to build the ballerina package as a project? If so run" +
-                                              " ballerina init to make it a project with a .ballerina directory");
-                    return;
+                    throw LauncherUtils.createLauncherException("did you mean to build the package ? If so build " +
+                                                                        "from the project folder");
+                }
+                // If we are trying to run a bal file inside a package from a project directory an error is thrown.
+                // To differentiate between top level bals and bals inside packages we need to check if the parent of
+                // the sourcePath given is null. If it is null then its a top level bal else its a bal inside a package
+                Path parentPath = sourcePath.getParent();
+                if (Files.isRegularFile(resolvedFullPath) && sourcePath.toString().endsWith(BLANG_SRC_FILE_SUFFIX) &&
+                        parentPath != null) {
+                    Path fileName = parentPath.getFileName();
+                    String srcPkgName = fileName != null ? fileName.toString() : "";
+                    throw LauncherUtils.createLauncherException("you are trying to build a ballerina file inside a " +
+                                                                        "package within a project. Try running " +
+                                                                        "'ballerina build <package-name>'");
                 }
             } else {
                 // Invalid source file provided
-                outStream.println("error: invalid Ballerina source path, it should either be a directory or a" +
-                                          "file  with a \'" + BLangConstants.BLANG_SRC_FILE_SUFFIX + "\' extension");
-                return;
+                throw LauncherUtils.createLauncherException("invalid ballerina source path, it should either be a " +
+                                                                    "directory or a file  with a \'"
+                                                            + BLangConstants.BLANG_SRC_FILE_SUFFIX + "\' extension");
             }
             BuilderUtils.compileWithTestsAndWrite(sourceRootPath, pkgName, targetFileName, buildCompiledPkg,
                                                   offline, lockEnabled, skiptests);
@@ -183,5 +205,16 @@ public class BuildCommand implements BLauncherCmd {
 
     @Override
     public void setSelfCmdParser(CommandLine selfCmdParser) {
+    }
+
+    private void genNativeBinary(Path projectDirPath, List<String> argList) {
+        if (argList == null || argList.size() != 1) {
+            throw LauncherUtils.createUsageExceptionWithHelp("no Ballerina program given");
+        }
+        String programName = argList.get(0);
+
+        // TODO Check whether we need to remove last slash from program name.
+        NativeGen.genBinaryExecutable(projectDirPath, programName, outputFileName,
+                offline, lockEnabled, dumpBIR, dumpLLVMIR);
     }
 }

@@ -24,6 +24,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BOperatorSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BField;
@@ -86,6 +87,7 @@ public class HttpFiltersDesugar {
     private static final String HTTP_FILTERS_VAR = "filters";
     private static final String HTTP_FILTER_VAR = "filter";
     private static final String HTTP_FILTERCONTEXT_VAR = "filterContext";
+    private static final String FILTER_REQUEST_FUNCTION = "filterRequest";
 
     private static final String ORG_NAME = "ballerina";
     private static final String PACKAGE_NAME = "http";
@@ -300,7 +302,7 @@ public class HttpFiltersDesugar {
         requestRef.symbol = requestVar.symbol;
 
         BLangInvocation filterRequestInvocation = (BLangInvocation) TreeBuilder.createInvocationNode();
-        filterRequestInvocation.symbol = ((BObjectTypeSymbol) filterType.tsymbol).attachedFuncs.get(1).symbol;
+        filterRequestInvocation.symbol = getFilterRequestFuncSymbol(filterType);
         filterRequestInvocation.pos = resourceNode.pos;
         filterRequestInvocation.requiredArgs.add(callerRef);
         filterRequestInvocation.requiredArgs.add(requestRef);
@@ -344,5 +346,11 @@ public class HttpFiltersDesugar {
         List<E> list = new ArrayList<>();
         list.add(val);
         return list;
+    }
+
+    private BSymbol getFilterRequestFuncSymbol(BType filterType) {
+        return ((BObjectTypeSymbol) filterType.tsymbol).attachedFuncs.stream().filter(func -> {
+            return FILTER_REQUEST_FUNCTION.equals(func.funcName.value);
+        }).findFirst().get().symbol;
     }
 }

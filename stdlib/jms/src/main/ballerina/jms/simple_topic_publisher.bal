@@ -67,6 +67,8 @@ public type SimpleTopicPublisher object {
     }
 
     # Get simple topic pubilsher actions
+    #
+    # + return - Topic publisher actions
     public function getCallerActions() returns TopicPublisherActions {
         match (publisher) {
             TopicPublisher s => return s.getCallerActions();
@@ -85,6 +87,7 @@ public type SimpleTopicPublisher object {
     # Create JMS text message
     #
     # + message - A message body to create a text message
+    # + return - a message or nil if the session is nil
     public function createTextMessage(string message) returns Message|error {
         match (session) {
             Session s => return s.createTextMessage(message);
@@ -97,6 +100,7 @@ public type SimpleTopicPublisher object {
     # Create JMS map message
     #
     # + message - A message body to create a map message
+    # + return - a message or nil if the session is nil
     public function createMapMessage(map message) returns Message|error {
         match (session) {
             Session s => return s.createMapMessage(message);
@@ -123,4 +127,5 @@ public type SimpleTopicPublisherEndpointConfiguration record {
     string acknowledgementMode = "AUTO_ACKNOWLEDGE";
     map properties;
     string topicPattern;
+    !...
 };

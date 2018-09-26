@@ -17,7 +17,6 @@
  */
 package org.ballerinalang.packerina.cmd;
 
-import org.ballerinalang.compiler.BLangCompilerException;
 import org.ballerinalang.launcher.BLauncherCmd;
 import org.ballerinalang.launcher.LauncherUtils;
 import org.ballerinalang.packerina.ListUtils;
@@ -30,6 +29,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
 
+import static org.ballerinalang.launcher.LauncherUtils.createLauncherException;
 import static org.ballerinalang.packerina.cmd.Constants.LIST_COMMAND;
 
 /**
@@ -48,9 +48,6 @@ public class ListCommand implements BLauncherCmd {
     @CommandLine.Option(names = {"--help", "-h"}, hidden = true)
     private boolean helpFlag;
 
-    @CommandLine.Option(names = "--java.debug", hidden = true)
-    private String debugPort;
-
     public void execute() {
         if (helpFlag) {
             String commandUsageInfo = BLauncherCmd.getCommandUsageInfo(LIST_COMMAND);
@@ -59,7 +56,7 @@ public class ListCommand implements BLauncherCmd {
         }
 
         if (argList != null && argList.size() > 1) {
-            throw LauncherUtils.createUsageException("too many arguments");
+            throw LauncherUtils.createUsageExceptionWithHelp("too many arguments");
         }
 
         // Get source root path.
@@ -73,7 +70,7 @@ public class ListCommand implements BLauncherCmd {
                 String pkgName = argList.get(0);
                 ListUtils.list(sourceRootPath, pkgName);
             } else {
-                throw new BLangCompilerException("Current directory is not a project");
+                throw createLauncherException("Current directory is not a project");
             }
         }
         Runtime.getRuntime().exit(0);

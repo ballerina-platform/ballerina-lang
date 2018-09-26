@@ -1,0 +1,120 @@
+.composer-library {
+    .welcome-page {
+        a:focus, input:focus, select:focus, textarea:focus {
+            outline: none;
+        }
+        .welcome-content-wrapper {
+            margin-bottom: 0%;
+        }
+        .welcome-navbar {
+            margin-top: 15px;
+            line-height: 45px;
+            margin-bottom: 10px;
+        }
+    } 
+
+    .ui.grid > .row {
+        padding-top: 0;
+        padding-bottom: 0;
+    }
+}
+
+.vscode-dark {
+    .composer-library {
+        .welcome-page {
+            height: 100%;
+            background-color: #1e1e1e;
+            a {
+                color: #3794ff;
+            }
+            .welcome-content-wrapper {
+                background: transparent;
+                .rightContainer {
+                    background: transparent;
+                    .ui.grid {
+                        .sample-wrapper {
+                            
+                            .title {
+                                border-bottom-width: 0.8px;
+                                border-bottom-color: #1e1e1e;
+                            }
+                            .list-item {
+                                border-bottom-width: 0.1px;
+                                border-bottom-color: #1e1e1e;
+                            }
+                            .title, ul a {
+                                color: #cccccc!important;
+                            }
+                            & > .column {
+                                background-color: #1e1e1e;
+                            }
+                            ul a:hover {
+                                color: #3794ff!important;
+                            }
+                            ul {
+                                background: rgba(0, 0, 0, .2);
+                                & > .title {
+                                    padding-left: 10px;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            .welcome-navbar {
+                background: transparent;
+                color: #cccccc;
+            }
+        } 
+    }
+}
+
+.vscode-light {
+    .composer-library {
+        .welcome-page {
+            height: 100%;
+            background-color: white;
+            a {
+                color: rgb(0, 106, 177);;
+            }
+            .welcome-content-wrapper {
+                background: transparent;
+                .rightContainer {
+                    background: transparent;
+                    .ui.grid {
+                        .sample-wrapper {
+                            .title {
+                                border-bottom-width: 0.8px;
+                                border-bottom-color: white;
+                                font-weight: 400;
+                            }
+                            .list-item {
+                                border-bottom-width: 0.1px;
+                                border-bottom-color: white;
+                            }
+                            .title, ul a {
+                                color:rgb(97, 97, 97)!important;
+                            }
+                            & > .column {
+                                background-color: white;
+                            }
+                            ul a:hover {
+                                color: rgb(0, 106, 177)!important;
+                            }
+                            ul {
+                                background: rgba(0, 0, 0, 0.04);
+                                & > .title {
+                                    padding-left: 10px;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            .welcome-navbar {
+                background: transparent;
+                color: rgb(97, 97, 97);
+            }
+        } 
+    }
+}

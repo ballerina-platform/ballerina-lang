@@ -62,6 +62,8 @@ public type TopicSubscriber object {
     }
 
     # Get topic subscriber actions
+    #
+    # + return - Topic subscriber actions
     public function getCallerActions() returns TopicSubscriberActions {
         return consumerActions;
     }
@@ -85,9 +87,12 @@ public type TopicSubscriberEndpointConfiguration record {
     string? topicPattern;
     string messageSelector;
     string identifier;
+    !...
 };
 
 # Actions that topic subscriber endpoint could perform
+#
+# + topicSubscriber - JMS topic subscriber
 public type TopicSubscriberActions object {
 
     public TopicSubscriber? topicSubscriber;
@@ -95,6 +100,7 @@ public type TopicSubscriberActions object {
     # Acknowledges a received message
     #
     # + message - JMS message to be acknowledged
+    # + return - error on failure to acknowledge a received message
     public extern function acknowledge(Message message) returns error?;
 
     # Synchronously receive a message from the JMS provider
@@ -103,13 +109,11 @@ public type TopicSubscriberActions object {
     # + return - Returns a message or nill if the timeout exceededs. Returns an error on jms provider internal error.
     public extern function receive(int timeoutInMilliSeconds = 0) returns (Message|error)?;
 
-    documentation {
-        Synchronously receive a message from the JMS provider
-
-        P{{destination}} destination to subscribe to
-        P{{timeoutInMilliSeconds}} Time to wait until a message is received
-        R{{}} Returns a message or nill if the timeout exceededs. Returns an error on jms provider internal error.
-    }
+    # Synchronously receive a message from the JMS provider
+    #
+    # + destination - destination to subscribe to
+    # + timeoutInMilliSeconds - Time to wait until a message is received
+    # + return - Returns a message or nill if the timeout exceededs. Returns an error on jms provider internal error.
     public function receiveFrom(Destination destination, int timeoutInMilliSeconds = 0) returns (Message|error)?;
 };
 

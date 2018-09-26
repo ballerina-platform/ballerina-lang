@@ -378,10 +378,11 @@ public type Notification object {
 # + leaseSeconds - The lease period for which the subscription is expected to be active
 # + secret - The secret to be used for authenticated content distribution with this subscription
 public type SubscriptionChangeRequest record {
-    string topic,
-    string callback,
-    int leaseSeconds,
-    string secret,
+    string topic;
+    string callback;
+    int leaseSeconds;
+    string secret;
+    !...
 };
 
 # Record representing subscription/unsubscription details if a subscription/unsubscription request is successful.
@@ -390,9 +391,10 @@ public type SubscriptionChangeRequest record {
 # + topic - The topic for which the subscription/unsubscription was successful
 # + response - The response from the hub to the subscription/unsubscription request
 public type SubscriptionChangeResponse record {
-    string hub,
-    string topic,
-    http:Response response,
+    string hub;
+    string topic;
+    http:Response response;
+    !...
 };
 
 /////////////////////////////////////////////////////////////
@@ -404,7 +406,7 @@ public type SubscriptionChangeResponse record {
 # + leaseSeconds - The default lease seconds value to honour if not specified in subscription requests
 # + signatureMethod - The signature method to use for authenticated content delivery (`SHA1`|`SHA256`)
 # + remotePublishingEnabled - Whether remote publishers should be allowed to publish to this hub (HTTP requests)
-# + remotePublishingMode - If remote publishing is allowed, the mode to use, `direct` (default) - fat ping with
+# + remotePublishMode - If remote publishing is allowed, the mode to use, `direct` (default) - fat ping with
 #                          the notification payload specified or `fetch` - the hub fetches the topic URL
 #                          specified in the "publish" request to identify the payload
 # + topicRegistrationRequired - Whether a topic needs to be registered at the hub prior to publishing/subscribing
@@ -563,11 +565,12 @@ public function addWebSubLinkHeader(http:Response response, string[] hubs, strin
 # + leaseSeconds - The lease second period specified for the particular subscription
 # + createdAt - The time at which the subscription was created
 type SubscriptionDetails record {
-    string topic,
-    string callback,
-    string secret,
-    int leaseSeconds,
-    int createdAt,
+    string topic;
+    string callback;
+    string secret;
+    int leaseSeconds;
+    int createdAt;
+    !...
 };
 
 function retrieveSubscriberServiceAnnotations(typedesc serviceType) returns SubscriberServiceConfiguration? {
@@ -587,8 +590,9 @@ function retrieveSubscriberServiceAnnotations(typedesc serviceType) returns Subs
 # + payload - The payload to be sent
 # + contentType - The content-type of the payload
 type WebSubContent record {
-    string|xml|json|byte[]|io:ByteChannel payload,
-    string contentType,
+    string|xml|json|byte[]|io:ByteChannel payload;
+    string contentType;
+    !...
 };
 
 function isSuccessStatusCode(int statusCode) returns boolean {
@@ -598,9 +602,11 @@ function isSuccessStatusCode(int statusCode) returns boolean {
 # Error to represent that a WebSubHub is already started up, encapsulating the started up Hub.
 #
 # + message - The error message
+# + cause - The cause of the `HubStartedUpError`, if available
 # + startedUpHub - The `WebSubHub` object representing the started up Hub
 public type HubStartedUpError record {
     string message;
     error? cause;
     WebSubHub startedUpHub;
+    !...
 };

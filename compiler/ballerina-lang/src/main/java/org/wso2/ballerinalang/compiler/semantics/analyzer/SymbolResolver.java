@@ -38,6 +38,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BXMLNSSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BChannelType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BFiniteType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BFutureType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
@@ -634,32 +635,33 @@ public class SymbolResolver extends BLangNodeVisitor {
     }
 
     public void visit(BLangObjectTypeNode objectTypeNode) {
-        BTypeSymbol objectSymbol = Symbols.createObjectSymbol(Flags.asMask(EnumSet.of(Flag.PUBLIC)),
-                Names.EMPTY, env.enclPkg.symbol.pkgID, null, env.scope.owner);
+        EnumSet<Flag> flags = EnumSet.copyOf(objectTypeNode.flagSet);
+        if (objectTypeNode.isAnonymous) {
+            flags.add(Flag.PUBLIC);
+        }
+
+        BTypeSymbol objectSymbol = Symbols.createObjectSymbol(Flags.asMask(flags), Names.EMPTY,
+                env.enclPkg.symbol.pkgID, null, env.scope.owner);
         BObjectType objectType = new BObjectType(objectSymbol);
         objectSymbol.type = objectType;
-
         objectTypeNode.symbol = objectSymbol;
 
         resultType = objectType;
     }
 
     public void visit(BLangRecordTypeNode recordTypeNode) {
-        BRecordTypeSymbol recordSymbol = Symbols.createRecordSymbol(Flags.asMask(EnumSet.of(Flag.PUBLIC)),
-                                                                    Names.EMPTY, env.enclPkg.symbol.pkgID, null,
-                                                                    env.scope.owner);
-
+        EnumSet<Flag> flags = recordTypeNode.isAnonymous ? EnumSet.of(Flag.PUBLIC) : EnumSet.noneOf(Flag.class);
+        BRecordTypeSymbol recordSymbol = Symbols.createRecordSymbol(Flags.asMask(flags), Names.EMPTY,
+                env.enclPkg.symbol.pkgID, null, env.scope.owner);
         BRecordType recordType = new BRecordType(recordSymbol);
         recordSymbol.type = recordType;
-
         recordTypeNode.symbol = recordSymbol;
-
         resultType = recordType;
     }
 
     public void visit(BLangFiniteTypeNode finiteTypeNode) {
-        BTypeSymbol finiteTypeSymbol = Symbols.createTypeSymbol(SymTag.FINITE_TYPE, Flags.asMask(EnumSet
-                .of(Flag.PUBLIC)), Names.EMPTY, env.enclPkg.symbol.pkgID, null, env.scope.owner);
+        BTypeSymbol finiteTypeSymbol = Symbols.createTypeSymbol(SymTag.FINITE_TYPE,
+                Flags.asMask(EnumSet.noneOf(Flag.class)), Names.EMPTY, env.enclPkg.symbol.pkgID, null, env.scope.owner);
 
         BFiniteType finiteType = new BFiniteType(finiteTypeSymbol);
         for (BLangExpression literal : finiteTypeNode.valueSpace) {
@@ -701,6 +703,14 @@ public class SymbolResolver extends BLangNodeVisitor {
             resultType = new BFutureType(TypeTags.FUTURE, constraintType, type.tsymbol);
         } else if (type.tag == TypeTags.MAP) {
             resultType = new BMapType(TypeTags.MAP, constraintType, type.tsymbol);
+        } else if (type.tag == TypeTags.CHANNEL) {
+            // only the simpleTypes, json and xml are allowed as channel data type.
+            if (constraintType.tag > TypeTags.XML || constraintType.tag == TypeTags.TYPEDESC) {
+                dlog.error(constrainedTypeNode.pos, DiagnosticCode.INCOMPATIBLE_TYPE_CONSTRAINT, type, constraintType);
+                resultType = symTable.errType;
+                return;
+            }
+            resultType = new BChannelType(TypeTags.CHANNEL, constraintType, type.tsymbol);
         } else {
             if (!types.checkStructToJSONCompatibility(constraintType) && constraintType != symTable.errType) {
                 dlog.error(constrainedTypeNode.pos, DiagnosticCode.INCOMPATIBLE_TYPE_CONSTRAINT, type, constraintType);

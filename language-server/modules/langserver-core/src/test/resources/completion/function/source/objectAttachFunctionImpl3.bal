@@ -1,9 +1,9 @@
 import ballerina/io;
 
 type Person object {
-    public int age,
-    public string firstName,
-    public string lastName,
+    public int age;
+    public string firstName;
+    public string lastName;
     new(age, firstName, lastName) {
     }
     function getFullName() returns string;

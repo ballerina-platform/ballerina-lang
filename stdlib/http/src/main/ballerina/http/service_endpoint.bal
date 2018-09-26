@@ -35,7 +35,7 @@ public type Listener object {
 
     # Gets invoked during package initialization to initialize the endpoint.
     #
-    # + return - Error occurred during initialization
+    # + c - Configurations for HTTP service endpoints
     public function init(ServiceEndpointConfiguration c);
 
     public extern function initEndpoint() returns error;
@@ -64,6 +64,7 @@ public type Listener object {
 public type Remote record {
     @readonly string host;
     @readonly int port;
+    !...
 };
 
 # Presents a read-only view of the local address.
@@ -73,6 +74,7 @@ public type Remote record {
 public type Local record {
     @readonly string host;
     @readonly int port;
+    !...
 };
 
 # Configures limits for requests. If these limits are violated, the request is rejected.
@@ -87,6 +89,7 @@ public type RequestLimits record {
     int maxUriLength = -1;
     int maxHeaderSize = -1;
     int maxEntityBodySize = -1;
+    !...
 };
 
 # Provides a set of configurations for HTTP service endpoints.
@@ -107,21 +110,26 @@ public type RequestLimits record {
 #                          connection. By default 10 requests can be pipelined on a single cinnection and user can
 #                          change this limit appropriately. This will be applicable only for HTTP 1.1
 public type ServiceEndpointConfiguration record {
-    string host,
-    int port,
-    KeepAlive keepAlive = KEEPALIVE_AUTO,
-    ServiceSecureSocket? secureSocket,
-    string httpVersion = "1.1",
-    RequestLimits? requestLimits,
-    Filter[] filters,
-    int timeoutMillis = DEFAULT_LISTENER_TIMEOUT,
-    int maxPipelinedRequests = MAX_PIPELINED_REQUESTS,
+    string host;
+    int port;
+    KeepAlive keepAlive = KEEPALIVE_AUTO;
+    ServiceSecureSocket? secureSocket;
+    string httpVersion = "1.1";
+    RequestLimits? requestLimits;
+    Filter[] filters;
+    int timeoutMillis = DEFAULT_LISTENER_TIMEOUT;
+    int maxPipelinedRequests = MAX_PIPELINED_REQUESTS;
+    !...
 };
 
 # Configures the SSL/TLS options to be used for HTTP service.
 #
 # + trustStore - Configures the trust store to be used
 # + keyStore - Configures the key store to be used
+# + certFile - A file containing the certificate of the server
+# + keyFile - A file containing the private key of the server
+# + keyPassword - Password of the private key if it is encrypted
+# + trustedCertFile - A file containing a list of certificates or a single certificate that the server trusts
 # + protocol - SSL/TLS protocol related options
 # + certValidation - Certificate validation against CRL or OCSP related options
 # + ciphers - List of ciphers to be used (e.g.: TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256,
@@ -130,14 +138,19 @@ public type ServiceEndpointConfiguration record {
 # + shareSession - Enable/disable new SSL session creation
 # + ocspStapling - Enable/disable OCSP stapling
 public type ServiceSecureSocket record {
-    TrustStore? trustStore,
-    KeyStore? keyStore,
-    Protocols? protocol,
-    ValidateCert? certValidation,
-    string[] ciphers,
-    string sslVerifyClient,
-    boolean shareSession = true,
-    ServiceOcspStapling? ocspStapling,
+    TrustStore? trustStore;
+    KeyStore? keyStore;
+    string certFile;
+    string keyFile;
+    string keyPassword;
+    string trustedCertFile;
+    Protocols? protocol;
+    ValidateCert? certValidation;
+    string[] ciphers;
+    string sslVerifyClient;
+    boolean shareSession = true;
+    ServiceOcspStapling? ocspStapling;
+    !...
 };
 
 # Defines the possible values for the keep-alive configuration in service and client endpoints.

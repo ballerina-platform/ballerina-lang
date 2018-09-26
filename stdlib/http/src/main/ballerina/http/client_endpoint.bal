@@ -53,8 +53,9 @@ public type Client object {
 # + url - URL of the target service
 # + secureSocket - Configurations for secure communication with the remote HTTP endpoint
 public type TargetService record {
-    string url,
-    SecureSocket? secureSocket,
+    string url;
+    SecureSocket? secureSocket;
+    !...
 };
 
 # Provides a set of configurations for controlling the behaviours when communicating with a remote HTTP endpoint.
@@ -75,21 +76,22 @@ public type TargetService record {
 # + compression - Specifies the way of handling compression (`accept-encoding`) header
 # + auth - HTTP authentication releated configurations
 public type ClientEndpointConfig record {
-    string url,
-    CircuitBreakerConfig? circuitBreaker,
-    int timeoutMillis = 60000,
-    KeepAlive keepAlive = KEEPALIVE_AUTO,
-    Chunking chunking = "AUTO",
-    string httpVersion = "1.1",
-    string forwarded = "disable",
-    FollowRedirects? followRedirects,
-    RetryConfig? retryConfig,
-    ProxyConfig? proxy,
-    ConnectionThrottling? connectionThrottling,
-    SecureSocket? secureSocket,
-    CacheConfig cache,
-    Compression compression = COMPRESSION_AUTO,
-    AuthConfig? auth,
+    string url;
+    CircuitBreakerConfig? circuitBreaker;
+    int timeoutMillis = 60000;
+    KeepAlive keepAlive = KEEPALIVE_AUTO;
+    Chunking chunking = "AUTO";
+    string httpVersion = "1.1";
+    string forwarded = "disable";
+    FollowRedirects? followRedirects;
+    RetryConfig? retryConfig;
+    ProxyConfig? proxy;
+    ConnectionThrottling? connectionThrottling;
+    SecureSocket? secureSocket;
+    CacheConfig cache;
+    Compression compression = COMPRESSION_AUTO;
+    AuthConfig? auth;
+    !...
 };
 
 extern function createHttpClient(string uri, ClientEndpointConfig config) returns CallerActions;
@@ -103,16 +105,21 @@ extern function createSimpleHttpClient(string uri, ClientEndpointConfig config) 
 # + backOffFactor - Multiplier of the retry interval to exponentailly increase retry interval
 # + maxWaitInterval - Maximum time of the retry interval in milliseconds
 public type RetryConfig record {
-    int count,
-    int interval,
-    float backOffFactor,
-    int maxWaitInterval,
+    int count;
+    int interval;
+    float backOffFactor;
+    int maxWaitInterval;
+    !...
 };
 
 # Provides configurations for facilitating secure communication with a remote HTTP endpoint.
 #
 # + trustStore - Configurations associated with TrustStore
 # + keyStore - Configurations associated with KeyStore
+# + certFile - A file containing the certificate of the client
+# + keyFile - A file containing the private key of the client
+# + keyPassword - Password of the private key if it is encrypted
+# + trustedCertFile - A file containing a list of certificates or a single certificate that the client trusts
 # + protocol - SSL/TLS protocol related options
 # + certValidation - Certificate validation against CRL or OCSP related options
 # + ciphers - List of ciphers to be used
@@ -121,14 +128,19 @@ public type RetryConfig record {
 # + shareSession - Enable/disable new SSL session creation
 # + ocspStapling - Enable/disable OCSP stapling
 public type SecureSocket record {
-    TrustStore? trustStore,
-    KeyStore? keyStore,
-    Protocols? protocol,
-    ValidateCert? certValidation,
-    string[] ciphers,
-    boolean verifyHostname = true,
-    boolean shareSession = true,
-    boolean ocspStapling,
+    TrustStore? trustStore;
+    KeyStore? keyStore;
+    string certFile;
+    string keyFile;
+    string keyPassword;
+    string trustedCertFile;
+    Protocols? protocol;
+    ValidateCert? certValidation;
+    string[] ciphers;
+    boolean verifyHostname = true;
+    boolean shareSession = true;
+    boolean ocspStapling;
+    !...
 };
 
 # Provides configurations for controlling the endpoint's behaviour in response to HTTP redirect related responses.
@@ -136,8 +148,9 @@ public type SecureSocket record {
 # + enabled - Enable/disable redirection
 # + maxCount - Maximum number of redirects to follow
 public type FollowRedirects record {
-    boolean enabled = false,
-    int maxCount = 5,
+    boolean enabled = false;
+    int maxCount = 5;
+    !...
 };
 
 # Proxy server configurations to be used with the HTTP client endpoint.
@@ -147,10 +160,11 @@ public type FollowRedirects record {
 # + userName - Proxy server username
 # + password - proxy server password
 public type ProxyConfig record {
-    string host,
-    int port,
-    string userName,
-    string password,
+    string host;
+    int port;
+    string userName;
+    string password;
+    !...
 };
 
 # Provides configurations for throttling connections of the endpoint.
@@ -160,9 +174,10 @@ public type ProxyConfig record {
 # + waitTime - Maximum waiting time for a request to grab an idle connection from the client
 # + maxActiveStreamsPerConnection - Maximum number of active streams allowed per an HTTP/2 connection
 public type ConnectionThrottling record {
-    int maxActiveConnections = -1,
-    int waitTime = 60000,
-    int maxActiveStreamsPerConnection = -1,
+    int maxActiveConnections = -1;
+    int waitTime = 60000;
+    int maxActiveStreamsPerConnection = -1;
+    !...
 };
 
 # AuthConfig record can be used to configure the authentication mechanism used by the HTTP endpoint.
@@ -179,17 +194,18 @@ public type ConnectionThrottling record {
 # + clientId - Clietnt ID for OAuth2 authentication
 # + clientSecret - Client secret for OAuth2 authentication
 public type AuthConfig record {
-    AuthScheme scheme,
-    string username,
-    string password,
-    string accessToken,
-    string refreshToken,
-    string refreshUrl,
-    string consumerKey,
-    string consumerSecret,
-    string tokenUrl,
-    string clientId,
-    string clientSecret,
+    AuthScheme scheme;
+    string username;
+    string password;
+    string accessToken;
+    string refreshToken;
+    string refreshUrl;
+    string consumerKey;
+    string consumerSecret;
+    string tokenUrl;
+    string clientId;
+    string clientSecret;
+    !...
 };
 
 function Client::init(ClientEndpointConfig c) {

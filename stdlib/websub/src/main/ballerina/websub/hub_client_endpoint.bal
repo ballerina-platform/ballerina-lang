@@ -62,8 +62,9 @@ public type Client object {
 # + auth - Authentication mechanism for the underlying HTTP Client
 # + followRedirects - HTTP redirect related configuration
 public type HubClientEndpointConfig record {
-    string url,
-    http:SecureSocket? clientSecureSocket,
-    http:AuthConfig? auth,
-    http:FollowRedirects? followRedirects,
+    string url;
+    http:SecureSocket? clientSecureSocket;
+    http:AuthConfig? auth;
+    http:FollowRedirects? followRedirects;
+    !...
 };

@@ -26,15 +26,16 @@
 # + tags - A list of tags used by the specification with additional metadata
 # + security - Security requirements for this service
 public type ServiceInformation record {
-    string title,
-    string serviceVersion,
-    string description,
-    string termsOfService,
-    Contact contact,
-    License license,
-    DocumentationInformation externalDocs,
-    Tag[] tags,
-    SecurityRequirement[] security,
+    string title;
+    string serviceVersion;
+    string description;
+    string termsOfService;
+    Contact contact;
+    License license;
+    DocumentationInformation externalDocs;
+    Tag[] tags;
+    SecurityRequirement[] security;
+    !...
 };
 
 # Model for Swagger contact information.
@@ -43,9 +44,10 @@ public type ServiceInformation record {
 # + email - Contact email
 # + url - Contact web address/page
 public type Contact record {
-    string name,
-    string email,
-    string url,
+    string name;
+    string email;
+    string url;
+    !...
 };
 
 # Model for service licence information.
@@ -53,8 +55,9 @@ public type Contact record {
 # + name - License name
 # + url - License url
 public type License record {
-    string name,
-    string url,
+    string name;
+    string url;
+    !...
 };
 
 # Model for service documentation definition.
@@ -62,8 +65,9 @@ public type License record {
 # + description - Documentation description
 # + url - External documentation url
 public type DocumentationInformation record {
-    string description,
-    string url,
+    string description;
+    string url;
+    !...
 };
 
 # Model for Swagger service tag definition.
@@ -72,9 +76,10 @@ public type DocumentationInformation record {
 # + description - Tag decription
 # + externalDocs - Optional documentation on the tag
 public type Tag record {
-    string name,
-    string description,
-    DocumentationInformation externalDocs,
+    string name;
+    string description;
+    DocumentationInformation externalDocs;
+    !...
 };
 
 # Model for security requirement definition. This is most likely the OAuth scopes.
@@ -82,8 +87,9 @@ public type Tag record {
 # + name - Security scheme name
 # + requirements - Array of security requirements
 public type SecurityRequirement record {
-    string name,
-    string[] requirements,
+    string name;
+    string[] requirements;
+    !...
 };
 
 # Model for keeping Swagger parameter information.
@@ -96,13 +102,14 @@ public type SecurityRequirement record {
 # + allowEmptyValue - Is an empty value allowed for this parameter. Valid only for query parameters
 # + schema - Parameter data type
 public type ParameterInformation record {
-    string inInfo,
-    string name,
-    string description,
-    boolean required,
-    boolean discontinued,
-    string allowEmptyValue,
-    Schema schema,
+    string inInfo;
+    string name;
+    string description;
+    boolean required;
+    boolean discontinued;
+    string allowEmptyValue;
+    Schema schema;
+    !...
 };
 
 # Model for keeping additional Swagger schema information.
@@ -111,9 +118,10 @@ public type ParameterInformation record {
 # + isArray - Is this an array type schema
 # + ref - Schema reference if this schema definition is a reference type definition
 public type Schema record {
-    string format,
-    boolean isArray,
-    string ref,
+    string format;
+    boolean isArray;
+    string ref;
+    !...
 };
 
 # Model for additional Swagger resource definition.
@@ -124,11 +132,12 @@ public type Schema record {
 # + externalDocs - Additional documentation for this operation
 # + parameters - A list of parameters that are applicable for this operation
 public type ResourceInformation record {
-    string[] tags,
-    string summary,
-    string description,
-    DocumentationInformation externalDocs,
-    ParameterInformation[] parameters,
+    string[] tags;
+    string summary;
+    string description;
+    DocumentationInformation externalDocs;
+    ParameterInformation[] parameters;
+    !...
 };
 
 # Model for keeping Swagger response information.
@@ -139,11 +148,12 @@ public type ResourceInformation record {
 # + headers - Response headers
 # + examples - Examples for this response
 public type Response record {
-    string code,
-    string description,
-    string response,
-    Header[] headers,
-    Example[] examples,
+    string code;
+    string description;
+    string response;
+    Header[] headers;
+    Example[] examples;
+    !...
 };
 
 # Model for keeping Swagger header definition information.
@@ -152,9 +162,10 @@ public type Response record {
 # + discontinued - Is this header deprecated
 # + description - Header description
 public type Header record {
-    boolean required,
-    boolean discontinued,
-    string description,
+    boolean required;
+    boolean discontinued;
+    string description;
+    !...
 };
 
 # Model for keeping Swagger example information.
@@ -164,10 +175,11 @@ public type Header record {
 # + value - Any example value
 # + externalValue - A URL that points to the literal example
 public type Example record {
-    string summary,
-    string description,
-    any value,
-    string externalValue,
+    string summary;
+    string description;
+    any value;
+    string externalValue;
+    !...
 };
 
 # Model for additional Swagger request body details.
@@ -179,12 +191,13 @@ public type Example record {
 # + schema - The schema defining the type used for the request body
 # + encoding - Encoding and content type details
 public type requestBody record {
-    string description,
-    boolean required,
-    string example,
-    Example[] examples,
-    Schema schema,
-    Encoding[] encoding,
+    string description;
+    boolean required;
+    string example;
+    Example[] examples;
+    Schema schema;
+    Encoding[] encoding;
+    !...
 };
 
 # Model for additional Swagger content type definition.
@@ -195,18 +208,20 @@ public type requestBody record {
 # + explode - Should property values of array or object generate separate parameters for each value of the array
 # + allowReserved - Determines whether the parameter value SHOULD allow reserved characters
 public type Encoding record {
-    ParameterInformation[] headers,
-    string contentType,
-    string style,
-    boolean explode,
-    boolean allowReserved,
+    ParameterInformation[] headers;
+    string contentType;
+    string style;
+    boolean explode;
+    boolean allowReserved;
+    !...
 };
 
 # Configuration elements for client code generation.
 #
 # + generate - generates client code if set to true
 public type ClientInformation record {
-    boolean generate = true,
+    boolean generate = true;
+    !...
 };
 
 # Presence of this annotation will mark this endpoint to be used as a service endpoint for client generation

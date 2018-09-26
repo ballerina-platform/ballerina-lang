@@ -19,6 +19,7 @@ package org.ballerinalang.test.utils.debug;
 
 import org.ballerinalang.util.debugger.dto.BreakPointDTO;
 
+import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
@@ -34,10 +35,13 @@ public class DebugPoint {
 
     private AtomicInteger noOfHits;
 
-    DebugPoint(BreakPointDTO expBreakPoint, Step nextStep, int noOfHits) {
+    private Map<String, String> expressionsMap;
+
+    DebugPoint(BreakPointDTO expBreakPoint, Step nextStep, int noOfHits, Map<String, String> expressionsMap) {
         this.expBreakPoint = expBreakPoint;
         this.nextStep = nextStep;
         this.noOfHits = new AtomicInteger(noOfHits);
+        this.expressionsMap = expressionsMap;
     }
 
     boolean match(BreakPointDTO breakPoint) {
@@ -55,6 +59,10 @@ public class DebugPoint {
 
     int decrementAndGetHits() {
         return noOfHits.decrementAndGet();
+    }
+
+    Map<String, String> getExpressionsMap() {
+        return expressionsMap;
     }
 
     @Override

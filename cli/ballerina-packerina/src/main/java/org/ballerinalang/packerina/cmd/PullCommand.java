@@ -17,8 +17,8 @@
 */
 package org.ballerinalang.packerina.cmd;
 
-import org.ballerinalang.compiler.BLangCompilerException;
 import org.ballerinalang.launcher.BLauncherCmd;
+import org.ballerinalang.launcher.LauncherUtils;
 import org.ballerinalang.model.elements.PackageID;
 import org.wso2.ballerinalang.compiler.packaging.Patten;
 import org.wso2.ballerinalang.compiler.packaging.converters.Converter;
@@ -53,9 +53,6 @@ public class PullCommand implements BLauncherCmd {
     @CommandLine.Option(names = {"--help", "-h"}, hidden = true)
     private boolean helpFlag;
 
-    @CommandLine.Option(names = "--java.debug", hidden = true, description = "remote java debugging port")
-    private String javaDebugPort;
-
     @CommandLine.Option(names = "--debug", hidden = true)
     private String debugPort;
 
@@ -68,11 +65,11 @@ public class PullCommand implements BLauncherCmd {
         }
 
         if (argList == null || argList.size() == 0) {
-            throw new BLangCompilerException("no package given");
+            throw LauncherUtils.createUsageExceptionWithHelp("no package given");
         }
 
         if (argList.size() > 1) {
-            throw new BLangCompilerException("too many arguments");
+            throw LauncherUtils.createUsageExceptionWithHelp("too many arguments");
         }
 
         // Enable remote debugging
@@ -90,11 +87,11 @@ public class PullCommand implements BLauncherCmd {
         if (orgNameIndex != -1) {
             orgName = resourceName.substring(0, orgNameIndex);
             if (orgName.equals("ballerina")) {
-                throw new BLangCompilerException("`Ballerina` is the builtin organization and its packages are " +
-                                                         "included in the runtime.");
+                throw LauncherUtils.createLauncherException("`Ballerina` is the builtin organization and its packages"
+                                                                    + " are included in the runtime.");
             }
         } else {
-            throw new BLangCompilerException("no package-name provided");
+            throw LauncherUtils.createLauncherException("no package-name provided");
         }
 
         // Get package name

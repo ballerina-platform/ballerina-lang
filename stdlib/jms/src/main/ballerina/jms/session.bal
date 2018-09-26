@@ -32,11 +32,13 @@ public type Session object {
     # Creates a JMS message which holds text content
     #
     # + content - the text content used to initialize this message
+    # + return - a text message or error in case of errors
     public extern function createTextMessage(string content) returns Message|error;
 
     # Creates a JMS message which holds Map content
     #
     # + content - the Map content used to initialize this message
+    # + return - a map message or error incase of errors
     public extern function createMapMessage(map content) returns Message|error;
 
     # Unsubscribes a durable subscription that has been created by a client.
@@ -45,30 +47,29 @@ public type Session object {
     # acknowledged in the session.
     #
     # + subscriptionId - the name used to identify this subscription
+    # + return - Cancel subscription
     public extern function unsubscribe(string subscriptionId) returns error?;
 
-    documentation {
-        Creates a JMS Queue which can be used as temporary response destination.
-    }
+    # Creates a JMS Queue which can be used as temporary response destination.
+    #
+    # + return - JMS destination for a temporary queue or error if fails
     public extern function createTemporaryQueue() returns Destination|error;
 
-    documentation {
-        Creates a JMS Topic which can be used as temporary response destination.
-    }
+    # Creates a JMS Topic which can be used as temporary response destination.
+    #
+    # + return - JMS destination for a temporary topic or error if fails
     public extern function createTemporaryTopic() returns Destination|error;
 
-    documentation {
-        Creates a JMS Queue which can be used with a message producer.
-
-        P{{queueName}} name of the Queue
-    }
+    # Creates a JMS Queue which can be used with a message producer.
+    #
+    # + queueName - name of the Queue
+    # + return - JMS destination for a queue or error if fails
     public extern function createQueue(string queueName) returns Destination|error;
 
-    documentation {
-        Creates a JMS Topic which can be used with a message producer.
-
-        P{{topicName}} name of the Topic
-    }
+    # Creates a JMS Topic which can be used with a message producer.
+    #
+    # + topicName - name of the Topic
+    # + return - JMS destination for a topic or error if fails
     public extern function createTopic(string topicName) returns Destination|error;
 };
 
@@ -78,4 +79,5 @@ public type Session object {
 #                         "CLIENT_ACKNOWLEDGE", "SESSION_TRANSACTED" and "DUPS_OK_ACKNOWLEDGE"
 public type SessionConfiguration record {
     string acknowledgementMode = "AUTO_ACKNOWLEDGE";
+    !...
 };

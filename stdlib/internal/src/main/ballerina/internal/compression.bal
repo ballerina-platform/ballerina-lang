@@ -21,8 +21,9 @@ import ballerina/file;
 # + message - The error message
 # + cause - The error which caused the compression error
 public type CompressionError record {
-    string message,
-    error? cause,
+    string message;
+    error? cause;
+    !...
 };
 
 # Decompresses a byte array into a directory.
@@ -30,25 +31,25 @@ public type CompressionError record {
 # + content - Byte array of the compressed file
 # + destDir - Path of the directory to decompress the file
 # + return - An error if an error occurs during the decompression process
-public extern function decompressFromByteArray(byte[] content, Path destDir) returns error?;
+public extern function decompressFromByteArray(byte[] content, Path destDir) returns CompressionError?;
 
 # Decompresses a compressed file.
 #
 # + dirPath - Path of the compressed file
 # + destDir - Path of the directory to decompress the file
 # + return - An error if an error occurs during the decompression process
-public extern function decompress(Path dirPath, Path destDir) returns error?;
+public extern function decompress(Path dirPath, Path destDir) returns CompressionError?;
 
 # Compresses a directory.
 #
 # + dirPath - Path of the directory to be compressed
 # + destDir - Path of the directory to place the compressed file
 # + return - An error if an error occurs during the compression process
-public extern function compress(Path dirPath, Path destDir) returns error?;
+public extern function compress(Path dirPath, Path destDir) returns CompressionError?;
 
 # Compresses a directory into a byte array.
 #
 # + dirPath - Path of the directory to be compressed
 # + return - Compressed byte array of the file.
 #            An error if an error occurs during the compression process.
-public extern function compressToByteArray(Path dirPath) returns byte[]|error;
+public extern function compressToByteArray(Path dirPath) returns byte[]|CompressionError;
