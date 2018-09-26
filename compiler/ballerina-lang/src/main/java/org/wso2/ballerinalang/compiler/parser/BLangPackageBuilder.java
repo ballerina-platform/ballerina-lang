@@ -251,8 +251,6 @@ public class BLangPackageBuilder {
 
     private Stack<List<VariableNode>> varListStack = new Stack<>();
 
-    private List<BLangTupleTypeNode> tupleTypeQueue = new LinkedList<>();
-
     private Stack<BLangRecordVariableKeyValue> recordVarStack = new Stack<>();
 
     private Stack<InvokableNode> invokableNodeStack = new Stack<>();
@@ -426,7 +424,6 @@ public class BLangPackageBuilder {
         tupleTypeNode.pos = pos;
         tupleTypeNode.addWS(ws);
         this.typeNodeStack.push(tupleTypeNode);
-        this.tupleTypeQueue.add(tupleTypeNode);
     }
 
     void addRecordType(DiagnosticPos pos, Set<Whitespace> ws, boolean isFieldAnalyseRequired, boolean isAnonymous,
@@ -707,12 +704,8 @@ public class BLangPackageBuilder {
         BLangTupleVariable tupleVariable = (BLangTupleVariable) TreeBuilder.createTupleVariableNode();
         tupleVariable.pos = pos;
         tupleVariable.addWS(ws);
-        TypeNode typeNode = this.tupleTypeQueue.remove(0);
-        tupleVariable.setTypeNode(typeNode);
-        List<? extends TypeNode> tupleTypeNodes = ((TupleTypeNode) typeNode).getMemberTypeNodes();
         for (int i = 0; i < members; i++) {
             final BLangVariable member = (BLangVariable) this.varStack.pop();
-            member.setTypeNode(tupleTypeNodes.get(tupleTypeNodes.size() - (i + 1)));
             tupleVariable.memberVariables.add(0, member);
         }
         this.varStack.push(tupleVariable);
@@ -916,8 +909,8 @@ public class BLangPackageBuilder {
         varDefNode.pos = pos;
         varDefNode.setVariable(var);
         varDefNode.addWS(wsOfSemiColon);
+        var.setTypeNode(this.typeNodeStack.pop());
         addStmtToCurrentBlock(varDefNode);
-        this.typeNodeStack.pop();
     }
 
     void addRecordVariableDefStatement(DiagnosticPos pos,
