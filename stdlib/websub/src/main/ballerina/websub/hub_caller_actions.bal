@@ -39,7 +39,7 @@ public type CallerActions object {
     # + return - `SubscriptionChangeResponse` indicating subscription details, if the request was successful else
     #            `error` if an error occurred with the subscription request
     public function subscribe(SubscriptionChangeRequest subscriptionRequest)
-        returns @tainted (SubscriptionChangeResponse|error);
+        returns @tainted SubscriptionChangeResponse|error;
 
     # Sends an unsubscription request to a WebSub Hub.
     #
@@ -47,7 +47,7 @@ public type CallerActions object {
     # + return - `SubscriptionChangeResponse` indicating unsubscription details, if the request was successful else
     #            `error` if an error occurred with the unsubscription request
     public function unsubscribe(SubscriptionChangeRequest unsubscriptionRequest)
-        returns @tainted (SubscriptionChangeResponse|error);
+        returns @tainted SubscriptionChangeResponse|error;
 
     # Registers a topic in a Ballerina WebSub Hub against which subscribers can subscribe and the publisher will
     # publish updates.

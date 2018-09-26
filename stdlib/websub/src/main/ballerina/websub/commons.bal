@@ -48,6 +48,9 @@ import ballerina/reflect;
 # `hub.mode` value indicating "unsubscription" mode, to unsubscribe to updates for a topic.
 @final string MODE_UNSUBSCRIBE = "unsubscribe";
 
+@final string X_HUB_SIGNATURE = "X-Hub-Signature";
+
+///////////////////////////////// Ballerina WebSub specific constants /////////////////////////////////
 # `hub.mode` value indicating "publish" mode, used by a publisher to notify an update to a topic.
 @final string MODE_PUBLISH = "publish";
 
@@ -62,7 +65,6 @@ import ballerina/reflect;
 
 @final string X_HUB_UUID = "X-Hub-Uuid";
 @final string X_HUB_TOPIC = "X-Hub-Topic";
-@final string X_HUB_SIGNATURE = "X-Hub-Signature";
 
 @final string CONTENT_TYPE = "Content-Type";
 @final string SHA1 = "SHA1";
@@ -83,7 +85,7 @@ public type RemotePublishMode "PUBLISH_MODE_DIRECT"|"PUBLISH_MODE_FETCH";
 # needs to fetch the topic URL to identify the update content.
 @final public RemotePublishMode PUBLISH_MODE_FETCH = "PUBLISH_MODE_FETCH";
 
-//TODO: Make public once extension story is finalized.
+///////////////////////////////// Custom Webhook/Extension specific constants /////////////////////////////////
 # The identifier to be used to identify the topic for dispatching with custom subscriber services.
 public type TopicIdentifier "TOPIC_ID_HEADER"|"TOPIC_ID_PAYLOAD_KEY"|"TOPIC_ID_HEADER_AND_PAYLOAD";
 
@@ -173,25 +175,18 @@ function buildIntentVerificationResponse(IntentVerificationRequest intentVerific
 # + serviceType - The type of the service for which the request was rceived
 # + return - `error`, if an error occurred in extraction or signature validation failed
 function processWebSubNotification(http:Request request, typedesc serviceType) returns error? {
-    string secret;
-    match (retrieveSubscriberServiceAnnotations(serviceType)) {
-        SubscriberServiceConfiguration subscriberServiceAnnotation => { secret = subscriberServiceAnnotation.secret; }
-        () => {}
-    }
+    string secret = retrieveSubscriberServiceAnnotations(serviceType).secret but { () => "" };
 
-    string xHubSignature;
-
-    if (request.hasHeader(X_HUB_SIGNATURE)) {
-        xHubSignature = request.getHeader(X_HUB_SIGNATURE);
-    } else {
+    if (!request.hasHeader(X_HUB_SIGNATURE)) {
         if (secret != "") {
-            error webSubError = {message:X_HUB_SIGNATURE + " header not present for subscription added" +
-                " specifying " + HUB_SECRET};
+            error webSubError = {message:X_HUB_SIGNATURE + " header not present for subscription added"
+                                    + " specifying " + HUB_SECRET};
             return webSubError;
         }
         return;
     }
 
+    string xHubSignature = request.getHeader(X_HUB_SIGNATURE);
     if (secret == "" && xHubSignature != "") {
         log:printWarn("Ignoring " + X_HUB_SIGNATURE + " value since secret is not specified.");
         return;
@@ -531,7 +526,7 @@ function WebSubHub::unregisterTopic(string topic) returns error? {
 # + hubs - The hubs the publisher advertises as the hubs that it publishes updates to
 # + topic - The topic to which subscribers need to subscribe to, to receive updates for the resource
 public function addWebSubLinkHeader(http:Response response, string[] hubs, string topic) {
-    string hubLinkHeader = "";
+    string hubLinkHeader;
     foreach hub in hubs {
         hubLinkHeader = hubLinkHeader + "<" + hub + ">; rel=\"hub\", ";
     }
