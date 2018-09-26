@@ -116,6 +116,7 @@ public class BallerinaDocumentServiceImpl implements BallerinaDocumentService {
 
             reply.setOasAST(getTreeForContent(source.get(0).getContent()));
         } catch (Exception ex) {
+            reply.isIsError(true);
             logger.error("error: while processing service definition at converter service: " + ex.getMessage(), ex);
         }
 

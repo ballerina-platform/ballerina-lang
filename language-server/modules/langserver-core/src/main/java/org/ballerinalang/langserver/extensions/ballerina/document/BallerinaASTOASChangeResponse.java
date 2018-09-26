@@ -21,6 +21,15 @@ import com.google.gson.JsonElement;
 public class BallerinaASTOASChangeResponse {
 
     private JsonElement oasAST;
+    private Boolean isError;
+
+    public Boolean getIsError() {
+        return this.isError;
+    }
+
+    public void isIsError(Boolean isError) {
+        this.isError = isError;
+    }
 
     public JsonElement getOasAST() {
         return this.oasAST;

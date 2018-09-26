@@ -27,13 +27,19 @@ export function apiEditorRender(context: ExtensionContext, langClient: ExtendedL
             })
         }
 
+        function onDidJsonChange(e,t,v) {
+            webViewRPCHandler.invokeRemoteMethod('onOasChange', [JSON.stringify(v)], (resp) => {
+                console.log(resp);
+            });
+        }
+
         function drawAPIEditor() {
             getSwaggerJson(docUri, '').then((response)=>{
                 try {
                     let width = window.innerWidth - 6;
                     let height = window.innerHeight;
                     console.log(JSON.stringify(response.ballerinaOASJson));
-                    ballerinaDiagram.renderBallerinaApiEditor(document.getElementById("api-visualizer"), JSON.stringify(response.ballerinaOASJson));
+                    ballerinaDiagram.renderBallerinaApiEditor(document.getElementById("api-visualizer"), JSON.stringify(response.ballerinaOASJson), onDidJsonChange);
                 } catch (e) {
                     console.log(e.stack);
                 }

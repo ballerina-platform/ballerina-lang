@@ -195,10 +195,10 @@ function renderSamplesList(target, getSamples, openSample, openLink) {
     ReactDOM.render(SamplesListElement, target);
 }
 
-function renderBallerinaApiEditor(target, swaggerJson) {
-    debugger;
+function renderBallerinaApiEditor(target, swaggerJson, onJsonChange) {
     const props = {
-        oasJson: JSON.parse(JSON.parse(swaggerJson))
+        oasJson: JSON.parse(JSON.parse(swaggerJson)),
+        onDidChange: onJsonChange
     };
     const oasComponent = createElement(SwaggerVisualizer, props);
     ReactDOM.render(oasComponent, target);

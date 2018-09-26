@@ -98,6 +98,11 @@ export function activate(context: ExtensionContext, langClient: ExtendedLangClie
 			handler: (args: any[]) => {
 				return langClient.getBallerinaOASDef(args[0], args[1]);
 			}
+		},{
+			methodName: 'onOasChange',
+			handler: (args: any[]) => {
+				return langClient.getBallerinaASTforOas(args[0]);
+			}
 		}], oasEditorPanel.webview)
 		const html = apiEditorRender(context, langClient, editor.document.uri);
 		if (oasEditorPanel && html) {
