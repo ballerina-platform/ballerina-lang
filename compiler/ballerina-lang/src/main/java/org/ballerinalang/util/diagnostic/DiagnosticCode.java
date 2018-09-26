@@ -188,6 +188,7 @@ public enum DiagnosticCode {
     INVALID_ARRAY_LITERAL("invalid.array.literal"),
     INVALID_TUPLE_LITERAL("invalid.tuple.literal"),
     INVALID_TUPLE_BINDING_PATTERN("invalid.tuple.binding.pattern"),
+    INVALID_TYPE_FOR_TUPLE_BINDING_PATTERN("invalid.type.for.tuple.binding.pattern"),
     MISMATCHING_ARRAY_LITERAL_VALUES("mismatching.array.literal.values"),
     SEALED_ARRAY_TYPE_NOT_INITIALIZED("sealed.array.type.not.initialized"),
     SEALED_ARRAY_TYPE_CAN_NOT_INFER_SIZE("sealed.array.type.can.not.infer.size"),
