@@ -27,6 +27,11 @@ import SwaggerAppContext from '../context/app-context';
 
 import 'semantic-ui-css/semantic.min.css';
 
+const EVENTS = {
+    "ADD_RESOURCE": "add-resource",
+    "ADD_OPERATION": "add-operation",
+}
+
 
 /**
  * A Component to visualize a swagger json
@@ -100,7 +105,7 @@ class SwaggerVisualizer extends React.Component {
     }
 
     onAddResource(resourceObj){
-        const { onAddResource } = this.props;
+        const { onAddResource, onDidChange } = this.props;
         const resource = resourceObj.resource.replace(' ','');
 
         this.setState(prevState => ({
@@ -117,6 +122,8 @@ class SwaggerVisualizer extends React.Component {
                 
                 //Exposed event for post add resource event
                 onAddResource(resource, this.state.oasJson);
+
+                onDidChange(EVENTS.ADD_RESOURCE, resource, this.state.oasJson);
 
                 this.setState({
                     actionState: {
@@ -238,7 +245,8 @@ SwaggerVisualizer.propTypes = {
     onAddResource: propTypes.func,
     onAddParameter: propTypes.func,
     onAddOperation: propTypes.func,
-    onDeleteOperation: propTypes.func
+    onDeleteOperation: propTypes.func,
+    onDidChange: propTypes.func
 };
 
 SwaggerVisualizer.defaultProps = {
@@ -246,6 +254,7 @@ SwaggerVisualizer.defaultProps = {
     onAddParameter: () => {},
     onAddOperation: () => {},
     onDeleteOperation: () => {},
+    onDidChange: () => {}
 };
 
 export default SwaggerVisualizer;
