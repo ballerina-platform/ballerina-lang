@@ -22,6 +22,7 @@ import org.ballerinalang.model.TreeBuilder;
 import org.ballerinalang.model.elements.TableColumnFlag;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.OperatorKind;
+import org.ballerinalang.model.tree.RecordVariableNode.BLangRecordVariableKeyValueNode;
 import org.ballerinalang.model.tree.clauses.JoinStreamingInput;
 import org.ballerinalang.model.tree.expressions.NamedArgNode;
 import org.ballerinalang.model.tree.statements.StatementNode;
@@ -44,6 +45,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BJSONType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BMapType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStructureType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
@@ -622,6 +624,28 @@ public class Desugar extends BLangNodeVisitor {
         result = rewrite(blockStmt, env);
     }
 
+    @Override
+    public void visit(BLangRecordVariableDef varDefNode) {
+
+        varDefNode.var = rewrite(varDefNode.var, env);
+        BLangRecordVariable varNode = varDefNode.var;
+
+        final BLangBlockStmt blockStmt = ASTBuilderUtil.createBlockStmt(varDefNode.pos);
+
+        BType runTimeType = new BMapType(TypeTags.RECORD, symTable.anyType, null);
+
+        final BLangSimpleVariable mapVariable = ASTBuilderUtil.createVariable(varDefNode.pos, "", runTimeType,
+                null, new BVarSymbol(0, names.fromString("$map$0"), this.env.scope.owner.pkgID,
+                        runTimeType, this.env.scope.owner));
+        mapVariable.expr = varDefNode.var.expr;
+        final BLangSimpleVariableDef variableDef = ASTBuilderUtil.createVariableDefStmt(varDefNode.pos, blockStmt);
+        variableDef.var = mapVariable;
+
+        createVarDefStmts(varNode, blockStmt, mapVariable.symbol, null);
+
+        result = rewrite(blockStmt, env);
+    }
+
     /**
      * This method iterate through each member of the tupleVar and create the relevant var def statements. This method
      * does the check for node kind of each member and call the related var def creation method.
@@ -635,15 +659,16 @@ public class Desugar extends BLangNodeVisitor {
      *
      */
     private void createVarDefStmts(BLangTupleVariable parentTupleVariable, BLangBlockStmt parentBlockStmt,
-                                   BVarSymbol tupleVarSymbol, BLangIndexBasedAccess parentIndexAccessExpr) {
+                                               BVarSymbol tupleVarSymbol, BLangIndexBasedAccess parentIndexAccessExpr) {
 
         final List<BLangVariable> memberVars = parentTupleVariable.memberVariables;
         for (int index = 0; index < memberVars.size(); index++) {
             BLangVariable variable = memberVars.get(index);
             if (NodeKind.VARIABLE == variable.getKind()) { //if this is simple var, then create a simple var def stmt
-                createSimpleVarDefStmt((BLangSimpleVariable) variable, parentBlockStmt, index, tupleVarSymbol,
+                BLangLiteral indexExpr = ASTBuilderUtil.createLiteral(variable.pos, symTable.intType, (long) index);
+                createSimpleVarDefStmt((BLangSimpleVariable) variable, parentBlockStmt, indexExpr, tupleVarSymbol,
                         parentIndexAccessExpr);
-            } else { //else recursively create the var def statements
+            } else if (variable.getKind() == NodeKind.TUPLE_VARIABLE) { //else recursively create the var def statements
                 BLangTupleVariable tupleVariable = (BLangTupleVariable) variable;
                 BLangLiteral indexExpr = ASTBuilderUtil.createLiteral(tupleVariable.pos, symTable.intType,
                         (long) index);
@@ -652,23 +677,104 @@ public class Desugar extends BLangNodeVisitor {
                 if (parentIndexAccessExpr != null) {
                     arrayAccessExpr.expr = parentIndexAccessExpr;
                 }
-                createVarDefStmts((BLangTupleVariable) variable, parentBlockStmt, tupleVarSymbol, arrayAccessExpr);
+                createVarDefStmts((BLangTupleVariable) variable, parentBlockStmt, tupleVarSymbol,
+                        arrayAccessExpr);
+            } else if (variable.getKind() == NodeKind.RECORD_VARIABLE) {
+                BLangRecordVariable recordVariable = (BLangRecordVariable) variable;
+                BLangLiteral indexExpr = ASTBuilderUtil.createLiteral(recordVariable.pos, symTable.intType,
+                        (long) index);
+                BLangIndexBasedAccess arrayAccessExpr = ASTBuilderUtil.createIndexBasesAccessExpr(
+                        parentTupleVariable.pos, new BMapType(TypeTags.RECORD, symTable.anyType, null),
+                        tupleVarSymbol, indexExpr);
+                if (parentIndexAccessExpr != null) {
+                    arrayAccessExpr.expr = parentIndexAccessExpr;
+                }
+                createVarDefStmts((BLangRecordVariable) variable, parentBlockStmt, tupleVarSymbol, arrayAccessExpr);
             }
         }
     }
 
     /**
-     * This method creates a simple variable def and assigns and array expression based on the given index value and
-     * parent array access expr.
+     * Overloaded method to handle record variables.
+     * This method iterate through each member of the recordVar and create the relevant var def statements. This method
+     * does the check for node kind of each member and call the related var def creation method.
      *
-     *  case 1: when there is no parent array access expression, but with the index : 1
-     *  string s = x[1];
+     * Example:
+     * type Foo record {
+     *     string name;
+     *     (int, string) age;
+     *     Address address;
+     * };
      *
-     *  case 2: when there is a parent array expression : x[2] and index : 3
-     *  string s = x[2][3];
+     * Foo {name: a, age: (b, c), address: d} = {record literal}
+     *
+     *  a is a simple var, so a simple var def will be created.
+     *
+     * (b, c) is a tuple, so it is a recursive var def creation.
+     *
+     * d is a record, so it is a recursive var def creation.
      *
      */
-    private void createSimpleVarDefStmt(BLangSimpleVariable simpleVariable, BLangBlockStmt parentBlockStmt, int index,
+    private void createVarDefStmts(BLangRecordVariable parentRecordVariable,
+                                                BLangBlockStmt parentBlockStmt,
+                                                BVarSymbol recordVarSymbol,
+                                                BLangIndexBasedAccess parentIndexAccessExpr) {
+
+        List<BLangRecordVariableKeyValueNode> variableList = parentRecordVariable.variableList;
+        for (BLangRecordVariableKeyValueNode variableKeyValueNode : variableList) {
+            if (variableKeyValueNode.getValue().getKind() == NodeKind.VARIABLE) {
+                BLangLiteral indexExpr = ASTBuilderUtil.
+                        createLiteral(((BLangVariable) variableKeyValueNode.getValue()).pos, symTable.stringType,
+                                variableKeyValueNode.getKey().getValue());
+                createSimpleVarDefStmt((BLangSimpleVariable) variableKeyValueNode.getValue(), parentBlockStmt,
+                        indexExpr, recordVarSymbol, parentIndexAccessExpr);
+            } else if (variableKeyValueNode.getValue().getKind() == NodeKind.TUPLE_VARIABLE) {
+                BLangTupleVariable tupleVariable = (BLangTupleVariable) variableKeyValueNode.getValue();
+                BLangLiteral indexExpr = ASTBuilderUtil.createLiteral(tupleVariable.pos, symTable.stringType,
+                        variableKeyValueNode.getKey().getValue());
+                BLangIndexBasedAccess arrayAccessExpr = ASTBuilderUtil.createIndexBasesAccessExpr(tupleVariable.pos,
+                        new BArrayType(symTable.anyType), recordVarSymbol, indexExpr);
+                if (parentIndexAccessExpr != null) {
+                    arrayAccessExpr.expr = parentIndexAccessExpr;
+                }
+                createVarDefStmts((BLangTupleVariable) variableKeyValueNode.getValue(),
+                        parentBlockStmt, recordVarSymbol, arrayAccessExpr);
+            } else if (variableKeyValueNode.getValue().getKind() == NodeKind.RECORD_VARIABLE) {
+                BLangRecordVariable recordVariable = (BLangRecordVariable) variableKeyValueNode.getValue();
+                BLangLiteral indexExpr = ASTBuilderUtil.createLiteral(recordVariable.pos, symTable.stringType,
+                        variableKeyValueNode.getKey().getValue());
+                BLangIndexBasedAccess arrayAccessExpr = ASTBuilderUtil.createIndexBasesAccessExpr(
+                        parentRecordVariable.pos, new BMapType(TypeTags.RECORD, symTable.anyType, null),
+                        recordVarSymbol, indexExpr);
+                if (parentIndexAccessExpr != null) {
+                    arrayAccessExpr.expr = parentIndexAccessExpr;
+                }
+                createVarDefStmts((BLangRecordVariable) variableKeyValueNode.getValue(), parentBlockStmt,
+                        recordVarSymbol, arrayAccessExpr);
+            }
+        }
+    }
+
+    /**
+     * This method creates a simple variable def and assigns and array expression based on the given indexExpr.
+     *
+     *  case 1: when there is no parent array access expression, but with the indexExpr : 1
+     *  string s = x[1];
+     *
+     *  case 2: when there is a parent array expression : x[2] and indexExpr : 3
+     *  string s = x[2][3];
+     *
+     *  case 3: when there is no parent array access expression, but with the indexExpr : name
+     *  string s = x[name];
+     *
+     *  case 4: when there is a parent map expression : x[name] and indexExpr : fName
+     *  string s = x[name][fName]; // record variable inside record variable
+     *
+     *  case 5: when there is a parent map expression : x[name] and indexExpr : 1
+     *  string s = x[name][1]; // tuple variable inside record variable
+     */
+    private void createSimpleVarDefStmt(BLangSimpleVariable simpleVariable, BLangBlockStmt parentBlockStmt,
+                                        BLangLiteral indexExpr,
                                         BVarSymbol tupleVarSymbol, BLangIndexBasedAccess parentArrayAccessExpr) {
 
         Name varName = names.fromIdNode(simpleVariable.name);
@@ -680,7 +786,6 @@ public class Desugar extends BLangNodeVisitor {
                 parentBlockStmt);
         simpleVariableDef.var = simpleVariable;
 
-        BLangLiteral indexExpr = ASTBuilderUtil.createLiteral(simpleVariable.pos, symTable.intType, (long) index);
         BLangIndexBasedAccess arrayAccess = ASTBuilderUtil.createIndexBasesAccessExpr(simpleVariable.pos,
                 symTable.anyType, tupleVarSymbol, indexExpr);
 
@@ -700,11 +805,6 @@ public class Desugar extends BLangNodeVisitor {
         }
 
         simpleVariable.expr = assignmentExpr;
-    }
-
-    @Override
-    public void visit(BLangRecordVariableDef bLangRecordVariableDef) {
-        // todo
     }
 
     @Override

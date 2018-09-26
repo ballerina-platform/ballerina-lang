@@ -580,6 +580,10 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
 
                 // Infer the type of the variable from the given record type so that symbol enter is done recursively
                 foundMatch = false;
+                if (varNode.type.tag != TypeTags.RECORD) {
+                    // If expected type is not record type will not be set and will fail at type checker
+                    return;
+                }
                 for (BField typeFields : ((BRecordType) varNode.type).getFields()) {
                     if (variable.getKey().getValue().equals(typeFields.name.value)) {
                         BLangVariable value = (BLangVariable) variable.getValue();
@@ -597,7 +601,11 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             }
         }
 
-        // todo create symbol for rest param variable
+        if (varNode.restParam != null) {
+            ((BLangVariable) varNode.restParam).type = symTable.mapType;
+            symbolEnter.defineNode((BLangNode) varNode.restParam, env);
+        }
+
         BType lhsType = varNode.type;
         BLangExpression rhsExpr = varNode.expr;
 
