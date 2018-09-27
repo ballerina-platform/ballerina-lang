@@ -43,7 +43,7 @@ public function main() {
     printFruits(",", "Apples", "Oranges", title = "Available Fruits: ",
                 "Grapes");
 
-    // Pass an array as the rest parameter instaed of calling the 
+    // Pass an array as the rest parameter instead of calling the 
     // function by passing each value separately. 
     string[] fruits = ["Apples", "Oranges", "Grapes"];
     printFruits(",", title = "Available Fruits: ", ...fruits);
