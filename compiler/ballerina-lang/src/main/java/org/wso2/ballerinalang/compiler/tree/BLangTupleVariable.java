@@ -21,7 +21,6 @@ import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.TupleVariableNode;
 import org.ballerinalang.model.tree.VariableNode;
-import org.wso2.ballerinalang.compiler.tree.types.BLangType;
 
 import java.util.ArrayList;
 import java.util.EnumSet;

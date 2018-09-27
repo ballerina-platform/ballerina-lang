@@ -23,7 +23,6 @@ import org.ballerinalang.model.tree.VariableNode;
 import org.ballerinalang.model.tree.statements.VariableDefinitionNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 import org.wso2.ballerinalang.compiler.tree.BLangRecordVariable;
-import org.wso2.ballerinalang.compiler.tree.BLangTupleVariable;
 
 /**
  * type Foo record {

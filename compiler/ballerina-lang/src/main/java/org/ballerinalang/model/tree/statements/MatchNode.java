@@ -18,8 +18,8 @@
 package org.ballerinalang.model.tree.statements;
 
 import org.ballerinalang.model.tree.RecordVariableNode;
-import org.ballerinalang.model.tree.TupleVariableNode;
 import org.ballerinalang.model.tree.SimpleVariableNode;
+import org.ballerinalang.model.tree.TupleVariableNode;
 import org.ballerinalang.model.tree.expressions.ExpressionNode;
 
 import java.util.List;

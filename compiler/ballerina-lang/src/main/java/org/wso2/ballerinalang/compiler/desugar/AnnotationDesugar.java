@@ -28,8 +28,8 @@ import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangResource;
 import org.wso2.ballerinalang.compiler.tree.BLangService;
-import org.wso2.ballerinalang.compiler.tree.BLangTypeDefinition;
 import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
+import org.wso2.ballerinalang.compiler.tree.BLangTypeDefinition;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangAssignment;
@@ -119,7 +119,8 @@ public class AnnotationDesugar {
         pkgNode.initFunction.body.stmts.add(returnStmt);
     }
 
-    private void generateAnnotations(AnnotatableNode node, String key, BLangFunction target, BLangSimpleVariable annMapVar) {
+    private void generateAnnotations(AnnotatableNode node, String key, BLangFunction target,
+                                     BLangSimpleVariable annMapVar) {
         if (node.getAnnotationAttachments().size() == 0) {
             return;
         }
@@ -132,7 +133,8 @@ public class AnnotationDesugar {
 
     private BLangSimpleVariable createGlobalAnnotationMapVar(BLangPackage pkgNode) {
         DiagnosticPos pos = pkgNode.pos;
-        BLangSimpleVariable annotationMap = ASTBuilderUtil.createVariable(pkgNode.pos, ANNOTATION_DATA, symTable.mapType);
+        BLangSimpleVariable annotationMap = ASTBuilderUtil.createVariable(pkgNode.pos, ANNOTATION_DATA,
+                symTable.mapType);
         ASTBuilderUtil.defineVariable(annotationMap, pkgNode.symbol, names);
         pkgNode.addGlobalVariable(annotationMap);
 

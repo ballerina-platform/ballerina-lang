@@ -163,8 +163,10 @@ public class DocumentationAnalyzer extends BLangNodeVisitor {
         validateReturnParameter(resourceNode, null, false);
     }
 
-    private void validateParameters(DocumentableNode documentableNode, List<? extends SimpleVariableNode> actualParameters,
-                                    List<? extends BLangSimpleVariableDef> defaultableParameters, BLangSimpleVariable restParam,
+    private void validateParameters(DocumentableNode documentableNode,
+                                    List<? extends SimpleVariableNode> actualParameters,
+                                    List<? extends BLangSimpleVariableDef> defaultableParameters,
+                                    BLangSimpleVariable restParam,
                                     DiagnosticCode undocumentedParameter, DiagnosticCode noSuchParameter,
                                     DiagnosticCode parameterAlreadyDefined) {
         BLangMarkdownDocumentation documentation = documentableNode.getMarkdownDocumentationAttachment();
