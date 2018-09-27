@@ -111,16 +111,16 @@ public class LSPluginInstallationNotificationProvider extends EditorNotification
         EditorNotificationPanel panel = new EditorNotificationPanel();
 
         if (isDisabled()) {
-            panel.setText("LSP Support Plugin is not enabled to provide ballerina language server features (code "
-                    + "completion, diagnostics, hover support etc)");
+            panel.setText("Enable LSP Support Plugin to get ballerina language server features (code completion, " +
+                    "diagnostics, hover support etc)");
             panel.createActionLabel("Enable Plugin", () -> {
                 myEnabledExtensions.add(extension);
                 myNotifications.updateAllNotifications();
                 enablePlugin(myProject, getDisabledPlugin(LSP_PLUGIN_ID));
             });
         } else {
-            panel.setText("LSP Support plugin is not installed to enable ballerina language server features (code "
-                    + "completion, diagnostics, hover support etc.)");
+            panel.setText("Install LSP Support plugin to get ballerina language server features (code completion, " +
+                    "diagnostics, hover support etc.)");
             panel.createActionLabel("Install Plugin", () -> {
                 Set<String> pluginIds = new HashSet<>();
                 pluginIds.add(LSP_PLUGIN_ID);
