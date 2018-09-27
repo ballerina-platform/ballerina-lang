@@ -32,6 +32,7 @@ import { DebugProtocol } from 'vscode-debugprotocol';
 interface AttachRequestArguments extends DebugProtocol.AttachRequestArguments {
     host: string;
     port: number;
+    script: string;
 }
 
 interface LaunchRequestArguments extends DebugProtocol.LaunchRequestArguments {
@@ -193,6 +194,10 @@ export class BallerinaDebugSession extends LoggingDebugSession {
     }
 
     attachRequest(response: DebugProtocol.AttachResponse, args:AttachRequestArguments) : void {
+        const openFile = args.script;
+        let cwd : string | undefined = path.dirname(openFile);
+        this.setSourceRoot(cwd);
+
         this._debugManager.connect(`ws://${args.host}:${args.port}/debug`, () => {
             this.sendResponse(response);
             this.sendEvent(new InitializedEvent());
@@ -217,6 +222,10 @@ export class BallerinaDebugSession extends LoggingDebugSession {
             path.dirname(currentPath), root, path.basename(currentPath));
     }
 
+    setSourceRoot(sourceRoot: string) {
+        this._sourceRoot = sourceRoot;
+    }
+    
     launchRequest(response: DebugProtocol.LaunchResponse, args: LaunchRequestArguments) {
         if (!args['ballerina.home']) {
             this.terminate("Couldn't start the debug server. Please set ballerina.home.");
@@ -233,7 +242,7 @@ export class BallerinaDebugSession extends LoggingDebugSession {
             this._getRunningInfo(cwd, path.parse(openFile).root);
 
         if (sourceRoot) {
-            this._sourceRoot = sourceRoot;
+            this.setSourceRoot(sourceRoot);
         }
 
         if (ballerinaPackage) {
