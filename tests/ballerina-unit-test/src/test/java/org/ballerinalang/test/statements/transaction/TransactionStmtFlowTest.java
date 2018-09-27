@@ -335,7 +335,7 @@ public class TransactionStmtFlowTest {
 
     @Test(description = "Test transaction statement with errors")
     public void testTransactionNegativeCases() {
-        Assert.assertEquals(resultNegative.getErrorCount(), 8);
+        Assert.assertEquals(resultNegative.getErrorCount(), 10);
         BAssertUtil.validateError(resultNegative, 0, "abort cannot be used outside of a transaction block", 3, 5);
         BAssertUtil.validateError(resultNegative, 1, "unreachable code", 12, 9);
         BAssertUtil.validateError(resultNegative, 2, "unreachable code", 27, 17);
