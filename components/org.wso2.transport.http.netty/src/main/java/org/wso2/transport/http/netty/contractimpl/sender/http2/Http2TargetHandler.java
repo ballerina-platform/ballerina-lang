@@ -326,6 +326,7 @@ public class Http2TargetHandler extends ChannelDuplexHandler {
     public void onHeadersRead(ChannelHandlerContext ctx, Http2HeadersFrame http2HeadersFrame,
                               Http2MessageStateContext http2MessageStateContext) {
         int streamId = http2HeadersFrame.getStreamId();
+        Http2Headers http2Headers = http2HeadersFrame.getHeaders();
         boolean endOfStream = http2HeadersFrame.isEndOfStream();
 
         OutboundMsgHolder outboundMsgHolder = http2ClientChannel.getInFlightMessage(streamId);
@@ -346,11 +347,10 @@ public class Http2TargetHandler extends ChannelDuplexHandler {
                 // Retrieve response message.
                 HttpCarbonResponse responseMessage = outboundMsgHolder.getPushResponse(streamId);
                 if (responseMessage != null) {
-                    onTrailersRead(streamId, http2HeadersFrame.getHeaders(), outboundMsgHolder, responseMessage);
-                } else if (http2HeadersFrame.getHeaders().contains(Constants.HTTP2_METHOD)) {
+                    onTrailersRead(streamId, http2Headers, outboundMsgHolder, responseMessage);
+                } else if (http2Headers.contains(Constants.HTTP2_METHOD)) {
                     // if the header frame is an initial header frame and also it has endOfStream
-                    responseMessage = setupResponseCarbonMessage(ctx, streamId, http2HeadersFrame.getHeaders(),
-                            outboundMsgHolder);
+                    responseMessage = setupResponseCarbonMessage(ctx, streamId, http2Headers, outboundMsgHolder);
                     responseMessage.addHttpContent(new DefaultLastHttpContent());
                     outboundMsgHolder.addPushResponse(streamId, responseMessage);
                 }
@@ -359,7 +359,7 @@ public class Http2TargetHandler extends ChannelDuplexHandler {
             } else {
                 // Create response carbon message.
                 HttpCarbonResponse responseMessage = setupResponseCarbonMessage(ctx, streamId,
-                        http2HeadersFrame.getHeaders(), outboundMsgHolder);
+                        http2Headers, outboundMsgHolder);
                 outboundMsgHolder.addPushResponse(streamId, responseMessage);
                 http2MessageStateContext.setSenderState(new ReceivingEntityBody());
             }
@@ -368,11 +368,10 @@ public class Http2TargetHandler extends ChannelDuplexHandler {
                 // Retrieve response message.
                 HttpCarbonResponse responseMessage = outboundMsgHolder.getResponse();
                 if (responseMessage != null) {
-                    onTrailersRead(streamId, http2HeadersFrame.getHeaders(), outboundMsgHolder, responseMessage);
-                } else if (http2HeadersFrame.getHeaders().contains(Constants.HTTP2_METHOD)) {
+                    onTrailersRead(streamId, http2Headers, outboundMsgHolder, responseMessage);
+                } else if (http2Headers.contains(Constants.HTTP2_METHOD)) {
                     // if the header frame is an initial header frame and also it has endOfStream
-                    responseMessage = setupResponseCarbonMessage(ctx, streamId, http2HeadersFrame.getHeaders(),
-                            outboundMsgHolder);
+                    responseMessage = setupResponseCarbonMessage(ctx, streamId, http2Headers, outboundMsgHolder);
                     responseMessage.addHttpContent(new DefaultLastHttpContent());
                     outboundMsgHolder.setResponse(responseMessage);
                 }
@@ -381,7 +380,7 @@ public class Http2TargetHandler extends ChannelDuplexHandler {
             } else {
                 // Create response carbon message.
                 HttpCarbonResponse responseMessage = setupResponseCarbonMessage(ctx, streamId,
-                        http2HeadersFrame.getHeaders(), outboundMsgHolder);
+                        http2Headers, outboundMsgHolder);
                 outboundMsgHolder.setResponse(responseMessage);
                 http2MessageStateContext.setSenderState(new ReceivingEntityBody());
             }
@@ -404,10 +403,10 @@ public class Http2TargetHandler extends ChannelDuplexHandler {
         responseMessage.addHttpContent(lastHttpContent);
     }
 
-    public void onDataRead(Http2DataFrame dataFrame, Http2MessageStateContext http2MessageStateContext) {
-        int streamId = dataFrame.getStreamId();
-        ByteBuf data = dataFrame.getData();
-        boolean endOfStream = dataFrame.isEndOfStream();
+    public void onDataRead(Http2DataFrame http2DataFrame, Http2MessageStateContext http2MessageStateContext) {
+        int streamId = http2DataFrame.getStreamId();
+        ByteBuf data = http2DataFrame.getData();
+        boolean endOfStream = http2DataFrame.isEndOfStream();
 
         OutboundMsgHolder outboundMsgHolder = http2ClientChannel.getInFlightMessage(streamId);
         boolean isServerPush = false;
