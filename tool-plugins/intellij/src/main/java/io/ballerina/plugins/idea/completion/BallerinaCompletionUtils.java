@@ -38,6 +38,7 @@ import io.ballerina.plugins.idea.completion.inserthandlers.ParenthesisWithSemico
 import io.ballerina.plugins.idea.completion.inserthandlers.SemiolonInsertHandler;
 import io.ballerina.plugins.idea.psi.BallerinaAnyIdentifierName;
 import io.ballerina.plugins.idea.psi.BallerinaCallableUnitSignature;
+import io.ballerina.plugins.idea.psi.BallerinaChannelDefinition;
 import io.ballerina.plugins.idea.psi.BallerinaFormalParameterList;
 import io.ballerina.plugins.idea.psi.BallerinaFunctionDefinition;
 import io.ballerina.plugins.idea.psi.BallerinaObjectFunctionDefinition;
@@ -603,6 +604,16 @@ public class BallerinaCompletionUtils {
         } else {
             builder = builder.withTypeText(type);
         }
+
+        return PrioritizedLookupElement.withPriority(builder, GLOBAL_VARIABLE_PRIORITY);
+    }
+
+    @NotNull
+    public static LookupElement createChannelVariableLookupElement(@NotNull BallerinaChannelDefinition definition,
+            @Nullable String type) {
+        LookupElementBuilder builder = LookupElementBuilder.createWithSmartPointer(definition.getIdentifier().getText(),
+                definition).withIcon(definition.getIcon(Iconable.ICON_FLAG_VISIBILITY));
+        builder = builder.withTypeText("Variable");
 
         return PrioritizedLookupElement.withPriority(builder, GLOBAL_VARIABLE_PRIORITY);
     }

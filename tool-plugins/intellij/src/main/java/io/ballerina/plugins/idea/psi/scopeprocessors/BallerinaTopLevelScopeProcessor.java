@@ -249,8 +249,12 @@ public class BallerinaTopLevelScopeProcessor extends BallerinaScopeProcessorBase
                     } else if (definitionType instanceof BallerinaChannelDefinition) {
                         BallerinaChannelDefinition child = (BallerinaChannelDefinition) definitionType;
                         PsiElement identifier = child.getIdentifier();
-                        if (myElement.getText().equals(identifier.getText())) {
-                                add(identifier);
+                        if (myResult != null) {
+                            myResult.addElement(BallerinaCompletionUtils
+                                    .createChannelVariableLookupElement(child, null));
+                            lookupElementsFound = true;
+                        } else if (myElement.getText().equals(identifier.getText())) {
+                            add(identifier);
                         }
                     }
                 } else if (lastChild instanceof BallerinaGlobalEndpointDefinition) {
