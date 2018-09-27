@@ -20,6 +20,8 @@ import org.eclipse.lsp4j.VersionedTextDocumentIdentifier;
 
 /**
  * Represents an AST change notification sent from client to server.
+ *
+ * @since 0.981.2
  */
 public class BallerinaASTDidChange {
 

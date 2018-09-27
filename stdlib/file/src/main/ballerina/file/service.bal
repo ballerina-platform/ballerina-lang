@@ -19,7 +19,7 @@
 # + name - Absolute file URI for triggerd event
 # + operation - Triggered event action. This can be create, delete or modify
 public type FileEvent record {
-    string name,
-    string operation,
+    string name;
+    string operation;
     !...
 };

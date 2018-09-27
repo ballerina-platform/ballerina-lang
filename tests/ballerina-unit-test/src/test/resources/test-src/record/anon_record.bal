@@ -58,7 +58,7 @@ function testRestField() returns person {
     return p;
 }
 
-record {string kind, string name, int...} animal;
+record {string kind; string name; int...} animal;
 
 function testAnonRecWithExplicitRestField() returns animal {
     animal a = {kind:"Cat", name:"Miaw"};

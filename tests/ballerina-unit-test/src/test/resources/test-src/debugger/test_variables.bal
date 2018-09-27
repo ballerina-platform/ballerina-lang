@@ -15,15 +15,15 @@ public function main(string... args) {
 }
 
 type Foo record {
-    int count,
-    string last,
+    int count;
+    string last;
 };
 
 type Person object {
-    public int age,
-    public string name,
-    public Person? parent,
-    private string email = "default@abc.com",
+    public int age;
+    public string name;
+    public Person? parent;
+    private string email = "default@abc.com";
 };
 
 function callFunc() returns (string) {

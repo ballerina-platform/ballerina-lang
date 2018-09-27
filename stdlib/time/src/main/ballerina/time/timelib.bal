@@ -23,8 +23,8 @@ public type TimeFormat "RFC_1123";
 # + zoneId - Zone short ID or offset string
 # + zoneOffset - The offset in seconds
 public type Timezone record {
-    string zoneId,
-    int zoneOffset,
+    string zoneId;
+    int zoneOffset;
     !...
 };
 

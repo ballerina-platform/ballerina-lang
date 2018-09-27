@@ -28,7 +28,7 @@ import io.ballerina.plugins.idea.psi.*;
 
 public class BallerinaDeprecatedTextImpl extends BallerinaCompositeElementImpl implements BallerinaDeprecatedText {
 
-  public BallerinaDeprecatedTextImpl(ASTNode node) {
+  public BallerinaDeprecatedTextImpl(@NotNull ASTNode node) {
     super(node);
   }
 
