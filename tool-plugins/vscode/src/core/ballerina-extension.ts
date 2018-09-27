@@ -88,6 +88,7 @@ class BallerinaExtension {
             // Validate the ballerina version.
             const pluginVersion = this.extention.packageJSON.version.split('-')[0];
             this.getBallerinaVersion(this.ballerinaHome).then(ballerinaVersion => {
+                ballerinaVersion = ballerinaVersion.split('-')[0];
                 this.checkCompatibleVersion(pluginVersion, ballerinaVersion);
             })
 
@@ -146,7 +147,7 @@ class BallerinaExtension {
         if (versionCheck > 0) {
             // Plugin version is greater
             this.showMessageOldBallerina();
-            return
+            return;
         }
 
         if (versionCheck < 0) {
