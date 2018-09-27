@@ -47,6 +47,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.transport.http.netty.contract.Constants;
 import org.wso2.transport.http.netty.contractimpl.common.Util;
+import org.wso2.transport.http.netty.contractimpl.common.states.Http2MessageStateContext;
+import org.wso2.transport.http.netty.contractimpl.sender.states.http2.EntityBodyReceived;
+import org.wso2.transport.http.netty.contractimpl.sender.states.http2.ReceivingEntityBody;
+import org.wso2.transport.http.netty.contractimpl.sender.states.http2.ReceivingHeaders;
+import org.wso2.transport.http.netty.contractimpl.sender.states.http2.RequestCompleted;
+import org.wso2.transport.http.netty.contractimpl.sender.states.http2.SendingEntityBody;
+import org.wso2.transport.http.netty.contractimpl.sender.states.http2.SendingHeaders;
 import org.wso2.transport.http.netty.message.DefaultListener;
 import org.wso2.transport.http.netty.message.Http2DataFrame;
 import org.wso2.transport.http.netty.message.Http2HeadersFrame;
@@ -118,56 +125,70 @@ public class Http2TargetHandler extends ChannelDuplexHandler {
     /**
      * {@code Http2RequestWriter} is used to write Http2 content to the connection.
      */
-    private class Http2RequestWriter {
+    public class Http2RequestWriter {
 
-        // whether headers are written already
-        boolean isHeadersWritten = false;
         HttpCarbonMessage httpOutboundRequest;
         OutboundMsgHolder outboundMsgHolder;
+        Http2MessageStateContext http2MessageStateContext;
         int streamId;
 
         Http2RequestWriter(OutboundMsgHolder outboundMsgHolder) {
             this.outboundMsgHolder = outboundMsgHolder;
             httpOutboundRequest = outboundMsgHolder.getRequest();
+            http2MessageStateContext = httpOutboundRequest.getHttp2MessageStateContext();
+            if (http2MessageStateContext == null) {
+                http2MessageStateContext = new Http2MessageStateContext();
+                httpOutboundRequest.setHttp2MessageStateContext(http2MessageStateContext);
+            }
         }
 
         void writeContent(ChannelHandlerContext ctx) {
+            httpOutboundRequest.getHttp2MessageStateContext().setSenderState(new SendingHeaders());
             // Write Content
-            httpOutboundRequest.getHttpContentAsync().
-                    setMessageListener((httpContent ->
-                            http2ClientChannel.getChannel().eventLoop().execute(() -> {
-                                try {
-                                    writeOutboundRequest(ctx, httpContent);
-                                } catch (Exception ex) {
-                                    String errorMsg = "Failed to send the request : " +
-                                            ex.getMessage().toLowerCase(Locale.ENGLISH);
-                                    LOG.error(errorMsg, ex);
-                                    outboundMsgHolder.getResponseFuture().notifyHttpListener(ex);
-                                }
-                            })));
+            httpOutboundRequest.getHttpContentAsync().setMessageListener((httpContent ->
+                    http2ClientChannel.getChannel().eventLoop().execute(() -> {
+                        try {
+                            writeOutboundRequest(ctx, httpContent);
+                        } catch (Exception ex) {
+                            String errorMsg = "Failed to send the request : " +
+                                    ex.getMessage().toLowerCase(Locale.ENGLISH);
+                            LOG.error(errorMsg, ex);
+                            outboundMsgHolder.getResponseFuture().notifyHttpListener(ex);
+                        }
+                    })));
         }
 
         private void writeOutboundRequest(ChannelHandlerContext ctx, HttpContent msg) throws Http2Exception {
-
-            boolean endStream = false;
-            if (!isHeadersWritten) {
-                // Initiate the stream
-                streamId = initiateStream(ctx);
-                HttpRequest httpRequest = Util.createHttpRequest(httpOutboundRequest);
-
-                if (msg instanceof LastHttpContent && msg.content().capacity() == 0) {
-                    endStream = true;
-                }
-                // Write Headers
-                writeOutboundRequestHeaders(ctx, httpRequest, streamId, endStream);
-                isHeadersWritten = true;
-                if (endStream) {
-                    return;
-                }
+            try {
+                http2MessageStateContext.getSenderState().writeOutboundRequestEntity(this, ctx, msg);
+            } catch (RuntimeException ex) {
+                writeContent(ctx, new DefaultLastHttpContent());
             }
+        }
 
+        public void writeHeaders(ChannelHandlerContext ctx, HttpContent msg) throws Http2Exception {
+            // Initiate the stream
+            boolean endStream = false;
+            streamId = initiateStream(ctx);
+            HttpRequest httpRequest = Util.createHttpRequest(httpOutboundRequest);
+
+            if (msg instanceof LastHttpContent && msg.content().capacity() == 0) {
+                endStream = true;
+            }
+            // Write Headers
+            writeOutboundRequestHeaders(ctx, httpRequest, streamId, endStream);
+            if (endStream) {
+                http2MessageStateContext.setSenderState(new RequestCompleted());
+            } else {
+                http2MessageStateContext.setSenderState(new SendingEntityBody());
+                http2MessageStateContext.getSenderState().writeOutboundRequestEntity(this, ctx, msg);
+            }
+        }
+
+        public void writeContent(ChannelHandlerContext ctx, HttpContent msg) {
             boolean release = true;
             try {
+                boolean endStream;
                 boolean isLastContent = false;
                 HttpHeaders trailers = EmptyHttpHeaders.INSTANCE;
                 Http2Headers http2Trailers = EmptyHttp2Headers.INSTANCE;
@@ -197,6 +218,7 @@ public class Http2TargetHandler extends ChannelDuplexHandler {
                 }
                 if (endStream) {
                     outboundMsgHolder.setRequestWritten(true);
+                    http2MessageStateContext.setSenderState(new RequestCompleted());
                 }
             } catch (Exception ex) {
                 LOG.error("Error while writing request", ex);
@@ -273,9 +295,27 @@ public class Http2TargetHandler extends ChannelDuplexHandler {
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) {
         if (msg instanceof Http2HeadersFrame) {
-            onHeadersRead(ctx, (Http2HeadersFrame) msg);
+            Http2HeadersFrame http2HeadersFrame = (Http2HeadersFrame) msg;
+            int streamId = http2HeadersFrame.getStreamId();
+            OutboundMsgHolder outboundMsgHolder = http2ClientChannel.getInFlightMessage(streamId);
+            Http2MessageStateContext http2MessageStateContext =
+                    outboundMsgHolder.getRequest().getHttp2MessageStateContext();
+            if (http2MessageStateContext == null) {
+                http2MessageStateContext = new Http2MessageStateContext();
+                http2MessageStateContext.setSenderState(new ReceivingHeaders());
+                outboundMsgHolder.getRequest().setHttp2MessageStateContext(http2MessageStateContext);
+                http2ClientChannel.putInFlightMessage(streamId, outboundMsgHolder);
+            }
+            http2MessageStateContext.getSenderState()
+                    .readInboundResponseHeaders(this, ctx, msg, http2MessageStateContext);
         } else if (msg instanceof Http2DataFrame) {
-            onDataRead((Http2DataFrame) msg);
+            Http2DataFrame http2DataFrame = (Http2DataFrame) msg;
+            int streamId = http2DataFrame.getStreamId();
+            OutboundMsgHolder outboundMsgHolder = http2ClientChannel.getInFlightMessage(streamId);
+            Http2MessageStateContext http2MessageStateContext =
+                    outboundMsgHolder.getRequest().getHttp2MessageStateContext();
+            http2MessageStateContext.getSenderState()
+                    .readInboundResponseEntityBody(this, ctx, msg, http2MessageStateContext);
         } else if (msg instanceof Http2PushPromise) {
             onPushPromiseRead((Http2PushPromise) msg);
         } else if (msg instanceof Http2Reset) {
@@ -283,7 +323,8 @@ public class Http2TargetHandler extends ChannelDuplexHandler {
         }
     }
 
-    private void onHeadersRead(ChannelHandlerContext ctx, Http2HeadersFrame http2HeadersFrame) {
+    public void onHeadersRead(ChannelHandlerContext ctx, Http2HeadersFrame http2HeadersFrame,
+                              Http2MessageStateContext http2MessageStateContext) {
         int streamId = http2HeadersFrame.getStreamId();
         boolean endOfStream = http2HeadersFrame.isEndOfStream();
 
@@ -314,11 +355,13 @@ public class Http2TargetHandler extends ChannelDuplexHandler {
                     outboundMsgHolder.addPushResponse(streamId, responseMessage);
                 }
                 http2ClientChannel.removePromisedMessage(streamId);
+                http2MessageStateContext.setSenderState(new EntityBodyReceived());
             } else {
                 // Create response carbon message.
                 HttpCarbonResponse responseMessage = setupResponseCarbonMessage(ctx, streamId,
                         http2HeadersFrame.getHeaders(), outboundMsgHolder);
                 outboundMsgHolder.addPushResponse(streamId, responseMessage);
+                http2MessageStateContext.setSenderState(new ReceivingEntityBody());
             }
         } else {
             if (endOfStream) {
@@ -334,11 +377,13 @@ public class Http2TargetHandler extends ChannelDuplexHandler {
                     outboundMsgHolder.setResponse(responseMessage);
                 }
                 http2ClientChannel.removeInFlightMessage(streamId);
+                http2MessageStateContext.setSenderState(new EntityBodyReceived());
             } else {
                 // Create response carbon message.
                 HttpCarbonResponse responseMessage = setupResponseCarbonMessage(ctx, streamId,
                         http2HeadersFrame.getHeaders(), outboundMsgHolder);
                 outboundMsgHolder.setResponse(responseMessage);
+                http2MessageStateContext.setSenderState(new ReceivingEntityBody());
             }
         }
     }
@@ -359,7 +404,7 @@ public class Http2TargetHandler extends ChannelDuplexHandler {
         responseMessage.addHttpContent(lastHttpContent);
     }
 
-    private void onDataRead(Http2DataFrame dataFrame) {
+    public void onDataRead(Http2DataFrame dataFrame, Http2MessageStateContext http2MessageStateContext) {
         int streamId = dataFrame.getStreamId();
         ByteBuf data = dataFrame.getData();
         boolean endOfStream = dataFrame.isEndOfStream();
@@ -391,6 +436,9 @@ public class Http2TargetHandler extends ChannelDuplexHandler {
             } else {
                 responseMessage.addHttpContent(new DefaultHttpContent(data.retain()));
             }
+        }
+        if (endOfStream) {
+            http2MessageStateContext.setSenderState(new EntityBodyReceived());
         }
     }
 
