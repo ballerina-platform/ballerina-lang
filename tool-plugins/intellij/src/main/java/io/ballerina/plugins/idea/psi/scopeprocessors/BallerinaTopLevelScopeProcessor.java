@@ -31,11 +31,13 @@ import io.ballerina.plugins.idea.completion.inserthandlers.ParenthesisInsertHand
 import io.ballerina.plugins.idea.completion.inserthandlers.SmartParenthesisInsertHandler;
 import io.ballerina.plugins.idea.psi.BallerinaAnnotationAttachment;
 import io.ballerina.plugins.idea.psi.BallerinaAnnotationDefinition;
+import io.ballerina.plugins.idea.psi.BallerinaChannelDefinition;
 import io.ballerina.plugins.idea.psi.BallerinaCompositeElement;
 import io.ballerina.plugins.idea.psi.BallerinaDefinition;
 import io.ballerina.plugins.idea.psi.BallerinaFile;
 import io.ballerina.plugins.idea.psi.BallerinaFunctionDefinition;
 import io.ballerina.plugins.idea.psi.BallerinaGlobalEndpointDefinition;
+import io.ballerina.plugins.idea.psi.BallerinaGlobalVariable;
 import io.ballerina.plugins.idea.psi.BallerinaGlobalVariableDefinition;
 import io.ballerina.plugins.idea.psi.BallerinaMatchExpressionPatternClause;
 import io.ballerina.plugins.idea.psi.BallerinaNameReference;
@@ -219,25 +221,36 @@ public class BallerinaTopLevelScopeProcessor extends BallerinaScopeProcessorBase
                             }
                         }
                     }
-                } else if (lastChild instanceof BallerinaGlobalVariableDefinition) {
-                    BallerinaGlobalVariableDefinition child = (BallerinaGlobalVariableDefinition) lastChild;
-                    PsiElement identifier = child.getIdentifier();
-                    if (identifier != null) {
-                        if (myResult != null) {
-                            String publicFieldsOnly = state.get(BallerinaCompletionUtils.PUBLIC_DEFINITIONS_ONLY);
-                            if (publicFieldsOnly != null) {
-                                if (child.isPublic()) {
-                                    myResult.addElement(BallerinaCompletionUtils.createGlobalVariableLookupElement
-                                            (child, BallerinaPsiImplUtil.formatBallerinaTypeName(child.getTypeName())));
+                } else if (lastChild instanceof BallerinaGlobalVariable) {
+                    PsiElement definitionType = lastChild.getFirstChild();
+                    if (definitionType instanceof BallerinaGlobalVariableDefinition) {
+                        BallerinaGlobalVariableDefinition child = (BallerinaGlobalVariableDefinition) definitionType;
+                        PsiElement identifier = child.getIdentifier();
+                        if (identifier != null) {
+                            if (myResult != null) {
+                                String publicFieldsOnly = state.get(BallerinaCompletionUtils.PUBLIC_DEFINITIONS_ONLY);
+                                if (publicFieldsOnly != null) {
+                                    if (child.isPublic()) {
+                                        myResult.addElement(BallerinaCompletionUtils
+                                                .createGlobalVariableLookupElement(child, BallerinaPsiImplUtil
+                                                        .formatBallerinaTypeName(child.getTypeName())));
+                                        lookupElementsFound = true;
+                                    }
+                                } else {
+                                    myResult.addElement(BallerinaCompletionUtils
+                                            .createGlobalVariableLookupElement(child, BallerinaPsiImplUtil
+                                                    .formatBallerinaTypeName(child.getTypeName())));
                                     lookupElementsFound = true;
                                 }
-                            } else {
-                                myResult.addElement(BallerinaCompletionUtils.createGlobalVariableLookupElement(child,
-                                        BallerinaPsiImplUtil.formatBallerinaTypeName(child.getTypeName())));
-                                lookupElementsFound = true;
+                            } else if (myElement.getText().equals(identifier.getText())) {
+                                add(identifier);
                             }
-                        } else if (myElement.getText().equals(identifier.getText())) {
-                            add(identifier);
+                        }
+                    } else if (definitionType instanceof BallerinaChannelDefinition) {
+                        BallerinaChannelDefinition child = (BallerinaChannelDefinition) definitionType;
+                        PsiElement identifier = child.getIdentifier();
+                        if (myElement.getText().equals(identifier.getText())) {
+                                add(identifier);
                         }
                     }
                 } else if (lastChild instanceof BallerinaGlobalEndpointDefinition) {
