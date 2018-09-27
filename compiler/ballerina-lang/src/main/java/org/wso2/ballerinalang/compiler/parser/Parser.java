@@ -37,12 +37,14 @@ import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangTestablePackage;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.CompilerOptions;
+import org.wso2.ballerinalang.compiler.util.ProjectDirs;
 import org.wso2.ballerinalang.compiler.util.diagnotic.BDiagnosticSource;
 import org.wso2.ballerinalang.compiler.util.diagnotic.BLangDiagnosticLog;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.nio.file.Path;
 
 /**
  * This class is responsible for parsing Ballerina source files.
@@ -77,23 +79,23 @@ public class Parser {
         this.pkgCache = PackageCache.getInstance(context);
     }
 
-    public BLangPackage parse(PackageSource pkgSource) {
+    public BLangPackage parse(PackageSource pkgSource, Path sourceRootPath) {
         PackageID pkgId = pkgSource.getPackageId();
         BLangPackage pkgNode = (BLangPackage) TreeBuilder.createPackageNode();
         this.pkgCache.put(pkgId, pkgNode);
-
-        pkgSource.getPackageSourceEntries().forEach(source -> {
-            if (((FileSystemSourceInput) source).isTestSource()) {
+        for (CompilerInput sourceInput: pkgSource.getPackageSourceEntries()) {
+            if (ProjectDirs.isTestSource(((FileSystemSourceInput) sourceInput).getPath(), sourceRootPath,
+                                         pkgId.getName().value)) {
                 if (!pkgNode.containsTestablePkg()) {
                     BLangTestablePackage testablePkg = TreeBuilder.createTestablePackageNode();
                     testablePkg.pos = new DiagnosticPos(new BDiagnosticSource(pkgId, pkgSource.getName()), 1, 1, 1, 1);
                     pkgNode.addTestablePkg(testablePkg);
                 }
-                pkgNode.getTestablePkg().addCompilationUnit(generateCompilationUnit(source, pkgId));
+                pkgNode.getTestablePkg().addCompilationUnit(generateCompilationUnit(sourceInput, pkgId));
             } else {
-                pkgNode.addCompilationUnit(generateCompilationUnit(source, pkgId));
+                pkgNode.addCompilationUnit(generateCompilationUnit(sourceInput, pkgId));
             }
-        });
+        }
         pkgNode.pos = new DiagnosticPos(new BDiagnosticSource(pkgId,
                 pkgSource.getName()), 1, 1, 1, 1);
         pkgNode.repos = pkgSource.getRepoHierarchy();

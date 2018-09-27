@@ -2,7 +2,6 @@ package org.wso2.ballerinalang.compiler.packaging.converters;
 
 import org.ballerinalang.compiler.BLangCompilerException;
 import org.ballerinalang.repository.CompilerInput;
-import org.wso2.ballerinalang.compiler.util.ProjectDirConstants;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -38,22 +37,6 @@ public class FileSystemSourceInput implements CompilerInput {
         } catch (IOException e) {
             throw new BLangCompilerException("Error reading source file " + path);
         }
-    }
-
-    /**
-     * Checks if the source is from tests.
-     *
-     * @return true if its a test source, else false
-     */
-    public boolean isTestSource() {
-        Path parentPath = path.getParent();
-        if (parentPath != null) {
-            Path parentFileName = parentPath.getFileName();
-            if (parentFileName != null) {
-                return ProjectDirConstants.TEST_DIR_NAME.equals(parentFileName.toString());
-            }
-        }
-        return false;
     }
 
     public Path getPath() {

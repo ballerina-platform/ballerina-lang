@@ -61,4 +61,35 @@ public class ProjectDirs {
 
         return new BLangCompilerException("cannot find package '" + sourcePackage + "'");
     }
+
+    /**
+     * Checks if the source is from tests.
+     * @param sourcePath source path
+     * @param sourceRoot source root path
+     * @param pkg package name
+     * @return true if its a test source, else false
+     */
+    public static boolean isTestSource(Path sourcePath, Path sourceRoot, String pkg) {
+        // Its a top level source file
+        if (pkg.equals(Names.DOT.value)) {
+            return false;
+        }
+        // Relativize source path with the source root
+        // Lets assume source root is "/home/user/project", pkg is "a" and source path is "/home/user/project/a/a.bal"
+        // Then after relativizing to get a relative path the source path will be a.bal
+        Path relativizePath = sourceRoot.resolve(pkg).relativize(sourcePath);
+        // Its a source file directly inside the package
+        if (relativizePath.getParent() == null) {
+            return false;
+        }
+        // Its a source file inside another package or its a test source
+        Path parentPath = relativizePath.getName(0);
+        if (parentPath != null) {
+            Path parentFileName = parentPath.getFileName();
+            if (parentFileName != null) {
+                return ProjectDirConstants.TEST_DIR_NAME.equals(parentFileName.toString());
+            }
+        }
+        return false;
+    }
 }

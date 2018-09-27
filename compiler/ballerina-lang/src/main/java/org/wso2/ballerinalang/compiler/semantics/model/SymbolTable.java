@@ -508,9 +508,13 @@ public class SymbolTable {
      * @return symbol env of the package
      */
     public SymbolEnv getPkgEnv(NodeKind nodeKind, BPackageSymbol pkgSymbol) {
+        SymbolEnv symbolEnv = null;
         if (nodeKind == NodeKind.TESTABLE_PACKAGE) {
-            return testPkgEnvMap.get(pkgSymbol);
+            symbolEnv = testPkgEnvMap.get(pkgSymbol);
         }
-        return pkgEnvMap.get(pkgSymbol);
+        if (symbolEnv == null) {
+            symbolEnv = pkgEnvMap.get(pkgSymbol);
+        }
+        return symbolEnv;
     }
 }
