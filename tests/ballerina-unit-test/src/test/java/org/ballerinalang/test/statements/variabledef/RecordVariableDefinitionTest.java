@@ -30,7 +30,7 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 /**
- * TestCases Record Variable Definitions.
+ * TestCases for Record Variable Definitions.
  *
  * @since 0.982.0
  */
@@ -75,14 +75,14 @@ public class RecordVariableDefinitionTest {
         Assert.assertEquals(returns[4].stringValue(), "Colombo 10");
     }
 
-//    @Test(description = "Test tuple variable inside record variable")
-//    public void tupleVarInRecordVar() {
-//        BValue[] returns = BRunUtil.invoke(result, "tupleVarInRecordVar");
-//        Assert.assertEquals(returns.length, 3);
-//        Assert.assertEquals(returns[0].stringValue(), "John");
-//        Assert.assertEquals(((BInteger) returns[1]).intValue(), 20);
-//        Assert.assertEquals(returns[2].stringValue(), "PG");
-//    }
+    @Test(description = "Test tuple variable inside record variable")
+    public void tupleVarInRecordVar() {
+        BValue[] returns = BRunUtil.invoke(result, "tupleVarInRecordVar");
+        Assert.assertEquals(returns.length, 3);
+        Assert.assertEquals(returns[0].stringValue(), "John");
+        Assert.assertEquals(((BInteger) returns[1]).intValue(), 20);
+        Assert.assertEquals(returns[2].stringValue(), "PG");
+    }
 
     @Test(description = "Test declaring 3 record variables and using the variables")
     public void defineThreeRecordVariables() {
