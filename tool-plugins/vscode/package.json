@@ -80,7 +80,8 @@
                     "attach": {
                         "required": [
                             "port",
-                            "host"
+                            "host",
+                            "script"
                         ],
                         "properties": {
                             "host": {
@@ -92,14 +93,18 @@
                                 "type": "integer",
                                 "description": "Remote debug server port",
                                 "default": 5000
+                            },
+                            "script": {
+                                "type": "string",
+                                "default": "${file}"
                             }
                         }
                     },
                     "launch": {
+                        "required": [
+                            "script"
+                        ],
                         "properties": {
-                            "required": [
-                                "script"
-                            ],
                             "script": {
                                 "type": "string",
                                 "default": "${file}"
