@@ -469,7 +469,7 @@ public class VMDebuggerTest {
 
     @Test(description = "Test debugging when multi-packages available")
     public void testMultiPackage() {
-        String file = "apple.bal";
+        String file = "fruits/apple.bal";
         String packagePath = "abc/fruits:0.0.1";
         BreakPointDTO[] breakPoints = createBreakNodeLocations(packagePath, file, 9);
 
@@ -487,7 +487,7 @@ public class VMDebuggerTest {
 
     @Test(description = "Test evaluating global variables from other packages")
     public void testEvaluatingOtherPackageGlobalVars() {
-        String file = "apple.bal";
+        String file = "fruits/apple.bal";
         String packagePath = "abc/fruits:0.0.1";
         BreakPointDTO[] breakPoints = createBreakNodeLocations(packagePath, file, 9);
 
