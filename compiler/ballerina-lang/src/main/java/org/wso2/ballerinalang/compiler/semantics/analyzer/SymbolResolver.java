@@ -765,9 +765,9 @@ public class SymbolResolver extends BLangNodeVisitor {
         // If the enclosed package is the BLangTestablePackage, then it has to be handled in a special way.
         // If the user defined type is not found in its package scope, it can be in the enclosing BLangPackage scope.
         // Then we have to resolve the type from its enclosing BLangPackage scope.
-        if (symbol == symTable.notFoundSymbol && env.enclPkg.getKind() == NodeKind.TESTABLE_PACKAGE) {
+        if (symbol == symTable.notFoundSymbol && Symbols.isFlagOn(Flags.asMask(env.enclPkg.flagSet), Flags.TESTABLE)) {
             SymbolEnv enclEnv = this.env.enclEnv;
-            while (enclEnv != null && enclEnv.enclPkg.getKind() != NodeKind.PACKAGE) {
+            while (enclEnv != null && Symbols.isFlagOn(Flags.asMask(enclEnv.enclPkg.flagSet), Flags.TESTABLE)) {
                 enclEnv = enclEnv.enclEnv;
             }
             if (enclEnv != null) {

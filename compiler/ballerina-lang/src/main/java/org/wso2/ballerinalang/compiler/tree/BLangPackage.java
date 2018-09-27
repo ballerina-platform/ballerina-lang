@@ -18,6 +18,7 @@
 package org.wso2.ballerinalang.compiler.tree;
 
 import org.ballerinalang.compiler.CompilerPhase;
+import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.tree.AnnotationNode;
 import org.ballerinalang.model.tree.CompilationUnitNode;
@@ -62,6 +63,7 @@ public class BLangPackage extends BLangNode implements PackageNode {
     public List<BLangTestablePackage> testablePkgs;
     public PackageID packageID;
     public BPackageSymbol symbol;
+    public Set<Flag> flagSet;
 
     // TODO Revisit these instance variables
     public BDiagnosticCollector diagCollector;
@@ -84,6 +86,7 @@ public class BLangPackage extends BLangNode implements PackageNode {
         this.completedPhases = EnumSet.noneOf(CompilerPhase.class);
         this.diagCollector = new BDiagnosticCollector();
         this.testablePkgs = new ArrayList<>();
+        this.flagSet = EnumSet.noneOf(Flag.class);
     }
 
     @Override
@@ -222,6 +225,14 @@ public class BLangPackage extends BLangNode implements PackageNode {
         return NodeKind.PACKAGE;
     }
 
+    /**
+     * Get flags.
+     *
+     * @return flags of the package
+     */
+    public Set<Flag> getFlags() {
+        return flagSet;
+    }
     /**
      * This class collect diagnostics.
      *

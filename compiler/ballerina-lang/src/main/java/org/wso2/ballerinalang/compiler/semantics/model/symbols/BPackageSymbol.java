@@ -26,6 +26,7 @@ import org.wso2.ballerinalang.programfile.CompiledBinaryFile.PackageFile;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 import static org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag.PACKAGE;
 
@@ -51,6 +52,11 @@ public class BPackageSymbol extends BTypeSymbol {
         this.type = new BPackageType(this);
     }
 
+    public BPackageSymbol(PackageID pkgID, BSymbol owner, int flags) {
+        this(pkgID, owner);
+        this.flags = flags;
+    }
+
     @Override
     public SymbolKind getKind() {
         return SymbolKind.PACKAGE;
@@ -67,12 +73,12 @@ public class BPackageSymbol extends BTypeSymbol {
         }
 
         BPackageSymbol that = (BPackageSymbol) o;
-        return pkgID.equals(that.pkgID);
+        return pkgID.equals(that.pkgID) && Objects.equals(flags, that.flags);
     }
 
     @Override
     public int hashCode() {
-        return pkgID.hashCode();
+        return Objects.hash(pkgID, flags);
     }
 
     @Override

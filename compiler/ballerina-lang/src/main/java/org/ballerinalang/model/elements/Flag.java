@@ -90,5 +90,9 @@ public enum Flag {
     /**
      * Indicates Flagged node is a abstract node.
      */
-    ABSTRACT
+    ABSTRACT,
+    /**
+     * Indicates Flagged node is a testable node.
+     */
+    TESTABLE
 }

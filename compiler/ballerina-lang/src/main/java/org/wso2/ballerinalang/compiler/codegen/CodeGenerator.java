@@ -216,6 +216,7 @@ import org.wso2.ballerinalang.programfile.cpentries.StructureRefCPEntry;
 import org.wso2.ballerinalang.programfile.cpentries.TypeRefCPEntry;
 import org.wso2.ballerinalang.programfile.cpentries.UTF8CPEntry;
 import org.wso2.ballerinalang.programfile.cpentries.WorkerDataChannelRefCPEntry;
+import org.wso2.ballerinalang.util.Flags;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -370,7 +371,7 @@ public class CodeGenerator extends BLangNodeVisitor {
     }
 
     private void genNode(BLangPackage pkgNode) {
-        genNode(pkgNode, this.symTable.getPkgEnv(pkgNode.getKind(), pkgNode.symbol));
+        genNode(pkgNode, this.symTable.pkgEnvMap.get(pkgNode.symbol));
         addGlobalVarIndex();
 
         pkgNode.symbol.packageFile = new PackageFile(getPackageBinaryContent(pkgNode));
@@ -413,7 +414,7 @@ public class CodeGenerator extends BLangNodeVisitor {
         // Visit imports
         visitImports(pkgNode);
 
-        if (pkgNode.getKind() == NodeKind.PACKAGE) {
+        if (!Symbols.isFlagOn(Flags.asMask(pkgNode.flagSet), Flags.TESTABLE)) {
             // Add the current package to the program file
             BPackageSymbol pkgSymbol = pkgNode.symbol;
             currentPkgID = pkgSymbol.pkgID;
@@ -509,7 +510,7 @@ public class CodeGenerator extends BLangNodeVisitor {
     }
 
     private void visitBuiltinFunctions(BLangPackage pkgNode, BLangFunction function) {
-        if (pkgNode.getKind() == NodeKind.TESTABLE_PACKAGE) {
+        if (Symbols.isFlagOn(Flags.asMask(pkgNode.flagSet), Flags.TESTABLE)) {
             String funcName = function.getName().value;
             String builtinFuncName = funcName.substring(funcName.indexOf("<") + 1, funcName.indexOf(">"));
             String modifiedFuncName = funcName.replace(builtinFuncName, "test" + builtinFuncName);

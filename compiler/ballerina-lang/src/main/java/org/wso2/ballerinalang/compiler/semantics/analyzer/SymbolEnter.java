@@ -181,10 +181,16 @@ public class SymbolEnter extends BLangNodeVisitor {
         }
 
         // Create PackageSymbol
-        BPackageSymbol pkgSymbol = Symbols.createPackageSymbol(pkgNode.packageID, this.symTable);
+        BPackageSymbol pkgSymbol;
+        if (Symbols.isFlagOn(Flags.asMask(pkgNode.flagSet), Flags.TESTABLE)) {
+            pkgSymbol = Symbols.createPackageSymbol(pkgNode.packageID, this.symTable, Flags.asMask(pkgNode.flagSet));
+        } else {
+            pkgSymbol = Symbols.createPackageSymbol(pkgNode.packageID, this.symTable);
+        }
+
         pkgNode.symbol = pkgSymbol;
         SymbolEnv pkgEnv = SymbolEnv.createPkgEnv(pkgNode, pkgSymbol.scope, this.env);
-        this.symTable.addToPkgEnv(pkgNode.getKind(), pkgSymbol, pkgEnv);
+        this.symTable.pkgEnvMap.put(pkgSymbol, pkgEnv);
 
         defineConstructs(pkgNode, pkgEnv);
         pkgNode.getTestablePkgs().forEach(testablePackage -> definePackage(testablePackage, pkgEnv, pkgNode.imports));

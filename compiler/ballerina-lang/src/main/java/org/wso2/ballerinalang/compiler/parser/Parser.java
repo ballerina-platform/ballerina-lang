@@ -22,6 +22,7 @@ import org.antlr.v4.runtime.CommonTokenStream;
 import org.antlr.v4.runtime.DefaultErrorStrategy;
 import org.ballerinalang.compiler.CompilerOptionName;
 import org.ballerinalang.model.TreeBuilder;
+import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.tree.CompilationUnitNode;
 import org.ballerinalang.repository.CompilerInput;
@@ -88,6 +89,7 @@ public class Parser {
                                          pkgId.getName().value)) {
                 if (!pkgNode.containsTestablePkg()) {
                     BLangTestablePackage testablePkg = TreeBuilder.createTestablePackageNode();
+                    testablePkg.flagSet.add(Flag.TESTABLE);
                     testablePkg.pos = new DiagnosticPos(new BDiagnosticSource(pkgId, pkgSource.getName()), 1, 1, 1, 1);
                     pkgNode.addTestablePkg(testablePkg);
                 }
