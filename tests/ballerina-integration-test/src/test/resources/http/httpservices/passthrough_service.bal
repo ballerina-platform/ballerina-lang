@@ -23,10 +23,7 @@ service<http:Service> passthroughService bind passthroughEP1 {
                 _ = caller->respond(httpResponse);
             }
             error err => {
-                http:Response errorResponse = new;
-                json errMsg = { "error": "error occurred while invoking the service" };
-                errorResponse.setJsonPayload(errMsg);
-                _ = caller->respond(errorResponse);
+                _ = caller->respond({ "error": "error occurred while invoking the service" });
             }
         }
     }
@@ -42,10 +39,7 @@ service<http:Service> passthroughService bind passthroughEP1 {
                 _ = caller->respond(httpResponse);
             }
             error err => {
-                http:Response errorResponse = new;
-                json errMsg = { "error": "error occurred while invoking the service" };
-                errorResponse.setJsonPayload(errMsg);
-                _ = caller->respond(errorResponse);
+                _ = caller->respond({ "error": "error occurred while invoking the service" });
             }
         }
     }
@@ -59,10 +53,7 @@ service<http:Service> nyseStockQuote1 bind passthroughEP1 {
         path: "/stocks"
     }
     stocks(endpoint caller, http:Request clientRequest) {
-        http:Response res = new;
-        json payload = { "exchange": "nyse", "name": "IBM", "value": "127.50" };
-        res.setJsonPayload(payload);
-        _ = caller->respond(res);
+        _ = caller->respond({ "exchange": "nyse", "name": "IBM", "value": "127.50" });
     }
 
     @http:ResourceConfig {
