@@ -49,13 +49,15 @@ class WorkerNode extends React.Component {
         if (value) {
             value = value.replace(';', '');
             // Parse new worker node with changed identifier value.
-            const parsedJson = FragmentUtils.parseFragment(FragmentUtils.createWorkerFragment(`worker ${value} {
-            }`));
-            const newNameNode = TreeBuilder.build(parsedJson).getName();
-            newNameNode.clearWS();
+            FragmentUtils.parseFragment(FragmentUtils.createWorkerFragment(`worker ${value} {
+            }`))
+                .then((parsedJson) => {
+                    const newNameNode = TreeBuilder.build(parsedJson).getName();
+                    newNameNode.clearWS();
 
-            // Set name for worker node.
-            this.props.model.setName(newNameNode);
+                    // Set name for worker node.
+                    this.props.model.setName(newNameNode);
+                });
         }
     }
 

@@ -122,6 +122,7 @@ function pullPackage (http:Client definedEndpoint, string url, string dirPath, s
 }
 
 # This function will invoke the method to pull the package.
+# + args - Arguments passed
 public function main(string... args){
     http:Client httpEndpoint;
     string host = args[4];

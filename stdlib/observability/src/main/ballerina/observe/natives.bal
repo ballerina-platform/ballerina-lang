@@ -46,6 +46,7 @@ public extern function addTagToSpan(int spanId = -1, string tagKey, string tagVa
 # Finish the current span.
 #
 # + spanId - Id of span to finish
+# return - An error if an error occured while finishing the span
 public extern function finishSpan(int spanId) returns error?;
 
 # Retrieve all registered metrics including default metrics from the ballerina runtime, and user defined metrics.
@@ -63,7 +64,7 @@ public extern function lookupMetric(string name, map<string>? tags = ()) returns
 # This represents the metric type - counter, that can be only increased by an integer number.
 #
 # + name - Name of the counter metric.
-# + decription - Description of the counter metric.
+# + description - Description of the counter metric.
 # + metricTags - Tags associated with the counter metric.
 public type Counter object {
 
@@ -120,7 +121,7 @@ public type Counter object {
 # during the usage.
 #
 # + name - Name of the counter metric.
-# + decription - Description of the counter metric.
+# + description - Description of the counter metric.
 # + metricTags - Tags associated with the counter metric.
 # + statisticConfigs - Array of StatisticConfig objects which defines about the statistical calculation
 #                      of the gauge during its usage.

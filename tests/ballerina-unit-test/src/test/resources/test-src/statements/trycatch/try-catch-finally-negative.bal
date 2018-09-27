@@ -25,6 +25,7 @@ public type TestError record {
     string message;
     error? cause;
     string code;
+    !...
 };
 
 function testInvalid4() returns (string){

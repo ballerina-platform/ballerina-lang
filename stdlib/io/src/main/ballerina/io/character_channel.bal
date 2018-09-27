@@ -43,6 +43,7 @@ public type CharacterChannel object {
     #
     # + content - Content which should be written
     # + startOffset - Number of characters which should be offset when writing content
+    # + return - Content length that written or an error.
     public extern function write(string content, int startOffset) returns int|error;
 
     # Reads a json from the given channel.

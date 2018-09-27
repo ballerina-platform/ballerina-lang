@@ -51,6 +51,8 @@ public type Client object {
     }
 
     # Returns the connector that the client code uses.
+    #
+    # + return - CallerActions object representing the connector that the client code uses.
     public function getCallerActions() returns sql:CallerActions {
         return self.mysqlClient;
     }
