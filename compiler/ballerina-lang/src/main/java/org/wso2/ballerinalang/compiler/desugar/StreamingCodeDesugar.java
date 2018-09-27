@@ -85,6 +85,7 @@ import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
@@ -157,6 +158,7 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
     private boolean isInHaving = false;
     // Contains the StreamEvent.data variable args in conditional lambda functions like where and join on condition
     private List<BLangVariable> mapVarArgs = new ArrayList<>();
+    private Map<String, String> streamAliasMap;
 
 
     private StreamingCodeDesugar(CompilerContext context) {
@@ -196,6 +198,7 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
         rhsStream = null;
         lhsStream = null;
         joinProcessorStack.clear();
+        streamAliasMap = new HashMap<>();
         //Construct the elements to publish events to output stream
         BLangStreamAction streamAction = (BLangStreamAction) queryStmt.getStreamingAction();
         streamAction.accept(this);
@@ -206,6 +209,8 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
         BLangJoinStreamingInput joinStreamingInput = (BLangJoinStreamingInput) queryStmt.getJoiningInput();
         if (joinStreamingInput != null) {
             isInJoin = true;
+            BLangStreamingInput streamingInput = (BLangStreamingInput) joinStreamingInput.getStreamingInput();
+            createStreamAliasMap(streamingInput);
             rhsStream = (BLangSimpleVarRef) joinStreamingInput.getStreamingInput().getStreamReference();
             lhsStream = (BLangSimpleVarRef) queryStmt.getStreamingInput().getStreamReference();
             joinStreamingInput.accept(this);
@@ -214,6 +219,7 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
 
         //Build elements to consume events from input stream
         BLangStreamingInput streamingInput = (BLangStreamingInput) queryStmt.getStreamingInput();
+        createStreamAliasMap(streamingInput);
         streamingInput.accept(this);
 
     }
@@ -820,8 +826,15 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
 
         List<BLangExpression> args = new ArrayList<>();
         args.add(eventToMapConversionExpr);
-        args.add(ASTBuilderUtil.createLiteral(streamingInput.pos, symTable.stringType, ((BLangSimpleVarRef)
-                streamingInput.getStreamReference()).variableName.value));
+
+        String streamReferenceSymbolName = ((BLangSimpleVarRef) streamingInput.getStreamReference()).symbol.toString();
+        if (streamAliasMap.containsKey(streamReferenceSymbolName)) {
+            args.add(ASTBuilderUtil.createLiteral(streamingInput.pos, symTable.stringType,
+                    streamAliasMap.get(streamReferenceSymbolName)));
+        } else {
+            args.add(ASTBuilderUtil.createLiteral(streamingInput.pos, symTable.stringType, ((BLangSimpleVarRef)
+                    streamingInput.getStreamReference()).symbol.toString()));
+        }
 
         BLangInvocation streamEventBuilderMethodInvocation = ASTBuilderUtil.
                 createInvocationExprForMethod(streamingInput.pos, streamEventBuilderInvokableSymbol, args,
@@ -952,7 +965,10 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
         BInvokableSymbol methodInvokableSymbol = getInvokableSymbolOfObject(joinProcessVarSymbol, methodName);
         List<BLangExpression> args = new ArrayList<>();
         args.add(ASTBuilderUtil.createVariableRef(window.pos, joinProcessVarSymbol));
-        args.add(ASTBuilderUtil.createLiteral(window.pos, symTable.stringType, streamRef.variableName.value));
+
+        String streamReferenceSymbolName = streamRef.symbol.toString();
+        args.add(ASTBuilderUtil.createLiteral(window.pos, symTable.stringType,
+                streamAliasMap.getOrDefault(streamReferenceSymbolName, streamReferenceSymbolName)));
         args.add(ASTBuilderUtil.createVariableRef(window.pos, windowInvokableTypeVarSymbol));
         BLangInvocation methodInvocation = ASTBuilderUtil.createInvocationExprForMethod(window.pos,
                 methodInvokableSymbol, args, symResolver);
@@ -1109,13 +1125,18 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
             int mapVarArgIndex;
 
             //mapVarArgs can contain at most 2 map arguments required for conditional expr in join clause
-            if (rhsStream != null && varRef.variableName.value.equals(rhsStream.variableName.value)) {
+            if (rhsStream != null && ((varRef.variableName.value.equals((rhsStream).symbol.toString()))
+                    || (varRef.variableName.value.equals(streamAliasMap.get((rhsStream).symbol.toString()))))) {
                 mapVarArgIndex = 1;
             } else {
                 mapVarArgIndex = 0;
             }
             mapRef = ASTBuilderUtil.createVariableRef(fieldAccessExpr.pos, mapVarArgs.get(mapVarArgIndex).symbol);
 
+            String variableName = ((BLangSimpleVarRef) (fieldAccessExpr).expr).variableName.value;
+            if (streamAliasMap.containsKey(variableName)) {
+                ((BLangSimpleVarRef) (fieldAccessExpr).expr).variableName.value = streamAliasMap.get(variableName);
+            }
             String mapKey = fieldAccessExpr.toString();
             BLangExpression indexExpr = ASTBuilderUtil.createLiteral(fieldAccessExpr.field.pos, symTable.stringType,
                     mapKey);
@@ -1459,5 +1480,13 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
         lambdaFunction.type = symTable.anyType;
 
         return lambdaFunction;
+    }
+
+    private void createStreamAliasMap(BLangStreamingInput streamingInput) {
+        //Identify the alias if there anything as such
+        if (streamingInput.getAlias() != null) {
+            streamAliasMap.put(((BLangSimpleVarRef) streamingInput.getStreamReference()).symbol.toString(),
+                    streamingInput.getAlias());
+        }
     }
 }
