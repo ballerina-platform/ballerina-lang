@@ -17,7 +17,6 @@
 import ballerina/http;
 import ballerina/internal;
 import ballerina/io;
-import ballerina/mime;
 
 @final int MAX_INT_VALUE = 2147483647;
 @final string VERSION_REGEX = "(\\d+\\.)(\\d+\\.)(\\d+)";
@@ -43,6 +42,23 @@ type BuildLogFormatter object {
     }
 };
 
+# Handle errors when pulling a package. Build command will throw an error while non-build commands will print the error
+# and return 1.
+# + isBuild - Whether the command is build command or other.
+# + errMessage - The error message.
+# + return - 1 if from non-build commands else an error is thrown.
+function handleError (boolean isBuild, string errMessage) returns (int) {
+    if (isBuild) {
+        error endpointError = {
+            message: logFormatter.formatLog(errMessage)
+        };
+        throw endpointError;
+    } else {
+        io:println(errMessage);
+    }
+    return 1;
+}
+
 # This function pulls a package from ballerina central.
 #
 # + definedEndpoint - Endpoint defined with the proxy configurations
@@ -53,8 +69,8 @@ type BuildLogFormatter object {
 # + terminalWidth - Width of the terminal
 # + versionRange - Supported version range
 # + return - 1 if package is not found, else 0 if package already exists or successfully pulled
-function pullPackage (http:Client definedEndpoint, string url, string dirPath, string pkgPath, string fileSeparator,
-                      string terminalWidth, string versionRange) returns int {
+function pullPackage (http:Client definedEndpoint, boolean isBuild, string url, string dirPath, string pkgPath,
+                      string fileSeparator, string terminalWidth, string versionRange) returns int {
     endpoint http:Client httpEndpoint = definedEndpoint;
     string fullPkgPath = pkgPath;
     string destDirPath = dirPath;
@@ -67,38 +83,27 @@ function pullPackage (http:Client definedEndpoint, string url, string dirPath, s
     match result {
         http:Response response => httpResponse = response;
         error e => {
-            error endpointError = {
-                message: logFormatter.formatLog("connection to the remote host failed : " + e.message)
-            };
-            throw endpointError;
+            return handleError(isBuild, "connection to the remote host failed : " + e.message);
         }
     }
 
     http:Response res = new;
     string statusCode = <string> httpResponse.statusCode;
     if (statusCode.hasPrefix("5")) {
-        error serverError = {
-            message: logFormatter.formatLog("remote registry failed for url :" + url)
-        };
-        throw serverError;
+        return handleError(isBuild, "remote registry failed for url :" + url);
     } else if (statusCode != "200") {
         var jsonResponse = httpResponse.getJsonPayload();
         match jsonResponse {
             json resp => {
                 if (statusCode == "404") {
+                    // Not logging
                     return 1;
                 } else {
-                    error pullError = {
-                        message: logFormatter.formatLog(resp.message.toString())
-                    };
-                    throw pullError;
+                    return handleError(isBuild, resp.message.toString());
                 }
             }
             error err => {
-                error pullError = {
-                    message: logFormatter.formatLog("error occurred when pulling the package")
-                };
-                throw pullError;
+                return handleError(isBuild, "error occurred when pulling the package");
             }
         }
     } else {
@@ -109,10 +114,7 @@ function pullPackage (http:Client definedEndpoint, string url, string dirPath, s
             contentLengthHeader = httpResponse.getHeader("content-length");
             pkgSize = check <int> contentLengthHeader;
         } else {
-            error pullError = {
-                message: logFormatter.formatLog("warning: package size information is missing from remote repository")
-            };
-            throw pullError;
+            return handleError(isBuild, "package size information is missing from remote repository. please retry.");
         }
 
         io:ByteChannel sourceChannel = check (httpResponse.getByteChannel());
@@ -152,10 +154,7 @@ function pullPackage (http:Client definedEndpoint, string url, string dirPath, s
             closeChannel(sourceChannel);
             return 0;
         } else {
-            error versionError = {
-                message: logFormatter.formatLog("package version could not be detected")
-            };
-            throw versionError;
+            return handleError(isBuild, "package version could not be detected");
         }
     }
 }
@@ -178,20 +177,14 @@ public function main(string... args) returns int {
         try {
             httpEndpoint = defineEndpointWithProxy(args[0], host, port, args[6], args[7]);
         } catch (error err) {
-            error endpointError = {
-                message: logFormatter.formatLog("failed to resolve host : " + host + " with port " + port)
-            };
-            throw endpointError;
+            return handleError(isBuild, "failed to resolve host : " + host + " with port " + port);
         }
     } else  if (host != "" || port != "") {
-        error endpointError = {
-            message: logFormatter.formatLog("both host and port should be provided to enable proxy")
-        };
-        throw endpointError;
+        return handleError(isBuild, "both host and port should be provided to enable proxy");
     } else {
         httpEndpoint = defineEndpointWithoutProxy(args[0]);
     }
-    return pullPackage(httpEndpoint, args[0], args[1], args[2], args[3], args[8], args[9]);
+    return pullPackage(httpEndpoint, isBuild, args[0], args[1], args[2], args[3], args[8], args[9]);
 }
 
 # This function defines an endpoint with proxy configurations.
