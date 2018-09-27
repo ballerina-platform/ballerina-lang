@@ -52,7 +52,7 @@ type BuildLogFormatter object {
 # + fileSeparator - File separator based on the operating system
 # + terminalWidth - Width of the terminal
 # + versionRange - Supported version range
-# + return - 1 if package is not found, else 0 if package already exists or successfully pulled
+# + return - 1 error occurs, else 0 if successfully pulled
 function pullPackage (http:Client definedEndpoint, boolean isBuild, string url, string dirPath, string pkgPath,
                       string fileSeparator, string terminalWidth, string versionRange) returns int {
     endpoint http:Client httpEndpoint = definedEndpoint;
@@ -131,7 +131,7 @@ function pullPackage (http:Client definedEndpoint, boolean isBuild, string url, 
                 internal:Path pkgArchivePath = new(destArchivePath);
                 if (pkgArchivePath.exists()) {
                     io:println(logFormatter.formatLog("package already exists in the home repository"));
-                    return 0;
+                    return 1;
                 }
             }
 
@@ -153,7 +153,7 @@ function pullPackage (http:Client definedEndpoint, boolean isBuild, string url, 
 
 # This function will invoke the method to pull the package. If error occurs, it is thrown.
 # + args - package pull arguments
-# + return - 1 if package is not found, else 0 if package already exists or successfully pulled
+# + return - 1 error occurs, else 0 if successfully pulled
 public function main(string... args) returns int {
     http:Client httpEndpoint;
     string host = args[4];
