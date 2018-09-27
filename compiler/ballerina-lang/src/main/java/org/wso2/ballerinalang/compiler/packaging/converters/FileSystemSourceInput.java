@@ -16,23 +16,23 @@ import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.BLANG_COM
 public class FileSystemSourceInput implements CompilerInput {
 
     private final Path path;
-    private Path rootPath;
+    private Path packageRoot;
 
     @Deprecated
     public FileSystemSourceInput(Path path) {
         this.path = path;
     }
 
-    public FileSystemSourceInput(Path filePath, Path rootPath) {
+    public FileSystemSourceInput(Path filePath, Path packageRoot) {
         this.path = filePath;
-        this.rootPath = rootPath;
+        this.packageRoot = packageRoot;
     }
 
     @Override
     public String getEntryName() {
         Path fileName = path.getFileName();
-        return rootPath != null ?
-                new File(rootPath.toString()).toURI().relativize(new File(path.toString()).toURI()).getPath() :
+        return packageRoot != null ?
+                new File(packageRoot.toString()).toURI().relativize(new File(path.toString()).toURI()).getPath() :
                 (fileName != null ? fileName.toString() : path.toString());
     }
 
