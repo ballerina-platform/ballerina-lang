@@ -86,53 +86,7 @@ public class LSPluginInstallationNotificationProvider extends EditorNotification
         return extension != null ? createPanel("*." + extension) : null;
     }
 
-    private boolean isIgnored(String extension) {
-        return myEnabledExtensions.contains(extension) || UnknownFeaturesCollector.getInstance(myProject)
-                .isIgnored(createExtensionFeature(extension));
-    }
-
-    private EditorNotificationPanel createPanel(String extension) {
-        PluginsAdvertiser.Plugin lspPlugin = new PluginsAdvertiser.Plugin();
-        lspPlugin.myPluginId = LSP_PLUGIN_ID;
-        lspPlugin.myPluginName = LSP_PLUGIN_NAME;
-
-        return createPanel(extension, lspPlugin);
-    }
-
-    private EditorNotificationPanel createPanel(final String extension, PluginsAdvertiser.Plugin plugin) {
-        EditorNotificationPanel panel = new EditorNotificationPanel();
-
-        final IdeaPluginDescriptor disabledPlugin = getDisabledPlugin(plugin);
-
-        if (disabledPlugin != null) {
-            panel.setText("LSP Support Plugin is not enabled to provide ballerina language server features (code " +
-                    "completion, diagnostics, hover support etc)");
-            panel.createActionLabel("Enable Plugin", () -> {
-                myEnabledExtensions.add(extension);
-                myNotifications.updateAllNotifications();
-                enablePlugin(myProject, disabledPlugin);
-            });
-        } else {
-            panel.setText("LSP Support plugin is not installed to enable ballerina language server features (code "
-                    + "completion, diagnostics, hover support etc.)");
-            panel.createActionLabel("Install Plugin", () -> {
-                Set<String> pluginIds = new HashSet<>();
-                pluginIds.add(plugin.myPluginId);
-                PluginsAdvertiser.installAndEnablePlugins(pluginIds, () -> {
-                    myEnabledExtensions.add(extension);
-                    myNotifications.updateAllNotifications();
-                });
-            });
-        }
-        panel.createActionLabel("Ignore", myNotifications::updateAllNotifications);
-        return panel;
-    }
-
-    private static UnknownFeature createExtensionFeature(String extension) {
-        return new UnknownFeature(FileTypeFactory.FILE_TYPE_FACTORY_EP.getName(), "File Type", extension);
-    }
-
-    private static boolean isAlreadyInstalled() {
+    public static boolean isAlreadyInstalled() {
         final IdeaPluginDescriptor[] installedPlugins = PluginManagerCore.getPlugins();
 
         for (IdeaPluginDescriptor plugin : installedPlugins) {
@@ -143,15 +97,58 @@ public class LSPluginInstallationNotificationProvider extends EditorNotification
         return false;
     }
 
-    private static IdeaPluginDescriptor getDisabledPlugin(PluginsAdvertiser.Plugin plugin) {
+    public static boolean isDisabled() {
+        final IdeaPluginDescriptor disabledPlugin = getDisabledPlugin(LSP_PLUGIN_ID);
+        return disabledPlugin != null;
+    }
+
+    private boolean isIgnored(String extension) {
+        return myEnabledExtensions.contains(extension) || UnknownFeaturesCollector.getInstance(myProject)
+                .isIgnored(createExtensionFeature(extension));
+    }
+
+    private EditorNotificationPanel createPanel(final String extension) {
+        EditorNotificationPanel panel = new EditorNotificationPanel();
+
+        if (isDisabled()) {
+            panel.setText("LSP Support Plugin is not enabled to provide ballerina language server features (code "
+                    + "completion, diagnostics, hover support etc)");
+            panel.createActionLabel("Enable Plugin", () -> {
+                myEnabledExtensions.add(extension);
+                myNotifications.updateAllNotifications();
+                enablePlugin(myProject, getDisabledPlugin(LSP_PLUGIN_ID));
+            });
+        } else {
+            panel.setText("LSP Support plugin is not installed to enable ballerina language server features (code "
+                    + "completion, diagnostics, hover support etc.)");
+            panel.createActionLabel("Install Plugin", () -> {
+                Set<String> pluginIds = new HashSet<>();
+                pluginIds.add(LSP_PLUGIN_ID);
+                PluginsAdvertiser.installAndEnablePlugins(pluginIds, () -> {
+                    myEnabledExtensions.add(extension);
+                    myNotifications.updateAllNotifications();
+                });
+            });
+        }
+        panel.createActionLabel("Ignore", () -> {
+            UnknownFeaturesCollector.getInstance(myProject).ignoreFeature(createExtensionFeature(extension));
+            myNotifications.updateAllNotifications();
+        });
+        return panel;
+    }
+
+    private static UnknownFeature createExtensionFeature(String extension) {
+        return new UnknownFeature(FileTypeFactory.FILE_TYPE_FACTORY_EP.getName(), "File Type", extension);
+    }
+
+    private static IdeaPluginDescriptor getDisabledPlugin(String pluginId) {
         final List<String> disabledPlugins = getDisabledPlugins();
-        return disabledPlugins.contains(plugin.myPluginId) ?
-                PluginManager.getPlugin(PluginId.getId(plugin.myPluginId)) : null;
+        return disabledPlugins.contains(pluginId) ? PluginManager.getPlugin(PluginId.getId(pluginId)) : null;
     }
 
     private static void enablePlugin(Project project, IdeaPluginDescriptor lspPlugin) {
-        final PluginManagerConfigurable managerConfigurable =
-                new PluginManagerConfigurable(PluginManagerUISettings.getInstance());
+        final PluginManagerConfigurable managerConfigurable = new PluginManagerConfigurable(
+                PluginManagerUISettings.getInstance());
         final PluginManagerMain createPanel = managerConfigurable.getOrCreatePanel();
         ShowSettingsUtil.getInstance().editConfigurable(project, managerConfigurable, () -> {
             final InstalledPluginsTableModel pluginsModel = (InstalledPluginsTableModel) createPanel.getPluginsModel();

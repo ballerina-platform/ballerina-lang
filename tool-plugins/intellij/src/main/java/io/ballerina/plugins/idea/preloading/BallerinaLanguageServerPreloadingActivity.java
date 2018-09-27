@@ -15,8 +15,6 @@
  */
 package io.ballerina.plugins.idea.preloading;
 
-import com.github.gtache.lsp.client.languageserver.serverdefinition.LanguageServerDefinition$;
-import com.github.gtache.lsp.client.languageserver.serverdefinition.RawCommandServerDefinition;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.application.PreloadingActivity;
 import com.intellij.openapi.progress.ProgressIndicator;
@@ -26,6 +24,7 @@ import com.intellij.openapi.project.ProjectManagerListener;
 import com.intellij.openapi.projectRoots.Sdk;
 import com.intellij.openapi.roots.ProjectRootManager;
 import com.intellij.util.messages.MessageBusConnection;
+import io.ballerina.plugins.idea.inspections.LSPluginInstallationNotificationProvider;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
@@ -105,8 +104,8 @@ public class BallerinaLanguageServerPreloadingActivity extends PreloadingActivit
                 args[0] = Paths.get(sdkPath, launcherScriptPath, "language-server-launcher.bat").toString();
             }
 
-            if (args[0] != null) {
-                LanguageServerDefinition$.MODULE$.register(new RawCommandServerDefinition("bal", args));
+            if (args[0] != null && hasLspPlugin()) {
+                LanguageServerRegisterService.register(args);
                 LOGGER.info("registered language server definition using Sdk path: " + sdkPath);
                 return true;
             }
@@ -152,6 +151,17 @@ public class BallerinaLanguageServerPreloadingActivity extends PreloadingActivit
             return false;
         }
         String balScriptPath = Paths.get(sdkPath, "bin", "ballerina").toString();
-        return new File(balScriptPath).exists();
+        String launcherScriptPath = Paths.get(sdkPath, this.launcherScriptPath, "language-server-launcher.sh")
+                .toString();
+        return new File(balScriptPath).exists() && new File(launcherScriptPath).exists();
+    }
+
+    private boolean hasLspPlugin() {
+        //checks among installed plugins
+        if (LSPluginInstallationNotificationProvider.isAlreadyInstalled() && !LSPluginInstallationNotificationProvider
+                .isDisabled()) {
+            return true;
+        }
+        return false;
     }
 }
