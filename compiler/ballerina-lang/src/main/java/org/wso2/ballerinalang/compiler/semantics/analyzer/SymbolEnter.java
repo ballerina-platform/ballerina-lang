@@ -698,14 +698,12 @@ public class SymbolEnter extends BLangNodeVisitor {
         if (varNode.type == null) {
             varNode.type = symResolver.resolveTypeNode(varNode.typeNode, env);
         }
-
-        varNode.memberVariables.forEach(variable -> defineNode(variable, env));
     }
 
     @Override
-    public void visit(BLangRecordVariable bLangRecordVariable) {
-        if (bLangRecordVariable.type == null) {
-            bLangRecordVariable.type = symResolver.resolveTypeNode(bLangRecordVariable.typeNode, env);
+    public void visit(BLangRecordVariable varNode) {
+        if (varNode.type == null) {
+            varNode.type = symResolver.resolveTypeNode(varNode.typeNode, env);
         }
     }
 

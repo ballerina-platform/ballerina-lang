@@ -116,6 +116,15 @@ public class TupleVariableDefinitionTest {
         Assert.assertEquals(((BInteger) returns[8]).intValue(), 56);
     }
 
+    @Test(description = "Test tuple tuple binding with records and objects")
+    public void testRecordInsideTuple() {
+        BValue[] returns = BRunUtil.invoke(result, "testRecordInsideTuple");
+        Assert.assertEquals(returns.length, 3);
+        Assert.assertEquals(returns[0].stringValue(), "Peter Parker");
+        Assert.assertEquals(((BInteger) returns[1]).intValue(), 12);
+        Assert.assertTrue(((BBoolean) returns[2]).booleanValue());
+    }
+
     @Test
     public void testNegativeRecordVariables() {
         Assert.assertEquals(resultNegative.getErrorCount(), 9);
@@ -124,14 +133,14 @@ public class TupleVariableDefinitionTest {
         String errorMsg2 = "invalid tuple binding pattern; incompatible type found for the member variable";
         String errorMsg3 = "tuple and expression size does not match";
 
-        BAssertUtil.validateError(resultNegative, ++i, errorMsg1, 3, 26);
-        BAssertUtil.validateError(resultNegative, ++i, errorMsg1, 7, 26);
-        BAssertUtil.validateError(resultNegative, ++i, errorMsg1, 8, 26);
-        BAssertUtil.validateError(resultNegative, ++i, errorMsg2, 9, 34);
-        BAssertUtil.validateError(resultNegative, ++i, errorMsg3, 13, 41);
-        BAssertUtil.validateError(resultNegative, ++i, errorMsg3, 14, 41);
-        BAssertUtil.validateError(resultNegative, ++i, "incompatible types: expected 'string', found 'int'", 15, 42);
-        BAssertUtil.validateError(resultNegative, ++i, "incompatible types: expected 'int', found 'float'", 15, 45);
-        BAssertUtil.validateError(resultNegative, ++i, "incompatible types: expected 'float', found 'int'", 15, 50);
+        BAssertUtil.validateError(resultNegative, ++i, errorMsg1, 19, 26);
+        BAssertUtil.validateError(resultNegative, ++i, errorMsg1, 23, 26);
+        BAssertUtil.validateError(resultNegative, ++i, errorMsg1, 24, 26);
+        BAssertUtil.validateError(resultNegative, ++i, errorMsg2, 25, 34);
+        BAssertUtil.validateError(resultNegative, ++i, errorMsg3, 29, 41);
+        BAssertUtil.validateError(resultNegative, ++i, errorMsg3, 30, 41);
+        BAssertUtil.validateError(resultNegative, ++i, "incompatible types: expected 'string', found 'int'", 31, 42);
+        BAssertUtil.validateError(resultNegative, ++i, "incompatible types: expected 'int', found 'float'", 31, 45);
+        BAssertUtil.validateError(resultNegative, ++i, "incompatible types: expected 'float', found 'int'", 31, 50);
     }
 }

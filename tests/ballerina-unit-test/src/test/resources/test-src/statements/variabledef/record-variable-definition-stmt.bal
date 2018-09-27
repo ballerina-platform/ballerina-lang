@@ -63,15 +63,15 @@ function recordVarInRecordVarInRecordVar() returns (string, boolean, int, string
     return (fName, married, postalCode, sName, city);
 }
 
-//type Employee record {
-//    string name;
-//    (int, string) address;
-//};
-//
-//function tupleVarInRecordVar() returns (string, int, string) {
-//    Employee {name, address: (number, street)} = {name: "John", address: (20, "PG")};
-//    return (name, number, street);
-//}
+type Employee record {
+    string name;
+    (int, string) address;
+};
+
+function tupleVarInRecordVar() returns (string, int, string) {
+    Employee {name, address: (number, street)} = {name: "John", address: (20, "PG")};
+    return (name, number, street);
+}
 
 function defineThreeRecordVariables() returns (string, int) {
     PersonWithAge {name: fName1, age: {age: theAge1, format: format1}, married: married1} = {name: "John", age: {age:30, format: "YY"}, married: true, work: "SE"};

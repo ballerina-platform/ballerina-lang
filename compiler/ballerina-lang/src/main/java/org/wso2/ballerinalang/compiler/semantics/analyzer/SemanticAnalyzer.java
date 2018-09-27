@@ -155,7 +155,6 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangWorkerSend;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangXMLNSStatement;
 import org.wso2.ballerinalang.compiler.tree.types.BLangObjectTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangRecordTypeNode;
-import org.wso2.ballerinalang.compiler.tree.types.BLangTupleTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangType;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.Name;
@@ -497,7 +496,16 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
     }
 
     public void visit(BLangTupleVariable varNode) {
-        if (!(checkTypeAndVarCountConsistency(varNode, (BLangTupleTypeNode) varNode.typeNode))) {
+        if (varNode.type == null) {
+            varNode.type = symResolver.resolveTypeNode(varNode.typeNode, env);
+        }
+
+        if (varNode.type.tag != TypeTags.TUPLE) {
+            dlog.error(varNode.pos, DiagnosticCode.INVALID_TYPE_FOR_TUPLE_BINDING_PATTERN);
+            return;
+        }
+
+        if (!(checkTypeAndVarCountConsistency(varNode, (BTupleType) varNode.type))) {
             return;
         }
 
@@ -505,33 +513,25 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             symbolEnter.defineNode(varNode, env);
         }
 
+        if (varNode.expr == null) {
+            // we have no rhs to do type checking
+            return;
+        }
         SymbolEnv varInitEnv = SymbolEnv.createVarInitEnv(varNode, env, null);
 
         typeChecker.checkExpr(varNode.expr, varInitEnv, varNode.type);
     }
 
-    private boolean checkTypeAndVarCountConsistency(BLangTupleVariable varNode, BLangTupleTypeNode tupleTypeNode) {
-        if (tupleTypeNode.memberTypeNodes.size() != varNode.memberVariables.size()) {
+    private boolean checkTypeAndVarCountConsistency(BLangTupleVariable varNode, BTupleType tupleTypeNode) {
+        if (tupleTypeNode.tupleTypes.size() != varNode.memberVariables.size()) {
             dlog.error(varNode.pos, DiagnosticCode.INVALID_TUPLE_BINDING_PATTERN);
             return false;
         }
 
         for (int i = 0; i < varNode.memberVariables.size(); i++) {
             BLangVariable var = varNode.memberVariables.get(i);
-            BLangType type = tupleTypeNode.memberTypeNodes.get(i);
-            var.setTypeNode(type);
-            if (NodeKind.TUPLE_VARIABLE != var.getKind()) {
-                continue;
-            }
-
-            if (NodeKind.TUPLE_VARIABLE == var.getKind() && NodeKind.TUPLE_TYPE_NODE != type.getKind()) {
-                dlog.error(var.pos, DiagnosticCode.INVALID_TYPE_FOR_TUPLE_BINDING_PATTERN);
-                return false;
-            }
-
-            if (!checkTypeAndVarCountConsistency((BLangTupleVariable) var, (BLangTupleTypeNode) type)) {
-                return false;
-            }
+            var.type = tupleTypeNode.tupleTypes.get(i);
+            var.accept(this);
         }
         return true;
     }
@@ -562,7 +562,6 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                     }
 
                     // Check if record literal has all expected fields
-                    // and assign the rhs expression to the correct variable
                     for (BLangRecordKeyValue keyValuePair : ((BLangRecordLiteral) varNode.expr).keyValuePairs) {
                         if (keyValuePair.key.expr.getKind() != NodeKind.SIMPLE_VARIABLE_REF) {
                             dlog.error(varNode.pos, DiagnosticCode.INVALID_RECORD_LITERAL_KEY);
@@ -570,7 +569,6 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                         }
                         if (variable.getKey().getValue()
                                 .equals(((BLangSimpleVarRef) keyValuePair.key.expr).variableName.value)) {
-                            ((BLangVariable) variable.getValue()).expr = keyValuePair.valueExpr;
                             foundMatch = true;
                             break;
                         }
