@@ -23,6 +23,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.transport.http.netty.contractimpl.common.states.Http2MessageStateContext;
 import org.wso2.transport.http.netty.contractimpl.sender.http2.Http2TargetHandler;
+import org.wso2.transport.http.netty.contractimpl.sender.http2.OutboundMsgHolder;
 
 /**
  * State between end of payload write and start of response headers read
@@ -45,15 +46,17 @@ public class RequestCompleted implements SenderState {
 
     @Override
     public void readInboundResponseHeaders(Http2TargetHandler targetHandler, ChannelHandlerContext ctx, Object msg,
+                                           OutboundMsgHolder outboundMsgHolder, boolean isServerPush,
                                            Http2MessageStateContext http2MessageStateContext) {
         // When the initial frames of the response is to be received after sending the complete request.
         http2MessageStateContext.setSenderState(new ReceivingHeaders());
-        http2MessageStateContext.getSenderState()
-                .readInboundResponseHeaders(targetHandler, ctx, msg, http2MessageStateContext);
+        http2MessageStateContext.getSenderState().readInboundResponseHeaders(targetHandler, ctx, msg,
+                outboundMsgHolder, isServerPush, http2MessageStateContext);
     }
 
     @Override
     public void readInboundResponseEntityBody(Http2TargetHandler targetHandler, ChannelHandlerContext ctx, Object msg,
+                                              OutboundMsgHolder outboundMsgHolder, boolean isServerPush,
                                               Http2MessageStateContext http2MessageStateContext) {
         LOG.warn("readInboundResponseEntityBody is not a dependant action of this state");
     }

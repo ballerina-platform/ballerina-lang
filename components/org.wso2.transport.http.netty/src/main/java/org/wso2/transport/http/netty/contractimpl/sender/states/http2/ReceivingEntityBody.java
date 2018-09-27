@@ -23,6 +23,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.transport.http.netty.contractimpl.common.states.Http2MessageStateContext;
 import org.wso2.transport.http.netty.contractimpl.sender.http2.Http2TargetHandler;
+import org.wso2.transport.http.netty.contractimpl.sender.http2.OutboundMsgHolder;
 import org.wso2.transport.http.netty.message.Http2DataFrame;
 
 /**
@@ -46,13 +47,15 @@ public class ReceivingEntityBody implements SenderState {
 
     @Override
     public void readInboundResponseHeaders(Http2TargetHandler targetHandler, ChannelHandlerContext ctx, Object msg,
+                                           OutboundMsgHolder outboundMsgHolder, boolean isServerPush,
                                            Http2MessageStateContext http2MessageStateContext) {
         LOG.warn("readInboundResponseHeaders is not a dependant action of this state");
     }
 
     @Override
     public void readInboundResponseEntityBody(Http2TargetHandler targetHandler, ChannelHandlerContext ctx, Object msg,
+                                              OutboundMsgHolder outboundMsgHolder, boolean isServerPush,
                                               Http2MessageStateContext http2MessageStateContext) {
-        targetHandler.onDataRead((Http2DataFrame) msg, http2MessageStateContext);
+        targetHandler.onDataRead((Http2DataFrame) msg, outboundMsgHolder, isServerPush, http2MessageStateContext);
     }
 }

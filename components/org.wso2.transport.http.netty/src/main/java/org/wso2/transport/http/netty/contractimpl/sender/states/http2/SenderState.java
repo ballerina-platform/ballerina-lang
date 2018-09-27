@@ -23,6 +23,7 @@ import io.netty.handler.codec.http2.Http2Exception;
 import org.wso2.transport.http.netty.contractimpl.common.states.Http2MessageStateContext;
 import org.wso2.transport.http.netty.contractimpl.sender.http2.Http2TargetHandler;
 import org.wso2.transport.http.netty.contractimpl.sender.http2.Http2TargetHandler.Http2RequestWriter;
+import org.wso2.transport.http.netty.contractimpl.sender.http2.OutboundMsgHolder;
 
 /**
  * SenderStates of target handler.
@@ -58,6 +59,7 @@ public interface SenderState {
      * @param http2MessageStateContext the message state context
      */
     void readInboundResponseHeaders(Http2TargetHandler targetHandler, ChannelHandlerContext ctx, Object msg,
+                                    OutboundMsgHolder outboundMsgHolder, boolean isServerPush,
                                     Http2MessageStateContext http2MessageStateContext);
 
     /**
@@ -69,5 +71,6 @@ public interface SenderState {
      * @param http2MessageStateContext the message state context
      */
     void readInboundResponseEntityBody(Http2TargetHandler targetHandler, ChannelHandlerContext ctx, Object msg,
+                                       OutboundMsgHolder outboundMsgHolder, boolean isServerPush,
                                        Http2MessageStateContext http2MessageStateContext);
 }

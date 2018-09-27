@@ -297,7 +297,20 @@ public class Http2TargetHandler extends ChannelDuplexHandler {
         if (msg instanceof Http2HeadersFrame) {
             Http2HeadersFrame http2HeadersFrame = (Http2HeadersFrame) msg;
             int streamId = http2HeadersFrame.getStreamId();
+
             OutboundMsgHolder outboundMsgHolder = http2ClientChannel.getInFlightMessage(streamId);
+            boolean isServerPush = false;
+            if (outboundMsgHolder == null) {
+                outboundMsgHolder = http2ClientChannel.getPromisedMessage(streamId);
+                if (outboundMsgHolder != null) {
+                    isServerPush = true;
+                } else {
+                    LOG.warn("Header Frame received on channel: {} with invalid stream id: {} ",
+                            http2ClientChannel, streamId);
+                    return;
+                }
+            }
+
             Http2MessageStateContext http2MessageStateContext =
                     outboundMsgHolder.getRequest().getHttp2MessageStateContext();
             if (http2MessageStateContext == null) {
@@ -306,16 +319,29 @@ public class Http2TargetHandler extends ChannelDuplexHandler {
                 outboundMsgHolder.getRequest().setHttp2MessageStateContext(http2MessageStateContext);
                 http2ClientChannel.putInFlightMessage(streamId, outboundMsgHolder);
             }
-            http2MessageStateContext.getSenderState()
-                    .readInboundResponseHeaders(this, ctx, msg, http2MessageStateContext);
+            http2MessageStateContext.getSenderState().readInboundResponseHeaders(this, ctx, msg,
+                    outboundMsgHolder, isServerPush, http2MessageStateContext);
         } else if (msg instanceof Http2DataFrame) {
             Http2DataFrame http2DataFrame = (Http2DataFrame) msg;
             int streamId = http2DataFrame.getStreamId();
+
             OutboundMsgHolder outboundMsgHolder = http2ClientChannel.getInFlightMessage(streamId);
+            boolean isServerPush = false;
+            if (outboundMsgHolder == null) {
+                outboundMsgHolder = http2ClientChannel.getPromisedMessage(streamId);
+                if (outboundMsgHolder != null) {
+                    isServerPush = true;
+                } else {
+                    LOG.warn("Data Frame received on channel: {} with invalid stream id: {}",
+                            http2ClientChannel, streamId);
+                    return;
+                }
+            }
+
             Http2MessageStateContext http2MessageStateContext =
                     outboundMsgHolder.getRequest().getHttp2MessageStateContext();
-            http2MessageStateContext.getSenderState()
-                    .readInboundResponseEntityBody(this, ctx, msg, http2MessageStateContext);
+            http2MessageStateContext.getSenderState().readInboundResponseEntityBody(this, ctx, msg,
+                    outboundMsgHolder, isServerPush, http2MessageStateContext);
         } else if (msg instanceof Http2PushPromise) {
             onPushPromiseRead((Http2PushPromise) msg);
         } else if (msg instanceof Http2Reset) {
@@ -324,23 +350,11 @@ public class Http2TargetHandler extends ChannelDuplexHandler {
     }
 
     public void onHeadersRead(ChannelHandlerContext ctx, Http2HeadersFrame http2HeadersFrame,
+                              OutboundMsgHolder outboundMsgHolder, boolean isServerPush,
                               Http2MessageStateContext http2MessageStateContext) {
         int streamId = http2HeadersFrame.getStreamId();
         Http2Headers http2Headers = http2HeadersFrame.getHeaders();
         boolean endOfStream = http2HeadersFrame.isEndOfStream();
-
-        OutboundMsgHolder outboundMsgHolder = http2ClientChannel.getInFlightMessage(streamId);
-        boolean isServerPush = false;
-        if (outboundMsgHolder == null) {
-            outboundMsgHolder = http2ClientChannel.getPromisedMessage(streamId);
-            if (outboundMsgHolder != null) {
-                isServerPush = true;
-            } else {
-                LOG.warn("Header Frame received on channel: {} with invalid stream id: {} ", http2ClientChannel,
-                        streamId);
-                return;
-            }
-        }
 
         if (isServerPush) {
             if (endOfStream) {
@@ -389,7 +403,6 @@ public class Http2TargetHandler extends ChannelDuplexHandler {
 
     private void onTrailersRead(int streamId, Http2Headers headers, OutboundMsgHolder outboundMsgHolder,
                                 HttpCarbonMessage responseMessage) {
-
         HttpVersion version = new HttpVersion(Constants.HTTP_VERSION_2_0, true);
         LastHttpContent lastHttpContent = new DefaultLastHttpContent();
         HttpHeaders trailers = lastHttpContent.trailingHeaders();
@@ -403,22 +416,12 @@ public class Http2TargetHandler extends ChannelDuplexHandler {
         responseMessage.addHttpContent(lastHttpContent);
     }
 
-    public void onDataRead(Http2DataFrame http2DataFrame, Http2MessageStateContext http2MessageStateContext) {
+    public void onDataRead(Http2DataFrame http2DataFrame, OutboundMsgHolder outboundMsgHolder, boolean isServerPush,
+                           Http2MessageStateContext http2MessageStateContext) {
         int streamId = http2DataFrame.getStreamId();
         ByteBuf data = http2DataFrame.getData();
         boolean endOfStream = http2DataFrame.isEndOfStream();
 
-        OutboundMsgHolder outboundMsgHolder = http2ClientChannel.getInFlightMessage(streamId);
-        boolean isServerPush = false;
-        if (outboundMsgHolder == null) {
-            outboundMsgHolder = http2ClientChannel.getPromisedMessage(streamId);
-            if (outboundMsgHolder != null) {
-                isServerPush = true;
-            } else {
-                LOG.warn("Data Frame received on channel: {} with invalid stream id: {}", http2ClientChannel, streamId);
-                return;
-            }
-        }
         if (isServerPush) {
             HttpCarbonMessage responseMessage = outboundMsgHolder.getPushResponse(streamId);
             if (endOfStream) {
