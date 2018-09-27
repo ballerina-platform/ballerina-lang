@@ -31,8 +31,8 @@ import java.nio.file.Path;
 class LSInMemorySourceEntry extends FileSystemSourceInput {
 
     private WorkspaceDocumentManager documentManager;
-    LSInMemorySourceEntry(Path path, PackageID pkgId, WorkspaceDocumentManager documentManager) {
-        super(path);
+    LSInMemorySourceEntry(Path path, Path root, PackageID pkgId, WorkspaceDocumentManager documentManager) {
+        super(path, root);
         this.documentManager = documentManager;
     }
 

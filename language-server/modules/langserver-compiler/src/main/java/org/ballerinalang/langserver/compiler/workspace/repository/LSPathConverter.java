@@ -30,15 +30,17 @@ import java.util.stream.Stream;
  */
 public class LSPathConverter extends PathConverter {
     private WorkspaceDocumentManager documentManager;
+    private final Path root;
     
     public LSPathConverter(Path root, WorkspaceDocumentManager documentManager) {
         super(root);
+        this.root = root;
         this.documentManager = documentManager;
     }
 
     @Override
     public Stream<CompilerInput> finalize(Path path, PackageID id) {
         // Returns an In-memory source entry with backing-off capability to read from the FileSystem
-        return Stream.of(new LSInMemorySourceEntry(path, id, documentManager));
+        return Stream.of(new LSInMemorySourceEntry(path, root, id, documentManager));
     }
 }

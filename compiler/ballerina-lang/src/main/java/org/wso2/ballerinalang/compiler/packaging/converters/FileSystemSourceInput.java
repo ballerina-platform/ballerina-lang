@@ -3,6 +3,7 @@ package org.wso2.ballerinalang.compiler.packaging.converters;
 import org.ballerinalang.compiler.BLangCompilerException;
 import org.ballerinalang.repository.CompilerInput;
 
+import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -15,15 +16,24 @@ import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.BLANG_COM
 public class FileSystemSourceInput implements CompilerInput {
 
     private final Path path;
+    private Path rootPath;
 
+    @Deprecated
     public FileSystemSourceInput(Path path) {
         this.path = path;
+    }
+
+    public FileSystemSourceInput(Path filePath, Path rootPath) {
+        this.path = filePath;
+        this.rootPath = rootPath;
     }
 
     @Override
     public String getEntryName() {
         Path fileName = path.getFileName();
-        return fileName == null ? path.toString() : fileName.toString();
+        return rootPath != null ?
+                new File(rootPath.toString()).toURI().relativize(new File(path.toString()).toURI()).getPath() :
+                (fileName != null ? fileName.toString() : path.toString());
     }
 
     @Override
