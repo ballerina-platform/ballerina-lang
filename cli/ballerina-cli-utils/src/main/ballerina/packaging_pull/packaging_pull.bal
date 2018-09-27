@@ -42,26 +42,10 @@ type BuildLogFormatter object {
     }
 };
 
-# Handle errors when pulling a package. Build command will throw an error while non-build commands will print the error
-# and return 1.
-# + isBuild - Whether the command is build command or other.
-# + errMessage - The error message.
-# + return - 1 if from non-build commands else an error is thrown.
-function handleError (boolean isBuild, string errMessage) returns (int) {
-    if (isBuild) {
-        error endpointError = {
-            message: logFormatter.formatLog(errMessage)
-        };
-        throw endpointError;
-    } else {
-        io:println(errMessage);
-    }
-    return 1;
-}
-
 # This function pulls a package from ballerina central.
 #
 # + definedEndpoint - Endpoint defined with the proxy configurations
+# + isBuild - True if executed for building, else false
 # + url - Url to be invoked
 # + dirPath - Path of the directory to save the pulled package
 # + pkgPath - Package path
@@ -83,27 +67,33 @@ function pullPackage (http:Client definedEndpoint, boolean isBuild, string url, 
     match result {
         http:Response response => httpResponse = response;
         error e => {
-            return handleError(isBuild, "connection to the remote host failed : " + e.message);
+            io:println(logFormatter.formatLog("connection to the remote host failed : " + e.message));
+            return 1;
         }
     }
 
     http:Response res = new;
     string statusCode = <string> httpResponse.statusCode;
     if (statusCode.hasPrefix("5")) {
-        return handleError(isBuild, "remote registry failed for url :" + url);
+        io:println(logFormatter.formatLog("remote registry failed for url :" + url));
+        return 1;
     } else if (statusCode != "200") {
         var jsonResponse = httpResponse.getJsonPayload();
         match jsonResponse {
             json resp => {
                 if (statusCode == "404") {
-                    // Not logging
+                    if (!isBuild) {
+                        io:println(logFormatter.formatLog(resp.message.toString()));
+                    }
                     return 1;
                 } else {
-                    return handleError(isBuild, resp.message.toString());
+                    io:println(logFormatter.formatLog(resp.message.toString()));
+                    return 1;
                 }
             }
             error err => {
-                return handleError(isBuild, "error occurred when pulling the package");
+                io:println(logFormatter.formatLog("error occurred when pulling the package"));
+                return 1;
             }
         }
     } else {
@@ -114,7 +104,8 @@ function pullPackage (http:Client definedEndpoint, boolean isBuild, string url, 
             contentLengthHeader = httpResponse.getHeader("content-length");
             pkgSize = check <int> contentLengthHeader;
         } else {
-            return handleError(isBuild, "package size information is missing from remote repository. please retry.");
+            io:println(logFormatter.formatLog("package size information is missing from remote repository. please retry."));
+            return 1;
         }
 
         io:ByteChannel sourceChannel = check (httpResponse.getByteChannel());
@@ -138,7 +129,7 @@ function pullPackage (http:Client definedEndpoint, boolean isBuild, string url, 
 
             if (!createDirectories(destDirPath)) {
                 internal:Path pkgArchivePath = new(destArchivePath);
-                if (pkgArchivePath.exists()){
+                if (pkgArchivePath.exists()) {
                     io:println(logFormatter.formatLog("package already exists in the home repository"));
                     return 0;
                 }
@@ -154,7 +145,8 @@ function pullPackage (http:Client definedEndpoint, boolean isBuild, string url, 
             closeChannel(sourceChannel);
             return 0;
         } else {
-            return handleError(isBuild, "package version could not be detected");
+            io:println(logFormatter.formatLog("package version could not be detected"));
+            return 1;
         }
     }
 }
@@ -177,10 +169,12 @@ public function main(string... args) returns int {
         try {
             httpEndpoint = defineEndpointWithProxy(args[0], host, port, args[6], args[7]);
         } catch (error err) {
-            return handleError(isBuild, "failed to resolve host : " + host + " with port " + port);
+            io:println(logFormatter.formatLog("failed to resolve host : " + host + " with port " + port));
+            return 1;
         }
     } else  if (host != "" || port != "") {
-        return handleError(isBuild, "both host and port should be provided to enable proxy");
+        io:println(logFormatter.formatLog("both host and port should be provided to enable proxy"));
+        return 1;
     } else {
         httpEndpoint = defineEndpointWithoutProxy(args[0]);
     }
