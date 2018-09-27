@@ -1,3 +1,0 @@
-// Invoke the service's send resource using "curl".
-$ curl localhost:9090/channelService/send -X POST -H "Content-Type: application/json" -d  '{"message":"message to channel"}'
-{"send":"Success!!"}
