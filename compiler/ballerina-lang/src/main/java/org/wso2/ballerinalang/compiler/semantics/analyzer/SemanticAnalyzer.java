@@ -1286,7 +1286,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         }
 
         //Create duplicate symbol for stream alias
-        if(streamingInput.getAlias() != null) {
+        if (streamingInput.getAlias() != null) {
             BVarSymbol streamSymbol = (BVarSymbol) ((BLangSimpleVarRef) streamRef).symbol;
             BVarSymbol streamAliasSymbol = ASTBuilderUtil.duplicateVarSymbol(streamSymbol);
             streamAliasSymbol.name = names.fromString(streamingInput.getAlias());
