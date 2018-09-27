@@ -5,14 +5,43 @@ endpoint grpc:Listener listener {
     host:"hostname",
     port:9000
 };
-
+{{#stubList}}{{#if bidiStreaming}}
+@grpc:ServiceConfig {
+    name: {{serviceName}},
+    clientStreaming: true,
+    serverStreaming: true
+}{{/if}}{{#if clientStreaming}}
+@grpc:ServiceConfig {
+    name: {{fileName}},
+    clientStreaming: true
+}
+{{/if}}{{#if unary}}
 @grpc:ServiceConfig
-service {{fileName}} bind listener {
-{{#stubList.0.blockingFunctions}}
+{{/if}}
+service {{serviceName}} bind listener {
+{{#streamingFunctions}}
+    onOpen(endpoint caller) {
+        // Implementation goes here.
+    }
+
+    onMessage(endpoint caller, {{inputType}} value) {
+        // Implementation goes here.
+    }
+
+    onError(endpoint caller, error err) {
+        // Implementation goes here.
+    }
+
+    onComplete(endpoint caller) {
+            // Implementation goes here.
+    }
+{{/streamingFunctions}}{{#nonBlockingFunctions}}{{#equals methodType "SERVER_STREAMING"}}
+    @grpc:ResourceConfig { streaming: true } {{/equals}}
     {{methodName}}(endpoint caller, {{inputType}} value) {
         // Implementation goes here.
 
         // You should return a {{outputType}}
     }
-{{/stubList.0.blockingFunctions}}
+{{/nonBlockingFunctions}}
 }
+{{/stubList}}

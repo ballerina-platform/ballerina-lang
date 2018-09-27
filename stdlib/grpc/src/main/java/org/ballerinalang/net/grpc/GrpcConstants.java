@@ -44,6 +44,7 @@ public class GrpcConstants {
     public static final String RESPONSE_MESSAGE_DEFINITION = "RESPONSE_DEFINITION";
     public static final int CLIENT_RESPONDER_REF_INDEX = 0;
     public static final int RESPONSE_MESSAGE_REF_INDEX = 1;
+    public static final String DESCRIPTOR_MAP = "descriptorMap";
     
     //client side endpoint constants
     public static final String CLIENT_ENDPOINT_TYPE = "Client";

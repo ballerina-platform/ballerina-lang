@@ -41,9 +41,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
-import static org.ballerinalang.net.grpc.builder.utils.BalGenConstants.GRPC_CLIENT;
-import static org.ballerinalang.net.grpc.builder.utils.BalGenConstants.GRPC_CLIENT_AND_SERVER;
-import static org.ballerinalang.net.grpc.builder.utils.BalGenConstants.GRPC_SERVICE;
 import static org.ballerinalang.net.grpc.proto.ServiceProtoConstants.TMP_DIRECTORY_PATH;
 import static org.ballerinalang.protobuf.BalGenerationConstants.BUILD_COMMAND_NAME;
 import static org.ballerinalang.protobuf.BalGenerationConstants.COMPONENT_IDENTIFIER;
@@ -82,7 +79,7 @@ public class GrpcCmd implements BLauncherCmd {
     private String protoPath;
 
     @CommandLine.Option(names = {"--mode"},
-            description = "client or service"
+            description = "client or service or both"
     )
     private String mode = "both";
 
@@ -103,11 +100,6 @@ public class GrpcCmd implements BLauncherCmd {
 
     @Override
     public void execute() {
-        if (!this.mode.equals(GRPC_SERVICE) && !this.mode.equals(GRPC_CLIENT) && !this.mode
-                .equals(GRPC_CLIENT_AND_SERVER)) {
-            throw new BalGenToolException("Mode should be either client or service.");
-        }
-
         // check input protobuf file path
         if (protoPath == null || !protoPath.toLowerCase(Locale.ENGLISH).endsWith(PROTO_SUFFIX)) {
             String errorMessage = "Invalid proto file path. Please input valid proto file location.";

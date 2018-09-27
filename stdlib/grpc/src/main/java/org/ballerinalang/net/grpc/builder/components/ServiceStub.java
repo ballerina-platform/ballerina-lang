@@ -14,6 +14,9 @@ import java.util.List;
 public class ServiceStub {
     private String stubType;
     private String serviceName;
+    private boolean bidiStreaming;
+    private boolean clientStreaming;
+    private boolean unary;
     private List<Method> blockingFunctions = new ArrayList<>();
     private List<Method> nonBlockingFunctions = new ArrayList<>();
     private List<Method> streamingFunctions = new ArrayList<>();
@@ -47,6 +50,17 @@ public class ServiceStub {
         return Collections.unmodifiableList(streamingFunctions);
     }
 
+    public boolean isBidiStreaming() {
+        return bidiStreaming;
+    }
+
+    public boolean isClientStreaming() {
+        return clientStreaming;
+    }
+
+    public boolean isUnary() {
+        return unary;
+    }
     /**
      * Service stub definition builder.
      */
@@ -79,13 +93,19 @@ public class ServiceStub {
                         } else {
                             serviceStub.nonBlockingFunctions.add(method);
                         }
+                        serviceStub.unary = true;
                         break;
                     case SERVER_STREAMING:
                         serviceStub.nonBlockingFunctions.add(method);
+                        serviceStub.unary = true;
                         break;
                     case CLIENT_STREAMING:
+                        serviceStub.streamingFunctions.add(method);
+                        serviceStub.clientStreaming = true;
+                        break;
                     case BIDI_STREAMING:
                         serviceStub.streamingFunctions.add(method);
+                        serviceStub.bidiStreaming = true;
                         break;
                     default:
                         throw new BalGenerationException("Method type is unknown or not supported.");
@@ -100,8 +120,10 @@ public class ServiceStub {
      */
     public enum StubType {
         BLOCKING("blocking"),
-        NONBLOCKING("non-blocking");
-
+        NONBLOCKING("non-blocking"),
+        CLIENTSTREAMING("client-streaming"),
+        BIDISTREAMING("bidi-streaming"),
+        COMMON("common");
         private String type;
 
         StubType(String type) {

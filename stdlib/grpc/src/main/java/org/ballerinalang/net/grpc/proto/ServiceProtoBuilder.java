@@ -57,6 +57,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
+import static org.ballerinalang.net.grpc.GrpcConstants.DESCRIPTOR_MAP;
 import static org.ballerinalang.net.grpc.GrpcConstants.ORG_NAME;
 import static org.ballerinalang.net.grpc.GrpcConstants.PROTOCOL_PACKAGE_GRPC;
 import static org.ballerinalang.net.grpc.GrpcConstants.SERVICE_ENDPOINT_TYPE;
@@ -97,7 +98,7 @@ public class ServiceProtoBuilder extends AbstractCompilerPlugin {
         try {
             Optional<BLangVariable> descriptorMapVar = ((ArrayList) ((BLangPackage) ((BLangService) serviceNode).parent)
                     .globalVars).stream().filter(var -> ((BLangVariable) var).getName().getValue()
-                    .equals("descriptorMap")).findFirst();
+                    .equals(DESCRIPTOR_MAP)).findFirst();
             if (descriptorMapVar.isPresent()) {
                 String proto = ((BLangRecordLiteral) descriptorMapVar.get().getInitialExpression())
                         .getKeyValuePairs().get(0).getValue().toString();

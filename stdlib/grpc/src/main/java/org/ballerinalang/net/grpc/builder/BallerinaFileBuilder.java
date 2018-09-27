@@ -102,6 +102,7 @@ public class BallerinaFileBuilder {
             String filename = new File(fileDescriptorSet.getName()).getName().replace(PROTO_FILE_EXTENSION, "");
             String filePackage = fileDescriptorSet.getPackage();
             StubFile stubFileObject = new StubFile(filename);
+            StubFile servicestubFileObject = new StubFile(filename);
             ClientFile clientFileObject = null;
             // Add root descriptor.
             Descriptor rootDesc = Descriptor.newBuilder(rootDescriptor).build();
@@ -124,6 +125,9 @@ public class BallerinaFileBuilder {
                 List<DescriptorProtos.MethodDescriptorProto> methodList = serviceDescriptor.getMethodList();
 
                 boolean isUnaryContains = false;
+                boolean clientStreaming = false;
+                boolean bidirectionalStreaming = false;
+
                 for (DescriptorProtos.MethodDescriptorProto methodDescriptorProto : methodList) {
                     String methodID;
                     if (filePackage != null && !filePackage.isEmpty()) {
@@ -138,6 +142,12 @@ public class BallerinaFileBuilder {
                     if (MethodDescriptor.MethodType.UNARY.equals(method.getMethodType())) {
                         isUnaryContains = true;
                     }
+                    if (MethodDescriptor.MethodType.CLIENT_STREAMING.equals(method.getMethodType())) {
+                        clientStreaming = true;
+                    }
+                    if (MethodDescriptor.MethodType.BIDI_STREAMING.equals(method.getMethodType())) {
+                        bidirectionalStreaming = true;
+                    }
                     if (method.containsEmptyType() && !(stubFileObject.messageExists(EMPTY_DATA_TYPE))) {
                         Message message = Message.newBuilder(EmptyMessage.newBuilder().getDescriptor().toProto())
                                 .build();
@@ -147,6 +157,16 @@ public class BallerinaFileBuilder {
                 if (isUnaryContains) {
                     serviceBuilder.setType(ServiceStub.StubType.BLOCKING);
                     stubFileObject.addServiceStub(serviceBuilder.build());
+                }
+                if (clientStreaming) {
+                    serviceBuilder.setType(ServiceStub.StubType.CLIENTSTREAMING);
+                    servicestubFileObject.addServiceStub(serviceBuilder.build());
+                } else if (bidirectionalStreaming) {
+                    serviceBuilder.setType(ServiceStub.StubType.BIDISTREAMING);
+                    servicestubFileObject.addServiceStub(serviceBuilder.build());
+                } else {
+                    serviceBuilder.setType(ServiceStub.StubType.COMMON);
+                    servicestubFileObject.addServiceStub(serviceBuilder.build());
                 }
                 serviceBuilder.setType(ServiceStub.StubType.NONBLOCKING);
                 stubFileObject.addServiceStub(serviceBuilder.build());
@@ -180,7 +200,7 @@ public class BallerinaFileBuilder {
             }
             if (mode.equals(GRPC_SERVICE) || mode.equals("both")) {
                 String servicePath = generateOutputFile(this.balOutPath, filename + SAMPLE_SERVICE_FILE_PREFIX);
-                writeOutputFile(stubFileObject, DEFAULT_SAMPLE_DIR, SAMPLE_SERVICE_TEMPLATE_NAME, servicePath);
+                writeOutputFile(servicestubFileObject, DEFAULT_SAMPLE_DIR, SAMPLE_SERVICE_TEMPLATE_NAME, servicePath);
             }
         } catch (IOException | GrpcServerException e) {
             throw new BalGenerationException("Error while generating .bal file.", e);
