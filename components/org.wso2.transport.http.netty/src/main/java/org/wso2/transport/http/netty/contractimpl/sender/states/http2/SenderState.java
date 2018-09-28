@@ -42,7 +42,7 @@ public interface SenderState {
      * @param ctx         the channel handler context
      * @param httpContent the content of the entity body
      */
-    void writeOutboundRequestEntity(ChannelHandlerContext ctx, HttpContent httpContent) throws Http2Exception;
+    void writeOutboundRequestBody(ChannelHandlerContext ctx, HttpContent httpContent) throws Http2Exception;
 
     /**
      * Read headers of inbound response.
@@ -65,6 +65,6 @@ public interface SenderState {
      * @param isServerPush             is this a server push response or not
      * @param http2MessageStateContext the message state context
      */
-    void readInboundResponseEntityBody(ChannelHandlerContext ctx, Object msg, OutboundMsgHolder outboundMsgHolder,
-                                       boolean isServerPush, Http2MessageStateContext http2MessageStateContext);
+    void readInboundResponseBody(ChannelHandlerContext ctx, Object msg, OutboundMsgHolder outboundMsgHolder,
+                                 boolean isServerPush, Http2MessageStateContext http2MessageStateContext);
 }

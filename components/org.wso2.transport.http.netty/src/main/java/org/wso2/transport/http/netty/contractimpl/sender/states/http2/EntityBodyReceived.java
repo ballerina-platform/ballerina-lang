@@ -44,14 +44,13 @@ public class EntityBodyReceived implements SenderState {
     }
 
     @Override
-    public void writeOutboundRequestEntity(ChannelHandlerContext ctx, HttpContent httpContent) {
-        LOG.warn("writeOutboundRequestEntity is not a dependant action of this state");
+    public void writeOutboundRequestBody(ChannelHandlerContext ctx, HttpContent httpContent) {
+        LOG.warn("writeOutboundRequestBody is not a dependant action of this state");
     }
 
     @Override
-    public void readInboundResponseHeaders(ChannelHandlerContext ctx, Object msg,
-                                           OutboundMsgHolder outboundMsgHolder, boolean isServerPush,
-                                           Http2MessageStateContext http2MessageStateContext) {
+    public void readInboundResponseHeaders(ChannelHandlerContext ctx, Object msg, OutboundMsgHolder outboundMsgHolder,
+                                           boolean isServerPush, Http2MessageStateContext http2MessageStateContext) {
         // When promised response message is going to be sent after the original response or previous promised responses
         // has been sent.
         http2MessageStateContext.setSenderState(new ReceivingHeaders(http2TargetHandler));
@@ -60,9 +59,8 @@ public class EntityBodyReceived implements SenderState {
     }
 
     @Override
-    public void readInboundResponseEntityBody(ChannelHandlerContext ctx, Object msg,
-                                              OutboundMsgHolder outboundMsgHolder, boolean isServerPush,
-                                              Http2MessageStateContext http2MessageStateContext) {
-        LOG.warn("readInboundResponseEntityBody is not a dependant action of this state");
+    public void readInboundResponseBody(ChannelHandlerContext ctx, Object msg, OutboundMsgHolder outboundMsgHolder,
+                                        boolean isServerPush, Http2MessageStateContext http2MessageStateContext) {
+        LOG.warn("readInboundResponseBody is not a dependant action of this state");
     }
 }

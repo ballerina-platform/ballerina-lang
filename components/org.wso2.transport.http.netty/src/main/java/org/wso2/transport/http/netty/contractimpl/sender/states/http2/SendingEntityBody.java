@@ -67,14 +67,13 @@ public class SendingEntityBody implements SenderState {
     }
 
     @Override
-    public void writeOutboundRequestEntity(ChannelHandlerContext ctx, HttpContent httpContent) {
+    public void writeOutboundRequestBody(ChannelHandlerContext ctx, HttpContent httpContent) {
         writeContent(ctx, httpContent);
     }
 
     @Override
-    public void readInboundResponseHeaders(ChannelHandlerContext ctx, Object msg,
-                                           OutboundMsgHolder outboundMsgHolder, boolean isServerPush,
-                                           Http2MessageStateContext http2MessageStateContext) {
+    public void readInboundResponseHeaders(ChannelHandlerContext ctx, Object msg, OutboundMsgHolder outboundMsgHolder,
+                                           boolean isServerPush, Http2MessageStateContext http2MessageStateContext) {
         // When the initial frames of the response is being received before sending the complete request.
         LOG.warn("readInboundResponseHeaders is not a dependant action of this state");
         http2MessageStateContext.setSenderState(new ReceivingHeaders(http2TargetHandler));
@@ -83,9 +82,8 @@ public class SendingEntityBody implements SenderState {
     }
 
     @Override
-    public void readInboundResponseEntityBody(ChannelHandlerContext ctx, Object msg,
-                                              OutboundMsgHolder outboundMsgHolder, boolean isServerPush,
-                                              Http2MessageStateContext http2MessageStateContext) {
+    public void readInboundResponseBody(ChannelHandlerContext ctx, Object msg, OutboundMsgHolder outboundMsgHolder,
+                                        boolean isServerPush, Http2MessageStateContext http2MessageStateContext) {
         LOG.warn("readInboundResponseEntityBody is not a dependant action of this state");
     }
 

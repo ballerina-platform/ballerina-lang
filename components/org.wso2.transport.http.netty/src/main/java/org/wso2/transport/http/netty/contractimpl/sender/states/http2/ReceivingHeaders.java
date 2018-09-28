@@ -63,22 +63,20 @@ public class ReceivingHeaders implements SenderState {
     }
 
     @Override
-    public void writeOutboundRequestEntity(ChannelHandlerContext ctx, HttpContent httpContent) {
-        LOG.warn("writeOutboundRequestEntity is not a dependant action of this state");
+    public void writeOutboundRequestBody(ChannelHandlerContext ctx, HttpContent httpContent) {
+        LOG.warn("writeOutboundRequestBody is not a dependant action of this state");
     }
 
     @Override
     public void readInboundResponseHeaders(ChannelHandlerContext ctx, Object msg, OutboundMsgHolder outboundMsgHolder,
                                            boolean isServerPush, Http2MessageStateContext http2MessageStateContext) {
-        onHeadersRead(ctx, (Http2HeadersFrame) msg, outboundMsgHolder, isServerPush,
-                http2MessageStateContext);
+        onHeadersRead(ctx, (Http2HeadersFrame) msg, outboundMsgHolder, isServerPush, http2MessageStateContext);
     }
 
     @Override
-    public void readInboundResponseEntityBody(ChannelHandlerContext ctx, Object msg,
-                                              OutboundMsgHolder outboundMsgHolder, boolean isServerPush,
-                                              Http2MessageStateContext http2MessageStateContext) {
-        LOG.warn("readInboundResponseEntityBody is not a dependant action of this state");
+    public void readInboundResponseBody(ChannelHandlerContext ctx, Object msg, OutboundMsgHolder outboundMsgHolder,
+                                        boolean isServerPush, Http2MessageStateContext http2MessageStateContext) {
+        LOG.warn("readInboundResponseBody is not a dependant action of this state");
     }
 
     private void onHeadersRead(ChannelHandlerContext ctx, Http2HeadersFrame http2HeadersFrame,

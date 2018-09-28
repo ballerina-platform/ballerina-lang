@@ -73,21 +73,19 @@ public class SendingHeaders implements SenderState {
     }
 
     @Override
-    public void writeOutboundRequestEntity(ChannelHandlerContext ctx, HttpContent httpContent) throws Http2Exception {
+    public void writeOutboundRequestBody(ChannelHandlerContext ctx, HttpContent httpContent) throws Http2Exception {
         writeOutboundRequestHeaders(ctx, httpContent);
     }
 
     @Override
-    public void readInboundResponseHeaders(ChannelHandlerContext ctx, Object msg,
-                                           OutboundMsgHolder outboundMsgHolder, boolean isServerPush,
-                                           Http2MessageStateContext http2MessageStateContext) {
+    public void readInboundResponseHeaders(ChannelHandlerContext ctx, Object msg, OutboundMsgHolder outboundMsgHolder,
+                                           boolean isServerPush, Http2MessageStateContext http2MessageStateContext) {
         LOG.warn("readInboundResponseHeaders is not a dependant action of this state");
     }
 
     @Override
-    public void readInboundResponseEntityBody(ChannelHandlerContext ctx, Object msg,
-                                              OutboundMsgHolder outboundMsgHolder, boolean isServerPush,
-                                              Http2MessageStateContext http2MessageStateContext) {
+    public void readInboundResponseBody(ChannelHandlerContext ctx, Object msg, OutboundMsgHolder outboundMsgHolder,
+                                        boolean isServerPush, Http2MessageStateContext http2MessageStateContext) {
         LOG.warn("readInboundResponseEntityBody is not a dependant action of this state");
     }
 
@@ -107,7 +105,7 @@ public class SendingHeaders implements SenderState {
             http2MessageStateContext.setSenderState(new RequestCompleted(http2TargetHandler));
         } else {
             http2MessageStateContext.setSenderState(new SendingEntityBody(http2TargetHandler, http2RequestWriter));
-            http2MessageStateContext.getSenderState().writeOutboundRequestEntity(ctx, msg);
+            http2MessageStateContext.getSenderState().writeOutboundRequestBody(ctx, msg);
         }
     }
 

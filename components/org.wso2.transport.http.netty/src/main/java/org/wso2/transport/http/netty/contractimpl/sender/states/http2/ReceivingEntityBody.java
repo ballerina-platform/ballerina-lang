@@ -52,21 +52,19 @@ public class ReceivingEntityBody implements SenderState {
     }
 
     @Override
-    public void writeOutboundRequestEntity(ChannelHandlerContext ctx, HttpContent httpContent) {
-        LOG.warn("writeOutboundRequestEntity is not a dependant action of this state");
+    public void writeOutboundRequestBody(ChannelHandlerContext ctx, HttpContent httpContent) {
+        LOG.warn("writeOutboundRequestBody is not a dependant action of this state");
     }
 
     @Override
-    public void readInboundResponseHeaders(ChannelHandlerContext ctx, Object msg,
-                                           OutboundMsgHolder outboundMsgHolder, boolean isServerPush,
-                                           Http2MessageStateContext http2MessageStateContext) {
+    public void readInboundResponseHeaders(ChannelHandlerContext ctx, Object msg, OutboundMsgHolder outboundMsgHolder,
+                                           boolean isServerPush, Http2MessageStateContext http2MessageStateContext) {
         LOG.warn("readInboundResponseHeaders is not a dependant action of this state");
     }
 
     @Override
-    public void readInboundResponseEntityBody(ChannelHandlerContext ctx, Object msg,
-                                              OutboundMsgHolder outboundMsgHolder, boolean isServerPush,
-                                              Http2MessageStateContext http2MessageStateContext) {
+    public void readInboundResponseBody(ChannelHandlerContext ctx, Object msg, OutboundMsgHolder outboundMsgHolder,
+                                        boolean isServerPush, Http2MessageStateContext http2MessageStateContext) {
         onDataRead((Http2DataFrame) msg, outboundMsgHolder, isServerPush, http2MessageStateContext);
     }
 

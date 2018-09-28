@@ -44,15 +44,13 @@ public class RequestCompleted implements SenderState {
     }
 
     @Override
-    public void writeOutboundRequestEntity(
-            ChannelHandlerContext ctx, HttpContent httpContent) {
-        LOG.warn("writeOutboundRequestEntity is not a dependant action of this state");
+    public void writeOutboundRequestBody(ChannelHandlerContext ctx, HttpContent httpContent) {
+        LOG.warn("writeOutboundRequestBody is not a dependant action of this state");
     }
 
     @Override
-    public void readInboundResponseHeaders(ChannelHandlerContext ctx, Object msg,
-                                           OutboundMsgHolder outboundMsgHolder, boolean isServerPush,
-                                           Http2MessageStateContext http2MessageStateContext) {
+    public void readInboundResponseHeaders(ChannelHandlerContext ctx, Object msg, OutboundMsgHolder outboundMsgHolder,
+                                           boolean isServerPush, Http2MessageStateContext http2MessageStateContext) {
         // When the initial frames of the response is to be received after sending the complete request.
         http2MessageStateContext.setSenderState(new ReceivingHeaders(http2TargetHandler));
         http2MessageStateContext.getSenderState().readInboundResponseHeaders(ctx, msg, outboundMsgHolder,
@@ -60,9 +58,8 @@ public class RequestCompleted implements SenderState {
     }
 
     @Override
-    public void readInboundResponseEntityBody(ChannelHandlerContext ctx, Object msg,
-                                              OutboundMsgHolder outboundMsgHolder, boolean isServerPush,
-                                              Http2MessageStateContext http2MessageStateContext) {
-        LOG.warn("readInboundResponseEntityBody is not a dependant action of this state");
+    public void readInboundResponseBody(ChannelHandlerContext ctx, Object msg, OutboundMsgHolder outboundMsgHolder,
+                                        boolean isServerPush, Http2MessageStateContext http2MessageStateContext) {
+        LOG.warn("readInboundResponseBody is not a dependant action of this state");
     }
 }
