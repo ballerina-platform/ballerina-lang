@@ -1,3 +1,21 @@
+/*
+ *  Copyright (c) 2018, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ *  WSO2 Inc. licenses this file to you under the Apache License,
+ *  Version 2.0 (the "License"); you may not use this file except
+ *  in compliance with the License.
+ *  You may obtain a copy of the License at
+ *
+ *  http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing,
+ *  software distributed under the License is distributed on an
+ *  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ *  KIND, either express or implied.  See the License for the
+ *  specific language governing permissions and limitations
+ *  under the License.
+ */
+
 package org.ballerinalang.net.grpc.builder.components;
 
 import org.ballerinalang.net.grpc.exception.BalGenerationException;
@@ -14,9 +32,6 @@ import java.util.List;
 public class ServiceStub {
     private String stubType;
     private String serviceName;
-    private boolean bidiStreaming;
-    private boolean clientStreaming;
-    private boolean unary;
     private List<Method> blockingFunctions = new ArrayList<>();
     private List<Method> nonBlockingFunctions = new ArrayList<>();
     private List<Method> streamingFunctions = new ArrayList<>();
@@ -50,17 +65,6 @@ public class ServiceStub {
         return Collections.unmodifiableList(streamingFunctions);
     }
 
-    public boolean isBidiStreaming() {
-        return bidiStreaming;
-    }
-
-    public boolean isClientStreaming() {
-        return clientStreaming;
-    }
-
-    public boolean isUnary() {
-        return unary;
-    }
     /**
      * Service stub definition builder.
      */
@@ -93,19 +97,13 @@ public class ServiceStub {
                         } else {
                             serviceStub.nonBlockingFunctions.add(method);
                         }
-                        serviceStub.unary = true;
                         break;
                     case SERVER_STREAMING:
                         serviceStub.nonBlockingFunctions.add(method);
-                        serviceStub.unary = true;
                         break;
                     case CLIENT_STREAMING:
-                        serviceStub.streamingFunctions.add(method);
-                        serviceStub.clientStreaming = true;
-                        break;
                     case BIDI_STREAMING:
                         serviceStub.streamingFunctions.add(method);
-                        serviceStub.bidiStreaming = true;
                         break;
                     default:
                         throw new BalGenerationException("Method type is unknown or not supported.");
@@ -121,6 +119,7 @@ public class ServiceStub {
     public enum StubType {
         BLOCKING("blocking"),
         NONBLOCKING("non-blocking");
+
         private String type;
 
         StubType(String type) {

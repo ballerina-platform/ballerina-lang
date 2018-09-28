@@ -79,9 +79,9 @@ public class GrpcCmd implements BLauncherCmd {
     private String protoPath;
 
     @CommandLine.Option(names = {"--mode"},
-            description = "Ballerina source [service, client, both]"
+            description = "Ballerina source [service or client]"
     )
-    private String mode = "both";
+    private String mode = "stub";
 
     @CommandLine.Option(names = {"--output"},
             description = "Generated Ballerina source files location"

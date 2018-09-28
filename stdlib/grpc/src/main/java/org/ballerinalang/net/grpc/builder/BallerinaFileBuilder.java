@@ -34,6 +34,7 @@ import org.ballerinalang.net.grpc.builder.components.Descriptor;
 import org.ballerinalang.net.grpc.builder.components.EnumMessage;
 import org.ballerinalang.net.grpc.builder.components.Message;
 import org.ballerinalang.net.grpc.builder.components.Method;
+import org.ballerinalang.net.grpc.builder.components.ServiceFile;
 import org.ballerinalang.net.grpc.builder.components.ServiceStub;
 import org.ballerinalang.net.grpc.builder.components.StubFile;
 import org.ballerinalang.net.grpc.builder.utils.BalGenConstants;
@@ -59,7 +60,6 @@ import static org.ballerinalang.net.grpc.builder.utils.BalGenConstants.DEFAULT_S
 import static org.ballerinalang.net.grpc.builder.utils.BalGenConstants.EMPTY_DATA_TYPE;
 import static org.ballerinalang.net.grpc.builder.utils.BalGenConstants.FILE_SEPARATOR;
 import static org.ballerinalang.net.grpc.builder.utils.BalGenConstants.GRPC_CLIENT;
-import static org.ballerinalang.net.grpc.builder.utils.BalGenConstants.GRPC_CLIENT_AND_SERVER;
 import static org.ballerinalang.net.grpc.builder.utils.BalGenConstants.GRPC_SERVICE;
 import static org.ballerinalang.net.grpc.builder.utils.BalGenConstants.PACKAGE_SEPARATOR;
 import static org.ballerinalang.net.grpc.builder.utils.BalGenConstants.SAMPLE_FILE_PREFIX;
@@ -122,8 +122,8 @@ public class BallerinaFileBuilder {
             if (fileDescriptorSet.getServiceCount() == 1) {
                 DescriptorProtos.ServiceDescriptorProto serviceDescriptor = fileDescriptorSet.getService(SERVICE_INDEX);
                 ServiceStub.Builder serviceBuilder = ServiceStub.newBuilder(serviceDescriptor.getName());
+                ServiceFile.Builder sampleServiceBuilder = ServiceFile.newBuilder(serviceDescriptor.getName());
                 List<DescriptorProtos.MethodDescriptorProto> methodList = serviceDescriptor.getMethodList();
-
                 boolean isUnaryContains = false;
 
                 for (DescriptorProtos.MethodDescriptorProto methodDescriptorProto : methodList) {
@@ -137,6 +137,7 @@ public class BallerinaFileBuilder {
                     }
                     Method method = Method.newBuilder(methodID).setMethodDescriptor(methodDescriptorProto).build();
                     serviceBuilder.addMethod(method);
+                    sampleServiceBuilder.addMethod(method);
                     if (MethodDescriptor.MethodType.UNARY.equals(method.getMethodType())) {
                         isUnaryContains = true;
                     }
@@ -152,8 +153,8 @@ public class BallerinaFileBuilder {
                 }
                 serviceBuilder.setType(ServiceStub.StubType.NONBLOCKING);
                 stubFileObject.addServiceStub(serviceBuilder.build());
-                servicestubFileObject.addServiceStub(serviceBuilder.build());
-                if (mode.equals(GRPC_CLIENT) || mode.equals(GRPC_CLIENT_AND_SERVER)) {
+                servicestubFileObject.addServiceFile(sampleServiceBuilder.build());
+                if (mode.equals(GRPC_CLIENT)) {
                     clientFileObject = new ClientFile(serviceDescriptor.getName(), isUnaryContains);
                 }
             }
@@ -170,8 +171,7 @@ public class BallerinaFileBuilder {
             // write definition objects to ballerina files.
             if (this.balOutPath == null) {
                 this.balOutPath = StringUtils.isNotBlank(fileDescriptorSet.getPackage()) ?
-                        fileDescriptorSet.getPackage() :
-                        BalGenConstants.DEFAULT_PACKAGE;
+                        fileDescriptorSet.getPackage() : BalGenConstants.DEFAULT_PACKAGE;
             }
             String stubFilePath = generateOutputFile(this.balOutPath, filename + STUB_FILE_PREFIX);
             writeOutputFile(stubFileObject, DEFAULT_SKELETON_DIR, SKELETON_TEMPLATE_NAME, stubFilePath);
@@ -179,8 +179,7 @@ public class BallerinaFileBuilder {
                 String clientFilePath = generateOutputFile(this.balOutPath, filename + SAMPLE_FILE_PREFIX);
                 writeOutputFile(clientFileObject, DEFAULT_SAMPLE_DIR, SAMPLE_TEMPLATE_NAME, clientFilePath);
             }
-            if ((mode.equals(GRPC_SERVICE) || mode.equals(GRPC_CLIENT_AND_SERVER))
-                    && fileDescriptorSet.getServiceCount() != 0) {
+            if (mode.equals(GRPC_SERVICE) && fileDescriptorSet.getServiceCount() != 0) {
                 String servicePath = generateOutputFile(this.balOutPath, filename + SAMPLE_SERVICE_FILE_PREFIX);
                 writeOutputFile(servicestubFileObject, DEFAULT_SAMPLE_DIR, SAMPLE_SERVICE_TEMPLATE_NAME, servicePath);
             }
