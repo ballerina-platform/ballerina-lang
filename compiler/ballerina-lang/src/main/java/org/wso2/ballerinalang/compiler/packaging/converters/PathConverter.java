@@ -44,6 +44,7 @@ import java.util.stream.Stream;
 public class PathConverter implements Converter<Path> {
 
     private final Path root;
+    private static final String DEFAULT_PKG_PATH = ".";
 
     public PathConverter(Path root) {
         this.root = root;
@@ -123,7 +124,11 @@ public class PathConverter implements Converter<Path> {
         }
     
         if (Files.isRegularFile(path)) {
-            return Stream.of(new FileSystemSourceInput(path, root.resolve(Paths.get(pkgId.name.value))));
+            return Stream.of(
+                    DEFAULT_PKG_PATH.equals(pkgId.name.value) ?
+                            new FileSystemSourceInput(path) :
+                            new FileSystemSourceInput(path, root.resolve(Paths.get(pkgId.name.value)))
+            );
         } else {
             return Stream.of();
         }
