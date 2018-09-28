@@ -80,6 +80,7 @@ public type SimpleQueueReceiver object {
     # Creates a message which holds text content
     #
     # + content - the text content used to initialize this message
+    # + return - the `Message` object created using the `string` message. or `error` on failure
     public function createTextMessage(string content) returns Message|error {
         var result = self.receiver.createTextMessage(content);
         match (result) {
@@ -97,28 +98,32 @@ public type SimpleQueueReceiver object {
 # + port - AMQP port of the broker node
 # + clientID - Identifier used to uniquely identify the client connection
 # + virtualHost - target virtualhost
+# + secureSocket - Configuration for the TLS options to be used
+# + connectionFactoryName - the name of the connection factory
 # + acknowledgementMode - specifies the session mode that will be used. Legal values are "AUTO_ACKNOWLEDGE",
 #                         "CLIENT_ACKNOWLEDGE", "SESSION_TRANSACTED" and "DUPS_OK_ACKNOWLEDGE"
 # + messageSelector - JMS selector statement
 # + properties - Additional properties use in initializing the initial context
 # + queueName - Name of the target queue
 public type SimpleQueueListenerEndpointConfiguration record {
-    string username = "admin",
-    string password = "admin",
-    string host = "localhost",
-    int port = 5672,
-    string clientID = "ballerina",
-    string virtualHost = "default",
-    ServiceSecureSocket? secureSocket,
-    string connectionFactoryName = "ConnectionFactory",
-    string acknowledgementMode = "AUTO_ACKNOWLEDGE",
-    string messageSelector,
-    map properties,
-    string queueName,
+    string username = "admin";
+    string password = "admin";
+    string host = "localhost";
+    int port = 5672;
+    string clientID = "ballerina";
+    string virtualHost = "default";
+    ServiceSecureSocket? secureSocket;
+    string connectionFactoryName = "ConnectionFactory";
+    string acknowledgementMode = "AUTO_ACKNOWLEDGE";
+    string messageSelector;
+    map properties;
+    string queueName;
     !...
 };
 
 # Caller action handler related to SimpleQueueReceiver endpoint
+#
+# + helper - the jms QueueReceiverActions
 public type QueueReceiverActions object {
 
     public jms:QueueReceiverActions helper;
@@ -128,6 +133,7 @@ public type QueueReceiverActions object {
     # Acknowledges a received message
     #
     # + message - message to be acknowledged
+    # + return - `error` if the acknowledgement fails
     public function acknowledge(Message message) returns error? {
         return helper.acknowledge(message.getJMSMessage());
     }
@@ -135,7 +141,7 @@ public type QueueReceiverActions object {
     # Synchronously receive a message from Ballerina message broker
     #
     # + timeoutInMilliSeconds - time to wait until a message is received
-    # + return - Returns a message or nill if the timeout exceededs. Returns an error on broker internal error.
+    # + return - `Message` or nil if the timeout exceededs. Returns an `error` on broker internal error.
     public function receive(int timeoutInMilliSeconds = 0) returns (Message|error)? {
         var result = helper.receive(timeoutInMilliSeconds = timeoutInMilliSeconds);
         match (result) {

@@ -28,7 +28,7 @@ import io.ballerina.plugins.idea.psi.*;
 
 public class BallerinaJoinClauseBodyImpl extends BallerinaCompositeElementImpl implements BallerinaJoinClauseBody {
 
-  public BallerinaJoinClauseBodyImpl(ASTNode node) {
+  public BallerinaJoinClauseBodyImpl(@NotNull ASTNode node) {
     super(node);
   }
 

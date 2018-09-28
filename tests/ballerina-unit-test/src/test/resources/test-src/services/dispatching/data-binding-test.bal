@@ -6,8 +6,8 @@ endpoint http:NonListener testEP {
 };
 
 type Person record {
-    string name,
-    int age,
+    string name;
+    int age;
 };
 
 service<http:Service> echo bind testEP {

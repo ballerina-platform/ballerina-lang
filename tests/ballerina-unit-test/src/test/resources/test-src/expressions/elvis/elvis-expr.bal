@@ -74,8 +74,8 @@ function testElvisRecordTypeNegative() returns (string, int) {
 }
 
 public type Student object {
-    public string name,
-    public int age,
+    public string name;
+    public int age;
     public string favSubject;
 
     new(string n, int a, string favSub = "Maths") {

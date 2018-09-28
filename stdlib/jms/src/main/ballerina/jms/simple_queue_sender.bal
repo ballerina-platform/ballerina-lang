@@ -70,6 +70,8 @@ public type SimpleQueueSender object {
     }
 
     # Returns the caller action object of the SimpleQueueSender
+    #
+    # + return - Simple queue sender actions
     public function getCallerActions() returns QueueSenderActions {
         match (sender) {
             QueueSender s => return s.getCallerActions();
@@ -87,6 +89,7 @@ public type SimpleQueueSender object {
     # Creates a JMS message which holds text content
     #
     # + content - the text content used to initialize this message
+    # + return - a message or nil if the session is nil
     public function createTextMessage(string content) returns Message|error {
         match (session) {
             Session s => return s.createTextMessage(content);

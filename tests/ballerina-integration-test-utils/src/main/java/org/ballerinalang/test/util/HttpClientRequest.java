@@ -19,6 +19,8 @@ package org.ballerinalang.test.util;
 
 import io.netty.handler.codec.http.HttpHeaderNames;
 import io.netty.handler.codec.http.HttpHeaderValues;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -39,6 +41,7 @@ import java.util.Map;
  * This class can be used to send http request.
  */
 public class HttpClientRequest {
+    private static final Logger LOG = LoggerFactory.getLogger(HttpClientRequest.class);
     private static final int DEFAULT_READ_TIMEOUT = 30000;
 
     /**
@@ -78,6 +81,19 @@ public class HttpClientRequest {
      */
     public static HttpResponse doGet(String requestUrl) throws IOException {
         return doGet(requestUrl, new HashMap<>());
+    }
+
+    /**
+     * Sends an HTTP GET request to a url. In case of IOException, instead of printing the stacktrace that error
+     * will get bubbled up to the caller.
+     *
+     * @param requestUrl The URL of the service. (Example: "http://www.yahoo.com/search?params=value")
+     * @param throwError Boolean representing whether the error should be thrown instead of printing the stack trace
+     * @return HttpResponse from the end point
+     * @throws IOException If an error occurs while sending the GET request or in case an error response is received
+     */
+    public static HttpResponse doGet(String requestUrl, boolean throwError) throws IOException {
+        return executeRequestWithoutRequestBody(TestConstant.HTTP_METHOD_GET, requestUrl, new HashMap<>(), throwError);
     }
 
     /**
@@ -166,6 +182,12 @@ public class HttpClientRequest {
                 defaultResponseBuilder);
     }
 
+    private static HttpResponse executeRequestWithoutRequestBody(String method, String requestUrl, Map<String
+            , String> headers, boolean throwError) throws IOException {
+        return executeRequestWithoutRequestBody(method, requestUrl, headers, DEFAULT_READ_TIMEOUT,
+                defaultResponseBuilder, throwError);
+    }
+
     private static HttpResponse executeRequestWithoutRequestBody(String method, String requestUrl,
             Map<String, String> headers, int readTimeout, CheckedFunction responseBuilder) throws IOException {
         HttpURLConnection conn = null;
@@ -173,7 +195,24 @@ public class HttpClientRequest {
             conn = getURLConnection(requestUrl, readTimeout);
             setHeadersAndMethod(conn, headers, method);
             conn.connect();
-            return buildResponse(conn, responseBuilder);
+            return buildResponse(conn, responseBuilder, false);
+        } finally {
+            if (conn != null) {
+                conn.disconnect();
+            }
+        }
+    }
+
+    private static HttpResponse executeRequestWithoutRequestBody(String method, String requestUrl,
+                                                                 Map<String, String> headers, int readTimeout,
+                                                                 CheckedFunction responseBuilder, boolean throwError)
+            throws IOException {
+        HttpURLConnection conn = null;
+        try {
+            conn = getURLConnection(requestUrl, readTimeout);
+            setHeadersAndMethod(conn, headers, method);
+            conn.connect();
+            return buildResponse(conn, responseBuilder, throwError);
         } finally {
             if (conn != null) {
                 conn.disconnect();
@@ -218,11 +257,12 @@ public class HttpClientRequest {
     }
 
     private static HttpResponse buildResponse(HttpURLConnection conn) throws IOException {
-        return buildResponse(conn, defaultResponseBuilder);
+        return buildResponse(conn, defaultResponseBuilder, false);
     }
 
     private static HttpResponse buildResponse(HttpURLConnection conn,
-            CheckedFunction<BufferedReader, String> responseBuilder) throws IOException {
+                                              CheckedFunction<BufferedReader, String> responseBuilder,
+                                              boolean throwError) throws IOException {
         HttpResponse httpResponse;
         BufferedReader rd = null;
         String responseData;
@@ -232,8 +272,12 @@ public class HttpClientRequest {
             responseData = responseBuilder.apply(rd);
         } catch (IOException ex) {
             if (conn.getErrorStream() == null) {
-                ex.printStackTrace();
-                return null;
+                if (throwError) {
+                    throw ex;
+                } else {
+                    LOG.error("Error in building HTTP response", ex.getMessage());
+                    return null;
+                }
             }
             rd = new BufferedReader(new InputStreamReader(conn.getErrorStream()
                     , Charset.defaultCharset()));

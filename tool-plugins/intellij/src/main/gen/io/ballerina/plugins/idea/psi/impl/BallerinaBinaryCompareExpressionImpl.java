@@ -28,7 +28,7 @@ import io.ballerina.plugins.idea.psi.*;
 
 public class BallerinaBinaryCompareExpressionImpl extends BallerinaBinaryExpressionImpl implements BallerinaBinaryCompareExpression {
 
-  public BallerinaBinaryCompareExpressionImpl(ASTNode node) {
+  public BallerinaBinaryCompareExpressionImpl(@NotNull ASTNode node) {
     super(node);
   }
 

@@ -44,7 +44,7 @@ import static org.ballerinalang.net.websub.WebSubSubscriberConstants.TOPIC_ID_PA
 import static org.ballerinalang.net.websub.WebSubSubscriberConstants.WEBSUB_PACKAGE;
 import static org.ballerinalang.net.websub.WebSubUtils.getHttpRequest;
 import static org.ballerinalang.net.websub.WebSubUtils.getJsonBody;
-import static org.wso2.transport.http.netty.common.Constants.HTTP_RESOURCE;
+import static org.wso2.transport.http.netty.contract.Constants.HTTP_RESOURCE;
 
 /**
  * Resource dispatcher specific for WebSub subscriber services.

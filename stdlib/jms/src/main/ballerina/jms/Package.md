@@ -1,6 +1,7 @@
 ## Package overview
 
-The `ballerina/jms` package provides an API to connect to an external JMS provider like Ballerina Message Broker or ActiveMQ.
+The `ballerina/jms` package provides an API to connect to an external JMS provider like Ballerina Message Broker or
+ActiveMQ.
 
 The package provides consumer and producer endpoint types for queues and topics. Following are the endpoint types
 supported by this package:
@@ -11,12 +12,10 @@ supported by this package:
 - SimpleQueueReceiver
 - SimpleTopicSubscriber
 - SimpleDurableTopicSubscriber
-- QueueReceiver
-- TopicSubscriber
-- DurableTopicSubscriber
-- SimpleQueueReceiver
-- SimpleTopicSubscriber
-- SimpleDurableTopicSubscriber
+- QueueSender
+- TopicPublisher
+- SimpleQueueSender
+- SimpleTopicPublisher
 
 The endpoints prefixed with `Simple` will automatically create a JMS connection and a JMS session when the endpoint is
 initialized. For other endpoints, the developer must explicitly provide a properly initialized JMS Session.
@@ -67,7 +66,7 @@ endpoint jms:SimpleTopicPublisher topicPublisher {
     topicPattern: "BallerinaTopic"
 };
 
-function main(string... args) {
+public function main(string... args) {
     // Create a text message.
     match (topicPublisher.createTextMessage("Hello from Ballerina")) {
         error e => {
@@ -84,7 +83,7 @@ function main(string... args) {
 }
 ```
 
-### JMS queue message receiver
+### JMS Queue Message Receiver
 
 Following is a listener program that explicitly initializes a JMS session to be used in the consumer.
 
@@ -124,7 +123,7 @@ service<jms:Consumer> jmsListener bind consumerEP {
 }
 ```
 
-### JMS queue message producer
+### JMS Queue Message Producer
 
 Following is a queue sender program that explicitly initializes a JMS session to be used in the producer.
 
@@ -149,7 +148,7 @@ endpoint jms:QueueSender queueSender {
     queueName: "MyQueue"
 };
 
-function main(string... args) {
+public function main(string... args) {
     // Create a text message.
     match (jmsSession.createTextMessage("Hello from Ballerina")) {
         error e => {
@@ -159,6 +158,74 @@ function main(string... args) {
         jms:Message msg => {
             // Send the Ballerina message to the JMS provider.
             queueSender->send(msg) but { error e => log:printError("Error occurred while sending message", err = e) };
+        }
+    }
+}
+```
+
+### JMS Topic Subscriber
+
+Following is a topic subscriber program that subscribes to a particular JMS topic.
+
+```ballerina
+import ballerina/jms;
+import ballerina/log;
+
+jms:Connection conn = new({
+    initialContextFactory:"bmbInitialContextFactory",
+    providerUrl:"amqp://admin:admin@carbon/carbon?brokerlist='tcp://localhost:5672'"
+});
+
+jms:Session jmsSession = new(conn, {
+    acknowledgementMode:"AUTO_ACKNOWLEDGE"
+});
+
+endpoint jms:TopicSubscriber subscriberEndpoint {
+    session:jmsSession,
+    topicPattern:"BallerinaTopic"
+};
+
+service<jms:Consumer> jmsListener bind subscriberEndpoint {
+    onMessage(endpoint subscriber, jms:Message message) {
+        match (message.getTextMessageContent()) {
+            string messageText => log:printInfo("Message : " + messageText);
+            error e => log:printError("Error occurred while reading message", err = e);
+        }
+    }
+}
+```
+
+### JMS Topic Producer
+
+Following is a topic producer program that publishes to a particular JMS topic
+
+```ballerina
+import ballerina/jms;
+import ballerina/log;
+
+jms:Connection jmsConnection = new({
+    initialContextFactory:"bmbInitialContextFactory",
+    providerUrl:"amqp://admin:admin@carbon/carbon?brokerlist='tcp://localhost:5672'"
+});
+
+jms:Session jmsSession = new(jmsConnection, {
+    acknowledgementMode:"AUTO_ACKNOWLEDGE"
+});
+
+endpoint jms:TopicPublisher topicPublisher {
+    session:jmsSession,
+    topicPattern:"BallerinaTopic"
+};
+
+public function main(string... args) {
+    match (jmsSession.createTextMessage("Hello from Ballerina")) {
+        error e => {
+            log:printError("Error occurred while creating message", err=e);
+        }
+        jms:Message msg => {
+            topicPublisher->send(msg) but {
+                error e => log:printError("Error occurred while sending message", err = e)
+            };
         }
     }
 }
