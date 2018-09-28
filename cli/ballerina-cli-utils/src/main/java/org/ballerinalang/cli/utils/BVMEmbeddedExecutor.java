@@ -39,7 +39,6 @@ import static org.ballerinalang.util.BLangConstants.MAIN_FUNCTION_NAME;
 public class BVMEmbeddedExecutor implements EmbeddedExecutor {
     @Override
     public long execute(String programArg, boolean isFunction, String... args) {
-        
         String balxPath = programArg;
         String functionName = MAIN_FUNCTION_NAME;
 
