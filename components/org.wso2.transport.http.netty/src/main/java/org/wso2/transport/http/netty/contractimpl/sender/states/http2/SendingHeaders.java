@@ -94,7 +94,7 @@ public class SendingHeaders implements SenderState {
     private void writeHeaders(ChannelHandlerContext ctx, HttpContent msg) throws Http2Exception {
         // Initiate the stream
         boolean endStream = false;
-        this.streamId = initiateStream(ctx);
+        this.streamId = Http2StateUtil.initiateStream(ctx, connection, http2ClientChannel, outboundMsgHolder);
         http2RequestWriter.setStreamId(streamId);
         HttpRequest httpRequest = Util.createHttpRequest(httpOutboundRequest);
 
@@ -118,20 +118,5 @@ public class SendingHeaders implements SenderState {
         Http2Headers http2Headers = HttpConversionUtil.toHttp2Headers(httpMsg, true);
         Http2StateUtil.writeHttp2Headers(ctx, outboundMsgHolder, http2ClientChannel, encoder, streamId,
                 httpMsg.headers(), http2Headers, endStream);
-    }
-
-    private int initiateStream(ChannelHandlerContext ctx) throws Http2Exception {
-        int id = getNextStreamId();
-        http2ClientChannel.putInFlightMessage(id, outboundMsgHolder);
-        http2ClientChannel.getDataEventListeners()
-                .forEach(dataEventListener -> dataEventListener.onStreamInit(ctx, id));
-        return id;
-    }
-
-    private synchronized int getNextStreamId() throws Http2Exception {
-        int nextStreamId = connection.local().incrementAndGetNextStreamId();
-        connection.local().createStream(nextStreamId, false);
-        LOG.debug("Stream created streamId: {}", nextStreamId);
-        return nextStreamId;
     }
 }

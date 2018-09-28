@@ -20,10 +20,13 @@ package org.wso2.transport.http.netty.contractimpl.common.states;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.http.HttpHeaders;
 import io.netty.handler.codec.http2.Http2CodecUtil;
+import io.netty.handler.codec.http2.Http2Connection;
 import io.netty.handler.codec.http2.Http2ConnectionEncoder;
 import io.netty.handler.codec.http2.Http2Exception;
 import io.netty.handler.codec.http2.Http2Headers;
 import io.netty.handler.codec.http2.HttpConversionUtil;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.wso2.transport.http.netty.contractimpl.sender.http2.Http2ClientChannel;
 import org.wso2.transport.http.netty.contractimpl.sender.http2.Http2DataEventListener;
 import org.wso2.transport.http.netty.contractimpl.sender.http2.OutboundMsgHolder;
@@ -32,6 +35,8 @@ import org.wso2.transport.http.netty.contractimpl.sender.http2.OutboundMsgHolder
  * HTTP/2 utility functions for states.
  */
 public class Http2StateUtil {
+
+    private static final Logger LOG = LoggerFactory.getLogger(Http2StateUtil.class);
 
     public static void writeHttp2Headers(ChannelHandlerContext ctx, OutboundMsgHolder outboundMsgHolder,
                                          Http2ClientChannel http2ClientChannel, Http2ConnectionEncoder encoder,
@@ -53,5 +58,22 @@ public class Http2StateUtil {
         if (endStream) {
             outboundMsgHolder.setRequestWritten(true);
         }
+    }
+
+    public static int initiateStream(ChannelHandlerContext ctx, Http2Connection connection,
+                               Http2ClientChannel http2ClientChannel,
+                               OutboundMsgHolder outboundMsgHolder) throws Http2Exception {
+        int id = getNextStreamId(connection);
+        http2ClientChannel.putInFlightMessage(id, outboundMsgHolder);
+        http2ClientChannel.getDataEventListeners()
+                .forEach(dataEventListener -> dataEventListener.onStreamInit(ctx, id));
+        return id;
+    }
+
+    private static synchronized int getNextStreamId(Http2Connection connection) throws Http2Exception {
+        int nextStreamId = connection.local().incrementAndGetNextStreamId();
+        connection.local().createStream(nextStreamId, false);
+        LOG.debug("Stream created streamId: {}", nextStreamId);
+        return nextStreamId;
     }
 }
