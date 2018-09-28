@@ -142,12 +142,6 @@ public class BallerinaFileBuilder {
                     if (MethodDescriptor.MethodType.UNARY.equals(method.getMethodType())) {
                         isUnaryContains = true;
                     }
-                    if (MethodDescriptor.MethodType.CLIENT_STREAMING.equals(method.getMethodType())) {
-                        clientStreaming = true;
-                    }
-                    if (MethodDescriptor.MethodType.BIDI_STREAMING.equals(method.getMethodType())) {
-                        bidirectionalStreaming = true;
-                    }
                     if (method.containsEmptyType() && !(stubFileObject.messageExists(EMPTY_DATA_TYPE))) {
                         Message message = Message.newBuilder(EmptyMessage.newBuilder().getDescriptor().toProto())
                                 .build();
@@ -158,18 +152,9 @@ public class BallerinaFileBuilder {
                     serviceBuilder.setType(ServiceStub.StubType.BLOCKING);
                     stubFileObject.addServiceStub(serviceBuilder.build());
                 }
-                if (clientStreaming) {
-                    serviceBuilder.setType(ServiceStub.StubType.CLIENTSTREAMING);
-                    servicestubFileObject.addServiceStub(serviceBuilder.build());
-                } else if (bidirectionalStreaming) {
-                    serviceBuilder.setType(ServiceStub.StubType.BIDISTREAMING);
-                    servicestubFileObject.addServiceStub(serviceBuilder.build());
-                } else {
-                    serviceBuilder.setType(ServiceStub.StubType.COMMON);
-                    servicestubFileObject.addServiceStub(serviceBuilder.build());
-                }
                 serviceBuilder.setType(ServiceStub.StubType.NONBLOCKING);
                 stubFileObject.addServiceStub(serviceBuilder.build());
+                servicestubFileObject.addServiceStub(serviceBuilder.build());
                 if (mode.equals(GRPC_CLIENT) || mode.equals(GRPC_CLIENT_AND_SERVER)) {
                     clientFileObject = new ClientFile(serviceDescriptor.getName(), isUnaryContains);
                 }

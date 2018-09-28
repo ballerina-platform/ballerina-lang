@@ -120,10 +120,7 @@ public class ServiceStub {
      */
     public enum StubType {
         BLOCKING("blocking"),
-        NONBLOCKING("non-blocking"),
-        CLIENTSTREAMING("client-streaming"),
-        BIDISTREAMING("bidi-streaming"),
-        COMMON("common");
+        NONBLOCKING("non-blocking");
         private String type;
 
         StubType(String type) {
