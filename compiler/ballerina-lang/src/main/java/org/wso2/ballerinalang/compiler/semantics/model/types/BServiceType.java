@@ -18,6 +18,7 @@ package org.wso2.ballerinalang.compiler.semantics.model.types;
 
 import org.ballerinalang.model.types.ServiceType;
 import org.ballerinalang.model.types.TypeKind;
+import org.wso2.ballerinalang.compiler.semantics.model.TypeVisitor;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.compiler.util.TypeDescriptor;
@@ -44,6 +45,11 @@ public class BServiceType extends BType implements ServiceType {
     @Override
     public TypeKind getKind() {
         return TypeKind.SERVICE;
+    }
+
+    @Override
+    public void accept(TypeVisitor visitor) {
+        visitor.visit(this);
     }
 
     @Override

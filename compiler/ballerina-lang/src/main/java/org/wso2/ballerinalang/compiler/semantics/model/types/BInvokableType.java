@@ -18,6 +18,7 @@
 package org.wso2.ballerinalang.compiler.semantics.model.types;
 
 import org.ballerinalang.model.types.InvokableType;
+import org.wso2.ballerinalang.compiler.semantics.model.TypeVisitor;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.util.TypeDescriptor;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
@@ -113,5 +114,10 @@ public class BInvokableType extends BType implements InvokableType {
         StringBuffer br = new StringBuffer();
         types.forEach(type -> br.append(type.getDesc()));
         return br.toString();
+    }
+
+    @Override
+    public void accept(TypeVisitor visitor) {
+        visitor.visit(this);
     }
 }
