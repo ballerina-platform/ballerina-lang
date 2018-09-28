@@ -125,8 +125,6 @@ public class BallerinaFileBuilder {
                 List<DescriptorProtos.MethodDescriptorProto> methodList = serviceDescriptor.getMethodList();
 
                 boolean isUnaryContains = false;
-                boolean clientStreaming = false;
-                boolean bidirectionalStreaming = false;
 
                 for (DescriptorProtos.MethodDescriptorProto methodDescriptorProto : methodList) {
                     String methodID;
@@ -183,7 +181,8 @@ public class BallerinaFileBuilder {
                 String clientFilePath = generateOutputFile(this.balOutPath, filename + SAMPLE_FILE_PREFIX);
                 writeOutputFile(clientFileObject, DEFAULT_SAMPLE_DIR, SAMPLE_TEMPLATE_NAME, clientFilePath);
             }
-            if (mode.equals(GRPC_SERVICE) || mode.equals("both")) {
+            if ((mode.equals(GRPC_SERVICE) || mode.equals(GRPC_CLIENT_AND_SERVER))
+                    && fileDescriptorSet.getServiceCount() != 0) {
                 String servicePath = generateOutputFile(this.balOutPath, filename + SAMPLE_SERVICE_FILE_PREFIX);
                 writeOutputFile(servicestubFileObject, DEFAULT_SAMPLE_DIR, SAMPLE_SERVICE_TEMPLATE_NAME, servicePath);
             }
