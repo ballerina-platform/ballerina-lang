@@ -65,7 +65,7 @@ public class CallableWorkerResponseContext extends BaseWorkerResponseContext {
     
     @Override
     protected void onMessage(WorkerSignal signal) {
-        if (this.isFulfilled() && this.isNotNilReturnable()) {
+        if (this.isFulfilled() && this.isNonNilReturnable()) {
             this.handleAlreadyFulfilled(signal);
         } else {
             this.setAsFulfilled();
@@ -93,7 +93,7 @@ public class CallableWorkerResponseContext extends BaseWorkerResponseContext {
     protected WorkerExecutionContext onHalt(WorkerSignal signal) {
         WorkerExecutionContext runInCallerCtx = null;
         this.haltCount++;
-        if (this.isNotNilReturnable()) {
+        if (this.isNonNilReturnable()) {
             if (!this.isFulfilled() && this.isWorkersDone()) {
                 this.setCurrentSignal(signal);
                 this.propagateErrorToTarget();
@@ -109,7 +109,7 @@ public class CallableWorkerResponseContext extends BaseWorkerResponseContext {
         return runInCallerCtx;
     }
 
-    protected boolean isNotNilReturnable() {
+    protected boolean isNonNilReturnable() {
         // All functions are now considered as returnable. So in here, what we check is whether the function actually
         // returns a value other than nil.
         if (this.responseTypes.length == 1 && this.responseTypes[0].getTag() == TypeTags.NULL_TAG) {
@@ -174,7 +174,7 @@ public class CallableWorkerResponseContext extends BaseWorkerResponseContext {
     protected WorkerExecutionContext onReturn(WorkerSignal signal) {
         WorkerExecutionContext runInCallerCtx = null;
         if (this.isFulfilled()) {
-            if (this.isNotNilReturnable()) {
+            if (this.isNonNilReturnable()) {
                 this.handleAlreadyFulfilled(signal);
             }
         } else {
