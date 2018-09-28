@@ -43,6 +43,7 @@ import org.ballerinalang.model.tree.statements.StreamingQueryStatementNode;
 import org.ballerinalang.model.tree.types.BuiltInReferenceTypeNode;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.util.diagnostic.DiagnosticCode;
+import org.wso2.ballerinalang.compiler.desugar.ASTBuilderUtil;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAnnotationSymbol;
@@ -1282,6 +1283,14 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         if (afterWhereNode != null) {
             ((BLangWhere) afterWhereNode).accept(this);
         }
+
+        //Create duplicate symbol for stream alias
+        if (streamingInput.getAlias() != null) {
+            BVarSymbol streamSymbol = (BVarSymbol) ((BLangSimpleVarRef) streamRef).symbol;
+            BVarSymbol streamAliasSymbol = ASTBuilderUtil.duplicateVarSymbol(streamSymbol);
+            streamAliasSymbol.name = names.fromString(streamingInput.getAlias());
+            symbolEnter.defineSymbol(streamingInput.pos, streamAliasSymbol, env);
+        }
     }
 
     @Override
@@ -1842,7 +1851,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
     }
 
     private void validateStreamingEventType(DiagnosticPos pos, BType actualType, String attributeName, BType expType,
-                                           DiagnosticCode diagCode) {
+                                            DiagnosticCode diagCode) {
         if (expType.tag == TypeTags.ERROR) {
             return;
         } else if (expType.tag == TypeTags.NONE) {
@@ -2022,7 +2031,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
 
     /**
      * Validate functions attached to objects.
-     * 
+     *
      * @param funcNode Function node
      * @return True if the function is an unimplemented method inside a non-abstract object.
      */

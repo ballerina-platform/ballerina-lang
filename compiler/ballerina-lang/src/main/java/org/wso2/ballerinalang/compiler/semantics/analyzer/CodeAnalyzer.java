@@ -488,7 +488,6 @@ public class CodeAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangMatch matchStmt) {
-        this.returnWithintransactionCheckStack.push(true);
         boolean unmatchedExprTypesAvailable = false;
         analyzeExpr(matchStmt.expr);
 
@@ -562,7 +561,6 @@ public class CodeAnalyzer extends BLangNodeVisitor {
 
             this.statementReturns = matchStmtReturns;
         }
-        this.returnWithintransactionCheckStack.pop();
     }
 
     @Override
