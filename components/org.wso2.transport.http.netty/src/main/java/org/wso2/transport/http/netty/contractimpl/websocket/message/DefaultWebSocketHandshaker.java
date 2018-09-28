@@ -184,6 +184,9 @@ public class DefaultWebSocketHandshaker implements WebSocketHandshaker {
 
     private ServerHandshakeFuture handleHandshake(WebSocketServerHandshaker handshaker, int idleTimeout,
                                                   HttpHeaders headers) {
+        if (handshaker == null) {
+            WebSocketServerHandshakerFactory.sendUnsupportedVersionResponse(ctx.channel());
+        }
         DefaultServerHandshakeFuture handshakeFuture = new DefaultServerHandshakeFuture();
         if (cancelled) {
             Throwable e = new IllegalAccessException("Handshake is already cancelled.");
