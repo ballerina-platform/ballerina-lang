@@ -62,9 +62,8 @@ public class WorkerInFunctionTest {
             CompileResult result = BCompileUtil.compile("test-src/workers/worker-in-function-test.bal");
             System.setOut(new PrintStream(outContent));
             BRunUtil.invoke(result, "testMultipleReturnsVM");
-            String expected = "error: worker 'w.' trying to return on already returned callable " +
-                    "'testMultipleReturnsVM'\\.";
-            Assert.assertTrue(outContent.toString().trim().matches(expected));
+            String expected = "error: worker 'w";
+            Assert.assertTrue(outContent.toString().trim().startsWith(expected));
         } finally {
             System.setOut(original);
         }
