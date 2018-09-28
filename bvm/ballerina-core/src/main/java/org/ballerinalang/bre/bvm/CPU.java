@@ -892,7 +892,7 @@ public class CPU {
         List<BClosure> closureVars = fp.getClosureVars();
         if (closureVars.isEmpty()) {
             //compensate functions has no args apart from closure vars, no return as well
-            return BLangFunctions.invokeCallable(functionInfo, ctx, new int[0], new int[0], false);
+            return BLangFunctions.invokeCallable(functionInfo, ctx, new int[0], new int[1], false);
         }
 
         int[] newArgRegs = new int[closureVars.size()];
@@ -937,7 +937,7 @@ public class CPU {
             }
         }
 
-        return BLangFunctions.invokeCallable(functionInfo, ctx, newArgRegs, new int[0], false);
+        return BLangFunctions.invokeCallable(functionInfo, ctx, newArgRegs, new int[1], false);
     }
 
     private static int expandLongRegs(WorkerData sf, BFunctionPointer fp) {
