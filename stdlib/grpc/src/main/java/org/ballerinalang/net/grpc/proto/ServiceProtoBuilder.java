@@ -23,6 +23,7 @@ import org.ballerinalang.model.TreeBuilder;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.tree.AnnotationAttachmentNode;
 import org.ballerinalang.model.tree.IdentifierNode;
+import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.ServiceNode;
 import org.ballerinalang.model.tree.expressions.LiteralNode;
 import org.ballerinalang.net.grpc.exception.GrpcServerException;
@@ -181,7 +182,7 @@ public class ServiceProtoBuilder extends AbstractCompilerPlugin {
 
         BLangLiteral valueLiteral = null;
         LiteralNode literalNode1 = TreeBuilder.createLiteralExpression();
-        if (literalNode1 instanceof BLangLiteral) {
+        if (literalNode1.getKind() == NodeKind.LITERAL) {
             valueLiteral = (BLangLiteral) literalNode1;
             if (fileDefinition != null) {
                 valueLiteral.value = bytesToHex(fileDefinition.getFileDescriptorProto().toByteArray());

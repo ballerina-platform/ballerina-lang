@@ -169,11 +169,9 @@ public class BallerinaFileBuilder {
             }
             // write definition objects to ballerina files.
             if (this.balOutPath == null) {
-                if (StringUtils.isNotBlank(fileDescriptorSet.getPackage())) {
-                    this.balOutPath = fileDescriptorSet.getPackage();
-                } else {
-                    this.balOutPath = BalGenConstants.DEFAULT_PACKAGE;
-                }
+                this.balOutPath = StringUtils.isNotBlank(fileDescriptorSet.getPackage()) ?
+                        fileDescriptorSet.getPackage() :
+                        BalGenConstants.DEFAULT_PACKAGE;
             }
             String stubFilePath = generateOutputFile(this.balOutPath, filename + STUB_FILE_PREFIX);
             writeOutputFile(stubFileObject, DEFAULT_SKELETON_DIR, SKELETON_TEMPLATE_NAME, stubFilePath);
