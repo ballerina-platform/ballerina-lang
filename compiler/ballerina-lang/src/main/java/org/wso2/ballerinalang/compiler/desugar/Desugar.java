@@ -261,6 +261,8 @@ public class Desugar extends BLangNodeVisitor {
     }
 
     public BLangPackage perform(BLangPackage pkgNode) {
+        // Initialize annotation map
+        annotationDesugar.initializeAnnotationMap(pkgNode);
         return rewrite(pkgNode, env);
     }
 

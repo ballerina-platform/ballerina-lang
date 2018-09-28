@@ -352,6 +352,8 @@ public class CodeGenerator extends BLangNodeVisitor {
 
         // Generate code for the given package.
         this.currentPkgInfo = new PackageInfo();
+        // Add current package info to currentPackageInfo object
+        addCurrentPkgInfo(pkgNode);
         genNode(pkgNode);
 
         // Generate program file for the Testable package
@@ -413,33 +415,8 @@ public class CodeGenerator extends BLangNodeVisitor {
         }
         // Visit imports
         visitImports(pkgNode);
-
-        if (!Symbols.isFlagOn(Flags.asMask(pkgNode.flagSet), Flags.TESTABLE)) {
-            // Add the current package to the program file
-            BPackageSymbol pkgSymbol = pkgNode.symbol;
-            currentPkgID = pkgSymbol.pkgID;
-            currentPkgInfo.orgNameCPIndex = addUTF8CPEntry(currentPkgInfo, currentPkgID.orgName.value);
-            currentPkgInfo.nameCPIndex = addUTF8CPEntry(currentPkgInfo, currentPkgID.name.value);
-            currentPkgInfo.versionCPIndex = addUTF8CPEntry(currentPkgInfo, currentPkgID.version.value);
-
-            // Insert the package reference to the constant pool of the current package
-            currentPackageRefCPIndex = addPackageRefCPEntry(currentPkgInfo, currentPkgID);
-
-            // This attribute keep track of line numbers
-            int lineNoAttrNameIndex = addUTF8CPEntry(currentPkgInfo,
-                                                     AttributeInfo.Kind.LINE_NUMBER_TABLE_ATTRIBUTE.value());
-            lineNoAttrInfo = new LineNumberTableAttributeInfo(lineNoAttrNameIndex);
-
-            // This attribute keep package-level variable information
-            int pkgVarAttrNameIndex = addUTF8CPEntry(currentPkgInfo, AttributeInfo.Kind.LOCAL_VARIABLES_ATTRIBUTE
-                    .value());
-            currentPkgInfo.addAttributeInfo(AttributeInfo.Kind.LOCAL_VARIABLES_ATTRIBUTE,
-                                            new LocalVariableAttributeInfo(pkgVarAttrNameIndex));
-        }
-
         // Visit top level constructs
         visitTopLevelNodes(pkgNode);
-
         // Visit the builtin functions
         visitBuiltinFunctions(pkgNode, pkgNode.initFunction);
         visitBuiltinFunctions(pkgNode, pkgNode.startFunction);
@@ -449,11 +426,38 @@ public class CodeGenerator extends BLangNodeVisitor {
         genTopLevelNodes(pkgNode);
         // Add function symbol for all functions
         addFunctionSymbol(pkgNode);
-
         currentPkgInfo.addAttributeInfo(AttributeInfo.Kind.LINE_NUMBER_TABLE_ATTRIBUTE, lineNoAttrInfo);
         currentPackageRefCPIndex = -1;
         currentPkgID = null;
         pkgNode.completedPhases.add(CompilerPhase.CODE_GEN);
+    }
+
+    /**
+     * Add current package info.
+     *
+     * @param pkgNode package node
+     */
+    private void addCurrentPkgInfo(BLangPackage pkgNode) {
+        // Add the current package to the program file
+        BPackageSymbol pkgSymbol = pkgNode.symbol;
+        currentPkgID = pkgSymbol.pkgID;
+        currentPkgInfo.orgNameCPIndex = addUTF8CPEntry(currentPkgInfo, currentPkgID.orgName.value);
+        currentPkgInfo.nameCPIndex = addUTF8CPEntry(currentPkgInfo, currentPkgID.name.value);
+        currentPkgInfo.versionCPIndex = addUTF8CPEntry(currentPkgInfo, currentPkgID.version.value);
+
+        // Insert the package reference to the constant pool of the current package
+        currentPackageRefCPIndex = addPackageRefCPEntry(currentPkgInfo, currentPkgID);
+
+        // This attribute keep track of line numbers
+        int lineNoAttrNameIndex = addUTF8CPEntry(currentPkgInfo,
+                                                 AttributeInfo.Kind.LINE_NUMBER_TABLE_ATTRIBUTE.value());
+        lineNoAttrInfo = new LineNumberTableAttributeInfo(lineNoAttrNameIndex);
+
+        // This attribute keep package-level variable information
+        int pkgVarAttrNameIndex = addUTF8CPEntry(currentPkgInfo, AttributeInfo.Kind.LOCAL_VARIABLES_ATTRIBUTE
+                .value());
+        currentPkgInfo.addAttributeInfo(AttributeInfo.Kind.LOCAL_VARIABLES_ATTRIBUTE,
+                                        new LocalVariableAttributeInfo(pkgVarAttrNameIndex));
     }
 
     /**
@@ -510,7 +514,7 @@ public class CodeGenerator extends BLangNodeVisitor {
     }
 
     private void visitBuiltinFunctions(BLangPackage pkgNode, BLangFunction function) {
-        if (Symbols.isFlagOn(Flags.asMask(pkgNode.flagSet), Flags.TESTABLE)) {
+        if (Symbols.isFlagOn(pkgNode.symbol.flags, Flags.TESTABLE)) {
             String funcName = function.getName().value;
             String builtinFuncName = funcName.substring(funcName.indexOf("<") + 1, funcName.indexOf(">"));
             String modifiedFuncName = funcName.replace(builtinFuncName, "test" + builtinFuncName);

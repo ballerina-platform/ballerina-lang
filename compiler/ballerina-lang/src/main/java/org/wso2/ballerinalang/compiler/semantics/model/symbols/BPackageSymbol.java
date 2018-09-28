@@ -73,7 +73,7 @@ public class BPackageSymbol extends BTypeSymbol {
         }
 
         BPackageSymbol that = (BPackageSymbol) o;
-        return pkgID.equals(that.pkgID) && Objects.equals(flags, that.flags);
+        return pkgID.equals(that.pkgID) && Symbols.isFlagOn(flags, that.flags);
     }
 
     @Override
