@@ -299,6 +299,9 @@ public class TextDocumentFormatUtil {
      * @return {@link JsonArray}    Converted array value
      */
     public static JsonArray getType(Node node) {
+        if (!(node instanceof BLangNode)) {
+            return null;
+        }
         BType type = ((BLangNode) node).type;
         if (node instanceof BLangInvocation) {
             return new JsonArray();
