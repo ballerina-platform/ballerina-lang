@@ -228,8 +228,7 @@ public class Http2TargetHandler extends ChannelDuplexHandler {
                 }
             }
 
-            Http2MessageStateContext http2MessageStateContext =
-                    outboundMsgHolder.getRequest().getHttp2MessageStateContext();
+            Http2MessageStateContext http2MessageStateContext = getHttp2MessageContext(outboundMsgHolder);
             http2MessageStateContext.getSenderState().readInboundResponseBody(ctx, msg, outboundMsgHolder,
                     isServerPush, http2MessageStateContext);
         } else if (msg instanceof Http2PushPromise) {
@@ -248,18 +247,22 @@ public class Http2TargetHandler extends ChannelDuplexHandler {
         int streamId = http2Reset.getStreamId();
         OutboundMsgHolder outboundMsgHolder = http2ClientChannel.getInFlightMessage(streamId);
         if (outboundMsgHolder != null) {
-            outboundMsgHolder.getResponseFuture().
-                    notifyHttpListener(new Exception("HTTP/2 stream " + streamId + " reset by the remote peer"));
+            outboundMsgHolder.getResponseFuture()
+                    .notifyHttpListener(new Exception("HTTP/2 stream " + streamId + " reset by the remote peer"));
         }
     }
 
     private Http2MessageStateContext initHttp2MessageContext(OutboundMsgHolder outboundMsgHolder) {
-        Http2MessageStateContext http2MessageStateContext = outboundMsgHolder.getRequest().getHttp2MessageStateContext();
+        Http2MessageStateContext http2MessageStateContext = getHttp2MessageContext(outboundMsgHolder);
         if (http2MessageStateContext == null) {
             http2MessageStateContext = new Http2MessageStateContext();
             http2MessageStateContext.setSenderState(new RequestCompleted(this));
             outboundMsgHolder.getRequest().setHttp2MessageStateContext(http2MessageStateContext);
         }
         return http2MessageStateContext;
+    }
+
+    private Http2MessageStateContext getHttp2MessageContext(OutboundMsgHolder outboundMsgHolder) {
+        return outboundMsgHolder.getRequest().getHttp2MessageStateContext();
     }
 }
