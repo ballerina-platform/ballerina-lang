@@ -733,47 +733,26 @@ public class SymbolResolver extends BLangNodeVisitor {
         // 2) lookup the typename in the package scope returned from step 1.
         // 3) If the symbol is not found, then lookup in the root scope. e.g. for types such as 'error'
 
-        BSymbol pkgSymbol = resolvePkgSymbol(userDefinedTypeNode.pos, this.env,
-                names.fromIdNode(userDefinedTypeNode.pkgAlias));
-        if (pkgSymbol == symTable.notFoundSymbol) {
-            resultType = symTable.errType;
-            return;
-        }
-
+        Name pkgAlias = names.fromIdNode(userDefinedTypeNode.pkgAlias);
         Name typeName = names.fromIdNode(userDefinedTypeNode.typeName);
         BSymbol symbol = symTable.notFoundSymbol;
 
-        // 2) Resolve ANNOTATION type if and only current scope inside ANNOTATION definition.
+        // 1) Resolve ANNOTATION type if and only current scope inside ANNOTATION definition.
         // Only valued types and ANNOTATION type allowed.
         if (env.scope.owner.tag == SymTag.ANNOTATION) {
-            symbol = lookupMemberSymbol(userDefinedTypeNode.pos, pkgSymbol.scope,
-                    this.env, typeName, SymTag.ANNOTATION);
+            symbol = lookupSymbolInPackage(userDefinedTypeNode.pos, env, pkgAlias, typeName, SymTag.ANNOTATION);
         }
 
-        // 3) Lookup the current package scope.
+        // 2) Resolve the package scope using the package alias.
+        //    If the package alias is not empty or null, then find the package scope,
         if (symbol == symTable.notFoundSymbol) {
-            symbol = lookupMemberSymbol(userDefinedTypeNode.pos, pkgSymbol.scope,
-                    this.env, typeName, SymTag.VARIABLE_NAME);
+            symbol = lookupSymbolInPackage(userDefinedTypeNode.pos, env, pkgAlias, typeName, SymTag.VARIABLE_NAME);
         }
 
         if (symbol == symTable.notFoundSymbol) {
-            // 4) Lookup the root scope for types such as 'error'
-            symbol = lookupMemberSymbol(userDefinedTypeNode.pos, symTable.rootScope,
-                    this.env, typeName, SymTag.VARIABLE_NAME);
-        }
-
-        // If the enclosed package is the BLangTestablePackage, then it has to be handled in a special way.
-        // If the user defined type is not found in its package scope, it can be in the enclosing BLangPackage scope.
-        // Then we have to resolve the type from its enclosing BLangPackage scope.
-        if (symbol == symTable.notFoundSymbol && Symbols.isFlagOn(Flags.asMask(env.enclPkg.flagSet), Flags.TESTABLE)) {
-            SymbolEnv enclEnv = this.env.enclEnv;
-            while (enclEnv != null && Symbols.isFlagOn(Flags.asMask(enclEnv.enclPkg.flagSet), Flags.TESTABLE)) {
-                enclEnv = enclEnv.enclEnv;
-            }
-            if (enclEnv != null) {
-                symbol = lookupMemberSymbol(userDefinedTypeNode.pos, enclEnv.scope, this.env, typeName,
-                                            SymTag.VARIABLE_NAME);
-            }
+            // 3) Lookup the root scope for types such as 'error'
+            symbol = lookupMemberSymbol(userDefinedTypeNode.pos, symTable.rootScope, this.env, typeName,
+                                        SymTag.VARIABLE_NAME);
         }
 
         if (this.env.logErrors && symbol == symTable.notFoundSymbol) {
