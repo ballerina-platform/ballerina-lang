@@ -15,6 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+
 package org.wso2.transport.http.netty.contractimpl.common.states;
 
 import io.netty.channel.ChannelHandlerContext;
@@ -74,7 +75,9 @@ public class Http2StateUtil {
     private static synchronized int getNextStreamId(Http2Connection connection) throws Http2Exception {
         int nextStreamId = connection.local().incrementAndGetNextStreamId();
         connection.local().createStream(nextStreamId, false);
-        LOG.debug("Stream created streamId: {}", nextStreamId);
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("Stream created streamId: {}", nextStreamId);
+        }
         return nextStreamId;
     }
 

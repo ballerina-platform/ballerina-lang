@@ -15,6 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+
 package org.wso2.transport.http.netty.contractimpl.sender.states.http2;
 
 import io.netty.buffer.ByteBuf;
@@ -31,14 +32,17 @@ import io.netty.util.ReferenceCountUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.transport.http.netty.contractimpl.common.states.Http2MessageStateContext;
-import org.wso2.transport.http.netty.contractimpl.common.states.Http2StateUtil;
 import org.wso2.transport.http.netty.contractimpl.sender.http2.Http2ClientChannel;
 import org.wso2.transport.http.netty.contractimpl.sender.http2.Http2DataEventListener;
 import org.wso2.transport.http.netty.contractimpl.sender.http2.Http2TargetHandler;
+import org.wso2.transport.http.netty.contractimpl.sender.http2.Http2TargetHandler.Http2RequestWriter;
 import org.wso2.transport.http.netty.contractimpl.sender.http2.OutboundMsgHolder;
 import org.wso2.transport.http.netty.message.Http2DataFrame;
 import org.wso2.transport.http.netty.message.Http2HeadersFrame;
 import org.wso2.transport.http.netty.message.Http2PushPromise;
+
+import static org.wso2.transport.http.netty.contractimpl.common.states.Http2StateUtil.onPushPromiseRead;
+import static org.wso2.transport.http.netty.contractimpl.common.states.Http2StateUtil.writeHttp2Headers;
 
 /**
  * State between start and end of outbound request entity body write
@@ -54,8 +58,7 @@ public class SendingEntityBody implements SenderState {
     private final Http2ClientChannel http2ClientChannel;
     private final int streamId;
 
-    public SendingEntityBody(Http2TargetHandler http2TargetHandler,
-                             Http2TargetHandler.Http2RequestWriter http2RequestWriter) {
+    public SendingEntityBody(Http2TargetHandler http2TargetHandler, Http2RequestWriter http2RequestWriter) {
         this.http2TargetHandler = http2TargetHandler;
         this.http2MessageStateContext = http2RequestWriter.getHttp2MessageStateContext();
         this.outboundMsgHolder = http2RequestWriter.getOutboundMsgHolder();
@@ -94,7 +97,7 @@ public class SendingEntityBody implements SenderState {
 
     @Override
     public void readInboundPromise(Http2PushPromise http2PushPromise, OutboundMsgHolder outboundMsgHolder) {
-        Http2StateUtil.onPushPromiseRead(http2PushPromise, http2ClientChannel, outboundMsgHolder);
+        onPushPromiseRead(http2PushPromise, http2ClientChannel, outboundMsgHolder);
     }
 
     private void writeContent(ChannelHandlerContext ctx, HttpContent msg) {
@@ -126,8 +129,8 @@ public class SendingEntityBody implements SenderState {
             ctx.flush();
             if (!trailers.isEmpty()) {
                 // Write trailing headers.
-                Http2StateUtil.writeHttp2Headers(ctx, outboundMsgHolder, http2ClientChannel, encoder, streamId,
-                        trailers, http2Trailers, true);
+                writeHttp2Headers(ctx, outboundMsgHolder, http2ClientChannel, encoder, streamId, trailers,
+                        http2Trailers, true);
             }
             if (endStream) {
                 outboundMsgHolder.setRequestWritten(true);

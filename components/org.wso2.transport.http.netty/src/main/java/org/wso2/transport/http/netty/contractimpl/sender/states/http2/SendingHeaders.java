@@ -15,6 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+
 package org.wso2.transport.http.netty.contractimpl.sender.states.http2;
 
 import io.netty.channel.ChannelHandlerContext;
@@ -32,14 +33,17 @@ import org.slf4j.LoggerFactory;
 import org.wso2.transport.http.netty.contract.Constants;
 import org.wso2.transport.http.netty.contractimpl.common.Util;
 import org.wso2.transport.http.netty.contractimpl.common.states.Http2MessageStateContext;
-import org.wso2.transport.http.netty.contractimpl.common.states.Http2StateUtil;
 import org.wso2.transport.http.netty.contractimpl.sender.http2.Http2ClientChannel;
 import org.wso2.transport.http.netty.contractimpl.sender.http2.Http2TargetHandler;
+import org.wso2.transport.http.netty.contractimpl.sender.http2.Http2TargetHandler.Http2RequestWriter;
 import org.wso2.transport.http.netty.contractimpl.sender.http2.OutboundMsgHolder;
 import org.wso2.transport.http.netty.message.Http2DataFrame;
 import org.wso2.transport.http.netty.message.Http2HeadersFrame;
 import org.wso2.transport.http.netty.message.Http2PushPromise;
 import org.wso2.transport.http.netty.message.HttpCarbonMessage;
+
+import static org.wso2.transport.http.netty.contractimpl.common.states.Http2StateUtil.initiateStream;
+import static org.wso2.transport.http.netty.contractimpl.common.states.Http2StateUtil.writeHttp2Headers;
 
 /**
  * State between start and end of outbound request header write
@@ -49,7 +53,7 @@ public class SendingHeaders implements SenderState {
     private static final Logger LOG = LoggerFactory.getLogger(SendingHeaders.class);
 
     private final Http2TargetHandler http2TargetHandler;
-    private final Http2TargetHandler.Http2RequestWriter http2RequestWriter;
+    private final Http2RequestWriter http2RequestWriter;
     private final Http2MessageStateContext http2MessageStateContext;
     private final HttpCarbonMessage httpOutboundRequest;
     private final OutboundMsgHolder outboundMsgHolder;
@@ -58,8 +62,7 @@ public class SendingHeaders implements SenderState {
     private final Http2ClientChannel http2ClientChannel;
     private int streamId;
 
-    public SendingHeaders(Http2TargetHandler http2TargetHandler,
-                          Http2TargetHandler.Http2RequestWriter http2RequestWriter) {
+    public SendingHeaders(Http2TargetHandler http2TargetHandler, Http2RequestWriter http2RequestWriter) {
         this.http2TargetHandler = http2TargetHandler;
         this.http2RequestWriter = http2RequestWriter;
         this.http2MessageStateContext = http2RequestWriter.getHttp2MessageStateContext();
@@ -102,7 +105,7 @@ public class SendingHeaders implements SenderState {
     private void writeHeaders(ChannelHandlerContext ctx, HttpContent msg) throws Http2Exception {
         // Initiate the stream
         boolean endStream = false;
-        this.streamId = Http2StateUtil.initiateStream(ctx, connection, http2ClientChannel, outboundMsgHolder);
+        this.streamId = initiateStream(ctx, connection, http2ClientChannel, outboundMsgHolder);
         http2RequestWriter.setStreamId(streamId);
         HttpRequest httpRequest = Util.createHttpRequest(httpOutboundRequest);
 
@@ -124,7 +127,7 @@ public class SendingHeaders implements SenderState {
         // Convert and write the headers.
         httpMsg.headers().add(HttpConversionUtil.ExtensionHeaderNames.SCHEME.text(), Constants.HTTP_SCHEME);
         Http2Headers http2Headers = HttpConversionUtil.toHttp2Headers(httpMsg, true);
-        Http2StateUtil.writeHttp2Headers(ctx, outboundMsgHolder, http2ClientChannel, encoder, streamId,
-                httpMsg.headers(), http2Headers, endStream);
+        writeHttp2Headers(ctx, outboundMsgHolder, http2ClientChannel, encoder, streamId, httpMsg.headers(),
+                http2Headers, endStream);
     }
 }

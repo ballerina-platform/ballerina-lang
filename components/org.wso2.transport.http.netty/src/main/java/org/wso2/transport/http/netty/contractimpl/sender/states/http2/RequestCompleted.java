@@ -15,6 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+
 package org.wso2.transport.http.netty.contractimpl.sender.states.http2;
 
 import io.netty.channel.ChannelHandlerContext;
@@ -22,13 +23,14 @@ import io.netty.handler.codec.http.HttpContent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.transport.http.netty.contractimpl.common.states.Http2MessageStateContext;
-import org.wso2.transport.http.netty.contractimpl.common.states.Http2StateUtil;
 import org.wso2.transport.http.netty.contractimpl.sender.http2.Http2ClientChannel;
 import org.wso2.transport.http.netty.contractimpl.sender.http2.Http2TargetHandler;
 import org.wso2.transport.http.netty.contractimpl.sender.http2.OutboundMsgHolder;
 import org.wso2.transport.http.netty.message.Http2DataFrame;
 import org.wso2.transport.http.netty.message.Http2HeadersFrame;
 import org.wso2.transport.http.netty.message.Http2PushPromise;
+
+import static org.wso2.transport.http.netty.contractimpl.common.states.Http2StateUtil.onPushPromiseRead;
 
 /**
  * State between end of payload write and start of response headers read
@@ -74,6 +76,6 @@ public class RequestCompleted implements SenderState {
 
     @Override
     public void readInboundPromise(Http2PushPromise http2PushPromise, OutboundMsgHolder outboundMsgHolder) {
-        Http2StateUtil.onPushPromiseRead(http2PushPromise, http2ClientChannel, outboundMsgHolder);
+        onPushPromiseRead(http2PushPromise, http2ClientChannel, outboundMsgHolder);
     }
 }
