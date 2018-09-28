@@ -57,7 +57,7 @@ public class BIRInstructionWriter extends BIRVisitor {
         // Number of instructions
         // Adding the terminator instruction as well.
         buf.writeInt(birBasicBlock.instructions.size() + 1);
-        birBasicBlock.instructions.forEach(instruction -> ((BIRNonTerminator) instruction).accept(this));
+            birBasicBlock.instructions.forEach(instruction -> ((BIRNonTerminator) instruction).accept(this));
         if (birBasicBlock.terminator == null) {
             throw new BLangCompilerException("Basic block without a terminator : " + birBasicBlock.id);
         }

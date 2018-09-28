@@ -18,6 +18,7 @@
 package org.wso2.ballerinalang.compiler.bir.model;
 
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
+import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 
 /**
  * A non-terminating instruction.
@@ -30,7 +31,8 @@ public abstract class BIRNonTerminator extends BIRNode implements BIRInstruction
 
     public InstructionKind kind;
 
-    BIRNonTerminator(InstructionKind kind) {
+    BIRNonTerminator(DiagnosticPos pos, InstructionKind kind) {
+        super(pos);
         this.kind = kind;
     }
 
@@ -45,8 +47,8 @@ public abstract class BIRNonTerminator extends BIRNode implements BIRInstruction
         public BIROperand lhsOp;
         public org.wso2.ballerinalang.compiler.bir.model.BIROperand rhsOp;
 
-        public Move(org.wso2.ballerinalang.compiler.bir.model.BIROperand fromOperand, BIROperand toOperand) {
-            super(InstructionKind.MOVE);
+        public Move(DiagnosticPos pos, BIROperand fromOperand, BIROperand toOperand) {
+            super(pos, InstructionKind.MOVE);
             this.rhsOp = fromOperand;
             this.lhsOp = toOperand;
         }
@@ -74,12 +76,13 @@ public abstract class BIRNonTerminator extends BIRNode implements BIRInstruction
         public org.wso2.ballerinalang.compiler.bir.model.BIROperand rhsOp1;
         public org.wso2.ballerinalang.compiler.bir.model.BIROperand rhsOp2;
 
-        public BinaryOp(InstructionKind kind,
+        public BinaryOp(DiagnosticPos pos,
+                        InstructionKind kind,
                         BType type,
                         BIROperand lhsOp,
                         org.wso2.ballerinalang.compiler.bir.model.BIROperand rhsOp1,
                         org.wso2.ballerinalang.compiler.bir.model.BIROperand rhsOp2) {
-            super(kind);
+            super(pos, kind);
             this.lhsOp = lhsOp;
             this.rhsOp1 = rhsOp1;
             this.rhsOp2 = rhsOp2;
@@ -106,8 +109,8 @@ public abstract class BIRNonTerminator extends BIRNode implements BIRInstruction
     public static class UnaryOP extends BIRNonTerminator implements BIRAssignInstruction {
         public BIROperand lhsOp;
 
-        public UnaryOP(InstructionKind kind, BIROperand lhsOp) {
-            super(kind);
+        public UnaryOP(DiagnosticPos pos, InstructionKind kind, BIROperand lhsOp) {
+            super(pos, kind);
             this.lhsOp = lhsOp;
         }
 
@@ -134,8 +137,8 @@ public abstract class BIRNonTerminator extends BIRNode implements BIRInstruction
         public Object value;
         public BType type;
 
-        public ConstantLoad(Object value, BType type, BIROperand lhsOp) {
-            super(InstructionKind.CONST_LOAD);
+        public ConstantLoad(DiagnosticPos pos, Object value, BType type, BIROperand lhsOp) {
+            super(pos, InstructionKind.CONST_LOAD);
             this.value = value;
             this.type = type;
             this.lhsOp = lhsOp;

@@ -23,6 +23,7 @@ import org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator;
 import org.wso2.ballerinalang.compiler.bir.model.BIROperand;
 import org.wso2.ballerinalang.compiler.bir.model.BIRTerminator;
 import org.wso2.ballerinalang.compiler.bir.model.BIRVisitor;
+import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 
 import java.util.List;
 import java.util.Locale;
@@ -62,7 +63,9 @@ public class BIREmitter extends BIRVisitor {
         sb.append("function ").append(birFunction.name).append("(");
         StringJoiner sj = new StringJoiner(",");
         birFunction.type.paramTypes.forEach(paramType -> sj.add(paramType.toString()));
-        sb.append(sj.toString()).append(")").append(" -> ").append(birFunction.type.retType).append(" {\n");
+        sb.append(sj.toString()).append(")").append(" -> ").append(birFunction.type.retType);
+        writePosition(birFunction.pos);
+        sb.append(" {\n");
 
         birFunction.localVars.forEach(birVariableDcl -> birVariableDcl.accept(this));
         sb.append("\n");
@@ -155,5 +158,11 @@ public class BIREmitter extends BIRVisitor {
     // Operands
     public void visit(BIROperand birOp) {
         sb.append(birOp.variableDcl.name);
+    }
+
+
+    private void writePosition(DiagnosticPos pos) {
+        sb.append("\t\t\\\\ pos:[").append(pos.sLine).append(":").append(pos.sCol).append("-");
+        sb.append(pos.eLine).append(":").append(pos.eCol).append("]");
     }
 }

@@ -97,7 +97,7 @@ public class BIRGen extends BLangNodeVisitor {
     // Nodes
 
     public void visit(BLangPackage astPkg) {
-        BIRPackage birPkg = new BIRPackage(astPkg.packageID.orgName,
+        BIRPackage birPkg = new BIRPackage(astPkg.pos, astPkg.packageID.orgName,
                 astPkg.packageID.name, astPkg.packageID.version);
 
         this.env = new BIRGenEnv(birPkg);
@@ -109,7 +109,7 @@ public class BIRGen extends BLangNodeVisitor {
     public void visit(BLangFunction astFunc) {
         Visibility visibility = getVisibility(astFunc.symbol);
         BInvokableType type = astFunc.symbol.getType();
-        BIRFunction birFunc = new BIRFunction(astFunc.symbol.name, visibility, type);
+        BIRFunction birFunc = new BIRFunction(astFunc.pos, astFunc.symbol.name, visibility, type);
         birFunc.isDeclaration = Symbols.isNative(astFunc.symbol);
         birFunc.argsCount = astFunc.requiredParams.size() +
                             astFunc.defaultableParams.size() + (astFunc.restParam != null ? 1 : 0);
@@ -119,14 +119,14 @@ public class BIRGen extends BLangNodeVisitor {
 
         if (astFunc.symbol.retType.tag != TypeTags.NIL) {
             // Special %0 location for storing return values
-            BIRVariableDcl retVarDcl = new BIRVariableDcl(astFunc.symbol.retType,
+            BIRVariableDcl retVarDcl = new BIRVariableDcl(astFunc.pos, astFunc.symbol.retType,
                                                           this.env.nextLocalVarId(names), VarKind.RETURN);
             birFunc.localVars.add(retVarDcl);
         }
 
         // Create variable declaration for function params
         for (BLangVariable requiredParam : astFunc.requiredParams) {
-            BIRVariableDcl birVarDcl = new BIRVariableDcl(requiredParam.symbol.type,
+            BIRVariableDcl birVarDcl = new BIRVariableDcl(requiredParam.pos, requiredParam.symbol.type,
                     this.env.nextLocalVarId(names), VarKind.ARG);
             birFunc.localVars.add(birVarDcl);
 
@@ -161,12 +161,12 @@ public class BIRGen extends BLangNodeVisitor {
         // These basic blocks will be remove by the optimizer, but for now just add a return terminator
         BIRBasicBlock enclBB = this.env.enclBB;
         if (enclBB.instructions.size() == 0 && enclBB.terminator == null) {
-            enclBB.terminator = new BIRTerminator.GOTO(this.env.returnBB);
+            enclBB.terminator = new BIRTerminator.GOTO(null, this.env.returnBB);
         }
     }
 
     public void visit(BLangVariableDef astVarDefStmt) {
-        BIRVariableDcl birVarDcl = new BIRVariableDcl(astVarDefStmt.var.symbol.type,
+        BIRVariableDcl birVarDcl = new BIRVariableDcl(astVarDefStmt.pos, astVarDefStmt.var.symbol.type,
                 this.env.nextLocalVarId(names), VarKind.LOCAL);
         this.env.enclFunc.localVars.add(birVarDcl);
 
@@ -183,7 +183,7 @@ public class BIRGen extends BLangNodeVisitor {
 
         // Create a variable reference and
         BIROperand varRef = new BIROperand(birVarDcl);
-        emit(new Move(this.env.targetOperand, varRef));
+        emit(new Move(astVarDefStmt.pos, this.env.targetOperand, varRef));
     }
 
     public void visit(BLangAssignment astAssignStmt) {
@@ -192,7 +192,7 @@ public class BIRGen extends BLangNodeVisitor {
 
         astAssignStmt.expr.accept(this);
         BIROperand varRef = new BIROperand(this.env.symbolVarMap.get(astVarRef.symbol));
-        emit(new Move(this.env.targetOperand, varRef));
+        emit(new Move(astAssignStmt.pos, this.env.targetOperand, varRef));
     }
 
     public void visit(BLangExpressionStmt exprStmtNode) {
@@ -243,11 +243,8 @@ public class BIRGen extends BLangNodeVisitor {
             this.env.targetOperand = lhsOp;
         }
 
-        this.env.enclBB.terminator = new BIRTerminator.Call(invocationExpr.symbol.pkgID,
-                                                            names.fromString(invocationExpr.name.value),
-                                                            args,
-                                                            lhsOp,
-                                                            thenBB);
+        this.env.enclBB.terminator = new BIRTerminator.Call(invocationExpr.pos, invocationExpr.symbol.pkgID,
+                names.fromString(invocationExpr.name.value), args, lhsOp, thenBB);
 
         this.env.enclBB = thenBB;
     }
@@ -257,19 +254,19 @@ public class BIRGen extends BLangNodeVisitor {
         if (astReturnStmt.expr.type.tag != TypeTags.NIL) {
             astReturnStmt.expr.accept(this);
             BIROperand retVarRef = new BIROperand(this.env.enclFunc.localVars.get(0));
-            emit(new Move(this.env.targetOperand, retVarRef));
+            emit(new Move(astReturnStmt.pos, this.env.targetOperand, retVarRef));
         }
 
-        // Check whether this function already has returnBB.
+        // Check whether this function already has a returnBB.
         // A given function can have only one BB that has a return instruction.
         if (this.env.returnBB == null) {
             // If not create one
             BIRBasicBlock returnBB = new BIRBasicBlock(this.env.nextBBId(names));
-            returnBB.terminator = new BIRTerminator.Return();
+            returnBB.terminator = new BIRTerminator.Return(astReturnStmt.pos);
             this.env.returnBB = returnBB;
         }
 
-        this.env.enclBB.terminator = new BIRTerminator.GOTO(this.env.returnBB);
+        this.env.enclBB.terminator = new BIRTerminator.GOTO(astReturnStmt.pos, this.env.returnBB);
     }
 
     public void visit(BLangIf astIfStmt) {
@@ -285,7 +282,7 @@ public class BIRGen extends BLangNodeVisitor {
 
         // Add the branch instruction to the current basic block.
         // This is the end of the current basic block.
-        BIRTerminator.Branch branchIns = new BIRTerminator.Branch(ifExprResult, thenBB, null);
+        BIRTerminator.Branch branchIns = new BIRTerminator.Branch(astIfStmt.pos, ifExprResult, thenBB, null);
         this.env.enclBB.terminator = branchIns;
 
         // Visit the then-block
@@ -294,7 +291,7 @@ public class BIRGen extends BLangNodeVisitor {
 
         // If a terminator statement has not been set for the then-block then just add it.
         if (this.env.enclBB.terminator == null) {
-            this.env.enclBB.terminator = new BIRTerminator.GOTO(nextBB);
+            this.env.enclBB.terminator = new BIRTerminator.GOTO(null, nextBB);
         }
 
         // Check whether there exists an else-if or an else block.
@@ -310,7 +307,7 @@ public class BIRGen extends BLangNodeVisitor {
 
             // If a terminator statement has not been set for the else-block then just add it.
             if (this.env.enclBB.terminator == null) {
-                this.env.enclBB.terminator = new BIRTerminator.GOTO(nextBB);
+                this.env.enclBB.terminator = new BIRTerminator.GOTO(null, nextBB);
             }
 
         } else {
@@ -328,7 +325,7 @@ public class BIRGen extends BLangNodeVisitor {
         this.env.enclFunc.basicBlocks.add(whileExprBB);
 
         // Insert a GOTO instruction as the terminal instruction into current basic block.
-        this.env.enclBB.terminator = new BIRTerminator.GOTO(whileExprBB);
+        this.env.enclBB.terminator = new BIRTerminator.GOTO(astWhileStmt.pos, whileExprBB);
 
         // Visit condition expression
         this.env.enclBB = whileExprBB;
@@ -343,13 +340,13 @@ public class BIRGen extends BLangNodeVisitor {
         BIRBasicBlock whileEndBB = new BIRBasicBlock(this.env.nextBBId(names));
 
         // Add the branch instruction to the while expression basic block.
-        whileExprBB.terminator = new BIRTerminator.Branch(whileExprResult, whileBodyBB, whileEndBB);
+        whileExprBB.terminator = new BIRTerminator.Branch(astWhileStmt.pos, whileExprResult, whileBodyBB, whileEndBB);
 
         // Visit while body
         this.env.enclBB = whileBodyBB;
         astWhileStmt.body.accept(this);
         if (this.env.enclBB.terminator == null) {
-            this.env.enclBB.terminator = new BIRTerminator.GOTO(whileExprBB);
+            this.env.enclBB.terminator = new BIRTerminator.GOTO(null, whileExprBB);
         } else {
             throw new RuntimeException("there cannot be a terminator in while body basic block");
         }
@@ -366,7 +363,8 @@ public class BIRGen extends BLangNodeVisitor {
                 this.env.nextLocalVarId(names), VarKind.TEMP);
         this.env.enclFunc.localVars.add(tempVarDcl);
         BIROperand toVarRef = new BIROperand(tempVarDcl);
-        emit(new BIRNonTerminator.ConstantLoad(astLiteralExpr.value, astLiteralExpr.type, toVarRef));
+        emit(new BIRNonTerminator.ConstantLoad(astLiteralExpr.pos,
+                astLiteralExpr.value, astLiteralExpr.type, toVarRef));
         this.env.targetOperand = toVarRef;
     }
 
@@ -376,7 +374,7 @@ public class BIRGen extends BLangNodeVisitor {
         this.env.enclFunc.localVars.add(tempVarDcl);
         BIROperand tempVarRef = new BIROperand(tempVarDcl);
         BIROperand fromVarRef = new BIROperand(this.env.symbolVarMap.get(astVarRefExpr.symbol));
-        emit(new Move(fromVarRef, tempVarRef));
+        emit(new Move(astVarRefExpr.pos, fromVarRef, tempVarRef));
         this.env.targetOperand = tempVarRef;
     }
 
@@ -395,7 +393,7 @@ public class BIRGen extends BLangNodeVisitor {
         this.env.targetOperand = lhsOp;
 
         // Create binary instruction
-        BinaryOp binaryIns = new BinaryOp(getBinaryInstructionKind(astBinaryExpr.opKind),
+        BinaryOp binaryIns = new BinaryOp(astBinaryExpr.pos, getBinaryInstructionKind(astBinaryExpr.opKind),
                 astBinaryExpr.type, lhsOp, rhsOp1, rhsOp2);
         emit(binaryIns);
     }

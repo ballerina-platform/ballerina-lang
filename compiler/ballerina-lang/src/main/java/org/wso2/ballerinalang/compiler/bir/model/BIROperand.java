@@ -27,6 +27,7 @@ public class BIROperand extends BIRNode {
     public BIRVariableDcl variableDcl;
 
     public BIROperand(BIRVariableDcl variableDcl) {
+        super(null);
         this.variableDcl = variableDcl;
     }
 

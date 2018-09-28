@@ -20,6 +20,7 @@ package org.wso2.ballerinalang.compiler.bir.model;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.util.Name;
+import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -30,6 +31,11 @@ import java.util.List;
  * @since 0.980.0
  */
 public abstract class BIRNode {
+    public DiagnosticPos pos;
+
+    public BIRNode(DiagnosticPos pos) {
+        this.pos = pos;
+    }
 
     public abstract void accept(BIRVisitor visitor);
 
@@ -44,7 +50,8 @@ public abstract class BIRNode {
         public Name version;
         public List<BIRFunction> functions;
 
-        public BIRPackage(Name org, Name name, Name version) {
+        public BIRPackage(DiagnosticPos pos, Name org, Name name, Name version) {
+            super(pos);
             this.org = org;
             this.name = name;
             this.version = version;
@@ -67,10 +74,15 @@ public abstract class BIRNode {
         public Name name;
         public VarKind kind;
 
-        public BIRVariableDcl(BType type, Name name, VarKind kind) {
+        public BIRVariableDcl(DiagnosticPos pos, BType type, Name name, VarKind kind) {
+            super(pos);
             this.type = type;
             this.name = name;
             this.kind = kind;
+        }
+
+        public BIRVariableDcl(BType type, Name name, VarKind kind) {
+            this(null, type, name, kind);
         }
 
         @Override
@@ -128,7 +140,8 @@ public abstract class BIRNode {
          */
         public List<BIRBasicBlock> basicBlocks;
 
-        public BIRFunction(Name name, Visibility visibility, BInvokableType type) {
+        public BIRFunction(DiagnosticPos pos, Name name, Visibility visibility, BInvokableType type) {
+            super(pos);
             this.name = name;
             this.visibility = visibility;
             this.type = type;
@@ -153,6 +166,7 @@ public abstract class BIRNode {
         public BIRTerminator terminator;
 
         public BIRBasicBlock(Name id) {
+            super(null);
             this.id = id;
             this.instructions = new ArrayList<>();
         }
