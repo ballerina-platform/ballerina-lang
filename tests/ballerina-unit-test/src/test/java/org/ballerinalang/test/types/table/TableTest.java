@@ -30,6 +30,7 @@ import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BFloatArray;
 import org.ballerinalang.model.values.BIntArray;
 import org.ballerinalang.model.values.BInteger;
+import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BRefValueArray;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BStringArray;
@@ -1548,6 +1549,44 @@ public class TableTest {
                     "\"BOOLEAN_TYPE\":false, \"STRING_TYPE\":null}]";
         }
         Assert.assertEquals(returns[0].stringValue(), expected);
+        Assert.assertEquals(((BInteger) returns[1]).intValue(), 2);
+    }
+
+    @Test(groups = TABLE_TEST, description = "Check table to JSON conversion and setting as a child element")
+    public void testToJsonAndSetAsChildElement() {
+        BValue[] returns = BRunUtil.invoke(result, "testToJsonAndSetAsChildElement", connectionArgs);
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertTrue(returns[0] instanceof BMap);
+        String expected;
+        if (dbType == POSTGRES) {
+            expected = "{\"status\":\"SUCCESS\", \"resp\":{\"value\":[{\"int_type\":1, " +
+                    "\"long_type\":9223372036854774807, \"float_type\":123.339996, " +
+                    "\"double_type\":2.139095039E9, \"boolean_type\":true, \"string_type\":\"Hello\"}, " +
+                    "{\"int_type\":0, \"long_type\":0, \"float_type\":0, \"double_type\":0, " +
+                    "\"boolean_type\":false, \"string_type\":null}]}}";
+        } else if (dbType == MYSQL) {
+            expected = "{\"status\":\"SUCCESS\", \"resp\":{\"value\":[{\"INT_TYPE\":1, " +
+                    "\"LONG_TYPE\":9223372036854774807, \"FLOAT_TYPE\":123.34, " +
+                    "\"DOUBLE_TYPE\":2.139095039E9, \"BOOLEAN_TYPE\":true, \"STRING_TYPE\":\"Hello\"}, " +
+                    "{\"INT_TYPE\":0, \"LONG_TYPE\":0, \"FLOAT_TYPE\":0.0, \"DOUBLE_TYPE\":0.0, " +
+                    "\"BOOLEAN_TYPE\":false, \"STRING_TYPE\":null}]}}";
+        } else {
+            expected = "{\"status\":\"SUCCESS\", \"resp\":{\"value\":[{\"INT_TYPE\":1, " +
+                    "\"LONG_TYPE\":9223372036854774807, \"FLOAT_TYPE\":123.34, " +
+                    "\"DOUBLE_TYPE\":2.139095039E9, \"BOOLEAN_TYPE\":true, \"STRING_TYPE\":\"Hello\"}, " +
+                    "{\"INT_TYPE\":0, \"LONG_TYPE\":0, \"FLOAT_TYPE\":0.0, \"DOUBLE_TYPE\":0.0, " +
+                    "\"BOOLEAN_TYPE\":false, \"STRING_TYPE\":null}]}}";
+        }
+        Assert.assertEquals(returns[0].stringValue(), expected);
+    }
+    
+    @Test(groups = TABLE_TEST, description = "Check table to JSON conversion.")
+    public void testToJsonAndLengthof() {
+        BValue[] returns = BRunUtil.invoke(result, "testToJsonAndLengthof", connectionArgs);
+        Assert.assertEquals(returns.length, 2);
+        Assert.assertTrue(returns[0] instanceof BInteger);
+        Assert.assertTrue(returns[1] instanceof BInteger);
+        Assert.assertEquals(((BInteger) returns[0]).intValue(), 2);
         Assert.assertEquals(((BInteger) returns[1]).intValue(), 2);
     }
 }
