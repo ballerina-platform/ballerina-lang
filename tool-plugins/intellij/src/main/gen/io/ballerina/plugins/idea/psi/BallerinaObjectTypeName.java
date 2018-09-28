@@ -32,6 +32,9 @@ public interface BallerinaObjectTypeName extends BallerinaTypeName {
   @Nullable
   PsiElement getRightBrace();
 
+  @Nullable
+  PsiElement getAbstract();
+
   @NotNull
   PsiElement getObject();
 

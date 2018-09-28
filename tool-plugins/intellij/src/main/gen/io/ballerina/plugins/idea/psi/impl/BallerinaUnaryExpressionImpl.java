@@ -55,6 +55,12 @@ public class BallerinaUnaryExpressionImpl extends BallerinaExpressionImpl implem
 
   @Override
   @Nullable
+  public PsiElement getBitComplement() {
+    return findChildByType(BIT_COMPLEMENT);
+  }
+
+  @Override
+  @Nullable
   public PsiElement getNot() {
     return findChildByType(NOT);
   }

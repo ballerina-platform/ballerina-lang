@@ -168,6 +168,7 @@
         "package": "npm run compile && vsce package"
     },
     "dependencies": {
+        "compare-versions": "^3.4.0",
         "glob": "^7.1.2",
         "lodash": "^4.17.5",
         "openport": "0.0.4",
