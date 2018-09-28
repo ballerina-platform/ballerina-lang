@@ -55,7 +55,7 @@ public class WorkerInFunctionTest {
         Assert.assertEquals(returns[0].stringValue(), expected);
     }
 
-    @Test(description = "Test value returning from multiple workers")
+    @Test(description = "Test value returning from multiple workers", enabled = false)
     public void testMultipleReturnsVM() throws IOException {
         PrintStream original = System.out;
         try (ByteArrayOutputStream outContent = new ByteArrayOutputStream()) {
