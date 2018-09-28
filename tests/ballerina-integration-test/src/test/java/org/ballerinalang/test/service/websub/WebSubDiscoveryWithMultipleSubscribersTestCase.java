@@ -15,6 +15,7 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
+
 package org.ballerinalang.test.service.websub;
 
 import org.ballerinalang.test.context.BServerInstance;
@@ -43,10 +44,10 @@ import static org.ballerinalang.test.service.websub.WebSubTestUtils.requestUpdat
 public class WebSubDiscoveryWithMultipleSubscribersTestCase extends WebSubBaseTest {
     private BServerInstance webSubSubscriber;
 
-    private static final String INTENT_VERIFICATION_SUBSCRIBER_ONE_LOG = "ballerina: Intent Verification agreed - Mode "
-            + "[subscribe], Topic [http://three.websub.topic.com], Lease Seconds [3600]";
-    private static final String INTENT_VERIFICATION_SUBSCRIBER_TWO_LOG = "ballerina: Intent Verification agreed - Mode "
-            + "[subscribe], Topic [http://four.websub.topic.com], Lease Seconds [1200]";
+    private static final String INTENT_VERIFICATION_SUBSCRIBER_ONE_LOG = "ballerina: Intent Verification agreed - " +
+            "Mode [subscribe], Topic [http://three.websub.topic.com], Lease Seconds [3600]";
+    private static final String INTENT_VERIFICATION_SUBSCRIBER_TWO_LOG = "ballerina: Intent Verification agreed - " +
+            "Mode [subscribe], Topic [http://four.websub.topic.com], Lease Seconds [1200]";
     private static final String INTERNAL_HUB_NOTIFICATION_SUBSCRIBER_ONE_LOG =
             "WebSub Notification Received by One: {\"action\":\"publish\", \"mode\":\"internal-hub\"}";
     private static final String INTERNAL_HUB_NOTIFICATION_SUBSCRIBER_TWO_LOG =
@@ -62,8 +63,9 @@ public class WebSubDiscoveryWithMultipleSubscribersTestCase extends WebSubBaseTe
     @BeforeClass
     public void setup() throws BallerinaTestException {
         webSubSubscriber = new BServerInstance(balServer);
-        String subscriberBal = new File("src" + File.separator + "test" + File.separator + "resources"
-                + File.separator + "websub" + File.separator + "test_multiple_subscribers.bal").getAbsolutePath();
+        String subscriberBal = new File("src" + File.separator + "test" + File.separator + "resources" +
+                                                File.separator + "websub" + File.separator +
+                                                "test_multiple_subscribers.bal").getAbsolutePath();
         webSubSubscriber.addLogLeecher(intentVerificationLogLeecherOne);
         webSubSubscriber.addLogLeecher(intentVerificationLogLeecherTwo);
         webSubSubscriber.addLogLeecher(internalHubNotificationLogLeecherOne);

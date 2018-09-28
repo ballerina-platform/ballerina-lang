@@ -62,25 +62,25 @@ public class WebSubCoreFunctionalityTestCase extends WebSubBaseTest {
     private BMainInstance subscriptionChanger;
 
     private static String hubUrl = "https://localhost:9191/websub/hub";
-    private static final String INTENT_VERIFICATION_LOG = "ballerina: Intent Verification agreed - Mode [subscribe], "
-            + "Topic [http://one.websub.topic.com], Lease Seconds [86400]";
-    private static final String EXPLICIT_INTENT_VERIFICATION_LOG = "Intent verified explicitly for subscription "
-            + "change request";
+    private static final String INTENT_VERIFICATION_LOG = "ballerina: Intent Verification agreed - Mode [subscribe], " +
+            "Topic [http://one.websub.topic.com], Lease Seconds [86400]";
+    private static final String EXPLICIT_INTENT_VERIFICATION_LOG = "Intent verified explicitly for subscription " +
+            "change request";
 
-    private static final String INTERNAL_HUB_NOTIFICATION_LOG = "WebSub Notification Received: "
-            + "{\"action\":\"publish\", \"mode\":\"internal-hub\"}";
-    private static final String REMOTE_HUB_NOTIFICATION_LOG = "WebSub Notification Received: "
-            + "{\"action\":\"publish\", \"mode\":\"remote-hub\"}";
+    private static final String INTERNAL_HUB_NOTIFICATION_LOG = "WebSub Notification Received: " +
+            "{\"action\":\"publish\", \"mode\":\"internal-hub\"}";
+    private static final String REMOTE_HUB_NOTIFICATION_LOG = "WebSub Notification Received: " +
+            "{\"action\":\"publish\", \"mode\":\"remote-hub\"}";
 
-    private static final String INTERNAL_HUB_NOTIFICATION_LOG_TWO = "WebSub Notification Received by Two: "
-            + "{\"action\":\"publish\", \"mode\":\"internal-hub\"}";
-    private static final String REMOTE_HUB_NOTIFICATION_LOG_TWO = "WebSub Notification Received by Two: "
-            + "{\"action\":\"publish\", \"mode\":\"remote-hub\"}";
+    private static final String INTERNAL_HUB_NOTIFICATION_LOG_TWO = "WebSub Notification Received by Two: " +
+            "{\"action\":\"publish\", \"mode\":\"internal-hub\"}";
+    private static final String REMOTE_HUB_NOTIFICATION_LOG_TWO = "WebSub Notification Received by Two: " +
+            "{\"action\":\"publish\", \"mode\":\"remote-hub\"}";
 
-    private static final String UNSUBSCRIPTION_INTENT_VERIFICATION_LOG = "ballerina: Intent Verification agreed - Mode "
-            + "[unsubscribe], Topic [http://one.websub.topic.com]";
-    private static final String INTENT_VERIFICATION_DENIAL_LOG = "ballerina: Intent Verification denied - Mode "
-            + "[subscribe], Topic [http://two.websub.topic.com]";
+    private static final String UNSUBSCRIPTION_INTENT_VERIFICATION_LOG = "ballerina: Intent Verification agreed - " +
+            "Mode [unsubscribe], Topic [http://one.websub.topic.com]";
+    private static final String INTENT_VERIFICATION_DENIAL_LOG = "ballerina: Intent Verification denied - " +
+            "Mode [subscribe], Topic [http://two.websub.topic.com]";
 
     private LogLeecher intentVerificationLogLeecher = new LogLeecher(INTENT_VERIFICATION_LOG);
     private LogLeecher explicitIntentVerificationLogLeecher = new LogLeecher(EXPLICIT_INTENT_VERIFICATION_LOG);
@@ -101,8 +101,9 @@ public class WebSubCoreFunctionalityTestCase extends WebSubBaseTest {
     public void setup() throws BallerinaTestException {
         webSubSubscriber = new BServerInstance(balServer);
         subscriptionChanger = new BMainInstance(balServer);
-        String subscriberBal = new File("src" + File.separator + "test" + File.separator + "resources"
-                + File.separator + "websub" + File.separator + "test_subscriber.bal").getAbsolutePath();
+        String subscriberBal = new File("src" + File.separator + "test" + File.separator + "resources" +
+                                                File.separator + "websub" + File.separator + "test_subscriber.bal")
+                .getAbsolutePath();
         webSubSubscriber.addLogLeecher(intentVerificationLogLeecher);
         webSubSubscriber.addLogLeecher(explicitIntentVerificationLogLeecher);
         webSubSubscriber.addLogLeecher(internalHubNotificationLogLeecher);
@@ -150,9 +151,9 @@ public class WebSubCoreFunctionalityTestCase extends WebSubBaseTest {
 
     @Test(dependsOnMethods = "testSubscriptionAndExplicitIntentVerification")
     public void testUnsubscriptionIntentVerification() throws BallerinaTestException {
-        String balFile = new File("src" + File.separator + "test" + File.separator + "resources"
-                                          + File.separator + "websub" + File.separator
-                                          + "test_unsubscription_client.bal").getAbsolutePath();
+        String balFile = new File("src" + File.separator + "test" + File.separator + "resources" + File.separator +
+                                          "websub" + File.separator + "test_unsubscription_client.bal")
+                .getAbsolutePath();
         Executors.newSingleThreadExecutor().execute(() -> {
             try {
                 subscriptionChanger.runMain(balFile);
@@ -179,9 +180,9 @@ public class WebSubCoreFunctionalityTestCase extends WebSubBaseTest {
         Map<String, String> headers = new HashMap<>();
         headers.put(HttpHeaderNames.CONTENT_TYPE.toString(), TestConstant.CONTENT_TYPE_FORM_URL_ENCODED);
         HttpResponse response = HttpsClientRequest.doPost(hubUrl,
-                                                          "hub.mode=subscribe"
-                                                                  + "&hub.topic=http://two.websub.topic.com"
-                                                                  + "&hub.callback=http://localhost:8181/websub",
+                                                          "hub.mode=subscribe" +
+                                                                  "&hub.topic=http://two.websub.topic.com" +
+                                                                  "&hub.callback=http://localhost:8181/websub",
                                                           headers,
                                                           webSubSubscriber.getServerHome());
         Assert.assertTrue(response != null);

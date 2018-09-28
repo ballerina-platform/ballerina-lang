@@ -15,6 +15,7 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
+
 package org.ballerinalang.test.service.websub;
 
 import org.ballerinalang.test.context.BServerInstance;
@@ -45,27 +46,27 @@ import static org.ballerinalang.test.service.websub.WebSubTestUtils.requestUpdat
 public class WebSubContentTypeSupportTestCase extends WebSubBaseTest {
     private BServerInstance webSubSubscriber;
 
-    private static final String INTENT_VERIFICATION_SUBSCRIBER_ONE_LOG = "ballerina: Intent Verification agreed - Mode"
-            + " [subscribe], Topic [http://one.websub.topic.com], Lease Seconds [3000]";
-    private static final String INTENT_VERIFICATION_SUBSCRIBER_TWO_LOG = "ballerina: Intent Verification agreed - Mode"
-            + " [subscribe], Topic [http://one.websub.topic.com], Lease Seconds [1000]";
+    private static final String INTENT_VERIFICATION_SUBSCRIBER_ONE_LOG = "ballerina: Intent Verification agreed -" +
+            " Mode [subscribe], Topic [http://one.websub.topic.com], Lease Seconds [3000]";
+    private static final String INTENT_VERIFICATION_SUBSCRIBER_TWO_LOG = "ballerina: Intent Verification agreed -" +
+            " Mode [subscribe], Topic [http://one.websub.topic.com], Lease Seconds [1000]";
 
     private static final String XML_INTERNAL_HUB_NOTIFICATION_SUBSCRIBER_ONE_LOG =
-            "XML WebSub Notification Received by websubSubscriber: "
-                    + "<websub><request>Notification</request><type>Internal</type></websub>";
+            "XML WebSub Notification Received by websubSubscriber: " +
+                    "<websub><request>Notification</request><type>Internal</type></websub>";
     private static final String TEXT_INTERNAL_HUB_NOTIFICATION_SUBSCRIBER_ONE_LOG =
             "Text WebSub Notification Received by websubSubscriber: Text update for internal Hub";
     private static final String JSON_INTERNAL_HUB_NOTIFICATION_SUBSCRIBER_ONE_LOG =
-            "JSON WebSub Notification Received by websubSubscriber: {\"action\":\"publish\", "
-                    + "\"mode\":\"internal-hub\"}";
+            "JSON WebSub Notification Received by websubSubscriber: " +
+                    "{\"action\":\"publish\", \"mode\":\"internal-hub\"}";
     private static final String XML_INTERNAL_HUB_NOTIFICATION_SUBSCRIBER_TWO_LOG =
-            "XML WebSub Notification Received by websubSubscriberTwo: "
-                    + "<websub><request>Notification</request><type>Internal</type></websub>";
+            "XML WebSub Notification Received by websubSubscriberTwo: " +
+                    "<websub><request>Notification</request><type>Internal</type></websub>";
     private static final String TEXT_INTERNAL_HUB_NOTIFICATION_SUBSCRIBER_TWO_LOG =
             "Text WebSub Notification Received by websubSubscriberTwo: Text update for internal Hub";
     private static final String JSON_INTERNAL_HUB_NOTIFICATION_SUBSCRIBER_TWO_LOG =
-            "JSON WebSub Notification Received by websubSubscriberTwo: {\"action\":\"publish\", "
-                    + "\"mode\":\"internal-hub\"}";
+            "JSON WebSub Notification Received by websubSubscriberTwo: " +
+                    "{\"action\":\"publish\", \"mode\":\"internal-hub\"}";
 
     private static final String XML_REMOTE_HUB_NOTIFICATION_SUBSCRIBER_ONE_LOG =
             "XML WebSub Notification Received by websubSubscriber: "
@@ -75,13 +76,13 @@ public class WebSubContentTypeSupportTestCase extends WebSubBaseTest {
     private static final String JSON_REMOTE_HUB_NOTIFICATION_SUBSCRIBER_ONE_LOG =
             "JSON WebSub Notification Received by websubSubscriber: {\"action\":\"publish\", \"mode\":\"remote-hub\"}";
     private static final String XML_REMOTE_HUB_NOTIFICATION_SUBSCRIBER_TWO_LOG =
-            "XML WebSub Notification Received by websubSubscriberTwo: "
-                    + "<websub><request>Notification</request><type>Remote</type></websub>";
+            "XML WebSub Notification Received by websubSubscriberTwo: " +
+                    "<websub><request>Notification</request><type>Remote</type></websub>";
     private static final String TEXT_REMOTE_HUB_NOTIFICATION_SUBSCRIBER_TWO_LOG =
             "Text WebSub Notification Received by websubSubscriberTwo: Text update for remote Hub";
     private static final String JSON_REMOTE_HUB_NOTIFICATION_SUBSCRIBER_TWO_LOG =
-            "JSON WebSub Notification Received by websubSubscriberTwo: {\"action\":\"publish\","
-                    + " \"mode\":\"remote-hub\"}";
+            "JSON WebSub Notification Received by websubSubscriberTwo: " +
+                    "{\"action\":\"publish\", \"mode\":\"remote-hub\"}";
 
     private LogLeecher intentVerificationLogLeecherOne = new LogLeecher(INTENT_VERIFICATION_SUBSCRIBER_ONE_LOG);
     private LogLeecher intentVerificationLogLeecherTwo = new LogLeecher(INTENT_VERIFICATION_SUBSCRIBER_TWO_LOG);
@@ -118,9 +119,9 @@ public class WebSubContentTypeSupportTestCase extends WebSubBaseTest {
     public void setup() throws BallerinaTestException {
         webSubSubscriber = new BServerInstance(balServer);
 
-        String subscriberBal = new File("src" + File.separator + "test" + File.separator + "resources"
-                + File.separator + "websub" + File.separator + "test_different_content_type_subscribers.bal")
-                .getAbsolutePath();
+        String subscriberBal = new File("src" + File.separator + "test" + File.separator + "resources" +
+                                                File.separator + "websub" + File.separator +
+                                                "test_different_content_type_subscribers.bal").getAbsolutePath();
         webSubSubscriber.addLogLeecher(intentVerificationLogLeecherOne);
         webSubSubscriber.addLogLeecher(intentVerificationLogLeecherTwo);
         webSubSubscriber.addLogLeecher(internalHubXmlNotificationLogLeecherOne);

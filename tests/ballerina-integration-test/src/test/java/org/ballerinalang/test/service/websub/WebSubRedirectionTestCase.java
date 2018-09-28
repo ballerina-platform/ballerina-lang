@@ -15,6 +15,7 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
+
 package org.ballerinalang.test.service.websub;
 
 import org.ballerinalang.test.context.BServerInstance;
@@ -51,8 +52,9 @@ public class WebSubRedirectionTestCase extends WebSubBaseTest {
         intentVerificationLogLeecherOne = new LogLeecher(INTENT_VERIFICATION_SUBSCRIBER_ONE_LOG);
         intentVerificationLogLeecherTwo = new LogLeecher(INTENT_VERIFICATION_SUBSCRIBER_TWO_LOG);
 
-        String subscribersBal = new File("src" + File.separator + "test" + File.separator + "resources"
-                + File.separator + "websub" + File.separator + "test_redirected_subscribers.bal").getAbsolutePath();
+        String subscribersBal = new File("src" + File.separator + "test" + File.separator + "resources" +
+                                                 File.separator + "websub" + File.separator +
+                                                 "test_redirected_subscribers.bal").getAbsolutePath();
         webSubSubscriber.addLogLeecher(intentVerificationLogLeecherOne);
         webSubSubscriber.addLogLeecher(intentVerificationLogLeecherTwo);
 

@@ -15,6 +15,7 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
+
 package org.ballerinalang.test.service.websub;
 
 import io.netty.handler.codec.http.HttpHeaderNames;
@@ -83,9 +84,9 @@ public class WebSubServiceExtensionTestCase extends WebSubBaseTest {
     public void setup() throws BallerinaTestException {
         webSubSubscriber = new BServerInstance(balServer);
 
-        String subscriberBal = new File("src" + File.separator + "test" + File.separator + "resources"
-                                                + File.separator + "websub" + File.separator
-                                                + "test_custom_subscribers.bal").getAbsolutePath();
+        String subscriberBal = new File("src" + File.separator + "test" + File.separator + "resources" +
+                                                File.separator + "websub" + File.separator +
+                                                "test_custom_subscribers.bal").getAbsolutePath();
 
         webSubSubscriber.addLogLeecher(byKeyCreatedLogLeecher);
         webSubSubscriber.addLogLeecher(byKeyFeatureLogLeecher);
