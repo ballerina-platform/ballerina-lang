@@ -103,3 +103,13 @@ function getAgeRecord() returns Age {
     Age a = {age: 99, format:"MM"};
     return a;
 }
+
+function testRestParameter() returns map {
+    PersonWithAge {name, age: {age, format}, married, ...rest} = {name: "John", age: {age:30, format: "YY"}, married: true, work: "SE", other: getAgeRecord()};
+    return rest;
+}
+
+function testNestedRestParameter() returns (map, map) {
+    PersonWithAge {name, age: {age, format, ...rest1}, married, ...rest2} = {name: "John", age: {age:30, format: "YY", year: 1990}, married: true, work: "SE"};
+    return (rest1, rest2);
+}

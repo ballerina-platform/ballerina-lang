@@ -33,6 +33,7 @@ type PersonWithAge record {
 function redeclaredSymbol() {
     Person {name: fName, married} = {name: "Peter", married: true};
     PersonWithAge {name: fName, age: {age: theAge, format}, married} = {name: "Peter", age: {age:29, format: "Y"}, married: true, work: "SE"};
+    Person {name: fiName, married: fiName} = {name: "Peter", married: true};
 }
 
 function bindingPatternError() {
@@ -41,4 +42,10 @@ function bindingPatternError() {
     Person{name: fName3, married: maritalStatus3} = {name1: "John", married: true, age: 12};
     Person{name: fName4, married: maritalStatus4, !...} = {name: "John", married: true, age: 12};
     Person{name: fName5, married: maritalStatus5} = {married: true, age: 12};
+}
+
+function mismatchTypes() {
+    PersonWithAge p = {name: "James", age: {age: 54, format: "DD"}, married: true};
+    Person {name: fName, married} = p;
+    Person {name: fName1, married: married1} = {name: 21, married: "James"};
 }

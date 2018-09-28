@@ -27,10 +27,14 @@ import org.ballerinalang.model.tree.clauses.JoinStreamingInput;
 import org.ballerinalang.model.tree.expressions.NamedArgNode;
 import org.ballerinalang.model.tree.statements.StatementNode;
 import org.ballerinalang.model.tree.statements.StreamingQueryStatementNode;
+import org.ballerinalang.model.types.TypeKind;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.SymbolResolver;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.Types;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
+import org.wso2.ballerinalang.compiler.semantics.model.iterable.IterableContext;
+import org.wso2.ballerinalang.compiler.semantics.model.iterable.IterableKind;
+import org.wso2.ballerinalang.compiler.semantics.model.iterable.Operation;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BConversionOperatorSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BEndpointVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
@@ -43,11 +47,13 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BXMLNSSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BIntermediateCollectionType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BJSONType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BMapType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStructureType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTableType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 import org.wso2.ballerinalang.compiler.tree.BLangAction;
@@ -166,6 +172,7 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangWorkerSend;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangXMLNSStatement;
 import org.wso2.ballerinalang.compiler.tree.types.BLangObjectTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangRecordTypeNode;
+import org.wso2.ballerinalang.compiler.tree.types.BLangValueType;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.Names;
@@ -224,6 +231,7 @@ public class Desugar extends BLangNodeVisitor {
     public Stack<BLangLock> enclLocks = new Stack<>();
 
     private SymbolEnv env;
+    private int lambdaFunctionCount = 0;
 
     // Safe navigation related variables
     private Stack<BLangMatch> matchStmtStack = new Stack<>();
@@ -753,6 +761,153 @@ public class Desugar extends BLangNodeVisitor {
                         recordVarSymbol, arrayAccessExpr);
             }
         }
+
+        if (parentRecordVariable.restParam != null) {
+            // The restParam is desugared to a filter iterable operation that filters out the fields provided in the
+            // record variable
+            // map<any> restParam = $map$0.filter($lambdaArg$0);
+
+            DiagnosticPos pos = parentBlockStmt.pos;
+            BMapType anyConstrainedMapType = new BMapType(TypeTags.MAP, symTable.anyType, null);
+            BLangVariableReference varibleReference;
+
+            if (parentIndexAccessExpr != null) {
+                BLangSimpleVariable mapVariable = ASTBuilderUtil.createVariable(pos, "$map$1", anyConstrainedMapType,
+                        null, new BVarSymbol(0, names.fromString("$map$1"), this.env.scope.owner.pkgID,
+                                anyConstrainedMapType, this.env.scope.owner));
+                mapVariable.expr = parentIndexAccessExpr;
+                BLangSimpleVariableDef variableDef = ASTBuilderUtil.createVariableDefStmt(pos, parentBlockStmt);
+                variableDef.var = mapVariable;
+
+                varibleReference = ASTBuilderUtil.createVariableRef(pos, mapVariable.symbol);
+            } else {
+                varibleReference = ASTBuilderUtil.createVariableRef(pos,
+                        ((BLangSimpleVariableDef) parentBlockStmt.stmts.get(0)).var.symbol);
+            }
+
+            // Create rest param variable definition
+            BLangSimpleVariable restParam = (BLangSimpleVariable) parentRecordVariable.restParam;
+            BLangSimpleVariableDef restParamVarDef = ASTBuilderUtil.createVariableDefStmt(pos,
+                    parentBlockStmt);
+            restParamVarDef.var = restParam;
+            restParamVarDef.var.type = anyConstrainedMapType;
+
+            // Create lambda function to be passed into the filter iterable operation (i.e. $lambdaArg$0)
+            BLangLambdaFunction lambdaFunction = createFuncToFilterOutRestParam(parentRecordVariable, pos);
+
+            // Create filter iterator operation
+            BLangInvocation filterIterator = (BLangInvocation) TreeBuilder.createInvocationNode();
+            restParam.expr = filterIterator;
+
+            filterIterator.iterableOperationInvocation = true;
+            filterIterator.argExprs.add(lambdaFunction);
+            filterIterator.requiredArgs.add(lambdaFunction);
+
+            // Variable reference to the 1st variable of this block. i.e. the map ..
+            filterIterator.expr = varibleReference;
+
+            filterIterator.type = new BIntermediateCollectionType(getStringAnyTupleType());
+
+            IterableContext iterableContext = new IterableContext(filterIterator.expr, env);
+            iterableContext.foreachTypes = getStringAnyTupleType().tupleTypes;
+            filterIterator.iContext = iterableContext;
+
+            iterableContext.resultType = anyConstrainedMapType;
+            Operation filterOperation = new Operation(IterableKind.FILTER, filterIterator, iterableContext.resultType);
+            filterOperation.pos = pos;
+            filterOperation.collectionType = filterOperation.expectedType = anyConstrainedMapType;
+            filterOperation.inputType = filterOperation.outputType = getStringAnyTupleType();
+            iterableContext.operations.add(filterOperation);
+        }
+    }
+
+    private BLangLambdaFunction createFuncToFilterOutRestParam(BLangRecordVariable recordVariable, DiagnosticPos pos) {
+
+        // Creates following anonymous function
+        //
+        // function ((string, any) $lambdaArg$0) returns boolean {
+        //     Following if block is generated for all parameters given in the record variable
+        //     if ($lambdaArg$0[0] == "name") {
+        //         return false;
+        //     }
+        //     if ($lambdaArg$0[0] == "age") {
+        //         return false;
+        //     }
+        //      return true;
+        // }
+
+        BLangFunction function = ASTBuilderUtil.createFunction(pos, "$anonFunc$" + lambdaFunctionCount++);
+        BVarSymbol keyValSymbol = new BVarSymbol(0, names.fromString("$lambdaArg$0"), this.env.scope.owner.pkgID,
+                getStringAnyTupleType(), this.env.scope.owner);
+        BLangSimpleVariable inputParameter = ASTBuilderUtil.createVariable(pos, null, getStringAnyTupleType(),
+                null, keyValSymbol);
+
+        function.requiredParams.add(inputParameter);
+        BLangValueType booleanTypeKind = new BLangValueType();
+        booleanTypeKind.typeKind = TypeKind.BOOLEAN;
+        function.returnTypeNode = booleanTypeKind;
+
+        BLangBlockStmt functionBlock = ASTBuilderUtil.createBlockStmt(pos, new ArrayList<>());
+        function.body = functionBlock;
+
+        // Create the if statements
+        for (BLangRecordVariableKeyValueNode variableKeyValueNode : recordVariable.variableList) {
+            BLangIf ifStmt = ASTBuilderUtil.createIfStmt(pos, functionBlock);
+
+            BLangBlockStmt ifBlock = ASTBuilderUtil.createBlockStmt(pos, new ArrayList<>());
+            BLangReturn returnStmt = ASTBuilderUtil.createReturnStmt(pos, ifBlock);
+            returnStmt.expr = ASTBuilderUtil.createLiteral(pos, symTable.booleanType, false);
+            ifStmt.body = ifBlock;
+
+            BLangBracedOrTupleExpr tupleExpr = new BLangBracedOrTupleExpr();
+            tupleExpr.isBracedExpr = true;
+            tupleExpr.type = symTable.booleanType;
+
+            BLangIndexBasedAccess indexBasesAccessExpr = ASTBuilderUtil.createIndexBasesAccessExpr(pos,
+                    symTable.stringType, keyValSymbol, ASTBuilderUtil.createLiteral(pos, symTable.intType, (long) 0));
+
+            BLangBinaryExpr binaryExpr = ASTBuilderUtil.createBinaryExpr(pos, indexBasesAccessExpr,
+                    ASTBuilderUtil.createLiteral(pos, symTable.stringType, variableKeyValueNode.getKey().getValue()),
+                    symTable.booleanType, OperatorKind.EQUAL, null);
+
+            binaryExpr.opSymbol = (BOperatorSymbol) symResolver.resolveBinaryOperator(
+                    binaryExpr.opKind, binaryExpr.lhsExpr.type, binaryExpr.rhsExpr.type);
+
+            tupleExpr.expressions.add(binaryExpr);
+            ifStmt.expr = tupleExpr;
+        }
+
+        // Create the final return true statement
+        BLangReturn trueReturnStmt = ASTBuilderUtil.createReturnStmt(pos, functionBlock);
+        trueReturnStmt.expr = ASTBuilderUtil.createLiteral(pos, symTable.booleanType, true);
+
+        // Create function symbol before visiting desugar phase for the function
+        BInvokableSymbol functionSymbol = Symbols.createFunctionSymbol(Flags.asMask(function.flagSet),
+                new Name(function.name.value), env.enclPkg.packageID, function.type, env.enclEnv.enclVarSym, true);
+        functionSymbol.retType = function.returnTypeNode.type;
+        functionSymbol.params = function.requiredParams.stream()
+                .map(param -> param.symbol)
+                .collect(Collectors.toList());
+        functionSymbol.scope = env.scope;
+        functionSymbol.type = new BInvokableType(Collections.singletonList(getStringAnyTupleType()),
+                symTable.booleanType, null);
+        function.symbol = functionSymbol;
+        rewrite(function, env);
+        env.enclPkg.addFunction(function);
+
+        // Create and return a lambda function
+        BLangLambdaFunction lambdaFunction = (BLangLambdaFunction) TreeBuilder.createLambdaFunctionNode();
+        lambdaFunction.function = function;
+        lambdaFunction.type = functionSymbol.type;
+        return lambdaFunction;
+    }
+
+    private BTupleType getStringAnyTupleType() {
+        ArrayList<BType> typeList = new ArrayList<BType>() {{
+            add(symTable.stringType);
+            add(symTable.anyType);
+        }};
+        return new BTupleType(typeList);
     }
 
     /**

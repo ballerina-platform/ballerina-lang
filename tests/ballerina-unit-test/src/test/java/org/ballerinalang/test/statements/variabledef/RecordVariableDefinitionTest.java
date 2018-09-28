@@ -24,6 +24,7 @@ import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BInteger;
+import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BValue;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
@@ -106,21 +107,57 @@ public class RecordVariableDefinitionTest {
         Assert.assertEquals(returns[0].stringValue(), "Peter Parker");
     }
 
+    @Test(description = "Test rest parameter")
+    public void testRestParameter() {
+        BValue[] returns = BRunUtil.invoke(result, "testRestParameter");
+        Assert.assertTrue(returns[0] instanceof BMap);
+        BMap bMap = (BMap) returns[0];
+        Assert.assertEquals(bMap.size(), 2);
+        Assert.assertEquals(bMap.get("work").stringValue(), "SE");
+        Assert.assertEquals(((BInteger) ((BMap) bMap.get("other")).get("age")).intValue(), 99);
+        Assert.assertEquals(((BMap) bMap.get("other")).get("format").stringValue(), "MM");
+    }
+
+    @Test(description = "Test rest parameter in nested record variable")
+    public void testNestedRestParameter() {
+        BValue[] returns = BRunUtil.invoke(result, "testNestedRestParameter");
+        Assert.assertTrue(returns[0] instanceof BMap);
+        BMap bMap = (BMap) returns[0];
+        Assert.assertEquals(bMap.size(), 1);
+        Assert.assertEquals(((BInteger) bMap.get("year")).intValue(), 1990);
+
+        BMap bMap2 = (BMap) returns[1];
+        Assert.assertEquals(bMap2.size(), 1);
+        Assert.assertEquals(bMap2.get("work").stringValue(), "SE");
+    }
+
     @Test
     public void testNegativeRecordVariables() {
-        Assert.assertEquals(resultNegative.getErrorCount(), 7);
+        Assert.assertEquals(resultNegative.getErrorCount(), 11);
+        String redeclaredSymbol = "redeclared symbol ";
+        String invalidRecordLiteralInBindingPattern = "invalid record literal in binding pattern. ";
+        String invalidClosedRecordBindingPattern = "invalid closed record binding pattern. ";
+        String invalidRecordBindingPattern = "invalid record binding pattern. ";
+
         int i = -1;
-        BAssertUtil.validateError(resultNegative, ++i, "redeclared symbol 'married'", 35, 61);
-        BAssertUtil.validateError(resultNegative, ++i, "redeclared symbol 'fName'", 35, 26);
+        BAssertUtil.validateError(resultNegative, ++i, redeclaredSymbol + "'married'", 35, 61);
+        BAssertUtil.validateError(resultNegative, ++i, redeclaredSymbol + "'fName'", 35, 26);
+        BAssertUtil.validateError(resultNegative, ++i, redeclaredSymbol + "'fiName'", 36, 19);
         BAssertUtil.validateError(resultNegative, ++i,
-                "invalid record literal in binding pattern. 'name1' field not found in literal", 39, 11);
+                invalidRecordLiteralInBindingPattern + "'name1' field not found in literal", 40, 11);
         BAssertUtil.validateError(resultNegative, ++i,
-                "invalid record binding pattern. unknown field 'name1' in record type 'Person'", 40, 11);
+                invalidRecordBindingPattern + "unknown field 'name1' in record type 'Person'", 41, 11);
         BAssertUtil.validateError(resultNegative, ++i,
-                "invalid record literal in binding pattern. 'name' field not found in literal", 41, 11);
+                invalidRecordLiteralInBindingPattern + "'name' field not found in literal", 42, 11);
         BAssertUtil.validateError(resultNegative, ++i,
-                "invalid closed record binding pattern. expected '2' fields, but found '3'", 42, 11);
+                invalidClosedRecordBindingPattern + "expected '2' fields, but found '3'", 43, 11);
         BAssertUtil.validateError(resultNegative, ++i,
-                "invalid record literal in binding pattern. 'name' field not found in literal", 43, 11);
+                invalidRecordLiteralInBindingPattern + "'name' field not found in literal", 44, 11);
+        BAssertUtil.validateError(resultNegative, ++i,
+                "incompatible types: expected 'Person', found 'PersonWithAge'", 49, 37);
+        BAssertUtil.validateError(resultNegative, ++i,
+                "incompatible types: expected 'string', found 'int'", 50, 55);
+        BAssertUtil.validateError(resultNegative, ++i,
+                "incompatible types: expected 'boolean', found 'string'", 50, 68);
     }
 }
