@@ -17,23 +17,24 @@
 // This is a generated file. Not intended for manual editing.
 package io.ballerina.plugins.idea.psi.impl;
 
-import java.util.List;
-import org.jetbrains.annotations.*;
 import com.intellij.lang.ASTNode;
-import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiElementVisitor;
 import com.intellij.psi.util.PsiTreeUtil;
-import static io.ballerina.plugins.idea.psi.BallerinaTypes.*;
-import io.ballerina.plugins.idea.psi.*;
+import io.ballerina.plugins.idea.psi.BallerinaChannelDefinition;
+import io.ballerina.plugins.idea.psi.BallerinaGlobalVariable;
+import io.ballerina.plugins.idea.psi.BallerinaGlobalVariableDefinition;
+import io.ballerina.plugins.idea.psi.BallerinaVisitor;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
-public class BallerinaWorkerReplyImpl extends BallerinaCompositeElementImpl implements BallerinaWorkerReply {
+public class BallerinaGlobalVariableImpl extends BallerinaCompositeElementImpl implements BallerinaGlobalVariable {
 
-  public BallerinaWorkerReplyImpl(@NotNull ASTNode node) {
+  public BallerinaGlobalVariableImpl(@NotNull ASTNode node) {
     super(node);
   }
 
   public void accept(@NotNull BallerinaVisitor visitor) {
-    visitor.visitWorkerReply(this);
+    visitor.visitGlobalVariable(this);
   }
 
   public void accept(@NotNull PsiElementVisitor visitor) {
@@ -42,33 +43,15 @@ public class BallerinaWorkerReplyImpl extends BallerinaCompositeElementImpl impl
   }
 
   @Override
-  @NotNull
-  public List<BallerinaExpression> getExpressionList() {
-    return PsiTreeUtil.getChildrenOfTypeAsList(this, BallerinaExpression.class);
+  @Nullable
+  public BallerinaChannelDefinition getChannelDefinition() {
+    return PsiTreeUtil.getChildOfType(this, BallerinaChannelDefinition.class);
   }
 
   @Override
   @Nullable
-  public PsiElement getComma() {
-    return findChildByType(COMMA);
-  }
-
-  @Override
-  @NotNull
-  public PsiElement getLarrow() {
-    return notNullChild(findChildByType(LARROW));
-  }
-
-  @Override
-  @Nullable
-  public PsiElement getSemicolon() {
-    return findChildByType(SEMICOLON);
-  }
-
-  @Override
-  @Nullable
-  public PsiElement getIdentifier() {
-    return findChildByType(IDENTIFIER);
+  public BallerinaGlobalVariableDefinition getGlobalVariableDefinition() {
+    return PsiTreeUtil.getChildOfType(this, BallerinaGlobalVariableDefinition.class);
   }
 
 }

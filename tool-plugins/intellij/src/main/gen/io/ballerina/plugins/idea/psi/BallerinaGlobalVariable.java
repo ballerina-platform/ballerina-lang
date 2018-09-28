@@ -17,28 +17,14 @@
 // This is a generated file. Not intended for manual editing.
 package io.ballerina.plugins.idea.psi;
 
-import java.util.List;
-import org.jetbrains.annotations.*;
-import com.intellij.psi.PsiElement;
+import org.jetbrains.annotations.Nullable;
 
-public interface BallerinaDefinition extends BallerinaCompositeElement {
+public interface BallerinaGlobalVariable extends BallerinaCompositeElement {
 
   @Nullable
-  BallerinaAnnotationDefinition getAnnotationDefinition();
+  BallerinaChannelDefinition getChannelDefinition();
 
   @Nullable
-  BallerinaFunctionDefinition getFunctionDefinition();
-
-  @Nullable
-  BallerinaGlobalEndpointDefinition getGlobalEndpointDefinition();
-
-  @Nullable
-  BallerinaGlobalVariable getGlobalVariable();
-
-  @Nullable
-  BallerinaServiceDefinition getServiceDefinition();
-
-  @Nullable
-  BallerinaTypeDefinition getTypeDefinition();
+  BallerinaGlobalVariableDefinition getGlobalVariableDefinition();
 
 }

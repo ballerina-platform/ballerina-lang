@@ -21,9 +21,21 @@ import java.util.List;
 import org.jetbrains.annotations.*;
 import com.intellij.psi.PsiElement;
 
-public interface BallerinaObjectFunctions extends BallerinaCompositeElement {
+public interface BallerinaArrowFunction extends BallerinaCompositeElement {
 
   @NotNull
-  List<BallerinaObjectFunctionDefinition> getObjectFunctionDefinitionList();
+  List<BallerinaArrowParam> getArrowParamList();
+
+  @Nullable
+  BallerinaExpression getExpression();
+
+  @NotNull
+  PsiElement getEqualGt();
+
+  @Nullable
+  PsiElement getLeftParenthesis();
+
+  @Nullable
+  PsiElement getRightParenthesis();
 
 }
