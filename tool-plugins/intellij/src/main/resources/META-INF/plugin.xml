@@ -23,7 +23,7 @@
     <!-- uncomment to enable plugin in all products -->
     <depends>com.intellij.modules.lang</depends>
     <depends optional="true" config-file="java-deps.xml">com.intellij.modules.java</depends>
-
+    <depends optional="true" config-file="with-lsp.xml">com.github.gtache.lsp</depends>
     <module-components>
         <component>
             <implementation-class>
@@ -131,6 +131,7 @@
         <projectService serviceInterface="io.ballerina.plugins.idea.sdk.BallerinaSdkService"
                         serviceImplementation="io.ballerina.plugins.idea.sdk.BallerinaSmallIDEsSdkService"
                         overrides="false"/>
+
         <editorNotificationProvider
                 implementation="io.ballerina.plugins.idea.inspections.WrongSdkConfigurationNotificationProvider"/>
 
@@ -199,7 +200,10 @@
                          shortName="BallerinaUnresolvedReference"
                          implementationClass="io.ballerina.plugins.idea.codeinspection.BallerinaUnresolvedReferenceInspection"/>
 
+        <editorNotificationProvider
+                implementation="io.ballerina.plugins.idea.inspections.LSPluginInstallationNotificationProvider"/>
     </extensions>
+
     <actions>
         <!-- Add your actions here -->
         <action id="Ballerina.NewBallerinaFile" class="io.ballerina.plugins.idea.actions.BallerinaCreateFileAction"
