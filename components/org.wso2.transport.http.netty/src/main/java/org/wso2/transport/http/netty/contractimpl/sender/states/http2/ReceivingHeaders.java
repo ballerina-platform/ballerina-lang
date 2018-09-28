@@ -18,13 +18,29 @@
 package org.wso2.transport.http.netty.contractimpl.sender.states.http2;
 
 import io.netty.channel.ChannelHandlerContext;
+import io.netty.handler.codec.http.DefaultHttpResponse;
+import io.netty.handler.codec.http.DefaultLastHttpContent;
 import io.netty.handler.codec.http.HttpContent;
+import io.netty.handler.codec.http.HttpHeaders;
+import io.netty.handler.codec.http.HttpResponse;
+import io.netty.handler.codec.http.HttpResponseStatus;
+import io.netty.handler.codec.http.HttpVersion;
+import io.netty.handler.codec.http.LastHttpContent;
+import io.netty.handler.codec.http2.Http2Exception;
+import io.netty.handler.codec.http2.Http2Headers;
+import io.netty.handler.codec.http2.HttpConversionUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.wso2.transport.http.netty.contract.Constants;
 import org.wso2.transport.http.netty.contractimpl.common.states.Http2MessageStateContext;
+import org.wso2.transport.http.netty.contractimpl.sender.http2.Http2ClientChannel;
 import org.wso2.transport.http.netty.contractimpl.sender.http2.Http2TargetHandler;
 import org.wso2.transport.http.netty.contractimpl.sender.http2.OutboundMsgHolder;
+import org.wso2.transport.http.netty.message.DefaultListener;
 import org.wso2.transport.http.netty.message.Http2HeadersFrame;
+import org.wso2.transport.http.netty.message.HttpCarbonMessage;
+import org.wso2.transport.http.netty.message.HttpCarbonResponse;
+import org.wso2.transport.http.netty.message.PooledDataStreamerFactory;
 
 /**
  * State between start and end of inbound response headers read.
@@ -33,30 +49,139 @@ public class ReceivingHeaders implements SenderState {
 
     private static final Logger LOG = LoggerFactory.getLogger(ReceivingHeaders.class);
 
+    private final Http2TargetHandler http2TargetHandler;
+    private final Http2ClientChannel http2ClientChannel;
+
+    public ReceivingHeaders(Http2TargetHandler http2TargetHandler) {
+        this.http2TargetHandler = http2TargetHandler;
+        this.http2ClientChannel = http2TargetHandler.getHttp2ClientChannel();
+    }
+
     @Override
-    public void writeOutboundRequestHeaders(Http2TargetHandler.Http2RequestWriter requestWriter,
-                                            ChannelHandlerContext ctx, HttpContent httpContent) {
+    public void writeOutboundRequestHeaders(ChannelHandlerContext ctx, HttpContent httpContent) {
         LOG.warn("writeOutboundRequestHeaders is not a dependant action of this state");
     }
 
     @Override
-    public void writeOutboundRequestEntity(Http2TargetHandler.Http2RequestWriter requestWriter,
-                                           ChannelHandlerContext ctx, HttpContent httpContent) {
+    public void writeOutboundRequestEntity(ChannelHandlerContext ctx, HttpContent httpContent) {
         LOG.warn("writeOutboundRequestEntity is not a dependant action of this state");
     }
 
     @Override
-    public void readInboundResponseHeaders(Http2TargetHandler targetHandler, ChannelHandlerContext ctx, Object msg,
-                                           OutboundMsgHolder outboundMsgHolder, boolean isServerPush,
-                                           Http2MessageStateContext http2MessageStateContext) {
-        targetHandler.onHeadersRead(ctx, (Http2HeadersFrame) msg, outboundMsgHolder, isServerPush,
+    public void readInboundResponseHeaders(ChannelHandlerContext ctx, Object msg, OutboundMsgHolder outboundMsgHolder,
+                                           boolean isServerPush, Http2MessageStateContext http2MessageStateContext) {
+        onHeadersRead(ctx, (Http2HeadersFrame) msg, outboundMsgHolder, isServerPush,
                 http2MessageStateContext);
     }
 
     @Override
-    public void readInboundResponseEntityBody(Http2TargetHandler targetHandler, ChannelHandlerContext ctx, Object msg,
+    public void readInboundResponseEntityBody(ChannelHandlerContext ctx, Object msg,
                                               OutboundMsgHolder outboundMsgHolder, boolean isServerPush,
                                               Http2MessageStateContext http2MessageStateContext) {
         LOG.warn("readInboundResponseEntityBody is not a dependant action of this state");
+    }
+
+    private void onHeadersRead(ChannelHandlerContext ctx, Http2HeadersFrame http2HeadersFrame,
+                               OutboundMsgHolder outboundMsgHolder, boolean isServerPush,
+                               Http2MessageStateContext http2MessageStateContext) {
+        int streamId = http2HeadersFrame.getStreamId();
+        Http2Headers http2Headers = http2HeadersFrame.getHeaders();
+        boolean endOfStream = http2HeadersFrame.isEndOfStream();
+
+        if (isServerPush) {
+            if (endOfStream) {
+                // Retrieve response message.
+                HttpCarbonResponse responseMessage = outboundMsgHolder.getPushResponse(streamId);
+                if (responseMessage != null) {
+                    onTrailersRead(streamId, http2Headers, outboundMsgHolder, responseMessage);
+                } else if (http2Headers.contains(Constants.HTTP2_METHOD)) {
+                    // if the header frame is an initial header frame and also it has endOfStream
+                    responseMessage = setupResponseCarbonMessage(ctx, streamId, http2Headers, outboundMsgHolder);
+                    responseMessage.addHttpContent(new DefaultLastHttpContent());
+                    outboundMsgHolder.addPushResponse(streamId, responseMessage);
+                }
+                http2ClientChannel.removePromisedMessage(streamId);
+                http2MessageStateContext.setSenderState(new EntityBodyReceived(http2TargetHandler));
+            } else {
+                // Create response carbon message.
+                HttpCarbonResponse responseMessage = setupResponseCarbonMessage(ctx, streamId,
+                        http2Headers, outboundMsgHolder);
+                outboundMsgHolder.addPushResponse(streamId, responseMessage);
+                http2MessageStateContext.setSenderState(new ReceivingEntityBody(http2TargetHandler));
+            }
+        } else {
+            if (endOfStream) {
+                // Retrieve response message.
+                HttpCarbonResponse responseMessage = outboundMsgHolder.getResponse();
+                if (responseMessage != null) {
+                    onTrailersRead(streamId, http2Headers, outboundMsgHolder, responseMessage);
+                } else if (http2Headers.contains(Constants.HTTP2_METHOD)) {
+                    // if the header frame is an initial header frame and also it has endOfStream
+                    responseMessage = setupResponseCarbonMessage(ctx, streamId, http2Headers, outboundMsgHolder);
+                    responseMessage.addHttpContent(new DefaultLastHttpContent());
+                    outboundMsgHolder.setResponse(responseMessage);
+                }
+                http2ClientChannel.removeInFlightMessage(streamId);
+                http2MessageStateContext.setSenderState(new EntityBodyReceived(http2TargetHandler));
+            } else {
+                // Create response carbon message.
+                HttpCarbonResponse responseMessage = setupResponseCarbonMessage(ctx, streamId,
+                        http2Headers, outboundMsgHolder);
+                outboundMsgHolder.setResponse(responseMessage);
+                http2MessageStateContext.setSenderState(new ReceivingEntityBody(http2TargetHandler));
+            }
+        }
+    }
+
+    private void onTrailersRead(int streamId, Http2Headers headers, OutboundMsgHolder outboundMsgHolder,
+                                HttpCarbonMessage responseMessage) {
+        HttpVersion version = new HttpVersion(Constants.HTTP_VERSION_2_0, true);
+        LastHttpContent lastHttpContent = new DefaultLastHttpContent();
+        HttpHeaders trailers = lastHttpContent.trailingHeaders();
+
+        try {
+            HttpConversionUtil.addHttp2ToHttpHeaders(streamId, headers, trailers, version, true, false);
+        } catch (Http2Exception e) {
+            outboundMsgHolder.getResponseFuture().
+                    notifyHttpListener(new Exception("Error while setting http headers", e));
+        }
+        responseMessage.addHttpContent(lastHttpContent);
+    }
+
+    private HttpCarbonResponse setupResponseCarbonMessage(ChannelHandlerContext ctx, int streamId,
+                                                          Http2Headers http2Headers,
+                                                          OutboundMsgHolder outboundMsgHolder) {
+        // Create HTTP Response
+        CharSequence status = http2Headers.status();
+        HttpResponseStatus responseStatus;
+        try {
+            responseStatus = HttpConversionUtil.parseStatus(status);
+        } catch (Http2Exception e) {
+            responseStatus = HttpResponseStatus.BAD_GATEWAY;
+        }
+        HttpVersion version = new HttpVersion(Constants.HTTP_VERSION_2_0, true);
+        HttpResponse httpResponse = new DefaultHttpResponse(version, responseStatus);
+
+        // Set headers
+        try {
+            HttpConversionUtil.addHttp2ToHttpHeaders(
+                    streamId, http2Headers, httpResponse.headers(), version, false, false);
+        } catch (Http2Exception e) {
+            outboundMsgHolder.getResponseFuture().
+                    notifyHttpListener(new Exception("Error while setting http headers", e));
+        }
+        // Create HTTP Carbon Response
+        HttpCarbonResponse responseCarbonMsg = new HttpCarbonResponse(httpResponse, new DefaultListener(ctx));
+
+        // Setting properties of the HTTP Carbon Response
+        responseCarbonMsg.setProperty(Constants.POOLED_BYTE_BUFFER_FACTORY, new PooledDataStreamerFactory(ctx.alloc()));
+        responseCarbonMsg.setProperty(Constants.DIRECTION, Constants.DIRECTION_RESPONSE);
+        responseCarbonMsg.setProperty(Constants.HTTP_STATUS_CODE, httpResponse.status().code());
+
+        /* copy required properties for service chaining from incoming carbon message to the response carbon message
+        copy shared worker pool */
+        responseCarbonMsg.setProperty(Constants.EXECUTOR_WORKER_POOL,
+                outboundMsgHolder.getRequest().getProperty(Constants.EXECUTOR_WORKER_POOL));
+        return responseCarbonMsg;
     }
 }

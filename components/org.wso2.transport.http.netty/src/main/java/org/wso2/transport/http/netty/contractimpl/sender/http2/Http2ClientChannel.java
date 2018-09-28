@@ -149,7 +149,7 @@ public class Http2ClientChannel {
      *
      * @param streamId stream id
      */
-    void removeInFlightMessage(int streamId) {
+    public void removeInFlightMessage(int streamId) {
         if (LOG.isDebugEnabled()) {
             LOG.debug("In flight message for stream id: {} removed from channel: {}", streamId, this);
         }
@@ -181,7 +181,7 @@ public class Http2ClientChannel {
      *
      * @param streamId stream id
      */
-    void removePromisedMessage(int streamId) {
+    public void removePromisedMessage(int streamId) {
         promisedMessages.remove(streamId);
     }
 

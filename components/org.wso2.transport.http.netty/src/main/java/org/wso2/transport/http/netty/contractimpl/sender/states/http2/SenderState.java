@@ -21,8 +21,6 @@ import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.http.HttpContent;
 import io.netty.handler.codec.http2.Http2Exception;
 import org.wso2.transport.http.netty.contractimpl.common.states.Http2MessageStateContext;
-import org.wso2.transport.http.netty.contractimpl.sender.http2.Http2TargetHandler;
-import org.wso2.transport.http.netty.contractimpl.sender.http2.Http2TargetHandler.Http2RequestWriter;
 import org.wso2.transport.http.netty.contractimpl.sender.http2.OutboundMsgHolder;
 
 /**
@@ -33,44 +31,36 @@ public interface SenderState {
     /**
      * Write headers of outbound request.
      *
-     * @param requestWriter the request writer
-     * @param ctx           the channel handler context
-     * @param httpContent   the initial content of the entity body
+     * @param ctx         the channel handler context
+     * @param httpContent the initial content of the entity body
      */
-    void writeOutboundRequestHeaders(Http2RequestWriter requestWriter, ChannelHandlerContext ctx,
-                                     HttpContent httpContent) throws Http2Exception;
+    void writeOutboundRequestHeaders(ChannelHandlerContext ctx, HttpContent httpContent) throws Http2Exception;
 
     /**
      * Write entity body of outbound request.
      *
-     * @param requestWriter {@link Http2RequestWriter} is used to write Http2 content to the connection
-     * @param ctx           the channel handler context
-     * @param httpContent   the content of the entity body
+     * @param ctx         the channel handler context
+     * @param httpContent the content of the entity body
      */
-    void writeOutboundRequestEntity(Http2RequestWriter requestWriter, ChannelHandlerContext ctx,
-                                    HttpContent httpContent) throws Http2Exception;
+    void writeOutboundRequestEntity(ChannelHandlerContext ctx, HttpContent httpContent) throws Http2Exception;
 
     /**
      * Read headers of inbound response.
      *
-     * @param targetHandler            the target handler
      * @param ctx                      the channel handler context
      * @param msg                      the HTTP/2 frame
      * @param http2MessageStateContext the message state context
      */
-    void readInboundResponseHeaders(Http2TargetHandler targetHandler, ChannelHandlerContext ctx, Object msg,
-                                    OutboundMsgHolder outboundMsgHolder, boolean isServerPush,
-                                    Http2MessageStateContext http2MessageStateContext);
+    void readInboundResponseHeaders(ChannelHandlerContext ctx, Object msg, OutboundMsgHolder outboundMsgHolder,
+                                    boolean isServerPush, Http2MessageStateContext http2MessageStateContext);
 
     /**
      * Write headers of outbound request.
      *
-     * @param targetHandler            the target handler
      * @param ctx                      the channel handler context
      * @param msg                      the HTTP/2 frame
      * @param http2MessageStateContext the message state context
      */
-    void readInboundResponseEntityBody(Http2TargetHandler targetHandler, ChannelHandlerContext ctx, Object msg,
-                                       OutboundMsgHolder outboundMsgHolder, boolean isServerPush,
-                                       Http2MessageStateContext http2MessageStateContext);
+    void readInboundResponseEntityBody(ChannelHandlerContext ctx, Object msg, OutboundMsgHolder outboundMsgHolder,
+                                       boolean isServerPush, Http2MessageStateContext http2MessageStateContext);
 }

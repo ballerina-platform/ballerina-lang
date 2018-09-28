@@ -102,7 +102,7 @@ public class OutboundMsgHolder {
      * @param streamId     id of the stream in which the push response received
      * @param pushResponse push response message
      */
-    void addPushResponse(int streamId, HttpCarbonResponse pushResponse) {
+    public void addPushResponse(int streamId, HttpCarbonResponse pushResponse) {
         pushResponsesMap.put(streamId, pushResponse);
         responseFuture.notifyPushResponse(streamId, pushResponse);
     }

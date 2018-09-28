@@ -32,30 +32,35 @@ public class RequestCompleted implements SenderState {
 
     private static final Logger LOG = LoggerFactory.getLogger(RequestCompleted.class);
 
+    private final Http2TargetHandler http2TargetHandler;
+
+    RequestCompleted(Http2TargetHandler http2TargetHandler) {
+        this.http2TargetHandler = http2TargetHandler;
+    }
+
     @Override
-    public void writeOutboundRequestHeaders(Http2TargetHandler.Http2RequestWriter requestWriter,
-                                            ChannelHandlerContext ctx, HttpContent httpContent) {
+    public void writeOutboundRequestHeaders(ChannelHandlerContext ctx, HttpContent httpContent) {
         LOG.warn("writeOutboundRequestHeaders is not a dependant action of this state");
     }
 
     @Override
-    public void writeOutboundRequestEntity(Http2TargetHandler.Http2RequestWriter requestWriter,
-                                           ChannelHandlerContext ctx, HttpContent httpContent) {
+    public void writeOutboundRequestEntity(
+            ChannelHandlerContext ctx, HttpContent httpContent) {
         LOG.warn("writeOutboundRequestEntity is not a dependant action of this state");
     }
 
     @Override
-    public void readInboundResponseHeaders(Http2TargetHandler targetHandler, ChannelHandlerContext ctx, Object msg,
+    public void readInboundResponseHeaders(ChannelHandlerContext ctx, Object msg,
                                            OutboundMsgHolder outboundMsgHolder, boolean isServerPush,
                                            Http2MessageStateContext http2MessageStateContext) {
         // When the initial frames of the response is to be received after sending the complete request.
-        http2MessageStateContext.setSenderState(new ReceivingHeaders());
-        http2MessageStateContext.getSenderState().readInboundResponseHeaders(targetHandler, ctx, msg,
-                outboundMsgHolder, isServerPush, http2MessageStateContext);
+        http2MessageStateContext.setSenderState(new ReceivingHeaders(http2TargetHandler));
+        http2MessageStateContext.getSenderState().readInboundResponseHeaders(ctx, msg, outboundMsgHolder,
+                isServerPush, http2MessageStateContext);
     }
 
     @Override
-    public void readInboundResponseEntityBody(Http2TargetHandler targetHandler, ChannelHandlerContext ctx, Object msg,
+    public void readInboundResponseEntityBody(ChannelHandlerContext ctx, Object msg,
                                               OutboundMsgHolder outboundMsgHolder, boolean isServerPush,
                                               Http2MessageStateContext http2MessageStateContext) {
         LOG.warn("readInboundResponseEntityBody is not a dependant action of this state");
