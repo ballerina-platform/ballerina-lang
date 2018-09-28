@@ -1482,7 +1482,7 @@ public class TableTest {
         String payload = "{ \"jdbcUrl\" : \"" + connectionArgs[0] + "\", \"userName\" : \"" + connectionArgs[1] +
                 "\", \"password\" : \"" + connectionArgs[2] + "\"}";
         Header header = new Header(HttpHeaderNames.CONTENT_TYPE.toString(), MimeConstants.APPLICATION_JSON);
-        HTTPTestRequest requestMsg = MessageUtils.generateHTTPMessage("/foo/bar", "POST", Lists.of(header), payload);
+        HTTPTestRequest requestMsg = MessageUtils.generateHTTPMessage("/foo/bar1", "POST", Lists.of(header), payload);
         HttpCarbonMessage responseMsg = Services.invokeNew(service, "testEP", requestMsg);
 
         String expected;
@@ -1588,5 +1588,34 @@ public class TableTest {
         Assert.assertTrue(returns[1] instanceof BInteger);
         Assert.assertEquals(((BInteger) returns[0]).intValue(), 2);
         Assert.assertEquals(((BInteger) returns[1]).intValue(), 2);
+    }
+
+    @Test(description = "Check table to JSON conversion and streaming back to client in a service.",
+            dependsOnMethods = { "testCloseConnectionPool" })
+    public void testTableToJsonStreamingInService_2() {
+        CompileResult service =
+                BServiceUtil.setupProgramFile(this, "test-src/types/table/table_to_json_service_test.bal");
+        String payload = "{ \"jdbcUrl\" : \"" + connectionArgs[0] + "\", \"userName\" : \"" + connectionArgs[1] +
+                "\", \"password\" : \"" + connectionArgs[2] + "\"}";
+        Header header = new Header(HttpHeaderNames.CONTENT_TYPE.toString(), MimeConstants.APPLICATION_JSON);
+        HTTPTestRequest requestMsg = MessageUtils.generateHTTPMessage("/foo/bar2", "POST", Lists.of(header), payload);
+        HttpCarbonMessage responseMsg = Services.invokeNew(service, "testEP", requestMsg);
+
+        String expected;
+        if (dbType == POSTGRES) {
+            expected = "{\"status\":\"SUCCESS\", \"resp\":{\"value\":[{\"int_type\":1, " +
+                    "\"long_type\":9223372036854774807, \"float_type\":123.339996, " +
+                    "\"double_type\":2.139095039E9, \"boolean_type\":true, \"string_type\":\"Hello\"}]}}";
+        } else if (dbType == MYSQL) {
+            expected = "{\"status\":\"SUCCESS\", \"resp\":{\"value\":[{\"int_type\":1, " +
+                    "\"long_type\":9223372036854774807, \"float_type\":123.339996, " +
+                    "\"double_type\":2.139095039E9, \"boolean_type\":true, \"string_type\":\"Hello\"}]}}";
+        } else {
+            expected = "{\"status\":\"SUCCESS\", \"resp\":{\"value\":[{\"INT_TYPE\":1, " +
+                    "\"LONG_TYPE\":9223372036854774807, \"FLOAT_TYPE\":123.34, " +
+                    "\"DOUBLE_TYPE\":2.139095039E9, \"BOOLEAN_TYPE\":true, \"STRING_TYPE\":\"Hello\"}]}}";
+        }
+
+        Assert.assertEquals(ResponseReader.getReturnValue(responseMsg), expected);
     }
 }
