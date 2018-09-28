@@ -30,6 +30,7 @@ import org.slf4j.LoggerFactory;
 import org.wso2.transport.http.netty.contractimpl.sender.http2.Http2ClientChannel;
 import org.wso2.transport.http.netty.contractimpl.sender.http2.Http2DataEventListener;
 import org.wso2.transport.http.netty.contractimpl.sender.http2.OutboundMsgHolder;
+import org.wso2.transport.http.netty.message.Http2PushPromise;
 
 /**
  * HTTP/2 utility functions for states.
@@ -61,8 +62,8 @@ public class Http2StateUtil {
     }
 
     public static int initiateStream(ChannelHandlerContext ctx, Http2Connection connection,
-                               Http2ClientChannel http2ClientChannel,
-                               OutboundMsgHolder outboundMsgHolder) throws Http2Exception {
+                                     Http2ClientChannel http2ClientChannel,
+                                     OutboundMsgHolder outboundMsgHolder) throws Http2Exception {
         int id = getNextStreamId(connection);
         http2ClientChannel.putInFlightMessage(id, outboundMsgHolder);
         http2ClientChannel.getDataEventListeners()
@@ -75,5 +76,24 @@ public class Http2StateUtil {
         connection.local().createStream(nextStreamId, false);
         LOG.debug("Stream created streamId: {}", nextStreamId);
         return nextStreamId;
+    }
+
+    public static void onPushPromiseRead(Http2PushPromise http2PushPromise, Http2ClientChannel http2ClientChannel,
+                                         OutboundMsgHolder outboundMsgHolder) {
+        int streamId = http2PushPromise.getStreamId();
+        int promisedStreamId = http2PushPromise.getPromisedStreamId();
+
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("Received a push promise on channel: {} over stream id: {}, promisedStreamId: {}",
+                    http2ClientChannel, streamId, promisedStreamId);
+        }
+
+        if (outboundMsgHolder == null) {
+            LOG.warn("Push promise received in channel: {} over invalid stream id : {}", http2ClientChannel, streamId);
+            return;
+        }
+        http2ClientChannel.putPromisedMessage(promisedStreamId, outboundMsgHolder);
+        http2PushPromise.setOutboundMsgHolder(outboundMsgHolder);
+        outboundMsgHolder.addPromise(http2PushPromise);
     }
 }

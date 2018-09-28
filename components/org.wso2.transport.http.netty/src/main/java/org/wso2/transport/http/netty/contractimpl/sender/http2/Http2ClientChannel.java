@@ -162,7 +162,7 @@ public class Http2ClientChannel {
      * @param streamId        stream id
      * @param promisedMessage {@code OutboundMsgHolder} which holds the promised message
      */
-    void putPromisedMessage(int streamId, OutboundMsgHolder promisedMessage) {
+    public void putPromisedMessage(int streamId, OutboundMsgHolder promisedMessage) {
         promisedMessages.put(streamId, promisedMessage);
     }
 

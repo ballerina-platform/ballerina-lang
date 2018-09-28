@@ -29,6 +29,7 @@ import org.wso2.transport.http.netty.contractimpl.sender.http2.Http2ClientChanne
 import org.wso2.transport.http.netty.contractimpl.sender.http2.Http2TargetHandler;
 import org.wso2.transport.http.netty.contractimpl.sender.http2.OutboundMsgHolder;
 import org.wso2.transport.http.netty.message.Http2DataFrame;
+import org.wso2.transport.http.netty.message.Http2PushPromise;
 import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 
 /**
@@ -66,6 +67,11 @@ public class ReceivingEntityBody implements SenderState {
     public void readInboundResponseBody(ChannelHandlerContext ctx, Object msg, OutboundMsgHolder outboundMsgHolder,
                                         boolean isServerPush, Http2MessageStateContext http2MessageStateContext) {
         onDataRead((Http2DataFrame) msg, outboundMsgHolder, isServerPush, http2MessageStateContext);
+    }
+
+    @Override
+    public void readInboundPromise(Http2PushPromise http2PushPromise, OutboundMsgHolder outboundMsgHolder) {
+        LOG.warn("readInboundPromise is not a dependant action of this state");
     }
 
     private void onDataRead(Http2DataFrame http2DataFrame, OutboundMsgHolder outboundMsgHolder, boolean isServerPush,

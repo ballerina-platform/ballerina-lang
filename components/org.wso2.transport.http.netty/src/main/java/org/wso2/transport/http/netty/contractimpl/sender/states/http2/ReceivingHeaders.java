@@ -38,6 +38,7 @@ import org.wso2.transport.http.netty.contractimpl.sender.http2.Http2TargetHandle
 import org.wso2.transport.http.netty.contractimpl.sender.http2.OutboundMsgHolder;
 import org.wso2.transport.http.netty.message.DefaultListener;
 import org.wso2.transport.http.netty.message.Http2HeadersFrame;
+import org.wso2.transport.http.netty.message.Http2PushPromise;
 import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 import org.wso2.transport.http.netty.message.HttpCarbonResponse;
 import org.wso2.transport.http.netty.message.PooledDataStreamerFactory;
@@ -77,6 +78,11 @@ public class ReceivingHeaders implements SenderState {
     public void readInboundResponseBody(ChannelHandlerContext ctx, Object msg, OutboundMsgHolder outboundMsgHolder,
                                         boolean isServerPush, Http2MessageStateContext http2MessageStateContext) {
         LOG.warn("readInboundResponseBody is not a dependant action of this state");
+    }
+
+    @Override
+    public void readInboundPromise(Http2PushPromise http2PushPromise, OutboundMsgHolder outboundMsgHolder) {
+        LOG.warn("readInboundPromise is not a dependant action of this state");
     }
 
     private void onHeadersRead(ChannelHandlerContext ctx, Http2HeadersFrame http2HeadersFrame,

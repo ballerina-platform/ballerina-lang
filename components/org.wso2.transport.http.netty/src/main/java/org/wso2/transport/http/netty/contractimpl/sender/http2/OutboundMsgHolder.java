@@ -90,7 +90,7 @@ public class OutboundMsgHolder {
      *
      * @param pushPromise push promise message
      */
-    void addPromise(Http2PushPromise pushPromise) {
+    public void addPromise(Http2PushPromise pushPromise) {
         promises.add(pushPromise);
         responseFuture.notifyPromiseAvailability();
         responseFuture.notifyPushPromise();

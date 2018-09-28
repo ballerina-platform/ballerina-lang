@@ -22,8 +22,11 @@ import io.netty.handler.codec.http.HttpContent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.transport.http.netty.contractimpl.common.states.Http2MessageStateContext;
+import org.wso2.transport.http.netty.contractimpl.common.states.Http2StateUtil;
+import org.wso2.transport.http.netty.contractimpl.sender.http2.Http2ClientChannel;
 import org.wso2.transport.http.netty.contractimpl.sender.http2.Http2TargetHandler;
 import org.wso2.transport.http.netty.contractimpl.sender.http2.OutboundMsgHolder;
+import org.wso2.transport.http.netty.message.Http2PushPromise;
 
 /**
  * State between end of payload write and start of response headers read
@@ -33,9 +36,11 @@ public class RequestCompleted implements SenderState {
     private static final Logger LOG = LoggerFactory.getLogger(RequestCompleted.class);
 
     private final Http2TargetHandler http2TargetHandler;
+    private final Http2ClientChannel http2ClientChannel;
 
-    RequestCompleted(Http2TargetHandler http2TargetHandler) {
+    public RequestCompleted(Http2TargetHandler http2TargetHandler) {
         this.http2TargetHandler = http2TargetHandler;
+        this.http2ClientChannel = http2TargetHandler.getHttp2ClientChannel();
     }
 
     @Override
@@ -61,5 +66,10 @@ public class RequestCompleted implements SenderState {
     public void readInboundResponseBody(ChannelHandlerContext ctx, Object msg, OutboundMsgHolder outboundMsgHolder,
                                         boolean isServerPush, Http2MessageStateContext http2MessageStateContext) {
         LOG.warn("readInboundResponseBody is not a dependant action of this state");
+    }
+
+    @Override
+    public void readInboundPromise(Http2PushPromise http2PushPromise, OutboundMsgHolder outboundMsgHolder) {
+        Http2StateUtil.onPushPromiseRead(http2PushPromise, http2ClientChannel, outboundMsgHolder);
     }
 }

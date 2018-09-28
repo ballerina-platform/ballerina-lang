@@ -36,6 +36,7 @@ import org.wso2.transport.http.netty.contractimpl.sender.http2.Http2ClientChanne
 import org.wso2.transport.http.netty.contractimpl.sender.http2.Http2DataEventListener;
 import org.wso2.transport.http.netty.contractimpl.sender.http2.Http2TargetHandler;
 import org.wso2.transport.http.netty.contractimpl.sender.http2.OutboundMsgHolder;
+import org.wso2.transport.http.netty.message.Http2PushPromise;
 
 /**
  * State between start and end of outbound request entity body write
@@ -85,6 +86,11 @@ public class SendingEntityBody implements SenderState {
     public void readInboundResponseBody(ChannelHandlerContext ctx, Object msg, OutboundMsgHolder outboundMsgHolder,
                                         boolean isServerPush, Http2MessageStateContext http2MessageStateContext) {
         LOG.warn("readInboundResponseEntityBody is not a dependant action of this state");
+    }
+
+    @Override
+    public void readInboundPromise(Http2PushPromise http2PushPromise, OutboundMsgHolder outboundMsgHolder) {
+        Http2StateUtil.onPushPromiseRead(http2PushPromise, http2ClientChannel, outboundMsgHolder);
     }
 
     private void writeContent(ChannelHandlerContext ctx, HttpContent msg) {

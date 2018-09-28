@@ -30,7 +30,7 @@ import io.netty.handler.codec.http2.Http2Exception;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.transport.http.netty.contractimpl.common.states.Http2MessageStateContext;
-import org.wso2.transport.http.netty.contractimpl.sender.states.http2.ReceivingHeaders;
+import org.wso2.transport.http.netty.contractimpl.sender.states.http2.RequestCompleted;
 import org.wso2.transport.http.netty.contractimpl.sender.states.http2.SendingEntityBody;
 import org.wso2.transport.http.netty.contractimpl.sender.states.http2.SendingHeaders;
 import org.wso2.transport.http.netty.message.Http2DataFrame;
@@ -208,17 +208,9 @@ public class Http2TargetHandler extends ChannelDuplexHandler {
                 }
             }
 
-            Http2MessageStateContext http2MessageStateContext =
-                    outboundMsgHolder.getRequest().getHttp2MessageStateContext();
-            if (http2MessageStateContext == null) {
-                http2MessageStateContext = new Http2MessageStateContext();
-                http2MessageStateContext.setSenderState(new ReceivingHeaders(Http2TargetHandler.this));
-                outboundMsgHolder.getRequest().setHttp2MessageStateContext(http2MessageStateContext);
-                http2ClientChannel.putInFlightMessage(streamId, outboundMsgHolder);
-            }
+            Http2MessageStateContext http2MessageStateContext = initHttp2MessageContext(outboundMsgHolder);
             http2MessageStateContext.getSenderState().readInboundResponseHeaders(ctx, msg, outboundMsgHolder,
                     isServerPush, http2MessageStateContext);
-
         } else if (msg instanceof Http2DataFrame) {
             Http2DataFrame http2DataFrame = (Http2DataFrame) msg;
             int streamId = http2DataFrame.getStreamId();
@@ -240,31 +232,16 @@ public class Http2TargetHandler extends ChannelDuplexHandler {
                     outboundMsgHolder.getRequest().getHttp2MessageStateContext();
             http2MessageStateContext.getSenderState().readInboundResponseBody(ctx, msg, outboundMsgHolder,
                     isServerPush, http2MessageStateContext);
-
         } else if (msg instanceof Http2PushPromise) {
-            onPushPromiseRead((Http2PushPromise) msg);
+            Http2PushPromise http2PushPromise = (Http2PushPromise) msg;
+            int streamId = http2PushPromise.getStreamId();
+
+            OutboundMsgHolder outboundMsgHolder = http2ClientChannel.getInFlightMessage(streamId);
+            Http2MessageStateContext http2MessageStateContext = initHttp2MessageContext(outboundMsgHolder);
+            http2MessageStateContext.getSenderState().readInboundPromise(http2PushPromise, outboundMsgHolder);
         } else if (msg instanceof Http2Reset) {
             onResetRead((Http2Reset) msg);
         }
-    }
-
-    private void onPushPromiseRead(Http2PushPromise pushPromise) {
-        int streamId = pushPromise.getStreamId();
-        int promisedStreamId = pushPromise.getPromisedStreamId();
-
-        if (LOG.isDebugEnabled()) {
-            LOG.debug("Received a push promise on channel: {} over stream id: {}, promisedStreamId: {}",
-                    http2ClientChannel, streamId, promisedStreamId);
-        }
-
-        OutboundMsgHolder outboundMsgHolder = http2ClientChannel.getInFlightMessage(streamId);
-        if (outboundMsgHolder == null) {
-            LOG.warn("Push promise received in channel: {} over invalid stream id : {}", http2ClientChannel, streamId);
-            return;
-        }
-        http2ClientChannel.putPromisedMessage(promisedStreamId, outboundMsgHolder);
-        pushPromise.setOutboundMsgHolder(outboundMsgHolder);
-        outboundMsgHolder.addPromise(pushPromise);
     }
 
     private void onResetRead(Http2Reset http2Reset) {
@@ -274,5 +251,15 @@ public class Http2TargetHandler extends ChannelDuplexHandler {
             outboundMsgHolder.getResponseFuture().
                     notifyHttpListener(new Exception("HTTP/2 stream " + streamId + " reset by the remote peer"));
         }
+    }
+
+    private Http2MessageStateContext initHttp2MessageContext(OutboundMsgHolder outboundMsgHolder) {
+        Http2MessageStateContext http2MessageStateContext = outboundMsgHolder.getRequest().getHttp2MessageStateContext();
+        if (http2MessageStateContext == null) {
+            http2MessageStateContext = new Http2MessageStateContext();
+            http2MessageStateContext.setSenderState(new RequestCompleted(this));
+            outboundMsgHolder.getRequest().setHttp2MessageStateContext(http2MessageStateContext);
+        }
+        return http2MessageStateContext;
     }
 }
