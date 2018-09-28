@@ -18,7 +18,6 @@ public class FileSystemSourceInput implements CompilerInput {
     private final Path path;
     private Path packageRoot;
 
-    @Deprecated
     public FileSystemSourceInput(Path path) {
         this.path = path;
     }
