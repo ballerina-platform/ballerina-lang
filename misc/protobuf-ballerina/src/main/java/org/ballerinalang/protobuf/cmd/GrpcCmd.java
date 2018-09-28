@@ -79,7 +79,7 @@ public class GrpcCmd implements BLauncherCmd {
     private String protoPath;
 
     @CommandLine.Option(names = {"--mode"},
-            description = "client or service or both"
+            description = "Ballerina source [service, client, both]"
     )
     private String mode = "both";
 

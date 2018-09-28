@@ -34,6 +34,7 @@ service {{serviceName}} bind listener {
 
     onComplete(endpoint caller) {
             // Implementation goes here.
+            // You should return a {{outputType}}
     }
 {{/streamingFunctions}}{{#nonBlockingFunctions}}{{#equals methodType "SERVER_STREAMING"}}
     @grpc:ResourceConfig { streaming: true } {{/equals}}
