@@ -29,7 +29,6 @@ import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.TopLevelNode;
 import org.ballerinalang.model.tree.statements.StatementNode;
 import org.ballerinalang.util.diagnostic.DiagnosticCode;
-import org.wso2.ballerinalang.compiler.PackageCache;
 import org.wso2.ballerinalang.compiler.PackageLoader;
 import org.wso2.ballerinalang.compiler.desugar.ASTBuilderUtil;
 import org.wso2.ballerinalang.compiler.semantics.model.Scope;
@@ -91,6 +90,7 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangXMLNSStatement;
 import org.wso2.ballerinalang.compiler.tree.types.BLangObjectTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangRecordTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangStructureTypeNode;
+import org.wso2.ballerinalang.compiler.tree.types.BLangType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangUserDefinedType;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.Name;
@@ -102,9 +102,11 @@ import org.wso2.ballerinalang.util.AttachPoints;
 import org.wso2.ballerinalang.util.Flags;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import javax.xml.XMLConstants;
 
@@ -120,7 +122,6 @@ public class SymbolEnter extends BLangNodeVisitor {
 
     private final PackageLoader pkgLoader;
     private final SymbolTable symTable;
-    private final PackageCache packageCache;
     private final Names names;
     private final SymbolResolver symResolver;
     private final BLangDiagnosticLog dlog;
@@ -145,7 +146,6 @@ public class SymbolEnter extends BLangNodeVisitor {
 
         this.pkgLoader = PackageLoader.getInstance(context);
         this.symTable = SymbolTable.getInstance(context);
-        this.packageCache = PackageCache.getInstance(context);
         this.names = Names.getInstance(context);
         this.symResolver = SymbolResolver.getInstance(context);
         this.endpointSPIAnalyzer = EndpointSPIAnalyzer.getInstance(context);
@@ -196,6 +196,9 @@ public class SymbolEnter extends BLangNodeVisitor {
         // Enabled logging errors after type def visit.
         // TODO: Do this in a cleaner way
         pkgEnv.logErrors = true;
+
+        // Sort type definitions with precedence, before defining their members.
+        pkgNode.typeDefinitions.sort(Comparator.comparing(t -> t.precedence));
 
         // Define type def fields (if any)
         defineFields(pkgNode.typeDefinitions, pkgEnv);
@@ -328,6 +331,10 @@ public class SymbolEnter extends BLangNodeVisitor {
         }
         if (typeDefs.size() <= unresolvedTypes.size()) {
             dlog.error(typeDefs.get(0).pos, DiagnosticCode.CYCLIC_TYPE_REFERENCE, unresolvedTypes);
+            // Create and define dummy symbols and continue. This done to keep the remaining compiler
+            // phases running, and to make the semantic validations happen properly.
+            unresolvedTypes.forEach(type -> createDummyTypeDefSymbol(type, env));
+            unresolvedTypes.forEach(type -> defineNode(type, env));
             return;
         }
         defineTypeNodes(unresolvedTypes, env);
@@ -340,6 +347,22 @@ public class SymbolEnter extends BLangNodeVisitor {
             this.unresolvedTypes.add(typeDefinition);
             return;
         }
+
+        // Check for any circular type references
+        if (typeDefinition.typeNode.getKind() == NodeKind.OBJECT_TYPE ||
+                typeDefinition.typeNode.getKind() == NodeKind.RECORD_TYPE) {
+            BLangStructureTypeNode structureTypeNode = (BLangStructureTypeNode) typeDefinition.typeNode;
+            // For each referenced type, check whether the types are already resolved. 
+            // If not, then that type should get a higher precedence.
+            for (BLangType typeRef : structureTypeNode.typeRefs) {
+                BType referencedType = symResolver.resolveTypeNode(typeRef, env);
+                if (referencedType == symTable.noType) {
+                    this.unresolvedTypes.add(typeDefinition);
+                    return;
+                }
+            }
+        }
+
         typeDefinition.precedence = this.typePrecedence++;
         BTypeSymbol typeDefSymbol;
         if (definedType.tsymbol.name != Names.EMPTY) {
@@ -353,7 +376,6 @@ public class SymbolEnter extends BLangNodeVisitor {
         typeDefSymbol.flags |= Flags.asMask(typeDefinition.flagSet);
 
         typeDefinition.symbol = typeDefSymbol;
-
         defineSymbol(typeDefinition.name.pos, typeDefSymbol);
     }
 
@@ -432,14 +454,12 @@ public class SymbolEnter extends BLangNodeVisitor {
 
         invokableEnv.scope = funcNode.symbol.scope;
         defineObjectAttachedInvokableSymbolParams(funcNode, invokableEnv);
-
         if (env.enclPkg.objAttachedFunctions.contains(funcNode.symbol)) {
             dlog.error(funcNode.pos, DiagnosticCode.IMPLEMENTATION_ALREADY_EXIST, funcNode.name);
             return;
         }
 
         env.enclPkg.objAttachedFunctions.add(funcNode.symbol);
-
         funcNode.receiver.symbol = funcNode.symbol.receiverSymbol;
     }
 
@@ -638,7 +658,7 @@ public class SymbolEnter extends BLangNodeVisitor {
             // Reset the name of the symbol to the original var name
             varSymbol.name = varName;
 
-            // This means enclosing type definition is a object type defintion
+            // This means enclosing type definition is a object type definition
             if (env.enclTypeDefinition != null) {
                 BLangObjectTypeNode objectTypeNode = (BLangObjectTypeNode) env.enclTypeDefinition.typeNode;
                 objectTypeNode.initFunction.initFunctionStmts
@@ -825,11 +845,16 @@ public class SymbolEnter extends BLangNodeVisitor {
             BStructureType structureType = (BStructureType) typeDef.symbol.type;
             BLangStructureTypeNode structureTypeNode = (BLangStructureTypeNode) typeDef.typeNode;
             SymbolEnv typeDefEnv = SymbolEnv.createTypeDefEnv(typeDef, typeDef.symbol.scope, pkgEnv);
-            structureType.fields = structureTypeNode.fields.stream()
-                    .peek(field -> defineNode(field, typeDefEnv))
-                    .map(field -> new BField(names.fromIdNode(field.name),
-                            field.symbol, field.expr != null))
-                    .collect(Collectors.toList());
+
+            // Resolve and add the fields of the referenced types to this object.
+            resolveReferencedFields(structureTypeNode, typeDefEnv);
+
+            // Define all the fields
+            structureType.fields =
+                    Stream.concat(structureTypeNode.fields.stream(), structureTypeNode.referencedFields.stream())
+                            .peek(field -> defineNode(field, typeDefEnv))
+                            .map(field -> new BField(names.fromIdNode(field.name), field.symbol, field.expr != null))
+                            .collect(Collectors.toList());
 
             if (typeDef.symbol.kind != SymbolKind.RECORD) {
                 continue;
@@ -838,7 +863,6 @@ public class SymbolEnter extends BLangNodeVisitor {
             BLangRecordTypeNode recordTypeNode = (BLangRecordTypeNode) structureTypeNode;
             BRecordType recordType = (BRecordType) structureType;
             recordType.sealed = recordTypeNode.sealed;
-
             if (recordTypeNode.sealed && recordTypeNode.restFieldType != null) {
                 dlog.error(recordTypeNode.restFieldType.pos, DiagnosticCode.REST_FIELD_NOT_ALLOWED_IN_SEALED_RECORDS);
                 continue;
@@ -870,6 +894,17 @@ public class SymbolEnter extends BLangNodeVisitor {
                     f.setReceiver(ASTBuilderUtil.createReceiver(typeDef.pos, typeDef.symbol.type));
                     defineNode(f, objEnv);
                 });
+
+                // Add the attached functions of the referenced types to this object.
+                // Here it is assumed that all the attached functions of the referred type are 
+                // resolved by the time we reach here. It is achieved by ordering the typeDefs 
+                // according to the precedence.
+                for (BLangType typeRef : objTypeNode.typeRefs) {
+                    List<BAttachedFunction> functions = ((BObjectTypeSymbol) typeRef.type.tsymbol).attachedFuncs;
+                    for (BAttachedFunction function : functions) {
+                        defineReferencedFunction(typeDef, objEnv, typeRef, function);
+                    }
+                }
             } else if (typeDef.symbol.kind == SymbolKind.RECORD) {
                 // Create typeDef type
                 BLangRecordTypeNode recordTypeNode = (BLangRecordTypeNode) typeDef.typeNode;
@@ -945,6 +980,13 @@ public class SymbolEnter extends BLangNodeVisitor {
     }
 
     private void defineSymbol(DiagnosticPos pos, BSymbol symbol) {
+        symbol.scope = new Scope(symbol);
+        if (symResolver.checkForUniqueSymbol(pos, env, symbol, symbol.tag)) {
+            env.scope.define(symbol.name, symbol);
+        }
+    }
+
+    private void defineSymbol(DiagnosticPos pos, BSymbol symbol, SymbolEnv env) {
         symbol.scope = new Scope(symbol);
         if (symResolver.checkForUniqueSymbol(pos, env, symbol, symbol.tag)) {
             env.scope.define(symbol.name, symbol);
@@ -1245,5 +1287,66 @@ public class SymbolEnter extends BLangNodeVisitor {
 
         docAttachment.returnValueDescription = docNode.getReturnParameterDocumentation();
         return docAttachment;
+    }
+
+    private void createDummyTypeDefSymbol(BLangTypeDefinition typeDef, SymbolEnv env) {
+        // This is only to keep the flow running so that at the end there will be proper semantic errors
+        typeDef.symbol = Symbols.createTypeSymbol(SymTag.TYPE_DEF, Flags.asMask(typeDef.flagSet),
+                names.fromIdNode(typeDef.name), env.enclPkg.symbol.pkgID, null, env.scope.owner);
+        defineSymbol(typeDef.pos, typeDef.symbol, env);
+    }
+
+    private void resolveReferencedFields(BLangStructureTypeNode structureTypeNode, SymbolEnv typeDefEnv) {
+        // Get the inherited fields from the type references
+        structureTypeNode.referencedFields = structureTypeNode.typeRefs.stream().flatMap(typeRef -> {
+            BType referredType = symResolver.resolveTypeNode(typeRef, typeDefEnv);
+            if (referredType == symTable.errType) {
+                return Stream.empty();
+            }
+
+            if (referredType.tag != TypeTags.OBJECT || !Symbols.isFlagOn(referredType.tsymbol.flags, Flags.ABSTRACT)) {
+                dlog.error(typeRef.pos, DiagnosticCode.INCOMPATIBLE_TYPE_REFERENCE, typeRef);
+                return Stream.empty();
+            }
+
+            // Here it is assumed that all the fields of the referenced types are resolved
+            // by the time we reach here. It is achieved by ordering the typeDefs according
+            // to the precedence.
+            // Default values of fields are not inherited.
+            return ((BStructureType) referredType).fields.stream()
+                    .map(field -> ASTBuilderUtil.createVariable(typeRef.pos, field.name.value, field.type));
+        }).collect(Collectors.toList());
+    }
+
+    private void defineReferencedFunction(BLangTypeDefinition typeDef, SymbolEnv objEnv, BLangType typeRef,
+                                          BAttachedFunction function) {
+        // If the function is already defined within the object(i.e: there exists an
+        // implementation within the object), then skip.
+        Name funcName = names.fromString(
+                Symbols.getAttachedFuncSymbolName(typeDef.symbol.name.value, function.funcName.value));
+        BSymbol symbol = symResolver.lookupSymbol(objEnv, funcName, SymTag.VARIABLE);
+        if (symbol != symTable.notFoundSymbol) {
+            return;
+        }
+
+        // If not, define the function symbol within the object
+        BInvokableSymbol funcSymbol = ASTBuilderUtil.duplicateInvokableSymbol(function.symbol, typeDef.symbol, funcName);
+        defineSymbol(typeRef.pos, funcSymbol, objEnv);
+
+        // Create and define the parameters and receiver. This should be done after defining the function symbol.
+        SymbolEnv funcEnv = SymbolEnv.createFunctionEnv(null, funcSymbol.scope, objEnv);
+        funcSymbol.params.forEach(param -> defineSymbol(typeRef.pos, param, funcEnv));
+        funcSymbol.defaultableParams.forEach(param -> defineSymbol(typeRef.pos, param, funcEnv));
+        if (funcSymbol.restParam != null) {
+            defineSymbol(typeRef.pos, funcSymbol.restParam, funcEnv);
+        }
+        funcSymbol.receiverSymbol =
+                defineVarSymbol(typeDef.pos, typeDef.flagSet, typeDef.symbol.type, Names.SELF, funcEnv);
+
+        // Cache the function symbol.
+        BAttachedFunction attachedFunc =
+                new BAttachedFunction(function.funcName, funcSymbol, (BInvokableType) funcSymbol.type);
+        ((BObjectTypeSymbol) typeDef.symbol).attachedFuncs.add(attachedFunc);
+        ((BObjectTypeSymbol) typeDef.symbol).referencedFunctions.add(funcSymbol);
     }
 }

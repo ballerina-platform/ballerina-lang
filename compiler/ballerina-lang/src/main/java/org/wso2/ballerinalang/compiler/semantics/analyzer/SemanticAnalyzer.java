@@ -334,6 +334,10 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         objectTypeNode.fields.forEach(field -> analyzeDef(field, env));
         objectTypeNode.functions.forEach(f -> analyzeDef(f, env));
 
+        // Validate the referenced functions that don't have implementations within the function.
+        ((BObjectTypeSymbol) objectTypeNode.symbol).referencedFunctions
+                .forEach(funcSymbol -> validateReferencedFunction(objectTypeNode.pos, funcSymbol, env));
+
         if (objectTypeNode.initFunction == null) {
             return;
         }
@@ -2025,7 +2029,6 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
      * Validate functions attached to objects.
      * 
      * @param funcNode Function node
-     * @return True if the function is an unimplemented method inside a non-abstract object.
      */
     private void validateObjectAttachedFunction(BLangFunction funcNode) {
         if (funcNode.attachedOuterFunction) {
@@ -2046,7 +2049,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             return;
         }
 
-        // If the function is attached to an abstract object, it don't need to have an implementation
+        // If the function is attached to an abstract object, it don't need to have an implementation.
         if (Symbols.isFlagOn(funcNode.receiver.type.tsymbol.flags, Flags.ABSTRACT)) {
             if (funcNode.body != null) {
                 dlog.error(funcNode.pos, DiagnosticCode.ABSTRACT_OBJECT_FUNCTION_CANNOT_HAVE_BODY, funcNode.name,
@@ -2055,10 +2058,36 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             return;
         }
 
-        // There must be an implementation at the outer level, if the function is an interface
+        // There must be an implementation at the outer level, if the function is an interface.
         if (funcNode.interfaceFunction && !env.enclPkg.objAttachedFunctions.contains(funcNode.symbol)) {
             dlog.error(funcNode.pos, DiagnosticCode.INVALID_INTERFACE_ON_NON_ABSTRACT_OBJECT, funcNode.name,
                     funcNode.receiver.type);
         }
+    }
+
+    private void validateReferencedFunction(DiagnosticPos pos, BInvokableSymbol funcSymbol, SymbolEnv env) {
+        if (Symbols.isFlagOn(funcSymbol.receiverSymbol.type.tsymbol.flags, Flags.ABSTRACT)) {
+            return;
+        }
+
+        if (!Symbols.isFlagOn(funcSymbol.flags, Flags.INTERFACE)) {
+            return;
+        }
+
+        // There must be an implementation at the outer level, if the function is an interface.
+        if (!env.enclPkg.objAttachedFunctions.contains(funcSymbol)) {
+            dlog.error(pos, DiagnosticCode.INVALID_INTERFACE_ON_NON_ABSTRACT_OBJECT,
+                    getAttachedFunctionName(funcSymbol), funcSymbol.receiverSymbol.type);
+        }
+    }
+
+    private String getAttachedFunctionName(BInvokableSymbol funcSymbol) {
+        String objectName = funcSymbol.owner.name.value;
+        if (!funcSymbol.name.value.startsWith(objectName)) {
+            return funcSymbol.name.value;
+        }
+
+        int startIndex = objectName.length() + 1;
+        return funcSymbol.name.value.substring(startIndex);
     }
 }

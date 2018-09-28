@@ -42,6 +42,8 @@ public class BInvokableSymbol extends BVarSymbol implements InvokableSymbol {
 
     // This field is only applicable for functions at the moment.
     public BVarSymbol receiverSymbol;
+    
+    // FIXME: remove. Use interface flag instead.
     public boolean bodyExist;
 
     public BInvokableSymbol(int tag,

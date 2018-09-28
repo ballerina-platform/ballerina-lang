@@ -33,6 +33,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BOperatorSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
@@ -79,6 +80,7 @@ import org.wso2.ballerinalang.util.Lists;
 import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Some utils methods for building AST nodes at desugar phase.
@@ -458,11 +460,11 @@ public class ASTBuilderUtil {
         return varNode;
     }
 
-    static BLangVariable createVariable(DiagnosticPos pos, String name, BType type) {
+    public static BLangVariable createVariable(DiagnosticPos pos, String name, BType type) {
         return createVariable(pos, name, type, null, null);
     }
 
-    static BLangVariableDef createVariableDef(DiagnosticPos pos, BLangVariable variable) {
+    public static BLangVariableDef createVariableDef(DiagnosticPos pos, BLangVariable variable) {
         final BLangVariableDef variableDef = (BLangVariableDef) TreeBuilder.createVariableDefinitionNode();
         variableDef.pos = pos;
         variableDef.var = variable;
@@ -552,7 +554,7 @@ public class ASTBuilderUtil {
         return tableLiteralNode;
     }
 
-    static BLangIdentifier createIdentifier(DiagnosticPos pos, String value) {
+    public static BLangIdentifier createIdentifier(DiagnosticPos pos, String value) {
         final BLangIdentifier node = (BLangIdentifier) TreeBuilder.createIdentifierNode();
         node.pos = pos;
         if (value != null) {
@@ -631,5 +633,62 @@ public class ASTBuilderUtil {
             node.setValue(value);
         }
         return node;
+    }
+
+    public static BInvokableSymbol duplicateInvokableSymbol(BInvokableSymbol invokableSymbol) {
+        BInvokableSymbol dupFuncSymbol = Symbols.createFunctionSymbol(invokableSymbol.flags, invokableSymbol.name,
+                invokableSymbol.pkgID, invokableSymbol.type, invokableSymbol.owner, invokableSymbol.bodyExist);
+        dupFuncSymbol.receiverSymbol = invokableSymbol.receiverSymbol;
+        dupFuncSymbol.retType = invokableSymbol.retType;
+        dupFuncSymbol.defaultableParams = invokableSymbol.defaultableParams;
+        dupFuncSymbol.restParam = invokableSymbol.restParam;
+        dupFuncSymbol.params = new ArrayList<>(invokableSymbol.params);
+        dupFuncSymbol.taintTable = invokableSymbol.taintTable;
+        dupFuncSymbol.tainted = invokableSymbol.tainted;
+        dupFuncSymbol.closure = invokableSymbol.closure;
+        dupFuncSymbol.markdownDocumentation = invokableSymbol.markdownDocumentation;
+        dupFuncSymbol.scope = invokableSymbol.scope;
+
+        BInvokableType prevFuncType = (BInvokableType) invokableSymbol.type;
+        dupFuncSymbol.type = new BInvokableType(new ArrayList<>(prevFuncType.paramTypes),
+                prevFuncType.retType, prevFuncType.tsymbol);
+        return dupFuncSymbol;
+    }
+
+    public static BInvokableSymbol duplicateInvokableSymbol(BInvokableSymbol invokableSymbol, BSymbol owner,
+                                                            Name newName) {
+        BInvokableSymbol dupFuncSymbol = Symbols.createFunctionSymbol(invokableSymbol.flags, newName,
+                invokableSymbol.pkgID, invokableSymbol.type, owner, invokableSymbol.bodyExist);
+        dupFuncSymbol.receiverSymbol = invokableSymbol.receiverSymbol;
+        dupFuncSymbol.retType = invokableSymbol.retType;
+        
+        dupFuncSymbol.defaultableParams = invokableSymbol.defaultableParams.stream()
+                .map(param -> duplicateParamSymbol(param, dupFuncSymbol))
+                .collect(Collectors.toList());
+        dupFuncSymbol.params = invokableSymbol.params.stream()
+                .map(param -> duplicateParamSymbol(param, dupFuncSymbol))
+                .collect(Collectors.toList());
+        if (dupFuncSymbol.restParam != null) {
+            dupFuncSymbol.restParam = duplicateParamSymbol(invokableSymbol.restParam, dupFuncSymbol);
+        }
+        
+        dupFuncSymbol.taintTable = invokableSymbol.taintTable;
+        dupFuncSymbol.tainted = invokableSymbol.tainted;
+        dupFuncSymbol.closure = invokableSymbol.closure;
+        dupFuncSymbol.markdownDocumentation = invokableSymbol.markdownDocumentation;
+
+        BInvokableType prevFuncType = (BInvokableType) invokableSymbol.type;
+        dupFuncSymbol.type = new BInvokableType(new ArrayList<>(prevFuncType.paramTypes), prevFuncType.retType,
+                prevFuncType.tsymbol);
+        return dupFuncSymbol;
+    }
+
+    public static BVarSymbol duplicateParamSymbol(BVarSymbol paramSymbol, BInvokableSymbol owner) {
+        BVarSymbol newParamSymbol =
+                new BVarSymbol(paramSymbol.flags, paramSymbol.name, paramSymbol.pkgID, paramSymbol.type, owner);
+        newParamSymbol.tainted = paramSymbol.tainted;
+        newParamSymbol.defaultValue = paramSymbol.defaultValue;
+        newParamSymbol.markdownDocumentation = paramSymbol.markdownDocumentation;
+        return newParamSymbol;
     }
 }

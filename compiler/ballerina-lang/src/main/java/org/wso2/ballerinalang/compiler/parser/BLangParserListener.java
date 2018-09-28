@@ -457,9 +457,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
             return;
         }
 
-        this.pkgBuilder.startVarList();
-        this.pkgBuilder.startObjFunctionList();
-        this.pkgBuilder.startFieldBlockList();
+        this.pkgBuilder.startObjectType();
     }
 
     /**
