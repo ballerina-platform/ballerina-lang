@@ -209,8 +209,8 @@ public class Http2TargetHandler extends ChannelDuplexHandler {
             }
 
             Http2MessageStateContext http2MessageStateContext = initHttp2MessageContext(outboundMsgHolder);
-            http2MessageStateContext.getSenderState().readInboundResponseHeaders(ctx, msg, outboundMsgHolder,
-                    isServerPush, http2MessageStateContext);
+            http2MessageStateContext.getSenderState().readInboundResponseHeaders(ctx, http2HeadersFrame,
+                    outboundMsgHolder, isServerPush, http2MessageStateContext);
         } else if (msg instanceof Http2DataFrame) {
             Http2DataFrame http2DataFrame = (Http2DataFrame) msg;
             int streamId = http2DataFrame.getStreamId();
@@ -229,8 +229,8 @@ public class Http2TargetHandler extends ChannelDuplexHandler {
             }
 
             Http2MessageStateContext http2MessageStateContext = getHttp2MessageContext(outboundMsgHolder);
-            http2MessageStateContext.getSenderState().readInboundResponseBody(ctx, msg, outboundMsgHolder,
-                    isServerPush, http2MessageStateContext);
+            http2MessageStateContext.getSenderState().readInboundResponseBody(ctx, http2DataFrame,
+                    outboundMsgHolder, isServerPush, http2MessageStateContext);
         } else if (msg instanceof Http2PushPromise) {
             Http2PushPromise http2PushPromise = (Http2PushPromise) msg;
             int streamId = http2PushPromise.getStreamId();

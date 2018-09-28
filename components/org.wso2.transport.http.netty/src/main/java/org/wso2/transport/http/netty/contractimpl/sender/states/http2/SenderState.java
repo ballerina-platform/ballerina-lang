@@ -22,6 +22,8 @@ import io.netty.handler.codec.http.HttpContent;
 import io.netty.handler.codec.http2.Http2Exception;
 import org.wso2.transport.http.netty.contractimpl.common.states.Http2MessageStateContext;
 import org.wso2.transport.http.netty.contractimpl.sender.http2.OutboundMsgHolder;
+import org.wso2.transport.http.netty.message.Http2DataFrame;
+import org.wso2.transport.http.netty.message.Http2HeadersFrame;
 import org.wso2.transport.http.netty.message.Http2PushPromise;
 
 /**
@@ -49,25 +51,27 @@ public interface SenderState {
      * Read headers of inbound response.
      *
      * @param ctx                      the channel handler context
-     * @param msg                      the HTTP/2 frame
+     * @param http2HeadersFrame        the HTTP/2 header frame
      * @param outboundMsgHolder        the outbound message holder
      * @param isServerPush             is this a server push response or not
      * @param http2MessageStateContext the message state context
      */
-    void readInboundResponseHeaders(ChannelHandlerContext ctx, Object msg, OutboundMsgHolder outboundMsgHolder,
-                                    boolean isServerPush, Http2MessageStateContext http2MessageStateContext);
+    void readInboundResponseHeaders(ChannelHandlerContext ctx, Http2HeadersFrame http2HeadersFrame,
+                                    OutboundMsgHolder outboundMsgHolder, boolean isServerPush,
+                                    Http2MessageStateContext http2MessageStateContext);
 
     /**
      * Write headers of outbound request.
      *
      * @param ctx                      the channel handler context
-     * @param msg                      the HTTP/2 frame
+     * @param http2DataFrame           the HTTP/2 data frame
      * @param outboundMsgHolder        the outbound message holder
      * @param isServerPush             is this a server push response or not
      * @param http2MessageStateContext the message state context
      */
-    void readInboundResponseBody(ChannelHandlerContext ctx, Object msg, OutboundMsgHolder outboundMsgHolder,
-                                 boolean isServerPush, Http2MessageStateContext http2MessageStateContext);
+    void readInboundResponseBody(ChannelHandlerContext ctx, Http2DataFrame http2DataFrame,
+                                 OutboundMsgHolder outboundMsgHolder, boolean isServerPush,
+                                 Http2MessageStateContext http2MessageStateContext);
 
     /**
      * Read inbound promise.

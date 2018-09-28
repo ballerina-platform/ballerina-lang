@@ -29,6 +29,7 @@ import org.wso2.transport.http.netty.contractimpl.sender.http2.Http2ClientChanne
 import org.wso2.transport.http.netty.contractimpl.sender.http2.Http2TargetHandler;
 import org.wso2.transport.http.netty.contractimpl.sender.http2.OutboundMsgHolder;
 import org.wso2.transport.http.netty.message.Http2DataFrame;
+import org.wso2.transport.http.netty.message.Http2HeadersFrame;
 import org.wso2.transport.http.netty.message.Http2PushPromise;
 import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 
@@ -58,15 +59,17 @@ public class ReceivingEntityBody implements SenderState {
     }
 
     @Override
-    public void readInboundResponseHeaders(ChannelHandlerContext ctx, Object msg, OutboundMsgHolder outboundMsgHolder,
-                                           boolean isServerPush, Http2MessageStateContext http2MessageStateContext) {
+    public void readInboundResponseHeaders(ChannelHandlerContext ctx, Http2HeadersFrame http2HeadersFrame,
+                                           OutboundMsgHolder outboundMsgHolder, boolean isServerPush,
+                                           Http2MessageStateContext http2MessageStateContext) {
         LOG.warn("readInboundResponseHeaders is not a dependant action of this state");
     }
 
     @Override
-    public void readInboundResponseBody(ChannelHandlerContext ctx, Object msg, OutboundMsgHolder outboundMsgHolder,
-                                        boolean isServerPush, Http2MessageStateContext http2MessageStateContext) {
-        onDataRead((Http2DataFrame) msg, outboundMsgHolder, isServerPush, http2MessageStateContext);
+    public void readInboundResponseBody(ChannelHandlerContext ctx, Http2DataFrame http2DataFrame,
+                                        OutboundMsgHolder outboundMsgHolder, boolean isServerPush,
+                                        Http2MessageStateContext http2MessageStateContext) {
+        onDataRead(http2DataFrame, outboundMsgHolder, isServerPush, http2MessageStateContext);
     }
 
     @Override

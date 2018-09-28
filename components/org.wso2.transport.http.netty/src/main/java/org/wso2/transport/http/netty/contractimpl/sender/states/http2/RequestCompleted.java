@@ -26,6 +26,8 @@ import org.wso2.transport.http.netty.contractimpl.common.states.Http2StateUtil;
 import org.wso2.transport.http.netty.contractimpl.sender.http2.Http2ClientChannel;
 import org.wso2.transport.http.netty.contractimpl.sender.http2.Http2TargetHandler;
 import org.wso2.transport.http.netty.contractimpl.sender.http2.OutboundMsgHolder;
+import org.wso2.transport.http.netty.message.Http2DataFrame;
+import org.wso2.transport.http.netty.message.Http2HeadersFrame;
 import org.wso2.transport.http.netty.message.Http2PushPromise;
 
 /**
@@ -54,17 +56,19 @@ public class RequestCompleted implements SenderState {
     }
 
     @Override
-    public void readInboundResponseHeaders(ChannelHandlerContext ctx, Object msg, OutboundMsgHolder outboundMsgHolder,
-                                           boolean isServerPush, Http2MessageStateContext http2MessageStateContext) {
+    public void readInboundResponseHeaders(ChannelHandlerContext ctx, Http2HeadersFrame http2HeadersFrame,
+                                           OutboundMsgHolder outboundMsgHolder, boolean isServerPush,
+                                           Http2MessageStateContext http2MessageStateContext) {
         // When the initial frames of the response is to be received after sending the complete request.
         http2MessageStateContext.setSenderState(new ReceivingHeaders(http2TargetHandler));
-        http2MessageStateContext.getSenderState().readInboundResponseHeaders(ctx, msg, outboundMsgHolder,
+        http2MessageStateContext.getSenderState().readInboundResponseHeaders(ctx, http2HeadersFrame, outboundMsgHolder,
                 isServerPush, http2MessageStateContext);
     }
 
     @Override
-    public void readInboundResponseBody(ChannelHandlerContext ctx, Object msg, OutboundMsgHolder outboundMsgHolder,
-                                        boolean isServerPush, Http2MessageStateContext http2MessageStateContext) {
+    public void readInboundResponseBody(ChannelHandlerContext ctx, Http2DataFrame http2DataFrame,
+                                        OutboundMsgHolder outboundMsgHolder, boolean isServerPush,
+                                        Http2MessageStateContext http2MessageStateContext) {
         LOG.warn("readInboundResponseBody is not a dependant action of this state");
     }
 
