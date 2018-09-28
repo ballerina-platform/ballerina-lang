@@ -22,6 +22,15 @@ import org.ballerinalang.langserver.compiler.workspace.WorkspaceDocumentManagerI
 import org.ballerinalang.langserver.extensions.ExtendedLanguageServer;
 import org.ballerinalang.langserver.extensions.ballerina.document.BallerinaDocumentService;
 import org.ballerinalang.langserver.extensions.ballerina.document.BallerinaDocumentServiceImpl;
+import org.ballerinalang.langserver.extensions.ballerina.example.BallerinaExampleService;
+import org.ballerinalang.langserver.extensions.ballerina.example.BallerinaExampleServiceImpl;
+import org.ballerinalang.langserver.extensions.ballerina.fragment.BallerinaFragmentService;
+import org.ballerinalang.langserver.extensions.ballerina.fragment.BallerinaFragmentServiceImpl;
+import org.ballerinalang.langserver.extensions.ballerina.symbol.BallerinaSymbolService;
+import org.ballerinalang.langserver.extensions.ballerina.symbol.BallerinaSymbolServiceImpl;
+import org.ballerinalang.langserver.extensions.ballerina.traces.BallerinaTraceService;
+import org.ballerinalang.langserver.extensions.ballerina.traces.BallerinaTraceServiceImpl;
+import org.ballerinalang.langserver.extensions.ballerina.traces.Listener;
 import org.ballerinalang.langserver.index.LSIndexImpl;
 import org.eclipse.lsp4j.CompletionOptions;
 import org.eclipse.lsp4j.ExecuteCommandOptions;
@@ -39,6 +48,7 @@ import org.eclipse.lsp4j.services.WorkspaceService;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
@@ -50,6 +60,11 @@ public class BallerinaLanguageServer implements ExtendedLanguageServer, Language
     private TextDocumentService textService;
     private WorkspaceService workspaceService;
     private BallerinaDocumentService ballerinaDocumentService;
+    private BallerinaExampleService ballerinaExampleService;
+    private BallerinaTraceService ballerinaTraceService;
+    private Listener ballerinaTraceListener;
+    private BallerinaSymbolService ballerinaSymbolService;
+    private BallerinaFragmentService ballerinaFragmentService;
     private int shutdown = 1;
 
     public BallerinaLanguageServer() {
@@ -63,11 +78,17 @@ public class BallerinaLanguageServer implements ExtendedLanguageServer, Language
         lsGlobalContext.put(LSGlobalContextKeys.DOCUMENT_MANAGER_KEY, documentManager);
         this.textService = new BallerinaTextDocumentService(lsGlobalContext);
         this.workspaceService = new BallerinaWorkspaceService(lsGlobalContext);
-        this.ballerinaDocumentService = new BallerinaDocumentServiceImpl(lsGlobalContext);
+        this.ballerinaDocumentService = new BallerinaDocumentServiceImpl(lsGlobalContext); 
+        ballerinaExampleService = new BallerinaExampleServiceImpl(lsGlobalContext);
+        ballerinaTraceService = new BallerinaTraceServiceImpl(lsGlobalContext);
+        ballerinaTraceListener = new Listener(ballerinaTraceService);
+        ballerinaSymbolService = new BallerinaSymbolServiceImpl(lsGlobalContext);
+        ballerinaFragmentService = new BallerinaFragmentServiceImpl(lsGlobalContext);
+       
         LSAnnotationCache.initiate();
         initLSIndex();
     }
-
+    
     public LanguageClient getClient() {
         return this.client;
     }
@@ -102,11 +123,19 @@ public class BallerinaLanguageServer implements ExtendedLanguageServer, Language
         TextDocumentClientCapabilities textDocCapabilities = params.getCapabilities().getTextDocument();
         ((BallerinaTextDocumentService) this.textService).setClientCapabilities(textDocCapabilities);
 
+        HashMap<String, Boolean> experimentalCapabilities =
+                (HashMap<String, Boolean>) params.getCapabilities().getExperimental();
+
+        if (experimentalCapabilities != null && experimentalCapabilities.get("introspection")) {
+            ballerinaTraceListener.startListener();
+        }
+
         return CompletableFuture.supplyAsync(() -> res);
     }
 
     public CompletableFuture<Object> shutdown() {
         shutdown = 0;
+        ballerinaTraceListener.stopListener();
         LSIndexImpl.getInstance().closeConnection();
         return CompletableFuture.supplyAsync(Object::new);
     }
@@ -126,12 +155,30 @@ public class BallerinaLanguageServer implements ExtendedLanguageServer, Language
     public BallerinaDocumentService getBallerinaDocumentService() {
         return this.ballerinaDocumentService;
     }
+    @Override
+    public BallerinaExampleService getBallerinaExampleService() {
+        return this.ballerinaExampleService;
+    }
+
+    @Override
+    public BallerinaTraceService getBallerinaTraceService() {
+        return this.ballerinaTraceService;
+    }
 
     @Override
     public void connect(LanguageClient languageClient) {
         this.client = languageClient;
     }
-    
+
+    public BallerinaSymbolService getBallerinaSymbolService() {
+        return ballerinaSymbolService;
+    }
+
+    @Override
+    public BallerinaFragmentService getBallerinaFragmentService() {
+        return ballerinaFragmentService;
+    }
+
     // Private Methods
 
     private void initLSIndex() {

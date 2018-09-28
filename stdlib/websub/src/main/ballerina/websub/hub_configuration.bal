@@ -48,6 +48,8 @@ import ballerina/log;
 @readonly http:SecureSocket? hubClientSecureSocket = ();
 
 # Function to bind and start the Ballerina WebSub Hub service.
+#
+# + return - The `http:Listener` to which the service is bound
 function startHubService() returns http:Listener {
     http:Listener hubServiceEP = new;
     hubServiceEP.init({

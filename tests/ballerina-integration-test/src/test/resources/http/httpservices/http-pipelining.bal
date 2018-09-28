@@ -25,9 +25,9 @@ service<http:Service> pipeliningTest bind { port: 9220 } {
         http:Response response = new;
 
         if (req.hasHeader("message-id")) {
-            //Request one roughly takes 2 seconds to prepare its response
+            //Request one roughly takes 4 seconds to prepare its response
             if (req.getHeader("message-id") == "request-one") {
-                runtime:sleep(2000);
+                runtime:sleep(4000);
                 response.setHeader("message-id", "response-one");
                 response.setPayload("Hello1");
             }

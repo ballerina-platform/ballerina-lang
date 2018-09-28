@@ -28,7 +28,7 @@ import io.ballerina.plugins.idea.psi.*;
 
 public class BallerinaTupleDestructuringStatementImpl extends BallerinaCompositeElementImpl implements BallerinaTupleDestructuringStatement {
 
-  public BallerinaTupleDestructuringStatementImpl(ASTNode node) {
+  public BallerinaTupleDestructuringStatementImpl(@NotNull ASTNode node) {
     super(node);
   }
 

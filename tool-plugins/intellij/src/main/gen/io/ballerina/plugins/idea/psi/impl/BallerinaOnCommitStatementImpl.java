@@ -28,7 +28,7 @@ import io.ballerina.plugins.idea.psi.*;
 
 public class BallerinaOnCommitStatementImpl extends BallerinaCompositeElementImpl implements BallerinaOnCommitStatement {
 
-  public BallerinaOnCommitStatementImpl(ASTNode node) {
+  public BallerinaOnCommitStatementImpl(@NotNull ASTNode node) {
     super(node);
   }
 

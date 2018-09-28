@@ -20,6 +20,7 @@
 # + negotiatedSubProtocol - The subprotocols negoriated with the server
 # + isSecure - `true` if the connection is secure
 # + isOpen - `true` if the connection is open
+# + response - Represents the HTTP response
 # + attributes - A map to store connection related attributes
 public type WebSocketClient object {
 
@@ -69,12 +70,12 @@ public type WebSocketClient object {
     #                    `WebSocketClient`needs to be called once to start receiving messages.
     # + secureSocket - SSL/TLS related options
 public type WebSocketClientEndpointConfig record {
-    string url,
-    typedesc? callbackService,
-    string[] subProtocols,
-    map<string> customHeaders,
-    int idleTimeoutInSeconds = -1,
-    boolean readyOnConnect = true,
-    SecureSocket? secureSocket,
+    string url;
+    typedesc? callbackService;
+    string[] subProtocols;
+    map<string> customHeaders;
+    int idleTimeoutInSeconds = -1;
+    boolean readyOnConnect = true;
+    SecureSocket? secureSocket;
     !...
 };

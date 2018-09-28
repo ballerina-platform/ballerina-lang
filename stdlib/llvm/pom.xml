@@ -153,4 +153,7 @@
         </plugins>
     </build>
 
+    <properties>
+        <maven.checkstyleplugin.excludes>**/generated/**</maven.checkstyleplugin.excludes>
+    </properties>
 </project>

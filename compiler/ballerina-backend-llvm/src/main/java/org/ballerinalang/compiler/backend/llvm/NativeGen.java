@@ -203,8 +203,8 @@ public class NativeGen {
     }
 
     private static byte[] getBinaryForm(BIRPackage bir) {
-        BIRBinaryWriter binaryWriter = new BIRBinaryWriter();
-        return binaryWriter.write(bir);
+        BIRBinaryWriter binaryWriter = new BIRBinaryWriter(bir);
+        return binaryWriter.serialize();
     }
 
     private static void genExecutable(Path objectFilePath, String execFilename) {

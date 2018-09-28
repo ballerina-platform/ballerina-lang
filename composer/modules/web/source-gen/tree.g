@@ -21,7 +21,7 @@ Action
    ;
 
 Annotation
-   : <annotationAttachments>* annotation < <attachmentPoints-joined-by-,>* > <name.value> <typeNode.source> ;
+   : <annotationAttachments>* annotation < <attachmentPoints-joined-by,>* > <name.value> <typeNode.source> ;
    ;
 
 AnnotationAttachment
@@ -323,12 +323,48 @@ Next
    : continue ;
    ;
 
+OutputRateLimit
+   | <snapshot?> output snapshot                  every <rateLimitValue> <timeScale>
+   :             output          <outputRateType> every <rateLimitValue> <timeScale>
+   |             output          <outputRateType> every <rateLimitValue>             events
+   ;
+
 OrderBy
    : order by <variables-joined-by,>*
    ;
 
 OrderByVariable
-   : <variableReference.source> <orderByType>
+   : <noVisibleType?> <variableReference.source>
+   |                  <variableReference.source> <typeString>
+   ;
+
+PatternClause
+   : <forAllEvents?> every <patternStreamingNode.source> <withinClause.source>
+   | <forAllEvents?> every <patternStreamingNode.source>
+   |                       <patternStreamingNode.source> <withinClause.source>
+   |                       <patternStreamingNode.source>
+   ;
+
+PatternStreamingInput
+   : <followedBy?> <patternStreamingEdgeInputs>* followed by                     <patternStreamingInput.source>
+   : <commaSeparated?> <patternStreamingEdgeInputs>* ,                           <patternStreamingInput.source>
+   | <enclosedInParenthesis?>                                                  ( <patternStreamingInput.source> )
+   | <andWithNot?> ! <patternStreamingEdgeInputs-joined-by&&>*
+   | <forWithNot?> ! <patternStreamingEdgeInputs>* for <timeDurationValue> <timeScale>
+   | <andOnly?>        <patternStreamingEdgeInputs-joined-by&&>*
+   | <orOnly?>         <patternStreamingEdgeInputs-joined-by||>*
+   |                   <patternStreamingEdgeInputs>*
+   ;
+
+PatternStreamingEdgeInput
+   : <streamReference.source> <whereClause.source> <expression.source> as <aliasIdentifier>
+   | <streamReference.source> <whereClause.source> <expression.source>
+   | <streamReference.source> <whereClause.source>                     as <aliasIdentifier>
+   | <streamReference.source> <whereClause.source>
+   | <streamReference.source>                      <expression.source> as <aliasIdentifier>
+   | <streamReference.source>                      <expression.source>
+   | <streamReference.source>                                          as <aliasIdentifier>
+   | <streamReference.source>
    ;
 
 PostIncrement
@@ -363,14 +399,15 @@ Return
    ;
 
 SelectClause
-   : <selectAll?> select                               * <groupBy.source> <having.source>
-   : <selectAll?> select                               * <groupBy.source>
-   : <selectAll?> select                               *                  <having.source>
-   : <selectAll?> select                               *
-   :              select <selectExpressions-joined-by,>* <groupBy.source> <having.source>
-   :              select <selectExpressions-joined-by,>* <groupBy.source>
-   :              select <selectExpressions-joined-by,>* <having.source>
-   :              select <selectExpressions-joined-by,>*
+   : <notVisible?>
+   | <selectAll?>  select                                 * <groupBy.source> <having.source>
+   | <selectAll?>  select                                 * <groupBy.source>
+   | <selectAll?>  select                                 *                  <having.source>
+   | <selectAll?>  select                                 *
+   |               select <selectExpressions-joined-by,>*   <groupBy.source> <having.source>
+   |               select <selectExpressions-joined-by,>*   <groupBy.source>
+   |               select <selectExpressions-joined-by,>*                    <having.source>
+   |               select <selectExpressions-joined-by,>*
    ;
 
 SelectExpression
@@ -405,33 +442,97 @@ StreamAction
    ;
 
 StreamingInput
-   : <windowTraversedAfterWhere?> <streamReference.source> <beforeStreamingCondition.source> <windowClause.source> <afterStreamingCondition.source> <aliasAvailable?> as <alias>
-   | <windowTraversedAfterWhere?> <streamReference.source> <beforeStreamingCondition.source> <windowClause.source> <afterStreamingCondition.source>
-   | <windowTraversedAfterWhere?> <streamReference.source>                                   <windowClause.source> <afterStreamingCondition.source> <aliasAvailable?> as <alias>
-   | <windowTraversedAfterWhere?> <streamReference.source>                                   <windowClause.source> <afterStreamingCondition.source>
-   | <windowTraversedAfterWhere?> <streamReference.source>                                   <windowClause.source> <afterStreamingCondition.source> <aliasAvailable?> as <alias>
-   | <windowTraversedAfterWhere?> <streamReference.source>                                   <windowClause.source> <afterStreamingCondition.source>
-   | <windowTraversedAfterWhere?> <streamReference.source> <beforeStreamingCondition.source> <windowClause.source>                                  <aliasAvailable?> as <alias>
-   | <windowTraversedAfterWhere?> <streamReference.source> <beforeStreamingCondition.source> <windowClause.source>
-   |                              <streamReference.source> <beforeStreamingCondition.source>                       <afterStreamingCondition.source> <aliasAvailable?> as <alias>
-   |                              <streamReference.source> <beforeStreamingCondition.source>                       <afterStreamingCondition.source>
-   |                              <streamReference.source> <beforeStreamingCondition.source>                                                        <aliasAvailable?> as <alias>
-   |                              <streamReference.source> <beforeStreamingCondition.source>
-   |                              <streamReference.source>                                                         <afterStreamingCondition.source> <aliasAvailable?> as <alias>
-   |                              <streamReference.source>                                                         <afterStreamingCondition.source>
-   |                              <streamReference.source>                                                                                          <aliasAvailable?> as <alias>
-   |                              <streamReference.source>
+   : <aliasAvailable?> <streamReference.source> <beforeStreamingCondition.source> <preFunctionInvocations>* <windowClause.source> <postFunctionInvocations>* <afterStreamingCondition.source> as <alias>
+   | <aliasAvailable?> <streamReference.source> <beforeStreamingCondition.source> <preFunctionInvocations>* <windowClause.source> <postFunctionInvocations>*                                  as <alias>
+   | <aliasAvailable?> <streamReference.source> <beforeStreamingCondition.source> <preFunctionInvocations>* <windowClause.source>                            <afterStreamingCondition.source> as <alias>
+   | <aliasAvailable?> <streamReference.source> <beforeStreamingCondition.source> <preFunctionInvocations>* <windowClause.source>                                                             as <alias>
+   | <aliasAvailable?> <streamReference.source> <beforeStreamingCondition.source> <preFunctionInvocations>*                       <postFunctionInvocations>* <afterStreamingCondition.source> as <alias>
+   | <aliasAvailable?> <streamReference.source> <beforeStreamingCondition.source> <preFunctionInvocations>*                       <postFunctionInvocations>*                                  as <alias>
+   | <aliasAvailable?> <streamReference.source> <beforeStreamingCondition.source> <preFunctionInvocations>*                                                  <afterStreamingCondition.source> as <alias>
+   | <aliasAvailable?> <streamReference.source> <beforeStreamingCondition.source> <preFunctionInvocations>*                                                                                   as <alias>
+   | <aliasAvailable?> <streamReference.source> <beforeStreamingCondition.source>                           <windowClause.source> <postFunctionInvocations>* <afterStreamingCondition.source> as <alias>
+   | <aliasAvailable?> <streamReference.source> <beforeStreamingCondition.source>                           <windowClause.source> <postFunctionInvocations>*                                  as <alias>
+   | <aliasAvailable?> <streamReference.source> <beforeStreamingCondition.source>                           <windowClause.source>                            <afterStreamingCondition.source> as <alias>
+   | <aliasAvailable?> <streamReference.source> <beforeStreamingCondition.source>                           <windowClause.source>                                                             as <alias>
+   | <aliasAvailable?> <streamReference.source> <beforeStreamingCondition.source>                                                 <postFunctionInvocations>* <afterStreamingCondition.source> as <alias>
+   | <aliasAvailable?> <streamReference.source> <beforeStreamingCondition.source>                                                 <postFunctionInvocations>*                                  as <alias>
+   | <aliasAvailable?> <streamReference.source> <beforeStreamingCondition.source>                                                                            <afterStreamingCondition.source> as <alias>
+   | <aliasAvailable?> <streamReference.source> <beforeStreamingCondition.source>                                                                                                             as <alias>
+   | <aliasAvailable?> <streamReference.source>                                   <preFunctionInvocations>* <windowClause.source> <postFunctionInvocations>* <afterStreamingCondition.source> as <alias>
+   | <aliasAvailable?> <streamReference.source>                                   <preFunctionInvocations>* <windowClause.source> <postFunctionInvocations>*                                  as <alias>
+   | <aliasAvailable?> <streamReference.source>                                   <preFunctionInvocations>* <windowClause.source>                            <afterStreamingCondition.source> as <alias>
+   | <aliasAvailable?> <streamReference.source>                                   <preFunctionInvocations>* <windowClause.source>                                                             as <alias>
+   | <aliasAvailable?> <streamReference.source>                                   <preFunctionInvocations>*                       <postFunctionInvocations>* <afterStreamingCondition.source> as <alias>
+   | <aliasAvailable?> <streamReference.source>                                   <preFunctionInvocations>*                       <postFunctionInvocations>*                                  as <alias>
+   | <aliasAvailable?> <streamReference.source>                                   <preFunctionInvocations>*                                                  <afterStreamingCondition.source> as <alias>
+   | <aliasAvailable?> <streamReference.source>                                   <preFunctionInvocations>*                                                                                   as <alias>
+   | <aliasAvailable?> <streamReference.source>                                                             <windowClause.source> <postFunctionInvocations>* <afterStreamingCondition.source> as <alias>
+   | <aliasAvailable?> <streamReference.source>                                                             <windowClause.source> <postFunctionInvocations>*                                  as <alias>
+   | <aliasAvailable?> <streamReference.source>                                                             <windowClause.source>                            <afterStreamingCondition.source> as <alias>
+   | <aliasAvailable?> <streamReference.source>                                                             <windowClause.source>                                                             as <alias>
+   | <aliasAvailable?> <streamReference.source>                                                                                   <postFunctionInvocations>* <afterStreamingCondition.source> as <alias>
+   | <aliasAvailable?> <streamReference.source>                                                                                   <postFunctionInvocations>*                                  as <alias>
+   | <aliasAvailable?> <streamReference.source>                                                                                                              <afterStreamingCondition.source> as <alias>
+   | <aliasAvailable?> <streamReference.source>                                                                                                                                               as <alias>
+   |                   <streamReference.source> <beforeStreamingCondition.source> <preFunctionInvocations>* <windowClause.source> <postFunctionInvocations>* <afterStreamingCondition.source>
+   |                   <streamReference.source> <beforeStreamingCondition.source> <preFunctionInvocations>* <windowClause.source> <postFunctionInvocations>*
+   |                   <streamReference.source> <beforeStreamingCondition.source> <preFunctionInvocations>* <windowClause.source>                            <afterStreamingCondition.source>
+   |                   <streamReference.source> <beforeStreamingCondition.source> <preFunctionInvocations>* <windowClause.source>
+   |                   <streamReference.source> <beforeStreamingCondition.source> <preFunctionInvocations>*                       <postFunctionInvocations>* <afterStreamingCondition.source>
+   |                   <streamReference.source> <beforeStreamingCondition.source> <preFunctionInvocations>*                       <postFunctionInvocations>*
+   |                   <streamReference.source> <beforeStreamingCondition.source> <preFunctionInvocations>*                                                  <afterStreamingCondition.source>
+   |                   <streamReference.source> <beforeStreamingCondition.source> <preFunctionInvocations>*
+   |                   <streamReference.source> <beforeStreamingCondition.source>                           <windowClause.source> <postFunctionInvocations>* <afterStreamingCondition.source>
+   |                   <streamReference.source> <beforeStreamingCondition.source>                           <windowClause.source> <postFunctionInvocations>*
+   |                   <streamReference.source> <beforeStreamingCondition.source>                           <windowClause.source>                            <afterStreamingCondition.source>
+   |                   <streamReference.source> <beforeStreamingCondition.source>                           <windowClause.source>
+   |                   <streamReference.source> <beforeStreamingCondition.source>                                                 <postFunctionInvocations>* <afterStreamingCondition.source>
+   |                   <streamReference.source> <beforeStreamingCondition.source>                                                 <postFunctionInvocations>*
+   |                   <streamReference.source> <beforeStreamingCondition.source>                                                                            <afterStreamingCondition.source>
+   |                   <streamReference.source> <beforeStreamingCondition.source>
+   |                   <streamReference.source>                                   <preFunctionInvocations>* <windowClause.source> <postFunctionInvocations>* <afterStreamingCondition.source>
+   |                   <streamReference.source>                                   <preFunctionInvocations>* <windowClause.source> <postFunctionInvocations>*
+   |                   <streamReference.source>                                   <preFunctionInvocations>* <windowClause.source>                            <afterStreamingCondition.source>
+   |                   <streamReference.source>                                   <preFunctionInvocations>* <windowClause.source>
+   |                   <streamReference.source>                                   <preFunctionInvocations>*                       <postFunctionInvocations>* <afterStreamingCondition.source>
+   |                   <streamReference.source>                                   <preFunctionInvocations>*                       <postFunctionInvocations>*
+   |                   <streamReference.source>                                   <preFunctionInvocations>*                                                  <afterStreamingCondition.source>
+   |                   <streamReference.source>                                   <preFunctionInvocations>*
+   |                   <streamReference.source>                                                             <windowClause.source> <postFunctionInvocations>* <afterStreamingCondition.source>
+   |                   <streamReference.source>                                                             <windowClause.source> <postFunctionInvocations>*
+   |                   <streamReference.source>                                                             <windowClause.source>                            <afterStreamingCondition.source>
+   |                   <streamReference.source>                                                             <windowClause.source>
+   |                   <streamReference.source>                                                                                   <postFunctionInvocations>* <afterStreamingCondition.source>
+   |                   <streamReference.source>                                                                                   <postFunctionInvocations>*
+   |                   <streamReference.source>                                                                                                              <afterStreamingCondition.source>
+   |                   <streamReference.source>
    ;
 
 StreamingQuery
-   : from <streamingInput.source> <joinStreamingInput.source> <selectClause.source> <orderbyClause.source> <streamingAction.source>
-   | from <streamingInput.source>                             <selectClause.source> <orderbyClause.source> <streamingAction.source>
-   | from <streamingInput.source> <joinStreamingInput.source> <selectClause.source>                        <streamingAction.source>
-   | from <streamingInput.source>                             <selectClause.source>                        <streamingAction.source>
-   | from <streamingInput.source> <joinStreamingInput.source> <selectClause.source> <orderbyClause.source>
-   | from <streamingInput.source>                             <selectClause.source> <orderbyClause.source>
-   | from <streamingInput.source> <joinStreamingInput.source> <selectClause.source>
-   | from <streamingInput.source>                             <selectClause.source>
+   : from <streamingInput.source> <joiningInput.source>       <selectClause.source> <orderbyClause.source> <outputRateLimitNode.source> <streamingAction.source>
+   | from <streamingInput.source> <joiningInput.source>       <selectClause.source> <orderbyClause.source>                              <streamingAction.source>
+   | from <streamingInput.source> <joiningInput.source>       <selectClause.source>                        <outputRateLimitNode.source> <streamingAction.source>
+   | from <streamingInput.source> <joiningInput.source>                             <orderbyClause.source> <outputRateLimitNode.source> <streamingAction.source>
+   | from <streamingInput.source> <joiningInput.source>       <selectClause.source>                                                     <streamingAction.source>
+   | from <streamingInput.source> <joiningInput.source>                             <orderbyClause.source>                              <streamingAction.source>
+   | from <streamingInput.source> <joiningInput.source>                                                    <outputRateLimitNode.source> <streamingAction.source>
+   | from <streamingInput.source> <joiningInput.source>                                                                                 <streamingAction.source>
+   | from <streamingInput.source>                             <selectClause.source> <orderbyClause.source> <outputRateLimitNode.source> <streamingAction.source>
+   | from <streamingInput.source>                             <selectClause.source> <orderbyClause.source>                              <streamingAction.source>
+   | from <streamingInput.source>                             <selectClause.source>                        <outputRateLimitNode.source> <streamingAction.source>
+   | from <streamingInput.source>                             <selectClause.source>                                                     <streamingAction.source>
+   | from <streamingInput.source>                                                   <orderbyClause.source> <outputRateLimitNode.source> <streamingAction.source>
+   | from <streamingInput.source>                                                   <orderbyClause.source>                              <streamingAction.source>
+   | from <streamingInput.source>                                                                          <outputRateLimitNode.source> <streamingAction.source>
+   | from <streamingInput.source>                                                                                                       <streamingAction.source>
+   | from <patternClause.source>                              <selectClause.source> <orderbyClause.source> <outputRateLimitNode.source> <streamingAction.source>
+   | from <patternClause.source>                              <selectClause.source> <orderbyClause.source>                              <streamingAction.source>
+   | from <patternClause.source>                              <selectClause.source>                        <outputRateLimitNode.source> <streamingAction.source>
+   | from <patternClause.source>                              <selectClause.source>                                                     <streamingAction.source>
+   | from <patternClause.source>                                                    <orderbyClause.source> <outputRateLimitNode.source> <streamingAction.source>
+   | from <patternClause.source>                                                    <orderbyClause.source>                              <streamingAction.source>
+   | from <patternClause.source>                                                                           <outputRateLimitNode.source> <streamingAction.source>
+   | from <patternClause.source>                                                                                                        <streamingAction.source>
    ;
 
 StringTemplateLiteral
@@ -518,16 +619,18 @@ TypeConversionExpr
 
 TypeDefinition
    : <notVisible?>
-   : <isObjectType?>                                                          <markdownDocumentationAttachment.source>  <annotationAttachments>* <deprecatedAttachments>* <public?public> type <name.value> object { <typeNode.source> }                           ;
-   : <isObjectType?>                                                                                                    <annotationAttachments>* <deprecatedAttachments>* <public?public> type <name.value> object { <typeNode.source> }                           ;
-   | <isRecordType?> <isRecordKeywordAvailable?>                              <markdownDocumentationAttachment.source>  <annotationAttachments>* <deprecatedAttachments>* <public?public> type <name.value> record { <typeNode.source> }                           ;
-   | <isRecordType?> <isRecordKeywordAvailable?>                                                                        <annotationAttachments>* <deprecatedAttachments>* <public?public> type <name.value> record { <typeNode.source> }                           ;
-   | <isRecordType?>                                                          <markdownDocumentationAttachment.source>  <annotationAttachments>* <deprecatedAttachments>* <public?public> type <name.value>        { <typeNode.source> }                           ;
-   | <isRecordType?>                                                                                                    <annotationAttachments>* <deprecatedAttachments>* <public?public> type <name.value>        { <typeNode.source> }                           ;
-   |                                                                          <markdownDocumentationAttachment.source>  <annotationAttachments>* <deprecatedAttachments>* <public?public> type <name.value>          <typeNode.source>    | <valueSet-joined-by|>* ;
-   |                                                                                                                    <annotationAttachments>* <deprecatedAttachments>* <public?public> type <name.value>          <typeNode.source>    | <valueSet-joined-by|>* ;
-   |                                                                          <markdownDocumentationAttachment.source>  <annotationAttachments>* <deprecatedAttachments>* <public?public> type <name.value>                                 <valueSet-joined-by|>* ;
-   |                                                                                                                    <annotationAttachments>* <deprecatedAttachments>* <public?public> type <name.value>                                 <valueSet-joined-by|>* ;
+   : <isObjectType?>                                                          <markdownDocumentationAttachment.source>  <annotationAttachments>* <deprecatedAttachments>* <public?public> type <name.value> <isAbstractKeywordAvailable?abstract> object { <typeNode.source> }                           ;
+   : <isObjectType?>                                                                                                    <annotationAttachments>* <deprecatedAttachments>* <public?public> type <name.value> <isAbstractKeywordAvailable?abstract> object { <typeNode.source> }                           ;
+   | <isRecordType?> <isRecordKeywordAvailable?>                              <markdownDocumentationAttachment.source>  <annotationAttachments>* <deprecatedAttachments>* <public?public> type <name.value>                                       record { <typeNode.source> }                           ;
+   | <isRecordType?> <isRecordKeywordAvailable?>                                                                        <annotationAttachments>* <deprecatedAttachments>* <public?public> type <name.value>                                       record { <typeNode.source> }                           ;
+   | <isRecordType?>                                                          <markdownDocumentationAttachment.source>  <annotationAttachments>* <deprecatedAttachments>* <public?public> type <name.value>                                              { <typeNode.source> }                           ;
+   | <isRecordType?>                                                                                                    <annotationAttachments>* <deprecatedAttachments>* <public?public> type <name.value>                                              { <typeNode.source> }                           ;
+   |                                                                          <markdownDocumentationAttachment.source>  <annotationAttachments>* <deprecatedAttachments>* <public?public> type <name.value>                                                <typeNode.source>    | <valueSet-joined-by|>* ;
+   |                                                                                                                    <annotationAttachments>* <deprecatedAttachments>* <public?public> type <name.value>                                                <typeNode.source>    | <valueSet-joined-by|>* ;
+   |                                                                          <markdownDocumentationAttachment.source>  <annotationAttachments>* <deprecatedAttachments>* <public?public> type <name.value>                                                <typeNode.source>                             ;
+   |                                                                                                                    <annotationAttachments>* <deprecatedAttachments>* <public?public> type <name.value>                                                <typeNode.source>                             ;
+   |                                                                          <markdownDocumentationAttachment.source>  <annotationAttachments>* <deprecatedAttachments>* <public?public> type <name.value>                                                                       <valueSet-joined-by|>* ;
+   |                                                                                                                    <annotationAttachments>* <deprecatedAttachments>* <public?public> type <name.value>                                                                       <valueSet-joined-by|>* ;
    ;
 
 ObjectType
@@ -645,6 +748,9 @@ Where
 While
    : while <condition.source> { <body.source> }
    ;
+
+Within
+   : within <timeDurationValue> <timeScale>
 
 WindowClause
    : window <functionInvocation.source>

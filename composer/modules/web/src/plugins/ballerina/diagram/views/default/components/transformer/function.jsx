@@ -104,8 +104,8 @@ export default class FunctionInv extends React.Component {
                         && funcInv.getArgumentExpressions().length > 0 &&
                         <span
                             onClick={(e) => {
-                                const { editor } = this.context;
-                                editor.goToSource(funcInv.getArgumentExpressions()[0].functionNode);
+                                const { goToSource } = this.context;
+                                goToSource(funcInv.getArgumentExpressions()[0].functionNode);
                             }}
                             className='fw-stack fw-lg btn btn-remove-func'
                             title='Jump to Source'
@@ -121,5 +121,5 @@ export default class FunctionInv extends React.Component {
 }
 
 FunctionInv.contextTypes = {
-    editor: PropTypes.instanceOf(Object).isRequired,
+    goToSource: PropTypes.func.isRequired,
 };

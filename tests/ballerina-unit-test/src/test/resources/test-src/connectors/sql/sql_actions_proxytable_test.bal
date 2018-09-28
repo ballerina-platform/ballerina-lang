@@ -3,16 +3,16 @@ import ballerina/jdbc;
 import ballerina/io;
 
 type Employee record {
-    int id,
-    string name,
-    string address,
+    int id;
+    string name;
+    string address;
 };
 
 type Employee2 record {
-    int id,
-    string name,
-    string address,
-    int age,
+    int id;
+    string name;
+    string address;
+    int age;
 };
 
 function testIterateProxyTable(string jdbcUrl, string userName, string password) returns (Employee[], Employee[]) {

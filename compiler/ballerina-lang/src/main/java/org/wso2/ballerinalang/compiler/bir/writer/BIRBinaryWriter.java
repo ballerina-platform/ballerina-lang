@@ -22,7 +22,6 @@ import io.netty.buffer.Unpooled;
 import org.ballerinalang.compiler.BLangCompilerException;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRBasicBlock;
-import org.wso2.ballerinalang.compiler.bir.writer.CPEntry.IntegerCPEntry;
 import org.wso2.ballerinalang.compiler.bir.writer.CPEntry.PackageCPEntry;
 import org.wso2.ballerinalang.compiler.bir.writer.CPEntry.StringCPEntry;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
@@ -31,7 +30,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 import java.util.List;
 
 /**
@@ -43,9 +41,14 @@ public class BIRBinaryWriter {
     private static final byte[] BIR_MAGIC = {(byte) 0xba, (byte) 0x10, (byte) 0xc0, (byte) 0xde};
     private static final int BIR_VERSION = 1;
 
-    private ConstantPool cp = new ConstantPool();
+    private final ConstantPool cp = new ConstantPool();
+    private final BIRNode.BIRPackage birPackage;
 
-    public byte[] write(BIRNode.BIRPackage birPackage) {
+    public BIRBinaryWriter(BIRNode.BIRPackage birPackage) {
+        this.birPackage = birPackage;
+    }
+
+    public byte[] serialize() {
         ByteBuf birbuf = Unpooled.buffer();
 
         // Write the package details in the form of constant pool entry
@@ -65,7 +68,7 @@ public class BIRBinaryWriter {
         try (DataOutputStream dataOut = new DataOutputStream(baos)) {
             dataOut.write(BIR_MAGIC);
             dataOut.writeInt(BIR_VERSION);
-            writeCP(dataOut);
+            dataOut.write(cp.serialize());
             dataOut.write(birbuf.nioBuffer().array(), 0, birbuf.nioBuffer().limit());
             return baos.toByteArray();
         } catch (IOException e) {
@@ -112,38 +115,6 @@ public class BIRBinaryWriter {
 
     private int addStringCPEntry(String value) {
         return cp.addCPEntry(new StringCPEntry(value));
-    }
-
-    private void writeCP(DataOutputStream buf) throws IOException {
-        CPEntry[] cpEntries = cp.getConstPoolEntries();
-        // TODO The length should be available in the const-pool section header.
-        buf.writeInt(cpEntries.length);
-        for (CPEntry cpEntry : cpEntries) {
-            buf.writeByte(cpEntry.entryType.value);
-            switch (cpEntry.entryType) {
-                case CP_ENTRY_INTEGER:
-                    buf.writeLong(((IntegerCPEntry) cpEntry).value);
-                    break;
-                case CP_ENTRY_BOOLEAN:
-                    buf.writeBoolean(((CPEntry.BooleanCPEntry) cpEntry).value);
-                    break;
-                case CP_ENTRY_STRING:
-                    StringCPEntry stringCPEntry = (StringCPEntry) cpEntry;
-                    byte[] strBytes = stringCPEntry.value.getBytes(StandardCharsets.UTF_8);
-                    buf.writeInt(strBytes.length);
-                    buf.write(strBytes);
-                    break;
-                case CP_ENTRY_PACKAGE:
-                    PackageCPEntry pkgCPEntry = (PackageCPEntry) cpEntry;
-                    buf.writeInt(pkgCPEntry.orgNameCPIndex);
-                    buf.writeInt(pkgCPEntry.pkgNameCPIndex);
-                    buf.writeInt(pkgCPEntry.versionCPIndex);
-                    break;
-                default:
-                    throw new IllegalStateException("unsupported constant pool entry type: " +
-                                                    cpEntry.entryType.name());
-            }
-        }
     }
 
     private int addFuncSignature(BInvokableType funcType) {

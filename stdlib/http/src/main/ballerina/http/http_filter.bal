@@ -16,7 +16,7 @@
 
 # Representation of a HTTP Request Filter. This filter will be applied before the request is dispatched to the relevant resource. Any Filter implementation should be structurally similar to the Filter object.
 
-public type Filter object {
+public type Filter abstract object {
     # Request filter function. If a false is returned the response should have been sent from this function as it will
     # not be dispatched to the next filter or the resource.
     #
