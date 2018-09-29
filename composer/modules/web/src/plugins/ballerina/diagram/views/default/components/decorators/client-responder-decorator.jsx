@@ -119,11 +119,19 @@ class ClientResponderDecorator extends React.Component {
                 backwardArrowEnd.y = backwardArrowStart.y;
             }
 
-            if (TreeUtil.isAssignment(model) || TreeUtil.isExpressionStatement(model)) {
-                let exp = model.getExpression();
+            if (TreeUtil.isVariableDef(model) ||
+                TreeUtil.isAssignment(model) ||
+                TreeUtil.isExpressionStatement(model)) {
+                let exp;
 
-                if (TreeUtil.isMatchExpression(exp)) {
-                    exp = exp.expression;
+                if (TreeUtil.isVariableDef(model)) {
+                    exp = model.getVariable().getInitialExpression();
+                } else {
+                    exp = model.getExpression();
+                }
+
+                if (TreeUtil.isMatchExpression(exp) || TreeUtil.isCheckExpr(exp)) {
+                    exp = exp.getExpression();
                 }
 
                 const functionNameWidth = new SizingUtils().getTextWidth(exp.getFunctionName(), 0);
@@ -137,7 +145,7 @@ class ClientResponderDecorator extends React.Component {
                     </tspan>);
                 } else {
                     const displayExpressionWidth = nodeWidth - functionNameWidth.w;
-                    const expressionDisplayText = new SizingUtils().getTextWidth(model.viewState.fullText, 0,
+                    const expressionDisplayText = new SizingUtils().getTextWidth(model.viewState.displayParameterText, 0,
                         displayExpressionWidth).text;
                     expression = (<tspan>
                         {exp.getFunctionName()}

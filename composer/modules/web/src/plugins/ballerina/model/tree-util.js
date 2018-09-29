@@ -295,11 +295,19 @@ class TreeUtil extends AbstractTreeUtil {
         if (this.isReturn(node)) {
             return node.expression.getSource(true, true);
         }
-        if (this.isAssignment(node) || this.isExpressionStatement(node)) {
-            let exp = node.getExpression();
-            if (!this.isVariableDef(node) && (this.isMatchExpression(exp) || this.isCheckExpr(exp))) {
+        if (this.isVariableDef(node) || this.isAssignment(node) || this.isExpressionStatement(node)) {
+            let exp;
+
+            if (this.isVariableDef(node)) {
+                exp = node.getVariable().getInitialExpression();
+            } else {
+                exp = node.getExpression();
+            }
+
+            if (this.isMatchExpression(exp) || this.isCheckExpr(exp)) {
                 exp = exp.getExpression();
             }
+
             return exp.getArgumentExpressions().map((arg) => {
                 return arg.getSource(true, true);
             }).join(', ');
