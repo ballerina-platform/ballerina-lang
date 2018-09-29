@@ -103,6 +103,7 @@ class Client extends React.Component {
                 <text
                     x={line.x1 + this.context.designer.config.statement.gutter.h}
                     y={topBox.y + topBox.h + (this.context.designer.config.statement.height - 5)}
+                    className='client-invocation-text'
                 >{bBox.text}
                     <title> {bBox.fullText} </title>
                 </text>

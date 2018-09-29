@@ -1698,6 +1698,7 @@ class SizingUtil {
             viewState.alias = 'ClientResponderNode';
             if (TreeUtil.isReturn(node)) {
                 const paramText = node.expression.getSource(true, true);
+                viewState.fullText = paramText;
                 const displayText = this.getTextWidth(paramText, 0,
                     (this.config.clientLine.width + this.config.lifeLine.gutter.h));
                 viewState.displayText = displayText.text;
@@ -1710,6 +1711,7 @@ class SizingUtil {
                 const argExpSource = exp.getArgumentExpressions().map((arg) => {
                     return arg.getSource(true, true);
                 }).join(', ');
+                viewState.fullText = argExpSource;
                 const displayText = this.getTextWidth(argExpSource, 0,
                     (this.config.clientLine.width + this.config.lifeLine.gutter.h));
                 viewState.displayText = displayText.text;
@@ -1719,6 +1721,7 @@ class SizingUtil {
                 const argExpSource = exp.getArgumentExpressions().map((arg) => {
                     return arg.getSource(true, true);
                 }).join(', ');
+                viewState.fullText = argExpSource;
                 const displayText = this.getTextWidth(argExpSource, 0,
                     (this.config.clientLine.width + this.config.lifeLine.gutter.h));
                 viewState.displayText = displayText.text;
@@ -1731,6 +1734,7 @@ class SizingUtil {
                 const argExpSource = exp2.argumentExpressions.map((arg) => {
                     return arg.getSource(true, true);
                 }).join(', ');
+                viewState.fullText = argExpSource;
                 const displayText = this.getTextWidth(argExpSource, 0,
                     (this.config.clientLine.width + this.config.lifeLine.gutter.h));
                 viewState.displayText = displayText.text;

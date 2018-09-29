@@ -231,11 +231,17 @@
                         fill: $primary-line-bgcolor;
                         font-weight: 300;
                     }
+                    .client-invocation-text {
+                        fill: $brand-primary !important;
+                    }
                     text,
                     .title-text {
                         fill: $text-color;
                         font-weight: 300px;
                     }
+                }
+                .client-responder-parameter-text {
+                    fill: $brand-primary;
                 }
                 .action-dash-line {
                     stroke: $primary-line-bgcolor;
