@@ -100,9 +100,10 @@ class ClientResponderDecorator extends React.Component {
      * @returns {XML} rendered component.
      */
     render() {
-        const { viewState, model, displayText, isBreakpoint } = this.props;
+        const { viewState, model, isBreakpoint } = this.props;
+        const { designer } = this.context;
 
-        let expression = displayText;
+        let expression = viewState.displayParameterText;
 
         const fullExp = _.trimEnd(this.props.viewState.fullExpression, ';').trim();
 
@@ -126,22 +127,21 @@ class ClientResponderDecorator extends React.Component {
                 }
 
                 const functionNameWidth = new SizingUtils().getTextWidth(exp.getFunctionName(), 0);
-                const nodeWith = this.context.designer.config.clientLine.width +
-                    this.context.designer.config.lifeLine.gutter.h;
+                const nodeWidth = designer.config.clientLine.width + designer.config.lifeLine.gutter.h;
 
-                if (functionNameWidth.w > nodeWith) {
+                if (functionNameWidth.w > nodeWidth) {
                     const truncatedFunctionNameWidth = new SizingUtils().getTextWidth(
-                        exp.getFunctionName(), 0, nodeWith);
+                        exp.getFunctionName(), 0, nodeWidth);
                     expression = (<tspan>
                         {truncatedFunctionNameWidth.text}
                     </tspan>);
                 } else {
-                    const displayExpressionWidth = nodeWith - functionNameWidth.w;
+                    const displayExpressionWidth = nodeWidth - functionNameWidth.w;
                     const expressionDisplayText = new SizingUtils().getTextWidth(model.viewState.fullText, 0,
-                        displayExpressionWidth);
+                        displayExpressionWidth).text;
                     expression = (<tspan>
                         {exp.getFunctionName()}
-                        (<tspan className='client-responder-parameter-text'>{expressionDisplayText.text}</tspan>)
+                        (<tspan className='client-responder-parameter-text'>{expressionDisplayText}</tspan>)
                     </tspan>);
                 }
             }

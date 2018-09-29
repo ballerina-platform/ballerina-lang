@@ -1667,6 +1667,7 @@ class SizingUtil {
             if (TreeUtil.statementIsASync(node)) {
                 viewState.async = true;
             }
+            viewState.parameterText = TreeUtil.getParameterText(node);
         }
     }
 
@@ -1696,49 +1697,9 @@ class SizingUtil {
             viewState.bBox.w = this.config.actionInvocationStatement.width;
             viewState.components['statement-box'].w = this.config.actionInvocationStatement.width;
             viewState.alias = 'ClientResponderNode';
-            if (TreeUtil.isReturn(node)) {
-                const paramText = node.expression.getSource(true, true);
-                viewState.fullText = paramText;
-                const displayText = this.getTextWidth(paramText, 0,
-                    (this.config.clientLine.width + this.config.lifeLine.gutter.h));
-                viewState.displayText = displayText.text;
-            }
-            if (TreeUtil.isAssignment(node)) {
-                let exp = node.getExpression();
-                if (TreeUtil.isMatchExpression(exp)) {
-                    exp = exp.getExpression();
-                }
-                const argExpSource = exp.getArgumentExpressions().map((arg) => {
-                    return arg.getSource(true, true);
-                }).join(', ');
-                viewState.fullText = argExpSource;
-                const displayText = this.getTextWidth(argExpSource, 0,
-                    (this.config.clientLine.width + this.config.lifeLine.gutter.h));
-                viewState.displayText = displayText.text;
-            }
-            if (TreeUtil.isVariableDef(node)) {
-                const exp = node.variable.getInitialExpression();
-                const argExpSource = exp.getArgumentExpressions().map((arg) => {
-                    return arg.getSource(true, true);
-                }).join(', ');
-                viewState.fullText = argExpSource;
-                const displayText = this.getTextWidth(argExpSource, 0,
-                    (this.config.clientLine.width + this.config.lifeLine.gutter.h));
-                viewState.displayText = displayText.text;
-            }
-            if (TreeUtil.isExpressionStatement(node)) {
-                let exp2 = node.getExpression();
-                if (TreeUtil.isMatchExpression(exp2)) {
-                    exp2 = exp2.expression;
-                }
-                const argExpSource = exp2.argumentExpressions.map((arg) => {
-                    return arg.getSource(true, true);
-                }).join(', ');
-                viewState.fullText = argExpSource;
-                const displayText = this.getTextWidth(argExpSource, 0,
-                    (this.config.clientLine.width + this.config.lifeLine.gutter.h));
-                viewState.displayText = displayText.text;
-            }
+            viewState.parameterText = TreeUtil.getParameterText(node);
+            viewState.displayParameterText = this.getTextWidth(TreeUtil.getParameterText(node), 0,
+                (this.config.clientLine.width + this.config.lifeLine.gutter.h)).text;
         }
     }
 

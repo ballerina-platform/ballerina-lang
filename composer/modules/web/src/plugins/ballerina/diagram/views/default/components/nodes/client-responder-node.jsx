@@ -47,13 +47,11 @@ class ClientResponderNode extends React.Component {
      * */
     render() {
         const model = this.props.model;
-        const displayText = model.viewState.displayText;
 
         return (
             <ClientResponderDecorator
                 model={model}
                 viewState={model.viewState}
-                displayText={displayText}
                 editorOptions={this.editorOptions}
             />);
     }
