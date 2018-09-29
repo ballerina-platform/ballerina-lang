@@ -15,12 +15,11 @@
   ~  limitations under the License.
   -->
 
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
         <artifactId>language-server</artifactId>
         <groupId>org.ballerinalang</groupId>
-        <version>0.981.2-SNAPSHOT</version>
+        <version>0.982.0</version>
         <relativePath>../../pom.xml</relativePath>
     </parent>
     <modelVersion>4.0.0</modelVersion>
@@ -43,14 +42,11 @@
 
                         <configuration>
                             <target name="mergeReports">
-                                <taskdef resource="net/sf/antcontrib/antcontrib.properties"
-                                         classpathref="maven.plugin.classpath" />
+                                <taskdef resource="net/sf/antcontrib/antcontrib.properties" classpathref="maven.plugin.classpath" />
                                 <if>
                                     <and>
-                                        <available
-                                                file="${language.server.compiler}/${target}/${coverge-report}/${individual.test.report.name}" />
-                                        <available
-                                                file="${language.server.core}/${target}/${coverge-report}/${individual.test.report.name}" />
+                                        <available file="${language.server.compiler}/${target}/${coverge-report}/${individual.test.report.name}" />
+                                        <available file="${language.server.core}/${target}/${coverge-report}/${individual.test.report.name}" />
                                         <!-- After adding the test cases need to list the exec files here-->
                                     </and>
                                     <then>
@@ -70,8 +66,7 @@
                                             <structure name="Language Server Component Coverage Report">
                                                 <group name="language.server.compiler">
                                                     <classfiles>
-                                                        <fileset
-                                                                dir="${language.server.compiler}/${target}/${classes}" />
+                                                        <fileset dir="${language.server.compiler}/${target}/${classes}" />
                                                     </classfiles>
                                                     <sourcefiles encoding="UTF-8">
                                                         <fileset dir="${language.server.compiler}/${source}" />
