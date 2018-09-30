@@ -25,7 +25,7 @@ import com.intellij.openapi.editor.colors.EditorColors
 import com.intellij.openapi.editor.event._
 import com.intellij.openapi.editor.ex.EditorSettingsExternalizable
 import com.intellij.openapi.editor.markup._
-import com.intellij.openapi.editor.{Editor, LogicalPosition}
+import com.intellij.openapi.editor.{Editor, LogicalPosition, ScrollType}
 import com.intellij.openapi.fileEditor.{FileDocumentManager, FileEditorManager, OpenFileDescriptor, TextEditor}
 import com.intellij.openapi.fileTypes.PlainTextLanguage
 import com.intellij.openapi.project.Project
@@ -187,7 +187,7 @@ class EditorEventManager(val editor: Editor, val mouseListener: EditorMouseListe
   def signatureHelp(): Unit = {
     val lPos = editor.getCaretModel.getCurrentCaret.getLogicalPosition
     val point = editor.logicalPositionToXY(lPos)
-    val params = new TextDocumentPositionParams(identifier, computableReadAction(() => DocumentUtils.logicalToLSPPos(lPos, editor)))
+    val params = new TextDocumentPositionParams(identifier, DocumentUtils.logicalToLSPPos(lPos, editor))
     pool(() => {
       if (!editor.isDisposed) {
         val future = requestManager.signatureHelp(params)
@@ -235,7 +235,7 @@ class EditorEventManager(val editor: Editor, val mouseListener: EditorMouseListe
       if (!editor.isDisposed) {
         val params = new DocumentOnTypeFormattingParams()
         params.setCh(c)
-        params.setPosition(computableReadAction(() => DocumentUtils.logicalToLSPPos(editor.getCaretModel.getCurrentCaret.getLogicalPosition, editor)))
+        params.setPosition(DocumentUtils.logicalToLSPPos(editor.getCaretModel.getCurrentCaret.getLogicalPosition, editor))
         params.setTextDocument(identifier)
         params.setOptions(new FormattingOptions())
         val future = requestManager.onTypeFormatting(params)
@@ -524,7 +524,7 @@ class EditorEventManager(val editor: Editor, val mouseListener: EditorMouseListe
           val range = diagnostic.getRange
           val severity = diagnostic.getSeverity
           LOG.info("code : " + code + " message : " + message + " source : " + source + " range : " + range)
-          val (start, end) = computableReadAction(() => (DocumentUtils.LSPPosToOffset(editor, range.getStart), DocumentUtils.LSPPosToOffset(editor, range.getEnd)))
+          val (start, end) = (DocumentUtils.LSPPosToOffset(editor, range.getStart), DocumentUtils.LSPPosToOffset(editor, range.getEnd))
 
           val markupModel = editor.getMarkupModel
           val colorScheme = editor.getColorsScheme
@@ -713,7 +713,7 @@ class EditorEventManager(val editor: Editor, val mouseListener: EditorMouseListe
         if (references != null) {
           references.asScala.collect {
             case l: Location if l.getUri == identifier.getUri =>
-              computableReadAction(() => (DocumentUtils.LSPPosToOffset(editor, l.getRange.getStart), DocumentUtils.LSPPosToOffset(editor, l.getRange.getEnd)))
+              (DocumentUtils.LSPPosToOffset(editor, l.getRange.getStart), DocumentUtils.LSPPosToOffset(editor, l.getRange.getEnd))
           }
         } else {
           null
@@ -780,9 +780,7 @@ class EditorEventManager(val editor: Editor, val mouseListener: EditorMouseListe
     */
   def mouseClicked(e: EditorMouseEvent): Unit = {
     if (isCtrlDown) {
-      if (ctrlRange != null) {
-        createCtrlRange(computableReadAction(() => DocumentUtils.logicalToLSPPos(editor.xyToLogicalPosition(e.getMouseEvent.getPoint), editor)), null)
-      }
+      createCtrlRange(DocumentUtils.logicalToLSPPos(editor.xyToLogicalPosition(e.getMouseEvent.getPoint), editor), null)
       if (ctrlRange != null) {
         val loc = ctrlRange.loc
         invokeLater(() => {
@@ -797,7 +795,7 @@ class EditorEventManager(val editor: Editor, val mouseListener: EditorMouseListe
                 val newEditor = FileEditorManager.getInstance(project).openTextEditor(descriptor, true)
                 val startOffset = DocumentUtils.LSPPosToOffset(newEditor, loc.getRange.getStart)
                 newEditor.getCaretModel.getCurrentCaret.moveToOffset(startOffset)
-                newEditor.getSelectionModel.setSelection(startOffset, DocumentUtils.LSPPosToOffset(newEditor, loc.getRange.getEnd))
+                newEditor.getScrollingModel.scrollToCaret(ScrollType.CENTER)
               })
             }
             if (ctrlRange != null) ctrlRange.dispose()
@@ -1156,7 +1154,7 @@ class EditorEventManager(val editor: Editor, val mouseListener: EditorMouseListe
       try {
         val definition = request.get(DEFINITION_TIMEOUT, TimeUnit.MILLISECONDS)
         wrapper.notifySuccess(Timeouts.DEFINITION)
-        if (definition != null && !definition.isEmpty) {
+        if (definition != null && !definition.isEmpty()) {
           definition.get(0)
         } else {
           null
