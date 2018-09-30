@@ -49,6 +49,7 @@ import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.natives.NativeUnitLoader;
 import org.ballerinalang.net.http.caching.RequestCacheControlStruct;
 import org.ballerinalang.net.http.caching.ResponseCacheControlStruct;
 import org.ballerinalang.net.http.session.Session;
@@ -1097,7 +1098,22 @@ public class HttpUtil {
     }
 
     public static HttpWsConnectorFactory createHttpWsConnectionFactory() {
-        return new DefaultHttpWsConnectorFactory();
+        DefaultHttpWsConnectorFactory factory = new DefaultHttpWsConnectorFactory();
+        NativeUnitLoader.getInstance().addShutdownHook(() -> {
+            // Retrying shutdown is important as DefaultHttpWsConnectorFactory.shutdown() might throw
+            // java.lang.InterruptedException in the middle of the process, keeping some thread-pools intact.
+            int maxRetries = 3;
+            while (maxRetries > 0) {
+                try {
+                    factory.shutdown();
+                    maxRetries = 0;
+                } catch (InterruptedException e) {
+                    maxRetries--;
+                }
+            }
+            return 0;
+        });
+        return factory;
     }
 
     public static void checkAndObserveHttpRequest(Context context, HttpCarbonMessage message) {
