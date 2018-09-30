@@ -181,9 +181,9 @@ public class ServiceProtoBuilder extends AbstractCompilerPlugin {
         keyLiteral.type = symTable.stringType;
 
         BLangLiteral valueLiteral = null;
-        LiteralNode literalNode1 = TreeBuilder.createLiteralExpression();
-        if (literalNode1.getKind() == NodeKind.LITERAL) {
-            valueLiteral = (BLangLiteral) literalNode1;
+        LiteralNode literalExpression = TreeBuilder.createLiteralExpression();
+        if (literalExpression.getKind() == NodeKind.LITERAL) {
+            valueLiteral = (BLangLiteral) literalExpression;
             if (fileDefinition != null) {
                 valueLiteral.value = bytesToHex(fileDefinition.getFileDescriptorProto().toByteArray());
             } else if (protoValue != null) {

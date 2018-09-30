@@ -34,7 +34,8 @@ public class ServiceFile {
     private String serviceName;
     private List<Method> unaryFunctions = new ArrayList<>();
     private Method streamingFunction = null;
-    public ServiceFile(String serviceName) {
+
+    ServiceFile(String serviceName) {
         this.serviceName = serviceName;
     }
 
@@ -86,14 +87,6 @@ public class ServiceFile {
             for (Method method : methodList) {
                 switch (method.getMethodType()) {
                 case UNARY:
-                    if (!serviceFile.clientStreaming && !serviceFile.bidiStreaming) {
-                        serviceFile.unaryFunctions.add(method);
-                        serviceFile.unary = true;
-                    } else {
-                        throw new BalGenerationException(
-                                "There should be only one method for client streaming or bi directional streaming.");
-                    }
-                    break;
                 case SERVER_STREAMING:
                     if (!serviceFile.clientStreaming && !serviceFile.bidiStreaming) {
                         serviceFile.unaryFunctions.add(method);
