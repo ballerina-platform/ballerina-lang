@@ -197,7 +197,7 @@ service<jms:Consumer> jmsListener bind subscriberEndpoint {
 
 ### JMS Topic Producer
 
-Following is a topic producer program that publishes to a particular JMS topic
+Following is a topic producer program that publishes to a particular JMS topic.
 
 ```ballerina
 import ballerina/jms;
@@ -220,7 +220,7 @@ endpoint jms:TopicPublisher topicPublisher {
 public function main(string... args) {
     match (jmsSession.createTextMessage("Hello from Ballerina")) {
         error e => {
-            log:printError("Error occurred while creating message", err=e);
+            log:printError("Error occurred while creating message", err = e);
         }
         jms:Message msg => {
             topicPublisher->send(msg) but {
