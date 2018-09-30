@@ -70,24 +70,39 @@ public class ProjectDirs {
      * @return true if its a test source, else false
      */
     public static boolean isTestSource(Path sourcePath, Path sourceRoot, String pkg) {
-        // Its a top level source file
+        // Check if it the package name is "." i.e. if its a single ballerina source file, if so it should be added to
+        // the bLangPackage
         if (pkg.equals(Names.DOT.value)) {
             return false;
         }
-        // Relativize source path with the source root
-        // Lets assume source root is "/home/user/project", pkg is "a" and source path is "/home/user/project/a/a.bal"
-        // Then after relativizing to get a relative path the source path will be a.bal
-        Path relativizePath = sourceRoot.resolve(pkg).relativize(sourcePath);
-        // Its a source file directly inside the package
+        // Resolve package path with the source root
+        Path pkgPath = sourceRoot.resolve(pkg);
+        // Construct a relative path between the package path and the ballerina source file path.
+        // Lets assume source root is "/home/user/project" and pkg is "a".
+        //  * If the source path is "/home/user/project/a/a.bal", then after relativizing the relative path will be
+        //    a.bal
+        //  * If the source path is "/home/user/project/a/foo/foo.bal", then after relativizing the relative path will
+        //    be foo/foo.bal
+        //  * If the source path is "/home/user/project/a/tests/test.bal", then after relativizing the relative path
+        //    will be tests/test.bal
+        Path relativizePath = pkgPath.relativize(sourcePath);
+        // Check if the parent is null, if its null then it's a source file directly inside the package and it should be
+        // added to the the bLangPackage. Else its a source file inside another directory of the package or its a test
+        // source inside the "tests" directory
         if (relativizePath.getParent() == null) {
             return false;
         }
-        // Its a source file inside another package or its a test source
-        Path parentPath = relativizePath.getName(0);
-        if (parentPath != null) {
-            Path parentFileName = parentPath.getFileName();
-            if (parentFileName != null) {
-                return ProjectDirConstants.TEST_DIR_NAME.equals(parentFileName.toString());
+        // The source file can be a file inside another directory of the package or can be a test source inside the
+        // "tests" directory. Get the file name of the element that is closest to the root in the directory hierarchy
+        // i.e. which has index 0.
+        Path rootPath = relativizePath.getName(0);
+        if (rootPath != null) {
+            Path rootFileName = rootPath.getFileName();
+            if (rootFileName != null) {
+                // Check if the root file name is equal to the "tests" directory, if its equal the source is from the
+                // tests folder and it should be added to the testable package. Else if its not equal it should be added
+                // to the bLangPackage.
+                return ProjectDirConstants.TEST_DIR_NAME.equals(rootFileName.toString());
             }
         }
         return false;

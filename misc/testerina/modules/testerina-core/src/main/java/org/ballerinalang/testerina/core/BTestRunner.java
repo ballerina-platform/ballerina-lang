@@ -214,12 +214,11 @@ public class BTestRunner {
     private void buildSuites(Map<BLangPackage, CompiledBinaryFile.ProgramFile> packageList) {
         packageList.forEach((sourcePackage, compiledBinaryFile) -> {
             String packageName = TesterinaUtils.getFullPackageName(sourcePackage.packageID.getName().getValue());
-            // Add test suite to registry if not added. In this package there are no tests to be executed. But we need
+            // Add a test suite to registry if not added. In this package there are no tests to be executed. But we need
             // to say that there are no tests found in the package to be executed
             addTestSuite(packageName);
             // Keeps a track of the sources that are being built
             sourcePackages.add(packageName);
-
             ProgramFile pFile = LauncherUtils.getExecutableProgram(compiledBinaryFile);
             processProgramFile(pFile);
         });
