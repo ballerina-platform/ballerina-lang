@@ -35,7 +35,7 @@ class PositioningUtil {
         viewState.components['statement-box'].y = viewState.bBox.y + viewState.components['drop-zone'].h;
         viewState.components.text.x = viewState.components['statement-box'].x + this.config.statement.gutter.h;
         viewState.components.text.y = viewState.components['statement-box'].y +
-            (viewState.components['statement-box'].h / 2);
+            (viewState.components['statement-box'].h / 2) + this.config.statement.gutter.h;
 
         if (TreeUtil.statementIsInvocation(node)) {
             // Set the view state property to manipulate at the action invocation decorator
