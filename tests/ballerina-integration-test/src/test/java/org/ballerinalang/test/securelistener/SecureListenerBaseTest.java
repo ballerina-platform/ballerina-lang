@@ -35,7 +35,7 @@ public class SecureListenerBaseTest extends BaseTest {
 
     @BeforeGroups(value = "secure-listener-test", alwaysRun = true)
     public void start() throws BallerinaTestException {
-        int[] requiredPorts = new int[]{9090, 9091, 9092, 9093, 9094, 9095, 9096};
+        int[] requiredPorts = new int[]{9090, 9092, 9091, 9093, 9094, 9095, 9096};
 
         String basePath = new File("src" + File.separator + "test" + File.separator + "resources" + File.separator +
                 "secureListener").getAbsolutePath();

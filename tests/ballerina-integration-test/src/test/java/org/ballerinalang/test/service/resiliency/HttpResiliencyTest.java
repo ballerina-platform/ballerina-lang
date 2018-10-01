@@ -64,7 +64,8 @@ public class HttpResiliencyTest extends BaseTest {
 
     @BeforeTest(alwaysRun = true)
     public void start() throws BallerinaTestException {
-        int[] requiredPorts = new int[]{9300, 9301, 9302, 9303, 9304, 9305, 9306, 9307, 9308, 9309, 9310, 9311, 9312};
+        int[] requiredPorts = new int[]{8080, 9300, 8081, 9301, 8082, 9302, 8083, 9303, 8084, 9304, 8085, 9305,
+                8086, 9306, 8087, 9307, 8088, 9308, 8089, 9309, 8090, 9310, 8091, 9311, 8092, 9312};
         String sourcePath = new File("src" + File.separator + "test" + File.separator + "resources"
                 + File.separator + "resiliency").getAbsolutePath();
         serverInstance = new BServerInstance(balServer);
