@@ -81,21 +81,15 @@ function pullPackage (http:Client definedEndpoint, boolean isBuild, string url, 
         var jsonResponse = httpResponse.getJsonPayload();
         match jsonResponse {
             json resp => {
-                if (statusCode == "404") {
-                    if (!isBuild) {
-                        io:println(logFormatter.formatLog(resp.message.toString()));
-                    }
-                    return 1;
-                } else {
+                if (!(statusCode == "404" && isBuild)) {
                     io:println(logFormatter.formatLog(resp.message.toString()));
-                    return 1;
                 }
             }
             error err => {
                 io:println(logFormatter.formatLog("error occurred when pulling the package"));
-                return 1;
             }
         }
+        return 1;
     } else {
         string contentLengthHeader;
         int pkgSize = MAX_INT_VALUE;
@@ -141,9 +135,23 @@ function pullPackage (http:Client definedEndpoint, boolean isBuild, string url, 
             int width = (check <int> terminalWidth) - rightMargin;
             copy(pkgSize, sourceChannel, destDirChannel, fullPkgPath, toAndFrom, width);
 
-            closeChannel(destDirChannel);
-            closeChannel(sourceChannel);
-            return 0;
+            match destDirChannel.close() {
+                error destChannelCloseError => {
+                    io:println(logFormatter.formatLog("error occured while closing the channel: " + destChannelCloseError.message));
+                    return 1;
+                }
+                () => {
+                    match sourceChannel.close() {
+                        error sourceChannelCloseError => {
+                            io:println(logFormatter.formatLog("error occured while closing the channel: " + sourceChannelCloseError.message));
+                            return 1;
+                        }
+                        () => {
+                            return 0;
+                        }
+                    }
+                }
+            }
         } else {
             io:println(logFormatter.formatLog("package version could not be detected"));
             return 1;
@@ -359,21 +367,6 @@ function createDirectories(string directoryPath) returns (boolean) {
         }
     } else {
         return false;
-    }
-}
-
-# This function will close the byte channel.
-#
-# + byteChannel - Byte channel to be closed
-function closeChannel(io:ByteChannel byteChannel) {
-    match byteChannel.close() {
-        error channelCloseError => {
-            error channelError = {
-                message: logFormatter.formatLog("Error occured while closing the channel: " + channelCloseError.message)
-            };
-            throw channelError;
-        }
-        () => return;
     }
 }
 
