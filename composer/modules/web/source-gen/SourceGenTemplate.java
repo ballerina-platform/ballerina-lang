@@ -312,6 +312,12 @@ public class SourceGen {
             }
         }
 
+        if (kind.equals("Annotation")) {
+            if (node.has("attachmentPoints") && node.getAsJsonArray("attachmentPoints").size() <= 0) {
+                node.addProperty("noAttachmentPoints", true);
+            }
+        }
+
         if (kind.equals("AnnotationAttachment") &&
                 node.getAsJsonObject("packageAlias").get("value").getAsString().equals("builtin")) {
             node.addProperty("builtin", true);
@@ -968,6 +974,13 @@ public class SourceGen {
                 node.addProperty("typeString", node.getAsJsonArray("ws")
                         .get(0).getAsJsonObject().get("text").getAsString());
             }
+        }
+
+        if (kind.equals("Deprecated") &&
+                node.has("ws") &&
+                node.getAsJsonArray("ws").size() > 0) {
+            node.addProperty("deprecatedStart",
+                    node.getAsJsonArray("ws").get(0).getAsJsonObject().get("text").getAsString());
         }
     }
 

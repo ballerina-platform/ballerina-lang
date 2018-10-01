@@ -195,7 +195,80 @@ public class SourceGen {
             }
         }
         public String getSourceForAnnotation(JsonObject node, boolean pretty, boolean replaceLambda, SourceGenParams sourceGenParams) {
-            return dent(sourceGenParams.isShouldIndent())
+            if (node.get("noAttachmentPoints") != null
+                         && node.get("noAttachmentPoints") .getAsBoolean()
+                         && node.get("markdownDocumentationAttachment") != null && node.get("annotationAttachments") != null
+                         && node.getAsJsonObject("name").get("valueWithBar") != null
+                         && !node.getAsJsonObject("name").get("valueWithBar").getAsString().isEmpty()
+                         && node.get("typeNode") != null) {
+                return dent(sourceGenParams.isShouldIndent())
+                 + a("", sourceGenParams.isShouldIndent())
+                 + getSourceOf(node.getAsJsonObject("markdownDocumentationAttachment"), pretty, replaceLambda)
+                 + join(node.getAsJsonArray("annotationAttachments"), pretty, replaceLambda, "", null, false, sourceGenParams) + w("", sourceGenParams) + "annotation"
+                 + a("", sourceGenParams.isShouldIndent())
+                 + w(" ", sourceGenParams)
+                 + node.getAsJsonObject("name").get("valueWithBar").getAsString() + a(" ", sourceGenParams.isShouldIndent())
+                 + a(" ", sourceGenParams.isShouldIndent())
+                 + getSourceOf(node.getAsJsonObject("typeNode"), pretty, replaceLambda) + w("", sourceGenParams) + ";"
+                 + a("", sourceGenParams.isShouldIndent());
+            } else if (node.get("noAttachmentPoints") != null
+                         && node.get("noAttachmentPoints") .getAsBoolean()
+                         && node.get("annotationAttachments") != null && node.getAsJsonObject("name").get("valueWithBar") != null
+                         && !node.getAsJsonObject("name").get("valueWithBar").getAsString().isEmpty() && node.get("typeNode") != null) {
+                return dent(sourceGenParams.isShouldIndent())
+                 + join(node.getAsJsonArray("annotationAttachments"), pretty, replaceLambda, "", null, false, sourceGenParams) + w("", sourceGenParams) + "annotation"
+                 + a("", sourceGenParams.isShouldIndent()) + w(" ", sourceGenParams)
+                 + node.getAsJsonObject("name").get("valueWithBar").getAsString()
+                 + a(" ", sourceGenParams.isShouldIndent())
+                 + a(" ", sourceGenParams.isShouldIndent())
+                 + getSourceOf(node.getAsJsonObject("typeNode"), pretty, replaceLambda) + w("", sourceGenParams) + ";"
+                 + a("", sourceGenParams.isShouldIndent());
+            } else if (node.get("noAttachmentPoints") != null
+                         && node.get("noAttachmentPoints") .getAsBoolean()
+                         && node.get("markdownDocumentationAttachment") != null && node.get("annotationAttachments") != null
+                         && node.getAsJsonObject("name").get("valueWithBar") != null
+                         && !node.getAsJsonObject("name").get("valueWithBar").getAsString().isEmpty()) {
+                return dent(sourceGenParams.isShouldIndent())
+                 + a("", sourceGenParams.isShouldIndent())
+                 + getSourceOf(node.getAsJsonObject("markdownDocumentationAttachment"), pretty, replaceLambda)
+                 + join(node.getAsJsonArray("annotationAttachments"), pretty, replaceLambda, "", null, false, sourceGenParams) + w("", sourceGenParams) + "annotation"
+                 + a("", sourceGenParams.isShouldIndent())
+                 + w(" ", sourceGenParams)
+                 + node.getAsJsonObject("name").get("valueWithBar").getAsString() + a(" ", sourceGenParams.isShouldIndent())
+                 + w("", sourceGenParams) + ";" + a("", sourceGenParams.isShouldIndent());
+            } else if (node.get("noAttachmentPoints") != null
+                         && node.get("noAttachmentPoints") .getAsBoolean()
+                         && node.get("annotationAttachments") != null && node.getAsJsonObject("name").get("valueWithBar") != null
+                         && !node.getAsJsonObject("name").get("valueWithBar").getAsString().isEmpty()) {
+                return dent(sourceGenParams.isShouldIndent())
+                 + join(node.getAsJsonArray("annotationAttachments"), pretty, replaceLambda, "", null, false, sourceGenParams) + w("", sourceGenParams) + "annotation"
+                 + a("", sourceGenParams.isShouldIndent()) + w(" ", sourceGenParams)
+                 + node.getAsJsonObject("name").get("valueWithBar").getAsString()
+                 + a(" ", sourceGenParams.isShouldIndent()) + w("", sourceGenParams)
+                 + ";" + a("", sourceGenParams.isShouldIndent());
+            } else if (node.get("markdownDocumentationAttachment") != null
+                         && node.get("annotationAttachments") != null
+                         && node.get("attachmentPoints") != null
+                         && node.getAsJsonObject("name").get("valueWithBar") != null
+                         && !node.getAsJsonObject("name").get("valueWithBar").getAsString().isEmpty() && node.get("typeNode") != null) {
+                return dent(sourceGenParams.isShouldIndent())
+                 + a("", sourceGenParams.isShouldIndent())
+                 + getSourceOf(node.getAsJsonObject("markdownDocumentationAttachment"), pretty, replaceLambda)
+                 + join(node.getAsJsonArray("annotationAttachments"), pretty, replaceLambda, "", null, false, sourceGenParams) + w("", sourceGenParams) + "annotation"
+                 + a("", sourceGenParams.isShouldIndent())
+                 + w(" ", sourceGenParams) + "<" + a("", sourceGenParams.isShouldIndent())
+                 + join(node.getAsJsonArray("attachmentPoints"), pretty, replaceLambda, "", ",", false, sourceGenParams) + w("", sourceGenParams) + ">"
+                 + a("", sourceGenParams.isShouldIndent()) + w(" ", sourceGenParams)
+                 + node.getAsJsonObject("name").get("valueWithBar").getAsString()
+                 + a(" ", sourceGenParams.isShouldIndent())
+                 + a(" ", sourceGenParams.isShouldIndent())
+                 + getSourceOf(node.getAsJsonObject("typeNode"), pretty, replaceLambda) + w("", sourceGenParams) + ";"
+                 + a("", sourceGenParams.isShouldIndent());
+            } else if (node.get("annotationAttachments") != null
+                         && node.get("attachmentPoints") != null
+                         && node.getAsJsonObject("name").get("valueWithBar") != null
+                         && !node.getAsJsonObject("name").get("valueWithBar").getAsString().isEmpty() && node.get("typeNode") != null) {
+                return dent(sourceGenParams.isShouldIndent())
                  + join(node.getAsJsonArray("annotationAttachments"), pretty, replaceLambda, "", null, false, sourceGenParams) + w("", sourceGenParams) + "annotation"
                  + a("", sourceGenParams.isShouldIndent()) + w(" ", sourceGenParams)
                  + "<" + a("", sourceGenParams.isShouldIndent())
@@ -206,6 +279,33 @@ public class SourceGen {
                  + a(" ", sourceGenParams.isShouldIndent())
                  + getSourceOf(node.getAsJsonObject("typeNode"), pretty, replaceLambda) + w("", sourceGenParams) + ";"
                  + a("", sourceGenParams.isShouldIndent());
+            } else if (node.get("markdownDocumentationAttachment") != null
+                         && node.get("annotationAttachments") != null
+                         && node.get("attachmentPoints") != null
+                         && node.getAsJsonObject("name").get("valueWithBar") != null
+                         && !node.getAsJsonObject("name").get("valueWithBar").getAsString().isEmpty()) {
+                return dent(sourceGenParams.isShouldIndent())
+                 + a("", sourceGenParams.isShouldIndent())
+                 + getSourceOf(node.getAsJsonObject("markdownDocumentationAttachment"), pretty, replaceLambda)
+                 + join(node.getAsJsonArray("annotationAttachments"), pretty, replaceLambda, "", null, false, sourceGenParams) + w("", sourceGenParams) + "annotation"
+                 + a("", sourceGenParams.isShouldIndent())
+                 + w(" ", sourceGenParams) + "<" + a("", sourceGenParams.isShouldIndent())
+                 + join(node.getAsJsonArray("attachmentPoints"), pretty, replaceLambda, "", ",", false, sourceGenParams) + w("", sourceGenParams) + ">"
+                 + a("", sourceGenParams.isShouldIndent()) + w(" ", sourceGenParams)
+                 + node.getAsJsonObject("name").get("valueWithBar").getAsString()
+                 + a(" ", sourceGenParams.isShouldIndent()) + w("", sourceGenParams)
+                 + ";" + a("", sourceGenParams.isShouldIndent());
+            } else {
+                return dent(sourceGenParams.isShouldIndent())
+                 + join(node.getAsJsonArray("annotationAttachments"), pretty, replaceLambda, "", null, false, sourceGenParams) + w("", sourceGenParams) + "annotation"
+                 + a("", sourceGenParams.isShouldIndent()) + w(" ", sourceGenParams)
+                 + "<" + a("", sourceGenParams.isShouldIndent())
+                 + join(node.getAsJsonArray("attachmentPoints"), pretty, replaceLambda, "", ",", false, sourceGenParams) + w("", sourceGenParams) + ">"
+                 + a("", sourceGenParams.isShouldIndent()) + w(" ", sourceGenParams)
+                 + node.getAsJsonObject("name").get("valueWithBar").getAsString()
+                 + a(" ", sourceGenParams.isShouldIndent()) + w("", sourceGenParams) + ";"
+                 + a("", sourceGenParams.isShouldIndent());
+            }
         }
         public String getSourceForAnnotationAttachment(JsonObject node, boolean pretty, boolean replaceLambda, SourceGenParams sourceGenParams) {
             if (node.get("builtin") != null
@@ -389,8 +489,16 @@ public class SourceGen {
                  + ")" + a("", sourceGenParams.isShouldIndent());
         }
         public String getSourceForBuiltInRefType(JsonObject node, boolean pretty, boolean replaceLambda, SourceGenParams sourceGenParams) {
-            return w("", sourceGenParams) + node.get("typeKind").getAsString()
+            if (node.get("grouped") != null
+                         && node.get("grouped") .getAsBoolean() && node.get("typeKind") != null) {
+                return w("", sourceGenParams) + "("
+                 + a("", sourceGenParams.isShouldIndent()) + w("", sourceGenParams)
+                 + node.get("typeKind").getAsString() + a("", sourceGenParams.isShouldIndent())
+                 + w("", sourceGenParams) + ")" + a("", sourceGenParams.isShouldIndent());
+            } else {
+                return w("", sourceGenParams) + node.get("typeKind").getAsString()
                  + a("", sourceGenParams.isShouldIndent());
+            }
         }
         public String getSourceForCatch(JsonObject node, boolean pretty, boolean replaceLambda, SourceGenParams sourceGenParams) {
             return dent(sourceGenParams.isShouldIndent()) + w("", sourceGenParams)
@@ -548,13 +656,12 @@ public class SourceGen {
                  + node.get("documentationText").getAsString() + a("", sourceGenParams.isShouldIndent());
         }
         public String getSourceForDeprecated(JsonObject node, boolean pretty, boolean replaceLambda, SourceGenParams sourceGenParams) {
-            return dent(sourceGenParams.isShouldIndent()) + w("", sourceGenParams)
-                 + "deprecated" + a(" ", sourceGenParams.isShouldIndent())
-                 + w("", sourceGenParams) + "{" + a("", sourceGenParams.isShouldIndent())
-                 + indent() + w("", sourceGenParams)
-                 + node.get("documentationText").getAsString() + a("", sourceGenParams.isShouldIndent())
-                 + outdent(node, sourceGenParams.isShouldIndent())
-                 + w("", sourceGenParams) + "}" + a("", sourceGenParams.isShouldIndent());
+            return w("", sourceGenParams)
+                 + node.get("deprecatedStart").getAsString() + a("", sourceGenParams.isShouldIndent())
+                 + w("", sourceGenParams) + node.get("documentationText").getAsString()
+                 + a("", sourceGenParams.isShouldIndent())
+                 + outdent(node, sourceGenParams.isShouldIndent()) + w("", sourceGenParams) + "}"
+                 + a("", sourceGenParams.isShouldIndent());
         }
         public String getSourceForDone(JsonObject node, boolean pretty, boolean replaceLambda, SourceGenParams sourceGenParams) {
             return dent(sourceGenParams.isShouldIndent()) + w("", sourceGenParams)
@@ -2015,6 +2122,210 @@ public class SourceGen {
                  + getSourceOf(node.getAsJsonObject("body"), pretty, replaceLambda)
                  + join(node.getAsJsonArray("workers"), pretty, replaceLambda, "", null, false, sourceGenParams)
                  + outdent(node, sourceGenParams.isShouldIndent()) + w("", sourceGenParams) + "}"
+                 + a("", sourceGenParams.isShouldIndent());
+            } else if (node.get("native") != null && node.get("native") .getAsBoolean()
+                         && node.get("markdownDocumentationAttachment") != null
+                         && node.get("annotationAttachments") != null
+                         && node.get("deprecatedAttachments") != null
+                         && node.getAsJsonObject("name").get("valueWithBar") != null
+                         && !node.getAsJsonObject("name").get("valueWithBar").getAsString().isEmpty() && node.get("allParams") != null
+                         && node.get("restParameters") != null && node.get("hasReturns") != null
+                         && node.get("hasReturns") .getAsBoolean()
+                         && node.get("returnTypeAnnotationAttachments") != null
+                         && node.get("returnTypeNode") != null) {
+                return dent(sourceGenParams.isShouldIndent())
+                 + a("", sourceGenParams.isShouldIndent())
+                 + getSourceOf(node.getAsJsonObject("markdownDocumentationAttachment"), pretty, replaceLambda)
+                 + join(node.getAsJsonArray("annotationAttachments"), pretty, replaceLambda, "", null, false, sourceGenParams)
+                 + join(node.getAsJsonArray("deprecatedAttachments"), pretty, replaceLambda, "", null, false, sourceGenParams)
+                 + (node.has("public") && node.get("public").getAsBoolean() ? w("", sourceGenParams) + "public"
+                 + a(" ", sourceGenParams.isShouldIndent()) : "") + w("", sourceGenParams) + "extern"
+                 + a("", sourceGenParams.isShouldIndent()) + w("", sourceGenParams)
+                 + "function" + a("", sourceGenParams.isShouldIndent())
+                 + w(" ", sourceGenParams)
+                 + node.getAsJsonObject("name").get("valueWithBar").getAsString() + a("", sourceGenParams.isShouldIndent())
+                 + w("", sourceGenParams) + "(" + a("", sourceGenParams.isShouldIndent())
+                 + join(node.getAsJsonArray("allParams"), pretty, replaceLambda, "", ",", false, sourceGenParams)
+                 + (node.has("hasRestParams") && node.get("hasRestParams").getAsBoolean() ? w("", sourceGenParams) + ","
+                 + a("", sourceGenParams.isShouldIndent()) : "")
+                 + a("", sourceGenParams.isShouldIndent())
+                 + getSourceOf(node.getAsJsonObject("restParameters"), pretty, replaceLambda) + w("", sourceGenParams)
+                 + ")" + a(" ", sourceGenParams.isShouldIndent())
+                 + w("", sourceGenParams) + "returns" + a(" ", sourceGenParams.isShouldIndent())
+                 + join(node.getAsJsonArray("returnTypeAnnotationAttachments"), pretty, replaceLambda, "", null, false, sourceGenParams)
+                 + a("", sourceGenParams.isShouldIndent())
+                 + getSourceOf(node.getAsJsonObject("returnTypeNode"), pretty, replaceLambda) + w("", sourceGenParams)
+                 + ";" + a("", sourceGenParams.isShouldIndent());
+            } else if (node.get("native") != null && node.get("native") .getAsBoolean()
+                         && node.get("annotationAttachments") != null
+                         && node.get("deprecatedAttachments") != null
+                         && node.getAsJsonObject("name").get("valueWithBar") != null
+                         && !node.getAsJsonObject("name").get("valueWithBar").getAsString().isEmpty() && node.get("allParams") != null
+                         && node.get("restParameters") != null
+                         && node.get("hasReturns") != null && node.get("hasReturns") .getAsBoolean()
+                         && node.get("returnTypeAnnotationAttachments") != null
+                         && node.get("returnTypeNode") != null) {
+                return dent(sourceGenParams.isShouldIndent())
+                 + join(node.getAsJsonArray("annotationAttachments"), pretty, replaceLambda, "", null, false, sourceGenParams)
+                 + join(node.getAsJsonArray("deprecatedAttachments"), pretty, replaceLambda, "", null, false, sourceGenParams)
+                 + (node.has("public") && node.get("public").getAsBoolean() ? w("", sourceGenParams) + "public"
+                 + a(" ", sourceGenParams.isShouldIndent()) : "") + w("", sourceGenParams) + "extern"
+                 + a("", sourceGenParams.isShouldIndent()) + w("", sourceGenParams) + "function"
+                 + a("", sourceGenParams.isShouldIndent())
+                 + w(" ", sourceGenParams)
+                 + node.getAsJsonObject("name").get("valueWithBar").getAsString() + a("", sourceGenParams.isShouldIndent())
+                 + w("", sourceGenParams) + "(" + a("", sourceGenParams.isShouldIndent())
+                 + join(node.getAsJsonArray("allParams"), pretty, replaceLambda, "", ",", false, sourceGenParams)
+                 + (node.has("hasRestParams") && node.get("hasRestParams").getAsBoolean() ? w("", sourceGenParams) + ","
+                 + a("", sourceGenParams.isShouldIndent()) : "")
+                 + a("", sourceGenParams.isShouldIndent())
+                 + getSourceOf(node.getAsJsonObject("restParameters"), pretty, replaceLambda) + w("", sourceGenParams) + ")"
+                 + a(" ", sourceGenParams.isShouldIndent()) + w("", sourceGenParams)
+                 + "returns" + a(" ", sourceGenParams.isShouldIndent())
+                 + join(node.getAsJsonArray("returnTypeAnnotationAttachments"), pretty, replaceLambda, "", null, false, sourceGenParams)
+                 + a("", sourceGenParams.isShouldIndent())
+                 + getSourceOf(node.getAsJsonObject("returnTypeNode"), pretty, replaceLambda) + w("", sourceGenParams) + ";"
+                 + a("", sourceGenParams.isShouldIndent());
+            } else if (node.get("native") != null && node.get("native") .getAsBoolean()
+                         && node.get("markdownDocumentationAttachment") != null
+                         && node.get("annotationAttachments") != null
+                         && node.get("deprecatedAttachments") != null
+                         && node.getAsJsonObject("name").get("valueWithBar") != null
+                         && !node.getAsJsonObject("name").get("valueWithBar").getAsString().isEmpty() && node.get("allParams") != null
+                         && node.get("restParameters") != null) {
+                return dent(sourceGenParams.isShouldIndent())
+                 + a("", sourceGenParams.isShouldIndent())
+                 + getSourceOf(node.getAsJsonObject("markdownDocumentationAttachment"), pretty, replaceLambda)
+                 + join(node.getAsJsonArray("annotationAttachments"), pretty, replaceLambda, "", null, false, sourceGenParams)
+                 + join(node.getAsJsonArray("deprecatedAttachments"), pretty, replaceLambda, "", null, false, sourceGenParams)
+                 + (node.has("public") && node.get("public").getAsBoolean() ? w("", sourceGenParams) + "public"
+                 + a(" ", sourceGenParams.isShouldIndent()) : "") + w("", sourceGenParams) + "extern"
+                 + a("", sourceGenParams.isShouldIndent()) + w("", sourceGenParams)
+                 + "function" + a("", sourceGenParams.isShouldIndent())
+                 + w(" ", sourceGenParams)
+                 + node.getAsJsonObject("name").get("valueWithBar").getAsString() + a("", sourceGenParams.isShouldIndent())
+                 + w("", sourceGenParams) + "(" + a("", sourceGenParams.isShouldIndent())
+                 + join(node.getAsJsonArray("allParams"), pretty, replaceLambda, "", ",", false, sourceGenParams)
+                 + (node.has("hasRestParams") && node.get("hasRestParams").getAsBoolean() ? w("", sourceGenParams) + ","
+                 + a("", sourceGenParams.isShouldIndent()) : "")
+                 + a("", sourceGenParams.isShouldIndent())
+                 + getSourceOf(node.getAsJsonObject("restParameters"), pretty, replaceLambda) + w("", sourceGenParams)
+                 + ")" + a(" ", sourceGenParams.isShouldIndent())
+                 + w("", sourceGenParams) + ";" + a("", sourceGenParams.isShouldIndent());
+            } else if (node.get("native") != null && node.get("native") .getAsBoolean()
+                         && node.get("annotationAttachments") != null
+                         && node.get("deprecatedAttachments") != null
+                         && node.getAsJsonObject("name").get("valueWithBar") != null
+                         && !node.getAsJsonObject("name").get("valueWithBar").getAsString().isEmpty() && node.get("allParams") != null
+                         && node.get("restParameters") != null) {
+                return dent(sourceGenParams.isShouldIndent())
+                 + join(node.getAsJsonArray("annotationAttachments"), pretty, replaceLambda, "", null, false, sourceGenParams)
+                 + join(node.getAsJsonArray("deprecatedAttachments"), pretty, replaceLambda, "", null, false, sourceGenParams)
+                 + (node.has("public") && node.get("public").getAsBoolean() ? w("", sourceGenParams) + "public"
+                 + a(" ", sourceGenParams.isShouldIndent()) : "") + w("", sourceGenParams) + "extern"
+                 + a("", sourceGenParams.isShouldIndent()) + w("", sourceGenParams) + "function"
+                 + a("", sourceGenParams.isShouldIndent())
+                 + w(" ", sourceGenParams)
+                 + node.getAsJsonObject("name").get("valueWithBar").getAsString() + a("", sourceGenParams.isShouldIndent())
+                 + w("", sourceGenParams) + "(" + a("", sourceGenParams.isShouldIndent())
+                 + join(node.getAsJsonArray("allParams"), pretty, replaceLambda, "", ",", false, sourceGenParams)
+                 + (node.has("hasRestParams") && node.get("hasRestParams").getAsBoolean() ? w("", sourceGenParams) + ","
+                 + a("", sourceGenParams.isShouldIndent()) : "")
+                 + a("", sourceGenParams.isShouldIndent())
+                 + getSourceOf(node.getAsJsonObject("restParameters"), pretty, replaceLambda) + w("", sourceGenParams) + ")"
+                 + a(" ", sourceGenParams.isShouldIndent()) + w("", sourceGenParams)
+                 + ";" + a("", sourceGenParams.isShouldIndent());
+            } else if (node.get("native") != null && node.get("native") .getAsBoolean()
+                         && node.get("markdownDocumentationAttachment") != null
+                         && node.get("annotationAttachments") != null
+                         && node.get("deprecatedAttachments") != null
+                         && node.getAsJsonObject("name").get("valueWithBar") != null
+                         && !node.getAsJsonObject("name").get("valueWithBar").getAsString().isEmpty() && node.get("allParams") != null
+                         && node.get("hasReturns") != null && node.get("hasReturns") .getAsBoolean()
+                         && node.get("returnTypeAnnotationAttachments") != null
+                         && node.get("returnTypeNode") != null) {
+                return dent(sourceGenParams.isShouldIndent())
+                 + a("", sourceGenParams.isShouldIndent())
+                 + getSourceOf(node.getAsJsonObject("markdownDocumentationAttachment"), pretty, replaceLambda)
+                 + join(node.getAsJsonArray("annotationAttachments"), pretty, replaceLambda, "", null, false, sourceGenParams)
+                 + join(node.getAsJsonArray("deprecatedAttachments"), pretty, replaceLambda, "", null, false, sourceGenParams)
+                 + (node.has("public") && node.get("public").getAsBoolean() ? w("", sourceGenParams) + "public"
+                 + a(" ", sourceGenParams.isShouldIndent()) : "") + w("", sourceGenParams) + "extern"
+                 + a("", sourceGenParams.isShouldIndent()) + w("", sourceGenParams)
+                 + "function" + a("", sourceGenParams.isShouldIndent())
+                 + w(" ", sourceGenParams)
+                 + node.getAsJsonObject("name").get("valueWithBar").getAsString() + a("", sourceGenParams.isShouldIndent())
+                 + w("", sourceGenParams) + "(" + a("", sourceGenParams.isShouldIndent())
+                 + join(node.getAsJsonArray("allParams"), pretty, replaceLambda, "", ",", false, sourceGenParams) + w("", sourceGenParams) + ")"
+                 + a(" ", sourceGenParams.isShouldIndent()) + w("", sourceGenParams)
+                 + "returns" + a(" ", sourceGenParams.isShouldIndent())
+                 + join(node.getAsJsonArray("returnTypeAnnotationAttachments"), pretty, replaceLambda, "", null, false, sourceGenParams)
+                 + a("", sourceGenParams.isShouldIndent())
+                 + getSourceOf(node.getAsJsonObject("returnTypeNode"), pretty, replaceLambda) + w("", sourceGenParams) + ";"
+                 + a("", sourceGenParams.isShouldIndent());
+            } else if (node.get("native") != null && node.get("native") .getAsBoolean()
+                         && node.get("annotationAttachments") != null
+                         && node.get("deprecatedAttachments") != null
+                         && node.getAsJsonObject("name").get("valueWithBar") != null
+                         && !node.getAsJsonObject("name").get("valueWithBar").getAsString().isEmpty() && node.get("allParams") != null
+                         && node.get("hasReturns") != null
+                         && node.get("hasReturns") .getAsBoolean() && node.get("returnTypeAnnotationAttachments") != null
+                         && node.get("returnTypeNode") != null) {
+                return dent(sourceGenParams.isShouldIndent())
+                 + join(node.getAsJsonArray("annotationAttachments"), pretty, replaceLambda, "", null, false, sourceGenParams)
+                 + join(node.getAsJsonArray("deprecatedAttachments"), pretty, replaceLambda, "", null, false, sourceGenParams)
+                 + (node.has("public") && node.get("public").getAsBoolean() ? w("", sourceGenParams) + "public"
+                 + a(" ", sourceGenParams.isShouldIndent()) : "") + w("", sourceGenParams) + "extern"
+                 + a("", sourceGenParams.isShouldIndent()) + w("", sourceGenParams) + "function"
+                 + a("", sourceGenParams.isShouldIndent())
+                 + w(" ", sourceGenParams)
+                 + node.getAsJsonObject("name").get("valueWithBar").getAsString() + a("", sourceGenParams.isShouldIndent())
+                 + w("", sourceGenParams) + "(" + a("", sourceGenParams.isShouldIndent())
+                 + join(node.getAsJsonArray("allParams"), pretty, replaceLambda, "", ",", false, sourceGenParams) + w("", sourceGenParams) + ")"
+                 + a(" ", sourceGenParams.isShouldIndent()) + w("", sourceGenParams) + "returns"
+                 + a(" ", sourceGenParams.isShouldIndent())
+                 + join(node.getAsJsonArray("returnTypeAnnotationAttachments"), pretty, replaceLambda, "", null, false, sourceGenParams)
+                 + a("", sourceGenParams.isShouldIndent())
+                 + getSourceOf(node.getAsJsonObject("returnTypeNode"), pretty, replaceLambda) + w("", sourceGenParams) + ";"
+                 + a("", sourceGenParams.isShouldIndent());
+            } else if (node.get("native") != null && node.get("native") .getAsBoolean()
+                         && node.get("markdownDocumentationAttachment") != null
+                         && node.get("annotationAttachments") != null
+                         && node.get("deprecatedAttachments") != null
+                         && node.getAsJsonObject("name").get("valueWithBar") != null
+                         && !node.getAsJsonObject("name").get("valueWithBar").getAsString().isEmpty() && node.get("allParams") != null) {
+                return dent(sourceGenParams.isShouldIndent())
+                 + a("", sourceGenParams.isShouldIndent())
+                 + getSourceOf(node.getAsJsonObject("markdownDocumentationAttachment"), pretty, replaceLambda)
+                 + join(node.getAsJsonArray("annotationAttachments"), pretty, replaceLambda, "", null, false, sourceGenParams)
+                 + join(node.getAsJsonArray("deprecatedAttachments"), pretty, replaceLambda, "", null, false, sourceGenParams)
+                 + (node.has("public") && node.get("public").getAsBoolean() ? w("", sourceGenParams) + "public"
+                 + a(" ", sourceGenParams.isShouldIndent()) : "") + w("", sourceGenParams) + "extern"
+                 + a("", sourceGenParams.isShouldIndent()) + w("", sourceGenParams)
+                 + "function" + a("", sourceGenParams.isShouldIndent())
+                 + w(" ", sourceGenParams)
+                 + node.getAsJsonObject("name").get("valueWithBar").getAsString() + a("", sourceGenParams.isShouldIndent())
+                 + w("", sourceGenParams) + "(" + a("", sourceGenParams.isShouldIndent())
+                 + join(node.getAsJsonArray("allParams"), pretty, replaceLambda, "", ",", false, sourceGenParams) + w("", sourceGenParams) + ")"
+                 + a(" ", sourceGenParams.isShouldIndent()) + w("", sourceGenParams) + ";"
+                 + a("", sourceGenParams.isShouldIndent());
+            } else if (node.get("native") != null && node.get("native") .getAsBoolean()
+                         && node.get("annotationAttachments") != null
+                         && node.get("deprecatedAttachments") != null
+                         && node.getAsJsonObject("name").get("valueWithBar") != null
+                         && !node.getAsJsonObject("name").get("valueWithBar").getAsString().isEmpty() && node.get("allParams") != null) {
+                return dent(sourceGenParams.isShouldIndent())
+                 + join(node.getAsJsonArray("annotationAttachments"), pretty, replaceLambda, "", null, false, sourceGenParams)
+                 + join(node.getAsJsonArray("deprecatedAttachments"), pretty, replaceLambda, "", null, false, sourceGenParams)
+                 + (node.has("public") && node.get("public").getAsBoolean() ? w("", sourceGenParams) + "public"
+                 + a(" ", sourceGenParams.isShouldIndent()) : "") + w("", sourceGenParams) + "extern"
+                 + a("", sourceGenParams.isShouldIndent()) + w("", sourceGenParams) + "function"
+                 + a("", sourceGenParams.isShouldIndent())
+                 + w(" ", sourceGenParams)
+                 + node.getAsJsonObject("name").get("valueWithBar").getAsString() + a("", sourceGenParams.isShouldIndent())
+                 + w("", sourceGenParams) + "(" + a("", sourceGenParams.isShouldIndent())
+                 + join(node.getAsJsonArray("allParams"), pretty, replaceLambda, "", ",", false, sourceGenParams) + w("", sourceGenParams) + ")"
+                 + a(" ", sourceGenParams.isShouldIndent()) + w("", sourceGenParams) + ";"
                  + a("", sourceGenParams.isShouldIndent());
             } else if (node.get("hasReturns") != null
                          && node.get("hasReturns") .getAsBoolean() && node.get("markdownDocumentationAttachment") != null
@@ -5156,10 +5467,22 @@ public class SourceGen {
             }
         }
         public String getSourceForTupleTypeNode(JsonObject node, boolean pretty, boolean replaceLambda, SourceGenParams sourceGenParams) {
-            return w("", sourceGenParams) + "("
+            if (node.get("grouped") != null
+                         && node.get("grouped") .getAsBoolean() && node.get("memberTypeNodes") != null
+                         && node.getAsJsonArray("memberTypeNodes").size() > 0) {
+                return w("", sourceGenParams) + "("
+                 + a("", sourceGenParams.isShouldIndent()) + w("", sourceGenParams) + "("
+                 + a("", sourceGenParams.isShouldIndent())
+                 + join(node.getAsJsonArray("memberTypeNodes"), pretty, replaceLambda, "", ",", false, sourceGenParams)
+                 + w("", sourceGenParams) + ")" + a("", sourceGenParams.isShouldIndent())
+                 + w("", sourceGenParams) + ")"
+                 + a("", sourceGenParams.isShouldIndent());
+            } else {
+                return w("", sourceGenParams) + "("
                  + a("", sourceGenParams.isShouldIndent())
                  + join(node.getAsJsonArray("memberTypeNodes"), pretty, replaceLambda, "", ",", false, sourceGenParams)
                  + w("", sourceGenParams) + ")" + a("", sourceGenParams.isShouldIndent());
+            }
         }
         public String getSourceForTypeCastExpr(JsonObject node, boolean pretty, boolean replaceLambda, SourceGenParams sourceGenParams) {
             return w("", sourceGenParams) + "("
@@ -7129,6 +7452,12 @@ public class SourceGen {
             }
         }
 
+        if (kind.equals("Annotation")) {
+            if (node.has("attachmentPoints") && node.getAsJsonArray("attachmentPoints").size() <= 0) {
+                node.addProperty("noAttachmentPoints", true);
+            }
+        }
+
         if (kind.equals("AnnotationAttachment") &&
                 node.getAsJsonObject("packageAlias").get("value").getAsString().equals("builtin")) {
             node.addProperty("builtin", true);
@@ -7785,6 +8114,13 @@ public class SourceGen {
                 node.addProperty("typeString", node.getAsJsonArray("ws")
                         .get(0).getAsJsonObject().get("text").getAsString());
             }
+        }
+
+        if (kind.equals("Deprecated") &&
+                node.has("ws") &&
+                node.getAsJsonArray("ws").size() > 0) {
+            node.addProperty("deprecatedStart",
+                    node.getAsJsonArray("ws").get(0).getAsJsonObject().get("text").getAsString());
         }
     }
 
