@@ -33,7 +33,7 @@ import org.wso2.transport.http.netty.message.Http2PushPromise;
 import static org.wso2.transport.http.netty.contractimpl.common.states.Http2StateUtil.onPushPromiseRead;
 
 /**
- * State between end of payload write and start of response headers read
+ * State between end of payload write and start of response headers read.
  */
 public class RequestCompleted implements SenderState {
 

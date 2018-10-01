@@ -45,7 +45,7 @@ import static org.wso2.transport.http.netty.contractimpl.common.states.Http2Stat
 import static org.wso2.transport.http.netty.contractimpl.common.states.Http2StateUtil.writeHttp2Headers;
 
 /**
- * State between start and end of outbound request entity body write
+ * State between start and end of outbound request entity body write.
  */
 public class SendingEntityBody implements SenderState {
 

@@ -32,7 +32,6 @@ import io.netty.handler.codec.http2.Http2Headers;
 import io.netty.handler.codec.http2.HttpConversionUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.wso2.transport.http.netty.contract.Constants;
 import org.wso2.transport.http.netty.contractimpl.common.states.Http2MessageStateContext;
 import org.wso2.transport.http.netty.contractimpl.sender.http2.Http2ClientChannel;
 import org.wso2.transport.http.netty.contractimpl.sender.http2.Http2TargetHandler;
@@ -44,6 +43,14 @@ import org.wso2.transport.http.netty.message.Http2PushPromise;
 import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 import org.wso2.transport.http.netty.message.HttpCarbonResponse;
 import org.wso2.transport.http.netty.message.PooledDataStreamerFactory;
+
+import static org.wso2.transport.http.netty.contract.Constants.DIRECTION;
+import static org.wso2.transport.http.netty.contract.Constants.DIRECTION_RESPONSE;
+import static org.wso2.transport.http.netty.contract.Constants.EXECUTOR_WORKER_POOL;
+import static org.wso2.transport.http.netty.contract.Constants.HTTP2_METHOD;
+import static org.wso2.transport.http.netty.contract.Constants.HTTP_STATUS_CODE;
+import static org.wso2.transport.http.netty.contract.Constants.HTTP_VERSION_2_0;
+import static org.wso2.transport.http.netty.contract.Constants.POOLED_BYTE_BUFFER_FACTORY;
 
 /**
  * State between start and end of inbound response headers read.
@@ -102,7 +109,7 @@ public class ReceivingHeaders implements SenderState {
                 HttpCarbonResponse responseMessage = outboundMsgHolder.getPushResponse(streamId);
                 if (responseMessage != null) {
                     onTrailersRead(streamId, http2Headers, outboundMsgHolder, responseMessage);
-                } else if (http2Headers.contains(Constants.HTTP2_METHOD)) {
+                } else if (http2Headers.contains(HTTP2_METHOD)) {
                     // if the header frame is an initial header frame and also it has endOfStream
                     responseMessage = setupResponseCarbonMessage(ctx, streamId, http2Headers, outboundMsgHolder);
                     responseMessage.addHttpContent(new DefaultLastHttpContent());
@@ -123,7 +130,7 @@ public class ReceivingHeaders implements SenderState {
                 HttpCarbonResponse responseMessage = outboundMsgHolder.getResponse();
                 if (responseMessage != null) {
                     onTrailersRead(streamId, http2Headers, outboundMsgHolder, responseMessage);
-                } else if (http2Headers.contains(Constants.HTTP2_METHOD)) {
+                } else if (http2Headers.contains(HTTP2_METHOD)) {
                     // if the header frame is an initial header frame and also it has endOfStream
                     responseMessage = setupResponseCarbonMessage(ctx, streamId, http2Headers, outboundMsgHolder);
                     responseMessage.addHttpContent(new DefaultLastHttpContent());
@@ -143,7 +150,7 @@ public class ReceivingHeaders implements SenderState {
 
     private void onTrailersRead(int streamId, Http2Headers headers, OutboundMsgHolder outboundMsgHolder,
                                 HttpCarbonMessage responseMessage) {
-        HttpVersion version = new HttpVersion(Constants.HTTP_VERSION_2_0, true);
+        HttpVersion version = new HttpVersion(HTTP_VERSION_2_0, true);
         LastHttpContent lastHttpContent = new DefaultLastHttpContent();
         HttpHeaders trailers = lastHttpContent.trailingHeaders();
 
@@ -167,7 +174,7 @@ public class ReceivingHeaders implements SenderState {
         } catch (Http2Exception e) {
             responseStatus = HttpResponseStatus.BAD_GATEWAY;
         }
-        HttpVersion version = new HttpVersion(Constants.HTTP_VERSION_2_0, true);
+        HttpVersion version = new HttpVersion(HTTP_VERSION_2_0, true);
         HttpResponse httpResponse = new DefaultHttpResponse(version, responseStatus);
 
         // Set headers
@@ -182,14 +189,14 @@ public class ReceivingHeaders implements SenderState {
         HttpCarbonResponse responseCarbonMsg = new HttpCarbonResponse(httpResponse, new DefaultListener(ctx));
 
         // Setting properties of the HTTP Carbon Response
-        responseCarbonMsg.setProperty(Constants.POOLED_BYTE_BUFFER_FACTORY, new PooledDataStreamerFactory(ctx.alloc()));
-        responseCarbonMsg.setProperty(Constants.DIRECTION, Constants.DIRECTION_RESPONSE);
-        responseCarbonMsg.setProperty(Constants.HTTP_STATUS_CODE, httpResponse.status().code());
+        responseCarbonMsg.setProperty(POOLED_BYTE_BUFFER_FACTORY, new PooledDataStreamerFactory(ctx.alloc()));
+        responseCarbonMsg.setProperty(DIRECTION, DIRECTION_RESPONSE);
+        responseCarbonMsg.setProperty(HTTP_STATUS_CODE, httpResponse.status().code());
 
         /* copy required properties for service chaining from incoming carbon message to the response carbon message
         copy shared worker pool */
-        responseCarbonMsg.setProperty(Constants.EXECUTOR_WORKER_POOL,
-                outboundMsgHolder.getRequest().getProperty(Constants.EXECUTOR_WORKER_POOL));
+        responseCarbonMsg.setProperty(EXECUTOR_WORKER_POOL,
+                outboundMsgHolder.getRequest().getProperty(EXECUTOR_WORKER_POOL));
         return responseCarbonMsg;
     }
 }

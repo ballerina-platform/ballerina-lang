@@ -30,7 +30,7 @@ import org.wso2.transport.http.netty.message.Http2HeadersFrame;
 import org.wso2.transport.http.netty.message.Http2PushPromise;
 
 /**
- * State of successfully read response
+ * State of successfully read response.
  */
 public class EntityBodyReceived implements SenderState {
 
