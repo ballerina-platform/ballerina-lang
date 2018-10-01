@@ -65,8 +65,8 @@ public class HttpStatusCodeTestCase extends HttpBaseTest {
         assertEquals(response.getResponseCode(), 201, "Response code mismatched");
         assertEquals(response.getHeaders().get(HttpHeaderNames.CONTENT_TYPE.toString())
                 , TestConstant.CONTENT_TYPE_TEXT_PLAIN, "Content-Type mismatched");
-        assertEquals(response.getHeaders().get(HttpHeaderNames.LOCATION.toString())
-                , newResourceURI, "Incorrect location header value");
+        assertEquals(response.getHeaders().get(HttpHeaderNames.LOCATION.toString()), newResourceURI,
+                "Incorrect location header value");
         assertEquals(response.getData(), "Created Response", "Message content mismatched");
     }
 
@@ -75,8 +75,8 @@ public class HttpStatusCodeTestCase extends HttpBaseTest {
         HttpResponse response = HttpClientRequest.doGet(serverInstance.getServiceURLHttp(servicePort,
                 "code/createdWithoutBody"));
         assertEquals(response.getResponseCode(), 201, "Response code mismatched");
-        assertEquals(response.getHeaders().get(HttpHeaderNames.LOCATION.toString())
-                , newResourceURI, "Incorrect location header value");
+        assertEquals(response.getHeaders().get(HttpHeaderNames.LOCATION.toString()), newResourceURI,
+                "Incorrect location header value");
         assertEquals(response.getData(), "", "Message body should be empty");
     }
 
@@ -85,8 +85,8 @@ public class HttpStatusCodeTestCase extends HttpBaseTest {
         HttpResponse response = HttpClientRequest.doGet(serverInstance.getServiceURLHttp(servicePort,
                 "code/createdWithEmptyURI"));
         assertEquals(response.getResponseCode(), 201, "Response code mismatched");
-        assertEquals(response.getHeaders().get(HttpHeaderNames.LOCATION.toString())
-                , null, "No location header should be received");
+        assertEquals(response.getHeaders().get(HttpHeaderNames.LOCATION.toString()), null,
+                "No location header should be received");
         assertEquals(response.getData(), "", "Message body should be empty");
     }
 

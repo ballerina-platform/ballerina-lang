@@ -17,63 +17,63 @@
 import ballerina/http;
 
 @http:ServiceConfig {
-    basePath:"/code"
+    basePath: "/code"
 }
-service<http:Service> differentStatusCodes bind {port : 9223} {
+service<http:Service> differentStatusCodes bind { port: 9223 } {
 
     @http:ResourceConfig {
-        methods:["GET"],
-        path:"/okWithBody"
+        methods: ["GET"],
+        path: "/okWithBody"
     }
-    sendOKWithBody (endpoint caller, http:Request req) {
+    sendOKWithBody(endpoint caller, http:Request req) {
         _ = caller->ok("OK Response");
     }
 
     @http:ResourceConfig {
-        methods:["GET"],
-        path:"/okWithoutBody"
+        methods: ["GET"],
+        path: "/okWithoutBody"
     }
-    sendOKWithoutBody (endpoint caller, http:Request req) {
+    sendOKWithoutBody(endpoint caller, http:Request req) {
         _ = caller->ok(());
     }
 
     @http:ResourceConfig {
-        methods:["GET"],
-        path:"/createdWithBody"
+        methods: ["GET"],
+        path: "/createdWithBody"
     }
-    sendCreatedWithBody (endpoint caller, http:Request req) {
-        _ = caller -> created("/newResourceURI", message = "Created Response");
-    }
-
-    @http:ResourceConfig {
-        methods:["GET"],
-        path:"/createdWithoutBody"
-    }
-    sendCreatedWithoutBody (endpoint caller, http:Request req) {
-        _ = caller -> created("/newResourceURI");
+    sendCreatedWithBody(endpoint caller, http:Request req) {
+        _ = caller->created("/newResourceURI", message = "Created Response");
     }
 
     @http:ResourceConfig {
-        methods:["GET"],
-        path:"/createdWithEmptyURI"
+        methods: ["GET"],
+        path: "/createdWithoutBody"
     }
-    sendCreatedWithEmptyURI (endpoint caller, http:Request req) {
-        _ = caller -> created("");
-    }
-
-    @http:ResourceConfig {
-        methods:["GET"],
-        path:"/acceptedWithBody"
-    }
-    sendAcceptedWithBody (endpoint caller, http:Request req) {
-        _ = caller -> accepted(message = {msg : "accepted response"});
+    sendCreatedWithoutBody(endpoint caller, http:Request req) {
+        _ = caller->created("/newResourceURI");
     }
 
     @http:ResourceConfig {
-        methods:["GET"],
-        path:"/acceptedWithoutBody"
+        methods: ["GET"],
+        path: "/createdWithEmptyURI"
     }
-    sendAcceptedWithoutBody (endpoint caller, http:Request req) {
-        _ = caller -> accepted();
+    sendCreatedWithEmptyURI(endpoint caller, http:Request req) {
+        _ = caller->created("");
+    }
+
+    @http:ResourceConfig {
+        methods: ["GET"],
+        path: "/acceptedWithBody"
+    }
+    sendAcceptedWithBody(endpoint caller, http:Request req) {
+        _ = caller->accepted(message = { msg: "accepted response" });
+    }
+
+    @http:ResourceConfig {
+        methods: ["GET"],
+        path: "/acceptedWithoutBody"
+    }
+    sendAcceptedWithoutBody(endpoint caller, http:Request req) {
+        _ = caller->accepted();
     }
 }
