@@ -23,7 +23,6 @@ import io.netty.handler.codec.http.HttpResponse;
 import io.netty.handler.codec.http2.Http2CodecUtil;
 import io.netty.handler.codec.http2.Http2ConnectionPrefaceAndSettingsFrameWrittenEvent;
 import io.netty.handler.ssl.SslCloseCompletionEvent;
-import io.netty.handler.timeout.IdleState;
 import io.netty.handler.timeout.IdleStateEvent;
 import io.netty.util.ReferenceCountUtil;
 import org.slf4j.Logger;
@@ -118,14 +117,11 @@ public class TargetHandler extends ChannelInboundHandlerAdapter {
     @Override
     public void userEventTriggered(ChannelHandlerContext ctx, Object evt) throws Exception {
         if (evt instanceof IdleStateEvent) {
-            IdleStateEvent event = (IdleStateEvent) evt;
-            if (event.state() == IdleState.READER_IDLE || event.state() == IdleState.WRITER_IDLE) {
-                targetChannel.getChannel().pipeline().remove(Constants.IDLE_STATE_HANDLER);
-                this.idleTimeoutTriggered = true;
-                ctx.close();
-                outboundRequestMsg.getMessageStateContext().getSenderState().handleIdleTimeoutConnectionClosure(
-                        httpResponseFuture, ctx.channel().id().asLongText());
-            }
+            targetChannel.getChannel().pipeline().remove(Constants.IDLE_STATE_HANDLER);
+            this.idleTimeoutTriggered = true;
+            ctx.close();
+            outboundRequestMsg.getMessageStateContext().getSenderState().handleIdleTimeoutConnectionClosure(
+                    httpResponseFuture, ctx.channel().id().asLongText());
         } else if (evt instanceof HttpClientUpgradeHandler.UpgradeEvent) {
             HttpClientUpgradeHandler.UpgradeEvent upgradeEvent = (HttpClientUpgradeHandler.UpgradeEvent) evt;
             if (HttpClientUpgradeHandler.UpgradeEvent.UPGRADE_SUCCESSFUL.name().equals(upgradeEvent.name())) {

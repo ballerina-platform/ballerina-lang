@@ -122,10 +122,7 @@ public class WebSocketInboundFrameHandler extends ChannelInboundHandlerAdapter {
     @Override
     public void userEventTriggered(ChannelHandlerContext ctx, Object evt) throws WebSocketConnectorException {
         if (evt instanceof IdleStateEvent) {
-            IdleStateEvent idleStateEvent = (IdleStateEvent) evt;
-            if (idleStateEvent.state() == IdleStateEvent.ALL_IDLE_STATE_EVENT.state()) {
-                notifyIdleTimeout();
-            }
+            notifyIdleTimeout();
         }
     }
 

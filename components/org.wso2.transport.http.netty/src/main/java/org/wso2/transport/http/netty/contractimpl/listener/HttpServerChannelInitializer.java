@@ -213,8 +213,7 @@ public class HttpServerChannelInitializer extends ChannelInitializer<SocketChann
                                        this.pipeliningNeeded, this.pipeliningLimit));
         if (socketIdleTimeout >= 0) {
             serverPipeline.addBefore(Constants.HTTP_SOURCE_HANDLER, Constants.IDLE_STATE_HANDLER,
-                    new IdleStateHandler(socketIdleTimeout, socketIdleTimeout, socketIdleTimeout,
-                            TimeUnit.MILLISECONDS));
+                                     new IdleStateHandler(0, 0, socketIdleTimeout, TimeUnit.MILLISECONDS));
         }
     }
 
