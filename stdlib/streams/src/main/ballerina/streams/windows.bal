@@ -428,3 +428,382 @@ public function timeBatchWindow(function(StreamEvent[]) nextProcessPointer, int 
     TimeBatchWindow timeBatch = new(nextProcessPointer, time);
     return timeBatch;
 }
+
+public type ExternalTimeWindow object {
+
+    public int timeInMillis;
+    public LinkedList expiredEventQueue;
+    public function (StreamEvent[]) nextProcessorPointer;
+    public string timeStamp;
+
+    public new (nextProcessorPointer, timeInMillis, timeStamp) {
+        expiredEventQueue = new;
+    }
+
+    public function process(StreamEvent[] streamEvents) {
+        LinkedList streamEventChunk = new;
+        lock {
+            foreach event in streamEvents {
+                streamEventChunk.addLast(event);
+            }
+
+            streamEventChunk.resetToFront();
+
+            while (streamEventChunk.hasNext()) {
+                StreamEvent streamEvent = check <StreamEvent>streamEventChunk.next();
+                int currentTime = getTimestamp(streamEvent.data[timeStamp]);
+                expiredEventQueue.resetToFront();
+
+                while (expiredEventQueue.hasNext()) {
+                    StreamEvent expiredEvent = check <StreamEvent>expiredEventQueue.next();
+                    int timeDiff = (getTimestamp(expiredEvent.data[timeStamp]) - currentTime) + timeInMillis;
+                    if (timeDiff <= 0) {
+                        expiredEventQueue.removeCurrent();
+                        expiredEvent.timestamp = currentTime;
+                        streamEventChunk.insertBeforeCurrent(expiredEvent);
+                    } else {
+                        expiredEventQueue.resetToFront();
+                        break;
+                    }
+                }
+
+                if (streamEvent.eventType == CURRENT) {
+                    StreamEvent clonedEvent = streamEvent.clone();
+                    clonedEvent.eventType = EXPIRED;
+                    expiredEventQueue.addLast(clonedEvent);
+                }
+                expiredEventQueue.resetToFront();
+            }
+        }
+        if (streamEventChunk.getSize() != 0) {
+            StreamEvent[] events = [];
+            streamEventChunk.resetToFront();
+            while (streamEventChunk.hasNext()) {
+                StreamEvent streamEvent = check <StreamEvent> streamEventChunk.next();
+                events[lengthof events] = streamEvent;
+            }
+            nextProcessorPointer(events);
+        }
+    }
+
+    public function getTimestamp(any val) returns (int){
+        match val {
+            int value => return value;
+            any => {
+                error err = { message: "external timestamp should be of type int" };
+                throw err;
+            }
+        }
+    }
+};
+
+public function externalTimeWindow(function(StreamEvent[]) nextProcessPointer, string timeStamp, int timeLength)
+                    returns ExternalTimeWindow {
+
+    ExternalTimeWindow timeWindow1 = new(nextProcessPointer, timeLength, timeStamp);
+    return timeWindow1;
+}
+
+public type ExternalTimeBatchWindow object {
+    public int timeToKeep;
+    public LinkedList currentEventChunk;
+    public LinkedList expiredEventChunk;
+    public StreamEvent? resetEvent = null;
+    public int startTime = 0;
+    public boolean isStartTimeEnabled = false;
+    public boolean replaceTimestampWithBatchEndTime = false;
+    public boolean flushed = false;
+    public int endTime = -1;
+    public int schedulerTimeout = 0;
+    public int lastScheduledTime;
+    public int lastCurrentEventTime = 0;
+    public task:Timer? timer;
+    public function (StreamEvent[]) nextProcessorPointer;
+    public string timeStamp;
+    public boolean storeExpiredEvents = false;
+    public boolean outputExpectsExpiredEvents = false;
+
+    public new (nextProcessorPointer, timeToKeep, timeStamp, startTime, schedulerTimeout,
+                replaceTimestampWithBatchEndTime) {
+        currentEventChunk = new();
+        expiredEventChunk = new;
+        if(startTime != -1){
+            isStartTimeEnabled = true;
+        }
+    }
+
+    public function invokeProcess() returns error? {
+        StreamEvent timerEvent = new (("timer", {}), TIMER, time:currentTime().time);
+        StreamEvent[] timerEventWrapper = [];
+        timerEventWrapper[0] = timerEvent;
+        process(timerEventWrapper);
+        _ = timer.stop();
+        return ();
+    }
+    public function process(StreamEvent[] streamEvents) {
+        LinkedList streamEventChunk = new;
+        foreach event in streamEvents {
+            streamEventChunk.addLast(event);
+        }
+
+        if (streamEventChunk.getFirst() == null) {
+            return;
+        }
+
+        LinkedList complexEventChunks = new;
+
+        lock {
+            initTiming(check<StreamEvent >streamEventChunk.getFirst());
+
+            while (streamEventChunk.hasNext()) {
+
+                StreamEvent currStreamEvent = check <StreamEvent > streamEventChunk.next();
+
+                if (currStreamEvent.eventType == TIMER) {
+                    if (lastScheduledTime <= currStreamEvent.timestamp){
+                        // implies that there have not been any more events after this schedule has been done.
+                        if (!flushed) {
+                            flushToOutputChunk(complexEventChunks, lastCurrentEventTime, true);
+                            flushed = true;
+                        } else {
+                            if (currentEventChunk.getFirst() != null) {
+                                appendToOutputChunk(complexEventChunks, lastCurrentEventTime, true);
+                            }
+                        }
+
+                        // rescheduling to emit the current batch after expiring it if no further events arrive.
+                        lastScheduledTime = time:currentTime().time + schedulerTimeout;
+                        timer = new task:Timer(self.invokeProcess, self.handleError, schedulerTimeout);
+                        _ = timer.start();
+                    }
+                    continue;
+
+                } else if (currStreamEvent.eventType != CURRENT) {
+                    continue;
+                }
+
+                int currentEventTime = getInt(currStreamEvent.data[timeStamp]);
+                if (lastCurrentEventTime < currentEventTime) {
+                    lastCurrentEventTime = currentEventTime;
+                }
+
+                if (currentEventTime < endTime) {
+                    cloneAppend(currStreamEvent);
+                } else {
+                    if (flushed) {
+                        appendToOutputChunk(complexEventChunks, lastCurrentEventTime, false);
+                        flushed = false;
+                    } else {
+                        flushToOutputChunk(complexEventChunks, lastCurrentEventTime, false);
+                    }
+                    // update timestamp, call next processor
+                    endTime = findEndTime(lastCurrentEventTime, startTime, timeToKeep);
+                    cloneAppend(currStreamEvent);
+
+                    // triggering the last batch expiration.
+                    if (schedulerTimeout > 0) {
+                        lastScheduledTime = time:currentTime().time + schedulerTimeout;
+                        timer = new task:Timer(self.invokeProcess, self.handleError, schedulerTimeout);
+                        _ = timer.start();
+                    }
+                }
+            }
+        }
+
+        if (complexEventChunks.getSize() != 0) {
+            while (complexEventChunks.hasNext()) {
+                StreamEvent [] streamEvent = check <StreamEvent []> complexEventChunks.next();
+                foreach event in streamEvent{
+                }
+                nextProcessorPointer(streamEvent);
+            }
+        }
+    }
+
+    public function handleError(error e) {
+        io:println("Error occured", e);
+    }
+
+    public function cloneAppend(StreamEvent currStreamEvent){
+        StreamEvent clonedEvent = currStreamEvent.clone();
+        if(replaceTimestampWithBatchEndTime){
+            clonedEvent.data[timeStamp] = endTime;
+        }
+        currentEventChunk.addLast(clonedEvent);
+
+        if(resetEvent == null){
+            resetEvent = currStreamEvent.clone();
+            resetEvent.eventType = RESET;
+        }
+    }
+
+    public function flushToOutputChunk(LinkedList complexEventChunks, int currentTime, boolean preserveCurrentEvents)  {
+        LinkedList newEventChunk = new ();
+        if (expiredEventChunk.getFirst() != null) {
+            // mark the timestamp for the expiredType event
+            expiredEventChunk.resetToFront();
+            while (expiredEventChunk.hasNext()) {
+                StreamEvent expiredEvent = check<StreamEvent >expiredEventChunk.next();
+                expiredEvent.timestamp = currentTime;
+            }
+            // add expired event to newEventChunk.
+            expiredEventChunk.resetToFront();
+            while (expiredEventChunk.hasNext()) {
+                newEventChunk.addLast(expiredEventChunk.next());
+            }
+        }
+
+        if (expiredEventChunk != null) {
+            expiredEventChunk.clear();
+        }
+
+        if (currentEventChunk.getFirst() != null) {
+            // add reset event in front of current events
+            match resetEvent{
+                StreamEvent streamEvent => {
+                    streamEvent.timestamp = currentTime;
+                    newEventChunk.addLast(streamEvent);
+                    resetEvent = null;
+                }
+                ()=>{
+
+                }
+            }
+
+            // move to expired events
+            if (preserveCurrentEvents || storeExpiredEvents) {
+                currentEventChunk.resetToFront();
+                while (currentEventChunk.hasNext()) {
+                    StreamEvent currentEvent = check<StreamEvent >currentEventChunk.next();
+                    StreamEvent toExpireEvent = currentEvent.clone();
+                    toExpireEvent.eventType = EXPIRED;
+                    expiredEventChunk.addLast(toExpireEvent);
+                }
+            }
+
+            // add current event chunk to next processor
+            currentEventChunk.resetToFront();
+            while(currentEventChunk.hasNext()){
+                newEventChunk.addLast(currentEventChunk.next());
+            }
+        }
+        currentEventChunk.clear();
+
+        StreamEvent[] streamEvents = [];
+        while(newEventChunk.hasNext()) {
+            streamEvents[lengthof streamEvents] = check <StreamEvent >newEventChunk.next();
+        }
+        if(streamEvents != null){
+            complexEventChunks.addLast(streamEvents);
+        }
+    }
+
+
+    public function appendToOutputChunk(LinkedList complexEventChunks, int currentTime, boolean preserveCurrentEvents){
+        LinkedList newEventChunk = new ();
+        LinkedList sentEventChunk = new ();
+        if (currentEventChunk.getFirst() != null) {
+            if (expiredEventChunk.getFirst() != null) {
+                // mark the timestamp for the expiredType event
+                expiredEventChunk.resetToFront();
+                while (expiredEventChunk.hasNext()) {
+                    StreamEvent expiredEvent = check <StreamEvent >expiredEventChunk.next();
+
+                    if (outputExpectsExpiredEvents) {
+                        // add expired event to newEventChunk.
+                        StreamEvent toExpireEvent = expiredEvent.clone();
+                        toExpireEvent.timestamp = currentTime;
+                        newEventChunk.addLast(toExpireEvent);
+                    }
+
+                    StreamEvent toSendEvent = expiredEvent.clone();
+                    toSendEvent.eventType = CURRENT;
+                    sentEventChunk.addLast(toSendEvent);
+                }
+            }
+
+            // add reset event in front of current events
+            match resetEvent{
+                StreamEvent streamEvent => {
+                    streamEvent.timestamp = currentTime;
+                    newEventChunk.addLast(streamEvent);
+                }
+                () => {
+
+                }
+            }
+
+            //add old events
+            sentEventChunk.resetToFront();
+            while(sentEventChunk.hasNext()){
+                newEventChunk.addLast(sentEventChunk.next());
+            }
+
+            // move to expired events
+            if (preserveCurrentEvents || storeExpiredEvents) {
+                currentEventChunk.resetToFront();
+                while (currentEventChunk.hasNext()) {
+                    StreamEvent currentEvent = check <StreamEvent >currentEventChunk.next();
+                    StreamEvent toExpireEvent = currentEvent.clone();
+                    toExpireEvent.eventType = EXPIRED;
+                    expiredEventChunk.addLast(toExpireEvent);
+                }
+            }
+
+            // add current event chunk to next processor
+            currentEventChunk.resetToFront();
+            while(currentEventChunk.hasNext()){
+                newEventChunk.addLast(currentEventChunk.next());
+            }
+        }
+        currentEventChunk.clear();
+
+        StreamEvent[] streamEvents = [];
+        while(newEventChunk.hasNext()) {
+            streamEvents[lengthof streamEvents] = check <StreamEvent >newEventChunk.next();
+        }
+        if(streamEvents != null){
+            complexEventChunks.addLast(streamEvents);
+        }
+
+    }
+
+    public function findEndTime(int currentTime, int startTime_, int timeToKeep_) returns (int){
+        int elapsedTimeSinceLastEmit = (currentTime - startTime_) % timeToKeep_;
+        return (currentTime + (timeToKeep_ - elapsedTimeSinceLastEmit));
+    }
+
+    public function initTiming(StreamEvent firstStreamEvent) {
+        if (endTime < 0) {
+            if (isStartTimeEnabled) {
+                endTime = startTime + timeToKeep;
+            } else {
+                startTime = getInt(firstStreamEvent.data[timeStamp]);
+                endTime = startTime + timeToKeep;
+            }
+            if (schedulerTimeout > 0) {
+                lastScheduledTime = time:currentTime().time + schedulerTimeout;
+                timer = new task:Timer(self.invokeProcess, self.handleError, schedulerTimeout);
+                _ = timer.start();
+            }
+        }
+    }
+
+    public function getInt(any val) returns (int){
+        match val {
+            int value => return value;
+            any => {
+                error err = { message: "external timestamp should be of type int" };
+                throw err;
+            }
+        }
+    }
+};
+
+public function externalTimeBatchWindow(function(StreamEvent[]) nextProcessPointer, string timeStamp, int time, int
+    startTime = -1, int timeOut = -1, boolean replaceTimestampWithBatchEndTime = false)
+                    returns ExternalTimeBatchWindow {
+    ExternalTimeBatchWindow timeWindow1 = new(nextProcessPointer, time, timeStamp, startTime, timeOut,
+        replaceTimestampWithBatchEndTime);
+    return timeWindow1;
+}
