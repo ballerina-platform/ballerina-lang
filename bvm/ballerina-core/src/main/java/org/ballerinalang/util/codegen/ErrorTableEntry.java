@@ -131,7 +131,7 @@ public class ErrorTableEntry {
                         rangeMatched.add(entry);
                     } else if (CPU.checkRecordEquivalency(
                             ((RecordTypeInfo) errorTableEntry.getError().typeInfo).getType(),
-                            (BRecordType) error.getType())) {
+                            (BRecordType) error.getType(), new ArrayList<>())) {
                         entry.status = 1;
                         rangeMatched.add(entry);
                     }

@@ -66,9 +66,6 @@ public class SwaggerCmd implements BLauncherCmd {
     @CommandLine.Option(names = "--debug", hidden = true)
     private String debugPort;
 
-    @CommandLine.Option(names = "--java.debug", hidden = true)
-    private String javaDebugPort;
-
     @Override
     public void execute() {
         if (helpFlag) {

@@ -58,6 +58,11 @@
         </dependency>
         <dependency>
             <groupId>org.ballerinalang</groupId>
+            <artifactId>language-server-stdio-launcher</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.ballerinalang</groupId>
             <artifactId>composer-ballerina-parser-service</artifactId>
             <version>${project.version}</version>
         </dependency>
@@ -214,6 +219,8 @@
                                     <exclude>org.yaml:snakeyaml</exclude>
                                     <exclude>org.slf4j:slf4j-log4j12</exclude>
                                     <exclude>org.slf4j:slf4j-simple</exclude>
+                                    <exclude>org.bytedeco</exclude>
+                                    <exclude>org.bytedeco.javacpp-presets</exclude>
                                 </excludes>
                             </artifactSet>
                         </configuration>

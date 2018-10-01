@@ -103,9 +103,17 @@ public class LauncherUtils {
             programFile = compile(fullPath.getParent(), fullPath.getFileName(), offline);
         } else if (Files.isDirectory(sourceRootPath)) {
             if (Files.isDirectory(fullPath) && !RepoUtils.hasProjectRepo(sourceRootPath)) {
-                throw createLauncherException("did you mean to run the Ballerina package as a project? If so run "
-                                                      + "'ballerina init' to make it a project with a .ballerina "
-                                                      + "directory");
+                throw createLauncherException("did you mean to run the package ? If so, either run from the project " +
+                                              "folder or use --sourceroot to specify the project path and run the " +
+                                              "package");
+            }
+            // If we are trying to run a bal file inside a package from inside a project directory an error is thrown.
+            // To differentiate between top level bals and bals inside packages we need to check if the parent of the
+            // sourcePath given is null. If it is null then its a top level bal else its a bal inside a package
+            if (Files.isRegularFile(fullPath) && srcPathStr.endsWith(BLANG_SRC_FILE_SUFFIX) &&
+                    sourcePath.getParent() != null) {
+                throw createLauncherException("you are trying to run a ballerina file inside a package within a " +
+                                                      "project. Try running 'ballerina run <package-name>'");
             }
             programFile = compile(sourceRootPath, sourcePath, offline);
         } else {
@@ -142,8 +150,8 @@ public class LauncherUtils {
     public static void runMain(ProgramFile programFile, String functionName, String[] args, boolean printReturn) {
         try {
             BValue[] entryFuncResult = BLangProgramRunner.runEntryFunc(programFile, functionName, args);
-            if (printReturn && entryFuncResult != null && entryFuncResult.length >= 1) {
-                outStream.println(entryFuncResult[0] == null ? "()" : entryFuncResult[0].stringValue());
+            if (printReturn && entryFuncResult != null && entryFuncResult.length >= 1 && entryFuncResult[0] != null) {
+                outStream.print(entryFuncResult[0].stringValue());
             }
         } catch (BLangUsageException | BallerinaException e) {
             throw createUsageException(makeFirstLetterLowerCase(e.getLocalizedMessage()));
@@ -301,7 +309,7 @@ public class LauncherUtils {
 
     /**
      * Get the executable program ({@link ProgramFile}) given the compiled program 
-     * ({@link CompiledBinaryFile.ProgramFile}).
+     * ({@link org.wso2.ballerinalang.programfile.CompiledBinaryFile.ProgramFile}).
      * 
      * @param programFile Compiled program
      * @return Executable program

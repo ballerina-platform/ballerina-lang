@@ -232,6 +232,8 @@ public class TextDocumentFormatUtil {
                             }
                         }
                         listPropJson.add(generateJSON((Node) listPropItem, anonStructs));
+                    } else if (listPropItem instanceof String) {
+                        listPropJson.add((String) listPropItem);
                     } else {
                         logger.debug("Can't serialize " + jsonName + ", has a an array of " + listPropItem);
                     }

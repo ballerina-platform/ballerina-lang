@@ -346,3 +346,58 @@ function testEqOfObjectsInSamePackage09() returns (string) {
     person09 p = <person09> e;
     return p.name;
 }
+
+
+public type PersonInOrder object {
+    public int age;
+    public string name;
+    public string address;
+
+    public new (name, age) {}
+
+    public function getName() returns (string) {
+        return name;
+    }
+
+    public function getAge() returns (int) {
+        return age;
+    }
+
+    public function getAddress() returns (string) {
+        return address;
+    }
+};
+
+public type PersonNotInOrder object {
+
+    public function getName() returns (string) {
+        return name;
+    }
+
+    // This is not in order
+    public string name;
+
+    public function getAge() returns (int) {
+        return age;
+    }
+
+    public new (name, age) {}
+
+    public int age;
+
+    public function getAddress() returns (string) {
+        return address;
+    }
+
+    public string address;
+};
+
+function testObjectMemberOrder() returns (PersonInOrder, PersonNotInOrder) {
+    PersonInOrder p1 = new("John", 35);
+    PersonNotInOrder p2 = p1;
+
+    PersonNotInOrder p3 = new ("Doe", 45);
+    PersonInOrder p4 = p3;
+
+    return (p4, p2);
+}

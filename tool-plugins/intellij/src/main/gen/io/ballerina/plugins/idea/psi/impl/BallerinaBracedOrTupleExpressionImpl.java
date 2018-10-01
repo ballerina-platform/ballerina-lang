@@ -28,7 +28,7 @@ import io.ballerina.plugins.idea.psi.*;
 
 public class BallerinaBracedOrTupleExpressionImpl extends BallerinaExpressionImpl implements BallerinaBracedOrTupleExpression {
 
-  public BallerinaBracedOrTupleExpressionImpl(ASTNode node) {
+  public BallerinaBracedOrTupleExpressionImpl(@NotNull ASTNode node) {
     super(node);
   }
 

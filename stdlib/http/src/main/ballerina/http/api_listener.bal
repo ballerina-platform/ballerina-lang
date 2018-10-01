@@ -72,6 +72,8 @@ function APIListener::stop() {
 }
 
 # The caller actions for responding to client requests to api listener.
+#
+# + httpCallerActions - HTTP caller actions reference
 public type APIListenerActions object {
 
     public Connection httpCallerActions;
@@ -110,6 +112,7 @@ public type APIListenerActions object {
     # Sends an upgrade request with custom headers.
     #
     # + headers - A `map` of custom headers for handshake
+    # + return - WebSocket service endpoint
     public function acceptWebSocketUpgrade(map<string> headers) returns WebSocketListener {
         return httpCallerActions.acceptWebSocketUpgrade(headers);
     }

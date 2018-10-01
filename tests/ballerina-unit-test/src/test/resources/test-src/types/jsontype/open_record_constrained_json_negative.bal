@@ -6,9 +6,9 @@ type Person record {
 };
 
 type InvalidPerson record {
-    string fname,
-    string lname,
-    int age,
+    string fname;
+    string lname;
+    int age;
 };
 
 type Student record {

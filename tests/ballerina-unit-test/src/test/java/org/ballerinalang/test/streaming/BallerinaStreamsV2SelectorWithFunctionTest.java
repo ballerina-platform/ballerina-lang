@@ -39,6 +39,10 @@ public class BallerinaStreamsV2SelectorWithFunctionTest {
     private CompileResult resultForFunctionArgs;
     private CompileResult resultForFunctionArgs2;
     private CompileResult resultForFunctionArgs3;
+    private CompileResult resultWithAlias;
+    private CompileResult resultForFunctionArgsWithAlias;
+    private CompileResult resultForFunctionArgs2WithAlias;
+    private CompileResult resultForFunctionArgs3WithAlias;
 
     @BeforeClass
     public void setup() {
@@ -50,6 +54,14 @@ public class BallerinaStreamsV2SelectorWithFunctionTest {
                 compile("test-src/streaming/streamingv2-select-with-function-args-test2.bal");
         resultForFunctionArgs3 = BCompileUtil.
                 compile("test-src/streaming/streamingv2-select-with-function-args-test3.bal");
+        resultWithAlias = BCompileUtil.
+                compile("test-src/streaming/alias/streamingv2-select-with-function-test.bal");
+        resultForFunctionArgsWithAlias = BCompileUtil.
+                compile("test-src/streaming/alias/streamingv2-select-with-function-args-test.bal");
+        resultForFunctionArgs2WithAlias = BCompileUtil.
+                compile("test-src/streaming/alias/streamingv2-select-with-function-args-test2.bal");
+        resultForFunctionArgs3WithAlias = BCompileUtil.
+                compile("test-src/streaming/alias/streamingv2-select-with-function-args-test3.bal");
     }
 
     @Test(description = "Test selector streaming query with function")
@@ -115,6 +127,86 @@ public class BallerinaStreamsV2SelectorWithFunctionTest {
     @Test(description = "Test queries which have functions with multiple args in select clause")
     public void testSelectQueryWithFunctionArgs3() {
         BValue[] outputEmployeeEvents = BRunUtil.invoke(resultForFunctionArgs3, "startSelectQuery");
+        System.setProperty("enable.siddhiRuntime", "true");
+        Assert.assertNotNull(outputEmployeeEvents);
+
+        Assert.assertEquals(outputEmployeeEvents.length, 3, "Expected events are not received");
+
+        BMap<String, BValue> employee0 = (BMap<String, BValue>) outputEmployeeEvents[0];
+        BMap<String, BValue> employee1 = (BMap<String, BValue>) outputEmployeeEvents[1];
+        BMap<String, BValue> employee2 = (BMap<String, BValue>) outputEmployeeEvents[2];
+
+        Assert.assertEquals(employee0.get("teacherName").stringValue(), "Raja");
+        Assert.assertEquals(((BInteger) employee0.get("age")).intValue(), 50);
+        Assert.assertEquals(employee1.get("teacherName").stringValue(), "Mohan");
+        Assert.assertEquals(((BInteger) employee1.get("age")).intValue(), 90);
+        Assert.assertEquals(employee2.get("teacherName").stringValue(), "Shareek");
+        Assert.assertEquals(((BInteger) employee2.get("age")).intValue(), 100);
+    }
+
+    @Test(description = "Test selector streaming query with function with stream alias")
+    public void testSelectQueryWithAlias() {
+        BValue[] outputEmployeeEvents = BRunUtil.invoke(resultWithAlias, "startSelectQuery");
+        System.setProperty("enable.siddhiRuntime", "true");
+        Assert.assertNotNull(outputEmployeeEvents);
+
+        Assert.assertEquals(outputEmployeeEvents.length, 3, "Expected events are not received");
+
+        BMap<String, BValue> employee0 = (BMap<String, BValue>) outputEmployeeEvents[0];
+        BMap<String, BValue> employee1 = (BMap<String, BValue>) outputEmployeeEvents[1];
+        BMap<String, BValue> employee2 = (BMap<String, BValue>) outputEmployeeEvents[2];
+
+        Assert.assertEquals(employee0.get("teacherName").stringValue(), "Raja");
+        Assert.assertEquals(((BInteger) employee0.get("age")).intValue(), 20);
+        Assert.assertEquals(employee1.get("teacherName").stringValue(), "Mohan");
+        Assert.assertEquals(((BInteger) employee1.get("age")).intValue(), 20);
+        Assert.assertEquals(employee2.get("teacherName").stringValue(), "Shareek");
+        Assert.assertEquals(((BInteger) employee2.get("age")).intValue(), 20);
+    }
+
+    @Test(description = "Test queries which have functions in select clause with stream alias")
+    public void testSelectQueryWithFunctionArgsWithAlias() {
+        BValue[] outputEmployeeEvents = BRunUtil.invoke(resultForFunctionArgsWithAlias, "startSelectQuery");
+        System.setProperty("enable.siddhiRuntime", "true");
+        Assert.assertNotNull(outputEmployeeEvents);
+
+        Assert.assertEquals(outputEmployeeEvents.length, 3, "Expected events are not received");
+
+        BMap<String, BValue> employee0 = (BMap<String, BValue>) outputEmployeeEvents[0];
+        BMap<String, BValue> employee1 = (BMap<String, BValue>) outputEmployeeEvents[1];
+        BMap<String, BValue> employee2 = (BMap<String, BValue>) outputEmployeeEvents[2];
+
+        Assert.assertEquals(employee0.get("teacherName").stringValue(), "Raja");
+        Assert.assertEquals(((BInteger) employee0.get("age")).intValue(), 25);
+        Assert.assertEquals(employee1.get("teacherName").stringValue(), "Mohan");
+        Assert.assertEquals(((BInteger) employee1.get("age")).intValue(), 25);
+        Assert.assertEquals(employee2.get("teacherName").stringValue(), "Shareek");
+        Assert.assertEquals(((BInteger) employee2.get("age")).intValue(), 25);
+    }
+
+    @Test(description = "Test queries which have functions with args in select clause with stream alias")
+    public void testSelectQueryWithFunctionArgs2WithAlias() {
+        BValue[] outputEmployeeEvents = BRunUtil.invoke(resultForFunctionArgs2WithAlias, "startSelectQuery");
+        System.setProperty("enable.siddhiRuntime", "true");
+        Assert.assertNotNull(outputEmployeeEvents);
+
+        Assert.assertEquals(outputEmployeeEvents.length, 3, "Expected events are not received");
+
+        BMap<String, BValue> employee0 = (BMap<String, BValue>) outputEmployeeEvents[0];
+        BMap<String, BValue> employee1 = (BMap<String, BValue>) outputEmployeeEvents[1];
+        BMap<String, BValue> employee2 = (BMap<String, BValue>) outputEmployeeEvents[2];
+
+        Assert.assertEquals(employee0.get("teacherName").stringValue(), "Raja");
+        Assert.assertEquals(((BInteger) employee0.get("age")).intValue(), 25);
+        Assert.assertEquals(employee1.get("teacherName").stringValue(), "Mohan");
+        Assert.assertEquals(((BInteger) employee1.get("age")).intValue(), 45);
+        Assert.assertEquals(employee2.get("teacherName").stringValue(), "Shareek");
+        Assert.assertEquals(((BInteger) employee2.get("age")).intValue(), 50);
+    }
+
+    @Test(description = "Test queries which have functions with multiple args in select clause with stream alias")
+    public void testSelectQueryWithFunctionArgs3WithAlias() {
+        BValue[] outputEmployeeEvents = BRunUtil.invoke(resultForFunctionArgs3WithAlias, "startSelectQuery");
         System.setProperty("enable.siddhiRuntime", "true");
         Assert.assertNotNull(outputEmployeeEvents);
 

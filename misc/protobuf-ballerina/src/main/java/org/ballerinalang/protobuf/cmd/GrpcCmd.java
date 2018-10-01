@@ -92,10 +92,7 @@ public class GrpcCmd implements BLauncherCmd {
     
     @CommandLine.Option(names = "--debug", hidden = true)
     private String debugPort;
-    
-    @CommandLine.Option(names = "--java.debug", hidden = true, description = "remote java debugging port")
-    private String javaDebugPort;
-    
+
     @Override
     public void execute() {
         // check input protobuf file path
