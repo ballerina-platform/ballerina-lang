@@ -81,3 +81,33 @@ function testCompoundAssignmentAdditionWithFunctionInvocation() returns (int){
 function getMultiIncrement() returns (int, int) {
    return (200, 100);
 }
+
+type Company record {
+   int count;
+   int count2;
+};
+
+function testCompoundAssignmentAdditionStructElementRecursive() returns int? {
+    Company ibm = {};
+    ibm["count"] = 100;
+    ibm["count"] += ibm["count"];
+    return ibm["count"];
+}
+
+function testCompoundAssignmentAdditionStructElements() returns int? {
+    Company ibm = {};
+    ibm["count"] = 100;
+    ibm["count2"] = 400;
+    ibm["count"] += ibm["count2"];
+    return ibm["count"];
+}
+
+function testCompoundAssignmentAdditionWithStructAccess() returns int {
+    Company ibm = {};
+    ibm["count"] = 100;
+    int[] arr = [];
+    arr[0] = 200;
+    int x = 5;
+    x += (ibm["count"] + arr[0]);
+    return x;
+}

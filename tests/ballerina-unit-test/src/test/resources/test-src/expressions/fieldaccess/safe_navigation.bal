@@ -4,12 +4,12 @@ type Person record {
     int a;
     string fname = "John";
     string lname;
-    Info|error info1;
+    Info|error|() info1;
     Info|() info2;
 };
 
 type Info record {
-    Address|error address1;
+    Address|error|() address1;
     Address|() address2;
 };
 

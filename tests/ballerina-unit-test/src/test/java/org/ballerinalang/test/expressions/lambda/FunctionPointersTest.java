@@ -186,7 +186,7 @@ public class FunctionPointersTest {
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class, expectedExceptionsMessageRegExp = "" +
-            ".*NullReferenceException.*")
+            ".*NullReferenceException.*", enabled = false)
     public void testStructFPNullReference() {
         BRunUtil.invoke(structProgram, "test2");
     }

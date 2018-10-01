@@ -100,5 +100,5 @@ function testSetValueToJsonInStruct () returns (json) {
 function testAccessArrayInStruct () returns (int, int) {
     Person p1 = {marks:[87, 94, 72]};
     string statusKey = "status";
-    return (p1.marks[1], p1["marks"][2]);
+    return (p1.marks[1], p1["marks"][2] ?: 0);
 }

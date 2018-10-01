@@ -293,7 +293,7 @@ public class CompoundAssignmentTest {
     public void testDocumentationNegative() {
         CompileResult compileResult = BCompileUtil.compile(
                 "test-src/statements/compoundassignment/compound_assignment_negative.bal");
-        Assert.assertEquals(compileResult.getErrorCount(), 12);
+        Assert.assertEquals(compileResult.getErrorCount(), 15);
         BAssertUtil.validateError(compileResult, 0,
                 "operator '++' cannot be applied to type 'any'", 3, 5);
         BAssertUtil.validateError(compileResult, 1,
@@ -318,6 +318,12 @@ public class CompoundAssignmentTest {
                 "incompatible types: expected 'int', found 'float'", 70, 10);
         BAssertUtil.validateError(compileResult, 11,
                 "operator '+' not defined for 'int' and '(int,int)'", 76, 5);
+        BAssertUtil.validateError(compileResult, 12,
+                "operator '+' not defined for 'int?' and 'int?'", 93, 5);
+        BAssertUtil.validateError(compileResult, 13,
+                "operator '+' not defined for 'int?' and 'int?'", 101, 5);
+        BAssertUtil.validateError(compileResult, 14,
+                "operator '+' not defined for 'int?' and 'int'", 111, 11);
     }
 
 }

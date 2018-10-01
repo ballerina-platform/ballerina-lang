@@ -49,5 +49,5 @@ function testAnonStructAsStructField() returns (string) {
     employee e = {fname:"sam", lname:"json", age:100,
                      address:{line01:"12 Gemba St APT 134", city:"Los Altos", state:"CA", zipcode:"95123"},
                     dateOfBirth:{}};
-    return e.dateOfBirth.month + ":" + e.address.line01 + ":" + e.address["state"] + ":" + e.fname;
+    return e.dateOfBirth.month + ":" + e.address.line01 + ":" + (e.address["state"] ?: "-") + ":" + e.fname;
 }
