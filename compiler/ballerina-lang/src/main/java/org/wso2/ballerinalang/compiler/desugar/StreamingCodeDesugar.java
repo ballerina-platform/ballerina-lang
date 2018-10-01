@@ -918,9 +918,10 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
         BLangFieldBasedAccess nextProcessMethodAccess = createFieldBasedAccessForProcessFunc(window.pos,
                 nextProcessInvokableSymbol, nextProcessSimpleVarRef);
 
+        BLangInvocation invocation = (BLangInvocation) window.getFunctionInvocation();
         BInvokableSymbol windowInvokableSymbol = (BInvokableSymbol) symResolver.
                 resolvePkgSymbol(window.pos, env, names.fromString(STREAMS_STDLIB_PACKAGE_NAME)).
-                scope.lookup(new Name(((BLangInvocation) window.getFunctionInvocation()).name.value)).symbol;
+                scope.lookup(new Name(invocation.name.value)).symbol;
 
         BType windowInvokableType = windowInvokableSymbol.type.getReturnType();
 
@@ -931,12 +932,17 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
 
         List<BLangExpression> args = new ArrayList<>();
         args.add(nextProcessMethodAccess);
-        args.addAll(((BLangInvocation) window.getFunctionInvocation()).argExprs);
-
+        args.addAll(invocation.argExprs);
         BLangInvocation windowInvocation = ASTBuilderUtil.
                 createInvocationExprForMethod(window.pos, windowInvokableSymbol, args,
                         symResolver);
+
         windowInvocation.argExprs = args;
+        windowInvocation.requiredArgs = invocation.requiredArgs;
+        windowInvocation.requiredArgs.add(0, nextProcessMethodAccess);
+        windowInvocation.restArgs = invocation.restArgs;
+        windowInvocation.namedArgs = invocation.namedArgs;
+
         BLangVariable windowInvokableTypeVariable = ASTBuilderUtil.createVariable(window.pos,
                 getVariableName(WINDOW_FUNC_REFERENCE), windowInvokableType, windowInvocation,
                 windowInvokableTypeVarSymbol);
