@@ -36,6 +36,7 @@ public type QueueReceiver object {
                 match (c.queueName) {
                     string queueName => {
                         self.createQueueReceiver(s, c.messageSelector);
+                        log:printInfo("Message receiver created for queue " + queueName);
                     }
                     () => {}
                 }
@@ -89,7 +90,9 @@ public type QueueReceiverEndpointConfiguration record {
     !...
 };
 
-# Caller actions related to queue receiver endpoint
+# Caller actions related to queue receiver endpoint.
+#
+# + queueReceiver - queue receiver endpoint
 public type QueueReceiverActions object {
 
     public QueueReceiver? queueReceiver;
@@ -97,17 +100,18 @@ public type QueueReceiverActions object {
     # Acknowledges a received message
     #
     # + message - JMS message to be acknowledged
+    # + return - error upon failure to acknowledge the received message
     public extern function acknowledge(Message message) returns error?;
 
     # Synchronously receive a message from the JMS provider
     #
     # + timeoutInMilliSeconds - time to wait until a message is received
-    # + return - Returns a message or () if the timeout exceededs. Returns an error on jms provider internal error.
+    # + return - Returns a message or nil if the timeout exceeds. Returns an error on jms provider internal error
     public extern function receive(int timeoutInMilliSeconds = 0) returns (Message|error)?;
 
     # Synchronously receive a message from a given destination
     #
-    # + destination - destination to subscribe to.
+    # + destination - destination to subscribe to
     # + timeoutInMilliSeconds - time to wait until a message is received
     # + return - Returns a message or () if the timeout exceededs. Returns an error on jms provider internal error.
     public function receiveFrom(Destination destination, int timeoutInMilliSeconds = 0) returns (Message|error)?;

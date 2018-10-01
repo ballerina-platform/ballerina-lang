@@ -28,7 +28,7 @@ import io.ballerina.plugins.idea.psi.*;
 
 public class BallerinaCloseTagImpl extends BallerinaCompositeElementImpl implements BallerinaCloseTag {
 
-  public BallerinaCloseTagImpl(ASTNode node) {
+  public BallerinaCloseTagImpl(@NotNull ASTNode node) {
     super(node);
   }
 

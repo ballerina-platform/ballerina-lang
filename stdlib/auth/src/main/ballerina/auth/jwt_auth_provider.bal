@@ -21,11 +21,16 @@ import ballerina/runtime;
 import ballerina/time;
 
 # Represents a JWT Authenticator
+#
+# + jwtAuthProviderConfig - JWT authentication provider configurations
 public type JWTAuthProvider object {
 
     public JWTAuthProviderConfig jwtAuthProviderConfig;
     private cache:Cache authCache;
 
+    # Provides authentication based on the provided jwt token
+    #
+    # + jwtAuthProviderConfig - JWT authentication provider configurations
     public new(jwtAuthProviderConfig) {
     }
 
@@ -115,18 +120,25 @@ public type JWTAuthProvider object {
 @final string AUTH_TYPE_JWT = "jwt";
 
 # Represents JWT validator configurations
+#
+# + issuer - Identifier of the token issuer
+# + audience - Identifier of the token recipients
+# + clockSkew - Time in seconds to mitigate clock skew
+# + certificateAlias - Token signed key alias
+# + trustStoreFilePath - Path to the trust store file
+# + trustStorePassword - Trust store password
 public type JWTAuthProviderConfig record {
-    string issuer,
-    string audience,
-    int clockSkew,
-    string certificateAlias,
-    string trustStoreFilePath,
-    string trustStorePassword,
+    string issuer;
+    string audience;
+    int clockSkew;
+    string certificateAlias;
+    string trustStoreFilePath;
+    string trustStorePassword;
     !...
 };
 
 type CachedJWTAuthContext record {
-    internal:JwtPayload jwtPayload,
+    internal:JwtPayload jwtPayload;
     int expiryTime;
     !...
 };

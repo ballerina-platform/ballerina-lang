@@ -19,24 +19,25 @@
 package org.ballerinalang.test.services.configuration;
 
 import org.ballerinalang.launcher.util.BCompileUtil;
-import org.ballerinalang.launcher.util.BServiceUtil;
 import org.ballerinalang.launcher.util.CompileResult;
-import org.ballerinalang.util.exceptions.BLangRuntimeException;
+import org.ballerinalang.util.diagnostic.Diagnostic;
+import org.testng.Assert;
 import org.testng.annotations.Test;
 
 /**
- * Test case for services with multiple http:configuration annotations.
+ * Test case for services with multiple http:ServiceConfig annotations.
  *
  * @since 0.95.4
  */
 public class ServiceConfigurationTest {
 
-    private CompileResult compileResult;
-
-    @Test(expectedExceptions = BLangRuntimeException.class,
-          expectedExceptionsMessageRegExp = ".*multiple service configuration annotations found in service:.*")
+    @Test(description = "Tests for multiple service configs in a resource")
     public void testDuplicateServiceConfigAnnotations() {
-        compileResult = BCompileUtil.compile("test-src/services/configuration/service-config-annotation.bal");
-        BServiceUtil.runService(compileResult);
+        CompileResult compileResult = BCompileUtil.compile(
+                "test-src/services/configuration/service-config-annotation.bal");
+        Diagnostic[] diag = compileResult.getDiagnostics();
+        Assert.assertEquals(diag.length, 1);
+        Assert.assertEquals(diag[0].getMessage(),
+                            "multiple service configuration annotations found in service : helloWorldServiceConfig");
     }
 }

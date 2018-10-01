@@ -109,11 +109,11 @@ objectInitializerParameterList
     ;
 
 objectFieldDefinition
-    :   annotationAttachment* deprecatedAttachment? (PUBLIC | PRIVATE)? typeName Identifier (ASSIGN expression)? (COMMA | SEMICOLON)
+    :   annotationAttachment* deprecatedAttachment? (PUBLIC | PRIVATE)? typeName Identifier (ASSIGN expression)? SEMICOLON
     ;
 
 fieldDefinition
-    :   annotationAttachment* typeName Identifier (ASSIGN expression)? (COMMA | SEMICOLON)
+    :   annotationAttachment* typeName Identifier (ASSIGN expression)? SEMICOLON
     ;
 
 recordRestFieldDefinition
@@ -371,6 +371,12 @@ compoundOperator
     |   COMPOUND_SUB
     |   COMPOUND_MUL
     |   COMPOUND_DIV
+    |   COMPOUND_BIT_AND
+    |   COMPOUND_BIT_OR
+    |   COMPOUND_BIT_XOR
+    |   COMPOUND_LEFT_SHIFT
+    |   COMPOUND_RIGHT_SHIFT
+    |   COMPOUND_LOGICAL_SHIFT
     ;
 
 postIncrementStatement

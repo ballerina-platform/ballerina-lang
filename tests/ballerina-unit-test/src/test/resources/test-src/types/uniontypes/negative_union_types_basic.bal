@@ -43,7 +43,7 @@ public type Foo2 record {
 };
 
 function testAmbiguousAssignment() {
-    OpenBar|error x1 = {name:"John", id:12}; // Ambiguous since both are open records
+    OpenBar|OpenFoo x1 = {name:"John", id:12}; // Ambiguous since both are open records
     ClosedBar|ClosedFoo x2 = {var1:"John"}; // Ambiguous since closed records and both have var1 field
     ClosedBar|OpenBar x3 = {var1:12}; // Ambigous since var1 is in closed record and other is open record
     ClosedBar|OpenBar x4 = {var2:12}; // Not Ambigous since var2 is not in the closed record

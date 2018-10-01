@@ -2989,7 +2989,7 @@ public class Desugar extends BLangNodeVisitor {
 
         // Set the taint information to the constructed init function
         initFunction.symbol.taintTable = new HashMap<>();
-        TaintRecord taintRecord = new TaintRecord(Collections.singletonList(Boolean.FALSE), null);
+        TaintRecord taintRecord = new TaintRecord(Boolean.FALSE, new ArrayList<>());
         initFunction.symbol.taintTable.put(TaintAnalyzer.ALL_UNTAINTED_TABLE_ENTRY_INDEX, taintRecord);
 
         // Update Object type with attached function details

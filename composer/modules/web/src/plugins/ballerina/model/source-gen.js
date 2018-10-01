@@ -2647,15 +2647,17 @@ export default function getSourceOf(node, pretty = false, l = 0, replaceLambda) 
                  + join(node.annotationAttachments, pretty, replaceLambda, l, w, '')
                  + join(node.deprecatedAttachments, pretty, replaceLambda, l, w, '') + (node.public ? w()
                  + 'public' : '') + w() + 'type' + a(' ') + w() + node.name.valueWithBar
-                 + a(' ') + w() + 'object' + w() + '{' + indent()
-                 + getSourceOf(node.typeNode, pretty, l, replaceLambda) + outdent() + w() + '}'
-                 + w() + ';';
+                 + a(' ') + (node.isAbstractKeywordAvailable ? w()
+                 + 'abstract' : '') + w() + 'object' + w() + '{' + indent()
+                 + getSourceOf(node.typeNode, pretty, l, replaceLambda) + outdent() + w() + '}' + w()
+                 + ';';
             } else if (node.isObjectType && node.annotationAttachments
                          && node.deprecatedAttachments && node.name.valueWithBar && node.typeNode) {
                 return dent() + dent()
                  + join(node.annotationAttachments, pretty, replaceLambda, l, w, '')
                  + join(node.deprecatedAttachments, pretty, replaceLambda, l, w, '') + (node.public ? w() + 'public' : '') + w()
-                 + 'type' + a(' ') + w() + node.name.valueWithBar + a(' ') + w()
+                 + 'type' + a(' ') + w() + node.name.valueWithBar + a(' ')
+                 + (node.isAbstractKeywordAvailable ? w() + 'abstract' : '') + w()
                  + 'object' + w() + '{' + indent()
                  + getSourceOf(node.typeNode, pretty, l, replaceLambda) + outdent() + w() + '}' + w() + ';';
             } else if (node.isRecordType && node.isRecordKeywordAvailable
@@ -2715,6 +2717,22 @@ export default function getSourceOf(node, pretty = false, l = 0, replaceLambda) 
                  + a(' ') + w() + node.name.valueWithBar + a(' ')
                  + getSourceOf(node.typeNode, pretty, l, replaceLambda) + w() + '|'
                  + join(node.valueSet, pretty, replaceLambda, l, w, '', '|') + w() + ';';
+            } else if (node.markdownDocumentationAttachment
+                         && node.annotationAttachments && node.deprecatedAttachments && node.name.valueWithBar
+                         && node.typeNode) {
+                return dent()
+                 + getSourceOf(node.markdownDocumentationAttachment, pretty, l, replaceLambda)
+                 + join(node.annotationAttachments, pretty, replaceLambda, l, w, '')
+                 + join(node.deprecatedAttachments, pretty, replaceLambda, l, w, '') + (node.public ? w() + 'public' : '')
+                 + w() + 'type' + a(' ') + w() + node.name.valueWithBar + a(' ')
+                 + getSourceOf(node.typeNode, pretty, l, replaceLambda) + w() + ';';
+            } else if (node.annotationAttachments && node.deprecatedAttachments
+                         && node.name.valueWithBar && node.typeNode) {
+                return dent()
+                 + join(node.annotationAttachments, pretty, replaceLambda, l, w, '')
+                 + join(node.deprecatedAttachments, pretty, replaceLambda, l, w, '') + (node.public ? w() + 'public' : '') + w() + 'type'
+                 + a(' ') + w() + node.name.valueWithBar + a(' ')
+                 + getSourceOf(node.typeNode, pretty, l, replaceLambda) + w() + ';';
             } else if (node.markdownDocumentationAttachment
                          && node.annotationAttachments && node.deprecatedAttachments && node.name.valueWithBar
                          && node.valueSet) {

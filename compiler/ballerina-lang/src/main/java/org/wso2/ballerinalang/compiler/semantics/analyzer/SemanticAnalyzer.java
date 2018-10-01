@@ -43,6 +43,7 @@ import org.ballerinalang.model.tree.statements.StreamingQueryStatementNode;
 import org.ballerinalang.model.tree.types.BuiltInReferenceTypeNode;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.util.diagnostic.DiagnosticCode;
+import org.wso2.ballerinalang.compiler.desugar.ASTBuilderUtil;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAnnotationSymbol;
@@ -523,6 +524,9 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             expTypes.add(varRef.type);
         }
         this.typeChecker.checkExpr(compoundAssignment.expr, env);
+
+        checkConstantAssignment(varRef);
+
         if (expTypes.get(0) != symTable.errType && compoundAssignment.expr.type != symTable.errType) {
             BSymbol opSymbol = this.symResolver.resolveBinaryOperator(compoundAssignment.opKind, expTypes.get(0),
                     compoundAssignment.expr.type);
@@ -1280,6 +1284,14 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         if (afterWhereNode != null) {
             ((BLangWhere) afterWhereNode).accept(this);
         }
+
+        //Create duplicate symbol for stream alias
+        if (streamingInput.getAlias() != null) {
+            BVarSymbol streamSymbol = (BVarSymbol) ((BLangSimpleVarRef) streamRef).symbol;
+            BVarSymbol streamAliasSymbol = ASTBuilderUtil.duplicateVarSymbol(streamSymbol);
+            streamAliasSymbol.name = names.fromString(streamingInput.getAlias());
+            symbolEnter.defineSymbol(streamingInput.pos, streamAliasSymbol, env);
+        }
     }
 
     @Override
@@ -1299,6 +1311,17 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         if (!isSiddhiRuntimeEnabled && (isGroupByAvailable || isWindowAvailable)) {
             for (BLangExpression arg : invocationExpr.argExprs) {
                 typeChecker.checkExpr(arg, env);
+                switch (arg.getKind()) {
+                    case NAMED_ARGS_EXPR:
+                        invocationExpr.namedArgs.add(arg);
+                        break;
+                    case REST_ARGS_EXPR:
+                        invocationExpr.restArgs.add(arg);
+                        break;
+                    default:
+                        invocationExpr.requiredArgs.add(arg);
+                        break;
+                }
             }
         }
     }
@@ -1840,7 +1863,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
     }
 
     private void validateStreamingEventType(DiagnosticPos pos, BType actualType, String attributeName, BType expType,
-                                           DiagnosticCode diagCode) {
+                                            DiagnosticCode diagCode) {
         if (expType.tag == TypeTags.ERROR) {
             return;
         } else if (expType.tag == TypeTags.NONE) {
@@ -2020,7 +2043,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
 
     /**
      * Validate functions attached to objects.
-     * 
+     *
      * @param funcNode Function node
      * @return True if the function is an unimplemented method inside a non-abstract object.
      */

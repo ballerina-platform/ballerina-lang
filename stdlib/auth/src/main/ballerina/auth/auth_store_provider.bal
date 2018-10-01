@@ -18,10 +18,11 @@
 # LDAP, JDBC, file based, etc. should be object-wise similar
 public type AuthStoreProvider object {
 
+    # Authenticate with username and password
     #
     # + username - user name
     # + password - password
-    # + retrun - true if authentication is a success, else false
+    # + return - true if authentication is a success, else false
     public function authenticate(string username, string password) returns boolean;
 
     # Reads the scope(s) for the user with the given username

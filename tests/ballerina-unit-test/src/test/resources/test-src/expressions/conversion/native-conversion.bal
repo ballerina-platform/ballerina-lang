@@ -767,8 +767,8 @@ function testStructArrayConversion2() returns T2 {
 }
 
 public type T3 record {
-  int x,
-  int y,
+  int x;
+  int y;
 };
 
 public type O1 object {
@@ -835,9 +835,9 @@ function testArrayToJson2() returns json {
 }
 
 public type TX record {
-  int x,
-  int y,
-  byte[] b,
+  int x;
+  int y;
+  byte[] b;
 };
 
 function testArrayToJsonFail() {
