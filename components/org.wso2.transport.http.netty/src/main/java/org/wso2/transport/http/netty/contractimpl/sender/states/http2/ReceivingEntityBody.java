@@ -63,7 +63,10 @@ public class ReceivingEntityBody implements SenderState {
     public void readInboundResponseHeaders(ChannelHandlerContext ctx, Http2HeadersFrame http2HeadersFrame,
                                            OutboundMsgHolder outboundMsgHolder, boolean isServerPush,
                                            Http2MessageStateContext http2MessageStateContext) {
-        LOG.warn("readInboundResponseHeaders is not a dependant action of this state");
+        // When trailer headers are going to be received after receiving entity body of the response.
+        http2MessageStateContext.setSenderState(new ReceivingHeaders(http2TargetHandler));
+        http2MessageStateContext.getSenderState().readInboundResponseHeaders(ctx, http2HeadersFrame, outboundMsgHolder,
+                isServerPush, http2MessageStateContext);
     }
 
     @Override
