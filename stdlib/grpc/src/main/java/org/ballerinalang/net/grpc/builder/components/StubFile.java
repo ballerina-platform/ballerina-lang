@@ -31,7 +31,6 @@ public class StubFile {
     private List<Message> messageList = new ArrayList<>();
     private List<EnumMessage> enumList = new ArrayList<>();
     private List<ServiceStub> stubList = new ArrayList<>();
-    private List<ServiceFile> serviceStubList = new ArrayList<>();
     private String fileName;
     
     public StubFile(String fileName) {
@@ -87,10 +86,6 @@ public class StubFile {
 
     public void addServiceStub(ServiceStub serviceStub) {
         stubList.add(serviceStub);
-    }
-
-    public void addServiceFile(ServiceFile serviceFile) {
-        serviceStubList.add(serviceFile);
     }
 
     public List<ServiceStub> getStubList() {
