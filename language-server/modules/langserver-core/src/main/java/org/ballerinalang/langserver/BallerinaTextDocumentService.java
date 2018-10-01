@@ -78,6 +78,7 @@ import org.eclipse.lsp4j.ReferenceParams;
 import org.eclipse.lsp4j.RenameParams;
 import org.eclipse.lsp4j.SignatureHelp;
 import org.eclipse.lsp4j.SymbolInformation;
+import org.eclipse.lsp4j.TextDocumentClientCapabilities;
 import org.eclipse.lsp4j.TextDocumentPositionParams;
 import org.eclipse.lsp4j.TextEdit;
 import org.eclipse.lsp4j.WorkspaceEdit;
@@ -118,6 +119,7 @@ class BallerinaTextDocumentService implements TextDocumentService {
     private final WorkspaceDocumentManager documentManager;
     private final LSCompiler lsCompiler;
     private Map<String, List<Diagnostic>> lastDiagnosticMap;
+    private TextDocumentClientCapabilities clientCapabilities;
 
     private final Debouncer diagPushDebouncer;
 
@@ -129,28 +131,39 @@ class BallerinaTextDocumentService implements TextDocumentService {
         this.lsCompiler = new LSCompiler(documentManager);
     }
 
+    /**
+     * Set the Text Document Capabilities.
+     *
+     * @param clientCapabilities    Client's Text Document Capabilities
+     */
+    void setClientCapabilities(TextDocumentClientCapabilities clientCapabilities) {
+        this.clientCapabilities = clientCapabilities;
+    }
+
     @Override
     public CompletableFuture<Either<List<CompletionItem>, CompletionList>>
     completion(TextDocumentPositionParams position) {
         return CompletableFuture.supplyAsync(() -> {
             String fileUri = position.getTextDocument().getUri();
             List<CompletionItem> completions;
-            LSServiceOperationContext completionContext = new LSServiceOperationContext();
+            LSServiceOperationContext context = new LSServiceOperationContext();
             Path completionPath = new LSDocument(fileUri).getPath();
             Path compilationPath = getUntitledFilePath(completionPath.toString()).orElse(completionPath);
             Optional<Lock> lock = documentManager.lockFile(compilationPath);
-            completionContext.put(DocumentServiceKeys.POSITION_KEY, position);
-            completionContext.put(DocumentServiceKeys.FILE_URI_KEY, fileUri);
-            completionContext.put(CompletionKeys.DOC_MANAGER_KEY, documentManager);
+            context.put(DocumentServiceKeys.POSITION_KEY, position);
+            context.put(DocumentServiceKeys.FILE_URI_KEY, fileUri);
+            context.put(CompletionKeys.DOC_MANAGER_KEY, documentManager);
+            context.put(CompletionKeys.CLIENT_CAPABILITIES_KEY, this.clientCapabilities.getCompletion());
+
             try {
-                BLangPackage bLangPackage = lsCompiler.getBLangPackage(completionContext, documentManager, false,
+                BLangPackage bLangPackage = lsCompiler.getBLangPackage(context, documentManager, false,
                                                                        CompletionCustomErrorStrategy.class,
                                                                        false).getRight();
-                completionContext.put(DocumentServiceKeys.CURRENT_PACKAGE_NAME_KEY,
+                context.put(DocumentServiceKeys.CURRENT_PACKAGE_NAME_KEY,
                         bLangPackage.symbol.getName().getValue());
-                completionContext.put(DocumentServiceKeys.CURRENT_BLANG_PACKAGE_CONTEXT_KEY, bLangPackage);
-                CompletionUtil.resolveSymbols(completionContext);
-                CompletionSubRuleParser.parse(completionContext);
+                context.put(DocumentServiceKeys.CURRENT_BLANG_PACKAGE_CONTEXT_KEY, bLangPackage);
+                CompletionUtil.resolveSymbols(context);
+                CompletionSubRuleParser.parse(context);
             } catch (Exception | AssertionError e) {
                 if (CommonUtil.LS_DEBUG_ENABLED) {
                     String msg = e.getMessage();
@@ -158,7 +171,7 @@ class BallerinaTextDocumentService implements TextDocumentService {
                 }
             } finally {
                 lock.ifPresent(Lock::unlock);
-                completions = CompletionUtil.getCompletionItems(completionContext);
+                completions = CompletionUtil.getCompletionItems(context);
             }
             return Either.forLeft(completions);
         });

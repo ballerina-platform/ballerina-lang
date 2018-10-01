@@ -28,7 +28,7 @@ import io.ballerina.plugins.idea.psi.*;
 
 public class BallerinaObjectFunctionsImpl extends BallerinaCompositeElementImpl implements BallerinaObjectFunctions {
 
-  public BallerinaObjectFunctionsImpl(ASTNode node) {
+  public BallerinaObjectFunctionsImpl(@NotNull ASTNode node) {
     super(node);
   }
 

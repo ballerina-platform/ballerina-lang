@@ -28,7 +28,7 @@ import io.ballerina.plugins.idea.psi.*;
 
 public class BallerinaParameterTypeNameListImpl extends BallerinaCompositeElementImpl implements BallerinaParameterTypeNameList {
 
-  public BallerinaParameterTypeNameListImpl(ASTNode node) {
+  public BallerinaParameterTypeNameListImpl(@NotNull ASTNode node) {
     super(node);
   }
 

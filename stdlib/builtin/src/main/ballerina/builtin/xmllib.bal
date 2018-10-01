@@ -85,8 +85,8 @@ public extern function xml::setAttributes(map attributes);
 # + options - xmlOptions struct for XML to JSON conversion properties
 # + return - JSON representation of the given XML
 public extern function xml::toJSON(record {
-                                         string attributePrefix = "@",
-                                         boolean preserveNamespaces = true,
+                                         string attributePrefix = "@";
+                                         boolean preserveNamespaces = true;
                                      } options) returns (json);
 
 # Searches in children recursively for elements matching the qualified name and returns a sequence containing them
@@ -101,18 +101,14 @@ public extern function xml::selectDescendants(string qname) returns (xml);
 # + qname - Qualified name of the attribute
 public extern function xml::removeAttribute(string qname);
 
-documentation {
-    Append children to an XML if its an element type XML. Error otherwise. 
-    New children will be appended at the end of the existing children.
-
-    P{{children}} children
-}
+# Append children to an XML if its an element type XML. Error otherwise.
+# New children will be appended at the end of the existing children.
+#
+# + children - children
 public extern function xml::appendChildren(xml children);
 
-documentation {
-    Remove children matching the given name from an XML. This operation has no effect
-    if the XML is not an element type XML.
-
-    P{{qname}} Namespace qualified name of the children to be removed
-}
+# Remove children matching the given name from an XML. This operation has no effect
+# if the XML is not an element type XML.
+#
+# + qname - Namespace qualified name of the children to be removed
 public extern function xml::removeChildren(string qname);

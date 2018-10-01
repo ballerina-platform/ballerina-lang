@@ -4,7 +4,7 @@ import ballerina/runtime;
 import ballerina/sql;
 
 type ResultCount record {
-    int COUNTVAL,
+    int COUNTVAL;
 };
 
 function testLocalTransacton() returns (int, int) {

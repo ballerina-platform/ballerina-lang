@@ -15,12 +15,10 @@
 // under the License.
 
 # Prints 'any' value to the STDOUT.
-#
 # + a - The value to be printed.
 public extern function print(any... a);
 
 # Prints an any value to the STDOUT in a new line.
-#
 # + a - The value to be printed.
 public extern function println(any... a);
 

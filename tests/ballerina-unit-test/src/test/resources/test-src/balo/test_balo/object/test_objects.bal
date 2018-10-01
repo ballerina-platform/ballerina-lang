@@ -67,7 +67,7 @@ public function testObjectWithInterface () returns (int, string, int, string) {
 }
 
 public type DustBin object {
-    public int age = 20,
+    public int age = 20;
     public string name = "sample name";
     public int year = 50;
     public string month = "february";
@@ -112,7 +112,7 @@ function returnDifferentObectInit() returns foo:Girl {
 }
 
 public type Women object {
-    public int age,
+    public int age;
 
     public new (age, int addVal) {
         age = age + addVal;
@@ -120,11 +120,11 @@ public type Women object {
 };
 
 type Vehicle object {
-    public int age,
-    public string name,
-    public foo:Bus emp,
-    public foo:Tyre foo,
-    public foo:Wheel bar,
+    public int age;
+    public string name;
+    public foo:Bus emp;
+    public foo:Tyre foo;
+    public foo:Wheel bar;
 };
 
 Vehicle v;
@@ -152,8 +152,8 @@ function testRecursiveObjectWithNill() returns int {
 }
 
 public type Office object {
-    public int age = 90,
-    public foo:Architect ep = new(88, "sanjiva"),
+    public int age = 90;
+    public foo:Architect ep = new(88, "sanjiva");
 };
 
 function testFieldWithExpr() returns (int, string) {

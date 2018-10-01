@@ -28,7 +28,7 @@ import io.ballerina.plugins.idea.psi.*;
 
 public class BallerinaLockStatementImpl extends BallerinaCompositeElementImpl implements BallerinaLockStatement {
 
-  public BallerinaLockStatementImpl(ASTNode node) {
+  public BallerinaLockStatementImpl(@NotNull ASTNode node) {
     super(node);
   }
 

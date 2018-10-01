@@ -184,9 +184,9 @@ public type CallerActions object {
 # + cause - The error which caused the `HttpTimeoutError`
 # + statusCode - HTTP status code
 public type HttpTimeoutError record {
-    string message,
-    error? cause,
-    int statusCode,
+    string message;
+    error? cause;
+    int statusCode;
     !...
 };
 

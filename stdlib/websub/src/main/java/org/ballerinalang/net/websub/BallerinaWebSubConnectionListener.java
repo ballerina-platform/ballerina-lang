@@ -321,7 +321,7 @@ public class BallerinaWebSubConnectionListener extends BallerinaHTTPConnectorLis
                     response.setProperty(HttpConstants.HTTP_STATUS_CODE, HttpResponseStatus.NOT_FOUND.code());
                     response.addHttpContent(new DefaultLastHttpContent());
                     HttpUtil.sendOutboundResponse(httpCarbonMessage, response);
-                    console.println("ballerina: Error auto-responding to intent verification request: Mode, Topic "
+                    console.println("error: Error auto-responding to intent verification request: Mode, Topic "
                                             + "and/or callback not specified");
                 }
                 if ((SUBSCRIBE.equals(mode) || UNSUBSCRIBE.equals(mode))
