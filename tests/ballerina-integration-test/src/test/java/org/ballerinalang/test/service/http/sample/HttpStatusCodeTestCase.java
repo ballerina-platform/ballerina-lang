@@ -38,6 +38,7 @@ import static org.testng.Assert.assertEquals;
 public class HttpStatusCodeTestCase extends HttpBaseTest {
 
     private final int servicePort = 9223;
+    private final String newResourceURI = "/newResourceURI";
 
     @Test(description = "Test ballerina ok() function with entity body")
     public void testOKWithBody() throws IOException {
@@ -64,6 +65,8 @@ public class HttpStatusCodeTestCase extends HttpBaseTest {
         assertEquals(response.getResponseCode(), 201, "Response code mismatched");
         assertEquals(response.getHeaders().get(HttpHeaderNames.CONTENT_TYPE.toString())
                 , TestConstant.CONTENT_TYPE_TEXT_PLAIN, "Content-Type mismatched");
+        assertEquals(response.getHeaders().get(HttpHeaderNames.LOCATION.toString())
+                , newResourceURI, "Incorrect location header value");
         assertEquals(response.getData(), "Created Response", "Message content mismatched");
     }
 
@@ -72,6 +75,18 @@ public class HttpStatusCodeTestCase extends HttpBaseTest {
         HttpResponse response = HttpClientRequest.doGet(serverInstance.getServiceURLHttp(servicePort,
                 "code/createdWithoutBody"));
         assertEquals(response.getResponseCode(), 201, "Response code mismatched");
+        assertEquals(response.getHeaders().get(HttpHeaderNames.LOCATION.toString())
+                , newResourceURI, "Incorrect location header value");
+        assertEquals(response.getData(), "", "Message body should be empty");
+    }
+
+    @Test(description = "Test ballerina created() function with an empty URI")
+    public void testCreatedWithEmptyURI() throws IOException {
+        HttpResponse response = HttpClientRequest.doGet(serverInstance.getServiceURLHttp(servicePort,
+                "code/createdWithEmptyURI"));
+        assertEquals(response.getResponseCode(), 201, "Response code mismatched");
+        assertEquals(response.getHeaders().get(HttpHeaderNames.LOCATION.toString())
+                , null, "No location header should be received");
         assertEquals(response.getData(), "", "Message body should be empty");
     }
 
@@ -91,57 +106,5 @@ public class HttpStatusCodeTestCase extends HttpBaseTest {
                 "code/acceptedWithoutBody"));
         assertEquals(response.getResponseCode(), 202, "Response code mismatched");
         assertEquals(response.getData(), "", "Message body should be empty");
-    }
-
-    @Test(description = "Test ballerina noContent() function with entity body")
-    public void testNoContentWithBody() throws IOException {
-        HttpResponse response = HttpClientRequest.doGet(serverInstance.getServiceURLHttp(servicePort,
-                "code/noContentWithBody"));
-        assertEquals(response.getResponseCode(), 204, "Response code mismatched");
-        assertEquals(response.getHeaders().get("x-custom-header")
-                , "custom-header-value", "Content-Type mismatched");
-        assertEquals(response.getData(), "", "Message body should be empty");
-    }
-
-    @Test(description = "Test ballerina noContent() function without entity body")
-    public void testNoContentWithoutBody() throws IOException {
-        HttpResponse response = HttpClientRequest.doGet(serverInstance.getServiceURLHttp(servicePort,
-                "code/noContentWithoutBody"));
-        assertEquals(response.getResponseCode(), 204, "Response code mismatched");
-        assertEquals(response.getData(), "", "Message body should be empty");
-    }
-
-    @Test(description = "Test ballerina badRequest() function with entity body")
-    public void testBadRequestWithBody() throws IOException {
-        HttpResponse response = HttpClientRequest.doGet(serverInstance.getServiceURLHttp(servicePort,
-                "code/badRequestWithBody"));
-        assertEquals(response.getResponseCode(), 400, "Response code mismatched");
-        assertEquals(response.getHeaders().get(HttpHeaderNames.CONTENT_TYPE.toString())
-                , TestConstant.CONTENT_TYPE_XML, "Content-Type mismatched");
-        assertEquals(response.getData(), "<test>Bad Request</test>", "Message content mismatched");
-    }
-
-    @Test(description = "Test ballerina badRequest() function without entity body", expectedExceptions =
-            IOException.class, expectedExceptionsMessageRegExp = "Server returned HTTP response code: 400 .*")
-    public void testBadRequestWithoutBody() throws IOException {
-        HttpClientRequest.doGet(serverInstance.getServiceURLHttp(servicePort, "code/badRequestWithoutBody"), true);
-    }
-
-    @Test(description = "Test ballerina badRequest() function with entity body")
-    public void testInternalServerErrWithBody() throws IOException {
-        HttpResponse response = HttpClientRequest.doGet(serverInstance.getServiceURLHttp(servicePort,
-                "code/serverErrWithBody"));
-        assertEquals(response.getResponseCode(), 500, "Response code mismatched");
-        assertEquals(response.getHeaders().get(HttpHeaderNames.CONTENT_TYPE.toString())
-                , TestConstant.CONTENT_TYPE_XML, "Content-Type mismatched");
-        assertEquals(response.getData(), "<test>Internal Server Error Occurred</test>",
-                "Message content mismatched");
-    }
-
-    @Test(description = "Test ballerina badRequest() function without entity body",
-            expectedExceptions = IOException.class, expectedExceptionsMessageRegExp =
-            "Server returned HTTP response code: 500 .*")
-    public void testInternalServerErrWithoutBody() throws IOException {
-        HttpClientRequest.doGet(serverInstance.getServiceURLHttp(servicePort, "code/serverErrWithoutBody"), true);
     }
 }

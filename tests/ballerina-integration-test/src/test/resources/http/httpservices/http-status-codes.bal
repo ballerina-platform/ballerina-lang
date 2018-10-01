@@ -42,7 +42,7 @@ service<http:Service> differentStatusCodes bind {port : 9223} {
         path:"/createdWithBody"
     }
     sendCreatedWithBody (endpoint caller, http:Request req) {
-        _ = caller -> created(message = "Created Response");
+        _ = caller -> created("/newResourceURI", message = "Created Response");
     }
 
     @http:ResourceConfig {
@@ -50,7 +50,15 @@ service<http:Service> differentStatusCodes bind {port : 9223} {
         path:"/createdWithoutBody"
     }
     sendCreatedWithoutBody (endpoint caller, http:Request req) {
-        _ = caller -> created();
+        _ = caller -> created("/newResourceURI");
+    }
+
+    @http:ResourceConfig {
+        methods:["GET"],
+        path:"/createdWithEmptyURI"
+    }
+    sendCreatedWithEmptyURI (endpoint caller, http:Request req) {
+        _ = caller -> created("");
     }
 
     @http:ResourceConfig {
@@ -67,58 +75,5 @@ service<http:Service> differentStatusCodes bind {port : 9223} {
     }
     sendAcceptedWithoutBody (endpoint caller, http:Request req) {
         _ = caller -> accepted();
-    }
-
-    @http:ResourceConfig {
-        methods:["GET"],
-        path:"/noContentWithBody"
-    }
-    sendNoContentWithBody (endpoint caller, http:Request req) {
-        http:Response res = new;
-        res.setHeader("x-custom-header", "custom-header-value");
-        res.setPayload(xml `<test>No Content</test>`);
-        _ = caller -> noContent(message = res); //Body will be removed
-    }
-
-    @http:ResourceConfig {
-        methods:["GET"],
-        path:"/noContentWithoutBody"
-    }
-    sendNoContentWithoutBody (endpoint caller, http:Request req) {
-        _ = caller -> noContent();
-    }
-
-    @http:ResourceConfig {
-        methods:["GET"],
-        path:"/badRequestWithBody"
-    }
-    sendBadRequestWithBody (endpoint caller, http:Request req) {
-        http:Response res = new;
-        res.setPayload(xml `<test>Bad Request</test>`);
-        _ = caller -> badRequest(message = res);
-    }
-
-    @http:ResourceConfig {
-        methods:["GET"],
-        path:"/badRequestWithoutBody"
-    }
-    sendBadRequestWithoutBody (endpoint caller, http:Request req) {
-        _ = caller -> badRequest();
-    }
-
-    @http:ResourceConfig {
-        methods:["GET"],
-        path:"/serverErrWithBody"
-    }
-    sendServerErrWithBody (endpoint caller, http:Request req) {
-        _ = caller -> internalServerError(message = xml `<test>Internal Server Error Occurred</test>`);
-    }
-
-    @http:ResourceConfig {
-        methods:["GET"],
-        path:"/serverErrWithoutBody"
-    }
-    sendServerErrWithoutBody (endpoint caller, http:Request req) {
-        _ = caller -> internalServerError();
     }
 }
