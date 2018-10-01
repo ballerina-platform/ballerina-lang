@@ -226,7 +226,6 @@ import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.Stack;
 import java.util.stream.Collectors;
-
 import javax.xml.XMLConstants;
 
 import static org.wso2.ballerinalang.compiler.codegen.CodeGenerator.VariableIndex.Kind.FIELD;
@@ -844,7 +843,7 @@ public class CodeGenerator extends BLangNodeVisitor {
             return;
         }
 
-        loadStructField(fieldVarRef, varRegIndex, fieldNameRegIndex);
+        loadStructField(fieldVarRef, varRegIndex, fieldNameRegIndex, 0);
     }
 
     @Override
@@ -894,7 +893,7 @@ public class CodeGenerator extends BLangNodeVisitor {
         if (variableStore) {
             storeStructField(fieldAccessExpr, varRefRegIndex, keyRegIndex);
         } else {
-            loadStructField(fieldAccessExpr, varRefRegIndex, keyRegIndex);
+            loadStructField(fieldAccessExpr, varRefRegIndex, keyRegIndex, fieldAccessExpr.except ? 1 : 0);
         }
 
         this.varAssignment = variableStore;
@@ -3752,11 +3751,8 @@ public class CodeGenerator extends BLangNodeVisitor {
         }
     }
 
-    private void loadStructField(BLangExpression fieldAccessExpr, Operand varRefRegIndex, Operand keyRegIndex) {
-        // Flag indicating whether to throw runtime error if the field does not exist.
-        // This is currently set to false always, since the fields are checked during compile time.
-        final int except = 0;
-
+    private void loadStructField(BLangExpression fieldAccessExpr, Operand varRefRegIndex, Operand keyRegIndex,
+                                 int except) {
         IntegerCPEntry exceptCPEntry = new IntegerCPEntry(except);
         Operand exceptOp = getOperand(currentPkgInfo.addCPEntry(exceptCPEntry));
         int opcode = getRefToValueTypeCastOpcode(fieldAccessExpr.type.tag);

@@ -550,6 +550,10 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             return;
         }
 
+        if (assignNode.varRef.getKind() == NodeKind.INDEX_BASED_ACCESS_EXPR) {
+            ((BLangIndexBasedAccess) assignNode.varRef).leafNode = true;
+        }
+
         // Check each LHS expression.
         BType expType = getTypeOfVarReferenceInAssignment(assignNode.varRef);
         typeChecker.checkExpr(assignNode.expr, this.env, expType);
