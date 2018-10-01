@@ -315,7 +315,7 @@ public class Desugar extends BLangNodeVisitor {
             }
             if (typeDef.symbol.tag == SymTag.OBJECT) {
                 BLangObjectTypeNode objectTypeNode = (BLangObjectTypeNode) typeDef.typeNode;
-                
+
                 objectTypeNode.functions.forEach(f -> {
                     if (!pkgNode.objAttachedFunctions.contains(f.symbol)) {
                         pkgNode.functions.add(f);
@@ -1874,6 +1874,33 @@ public class Desugar extends BLangNodeVisitor {
 
     private void visitFunctionPointerInvocation(BLangInvocation iExpr) {
         BLangVariableReference expr;
+        if (iExpr.functionPointerInvocation) {
+            expr = iExpr.expr;
+            if (expr != null) {
+                if (expr.getKind() == NodeKind.FIELD_BASED_ACCESS_EXPR) {
+                    iExpr.name = ((BLangFieldBasedAccess) expr).field;
+                } else if (expr.getKind() == NodeKind.SIMPLE_VARIABLE_REF) {
+                    iExpr.name = ((BLangSimpleVarRef) expr).variableName;
+                }
+
+                iExpr.symbol = expr.symbol;
+                iExpr.expr = null;
+                iExpr.requiredArgs = new ArrayList<>(iExpr.argExprs);
+                iExpr.namedArgs = new ArrayList<>(iExpr.namedArgs);
+                iExpr.restArgs = new ArrayList<>(iExpr.restArgs);
+
+                if (expr.getKind() == NodeKind.SIMPLE_VARIABLE_REF) {
+                    expr = new BLangSimpleVarRef();
+                }
+                expr.symbol = iExpr.symbol;
+                expr.type = iExpr.symbol.type;
+                expr = rewriteExpr(expr);
+
+                result = new BFunctionPointerInvocation(iExpr, expr);
+                return;
+            }
+        }
+
         if (iExpr.expr == null) {
             expr = new BLangSimpleVarRef();
         } else {

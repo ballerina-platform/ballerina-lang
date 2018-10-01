@@ -617,7 +617,7 @@ public class TypeChecker extends BLangNodeVisitor {
 
         // If this is on lhs, no need to do type checking further. And null/error
         // will not propagate from parent expressions
-        if (indexBasedAccessExpr.lhsVar) { 
+        if (indexBasedAccessExpr.lhsVar) {
             indexBasedAccessExpr.originalType = actualType;
             indexBasedAccessExpr.type = actualType;
             resultType = actualType;
@@ -651,6 +651,13 @@ public class TypeChecker extends BLangNodeVisitor {
             iExpr.iterableOperationInvocation = true;
             iterableAnalyzer.handlerIterableOperation(iExpr, expType, env);
             resultType = iExpr.iContext.operations.getLast().resultType;
+            return;
+        }
+        // Check whether the expression is a function pointer invocation.
+        if (isFunctionPointerInvocation(iExpr)) {
+            iExpr.functionPointerInvocation = true;
+            resultType = iExpr.expr.type.getReturnType();
+            checkFunctionPointerInvocationExpr(iExpr);
             return;
         }
         if (iExpr.actionInvocation) {
@@ -1400,6 +1407,49 @@ public class TypeChecker extends BLangNodeVisitor {
         return list;
     }
 
+    private void checkFunctionPointerInvocationExpr(BLangInvocation iExpr) {
+        Name funcName = iExpr.expr.symbol.name;
+        Name pkgAlias = names.fromIdNode(iExpr.pkgAlias);
+
+        BSymbol funcSymbol = symTable.notFoundSymbol;
+        // if no package alias, check for same object attached function
+        if (pkgAlias == Names.EMPTY && env.enclTypeDefinition != null) {
+            Name objFuncName = names.fromString(Symbols.getAttachedFuncSymbolName(
+                    env.enclTypeDefinition.name.value, iExpr.name.value));
+            funcSymbol = symResolver.resolveStructField(iExpr.pos, env, objFuncName,
+                    env.enclTypeDefinition.symbol.type.tsymbol);
+            if (funcSymbol != symTable.notFoundSymbol) {
+                iExpr.exprSymbol = symResolver.lookupSymbol(env, Names.SELF, SymTag.VARIABLE);
+            }
+        }
+
+        // if no such function found, then try resolving in package
+        if (funcSymbol == symTable.notFoundSymbol) {
+            funcSymbol = symResolver.lookupSymbolInPackage(iExpr.pos, env, pkgAlias, funcName, SymTag.VARIABLE);
+        }
+
+        // Get the function symbol from a field.
+        if (funcSymbol == symTable.notFoundSymbol && iExpr.expr.getKind() == NodeKind.FIELD_BASED_ACCESS_EXPR) {
+            BLangFieldBasedAccess expr = (BLangFieldBasedAccess) iExpr.expr;
+            funcSymbol = symResolver.resolveObjectField(iExpr.pos, env, names.fromIdNode(expr.field),
+                    expr.expr.type.tsymbol);
+        }
+
+        if (funcSymbol == symTable.notFoundSymbol || funcSymbol.type.tag != TypeTags.INVOKABLE) {
+            dlog.error(iExpr.pos, DiagnosticCode.UNDEFINED_FUNCTION, funcName);
+            resultType = symTable.errType;
+            return;
+        }
+        if (funcSymbol.tag == SymTag.VARIABLE) {
+            // Check for function pointer.
+            iExpr.functionPointerInvocation = true;
+        }
+        // Set the resolved function symbol in the invocation expression.
+        // This is used in the code generation phase.
+        iExpr.symbol = funcSymbol;
+        checkInvocationParamAndReturnType(iExpr);
+    }
+
     private void checkFunctionInvocationExpr(BLangInvocation iExpr) {
         Name funcName = names.fromIdNode(iExpr.name);
         Name pkgAlias = names.fromIdNode(iExpr.pkgAlias);
@@ -1505,6 +1555,14 @@ public class TypeChecker extends BLangNodeVisitor {
             }
         }
         return false;
+    }
+
+    private boolean isFunctionPointerInvocation(BLangInvocation iExpr) {
+        // Function pointers can only be invoked using the `call` function.
+        if (!iExpr.name.value.equals("call")) {
+            return false;
+        }
+        return iExpr.expr.type.tag == TypeTags.INVOKABLE;
     }
 
     private void checkInvocationParamAndReturnType(BLangInvocation iExpr) {
