@@ -32,7 +32,4 @@ public interface BallerinaIntegerLiteral extends BallerinaCompositeElement {
   @Nullable
   PsiElement getHexIntegerLiteral();
 
-  @Nullable
-  PsiElement getOctalIntegerLiteral();
-
 }

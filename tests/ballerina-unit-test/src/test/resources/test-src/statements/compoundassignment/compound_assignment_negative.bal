@@ -82,6 +82,43 @@ function getMultiIncrement() returns (int, int) {
    return (200, 100);
 }
 
+
+function testCompoundAssignmentBitwiseAND() returns (int){
+    int x = 15;
+    x &= "Ballerina";
+    return x;
+}
+
+function testCompoundAssignmentBitwiseOR() returns (int){
+    int x = 15;
+    x |= "Ballerina";
+    return x;
+}
+
+function testCompoundAssignmentBitwiseXOR() returns (int){
+    int x = 15;
+    x ^= "Ballerina";
+    return x;
+}
+
+function testCompoundAssignmentLeftShift() returns (int){
+    int x = 8;
+    x <<= "Ballerina";
+    return x;
+}
+
+function testCompoundAssignmentRightShift() returns (int){
+    int x = 8;
+    x >>= "Ballerina";
+    return x;
+}
+
+function testCompoundAssignmentLogicalShift() returns (int){
+    int x = 8;
+    x >>>= "Ballerina";
+    return x;
+}
+
 type Company record {
    int count;
    int count2;
