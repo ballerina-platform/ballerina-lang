@@ -104,12 +104,10 @@ public class ServiceProtoBuilder extends AbstractCompilerPlugin {
                 String proto = ((BLangRecordLiteral) descriptorMapVar.get().getInitialExpression())
                         .getKeyValuePairs().get(0).getValue().toString();
                 addDescriptorAnnotation(serviceNode, null, proto);
-            } else {
-                if (ServiceDefinitionValidator.validate(serviceNode, dlog)) {
-                    File fileDefinition = ServiceProtoUtils.generateProtoDefinition(serviceNode);
-                    addDescriptorAnnotation(serviceNode, fileDefinition, null);
-                    FileDefinitionHolder.getInstance().addDefinition(serviceNode.getName().getValue(), fileDefinition);
-                }
+            } else if (ServiceDefinitionValidator.validate(serviceNode, dlog)) {
+                File fileDefinition = ServiceProtoUtils.generateProtoDefinition(serviceNode);
+                addDescriptorAnnotation(serviceNode, fileDefinition, null);
+                FileDefinitionHolder.getInstance().addDefinition(serviceNode.getName().getValue(), fileDefinition);
             }
         } catch (GrpcServerException e) {
             dlog.logDiagnostic(Diagnostic.Kind.ERROR, serviceNode.getPosition(), e.getMessage());

@@ -102,7 +102,7 @@ public class BallerinaFileBuilder {
             String filename = new File(fileDescriptorSet.getName()).getName().replace(PROTO_FILE_EXTENSION, "");
             String filePackage = fileDescriptorSet.getPackage();
             StubFile stubFileObject = new StubFile(filename);
-            StubFile servicestubFileObject = new StubFile(filename);
+//            StubFile servicestubFileObject = new StubFile(filename);
             ClientFile clientFileObject = null;
             // Add root descriptor.
             Descriptor rootDesc = Descriptor.newBuilder(rootDescriptor).build();
@@ -119,10 +119,11 @@ public class BallerinaFileBuilder {
                         "definition. but provided proto file contains " + fileDescriptorSet.getServiceCount() +
                         "service definitions");
             }
+            ServiceFile.Builder sampleServiceBuilder = null;
             if (fileDescriptorSet.getServiceCount() == 1) {
                 DescriptorProtos.ServiceDescriptorProto serviceDescriptor = fileDescriptorSet.getService(SERVICE_INDEX);
                 ServiceStub.Builder serviceBuilder = ServiceStub.newBuilder(serviceDescriptor.getName());
-                ServiceFile.Builder sampleServiceBuilder = ServiceFile.newBuilder(serviceDescriptor.getName());
+                sampleServiceBuilder = ServiceFile.newBuilder(serviceDescriptor.getName());
                 List<DescriptorProtos.MethodDescriptorProto> methodList = serviceDescriptor.getMethodList();
                 boolean isUnaryContains = false;
 
@@ -153,7 +154,7 @@ public class BallerinaFileBuilder {
                 }
                 serviceBuilder.setType(ServiceStub.StubType.NONBLOCKING);
                 stubFileObject.addServiceStub(serviceBuilder.build());
-                servicestubFileObject.addServiceFile(sampleServiceBuilder.build());
+//                servicestubFileObject.addServiceFile(sampleServiceBuilder.build());
                 if (mode.equals(GRPC_CLIENT)) {
                     clientFileObject = new ClientFile(serviceDescriptor.getName(), isUnaryContains);
                 }
@@ -181,7 +182,7 @@ public class BallerinaFileBuilder {
             }
             if (mode.equals(GRPC_SERVICE) && fileDescriptorSet.getServiceCount() != 0) {
                 String servicePath = generateOutputFile(this.balOutPath, filename + SAMPLE_SERVICE_FILE_PREFIX);
-                writeOutputFile(servicestubFileObject, DEFAULT_SAMPLE_DIR, SAMPLE_SERVICE_TEMPLATE_NAME, servicePath);
+                writeOutputFile(sampleServiceBuilder.build(), DEFAULT_SAMPLE_DIR, SAMPLE_SERVICE_TEMPLATE_NAME, servicePath);
             }
         } catch (IOException | GrpcServerException e) {
             throw new BalGenerationException("Error while generating .bal file.", e);

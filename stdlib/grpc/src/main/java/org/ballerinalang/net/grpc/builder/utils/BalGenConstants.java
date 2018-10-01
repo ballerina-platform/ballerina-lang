@@ -71,8 +71,6 @@ public class BalGenConstants {
 
     public static final String GRPC_CLIENT = "client";
 
-    public static final String GRPC_CLIENT_AND_SERVER = "both";
-
     public static final String GRPC_SERVICE = "service";
     
     public static final String SAMPLE_TEMPLATE_NAME = "sample";

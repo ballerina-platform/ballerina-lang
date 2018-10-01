@@ -35,7 +35,7 @@ public class ServiceFile {
     private List<Method> unaryFunctions = new ArrayList<>();
     private Method streamingFunction = null;
 
-    ServiceFile(String serviceName) {
+    private ServiceFile(String serviceName) {
         this.serviceName = serviceName;
     }
 
