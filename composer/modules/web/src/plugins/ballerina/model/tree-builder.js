@@ -167,6 +167,12 @@ class TreeBuilder {
             }
         }
 
+        if (kind === 'Annotation') {
+            if (node.attachmentPoints && node.attachmentPoints.length <= 0) {
+                node.noAttachmentPoints = true;
+            }
+        }
+
         if (kind === 'AnnotationAttachment' && node.packageAlias.value === 'builtin') {
             node.builtin = true;
         }
@@ -703,6 +709,10 @@ class TreeBuilder {
             } else {
                 node.typeString = node.ws[0].text;
             }
+        }
+
+        if (kind === 'Deprecated' && node.ws && node.ws.length > 0) {
+            node.deprecatedStart = node.ws[0].text;
         }
     }
 

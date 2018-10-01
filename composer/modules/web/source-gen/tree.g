@@ -21,7 +21,14 @@ Action
    ;
 
 Annotation
-   : <annotationAttachments>* annotation < <attachmentPoints-joined-by,>* > <name.value> <typeNode.source> ;
+   : <noAttachmentPoints?> <markdownDocumentationAttachment.source> <annotationAttachments>* annotation                                    <name.value> <typeNode.source> ;
+   | <noAttachmentPoints?>                                          <annotationAttachments>* annotation                                    <name.value> <typeNode.source> ;
+   | <noAttachmentPoints?> <markdownDocumentationAttachment.source> <annotationAttachments>* annotation                                    <name.value>                   ;
+   | <noAttachmentPoints?>                                          <annotationAttachments>* annotation                                    <name.value>                   ;
+   |                       <markdownDocumentationAttachment.source> <annotationAttachments>* annotation < <attachmentPoints-joined-by,>* > <name.value> <typeNode.source> ;
+   |                                                                <annotationAttachments>* annotation < <attachmentPoints-joined-by,>* > <name.value> <typeNode.source> ;
+   |                       <markdownDocumentationAttachment.source> <annotationAttachments>* annotation < <attachmentPoints-joined-by,>* > <name.value>                   ;
+   |                                                                <annotationAttachments>* annotation < <attachmentPoints-joined-by,>* > <name.value>                   ;
    ;
 
 AnnotationAttachment
@@ -79,7 +86,8 @@ BracedTupleExpr
    : ( <expressions-joined-by,>* )
 
 BuiltInRefType
-   : <typeKind>
+   : <grouped?> ( <typeKind> )
+   :              <typeKind>
    ;
 
 Catch
@@ -119,7 +127,7 @@ DocumentationAttribute
    ;
 
 Deprecated
-   : deprecated { <documentationText> }
+   : <deprecatedStart> <documentationText> }
    ;
 
 Done
@@ -209,6 +217,14 @@ Function
    | <objectOuterFunction?>                                              <annotationAttachments>* <deprecatedAttachments>* <public?public> function  <objectOuterFunctionTypeName.value> :: <name.value> ( <allParams-joined-by,>* <hasRestParams?,> <restParameters.source> )                                                                                         { <endpointNodes>* <body.source> <workers>* }
    | <objectOuterFunction?>    <markdownDocumentationAttachment.source>  <annotationAttachments>* <deprecatedAttachments>* <public?public> function  <objectOuterFunctionTypeName.value> :: <name.value> ( <allParams-joined-by,>*                                           )                                                                                         { <endpointNodes>* <body.source> <workers>* }
    | <objectOuterFunction?>                                              <annotationAttachments>* <deprecatedAttachments>* <public?public> function  <objectOuterFunctionTypeName.value> :: <name.value> ( <allParams-joined-by,>*                                           )                                                                                         { <endpointNodes>* <body.source> <workers>* }
+   | <native?>                 <markdownDocumentationAttachment.source>  <annotationAttachments>* <deprecatedAttachments>* <public?public> extern function                                  <name.value> ( <allParams-joined-by,>* <hasRestParams?,> <restParameters.source> ) <hasReturns?>    returns <returnTypeAnnotationAttachments>*  <returnTypeNode.source>                                                  ;
+   | <native?>                                                           <annotationAttachments>* <deprecatedAttachments>* <public?public> extern function                                  <name.value> ( <allParams-joined-by,>* <hasRestParams?,> <restParameters.source> ) <hasReturns?>    returns <returnTypeAnnotationAttachments>*  <returnTypeNode.source>                                                  ;
+   | <native?>                 <markdownDocumentationAttachment.source>  <annotationAttachments>* <deprecatedAttachments>* <public?public> extern function                                  <name.value> ( <allParams-joined-by,>* <hasRestParams?,> <restParameters.source> )                                                                                                                                       ;
+   | <native?>                                                           <annotationAttachments>* <deprecatedAttachments>* <public?public> extern function                                  <name.value> ( <allParams-joined-by,>* <hasRestParams?,> <restParameters.source> )                                                                                                                                       ;
+   | <native?>                 <markdownDocumentationAttachment.source>  <annotationAttachments>* <deprecatedAttachments>* <public?public> extern function                                  <name.value> ( <allParams-joined-by,>*                                           ) <hasReturns?>    returns <returnTypeAnnotationAttachments>*  <returnTypeNode.source>                                                  ;
+   | <native?>                                                           <annotationAttachments>* <deprecatedAttachments>* <public?public> extern function                                  <name.value> ( <allParams-joined-by,>*                                           ) <hasReturns?>    returns <returnTypeAnnotationAttachments>*  <returnTypeNode.source>                                                  ;
+   | <native?>                 <markdownDocumentationAttachment.source>  <annotationAttachments>* <deprecatedAttachments>* <public?public> extern function                                  <name.value> ( <allParams-joined-by,>*                                           )                                                                                                                                       ;
+   | <native?>                                                           <annotationAttachments>* <deprecatedAttachments>* <public?public> extern function                                  <name.value> ( <allParams-joined-by,>*                                           )                                                                                                                                       ;
    | <hasReturns?>             <markdownDocumentationAttachment.source>  <annotationAttachments>* <deprecatedAttachments>* <public?public> function < <receiver.source> >                   <name.value> ( <allParams-joined-by,>* <hasRestParams?,> <restParameters.source> )                  returns <returnTypeAnnotationAttachments>*  <returnTypeNode.source>    { <endpointNodes>* <body.source> <workers>* }
    | <hasReturns?>                                                       <annotationAttachments>* <deprecatedAttachments>* <public?public> function < <receiver.source> >                   <name.value> ( <allParams-joined-by,>* <hasRestParams?,> <restParameters.source> )                  returns <returnTypeAnnotationAttachments>*  <returnTypeNode.source>    { <endpointNodes>* <body.source> <workers>* }
    | <hasReturns?>             <markdownDocumentationAttachment.source>  <annotationAttachments>* <deprecatedAttachments>* <public?public> function < <receiver.source> >                   <name.value> ( <allParams-joined-by,>*                                           )                  returns <returnTypeAnnotationAttachments>*  <returnTypeNode.source>    { <endpointNodes>* <body.source> <workers>* }
@@ -605,7 +621,8 @@ TupleDestructure
    ;
 
 TupleTypeNode
-   : ( <memberTypeNodes-joined-by,>+ )
+   : <grouped?> ( ( <memberTypeNodes-joined-by,>+ ) )
+   |              ( <memberTypeNodes-joined-by,>+ )
    ;
 
 TypeCastExpr
