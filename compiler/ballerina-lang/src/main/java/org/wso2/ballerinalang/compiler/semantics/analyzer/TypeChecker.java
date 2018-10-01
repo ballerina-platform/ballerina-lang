@@ -1781,14 +1781,17 @@ public class TypeChecker extends BLangNodeVisitor {
 
     private BType checkTypeForIndexBasedAccess(BLangIndexBasedAccess indexBasedAccessExpr, BType actualType) {
         // index based map/record access always returns a nil-able type
-        if (actualType.tag != TypeTags.ANY && actualType.tag != TypeTags.JSON) {
-            if (!(indexBasedAccessExpr.leafNode && indexBasedAccessExpr.lhsVar)) {
-                BUnionType type = new BUnionType(null, new LinkedHashSet<>(getTypesList(actualType)), true);
-                type.memberTypes.add(symTable.nilType);
-                return type;
-            }
+        if (actualType.tag == TypeTags.ANY || actualType.tag == TypeTags.JSON) {
+            return actualType;
         }
-        return actualType;
+
+        if (indexBasedAccessExpr.leafNode && indexBasedAccessExpr.lhsVar) {
+            return actualType;
+        }
+
+        BUnionType type = new BUnionType(null, new LinkedHashSet<>(getTypesList(actualType)), true);
+        type.memberTypes.add(symTable.nilType);
+        return type;
     }
 
     private BType checkStructFieldAccess(BLangVariableReference varReferExpr, Name fieldName, BType structType) {
