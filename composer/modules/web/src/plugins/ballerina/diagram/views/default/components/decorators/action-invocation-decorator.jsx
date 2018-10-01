@@ -149,11 +149,19 @@ class InvocationDecorator extends React.Component {
                 backwardArrowEnd.x = statementBox.x + (designer.config.actionInvocationStatement.width / 2);
                 backwardArrowEnd.y = backwardArrowStart.y;
 
-                if (TreeUtil.isAssignment(model) || TreeUtil.isExpressionStatement(model)) {
-                    let exp = model.getExpression();
+                if (TreeUtil.isVariableDef(model) ||
+                    TreeUtil.isAssignment(model) ||
+                    TreeUtil.isExpressionStatement(model)) {
+                    let exp;
+
+                    if (TreeUtil.isVariableDef(model)) {
+                        exp = model.getVariable().getInitialExpression();
+                    } else {
+                        exp = model.getExpression();
+                    }
 
                     if (TreeUtil.isMatchExpression(exp) || TreeUtil.isCheckExpr(exp)) {
-                        exp = exp.expression;
+                        exp = exp.getExpression();
                     }
 
                     const functionNameWidth = new SizingUtils().getTextWidth(exp.getFunctionName(), 0);
